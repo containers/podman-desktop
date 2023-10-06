@@ -121,7 +121,7 @@ describe('exec', () => {
     expect(stdout).toContain('Hello, World!');
   });
 
-  test('should reject with an error when the command execution fails', async () => {
+  test('should reject with an error when the command execution returns non-zero exit code', async () => {
     const command = 'nonexistent-command';
 
     vi.mock('child_process', () => {
@@ -144,11 +144,41 @@ describe('exec', () => {
         }
       }),
     } as any);
-
-    await expect(exec.exec(command)).rejects.toThrowError(/Command execution failed with exit code 1/);
+    const execResult = exec.exec(command);
+    await expect(execResult).rejects.toThrowError(/Command execution failed with exit code 1/);
+    await expect(execResult).rejects.toThrowError(Error);
   });
 
-  test('should reject with an error when the execution is cancelled', async () => {
+  test('should reject with an error when the process error event received', async () => {
+    const command = 'nonexistent-command';
+
+    vi.mock('child_process', () => {
+      return {
+        spawn: vi.fn(),
+      };
+    });
+
+    const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
+      if (event === 'data') {
+        cb('');
+      }
+    }) as unknown as Readable;
+    const error = new Error('Error message');
+    vi.mocked(spawn).mockReturnValue({
+      stdout: { on, setEncoding: vi.fn() },
+      stderr: { on, setEncoding: vi.fn() },
+      on: vi.fn().mockImplementation((event: string, cb: (arg0: Error) => void) => {
+        if (event === 'error') {
+          cb(error);
+        }
+      }),
+    } as any);
+    const execResult = exec.exec(command);
+    await expect(execResult).rejects.toThrowError(/Failed to execute command: Error message/);
+    await expect(execResult).rejects.toThrowError(Error);
+  });
+
+  test('should reject with an error when the execution is cancelled on macOS and linux', async () => {
     const command = 'sleep';
     const args = ['1'];
     const cancellationToken = {
@@ -183,10 +213,33 @@ describe('exec', () => {
       handler();
     });
 
-    await expect(exec.exec(command, args, options)).rejects.toThrowError(/Execution cancelled/);
-
+    const result = exec.exec(command, args, options);
+    await expect(result).rejects.toThrowError(/Execution cancelled/);
+    await expect(result).rejects.toThrowError(Error);
     expect((childProcessMock as any).kill).toHaveBeenCalled();
     expect(options.logger.error).toHaveBeenCalledWith('Execution cancelled');
+  });
+
+  test('should reject with an error when the callback called with error in admin mode on windows', async () => {
+    const command = 'echo';
+    const args = ['Hello, World!'];
+    const error = new Error('Error message');
+    (util.isWindows as Mock).mockReturnValue(true);
+
+    (sudo.exec as Mock).mockImplementation((_command, _options, callback) => {
+      callback(error);
+    });
+
+    vi.mock('child_process', () => {
+      return {
+        spawn: vi.fn(),
+      };
+    });
+
+    const execResult = exec.exec(command, args, { isAdmin: true });
+
+    await expect(execResult).rejects.toThrowError(/Failed to execute command: Error message/);
+    await expect(execResult).rejects.toThrowError(Error);
   });
 
   test('should run the command and set HTTP_PROXY', async () => {
@@ -394,7 +447,7 @@ describe('exec', () => {
     expect(stdout).toContain('Hello, World!');
   });
 
-  test('should run the command with privileges on Windows', async () => {
+  test('should run the command with privileges using exec on Windows', async () => {
     const command = 'echo';
     const args = ['Hello, World!'];
     (util.isWindows as Mock).mockReturnValue(true);
@@ -521,4 +574,6 @@ describe('getInstallationPath', () => {
 
     expect(path).toBe('/usr/other');
   });
+
+  test('should reject promises with instance of Error class', async () => {});
 });
