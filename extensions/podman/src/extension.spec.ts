@@ -393,6 +393,49 @@ test('if a machine is successfully started it changes its state to started', asy
   expect(spyUpdateStatus).toBeCalledWith('started');
 });
 
+test('if a machine is successfully reporting telemetry', async () => {
+  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+    () =>
+      new Promise<extensionApi.RunResult>(resolve => {
+        resolve({} as extensionApi.RunResult);
+      }),
+  );
+  await extension.startMachine(provider, machineInfo);
+
+  // wait a call on telemetryLogger.logUsage
+  while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  expect(telemetryLogger.logUsage).toBeCalledWith(
+    'podman.machine.start',
+    expect.objectContaining({ hostCpus: expect.anything() }),
+  );
+
+  expect(spyExecPromise).toBeCalledWith('podman', ['machine', 'start', 'name'], expect.anything());
+});
+
+test('if a machine is successfully reporting an error in telemetry', async () => {
+  const customError = new Error('Error while starting podman');
+
+  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+    throw customError;
+  });
+  await expect(extension.startMachine(provider, machineInfo)).rejects.toThrow(customError.message);
+
+  // wait a call on telemetryLogger.logUsage
+  while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  expect(telemetryLogger.logUsage).toBeCalledWith(
+    'podman.machine.start',
+    expect.objectContaining({ hostCpus: expect.anything(), error: customError }),
+  );
+
+  expect(spyExecPromise).toBeCalledWith('podman', ['machine', 'start', 'name'], expect.anything());
+});
+
 test('if a machine failed to start with a generic error, this is thrown', async () => {
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(
     () =>

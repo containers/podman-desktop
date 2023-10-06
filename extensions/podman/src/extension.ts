@@ -612,12 +612,12 @@ export async function startMachine(
     });
     provider.updateStatus('started');
   } catch (err) {
+    telemetryRecords.error = err;
     if (skipHandleError) {
       console.error(err);
       // propagate the error
       throw err;
     }
-
     await doHandleError(provider, machineInfo, err);
   } finally {
     // send telemetry event
