@@ -571,7 +571,7 @@ class WSL2Check extends BaseCheck {
     } catch (error) {
       let message = error.message ? `${error.message}\n` : '';
       message += error.stdout || '';
-      return message;
+      throw new Error(message);
     }
   }
 }
