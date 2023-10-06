@@ -96,7 +96,7 @@
     "@commitlint/config-conventional": "^17.7.0",
     "@playwright/test": "^1.38.1",
     "@rollup/plugin-commonjs": "^25.0.4",
-    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-json": "^6.0.1",
     "@rollup/plugin-node-resolve": "^15.2.1",
     "@rollup/plugin-typescript": "^11.1.5",
     "@types/analytics-node": "^3.1.12",
