@@ -101,7 +101,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       await pdRunner.screenshot('pods-creation-page.png');
       const pods = await createPodPage.createPod(podToRun);
 
-      await pods.heading.waitFor({ state: 'visible', timeout: 6000 });
+      await playExpect(pods.heading).toBeVisible();
       await waitUntil(async () => await pods.podExists(podToRun), 10000, 1000);
       const podDetails = await pods.openPodDetails(podToRun);
       await waitUntil(

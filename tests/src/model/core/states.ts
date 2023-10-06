@@ -37,6 +37,7 @@ export enum PodState {
   Starting = 'STARTING',
   Stopping = 'STOPPING',
   Deleting = 'DELETING',
+  Restarting = 'RESTARTING',
   Degraded = 'DEGRADED',
   Paused = 'PAUSED',
   Unknown = 'UNKNOWN',
