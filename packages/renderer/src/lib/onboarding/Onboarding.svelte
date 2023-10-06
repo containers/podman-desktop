@@ -1,6 +1,7 @@
 <style lang="postcss">
 #stepBody::-webkit-scrollbar {
   width: 1em;
+  height: 50%;
 }
 #stepBody::-webkit-scrollbar-track {
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
@@ -399,6 +400,8 @@ async function restartSetup() {
       {/if}
 
       {#if !activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}
+        <!-- fake div used to hide scrollbar shadow  -->
+        <div class="fixed bg-charcoal-500 right-0 bottom-0 h-[70px] w-[30px] z-10 mb-6"></div>
         <div class="grow"></div>
         {#if activeStep.step.state !== 'failed'}
           <div class="mt-10 mx-auto text-sm min-h-[120px]" aria-label="next-info-message">
@@ -410,7 +413,7 @@ async function restartSetup() {
           </div>
         {/if}
         <div
-          class="flex flex-row-reverse p-6 bg-charcoal-700 fixed w-full bottom-0 mb-5 pr-10 max-h-20 bg-opacity-90"
+          class="flex flex-row-reverse p-6 bg-charcoal-700 fixed w-full bottom-0 mb-5 pr-10 max-h-20 bg-opacity-90 z-20"
           bind:this="{bottomToolbarDiv}">
           <Button type="primary" disabled="{activeStep.step.state === 'failed'}" on:click="{() => next()}">Next</Button>
           {#if activeStep.step.state !== 'completed'}
