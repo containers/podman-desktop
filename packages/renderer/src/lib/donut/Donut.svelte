@@ -23,7 +23,7 @@ function describeArc(radius: number, endAngle: number) {
 
 $: stroke = percent < 0 ? '' : percent < 50 ? 'stroke-green-500' : percent < 75 ? 'stroke-amber-500' : 'stroke-red-500';
 
-$: tooltip = percent.toFixed(0) + '% ' + title + ' usage';
+$: tooltip = percent ? percent.toFixed(0) + '% ' + title + ' usage' : '';
 </script>
 
 <Tooltip tip="{tooltip}" right>
