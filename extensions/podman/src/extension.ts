@@ -63,6 +63,9 @@ const containerProviderConnections = new Map<string, extensionApi.ContainerProvi
 let isDisguisedPodmanSocket = true;
 let disguisedPodmanSocketWatcher: extensionApi.FileSystemWatcher | undefined;
 
+// Configuration buttons
+const configurationCompatibilityMode = 'setting.dockerCompatibility';
+
 export type MachineJSON = {
   Name: string;
   CPUs: number;
@@ -787,6 +790,13 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // Compatibility mode status bar item
   // only available for macOS or Linux (for now).
   if (isMac() || isLinux()) {
+    // Handle any configuration changes (for example, changing the boolean button for compatibility mode)
+    extensionApi.configuration.onDidChangeConfiguration(async e => {
+      if (e.affectsConfiguration(`podman.${configurationCompatibilityMode}`)) {
+        await handleCompatibilityModeSetting();
+      }
+    });
+
     // Get the socketCompatibilityClass for the current OS.
     const socketCompatibilityMode = getSocketCompatibility();
 
@@ -1255,9 +1265,30 @@ async function checkDisguisedPodmanSocket(provider: extensionApi.Provider) {
     isDisguisedPodmanSocket = disguisedCheck;
   }
 
+  // If it's disguised on startup, set the enable-docker-compatibility setting accordingly
+  await extensionApi.configuration.getConfiguration('podman').update(configurationCompatibilityMode, disguisedCheck);
+
   // If isDisguisedPodmanSocket is true, we'll push a warning up to the plugin library with getDisguisedPodmanWarning()
   // If isDisguisedPodmanSocket is false, we'll push an empty array up to the plugin library to clear the warning
   // as we have no other warnings to display (or implemented)
   const retrievedWarnings = isDisguisedPodmanSocket ? [] : [getDisguisedPodmanInformation()];
   provider.updateWarnings(retrievedWarnings);
+}
+
+// Shortform for getting the compatibility mode setting
+function getCompatibilityModeSetting(): boolean {
+  return extensionApi.configuration.getConfiguration('podman').get<boolean>(configurationCompatibilityMode);
+}
+
+// Handle the setting by checking the compatibility
+// and retrieving the correct socket compatibility class as well
+export async function handleCompatibilityModeSetting(): Promise<void> {
+  const compatibilityMode = getCompatibilityModeSetting();
+  const socketCompatibilityMode = getSocketCompatibility();
+
+  if (compatibilityMode) {
+    await socketCompatibilityMode.enable();
+  } else {
+    await socketCompatibilityMode.disable();
+  }
 }

@@ -41,12 +41,12 @@ export let bottom = false;
 export let left = false;
 </script>
 
-<div class="relative inline-block z-[10]">
+<div class="relative inline-block">
   <span class="group tooltip-slot">
     <slot />
   </span>
   <div
-    class="whitespace-nowrap absolute tooltip opacity-0 inline-block transition-opacity duration-150 ease-in-out pointer-events-none"
+    class="whitespace-nowrap absolute tooltip opacity-0 inline-block transition-opacity duration-150 ease-in-out pointer-events-none z-[10]"
     class:left="{left}"
     class:right="{right}"
     class:bottom="{bottom}"
