@@ -1,50 +1,43 @@
 <script lang="ts">
+import Tooltip from '../ui/Tooltip.svelte';
+
 export let percent = 0;
-
 export let size = 64;
-
 export let title = '';
-
 export let value: unknown;
 
-function polarToCartesian(centerX: number, centerY: number, radius: number, angleInDegrees: number) {
+// describes an arc with the given radius, centered at an x,y position matching the radius
+function describeArc(radius: number, endAngle: number) {
+  const angleInDegrees = endAngle >= 360 ? 359.9 : endAngle;
   const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
 
-  return {
-    x: centerX + radius * Math.cos(angleInRadians),
-    y: centerY + radius * Math.sin(angleInRadians),
+  const start = {
+    x: radius + radius * Math.cos(angleInRadians),
+    y: radius + radius * Math.sin(angleInRadians),
   };
+
+  const largeArcFlag = endAngle <= 180 ? '0' : '1';
+
+  return ['M', start.x, start.y, 'A', radius, radius, 0, largeArcFlag, 0, radius, 0].join(' ');
 }
 
-function describeArc(x: number, y: number, radius: number, startAngle: number, endAngle: number) {
-  const start = polarToCartesian(x, y, radius, endAngle);
-  const end = polarToCartesian(x, y, radius, startAngle);
+$: stroke = percent < 0 ? '' : percent < 50 ? 'stroke-green-500' : percent < 75 ? 'stroke-amber-500' : 'stroke-red-500';
 
-  const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
-
-  return ['M', start.x, start.y, 'A', radius, radius, 0, largeArcFlag, 0, end.x, end.y].join(' ');
-}
-
-function getStoke() {
-  if (percent < 50) {
-    return 'green';
-  } else if (percent < 75) {
-    return 'orange';
-  }
-  return 'red';
-}
+$: tooltip = percent.toFixed(0) + '% ' + title + ' usage';
 </script>
 
-<svg viewBox="0 0 {size + 10} {size + 20}" height="{size}" width="{size}">
-  <circle fill="none" stroke="rgb(129, 129, 129)" stroke-width="5" r="{size / 2}" cx="{size / 2}" cy="{size / 2 + 5}"
-  ></circle>
-  <path
-    id="arc1"
-    fill="none"
-    stroke="{getStoke()}"
-    stroke-width="5"
-    d="{describeArc(size / 2, size / 2 + 5, size / 2, 0, (percent * 360) / 100)}"></path>
-  <text x="{size / 2}" y="37%" text-anchor="middle" class="text-xs stroke-gray-800">{title}</text>
-  <text x="{size / 2}" y="51%" dominant-baseline="central" text-anchor="middle" class="text-sm stroke-gray-500"
-    >{value}</text>
-</svg>
+<Tooltip tip="{tooltip}" right>
+  <svg viewBox="-4 -4 {size + 8} {size + 8}" height="{size}" width="{size}">
+    <circle fill="none" class="stroke-charcoal-300" stroke-width="1" r="{size / 2}" cx="{size / 2}" cy="{size / 2}"
+    ></circle>
+    <path fill="none" class="{stroke}" stroke-width="3.5" d="{describeArc(size / 2, (percent * 360) / 100)}"></path>
+    <text x="{size / 2}" y="38%" text-anchor="middle" font-size="{size / 5.5}" class="fill-gray-800">{title}</text>
+    <text
+      x="{size / 2}"
+      y="52%"
+      text-anchor="middle"
+      font-size="{size / 4.5}"
+      dominant-baseline="central"
+      class="fill-gray-400">{value}</text>
+  </svg>
+</Tooltip>
