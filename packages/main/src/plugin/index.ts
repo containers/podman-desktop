@@ -476,7 +476,18 @@ export class PluginSystem {
       }
     });
 
-    statusBarRegistry.setEntry('help', false, 0, undefined, 'Help', 'fa fa-question-circle', true, 'help', undefined);
+    statusBarRegistry.setEntry(
+      'help',
+      false,
+      0,
+      undefined,
+      'Help',
+      'fa fa-question-circle',
+      true,
+      'help',
+      undefined,
+      false,
+    );
 
     statusBarRegistry.setEntry(
       'tasks',
@@ -488,7 +499,12 @@ export class PluginSystem {
       true,
       'show-task-manager',
       undefined,
+      false,
     );
+
+    apiSender.receive('task-created', () => {
+      statusBarRegistry.setBadged('tasks', true);
+    });
 
     statusBarRegistry.setEntry(
       'troubleshooting',
@@ -500,9 +516,11 @@ export class PluginSystem {
       true,
       'troubleshooting',
       undefined,
+      false,
     );
 
     commandRegistry.registerCommand('show-task-manager', () => {
+      statusBarRegistry.setBadged('tasks', false);
       apiSender.send('toggle-task-manager', '');
     });
 
@@ -516,6 +534,7 @@ export class PluginSystem {
       true,
       'feedback',
       undefined,
+      false,
     );
 
     // Get the current version of our application
@@ -533,6 +552,7 @@ export class PluginSystem {
         true,
         'version',
         undefined,
+        false,
       );
     };
     defaultVersionEntry();
@@ -579,6 +599,7 @@ export class PluginSystem {
           true,
           'update',
           undefined,
+          true,
         );
       });
 

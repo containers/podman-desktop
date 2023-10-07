@@ -1195,6 +1195,10 @@ declare module '@podman-desktop/api' {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     commandArgs?: any[];
     /**
+     * Marks an item to have a badge.
+     */
+    badged: boolean;
+    /**
      * Shows the entry in the status bar.
      */
     show(): void;
