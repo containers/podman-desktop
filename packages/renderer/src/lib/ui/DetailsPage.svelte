@@ -1,7 +1,10 @@
 <script lang="ts">
 import { lastPage, currentPage } from '../../stores/breadcrumb';
+import { faCopy } from '@fortawesome/free-solid-svg-icons';
+import Fa from 'svelte-fa';
 import { router } from 'tinro';
 import Link from './Link.svelte';
+import Tooltip from './Tooltip.svelte';
 
 export let title: string;
 export let titleDetail: string | undefined = undefined;
@@ -15,6 +18,17 @@ function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     close();
     e.preventDefault();
+  }
+}
+
+let copyToolTip = 'copy';
+
+async function handleCopyTitle() {
+  try {
+    await navigator.clipboard.writeText(title);
+    copyToolTip = 'copied';
+  } catch (err) {
+    console.error('Failed to copy title: ', err);
   }
 }
 </script>
@@ -40,6 +54,16 @@ function handleKeydown(e: KeyboardEvent) {
         <div class="flex flex-col grow pr-2">
           <div class="flex flex-row">
             <h1 aria-label="{title}" class="text-xl leading-tight">{title}</h1>
+            <button
+              title="Copy To Clipboard"
+              class="mr-2 p-1"
+              on:click="{handleCopyTitle}"
+              on:mouseenter="{() => (copyToolTip = 'copy')}">
+              {' '}
+              <Tooltip tip="{copyToolTip}" top>
+                <Fa icon="{faCopy}" size="xs" />
+              </Tooltip>
+            </button>
             <div class="text-violet-400 ml-2 leading-normal" class:hidden="{!titleDetail}">{titleDetail}</div>
           </div>
           <div class="pt-1">
