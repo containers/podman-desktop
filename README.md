@@ -26,7 +26,7 @@ Podman Desktop also supports [multiple container engines](#multiple-container-en
 
 ## Download
 
-Check the downloads page on [podman-desktop.io/downloads](https://podman-desktop.io/downloads).
+Check the Downloads page on [podman-desktop.io/downloads](https://podman-desktop.io/downloads).
 
 ## Features
 
@@ -81,9 +81,9 @@ Check out all our [future features!](https://github.com/containers/podman-deskto
 
 Interested in fixing issues or contributing to Podman Desktop?
 
-- :bug: [File bugs or feature requests on GitHub](https://github.com/containers/podman-desktop/issues/new/choose)
-- :checkered_flag: [Read our contributing guide](./CONTRIBUTING.md)
-- :ok_hand: [Review or contribute a pull request](https://github.com/containers/podman-desktop/pulls)
+- :bug: [File Bugs or Feature Requests on GitHub](https://github.com/containers/podman-desktop/issues/new/choose)
+- :checkered_flag: [Read our Contributing Guide](./CONTRIBUTING.md)
+- :ok_hand: [Review or Contribute a Pull Request](https://github.com/containers/podman-desktop/pulls)
 
 ## Communication
 
@@ -99,7 +99,7 @@ General questions & development:
 - [#podman-desktop@libera.chat on IRC](https://libera.chat/)
 - [#podman-desktop@fedora.im on Matrix](https://chat.fedoraproject.org/#/room/#podman-desktop:fedora.im)
 
-Note: All channels are bridged. Chat on either: Discord, IRC or Matrix and it'll appear on all three!
+Note: All channels are bridged, so when you chat on Discord, IRC, or Matrix, your messages will appear on all three platforms!
 
 Kubernetes questions & development:
 
