@@ -24,6 +24,7 @@ test('check iconClass with font awesome icons', () => {
   const statusBarEntry: StatusBarEntry = {
     enabled: true,
     activeIconClass: 'fas fa-podman',
+    badged: false,
   };
 
   const icon = iconClass(statusBarEntry);
@@ -34,6 +35,7 @@ test('check iconClass with custom icon name', () => {
   const statusBarEntry: StatusBarEntry = {
     enabled: true,
     activeIconClass: '${podman}',
+    badged: false,
   };
 
   const icon = iconClass(statusBarEntry);
@@ -44,6 +46,7 @@ test('check iconClass with font awesome icons and spinning', () => {
   const statusBarEntry: StatusBarEntry = {
     enabled: true,
     activeIconClass: 'fas fa-sync~spin',
+    badged: false,
   };
 
   const icon = iconClass(statusBarEntry);
