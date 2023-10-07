@@ -1,0 +1,27 @@
+{
+  "name": "update-providers",
+  "displayName": "Update Providers",
+  "description": "",
+  "version": "0.0.1",
+  "publisher": "podman-desktop",
+  "license": "Apache-2.0",
+  "engines": {
+    "podman-desktop": "^0.0.1"
+  },
+  "main": "./dist/extension.js",
+  "scripts": {
+    "build": "vite build && node ./scripts/build.js",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest watch --coverage",
+    "watch": "vite build -w"
+  },
+  "dependencies": {
+    "@octokit/rest": "^20.0.2",
+    "@podman-desktop/api": "^0.0.1"
+  },
+  "devDependencies": {
+    "tmp-promise": "^3.0.3",
+    "vite": "^4.4.9",
+    "vitest": "^0.34.6"
+  }
+}

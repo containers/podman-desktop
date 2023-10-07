@@ -16,14 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export interface AssetInfo {
-  id: number;
-  name: string;
-}
+import * as os from 'node:os';
 
-export interface BinaryProviderInfo {
-  providerId: string;
-  name: string;
-  installedAsset?: AssetInfo;
-  candidates: AssetInfo[];
+const windows = os.platform() === 'win32';
+export function isWindows(): boolean {
+  return windows;
+}
+const mac = os.platform() === 'darwin';
+export function isMac(): boolean {
+  return mac;
+}
+const linux = os.platform() === 'linux';
+export function isLinux(): boolean {
+  return linux;
 }

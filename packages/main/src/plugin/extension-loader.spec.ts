@@ -51,6 +51,7 @@ import type { OnboardingRegistry } from './onboarding-registry.js';
 import { Exec } from './util/exec.js';
 import type { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
 import type { BinaryRegistry } from '/@/plugin/binaries/binary-registry.js';
+import type { UpdateProviderRegistry } from '/@/plugin/binaries/update-provider-registry.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -94,6 +95,7 @@ const menuRegistry: MenuRegistry = {} as unknown as MenuRegistry;
 
 const kubernetesGeneratorRegistry: KubeGeneratorRegistry = {} as unknown as KubeGeneratorRegistry;
 const binaryRegistry: BinaryRegistry = {} as unknown as BinaryRegistry;
+const updateProviderRegistry: UpdateProviderRegistry = {} as unknown as UpdateProviderRegistry;
 
 const providerRegistry: ProviderRegistry = {} as unknown as ProviderRegistry;
 
@@ -179,6 +181,7 @@ beforeAll(() => {
     exec,
     kubernetesGeneratorRegistry,
     binaryRegistry,
+    updateProviderRegistry,
   );
 });
 

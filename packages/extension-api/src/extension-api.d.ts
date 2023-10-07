@@ -1329,49 +1329,26 @@ declare module '@podman-desktop/api' {
   }
 
   export abstract class UpdateProvider {
-    abstract getCandidateVersions(): Promise<AssetInfo[]>;
-    abstract performInstall(asset: AssetInfo, destination: string): Promise<void>;
+    protected constructor(public readonly protocol: string) {}
+    abstract getCandidateVersions(uri: URL, limit?: number): Promise<AssetInfo[]>;
+    abstract performInstall(url: URL, asset: AssetInfo, destination: string): Promise<void>;
   }
 
   export interface BinaryProvider {
     name: string;
-    updater: UpdateProvider;
-  }
-
-  export interface BinaryDisposable {
-    providerId: string;
-    /**
-     * Dispose and free associated resources. Call
-     */
-    dispose(): void;
+    uri: string;
+    onInstalled?(assetInfo: AssetInfo, destFile: string): void;
+    onRemoved?(): void;
   }
 
   export namespace binaries {
-    /**
-     * Generic method to register a binary to keep track
-     *
-     * @param provider the generic BinaryProvider managing the logic of fetching, and updating a binary
-     */
-    export function registerBinary(provider: BinaryProvider): BinaryDisposable;
-
-    /**
-     * Method to register a binary using the build-in GithubUpdateProvider extending the generic BinaryProvider
-     *
-     * @param name the name of the binary provider
-     * @param githubOrganization the GitHub organisation
-     * @param githubRepo the project containing the binary in its releases
-     * @param assetName the name of the asset (e.g. kind-amd64 or kind-darwin)
-     */
-    export function registerGithubBinary(
-      name: string,
-      githubOrganization: string,
-      githubRepo: string,
-      assetName: string,
-    ): BinaryDisposable;
+    export function registerBinary(provider: BinaryProvider): Disposable;
 
     export function getBinariesInstalled(providersIds?: string[]): Promise<BinaryInfo[]>;
 
     export function requestInstallOrUpdate(providerId: string): Promise<boolean>;
+
+    export function registerUpdateProvider(provider: UpdateProvider): Disposable;
   }
 
   export namespace kubernetes {

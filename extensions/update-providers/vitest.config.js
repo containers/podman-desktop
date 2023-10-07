@@ -16,14 +16,24 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export interface AssetInfo {
-  id: number;
-  name: string;
-}
+import path from 'node:path';
+import { coverageConfig, testConfig } from '../../vitest-shared-extensions.config';
+import { join } from 'path';
 
-export interface BinaryProviderInfo {
-  providerId: string;
-  name: string;
-  installedAsset?: AssetInfo;
-  candidates: AssetInfo[];
-}
+const PACKAGE_ROOT = __dirname;
+const PACKAGE_NAME = 'extensions/kind';
+
+const config = {
+  test: {
+    ...testConfig(),
+    ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
+  },
+  resolve: {
+    alias: {
+      '@podman-desktop/api': path.resolve('../../', '__mocks__/@podman-desktop/api.js'),
+      '/@/': join(PACKAGE_ROOT, 'src') + '/',
+    },
+  },
+};
+
+export default config;

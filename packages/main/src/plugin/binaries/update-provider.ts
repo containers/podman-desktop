@@ -4,6 +4,7 @@ export interface AssetInfo {
 }
 
 export abstract class UpdateProvider {
-  abstract getCandidateVersions(limit?: number): Promise<AssetInfo[]>;
-  abstract performInstall(asset: AssetInfo, destination: string): Promise<void>;
+  protected constructor(public readonly protocol: string) {}
+  abstract getCandidateVersions(uri: URL, limit?: number): Promise<AssetInfo[]>;
+  abstract performInstall(uri: URL, asset: AssetInfo, destination: string): Promise<void>;
 }

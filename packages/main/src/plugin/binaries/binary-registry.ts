@@ -1,12 +1,15 @@
-import type { UpdateProvider } from './update-provider.js';
-import type { AssetInfo, BinaryProviderInfo, BinaryDisposable } from '../api/BinaryProviderInfo.js';
+import type { AssetInfo, BinaryProviderInfo } from '../api/BinaryProviderInfo.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import { isAlphanumeric, isWindows } from '../../util.js';
+import { Disposable } from '../types/disposable.js';
+import type { UpdateProviderRegistry } from './update-provider-registry.js';
 
 export interface BinaryProvider {
   name: string;
-  updater: UpdateProvider;
+  uri: string;
+  onInstalled?(assetInfo: AssetInfo, destFile: string): void;
+  onRemoved?(): void;
 }
 
 export interface BinaryInfo {
@@ -28,33 +31,23 @@ export const BINARIES_INFO_FILE = 'binaries.json';
 
 export class BinaryRegistry {
   protected providers = new Map<string, BinaryProvider>();
-  protected count = 0;
-  private readonly storagePath: string;
 
-  constructor(storagePath: string) {
-    this.storagePath = storagePath;
-  }
+  constructor(
+    private readonly storagePath: string,
+    private readonly updateProviderRegistry: UpdateProviderRegistry,
+  ) {}
 
-  protected generateProviderId(): string {
-    const providerId = `${this.count}`;
-    this.count += 1;
-    return providerId;
-  }
-
-  registerProvider(provider: BinaryProvider): BinaryDisposable {
+  registerProvider(provider: BinaryProvider): Disposable {
     if (!isAlphanumeric(provider.name))
       throw new Error('The provider name can only be alphanumeric since it used as name for the binary.');
 
-    const providerId = this.generateProviderId();
-    this.providers.set(providerId, provider);
-    return {
-      providerId: providerId,
-      dispose: () => this.unregisterProvider(providerId),
-    };
+    this.providers.set(provider.uri, provider);
+    return Disposable.create(() => this.unregisterProvider(provider.uri));
   }
 
-  unregisterProvider(providerId: string): void {
-    this.providers.delete(providerId);
+  unregisterProvider(uri: string): void {
+    this.deleteBinary(uri);
+    this.providers.delete(uri);
   }
 
   private getFilename(): string {
@@ -80,13 +73,25 @@ export class BinaryRegistry {
     fs.writeFileSync(filename, JSON.stringify(binariesInfo), { encoding: 'utf-8' });
   }
 
+  private parseUri(uri: string): URL {
+    const url = new URL(uri);
+    if (!url.protocol?.endsWith(':') || !url.pathname)
+      throw new Error('Invalid uri. It is not recognised. Uri format should be protocol://pathname');
+
+    return url;
+  }
+
   async checkUpdates(providerIds?: string[], limit = 10): Promise<UpdateInfo[]> {
     return Promise.all(
       Array.from(this.providers.entries()).reduce((previousValue, [providerId, binaryProvider]) => {
         if (providerIds !== undefined && !providerIds?.includes(providerId)) return previousValue;
 
+        const parsedUri = this.parseUri(binaryProvider.uri);
+        const updater = this.updateProviderRegistry.getProvider(parsedUri.protocol);
+        if (updater === undefined) throw new Error(`Cannot find UpdaterProvider for protocol '${parsedUri.protocol}'.`);
+
         previousValue.push(
-          binaryProvider.updater.getCandidateVersions(limit).then(versions => ({
+          updater.getCandidateVersions(parsedUri, limit).then(versions => ({
             providerId: providerId,
             candidates: versions,
           })),
@@ -101,6 +106,19 @@ export class BinaryRegistry {
     const binariesInfo = this.loadBinariesInfo();
     if (_providerIds) return binariesInfo.filter(binaryInfo => _providerIds.includes(binaryInfo.providerId));
     return binariesInfo;
+  }
+
+  public deleteBinary(providerId: string): void {
+    let binariesInfos = this.loadBinariesInfo();
+    const index = binariesInfos.findIndex(item => item.providerId === providerId);
+    if (index !== -1) {
+      const toRemove = binariesInfos[index];
+      binariesInfos = binariesInfos.slice(index, 1);
+      console.warn(`Deleting ${toRemove.path} from system.`);
+      fs.rmSync(toRemove.path); // delete
+      this.saveBinariesInfo(binariesInfos);
+      this.providers.get(toRemove.providerId)?.onRemoved?.();
+    }
   }
 
   public async setOrUpdateBinaryInstalled(binaryInfo: BinaryInfo) {
@@ -140,8 +158,13 @@ export class BinaryRegistry {
 
     console.log(`Provider ${provider.name} will install at ${destFile}.`);
 
+    const parsedUri = this.parseUri(provider.uri);
+    const updater = this.updateProviderRegistry.getProvider(parsedUri.protocol);
+    if (updater === undefined) throw new Error(`Cannot find UpdaterProvider for protocol ${parsedUri.protocol}.`);
+
     // perform install using update provider
-    await provider.updater.performInstall(assetInfo, destFile);
+    await updater.performInstall(parsedUri, assetInfo, destFile);
+    provider.onInstalled?.(assetInfo, destFile);
 
     // save on persistent storage the information related to the installed version
     await this.setOrUpdateBinaryInstalled({ providerId: providerId, assetInfo: assetInfo, path: destFile });

@@ -68,9 +68,7 @@ import { ExtensionLoaderSettings } from './extension-loader-settings.js';
 import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plugin/kube-generator-registry.js';
 import type { BinaryInfo, BinaryProvider, BinaryRegistry } from './binaries/binary-registry.js';
 import { UpdateProvider } from './binaries/update-provider.js';
-import { GithubUpdateProvider } from './binaries/github-update-provider.js';
-import { Octokit } from '@octokit/rest';
-import type { BinaryDisposable } from '/@/plugin/api/BinaryProviderInfo.js';
+import type { UpdateProviderRegistry } from './binaries/update-provider-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -159,6 +157,7 @@ export class ExtensionLoader {
     private exec: Exec,
     private kubeGeneratorRegistry: KubeGeneratorRegistry,
     private binaryRegistry: BinaryRegistry,
+    private updateProviderRegistry: UpdateProviderRegistry,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -823,20 +822,10 @@ export class ExtensionLoader {
     };
 
     const binaryRegistry = this.binaryRegistry;
+    const updaterProviderRegistry = this.updateProviderRegistry;
     const binaries: typeof containerDesktopAPI.binaries = {
-      registerBinary(provider: BinaryProvider): BinaryDisposable {
+      registerBinary(provider: BinaryProvider): Disposable {
         return binaryRegistry.registerProvider(provider);
-      },
-      registerGithubBinary(
-        name: string,
-        githubOrganization: string,
-        githubRepo: string,
-        assetName: string,
-      ): BinaryDisposable {
-        return binaryRegistry.registerProvider({
-          name: name,
-          updater: new GithubUpdateProvider(new Octokit(), githubOrganization, githubRepo, assetName),
-        });
       },
       getBinariesInstalled(providersIds?: string[]): Promise<BinaryInfo[]> {
         return binaryRegistry.getBinariesInstalled(providersIds);
@@ -880,6 +869,9 @@ export class ExtensionLoader {
             }
           },
         );
+      },
+      registerUpdateProvider(provider: UpdateProvider): Disposable {
+        return updaterProviderRegistry.registerProvider(provider);
       },
     };
 

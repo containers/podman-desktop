@@ -132,6 +132,7 @@ import type { CommandInfo } from './api/command-info.js';
 import type { BinaryInfo } from './binaries/binary-registry.js';
 import { BinaryRegistry } from './binaries/binary-registry.js';
 import type { BinaryProviderInfo } from '/@/plugin/api/BinaryProviderInfo.js';
+import { UpdateProviderRegistry } from '/@/plugin/binaries/update-provider-registry.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -383,7 +384,8 @@ export class PluginSystem {
 
     const exec = new Exec(proxy);
 
-    const binaryRegistry = new BinaryRegistry('.');
+    const updateProviderRegistry = new UpdateProviderRegistry();
+    const binaryRegistry = new BinaryRegistry('./bin/', updateProviderRegistry);
     const commandRegistry = new CommandRegistry(apiSender, telemetry);
     const menuRegistry = new MenuRegistry(commandRegistry);
     const kubeGeneratorRegistry = new KubeGeneratorRegistry();
@@ -724,6 +726,7 @@ export class PluginSystem {
       exec,
       kubeGeneratorRegistry,
       binaryRegistry,
+      updateProviderRegistry,
     );
     await this.extensionLoader.init();
 

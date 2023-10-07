@@ -16,14 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export interface AssetInfo {
-  id: number;
-  name: string;
+import type * as extensionApi from '@podman-desktop/api';
+import * as podmanDesktopAPI from '@podman-desktop/api';
+import { GithubUpdateProvider } from './github-update-provider';
+import { Octokit } from '@octokit/rest';
+
+export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  extensionContext.subscriptions.push(
+    podmanDesktopAPI.binaries.registerUpdateProvider(new GithubUpdateProvider(new Octokit())),
+  );
 }
 
-export interface BinaryProviderInfo {
-  providerId: string;
-  name: string;
-  installedAsset?: AssetInfo;
-  candidates: AssetInfo[];
+export function deactivate(): void {
+  console.log('stopping update-provider extension');
 }

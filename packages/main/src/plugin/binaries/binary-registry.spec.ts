@@ -18,9 +18,9 @@
 
 import { test, vi, expect, beforeAll } from 'vitest';
 import { dir } from 'tmp-promise';
-import { BINARIES_INFO_FILE, BinaryRegistry } from './binary-registry.js';
+import { BinaryRegistry } from './binary-registry.js';
 import fs from 'node:fs';
-import * as sys_path from 'path';
+import type { UpdateProviderRegistry } from '/@/plugin/binaries/update-provider-registry.js';
 
 const getCandidateVersionsMock = vi.fn();
 const performInstallMock = vi.fn();
@@ -30,6 +30,12 @@ const updateProviderMock = {
   performInstall: performInstallMock,
 };
 
+const getProviderMock = vi.fn();
+
+const updateProviderRegistry = {
+  getProvider: getProviderMock,
+};
+
 beforeAll(() => {
   getCandidateVersionsMock.mockImplementation(() => Promise.resolve([]));
 });
@@ -37,17 +43,22 @@ beforeAll(() => {
 test('testing registerProvider', async () => {
   const { path, cleanup } = await dir({ unsafeCleanup: true });
   expect(fs.readdirSync(path)).lengthOf(0);
+
+  const uri = 'dummy://host/path';
+  getProviderMock.mockImplementation(() => updateProviderMock);
+
   try {
-    const binary = new BinaryRegistry(path);
-    const binaryDisposable = binary.registerProvider({
+    const binary = new BinaryRegistry(path, updateProviderRegistry as unknown as UpdateProviderRegistry);
+    binary.registerProvider({
       name: 'example',
-      updater: updateProviderMock,
+      uri: uri,
     });
 
     const binariesProvider = await binary.getBinaryProviderInfos();
     expect(binariesProvider).toHaveLength(1);
     expect(binariesProvider[0].name).toBe('example');
-    expect(binariesProvider[0].providerId).toBe(binaryDisposable.providerId);
+    expect(binariesProvider[0].providerId).toBe(uri);
+    expect(getProviderMock).toHaveBeenCalledWith('dummy:');
   } finally {
     await cleanup();
   }
@@ -56,48 +67,20 @@ test('testing registerProvider', async () => {
 test('testing using disposable after registerProvider', async () => {
   const { path, cleanup } = await dir({ unsafeCleanup: true });
   expect(fs.readdirSync(path)).lengthOf(0);
-  try {
-    const binary = new BinaryRegistry(path);
-    const binaryDisposable = binary.registerProvider({
-      name: 'example',
-      updater: updateProviderMock,
-    });
 
-    binaryDisposable.dispose();
+  const uri = 'dummy://host/path';
+  getProviderMock.mockImplementation(() => updateProviderMock);
+
+  try {
+    const binary = new BinaryRegistry(path, updateProviderRegistry as unknown as UpdateProviderRegistry);
+    const disposable = binary.registerProvider({
+      name: 'example',
+      uri: uri,
+    });
+    disposable.dispose();
+
     const binariesProvider = await binary.getBinaryProviderInfos();
     expect(binariesProvider).toHaveLength(0);
-  } finally {
-    await cleanup();
-  }
-});
-
-test('getBinariesInstalled should return empty array on empty storagePath folder', async () => {
-  const { path, cleanup } = await dir({ unsafeCleanup: true });
-  expect(fs.readdirSync(path)).lengthOf(0);
-  try {
-    const binary = new BinaryRegistry(path);
-    const binaries = await binary.getBinariesInstalled();
-    expect(binaries).toHaveLength(0);
-  } finally {
-    await cleanup();
-  }
-});
-
-test('testing installing file.', async () => {
-  const { path, cleanup } = await dir({ unsafeCleanup: true });
-  expect(fs.readdirSync(path)).lengthOf(0);
-
-  performInstallMock.mockImplementation(() => Promise.resolve());
-
-  try {
-    const binary = new BinaryRegistry(path);
-    const binaryDisposable = binary.registerProvider({
-      name: 'example',
-      updater: updateProviderMock,
-    });
-
-    await binary.performInstall(binaryDisposable.providerId, { name: 'dummy', id: 5 });
-    expect(fs.existsSync(sys_path.join(path, BINARIES_INFO_FILE))).toBeTruthy();
   } finally {
     await cleanup();
   }

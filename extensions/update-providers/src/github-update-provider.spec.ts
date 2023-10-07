@@ -18,7 +18,15 @@
 
 import { test, vi, expect } from 'vitest';
 import type { Octokit } from '@octokit/rest';
-import { GithubUpdateProvider } from '/@/plugin/binaries/github-update-provider.js';
+import { GithubUpdateProvider } from './github-update-provider';
+
+vi.mock('@podman-desktop/api', async () => {
+  return {
+    UpdateProvider: class UpdateProvider {
+      constructor(protected protocol: string) {}
+    },
+  };
+});
 
 const listReleasesMock = vi.fn();
 const getReleaseAssetMock = vi.fn();
@@ -33,14 +41,11 @@ const octokitMock = {
 test('Expecting update provider to call listReleases on Octokit.', async () => {
   listReleasesMock.mockImplementation(() => Promise.resolve({ data: [] }));
 
-  const gitHubUpdateProvider = new GithubUpdateProvider(
-    octokitMock as unknown as Octokit,
-    'dummyOrg',
-    'dummyRepo',
-    'dummyName',
-  );
+  const gitHubUpdateProvider = new GithubUpdateProvider(octokitMock as unknown as Octokit);
 
-  const candidates = await gitHubUpdateProvider.getCandidateVersions();
+  const candidates = await gitHubUpdateProvider.getCandidateVersions(
+    new URL('github://dummyOrg/dummyRepo?assetName=dummy.exe'),
+  );
   expect(candidates).toHaveLength(0);
   expect(listReleasesMock).toHaveBeenCalledOnce();
   expect(listReleasesMock).toHaveBeenCalledWith({
@@ -68,14 +73,11 @@ test('Expecting update provider to filter assetInfo based on constructor argumen
     }),
   );
 
-  const gitHubUpdateProvider = new GithubUpdateProvider(
-    octokitMock as unknown as Octokit,
-    'dummyOrg',
-    'dummyRepo',
-    'dummyName',
-  );
+  const gitHubUpdateProvider = new GithubUpdateProvider(octokitMock as unknown as Octokit);
 
-  const candidates = await gitHubUpdateProvider.getCandidateVersions();
+  const candidates = await gitHubUpdateProvider.getCandidateVersions(
+    new URL('github://dummyOrg/dummyRepo?assetName=dummyName'),
+  );
   expect(candidates).toHaveLength(1);
   expect(candidates[0].name).toContain('dummyName');
   expect(candidates[0].id).toBe(10);
