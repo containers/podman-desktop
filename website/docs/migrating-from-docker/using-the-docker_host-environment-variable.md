@@ -34,11 +34,32 @@ $ podman machine inspect --format '{{.ConnectionInfo.PodmanPipe.Path}}'
 
 2. Set the `DOCKER_HOST` environment variable to your Podman pipe location. You'll need to replace back slashes with forward slashes and add the `npipe://` scheme to the path retrieved previously:
 
-```shell-session
-$ export DOCKER_HOST=npipe://<your_podman_pipe_location>
+>Example:
+>
+> **prefix**podman-pipe
+>
+> **npipe://**//./pipe/podman-machine-default
+
+Depending on your terminal emulator of preference there is a little variation between the commands to set a session level environment variable:
+
+##### cmd - Command Prompt
+```cmd
+set DOCKER_HOST=npipe://<inspect_command_output>
+```
+##### Git Bash
+```bash
+export DOCKER_HOST=npipe://<inspect_command_output>
+```
+##### Powershell
+Don't miss the quotes on the value or powershell will try to interpret it as a separate command instead of a value.
+```powershell
+$env:DOCKER_HOST="npipe://<inspect_command_output>"
 ```
 
-Note: Setting the `DOCKER_HOST` environment variable isn't necessary on Windows since Podman also listens to the default `docker_engine` pipe.
+Ideally you should set `DOCKER_HOST` at the system or user level environment variables (or even load it in your CL emulator init script of choice)
+
+
+Note: Setting the `DOCKER_HOST` environment variable isn't necessary on Windows since Podman also listens to the default `docker_engine` pipe. But it may be necessary if you get the following error: **Error: socket of machine is not set** while trying to use the podman compose command.
 </TabItem>
 <TabItem value="mac" label="macOS">
 
@@ -54,8 +75,8 @@ $ podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}'
 $ export DOCKER_HOST=unix://<your_podman_socket_location>
 ```
 
-   </TabItem>
-   <TabItem value="linux" label="Linux">
+</TabItem>
+<TabItem value="linux" label="Linux">
 
 1. Identify the location of your Podman socket
 
