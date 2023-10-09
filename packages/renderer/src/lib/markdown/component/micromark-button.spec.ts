@@ -44,8 +44,8 @@ test('Expect createUIButton to return a button with a spinner and an error icon'
     title: 'command',
   });
 
-  const htmlSanitized = html.replace('\n', '').replaceAll(/\s+/g, ' ');
-  expect(htmlSanitized).toContain("<button id='micromark-button-1'");
-  expect(htmlSanitized).toContain("<i id='micromark-spinner-1'");
-  expect(htmlSanitized).toContain("<i id='micromark-button-1-failed-icon'");
+  const htmlSanitized: string = html.replace('\n', '').replace(/\s+/g, ' ');
+  expect(htmlSanitized).toContain(`<button id='micromark-button-1'`);
+  expect(htmlSanitized).toContain(`<i id='micromark-spinner-1'`);
+  expect(htmlSanitized).toContain(`<i id='micromark-button-1-failed-icon'`);
 });

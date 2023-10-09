@@ -60,12 +60,12 @@ test('Expect createExpandableSection to return a button with an expandable secti
   };
   createExpandableSection.bind(context)(expandable);
 
-  const htmlSanitized = html.replace('\n', '').replaceAll(/\s+/g, ' ');
+  const htmlSanitized = html.replace('\n', '').replace(/\s+/g, ' ');
   expect(htmlSanitized).toContain(
-    "<button class='flex space-x-2 text-purple-400 w-fit hover:bg-white hover:bg-opacity-10 text-xs items-center' data-expandable='micromark-expandable-1'",
+    `<button class='flex space-x-2 text-purple-400 w-fit hover:bg-white hover:bg-opacity-10 text-xs items-center' data-expandable='micromark-expandable-1'`,
   );
   expect(htmlSanitized).toContain(
-    "<div class='flex-col w-[250px] text-sm micromark-expandable-1' style='display: none;'",
+    `<div class='flex-col w-[250px] text-sm micromark-expandable-1' style='display: none;'`,
   );
 });
 
@@ -85,12 +85,12 @@ test('Expect createExpandableSection to return a button and a visible expandable
   };
   createExpandableSection.bind(context)(expandable);
 
-  const htmlSanitized = html.replace('\n', '').replaceAll(/\s+/g, ' ');
+  const htmlSanitized = html.replace('\n', '').replace(/\s+/g, ' ');
   expect(htmlSanitized).toContain(
-    "<button class='flex space-x-2 text-purple-400 w-fit hover:bg-white hover:bg-opacity-10 text-xs items-center' data-expandable='micromark-expandable-2'",
+    `<button class='flex space-x-2 text-purple-400 w-fit hover:bg-white hover:bg-opacity-10 text-xs items-center' data-expandable='micromark-expandable-2'`,
   );
   expect(htmlSanitized).toContain(
-    "<div class='flex-col w-[250px] text-sm micromark-expandable-2' style='display: flex;'",
+    `<div class='flex-col w-[250px] text-sm micromark-expandable-2' style='display: flex;'`,
   );
 });
 
@@ -110,11 +110,11 @@ test('Expect createExpandableSection to return a hidden button and expandable se
   };
   createExpandableSection.bind(context)(expandable);
 
-  const htmlSanitized = html.replace('\n', '').replaceAll(/\s+/g, ' ');
+  const htmlSanitized = html.replace('\n', '').replace(/\s+/g, ' ');
   expect(htmlSanitized).toContain(
-    "<button class='flex space-x-2 text-purple-400 w-fit hover:bg-white hover:bg-opacity-10 text-xs items-center' data-expandable='micromark-expandable-3' style='display: none;'",
+    `<button class='flex space-x-2 text-purple-400 w-fit hover:bg-white hover:bg-opacity-10 text-xs items-center' data-expandable='micromark-expandable-3' style='display: none;'`,
   );
   expect(htmlSanitized).toContain(
-    "<div class='flex-col w-[250px] text-sm micromark-expandable-3' style='display: none;'",
+    `<div class='flex-col w-[250px] text-sm micromark-expandable-3' style='display: none;'`,
   );
 });

@@ -23,6 +23,6 @@ import { createSpinner } from './micromark-spinner';
 test('Expect createSoinner to return an icon with spinner id', async () => {
   const html = createSpinner('owner');
 
-  const htmlSanitized = html.replace('\n', '').replaceAll(/\s+/g, ' ');
-  expect(htmlSanitized).toContain("<i id='micromark-spinner-1'");
+  const htmlSanitized = html.replace('\n', '').replace(/\s+/g, ' ');
+  expect(htmlSanitized).toContain(`<i id='micromark-spinner-1'`);
 });
