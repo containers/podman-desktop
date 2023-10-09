@@ -38,6 +38,14 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
+const writeText = vi.fn();
+
+Object.assign(navigator, {
+  clipboard: {
+    writeText,
+  },
+});
+
 test('Expect title is defined', async () => {
   const title = 'My Dummy Title';
   render(DetailsPage, {
@@ -100,4 +108,19 @@ test('Expect Escape key closes', async () => {
   await userEvent.keyboard('{Escape}');
 
   expect(router.goto).toHaveBeenCalledWith('/back');
+});
+
+test('Expect copy clipboard with title property', async () => {
+  const name = 'My Dummy Name';
+  const title = 'Dummy title';
+  currentPage.set({ name: name, path: '/' } as TinroBreadcrumb);
+  render(DetailsPage, {
+    title: title,
+  });
+
+  const buttonElement = screen.getByTitle('Copy To Clipboard');
+  expect(buttonElement).toBeInTheDocument();
+
+  await userEvent.click(buttonElement);
+  expect(writeText).toHaveBeenCalledWith(title);
 });
