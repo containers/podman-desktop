@@ -21,6 +21,7 @@ import type { ApiSenderType } from './api.js';
 
 import { IconRegistry } from './icon-registry.js';
 import type { AnalyzedExtension } from './extension-loader.js';
+import path from 'node:path';
 
 let iconRegistry: IconRegistry;
 const apiSenderSendMock = vi.fn();
@@ -55,7 +56,7 @@ test('should register icon contribution', async () => {
     },
   };
 
-  const extensionPath = '/root/path';
+  const extensionPath = `${path.sep}root${path.sep}path`;
   const extensionId = 'myextension.id';
   const extension = {
     path: extensionPath,
@@ -80,8 +81,8 @@ test('should register icon contribution', async () => {
   expect(icon.definition.font?.src).toStrictEqual([
     {
       format: 'woff2',
-      location: `${extensionPath}/${fontPath}`,
-      browserURL: `url('file://${extensionPath}/${fontPath}')`,
+      location: `${extensionPath}${path.sep}${fontPath}`,
+      browserURL: `url('file://${extensionPath}${path.sep}${fontPath}')`,
     },
   ]);
   expect(icon.definition.font?.fontId).toBe(`${extensionId}-${fontPath}`);
