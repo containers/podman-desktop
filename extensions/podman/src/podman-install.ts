@@ -405,7 +405,7 @@ class WinBitCheck extends BaseCheck {
 class WinVersionCheck extends BaseCheck {
   title = 'Windows Version';
 
-  private MIN_BUILD = 18362;
+  private MIN_BUILD = 19043; //it represents version 21H1 windows 10
   async execute(): Promise<extensionApi.CheckResult> {
     const winRelease = os.release();
     if (winRelease.startsWith('10.0.')) {
@@ -415,7 +415,7 @@ class WinVersionCheck extends BaseCheck {
         return { successful: true };
       } else {
         return this.createFailureResult({
-          description: 'To be able to run WSL2 you need Windows 10 Build 18362 or later.',
+          description: `To be able to run WSL2 you need Windows 10 Build ${this.MIN_BUILD} or later.`,
           docLinksDescription: 'Learn about WSL requirements:',
           docLinks: {
             url: 'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
