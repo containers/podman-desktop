@@ -927,8 +927,6 @@ export class ProviderRegistry {
     }
 
     try {
-      await lifecycle.stop(context, logHandler);
-    } finally {
       if (this.isProviderContainerConnection(providerConnectionInfo)) {
         const event = {
           providerId: provider.id,
@@ -958,6 +956,9 @@ export class ProviderRegistry {
           status: 'stopped',
         });
       }
+      await lifecycle.stop(context, logHandler);
+    } catch (err) {
+      console.warn(`Can't stop connection ${provider.id}.${providerConnectionInfo.name}`, err);
     }
   }
 
