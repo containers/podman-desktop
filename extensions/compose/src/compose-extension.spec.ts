@@ -28,6 +28,7 @@ import type { ComposeGitHubReleases } from './compose-github-releases';
 import * as extensionApi from '@podman-desktop/api';
 import { promises } from 'node:fs';
 import type { ComposeWrapperGenerator } from './compose-wrapper-generator';
+import * as path from 'path';
 
 const extensionContext: extensionApi.ExtensionContext = {
   storagePath: '/fake/path',
@@ -408,7 +409,7 @@ describe.each([
     // should have call the podman generator
     expect(composeWrapperGeneratorMock.generate).toHaveBeenCalledWith(
       dummyConnection2,
-      `/fake/path/bin/compose${composeWrapperFileExtension}`,
+      path.resolve('/', 'fake', 'path', 'bin', `compose${composeWrapperFileExtension}`),
     );
   });
 });
