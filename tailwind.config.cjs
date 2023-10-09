@@ -21,7 +21,7 @@ const tailwindColors = require('tailwindcss/colors')
 module.exports = {
   content: [
     'packages/renderer/index.html',
-    'packages/renderer/src/**/*.{svelte,ts,css}',    
+    'packages/renderer/src/**/*.{svelte,ts,css}',
   ],
   theme: {
     extend: {

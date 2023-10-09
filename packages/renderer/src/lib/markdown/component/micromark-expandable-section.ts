@@ -24,8 +24,8 @@ import type { ExpandableSectionProps, ExpandableSection } from '../micromark-uti
 let expandableCount = 0;
 const expandables = new Map<string, ExpandableSection>();
 
-const OPENED_STATE_TOGGLE_ICON = '<i class="fas fa-chevron-up text-gray-100 mr-1"></i>';
-const CLOSED_STATE_TOGGLE_ICON = '<i class="fas fa-chevron-down text-gray-100 mr-1"></i>';
+const OPENED_STATE_TOGGLE_ICON = `<i class='fas fa-chevron-up text-gray-100 mr-1'></i>`;
+const CLOSED_STATE_TOGGLE_ICON = `<i class='fas fa-chevron-down text-gray-100 mr-1'></i>`;
 
 /**
  * it creates a new expandable section object
@@ -76,9 +76,9 @@ export function createExpandableSection(this: CompileContext, expandable: Expand
 
   // create button (icon + label)
   this.tag(
-    `<button class="flex space-x-2 text-purple-400 w-fit hover:bg-white hover:bg-opacity-10 text-xs items-center" data-expandable="${
+    `<button class='flex space-x-2 text-purple-400 w-fit hover:bg-white hover:bg-opacity-10 text-xs items-center' data-expandable='${
       expandableElement.id
-    }" style="display: ${expandable.showToggle ? 'flex' : 'none'};">`,
+    }' style='display: ${expandable.showToggle ? 'flex' : 'none'};' aria-label='${expandableElement.id}'>`,
   );
   this.tag(toggleState.icon);
   this.raw(toggleState.label);
@@ -86,9 +86,9 @@ export function createExpandableSection(this: CompileContext, expandable: Expand
 
   // create expandable section
   this.tag(
-    `<div class="flex-col w-[250px] text-sm ${expandableElement.id}" style="display: ${
+    `<div class='flex-col w-[250px] text-sm ${expandableElement.id}' style='display: ${
       expandable.content.expanded ? 'flex' : 'none'
-    };">`,
+    };'>`,
   );
   this.tag(expandable.content.html);
   this.tag('</div>');
@@ -117,7 +117,7 @@ function toggleExpandableSection(expandable: ExpandableSection) {
   const toggleState = expandable.content.expanded ? expandable.toggleExpandedState : expandable.toggleCollapsedState;
 
   // find toggle button
-  const toggleHTMLElement = document.querySelector(`[data-expandable="${expandable.id}"]`);
+  const toggleHTMLElement = document.querySelector(`[data-expandable='${expandable.id}']`);
   // update the inner icon + text based on its expanded state
   if (toggleHTMLElement) {
     toggleHTMLElement.innerHTML = `${toggleState.icon}${toggleState.label}`;
@@ -156,7 +156,7 @@ function updateExpandableToggleVisibility(ref: string, show: boolean) {
     if (expandable.ref === ref) {
       expandable.showToggle = show;
       // find toggle button
-      const toggleHTMLElement = document.querySelector(`[data-expandable="${expandable.id}"]`);
+      const toggleHTMLElement = document.querySelector(`[data-expandable='${expandable.id}']`);
       if (toggleHTMLElement) {
         // update the visibility
         (toggleHTMLElement as HTMLButtonElement).style.display = expandable.showToggle ? 'flex' : 'none';

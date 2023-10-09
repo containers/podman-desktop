@@ -39,8 +39,8 @@ interface ButtonElement {
 
 const BASE_BUTTON_CSS =
   'flex flex-row items-center justify-center px-4 py-[6px] max-w-[200px] rounded-[4px] text-white text-[13px] whitespace-nowrap no-underline';
-const NORMAL_MODE_CSS = `${BASE_BUTTON_CSS} bg-purple-600 hover:bg-purple-500`;
-const ERROR_MODE_CSS = `${BASE_BUTTON_CSS} text-gray-400 bg-red-900 hover:bg-red-700`;
+export const NORMAL_MODE_CSS = `${BASE_BUTTON_CSS} bg-purple-600 hover:bg-purple-500`;
+export const ERROR_MODE_CSS = `${BASE_BUTTON_CSS} text-gray-400 bg-red-900 hover:bg-red-700`;
 
 /**
  * it creates a new button by associating the command to it and returns its new generated button id
@@ -77,7 +77,6 @@ function newButtonId(): string {
  * if the command execution succeed the button state is reset to its normal mode
  * if the command execution fails the button goes in error mode - its color becomes red and a toggle to see all logs is displayed
  * @param buttonId button id
- * @returns n/a
  */
 export async function executeButtonCommand(buttonId: string) {
   const button = buttons.get(buttonId);
@@ -108,7 +107,7 @@ export async function executeButtonCommand(buttonId: string) {
 function createHtmlErrorContent(reason: string): string {
   // it uses inline style to constraint the height as tailwind max-height classes do not work with html injected
   return `
-    <div class="bg-black text-sm overflow-y-auto overflow-x-auto p-3" style="height: 150px">
+    <div class='bg-black text-sm overflow-y-auto overflow-x-auto p-3' style='height: 150px'>
     ${reason}
     </div>
     `;
@@ -200,17 +199,17 @@ export function createUIButton(this: CompileContext, command: Command) {
   const buttonId = createButton(command);
   this.tag(
     `<button 
-            id='${buttonId}' 
-            class='${NORMAL_MODE_CSS}'
-            title='${command.title}'
-        >`,
+      id='${buttonId}' 
+      class='${NORMAL_MODE_CSS}'
+      title='${command.title}'
+    >`,
   );
 
-  // Add the "progress" spinner
+  // Add the 'progress' spinner
   this.tag(createSpinner(buttonId));
 
   // add the failed icon which gets visible in error mode
-  this.tag(`<i id="${buttonId}-failed-icon" class="fas fa-times text-gray-100 mr-1" style="display: none"></i>`);
+  this.tag(`<i id='${buttonId}-failed-icon' class='fas fa-times text-gray-100 mr-1' style='display: none'></i>`);
 
   // Add the command title
   this.raw(command.title);
