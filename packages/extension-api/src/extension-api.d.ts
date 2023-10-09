@@ -2426,7 +2426,7 @@ declare module '@podman-desktop/api' {
     export function setValue(key: string, value: any, scope?: 'onboarding'): void;
   }
 
-  export interface CliToolOptions {
+  export interface CliTool {
     id: string;
     name: string;
     displayName: string;
@@ -2435,6 +2435,6 @@ declare module '@podman-desktop/api' {
   }
 
   export namespace cli {
-    export function createCliTool(options: CliToolOptions): Disposable;
+    export function registerCliToolProvider(provider: CliTool): Disposable;
   }
 }

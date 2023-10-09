@@ -1002,7 +1002,7 @@ export class ExtensionLoader {
     };
 
     const cli: typeof containerDesktopAPI.cli = {
-      createCliTool: (options: containerDesktopAPI.CliToolOptions) => {
+      registryCliTool: (options: containerDesktopAPI.CliTool): containerDesktopAPI.Disposable => {
         if (options.images) {
           options.images.icon = instance.updateImage(options?.images?.icon, extensionPath);
         }
