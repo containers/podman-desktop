@@ -97,7 +97,7 @@
     "@playwright/test": "^1.38.1",
     "@rollup/plugin-commonjs": "^25.0.5",
     "@rollup/plugin-json": "^6.0.1",
-    "@rollup/plugin-node-resolve": "^15.2.2",
+    "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.5",
     "@types/analytics-node": "^3.1.12",
     "@types/dockerode": "^3.3.20",
