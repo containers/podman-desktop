@@ -37,7 +37,6 @@ vi.mock('@podman-desktop/api', async () => {
 beforeEach(() => {
   podmanInfoHelper = new PodmanInfoHelper();
   vi.resetAllMocks();
-  vi.clearAllMocks();
 });
 
 test('should grab podman from the installer', async () => {

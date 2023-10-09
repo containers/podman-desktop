@@ -36,7 +36,6 @@ vi.mock('@podman-desktop/api', async () => {
 beforeEach(() => {
   podmanBinaryLocationHelper = new PodmanBinaryLocationHelper();
   vi.resetAllMocks();
-  vi.clearAllMocks();
 });
 
 test('should grab podman from the installer', async () => {

@@ -42,7 +42,6 @@ vi.mock('@podman-desktop/api', async () => {
 beforeEach(() => {
   qemuHelper = new TestQemuHelper();
   vi.resetAllMocks();
-  vi.clearAllMocks();
 });
 
 test('should grab correct versions using arm64', async () => {

@@ -36,7 +36,6 @@ vi.mock('@podman-desktop/api', async () => {
 beforeEach(() => {
   wslHelper = new WslHelper();
   vi.resetAllMocks();
-  vi.clearAllMocks();
 });
 
 test('should grab correct versions', async () => {
