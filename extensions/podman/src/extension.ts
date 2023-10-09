@@ -34,6 +34,10 @@ import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from 
 import { getSocketCompatibility } from './compatibility-mode';
 import type { ContainerEngineInfo, RunError } from '@podman-desktop/api';
 import { compareVersions } from 'compare-versions';
+import { WslHelper } from './wsl-helper';
+import { QemuHelper } from './qemu-helper';
+import { PodmanBinaryLocationHelper } from './podman-binary-location-helper';
+import { PodmanInfoHelper } from './podman-info-helper';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 
@@ -65,6 +69,12 @@ let disguisedPodmanSocketWatcher: extensionApi.FileSystemWatcher | undefined;
 
 // Configuration buttons
 const configurationCompatibilityMode = 'setting.dockerCompatibility';
+let telemetryLogger: extensionApi.TelemetryLogger | undefined;
+
+const wslHelper = new WslHelper();
+const qemuHelper = new QemuHelper();
+const podmanBinaryHelper = new PodmanBinaryLocationHelper();
+const podmanInfoHelper = new PodmanInfoHelper();
 
 export type MachineJSON = {
   Name: string;
@@ -541,7 +551,7 @@ function prettyMachineName(machineName: string): string {
 async function registerProviderFor(provider: extensionApi.Provider, machineInfo: MachineInfo, socketPath: string) {
   const lifecycle: extensionApi.ProviderConnectionLifecycle = {
     start: async (context, logger): Promise<void> => {
-      await startMachine(provider, machineInfo, context, logger);
+      await startMachine(provider, machineInfo, context, logger, undefined, false);
     },
     stop: async (context, logger): Promise<void> => {
       await extensionApi.process.exec(getPodmanCli(), ['machine', 'stop', machineInfo.name], {
@@ -591,7 +601,10 @@ export async function startMachine(
   context?: extensionApi.LifecycleContext,
   logger?: extensionApi.Logger,
   skipHandleError?: boolean,
+  autoStart?: boolean,
 ): Promise<void> {
+  const telemetryRecords: Record<string, unknown> = {};
+  const startTime = performance.now();
   try {
     // start the machine
     await extensionApi.process.exec(getPodmanCli(), ['machine', 'start', machineInfo.name], {
@@ -599,13 +612,19 @@ export async function startMachine(
     });
     provider.updateStatus('started');
   } catch (err) {
+    telemetryRecords.error = err;
     if (skipHandleError) {
       console.error(err);
       // propagate the error
       throw err;
     }
-
     await doHandleError(provider, machineInfo, err);
+  } finally {
+    // send telemetry event
+    const endTime = performance.now();
+    telemetryRecords.duration = endTime - startTime;
+    telemetryRecords.autoStart = autoStart === true;
+    sendTelemetryRecords('podman.machine.start', telemetryRecords, true);
   }
 }
 
@@ -694,8 +713,15 @@ export const ROOTFUL_MACHINE_INIT_SUPPORTED_KEY = 'podman.isRootfulMachineInitSu
 export const USER_MODE_NETWORKING_SUPPORTED_KEY = 'podman.isUserModeNetworkingSupported';
 export const START_NOW_MACHINE_INIT_SUPPORTED_KEY = 'podman.isStartNowAtMachineInitSupported';
 
+export function initTelemetryLogger(): void {
+  telemetryLogger = extensionApi.env.createTelemetryLogger();
+}
+
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   storedExtensionContext = extensionContext;
+
+  initTelemetryLogger();
+
   const podmanInstall = new PodmanInstall(extensionContext.storagePath);
 
   const installedPodman = await getPodmanInstallation();
@@ -892,7 +918,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
               provider.id,
               containerProviderConnection,
             );
-            await startMachine(provider, machineInfo, context, logger);
+            await startMachine(provider, machineInfo, context, logger, undefined, true);
             autoMachineStarted = true;
             autoMachineName = machineName;
           }
@@ -1140,6 +1166,83 @@ export function isUserModeNetworkingSupported(podmanVersion: string) {
   return isWindows() && compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING) >= 0;
 }
 
+function sendTelemetryRecords(
+  eventName: string,
+  telemetryRecords: Record<string, unknown>,
+  includeMachineStats: boolean,
+) {
+  const sendJob = async () => {
+    // add CLI version
+    const installedPodman = await getPodmanInstallation();
+    if (installedPodman) {
+      telemetryRecords.podmanCliVersion = installedPodman.version;
+    }
+
+    // add host cpu and memory
+    const hostMemory = os.totalmem();
+    telemetryRecords.hostMemory = hostMemory;
+    const hostCpus = os.cpus();
+    telemetryRecords.hostCpus = hostCpus.length;
+    telemetryRecords.hostCpuModel = hostCpus[0].model;
+
+    // on macOS, try to see if podman is coming from brew or from the installer
+    // and display version of qemu
+    if (extensionApi.env.isMac) {
+      let qemuPath: string;
+
+      try {
+        const podmanBinaryResult = await podmanBinaryHelper.getPodmanLocationMac();
+
+        telemetryRecords.podmanCliSource = podmanBinaryResult.source;
+        if (podmanBinaryResult.source === 'installer') {
+          qemuPath = '/opt/podman/qemu/bin';
+        }
+        telemetryRecords.podmanCliFoundPath = podmanBinaryResult.foundPath;
+        if (podmanBinaryResult.error) {
+          telemetryRecords.errorPodmanSource = podmanBinaryResult.error;
+        }
+      } catch (error) {
+        telemetryRecords.errorPodmanSource = error;
+        console.trace('unable to check from which path podman is coming', error);
+      }
+
+      // add qemu version
+      try {
+        const qemuVersion = await qemuHelper.getQemuVersion(qemuPath);
+        if (qemuPath) {
+          telemetryRecords.qemuPath = qemuPath;
+        }
+        telemetryRecords.qemuVersion = qemuVersion;
+      } catch (error) {
+        console.trace('unable to check qemu version', error);
+        telemetryRecords.errorQemuVersion = error;
+      }
+    } else if (extensionApi.env.isWindows) {
+      // try to get wsl version
+      try {
+        const wslVersionData = await wslHelper.getWSLVersionData();
+        telemetryRecords.wslVersion = wslVersionData.wslVersion;
+        telemetryRecords.wslWindowsVersion = wslVersionData.windowsVersion;
+        telemetryRecords.wslKernelVersion = wslVersionData.kernelVersion;
+      } catch (error) {
+        console.trace('unable to check wsl version', error);
+        telemetryRecords.errorWslVersion = error;
+      }
+    }
+
+    // add server side information about the machine
+    if (includeMachineStats && (extensionApi.env.isMac || extensionApi.env.isWindows)) {
+      // add info from 'podman info command'
+      await podmanInfoHelper.updateWithPodmanInfoRecords(telemetryRecords);
+    }
+    telemetryLogger.logUsage(eventName, telemetryRecords);
+  };
+
+  sendJob().catch((error: unknown) => {
+    console.error('Error while logging telemetry', error);
+  });
+}
+
 export async function createMachine(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: { [key: string]: any },
@@ -1150,10 +1253,13 @@ export async function createMachine(
   parameters.push('machine');
   parameters.push('init');
 
+  const telemetryRecords: Record<string, unknown> = {};
+
   // cpus
   if (params['podman.factory.machine.cpus']) {
     parameters.push('--cpus');
     parameters.push(params['podman.factory.machine.cpus']);
+    telemetryRecords.cpus = params['podman.factory.machine.cpus'];
   }
 
   // memory
@@ -1161,6 +1267,7 @@ export async function createMachine(
     parameters.push('--memory');
     const memoryAsMiB = +params['podman.factory.machine.memory'] / (1024 * 1024);
     parameters.push(Math.floor(memoryAsMiB).toString());
+    telemetryRecords.memory = params['podman.factory.machine.memory'];
   }
 
   // disk size
@@ -1168,12 +1275,14 @@ export async function createMachine(
     parameters.push('--disk-size');
     const diskAsGiB = +params['podman.factory.machine.diskSize'] / (1024 * 1024 * 1024);
     parameters.push(Math.floor(diskAsGiB).toString());
+    telemetryRecords.diskSize = params['podman.factory.machine.diskSize'];
   }
 
-  // disk size
+  // image-path
   if (params['podman.factory.machine.image-path']) {
     parameters.push('--image-path');
     parameters.push(params['podman.factory.machine.image-path']);
+    telemetryRecords.imagePath = 'custom';
   } else if (isMac() || isWindows()) {
     // check if we have an embedded asset for the image path for macOS or Windows
     let suffix = '';
@@ -1187,29 +1296,65 @@ export async function createMachine(
     if (fs.existsSync(assetImagePath)) {
       parameters.push('--image-path');
       parameters.push(assetImagePath);
+      telemetryRecords.imagePath = 'embedded';
     }
+  }
+  if (!telemetryRecords.imagePath) {
+    telemetryRecords.imagePath = 'default';
   }
 
   // rootful
   if (params['podman.factory.machine.rootful']) {
     parameters.push('--rootful');
+    telemetryRecords.rootless = false;
+    telemetryRecords.rootful = true;
+  } else {
+    telemetryRecords.rootless = true;
+    telemetryRecords.rootful = false;
   }
 
   if (params['podman.factory.machine.user-mode-networking']) {
     parameters.push('--user-mode-networking');
+    telemetryRecords.userModeNetworking = true;
   }
 
   // name at the end
   if (params['podman.factory.machine.name']) {
     parameters.push(params['podman.factory.machine.name']);
+    telemetryRecords.customName = params['podman.factory.machine.name'];
+    telemetryRecords.defaultName = false;
+  } else {
+    telemetryRecords.defaultName = true;
   }
 
   // starts now
   if (params['podman.factory.machine.now']) {
     parameters.push('--now');
+    telemetryRecords.start = true;
+  } else {
+    telemetryRecords.start = false;
   }
 
-  await extensionApi.process.exec(getPodmanCli(), parameters, { logger, token });
+  const startTime = performance.now();
+  try {
+    await extensionApi.process.exec(getPodmanCli(), parameters, { logger, token });
+  } catch (error) {
+    telemetryRecords.error = error;
+
+    // if known error
+    if (error.stderr?.includes('VM already exists')) {
+      telemetryRecords.errorCode = 'ErrVMAlreadyExists';
+    } else if (error.stderr?.includes('VM already running or starting')) {
+      telemetryRecords.errorCode = 'ErrVMAlreadyRunning';
+    } else if (error.stderr?.includes('only one VM can be active at a time')) {
+      telemetryRecords.errorCode = 'ErrMultipleActiveVM';
+    }
+    throw error;
+  } finally {
+    const endTime = performance.now();
+    telemetryRecords.duration = endTime - startTime;
+    sendTelemetryRecords('podman.machine.init', telemetryRecords, false);
+  }
   extensionApi.context.setValue('podmanMachineExists', true, 'onboarding');
 }
 
