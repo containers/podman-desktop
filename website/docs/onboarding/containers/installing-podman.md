@@ -41,15 +41,15 @@ Consider rather [installing Podman with OpenShift Local](/docs/onboarding/contai
    ```
 
 2. The **Home** screen displays _Podman Desktop was not able to find an installation of Podman_.
-   Click on **Install**.
+   Click **Install**.
 
 3. Podman Desktop checks the prerequisites to install Podman.
    When necessary, follow the instructions to install prerequisites.
 
 4. Podman displays the dialog: _Podman is not installed on this system, would you like to install Podman?_.
-   Click on `Yes` to install Podman, and follow the installation program instructions.
+   Click `Yes` to install Podman, and follow the installation program instructions.
 
-5. Click on **Initialize Podman**.
+5. Click **Initialize Podman**.
 
 #### Additional resources
 
