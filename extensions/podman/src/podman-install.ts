@@ -498,6 +498,7 @@ class WSL2Check extends BaseCheck {
     try {
       const isAdmin = await this.isUserAdmin();
       const isWSL = await this.isWSLPresent();
+      const isRebootNeeded = await this.isRebootNeeded();
 
       if (!isWSL) {
         if (isAdmin) {
@@ -523,6 +524,11 @@ class WSL2Check extends BaseCheck {
             },
           });
         }
+      } else if (isRebootNeeded) {
+        return this.createFailureResult({
+          description:
+            'WSL2 seems to be installed but the system needs to be restarted so the changes can take effect.',
+        });
       }
     } catch (err) {
       return this.createFailureResult({
@@ -569,6 +575,23 @@ class WSL2Check extends BaseCheck {
       message += error.stderr || '';
       throw new Error(message);
     }
+  }
+  
+  private async isRebootNeeded(): Promise<boolean> {
+    try {
+      await extensionApi.process.exec('wsl', ['-l'], {
+        env: { WSL_UTF8: '1' },
+      });
+    } catch (error) {
+      console.log(error);
+      // we only return true for the WSL_E_WSL_OPTIONAL_COMPONENT_REQUIRED error code
+      // as other errors may not be connected to a reboot, like
+      // WSL_E_DEFAULT_DISTRO_NOT_FOUND = wsl was installed without the default distro
+      if (error.stdout.includes('Wsl/WSL_E_WSL_OPTIONAL_COMPONENT_REQUIRED')) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 
