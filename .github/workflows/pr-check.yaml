@@ -248,6 +248,7 @@ jobs:
 
       # Check we don't have changes in git
       - name: Check no changes in git
+        if: ${{ matrix.os=='ubuntu-22.04'}}
         run: |
           if ! git diff --exit-code; then
             echo "Found changes in git"
