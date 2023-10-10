@@ -23,7 +23,8 @@ export interface CliToolInfo {
   name: string;
   description: string;
   displayName: string;
-  state: 'setup-needed' | 'detecting' | 'installing' | 'installed' | 'removing' | 'unknown';
+  state: 'setup-needed' | 'detecting' | 'installing' | 'updating' | 'installed' | 'removing' | 'unknown';
   version?: string;
   images?: ProviderImages;
+  providedBy: string;
 }

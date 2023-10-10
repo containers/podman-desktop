@@ -16,14 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { CliToolOptions, Disposable } from '@podman-desktop/api';
+import type { CliTool, CliToolOptions, Disposable } from '@podman-desktop/api';
 import type { CliToolInfo } from './api/cli-tool-info.js';
 import type { ApiSenderType } from './api.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 
-export class CliToolImpl implements Disposable {
+export class CliToolImpl implements CliTool, Disposable {
   constructor(
     readonly internalId: number,
+    readonly id: string,
     private options: CliToolOptions,
   ) {}
 
@@ -35,13 +36,15 @@ export class CliToolImpl implements Disposable {
     return this.options.displayName;
   }
 
-  get description() {
-    return this.options.description;
+  get markdownDescription() {
+    return this.options.markdownDescription;
   }
 
   get images() {
     return Object.freeze(this.options.images);
   }
+
+  detect(): void {}
 
   dispose(): void {
     throw new Error('Method not implemented.');
@@ -51,6 +54,7 @@ export class CliToolImpl implements Disposable {
 interface CliToolContext {
   extensionId: string;
   extensionName: string;
+  extensionDisplayName: string;
   cliTool: CliToolImpl;
 }
 
@@ -76,11 +80,17 @@ export class CliToolRegistry {
 
   private cliTools = new Map<number, CliToolContext>();
 
-  createCliTool(extensionId: string, extensionName: string, options: CliToolOptions): Disposable {
-    const cliTool = new CliToolImpl(this.sequence.id, options);
+  createCliTool(
+    extensionId: string,
+    extensionName: string,
+    extensionDisplayName: string,
+    options: CliToolOptions,
+  ): CliTool {
+    const cliTool = new CliToolImpl(this.sequence.id, `${extensionId}.${options.name}`, options);
     this.cliTools.set(this.sequence.currentId, {
       extensionId,
       extensionName,
+      extensionDisplayName,
       cliTool,
     });
     this.apiSender.send('cli-tool-create', this.sequence.currentId);
@@ -92,9 +102,10 @@ export class CliToolRegistry {
       id: context.cliTool.internalId,
       name: context.cliTool.name,
       displayName: context.cliTool.displayName,
-      description: context.cliTool.description,
+      description: context.cliTool.markdownDescription,
       state: 'unknown',
       images: context.cliTool.images,
+      providedBy: context.extensionDisplayName,
     }));
   }
 }

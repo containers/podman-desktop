@@ -550,6 +550,20 @@ export class ExtensionLoader {
       extension.subscriptions.push(disposable);
     }
 
+    const extensionCliTools = extension.manifest?.contributes?.cliTools;
+    if (extensionCliTools) {
+      if (extensionCliTools.images) {
+        extensionCliTools.images.icon = this.updateImage(extensionCliTools?.images?.icon, extension.path);
+      }
+      const disposable = this.cliToolRegistry.createCliTool(
+        extension.id,
+        extension.name,
+        extension.manifest.displayName,
+        extensionCliTools,
+      );
+      extension.subscriptions.push(disposable);
+    }
+
     const icons = extension.manifest?.contributes?.icons;
     if (icons) {
       this.iconRegistry.registerIconContribution(extension, icons);
@@ -1002,11 +1016,11 @@ export class ExtensionLoader {
     };
 
     const cli: typeof containerDesktopAPI.cli = {
-      registryCliTool: (options: containerDesktopAPI.CliTool): containerDesktopAPI.Disposable => {
+      createCliTool: (options: containerDesktopAPI.CliToolOptions): containerDesktopAPI.CliTool => {
         if (options.images) {
           options.images.icon = instance.updateImage(options?.images?.icon, extensionPath);
         }
-        return this.cliToolRegistry.createCliTool(extensionInfo.id, extensionInfo.name, options);
+        return this.cliToolRegistry.createCliTool(extensionInfo.id, extensionInfo.name, extensionInfo.label, options);
       },
     };
 

@@ -2426,15 +2426,23 @@ declare module '@podman-desktop/api' {
     export function setValue(key: string, value: any, scope?: 'onboarding'): void;
   }
 
-  export interface CliTool {
+  export interface CliToolOptions {
     id: string;
     name: string;
     displayName: string;
-    description: string;
+    markdownDescription: string;
     images: ProviderImages;
   }
 
+  export interface CliTool extends CliToolOptions, Disposable {
+    // try to detect and change state to installed or setup-needed
+    // the detection includes:
+    // - cli tool location
+    // - package manager used to install: linux package manager, brew (macOS), chocolatey and alike (windows)
+    detect(): void;
+  }
+
   export namespace cli {
-    export function registerCliToolProvider(provider: CliTool): Disposable;
+    export function createCliTool(options: CliToolOptions): CliTool;
   }
 }

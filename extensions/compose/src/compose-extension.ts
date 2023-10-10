@@ -145,7 +145,7 @@ export class ComposeExtension {
       id: 'docker-compose',
       name: 'docker-compose',
       displayName: 'Compose',
-      description: description.replace('\n', ''),
+      markdownDescription: description.replace('\n', ''),
       images: {
         icon: 'compose.png',
       },
