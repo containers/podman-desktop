@@ -666,10 +666,10 @@ describe('analyze extension and main', async () => {
     const loadManifestMock = vi.spyOn(extensionLoader, 'loadManifest');
     loadManifestMock.mockResolvedValue(fakeManifest);
 
-    const extension = await extensionLoader.analyzeExtension('/fake/path', false);
+    const extension = await extensionLoader.analyzeExtension(path.resolve('/', 'fake', 'path'), false);
 
     expect(extension).toBeDefined();
-    expect(extension?.mainPath).toBe('/fake/path/main-entry.js');
+    expect(extension?.mainPath).toBe(path.resolve('/', 'fake', 'path', 'main-entry.js'));
     expect(extension?.id).toBe('fooPublisher.fooName');
   });
 

@@ -17,6 +17,7 @@
  ***********************************************************************/
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import type { Mock } from 'vitest';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import * as extension from './extension';
 import { getPodmanCli } from './podman-cli';
@@ -79,6 +80,11 @@ const machine1Name = 'podman-machine-1';
 let fakeMachineJSON: extension.MachineJSON[];
 let fakeMachineInfoJSON: any;
 
+const telemetryLogger: extensionApi.TelemetryLogger = {
+  logUsage: vi.fn(),
+  logError: vi.fn(),
+} as unknown as extensionApi.TelemetryLogger;
+
 beforeEach(() => {
   fakeMachineJSON = [
     {
@@ -115,6 +121,10 @@ beforeEach(() => {
       VMType: 'wsl',
     },
   };
+
+  (extensionApi.env.createTelemetryLogger as Mock).mockReturnValue(telemetryLogger);
+
+  extension.initTelemetryLogger();
 });
 
 const originalConsoleError = console.error;
@@ -143,12 +153,66 @@ vi.mock('@podman-desktop/api', async () => {
     process: {
       exec: vi.fn(),
     },
+    env: {
+      createTelemetryLogger: vi.fn(),
+      isWindows: () => vi.fn(),
+      isMac: () => vi.fn(),
+      isLinux: () => vi.fn(),
+    },
+  };
+});
+
+vi.mock('./qemu-helper', async () => {
+  return {
+    QemuHelper: vi.fn().mockImplementation(() => {
+      return {
+        getQemuVersion: vi.fn().mockImplementation(() => {
+          return Promise.resolve('1.2.3');
+        }),
+      };
+    }),
+  };
+});
+vi.mock('./podman-binary-location-helper', async () => {
+  return {
+    PodmanBinaryLocationHelper: vi.fn().mockImplementation(() => {
+      return {
+        getPodmanLocationMac: vi.fn().mockImplementation(() => {
+          return Promise.resolve({ source: 'unknown' });
+        }),
+      };
+    }),
+  };
+});
+vi.mock('./podman-info-helper', async () => {
+  return {
+    PodmanInfoHelper: vi.fn().mockImplementation(() => {
+      return {
+        updateWithPodmanInfoRecords: vi.fn().mockImplementation(() => {
+          return Promise.resolve();
+        }),
+      };
+    }),
+  };
+});
+vi.mock('./wsl-helper', async () => {
+  return {
+    WslHelper: vi.fn().mockImplementation(() => {
+      return {
+        getWSLVersionData: vi.fn().mockImplementation(() => {
+          return Promise.resolve({
+            wslVersion: '1.2.3',
+            kernelVersion: '1.2.3',
+            windowsVersion: '1.2.3',
+          });
+        }),
+      };
+    }),
   };
 });
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.resetAllMocks();
   console.error = consoleErrorMock;
 });
 
@@ -177,6 +241,16 @@ test('verify create command called with correct values', async () => {
       logger: undefined,
       token: undefined,
     },
+  );
+
+  // wait a call on telemetryLogger.logUsage
+  while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  expect(telemetryLogger.logUsage).toBeCalledWith(
+    'podman.machine.init',
+    expect.objectContaining({ cpus: '2', defaultName: true, diskSize: '250000000000', imagePath: 'custom' }),
   );
 });
 
@@ -213,6 +287,16 @@ test('verify create command called with correct values with user mode networking
     logger: undefined,
   });
   expect(console.error).not.toBeCalled();
+
+  // wait a call on telemetryLogger.logUsage
+  while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  expect(telemetryLogger.logUsage).toBeCalledWith(
+    'podman.machine.init',
+    expect.objectContaining({ cpus: '2', defaultName: true, diskSize: '250000000000', imagePath: 'custom' }),
+  );
 });
 
 test('verify create command called with now flag if start machine after creation is enabled', async () => {
@@ -307,6 +391,57 @@ test('if a machine is successfully started it changes its state to started', asy
   });
 
   expect(spyUpdateStatus).toBeCalledWith('started');
+});
+
+test('if a machine is successfully reporting telemetry', async () => {
+  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+    () =>
+      new Promise<extensionApi.RunResult>(resolve => {
+        resolve({} as extensionApi.RunResult);
+      }),
+  );
+  await extension.startMachine(provider, machineInfo);
+
+  // wait a call on telemetryLogger.logUsage
+  while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  expect(telemetryLogger.logUsage).toBeCalledWith(
+    'podman.machine.start',
+    expect.objectContaining({ hostCpus: expect.anything() }),
+  );
+
+  expect(spyExecPromise).toBeCalledWith(
+    expect.stringContaining('podman'),
+    ['machine', 'start', 'name'],
+    expect.anything(),
+  );
+});
+
+test('if a machine is successfully reporting an error in telemetry', async () => {
+  const customError = new Error('Error while starting podman');
+
+  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec').mockImplementation(() => {
+    throw customError;
+  });
+  await expect(extension.startMachine(provider, machineInfo)).rejects.toThrow(customError.message);
+
+  // wait a call on telemetryLogger.logUsage
+  while ((telemetryLogger.logUsage as Mock).mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  expect(telemetryLogger.logUsage).toBeCalledWith(
+    'podman.machine.start',
+    expect.objectContaining({ hostCpus: expect.anything(), error: customError }),
+  );
+
+  expect(spyExecPromise).toBeCalledWith(
+    expect.stringContaining('podman'),
+    ['machine', 'start', 'name'],
+    expect.anything(),
+  );
 });
 
 test('if a machine failed to start with a generic error, this is thrown', async () => {

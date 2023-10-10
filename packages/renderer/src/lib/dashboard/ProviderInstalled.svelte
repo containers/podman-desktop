@@ -141,25 +141,27 @@ function onInstallationClick() {
     </p>
 
     <div class="m-5" class:hidden="{!initializationButtonVisible}">
-      <div class="bg-[#e5e7eb]">
+      <div class="bg-gray-300 text-white">
         <button
-          class="float-left bg-[var(--pf-global--primary-color--300)] hover:bg-[var(--pf-global--primary-color--200)] pt-2 pr-3 pl-3 pb-2 text-[13px] mr-px w-[180px]"
+          class="float-left bg-purple-600 hover:bg-purple-500 pt-2 pr-3 pl-3 pb-2 text-[13px] text-white mr-px w-[180px]"
           on:click="{onInstallationClick}">
           {installationOptionSelected}
         </button>
         <button
-          class="inline-block bg-[var(--pf-global--primary-color--300)] hover:bg-[var(--pf-global--primary-color--200)] text-[13px] pt-2 pr-3 pl-3 pb-2 w-[32px]"
+          class="inline-block bg-purple-600 hover:bg-purple-500 text-[13px] text-white pt-2 pr-3 pl-3 pb-2 w-[32px]"
           on:click="{() => updateOptionsMenu(!installationOptionsMenuVisible)}">
           <i class="fas fa-caret-down"></i>
         </button>
       </div>
-      <div class="-z-1 min-w-[130px] m-auto bg-primary text-[13px]" class:hidden="{!installationOptionsMenuVisible}">
-        <ul class="w-full outline-none bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700">
+      <div
+        class="-z-1 min-w-[130px] m-auto bg-primary text-[13px] text-white"
+        class:hidden="{!installationOptionsMenuVisible}">
+        <ul class="w-full outline-none bg-charcoal-800 rounded-sm placeholder-gray-700">
           <li>
             <button
               class="w-full p-2 {installationOptionSelected === InitializeOnlyMode
-                ? 'bg-[#ffffff33]'
-                : ''} hover:text-gray-400 hover:bg-[var(--pf-global--BackgroundColor--300)] cursor-pointer"
+                ? 'bg-purple-600 text-white'
+                : 'bg-purple-700 text-gray-700'} hover:bg-purple-500 cursor-pointer"
               on:click="{() => {
                 installationOptionSelected = InitializeOnlyMode;
                 installationOptionsMenuVisible = false;
@@ -171,8 +173,8 @@ function onInstallationClick() {
           <li>
             <button
               class="w-full p-2 {installationOptionSelected === InitializeAndStartMode
-                ? 'bg-[#ffffff33]'
-                : ''} hover:text-gray-400 hover:bg-[var(--pf-global--BackgroundColor--300)] cursor-pointer"
+                ? 'bg-purple-600 text-white'
+                : 'bg-purple-700 text-gray-700'} hover:bg-purple-500 cursor-pointer"
               on:click="{() => {
                 installationOptionSelected = InitializeAndStartMode;
                 installationOptionsMenuVisible = false;
