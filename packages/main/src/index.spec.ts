@@ -87,6 +87,7 @@ vi.mock('electron', async () => {
       on: vi.fn(),
       once: vi.fn(),
       whenReady: vi.fn().mockReturnValue(new Promise(() => {})),
+      setAppUserModelId: vi.fn(),
     },
     ipcMain: {
       on: vi.fn(),

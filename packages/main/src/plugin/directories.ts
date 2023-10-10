@@ -22,7 +22,7 @@ import * as fs from 'node:fs';
 
 // handle the different directories for the different OSes for Podman Desktop
 export class Directories {
-  static readonly XDG_DATA_DIRECTORY = '.local/share/containers/podman-desktop';
+  static readonly XDG_DATA_DIRECTORY = `.local${path.sep}share${path.sep}containers${path.sep}podman-desktop`;
 
   public static readonly PODMAN_DESKTOP_HOME_DIR = 'PODMAN_DESKTOP_HOME_DIR';
 

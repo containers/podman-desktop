@@ -27,6 +27,7 @@ import type { OS } from './os';
 import * as http from 'node:http';
 import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 const osMock: OS = {
   isWindows: vi.fn(),
@@ -110,7 +111,7 @@ describe('Check for path', async () => {
           reject({ exitCode: -1 } as extensionApi.RunError);
         }),
     );
-    vitest.spyOn(shellPath, 'shellPath').mockResolvedValue('/storage-path/bin');
+    vitest.spyOn(shellPath, 'shellPath').mockResolvedValue(path.resolve('/', 'storage-path', 'bin'));
     const result = await detect.checkStoragePath();
     expect(result).toBeTruthy();
   });
@@ -129,7 +130,7 @@ describe('Check storage path', async () => {
     existSyncSpy.mockImplementation(() => true);
 
     const result = await detect.getStoragePath();
-    expect(result).toBe('/storage-path/bin/docker-compose');
+    expect(result).toBe(path.resolve('/', 'storage-path', 'bin', 'docker-compose'));
   });
 });
 
