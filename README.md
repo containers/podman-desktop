@@ -81,9 +81,9 @@ Check out all our [future features!](https://github.com/containers/podman-deskto
 
 Interested in fixing issues or contributing to Podman Desktop?
 
-- :bug: [File Bugs or feature requests on GitHub](https://github.com/containers/podman-desktop/issues/new/choose)
+- :bug: [File bugs or feature requests on GitHub](https://github.com/containers/podman-desktop/issues/new/choose)
 - :checkered_flag: [Read our contributing guide](./CONTRIBUTING.md)
-- :ok_hand: [Review or Contribute a Pull Request](https://github.com/containers/podman-desktop/pulls)
+- :ok_hand: [Review or contribute a pull request](https://github.com/containers/podman-desktop/pulls)
 
 ## Communication
 
