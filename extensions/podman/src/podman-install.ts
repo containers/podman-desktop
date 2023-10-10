@@ -583,12 +583,16 @@ class WSL2Check extends BaseCheck {
         env: { WSL_UTF8: '1' },
       });
     } catch (error) {
-      console.log(error);
       // we only return true for the WSL_E_WSL_OPTIONAL_COMPONENT_REQUIRED error code
       // as other errors may not be connected to a reboot, like
       // WSL_E_DEFAULT_DISTRO_NOT_FOUND = wsl was installed without the default distro
       if (error.stdout.includes('Wsl/WSL_E_WSL_OPTIONAL_COMPONENT_REQUIRED')) {
         return true;
+      } else if (error.stdout.includes('Wsl/WSL_E_DEFAULT_DISTRO_NOT_FOUND')) {
+        // treating this log differently as we install wsl without any distro
+        console.log('WSL has been installed without the default distribution');
+      } else {
+        console.error(error);
       }
     }
     return false;
