@@ -921,10 +921,15 @@ export class ContainerProviderRegistry {
 
       return promise;
     } catch (error) {
-      // Provides a better error message for 403 errors
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (error instanceof Error && (error as any)?.statusCode === 403) {
-        error.message = `access to image "${imageName}" is denied (403 error). Can also be that image does not exist.`;
+      // Provides a better error message for 401, 403 and 500 errors
+      if (error instanceof Error) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const statusCode = (error as any)?.statusCode;
+        if (statusCode === 403) {
+          error.message = `access to image "${imageName}" is denied (403 error). Can also be that image does not exist.`;
+        } else if (statusCode === 500 || statusCode === 401) {
+          error.message = `access to image "${imageName}" is denied (${statusCode} error). Can also be that the registry requires authentication.`;
+        }
       }
       telemetryOptions = { error: error };
       throw error;
