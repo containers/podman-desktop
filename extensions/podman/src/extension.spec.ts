@@ -412,7 +412,11 @@ test('if a machine is successfully reporting telemetry', async () => {
     expect.objectContaining({ hostCpus: expect.anything() }),
   );
 
-  expect(spyExecPromise).toBeCalledWith('podman', ['machine', 'start', 'name'], expect.anything());
+  expect(spyExecPromise).toBeCalledWith(
+    expect.stringContaining('podman'),
+    ['machine', 'start', 'name'],
+    expect.anything(),
+  );
 });
 
 test('if a machine is successfully reporting an error in telemetry', async () => {
@@ -433,7 +437,11 @@ test('if a machine is successfully reporting an error in telemetry', async () =>
     expect.objectContaining({ hostCpus: expect.anything(), error: customError }),
   );
 
-  expect(spyExecPromise).toBeCalledWith('podman', ['machine', 'start', 'name'], expect.anything());
+  expect(spyExecPromise).toBeCalledWith(
+    expect.stringContaining('podman'),
+    ['machine', 'start', 'name'],
+    expect.anything(),
+  );
 });
 
 test('if a machine failed to start with a generic error, this is thrown', async () => {
