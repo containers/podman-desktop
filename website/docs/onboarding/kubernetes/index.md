@@ -1,16 +1,16 @@
 ---
 sidebar_position: 3
-title: Kubernetes
-description: To run Kubernetes workloads with Kubernetes, set up at least one Kubernetes context.
+title: Kubernetes and OpenShift
+description: To run workloads with Kubernetes or OpenShift, set up at least one Kubernetes context.
 tags: [podman-desktop, onboarding]
 keywords: [podman desktop, kubernetes, onboarding]
 ---
 
-# Onboarding for Kubernetes workloads
+# Onboarding for Kubernetes or OpenShift workloads
 
-To run Kubernetes workloads, set up at least one Kubernetes context.
+To run Kubernetes or OpenShift workloads, set up at least one Kubernetes context.
 
-Podman Desktop does not automatically set up Kubernetes resources that you might not need.
+Podman Desktop does not automatically set up Kubernetes or OpenShift resources that you might not need.
 
 #### Procedure
 
@@ -26,4 +26,4 @@ Podman Desktop does not automatically set up Kubernetes resources that you might
 #### Next steps
 
 1. [Select the current Kubernetes context based on your Kube config](/docs/kubernetes/viewing-and-selecting-current-kubernete-context).
-1. [Migrate containers to Kubernetes](/docs/kubernetes).
+1. [Migrate containers to Kubernetes or OpenShift](/docs/kubernetes).

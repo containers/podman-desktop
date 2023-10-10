@@ -1,25 +1,25 @@
 ---
 sidebar_position: 10
 title: Deploying a pod
-description: Deploying a pod to Kubernetes
+description: Deploying a pod to Kubernetes or OpenShift
 keywords: [podman desktop, podman, containers, pods, migrating, kubernetes]
 tags: [migrating-to-kubernetes]
 ---
 
-# Deploying a pod to Kubernetes
+# Deploying a pod to Kubernetes or OpenShift
 
-With Podman Desktop, you can deploy a pod to your Kubernetes cluster.
+With Podman Desktop, you can deploy a pod to your Kubernetes or OpenShift cluster.
 
 #### Prerequisites
 
 - Your are using the Podman container engine.
 - Your pod, running or stopped, is available on the **Pods** page: _<your_pod>_.
-- You registered the Kubernetes cluster in your kubeconfig file: _<your_kubernetes_cluster>_. For example, [Creating a kind cluster](/docs/onboarding/kubernetes/kind/creating-a-kind-cluster).
-- The Kubernetes namespace to deploy to already exists.
+- You registered the Kubernetes or OpenShift cluster in your kubeconfig file: _<your_kubernetes_cluster>_. For example, [Creating a kind cluster](/docs/onboarding/kubernetes/kind/creating-a-kind-cluster).
+- The Kubernetes namespace or OpenShift project to deploy to already exists.
 
 #### Procedure
 
-1. Click **Podman Desktop tray > Kubernetes > Context > _<your_kubernetes_cluster>_** to set your Kubernetes context.
+1. Click **Podman Desktop tray > Kubernetes > Context > _<your_kubernetes_cluster>_** to set your Kubernetes or OpenShift context.
 1. Open **Podman Desktop dashboard > <icon icon="fa-solid fa-cubes" size="lg" /> Pods > _<your_pod>_** to see the **Pod Details** page.
 1. Click <icon icon="fa-solid fa-rocket" size="lg" /> to generate a Kubernetes pod.
 1. On the **Deploy generated pod to Kubernetes** screen, choose your options:

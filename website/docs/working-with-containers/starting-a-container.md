@@ -39,7 +39,7 @@ You can interact with the running container by using the terminal in Podman Desk
    1. Click the content area to activate it.
    1. Enter <kbd>Ctrl</kbd> + <kbd>F</kbd> on Windows and Linux, or <kbd>⌘</kbd> + <kbd>F</kbd> on macOS to start searching in the content.
    1. Copy the content to a YAML file.
-   1. Later, you can reuse this file to start a container in Podman from Kubernetes YAML, or to start a pod in Kubernetes.
+   1. Later, you can reuse this file to start a container in Podman from Kubernetes YAML, or to start a pod in Kubernetes or OpenShift.
 1. To interact with the container terminal:
    1. Go to **Terminal**.
    1. Click the content area to activate the terminal.
