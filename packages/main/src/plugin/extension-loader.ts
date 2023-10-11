@@ -550,20 +550,6 @@ export class ExtensionLoader {
       extension.subscriptions.push(disposable);
     }
 
-    const extensionCliTools = extension.manifest?.contributes?.cliTools;
-    if (extensionCliTools) {
-      if (extensionCliTools.images) {
-        extensionCliTools.images.icon = this.updateImage(extensionCliTools?.images?.icon, extension.path);
-      }
-      const disposable = this.cliToolRegistry.createCliTool(
-        extension.id,
-        extension.name,
-        extension.manifest.displayName,
-        extensionCliTools,
-      );
-      extension.subscriptions.push(disposable);
-    }
-
     const icons = extension.manifest?.contributes?.icons;
     if (icons) {
       this.iconRegistry.registerIconContribution(extension, icons);
