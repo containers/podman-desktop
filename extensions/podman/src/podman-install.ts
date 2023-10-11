@@ -576,7 +576,7 @@ class WSL2Check extends BaseCheck {
       throw new Error(message);
     }
   }
-  
+
   private async isRebootNeeded(): Promise<boolean> {
     try {
       await extensionApi.process.exec('wsl', ['-l'], {
