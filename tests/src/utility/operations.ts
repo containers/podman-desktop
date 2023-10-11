@@ -46,13 +46,13 @@ export async function deleteContainer(page: Page, name: string) {
     await deleteButton.click();
     // wait for container to disappear
     try {
-      console.log(`Waiting for container to get deleted ...`);
+      console.log('Waiting for container to get deleted ...');
       await waitWhile(async () => {
         const result = await containers.getContainerRowByName(name);
         return result ? true : false;
       }, 5000);
     } catch (error) {
-      if ((error as Error).message.indexOf('Containers page is empty') < 0) {
+      if ((error as Error).message.includes('Containers page is empty')) {
         throw Error(`Error waiting for container '${name}' to get removed, ${error}`);
       }
     }
@@ -79,7 +79,7 @@ export async function deleteImage(page: Page, name: string) {
     }
     // wait for image to disappear
     try {
-      console.log(`image deleting, waiting...`);
+      console.log('image deleting, waiting...');
       await waitWhile(
         async () => {
           const images = await new NavigationBar(page).openImages();
@@ -91,8 +91,33 @@ export async function deleteImage(page: Page, name: string) {
         false,
       );
     } catch (error) {
-      if ((error as Error).message.indexOf('Images page is empty') < 0) {
+      if ((error as Error).message.includes('Images page is empty')) {
         throw Error(`Error waiting for image '${name}' to get removed, ${error}`);
+      }
+    }
+  }
+}
+
+export async function deletePod(page: Page, name: string) {
+  const navigationBar = new NavigationBar(page);
+  const pods = await navigationBar.openPods();
+  const pod = await pods.getPodRowByName(name);
+  // check if pod exists
+  if (pod === undefined) {
+    console.log(`pod '${name}' does not exist, skipping...`);
+  } else {
+    // delete the pod
+    const deleteButton = pod.getByRole('button').and(pod.getByLabel('Delete Pod'));
+    await deleteButton.click();
+    // wait for pod to disappear
+    try {
+      console.log('Waiting for pod to get deleted ...');
+      await waitWhile(async () => {
+        return (await pods.getPodRowByName(name)) ? true : false;
+      }, 5000);
+    } catch (error) {
+      if ((error as Error).message.includes('Pods page is empty')) {
+        throw Error(`Error waiting for pod '${name}' to get removed, ${error}`);
       }
     }
   }
