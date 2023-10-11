@@ -2,7 +2,7 @@
 UI guidelines -->
 <style>
 .markdown > :global(p) {
-  line-height: revert;
+  line-height: normal;
   padding-bottom: 8px;
   margin-bottom: 8px;
 }
@@ -24,6 +24,15 @@ UI guidelines -->
   list-style: revert;
   margin: revert;
   padding: revert;
+}
+
+.markdown > :global(b),
+:global(strong) {
+  font-weight: 600;
+}
+.markdown > :global(blockquote) {
+  opacity: 0.8;
+  line-height: normal;
 }
 </style>
 

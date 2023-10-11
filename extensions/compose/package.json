@@ -19,6 +19,14 @@
       {
         "command": "compose.checks",
         "title": "Compose: Checks..."
+      },
+      {
+        "command": "compose.onboarding.checkComposeInstalled",
+        "title": "Compose: Check Compose installation"
+      },
+      {
+        "command": "compose.onboarding.installCompose",
+        "title": "Compose: Install Compose"
       }
     ],
     "onboarding": {
@@ -26,14 +34,76 @@
       "enablement": "!compose.isComposeInstalledSystemWide",
       "steps": [
         {
-          "id": "composeSettings",
-          "label": "Compose Settings",
-          "title": "Compose Settings",
+          "id": "checkComposeInstalled",
+          "label": "Check Compose",
+          "title": "Checking for Compose installation",
+          "command": "compose.onboarding.checkComposeInstalled",
+          "completionEvents": [
+            "onCommand:compose.onboarding.checkComposeInstalled"
+          ]
+        },
+        {
+          "id": "startComposeInstallation",
+          "label": "Compose Installation",
+          "title": "Compose Installation",
+          "when": "onboardingContext:composeIsNotInstalled == true",
+          "content": [
+            [
+              {
+                "value": "Compose support in Podman Desktop enables you to use Compose specification CLI implementations such as `podman compose` and `docker compose` with supported container engines."
+              }
+            ],
+            [
+              {
+                "value": "#### How to use Compose\nRun `podman compose up` (podman CLI v4.7.0+) in a directory with a `compose.yaml` for Podman to deploy the containers. Podman Desktop will automatically detect the Compose deployment and show it in the container list. \n\n> ℹ️ Note: If you would like to use docker tools such as: `docker compose up`. Enable **Docker Compatibility** within Preferences.",
+                "highlight": true
+              }
+            ],
+            [
+              {
+                "value": "Podman Desktop will install the latest Compose binary (${onboardingContext:composeInstallVersion}). :link[Want to install a different version?]{command=compose.onboarding.promptUserForVersion}",
+                "when": "!onboardingContext:composeShowCustomInstallDialog"
+              }
+            ]
+          ]
+        },
+        {
+          "id": "installComposeView",
+          "title": "Installing Compose ${onboardingContext:composeInstallVersion}",
+          "description": "Downloading and installing the binary.\n\nOnce installed, we will enable and configure the extension.",
+          "when": "onboardingContext:composeIsNotInstalled == true",
+          "command": "compose.onboarding.installCompose",
+          "completionEvents": [
+            "onCommand:compose.onboarding.installCompose"
+          ]
+        },
+        {
+          "id": "composeFailedInstallation",
+          "title": "Failed installing Compose",
+          "when": "onboardingContext:composeIsNotInstalled == true",
+          "state": "failed"
+        },
+        {
+          "id": "composeInstalled",
+          "title": "Compose successfully installed",
+          "when": "onboardingContext:composeIsNotInstalled == false",
+          "state": "succeeded",
           "content": [
             [
               {
                 "value": "${configuration:compose.binary.installComposeSystemWide}",
                 "when": "!compose.isComposeInstalledSystemWide"
+              }
+            ],
+            [
+              {
+                "value": "> ℹ️ Note on `podman`: In order for `podman compose` (podman CLI v4.7.0+) to work correctly, it is required for Compose to be installed system-wide for podman to access the binary.",
+                "when": "!compose.isComposeInstalledSystemWide"
+              }
+            ],
+            [
+              {
+                "value": "> ℹ️ Note on `docker`: If you are using docker CLI tools with a podman back-end you must enable **Docker Compatibility** within **Preferences -> Extension: Podman** or set the [DOCKER_HOST](https://podman-desktop.io/docs/migrating-from-docker/using-the-docker_host-environment-variable) environment variable before running `docker compose up`."
               }
             ]
           ]

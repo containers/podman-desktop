@@ -20,13 +20,16 @@ import { Octokit } from '@octokit/rest';
 import * as extensionApi from '@podman-desktop/api';
 import { Detect } from './detect';
 import { ComposeExtension } from './compose-extension';
+import type { ComposeGithubReleaseArtifactMetadata } from './compose-github-releases';
 import { ComposeGitHubReleases } from './compose-github-releases';
 import { OS } from './os';
 import { ComposeWrapperGenerator } from './compose-wrapper-generator';
 import * as path from 'path';
 import * as handler from './handler';
+import { ComposeInstallation } from './installation';
 
 let composeExtension: ComposeExtension | undefined;
+let composeVersionMetadata: ComposeGithubReleaseArtifactMetadata | undefined;
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   // Post activation
@@ -42,6 +45,92 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // Setup configuration changes if the user toggles the "Install compose system-wide" boolean
   handler.handleConfigurationChanges(extensionContext);
+
+  // Create new classes to handle the onboarding sequence
+  const octokit = new Octokit();
+  const os = new OS();
+  const detect = new Detect(os, extensionContext.storagePath);
+
+  const composeGitHubReleases = new ComposeGitHubReleases(octokit);
+  const composeInstallation = new ComposeInstallation(extensionContext, composeGitHubReleases, os);
+
+  // ONBOARDING: Command to check compose installation
+  const onboardingCheckInstallationCommand = extensionApi.commands.registerCommand(
+    'compose.onboarding.checkComposeInstalled',
+    async () => {
+      // Check to see if docker compose is installed. This will check via doing
+      // 'docker-compose --version'.
+      // NOTE: This will return true if it ONLY exists in the storage/bin folder, it doesn't
+      // have to be installed system-wide.
+      const isInstalled = await detect.checkForDockerCompose();
+      extensionApi.context.setValue('composeIsNotInstalled', !isInstalled, 'onboarding');
+
+      // EDGE CASE: Update system-wide installation context in case the user has removed
+      // the binary from the system path while podman-desktop is running (we only check on startup)
+      await handler.updateConfigAndContextComposeBinary(extensionContext);
+
+      // CheckInstallation is the first step in the onboarding sequence,
+      // we will run getLatestVersionAsset so we can show the user the latest
+      // latest version of compose that is available.
+      if (!isInstalled) {
+        // Get the latest version and store the metadata in a local variable
+        const composeLatestVersion = await composeInstallation.getLatestVersionAsset();
+        // Set the value in the context to the version we're installing so it appears in the onboarding sequence
+        if (composeLatestVersion) {
+          composeVersionMetadata = composeLatestVersion;
+          extensionApi.context.setValue('composeInstallVersion', composeVersionMetadata.tag, 'onboarding');
+        }
+      }
+    },
+  );
+
+  // ONBOARDING; Command to install the compose binary. We will get the value that the user has "picked"
+  // from the context value. This is because we have the option to either "select a version" or "install the latest"
+  const onboardingInstallComposeCommand = extensionApi.commands.registerCommand(
+    'compose.onboarding.installCompose',
+    async () => {
+      // If the version is undefined (checks weren't run, or the user didn't select a version)
+      // we will just install the latest version
+      if (composeVersionMetadata === undefined) {
+        composeVersionMetadata = await composeInstallation.getLatestVersionAsset();
+      }
+
+      // Install
+      await composeInstallation.install(composeVersionMetadata);
+
+      // We are all done, so we can set the context value to false
+      extensionApi.context.setValue('composeIsNotInstalled', false, 'onboarding');
+    },
+  );
+
+  // ONBOARDING: Prompt the user for the version of Compose they want to install
+  const onboardingPromptUserForVersionCommand = extensionApi.commands.registerCommand(
+    'compose.onboarding.promptUserForVersion',
+    async () => {
+      // Prompt the user for the verison
+      const composeRelease = await composeInstallation.promptUserForVersion();
+
+      // Update the context value that this is the version we are installing
+      // we'll store both the metadata as well as version number in a sepearate context value
+      if (composeRelease) {
+        composeVersionMetadata = composeRelease;
+        extensionApi.context.setValue('composeInstallVersion', composeRelease.tag, 'onboarding');
+      }
+
+      // Note, we do not refresh the UI when setValue has been set, only when "when" has been updated
+      // TEMPORARY FIX until we can find a better way to do this. This forces a refresh by changing the "when" evaluation
+      // of the dialog so it'll refresh the composeInstallVersion value.
+      extensionApi.context.setValue('composeShowCustomInstallDialog', true, 'onboarding');
+      extensionApi.context.setValue('composeShowCustomInstallDialog', false, 'onboarding');
+    },
+  );
+
+  // Push the commands that will be used within the onboarding sequence
+  extensionContext.subscriptions.push(
+    onboardingCheckInstallationCommand,
+    onboardingPromptUserForVersionCommand,
+    onboardingInstallComposeCommand,
+  );
 
   // Need to "ADD" a provider so we can actually press the button!
   // We set this to "unknown" so it does not appear on the dashboard (we only want it in preferences).
