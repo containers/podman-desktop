@@ -1,6 +1,6 @@
 ---
-sidebar_position: 3
-title: Kubernetes
+sidebar_position: 30
+title: Onboarding for Kubernetes
 description: To run Kubernetes workloads with Kubernetes, set up at least one Kubernetes context.
 tags: [podman-desktop, onboarding]
 keywords: [podman desktop, kubernetes, onboarding]
@@ -16,12 +16,12 @@ Podman Desktop does not automatically set up Kubernetes resources that you might
 
 - Setup at least one Kubernetes context:
 
-  - [Red Hat Developer Sandbox](/docs/onboarding/kubernetes/developer-sandbox)
-  - [Existing Kubernetes](/docs/onboarding/kubernetes/existing-kubernetes)
-  - [Kind](/docs/onboarding/kubernetes/kind)
-  - [Lima](/docs/onboarding/kubernetes/lima)
-  - [Minikube](/docs/onboarding/kubernetes/minikube)
-  - [Red Hat OpenShift Local](/docs/onboarding/kubernetes/openshift-local)
+  - [Red Hat Developer Sandbox](/docs/onboarding-for-kubernetes/developer-sandbox)
+  - [Existing Kubernetes](/docs/onboarding-for-kubernetes/existing-kubernetes)
+  - [Kind](/docs/onboarding-for-kubernetes/kind)
+  - [Lima](/docs/onboarding-for-kubernetes/lima)
+  - [Minikube](/docs/onboarding-for-kubernetes/minikube)
+  - [Red Hat OpenShift Local](/docs/onboarding-for-kubernetes/openshift-local)
 
 #### Next steps
 

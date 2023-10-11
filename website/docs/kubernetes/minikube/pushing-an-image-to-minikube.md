@@ -13,7 +13,7 @@ With Podman Desktop, you can push an image to your local Minikube-powered Kubern
 #### Prerequisites
 
 - [You onboarded a container engine](/docs/onboarding/containers).
-- [You onboarded a Minikube cluster](/docs/onboarding/kubernetes/minikube).
+- [You onboarded a Minikube cluster](/docs/onboarding-for-kubernetes/minikube).
 - [You have set your Kubernetes context to your Minikube cluster](/docs/kubernetes/minikube/working-with-your-local-minikube-cluster).
 - Your image is available on the **Images** page: `<my_image>:<my_tag>`.
 

@@ -12,7 +12,7 @@ Set your Kubernetes context to your local Kind-powered Kubernetes cluster.
 
 #### Prerequisites
 
-- [You onboarded a Kind cluster](/docs/onboarding/kubernetes/kind).
+- [You onboarded a Kind cluster](/docs/onboarding-for-kubernetes/kind).
 - [You have set your Kubernetes context to your local Kind-powered Kubernetes cluster](/docs/kubernetes/kind/working-with-your-local-kind-cluster).
 
 #### Procedure

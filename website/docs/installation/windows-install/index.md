@@ -24,4 +24,5 @@ Consider using this installation method if you don't require another method such
 
 #### Next steps
 
-- [Onboarding](/docs/onboarding)
+- [Onboard for container workloads](/docs/onboarding/containers).
+- [Onboard for Kubernetes workloads](/docs/onboarding-for-kubernetes).
