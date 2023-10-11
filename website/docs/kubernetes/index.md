@@ -1,6 +1,6 @@
 ---
-sidebar_position: 60
-title: Working with Kubernetes
+sidebar_position: 8
+title: Kubernetes
 description: Migrate transparently from Podman to Kubernetes, and continue using familiar workflows.
 keywords: [podman desktop, podman, containers, migrating, kubernetes]
 tags: [migrating-to-kubernetes]
