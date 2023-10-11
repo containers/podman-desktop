@@ -17,8 +17,8 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, describe } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { test, expect, describe, beforeAll, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import Markdown from './Markdown.svelte';
 
 async function waitRender(customProperties: object): Promise<void> {
@@ -28,6 +28,10 @@ async function waitRender(customProperties: object): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, 100));
   }
 }
+
+beforeAll(() => {
+  (window as any).executeCommand = vi.fn();
+});
 
 test('Expect to have bold', async () => {
   await waitRender({ markdown: '**bold**' });
@@ -157,7 +161,44 @@ describe('Custom warnings', () => {
     expect(markdownContent.textContent).toContain('this is the doc description');
     const button = screen.getByRole('button', { name: 'command title' });
     expect(button).toBeDefined();
+    // open expandable section to check if link is there
+    const moreInfoButton = screen.getByRole('button', { name: 'micromark-expandable-4' });
+    expect(moreInfoButton).toBeDefined();
+    await fireEvent.click(moreInfoButton);
+
     const link = screen.getByRole('link', { name: 'first link' });
     expect(link).toBeDefined();
+  });
+
+  test('Expect button to be in error mode if execution fails', async () => {
+    vi.spyOn(window, 'executeCommand').mockRejectedValue('error');
+    const warnings = [
+      {
+        state: 'failed',
+        description: 'failed description',
+        command: {
+          id: 'command',
+          title: 'command title',
+        },
+        docDescription: 'this is the doc description',
+        docLinks: [
+          {
+            url: 'url',
+            title: 'first link',
+          },
+        ],
+      },
+    ];
+
+    await waitRender({ markdown: `:warnings[${JSON.stringify(warnings)}]` });
+    const markdownContent = screen.getByRole('region', { name: 'markdown-content' });
+    expect(markdownContent).toBeInTheDocument();
+    expect(markdownContent.textContent).toContain('this is the doc description');
+    const button = screen.getByRole('button', { name: 'command title' });
+    expect(button).toBeDefined();
+    await fireEvent.click(button);
+
+    const buttonFailedStatus = await screen.findByText('command title failed');
+    expect(buttonFailedStatus).toBeDefined();
   });
 });
