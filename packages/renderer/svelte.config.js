@@ -21,7 +21,6 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-console.log('dirname' + __dirname);
 
 export default {
   // Consult https://github.com/sveltejs/svelte-preprocess
