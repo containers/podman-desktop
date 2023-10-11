@@ -161,3 +161,9 @@ export function validateProxyAddress(value: string): string | undefined {
     }
   }
 }
+
+export function isContainerConnection(
+  connection: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+): connection is ProviderContainerConnectionInfo {
+  return (connection as ProviderContainerConnectionInfo).endpoint.socketPath !== undefined;
+}

@@ -1706,6 +1706,28 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
+      'provider-registry:editProviderConnectionLifecycle',
+      async (
+        _listener: Electron.IpcMainInvokeEvent,
+        providerId: string,
+        providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        params: { [key: string]: any },
+        loggerId: string,
+        tokenId?: number,
+      ): Promise<void> => {
+        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+        let token;
+        if (tokenId) {
+          const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
+          token = tokenSource?.token;
+        }
+        await providerRegistry.editProviderConnection(providerId, providerConnectionInfo, params, logger, token);
+        logger.onEnd();
+      },
+    );
+
+    this.ipcHandle(
       'provider-registry:deleteProviderConnectionLifecycle',
       async (
         _listener: Electron.IpcMainInvokeEvent,

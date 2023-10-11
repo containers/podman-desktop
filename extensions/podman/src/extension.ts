@@ -606,6 +606,34 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
     delete: async (logger): Promise<void> => {
       await extensionApi.process.exec(getPodmanCli(), ['machine', 'rm', '-f', machineInfo.name], { logger });
     },
+    edit: async (context, params, logger, _token): Promise<void> => {
+      let effective = false;
+      const args = ['machine', 'set'];
+      for (const key of Object.keys(params)) {
+        if (key === 'podman.machine.cpus') {
+          args.push('--cpus', params[key]);
+          effective = true;
+        } else if (key === 'podman.machine.memory') {
+          args.push('--memory', Math.floor(params[key] / (1024 * 1024)).toString());
+          effective = true;
+        } else if (key === 'podman.machine.diskSize') {
+          args.push('--disk-size', Math.floor(params[key] / (1024 * 1024 * 1024)).toString());
+          effective = true;
+        }
+      }
+      if (effective) {
+        const state = podmanMachinesStatuses.get(machineInfo.name);
+        if (state === 'started') {
+          await lifecycle.stop(context, logger);
+        }
+        await extensionApi.process.exec(getPodmanCli(), args, {
+          logger: new LoggerDelegator(context, logger),
+        });
+        if (state === 'started') {
+          await lifecycle.start(context, logger);
+        }
+      }
+    },
   };
 
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {

@@ -1,6 +1,10 @@
 <script lang="ts">
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type {
+  ProviderInfo,
+  ProviderContainerConnectionInfo,
+  ProviderKubernetesConnectionInfo,
+} from '../../../../main/src/plugin/api/provider-info';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import { writeToTerminal, isPropertyValidInContext, getInitialValue } from './Util';
@@ -18,13 +22,13 @@ import {
 import { get, type Unsubscriber } from 'svelte/store';
 import { onDestroy, onMount } from 'svelte';
 /* eslint-enable import/no-duplicates */
-import { createConnectionsInfo } from '/@/stores/create-connections';
+import { operationConnectionsInfo } from '/@/stores/operation-connections';
 import { router } from 'tinro';
 import LinearProgress from '../ui/LinearProgress.svelte';
 import Spinner from '../ui/Spinner.svelte';
 import Markdown from '../markdown/Markdown.svelte';
 import type { Terminal } from 'xterm';
-import type { AuditRequestItems, AuditResult } from '@podman-desktop/api';
+import type { AuditRequestItems, AuditResult, ConfigurationScope } from '@podman-desktop/api';
 import AuditMessageBox from '../ui/AuditMessageBox.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import { faCubes } from '@fortawesome/free-solid-svg-icons';
@@ -46,13 +50,14 @@ export let callback: (
 export let taskId: number | undefined = undefined;
 export let disableEmptyScreen = false;
 export let hideCloseButton = false;
+export let connectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo | undefined = undefined;
 
-$: configurationValues = new Map<string, string | boolean | number>();
-let creationInProgress = false;
-let creationStarted = false;
-let creationSuccessful = false;
-let creationCancelled = false;
-let creationFailed = false;
+$: configurationValues = new Map<string, { modified: boolean; value: string | boolean | number }>();
+let operationInProgress = false;
+let operationStarted = false;
+let operationSuccessful = false;
+let operationCancelled = false;
+let operationFailed = false;
 export let pageIsLoading = true;
 let showLogs = false;
 let tokenId: number | undefined;
@@ -83,6 +88,9 @@ $: connectionAuditResult = undefined;
 
 let contextsUnsubscribe: Unsubscriber;
 
+const buttonLabel = connectionInfo ? 'Update' : 'Create';
+const operationLabel = connectionInfo ? 'Update' : 'Creation';
+
 // reconnect the logger handler
 $: if (logsTerminal && loggerHandlerKey) {
   try {
@@ -97,6 +105,28 @@ onMount(async () => {
   osCpu = await window.getOsCpu();
   osFreeDisk = await window.getOsFreeDiskSize();
   contextsUnsubscribe = context.subscribe(value => (globalContext = value));
+
+  // check if we have an existing action
+  const operationConnectionInfoMap = get(operationConnectionsInfo);
+
+  if (taskId && operationConnectionInfoMap && operationConnectionInfoMap.has(taskId)) {
+    const value = operationConnectionInfoMap.get(taskId);
+    if (value) {
+      loggerHandlerKey = value.operationKey;
+      providerInfo = value.providerInfo;
+      connectionInfo = value.connectionInfo;
+      properties = value.properties;
+      propertyScope = value.propertyScope;
+
+      // set the flag as before
+      operationInProgress = value.operationInProgress;
+      operationStarted = value.operationStarted;
+      errorMessage = value.errorMessage;
+      operationSuccessful = value.operationSuccessful;
+      tokenId = value.tokenId;
+    }
+  }
+
   configurationKeys = properties
     .filter(property => property.scope === propertyScope)
     .filter(property => property.id?.startsWith(providerInfo.id))
@@ -127,30 +157,12 @@ onMount(async () => {
       }
       return property;
     });
-
-  pageIsLoading = false;
-
-  // check if we have an existing create action
-  const createConnectionInfoMap = get(createConnectionsInfo);
-
-  if (taskId && createConnectionInfoMap && createConnectionInfoMap.has(taskId)) {
-    const value = createConnectionInfoMap.get(taskId);
-    if (value) {
-      loggerHandlerKey = value.createKey;
-      providerInfo = value.providerInfo;
-      properties = value.properties;
-      propertyScope = value.propertyScope;
-
-      // set the flag as before
-      creationInProgress = value.creationInProgress;
-      creationStarted = value.creationStarted;
-      errorMessage = value.errorMessage;
-      creationSuccessful = value.creationSuccessful;
-      tokenId = value.tokenId;
-    }
+  if (connectionInfo) {
+    configurationKeys = configurationKeys.filter(property => !property.readonly);
   }
+
   if (taskId === undefined) {
-    taskId = createConnectionInfoMap.size + 1;
+    taskId = operationConnectionInfoMap.size + 1;
   }
 
   const data: any = {};
@@ -160,11 +172,14 @@ onMount(async () => {
       data[id] = field.default;
     }
   }
-  try {
-    connectionAuditResult = await window.auditConnectionParameters(providerInfo.internalId, data);
-  } catch (e: any) {
-    console.warn(e.message);
+  if (!connectionInfo) {
+    try {
+      connectionAuditResult = await window.auditConnectionParameters(providerInfo.internalId, data);
+    } catch (e: any) {
+      console.warn(e.message);
+    }
   }
+  pageIsLoading = false;
 });
 
 onDestroy(() => {
@@ -201,9 +216,33 @@ async function handleValidComponent() {
   }
 }
 
-function setConfigurationValue(id: string, value: string | boolean | number) {
-  configurationValues.set(id, value);
+function internalSetConfigurationValue(id: string, modified: boolean, value: string | boolean | number) {
+  const item = configurationValues.get(id);
+  if (item) {
+    item.modified = modified;
+    item.value = value;
+  } else {
+    configurationValues.set(id, { modified, value });
+  }
   configurationValues = configurationValues;
+}
+
+function setConfigurationValue(id: string, value: string | boolean | number) {
+  internalSetConfigurationValue(id, true, value);
+}
+
+async function getConfigurationValue(configurationKey: IConfigurationPropertyRecordedSchema): Promise<any> {
+  if (configurationKey?.id) {
+    if (connectionInfo) {
+      const value = await window.getConfigurationValue(
+        configurationKey.id,
+        connectionInfo as unknown as ConfigurationScope,
+      );
+      internalSetConfigurationValue(configurationKey.id, false, value as string);
+      return value;
+    }
+    return getInitialValue(configurationKey);
+  }
 }
 
 let logsTerminal: Terminal;
@@ -218,7 +257,7 @@ function getLoggerHandler(): ConnectionCallback {
       writeToTerminal(logsTerminal, args, '\x1b[33m');
     },
     error: args => {
-      creationFailed = true;
+      operationFailed = true;
       writeToTerminal(logsTerminal, args, '\x1b[1;31m');
     },
     onEnd: () => {
@@ -228,11 +267,11 @@ function getLoggerHandler(): ConnectionCallback {
 }
 
 async function ended() {
-  creationInProgress = false;
+  operationInProgress = false;
   tokenId = undefined;
-  if (!creationCancelled && !creationFailed) {
+  if (!operationCancelled && !operationFailed) {
     window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
-    creationSuccessful = true;
+    operationSuccessful = true;
   }
   updateStore();
 }
@@ -245,27 +284,28 @@ async function cleanup() {
   }
   errorMessage = undefined;
   showLogs = false;
-  creationInProgress = false;
-  creationStarted = false;
-  creationFailed = false;
-  creationCancelled = false;
-  creationSuccessful = false;
+  operationInProgress = false;
+  operationStarted = false;
+  operationFailed = false;
+  operationCancelled = false;
+  operationSuccessful = false;
   updateStore();
   logsTerminal?.clear();
 }
 
 // store the key
 function updateStore() {
-  createConnectionsInfo.update(map => {
+  operationConnectionsInfo.update(map => {
     if (taskId && loggerHandlerKey) {
       map.set(taskId, {
-        createKey: loggerHandlerKey,
+        operationKey: loggerHandlerKey,
         providerInfo,
+        connectionInfo,
         properties,
         propertyScope,
-        creationInProgress,
-        creationSuccessful,
-        creationStarted,
+        operationInProgress: operationInProgress,
+        operationSuccessful: operationSuccessful,
+        operationStarted: operationStarted,
         errorMessage: errorMessage || '',
         tokenId,
       });
@@ -281,21 +321,23 @@ async function handleOnSubmit(e: any) {
   const data: { [key: string]: FormDataEntryValue } = {};
   for (let field of formData) {
     const [key, value] = field;
-    data[key] = value;
+    if (configurationValues.get(key)?.modified) {
+      data[key] = value;
+    }
   }
 
   // send the data to the right provider
-  creationInProgress = true;
-  creationStarted = true;
-  creationFailed = false;
-  creationCancelled = false;
+  operationInProgress = true;
+  operationStarted = true;
+  operationFailed = false;
+  operationCancelled = false;
 
   try {
     tokenId = await window.getCancellableTokenSource();
     // clear terminal
     logsTerminal?.clear();
     loggerHandlerKey = startTask(
-      `Create ${providerDisplayName}`,
+      connectionInfo ? `Update ${providerDisplayName} ${connectionInfo.name}` : `Create ${providerDisplayName}`,
       `/preferences/provider-task/${providerInfo.internalId}/${taskId}`,
       getLoggerHandler(),
     );
@@ -316,13 +358,16 @@ async function handleOnSubmit(e: any) {
 async function cancelCreation() {
   if (tokenId) {
     await window.cancelToken(tokenId);
-    creationCancelled = true;
+    operationCancelled = true;
     tokenId = undefined;
   }
-  window.telemetryTrack('createNewProviderConnectionRequestUserCanceled', {
-    providerId: providerInfo.id,
-    name: providerInfo.name,
-  });
+  window.telemetryTrack(
+    connectionInfo ? 'updateProviderConnectionRequestUserCanceled' : 'createNewProviderConnectionRequestUserCanceled',
+    {
+      providerId: providerInfo.id,
+      name: providerInfo.name,
+    },
+  );
 }
 
 async function closePanel() {
@@ -331,20 +376,23 @@ async function closePanel() {
 
 function closePage() {
   router.goto('/preferences/resources');
-  window.telemetryTrack('createNewProviderConnectionPageUserClosed', {
-    providerId: providerInfo.id,
-    name: providerInfo.name,
-  });
+  window.telemetryTrack(
+    connectionInfo ? 'updateProviderConnectionPageUserClosed' : 'createNewProviderConnectionPageUserClosed',
+    {
+      providerId: providerInfo.id,
+      name: providerInfo.name,
+    },
+  );
 }
 
 function getConnectionResourceConfigurationValue(
   configurationKey: IConfigurationPropertyRecordedSchema,
-  configurationValues: Map<string, string | boolean | number>,
+  configurationValues: Map<string, { modified: boolean; value: string | boolean | number }>,
 ): number | undefined {
   if (configurationKey.id && configurationValues.has(configurationKey.id)) {
     const value = configurationValues.get(configurationKey.id);
-    if (typeof value === 'number') {
-      return value;
+    if (typeof value?.value === 'number') {
+      return value.value;
     }
   }
   return undefined;
@@ -352,8 +400,8 @@ function getConnectionResourceConfigurationValue(
 </script>
 
 <div class="flex flex-col w-full h-full overflow-hidden">
-  {#if creationSuccessful && !disableEmptyScreen}
-    <EmptyScreen icon="{faCubes}" title="Creation" message="Successful operation">
+  {#if operationSuccessful && !disableEmptyScreen}
+    <EmptyScreen icon="{faCubes}" title="{operationLabel}" message="Successful operation">
       <Button
         class="py-3"
         on:click="{() => {
@@ -370,10 +418,10 @@ function getConnectionResourceConfigurationValue(
           <Spinner size="2em" />
         </div>
       {:else}
-        {#if creationStarted}
+        {#if operationStarted}
           <div class="w-4/5">
             <div class="mt-2 mb-8">
-              {#if creationInProgress}
+              {#if operationInProgress}
                 <LinearProgress />
               {/if}
               <div class="mt-2 float-right">
@@ -384,12 +432,12 @@ function getConnectionResourceConfigurationValue(
                   >Show Logs <i class="fas {showLogs ? 'fa-angle-up' : 'fa-angle-down'}" aria-hidden="true"></i
                   ></button>
                 <button
-                  aria-label="Cancel creation"
+                  aria-label="Cancel {operationLabel.toLowerCase()}"
                   class="text-xs {errorMessage ? 'mr-3' : ''} hover:underline {tokenId ? '' : 'hidden'}"
                   disabled="{!tokenId}"
                   on:click="{cancelCreation}">Cancel</button>
                 <button
-                  class="text-xs hover:underline {creationInProgress ? 'hidden' : ''}"
+                  class="text-xs hover:underline {operationInProgress ? 'hidden' : ''}"
                   aria-label="Close panel"
                   on:click="{closePanel}">Close</button>
               </div>
@@ -407,7 +455,7 @@ function getConnectionResourceConfigurationValue(
           </div>
         {/if}
 
-        <div class="p-3 mt-2 w-4/5 h-fit {creationInProgress ? 'opacity-40 pointer-events-none' : ''}">
+        <div class="p-3 mt-2 w-4/5 h-fit {operationInProgress ? 'opacity-40 pointer-events-none' : ''}">
           {#if connectionAuditResult && (connectionAuditResult.records?.length || 0) > 0}
             <AuditMessageBox auditResult="{connectionAuditResult}" />
           {/if}
@@ -439,7 +487,7 @@ function getConnectionResourceConfigurationValue(
                     record="{configurationKey}"
                     setRecordValue="{setConfigurationValue}"
                     enableSlider="{true}"
-                    initialValue="{getInitialValue(configurationKey)}"
+                    initialValue="{getConfigurationValue(configurationKey)}"
                     givenValue="{getConnectionResourceConfigurationValue(configurationKey, configurationValues)}" />
                 {/if}
               </div>
@@ -451,8 +499,8 @@ function getConnectionResourceConfigurationValue(
                 {/if}
                 <Button
                   disabled="{!isValid}"
-                  inProgress="{creationInProgress}"
-                  on:click="{() => formEl.requestSubmit()}">Create</Button>
+                  inProgress="{operationInProgress}"
+                  on:click="{() => formEl.requestSubmit()}">{buttonLabel}</Button>
               </div>
             </div>
           </form>

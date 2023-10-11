@@ -26,7 +26,7 @@ import type {
   ProviderInformation,
 } from '@podman-desktop/api';
 
-export type LifecycleMethod = 'start' | 'stop' | 'delete';
+export type LifecycleMethod = 'start' | 'stop' | 'delete' | 'edit';
 
 export interface ProviderContainerConnectionInfo {
   name: string;

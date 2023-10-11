@@ -19,6 +19,7 @@ import PreferencesCliToolsRendering from './PreferencesCliToolsRendering.svelte'
 import PreferencesKubernetesContextsRendering from './PreferencesKubernetesContextsRendering.svelte';
 import Onboarding from '../onboarding/Onboarding.svelte';
 import { isDefaultScope } from './Util';
+import PreferencesContainerConnectionEdit from '/@/lib/preferences/PreferencesContainerConnectionEdit.svelte';
 
 let properties: IConfigurationPropertyRecordedSchema[];
 let defaultPrefPageId: string;
@@ -96,7 +97,7 @@ onMount(async () => {
   </Route>
 
   <Route
-    path="/container-connection/:provider/:name/:connection/*"
+    path="/container-connection/view/:provider/:name/:connection/*"
     breadcrumb="Container Engine"
     let:meta
     navigationHint="details">
@@ -104,6 +105,16 @@ onMount(async () => {
       providerInternalId="{meta.params.provider}"
       name="{meta.params.name}"
       connection="{meta.params.connection}"
+      properties="{properties}" />
+  </Route>
+  <Route
+    path="/container-connection/edit/:provider/:name/*"
+    breadcrumb="Container Engine"
+    let:meta
+    navigationHint="details">
+    <PreferencesContainerConnectionEdit
+      providerInternalId="{meta.params.provider}"
+      name="{meta.params.name}"
       properties="{properties}" />
   </Route>
   <Route

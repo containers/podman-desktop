@@ -20,7 +20,6 @@ export let enableAutoSave = false;
 export let setRecordValue = (_id: string, _value: string | boolean | number) => {};
 export let enableSlider = false;
 export let record: IConfigurationPropertyRecordedSchema;
-
 export let initialValue: Promise<any>;
 export let givenValue: unknown = undefined;
 

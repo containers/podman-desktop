@@ -4,7 +4,7 @@ import { configurationProperties } from '/@/stores/configurationProperties';
 import { providerInfos } from '/@/stores/providers';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import PreferencesConnectionCreationRendering from '../preferences/PreferencesConnectionCreationRendering.svelte';
+import PreferencesConnectionCreationOrEditRendering from '../preferences/PreferencesConnectionCreationOrEditRendering.svelte';
 import type { OnboardingEmbeddedComponentType } from '../../../../main/src/plugin/api/onboarding';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
@@ -43,7 +43,7 @@ onMount(() => {
     Create a {providerDisplayName}
   </h1>
   {#if component === 'createContainerProviderConnection' && providerInfo?.containerProviderConnectionCreation === true}
-    <PreferencesConnectionCreationRendering
+    <PreferencesConnectionCreationOrEditRendering
       providerInfo="{providerInfo}"
       properties="{configurationItems}"
       propertyScope="ContainerProviderConnectionFactory"
@@ -51,7 +51,7 @@ onMount(() => {
       disableEmptyScreen="{true}"
       hideCloseButton="{true}" />
   {:else if component === 'createKubernetesProviderConnection' && providerInfo?.kubernetesProviderConnectionCreation === true}
-    <PreferencesConnectionCreationRendering
+    <PreferencesConnectionCreationOrEditRendering
       providerInfo="{providerInfo}"
       properties="{configurationItems}"
       propertyScope="KubernetesProviderConnectionFactory"

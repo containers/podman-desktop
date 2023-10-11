@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { createConnectionsInfo } from '/@/stores/create-connections';
+import { operationConnectionsInfo } from '/@/stores/operation-connections';
 import { router } from 'tinro';
 
 import type { Logger as LoggerType } from '@podman-desktop/api';
@@ -88,7 +88,7 @@ export function clearCreateTask(key: symbol): void {
   taskLogOnHolds.delete(key);
   taskLogReplays.delete(key);
   // remove current create
-  createConnectionsInfo.set(new Map());
+  operationConnectionsInfo.set(new Map());
 
   // remove the task
   const task = allTasks.get(key);

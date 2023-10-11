@@ -233,6 +233,13 @@ declare module '@podman-desktop/api' {
     start?(startContext: LifecycleContext, logger?: Logger): Promise<void>;
     stop?(stopContext: LifecycleContext, logger?: Logger): Promise<void>;
     delete?(logger?: Logger): Promise<void>;
+    edit?(
+      editContext: LifecycleContext,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      params: { [key: string]: any },
+      logger?: Logger,
+      token?: CancellationToken,
+    ): Promise<void>;
   }
 
   export interface ContainerProviderConnectionEndpoint {
