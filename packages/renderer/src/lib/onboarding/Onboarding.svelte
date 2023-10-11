@@ -15,6 +15,10 @@
 #stepBody::-webkit-scrollbar-thumb:active {
   background-color: theme(colors.gray.700);
 }
+#stepBody::-webkit-scrollbar-track-piece:start {
+  background: transparent;
+  margin-top: 100px;
+}
 .bodyWithBar::-webkit-scrollbar-track-piece:end {
   background: transparent;
   margin-bottom: 70px;
@@ -293,12 +297,14 @@ async function restartSetup() {
 </script>
 
 {#if activeStep}
+  <!-- fake div used to hide scrollbar shadow behind the header as it's a bit transparent  -->
+  <div class="fixed bg-charcoal-500 right-0 top-0 h-[100px] w-[30px] z-10 mt-8"></div>
   <div
     id="stepBody"
     class="flex flex-col bg-charcoal-500 h-full overflow-y-auto w-full overflow-x-hidden"
     class:bodyWithBar="{!activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}">
     <div class="flex flex-col h-full" bind:this="{activeStepDiv}">
-      <div class="flex flex-row justify-between m-5">
+      <div class="flex flex-row justify-between h-[100px] p-5 z-20 fixed w-full bg-opacity-90 bg-charcoal-700">
         <div class="flex flew-row">
           {#if activeStep.onboarding.media}
             <img
@@ -333,13 +339,13 @@ async function restartSetup() {
         </div>
       </div>
       {#if activeStep.step.component}
-        <div class="min-w-[700px] mx-auto" aria-label="onboarding component">
+        <div class="min-w-[700px] mx-auto mt-5" aria-label="onboarding component">
           <OnboardingComponent
             component="{activeStep.step.component}"
             extensionId="{activeStep.onboarding.extension}" />
         </div>
       {:else}
-        <div class="w-[450px] flex flex-col mt-16 mx-auto" aria-label="step body">
+        <div class="w-[450px] flex flex-col mt-16 pt-24 mx-auto" aria-label="step body">
           {#if activeStep.step.media}
             <div class="mx-auto">
               <img
