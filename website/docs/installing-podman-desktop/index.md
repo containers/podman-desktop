@@ -11,11 +11,6 @@ import TabItem from '@theme/TabItem';
 
 # Installing Podman Desktop
 
-Consider installing Podman Desktop with this default intallation method unless you require:
-
-- [Installing Podman Desktop with alternate installation methods](/docs/installing-podman-desktop/alternate-installation-methods).
-- [Installing Podman Desktop in a restricted environment](/docs/restricted-environment).
-
 <Tabs groupId="operating-systems">
 <TabItem value="win" label="Windows">
 
@@ -84,6 +79,11 @@ Consider installing Podman Desktop with this default intallation method unless y
 
 </TabItem>
 </Tabs>
+
+#### Additional resources
+
+- [Installing Podman Desktop with alternate installation methods](/docs/installing-podman-desktop/alternate-installation-methods).
+- [Installing Podman Desktop in a restricted environment](/docs/restricted-environment).
 
 #### Next steps
 
