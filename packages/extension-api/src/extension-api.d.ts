@@ -293,6 +293,7 @@ declare module '@podman-desktop/api' {
   export interface InstallCheck {
     title: string;
     execute(): Promise<CheckResult>;
+    init?(): Promise<void>;
   }
 
   export interface ProviderInstallation {

@@ -34,6 +34,7 @@ import { directive, directiveHtml } from 'micromark-extension-directive';
 import { button } from './micromark-button-directive';
 import { link } from './micromark-link-directive';
 import { warnings } from './micromark-warnings-directive';
+import { createListener } from './micromark-listener-handler';
 
 let text: string;
 let html: string;
@@ -73,39 +74,9 @@ onMount(() => {
     htmlExtensions: [directiveHtml({ button, link, warnings })],
   });
 
-  // We create a click listener in order to execute any internal commands using:
-  // window.executeCommand()
+  // We create a click listener in order to execute any internal micromark commands
   // We add the clickListener here since we're unable to add it in the directive typescript file.
-  const clickListener = (e: any) => {
-    // Retrieve the command within the dataset
-    const command = e.target.dataset.command;
-
-    // Only check if the command exists and the target is not disabled
-    if (command && !e.target.disabled) {
-      // If the target is an instance of a button element, we know that we are going to execute either
-      // a command or hyperlink
-      if (e.target instanceof HTMLButtonElement) {
-        // If the command exists and the button is not disabled, we execute the command
-        // we'll also be updating the inProgressMarkdownCommandExecutionCallback so we have
-        // real-time updates on the button
-        inProgressMarkdownCommandExecutionCallback(command, 'starting');
-        e.target.disabled = true;
-        e.target.firstChild.style.display = 'inline-block';
-        window
-          .executeCommand(command)
-          .then(value => inProgressMarkdownCommandExecutionCallback(command, 'successful', value))
-          .catch((reason: unknown) => inProgressMarkdownCommandExecutionCallback(command, 'failed', reason))
-          .finally(() => {
-            e.target.disabled = false;
-            e.target.firstChild.style.display = 'none';
-          });
-      } else if (e.target instanceof HTMLAnchorElement) {
-        // Execute the command since it's a simple "link" to it
-        // usually associated with a dialog / quickpick action.
-        window.executeCommand(command);
-      }
-    }
-  };
+  const clickListener = createListener(inProgressMarkdownCommandExecutionCallback);
 
   // Push the click listener to the eventListeners array so we can remove it on destroy
   eventListeners.push(clickListener);
