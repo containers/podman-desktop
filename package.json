@@ -128,7 +128,7 @@
     "js-yaml": "^4.1.0",
     "lint-staged": "^14.0.1",
     "nock": "^13.3.4",
-    "playwright": "1.37.1",
+    "playwright": "1.38.1",
     "postcss-import": "^15.1.0",
     "prettier": "^3.0.3",
     "prettier-plugin-svelte": "^3.0.3",
