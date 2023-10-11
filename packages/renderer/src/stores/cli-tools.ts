@@ -21,12 +21,12 @@ import { EventStore } from './event-store';
 import type { CliToolInfo } from '../../../main/src/plugin/api/cli-tool-info';
 
 const windowEvents: string[] = ['extensions-started', 'cli-tool-create', 'cli-tool-remove'];
-const windowListeners = ['system-ready'];
+const windowListeners = ['system-ready', 'extensions-already-started'];
 
 let extensionsStarted = false;
 
 export async function checkForUpdate(eventName: string): Promise<boolean> {
-  if (eventName === 'extensions-started') {
+  if (eventName === 'extensions-started' || eventName === 'extensions-already-started') {
     return (extensionsStarted = true);
   }
 
