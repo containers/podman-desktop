@@ -27,7 +27,7 @@ Consider rather [installing Podman with OpenShift Local](/docs/onboarding/contai
   - [WSL prerequisites](https://learn.microsoft.com/en-us/windows/wsl/troubleshooting#error-0x80370102-the-virtual-machine-could-not-be-started-because-a-required-feature-is-not-installed):
     - User with administrator privileges.
     - Windows 64bit.
-    - Windows 10 Build 18362 or greater, or Windows 11.
+    - Windows 10 Build 19043 or greater, or Windows 11.
     - On a virtual machine: [Nested Virtualization enabled](https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/nested-virtualization#configure-nested-virtualization).
   - No WSL 2 Linux virtual machine is running.
 
