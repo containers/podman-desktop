@@ -37,6 +37,7 @@ import {
   START_NOW_MACHINE_INIT_SUPPORTED_KEY,
   isStartNowAtMachineInitSupported,
 } from './extension';
+import { WslHelper } from './wsl-helper';
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -574,31 +575,13 @@ class WSLVersionCheck extends BaseCheck {
 
   async execute(): Promise<extensionApi.CheckResult> {
     try {
-      /*  we should receive an output similar to
-          Versione WSL: 1.2.5.0
-          Versione kernel: 5.15.90.1
-          Versione WSLg: 1.0.51
-          Versione MSRDC: 1.2.3770
-          Versione Direct3D: 1.608.2-61064218
-          Versione DXCore: 10.0.25131.1002-220531-1700.rs-onecore-base2-hyp
-          Versione di Windows: 10.0.22621.2283
-      */
-      const { stdout: res } = await extensionApi.process.exec('wsl', ['--version']);
-      // the first line should contain the WSL version
-      const firstLine = normalizeWSLOutput(res).split('\n')[0];
-      const colonPosition = firstLine.indexOf(':');
-      if (colonPosition === -1 || !firstLine.substring(0, colonPosition).toLowerCase().includes('wsl')) {
-        return this.createFailureResult({
-          description: `WSL version should be >= ${this.minVersion}.`,
-          docLinksDescription: `Call 'wsl --version' in a terminal to check your wsl version.`,
-        });
-      }
-      const version = firstLine.substring(colonPosition + 1).trim();
-      if (compare(version, this.minVersion, '>=')) {
+      const wslHelper = new WslHelper();
+      const wslVersionData = await wslHelper.getWSLVersionData();
+      if (compare(wslVersionData.wslVersion, this.minVersion, '>=')) {
         return this.createSuccessfulResult();
       } else {
         return this.createFailureResult({
-          description: `Your WSL version is ${version} but it should be >= ${this.minVersion}.`,
+          description: `Your WSL version is ${wslVersionData.wslVersion} but it should be >= ${this.minVersion}.`,
           docLinksDescription: `Call 'wsl --update' to update your WSL installation. If you do not have access to the Windows store you can run 'wsl --update --web-download'. If you still receive an error please contact your IT administator as 'Windows Store Applications' may have been disabled.`,
         });
       }
