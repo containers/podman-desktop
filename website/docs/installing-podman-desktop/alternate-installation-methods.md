@@ -22,10 +22,10 @@ Consider using one of these alternate installation method when you cannot use th
 #### Procedure
 
 1. [Download the Windows installer](/downloads/windows).
-1. Run the PowerShell command:
+1. Run from the command line:
 
    ```shell-session
-   > Start-Process -ArgumentList "\S" -Wait -FilePath '.\podman-desktop-<version>-setup.exe'
+   $ podman-desktop-<version>-setup.exe /S
    ```
 
 #### Verification
