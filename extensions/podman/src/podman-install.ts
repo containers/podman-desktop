@@ -405,7 +405,7 @@ class WinBitCheck extends BaseCheck {
 class WinVersionCheck extends BaseCheck {
   title = 'Windows Version';
 
-  private MIN_BUILD = 18362;
+  private MIN_BUILD = 19043; //it represents version 21H1 windows 10
   async execute(): Promise<extensionApi.CheckResult> {
     const winRelease = os.release();
     if (winRelease.startsWith('10.0.')) {
@@ -415,7 +415,7 @@ class WinVersionCheck extends BaseCheck {
         return { successful: true };
       } else {
         return this.createFailureResult({
-          description: 'To be able to run WSL2 you need Windows 10 Build 18362 or later.',
+          description: `To be able to run WSL2 you need Windows 10 Build ${this.MIN_BUILD} or later.`,
           docLinksDescription: 'Learn about WSL requirements:',
           docLinks: {
             url: 'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
@@ -480,6 +480,13 @@ class VirtualMachinePlatformCheck extends BaseCheck {
 
 class WSL2Check extends BaseCheck {
   title = 'WSL2 Installed';
+  installWSLCommandId = 'podman.onboarding.installWSL';
+
+  async init(): Promise<void> {
+    extensionApi.commands.registerCommand(this.installWSLCommandId, async () => {
+      return await this.installWSL();
+    });
+  }
 
   async execute(): Promise<extensionApi.CheckResult> {
     try {
@@ -494,6 +501,10 @@ class WSL2Check extends BaseCheck {
             docLinks: {
               url: 'https://learn.microsoft.com/en-us/windows/wsl/install',
               title: 'WSL2 Manual Installation Steps',
+            },
+            fixCommand: {
+              id: this.installWSLCommandId,
+              title: 'Install WSL2',
             },
           });
         } else {
@@ -548,6 +559,20 @@ class WSL2Check extends BaseCheck {
       return !!output;
     } catch (error) {
       return false;
+    }
+  }
+
+  private async installWSL(): Promise<string> {
+    try {
+      const { stdout: res } = await extensionApi.process.exec('wsl', ['--install', '--no-distribution'], {
+        env: { WSL_UTF8: '1' },
+      });
+      return this.normalizeOutput(res);
+    } catch (error) {
+      let message = error.message ? `${error.message}\n` : '';
+      message += error.stdout || '';
+      message += error.stderr || '';
+      throw new Error(message);
     }
   }
 }

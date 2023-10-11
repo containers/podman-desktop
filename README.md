@@ -99,7 +99,7 @@ General questions & development:
 - [#podman-desktop@libera.chat on IRC](https://libera.chat/)
 - [#podman-desktop@fedora.im on Matrix](https://chat.fedoraproject.org/#/room/#podman-desktop:fedora.im)
 
-Note: All channels are bridged. Chat on either: Discord, IRC or Matrix and it'll appear on all three!
+Note: All channels are bridged. Chat on either Discord, IRC, or Matrix, and your messages will appear on all three platforms!
 
 Kubernetes questions & development:
 
