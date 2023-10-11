@@ -107,3 +107,21 @@ export class LoggerDelegator implements Logger {
     this.loggers.forEach(logger => logger.warn(...data));
   }
 }
+
+// this is workaround, wsl2 some time send output in utf16le, but we treat that as utf8,
+// this code just eliminate every 'empty' character
+/**
+ * this function is a workaround to clean the output received by WSL2. Some time it sends output in utf16le, but we treat that as utf8,
+ * this code just eliminate every 'empty' character
+ * @param out the string to clean
+ * @returns the string cleaned
+ */
+export function normalizeWSLOutput(out: string): string {
+  let str = '';
+  for (let i = 0; i < out.length; i++) {
+    if (out.charCodeAt(i) !== 0) {
+      str += out.charAt(i);
+    }
+  }
+  return str;
+}

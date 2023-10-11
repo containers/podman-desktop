@@ -25,7 +25,7 @@ import { compare } from 'compare-versions';
 import * as podmanTool from './podman.json';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanInstallation } from './podman-cli';
-import { getAssetsFolder } from './util';
+import { getAssetsFolder, normalizeWSLOutput } from './util';
 import { getDetectionChecks } from './detection-checks';
 import { BaseCheck } from './base-check';
 import { MacCPUCheck, MacMemoryCheck, MacPodmanInstallCheck, MacVersionCheck } from './macos-checks';
@@ -293,6 +293,7 @@ export class WinInstaller extends BaseInstaller {
       new WinVersionCheck(),
       new WinMemoryCheck(),
       new VirtualMachinePlatformCheck(),
+      new WSLVersionCheck(),
       new WSL2Check(),
     ];
   }
@@ -531,18 +532,6 @@ class WSL2Check extends BaseCheck {
     return this.createSuccessfulResult();
   }
 
-  private normalizeOutput(out: string): string {
-    // this is workaround, wsl2 some time send output in utf16le, but we treat that as utf8,
-    // this code just eliminate every 'empty' character
-    let str = '';
-    for (let i = 0; i < out.length; i++) {
-      if (out.charCodeAt(i) !== 0) {
-        str += out.charAt(i);
-      }
-    }
-
-    return str;
-  }
   private async isUserAdmin(): Promise<boolean> {
     const { stdout: res } = await extensionApi.process.exec('powershell.exe', [
       '$null -ne (whoami /groups /fo csv | ConvertFrom-Csv | Where-Object {$_.SID -eq "S-1-5-32-544"})',
@@ -555,7 +544,7 @@ class WSL2Check extends BaseCheck {
       const { stdout: res } = await extensionApi.process.exec('wsl', ['--set-default-version', '2'], {
         env: { WSL_UTF8: '1' },
       });
-      const output = this.normalizeOutput(res);
+      const output = normalizeWSLOutput(res);
       return !!output;
     } catch (error) {
       return false;
@@ -567,12 +556,58 @@ class WSL2Check extends BaseCheck {
       const { stdout: res } = await extensionApi.process.exec('wsl', ['--install', '--no-distribution'], {
         env: { WSL_UTF8: '1' },
       });
-      return this.normalizeOutput(res);
+
+      return normalizeWSLOutput(res);
     } catch (error) {
       let message = error.message ? `${error.message}\n` : '';
       message += error.stdout || '';
       message += error.stderr || '';
       throw new Error(message);
     }
+  }
+}
+
+class WSLVersionCheck extends BaseCheck {
+  title = 'WSL Version';
+
+  minVersion = '1.2.5.0';
+
+  async execute(): Promise<extensionApi.CheckResult> {
+    try {
+      /*  we should receive an output similar to
+          Versione WSL: 1.2.5.0
+          Versione kernel: 5.15.90.1
+          Versione WSLg: 1.0.51
+          Versione MSRDC: 1.2.3770
+          Versione Direct3D: 1.608.2-61064218
+          Versione DXCore: 10.0.25131.1002-220531-1700.rs-onecore-base2-hyp
+          Versione di Windows: 10.0.22621.2283
+      */
+      const { stdout: res } = await extensionApi.process.exec('wsl', ['--version']);
+      // the first line should contain the WSL version
+      const firstLine = normalizeWSLOutput(res).split('\n')[0];
+      const colonPosition = firstLine.indexOf(':');
+      if (colonPosition === -1 || !firstLine.substring(0, colonPosition).toLowerCase().includes('wsl')) {
+        return this.createFailureResult({
+          description: `WSL version should be >= ${this.minVersion}.`,
+          docLinksDescription: `Call 'wsl --version' in a terminal to check your wsl version.`,
+        });
+      }
+      const version = firstLine.substring(colonPosition + 1).trim();
+      if (compare(version, this.minVersion, '>=')) {
+        return this.createSuccessfulResult();
+      } else {
+        return this.createFailureResult({
+          description: `Your WSL version is ${version} but it should be >= ${this.minVersion}.`,
+          docLinksDescription: `Call 'wsl --update' to update your WSL installation. If you do not have access to the Windows store you can run 'wsl --update --web-download'. If you still receive an error please contact your IT administator as 'Windows Store Applications' may have been disabled.`,
+        });
+      }
+    } catch (err) {
+      // ignore error
+    }
+    return this.createFailureResult({
+      description: `WSL version should be >= ${this.minVersion}.`,
+      docLinksDescription: `Call 'wsl --version' in a terminal to check your wsl version.`,
+    });
   }
 }
