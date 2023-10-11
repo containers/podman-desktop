@@ -31,6 +31,11 @@ async function waitRender(customProperties: object): Promise<void> {
   }
 }
 
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+}));
+
 test('Expect to have the "Try again" and Cancel buttons if the step represent a failed state', async () => {
   (window as any).resetOnboarding = vi.fn();
   (window as any).updateStepState = vi.fn();

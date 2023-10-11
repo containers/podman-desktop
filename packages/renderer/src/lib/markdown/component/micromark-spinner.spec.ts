@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import sveltePreprocess from 'svelte-preprocess';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import '@testing-library/jest-dom/vitest';
+import { test, expect } from 'vitest';
+import { createSpinner } from './micromark-spinner';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+test('Expect createSoinner to return an icon with spinner id', async () => {
+  const html = createSpinner('owner');
 
-export default {
-  // Consult https://github.com/sveltejs/svelte-preprocess
-  // for more information about preprocessors
-  preprocess: sveltePreprocess({
-    postcss: {
-      configFilePath: join(__dirname, 'postcss.config.cjs'),
-    },
-  }),
-};
+  const htmlSanitized = html.replace('\n', '').replace(/\s+/g, ' ');
+  expect(htmlSanitized).toContain(`<i id='micromark-spinner-1'`);
+});

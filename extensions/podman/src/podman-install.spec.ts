@@ -38,6 +38,9 @@ vi.mock('node:os', async () => {
 
 vi.mock('@podman-desktop/api', async () => {
   return {
+    commands: {
+      registerCommand: vi.fn(),
+    },
     window: {
       withProgress: vi.fn(),
       showNotification: vi.fn(),
@@ -430,4 +433,13 @@ test('expect winWSL2 preflight check return failure result if it fails when chec
   expect(result.description).equal('Could not detect WSL2');
   expect(result.docLinks[0].url).equal('https://learn.microsoft.com/en-us/windows/wsl/install');
   expect(result.docLinks[0].title).equal('WSL2 Manual Installation Steps');
+});
+
+test('expect winWSL2 init to rgister WSLInstall command', async () => {
+  const registerCommandMock = vi.spyOn(extensionApi.commands, 'registerCommand');
+  const installer = new WinInstaller();
+  const preflights = installer.getPreflightChecks();
+  const winWSLCheck = preflights[4];
+  await winWSLCheck.init();
+  expect(registerCommandMock).toBeCalledWith('podman.onboarding.installWSL', expect.any(Function));
 });
