@@ -12,7 +12,7 @@ Podman Desktop can help you run [Minikube-powered](https://minikube.sigs.k8s.io/
 
 #### Prerequisites
 
-- [You onboarded a Minikube cluster](/docs/onboarding/kubernetes/minikube).
+- [You onboarded a Minikube cluster](/docs/onboarding-for-kubernetes/minikube).
 
 #### Procedure
 

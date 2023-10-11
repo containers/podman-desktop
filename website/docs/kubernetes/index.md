@@ -1,6 +1,6 @@
 ---
-sidebar_position: 5
-title: Kubernetes
+sidebar_position: 60
+title: Working with Kubernetes
 description: Migrate transparently from Podman to Kubernetes, and continue using familiar workflows.
 keywords: [podman desktop, podman, containers, migrating, kubernetes]
 tags: [migrating-to-kubernetes]
@@ -12,7 +12,7 @@ Podman Desktop and Podman have many features allowing easy migration from contai
 
 #### Prerequisites
 
-- [You onboarded a Kubernetes cluster](/docs/onboarding/kubernetes)
+- [You onboarded a Kubernetes cluster](/docs/onboarding-for-kubernetes)
 
 #### Procedure
 

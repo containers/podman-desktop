@@ -12,7 +12,7 @@ Podman Desktop can help you run [Kind-powered](https://kind.sigs.k8s.io/) local 
 
 #### Prerequisites
 
-- [You onboarded a Kind cluster](/docs/onboarding/kubernetes/kind).
+- [You onboarded a Kind cluster](/docs/onboarding-for-kubernetes/kind).
 
 #### Procedure
 

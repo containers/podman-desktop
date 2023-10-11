@@ -11,13 +11,13 @@ tags: [migrating-to-kubernetes, minikube]
 #### Procedure
 
 - In the status bar, click on **Minikube**, and follow the prompts.
-  ![Minikube in the status bar](../../../kubernetes/minikube/img/minikube-status-bar.png)
+  ![Minikube in the status bar](img/minikube-status-bar.png)
 
 #### Verification
 
 1. The status bar doesn't display **Minikube**.
 1. **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources** contain a **Minikube** tile.
-   ![Minikube resource tile](../../../kubernetes/minikube/img/minikube-resource.png)
+   ![Minikube resource tile](img/minikube-resource.png)
 1. You can run the `minikube` CLI:
 
    ```shell-session

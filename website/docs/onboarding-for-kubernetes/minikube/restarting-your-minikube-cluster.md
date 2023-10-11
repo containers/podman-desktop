@@ -32,4 +32,4 @@ The Minikube cluster might not restart successfully.
 In that case:
 
 - Consider replacing Minikube with a local Kubernetes cluster that you can restart, such as [OpenShift Local](https://developers.redhat.com/products/openshift-local/).
-- Consider [deleting your Minikube cluster](/docs/onboarding/kubernetes/minikube/deleting-your-minikube-cluster), and [creating a Minikube cluster](/docs/onboarding/kubernetes/minikube/creating-a-minikube-cluster).
+- Consider [deleting your Minikube cluster](/docs/onboarding-for-kubernetes/minikube/deleting-your-minikube-cluster), and [creating a Minikube cluster](/docs/onboarding-for-kubernetes/minikube/creating-a-minikube-cluster).

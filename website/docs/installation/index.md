@@ -16,4 +16,5 @@ You can install Podman Desktop on:
 
 #### Next steps
 
-- [Onboarding](/docs/onboarding)
+- [Onboard for container workloads](/docs/onboarding/containers).
+- [Onboard for Kubernetes workloads](/docs/onboarding-for-kubernetes).

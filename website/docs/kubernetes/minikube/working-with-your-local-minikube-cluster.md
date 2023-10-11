@@ -12,7 +12,7 @@ Set your Kubernetes context to your local Minikube-powered Kubernetes cluster.
 
 #### Prerequisites
 
-- [You onboarded a Minikube cluster](/docs/onboarding/kubernetes/minikube).
+- [You onboarded a Minikube cluster](/docs/onboarding-for-kubernetes/minikube).
 
 #### Procedure
 
