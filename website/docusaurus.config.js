@@ -105,8 +105,11 @@ const config = {
             from: ['/docs/podman-compose', '/docs/compose/compose-spec', '/docs/compose/podman-compose'],
           },
           {
-            to: '/docs/onboarding/containers/installing-podman-with-podman-desktop-on-windows',
-            from: '/docs/Installation/windows-install/installing-podman-with-podman-desktop',
+            to: '/docs/onboarding/containers/installing-podman',
+            from: [
+              '/docs/Installation/windows-install/installing-podman-with-podman-desktop',
+              '/docs/onboarding/containers/installing-podman-with-podman-desktop-on-windows',
+            ],
           },
           {
             to: '/docs/onboarding/containers/installing-podman-with-openshift-local-on-windows',
