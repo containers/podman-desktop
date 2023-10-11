@@ -24,6 +24,7 @@ import type { Telemetry } from './telemetry/telemetry.js';
 export class CliToolImpl implements CliTool, Disposable {
   constructor(
     readonly internalId: number,
+    readonly registry: CliToolRegistry,
     readonly id: string,
     private options: CliToolOptions,
   ) {}
@@ -47,7 +48,7 @@ export class CliToolImpl implements CliTool, Disposable {
   detect(): void {}
 
   dispose(): void {
-    throw new Error('Method not implemented.');
+    this.registry.disposeCliTool(this);
   }
 }
 
@@ -86,8 +87,8 @@ export class CliToolRegistry {
     extensionDisplayName: string,
     options: CliToolOptions,
   ): CliTool {
-    const cliTool = new CliToolImpl(this.sequence.id, `${extensionId}.${options.name}`, options);
-    this.cliTools.set(this.sequence.currentId, {
+    const cliTool = new CliToolImpl(this.sequence.id, this, `${extensionId}.${options.name}`, options);
+    this.cliTools.set(cliTool.internalId, {
       extensionId,
       extensionName,
       extensionDisplayName,
@@ -95,6 +96,11 @@ export class CliToolRegistry {
     });
     this.apiSender.send('cli-tool-create', this.sequence.currentId);
     return cliTool;
+  }
+
+  disposeCliTool(cliTool: CliToolImpl): void {
+    this.cliTools.delete(cliTool.internalId);
+    this.apiSender.send('cli-tool-remove', cliTool.internalId);
   }
 
   getCliToolInfos(): CliToolInfo[] {

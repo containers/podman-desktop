@@ -20,11 +20,17 @@ import { writable, type Writable } from 'svelte/store';
 import { EventStore } from './event-store';
 import type { CliToolInfo } from '../../../main/src/plugin/api/cli-tool-info';
 
-const windowEvents = ['extension-started', 'extension-stopped', 'extensions-started', 'cli-tool-create'];
+const windowEvents: string[] = ['extensions-started', 'cli-tool-create', 'cli-tool-remove'];
 const windowListeners = ['system-ready'];
 
-export async function checkForUpdate(): Promise<boolean> {
-  return true;
+let extensionsStarted = false;
+
+export async function checkForUpdate(eventName: string): Promise<boolean> {
+  if (eventName === 'extensions-started') {
+    return (extensionsStarted = true);
+  }
+
+  return (extensionsStarted && eventName === 'cli-tool-create') || eventName === 'cli-tool-remove';
 }
 
 export const cliToolInfos: Writable<CliToolInfo[]> = writable([]);
