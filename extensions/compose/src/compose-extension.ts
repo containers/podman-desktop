@@ -147,7 +147,7 @@ export class ComposeExtension {
       displayName: 'Compose',
       markdownDescription: description.replace('\n', ''),
       images: {
-        icon: 'compose.png',
+        icon: 'icon.png',
       },
     });
 
