@@ -18,13 +18,36 @@
 
 import type { ProviderImages } from '@podman-desktop/api';
 
+export type BinaryProviderName = 'download' | 'brew' | 'chocolate' | string;
+
+export type CliToolState =
+  | 'setup-needed'
+  | 'detection-pending'
+  | 'detecting'
+  | 'installation-pending'
+  | 'installing'
+  | 'update-pending'
+  | 'updating'
+  | 'installed'
+  | 'uninstall-pending'
+  | 'uninstalling'
+  | 'unknown';
+
 export interface CliToolInfo {
   id: number;
   name: string;
   description: string;
   displayName: string;
-  state: 'setup-needed' | 'detecting' | 'installing' | 'updating' | 'installed' | 'removing' | 'unknown';
-  version?: string;
+  state: CliToolState;
   images?: ProviderImages;
   providedBy: string;
+  binaries?: CliToolBinaryInfo[];
+}
+
+export interface CliToolBinaryInfo {
+  location: string;
+  version: string;
+  binaryProviderName: BinaryProviderName;
+  systemWide: boolean;
+  installedOn: Date;
 }

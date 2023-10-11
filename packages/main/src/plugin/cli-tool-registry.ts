@@ -45,8 +45,6 @@ export class CliToolImpl implements CliTool, Disposable {
     return Object.freeze(this.options.images);
   }
 
-  detect(): void {}
-
   dispose(): void {
     this.registry.disposeCliTool(this);
   }

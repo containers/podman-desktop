@@ -2432,15 +2432,10 @@ declare module '@podman-desktop/api' {
     displayName: string;
     markdownDescription: string;
     images: ProviderImages;
+    version?: string;
   }
 
-  export interface CliTool extends CliToolOptions, Disposable {
-    // try to detect and change state to installed or setup-needed
-    // the detection includes:
-    // - cli tool location
-    // - package manager used to install: linux package manager, brew (macOS), chocolatey and alike (windows)
-    detect(): void;
-  }
+  export interface CliTool extends CliToolOptions, Disposable {}
 
   export namespace cli {
     export function createCliTool(options: CliToolOptions): CliTool;
