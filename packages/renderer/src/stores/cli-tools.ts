@@ -26,27 +26,24 @@ const windowListeners = ['system-ready', 'extensions-already-started'];
 let extensionsStarted = false;
 
 export async function checkForUpdate(eventName: string): Promise<boolean> {
+  // trigger update after all extensions started
   if (eventName === 'extensions-started' || eventName === 'extensions-already-started') {
     return (extensionsStarted = true);
   }
 
+  // ignore individual tools created from extension activation methods until
+  // all extensions are activated and they can be requested all in one call
   return (extensionsStarted && eventName === 'cli-tool-create') || eventName === 'cli-tool-remove';
 }
 
 export const cliToolInfos: Writable<CliToolInfo[]> = writable([]);
 
 const eventStore = new EventStore<CliToolInfo[]>(
-  'providers',
+  'cli tools',
   cliToolInfos,
   checkForUpdate,
   windowEvents,
   windowListeners,
-  fetchCliTools,
+  window.getCliToolInfos,
 );
 eventStore.setup();
-
-export async function fetchCliTools(): Promise<CliToolInfo[]> {
-  const result = await window.getCliToolInfos();
-  cliToolInfos.set(result);
-  return result;
-}
