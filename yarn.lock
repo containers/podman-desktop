@@ -6525,23 +6525,23 @@ dns-packet@^5.2.2:
   dependencies:
     "@leichtgewicht/ip-codec" "^2.0.1"
 
-docker-modem@^3.0.0:
-  version "3.0.8"
-  resolved "https://registry.yarnpkg.com/docker-modem/-/docker-modem-3.0.8.tgz#ef62c8bdff6e8a7d12f0160988c295ea8705e77a"
-  integrity sha512-f0ReSURdM3pcKPNS30mxOHSbaFLcknGmQjwSfmbcdOw1XWKXVhukM3NJHhr7NpY9BIyyWQb0EBo3KQvvuU5egQ==
+docker-modem@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/docker-modem/-/docker-modem-5.0.0.tgz#e5f40ee8a60087273420fc7a9d465b008ec8a7cd"
+  integrity sha512-J1gOocUHrYOI0u5+SbM9eg84igD40NfUJoWL9Hc2a6hF3oN6PFA9fmzu2Ai8fddXrVUJbENx5STOlcvhTau4rA==
   dependencies:
     debug "^4.1.1"
     readable-stream "^3.5.0"
     split-ca "^1.0.1"
     ssh2 "^1.11.0"
 
-dockerode@^3.3.5:
-  version "3.3.5"
-  resolved "https://registry.yarnpkg.com/dockerode/-/dockerode-3.3.5.tgz#7ae3f40f2bec53ae5e9a741ce655fff459745629"
-  integrity sha512-/0YNa3ZDNeLr/tSckmD69+Gq+qVNhvKfAHNeZJBnp7EOP6RGKV8ORrJHkUn20So5wU+xxT7+1n5u8PjHbfjbSA==
+dockerode@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/dockerode/-/dockerode-4.0.0.tgz#9c9c66926da77f6f894ad54057737a0bc7d34712"
+  integrity sha512-3LF7/3MPz5+9RsUo91rD0MCcx0yxjC9bnbtgtVjOLKyKxlZSJ7/Kk3OPAgARlwlWHqXwAGYhmkAHYx7IwD0tJQ==
   dependencies:
     "@balena/dockerignore" "^1.0.2"
-    docker-modem "^3.0.0"
+    docker-modem "^5.0.0"
     tar-fs "~2.0.1"
 
 doctrine@^2.1.0:

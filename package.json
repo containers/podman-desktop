@@ -148,7 +148,7 @@
     "chokidar": "^3.5.3",
     "compare-versions": "^6.1.0",
     "date.js": "^0.3.3",
-    "dockerode": "^3.3.5",
+    "dockerode": "^4.0.0",
     "electron-context-menu": "^3.6.1",
     "electron-updater": "6.1.4",
     "electron-util": "^0.17.2",
