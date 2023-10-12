@@ -339,7 +339,7 @@ async function restartSetup() {
         </div>
       </div>
       {#if activeStep.step.component}
-        <div class="min-w-[700px] mx-auto mt-5" aria-label="onboarding component">
+        <div class="min-w-[700px] mx-auto mt-32" aria-label="onboarding component">
           <OnboardingComponent
             component="{activeStep.step.component}"
             extensionId="{activeStep.onboarding.extension}" />
