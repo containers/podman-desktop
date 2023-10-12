@@ -20,7 +20,7 @@ export let setRecordValue = (_id: string, _value: string) => {};
 export let enableSlider = false;
 export let record: IConfigurationPropertyRecordedSchema;
 
-export let initialValue: any;
+export let initialValue: () => Promise<any>;
 
 let currentRecord: IConfigurationPropertyRecordedSchema;
 let recordUpdateTimeout: NodeJS.Timeout;
@@ -39,11 +39,13 @@ $: if (resetToDefault) {
 }
 
 $: if (currentRecord !== record) {
-  recordValue = initialValue;
-  if (record.type === 'boolean') {
-    recordValue = !!initialValue;
-    checkboxValue = recordValue;
-  }
+  initialValue().then(value => {
+    recordValue = value;
+    if (record.type === 'boolean') {
+      recordValue = !!value;
+      checkboxValue = recordValue;
+    }
+  });
 
   currentRecord = record;
   invalidText = undefined;

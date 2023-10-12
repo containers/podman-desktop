@@ -447,7 +447,7 @@ function closePage() {
                   record="{configurationKey}"
                   setRecordValue="{setConfigurationValue}"
                   enableSlider="{true}"
-                  initialValue="{getInitialValue(configurationKey)}" />
+                  initialValue="{() => getInitialValue(configurationKey)}" />
               </div>
             {/each}
             <div class="w-full">

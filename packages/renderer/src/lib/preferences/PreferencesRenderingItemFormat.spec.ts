@@ -41,7 +41,7 @@ test('Expect to see checkbox enabled', async () => {
     default: true,
   };
   // remove display name
-  render(PreferencesRenderingItemFormat, { record, initialValue: await getInitialValue(record) });
+  render(PreferencesRenderingItemFormat, { record, initialValue: () => getInitialValue(record) });
   const button = screen.getByRole('checkbox');
   expect(button).toBeInTheDocument();
   expect(button).toBeChecked();
@@ -57,7 +57,7 @@ test('Expect to see the checkbox disabled / unable to press when readonly is pas
     readonly: true,
   };
   // remove display name
-  render(PreferencesRenderingItemFormat, { record, initialValue: await getInitialValue(record) });
+  render(PreferencesRenderingItemFormat, { record, initialValue: () => getInitialValue(record) });
   const button = screen.getByRole('checkbox');
   expect(button).toBeInTheDocument();
   expect(button).toBeChecked();
@@ -73,7 +73,7 @@ test('Expect to see checkbox enabled', async () => {
     default: false,
   };
   // remove display name
-  render(PreferencesRenderingItemFormat, { record, initialValue: await getInitialValue(record) });
+  render(PreferencesRenderingItemFormat, { record, initialValue: () => getInitialValue(record) });
   const button = screen.getByRole('checkbox');
   expect(button).toBeInTheDocument();
   expect(button).not.toBeChecked();
@@ -111,7 +111,7 @@ test('Expect a slider when record and its maximum are type number and enableSlid
   render(PreferencesRenderingItemFormat, {
     record,
     enableSlider: true,
-    initialValue: await getInitialValue(record),
+    initialValue: () => getInitialValue(record),
   });
   const input = screen.getByLabelText('record-description');
   expect(input).toBeInTheDocument();
@@ -132,7 +132,7 @@ test('Expect a text input when record is type number and enableSlider is false',
   };
   render(PreferencesRenderingItemFormat, {
     record,
-    initialValue: await getInitialValue(record),
+    initialValue: () => getInitialValue(record),
   });
   const input = screen.getByLabelText('record-description');
   expect(input).toBeInTheDocument();
@@ -152,7 +152,7 @@ test('Expect an input button with Browse as placeholder when record is type stri
   };
   render(PreferencesRenderingItemFormat, {
     record,
-    initialValue: await getInitialValue(record),
+    initialValue: () => getInitialValue(record),
   });
   const readOnlyInput = screen.getByLabelText('record-description');
   expect(readOnlyInput).toBeInTheDocument();
@@ -174,7 +174,7 @@ test('Expect a select when record is type string and has enum values', async () 
   };
   render(PreferencesRenderingItemFormat, {
     record,
-    initialValue: await getInitialValue(record),
+    initialValue: () => getInitialValue(record),
   });
   const input = screen.getByLabelText('record-description');
   expect(input).toBeInTheDocument();
@@ -193,7 +193,7 @@ test('Expect a text input when record is type string', async () => {
   };
   render(PreferencesRenderingItemFormat, {
     record,
-    initialValue: await getInitialValue(record),
+    initialValue: () => getInitialValue(record),
   });
   const input = screen.getByLabelText('record-description');
   expect(input).toBeInTheDocument();
@@ -215,7 +215,7 @@ test('Expect tooltip text shows info when input is less than minimum', async () 
   };
   render(PreferencesRenderingItemFormat, {
     record,
-    initialValue: await getInitialValue(record),
+    initialValue: () => getInitialValue(record),
   });
   const input = screen.getByLabelText('record-description');
   await userEvent.click(input);
@@ -238,7 +238,7 @@ test('Expect tooltip text shows info when input is empty', async () => {
   };
   render(PreferencesRenderingItemFormat, {
     record,
-    initialValue: await getInitialValue(record),
+    initialValue: () => getInitialValue(record),
   });
   const input = screen.getByLabelText('record-description');
   await userEvent.click(input);
