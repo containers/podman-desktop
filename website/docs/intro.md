@@ -8,7 +8,7 @@ Podman Desktop is an open source graphical tool enabling you to seamlessly work 
 
 With Podman Desktop, you can:
 
-- [Onboard for container workloads](/docs/onboarding/containers).
+- [Onboard for container workloads](/docs/onboarding-for-containers).
 - [Onboard for Kubernetes workloads](/docs/onboarding-for-kubernetes).
 - [Work with containers](/docs/working-with-containers).
 - [Work with Kubernetes](/docs/kubernetes).

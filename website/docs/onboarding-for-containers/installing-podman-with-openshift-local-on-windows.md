@@ -10,7 +10,7 @@ keywords: [podman desktop, containers, podman, installing, installation, windows
 
 On Windows, running the Podman container engine requires running a Linux distribution on a virtual machine.
 
-Consider installing the Podman Preset in OpenShift Local rather than [installing Podman with Podman Desktop](/docs/onboarding/containers/installing-podman-with-podman-desktop-on-windows) when you require one of following:
+Consider installing the Podman Preset in OpenShift Local rather than [installing Podman with Podman Desktop](/docs/onboarding-for-containers/installing-podman-with-podman-desktop-on-windows) when you require one of following:
 
 - No WSL 2
 - Full control on the HyperV virtual machine

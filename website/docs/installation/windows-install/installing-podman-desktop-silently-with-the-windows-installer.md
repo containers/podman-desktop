@@ -21,5 +21,5 @@ Consider using this method to install the Podman Desktop Windows installer witho
 
 #### Next steps
 
-- [Onboard for container workloads](/docs/onboarding/containers).
+- [Onboard for container workloads](/docs/onboarding-for-containers).
 - [Onboard for Kubernetes workloads](/docs/onboarding-for-kubernetes).
