@@ -1,6 +1,6 @@
 ---
 sidebar_position: 2
-title: Alternate installation methods.
+title: Alternate installation methods
 description: Consider installing Podman Desktop using one of the alternate installation method when you cannot use the default installation method.
 keywords: [podman desktop, containers, podman, installing, installation]
 ---
