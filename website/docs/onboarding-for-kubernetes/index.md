@@ -2,7 +2,6 @@
 sidebar_position: 30
 title: Onboarding for Kubernetes
 description: To run Kubernetes workloads with Kubernetes, set up at least one Kubernetes context.
-tags: [podman-desktop, onboarding]
 keywords: [podman desktop, kubernetes, onboarding]
 ---
 

@@ -2,7 +2,6 @@
 sidebar_position: 1
 title: When clause contexts
 description: Podman Desktop when clause contexts reference
-tags: [podman-desktop, extension, writing, when clause]
 keywords: [podman desktop, extension, writing, when clause]
 ---
 

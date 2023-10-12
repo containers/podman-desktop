@@ -3,7 +3,6 @@ title: 5 things to know about Podman Desktop for a Docker user
 description: Important things to know when switching from Docker Desktop to Podman Desktop
 slug: 5-things-to-know-for-a-docker-user
 authors: [benoitf]
-tags: [podman-desktop, docker, migrating]
 hide_table_of_contents: false
 ---
 

@@ -2,7 +2,6 @@
 sidebar_position: 3
 title: In your containers
 description: Using Podman Desktop behind a proxy requiring custom Certificate Authorities (CA).
-tags: [podman-desktop, installing, windows, macos, linux]
 keywords: [podman desktop, containers, podman, installing, installation, windows, macos, linux]
 ---
 

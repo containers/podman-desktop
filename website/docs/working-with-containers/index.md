@@ -2,7 +2,6 @@
 sidebar_position: 50
 title: Working with containers
 description: Working with container workloads
-tags: [podman-desktop, containers]
 keywords: [podman desktop, podman, containers]
 hide_table_of_contents: false
 ---

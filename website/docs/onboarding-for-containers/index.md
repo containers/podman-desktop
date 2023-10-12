@@ -2,7 +2,6 @@
 sidebar_position: 20
 title: Onboarding for containers
 description: To run container workloads with Podman Desktop, set up at least one container engine.
-tags: [podman-desktop, onboarding]
 keywords: [podman desktop, containers, podman, onboarding]
 ---
 

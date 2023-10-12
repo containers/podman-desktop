@@ -2,7 +2,6 @@
 sidebar_position: 3
 title: Installing with Chocolatey
 description: Installing Podman Desktop on Windows with Chocolatey
-tags: [podman-desktop, installing, windows, chocolatey]
 keywords: [podman desktop, containers, podman, installing, installation, windows, chocolatey]
 ---
 

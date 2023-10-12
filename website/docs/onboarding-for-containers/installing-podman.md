@@ -2,7 +2,6 @@
 sidebar_position: 10
 title: Installing Podman
 description: Podman Desktop can assist you to install Podman on Windows and macOS.
-tags: [podman-desktop, podman, installing, windows]
 keywords: [podman desktop, containers, podman, installing, installation, windows, macos]
 ---
 

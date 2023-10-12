@@ -2,7 +2,6 @@
 sidebar_position: 2
 title: Installing from a Flatpak bundle
 description: You can install Podman Desktop on Linux from a Flatpak bundle.
-tags: [podman-desktop, installing, linux, flathub, flatpak]
 keywords: [podman desktop, podman, containers, installing, installation, linux, flathub, flatpak]
 ---
 

@@ -2,7 +2,6 @@
 sidebar_position: 4
 title: Installing with Scoop
 description: Installing Podman Desktop on Windows with Scoop
-tags: [podman-desktop, installing, windows, scoop]
 keywords: [podman desktop, containers, podman, installing, installation, windows, scoop]
 ---
 

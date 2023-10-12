@@ -2,7 +2,6 @@
 sidebar_position: 4
 title: Images
 description: Working with container images
-tags: [podman-desktop, containers, images]
 keywords: [podman desktop, podman, containers, images]
 hide_table_of_contents: false
 ---

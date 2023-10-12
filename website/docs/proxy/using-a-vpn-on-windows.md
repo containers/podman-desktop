@@ -2,7 +2,6 @@
 sidebar_position: 5
 title: Podman behind a VPN on Windows
 description: Accessing resources behind a VPN with Podman on Windows
-tags: [podman, vpn, windows]
 keywords: [podman, vpn, windows]
 ---
 

@@ -2,7 +2,6 @@
 sidebar_position: 2
 title: Installing silently
 description: Installing Podman Desktop silently on Windows with the installer
-tags: [podman-desktop, installing, windows]
 keywords: [podman desktop, containers, podman, installing, installation, windows]
 ---
 

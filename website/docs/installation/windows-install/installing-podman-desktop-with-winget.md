@@ -2,7 +2,6 @@
 sidebar_position: 5
 title: Installing with Winget
 description: Installing Podman Desktop on Windows with Winget
-tags: [podman-desktop, installing, windows, winget]
 keywords: [podman desktop, containers, podman, installing, installation, windows, winget]
 ---
 

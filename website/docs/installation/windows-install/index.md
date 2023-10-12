@@ -2,7 +2,6 @@
 sidebar_position: 1
 title: Windows
 description: How to install Podman on Windows.
-tags: [podman-desktop, installing, windows]
 keywords: [podman desktop, containers, podman, installing, installation, windows]
 ---
 

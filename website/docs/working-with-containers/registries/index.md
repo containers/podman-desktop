@@ -2,7 +2,6 @@
 sidebar_position: 3
 title: Registries
 description: Working with container registries
-tags: [podman-desktop, containers, registries]
 keywords: [podman desktop, podman, containers, registries]
 hide_table_of_contents: false
 ---

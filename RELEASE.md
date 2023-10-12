@@ -190,7 +190,6 @@ title: Release Notes - Podman Desktop X.X
 description: Podman Desktop X.X has been released!
 slug: podman-desktop-release-X.X
 authors: [YOURUSERNAME]
-tags: [podman-desktop, release, kubernetes, openshift]
 hide_table_of_contents: false
 ---
 

@@ -2,7 +2,6 @@
 sidebar_position: 5
 title: Installing in a restricted environment
 description: Installing Podman Desktop on Windows in a restricted environment
-tags: [podman-desktop, installing, windows, restricted-environment]
 keywords: [podman desktop, containers, podman, installing, installation, windows, restricted-environment]
 ---
 

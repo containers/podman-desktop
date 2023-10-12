@@ -2,7 +2,6 @@
 sidebar_position: 1
 title: Writing
 description: Writing a Podman Desktop extension
-tags: [podman-desktop, extension, writing]
 keywords: [podman desktop, extension, writing]
 ---
 

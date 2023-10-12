@@ -2,7 +2,6 @@
 sidebar_position: 11
 title: Installing Podman with OpenShift Local
 description: OpenShift Local can assist you to install Podman on Windows.
-tags: [openshift-local, podman, installing, windows]
 keywords: [podman desktop, containers, podman, installing, installation, windows]
 ---
 

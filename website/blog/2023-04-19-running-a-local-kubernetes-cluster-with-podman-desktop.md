@@ -3,7 +3,6 @@ title: Setting up and running a Kubernetes cluster locally with Podman Desktop
 description: Setting up and running a Kubernetes cluster locally with Podman Desktop
 slug: running-a-local-kubernetes-cluster-with-podman-desktop
 authors: [themr0c]
-tags: [podman-desktop, story, kubernetes, kind]
 hide_table_of_contents: false
 ---
 

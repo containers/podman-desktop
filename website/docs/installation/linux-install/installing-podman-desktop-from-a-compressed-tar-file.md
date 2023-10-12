@@ -2,7 +2,6 @@
 sidebar_position: 3
 title: Installing from a compressed tar file
 description: You can install Podman Desktop on Linux from a compressed tar file.
-tags: [podman-desktop, installing, linux, restricted-environment]
 keywords: [podman desktop, podman, containers, installing, installation, linux, restricted-environment]
 ---
 
