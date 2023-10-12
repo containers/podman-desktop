@@ -1,6 +1,6 @@
 ---
 sidebar_position: 2
-title: Installing Podman Desktop
+title: Installing
 description: You can install Podman Desktop on Windows, macOS, and Linux.
 tags: [podman-desktop, installing]
 keywords: [podman desktop, containers, podman, installing, installation]
@@ -82,8 +82,8 @@ import TabItem from '@theme/TabItem';
 
 #### Additional resources
 
+- [Installing Podman Desktop in a restricted environment](/docs/proxy).
 - [Installing Podman Desktop with alternate installation methods](/docs/installing-podman-desktop/alternate-installation-methods).
-- [Installing Podman Desktop in a restricted environment](/docs/restricted-environment).
 
 #### Next steps
 

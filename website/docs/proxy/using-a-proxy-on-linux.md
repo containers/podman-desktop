@@ -1,6 +1,6 @@
 ---
 sidebar_position: 4
-title: Linux
+title: Proxy on Linux
 description: Using Podman Desktop behind a proxy on Linux.
 tags: [podman-desktop, proxy, linux]
 keywords: [podman desktop, containers, podman, proxy, linux]

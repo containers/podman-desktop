@@ -1,6 +1,6 @@
 ---
 sidebar_position: 1
-title: macOS and Windows
+title: Behind a proxy
 description: Using Podman Desktop behind a proxy on macOS and Windows.
 tags: [podman-desktop, proxy, windows, macos]
 keywords: [podman desktop, containers, podman, proxy, windows, macos]
