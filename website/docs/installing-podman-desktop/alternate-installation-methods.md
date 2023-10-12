@@ -13,7 +13,9 @@ import TabItem from '@theme/TabItem';
 Consider using one of these alternate installation method when you cannot use the [default installation method](/docs/installing-podman-desktop).
 
 <Tabs groupId="operating-systems">
-<TabItem value="win" label="Windows silent">
+<TabItem value="win" label="Windows">
+<Tabs groupId="alt">
+<TabItem value="silent" label="Windows silent">
 
 #### Prerequisites
 
@@ -101,8 +103,12 @@ Consider using one of these alternate installation method when you cannot use th
 - Open Podman Desktop from the **Windows** menu.
 
 </TabItem>
+</Tabs>
+</TabItem>
 
-<TabItem value="mac" label="Homebrew">
+<TabItem value="mac" label="macOS">
+<Tabs groupId="alt">
+<TabItem value="brew" label="Homebrew">
 
 #### Prerequisites
 
@@ -163,8 +169,12 @@ Consider using one of these alternate installation method when you cannot use th
 - Open Podman Desktop from the **Applications** directory.
 
 </TabItem>
+</Tabs>
+</TabItem>
 
-<TabItem value="linux" label="Flatpak bundle">
+<TabItem value="linux" label="Linux">
+<Tabs groupId="alt">
+<TabItem value="flatpak" label="Flatpak bundle">
 
 #### Prerequisites
 
@@ -222,7 +232,8 @@ Consider using one of these alternate installation method when you cannot use th
   ```
 
 </TabItem>
-
+</Tabs>
+</TabItem>
 </Tabs>
 
 #### Next steps
