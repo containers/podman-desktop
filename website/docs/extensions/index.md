@@ -1,6 +1,6 @@
 ---
-sidebar_position: 7
-title: Extensions
+sidebar_position: 70
+title: Writing extensions
 description: Writing or deploying extensions.
 keywords: [podman desktop, podman, extension]
 tags: [migrating-to-kubernetes]

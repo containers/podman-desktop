@@ -1,6 +1,7 @@
 import type { Locator, Page } from 'playwright';
 import { ImagesPage } from '../pages/images-page';
 import { ContainersPage } from '../pages/containers-page';
+import { PodsPage } from '../pages/pods-page';
 
 export class NavigationBar {
   readonly page: Page;
@@ -33,5 +34,10 @@ export class NavigationBar {
     await this.containersLink.waitFor({ state: 'visible', timeout: 3000 });
     await this.containersLink.click({ timeout: 5000 });
     return new ContainersPage(this.page);
+  }
+
+  async openPods(): Promise<PodsPage> {
+    await this.podsLink.click();
+    return new PodsPage(this.page);
   }
 }

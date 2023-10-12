@@ -38,6 +38,9 @@ vi.mock('node:os', async () => {
 
 vi.mock('@podman-desktop/api', async () => {
   return {
+    commands: {
+      registerCommand: vi.fn(),
+    },
     window: {
       withProgress: vi.fn(),
       showNotification: vi.fn(),
@@ -55,6 +58,7 @@ vi.mock('./util', async () => {
     getAssetsFolder: vi.fn().mockReturnValue(''),
     runCliCommand: vi.fn(),
     appHomeDir: vi.fn().mockReturnValue(''),
+    normalizeWSLOutput: vi.fn().mockImplementation((s: string) => s),
   };
 });
 
@@ -178,7 +182,7 @@ test('expect winbit preflight check return failure result if the arch is not sup
 });
 
 test('expect winversion preflight check return successful result if the version is greater than min valid version', async () => {
-  vi.spyOn(os, 'release').mockReturnValue('10.0.19000');
+  vi.spyOn(os, 'release').mockReturnValue('10.0.19043');
 
   const installer = new WinInstaller();
   const preflights = installer.getPreflightChecks();
@@ -188,13 +192,13 @@ test('expect winversion preflight check return successful result if the version 
 });
 
 test('expect winversion preflight check return failure result if the version is greater than 9. and less than min build version', async () => {
-  vi.spyOn(os, 'release').mockReturnValue('10.0.1000');
+  vi.spyOn(os, 'release').mockReturnValue('10.0.19042');
 
   const installer = new WinInstaller();
   const preflights = installer.getPreflightChecks();
   const winVersionCheck = preflights[1];
   const result = await winVersionCheck.execute();
-  expect(result.description).equal('To be able to run WSL2 you need Windows 10 Build 18362 or later.');
+  expect(result.description).equal('To be able to run WSL2 you need Windows 10 Build 19043 or later.');
   expect(result.docLinksDescription).equal('Learn about WSL requirements:');
   expect(result.docLinks[0].url).equal(
     'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
@@ -308,6 +312,92 @@ test('expect winVirtualMachine preflight check return successful result if there
   expect(result.docLinks[0].title).equal('Enable Virtual Machine Platform');
 });
 
+test('expect WSLVersion preflight check return fail result if wsl --version command fails its execution', async () => {
+  vi.spyOn(extensionApi.process, 'exec').mockRejectedValue('');
+
+  const installer = new WinInstaller();
+  const preflights = installer.getPreflightChecks();
+  const winWSLCheck = preflights[4];
+  const result = await winWSLCheck.execute();
+  expect(result.description).equal('WSL version should be >= 1.2.5.');
+  expect(result.docLinksDescription).equal(`Call 'wsl --version' in a terminal to check your wsl version.`);
+});
+
+test('expect WSLVersion preflight check return fail result if first line output do not contain any colon symbol', async () => {
+  vi.spyOn(extensionApi.process, 'exec').mockResolvedValue({
+    stdout: 'unknown message',
+    stderr: '',
+    command: 'command',
+  });
+
+  const installer = new WinInstaller();
+  const preflights = installer.getPreflightChecks();
+  const winWSLCheck = preflights[4];
+  const result = await winWSLCheck.execute();
+  expect(result.description).equal('WSL version should be >= 1.2.5.');
+  expect(result.docLinksDescription).equal(`Call 'wsl --version' in a terminal to check your wsl version.`);
+});
+
+test('expect WSLVersion preflight check return fail result if first line output do not contain any wsl word', async () => {
+  vi.spyOn(extensionApi.process, 'exec').mockResolvedValue({
+    stdout: 'unknown message: 1.2.5.0',
+    stderr: '',
+    command: 'command',
+  });
+
+  const installer = new WinInstaller();
+  const preflights = installer.getPreflightChecks();
+  const winWSLCheck = preflights[4];
+  const result = await winWSLCheck.execute();
+  expect(result.description).equal('WSL version should be >= 1.2.5.');
+  expect(result.docLinksDescription).equal(`Call 'wsl --version' in a terminal to check your wsl version.`);
+});
+
+test('expect WSLVersion preflight check return fail result if first line output contain an invalid version', async () => {
+  vi.spyOn(extensionApi.process, 'exec').mockResolvedValue({
+    stdout: 'WSL version: 1.1.3',
+    stderr: '',
+    command: 'command',
+  });
+
+  const installer = new WinInstaller();
+  const preflights = installer.getPreflightChecks();
+  const winWSLCheck = preflights[4];
+  const result = await winWSLCheck.execute();
+  expect(result.description).equal('Your WSL version is 1.1.3 but it should be >= 1.2.5.');
+  expect(result.docLinksDescription).equal(
+    `Call 'wsl --update' to update your WSL installation. If you do not have access to the Windows store you can run 'wsl --update --web-download'. If you still receive an error please contact your IT administator as 'Windows Store Applications' may have been disabled.`,
+  );
+});
+
+test('expect WSLVersion preflight check return fail result if first line output contain a version equal to the minimum supported version', async () => {
+  vi.spyOn(extensionApi.process, 'exec').mockResolvedValue({
+    stdout: 'WSL version: 1.2.5.0',
+    stderr: '',
+    command: 'command',
+  });
+
+  const installer = new WinInstaller();
+  const preflights = installer.getPreflightChecks();
+  const winWSLCheck = preflights[4];
+  const result = await winWSLCheck.execute();
+  expect(result.successful).toBeTruthy();
+});
+
+test('expect WSLVersion preflight check return fail result if first line output contain a version greater than the minimum supported version', async () => {
+  vi.spyOn(extensionApi.process, 'exec').mockResolvedValue({
+    stdout: 'WSL version: 2.4.0',
+    stderr: '',
+    command: 'command',
+  });
+
+  const installer = new WinInstaller();
+  const preflights = installer.getPreflightChecks();
+  const winWSLCheck = preflights[4];
+  const result = await winWSLCheck.execute();
+  expect(result.successful).toBeTruthy();
+});
+
 test('expect winWSL2 preflight check return successful result if the machine has WSL2 installed', async () => {
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(command => {
     if (command === 'powershell.exe') {
@@ -333,7 +423,7 @@ test('expect winWSL2 preflight check return successful result if the machine has
 
   const installer = new WinInstaller();
   const preflights = installer.getPreflightChecks();
-  const winWSLCheck = preflights[4];
+  const winWSLCheck = preflights[5];
   const result = await winWSLCheck.execute();
   expect(result.successful).toBeTruthy();
 });
@@ -363,7 +453,7 @@ test('expect winWSL2 preflight check return failure result if user do not have w
 
   const installer = new WinInstaller();
   const preflights = installer.getPreflightChecks();
-  const winWSLCheck = preflights[4];
+  const winWSLCheck = preflights[5];
   const result = await winWSLCheck.execute();
   expect(result.description).equal('WSL2 is not installed.');
   expect(result.docLinksDescription).equal(`Call 'wsl --install --no-distribution' in a terminal.`);
@@ -396,7 +486,7 @@ test('expect winWSL2 preflight check return failure result if user do not have w
 
   const installer = new WinInstaller();
   const preflights = installer.getPreflightChecks();
-  const winWSLCheck = preflights[4];
+  const winWSLCheck = preflights[5];
   const result = await winWSLCheck.execute();
   expect(result.description).equal('WSL2 is not installed or you do not have permissions to run WSL2.');
   expect(result.docLinksDescription).equal('Contact your Administrator to setup WSL2.');
@@ -425,9 +515,18 @@ test('expect winWSL2 preflight check return failure result if it fails when chec
 
   const installer = new WinInstaller();
   const preflights = installer.getPreflightChecks();
-  const winWSLCheck = preflights[4];
+  const winWSLCheck = preflights[5];
   const result = await winWSLCheck.execute();
   expect(result.description).equal('Could not detect WSL2');
   expect(result.docLinks[0].url).equal('https://learn.microsoft.com/en-us/windows/wsl/install');
   expect(result.docLinks[0].title).equal('WSL2 Manual Installation Steps');
+});
+
+test('expect winWSL2 init to rgister WSLInstall command', async () => {
+  const registerCommandMock = vi.spyOn(extensionApi.commands, 'registerCommand');
+  const installer = new WinInstaller();
+  const preflights = installer.getPreflightChecks();
+  const winWSLCheck = preflights[5];
+  await winWSLCheck.init();
+  expect(registerCommandMock).toBeCalledWith('podman.onboarding.installWSL', expect.any(Function));
 });

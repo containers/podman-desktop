@@ -25,6 +25,22 @@ import * as sudo from 'sudo-prompt';
 
 export const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
 
+class RunErrorImpl extends Error implements RunError {
+  constructor(
+    readonly name: string,
+    readonly message: string,
+    readonly exitCode: number,
+    readonly command: string,
+    readonly stdout: string,
+    readonly stderr: string,
+    readonly cancelled: boolean,
+    readonly killed: boolean,
+  ) {
+    super(message);
+    Object.setPrototypeOf(this, RunErrorImpl.prototype);
+  }
+}
+
 export class Exec {
   constructor(private proxy: Proxy) {}
 
@@ -73,16 +89,16 @@ export class Exec {
           const callback = (error?: Error, stdout?: string | Buffer, stderr?: string | Buffer) => {
             if (error) {
               // need to return a RunError
-              const errResult: RunError = {
-                name: error.name,
-                message: `Failed to execute command: ${error.message}`,
-                exitCode: 1,
-                command: sudoCommand,
-                stdout: stdout?.toString() || '',
-                stderr: stderr?.toString() || '',
-                cancelled: false,
-                killed: false,
-              };
+              const errResult: RunError = new RunErrorImpl(
+                error.name,
+                `Failed to execute command: ${error.message}`,
+                1,
+                sudoCommand,
+                stdout?.toString() || '',
+                stderr?.toString() || '',
+                false,
+                false,
+              );
 
               reject(errResult);
             }
@@ -126,29 +142,29 @@ export class Exec {
         if (!childProcess.killed) {
           childProcess.kill();
           options?.logger?.error('Execution cancelled');
-          const errResult: RunError = {
-            name: 'Execution cancelled',
-            message: 'Failed to execute command: Execution cancelled',
-            exitCode: 1,
+          const errResult: RunError = new RunErrorImpl(
+            'Execution cancelled',
+            'Failed to execute command: Execution cancelled',
+            1,
             command,
-            stdout: stdout.trim(),
-            stderr: stderr.trim(),
-            cancelled: true,
-            killed: childProcess.killed,
-          };
+            stdout.trim(),
+            stderr.trim(),
+            true,
+            childProcess.killed,
+          );
           reject(errResult);
         }
         options?.logger?.error('Failed to execute cancel: Process has been already killed');
-        const errResult: RunError = {
-          name: 'Failed to execute cancel: Process has been already killed',
-          message: 'Failed to execute cancel: Process has been already killed',
-          exitCode: 1,
+        const errResult: RunError = new RunErrorImpl(
+          'Failed to execute cancel: Process has been already killed',
+          'Failed to execute cancel: Process has been already killed',
+          1,
           command,
-          stdout: stdout.trim(),
-          stderr: stderr.trim(),
-          cancelled: false,
-          killed: childProcess.killed,
-        };
+          stdout.trim(),
+          stderr.trim(),
+          false,
+          childProcess.killed,
+        );
         reject(errResult);
       });
 
@@ -167,16 +183,16 @@ export class Exec {
 
       childProcess.on('error', error => {
         options?.logger?.error(`Failed to execute command: ${error.message}`);
-        const errResult: RunError = {
-          name: error.name,
-          message: `Failed to execute command: ${error.message}`,
-          exitCode: 1,
+        const errResult: RunError = new RunErrorImpl(
+          error.name,
+          `Failed to execute command: ${error.message}`,
+          1,
           command,
-          stdout: stdout.trim(),
-          stderr: stderr.trim(),
-          cancelled: false,
-          killed: childProcess.killed,
-        };
+          stdout.trim(),
+          stderr.trim(),
+          false,
+          childProcess.killed,
+        );
         reject(errResult);
       });
 
@@ -190,16 +206,16 @@ export class Exec {
           resolve(result);
         } else {
           options?.logger?.error(`Command execution failed with exit code ${exitCode}`);
-          const errResult: RunError = {
-            name: `Command execution failed with exit code ${exitCode}`,
-            message: `Command execution failed with exit code ${exitCode}`,
-            exitCode: exitCode || 1,
+          const errResult: RunError = new RunErrorImpl(
+            `Command execution failed with exit code ${exitCode}`,
+            `Command execution failed with exit code ${exitCode}`,
+            exitCode || 1,
             command,
-            stdout: stdout.trim(),
-            stderr: stderr.trim(),
-            cancelled: false,
-            killed: childProcess.killed,
-          };
+            stdout.trim(),
+            stderr.trim(),
+            false,
+            childProcess.killed,
+          );
           reject(errResult);
         }
       });

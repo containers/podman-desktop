@@ -12,8 +12,8 @@ With Podman Desktop, you can build an image with your container engine, and test
 
 #### Prerequisites
 
-- [You onboarded a container engine](/docs/onboarding/containers).
-- [You onboarded a Minikube cluster](/docs/onboarding/kubernetes/minikube).
+- [You onboarded a container engine](/docs/onboarding-for-containers).
+- [You onboarded a Minikube cluster](/docs/onboarding-for-kubernetes/minikube).
 - [You have set your Kubernetes context to your Minikube cluster](/docs/kubernetes/minikube/working-with-your-local-minikube-cluster).
 - A container definition file: `Containerfile` or `Dockerfile`.
 

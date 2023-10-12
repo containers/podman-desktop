@@ -19,6 +19,7 @@
 import type { Locator, Page } from 'playwright';
 import { MainPage } from './main-page';
 import { ContainerDetailsPage } from './container-details-page';
+import { CreatePodsPage } from './create-pod-page';
 
 export class ContainersPage extends MainPage {
   readonly pruneContainersButton: Locator;
@@ -70,5 +71,15 @@ export class ContainersPage extends MainPage {
 
   async containerExists(name: string): Promise<boolean> {
     return (await this.getContainerRowByName(name)) !== undefined ? true : false;
+  }
+
+  async openCreatePodPage(name: string): Promise<CreatePodsPage> {
+    const row = await this.getContainerRowByName(name);
+    if (row === undefined) {
+      throw Error('Container cannot be podified');
+    }
+    await row.getByRole('cell').nth(1).click();
+    await this.page.getByRole('button', { name: 'Create Pod with 1 selected items' }).click();
+    return new CreatePodsPage(this.page);
   }
 }

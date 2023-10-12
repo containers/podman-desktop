@@ -25,7 +25,7 @@ import { compare } from 'compare-versions';
 import * as podmanTool from './podman.json';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanInstallation } from './podman-cli';
-import { getAssetsFolder } from './util';
+import { getAssetsFolder, normalizeWSLOutput } from './util';
 import { getDetectionChecks } from './detection-checks';
 import { BaseCheck } from './base-check';
 import { MacCPUCheck, MacMemoryCheck, MacPodmanInstallCheck, MacVersionCheck } from './macos-checks';
@@ -37,6 +37,7 @@ import {
   START_NOW_MACHINE_INIT_SUPPORTED_KEY,
   isStartNowAtMachineInitSupported,
 } from './extension';
+import { WslHelper } from './wsl-helper';
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -293,6 +294,7 @@ export class WinInstaller extends BaseInstaller {
       new WinVersionCheck(),
       new WinMemoryCheck(),
       new VirtualMachinePlatformCheck(),
+      new WSLVersionCheck(),
       new WSL2Check(),
     ];
   }
@@ -405,7 +407,7 @@ class WinBitCheck extends BaseCheck {
 class WinVersionCheck extends BaseCheck {
   title = 'Windows Version';
 
-  private MIN_BUILD = 18362;
+  private MIN_BUILD = 19043; //it represents version 21H1 windows 10
   async execute(): Promise<extensionApi.CheckResult> {
     const winRelease = os.release();
     if (winRelease.startsWith('10.0.')) {
@@ -415,7 +417,7 @@ class WinVersionCheck extends BaseCheck {
         return { successful: true };
       } else {
         return this.createFailureResult({
-          description: 'To be able to run WSL2 you need Windows 10 Build 18362 or later.',
+          description: `To be able to run WSL2 you need Windows 10 Build ${this.MIN_BUILD} or later.`,
           docLinksDescription: 'Learn about WSL requirements:',
           docLinks: {
             url: 'https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2',
@@ -480,6 +482,13 @@ class VirtualMachinePlatformCheck extends BaseCheck {
 
 class WSL2Check extends BaseCheck {
   title = 'WSL2 Installed';
+  installWSLCommandId = 'podman.onboarding.installWSL';
+
+  async init(): Promise<void> {
+    extensionApi.commands.registerCommand(this.installWSLCommandId, async () => {
+      return await this.installWSL();
+    });
+  }
 
   async execute(): Promise<extensionApi.CheckResult> {
     try {
@@ -494,6 +503,10 @@ class WSL2Check extends BaseCheck {
             docLinks: {
               url: 'https://learn.microsoft.com/en-us/windows/wsl/install',
               title: 'WSL2 Manual Installation Steps',
+            },
+            fixCommand: {
+              id: this.installWSLCommandId,
+              title: 'Install WSL2',
             },
           });
         } else {
@@ -520,18 +533,6 @@ class WSL2Check extends BaseCheck {
     return this.createSuccessfulResult();
   }
 
-  private normalizeOutput(out: string): string {
-    // this is workaround, wsl2 some time send output in utf16le, but we treat that as utf8,
-    // this code just eliminate every 'empty' character
-    let str = '';
-    for (let i = 0; i < out.length; i++) {
-      if (out.charCodeAt(i) !== 0) {
-        str += out.charAt(i);
-      }
-    }
-
-    return str;
-  }
   private async isUserAdmin(): Promise<boolean> {
     const { stdout: res } = await extensionApi.process.exec('powershell.exe', [
       '$null -ne (whoami /groups /fo csv | ConvertFrom-Csv | Where-Object {$_.SID -eq "S-1-5-32-544"})',
@@ -544,10 +545,52 @@ class WSL2Check extends BaseCheck {
       const { stdout: res } = await extensionApi.process.exec('wsl', ['--set-default-version', '2'], {
         env: { WSL_UTF8: '1' },
       });
-      const output = this.normalizeOutput(res);
+      const output = normalizeWSLOutput(res);
       return !!output;
     } catch (error) {
       return false;
     }
+  }
+
+  private async installWSL(): Promise<string> {
+    try {
+      const { stdout: res } = await extensionApi.process.exec('wsl', ['--install', '--no-distribution'], {
+        env: { WSL_UTF8: '1' },
+      });
+
+      return normalizeWSLOutput(res);
+    } catch (error) {
+      let message = error.message ? `${error.message}\n` : '';
+      message += error.stdout || '';
+      message += error.stderr || '';
+      throw new Error(message);
+    }
+  }
+}
+
+class WSLVersionCheck extends BaseCheck {
+  title = 'WSL Version';
+
+  minVersion = '1.2.5';
+
+  async execute(): Promise<extensionApi.CheckResult> {
+    try {
+      const wslHelper = new WslHelper();
+      const wslVersionData = await wslHelper.getWSLVersionData();
+      if (compare(wslVersionData.wslVersion, this.minVersion, '>=')) {
+        return this.createSuccessfulResult();
+      } else {
+        return this.createFailureResult({
+          description: `Your WSL version is ${wslVersionData.wslVersion} but it should be >= ${this.minVersion}.`,
+          docLinksDescription: `Call 'wsl --update' to update your WSL installation. If you do not have access to the Windows store you can run 'wsl --update --web-download'. If you still receive an error please contact your IT administator as 'Windows Store Applications' may have been disabled.`,
+        });
+      }
+    } catch (err) {
+      // ignore error
+    }
+    return this.createFailureResult({
+      description: `WSL version should be >= ${this.minVersion}.`,
+      docLinksDescription: `Call 'wsl --version' in a terminal to check your wsl version.`,
+    });
   }
 }

@@ -20,6 +20,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { installBinaryToSystem } from './cli-run';
 import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
+import * as path from 'path';
 
 vi.mock('@podman-desktop/api', async () => {
   return {
@@ -95,7 +96,7 @@ test('success: installBinaryToSystem on mac with /usr/local/bin already created'
   // check called with admin being true
   expect(extensionApi.process.exec).toBeCalledWith(
     'exec',
-    expect.arrayContaining(['cp', 'test', '/usr/local/bin/tmpBinary']),
+    expect.arrayContaining(['cp', 'test', `${path.sep}usr${path.sep}local${path.sep}bin${path.sep}tmpBinary`]),
     expect.objectContaining({ isAdmin: true }),
   );
 });
@@ -117,7 +118,15 @@ test('success: installBinaryToSystem on linux with /usr/local/bin NOT created ye
   // check called with admin being true
   expect(extensionApi.process.exec).toBeCalledWith(
     'exec',
-    expect.arrayContaining(['mkdir', '-p', '/usr/local/bin', '&&', 'cp', 'test', '/usr/local/bin/tmpBinary']),
+    expect.arrayContaining([
+      'mkdir',
+      '-p',
+      '/usr/local/bin',
+      '&&',
+      'cp',
+      'test',
+      `${path.sep}usr${path.sep}local${path.sep}bin${path.sep}tmpBinary`,
+    ]),
     expect.objectContaining({ isAdmin: true }),
   );
 });

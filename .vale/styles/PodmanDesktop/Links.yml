@@ -1,0 +1,9 @@
+---
+extends: existence
+message: 'Consider starting the link with https:// or /, rather than %s'
+level: warning
+nonword: true
+# To access link markup:
+scope: raw
+tokens:
+  - '\]\((?!(/)|(https://))[[:ascii:]]+?\)'
