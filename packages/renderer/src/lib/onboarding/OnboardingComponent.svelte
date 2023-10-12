@@ -18,6 +18,14 @@ let providers: ProviderInfo[];
 let providerInfo: ProviderInfo | undefined;
 $: providerInfo;
 
+let providerDisplayName: string;
+$: providerDisplayName =
+  (providerInfo?.containerProviderConnectionCreation
+    ? providerInfo?.containerProviderConnectionCreationDisplayName || undefined
+    : providerInfo?.kubernetesProviderConnectionCreation
+    ? providerInfo?.kubernetesProviderConnectionCreationDisplayName
+    : undefined) || providerInfo?.name;
+
 onMount(() => {
   configurationProperties.subscribe(value => {
     configurationItems = value;
@@ -31,6 +39,9 @@ onMount(() => {
 </script>
 
 {#if providerInfo && configurationItems}
+  <h1 class="font-semibold px-6 pb-2" aria-label="title">
+    Create a {providerDisplayName}
+  </h1>
   {#if component === 'createContainerProviderConnection' && providerInfo?.containerProviderConnectionCreation === true}
     <PreferencesConnectionCreationRendering
       providerInfo="{providerInfo}"
@@ -38,7 +49,6 @@ onMount(() => {
       propertyScope="ContainerProviderConnectionFactory"
       callback="{window.createContainerProviderConnection}"
       disableEmptyScreen="{true}"
-      hideProviderImage="{true}"
       hideCloseButton="{true}" />
   {:else if component === 'createKubernetesProviderConnection' && providerInfo?.kubernetesProviderConnectionCreation === true}
     <PreferencesConnectionCreationRendering
@@ -47,7 +57,6 @@ onMount(() => {
       propertyScope="KubernetesProviderConnectionFactory"
       callback="{window.createKubernetesProviderConnection}"
       disableEmptyScreen="{true}"
-      hideProviderImage="{true}"
       hideCloseButton="{true}" />
   {:else}
     <div aria-label="not supported warning" class="flex flex-row min-h-[500px] items-center justify-center">
