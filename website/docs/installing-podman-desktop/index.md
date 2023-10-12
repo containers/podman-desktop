@@ -89,5 +89,5 @@ import TabItem from '@theme/TabItem';
 
 Podman Desktop does not automatically set up resources that you might not need.
 
-- [Set up resources for container workloads](/docs/onboarding/containers).
-- [Set up resources for Kubernetes workloads](/docs/onboarding/kubernetes).
+- [Set up resources for container workloads](/docs/onboarding-for-containers).
+- [Set up resources for Kubernetes workloads](/docs/onboarding-for-kubernetes).

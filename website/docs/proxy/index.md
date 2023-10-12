@@ -97,5 +97,5 @@ The bundles for restricted environments:
 
 Podman Desktop does not automatically set up resources that you might not need. Set up the resources that your container and Kubernetes workloads require:
 
-- [Create and start a Podman machine](/docs/onboarding/containers/creating-a-podman-machine-with-podman-desktop).
-- [Set up resources for Kubernetes workloads](/docs/onboarding/kubernetes).
+- [Create and start a Podman machine](/docs/onboarding-for-containers/creating-a-podman-machine-with-podman-desktop).
+- [Set up resources for Kubernetes workloads](/docs/onboarding-for-kubernetes).

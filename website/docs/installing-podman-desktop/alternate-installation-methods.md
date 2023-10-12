@@ -242,5 +242,5 @@ Podman Desktop does not automatically set up resources that you might not need.
 
 Set up the resources that your container and Kubernetes workloads require:
 
-- [Onboarding for container workloads](/docs/onboarding/containers).
-- [Onboarding for Kubernetes workloads](/docs/onboarding/kubernetes).
+- [Onboarding for container workloads](/docs/onboarding-for-containers).
+- [Onboarding for Kubernetes workloads](/docs/onboarding-for-kubernetes).
