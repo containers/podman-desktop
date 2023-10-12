@@ -18,7 +18,7 @@ let providers: ProviderInfo[];
 let providerInfo: ProviderInfo | undefined;
 $: providerInfo;
 
-let providerDisplayName: string;
+let providerDisplayName: string | undefined;
 $: providerDisplayName =
   (providerInfo?.containerProviderConnectionCreation
     ? providerInfo?.containerProviderConnectionCreationDisplayName || undefined

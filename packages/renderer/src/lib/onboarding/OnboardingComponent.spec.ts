@@ -93,7 +93,7 @@ test('Expect to find PreferencesConnectionCreationRendering component if step in
   });
 
   const title = screen.getAllByRole('heading', { name: 'title' });
-  expect(title[0].textContent).equal('Create a Podman machine ');
+  expect(title[0].textContent).equal('Create a Podman machine');
 });
 
 test('Expect to find "not supported" message if step includes a component not supported by the provider', async () => {
