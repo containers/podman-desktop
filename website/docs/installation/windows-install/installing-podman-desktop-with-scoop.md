@@ -27,5 +27,5 @@ keywords: [podman desktop, containers, podman, installing, installation, windows
 
 #### Next steps
 
-- [Onboard for container workloads](/docs/onboarding/containers).
+- [Onboard for container workloads](/docs/onboarding-for-containers).
 - [Onboard for Kubernetes workloads](/docs/onboarding-for-kubernetes).

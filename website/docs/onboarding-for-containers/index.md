@@ -47,11 +47,11 @@ Podman Desktop does not automatically set up container engine resources that you
 
    - Podman Desktop assists you to set up Podman and Podman machines on Windows and macOS.
 
-     - [Installing Podman](/docs/onboarding/containers/installing-podman).
-     - [Installing Podman with OpenShift Local on Windows](/docs/onboarding/containers/installing-podman-with-openshift-local-on-windows).
-     - [Creating a Podman machine with Podman Desktop](/docs/onboarding/containers/creating-a-podman-machine-with-podman-desktop).
+     - [Installing Podman](/docs/onboarding-for-containers/installing-podman).
+     - [Installing Podman with OpenShift Local on Windows](/docs/onboarding-for-containers/installing-podman-with-openshift-local-on-windows).
+     - [Creating a Podman machine with Podman Desktop](/docs/onboarding-for-containers/creating-a-podman-machine-with-podman-desktop).
 
    - Podman Desktop consumes your native containers, Lima instance or Docker setup.
 
-     - [Creating a Lima instance](/docs/onboarding/containers/creating-a-lima-instance-with-podman-desktop).
+     - [Creating a Lima instance](/docs/onboarding-for-containers/creating-a-lima-instance-with-podman-desktop).
      - [Installing Podman on Linux](https://podman.io/docs/installation#installing-on-linux).
