@@ -319,7 +319,7 @@ test('expect WSLVersion preflight check return fail result if wsl --version comm
   const preflights = installer.getPreflightChecks();
   const winWSLCheck = preflights[4];
   const result = await winWSLCheck.execute();
-  expect(result.description).equal('WSL version should be >= 1.2.5.0.');
+  expect(result.description).equal('WSL version should be >= 1.2.5.');
   expect(result.docLinksDescription).equal(`Call 'wsl --version' in a terminal to check your wsl version.`);
 });
 
@@ -334,7 +334,7 @@ test('expect WSLVersion preflight check return fail result if first line output 
   const preflights = installer.getPreflightChecks();
   const winWSLCheck = preflights[4];
   const result = await winWSLCheck.execute();
-  expect(result.description).equal('WSL version should be >= 1.2.5.0.');
+  expect(result.description).equal('WSL version should be >= 1.2.5.');
   expect(result.docLinksDescription).equal(`Call 'wsl --version' in a terminal to check your wsl version.`);
 });
 
@@ -349,7 +349,7 @@ test('expect WSLVersion preflight check return fail result if first line output 
   const preflights = installer.getPreflightChecks();
   const winWSLCheck = preflights[4];
   const result = await winWSLCheck.execute();
-  expect(result.description).equal('WSL version should be >= 1.2.5.0.');
+  expect(result.description).equal('WSL version should be >= 1.2.5.');
   expect(result.docLinksDescription).equal(`Call 'wsl --version' in a terminal to check your wsl version.`);
 });
 
@@ -364,7 +364,7 @@ test('expect WSLVersion preflight check return fail result if first line output 
   const preflights = installer.getPreflightChecks();
   const winWSLCheck = preflights[4];
   const result = await winWSLCheck.execute();
-  expect(result.description).equal('Your WSL version is 1.1.3 but it should be >= 1.2.5.0.');
+  expect(result.description).equal('Your WSL version is 1.1.3 but it should be >= 1.2.5.');
   expect(result.docLinksDescription).equal(
     `Call 'wsl --update' to update your WSL installation. If you do not have access to the Windows store you can run 'wsl --update --web-download'. If you still receive an error please contact your IT administator as 'Windows Store Applications' may have been disabled.`,
   );

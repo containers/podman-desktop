@@ -571,7 +571,7 @@ class WSL2Check extends BaseCheck {
 class WSLVersionCheck extends BaseCheck {
   title = 'WSL Version';
 
-  minVersion = '1.2.5.0';
+  minVersion = '1.2.5';
 
   async execute(): Promise<extensionApi.CheckResult> {
     try {
