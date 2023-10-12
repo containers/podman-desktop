@@ -61,3 +61,27 @@ Windows version: 10.0.22621.2134
   // expect called with wsl --version
   expect(extensionApi.process.exec).toHaveBeenCalledWith('wsl', ['--version']);
 });
+
+test('should grab correct versions even with an output with a language different from english', async () => {
+  const wslOutput = `Versione WSL: 1.2.5.0
+  Versione kernel: 5.15.90.1
+  Versione WSLg: 1.0.51
+  Versione MSRDC: 1.2.3770
+  Versione Direct3D: 1.608.2-61064218
+  Versione DXCore: 10.0.25131.1002-220531-1700.rs-onecore-base2-hyp
+  Versione di Windows: 10.0.22621.2283
+`;
+
+  (extensionApi.process.exec as Mock).mockReturnValue({
+    stdout: wslOutput,
+  } as extensionApi.RunResult);
+
+  const { wslVersion, kernelVersion, windowsVersion } = await wslHelper.getWSLVersionData();
+
+  expect(wslVersion).toBe('1.2.5.0');
+  expect(kernelVersion).toBe('5.15.90.1');
+  expect(windowsVersion).toBe('10.0.22621.2283');
+
+  // expect called with wsl --version
+  expect(extensionApi.process.exec).toHaveBeenCalledWith('wsl', ['--version']);
+});
