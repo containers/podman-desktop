@@ -74,17 +74,31 @@ The bundles for restricted environments:
 
 #### Prerequisites
 
-- [Flatpak](https://flatpak.org/setup/)
+- Linux.
+- `tar`.
+- Podman.
 
 #### Procedure
 
+1. [Download the AMD64 binary (tar.gz) to a `podman-desktop-<version>.tar.gz` file](/downloads/linux).
+2. Extract the content.
+
+   ```shell-session
+   $ tar xvzf podman-desktop-<version>.tar.gz
+   ```
+
+3. Go to the extracted directory.
+
+   ```shell-session
+   $ cd podman-desktop-<version>
+   ```
+
 #### Verification
 
-- Open Podman Desktop from the **Development** menu.
-- Open Podman Desktop from a terminal:
+- Open Podman Desktop from the `podman-desktop` executable file.
 
   ```shell-session
-  $ flatpak run io.podman_desktop.PodmanDesktop
+  $ ./podman-desktop
   ```
 
 </TabItem>
