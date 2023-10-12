@@ -87,7 +87,7 @@ const config = {
             ],
           },
           {
-            to: '/docs/restricted-environment',
+            to: '/docs/proxy',
             from: [
               '/docs/installation/windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment',
               '/docs/Installation/windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment',
