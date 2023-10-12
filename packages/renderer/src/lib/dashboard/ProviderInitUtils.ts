@@ -28,6 +28,7 @@ export type InitializationMode = typeof DoNothingMode | typeof InitializeOnlyMod
 export interface InitializationContext {
   mode: InitializationMode;
   promise?: Promise<ProviderDetectionCheck[]>;
+  error?: string;
 }
 
 export const InitializationSteps = [
