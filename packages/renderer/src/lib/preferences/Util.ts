@@ -100,6 +100,20 @@ export function isDefaultScope(scope?: ConfigurationScope | ConfigurationScope[]
   return isTargetScope(CONFIGURATION_DEFAULT_SCOPE, scope);
 }
 
+export async function getInitialValue(property: IConfigurationPropertyRecordedSchema): Promise<any> {
+  if (isDefaultScope(property.scope)) {
+    if (property.id) {
+      let value = await window.getConfigurationValue(property.id, CONFIGURATION_DEFAULT_SCOPE);
+      if (property.type === 'boolean') {
+        value = !!value;
+      }
+      return value;
+    }
+  } else if (property.default !== undefined) {
+    return property.type === 'number' ? getNormalizedDefaultNumberValue(property) : property.default;
+  }
+}
+
 export function isTargetScope(
   targetScope: ConfigurationScope,
   scope?: ConfigurationScope | ConfigurationScope[],
