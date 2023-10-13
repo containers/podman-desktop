@@ -347,7 +347,7 @@ const config = {
             title: 'Documentation',
             items: [
               {
-                label: 'Installing Podman Desktop',
+                label: 'Installing',
                 to: '/docs/installation',
               },
               {
@@ -355,33 +355,39 @@ const config = {
                 to: '/docs/onboarding/containers',
               },
               {
-                label: 'Onboarding for Kubernetes',
-                to: '/docs/onboarding-for-kubernetes',
-              },
-              {
                 label: 'Working with containers',
                 to: '/docs/working-with-containers',
-              },
-              {
-                label: 'Migrating from Docker',
-                to: '/docs/migrating-from-docker',
-              },
-              {
-                label: 'Working with Compose',
-                to: '/docs/compose',
               },
               {
                 label: 'Working with Kubernetes',
                 to: '/docs/kubernetes',
               },
+            ],
+          },
+          {
+            title: 'Community',
+            items: [
               {
-                label: 'Troubleshooting',
-                to: '/docs/troubleshooting',
+                label: 'Discord',
+                href: 'https://discord.com/channels/852634929845239818/1085121643782873118',
+              },
+
+              {
+                label: 'IRC',
+                href: 'https://web.libera.chat/#podman-desktop',
+              },
+              {
+                label: 'Matrix',
+                href: 'https://matrix.to/#/#podman-desktop:fedoraproject.org',
+              },
+              {
+                label: 'Kubernetes Slack',
+                href: 'https://kubernetes.slack.com/archives/C04A0L7LUFM',
               },
             ],
           },
           {
-            title: 'Links',
+            title: 'Project',
             items: [
               {
                 label: 'Blog',
@@ -392,20 +398,8 @@ const config = {
                 href: 'https://github.com/containers/podman-desktop',
               },
               {
-                label: 'General chat (bridged): #podman-desktop on Discord',
-                href: 'https://discord.com/invite/x5GzFF6QH4',
-              },
-              {
-                label: 'General chat (bridged): #podman-desktop@libera.chat on IRC',
-                href: 'https://libera.chat',
-              },
-              {
-                label: 'General chat (bridged): #podman-desktop@fedora.im on Matrix',
-                href: 'https://fedora.im',
-              },
-              {
-                label: 'Kubernetes chat: Join #podman-desktop on the Kubernetes Slack',
-                href: 'https://slack.k8s.io/',
+                label: 'GitHub discussions',
+                href: 'https://github.com/containers/podman-desktop/discussions',
               },
               {
                 label: 'Podman Desktop Planning & Roadmap',
@@ -414,7 +408,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} ${title}<br/>Apache License 2.0 License`,
+        copyright: `Copyright © ${new Date().getFullYear()} ${title} - Apache License 2.0 License`,
       },
       prism: {
         theme: lightCodeTheme,
