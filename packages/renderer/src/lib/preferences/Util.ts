@@ -111,6 +111,10 @@ export async function getInitialValue(property: IConfigurationPropertyRecordedSc
     }
   } else if (property.default !== undefined) {
     return property.type === 'number' ? getNormalizedDefaultNumberValue(property) : property.default;
+  } else if (property.type === 'string') {
+    return '';
+  } else if (property.type === 'number') {
+    return 0;
   }
 }
 
