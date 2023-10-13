@@ -2,6 +2,8 @@
 sidebar_position: 2
 title: Installing
 description: You can install Podman Desktop on Windows, macOS, and Linux.
+pagination_prev: null
+pagination_next: onboarding-for-containers/index
 tags: [podman-desktop, installing]
 keywords: [podman desktop, containers, podman, installing, installation]
 ---
@@ -12,8 +14,10 @@ import TabItem from '@theme/TabItem';
 # Installing Podman Desktop
 
 <Tabs groupId="operating-systems">
+
 <TabItem value="win" label="Windows">
-<Tabs groupId="alt">
+
+<Tabs groupId="alternatives">
 
 <TabItem value="installer" label="Windows installer">
 
@@ -121,11 +125,15 @@ import TabItem from '@theme/TabItem';
 - Open Podman Desktop from the **Windows** menu.
 
 </TabItem>
+
 </Tabs>
+
 </TabItem>
 
 <TabItem value="mac" label="macOS">
-<Tabs groupId="alt">
+
+<Tabs groupId="alternatives">
+
 <TabItem value="universal-dmg" label="Universal Disk Image">
 
 #### Prerequisites
@@ -208,10 +216,12 @@ import TabItem from '@theme/TabItem';
 </TabItem>
 
 </Tabs>
+
 </TabItem>
 
 <TabItem value="linux" label="Linux">
-<Tabs groupId="alt">
+
+<Tabs groupId="alternatives">
 
 <TabItem value="flathub" label="Flathub">
 
@@ -303,8 +313,11 @@ import TabItem from '@theme/TabItem';
   ```
 
 </TabItem>
+
 </Tabs>
+
 </TabItem>
+
 </Tabs>
 
 #### Next steps
