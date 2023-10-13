@@ -368,20 +368,20 @@ const config = {
             title: 'Community',
             items: [
               {
-                label: 'Discord',
+                label: 'Chat on Discord',
                 href: 'https://discord.com/channels/852634929845239818/1085121643782873118',
               },
 
               {
-                label: 'IRC',
+                label: 'Chat on IRC',
                 href: 'https://web.libera.chat/#podman-desktop',
               },
               {
-                label: 'Matrix',
+                label: 'Chat on Matrix',
                 href: 'https://matrix.to/#/#podman-desktop:fedoraproject.org',
               },
               {
-                label: 'Kubernetes Slack',
+                label: 'Chat on Kubernetes Slack',
                 href: 'https://kubernetes.slack.com/archives/C04A0L7LUFM',
               },
             ],
@@ -396,8 +396,6 @@ const config = {
               {
                 label: 'GitHub',
                 href: 'https://github.com/containers/podman-desktop',
-              },
-              {
                 label: 'GitHub discussions',
                 href: 'https://github.com/containers/podman-desktop/discussions',
               },
