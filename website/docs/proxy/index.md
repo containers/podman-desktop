@@ -1,17 +1,56 @@
 ---
 sidebar_position: 2
 title: In a restricted environment
-description: Using Podman Desktop behind a proxy requiring custom Certificate Authorities (CA).
-tags: [podman-desktop, installing, windows, macos, linux]
-keywords: [podman desktop, containers, podman, installing, installation, windows, macos, linux]
+description: Using Podman Desktop in a restricted environment.
+keywords:
+  [podman desktop, containers, podman, installing, installation, windows, macos, linux, restricted environment, airgap]
+pagination_prev: null
+pagination_next: onboarding-for-containers/index
 ---
 
-# Using Podman Desktop behind a proxy
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import ProxyWindowsMacosContent from './\_using-a-proxy.md';
+import ProxyLinuxContent from './\_using-a-proxy-on-linux.md';
+import VPNContent from './\_using-a-vpn.md';
 
-You can use Podman Desktop behind a proxy in various situations, such as:
+# Using Podman Desktop in a restricted environment
 
-- [Using a proxy on Windows and macOS](/docs/proxy/using-a-proxy)
-- [Using a proxy requiring a custom Certificate Authorities on macOS and Windows](/docs/proxy/using-a-proxy-requiring-a-custom-ca)
-- [Using a proxy on Linux](/docs/proxy/using-a-proxy-on-linux)
-- [Using a proxy in your containers](/docs/proxy/using-a-proxy-in-your-containers)
-- [Accessing resources behind a VPN with Podman on Windows](/docs/proxy/using-a-vpn-on-windows)
+In a restricted environment, such as behind a proxy or a VPN, configure Podman Desktop and Podman to access external resources.
+
+<Tabs groupId="operating-systems" queryString="current-os">
+
+<TabItem value="win" label="Windows">
+<Tabs groupId="situation" queryString="current-situation">
+
+<TabItem value="proxy" label="Proxy">
+<ProxyWindowsMacosContent />
+</TabItem>
+
+<TabItem value="vpn" label="VPN">
+<VPNContent />
+</TabItem>
+
+</Tabs>
+</TabItem>
+
+<TabItem value="mac" label="macOS">
+<Tabs groupId="situation" queryString="current-situation">
+
+<TabItem value="proxy" label="Proxy">
+<ProxyWindowsMacosContent />
+</TabItem>
+
+</Tabs>
+</TabItem>
+
+<TabItem value="linux" label="Linux">
+<Tabs groupId="situation" queryString="current-situation">
+
+<TabItem value="proxy" label="Proxy">
+<ProxyLinuxContent />
+</TabItem>
+
+</Tabs>
+</TabItem>
+</Tabs>

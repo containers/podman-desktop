@@ -101,6 +101,16 @@ const config = {
             from: '/docs/Installation/linux-install/installing-podman-desktop-from-a-compressed-tar-file',
           },
           {
+            to: '/docs/proxy',
+            from: [
+              '/docs/proxy/using-a-proxy-in-your-containers',
+              '/docs/proxy/using-a-proxy-on-linux',
+              '/docs/proxy/using-a-proxy-requiring-a-custom-ca',
+              '/docs/proxy/using-a-proxy',
+              '/docs/proxy/using-a-vpn-on-windows',
+            ],
+          },
+          {
             to: '/docs/compose',
             from: ['/docs/podman-compose', '/docs/compose/compose-spec', '/docs/compose/podman-compose'],
           },
