@@ -43,6 +43,12 @@ vi.mock('../../util', async () => {
   };
 });
 
+vi.mock('child_process', () => {
+  return {
+    spawn: vi.fn(),
+  };
+});
+
 describe('exec', () => {
   const proxy: Proxy = {
     isEnabled: vi.fn().mockReturnValue(false),
@@ -58,12 +64,6 @@ describe('exec', () => {
   test('should run the command and resolve with the result', async () => {
     const command = 'echo';
     const args = ['Hello, World!'];
-
-    vi.mock('child_process', () => {
-      return {
-        spawn: vi.fn(),
-      };
-    });
 
     const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
       if (event === 'data') {
@@ -92,12 +92,6 @@ describe('exec', () => {
     const args = ['Hello, World!'];
     const cwd = '/tmp';
 
-    vi.mock('child_process', () => {
-      return {
-        spawn: vi.fn(),
-      };
-    });
-
     const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
       if (event === 'data') {
         cb('Hello, World!');
@@ -123,12 +117,6 @@ describe('exec', () => {
 
   test('should reject with an error when the command execution returns non-zero exit code', async () => {
     const command = 'nonexistent-command';
-
-    vi.mock('child_process', () => {
-      return {
-        spawn: vi.fn(),
-      };
-    });
 
     const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
       if (event === 'data') {
@@ -190,12 +178,6 @@ describe('exec', () => {
       logger: { log: vi.fn(), warn: vi.fn(), error: vi.fn() },
     };
 
-    vi.mock('child_process', () => {
-      return {
-        spawn: vi.fn(),
-      };
-    });
-
     const childProcessMock: unknown = {
       killed: false,
       stdout: { on: vi.fn(), setEncoding: vi.fn() },
@@ -246,12 +228,6 @@ describe('exec', () => {
     const command = 'echo';
     const args = ['Hello, World!'];
 
-    vi.mock('child_process', () => {
-      return {
-        spawn: vi.fn(),
-      };
-    });
-
     const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
       if (event === 'data') {
         cb('Hello, World!');
@@ -287,12 +263,6 @@ describe('exec', () => {
   test('should run the command and set HTTPS_PROXY', async () => {
     const command = 'echo';
     const args = ['Hello, World!'];
-
-    vi.mock('child_process', () => {
-      return {
-        spawn: vi.fn(),
-      };
-    });
 
     const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
       if (event === 'data') {
@@ -330,12 +300,6 @@ describe('exec', () => {
     const command = 'echo';
     const args = ['Hello, World!'];
 
-    vi.mock('child_process', () => {
-      return {
-        spawn: vi.fn(),
-      };
-    });
-
     const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
       if (event === 'data') {
         cb('Hello, World!');
@@ -371,12 +335,6 @@ describe('exec', () => {
     const args = ['Hello, World!'];
 
     (util.isMac as Mock).mockReturnValue(true);
-
-    vi.mock('child_process', () => {
-      return {
-        spawn: vi.fn(),
-      };
-    });
 
     const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
       if (event === 'data') {
@@ -414,12 +372,6 @@ describe('exec', () => {
 
     (util.isLinux as Mock).mockReturnValue(true);
 
-    vi.mock('child_process', () => {
-      return {
-        spawn: vi.fn(),
-      };
-    });
-
     const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
       if (event === 'data') {
         cb('Hello, World!');
@@ -456,12 +408,6 @@ describe('exec', () => {
       callback(undefined);
     });
 
-    vi.mock('child_process', () => {
-      return {
-        spawn: vi.fn(),
-      };
-    });
-
     const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
       if (event === 'data') {
         cb('Hello, World!');
@@ -482,6 +428,42 @@ describe('exec', () => {
     // caller should not have called spawn but the sudo.exec api
     expect(spawnMock).not.toHaveBeenCalled();
     expect(sudo.exec).toBeCalledWith('echo Hello, World!', expect.anything(), expect.anything());
+  });
+
+  test('should run the command with privileges on Windows and remove unsupported environment', async () => {
+    const command = 'echo';
+    const args = ['Hello, World!'];
+    (util.isWindows as Mock).mockReturnValue(true);
+    let options: any;
+
+    (sudo.exec as Mock).mockImplementation((_command, _options, callback) => {
+      callback(undefined);
+      options = _options;
+    });
+
+    const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
+      if (event === 'data') {
+        cb('Hello, World!');
+      }
+    }) as unknown as Readable;
+    const spawnMock = vi.mocked(spawn).mockReturnValue({
+      stdout: { on, setEncoding: vi.fn() },
+      stderr: { on, setEncoding: vi.fn() },
+      on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
+        if (event === 'exit') {
+          cb(0);
+        }
+      }),
+    } as any);
+
+    await exec.exec(command, args, { isAdmin: true, env: { 'MY(VAR': 'myvalue' } });
+
+    // caller should not have called spawn but the sudo.exec api
+    expect(spawnMock).not.toHaveBeenCalled();
+    expect(sudo.exec).toBeCalledWith('echo Hello, World!', expect.anything(), expect.anything());
+    expect(options).toBeDefined();
+    expect(options.env).toBeDefined();
+    expect(options.env['MY(VAR']).not.toBeDefined();
   });
 });
 
