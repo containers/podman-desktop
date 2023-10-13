@@ -21,9 +21,11 @@ import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import { eventCollect } from './preferences-connection-rendering-task';
 import {
   getProviderConnectionName,
+  isDefaultScope,
   type IConnectionRestart,
   type IConnectionStatus,
   type IProviderConnectionConfigurationPropertyRecorded,
+  isPropertyValidInContext,
 } from './Util';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
@@ -336,6 +338,19 @@ function isOnboardingEnabled(provider: ProviderInfo, globalContext: ContextUI): 
   const isEnabled = whenDeserialized?.evaluate(globalContext);
   return isEnabled || false;
 }
+
+function hasAnyConfiguration(provider: ProviderInfo) {
+  return (
+    properties
+      .filter(
+        property =>
+          property.parentId.startsWith(`preferences.${provider.extensionId}`) &&
+          isDefaultScope(property.scope) &&
+          !property.hidden,
+      )
+      .filter(property => isPropertyValidInContext(property.when, globalContext)).length > 0
+  );
+}
 </script>
 
 <SettingsPage title="Resources">
@@ -402,18 +417,20 @@ function isOnboardingEnabled(provider: ProviderInfo, globalContext: ContextUI): 
                       </Button>
                     </Tooltip>
                   {/if}
-                  <Button
-                    aria-label="Setup {provider.name}"
-                    title="Setup {provider.name}"
-                    on:click="{() => {
-                      if (isOnboardingEnabled(provider, globalContext)) {
-                        router.goto(`/preferences/onboarding/${provider.extensionId}`);
-                      } else {
-                        router.goto(`/preferences/default/preferences.${provider.extensionId}`);
-                      }
-                    }}">
-                    <Fa size="14" icon="{faGear}" />
-                  </Button>
+                  {#if isOnboardingEnabled(provider, globalContext) || hasAnyConfiguration(provider)}
+                    <Button
+                      aria-label="Setup {provider.name}"
+                      title="Setup {provider.name}"
+                      on:click="{() => {
+                        if (isOnboardingEnabled(provider, globalContext)) {
+                          router.goto(`/preferences/onboarding/${provider.extensionId}`);
+                        } else {
+                          router.goto(`/preferences/default/preferences.${provider.extensionId}`);
+                        }
+                      }}">
+                      <Fa size="14" icon="{faGear}" />
+                    </Button>
+                  {/if}
                 </div>
               {/if}
             </div>

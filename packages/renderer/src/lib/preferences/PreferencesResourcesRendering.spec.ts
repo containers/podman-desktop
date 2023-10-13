@@ -26,6 +26,8 @@ import userEvent from '@testing-library/user-event';
 import { router } from 'tinro';
 import { onboardingList } from '/@/stores/onboarding';
 import type { OnboardingInfo } from '../../../../main/src/plugin/api/onboarding';
+import { configurationProperties } from '/@/stores/configurationProperties';
+import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 
 const providerInfo: ProviderInfo = {
   id: 'podman',
@@ -284,6 +286,23 @@ test('Expect to redirect to extension preferences page if onboarding is disabled
   customProviderInfo.name = 'foo-provider';
   providerInfos.set([customProviderInfo]);
 
+  configurationProperties.set([
+    {
+      parentId: 'preferences.id',
+      title: 'record',
+      placeholder: 'Example: text',
+      description: 'record-description',
+      extension: {
+        id: 'extension',
+      },
+      hidden: false,
+      id: 'extension.format.prop',
+      type: 'string',
+      format: 'file',
+      scope: CONFIGURATION_DEFAULT_SCOPE,
+    },
+  ]);
+
   const onboarding: OnboardingInfo = {
     extension: 'id',
     steps: [],
@@ -297,6 +316,46 @@ test('Expect to redirect to extension preferences page if onboarding is disabled
   await userEvent.click(button);
   // redirect to create new page
   expect(router.goto).toHaveBeenCalledWith('/preferences/default/preferences.id');
+});
+
+test('Expect to not have cog icon button if provider has no active onboarding nor configurations', async () => {
+  // clone providerInfo and change id and status
+  const customProviderInfo: ProviderInfo = { ...providerInfo };
+  // remove display name
+  customProviderInfo.containerProviderConnectionCreationDisplayName = undefined;
+  customProviderInfo.status = 'installed';
+  // change name of the provider
+  customProviderInfo.name = 'foo-provider';
+  providerInfos.set([customProviderInfo]);
+  configurationProperties.set([]);
+
+  const onboarding: OnboardingInfo = {
+    extension: 'id',
+    steps: [],
+    title: 'onboarding',
+    enablement: 'false',
+  };
+  onboardingList.set([onboarding]);
+  render(PreferencesResourcesRendering, {});
+  const button = screen.queryByRole('button', { name: 'Setup foo-provider' });
+  expect(button).not.toBeInTheDocument();
+});
+
+test('Expect to not have cog icon button if provider has no onboarding nor configurations', async () => {
+  // clone providerInfo and change id and status
+  const customProviderInfo: ProviderInfo = { ...providerInfo };
+  // remove display name
+  customProviderInfo.containerProviderConnectionCreationDisplayName = undefined;
+  customProviderInfo.status = 'installed';
+  // change name of the provider
+  customProviderInfo.name = 'foo-provider';
+  providerInfos.set([customProviderInfo]);
+  configurationProperties.set([]);
+
+  onboardingList.set([]);
+  render(PreferencesResourcesRendering, {});
+  const button = screen.queryByRole('button', { name: 'Setup foo-provider' });
+  expect(button).not.toBeInTheDocument();
 });
 
 test('Expect to redirect to extension onboarding page if onboarding is enabled and the cog button is clicked', async () => {
