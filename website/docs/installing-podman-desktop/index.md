@@ -4,7 +4,6 @@ title: Installing
 description: You can install Podman Desktop on Windows, macOS, and Linux.
 pagination_prev: null
 pagination_next: onboarding-for-containers/index
-tags: [podman-desktop, installing]
 keywords: [podman desktop, containers, podman, installing, installation]
 ---
 
