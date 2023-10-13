@@ -694,7 +694,7 @@ export class PluginSystem {
 
     const taskManager = new TaskManager(apiSender);
 
-    const cliToolRegistry = new CliToolRegistry(apiSender, telemetry);
+    const cliToolRegistry = new CliToolRegistry(apiSender, exec, telemetry);
 
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
@@ -1912,6 +1912,10 @@ export class PluginSystem {
 
     this.ipcHandle('onboardingRegistry:resetOnboarding', async (_listener, extensions: string[]): Promise<void> => {
       return onboardingRegistry.resetOnboarding(extensions);
+    });
+
+    this.ipcHandle('cliToolRegistry:detectCliTool', async (_listener, cliToolId: string): Promise<void> => {
+      return cliToolRegistry.detectCliTool(cliToolId);
     });
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(

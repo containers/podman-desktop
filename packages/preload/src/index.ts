@@ -1652,6 +1652,10 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('resetOnboarding', async (extensions: string[]): Promise<void> => {
     return ipcInvoke('onboardingRegistry:resetOnboarding', extensions);
   });
+
+  contextBridge.exposeInMainWorld('detectCliTool', async (cliToolId: string) => {
+    return ipcInvoke('cliToolRegistry:detectCliTool', cliToolId);
+  });
 }
 
 // expose methods

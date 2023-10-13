@@ -16,38 +16,26 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ProviderImages } from '@podman-desktop/api';
+import type { CliToolState, ProviderImages } from '@podman-desktop/api';
 
 export type BinaryProviderName = 'download' | 'brew' | 'chocolate' | string;
-
-export type CliToolState =
-  | 'setup-needed'
-  | 'detection-pending'
-  | 'detecting'
-  | 'installation-pending'
-  | 'installing'
-  | 'update-pending'
-  | 'updating'
-  | 'installed'
-  | 'uninstall-pending'
-  | 'uninstalling'
-  | 'unknown';
+export type ButtonName = 'detect' | 'setup';
 
 export interface CliToolInfo {
-  id: number;
+  id: string;
   name: string;
   description: string;
   displayName: string;
   state: CliToolState;
   images?: ProviderImages;
   providedBy: string;
-  binaries?: CliToolBinaryInfo[];
+  binary?: CliToolBinaryInfo;
 }
 
 export interface CliToolBinaryInfo {
-  location: string;
+  location?: string;
   version: string;
-  binaryProviderName: BinaryProviderName;
-  systemWide: boolean;
-  installedOn: Date;
+  binaryManagerName?: BinaryProviderName;
+  systemWide?: boolean;
+  installedOn?: Date;
 }

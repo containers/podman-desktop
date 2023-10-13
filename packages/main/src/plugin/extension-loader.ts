@@ -1006,8 +1006,9 @@ export class ExtensionLoader {
         if (options.images) {
           options.images.icon = instance.updateImage(options?.images?.icon, extensionPath);
         }
-        return this.cliToolRegistry.createCliTool(extensionInfo.id, extensionInfo.name, extensionInfo.label, options);
+        return this.cliToolRegistry.createCliTool(extensionInfo, options);
       },
+      listCliTools: () => this.cliToolRegistry.listCliTools(),
     };
 
     return <typeof containerDesktopAPI>{

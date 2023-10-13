@@ -2432,12 +2432,40 @@ declare module '@podman-desktop/api' {
     displayName: string;
     markdownDescription: string;
     images: ProviderImages;
+    location?: string;
     version?: string;
+    detection?: {
+      versionOptions: string[]; // run command by name using these options
+      versionParser: (string) => string;
+    };
   }
 
-  export interface CliTool extends CliToolOptions, Disposable {}
+  export type CliToolState =
+    | 'setup-needed'
+    | 'detection-pending'
+    | 'detecting'
+    | 'installation-pending'
+    | 'installing'
+    | 'update-pending'
+    | 'updating'
+    | 'installed'
+    | 'installed-unknown'
+    | 'uninstall-pending'
+    | 'uninstalling'
+    | 'unknown';
+
+  export interface CliTool extends CliToolOptions, Disposable {
+    extensionInfo: {
+      id: string;
+      label: string;
+    };
+
+    detect(): Promise<void>;
+    state: CliToolState;
+  }
 
   export namespace cli {
     export function createCliTool(options: CliToolOptions): CliTool;
+    export function listCliTools(): CliTool[];
   }
 }

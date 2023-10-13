@@ -20,7 +20,7 @@ import { writable, type Writable } from 'svelte/store';
 import { EventStore } from './event-store';
 import type { CliToolInfo } from '../../../main/src/plugin/api/cli-tool-info';
 
-const windowEvents: string[] = ['extensions-started', 'cli-tool-create', 'cli-tool-remove'];
+const windowEvents: string[] = ['extensions-started', 'cli-tool-create', 'cli-tool-remove', 'cli-tool-change'];
 const windowListeners = ['system-ready', 'extensions-already-started'];
 
 let extensionsStarted = false;
@@ -33,7 +33,10 @@ export async function checkForUpdate(eventName: string): Promise<boolean> {
 
   // ignore individual tools created from extension activation methods until
   // all extensions are activated and they can be requested all in one call
-  return (extensionsStarted && eventName === 'cli-tool-create') || eventName === 'cli-tool-remove';
+  return (
+    extensionsStarted &&
+    (eventName === 'cli-tool-create' || eventName === 'cli-tool-remove' || eventName === 'cli-tool-change')
+  );
 }
 
 export const cliToolInfos: Writable<CliToolInfo[]> = writable([]);
