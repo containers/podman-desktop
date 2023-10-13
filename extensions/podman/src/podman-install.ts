@@ -486,7 +486,11 @@ class WSL2Check extends BaseCheck {
 
   async init(): Promise<void> {
     extensionApi.commands.registerCommand(this.installWSLCommandId, async () => {
-      return await this.installWSL();
+      const installSucceeded = await this.installWSL();
+      if (installSucceeded) {
+        // if action succeeded, do a re-check of all podman requirements so user can be moved forward if all missing pieces have been installed
+        await extensionApi.commands.executeCommand('podman.onboarding.checkPodmanRequirements');
+      }
     });
   }
 
@@ -552,13 +556,13 @@ class WSL2Check extends BaseCheck {
     }
   }
 
-  private async installWSL(): Promise<string> {
+  private async installWSL(): Promise<boolean> {
     try {
-      const { stdout: res } = await extensionApi.process.exec('wsl', ['--install', '--no-distribution'], {
+      await extensionApi.process.exec('wsl', ['--install', '--no-distribution'], {
         env: { WSL_UTF8: '1' },
       });
 
-      return normalizeWSLOutput(res);
+      return true;
     } catch (error) {
       let message = error.message ? `${error.message}\n` : '';
       message += error.stdout || '';
