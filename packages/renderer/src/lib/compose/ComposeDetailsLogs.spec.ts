@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom/vitest';
 import { beforeAll, expect, test, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
-import { mockBreadcrumb } from '../../stores/breadcrumb';
+import { mockBreadcrumb } from '../../stores/breadcrumb.spec';
 import ComposeDetailsLogs from './ComposeDetailsLogs.svelte';
 import type { ComposeInfoUI } from './ComposeInfoUI';
 import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from '../container/ContainerInfoUI';

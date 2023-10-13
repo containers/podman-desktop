@@ -24,7 +24,7 @@ import { fireEvent, render, screen } from '@testing-library/svelte';
 import { runImageInfo } from '../../stores/run-image-store';
 import RunImage from '/@/lib/image/RunImage.svelte';
 import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
-import { mockBreadcrumb } from '../../stores/breadcrumb';
+import { mockBreadcrumb } from '../../stores/breadcrumb.spec';
 import userEvent from '@testing-library/user-event';
 import { router } from 'tinro';
 
