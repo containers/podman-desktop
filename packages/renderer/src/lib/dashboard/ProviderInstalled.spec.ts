@@ -90,3 +90,45 @@ test('Expect installed provider shows update button', async () => {
 test('Expect installed provider does not show update button if version same', async () => {
   verifyStatus(ProviderInstalled, 'installed', true);
 });
+
+test('Expect to see the initialize context error if provider installation fails', async () => {
+  vi.spyOn(window, 'initializeProvider').mockRejectedValue('error');
+  const provider: ProviderInfo = {
+    containerConnections: [],
+    containerProviderConnectionCreation: false,
+    containerProviderConnectionInitialization: false,
+    detectionChecks: [],
+    id: 'myproviderid',
+    images: {},
+    installationSupport: false,
+    internalId: 'myproviderid',
+    kubernetesConnections: [],
+    kubernetesProviderConnectionCreation: false,
+    kubernetesProviderConnectionInitialization: false,
+    links: [],
+    name: 'MyProvider',
+    status: 'installed',
+    warnings: [],
+    extensionId: '',
+  };
+
+  const initializationContext: InitializationContext = { mode: InitializeAndStartMode };
+  render(ProviderInstalled, { provider: provider, initializationContext: initializationContext });
+
+  const providerText = screen.getByText(
+    content => content.includes('MyProvider') && content.includes('is installed but not ready'),
+  );
+  expect(providerText).toBeInTheDocument();
+
+  const button = screen.getByRole('button', { name: 'Initialize and start' });
+  expect(button).toBeInTheDocument();
+
+  await userEvent.click(button);
+
+  while ((initializationContext as any).error !== 'error') {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  expect((initializationContext as any).promise).toBeDefined();
+  expect((initializationContext as any).error).toBeDefined();
+});

@@ -1354,7 +1354,11 @@ export async function createMachine(
     } else if (error.stderr?.includes('only one VM can be active at a time')) {
       telemetryRecords.errorCode = 'ErrMultipleActiveVM';
     }
-    throw error;
+
+    let errorMessage = error.name ? `${error.name}\n` : '';
+    errorMessage += error.message ? `${error.message}\n` : '';
+    errorMessage += error.stderr ? `${error.stderr}\n` : '';
+    throw errorMessage || error;
   } finally {
     const endTime = performance.now();
     telemetryRecords.duration = endTime - startTime;

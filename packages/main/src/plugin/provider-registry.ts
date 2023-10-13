@@ -482,28 +482,33 @@ export class ProviderRegistry {
     const provider = this.getMatchingProvider(providerInternalId);
 
     provider.updateStatus('configuring');
-    // do we have a lifecycle attached to the provider ?
-    if (
-      this.providerLifecycles.has(providerInternalId) &&
-      this.providerLifecycles.get(providerInternalId)?.initialize
-    ) {
-      return this.intializeProviderLifecycle(providerInternalId);
-    }
+    try {
+      // do we have a lifecycle attached to the provider ?
+      if (
+        this.providerLifecycles.has(providerInternalId) &&
+        this.providerLifecycles.get(providerInternalId)?.initialize
+      ) {
+        return await this.intializeProviderLifecycle(providerInternalId);
+      }
 
-    if (provider?.containerProviderConnectionFactory?.initialize) {
-      this.telemetryService.track('initializeProvider', {
-        name: provider.name,
-      });
+      if (provider?.containerProviderConnectionFactory?.initialize) {
+        this.telemetryService.track('initializeProvider', {
+          name: provider.name,
+        });
 
-      return provider.containerProviderConnectionFactory.initialize();
-    }
+        return await provider.containerProviderConnectionFactory.initialize();
+      }
 
-    if (provider?.kubernetesProviderConnectionFactory?.initialize) {
-      this.telemetryService.track('initializeProvider', {
-        name: provider.name,
-      });
+      if (provider?.kubernetesProviderConnectionFactory?.initialize) {
+        this.telemetryService.track('initializeProvider', {
+          name: provider.name,
+        });
 
-      return provider.kubernetesProviderConnectionFactory.initialize();
+        return await provider.kubernetesProviderConnectionFactory.initialize();
+      }
+    } catch (error: unknown) {
+      provider.updateStatus('installed');
+      throw error;
     }
     throw new Error('No initialize implementation found for this provider');
   }

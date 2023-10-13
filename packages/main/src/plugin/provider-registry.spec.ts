@@ -162,6 +162,37 @@ test('should initialize provider if there is container connection provider', asy
   expect(apiSenderSendMock).toBeCalled();
 });
 
+test('should reset state if initialization fails', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let providerInternalId: any;
+
+  apiSenderSendMock.mockImplementation((message, data) => {
+    expect(message).toBe('provider-create');
+    providerInternalId = data;
+  });
+
+  const provider = providerRegistry.createProvider('id', 'name', {
+    id: 'internal',
+    name: 'internal',
+    status: 'installed',
+  });
+
+  const updateStatusMock = vi.spyOn(provider, 'updateStatus');
+
+  const error = new Error('error');
+
+  provider.setContainerProviderConnectionFactory({
+    initialize: async () => Promise.reject(error),
+    create: async () => {},
+  });
+
+  expect(providerInternalId).toBeDefined();
+  await expect(providerRegistry.initializeProvider(providerInternalId)).rejects.toThrowError(error);
+
+  expect(updateStatusMock).toHaveBeenCalledWith('configuring');
+  expect(updateStatusMock).toHaveBeenCalledWith('installed');
+});
+
 test('expect isContainerConnection returns true with a ContainerConnection', async () => {
   const connection: ContainerProviderConnection = {
     name: 'connection',
