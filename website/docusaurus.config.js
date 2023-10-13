@@ -398,7 +398,7 @@ const config = {
                 href: 'https://github.com/containers/podman-desktop',
               },
               {
-                label: 'Podman Desktop Planning & Roadmap',
+                label: 'Planning & Roadmap',
                 href: 'https://github.com/containers/podman-desktop/projects?type=beta',
               },
             ],
