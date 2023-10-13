@@ -12,11 +12,11 @@ import TabItem from '@theme/TabItem';
 
 # Installing Podman Desktop
 
-<Tabs groupId="operating-systems">
+<Tabs groupId="operating-systems" queryString="current-os">
 
 <TabItem value="win" label="Windows">
 
-<Tabs groupId="alternatives">
+<Tabs groupId="alternatives" queryString="current-installation-method">
 
 <TabItem value="installer" label="Windows installer">
 
@@ -57,6 +57,50 @@ import TabItem from '@theme/TabItem';
 - Open Podman Desktop from the **Windows** menu.
 
 </TabItem>
+
+<TabItem value="restricted" label="In a restricted environment">
+
+The bundles for restricted environments:
+
+- Have all artifacts required to install Podman Desktop and Podman.
+- Do not require Internet access to download resources during installation.
+- Do not contain additional utilities such as Compose or Kind.
+
+#### Prerequisites
+
+- [Windows Subsystem for Linux (WSL) prerequisites](https://learn.microsoft.com/en-us/windows/wsl/troubleshooting#error-0x80370102-the-virtual-machine-could-not-be-started-because-a-required-feature-is-not-installed)
+
+  - User with administrator privileges
+  - Windows 64bit
+  - Windows 10 Build 19043 or greater, or Windows 11
+  - On a virtual machine: [Nested Virtualization enabled](https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/nested-virtualization#configure-nested-virtualization)
+
+- [You installed WSL](https://docs.microsoft.com/en-us/windows/wsl/install):
+
+  ```powershell
+  > wsl --install --no-distribution
+  ```
+
+#### Procedure
+
+1. [Download the Windows installer for restricted environments for your platform](/downloads/windows).
+2. Copy the downloaded file to the Windows host in a restricted environment.
+3. Run the downloaded file to install Podman Desktop.
+4. Open Podman Desktop from the desktop icon or the **Windows** menu.
+5. Click the **Install** button to install Podman.
+
+#### Verification
+
+- Open Podman Desktop from the desktop icon.
+- Open Podman Desktop from the **Windows** menu.
+
+#### Next steps
+
+- [Configure Podman Desktop to run behind your proxy](/docs/proxy/using-a-proxy).
+- [Configure Podman to run behind your VPN](/docs/proxy/using-a-vpn-on-windows).
+
+</TabItem>
+
 <TabItem value="chocolatey" label="Chocolatey">
 
 #### Prerequisites
@@ -214,6 +258,37 @@ import TabItem from '@theme/TabItem';
 
 </TabItem>
 
+<TabItem value="restricted" label="In a restricted environment">
+
+The bundles for restricted environments:
+
+- Have all artifacts required to install Podman Desktop and Podman.
+- Do not require Internet access to download resources during installation.
+- Do not contain additional utilities such as Compose or Kind.
+
+#### Prerequisites
+
+- macOS.
+
+#### Procedure
+
+1. [Download the Disk Image for restricted environments](/downloads/macos).
+1. Open the downloaded file to open the disk image.
+1. Drag the Podman Desktop icon to the Applications folder.
+1. Open Podman Desktop and click the **Install** button to install Podman.
+
+#### Verification
+
+- Open Podman Desktop from **Launchpad**.
+- Open Podman Desktop from the **Applications** directory.
+
+#### Next steps
+
+- [Configure Podman Desktop to run behind your proxy](/docs/proxy/using-a-proxy).
+- [Configure Podman to run behind your VPN](/docs/proxy/using-a-vpn-on-windows).
+
+</TabItem>
+
 </Tabs>
 
 </TabItem>
@@ -281,7 +356,13 @@ import TabItem from '@theme/TabItem';
 
 </TabItem>
 
-<TabItem value="linux-archive" label="AMD64 binary archive">
+<TabItem value="restricted" label="In a restricted environment">
+
+The bundles for restricted environments:
+
+- Have all artifacts required to install Podman Desktop and Podman.
+- Do not require Internet access to download resources during installation.
+- Do not contain additional utilities such as Compose or Kind.
 
 #### Prerequisites
 
@@ -310,6 +391,11 @@ import TabItem from '@theme/TabItem';
   ```shell-session
   $ ./podman-desktop
   ```
+
+#### Next steps
+
+- [Configure Podman Desktop to run behind your proxy](/docs/proxy/using-a-proxy).
+- [Configure Podman to run behind your VPN](/docs/proxy/using-a-vpn-on-windows).
 
 </TabItem>
 

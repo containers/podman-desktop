@@ -71,6 +71,8 @@ const config = {
               '/docs/Installation/macos-install',
               '/docs/installation/windows-install',
               '/docs/Installation/windows-install',
+              '/docs/installation/windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment',
+              '/docs/Installation/windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment',
               '/docs/installation/windows-install/installing-podman-desktop-silently-with-the-windows-installer',
               '/docs/Installation/windows-install/installing-podman-desktop-silently-with-the-windows-installer',
               '/docs/installation/windows-install/installing-podman-desktop-with-chocolatey',
@@ -79,13 +81,6 @@ const config = {
               '/docs/Installation/windows-install/installing-podman-desktop-with-scoop',
               '/docs/installation/windows-install/installing-podman-desktop-with-winget',
               '/docs/Installation/windows-install/installing-podman-desktop-with-winget',
-            ],
-          },
-          {
-            to: '/docs/proxy',
-            from: [
-              '/docs/installation/windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment',
-              '/docs/Installation/windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment',
             ],
           },
           {
