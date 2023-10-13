@@ -142,6 +142,15 @@ export class ImageRegistry {
   }
 
   registerRegistry(registry: containerDesktopAPI.Registry): Disposable {
+    const found = this.registries.find(
+      reg =>
+        reg.source === registry.source && reg.serverUrl === registry.serverUrl && reg.username === registry.username,
+    );
+    if (found) {
+      // Ignore and don't register - extension may register registries every time it is restarted
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      return Disposable.create(() => {});
+    }
     this.registries = [...this.registries, registry];
     this.telemetryService.track('registerRegistry', {
       serverUrl: this.getRegistryHash(registry),
