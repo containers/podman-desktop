@@ -319,10 +319,3 @@ import TabItem from '@theme/TabItem';
 </TabItem>
 
 </Tabs>
-
-#### Next steps
-
-Set up the resources that your container and Kubernetes workloads require:
-
-- [Onboarding for container workloads](/docs/onboarding-for-containers).
-- [Onboarding for Kubernetes workloads](/docs/onboarding-for-kubernetes).
