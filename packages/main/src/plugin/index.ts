@@ -131,6 +131,8 @@ import type { KubernetesGeneratorInfo } from '/@/plugin/api/KubernetesGeneratorI
 import type { CommandInfo } from './api/command-info.js';
 import { CliToolRegistry } from './cli-tool-registry.js';
 import type { CliToolInfo } from './api/cli-tool-info.js';
+import type { Notification, NotificationInfo } from './api/notification.js';
+import { NotificationRegistry } from './notification-registry.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -399,6 +401,7 @@ export class PluginSystem {
     const fileSystemMonitoring = new FilesystemMonitoring();
     const customPickRegistry = new CustomPickRegistry(apiSender);
     const onboardingRegistry = new OnboardingRegistry(configurationRegistry, context);
+    const notificationRegistry = new NotificationRegistry(apiSender);
     const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry);
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
@@ -724,6 +727,7 @@ export class PluginSystem {
       exec,
       kubeGeneratorRegistry,
       cliToolRegistry,
+      notificationRegistry,
     );
     await this.extensionLoader.init();
 
@@ -1912,6 +1916,25 @@ export class PluginSystem {
 
     this.ipcHandle('onboardingRegistry:resetOnboarding', async (_listener, extensions: string[]): Promise<void> => {
       return onboardingRegistry.resetOnboarding(extensions);
+    });
+
+    this.ipcHandle('notificationRegistry:listNotifications', async (): Promise<Notification[]> => {
+      return notificationRegistry.getNotifications();
+    });
+
+    this.ipcHandle(
+      'notificationRegistry:addNotification',
+      async (_listener, notification: NotificationInfo): Promise<void> => {
+        return notificationRegistry.addNotification(notification);
+      },
+    );
+
+    this.ipcHandle('notificationRegistry:removeNotification', async (_listener, id: number): Promise<void> => {
+      return notificationRegistry.removeNotificationById(id);
+    });
+
+    this.ipcHandle('notificationRegistry:clearNotificationsQueue', async (): Promise<void> => {
+      return notificationRegistry.removeAll();
     });
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(

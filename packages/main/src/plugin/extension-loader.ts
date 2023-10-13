@@ -68,6 +68,7 @@ import { ModuleLoader } from './module-loader.js';
 import { ExtensionLoaderSettings } from './extension-loader-settings.js';
 import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plugin/kube-generator-registry.js';
 import type { CliToolRegistry } from './cli-tool-registry.js';
+import type { NotificationRegistry } from './notification-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -156,6 +157,7 @@ export class ExtensionLoader {
     private exec: Exec,
     private kubeGeneratorRegistry: KubeGeneratorRegistry,
     private cliToolRegistry: CliToolRegistry,
+    private notificationRegistry: NotificationRegistry,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -565,6 +567,7 @@ export class ExtensionLoader {
       extension.subscriptions.push(this.onboardingRegistry.registerOnboarding(extension, onboarding));
     }
 
+    extension.subscriptions.push(this.notificationRegistry.registerExtension(extension.id));
     this.analyzedExtensions.set(extension.id, extension);
     this.extensionState.delete(extension.id);
     this.extensionStateErrors.delete(extension.id);

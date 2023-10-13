@@ -55,6 +55,7 @@ import { getBase64Image } from '../util.js';
 import type { Exec } from './util/exec.js';
 import type { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
 import type { CliToolRegistry } from './cli-tool-registry.js';
+import type { NotificationRegistry } from './notification-registry.js';
 
 vi.mock('../util.js', async () => {
   return {
@@ -276,6 +277,7 @@ suite('Authentication', () => {
       vi.fn() as unknown as Exec,
       vi.fn() as unknown as KubeGeneratorRegistry,
       vi.fn() as unknown as CliToolRegistry,
+      vi.fn() as unknown as NotificationRegistry,
     );
     providerMock = {
       onDidChangeSessions: vi.fn(),
