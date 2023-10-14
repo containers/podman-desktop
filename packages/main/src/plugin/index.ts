@@ -56,7 +56,7 @@ import { getFreePort, getFreePortRange } from './util/port.js';
 import { isLinux, isMac } from '../util.js';
 import type { MessageBoxOptions, MessageBoxReturnValue } from './message-box.js';
 import { MessageBox } from './message-box.js';
-import { ProgressImpl } from './progress-impl.js';
+import { ProgressImpl, ProgressLocation } from './progress-impl.js';
 import type { ContributionInfo } from './api/contribution-info.js';
 import { ContributionManager } from './contribution-manager.js';
 import { DockerDesktopInstallation } from './docker-extension/docker-desktop-installation.js';
@@ -692,6 +692,10 @@ export class PluginSystem {
 
     const taskManager = new TaskManager(apiSender);
 
+    const progressImpl = new ProgressImpl(taskManager);
+
+    const notificationImpl = new NotificationImpl();
+
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
       menuRegistry,
@@ -701,8 +705,8 @@ export class PluginSystem {
       apiSender,
       trayMenuRegistry,
       messageBox,
-      new ProgressImpl(taskManager),
-      new NotificationImpl(),
+      progressImpl,
+      notificationImpl,
       statusBarRegistry,
       kubernetesClient,
       fileSystemMonitoring,
@@ -1037,9 +1041,20 @@ export class PluginSystem {
         imageName: string,
         callbackId: number,
       ): Promise<void> => {
-        return containerProviderRegistry.pullImage(providerContainerConnectionInfo, imageName, (event: PullEvent) => {
-          this.getWebContentsSender().send('container-provider-registry:pullImage-onData', callbackId, event);
-        });
+        return progressImpl.withProgress<void>(
+          { location: ProgressLocation.TASK_WIDGET, title: `Pulling ${imageName}.` },
+          async progress => {
+            await containerProviderRegistry.pullImage(
+              providerContainerConnectionInfo,
+              imageName,
+              (event: PullEvent) => {
+                this.getWebContentsSender().send('container-provider-registry:pullImage-onData', callbackId, event);
+              },
+            );
+            progress.report({ increment: -1 });
+            notificationImpl.showNotification({ body: `${imageName} pulled.` });
+          },
+        );
       },
     );
     this.ipcHandle(
