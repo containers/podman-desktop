@@ -30,7 +30,7 @@ export interface StatusBarEntry {
   command?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   commandArgs?: any[];
-  badged: boolean;
+  badged?: boolean;
 }
 
 export interface StatusBarEntryDescriptor {
@@ -70,7 +70,7 @@ export class StatusBarRegistry implements IDisposable {
     command: string | undefined,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     commandArgs: any[] | undefined,
-    badged: boolean,
+    badged?: boolean,
   ) {
     const existingEntry = this.entries.get(entryId);
     if (existingEntry && (existingEntry.alignLeft !== alignLeft || existingEntry.priority !== priority)) {

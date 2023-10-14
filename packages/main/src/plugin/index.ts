@@ -476,18 +476,7 @@ export class PluginSystem {
       }
     });
 
-    statusBarRegistry.setEntry(
-      'help',
-      false,
-      0,
-      undefined,
-      'Help',
-      'fa fa-question-circle',
-      true,
-      'help',
-      undefined,
-      false,
-    );
+    statusBarRegistry.setEntry('help', false, 0, undefined, 'Help', 'fa fa-question-circle', true, 'help', undefined);
 
     statusBarRegistry.setEntry(
       'tasks',
@@ -499,7 +488,6 @@ export class PluginSystem {
       true,
       'show-task-manager',
       undefined,
-      false,
     );
 
     apiSender.receive('task-created', () => {
@@ -516,7 +504,6 @@ export class PluginSystem {
       true,
       'troubleshooting',
       undefined,
-      false,
     );
 
     commandRegistry.registerCommand('show-task-manager', () => {
@@ -534,7 +521,6 @@ export class PluginSystem {
       true,
       'feedback',
       undefined,
-      false,
     );
 
     // Get the current version of our application
@@ -552,7 +538,6 @@ export class PluginSystem {
         true,
         'version',
         undefined,
-        false,
       );
     };
     defaultVersionEntry();
