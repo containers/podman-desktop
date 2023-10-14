@@ -94,13 +94,11 @@ export class ProgressImpl {
 
     await Promise.any([
       task_.then(async () => {
-        console.log('progressImpl THEN');
         t.status = 'success';
         t.state = 'completed';
         this.taskManager.updateTask(t);
       }),
       task_.catch((err: unknown) => {
-        console.log('progressImpl on failure');
         t.status = 'failure';
         t.state = 'completed';
         t.error = String(err);
