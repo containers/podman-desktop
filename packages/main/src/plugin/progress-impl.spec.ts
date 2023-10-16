@@ -53,3 +53,32 @@ test('Should create a task and report 2 updates', async () => {
   expect(apiSenderSendMock).toHaveBeenNthCalledWith(3, 'task-updated', expect.anything());
   expect(apiSenderSendMock).toHaveBeenNthCalledWith(3, 'task-updated', expect.objectContaining({ state: 'completed' }));
 });
+
+test('Should create a task and propagate the exception', async () => {
+  const createTaskMock = vi.fn();
+  const updateTaskMock = vi.fn();
+  const taskManager = {
+    createTask: createTaskMock,
+    updateTask: updateTaskMock,
+  } as unknown as TaskManager;
+
+  createTaskMock.mockImplementation(() => ({}));
+
+  const progress = new ProgressImpl(taskManager);
+
+  try {
+    await progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async () => {
+      throw new Error('dummy error');
+    });
+    // Should NEVER be here.
+    expect(true).toBe(false);
+  } catch (e: unknown) {
+    expect((e as Error).message).toBe('dummy error');
+  }
+
+  expect(updateTaskMock).toHaveBeenCalledTimes(1);
+  expect(updateTaskMock).toHaveBeenCalledWith({
+    state: 'completed',
+    status: 'failure',
+  });
+});
