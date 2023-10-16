@@ -25,6 +25,7 @@ export interface StatefulTaskUI extends StatefulTask {
   progress?: number;
   hasGotoTask: boolean;
   gotoTask?: () => void;
+  cancellationTokenCallbackId?: number;
 }
 
 export class TaskManager {
@@ -39,6 +40,7 @@ export class TaskManager {
         hasGotoTask: false,
         age: `${humanizeDuration(new Date().getTime() - task.started, { round: true, largest: 1 })} ago`,
         error: task.error,
+        cancellationTokenCallbackId: task.cancellationTokenCallbackId,
       };
 
       if (task.status === 'in-progress') {

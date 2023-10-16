@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 export type TaskState = 'running' | 'completed';
-type TaskStatus = 'in-progress' | 'success' | 'failure';
+type TaskStatus = 'in-progress' | 'success' | 'failure' | 'cancelled';
 
 export interface Task {
   id: string;
@@ -31,6 +31,7 @@ export interface StatefulTask extends Task {
   progress?: number;
   gotoTask?: () => void;
   error?: string;
+  cancellationTokenCallbackId?: number;
 }
 
 export interface NotificationTask extends Task {

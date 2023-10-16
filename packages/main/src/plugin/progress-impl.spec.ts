@@ -22,18 +22,28 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import type { ApiSenderType } from './api.js';
 import { ProgressImpl, ProgressLocation } from './progress-impl.js';
 import { TaskManager } from './task-manager.js';
+import { CancellationTokenRegistry } from './cancellation-token-registry.js';
 
 const apiSenderSendMock = vi.fn();
+const createCancellationTokenSourceMock = vi.fn();
+const getCancellationTokenSourceMock = vi.fn();
+const hasCancellationTokenSourceMock = vi.fn();
 
 beforeEach(() => {
   vi.clearAllMocks();
 });
 
+const cancellationTokenRegistryMock = {
+  createCancellationTokenSource: createCancellationTokenSourceMock,
+  getCancellationTokenSource: getCancellationTokenSourceMock,
+  hasCancellationTokenSource: hasCancellationTokenSourceMock,
+} as unknown as CancellationTokenRegistry;
+
 test('Should create a task and report update', async () => {
   const apiSender = {
     send: apiSenderSendMock,
   } as unknown as ApiSenderType;
-  const progress = new ProgressImpl(new TaskManager(apiSender));
+  const progress = new ProgressImpl(new TaskManager(apiSender), cancellationTokenRegistryMock);
   await progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async () => 0);
   expect(apiSenderSendMock).toBeCalledTimes(2);
   expect(apiSenderSendMock).toHaveBeenNthCalledWith(1, 'task-created', expect.anything());
@@ -44,7 +54,7 @@ test('Should create a task and report 2 updates', async () => {
   const apiSender = {
     send: apiSenderSendMock,
   } as unknown as ApiSenderType;
-  const progress = new ProgressImpl(new TaskManager(apiSender));
+  const progress = new ProgressImpl(new TaskManager(apiSender), cancellationTokenRegistryMock);
   await progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async progress => {
     progress.report({ increment: 50 });
   });
@@ -53,6 +63,7 @@ test('Should create a task and report 2 updates', async () => {
   expect(apiSenderSendMock).toHaveBeenNthCalledWith(3, 'task-updated', expect.anything());
   expect(apiSenderSendMock).toHaveBeenNthCalledWith(3, 'task-updated', expect.objectContaining({ state: 'completed' }));
 });
+
 
 test('Should create a task and propagate the exception', async () => {
   const createTaskMock = vi.fn();
@@ -64,7 +75,7 @@ test('Should create a task and propagate the exception', async () => {
 
   createTaskMock.mockImplementation(() => ({}));
 
-  const progress = new ProgressImpl(taskManager);
+  const progress = new ProgressImpl(taskManager, cancellationTokenRegistryMock);
 
   try {
     await progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async () => {
@@ -93,7 +104,7 @@ test('Should create a task and propagate the result', async () => {
 
   createTaskMock.mockImplementation(() => ({}));
 
-  const progress = new ProgressImpl(taskManager);
+  const progress = new ProgressImpl(taskManager, cancellationTokenRegistryMock);
 
   const result: string = await progress.withProgress<string>(
     { location: ProgressLocation.TASK_WIDGET, title: 'My task' },
@@ -108,4 +119,50 @@ test('Should create a task and propagate the result', async () => {
     state: 'completed',
     status: 'success',
   });
+});
+
+
+test('The task should be cancelled', async () => {
+  const apiSender = {
+    send: apiSenderSendMock,
+  } as unknown as ApiSenderType;
+
+  // Create a cancellationRegistry
+  const cancellationTokenRegistry = new CancellationTokenRegistry();
+
+  let callbackId: number | undefined = undefined;
+  // Capture the callbackId created.
+  createCancellationTokenSourceMock.mockImplementation(() => {
+    callbackId = cancellationTokenRegistry.createCancellationTokenSource();
+    return callbackId;
+  });
+
+  // Mimic full behavior
+  getCancellationTokenSourceMock.mockImplementation(id => cancellationTokenRegistry.getCancellationTokenSource(id));
+  hasCancellationTokenSourceMock.mockImplementation(id => cancellationTokenRegistry.hasCancellationTokenSource(id));
+
+  // Create ProgressImpl
+  const progress = new ProgressImpl(
+    new TaskManager(apiSender),
+    cancellationTokenRegistryMock as unknown as CancellationTokenRegistry,
+  );
+
+  // This task will cancel itself (not realistic, the cancel should be done externally)
+  // E.g. the external frontend should use `await window.cancelToken(tokenId)`
+  await progress.withProgress(
+    { location: ProgressLocation.TASK_WIDGET, title: 'My task', cancellable: true },
+    async (progress, cancellationToken) => {
+      // Since cancellable is true
+      expect(cancellationToken).toBeDefined();
+
+      let onCancellationRequestedCalled = false;
+      cancellationToken?.onCancellationRequested(() => {
+        onCancellationRequestedCalled = true;
+      });
+
+      expect(callbackId).toBeDefined();
+      cancellationTokenRegistry.getCancellationTokenSource(callbackId as number)?.cancel();
+      expect(onCancellationRequestedCalled).toBe(true);
+    },
+  );
 });

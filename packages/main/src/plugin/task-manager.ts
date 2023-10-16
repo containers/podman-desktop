@@ -30,7 +30,7 @@ export class TaskManager {
 
   constructor(private apiSender: ApiSenderType) {}
 
-  public createTask(title: string | undefined): StatefulTask {
+  public createTask(title: string | undefined, cancellationTokenCallbackId?: number): StatefulTask {
     this.taskId++;
     const task: StatefulTask = {
       id: `main-${this.taskId}`,
@@ -38,6 +38,7 @@ export class TaskManager {
       started: new Date().getTime(),
       state: 'running',
       status: 'in-progress',
+      cancellationTokenCallbackId: cancellationTokenCallbackId,
     };
     this.tasks.set(task.id, task);
     this.apiSender.send('task-created', task);
