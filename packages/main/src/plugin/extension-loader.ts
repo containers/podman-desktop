@@ -68,7 +68,6 @@ import { ExtensionLoaderSettings } from './extension-loader-settings.js';
 import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plugin/kube-generator-registry.js';
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { NotificationRegistry } from './notification-registry.js';
-import type { NotificationInfo } from './api/notification.js';
 
 /**
  * Handle the loading of an extension
@@ -1015,12 +1014,6 @@ export class ExtensionLoader {
         return this.cliToolRegistry.createCliTool(extensionInfo, options);
       }
     };
-    
-    const notificationsAPI: typeof containerDesktopAPI.notifications = {
-      pushNotification: (notification: NotificationInfo): void => {
-        this.notificationRegistry.addNotification(notification);
-      },
-    };
 
     return <typeof containerDesktopAPI>{
       // Types
@@ -1050,7 +1043,6 @@ export class ExtensionLoader {
       authentication,
       context: contextAPI,
       cli,
-      notifications: notificationsAPI,
     };
   }
 

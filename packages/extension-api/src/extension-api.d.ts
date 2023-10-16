@@ -1057,6 +1057,23 @@ declare module '@podman-desktop/api' {
   }
 
   /**
+   * Options to define how the notification card has to be created (will be displayed in the bell icon list)
+   */
+  export interface NotificationCardOptions {
+    // title displayed on the top of the notification card
+    title: string;
+    // description displayed just below the title, it should explain what the notification is about
+    description: string;
+    type: NotificationType;
+    // displayed below the description, centered in the notification card. It may contains actions (like commands/buttons and links)
+    actions?: string;
+    // the notification will be added to the dashboard queue
+    highlight?: boolean;
+    // whether or not to emit an OS notification noise when showing the notification.
+    silent?: boolean;
+  }
+
+  /**
    * Aligned to the left side.
    */
   export const StatusBarAlignLeft = 'LEFT';
@@ -1250,7 +1267,7 @@ declare module '@podman-desktop/api' {
      * Show notification on different area of Podman Desktop based on its options (Dashboard, bell icon list, OS notification)
      * @param options define how the notification must be created.
      */
-    export function showNotification(options: NotificationOptions): Disposable;
+    export function showNotification(options: NotificationCardOptions | NotificationOptions): Disposable;
 
     /**
      * Creates a status bar {@link StatusBarItem} item.
@@ -2477,29 +2494,5 @@ declare module '@podman-desktop/api' {
      * @returns CliTool instance
      */
     export function createCliTool(options: CliToolOptions): CliTool;
-  }
-  
-  export type NotificationType = 'info' | 'warn' | 'error';
-
-  export interface NotificationInfo {
-    extensionId: string;
-    // title displayed on the top of the notification card
-    title: string;
-    // description displayed just below the title, it should explain what the notification is about
-    description: string;
-    type: NotificationType;
-    // displayed below the description, centered in the notification card. It may contains actions (like commands/buttons and links)
-    actions?: string;
-  }
-
-  /**
-   * The context provides write access to the Podman Desktop Notifications system.
-   */
-  export namespace notifications {
-    /**
-     * it pushes a notification that will be displayed in the dashboard/frontend
-     * @param notificationInfo notification to push
-     */
-    export function pushNotification(notificationInfo: NotificationInfo): void;
   }
 }
