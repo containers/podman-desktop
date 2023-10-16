@@ -163,7 +163,7 @@
     "tar-fs": "^3.0.4",
     "undici": "^5.26.3",
     "win-ca": "^3.5.0",
-    "yaml": "^2.3.2",
+    "yaml": "^2.3.3",
     "zip-local": "^0.3.5"
   },
   "resolutions": {
