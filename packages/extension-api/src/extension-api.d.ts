@@ -2466,4 +2466,28 @@ declare module '@podman-desktop/api' {
      */
     export function createCliTool(options: CliToolOptions): CliTool;
   }
+  
+  export type NotificationType = 'info' | 'warn' | 'error';
+
+  export interface NotificationInfo {
+    extensionId: string;
+    // title displayed on the top of the notification card
+    title: string;
+    // description displayed just below the title, it should explain what the notification is about
+    description: string;
+    type: NotificationType;
+    // displayed below the description, centered in the notification card. It may contains actions (like commands/buttons and links)
+    actions?: string;
+  }
+
+  /**
+   * The context provides write access to the Podman Desktop Notifications system.
+   */
+  export namespace notifications {
+    /**
+     * it pushes a notification that will be displayed in the dashboard/frontend
+     * @param notificationInfo notification to push
+     */
+    export function pushNotification(notificationInfo: NotificationInfo): void;
+  }
 }
