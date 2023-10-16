@@ -19,7 +19,7 @@
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 import { EventStore } from './event-store';
-import type { Notification } from '../../../main/src/plugin/api/notification';
+import type { NotificationCard } from '../../../main/src/plugin/api/notification';
 
 const windowEvents = ['notifications-updated'];
 const windowListeners = ['extensions-already-started'];
@@ -34,14 +34,14 @@ export async function checkForUpdate(eventName: string): Promise<boolean> {
   // do not fetch until extensions are all started
   return readyToUpdate;
 }
-export const notificationQueue: Writable<Notification[]> = writable([]);
+export const notificationQueue: Writable<NotificationCard[]> = writable([]);
 
 // use helper here as window methods are initialized after the store in tests
-const listNotifications = (): Promise<Notification[]> => {
+const listNotifications = (): Promise<NotificationCard[]> => {
   return window.listNotifications();
 };
 
-export const notificationEventStore = new EventStore<Notification[]>(
+export const notificationEventStore = new EventStore<NotificationCard[]>(
   'notifications',
   notificationQueue,
   checkForUpdate,

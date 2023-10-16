@@ -38,7 +38,6 @@ import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-r
 import type { KubernetesClient } from './kubernetes-client.js';
 import type { MenuRegistry } from './menu-registry.js';
 import type { MessageBox } from './message-box.js';
-import type { NotificationImpl } from './notification-impl.js';
 import type { ProgressImpl } from './progress-impl.js';
 import type { ProviderRegistry } from './provider-registry.js';
 import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
@@ -259,7 +258,6 @@ suite('Authentication', () => {
       vi.fn() as unknown as TrayMenuRegistry,
       vi.fn() as unknown as MessageBox,
       vi.fn() as unknown as ProgressImpl,
-      vi.fn() as unknown as NotificationImpl,
       vi.fn() as unknown as StatusBarRegistry,
       vi.fn() as unknown as KubernetesClient,
       vi.fn() as unknown as FilesystemMonitoring,

@@ -29,7 +29,6 @@ import type { ImageRegistry } from './image-registry.js';
 import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
 import type { KubernetesClient } from './kubernetes-client.js';
 import type { MenuRegistry } from './menu-registry.js';
-import type { NotificationImpl } from './notification-impl.js';
 import type { ProgressImpl } from './progress-impl.js';
 import type { ProviderRegistry } from './provider-registry.js';
 import type { Proxy } from './proxy.js';
@@ -112,8 +111,6 @@ const messageBox: MessageBox = {} as MessageBox;
 
 const progress: ProgressImpl = {} as ProgressImpl;
 
-const notifications: NotificationImpl = {} as unknown as NotificationImpl;
-
 const statusBarRegistry: StatusBarRegistry = {} as unknown as StatusBarRegistry;
 
 const kubernetesClient: KubernetesClient = {} as unknown as KubernetesClient;
@@ -165,7 +162,6 @@ beforeAll(() => {
     trayMenuRegistry,
     messageBox,
     progress,
-    notifications,
     statusBarRegistry,
     kubernetesClient,
     fileSystemMonitoring,

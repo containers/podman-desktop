@@ -18,7 +18,7 @@
 
 type NotificationType = 'info' | 'warn' | 'error';
 
-export interface NotificationInfo {
+export interface NotificationCardOptions {
   extensionId: string;
   // title displayed on the top of the notification card
   title: string;
@@ -27,8 +27,12 @@ export interface NotificationInfo {
   type: NotificationType;
   // displayed below the description, centered in the notification card. It may contains actions (like commands/buttons and links)
   actions?: string;
+  // the notification will be added to the dashboard queue
+  highlight?: boolean;
+  // whether or not to emit an OS notification noise when showing the notification.
+  silent?: boolean;
 }
 
-export interface Notification extends NotificationInfo {
+export interface NotificationCard extends NotificationCardOptions {
   id: number;
 }

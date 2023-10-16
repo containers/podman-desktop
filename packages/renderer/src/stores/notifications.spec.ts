@@ -21,8 +21,8 @@
 import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
 import { beforeAll, expect, test, vi } from 'vitest';
-import type { Notification } from '../../../main/src/plugin/api/notification';
 import { fetchNotifications, notificationEventStore, notificationQueue } from './notifications';
+import type { NotificationCard } from '../../../main/src/plugin/api/notification';
 
 // first, path window object
 const callbacks = new Map<string, any>();
@@ -32,7 +32,7 @@ const eventEmitter = {
   },
 };
 
-const listNotificationsMock: Mock<any, Promise<Notification[]>> = vi.fn();
+const listNotificationsMock: Mock<any, Promise<NotificationCard[]>> = vi.fn();
 
 Object.defineProperty(global, 'window', {
   value: {
@@ -58,7 +58,7 @@ test('notifications should be updated in case of an extension is stopped', async
       title: 'title',
       decription: 'description',
       type: 'info',
-    } as unknown as Notification,
+    } as unknown as NotificationCard,
   ]);
   notificationEventStore.setup();
 

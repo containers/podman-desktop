@@ -17,13 +17,15 @@
  ***********************************************************************/
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { Notification, NotificationInfo } from './api/notification.js';
+import type { NotificationCard, NotificationCardOptions } from './api/notification.js';
+import { Notification } from 'electron';
 import type { ApiSenderType } from './api.js';
 import { Disposable } from './types/disposable.js';
+import type * as containerDesktopAPI from '@podman-desktop/api';
 
 export class NotificationRegistry {
   private notificationId = 0;
-  private notificationQueue: Notification[] = [];
+  private notificationQueue: NotificationCard[] = [];
 
   constructor(private apiSender: ApiSenderType) {}
 
@@ -33,9 +35,9 @@ export class NotificationRegistry {
     });
   }
 
-  addNotification(notificationInfo: NotificationInfo): void {
+  addNotification(notificationInfo: NotificationCardOptions): Disposable {
     ++this.notificationId;
-    const notification: Notification = {
+    const notification: NotificationCard = {
       ...notificationInfo,
       id: this.notificationId,
     };
@@ -43,6 +45,24 @@ export class NotificationRegistry {
     this.notificationQueue.unshift(notification);
     // send event
     this.apiSender.send('notifications-updated');
+    // we show the notification
+    const disposeShowNotification = this.showNotification({
+      body: notification.title,
+      silent: notification.silent,
+    });
+    // return disposable object
+    return Disposable.create(() => {
+      disposeShowNotification.dispose();
+      this.removeNotificationById(this.notificationId);
+    });
+  }
+
+  showNotification(options: containerDesktopAPI.NotificationOptions): Disposable {
+    const notification = new Notification(options);
+    notification.show();
+    return Disposable.create(() => {
+      notification.close();
+    });
   }
 
   removeNotificationById(id: number): void {
@@ -65,7 +85,7 @@ export class NotificationRegistry {
     this.apiSender.send('notifications-updated');
   }
 
-  getNotifications(): Notification[] {
+  getNotifications(): NotificationCard[] {
     return this.notificationQueue;
   }
 

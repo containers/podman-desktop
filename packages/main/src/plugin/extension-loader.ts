@@ -30,7 +30,6 @@ import type { ImageRegistry } from './image-registry.js';
 import type { MessageBox } from './message-box.js';
 import type { ProgressImpl } from './progress-impl.js';
 import { ProgressLocation } from './progress-impl.js';
-import type { NotificationImpl } from './notification-impl.js';
 import {
   StatusBarItemImpl,
   StatusBarAlignLeft,
@@ -69,7 +68,6 @@ import { ExtensionLoaderSettings } from './extension-loader-settings.js';
 import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plugin/kube-generator-registry.js';
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { NotificationRegistry } from './notification-registry.js';
-import type { NotificationInfo } from './api/notification.js';
 
 /**
  * Handle the loading of an extension
@@ -140,7 +138,6 @@ export class ExtensionLoader {
     private trayMenuRegistry: TrayMenuRegistry,
     private messageBox: MessageBox,
     private progress: ProgressImpl,
-    private notifications: NotificationImpl,
     private statusBarRegistry: StatusBarRegistry,
     private kubernetesClient: KubernetesClient,
     private fileSystemMonitoring: FilesystemMonitoring,
@@ -749,7 +746,6 @@ export class ExtensionLoader {
 
     const messageBox = this.messageBox;
     const progress = this.progress;
-    const notifications = this.notifications;
     const inputQuickPickRegistry = this.inputQuickPickRegistry;
     const customPickRegistry = this.customPickRegistry;
     const windowObj: typeof containerDesktopAPI.window = {
@@ -787,8 +783,17 @@ export class ExtensionLoader {
         return progress.withProgress(options, task);
       },
 
-      showNotification: (options: containerDesktopAPI.NotificationOptions): containerDesktopAPI.Disposable => {
-        return notifications.showNotification(options);
+      showNotification: (
+        notificationInfo: containerDesktopAPI.NotificationCardOptions | containerDesktopAPI.NotificationOptions,
+      ): containerDesktopAPI.Disposable => {
+        // if it only sends a notification option we show the notification
+        if (!('type' in notificationInfo)) {
+          return this.notificationRegistry.showNotification(notificationInfo);
+        }
+        return this.notificationRegistry.addNotification({
+          ...notificationInfo,
+          extensionId: extensionInfo.id,
+        });
       },
 
       createStatusBarItem: (
@@ -1013,12 +1018,6 @@ export class ExtensionLoader {
         return this.cliToolRegistry.createCliTool(extensionInfo, options);
       }
     };
-    
-    const notificationsAPI: typeof containerDesktopAPI.notifications = {
-      pushNotification: (notification: NotificationInfo): void => {
-        this.notificationRegistry.addNotification(notification);
-      },
-    };
 
     return <typeof containerDesktopAPI>{
       // Types
@@ -1048,7 +1047,6 @@ export class ExtensionLoader {
       authentication,
       context: contextAPI,
       cli,
-      notifications: notificationsAPI,
     };
   }
 

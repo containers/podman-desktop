@@ -33,6 +33,18 @@ beforeEach(() => {
   registerNotificationDisposable = notificationRegistry.registerExtension(extensionId);
 });
 
+vi.mock('electron', async () => {
+  class Notification {
+    constructor() {}
+
+    show() {}
+  }
+
+  return {
+    Notification,
+  };
+});
+
 test('expect notification added to the queue', async () => {
   let queue = notificationRegistry.getNotifications();
 

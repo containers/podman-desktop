@@ -43,7 +43,6 @@ import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
 import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-api';
 import type { CatalogExtension } from '../../main/src/plugin/extensions-catalog/extensions-catalog-api';
 import type { CommandInfo } from '../../main/src/plugin/api/command-info';
-import type { Notification, NotificationInfo } from '../../main/src/plugin/api/notification';
 
 import type { V1Route } from '../../main/src/plugin/api/openshift-types';
 import type { AuthenticationProviderInfo } from '../../main/src/plugin/authentication';
@@ -76,6 +75,7 @@ import type {
 } from '../../main/src/plugin/kube-generator-registry';
 
 import type { KubernetesGeneratorInfo } from '../../main/src/plugin/api/KubernetesGeneratorInfo';
+import type { NotificationCard, NotificationCardOptions } from '../../main/src/plugin/api/notification';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
@@ -1649,11 +1649,11 @@ function initExposure(): void {
     return ipcInvoke('onboardingRegistry:resetOnboarding', extensions);
   });
 
-  contextBridge.exposeInMainWorld('listNotifications', async (): Promise<Notification[]> => {
+  contextBridge.exposeInMainWorld('listNotifications', async (): Promise<NotificationCard[]> => {
     return ipcInvoke('notificationRegistry:listNotifications');
   });
 
-  contextBridge.exposeInMainWorld('addNotification', async (notification: NotificationInfo): Promise<void> => {
+  contextBridge.exposeInMainWorld('addNotification', async (notification: NotificationCardOptions): Promise<void> => {
     return ipcInvoke('notificationRegistry:addNotification', notification);
   });
 
