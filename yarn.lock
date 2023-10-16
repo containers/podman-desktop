@@ -1485,14 +1485,14 @@
   resolved "https://registry.yarnpkg.com/@colors/colors/-/colors-1.5.0.tgz#bb504579c1cae923e6576a4f5da43d25f97bdbd9"
   integrity sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==
 
-"@commitlint/cli@^17.7.2":
-  version "17.7.2"
-  resolved "https://registry.yarnpkg.com/@commitlint/cli/-/cli-17.7.2.tgz#3a0287373224db14968ab160b2b4988c693d3400"
-  integrity sha512-t3N7TZq7lOeqTOyEgfGcaltHqEJf7YDlPg75MldeVPPyz14jZq/+mbGF9tueDLFX8R6RwdymrN6D+U5XwZ8Iwg==
+"@commitlint/cli@^17.8.0":
+  version "17.8.0"
+  resolved "https://registry.yarnpkg.com/@commitlint/cli/-/cli-17.8.0.tgz#917761331df4b7a0b97b2b31415b006847b6fd02"
+  integrity sha512-D3LdyZYbiRyAChfJMNlAd9f2P9vNQ7GWbI9gN2o7L5hF07QJDqj4z/pcJF3PjDbJWOaUUXla287RdDmmKqH2WQ==
   dependencies:
     "@commitlint/format" "^17.4.4"
-    "@commitlint/lint" "^17.7.0"
-    "@commitlint/load" "^17.7.2"
+    "@commitlint/lint" "^17.8.0"
+    "@commitlint/load" "^17.8.0"
     "@commitlint/read" "^17.5.1"
     "@commitlint/types" "^17.4.4"
     execa "^5.0.0"
@@ -1541,28 +1541,28 @@
     "@commitlint/types" "^17.4.4"
     chalk "^4.1.0"
 
-"@commitlint/is-ignored@^17.7.0":
-  version "17.7.0"
-  resolved "https://registry.yarnpkg.com/@commitlint/is-ignored/-/is-ignored-17.7.0.tgz#df9b284420bdb1aed5fdb2be44f4e98cc4826014"
-  integrity sha512-043rA7m45tyEfW7Zv2vZHF++176MLHH9h70fnPoYlB1slKBeKl8BwNIlnPg4xBdRBVNPaCqvXxWswx2GR4c9Hw==
+"@commitlint/is-ignored@^17.8.0":
+  version "17.8.0"
+  resolved "https://registry.yarnpkg.com/@commitlint/is-ignored/-/is-ignored-17.8.0.tgz#429a050cebe8dc56dd4fe4f4c23ea9e1a679dfc6"
+  integrity sha512-8bR6rxNcWaNprPBdE4ePIOwbxutTQGOsRPYWssX+zjGxnEljzaZSGzFUOMxapYILlf8Tts/O1wPQgG549Rdvdg==
   dependencies:
     "@commitlint/types" "^17.4.4"
     semver "7.5.4"
 
-"@commitlint/lint@^17.7.0":
-  version "17.7.0"
-  resolved "https://registry.yarnpkg.com/@commitlint/lint/-/lint-17.7.0.tgz#33f831298dc43679e4de6b088aea63d1f884c7e7"
-  integrity sha512-TCQihm7/uszA5z1Ux1vw+Nf3yHTgicus/+9HiUQk+kRSQawByxZNESeQoX9ujfVd3r4Sa+3fn0JQAguG4xvvbA==
+"@commitlint/lint@^17.8.0":
+  version "17.8.0"
+  resolved "https://registry.yarnpkg.com/@commitlint/lint/-/lint-17.8.0.tgz#d3a7fafe810db060aea15322e30384896da887f9"
+  integrity sha512-4ihwnqOY4TcJN6iz5Jv1LeYavvBllONwFyGxOIWmCT5s4PNMb43cws2TUdbXTZL1Vq59etGKd5LWYDFPVbs5EA==
   dependencies:
-    "@commitlint/is-ignored" "^17.7.0"
+    "@commitlint/is-ignored" "^17.8.0"
     "@commitlint/parse" "^17.7.0"
     "@commitlint/rules" "^17.7.0"
     "@commitlint/types" "^17.4.4"
 
-"@commitlint/load@^17.7.2":
-  version "17.7.2"
-  resolved "https://registry.yarnpkg.com/@commitlint/load/-/load-17.7.2.tgz#85730900a501c50f0bc890bb50e4a2167ee3085a"
-  integrity sha512-XA7WTnsjHZ4YH6ZYsrnxgLdXzriwMMq+utZUET6spbOEEIPBCDLdOQXS26P+v3TTO4hUHOEhzUquaBv3jbBixw==
+"@commitlint/load@^17.8.0":
+  version "17.8.0"
+  resolved "https://registry.yarnpkg.com/@commitlint/load/-/load-17.8.0.tgz#82f6c7555daecb4ce4b8a6282fcecc3665747578"
+  integrity sha512-9VnGXYJCP4tXmR4YrwP8n5oX6T5ZsHfPQq6WuUQOvAI+QsDQMaTGgTRXr7us+xsjz+b+mMBSagogqfUx2aixyw==
   dependencies:
     "@commitlint/config-validator" "^17.6.7"
     "@commitlint/execute-rule" "^17.4.0"
