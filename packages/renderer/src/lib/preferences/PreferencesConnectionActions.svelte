@@ -144,7 +144,7 @@ function getLoggerHandler(
   {#if connection.lifecycleMethods && connection.lifecycleMethods.length > 0}
     <div class="mt-2 relative">
       <!-- TODO: see action available like machine infos -->
-      <div class="flex bg-charcoal-800 w-fit rounded-lg m-auto" role="group" aria-label="ConnectionActions">
+      <div class="flex bg-charcoal-800 w-fit rounded-lg m-auto" role="group" aria-label="Connection Actions">
         {#if connection.lifecycleMethods.includes('start')}
           <div class="ml-2">
             <LoadingIconButton

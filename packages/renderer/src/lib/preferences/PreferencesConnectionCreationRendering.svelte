@@ -431,7 +431,7 @@ function closePage() {
             class="p-2 space-y-7 h-fit"
             on:submit|preventDefault="{handleOnSubmit}"
             bind:this="{formEl}"
-            aria-label="ResourceProperties">
+            aria-label="Properties Information">
             {#each configurationKeys as configurationKey}
               <div class="mb-2.5">
                 <div class="font-semibold text-xs">

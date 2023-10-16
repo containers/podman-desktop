@@ -465,7 +465,7 @@ function isOnboardingEnabled(provider: ProviderInfo, globalContext: ContextUI): 
                 <div
                   class="flex mt-3 {container.status !== 'started' ? 'text-gray-900' : ''}"
                   role="group"
-                  aria-label="ProviderConfiguration">
+                  aria-label="Provider Configuration">
                   {#each providerConfiguration.filter(conf => conf.connection === container.name) as connectionSetting}
                     {#if connectionSetting.format === 'cpu' || connectionSetting.format === 'cpuUsage'}
                       {#if !peerProperties.isPeerProperty(connectionSetting.id)}
