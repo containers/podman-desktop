@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as http from 'node:http';
-import type { AddressInfo } from 'node:net';
-
+import { expect, test, vi } from 'vitest';
+import { Proxy, PROXY_DISABLED, PROXY_MANUAL } from '/@/plugin/proxy.js';
+import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
+import * as http from 'http';
 import { createProxy, type ProxyServer } from 'proxy';
 import { describe, expect, test, vi } from 'vitest';
 
@@ -33,7 +34,7 @@ const certificates: Certificates = {
 } as unknown as Certificates;
 
 function getConfigurationRegistry(
-  enabled: boolean,
+  enabled: number,
   http: string | undefined,
   https: string | undefined,
   no: string | undefined,
@@ -68,7 +69,7 @@ async function buildProxy(): Promise<ProxyServer> {
 }
 
 test('fetch without proxy', async () => {
-  const configurationRegistry = getConfigurationRegistry(false, undefined, undefined, undefined);
+  const configurationRegistry = getConfigurationRegistry(PROXY_DISABLED, undefined, undefined, undefined);
   const proxy = new Proxy(configurationRegistry, certificates);
   await proxy.init();
   await fetch(URL);
@@ -77,7 +78,12 @@ test('fetch without proxy', async () => {
 test('fetch with http proxy', async () => {
   const proxyServer = await buildProxy();
   const address = proxyServer.address() as AddressInfo;
-  const configurationRegistry = getConfigurationRegistry(true, `127.0.0.1:${address.port}`, undefined, undefined);
+  const configurationRegistry = getConfigurationRegistry(
+    PROXY_MANUAL,
+    `127.0.0.1:${address.port}`,
+    undefined,
+    undefined,
+  );
   const proxy = new Proxy(configurationRegistry, certificates);
   await proxy.init();
   let connectDone = false;

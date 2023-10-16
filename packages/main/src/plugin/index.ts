@@ -105,7 +105,7 @@ import type { WebviewInfo } from '/@api/webview-info.js';
 
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import type { TrayMenu } from '../tray-menu.js';
-import { isMac } from '../util.js';
+import { isLinux, isMac } from '../util.js';
 import type { ApiSenderType } from './api.js';
 import type { PodInfo, PodInspectInfo } from './api/pod-info.js';
 import { AppearanceInit } from './appearance-init.js';
@@ -1920,16 +1920,16 @@ export class PluginSystem {
       },
     );
 
-    this.ipcHandle('proxy:setState', async (_listener: Electron.IpcMainInvokeEvent, state: boolean): Promise<void> => {
-      return proxy.setState(state);
+    this.ipcHandle('proxy:setState', async (_listener: Electron.IpcMainInvokeEvent, state: number): Promise<void> => {
+      return proxy.setState(state as ProxyState);
     });
 
     this.ipcHandle('proxy:getSettings', async (): Promise<containerDesktopAPI.ProxySettings | undefined> => {
       return proxy.proxy;
     });
 
-    this.ipcHandle('proxy:isEnabled', async (): Promise<boolean> => {
-      return proxy.isEnabled();
+    this.ipcHandle('proxy:getState', async (): Promise<number> => {
+      return proxy.getState();
     });
 
     this.ipcHandle(

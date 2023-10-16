@@ -748,10 +748,10 @@ export function initExposure(): void {
     return ipcInvoke('proxy:getSettings');
   });
 
-  contextBridge.exposeInMainWorld('isProxyEnabled', async (): Promise<boolean> => {
-    return ipcInvoke('proxy:isEnabled');
+  contextBridge.exposeInMainWorld('getProxyState', async (): Promise<number> => {
+    return ipcInvoke('proxy:getState');
   });
-  contextBridge.exposeInMainWorld('setProxyState', async (state: boolean): Promise<void> => {
+  contextBridge.exposeInMainWorld('setProxyState', async (state: number): Promise<void> => {
     return ipcInvoke('proxy:setState', state);
   });
 

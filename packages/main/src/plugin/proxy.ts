@@ -24,6 +24,15 @@ import type { Certificates } from '/@/plugin/certificates.js';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
 import { Emitter } from './events/emitter.js';
 import { getProxyUrl } from './proxy-resolver.js';
+import { ProxyAgent } from 'undici';
+import { getProxySettingsFromSystem } from './proxy-system.js';
+
+export const PROXY_SYSTEM = 0;
+export const PROXY_MANUAL = 1;
+export const PROXY_DISABLED = 2;
+
+export type ProxyState = 0 | 1 | 2;
+
 
 export function ensureURL(urlstring: string | undefined): string | undefined {
   if (urlstring) {
@@ -55,7 +64,7 @@ function asURL(url: any): URL {
  */
 export class Proxy {
   private proxySettings: ProxySettings | undefined;
-  private proxyState = false;
+  private proxyState: ProxyState = PROXY_SYSTEM;
 
   private readonly _onDidUpdateProxy = new Emitter<ProxySettings>();
   public readonly onDidUpdateProxy: Event<ProxySettings> = this._onDidUpdateProxy.event;
@@ -93,9 +102,9 @@ export class Proxy {
           hidden: true,
         },
         ['proxy.enabled']: {
-          description: 'Toggle to enable',
-          type: 'string',
-          default: false,
+          description: 'System(0)/Manual(1)/Disabled(2)',
+          type: 'number',
+          default: 0,
           hidden: true,
         },
       },
@@ -104,31 +113,42 @@ export class Proxy {
     this.configurationRegistry.registerConfigurations([proxyConfigurationNode]);
 
     // be notified when configuration is updated
-    this.configurationRegistry.onDidChangeConfiguration(e => {
+    this.configurationRegistry.onDidChangeConfiguration(async e => {
       if (e.key.startsWith('proxy')) {
-        this.updateFromConfiguration();
+        await this.updateFromConfiguration();
       }
     });
 
     // read initial value
-    this.updateFromConfiguration();
+    await this.updateFromConfiguration();
     this.overrideFetch();
   }
 
-  updateFromConfiguration(): void {
+  async updateFromConfiguration(): Promise<void> {
     // read value from the configuration
     const proxyConfiguration = this.configurationRegistry.getConfiguration('proxy');
-    const httpProxy = proxyConfiguration.get<string>('http');
-    const httpsProxy = proxyConfiguration.get<string>('https');
-    const noProxy = proxyConfiguration.get<string>('no');
-    const isEnabled = proxyConfiguration.get<boolean>('enabled') ?? false;
-
-    this.proxySettings = {
-      httpProxy: ensureURL(httpProxy),
-      httpsProxy: ensureURL(httpsProxy),
-      noProxy,
-    };
-    this.proxyState = isEnabled;
+    const isEnabled = proxyConfiguration.get<unknown>('enabled');
+    let proxyState: ProxyState = PROXY_SYSTEM;
+    if (typeof isEnabled === 'boolean') {
+      proxyState = isEnabled ? PROXY_MANUAL : PROXY_SYSTEM;
+    } else if (typeof isEnabled === 'number') {
+      proxyState = isEnabled as ProxyState;
+    }
+    this.proxyState = proxyState;
+    if (this.proxyState === PROXY_MANUAL) {
+      const httpProxy = ensureURL(proxyConfiguration.get<string>('http'));
+      const httpsProxy = ensureURL(proxyConfiguration.get<string>('https'));
+      const noProxy = proxyConfiguration.get<string>('no');
+      this.proxySettings = {
+        httpProxy,
+        httpsProxy,
+        noProxy,
+      };
+    } else if (this.proxyState === PROXY_SYSTEM) {
+      this.proxySettings = await getProxySettingsFromSystem();
+    } else {
+      this.proxySettings = {} as ProxySettings;
+    }
   }
 
   async setProxy(proxy: ProxySettings): Promise<void> {
@@ -152,10 +172,10 @@ export class Proxy {
   }
 
   isEnabled(): boolean {
-    return this.proxyState;
+    return this.proxyState === PROXY_SYSTEM || this.proxyState === PROXY_MANUAL;
   }
 
-  setState(state: boolean): void {
+  setState(state: ProxyState): void {
     this.proxyState = state;
 
     // update configuration
@@ -165,7 +185,11 @@ export class Proxy {
     });
 
     // notify
-    this._onDidStateChange.fire(this.proxyState);
+    this._onDidStateChange.fire(this.isEnabled());
+  }
+
+  getState(): ProxyState {
+    return this.proxyState;
   }
 
   private overrideFetch(): void {

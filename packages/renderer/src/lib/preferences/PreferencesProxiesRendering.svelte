@@ -9,13 +9,13 @@ import SettingsPage from './SettingsPage.svelte';
 import { validateProxyAddress } from './Util';
 
 let proxySettings: ProxySettings;
-let proxyState: boolean;
+let proxyState: number;
 let httpProxyError: string | undefined;
 let httpsProxyError: string | undefined;
 
 onMount(async () => {
   proxySettings = await window.getProxySettings();
-  proxyState = await window.isProxyEnabled();
+  proxyState = await window.getProxyState();
 });
 
 async function updateProxySettings() {
@@ -63,20 +63,30 @@ function validate(event: any) {
   <div class="flex flex-col bg-[var(--pd-invert-content-card-bg)] rounded-md p-3 space-y-2">
     <!-- if proxy is not enabled, display a toggle -->
 
-    <SlideToggle id="toggle-proxy" bind:checked={proxyState} on:checked={event => updateProxyState(event.detail)}
-      >Proxy configuration {proxyState ? 'enabled' : 'disabled'}</SlideToggle>
+    <label for="toggle-proxy" class="inline-flex relative items-center mt-1 mb-4 cursor-pointer"
+      >Proxy configuration
+      <select
+        class="p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+        id="toggle-proxy"
+        bind:value="{proxyState}"
+        on:change="{() => updateProxyState()}">
+        <option value="{0}">System</option>
+        <option value="{1}">Manual</option>
+        <option value="{2}">Disabled</option>
+      </select>
+    </label>
 
     {#if proxySettings}
       <div class="space-y-2">
         <label
           for="httpProxy"
-          class="mb-2 font-medium {proxyState ? 'text-[var(--pd-invert-content-card-text)]' : 'text-gray-900'}"
+          class="mb-2 font-medium {proxyState === 1 ? 'text-[var(--pd-invert-content-card-text)]' : 'text-gray-900'}"
           >Web Proxy (HTTP):</label>
         <Input
           name="httpProxy"
           id="httpProxy"
-          disabled={!proxyState}
-          bind:value={proxySettings.httpProxy}
+          disabled="{proxyState !== 1}"
+          bind:value="{proxySettings.httpProxy}"
           placeholder="URL of the proxy for http: URLs (eg http://myproxy.domain.com:8080)"
           required
           on:input={event => validate(event)} />
@@ -87,13 +97,14 @@ function validate(event: any) {
       <div class="space-y-2">
         <label
           for="httpsProxy"
-          class="pt-4 mb-2 font-medium {proxyState ? 'text-[var(--pd-invert-content-card-text)]' : 'text-gray-900'}"
-          >Secure Web Proxy (HTTPS):</label>
+          class="pt-4 mb-2 font-medium {proxyState === 1
+            ? 'text-[var(--pd-invert-content-card-text)]'
+            : 'text-gray-900'}">Secure Web Proxy (HTTPS):</label>
         <Input
           name="httpsProxy"
           id="httpsProxy"
-          disabled={!proxyState}
-          bind:value={proxySettings.httpsProxy}
+          disabled="{proxyState !== 1}"
+          bind:value="{proxySettings.httpsProxy}"
           placeholder="URL of the proxy for https: URLs (eg http://myproxy.domain.com:8080)"
           required
           on:input={event => validate(event)} />
@@ -104,18 +115,19 @@ function validate(event: any) {
       <div class="space-y-2">
         <label
           for="httpProxy"
-          class="pt-4 mb-2 font-medium {proxyState ? 'text-[var(--pd-invert-content-card-text)]' : 'text-gray-900'}"
-          >Bypass proxy settings for these hosts and domains:</label>
+          class="pt-4 mb-2 font-medium {proxyState === 1
+            ? 'text-[var(--pd-invert-content-card-text)]'
+            : 'text-gray-900'}">Bypass proxy settings for these hosts and domains:</label>
         <Input
           name="noProxy"
           id="noProxy"
-          disabled={!proxyState}
-          bind:value={proxySettings.noProxy}
+          disabled="{proxyState !== 1}"
+          bind:value="{proxySettings.noProxy}"
           placeholder="Example: *.domain.com, 192.168.*.*"
           required />
       </div>
       <div class="my-2 pt-4">
-        <Button on:click={() => updateProxySettings()} disabled={!proxyState} class="w-full" icon={faPen}>
+        <Button on:click="{() => updateProxySettings()}" disabled="{proxyState !== 1}" class="w-full" icon="{faPen}">
           Update
         </Button>
       </div>
