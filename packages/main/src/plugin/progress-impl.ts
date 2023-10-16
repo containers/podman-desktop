@@ -77,34 +77,35 @@ export class ProgressImpl {
     ) => Promise<R>,
   ): Promise<R> {
     const t = this.taskManager.createTask(options.title);
-    const task_ = task(
-      {
-        report: value => {
-          if (value.message) {
-            t.error = value.message;
-          }
-          if (value.increment) {
-            t.progress = value.increment;
-          }
-          this.taskManager.updateTask(t);
-        },
-      },
-      new CancellationTokenImpl(),
-    );
 
-    await Promise.any([
-      task_.then(async () => {
-        t.status = 'success';
-        t.state = 'completed';
-        this.taskManager.updateTask(t);
-      }),
-      task_.catch((err: unknown) => {
-        t.status = 'failure';
-        t.state = 'completed';
-        t.error = String(err);
-        this.taskManager.updateTask(t);
-      }),
-    ]);
-    return task_;
+    return new Promise<R>((resolve, reject) => {
+      task(
+        {
+          report: value => {
+            if (value.message) {
+              t.error = value.message;
+            }
+            if (value.increment) {
+              t.progress = value.increment;
+            }
+            this.taskManager.updateTask(t);
+          },
+        },
+        new CancellationTokenImpl(),
+      )
+        .then(value => {
+          t.status = 'success';
+          t.state = 'completed';
+          resolve(value);
+        })
+        .catch((err: unknown) => {
+          t.status = 'failure';
+          t.state = 'completed';
+          reject(err);
+        })
+        .finally(() => {
+          this.taskManager.updateTask(t);
+        });
+    });
   }
 }
