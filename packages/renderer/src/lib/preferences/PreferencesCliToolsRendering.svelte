@@ -12,7 +12,7 @@ import EmptyScreen from '../ui/EmptyScreen.svelte';
       aria-label="no-resource-panel"
       icon="{EngineIcon}"
       title="No CLI Tool description found"
-      message="Start an extension that add CLI Tool description"
+      message="Start an extension that registers a CLI"
       hidden="{$cliToolInfos.length > 0}" />
 
     {#each $cliToolInfos as cliTool}
