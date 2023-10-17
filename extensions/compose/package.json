@@ -55,13 +55,13 @@
             ],
             [
               {
-                "value": "#### How to use Compose\nRun `podman compose up` (podman CLI v4.7.0+) in a directory with a `compose.yaml` for Podman to deploy the containers. Podman Desktop will automatically detect the Compose deployment and show it in the container list. \n\n> ℹ️ Note: If you would like to use docker tools such as: `docker compose up`. Enable **Docker Compatibility** within Preferences.",
+                "value": "#### How to use Compose\nRun `podman compose up` (podman CLI v4.7.0+) in a directory with a `compose.yaml` for Podman to deploy the containers. Podman Desktop will automatically detect the Compose deployment and show it in the container list. \n\n> ℹ️ Note: If you would like to use docker tools such as: `docker compose up` or `docker-compose` with podman. Enable **Docker Compatibility** within Preferences.",
                 "highlight": true
               }
             ],
             [
               {
-                "value": "Podman Desktop will install the latest Compose binary (${onboardingContext:composeInstallVersion}). :link[Want to install a different version?]{command=compose.onboarding.promptUserForVersion}",
+                "value": "Compose will be installed in the next step (Version ${onboardingContext:composeInstallVersion}). :link[Want to install a different version?]{command=compose.onboarding.promptUserForVersion}",
                 "when": "!onboardingContext:composeShowCustomInstallDialog"
               }
             ]
@@ -91,19 +91,19 @@
           "content": [
             [
               {
+                "value": "Compose has been successfully installed! However, in order for `podman compose` (podman CLI v4.7.0+) to work correctly, it is required for Compose to be installed system-wide for `podman` to access the binary.",
+                "when": "!compose.isComposeInstalledSystemWide"
+              }
+            ],
+            [
+              {
                 "value": "${configuration:compose.binary.installComposeSystemWide}",
                 "when": "!compose.isComposeInstalledSystemWide"
               }
             ],
             [
               {
-                "value": "> ℹ️ Note on `podman`: In order for `podman compose` (podman CLI v4.7.0+) to work correctly, it is required for Compose to be installed system-wide for podman to access the binary.",
-                "when": "!compose.isComposeInstalledSystemWide"
-              }
-            ],
-            [
-              {
-                "value": "> ℹ️ Note on `docker`: If you are using docker CLI tools with a podman back-end you must enable **Docker Compatibility** within **Preferences -> Extension: Podman** or set the [DOCKER_HOST](https://podman-desktop.io/docs/migrating-from-docker/using-the-docker_host-environment-variable) environment variable before running `docker compose up`."
+                "value": "> ℹ️ Note on `docker`: If you are using docker CLI tools with a podman back-end you must enable **Docker Compatibility** within **Preferences -> Extension: Podman** or set the [DOCKER_HOST](https://podman-desktop.io/docs/migrating-from-docker/using-the-docker_host-environment-variable) environment variable before running `docker compose up` or `docker-compose up`."
               }
             ]
           ]

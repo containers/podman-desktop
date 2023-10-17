@@ -58,12 +58,15 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const onboardingCheckInstallationCommand = extensionApi.commands.registerCommand(
     'compose.onboarding.checkComposeInstalled',
     async () => {
-      // Check to see if docker compose is installed. This will check via doing
-      // 'docker-compose --version'.
-      // NOTE: This will return true if it ONLY exists in the storage/bin folder, it doesn't
-      // have to be installed system-wide.
-      const isInstalled = await detect.checkForDockerCompose();
-      extensionApi.context.setValue('composeIsNotInstalled', !isInstalled, 'onboarding');
+      // Check that docker-compose binary has been installed to the storage folder.
+      // instead of checking for `docker-compose` on the command line, the most reliable way is to see
+      // if we can get the pathname to the binary from the configuration
+      const isInstalled = await detect.getStoragePath();
+      if (isInstalled === '') {
+        extensionApi.context.setValue('composeIsNotInstalled', true, 'onboarding');
+      } else {
+        extensionApi.context.setValue('composeIsNotInstalled', false, 'onboarding');
+      }
 
       // EDGE CASE: Update system-wide installation context in case the user has removed
       // the binary from the system path while podman-desktop is running (we only check on startup)
