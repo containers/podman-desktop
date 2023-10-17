@@ -93,6 +93,8 @@ export interface AnalyzedExtension {
   missingDependencies?: string[];
   circularDependencies?: string[];
 
+  error?: string;
+
   readonly subscriptions: { dispose(): unknown }[];
 
   dispose(): void;
@@ -202,7 +204,7 @@ export class ExtensionLoader {
     zipper.sync.unzip(filePath).save(unpackedDirectory);
 
     const extension = await this.analyzeExtension(unpackedDirectory, true);
-    if (extension) {
+    if (!extension.error) {
       await this.loadExtension(extension);
       this.apiSender.send('extension-started', {});
     }
@@ -293,12 +295,12 @@ export class ExtensionLoader {
 
     const analyzedFoldersExtension = (
       await Promise.all(folders.map(folder => this.analyzeExtension(folder, false)))
-    ).filter(extension => extension !== undefined) as AnalyzedExtension[];
+    ).filter(extension => !extension.error) as AnalyzedExtension[];
     analyzedExtensions.push(...analyzedFoldersExtension);
 
     const analyzedExternalExtensions = (
       await Promise.all(externalExtensions.map(folder => this.analyzeExtension(folder, false)))
-    ).filter(extension => extension !== undefined) as AnalyzedExtension[];
+    ).filter(extension => !extension.error) as AnalyzedExtension[];
     analyzedExtensions.push(...analyzedExternalExtensions);
 
     // also load extensions from the plugins directory
@@ -312,7 +314,7 @@ export class ExtensionLoader {
       // collect all extensions from the pluginDirectory folders
       const analyzedPluginsDirectoryExtensions: AnalyzedExtension[] = (
         await Promise.all(pluginDirectories.map(folder => this.analyzeExtension(folder, true)))
-      ).filter(extension => extension !== undefined) as AnalyzedExtension[];
+      ).filter(extension => !extension.error) as AnalyzedExtension[];
       analyzedExtensions.push(...analyzedPluginsDirectoryExtensions);
     }
 
@@ -320,14 +322,21 @@ export class ExtensionLoader {
     await this.loadExtensions(analyzedExtensions);
   }
 
-  async analyzeExtension(extensionPath: string, removable: boolean): Promise<AnalyzedExtension | undefined> {
+  async analyzeExtension(extensionPath: string, removable: boolean): Promise<AnalyzedExtension> {
     // do nothing if there is no package.json file
+    let error = undefined;
     if (!fs.existsSync(path.resolve(extensionPath, 'package.json'))) {
-      console.warn(`Ignoring extension ${extensionPath} without package.json file`);
-      return undefined;
+      error = `Ignoring extension ${extensionPath} without package.json file`;
+      console.warn(error);
+      return { error } as AnalyzedExtension;
     }
 
+    // log error if the manifest is missing required entries
     const manifest = await this.loadManifest(extensionPath);
+    if (!manifest.name || !manifest.displayName || !manifest.version || !manifest.publisher || !manifest.description) {
+      error = `Extension ${extensionPath} missing required manifest entries in package.json`;
+      console.warn(error);
+    }
 
     // create api object
     const api = this.createApi(extensionPath, manifest);
@@ -345,6 +354,7 @@ export class ExtensionLoader {
       dispose(): void {
         disposables.forEach(disposable => disposable.dispose());
       },
+      error,
     };
 
     return analyzedExtension;
@@ -508,7 +518,7 @@ export class ExtensionLoader {
     try {
       const updatedExtension = await this.analyzeExtension(extension.path, removable);
 
-      if (updatedExtension) {
+      if (!updatedExtension.error) {
         await this.loadExtension(updatedExtension, true);
       }
     } catch (error) {
@@ -1227,7 +1237,7 @@ export class ExtensionLoader {
     if (extension) {
       const analyzedExtension = await this.analyzeExtension(extension.path, extension.removable);
 
-      if (analyzedExtension) {
+      if (!analyzedExtension.error) {
         await this.loadExtension(analyzedExtension, true);
       }
     }
