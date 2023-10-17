@@ -25,7 +25,6 @@ import Checkbox from '../ui/Checkbox.svelte';
 import Button from '../ui/Button.svelte';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import StateChange from '../ui/StateChange.svelte';
-import { PodDetailsRoute } from '/@/routes';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -127,15 +126,7 @@ async function deleteSelectedPods() {
 }
 
 function openDetailsPod(pod: PodInfoUI) {
-  const route = PodDetailsRoute.getRoute(
-    {
-      kind: pod.kind,
-      name: pod.name,
-      engineId: pod.engineId,
-    },
-    '/logs',
-  );
-  router.goto(route);
+  router.goto(`/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`);
 }
 
 function openContainersFromPod(pod: PodInfoUI) {
