@@ -24,7 +24,7 @@ import type { Exec } from './util/exec.js';
 
 export class CliToolImpl implements CliTool, Disposable {
   readonly id: string;
-  private _state: CliToolState = 'unknown';
+  private _state: CliToolState = 'registered';
 
   constructor(
     private _apiSender: ApiSenderType,
@@ -56,14 +56,6 @@ export class CliToolImpl implements CliTool, Disposable {
     return Object.freeze(this._options.images);
   }
 
-  get version() {
-    return this._options.version;
-  }
-
-  get location() {
-    return this._options.location;
-  }
-
   dispose(): void {
     this.registry.disposeCliTool(this);
   }
@@ -92,13 +84,6 @@ export class CliToolRegistry {
 
   getCliToolInfos(): CliToolInfo[] {
     return Array.from(this.cliTools.values()).map(cliTool => {
-      const binary = !cliTool.version
-        ? undefined
-        : {
-            version: cliTool.version,
-            location: cliTool.location,
-          };
-
       return {
         id: cliTool.id,
         name: cliTool.name,
@@ -107,7 +92,6 @@ export class CliToolRegistry {
         state: cliTool.state,
         images: cliTool.images,
         extensionInfo: cliTool.extensionInfo,
-        binary,
       };
     });
   }

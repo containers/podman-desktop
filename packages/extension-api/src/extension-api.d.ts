@@ -2432,31 +2432,17 @@ declare module '@podman-desktop/api' {
     displayName: string;
     markdownDescription: string;
     images: ProviderImages;
-    location?: string;
-    version?: string;
   }
 
-  export type CliToolState =
-    | 'setup-needed'
-    | 'detection-pending'
-    | 'detecting'
-    | 'installation-pending'
-    | 'installing'
-    | 'update-pending'
-    | 'updating'
-    | 'installed'
-    | 'uninstall-pending'
-    | 'uninstalling'
-    | 'unknown';
+  export type CliToolState = 'registered';
 
   export interface CliTool extends Disposable {
     id: string;
     name: string;
     displayName: string;
     markdownDescription: string;
+    state: CliToolState;
     images: ProviderImages;
-    location?: string;
-    version?: string;
     extensionInfo: {
       id: string;
       label: string;
