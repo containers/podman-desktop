@@ -2434,10 +2434,6 @@ declare module '@podman-desktop/api' {
     images: ProviderImages;
     location?: string;
     version?: string;
-    detection?: {
-      versionOptions: string[]; // run command by name using these options
-      versionParser: (string) => string;
-    };
   }
 
   export type CliToolState =
@@ -2449,7 +2445,6 @@ declare module '@podman-desktop/api' {
     | 'update-pending'
     | 'updating'
     | 'installed'
-    | 'installed-unknown'
     | 'uninstall-pending'
     | 'uninstalling'
     | 'unknown';
@@ -2459,9 +2454,6 @@ declare module '@podman-desktop/api' {
       id: string;
       label: string;
     };
-
-    detect(): Promise<void>;
-    state: CliToolState;
   }
 
   export namespace cli {

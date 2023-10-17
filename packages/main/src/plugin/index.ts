@@ -1914,10 +1914,6 @@ export class PluginSystem {
       return onboardingRegistry.resetOnboarding(extensions);
     });
 
-    this.ipcHandle('cliToolRegistry:detectCliTool', async (_listener, cliToolId: string): Promise<void> => {
-      return cliToolRegistry.detectCliTool(cliToolId);
-    });
-
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,
       containerProviderRegistry,

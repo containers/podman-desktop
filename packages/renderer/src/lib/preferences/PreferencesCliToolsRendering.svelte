@@ -4,7 +4,6 @@ import Markdown from '../markdown/Markdown.svelte';
 import SettingsPage from './SettingsPage.svelte';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
-import Button from '../ui/Button.svelte';
 </script>
 
 <SettingsPage title="CLI Tools">
@@ -29,7 +28,6 @@ import Button from '../ui/Button.svelte';
               {/if}
               <span class="my-auto text-gray-400 ml-3 break-words">{cliTool.name}</span>
             </div>
-            <div>{cliTool.state}</div>
           </div>
         </div>
         <!-- cli-tools columns -->
@@ -39,11 +37,6 @@ import Button from '../ui/Button.svelte';
           <div class="ml-3 mt-2 text-sm text-gray-300">
             <Markdown markdown="{cliTool.description}" />
           </div>
-          {#if cliTool.state === 'installed'}
-            <div>{cliTool.name} v{cliTool.binary?.version}</div>
-          {/if}
-          <span class="float-right text-sm"
-            ><Button on:click="{void window.detectCliTool(cliTool.id)}">Detect</Button></span>
         </div>
       </div>
     {/each}

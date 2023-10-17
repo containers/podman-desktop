@@ -69,42 +69,6 @@ export class CliToolImpl implements CliTool, Disposable {
     return this._options.location;
   }
 
-  private setVersion(version: string) {
-    if (version) {
-      this._options.version = version;
-      this._state = 'installed';
-    } else {
-      this._state = 'installed-unknown';
-    }
-  }
-
-  async detect(): Promise<void> {
-    if (this._options.detection) {
-      try {
-        this._state = 'detecting';
-        this._apiSender.send('cli-tool-change', this.id);
-        const detectionResult = await this._exec.exec(this._options.name, this._options.detection.versionOptions);
-        const version = this._options.detection.versionParser(detectionResult.stdout);
-        this.setVersion(version);
-      } catch (err) {
-        try {
-          const stdout = (err as any).stdout; // eslint-disable-line @typescript-eslint/no-explicit-any
-          if (stdout) {
-            const version = this._options.detection.versionParser(stdout);
-            this.setVersion(version);
-            return;
-          }
-        } catch (error) {
-          // ignore
-        }
-        this._state = 'setup-needed';
-        this._options.version = undefined;
-      } finally {
-        this._apiSender.send('cli-tool-change', this.id);
-      }
-    }
-  }
-
   dispose(): void {
     this.registry.disposeCliTool(this);
   }
