@@ -17,15 +17,10 @@
  ***********************************************************************/
 
 import type { CliTool, CliToolOptions, CliToolState, Disposable } from '@podman-desktop/api';
-import type { CliToolInfo } from './api/cli-tool-info.js';
+import type { CliToolExtensionInfo, CliToolInfo } from './api/cli-tool-info.js';
 import type { ApiSenderType } from './api.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import type { Exec } from './util/exec.js';
-
-type ExtensionInfo = {
-  id: string;
-  label: string;
-};
 
 export class CliToolImpl implements CliTool, Disposable {
   readonly id: string;
@@ -34,7 +29,7 @@ export class CliToolImpl implements CliTool, Disposable {
   constructor(
     private _apiSender: ApiSenderType,
     private _exec: Exec,
-    readonly extensionInfo: ExtensionInfo,
+    readonly extensionInfo: CliToolExtensionInfo,
     readonly registry: CliToolRegistry,
     private _options: CliToolOptions,
   ) {
@@ -83,7 +78,7 @@ export class CliToolRegistry {
 
   private cliTools = new Map<string, CliToolImpl>();
 
-  createCliTool(extensionInfo: ExtensionInfo, options: CliToolOptions): CliTool {
+  createCliTool(extensionInfo: CliToolExtensionInfo, options: CliToolOptions): CliTool {
     const cliTool = new CliToolImpl(this.apiSender, this.exec, extensionInfo, this, options);
     this.cliTools.set(cliTool.id, cliTool);
     this.apiSender.send('cli-tool-create');
@@ -111,7 +106,7 @@ export class CliToolRegistry {
         description: cliTool.markdownDescription,
         state: cliTool.state,
         images: cliTool.images,
-        providedBy: cliTool.extensionInfo.label,
+        extensionInfo: cliTool.extensionInfo,
         binary,
       };
     });
