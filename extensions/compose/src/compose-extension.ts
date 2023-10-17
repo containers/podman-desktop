@@ -149,10 +149,6 @@ export class ComposeExtension {
       images: {
         icon: 'icon.png',
       },
-      detection: {
-        versionOptions: ['version', '--short'],
-        versionParser: (stdout: string) => stdout,
-      },
     });
 
     // run init checks
