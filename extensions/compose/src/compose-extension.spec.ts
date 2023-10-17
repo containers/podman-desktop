@@ -114,6 +114,9 @@ vi.mock('@podman-desktop/api', () => {
         return telemetryLogger;
       },
     },
+    cli: {
+      createCliTool: vi.fn(),
+    },
   };
 });
 
