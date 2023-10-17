@@ -20,7 +20,7 @@ export let setRecordValue = (_id: string, _value: string) => {};
 export let enableSlider = false;
 export let record: IConfigurationPropertyRecordedSchema;
 
-export let initialValue: () => Promise<any>;
+export let initialValue: Promise<any>;
 
 let currentRecord: IConfigurationPropertyRecordedSchema;
 let recordUpdateTimeout: NodeJS.Timeout;
@@ -39,7 +39,7 @@ $: if (resetToDefault) {
 }
 
 $: if (currentRecord !== record) {
-  initialValue().then(value => {
+  initialValue.then(value => {
     recordValue = value;
     if (record.type === 'boolean') {
       recordValue = !!value;

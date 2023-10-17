@@ -35,7 +35,7 @@ beforeAll(() => {
 async function awaitRender(record: IConfigurationPropertyRecordedSchema, customProperties: any) {
   const result = render(PreferencesRenderingItemFormat, {
     record,
-    initialValue: () => getInitialValue(record),
+    initialValue: getInitialValue(record),
     ...customProperties,
   });
   while (result.component.$$.ctx[2] === undefined) {
