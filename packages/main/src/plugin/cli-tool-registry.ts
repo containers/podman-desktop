@@ -120,8 +120,4 @@ export class CliToolRegistry {
   listCliTools(): CliTool[] {
     return Array.from(this.cliTools.values());
   }
-
-  detectCliTool(cliToolId: string): void | PromiseLike<void> {
-    return this.cliTools.get(cliToolId)?.detect();
-  }
 }
