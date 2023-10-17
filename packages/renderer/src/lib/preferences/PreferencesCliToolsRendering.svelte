@@ -11,7 +11,7 @@ import EmptyScreen from '../ui/EmptyScreen.svelte';
     <EmptyScreen
       aria-label="no-resource-panel"
       icon="{EngineIcon}"
-      title="No CLI Tool description found"
+      title="No CLI tool has been registered"
       message="Start an extension that registers a CLI"
       hidden="{$cliToolInfos.length > 0}" />
 
