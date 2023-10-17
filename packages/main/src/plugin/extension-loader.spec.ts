@@ -50,6 +50,7 @@ import { Context } from './context/context.js';
 import type { OnboardingRegistry } from './onboarding-registry.js';
 import { Exec } from './util/exec.js';
 import type { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
+import type { CliToolRegistry } from './cli-tool-registry.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -139,6 +140,8 @@ const viewRegistry: ViewRegistry = {} as unknown as ViewRegistry;
 
 const context: Context = new Context(apiSender);
 
+const cliToolRegistry: CliToolRegistry = {} as unknown as CliToolRegistry;
+
 const directories = {
   getPluginsDirectory: () => '/fake-plugins-directory',
   getPluginsScanDirectory: () => '/fake-plugins-scanning-directory',
@@ -176,6 +179,7 @@ beforeAll(() => {
     directories,
     exec,
     kubernetesGeneratorRegistry,
+    cliToolRegistry,
   );
 });
 

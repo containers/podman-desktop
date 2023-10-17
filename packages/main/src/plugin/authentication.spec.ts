@@ -54,6 +54,7 @@ import type { OnboardingRegistry } from './onboarding-registry.js';
 import { getBase64Image } from '../util.js';
 import type { Exec } from './util/exec.js';
 import type { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
+import type { CliToolRegistry } from './cli-tool-registry.js';
 
 vi.mock('../util.js', async () => {
   return {
@@ -274,6 +275,7 @@ suite('Authentication', () => {
       directories,
       vi.fn() as unknown as Exec,
       vi.fn() as unknown as KubeGeneratorRegistry,
+      vi.fn() as unknown as CliToolRegistry,
     );
     providerMock = {
       onDidChangeSessions: vi.fn(),
