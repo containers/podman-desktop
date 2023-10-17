@@ -32,8 +32,8 @@ import EmptyScreen from '../ui/EmptyScreen.svelte';
         </div>
         <!-- cli-tools columns -->
         <div class="grow flex-column divide-gray-900 ml-2">
-          <span class="my-auto text-gray-400 ml-3 break-words">{cliTool.displayName}</span><span
-            class="float-right text-sm">Registered by {cliTool.extensionInfo.label}</span>
+          <span class="my-auto text-gray-400 ml-3 break-words">{cliTool.displayName}</span>
+          <div class="float-right text-gray-900 px-2 text-sm">Registered by {cliTool.extensionInfo.label}</div>
           <div class="ml-3 mt-2 text-sm text-gray-300">
             <Markdown markdown="{cliTool.description}" />
           </div>
