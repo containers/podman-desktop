@@ -2449,7 +2449,14 @@ declare module '@podman-desktop/api' {
     | 'uninstalling'
     | 'unknown';
 
-  export interface CliTool extends CliToolOptions, Disposable {
+  export interface CliTool extends Disposable {
+    id: string;
+    name: string;
+    displayName: string;
+    markdownDescription: string;
+    images: ProviderImages;
+    location?: string;
+    version?: string;
     extensionInfo: {
       id: string;
       label: string;
