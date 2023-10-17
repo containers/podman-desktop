@@ -673,6 +673,7 @@ describe('analyze extension and main', async () => {
     const extension = await extensionLoader.analyzeExtension(path.resolve('/', 'fake', 'path'), false);
 
     expect(extension).toBeDefined();
+    expect(extension?.error).toBeDefined();
     expect(extension?.mainPath).toBe(path.resolve('/', 'fake', 'path', 'main-entry.js'));
     expect(extension?.id).toBe('fooPublisher.fooName');
   });
@@ -697,6 +698,7 @@ describe('analyze extension and main', async () => {
     const extension = await extensionLoader.analyzeExtension('/fake/path', false);
 
     expect(extension).toBeDefined();
+    expect(extension?.error).toBeDefined();
     // not set
     expect(extension?.mainPath).toBeUndefined();
     expect(extension?.id).toBe('fooPublisher.fooName');

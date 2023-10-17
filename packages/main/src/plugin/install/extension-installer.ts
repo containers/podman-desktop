@@ -166,6 +166,11 @@ export class ExtensionInstaller {
     } catch (error) {
       sendError('Error while analyzing extension: ' + error);
     }
+    if (analyzedExtension?.error) {
+      sendError('Could not load extension: ' + analyzedExtension?.error);
+      return;
+    }
+
     return analyzedExtension;
   }
 
