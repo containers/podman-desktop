@@ -24,11 +24,11 @@ function handleKeydown(e: KeyboardEvent) {
 <div class="flex flex-col w-full h-full shadow-pageheader">
   <div class="flex flex-row w-full h-fit px-5 py-4">
     <div class="flex flex-col w-full h-fit">
-      <div class="flex flew-row items-center">
+      <div class="flex flew-row items-center text-sm text-gray-700">
         <Link class="text-sm" aria-label="back" internalRef="{$lastPage.path}" title="Go back to {$lastPage.name}"
           >{$lastPage.name}</Link>
-        <div class="text-md mx-2 text-gray-700">></div>
-        <div class="grow text-sm font-extralight text-gray-700" aria-label="name">{$currentPage.name}</div>
+        <div class="mx-2">&gt;</div>
+        <div class="grow font-extralight" aria-label="name">{$currentPage.name}</div>
         <a href="{$lastPage.path}" title="Close" class="justify-self-end text-gray-900">
           <i class="fas fa-times" aria-hidden="true"></i>
         </a>
