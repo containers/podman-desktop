@@ -18,9 +18,6 @@
 
 import type { CliToolState, ProviderImages } from '@podman-desktop/api';
 
-export type BinaryProviderName = 'download' | 'brew' | 'chocolate' | string;
-export type ButtonName = 'detect' | 'setup';
-
 export interface CliToolInfo {
   id: string;
   name: string;
@@ -29,13 +26,8 @@ export interface CliToolInfo {
   state: CliToolState;
   images?: ProviderImages;
   providedBy: string;
-  binary?: CliToolBinaryInfo;
-}
-
-export interface CliToolBinaryInfo {
   location?: string;
-  version: string;
-  binaryManagerName?: BinaryProviderName;
+  version?: string;
   systemWide?: boolean;
   installedOn?: Date;
 }
