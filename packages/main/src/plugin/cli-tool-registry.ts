@@ -116,8 +116,4 @@ export class CliToolRegistry {
       };
     });
   }
-
-  listCliTools(): CliTool[] {
-    return Array.from(this.cliTools.values());
-  }
 }

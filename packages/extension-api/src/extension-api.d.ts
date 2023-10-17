@@ -2465,6 +2465,5 @@ declare module '@podman-desktop/api' {
 
   export namespace cli {
     export function createCliTool(options: CliToolOptions): CliTool;
-    export function listCliTools(): CliTool[];
   }
 }

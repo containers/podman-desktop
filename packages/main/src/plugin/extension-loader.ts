@@ -1008,7 +1008,6 @@ export class ExtensionLoader {
         }
         return this.cliToolRegistry.createCliTool(extensionInfo, options);
       },
-      listCliTools: () => this.cliToolRegistry.listCliTools(),
     };
 
     return <typeof containerDesktopAPI>{
