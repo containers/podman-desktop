@@ -1004,8 +1004,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       extensionApi.context.setValue('podmanIsNotInstalled', !installed, 'onboarding');
       if (installed) {
         extensionApi.context.setValue('podmanInstalledTitle', 'Podman already installed', 'onboarding');
+        telemetryLogger.logUsage('podman.onboarding.podman-already-installed');
       } else {
         extensionApi.context.setValue('podmanInstalledTitle', 'Podman successfully installed', 'onboarding');
+        telemetryLogger.logUsage('podman.onboarding.podman-not-installed');
       }
     },
   );
@@ -1044,6 +1046,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       }
 
       const warnings = [];
+      const telemetryRecords: Record<string, unknown> = {};
 
       for (const res of result) {
         const warning = {
@@ -1054,10 +1057,18 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
           command: res.fixCommand,
         };
         warnings.push(warning);
+        if (!res.successful) {
+          telemetryRecords[res.name] = res.description ? res.description : res.name;
+        }
       }
 
       extensionApi.context.setValue('requirementsStatus', successful ? 'ok' : 'failed', 'onboarding');
       extensionApi.context.setValue('warningsMarkdown', warnings, 'onboarding');
+      if (successful) {
+        telemetryLogger.logUsage('podman.onboarding.system-reqs-met');
+      } else {
+        telemetryLogger.logUsage('podman.onboarding.system-reqs-not-met', telemetryRecords);
+      }
     },
   );
 
@@ -1069,9 +1080,17 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         const installation = await getPodmanInstallation();
         const installed = installation ? true : false;
         extensionApi.context.setValue('podmanIsNotInstalled', !installed, 'onboarding');
+        if (installed) {
+          telemetryLogger.logUsage('podman.onboarding.podman-installed', {
+            version: installation.version,
+          });
+        }
       } catch (e) {
         console.error(e);
         extensionApi.context.setValue('podmanIsNotInstalled', true, 'onboarding');
+        telemetryLogger.logError('podman.onboarding.podman-installation', {
+          error: String(e),
+        });
       }
     },
   );
