@@ -557,7 +557,7 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
       await extensionApi.process.exec(getPodmanCli(), ['machine', 'stop', machineInfo.name], {
         logger: new LoggerDelegator(context, logger),
       });
-      provider.updateStatus('ready');
+      provider.updateStatus('stopped');
     },
     delete: async (logger): Promise<void> => {
       await extensionApi.process.exec(getPodmanCli(), ['machine', 'rm', '-f', machineInfo.name], { logger });
