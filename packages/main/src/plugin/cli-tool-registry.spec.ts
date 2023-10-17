@@ -18,6 +18,6 @@
 
 import { test } from 'vitest';
 
-test("CLI Tool registry sends 'cli-tool-create' event when new tool is created", () => {
+test('CLI Tool registry sends "cli-tool-create" event when new tool is created', () => {
   // TBD
 });
