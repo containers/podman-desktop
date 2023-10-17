@@ -147,10 +147,8 @@ window.events?.receive('display-troubleshooting', () => {
           <ComposeDetails composeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
         </Route>
         <Route path="{PodDetailsRoute.path()}" breadcrumb="Pod Details" let:meta navigationHint="details">
-          <PodDetails
-            podName="{PodDetailsRoute.getName(meta.params)}"
-            engineId="{PodDetailsRoute.getEngineId(meta.params)}"
-            kind="{PodDetailsRoute.getKind(meta.params)}" />
+          {@const routeValues = PodDetailsRoute.getParameters(meta.params)}
+          <PodDetails podName="{routeValues.name}" engineId="{routeValues.engineId}" kind="{routeValues.kind}" />
         </Route>
         <Route path="/pod-create-from-containers" breadcrumb="Create Pod">
           <PodCreateFromContainers />
