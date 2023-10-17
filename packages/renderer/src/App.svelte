@@ -43,6 +43,7 @@ import CustomPick from './lib/dialogs/CustomPick.svelte';
 import ContextKey from './lib/context/ContextKey.svelte';
 import CreateVolume from './lib/volume/CreateVolume.svelte';
 import CommandPalette from './lib/dialogs/CommandPalette.svelte';
+import { PodDetailsRoute } from './routes';
 
 router.mode.hash();
 
@@ -145,11 +146,11 @@ window.events?.receive('display-troubleshooting', () => {
         <Route path="/compose/:name/:engineId/*" breadcrumb="Compose Details" let:meta navigationHint="details">
           <ComposeDetails composeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
         </Route>
-        <Route path="/pods/:kind/:name/:engineId/*" breadcrumb="Pod Details" let:meta navigationHint="details">
+        <Route path="{PodDetailsRoute.path()}" breadcrumb="Pod Details" let:meta navigationHint="details">
           <PodDetails
-            podName="{decodeURI(meta.params.name)}"
-            engineId="{decodeURI(meta.params.engineId)}"
-            kind="{decodeURI(meta.params.kind)}" />
+            podName="{PodDetailsRoute.getName(meta.params)}"
+            engineId="{PodDetailsRoute.getEngineId(meta.params)}"
+            kind="{PodDetailsRoute.getKind(meta.params)}" />
         </Route>
         <Route path="/pod-create-from-containers" breadcrumb="Create Pod">
           <PodCreateFromContainers />
