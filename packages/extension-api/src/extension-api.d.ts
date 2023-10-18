@@ -2426,6 +2426,10 @@ declare module '@podman-desktop/api' {
     export function setValue(key: string, value: any, scope?: 'onboarding'): void;
   }
 
+  /**
+   * Options to create new CliTool instance and register it in podman desktop
+   */
+
   export interface CliToolOptions {
     id: string;
     name: string;
@@ -2449,7 +2453,18 @@ declare module '@podman-desktop/api' {
     };
   }
 
+  /**
+   * The CLI module provides API to register CLI Tools that can be used
+   * with Podman Desktop. The registered CLIs appears in settings on
+   * `CLI Tools` page.
+   */
+
   export namespace cli {
+    /**
+     * Register new CLI Tool
+     * @param options CliToolsOptions instance to configure new instance of CliTool
+     * @returns CliTool instance
+     */
     export function createCliTool(options: CliToolOptions): CliTool;
   }
 }
