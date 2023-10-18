@@ -129,6 +129,8 @@ import type {
 } from '/@/plugin/kube-generator-registry.js';
 import type { KubernetesGeneratorInfo } from '/@/plugin/api/KubernetesGeneratorInfo.js';
 import type { CommandInfo } from './api/command-info.js';
+import { CliToolRegistry } from './cli-tool-registry.js';
+import type { CliToolInfo } from './api/cli-tool-info.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -692,6 +694,8 @@ export class PluginSystem {
 
     const taskManager = new TaskManager(apiSender);
 
+    const cliToolRegistry = new CliToolRegistry(apiSender, exec, telemetry);
+
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
       menuRegistry,
@@ -719,6 +723,7 @@ export class PluginSystem {
       directories,
       exec,
       kubeGeneratorRegistry,
+      cliToolRegistry,
     );
     await this.extensionLoader.init();
 
@@ -1189,6 +1194,10 @@ export class PluginSystem {
 
     this.ipcHandle('provider-registry:getProviderInfos', async (): Promise<ProviderInfo[]> => {
       return providerRegistry.getProviderInfos();
+    });
+
+    this.ipcHandle('cli-tool-registry:getCliToolInfos', async (): Promise<CliToolInfo[]> => {
+      return cliToolRegistry.getCliToolInfos();
     });
 
     this.ipcHandle('menu-registry:getContributedMenus', async (_, context: string): Promise<Menu[]> => {
