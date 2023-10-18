@@ -152,6 +152,7 @@ export class ComposeExtension {
     const telemetryLogger = extensionApi.env.createTelemetryLogger();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const telemetryOptions: Record<string, any> = {};
+    const startTime = performance.now();
     try {
       // grab latest assets metadata
       const lastReleasesMetadata = await this.composeGitHubReleases.grabLatestsReleasesMetadata();
@@ -211,9 +212,12 @@ export class ComposeExtension {
       } else {
         telemetryOptions.skip = true;
       }
-      telemetryLogger.logUsage('install', telemetryOptions);
     } catch (err) {
-      telemetryLogger.logError('install', { error: err });
+      telemetryOptions.error = err;
+    } finally {
+      const endTime = performance.now();
+      telemetryOptions.duration = endTime - startTime;
+      telemetryLogger.logUsage('install', telemetryOptions);
     }
   }
 
