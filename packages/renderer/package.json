@@ -19,7 +19,7 @@
     "@testing-library/svelte": "^4.0.4",
     "@testing-library/user-event": "^14.5.1",
     "@tsconfig/svelte": "^5.0.2",
-    "@types/js-yaml": "^4.0.7",
+    "@types/js-yaml": "^4.0.8",
     "@types/validator": "^13.11.3",
     "@typescript-eslint/eslint-plugin": "6.7.5",
     "autoprefixer": "^10.4.16",
