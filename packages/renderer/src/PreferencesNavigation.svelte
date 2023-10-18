@@ -57,6 +57,8 @@ onMount(async () => {
 
     <SettingsNavItem title="Authentication" href="/preferences/authentication-providers" bind:meta="{meta}" />
 
+    <SettingsNavItem title="CLI Tools" href="/preferences/cli-tools" bind:meta="{meta}" />
+
     <SettingsNavItem
       title="Extensions"
       href="/preferences/extensions"
