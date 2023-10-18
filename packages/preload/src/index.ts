@@ -53,7 +53,6 @@ import type {
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
 } from '../../main/src/plugin/api/provider-info';
-import type { CliToolInfo } from '../../main/src/plugin/api/cli-tool-info';
 import type { IConfigurationPropertyRecordedSchema } from '../../main/src/plugin/configuration-registry';
 import type { PullEvent } from '../../main/src/plugin/api/pull-event';
 import { Deferred } from './util/deferred';
@@ -947,10 +946,6 @@ function initExposure(): void {
     return ipcInvoke('provider-registry:getProviderInfos');
   });
 
-  contextBridge.exposeInMainWorld('getCliToolInfos', async (): Promise<CliToolInfo[]> => {
-    return ipcInvoke('cli-tool-registry:getCliToolInfos');
-  });
-
   contextBridge.exposeInMainWorld('getContributedMenus', async (context: string): Promise<Menu[]> => {
     return ipcInvoke('menu-registry:getContributedMenus', context);
   });
@@ -1651,10 +1646,6 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('resetOnboarding', async (extensions: string[]): Promise<void> => {
     return ipcInvoke('onboardingRegistry:resetOnboarding', extensions);
-  });
-
-  contextBridge.exposeInMainWorld('detectCliTool', async (cliToolId: string) => {
-    return ipcInvoke('cliToolRegistry:detectCliTool', cliToolId);
   });
 }
 

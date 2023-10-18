@@ -15,7 +15,6 @@ import PreferencesExtensionList from './PreferencesExtensionList.svelte';
 import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
 import PreferencesAuthenticationProvidersRendering from './PreferencesAuthenticationProvidersRendering.svelte';
 import PreferencesInstallExtensionFromId from './PreferencesInstallExtensionFromId.svelte';
-import PreferencesCliToolsRendering from './PreferencesCliToolsRendering.svelte';
 import Onboarding from '../onboarding/Onboarding.svelte';
 import { isDefaultScope } from './Util';
 
@@ -55,7 +54,7 @@ onMount(async () => {
   <Route path="/extension/:extensionId/*" breadcrumb="Extensions" let:meta>
     <PreferencesExtensionRendering extensionId="{meta.params.extensionId}" />
   </Route>
-  <Route path="/provider/:providerInternalId/*" breadcrumb="Resources" let:meta navigationHint="details">
+  <Route path="/provider/:providerInternalId/*" breadcrumb="Resources" let:meta>
     <PreferencesProviderRendering providerInternalId="{meta.params.providerInternalId}" properties="{properties}" />
   </Route>
   <Route path="/provider-task/:providerInternalId/:taskId/*" breadcrumb="Resources" let:meta>
@@ -72,9 +71,6 @@ onMount(async () => {
   </Route>
   <Route path="/authentication-providers" breadcrumb="Authentication">
     <PreferencesAuthenticationProvidersRendering />
-  </Route>
-  <Route path="/cli-tools" breadcrumb="Authentication">
-    <PreferencesCliToolsRendering />
   </Route>
   <Route path="/proxies" breadcrumb="Proxy">
     <PreferencesProxiesRendering />
