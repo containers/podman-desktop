@@ -87,7 +87,7 @@ test('Expect Build button is enabled', async () => {
   setup();
   render(BuildImageFromContainerfile, {});
 
-  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile path' });
+  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile Path' });
 
   expect(containerFilePath).toBeInTheDocument();
   await userEvent.click(containerFilePath);
@@ -101,7 +101,7 @@ test('Expect Done button is enabled once build is done', async () => {
   setup();
   render(BuildImageFromContainerfile, {});
 
-  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile path' });
+  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile Path' });
 
   expect(containerFilePath).toBeInTheDocument();
   await userEvent.click(containerFilePath);
