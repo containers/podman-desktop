@@ -76,6 +76,16 @@ const qemuHelper = new QemuHelper();
 const podmanBinaryHelper = new PodmanBinaryLocationHelper();
 const podmanInfoHelper = new PodmanInfoHelper();
 
+let shouldNotifySetup = true;
+const setupPodmanNotification: extensionApi.NotificationOptions = {
+  title: 'Podman needs to be set up!',
+  body: 'The Podman extension is installed but needs to be set up. Some features may not work as expected.',
+  type: 'info',
+  actions: ':button[Set up]{href=/preferences/onboarding/podman-desktop.podman title="Set up Podman"}',
+  highlight: true,
+  silent: true,
+};
+
 export type MachineJSON = {
   Name: string;
   CPUs: number;
@@ -108,11 +118,26 @@ export type MachineInfo = {
 
 async function updateMachines(provider: extensionApi.Provider): Promise<void> {
   // init machines available
-  const machineListOutput = await getJSONMachineList();
+  let machineListOutput: string;
+  try {
+    machineListOutput = await getJSONMachineList();
+  } catch (error) {
+    if (shouldNotifySetup) {
+      // push setup notification
+      extensionApi.window.showNotification(setupPodmanNotification);
+      shouldNotifySetup = false;
+    }
+    throw error;
+  }
 
   // parse output
   const machines = JSON.parse(machineListOutput) as MachineJSON[];
   extensionApi.context.setValue('podmanMachineExists', machines.length > 0, 'onboarding');
+  if (shouldNotifySetup && machines.length === 0) {
+    // push setup notification
+    extensionApi.window.showNotification(setupPodmanNotification);
+    shouldNotifySetup = false;
+  }
 
   // update status of existing machines
   for (const machine of machines) {
@@ -517,6 +542,11 @@ async function monitorProvider(provider: extensionApi.Provider) {
       if (!installedPodman) {
         provider.updateStatus('not-installed');
         extensionApi.context.setValue('podmanIsNotInstalled', true, 'onboarding');
+        if (isLinux() && shouldNotifySetup) {
+          // push setup notification
+          extensionApi.window.showNotification(setupPodmanNotification);
+          shouldNotifySetup = false;
+        }
       } else if (installedPodman.version) {
         provider.updateVersion(installedPodman.version);
         // update provider status if someone has installed podman externally
@@ -524,6 +554,9 @@ async function monitorProvider(provider: extensionApi.Provider) {
           provider.updateStatus('installed');
         }
         extensionApi.context.setValue('podmanIsNotInstalled', false, 'onboarding');
+        if (isLinux()) {
+          shouldNotifySetup = true;
+        }
       }
     } catch (error) {
       // ignore the update
@@ -1383,6 +1416,7 @@ export async function createMachine(
     sendTelemetryRecords('podman.machine.init', telemetryRecords, false);
   }
   extensionApi.context.setValue('podmanMachineExists', true, 'onboarding');
+  shouldNotifySetup = true;
 }
 
 function setupDisguisedPodmanSocketWatcher(
