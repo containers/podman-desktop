@@ -47,7 +47,8 @@ export class NotificationRegistry {
     this.apiSender.send('notifications-updated');
     // we show the notification
     const disposeShowNotification = this.showNotification({
-      body: notification.title,
+      title: notification.title,
+      body: notification.body,
       silent: notification.silent,
     });
     // return disposable object
@@ -58,7 +59,11 @@ export class NotificationRegistry {
   }
 
   showNotification(options: containerDesktopAPI.NotificationOptions): Disposable {
-    const notification = new Notification(options);
+    const notification = new Notification({
+      title: options.title,
+      body: options.body,
+      silent: options.silent,
+    });
     notification.show();
     return Disposable.create(() => {
       notification.close();

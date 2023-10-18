@@ -52,7 +52,7 @@ test('expect notification added to the queue', async () => {
   notificationRegistry.addNotification({
     extensionId,
     title: 'title',
-    description: 'description',
+    body: 'description',
     type: 'info',
   });
 
@@ -67,19 +67,19 @@ test('expect latest added notification is in top of the queue', async () => {
   notificationRegistry.addNotification({
     extensionId,
     title: '1',
-    description: '1',
+    body: '1',
     type: 'info',
   });
   notificationRegistry.addNotification({
     extensionId,
     title: '2',
-    description: '2',
+    body: '2',
     type: 'info',
   });
   notificationRegistry.addNotification({
     extensionId,
     title: '3',
-    description: '3',
+    body: '3',
     type: 'info',
   });
 
@@ -105,7 +105,7 @@ test('expect the queue to not have the notification after it is removed by id', 
   notificationRegistry.addNotification({
     extensionId,
     title: 'title',
-    description: 'description',
+    body: 'description',
     type: 'info',
   });
 
@@ -124,13 +124,13 @@ test('expect the queue to not have the notifications after they are removed by e
   notificationRegistry.addNotification({
     extensionId,
     title: 'title',
-    description: 'description',
+    body: 'description',
     type: 'info',
   });
   notificationRegistry.addNotification({
     extensionId,
     title: 'title',
-    description: 'description',
+    body: 'description',
     type: 'info',
   });
 
@@ -146,19 +146,19 @@ test('expect all notifications to be removed', async () => {
   notificationRegistry.addNotification({
     extensionId,
     title: '1',
-    description: '1',
+    body: '1',
     type: 'info',
   });
   notificationRegistry.addNotification({
     extensionId,
     title: '2',
-    description: '2',
+    body: '2',
     type: 'info',
   });
   notificationRegistry.addNotification({
     extensionId,
     title: '3',
-    description: '3',
+    body: '3',
     type: 'info',
   });
 
@@ -175,13 +175,13 @@ test('expect all notifications belonging to an extensions are removed after it i
   notificationRegistry.addNotification({
     extensionId,
     title: '1',
-    description: '1',
+    body: '1',
     type: 'info',
   });
   notificationRegistry.addNotification({
     extensionId,
     title: '2',
-    description: '2',
+    body: '2',
     type: 'info',
   });
   let queue = notificationRegistry.getNotifications();

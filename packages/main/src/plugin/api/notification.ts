@@ -23,7 +23,7 @@ export interface NotificationCardOptions {
   // title displayed on the top of the notification card
   title: string;
   // description displayed just below the title, it should explain what the notification is about
-  description: string;
+  body?: string;
   type: NotificationType;
   // displayed below the description, centered in the notification card. It may contains actions (like commands/buttons and links)
   actions?: string;

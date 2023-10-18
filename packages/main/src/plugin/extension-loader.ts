@@ -783,16 +783,12 @@ export class ExtensionLoader {
         return progress.withProgress(options, task);
       },
 
-      showNotification: (
-        notificationInfo: containerDesktopAPI.NotificationCardOptions | containerDesktopAPI.NotificationOptions,
-      ): containerDesktopAPI.Disposable => {
-        // if it only sends a notification option we show the notification
-        if (!('type' in notificationInfo)) {
-          return this.notificationRegistry.showNotification(notificationInfo);
-        }
+      showNotification: (notificationInfo: containerDesktopAPI.NotificationOptions): containerDesktopAPI.Disposable => {
         return this.notificationRegistry.addNotification({
           ...notificationInfo,
           extensionId: extensionInfo.id,
+          type: notificationInfo.type || 'info',
+          title: notificationInfo.title || extensionInfo.name,
         });
       },
 

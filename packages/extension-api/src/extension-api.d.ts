@@ -1042,23 +1042,18 @@ declare module '@podman-desktop/api' {
      * Whether or not to emit an OS notification noise when showing the notification.
      */
     silent?: boolean;
-  }
-
-  /**
-   * Options to define how the notification card has to be created (will be displayed in the bell icon list)
-   */
-  export interface NotificationCardOptions {
-    // title displayed on the top of the notification card
-    title: string;
-    // description displayed just below the title, it should explain what the notification is about
-    description: string;
-    type: NotificationType;
-    // displayed below the description, centered in the notification card. It may contains actions (like commands/buttons and links)
+    /**
+     * The type of the notification. Default value: info
+     */
+    type?: NotificationType;
+    /**
+     * displayed below the description, centered in the notification card. It contains actions (like markdown commands/buttons and links)
+     */
     actions?: string;
-    // the notification will be added to the dashboard queue
+    /**
+     * the notification will be visible in the dashboard
+     */
     highlight?: boolean;
-    // whether or not to emit an OS notification noise when showing the notification.
-    silent?: boolean;
   }
 
   /**
@@ -1255,7 +1250,7 @@ declare module '@podman-desktop/api' {
      * Show notification on different area of Podman Desktop based on its options (Dashboard, bell icon list, OS notification)
      * @param options define how the notification must be created.
      */
-    export function showNotification(options: NotificationCardOptions | NotificationOptions): Disposable;
+    export function showNotification(options: NotificationOptions): Disposable;
 
     /**
      * Creates a status bar {@link StatusBarItem} item.
