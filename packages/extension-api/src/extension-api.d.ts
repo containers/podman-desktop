@@ -2431,7 +2431,6 @@ declare module '@podman-desktop/api' {
    */
 
   export interface CliToolOptions {
-    id: string;
     name: string;
     displayName: string;
     markdownDescription: string;

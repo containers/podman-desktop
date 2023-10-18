@@ -142,7 +142,6 @@ export class ComposeExtension {
     It also provides commands for managing the whole lifecycle of your application.`;
 
     extensionApi.cli.createCliTool({
-      id: 'docker-compose',
       name: 'docker-compose',
       displayName: 'Compose',
       markdownDescription: description.replace('\n', ''),
