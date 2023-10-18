@@ -35,7 +35,6 @@ import type { KubeGeneratorRegistry } from './kube-generator-registry.js';
 import type { KubernetesClient } from './kubernetes-client.js';
 import type { MenuRegistry } from './menu-registry.js';
 import type { MessageBox } from './message-box.js';
-import type { NotificationImpl } from './notification-impl.js';
 import type { OnboardingRegistry } from './onboarding-registry.js';
 import type { ProgressImpl } from './progress-impl.js';
 import type { ProviderRegistry } from './provider-registry.js';
@@ -47,6 +46,7 @@ import type { Context } from './context/context.js';
 import type { Proxy } from './proxy.js';
 import { afterEach } from 'node:test';
 import type { CliToolOptions } from '@podman-desktop/api';
+import type { NotificationRegistry } from './notification-registry.js';
 
 const apiSender: ApiSenderType = {
   send: vi.fn(),
@@ -74,7 +74,6 @@ suite('cli module', () => {
       vi.fn() as unknown as TrayMenuRegistry,
       vi.fn() as unknown as MessageBox,
       vi.fn() as unknown as ProgressImpl,
-      vi.fn() as unknown as NotificationImpl,
       vi.fn() as unknown as StatusBarRegistry,
       vi.fn() as unknown as KubernetesClient,
       vi.fn() as unknown as FilesystemMonitoring,
@@ -92,6 +91,7 @@ suite('cli module', () => {
       vi.fn() as unknown as Exec,
       vi.fn() as unknown as KubeGeneratorRegistry,
       cliToolRegistry,
+      vi.fn() as unknown as NotificationRegistry,
     );
   });
 

@@ -1047,11 +1047,11 @@ declare module '@podman-desktop/api' {
      */
     type?: NotificationType;
     /**
-     * displayed below the description, centered in the notification card. It contains actions (like markdown commands/buttons and links)
+     * displayed below the description. It contains actions (like markdown commands/buttons and links)
      */
-    actions?: string;
+    markdownActions?: string;
     /**
-     * the notification will be visible in the dashboard
+     * this notification will be highlighted to the user so it draws attention
      */
     highlight?: boolean;
   }
