@@ -13,7 +13,7 @@ You can find here troubleshooting help for issues specific to Windows.
 1. You are not able to stop your Podman Machine.
 
    ```shell-session
-   $podman machine stop
+   $ podman machine stop
    ```
 
 2. The Logs contain this error:
