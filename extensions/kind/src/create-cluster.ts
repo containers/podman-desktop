@@ -174,6 +174,7 @@ export async function createCluster(
       await setupIngressController(clusterName);
     }
   } catch (error) {
+    telemetryOptions.error = error;
     let errorMessage: string;
 
     if (typeof error === 'object' && 'message' in error) {
@@ -181,8 +182,6 @@ export async function createCluster(
     } else if (typeof error === 'string') {
       errorMessage = error;
     }
-
-    telemetryOptions.error = errorMessage;
 
     throw new Error(`Failed to create kind cluster. ${errorMessage}`);
   } finally {
