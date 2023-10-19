@@ -183,7 +183,6 @@ export async function createCluster(
     }
 
     telemetryOptions.error = errorMessage;
-    telemetryOptions.stdErr = errorMessage;
 
     throw new Error(`Failed to create kind cluster. ${errorMessage}`);
   } finally {
