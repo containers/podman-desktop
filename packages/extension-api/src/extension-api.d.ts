@@ -1042,6 +1042,18 @@ declare module '@podman-desktop/api' {
      * Whether or not to emit an OS notification noise when showing the notification.
      */
     silent?: boolean;
+    /**
+     * The type of the notification. Default value: info
+     */
+    type?: NotificationType;
+    /**
+     * displayed below the description. It contains actions (like markdown commands/buttons and links)
+     */
+    markdownActions?: string;
+    /**
+     * this notification will be highlighted to the user so it draws attention
+     */
+    highlight?: boolean;
   }
 
   /**
@@ -1235,8 +1247,8 @@ declare module '@podman-desktop/api' {
     ): Promise<R>;
 
     /**
-     * Show OS desktop notification
-     * @param options
+     * Show notification on different area of Podman Desktop based on its options (Dashboard, bell icon list, OS notification)
+     * @param options define how the notification must be created.
      */
     export function showNotification(options: NotificationOptions): Disposable;
 
