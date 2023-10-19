@@ -1057,23 +1057,6 @@ declare module '@podman-desktop/api' {
   }
 
   /**
-   * Options to define how the notification card has to be created (will be displayed in the bell icon list)
-   */
-  export interface NotificationCardOptions {
-    // title displayed on the top of the notification card
-    title: string;
-    // description displayed just below the title, it should explain what the notification is about
-    description: string;
-    type: NotificationType;
-    // displayed below the description, centered in the notification card. It may contains actions (like commands/buttons and links)
-    actions?: string;
-    /**
-     * the notification will be visible in the dashboard
-     */
-    highlight?: boolean;
-  }
-
-  /**
    * Aligned to the left side.
    */
   export const StatusBarAlignLeft = 'LEFT';

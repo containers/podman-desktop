@@ -81,7 +81,7 @@ const setupPodmanNotification: extensionApi.NotificationOptions = {
   title: 'Podman needs to be set up!',
   body: 'The Podman extension is installed but needs to be set up. Some features may not work as expected.',
   type: 'info',
-  actions: ':button[Set up]{href=/preferences/onboarding/podman-desktop.podman title="Set up Podman"}',
+  markdownActions: ':button[Set up]{href=/preferences/onboarding/podman-desktop.podman title="Set up Podman"}',
   highlight: true,
   silent: true,
 };

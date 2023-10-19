@@ -1012,7 +1012,7 @@ export class ExtensionLoader {
           options.images.icon = instance.updateImage(options?.images?.icon, extensionPath);
         }
         return this.cliToolRegistry.createCliTool(extensionInfo, options);
-      }
+      },
     };
 
     return <typeof containerDesktopAPI>{
