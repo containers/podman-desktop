@@ -277,7 +277,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
             </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex items-center">
-                <div class="text-sm text-gray-300">
+                <div class="text-sm text-gray-700">
                   <StateChange state="{pod.status}">{pod.age}</StateChange>
                 </div>
               </div>
