@@ -403,7 +403,7 @@ async function restartSetup() {
           </div>
         {/if}
         <div
-          class="flex flex-row-reverse p-6 bg-charcoal-700 fixed w-[calc(100%-279px)] bottom-0 mb-5 pr-10 max-h-20 bg-opacity-90 z-20">
+          class="flex flex-row-reverse p-6 bg-charcoal-700 fixed w-[calc(100%-theme(width.leftnavbar)-theme(width.leftsidebar))] bottom-0 mb-5 pr-10 max-h-20 bg-opacity-90 z-20">
           <Button type="primary" disabled="{activeStep.step.state === 'failed'}" on:click="{() => next()}">Next</Button>
           {#if activeStep.step.state !== 'completed'}
             <Button
