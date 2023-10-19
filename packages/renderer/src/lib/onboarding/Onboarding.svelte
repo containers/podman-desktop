@@ -270,6 +270,9 @@ async function cancelSetup() {
   // TODO: it cancels all running commands
   // it redirect the user to the dashboard
   await cleanSetup(onboardings, globalContext);
+  window.telemetryTrack('onboarding.cancelSetup', {
+    extensions: onboardings.map(o => o.extension).join(','),
+  });
   router.goto($lastPage.path);
 }
 
