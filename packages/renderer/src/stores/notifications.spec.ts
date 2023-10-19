@@ -24,7 +24,7 @@ import { beforeAll, expect, test, vi } from 'vitest';
 import { fetchNotifications, notificationEventStore, notificationQueue } from './notifications';
 import type { NotificationCard } from '../../../main/src/plugin/api/notification';
 
-// first, path window object
+// first, patch window object
 const callbacks = new Map<string, any>();
 const eventEmitter = {
   receive: (message: string, callback: any) => {
