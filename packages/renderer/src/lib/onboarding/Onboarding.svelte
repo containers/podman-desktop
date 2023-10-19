@@ -68,10 +68,6 @@ let displayResetSetup = false;
 
 let executedCommands: string[] = [];
 
-let activeStepDiv: HTMLDivElement;
-let bottomToolbarDiv: HTMLDivElement;
-let resizeObserver: ResizeObserver;
-
 /*
 $: enableNextButton = false;*/
 let onboardingUnsubscribe: Unsubscriber;
@@ -110,12 +106,6 @@ onMount(async () => {
       startOnboarding().catch((err: unknown) => console.warn(String(err)));
     }
   });
-
-  // Resize the bottom toolbar each time we change the div size
-  resizeObserver = new ResizeObserver(() => {
-    const parentWidth = activeStepDiv.getBoundingClientRect().width;
-    bottomToolbarDiv.style.width = parentWidth + 16 + 'px';
-  });
 });
 
 async function startOnboarding(): Promise<void> {
@@ -126,8 +116,6 @@ async function startOnboarding(): Promise<void> {
       setDisplayResetSetup(true);
     } else {
       await restartSetup();
-      // Observe the terminal div
-      resizeObserver.observe(activeStepDiv);
     }
   }
 }
@@ -138,10 +126,6 @@ onDestroy(() => {
   }
   if (contextsUnsubscribe) {
     contextsUnsubscribe();
-  }
-  // Cleanup the observer on destroy
-  if (activeStepDiv) {
-    resizeObserver?.unobserve(activeStepDiv);
   }
 });
 
@@ -303,7 +287,7 @@ async function restartSetup() {
     id="stepBody"
     class="flex flex-col bg-charcoal-500 h-full overflow-y-auto w-full overflow-x-hidden"
     class:bodyWithBar="{!activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}">
-    <div class="flex flex-col h-full" bind:this="{activeStepDiv}">
+    <div class="flex flex-col h-full">
       <div class="flex flex-row justify-between h-[100px] p-5 z-20 fixed w-full bg-opacity-90 bg-charcoal-700">
         <div class="flex flew-row">
           {#if activeStep.onboarding.media}
@@ -419,8 +403,7 @@ async function restartSetup() {
           </div>
         {/if}
         <div
-          class="flex flex-row-reverse p-6 bg-charcoal-700 fixed w-full bottom-0 mb-5 pr-10 max-h-20 bg-opacity-90 z-20"
-          bind:this="{bottomToolbarDiv}">
+          class="flex flex-row-reverse p-6 bg-charcoal-700 fixed w-[calc(100%-theme(width.leftnavbar)-theme(width.leftsidebar))] bottom-0 mb-5 pr-10 max-h-20 bg-opacity-90 z-20">
           <Button type="primary" disabled="{activeStep.step.state === 'failed'}" on:click="{() => next()}">Next</Button>
           {#if activeStep.step.state !== 'completed'}
             <Button

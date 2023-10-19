@@ -33,6 +33,14 @@ module.exports = {
       transitionProperty: {
         width: 'width',
       },
+      width: {
+        'leftnavbar': '54px',
+        'leftsidebar': '225px',
+      },
+      minWidth: {
+        'leftnavbar': '54px',
+        'leftsidebar': '225px',
+      },
     },
     colors: {
       'charcoal': {
