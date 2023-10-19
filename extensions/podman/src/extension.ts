@@ -1076,23 +1076,20 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     async () => {
       let installation: InstalledPodman;
       let installed = false;
+      const telemetryOptions: Record<string, unknown> = {};
       try {
         await podmanInstall.doInstallPodman(provider);
         installation = await getPodmanInstallation();
         installed = installation ? true : false;
         extensionApi.context.setValue('podmanIsNotInstalled', !installed, 'onboarding');
-        telemetryLogger.logUsage('podman.onboarding.installPodman', {
-          version: installation.version || '',
-          installed: installed,
-        });
       } catch (e) {
         console.error(e);
         extensionApi.context.setValue('podmanIsNotInstalled', true, 'onboarding');
-        telemetryLogger.logError('podman.onboarding.installPodman', {
-          version: installation.version || '',
-          installed: installed,
-          error: e,
-        });
+        telemetryOptions.error = e;
+      } finally {
+        telemetryOptions.version = installation.version || '';
+        telemetryOptions.installed = installed;
+        telemetryLogger.logUsage('podman.onboarding.installPodman', telemetryOptions);
       }
     },
   );
