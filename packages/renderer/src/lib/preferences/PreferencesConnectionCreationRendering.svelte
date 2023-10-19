@@ -3,7 +3,7 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
-import { getNormalizedDefaultNumberValue, writeToTerminal, isPropertyValidInContext } from './Util';
+import { getNormalizedDefaultNumberValue, writeToTerminal, isPropertyValidInContext, getInitialValue } from './Util';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import {
   clearCreateTask,
@@ -428,7 +428,8 @@ function closePage() {
                   validRecord="{handleValidComponent}"
                   record="{configurationKey}"
                   setRecordValue="{setConfigurationValue}"
-                  enableSlider="{true}" />
+                  enableSlider="{true}"
+                  initialValue="{getInitialValue(configurationKey)}" />
               </div>
             {/each}
             <div class="w-full">
