@@ -19,6 +19,7 @@ onMount(async () => {
 });
 
 async function updateProxySettings() {
+  await window.setProxyState(proxyState);
   await window.updateProxySettings(proxySettings);
 
   // loop over all providers and container connections to see if there are any running engines
@@ -68,8 +69,7 @@ function validate(event: any) {
       <select
         class="p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
         id="toggle-proxy"
-        bind:value="{proxyState}"
-        on:change="{() => updateProxyState()}">
+        bind:value="{proxyState}">
         <option value="{0}">System</option>
         <option value="{1}">Manual</option>
         <option value="{2}">Disabled</option>
@@ -127,9 +127,7 @@ function validate(event: any) {
           required />
       </div>
       <div class="my-2 pt-4">
-        <Button on:click="{() => updateProxySettings()}" disabled="{proxyState !== 1}" class="w-full" icon="{faPen}">
-          Update
-        </Button>
+        <Button on:click="{() => updateProxySettings()}" class="w-full" icon="{faPen}">Update</Button>
       </div>
     {/if}
   </div>
