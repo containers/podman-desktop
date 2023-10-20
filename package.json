@@ -7,8 +7,8 @@
   "type": "module",
   "private": true,
   "engines": {
-    "node": ">=18",
-    "npm": ">=8.1"
+    "node": ">=18.12.0",
+    "npm": ">=8.19.2"
   },
   "main": "packages/main/dist/index.cjs",
   "workspaces": {
