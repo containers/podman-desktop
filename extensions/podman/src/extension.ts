@@ -78,7 +78,7 @@ const podmanInfoHelper = new PodmanInfoHelper();
 
 let shouldNotifySetup = true;
 const setupPodmanNotification: extensionApi.NotificationOptions = {
-  title: 'Podman needs to be set up!',
+  title: 'Podman needs to be set up',
   body: 'The Podman extension is installed, yet requires configuration. Some features might not function optimally.',
   type: 'info',
   markdownActions: ':button[Set up]{href=/preferences/onboarding/podman-desktop.podman title="Set up Podman"}',
@@ -542,6 +542,9 @@ async function monitorProvider(provider: extensionApi.Provider) {
       if (!installedPodman) {
         provider.updateStatus('not-installed');
         extensionApi.context.setValue('podmanIsNotInstalled', true, 'onboarding');
+        // if podman is not installed and the OS is linux we show the podman onboarding notification (if it has not been shown earlier)
+        // this should be limited to Linux as in other OSes the onboarding workflow is enabled based on the podman machine existance
+        // and the notification is handled by checking the machine
         if (isLinux() && shouldNotifySetup) {
           // push setup notification
           extensionApi.window.showNotification(setupPodmanNotification);
@@ -554,6 +557,7 @@ async function monitorProvider(provider: extensionApi.Provider) {
           provider.updateStatus('installed');
         }
         extensionApi.context.setValue('podmanIsNotInstalled', false, 'onboarding');
+        // if podman has been installed, we reset the notification flag so if podman is uninstalled in future we can show the notification again
         if (isLinux()) {
           shouldNotifySetup = true;
         }
