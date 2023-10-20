@@ -57,14 +57,13 @@ import Spinner from '../ui/Spinner.svelte';
 
 export let extensionIds: string[] = [];
 
-let onboardings: OnboardingInfo[];
+let onboardings: OnboardingInfo[] = [];
 let activeStep: ActiveOnboardingStep;
 let activeStepContent: OnboardingStepItem[][];
 
 $: executing = false;
 let globalContext: ContextUI;
 let displayCancelSetup = false;
-let displayResetSetup = false;
 
 let executedCommands: string[] = [];
 
@@ -77,7 +76,7 @@ let started = false;
 onMount(async () => {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   onboardingUnsubscribe = onboardingList.subscribe(onboardingItems => {
-    if (!onboardings) {
+    if (onboardings.length === 0) {
       onboardings = onboardingItems.filter(o => extensionIds.find(extensionId => o.extension === extensionId));
       startOnboarding().catch((err: unknown) => console.warn(String(err)));
     }
@@ -109,12 +108,9 @@ onMount(async () => {
 });
 
 async function startOnboarding(): Promise<void> {
-  if (!started && globalContext && onboardings) {
+  if (!started && globalContext && onboardings.length > 0) {
     started = true;
-    if (isOnboardingsSetupCompleted(onboardings)) {
-      // ask user if she wants to restart
-      setDisplayResetSetup(true);
-    } else {
+    if (!isOnboardingsSetupCompleted(onboardings)) {
       await restartSetup();
     }
   }
@@ -130,7 +126,7 @@ onDestroy(() => {
 });
 
 async function setActiveStep() {
-  if (!onboardings) {
+  if (onboardings.length === 0) {
     console.error(`Unable to retrieve the onboarding workflow`);
     return;
   }
@@ -262,10 +258,6 @@ function setDisplayCancelSetup(display: boolean) {
   displayCancelSetup = display;
 }
 
-function setDisplayResetSetup(display: boolean) {
-  displayResetSetup = display;
-}
-
 async function cancelSetup() {
   // TODO: it cancels all running commands
   // it redirect the user to the dashboard
@@ -278,7 +270,6 @@ async function cancelSetup() {
 
 async function restartSetup() {
   await cleanSetup(onboardings, globalContext);
-  setDisplayResetSetup(false);
   await setActiveStep();
 }
 </script>
@@ -436,32 +427,6 @@ async function restartSetup() {
       <div class="px-5 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
         <Button type="secondary" aria-label="Cancel" on:click="{() => setDisplayCancelSetup(false)}">Cancel</Button>
         <Button type="primary" class="mr-2" on:click="{() => cancelSetup()}">Ok</Button>
-      </div>
-    </div>
-  </div>
-{/if}
-{#if displayResetSetup}
-  <!-- Create overlay-->
-  <div class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 bg-blend-multiply h-full grid z-50">
-    <div class="flex flex-col place-self-center w-[550px] rounded-xl bg-charcoal-800 shadow-xl shadow-black">
-      <div class="flex items-center justify-between pl-4 pr-3 py-3 space-x-2 text-gray-400">
-        <Fa class="h-4 w-4" icon="{faCircleQuestion}" />
-        <span class="grow text-md font-bold capitalize">Restart the entire setup?</span>
-      </div>
-
-      <div class="px-10 py-4 text-sm text-gray-500 leading-5">
-        You have already completed this setup. Do you want to complete it again?
-      </div>
-
-      <div class="px-5 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
-        <Button
-          type="secondary"
-          aria-label="Cancel"
-          on:click="{() => {
-            setDisplayResetSetup(false);
-            cancelSetup();
-          }}">No</Button>
-        <Button type="primary" class="mr-2" on:click="{() => restartSetup()}">Yes</Button>
       </div>
     </div>
   </div>
