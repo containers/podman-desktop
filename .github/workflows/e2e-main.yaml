@@ -40,6 +40,14 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.inputs.fork }}/podman-desktop
+          ref: ${{ github.event.inputs.branch }}
+        if: github.event_name == 'workflow_dispatch'
+
+      - uses: actions/checkout@v4
+        if: github.event_name == 'push'
+
       - uses: actions/setup-node@v3
         with:
           node-version: 18
