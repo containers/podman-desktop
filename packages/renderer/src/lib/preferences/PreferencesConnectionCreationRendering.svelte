@@ -408,7 +408,12 @@ function closePage() {
           {#if connectionAuditResult && (connectionAuditResult.records?.length || 0) > 0}
             <AuditMessageBox auditResult="{connectionAuditResult}" />
           {/if}
-          <form novalidate class="p-2 space-y-7 h-fit" on:submit|preventDefault="{handleOnSubmit}" bind:this="{formEl}">
+          <form
+            novalidate
+            class="p-2 space-y-7 h-fit"
+            on:submit|preventDefault="{handleOnSubmit}"
+            bind:this="{formEl}"
+            aria-label="Properties Information">
             {#each configurationKeys as configurationKey}
               <div class="mb-2.5">
                 <div class="font-semibold text-xs">
