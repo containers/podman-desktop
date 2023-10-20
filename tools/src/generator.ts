@@ -116,6 +116,10 @@ export class Generator {
     }
   }
 
+  private isEmptySection(content: string): boolean {
+    return content.trim().replaceAll('\r?\n', '').length === 0;
+  }
+
   public getReleaseNotesSections(input: string): string[] {
     const sections = [];
 
@@ -123,10 +127,16 @@ export class Generator {
     while ((index = input.indexOf(RELEASE_NOTES_SECTION_TAG, index)) !== -1) {
       const endIndex = input.indexOf(RELEASE_NOTES_SECTION_TAG, index + RELEASE_NOTES_SECTION_TAG.length);
       if (endIndex !== -1) {
-        sections.push(input.substring(index + RELEASE_NOTES_SECTION_TAG.length, endIndex));
+        const section = input.substring(index + RELEASE_NOTES_SECTION_TAG.length, endIndex);
+        if (!this.isEmptySection(section)) {
+          sections.push(section);
+        }
         index = endIndex + RELEASE_NOTES_SECTION_TAG.length;
       } else {
-        sections.push(input.substring(index + RELEASE_NOTES_SECTION_TAG.length));
+        const section = input.substring(index + RELEASE_NOTES_SECTION_TAG.length);
+        if (!this.isEmptySection(section)) {
+          sections.push(section);
+        }
         break;
       }
     }

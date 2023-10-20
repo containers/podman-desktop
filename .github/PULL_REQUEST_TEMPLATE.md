@@ -7,10 +7,10 @@ explaining what is doing this PR -->
 
 ### Release notes
 
+<!-- Add text between the tags below to have it automatically included
+in a release note draft -->
+
 // release-notes
-Please insert markdown section between those tags to get them automatically included
-into a release notes draft. As this section is between those tags, remove it if you
-don't want to get included into the release notes
 // release-notes
 
 ### What issues does this PR fix or reference?
