@@ -5,7 +5,7 @@ import TroubleshootingPageProviders from './TroubleshootingPageProviders.svelte'
 import TroubleshootingPageStores from './TroubleshootingPageStores.svelte';
 </script>
 
-<FormPage title="Troubleshooting" showBreadcrumb="{false}">
+<FormPage title="Troubleshooting" showBreadcrumb="{true}">
   <i slot="icon" class="fas fa-lightbulb fa-2x" aria-hidden="true"></i>
 
   <div slot="content" class="flex flex-col space-y-4 p-4">
