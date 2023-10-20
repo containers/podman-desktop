@@ -126,7 +126,7 @@ async function deleteSelectedPods() {
 }
 
 function openDetailsPod(pod: PodInfoUI) {
-  router.goto(`/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`);
+  router.goto(`/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURIComponent(pod.engineId)}/logs`);
 }
 
 function openContainersFromPod(pod: PodInfoUI) {

@@ -346,7 +346,7 @@ function openGroupDetails(containerGroup: ContainerGroupInfoUI): void {
     return;
   }
   if (containerGroup.type === ContainerGroupInfoTypeUI.POD) {
-    router.goto(`/pods/podman/${encodeURI(containerGroup.name)}/${encodeURI(containerGroup.engineId)}/logs`);
+    router.goto(`/pods/podman/${encodeURI(containerGroup.name)}/${encodeURIComponent(containerGroup.engineId)}/logs`);
   } else if (containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE) {
     router.goto(`/compose/${encodeURI(containerGroup.name)}/${encodeURI(containerGroup.engineId)}/logs`);
   }
