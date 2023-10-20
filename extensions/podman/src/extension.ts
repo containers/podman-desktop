@@ -1009,7 +1009,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       }
       telemetryLogger.logUsage('podman.onboarding.checkPodmanInstalled', {
         status: installed,
-        version: installation.version || '',
+        version: installation?.version || '',
       });
     },
   );
@@ -1087,7 +1087,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         extensionApi.context.setValue('podmanIsNotInstalled', true, 'onboarding');
         telemetryOptions.error = e;
       } finally {
-        telemetryOptions.version = installation.version || '';
+        telemetryOptions.version = installation?.version || '';
         telemetryOptions.installed = installed;
         telemetryLogger.logUsage('podman.onboarding.installPodman', telemetryOptions);
       }
