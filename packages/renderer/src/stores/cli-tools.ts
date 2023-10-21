@@ -27,7 +27,7 @@ let extensionsStarted = false;
 
 export async function checkForUpdate(eventName: string): Promise<boolean> {
   // trigger update after all extensions started
-  if (eventName === 'extensions-started' || eventName === 'extensions-already-started') {
+  if (eventName === 'extensions-already-started') {
     return (extensionsStarted = true);
   }
 
