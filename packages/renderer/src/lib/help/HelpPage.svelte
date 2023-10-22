@@ -17,7 +17,7 @@ $: contributedLinks = $providerInfos
   }, new Map<string, ProviderLinks[]>());
 </script>
 
-<FormPage title="Help" showBreadcrumb="{false}" showClose="{true}">
+<FormPage title="Help" showBreadcrumb="{false}">
   <svelte:fragment slot="icon">
     <i class="fas fa-question-circle fa-2x" aria-hidden="true"></i>
   </svelte:fragment>

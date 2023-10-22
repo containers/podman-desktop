@@ -5,7 +5,6 @@ import Link from './Link.svelte';
 
 export let title: string;
 export let showBreadcrumb = true;
-export let showClose = false;
 
 export function close(): void {
   router.goto($lastPage.path);
@@ -29,7 +28,10 @@ function handleKeydown(e: KeyboardEvent) {
           <Link aria-label="back" internalRef="{$lastPage.path}" title="Go back to {$lastPage.name}"
             >{$lastPage.name}</Link>
           <div class="mx-2">&gt;</div>
-          <div class="font-extralight" aria-label="name">{$currentPage.name}</div>
+          <div class="grow font-extralight" aria-label="name">{$currentPage.name}</div>
+          <a href="{$lastPage.path}" title="Close" class="justify-self-end text-gray-900">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </a>
         </div>
       {/if}
       <div class="flex flex-row items-center pt-1">
@@ -45,7 +47,7 @@ function handleKeydown(e: KeyboardEvent) {
               <slot name="actions" />
             </div>
           {/if}
-          {#if showClose}
+          {#if !showBreadcrumb}
             <a href="{$lastPage.path}" title="Close" class="text-gray-900">
               <i class="fas fa-times" aria-hidden="true"></i>
             </a>
