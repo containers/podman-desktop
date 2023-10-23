@@ -16,6 +16,7 @@ export let searchEnabled = true;
         </div>
       </div>
     </div>
+    <slot name="tabs" />
     {#if searchEnabled}
       <div class="flex flex-row pb-4" role="region" aria-label="search">
         <div class="pl-5 lg:w-[35rem] w-[22rem]">

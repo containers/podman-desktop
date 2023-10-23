@@ -25,6 +25,8 @@ import Button from './ui/Button.svelte';
 import ContainerListTopActions from './container/ContainerListTopActions.svelte';
 import ContainerListBottomActions from './container/ContainerListBottomActions.svelte';
 import ContainerListContent from './container/ContainerListContent.svelte';
+import Tab from './ui/Tab.svelte';
+import Route from '../Route.svelte';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -51,6 +53,18 @@ $: selectedItemsNumber =
     (previous, current) => previous + current.containers.filter(container => container.selected).length,
     0,
   ) + containerGroups.filter(group => group.selected).length;
+
+$: runningContainerGroups = containerGroups
+  .map(group => {
+    return { ...group, containers: group.containers.filter(container => container.state === 'RUNNING') };
+  })
+  .filter(group => group.containers.length > 0);
+
+$: stoppedContainerGroups = containerGroups
+  .map(group => {
+    return { ...group, containers: group.containers.filter(container => container.state !== 'RUNNING') };
+  })
+  .filter(group => group.containers.length > 0);
 
 let refreshTimeouts: NodeJS.Timeout[] = [];
 
@@ -337,18 +351,53 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
     on:deleteSelectedContainers="{() => deleteSelectedContainers()}"
     on:createPodFromContainers="{() => createPodFromContainers()}"
     slot="bottom-additional-actions" />
-  <ContainerListContent
-    selectedItemsNumber="{selectedItemsNumber}"
-    multipleEngines="{multipleEngines}"
-    containerGroups="{containerGroups}"
-    bind:searchTerm="{searchTerm}"
-    on:errorCallback="{event => {
-      errorCallback(event.detail.container, event.detail.errorMessage);
-    }}"
-    on:inProgressCallback="{event => {
-      inProgressCallback(event.detail.container, event.detail.inProgress, event.detail.state);
-    }}"
-    slot="content" />
+  <div class="flex flex-row px-2 border-b border-charcoal-400" slot="tabs">
+    <Tab title="All containers" url="all" />
+    <Tab title="Running containers" url="running" />
+    <Tab title="Stopped containers" url="stopped" />
+  </div>
+
+  <svelte:fragment slot="content">
+    <Route path="/all" breadcrumb="All containers" navigationHint="tab">
+      <ContainerListContent
+        selectedItemsNumber="{selectedItemsNumber}"
+        multipleEngines="{multipleEngines}"
+        containerGroups="{containerGroups}"
+        bind:searchTerm="{searchTerm}"
+        on:errorCallback="{event => {
+          errorCallback(event.detail.container, event.detail.errorMessage);
+        }}"
+        on:inProgressCallback="{event => {
+          inProgressCallback(event.detail.container, event.detail.inProgress, event.detail.state);
+        }}" />
+    </Route>
+    <Route path="/running" breadcrumb="Running containers" navigationHint="tab">
+      <ContainerListContent
+        selectedItemsNumber="{selectedItemsNumber}"
+        multipleEngines="{multipleEngines}"
+        containerGroups="{runningContainerGroups}"
+        bind:searchTerm="{searchTerm}"
+        on:errorCallback="{event => {
+          errorCallback(event.detail.container, event.detail.errorMessage);
+        }}"
+        on:inProgressCallback="{event => {
+          inProgressCallback(event.detail.container, event.detail.inProgress, event.detail.state);
+        }}" />
+    </Route>
+    <Route path="/stopped" breadcrumb="Stopped containers" navigationHint="tab">
+      <ContainerListContent
+        selectedItemsNumber="{selectedItemsNumber}"
+        multipleEngines="{multipleEngines}"
+        containerGroups="{stoppedContainerGroups}"
+        bind:searchTerm="{searchTerm}"
+        on:errorCallback="{event => {
+          errorCallback(event.detail.container, event.detail.errorMessage);
+        }}"
+        on:inProgressCallback="{event => {
+          inProgressCallback(event.detail.container, event.detail.inProgress, event.detail.state);
+        }}" />
+    </Route>
+  </svelte:fragment>
 </NavPage>
 
 {#if openChoiceModal}
