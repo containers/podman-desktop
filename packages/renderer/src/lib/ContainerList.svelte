@@ -5,40 +5,26 @@ import { viewsContributions } from '../stores/views';
 import { context } from '../stores/context';
 
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
-import PodIcon from './images/PodIcon.svelte';
-import StatusIcon from './images/StatusIcon.svelte';
 import { router } from 'tinro';
 import { ContainerGroupInfoTypeUI, type ContainerGroupInfoUI, type ContainerInfoUI } from './container/ContainerInfoUI';
-import ContainerActions from './container/ContainerActions.svelte';
-import PodActions from './pod/PodActions.svelte';
-import ContainerIcon from './images/ContainerIcon.svelte';
-import ContainerEmptyScreen from './container/ContainerEmptyScreen.svelte';
-import FilteredEmptyScreen from './ui/FilteredEmptyScreen.svelte';
 import Modal from './dialogs/Modal.svelte';
 import { ContainerUtils } from './container/container-utils';
-import { providerInfos } from '../stores/providers';
-import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.svelte';
 import moment from 'moment';
 import { get, type Unsubscriber } from 'svelte/store';
 import NavPage from './ui/NavPage.svelte';
-import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa';
-import ErrorMessage from './ui/ErrorMessage.svelte';
 import { podCreationHolder } from '../stores/creation-from-containers-store';
 import { podsInfos } from '../stores/pods';
 import type { EngineInfoUI } from './engine/EngineInfoUI';
 import { containerGroupsInfo } from '../stores/containerGroups';
-import Checkbox from './ui/Checkbox.svelte';
 import type { PodInfo } from '../../../main/src/plugin/api/pod-info';
 import { PodUtils } from '../lib/pod/pod-utils';
-import ComposeActions from './compose/ComposeActions.svelte';
 import { CONTAINER_LIST_VIEW } from './view/views';
 import type { ViewInfoUI } from '../../../main/src/plugin/api/view-info';
 import type { ContextUI } from './context/context';
 import Button from './ui/Button.svelte';
-import StateChange from './ui/StateChange.svelte';
 import ContainerListTopActions from './container/ContainerListTopActions.svelte';
 import ContainerListBottomActions from './container/ContainerListBottomActions.svelte';
+import ContainerListContent from './container/ContainerListContent.svelte';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -59,25 +45,12 @@ function fromExistingImage(): void {
 
 let multipleEngines = false;
 
-$: providerConnections = $providerInfos
-  .map(provider => provider.containerConnections)
-  .flat()
-  .filter(providerContainerConnection => providerContainerConnection.status === 'started');
-
 // number of selected items in the list
 $: selectedItemsNumber =
   containerGroups.reduce(
     (previous, current) => previous + current.containers.filter(container => container.selected).length,
     0,
   ) + containerGroups.filter(group => group.selected).length;
-
-// do we need to unselect all checkboxes if we don't have all items being selected ?
-$: selectedAllCheckboxes =
-  containerGroups.filter(group => group.type !== ContainerGroupInfoTypeUI.STANDALONE).every(group => group.selected) &&
-  containerGroups
-    .map(group => group.containers)
-    .flat()
-    .every(container => container.selected);
 
 let refreshTimeouts: NodeJS.Timeout[] = [];
 
@@ -136,11 +109,6 @@ function computeInterval(): number {
 
   // every day
   return 60 * 60 * 24 * SECOND;
-}
-
-function toggleCheckboxContainerGroup(checked: boolean, containerGroup: ContainerGroupInfoUI) {
-  // need to apply that on all containers
-  containerGroup.containers.forEach(container => (container.selected = checked));
 }
 
 // delete the items selected in the list
@@ -322,25 +290,10 @@ onDestroy(() => {
   }
 });
 
-function openDetailsContainer(container: ContainerInfoUI) {
-  router.goto(`/containers/${container.id}/`);
-}
-
 function keydownChoice(e: KeyboardEvent) {
   e.stopPropagation();
   if (e.key === 'Escape') {
     toggleCreateContainer();
-  }
-}
-
-function openGroupDetails(containerGroup: ContainerGroupInfoUI): void {
-  if (!containerGroup.engineId) {
-    return;
-  }
-  if (containerGroup.type === ContainerGroupInfoTypeUI.POD) {
-    router.goto(`/pods/podman/${encodeURI(containerGroup.name)}/${encodeURIComponent(containerGroup.engineId)}/logs`);
-  } else if (containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE) {
-    router.goto(`/compose/${encodeURI(containerGroup.name)}/${encodeURI(containerGroup.engineId)}/logs`);
   }
 }
 
@@ -353,21 +306,6 @@ function fromDockerfile(): void {
   router.goto('/images/build');
 }
 
-function toggleContainerGroup(containerGroup: ContainerGroupInfoUI) {
-  containerGroup.expanded = !containerGroup.expanded;
-  // update the group expanded attribute if this is the matching group
-  containerGroups = containerGroups.map(group => (group.name === containerGroup.name ? containerGroup : group));
-}
-
-function toggleAllContainerGroups(checked: boolean) {
-  const toggleContainers = containerGroups;
-  toggleContainers
-    .filter(group => group.type !== ContainerGroupInfoTypeUI.STANDALONE)
-    .forEach(group => (group.selected = checked));
-  toggleContainers.forEach(group => group.containers.forEach(container => (container.selected = checked)));
-  containerGroups = toggleContainers;
-}
-
 function inProgressCallback(container: ContainerInfoUI, inProgress: boolean, state?: string): void {
   container.actionInProgress = inProgress;
   // reset error when starting task
@@ -377,22 +315,6 @@ function inProgressCallback(container: ContainerInfoUI, inProgress: boolean, sta
   if (state) {
     container.state = state;
   }
-
-  containerGroups = [...containerGroups];
-}
-
-// Go through each container passed in and update the progress
-function composeGroupInProgressCallback(containers: ContainerInfoUI[], inProgress: boolean, state?: string): void {
-  containers.forEach(container => {
-    container.actionInProgress = inProgress;
-    // reset error when starting task
-    if (inProgress) {
-      container.actionError = '';
-    }
-    if (state) {
-      container.state = state;
-    }
-  });
 
   containerGroups = [...containerGroups];
 }
@@ -415,218 +337,18 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
     on:deleteSelectedContainers="{() => deleteSelectedContainers()}"
     on:createPodFromContainers="{() => createPodFromContainers()}"
     slot="bottom-additional-actions" />
-
-  <div class="flex min-w-full h-full" slot="content">
-    <table class="mx-5 w-full h-fit" class:hidden="{containerGroups.length === 0}">
-      <!-- title -->
-      <thead class="sticky top-0 bg-charcoal-700 z-[2]">
-        <tr class="h-7 uppercase text-xs text-gray-600">
-          <th class="whitespace-nowrap w-5"></th>
-          <th class="px-2 w-5">
-            <Checkbox
-              title="Toggle all"
-              bind:checked="{selectedAllCheckboxes}"
-              indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
-              on:click="{event => toggleAllContainerGroups(event.detail)}" />
-          </th>
-          <th class="text-center font-extrabold w-10 px-2">Status</th>
-          <th class="w-10">Name</th>
-          <th>Image</th>
-          <th class="pl-4">Age</th>
-          <th class="text-right pr-2">actions</th>
-        </tr>
-      </thead>
-
-      <!-- Display each group -->
-      {#each containerGroups as containerGroup}
-        <tbody>
-          {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE || containerGroup.type === ContainerGroupInfoTypeUI.POD}
-            <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
-              <td
-                class="bg-charcoal-800 group-hover:bg-zinc-700 pl-2 w-3 rounded-tl-lg"
-                class:rounded-bl-lg="{!containerGroup.expanded}"
-                on:click="{() => toggleContainerGroup(containerGroup)}">
-                <Fa
-                  size="12"
-                  class="text-gray-700 cursor-pointer"
-                  icon="{containerGroup.expanded ? faChevronDown : faChevronRight}" />
-              </td>
-              <td class="px-2">
-                <Checkbox
-                  title="Toggle {containerGroup.type}"
-                  bind:checked="{containerGroup.selected}"
-                  on:click="{event => toggleCheckboxContainerGroup(event.detail, containerGroup)}" />
-              </td>
-              <td class="flex flex-row justify-center h-12" title="{containerGroup.type}">
-                <div class="grid place-content-center ml-3 mr-4">
-                  <StatusIcon icon="{PodIcon}" status="{containerGroup.status}" />
-                </div>
-              </td>
-              <td class="whitespace-nowrap hover:cursor-pointer">
-                <div class="flex items-center text-sm text-gray-300 overflow-hidden text-ellipsis">
-                  <div class="flex flex-col flex-nowrap">
-                    <button
-                      class="text-sm text-gray-300 overflow-hidden text-ellipsis"
-                      title="{containerGroup.type}"
-                      on:click="{() => openGroupDetails(containerGroup)}">
-                      {containerGroup.name} ({containerGroup.type})
-                    </button>
-                    <div class="text-xs font-extra-light text-gray-900">
-                      {containerGroup.containers.length} container{containerGroup.containers.length > 1 ? 's' : ''}
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td class="px-6 py-2 whitespace-nowrap w-10">
-                <div class="flex items-center">
-                  <div class="ml-2 text-sm text-gray-700"></div>
-                </div>
-              </td>
-              <td class="whitespace-nowrap pl-4">
-                <div class="flex items-center">
-                  <div class="text-sm text-gray-700"></div>
-                </div>
-              </td>
-              <td
-                class="pl-6 text-right whitespace-nowrap rounded-tr-lg"
-                class:rounded-br-lg="{!containerGroup.expanded}">
-                <!-- Only show POD actions if the container group is POD, otherwise keep blank / empty (for future compose implementation) -->
-                {#if containerGroup.type === ContainerGroupInfoTypeUI.POD && containerGroup.engineId && containerGroup.id && containerGroup.shortId && containerGroup.status && containerGroup.engineName && containerGroup.humanCreationDate && containerGroup.created}
-                  <PodActions
-                    pod="{{
-                      id: containerGroup.id,
-                      shortId: containerGroup.shortId,
-                      status: containerGroup.status,
-                      name: containerGroup.name,
-                      engineId: containerGroup.engineId,
-                      engineName: containerGroup.engineName,
-                      age: containerGroup.humanCreationDate,
-                      created: containerGroup.created,
-                      selected: false,
-                      containers: containerGroup.containers.map(container => ({
-                        Id: container.id,
-                        Names: container.name,
-                        Status: container.state,
-                      })),
-                      kind: 'podman',
-                    }}"
-                    dropdownMenu="{true}" />
-                {/if}
-                {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE && containerGroup.status && containerGroup.engineId && containerGroup.engineType}
-                  <ComposeActions
-                    compose="{{
-                      status: containerGroup.status,
-                      name: containerGroup.name,
-                      engineId: containerGroup.engineId,
-                      engineType: containerGroup.engineType,
-                      containers: containerGroup.containers,
-                    }}"
-                    dropdownMenu="{true}"
-                    inProgressCallback="{(containers, flag, state) =>
-                      composeGroupInProgressCallback(containerGroup.containers, flag, state)}" />
-                {/if}
-              </td>
-            </tr>
-          {/if}
-          <!-- Display each container of this group -->
-          {#if containerGroup.expanded}
-            {#each containerGroup.containers as container, index}
-              <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
-                <td
-                  class="{containerGroup.type === ContainerGroupInfoTypeUI.STANDALONE ? 'rounded-tl-lg' : ''} {index ===
-                  containerGroup.containers.length - 1
-                    ? 'rounded-bl-lg'
-                    : ''}">
-                </td>
-                <td class="px-2">
-                  <Checkbox title="Toggle container" bind:checked="{container.selected}" />
-                </td>
-                <td class="flex flex-row justify-center h-12">
-                  <div class="grid place-content-center ml-3 mr-4">
-                    <StatusIcon icon="{container.icon}" status="{container.state}" />
-                  </div>
-                </td>
-                <td
-                  class="whitespace-nowrap hover:cursor-pointer group"
-                  on:click="{() => openDetailsContainer(container)}">
-                  <div class="flex items-center">
-                    <div class="">
-                      <div class="flex flex-nowrap">
-                        <div
-                          class="text-sm text-gray-300 overflow-hidden text-ellipsis group-hover:text-violet-400"
-                          title="{container.name}">
-                          {container.name}
-                        </div>
-                      </div>
-                      <div class="flex flex-row text-xs font-extra-light text-gray-900">
-                        <div>{container.state}</div>
-                        <!-- Hide in case of single engines-->
-                        {#if multipleEngines}
-                          <div
-                            class="mx-2 px-2 inline-flex text-xs font-extralight rounded-sm bg-zinc-700 text-slate-400">
-                            {container.engineName}
-                          </div>
-                        {/if}
-                        <div class="pl-2 pr-2">{container.displayPort}</div>
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <!-- Open the container details, TODO: open image details instead? -->
-                <td
-                  class="whitespace-nowrap hover:cursor-pointer group"
-                  on:click="{() => openDetailsContainer(container)}">
-                  <div class="flex items-center">
-                    <div class="text-sm text-gray-700 overflow-hidden text-ellipsis" title="{container.image}">
-                      {container.shortImage}
-                    </div>
-                  </div></td>
-                <td class="whitespace-nowrap pl-4">
-                  <div class="flex items-center">
-                    <div class="text-sm text-gray-700">
-                      <StateChange state="{container.state}">{container.uptime}</StateChange>
-                    </div>
-                  </div>
-                </td>
-                <td
-                  class="pl-6 text-right whitespace-nowrap {containerGroup.type === ContainerGroupInfoTypeUI.STANDALONE
-                    ? 'rounded-tr-lg'
-                    : ''} {index === containerGroup.containers.length - 1 ? 'rounded-br-lg' : ''}">
-                  <div class="flex w-full">
-                    <div class="flex items-center w-5">
-                      {#if container.actionError}
-                        <ErrorMessage error="{container.actionError}" icon />
-                      {:else}
-                        <div>&nbsp;</div>
-                      {/if}
-                    </div>
-                    <div class="text-right w-full">
-                      <ContainerActions
-                        errorCallback="{error => errorCallback(container, error)}"
-                        inProgressCallback="{(flag, state) => inProgressCallback(container, flag, state)}"
-                        container="{container}"
-                        dropdownMenu="{true}" />
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            {/each}
-          {/if}
-        </tbody>
-        <tr><td class="leading-[8px]">&nbsp;</td></tr>
-      {/each}
-    </table>
-
-    {#if providerConnections.length === 0}
-      <NoContainerEngineEmptyScreen />
-    {:else if $filtered.length === 0}
-      {#if searchTerm}
-        <FilteredEmptyScreen icon="{ContainerIcon}" kind="containers" bind:searchTerm="{searchTerm}" />
-      {:else}
-        <ContainerEmptyScreen />
-      {/if}
-    {/if}
-  </div>
+  <ContainerListContent
+    selectedItemsNumber="{selectedItemsNumber}"
+    multipleEngines="{multipleEngines}"
+    containerGroups="{containerGroups}"
+    bind:searchTerm="{searchTerm}"
+    on:errorCallback="{event => {
+      errorCallback(event.detail.container, event.detail.errorMessage);
+    }}"
+    on:inProgressCallback="{event => {
+      inProgressCallback(event.detail.container, event.detail.inProgress, event.detail.state);
+    }}"
+    slot="content" />
 </NavPage>
 
 {#if openChoiceModal}
