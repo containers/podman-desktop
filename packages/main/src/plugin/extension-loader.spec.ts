@@ -29,7 +29,6 @@ import type { ImageRegistry } from './image-registry.js';
 import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
 import type { KubernetesClient } from './kubernetes-client.js';
 import type { MenuRegistry } from './menu-registry.js';
-import type { NotificationImpl } from './notification-impl.js';
 import type { ProgressImpl } from './progress-impl.js';
 import type { ProviderRegistry } from './provider-registry.js';
 import type { Proxy } from './proxy.js';
@@ -50,6 +49,8 @@ import { Context } from './context/context.js';
 import type { OnboardingRegistry } from './onboarding-registry.js';
 import { Exec } from './util/exec.js';
 import type { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
+import type { CliToolRegistry } from './cli-tool-registry.js';
+import type { NotificationRegistry } from './notification-registry.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -110,8 +111,6 @@ const messageBox: MessageBox = {} as MessageBox;
 
 const progress: ProgressImpl = {} as ProgressImpl;
 
-const notifications: NotificationImpl = {} as unknown as NotificationImpl;
-
 const statusBarRegistry: StatusBarRegistry = {} as unknown as StatusBarRegistry;
 
 const kubernetesClient: KubernetesClient = {} as unknown as KubernetesClient;
@@ -139,6 +138,8 @@ const viewRegistry: ViewRegistry = {} as unknown as ViewRegistry;
 
 const context: Context = new Context(apiSender);
 
+const cliToolRegistry: CliToolRegistry = {} as unknown as CliToolRegistry;
+
 const directories = {
   getPluginsDirectory: () => '/fake-plugins-directory',
   getPluginsScanDirectory: () => '/fake-plugins-scanning-directory',
@@ -146,6 +147,8 @@ const directories = {
 } as unknown as Directories;
 
 const exec = new Exec(proxy);
+
+const notificationRegistry: NotificationRegistry = {} as unknown as NotificationRegistry;
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeAll(() => {
@@ -159,7 +162,6 @@ beforeAll(() => {
     trayMenuRegistry,
     messageBox,
     progress,
-    notifications,
     statusBarRegistry,
     kubernetesClient,
     fileSystemMonitoring,
@@ -176,6 +178,8 @@ beforeAll(() => {
     directories,
     exec,
     kubernetesGeneratorRegistry,
+    cliToolRegistry,
+    notificationRegistry,
   );
 });
 

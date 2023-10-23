@@ -142,6 +142,15 @@ export class ImageRegistry {
   }
 
   registerRegistry(registry: containerDesktopAPI.Registry): Disposable {
+    const found = this.registries.find(
+      reg =>
+        reg.source === registry.source && reg.serverUrl === registry.serverUrl && reg.username === registry.username,
+    );
+    if (found) {
+      // Ignore and don't register - extension may register registries every time it is restarted
+      console.log('Registry already registered, skipping registration');
+      return Disposable.noop();
+    }
     this.registries = [...this.registries, registry];
     this.telemetryService.track('registerRegistry', {
       serverUrl: this.getRegistryHash(registry),
@@ -160,9 +169,7 @@ export class ImageRegistry {
     if (this.suggestedRegistries.find(reg => reg.url === registry.url && reg.name === registry.name)) {
       // Ignore and don't register
       console.log(`Registry already registered: ${registry.url}`);
-
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      return Disposable.create(() => {});
+      return Disposable.noop();
     }
 
     this.suggestedRegistries.push(registry);

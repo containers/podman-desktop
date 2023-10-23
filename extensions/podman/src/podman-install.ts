@@ -486,7 +486,11 @@ class WSL2Check extends BaseCheck {
 
   async init(): Promise<void> {
     extensionApi.commands.registerCommand(this.installWSLCommandId, async () => {
-      return await this.installWSL();
+      const installSucceeded = await this.installWSL();
+      if (installSucceeded) {
+        // if action succeeded, do a re-check of all podman requirements so user can be moved forward if all missing pieces have been installed
+        await extensionApi.commands.executeCommand('podman.onboarding.checkPodmanRequirements');
+      }
     });
   }
 
@@ -494,6 +498,7 @@ class WSL2Check extends BaseCheck {
     try {
       const isAdmin = await this.isUserAdmin();
       const isWSL = await this.isWSLPresent();
+      const isRebootNeeded = await this.isRebootNeeded();
 
       if (!isWSL) {
         if (isAdmin) {
@@ -519,6 +524,11 @@ class WSL2Check extends BaseCheck {
             },
           });
         }
+      } else if (isRebootNeeded) {
+        return this.createFailureResult({
+          description:
+            'WSL2 seems to be installed but the system needs to be restarted so the changes can take effect.',
+        });
       }
     } catch (err) {
       return this.createFailureResult({
@@ -552,19 +562,40 @@ class WSL2Check extends BaseCheck {
     }
   }
 
-  private async installWSL(): Promise<string> {
+  private async installWSL(): Promise<boolean> {
     try {
-      const { stdout: res } = await extensionApi.process.exec('wsl', ['--install', '--no-distribution'], {
+      await extensionApi.process.exec('wsl', ['--install', '--no-distribution'], {
         env: { WSL_UTF8: '1' },
       });
 
-      return normalizeWSLOutput(res);
+      return true;
     } catch (error) {
       let message = error.message ? `${error.message}\n` : '';
       message += error.stdout || '';
       message += error.stderr || '';
       throw new Error(message);
     }
+  }
+
+  private async isRebootNeeded(): Promise<boolean> {
+    try {
+      await extensionApi.process.exec('wsl', ['-l'], {
+        env: { WSL_UTF8: '1' },
+      });
+    } catch (error) {
+      // we only return true for the WSL_E_WSL_OPTIONAL_COMPONENT_REQUIRED error code
+      // as other errors may not be connected to a reboot, like
+      // WSL_E_DEFAULT_DISTRO_NOT_FOUND = wsl was installed without the default distro
+      if (error.stdout.includes('Wsl/WSL_E_WSL_OPTIONAL_COMPONENT_REQUIRED')) {
+        return true;
+      } else if (error.stdout.includes('Wsl/WSL_E_DEFAULT_DISTRO_NOT_FOUND')) {
+        // treating this log differently as we install wsl without any distro
+        console.log('WSL has been installed without the default distribution');
+      } else {
+        console.error(error);
+      }
+    }
+    return false;
   }
 }
 

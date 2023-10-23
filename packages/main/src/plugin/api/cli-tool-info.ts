@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type * as containerDesktopAPI from '@podman-desktop/api';
-import { Notification } from 'electron';
-import { Disposable } from './types/disposable.js';
+import type { CliToolState, ProviderImages } from '@podman-desktop/api';
 
-export class NotificationImpl {
-  showNotification(options: containerDesktopAPI.NotificationOptions): Disposable {
-    const notification = new Notification(options);
-    notification.show();
-    return Disposable.create(() => {
-      notification.close();
-    });
-  }
+export type CliToolExtensionInfo = {
+  id: string;
+  label: string;
+};
+
+export interface CliToolInfo {
+  id: string;
+  name: string;
+  description: string;
+  displayName: string;
+  state: CliToolState;
+  images?: ProviderImages;
+  extensionInfo: CliToolExtensionInfo;
 }

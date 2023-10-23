@@ -45,13 +45,19 @@ let installationOptionSelected = InitializeAndStartMode;
 $: initializationButtonVisible =
   provider.containerProviderConnectionInitialization || provider.kubernetesProviderConnectionInitialization;
 
+function showLastExecutionError() {
+  initializeError = initializationContext.error;
+  logsTerminal?.write('Initialization failed. Please check the error below and try again' + '\r\n');
+  logsTerminal?.write(initializeError + '\r');
+}
+
 async function initializeProvider() {
   initializeError = undefined;
   logsTerminal.clear();
   initializeInProgress = true;
   initializationContext.promise = window.initializeProvider(provider.internalId);
   initializationContext.promise.catch((error: unknown) => {
-    initializeError = String(error);
+    initializationContext.error = String(error);
     initializationButtonVisible = true;
     logsTerminal.write(error + '\r');
     console.error('Error while initializing the provider', error);
@@ -98,7 +104,9 @@ async function refreshTerminal() {
 
 onMount(async () => {
   // Refresh the terminal on initial load
-  refreshTerminal();
+  await refreshTerminal();
+  // show error if last execution failed
+  showLastExecutionError();
 
   // Resize the terminal each time we change the div size
   resizeObserver = new ResizeObserver(() => {

@@ -145,7 +145,7 @@ async function getContainerBuildContextDirectory() {
     {:else}
       <div class="bg-charcoal-900 pt-5 space-y-6 px-8 sm:pb-6 xl:pb-8 rounded-lg">
         <div hidden="{buildImageInfo?.buildRunning}">
-          <label for="containerFilePath" class="block mb-2 text-sm font-bold text-gray-400">Containerfile path</label>
+          <label for="containerFilePath" class="block mb-2 text-sm font-bold text-gray-400">Containerfile Path</label>
           <input
             on:click="{() => getContainerfileLocation()}"
             name="containerFilePath"

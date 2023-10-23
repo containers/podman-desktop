@@ -16,12 +16,23 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Writable } from 'svelte/store';
-import { writable } from 'svelte/store';
-import type { TinroBreadcrumb } from 'tinro';
+type NotificationType = 'info' | 'warn' | 'error';
 
-const home = { name: 'Home', path: '/' } as TinroBreadcrumb;
-export const currentPage: Writable<TinroBreadcrumb> = writable(home);
-export const lastPage: Writable<TinroBreadcrumb> = writable(home);
+export interface NotificationCardOptions {
+  extensionId: string;
+  // title displayed on the top of the notification card
+  title: string;
+  // description displayed just below the title, it should explain what the notification is about
+  body?: string;
+  type: NotificationType;
+  // displayed below the description, centered in the notification card. It may contains actions (like commands/buttons and links)
+  markdownActions?: string;
+  // the notification will be added to the dashboard queue
+  highlight?: boolean;
+  // whether or not to emit an OS notification noise when showing the notification.
+  silent?: boolean;
+}
 
-export const history: Writable<TinroBreadcrumb[]> = writable([home]);
+export interface NotificationCard extends NotificationCardOptions {
+  id: number;
+}

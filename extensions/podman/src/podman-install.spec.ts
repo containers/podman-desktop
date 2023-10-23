@@ -398,7 +398,7 @@ test('expect WSLVersion preflight check return fail result if first line output 
   expect(result.successful).toBeTruthy();
 });
 
-test('expect winWSL2 preflight check return successful result if the machine has WSL2 installed', async () => {
+test('expect winWSL2 preflight check return successful result if the machine has WSL2 installed and do not need to reboot', async () => {
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(command => {
     if (command === 'powershell.exe') {
       return new Promise<extensionApi.RunResult>((resolve, _) => {
@@ -417,6 +417,88 @@ test('expect winWSL2 preflight check return successful result if the machine has
           stderr: '',
           command: 'command',
         });
+      });
+    }
+  });
+
+  const installer = new WinInstaller();
+  const preflights = installer.getPreflightChecks();
+  const winWSLCheck = preflights[5];
+  const result = await winWSLCheck.execute();
+  expect(result.successful).toBeTruthy();
+});
+
+test('expect winWSL2 preflight check return failure result if the machine has WSL2 installed but needs a reboot', async () => {
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation((command, args) => {
+    if (command === 'powershell.exe') {
+      return new Promise<extensionApi.RunResult>((resolve, _) => {
+        // eslint-disable-next-line prefer-promise-reject-errors
+        resolve({
+          stdout: 'True',
+          stderr: '',
+          command: 'command',
+        });
+      });
+    } else {
+      return new Promise<extensionApi.RunResult>((resolve, reject) => {
+        if (args[0] === '-l') {
+          // eslint-disable-next-line prefer-promise-reject-errors
+          reject({
+            exitCode: -1,
+            stdout: 'random error message\nError code: Wsl/WSL_E_WSL_OPTIONAL_COMPONENT_REQUIRED',
+            stderr: '',
+            command: 'command',
+          });
+        } else {
+          // eslint-disable-next-line prefer-promise-reject-errors
+          resolve({
+            stdout: 'blabla',
+            stderr: '',
+            command: 'command',
+          });
+        }
+      });
+    }
+  });
+
+  const installer = new WinInstaller();
+  const preflights = installer.getPreflightChecks();
+  const winWSLCheck = preflights[5];
+  const result = await winWSLCheck.execute();
+  expect(result.description).equal(
+    'WSL2 seems to be installed but the system needs to be restarted so the changes can take effect.',
+  );
+});
+
+test('expect winWSL2 preflight check return successful result if the machine has WSL2 installed and the reboot check fails with a code different from WSL_E_WSL_OPTIONAL_COMPONENT_REQUIRED', async () => {
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation((command, args) => {
+    if (command === 'powershell.exe') {
+      return new Promise<extensionApi.RunResult>((resolve, _) => {
+        // eslint-disable-next-line prefer-promise-reject-errors
+        resolve({
+          stdout: 'True',
+          stderr: '',
+          command: 'command',
+        });
+      });
+    } else {
+      return new Promise<extensionApi.RunResult>((resolve, reject) => {
+        if (args[0] === '-l') {
+          // eslint-disable-next-line prefer-promise-reject-errors
+          reject({
+            exitCode: -1,
+            stdout: 'random error message\nError code: Wsl/WSL_E_DEFAULT_DISTRO_NOT_FOUND',
+            stderr: '',
+            command: 'command',
+          });
+        } else {
+          // eslint-disable-next-line prefer-promise-reject-errors
+          resolve({
+            stdout: 'blabla',
+            stderr: '',
+            command: 'command',
+          });
+        }
       });
     }
   });

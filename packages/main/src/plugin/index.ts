@@ -62,7 +62,6 @@ import { ContributionManager } from './contribution-manager.js';
 import { DockerDesktopInstallation } from './docker-extension/docker-desktop-installation.js';
 import { DockerPluginAdapter } from './docker-extension/docker-plugin-adapter.js';
 import { PAGE_EVENT_TYPE, Telemetry } from './telemetry/telemetry.js';
-import { NotificationImpl } from './notification-impl.js';
 import { StatusBarRegistry } from './statusbar/statusbar-registry.js';
 import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry.js';
 import type { IpcMainInvokeEvent } from 'electron/main';
@@ -129,6 +128,10 @@ import type {
 } from '/@/plugin/kube-generator-registry.js';
 import type { KubernetesGeneratorInfo } from '/@/plugin/api/KubernetesGeneratorInfo.js';
 import type { CommandInfo } from './api/command-info.js';
+import { CliToolRegistry } from './cli-tool-registry.js';
+import type { CliToolInfo } from './api/cli-tool-info.js';
+import type { NotificationCard, NotificationCardOptions } from './api/notification.js';
+import { NotificationRegistry } from './notification-registry.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -397,6 +400,7 @@ export class PluginSystem {
     const fileSystemMonitoring = new FilesystemMonitoring();
     const customPickRegistry = new CustomPickRegistry(apiSender);
     const onboardingRegistry = new OnboardingRegistry(configurationRegistry, context);
+    const notificationRegistry = new NotificationRegistry(apiSender);
     const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry);
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
@@ -692,6 +696,8 @@ export class PluginSystem {
 
     const taskManager = new TaskManager(apiSender);
 
+    const cliToolRegistry = new CliToolRegistry(apiSender, exec, telemetry);
+
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
       menuRegistry,
@@ -702,7 +708,6 @@ export class PluginSystem {
       trayMenuRegistry,
       messageBox,
       new ProgressImpl(taskManager),
-      new NotificationImpl(),
       statusBarRegistry,
       kubernetesClient,
       fileSystemMonitoring,
@@ -719,6 +724,8 @@ export class PluginSystem {
       directories,
       exec,
       kubeGeneratorRegistry,
+      cliToolRegistry,
+      notificationRegistry,
     );
     await this.extensionLoader.init();
 
@@ -1189,6 +1196,10 @@ export class PluginSystem {
 
     this.ipcHandle('provider-registry:getProviderInfos', async (): Promise<ProviderInfo[]> => {
       return providerRegistry.getProviderInfos();
+    });
+
+    this.ipcHandle('cli-tool-registry:getCliToolInfos', async (): Promise<CliToolInfo[]> => {
+      return cliToolRegistry.getCliToolInfos();
     });
 
     this.ipcHandle('menu-registry:getContributedMenus', async (_, context: string): Promise<Menu[]> => {
@@ -1903,6 +1914,25 @@ export class PluginSystem {
 
     this.ipcHandle('onboardingRegistry:resetOnboarding', async (_listener, extensions: string[]): Promise<void> => {
       return onboardingRegistry.resetOnboarding(extensions);
+    });
+
+    this.ipcHandle('notificationRegistry:listNotifications', async (): Promise<NotificationCard[]> => {
+      return notificationRegistry.getNotifications();
+    });
+
+    this.ipcHandle(
+      'notificationRegistry:addNotification',
+      async (_listener, notification: NotificationCardOptions): Promise<void> => {
+        notificationRegistry.addNotification(notification);
+      },
+    );
+
+    this.ipcHandle('notificationRegistry:removeNotification', async (_listener, id: number): Promise<void> => {
+      return notificationRegistry.removeNotificationById(id);
+    });
+
+    this.ipcHandle('notificationRegistry:clearNotificationsQueue', async (): Promise<void> => {
+      return notificationRegistry.removeAll();
     });
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(

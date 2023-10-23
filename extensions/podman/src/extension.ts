@@ -557,7 +557,7 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
       await extensionApi.process.exec(getPodmanCli(), ['machine', 'stop', machineInfo.name], {
         logger: new LoggerDelegator(context, logger),
       });
-      provider.updateStatus('ready');
+      provider.updateStatus('stopped');
     },
     delete: async (logger): Promise<void> => {
       await extensionApi.process.exec(getPodmanCli(), ['machine', 'rm', '-f', machineInfo.name], { logger });
@@ -1007,6 +1007,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       } else {
         extensionApi.context.setValue('podmanInstalledTitle', 'Podman successfully installed', 'onboarding');
       }
+      telemetryLogger.logUsage('podman.onboarding.checkPodmanInstalled', {
+        status: installed,
+        version: installation?.version || '',
+      });
     },
   );
 
@@ -1044,6 +1048,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       }
 
       const warnings = [];
+      const telemetryRecords: Record<string, unknown> = {};
+      telemetryRecords.successful = successful;
 
       for (const res of result) {
         const warning = {
@@ -1054,24 +1060,36 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
           command: res.fixCommand,
         };
         warnings.push(warning);
+        if (!res.successful) {
+          telemetryRecords[res.name] = res.description ? res.description : res.name;
+        }
       }
 
       extensionApi.context.setValue('requirementsStatus', successful ? 'ok' : 'failed', 'onboarding');
       extensionApi.context.setValue('warningsMarkdown', warnings, 'onboarding');
+      telemetryLogger.logUsage('podman.onboarding.checkPodmanRequirements', telemetryRecords);
     },
   );
 
   const onboardingInstallPodmanCommand = extensionApi.commands.registerCommand(
     'podman.onboarding.installPodman',
     async () => {
+      let installation: InstalledPodman;
+      let installed = false;
+      const telemetryOptions: Record<string, unknown> = {};
       try {
         await podmanInstall.doInstallPodman(provider);
-        const installation = await getPodmanInstallation();
-        const installed = installation ? true : false;
+        installation = await getPodmanInstallation();
+        installed = installation ? true : false;
         extensionApi.context.setValue('podmanIsNotInstalled', !installed, 'onboarding');
       } catch (e) {
         console.error(e);
         extensionApi.context.setValue('podmanIsNotInstalled', true, 'onboarding');
+        telemetryOptions.error = e;
+      } finally {
+        telemetryOptions.version = installation?.version || '';
+        telemetryOptions.installed = installed;
+        telemetryLogger.logUsage('podman.onboarding.installPodman', telemetryOptions);
       }
     },
   );
@@ -1354,7 +1372,11 @@ export async function createMachine(
     } else if (error.stderr?.includes('only one VM can be active at a time')) {
       telemetryRecords.errorCode = 'ErrMultipleActiveVM';
     }
-    throw error;
+
+    let errorMessage = error.name ? `${error.name}\n` : '';
+    errorMessage += error.message ? `${error.message}\n` : '';
+    errorMessage += error.stderr ? `${error.stderr}\n` : '';
+    throw errorMessage || error;
   } finally {
     const endTime = performance.now();
     telemetryRecords.duration = endTime - startTime;

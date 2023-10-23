@@ -16,12 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Writable } from 'svelte/store';
-import { writable } from 'svelte/store';
-import type { TinroBreadcrumb } from 'tinro';
+import { promises } from 'fs';
+import { OS } from './os';
 
-const home = { name: 'Home', path: '/' } as TinroBreadcrumb;
-export const currentPage: Writable<TinroBreadcrumb> = writable(home);
-export const lastPage: Writable<TinroBreadcrumb> = writable(home);
+export async function makeExecutable(filePath: string): Promise<void> {
+  // New OS class
+  const os = new OS();
 
-export const history: Writable<TinroBreadcrumb[]> = writable([home]);
+  if (os.isLinux() || os.isMac()) {
+    await promises.chmod(filePath, 0o755);
+  }
+}

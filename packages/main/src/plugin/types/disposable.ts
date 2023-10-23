@@ -52,4 +52,8 @@ export class Disposable implements IDisposable {
   static create(func: () => void): Disposable {
     return new Disposable(func);
   }
+
+  static noop(): Disposable {
+    return Disposable.from();
+  }
 }

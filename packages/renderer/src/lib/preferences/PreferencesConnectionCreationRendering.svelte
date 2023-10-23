@@ -3,7 +3,7 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
-import { getNormalizedDefaultNumberValue, writeToTerminal, isPropertyValidInContext } from './Util';
+import { getNormalizedDefaultNumberValue, writeToTerminal, isPropertyValidInContext, getInitialValue } from './Util';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import {
   clearCreateTask,
@@ -45,7 +45,6 @@ export let callback: (
 ) => Promise<void>;
 export let taskId: number | undefined = undefined;
 export let disableEmptyScreen = false;
-export let hideProviderImage = false;
 export let hideCloseButton = false;
 
 $: configurationValues = new Map<string, string>();
@@ -362,23 +361,6 @@ function closePage() {
       </Button>
     </EmptyScreen>
   {:else}
-    {#if !hideProviderImage}
-      <div class="my-2 px-6" aria-label="main image">
-        {#if providerInfo?.images?.icon}
-          {#if typeof providerInfo.images.icon === 'string'}
-            <img src="{providerInfo.images.icon}" alt="{providerInfo.name}" class="max-h-10" />
-            <!-- TODO check theme used for image, now use dark by default -->
-          {:else}
-            <img src="{providerInfo.images.icon.dark}" alt="{providerInfo.name}" class="max-h-10" />
-          {/if}
-        {/if}
-      </div>
-    {/if}
-    <h1 class="font-semibold px-6 pb-2" aria-label="title">
-      {creationInProgress ? 'Creating' : 'Create a'}
-      {providerDisplayName}
-      {creationInProgress ? '...' : ''}
-    </h1>
     <div class="flex flex-col px-6 w-full h-full overflow-auto">
       {#if pageIsLoading}
         <div class="text-center mt-16 p-2" role="status">
@@ -426,7 +408,12 @@ function closePage() {
           {#if connectionAuditResult && (connectionAuditResult.records?.length || 0) > 0}
             <AuditMessageBox auditResult="{connectionAuditResult}" />
           {/if}
-          <form novalidate class="p-2 space-y-7 h-fit" on:submit|preventDefault="{handleOnSubmit}" bind:this="{formEl}">
+          <form
+            novalidate
+            class="p-2 space-y-7 h-fit"
+            on:submit|preventDefault="{handleOnSubmit}"
+            bind:this="{formEl}"
+            aria-label="Properties Information">
             {#each configurationKeys as configurationKey}
               <div class="mb-2.5">
                 <div class="font-semibold text-xs">
@@ -446,7 +433,8 @@ function closePage() {
                   validRecord="{handleValidComponent}"
                   record="{configurationKey}"
                   setRecordValue="{setConfigurationValue}"
-                  enableSlider="{true}" />
+                  enableSlider="{true}"
+                  initialValue="{getInitialValue(configurationKey)}" />
               </div>
             {/each}
             <div class="w-full">

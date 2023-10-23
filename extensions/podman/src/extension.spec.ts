@@ -334,6 +334,27 @@ test('verify create command called with now flag if start machine after creation
   expect(console.error).not.toBeCalled();
 });
 
+test('verify error contains name, message and stderr if creation fails', async () => {
+  vi.spyOn(extensionApi.process, 'exec').mockRejectedValue({
+    name: 'name',
+    message: 'description',
+    stderr: 'error',
+  });
+  await expect(
+    extension.createMachine(
+      {
+        'podman.factory.machine.cpus': '2',
+        'podman.factory.machine.image-path': 'path',
+        'podman.factory.machine.memory': '1048000000',
+        'podman.factory.machine.diskSize': '250000000000',
+        'podman.factory.machine.now': true,
+      },
+      undefined,
+      undefined,
+    ),
+  ).rejects.toThrowError('name\ndescription\nerror\n');
+});
+
 test('test checkDefaultMachine, if the machine running is not default, the function will prompt', async () => {
   await extension.checkDefaultMachine(fakeMachineJSON);
 
@@ -412,11 +433,7 @@ test('if a machine is successfully reporting telemetry', async () => {
     expect.objectContaining({ hostCpus: expect.anything() }),
   );
 
-  expect(spyExecPromise).toBeCalledWith(
-    expect.stringContaining('podman'),
-    ['machine', 'start', 'name'],
-    expect.anything(),
-  );
+  expect(spyExecPromise).toBeCalledWith(getPodmanCli(), ['machine', 'start', 'name'], expect.anything());
 });
 
 test('if a machine is successfully reporting an error in telemetry', async () => {
@@ -437,11 +454,7 @@ test('if a machine is successfully reporting an error in telemetry', async () =>
     expect.objectContaining({ hostCpus: expect.anything(), error: customError }),
   );
 
-  expect(spyExecPromise).toBeCalledWith(
-    expect.stringContaining('podman'),
-    ['machine', 'start', 'name'],
-    expect.anything(),
-  );
+  expect(spyExecPromise).toBeCalledWith(getPodmanCli(), ['machine', 'start', 'name'], expect.anything());
 });
 
 test('if a machine failed to start with a generic error, this is thrown', async () => {

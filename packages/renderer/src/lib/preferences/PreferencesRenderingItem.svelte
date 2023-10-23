@@ -4,6 +4,7 @@ import { afterUpdate } from 'svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
 import Markdown from '../markdown/Markdown.svelte';
+import { getInitialValue } from '/@/lib/preferences/Util';
 
 export let record: IConfigurationPropertyRecordedSchema;
 
@@ -88,7 +89,8 @@ $: resetToDefault = false;
         record="{recordUI.original}"
         updateResetButtonVisibility="{updateResetButtonVisibility}"
         resetToDefault="{resetToDefault}"
-        enableAutoSave="{true}" />
+        enableAutoSave="{true}"
+        initialValue="{getInitialValue(recordUI.original)}" />
     {/if}
   </div>
   {#if recordUI.original.type !== 'string' || (recordUI.original.enum && recordUI.original.enum.length > 0)}
@@ -96,6 +98,7 @@ $: resetToDefault = false;
       record="{recordUI.original}"
       updateResetButtonVisibility="{updateResetButtonVisibility}"
       resetToDefault="{resetToDefault}"
-      enableAutoSave="{true}" />
+      enableAutoSave="{true}"
+      initialValue="{getInitialValue(recordUI.original)}" />
   {/if}
 </div>

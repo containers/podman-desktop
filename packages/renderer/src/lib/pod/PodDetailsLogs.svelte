@@ -33,7 +33,7 @@ $: {
 let resizeObserver: ResizeObserver;
 let termFit: FitAddon;
 let currentRouterPath: string;
-let logsRouterPath = `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/logs`;
+let logsRouterPath = `/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURIComponent(pod.engineId)}/logs`;
 
 // Create a map that will store the ANSI 256 colour for each container name
 // if we run out of colours, we'll start from the beginning.

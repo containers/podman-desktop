@@ -16,12 +16,26 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Writable } from 'svelte/store';
-import { writable } from 'svelte/store';
 import type { TinroBreadcrumb } from 'tinro';
+import { lastPage, currentPage, history } from './breadcrumb';
+import { test, expect } from 'vitest';
+import { get } from 'svelte/store';
 
-const home = { name: 'Home', path: '/' } as TinroBreadcrumb;
-export const currentPage: Writable<TinroBreadcrumb> = writable(home);
-export const lastPage: Writable<TinroBreadcrumb> = writable(home);
+export function mockBreadcrumb() {
+  history.set([{ name: 'List', path: '/list' } as TinroBreadcrumb]);
+  lastPage.set({ name: 'Previous', path: '/last' } as TinroBreadcrumb);
+  currentPage.set({ name: 'Current', path: '/current' } as TinroBreadcrumb);
+}
 
-export const history: Writable<TinroBreadcrumb[]> = writable([home]);
+test('Confirm mock values', async () => {
+  mockBreadcrumb();
+
+  const cur = get(lastPage);
+  expect(cur.name, 'Current');
+
+  const last = get(lastPage);
+  expect(last.name, 'Previous');
+
+  const hist = get(history);
+  expect(hist[0].name, 'List');
+});

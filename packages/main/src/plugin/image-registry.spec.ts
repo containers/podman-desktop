@@ -16,12 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { beforeAll, beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest';
 import type { ApiSenderType } from './api.js';
 
 import { ImageRegistry } from './image-registry.js';
 import type { Proxy } from './proxy.js';
-import type { Telemetry } from './telemetry/telemetry.js';
+import type { Telemetry, EventType } from './telemetry/telemetry.js';
 import type { Certificates } from './certificates.js';
 import nock from 'nock';
 import * as imageRegistryManifestMultiArchJson from '../../tests/resources/data/plugin/image-registry-manifest-multi-arch-index.json';
@@ -31,11 +34,15 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import * as nodeTar from 'tar';
+import type { Disposable } from './types/disposable.js';
+import type { Registry } from '@podman-desktop/api';
 
 let imageRegistry: ImageRegistry;
 
 beforeAll(async () => {
-  const telemetry: Telemetry = {} as Telemetry;
+  const telemetry: Telemetry = {
+    track(event: EventType, eventProperties?: any): void {},
+  } as Telemetry;
   const certificates: Certificates = {
     init: vi.fn(),
     getAllCertificates: vi.fn(),
@@ -45,8 +52,10 @@ beforeAll(async () => {
     onDidUpdateProxy: vi.fn(),
     isEnabled: vi.fn(),
   } as unknown as Proxy;
-
-  imageRegistry = new ImageRegistry({} as ApiSenderType, telemetry, certificates, proxy);
+  const apiSender: ApiSenderType = {
+    send(channel: string, data?: any): void {},
+  } as ApiSenderType;
+  imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
 });
 
 beforeEach(() => {
@@ -447,5 +456,43 @@ describe('expect checkCredentials', async () => {
     await expect(imageRegistry.checkCredentials('----', 'my-username', 'my-password')).rejects.toThrow(
       'The format of the Registry Location is incorrect.',
     );
+  });
+
+  test('should add a registry and return a Disposable when registering a registry', () => {
+    const reg1: Registry = {
+      source: 'a-source',
+      serverUrl: 'an-url',
+      username: 'a-username',
+      secret: 'pass',
+    };
+    const res1 = imageRegistry.registerRegistry(reg1);
+    expectTypeOf(res1).toMatchTypeOf({} as Disposable);
+    // Make a non-readonly copy, as readonly arrays are not supported by toBeArray
+    const newRegistries: Registry[] = [...imageRegistry.getRegistries()];
+    expect(newRegistries).toBeDefined();
+    expectTypeOf(newRegistries).toBeArray();
+    expect(newRegistries.length).toBe(1);
+  });
+
+  test('should not duplicate a registry, and return a Disposable, when registering a registry twice', () => {
+    const reg1: Registry = {
+      source: 'a-source',
+      serverUrl: 'an-url',
+      username: 'a-username',
+      secret: 'pass',
+    };
+    const res1 = imageRegistry.registerRegistry(reg1);
+    expectTypeOf(res1).toMatchTypeOf({} as Disposable);
+    const registries1: Registry[] = [...imageRegistry.getRegistries()];
+    expect(registries1).toBeDefined();
+    expectTypeOf(registries1).toBeArray();
+    expect(registries1.length).toBe(1);
+
+    const res2 = imageRegistry.registerRegistry(reg1);
+    expectTypeOf(res2).toMatchTypeOf({} as Disposable);
+    const registries2: Registry[] = [...imageRegistry.getRegistries()];
+    expect(registries2).toBeDefined();
+    expectTypeOf(registries2).toBeArray();
+    expect(registries2.length).toBe(1);
   });
 });

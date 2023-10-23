@@ -148,7 +148,7 @@ window.events?.receive('display-troubleshooting', () => {
         <Route path="/pods/:kind/:name/:engineId/*" breadcrumb="Pod Details" let:meta navigationHint="details">
           <PodDetails
             podName="{decodeURI(meta.params.name)}"
-            engineId="{decodeURI(meta.params.engineId)}"
+            engineId="{decodeURIComponent(meta.params.engineId)}"
             kind="{decodeURI(meta.params.kind)}" />
         </Route>
         <Route path="/pod-create-from-containers" breadcrumb="Create Pod">
