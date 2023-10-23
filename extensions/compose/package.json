@@ -31,7 +31,7 @@
     ],
     "onboarding": {
       "title": "Compose Setup",
-      "enablement": "!compose.isComposeInstalledSystemWide",
+      "enablement": "!compose.isComposeInstalledSystemWide && !isLinux",
       "steps": [
         {
           "id": "checkComposeInstalled",
