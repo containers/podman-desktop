@@ -92,7 +92,7 @@
     "*.{md,css,json}": "prettier --write"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.8.0",
+    "@commitlint/cli": "^18.0.0",
     "@commitlint/config-conventional": "^17.8.0",
     "@playwright/test": "^1.39.0",
     "@rollup/plugin-commonjs": "^25.0.7",
