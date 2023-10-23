@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-import { filtered, searchPattern, containersInfos } from '../stores/containers';
+import { filtered, searchPattern } from '../stores/containers';
 import { viewsContributions } from '../stores/views';
 import { context } from '../stores/context';
 
@@ -21,13 +21,11 @@ import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.s
 import moment from 'moment';
 import { get, type Unsubscriber } from 'svelte/store';
 import NavPage from './ui/NavPage.svelte';
-import { faChevronDown, faChevronRight, faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faChevronRight, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 import ErrorMessage from './ui/ErrorMessage.svelte';
 import { podCreationHolder } from '../stores/creation-from-containers-store';
 import { podsInfos } from '../stores/pods';
-import KubePlayButton from './kube/KubePlayButton.svelte';
-import Prune from './engine/Prune.svelte';
 import type { EngineInfoUI } from './engine/EngineInfoUI';
 import { containerGroupsInfo } from '../stores/containerGroups';
 import Checkbox from './ui/Checkbox.svelte';
@@ -40,6 +38,7 @@ import type { ContextUI } from './context/context';
 import Button from './ui/Button.svelte';
 import StateChange from './ui/StateChange.svelte';
 import SolidPodIcon from './images/SolidPodIcon.svelte';
+import ContainerListTopActions from './container/ContainerListTopActions.svelte';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -63,13 +62,6 @@ let multipleEngines = false;
 $: providerConnections = $providerInfos
   .map(provider => provider.containerConnections)
   .flat()
-  .filter(providerContainerConnection => providerContainerConnection.status === 'started');
-
-$: providerPodmanConnections = $providerInfos
-  .map(provider => provider.containerConnections)
-  .flat()
-  // keep only podman providers as it is not supported by docker
-  .filter(providerContainerConnection => providerContainerConnection.type === 'podman')
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
 // number of selected items in the list
@@ -413,16 +405,10 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="containers">
-  <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
-    <!-- Only show if there are containers-->
-    {#if $containersInfos.length > 0}
-      <Prune type="containers" engines="{enginesList}" />
-    {/if}
-    <Button on:click="{() => toggleCreateContainer()}" icon="{faPlusCircle}">Create a container</Button>
-    {#if providerPodmanConnections.length > 0}
-      <KubePlayButton />
-    {/if}
-  </div>
+  <ContainerListTopActions
+    enginesList="{enginesList}"
+    on:createContainer="{() => toggleCreateContainer()}"
+    slot="additional-actions" />
   <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
     {#if selectedItemsNumber > 0}
       <Button
