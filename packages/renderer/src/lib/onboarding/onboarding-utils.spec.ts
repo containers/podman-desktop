@@ -469,6 +469,40 @@ test('Expect the step to NOT be completed if the step is considered completed if
   expect(isCompleted).toBeFalsy();
 });
 
+test('Expect the step to be completed if the negated context value is true', async () => {
+  const step: OnboardingStep = {
+    id: 'id1',
+    title: 'title 1',
+    status: undefined,
+    completionEvents: ['!onboardingContext:myvalue'],
+  };
+
+  const onboarding: OnboardingInfo = {
+    extension: 'id',
+    steps: [
+      step,
+      {
+        id: 'id2',
+        title: 'title 2',
+        status: undefined,
+      },
+    ],
+    title: 'onboarding',
+    status: undefined,
+    enablement: 'true',
+  };
+  const activeStep: ActiveOnboardingStep = {
+    onboarding,
+    step,
+  };
+  const context = new ContextUI();
+  deserialize.mockReturnValue({
+    evaluate: (_context: ContextUI) => true,
+  } as unknown as ContextKeyExpression);
+  const isCompleted = isStepCompleted(activeStep, [], context);
+  expect(isCompleted).toBeTruthy();
+});
+
 test('Expect the step status to be updated but not the onboarding as it is not the last step', async () => {
   const step: OnboardingStep = {
     id: 'id1',

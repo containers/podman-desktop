@@ -28,6 +28,8 @@ export const STATUS_SKIPPED = 'skipped';
 export const ON_COMMAND_PREFIX = 'onCommand:';
 export const ONBOARDING_CONTEXT_PREFIX = 'onboardingContext:';
 
+const ONBOARDING_CONTEXT_PREFIX_REGEX = new RegExp(/^!*onboardingContext:/);
+
 const ONBOARDING_CONTEXT_REGEX = new RegExp(/\${onboardingContext:(.+?)}/g);
 const GLOBAL_CONTEXT_REGEX = new RegExp(/\${onContext:(.+?)}/g);
 
@@ -71,7 +73,8 @@ export function isStepCompleted(
       }
 
       // check if cmp string is an onContext event, check the value from context
-      if (cmp.startsWith(ONBOARDING_CONTEXT_PREFIX)) {
+      const matchesOnboardingPrefix = cmp.match(ONBOARDING_CONTEXT_PREFIX_REGEX);
+      if (matchesOnboardingPrefix) {
         if (!globalContext) {
           return false;
         }
