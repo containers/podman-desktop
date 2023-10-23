@@ -31,7 +31,7 @@ export class DashboardPage extends BasePage {
   readonly devSandboxEnabledStatus: Locator;
   readonly openshiftLocalProvider: Locator;
   readonly openshiftLocalBox: Locator;
-  openshiftLocalEnabledStatus: Locator;
+  readonly openshiftLocalEnabledStatus: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -47,10 +47,10 @@ export class DashboardPage extends BasePage {
 
     this.openshiftLocalProvider = page.getByLabel('OpenShift Local Provider');
     this.openshiftLocalBox = this.featuredExtensions.getByLabel('OpenShift Local');
-    this.openshiftLocalEnabledStatus = this.getOpenShiftStatus(page);
+    this.openshiftLocalEnabledStatus = this.getOpenShiftStatusLocator(page);
   }
 
-  getOpenShiftStatus(page: Page) {
+  getOpenShiftStatusLocator(page: Page): Locator {
     const currentOS = os.platform();
     if (currentOS === 'linux') {
       return page.getByText('Podman Desktop was not able to find an installation of OpenShift Local.');

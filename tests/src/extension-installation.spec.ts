@@ -71,7 +71,7 @@ describe.each([
   afterAll(_shutdown);
 
   test('Initialize extension type', async () => {
-    await initializeLocators(extensionType);
+    initializeLocators(extensionType);
   });
 
   describe('Check installation availability', async () => {
@@ -162,7 +162,7 @@ describe.each([
   });
 });
 
-async function initializeLocators(extensionType: string) {
+function initializeLocators(extensionType: string) {
   const dashboardPage = new DashboardPage(page);
   const settingsExtensionsPage = new SettingsExtensionsPage(page);
   switch (extensionType) {
