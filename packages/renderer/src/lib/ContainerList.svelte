@@ -21,7 +21,7 @@ import NoContainerEngineEmptyScreen from './image/NoContainerEngineEmptyScreen.s
 import moment from 'moment';
 import { get, type Unsubscriber } from 'svelte/store';
 import NavPage from './ui/NavPage.svelte';
-import { faChevronDown, faChevronRight, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 import ErrorMessage from './ui/ErrorMessage.svelte';
 import { podCreationHolder } from '../stores/creation-from-containers-store';
@@ -37,8 +37,8 @@ import type { ViewInfoUI } from '../../../main/src/plugin/api/view-info';
 import type { ContextUI } from './context/context';
 import Button from './ui/Button.svelte';
 import StateChange from './ui/StateChange.svelte';
-import SolidPodIcon from './images/SolidPodIcon.svelte';
 import ContainerListTopActions from './container/ContainerListTopActions.svelte';
+import ContainerListBottomActions from './container/ContainerListBottomActions.svelte';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -409,22 +409,12 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
     enginesList="{enginesList}"
     on:createContainer="{() => toggleCreateContainer()}"
     slot="additional-actions" />
-  <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
-    {#if selectedItemsNumber > 0}
-      <Button
-        on:click="{() => deleteSelectedContainers()}"
-        aria-label="Delete selected containers and pods"
-        title="Delete {selectedItemsNumber} selected items"
-        bind:inProgress="{bulkDeleteInProgress}"
-        icon="{faTrash}" />
-      <div class="px-1"></div>
-      <Button
-        on:click="{() => createPodFromContainers()}"
-        title="Create Pod with {selectedItemsNumber} selected items"
-        icon="{SolidPodIcon}" />
-      <span class="pl-2">On {selectedItemsNumber} selected items.</span>
-    {/if}
-  </div>
+  <ContainerListBottomActions
+    selectedItemsNumber="{selectedItemsNumber}"
+    bulkDeleteInProgress="{bulkDeleteInProgress}"
+    on:deleteSelectedContainers="{() => deleteSelectedContainers()}"
+    on:createPodFromContainers="{() => createPodFromContainers()}"
+    slot="bottom-additional-actions" />
 
   <div class="flex min-w-full h-full" slot="content">
     <table class="mx-5 w-full h-fit" class:hidden="{containerGroups.length === 0}">
