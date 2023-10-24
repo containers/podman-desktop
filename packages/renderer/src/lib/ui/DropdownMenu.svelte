@@ -44,7 +44,8 @@ function onWindowClick(e: any) {
       toggleMenu();
     }}"
     bind:this="{outsideWindow}"
-    class="mr-2 text-gray-400 hover:bg-charcoal-800 hover:text-purple-400 font-medium rounded-md inline-flex items-center px-2 py-2 text-center">
+    class="mr-2 text-gray-400 hover:bg-charcoal-800 hover:text-purple-400 font-medium rounded-md inline-flex items-center px-2 py-2 text-center"
+    aria-label="Dropdown menu">
     <Fa class="h-4 w-4" icon="{faEllipsisVertical}" />
   </button>
 

@@ -252,7 +252,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
 
   <div class="container bg-charcoal-600 rounded-md p-3">
     <!-- Registries table start -->
-    <div class="w-full border-t border-b border-gray-900">
+    <div class="w-full border-t border-b border-gray-900" role="region" aria-label="Registries table">
       <div class="flex w-full">
         <div class="flex-1 text-left py-4 pl-5 text-sm font-bold w-auto">Registry Location</div>
         <div class="text-left py-4 text-sm font-bold w-1/4">Username</div>
@@ -261,7 +261,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
 
       {#each $registriesInfos as registry}
         <!-- containerDesktopAPI.Registry row start -->
-        <div class="flex flex-col w-full border-t border-gray-900">
+        <div class="flex flex-col w-full border-t border-gray-900" aria-label="{registry.serverUrl}">
           <div class="flex flex-row items-center pt-4 pb-3">
             <div class="flex-1 pl-5 pr-5 text-sm w-auto m-auto">
               <div class="flex w-full h-full">
@@ -294,6 +294,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                   <input
                     type="text"
                     placeholder="Username"
+                    aria-label="Username"
                     bind:value="{registry.username}"
                     class="block px-3 block w-full h-full transition ease-in-out delay-50 bg-charcoal-800 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none" />
                 </div>
@@ -313,6 +314,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                       <div class="absolute inset-y-0 right-0 flex px-1">
                         <input
                           id="password-toggle-{registry.serverUrl}"
+                          aria-label="Toggle password"
                           class="hidden"
                           type="checkbox"
                           value="false"
@@ -337,6 +339,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                         use:processPasswordElement="{registry}"
                         type="password"
                         placeholder="Password"
+                        aria-label="Password"
                         bind:value="{registry.secret}"
                         class="px-3 block w-full h-full transition ease-in-out delay-50 bg-charcoal-800 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none pr-10" />
                     </div>
@@ -422,7 +425,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
 
       {#each $registriesSuggestedInfos as registry, i (registry)}
         <!-- Add new registry form start -->
-        <div class="flex flex-col w-full border-t border-gray-900">
+        <div class="flex flex-col w-full border-t border-gray-900" aria-label="{registry.name}">
           <div class="flex flex-row items-center pt-4 pb-3">
             <div class="flex-1 pl-5 pr-5 text-sm w-auto m-auto">
               <div class="flex w-full h-full">
@@ -450,6 +453,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                 <input
                   type="text"
                   placeholder="Username"
+                  aria-label="Username"
                   bind:value="{newRegistryRequest.username}"
                   class="px-3 block w-full h-7 pr-5 transition ease-in-out delay-50 bg-charcoal-800 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none" />
               {/if}
@@ -461,6 +465,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                     <div class="absolute inset-y-0 right-0 flex">
                       <input
                         id="password-toggle-new-registry"
+                        aria-label="Toggle password"
                         class="hidden"
                         type="checkbox"
                         value="false"
@@ -482,6 +487,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                       use:processPasswordElement="{newRegistryRequest}"
                       type="password"
                       placeholder="Password"
+                      aria-label="Password"
                       bind:value="{newRegistryRequest.secret}"
                       class="px-3 block w-full h-7 transition ease-in-out delay-50 bg-charcoal-800 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none pr-10" />
                   {/if}
@@ -530,6 +536,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
               <input
                 type="text"
                 placeholder="URL (HTTPS only)"
+                aria-label="Register URL"
                 bind:value="{newRegistryRequest.serverUrl}"
                 class="px-3 block w-full h-7 pr-5 transition ease-in-out delay-50 bg-charcoal-800 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none" />
             </div>
@@ -537,6 +544,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
               <input
                 type="text"
                 placeholder="Username"
+                aria-label="Username"
                 bind:value="{newRegistryRequest.username}"
                 class="px-3 block w-full h-7 pr-5 transition ease-in-out delay-50 bg-charcoal-800 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none" />
             </div>
@@ -546,6 +554,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                   <div class="absolute inset-y-0 right-0 flex">
                     <input
                       id="password-toggle-new-registry"
+                      aria-label="Toggle password"
                       class="hidden"
                       type="checkbox"
                       value="false"
@@ -567,6 +576,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                     use:processPasswordElement="{newRegistryRequest}"
                     type="password"
                     placeholder="Password"
+                    aria-label="Password"
                     bind:value="{newRegistryRequest.secret}"
                     class="px-3 block w-full h-7 transition ease-in-out delay-50 bg-charcoal-800 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none pr-10" />
                 </div>
