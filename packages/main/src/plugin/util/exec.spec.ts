@@ -399,6 +399,40 @@ describe('exec', () => {
     expect(stdout).toContain('Hello, World!');
   });
 
+  test('should run the command with privileges on flatpak Linux', async () => {
+    const command = 'echo';
+    const args = ['Hello, World!'];
+
+    (util.isLinux as Mock).mockReturnValue(true);
+
+    const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
+      if (event === 'data') {
+        cb('Hello, World!');
+      }
+    }) as unknown as Readable;
+    const spawnMock = vi.mocked(spawn).mockReturnValue({
+      stdout: { on, setEncoding: vi.fn() },
+      stderr: { on, setEncoding: vi.fn() },
+      on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
+        if (event === 'exit') {
+          cb(0);
+        }
+      }),
+    } as any);
+
+    // emulate flatpak environment
+    const { stdout } = await exec.exec(command, args, { env: { FLATPAK_ID: 'true' }, isAdmin: true });
+
+    // caller should contains the cwd provided
+    expect(spawnMock).toHaveBeenCalledWith(
+      'flatpak-spawn',
+      expect.arrayContaining(['--host', 'pkexec', 'echo', 'Hello, World!']),
+      expect.anything(),
+    );
+    expect(stdout).toBeDefined();
+    expect(stdout).toContain('Hello, World!');
+  });
+
   test('should run the command with privileges using exec on Windows', async () => {
     const command = 'echo';
     const args = ['Hello, World!'];
