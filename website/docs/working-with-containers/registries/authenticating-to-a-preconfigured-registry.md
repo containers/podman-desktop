@@ -26,6 +26,9 @@ With Podman Desktop, you can authenticate to a set of pre-configured registries:
 
    1. **User name**: Enter your user name.
    1. **Password**: Enter your password or OAuth secret.
+   1. Click **Login**.
+
+   ![Authenticating to a preconfigured registry](img/authenticating-to-a-preconfigured-registry.png)
 
 #### Verification
 

@@ -24,40 +24,42 @@ In this guide, you will learn how to add an insecure registry to Podman Desktop.
 
 1. Add your insecure registry within **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Registries**.
 
+   ![Adding a custom registry](img/adding-a-custom-registry.png)
+
 2. Click "Yes" to the insecure registry warning.
 
-![Podman Desktop Registry Warning](./img/registry-warning-insecure.png)
+   ![Podman Desktop Registry Warning](img/registry-warning-insecure.png)
 
 3. SSH into the Podman Machine to edit `registries.conf`.
 
-```sh
-$ podman machine ssh [optional-machine-name]
-```
+   ```shell-session
+   $ podman machine ssh [optional-machine-name]
+   ```
 
 4. Open `registries.conf`.
 
-```sh
-$ sudo vi /etc/containers/registries.conf
-```
+   ```shell-session
+   $ sudo vi /etc/containers/registries.conf
+   ```
 
-5. Add the insecure registry: Add a new [[registry]] section for the URL of the insecure registry you want to use. For example, if your insecure registry is located at `http://registry.example.com`, add the following lines:
+5. Add the insecure registry: Add a new `[[registry]]` section for the URL of the insecure registry you want to use. For example, if your insecure registry is located at `http://registry.example.com`, add the following lines:
 
-```sh
-[[registry]]
-location = "registry.example.com"
-insecure = true
-```
+   ```toml
+   [[registry]]
+   location = "registry.example.com"
+   insecure = true
+   ```
 
-If you have multiple registries, you can add one [[registry]] block per registry.
+   If you have multiple registries, you can add one `[[registry]]` block per registry.
 
 6. Save and exit the file.
 
 7. Restart Podman by the CLI or through Podman Desktop.
 
-```sh
-$ podman machine stop
-$ podman machine start
-```
+   ```shell-session
+   $ podman machine stop
+   $ podman machine start
+   ```
 
 8. Pull or push container images: You can now use Podman Desktop to pull or push container images from/to the insecure registry you added.
 
@@ -66,33 +68,35 @@ $ podman machine start
 
 1. Add your insecure registry within **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Registries**.
 
+   ![Adding a custom registry](img/adding-a-custom-registry.png)
+
 2. Click "Yes" to the insecure registry warning.
 
-![Podman Desktop Registry Warning](./img/registry-warning-insecure.png)
+   ![Podman Desktop Registry Warning](img/registry-warning-insecure.png)
 
 3. Open `registries.conf`.
 
-```sh
-$ sudo vi /etc/containers/registries.conf
-```
+   ```shell-session
+   $ sudo vi /etc/containers/registries.conf
+   ```
 
-4. Add the insecure registry: Add a new [[registry]] section for the URL of the insecure registry you want to use. For example, if your insecure registry is located at `http://registry.example.com`, add the following lines:
+4. Add the insecure registry: Add a new `[[registry]]` section for the URL of the insecure registry you want to use. For example, if your insecure registry is located at `http://registry.example.com`, add the following lines:
 
-```sh
-[[registry]]
-location = "registry.example.com"
-insecure = true
-```
+   ```toml
+   [[registry]]
+   location = "registry.example.com"
+   insecure = true
+   ```
 
-If you have multiple registries, you can add one [[registry]] block per registry:
+   If you have multiple registries, you can add one `[[registry]]` block per registry:
 
 5. Save and exit the file.
 
 6. Restart Podman.
 
-```sh
-$ sudo systemctl restart podman
-```
+   ```shell-session
+   $ sudo systemctl restart podman
+   ```
 
 7. Pull or push container images: You can now use Podman Desktop to pull or push container images from/to the insecure registry you added.
 
