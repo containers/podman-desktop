@@ -40,7 +40,7 @@ After an event that might have changed the default Podman machine connection, su
 1. Restart the Podman machine that has the default connection:
 
    ```shell-session
-   $ podman mahine stop
+   $ podman machine stop
    $ podman machine start
    ```
 
