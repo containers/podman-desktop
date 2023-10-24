@@ -113,7 +113,7 @@ suite('CLI Tool Prefernces page shows', () => {
     expect(within(cliToolRows[1]).queryAllByLabelText('cli-logo').length).equals(0);
   });
 
-  test("tool's logo is shown if images.icon property is present", () => {
+  test("tool's logo is shown when images.icon property is present", () => {
     expect(within(cliToolRows[2]).getAllByLabelText('cli-logo').length).equals(1);
   });
 });
