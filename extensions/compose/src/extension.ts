@@ -31,6 +31,11 @@ import { ComposeInstallation } from './installation';
 let composeExtension: ComposeExtension | undefined;
 let composeVersionMetadata: ComposeGithubReleaseArtifactMetadata | undefined;
 
+const composeCliName = 'docker-compose';
+const composeDisplayName = 'Compose';
+const composeDescription = `Compose is a specification for defining and running multi-container applications. We support both [podman compose](https://docs.podman.io/en/latest/markdown/podman-compose.1.html) and [docker compose](https://github.com/docker/compose) commands.\n\nMore information: [compose-spec.io](https://compose-spec.io/)`;
+const imageLocation = './icon.png';
+
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   // Post activation
   setTimeout(() => {
@@ -138,18 +143,28 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // Need to "ADD" a provider so we can actually press the button!
   // We set this to "unknown" so it does not appear on the dashboard (we only want it in preferences).
   const providerOptions: extensionApi.ProviderOptions = {
-    name: 'Compose',
-    id: 'Compose',
+    name: composeDisplayName,
+    id: composeDisplayName,
     status: 'unknown',
     images: {
-      icon: './icon.png',
+      icon: imageLocation,
     },
   };
 
-  providerOptions.emptyConnectionMarkdownDescription = `Compose is a specification for defining and running multi-container applications. We support both [podman compose](https://docs.podman.io/en/latest/markdown/podman-compose.1.html) and [docker compose](https://github.com/docker/compose) commands.\n\nMore information: [compose-spec.io](https://compose-spec.io/)`;
+  providerOptions.emptyConnectionMarkdownDescription = composeDescription;
 
   const provider = extensionApi.provider.createProvider(providerOptions);
   extensionContext.subscriptions.push(provider);
+
+  // Register the CLI extension, this will allow us to show the CLI version, update the CLI, installation, etc.
+  extensionApi.cli.createCliTool({
+    name: composeCliName,
+    displayName: composeDisplayName,
+    markdownDescription: composeDescription,
+    images: {
+      icon: imageLocation,
+    },
+  });
 }
 
 async function postActivate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
