@@ -101,7 +101,7 @@ function Hero() {
       <div className="container mx-auto flex px-5 pb-24 pt-4 items-center justify-center flex-col">
         <div className="text-center lg:w-2/3 w-full bg-hero-pattern bg-no-repeat bg-center">
           <div className="bg-white/30 dark:bg-transparent">
-            <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-8 font-medium text-gray-900 dark:text-white">
+            <h1 className="title-font sm:text-4xl text-3xl lg:text-6xl mb-8 font-medium text-gray-900 dark:text-white leading-[1.2]">
               Containers and Kubernetes for application developers
             </h1>
             <p className="text-base md:text-lg">
