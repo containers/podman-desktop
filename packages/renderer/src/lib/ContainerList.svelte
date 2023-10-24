@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-import { filtered, searchPattern, containersInfos } from '../stores/containers';
+import { filtered, searchPattern, containersInfos, runningFilter, stoppedFilter } from '../stores/containers';
 import { viewsContributions } from '../stores/views';
 import { context } from '../stores/context';
 
@@ -40,6 +40,7 @@ import type { ContextUI } from './context/context';
 import Button from './ui/Button.svelte';
 import StateChange from './ui/StateChange.svelte';
 import SolidPodIcon from './images/SolidPodIcon.svelte';
+import Tab from './ui/Tab.svelte';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -59,6 +60,12 @@ function fromExistingImage(): void {
 }
 
 let multipleEngines = false;
+
+router.subscribe(route => {
+  const f = route.path.substring(route.path.lastIndexOf('/') + 1);
+  runningFilter.set(f === 'running');
+  stoppedFilter.set(f === 'stopped');
+});
 
 $: providerConnections = $providerInfos
   .map(provider => provider.containerConnections)
@@ -438,6 +445,12 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
         icon="{SolidPodIcon}" />
       <span class="pl-2">On {selectedItemsNumber} selected items.</span>
     {/if}
+  </div>
+
+  <div class="flex flex-row px-2 border-b border-charcoal-400" slot="tabs">
+    <Tab title="All containers" url="all" />
+    <Tab title="Running containers" url="running" />
+    <Tab title="Stopped containers" url="stopped" />
   </div>
 
   <div class="flex min-w-full h-full" slot="content">

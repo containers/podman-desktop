@@ -65,7 +65,21 @@ const containersEventStore = new EventStore<ContainerInfo[]>(
 containersEventStore.setupWithDebounce();
 
 export const searchPattern = writable('');
+export const runningFilter = writable(false);
+export const stoppedFilter = writable(false);
 
-export const filtered = derived([searchPattern, containersInfos], ([$searchPattern, $containersInfos]) =>
-  $containersInfos.filter(containerInfo => findMatchInLeaves(containerInfo, $searchPattern.toLowerCase())),
+export const filtered = derived(
+  [searchPattern, runningFilter, stoppedFilter, containersInfos],
+  ([$searchPattern, $runningFilter, $stoppedFilter, $containersInfos]) =>
+    $containersInfos
+      .filter(containerInfo => findMatchInLeaves(containerInfo, $searchPattern.toLowerCase()))
+      .filter(containerInfo => {
+        if ($runningFilter) {
+          return containerInfo.State.toUpperCase() === 'RUNNING';
+        }
+        if ($stoppedFilter) {
+          return containerInfo.State.toUpperCase() !== 'RUNNING';
+        }
+        return true;
+      }),
 );
