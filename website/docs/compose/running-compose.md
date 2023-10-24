@@ -10,7 +10,7 @@ With Podman Desktop, you can manage multi-container applications defined in a Co
 
 #### Prerequisites
 
-- [You have set up a container engine](/docs/onboarding/containers).
+- [Podman](/docs/onboarding-for-containers/installing-podman) 4.7.0 or greater.
 - [You have set up Compose](/docs/compose/setting-up-compose).
 - [You have a Compose file](https://github.com/compose-spec/compose-spec/blob/master/spec.md#compose-file), such as `compose.yaml`.
 
@@ -21,6 +21,36 @@ With Podman Desktop, you can manage multi-container applications defined in a Co
   ```shell-session
   $ podman compose --file compose.yaml up --detach
   ```
+
+  <details>
+  <summary>
+
+  (Alternatively) With an older Podman version, run `docker-compose`:
+
+  </summary>
+
+  With an older Podman version, run `docker-compose` rather than `podman compose`.
+
+  It requires [setting the DOCKER_HOST variable](/docs/migrating-from-docker/using-the-docker_host-environment-variable).
+
+  ```shell-session
+  $ docker-compose --file compose.yaml up --detach
+  ```
+
+  </details>
+
+  <details>
+  <summary>
+
+  (Optionally) Learn about Compose commands:
+
+  </summary>
+
+  ```shell-session
+  $ podman compose --help
+  ```
+
+  </details>
 
 #### Verification
 
@@ -34,14 +64,3 @@ With Podman Desktop, you can manage multi-container applications defined in a Co
    The Podman Desktop **<icon icon="fa-solid fa-cube" size="lg" /> Containers** list displays the containers created by Compose grouped in a container group with a `(compose)` suffix, such as `flask-redis (compose)`.
 
 ![img2](img/compose-in-containers-view.png)
-
-#### Additional resources
-
-- [Compose file specification](https://github.com/compose-spec/compose-spec/blob/master/spec.md#compose-file).
-- Learn about Compose commands:
-
-  ```shell-command
-  $ podman compose --help
-  ```
-
-- (Alternatively) To use `docker-compose` from your terminal rather than `podman compose`: [set the DOCKER_HOST variable](/docs/migrating-from-docker/using-the-docker_host-environment-variable).
