@@ -19,26 +19,15 @@
 import { Octokit } from '@octokit/rest';
 import * as extensionApi from '@podman-desktop/api';
 import { Detect } from './detect';
-import { ComposeExtension } from './compose-extension';
 import type { ComposeGithubReleaseArtifactMetadata } from './compose-github-releases';
 import { ComposeGitHubReleases } from './compose-github-releases';
 import { OS } from './os';
-import { ComposeWrapperGenerator } from './compose-wrapper-generator';
-import * as path from 'path';
 import * as handler from './handler';
 import { ComposeDownload } from './download';
 
-let composeExtension: ComposeExtension | undefined;
 let composeVersionMetadata: ComposeGithubReleaseArtifactMetadata | undefined;
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  // Post activation
-  setTimeout(() => {
-    postActivate(extensionContext).catch((error: unknown) => {
-      console.error('Error activating extension', error);
-    });
-  }, 0);
-
   // Check docker-compose binary has been downloaded and update both
   // the configuration setting and the context accordingly
   await handler.updateConfigAndContextComposeBinary(extensionContext);
@@ -161,24 +150,4 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   const provider = extensionApi.provider.createProvider(providerOptions);
   extensionContext.subscriptions.push(provider);
-}
-
-async function postActivate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  const octokit = new Octokit();
-  const os = new OS();
-  const podmanComposeGenerator = new ComposeWrapperGenerator(os, path.resolve(extensionContext.storagePath, 'bin'));
-  composeExtension = new ComposeExtension(
-    extensionContext,
-    new Detect(os, extensionContext.storagePath),
-    new ComposeGitHubReleases(octokit),
-    os,
-    podmanComposeGenerator,
-  );
-  await composeExtension.activate();
-}
-
-export async function deactivate(): Promise<void> {
-  if (composeExtension) {
-    await composeExtension.deactivate();
-  }
 }
