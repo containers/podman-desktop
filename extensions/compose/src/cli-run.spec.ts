@@ -117,15 +117,10 @@ test('success: installBinaryToSystem on linux with /usr/local/bin NOT created ye
 
   // check called with admin being true
   expect(extensionApi.process.exec).toBeCalledWith(
-    'exec',
+    '/bin/sh',
     expect.arrayContaining([
-      'mkdir',
-      '-p',
-      '/usr/local/bin',
-      '&&',
-      'cp',
-      'test',
-      `${path.sep}usr${path.sep}local${path.sep}bin${path.sep}tmpBinary`,
+      '-c',
+      `mkdir -p /usr/local/bin && cp test ${path.sep}usr${path.sep}local${path.sep}bin${path.sep}tmpBinary`,
     ]),
     expect.objectContaining({ isAdmin: true }),
   );
