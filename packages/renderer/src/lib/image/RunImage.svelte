@@ -377,7 +377,7 @@ async function startContainer() {
     if (Tty && OpenStdin) {
       router.goto(`/containers/${data.id}/tty`);
     } else {
-      router.goto('/containers');
+      router.goto('/containers/all');
     }
   } catch (e) {
     createError = String(e);
