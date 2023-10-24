@@ -46,6 +46,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  router.goto('/');
 });
 
 async function waitRender() {
