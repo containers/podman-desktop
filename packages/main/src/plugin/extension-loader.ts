@@ -325,23 +325,36 @@ export class ExtensionLoader {
   async analyzeExtension(extensionPath: string, removable: boolean): Promise<AnalyzedExtension> {
     // do nothing if there is no package.json file
     let error = undefined;
+    const disposables: Disposable[] = [];
     if (!fs.existsSync(path.resolve(extensionPath, 'package.json'))) {
       error = `Ignoring extension ${extensionPath} without package.json file`;
       console.warn(error);
-      return { error } as AnalyzedExtension;
+      const analyzedExtension: AnalyzedExtension = {
+        id: '<unknown>',
+        name: '<unknown>',
+        path: extensionPath,
+        manifest: undefined,
+        api: <typeof containerDesktopAPI>{},
+        removable,
+        subscriptions: disposables,
+        dispose(): void {
+          disposables.forEach(disposable => disposable.dispose());
+        },
+        error,
+      };
+      return analyzedExtension;
     }
 
     // log error if the manifest is missing required entries
     const manifest = await this.loadManifest(extensionPath);
     if (!manifest.name || !manifest.displayName || !manifest.version || !manifest.publisher || !manifest.description) {
-      error = `Extension ${extensionPath} missing required manifest entries in package.json`;
+      error = `Extension ${extensionPath} missing required manifest entry in package.json (name, displayName, version, publisher, description)`;
       console.warn(error);
     }
 
     // create api object
     const api = this.createApi(extensionPath, manifest);
 
-    const disposables: Disposable[] = [];
     const analyzedExtension: AnalyzedExtension = {
       id: `${manifest.publisher}.${manifest.name}`,
       name: manifest.name,
