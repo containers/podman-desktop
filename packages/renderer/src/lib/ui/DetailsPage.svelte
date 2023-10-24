@@ -21,46 +21,49 @@ function handleKeydown(e: KeyboardEvent) {
 
 <svelte:window on:keydown="{handleKeydown}" />
 
-<div class="w-full h-full">
-  <div class="flex h-full flex-col">
-    <div class="flex w-full flex-row">
-      <div class="w-full pl-5 pt-4">
-        <div class="flex flew-row items-center text-sm text-gray-700">
-          <Link aria-label="back" internalRef="{$lastPage.path}" title="Go back to {$lastPage.name}"
-            >{$lastPage.name}</Link>
-          <div class="mx-2">&gt;</div>
-          <div class="font-extralight" aria-label="name">{$currentPage.name}</div>
+<div class="flex flex-col w-full h-full shadow-pageheader">
+  <div class="flex flex-row w-full h-fit px-5 py-4">
+    <div class="flex flex-col w-full h-fit">
+      <div class="flex flew-row items-center text-sm text-gray-700">
+        <Link class="text-sm" aria-label="back" internalRef="{$lastPage.path}" title="Go back to {$lastPage.name}"
+          >{$lastPage.name}</Link>
+        <div class="mx-2">&gt;</div>
+        <div class="grow font-extralight" aria-label="name">{$currentPage.name}</div>
+        <a href="{$lastPage.path}" title="Close" class="justify-self-end text-gray-900">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </a>
+      </div>
+      <div class="flex flex-row items-start pt-1">
+        <div class="pr-3">
+          <slot name="icon" />
         </div>
-        <div class="text-lg flex flex-row items-start pt-1">
-          <div class="pr-3 pt-1">
-            <slot name="icon" />
+        <div class="flex flex-col grow pr-2">
+          <div class="flex flex-row">
+            <h1 aria-label="{title}" class="text-xl leading-tight">{title}</h1>
+            <div class="text-violet-400 ml-2 leading-normal" class:hidden="{!titleDetail}">{titleDetail}</div>
           </div>
-          <div class="text-lg flex flex-col">
-            <div class="flex flex-row items-baseline">
-              <h1>{title}</h1>
-              <div class="text-base text-violet-400 ml-2" class:hidden="{!titleDetail}">{titleDetail}</div>
-            </div>
-            <div class="mr-2 pb-4">
-              <span class="text-small text-gray-900" class:hidden="{!subtitle}">{subtitle}</span>
-              <slot name="subtitle" />
+          <div class="pt-1">
+            <span class="text-sm leading-none text-gray-900" class:hidden="{!subtitle}">{subtitle}</span>
+            <slot name="subtitle" />
+          </div>
+        </div>
+        <div class="flex flex-col">
+          <div class="flex flex-nowrap justify-self-end pl-3 space-x-2">
+            <slot name="actions" />
+          </div>
+          <div class="relative">
+            <div class="absolute top-0 right-0">
+              <slot name="detail" />
             </div>
           </div>
         </div>
       </div>
-      <div class="flex flex-col pr-2 pt-5">
-        <div class="flex justify-end space-x-2">
-          <slot name="actions" />
-        </div>
-        <slot name="detail" />
-      </div>
-      <a href="{$lastPage.path}" title="Close" class="mt-2 mr-2 text-gray-900"
-        ><i class="fas fa-times" aria-hidden="true"></i></a>
     </div>
-    <div class="flex flex-row px-2 border-b border-charcoal-400">
-      <slot name="tabs" />
-    </div>
-    <div class="h-full bg-charcoal-900 min-h-0 overflow-y-auto">
-      <slot name="content" />
-    </div>
+  </div>
+  <div class="flex flex-row px-2 border-b border-charcoal-400">
+    <slot name="tabs" />
+  </div>
+  <div class="h-full bg-charcoal-900 min-h-0">
+    <slot name="content" />
   </div>
 </div>

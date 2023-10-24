@@ -67,7 +67,7 @@ Consider creating a custom Lima instance to:
 
 #### Verification
 
-1. When the installation is done, the location of the KUBECONFIG file is printed. See [Configuring access to a Kubernetes cluster](/docs/kubernetes/configuring-access-to-a-kubernetes-cluster).
+1. When the installation is done, the location of the KUBECONFIG file is printed. See [Configuring access to a Kubernetes cluster](/docs/onboarding-for-kubernetes/existing-kubernetes).
 
    - Go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Preferences > Path to the kubeconfig file**, to set the path of the file.
 

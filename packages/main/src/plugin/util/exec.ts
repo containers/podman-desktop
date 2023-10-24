@@ -80,6 +80,16 @@ export class Exec {
 
           // convert process.env to { [key: string]: string; }'
           const sudoEnv = env as { [key: string]: string };
+          /*
+           * sudo prompt verify keys and does not support keys with special characters
+           * ( or ) on Windows
+           * See https://github.com/jorangreef/sudo-prompt/blob/c3cc31a51bc50fe21fadcbf76a88609c0c77026f/index.js#L96
+           */
+          for (const key of Object.keys(sudoEnv)) {
+            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key)) {
+              delete sudoEnv[key];
+            }
+          }
           const sudoOptions = {
             name: 'Admin usage',
             env: sudoEnv,

@@ -26,11 +26,16 @@ $: stroke = percent < 0 ? '' : percent < 50 ? 'stroke-green-500' : percent < 75 
 $: tooltip = percent ? percent.toFixed(0) + '% ' + title + ' usage' : '';
 </script>
 
-<Tooltip tip="{tooltip}" right>
+<Tooltip tip="{tooltip}" bottom>
   <svg viewBox="-4 -4 {size + 8} {size + 8}" height="{size}" width="{size}">
     <circle fill="none" class="stroke-charcoal-300" stroke-width="1" r="{size / 2}" cx="{size / 2}" cy="{size / 2}"
     ></circle>
-    <path fill="none" class="{stroke}" stroke-width="3.5" d="{describeArc(size / 2, (percent * 360) / 100)}"></path>
+    <path
+      fill="none"
+      class="{stroke}"
+      stroke-width="3.5"
+      d="{describeArc(size / 2, (percent * 360) / 100)}"
+      data-testid="arc"></path>
     <text x="{size / 2}" y="38%" text-anchor="middle" font-size="{size / 5.5}" class="fill-gray-800">{title}</text>
     <text
       x="{size / 2}"
@@ -38,6 +43,6 @@ $: tooltip = percent ? percent.toFixed(0) + '% ' + title + ' usage' : '';
       text-anchor="middle"
       font-size="{size / 4.5}"
       dominant-baseline="central"
-      class="fill-gray-400">{value}</text>
+      class="fill-gray-400">{value || ''}</text>
   </svg>
 </Tooltip>

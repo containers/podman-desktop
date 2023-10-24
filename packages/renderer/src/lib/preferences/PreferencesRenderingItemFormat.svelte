@@ -2,10 +2,9 @@
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
-import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Markdown from '../markdown/Markdown.svelte';
-import { getNormalizedDefaultNumberValue, isDefaultScope } from './Util';
+import { getNormalizedDefaultNumberValue } from './Util';
 import Tooltip from '../ui/Tooltip.svelte';
 import Button from '../ui/Button.svelte';
 
@@ -20,6 +19,8 @@ export let enableAutoSave = false;
 export let setRecordValue = (_id: string, _value: string) => {};
 export let enableSlider = false;
 export let record: IConfigurationPropertyRecordedSchema;
+
+export let initialValue: Promise<any>;
 
 let currentRecord: IConfigurationPropertyRecordedSchema;
 let recordUpdateTimeout: NodeJS.Timeout;
@@ -38,22 +39,13 @@ $: if (resetToDefault) {
 }
 
 $: if (currentRecord !== record) {
-  if (isDefaultScope(record.scope)) {
-    if (record.id) {
-      window.getConfigurationValue(record.id, CONFIGURATION_DEFAULT_SCOPE).then(value => {
-        recordValue = value;
-        if (record.type === 'boolean') {
-          recordValue = !!value;
-          checkboxValue = recordValue;
-        }
-      });
-    }
-  } else if (record.default !== undefined) {
-    recordValue = record.type === 'number' ? getNormalizedDefaultNumberValue(record) : record.default;
+  initialValue.then(value => {
+    recordValue = value;
     if (record.type === 'boolean') {
+      recordValue = !!value;
       checkboxValue = recordValue;
     }
-  }
+  });
 
   currentRecord = record;
   invalidText = undefined;

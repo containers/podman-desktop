@@ -10,8 +10,10 @@ tags: [migrating-to-kubernetes, lima]
 
 With Podman Desktop, you can work on [Lima-powered](https://lima-vm.io/) local Kubernetes clusters.
 
+#### Prerequisites
+
+- [You onboarded a Lima cluster](/docs/onboarding-for-kubernetes/lima).
+
 #### Procedure
 
-1. [Start a Lima instance running Kubernetes](/docs/onboarding-for-containers/creating-a-lima-instance-with-podman-desktop)
-1. [Configure the path to the kubeconfig file](/docs/kubernetes/configuring-access-to-a-kubernetes-cluster)
-1. Set the Kubernetes context to the Lima cluster
+1. Set your Kubernetes context to your local Lima-powered Kubernetes cluster

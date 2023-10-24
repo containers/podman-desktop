@@ -1042,6 +1042,18 @@ declare module '@podman-desktop/api' {
      * Whether or not to emit an OS notification noise when showing the notification.
      */
     silent?: boolean;
+    /**
+     * The type of the notification. Default value: info
+     */
+    type?: NotificationType;
+    /**
+     * displayed below the description. It contains actions (like markdown commands/buttons and links)
+     */
+    markdownActions?: string;
+    /**
+     * this notification will be highlighted to the user so it draws attention
+     */
+    highlight?: boolean;
   }
 
   /**
@@ -1235,8 +1247,8 @@ declare module '@podman-desktop/api' {
     ): Promise<R>;
 
     /**
-     * Show OS desktop notification
-     * @param options
+     * Show notification on different area of Podman Desktop based on its options (Dashboard, bell icon list, OS notification)
+     * @param options define how the notification must be created.
      */
     export function showNotification(options: NotificationOptions): Disposable;
 
@@ -2424,5 +2436,46 @@ declare module '@podman-desktop/api' {
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     export function setValue(key: string, value: any, scope?: 'onboarding'): void;
+  }
+
+  /**
+   * Options to create new CliTool instance and register it in podman desktop
+   */
+
+  export interface CliToolOptions {
+    name: string;
+    displayName: string;
+    markdownDescription: string;
+    images: ProviderImages;
+  }
+
+  export type CliToolState = 'registered';
+
+  export interface CliTool extends Disposable {
+    id: string;
+    name: string;
+    displayName: string;
+    markdownDescription: string;
+    state: CliToolState;
+    images: ProviderImages;
+    extensionInfo: {
+      id: string;
+      label: string;
+    };
+  }
+
+  /**
+   * The CLI module provides API to register CLI Tools that can be used
+   * with Podman Desktop. The registered CLIs appears in settings on
+   * `CLI Tools` page.
+   */
+
+  export namespace cli {
+    /**
+     * Register new CLI Tool
+     * @param options CliToolsOptions instance to configure new instance of CliTool
+     * @returns CliTool instance
+     */
+    export function createCliTool(options: CliToolOptions): CliTool;
   }
 }

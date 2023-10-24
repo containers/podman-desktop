@@ -270,7 +270,7 @@
           "state": "completed"
         }
       ],
-      "enablement": "(isLinux && onboardingContext:podmanIsNotInstalled) || !onboardingContext:podmanMachineExists"
+      "enablement": "(isLinux && onboardingContext:podmanIsNotInstalled) || (!isLinux && !onboardingContext:podmanMachineExists)"
     }
   },
   "scripts": {
@@ -288,7 +288,7 @@
     "7zip-min": "^1.4.4",
     "hasha": "^5.2.2",
     "mkdirp": "^3.0.1",
-    "nock": "^13.3.4",
+    "nock": "^13.3.6",
     "octokit": "^3.1.1",
     "ts-node": "^10.9.1",
     "vitest": "^0.34.6",

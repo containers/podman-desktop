@@ -2,7 +2,7 @@
 import { createRouteObject } from 'tinro/dist/tinro_lib';
 import type { TinroBreadcrumb, TinroRouteMeta } from 'tinro';
 import { TelemetryService } from './TelemetryService';
-import { lastPage, currentPage, listPage, detailsPage } from './stores/breadcrumb';
+import { lastPage, currentPage, history } from './stores/breadcrumb';
 import type { NavigationHint } from './Route';
 import { onDestroy } from 'svelte';
 
@@ -38,23 +38,23 @@ function processMetaBreadcrumbs(breadcrumbs?: Array<TinroBreadcrumb>) {
     if (!curPage) return;
 
     if (navigationHint === 'root') {
-      listPage.set(curPage);
-      detailsPage.set({ name: 'Home', path: '/' });
+      history.set([curPage]);
     } else if (navigationHint === 'details') {
-      detailsPage.set(curPage);
-      lastPage.set($listPage);
+      history.set([$history[0], curPage]);
+      lastPage.set($history[0]);
     } else if (navigationHint === 'tab') {
       // if we're on a details tab, fix the breadcrumb to come back to this tab
       const path = curPage.path.substring(0, curPage.path.lastIndexOf('/'));
-      if ($detailsPage?.path.startsWith(path)) {
-        $detailsPage.path = curPage.path;
+      const last = $history[$history.length - 1];
+      if (last?.path.startsWith(path)) {
+        last.path = curPage.path;
       } else {
         // otherwise, set the last page normally
-        lastPage.set($detailsPage ? $detailsPage : $listPage);
+        lastPage.set(last);
       }
     } else {
-      // set the last page to either details or list page
-      lastPage.set($detailsPage ? $detailsPage : $listPage);
+      // set the last page from the history
+      lastPage.set($history[$history.length - 1]);
     }
 
     // set the current page to this route, unless we're on a tab

@@ -21,9 +21,11 @@ import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import { eventCollect } from './preferences-connection-rendering-task';
 import {
   getProviderConnectionName,
+  isDefaultScope,
   type IConnectionRestart,
   type IConnectionStatus,
   type IProviderConnectionConfigurationPropertyRecorded,
+  isPropertyValidInContext,
 } from './Util';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
@@ -336,6 +338,19 @@ function isOnboardingEnabled(provider: ProviderInfo, globalContext: ContextUI): 
   const isEnabled = whenDeserialized?.evaluate(globalContext);
   return isEnabled || false;
 }
+
+function hasAnyConfiguration(provider: ProviderInfo) {
+  return (
+    properties
+      .filter(
+        property =>
+          property.parentId.startsWith(`preferences.${provider.extensionId}`) &&
+          isDefaultScope(property.scope) &&
+          !property.hidden,
+      )
+      .filter(property => isPropertyValidInContext(property.when, globalContext)).length > 0
+  );
+}
 </script>
 
 <SettingsPage title="Resources">
@@ -353,7 +368,10 @@ function isOnboardingEnabled(provider: ProviderInfo, globalContext: ContextUI): 
       hidden="{providers.length > 0}" />
 
     {#each providers as provider}
-      <div class="bg-charcoal-600 mb-5 rounded-md p-3 divide-x divide-gray-900 flex">
+      <div
+        class="bg-charcoal-600 mb-5 rounded-md p-3 divide-x divide-gray-900 flex"
+        role="region"
+        aria-label="{provider.id}">
         <div>
           <!-- left col - provider icon/name + "create new" button -->
           <div class="min-w-[170px] max-w-[200px]">
@@ -402,18 +420,20 @@ function isOnboardingEnabled(provider: ProviderInfo, globalContext: ContextUI): 
                       </Button>
                     </Tooltip>
                   {/if}
-                  <Button
-                    aria-label="Setup {provider.name}"
-                    title="Setup {provider.name}"
-                    on:click="{() => {
-                      if (isOnboardingEnabled(provider, globalContext)) {
-                        router.goto(`/preferences/onboarding/${provider.extensionId}`);
-                      } else {
-                        router.goto(`/preferences/default/preferences.${provider.extensionId}`);
-                      }
-                    }}">
-                    <Fa size="14" icon="{faGear}" />
-                  </Button>
+                  {#if isOnboardingEnabled(provider, globalContext) || hasAnyConfiguration(provider)}
+                    <Button
+                      aria-label="Setup {provider.name}"
+                      title="Setup {provider.name}"
+                      on:click="{() => {
+                        if (isOnboardingEnabled(provider, globalContext)) {
+                          router.goto(`/preferences/onboarding/${provider.extensionId}`);
+                        } else {
+                          router.goto(`/preferences/default/preferences.${provider.extensionId}`);
+                        }
+                      }}">
+                      <Fa size="14" icon="{faGear}" />
+                    </Button>
+                  {/if}
                 </div>
               {/if}
             </div>
@@ -459,7 +479,10 @@ function isOnboardingEnabled(provider: ProviderInfo, globalContext: ContextUI): 
 
               {#if providerContainerConfiguration.has(provider.internalId)}
                 {@const providerConfiguration = providerContainerConfiguration.get(provider.internalId) || []}
-                <div class="flex mt-3 {container.status !== 'started' ? 'text-gray-900' : ''}">
+                <div
+                  class="flex mt-3 {container.status !== 'started' ? 'text-gray-900' : ''}"
+                  role="group"
+                  aria-label="Provider Configuration">
                   {#each providerConfiguration.filter(conf => conf.connection === container.name) as connectionSetting}
                     {#if connectionSetting.format === 'cpu' || connectionSetting.format === 'cpuUsage'}
                       {#if !peerProperties.isPeerProperty(connectionSetting.id)}

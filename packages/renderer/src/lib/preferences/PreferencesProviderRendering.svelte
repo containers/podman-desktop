@@ -11,10 +11,10 @@ import { writeToTerminal } from './Util';
 import PreferencesConnectionCreationRendering from './PreferencesConnectionCreationRendering.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Route from '../../Route.svelte';
-import { faHistory, faPlay, faStop, faXmark } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa';
+import { faHistory, faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
 import type { Terminal } from 'xterm';
 import Button from '../ui/Button.svelte';
+import FormPage from '../ui/FormPage.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string | undefined = undefined;
@@ -37,6 +37,14 @@ onMount(() => {
 
 let providerInfo: ProviderInfo;
 $: providerInfo = providers.filter(provider => provider.internalId === providerInternalId)[0];
+
+let providerDisplayName: string;
+$: providerDisplayName =
+  (providerInfo?.containerProviderConnectionCreation
+    ? providerInfo?.containerProviderConnectionCreationDisplayName || undefined
+    : providerInfo?.kubernetesProviderConnectionCreation
+    ? providerInfo?.kubernetesProviderConnectionCreationDisplayName
+    : undefined) || providerInfo?.name;
 
 let logsTerminal: Terminal;
 
@@ -62,79 +70,87 @@ async function stopReceivingLogs(providerInternalId: string): Promise<void> {
 }
 </script>
 
-<Route path="/*" breadcrumb="{providerInfo?.name}">
-  <div class="flex flex-col bg-charcoal-800 py-1 w-full h-full overflow-hidden">
-    <div class="px-6">
-      <button
-        aria-label="Close"
-        class="hover:text-gray-700 float-right text-lg"
-        on:click="{() => router.goto('/preferences/resources')}">
-        <Fa icon="{faXmark}" />
-      </button>
-    </div>
-    <h1 class="capitalize text-sm px-6">Resources > {providerInfo?.name}</h1>
-    <!-- Manage lifecycle-->
-    {#if providerInfo?.lifecycleMethods}
-      <div class="pl-1 py-2 px-6">
-        <div class="text-sm italic text-gray-700">Status</div>
-        <div class="pl-3">{providerInfo.status}</div>
-      </div>
-
-      <div class="py-2 px-6 flex flex:row">
-        <!-- start is enabled only in stopped mode-->
-        {#if providerInfo?.lifecycleMethods.includes('start')}
-          <div class="px-2 text-sm italic text-gray-700">
-            <Button disabled="{providerInfo.status !== 'stopped'}" on:click="{() => startProvider()}" icon="{faPlay}">
-              Start
-            </Button>
-          </div>
+<Route path="/*" breadcrumb="{providerInfo?.name}" navigationHint="details">
+  <FormPage title="Create a {providerDisplayName}">
+    <svelte:fragment slot="icon">
+      {#if providerInfo?.images?.icon}
+        {#if typeof providerInfo.images.icon === 'string'}
+          <img src="{providerInfo.images.icon}" alt="{providerInfo.name}" class="max-h-10" />
+          <!-- TODO check theme used for image, now use dark by default -->
+        {:else}
+          <img src="{providerInfo.images.icon.dark}" alt="{providerInfo.name}" class="max-h-10" />
         {/if}
+      {/if}
+    </svelte:fragment>
 
-        <!-- stop is enabled only in started mode-->
-        {#if providerInfo.lifecycleMethods.includes('stop')}
-          <div class="px-2 text-sm italic text-gray-700">
-            <Button disabled="{providerInfo.status !== 'started'}" on:click="{() => stopProvider()}" icon="{faStop}">
-              Stop
-            </Button>
-          </div>
-        {/if}
-        <div class="px-2 text-sm italic text-gray-700">
-          <Button
-            on:click="{() => {
-              showModalProviderInfo = providerInfo;
-              // startReceivinLogs(providerInfo);
-            }}"
-            icon="{faHistory}">
-            Show Logs
-          </Button>
+    <svelte:fragment slot="actions">
+      <!-- Manage lifecycle-->
+      {#if providerInfo?.lifecycleMethods}
+        <div class="pl-1 py-2 px-6">
+          <div class="text-sm italic text-gray-700">Status</div>
+          <div class="pl-3">{providerInfo.status}</div>
         </div>
 
-        {#if providerLifecycleError}
-          <ErrorMessage error="{providerLifecycleError}" />
+        <div class="py-2 px-6 flex flex:row">
+          <!-- start is enabled only in stopped mode-->
+          {#if providerInfo?.lifecycleMethods.includes('start')}
+            <div class="px-2 text-sm italic text-gray-700">
+              <Button disabled="{providerInfo.status !== 'stopped'}" on:click="{() => startProvider()}" icon="{faPlay}">
+                Start
+              </Button>
+            </div>
+          {/if}
+
+          <!-- stop is enabled only in started mode-->
+          {#if providerInfo.lifecycleMethods.includes('stop')}
+            <div class="px-2 text-sm italic text-gray-700">
+              <Button disabled="{providerInfo.status !== 'started'}" on:click="{() => stopProvider()}" icon="{faStop}">
+                Stop
+              </Button>
+            </div>
+          {/if}
+          <div class="px-2 text-sm italic text-gray-700">
+            <Button
+              on:click="{() => {
+                showModalProviderInfo = providerInfo;
+                // startReceivinLogs(providerInfo);
+              }}"
+              icon="{faHistory}">
+              Show Logs
+            </Button>
+          </div>
+
+          {#if providerLifecycleError}
+            <ErrorMessage error="{providerLifecycleError}" />
+          {/if}
+        </div>
+      {/if}
+    </svelte:fragment>
+
+    <div slot="content" class="p-5 min-w-full h-fit">
+      <div class="bg-charcoal-700 px-6 py-4">
+        <!-- Create connection panel-->
+        {#if providerInfo?.containerProviderConnectionCreation === true}
+          <PreferencesConnectionCreationRendering
+            providerInfo="{providerInfo}"
+            properties="{properties}"
+            propertyScope="ContainerProviderConnectionFactory"
+            callback="{window.createContainerProviderConnection}"
+            taskId="{taskId}" />
+        {/if}
+
+        <!-- Create connection panel-->
+        {#if providerInfo?.kubernetesProviderConnectionCreation === true}
+          <PreferencesConnectionCreationRendering
+            providerInfo="{providerInfo}"
+            properties="{properties}"
+            propertyScope="KubernetesProviderConnectionFactory"
+            callback="{window.createKubernetesProviderConnection}"
+            taskId="{taskId}" />
         {/if}
       </div>
-    {/if}
-
-    <!-- Create connection panel-->
-    {#if providerInfo?.containerProviderConnectionCreation === true}
-      <PreferencesConnectionCreationRendering
-        providerInfo="{providerInfo}"
-        properties="{properties}"
-        propertyScope="ContainerProviderConnectionFactory"
-        callback="{window.createContainerProviderConnection}"
-        taskId="{taskId}" />
-    {/if}
-
-    <!-- Create connection panel-->
-    {#if providerInfo?.kubernetesProviderConnectionCreation === true}
-      <PreferencesConnectionCreationRendering
-        providerInfo="{providerInfo}"
-        properties="{properties}"
-        propertyScope="KubernetesProviderConnectionFactory"
-        callback="{window.createKubernetesProviderConnection}"
-        taskId="{taskId}" />
-    {/if}
-  </div>
+    </div>
+  </FormPage>
 </Route>
 {#if showModalProviderInfo}
   {@const showModalProviderInfoInternalId = showModalProviderInfo.internalId}

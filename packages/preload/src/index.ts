@@ -75,6 +75,7 @@ import type {
 } from '../../main/src/plugin/kube-generator-registry';
 
 import type { KubernetesGeneratorInfo } from '../../main/src/plugin/api/KubernetesGeneratorInfo';
+import type { NotificationCard, NotificationCardOptions } from '../../main/src/plugin/api/notification';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
@@ -1646,6 +1647,22 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('resetOnboarding', async (extensions: string[]): Promise<void> => {
     return ipcInvoke('onboardingRegistry:resetOnboarding', extensions);
+  });
+
+  contextBridge.exposeInMainWorld('listNotifications', async (): Promise<NotificationCard[]> => {
+    return ipcInvoke('notificationRegistry:listNotifications');
+  });
+
+  contextBridge.exposeInMainWorld('addNotification', async (notification: NotificationCardOptions): Promise<void> => {
+    return ipcInvoke('notificationRegistry:addNotification', notification);
+  });
+
+  contextBridge.exposeInMainWorld('removeNotification', async (id: number): Promise<void> => {
+    return ipcInvoke('notificationRegistry:removeNotification', id);
+  });
+
+  contextBridge.exposeInMainWorld('clearNotificationsQueue', async (): Promise<void> => {
+    return ipcInvoke('notificationRegistry:clearNotificationsQueue');
   });
 }
 

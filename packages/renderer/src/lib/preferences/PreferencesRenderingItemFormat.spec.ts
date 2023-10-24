@@ -26,10 +26,22 @@ import { render, screen } from '@testing-library/svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
 import userEvent from '@testing-library/user-event';
+import { getInitialValue } from '/@/lib/preferences/Util';
 
 beforeAll(() => {
   (window as any).getConfigurationValue = vi.fn().mockResolvedValue(undefined);
 });
+
+async function awaitRender(record: IConfigurationPropertyRecordedSchema, customProperties: any) {
+  const result = render(PreferencesRenderingItemFormat, {
+    record,
+    initialValue: getInitialValue(record),
+    ...customProperties,
+  });
+  while (result.component.$$.ctx[2] === undefined) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+}
 
 test('Expect to see checkbox enabled', async () => {
   const record: IConfigurationPropertyRecordedSchema = {
@@ -40,7 +52,7 @@ test('Expect to see checkbox enabled', async () => {
     default: true,
   };
   // remove display name
-  render(PreferencesRenderingItemFormat, { record });
+  await awaitRender(record, {});
   const button = screen.getByRole('checkbox');
   expect(button).toBeInTheDocument();
   expect(button).toBeChecked();
@@ -56,7 +68,7 @@ test('Expect to see the checkbox disabled / unable to press when readonly is pas
     readonly: true,
   };
   // remove display name
-  render(PreferencesRenderingItemFormat, { record });
+  await awaitRender(record, {});
   const button = screen.getByRole('checkbox');
   expect(button).toBeInTheDocument();
   expect(button).toBeChecked();
@@ -72,7 +84,7 @@ test('Expect to see checkbox enabled', async () => {
     default: false,
   };
   // remove display name
-  render(PreferencesRenderingItemFormat, { record });
+  await awaitRender(record, {});
   const button = screen.getByRole('checkbox');
   expect(button).toBeInTheDocument();
   expect(button).not.toBeChecked();
@@ -86,9 +98,7 @@ test('Expect a checkbox when record is type boolean', async () => {
     description: 'record-description',
     type: 'boolean',
   };
-  render(PreferencesRenderingItemFormat, {
-    record,
-  });
+  await awaitRender(record, {});
   const input = screen.getByLabelText('record-description');
   expect(input).toBeInTheDocument();
   expect(input instanceof HTMLInputElement).toBe(true);
@@ -106,8 +116,7 @@ test('Expect a slider when record and its maximum are type number and enableSlid
     minimum: 1,
     maximum: 34,
   };
-  render(PreferencesRenderingItemFormat, {
-    record,
+  await awaitRender(record, {
     enableSlider: true,
   });
   const input = screen.getByLabelText('record-description');
@@ -127,9 +136,7 @@ test('Expect a text input when record is type number and enableSlider is false',
     minimum: 1,
     maximum: 34,
   };
-  render(PreferencesRenderingItemFormat, {
-    record,
-  });
+  await awaitRender(record, {});
   const input = screen.getByLabelText('record-description');
   expect(input).toBeInTheDocument();
   expect(input instanceof HTMLInputElement).toBe(true);
@@ -146,9 +153,7 @@ test('Expect an input button with Browse as placeholder when record is type stri
     type: 'string',
     format: 'file',
   };
-  render(PreferencesRenderingItemFormat, {
-    record,
-  });
+  await awaitRender(record, {});
   const readOnlyInput = screen.getByLabelText('record-description');
   expect(readOnlyInput).toBeInTheDocument();
   expect(readOnlyInput instanceof HTMLInputElement).toBe(true);
@@ -167,9 +172,7 @@ test('Expect a select when record is type string and has enum values', async () 
     type: 'string',
     enum: ['first', 'second'],
   };
-  render(PreferencesRenderingItemFormat, {
-    record,
-  });
+  await awaitRender(record, {});
   const input = screen.getByLabelText('record-description');
   expect(input).toBeInTheDocument();
   expect(input instanceof HTMLSelectElement).toBe(true);
@@ -185,9 +188,7 @@ test('Expect a text input when record is type string', async () => {
     placeholder: 'Example: text',
     type: 'string',
   };
-  render(PreferencesRenderingItemFormat, {
-    record,
-  });
+  await awaitRender(record, {});
   const input = screen.getByLabelText('record-description');
   expect(input).toBeInTheDocument();
   expect(input instanceof HTMLInputElement).toBe(true);
@@ -206,9 +207,7 @@ test('Expect tooltip text shows info when input is less than minimum', async () 
     minimum: 1,
     maximum: 34,
   };
-  render(PreferencesRenderingItemFormat, {
-    record,
-  });
+  await awaitRender(record, {});
   const input = screen.getByLabelText('record-description');
   await userEvent.click(input);
   await userEvent.clear(input);
@@ -228,9 +227,7 @@ test('Expect tooltip text shows info when input is empty', async () => {
     minimum: 1,
     maximum: 34,
   };
-  render(PreferencesRenderingItemFormat, {
-    record,
-  });
+  await awaitRender(record, {});
   const input = screen.getByLabelText('record-description');
   await userEvent.click(input);
   await userEvent.clear(input);

@@ -57,20 +57,15 @@ import Spinner from '../ui/Spinner.svelte';
 
 export let extensionIds: string[] = [];
 
-let onboardings: OnboardingInfo[];
+let onboardings: OnboardingInfo[] = [];
 let activeStep: ActiveOnboardingStep;
 let activeStepContent: OnboardingStepItem[][];
 
 $: executing = false;
 let globalContext: ContextUI;
 let displayCancelSetup = false;
-let displayResetSetup = false;
 
 let executedCommands: string[] = [];
-
-let activeStepDiv: HTMLDivElement;
-let bottomToolbarDiv: HTMLDivElement;
-let resizeObserver: ResizeObserver;
 
 /*
 $: enableNextButton = false;*/
@@ -81,7 +76,7 @@ let started = false;
 onMount(async () => {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   onboardingUnsubscribe = onboardingList.subscribe(onboardingItems => {
-    if (!onboardings) {
+    if (onboardings.length === 0) {
       onboardings = onboardingItems.filter(o => extensionIds.find(extensionId => o.extension === extensionId));
       startOnboarding().catch((err: unknown) => console.warn(String(err)));
     }
@@ -110,24 +105,13 @@ onMount(async () => {
       startOnboarding().catch((err: unknown) => console.warn(String(err)));
     }
   });
-
-  // Resize the bottom toolbar each time we change the div size
-  resizeObserver = new ResizeObserver(() => {
-    const parentWidth = activeStepDiv.getBoundingClientRect().width;
-    bottomToolbarDiv.style.width = parentWidth + 16 + 'px';
-  });
 });
 
 async function startOnboarding(): Promise<void> {
-  if (!started && globalContext && onboardings) {
+  if (!started && globalContext && onboardings.length > 0) {
     started = true;
-    if (isOnboardingsSetupCompleted(onboardings)) {
-      // ask user if she wants to restart
-      setDisplayResetSetup(true);
-    } else {
+    if (!isOnboardingsSetupCompleted(onboardings)) {
       await restartSetup();
-      // Observe the terminal div
-      resizeObserver.observe(activeStepDiv);
     }
   }
 }
@@ -139,14 +123,10 @@ onDestroy(() => {
   if (contextsUnsubscribe) {
     contextsUnsubscribe();
   }
-  // Cleanup the observer on destroy
-  if (activeStepDiv) {
-    resizeObserver?.unobserve(activeStepDiv);
-  }
 });
 
 async function setActiveStep() {
-  if (!onboardings) {
+  if (onboardings.length === 0) {
     console.error(`Unable to retrieve the onboarding workflow`);
     return;
   }
@@ -278,20 +258,18 @@ function setDisplayCancelSetup(display: boolean) {
   displayCancelSetup = display;
 }
 
-function setDisplayResetSetup(display: boolean) {
-  displayResetSetup = display;
-}
-
 async function cancelSetup() {
   // TODO: it cancels all running commands
   // it redirect the user to the dashboard
   await cleanSetup(onboardings, globalContext);
+  window.telemetryTrack('onboarding.cancelSetup', {
+    extensions: onboardings.map(o => o.extension).join(','),
+  });
   router.goto($lastPage.path);
 }
 
 async function restartSetup() {
   await cleanSetup(onboardings, globalContext);
-  setDisplayResetSetup(false);
   await setActiveStep();
 }
 </script>
@@ -303,7 +281,7 @@ async function restartSetup() {
     id="stepBody"
     class="flex flex-col bg-charcoal-500 h-full overflow-y-auto w-full overflow-x-hidden"
     class:bodyWithBar="{!activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}">
-    <div class="flex flex-col h-full" bind:this="{activeStepDiv}">
+    <div class="flex flex-col h-full">
       <div class="flex flex-row justify-between h-[100px] p-5 z-20 fixed w-full bg-opacity-90 bg-charcoal-700">
         <div class="flex flew-row">
           {#if activeStep.onboarding.media}
@@ -419,8 +397,7 @@ async function restartSetup() {
           </div>
         {/if}
         <div
-          class="flex flex-row-reverse p-6 bg-charcoal-700 fixed w-full bottom-0 mb-5 pr-10 max-h-20 bg-opacity-90 z-20"
-          bind:this="{bottomToolbarDiv}">
+          class="flex flex-row-reverse p-6 bg-charcoal-700 fixed w-[calc(100%-theme(width.leftnavbar)-theme(width.leftsidebar))] bottom-0 mb-5 pr-10 max-h-20 bg-opacity-90 z-20">
           <Button type="primary" disabled="{activeStep.step.state === 'failed'}" on:click="{() => next()}">Next</Button>
           {#if activeStep.step.state !== 'completed'}
             <Button
@@ -450,32 +427,6 @@ async function restartSetup() {
       <div class="px-5 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
         <Button type="secondary" aria-label="Cancel" on:click="{() => setDisplayCancelSetup(false)}">Cancel</Button>
         <Button type="primary" class="mr-2" on:click="{() => cancelSetup()}">Ok</Button>
-      </div>
-    </div>
-  </div>
-{/if}
-{#if displayResetSetup}
-  <!-- Create overlay-->
-  <div class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 bg-blend-multiply h-full grid z-50">
-    <div class="flex flex-col place-self-center w-[550px] rounded-xl bg-charcoal-800 shadow-xl shadow-black">
-      <div class="flex items-center justify-between pl-4 pr-3 py-3 space-x-2 text-gray-400">
-        <Fa class="h-4 w-4" icon="{faCircleQuestion}" />
-        <span class="grow text-md font-bold capitalize">Restart the entire setup?</span>
-      </div>
-
-      <div class="px-10 py-4 text-sm text-gray-500 leading-5">
-        You have already completed this setup. Do you want to complete it again?
-      </div>
-
-      <div class="px-5 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
-        <Button
-          type="secondary"
-          aria-label="Cancel"
-          on:click="{() => {
-            setDisplayResetSetup(false);
-            cancelSetup();
-          }}">No</Button>
-        <Button type="primary" class="mr-2" on:click="{() => restartSetup()}">Yes</Button>
       </div>
     </div>
   </div>
