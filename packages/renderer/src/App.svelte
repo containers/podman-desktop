@@ -93,7 +93,7 @@ window.events?.receive('display-troubleshooting', () => {
         <Route path="/" breadcrumb="Dashboard Page">
           <DashboardPage />
         </Route>
-        <Route path="/containers/*" breadcrumb="Containers" navigationHint="root">
+        <Route path="/containerslist/*" breadcrumb="Containers" navigationHint="root">
           <ContainerList searchTerm="{meta.query.filter || ''}" />
         </Route>
         <Route path="/containers/:id/*" breadcrumb="Container Details" let:meta navigationHint="details">
