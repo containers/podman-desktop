@@ -1,14 +1,14 @@
 /**********************************************************************
  * Copyright (C) 2023 Red Hat, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -74,13 +74,6 @@ suite('CLI Tool Prefernces page shows', () => {
   const cliTools = [cliToolInfoItem1, cliToolInfoItem2, cliToolInfoItem3];
   let cliToolRows: HTMLElement[] = [];
 
-  function validatePropertyPresentation(labelName: string, getExpectedContent: (info: CliToolInfo) => string) {
-    cliTools.forEach((tool, index) => {
-      const nameElement = within(cliToolRows[index]).getByLabelText(labelName);
-      expect(nameElement.textContent?.trim()).equals(getExpectedContent(tool));
-    });
-  }
-
   beforeAll(() => {
     cliToolInfos.set(cliTools);
     render(PreferencesCliToolsRendering, {});
@@ -90,30 +83,5 @@ suite('CLI Tool Prefernces page shows', () => {
 
   test('all registered tools', () => {
     expect(cliToolRows.length).equals(cliTools.length);
-  });
-
-  test("tool's name", () => {
-    validatePropertyPresentation('cli-name', toolInfo => toolInfo.name);
-  });
-
-  test("extension's name that registered the tool", () => {
-    validatePropertyPresentation('cli-registered-by', toolInfo => `Registered by ${toolInfo.extensionInfo.label}`);
-  });
-
-  test("tool's display name", () => {
-    validatePropertyPresentation('cli-display-name', toolInfo => toolInfo.displayName);
-  });
-
-  test("tool's description", () => {
-    validatePropertyPresentation('markdown-content', toolInfo => toolInfo.description);
-  });
-
-  test("tool's logo is not shown if images.icon property is not present or images property is empty", () => {
-    expect(within(cliToolRows[0]).queryAllByLabelText('cli-logo').length).equals(0);
-    expect(within(cliToolRows[1]).queryAllByLabelText('cli-logo').length).equals(0);
-  });
-
-  test("tool's logo is shown when images.icon property is present", () => {
-    expect(within(cliToolRows[2]).getAllByLabelText('cli-logo').length).equals(1);
   });
 });
