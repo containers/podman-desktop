@@ -20,7 +20,7 @@ import { afterEach, expect, test, vi } from 'vitest';
 import type { ComposeGitHubReleases, ComposeGithubReleaseArtifactMetadata } from './compose-github-releases';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { ComposeInstallation } from './installation';
+import { ComposeDownload } from './download';
 import * as extensionApi from '@podman-desktop/api';
 import { OS } from './os';
 import * as utils from './utils';
@@ -87,8 +87,8 @@ test('expect getLatestVersionAsset to return the first release from a list of re
   });
 
   // Expect the test to return the first release from the list (as the function simply returns the first one)
-  const composeInstallation = new ComposeInstallation(extensionContext, composeGitHubReleasesMock, os);
-  const result = await composeInstallation.getLatestVersionAsset();
+  const composeDownload = new ComposeDownload(extensionContext, composeGitHubReleasesMock, os);
+  const result = await composeDownload.getLatestVersionAsset();
   expect(result).toBeDefined();
   expect(result).toEqual(releases[0]);
 });
@@ -103,13 +103,13 @@ test('pick the 4th option option in the quickpickmenu and expect it to return th
   showQuickPickMock.mockResolvedValue({ id: 86626999, label: 'v2.14.2', tag: 'v2.14.2' } as any);
 
   // Expect the test to return the first release from the list (as the function simply returns the first one)
-  const composeInstallation = new ComposeInstallation(extensionContext, composeGitHubReleasesMock, os);
-  const result = await composeInstallation.promptUserForVersion();
+  const composeDownload = new ComposeDownload(extensionContext, composeGitHubReleasesMock, os);
+  const result = await composeDownload.promptUserForVersion();
   expect(result).toBeDefined();
   expect(result).toEqual(releases[3]); // "4th" option was picked
 });
 
-test('test installation of compose passes and that mkdir and executable mocks are called', async () => {
+test('test download of compose passes and that mkdir and executable mocks are called', async () => {
   const makeExecutableMock = vi.spyOn(utils, 'makeExecutable');
   const mkdirMock = vi.spyOn(fs.promises, 'mkdir');
   const getReleaseAssetIdMock = vi.spyOn(composeGitHubReleasesMock, 'getReleaseAssetId');
@@ -128,9 +128,9 @@ test('test installation of compose passes and that mkdir and executable mocks ar
   getReleaseAssetIdMock.mockResolvedValue(123456789);
   downloadReleaseAssetMock.mockResolvedValue(undefined);
 
-  // Simply install the first release from the example json list
-  const composeInstallation = new ComposeInstallation(extensionContext, composeGitHubReleasesMock, os);
-  await composeInstallation.install(releases[0]);
+  // Simply download the first release from the example json list
+  const composeDownload = new ComposeDownload(extensionContext, composeGitHubReleasesMock, os);
+  await composeDownload.download(releases[0]);
 
   // Expect the mkdir and executables to have been called
   expect(mkdirMock).toHaveBeenCalled();
