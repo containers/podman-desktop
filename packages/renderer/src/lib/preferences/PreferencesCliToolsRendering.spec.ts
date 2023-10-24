@@ -92,28 +92,28 @@ suite('CLI Tool Prefernces page shows', () => {
     expect(cliToolRows.length).equals(cliTools.length);
   });
 
-  test("tool's name", () => {
+  test('tool`s name', () => {
     validatePropertyPresentation('cli-name', toolInfo => toolInfo.name);
   });
 
-  test("extension's name that registered the tool", () => {
+  test('extension`s name that registered the tool', () => {
     validatePropertyPresentation('cli-registered-by', toolInfo => `Registered by ${toolInfo.extensionInfo.label}`);
   });
 
-  test("tool's display name", () => {
+  test('tool`s display name', () => {
     validatePropertyPresentation('cli-display-name', toolInfo => toolInfo.displayName);
   });
 
-  test("tool's description", () => {
+  test('tool`s description', () => {
     validatePropertyPresentation('markdown-content', toolInfo => toolInfo.description);
   });
 
-  test("tool's logo is not shown if images.icon property is not present or images property is empty", () => {
+  test('tool`s logo is not shown if images.icon property is not present or images property is empty', () => {
     expect(within(cliToolRows[0]).queryAllByLabelText('cli-logo').length).equals(0);
     expect(within(cliToolRows[1]).queryAllByLabelText('cli-logo').length).equals(0);
   });
 
-  test("tool's logo is shown when images.icon property is present", () => {
+  test('tool`s logo is shown when images.icon property is present', () => {
     expect(within(cliToolRows[2]).getAllByLabelText('cli-logo').length).equals(1);
   });
 });
