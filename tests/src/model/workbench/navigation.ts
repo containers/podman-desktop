@@ -17,7 +17,7 @@ export class NavigationBar {
     this.page = page;
     this.navigationLocator = this.page.getByRole('navigation', { name: 'AppNavigation' });
     this.imagesLink = this.page.getByRole('link', { name: 'Images' });
-    this.containersLink = this.page.getByRole('link', { name: 'Containers' });
+    this.containersLink = this.page.getByRole('link', { name: 'Containers', exact: true });
     this.podsLink = this.page.getByRole('link', { name: 'Pods' });
     this.volumesLink = this.page.getByRole('link', { name: 'Volumes' });
     this.dashboardLink = this.page.getByRole('link', { name: 'Dashboard' });
