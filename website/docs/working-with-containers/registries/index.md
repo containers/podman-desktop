@@ -26,7 +26,7 @@ You might want to configure Podman Desktop to authenticate to
   - GitHub
   - Google Container registry
 
-- A custom registry, that might have custom Certificate Authorities (CA).
+- A custom registry.
 
 <Tabs groupId="registry" queryString="registry">
 <TabItem value="preconfigured" label="Pre-configured registry">
