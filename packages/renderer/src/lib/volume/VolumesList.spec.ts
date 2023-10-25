@@ -219,7 +219,7 @@ describe('Create volume', () => {
     vi.clearAllMocks();
   });
 
-  const createVolumeButtonTitle = 'Create a volume';
+  const createVolumeButtonTitle = 'Create';
   test('no create volume button if no providers', async () => {
     providerInfos.set([]);
     await waitRender({});
