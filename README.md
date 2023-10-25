@@ -20,7 +20,7 @@
 
 Podman Desktop is a graphical interface that enables application developers to seamlessly work with containers and Kubernetes.
 
-Podman Desktop installs, configures and keeps Podman up to date on your local environment. It provides a system tray, to check status and interact with your container engine without losing focus from other tasks. The desktop application provides a dashboard to interact with containers, images, pods and volumes but also configures your environment with your OCI registries and network settings. Podman Desktop also provides capabilities to connect and deploy pods to Kubernetes environments.
+Podman Desktop installs, configures, and keeps Podman up to date on your local environment. It provides a system tray, to check status and interact with your container engine without losing focus from other tasks. The desktop application provides a dashboard to interact with containers, images, pods, and volumes but also configures your environment with your OCI registries and network settings. Podman Desktop also provides capabilities to connect and deploy pods to Kubernetes environments.
 
 Podman Desktop also supports [multiple container engines](#multiple-container-engine-support), pick your favourite one and use the tool!
 

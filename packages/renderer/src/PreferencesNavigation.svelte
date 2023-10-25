@@ -41,7 +41,7 @@ onMount(async () => {
 </script>
 
 <nav
-  class="z-1 w-[225px] min-w-[225px] shadow flex-col justify-between flex transition-all duration-500 ease-in-out bg-charcoal-700"
+  class="z-1 w-leftsidebar min-w-leftsidebar shadow flex-col justify-between flex transition-all duration-500 ease-in-out bg-charcoal-700"
   aria-label="PreferencesNavigation">
   <div class="flex items-center">
     <div class="pt-4 px-5 mb-10">
@@ -56,6 +56,8 @@ onMount(async () => {
     <SettingsNavItem title="Registries" href="/preferences/registries" bind:meta="{meta}" />
 
     <SettingsNavItem title="Authentication" href="/preferences/authentication-providers" bind:meta="{meta}" />
+
+    <SettingsNavItem title="CLI Tools" href="/preferences/cli-tools" bind:meta="{meta}" />
 
     <SettingsNavItem
       title="Extensions"

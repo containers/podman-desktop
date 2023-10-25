@@ -71,7 +71,7 @@ async function deletePod(podInfoUI: PodInfoUI): Promise<void> {
 }
 
 function openGenerateKube(): void {
-  router.goto(`/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURI(pod.engineId)}/kube`);
+  router.goto(`/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURIComponent(pod.engineId)}/kube`);
 }
 
 function deployToKubernetes(): void {

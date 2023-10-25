@@ -19,29 +19,121 @@
 import { Octokit } from '@octokit/rest';
 import * as extensionApi from '@podman-desktop/api';
 import { Detect } from './detect';
-import { ComposeExtension } from './compose-extension';
+import type { ComposeGithubReleaseArtifactMetadata } from './compose-github-releases';
 import { ComposeGitHubReleases } from './compose-github-releases';
 import { OS } from './os';
-import { ComposeWrapperGenerator } from './compose-wrapper-generator';
-import * as path from 'path';
 import * as handler from './handler';
+import { ComposeDownload } from './download';
 
-let composeExtension: ComposeExtension | undefined;
+let composeVersionMetadata: ComposeGithubReleaseArtifactMetadata | undefined;
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  // Post activation
-  setTimeout(() => {
-    postActivate(extensionContext).catch((error: unknown) => {
-      console.error('Error activating extension', error);
-    });
-  }, 0);
-
-  // Check docker-compose binary has been installed and update both
+  // Check docker-compose binary has been downloaded and update both
   // the configuration setting and the context accordingly
   await handler.updateConfigAndContextComposeBinary(extensionContext);
 
   // Setup configuration changes if the user toggles the "Install compose system-wide" boolean
   handler.handleConfigurationChanges(extensionContext);
+
+  // Create new classes to handle the onboarding sequence
+  const octokit = new Octokit();
+  const os = new OS();
+  const detect = new Detect(os, extensionContext.storagePath);
+
+  const composeGitHubReleases = new ComposeGitHubReleases(octokit);
+  const composeDownload = new ComposeDownload(extensionContext, composeGitHubReleases, os);
+
+  // ONBOARDING: Command to check compose is downloaded
+  const onboardingCheckDownloadCommand = extensionApi.commands.registerCommand(
+    'compose.onboarding.checkComposeDownloaded',
+    async () => {
+      // Check that docker-compose binary has been downloaded to the storage folder.
+      // instead of checking for `docker-compose` on the command line, the most reliable way is to see
+      // if we can get the pathname to the binary from the configuration
+      const isDownloaded = await detect.getStoragePath();
+      if (isDownloaded === '') {
+        extensionApi.context.setValue('composeIsNotDownloaded', true, 'onboarding');
+      } else {
+        extensionApi.context.setValue('composeIsNotDownloaded', false, 'onboarding');
+      }
+
+      // EDGE CASE: Update system-wide download context in case the user has removed
+      // the binary from the system path while podman-desktop is running (we only check on startup)
+      await handler.updateConfigAndContextComposeBinary(extensionContext);
+
+      // CheckDownload is the first step in the onboarding sequence,
+      // we will run getLatestVersionAsset so we can show the user the latest
+      // latest version of compose that is available.
+      if (!isDownloaded) {
+        // Get the latest version and store the metadata in a local variable
+        const composeLatestVersion = await composeDownload.getLatestVersionAsset();
+        // Set the value in the context to the version we're downloading so it appears in the onboarding sequence
+        if (composeLatestVersion) {
+          composeVersionMetadata = composeLatestVersion;
+          extensionApi.context.setValue('composeDownloadVersion', composeVersionMetadata.tag, 'onboarding');
+        }
+      }
+    },
+  );
+
+  // ONBOARDING; Command to download the compose binary. We will get the value that the user has "picked"
+  // from the context value. This is because we have the option to either "select a version" or "download the latest"
+  const onboardingDownloadComposeCommand = extensionApi.commands.registerCommand(
+    'compose.onboarding.downloadCompose',
+    async () => {
+      // If the version is undefined (checks weren't run, or the user didn't select a version)
+      // we will just download the latest version
+      if (composeVersionMetadata === undefined) {
+        composeVersionMetadata = await composeDownload.getLatestVersionAsset();
+      }
+
+      // Download
+      await composeDownload.download(composeVersionMetadata);
+
+      // We are all done, so we can set the context value to false
+      extensionApi.context.setValue('composeIsNotDownloaded', false, 'onboarding');
+    },
+  );
+
+  // ONBOARDING: Prompt the user for the version of Compose they want to download
+  const onboardingPromptUserForVersionCommand = extensionApi.commands.registerCommand(
+    'compose.onboarding.promptUserForVersion',
+    async () => {
+      // Prompt the user for the verison
+      const composeRelease = await composeDownload.promptUserForVersion();
+
+      // Update the context value that this is the version we are downloading
+      // we'll store both the metadata as well as version number in a sepearate context value
+      if (composeRelease) {
+        composeVersionMetadata = composeRelease;
+        extensionApi.context.setValue('composeDownloadVersion', composeRelease.tag, 'onboarding');
+      }
+
+      // Note, we do not refresh the UI when setValue has been set, only when "when" has been updated
+      // TEMPORARY FIX until we can find a better way to do this. This forces a refresh by changing the "when" evaluation
+      // of the dialog so it'll refresh the composeDownloadVersion value.
+      extensionApi.context.setValue('composeShowCustomDownloadDialog', true, 'onboarding');
+      extensionApi.context.setValue('composeShowCustomDownloadDialog', false, 'onboarding');
+    },
+  );
+
+  // ONBOARDING: Install compose system wide step
+  const onboardingInstallSystemWideCommand = extensionApi.commands.registerCommand(
+    'compose.onboarding.installSystemWide',
+    async () => {
+      // This is TEMPORARY until we re-add the "Installing compose system wide" toggle again
+      // We will just call the handler function directly
+      await handler.installComposeBinary(detect, extensionContext);
+    },
+  );
+
+  // Push the commands that will be used within the onboarding sequence
+  extensionContext.subscriptions.push(
+    onboardingCheckDownloadCommand,
+    onboardingPromptUserForVersionCommand,
+    onboardingDownloadComposeCommand,
+    onboardingInstallSystemWideCommand,
+  );
 
   // Need to "ADD" a provider so we can actually press the button!
   // We set this to "unknown" so it does not appear on the dashboard (we only want it in preferences).
@@ -58,24 +150,4 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   const provider = extensionApi.provider.createProvider(providerOptions);
   extensionContext.subscriptions.push(provider);
-}
-
-async function postActivate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  const octokit = new Octokit();
-  const os = new OS();
-  const podmanComposeGenerator = new ComposeWrapperGenerator(os, path.resolve(extensionContext.storagePath, 'bin'));
-  composeExtension = new ComposeExtension(
-    extensionContext,
-    new Detect(os, extensionContext.storagePath),
-    new ComposeGitHubReleases(octokit),
-    os,
-    podmanComposeGenerator,
-  );
-  await composeExtension.activate();
-}
-
-export async function deactivate(): Promise<void> {
-  if (composeExtension) {
-    await composeExtension.deactivate();
-  }
 }

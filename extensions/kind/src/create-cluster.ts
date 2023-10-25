@@ -157,15 +157,24 @@ export async function createCluster(
   // update PATH to include kind
   env.PATH = getKindPath();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const telemetryOptions: Record<string, any> = {
+    provider,
+    httpHostPort,
+    httpsHostPort,
+    ingressController,
+  };
+
   // now execute the command to create the cluster
+  const startTime = performance.now();
   try {
     await extensionApi.process.exec(kindCli, ['create', 'cluster', '--config', tmpFilePath], { env, logger, token });
     if (ingressController) {
       logger.log('Creating ingress controller resources');
       await setupIngressController(clusterName);
     }
-    telemetryLogger.logUsage('createCluster', { provider, httpHostPort, httpsHostPort, ingressController });
   } catch (error) {
+    telemetryOptions.error = error;
     let errorMessage: string;
 
     if (typeof error === 'object' && 'message' in error) {
@@ -174,16 +183,12 @@ export async function createCluster(
       errorMessage = error;
     }
 
-    telemetryLogger.logError('createCluster', {
-      provider,
-      httpHostPort,
-      httpsHostPort,
-      ingressController,
-      error: errorMessage,
-      stdErr: errorMessage,
-    });
     throw new Error(`Failed to create kind cluster. ${errorMessage}`);
   } finally {
+    const endTime = performance.now();
+    telemetryOptions.duration = endTime - startTime;
+    telemetryLogger.logUsage('createCluster', telemetryOptions);
+
     // delete temporary directory/file
     await fs.promises.rm(tmpDirectory, { recursive: true });
   }

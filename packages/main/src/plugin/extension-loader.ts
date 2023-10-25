@@ -30,7 +30,6 @@ import type { ImageRegistry } from './image-registry.js';
 import type { MessageBox } from './message-box.js';
 import type { ProgressImpl } from './progress-impl.js';
 import { ProgressLocation } from './progress-impl.js';
-import type { NotificationImpl } from './notification-impl.js';
 import {
   StatusBarItemImpl,
   StatusBarAlignLeft,
@@ -68,6 +67,7 @@ import { ModuleLoader } from './module-loader.js';
 import { ExtensionLoaderSettings } from './extension-loader-settings.js';
 import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plugin/kube-generator-registry.js';
 import type { CliToolRegistry } from './cli-tool-registry.js';
+import type { NotificationRegistry } from './notification-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -138,7 +138,6 @@ export class ExtensionLoader {
     private trayMenuRegistry: TrayMenuRegistry,
     private messageBox: MessageBox,
     private progress: ProgressImpl,
-    private notifications: NotificationImpl,
     private statusBarRegistry: StatusBarRegistry,
     private kubernetesClient: KubernetesClient,
     private fileSystemMonitoring: FilesystemMonitoring,
@@ -156,6 +155,7 @@ export class ExtensionLoader {
     private exec: Exec,
     private kubeGeneratorRegistry: KubeGeneratorRegistry,
     private cliToolRegistry: CliToolRegistry,
+    private notificationRegistry: NotificationRegistry,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -565,6 +565,7 @@ export class ExtensionLoader {
       extension.subscriptions.push(this.onboardingRegistry.registerOnboarding(extension, onboarding));
     }
 
+    extension.subscriptions.push(this.notificationRegistry.registerExtension(extension.id));
     this.analyzedExtensions.set(extension.id, extension);
     this.extensionState.delete(extension.id);
     this.extensionStateErrors.delete(extension.id);
@@ -745,7 +746,6 @@ export class ExtensionLoader {
 
     const messageBox = this.messageBox;
     const progress = this.progress;
-    const notifications = this.notifications;
     const inputQuickPickRegistry = this.inputQuickPickRegistry;
     const customPickRegistry = this.customPickRegistry;
     const windowObj: typeof containerDesktopAPI.window = {
@@ -783,8 +783,13 @@ export class ExtensionLoader {
         return progress.withProgress(options, task);
       },
 
-      showNotification: (options: containerDesktopAPI.NotificationOptions): containerDesktopAPI.Disposable => {
-        return notifications.showNotification(options);
+      showNotification: (notificationInfo: containerDesktopAPI.NotificationOptions): containerDesktopAPI.Disposable => {
+        return this.notificationRegistry.addNotification({
+          ...notificationInfo,
+          extensionId: extensionInfo.id,
+          type: notificationInfo.type || 'info',
+          title: notificationInfo.title || extensionInfo.name,
+        });
       },
 
       createStatusBarItem: (

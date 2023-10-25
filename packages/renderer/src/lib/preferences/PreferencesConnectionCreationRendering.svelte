@@ -3,7 +3,7 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
-import { getNormalizedDefaultNumberValue, writeToTerminal, isPropertyValidInContext } from './Util';
+import { getNormalizedDefaultNumberValue, writeToTerminal, isPropertyValidInContext, getInitialValue } from './Util';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import {
   clearCreateTask,
@@ -408,7 +408,12 @@ function closePage() {
           {#if connectionAuditResult && (connectionAuditResult.records?.length || 0) > 0}
             <AuditMessageBox auditResult="{connectionAuditResult}" />
           {/if}
-          <form novalidate class="p-2 space-y-7 h-fit" on:submit|preventDefault="{handleOnSubmit}" bind:this="{formEl}">
+          <form
+            novalidate
+            class="p-2 space-y-7 h-fit"
+            on:submit|preventDefault="{handleOnSubmit}"
+            bind:this="{formEl}"
+            aria-label="Properties Information">
             {#each configurationKeys as configurationKey}
               <div class="mb-2.5">
                 <div class="font-semibold text-xs">
@@ -428,7 +433,8 @@ function closePage() {
                   validRecord="{handleValidComponent}"
                   record="{configurationKey}"
                   setRecordValue="{setConfigurationValue}"
-                  enableSlider="{true}" />
+                  enableSlider="{true}"
+                  initialValue="{getInitialValue(configurationKey)}" />
               </div>
             {/each}
             <div class="w-full">

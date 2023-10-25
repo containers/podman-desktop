@@ -59,13 +59,15 @@ const telemetryLoggerMock = {
 } as unknown as TelemetryLogger;
 
 test('expect error is cli returns non zero exit code', async () => {
+  const error = { exitCode: -1, message: 'error' } as extensionApi.RunError;
   try {
-    (extensionApi.process.exec as Mock).mockRejectedValue({ exitCode: -1, message: 'error' } as extensionApi.RunError);
+    (extensionApi.process.exec as Mock).mockRejectedValue(error);
     await createCluster({}, undefined, '', telemetryLoggerMock, undefined);
   } catch (err) {
     expect(err).to.be.a('Error');
     expect(err.message).equal('Failed to create kind cluster. error');
-    expect(telemetryLogErrorMock).toBeCalledWith('createCluster', expect.objectContaining({ error: 'error' }));
+    expect(telemetryLogUsageMock).toBeCalledWith('createCluster', expect.objectContaining({ error: error }));
+    expect(telemetryLogErrorMock).not.toBeCalled();
   }
 });
 
@@ -98,6 +100,7 @@ test('expect cluster to be created with ingress', async () => {
 });
 
 test('expect error if Kubernetes reports error', async () => {
+  const error = new Error('Kubernetes error');
   try {
     (extensionApi.process.exec as Mock).mockReturnValue({} as extensionApi.RunResult);
     const logger = {
@@ -105,16 +108,14 @@ test('expect error if Kubernetes reports error', async () => {
       error: vi.fn(),
       warn: vi.fn(),
     };
-    (extensionApi.kubernetes.createResources as Mock).mockRejectedValue(new Error('Kubernetes error'));
+    (extensionApi.kubernetes.createResources as Mock).mockRejectedValue(error);
     await createCluster({ 'kind.cluster.creation.ingress': 'on' }, logger, '', telemetryLoggerMock, undefined);
   } catch (err) {
     expect(extensionApi.kubernetes.createResources).toBeCalled();
     expect(err).to.be.a('Error');
     expect(err.message).equal('Failed to create kind cluster. Kubernetes error');
-    expect(telemetryLogErrorMock).toBeCalledWith(
-      'createCluster',
-      expect.objectContaining({ error: 'Kubernetes error' }),
-    );
+    expect(telemetryLogErrorMock).not.toBeCalled();
+    expect(telemetryLogUsageMock).toBeCalledWith('createCluster', expect.objectContaining(error));
   }
 });
 

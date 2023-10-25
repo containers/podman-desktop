@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "7zip-min": "^1.4.4",
-    "@types/js-yaml": "^4.0.7",
+    "@types/js-yaml": "^4.0.8",
     "mkdirp": "^3.0.1",
     "vitest": "^0.34.6",
     "zip-local": "^0.3.5"

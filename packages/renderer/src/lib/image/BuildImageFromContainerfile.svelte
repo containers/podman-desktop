@@ -27,7 +27,6 @@ let buildFinished = false;
 let containerImageName = 'my-custom-image';
 let containerFilePath: string;
 let containerBuildContextDirectory: string;
-let hasInvalidFields = true;
 
 let buildImageInfo: BuildImageInfo | undefined = undefined;
 let providers: ProviderInfo[] = [];
@@ -35,6 +34,8 @@ let providerConnections: ProviderContainerConnectionInfo[] = [];
 let selectedProvider: ProviderContainerConnectionInfo | undefined = undefined;
 let selectedProviderConnection: ProviderContainerConnectionInfo | undefined = undefined;
 let logsTerminal: Terminal;
+
+$: hasInvalidFields = !containerFilePath || !containerBuildContextDirectory;
 
 function getTerminalCallback(): BuildImageCallback {
   return {
@@ -117,7 +118,6 @@ async function getContainerfileLocation() {
   const result = await window.openFileDialog('Select Containerfile to build');
   if (!result.canceled && result.filePaths.length === 1) {
     containerFilePath = result.filePaths[0];
-    hasInvalidFields = false;
     if (!containerBuildContextDirectory) {
       // select the parent directory of the file as default
       // eslint-disable-next-line no-useless-escape
@@ -145,29 +145,33 @@ async function getContainerBuildContextDirectory() {
     {:else}
       <div class="bg-charcoal-900 pt-5 space-y-6 px-8 sm:pb-6 xl:pb-8 rounded-lg">
         <div hidden="{buildImageInfo?.buildRunning}">
-          <label for="containerFilePath" class="block mb-2 text-sm font-bold text-gray-400">Containerfile path</label>
-          <input
-            on:click="{() => getContainerfileLocation()}"
-            name="containerFilePath"
-            id="containerFilePath"
-            bind:value="{containerFilePath}"
-            readonly
-            placeholder="Select Containerfile to build..."
-            class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
-            required />
+          <label for="containerFilePath" class="block mb-2 text-sm font-bold text-gray-400">Containerfile Path</label>
+          <div class="flex flex-row">
+            <input
+              name="containerFilePath"
+              id="containerFilePath"
+              bind:value="{containerFilePath}"
+              placeholder="Containerfile to build"
+              class="w-full p-2 mr-3 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+              required />
+
+            <Button on:click="{() => getContainerfileLocation()}">Browse...</Button>
+          </div>
         </div>
 
-        <div hidden="{!containerFilePath || buildImageInfo?.buildRunning}">
+        <div hidden="{buildImageInfo?.buildRunning}">
           <label for="containerBuildContextDirectory" class="block mb-2 text-sm font-bold text-gray-400"
-            >Build context directory</label>
-          <input
-            on:click="{() => getContainerBuildContextDirectory()}"
-            name="containerBuildContextDirectory"
-            id="containerBuildContextDirectory"
-            bind:value="{containerBuildContextDirectory}"
-            readonly
-            class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
-            required />
+            >Build Context Directory</label>
+          <div class="flex flex-row">
+            <input
+              name="containerBuildContextDirectory"
+              id="containerBuildContextDirectory"
+              bind:value="{containerBuildContextDirectory}"
+              placeholder="Folder to build in"
+              class="w-full p-2 mr-3 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+              required />
+            <Button on:click="{() => getContainerBuildContextDirectory()}">Browse...</Button>
+          </div>
         </div>
 
         <div hidden="{buildImageInfo?.buildRunning}">
@@ -177,7 +181,7 @@ async function getContainerBuildContextDirectory() {
             bind:value="{containerImageName}"
             name="containerImageName"
             id="containerImageName"
-            placeholder="Enter image name (e.g. quay.io/namespace/my-custom-image)"
+            placeholder="image name (e.g. quay.io/namespace/my-custom-image)"
             class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
             required />
           {#if providerConnections.length > 1}

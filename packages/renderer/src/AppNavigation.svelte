@@ -91,7 +91,9 @@ export let meta: TinroRouteMeta;
 </script>
 
 <svelte:window />
-<nav class="group w-[54px] min-w-[54px] flex flex-col justify-between hover:overflow-y-none" aria-label="AppNavigation">
+<nav
+  class="group w-leftnavbar min-w-leftnavbar flex flex-col justify-between hover:overflow-y-none"
+  aria-label="AppNavigation">
   <NavItem href="/" tooltip="Dashboard" bind:meta="{meta}">
     <div class="flex items-center w-full h-full">
       <svg

@@ -20,13 +20,14 @@
 
 import '@testing-library/jest-dom/vitest';
 import { beforeAll, test, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import PodsList from '/@/lib/pod/PodsList.svelte';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { get } from 'svelte/store';
 import { providerInfos } from '/@/stores/providers';
 import { podsInfos } from '/@/stores/pods';
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
+import { router } from 'tinro';
 
 const getProvidersInfoMock = vi.fn();
 const listPodsMock = vi.fn();
@@ -119,6 +120,22 @@ const kubepod2: PodInfo = {
   Networks: [],
   Status: 'running',
   engineId: 'context2',
+  engineName: 'k8s',
+  kind: 'kubernetes',
+};
+
+const ocppod: PodInfo = {
+  Cgroup: '',
+  Containers: [],
+  Created: '',
+  Id: 'e8129c5720b3',
+  InfraId: 'ocppod',
+  Labels: {},
+  Name: 'ocppod',
+  Namespace: '',
+  Networks: [],
+  Status: 'running',
+  engineId: 'userid-dev/api-sandbox-123-openshiftapps-com:6443/userId',
   engineName: 'k8s',
   kind: 'kubernetes',
 };
@@ -254,4 +271,34 @@ test('Expect filter empty screen', async () => {
   render(PodsList, { searchTerm: 'No match' });
   const filterButton = screen.getByRole('button', { name: 'Clear filter' });
   expect(filterButton).toBeInTheDocument();
+});
+
+test('Expect the route to a pod details page is correctly encoded with an engineId containing / characters', async () => {
+  getProvidersInfoMock.mockResolvedValue([provider]);
+  listPodsMock.mockResolvedValue([]);
+  kubernetesListPodsMock.mockResolvedValue([ocppod]);
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+
+  while (get(providerInfos).length !== 1) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  for (;;) {
+    const infos = get(podsInfos);
+    if (infos.length === 1 && infos[0].Name === ocppod.Name) {
+      break;
+    }
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  render(PodsList);
+  const podDetails = screen.getByRole('cell', { name: 'ocppod e8129c57 0 container k8s userid-dev/api-s tooltip' });
+  expect(podDetails).toBeInTheDocument();
+
+  const routerGotoMock = vi.fn();
+  router.goto = routerGotoMock;
+  await fireEvent.click(podDetails);
+  expect(routerGotoMock).toHaveBeenCalledWith(
+    '/pods/kubernetes/ocppod/userid-dev%2Fapi-sandbox-123-openshiftapps-com%3A6443%2FuserId/logs',
+  );
 });

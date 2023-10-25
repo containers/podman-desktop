@@ -368,7 +368,10 @@ function hasAnyConfiguration(provider: ProviderInfo) {
       hidden="{providers.length > 0}" />
 
     {#each providers as provider}
-      <div class="bg-charcoal-600 mb-5 rounded-md p-3 divide-x divide-gray-900 flex">
+      <div
+        class="bg-charcoal-600 mb-5 rounded-md p-3 divide-x divide-gray-900 flex"
+        role="region"
+        aria-label="{provider.id}">
         <div>
           <!-- left col - provider icon/name + "create new" button -->
           <div class="min-w-[170px] max-w-[200px]">
@@ -476,7 +479,10 @@ function hasAnyConfiguration(provider: ProviderInfo) {
 
               {#if providerContainerConfiguration.has(provider.internalId)}
                 {@const providerConfiguration = providerContainerConfiguration.get(provider.internalId) || []}
-                <div class="flex mt-3 {container.status !== 'started' ? 'text-gray-900' : ''}">
+                <div
+                  class="flex mt-3 {container.status !== 'started' ? 'text-gray-900' : ''}"
+                  role="group"
+                  aria-label="Provider Configuration">
                   {#each providerConfiguration.filter(conf => conf.connection === container.name) as connectionSetting}
                     {#if connectionSetting.format === 'cpu' || connectionSetting.format === 'cpuUsage'}
                       {#if !peerProperties.isPeerProperty(connectionSetting.id)}

@@ -15,3 +15,5 @@ You might want to configure Podman Desktop to:
 
 - [Authenticate to a preconfigured registry](/docs/working-with-containers/registries/authenticating-to-a-preconfigured-registry).
 - [Add an Insecure Registry to Podman Desktop](/docs/working-with-containers/registries/insecure-registry).
+
+![Registries page](img/registries.png)

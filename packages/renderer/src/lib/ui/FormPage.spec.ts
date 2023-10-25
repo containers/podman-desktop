@@ -59,7 +59,7 @@ test('Expect no backlink or close is defined', async () => {
   expect(backElement).not.toBeInTheDocument();
 
   const closeElement = screen.queryByTitle('Close');
-  expect(closeElement).not.toBeInTheDocument();
+  expect(closeElement).toBeInTheDocument();
 });
 
 test('Expect name is defined', async () => {

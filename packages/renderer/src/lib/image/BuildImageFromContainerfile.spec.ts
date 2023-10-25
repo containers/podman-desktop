@@ -87,10 +87,13 @@ test('Expect Build button is enabled', async () => {
   setup();
   render(BuildImageFromContainerfile, {});
 
-  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile path' });
-
+  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile Path' });
   expect(containerFilePath).toBeInTheDocument();
-  await userEvent.click(containerFilePath);
+  await userEvent.type(containerFilePath, '/somepath/containerfile');
+
+  const buildFolder = screen.getByRole('textbox', { name: 'Build Context Directory' });
+  expect(buildFolder).toBeInTheDocument();
+  await userEvent.type(buildFolder, '/somepath');
 
   const buildButton = screen.getByRole('button', { name: 'Build' });
   expect(buildButton).toBeInTheDocument();
@@ -101,10 +104,13 @@ test('Expect Done button is enabled once build is done', async () => {
   setup();
   render(BuildImageFromContainerfile, {});
 
-  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile path' });
-
+  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile Path' });
   expect(containerFilePath).toBeInTheDocument();
-  await userEvent.click(containerFilePath);
+  await userEvent.type(containerFilePath, '/somepath/containerfile');
+
+  const buildFolder = screen.getByRole('textbox', { name: 'Build Context Directory' });
+  expect(buildFolder).toBeInTheDocument();
+  await userEvent.type(buildFolder, '/somepath');
 
   const buildButton = screen.getByRole('button', { name: 'Build' });
   expect(buildButton).toBeInTheDocument();
