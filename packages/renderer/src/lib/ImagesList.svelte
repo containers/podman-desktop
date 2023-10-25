@@ -222,11 +222,9 @@ function computeInterval(): number {
       <Prune type="images" engines="{enginesList}" />
     {/if}
     <Button on:click="{() => gotoPullImage()}" title="Pull Image From a Registry" icon="{faArrowCircleDown}">
-      Pull an image
+      Pull
     </Button>
-    <Button on:click="{() => gotoBuildImage()}" title="Build Image from Containerfile" icon="{faCube}">
-      Build an image
-    </Button>
+    <Button on:click="{() => gotoBuildImage()}" title="Build Image from Containerfile" icon="{faCube}">Build</Button>
   </div>
 
   <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">

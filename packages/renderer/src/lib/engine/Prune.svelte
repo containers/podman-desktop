@@ -74,6 +74,4 @@ async function prune(type: string) {
 }
 </script>
 
-<Button on:click="{() => openPruneDialog()}" title="Remove unused images" icon="{faTrash}">
-  Prune {type}
-</Button>
+<Button on:click="{() => openPruneDialog()}" title="Remove unused images" icon="{faTrash}">Prune</Button>

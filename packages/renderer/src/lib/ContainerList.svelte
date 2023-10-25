@@ -418,7 +418,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
     {#if $containersInfos.length > 0}
       <Prune type="containers" engines="{enginesList}" />
     {/if}
-    <Button on:click="{() => toggleCreateContainer()}" icon="{faPlusCircle}">Create a container</Button>
+    <Button on:click="{() => toggleCreateContainer()}" icon="{faPlusCircle}">Create</Button>
     {#if providerPodmanConnections.length > 0}
       <KubePlayButton />
     {/if}
