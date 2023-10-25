@@ -10,7 +10,7 @@ function openContainer(containerID: string) {
 }
 </script>
 
-<div class="flex px-5 py-4 flex-col">
+<div class="flex px-5 py-4 flex-col h-full overflow-auto">
   <div class="w-full">
     <table>
       <tr>
@@ -28,7 +28,7 @@ function openContainer(containerID: string) {
     </table>
   </div>
   {#if volume.containersUsage.length > 0}
-    <div class="w-full my-12">
+    <div class="w-full mt-12">
       <span>Containers using this volume:</span>
       {#each volume.containersUsage as container}
         <table>
