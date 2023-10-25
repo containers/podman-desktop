@@ -223,6 +223,9 @@ PRs will be approved by an [approver][owners] listed in [`CODEOWNERS`](CODEOWNER
 
 We typically require one approval for code as well as documentation-related PR's. If it is a large code-related PR, proof of review / testing (a video / screenshot) is required.
 
+
+**Avoid enabling auto-merge** until the PR has undergone sufficient reviews and contributors have been given ample time for assessment. A maintainer will review the PR prior to the final merge. It's common for code PRs to require up to a week before merging due to reasons such as ongoing releases or dependencies on other PRs. Additionally, documentation PRs might take a few days for integration.
+
 Some tips for the PR process:
 
 - No PR too small! Feel free to open a PR against tests, bugs, new features, docs, etc.
