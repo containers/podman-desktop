@@ -2447,6 +2447,10 @@ declare module '@podman-desktop/api' {
     displayName: string;
     markdownDescription: string;
     images: ProviderImages;
+    storagePath: string;
+    // This is needed since every binary handles getting the version differently, for example some tools use
+    // --version, some use -v, some use -V, etc.
+    helpCommand: string;
   }
 
   export type CliToolState = 'registered';

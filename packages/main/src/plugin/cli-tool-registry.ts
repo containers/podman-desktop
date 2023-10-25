@@ -21,6 +21,8 @@ import type { CliToolExtensionInfo, CliToolInfo } from './api/cli-tool-info.js';
 import type { ApiSenderType } from './api.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import type { Exec } from './util/exec.js';
+import path from 'node:path';
+import { isWindows } from '../util.js';
 
 export class CliToolImpl implements CliTool, Disposable {
   readonly id: string;
@@ -56,6 +58,11 @@ export class CliToolImpl implements CliTool, Disposable {
     return Object.freeze(this._options.images);
   }
 
+  // getVersion will call getCliVersion which will check via running the binary with `--version` or `-v`, etc (from _options.helpCommand)
+  async getVersion(): Promise<string> {
+    return await getCliVersion(this._exec, this._options.name, this._options.storagePath, this._options.helpCommand);
+  }
+
   dispose(): void {
     this.registry.disposeCliTool(this);
   }
@@ -82,9 +89,11 @@ export class CliToolRegistry {
     this.apiSender.send('cli-tool-remove', cliTool.id);
   }
 
-  getCliToolInfos(): CliToolInfo[] {
-    return Array.from(this.cliTools.values()).map(cliTool => {
-      return {
+  async getCliToolInfos(): Promise<CliToolInfo[]> {
+    const cliToolInfos: CliToolInfo[] = [];
+    for (const cliTool of this.cliTools.values()) {
+      const cliVersion = await cliTool.getVersion();
+      cliToolInfos.push({
         id: cliTool.id,
         name: cliTool.name,
         displayName: cliTool.displayName,
@@ -92,7 +101,40 @@ export class CliToolRegistry {
         state: cliTool.state,
         images: cliTool.images,
         extensionInfo: cliTool.extensionInfo,
-      };
-    });
+        version: cliVersion,
+      });
+    }
+    return cliToolInfos;
   }
+}
+
+// This function will take in the exec, name and storage path of the binary.
+// it will also take in the "command" that achieves getting the version of the binary as
+// each tool has a different way of getting it (for example, -v, --version, version, --help, etc.)
+// NOTE: We only care what's in the ~/.local/share/containers/podman-desktop/extensions-storage/ folder
+// not the binary that is installed on the system (since we have the ability to install system-wide)
+async function getCliVersion(exec: Exec, name: string, storagePath: string, helpCommand: string): Promise<string> {
+  // Make sure we resolve if it is a Windows binary or not as well.
+  const destFile = path.resolve(storagePath, 'bin', isWindows() ? name + '.exe' : name);
+  try {
+    const result = await exec.exec(destFile, [helpCommand]);
+    return extractVersion(result.stdout);
+  } catch (e) {
+    // If unable to get binary, just return blank, don't bother with returning an error, just output it to console.
+    console.log(`Error getting version of binary ${name}, error:`, e);
+  }
+  return '';
+}
+
+// Extracts a version from an output string. This is a best-effort attempt to
+// extract a version from the output of a command. It is not guaranteed to
+// succeed.
+function extractVersion(output: string): string {
+  // This regex captures:
+  // - A leading "v" (optional)
+  // - Major, minor, and patch numbers
+  // - Optional suffixes like -alpha, -beta, -rc1, etc.
+  const regex = /v?(\d+\.\d+(\.\d+)?(-[a-zA-Z0-9]+)?)/;
+  const match = output.match(regex);
+  return match ? match[1] : '';
 }

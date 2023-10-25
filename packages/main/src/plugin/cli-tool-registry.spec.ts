@@ -45,12 +45,21 @@ import type { ViewRegistry } from './view-registry.js';
 import type { Context } from './context/context.js';
 import type { Proxy } from './proxy.js';
 import { afterEach } from 'node:test';
-import type { CliToolOptions } from '@podman-desktop/api';
+import type { CliToolOptions, RunResult } from '@podman-desktop/api';
 import type { NotificationRegistry } from './notification-registry.js';
 
 const apiSender: ApiSenderType = {
   send: vi.fn(),
   receive: vi.fn(),
+};
+
+const mockOptions: CliToolOptions = {
+  name: 'tool-name',
+  displayName: 'tool-display-name',
+  markdownDescription: 'markdown description',
+  images: {},
+  storagePath: '/fake-storage-path',
+  helpCommand: '--version',
 };
 
 const directories = {
@@ -59,11 +68,17 @@ const directories = {
   getExtensionsStorageDirectory: () => '/fake-extensions-storage-directory',
 } as unknown as Directories;
 
+// mock Exec
+const exec = vi.fn();
+const execMock = {
+  exec: exec,
+} as unknown as Exec;
+
 let cliToolRegistry: CliToolRegistry;
 suite('cli module', () => {
   let extLoader: ExtensionLoader;
   beforeEach(() => {
-    cliToolRegistry = new CliToolRegistry(apiSender, vi.fn() as unknown as Exec, vi.fn() as unknown as Telemetry);
+    cliToolRegistry = new CliToolRegistry(apiSender, execMock as unknown as Exec, vi.fn() as unknown as Telemetry);
     extLoader = new ExtensionLoader(
       vi.fn() as unknown as CommandRegistry,
       vi.fn() as unknown as MenuRegistry,
@@ -88,7 +103,7 @@ suite('cli module', () => {
       vi.fn() as unknown as ViewRegistry,
       vi.fn() as unknown as Context,
       directories,
-      vi.fn() as unknown as Exec,
+      execMock as unknown as Exec,
       vi.fn() as unknown as KubeGeneratorRegistry,
       cliToolRegistry,
       vi.fn() as unknown as NotificationRegistry,
@@ -98,12 +113,14 @@ suite('cli module', () => {
   afterEach(() => {
     vi.resetAllMocks();
   });
+
   const extManifest = {
     publisher: 'ext-publisher',
     name: 'ext-name',
     displayName: 'ext-display-name',
     version: 'ext-version',
   };
+
   suite('create CliTool', () => {
     test('creates CliTool instance using CliToolsOptions properties', () => {
       const api = extLoader.createApi('/path', extManifest);
@@ -112,6 +129,8 @@ suite('cli module', () => {
         displayName: 'tool-display-name',
         markdownDescription: 'markdown description',
         images: {},
+        storagePath: '/fake-storage-path',
+        helpCommand: '--version',
       };
       const newCliTool = api.cli.createCliTool(options);
       expect(newCliTool.id).equals(`${extManifest.publisher}.${extManifest.name}.${options.name}`);
@@ -120,6 +139,7 @@ suite('cli module', () => {
       expect(newCliTool.markdownDescription).equals(options.markdownDescription);
       expect(newCliTool.images).equals(options.images);
       expect(newCliTool.state).equals('registered');
+      expect(newCliTool.displayName);
     });
 
     test('CLI Tool registry sends "cli-tool-create" event when new tool is created', () => {
@@ -129,21 +149,32 @@ suite('cli module', () => {
         displayName: 'tool-display-name',
         markdownDescription: 'markdown description',
         images: {},
+        storagePath: '/fake-storage-path',
+        helpCommand: '--version',
       };
       api.cli.createCliTool(options);
       expect(apiSender.send).toBeCalledWith('cli-tool-create');
     });
 
-    test('CLI Tool registry generates CliToolInfo array for created tools', () => {
+    test('CLI Tool registry generates CliToolInfo array for created tools', async () => {
+      // Spy on exec to return a version
+      vi.spyOn(execMock, 'exec').mockResolvedValue({
+        stdout: 'podman version 4.7.0',
+        stderr: '',
+        exitCode: 0,
+      } as unknown as RunResult);
+
       const api = extLoader.createApi('/path', extManifest);
       const options: CliToolOptions = {
         name: 'tool-name',
         displayName: 'tool-display-name',
         markdownDescription: 'markdown description',
         images: {},
+        storagePath: '/fake-storage-path',
+        helpCommand: '--version',
       };
       const newCliTool = api.cli.createCliTool(options);
-      const infoList = cliToolRegistry.getCliToolInfos();
+      const infoList = await cliToolRegistry.getCliToolInfos();
       expect(infoList.length).equals(1);
       expect(infoList[0]).toMatchObject({
         id: newCliTool.id,
@@ -153,7 +184,33 @@ suite('cli module', () => {
         state: newCliTool.state,
         images: newCliTool.images,
         extensionInfo: newCliTool.extensionInfo,
+        version: '4.7.0',
       });
+    });
+    test('return no version when checking and it errors out aka binary not found', async () => {
+      // Spy on exec to return a version
+      vi.spyOn(execMock, 'exec').mockResolvedValue({
+        stdout: '',
+        stderr: 'Command not found',
+        exitCode: 1,
+      } as unknown as RunResult);
+
+      const api = extLoader.createApi('/path', extManifest);
+      const options = mockOptions;
+      const newCliTool = api.cli.createCliTool(options);
+      const infoList = await cliToolRegistry.getCliToolInfos();
+      expect(infoList.length).equals(1);
+      expect(infoList[0]).toMatchObject({
+        id: newCliTool.id,
+        name: newCliTool.name,
+        displayName: newCliTool.displayName,
+        description: newCliTool.markdownDescription,
+        state: newCliTool.state,
+        images: newCliTool.images,
+        extensionInfo: newCliTool.extensionInfo,
+        version: '',
+      });
+      newCliTool.dispose();
     });
   });
 
@@ -165,25 +222,29 @@ suite('cli module', () => {
         displayName: 'tool-display-name',
         markdownDescription: 'markdown description',
         images: {},
+        storagePath: '/fake-storage-path',
+        helpCommand: '--version',
       };
       const newCliTool = api.cli.createCliTool(options);
       newCliTool.dispose();
       expect(apiSender.send).toBeCalledWith('cli-tool-remove', newCliTool.id);
     });
 
-    test('removes cli tool from the registry', () => {
+    test('removes cli tool from the registry', async () => {
       const api = extLoader.createApi('/path', extManifest);
       const options: CliToolOptions = {
         name: 'tool-name',
         displayName: 'tool-display-name',
         markdownDescription: 'markdown description',
         images: {},
+        storagePath: '/fake-storage-path',
+        helpCommand: '--version',
       };
       const newCliTool = api.cli.createCliTool(options);
-      const infoListAfterCreate = cliToolRegistry.getCliToolInfos();
+      const infoListAfterCreate = await cliToolRegistry.getCliToolInfos();
       expect(infoListAfterCreate.length).equals(1);
       newCliTool.dispose();
-      const infoListAfterDispose = cliToolRegistry.getCliToolInfos();
+      const infoListAfterDispose = await cliToolRegistry.getCliToolInfos();
       expect(infoListAfterDispose.length).equals(0);
     });
   });

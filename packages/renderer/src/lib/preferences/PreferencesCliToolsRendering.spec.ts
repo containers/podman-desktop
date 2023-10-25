@@ -40,6 +40,7 @@ const cliToolInfoItem1: CliToolInfo = {
     id: 'ext-id1',
     label: 'ext-label1',
   },
+  version: '1.0.1',
 };
 
 const cliToolInfoItem2: CliToolInfo = {
@@ -53,25 +54,41 @@ const cliToolInfoItem2: CliToolInfo = {
     label: 'ext-label2',
   },
   images: {},
+  version: '1.0.2',
 };
 
 const cliToolInfoItem3: CliToolInfo = {
-  id: 'ext-id.tool-name2',
-  name: 'tool-name2',
-  description: 'markdown description2',
-  displayName: 'tools-display-name2',
+  id: 'ext-id.tool-name3',
+  name: 'tool-name3',
+  description: 'markdown description3',
+  displayName: 'tools-display-name3',
   state: 'registered',
   extensionInfo: {
-    id: 'ext-id2',
-    label: 'ext-label2',
+    id: 'ext-id3',
+    label: 'ext-label3',
   },
   images: {
     icon: 'encoded-icon',
   },
+  version: '1.0.3',
+};
+
+const cliToolInfoItem4: CliToolInfo = {
+  id: 'ext-id.tool-name4',
+  name: 'tool-name4',
+  description: 'markdown description4',
+  displayName: 'tools-display-name4',
+  state: 'registered',
+  extensionInfo: {
+    id: 'ext-id4',
+    label: 'ext-label4',
+  },
+  images: {},
+  version: '', // version is empty, so it should be showing the error
 };
 
 suite('CLI Tool Prefernces page shows', () => {
-  const cliTools = [cliToolInfoItem1, cliToolInfoItem2, cliToolInfoItem3];
+  const cliTools = [cliToolInfoItem1, cliToolInfoItem2, cliToolInfoItem3, cliToolInfoItem4];
   let cliToolRows: HTMLElement[] = [];
 
   function validatePropertyPresentation(labelName: string, getExpectedContent: (info: CliToolInfo) => string) {
@@ -115,5 +132,15 @@ suite('CLI Tool Prefernces page shows', () => {
 
   test('tool`s logo is shown when images.icon property is present', () => {
     expect(within(cliToolRows[2]).getAllByLabelText('cli-logo').length).equals(1);
+  });
+
+  test('test tools version is shown', () => {
+    // First three tools have version, the last one has empty version and should show error
+    expect(within(cliToolRows[0]).queryAllByLabelText('cli-version')[0].textContent).toEqual('tool-name1 v1.0.1');
+    expect(within(cliToolRows[1]).queryAllByLabelText('cli-version')[0].textContent).toEqual('tool-name2 v1.0.2');
+    expect(within(cliToolRows[2]).queryAllByLabelText('cli-version')[0].textContent).toEqual('tool-name3 v1.0.3');
+    expect(within(cliToolRows[3]).queryAllByLabelText('cli-version')[0].textContent).toEqual(
+      'Unable to retrieve binary version, try running the setup again.',
+    );
   });
 });

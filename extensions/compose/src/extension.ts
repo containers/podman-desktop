@@ -164,6 +164,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     images: {
       icon: imageLocation,
     },
+    storagePath: extensionContext.storagePath,
+    helpCommand: '--version',
   });
 }
 

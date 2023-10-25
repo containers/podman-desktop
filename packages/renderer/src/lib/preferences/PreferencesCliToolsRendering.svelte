@@ -44,6 +44,15 @@ import EmptyScreen from '../ui/EmptyScreen.svelte';
           </div>
           <div role="region" class="ml-3 mt-2 text-sm text-gray-300">
             <Markdown markdown="{cliTool.description}" />
+            {#if cliTool.version !== ''}
+              <span
+                class="text-white-400 font-bold font-mono text-xs bg-charcoal-900 p-2 rounded-lg"
+                aria-label="cli-version">{cliTool.name} v{cliTool.version}</span>
+            {:else}
+              <span
+                class="text-white-400 font-bold font-mono text-xs bg-charcoal-900 p-2 rounded-lg"
+                aria-label="cli-version">Unable to retrieve binary version, try running the setup again.</span>
+            {/if}
           </div>
         </div>
       </div>
