@@ -1,6 +1,6 @@
 #### Prerequisites
 
-- Podman.
+- Podman is installed.
 
 #### Procedure
 
