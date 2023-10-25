@@ -10,13 +10,13 @@ hide_table_of_contents: false
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-How to quickly run WebAssembly/wasm binaries ?
+Seamlessly run WebAssembly/wasm binaries on macOS and Windows
 
-A use case is to distribute binaries using Open Container Initiative/OCI container images. This allows users to create one container image which can be deployed across multiple architectures.
+You might heard excitement recently about WASM and WASI. Imagine a world where you can effortlessly run wasm binaries and distribute them using Open Container Initiative (OCI) container images – a singular image deployable across multiple architectures.
 
-But it was not a simple task for users on macOS and Windows as the VM used by the Podman engine running these images was not configured to run the wasm workloads.
+Though the concept seemed straightforward, accomplishing this task proved to be quite challenging, particularly on macOS and Windows. The complexity comes from the additional virtual machine running Linux. This machine needs all dependencies and prerequisites being correctly setup.
 
-The blog post highlights how to enable this runtime on macOS and Windows.
+The wait is over. Our blog post unveils the solution, guiding you through the process of enabling wasm workloads on both macOS and Windows.
 
 <!--truncate-->
 
@@ -48,7 +48,7 @@ Besides running wasm/WASI workloads on your computer, there is also the question
 
 ## Using Podman engine with wasm
 
-When using containers with Podman on macOS or Windows, you have a virtual machine called a "Podman machine" that is executing a Linux environment. We need to add support for WASM inside this Linux environment. Podman is using the run project as its OCI runtime, so crun needs to be able to run or delegate execution to WASM runtimes. Lucky for us, crun supports WASM execution.
+When using containers with Podman on macOS or Windows, you have a virtual machine called a "Podman machine" that is executing a Linux environment. We need to add support for WASM inside this Linux environment. Podman is using the crun project as its OCI runtime, so crun needs to be able to run or delegate execution to WASM runtimes. Lucky for us, crun supports WASM execution.
 
 From the user's point of view, support for WASM is provided as an additional platform. So when executing a WASM workload, we specify as a platform `--platform=wasi/wasm` instead of for example `--platform=linux/arm64` or `--platform=linux/amd64`
 
@@ -335,5 +335,8 @@ Twitter:   @Podman_io
 
 ## Conclusion
 
-You've seen that running or building wasm workloads is possible on Windows and macOS when using podman.
-So it's up to you to try to run and build new examples and report problems to the podman community if you are facing issues.
+After witnessing the seamless execution and creation of WebAssembly (wasm) workloads on both Windows and macOS through the utilization of podman, the possibilities are at your fingertips.
+
+Now, the initiative lies with you to embark on your journey of exploring, experimenting, and pushing the boundaries.
+
+Run and build new examples and do not hesitate to contribute to the podman community by reporting and discussing these issues.
