@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-import { filtered, searchPattern, containersInfos, runningFilter, stoppedFilter } from '../stores/containers';
+import { containersInfos } from '../stores/containers';
 import { viewsContributions } from '../stores/views';
 import { context } from '../stores/context';
 
@@ -41,6 +41,7 @@ import Button from './ui/Button.svelte';
 import StateChange from './ui/StateChange.svelte';
 import SolidPodIcon from './images/SolidPodIcon.svelte';
 import Tab from './ui/Tab.svelte';
+import { findMatchInLeaves } from '../stores/search-util';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -52,7 +53,16 @@ let viewContributions: ViewInfoUI[] = [];
 let globalContext: ContextUI;
 let containersInfo: ContainerInfo[] = [];
 export let searchTerm = '';
-$: searchPattern.set(searchTerm);
+let runningFilter = false;
+let stoppedFilter = false;
+
+interface FilterOptions {
+  searchTerm: string;
+  runningFilter: boolean;
+  stoppedFilter: boolean;
+}
+
+$: updateContainers($containersInfos, $context, $viewsContributions, { searchTerm, runningFilter, stoppedFilter });
 
 function fromExistingImage(): void {
   openChoiceModal = false;
@@ -60,12 +70,6 @@ function fromExistingImage(): void {
 }
 
 let multipleEngines = false;
-
-router.subscribe(route => {
-  const f = route.path.substring(route.path.lastIndexOf('/') + 1);
-  runningFilter.set(f === 'running');
-  stoppedFilter.set(f === 'stopped');
-});
 
 $: providerConnections = $providerInfos
   .map(provider => provider.containerConnections)
@@ -230,6 +234,7 @@ let containersUnsubscribe: Unsubscriber;
 let contextsUnsubscribe: Unsubscriber;
 let podUnsubscribe: Unsubscriber;
 let viewsUnsubscribe: Unsubscriber;
+let routeUnsubscribe: Unsubscriber;
 let pods: PodInfo[];
 
 onMount(async () => {
@@ -239,27 +244,43 @@ onMount(async () => {
   contextsUnsubscribe = context.subscribe(value => {
     globalContext = value;
     if (containersInfo.length > 0) {
-      updateContainers(containersInfo, globalContext, viewContributions);
+      updateContainers(containersInfo, globalContext, viewContributions, { searchTerm, runningFilter, stoppedFilter });
     }
   });
 
   viewsUnsubscribe = viewsContributions.subscribe(value => {
     viewContributions = value.filter(view => view.viewId === CONTAINER_LIST_VIEW) || [];
     if (containersInfo.length > 0) {
-      updateContainers(containersInfo, globalContext, viewContributions);
+      updateContainers(containersInfo, globalContext, viewContributions, { searchTerm, runningFilter, stoppedFilter });
     }
   });
 
-  containersUnsubscribe = filtered.subscribe(value => {
-    updateContainers(value, globalContext, viewContributions);
+  containersUnsubscribe = containersInfos.subscribe(value => {
+    updateContainers(value, globalContext, viewContributions, { searchTerm, runningFilter, stoppedFilter });
   });
 
   podUnsubscribe = podsInfos.subscribe(podInfos => {
     pods = podInfos;
   });
+
+  routeUnsubscribe = router.subscribe(route => {
+    const f = route.path.substring(route.path.lastIndexOf('/') + 1);
+    runningFilter = f === 'running';
+    stoppedFilter = f === 'stopped';
+  });
 });
 
-function updateContainers(containers: ContainerInfo[], globalContext: ContextUI, viewContributions: ViewInfoUI[]) {
+/* updateContainers updates the variables:
+   - containersInfo with the value of containers
+   - containerGroups based on the containers and their groups
+   - multipleEngines and enginesList based on the engines of containers
+*/
+function updateContainers(
+  containers: ContainerInfo[],
+  globalContext: ContextUI,
+  viewContributions: ViewInfoUI[],
+  filters: FilterOptions,
+) {
   containersInfo = containers;
   const currentContainers = containers.map((containerInfo: ContainerInfo) => {
     return containerUtils.getContainerInfoUI(containerInfo, globalContext, viewContributions);
@@ -285,8 +306,21 @@ function updateContainers(containers: ContainerInfo[], globalContext: ContextUI,
   // Set the engines to the global variable for the Prune functionality button
   enginesList = uniqueEngines;
 
+  // filter the containers
+  const filteredContainers = currentContainers
+    .filter(containerInfo => findMatchInLeaves(containerInfo, searchTerm.toLowerCase()))
+    .filter(containerInfo => {
+      if (filters.runningFilter) {
+        return containerInfo.state === 'RUNNING';
+      }
+      if (filters.stoppedFilter) {
+        return containerInfo.state !== 'RUNNING';
+      }
+      return true;
+    });
+
   // create groups
-  const computedContainerGroups = containerUtils.getContainerGroups(currentContainers);
+  const computedContainerGroups = containerUtils.getContainerGroups(filteredContainers);
 
   // update selected items based on current selected items
   computedContainerGroups.forEach(group => {
@@ -334,6 +368,9 @@ onDestroy(() => {
   }
   if (viewsUnsubscribe) {
     viewsUnsubscribe();
+  }
+  if (routeUnsubscribe) {
+    routeUnsubscribe();
   }
 });
 
@@ -656,7 +693,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
 
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
-    {:else if $filtered.length === 0}
+    {:else if containerGroups.length === 0}
       {#if searchTerm}
         <FilteredEmptyScreen icon="{ContainerIcon}" kind="containers" bind:searchTerm="{searchTerm}" />
       {:else}
