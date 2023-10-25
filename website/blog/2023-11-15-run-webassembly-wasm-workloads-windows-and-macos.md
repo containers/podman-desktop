@@ -24,33 +24,33 @@ The blog post highlights how to enable this runtime on macOS and Windows.
 
 ## What is WebAssembly ?
 
-[WebAssembly](https://webassembly.org/) (abbreviated wasm) was designed as a portable compilation target for programming languages, improving performance and portability of web applications (including gaming/emulators). Using a low-level binary format instead of JavaScript applications have near-native performance.
+[WebAssembly](https://webassembly.org/) (abbreviated wasm) was designed as a portable compilation target for programming languages, improving performance and portability of web applications (including gaming/emulators). Using a low-level binary format instead of JavaScript boosts applications to have near-native performance.
 
-The binary format serves as a compilation target and it allows to use a wide ranger of programming languages such as C, C++, and Rust. While it was a browser/client technology, now it is evolving beyond the web, for example being adapted for use as a back-end or edge technology. (This is for example what happened to Java that was first designed for the client side before landing to the server side)
+The binary format serves as a compilation target and it allows to use a wider range of programming languages such as C, C++, and Rust. While it was a browser/client technology, now it is evolving beyond the web, for example being adapted for use as a back-end or edge technology. (This is for example what happened to Java that was first designed for the client side before landing to the server side)
 
-The Wasm binary format was designed to be secure. Wasm modules are isolated from the rest of the system, and they cannot access any system resources without explicit permission. This makes Wasm modules very safe to run, even in untrusted environments. But in another hand, for developing backend applications, this restriction is limiting the usage of WASM.
+The Wasm binary format was designed to be secure. Wasm modules are isolated from the rest of the system, and they cannot access any system resources without explicit permission. This makes Wasm modules very safe to run, even in untrusted environments. But on another hand, for developing backend applications, this restriction is limiting the usage of WASM.
 
 ## The extension of WebAssembly
 
-Then WebAssembly System Interface (WASI) was born as an essential complement to WebAssembly.
+WebAssembly System Interface (WASI) was born as an essential complement to WebAssembly.
 
-It is a system interface that extends WebAssembly's capabilities beyond the browser, making it suitable for a wide range of environments, including servers, edge devices, and more.
+It is a system interface that extends WebAssembly's capabilities beyond the browser, making it suitable for a wider range of environments, including servers, edge devices, and more.
 
-While with WASM you had a limited access to the host resources, WASI provides a standard set of system calls, enabling WebAssembly modules to interact with the host operating system in a secure and consistent manner: it includes filesystem access, sockets, and other low-level resources.
+While with WASM you had limited access to the host resources, WASI provides a standard set of system calls, enabling WebAssembly modules to interact with the host operating system in a secure and consistent manner: it includes filesystem access, sockets, and other low-level resources.
 
-## Running WebAssembly outside the web
+## Running WebAssembly outside the browser
 
 Wasm has shipped in the major browser engines so the usage of wasm is possible without any 3rd party addition in the browser land. But when it comes to the edge/system usage, you need to find a virtual machine to run these workloads supporting WASI extension. And there is not only one application to run them, there are several wasm runtime such as WasmEdge, Wasmtime, Wasmer, and so on. All runtimes support different CPU architectures.
 
-Due to the maturity of WASI that is still young you might have API provided in each of these runtime that has not yet reached the standard so users need to be careful to write portable applications that do not depend on a given runtime.
+Since WASI is still maturing some of the API provided in these runtimes has not reached the standard, so users need to be careful to write portable applications that do not depend on a given runtime.
 
-While you can run wasm/WASI workloads on your computer,  how to you package this binary format, share it and distribute it. A convenient way to distribute and run these workloads is to use OCI images as it provides all the basics: package, storage and distribution of the binaries. Then comes the execution part.
+Besides running wasm/WASI workloads on your computer, there is also the question of how you package this binary format, share, and distribute it. A convenient way to distribute and run these workloads is to use OCI images as it provides all the basics: package, storage and distribution of the binaries. Then comes the execution part.
 
 ## Using Podman engine with wasm
 
-When using containers with Podman on macOS or Windows, you have a virtual machine called a "Podman machine" that is executing a Linux environment. We need to add a runtime inside this Linux box. Podman is using as OCI runtime the crun project so this component needs to be able to run or delegate the execution to WASM runtimes. Good enough for us, crun supports the WASM execution.
+When using containers with Podman on macOS or Windows, you have a virtual machine called a "Podman machine" that is executing a Linux environment. We need to add support for WASM inside this Linux environment. Podman is using the run project as its OCI runtime, so crun needs to be able to run or delegate execution to WASM runtimes. Lucky for us, crun supports WASM execution.
 
-From the user point of view, the support is done as an additional platform. So when executing a WASM workload, we specify as a platform `--platform=wasi/wasm` instead of for example `--platform=linux/arm64` or `--platform=linux/amd64`
+From the user's point of view, support for WASM is provided as an additional platform. So when executing a WASM workload, we specify as a platform `--platform=wasi/wasm` instead of for example `--platform=linux/arm64` or `--platform=linux/amd64`
 
 ​
 
@@ -61,20 +61,20 @@ From the user point of view, the support is done as an additional platform. So w
 <Tabs groupId="operating-systems">
 <TabItem value="win" label="Windows">
 
-On Windows, ensure that your podman machine is a recent one. You can check that using podman version command
+On Windows, ensure that your podman machine is a recent one. You can check using the `podman version` command
 
-Following the output of the command, you might have extra steps to do.
+Depending on the output of the command, you might have extra steps to do.
 
 - Client's version and server's side version >= v4.7.0: Nothing to do, wasm support is already there using the wasmedge runtime by default.
 - Client's version >= 4.6.0 but server's side version < 4.7. You need to create a new podman machine using the command podman machine init --now wasm
-- old client/old server (< 4.7.0) or podman not being installed: follow the getting started at [podman.io](https://podman.io)
+- Old client/old server (< 4.7.0) or podman not being installed: follow the getting started at [podman.io](https://podman.io)
 
 </TabItem>
 <TabItem value="mac" label="macOS">
 On macOS, the support of wasm runtime is not included by default. The podman machine is using Fedora CoreOS and crun/wasm integration is only available in the next stream channel but by default podman machines are using testing channel.
 
 - Option 1: use next channel of Fedora CoreOS
-  So you need to create a compliant machine first by running podman machine init command using next as image-path so it'll fetch the next channel Fedora CoreOS instead of the latest testing binaries.
+  You need to create a compliant machine first by running podman machine init command using next as image-path so it'll fetch the next channel Fedora CoreOS instead of the latest testing binaries.
 
   Here is the command to create and start a new podman machine including WASM:
 
@@ -82,7 +82,7 @@ On macOS, the support of wasm runtime is not included by default. The podman mac
   $ podman machine init --cpus 2 --memory 2048 --image-path next --now
   ```
 
-  You can use another machine adding a new machine name at the end of the command line:
+  You can use another machine by adding a parameter (machine name) at the end of the command line:
 
   ```shell-session
   $ podman machine init --cpus 2 --memory 2048 --image-path next --now wasm
@@ -100,7 +100,7 @@ On macOS, the support of wasm runtime is not included by default. The podman mac
 </Tabs>
  
 
-### run
+### Running WASM images
 
 Let's try with a simple hello world sample.
 
@@ -132,7 +132,7 @@ In that case you should check that the prerequisites from the previous section a
 
 Running wasm workload is an interesting use case from a consumer point of view. It helps to consume wasm binaries. But another interesting case is to distribute and build these wasm images so anyone could run them quickly.
 
-When building images it will use by default the architecture of the host operating system. If you are using an apple computer with ARM chip, then the Linux images will default to `linux/arm64`. Using a mac/intel it will default to `linux/amd64` images. In the case of wasm workloads, the expected target platform is `wasi/wasm`.
+When building images it will use by default the architecture of the host operating system. If you are using a Mac computer with ARM chip, then the Linux images will default to `linux/arm64`. Using a mac/intel it will default to `linux/amd64` images. In the case of wasm workloads, the expected target platform is `wasi/wasm`.
 
 With podman we can use the flag `--platform=wasi/wasm` on the `podman build` command to specify the system/architecture. But if we do that, it means that if the Dockerfile or Containerfile contains as base image `FROM docker.io/redhat/ubi9-minimal` for example it will try to fetch a `ubi9-minimal` image using the `wasi/wasm` platform but of course it does not exist.
 
@@ -144,7 +144,7 @@ Example of Containerfile:
 FROM --platform=$BUILDPLATFORM docker.io/redhat/ubi9-minimal as builder
 ```
 
-using this way, we will fetch an image matching our host architecture but as there is still the  `--platform=wasi/wasm` on the command line, the resulting image will use the right platform.
+Using this method, we will fetch an image matching our host architecture but as there is still the  `--platform=wasi/wasm` on the command line, the resulting image will use the right platform.
 
 ### Source code
 
@@ -228,7 +228,7 @@ Twitter:   @Podman_io
 
 All the source code is available at https://github.com/redhat-developer/podman-desktop-demo/tree/main/wasm/rust-hello-world
 
-### Build
+### Building WASM images
 
 Run the command from the `wasm/rust-hello-world` folder if you cloned the repository or from the directory where all the files are present.
 
@@ -335,5 +335,5 @@ Twitter:   @Podman_io
 
 ## Conclusion
 
-Now, you've seen that running or building wasm workloads is possible on Windows and macOS when using podman.
+You've seen that running or building wasm workloads is possible on Windows and macOS when using podman.
 So it's up to you to try to run and build new examples and report problems to the podman community if you are facing issues.
