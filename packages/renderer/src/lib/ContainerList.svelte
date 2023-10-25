@@ -49,6 +49,9 @@ let enginesList: EngineInfoUI[];
 
 // groups of containers that will be displayed
 let containerGroups: ContainerGroupInfoUI[] = [];
+
+let tab: string;
+
 export let searchTerm = '';
 let runningFilter: boolean;
 let stoppedFilter: boolean;
@@ -240,9 +243,9 @@ onMount(async () => {
   });
 
   routeUnsubscribe = router.subscribe(route => {
-    const f = route.path.substring(route.path.lastIndexOf('/') + 1);
-    runningFilter = f === 'running';
-    stoppedFilter = f === 'stopped';
+    tab = route.path.substring(route.path.lastIndexOf('/') + 1);
+    runningFilter = tab === 'running';
+    stoppedFilter = tab === 'stopped';
   });
 });
 
@@ -663,7 +666,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
       {#if searchTerm}
         <FilteredEmptyScreen icon="{ContainerIcon}" kind="containers" bind:searchTerm="{searchTerm}" />
       {:else}
-        <ContainerEmptyScreen />
+        <ContainerEmptyScreen selected="{tab}" />
       {/if}
     {/if}
   </div>
