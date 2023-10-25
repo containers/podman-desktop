@@ -76,6 +76,46 @@ test('Expect no container engines being displayed', async () => {
   expect(noEngine).toBeInTheDocument();
 });
 
+test('Expect no containers being displayed', async () => {
+  getProviderInfosMock.mockResolvedValue([
+    {
+      name: 'podman',
+      status: 'started',
+      internalId: 'podman-internal-id',
+      containerConnections: [
+        {
+          name: 'podman-machine-default',
+          status: 'started',
+        },
+      ],
+    },
+  ]);
+
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('tray:update-provider'));
+
+  while (get(providerInfos).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  await waitRender({});
+
+  const noContainers = screen.getByRole('heading', { name: 'No containers' });
+  expect(noContainers).toBeInTheDocument();
+
+  const runningTab = screen.getByRole('link', { name: 'Running containers' });
+  await fireEvent.click(runningTab);
+
+  const noRunningContainers = screen.getByRole('heading', { name: 'No running containers' });
+  expect(noRunningContainers).toBeInTheDocument();
+
+  const stoppedTab = screen.getByRole('link', { name: 'Stopped containers' });
+  await fireEvent.click(stoppedTab);
+
+  const noStoppedContainers = screen.getByRole('heading', { name: 'No stopped containers' });
+  expect(noStoppedContainers).toBeInTheDocument();
+});
+
 test('Try to delete a pod that has containers', async () => {
   getProviderInfosMock.mockResolvedValue([
     {
@@ -380,4 +420,185 @@ test('Expect filter empty screen', async () => {
 
   const filterButton = screen.getByRole('button', { name: 'Clear filter' });
   expect(filterButton).toBeInTheDocument();
+});
+
+test('Expect to display running / stopped containers depending on tab', async () => {
+  getProviderInfosMock.mockResolvedValue([
+    {
+      name: 'podman',
+      status: 'started',
+      internalId: 'podman-internal-id',
+      containerConnections: [
+        {
+          name: 'podman-machine-default',
+          status: 'started',
+        },
+      ],
+    },
+  ]);
+
+  const pod1Id = 'pod1-id';
+  const pod2Id = 'pod2-id';
+  const pod3Id = 'pod3-id';
+
+  // one single container and two containers part of a pod
+  const mockedContainers = [
+    // 2 / 2 containers are running on this pod
+    {
+      Id: 'sha256:456456456456456',
+      Image: 'sha256:234',
+      Names: ['container1-pod1'],
+      RepoTags: ['veryold:image'],
+      State: 'Running',
+      pod: {
+        name: 'pod1',
+        id: pod1Id,
+        status: 'Running',
+      },
+      engineId: 'podman',
+      engineName: 'podman',
+    },
+    {
+      Id: 'sha256:7897891234567890123',
+      Image: 'sha256:345',
+      Names: ['container2-pod1'],
+      State: 'Running',
+      pod: {
+        name: 'pod1',
+        id: pod1Id,
+        status: 'Running',
+      },
+      engineId: 'podman',
+      engineName: 'podman',
+    },
+
+    // 1 / 2 containers are running on this pod
+    {
+      Id: 'sha256:876532948235',
+      Image: 'sha256:876',
+      Names: ['container1-pod2'],
+      RepoTags: ['veryold:image'],
+      State: 'Running',
+      pod: {
+        name: 'pod2',
+        id: pod2Id,
+        status: 'Running',
+      },
+      engineId: 'podman',
+      engineName: 'podman',
+    },
+    {
+      Id: 'sha256:834752375490',
+      Image: 'sha256:834',
+      Names: ['container2-pod2'],
+      State: 'Stopped',
+      pod: {
+        name: 'pod2',
+        id: pod2Id,
+        status: 'Running',
+      },
+      engineId: 'podman',
+      engineName: 'podman',
+    },
+
+    // 0 / 2 containers are running on this pod
+    {
+      Id: 'sha256:56283769268',
+      Image: 'sha256:562',
+      Names: ['container1-pod3'],
+      RepoTags: ['veryold:image'],
+      State: 'Stopped',
+      pod: {
+        name: 'pod3',
+        id: pod3Id,
+        status: 'Stopped',
+      },
+      engineId: 'podman',
+      engineName: 'podman',
+    },
+    {
+      Id: 'sha256:834752375490',
+      Image: 'sha256:834',
+      Names: ['container2-pod3'],
+      State: 'Stopped',
+      pod: {
+        name: 'pod3',
+        id: pod3Id,
+        status: 'Stopped',
+      },
+      engineId: 'podman',
+      engineName: 'podman',
+    },
+  ];
+
+  listContainersMock.mockResolvedValue(mockedContainers);
+
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('tray:update-provider'));
+
+  // wait store are populated
+  while (get(containersInfos).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  while (get(providerInfos).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  await waitRender({});
+
+  const tests = [
+    {
+      tabLabel: undefined,
+      presentCells: [
+        'pod1 (pod) 2 containers',
+        'container1-pod1 RUNNING',
+        'container2-pod1 RUNNING',
+        'pod2 (pod) 2 containers',
+        'container1-pod2 RUNNING',
+        'container2-pod2 STOPPED',
+        'pod3 (pod) 2 containers',
+        'container1-pod3 STOPPED',
+        'container2-pod3 STOPPED',
+      ],
+      absentLabels: [],
+    },
+    {
+      tabLabel: 'Running containers',
+      presentCells: [
+        'pod1 (pod) 2 containers',
+        'container1-pod1 RUNNING',
+        'container2-pod1 RUNNING',
+        'pod2 (pod) 1 container',
+        'container1-pod2 RUNNING',
+      ],
+      absentLabels: [/container2-pod2.*/, /pod3 \(pod\).*/, /container1-pod3.*/, /container2-pod3.*/],
+    },
+    {
+      tabLabel: 'Stopped containers',
+      presentCells: [
+        'pod2 (pod) 1 container',
+        'container2-pod2 STOPPED',
+        'pod3 (pod) 2 containers',
+        'container1-pod3 STOPPED',
+        'container2-pod3 STOPPED',
+      ],
+      absentLabels: [/pod1 \(pod\).*/, /container1-pod1.*/, /container2-pod1.*/, /container1-pod2.*/],
+    },
+  ];
+
+  for (const tt of tests) {
+    if (tt.tabLabel) {
+      const tab = screen.getByRole('link', { name: tt.tabLabel });
+      await fireEvent.click(tab);
+    }
+    for (const presentCell of tt.presentCells) {
+      const cell = screen.getByRole('cell', { name: presentCell });
+      expect(cell).toBeInTheDocument();
+    }
+    for (const absentCell of tt.absentLabels) {
+      const cell = screen.queryByRole('cell', { name: absentCell });
+      expect(cell).not.toBeInTheDocument();
+    }
+  }
 });
