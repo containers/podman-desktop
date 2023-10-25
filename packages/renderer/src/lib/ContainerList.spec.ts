@@ -100,6 +100,9 @@ test('Expect no containers being displayed', async () => {
   }
   await waitRender({});
 
+  const allTab = screen.getByRole('link', { name: 'All containers' });
+  await fireEvent.click(allTab);
+
   const noContainers = screen.getByRole('heading', { name: 'No containers' });
   expect(noContainers).toBeInTheDocument();
 
@@ -190,6 +193,9 @@ test('Try to delete a pod that has containers', async () => {
   }
   await waitRender({});
 
+  const allTab = screen.getByRole('link', { name: 'All containers' });
+  await fireEvent.click(allTab);
+
   // select the checkbox
   const checkbox = screen.getByRole('checkbox', { name: 'Toggle all' });
   expect(checkbox).toBeInTheDocument();
@@ -270,6 +276,9 @@ test('Try to delete a container without deleting pods', async () => {
   }
 
   await waitRender({});
+
+  const allTab = screen.getByRole('link', { name: 'All containers' });
+  await fireEvent.click(allTab);
 
   // select the standalone container checkbox
   const containerCheckbox = screen.getAllByRole('checkbox', { name: 'Toggle container' });
@@ -352,6 +361,9 @@ test('Try to delete a pod without deleting container', async () => {
 
   await waitRender({});
 
+  const allTab = screen.getByRole('link', { name: 'All containers' });
+  await fireEvent.click(allTab);
+
   // select the pod checkbox
   const podCheckbox = screen.getByRole('checkbox', { name: 'Toggle pod' });
   expect(podCheckbox).toBeInTheDocument();
@@ -418,6 +430,9 @@ test('Expect filter empty screen', async () => {
   }
   await waitRender({ searchTerm: 'No match' });
 
+  const allTab = screen.getByRole('link', { name: 'All containers' });
+  await fireEvent.click(allTab);
+
   const filterButton = screen.getByRole('button', { name: 'Clear filter' });
   expect(filterButton).toBeInTheDocument();
 });
@@ -442,10 +457,11 @@ test('Expect to display running / stopped containers depending on tab', async ()
   const pod3Id = 'pod3-id';
 
   // one single container and two containers part of a pod
+  const firstId = 'sha256:68347658374683476';
   const mockedContainers = [
     // 2 / 2 containers are running on this pod
     {
-      Id: 'sha256:456456456456456',
+      Id: firstId,
       Image: 'sha256:234',
       Names: ['container1-pod1'],
       RepoTags: ['veryold:image'],
@@ -538,7 +554,7 @@ test('Expect to display running / stopped containers depending on tab', async ()
   window.dispatchEvent(new CustomEvent('tray:update-provider'));
 
   // wait store are populated
-  while (get(containersInfos).length === 0) {
+  while (get(containersInfos).length === 0 || get(containersInfos)[0].Id !== firstId) {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 
@@ -549,7 +565,7 @@ test('Expect to display running / stopped containers depending on tab', async ()
 
   const tests = [
     {
-      tabLabel: undefined,
+      tabLabel: 'All containers',
       presentCells: [
         'pod1 (pod) 2 containers',
         'container1-pod1 RUNNING',
