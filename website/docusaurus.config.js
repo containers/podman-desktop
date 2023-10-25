@@ -237,8 +237,11 @@ const config = {
             from: ['/docs/getting-started/getting-started', '/docs/getting-started'],
           },
           {
-            to: '/docs/working-with-containers/registries/authenticating-to-a-preconfigured-registry',
-            from: '/docs/getting-started/authenticating-to-a-preconfigured-registry',
+            to: '/docs/working-with-containers/registries',
+            from: [
+              '/docs/working-with-containers/registries/authenticating-to-a-preconfigured-registry',
+              '/docs/getting-started/authenticating-to-a-preconfigured-registry',
+            ],
           },
           {
             to: '/docs/working-with-containers/registries/insecure-registry',

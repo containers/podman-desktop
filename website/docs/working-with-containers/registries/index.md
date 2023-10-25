@@ -7,13 +7,38 @@ keywords: [podman desktop, podman, containers, registries]
 hide_table_of_contents: false
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import Preconfigured from './\_preconfigured-registry.md'
+import Custom from './\_custom-registry.md'
+import Verification from './\_verification-private-registry.md'
+
 # Working with container registries
 
 Podman Desktop has access to public registries by default.
 
-You might want to configure Podman Desktop to:
+You might want to configure Podman Desktop to authenticate to
 
-- [Authenticate to a preconfigured registry](/docs/working-with-containers/registries/authenticating-to-a-preconfigured-registry).
-- [Add an Insecure Registry to Podman Desktop](/docs/working-with-containers/registries/insecure-registry).
+- A pre-configured registry:
 
-![Registries page](img/registries.png)
+  - Red Hat Quay
+  - Docker Hub
+  - GitHub
+  - Google Container registry
+
+- A custom registry, that might have custom Certificate Authorities (CA).
+
+<Tabs groupId="registry" queryString="registry">
+<TabItem value="preconfigured" label="Pre-configured registry">
+
+<Preconfigured />
+
+</TabItem>
+<TabItem value="custom" label="Custom registry">
+
+<Custom />
+
+</TabItem>
+</Tabs>
+
+<Verification />

@@ -8,6 +8,13 @@
 
    ![Adding a custom registry](img/adding-a-custom-registry.png)
 
+<details>
+<summary>
+
+1. (Optionally) When your registry is considered as insecure, because it uses an unencrypted HTTP connection, or a custom certificate such as a self-signed certificate.
+
+</summary>
+
 1. Click "Yes" to the insecure registry warning.
 
    ![Podman Desktop Registry Warning](img/registry-warning-insecure.png)
@@ -42,3 +49,5 @@
    $ podman machine stop
    $ podman machine start
    ```
+
+</details>
