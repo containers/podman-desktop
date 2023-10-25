@@ -8,97 +8,30 @@ tags: [pods]
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import WindowsMacosProcedure from './\_insecure-registry-windows-macos.md'
+import LinuxProcedure from './\_insecure-registry-linux.md'
+import Verification from './\_verification-private-registry.md'
 
 # Adding an Insecure Registry to Podman Desktop
 
 In this guide, you will learn how to add an insecure registry to Podman Desktop. An insecure registry allows you to pull and push container images either over an unencrypted HTTP connection, or a HTTPS connection with a self-signed unverified certificate. Please note that using an insecure registry can expose your data to security risks, so it's recommended to use secure connections with a verifiable certificate whenever possible.
 
-#### Prerequisites
-
-- Podman installed and running (VM if on macOS or Windows).
-
-#### Procedure
-
 <Tabs groupId="operating-systems">
-<TabItem value="macwin" label="macOS & Windows">
+<TabItem value="win" label="Windows">
 
-1. Add your insecure registry within **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Registries**.
+<WindowsMacosProcedure />
 
-   ![Adding a custom registry](img/adding-a-custom-registry.png)
+</TabItem>
+<TabItem value="mac" label="macOS">
 
-2. Click "Yes" to the insecure registry warning.
-
-   ![Podman Desktop Registry Warning](img/registry-warning-insecure.png)
-
-3. SSH into the Podman Machine to edit `registries.conf`.
-
-   ```shell-session
-   $ podman machine ssh [optional-machine-name]
-   ```
-
-4. Open `registries.conf`.
-
-   ```shell-session
-   $ sudo vi /etc/containers/registries.conf
-   ```
-
-5. Add the insecure registry: Add a new `[[registry]]` section for the URL of the insecure registry you want to use. For example, if your insecure registry is located at `http://registry.example.com`, add the following lines:
-
-   ```toml
-   [[registry]]
-   location = "registry.example.com"
-   insecure = true
-   ```
-
-   If you have multiple registries, you can add one `[[registry]]` block per registry.
-
-6. Save and exit the file.
-
-7. Restart Podman by the CLI or through Podman Desktop.
-
-   ```shell-session
-   $ podman machine stop
-   $ podman machine start
-   ```
-
-8. Pull or push container images: You can now use Podman Desktop to pull or push container images from/to the insecure registry you added.
+<WindowsMacosProcedure />
 
 </TabItem>
 <TabItem value="linux" label="Linux">
 
-1. Add your insecure registry within **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Registries**.
-
-   ![Adding a custom registry](img/adding-a-custom-registry.png)
-
-2. Click "Yes" to the insecure registry warning.
-
-   ![Podman Desktop Registry Warning](img/registry-warning-insecure.png)
-
-3. Open `registries.conf`.
-
-   ```shell-session
-   $ sudo vi /etc/containers/registries.conf
-   ```
-
-4. Add the insecure registry: Add a new `[[registry]]` section for the URL of the insecure registry you want to use. For example, if your insecure registry is located at `http://registry.example.com`, add the following lines:
-
-   ```toml
-   [[registry]]
-   location = "registry.example.com"
-   insecure = true
-   ```
-
-   If you have multiple registries, you can add one `[[registry]]` block per registry:
-
-5. Save and exit the file.
-
-6. Restart Podman.
-
-   ```shell-session
-   $ sudo systemctl restart podman
-   ```
-
-7. Pull or push container images: You can now use Podman Desktop to pull or push container images from/to the insecure registry you added.
+<LinuxProcedure />
 
 </TabItem>
 </Tabs>
+
+<Verification />
