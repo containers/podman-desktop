@@ -59,8 +59,6 @@
 
 #### Verification
 
-1. Go to **Images**.
-1. Click **Pull an image**.
-1. **Image to Pull**: `bash`
-1. Click **Pull image**.
-1. Podman Desktop reports `Download complete`.
+- The configuration applies to Podman. You can:
+
+  - [Pull an image](/docs/working-with-containers/images/pulling-an-image).

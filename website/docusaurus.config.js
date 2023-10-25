@@ -107,8 +107,11 @@ const config = {
               '/docs/proxy/using-a-proxy-on-linux',
               '/docs/proxy/using-a-proxy-requiring-a-custom-ca',
               '/docs/proxy/using-a-proxy',
-              '/docs/proxy/using-a-vpn-on-windows',
             ],
+          },
+          {
+            to: '/docs/proxy/using-a-vpn',
+            from: ['/docs/proxy/using-a-vpn-on-windows'],
           },
           {
             to: '/docs/compose',

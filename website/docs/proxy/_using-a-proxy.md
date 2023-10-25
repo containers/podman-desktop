@@ -1,6 +1,6 @@
 #### Procedure
 
-1. Go to **Settings > Proxy**, set your proxy URL, and validate.
+1. Go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Proxy**, set your proxy URL, and validate.
 
    ![Proxy configuration screen](img/proxy.png)
 
@@ -30,8 +30,6 @@
    http_proxy = true
    env = ["http_proxy=<your.proxy.tld:port>", "https_proxy=<your.proxy.tld:port>"]
    ```
-
-1. Go to **Settings > Resources** and restart the Podman machine.
 
 </details>
 
@@ -63,7 +61,7 @@
 
 </details>
 
-4. Go to **Settings > Resources** and restart the Podman machine.
+4. Go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources** and restart the Podman machine.
 
 #### Verification
 

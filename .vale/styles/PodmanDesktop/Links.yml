@@ -6,4 +6,4 @@ nonword: true
 # To access link markup:
 scope: raw
 tokens:
-  - '\]\((?!(/)|(https://))[[:ascii:]]+?\)'
+  - '\]\((?!(/)|(img)|(https://))[[:ascii:]]+?\)'

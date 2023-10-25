@@ -1,38 +1,40 @@
 ---
 sidebar_position: 2
-title: In a restricted environment
-description: Using Podman Desktop in a restricted environment.
+title: Podman behind a VPN
+description: Using Podman behind a VPN.
 keywords:
   [podman desktop, containers, podman, installing, installation, windows, macos, linux, restricted environment, airgap]
 pagination_prev: null
+pagination_next: onboarding-for-containers/index
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import ProxyWindowsMacosContent from './\_using-a-proxy.md';
-import ProxyLinuxContent from './\_using-a-proxy-on-linux.md';
+import VPNContentWindows from './\_using-a-vpn-on-windows.md';
+import VPNContentMacOS from './\_using-a-vpn-on-macos.md';
+import VPNContentLinux from './\_using-a-vpn-on-linux.md';
 
-# Using Podman Desktop in a restricted environment
+# Using Podman behind a VPN
 
-In an environment restricted by a proxy, configure Podman Desktop and Podman to access external resources.
+Configure Podman to access resources behind a VPN.
 
 <Tabs groupId="operating-systems" queryString="current-os">
 
 <TabItem value="win" label="Windows">
 
-<ProxyWindowsMacosContent />
+<VPNContentWindows />
 
 </TabItem>
 
 <TabItem value="mac" label="macOS">
 
-<ProxyWindowsMacosContent />
+<VPNContentMacOS />
 
 </TabItem>
 
 <TabItem value="linux" label="Linux">
 
-<ProxyLinuxContent />
+<VPNContentLinux />
 
 </TabItem>
 </Tabs>
