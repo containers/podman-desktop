@@ -17,7 +17,7 @@ import Verification from './\_verification-private-registry.md'
 
 Podman Desktop has access to public registries by default.
 
-You might want to configure Podman Desktop to authenticate to
+You might want to configure Podman Desktop to authenticate to:
 
 - A pre-configured registry:
 
