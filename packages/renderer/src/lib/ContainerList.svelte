@@ -49,12 +49,9 @@ let enginesList: EngineInfoUI[];
 
 // groups of containers that will be displayed
 let containerGroups: ContainerGroupInfoUI[] = [];
-let viewContributions: ViewInfoUI[] = [];
-let globalContext: ContextUI;
-let containersInfo: ContainerInfo[] = [];
 export let searchTerm = '';
-let runningFilter = false;
-let stoppedFilter = false;
+let runningFilter: boolean;
+let stoppedFilter: boolean;
 
 interface FilterOptions {
   searchTerm: string;
@@ -230,34 +227,13 @@ function createPodFromContainers() {
   router.goto('/pod-create-from-containers');
 }
 
-let containersUnsubscribe: Unsubscriber;
-let contextsUnsubscribe: Unsubscriber;
 let podUnsubscribe: Unsubscriber;
-let viewsUnsubscribe: Unsubscriber;
 let routeUnsubscribe: Unsubscriber;
 let pods: PodInfo[];
 
 onMount(async () => {
   // grab previous groups
   containerGroups = get(containerGroupsInfo);
-
-  contextsUnsubscribe = context.subscribe(value => {
-    globalContext = value;
-    if (containersInfo.length > 0) {
-      updateContainers(containersInfo, globalContext, viewContributions, { searchTerm, runningFilter, stoppedFilter });
-    }
-  });
-
-  viewsUnsubscribe = viewsContributions.subscribe(value => {
-    viewContributions = value.filter(view => view.viewId === CONTAINER_LIST_VIEW) || [];
-    if (containersInfo.length > 0) {
-      updateContainers(containersInfo, globalContext, viewContributions, { searchTerm, runningFilter, stoppedFilter });
-    }
-  });
-
-  containersUnsubscribe = containersInfos.subscribe(value => {
-    updateContainers(value, globalContext, viewContributions, { searchTerm, runningFilter, stoppedFilter });
-  });
 
   podUnsubscribe = podsInfos.subscribe(podInfos => {
     pods = podInfos;
@@ -271,7 +247,6 @@ onMount(async () => {
 });
 
 /* updateContainers updates the variables:
-   - containersInfo with the value of containers
    - containerGroups based on the containers and their groups
    - multipleEngines and enginesList based on the engines of containers
 */
@@ -281,7 +256,7 @@ function updateContainers(
   viewContributions: ViewInfoUI[],
   filters: FilterOptions,
 ) {
-  containersInfo = containers;
+  viewContributions = viewContributions.filter(view => view.viewId === CONTAINER_LIST_VIEW) || [];
   const currentContainers = containers.map((containerInfo: ContainerInfo) => {
     return containerUtils.getContainerInfoUI(containerInfo, globalContext, viewContributions);
   });
@@ -357,17 +332,8 @@ onDestroy(() => {
   refreshTimeouts.length = 0;
 
   // unsubscribe from the store
-  if (containersUnsubscribe) {
-    containersUnsubscribe();
-  }
-  if (contextsUnsubscribe) {
-    contextsUnsubscribe();
-  }
   if (podUnsubscribe) {
     podUnsubscribe();
-  }
-  if (viewsUnsubscribe) {
-    viewsUnsubscribe();
   }
   if (routeUnsubscribe) {
     routeUnsubscribe();
