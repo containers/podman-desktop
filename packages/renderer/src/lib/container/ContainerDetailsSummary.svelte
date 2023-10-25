@@ -4,7 +4,7 @@ import type { ContainerInfoUI } from './ContainerInfoUI';
 export let container: ContainerInfoUI;
 </script>
 
-<div class="flex px-5 py-4 flex-col">
+<div class="flex px-5 py-4 flex-col h-full overflow-auto">
   <div class="w-full">
     <table class="h-2">
       <tr>
