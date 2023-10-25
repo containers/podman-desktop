@@ -10,7 +10,7 @@ function openContainer(containerID: string) {
 }
 </script>
 
-<div class="flex px-5 py-4 flex-col">
+<div class="flex px-5 py-4 flex-col h-full overflow-auto">
   <div class="w-full">
     <table>
       <tr>
