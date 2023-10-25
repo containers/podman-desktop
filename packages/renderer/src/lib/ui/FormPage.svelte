@@ -41,11 +41,18 @@ function handleKeydown(e: KeyboardEvent) {
           </div>
         {/if}
         <h1 aria-label="{title}" class="grow text-xl first-letter:uppercase">{title}</h1>
-        {#if $$slots.actions}
-          <div class="flex flex-nowrap justify-self-end pl-3 space-x-2">
-            <slot name="actions" />
-          </div>
-        {/if}
+        <div class="flex items-center space-x-3">
+          {#if $$slots.actions}
+            <div class="flex flex-nowrap justify-self-end pl-3 space-x-2">
+              <slot name="actions" />
+            </div>
+          {/if}
+          {#if !showBreadcrumb}
+            <a href="{$lastPage.path}" title="Close" class="text-gray-900">
+              <i class="fas fa-times" aria-hidden="true"></i>
+            </a>
+          {/if}
+        </div>
       </div>
     </div>
   </div>
