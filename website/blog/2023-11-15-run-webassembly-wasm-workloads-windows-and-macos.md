@@ -1,5 +1,5 @@
 ---
-title: Use WebAssembly on macOS and Windows
+title: Unlock WebAssembly on macOS & Windows
 description: Spinning a OCI container image containing a WebAssembly/WASM workload on macOS or Windows should be as simple as running any other OCI image.
 slug: wasm-workloads-on-macos-and-windows-with-podman
 authors: [benoitf]
