@@ -24,7 +24,7 @@ import type { OS } from './os';
 import { platform, arch } from 'node:os';
 import { makeExecutable } from './utils';
 
-export class ComposeInstallation {
+export class ComposeDownload {
   constructor(
     private readonly extensionContext: extensionApi.ExtensionContext,
     private readonly composeGitHubReleases: ComposeGitHubReleases,
@@ -38,14 +38,14 @@ export class ComposeInstallation {
     return latestReleases[0];
   }
 
-  // Create a "quickpick" prompt to ask the user which version of Compose they want to install
+  // Create a "quickpick" prompt to ask the user which version of Compose they want to download
   async promptUserForVersion(): Promise<ComposeGithubReleaseArtifactMetadata> {
     // Get the latest releases
     const lastReleasesMetadata = await this.composeGitHubReleases.grabLatestsReleasesMetadata();
 
     // Show the quickpick
     const selectedRelease = await extensionApi.window.showQuickPick(lastReleasesMetadata, {
-      placeHolder: 'Select Compose version to install',
+      placeHolder: 'Select Compose version to download',
     });
 
     if (selectedRelease) {
@@ -55,12 +55,13 @@ export class ComposeInstallation {
     }
   }
 
-  // Install compose from the artifact metadata: ComposeGithubReleaseArtifactMetadata
-  async install(release: ComposeGithubReleaseArtifactMetadata): Promise<void> {
+  // Download compose from the artifact metadata: ComposeGithubReleaseArtifactMetadata
+  // this will download it to the storage bin folder as well as make it executeable
+  async download(release: ComposeGithubReleaseArtifactMetadata): Promise<void> {
     // Get asset id
     const assetId = await this.composeGitHubReleases.getReleaseAssetId(release.id, platform(), arch());
 
-    // Get the storage and check to see if it exists before we install Compose
+    // Get the storage and check to see if it exists before we download Compose
     const storageData = this.extensionContext.storagePath;
     const storageBinFolder = path.resolve(storageData, 'bin');
     if (!existsSync(storageBinFolder)) {
