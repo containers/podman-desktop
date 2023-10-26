@@ -3,14 +3,16 @@ import { faArrowUp, faLayerGroup, faPlay, faTrash, faEdit } from '@fortawesome/f
 import type { ImageInfoUI } from './ImageInfoUI';
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
-import DropdownMenu from '../ui/DropdownMenu.svelte';
-import FlatMenu from '../ui/FlatMenu.svelte';
 import { runImageInfo } from '../../stores/run-image-store';
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 import { ImageUtils } from './image-utils';
-import { onMount } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
+import ActionsWrapper from './ActionsMenu.svelte';
+import type { Unsubscriber } from 'svelte/motion';
+import type { ContextUI } from '../context/context';
+import { context } from '/@/stores/context';
 
 export let onPushImage: (imageInfo: ImageInfoUI) => void;
 export let onRenameImage: (imageInfo: ImageInfoUI) => void;
@@ -24,8 +26,21 @@ let isAuthenticatedForThisImage = false;
 const imageUtils = new ImageUtils();
 
 let contributions: Menu[] = [];
+let globalContext: ContextUI;
+let contextsUnsubscribe: Unsubscriber;
+
 onMount(async () => {
   contributions = await window.getContributedMenus(MenuContext.DASHBOARD_IMAGE);
+  contextsUnsubscribe = context.subscribe(value => {
+    globalContext = value;
+  });
+});
+
+onDestroy(() => {
+  // unsubscribe from the store
+  if (contextsUnsubscribe) {
+    contextsUnsubscribe();
+  }
 });
 
 async function runImage(imageInfo: ImageInfoUI) {
@@ -56,15 +71,6 @@ async function showLayersImage(): Promise<void> {
   router.goto(`/images/${image.id}/${image.engineId}/${image.base64RepoTag}/history`);
 }
 
-// If dropdownMenu = true, we'll change style to the imported dropdownMenu style
-// otherwise, leave blank.
-let actionsStyle: typeof DropdownMenu | typeof FlatMenu;
-if (dropdownMenu) {
-  actionsStyle = DropdownMenu;
-} else {
-  actionsStyle = FlatMenu;
-}
-
 function onError(error: string): void {
   errorTitle = 'Something went wrong.';
   errorMessage = error;
@@ -81,7 +87,11 @@ function onError(error: string): void {
   enabled="{!image.inUse}" />
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
-<svelte:component this="{actionsStyle}">
+<ActionsWrapper
+  dropdownMenu="{dropdownMenu}"
+  onBeforeToggle="{() => {
+    globalContext?.setValue('selectedImageId', image.id);
+  }}">
   {#if isAuthenticatedForThisImage}
     <ListItemButtonIcon
       title="Push Image"
@@ -148,4 +158,4 @@ function onError(error: string): void {
       </div>
     </div>
   {/if}
-</svelte:component>
+</ActionsWrapper>

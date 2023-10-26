@@ -29,6 +29,7 @@ const API_KIND_INTERNAL_API_PORT = 6443;
 const KIND_INSTALL_COMMAND = 'kind.install';
 
 const KIND_MOVE_IMAGE_COMMAND = 'kind.image.move';
+let imagesPushInProgressToKind: string[] = [];
 
 export interface KindCluster {
   name: string;
@@ -255,9 +256,17 @@ export async function createProvider(
       return extensionApi.window.withProgress(
         { location: ProgressLocation.TASK_WIDGET, title: `Loading ${image.name} to kind.` },
         async progress => {
-          await imageHandler.moveImage(image, kindClusters, kindCli);
-          // Mark the task as completed
-          progress.report({ increment: -1 });
+          // update the list of the images whose pushing to kind is in progress
+          imagesPushInProgressToKind.push(image.id);
+          extensionApi.context.setValue('imagesPushInProgressToKind', imagesPushInProgressToKind);
+          try {
+            await imageHandler.moveImage(image, kindClusters, kindCli);
+          } finally {
+            // Mark the task as completed and remove the image from the pushInProgressToKind list on context
+            imagesPushInProgressToKind = imagesPushInProgressToKind.filter(id => id !== image.id);
+            extensionApi.context.setValue('imagesPushInProgressToKind', imagesPushInProgressToKind);
+            progress.report({ increment: -1 });
+          }
         },
       );
     }),

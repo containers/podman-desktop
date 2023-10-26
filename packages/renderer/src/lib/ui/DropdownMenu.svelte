@@ -3,6 +3,7 @@ import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 import DropDownMenuItems from './DropDownMenuItems.svelte';
 
+export let onBeforeToggle = () => {};
 // Show and hide the menu using clickOutside
 let showMenu = false;
 
@@ -19,6 +20,7 @@ function handleEscape({ key }: any) {
 let clientY: number;
 
 function toggleMenu() {
+  onBeforeToggle();
   showMenu = !showMenu;
 }
 
