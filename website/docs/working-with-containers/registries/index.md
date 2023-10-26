@@ -23,7 +23,7 @@ You might want to configure Podman Desktop to authenticate to:
 
   - Red Hat Quay
   - Docker Hub
-  - GitHub
+  - GitHub Container Registry
   - Google Container registry
 
 - A custom registry.
