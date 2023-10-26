@@ -12,7 +12,7 @@ import TabItem from '@theme/TabItem';
 
 Seamlessly run WebAssembly/wasm binaries on macOS and Windows
 
-You might heard excitement recently about WASM and WASI. Imagine a world where you can effortlessly run wasm binaries and distribute them using Open Container Initiative (OCI) container images – a singular image deployable across multiple architectures.
+You might have heard excitement recently about WASM and WASI. Imagine a world where you can effortlessly run wasm binaries and distribute them using Open Container Initiative (OCI) container images – a singular image deployable across multiple architectures.
 
 Though the concept seemed straightforward, accomplishing this task proved to be quite challenging, particularly on macOS and Windows. The complexity comes from the additional virtual machine running Linux. This machine needs all of the dependencies and prerequisites correctly setup.
 
@@ -26,7 +26,7 @@ The wait is over. Our blog post unveils the solution, guiding you through the pr
 
 [WebAssembly](https://webassembly.org/) (abbreviated wasm) was designed as a portable compilation target for programming languages, improving performance and portability of web applications (including gaming/emulators). Using a low-level binary format instead of JavaScript boosts applications to have near-native performance.
 
-The binary format serves as a compilation target and it allows to use a wider range of programming languages such as C, C++, and Rust. While it was a browser/client technology, now it is evolving beyond the web, for example being adapted for use as a back-end or edge technology. (This is for example what happened to Java that was first designed for the client side before landing to the server side)
+The binary format serves as a compilation target and it allows to use a wider range of programming languages such as C, C++, and Rust. While it was a browser/client technology, now it is evolving beyond the web, for example being adapted for use as a back-end or edge technology (this is for example what happened to Java that was first designed for the client side before landing to the server side).
 
 The Wasm binary format was designed to be secure. Wasm modules are isolated from the rest of the system, and they cannot access any system resources without explicit permission. This makes Wasm modules very safe to run, even in untrusted environments. But on another hand, for developing backend applications, this restriction is limiting the usage of WASM.
 
@@ -40,7 +40,7 @@ While with WASM you had limited access to the host resources, WASI provides a st
 
 ## Running WebAssembly outside the browser
 
-Wasm has shipped in the major browser engines so the usage of wasm is possible without any 3rd party addition in the browser land. But when it comes to the edge/system usage, you need to find a virtual machine to run these workloads supporting WASI extension. And there is not only one application to run them, there are several wasm runtime such as WasmEdge, Wasmtime, Wasmer, and so on. All runtimes support different CPU architectures.
+Wasm has shipped in the major browser engines so the usage of wasm is possible without any 3rd party addition in the browser land. But when it comes to the edge/system usage, you need to find a virtual machine to run these workloads supporting WASI extension. And there is not only one application to run them, there are several wasm runtimes such as WasmEdge, Wasmtime, Wasmer, and so on. All runtimes support different CPU architectures.
 
 Since WASI is still maturing some of the API provided in these runtimes has not reached the standard, so users need to be careful to write portable applications that do not depend on a given runtime.
 
@@ -50,7 +50,7 @@ Besides running wasm/WASI workloads on your computer, there is also the question
 
 When using containers with Podman on macOS or Windows, you have a virtual machine called a "Podman machine" that is executing a Linux environment. We need to add support for WASM inside this Linux environment. Podman is using the crun project as its OCI runtime, so crun needs to be able to run or delegate execution to WASM runtimes. Lucky for us, crun supports WASM execution.
 
-From the user's point of view, support for WASM is provided as an additional platform. So when executing a WASM workload, we specify as a platform `--platform=wasi/wasm` instead of for example `--platform=linux/arm64` or `--platform=linux/amd64`
+From the user's point of view, support for WASM is provided as an additional platform. So when executing a WASM workload, we specify as a platform `--platform=wasi/wasm` instead of for example `--platform=linux/arm64` or `--platform=linux/amd64`.
 
 ​
 
@@ -61,7 +61,7 @@ From the user's point of view, support for WASM is provided as an additional pla
 <Tabs groupId="operating-systems">
 <TabItem value="win" label="Windows">
 
-On Windows, ensure that your podman machine is a recent one. You can check using the `podman version` command
+On Windows, ensure that your podman machine is a recent one. You can check using the `podman version` command.
 
 Depending on the output of the command, you might have extra steps to do.
 
