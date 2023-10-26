@@ -278,7 +278,7 @@ export class ImageRegistry {
       throw new Error(`Registry ${registry.serverUrl} was not found`);
     }
     if (matchingRegistry.username !== registry.username || matchingRegistry.secret !== registry.secret) {
-      await this.checkCredentials(matchingRegistry.serverUrl, registry.username, registry.secret);
+      await this.checkCredentials(matchingRegistry.serverUrl, registry.username, registry.secret, registry.insecure);
     }
     matchingRegistry.username = registry.username;
     matchingRegistry.secret = registry.secret;

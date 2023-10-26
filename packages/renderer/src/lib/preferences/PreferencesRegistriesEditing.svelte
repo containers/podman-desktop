@@ -189,7 +189,11 @@ async function loginToRegistry(registry: containerDesktopAPI.Registry) {
   try {
     await window.checkImageCredentials(registry);
   } catch (error) {
-    if (error instanceof Error && error.message.includes('unable to verify the first certificate')) {
+    if (
+      error instanceof Error &&
+      (error.message.includes('unable to verify the first certificate') ||
+        error.message.includes('self signed certificate in certificate chain'))
+    ) {
       const result = await window.showMessageBox({
         title: 'Invalid Certificate',
         type: 'warning',
