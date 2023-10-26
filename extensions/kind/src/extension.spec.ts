@@ -20,12 +20,16 @@
 
 import { beforeEach, expect, test, vi } from 'vitest';
 import * as podmanDesktopApi from '@podman-desktop/api';
-import { createProvider, refreshKindClustersOnProviderConnectionUpdate } from './extension';
+import { createProvider, moveImage, refreshKindClustersOnProviderConnectionUpdate } from './extension';
 import type * as extensionApi from '@podman-desktop/api';
 
 vi.mock('./image-handler', async () => {
   return {
-    ImageHandler: vi.fn(),
+    ImageHandler: vi.fn().mockImplementation(() => {
+      return {
+        moveImage: vi.fn(),
+      };
+    }),
   };
 });
 
@@ -50,6 +54,9 @@ vi.mock('@podman-desktop/api', async () => {
     },
     commands: {
       registerCommand: vi.fn(),
+    },
+    context: {
+      setValue: vi.fn(),
     },
   };
 });
@@ -79,7 +86,8 @@ test('check we received notifications ', async () => {
 });
 
 test('Ensuring a progress task is created when calling kind.image.move command', async () => {
-  const commandRegistry: { [id: string]: (image: { image: string }) => Promise<void> } = {};
+  const commandRegistry: { [id: string]: (image: { id: string; image: string; engineId: string }) => Promise<void> } =
+    {};
 
   const registerCommandMock = vi.fn();
   (podmanDesktopApi.commands as any).registerCommand = registerCommandMock;
@@ -96,8 +104,13 @@ test('Ensuring a progress task is created when calling kind.image.move command',
   (podmanDesktopApi.containerEngine as any).listContainers = listContainersMock;
   listContainersMock.mockResolvedValue([]);
 
-  const withProgressMock = vi.fn();
+  const withProgressMock = vi
+    .fn()
+    .mockImplementation(() => moveImage({ report: vi.fn() }, { id: 'id', image: 'hello:world', engineId: '1' }));
   (podmanDesktopApi.window as any).withProgress = withProgressMock;
+
+  const contextSetValueMock = vi.fn();
+  (podmanDesktopApi.context as any).setValue = contextSetValueMock;
 
   await createProvider(
     vi.mocked<extensionApi.ExtensionContext>({
@@ -114,7 +127,10 @@ test('Ensuring a progress task is created when calling kind.image.move command',
   expect(commandRegistry['kind.image.move']).toBeDefined();
 
   // simulate a call to the command
-  await commandRegistry['kind.image.move']({ image: 'hello:world' });
+  await commandRegistry['kind.image.move']({ id: 'id', image: 'hello:world', engineId: '1' });
 
   expect(withProgressMock).toHaveBeenCalled();
+  expect(contextSetValueMock).toBeCalledTimes(2);
+  expect(contextSetValueMock).toHaveBeenNthCalledWith(1, 'imagesPushInProgressToKind', ['id']);
+  expect(contextSetValueMock).toHaveBeenNthCalledWith(2, 'imagesPushInProgressToKind', []);
 });

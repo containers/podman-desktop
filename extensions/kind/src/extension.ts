@@ -21,6 +21,7 @@ import { detectKind, getKindPath } from './util';
 import { KindInstaller } from './kind-installer';
 import type { AuditRequestItems, CancellationToken, Logger } from '@podman-desktop/api';
 import { ProgressLocation, window } from '@podman-desktop/api';
+import type { ImageInfo } from './image-handler';
 import { ImageHandler } from './image-handler';
 import { createCluster, connectionAuditor } from './create-cluster';
 
@@ -255,19 +256,7 @@ export async function createProvider(
 
       return extensionApi.window.withProgress(
         { location: ProgressLocation.TASK_WIDGET, title: `Loading ${image.name} to kind.` },
-        async progress => {
-          // update the list of the images whose pushing to kind is in progress
-          imagesPushInProgressToKind.push(image.id);
-          extensionApi.context.setValue('imagesPushInProgressToKind', imagesPushInProgressToKind);
-          try {
-            await imageHandler.moveImage(image, kindClusters, kindCli);
-          } finally {
-            // Mark the task as completed and remove the image from the pushInProgressToKind list on context
-            imagesPushInProgressToKind = imagesPushInProgressToKind.filter(id => id !== image.id);
-            extensionApi.context.setValue('imagesPushInProgressToKind', imagesPushInProgressToKind);
-            progress.report({ increment: -1 });
-          }
-        },
+        async progress => await moveImage(progress, image),
       );
     }),
   );
@@ -293,6 +282,31 @@ export async function createProvider(
   extensionApi.provider.onDidUpdateProvider(async () => registerProvider(extensionContext, provider, telemetryLogger));
   // search for kind clusters on boot
   await searchKindClusters(provider);
+}
+
+export async function moveImage(
+  progress: extensionApi.Progress<{
+    message?: string;
+    increment?: number;
+  }>,
+  image: unknown,
+) {
+  // as the command receive an "any" value we check that it contains an id and an engineId as they are mandatory
+  if (!(typeof image === 'object' && 'id' in image && 'engineId' in image)) {
+    throw new Error('Image selection not supported yet');
+  }
+
+  // update the list of the images whose pushing to kind is in progress
+  imagesPushInProgressToKind.push(image.id as string);
+  extensionApi.context.setValue('imagesPushInProgressToKind', imagesPushInProgressToKind);
+  try {
+    await imageHandler.moveImage(image as ImageInfo, kindClusters, kindCli);
+  } finally {
+    // Mark the task as completed and remove the image from the pushInProgressToKind list on context
+    imagesPushInProgressToKind = imagesPushInProgressToKind.filter(id => id !== image.id);
+    extensionApi.context.setValue('imagesPushInProgressToKind', imagesPushInProgressToKind);
+    progress.report({ increment: -1 });
+  }
 }
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {

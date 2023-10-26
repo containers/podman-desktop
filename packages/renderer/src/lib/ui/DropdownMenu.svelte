@@ -37,6 +37,7 @@ function onWindowClick(e: any) {
 <div class="relative inline-block text-left">
   <!-- Button for the dropdown menu -->
   <button
+    aria-label="kebab menu"
     on:click="{e => {
       // keep track of the cursor position
       clientY = e.clientY;
