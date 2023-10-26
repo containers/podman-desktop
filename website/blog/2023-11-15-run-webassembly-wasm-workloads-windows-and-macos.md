@@ -132,6 +132,8 @@ In that case you should check that the prerequisites from the previous section a
 
 Running Wasm workload is an interesting use case from a consumer point of view. It helps to consume Wasm binaries. But another interesting case is to distribute and build these Wasm images so anyone could run them quickly.
 
+The goal is to have a minimal image containing only the Wasm binary. For that we will use a multi-stage build. First stage will be the platform to build/compile the `.wasm` binary file and the second/last stage will copy the binary to a scratch image.
+
 When building images it will use by default the architecture of the host operating system. If you are using a Mac computer with ARM chip, then the Linux images will default to `linux/arm64`. Using a mac/intel it will default to `linux/amd64` images. In the case of Wasm workloads, the expected target platform is `wasi/wasm`.
 
 With podman we can use the flag `--platform=wasi/wasm` on the `podman build` command to specify the system/architecture. But if we do that, it means that if the Dockerfile or Containerfile contains as base image `FROM docker.io/redhat/ubi9-minimal` for example it will try to fetch a `ubi9-minimal` image using the `wasi/wasm` platform but of course it does not exist.
