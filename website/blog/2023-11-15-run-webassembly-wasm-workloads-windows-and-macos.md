@@ -14,7 +14,7 @@ Seamlessly run WebAssembly/wasm binaries on macOS and Windows
 
 You might heard excitement recently about WASM and WASI. Imagine a world where you can effortlessly run wasm binaries and distribute them using Open Container Initiative (OCI) container images – a singular image deployable across multiple architectures.
 
-Though the concept seemed straightforward, accomplishing this task proved to be quite challenging, particularly on macOS and Windows. The complexity comes from the additional virtual machine running Linux. This machine needs all dependencies and prerequisites being correctly setup.
+Though the concept seemed straightforward, accomplishing this task proved to be quite challenging, particularly on macOS and Windows. The complexity comes from the additional virtual machine running Linux. This machine needs all of the dependencies and prerequisites correctly setup.
 
 The wait is over. Our blog post unveils the solution, guiding you through the process of enabling wasm workloads on both macOS and Windows.
 
