@@ -19,7 +19,7 @@ Podman Desktop has access to public registries by default.
 
 You might want to configure Podman Desktop to authenticate to:
 
-- A pre-configured registry:
+- A pre-configured registry, among:
 
   - Red Hat Quay
   - Docker Hub
