@@ -38,9 +38,10 @@ Podman Desktop has a set of context keys that are evaluated to Boolean true/fals
 
 Podman Desktop also provides context keys that return values that can be used to create meaningful expressions
 
-| Context key        | Value in it                                                                                       |
-| ------------------ | ------------------------------------------------------------------------------------------------- |
-| containerLabelKeys | A list of all labels belonging to the current container. Example: `"value in containerLabelKeys"` |
+| Context key        | Value in it                                                                                                             |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| containerLabelKeys | A list of all labels belonging to the current container. Example: `"value in containerLabelKeys"`                       |
+| selectedImageId    | The image id which the dashboard/image menu opened belong to. Example `"selectedImageId in imagesPushInProgressToKind"` |
 
 ### Add a custom when clause context
 
