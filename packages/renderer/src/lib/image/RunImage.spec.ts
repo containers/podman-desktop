@@ -398,7 +398,7 @@ describe('RunImage', () => {
     await new Promise(resolve => setTimeout(resolve, 200));
 
     // expect to be redirected to containers page as there is no tty
-    expect(gotoSpy).toHaveBeenCalledWith('/containerslist/all');
+    expect(gotoSpy).toHaveBeenCalledWith('/containers/list/all');
   });
 
   test('Expect able to play with environment files', async () => {

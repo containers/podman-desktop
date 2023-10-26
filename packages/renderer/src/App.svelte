@@ -93,13 +93,14 @@ window.events?.receive('display-troubleshooting', () => {
         <Route path="/" breadcrumb="Dashboard Page">
           <DashboardPage />
         </Route>
-        <Route path="/containerslist/*" breadcrumb="Containers" navigationHint="root">
-          <ContainerList searchTerm="{meta.query.filter || ''}" />
+        <Route path="/containers/*" firstmatch>
+          <Route path="/list/*" breadcrumb="Containers" navigationHint="root">
+            <ContainerList searchTerm="{meta.query.filter || ''}" />
+          </Route>
+          <Route path="/:id/*" breadcrumb="Container Details" let:meta navigationHint="details">
+            <ContainerDetails containerID="{meta.params.id}" />
+          </Route>
         </Route>
-        <Route path="/containers/:id/*" breadcrumb="Container Details" let:meta navigationHint="details">
-          <ContainerDetails containerID="{meta.params.id}" />
-        </Route>
-
         <Route path="/kube/play" breadcrumb="Play Kubernetes YAML">
           <KubePlayYAML />
         </Route>

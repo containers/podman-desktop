@@ -304,7 +304,7 @@ function updatePortExposure(port: number, checked: boolean) {
 
         <div class="w-full grid justify-items-end">
           <div>
-            <Button type="link" on:click="{() => router.goto('/containerslist/all')}">Close</Button>
+            <Button type="link" on:click="{() => router.goto('/containers/list/all')}">Close</Button>
             <Button
               icon="{SolidPodIcon}"
               bind:disabled="{createInProgress}"
