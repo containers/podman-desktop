@@ -120,3 +120,39 @@ test('Should dispose global commands ', async () => {
   expectTypeOf(commandPaletteCommandsAfter2).toBeArray();
   expect(commandPaletteCommandsAfter2.length).toBe(0);
 });
+
+test('Should include category in the title', async () => {
+  const myCommandId1 = 'my-extension.command1';
+  const title1 = 'My dummy Command 1';
+
+  const myCommandId2 = 'my-extension.command2';
+  const title2 = 'My dummy Command 2';
+
+  const category = 'My Category';
+
+  commandRegistry.registerCommandsFromExtension('my-extension', [
+    {
+      command: myCommandId1,
+      title: title1,
+      category,
+    },
+    {
+      command: myCommandId2,
+      title: title2,
+      category,
+    },
+  ]);
+
+  // grab all commands
+  const commandPaletteCommands = commandRegistry.getCommandPaletteCommands();
+  expect(commandPaletteCommands).toBeDefined();
+  expectTypeOf(commandPaletteCommands).toBeArray();
+  expect(commandPaletteCommands.length).toBe(2);
+
+  // check we have our command
+  const myCommand = commandPaletteCommands.find(command => command.id === myCommandId1);
+  expect(myCommand).toBeDefined();
+
+  // should have category + title
+  expect(myCommand?.title).toBe(`${category}: ${title1}`);
+});
