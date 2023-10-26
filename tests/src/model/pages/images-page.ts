@@ -29,9 +29,9 @@ export class ImagesPage extends MainPage {
 
   constructor(page: Page) {
     super(page, 'images');
-    this.pullImageButton = this.additionalActions.getByRole('button', { name: 'Pull an image' });
-    this.pruneImagesButton = this.additionalActions.getByRole('button', { name: 'Prune images' });
-    this.buildImageButton = this.additionalActions.getByRole('button', { name: 'Build an image' });
+    this.pullImageButton = this.additionalActions.getByRole('button', { name: 'Pull' });
+    this.pruneImagesButton = this.additionalActions.getByRole('button', { name: 'Prune' });
+    this.buildImageButton = this.additionalActions.getByRole('button', { name: 'Build' });
   }
 
   async openPullImage(): Promise<PullImagePage> {

@@ -28,8 +28,8 @@ export class ContainersPage extends MainPage {
 
   constructor(page: Page) {
     super(page, 'containers');
-    this.pruneContainersButton = this.additionalActions.getByRole('button', { name: 'Prune containers' });
-    this.createContainerButton = this.additionalActions.getByRole('button', { name: 'Create a container' });
+    this.pruneContainersButton = this.additionalActions.getByRole('button', { name: 'Prune' });
+    this.createContainerButton = this.additionalActions.getByRole('button', { name: 'Create' });
     this.playKubernetesYAMLButton = this.additionalActions.getByRole('button', { name: 'Play Kubernetes YAML' });
   }
 
