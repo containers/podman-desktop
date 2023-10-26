@@ -94,7 +94,10 @@ window.events?.receive('display-troubleshooting', () => {
           <DashboardPage />
         </Route>
         <Route path="/containers/*" firstmatch>
-          <Route path="/list/*" breadcrumb="Containers" navigationHint="root">
+          <Route path="/">
+            <ContainerList searchTerm="{meta.query.filter || ''}" />
+          </Route>
+          <Route path="/list/:id" breadcrumb="Containers" navigationHint="root">
             <ContainerList searchTerm="{meta.query.filter || ''}" />
           </Route>
           <Route path="/:id/*" breadcrumb="Container Details" let:meta navigationHint="details">

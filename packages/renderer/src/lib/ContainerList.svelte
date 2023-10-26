@@ -244,6 +244,10 @@ onMount(async () => {
 
   routeUnsubscribe = router.subscribe(route => {
     tab = route.path.substring(route.path.lastIndexOf('/') + 1);
+    if (tab === 'containers') {
+      router.goto('/containers/list/all');
+      return;
+    }
     runningFilter = tab === 'running';
     stoppedFilter = tab === 'stopped';
   });

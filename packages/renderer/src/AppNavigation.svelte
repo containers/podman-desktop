@@ -115,7 +115,7 @@ export let meta: TinroRouteMeta;
         ></svg>
     </div>
   </NavItem>
-  <NavItem href="/containers/list/all" tooltip="Containers{containerCount}" ariaLabel="Containers" bind:meta="{meta}">
+  <NavItem href="/containers" tooltip="Containers{containerCount}" ariaLabel="Containers" bind:meta="{meta}">
     <ContainerIcon size="24" />
   </NavItem>
   <NavItem href="/pods" tooltip="Pods{podCount}" ariaLabel="Pods" bind:meta="{meta}">
