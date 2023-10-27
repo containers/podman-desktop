@@ -190,7 +190,7 @@ function gotoCreateVolume(): void {
 <NavPage bind:searchTerm="{searchTerm}" title="volumes">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
     {#if providerConnections.length > 0}
-      <Button on:click="{() => gotoCreateVolume()}" icon="{faPlusCircle}">Create</Button>
+      <Button on:click="{() => gotoCreateVolume()}" icon="{faPlusCircle}" title="Create a volume">Create</Button>
     {/if}
     {#if $volumeListInfos.map(volumeInfo => volumeInfo.Volumes).flat().length > 0}
       <Prune type="volumes" engines="{enginesList}" />
