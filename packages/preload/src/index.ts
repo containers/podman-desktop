@@ -906,6 +906,7 @@ function initExposure(): void {
       selectedProvider: ProviderContainerConnectionInfo,
       key: symbol,
       eventCollect: (key: symbol, eventName: 'finish' | 'stream' | 'error', data: string) => void,
+      cancellableTokenId?: number,
     ): Promise<unknown> => {
       onDataCallbacksBuildImageId++;
       onDataCallbacksBuildImage.set(onDataCallbacksBuildImageId, eventCollect);
@@ -917,6 +918,7 @@ function initExposure(): void {
         imageName,
         selectedProvider,
         onDataCallbacksBuildImageId,
+        cancellableTokenId,
       );
     },
   );
