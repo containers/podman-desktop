@@ -4,13 +4,15 @@ import { router } from 'tinro';
 export let url: string;
 export let title: string;
 
+$: urlWithoutParams = url.split('?')[0];
+
 let baseURL = $router.path.substring(0, $router.path.lastIndexOf('/'));
 </script>
 
 <div
   class="pb-2 border-b-[3px] border-charcoal-700 whitespace-nowrap hover:cursor-pointer"
-  class:border-purple-500="{$router.path === baseURL + '/' + url}"
-  class:hover:border-charcoal-100="{$router.path !== baseURL + '/' + url}">
+  class:border-purple-500="{$router.path === baseURL + '/' + urlWithoutParams}"
+  class:hover:border-charcoal-100="{$router.path !== baseURL + '/' + urlWithoutParams}">
   <a
     href="{baseURL}/{url}"
     class="px-4 py-2 text-gray-600 no-underline"

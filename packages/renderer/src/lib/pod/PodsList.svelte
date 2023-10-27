@@ -130,7 +130,7 @@ function openDetailsPod(pod: PodInfoUI) {
 }
 
 function openContainersFromPod(pod: PodInfoUI) {
-  router.goto(`/containers/?filter=${pod.shortId}`);
+  router.goto(`/containers/list/all?filter=${pod.shortId}`);
 }
 
 let refreshTimeouts: NodeJS.Timeout[] = [];

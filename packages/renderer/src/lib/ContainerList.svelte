@@ -458,9 +458,9 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
   </div>
 
   <div class="flex flex-row px-2 mb-2 border-b border-charcoal-400" slot="tabs">
-    <Tab title="All containers" url="all" />
-    <Tab title="Running containers" url="running" />
-    <Tab title="Stopped containers" url="stopped" />
+    <Tab title="All containers" url="{`all?filter=${searchTerm}`}" />
+    <Tab title="Running containers" url="{`running?filter=${searchTerm}`}" />
+    <Tab title="Stopped containers" url="{`stopped?filter=${searchTerm}`}" />
   </div>
 
   <div class="flex min-w-full h-full" slot="content">
