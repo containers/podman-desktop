@@ -13,7 +13,7 @@ $: solid = status === 'RUNNING' || status === 'STARTING' || status === 'USED' ||
 
 <div class="grid place-content-center" style="position:relative">
   <div
-    class="grid place-content-center rounded aspect-square"
+    class="grid place-content-center rounded aspect-square text-xs"
     class:bg-green-400="{status === 'RUNNING' || status === 'USED'}"
     class:bg-green-600="{status === 'STARTING'}"
     class:bg-amber-600="{status === 'DEGRADED'}"

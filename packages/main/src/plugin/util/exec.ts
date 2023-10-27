@@ -65,9 +65,6 @@ export class Exec {
 
     if (isMac() || isWindows()) {
       env.PATH = getInstallationPath(env.PATH);
-    } else if (env.FLATPAK_ID) {
-      args = ['--host', command, ...(args || [])];
-      command = 'flatpak-spawn';
     }
 
     // do we have an admin task ?
@@ -135,6 +132,11 @@ export class Exec {
         args = [command, ...(args || [])];
         command = 'pkexec';
       }
+    }
+
+    if (env.FLATPAK_ID) {
+      args = ['--host', command, ...(args || [])];
+      command = 'flatpak-spawn';
     }
 
     let cwd: string;

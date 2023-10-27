@@ -51,16 +51,25 @@ export async function installBinaryToSystem(binaryPath: string, binaryName: stri
     destinationPath = path.join(os.homedir(), 'AppData', 'Local', 'Microsoft', 'WindowsApps', `${binaryName}.exe`);
     command = 'copy';
     args = [`"${binaryPath}"`, `"${destinationPath}"`];
-  } else {
+  } else if (system === 'darwin') {
     destinationPath = path.join(localBinDir, binaryName);
     command = 'exec';
     args = ['cp', binaryPath, destinationPath];
+  } else if (system === 'linux') {
+    destinationPath = path.join(localBinDir, binaryName);
+    command = '/bin/sh';
+    args = ['-c', `cp ${binaryPath} ${destinationPath}`];
   }
 
   // If on macOS or Linux, check to see if the /usr/local/bin directory exists,
   // if it does not, then add mkdir -p /usr/local/bin to the start of the command when moving the binary.
   if ((system === 'linux' || system === 'darwin') && !fs.existsSync(localBinDir)) {
-    args.unshift('mkdir', '-p', localBinDir, '&&');
+    if (system === 'darwin') {
+      args.unshift('mkdir', '-p', localBinDir, '&&');
+    } else {
+      // add mkdir -p /usr/local/bin just after the first item or args array (so it'll be in the -c shell instruction)
+      args[args.length - 1] = `mkdir -p /usr/local/bin && ${args[args.length - 1]}`;
+    }
   }
 
   try {

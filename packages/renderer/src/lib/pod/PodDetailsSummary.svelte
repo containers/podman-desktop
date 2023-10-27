@@ -41,7 +41,7 @@ ass KubeDetailsSummary will automatically add a 'Loading ... ' section -->
   <KubeDetailsSummary pod="{kubePod}" />
 {:else}
   <!-- Still show pod information in case the Kubernetes pod retrieval errors out -->
-  <div class="flex px-5 py-4 flex-col">
+  <div class="flex px-5 py-4 flex-col h-full overflow-auto">
     <div class="w-full">
       <table>
         <tr>
@@ -55,7 +55,7 @@ ass KubeDetailsSummary will automatically add a 'Loading ... ' section -->
       </table>
     </div>
     {#if pod.containers.length > 0}
-      <div class="w-full my-12">
+      <div class="w-full mt-12">
         <span>Containers using this pod:</span>
         <table>
           {#each pod.containers as container}

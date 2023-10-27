@@ -13,7 +13,7 @@ if (pod?.status?.startTime) {
 }
 </script>
 
-<div class="flex px-5 py-4 flex-col items-start hover:overflow-y-auto">
+<div class="flex px-5 py-4 flex-col items-start h-full overflow-auto">
   {#if pod}
     <table class="w-full">
       <tbody>

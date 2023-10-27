@@ -270,7 +270,7 @@
           "state": "completed"
         }
       ],
-      "enablement": "(isLinux && onboardingContext:podmanIsNotInstalled) || !onboardingContext:podmanMachineExists"
+      "enablement": "(isLinux && onboardingContext:podmanIsNotInstalled) || (!isLinux && !onboardingContext:podmanMachineExists)"
     }
   },
   "scripts": {
