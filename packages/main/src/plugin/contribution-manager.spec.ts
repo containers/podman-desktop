@@ -483,7 +483,7 @@ describe('isPodmanDesktopServiceAlive', () => {
     contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry, exec);
   });
 
-  test('is Alive', async () => {
+  test('is Alive with JSON array', async () => {
     const items = [
       {
         Service: 'podman-desktop-socket',
@@ -498,6 +498,27 @@ describe('isPodmanDesktopServiceAlive', () => {
     const execSpy = vi
       .spyOn(contributionManager, 'execComposeCommand')
       .mockResolvedValue({ stdout: JSON.stringify(items) } as any);
+
+    const isAlive = await contributionManager.isPodmanDesktopServiceAlive('/fake/directory', 'my-project');
+    expect(execSpy).toBeCalledWith('/fake/directory', ['-p', 'my-project', 'ps', '--format', 'json']);
+    expect(isAlive).toBeTruthy();
+  });
+
+  test('is Alive with JSON newline object (docker compose v2.21+)', async () => {
+    const item1 = {
+      Service: 'podman-desktop-socket',
+      State: 'running',
+    };
+    const item2 = {
+      Service: 'my-app',
+      State: 'running',
+    };
+
+    const fullString = JSON.stringify(item1) + '\n' + JSON.stringify(item2);
+
+    const execSpy = vi
+      .spyOn(contributionManager, 'execComposeCommand')
+      .mockResolvedValue({ stdout: fullString } as any);
 
     const isAlive = await contributionManager.isPodmanDesktopServiceAlive('/fake/directory', 'my-project');
     expect(execSpy).toBeCalledWith('/fake/directory', ['-p', 'my-project', 'ps', '--format', 'json']);

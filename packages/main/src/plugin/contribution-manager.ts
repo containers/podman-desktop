@@ -272,7 +272,18 @@ export class ContributionManager {
     try {
       jsonResultPs = JSON.parse(result.stdout);
     } catch (error) {
-      throw new Error(`unable to parse the result of the ps command ${result.stdout}`);
+      if (error instanceof SyntaxError) {
+        // handle syntax of docker-compose v2.21+ format
+        // https://github.com/docker/compose/pull/10918
+        try {
+          const arrayResult = result.stdout.trim().split('\n');
+          jsonResultPs = arrayResult.map(entry => JSON.parse(entry));
+        } catch (error) {
+          throw new Error(`unable to parse the result of the ps command ${result.stdout}. Error is ${error}`);
+        }
+      } else {
+        throw new Error(`unable to parse the result of the ps command ${result.stdout}`);
+      }
     }
 
     // check jsonResultPs is an array
