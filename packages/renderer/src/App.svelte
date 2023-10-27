@@ -95,10 +95,10 @@ window.events?.receive('display-troubleshooting', () => {
         </Route>
         <Route path="/containers/*" firstmatch>
           <Route path="/">
-            <ContainerList searchTerm="{meta.query.filter || ''}" />
+            <ContainerList filter="{meta.query.filter || ''}" />
           </Route>
           <Route path="/list/:id" breadcrumb="Containers" navigationHint="root">
-            <ContainerList searchTerm="{meta.query.filter || ''}" />
+            <ContainerList filter="{meta.query.filter || ''}" />
           </Route>
           <Route path="/:id/*" breadcrumb="Container Details" let:meta navigationHint="details">
             <ContainerDetails containerID="{meta.params.id}" />

@@ -42,6 +42,7 @@ import StateChange from './ui/StateChange.svelte';
 import SolidPodIcon from './images/SolidPodIcon.svelte';
 import Tab from './ui/Tab.svelte';
 import { findMatchInLeaves } from '../stores/search-util';
+import { Filter } from './container/filter';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -52,9 +53,11 @@ let containerGroups: ContainerGroupInfoUI[] = [];
 
 let tab: string;
 
-export let searchTerm = '';
+export let filter = '';
 let runningFilter: boolean;
 let stoppedFilter: boolean;
+
+$: filterObj = new Filter(decodeURI(filter));
 
 interface FilterOptions {
   searchTerm: string;
@@ -62,7 +65,11 @@ interface FilterOptions {
   stoppedFilter: boolean;
 }
 
-$: updateContainers($containersInfos, $context, $viewsContributions, { searchTerm, runningFilter, stoppedFilter });
+$: updateContainers($containersInfos, $context, $viewsContributions, {
+  searchTerm: filterObj.searchTerm(),
+  runningFilter,
+  stoppedFilter,
+});
 
 function fromExistingImage(): void {
   openChoiceModal = false;
@@ -290,7 +297,7 @@ function updateContainers(
 
   // filter the containers
   const filteredContainers = currentContainers
-    .filter(containerInfo => findMatchInLeaves(containerInfo, searchTerm.toLowerCase()))
+    .filter(containerInfo => findMatchInLeaves(containerInfo, filters.searchTerm))
     .filter(containerInfo => {
       if (filters.runningFilter) {
         return containerInfo.state === 'RUNNING';
@@ -429,7 +436,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
 }
 </script>
 
-<NavPage bind:searchTerm="{searchTerm}" title="containers">
+<NavPage bind:searchTerm="{filterObj.rawFilter}" title="containers">
   <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
     <!-- Only show if there are containers-->
     {#if $containersInfos.length > 0}
@@ -458,9 +465,9 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
   </div>
 
   <div class="flex flex-row px-2 mb-2 border-b border-charcoal-400" slot="tabs">
-    <Tab title="All containers" url="{`all?filter=${searchTerm}`}" />
-    <Tab title="Running containers" url="{`running?filter=${searchTerm}`}" />
-    <Tab title="Stopped containers" url="{`stopped?filter=${searchTerm}`}" />
+    <Tab title="All containers" url="{`all?filter=${filterObj.setState(false, false)}`}" />
+    <Tab title="Running containers" url="{`running?filter=${filterObj.setState(true, false)}`}" />
+    <Tab title="Stopped containers" url="{`stopped?filter=${filterObj.setState(false, true)}`}" />
   </div>
 
   <div class="flex min-w-full h-full" slot="content">
@@ -667,8 +674,8 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if containerGroups.length === 0}
-      {#if searchTerm}
-        <FilteredEmptyScreen icon="{ContainerIcon}" kind="containers" bind:searchTerm="{searchTerm}" />
+      {#if filterObj.rawFilter}
+        <FilteredEmptyScreen icon="{ContainerIcon}" kind="containers" bind:searchTerm="{filterObj.rawFilter}" />
       {:else}
         <ContainerEmptyScreen selected="{tab}" />
       {/if}
