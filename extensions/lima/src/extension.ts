@@ -34,10 +34,10 @@ const imageHandler = new ImageHandler();
 function registerProvider(
   extensionContext: extensionApi.ExtensionContext,
   provider: extensionApi.Provider,
+  providerType: limaProviderType,
   providerPath: string,
 ): void {
   let providerState: extensionApi.ProviderConnectionStatus = 'unknown';
-  const providerType: limaProviderType = configuration.getConfiguration('lima').get('type');
   const instanceName: string = configuration.getConfiguration('lima').get('name') || providerType;
   if (providerType === 'podman' || providerType === 'docker') {
     const connection: extensionApi.ContainerProviderConnection = {
@@ -83,8 +83,9 @@ function registerProvider(
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   const engineType = configuration.getConfiguration('lima').get('type') || 'podman';
   const instanceName = configuration.getConfiguration('lima').get('name') || engineType;
+  const socketName = configuration.getConfiguration('lima').get('socket') || engineType + '.sock';
   const limaHome = 'LIMA_HOME' in process.env ? process.env['LIMA_HOME'] : os.homedir() + '/.lima';
-  const socketPath = path.resolve(limaHome, instanceName + '/sock/' + engineType + '.sock');
+  const socketPath = path.resolve(limaHome, instanceName + '/sock/' + socketName);
   const configPath = path.resolve(limaHome, instanceName + '/copied-from-guest/kubeconfig.yaml');
 
   let provider;
@@ -104,22 +105,23 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     extensionContext.subscriptions.push(provider);
   }
 
-  switch (engineType) {
-    case 'podman':
-    case 'docker':
-      if (fs.existsSync(socketPath)) {
-        registerProvider(extensionContext, provider, socketPath);
-      } else {
-        console.debug(`Could not find socket at ${socketPath}`);
-      }
-      break;
-    case 'kubernetes':
-      if (fs.existsSync(configPath)) {
-        registerProvider(extensionContext, provider, configPath);
-      } else {
-        console.debug(`Could not find config at ${configPath}`);
-      }
-      break;
+  // container provider
+  if (socketName !== 'kubernetes.sock') {
+    const providerType = engineType === 'kubernetes' ? 'docker' : (engineType as limaProviderType);
+    if (fs.existsSync(socketPath)) {
+      registerProvider(extensionContext, provider, providerType, socketPath);
+    } else {
+      console.debug(`Could not find socket at ${socketPath}`);
+    }
+  }
+  // kubernetes provider
+  if (engineType === 'kubernetes') {
+    const providerType = engineType as limaProviderType;
+    if (fs.existsSync(configPath)) {
+      registerProvider(extensionContext, provider, providerType, configPath);
+    } else {
+      console.debug(`Could not find config at ${configPath}`);
+    }
   }
 }
 
