@@ -325,7 +325,6 @@ export class ExtensionLoader {
   async analyzeExtension(extensionPath: string, removable: boolean): Promise<AnalyzedExtension> {
     // do nothing if there is no package.json file
     let error = undefined;
-    const disposables: Disposable[] = [];
     if (!fs.existsSync(path.resolve(extensionPath, 'package.json'))) {
       error = `Ignoring extension ${extensionPath} without package.json file`;
       console.warn(error);
@@ -336,10 +335,8 @@ export class ExtensionLoader {
         manifest: undefined,
         api: <typeof containerDesktopAPI>{},
         removable,
-        subscriptions: disposables,
-        dispose(): void {
-          disposables.forEach(disposable => disposable.dispose());
-        },
+        subscriptions: [],
+        dispose(): void {},
         error,
       };
       return analyzedExtension;
@@ -355,6 +352,7 @@ export class ExtensionLoader {
     // create api object
     const api = this.createApi(extensionPath, manifest);
 
+    const disposables: Disposable[] = [];
     const analyzedExtension: AnalyzedExtension = {
       id: `${manifest.publisher}.${manifest.name}`,
       name: manifest.name,
