@@ -585,7 +585,7 @@ test('Expect to display running / stopped containers depending on tab', async ()
         'pod1 (pod) 2 containers',
         'container1-pod1 RUNNING',
         'container2-pod1 RUNNING',
-        'pod2 (pod) 1 container',
+        'pod2 (pod) 2 containers (1 filtered)',
         'container1-pod2 RUNNING',
       ],
       absentLabels: [/container2-pod2.*/, /pod3 \(pod\).*/, /container1-pod3.*/, /container2-pod3.*/],
@@ -593,7 +593,7 @@ test('Expect to display running / stopped containers depending on tab', async ()
     {
       tabLabel: 'Stopped containers',
       presentCells: [
-        'pod2 (pod) 1 container',
+        'pod2 (pod) 2 containers (1 filtered)',
         'container2-pod2 STOPPED',
         'pod3 (pod) 2 containers',
         'container1-pod3 STOPPED',
