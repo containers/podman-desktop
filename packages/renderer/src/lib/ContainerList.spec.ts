@@ -428,7 +428,7 @@ test('Expect filter empty screen', async () => {
   while (get(providerInfos).length === 0) {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
-  await waitRender({ searchTerm: 'No match' });
+  await waitRender({ filter: 'No match' });
 
   const allTab = screen.getByRole('link', { name: 'All containers' });
   await fireEvent.click(allTab);

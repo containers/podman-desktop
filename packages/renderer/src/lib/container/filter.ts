@@ -21,4 +21,12 @@ export class Filter {
     }
     return parts.join(' ');
   }
+
+  isRunning(): boolean {
+    return this.rawFilter.split(' ').includes('is:running');
+  }
+
+  isStopped(): boolean {
+    return this.rawFilter.split(' ').includes('is:stopped');
+  }
 }

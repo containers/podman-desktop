@@ -59,6 +59,18 @@ let stoppedFilter: boolean;
 
 $: filterObj = new Filter(decodeURI(filter));
 
+$: checkFilter(filterObj.rawFilter);
+
+function checkFilter(_: string): void {
+  if (filterObj.isRunning() && !runningFilter) {
+    router.goto(`/containers/list/running?filter=${filterObj.setState(true, false)}`);
+  } else if (filterObj.isStopped() && !stoppedFilter) {
+    router.goto(`/containers/list/stopped?filter=${filterObj.setState(false, true)}`);
+  } else if (!filterObj.isStopped() && !filterObj.isRunning() && (runningFilter || stoppedFilter)) {
+    router.goto(`/containers/list/all?filter=${filterObj.setState(false, false)}`);
+  }
+}
+
 interface FilterOptions {
   searchTerm: string;
   runningFilter: boolean;
