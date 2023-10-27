@@ -351,18 +351,6 @@ const config = {
                 to: '/docs/installation',
               },
               {
-                label: 'Onboarding for containers',
-                to: '/docs/onboarding/containers',
-              },
-              {
-                label: 'Onboarding for Kubernetes',
-                to: '/docs/onboarding-for-kubernetes',
-              },
-              {
-                label: 'Working with containers',
-                to: '/docs/working-with-containers',
-              },
-              {
                 label: 'Migrating from Docker',
                 to: '/docs/migrating-from-docker',
               },
@@ -384,10 +372,6 @@ const config = {
             title: 'Links',
             items: [
               {
-                label: 'Blog',
-                to: '/blog',
-              },
-              {
                 label: 'GitHub',
                 href: 'https://github.com/containers/podman-desktop',
               },
@@ -404,17 +388,13 @@ const config = {
                 href: 'https://fedora.im',
               },
               {
-                label: 'Kubernetes chat: Join #podman-desktop on the Kubernetes Slack',
+                label: 'Kubernetes chat: #podman-desktop on the Kubernetes Slack',
                 href: 'https://slack.k8s.io/',
-              },
-              {
-                label: 'Podman Desktop Planning & Roadmap',
-                href: 'https://github.com/containers/podman-desktop/projects?type=beta',
               },
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} ${title}<br/>Apache License 2.0 License`,
+        copyright: `Copyright © ${new Date().getFullYear()} ${title} - Apache License 2.0 License`,
       },
       prism: {
         theme: lightCodeTheme,
