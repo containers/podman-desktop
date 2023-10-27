@@ -50,12 +50,12 @@
           "content": [
             [
               {
-                "value": "Compose support in Podman Desktop enables you to use Compose specification CLI implementations such as `podman compose` and `docker compose` with supported container engines."
+                "value": "Podman Desktop provides optional command line support for compose files with Podman."
               }
             ],
             [
               {
-                "value": "> ℹ️ Note: Want to use docker CLI tools such as: `docker compose up` or `docker-compose` with podman? Enable **Docker Compatibility** within Preferences.",
+                "value": "> ℹ️ **Note:** If you would like to use `docker compose up` or `docker-compose` with Podman, [enable Docker Compatibility](/preferences/default/preferences.podman-desktop.podman).",
                 "highlight": true
               }
             ],
@@ -139,7 +139,10 @@
         "compose.binary.installComposeSystemWide": {
           "type": "boolean",
           "default": false,
-          "scope": ["DEFAULT", "Onboarding"],
+          "scope": [
+            "DEFAULT",
+            "Onboarding"
+          ],
           "hidden": true,
           "description": "Install system-wide instead of just your user directory, so compose can be accessed on the command line. Note: You may be prompted for elevated system privileges when enabling this."
         }
