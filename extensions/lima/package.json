@@ -34,6 +34,11 @@
           "type": "string",
           "default": "",
           "description": "Instance name (default is same name as type)"
+        },
+        "lima.socket": {
+          "type": "string",
+          "default": "",
+          "description": "Socket name (default is equal to type.sock)"
         }
       }
     },
