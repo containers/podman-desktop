@@ -29,12 +29,12 @@ let containerFilePath: string;
 let containerBuildContextDirectory: string;
 
 let buildImageInfo: BuildImageInfo | undefined = undefined;
+let cancellableTokenId: number | undefined = undefined;
 let providers: ProviderInfo[] = [];
 let providerConnections: ProviderContainerConnectionInfo[] = [];
 let selectedProvider: ProviderContainerConnectionInfo | undefined = undefined;
 let selectedProviderConnection: ProviderContainerConnectionInfo | undefined = undefined;
 let logsTerminal: Terminal;
-let cancellableTokenId: number | undefined;
 
 $: hasInvalidFields = !containerFilePath || !containerBuildContextDirectory;
 
@@ -233,7 +233,7 @@ async function abortBuild() {
         <TerminalWindow bind:terminal="{logsTerminal}" />
         <div class="w-full">
           {#if buildImageInfo?.buildRunning}
-            <Button on:click="{() => abortBuild()}" class="w-full">Abort</Button>
+            <Button on:click="{() => abortBuild()}" class="w-full">Cancel</Button>
           {/if}
         </div>
       </div>
