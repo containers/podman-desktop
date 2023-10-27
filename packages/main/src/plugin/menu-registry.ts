@@ -22,6 +22,7 @@ export interface Menu {
   command: string;
   title: string;
   when?: string;
+  disabled?: string;
 }
 
 export enum MenuContext {

@@ -2,11 +2,17 @@
 import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import DropdownMenuItem from './DropDownMenuItem.svelte';
 import Fa from 'svelte-fa';
+import { onMount, onDestroy } from 'svelte';
+import type { Unsubscriber } from 'svelte/motion';
+import type { ContextUI } from '../context/context';
+import { context } from '/@/stores/context';
+import { ContextKeyExpr } from '../context/contextKey';
 
 export let title: string;
 export let icon: IconDefinition;
 export let hidden = false;
-export let enabled = true;
+export let disabledWhen = '';
+export let enabled: boolean = true;
 export let onClick: () => void = () => {};
 export let menu = false;
 export let detailed = false;
@@ -16,6 +22,29 @@ let positionLeftClass = 'left-1';
 if (detailed) positionLeftClass = 'left-2';
 let positionTopClass = 'top-1';
 if (detailed) positionTopClass = '[0.2rem]';
+
+let globalContext: ContextUI;
+let contextsUnsubscribe: Unsubscriber;
+
+onMount(async () => {
+  if (disabledWhen !== '') {
+    contextsUnsubscribe = context.subscribe(value => {
+      globalContext = value;
+      // Deserialize the `when` property
+      const whenDeserialized = ContextKeyExpr.deserialize(disabledWhen);
+      // if there is some error when evaluating the when expression, we use the default value enabled = true
+      const disabled = whenDeserialized?.evaluate(globalContext) || false;
+      enabled = !disabled;
+    });
+  }
+});
+
+onDestroy(() => {
+  // unsubscribe from the store
+  if (contextsUnsubscribe) {
+    contextsUnsubscribe();
+  }
+});
 
 const buttonDetailedClass =
   'text-gray-400 bg-charcoal-800 hover:text-violet-600 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2 text-center';
@@ -39,7 +68,7 @@ $: styleClass = detailed
 <!-- If menu = true, use the menu, otherwise implement the button -->
 {#if menu}
   <!-- enabled menu -->
-  <DropdownMenuItem title="{title}" icon="{icon}" hidden="{hidden}" onClick="{handleClick}" />
+  <DropdownMenuItem title="{title}" icon="{icon}" enabled="{enabled}" hidden="{hidden}" onClick="{handleClick}" />
 {:else}
   <!-- enabled button -->
   <button
