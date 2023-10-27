@@ -3,6 +3,7 @@ import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 import DropDownMenuItems from './DropDownMenuItems.svelte';
 
+export let onBeforeToggle = () => {};
 // Show and hide the menu using clickOutside
 let showMenu = false;
 
@@ -19,6 +20,7 @@ function handleEscape({ key }: any) {
 let clientY: number;
 
 function toggleMenu() {
+  onBeforeToggle();
   showMenu = !showMenu;
 }
 
@@ -35,6 +37,7 @@ function onWindowClick(e: any) {
 <div class="relative inline-block text-left">
   <!-- Button for the dropdown menu -->
   <button
+    aria-label="kebab menu"
     on:click="{e => {
       // keep track of the cursor position
       clientY = e.clientY;

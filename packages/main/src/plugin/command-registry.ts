@@ -103,7 +103,7 @@ export class CommandRegistry {
         }
         commandInfos.push({
           id: command.command,
-          title: command.title,
+          title: command.category ? `${command.category}: ${command.title}` : command.title,
         });
       });
     });

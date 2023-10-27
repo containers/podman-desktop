@@ -75,5 +75,6 @@ async function executeContribution(menu: Menu): Promise<void> {
     title="{menu.title}"
     onClick="{() => executeContribution(menu)}"
     menu="{dropdownMenu}"
-    icon="{faEllipsisVertical}" />
+    icon="{faEllipsisVertical}"
+    disabledWhen="{menu.disabled}" />
 {/each}

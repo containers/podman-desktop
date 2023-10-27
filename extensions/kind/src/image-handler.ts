@@ -21,7 +21,7 @@ import { tmpName } from 'tmp-promise';
 import { getKindPath } from './util';
 import * as fs from 'node:fs';
 
-type ImageInfo = { engineId: string; name?: string; tag?: string };
+export type ImageInfo = { engineId: string; name?: string; tag?: string };
 
 // Handle the image move command when moving from Podman or Docker to Kind
 export class ImageHandler {
