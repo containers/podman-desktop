@@ -31,17 +31,27 @@ const LIMA_MOVE_IMAGE_COMMAND = 'lima.image.move';
 
 const imageHandler = new ImageHandler();
 
+function prettyInstanceName(instanceName: string): string {
+  let name;
+  if (instanceName === 'default') {
+    name = 'Lima';
+  } else {
+    name = `Lima ${instanceName}`;
+  }
+  return name;
+}
+
 function registerProvider(
   extensionContext: extensionApi.ExtensionContext,
   provider: extensionApi.Provider,
   providerType: limaProviderType,
   providerPath: string,
+  instanceName: string,
 ): void {
   let providerState: extensionApi.ProviderConnectionStatus = 'unknown';
-  const instanceName: string = configuration.getConfiguration('lima').get('name') || providerType;
   if (providerType === 'podman' || providerType === 'docker') {
     const connection: extensionApi.ContainerProviderConnection = {
-      name: 'Lima',
+      name: prettyInstanceName(instanceName),
       type: providerType,
       status: () => providerState,
       endpoint: {
@@ -54,7 +64,7 @@ function registerProvider(
     extensionContext.subscriptions.push(disposable);
   } else if (providerType === 'kubernetes') {
     const connection: extensionApi.KubernetesProviderConnection = {
-      name: 'Lima',
+      name: prettyInstanceName(instanceName),
       status: () => providerState,
       endpoint: {
         apiURL: 'https://localhost:6443',
@@ -109,7 +119,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   if (socketName !== 'kubernetes.sock') {
     const providerType = engineType === 'kubernetes' ? 'docker' : (engineType as limaProviderType);
     if (fs.existsSync(socketPath)) {
-      registerProvider(extensionContext, provider, providerType, socketPath);
+      registerProvider(extensionContext, provider, providerType, socketPath, instanceName);
     } else {
       console.debug(`Could not find socket at ${socketPath}`);
     }
@@ -118,7 +128,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   if (engineType === 'kubernetes') {
     const providerType = engineType as limaProviderType;
     if (fs.existsSync(configPath)) {
-      registerProvider(extensionContext, provider, providerType, configPath);
+      registerProvider(extensionContext, provider, providerType, configPath, instanceName);
     } else {
       console.debug(`Could not find config at ${configPath}`);
     }
