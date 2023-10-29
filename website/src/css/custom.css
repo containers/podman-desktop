@@ -145,6 +145,10 @@ li.footer__item a svg {
   font-size: 1em;
 }
 
+.pagination-nav {
+  display: none;
+}
+
 @media (min-width: 1200px) {
   .navbar__title {
     font-size: 2em;
