@@ -68,4 +68,4 @@ Podman Desktop requires [Podman Engine](https://docs.podman.io/en/latest/index.h
 
 ## Getting Started
 
-Learn more on how to get started with Podman Desktop by clicking [here](/docs/working-with-containers).
+Learn more on how to get started with Podman Desktop by clicking [here](/docs/containers).
