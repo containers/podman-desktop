@@ -10,8 +10,8 @@ tags: [migrating-to-kubernetes]
 Podman Desktop configures the access to Kubernetes clusters automatically when:
 
 - [Creating a Kind-powered local Kubernetes cluster](/docs/kind/creating-a-kind-cluster).
-- [Creating an OpenShift Local cluster](/docs/openshift/creating-an-openshift-local-cluster).
-- [Configuring access to a Developer Sandbox](/docs/openshift/configuring-access-to-a-developer-sandbox).
+- [Creating an OpenShift Local cluster](/docs/openshift/openshift-local).
+- [Configuring access to a Developer Sandbox](/docs/openshift/developer-sandbox).
 
 You can also use the Kubernetes CLI to configure access to your Kubernetes cluster:
 
