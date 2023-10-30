@@ -267,9 +267,7 @@ function Configure() {
               <div className="flex-grow pl-6">
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Registries</h2>
                 <p className="leading-relaxed text-base">
-                  <a href="/docs/containers/registries">
-                    Manage OCI registries. Add/edit/delete registries.
-                  </a>
+                  <a href="/docs/containers/registries">Manage OCI registries. Add/edit/delete registries.</a>
                 </p>
               </div>
             </div>
