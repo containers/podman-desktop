@@ -110,8 +110,7 @@ const config = {
           },
           {
             to: '/docs/containers/onboarding',
-            from: [
-              '/docs/onboarding-for-containers', '/docs/onboarding', '/docs/onboarding/containers'],
+            from: ['/docs/onboarding-for-containers', '/docs/onboarding', '/docs/onboarding/containers'],
           },
           {
             to: '/docs/podman/installing',
@@ -167,7 +166,8 @@ const config = {
             from: [
               '/docs/onboarding-for-kubernetes/kind/installing-kind',
               '/docs/kubernetes/kind/installing-kind',
-              '/docs/onboarding/kubernetes/kind/installing-kind'],
+              '/docs/onboarding/kubernetes/kind/installing-kind',
+            ],
           },
           {
             to: '/docs/kind/configuring-podman-for-kind-on-windows',
@@ -259,54 +259,51 @@ const config = {
           },
           {
             to: '/docs/containers',
-            from: ['/docs/working-with-containers','/docs/getting-started/getting-started', '/docs/getting-started'],
+            from: ['/docs/working-with-containers', '/docs/getting-started/getting-started', '/docs/getting-started'],
           },
           {
             to: '/docs/containers/registries/authenticating-to-a-preconfigured-registry',
             from: [
               '/docs/working-with-containers/registries/authenticating-to-a-preconfigured-registry',
-              '/docs/getting-started/authenticating-to-a-preconfigured-registry'],
+              '/docs/getting-started/authenticating-to-a-preconfigured-registry',
+            ],
           },
           {
             to: '/docs/containers/registries/insecure-registry',
             from: [
               '/docs/working-with-containers/registries/insecure-registry',
-              '/docs/getting-started/insecure-registry'],
+              '/docs/getting-started/insecure-registry',
+            ],
           },
           {
             to: '/docs/containers/images/building-an-image',
-            from: [
-              '/docs/working-with-containers/images/building-an-image',
-              '/docs/getting-started/building-an-image'],
+            from: ['/docs/working-with-containers/images/building-an-image', '/docs/getting-started/building-an-image'],
           },
           {
             to: '/docs/containers/images/pushing-an-image-to-a-registry',
             from: [
               '/docs/working-with-containers/images/pushing-an-image-to-a-registry',
-              '/docs/getting-started/pushing-an-image-to-a-registry'],
+              '/docs/getting-started/pushing-an-image-to-a-registry',
+            ],
           },
           {
             to: '/docs/containers/images/pulling-an-image',
-            from: [
-              '/docs/working-with-containers/images/pulling-an-image',
-              '/docs/getting-started/pulling-an-image'],
+            from: ['/docs/working-with-containers/images/pulling-an-image', '/docs/getting-started/pulling-an-image'],
           },
           {
             to: '/docs/containers/starting-a-container',
-            from: [
-              '/docs/working-with-containers/starting-a-container',
-              '/docs/getting-started/starting-a-container'],
+            from: ['/docs/working-with-containers/starting-a-container', '/docs/getting-started/starting-a-container'],
           },
           {
             to: '/docs/containers/creating-a-pod',
-            from: [
-              '/docs/working-with-containers/creating-a-pod',
-              '/docs/getting-started/creating-a-pod'],
+            from: ['/docs/working-with-containers/creating-a-pod', '/docs/getting-started/creating-a-pod'],
           },
           {
             to: '/docs/podman/setting-podman-machine-default-connection',
-            from: ['/docs/working-with-containers/switching-podman-machine-default-connection',
-              '/docs/getting-started/switching-podman-machine-default-connection']
+            from: [
+              '/docs/working-with-containers/switching-podman-machine-default-connection',
+              '/docs/getting-started/switching-podman-machine-default-connection',
+            ],
           },
           {
             to: '/docs/openshift',
