@@ -252,18 +252,21 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
 
   <div class="container bg-charcoal-600 rounded-md p-3">
     <!-- Registries table start -->
-    <div class="w-full border-t border-b border-gray-900" role="region" aria-label="Registries table">
-      <div class="flex w-full">
-        <div class="flex-1 text-left py-4 pl-5 text-sm font-bold w-auto">Registry Location</div>
-        <div class="text-left py-4 text-sm font-bold w-1/4">Username</div>
-        <div class="text-left py-4 text-sm font-bold w-2/5">Password</div>
+    <div class="w-full border-t border-b border-gray-900" role="table" aria-label="Registries">
+      <div class="flex w-full" role="rowgroup" aria-label="header">
+        <div class="flex-1 text-left py-4 pl-5 text-sm font-bold w-auto" role="columnheader">Registry Location</div>
+        <div class="text-left py-4 text-sm font-bold w-1/4" role="columnheader">Username</div>
+        <div class="text-left py-4 text-sm font-bold w-2/5" role="columnheader">Password</div>
       </div>
 
       {#each $registriesInfos as registry}
         <!-- containerDesktopAPI.Registry row start -->
-        <div class="flex flex-col w-full border-t border-gray-900" aria-label="{registry.serverUrl}">
+        <div
+          class="flex flex-col w-full border-t border-gray-900"
+          role="row"
+          aria-label="{registry.name ? registry.name : registry.serverUrl}">
           <div class="flex flex-row items-center pt-4 pb-3">
-            <div class="flex-1 pl-5 pr-5 text-sm w-auto m-auto">
+            <div class="flex-1 pl-5 pr-5 text-sm w-auto m-auto" role="cell">
               <div class="flex w-full h-full">
                 <div class="flex items-center">
                   <!-- Only show if a "suggested" registry icon has been added -->
@@ -288,7 +291,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
             </div>
 
             <!-- Username -->
-            <div class="text-sm w-1/4 m-auto">
+            <div class="text-sm w-1/4 m-auto" role="cell">
               {#if originRegistries.some(r => r.serverUrl === registry.serverUrl)}
                 <div class="text-left h-7 pr-5 mt-1.5 mb-0.5 text-sm w-full">
                   <input
@@ -306,7 +309,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
             </div>
 
             <!-- Password -->
-            <div class="text-sm w-2/5">
+            <div class="text-sm w-2/5" role="cell">
               <div class="flex flex-row">
                 {#if originRegistries.some(r => r.serverUrl === registry.serverUrl)}
                   <div class="flex text-left h-7 pr-5 text-sm w-full">
@@ -425,9 +428,12 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
 
       {#each $registriesSuggestedInfos as registry, i (registry)}
         <!-- Add new registry form start -->
-        <div class="flex flex-col w-full border-t border-gray-900" aria-label="{registry.name}">
+        <div
+          class="flex flex-col w-full border-t border-gray-900"
+          role="row"
+          aria-label="{registry.name ? registry.name : registry.url}">
           <div class="flex flex-row items-center pt-4 pb-3">
-            <div class="flex-1 pl-5 pr-5 text-sm w-auto m-auto">
+            <div class="flex-1 pl-5 pr-5 text-sm w-auto m-auto" role="cell">
               <div class="flex w-full h-full">
                 <div class="flex items-center">
                   {#if registry.icon}
@@ -448,7 +454,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                 </div>
               </div>
             </div>
-            <div class="flex pr-5 text-sm w-1/4">
+            <div class="flex pr-5 text-sm w-1/4" role="cell">
               {#if listedSuggestedRegistries[i]}
                 <input
                   type="text"
@@ -458,7 +464,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
                   class="px-3 block w-full h-7 pr-5 transition ease-in-out delay-50 bg-charcoal-800 text-gray-700 placeholder-gray-700 rounded-sm focus:outline-none" />
               {/if}
             </div>
-            <div class="text-sm w-2/5">
+            <div class="text-sm w-2/5" role="cell">
               <div class="flex flex-row items-center">
                 <div class="relative flex-1 mr-5">
                   {#if listedSuggestedRegistries[i]}
