@@ -192,6 +192,8 @@ slug: podman-desktop-release-X.X
 authors: [YOURUSERNAME]
 tags: [podman-desktop, release, kubernetes, openshift]
 hide_table_of_contents: false
+<!-- This image link is used for social media previews / thumbnails. Release images are available: https://github.com/containers/podman-desktop-internal/tree/main/release-images -->
+image: /blog/img/podman-desktop-release-1.X/X.png
 ---
 
 <!-- ADD IMPORT REACTPLAYER IF USING VIDEO -->
@@ -213,6 +215,7 @@ Podman Desktop X.X is now available. [Click here to download it](/downloads)!
 <!-- IDEALLY, ADD CARTOON SELKIE FOR RELEASE -->
 
 <!-- EXAMPLE -->
+<!-- Release images are available: https://github.com/containers/podman-desktop-internal/tree/main/release-images -->
 <!-- ![Podman-desktop-1-1-hero](img/podman-desktop-release-1.1/podman-desktop-release-1.1.png) -->
 
 ---
@@ -252,7 +255,7 @@ Podman Desktop X.X is now available. [Click here to download it](/downloads)!
 ## Community Thank You
 
 🎉 We’d like to say a big thank you to everyone who helped to make Podman Desktop even better. In this
-sprint we received pull requests from the following people:
+release we received pull requests from the following people:
 
 <!-- INCLUDE SHOUTOUTS TO OUTSIDE CONTRIBUTORS -->
 <!-- EXAMPLE -->
