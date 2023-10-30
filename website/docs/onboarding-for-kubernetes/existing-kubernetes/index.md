@@ -32,6 +32,6 @@ You can also use the Kubernetes CLI to configure access to your Kubernetes clust
 
 - You can [view and select the Kubernetes cluster in Podman Desktop](/docs/kubernetes/viewing-and-selecting-current-kubernete-context)
 
-#### Additional resopurces
+#### Additional resources
 
 - [Kubernetes documentation: Configure access to multiple clusters](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/)
