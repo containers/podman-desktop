@@ -267,7 +267,7 @@ function Configure() {
               <div className="flex-grow pl-6">
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Registries</h2>
                 <p className="leading-relaxed text-base">
-                  <a href="/docs/working-with-containers/registries">
+                  <a href="/docs/containers/registries">
                     Manage OCI registries. Add/edit/delete registries.
                   </a>
                 </p>
@@ -464,7 +464,7 @@ function MainFeatures() {
               <div className="flex-grow pl-6">
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Build</h2>
                 <p className="leading-relaxed text-base list-disc">
-                  <a href="/docs/working-with-containers/images/building-an-image">
+                  <a href="/docs/containers/images/building-an-image">
                     <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
                     Build images from Containerfile or Dockerfile
                   </a>
@@ -479,13 +479,13 @@ function MainFeatures() {
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Run</h2>
 
                 <p className="leading-relaxed text-base list-disc">
-                  <a href="/docs/working-with-containers/images/pulling-an-image">
+                  <a href="/docs/containers/images/pulling-an-image">
                     <FontAwesomeIcon icon={faDiagramProject} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
                     Pull images from remote registries
                   </a>
                 </p>
                 <p className="leading-relaxed text-base list-disc">
-                  <a href="/docs/working-with-containers/starting-a-container">
+                  <a href="/docs/containers/starting-a-container">
                     <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
                     Start / Stop / Restart containers
                   </a>
@@ -515,7 +515,7 @@ function MainFeatures() {
               <div className="flex-grow pl-6">
                 <h2 className="text-gray-900 dark:text-gray-100 text-lg title-font font-medium mb-2">Push</h2>
                 <p className="leading-relaxed text-base list-disc">
-                  <a href="/docs/working-with-containers/images/pushing-an-image-to-a-registry">
+                  <a href="/docs/containers/images/pushing-an-image-to-a-registry">
                     <FontAwesomeIcon icon={faRocket} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
                     Push images to OCI registries
                   </a>
@@ -578,7 +578,7 @@ function Pods() {
                 </h2>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faDiagramProject} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
-                  <a href="/docs/working-with-containers/creating-a-pod">Create Pods from existing containers</a>
+                  <a href="/docs/containers/creating-a-pod">Create Pods from existing containers</a>
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faGaugeHigh} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
@@ -610,7 +610,7 @@ function Pods() {
                 </p>
                 <p className="leading-relaxed text-base list-disc">
                   <FontAwesomeIcon icon={faRocket} className="text-purple-700 w-3 h-3 mt-1 mr-2" />
-                  <a href="/docs/kubernetes/kind">Running Kubernetes on your workstation with Kind and Podman</a>
+                  <a href="/docs/kind">Running Kubernetes on your workstation with Kind and Podman</a>
                 </p>
               </div>
             </div>

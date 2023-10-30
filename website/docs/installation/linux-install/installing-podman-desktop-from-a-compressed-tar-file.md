@@ -27,4 +27,4 @@ Consider installing from an archive rather than [from Flathub](/docs/installatio
 
 #### Next steps
 
-- [Getting started](/docs/working-with-containers)
+- [Getting started](/docs/containers)

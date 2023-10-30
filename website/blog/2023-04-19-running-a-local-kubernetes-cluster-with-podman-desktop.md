@@ -81,11 +81,11 @@ You want to deploy your application to a local Kubernetes cluster.
 
 Podman Desktop can help you run Kind-powered local Kubernetes clusters on a container engine, such as Podman.
 
-Podman Desktop helps you [installing the `kind` CLI](/docs/kubernetes/kind/installing-kind):
+Podman Desktop helps you [installing the `kind` CLI](/docs/kind/installing):
 
 1. In the status bar, click on **Kind**, and follow the prompts.
 1. When the `kind` CLI is available, the status bar does not display **Kind**.
-1. On Windows, [configure Podman in rootful mode](/docs/kubernetes/kind/configuring-podman-for-kind-on-windows)
+1. On Windows, [configure Podman in rootful mode](/docs/kind/configuring-podman-for-kind-on-windows)
 
    ```shell-session
    $ podman system connection default podman-machine-default-root
@@ -117,7 +117,7 @@ Podman Desktop helps you [installing the `kind` CLI](/docs/kubernetes/kind/insta
 
 #### Additional resources
 
-- [Creating a local Kind-powered Kubernetes cluster](/docs/kubernetes/kind/creating-a-kind-cluster)
+- [Creating a local Kind-powered Kubernetes cluster](/docs/kind/creating-a-kind-cluster)
 
 ## Starting the Redis leader
 

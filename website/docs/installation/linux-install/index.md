@@ -60,4 +60,4 @@ Alternatively, you can install Podman Desktop from:
 
 #### Next steps
 
-- [Working with containers](/docs/working-with-containers)
+- [Working with containers](/docs/containers)

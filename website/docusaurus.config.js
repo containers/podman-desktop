@@ -105,171 +105,211 @@ const config = {
             from: ['/docs/podman-compose', '/docs/compose/compose-spec', '/docs/compose/podman-compose'],
           },
           {
-            to: '/docs/onboarding-for-containers',
-            from: ['/docs/onboarding', '/docs/onboarding/containers'],
+            to: '/docs/kubernetes',
+            from: '/docs/onboarding-for-kubernetes',
           },
           {
-            to: '/docs/onboarding-for-containers/installing-podman',
+            to: '/docs/containers/onboarding',
             from: [
+              '/docs/onboarding-for-containers', '/docs/onboarding', '/docs/onboarding/containers'],
+          },
+          {
+            to: '/docs/podman/installing',
+            from: [
+              '/docs/onboarding-for-containers/installing-podman',
               '/docs/onboarding/containers/installing-podman',
               '/docs/Installation/windows-install/installing-podman-with-podman-desktop',
               '/docs/onboarding/containers/installing-podman-with-podman-desktop-on-windows',
             ],
           },
           {
-            to: '/docs/onboarding-for-containers/installing-podman-with-openshift-local-on-windows',
+            to: '/docs/podman/installing-podman-with-openshift-local-on-windows',
             from: [
+              '/docs/onboarding-for-containers/installing-podman-with-openshift-local-on-windows',
               '/docs/Installation/windows-install/installing-podman-with-openshift-local',
               '/docs/onboarding/containers/installing-podman-with-openshift-local-on-windows',
             ],
           },
           {
-            to: '/docs/onboarding-for-containers/creating-a-lima-instance-with-podman-desktop',
+            to: '/docs/lima/creating-a-lima-instance',
             from: [
+              '/docs/onboarding-for-containers/creating-a-lima-instance-with-podman-desktop',
               '/docs/Installation/creating-a-lima-instance-with-podman-desktop',
               '/docs/onboarding/containers/creating-a-lima-instance-with-podman-desktop',
             ],
           },
           {
-            to: '/docs/onboarding-for-containers/creating-a-podman-machine-with-podman-desktop',
+            to: '/docs/podman/creating-a-podman-machine',
             from: [
+              '/docs/onboarding-for-containers/creating-a-podman-machine-with-podman-desktop',
               '/docs/Installation/creating-a-podman-machine-with-podman-desktop',
               '/docs/onboarding/containers/creating-a-podman-machine-with-podman-desktop',
             ],
           },
           {
-            to: '/docs/onboarding-for-kubernetes/developer-sandbox',
+            to: '/docs/openshift/developer-sandbox',
             from: [
+              '/docs/onboarding-for-kubernetes/developer-sandbox',
               '/docs/kubernetes/openshift/configuring-access-to-a-developer-sandbox',
               '/docs/onboarding/kubernetes/developer-sandbox',
             ],
           },
           {
-            to: '/docs/onboarding-for-kubernetes/existing-kubernetes',
+            to: '/docs/kubernetes/existing-kubernetes',
             from: [
+              '/docs/onboarding-for-kubernetes/existing-kubernetes',
               '/docs/kubernetes/configuring-access-to-a-kubernetes-cluster',
               '/docs/onboarding/kubernetes/existing-kubernetes',
             ],
           },
           {
-            to: '/docs/onboarding-for-kubernetes/kind/installing-kind',
-            from: ['/docs/kubernetes/kind/installing-kind', '/docs/onboarding/kubernetes/kind/installing-kind'],
+            to: '/docs/kind/installing',
+            from: [
+              '/docs/onboarding-for-kubernetes/kind/installing-kind',
+              '/docs/kubernetes/kind/installing-kind',
+              '/docs/onboarding/kubernetes/kind/installing-kind'],
           },
           {
-            to: '/docs/onboarding-for-kubernetes/kind/configuring-podman-for-kind-on-windows',
+            to: '/docs/kind/configuring-podman-for-kind-on-windows',
             from: [
+              '/docs/onboarding-for-kubernetes/kind/configuring-podman-for-kind-on-windows',
               '/docs/kubernetes/kind/configuring-podman-for-kind-on-windows',
               '/docs/onboarding/kubernetes/kind/configuring-podman-for-kind-on-windows',
             ],
           },
           {
-            to: '/docs/onboarding-for-kubernetes/kind/creating-a-kind-cluster',
+            to: '/docs/kind/creating-a-kind-cluster',
             from: [
+              '/docs/onboarding-for-kubernetes/kind/creating-a-kind-cluster',
               '/docs/kubernetes/kind/creating-a-kind-cluster',
               '/docs/onboarding/kubernetes/kind/creating-a-kind-cluster',
             ],
           },
           {
-            to: '/docs/onboarding-for-kubernetes/kind/restarting-your-kind-cluster',
+            to: '/docs/kind/restarting-your-kind-cluster',
             from: [
+              '/docs/onboarding-for-kubernetes/kind/restarting-your-kind-cluster',
               '/docs/kubernetes/kind/restarting-your-kind-cluster',
               '/docs/onboarding/kubernetes/kind/restarting-your-kind-cluster',
             ],
           },
           {
-            to: '/docs/onboarding-for-kubernetes/kind/deleting-your-kind-cluster',
+            to: '/docs/kind/deleting-your-kind-cluster',
             from: [
+              '/docs/onboarding-for-kubernetes/kind/deleting-your-kind-cluster',
               '/docs/kubernetes/kind/deleting-your-kind-cluster',
               '/docs/onboarding/kubernetes/kind/deleting-your-kind-cluster',
             ],
           },
           {
-            to: '/docs/onboarding-for-kubernetes/lima',
+            to: '/docs/lima',
             from: [
+              '/docs/onboarding-for-kubernetes/lima',
               '/docs/onboarding/kubernetes/creating-a-lima-instance-with-podman-desktop',
               '/docs/onboarding/kubernetes/lima',
             ],
           },
           {
-            to: '/docs/onboarding-for-kubernetes/minikube/installing-minikube',
+            to: '/docs/minikube/installing',
             from: [
+              '/docs/onboarding-for-kubernetes/minikube/installing-minikube',
               '/docs/kubernetes/minikube/installing-minikube',
               '/docs/onboarding/kubernetes/minikube/installing-minikube',
             ],
           },
           {
-            to: '/docs/onboarding-for-kubernetes/minikube/configuring-podman-for-minikube-on-windows',
+            to: '/docs/minikube/configuring-podman-for-minikube-on-windows',
             from: [
+              '/docs/onboarding-for-kubernetes/minikube/configuring-podman-for-minikube-on-windows',
               '/docs/kubernetes/minikube/configuring-podman-for-minikube-on-windows',
               '/docs/onboarding/kubernetes/minikube/configuring-podman-for-minikube-on-windows',
             ],
           },
           {
-            to: '/docs/onboarding-for-kubernetes/minikube/creating-a-minikube-cluster',
+            to: '/docs/minikube/creating-a-minikube-cluster',
             from: [
+              '/docs/onboarding-for-kubernetes/minikube/creating-a-minikube-cluster',
               '/docs/kubernetes/minikube/creating-a-minikube-cluster',
               '/docs/onboarding/kubernetes/minikube/creating-a-minikube-cluster',
             ],
           },
           {
-            to: '/docs/onboarding-for-kubernetes/minikube/restarting-your-minikube-cluster',
+            to: '/docs/minikube/restarting-your-minikube-cluster',
             from: [
+              '/docs/onboarding-for-kubernetes/minikube/restarting-your-minikube-cluster',
               '/docs/kubernetes/minikube/restarting-your-minikube-cluster',
               '/docs/onboarding/kubernetes/minikube/restarting-your-minikube-cluster',
             ],
           },
           {
-            to: '/docs/onboarding-for-kubernetes/minikube/deleting-your-minikube-cluster',
+            to: '/docs/minikube/deleting-your-minikube-cluster',
             from: [
+              '/docs/onboarding-for-kubernetes/minikube/deleting-your-minikube-cluster',
               '/docs/kubernetes/minikube/deleting-your-minikube-cluster',
               '/docs/onboarding/kubernetes/minikube/deleting-your-minikube-cluster',
             ],
           },
           {
-            to: '/docs/onboarding-for-kubernetes/openshift-local',
+            to: '/docs/openshift/openshift-local',
             from: [
+              '/docs/onboarding-for-kubernetes/openshift-local',
               '/docs/kubernetes/openshift/creating-an-openshift-local-cluster',
               '/docs/onboarding/kubernetes/openshift-local',
             ],
           },
           {
-            to: '/docs/working-with-containers',
-            from: ['/docs/getting-started/getting-started', '/docs/getting-started'],
+            to: '/docs/containers',
+            from: ['/docs/working-with-containers','/docs/getting-started/getting-started', '/docs/getting-started'],
           },
           {
-            to: '/docs/working-with-containers/registries/authenticating-to-a-preconfigured-registry',
-            from: '/docs/getting-started/authenticating-to-a-preconfigured-registry',
+            to: '/docs/containers/registries/authenticating-to-a-preconfigured-registry',
+            from: [
+              '/docs/working-with-containers/registries/authenticating-to-a-preconfigured-registry',
+              '/docs/getting-started/authenticating-to-a-preconfigured-registry'],
           },
           {
-            to: '/docs/working-with-containers/registries/insecure-registry',
-            from: '/docs/getting-started/insecure-registry',
+            to: '/docs/containers/registries/insecure-registry',
+            from: [
+              '/docs/working-with-containers/registries/insecure-registry',
+              '/docs/getting-started/insecure-registry'],
           },
           {
-            to: '/docs/working-with-containers/images/building-an-image',
-            from: '/docs/getting-started/building-an-image',
+            to: '/docs/containers/images/building-an-image',
+            from: [
+              '/docs/working-with-containers/images/building-an-image',
+              '/docs/getting-started/building-an-image'],
           },
           {
-            to: '/docs/working-with-containers/images/pushing-an-image-to-a-registry',
-            from: '/docs/getting-started/pushing-an-image-to-a-registry',
+            to: '/docs/containers/images/pushing-an-image-to-a-registry',
+            from: [
+              '/docs/working-with-containers/images/pushing-an-image-to-a-registry',
+              '/docs/getting-started/pushing-an-image-to-a-registry'],
           },
           {
-            to: '/docs/working-with-containers/images/pulling-an-image',
-            from: '/docs/getting-started/pulling-an-image',
+            to: '/docs/containers/images/pulling-an-image',
+            from: [
+              '/docs/working-with-containers/images/pulling-an-image',
+              '/docs/getting-started/pulling-an-image'],
           },
           {
-            to: '/docs/working-with-containers/starting-a-container',
-            from: '/docs/getting-started/starting-a-container',
+            to: '/docs/containers/starting-a-container',
+            from: [
+              '/docs/working-with-containers/starting-a-container',
+              '/docs/getting-started/starting-a-container'],
           },
           {
-            to: '/docs/working-with-containers/creating-a-pod',
-            from: '/docs/getting-started/creating-a-pod',
+            to: '/docs/containers/creating-a-pod',
+            from: [
+              '/docs/working-with-containers/creating-a-pod',
+              '/docs/getting-started/creating-a-pod'],
           },
           {
-            to: '/docs/working-with-containers/switching-podman-machine-default-connection',
-            from: '/docs/getting-started/switching-podman-machine-default-connection',
+            to: '/docs/podman/setting-podman-machine-default-connection',
+            from: ['/docs/working-with-containers/switching-podman-machine-default-connection',
+              '/docs/getting-started/switching-podman-machine-default-connection']
           },
           {
-            to: '/docs/kubernetes',
+            to: '/docs/openshift',
             from: '/docs/kubernetes/openshift',
           },
         ],

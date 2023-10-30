@@ -1,5 +1,5 @@
 ---
-sidebar_position: 70
+sidebar_position: 110
 title: Writing extensions
 description: Writing or deploying extensions.
 keywords: [podman desktop, podman, extension]
