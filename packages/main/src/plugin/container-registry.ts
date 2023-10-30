@@ -1003,7 +1003,6 @@ export class ContainerProviderRegistry {
       if (engine) {
         await this.attachToContainer(engine, container);
       }
-      // see https://github.com/containers/podman-desktop/issues/4363
       return container.start({ abortSignal: abortController?.signal } as unknown as Dockerode.ContainerStartOptions);
     } catch (error) {
       telemetryOptions = { error: error };
