@@ -18,4 +18,4 @@ Podman Desktop and Podman have many features allowing easy migration from contai
 
 1. [Select your Kubernetes context](/docs/kubernetes/viewing-and-selecting-current-kubernete-context-in-the-status-bar).
 2. [Deploy a container](/docs/kubernetes/deploying-a-container-to-kubernetes).
-3. [Deply a pod](/docs/kubernetes/deploying-a-pod-to-kubernetes).
+3. [Deploy a pod](/docs/kubernetes/deploying-a-pod-to-kubernetes).

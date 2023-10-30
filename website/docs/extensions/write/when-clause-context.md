@@ -83,7 +83,7 @@ Logical operators allow combining simple context keys or when-clause expressions
 
 #### Equality operators
 
-Equality operators allow checking for equality of a context key's value againt a specified value.
+Equality operators allow checking for equality of a context key's value against a specified value.
 
 **Note:** the right side is a value and not considered as a context key, so no value is searched in the context. If it contains whitespaces, it must be wrapped in single-quotes (for example `'my tool.exe'`)
 
