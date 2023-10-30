@@ -351,24 +351,8 @@ const config = {
                 to: '/docs/installation',
               },
               {
-                label: 'Onboarding for containers',
-                to: '/docs/onboarding/containers',
-              },
-              {
-                label: 'Onboarding for Kubernetes',
-                to: '/docs/onboarding-for-kubernetes',
-              },
-              {
-                label: 'Working with containers',
-                to: '/docs/working-with-containers',
-              },
-              {
                 label: 'Migrating from Docker',
                 to: '/docs/migrating-from-docker',
-              },
-              {
-                label: 'Working with Compose',
-                to: '/docs/compose',
               },
               {
                 label: 'Working with Kubernetes',
@@ -384,37 +368,25 @@ const config = {
             title: 'Links',
             items: [
               {
-                label: 'Blog',
-                to: '/blog',
-              },
-              {
                 label: 'GitHub',
                 href: 'https://github.com/containers/podman-desktop',
               },
               {
-                label: 'General chat (bridged): #podman-desktop on Discord',
+                label: 'Chat (bridged): #podman-desktop on Discord',
                 href: 'https://discord.com/invite/x5GzFF6QH4',
               },
               {
-                label: 'General chat (bridged): #podman-desktop@libera.chat on IRC',
-                href: 'https://libera.chat',
+                label: 'Other ways to Communicate',
+                href: 'https://github.com/containers/podman-desktop#communication',
               },
               {
-                label: 'General chat (bridged): #podman-desktop@fedora.im on Matrix',
-                href: 'https://fedora.im',
-              },
-              {
-                label: 'Kubernetes chat: Join #podman-desktop on the Kubernetes Slack',
-                href: 'https://slack.k8s.io/',
-              },
-              {
-                label: 'Podman Desktop Planning & Roadmap',
-                href: 'https://github.com/containers/podman-desktop/projects?type=beta',
+                label: 'Current Sprint',
+                href: 'https://github.com/orgs/containers/projects/4/views/8',
               },
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} ${title}<br/>Apache License 2.0 License`,
+        copyright: `Copyright © ${new Date().getFullYear()} ${title} - Apache License 2.0 License`,
       },
       prism: {
         theme: lightCodeTheme,
