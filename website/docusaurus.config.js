@@ -355,10 +355,6 @@ const config = {
                 to: '/docs/migrating-from-docker',
               },
               {
-                label: 'Working with Compose',
-                to: '/docs/compose',
-              },
-              {
                 label: 'Working with Kubernetes',
                 to: '/docs/kubernetes',
               },
@@ -376,20 +372,16 @@ const config = {
                 href: 'https://github.com/containers/podman-desktop',
               },
               {
-                label: 'General chat (bridged): #podman-desktop on Discord',
+                label: 'Chat (bridged): #podman-desktop on Discord',
                 href: 'https://discord.com/invite/x5GzFF6QH4',
               },
               {
-                label: 'General chat (bridged): #podman-desktop@libera.chat on IRC',
-                href: 'https://libera.chat',
+                label: 'Other ways to Communicate',
+                href: 'https://github.com/containers/podman-desktop#communication',
               },
               {
-                label: 'General chat (bridged): #podman-desktop@fedora.im on Matrix',
-                href: 'https://fedora.im',
-              },
-              {
-                label: 'Kubernetes chat: #podman-desktop on the Kubernetes Slack',
-                href: 'https://slack.k8s.io/',
+                label: 'Current Sprint',
+                href: 'https://github.com/orgs/containers/projects/4/views/8',
               },
             ],
           },
