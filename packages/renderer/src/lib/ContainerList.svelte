@@ -59,9 +59,9 @@ let stoppedFilter: boolean;
 
 $: filterObj = new Filter(decodeURI(filter));
 
-$: checkFilter(filterObj.rawFilter);
+$: filterObj.rawFilter && checkFilter();
 
-function checkFilter(_: string): void {
+function checkFilter(): void {
   let url: string | undefined = undefined;
   if (filterObj.isRunning() && !runningFilter) {
     url = filterObj.createRunningURL();
