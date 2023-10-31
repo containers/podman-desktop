@@ -4,12 +4,16 @@ import Fa from 'svelte-fa/src/fa.svelte';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import Button from '../../ui/Button.svelte';
 export let record: IConfigurationPropertyRecordedSchema;
-export let value: string | undefined;
-export let onChange = (_id: string, _value: string) => {};
+export let value: string;
+export let onChange = async (_id: string, _value: string) => {};
+
+let invalidEntry = false;
+
 async function selectFilePath() {
+  invalidEntry = false;
   const result = await window.openFileDialog(`Select ${record.description}`);
   if (record.id && !result.canceled && result.filePaths.length === 1) {
-    onChange(record.id, result.filePaths[0]);
+    onChange(record.id, result.filePaths[0]).catch((_: unknown) => (invalidEntry = true));
   }
 }
 
@@ -30,8 +34,9 @@ function handleCleanValue(
     readonly
     type="text"
     placeholder="{record.placeholder}"
-    value="{value}"
+    value="{value || ''}"
     id="input-standard-{record.id}"
+    aria-invalid="{invalidEntry}"
     aria-label="{record.description}" />
   <button
     class="relative cursor-pointer right-5"
@@ -43,5 +48,6 @@ function handleCleanValue(
   <Button
     on:click="{() => selectFilePath()}"
     id="rendering.FilePath.{record.id}"
+    aria-invalid="{invalidEntry}"
     aria-label="button-{record.description}">Browse ...</Button>
 </div>

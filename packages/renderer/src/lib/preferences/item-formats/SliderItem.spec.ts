@@ -19,7 +19,7 @@ test('Ensure HTMLInputElement', async () => {
     maximum: 34,
   };
 
-  render(SliderItem, { record });
+  render(SliderItem, { record, value: 15 });
   const input = screen.getByLabelText('record-description');
   expect(input).toBeInTheDocument();
 

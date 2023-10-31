@@ -5,19 +5,26 @@ import { uncertainStringToNumber } from '../Util';
 import { onMount } from 'svelte';
 
 export let record: IConfigurationPropertyRecordedSchema;
-export let value: number;
+export let value: number | undefined;
 export let onChange = (_id: string, _value: number) => {};
 export let invalidRecord = (_error: string) => {};
+
+let valueUpdateTimeout: NodeJS.Timeout;
+
+let recordValue: number;
+$: recordValue = value || 0;
 
 let numberInputErrorMessage = '';
 let numberInputInvalid = false;
 
-onMount(async () => {
-  assertNumericValueIsValid(value);
+onMount(() => {
+  if (value && assertNumericValueIsValid(value)) {
+    recordValue = value;
+  }
 });
 
 function onInput(event: Event) {
-  validRecord();
+  clearTimeout(valueUpdateTimeout);
   const target = event.currentTarget as HTMLInputElement;
 
   const _value: number = uncertainStringToNumber(target.value);
@@ -27,16 +34,8 @@ function onInput(event: Event) {
   }
 
   if (record.id && _value !== value) {
-    onChange(record.id, _value);
+    valueUpdateTimeout = setTimeout(() => onChange(record.id!, _value), 500);
   }
-}
-
-function validRecord() {
-  if (numberInputInvalid) {
-    value = 0;
-  }
-  numberInputInvalid = false;
-  numberInputErrorMessage = '';
 }
 
 function onNumberInputKeyPress(event: any) {
@@ -51,9 +50,11 @@ function onDecrement(
     currentTarget: EventTarget & HTMLButtonElement;
   },
 ) {
-  if (!record.id) return;
-  validRecord();
-  onChange(record.id, value - 1);
+  clearTimeout(valueUpdateTimeout);
+  if (record.id && canDecrement()) {
+    recordValue -= 1;
+    valueUpdateTimeout = setTimeout(() => onChange(record.id!, recordValue), 500);
+  }
   e.preventDefault();
 }
 
@@ -62,20 +63,24 @@ function onIncrement(
     currentTarget: EventTarget & HTMLButtonElement;
   },
 ) {
-  if (!record.id) return;
-  validRecord();
-  onChange(record.id, value + 1);
+  clearTimeout(valueUpdateTimeout);
+  if (record.id && canIncrement()) {
+    recordValue += 1;
+    valueUpdateTimeout = setTimeout(() => onChange(record.id!, recordValue), 500);
+  }
   e.preventDefault();
 }
 
-function canDecrement(minimumValue?: number) {
-  return !minimumValue || value > minimumValue;
+function canDecrement() {
+  return !record.minimum || recordValue > record.minimum;
 }
 
 function assertNumericValueIsValid(value: number) {
   if (isNaN(value)) {
     numberInputInvalid = true;
-    numberInputErrorMessage = 'Expecting a number';
+    numberInputErrorMessage = `Expecting a number. The value cannot be less than ${record.minimum}${
+      record.maximum ? ` or greater than ${record.maximum}` : ''
+    }`;
     return false;
   }
 
@@ -93,8 +98,8 @@ function assertNumericValueIsValid(value: number) {
   numberInputInvalid = false;
   return true;
 }
-function canIncrement(maximumValue?: number | string) {
-  return !maximumValue || (typeof maximumValue === 'number' && value < maximumValue);
+function canIncrement() {
+  return !record.maximum || (typeof record.maximum === 'number' && recordValue < record.maximum);
 }
 </script>
 
@@ -105,8 +110,8 @@ function canIncrement(maximumValue?: number | string) {
   <button
     data-action="decrement"
     on:click="{onDecrement}"
-    disabled="{!canDecrement(record.minimum)}"
-    class="w-11 text-white {!canDecrement(record.minimum)
+    disabled="{!canDecrement()}"
+    class="w-11 text-white {!canDecrement()
       ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-charcoal-800'
       : 'hover:text-gray-900 hover:bg-gray-700'} cursor-pointer outline-none">
     <span class="m-auto font-thin">−</span>
@@ -116,7 +121,7 @@ function canIncrement(maximumValue?: number | string) {
       type="text"
       class="w-[50px] outline-none focus:outline-none text-center text-white text-sm py-0.5"
       name="{record.id}"
-      bind:value="{value}"
+      bind:value="{recordValue}"
       on:keypress="{event => onNumberInputKeyPress(event)}"
       on:input="{onInput}"
       aria-label="{record.description}" />
@@ -124,8 +129,8 @@ function canIncrement(maximumValue?: number | string) {
   <button
     data-action="increment"
     on:click="{onIncrement}"
-    disabled="{!canIncrement(record.maximum)}"
-    class="w-11 text-white {!canIncrement(record.maximum)
+    disabled="{!canIncrement()}"
+    class="w-11 text-white {!canIncrement()
       ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-charcoal-800'
       : 'hover:text-gray-900 hover:bg-gray-700'} cursor-pointer outline-none">
     <span class="m-auto font-thin">+</span>

@@ -26,7 +26,7 @@ export let initialValue: Promise<any>;
 let currentRecord: IConfigurationPropertyRecordedSchema;
 let recordUpdateTimeout: NodeJS.Timeout;
 
-let recordValue: string | boolean | number;
+let recordValue: string | boolean | number | undefined;
 $: recordValue;
 $: updateResetButtonVisibility?.(recordValue);
 
@@ -50,22 +50,28 @@ $: if (currentRecord !== record) {
   currentRecord = record;
 }
 
-function update(record: IConfigurationPropertyRecordedSchema) {
+async function update(record: IConfigurationPropertyRecordedSchema) {
   // save the value
   if (record.id) {
     try {
-      window.updateConfigurationValue(record.id, recordValue, record.scope);
+      await window.updateConfigurationValue(record.id, recordValue, record.scope);
     } catch (error) {
       invalidText = String(error);
       invalidRecord(invalidText);
+      throw error;
     }
   }
 }
 
-function autoSave() {
+function autoSave(): Promise<void> {
   if (enableAutoSave) {
-    recordUpdateTimeout = setTimeout(() => update(record), 1000);
+    return new Promise((_, reject) => {
+      recordUpdateTimeout = setTimeout(() => {
+        update(record).catch((err: unknown) => reject(err));
+      }, 1000);
+    });
   }
+  return Promise.resolve();
 }
 
 function ensureType(value: any): boolean {
@@ -81,11 +87,11 @@ function ensureType(value: any): boolean {
   }
 }
 
-function onChange(recordId: string, value: boolean | string | number) {
+async function onChange(recordId: string, value: boolean | string | number): Promise<void> {
   if (!ensureType(value)) {
     invalidText = `Value type provided is ${typeof value} instead of ${record.type}.`;
     invalidRecord(invalidText);
-    return;
+    return Promise.reject(invalidText);
   }
 
   clearTimeout(recordUpdateTimeout);
@@ -101,7 +107,7 @@ function onChange(recordId: string, value: boolean | string | number) {
   validRecord();
 
   // auto save
-  autoSave();
+  return await autoSave();
 }
 </script>
 
@@ -124,7 +130,7 @@ function onChange(recordId: string, value: boolean | string | number) {
       {/if}
     {:else if record.type === 'string' && (typeof recordValue === 'string' || recordValue === undefined)}
       {#if record.format === 'file'}
-        <FileItem record="{record}" value="{recordValue}" onChange="{onChange}" />
+        <FileItem record="{record}" value="{recordValue || ''}" onChange="{onChange}" />
       {:else if record.enum && record.enum.length > 0}
         <EnumItem record="{record}" value="{recordValue}" onChange="{onChange}" />
       {:else}

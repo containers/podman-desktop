@@ -3,8 +3,8 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/s
 import { uncertainStringToNumber } from '../Util';
 
 export let record: IConfigurationPropertyRecordedSchema;
-export let value: number = uncertainStringToNumber(record.maximum);
-export let onChange = (_id: string, _value: number) => {};
+export let value: number;
+export let onChange = async (_id: string, _value: number) => {};
 
 function onInput(event: Event) {
   const target = event.currentTarget as HTMLInputElement;
