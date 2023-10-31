@@ -217,7 +217,7 @@ test('Expect tooltip text shows info when input is less than minimum', async () 
   expect(tooltip.textContent).toBe('The value cannot be less than 1');
 });
 
-test('Expect tooltip text shows info when input is empty', async () => {
+test('Expect tooltip text shows info when input is higher than maximum', async () => {
   const record: IConfigurationPropertyRecordedSchema = {
     id: 'record',
     title: 'record',

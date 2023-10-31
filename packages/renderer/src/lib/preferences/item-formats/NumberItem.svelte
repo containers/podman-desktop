@@ -29,12 +29,12 @@ function onInput(event: Event) {
   const target = event.currentTarget as HTMLInputElement;
   // convert string to number
   const _value: number = uncertainStringToNumber(target.value);
-  recordValue = _value;
-  // if number is not valid, like NaN return
+  // if number is not valid (NaN), return
   if (!assertNumericValueIsValid(_value)) {
     invalidRecord(numberInputErrorMessage);
     return;
   }
+  recordValue = _value;
   // if the value is different from the original update
   if (record.id && recordValue !== value) {
     valueUpdateTimeout = setTimeout(() => onChange(record.id!, recordValue), 500);
@@ -127,6 +127,7 @@ function canIncrement(value: number) {
   class:border-red-500="{numberInputInvalid}">
   <button
     data-action="decrement"
+    aria-label="decrement"
     on:click="{onDecrement}"
     disabled="{!canDecrement(recordValue)}"
     class="w-11 text-white {!canDecrement(recordValue)
@@ -146,6 +147,7 @@ function canIncrement(value: number) {
   </Tooltip>
   <button
     data-action="increment"
+    aria-label="increment"
     on:click="{onIncrement}"
     disabled="{!canIncrement(recordValue)}"
     class="w-11 text-white {!canIncrement(recordValue)

@@ -42,3 +42,35 @@ test('Checkbox no default', async () => {
   expect(input instanceof HTMLInputElement).toBe(true);
   expect((input as HTMLInputElement).checked).toBe(false);
 });
+
+test('Expect to see the checkbox disabled / unable to press when readonly is passed into record', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    title: 'my boolean property',
+    id: 'myid',
+    parentId: '',
+    type: 'boolean',
+    default: true,
+    readonly: true,
+  };
+  // remove display name
+  render(BooleanItem, { record, checked: record.default });
+  const button = screen.getByRole('checkbox');
+  expect(button).toBeInTheDocument();
+  expect(button).toBeChecked();
+  expect(button).toBeDisabled();
+});
+
+test('Expect to see checkbox not checked if default is false', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    title: 'my boolean property',
+    id: 'myid',
+    parentId: '',
+    type: 'boolean',
+    default: false,
+  };
+  // remove display name
+  render(BooleanItem, { record, checked: record.default });
+  const button = screen.getByRole('checkbox');
+  expect(button).toBeInTheDocument();
+  expect(button).not.toBeChecked();
+});
