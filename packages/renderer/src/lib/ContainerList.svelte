@@ -62,12 +62,16 @@ $: filterObj = new Filter(decodeURI(filter));
 $: checkFilter(filterObj.rawFilter);
 
 function checkFilter(_: string): void {
+  let url: string | undefined = undefined;
   if (filterObj.isRunning() && !runningFilter) {
-    router.goto(`/containers/list/running?filter=${filterObj.setState(true, false)}`);
+    url = filterObj.createRunningURL();
   } else if (filterObj.isStopped() && !stoppedFilter) {
-    router.goto(`/containers/list/stopped?filter=${filterObj.setState(false, true)}`);
+    url = filterObj.createStoppedURL();
   } else if (!filterObj.isStopped() && !filterObj.isRunning() && (runningFilter || stoppedFilter)) {
-    router.goto(`/containers/list/all?filter=${filterObj.setState(false, false)}`);
+    url = filterObj.createAllURL();
+  }
+  if (url !== undefined) {
+    router.goto('/containers/list/' + url);
   }
 }
 
@@ -489,9 +493,9 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
   </div>
 
   <div class="flex flex-row px-2 mb-2 border-b border-charcoal-400" slot="tabs">
-    <Tab title="All containers" url="{`all?filter=${filterObj.setState(false, false)}`}" />
-    <Tab title="Running containers" url="{`running?filter=${filterObj.setState(true, false)}`}" />
-    <Tab title="Stopped containers" url="{`stopped?filter=${filterObj.setState(false, true)}`}" />
+    <Tab title="All containers" url="{filterObj.createAllURL()}" />
+    <Tab title="Running containers" url="{filterObj.createRunningURL()}" />
+    <Tab title="Stopped containers" url="{filterObj.createStoppedURL()}" />
   </div>
 
   <div class="flex min-w-full h-full" slot="content">

@@ -29,4 +29,16 @@ export class Filter {
   isStopped(): boolean {
     return this.rawFilter.split(' ').includes('is:stopped');
   }
+
+  createRunningURL() {
+    return `running?filter=${this.setState(true, false)}`;
+  }
+
+  createStoppedURL() {
+    return `stopped?filter=${this.setState(false, true)}`;
+  }
+
+  createAllURL() {
+    return `all?filter=${this.setState(false, false)}`;
+  }
 }
