@@ -112,7 +112,7 @@ async function onChange(recordId: string, value: boolean | string | number): Pro
 </script>
 
 <div class="flex flex-row mb-1 pt-2">
-  <div class="flex flex-col text-start w-full justify-center items-start">
+  <div class="flex flex-col text-start w-full justify-center items-end">
     {#if record.type === 'boolean'}
       <BooleanItem record="{record}" checked="{!!recordValue}" onChange="{onChange}" />
     {:else if record.type === 'number'}
@@ -123,10 +123,7 @@ async function onChange(recordId: string, value: boolean | string | number): Pro
           record="{record}"
           value="{typeof recordValue === 'number' ? recordValue : getNormalizedDefaultNumberValue(record)}"
           onChange="{onChange}"
-          invalidRecord="{_error => {
-            invalidText = _error;
-            invalidRecord(_error);
-          }}" />
+          invalidRecord="{invalidRecord}" />
       {/if}
     {:else if record.type === 'string' && (typeof recordValue === 'string' || recordValue === undefined)}
       {#if record.format === 'file'}

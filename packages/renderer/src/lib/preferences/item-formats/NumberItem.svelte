@@ -24,17 +24,20 @@ onMount(() => {
 });
 
 function onInput(event: Event) {
+  // clear the timeout so if there was an old call to onChange pending is deleted. We will create a new one soon
   clearTimeout(valueUpdateTimeout);
   const target = event.currentTarget as HTMLInputElement;
-
+  // convert string to number
   const _value: number = uncertainStringToNumber(target.value);
+  recordValue = _value;
+  // if number is not valid, like NaN return
   if (!assertNumericValueIsValid(_value)) {
     invalidRecord(numberInputErrorMessage);
     return;
   }
-
-  if (record.id && _value !== value) {
-    valueUpdateTimeout = setTimeout(() => onChange(record.id!, _value), 500);
+  // if the value is different from the original update
+  if (record.id && recordValue !== value) {
+    valueUpdateTimeout = setTimeout(() => onChange(record.id!, recordValue), 500);
   }
 }
 
@@ -50,11 +53,19 @@ function onDecrement(
     currentTarget: EventTarget & HTMLButtonElement;
   },
 ) {
+  // clear the timeout so if there was an old call to onChange pending is deleted. We will create a new one soon
   clearTimeout(valueUpdateTimeout);
-  if (record.id && canDecrement()) {
+  // if we can decrement
+  if (record.id && canDecrement(recordValue)) {
+    // update record
     recordValue -= 1;
-    valueUpdateTimeout = setTimeout(() => onChange(record.id!, recordValue), 500);
+    // verify it is valid
+    // it may happen that the value is greater than min but also greater than max so we need to check if we can update it
+    if (assertNumericValueIsValid(recordValue)) {
+      valueUpdateTimeout = setTimeout(() => onChange(record.id!, recordValue), 500);
+    }
   }
+
   e.preventDefault();
 }
 
@@ -63,16 +74,23 @@ function onIncrement(
     currentTarget: EventTarget & HTMLButtonElement;
   },
 ) {
+  // clear the timeout so if there was an old call to onChange pending is deleted. We will create a new one soon
   clearTimeout(valueUpdateTimeout);
-  if (record.id && canIncrement()) {
+  // if we can increment
+  if (record.id && canIncrement(recordValue)) {
+    // update record
     recordValue += 1;
-    valueUpdateTimeout = setTimeout(() => onChange(record.id!, recordValue), 500);
+    // verify it is valid
+    // it may happen that the value is less than max but also less than min so we need to check if we can update it
+    if (assertNumericValueIsValid(recordValue)) {
+      valueUpdateTimeout = setTimeout(() => onChange(record.id!, recordValue), 500);
+    }
   }
   e.preventDefault();
 }
 
-function canDecrement() {
-  return !record.minimum || recordValue > record.minimum;
+function canDecrement(value: number) {
+  return !record.minimum || value > record.minimum;
 }
 
 function assertNumericValueIsValid(value: number) {
@@ -98,8 +116,8 @@ function assertNumericValueIsValid(value: number) {
   numberInputInvalid = false;
   return true;
 }
-function canIncrement() {
-  return !record.maximum || (typeof record.maximum === 'number' && recordValue < record.maximum);
+function canIncrement(value: number) {
+  return !record.maximum || (typeof record.maximum === 'number' && value < record.maximum);
 }
 </script>
 
@@ -110,8 +128,8 @@ function canIncrement() {
   <button
     data-action="decrement"
     on:click="{onDecrement}"
-    disabled="{!canDecrement()}"
-    class="w-11 text-white {!canDecrement()
+    disabled="{!canDecrement(recordValue)}"
+    class="w-11 text-white {!canDecrement(recordValue)
       ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-charcoal-800'
       : 'hover:text-gray-900 hover:bg-gray-700'} cursor-pointer outline-none">
     <span class="m-auto font-thin">−</span>
@@ -129,8 +147,8 @@ function canIncrement() {
   <button
     data-action="increment"
     on:click="{onIncrement}"
-    disabled="{!canIncrement()}"
-    class="w-11 text-white {!canIncrement()
+    disabled="{!canIncrement(recordValue)}"
+    class="w-11 text-white {!canIncrement(recordValue)
       ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-charcoal-800'
       : 'hover:text-gray-900 hover:bg-gray-700'} cursor-pointer outline-none">
     <span class="m-auto font-thin">+</span>

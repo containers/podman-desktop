@@ -2,7 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import { test, expect, vi, beforeAll } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
-import SliderItem from '/@/lib/preferences/item-formats/SliderItem.svelte';
+import SliderItem from './SliderItem.svelte';
 
 beforeAll(() => {
   (window as any).getConfigurationValue = vi.fn();
