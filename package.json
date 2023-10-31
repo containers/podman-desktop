@@ -127,7 +127,7 @@
     "husky": "^8.0.0",
     "js-yaml": "^4.1.0",
     "lint-staged": "^15.0.2",
-    "nock": "^13.3.6",
+    "nock": "^13.3.7",
     "playwright": "1.37.1",
     "postcss-import": "^15.1.0",
     "prettier": "^3.0.3",
