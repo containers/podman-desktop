@@ -27,7 +27,16 @@ import { ComposeDownload } from './download';
 
 let composeVersionMetadata: ComposeGithubReleaseArtifactMetadata | undefined;
 
+// Telemetry
+let telemetryLogger: extensionApi.TelemetryLogger | undefined;
+
+export function initTelemetryLogger(): void {
+  telemetryLogger = extensionApi.env.createTelemetryLogger();
+}
+
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  initTelemetryLogger();
+
   // Check docker-compose binary has been downloaded and update both
   // the configuration setting and the context accordingly
   await handler.updateConfigAndContextComposeBinary(extensionContext);
@@ -73,6 +82,12 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
           extensionApi.context.setValue('composeDownloadVersion', composeVersionMetadata.tag, 'onboarding');
         }
       }
+
+      // Log if it's downloaded and what version is being selected for download (can be either latest, or chosen by user)
+      telemetryLogger.logUsage('compose.onboarding.checkComposeDownloaded', {
+        downloaded: isDownloaded === '' ? false : true,
+        version: composeVersionMetadata?.tag,
+      });
     },
   );
 
@@ -87,11 +102,22 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         composeVersionMetadata = await composeDownload.getLatestVersionAsset();
       }
 
-      // Download
-      await composeDownload.download(composeVersionMetadata);
+      let downloaded: boolean;
+      try {
+        // Download
+        await composeDownload.download(composeVersionMetadata);
 
-      // We are all done, so we can set the context value to false
-      extensionApi.context.setValue('composeIsNotDownloaded', false, 'onboarding');
+        // We are all done, so we can set the context value to false / downloaded to true
+        extensionApi.context.setValue('composeIsNotDownloaded', false, 'onboarding');
+        downloaded = true;
+      } finally {
+        // Make sure we log the telemetry even if we encounter an error
+        // If we have downloaded the binary, we can log it as being succcessfully downloaded
+        telemetryLogger.logUsage('compose.onboarding.downloadCompose', {
+          successful: downloaded,
+          version: composeVersionMetadata?.tag,
+        });
+      }
     },
   );
 
@@ -109,6 +135,11 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         extensionApi.context.setValue('composeDownloadVersion', composeRelease.tag, 'onboarding');
       }
 
+      // Log the telemetry that the user picked a version
+      telemetryLogger.logUsage('compose.onboarding.promptUserForVersion', {
+        version: composeRelease?.tag,
+      });
+
       // Note, we do not refresh the UI when setValue has been set, only when "when" has been updated
       // TEMPORARY FIX until we can find a better way to do this. This forces a refresh by changing the "when" evaluation
       // of the dialog so it'll refresh the composeDownloadVersion value.
@@ -123,7 +154,15 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     async () => {
       // This is TEMPORARY until we re-add the "Installing compose system wide" toggle again
       // We will just call the handler function directly
-      await handler.installComposeBinary(detect, extensionContext);
+      let installed: boolean;
+      try {
+        await handler.installComposeBinary(detect, extensionContext);
+        installed = true;
+      } finally {
+        telemetryLogger.logUsage('compose.onboarding.installSystemWide', {
+          successful: installed,
+        });
+      }
     },
   );
 
