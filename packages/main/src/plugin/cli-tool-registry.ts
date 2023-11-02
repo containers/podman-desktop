@@ -52,6 +52,14 @@ export class CliToolImpl implements CliTool, Disposable {
     return this._options.markdownDescription;
   }
 
+  get version() {
+    return this._options.version;
+  }
+
+  get path() {
+    return this._options.path;
+  }
+
   get images() {
     return Object.freeze(this._options.images);
   }
@@ -92,6 +100,8 @@ export class CliToolRegistry {
         state: cliTool.state,
         images: cliTool.images,
         extensionInfo: cliTool.extensionInfo,
+        version: cliTool.version,
+        path: cliTool.path,
       };
     });
   }

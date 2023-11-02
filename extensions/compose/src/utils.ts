@@ -22,7 +22,6 @@ import { OS } from './os';
 export async function makeExecutable(filePath: string): Promise<void> {
   // New OS class
   const os = new OS();
-
   if (os.isLinux() || os.isMac()) {
     await promises.chmod(filePath, 0o755);
   }
