@@ -17,7 +17,13 @@
  ***********************************************************************/
 
 import { test, expect, vi, afterEach } from 'vitest';
-import { getNormalizedDefaultNumberValue, isPropertyValidInContext, isTargetScope, writeToTerminal } from './Util';
+import {
+  getNormalizedDefaultNumberValue,
+  isPropertyValidInContext,
+  isTargetScope,
+  uncertainStringToNumber,
+  writeToTerminal,
+} from './Util';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { ContextUI } from '../context/context';
 
@@ -172,4 +178,20 @@ test('test isPropertyValidInContext with valid when statements', () => {
   contextMock.setValue('config.test2', true);
   expect(isPropertyValidInContext('config.test && config.test2', contextMock)).toBe(false);
   expect(isPropertyValidInContext('config.test && !config.test2', contextMock)).toBe(false);
+});
+
+test('Expect to receive the same number passed as arg', async () => {
+  const value = 0;
+  expect(uncertainStringToNumber(value)).toBe(value);
+});
+
+test('Expect to receive a number if a number as string is passed as arg', async () => {
+  const value = 10;
+  const valueAsString = '10';
+  expect(uncertainStringToNumber(valueAsString)).toBe(value);
+});
+
+test('Expect to receive a NaN if a not number string is passed as arg', async () => {
+  const valueAsString = 'unknown';
+  expect(uncertainStringToNumber(valueAsString)).toBe(NaN);
 });
