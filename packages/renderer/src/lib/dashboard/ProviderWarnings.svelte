@@ -11,9 +11,9 @@ $: {
 }
 </script>
 
-<div class="flex flex-col items-center text-center mt-3">
-  <!-- TODO: Add dismiss button / ignore warning? -->
-  {#if providerInfo && providerInfo.warnings?.length > 0}
+<!-- TODO: Add dismiss button / ignore warning? -->
+{#if providerInfo && providerInfo.warnings?.length > 0}
+  <div class="flex flex-col items-center text-center mt-3">
     {#each providerInfo.warnings as warn}
       <div class="flex-row items-center align-middle mt-0.5">
         <!-- Make line height center-->
@@ -22,5 +22,5 @@ $: {
         <span class="ml-1 text-sm text-gray-700">{warn.details}</span>
       </div>
     {/each}
-  {/if}
-</div>
+  </div>
+{/if}

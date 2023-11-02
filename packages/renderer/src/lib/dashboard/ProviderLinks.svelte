@@ -6,7 +6,7 @@ export let provider: ProviderInfo;
 </script>
 
 {#if provider.links.length > 0}
-  <div class="mt-10 flex flex-row justify-around">
+  <div class="mt-5 flex flex-row justify-around">
     {#each provider.links as link}
       {#if link.group === undefined}
         <Link class="text-sm" externalRef="{link.url}">

@@ -18,7 +18,6 @@ $: {
 
 {#if logo}
   <div class="flex">
-    <!--w-3/4 lg:w-2/3 xl:w-1/2 -->
-    <img src="{logo}" alt="{provider.name}" class="mx-auto max-h-24 xl:max-h-36" />
+    <img src="{logo}" alt="{provider.name}" class="mx-auto max-h-12" />
   </div>
 {/if}
