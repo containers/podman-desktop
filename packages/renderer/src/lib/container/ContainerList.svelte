@@ -691,7 +691,9 @@ function setStoppedFilter() {
       {#if searchTerm}
         <FilteredEmptyScreen icon="{ContainerIcon}" kind="containers" bind:searchTerm="{searchTerm}" />
       {:else}
-        <ContainerEmptyScreen />
+        <ContainerEmptyScreen
+          runningOnly="{containerUtils.filterIsRunning(searchTerm)}"
+          stoppedOnly="{containerUtils.filterIsStopped(searchTerm)}" />
       {/if}
     {/if}
   </div>
