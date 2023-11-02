@@ -106,4 +106,4 @@ It means that for example, starting a container with a port < 1024 will not work
 
 If you still need to create containers with a port < 1024, you can change the Podman machine configuration of the Podman Machine if you are on Windows or macOS.
 
-The command is `podman machine --rootful` to enable the execution with root privileges or `podman machine --rootful=false` to switch back to rootless mode.
+The command is `podman machine set --rootful` to enable the execution with root privileges or `podman machine set --rootful=false` to switch back to rootless mode.
