@@ -122,10 +122,20 @@ async function getContainerfileLocation() {
   const result = await window.openFileDialog('Select Containerfile to build');
   if (!result.canceled && result.filePaths.length === 1) {
     containerFilePath = result.filePaths[0];
+    hasInvalidFields = false;
+
+    // normalize the file path to posix style
+    // eslint-disable-next-line no-useless-escape
+    const posixContainerDirPath = containerFilePath.replace(/\\/g, '/').replace(/\/[^\/]*$/, '');
+    const containerDirName = posixContainerDirPath.split('/').slice(-1)[0];
+    if (containerDirName) {
+      // use the directory as default image name
+      containerImageName = containerDirName;
+    }
+
     if (!containerBuildContextDirectory) {
       // select the parent directory of the file as default
-      // eslint-disable-next-line no-useless-escape
-      containerBuildContextDirectory = containerFilePath.replace(/\\/g, '/').replace(/\/[^\/]*$/, '');
+      containerBuildContextDirectory = posixContainerDirPath;
     }
   }
 }
@@ -166,7 +176,8 @@ async function abortBuild() {
               class="w-full p-2 mr-3 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
               required />
 
-            <Button on:click="{() => getContainerfileLocation()}">Browse...</Button>
+            <Button aria-label="containerFilePathBrowse" on:click="{() => getContainerfileLocation()}"
+              >Browse...</Button>
           </div>
         </div>
 

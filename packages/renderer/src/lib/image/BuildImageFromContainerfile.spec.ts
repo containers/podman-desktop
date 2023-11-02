@@ -40,7 +40,9 @@ beforeAll(() => {
   (window as any).matchMedia = vi.fn().mockReturnValue({
     addListener: vi.fn(),
   });
-  (window as any).openFileDialog = vi.fn().mockResolvedValue({ canceled: false, filePaths: ['Containerfile'] });
+  (window as any).openFileDialog = vi
+    .fn()
+    .mockResolvedValue({ canceled: false, filePaths: ['path/to/mock-image/Containerfile'] });
   (window as any).telemetryPage = vi.fn().mockResolvedValue(undefined);
 });
 
@@ -121,6 +123,20 @@ test('Expect Done button is enabled once build is done', async () => {
   const doneButton = screen.getByRole('button', { name: 'Done' });
   expect(doneButton).toBeInTheDocument();
   expect(doneButton).toBeEnabled();
+});
+
+test('Expect image name to match container directory name', async () => {
+  setup();
+  render(BuildImageFromContainerfile, {});
+
+  const containerImageName = screen.getByRole('textbox', { name: 'Image Name' });
+  expect(containerImageName).toBeInTheDocument();
+  expect(containerImageName).toHaveValue('my-custom-image');
+
+  const containerFilePathBrowse = screen.getByRole('button', { name: 'containerFilePathBrowse' });
+  await userEvent.click(containerFilePathBrowse);
+
+  expect(containerImageName).toHaveValue('mock-image');
 });
 
 test('Expect Abort button to hidden when image build is not in progress', async () => {
