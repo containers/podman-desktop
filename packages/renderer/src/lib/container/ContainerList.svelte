@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-import { filtered, searchPattern, containersInfos } from '../../stores/containers';
+import { containersInfos } from '../../stores/containers';
 import { viewsContributions } from '../../stores/views';
 import { context } from '../../stores/context';
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
@@ -41,6 +41,7 @@ import StateChange from '../ui/StateChange.svelte';
 import SolidPodIcon from '../images/SolidPodIcon.svelte';
 import ProviderInfo from '../ui/ProviderInfo.svelte';
 import TabButton from '../ui/TabButton.svelte';
+import { findMatchInLeaves } from '../../stores/search-util';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -52,7 +53,7 @@ let viewContributions: ViewInfoUI[] = [];
 let globalContext: ContextUI;
 let containersInfo: ContainerInfo[] = [];
 export let searchTerm = '';
-$: searchPattern.set(searchTerm);
+$: updateContainers(containersInfo, globalContext, viewContributions, searchTerm);
 
 function fromExistingImage(): void {
   openChoiceModal = false;
@@ -231,19 +232,19 @@ onMount(async () => {
   contextsUnsubscribe = context.subscribe(value => {
     globalContext = value;
     if (containersInfo.length > 0) {
-      updateContainers(containersInfo, globalContext, viewContributions);
+      updateContainers(containersInfo, globalContext, viewContributions, searchTerm);
     }
   });
 
   viewsUnsubscribe = viewsContributions.subscribe(value => {
     viewContributions = value.filter(view => view.viewId === CONTAINER_LIST_VIEW) || [];
     if (containersInfo.length > 0) {
-      updateContainers(containersInfo, globalContext, viewContributions);
+      updateContainers(containersInfo, globalContext, viewContributions, searchTerm);
     }
   });
 
-  containersUnsubscribe = filtered.subscribe(value => {
-    updateContainers(value, globalContext, viewContributions);
+  containersUnsubscribe = containersInfos.subscribe(value => {
+    updateContainers(value, globalContext, viewContributions, searchTerm);
   });
 
   podUnsubscribe = podsInfos.subscribe(podInfos => {
@@ -251,7 +252,17 @@ onMount(async () => {
   });
 });
 
-function updateContainers(containers: ContainerInfo[], globalContext: ContextUI, viewContributions: ViewInfoUI[]) {
+/* updateContainers updates the variables:
+   - containersInfo with the value of containers
+   - containerGroups based on the containers and their groups
+   - multipleEngines and enginesList based on the engines of containers
+*/
+function updateContainers(
+  containers: ContainerInfo[],
+  globalContext: ContextUI,
+  viewContributions: ViewInfoUI[],
+  searchTerm: string,
+) {
   containersInfo = containers;
   const currentContainers = containers.map((containerInfo: ContainerInfo) => {
     return containerUtils.getContainerInfoUI(containerInfo, globalContext, viewContributions);
@@ -271,8 +282,23 @@ function updateContainers(containers: ContainerInfo[], globalContext: ContextUI,
   // Set the engines to the global variable for the Prune functionality button
   enginesList = uniqueEngines;
 
+  // filter the containers
+  const filteredContainers = currentContainers
+    .filter(containerInfo =>
+      findMatchInLeaves(containerInfo, containerUtils.filterSearchTerm(searchTerm).toLowerCase()),
+    )
+    .filter(containerInfo => {
+      if (containerUtils.filterIsRunning(searchTerm)) {
+        return containerInfo.state === 'RUNNING';
+      }
+      if (containerUtils.filterIsStopped(searchTerm)) {
+        return containerInfo.state !== 'RUNNING';
+      }
+      return true;
+    });
+
   // create groups
-  const computedContainerGroups = containerUtils.getContainerGroups(currentContainers);
+  const computedContainerGroups = containerUtils.getContainerGroups(filteredContainers);
 
   // update selected items based on current selected items
   computedContainerGroups.forEach(group => {
@@ -661,7 +687,7 @@ function setStoppedFilter() {
 
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
-    {:else if $filtered.length === 0}
+    {:else if containerGroups.length === 0}
       {#if searchTerm}
         <FilteredEmptyScreen icon="{ContainerIcon}" kind="containers" bind:searchTerm="{searchTerm}" />
       {:else}

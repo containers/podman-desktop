@@ -16,12 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { writable, derived, type Writable } from 'svelte/store';
+import { writable, type Writable } from 'svelte/store';
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
-import { findMatchInLeaves } from './search-util';
 import { EventStore } from './event-store';
 import ContainerIcon from '../lib/images/ContainerIcon.svelte';
-import { ContainerUtils } from '../lib/container/container-utils';
 
 const windowEvents = [
   'extension-started',
@@ -64,23 +62,3 @@ const containersEventStore = new EventStore<ContainerInfo[]>(
   ContainerIcon,
 );
 containersEventStore.setupWithDebounce();
-
-export const searchPattern = writable('');
-
-const containerUtils = new ContainerUtils();
-
-export const filtered = derived([searchPattern, containersInfos], ([$searchPattern, $containersInfos]) => {
-  return $containersInfos
-    .filter(containerInfo =>
-      findMatchInLeaves(containerInfo, containerUtils.filterSearchTerm($searchPattern).toLowerCase()),
-    )
-    .filter(containerInfo => {
-      if (containerUtils.filterIsRunning($searchPattern)) {
-        return containerInfo.State.toUpperCase() === 'RUNNING';
-      }
-      if (containerUtils.filterIsStopped($searchPattern)) {
-        return containerInfo.State.toUpperCase() !== 'RUNNING';
-      }
-      return true;
-    });
-});
