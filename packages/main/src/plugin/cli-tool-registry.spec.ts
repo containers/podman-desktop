@@ -112,6 +112,8 @@ suite('cli module', () => {
         displayName: 'tool-display-name',
         markdownDescription: 'markdown description',
         images: {},
+        version: '1.0.1',
+        path: 'path/to/tool-name',
       };
       const newCliTool = api.cli.createCliTool(options);
       expect(newCliTool.id).equals(`${extManifest.publisher}.${extManifest.name}.${options.name}`);
@@ -129,6 +131,8 @@ suite('cli module', () => {
         displayName: 'tool-display-name',
         markdownDescription: 'markdown description',
         images: {},
+        version: '1.0.1',
+        path: 'path/to/tool-name',
       };
       api.cli.createCliTool(options);
       expect(apiSender.send).toBeCalledWith('cli-tool-create');
@@ -141,6 +145,8 @@ suite('cli module', () => {
         displayName: 'tool-display-name',
         markdownDescription: 'markdown description',
         images: {},
+        version: '1.0.1',
+        path: 'path/to/tool-name',
       };
       const newCliTool = api.cli.createCliTool(options);
       const infoList = cliToolRegistry.getCliToolInfos();
@@ -165,6 +171,8 @@ suite('cli module', () => {
         displayName: 'tool-display-name',
         markdownDescription: 'markdown description',
         images: {},
+        version: '1.0.1',
+        path: 'path/to/tool-name',
       };
       const newCliTool = api.cli.createCliTool(options);
       newCliTool.dispose();
@@ -178,6 +186,8 @@ suite('cli module', () => {
         displayName: 'tool-display-name',
         markdownDescription: 'markdown description',
         images: {},
+        version: '1.0.1',
+        path: 'path/to/tool-name',
       };
       const newCliTool = api.cli.createCliTool(options);
       const infoListAfterCreate = cliToolRegistry.getCliToolInfos();

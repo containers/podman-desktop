@@ -24,8 +24,11 @@ import { ComposeGitHubReleases } from './compose-github-releases';
 import { OS } from './os';
 import * as handler from './handler';
 import { ComposeDownload } from './download';
+import * as path from 'path';
 
 let composeVersionMetadata: ComposeGithubReleaseArtifactMetadata | undefined;
+let composeCliTool: extensionApi.CliTool | undefined;
+const os = new OS();
 
 // Telemetry
 let telemetryLogger: extensionApi.TelemetryLogger | undefined;
@@ -51,7 +54,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // Create new classes to handle the onboarding sequence
   const octokit = new Octokit();
-  const os = new OS();
   const detect = new Detect(os, extensionContext.storagePath);
 
   const composeGitHubReleases = new ComposeGitHubReleases(octokit);
@@ -195,13 +197,50 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const provider = extensionApi.provider.createProvider(providerOptions);
   extensionContext.subscriptions.push(provider);
 
-  // Register the CLI extension, this will allow us to show the CLI version, update the CLI, installation, etc.
-  extensionApi.cli.createCliTool({
+  // Push the CLI tool as well (but it will do it postActivation so it does not block the activate() function)
+  // Post activation
+  setTimeout(() => {
+    postActivate(extensionContext).catch((error: unknown) => {
+      console.error('Error activating extension', error);
+    });
+  }, 0);
+}
+
+// Activate the CLI tool (check version, etc) and register the CLi so it does not block activation.
+async function postActivate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  // The location of the binary (local storage folder)
+  const binaryPath = path.join(
+    extensionContext.storagePath,
+    'bin',
+    os.isWindows() ? composeCliName + '.exe' : composeCliName,
+  );
+  let binaryVersion = '';
+
+  // Retrieve the version of the binary by running exec with --short
+  try {
+    const result = await extensionApi.process.exec(binaryPath, ['--version', '--short']);
+    binaryVersion = result.stdout;
+  } catch (e) {
+    console.error(`Error getting compose version: ${e}`);
+  }
+
+  // Register the CLI tool so it appears in the preferences page. We will detect which version is being ran by
+  // checking the local storage folder for the binary. If it exists, we will run `--version` and parse the information.
+  composeCliTool = extensionApi.cli.createCliTool({
     name: composeCliName,
     displayName: composeDisplayName,
     markdownDescription: composeDescription,
     images: {
       icon: imageLocation,
     },
+    version: binaryVersion,
+    path: binaryPath,
   });
+}
+
+export async function deactivate(): Promise<void> {
+  // Dispose the CLI tool
+  if (composeCliTool) {
+    composeCliTool.dispose();
+  }
 }

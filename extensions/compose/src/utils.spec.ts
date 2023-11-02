@@ -20,6 +20,14 @@ import { expect, test, vi, vitest, describe } from 'vitest';
 import { makeExecutable } from './utils';
 import { promises } from 'fs';
 
+vi.mock('@podman-desktop/api', async () => {
+  return {
+    process: {
+      exec: vi.fn(),
+    },
+  };
+});
+
 describe('makeExecutable', async () => {
   const fakePath = '/fake/path';
   test('mac', async () => {

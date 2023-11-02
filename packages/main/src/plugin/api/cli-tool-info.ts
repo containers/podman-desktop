@@ -31,4 +31,6 @@ export interface CliToolInfo {
   state: CliToolState;
   images?: ProviderImages;
   extensionInfo: CliToolExtensionInfo;
+  version?: string;
+  path?: string;
 }
