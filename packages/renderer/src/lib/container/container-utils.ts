@@ -268,4 +268,42 @@ export class ContainerUtils {
   adaptContextOnContainer(context: ContextUI, container: ContainerInfo): void {
     context.setValue('containerLabelKeys', container.Labels ? Object.keys(container.Labels) : []);
   }
+
+  filterResetRunning(f: string) {
+    return f
+      .split(' ')
+      .filter(part => !part.startsWith('is:running') && !part.startsWith('is:stopped'))
+      .join(' ');
+  }
+
+  filterSetRunning(f: string) {
+    const parts = f.split(' ').filter(part => !part.startsWith('is:running') && !part.startsWith('is:stopped'));
+    parts.push('is:running');
+    return parts.join(' ');
+  }
+
+  filterSetStopped(f: string) {
+    const parts = f.split(' ').filter(part => !part.startsWith('is:running') && !part.startsWith('is:stopped'));
+    parts.push('is:stopped');
+    return parts.join(' ');
+  }
+
+  filterIsRunning(f: string): boolean {
+    return f.split(' ').includes('is:running');
+  }
+
+  filterIsStopped(f: string): boolean {
+    return f.split(' ').includes('is:stopped');
+  }
+
+  filterIsAll(f: string): boolean {
+    return !this.filterIsRunning(f) && !this.filterIsStopped(f);
+  }
+
+  filterSearchTerm(f: string): string {
+    return f
+      .split(' ')
+      .filter(part => !part.startsWith('is:'))
+      .join(' ');
+  }
 }

@@ -40,6 +40,7 @@ import Button from '../ui/Button.svelte';
 import StateChange from '../ui/StateChange.svelte';
 import SolidPodIcon from '../images/SolidPodIcon.svelte';
 import ProviderInfo from '../ui/ProviderInfo.svelte';
+import TabButton from '../ui/TabButton.svelte';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -402,6 +403,18 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
   container.state = 'ERROR';
   containerGroups = [...containerGroups];
 }
+
+function resetRunningFilter() {
+  searchTerm = containerUtils.filterResetRunning(searchTerm);
+}
+
+function setRunningFilter() {
+  searchTerm = containerUtils.filterSetRunning(searchTerm);
+}
+
+function setStoppedFilter() {
+  searchTerm = containerUtils.filterSetStopped(searchTerm);
+}
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="containers">
@@ -430,6 +443,21 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
         icon="{SolidPodIcon}" />
       <span class="pl-2">On {selectedItemsNumber} selected items.</span>
     {/if}
+  </div>
+
+  <div class="flex flex-row px-2 mb-2 border-b border-charcoal-400" slot="tabs">
+    <TabButton
+      on:click="{() => resetRunningFilter()}"
+      selected="{containerUtils.filterIsAll(searchTerm)}"
+      title="All containers"></TabButton>
+    <TabButton
+      on:click="{() => setRunningFilter()}"
+      selected="{containerUtils.filterIsRunning(searchTerm)}"
+      title="Running containers"></TabButton>
+    <TabButton
+      on:click="{() => setStoppedFilter()}"
+      selected="{containerUtils.filterIsStopped(searchTerm)}"
+      title="Stopped containers"></TabButton>
   </div>
 
   <div class="flex min-w-full h-full" slot="content">

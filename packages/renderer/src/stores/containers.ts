@@ -21,6 +21,7 @@ import type { ContainerInfo } from '../../../main/src/plugin/api/container-info'
 import { findMatchInLeaves } from './search-util';
 import { EventStore } from './event-store';
 import ContainerIcon from '../lib/images/ContainerIcon.svelte';
+import { ContainerUtils } from '../lib/container/container-utils';
 
 const windowEvents = [
   'extension-started',
@@ -66,6 +67,20 @@ containersEventStore.setupWithDebounce();
 
 export const searchPattern = writable('');
 
-export const filtered = derived([searchPattern, containersInfos], ([$searchPattern, $containersInfos]) =>
-  $containersInfos.filter(containerInfo => findMatchInLeaves(containerInfo, $searchPattern.toLowerCase())),
-);
+const containerUtils = new ContainerUtils();
+
+export const filtered = derived([searchPattern, containersInfos], ([$searchPattern, $containersInfos]) => {
+  return $containersInfos
+    .filter(containerInfo =>
+      findMatchInLeaves(containerInfo, containerUtils.filterSearchTerm($searchPattern).toLowerCase()),
+    )
+    .filter(containerInfo => {
+      if (containerUtils.filterIsRunning($searchPattern)) {
+        return containerInfo.State.toUpperCase() === 'RUNNING';
+      }
+      if (containerUtils.filterIsStopped($searchPattern)) {
+        return containerInfo.State.toUpperCase() !== 'RUNNING';
+      }
+      return true;
+    });
+});
