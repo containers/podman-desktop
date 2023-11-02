@@ -688,8 +688,12 @@ function setStoppedFilter() {
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if containerGroups.length === 0}
-      {#if searchTerm}
-        <FilteredEmptyScreen icon="{ContainerIcon}" kind="containers" bind:searchTerm="{searchTerm}" />
+      {#if containerUtils.filterSearchTerm(searchTerm)}
+        <FilteredEmptyScreen
+          icon="{ContainerIcon}"
+          kind="containers"
+          on:resetFilter="{() => (searchTerm = containerUtils.filterResetSearchTerm(searchTerm))}"
+          searchTerm="{containerUtils.filterSearchTerm(searchTerm)}" />
       {:else}
         <ContainerEmptyScreen
           runningOnly="{containerUtils.filterIsRunning(searchTerm)}"

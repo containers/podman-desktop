@@ -288,6 +288,13 @@ export class ContainerUtils {
     return parts.join(' ');
   }
 
+  filterResetSearchTerm(f: string): string {
+    return f
+      .split(' ')
+      .filter(part => part.startsWith('is:'))
+      .join(' ');
+  }
+
   filterIsRunning(f: string): boolean {
     return f.split(' ').includes('is:running');
   }
