@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
-import Fa from 'svelte-fa/src/fa.svelte';
+import Fa from 'svelte-fa';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import Button from '../../ui/Button.svelte';
 export let record: IConfigurationPropertyRecordedSchema;
