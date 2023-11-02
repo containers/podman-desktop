@@ -29,6 +29,7 @@ let containerFilePath: string;
 let containerBuildContextDirectory: string;
 
 let buildImageInfo: BuildImageInfo | undefined = undefined;
+let cancellableTokenId: number | undefined = undefined;
 let providers: ProviderInfo[] = [];
 let providerConnections: ProviderContainerConnectionInfo[] = [];
 let selectedProvider: ProviderContainerConnectionInfo | undefined = undefined;
@@ -63,6 +64,7 @@ async function buildContainerImage(): Promise<void> {
     // store the key
     buildImagesInfo.set(buildImageInfo);
     try {
+      cancellableTokenId = await window.getCancellableTokenSource();
       await window.buildImage(
         containerBuildContextDirectory,
         relativeContainerfilePath,
@@ -70,10 +72,12 @@ async function buildContainerImage(): Promise<void> {
         selectedProvider,
         buildImageInfo.buildImageKey,
         eventCollect,
+        cancellableTokenId,
       );
     } catch (error) {
       logsTerminal.write('Error:' + error + '\r');
     } finally {
+      cancellableTokenId = undefined;
       buildImageInfo.buildRunning = false;
       buildFinished = true;
     }
@@ -131,6 +135,13 @@ async function getContainerBuildContextDirectory() {
 
   if (!result.canceled && result.filePaths.length === 1) {
     containerBuildContextDirectory = result.filePaths[0];
+  }
+}
+
+async function abortBuild() {
+  if (cancellableTokenId) {
+    await window.cancelToken(cancellableTokenId);
+    cancellableTokenId = undefined;
   }
 }
 </script>
@@ -220,6 +231,11 @@ async function getContainerBuildContextDirectory() {
         </div>
 
         <TerminalWindow bind:terminal="{logsTerminal}" />
+        <div class="w-full">
+          {#if buildImageInfo?.buildRunning}
+            <Button on:click="{() => abortBuild()}" class="w-full">Cancel</Button>
+          {/if}
+        </div>
       </div>
     {/if}
   </div>
