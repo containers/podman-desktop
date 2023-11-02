@@ -77,6 +77,9 @@ export interface ContainerGroupInfoUI extends ContainerGroupPartInfoUI {
 
   selected: boolean;
 
+  // can be different from containers.length when a filter is applied on containers
+  allContainersCount: number;
+
   // list of containers in this group
   containers: ContainerInfoUI[];
 }

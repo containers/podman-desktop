@@ -193,7 +193,13 @@ export class ContainerUtils {
       const group = containerInfo.groupInfo;
       if (group.type === ContainerGroupInfoTypeUI.STANDALONE) {
         // standalone group, insert with id as key
-        groups.set(containerInfo.id, { ...group, containers: [containerInfo], expanded: true, selected: false });
+        groups.set(containerInfo.id, {
+          ...group,
+          containers: [containerInfo],
+          expanded: true,
+          selected: false,
+          allContainersCount: 1,
+        });
       } else {
         if (!groups.has(group.name)) {
           groups.set(group.name, {
@@ -205,12 +211,14 @@ export class ContainerUtils {
             status: group.status,
             engineId: group.engineId,
             engineType: group.engineType,
+            allContainersCount: 0,
             containers: [],
           });
         }
         groups.get(group.name)?.containers.push(containerInfo);
       }
     });
+    groups.forEach(group => (group.allContainersCount = group.containers.length));
 
     Array.from(groups.values())
       .filter(group => group.type === ContainerGroupInfoTypeUI.COMPOSE)

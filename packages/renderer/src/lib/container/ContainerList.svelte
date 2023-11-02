@@ -282,23 +282,27 @@ function updateContainers(
   // Set the engines to the global variable for the Prune functionality button
   enginesList = uniqueEngines;
 
-  // filter the containers
-  const filteredContainers = currentContainers
-    .filter(containerInfo =>
-      findMatchInLeaves(containerInfo, containerUtils.filterSearchTerm(searchTerm).toLowerCase()),
-    )
-    .filter(containerInfo => {
-      if (containerUtils.filterIsRunning(searchTerm)) {
-        return containerInfo.state === 'RUNNING';
-      }
-      if (containerUtils.filterIsStopped(searchTerm)) {
-        return containerInfo.state !== 'RUNNING';
-      }
-      return true;
-    });
-
   // create groups
-  const computedContainerGroups = containerUtils.getContainerGroups(filteredContainers);
+  let computedContainerGroups = containerUtils.getContainerGroups(currentContainers);
+
+  // Filter containers in groups
+  computedContainerGroups.forEach(group => {
+    group.containers = group.containers
+      .filter(containerInfo =>
+        findMatchInLeaves(containerInfo, containerUtils.filterSearchTerm(searchTerm).toLowerCase()),
+      )
+      .filter(containerInfo => {
+        if (containerUtils.filterIsRunning(searchTerm)) {
+          return containerInfo.state === 'RUNNING';
+        }
+        if (containerUtils.filterIsStopped(searchTerm)) {
+          return containerInfo.state !== 'RUNNING';
+        }
+        return true;
+      });
+  });
+  // Remove groups with all containers filtered
+  computedContainerGroups = computedContainerGroups.filter(group => group.containers.length > 0);
 
   // update selected items based on current selected items
   computedContainerGroups.forEach(group => {
@@ -324,6 +328,14 @@ function updateContainers(
   // compute refresh interval
   const interval = computeInterval();
   refreshTimeouts.push(setTimeout(refreshUptime, interval));
+}
+
+function displayContainersCount(containerGroup: ContainerGroupInfoUI) {
+  let result = containerGroup.allContainersCount + ' container' + (containerGroup.allContainersCount > 1 ? 's' : '');
+  if (containerGroup.containers.length !== containerGroup.allContainersCount) {
+    result += ` (${containerGroup.allContainersCount - containerGroup.containers.length} filtered)`;
+  }
+  return result;
 }
 
 onDestroy(() => {
@@ -543,7 +555,7 @@ function setStoppedFilter() {
                       {containerGroup.name} ({containerGroup.type})
                     </button>
                     <div class="text-xs font-extra-light text-gray-900">
-                      {containerGroup.containers.length} container{containerGroup.containers.length > 1 ? 's' : ''}
+                      {displayContainersCount(containerGroup)}
                     </div>
                   </div>
                 </div>
