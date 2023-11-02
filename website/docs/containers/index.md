@@ -1,6 +1,6 @@
 ---
 sidebar_position: 30
-title: Working with containers
+title: Containers
 description: Working with container workloads
 tags: [podman-desktop, containers]
 keywords: [podman desktop, podman, containers]

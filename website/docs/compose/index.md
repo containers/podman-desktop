@@ -1,6 +1,6 @@
 ---
 sidebar_position: 35
-title: Working with Compose
+title: Compose
 description: With Podman Desktop, you can install a Compose engine and manage multi-container applications defined in Compose files.
 keywords: [compose]
 tags: [compose]
