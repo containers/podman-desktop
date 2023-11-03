@@ -113,6 +113,10 @@ You can view the progress at: https://community.chocolatey.org/packages/podman-d
    ```sh
    podman run --rm -it -v %CD%\podman-desktop-0.12.0:/podman quay.io/podman-desktop/flatpak-node-generator yarn /podman/yarn.lock -o /podman/generated-sources.json
    ```
+   or (for :penguin: Linux users)
+   ```sh
+   podman run --rm -it -v %CD%\podman-desktop-0.12.0:/podman:z quay.io/podman-desktop/flatpak-node-generator yarn /podman/yarn.lock -o /podman/generated-sources.json
+   ```
 1. Copy the file `$(pwd)/podman-desktop-0.12.0/generated-sources.json` to `generated-sources.json`
 1. Only commit the files:
 
