@@ -124,6 +124,26 @@ extensionContext.subscriptions.push(extensionApi.commands.registerCommand('my.co
 );
 ```
 
+## Interacting with the Podman Desktop UI
+
+The extension "hooks" into the Podman Desktop UI by different means:
+
+- by registering the extension as a specific provider (authentication, registry, kubernetes, containers, cli tool, etc),
+- by registering to specific events (with functions starting with `onDid...`),
+- by adding entries to menus (tray menu, status bar, ),
+- by adding fields to the configuration panel,
+- by watching files in the filesystem.
+
+When the extension code is accessed through these different registrations, the extension can use utility functions provided by the API:
+
+- to get values of configuraton fields,
+- to interact with the user, through input boxes, quick picks,
+- to display information/warning/error messages and notifications to the user,
+- to get information about the environment (OS, telemetry, system clipboard),
+- to execute process in the system,
+- to send data to the telemetry,
+- to set data in the context, which is propagated in the UI.
+
 ## Expanding the `extension-api` API
 
 Sometimes you'll need to add new functionality to the API in order to make an internal change within Podman Desktop. An example would be a new UI/UX component that happens within the renderer, you'd need to expand the API in order to make that change to Podman Desktop's inner-workings.
