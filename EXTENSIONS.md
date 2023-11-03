@@ -154,7 +154,17 @@ export class FoobarClient {
 }
 ```
 
-4.In package.json you can register some setting through the configuration settings property
+4. An instance of this class needs to be created and passed to the constructor of the `ExtensionLoader`, in `packages/main/src/plugin/index.ts`:
+
+```ts
+const foobarClient = new FoobarClient();
+this.extensionLoader = new ExtensionLoader(
+  /* ... */
+  foobarClient,
+);
+```
+
+5. In package.json you can register some setting through the configuration settings property
 
 For example if you contribute a property named `podman.binary.path` it will display `Path` in Podman Desktop UI setting, and if you change it to `podman.binary.pathToBinary ` it becomes `Path To Binary` in the title.
 
@@ -172,7 +182,7 @@ For example if you contribute a property named `podman.binary.path` it will disp
         },
 ```
 
-5. Last step! Call the new API call to the extension you are implementing from your extension:
+6. Last step! Call the new API call to the extension you are implementing from your extension:
 
 ```ts
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
