@@ -62,7 +62,24 @@ const provider: ProviderInfo = {
 
 const pod1: PodInfo = {
   Cgroup: '',
-  Containers: [],
+  // Three containers within the pod, one running, one terminated, one exited
+  Containers: [
+    {
+      Names: 'container1',
+      Id: 'container1',
+      Status: 'running',
+    },
+    {
+      Names: 'container2',
+      Id: 'container2',
+      Status: 'terminated',
+    },
+    {
+      Names: 'container3',
+      Id: 'container3',
+      Status: 'exited',
+    },
+  ],
   Created: '',
   Id: 'beab25123a40',
   InfraId: 'pod1',
@@ -78,7 +95,13 @@ const pod1: PodInfo = {
 
 const pod2: PodInfo = {
   Cgroup: '',
-  Containers: [],
+  Containers: [
+    {
+      Names: 'container4',
+      Id: 'container4',
+      Status: 'running',
+    },
+  ],
   Created: '',
   Id: 'e8129c5720b3',
   InfraId: 'pod2',
@@ -94,7 +117,13 @@ const pod2: PodInfo = {
 
 const kubepod1: PodInfo = {
   Cgroup: '',
-  Containers: [],
+  Containers: [
+    {
+      Names: 'container1',
+      Id: 'container1',
+      Status: 'running',
+    },
+  ],
   Created: '',
   Id: 'beab25123a40',
   InfraId: 'kubepod1',
@@ -110,7 +139,13 @@ const kubepod1: PodInfo = {
 
 const kubepod2: PodInfo = {
   Cgroup: '',
-  Containers: [],
+  Containers: [
+    {
+      Names: 'container1',
+      Id: 'container1',
+      Status: 'running',
+    },
+  ],
   Created: '',
   Id: 'e8129c5720b3',
   InfraId: 'kubepod2',
@@ -126,7 +161,13 @@ const kubepod2: PodInfo = {
 
 const ocppod: PodInfo = {
   Cgroup: '',
-  Containers: [],
+  Containers: [
+    {
+      Names: 'container1',
+      Id: 'container1',
+      Status: 'running',
+    },
+  ],
   Created: '',
   Id: 'e8129c5720b3',
   InfraId: 'ocppod',
@@ -155,6 +196,14 @@ beforeAll(() => {
   (window as any).getContributedMenus = getContributedMenusMock;
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
 });
+
+async function waitRender(customProperties: object): Promise<void> {
+  const result = render(PodsList, { ...customProperties });
+  // wait that result.component.$$.ctx[2] is set
+  while (result.component.$$.ctx[2] === undefined) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+}
 
 test('Expect no pods being displayed', async () => {
   getProvidersInfoMock.mockResolvedValue([provider]);
@@ -185,7 +234,7 @@ test('Expect single podman pod being displayed', async () => {
   }
 
   render(PodsList);
-  const pod1Details = screen.getByRole('cell', { name: 'pod1 beab2512 0 container' });
+  const pod1Details = screen.getByRole('cell', { name: 'pod1 beab2512 podman' });
   expect(pod1Details).toBeInTheDocument();
   const pod1Row = screen.getByRole('row', {
     name: 'Toggle pod pod1 beab2512 0 container podman 0 seconds spinner spinner spinner',
@@ -215,9 +264,6 @@ test('Expect 2 podman pods being displayed', async () => {
     name: 'Toggle pod pod1 beab2512 0 container podman 0 seconds spinner spinner spinner',
   });
   expect(pod1Row).toBeInTheDocument();
-
-  const pod2Details = screen.getByRole('cell', { name: 'pod2 e8129c57 0 container' });
-  expect(pod2Details).toBeInTheDocument();
   const pod2Row = screen.getByRole('row', {
     name: 'Toggle pod pod2 e8129c57 0 container podman 0 seconds spinner spinner spinner',
   });
@@ -311,7 +357,7 @@ test('Expect the route to a pod details page is correctly encoded with an engine
     await new Promise(resolve => setTimeout(resolve, 500));
   }
   render(PodsList);
-  const podDetails = screen.getByRole('cell', { name: 'ocppod e8129c57 0 container' });
+  const podDetails = screen.getByRole('cell', { name: 'ocppod e8129c57 k8s userid-dev/api-s tooltip' });
   expect(podDetails).toBeInTheDocument();
 
   const podRow = screen.getByRole('row', {
@@ -325,4 +371,43 @@ test('Expect the route to a pod details page is correctly encoded with an engine
   expect(routerGotoMock).toHaveBeenCalledWith(
     '/pods/kubernetes/ocppod/userid-dev%2Fapi-sandbox-123-openshiftapps-com%3A6443%2FuserId/logs',
   );
+});
+
+test('Expect the pod1 row to have 3 status dots with the correct colors and the pod2 row to have 1 status dot', async () => {
+  getProvidersInfoMock.mockResolvedValue([provider]);
+  listPodsMock.mockResolvedValue([pod1, pod2]);
+  kubernetesListPodsMock.mockResolvedValue([]);
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+
+  while (get(providerInfos).length !== 1) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  while (get(podsInfos).length !== 2) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  waitRender(PodsList);
+
+  // Should render 4 status dots.
+  // 3 for the first pod, 1 for the second pod
+  const statusDots = screen.getAllByTestId('status-dot');
+  expect(statusDots.length).toBe(4);
+
+  // Check that container1 is running / has green
+  expect(statusDots[0].title).toBe('container1: running');
+  expect(statusDots[0]).toHaveClass('bg-green-500');
+
+  // Check that container2 is terminated / has red
+  expect(statusDots[1].title).toBe('container2: terminated');
+  expect(statusDots[1]).toHaveClass('bg-red-500');
+
+  // Check that container3 is exited / has red
+  expect(statusDots[2].title).toBe('container3: exited');
+  expect(statusDots[2]).toHaveClass('bg-red-300');
+
+  // Check that container4 is running / has green
+  expect(statusDots[3].title).toBe('container4: running');
+  expect(statusDots[3]).toHaveClass('bg-green-500');
 });
