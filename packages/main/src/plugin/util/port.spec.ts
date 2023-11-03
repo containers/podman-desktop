@@ -20,6 +20,8 @@ import { expect, test } from 'vitest';
 import * as port from './port.js';
 import * as net from 'net';
 
+const host = '127.0.0.1';
+
 test('return valid port range', async () => {
   const range = await port.getFreePortRange(3);
 
@@ -52,7 +54,7 @@ test('check that the range returns new free ports if the one in previous call ar
   expect(endRange + 1 - startRange).toBe(3);
 
   const server = net.createServer();
-  server.listen(endRange);
+  server.listen(endRange, host);
 
   const newRange = await port.getFreePortRange(3);
 
@@ -71,4 +73,62 @@ test('check that the range returns new free ports if the one in previous call ar
   expect(endNewRange + 1 - startNewRange).toBe(3);
   expect(await port.isFreePort(startNewRange)).toBe(true);
   expect(await port.isFreePort(endNewRange)).toBe(true);
+});
+
+test('return first empty port, no port is used', async () => {
+  const freePort = await port.getFreePort(20000);
+
+  expect(freePort).toBe(20000);
+  expect(await port.isFreePort(freePort)).toBe(true);
+});
+
+test('return first empty port, port is used so it returns the next one', async () => {
+  const port20000 = 20000;
+  const port20001 = 20001;
+
+  // create a server to make port 20000 busy
+  const server = net.createServer();
+  server.listen(port20000, host);
+
+  // as 20000 is busy it should increment it and return 20001
+  const freePort = await port.getFreePort(port20000);
+
+  server.close();
+
+  expect(freePort).toBe(port20001);
+  expect(await port.isFreePort(freePort)).toBe(true);
+});
+
+test('return first empty port, port and next one are used so it returns the second from the starting one', async () => {
+  const port20000 = 20000;
+  const port20001 = 20001;
+  const port20002 = 20002;
+
+  // create a server to make port 20000 busy
+  const server = net.createServer();
+  server.listen(port20000, host);
+
+  const server2 = net.createServer();
+  server2.listen(port20001, host);
+
+  // as 20000 is busy it should increment it and return 20001
+  const freePort = await port.getFreePort(port20000);
+
+  server.close();
+  server2.close();
+
+  expect(freePort).toBe(port20002);
+  expect(await port.isFreePort(freePort)).toBe(true);
+});
+
+test('fails with range error if trying to get a port which is over upper range', async () => {
+  await expect(port.getFreePort(200000)).rejects.toThrowError(/options.port should be >= 0 and < 65536/);
+});
+
+test('fails with range error if value is over upper range', async () => {
+  await expect(port.isFreePort(200000)).rejects.toThrowError(/options.port should be >= 0 and < 65536/);
+});
+
+test('fails with range error if value is less lower range', async () => {
+  await expect(port.isFreePort(-1)).rejects.toThrowError(/options.port should be >= 0 and < 65536/);
 });

@@ -21,19 +21,19 @@ import * as net from 'net';
 /**
  * Find a free port starting from the given port
  */
-export function getFreePort(port = 0): Promise<number> {
+export async function getFreePort(port = 0): Promise<number> {
   if (port < 1024) {
     port = 9000;
   }
-  const server = net.createServer();
-  return new Promise((resolve, reject) =>
-    server
-      .on('error', (error: NodeJS.ErrnoException) =>
-        error.code === 'EADDRINUSE' ? server.listen(++port) : reject(error),
-      )
-      .on('listening', () => server.close(() => resolve(port)))
-      .listen(port),
-  );
+  let isFree = false;
+  while (!isFree) {
+    isFree = await isFreePort(port);
+    if (!isFree) {
+      port++;
+    }
+  }
+
+  return port;
 }
 
 /**
@@ -61,6 +61,6 @@ export function isFreePort(port: number): Promise<boolean> {
     server
       .on('error', (error: NodeJS.ErrnoException) => (error.code === 'EADDRINUSE' ? resolve(false) : reject(error)))
       .on('listening', () => server.close(() => resolve(true)))
-      .listen(port),
+      .listen(port, '127.0.0.1'),
   );
 }
