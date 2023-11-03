@@ -93,6 +93,37 @@ Upon a successful start up via the `activate` function within your extension, `P
 - `extension-loader.ts`: Attempts to load the extension and sets the status accordingly (either `started`, `stopped`, `starting` or `stopping`). If an unknown error has occurred, the status is set to `unknown`. `extension-loader.ts` also sends an API call to Podman Desktop to update the UI of the extension.
 - `tray-menu.ts`: If `extensionApi.tray.registerMenuItem(item);` API call has been used, a tray menu of the extension will be created. When created, Podman Desktop will use the `ProviderConnectionStatus` to indicate the status within the tray menu.
 
+#### Commands
+
+Declare commands using `contributes` section of package.json file.
+
+```json
+ "contributes": {
+    "commands": [
+      {
+        "command": "my.command",
+        "title": "This is my command",
+        "category": "Optional category to prefix title",
+        "enablement": "myProperty === myValue"
+      },
+    ],
+ }
+```
+
+If optional `enablement` property evaluates to false, command palette will not display this command.
+
+To register the callback of the command, use the following code:
+
+```ts
+import * as extensionApi from '@podman-desktop/api';
+
+extensionContext.subscriptions.push(extensionApi.commands.registerCommand('my.command', async () => {
+    // callback of your command
+    await extensionApi.window.showInformationMessage('Clicked on my command');
+});
+);
+```
+
 #### Expanding the `extension-api` API
 
 Sometimes you'll need to add new functionality to the API in order to make an internal change within Podman Desktop. An example would be a new UI/UX component that happens within the renderer, you'd need to expand the API in order to make that change to Podman Desktop's inner-workings.
