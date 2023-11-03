@@ -120,3 +120,15 @@ test('return first empty port, port and next one are used so it returns the seco
   expect(freePort).toBe(port20002);
   expect(await port.isFreePort(freePort)).toBe(true);
 });
+
+test('fails with range error if trying to get a port which is over upper range', async () => {
+  await expect(port.getFreePort(200000)).rejects.toThrowError(/options.port should be >= 0 and < 65536/);
+});
+
+test('fails with range error if value is over upper range', async () => {
+  await expect(port.isFreePort(200000)).rejects.toThrowError(/options.port should be >= 0 and < 65536/);
+});
+
+test('fails with range error if value is less lower range', async () => {
+  await expect(port.isFreePort(-1)).rejects.toThrowError(/options.port should be >= 0 and < 65536/);
+});
