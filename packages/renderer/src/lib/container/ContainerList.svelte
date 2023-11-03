@@ -3,7 +3,6 @@ import { onDestroy, onMount } from 'svelte';
 import { filtered, searchPattern, containersInfos } from '../../stores/containers';
 import { viewsContributions } from '../../stores/views';
 import { context } from '../../stores/context';
-
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import PodIcon from '../images/PodIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
@@ -40,6 +39,7 @@ import type { ContextUI } from '../context/context';
 import Button from '../ui/Button.svelte';
 import StateChange from '../ui/StateChange.svelte';
 import SolidPodIcon from '../images/SolidPodIcon.svelte';
+import ProviderInfo from '../ui/ProviderInfo.svelte';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -57,8 +57,6 @@ function fromExistingImage(): void {
   openChoiceModal = false;
   window.location.href = '#/images';
 }
-
-let multipleEngines = false;
 
 $: providerConnections = $providerInfos
   .map(provider => provider.containerConnections)
@@ -269,12 +267,6 @@ function updateContainers(containers: ContainerInfo[], globalContext: ContextUI,
   // Remove duplicates from engines by name
   const uniqueEngines = engines.filter((engine, index, self) => index === self.findIndex(t => t.name === engine.name));
 
-  if (uniqueEngines.length > 1) {
-    multipleEngines = true;
-  } else {
-    multipleEngines = false;
-  }
-
   // Set the engines to the global variable for the Prune functionality button
   enginesList = uniqueEngines;
 
@@ -454,10 +446,11 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
               on:click="{event => toggleAllContainerGroups(event.detail)}" />
           </th>
           <th class="text-center font-extrabold w-10 px-2">Status</th>
-          <th class="w-10">Name</th>
-          <th>Image</th>
-          <th class="pl-4">Age</th>
-          <th class="text-right pr-2">actions</th>
+          <th>Name</th>
+          <th class="pl-3">Environment</th>
+          <th class="pl-3">Image</th>
+          <th class="pl-3">Age</th>
+          <th class="text-right pr-2">Actions</th>
         </tr>
       </thead>
 
@@ -488,7 +481,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
               </td>
               <td class="whitespace-nowrap hover:cursor-pointer">
                 <div class="flex items-center text-sm text-gray-300 overflow-hidden text-ellipsis">
-                  <div class="flex flex-col flex-nowrap">
+                  <div>
                     <button
                       class="text-sm text-gray-300 overflow-hidden text-ellipsis"
                       title="{containerGroup.type}"
@@ -501,11 +494,10 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                   </div>
                 </div>
               </td>
-              <td class="px-6 py-2 whitespace-nowrap w-10">
-                <div class="flex items-center">
-                  <div class="ml-2 text-sm text-gray-700"></div>
-                </div>
+              <td class="pl-3 whitespace-nowrap hover:cursor-pointer group">
+                <div class="flex items-center text-xs p-1 rounded-md text-gray-500"></div>
               </td>
+              <td class="px-6 py-2 whitespace-nowrap w-10"> </td>
               <td class="whitespace-nowrap pl-4">
                 <div class="flex items-center">
                   <div class="text-sm text-gray-700"></div>
@@ -582,23 +574,21 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                           {container.name}
                         </div>
                       </div>
-                      <div class="flex flex-row text-xs font-extra-light text-gray-900">
+                      <div class="flex flex-nowrap text-xs font-extra-light text-gray-900 items-center">
                         <div>{container.state}</div>
-                        <!-- Hide in case of single engines-->
-                        {#if multipleEngines}
-                          <div
-                            class="mx-2 px-2 inline-flex text-xs font-extralight rounded-sm bg-zinc-700 text-slate-400">
-                            {container.engineName}
-                          </div>
-                        {/if}
-                        <div class="pl-2 pr-2">{container.displayPort}</div>
+                        <div class="pl-2 pr-2 inline-flex">{container.displayPort}</div>
                       </div>
                     </div>
                   </div>
                 </td>
+                <td class="pl-3 whitespace-nowrap hover:cursor-pointer group">
+                  <div class="flex items-center text-xs p-1 rounded-md text-gray-500">
+                    <ProviderInfo provider="{container.engineName}" context="{container.engineId}" />
+                  </div>
+                </td>
                 <!-- Open the container details, TODO: open image details instead? -->
                 <td
-                  class="whitespace-nowrap hover:cursor-pointer group"
+                  class="pl-3 whitespace-nowrap hover:cursor-pointer group"
                   on:click="{() => openDetailsContainer(container)}">
                   <div class="flex items-center">
                     <div class="text-sm text-gray-700 overflow-hidden text-ellipsis" title="{container.image}">
