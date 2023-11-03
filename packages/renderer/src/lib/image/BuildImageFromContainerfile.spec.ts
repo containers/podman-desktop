@@ -73,6 +73,10 @@ function setup() {
     installationSupport: undefined,
   } as unknown as ProviderInfo;
   providerInfos.set([providerInfo]);
+  buildImagesInfo.set({
+    buildImageKey: Symbol(),
+    buildRunning: false,
+  });
 }
 
 test('Expect Build button is disabled', async () => {
