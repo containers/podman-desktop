@@ -31,7 +31,7 @@ import * as extensionApi from '@podman-desktop/api';
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   // Create a provider with an example name, ID and icon
   const provider = extensionApi.provider.createProvider({
-    name: 'foobar',
+    name: 'FooBar',
     id: 'foobar',
     status: 'unknown',
     images: {
@@ -46,7 +46,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
 // Deactivate the extension
 export function deactivate(): void {
-  console.log('stopping foobar extension');
+  console.log('stopping FooBar extension');
 }
 ```
 
@@ -219,7 +219,7 @@ For example if you contribute a property named `podman.binary.path` it will disp
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   // Define the provider
   const provider = extensionApi.provider.createProvider({
-    name: 'foobar',
+    name: 'FooBar',
     id: 'foobar',
     status: 'unknown',
     images: {
