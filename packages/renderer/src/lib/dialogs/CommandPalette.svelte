@@ -1,7 +1,11 @@
 <script lang="ts">
-import { onMount, tick } from 'svelte';
+import { onDestroy, onMount, tick } from 'svelte';
 import { commandsInfos } from '/@/stores/commands';
 import type { CommandInfo } from '../../../../main/src/plugin/api/command-info';
+import { isPropertyValidInContext } from '../preferences/Util';
+import type { Unsubscriber } from 'svelte/store';
+import { context } from '/@/stores/context';
+import type { ContextUI } from '../context/context';
 
 const ENTER_KEY = 'Enter';
 const ESCAPE_KEY = 'Escape';
@@ -17,16 +21,26 @@ let scrollElements: HTMLLIElement[] = [];
 
 let commandInfoItems: CommandInfo[] = [];
 let filteredCommandInfoItems: CommandInfo[] = [];
+let globalContext: ContextUI;
 
-$: filteredCommandInfoItems = commandInfoItems.filter(item =>
-  inputValue ? item.title?.toLowerCase().includes(inputValue.toLowerCase()) : true,
-);
+$: filteredCommandInfoItems = commandInfoItems
+  .filter(property => isPropertyValidInContext(property.enablement, globalContext))
+  .filter(item => (inputValue ? item.title?.toLowerCase().includes(inputValue.toLowerCase()) : true));
+
+let contextsUnsubscribe: Unsubscriber;
 
 onMount(() => {
+  contextsUnsubscribe = context.subscribe(value => {
+    globalContext = value;
+  });
   // subscribe to the commands
   return commandsInfos.subscribe(infos => {
     commandInfoItems = infos;
   });
+});
+
+onDestroy(() => {
+  contextsUnsubscribe?.();
 });
 
 let selectedFilteredIndex = 0;
