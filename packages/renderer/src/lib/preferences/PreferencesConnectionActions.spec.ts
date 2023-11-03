@@ -25,7 +25,6 @@ import type {
   ProviderKubernetesConnectionInfo,
 } from '../../../../main/src/plugin/api/provider-info';
 import type { IConnectionStatus } from './Util';
-import { getProviderConnectionName } from './Util';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
 
 const containerProviderInfo: ProviderInfo = {
@@ -76,8 +75,6 @@ const addConnectionToRestartingQueue = () => {
   //nothing
 };
 
-const connectionStatuses = new Map<string, IConnectionStatus>();
-
 const connectionStatus: IConnectionStatus = {
   status: 'started',
   inProgress: false,
@@ -85,11 +82,9 @@ const connectionStatus: IConnectionStatus = {
 
 test('if container connection has start lifecycle method, start button has to be visible', () => {
   const customProviderInfo: ProviderInfo = { ...containerProviderInfo, name: 'podman' };
-  const connectionName = getProviderConnectionName(customProviderInfo, containerConnection);
-  connectionStatuses.set(connectionName, connectionStatus);
 
   render(PreferencesConnectionActions, {
-    connectionStatuses,
+    connectionStatus,
     provider: customProviderInfo,
     connection: containerConnection,
     updateConnectionStatus,
@@ -101,11 +96,9 @@ test('if container connection has start lifecycle method, start button has to be
 
 test('if container connection has stop lifecycle method, stop button has to be visible', () => {
   const customProviderInfo: ProviderInfo = { ...containerProviderInfo, name: 'podman' };
-  const connectionName = getProviderConnectionName(customProviderInfo, containerConnection);
-  connectionStatuses.set(connectionName, connectionStatus);
 
   render(PreferencesConnectionActions, {
-    connectionStatuses,
+    connectionStatus,
     provider: customProviderInfo,
     connection: containerConnection,
     updateConnectionStatus,
@@ -117,11 +110,9 @@ test('if container connection has stop lifecycle method, stop button has to be v
 
 test('if container connection has start and stop lifecycle methods, restart button has to be visible', () => {
   const customProviderInfo: ProviderInfo = { ...containerProviderInfo, name: 'podman' };
-  const connectionName = getProviderConnectionName(customProviderInfo, containerConnection);
-  connectionStatuses.set(connectionName, connectionStatus);
 
   render(PreferencesConnectionActions, {
-    connectionStatuses,
+    connectionStatus,
     provider: customProviderInfo,
     connection: containerConnection,
     updateConnectionStatus,
@@ -137,11 +128,9 @@ test('if container connection has start and stop lifecycle methods, restart butt
 
 test('if container connection has delete lifecycle method, delete button has to be visible', () => {
   const customProviderInfo: ProviderInfo = { ...containerProviderInfo, name: 'podman' };
-  const connectionName = getProviderConnectionName(customProviderInfo, containerConnection);
-  connectionStatuses.set(connectionName, connectionStatus);
 
   render(PreferencesConnectionActions, {
-    connectionStatuses,
+    connectionStatus,
     provider: customProviderInfo,
     connection: containerConnection,
     updateConnectionStatus,
@@ -153,11 +142,9 @@ test('if container connection has delete lifecycle method, delete button has to 
 
 test('if kubernetes connection has start lifecycle method, start button has to be visible', () => {
   const customProviderInfo: ProviderInfo = { ...containerProviderInfo, name: 'kube' };
-  const connectionName = getProviderConnectionName(customProviderInfo, kubernetesConnection);
-  connectionStatuses.set(connectionName, connectionStatus);
 
   render(PreferencesConnectionActions, {
-    connectionStatuses,
+    connectionStatus,
     provider: customProviderInfo,
     connection: kubernetesConnection,
     updateConnectionStatus,
@@ -169,11 +156,9 @@ test('if kubernetes connection has start lifecycle method, start button has to b
 
 test('if kubernetes connection has stop lifecycle method, stop button has to be visible', () => {
   const customProviderInfo: ProviderInfo = { ...containerProviderInfo, name: 'kube' };
-  const connectionName = getProviderConnectionName(customProviderInfo, kubernetesConnection);
-  connectionStatuses.set(connectionName, connectionStatus);
 
   render(PreferencesConnectionActions, {
-    connectionStatuses,
+    connectionStatus,
     provider: customProviderInfo,
     connection: kubernetesConnection,
     updateConnectionStatus,
@@ -185,11 +170,9 @@ test('if kubernetes connection has stop lifecycle method, stop button has to be 
 
 test('if kubernetes connection has start and stop lifecycle methods, restart button has to be visible', () => {
   const customProviderInfo: ProviderInfo = { ...containerProviderInfo, name: 'kube' };
-  const connectionName = getProviderConnectionName(customProviderInfo, kubernetesConnection);
-  connectionStatuses.set(connectionName, connectionStatus);
 
   render(PreferencesConnectionActions, {
-    connectionStatuses,
+    connectionStatus,
     provider: customProviderInfo,
     connection: kubernetesConnection,
     updateConnectionStatus,
@@ -205,11 +188,9 @@ test('if kubernetes connection has start and stop lifecycle methods, restart but
 
 test('if kubernetes connection has delete lifecycle method, delete button has to be visible', () => {
   const customProviderInfo: ProviderInfo = { ...containerProviderInfo, name: 'kube' };
-  const connectionName = getProviderConnectionName(customProviderInfo, kubernetesConnection);
-  connectionStatuses.set(connectionName, connectionStatus);
 
   render(PreferencesConnectionActions, {
-    connectionStatuses,
+    connectionStatus,
     provider: customProviderInfo,
     connection: kubernetesConnection,
     updateConnectionStatus,

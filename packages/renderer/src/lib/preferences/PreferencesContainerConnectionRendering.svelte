@@ -31,7 +31,7 @@ let detailsPage: DetailsPage;
 
 const connectionName = Buffer.from(name || '', 'base64').toString();
 const socketPath: string = Buffer.from(connection || '', 'base64').toString();
-$: connectionStatus = new Map<string, IConnectionStatus>();
+let connectionStatus: IConnectionStatus;
 let noLog = true;
 let connectionInfo: ProviderContainerConnectionInfo | undefined;
 let providerInfo: ProviderInfo | undefined;
@@ -59,24 +59,20 @@ onMount(async () => {
       return;
     }
     const containerConnectionName = getProviderConnectionName(providerInfo, connectionInfo);
-    if (
-      containerConnectionName &&
-      (!connectionStatus.has(containerConnectionName) ||
-        connectionStatus.get(containerConnectionName)?.status !== connectionInfo.status)
-    ) {
+    if (containerConnectionName && (!connectionStatus || connectionStatus.status !== connectionInfo.status)) {
       if (loggerHandlerKey !== undefined) {
-        connectionStatus.set(containerConnectionName, {
+        connectionStatus = {
           inProgress: true,
           action: 'restart',
           status: connectionInfo.status,
-        });
+        };
         startContainerProvider(providerInfo, connectionInfo, loggerHandlerKey);
       } else {
-        connectionStatus.set(containerConnectionName, {
+        connectionStatus = {
           inProgress: false,
           action: undefined,
           status: connectionInfo.status,
-        });
+        };
       }
     }
     connectionStatus = connectionStatus;
@@ -101,28 +97,26 @@ async function startContainerProvider(
     eventCollect,
   );
 }
-function updateConectionStatus(
+function updateConnectionStatus(
   provider: ProviderInfo,
   containerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
   action?: string,
   error?: string,
 ): void {
-  const containerConnectionName = getProviderConnectionName(provider, containerConnectionInfo);
   if (error) {
-    const currentStatus = connectionStatus.get(containerConnectionName);
-    if (currentStatus) {
-      connectionStatus.set(containerConnectionName, {
-        ...currentStatus,
+    if (connectionStatus) {
+      connectionStatus = {
+        ...connectionStatus,
         inProgress: false,
         error,
-      });
+      };
     }
   } else if (action) {
-    connectionStatus.set(containerConnectionName, {
+    connectionStatus = {
       inProgress: true,
       action: action,
       status: containerConnectionInfo.status,
-    });
+    };
   }
   connectionStatus = connectionStatus;
 }
@@ -150,8 +144,8 @@ function setNoLogs() {
             <PreferencesConnectionActions
               provider="{providerInfo}"
               connection="{connectionInfo}"
-              connectionStatuses="{connectionStatus}"
-              updateConnectionStatus="{updateConectionStatus}"
+              connectionStatus="{connectionStatus}"
+              updateConnectionStatus="{updateConnectionStatus}"
               addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
           </div>
         {/if}

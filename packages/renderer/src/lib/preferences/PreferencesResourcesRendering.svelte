@@ -519,7 +519,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
               <PreferencesConnectionActions
                 provider="{provider}"
                 connection="{container}"
-                connectionStatuses="{containerConnectionStatus}"
+                connectionStatus="{containerConnectionStatus.get(getProviderConnectionName(provider, container))}"
                 updateConnectionStatus="{updateContainerStatus}"
                 addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
               <div class="mt-1.5 text-gray-900 text-[9px]">
@@ -560,7 +560,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
               <PreferencesConnectionActions
                 provider="{provider}"
                 connection="{kubeConnection}"
-                connectionStatuses="{containerConnectionStatus}"
+                connectionStatus="{containerConnectionStatus.get(getProviderConnectionName(provider, kubeConnection))}"
                 updateConnectionStatus="{updateContainerStatus}"
                 addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
             </div>
