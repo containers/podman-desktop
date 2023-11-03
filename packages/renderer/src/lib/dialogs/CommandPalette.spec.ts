@@ -24,6 +24,7 @@ import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import CommandPalette from './CommandPalette.svelte';
 import { commandsInfos } from '/@/stores/commands';
+import { context } from '/@/stores/context';
 
 const receiveFunctionMock = vi.fn();
 
@@ -317,5 +318,64 @@ describe('Command Palette', () => {
     await userEvent.keyboard('{Enter}');
 
     expect(executeCommandMock).toBeCalledWith('my-command-1');
+  });
+
+  test('Check enablement', async () => {
+    const commandTitle0 = 'Command always disabled';
+    const commandTitle1 = 'Command enabled from property';
+    const commandTitle2 = 'My dummy command 1';
+    const commandTitle3 = 'My dummy command 2';
+
+    commandsInfos.set([
+      {
+        id: 'my-command-disabled-0',
+        title: commandTitle0,
+        enablement: 'false',
+      },
+      {
+        id: 'my-command-enabled-1',
+        title: commandTitle1,
+        enablement: 'myProperty === myValue',
+      },
+      {
+        id: 'my-dummy-command-2',
+        title: commandTitle2,
+      },
+      {
+        id: 'my-dummy-command-3',
+        title: commandTitle3,
+      },
+    ]);
+
+    // set the context property
+    context.update(ctx => {
+      ctx.setValue('myProperty', 'myValue');
+      return ctx;
+    });
+
+    // wait a little bit for the context to be updated
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    render(CommandPalette, { display: true });
+
+    // check we have the command palette input field
+    const input = screen.getByRole('textbox', { name: COMMAND_PALETTE_ARIA_LABEL });
+    expect(input).toBeInTheDocument();
+
+    // Check some items are hidden
+    const itemDisabled = screen.queryByRole('button', { name: commandTitle0 });
+    expect(itemDisabled).not.toBeInTheDocument();
+
+    const commandEnabledFromProperty = screen.getByRole('button', { name: commandTitle1 });
+    expect(commandEnabledFromProperty).toBeInTheDocument();
+    const item2 = screen.getByRole('button', { name: commandTitle2 });
+    expect(item2).toBeInTheDocument();
+    const item3 = screen.getByRole('button', { name: commandTitle3 });
+    expect(item3).toBeInTheDocument();
+
+    // now, press the Enter key
+    await userEvent.keyboard('{Enter}');
+
+    expect(executeCommandMock).toBeCalledWith('my-command-enabled-1');
   });
 });
