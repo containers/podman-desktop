@@ -24,10 +24,27 @@ import { ComposeGitHubReleases } from './compose-github-releases';
 import { OS } from './os';
 import * as handler from './handler';
 import { ComposeDownload } from './download';
+import * as path from 'path';
 
 let composeVersionMetadata: ComposeGithubReleaseArtifactMetadata | undefined;
+let composeCliTool: extensionApi.CliTool | undefined;
+const os = new OS();
+
+// Telemetry
+let telemetryLogger: extensionApi.TelemetryLogger | undefined;
+
+export function initTelemetryLogger(): void {
+  telemetryLogger = extensionApi.env.createTelemetryLogger();
+}
+
+const composeCliName = 'docker-compose';
+const composeDisplayName = 'Compose';
+const composeDescription = `Compose is a specification for defining and running multi-container applications. We support both [podman compose](https://docs.podman.io/en/latest/markdown/podman-compose.1.html) and [docker compose](https://github.com/docker/compose) commands.\n\nMore information: [compose-spec.io](https://compose-spec.io/)`;
+const imageLocation = './icon.png';
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  initTelemetryLogger();
+
   // Check docker-compose binary has been downloaded and update both
   // the configuration setting and the context accordingly
   await handler.updateConfigAndContextComposeBinary(extensionContext);
@@ -37,7 +54,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // Create new classes to handle the onboarding sequence
   const octokit = new Octokit();
-  const os = new OS();
   const detect = new Detect(os, extensionContext.storagePath);
 
   const composeGitHubReleases = new ComposeGitHubReleases(octokit);
@@ -73,6 +89,12 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
           extensionApi.context.setValue('composeDownloadVersion', composeVersionMetadata.tag, 'onboarding');
         }
       }
+
+      // Log if it's downloaded and what version is being selected for download (can be either latest, or chosen by user)
+      telemetryLogger.logUsage('compose.onboarding.checkComposeDownloaded', {
+        downloaded: isDownloaded === '' ? false : true,
+        version: composeVersionMetadata?.tag,
+      });
     },
   );
 
@@ -87,11 +109,22 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         composeVersionMetadata = await composeDownload.getLatestVersionAsset();
       }
 
-      // Download
-      await composeDownload.download(composeVersionMetadata);
+      let downloaded: boolean;
+      try {
+        // Download
+        await composeDownload.download(composeVersionMetadata);
 
-      // We are all done, so we can set the context value to false
-      extensionApi.context.setValue('composeIsNotDownloaded', false, 'onboarding');
+        // We are all done, so we can set the context value to false / downloaded to true
+        extensionApi.context.setValue('composeIsNotDownloaded', false, 'onboarding');
+        downloaded = true;
+      } finally {
+        // Make sure we log the telemetry even if we encounter an error
+        // If we have downloaded the binary, we can log it as being succcessfully downloaded
+        telemetryLogger.logUsage('compose.onboarding.downloadCompose', {
+          successful: downloaded,
+          version: composeVersionMetadata?.tag,
+        });
+      }
     },
   );
 
@@ -109,6 +142,11 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         extensionApi.context.setValue('composeDownloadVersion', composeRelease.tag, 'onboarding');
       }
 
+      // Log the telemetry that the user picked a version
+      telemetryLogger.logUsage('compose.onboarding.promptUserForVersion', {
+        version: composeRelease?.tag,
+      });
+
       // Note, we do not refresh the UI when setValue has been set, only when "when" has been updated
       // TEMPORARY FIX until we can find a better way to do this. This forces a refresh by changing the "when" evaluation
       // of the dialog so it'll refresh the composeDownloadVersion value.
@@ -123,7 +161,15 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     async () => {
       // This is TEMPORARY until we re-add the "Installing compose system wide" toggle again
       // We will just call the handler function directly
-      await handler.installComposeBinary(detect, extensionContext);
+      let installed: boolean;
+      try {
+        await handler.installComposeBinary(detect, extensionContext);
+        installed = true;
+      } finally {
+        telemetryLogger.logUsage('compose.onboarding.installSystemWide', {
+          successful: installed,
+        });
+      }
     },
   );
 
@@ -138,16 +184,63 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // Need to "ADD" a provider so we can actually press the button!
   // We set this to "unknown" so it does not appear on the dashboard (we only want it in preferences).
   const providerOptions: extensionApi.ProviderOptions = {
-    name: 'Compose',
-    id: 'Compose',
+    name: composeDisplayName,
+    id: composeDisplayName,
     status: 'unknown',
     images: {
-      icon: './icon.png',
+      icon: imageLocation,
     },
   };
 
-  providerOptions.emptyConnectionMarkdownDescription = `Compose is a specification for defining and running multi-container applications. We support both [podman compose](https://docs.podman.io/en/latest/markdown/podman-compose.1.html) and [docker compose](https://github.com/docker/compose) commands.\n\nMore information: [compose-spec.io](https://compose-spec.io/)`;
+  providerOptions.emptyConnectionMarkdownDescription = composeDescription;
 
   const provider = extensionApi.provider.createProvider(providerOptions);
   extensionContext.subscriptions.push(provider);
+
+  // Push the CLI tool as well (but it will do it postActivation so it does not block the activate() function)
+  // Post activation
+  setTimeout(() => {
+    postActivate(extensionContext).catch((error: unknown) => {
+      console.error('Error activating extension', error);
+    });
+  }, 0);
+}
+
+// Activate the CLI tool (check version, etc) and register the CLi so it does not block activation.
+async function postActivate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  // The location of the binary (local storage folder)
+  const binaryPath = path.join(
+    extensionContext.storagePath,
+    'bin',
+    os.isWindows() ? composeCliName + '.exe' : composeCliName,
+  );
+  let binaryVersion = '';
+
+  // Retrieve the version of the binary by running exec with --short
+  try {
+    const result = await extensionApi.process.exec(binaryPath, ['--version', '--short']);
+    binaryVersion = result.stdout;
+  } catch (e) {
+    console.error(`Error getting compose version: ${e}`);
+  }
+
+  // Register the CLI tool so it appears in the preferences page. We will detect which version is being ran by
+  // checking the local storage folder for the binary. If it exists, we will run `--version` and parse the information.
+  composeCliTool = extensionApi.cli.createCliTool({
+    name: composeCliName,
+    displayName: composeDisplayName,
+    markdownDescription: composeDescription,
+    images: {
+      icon: imageLocation,
+    },
+    version: binaryVersion,
+    path: binaryPath,
+  });
+}
+
+export async function deactivate(): Promise<void> {
+  // Dispose the CLI tool
+  if (composeCliTool) {
+    composeCliTool.dispose();
+  }
 }

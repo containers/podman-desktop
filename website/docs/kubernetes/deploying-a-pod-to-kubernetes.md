@@ -14,7 +14,7 @@ With Podman Desktop, you can deploy a pod to your Kubernetes cluster.
 
 - Your are using the Podman container engine.
 - Your pod, running or stopped, is available on the **Pods** page: _<your_pod>_.
-- You registered the Kubernetes cluster in your kubeconfig file: _<your_kubernetes_cluster>_. For example, [Creating a kind cluster](/docs/onboarding-for-kubernetes/kind/creating-a-kind-cluster).
+- You registered the Kubernetes cluster in your kubeconfig file: _<your_kubernetes_cluster>_. For example, [Creating a kind cluster](/docs/kind/creating-a-kind-cluster).
 - The Kubernetes namespace to deploy to already exists.
 
 #### Procedure
@@ -32,6 +32,6 @@ With Podman Desktop, you can deploy a pod to your Kubernetes cluster.
 
 - On the **Deploy generated pod to Kubernetes** screen, the created pod status is _Phase: Running_
 
-  ![Deplying a pod](img/deploying-a-pod.png)
+  ![Deploying a pod](img/deploying-a-pod.png)
 
 - Go to **Pods**: your pod is in the list.

@@ -140,3 +140,8 @@ export function isPropertyValidInContext(when: string | undefined, context: Cont
   }
   return false;
 }
+
+export function uncertainStringToNumber(value: string | number): number {
+  if (typeof value === 'number') return value;
+  return parseFloat(value);
+}

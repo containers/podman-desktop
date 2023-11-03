@@ -250,7 +250,7 @@ It starts VNC and noVNC, start precompiled Podman Desktop and start the document
 
 It is not launching the Watch mode/development mode of Podman Desktop as it requires a container having more than 8GB of memory.
 
-Picking up a larger instace with for example 16GB, it's possible to use development mode.
+Picking up a larger instance with for example 16GB, it's possible to use development mode.
 
 Of course, to make VNC happy, we need to specify the `DISPLAY` environment variable.
 
@@ -288,7 +288,7 @@ Go to <https://github.com/containers/podman-desktop> then click on the `< > Code
 
 Once you click on the button, the codespace is setting up:
 
-![Preparing Codepace](img/develop-podman-using-codespaces/codespaces-preparing-codespace.png)
+![Preparing Codespace](img/develop-podman-using-codespaces/codespaces-preparing-codespace.png)
 
 After few minutes, as there is not yet [prebuilt codespaces](https://docs.github.com/en/codespaces/prebuilding-your-codespaces/about-github-codespaces-prebuilds), the codespace is opening.
 

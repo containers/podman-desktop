@@ -19,4 +19,5 @@
 export interface CommandInfo {
   id: string;
   title?: string;
+  enablement?: string;
 }

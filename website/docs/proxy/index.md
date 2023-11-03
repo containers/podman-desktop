@@ -1,6 +1,6 @@
 ---
 sidebar_position: 2
-title: In a restricted environment
+title: Restricted environments
 description: Using Podman Desktop behind a proxy requiring custom Certificate Authorities (CA).
 tags: [podman-desktop, installing, windows, macos, linux]
 keywords: [podman desktop, containers, podman, installing, installation, windows, macos, linux]

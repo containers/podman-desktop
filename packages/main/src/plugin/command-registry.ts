@@ -28,6 +28,7 @@ export interface RawCommand {
   description?: string;
   icon?: string | { light: string; dark: string };
   keybinding?: string;
+  enablement?: string;
 }
 
 export interface CommandHandler {
@@ -104,6 +105,7 @@ export class CommandRegistry {
         commandInfos.push({
           id: command.command,
           title: command.category ? `${command.category}: ${command.title}` : command.title,
+          enablement: command.enablement,
         });
       });
     });

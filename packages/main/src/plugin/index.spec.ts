@@ -25,6 +25,7 @@ import type { WebContents } from 'electron';
 import { shell, clipboard } from 'electron';
 import type { MessageBox } from './message-box.js';
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
+import { CancellationTokenRegistry } from './cancellation-token-registry.js';
 
 let pluginSystem: PluginSystem;
 
@@ -190,4 +191,24 @@ test('Should apiSender handle local receive events', async () => {
 
   // data should have been received
   expect(fooReceived).toBe('hello-world');
+});
+
+test('Should return no AbortController if the token is undefined', async () => {
+  const cancellationTokenRegistry = new CancellationTokenRegistry();
+  const abortController = pluginSystem.createAbortControllerOnCancellationToken(cancellationTokenRegistry);
+  expect(abortController).toBeUndefined();
+});
+
+test('Should return AbortController that should be aborted if token is cancelled', async () => {
+  const abortMock = vi.spyOn(AbortController.prototype, 'abort');
+  const cancellationTokenRegistry = new CancellationTokenRegistry();
+  const tokenId = cancellationTokenRegistry.createCancellationTokenSource();
+  const abortController = pluginSystem.createAbortControllerOnCancellationToken(cancellationTokenRegistry, tokenId);
+
+  expect(abortController).toBeDefined();
+
+  const token = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
+  token?.cancel();
+
+  expect(abortMock).toBeCalled();
 });

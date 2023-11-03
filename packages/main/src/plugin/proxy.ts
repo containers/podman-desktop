@@ -140,7 +140,7 @@ export class Proxy {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const _me = this;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    globalThis.fetch = function (url: RequestInfo | URL, opts?: any) {
+    globalThis.fetch = function (url: any, opts?: any) {
       const proxyurl = getProxyUrl(_me);
       if (proxyurl) {
         opts = Object.assign({}, opts, { dispatcher: new ProxyAgent(proxyurl) });

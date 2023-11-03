@@ -1,6 +1,6 @@
 ---
 sidebar_position: 2
-title: Installing Podman Desktop
+title: Installation
 description: You can install Podman Desktop on Windows, macOS, and Linux.
 tags: [podman-desktop, installing]
 keywords: [podman desktop, containers, podman, installing, installation]
@@ -16,5 +16,5 @@ You can install Podman Desktop on:
 
 #### Next steps
 
-- [Onboard for container workloads](/docs/onboarding-for-containers).
-- [Onboard for Kubernetes workloads](/docs/onboarding-for-kubernetes).
+- [Onboard for container workloads](/docs/containers).
+- [Onboard for Kubernetes workloads](/docs/kubernetes).

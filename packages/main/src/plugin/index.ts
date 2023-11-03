@@ -1160,7 +1160,13 @@ export class PluginSystem {
         imageName: string,
         selectedProvider: ProviderContainerConnectionInfo,
         onDataCallbacksBuildImageId: number,
+        cancellableTokenId?: number,
       ): Promise<unknown> => {
+        const abortController = this.createAbortControllerOnCancellationToken(
+          cancellationTokenRegistry,
+          cancellableTokenId,
+        );
+
         return containerProviderRegistry.buildImage(
           containerBuildContextDirectory,
           relativeContainerfilePath,
@@ -1174,6 +1180,7 @@ export class PluginSystem {
               data,
             );
           },
+          abortController,
         );
       },
     );
@@ -2005,5 +2012,22 @@ export class PluginSystem {
         this.getWebContentsSender().send(channel, loggerId, 'finish');
       },
     };
+  }
+
+  createAbortControllerOnCancellationToken(
+    cancellationTokenRegistry: CancellationTokenRegistry,
+    cancellableTokenId?: number,
+  ): AbortController | undefined {
+    if (!cancellableTokenId) {
+      return undefined;
+    }
+    const abortController = new AbortController();
+    const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(cancellableTokenId);
+    const token = tokenSource?.token;
+    token?.onCancellationRequested(() => {
+      // if the token is cancelled, we trigger the abort on the AbortController
+      abortController.abort();
+    });
+    return abortController;
   }
 }

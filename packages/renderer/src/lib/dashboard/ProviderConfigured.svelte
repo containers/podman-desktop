@@ -89,12 +89,12 @@ onMount(() => {
       <ErrorMessage class="flex flex-col mt-2 my-2 text-sm" error="{runError}" />
     {/if}
   </div>
-  {#if provider.version !== provider.updateInfo?.version}
-    <div class="mt-10 mb-1 w-full flex justify-around">
+  {#if provider.updateInfo?.version && provider.version !== provider.updateInfo?.version}
+    <div class="mt-5 mb-1 w-full flex justify-around">
       <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
     </div>
   {/if}
   <PreflightChecks preflightChecks="{preflightChecks}" />
-  <div class="mt-10 mb-1 w-full flex justify-around"></div>
+  <div class="mt-5 mb-1 w-full flex justify-around"></div>
   <ProviderLinks provider="{provider}" />
 </div>

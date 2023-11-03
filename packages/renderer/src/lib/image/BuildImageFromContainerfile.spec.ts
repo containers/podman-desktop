@@ -26,6 +26,7 @@ import type { ProviderStatus } from '@podman-desktop/api';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import userEvent from '@testing-library/user-event';
 import BuildImageFromContainerfile from '/@/lib/image/BuildImageFromContainerfile.svelte';
+import { buildImagesInfo } from '/@/stores/build-images';
 
 // fake the window.events object
 beforeAll(() => {
@@ -72,6 +73,10 @@ function setup() {
     installationSupport: undefined,
   } as unknown as ProviderInfo;
   providerInfos.set([providerInfo]);
+  buildImagesInfo.set({
+    buildImageKey: Symbol(),
+    buildRunning: false,
+  });
 }
 
 test('Expect Build button is disabled', async () => {
@@ -120,4 +125,25 @@ test('Expect Done button is enabled once build is done', async () => {
   const doneButton = screen.getByRole('button', { name: 'Done' });
   expect(doneButton).toBeInTheDocument();
   expect(doneButton).toBeEnabled();
+});
+
+test('Expect Abort button to hidden when image build is not in progress', async () => {
+  setup();
+  render(BuildImageFromContainerfile);
+
+  const abortButton = screen.queryByRole('button', { name: 'Cancel' });
+  expect(abortButton).not.toBeInTheDocument();
+});
+
+test('Expect Abort button to being visible when image build is in progress', async () => {
+  setup();
+  buildImagesInfo.set({
+    buildImageKey: Symbol(),
+    buildRunning: true,
+  });
+  render(BuildImageFromContainerfile);
+
+  const abortButton = screen.getByRole('button', { name: 'Cancel' });
+  expect(abortButton).toBeInTheDocument();
+  expect(abortButton).toBeEnabled();
 });

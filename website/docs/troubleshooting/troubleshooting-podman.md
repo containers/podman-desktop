@@ -94,7 +94,7 @@ Podman Desktop might fail listing images or container.
    $ podman run quay.io/podman/hello
    ```
 
-## Podman Destkop fails listing containers
+## Podman Desktop fails listing containers
 
 #### Issue
 
@@ -232,4 +232,4 @@ This might appear when either:
 
 3. Restart the Podman machine to recreate and activate the default Docker socket path.
 
-_Note:_ If Docker Desktop is started again, it will automatically re-alias the default Docker socket location and the Podman compatibilty warning will re-appear.
+_Note:_ If Docker Desktop is started again, it will automatically re-alias the default Docker socket location and the Podman compatibility warning will re-appear.

@@ -25,8 +25,8 @@ Below is what a typical release week may look like:
 1. Enter the name of the release. Example: `0.12.0` (DO NOT use the v prefix like v0.12.0)
 1. Specify the branch to use for the new release. It's main for all major releases. For a bugfix release, you'll select a different branch.
 1. Click on the `Run workflow` button.
-1. Note: `Run workflow` takes approximatley 30-50 minutes. Brew a coffee, work on the release notes, and/or complete the next two steps while you wait.
-1. Close the milestone for the respective release, make sure that all tasks within the milesetone are completed / updated before closing. https://github.com/containers/podman-desktop/milestones
+1. Note: `Run workflow` takes approximately 30-50 minutes. Brew a coffee, work on the release notes, and/or complete the next two steps while you wait.
+1. Close the milestone for the respective release, make sure that all tasks within the milestone are completed / updated before closing. https://github.com/containers/podman-desktop/milestones
 1. If not already created, click on `New Milestone` and create a new milestone for the NEXT release.
 1. Check that https://github.com/containers/podman-desktop/actions/workflows/release.yaml has been completed. Sometimes it will flake, so you may need to re-run it.
 1. There should be an automated PR that has been created. Approve this and set to auto-merge. This will be automatically merged in after all tests have been ran (takes 10-30 minutes). The title looks like `chore: 📢 Bump version to 0.13.0`. Rerun workflow manually if some of e2e tests are failing.
@@ -192,6 +192,8 @@ slug: podman-desktop-release-X.X
 authors: [YOURUSERNAME]
 tags: [podman-desktop, release, kubernetes, openshift]
 hide_table_of_contents: false
+<!-- This image link is used for social media previews / thumbnails. Release images are available: https://github.com/containers/podman-desktop-internal/tree/main/release-images -->
+image: /blog/img/podman-desktop-release-1.X/X.png
 ---
 
 <!-- ADD IMPORT REACTPLAYER IF USING VIDEO -->
@@ -213,6 +215,7 @@ Podman Desktop X.X is now available. [Click here to download it](/downloads)!
 <!-- IDEALLY, ADD CARTOON SELKIE FOR RELEASE -->
 
 <!-- EXAMPLE -->
+<!-- Release images are available: https://github.com/containers/podman-desktop-internal/tree/main/release-images -->
 <!-- ![Podman-desktop-1-1-hero](img/podman-desktop-release-1.1/podman-desktop-release-1.1.png) -->
 
 ---
@@ -252,7 +255,7 @@ Podman Desktop X.X is now available. [Click here to download it](/downloads)!
 ## Community Thank You
 
 🎉 We’d like to say a big thank you to everyone who helped to make Podman Desktop even better. In this
-sprint we received pull requests from the following people:
+release we received pull requests from the following people:
 
 <!-- INCLUDE SHOUTOUTS TO OUTSIDE CONTRIBUTORS -->
 <!-- EXAMPLE -->

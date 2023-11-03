@@ -179,7 +179,7 @@ All files                     |    75.1 |    97.22 |   93.75 |    75.1 |
 For a detailed information about the code coverage you can search the mentioned folder and find `html` lcov report:
 `test-resources/coverage/extensions/compose/lcov-report/index.html`
 
-When contribuing the new code, you should consider not lowering overall code coverage.
+When contributing the new code, you should consider not lowering overall code coverage.
 
 ### Step 7. Code formatter / linter
 
@@ -223,13 +223,16 @@ PRs will be approved by an [approver][owners] listed in [`CODEOWNERS`](CODEOWNER
 
 We typically require one approval for code as well as documentation-related PR's. If it is a large code-related PR, proof of review / testing (a video / screenshot) is required.
 
+
+**Avoid enabling auto-merge** until the PR has undergone sufficient reviews and contributors have been given ample time for assessment. A maintainer will review the PR prior to the final merge. It's common for code PRs to require up to a week before merging due to reasons such as ongoing releases or dependencies on other PRs. Additionally, documentation PRs might take a few days for integration.
+
 Some tips for the PR process:
 
 - No PR too small! Feel free to open a PR against tests, bugs, new features, docs, etc.
 - Make sure you include as much information as possible in your PR so maintainers can understand.
 - Try to break up larger PRs into smaller ones for easier reviewing
 - Any additional code changes should be in a new commit so we can see what has changed between reviews.
-- Squash your commits into logical pieces of work
+- Squash your commits into logical pieces of work.
 
 ### Use the correct commit message semantics
 
@@ -351,7 +354,7 @@ If you're unsure where to add code (renderer, UI, extensions, plugins) see the b
 
 ### Extensions
 
-Podman Desktop is moduralized into extensions for each 'Provider'. You can also create and add your own extension.
+Podman Desktop is modularized into extensions for each 'Provider'. You can also create and add your own extension.
 
 See our [EXTENSIONS.md](/EXTENSIONS.md) document for more details.
 

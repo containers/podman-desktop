@@ -17,7 +17,7 @@ On Windows, if Podman needs to access resources behind a user-controlled VPN, en
 
 #### Procedure
 
-- [Create a custom Podman machine](/docs/onboarding-for-containers/creating-a-podman-machine-with-podman-desktop), with the **User mode networking (traffic relayed by a user process)** option enabled.
+- [Create a custom Podman machine](/docs/podman/creating-a-podman-machine), with the **User mode networking (traffic relayed by a user process)** option enabled.
 
 #### Verification
 

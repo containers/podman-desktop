@@ -46,4 +46,4 @@ Consider installing a Flatpak bundle rather than [from Flathub](/docs/installati
 
 #### Next steps
 
-- [Getting started](/docs/working-with-containers).
+- [Getting started](/docs/containers).

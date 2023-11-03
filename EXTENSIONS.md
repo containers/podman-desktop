@@ -82,7 +82,7 @@ This can be updated throughout your extension by calling for example: `provider.
 export type ProviderConnectionStatus = 'started' | 'stopped' | 'starting' | 'stopping' | 'unknown';
 ```
 
-> **_NOTE:_** The `unknown` status is unique as it will not show in the extension section of Podman Desktop, it will also not be accessible via API calls. Uknown statuses typically happen when Podman Desktop is unable to load the extension.
+> **_NOTE:_** The `unknown` status is unique as it will not show in the extension section of Podman Desktop, it will also not be accessible via API calls. Unknown statuses typically happen when Podman Desktop is unable to load the extension.
 
 `ProviderConnectionStatus` is the main "Lifecycle" of your extension. The status is updated by automatically by Podman Desktop and reflected within the provider.
 
@@ -90,8 +90,39 @@ Upon a successful start up via the `activate` function within your extension, `P
 
 `ProviderConnectionStatus` statuses are used in two areas, [extension-loader.ts](https://github.com/containers/podman-desktop/blob/main/packages/main/src/plugin/extension-loader.ts) and [tray-menu.ts](https://github.com/containers/podman-desktop/blob/main/packages/main/src/tray-menu.ts):
 
-- `extension-loader.ts`: Attempts to load the extension and sets the status accordingly (either `started`, `stopped`, `starting` or `stopping`). If an unknown error has occured, the status is set to `unknown`. `extension-loader.ts` also sends an API call to Podman Desktop to update the UI of the extension.
+- `extension-loader.ts`: Attempts to load the extension and sets the status accordingly (either `started`, `stopped`, `starting` or `stopping`). If an unknown error has occurred, the status is set to `unknown`. `extension-loader.ts` also sends an API call to Podman Desktop to update the UI of the extension.
 - `tray-menu.ts`: If `extensionApi.tray.registerMenuItem(item);` API call has been used, a tray menu of the extension will be created. When created, Podman Desktop will use the `ProviderConnectionStatus` to indicate the status within the tray menu.
+
+#### Commands
+
+Declare commands using `contributes` section of package.json file.
+
+```json
+ "contributes": {
+    "commands": [
+      {
+        "command": "my.command",
+        "title": "This is my command",
+        "category": "Optional category to prefix title",
+        "enablement": "myProperty === myValue"
+      },
+    ],
+ }
+```
+
+If optional `enablement` property evaluates to false, command palette will not display this command.
+
+To register the callback of the command, use the following code:
+
+```ts
+import * as extensionApi from '@podman-desktop/api';
+
+extensionContext.subscriptions.push(extensionApi.commands.registerCommand('my.command', async () => {
+    // callback of your command
+    await extensionApi.window.showInformationMessage('Clicked on my command');
+});
+);
+```
 
 #### Expanding the `extension-api` API
 

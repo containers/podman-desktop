@@ -148,7 +148,7 @@ function onInstallationClick() {
       To start working with containers, {provider.name} needs to be initialized.
     </p>
 
-    <div class="m-5" class:hidden="{!initializationButtonVisible}">
+    <div class="mt-5" class:hidden="{!initializationButtonVisible}">
       <div class="bg-gray-300 text-white">
         <button
           class="float-left bg-purple-600 hover:bg-purple-500 pt-2 pr-3 pl-3 pb-2 text-[13px] text-white mr-px w-[180px]"
@@ -218,13 +218,12 @@ function onInstallationClick() {
     </div>
   </div>
 
-  {#if provider.version !== provider.updateInfo?.version}
-    <div class="mt-10 mb-1 w-full flex justify-around">
+  {#if provider.updateInfo?.version && provider.version !== provider.updateInfo?.version}
+    <div class="mt-5 mb-1 w-full flex justify-around">
       <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
     </div>
   {/if}
   <PreflightChecks preflightChecks="{preflightChecks}" />
 
-  <div class="mt-10 mb-1 w-full flex justify-around"></div>
   <ProviderLinks provider="{provider}" />
 </div>
