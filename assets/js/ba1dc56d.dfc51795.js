@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[8893],{39216:e=>{e.exports=JSON.parse('{"permalink":"/blog/tags/openshift","page":1,"postsPerPage":6,"totalPages":1,"totalCount":6,"blogDescription":"Discover articles about Podman Desktop","blogTitle":"Podman Desktop blog!"}')}}]);
