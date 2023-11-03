@@ -21,6 +21,7 @@ import PreferencesConnectionDetailsLogs from './PreferencesConnectionDetailsLogs
 import Tab from '../ui/Tab.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import CustomIcon from '../images/CustomIcon.svelte';
+import ConnectionErrorInfoButton from '../ui/ConnectionErrorInfoButton.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string | undefined = undefined;
@@ -136,6 +137,7 @@ function setNoLogs() {
       <svelte:fragment slot="subtitle">
         <div class="flex flex-row">
           <ConnectionStatus status="{connectionInfo.status}" />
+          <ConnectionErrorInfoButton status="{connectionStatus}" />
         </div>
       </svelte:fragment>
       <svelte:fragment slot="actions">

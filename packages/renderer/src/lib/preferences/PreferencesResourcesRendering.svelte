@@ -41,6 +41,7 @@ import { ContextKeyExpr } from '../context/contextKey';
 import { normalizeOnboardingWhenClause } from '../onboarding/onboarding-utils';
 import Donut from '/@/lib/donut/Donut.svelte';
 import { PeerProperties } from './PeerProperties';
+import ConnectionErrorInfoButton from '../ui/ConnectionErrorInfoButton.svelte';
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 let providers: ProviderInfo[] = [];
 $: containerConnectionStatus = new Map<string, IConnectionStatus>();
@@ -469,11 +470,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                 <ConnectionStatus status="{container.status}" />
                 {#if containerConnectionStatus.has(getProviderConnectionName(provider, container))}
                   {@const status = containerConnectionStatus.get(getProviderConnectionName(provider, container))}
-                  {#if status?.error}
-                    <button
-                      class="ml-3 text-[9px] text-red-500 underline"
-                      on:click="{() => window.events?.send('toggle-task-manager', '')}">{status.action} failed</button>
-                  {/if}
+                  <ConnectionErrorInfoButton status="{status}" />
                 {/if}
               </div>
 

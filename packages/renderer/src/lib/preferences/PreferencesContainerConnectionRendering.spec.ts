@@ -23,9 +23,8 @@
 import '@testing-library/jest-dom/vitest';
 import { test, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
-import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
 import { providerInfos } from '../../stores/providers';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import userEvent from '@testing-library/user-event';
 import { router } from 'tinro';
 import PreferencesContainerConnectionRendering from './PreferencesContainerConnectionRendering.svelte';
@@ -212,4 +211,80 @@ test('Expect that removing the connection is going back to the previous page', a
   // grab updated route
   const afterRoute = window.location;
   expect(afterRoute.href).toBe('http://localhost:3000/last');
+});
+
+test('Expect to see error message if action fails', async () => {
+  const socketPath = '/my/common-socket-path';
+  const podmanMachineName = 'podman machine';
+
+  const deleteMock = vi.fn();
+  (window as any).deleteProviderConnectionLifecycle = deleteMock;
+
+  const providerInfo: ProviderInfo = {
+    id: 'podman',
+    name: 'podman',
+    images: {
+      icon: 'img',
+    },
+    status: 'started',
+    warnings: [],
+    containerProviderConnectionCreation: true,
+    detectionChecks: [],
+    containerConnections: [
+      {
+        name: podmanMachineName,
+        status: 'stopped',
+        endpoint: {
+          socketPath,
+        },
+        type: 'podman',
+        lifecycleMethods: ['delete'],
+      },
+    ],
+    installationSupport: false,
+    internalId: '0',
+    kubernetesConnections: [],
+    kubernetesProviderConnectionCreation: true,
+    links: [],
+    containerProviderConnectionInitialization: false,
+    containerProviderConnectionCreationDisplayName: 'Podman machine',
+    kubernetesProviderConnectionInitialization: false,
+    extensionId: '',
+  };
+
+  providerInfos.set([providerInfo]);
+
+  // encode name with base64 of the second machine
+  const name = Buffer.from(podmanMachineName).toString('base64');
+
+  const connection = Buffer.from(socketPath).toString('base64');
+
+  // simulate that the delete action fails
+  deleteMock.mockRejectedValue('failed to delete machine');
+
+  render(PreferencesContainerConnectionRendering, {
+    name,
+    connection,
+    providerInternalId: '0',
+  });
+
+  // expect to have the machine title being displayed
+  const title = screen.getByRole('heading', { name: 'podman machine', level: 1 });
+  expect(title).toBeInTheDocument();
+
+  let deleteFailedButton = screen.queryByRole('button', { name: 'delete failed' });
+
+  // expect that the delete failed button is not in the page
+  expect(deleteFailedButton).not.toBeInTheDocument();
+
+  // ok now we delete the connection
+  const deleteButton = screen.getByRole('button', { name: 'Delete' });
+
+  // click on it
+  await userEvent.click(deleteButton);
+
+  deleteFailedButton = screen.getByRole('button', { name: 'delete failed' });
+
+  // expect to see the delete failed button
+  expect(deleteFailedButton).toBeInTheDocument();
 });
