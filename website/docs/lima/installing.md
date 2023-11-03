@@ -19,8 +19,16 @@ tags: [migrating-to-kubernetes, lima]
 
 #### Verification
 
-1. You can run the `lima` CLI:
+1. You can run the `limactl` CLI:
 
    ```shell-session
+   $ limactl list
+   ```
+
+1. (Optionally) To open a shell:
+
+   ```shell-session
+   $ # requires a running instance
+   $ export LIMA_INSTANCE=<instance>
    $ lima
    ```
