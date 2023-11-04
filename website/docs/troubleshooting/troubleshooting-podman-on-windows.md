@@ -63,8 +63,7 @@ See [Accessing resources behind a VPN with Podman on Windows](/docs/proxy/using-
 
 ## Older WSL versions might lead to networking issues
 
-Older versions of WSL might cause networking issues, such as the `Get-NetTCPConnection` error, indicating that the WSL loopback forwarding facility is not functioning correctly. Recent versions of WSL do not have this issue
-Recent WSL versions do not have the issue.
+Older versions of WSL might cause networking issues, such as the `Get-NetTCPConnection` error, indicating that the WSL loopback forwarding facility is not functioning correctly. Recent versions of WSL do not have this issue.
 
 #### Solution
 
