@@ -2488,4 +2488,24 @@ declare module '@podman-desktop/api' {
      */
     export function createCliTool(options: CliToolOptions): CliTool;
   }
+
+  export interface ImageCheckPartialResult {
+    category: string;
+    description: string;
+  }
+
+  export interface ImageCheckResult {
+    status: string;
+    partialResults: ImageCheckPartialResult[];
+  }
+
+  export interface ImageCheckerProvider {
+    readonly name: string;
+    readonly categories: string[];
+    checkImage(image: string): Promise<ImageCheckResult>;
+  }
+
+  export namespace imageChecker {
+    export function registerImageCheckerProvider(id: string, imageCheckerProvider: ImageCheckerProvider): Disposable;
+  }
 }
