@@ -15,6 +15,7 @@ import RenameImageModal from './RenameImageModal.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import Tab from '../ui/Tab.svelte';
 import { containersInfos } from '/@/stores/containers';
+import ImageDetailsCheck from './ImageDetailsCheck.svelte';
 
 export let imageID: string;
 export let engineId: string;
@@ -71,6 +72,7 @@ onMount(() => {
       <Tab title="Summary" url="summary" />
       <Tab title="History" url="history" />
       <Tab title="Inspect" url="inspect" />
+      <Tab title="Check" url="check" />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
@@ -81,6 +83,9 @@ onMount(() => {
       </Route>
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <ImageDetailsInspect image="{image}" />
+      </Route>
+      <Route path="/check" breadcrumb="Check" navigationHint="tab">
+        <ImageDetailsCheck image="{image}" />
       </Route>
     </svelte:fragment>
   </DetailsPage>
