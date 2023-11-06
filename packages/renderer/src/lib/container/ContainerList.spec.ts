@@ -22,9 +22,9 @@ import '@testing-library/jest-dom/vitest';
 import { beforeAll, test, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import ContainerList from './ContainerList.svelte';
-import { containersInfos } from '../stores/containers';
+import { containersInfos } from '../../stores/containers';
 import { get } from 'svelte/store';
-import { providerInfos } from '../stores/providers';
+import { providerInfos } from '../../stores/providers';
 
 const listContainersMock = vi.fn();
 const getProviderInfosMock = vi.fn();
