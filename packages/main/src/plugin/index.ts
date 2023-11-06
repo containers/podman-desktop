@@ -141,6 +141,8 @@ import { CliToolRegistry } from './cli-tool-registry.js';
 import type { CliToolInfo } from './api/cli-tool-info.js';
 import type { NotificationCard, NotificationCardOptions } from './api/notification.js';
 import { NotificationRegistry } from './notification-registry.js';
+import { ImageCheckerImpl } from './image-checker.js';
+import type { ImageCheckerInfo } from './api/image-checker-info.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -707,6 +709,8 @@ export class PluginSystem {
 
     const cliToolRegistry = new CliToolRegistry(apiSender, exec, telemetry);
 
+    const imageChecker = new ImageCheckerImpl(apiSender);
+
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
       menuRegistry,
@@ -735,6 +739,7 @@ export class PluginSystem {
       kubeGeneratorRegistry,
       cliToolRegistry,
       notificationRegistry,
+      imageChecker,
     );
     await this.extensionLoader.init();
 
@@ -1958,6 +1963,17 @@ export class PluginSystem {
     this.ipcHandle('notificationRegistry:clearNotificationsQueue', async (): Promise<void> => {
       return notificationRegistry.removeAll();
     });
+
+    this.ipcHandle('image-checker:getProviders', async (): Promise<ImageCheckerInfo[]> => {
+      return imageChecker.getImageCheckerProviders();
+    });
+
+    this.ipcHandle(
+      'image-checker:check',
+      async (_listener, id: string, image: string): Promise<containerDesktopAPI.ImageCheckResult> => {
+        return imageChecker.checkImage(id, image);
+      },
+    );
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,

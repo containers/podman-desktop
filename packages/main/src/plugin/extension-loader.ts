@@ -68,6 +68,7 @@ import { ExtensionLoaderSettings } from './extension-loader-settings.js';
 import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plugin/kube-generator-registry.js';
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { NotificationRegistry } from './notification-registry.js';
+import type { ImageCheckerImpl } from './image-checker.js';
 
 /**
  * Handle the loading of an extension
@@ -156,6 +157,7 @@ export class ExtensionLoader {
     private kubeGeneratorRegistry: KubeGeneratorRegistry,
     private cliToolRegistry: CliToolRegistry,
     private notificationRegistry: NotificationRegistry,
+    private imageCheckerProvider: ImageCheckerImpl,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -1015,6 +1017,17 @@ export class ExtensionLoader {
       },
     };
 
+    const imageCheckerProvider = this.imageCheckerProvider;
+    console.log('imageCheckerProvider', this.imageCheckerProvider);
+    const imageChecker: typeof containerDesktopAPI.imageChecker = {
+      registerImageCheckerProvider: (
+        id: string,
+        provider: containerDesktopAPI.ImageCheckerProvider,
+      ): containerDesktopAPI.Disposable => {
+        return imageCheckerProvider.registerImageCheckerProvider(id, provider);
+      },
+    };
+
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
@@ -1043,6 +1056,7 @@ export class ExtensionLoader {
       authentication,
       context: contextAPI,
       cli,
+      imageChecker,
     };
   }
 
