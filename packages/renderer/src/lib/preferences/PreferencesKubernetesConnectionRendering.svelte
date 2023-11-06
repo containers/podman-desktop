@@ -21,6 +21,7 @@ import PreferencesKubernetesConnectionDetailsSummary from './PreferencesKubernet
 import PreferencesConnectionDetailsLogs from './PreferencesConnectionDetailsLogs.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import CustomIcon from '../images/CustomIcon.svelte';
+import ConnectionErrorInfoButton from '../ui/ConnectionErrorInfoButton.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string | undefined = undefined;
@@ -28,7 +29,7 @@ export let apiUrlBase64 = '';
 
 const apiURL: string = Buffer.from(apiUrlBase64, 'base64').toString();
 let connectionName = '';
-$: connectionStatus = new Map<string, IConnectionStatus>();
+let connectionStatus: IConnectionStatus;
 let noLog = true;
 let connectionInfo: ProviderKubernetesConnectionInfo | undefined;
 let providerInfo: ProviderInfo | undefined;
@@ -59,24 +60,20 @@ onMount(async () => {
     }
     connectionName = connectionInfo.name;
     const kubernetesConnectionName = getProviderConnectionName(providerInfo, connectionInfo);
-    if (
-      kubernetesConnectionName &&
-      (!connectionStatus.has(kubernetesConnectionName) ||
-        connectionStatus.get(kubernetesConnectionName)?.status !== connectionInfo.status)
-    ) {
+    if (kubernetesConnectionName && (!connectionStatus || connectionStatus.status !== connectionInfo.status)) {
       if (loggerHandlerKey !== undefined) {
-        connectionStatus.set(kubernetesConnectionName, {
+        connectionStatus = {
           inProgress: true,
           action: 'restart',
           status: connectionInfo.status,
-        });
+        };
         startConnectionProvider(providerInfo, connectionInfo, loggerHandlerKey);
       } else {
-        connectionStatus.set(kubernetesConnectionName, {
+        connectionStatus = {
           inProgress: false,
           action: undefined,
           status: connectionInfo.status,
-        });
+        };
       }
     }
     connectionStatus = connectionStatus;
@@ -103,22 +100,20 @@ function updateConnectionStatus(
   action?: string,
   error?: string,
 ): void {
-  const connectionName = getProviderConnectionName(provider, connectionInfo);
   if (error) {
-    const currentStatus = connectionStatus.get(connectionName);
-    if (currentStatus) {
-      connectionStatus.set(connectionName, {
-        ...currentStatus,
+    if (connectionStatus) {
+      connectionStatus = {
+        ...connectionStatus,
         inProgress: false,
         error,
-      });
+      };
     }
   } else if (action) {
-    connectionStatus.set(connectionName, {
+    connectionStatus = {
       inProgress: true,
       action: action,
       status: connectionInfo.status,
-    });
+    };
   }
   connectionStatus = connectionStatus;
 }
@@ -138,6 +133,7 @@ function setNoLogs() {
       <svelte:fragment slot="subtitle">
         <div class="flex flex-row">
           <ConnectionStatus status="{connectionInfo.status}" />
+          <ConnectionErrorInfoButton status="{connectionStatus}" />
         </div>
       </svelte:fragment>
       <svelte:fragment slot="actions">
@@ -146,7 +142,7 @@ function setNoLogs() {
             <PreferencesConnectionActions
               provider="{providerInfo}"
               connection="{connectionInfo}"
-              connectionStatuses="{connectionStatus}"
+              connectionStatus="{connectionStatus}"
               updateConnectionStatus="{updateConnectionStatus}"
               addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
           </div>

@@ -7,9 +7,9 @@ import type {
 } from '../../../../main/src/plugin/api/provider-info';
 import LoadingIconButton from '../ui/LoadingIconButton.svelte';
 import { type ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
-import { getProviderConnectionName, type IConnectionRestart, type IConnectionStatus } from './Util';
+import { type IConnectionRestart, type IConnectionStatus } from './Util';
 
-export let connectionStatuses: Map<string, IConnectionStatus>;
+export let connectionStatus: IConnectionStatus | undefined;
 export let provider: ProviderInfo;
 export let connection: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo;
 export let updateConnectionStatus: (
@@ -20,7 +20,6 @@ export let updateConnectionStatus: (
   inProgress?: boolean,
 ) => void;
 export let addConnectionToRestartingQueue: (connection: IConnectionRestart) => void;
-$: connectionStatus = connectionStatuses;
 
 async function startConnectionProvider(
   provider: ProviderInfo,
@@ -139,8 +138,7 @@ function getLoggerHandler(
 }
 </script>
 
-{#if connectionStatus.has(getProviderConnectionName(provider, connection))}
-  {@const state = connectionStatus.get(getProviderConnectionName(provider, connection))}
+{#if connectionStatus}
   {#if connection.lifecycleMethods && connection.lifecycleMethods.length > 0}
     <div class="mt-2 relative">
       <!-- TODO: see action available like machine infos -->
@@ -151,7 +149,7 @@ function getLoggerHandler(
               clickAction="{() => startConnectionProvider(provider, connection)}"
               action="start"
               icon="{faPlay}"
-              state="{state}"
+              state="{connectionStatus}"
               leftPosition="left-[0.15rem]" />
           </div>
         {/if}
@@ -160,7 +158,7 @@ function getLoggerHandler(
             clickAction="{() => restartConnectionProvider(provider, connection)}"
             action="restart"
             icon="{faRotateRight}"
-            state="{state}"
+            state="{connectionStatus}"
             leftPosition="left-1.5" />
         {/if}
         {#if connection.lifecycleMethods.includes('stop')}
@@ -168,7 +166,7 @@ function getLoggerHandler(
             clickAction="{() => stopConnectionProvider(provider, connection)}"
             action="stop"
             icon="{faStop}"
-            state="{state}"
+            state="{connectionStatus}"
             leftPosition="left-[0.22rem]" />
         {/if}
         {#if connection.lifecycleMethods.includes('delete')}
@@ -177,7 +175,7 @@ function getLoggerHandler(
               clickAction="{() => deleteConnectionProvider(provider, connection)}"
               action="delete"
               icon="{faTrash}"
-              state="{state}"
+              state="{connectionStatus}"
               leftPosition="left-1" />
           </div>
         {/if}

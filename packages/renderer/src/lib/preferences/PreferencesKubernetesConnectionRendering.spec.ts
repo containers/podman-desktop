@@ -31,7 +31,6 @@ import PreferencesKubernetesConnectionRendering from './PreferencesKubernetesCon
 import { lastPage } from '/@/stores/breadcrumb';
 
 test('Expect that removing the connection is going back to the previous page', async () => {
-  const socketPath = '/my/common-socket-path';
   const kindCluster1 = 'kind cluster 1';
   const kindCluster2 = 'kind cluster 2';
   const kindCluster3 = 'kind cluster 3';
@@ -89,7 +88,7 @@ test('Expect that removing the connection is going back to the previous page', a
   // 3 connections with the same socket path
   providerInfos.set([providerInfo]);
 
-  // encode name with base64 of the second cluster
+  // encode apiUrl of the second cluster
   const apiUrlBase64 = Buffer.from('http://localhost:8181').toString('base64');
 
   // defines a fake lastPage so we can check where we will be redirected
@@ -133,4 +132,76 @@ test('Expect that removing the connection is going back to the previous page', a
   // grab updated route
   const afterRoute = window.location;
   expect(afterRoute.href).toBe('http://localhost:3000/last');
+});
+
+test('Expect to see error message if action fails', async () => {
+  const apiURL = 'http://localhost:8081';
+  const kindCluster = 'kind cluster';
+
+  const deleteMock = vi.fn();
+  (window as any).deleteProviderConnectionLifecycle = deleteMock;
+
+  const providerInfo: ProviderInfo = {
+    id: 'kind',
+    name: 'kind',
+    images: {
+      icon: 'img',
+    },
+    status: 'started',
+    warnings: [],
+    containerProviderConnectionCreation: true,
+    detectionChecks: [],
+    containerConnections: [],
+    installationSupport: false,
+    internalId: '0',
+    kubernetesConnections: [
+      {
+        name: kindCluster,
+        status: 'stopped',
+        endpoint: {
+          apiURL,
+        },
+        lifecycleMethods: ['delete'],
+      },
+    ],
+    kubernetesProviderConnectionCreation: true,
+    links: [],
+    containerProviderConnectionInitialization: false,
+    containerProviderConnectionCreationDisplayName: 'Podman machine',
+    kubernetesProviderConnectionInitialization: false,
+    extensionId: '',
+  };
+
+  providerInfos.set([providerInfo]);
+
+  // encode apiUrl of the second cluster
+  const apiUrlBase64 = Buffer.from(apiURL).toString('base64');
+
+  // simulate that the delete action fails
+  deleteMock.mockRejectedValue('failed to delete machine');
+
+  render(PreferencesKubernetesConnectionRendering, {
+    apiUrlBase64,
+    providerInternalId: '0',
+  });
+
+  // expect to have the machine title being displayed
+  const title = screen.getByRole('heading', { name: 'kind cluster', level: 1 });
+  expect(title).toBeInTheDocument();
+
+  let deleteFailedButton = screen.queryByRole('button', { name: 'delete failed' });
+
+  // expect that the delete failed button is not in the page
+  expect(deleteFailedButton).not.toBeInTheDocument();
+
+  // ok now we delete the connection
+  const deleteButton = screen.getByRole('button', { name: 'Delete' });
+
+  // click on it
+  await userEvent.click(deleteButton);
+
+  deleteFailedButton = screen.getByRole('button', { name: 'delete failed' });
+
+  // expect to see the delete failed button
+  expect(deleteFailedButton).toBeInTheDocument();
 });
