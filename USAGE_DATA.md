@@ -6,8 +6,9 @@ Podman Desktop uses telemetry to collect anonymous usage data in order to identi
 Users are prompted during first startup to accept or decline telemetry. This setting can be
 changed at any time in Settings > Preferences > Telemetry.
 
-On disk this is stored in the `"telemetry.*"` keys within the settings file,
-at `~/.local/share/containers/podman-desktop/configuration/settings.json`.
+On disk the setting is stored in the `"telemetry.*"` keys within the settings file,
+at `$HOME/.local/share/containers/podman-desktop/configuration/settings.json`. A generated anonymous id
+is stored at `$HOME/.redhat/anonymousId`.
 
 ## What's included in the telemetry data
 
@@ -32,17 +33,22 @@ Likewise, content like error messages often contains user-identifiable data like
 
 ### What to collect
 
+Extensions can access the telemetry logger from the Podman Desktop API:
+```
+import { TelemetryLogger } from '@podman-desktop/api';
+```
+
 Telemetry should never be collected 'because we can', but because we want to see current behaviour in order to improve it. This means that we should only collect the minimal data in order to meet those goals, but conversely that we also collect enough to be able to act. For instance, collecting command pass/fail would tell us how often it failed, but not why it's failing in order to fix a bug or improve usability.
 
 When we capture information about commands and whether they succeed, they should be sent using logUsage() as a single event after an action completes, with optional error attributes. This makes it much easier to track the success rate and correlate failures with differences in environment or usage. logError() is typically used for independent or background errors.
 
 When calling logUsage() after an external commandline process or REST interface has failed, include an error object that contains the standard properties, e.g.:
 
-```
+```ts
 error {
-  message : string
-  statusCode : int - for HTTP calls
-  exitCode : int - for processes
+  message: string,
+  statusCode: number, // for HTTP calls
+  exitCode: number, // for processes
   ...
 }
 ```
