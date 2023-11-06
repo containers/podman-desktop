@@ -9,7 +9,6 @@ import { router } from 'tinro';
 import Route from './Route.svelte';
 import ContainerList from './lib/container/ContainerList.svelte';
 import ImagesList from './lib/image/ImagesList.svelte';
-import ProviderList from './lib/ProviderList.svelte';
 import PreferencesPage from './lib/preferences/PreferencesPage.svelte';
 import BuildImageFromContainerfile from './lib/image/BuildImageFromContainerfile.svelte';
 import PullImage from './lib/image/PullImage.svelte';
@@ -162,9 +161,6 @@ window.events?.receive('display-troubleshooting', () => {
         </Route>
         <Route path="/volumes/:name/:engineId/*" breadcrumb="Volume Details" let:meta navigationHint="details">
           <VolumeDetails volumeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
-        </Route>
-        <Route path="/providers" breadcrumb="Providers">
-          <ProviderList />
         </Route>
         <Route path="/preferences/*" breadcrumb="Settings">
           <PreferencesPage />
