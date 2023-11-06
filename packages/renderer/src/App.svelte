@@ -7,8 +7,8 @@ import './override.css';
 import { router } from 'tinro';
 
 import Route from './Route.svelte';
-import ContainerList from './lib/ContainerList.svelte';
-import ImagesList from './lib/ImagesList.svelte';
+import ContainerList from './lib/container/ContainerList.svelte';
+import ImagesList from './lib/image/ImagesList.svelte';
 import ProviderList from './lib/ProviderList.svelte';
 import PreferencesPage from './lib/preferences/PreferencesPage.svelte';
 import BuildImageFromContainerfile from './lib/image/BuildImageFromContainerfile.svelte';
