@@ -271,7 +271,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
             </td>
             <td class="pl-3 whitespace-nowrap hover:cursor-pointer group">
               <div class="flex items-center text-xs p-1 rounded-md text-gray-500">
-                <ProviderInfo provider="{pod.engineName}" context="{pod.engineId}" />
+                <ProviderInfo provider="{pod.kind}" context="{pod.engineId}" />
               </div>
             </td>
 

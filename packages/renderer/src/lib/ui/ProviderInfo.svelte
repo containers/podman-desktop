@@ -1,5 +1,7 @@
 <script lang="ts">
 import Tooltip from './Tooltip.svelte';
+import { ContainerGroupInfoTypeUI } from '../container/ContainerInfoUI';
+import { PodGroupInfoTypeUI } from '../pod/PodInfoUI';
 
 // Name of the provider (e.g. podman, docker, kubernetes)
 export let provider = '';
@@ -14,11 +16,11 @@ export let context = '';
 // bg-gray-900 = unknown
 function getProviderColour(providerName: string): string {
   switch (providerName) {
-    case 'Podman':
+    case ContainerGroupInfoTypeUI.PODMAN:
       return 'bg-purple-600';
-    case 'Docker':
+    case ContainerGroupInfoTypeUI.DOCKER:
       return 'bg-sky-400';
-    case 'Kubernetes':
+    case PodGroupInfoTypeUI.KUBERNETES:
       return 'bg-sky-600';
     default:
       return 'bg-gray-900';

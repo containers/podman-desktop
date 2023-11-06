@@ -241,7 +241,7 @@ test('Expect single kubernetes pod being displayed', async () => {
 
   render(PodsList);
   const pod1Details = screen.getByRole('row', {
-    name: 'Toggle pod kubepod1 beab2512 0 container Kubernetes tooltip 0 seconds spinner',
+    name: 'Toggle pod kubepod1 beab2512 0 container kubernetes 0 seconds spinner',
   });
   expect(pod1Details).toBeInTheDocument();
 });
@@ -263,11 +263,11 @@ test('Expect 2 kubernetes pods being displayed', async () => {
 
   render(PodsList);
   const pod1Details = screen.getByRole('row', {
-    name: 'Toggle pod kubepod1 beab2512 0 container Kubernetes tooltip 0 seconds spinner',
+    name: 'Toggle pod kubepod1 beab2512 0 container kubernetes 0 seconds spinner',
   });
   expect(pod1Details).toBeInTheDocument();
   const pod2Details = screen.getByRole('row', {
-    name: 'Toggle pod kubepod2 e8129c57 0 container Kubernetes tooltip 0 seconds spinner',
+    name: 'Toggle pod kubepod2 e8129c57 0 container kubernetes 0 seconds spinner',
   });
   expect(pod2Details).toBeInTheDocument();
 });
@@ -315,7 +315,7 @@ test('Expect the route to a pod details page is correctly encoded with an engine
   expect(podDetails).toBeInTheDocument();
 
   const podRow = screen.getByRole('row', {
-    name: 'Toggle pod ocppod e8129c57 0 container Kubernetes tooltip 0 seconds spinner',
+    name: 'Toggle pod ocppod e8129c57 0 container kubernetes 0 seconds spinner',
   });
   expect(podRow).toBeInTheDocument();
 

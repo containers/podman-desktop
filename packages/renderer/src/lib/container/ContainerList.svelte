@@ -583,7 +583,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                 </td>
                 <td class="pl-3 whitespace-nowrap hover:cursor-pointer group">
                   <div class="flex items-center text-xs p-1 rounded-md text-gray-500">
-                    <ProviderInfo provider="{container.engineName}" context="{container.engineId}" />
+                    <ProviderInfo provider="{container.engineType}" context="{container.engineId}" />
                   </div>
                 </td>
                 <!-- Open the container details, TODO: open image details instead? -->

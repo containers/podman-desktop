@@ -23,6 +23,8 @@ export enum ContainerGroupInfoTypeUI {
   STANDALONE = 'standalone',
   COMPOSE = 'compose',
   POD = 'pod',
+  DOCKER = 'docker',
+  PODMAN = 'podman',
 }
 
 export interface ContainerGroupPartInfoUI {

@@ -16,6 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+export enum PodGroupInfoTypeUI {
+  KUBERNETES = 'kubernetes',
+  PODMAN = 'podman',
+}
 export interface PodInfoContainerUI {
   Id: string;
   Names: string;
