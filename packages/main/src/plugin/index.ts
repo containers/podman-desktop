@@ -80,7 +80,16 @@ import { AutostartEngine } from './autostart-engine.js';
 import { CloseBehavior } from './close-behavior.js';
 import { TrayIconColor } from './tray-icon-color.js';
 import { KubernetesClient } from './kubernetes-client.js';
-import type { V1Pod, V1ConfigMap, V1NamespaceList, V1PodList, V1Service, V1Ingress } from '@kubernetes/client-node';
+import type {
+  V1Pod,
+  V1ConfigMap,
+  V1NamespaceList,
+  V1PodList,
+  V1Service,
+  V1Ingress,
+  Context as KubernetesContext,
+  Cluster,
+} from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types.js';
 import type { NetworkInspectInfo } from './api/network-info.js';
 import { FilesystemMonitoring } from './filesystem-monitoring.js';
@@ -1823,6 +1832,14 @@ export class PluginSystem {
 
     this.ipcHandle('kubernetes-client:getCurrentContextName', async (): Promise<string | undefined> => {
       return kubernetesClient.getCurrentContextName();
+    });
+
+    this.ipcHandle('kubernetes-client:getContexts', async (): Promise<KubernetesContext[]> => {
+      return kubernetesClient.getContexts();
+    });
+
+    this.ipcHandle('kubernetes-client:getClusters', async (): Promise<Cluster[]> => {
+      return kubernetesClient.getClusters();
     });
 
     this.ipcHandle('kubernetes-client:getCurrentNamespace', async (): Promise<string | undefined> => {

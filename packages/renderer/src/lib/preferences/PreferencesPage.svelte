@@ -16,6 +16,7 @@ import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelt
 import PreferencesAuthenticationProvidersRendering from './PreferencesAuthenticationProvidersRendering.svelte';
 import PreferencesInstallExtensionFromId from './PreferencesInstallExtensionFromId.svelte';
 import PreferencesCliToolsRendering from './PreferencesCliToolsRendering.svelte';
+import PreferencesKubernetesContextsRendering from './PreferencesKubernetesContextsRendering.svelte';
 import Onboarding from '../onboarding/Onboarding.svelte';
 import { isDefaultScope } from './Util';
 
@@ -75,6 +76,9 @@ onMount(async () => {
   </Route>
   <Route path="/cli-tools" breadcrumb="CLI Tools">
     <PreferencesCliToolsRendering />
+  </Route>
+  <Route path="/kubernetes-contexts" breadcrumb="Kubernetes Contexts">
+    <PreferencesKubernetesContextsRendering />
   </Route>
   <Route path="/proxies" breadcrumb="Proxy">
     <PreferencesProxiesRendering />
