@@ -9,6 +9,11 @@ export let inProgress = false;
 export let disabled = false;
 export let type: ButtonType = 'primary';
 export let icon: any = undefined;
+export let selected: boolean | undefined = undefined;
+
+$: if (selected !== undefined && type !== 'tab') {
+  console.error('property selected can be used with type=tab only');
+}
 
 let iconType: string | undefined = undefined;
 
@@ -30,11 +35,14 @@ $: {
     }
   } else {
     if (type === 'primary') {
-      classes = 'bg-purple-600 border-none text-white hover:bg-purple-500';
+      classes = 'bg-purple-600 border-none text-white hover:bg-purple-500 rounded-[4px] text-[13px]';
     } else if (type === 'secondary') {
-      classes = 'border-[1px] border-gray-200 text-white hover:border-purple-500 hover:text-purple-500';
+      classes =
+        'border-[1px] border-gray-200 text-white hover:border-purple-500 hover:text-purple-500 rounded-[4px] text-[13px]';
+    } else if (type === 'tab') {
+      classes = 'pb-2 border-b-[3px] border-charcoal-700 hover:cursor-pointer py-2 text-gray-600 no-underline';
     } else {
-      classes = 'border-none text-purple-400 hover:bg-white hover:bg-opacity-10';
+      classes = 'border-none text-purple-400 hover:bg-white hover:bg-opacity-10 rounded-[4px] text-[13px]';
     }
   }
 }
@@ -42,8 +50,10 @@ $: {
 
 <button
   type="button"
-  class="relative px-4 py-[6px] rounded-[4px] box-border text-[13px] whitespace-nowrap select-none transition-all {classes} {$$props.class ||
-    ''}"
+  class="relative px-4 py-[6px] box-border whitespace-nowrap select-none transition-all {classes} {$$props.class || ''}"
+  class:border-purple-500="{type === 'tab' && selected}"
+  class:hover:border-charcoal-100="{type === 'tab' && !selected}"
+  class:text-white="{type === 'tab' && selected}"
   title="{title}"
   aria-label="{$$props['aria-label']}"
   on:click

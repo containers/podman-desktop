@@ -21,5 +21,6 @@
  *  primary   - a main action (the default)
  *  secondary - a secondary action
  *  link      - close, cancel, or other non-default button
+ *  tab       - displayed as tab
  */
-export type ButtonType = 'primary' | 'secondary' | 'link';
+export type ButtonType = 'primary' | 'secondary' | 'link' | 'tab';
