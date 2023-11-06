@@ -295,12 +295,12 @@ export class ExtensionLoader {
 
     const analyzedFoldersExtension = (
       await Promise.all(folders.map(folder => this.analyzeExtension(folder, false)))
-    ).filter(extension => !extension.error) as AnalyzedExtension[];
+    ).filter(extension => !extension.error);
     analyzedExtensions.push(...analyzedFoldersExtension);
 
     const analyzedExternalExtensions = (
       await Promise.all(externalExtensions.map(folder => this.analyzeExtension(folder, false)))
-    ).filter(extension => !extension.error) as AnalyzedExtension[];
+    ).filter(extension => !extension.error);
     analyzedExtensions.push(...analyzedExternalExtensions);
 
     // also load extensions from the plugins directory
@@ -314,7 +314,7 @@ export class ExtensionLoader {
       // collect all extensions from the pluginDirectory folders
       const analyzedPluginsDirectoryExtensions: AnalyzedExtension[] = (
         await Promise.all(pluginDirectories.map(folder => this.analyzeExtension(folder, true)))
-      ).filter(extension => !extension.error) as AnalyzedExtension[];
+      ).filter(extension => !extension.error);
       analyzedExtensions.push(...analyzedPluginsDirectoryExtensions);
     }
 
