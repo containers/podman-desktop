@@ -14,6 +14,7 @@ export let selected: boolean | undefined = undefined;
 $: if (selected !== undefined && type !== 'tab') {
   console.error('property selected can be used with type=tab only');
 }
+export let padding: string | undefined = 'px-4 py-[6px]';
 
 let iconType: string | undefined = undefined;
 
@@ -50,7 +51,7 @@ $: {
 
 <button
   type="button"
-  class="relative px-4 py-[6px] box-border whitespace-nowrap select-none transition-all {classes} {$$props.class || ''}"
+  class="relative {padding} box-border whitespace-nowrap select-none transition-all {classes} {$$props.class || ''}"
   class:border-purple-500="{type === 'tab' && selected}"
   class:hover:border-charcoal-100="{type === 'tab' && !selected}"
   class:text-white="{type === 'tab' && selected}"

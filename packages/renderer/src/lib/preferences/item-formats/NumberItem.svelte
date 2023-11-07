@@ -8,6 +8,7 @@ export let record: IConfigurationPropertyRecordedSchema;
 export let value: number | undefined;
 export let onChange = (_id: string, _value: number) => {};
 export let invalidRecord = (_error: string) => {};
+export let onlyTextInput = false;
 
 let valueUpdateTimeout: NodeJS.Timeout;
 
@@ -125,34 +126,42 @@ function canIncrement(value: number) {
   class="flex flex-row rounded-sm bg-zinc-700 text-sm divide-x divide-charcoal-800 w-24 border-b"
   class:border-violet-500="{!numberInputInvalid}"
   class:border-red-500="{numberInputInvalid}">
-  <button
-    data-action="decrement"
-    aria-label="decrement"
-    on:click="{onDecrement}"
-    disabled="{!canDecrement(recordValue)}"
-    class="w-11 text-white {!canDecrement(recordValue)
-      ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-charcoal-800'
-      : 'hover:text-gray-900 hover:bg-gray-700'} cursor-pointer outline-none">
-    <span class="m-auto font-thin">−</span>
-  </button>
+  {#if !onlyTextInput}
+    <button
+      data-action="decrement"
+      aria-label="decrement"
+      on:click="{onDecrement}"
+      disabled="{!canDecrement(recordValue)}"
+      class="w-11 text-white {!canDecrement(recordValue)
+        ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-charcoal-800'
+        : 'hover:text-gray-900 hover:bg-gray-700'} cursor-pointer outline-none">
+      <span class="m-auto font-thin">−</span>
+    </button>
+  {/if}
   <Tooltip topLeft tip="{numberInputErrorMessage}">
     <input
       type="text"
-      class="w-[50px] outline-none focus:outline-none text-center text-white text-sm py-0.5"
+      class="w-[50px] outline-none focus:outline-none text-white text-sm py-0.5"
+      class:w-full="{onlyTextInput}"
+      class:text-center="{!onlyTextInput}"
+      class:px-2="{onlyTextInput}"
       name="{record.id}"
       bind:value="{recordValue}"
       on:keypress="{event => onNumberInputKeyPress(event)}"
       on:input="{onInput}"
       aria-label="{record.description}" />
   </Tooltip>
-  <button
-    data-action="increment"
-    aria-label="increment"
-    on:click="{onIncrement}"
-    disabled="{!canIncrement(recordValue)}"
-    class="w-11 text-white {!canIncrement(recordValue)
-      ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-charcoal-800'
-      : 'hover:text-gray-900 hover:bg-gray-700'} cursor-pointer outline-none">
-    <span class="m-auto font-thin">+</span>
-  </button>
+  {#if !onlyTextInput}
+    <button
+      data-action="increment"
+      aria-label="increment"
+      on:click="{onIncrement}"
+      disabled="{!canIncrement(recordValue)}"
+      class="w-11 text-white {!canIncrement(recordValue)
+        ? 'bg-charcoal-600 text-charcoal-100 border-t border-l border-charcoal-800'
+        : 'hover:text-gray-900 hover:bg-gray-700'} cursor-pointer outline-none"
+      class:hidden="{onlyTextInput}">
+      <span class="m-auto font-thin">+</span>
+    </button>
+  {/if}
 </div>

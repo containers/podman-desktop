@@ -110,3 +110,26 @@ test('Expect decrement button only works one if minimum value is reached after o
 
   expect(input).toBeDisabled();
 });
+
+test('Expect to have both buttons hidden if onlyTextInput is true', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'number',
+    minimum: 1,
+    maximum: 34,
+  };
+  const value = 2;
+  render(NumberItem, { record, value, onlyTextInput: true });
+
+  const decrementButton = screen.queryByRole('button', { name: 'decrement' });
+  expect(decrementButton).not.toBeInTheDocument();
+
+  const incrementButton = screen.queryByRole('button', { name: 'increment' });
+  expect(incrementButton).not.toBeInTheDocument();
+
+  const input = screen.getByLabelText('record-description');
+  expect(input).toBeInTheDocument();
+});
