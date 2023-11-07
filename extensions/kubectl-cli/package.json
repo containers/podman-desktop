@@ -28,7 +28,7 @@
     "format:fix": "prettier --write \"**/*.ts\" \"scripts/*.js\""
   },
   "dependencies": {
-    "@podman-desktop/api": "^1.2.0"
+    "@podman-desktop/api": "^0.0.1"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.1",
