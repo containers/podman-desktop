@@ -17,7 +17,6 @@ import PodIcon from '../images/PodIcon.svelte';
 import PodActions from './PodActions.svelte';
 import KubePlayButton from '../kube/KubePlayButton.svelte';
 import moment from 'moment';
-import Tooltip from '../ui/Tooltip.svelte';
 import Prune from '../engine/Prune.svelte';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
@@ -25,6 +24,7 @@ import Checkbox from '../ui/Checkbox.svelte';
 import Button from '../ui/Button.svelte';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import StateChange from '../ui/StateChange.svelte';
+import ProviderInfo from '../ui/ProviderInfo.svelte';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -234,7 +234,8 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
           </th>
           <th class="text-center font-extrabold w-10 px-2">Status</th>
           <th>Name</th>
-          <th class="whitespace-nowrap px-6">age</th>
+          <th class="pl-3">Environment</th>
+          <th class="whitespace-nowrap px-6">Age</th>
           <th class="text-right pr-2">Actions</th>
         </tr>
       </thead>
@@ -265,16 +266,15 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
                       {pod.containers.length} container{pod.containers.length > 1 ? 's' : ''}
                     </button>
                   </div>
-                  <div class="flex flex-row text-xs font-extra-light text-gray-900">
-                    <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-800 text-slate-400">
-                      {pod.engineName}{#if pod.kind === 'kubernetes'}<div class="ml-1">
-                          <Tooltip tip="{pod.engineId}" top>{pod.engineId.substring(0, 16)}</Tooltip>
-                        </div>{/if}
-                    </div>
-                  </div>
                 </div>
               </div>
             </td>
+            <td class="pl-3 whitespace-nowrap hover:cursor-pointer group">
+              <div class="flex items-center text-xs p-1 rounded-md text-gray-500">
+                <ProviderInfo provider="{pod.kind}" context="{pod.engineId}" />
+              </div>
+            </td>
+
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex items-center">
                 <div class="text-sm text-gray-700">

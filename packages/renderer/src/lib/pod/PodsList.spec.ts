@@ -104,7 +104,7 @@ const kubepod1: PodInfo = {
   Networks: [],
   Status: 'running',
   engineId: 'context1',
-  engineName: 'k8s',
+  engineName: 'Kubernetes',
   kind: 'kubernetes',
 };
 
@@ -120,7 +120,7 @@ const kubepod2: PodInfo = {
   Networks: [],
   Status: 'running',
   engineId: 'context2',
-  engineName: 'k8s',
+  engineName: 'Kubernetes',
   kind: 'kubernetes',
 };
 
@@ -136,7 +136,7 @@ const ocppod: PodInfo = {
   Networks: [],
   Status: 'running',
   engineId: 'userid-dev/api-sandbox-123-openshiftapps-com:6443/userId',
-  engineName: 'k8s',
+  engineName: 'Kubernetes',
   kind: 'kubernetes',
 };
 
@@ -185,8 +185,12 @@ test('Expect single podman pod being displayed', async () => {
   }
 
   render(PodsList);
-  const pod1Details = screen.getByRole('cell', { name: 'pod1 beab2512 0 container podman' });
+  const pod1Details = screen.getByRole('cell', { name: 'pod1 beab2512 0 container' });
   expect(pod1Details).toBeInTheDocument();
+  const pod1Row = screen.getByRole('row', {
+    name: 'Toggle pod pod1 beab2512 0 container podman 0 seconds spinner spinner spinner',
+  });
+  expect(pod1Row).toBeInTheDocument();
 });
 
 test('Expect 2 podman pods being displayed', async () => {
@@ -205,10 +209,19 @@ test('Expect 2 podman pods being displayed', async () => {
   }
 
   render(PodsList);
-  const pod1Details = screen.getByRole('cell', { name: 'pod1 beab2512 0 container podman' });
+  const pod1Details = screen.getByRole('cell', { name: 'pod1 beab2512 0 container' });
   expect(pod1Details).toBeInTheDocument();
-  const pod2Details = screen.getByRole('cell', { name: 'pod2 e8129c57 0 container podman' });
+  const pod1Row = screen.getByRole('row', {
+    name: 'Toggle pod pod1 beab2512 0 container podman 0 seconds spinner spinner spinner',
+  });
+  expect(pod1Row).toBeInTheDocument();
+
+  const pod2Details = screen.getByRole('cell', { name: 'pod2 e8129c57 0 container' });
   expect(pod2Details).toBeInTheDocument();
+  const pod2Row = screen.getByRole('row', {
+    name: 'Toggle pod pod2 e8129c57 0 container podman 0 seconds spinner spinner spinner',
+  });
+  expect(pod2Row).toBeInTheDocument();
 });
 
 test('Expect single kubernetes pod being displayed', async () => {
@@ -227,7 +240,9 @@ test('Expect single kubernetes pod being displayed', async () => {
   }
 
   render(PodsList);
-  const pod1Details = screen.getByRole('cell', { name: 'kubepod1 beab2512 0 container k8s context1 tooltip' });
+  const pod1Details = screen.getByRole('row', {
+    name: 'Toggle pod kubepod1 beab2512 0 container kubernetes 0 seconds spinner',
+  });
   expect(pod1Details).toBeInTheDocument();
 });
 
@@ -247,9 +262,13 @@ test('Expect 2 kubernetes pods being displayed', async () => {
   }
 
   render(PodsList);
-  const pod1Details = screen.getByRole('cell', { name: 'kubepod1 beab2512 0 container k8s context1 tooltip' });
+  const pod1Details = screen.getByRole('row', {
+    name: 'Toggle pod kubepod1 beab2512 0 container kubernetes 0 seconds spinner',
+  });
   expect(pod1Details).toBeInTheDocument();
-  const pod2Details = screen.getByRole('cell', { name: 'kubepod2 e8129c57 0 container k8s context2 tooltip' });
+  const pod2Details = screen.getByRole('row', {
+    name: 'Toggle pod kubepod2 e8129c57 0 container kubernetes 0 seconds spinner',
+  });
   expect(pod2Details).toBeInTheDocument();
 });
 
@@ -292,8 +311,13 @@ test('Expect the route to a pod details page is correctly encoded with an engine
     await new Promise(resolve => setTimeout(resolve, 500));
   }
   render(PodsList);
-  const podDetails = screen.getByRole('cell', { name: 'ocppod e8129c57 0 container k8s userid-dev/api-s tooltip' });
+  const podDetails = screen.getByRole('cell', { name: 'ocppod e8129c57 0 container' });
   expect(podDetails).toBeInTheDocument();
+
+  const podRow = screen.getByRole('row', {
+    name: 'Toggle pod ocppod e8129c57 0 container kubernetes 0 seconds spinner',
+  });
+  expect(podRow).toBeInTheDocument();
 
   const routerGotoMock = vi.fn();
   router.goto = routerGotoMock;

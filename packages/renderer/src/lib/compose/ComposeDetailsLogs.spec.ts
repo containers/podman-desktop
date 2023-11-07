@@ -29,7 +29,7 @@ const containerInfoUIMock: ContainerInfoUI = {
   shortImage: 'foobar',
   engineId: 'foobar',
   engineName: 'foobar',
-  engineType: 'podman',
+  engineType: ContainerGroupInfoTypeUI.PODMAN,
   state: 'running',
   uptime: 'foobar',
   startedAt: 'foobar',
@@ -49,7 +49,7 @@ const containerInfoUIMock: ContainerInfoUI = {
 
 const composeInfoUIMock: ComposeInfoUI = {
   engineId: 'foobar',
-  engineType: 'podman',
+  engineType: ContainerGroupInfoTypeUI.PODMAN,
   name: 'foobar',
   status: 'running',
   containers: [containerInfoUIMock],
