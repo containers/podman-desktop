@@ -51,6 +51,7 @@ import { Exec } from './util/exec.js';
 import type { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { NotificationRegistry } from './notification-registry.js';
+import type { ImageCheckerImpl } from './image-checker.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -150,6 +151,8 @@ const exec = new Exec(proxy);
 
 const notificationRegistry: NotificationRegistry = {} as unknown as NotificationRegistry;
 
+const imageCheckerImpl: ImageCheckerImpl = {} as unknown as ImageCheckerImpl;
+
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeAll(() => {
   extensionLoader = new TestExtensionLoader(
@@ -180,6 +183,7 @@ beforeAll(() => {
     kubernetesGeneratorRegistry,
     cliToolRegistry,
     notificationRegistry,
+    imageCheckerImpl,
   );
 });
 
