@@ -82,7 +82,7 @@ export class Certificates {
         const rootExePath = path.join(process.resourcesPath, 'win-ca', 'roots.exe');
         wincaAPI.exe(rootExePath);
       } else {
-        wincaAPI.exe(path.resolve(__dirname, '..', '..', '..', 'node_modules', 'win-ca', 'lib', 'roots.exe'));
+        wincaAPI.exe(require.resolve('win-ca/lib/roots.exe'));
       }
 
       wincaAPI({
