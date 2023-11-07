@@ -21,7 +21,7 @@ import { cli } from '@podman-desktop/api';
 export function activate() {
   cli.createCliTool({
     markdownDescription:
-      'A command line tool used to run commands against Kubernetes clusters. It does this by authenticating with the Master Node of your cluster and making API calls to do a variety of management actions. If you are just getting started with Kubernetes, prepare to be spending a lot of time with kubectl.',
+      'A command line tool used to run commands against Kubernetes clusters. It does this by authenticating with the Control Plane Node of your cluster and making API calls to do a variety of management actions. If you are just getting started with Kubernetes, prepare to be spending a lot of time with kubectl.\n\nMore information: [kubernetes.io](https://kubernetes.io/docs/reference/kubectl/)',
     name: 'kubectl',
     displayName: 'kubectl',
     images: {
