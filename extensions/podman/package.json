@@ -101,6 +101,7 @@
           "default": 4000000000,
           "maximum": "HOST_TOTAL_MEMORY",
           "scope": "ContainerProviderConnectionFactory",
+          "step": 500000000,
           "description": "Memory"
         },
         "podman.factory.machine.diskSize": {
@@ -109,6 +110,7 @@
           "default": 100000000000,
           "minimum": 10000000000,
           "maximum": "HOST_TOTAL_DISKSIZE",
+          "step": 500000000,
           "scope": "ContainerProviderConnectionFactory",
           "description": "Disk size"
         },
