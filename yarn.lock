@@ -3404,10 +3404,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/getos@^3.0.3":
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/@types/getos/-/getos-3.0.3.tgz#f02a4b0dff3ea4b7af3184a946eb28ac5db629b9"
-  integrity sha512-hoMKap7r1Emcx5AWHrBNutzoydfoVdLEFeL2v4+veDkZKNzey17Feme6+JNcxx2U3stk3MDZ9MWGcp1pT0N4Tg==
+"@types/getos@^3.0.4":
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/@types/getos/-/getos-3.0.4.tgz#dc81e2b7c07d52776f0d781fa37f46d65d6676bd"
+  integrity sha512-OsNVsuGEBd5QoeXTgjPmA89a465hjQithLMImsiJlIi0aYP8axKWtWrsmEMfm50w6EL2oRzCz+cLkZmp9/LfZw==
 
 "@types/glob@^7.1.1":
   version "7.2.0"
