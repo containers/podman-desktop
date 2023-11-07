@@ -3245,10 +3245,10 @@
   resolved "https://registry.yarnpkg.com/@tsconfig/svelte/-/svelte-5.0.2.tgz#c9ed3575c5445afb14965bb76e8446fbf7e4a0e6"
   integrity sha512-BRbo1fOtyVbhfLyuCWw6wAWp+U8UQle+ZXu84MYYWzYSEB28dyfnRBIE99eoG+qdAC0po6L2ScIEivcT07UaMA==
 
-"@types/analytics-node@^3.1.13":
-  version "3.1.13"
-  resolved "https://registry.yarnpkg.com/@types/analytics-node/-/analytics-node-3.1.13.tgz#0337b9a74d9aad26a181af182f2e6b175c019ca7"
-  integrity sha512-f89VLQnUKPaYleh72sNOi+sM2eaWEiEgIuna6SZ7NFo/KjZWi9WKHAkUmarHaicVCzF/RmJGypxUDxC4adbNOw==
+"@types/analytics-node@^3.1.14":
+  version "3.1.14"
+  resolved "https://registry.yarnpkg.com/@types/analytics-node/-/analytics-node-3.1.14.tgz#aa4be9cddbb2b7901e67418fcaf155a599c1ffea"
+  integrity sha512-m7+SReJIPwwS0eqnJ+5WwdR4U5aU0WhVUYuQ/n177iPpyXObPy/wP7HU7mohyNeRqxGsTO8mIUYC3MRGkyxhwQ==
 
 "@types/aria-query@^5.0.1":
   version "5.0.1"

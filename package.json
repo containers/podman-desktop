@@ -99,7 +99,7 @@
     "@rollup/plugin-json": "^6.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.5",
-    "@types/analytics-node": "^3.1.13",
+    "@types/analytics-node": "^3.1.14",
     "@types/dockerode": "^3.3.22",
     "@types/getos": "^3.0.4",
     "@types/js-yaml": "^4.0.8",
