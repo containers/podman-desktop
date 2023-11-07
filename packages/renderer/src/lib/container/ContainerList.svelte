@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-import { filtered, searchPattern, containersInfos } from '../../stores/containers';
+import { containersInfos } from '../../stores/containers';
 import { viewsContributions } from '../../stores/views';
 import { context } from '../../stores/context';
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
@@ -40,6 +40,7 @@ import Button from '../ui/Button.svelte';
 import StateChange from '../ui/StateChange.svelte';
 import SolidPodIcon from '../images/SolidPodIcon.svelte';
 import ProviderInfo from '../ui/ProviderInfo.svelte';
+import { findMatchInLeaves } from '../../stores/search-util';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -51,7 +52,7 @@ let viewContributions: ViewInfoUI[] = [];
 let globalContext: ContextUI;
 let containersInfo: ContainerInfo[] = [];
 export let searchTerm = '';
-$: searchPattern.set(searchTerm);
+$: updateContainers(containersInfo, globalContext, viewContributions, searchTerm);
 
 function fromExistingImage(): void {
   openChoiceModal = false;
@@ -230,19 +231,19 @@ onMount(async () => {
   contextsUnsubscribe = context.subscribe(value => {
     globalContext = value;
     if (containersInfo.length > 0) {
-      updateContainers(containersInfo, globalContext, viewContributions);
+      updateContainers(containersInfo, globalContext, viewContributions, searchTerm);
     }
   });
 
   viewsUnsubscribe = viewsContributions.subscribe(value => {
     viewContributions = value.filter(view => view.viewId === CONTAINER_LIST_VIEW) || [];
     if (containersInfo.length > 0) {
-      updateContainers(containersInfo, globalContext, viewContributions);
+      updateContainers(containersInfo, globalContext, viewContributions, searchTerm);
     }
   });
 
-  containersUnsubscribe = filtered.subscribe(value => {
-    updateContainers(value, globalContext, viewContributions);
+  containersUnsubscribe = containersInfos.subscribe(value => {
+    updateContainers(value, globalContext, viewContributions, searchTerm);
   });
 
   podUnsubscribe = podsInfos.subscribe(podInfos => {
@@ -250,7 +251,17 @@ onMount(async () => {
   });
 });
 
-function updateContainers(containers: ContainerInfo[], globalContext: ContextUI, viewContributions: ViewInfoUI[]) {
+/* updateContainers updates the variables:
+   - containersInfo with the value of containers
+   - containerGroups based on the containers and their groups
+   - multipleEngines and enginesList based on the engines of containers
+*/
+function updateContainers(
+  containers: ContainerInfo[],
+  globalContext: ContextUI,
+  viewContributions: ViewInfoUI[],
+  searchTerm: string,
+) {
   containersInfo = containers;
   const currentContainers = containers.map((containerInfo: ContainerInfo) => {
     return containerUtils.getContainerInfoUI(containerInfo, globalContext, viewContributions);
@@ -271,7 +282,26 @@ function updateContainers(containers: ContainerInfo[], globalContext: ContextUI,
   enginesList = uniqueEngines;
 
   // create groups
-  const computedContainerGroups = containerUtils.getContainerGroups(currentContainers);
+  let computedContainerGroups = containerUtils.getContainerGroups(currentContainers);
+
+  // Filter containers in groups
+  computedContainerGroups.forEach(group => {
+    group.containers = group.containers
+      .filter(containerInfo =>
+        findMatchInLeaves(containerInfo, containerUtils.filterSearchTerm(searchTerm).toLowerCase()),
+      )
+      .filter(containerInfo => {
+        if (containerUtils.filterIsRunning(searchTerm)) {
+          return containerInfo.state === 'RUNNING';
+        }
+        if (containerUtils.filterIsStopped(searchTerm)) {
+          return containerInfo.state !== 'RUNNING';
+        }
+        return true;
+      });
+  });
+  // Remove groups with all containers filtered
+  computedContainerGroups = computedContainerGroups.filter(group => group.containers.length > 0);
 
   // update selected items based on current selected items
   computedContainerGroups.forEach(group => {
@@ -297,6 +327,14 @@ function updateContainers(containers: ContainerInfo[], globalContext: ContextUI,
   // compute refresh interval
   const interval = computeInterval();
   refreshTimeouts.push(setTimeout(refreshUptime, interval));
+}
+
+function displayContainersCount(containerGroup: ContainerGroupInfoUI) {
+  let result = containerGroup.allContainersCount + ' container' + (containerGroup.allContainersCount > 1 ? 's' : '');
+  if (containerGroup.containers.length !== containerGroup.allContainersCount) {
+    result += ` (${containerGroup.allContainersCount - containerGroup.containers.length} filtered)`;
+  }
+  return result;
 }
 
 onDestroy(() => {
@@ -402,6 +440,18 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
   container.state = 'ERROR';
   containerGroups = [...containerGroups];
 }
+
+function resetRunningFilter() {
+  searchTerm = containerUtils.filterResetRunning(searchTerm);
+}
+
+function setRunningFilter() {
+  searchTerm = containerUtils.filterSetRunning(searchTerm);
+}
+
+function setStoppedFilter() {
+  searchTerm = containerUtils.filterSetStopped(searchTerm);
+}
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="containers">
@@ -430,6 +480,15 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
         icon="{SolidPodIcon}" />
       <span class="pl-2">On {selectedItemsNumber} selected items.</span>
     {/if}
+  </div>
+
+  <div class="flex flex-row px-2 mb-2 border-b border-charcoal-400" slot="tabs">
+    <Button type="tab" on:click="{() => resetRunningFilter()}" selected="{containerUtils.filterIsAll(searchTerm)}"
+      >All containers</Button>
+    <Button type="tab" on:click="{() => setRunningFilter()}" selected="{containerUtils.filterIsRunning(searchTerm)}"
+      >Running containers</Button>
+    <Button type="tab" on:click="{() => setStoppedFilter()}" selected="{containerUtils.filterIsStopped(searchTerm)}"
+      >Stopped containers</Button>
   </div>
 
   <div class="flex min-w-full h-full" slot="content">
@@ -489,7 +548,7 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
                       {containerGroup.name} ({containerGroup.type})
                     </button>
                     <div class="text-xs font-extra-light text-gray-900">
-                      {containerGroup.containers.length} container{containerGroup.containers.length > 1 ? 's' : ''}
+                      {displayContainersCount(containerGroup)}
                     </div>
                   </div>
                 </div>
@@ -633,11 +692,17 @@ function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
 
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
-    {:else if $filtered.length === 0}
-      {#if searchTerm}
-        <FilteredEmptyScreen icon="{ContainerIcon}" kind="containers" bind:searchTerm="{searchTerm}" />
+    {:else if containerGroups.length === 0}
+      {#if containerUtils.filterSearchTerm(searchTerm)}
+        <FilteredEmptyScreen
+          icon="{ContainerIcon}"
+          kind="containers"
+          on:resetFilter="{() => (searchTerm = containerUtils.filterResetSearchTerm(searchTerm))}"
+          searchTerm="{containerUtils.filterSearchTerm(searchTerm)}" />
       {:else}
-        <ContainerEmptyScreen />
+        <ContainerEmptyScreen
+          runningOnly="{containerUtils.filterIsRunning(searchTerm)}"
+          stoppedOnly="{containerUtils.filterIsStopped(searchTerm)}" />
       {/if}
     {/if}
   </div>
