@@ -10,16 +10,6 @@
     "podman-desktop": "^0.0.1"
   },
   "main": "./dist/extension.js",
-  "contributes": {
-    "cliTools": {
-      "name": "kubectl",
-      "displayName": "kubectl",
-      "markdownDescription": "A command line tool used to run commands against Kubernetes clusters. It does this by authenticating with the Master Node of your cluster and making API calls to do a variety of management actions. If you're just getting started with Kubernetes, prepare to be spending a lot of time with kubectl",
-      "images": {
-        "icon": "icon.png"
-      }
-    }
-  },
   "scripts": {
     "build": "vite build && node ./scripts/build.js",
     "test": "vitest run --coverage",
