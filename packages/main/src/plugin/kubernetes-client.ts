@@ -28,6 +28,7 @@ import type {
   V1ContainerState,
   V1APIResource,
   V1APIGroup,
+  Cluster,
 } from '@kubernetes/client-node';
 import {
   ApisApi,
@@ -253,6 +254,10 @@ export class KubernetesClient {
 
   getCurrentContextName(): string | undefined {
     return this.currentContextName;
+  }
+
+  getClusters(): Cluster[] {
+    return this.kubeConfig.clusters;
   }
 
   getCurrentNamespace(): string | undefined {

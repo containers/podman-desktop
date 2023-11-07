@@ -63,7 +63,16 @@ import type {
   PodCreateOptions,
   ContainerCreateOptions as PodmanContainerCreateOptions,
 } from '../../main/src/plugin/dockerode/libpod-dockerode';
-import type { V1ConfigMap, V1Ingress, V1NamespaceList, V1Pod, V1PodList, V1Service } from '@kubernetes/client-node';
+import type {
+  Cluster,
+  Context,
+  V1ConfigMap,
+  V1Ingress,
+  V1NamespaceList,
+  V1Pod,
+  V1PodList,
+  V1Service,
+} from '@kubernetes/client-node';
 import type { Menu } from '../../main/src/plugin/menu-registry';
 import type { MessageBoxOptions, MessageBoxReturnValue } from '../../main/src/plugin/message-box';
 import type { ViewInfoUI } from '../../main/src/plugin/api/view-info';
@@ -1397,6 +1406,14 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('kubernetesGetCurrentContextName', async (): Promise<string | undefined> => {
     return ipcInvoke('kubernetes-client:getCurrentContextName');
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesGetContexts', async (): Promise<Context[]> => {
+    return ipcInvoke('kubernetes-client:getContexts');
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesGetClusters', async (): Promise<Cluster[]> => {
+    return ipcInvoke('kubernetes-client:getClusters');
   });
 
   contextBridge.exposeInMainWorld('kubernetesGetCurrentNamespace', async (): Promise<string | undefined> => {
