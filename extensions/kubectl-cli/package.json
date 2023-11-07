@@ -1,0 +1,46 @@
+{
+  "name": "kubectl-cli-tool",
+  "displayName": "kubectl CLI Tool for Podman Desktop",
+  "description": "Install and update kubectl CLI Tools without leaving Podman Desktop",
+  "version": "0.0.1",
+  "icon": "icon.png",
+  "publisher": "redhat",
+  "license": "Apache-2.0",
+  "engines": {
+    "podman-desktop": "^0.0.1"
+  },
+  "main": "./dist/extension.js",
+  "contributes": {
+    "cliTools": {
+      "name": "kubectl",
+      "displayName": "kubectl",
+      "markdownDescription": "A command line tool used to run commands against Kubernetes clusters. It does this by authenticating with the Master Node of your cluster and making API calls to do a variety of management actions. If you're just getting started with Kubernetes, prepare to be spending a lot of time with kubectl",
+      "images": {
+        "icon": "icon.png"
+      }
+    }
+  },
+  "scripts": {
+    "build": "vite build && node ./scripts/build.js",
+    "test": "vitest run --coverage",
+    "watch": "vite build -w",
+    "format:check": "prettier --check \"**/*.ts\" \"scripts/*.js\"",
+    "format:fix": "prettier --write \"**/*.ts\" \"scripts/*.js\""
+  },
+  "dependencies": {
+    "@podman-desktop/api": "^1.2.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.1",
+    "@types/node": "^18.15.11",
+    "7zip-min": "^1.4.3",
+    "byline": "^5.0.0",
+    "copyfiles": "^2.4.1",
+    "mkdirp": "^2.1.3",
+    "prettier": "^2.8.8",
+    "typescript": "^5.0.4",
+    "vite": "^4.3.9",
+    "vitest": "^0.34.6",
+    "zip-local": "^0.3.5"
+  }
+}
