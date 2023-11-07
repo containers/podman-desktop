@@ -22,7 +22,7 @@
     "@tsconfig/svelte": "^5.0.2",
     "@types/js-yaml": "^4.0.8",
     "@types/validator": "^13.11.5",
-    "@typescript-eslint/eslint-plugin": "6.9.1",
+    "@typescript-eslint/eslint-plugin": "6.10.0",
     "autoprefixer": "^10.4.16",
     "eslint-plugin-svelte": "^2.35.0",
     "filesize": "^10.1.0",
