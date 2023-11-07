@@ -100,7 +100,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.5",
     "@types/analytics-node": "^3.1.14",
-    "@types/dockerode": "^3.3.22",
+    "@types/dockerode": "^3.3.23",
     "@types/getos": "^3.0.4",
     "@types/js-yaml": "^4.0.8",
     "@types/node": "^18",
