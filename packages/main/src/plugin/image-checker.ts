@@ -1,6 +1,6 @@
 import type { Disposable, ImageCheckResult, ImageCheckerProvider } from '@podman-desktop/api';
 import type { ApiSenderType } from './api.js';
-import type { ImageCheckerInfo } from './api/image-checker-info.js';
+import type { ImageCheckerExtensionInfo, ImageCheckerInfo } from './api/image-checker-info.js';
 
 export interface ImageCheckerProviderWithMetadata {
   id: string;
@@ -15,9 +15,12 @@ export class ImageCheckerImpl {
 
   constructor(private apiSender: ApiSenderType) {}
 
-  registerImageCheckerProvider(id: string, provider: ImageCheckerProvider): Disposable {
+  registerImageCheckerProvider(extensionInfo: ImageCheckerExtensionInfo, provider: ImageCheckerProvider): Disposable {
+    const id = `${extensionInfo.id}.${provider.name}`;
     if (this._imageCheckerProviders.get(id)) {
-      throw new Error(`An authentication provider with id '${id}' is already registered.`);
+      throw new Error(
+        `An Image Checker provider with name '${provider.name}' is already registered from extension '${extensionInfo.id}'.`,
+      );
     }
     this._imageCheckerProviders.set(id, {
       id,

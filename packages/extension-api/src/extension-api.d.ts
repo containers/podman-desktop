@@ -2506,6 +2506,6 @@ declare module '@podman-desktop/api' {
   }
 
   export namespace imageChecker {
-    export function registerImageCheckerProvider(id: string, imageCheckerProvider: ImageCheckerProvider): Disposable;
+    export function registerImageCheckerProvider(imageCheckerProvider: ImageCheckerProvider): Disposable;
   }
 }

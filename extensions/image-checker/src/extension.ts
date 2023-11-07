@@ -31,7 +31,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   });
   extensionContext.subscriptions.push(provider);
 
-  const imageChecker = extensionApi.imageChecker.registerImageCheckerProvider('image-checker-provider', {
+  const imageChecker = extensionApi.imageChecker.registerImageCheckerProvider({
     name: 'Image Checker',
     categories: ['tests'],
     checkImage: (_image: string): Promise<extensionApi.ImageCheckResult> => {
