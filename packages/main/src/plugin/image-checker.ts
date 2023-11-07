@@ -39,7 +39,6 @@ export class ImageCheckerImpl {
       const el = this._imageCheckerProviders.get(k)!;
       return {
         id: k,
-        categories: el.provider.categories,
         name: el.provider.name,
       };
     });

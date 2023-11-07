@@ -33,7 +33,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   const imageChecker = extensionApi.imageChecker.registerImageCheckerProvider({
     name: 'Image Checker',
-    categories: ['tests'],
     checkImage: (_image: string): Promise<extensionApi.ImageCheckResult> => {
       return new Promise((resolve, _reject) => {
         setTimeout(() => {
@@ -41,11 +40,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
             status: 'done',
             partialResults: [
               {
-                category: 'tests',
                 description: 'a warning',
               },
               {
-                category: 'tests',
                 description: 'another warning',
               },
             ],

@@ -2490,7 +2490,6 @@ declare module '@podman-desktop/api' {
   }
 
   export interface ImageCheckPartialResult {
-    category: string;
     description: string;
   }
 
@@ -2501,7 +2500,6 @@ declare module '@podman-desktop/api' {
 
   export interface ImageCheckerProvider {
     readonly name: string;
-    readonly categories: string[];
     checkImage(image: string): Promise<ImageCheckResult>;
   }
 
