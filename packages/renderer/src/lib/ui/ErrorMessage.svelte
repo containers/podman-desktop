@@ -10,7 +10,7 @@ export let icon = false;
 {#if icon}
   {#if error !== undefined && error !== ''}
     <Tooltip tip="{error}" top>
-      <Fa size="18" class="cursor-pointer text-red-500" icon="{faExclamationCircle}" />
+      <Fa size="18" class="cursor-pointer text-red-500 {$$props.class}" icon="{faExclamationCircle}" />
     </Tooltip>
   {/if}
 {:else}

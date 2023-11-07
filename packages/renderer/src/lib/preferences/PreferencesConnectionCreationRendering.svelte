@@ -3,7 +3,7 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
-import { getNormalizedDefaultNumberValue, writeToTerminal, isPropertyValidInContext, getInitialValue } from './Util';
+import { writeToTerminal, isPropertyValidInContext, getInitialValue } from './Util';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import {
   clearCreateTask,
@@ -19,7 +19,6 @@ import { get, type Unsubscriber } from 'svelte/store';
 import { onDestroy, onMount } from 'svelte';
 /* eslint-enable import/no-duplicates */
 import { createConnectionsInfo } from '/@/stores/create-connections';
-import { filesize } from 'filesize';
 import { router } from 'tinro';
 import LinearProgress from '../ui/LinearProgress.svelte';
 import Spinner from '../ui/Spinner.svelte';
@@ -32,6 +31,7 @@ import { faCubes } from '@fortawesome/free-solid-svg-icons';
 import Button from '../ui/Button.svelte';
 import type { ContextUI } from '/@/lib/context/context';
 import { context } from '/@/stores/context';
+import EditableConnectionResourceItem from './item-formats/EditableConnectionResourceItem.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInfo: ProviderInfo;
@@ -206,16 +206,6 @@ function setConfigurationValue(id: string, value: string | boolean | number) {
   configurationValues = configurationValues;
 }
 
-function getDisplayConfigurationValue(configurationKey: IConfigurationPropertyRecordedSchema, value?: any) {
-  if (configurationKey.format === 'memory' || configurationKey.format === 'diskSize') {
-    return value ? filesize(value) : filesize(getNormalizedDefaultNumberValue(configurationKey));
-  } else if (configurationKey.format === 'cpu') {
-    return value ? value : getNormalizedDefaultNumberValue(configurationKey);
-  } else {
-    return '';
-  }
-}
-
 let logsTerminal: Terminal;
 let loggerHandlerKey: symbol | undefined = undefined;
 
@@ -346,6 +336,19 @@ function closePage() {
     name: providerInfo.name,
   });
 }
+
+function getConnectionResourceConfigurationValue(
+  configurationKey: IConfigurationPropertyRecordedSchema,
+  configurationValues: Map<string, string | boolean | number>,
+): number | undefined {
+  if (configurationKey.id && configurationValues.has(configurationKey.id)) {
+    const value = configurationValues.get(configurationKey.id);
+    if (typeof value === 'number') {
+      return value;
+    }
+  }
+  return undefined;
+}
 </script>
 
 <div class="flex flex-col w-full h-full overflow-hidden">
@@ -416,25 +419,29 @@ function closePage() {
             aria-label="Properties Information">
             {#each configurationKeys as configurationKey}
               <div class="mb-2.5">
-                <div class="font-semibold text-xs">
+                <div class="flex flex-row items-center font-semibold text-xs h-[30px]">
                   {#if configurationKey.description}
                     {configurationKey.description}:
                   {:else if configurationKey.markdownDescription && configurationKey.type !== 'markdown'}
                     <Markdown>{configurationKey.markdownDescription}:</Markdown>
                   {/if}
-                  {#if configurationKey.id && configurationValues.has(configurationKey.id)}
-                    {getDisplayConfigurationValue(configurationKey, configurationValues.get(configurationKey.id))}
-                  {:else}
-                    {getDisplayConfigurationValue(configurationKey)}
+                  {#if configurationKey.format === 'memory' || configurationKey.format === 'diskSize' || configurationKey.format === 'cpu'}
+                    <EditableConnectionResourceItem
+                      record="{configurationKey}"
+                      value="{getConnectionResourceConfigurationValue(configurationKey, configurationValues)}"
+                      onSave="{setConfigurationValue}" />
                   {/if}
                 </div>
-                <PreferencesRenderingItemFormat
-                  invalidRecord="{handleInvalidComponent}"
-                  validRecord="{handleValidComponent}"
-                  record="{configurationKey}"
-                  setRecordValue="{setConfigurationValue}"
-                  enableSlider="{true}"
-                  initialValue="{getInitialValue(configurationKey)}" />
+                {#if configurationValues}
+                  <PreferencesRenderingItemFormat
+                    invalidRecord="{handleInvalidComponent}"
+                    validRecord="{handleValidComponent}"
+                    record="{configurationKey}"
+                    setRecordValue="{setConfigurationValue}"
+                    enableSlider="{true}"
+                    initialValue="{getInitialValue(configurationKey)}"
+                    givenValue="{getConnectionResourceConfigurationValue(configurationKey, configurationValues)}" />
+                {/if}
               </div>
             {/each}
             <div class="w-full">

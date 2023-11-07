@@ -22,6 +22,7 @@ export let enableSlider = false;
 export let record: IConfigurationPropertyRecordedSchema;
 
 export let initialValue: Promise<any>;
+export let givenValue: unknown = undefined;
 
 let currentRecord: IConfigurationPropertyRecordedSchema;
 let recordUpdateTimeout: NodeJS.Timeout;
@@ -111,36 +112,36 @@ async function onChange(recordId: string, value: boolean | string | number): Pro
 }
 </script>
 
-<div class="flex flex-row mb-1 pt-2">
-  <div class="flex flex-col text-start w-full justify-center items-end">
-    {#if record.type === 'boolean'}
-      <BooleanItem record="{record}" checked="{!!recordValue}" onChange="{onChange}" />
-    {:else if record.type === 'number'}
-      {#if enableSlider && typeof record.maximum === 'number'}
-        <SliderItem record="{record}" value="{getNormalizedDefaultNumberValue(record)}" onChange="{onChange}" />
-      {:else}
-        <NumberItem
-          record="{record}"
-          value="{typeof recordValue === 'number' ? recordValue : getNormalizedDefaultNumberValue(record)}"
-          onChange="{onChange}"
-          invalidRecord="{invalidRecord}" />
-      {/if}
-    {:else if record.type === 'string' && (typeof recordValue === 'string' || recordValue === undefined)}
-      {#if record.format === 'file'}
-        <FileItem record="{record}" value="{recordValue || ''}" onChange="{onChange}" />
-      {:else if record.enum && record.enum.length > 0}
-        <EnumItem record="{record}" value="{recordValue}" onChange="{onChange}" />
-      {:else}
-        <StringItem record="{record}" value="{recordValue}" onChange="{onChange}" />
-      {/if}
-    {:else if record.type === 'markdown'}
-      <div class="text-sm">
-        <Markdown>{record.markdownDescription}</Markdown>
-      </div>
+<div class="flex flex-row mb-1 pt-2 text-start items-center justify-start">
+  {#if invalidText}
+    <ErrorMessage error="{invalidText}." icon="{true}" class="mr-2" />
+  {/if}
+  {#if record.type === 'boolean'}
+    <BooleanItem record="{record}" checked="{!!recordValue}" onChange="{onChange}" />
+  {:else if record.type === 'number'}
+    {#if enableSlider && typeof record.maximum === 'number'}
+      <SliderItem
+        record="{record}"
+        value="{typeof givenValue === 'number' ? givenValue : getNormalizedDefaultNumberValue(record)}"
+        onChange="{onChange}" />
+    {:else}
+      <NumberItem
+        record="{record}"
+        value="{typeof recordValue === 'number' ? recordValue : getNormalizedDefaultNumberValue(record)}"
+        onChange="{onChange}"
+        invalidRecord="{invalidRecord}" />
     {/if}
-
-    {#if invalidText}
-      <ErrorMessage error="{invalidText}." />
+  {:else if record.type === 'string' && (typeof recordValue === 'string' || recordValue === undefined)}
+    {#if record.format === 'file'}
+      <FileItem record="{record}" value="{recordValue || ''}" onChange="{onChange}" />
+    {:else if record.enum && record.enum.length > 0}
+      <EnumItem record="{record}" value="{recordValue}" onChange="{onChange}" />
+    {:else}
+      <StringItem record="{record}" value="{recordValue}" onChange="{onChange}" />
     {/if}
-  </div>
+  {:else if record.type === 'markdown'}
+    <div class="text-sm">
+      <Markdown>{record.markdownDescription}</Markdown>
+    </div>
+  {/if}
 </div>
