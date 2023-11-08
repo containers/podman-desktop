@@ -16,6 +16,7 @@
       "packages/*",
       "extensions/*",
       "website",
+      "website-argos",
       "tools"
     ]
   },
@@ -60,8 +61,8 @@
     "test:tools": "vitest run tools --passWithNoTests --coverage",
     "test:watch": "vitest watch",
     "watch": "node scripts/watch.cjs",
-    "format:check": "prettier --cache --check \"{extensions,packages,tests,types}/**/*.{ts,svelte}\" \"extensions/*/scripts/build.js\" \"website/**/*.{md,js}\" \"website/src/**/*.{css,tsx}\"",
-    "format:fix": "prettier --cache --write \"{extensions,packages,tests,types,tools}/**/*.{ts,svelte}\" \"extensions/*/scripts/build.js\" \"website/**/*.{md,js}\" \"website/src/**/*.{css,tsx}\"",
+    "format:check": "prettier --cache --check \"{extensions,packages,tests,types,tools,website-argos}/**/*.{ts,svelte}\" \"extensions/*/scripts/build.js\" \"website/**/*.{md,js}\" \"website/src/**/*.{css,tsx}\"",
+    "format:fix": "prettier --cache --write \"{extensions,packages,tests,types,tools,website-argos}/**/*.{ts,svelte}\" \"extensions/*/scripts/build.js\" \"website/**/*.{md,js}\" \"website/src/**/*.{css,tsx}\"",
     "markdownlint:check": "markdownlint-cli2 \"website/**/*.md\" \"#website/node_modules\"",
     "markdownlint:fix": "markdownlint-cli2-fix \"website/**/*.md\" \"#website/node_modules\"",
     "lint:clean": "rimraf .eslintcache",
@@ -84,6 +85,7 @@
     "website:build": "cd website && yarn run docusaurus build",
     "website:prod": "cd website && yarn run docusaurus build && yarn serve",
     "website:dev": "cd website && yarn run docusaurus start",
+    "website:screenshots": "cd website-argos && yarn run screenshot",
     "prepare": "husky install"
   },
   "lint-staged": {
@@ -96,7 +98,7 @@
   "devDependencies": {
     "@commitlint/cli": "^18.2.0",
     "@commitlint/config-conventional": "^18.1.0",
-    "@playwright/test": "^1.39.0",
+    "@playwright/test": "1.37.1",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-json": "^6.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",

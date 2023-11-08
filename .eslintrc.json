@@ -24,6 +24,7 @@
     "project": [
       "packages/*/tsconfig.json",
       "./website/tsconfig.json",
+      "./website-argos/tsconfig.json",
       "./extensions/*/tsconfig.json",
       "./tests/tsconfig.json",
       "./tools/tsconfig.json"
