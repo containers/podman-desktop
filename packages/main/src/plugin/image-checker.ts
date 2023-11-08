@@ -1,4 +1,5 @@
 import type {
+  CancellationToken,
   Disposable,
   ImageCheckerProvider,
   ImageCheckerProviderMetadata,
@@ -63,11 +64,11 @@ export class ImageCheckerImpl {
     });
   }
 
-  async check(providerId: string, image: ImageInfo): Promise<ImageChecks | undefined> {
+  async check(providerId: string, image: ImageInfo, token?: CancellationToken): Promise<ImageChecks | undefined> {
     const provider = this._imageCheckerProviders.get(providerId);
     if (provider === undefined) {
       throw new Error('provider not found with id ' + providerId);
     }
-    return provider.provider.check(image);
+    return provider.provider.check(image, token);
   }
 }

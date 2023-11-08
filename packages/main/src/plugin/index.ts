@@ -1970,8 +1970,18 @@ export class PluginSystem {
 
     this.ipcHandle(
       'image-checker:check',
-      async (_listener, id: string, image: ImageInfo): Promise<containerDesktopAPI.ImageChecks | undefined> => {
-        return imageChecker.check(id, image);
+      async (
+        _listener,
+        id: string,
+        image: ImageInfo,
+        tokenId?: number,
+      ): Promise<containerDesktopAPI.ImageChecks | undefined> => {
+        let token;
+        if (tokenId) {
+          const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
+          token = tokenSource?.token;
+        }
+        return imageChecker.check(id, image, token);
       },
     );
 
