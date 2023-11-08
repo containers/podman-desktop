@@ -109,10 +109,13 @@ Kubernetes questions & development:
 
 Check out the [list of companies](./ADOPTERS.md) already using Podman Desktop.
 
-
 ## Code of Conduct
 
 This project uses the [Containers Community Code of Conduct](https://github.com/containers/common/blob/main/CODE-OF-CONDUCT.md).
+
+## Testing
+
+[![Covered by Argos Visual Testing](https://argos-ci.com/badge.svg)](https://app.argos-ci.com/containers/podman-desktop/reference)
 
 ## License
 
