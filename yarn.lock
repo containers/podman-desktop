@@ -3726,10 +3726,10 @@
     "@types/node" "*"
     "@types/stream-chain" "*"
 
-"@types/tar-fs@^2.0.3":
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/@types/tar-fs/-/tar-fs-2.0.3.tgz#99c128ccd8a8a24e9446e0893d6fa393f9cf7e16"
-  integrity sha512-ADS99HAnztB8MD+LSOdzDrDLcSe5oBIg+SUQwwsgnsOgZobWoSqYmg9ZJWdvLppoKV8R8kZinX6Om+LlsNuIlQ==
+"@types/tar-fs@^2.0.4":
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/@types/tar-fs/-/tar-fs-2.0.4.tgz#7c7502d281d436db0ad0f78282acef71da02a292"
+  integrity sha512-ipPec0CjTmVDWE+QKr9cTmIIoTl7dFG/yARCM5MqK8i6CNLIG1P8x4kwDsOQY1ChZOZjH0wO9nvfgBvWl4R3kA==
   dependencies:
     "@types/node" "*"
     "@types/tar-stream" "*"
