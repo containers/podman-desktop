@@ -3718,10 +3718,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/stream-json@^1.7.5":
-  version "1.7.5"
-  resolved "https://registry.yarnpkg.com/@types/stream-json/-/stream-json-1.7.5.tgz#14a0d95c7dd681f67a4d5914a233e859c09bf2c9"
-  integrity sha512-IVTtojYNqc6RT9FWBlwPLG6QTVdv2gHdqHOyBYPgcsCKfwIxcQpKw0e0ybQVyCvJJT9Le6w9RB5r5c6mo2m+IQ==
+"@types/stream-json@^1.7.6":
+  version "1.7.6"
+  resolved "https://registry.yarnpkg.com/@types/stream-json/-/stream-json-1.7.6.tgz#e7ff3aa65678fe6fe47f2d0b49465953b2cf0739"
+  integrity sha512-ABja1RSTb7mImRPO665nxLHsLsuUEGNC1QC57Z4UQs835PIZHrLfQ9gMM+71+E9Tx5bZSNsyg1zaVThwZvgU4Q==
   dependencies:
     "@types/node" "*"
     "@types/stream-chain" "*"
