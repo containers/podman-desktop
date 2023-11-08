@@ -1022,8 +1022,9 @@ export class ExtensionLoader {
     const imageChecker: typeof containerDesktopAPI.imageChecker = {
       registerImageCheckerProvider: (
         provider: containerDesktopAPI.ImageCheckerProvider,
+        metadata?: containerDesktopAPI.ImageCheckerProviderMetadata,
       ): containerDesktopAPI.Disposable => {
-        return imageCheckerProvider.registerImageCheckerProvider(extensionInfo, provider);
+        return imageCheckerProvider.registerImageCheckerProvider(extensionInfo, provider, metadata);
       },
     };
 

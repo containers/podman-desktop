@@ -1,9 +1,15 @@
-import type { Disposable, ImageCheckResult, ImageCheckerProvider } from '@podman-desktop/api';
+import type {
+  Disposable,
+  ImageCheckResult,
+  ImageCheckerProvider,
+  ImageCheckerProviderMetadata,
+} from '@podman-desktop/api';
 import type { ApiSenderType } from './api.js';
 import type { ImageCheckerExtensionInfo, ImageCheckerInfo } from './api/image-checker-info.js';
 
 export interface ImageCheckerProviderWithMetadata {
   id: string;
+  label: string;
   provider: ImageCheckerProvider;
 }
 
@@ -15,15 +21,27 @@ export class ImageCheckerImpl {
 
   constructor(private apiSender: ApiSenderType) {}
 
-  registerImageCheckerProvider(extensionInfo: ImageCheckerExtensionInfo, provider: ImageCheckerProvider): Disposable {
-    const id = `${extensionInfo.id}.${provider.name}`;
-    if (this._imageCheckerProviders.get(id)) {
-      throw new Error(
-        `An Image Checker provider with name '${provider.name}' is already registered from extension '${extensionInfo.id}'.`,
-      );
+  registerImageCheckerProvider(
+    extensionInfo: ImageCheckerExtensionInfo,
+    provider: ImageCheckerProvider,
+    metadata?: ImageCheckerProviderMetadata,
+  ): Disposable {
+    const label = metadata?.label ?? extensionInfo.label;
+    const idBase = `${extensionInfo.id}-`;
+    let id: string = '';
+    for (let i = 0; ; i++) {
+      const newId = idBase + i;
+      if (!this._imageCheckerProviders.get(newId)) {
+        id = newId;
+        break;
+      }
+    }
+    if (id === '') {
+      throw new Error(`Unable to register an image checker for extension '${extensionInfo.id}'.`);
     }
     this._imageCheckerProviders.set(id, {
       id,
+      label,
       provider,
     });
     this.apiSender.send('image-checker-provider-update', { id });
@@ -39,7 +57,7 @@ export class ImageCheckerImpl {
       const el = this._imageCheckerProviders.get(k)!;
       return {
         id: k,
-        name: el.provider.name,
+        label: el.label,
       };
     });
   }

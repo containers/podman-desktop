@@ -2499,11 +2499,17 @@ declare module '@podman-desktop/api' {
   }
 
   export interface ImageCheckerProvider {
-    readonly name: string;
     checkImage(image: string): Promise<ImageCheckResult>;
   }
 
+  export interface ImageCheckerProviderMetadata {
+    readonly label: string;
+  }
+
   export namespace imageChecker {
-    export function registerImageCheckerProvider(imageCheckerProvider: ImageCheckerProvider): Disposable;
+    export function registerImageCheckerProvider(
+      imageCheckerProvider: ImageCheckerProvider,
+      metadata?: ImageCheckerProviderMetadata,
+    ): Disposable;
   }
 }

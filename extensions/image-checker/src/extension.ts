@@ -21,7 +21,7 @@ import * as extensionApi from '@podman-desktop/api';
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   // Create a provider with an example name, ID and icon
   const provider = extensionApi.provider.createProvider({
-    name: 'Image Checker',
+    name: 'Image Checker Extension',
     id: 'image-checker',
     status: 'unknown',
     images: {
@@ -31,26 +31,30 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   });
   extensionContext.subscriptions.push(provider);
 
-  const imageChecker = extensionApi.imageChecker.registerImageCheckerProvider({
-    name: 'Image Checker',
-    checkImage: (_image: string): Promise<extensionApi.ImageCheckResult> => {
-      return new Promise((resolve, _reject) => {
-        setTimeout(() => {
-          return resolve({
-            status: 'done',
-            partialResults: [
-              {
-                description: 'a warning',
-              },
-              {
-                description: 'another warning',
-              },
-            ],
-          });
-        }, 1000);
-      });
+  const imageChecker = extensionApi.imageChecker.registerImageCheckerProvider(
+    {
+      checkImage: (_image: string): Promise<extensionApi.ImageCheckResult> => {
+        return new Promise((resolve, _reject) => {
+          setTimeout(() => {
+            return resolve({
+              status: 'done',
+              partialResults: [
+                {
+                  description: 'a warning',
+                },
+                {
+                  description: 'another warning',
+                },
+              ],
+            });
+          }, 1000);
+        });
+      },
     },
-  });
+    {
+      label: 'Image Checker provider',
+    },
+  );
   extensionContext.subscriptions.push(imageChecker);
 }
 
