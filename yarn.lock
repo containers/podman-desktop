@@ -3741,10 +3741,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/tar@^6.1.7":
-  version "6.1.7"
-  resolved "https://registry.yarnpkg.com/@types/tar/-/tar-6.1.7.tgz#c4244e478fe6a3f36ea3fe2de69d3053d7ddcd28"
-  integrity sha512-57ovoJf/lFhugSbDqDgpulTfm78uwO0Pa3EwgO3Op2IAIDZaDE4Z/orZ2yl25QRr8NQa1xjms9ElcoHx4pUedQ==
+"@types/tar@^6.1.8":
+  version "6.1.8"
+  resolved "https://registry.yarnpkg.com/@types/tar/-/tar-6.1.8.tgz#1432a625a86705788989a9d09cb6893b51e0f33f"
+  integrity sha512-p8Rc0vas9n+7cv0JiSdUMHiL42gOflrj3v0RMSbe8x5lauEygCEFpS0B/Rw9ZI62qrxlsvZqTggIEIas2gBQrA==
   dependencies:
     "@types/node" "*"
     minipass "^4.0.0"
