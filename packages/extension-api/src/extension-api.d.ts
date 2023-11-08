@@ -151,10 +151,8 @@ declare module '@podman-desktop/api' {
    *  }
    *
    * let b: ImageCheckerProvider = {
-   *  check(image: ImageInfo, token?: CancellationToken): ProviderResult<ImageChecks> {
-   * 		return new Promise(resolve => {
-   * 			resolve(new ImageChecks());
-   * 	 	});
+   *  async check(image: ImageInfo, token?: CancellationToken): ProviderResult<ImageChecks> {
+   * 		return new ImageChecks();
    * 	}
    * }
    *
@@ -165,7 +163,7 @@ declare module '@podman-desktop/api' {
    * }
    * ```
    */
-  export type ProviderResult<T> = T | undefined | null | Promise<T | undefined | null>;
+  export type ProviderResult<T> = T | undefined | Promise<T | undefined>;
 
   export type ProviderStatus =
     | 'not-installed'
