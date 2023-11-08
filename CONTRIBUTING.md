@@ -362,12 +362,12 @@ See our [EXTENSIONS.md](/EXTENSIONS.md) document for more details.
 
 List of maintainer tasks to help the project run smoothly.
 
-### Triaging
+### Triage manager
 
-New issues will have the [status/need-triage](https://github.com/containers/podman-desktop/issues?q=is%3Aopen+is%3Aissue+label%3Astatus%2Fneed-triage) label assigned. As a maintainer, you'll have to curate these issues into the appropriate [area labels](https://github.com/containers/podman-desktop/labels?q=area%2F).
+Each sprint a new "Triage manager" will be assigned.
 
-Ideally complete the task every morning:
-
-1. [View all the current triage labeled issues.](https://github.com/containers/podman-desktop/issues?q=is%3Aopen+is%3Aissue+label%3Astatus%2Fneed-triage)
-2. Add the appropriate [area label](https://github.com/containers/podman-desktop/labels?q=area%2F) that matches the issue. You can use "bulk edit" by clicking the checkmark of the issues and using the label dropdown selection.
-3. Remove the `status/need-triage` label.
+Your responsibilities include:
+* Reviewing the [status/need-triage](https://github.com/containers/podman-desktop/issues?q=is%3Aopen+is%3Aissue+label%3Astatus%2Fneed-triage) label on new issues. As a maintainer, you will need to categorize these issues under the correct [area labels](https://github.com/containers/podman-desktop/labels?q=area%2F). Once categorized, remove the `status/need-triage` label and apply the appropriate area label.
+* Evaluating the severity of new issues. If an issue is classified as "critical" or "high priority" and requires immediate attention, tag a maintainer in the issue and notify them via the public community channel.
+* Identifying issues that are simple to resolve and marking them as "good first issue," thereby encouraging newcomers to contribute to the project.
+* Evaluating any stale / lingering pull requests and pinging the respective contributors. If the pull request has been opened for an extensive amount of time, ping someone to contact the contributor / push any changes required to get it merged in. If there is no communication / the pull request is stale, close them.
