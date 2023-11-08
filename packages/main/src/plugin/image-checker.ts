@@ -63,13 +63,11 @@ export class ImageCheckerImpl {
     });
   }
 
-  check(id: string, image: ImageInfo): Promise<ImageChecks> {
-    return new Promise((resolve, reject) => {
-      const provider = this._imageCheckerProviders.get(id);
-      if (provider === undefined) {
-        return reject(new Error('provider not found with id ' + id));
-      }
-      return resolve(provider.provider.check(image));
-    });
+  async check(providerId: string, image: ImageInfo): Promise<ImageChecks | undefined> {
+    const provider = this._imageCheckerProviders.get(providerId);
+    if (provider === undefined) {
+      throw new Error('provider not found with id ' + providerId);
+    }
+    return provider.provider.check(image);
   }
 }

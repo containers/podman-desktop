@@ -6,7 +6,7 @@ import type { ImageInfoUI } from './ImageInfoUI';
 export let image: ImageInfoUI;
 
 let providers: ImageCheckerInfo[];
-let result: ImageChecks;
+let result: ImageChecks | undefined;
 
 // TODO: move this to a state
 window.getImageCheckerProviders().then(_providers => {
