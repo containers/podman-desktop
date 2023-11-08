@@ -1970,8 +1970,8 @@ export class PluginSystem {
 
     this.ipcHandle(
       'image-checker:check',
-      async (_listener, id: string, image: string): Promise<containerDesktopAPI.ImageCheckResult> => {
-        return imageChecker.checkImage(id, image);
+      async (_listener, id: string, image: ImageInfo): Promise<containerDesktopAPI.ImageChecks> => {
+        return imageChecker.check(id, image);
       },
     );
 

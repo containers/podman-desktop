@@ -1,12 +1,12 @@
 <script lang="ts">
-import type { ImageCheckResult } from '@podman-desktop/api';
+import type { ImageChecks } from '@podman-desktop/api';
 import type { ImageCheckerInfo } from '../../../../main/src/plugin/api/image-checker-info';
 import type { ImageInfoUI } from './ImageInfoUI';
 
 export let image: ImageInfoUI;
 
 let providers: ImageCheckerInfo[];
-let result: ImageCheckResult;
+let result: ImageChecks;
 
 // TODO: move this to a state
 window.getImageCheckerProviders().then(_providers => {
@@ -19,5 +19,5 @@ window.getImageCheckerProviders().then(_providers => {
 </script>
 
 <div>Checking {image.name}...</div>
-{JSON.stringify(providers)}
-{JSON.stringify(result)}
+<pre>{JSON.stringify(providers)}</pre>
+<pre>{JSON.stringify(result)}</pre>

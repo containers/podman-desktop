@@ -1,8 +1,9 @@
 import type {
   Disposable,
-  ImageCheckResult,
   ImageCheckerProvider,
   ImageCheckerProviderMetadata,
+  ImageChecks,
+  ImageInfo,
 } from '@podman-desktop/api';
 import type { ApiSenderType } from './api.js';
 import type { ImageCheckerExtensionInfo, ImageCheckerInfo } from './api/image-checker-info.js';
@@ -62,13 +63,13 @@ export class ImageCheckerImpl {
     });
   }
 
-  checkImage(id: string, image: string): Promise<ImageCheckResult> {
+  check(id: string, image: ImageInfo): Promise<ImageChecks> {
     return new Promise((resolve, reject) => {
       const provider = this._imageCheckerProviders.get(id);
       if (provider === undefined) {
         return reject(new Error('provider not found with id ' + id));
       }
-      return resolve(provider.provider.checkImage(image));
+      return resolve(provider.provider.check(image));
     });
   }
 }

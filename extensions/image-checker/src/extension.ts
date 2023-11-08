@@ -33,20 +33,26 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   const imageChecker = extensionApi.imageChecker.registerImageCheckerProvider(
     {
-      checkImage: (_image: string): Promise<extensionApi.ImageCheckResult> => {
+      check: (_image: extensionApi.ImageInfo): extensionApi.ProviderResult<extensionApi.ImageChecks> => {
+        const result = {
+          checks: [
+            {
+              name: 'check 1',
+              status: 'failed',
+              severity: 'medium',
+              markdownDescription: 'a warning',
+            },
+            {
+              name: 'check 2',
+              status: 'failed',
+              severity: 'high',
+              markdownDescription: 'an error',
+            },
+          ],
+        } as extensionApi.ImageChecks;
         return new Promise((resolve, _reject) => {
           setTimeout(() => {
-            return resolve({
-              status: 'done',
-              partialResults: [
-                {
-                  description: 'a warning',
-                },
-                {
-                  description: 'another warning',
-                },
-              ],
-            });
+            return resolve(result);
           }, 1000);
         });
       },

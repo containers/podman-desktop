@@ -1696,7 +1696,7 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'imageCheck',
-    async (id: string, image: string): Promise<containerDesktopAPI.ImageCheckResult> => {
+    async (id: string, image: string): Promise<containerDesktopAPI.ImageChecks> => {
       return ipcInvoke('image-checker:check', id, image);
     },
   );
