@@ -16,20 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Locator, Page } from 'playwright';
-import { SettingsPage } from './settings-page';
+import type { Page } from 'playwright';
+import { ExtensionPage } from './extension-page';
 
-export class SettingsExtensionsPage extends SettingsPage {
-  readonly heading: Locator;
-  readonly featuredExtensions: Locator;
-  readonly devSandboxBox: Locator;
-  readonly openshiftLocalBox: Locator;
-
+export class OpenshiftLocalExtensionPage extends ExtensionPage {
   constructor(page: Page) {
-    super(page, 'Extensions');
-    this.heading = page.getByRole('heading', { name: 'Extensions' });
-    this.featuredExtensions = page.getByLabel('FeaturedExtensions');
-    this.devSandboxBox = this.featuredExtensions.getByLabel('Developer Sandbox');
-    this.openshiftLocalBox = this.featuredExtensions.getByLabel('OpenShift Local');
+    super(page, 'Red Hat OpenShift Local', 'Red Hat OpenShift Local Extension');
   }
 }
