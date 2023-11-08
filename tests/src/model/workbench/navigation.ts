@@ -2,6 +2,8 @@ import type { Locator, Page } from 'playwright';
 import { ImagesPage } from '../pages/images-page';
 import { ContainersPage } from '../pages/containers-page';
 import { PodsPage } from '../pages/pods-page';
+import { SettingsBar } from '../pages/settings-bar';
+import { DashboardPage } from '../pages/dashboard-page';
 
 export class NavigationBar {
   readonly page: Page;
@@ -24,6 +26,12 @@ export class NavigationBar {
     this.settingsLink = this.page.getByRole('link', { name: 'Settings' });
   }
 
+  async openDashboard(): Promise<DashboardPage> {
+    await this.dashboardLink.waitFor({ state: 'visible', timeout: 3000 });
+    await this.dashboardLink.click({ timeout: 5000 });
+    return new DashboardPage(this.page);
+  }
+
   async openImages(): Promise<ImagesPage> {
     await this.imagesLink.waitFor({ state: 'visible', timeout: 3000 });
     await this.imagesLink.click({ timeout: 5000 });
@@ -37,7 +45,14 @@ export class NavigationBar {
   }
 
   async openPods(): Promise<PodsPage> {
-    await this.podsLink.click();
+    await this.podsLink.waitFor({ state: 'visible', timeout: 3000 });
+    await this.podsLink.click({ timeout: 5000 });
     return new PodsPage(this.page);
+  }
+
+  async openSettings(): Promise<SettingsBar> {
+    await this.settingsLink.waitFor({ state: 'visible', timeout: 3000 });
+    await this.settingsLink.click({ timeout: 5000 });
+    return new SettingsBar(this.page);
   }
 }
