@@ -115,6 +115,81 @@ const pod2: PodInfo = {
   kind: 'podman',
 };
 
+// Pod with 11 containers that shows all the different statuses
+// running, terminated, waiting, stopped, paused, exited, dead, created, degraded
+// this makes it so that we "group" them as more than 10 containers equals grouping
+const manyPod: PodInfo = {
+  Cgroup: '',
+  Containers: [
+    {
+      Names: 'container1',
+      Id: 'container1',
+      Status: 'running',
+    },
+    {
+      Names: 'container2',
+      Id: 'container2',
+      Status: 'terminated',
+    },
+    {
+      Names: 'container3',
+      Id: 'container3',
+      Status: 'waiting',
+    },
+    {
+      Names: 'container4',
+      Id: 'container4',
+      Status: 'stopped',
+    },
+    {
+      Names: 'container5',
+      Id: 'container5',
+      Status: 'paused',
+    },
+    {
+      Names: 'container6',
+      Id: 'container6',
+      Status: 'exited',
+    },
+    {
+      Names: 'container7',
+      Id: 'container7',
+      Status: 'dead',
+    },
+    {
+      Names: 'container8',
+      Id: 'container8',
+      Status: 'created',
+    },
+    {
+      Names: 'container9',
+      Id: 'container9',
+      Status: 'degraded',
+    },
+    {
+      Names: 'container10',
+      Id: 'container10',
+      Status: 'running',
+    },
+    {
+      Names: 'container11',
+      Id: 'container11',
+      Status: 'running',
+    },
+  ],
+  Created: '',
+  Id: 'beab25123a40',
+  InfraId: 'manyPod',
+  Labels: {},
+  Name: 'manyPod',
+  Namespace: '',
+  Networks: [],
+  Status: 'running',
+  engineId: 'podman',
+  engineName: 'podman',
+  kind: 'podman',
+};
+
 const kubepod1: PodInfo = {
   Cgroup: '',
   Containers: [
@@ -234,10 +309,12 @@ test('Expect single podman pod being displayed', async () => {
   }
 
   render(PodsList);
-  const pod1Details = screen.getByRole('cell', { name: 'pod1 beab2512 podman' });
+  const pod1Details = screen.getByRole('cell', { name: 'pod1 beab2512' });
   expect(pod1Details).toBeInTheDocument();
+
+  // Expect to have three "tooltips" which are the "dots".
   const pod1Row = screen.getByRole('row', {
-    name: 'Toggle pod pod1 beab2512 0 container podman 0 seconds spinner spinner spinner',
+    name: 'Toggle pod pod1 beab2512 podman tooltip tooltip tooltip 0 seconds spinner spinner spinner',
   });
   expect(pod1Row).toBeInTheDocument();
 });
@@ -258,14 +335,14 @@ test('Expect 2 podman pods being displayed', async () => {
   }
 
   render(PodsList);
-  const pod1Details = screen.getByRole('cell', { name: 'pod1 beab2512 0 container' });
+  const pod1Details = screen.getByRole('cell', { name: 'pod1 beab2512' });
   expect(pod1Details).toBeInTheDocument();
   const pod1Row = screen.getByRole('row', {
-    name: 'Toggle pod pod1 beab2512 0 container podman 0 seconds spinner spinner spinner',
+    name: 'Toggle pod pod1 beab2512 podman tooltip tooltip tooltip 0 seconds spinner spinner spinner',
   });
   expect(pod1Row).toBeInTheDocument();
   const pod2Row = screen.getByRole('row', {
-    name: 'Toggle pod pod2 e8129c57 0 container podman 0 seconds spinner spinner spinner',
+    name: 'Toggle pod pod2 e8129c57 podman tooltip 0 seconds spinner spinner spinner',
   });
   expect(pod2Row).toBeInTheDocument();
 });
@@ -287,7 +364,7 @@ test('Expect single kubernetes pod being displayed', async () => {
 
   render(PodsList);
   const pod1Details = screen.getByRole('row', {
-    name: 'Toggle pod kubepod1 beab2512 0 container kubernetes 0 seconds spinner',
+    name: 'Toggle pod kubepod1 beab2512 kubernetes tooltip 0 seconds spinner',
   });
   expect(pod1Details).toBeInTheDocument();
 });
@@ -309,11 +386,11 @@ test('Expect 2 kubernetes pods being displayed', async () => {
 
   render(PodsList);
   const pod1Details = screen.getByRole('row', {
-    name: 'Toggle pod kubepod1 beab2512 0 container kubernetes 0 seconds spinner',
+    name: 'Toggle pod kubepod1 beab2512 kubernetes tooltip 0 seconds spinner',
   });
   expect(pod1Details).toBeInTheDocument();
   const pod2Details = screen.getByRole('row', {
-    name: 'Toggle pod kubepod2 e8129c57 0 container kubernetes 0 seconds spinner',
+    name: 'Toggle pod kubepod2 e8129c57 kubernetes tooltip 0 seconds spinner',
   });
   expect(pod2Details).toBeInTheDocument();
 });
@@ -357,11 +434,11 @@ test('Expect the route to a pod details page is correctly encoded with an engine
     await new Promise(resolve => setTimeout(resolve, 500));
   }
   render(PodsList);
-  const podDetails = screen.getByRole('cell', { name: 'ocppod e8129c57 k8s userid-dev/api-s tooltip' });
+  const podDetails = screen.getByRole('cell', { name: 'ocppod e8129c57' });
   expect(podDetails).toBeInTheDocument();
 
   const podRow = screen.getByRole('row', {
-    name: 'Toggle pod ocppod e8129c57 0 container kubernetes 0 seconds spinner',
+    name: 'Toggle pod ocppod e8129c57 kubernetes tooltip 0 seconds spinner',
   });
   expect(podRow).toBeInTheDocument();
 
@@ -392,22 +469,72 @@ test('Expect the pod1 row to have 3 status dots with the correct colors and the 
 
   // Should render 4 status dots.
   // 3 for the first pod, 1 for the second pod
+  // this should also appear REORGANIZED and in a different order.
   const statusDots = screen.getAllByTestId('status-dot');
   expect(statusDots.length).toBe(4);
 
-  // Check that container1 is running / has green
-  expect(statusDots[0].title).toBe('container1: running');
-  expect(statusDots[0]).toHaveClass('bg-green-500');
+  expect(statusDots[0].title).toBe('container1: Running');
+  expect(statusDots[0]).toHaveClass('bg-status-running');
 
-  // Check that container2 is terminated / has red
-  expect(statusDots[1].title).toBe('container2: terminated');
-  expect(statusDots[1]).toHaveClass('bg-red-500');
+  expect(statusDots[1].title).toBe('container3: Exited');
+  expect(statusDots[1]).toHaveClass('bg-status-exited');
 
-  // Check that container3 is exited / has red
-  expect(statusDots[2].title).toBe('container3: exited');
-  expect(statusDots[2]).toHaveClass('bg-red-300');
+  expect(statusDots[2].title).toBe('container2: Terminated');
+  expect(statusDots[2]).toHaveClass('bg-status-terminated');
 
-  // Check that container4 is running / has green
-  expect(statusDots[3].title).toBe('container4: running');
-  expect(statusDots[3]).toHaveClass('bg-green-500');
+  // 2nd row / 2nd pod
+  expect(statusDots[3].title).toBe('container4: Running');
+  expect(statusDots[3]).toHaveClass('bg-status-running');
+});
+
+test('Expect the manyPod row to show 9 dots representing every status', async () => {
+  getProvidersInfoMock.mockResolvedValue([provider]);
+  listPodsMock.mockResolvedValue([manyPod]);
+  kubernetesListPodsMock.mockResolvedValue([]);
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+
+  while (get(providerInfos).length !== 1) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  while (get(podsInfos).length !== 1) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  waitRender(PodsList);
+
+  // Should render 9 status dots representing all statuses from the 11 containers provided
+  // due to the functoin organizeContainers it will be reorganized and the order will be different
+  // it should be organized as follows:
+  // running, created, paused, waiting, degraded, exited, stopped, terminated, dead
+  const statusDots = screen.getAllByTestId('status-dot');
+  expect(statusDots.length).toBe(9);
+
+  expect(statusDots[0].title).toBe('Running: 3');
+  expect(statusDots[0]).toHaveClass('bg-status-running');
+
+  expect(statusDots[1].title).toBe('Created: 1');
+  expect(statusDots[1]).toHaveClass('bg-status-created');
+
+  expect(statusDots[2].title).toBe('Paused: 1');
+  expect(statusDots[2]).toHaveClass('bg-status-paused');
+
+  expect(statusDots[3].title).toBe('Waiting: 1');
+  expect(statusDots[3]).toHaveClass('bg-status-waiting');
+
+  expect(statusDots[4].title).toBe('Degraded: 1');
+  expect(statusDots[4]).toHaveClass('bg-status-degraded');
+
+  expect(statusDots[5].title).toBe('Exited: 1');
+  expect(statusDots[5]).toHaveClass('bg-status-exited');
+
+  expect(statusDots[6].title).toBe('Stopped: 1');
+  expect(statusDots[6]).toHaveClass('bg-status-stopped');
+
+  expect(statusDots[7].title).toBe('Terminated: 1');
+  expect(statusDots[7]).toHaveClass('bg-status-terminated');
+
+  expect(statusDots[8].title).toBe('Dead: 1');
+  expect(statusDots[8]).toHaveClass('bg-status-dead');
 });

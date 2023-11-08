@@ -43,6 +43,24 @@ module.exports = {
       },
     },
     colors: {
+      // The "status" colours to be used for Podman and Kubernetes containers
+      // these can be referenced by in the form of "bg-status-running" or "text-status-running"
+      'status': {
+        // Podman & Kubernetes
+        'running': tailwindColors.green[400],
+        // Kubernetes only
+        'terminated': tailwindColors.red[500],
+        'waiting': tailwindColors.amber[600],
+        // Podman only
+        'stopped': tailwindColors.gray[500],
+        'paused': tailwindColors.amber[600],
+        'exited': tailwindColors.red[300],
+        'dead': tailwindColors.red[500],
+        'created': tailwindColors.green[300],
+        'degraded': tailwindColors.amber[700],
+        // Unknown
+        'unknown': tailwindColors.gray[100],
+      },
       'charcoal': {
          50: '#767676',
         100: '#707073',

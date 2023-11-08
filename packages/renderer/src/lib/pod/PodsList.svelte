@@ -25,7 +25,7 @@ import Button from '../ui/Button.svelte';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import StateChange from '../ui/StateChange.svelte';
 import ProviderInfo from '../ui/ProviderInfo.svelte';
-import StatusDot from '../ui/StatusDot.svelte';
+import Dots from '../ui/Dots.svelte';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -278,15 +278,11 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
                 <button
                   class:cursor-pointer="{pod.containers.length > 0}"
                   on:click="{() => openContainersFromPod(pod)}">
-                  {#each pod.containers as container}
-                    <StatusDot container="{container}" />
-                  {/each}
+                  <Dots containers="{pod.containers}" />
                 </button>
               {:else}
                 <div class="flex items-center">
-                  {#each pod.containers as container}
-                    <StatusDot container="{container}" />
-                  {/each}
+                  <Dots containers="{pod.containers}" />
                 </div>
               {/if}
             </td>

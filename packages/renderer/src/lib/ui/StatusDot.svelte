@@ -1,35 +1,30 @@
 <!-- StatusDot.svelte -->
 <script lang="ts">
-import type { PodInfoContainerUI } from '../pod/PodInfoUI';
 import Tooltip from './Tooltip.svelte';
+import { getStatusColor } from './Dots';
+import { capitalize } from './Util';
 
-export let container: PodInfoContainerUI;
+export let status: string;
+export let name: string = '';
+export let tooltip: string = '';
+export let number: number = 0;
 
-// All the possible statuses that will appear for both Pods and Kubernetes
-const colors: Record<string, string> = {
-  // Podman & Kubernetes
-  running: 'bg-green-500', // Green for running
-
-  // Kubernetes-only
-  terminated: 'bg-red-500', // Red for terminated
-  waiting: 'bg-amber-500', // Amber for waiting
-
-  // Podman-only
-  stopped: 'bg-gray-500', // Gray indicated dormancy / inactivity
-  paused: 'bg-amber-500', // Equivilant to "waiting" in Kubernetes
-  exited: 'bg-red-300', // Light red for exited, but dark red for dead
-  dead: 'bg-red-500', // Dark red for dead
-  created: 'bg-green-300', // Blue indicates "freshness", so would be good for 'created'
-  degraded: 'bg-amber-700', // Dark amber indicating "degrading" state / "unhealthy"
-};
-
-// Returns the color for the status and if it cant, it'll use gray
-const getColor = (status: string): string => colors[status] || 'bg-gray-500';
+// If the tooltip is blank, use the container name and status
+// as the tooltip / title
+if (tooltip === '' && name !== '' && status !== '') {
+  tooltip = `${name}: ${capitalize(status)}`;
+}
+// if text is not blank, make class 'mt-3' to keep it center
 </script>
 
-<Tooltip tip="{container.Names}: {container.Status}" top
-  ><div
-    class="w-2 h-2 rounded-full mr-1 text-center {getColor(container.Status)}"
+<Tooltip tip="{tooltip}" top>
+  <div
+    class="w-2.5 h-2.5 mr-0.5 rounded-full text-center {getStatusColor(status)} {number ? 'mt-3' : ''}"
     data-testid="status-dot"
-    title="{container.Names}: {container.Status}">
-  </div></Tooltip>
+    title="{tooltip}">
+  </div>
+  <!-- If text -->
+  {#if number}
+    <div class="text-xs text-bold text-gray-600 mr-0.5">{number}</div>
+  {/if}
+</Tooltip>
