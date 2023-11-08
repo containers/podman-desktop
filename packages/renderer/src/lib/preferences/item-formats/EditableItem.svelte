@@ -2,8 +2,8 @@
 import { faCheck, faPencil, faXmark } from '@fortawesome/free-solid-svg-icons';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
 import Fa from 'svelte-fa';
-import NumberItem from './NumberItem.svelte';
 import Button from '../../ui/Button.svelte';
+import FloatNumberItem from './FloatNumberItem.svelte';
 
 export let record: IConfigurationPropertyRecordedSchema;
 export let value: number;
@@ -13,7 +13,8 @@ export let onSave = (_recordId: string, _value: number) => {};
 let editingInProgress = false;
 let editedValue: number;
 $: editedValue = value;
-let disableSaveButton = true;
+let disableSaveButton: boolean;
+$: disableSaveButton = !editingInProgress || editedValue === value;
 
 function invalidRecord(_error: string) {
   if (_error) {
@@ -23,7 +24,6 @@ function invalidRecord(_error: string) {
 
 function onChange(_: string, _value: number) {
   editedValue = _value;
-  disableSaveButton = editedValue === value;
 }
 
 function onSwitchToInProgress(e: MouseEvent) {
@@ -50,11 +50,10 @@ function onCancel(e: MouseEvent) {
   {#if !editingInProgress}
     {value}
   {:else}
-    <NumberItem
+    <FloatNumberItem
       record="{record}"
       value="{Number(editedValue)}"
       onChange="{onChange}"
-      onlyTextInput="{true}"
       invalidRecord="{invalidRecord}" />
   {/if}
   {#if description}
