@@ -3,6 +3,7 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/s
 import Tooltip from '/@/lib/ui/Tooltip.svelte';
 import { uncertainStringToNumber } from '../Util';
 import { onMount } from 'svelte';
+import { checkNumericValueValid } from './NumberItemUtils';
 
 export let record: IConfigurationPropertyRecordedSchema;
 export let value: number | undefined;
@@ -93,29 +94,13 @@ function canDecrement(value: number) {
   return !record.minimum || value > record.minimum;
 }
 
-function assertNumericValueIsValid(value: number) {
-  if (isNaN(value)) {
-    numberInputInvalid = true;
-    numberInputErrorMessage = `Expecting a number. The value cannot be less than ${record.minimum}${
-      record.maximum ? ` or greater than ${record.maximum}` : ''
-    }`;
-    return false;
-  }
-
-  if (record.maximum && typeof record.maximum === 'number' && value > record.maximum) {
-    numberInputInvalid = true;
-    numberInputErrorMessage = `The value cannot be greater than ${record.maximum}`;
-    return false;
-  }
-  if (record.minimum && typeof record.minimum === 'number' && value < record.minimum) {
-    numberInputInvalid = true;
-    numberInputErrorMessage = `The value cannot be less than ${record.minimum}`;
-    return false;
-  }
-  numberInputErrorMessage = '';
-  numberInputInvalid = false;
-  return true;
+function assertNumericValueIsValid(value: number): boolean {
+  const numericValue = checkNumericValueValid(record, value);
+  numberInputInvalid = !numericValue.valid;
+  numberInputErrorMessage = numericValue.error || '';
+  return numericValue.valid;
 }
+
 function canIncrement(value: number) {
   return !record.maximum || (typeof record.maximum === 'number' && value < record.maximum);
 }
@@ -138,7 +123,7 @@ function canIncrement(value: number) {
   <Tooltip topLeft tip="{numberInputErrorMessage}">
     <input
       type="text"
-      class="w-[50px] outline-none focus:outline-none text-center text-white text-sm py-0.5"
+      class="w-[50px] outline-none focus:outline-none text-white text-center text-sm py-0.5"
       name="{record.id}"
       bind:value="{recordValue}"
       on:keypress="{event => onNumberInputKeyPress(event)}"
