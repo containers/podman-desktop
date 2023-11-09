@@ -95,6 +95,12 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         downloaded: isDownloaded === '' ? false : true,
         version: composeVersionMetadata?.tag,
       });
+      return {
+        telemetry: {
+          downloaded: isDownloaded === '' ? false : true,
+          version: composeVersionMetadata?.tag,
+        },
+      };
     },
   );
 

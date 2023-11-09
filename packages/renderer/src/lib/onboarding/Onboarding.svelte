@@ -67,6 +67,8 @@ let displayCancelSetup = false;
 
 let executedCommands: string[] = [];
 
+let telemetry: any = {};
+
 /*
 $: enableNextButton = false;*/
 let onboardingUnsubscribe: Unsubscriber;
@@ -154,7 +156,10 @@ async function setActiveStep() {
                 });
               }) || [];
             if (step.command) {
-              await doExecuteCommand(step.command);
+              const result = await doExecuteCommand(step.command);
+              if (result instanceof Object && result.telemetry) {
+                telemetry = { ...telemetry, ...result.telemetry };
+              }
               // after command has been executed, we check if the step must be marked as completed
               await assertStepCompletedAfterCommandExecution();
             }
@@ -167,6 +172,7 @@ async function setActiveStep() {
       }
     }
   }
+  console.log('onboarding final telemetry', telemetry);
   // if it reaches this point it means that the onboarding is fully completed and the user is redirected to the dashboard
   router.goto($lastPage.path);
 }
@@ -187,15 +193,17 @@ function evaluateWhen(when: string | undefined, extension: string): boolean {
   return false;
 }
 
-async function doExecuteCommand(command: string) {
+async function doExecuteCommand(command: string): Promise<any> {
+  let telemetry: any = {};
   inProgressCommandExecution(command, 'starting');
   try {
-    await window.executeCommand(command);
+    telemetry = await window.executeCommand(command);
   } catch (e) {
     inProgressCommandExecution(command, 'failed', e);
     return;
   }
   inProgressCommandExecution(command, 'successful');
+  return telemetry;
 }
 
 function inProgressCommandExecution(command: string, state: 'starting' | 'failed' | 'successful', value?: unknown) {
