@@ -9,12 +9,15 @@ export let record: IConfigurationPropertyRecordedSchema;
 export let value: number;
 export let description: string | undefined = undefined;
 export let onSave = (_recordId: string, _value: number) => {};
+export let onChange = (_recordId: string, _value: number) => {};
+export let onCancel = (_recordId: string, _originalValue: number) => {};
 
 let editingInProgress = false;
 let editedValue: number;
 $: editedValue = value;
 let disableSaveButton: boolean;
-$: disableSaveButton = !editingInProgress || editedValue === value;
+$: disableSaveButton = !editingInProgress;
+let originalValue: number;
 
 function invalidRecord(_error: string) {
   if (_error) {
@@ -22,12 +25,18 @@ function invalidRecord(_error: string) {
   }
 }
 
-function onChange(_: string, _value: number) {
+function onChangeInput(_: string, _value: number) {
   editedValue = _value;
+  disableSaveButton = false;
+  // call onSave so other components that depends on this one will be updated as well (like the slider value if the input is updated manually)
+  if (record.id) {
+    onChange(record.id, editedValue);
+  }
 }
 
 function onSwitchToInProgress(e: MouseEvent) {
   e.preventDefault();
+  originalValue = value;
   editingInProgress = true;
 }
 
@@ -39,10 +48,13 @@ function onSaveClick(e: MouseEvent) {
   }
 }
 
-function onCancel(e: MouseEvent) {
+function onCancelClick(e: MouseEvent) {
   e.preventDefault();
-  editedValue = value;
+  editedValue = originalValue;
   editingInProgress = false;
+  if (record.id) {
+    onCancel(record.id, originalValue);
+  }
 }
 </script>
 
@@ -53,7 +65,7 @@ function onCancel(e: MouseEvent) {
     <FloatNumberItem
       record="{record}"
       value="{Number(editedValue)}"
-      onChange="{onChange}"
+      onChange="{onChangeInput}"
       invalidRecord="{invalidRecord}" />
   {/if}
   {#if description}
@@ -67,11 +79,11 @@ function onCancel(e: MouseEvent) {
       <Fa size="12" icon="{faPencil}" />
     </Button>
   {:else}
-    <Button on:click="{onCancel}" title="Cancel" class="ml-3" padding="p-2" type="link">
+    <Button on:click="{onCancelClick}" title="Cancel" class="ml-3" padding="p-2" type="link">
       <Fa size="14" class="text-red-500" icon="{faXmark}" />
     </Button>
     <Button on:click="{onSaveClick}" title="Save" padding="p-2" disabled="{disableSaveButton}" type="link">
-      <Fa size="14" class="text-green-500" icon="{faCheck}" />
+      <Fa size="14" class="{`${disableSaveButton ? 'text-gray-500' : 'text-green-500'}`}" icon="{faCheck}" />
     </Button>
   {/if}
 </div>

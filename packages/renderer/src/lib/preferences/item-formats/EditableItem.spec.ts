@@ -84,7 +84,7 @@ test('Expect description to be visible if defined', async () => {
   expect(descriptionDiv?.textContent).toEqual(description);
 });
 
-test('Expect save button is disabled if input value has not been updated', async () => {
+test('Expect save button is disabled if input value is invalid', async () => {
   const record: IConfigurationPropertyRecordedSchema = {
     id: 'record',
     title: 'record',
@@ -107,7 +107,7 @@ test('Expect save button is disabled if input value has not been updated', async
 
   await userEvent.click(input);
   await userEvent.clear(input);
-  await userEvent.keyboard(value.toString());
+  await userEvent.keyboard('');
 
   const buttonCancel = await screen.findByRole('button', { name: 'Cancel' });
   expect(buttonCancel).toBeInTheDocument();

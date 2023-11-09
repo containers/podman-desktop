@@ -38,7 +38,7 @@ async function awaitRender(record: IConfigurationPropertyRecordedSchema, customP
     initialValue: getInitialValue(record),
     ...customProperties,
   });
-  while (result.component.$$.ctx[3] === undefined) {
+  while (result.component.$$.ctx[4] === undefined) {
     await new Promise(resolve => setTimeout(resolve, 100));
   }
 }

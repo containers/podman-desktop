@@ -11,6 +11,14 @@ export let onSave = (_recordId: string, _value: number) => {};
 let recordValue: DisplayConfigurationValue | undefined;
 $: recordValue = getDisplayConfigurationValue(record, value);
 
+function onChangeInput(_recordId: string, _value: number) {
+  innerOnSave(_recordId, _value);
+}
+
+function onCancel(_recordId: string, originalValue: number) {
+  innerOnSave(_recordId, originalValue);
+}
+
 interface DisplayConfigurationValue {
   value: number;
   format?: string;
@@ -89,5 +97,6 @@ function innerOnSave(_recordId: string, _value: number) {
     record="{normalizeDiskAndMemoryConfigurationKey(record)}"
     value="{recordValue.value}"
     description="{recordValue.format}"
-    onSave="{innerOnSave}" />
+    onCancel="{onCancel}"
+    onChange="{onChangeInput}" />
 {/if}
