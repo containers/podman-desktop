@@ -16,9 +16,35 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { cli } from '@podman-desktop/api';
+import type { CliToolOptions, RunResult } from '@podman-desktop/api';
+import { cli, process as podmanProcess } from '@podman-desktop/api';
 
 export function activate() {
+  setTimeout(() => {
+    detectTool('kubectl', ['version', '--client=true', '-o=json'])
+      .then(result => registerTool(result))
+      .catch(console.log);
+  });
+}
+
+async function detectTool(
+  toolName: string,
+  versionOptions: string[],
+): Promise<Pick<CliToolOptions, 'version' | 'path'>> {
+  return Promise.all([
+    podmanProcess.exec(toolName, versionOptions),
+    podmanProcess.exec(process.platform === 'win32' ? 'where' : 'which', [toolName]),
+  ]).then((result: RunResult[]) => {
+    const version = JSON.parse(result[0]?.stdout).clientVersion?.gitVersion.replace('v', '');
+    const path = result[1]?.stdout?.split('\n')[0];
+    if (version && path) {
+      return { version, path };
+    }
+    throw new Error(`Cannot detect '${toolName}' CLI tool.`);
+  });
+}
+
+async function registerTool(cliInfo: Pick<CliToolOptions, 'version' | 'path'>) {
   cli.createCliTool({
     markdownDescription:
       'A command line tool used to run commands against Kubernetes clusters. It does this by authenticating with the Control Plane Node of your cluster and making API calls to do a variety of management actions. If you are just getting started with Kubernetes, prepare to be spending a lot of time with kubectl.\n\nMore information: [kubernetes.io](https://kubernetes.io/docs/reference/kubectl/)',
@@ -27,7 +53,7 @@ export function activate() {
     images: {
       icon: 'icon.png',
     },
-    version: '',
-    path: '',
+    version: cliInfo.version,
+    path: cliInfo.path,
   });
 }
