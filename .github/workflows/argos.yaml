@@ -18,6 +18,7 @@
 name: Argos CI Screenshots
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
