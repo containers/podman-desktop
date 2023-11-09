@@ -28,7 +28,6 @@ function invalidRecord(_error: string) {
 function onChangeInput(_: string, _value: number) {
   editedValue = _value;
   disableSaveButton = false;
-  // call onSave so other components that depends on this one will be updated as well (like the slider value if the input is updated manually)
   if (record.id) {
     onChange(record.id, editedValue);
   }
@@ -36,6 +35,8 @@ function onChangeInput(_: string, _value: number) {
 
 function onSwitchToInProgress(e: MouseEvent) {
   e.preventDefault();
+  // we set the originalValue to keep a record of the initial value
+  // if the updating is cancelled, we can reset to it
   originalValue = value;
   editingInProgress = true;
 }
@@ -50,6 +51,7 @@ function onSaveClick(e: MouseEvent) {
 
 function onCancelClick(e: MouseEvent) {
   e.preventDefault();
+  // we set the value to the initial one - the value that was set when the edit mode was enabled
   editedValue = originalValue;
   editingInProgress = false;
   if (record.id) {

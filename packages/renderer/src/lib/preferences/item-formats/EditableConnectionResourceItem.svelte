@@ -65,7 +65,7 @@ function normalizeDiskAndMemoryConfigurationKey(
       ? getFileSizeValue(filesize(configurationKey.minimum))
       : configurationKey.minimum;
     configurationKeyClone.default =
-      typeof configurationKey.maximum === 'number'
+      typeof configurationKey.maximum === 'number' && configurationKey.default
         ? getFileSizeValue(filesize(configurationKey.default))
         : configurationKey.default;
     return configurationKeyClone;

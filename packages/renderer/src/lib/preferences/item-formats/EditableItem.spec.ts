@@ -107,7 +107,7 @@ test('Expect save button is disabled if input value is invalid', async () => {
 
   await userEvent.click(input);
   await userEvent.clear(input);
-  await userEvent.keyboard('');
+  await userEvent.keyboard('35');
 
   const buttonCancel = await screen.findByRole('button', { name: 'Cancel' });
   expect(buttonCancel).toBeInTheDocument();
