@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Locator, Page } from 'playwright';
+import type { Locator, Page } from '@playwright/test';
 import { MainPage } from './main-page';
 import { ContainerDetailsPage } from './container-details-page';
 import { CreatePodsPage } from './create-pod-page';

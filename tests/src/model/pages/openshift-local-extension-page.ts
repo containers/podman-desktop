@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Page } from 'playwright';
+import type { Page } from '@playwright/test';
 import { ExtensionPage } from './extension-page';
 
 export class OpenshiftLocalExtensionPage extends ExtensionPage {
