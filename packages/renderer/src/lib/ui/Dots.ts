@@ -8,6 +8,7 @@ const allStatuses = ['running', 'created', 'paused', 'waiting', 'degraded', 'exi
 // not be shown due to how svelte handles dynamic class names
 export function getStatusColor(status: string): string {
   // Define the mapping directly with Record
+  // must be either "bg-" or "outline-" for either solid / outline colors
   const colors: Record<string, string> = {
     // Podman & Kubernetes
     running: 'bg-status-running',
@@ -17,11 +18,11 @@ export function getStatusColor(status: string): string {
     waiting: 'bg-status-waiting',
 
     // Podman-only
-    stopped: 'bg-status-stopped',
+    stopped: 'outline-status-stopped',
     paused: 'bg-status-paused',
-    exited: 'bg-status-exited',
+    exited: 'outline-status-exited',
     dead: 'bg-status-dead',
-    created: 'bg-status-created',
+    created: 'outline-status-created',
     degraded: 'bg-status-degraded',
   };
 

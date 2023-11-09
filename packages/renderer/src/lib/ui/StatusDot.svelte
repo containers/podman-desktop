@@ -14,12 +14,19 @@ export let number: number = 0;
 if (tooltip === '' && name !== '' && status !== '') {
   tooltip = `${name}: ${capitalize(status)}`;
 }
-// if text is not blank, make class 'mt-3' to keep it center
+
+// Get the color class for the status
+// that could be either an outline or a fill
+let dotClass = getStatusColor(status);
+
+// If dotClass contains "outline", then we will use 'outline-1 outline-offset-[-2px]
 </script>
 
 <Tooltip tip="{tooltip}" top>
   <div
-    class="w-2.5 h-2.5 mr-0.5 rounded-full text-center {getStatusColor(status)} {number ? 'mt-3' : ''}"
+    class="w-2.5 h-2.5 mr-0.5 rounded-full text-center {dotClass.includes('outline')
+      ? 'outline-2 outline-offset-[-2px] outline'
+      : ''} {getStatusColor(status)} {number ? 'mt-3' : ''}"
     data-testid="status-dot"
     title="{tooltip}">
   </div>

@@ -75,11 +75,11 @@ test('test getStatusColor returns the correct colors', () => {
   expect(getStatusColor('running')).toBe('bg-status-running');
   expect(getStatusColor('terminated')).toBe('bg-status-terminated');
   expect(getStatusColor('waiting')).toBe('bg-status-waiting');
-  expect(getStatusColor('stopped')).toBe('bg-status-stopped');
+  expect(getStatusColor('stopped')).toBe('outline-status-stopped');
   expect(getStatusColor('paused')).toBe('bg-status-paused');
-  expect(getStatusColor('exited')).toBe('bg-status-exited');
+  expect(getStatusColor('exited')).toBe('outline-status-exited');
   expect(getStatusColor('dead')).toBe('bg-status-dead');
-  expect(getStatusColor('created')).toBe('bg-status-created');
+  expect(getStatusColor('created')).toBe('outline-status-created');
   expect(getStatusColor('degraded')).toBe('bg-status-degraded');
   expect(getStatusColor('unknown')).toBe('bg-status-unknown');
 });

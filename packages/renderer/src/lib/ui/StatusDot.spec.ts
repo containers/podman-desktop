@@ -28,7 +28,7 @@ test('Expect the dot to have the correct color for waiting status', () => {
 test('Expect the dot to have the correct color for stopped status', () => {
   renderStatusDot('stopped');
   const dot = screen.getByTestId('status-dot');
-  expect(dot).toHaveClass('bg-status-stopped');
+  expect(dot).toHaveClass('outline-status-stopped');
 });
 
 test('Expect the dot to have the correct color for paused status', () => {
@@ -40,7 +40,7 @@ test('Expect the dot to have the correct color for paused status', () => {
 test('Expect the dot to have the correct color for exited status', () => {
   renderStatusDot('exited');
   const dot = screen.getByTestId('status-dot');
-  expect(dot).toHaveClass('bg-status-exited');
+  expect(dot).toHaveClass('outline-status-exited');
 });
 
 test('Expect the dot to have the correct color for dead status', () => {
@@ -52,7 +52,7 @@ test('Expect the dot to have the correct color for dead status', () => {
 test('Expect the dot to have the correct color for created status', () => {
   renderStatusDot('created');
   const dot = screen.getByTestId('status-dot');
-  expect(dot).toHaveClass('bg-status-created');
+  expect(dot).toHaveClass('outline-status-created');
 });
 
 test('Expect the dot to have the correct color for degraded status', () => {
