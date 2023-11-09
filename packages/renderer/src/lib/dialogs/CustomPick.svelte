@@ -4,7 +4,8 @@ import type { CustomPickOptions } from './quickpick-input';
 import type { CustomPickItem } from '@podman-desktop/api';
 import Markdown from '../markdown/Markdown.svelte';
 import Fa from 'svelte-fa';
-import { faCircleCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faAngleDown, faAngleUp, faCircleCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+import Button from '../ui/Button.svelte';
 
 let id = -1;
 let title = '';
@@ -200,15 +201,13 @@ function dragMe(node: any) {
                         class="p-4 rounded-b-md text-xs flex justify-center"
                         class:invisible="{usePopperForDetails &&
                           !itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j)}">
-                        <button
+                        <Button
+                          type="link"
                           aria-label="Show more"
-                          class="text-xs hover:underline"
+                          icon="{faAngleDown}"
                           on:click="{() => setSectionVisibility((i / colsPerRow) * colsPerRow + j, false)}">
                           Show details
-                          <span class="pf-c-button__icon pf-m-end">
-                            <i class="fas fa-angle-down" aria-hidden="true"></i>
-                          </span>
-                        </button>
+                        </Button>
                       </div>
                     {/if}
                   </div>
@@ -273,15 +272,13 @@ function dragMe(node: any) {
                         {#if !usePopperForDetails && innerItem.sections.length > 0 && !itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j)}
                           <div
                             class="p-4 bg-charcoal-500 group-hover:bg-purple-800 group-[.is-selected]:bg-purple-800 rounded-b-md text-xs flex justify-center border-x-2 border-b-2 border-transparent group-hover:border-purple-500">
-                            <button
+                            <Button
+                              type="link"
                               aria-label="Less detail"
-                              class="text-xs hover:underline"
+                              icon="{faAngleUp}"
                               on:click="{() => setSectionVisibility((i / colsPerRow) * colsPerRow + j, true)}">
                               Less details
-                              <span class="pf-c-button__icon pf-m-end">
-                                <i class="fas fa-angle-up" aria-hidden="true"></i>
-                              </span>
-                            </button>
+                            </Button>
                           </div>
                         {/if}
                       </div>
@@ -295,12 +292,8 @@ function dragMe(node: any) {
       {/each}
 
       <div class="px-5 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
-        <button aria-label="Cancel" class="text-xs hover:underline" on:click="{() => cancel()}">Cancel</button>
-        <button
-          class="pf-c-button pf-m-primary transition ease-in-out delay-50 hover:cursor-pointer h-full rounded-md shadow hover:shadow-lg justify-center pb-1"
-          aria-label="Next"
-          disabled="{!items.find(item => item.selected)}"
-          on:click="{() => next()}">Ok</button>
+        <Button type="link" aria-label="Cancel" on:click="{() => cancel()}">Cancel</Button>
+        <Button aria-label="Next" disabled="{!items.find(item => item.selected)}" on:click="{() => next()}">Ok</Button>
       </div>
     </div>
   </div>
