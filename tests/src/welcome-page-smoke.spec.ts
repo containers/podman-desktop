@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { BrowserWindow } from 'electron';
-import type { JSHandle, Page } from 'playwright';
+import type { JSHandle, Page } from '@playwright/test';
 import type { RunnerTestContext } from './testContext/runner-test-context';
 import { afterAll, beforeAll, expect, test, describe, beforeEach } from 'vitest';
 import { expect as playExpect } from '@playwright/test';

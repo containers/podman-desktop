@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ElectronApplication, JSHandle, Page } from 'playwright';
-import { _electron as electron } from 'playwright';
+import type { ElectronApplication, JSHandle, Page } from '@playwright/test';
+import { _electron as electron } from '@playwright/test';
 import { join } from 'node:path';
 import type { BrowserWindow } from 'electron';
 

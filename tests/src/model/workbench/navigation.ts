@@ -1,4 +1,4 @@
-import type { Locator, Page } from 'playwright';
+import type { Locator, Page } from '@playwright/test';
 import { ImagesPage } from '../pages/images-page';
 import { ContainersPage } from '../pages/containers-page';
 import { PodsPage } from '../pages/pods-page';

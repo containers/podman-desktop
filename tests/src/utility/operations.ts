@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Page } from 'playwright';
+import type { Page } from '@playwright/test';
 import { NavigationBar } from '../model/workbench/navigation';
 import { waitWhile } from './wait';
 
