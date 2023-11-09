@@ -23,4 +23,4 @@ function onInput(event: Event) {
   value="{value}"
   aria-label="{record.description}"
   on:input="{onInput}"
-  class="w-full h-1 bg-[var(--pf-global--primary-color--300)] rounded-lg appearance-none accent-[var(--pf-global--primary-color--300)] cursor-pointer range-xs mt-2" />
+  class="w-full h-1 bg-violet-600 rounded-lg appearance-none accent-violet-600 cursor-pointer range-xs mt-2" />
