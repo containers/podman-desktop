@@ -1,5 +1,13 @@
 <script lang="ts">
-import { faArrowUp, faLayerGroup, faPlay, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowUp,
+  faLayerGroup,
+  faPlay,
+  faTrash,
+  faEdit,
+  faExclamationCircle,
+  faTimes,
+} from '@fortawesome/free-solid-svg-icons';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
@@ -13,6 +21,8 @@ import ActionsWrapper from './ActionsMenu.svelte';
 import type { Unsubscriber } from 'svelte/motion';
 import type { ContextUI } from '../context/context';
 import { context } from '/@/stores/context';
+import Fa from 'svelte-fa';
+import Button from '../ui/Button.svelte';
 
 export let onPushImage: (imageInfo: ImageInfoUI) => void;
 export let onRenameImage: (imageInfo: ImageInfoUI) => void;
@@ -126,34 +136,29 @@ function onError(error: string): void {
 
   {#if errorMessage}
     <div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center p-8 lg:p-0 z-50" tabindex="-1">
-      <div class="pf-c-alert pf-m-danger pf-m-inline" aria-label="Success alert">
-        <div class="pf-c-alert__icon">
-          <i class="fas fa-fw fa-exclamation-circle" aria-hidden="true"></i>
-        </div>
-        <p class="pf-c-alert__title">
-          <span class="pf-screen-reader">Error:</span>
-          {errorTitle}
-        </p>
-        <div class="pf-c-alert__action">
-          <button
-            class="pf-c-button pf-m-plain"
-            type="button"
+      <div class="border-t-red-600 border-t-2 p-4 bg-charcoal-600" aria-label="Success alert">
+        <div class="flex flex-row justify-center items-center pb-2">
+          <Fa icon="{faExclamationCircle}" class="text-red-500 mr-2" />
+          <div class="text-red-500 font-bold text-sm">
+            {errorTitle}
+          </div>
+          <Fa
+            icon="{faTimes}"
+            class="text-gray-900 pl-2 cursor-pointer"
             on:click="{() => {
               errorMessage = undefined;
-            }}">
-            <i class="fas fa-times" aria-hidden="true"></i>
-          </button>
+            }}" />
         </div>
-        <div class="pf-c-alert__description">
-          <p class="flex break-words whitespace-normal">{errorMessage}</p>
+        <div class="flex justify-center break-words whitespace-normal text-xs pb-2">
+          {errorMessage}
         </div>
-        <div class="pf-c-alert__action-group">
-          <button
-            class="pf-c-button pf-m-link pf-m-inline"
-            type="button"
+
+        <div class="flex flex-row justify-center">
+          <Button
+            type="link"
             on:click="{() => {
               errorMessage = undefined;
-            }}">Ignore</button>
+            }}">Ignore</Button>
         </div>
       </div>
     </div>
