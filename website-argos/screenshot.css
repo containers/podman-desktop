@@ -17,3 +17,10 @@ img[src$='.gif'],
 .docusaurus-mermaid-container {
   display: none;
 }
+
+/* Hide the video element that usually contains 'loading' spinner */
+video {
+  visibility: hidden;
+  height: 0px !important;
+  width: 0px !important;
+}
