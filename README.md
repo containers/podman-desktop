@@ -115,7 +115,7 @@ This project uses the [Containers Community Code of Conduct](https://github.com/
 
 ## Testing
 
-[![Covered by Argos Visual Testing](https://argos-ci.com/badge.svg)](https://app.argos-ci.com/containers/podman-desktop/reference)
+[![Covered by Argos Visual Testing](https://argos-ci.com/badge-large.svg)](https://app.argos-ci.com/containers/podman-desktop/reference)
 
 ## License
 
