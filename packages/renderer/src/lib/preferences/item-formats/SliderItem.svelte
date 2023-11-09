@@ -19,6 +19,7 @@ function onInput(event: Event) {
   name="{record.id}"
   min="{record.minimum}"
   max="{record.maximum}"
+  step="{record.step}"
   value="{value}"
   aria-label="{record.description}"
   on:input="{onInput}"

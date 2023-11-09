@@ -61,6 +61,7 @@ export interface IConfigurationPropertySchema {
   minimum?: number;
   maximum?: number | string;
   format?: string;
+  step?: number;
   scope?: ConfigurationScope | ConfigurationScope[];
   readonly?: boolean;
   // if hidden is true, the property is not shown in the preferences page. It may still appear in other locations if it uses other scope (like onboarding)
