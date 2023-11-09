@@ -3,6 +3,7 @@ import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import type { IConnectionStatus } from '../preferences/Util';
 import LoadingIcon from './LoadingIcon.svelte';
 import Tooltip from './Tooltip.svelte';
+import { capitalize } from './Util';
 
 export let action: string;
 export let icon: IconDefinition;
@@ -19,10 +20,6 @@ $: disable =
 
 $: loading = state?.inProgress && action === state?.action;
 
-function capitalizeFirstLetter(text: string): string {
-  return text.charAt(0).toUpperCase() + text.slice(1);
-}
-
 function getStyleByState(state: IConnectionStatus | undefined, action: string) {
   if (
     (action === 'start' && (state?.inProgress || state?.status !== 'stopped')) ||
@@ -36,9 +33,9 @@ function getStyleByState(state: IConnectionStatus | undefined, action: string) {
 }
 </script>
 
-<Tooltip tip="{capitalizeFirstLetter(action)}" bottom>
+<Tooltip tip="{capitalize(action)}" bottom>
   <button
-    aria-label="{capitalizeFirstLetter(action)}"
+    aria-label="{capitalize(action)}"
     class="mx-2.5 my-2 {getStyleByState(state, action)}"
     on:click="{clickAction}"
     disabled="{disable}">

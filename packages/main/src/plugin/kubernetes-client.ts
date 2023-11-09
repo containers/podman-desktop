@@ -59,14 +59,14 @@ import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 function toContainerStatus(state: V1ContainerState | undefined): string {
   if (state) {
     if (state.running) {
-      return 'Running';
+      return 'running';
     } else if (state.terminated) {
-      return 'Terminated';
+      return 'terminated';
     } else if (state.waiting) {
-      return 'Waiting';
+      return 'waiting';
     }
   }
-  return 'Unknown';
+  return 'unknown';
 }
 
 function toPodInfo(pod: V1Pod, contextName?: string): PodInfo {

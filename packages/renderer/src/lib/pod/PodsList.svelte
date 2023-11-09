@@ -25,6 +25,7 @@ import Button from '../ui/Button.svelte';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import StateChange from '../ui/StateChange.svelte';
 import ProviderInfo from '../ui/ProviderInfo.svelte';
+import Dots from '../ui/Dots.svelte';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -235,6 +236,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
           <th class="text-center font-extrabold w-10 px-2">Status</th>
           <th>Name</th>
           <th class="pl-3">Environment</th>
+          <th class="pl-3">Containers</th>
           <th class="whitespace-nowrap px-6">Age</th>
           <th class="text-right pr-2">Actions</th>
         </tr>
@@ -259,12 +261,6 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
                   </div>
                   <div class="flex flex-row items-center">
                     <div class="text-xs text-violet-400">{pod.shortId}</div>
-                    <button
-                      class="ml-1 text-xs font-extra-light text-gray-900"
-                      class:cursor-pointer="{pod.containers.length > 0}"
-                      on:click="{() => openContainersFromPod(pod)}">
-                      {pod.containers.length} container{pod.containers.length > 1 ? 's' : ''}
-                    </button>
                   </div>
                 </div>
               </div>
@@ -275,6 +271,21 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
               </div>
             </td>
 
+            <td class="pl-3 whitespace-nowrap">
+              <!-- If this is podman, make the dots clickable as it'll take us to the container menu 
+              this does not work if you click on a kubernetes type pod -->
+              {#if pod.kind === 'podman'}
+                <button
+                  class:cursor-pointer="{pod.containers.length > 0}"
+                  on:click="{() => openContainersFromPod(pod)}">
+                  <Dots containers="{pod.containers}" />
+                </button>
+              {:else}
+                <div class="flex items-center">
+                  <Dots containers="{pod.containers}" />
+                </div>
+              {/if}
+            </td>
             <td class="px-6 py-2 whitespace-nowrap w-10">
               <div class="flex items-center">
                 <div class="text-sm text-gray-700">
