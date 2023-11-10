@@ -18,6 +18,9 @@
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
+import spinnerSourcecode from '/@/lib/ui/Spinner.svelte?raw';
+
+let spinnerHtmlCode: string | undefined = undefined;
 
 /**
  * Allow to generate a custom button markdown directive
@@ -40,17 +43,15 @@ export function button(d: any) {
   if (d.attributes && 'command' in d.attributes) {
     // Make this a button if it's a command
     this.tag(
-      '<button class="px-4 py-[6px] rounded-[4px] text-white text-[13px] whitespace-nowrap bg-purple-600 hover:bg-purple-500 no-underline" data-command="' +
+      '<button class="px-4 py-[6px] rounded-[4px] flex text-white text-[13px] whitespace-nowrap bg-purple-600 hover:bg-purple-500 no-underline" data-command="' +
         this.encode(d.attributes.command) +
         '">',
     );
 
-    // Add the "progress" spinner
-    // TODO: Remove cloudfoundry to tailwind
-    this.tag(
-      '<i class="pf-c-button__progress" style="position: relative; margin-right:5px; display: none;"><span class="pf-c-spinner pf-m-sm" role="progressbar"><span class="pf-c-spinner__clipper">' +
-        '</span><span class="pf-c-spinner__lead-ball"></span><span class="pf-c-spinner__tail-ball"></span></span></i>',
-    );
+    // add a spinner wrapped in a div wrapper to show/hide spinner
+    this.tag('<div class="mr-2 hidden">');
+    this.tag(getSpinnerCode());
+    this.tag('</div>');
 
     // Add any labels and close the button
     this.raw(d.label || '');
@@ -74,4 +75,17 @@ export function button(d: any) {
     this.raw(d.label || '');
     this.tag('</a>');
   }
+}
+
+// Grab the html code from the Spinner Component rather than copying the definition there
+export function getSpinnerCode(): string {
+  // if not yet defined, retrieve the html code from the component
+  if (!spinnerHtmlCode) {
+    // remove the first part of the string that containers <script>....</script> part
+    spinnerHtmlCode = spinnerSourcecode.replace(/<script.*\/script>/gs, '');
+
+    // replace the size
+    spinnerHtmlCode = spinnerHtmlCode.replaceAll('{size}', '16px');
+  }
+  return spinnerHtmlCode;
 }
