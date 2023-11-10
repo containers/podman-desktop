@@ -69,14 +69,8 @@ async function detectTool(toolName: string, versionOptions: string[]): Promise<K
   return { version, path };
 }
 
-const markdownDescription = [
-  'A command line tool used to run commands against Kubernetes clusters. It does ',
-  'this by authenticating with the Control Plane Node of your cluster and making ',
-  'API calls to do a variety of management actions. If you are just getting ',
-  'started with Kubernetes, prepare to be spending a lot of time with kubectl.',
-  '\n\n',
-  'More information: [kubernetes.io](https://kubernetes.io/docs/reference/kubectl/)',
-].join('');
+const markdownDescription =
+  "A command line tool for communicating with a Kubernetes cluster's control plane, using the Kubernetes API.";
 
 async function registerTool(cliInfo: KubectlInfo) {
   cli.createCliTool({

@@ -15,6 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { test, expect, vi } from 'vitest';
 import * as extensionApi from '@podman-desktop/api';
@@ -133,7 +134,7 @@ test('kubectl CLI tool not registered when version cannot be extracted from obje
       ...jsonStdout.clientVersion,
     },
   };
-  delete wrongJsonStdout.clientVersion.gitVersion;
+  delete (wrongJsonStdout.clientVersion as any).gitVersion;
   vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
     stderr: '',
     stdout: JSON.stringify(wrongJsonStdout),
