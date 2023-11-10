@@ -69,8 +69,7 @@ async function detectTool(toolName: string, versionOptions: string[]): Promise<K
   return { version, path };
 }
 
-const markdownDescription =
-  "A command line tool for communicating with a Kubernetes cluster's control plane, using the Kubernetes API.";
+const markdownDescription = `A command line tool for communicating with a Kubernetes cluster's control plane, using the Kubernetes API.`;
 
 async function registerTool(cliInfo: KubectlInfo) {
   cli.createCliTool({
