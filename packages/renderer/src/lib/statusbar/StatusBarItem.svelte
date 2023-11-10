@@ -35,7 +35,7 @@ async function executeCommand(entry: StatusBarEntry) {
   on:click="{() => {
     executeCommand(entry);
   }}"
-  class="{opacity(entry)} px-1 {hoverBackground(entry)} {hoverCursor(entry)}"
+  class="{opacity(entry)} px-1 flex items-center {hoverBackground(entry)} {hoverCursor(entry)}"
   title="{tooltipText(entry)}">
   {#if iconClass(entry)}
     <span class="{iconClass(entry)}" aria-hidden="true"></span>
