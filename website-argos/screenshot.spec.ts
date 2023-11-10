@@ -40,6 +40,13 @@ function screenshotPathname(pathname: string) {
     const url = siteUrl + pathname;
     await page.goto(url);
     await page.waitForFunction(waitForDocusaurusHydration);
+
+    // for downloads page, wait for the version being fetched
+    if (pathname.includes('/downloads')) {
+      // wait for the version being fetched during 5seconds using async setTimeout
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+
     await page.addStyleTag({ content: stylesheet });
     await argosScreenshot(page, pathnameToArgosName(pathname));
   });

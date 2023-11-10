@@ -26,6 +26,7 @@ on:
       - 'package.json'
       - 'yarn.lock'
       - 'website/**'
+      - 'website-argos/**'
   pull_request:
     branches:
       - main
@@ -33,6 +34,7 @@ on:
       - 'package.json'
       - 'yarn.lock'
       - 'website/**'
+      - 'website-argos/**'
 
 jobs:
   take-screenshots:
