@@ -60,7 +60,7 @@ $: {
   on:click
   disabled="{disabled || inProgress}">
   {#if icon}
-    <div class="flex flex-row p-0 m-0 bg-transparent justify-center space-x-[4px]">
+    <div class="flex flex-row p-0 m-0 bg-transparent justify-center items-center space-x-[4px]">
       {#if inProgress}
         <Spinner size="1em" />
       {:else if iconType === 'fa'}
