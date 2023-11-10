@@ -1,0 +1,90 @@
+#
+# Copyright (C) 2023 Red Hat, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: e2e-tests-main
+
+on: 
+  push:
+    branches: [main]
+    
+  workflow_dispatch:
+    inputs:
+      organization:
+        default: 'containers'
+        description: 'Organization of the Podman Desktop repository'
+        type: string
+        required: true
+      repositoryName:
+        default: 'podman-desktop'
+        description: 'Podman Desktop repository name'
+        type: string
+        required: true
+      branch:
+        default: 'main'
+        description: 'Podman Desktop repo branch'
+        type: string
+        required: true
+
+jobs:
+  e2e-tests:
+    name: Run E2E tests
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.inputs.organization }}/${{ github.event.inputs.repositoryName }}
+          ref: ${{ github.event.inputs.branch }}
+        if: github.event_name == 'workflow_dispatch'
+
+      - uses: actions/checkout@v4
+        if: github.event_name == 'push'
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Update podman
+        run: |
+          sudo sh -c "echo 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_22.04/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list"
+          curl -L https://build.opensuse.org/projects/devel:kubic:libcontainers:unstable/signing_keys/download?kind=gpg | sudo apt-key add -
+          sudo apt-get update -qq
+          sudo apt-get install -y podman
+          podman version
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
+
+      - uses: actions/cache@v3
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Execute yarn
+        run: yarn --frozen-lockfile
+
+      - name: Run E2E smoke tests
+        run: yarn test:e2e:smoke
+
+      - uses: actions/upload-artifact@v3.1.2
+        if: always()
+        with:
+          name: e2e-tests
+          path: ./tests/output/
