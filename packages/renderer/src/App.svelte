@@ -1,9 +1,6 @@
 <script lang="ts">
 import './app.css';
-import '@patternfly/patternfly/patternfly.css';
-import '@patternfly/patternfly/patternfly-addons.css';
-import '@patternfly/patternfly/patternfly-theme-dark.css';
-import './override.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import { router } from 'tinro';
 
 import Route from './Route.svelte';
