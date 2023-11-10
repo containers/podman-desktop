@@ -284,19 +284,6 @@
     ora "^7.0.1"
     update-notifier "^6.0.2"
 
-"@argos-ci/core@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@argos-ci/core/-/core-1.2.0.tgz#77ad315d4f9279d646fcc3b03843d5277a794877"
-  integrity sha512-SZ+J9uBUGSWi8a3rEUC1wavEAKcnAEz1rO617MOFOdvvBYK1FEE2+ZZlt3G9uL9Jn3cYhhYTczL4CckZi1V3jg==
-  dependencies:
-    "@argos-ci/util" "1.1.0"
-    axios "^1.5.0"
-    convict "^6.2.4"
-    debug "^4.3.4"
-    fast-glob "^3.3.1"
-    sharp "^0.32.5"
-    tmp "^0.2.1"
-
 "@argos-ci/core@1.2.1":
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@argos-ci/core/-/core-1.2.1.tgz#86de9b94873318c6482b58cacf0119ecc82f2e99"
@@ -310,13 +297,13 @@
     sharp "^0.32.5"
     tmp "^0.2.1"
 
-"@argos-ci/playwright@^1.1.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-1.2.1.tgz#f39702e25e8918f45dea09bda0b4c3da35fdf9ed"
-  integrity sha512-k+aodJvW39ONUHp5qq/DdiZGanHYf676Ldxc4mbAJleEKNPh/Y2JqSILVryK4UhOht4csxkbXaharMZB5j2few==
+"@argos-ci/playwright@^1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-1.2.2.tgz#0dcf471a8bdc79121499388469632ace06a559ef"
+  integrity sha512-wbtDziNX5XALONVVudDOJ8wzJjgLFQ7XuQlr+0mnHNjt1/EwaU9bVxwxx9UG7MaWPAjCwPFpaieUru9rZj0TMA==
   dependencies:
     "@argos-ci/browser" "1.0.0"
-    "@argos-ci/core" "1.2.0"
+    "@argos-ci/core" "1.2.1"
     "@argos-ci/util" "1.1.0"
 
 "@argos-ci/util@1.1.0":
