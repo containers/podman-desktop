@@ -10,8 +10,6 @@ export let value: number | undefined;
 export let onChange = (_id: string, _value: number) => {};
 export let invalidRecord = (_error: string) => {};
 
-let valueUpdateTimeout: NodeJS.Timeout;
-
 let recordValue: string;
 $: recordValue = value?.toString() || '0';
 
@@ -25,8 +23,6 @@ onMount(() => {
 });
 
 function onInput(event: Event) {
-  // clear the timeout so if there was an old call to onChange pending is deleted. We will create a new one soon
-  clearTimeout(valueUpdateTimeout);
   const target = event.currentTarget as HTMLInputElement;
   // if last char is a dot, user is probably adding a decimal point
   if (target.value.endsWith('.')) {
@@ -47,8 +43,8 @@ function onInput(event: Event) {
   }
   recordValue = _value.toString();
   // if the value is different from the original update
-  if (record.id && _value !== value) {
-    valueUpdateTimeout = setTimeout(() => onChange(record.id!, _value), 500);
+  if (record.id) {
+    onChange(record.id, _value);
   }
 }
 
@@ -74,7 +70,7 @@ function assertNumericValueIsValid(value: number): boolean {
   class="flex flex-row rounded-sm bg-zinc-700 text-sm divide-x divide-charcoal-800 w-24 border-b"
   class:border-violet-500="{!numberInputInvalid}"
   class:border-red-500="{numberInputInvalid}">
-  <Tooltip topLeft tip="{numberInputErrorMessage}">
+  <Tooltip topRight tip="{numberInputErrorMessage}">
     <input
       type="text"
       class="w-full px-2 outline-none focus:outline-none text-white text-sm py-0.5"
