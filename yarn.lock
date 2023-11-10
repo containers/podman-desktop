@@ -2396,6 +2396,11 @@
   resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-6.4.2.tgz#1766039cad33f8ad87f9467b98e0d18fbc8f01c5"
   integrity sha512-1DgP7f+XQIJbLFCTX1V2QnxVmpLdKdzzo2k8EmvDOePfchaIGQ9eCHj2up3/jNEbZuBqel5OxiaOJf37TWauRA==
 
+"@fortawesome/fontawesome-free@^6.4.2":
+  version "6.4.2"
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-free/-/fontawesome-free-6.4.2.tgz#36b6a9cb5ffbecdf89815c94d0c0ffa489ac5ecb"
+  integrity sha512-m5cPn3e2+FDCOgi1mz0RexTUvvQibBebOUlUlW0+YrMjDTPkiJ6VTKukA1GRsvRw+12KyJndNjj0O4AgTxm2Pg==
+
 "@fortawesome/fontawesome-svg-core@^6.4.2":
   version "6.4.2"
   resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-svg-core/-/fontawesome-svg-core-6.4.2.tgz#37f4507d5ec645c8b50df6db14eced32a6f9be09"
@@ -2907,11 +2912,6 @@
     "@octokit/webhooks-methods" "^4.0.0"
     "@octokit/webhooks-types" "7.1.0"
     aggregate-error "^3.1.0"
-
-"@patternfly/patternfly@^4.224.5":
-  version "4.224.5"
-  resolved "https://registry.yarnpkg.com/@patternfly/patternfly/-/patternfly-4.224.5.tgz#ad704848ce7754fcd6ffc5dc349f17beb84168ce"
-  integrity sha512-io0huj+LCP5FgDZJDaLv1snxktTYs8iCFz/W1VDRneYoebNHLmGfQdF7Yn8bS6PF7qmN6oJKEBlq3AjmmE8vdA==
 
 "@phenomnomnominal/tsquery@^5.0.0":
   version "5.0.1"
