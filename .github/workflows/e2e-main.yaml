@@ -23,9 +23,14 @@ on:
     
   workflow_dispatch:
     inputs:
-      fork:
+      organization:
         default: 'containers'
-        description: 'Podman Desktop repo fork'
+        description: 'Organization of the Podman Desktop repository'
+        type: string
+        required: true
+      repositoryName:
+        default: 'podman-desktop'
+        description: 'Podman Desktop repository name'
         type: string
         required: true
       branch:
@@ -41,7 +46,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: ${{ github.event.inputs.fork }}/podman-desktop
+          repository: ${{ github.event.inputs.organization }}/${{ github.event.inputs.repositoryName }}
           ref: ${{ github.event.inputs.branch }}
         if: github.event_name == 'workflow_dispatch'
 
