@@ -212,9 +212,9 @@ async function loginToRegistry(registry: containerDesktopAPI.Registry) {
 
   try {
     if (newRegistry) {
-      await window.createImageRegistry(registry.source, registry);
+      await window.createImageRegistry(registry.source, { ...registry });
     } else {
-      await window.updateImageRegistry(registry);
+      await window.updateImageRegistry({ ...registry });
     }
   } catch (error: any) {
     setErrorResponse(registry.serverUrl, error.message);

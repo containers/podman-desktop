@@ -21,15 +21,26 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll, describe } from 'vitest';
+import { test, expect, vi, describe, afterEach, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import PreferencesRegistriesEditing from './PreferencesRegistriesEditing.svelte';
 import { registriesInfos } from '../../stores/registries';
 import type { Registry } from '@podman-desktop/api';
+import { fireEvent, waitFor } from '@testing-library/dom';
+import { default as userEvent } from '@testing-library/user-event';
 
-beforeAll(() => {
+beforeEach(() => {
   (window as any).window.ddExtensionInstall = vi.fn().mockResolvedValue(undefined);
   (window as any).window.getImageRegistryProviderNames = vi.fn().mockResolvedValue(undefined);
+  (window as any).window.showMessageBox = vi.fn();
+  (window as any).window.checkImageCredentials = vi.fn();
+  (window as any).window.createImageRegistry = vi.fn().mockImplementation((...args: any[]) => {
+    console.log(args);
+  });
+});
+
+afterEach(() => {
+  vi.clearAllMocks();
 });
 
 describe('PreferencesRegistriesEditing', () => {
@@ -75,5 +86,40 @@ describe('PreferencesRegistriesEditing', () => {
     const loginButton = screen.getByRole('button', { name: 'Login' });
     expect(loginButton).toBeInTheDocument();
     expect(loginButton).toBeDisabled();
+  });
+
+  test('Expect that adding registry using self signed or not verifiable certificate triggers confirmation request', async () => {
+    render(PreferencesRegistriesEditing);
+    const addRegistryBtn = screen.getByRole('button', { name: 'Add registry' });
+    await userEvent.click(addRegistryBtn);
+    const button = screen.getByRole('button', { name: 'Login' });
+    const password = screen.getByPlaceholderText('Password');
+    const username = screen.getByPlaceholderText('Username');
+    const url = screen.getByPlaceholderText('URL (HTTPS only)');
+    expect(button).toBeVisible();
+    expect(button).toBeDisabled();
+    expect(password).toBeVisible();
+    expect(username).toBeVisible();
+    expect(url).toBeVisible();
+    await userEvent.type(url, 'https://registry.host');
+    await userEvent.type(username, 'username');
+    await userEvent.type(password, 'password');
+    expect(button).toBeEnabled();
+    vi.mocked(window.checkImageCredentials)
+      .mockRejectedValueOnce(new Error('unable to verify the first certificate'))
+      .mockRejectedValueOnce(new Error('self signed certificate in certificate chain'));
+    vi.mocked(window.showMessageBox).mockResolvedValueOnce({ response: 1 }).mockResolvedValueOnce({ response: 0 });
+    await userEvent.click(button);
+    await waitFor(() => expect(button).toBeEnabled());
+    await userEvent.click(button);
+    expect(window.showMessageBox).toHaveBeenCalledTimes(2);
+    expect(window.createImageRegistry).toHaveBeenCalledOnce();
+    expect(window.createImageRegistry).toHaveBeenLastCalledWith(undefined, {
+      source: undefined,
+      serverUrl: 'https://registry.host',
+      username: 'username',
+      secret: 'password',
+      insecure: true,
+    });
   });
 });
