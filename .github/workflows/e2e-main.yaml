@@ -80,8 +80,8 @@ jobs:
       - name: Execute yarn
         run: yarn --frozen-lockfile
 
-      - name: Run E2E smoke tests
-        run: yarn test:e2e:smoke
+      - name: Run All E2E tests
+        run: yarn test:e2e
 
       - uses: actions/upload-artifact@v3.1.2
         if: always()
