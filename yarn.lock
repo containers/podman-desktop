@@ -1582,14 +1582,14 @@
   resolved "https://registry.yarnpkg.com/@colors/colors/-/colors-1.5.0.tgz#bb504579c1cae923e6576a4f5da43d25f97bdbd9"
   integrity sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==
 
-"@commitlint/cli@^18.4.0":
-  version "18.4.0"
-  resolved "https://registry.yarnpkg.com/@commitlint/cli/-/cli-18.4.0.tgz#bbeca164b595473d3a67f1a9aac46bf557a05fb4"
-  integrity sha512-iz3KJtmsRRFm6OlyrORxRR6qcrznuoFDzcvMXTMpl6E/wj9Vr2crolDk6cG3bFpJCjWd9C7KidXerRha6hh1kQ==
+"@commitlint/cli@^18.4.1":
+  version "18.4.1"
+  resolved "https://registry.yarnpkg.com/@commitlint/cli/-/cli-18.4.1.tgz#b008ff325f112da260ed92605ca9d9290e53ba81"
+  integrity sha512-4+jljfd29Udw9RDDyigavLO9LvdbmB8O9xjDzVZ0R3lJuG7nCeyHgnKWIVpFaN590isZMV/cMeQK0gH7hRF40A==
   dependencies:
     "@commitlint/format" "^18.4.0"
     "@commitlint/lint" "^18.4.0"
-    "@commitlint/load" "^18.4.0"
+    "@commitlint/load" "^18.4.1"
     "@commitlint/read" "^18.4.0"
     "@commitlint/types" "^18.4.0"
     execa "^5.0.0"
@@ -1656,10 +1656,10 @@
     "@commitlint/rules" "^18.4.0"
     "@commitlint/types" "^18.4.0"
 
-"@commitlint/load@^18.4.0":
-  version "18.4.0"
-  resolved "https://registry.yarnpkg.com/@commitlint/load/-/load-18.4.0.tgz#81e8384ef804c2aba5decca82a643d35cbbc378e"
-  integrity sha512-7unGl1HGRNMgWrUPmj8OFkJyuNUMb6xA1i53/OAFKd9l+U3C4WTfoJe3t/TUz8vKZLCaDcWWR/b2cw5HveBBFg==
+"@commitlint/load@^18.4.1":
+  version "18.4.1"
+  resolved "https://registry.yarnpkg.com/@commitlint/load/-/load-18.4.1.tgz#41097fe3b0eed33e61fab6ab6015e9c4bd17de1a"
+  integrity sha512-o/plBiPJQgbSq/4ipDpsq4HCmURjBAEjr1EO/p2falr3VhwV0WGXTvb8NlihgI8xtSyO6lHvtycrE535GMLQbA==
   dependencies:
     "@commitlint/config-validator" "^18.4.0"
     "@commitlint/execute-rule" "^18.4.0"
@@ -1667,7 +1667,7 @@
     "@commitlint/types" "^18.4.0"
     "@types/node" "^18.11.9"
     chalk "^4.1.0"
-    cosmiconfig "^8.0.0"
+    cosmiconfig "^8.3.6"
     cosmiconfig-typescript-loader "^5.0.0"
     lodash.isplainobject "^4.0.6"
     lodash.merge "^4.6.2"
@@ -5894,14 +5894,14 @@ cosmiconfig@^7.0.0, cosmiconfig@^7.0.1:
     path-type "^4.0.0"
     yaml "^1.10.0"
 
-cosmiconfig@^8.0.0:
-  version "8.2.0"
-  resolved "https://registry.yarnpkg.com/cosmiconfig/-/cosmiconfig-8.2.0.tgz#f7d17c56a590856cd1e7cee98734dca272b0d8fd"
-  integrity sha512-3rTMnFJA1tCOPwRxtgF4wd7Ab2qvDbL8jX+3smjIbS4HlZBagTlpERbdN7iAbWlrfxE3M8c27kTwTawQ7st+OQ==
+cosmiconfig@^8.3.6:
+  version "8.3.6"
+  resolved "https://registry.yarnpkg.com/cosmiconfig/-/cosmiconfig-8.3.6.tgz#060a2b871d66dba6c8538ea1118ba1ac16f5fae3"
+  integrity sha512-kcZ6+W5QzcJ3P1Mt+83OUv/oHFqZHIx8DuxG6eZ5RGMERoLqp4BuGjhHLYGK+Kf5XVkQvqBSmAy/nGWN3qDgEA==
   dependencies:
-    import-fresh "^3.2.1"
+    import-fresh "^3.3.0"
     js-yaml "^4.1.0"
-    parse-json "^5.0.0"
+    parse-json "^5.2.0"
     path-type "^4.0.0"
 
 cpu-features@~0.0.4:
@@ -11479,7 +11479,7 @@ parse-entities@^4.0.0:
     is-decimal "^2.0.0"
     is-hexadecimal "^2.0.0"
 
-parse-json@^5.0.0:
+parse-json@^5.0.0, parse-json@^5.2.0:
   version "5.2.0"
   resolved "https://registry.npmjs.org/parse-json/-/parse-json-5.2.0.tgz"
   integrity sha512-ayCKvm/phCGxOkYRSCM82iDwct8/EonSEgCSxWxD7ve6jHggsFl4fZVQBPRNgQoKiuV/odhFrGzQXZwbifC8Rg==
