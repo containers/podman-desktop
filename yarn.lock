@@ -13951,10 +13951,10 @@ supports-preserve-symlinks-flag@^1.0.0:
   resolved "https://registry.npmjs.org/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
 
-svelte-check@^3.5.2:
-  version "3.5.2"
-  resolved "https://registry.yarnpkg.com/svelte-check/-/svelte-check-3.5.2.tgz#d6e650996afbe80f5e5b9b02d3fb9489f7d6fb8a"
-  integrity sha512-5a/YWbiH4c+AqAUP+0VneiV5bP8YOk9JL3jwvN+k2PEPLgpu85bjQc5eE67+eIZBBwUEJzmO3I92OqKcqbp3fw==
+svelte-check@^3.6.0:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/svelte-check/-/svelte-check-3.6.0.tgz#d501813dc83648c1b89cf9953de385762843731e"
+  integrity sha512-8VfqhfuRJ1sKW+o8isH2kPi0RhjXH1nNsIbCFGyoUHG+ZxVxHYRKcb+S8eaL/1tyj3VGvWYx3Y5+oCUsJgnzcw==
   dependencies:
     "@jridgewell/trace-mapping" "^0.3.17"
     chokidar "^3.4.1"
@@ -13962,7 +13962,7 @@ svelte-check@^3.5.2:
     import-fresh "^3.2.1"
     picocolors "^1.0.0"
     sade "^1.7.4"
-    svelte-preprocess "^5.0.4"
+    svelte-preprocess "^5.1.0"
     typescript "^5.0.3"
 
 "svelte-eslint-parser@>=0.33.0 <1.0.0", svelte-eslint-parser@^0.33.1:
@@ -13986,7 +13986,7 @@ svelte-hmr@^0.15.3:
   resolved "https://registry.yarnpkg.com/svelte-hmr/-/svelte-hmr-0.15.3.tgz#df54ccde9be3f091bf5f18fc4ef7b8eb6405fbe6"
   integrity sha512-41snaPswvSf8TJUhlkoJBekRrABDXDMdpNpT2tfHIv4JuhgvHqLMhEPGtaQn0BmbNSTkuz2Ed20DF2eHw0SmBQ==
 
-svelte-preprocess@^5.0.4, svelte-preprocess@^5.1.0:
+svelte-preprocess@^5.1.0:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/svelte-preprocess/-/svelte-preprocess-5.1.0.tgz#824a1b072da118cba46ad2e5e88a568083acad4b"
   integrity sha512-EkErPiDzHAc0k2MF5m6vBNmRUh338h2myhinUw/xaqsLs7/ZvsgREiLGj03VrSzbY/TB5ZXgBOsKraFee5yceA==
