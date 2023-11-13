@@ -43,6 +43,6 @@ $: tooltip = percent ? percent.toFixed(0) + '% ' + title + ' usage' : '';
       text-anchor="middle"
       font-size="{size / 4.5}"
       dominant-baseline="central"
-      class="fill-gray-400">{value || ''}</text>
+      class="fill-gray-400">{value !== undefined ? value : ''}</text>
   </svg>
 </Tooltip>

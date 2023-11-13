@@ -116,7 +116,7 @@ export type MachineInfo = {
   memoryUsage: number;
 };
 
-async function updateMachines(provider: extensionApi.Provider): Promise<void> {
+export async function updateMachines(provider: extensionApi.Provider): Promise<void> {
   // init machines available
   let machineListOutput: string;
   try {
@@ -169,9 +169,9 @@ async function updateMachines(provider: extensionApi.Provider): Promise<void> {
     const userModeNetworking = isWindows() ? machine.UserModeNetworking : true;
     podmanMachinesInfo.set(machine.Name, {
       name: machine.Name,
-      memory: machineInfo?.memory,
-      cpus: machineInfo?.cpus,
-      diskSize: machineInfo?.diskSize,
+      memory: machineInfo ? machineInfo?.memory : Number(machine.Memory),
+      cpus: machineInfo ? machineInfo?.cpus : machine.CPUs,
+      diskSize: machineInfo ? machineInfo?.diskSize : Number(machine.DiskSize),
       userModeNetworking: userModeNetworking,
       cpuUsage: machineInfo?.cpuIdle ? 100 - machineInfo?.cpuIdle : 0,
       diskUsage:
@@ -626,7 +626,9 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
   await containerConfiguration.update('machine.cpus', machineInfo.cpus);
   await containerConfiguration.update('machine.memory', machineInfo.memory);
   await containerConfiguration.update('machine.diskSize', machineInfo.diskSize);
-  await containerConfiguration.update('machine.cpuUsage', machineInfo.cpuUsage);
+  await containerConfiguration.update('machine.cpusUsage', machineInfo.cpuUsage);
+  await containerConfiguration.update('machine.memoryUsage', machineInfo.memoryUsage);
+  await containerConfiguration.update('machine.diskSizeUsage', machineInfo.diskUsage);
 
   currentConnections.set(machineInfo.name, disposable);
   storedExtensionContext.subscriptions.push(disposable);
@@ -754,8 +756,12 @@ export function initTelemetryLogger(): void {
   telemetryLogger = extensionApi.env.createTelemetryLogger();
 }
 
-export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+export function initExtensionContext(extensionContext: extensionApi.ExtensionContext) {
   storedExtensionContext = extensionContext;
+}
+
+export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  initExtensionContext(extensionContext);
 
   initTelemetryLogger();
 
