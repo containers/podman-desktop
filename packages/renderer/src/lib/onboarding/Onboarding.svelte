@@ -282,7 +282,11 @@ async function restartSetup() {
     class="flex flex-col bg-charcoal-500 h-full overflow-y-auto w-full overflow-x-hidden"
     class:bodyWithBar="{!activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}">
     <div class="flex flex-col h-full">
-      <div class="flex flex-row justify-between h-[100px] p-5 z-20 fixed w-full bg-opacity-90 bg-charcoal-700">
+      <div
+        class="flex flex-row justify-between h-[100px] p-5 z-20 fixed w-full bg-opacity-90 bg-charcoal-700"
+        role="heading"
+        aria-level="{2}"
+        aria-label="{activeStep.onboarding.title} Header">
         <div class="flex flew-row">
           {#if activeStep.onboarding.media}
             <img
@@ -345,7 +349,7 @@ async function restartSetup() {
                 <Spinner />
               </div>
             {/if}
-            <div class="text-lg text-white">
+            <div class="text-lg text-white" aria-label="Onboarding Status Message">
               {replaceContextKeyPlaceholders(activeStep.step.title, activeStep.onboarding.extension, globalContext)}
             </div>
           </div>
@@ -397,7 +401,9 @@ async function restartSetup() {
           </div>
         {/if}
         <div
-          class="flex flex-row-reverse p-6 bg-charcoal-700 fixed w-[calc(100%-theme(width.leftnavbar)-theme(width.leftsidebar))] bottom-0 mb-5 pr-10 max-h-20 bg-opacity-90 z-20">
+          class="flex flex-row-reverse p-6 bg-charcoal-700 fixed w-[calc(100%-theme(width.leftnavbar)-theme(width.leftsidebar))] bottom-0 mb-5 pr-10 max-h-20 bg-opacity-90 z-20"
+          role="group"
+          aria-label="Step Buttons">
           <Button type="primary" disabled="{activeStep.step.state === 'failed'}" on:click="{() => next()}">Next</Button>
           {#if activeStep.step.state !== 'completed'}
             <Button
@@ -414,7 +420,9 @@ async function restartSetup() {
 {#if displayCancelSetup}
   <!-- Create overlay-->
   <div class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 bg-blend-multiply h-full grid z-50">
-    <div class="flex flex-col place-self-center w-[550px] rounded-xl bg-charcoal-800 shadow-xl shadow-black">
+    <div
+      class="flex flex-col place-self-center w-[550px] rounded-xl bg-charcoal-800 shadow-xl shadow-black"
+      aria-label="Skip setup popup">
       <div class="flex items-center justify-between pl-4 pr-3 py-3 space-x-2 text-gray-400">
         <Fa class="h-4 w-4" icon="{faCircleQuestion}" />
         <span class="grow text-md font-bold capitalize">Skip the entire setup?</span>
