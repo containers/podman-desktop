@@ -52,7 +52,7 @@ import type { PullEvent } from './api/pull-event.js';
 import type { ExtensionInfo } from './api/extension-info.js';
 import type { ImageInspectInfo } from './api/image-inspect-info.js';
 import type { TrayMenu } from '../tray-menu.js';
-import { getFreePort, getFreePortRange } from './util/port.js';
+import { getFreePort, getFreePortRange, isFreePort } from './util/port.js';
 import { isLinux, isMac } from '../util.js';
 import type { MessageBoxOptions, MessageBoxReturnValue } from './message-box.js';
 import { MessageBox } from './message-box.js';
@@ -1324,6 +1324,10 @@ export class PluginSystem {
 
     this.ipcHandle('system:get-free-port-range', async (_, rangeSize: number): Promise<string> => {
       return getFreePortRange(rangeSize);
+    });
+
+    this.ipcHandle('system:is-port-free', async (_, port: number): Promise<boolean> => {
+      return isFreePort(port);
     });
 
     this.ipcHandle(

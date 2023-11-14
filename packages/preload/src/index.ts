@@ -1228,6 +1228,10 @@ function initExposure(): void {
     return ipcInvoke('system:get-free-port-range', rangeSize);
   });
 
+  contextBridge.exposeInMainWorld('isFreePort', async (port: number): Promise<boolean> => {
+    return ipcInvoke('system:is-port-free', port);
+  });
+
   type LogFunction = (...data: unknown[]) => void;
 
   let onDataCallbacksStartReceiveLogsId = 0;
