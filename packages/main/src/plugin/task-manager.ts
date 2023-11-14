@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { ApiSenderType } from './api.js';
+import type { NotificationInfo } from './api/notification.js';
 import type { NotificationTask, StatefulTask, Task } from '/@/plugin/api/task.js';
 
 /**
@@ -43,18 +44,14 @@ export class TaskManager {
     return task;
   }
 
-  public createNotificationTask(
-    title: string | undefined,
-    description: string | undefined,
-    markdownActions: string | undefined,
-  ): Task {
+  public createNotificationTask(notificationInfo: NotificationInfo): Task {
     this.taskId++;
     const task: NotificationTask = {
       id: `main-${this.taskId}`,
-      name: title ? title : `Task ${this.taskId}`,
+      name: notificationInfo.title,
       started: new Date().getTime(),
-      description: description || '',
-      markdownActions: markdownActions,
+      description: notificationInfo.body || '',
+      markdownActions: notificationInfo.markdownActions,
     };
     this.tasks.set(task.id, task);
     this.apiSender.send('task-created', task);

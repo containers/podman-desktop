@@ -22,7 +22,7 @@ import { fireEvent, render, screen } from '@testing-library/svelte';
 import TaskManager from './TaskManager.svelte';
 import userEvent from '@testing-library/user-event';
 import { tasksInfo } from '/@/stores/tasks';
-import type { Task } from '../../../../main/src/plugin/api/task';
+import type { StatefulTask } from '../../../../main/src/plugin/api/task';
 
 // fake the window.events object
 beforeAll(() => {
@@ -34,8 +34,14 @@ beforeAll(() => {
 });
 
 const started = new Date().getTime();
-const IN_PROGRESS_TASK: Task = { id: '1', name: 'Running Task 1', state: 'running', started, status: 'in-progress' };
-const SUCCEED_TASK: Task = { id: '1', name: 'Running Task 1', state: 'completed', started, status: 'success' };
+const IN_PROGRESS_TASK: StatefulTask = {
+  id: '1',
+  name: 'Running Task 1',
+  state: 'running',
+  started,
+  status: 'in-progress',
+};
+const SUCCEED_TASK: StatefulTask = { id: '1', name: 'Running Task 1', state: 'completed', started, status: 'success' };
 
 test('Expect that the tasks manager is hidden by default', async () => {
   render(TaskManager, {});
@@ -112,18 +118,18 @@ test('Expect delete completed tasks remove tasks', async () => {
   const task = screen.queryByText(SUCCEED_TASK.name);
   expect(task).toBeInTheDocument();
 
-  // click on the button "Clear completed"
-  const clearCompletedButton = screen.getByRole('button', { name: 'Clear completed' });
-  expect(clearCompletedButton).toBeInTheDocument();
-  await fireEvent.click(clearCompletedButton);
+  // click on the button "Clear notifications"
+  const clearNotificationsButton = screen.getByRole('button', { name: 'Clear notifications' });
+  expect(clearNotificationsButton).toBeInTheDocument();
+  await fireEvent.click(clearNotificationsButton);
 
   // expect the task name is not visible
   const afterTask = screen.queryByText(SUCCEED_TASK.name);
   expect(afterTask).not.toBeInTheDocument();
 
   // button is also gone
-  const afterClearCompletedButton = screen.queryByRole('button', { name: 'Clear completed' });
-  expect(afterClearCompletedButton).not.toBeInTheDocument();
+  const afterClearNotificationsButton = screen.queryByRole('button', { name: 'Clear notifications' });
+  expect(afterClearNotificationsButton).not.toBeInTheDocument();
 });
 
 test('Expect click on faClose icon remove the task', async () => {
