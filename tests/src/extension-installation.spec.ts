@@ -27,6 +27,7 @@ import { DashboardPage } from './model/pages/dashboard-page';
 import { OpenshiftLocalExtensionPage } from './model/pages/openshift-local-extension-page';
 import { SandboxExtensionPage } from './model/pages/sandbox-extension-page';
 import type { RunnerTestContext } from './testContext/runner-test-context';
+import { ResourcesPage } from './model/pages/resources-page';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -37,6 +38,7 @@ let extensionDashboardProvider: Locator;
 let extensionSettingsBox: Locator;
 let installButtonLabel: string;
 let settingsLink: string;
+let resourceLabel: string;
 
 const _startup = async function () {
   console.log('running before all');
@@ -111,7 +113,7 @@ describe.each([
     });
 
     describe('Toggle and verify extension status', async () => {
-      test('Disable extension and verify Dashboard components', async () => {
+      test('Disable extension and verify Dashboard and Resources components', async () => {
         const extensionPage = new extensionPageType(page);
 
         await extensionPage.disableButton.click();
@@ -120,10 +122,17 @@ describe.each([
         await goToDashboard();
         await playExpect(extensionDashboardProvider).toBeHidden();
         await playExpect(extensionDashboardStatus).toBeHidden();
+
+        await goToSettings();
+        const settingsBar = new SettingsBar(page);
+        const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
+        const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
+          name: resourceLabel,
+        });
+        await playExpect(extensionResourceBox).toBeHidden();
       });
 
-      test('Enable extension and verify Dashboard components', async () => {
-        await goToSettings();
+      test('Enable extension and verify Dashboard and Resources components', async () => {
         const settingsBar = new SettingsBar(page);
         await settingsBar.openTabPage(SettingsExtensionsPage);
         const extensionPage = await settingsBar.openTabPage(extensionPageType);
@@ -134,13 +143,19 @@ describe.each([
         await goToDashboard();
         await playExpect(extensionDashboardProvider).toBeVisible();
         await playExpect(extensionDashboardStatus).toBeVisible();
+
+        await goToSettings();
+        const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
+        const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
+          name: resourceLabel,
+        });
+        await playExpect(extensionResourceBox).toBeVisible();
       });
     });
   });
 
   describe('Remove extension and verify UI', async () => {
     test('Remove extension and verify Settings components', async () => {
-      await goToSettings();
       const settingsBar = new SettingsBar(page);
       await settingsBar.openTabPage(SettingsExtensionsPage);
       const extensionPage = await settingsBar.openTabPage(extensionPageType);
@@ -152,6 +167,10 @@ describe.each([
       await playExpect(installButton).toBeVisible();
 
       await playExpect(settingsBar.settingsNavBar.getByRole('link', { name: settingsLink })).toBeHidden();
+
+      const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
+      const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', { name: resourceLabel });
+      await playExpect(extensionResourceBox).toBeHidden();
     });
 
     test('Verify Dashboard components', async () => {
@@ -173,6 +192,7 @@ function initializeLocators(extensionType: string) {
       extensionSettingsBox = settingsExtensionsPage.devSandboxBox;
       installButtonLabel = 'Install redhat.redhat-sandbox Extension';
       settingsLink = 'Red Hat OpenShift Sandbox';
+      resourceLabel = 'redhat.sandbox';
       break;
     }
     case 'Openshift Local': {
@@ -182,6 +202,7 @@ function initializeLocators(extensionType: string) {
       extensionSettingsBox = settingsExtensionsPage.openshiftLocalBox;
       installButtonLabel = 'Install redhat.openshift-local Extension';
       settingsLink = 'Red Hat OpenShift Local';
+      resourceLabel = 'crc';
       break;
     }
   }

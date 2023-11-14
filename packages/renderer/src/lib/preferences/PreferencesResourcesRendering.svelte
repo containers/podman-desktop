@@ -360,7 +360,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
       href="/preferences/extensions"
       class="text-gray-700 underline underline-offset-2">Extensions</a>
   </span>
-  <div class="h-full">
+  <div class="h-full" role="region" aria-label="Featured Provider Resources">
     <EmptyScreen
       aria-label="no-resource-panel"
       icon="{EngineIcon}"
