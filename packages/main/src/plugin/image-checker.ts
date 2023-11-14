@@ -50,6 +50,7 @@ export class ImageCheckerImpl {
     return {
       dispose: () => {
         this._imageCheckerProviders.delete(id);
+        this.apiSender.send('image-checker-provider-remove', { id });
       },
     };
   }
