@@ -123,7 +123,7 @@ function canIncrement(value: number) {
   <Tooltip topLeft tip="{numberInputErrorMessage}">
     <input
       type="text"
-      class="w-[50px] outline-none focus:outline-none text-white text-center text-sm py-0.5"
+      class="w-[50px] outline-none focus:outline-none text-white text-center text-sm py-0.5 bg-transparent"
       name="{record.id}"
       bind:value="{recordValue}"
       on:keypress="{event => onNumberInputKeyPress(event)}"

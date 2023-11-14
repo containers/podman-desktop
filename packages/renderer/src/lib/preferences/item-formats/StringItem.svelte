@@ -15,7 +15,7 @@ function onInput(event: Event) {
 
 <input
   on:input="{onInput}"
-  class="grow py-1 px-2 w-full outline-0 border-b-2 border-gray-800 hover:border-violet-500 focus:border-violet-500 placeholder-gray-900"
+  class="grow py-1 px-2 w-full outline-0 border-b-2 border-gray-800 hover:border-violet-500 focus:border-violet-500 placeholder-gray-900 bg-zinc-700"
   name="{record.id}"
   type="text"
   placeholder="{record.placeholder}"

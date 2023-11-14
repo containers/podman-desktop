@@ -29,7 +29,7 @@ function handleCleanValue(
 
 <div class="w-full flex">
   <input
-    class="grow {!value ? 'mr-3' : ''} py-1 px-2 outline-0 text-sm placeholder-gray-900"
+    class="grow {!value ? 'mr-3' : ''} py-1 px-2 outline-0 text-sm placeholder-gray-900 bg-zinc-700"
     name="{record.id}"
     readonly
     type="text"
