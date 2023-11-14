@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[10],{21670:l=>{l.exports=JSON.parse('{"label":"lima","permalink":"/docs/tags/lima","allTagsPath":"/docs/tags","count":1,"items":[{"id":"lima/installing","title":"Installing the `lima` CLI","description":"Installing Lima","permalink":"/docs/lima/installing"}]}')}}]);
