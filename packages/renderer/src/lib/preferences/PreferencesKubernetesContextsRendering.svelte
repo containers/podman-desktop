@@ -6,19 +6,32 @@ import { onMount } from 'svelte';
 import type { KubeContextUI } from '../kube/KubeContextUI';
 import { getKubeUIContexts } from '../kube/KubeContextUI';
 import Link from '../ui/Link.svelte';
+import type { Cluster } from '@kubernetes/client-node';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 
 let contexts: KubeContextUI[] = [];
+let k8sClusters: Cluster[] = [];
 
 $: contexts;
 
 onMount(async () => {
   // Retrieve both the contexts and clusters
   let k8sContexts = await window.kubernetesGetContexts();
-  let k8sClusters = await window.kubernetesGetClusters();
+  k8sClusters = await window.kubernetesGetClusters();
 
   // Convert them to KubeContextUI so we can safely render them.
   contexts = getKubeUIContexts(k8sContexts, k8sClusters);
 });
+
+async function handleDeleteContext(contextName: string) {
+  try {
+    const newK8sContexts = await window.kubernetesDeleteContext(contextName);
+    contexts = getKubeUIContexts(newK8sContexts, k8sClusters);
+  } catch (e) {
+    console.log(' ==> error', e);
+  }
+}
 </script>
 
 <SettingsPage title="Kubernetes Contexts">
@@ -43,8 +56,12 @@ onMount(async () => {
                   class="max-w-[40px] h-full" />
               {/if}
             {/if}
-            <span id="{context.name}" class="my-auto text-gray-400 ml-3 break-words" aria-label="context-name"
+            <span id="{context.name}" class="my-auto text-gray-400 ml-3 break-words flex-auto" aria-label="context-name"
               >{context.name}</span>
+            <ListItemButtonIcon
+              title="Delete Context"
+              icon="{faTrash}"
+              onClick="{() => handleDeleteContext(context.name)}"></ListItemButtonIcon>
           </div>
         </div>
         <div class="grow flex-column divide-gray-900 text-gray-400">

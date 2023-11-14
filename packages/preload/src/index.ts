@@ -1416,6 +1416,10 @@ function initExposure(): void {
     return ipcInvoke('kubernetes-client:getContexts');
   });
 
+  contextBridge.exposeInMainWorld('kubernetesDeleteContext', async (contextName: string): Promise<Context[]> => {
+    return ipcInvoke('kubernetes-client:deleteContext', contextName);
+  });
+
   contextBridge.exposeInMainWorld('kubernetesGetClusters', async (): Promise<Cluster[]> => {
     return ipcInvoke('kubernetes-client:getClusters');
   });

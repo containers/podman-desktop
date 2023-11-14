@@ -55,6 +55,7 @@ import { PassThrough } from 'node:stream';
 import type { ApiSenderType } from './api.js';
 import { parseAllDocuments } from 'yaml';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
+import * as jsYaml from 'js-yaml';
 
 function toContainerStatus(state: V1ContainerState | undefined): string {
   if (state) {
@@ -262,6 +263,30 @@ export class KubernetesClient {
 
   getCurrentNamespace(): string | undefined {
     return this.currentNamespace;
+  }
+
+  async deleteContext(contextName: string): Promise<Context[]> {
+    const newContexts = this.kubeConfig.contexts.filter(ctx => ctx.name !== contextName);
+    const newConfig = new KubeConfig();
+    newConfig.loadFromOptions({
+      contexts: newContexts,
+      clusters: this.kubeConfig.clusters.filter(cluster => newContexts.some(ctx => ctx.cluster === cluster.name)),
+      users: this.kubeConfig.users.filter(user => newContexts.some(ctx => ctx.user === user.name)),
+      currentContext: this.kubeConfig.currentContext,
+    });
+    try {
+      await this.saveKubeConfig(newConfig);
+      this.kubeConfig = newConfig;
+    } catch {
+      return this.getContexts();
+    }
+    return this.getContexts();
+  }
+
+  async saveKubeConfig(config: KubeConfig) {
+    const jsonString = config.exportConfig();
+    const yamlString = jsYaml.dump(JSON.parse(jsonString));
+    await fs.promises.writeFile(this.kubeconfigPath, yamlString);
   }
 
   private async getDefaultNamespace(context: Context): Promise<string> {

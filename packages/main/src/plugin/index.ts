@@ -1866,6 +1866,13 @@ export class PluginSystem {
       return kubernetesClient.getCurrentNamespace();
     });
 
+    this.ipcHandle(
+      'kubernetes-client:deleteContext',
+      async (_listener, contextName: string): Promise<KubernetesContext[]> => {
+        return kubernetesClient.deleteContext(contextName);
+      },
+    );
+
     this.ipcHandle('feedback:send', async (_listener, feedbackProperties: unknown): Promise<void> => {
       return telemetry.sendFeedback(feedbackProperties);
     });
