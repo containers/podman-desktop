@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { ApiSenderType } from './api.js';
-import type { Task } from '/@/plugin/api/task.js';
+import type { NotificationTask, StatefulTask, Task } from '/@/plugin/api/task.js';
 
 /**
  * Contribution manager to provide the list of external OCI contributions
@@ -29,9 +29,9 @@ export class TaskManager {
 
   constructor(private apiSender: ApiSenderType) {}
 
-  public createTask(title: string | undefined): Task {
+  public createTask(title: string | undefined): StatefulTask {
     this.taskId++;
-    const task: Task = {
+    const task: StatefulTask = {
       id: `main-${this.taskId}`,
       name: title ? title : `Task ${this.taskId}`,
       started: new Date().getTime(),
@@ -43,10 +43,36 @@ export class TaskManager {
     return task;
   }
 
+  public createNotificationTask(
+    title: string | undefined,
+    description: string | undefined,
+    markdownActions: string | undefined,
+  ): Task {
+    this.taskId++;
+    const task: NotificationTask = {
+      id: `main-${this.taskId}`,
+      name: title ? title : `Task ${this.taskId}`,
+      started: new Date().getTime(),
+      description: description || '',
+      markdownActions: markdownActions,
+    };
+    this.tasks.set(task.id, task);
+    this.apiSender.send('task-created', task);
+    return task;
+  }
+
   public updateTask(task: Task) {
     this.apiSender.send('task-updated', task);
-    if (task.state === 'completed') {
+    if (this.isStatefulTask(task) && task.state === 'completed') {
       this.tasks.delete(task.id);
     }
+  }
+
+  isStatefulTask(task: Task): task is StatefulTask {
+    return 'state' in task;
+  }
+
+  isNotificationTask(task: Task): task is NotificationTask {
+    return 'description' in task;
   }
 }

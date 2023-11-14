@@ -22,12 +22,16 @@ import { Notification } from 'electron';
 import type { ApiSenderType } from './api.js';
 import { Disposable } from './types/disposable.js';
 import type * as containerDesktopAPI from '@podman-desktop/api';
+import type { TaskManager } from './task-manager.js';
 
 export class NotificationRegistry {
   private notificationId = 0;
   private notificationQueue: NotificationCard[] = [];
 
-  constructor(private apiSender: ApiSenderType) {}
+  constructor(
+    private apiSender: ApiSenderType,
+    private taskManager: TaskManager,
+  ) {}
 
   registerExtension(extensionId: string): Disposable {
     return Disposable.create(() => {
@@ -45,6 +49,8 @@ export class NotificationRegistry {
     this.notificationQueue.unshift(notification);
     // send event
     this.apiSender.send('notifications-updated');
+    // create task
+    this.taskManager.createNotificationTask(notification.title, notification.body, notification.markdownActions);
     // we show the notification
     const disposeShowNotification = this.showNotification({
       title: notification.title,

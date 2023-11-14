@@ -397,6 +397,8 @@ export class PluginSystem {
 
     const exec = new Exec(proxy);
 
+    const taskManager = new TaskManager(apiSender);
+
     const commandRegistry = new CommandRegistry(apiSender, telemetry);
     const menuRegistry = new MenuRegistry(commandRegistry);
     const kubeGeneratorRegistry = new KubeGeneratorRegistry();
@@ -414,7 +416,7 @@ export class PluginSystem {
     const fileSystemMonitoring = new FilesystemMonitoring();
     const customPickRegistry = new CustomPickRegistry(apiSender);
     const onboardingRegistry = new OnboardingRegistry(configurationRegistry, context);
-    const notificationRegistry = new NotificationRegistry(apiSender);
+    const notificationRegistry = new NotificationRegistry(apiSender, taskManager);
     const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry);
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
@@ -711,8 +713,6 @@ export class PluginSystem {
     const messageBox = new MessageBox(apiSender);
 
     const authentication = new AuthenticationImpl(apiSender);
-
-    const taskManager = new TaskManager(apiSender);
 
     const cliToolRegistry = new CliToolRegistry(apiSender, exec, telemetry);
 
