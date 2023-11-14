@@ -80,6 +80,12 @@ jobs:
           name: windows-exe-arm64
           path: ./dist/podman-desktop*-next-arm64.exe
 
+      - name: Set the default env variables
+        env:
+          DEFAULT_SECRET: 'registryPswdSecret'
+        run: |
+          echo "REGISTRY_PSWD_SECRET=${{ secrets.QUAY_IO_TEST || env.DEFAULT_SECRET }} " >> $GITHUB_ENV 
+
   linux:
     name: Linux
     runs-on: ubuntu-22.04
