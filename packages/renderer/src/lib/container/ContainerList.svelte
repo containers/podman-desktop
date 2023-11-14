@@ -714,7 +714,7 @@ function setStoppedFilter() {
       openChoiceModal = false;
     }}">
     <button
-      class="inline-block w-full overflow-hidden text-left transition-all transform bg-charcoal-600 z-50 h-[200px] rounded-xl shadow-xl shadow-charcoal-900"
+      class="inline-block w-full overflow-hidden text-left transition-all transform bg-charcoal-600 z-50 rounded-xl shadow-xl shadow-charcoal-900"
       on:keydown="{keydownChoice}">
       <div class="flex items-center justify-between bg-black px-5 py-4 border-b-2 border-violet-700">
         <h1 class="text-xl font-bold">Create a new container</h1>
