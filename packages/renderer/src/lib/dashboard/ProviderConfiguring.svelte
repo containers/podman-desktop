@@ -89,7 +89,7 @@ onDestroy(() => {
 <div class="p-2 flex flex-col bg-charcoal-800 rounded-lg" role="region" aria-label="{provider.name} Provider">
   <ProviderLogo provider="{provider}" />
   <div class="flex flex-col items-center text-center">
-    <p class="text-xl text-gray-400">
+    <p class="text-xl text-gray-400" aria-label="Actual State">
       {provider.name}
       {#if provider.version}
         v{provider.version}
@@ -101,7 +101,7 @@ onDestroy(() => {
       {#if initializationContext.mode === InitializeAndStartMode}
         <Steps steps="{InitializationSteps}" />
       {/if}
-      <div class="flex flex-col text-gray-700">
+      <div class="flex flex-col text-gray-700" aria-label="Transitioning State">
         <div>Initializing</div>
         <div class="my-2">
           <Spinner />

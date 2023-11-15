@@ -24,7 +24,7 @@ onDestroy(() => {
 
 {#if notifications.length > 0}
   <div class="bg-charcoal-800 m-5 px-5 py-4 rounded-lg">
-    <div class="flex flex-col items-center justify-content space-y-3">
+    <div class="flex flex-col items-center justify-content space-y-3" role="region" aria-label="Notifications Box">
       <span class="text-md text-white mb-1">Notifications</span>
       {#each notifications as notification}
         <NotificationCardItem notification="{notification}" />

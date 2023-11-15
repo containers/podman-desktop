@@ -11,7 +11,7 @@ async function removeNotification(id: number) {
 }
 </script>
 
-<div class="relative bg-charcoal-700 w-full py-4 px-5 rounded-sm">
+<div class="relative bg-charcoal-700 w-full py-4 px-5 rounded-sm" role="region" aria-label="id: {notification.id}">
   <div class="flex flex-row">
     <div class="mr-3">
       {#if notification.type === 'info'}

@@ -13,9 +13,9 @@ $: {
 
 <!-- TODO: Add dismiss button / ignore warning? -->
 {#if providerInfo && providerInfo.warnings?.length > 0}
-  <div class="flex flex-col items-center text-center mt-3">
+  <div class="flex flex-col items-center text-center mt-3" role="list" aria-label="Provider Warnings">
     {#each providerInfo.warnings as warn}
-      <div class="flex-row items-center align-middle mt-0.5">
+      <div class="flex-row items-center align-middle mt-0.5" role="listitem" aria-label="{warn.name}">
         <!-- Make line height center-->
         <span class="ml-1 text-md text-gray-700">⚠</span>
         <span class="ml-1 text-sm text-gray-700">{warn.name}:</span>

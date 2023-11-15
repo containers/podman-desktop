@@ -17,10 +17,10 @@ let preflightChecks: CheckStatus[] = [];
 <div class="p-2 flex flex-col bg-charcoal-800 rounded-lg" role="region" aria-label="{provider.name} Provider">
   <ProviderLogo provider="{provider}" />
   <div class="flex flex-col items-center text-center">
-    <p class="text-xl text-gray-400">
+    <p class="text-xl text-gray-400" aria-label="Actual State">
       Podman Desktop was not able to find an installation of {provider.name}.
     </p>
-    <p class="text-base text-gray-700">
+    <p class="text-base text-gray-700" aria-label="Suggested Actions">
       To start working with containers, {provider.name} needs to be detected/installed.
     </p>
   </div>
