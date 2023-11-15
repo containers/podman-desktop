@@ -15374,10 +15374,10 @@ wildcard@^2.0.0:
   resolved "https://registry.yarnpkg.com/wildcard/-/wildcard-2.0.0.tgz#a77d20e5200c6faaac979e4b3aadc7b3dd7f8fec"
   integrity sha512-JcKqAHLPxcdb9KM49dufGXn2x3ssnfjbcaQdLlfZsL9rH9wgDQjUtDxbo8NE0F6SFvydeu1VhZe7hZuHsB2/pw==
 
-win-ca@^3.5.0:
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/win-ca/-/win-ca-3.5.0.tgz#87fa778d629077651d323169aadf122ff16954e7"
-  integrity sha512-0TgO/+2iz2pS3OxBy2ikovPHOYyZRdLRxRTT9ze7DpZwEpaahLFOBuac93GM3lYEVzDyf8fXskJjIX/EILvkhQ==
+win-ca@^3.5.1:
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/win-ca/-/win-ca-3.5.1.tgz#2ef37ac24b0a1daa2714b4c5ef258c5242429e00"
+  integrity sha512-RNy9gpBS6cxWHjfbqwBA7odaHyT+YQNhtdpJZwYCFoxB/Dq22oeOZ9YCXMwjhLytKpo7JJMnKdJ/ve7N12zzfQ==
   dependencies:
     is-electron "^2.2.0"
     make-dir "^1.3.0"
