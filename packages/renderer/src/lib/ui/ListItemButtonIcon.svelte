@@ -61,8 +61,8 @@ $: styleClass = detailed
     ? buttonDetailedClass
     : buttonDetailedDisabledClass
   : enabled && !inProgress
-  ? buttonClass
-  : buttonDisabledClass;
+    ? buttonClass
+    : buttonDisabledClass;
 </script>
 
 <!-- If menu = true, use the menu, otherwise implement the button -->

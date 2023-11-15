@@ -403,14 +403,14 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                       (provider.containerProviderConnectionCreation
                         ? provider.containerProviderConnectionCreationDisplayName || undefined
                         : provider.kubernetesProviderConnectionCreation
-                        ? provider.kubernetesProviderConnectionCreationDisplayName
-                        : undefined) || provider.name}
+                          ? provider.kubernetesProviderConnectionCreationDisplayName
+                          : undefined) || provider.name}
                     {@const buttonTitle =
                       (provider.containerProviderConnectionCreation
                         ? provider.containerProviderConnectionCreationButtonTitle || undefined
                         : provider.kubernetesProviderConnectionCreation
-                        ? provider.kubernetesProviderConnectionCreationButtonTitle
-                        : undefined) || 'Create new'}
+                          ? provider.kubernetesProviderConnectionCreationButtonTitle
+                          : undefined) || 'Create new'}
                     <!-- create new provider button -->
                     <Tooltip tip="Create new {providerDisplayName}" bottom>
                       <Button
