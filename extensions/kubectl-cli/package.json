@@ -1,0 +1,30 @@
+{
+  "name": "kubectl-cli-tool",
+  "displayName": "kubectl CLI",
+  "description": "Install and update kubectl CLI Tools without leaving Podman Desktop",
+  "version": "0.0.1",
+  "icon": "icon.png",
+  "publisher": "redhat",
+  "license": "Apache-2.0",
+  "engines": {
+    "podman-desktop": "^0.0.1"
+  },
+  "main": "./dist/extension.js",
+  "scripts": {
+    "build": "vite build && node ./scripts/build.js",
+    "test": "vitest run --coverage",
+    "watch": "vite build -w",
+    "format:check": "prettier --check \"**/*.ts\" \"scripts/*.js\"",
+    "format:fix": "prettier --write \"**/*.ts\" \"scripts/*.js\""
+  },
+  "dependencies": {
+    "@podman-desktop/api": "^0.0.1"
+  },
+  "devDependencies": {
+    "byline": "^5.0.0",
+    "copyfiles": "^2.4.1",
+    "mkdirp": "^2.1.3",
+    "vitest": "^0.34.6",
+    "zip-local": "^0.3.5"
+  }
+}
