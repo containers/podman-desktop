@@ -557,7 +557,7 @@ function setStoppedFilter() {
                 <div class="flex items-center text-xs p-1 rounded-md text-gray-500"></div>
               </td>
               <td class="px-6 py-2 whitespace-nowrap w-10"> </td>
-              <td class="whitespace-nowrap pl-4">
+              <td class="whitespace-nowrap pl-3">
                 <div class="flex items-center">
                   <div class="text-sm text-gray-700"></div>
                 </div>
@@ -654,7 +654,7 @@ function setStoppedFilter() {
                       {container.shortImage}
                     </div>
                   </div></td>
-                <td class="whitespace-nowrap pl-4">
+                <td class="whitespace-nowrap pl-3">
                   <div class="flex items-center">
                     <div class="text-sm text-gray-700">
                       <StateChange state="{container.state}">{container.uptime}</StateChange>
