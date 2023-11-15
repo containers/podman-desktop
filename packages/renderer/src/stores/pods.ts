@@ -52,7 +52,28 @@ export const podsInfos: Writable<PodInfo[]> = writable([]);
 export const searchPattern = writable('');
 
 export const filtered = derived([searchPattern, podsInfos], ([$searchPattern, $imagesInfos]) => {
-  return $imagesInfos.filter(podInfo => findMatchInLeaves(podInfo, $searchPattern.toLowerCase()));
+  return $imagesInfos
+    .filter(podInfo =>
+      findMatchInLeaves(
+        podInfo,
+        $searchPattern
+          .split(' ')
+          .filter(pattern => !pattern.startsWith('is:'))
+          .join(' ')
+          .toLowerCase(),
+      ),
+    )
+    .filter(pod => {
+      if ($searchPattern.includes('is:running')) {
+        console.log(pod.Status);
+        return pod.Status === 'Running';
+      }
+      if ($searchPattern.includes('is:stopped')) {
+        console.log(pod.Status);
+        return pod.Status !== 'Running';
+      }
+      return true;
+    });
 });
 
 const eventStore = new EventStore<PodInfo[]>(

@@ -220,6 +220,42 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
     {/if}
   </div>
 
+  <div class="flex flex-row px-2 mb-2 border-b border-charcoal-400" slot="tabs">
+    <Button
+      type="tab"
+      on:click="{() => {
+        searchTerm = searchTerm
+          .split(' ')
+          .filter(pattern => pattern !== 'is:running' && pattern !== 'is:stopped')
+          .join(' ');
+      }}"
+      selected="{!searchTerm.includes('is:stopped') && !searchTerm.includes('is:running')}">All</Button>
+    <Button
+      type="tab"
+      on:click="{() => {
+        let temp = searchTerm
+          .trim()
+          .split(' ')
+          .filter(term => term !== 'is:stopped')
+          .join(' ')
+          .trim();
+        searchTerm = temp ? `${temp} is:running` : 'is:running';
+      }}"
+      selected="{searchTerm.includes('is:running')}">Running</Button>
+    <Button
+      type="tab"
+      on:click="{() => {
+        let temp = searchTerm
+          .trim()
+          .split(' ')
+          .filter(term => term !== 'is:running')
+          .join(' ')
+          .trim();
+        searchTerm = temp ? `${temp} is:stopped` : 'is:stopped';
+      }}"
+      selected="{searchTerm.includes('is:stopped')}">Stopped</Button>
+  </div>
+
   <div class="flex min-w-full h-full" slot="content">
     <table class="mx-5 w-full h-fit" class:hidden="{pods.length === 0}">
       <!-- title -->
