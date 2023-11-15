@@ -2,26 +2,23 @@
 import { onDestroy, onMount } from 'svelte';
 import { providerInfos } from '/@/stores/providers';
 import { notificationQueue } from '/@/stores/notifications';
-import { router } from 'tinro';
 import type { Unsubscriber } from 'svelte/motion';
+import NewContentBadge from '../ui/NewContentBadge.svelte';
 
 let providersId: string[] = [];
 let notificationCount: number = 0;
 let hasNewProviders = false;
-let hasNewNotification = false;
-let isInDashBoard = true;
-let hasNew: boolean;
-$: hasNew = !isInDashBoard && (hasNewProviders || hasNewNotification);
+let hasNewNotifications = false;
+$: hasNew = hasNewProviders || hasNewNotifications;
 
 let providersUnsubscribe: Unsubscriber;
 let notificationsUnsubscribe: Unsubscriber;
-let routerUnsubscribe: Unsubscriber;
 
 onMount(() => {
   // if there is a new provider we display the dot
   providersUnsubscribe = providerInfos.subscribe(updatedProviders => {
     const updatedProvidersId = updatedProviders.map(prov => prov.internalId).sort();
-    if (!isInDashBoard && !hasNew) {
+    if (!hasNewProviders) {
       // if the user is in the dashboard page we do not check for new providers
       hasNewProviders = hasNewProvider(providersId, updatedProvidersId);
     }
@@ -30,27 +27,17 @@ onMount(() => {
 
   // if there is a new notification we display the dot
   notificationsUnsubscribe = notificationQueue.subscribe(notifications => {
-    if (!isInDashBoard && !hasNew) {
+    if (!hasNewNotifications) {
       // if the user is in the dashboard page we do not check for new notifications
-      hasNewNotification = notifications.length > notificationCount;
+      hasNewNotifications = notifications.length > notificationCount;
     }
     notificationCount = notifications.length;
-  });
-
-  // listen to router change, so we can reset the changes and update the dot visibility
-  routerUnsubscribe = router.subscribe(route => {
-    isInDashBoard = route.path === '/';
-    if (isInDashBoard) {
-      hasNewProviders = false;
-      hasNewNotification = false;
-    }
   });
 });
 
 onDestroy(() => {
   providersUnsubscribe?.();
   notificationsUnsubscribe?.();
-  routerUnsubscribe?.();
 });
 
 function hasNewProvider(oldProvidersId: string[], newProvidersId: string[]): boolean {
@@ -64,8 +51,13 @@ function hasNewProvider(oldProvidersId: string[], newProvidersId: string[]): boo
   }
   return false;
 }
+
+function onHide() {
+  hasNewProviders = false;
+  hasNewNotifications = false;
+}
 </script>
 
-{#if hasNew}
-  <div aria-label="New content available" class="w-[6px] h-[6px] bg-purple-500 rounded-full"></div>
-{/if}
+<div class="absolute top-0 right-[-9px]">
+  <NewContentBadge pagePath="/" show="{hasNew}" onHide="{onHide}" />
+</div>

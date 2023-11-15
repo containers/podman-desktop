@@ -116,9 +116,7 @@ export let meta: TinroRouteMeta;
             ></g
           ></svg>
       </div>
-      <div class="absolute top-0 right-[-9px]">
-        <NewContentOnDashboardBadge />
-      </div>
+      <NewContentOnDashboardBadge />
     </div>
   </NavItem>
   <NavItem href="/containers" tooltip="Containers{containerCount}" ariaLabel="Containers" bind:meta="{meta}">
