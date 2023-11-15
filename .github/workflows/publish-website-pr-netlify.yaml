@@ -54,7 +54,7 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
 
       - name: 'Update status of Pull Request'
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             const { repo: { owner, repo } } = context;
