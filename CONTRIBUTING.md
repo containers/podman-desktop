@@ -61,10 +61,10 @@ Requirements:
 
 Optional Linux requirements:
 
-- [Flatpak builder, runtime, and SDK, version 22.08](https://docs.flatpak.org/en/latest/first-build.html)
+- [Flatpak builder, runtime, and SDK, version 23.08](https://docs.flatpak.org/en/latest/first-build.html)
   ```sh
   flatpak remote-add --if-not-exists flathub --user https://flathub.org/repo/flathub.flatpakrepo
-  flatpak install --user flathub org.flatpak.Builder org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08
+  flatpak install --user flathub org.flatpak.Builder org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08
   ```
 - GNU C and C++ compiler
   Fedora/RHEL
