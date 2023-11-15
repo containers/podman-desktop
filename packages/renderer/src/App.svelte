@@ -1,3 +1,10 @@
+<style>
+:root {
+  color-scheme: dark;
+  line-height: 0.95rem;
+}
+</style>
+
 <script lang="ts">
 import './app.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
