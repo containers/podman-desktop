@@ -10357,10 +10357,10 @@ markdownlint@0.31.1:
     markdown-it "13.0.1"
     markdownlint-micromark "0.1.7"
 
-markdownlint@^0.32.0:
-  version "0.32.0"
-  resolved "https://registry.yarnpkg.com/markdownlint/-/markdownlint-0.32.0.tgz#71160d0a98d3b05f96bebdcacc919fbfaf58b219"
-  integrity sha512-DIA2LclWqWmyU1Z73mTYa9/oilWJGdCW+tiPpziwmut/O7LxmEI8xKeg3vhEezXOyMaTV76HSX3/HmypRC2/8w==
+markdownlint@^0.32.1:
+  version "0.32.1"
+  resolved "https://registry.yarnpkg.com/markdownlint/-/markdownlint-0.32.1.tgz#14b3ff548e437487ae393ad5bc9092ca2858adde"
+  integrity sha512-3sx9xpi4xlHlokGyHO9k0g3gJbNY4DI6oNEeEYq5gQ4W7UkiJ90VDAnuDl2U+yyXOUa6BX+0gf69ZlTUGIBp6A==
   dependencies:
     markdown-it "13.0.2"
     markdownlint-micromark "0.1.7"
