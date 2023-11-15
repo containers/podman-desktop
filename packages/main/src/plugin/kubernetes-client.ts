@@ -446,6 +446,43 @@ export class KubernetesClient {
     return [];
   }
 
+  // List all ingresses
+  async listIngresses(): Promise<V1Ingress[]> {
+    const ns = this.getCurrentNamespace();
+    // Only retrieve ingresses if valid namespace && valid connection, otherwise we will return an empty array
+    const connected = await this.checkConnection();
+    if (ns && connected) {
+      // Get the ingresses via the kubernetes api
+      try {
+        const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
+        const ingresses = await k8sNetworkingApi.listNamespacedIngress(ns);
+        return ingresses.body.items;
+      } catch (_) {
+        // do nothing
+      }
+    }
+    return [];
+  }
+
+  // List all routes
+  async listRoutes(): Promise<V1Route[]> {
+    const ns = this.getCurrentNamespace();
+    // Only retrieve routes if valid namespace && valid connection, otherwise we will return an empty array
+    const connected = await this.checkConnection();
+    if (ns && connected) {
+      try {
+        // Get the routes via the kubernetes api
+        const customObjectsApi = this.kubeConfig.makeApiClient(CustomObjectsApi);
+        const routes = await customObjectsApi.listNamespacedCustomObject('route.openshift.io', 'v1', ns, 'routes');
+        return routes.body as V1Route[];
+      } catch (_) {
+        // catch 404 error
+        // do nothing
+      }
+    }
+    return [];
+  }
+
   async readPodLog(name: string, container: string, callback: (name: string, data: string) => void): Promise<void> {
     this.telemetry.track('kubernetesReadPodLog');
     const ns = this.currentNamespace;
@@ -476,6 +513,42 @@ export class KubernetesClient {
       throw this.wrapK8sClientError(error);
     } finally {
       this.telemetry.track('kubernetesDeletePod', telemetryOptions);
+    }
+  }
+
+  async deleteIngress(name: string): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      const ns = this.getCurrentNamespace();
+      // Only delete ingress if valid namespace && valid connection
+      const connected = await this.checkConnection();
+      if (ns && connected) {
+        const networkingK8sApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
+        await networkingK8sApi.deleteNamespacedIngress(name, ns);
+      }
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw this.wrapK8sClientError(error);
+    } finally {
+      this.telemetry.track('kubernetesDeleteingress', telemetryOptions);
+    }
+  }
+
+  async deleteRoute(name: string): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      const ns = this.getCurrentNamespace();
+      // Only delete route if valid namespace && valid connection
+      const connected = await this.checkConnection();
+      if (ns && connected) {
+        const customObjectsApi = this.kubeConfig.makeApiClient(CustomObjectsApi);
+        await customObjectsApi.deleteNamespacedCustomObject('route.openshift.io', 'v1', ns, 'routes', name);
+      }
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw this.wrapK8sClientError(error);
+    } finally {
+      this.telemetry.track('kubernetesDeleteRoute', telemetryOptions);
     }
   }
 
