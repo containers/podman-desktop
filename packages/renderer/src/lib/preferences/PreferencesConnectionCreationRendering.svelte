@@ -61,8 +61,8 @@ const providerDisplayName =
   (providerInfo.containerProviderConnectionCreation
     ? providerInfo.containerProviderConnectionCreationDisplayName || undefined
     : providerInfo.kubernetesProviderConnectionCreation
-    ? providerInfo.kubernetesProviderConnectionCreationDisplayName
-    : undefined) || providerInfo.name;
+      ? providerInfo.kubernetesProviderConnectionCreationDisplayName
+      : undefined) || providerInfo.name;
 
 let osMemory: string;
 let osCpu: string;
