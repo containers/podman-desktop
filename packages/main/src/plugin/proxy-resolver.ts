@@ -51,14 +51,9 @@ function createProxyAgent(secure: boolean, proxyUrl: string) {
     : new HttpProxyAgent(options as HttpProxyAgentOptions);
 }
 
-export function getProxyUrl(proxy: Proxy): string | undefined {
+export function getProxyUrl(proxy: Proxy, secure: boolean): string | undefined {
   if (proxy.isEnabled()) {
-    // use HTTPS proxy if it is configured, because HTTPS proxy works for both HTTP/HTTPS
-    // servers
-    if (proxy.proxy?.httpsProxy) {
-      return `https://${proxy.proxy?.httpsProxy}`;
-    }
-    return `http://${proxy.proxy?.httpProxy}`;
+    return secure ? proxy.proxy?.httpsProxy : proxy.proxy?.httpProxy;
   }
 }
 
@@ -66,7 +61,7 @@ type ProxyOptions = { agent?: http.Agent | https.Agent };
 
 export function getOptions(proxy: Proxy, secure: boolean): ProxyOptions {
   const options: ProxyOptions = {};
-  const proxyUrl = getProxyUrl(proxy);
+  const proxyUrl = getProxyUrl(proxy, secure);
   if (proxyUrl) {
     options.agent = createProxyAgent(secure, proxyUrl);
   }

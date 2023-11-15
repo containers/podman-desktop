@@ -145,3 +145,16 @@ export function uncertainStringToNumber(value: string | number): number {
   if (typeof value === 'number') return value;
   return parseFloat(value);
 }
+
+export function validateProxyAddress(value: string): string | undefined {
+  if (value) {
+    try {
+      const u = new URL(value);
+      if (!u.hostname) {
+        return `Hostname missing from ${value}`;
+      }
+    } catch (err) {
+      return `Value ${value} should be an URL`;
+    }
+  }
+}

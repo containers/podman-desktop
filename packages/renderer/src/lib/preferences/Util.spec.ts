@@ -16,12 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { test, expect, vi, afterEach } from 'vitest';
+import { test, expect, vi, afterEach, describe } from 'vitest';
 import {
   getNormalizedDefaultNumberValue,
   isPropertyValidInContext,
   isTargetScope,
   uncertainStringToNumber,
+  validateProxyAddress,
   writeToTerminal,
 } from './Util';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
@@ -194,4 +195,21 @@ test('Expect to receive a number if a number as string is passed as arg', async 
 test('Expect to receive a NaN if a not number string is passed as arg', async () => {
   const valueAsString = 'unknown';
   expect(uncertainStringToNumber(valueAsString)).toBe(NaN);
+});
+
+describe.each([
+  'http://127.0.1',
+  'http://127.0.0.1:8080',
+  'http://hostname',
+  'http://hostname:8080',
+  'http://hostname-suffix',
+  'http://hostname-suffix:8080',
+  'http://hostname.domain.com',
+  'http://hostname.domain.com:8080',
+  'http://hostname-suffix.domain.com',
+  'http://hostname-suffix.domain.com:8080',
+])('Test proxy addresses', address => {
+  test(`Test address ${address}`, () => {
+    expect(validateProxyAddress(address)).toBeUndefined();
+  });
 });

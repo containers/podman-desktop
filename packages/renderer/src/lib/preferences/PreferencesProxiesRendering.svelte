@@ -4,9 +4,13 @@ import { onMount } from 'svelte';
 import SettingsPage from './SettingsPage.svelte';
 import Button from '../ui/Button.svelte';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
+import { validateProxyAddress } from './Util';
+import ErrorMessage from '/@/lib/ui/ErrorMessage.svelte';
 
 let proxySettings: ProxySettings;
 let proxyState: boolean;
+let httpProxyError: string | undefined;
+let httpsProxyError: string | undefined;
 
 onMount(async () => {
   proxySettings = await window.getProxySettings();
@@ -41,6 +45,17 @@ async function updateProxySettings() {
 async function updateProxyState() {
   await window.setProxyState(proxyState);
 }
+
+function validate(event: any) {
+  if (event.target.id === 'httpProxy' || event.target.id === 'httpsProxy') {
+    const error = validateProxyAddress(event.target.value);
+    if (event.target.id === 'httpProxy') {
+      httpProxyError = error;
+    } else {
+      httpsProxyError = error;
+    }
+  }
+}
 </script>
 
 <SettingsPage title="Proxy Settings">
@@ -74,7 +89,12 @@ async function updateProxyState() {
           disabled="{!proxyState}"
           bind:value="{proxySettings.httpProxy}"
           class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
-          required />
+          placeholder="URL of the proxy for http: URLs (eg http://myproxy.domain.com:8080)"
+          required
+          on:input="{event => validate(event)}" />
+        {#if httpProxyError}
+          <ErrorMessage error="{httpProxyError}" />
+        {/if}
       </div>
       <div class="space-y-2">
         <label
@@ -88,7 +108,12 @@ async function updateProxyState() {
           disabled="{!proxyState}"
           bind:value="{proxySettings.httpsProxy}"
           class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
-          required />
+          placeholder="URL of the proxy for https: URLs (eg http://myproxy.domain.com:8080)"
+          required
+          on:input="{event => validate(event)}" />
+        {#if httpsProxyError}
+          <ErrorMessage error="{httpsProxyError}" />
+        {/if}
       </div>
       <div class="space-y-2">
         <label
