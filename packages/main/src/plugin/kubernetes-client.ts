@@ -274,12 +274,9 @@ export class KubernetesClient {
       users: this.kubeConfig.users.filter(user => newContexts.some(ctx => ctx.user === user.name)),
       currentContext: this.kubeConfig.currentContext,
     });
-    try {
-      await this.saveKubeConfig(newConfig);
-      this.kubeConfig = newConfig;
-    } catch {
-      return this.getContexts();
-    }
+    await this.saveKubeConfig(newConfig);
+    // the config is saved back only if saving the file succeeds
+    this.kubeConfig = newConfig;
     return this.getContexts();
   }
 

@@ -4,11 +4,12 @@ import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import { onMount } from 'svelte';
 import type { KubeContextUI } from '../kube/KubeContextUI';
-import { getKubeUIContexts } from '../kube/KubeContextUI';
+import { clearKubeUIContextErrors, getKubeUIContexts, setKubeUIContextError } from '../kube/KubeContextUI';
 import Link from '../ui/Link.svelte';
 import type { Cluster } from '@kubernetes/client-node';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 let contexts: KubeContextUI[] = [];
 let k8sClusters: Cluster[] = [];
@@ -25,11 +26,14 @@ onMount(async () => {
 });
 
 async function handleDeleteContext(contextName: string) {
+  contexts = clearKubeUIContextErrors(contexts);
   try {
     const newK8sContexts = await window.kubernetesDeleteContext(contextName);
     contexts = getKubeUIContexts(newK8sContexts, k8sClusters);
-  } catch (e) {
-    console.log(' ==> error', e);
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      contexts = setKubeUIContextError(contexts, contextName, e);
+    }
   }
 }
 </script>
@@ -63,6 +67,9 @@ async function handleDeleteContext(contextName: string) {
               icon="{faTrash}"
               onClick="{() => handleDeleteContext(context.name)}"></ListItemButtonIcon>
           </div>
+          {#if context.error}
+            <ErrorMessage class="text-sm" error="{context.error}" />
+          {/if}
         </div>
         <div class="grow flex-column divide-gray-900 text-gray-400">
           <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1 grid grid-cols-6">
