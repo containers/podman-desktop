@@ -1471,6 +1471,14 @@ function initExposure(): void {
     return ipcInvoke('kubernetes-client:listPods');
   });
 
+  contextBridge.exposeInMainWorld('kubernetesListIngresses', async (): Promise<PodInfo[]> => {
+    return ipcInvoke('kubernetes-client:listIngresses');
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesListRoutes', async (): Promise<PodInfo[]> => {
+    return ipcInvoke('kubernetes-client:listRoutes');
+  });
+
   let onDataCallbacksKubernetesPodLogId = 0;
   const onDataCallbacksKubernetesPodLog = new Map<number, (name: string, data: string) => void>();
   contextBridge.exposeInMainWorld(
@@ -1493,6 +1501,14 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('kubernetesDeletePod', async (name: string): Promise<void> => {
     return ipcInvoke('kubernetes-client:deletePod', name);
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesDeleteIngress', async (name: string): Promise<void> => {
+    return ipcInvoke('kubernetes-client:deleteIngress', name);
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesDeleteRoute', async (name: string): Promise<void> => {
+    return ipcInvoke('kubernetes-client:deleteRoute', name);
   });
 
   contextBridge.exposeInMainWorld(

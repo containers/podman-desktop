@@ -21,10 +21,11 @@ import { KubernetesClient } from './kubernetes-client.js';
 import type { ApiSenderType } from './api.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import { FilesystemMonitoring } from './filesystem-monitoring.js';
-import type { Watch } from '@kubernetes/client-node';
+import type { V1Ingress, Watch } from '@kubernetes/client-node';
 import { KubeConfig } from '@kubernetes/client-node';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import * as fs from 'node:fs';
+import type { V1Route } from './api/openshift-types.js';
 
 const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
 const fileSystemMonitoring: FilesystemMonitoring = new FilesystemMonitoring();
@@ -282,4 +283,205 @@ test('kube watcher', () => {
   }
 
   expect(createWatchObjectSpy).toBeCalled();
+});
+
+test('should return empty ingress list if there is no active namespace', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+
+  const list = await client.listIngresses();
+  expect(list.length).toBe(0);
+});
+
+test('should return empty ingress list if cannot connect to cluster', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  client.setCurrentNamespace('default');
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.reject(new Error('K8sError')),
+  });
+
+  const list = await client.listIngresses();
+  expect(list.length).toBe(0);
+});
+
+test('should return empty ingress list if cannot execute call to cluster', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  client.setCurrentNamespace('default');
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+    listNamespacedIngress: () => Promise.reject(new Error('K8sError')),
+  });
+
+  const list = await client.listIngresses();
+  expect(list.length).toBe(0);
+});
+
+test('should return ingress list if connection to cluster is ok', async () => {
+  const v1Ingress: V1Ingress = {
+    apiVersion: 'networking.k8s.io/v1',
+    kind: 'Ingress',
+    metadata: {
+      name: 'ingress',
+    },
+  };
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  client.setCurrentNamespace('default');
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+    listNamespacedIngress: () =>
+      Promise.resolve({
+        body: {
+          items: [v1Ingress],
+        },
+      }),
+  });
+
+  const list = await client.listIngresses();
+  expect(list.length).toBe(1);
+  expect(list[0].metadata?.name).toEqual('ingress');
+});
+
+test('should return empty routes list if there is no active namespace', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+
+  const list = await client.listRoutes();
+  expect(list.length).toBe(0);
+});
+
+test('should return empty routes list if cannot connect to cluster', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  client.setCurrentNamespace('default');
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.reject(new Error('K8sError')),
+  });
+
+  const list = await client.listRoutes();
+  expect(list.length).toBe(0);
+});
+
+test('should return empty routes list if cannot execute call to cluster', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  client.setCurrentNamespace('default');
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+    listNamespacedCustomObject: () => Promise.reject(new Error('K8sError')),
+  });
+
+  const list = await client.listRoutes();
+  expect(list.length).toBe(0);
+});
+
+test('should return route list if connection to cluster is ok', async () => {
+  const v1Route: V1Route = {
+    apiVersion: 'route.openshift.io/v1',
+    kind: 'Route',
+    metadata: {
+      name: 'route',
+      namespace: 'default',
+    },
+    spec: {
+      host: 'host',
+      port: {
+        targetPort: '80',
+      },
+      tls: {
+        insecureEdgeTerminationPolicy: '',
+        termination: '',
+      },
+      to: {
+        kind: '',
+        name: '',
+        weight: 1,
+      },
+      wildcardPolicy: '',
+    },
+  };
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  client.setCurrentNamespace('default');
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+    listNamespacedCustomObject: () =>
+      Promise.resolve({
+        body: [v1Route],
+      }),
+  });
+
+  const list = await client.listRoutes();
+  expect(list.length).toBe(1);
+  expect(list[0].metadata?.name).toEqual('route');
+});
+
+test('Expect deleteIngress is not called if there is no active namespace', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  const deleteIngressMock = vi.fn();
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+    deleteNamespacedIngress: deleteIngressMock,
+  });
+
+  await client.deleteIngress('name');
+  expect(deleteIngressMock).not.toBeCalled();
+});
+
+test('Expect deleteIngress is not called if there is no active connection', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  client.setCurrentNamespace('default');
+  const deleteIngressMock = vi.fn();
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.reject(new Error('K8sError')),
+    deleteNamespacedIngress: deleteIngressMock,
+  });
+
+  await client.deleteIngress('name');
+  expect(deleteIngressMock).not.toBeCalled();
+});
+
+test('Expect deleteIngress to be called if there is active connection', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  client.setCurrentNamespace('default');
+  const deleteIngressMock = vi.fn();
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+    deleteNamespacedIngress: deleteIngressMock,
+  });
+
+  await client.deleteIngress('name');
+  expect(deleteIngressMock).toBeCalled();
+});
+
+test('Expect deleteRoute is not called if there is no active namespace', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  const deleteRouteMock = vi.fn();
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+    deleteNamespacedCustomObject: deleteRouteMock,
+  });
+
+  await client.deleteRoute('name');
+  expect(deleteRouteMock).not.toBeCalled();
+});
+
+test('Expect deleteRoute is not called if there is no active connection', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  client.setCurrentNamespace('default');
+  const deleteRouteMock = vi.fn();
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.reject(new Error('K8sError')),
+    deleteNamespacedCustomObject: deleteRouteMock,
+  });
+
+  await client.deleteRoute('name');
+  expect(deleteRouteMock).not.toBeCalled();
+});
+
+test('Expect deleteRoute to be called if there is active connection', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  client.setCurrentNamespace('default');
+  const deleteRouteMock = vi.fn();
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+    deleteNamespacedCustomObject: deleteRouteMock,
+  });
+
+  await client.deleteRoute('name');
+  expect(deleteRouteMock).toBeCalled();
 });

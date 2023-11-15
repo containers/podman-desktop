@@ -1777,6 +1777,14 @@ export class PluginSystem {
       return kubernetesClient.listPods();
     });
 
+    this.ipcHandle('kubernetes-client:listIngresses', async (): Promise<V1Ingress[]> => {
+      return kubernetesClient.listIngresses();
+    });
+
+    this.ipcHandle('kubernetes-client:listRoutes', async (): Promise<V1Route[]> => {
+      return kubernetesClient.listRoutes();
+    });
+
     this.ipcHandle(
       'kubernetes-client:readPodLog',
       async (_listener, name: string, container: string, onDataId: number): Promise<void> => {
@@ -1788,6 +1796,14 @@ export class PluginSystem {
 
     this.ipcHandle('kubernetes-client:deletePod', async (_listener, name: string): Promise<void> => {
       return kubernetesClient.deletePod(name);
+    });
+
+    this.ipcHandle('kubernetes-client:deleteIngress', async (_listener, name: string): Promise<void> => {
+      return kubernetesClient.deleteIngress(name);
+    });
+
+    this.ipcHandle('kubernetes-client:deleteRoute', async (_listener, name: string): Promise<void> => {
+      return kubernetesClient.deleteRoute(name);
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
