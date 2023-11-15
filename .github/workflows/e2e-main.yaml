@@ -60,13 +60,10 @@ jobs:
       - name: Update podman
         run: |
           sudo sh -c "echo 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_22.04/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list"
-          cat /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list
           curl -L "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/Release.key" | sudo apt-key add -
-          sudo apt-key list
           sudo apt-get update -qq
           sudo apt-get -qq -y install podman || { echo "Start fallback steps for podman nightly installation from a static mirror" && \
             sudo sh -c "echo 'deb http://ftp.lysator.liu.se/pub/opensuse/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_22.04/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list" && \
-            cat /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list && \
             curl -L "http://ftp.lysator.liu.se/pub/opensuse/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/Release.key" | sudo apt-key add - && \
             sudo apt-get update && \
             sudo apt-get -y install podman; }
