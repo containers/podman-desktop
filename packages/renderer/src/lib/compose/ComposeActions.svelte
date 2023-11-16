@@ -69,7 +69,7 @@ async function restartCompose(composeInfoUI: ComposeInfoUI) {
 }
 
 function deployToKubernetes(): void {
-  router.goto(`/compose/deploy-to-kube/${compose.name}/${compose.engineId}`);
+  router.goto(`/compose-deploy-to-kube/${compose.name}/${compose.engineId}`);
 }
 
 function openGenerateKube(): void {
