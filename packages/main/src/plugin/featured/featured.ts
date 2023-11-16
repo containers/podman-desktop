@@ -89,6 +89,18 @@ export class Featured {
       return featuredExtension;
     });
 
+    // now, randomize the list to have only 6 items and list first the non installed extensions and then the installed one
+    // shuffle the list of featured extensions
+    featuredExtensions.sort(() => Math.random() - 0.5);
+
+    // take only 6 of them
+    if (featuredExtensions.length > 6) {
+      featuredExtensions.splice(6);
+    }
+
+    // and then by non installed first
+    featuredExtensions.sort((b, a) => Number(b.installed) - Number(a.installed));
+
     return featuredExtensions;
   }
 }

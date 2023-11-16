@@ -120,3 +120,41 @@ test('getFeaturedExtensions should check installable extensions', async () => {
   expect(crcExtension?.icon).toBe('data:image/png;base64,456');
   expect(crcExtension?.fetchLink).toBe(ociLink);
 });
+
+test('getFeaturedExtensions should shuffle and limit to 6 extensions', async () => {
+  // mock the set of featured JSON extensions
+  const spyReadJson = vi.spyOn(featured, 'readFeaturedJson');
+
+  const jsonValues = [];
+  for (let i = 1; i < 10; i++) {
+    jsonValues.push({
+      extensionId: `podman-desktop.${i}`,
+      displayName: `Podman${i}`,
+      shortDescription: `test${i}`,
+      categories: ['Container Engine'],
+      builtIn: true,
+      icon: `data:image/png;base64,${i}`,
+    });
+  }
+  spyReadJson.mockReturnValue(jsonValues);
+
+  // init fetchable extensions
+  await featured.init();
+  const featuredExtensions1 = await featured.getFeaturedExtensions();
+
+  expect(featuredExtensions1).toBeDefined();
+
+  // should be limited to 6
+  expect(featuredExtensions1.length).toBe(6);
+
+  // call again to check the shuffle
+  const featuredExtensions2 = await featured.getFeaturedExtensions();
+
+  // compare id from the 2 lists
+  // they should be in a different order
+  const idsList1 = featuredExtensions1.map(e => e.id);
+  const idsList2 = featuredExtensions2.map(e => e.id);
+
+  // check that the 2 lists are not the same
+  expect(idsList1).not.toStrictEqual(idsList2);
+});
