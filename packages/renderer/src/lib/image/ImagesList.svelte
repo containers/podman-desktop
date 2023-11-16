@@ -6,57 +6,39 @@ import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 
 import { router } from 'tinro';
 import type { ImageInfoUI } from './ImageInfoUI';
-import ImageActions from './ImageActions.svelte';
 import type { ImageInfo } from '../../../../main/src/plugin/api/image-info';
 import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
 import { providerInfos } from '../../stores/providers';
-import PushImageModal from './PushImageModal.svelte';
-import RenameImageModal from './RenameImageModal.svelte';
 import { ImageUtils } from './image-utils';
 import NavPage from '../ui/NavPage.svelte';
 import ImageIcon from '../images/ImageIcon.svelte';
-import StatusIcon from '../images/StatusIcon.svelte';
 import type { Unsubscriber } from 'svelte/store';
 import { containersInfos } from '../../stores/containers';
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import moment from 'moment';
 import Prune from '../engine/Prune.svelte';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
-import Checkbox from '../ui/Checkbox.svelte';
 import Button from '../ui/Button.svelte';
 import { faArrowCircleDown, faCube, faTrash } from '@fortawesome/free-solid-svg-icons';
+import Table from '../table/Table.svelte';
+import { Column, Row } from '../table/table';
+import ImageColumnStatus from './ImageColumnStatus.svelte';
+import ImageColumnName from './ImageColumnName.svelte';
+import ImageColumnEnvironment from './ImageColumnEnvironment.svelte';
+import ImageColumnAge from './ImageColumnAge.svelte';
+import ImageColumnSize from './ImageColumnSize.svelte';
+import ImageColumnActions from './ImageColumnActions.svelte';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 let images: ImageInfoUI[] = [];
-let multipleEngines = false;
 let enginesList: EngineInfoUI[];
-
-let pushImageModal = false;
-let pushImageModalImageInfo: ImageInfoUI | undefined = undefined;
-function handlePushImageModal(imageInfo: ImageInfoUI) {
-  pushImageModalImageInfo = imageInfo;
-  pushImageModal = true;
-}
-
-let renameImageModal = false;
-let renameImageModalImageInfo: ImageInfoUI | undefined = undefined;
-function handleRenameImageModal(imageInfo: ImageInfoUI) {
-  renameImageModalImageInfo = imageInfo;
-  renameImageModal = true;
-}
 
 $: providerConnections = $providerInfos
   .map(provider => provider.containerConnections)
   .flat()
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
-
-// number of selected items in the list
-$: selectedItemsNumber = images.filter(image => !image.inUse).filter(image => image.selected).length;
-
-// do we need to unselect all checkboxes if we don't have all items being selected ?
-$: selectedAllCheckboxes = images.filter(image => !image.inUse).every(image => image.selected);
 
 const imageUtils = new ImageUtils();
 
@@ -87,12 +69,6 @@ function updateImages() {
 
   // Remove duplicates from engines by name
   const uniqueEngines = engines.filter((engine, index, self) => index === self.findIndex(t => t.name === engine.name));
-
-  if (uniqueEngines.length > 1) {
-    multipleEngines = true;
-  } else {
-    multipleEngines = false;
-  }
 
   // Set the engines to the global variable for the Prune functionality button
   enginesList = uniqueEngines;
@@ -133,28 +109,12 @@ onDestroy(() => {
   }
 });
 
-function closeModals() {
-  pushImageModal = false;
-  renameImageModal = false;
-}
-
 function gotoBuildImage(): void {
   router.goto('/images/build');
 }
 
 function gotoPullImage(): void {
   router.goto('/images/pull');
-}
-
-function openDetailsImage(image: ImageInfoUI) {
-  router.goto(`/images/${image.id}/${image.engineId}/${image.base64RepoTag}/summary`);
-}
-
-function toggleAllImages(checked: boolean) {
-  const toggleImages = images;
-  // filter out all images used by a container
-  toggleImages.filter(image => !image.inUse).forEach(image => (image.selected = checked));
-  images = toggleImages;
 }
 
 // delete the items selected in the list
@@ -214,6 +174,49 @@ function computeInterval(): number {
   // every day
   return 60 * 60 * 24 * SECOND;
 }
+
+let selectedItemsNumber: number;
+let table: Table;
+
+let statusColumn = new Column<ImageInfoUI>('Status', {
+  align: 'center',
+  width: '70px',
+  renderer: ImageColumnStatus,
+  comparator: (a, b) => Number(b.inUse) - Number(a.inUse),
+});
+
+let nameColumn = new Column<ImageInfoUI>('Name', {
+  width: '4fr',
+  renderer: ImageColumnName,
+  comparator: (a, b) => a.name.localeCompare(b.name),
+});
+
+let envColumn = new Column<ImageInfoUI>('Environment', {
+  renderer: ImageColumnEnvironment,
+  comparator: (a, b) => a.engineName.localeCompare(b.engineName),
+});
+
+let ageColumn = new Column<ImageInfoUI>('Age', {
+  renderer: ImageColumnAge,
+  comparator: (a, b) => moment().diff(moment.unix(a.createdAt)) - moment().diff(moment.unix(b.createdAt)),
+});
+
+let sizeColumn = new Column<ImageInfoUI>('Size', {
+  align: 'right',
+  renderer: ImageColumnSize,
+  comparator: (a, b) => b.size - a.size,
+});
+
+const columns: Column<ImageInfoUI>[] = [
+  statusColumn,
+  nameColumn,
+  envColumn,
+  ageColumn,
+  sizeColumn,
+  new Column<ImageInfoUI>('Actions', { align: 'right', width: '150px', renderer: ImageColumnActions }),
+];
+
+const row = new Row<ImageInfoUI>({ selectable: image => !image.inUse, disabledText: 'Image is used by a container' });
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="images">
@@ -239,84 +242,14 @@ function computeInterval(): number {
   </svelte:fragment>
 
   <div class="flex min-w-full h-full" slot="content">
-    <table class="mx-5 w-full h-fit" class:hidden="{images.length === 0}">
-      <!-- title -->
-      <thead class="sticky top-0 bg-charcoal-700 z-[2]">
-        <tr class="h-7 uppercase text-xs text-gray-600">
-          <th class="whitespace-nowrap w-5"></th>
-          <th class="px-2 w-5">
-            <Checkbox
-              title="Toggle all"
-              bind:checked="{selectedAllCheckboxes}"
-              indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
-              on:click="{event => toggleAllImages(event.detail)}" />
-          </th>
-          <th class="text-center font-extrabold w-10 px-2">status</th>
-          <th class="w-10">Name</th>
-          <th class="px-6 whitespace-nowrap w-10">age</th>
-          <th class="px-6 whitespace-nowrap text-end">size</th>
-          <th class="text-right pr-2">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each images as image}
-          <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
-            <td class="rounded-tl-lg rounded-bl-lg w-5"> </td>
-            <td class="px-2">
-              <Checkbox
-                title="Toggle image"
-                bind:checked="{image.selected}"
-                disabled="{image.inUse}"
-                disabledTooltip="Image is used by a container" />
-            </td>
-            <td class="bg-charcoal-800 group-hover:bg-zinc-700 flex flex-row justify-center content-center h-12">
-              <div class="grid place-content-center ml-3 mr-4">
-                <StatusIcon icon="{ImageIcon}" status="{image.inUse ? 'USED' : 'UNUSED'}" />
-              </div>
-            </td>
-            <td class="whitespace-nowrap w-10 hover:cursor-pointer" on:click="{() => openDetailsImage(image)}">
-              <div class="flex items-center">
-                <div class="">
-                  <div class="flex flex-row items-center">
-                    <div class="text-sm text-gray-300">{image.name}</div>
-                  </div>
-                  <div class="flex flex-row items-center">
-                    <div class="text-xs text-violet-400">{image.shortId}</div>
-                    <div class="ml-1 text-xs font-extra-light text-gray-400">{image.tag}</div>
-                  </div>
-                  <div class="flex flex-row text-xs font-extra-light text-gray-900">
-                    <!-- Hide in case of single engine-->
-                    {#if multipleEngines}
-                      <div class="px-2 inline-flex text-xs font-extralight rounded-full bg-slate-800 text-slate-400">
-                        {image.engineName}
-                      </div>
-                    {/if}
-                  </div>
-                </div>
-              </div>
-            </td>
-            <td class="px-6 py-2 whitespace-nowrap w-10">
-              <div class="flex items-center">
-                <div class="text-sm text-gray-700">{image.age}</div>
-              </div>
-            </td>
-            <td class="px-6 py-2 whitespace-nowrap w-10">
-              <div class="flex">
-                <div class="w-full text-right text-sm text-gray-700">{image.humanSize}</div>
-              </div>
-            </td>
-            <td class="pl-6 text-right whitespace-nowrap rounded-tr-lg rounded-br-lg">
-              <ImageActions
-                image="{image}"
-                onPushImage="{handlePushImageModal}"
-                onRenameImage="{handleRenameImageModal}"
-                dropdownMenu="{true}" />
-            </td>
-          </tr>
-          <tr><td class="leading-[8px]">&nbsp;</td></tr>
-        {/each}
-      </tbody>
-    </table>
+    <Table
+      kind="image"
+      bind:this="{table}"
+      bind:selectedItemsNumber="{selectedItemsNumber}"
+      data="{images}"
+      columns="{columns}"
+      row="{row}">
+    </Table>
 
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
@@ -326,21 +259,6 @@ function computeInterval(): number {
       {:else}
         <ImageEmptyScreen />
       {/if}
-    {/if}
-
-    {#if pushImageModal && pushImageModalImageInfo}
-      <PushImageModal
-        imageInfoToPush="{pushImageModalImageInfo}"
-        closeCallback="{() => {
-          closeModals();
-        }}" />
-    {/if}
-    {#if renameImageModal && renameImageModalImageInfo}
-      <RenameImageModal
-        imageInfoToRename="{renameImageModalImageInfo}"
-        closeCallback="{() => {
-          closeModals();
-        }}" />
     {/if}
   </div>
 </NavPage>
