@@ -16,7 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Mock } from 'vitest';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { InternalContainerProvider } from '/@/plugin/container-registry.js';
 import { ContainerProviderRegistry } from '/@/plugin/container-registry.js';
@@ -2289,7 +2288,7 @@ test('setupConnectionAPI with errors', async () => {
   expect(internalContainerProvider.api).toBeDefined();
 
   // last call should be with the 'container-started-event' message
-  const allCalls = (apiSender.send as Mock).mock.calls;
+  const allCalls = vi.mocked(apiSender.send).mock.calls;
   expect(allCalls).toBeDefined();
   const lastCall = allCalls[allCalls.length - 1];
   expect(lastCall).toStrictEqual(['container-started-event', fakeId]);
