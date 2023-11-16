@@ -24,12 +24,30 @@ export class SettingsExtensionsPage extends SettingsPage {
   readonly featuredExtensions: Locator;
   readonly devSandboxBox: Locator;
   readonly openshiftLocalBox: Locator;
+  readonly extensionsTable: Locator;
 
   constructor(page: Page) {
     super(page, 'Extensions');
-    this.heading = page.getByRole('heading', { name: 'Extensions' });
+    this.heading = page.getByText('Extensions');
     this.featuredExtensions = page.getByLabel('FeaturedExtensions');
     this.devSandboxBox = this.featuredExtensions.getByLabel('Developer Sandbox');
     this.openshiftLocalBox = this.featuredExtensions.getByLabel('OpenShift Local');
+    this.extensionsTable = page.getByRole('table');
+  }
+
+  public getExtensionRowFromTable(extensionName: string): Locator {
+    return this.extensionsTable.getByRole('row').filter({ hasText: extensionName });
+  }
+
+  public getExtensionStopButton(extensionRow: Locator): Locator {
+    return extensionRow.getByRole('button', { name: 'Stop extension' });
+  }
+
+  public getExtensionStartButton(extensionRow: Locator): Locator {
+    return extensionRow.getByRole('button', { name: 'Start extension' });
+  }
+
+  public getFeaturedExtension(extensionName: string): Locator {
+    return this.featuredExtensions.getByLabel(extensionName);
   }
 }

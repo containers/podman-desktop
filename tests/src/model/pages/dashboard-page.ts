@@ -47,15 +47,19 @@ export class DashboardPage extends BasePage {
 
     this.openshiftLocalProvider = page.getByLabel('OpenShift Local Provider');
     this.openshiftLocalBox = this.featuredExtensions.getByLabel('OpenShift Local');
-    this.openshiftLocalEnabledStatus = this.getOpenShiftStatusLocator(page);
+    this.openshiftLocalEnabledStatus = this.getOpenShiftStatusLocator();
   }
 
-  getOpenShiftStatusLocator(page: Page): Locator {
+  getOpenShiftStatusLocator(): Locator {
     const currentOS = os.platform();
     if (currentOS === 'linux') {
-      return page.getByText('Podman Desktop was not able to find an installation of OpenShift Local.');
+      return this.content.getByText('Podman Desktop was not able to find an installation of OpenShift Local.');
     }
     const pattern = new RegExp('OpenShift Local v([0-9.]*) is installed but not ready');
-    return page.getByText(pattern);
+    return this.content.getByText(pattern);
+  }
+
+  public getPodmanStatusLocator(): Locator {
+    return this.content.getByRole('region', { name: 'Podman Provider' });
   }
 }
