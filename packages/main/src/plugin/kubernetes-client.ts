@@ -104,7 +104,7 @@ const DEFAULT_NAMESPACE = 'default';
  * Handle calls to kubernetes API
  */
 export class KubernetesClient {
-  private kubeConfig;
+  protected kubeConfig;
 
   private static readonly DEFAULT_KUBECONFIG_PATH = resolve(homedir(), '.kube', 'config');
 
@@ -112,7 +112,7 @@ export class KubernetesClient {
   private kubeconfigPath: string = KubernetesClient.DEFAULT_KUBECONFIG_PATH;
 
   protected currentNamespace: string | undefined;
-  private currentContextName: string | undefined;
+  protected currentContextName: string | undefined;
 
   private kubeConfigWatcher: containerDesktopAPI.FileSystemWatcher | undefined;
 
@@ -266,12 +266,22 @@ export class KubernetesClient {
   }
 
   async deleteContext(contextName: string): Promise<Context[]> {
+    const previousContexts = this.kubeConfig.contexts;
     const newContexts = this.kubeConfig.contexts.filter(ctx => ctx.name !== contextName);
     const newConfig = new KubeConfig();
     newConfig.loadFromOptions({
       contexts: newContexts,
-      clusters: this.kubeConfig.clusters.filter(cluster => newContexts.some(ctx => ctx.cluster === cluster.name)),
-      users: this.kubeConfig.users.filter(user => newContexts.some(ctx => ctx.user === user.name)),
+      clusters: this.kubeConfig.clusters.filter(cluster => {
+        // remove clusters not referenced anymore, except if there were already not referenced before
+        return (
+          newContexts.some(ctx => ctx.cluster === cluster.name) ||
+          !previousContexts.some(ctx => ctx.cluster === cluster.name)
+        );
+      }),
+      users: this.kubeConfig.users.filter(user => {
+        // remove users not referenced anymore, except if there were already not referenced before
+        return newContexts.some(ctx => ctx.user === user.name) || !previousContexts.some(ctx => ctx.user === user.name);
+      }),
       currentContext: this.kubeConfig.currentContext,
     });
     await this.saveKubeConfig(newConfig);
