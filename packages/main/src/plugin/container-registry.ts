@@ -115,9 +115,12 @@ export class ContainerProviderRegistry {
   protected streamsOutputPerContainerId: Map<string, Buffer[]> = new Map();
 
   handleEvents(api: Dockerode, errorCallback: (error: Error) => void) {
+    let nbEvents = 0;
+    const startDate = performance.now();
     const eventEmitter = new EventEmitter();
 
     eventEmitter.on('event', (jsonEvent: JSONEvent) => {
+      nbEvents++;
       console.log('event is', jsonEvent);
       this._onEvent.fire(jsonEvent);
       if (jsonEvent.status === 'stop' && jsonEvent?.Type === 'container') {
@@ -171,6 +174,12 @@ export class ContainerProviderRegistry {
 
       stream?.on('error', error => {
         console.error('/event stream received an error.', error);
+        // log why it failed and after how many ms connection dropped
+        this.telemetryService.track('handleContainerEventsFailure', {
+          nbEvents,
+          failureAfter: performance.now() - startDate,
+          error,
+        });
         // notify the error (do not throw as we're inside handlers/callbacks)
         errorCallback(new Error('Error in handling events', error));
       });
