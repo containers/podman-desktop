@@ -35,7 +35,7 @@ async function handleDeleteContext(contextName: string) {
         'You will delete the current context. If you delete it, you will need to switch to another context. Continue?',
       buttons: ['Yes', 'No'],
     });
-    if (!result || result.response !== 0) {
+    if (result.response !== 0) {
       return;
     }
   }
