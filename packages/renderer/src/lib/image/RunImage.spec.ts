@@ -74,6 +74,7 @@ async function createRunImage(entrypoint?: string | string[], cmd?: string[]) {
     createdAt: 0,
     engineId: '',
     engineName: '',
+    size: 0,
     humanSize: '',
     id: '',
     inUse: false,
