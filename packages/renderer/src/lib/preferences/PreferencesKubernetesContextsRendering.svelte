@@ -11,6 +11,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 
+let currentContextName: string | undefined;
 let contexts: KubeContextUI[] = [];
 let k8sClusters: Cluster[] = [];
 
@@ -18,6 +19,7 @@ $: contexts;
 
 onMount(async () => {
   // Retrieve both the contexts and clusters
+  currentContextName = await window.kubernetesGetCurrentContextName();
   let k8sContexts = await window.kubernetesGetContexts();
   k8sClusters = await window.kubernetesGetClusters();
 
@@ -26,6 +28,17 @@ onMount(async () => {
 });
 
 async function handleDeleteContext(contextName: string) {
+  if (currentContextName === contextName) {
+    const result = await window.showMessageBox({
+      title: 'Delete Context',
+      message:
+        'You will delete the current context. If you delete it, you will need to switch to another context. Continue?',
+      buttons: ['Yes', 'No'],
+    });
+    if (!result || result.response !== 0) {
+      return;
+    }
+  }
   contexts = clearKubeUIContextErrors(contexts);
   try {
     const newK8sContexts = await window.kubernetesDeleteContext(contextName);
