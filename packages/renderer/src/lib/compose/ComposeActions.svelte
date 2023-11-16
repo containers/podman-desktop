@@ -69,11 +69,11 @@ async function restartCompose(composeInfoUI: ComposeInfoUI) {
 }
 
 function deployToKubernetes(): void {
-  router.goto(`/compose-deploy-to-kube/${compose.name}/${compose.engineId}`);
+  router.goto(`/compose/deploy-to-kube/${compose.name}/${compose.engineId}`);
 }
 
 function openGenerateKube(): void {
-  router.goto(`/compose/${encodeURI(compose.name)}/${encodeURI(compose.engineId)}/kube`);
+  router.goto(`/compose/details/${encodeURI(compose.name)}/${encodeURI(compose.engineId)}/kube`);
 }
 
 // If dropdownMenu = true, we'll change style to the imported dropdownMenu style
