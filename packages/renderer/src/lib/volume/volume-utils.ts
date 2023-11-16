@@ -70,6 +70,7 @@ export class VolumeUtils {
       driver: this.getDriver(volumeInfo),
       created: volumeInfo.CreatedAt,
       age: this.humanizeAge(volumeInfo.CreatedAt),
+      size: volumeInfo.UsageData ? volumeInfo.UsageData?.Size : -1,
       humanSize: this.getSize(volumeInfo),
       engineId: volumeInfo.engineId,
       engineName: volumeInfo.engineName,

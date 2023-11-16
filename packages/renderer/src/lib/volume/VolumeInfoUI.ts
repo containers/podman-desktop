@@ -24,6 +24,7 @@ export interface VolumeInfoUI {
   driver: string;
   created: string;
   age: string;
+  size: number;
   humanSize: string;
   engineId: string;
   engineName: string;
