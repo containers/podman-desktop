@@ -21,7 +21,7 @@ import type { Mock } from 'vitest';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import * as extension from './extension';
 import { getPodmanCli } from './podman-cli';
-import type { Configuration } from '@podman-desktop/api';
+import type { Configuration, ContainerEngineInfo } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
 import { LoggerDelegator } from './util';
@@ -32,7 +32,7 @@ const config: Configuration = {
     // not implemented
   },
   has: () => true,
-  update: () => Promise.resolve(),
+  update: vi.fn(),
 };
 
 const provider: extensionApi.Provider = {
@@ -158,6 +158,9 @@ vi.mock('@podman-desktop/api', async () => {
       isWindows: () => vi.fn(),
       isMac: () => vi.fn(),
       isLinux: () => vi.fn(),
+    },
+    containerEngine: {
+      info: vi.fn(),
     },
   };
 });
@@ -843,4 +846,91 @@ test('handlecompatibilitymodesetting: disable compatibility called when configur
 
   // Make sure that it returns that the compatibility mode has been disabled
   expect(disableMessage).toHaveBeenCalledWith('Docker socket compatibility mode for Podman has been disabled.');
+});
+
+test('ensure started machine reports default configuration', async () => {
+  extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+    (_command, args) =>
+      new Promise<extensionApi.RunResult>(resolve => {
+        if (args[0] === 'machine' && args[1] === 'list') {
+          resolve({ stdout: JSON.stringify([fakeMachineJSON[0]]) } as extensionApi.RunResult);
+        } else if (args[0] === 'machine' && args[1] === 'inspect') {
+          resolve({} as extensionApi.RunResult);
+        } else if (args[0] === 'system' && args[1] === 'connection' && args[2] === 'list') {
+          resolve({
+            stdout: JSON.stringify([{ Name: fakeMachineJSON[0].Name, Default: true }]),
+          } as extensionApi.RunResult);
+        }
+      }),
+  );
+
+  await extension.updateMachines(provider);
+  expect(config.update).toBeCalledWith('machine.cpus', fakeMachineJSON[0].CPUs);
+  expect(config.update).toBeCalledWith('machine.memory', Number(fakeMachineJSON[0].Memory));
+  expect(config.update).toBeCalledWith('machine.diskSize', Number(fakeMachineJSON[0].DiskSize));
+  expect(config.update).toBeCalledWith('machine.cpusUsage', 0);
+  expect(config.update).toBeCalledWith('machine.memoryUsage', 0);
+  expect(config.update).toBeCalledWith('machine.diskSizeUsage', 0);
+});
+
+test('ensure started machine reports configuration', async () => {
+  extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+    (_command, args) =>
+      new Promise<extensionApi.RunResult>(resolve => {
+        if (args[0] === 'machine' && args[1] === 'list') {
+          resolve({ stdout: JSON.stringify([fakeMachineJSON[0]]) } as extensionApi.RunResult);
+        } else if (args[0] === 'machine' && args[1] === 'inspect') {
+          resolve({} as extensionApi.RunResult);
+        } else if (args[0] === 'system' && args[1] === 'connection' && args[2] === 'list') {
+          resolve({
+            stdout: JSON.stringify([{ Name: fakeMachineJSON[0].Name, Default: true }]),
+          } as extensionApi.RunResult);
+        }
+      }),
+  );
+
+  await extension.updateMachines(provider);
+  (extensionApi.containerEngine.info as Mock).mockResolvedValue({
+    cpus: 2,
+    cpuIdle: 99,
+    memory: 1048000000,
+    memoryUsed: 524000000,
+    diskSize: 250000000000,
+    diskUsed: 50000000000,
+  } as ContainerEngineInfo);
+  await extension.updateMachines(provider);
+  expect(config.update).toBeCalledWith('machine.cpus', fakeMachineJSON[0].CPUs);
+  expect(config.update).toBeCalledWith('machine.memory', Number(fakeMachineJSON[0].Memory));
+  expect(config.update).toBeCalledWith('machine.diskSize', Number(fakeMachineJSON[0].DiskSize));
+  expect(config.update).toBeCalledWith('machine.cpusUsage', 1);
+  expect(config.update).toBeCalledWith('machine.memoryUsage', 50);
+  expect(config.update).toBeCalledWith('machine.diskSizeUsage', 20);
+});
+
+test('ensure stopped machine reports configuration', async () => {
+  extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+    (_command, args) =>
+      new Promise<extensionApi.RunResult>(resolve => {
+        if (args[0] === 'machine' && args[1] === 'list') {
+          resolve({ stdout: JSON.stringify([fakeMachineJSON[1]]) } as extensionApi.RunResult);
+        } else if (args[0] === 'machine' && args[1] === 'inspect') {
+          resolve({} as extensionApi.RunResult);
+        } else if (args[0] === 'system' && args[1] === 'connection' && args[2] === 'list') {
+          resolve({
+            stdout: JSON.stringify([{ Name: fakeMachineJSON[1].Name, Default: true }]),
+          } as extensionApi.RunResult);
+        }
+      }),
+  );
+
+  await extension.updateMachines(provider);
+  expect(config.update).toBeCalledWith('machine.cpus', fakeMachineJSON[0].CPUs);
+  expect(config.update).toBeCalledWith('machine.memory', Number(fakeMachineJSON[0].Memory));
+  expect(config.update).toBeCalledWith('machine.diskSize', Number(fakeMachineJSON[0].DiskSize));
+  expect(config.update).toBeCalledWith('machine.cpusUsage', 0);
+  expect(config.update).toBeCalledWith('machine.memoryUsage', 0);
+  expect(config.update).toBeCalledWith('machine.diskSizeUsage', 0);
 });
