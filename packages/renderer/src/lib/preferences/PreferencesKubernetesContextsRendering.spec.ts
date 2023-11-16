@@ -39,6 +39,7 @@ const mockCluster = {
 test('test that name, cluster and the server is displayed when rendering', async () => {
   (window as any).kubernetesGetContexts = vi.fn().mockResolvedValue([mockContext]);
   (window as any).kubernetesGetClusters = vi.fn().mockResolvedValue([mockCluster]);
+  (window as any).kubernetesGetCurrentContextName = vi.fn().mockResolvedValue('my-current-context');
   render(PreferencesKubernetesContextsRendering, {});
   expect(await screen.findByText('context-name')).toBeInTheDocument();
   expect(await screen.findByText('cluster-name')).toBeInTheDocument();
@@ -48,6 +49,7 @@ test('test that name, cluster and the server is displayed when rendering', async
 test('If nothing is returned for contexts, expect that the page shows a message', async () => {
   (window as any).kubernetesGetContexts = vi.fn().mockResolvedValue([]);
   (window as any).kubernetesGetClusters = vi.fn().mockResolvedValue([]);
+  (window as any).kubernetesGetCurrentContextName = vi.fn().mockResolvedValue('my-current-context');
   render(PreferencesKubernetesContextsRendering, {});
   expect(await screen.findByText('No Kubernetes contexts found')).toBeInTheDocument();
 });
