@@ -1476,6 +1476,10 @@ function initExposure(): void {
     return ipcInvoke('kubernetes-client:listPods');
   });
 
+  contextBridge.exposeInMainWorld('kubernetesListDeployments', async (): Promise<PodInfo[]> => {
+    return ipcInvoke('kubernetes-client:listDeployments');
+  });
+
   contextBridge.exposeInMainWorld('kubernetesListIngresses', async (): Promise<PodInfo[]> => {
     return ipcInvoke('kubernetes-client:listIngresses');
   });
@@ -1506,6 +1510,10 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('kubernetesDeletePod', async (name: string): Promise<void> => {
     return ipcInvoke('kubernetes-client:deletePod', name);
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesDeleteDeployment', async (name: string): Promise<void> => {
+    return ipcInvoke('kubernetes-client:deleteDeployment', name);
   });
 
   contextBridge.exposeInMainWorld('kubernetesDeleteIngress', async (name: string): Promise<void> => {

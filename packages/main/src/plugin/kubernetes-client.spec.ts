@@ -21,7 +21,7 @@ import { KubernetesClient } from './kubernetes-client.js';
 import type { ApiSenderType } from './api.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import { FilesystemMonitoring } from './filesystem-monitoring.js';
-import type { V1Ingress, Watch } from '@kubernetes/client-node';
+import type { V1Ingress, Watch, V1Deployment } from '@kubernetes/client-node';
 import { KubeConfig } from '@kubernetes/client-node';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import * as fs from 'node:fs';
@@ -283,6 +283,61 @@ test('kube watcher', () => {
   }
 
   expect(createWatchObjectSpy).toBeCalled();
+});
+
+test('should return empty deployment list if there is no active namespace', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+
+  const list = await client.listDeployments();
+  expect(list.length).toBe(0);
+});
+
+test('should return empty deployment list if cannot connect to cluster', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  client.setCurrentNamespace('default');
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.reject(new Error('K8sError')),
+  });
+
+  const list = await client.listDeployments();
+  expect(list.length).toBe(0);
+});
+
+test('should return empty deployment list if cannot execute call to cluster', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  client.setCurrentNamespace('default');
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+    listNamespacedDeployent: () => Promise.reject(new Error('K8sError')),
+  });
+
+  const list = await client.listDeployments();
+  expect(list.length).toBe(0);
+});
+
+test('should return deployment list if connection to cluster is ok', async () => {
+  const v1Deployment: V1Deployment = {
+    apiVersion: 'networking.k8s.io/v1',
+    kind: 'Deployment',
+    metadata: {
+      name: 'deployment',
+    },
+  };
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  client.setCurrentNamespace('default');
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+    listNamespacedDeployment: () =>
+      Promise.resolve({
+        body: {
+          items: [v1Deployment],
+        },
+      }),
+  });
+
+  const list = await client.listDeployments();
+  expect(list.length).toBe(1);
+  expect(list[0].metadata?.name).toEqual('deployment');
 });
 
 test('should return empty ingress list if there is no active namespace', async () => {

@@ -89,6 +89,7 @@ import type {
   V1Ingress,
   Context as KubernetesContext,
   Cluster,
+  V1Deployment,
 } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types.js';
 import type { NetworkInspectInfo } from './api/network-info.js';
@@ -1787,6 +1788,10 @@ export class PluginSystem {
       return kubernetesClient.listPods();
     });
 
+    this.ipcHandle('kubernetes-client:listDeployments', async (): Promise<V1Deployment[]> => {
+      return kubernetesClient.listDeployments();
+    });
+
     this.ipcHandle('kubernetes-client:listIngresses', async (): Promise<V1Ingress[]> => {
       return kubernetesClient.listIngresses();
     });
@@ -1806,6 +1811,10 @@ export class PluginSystem {
 
     this.ipcHandle('kubernetes-client:deletePod', async (_listener, name: string): Promise<void> => {
       return kubernetesClient.deletePod(name);
+    });
+
+    this.ipcHandle('kubernetes-client:deleteDeployment', async (_listener, name: string): Promise<void> => {
+      return kubernetesClient.deleteDeployment(name);
     });
 
     this.ipcHandle('kubernetes-client:deleteIngress', async (_listener, name: string): Promise<void> => {
