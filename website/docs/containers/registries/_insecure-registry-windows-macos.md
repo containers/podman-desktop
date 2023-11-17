@@ -4,7 +4,7 @@
 
 #### Procedure
 
-1. Add your insecure registry within **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Registries**.
+1. Add your insecure registry within **<Icon icon="fa-solid fa-cog" size="lg" /> Settings > Registries**.
 
    ![Adding a custom registry](img/adding-a-custom-registry.png)
 

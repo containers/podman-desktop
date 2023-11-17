@@ -12,7 +12,7 @@ Podman Desktop has a **Troubleshooting** page to help identify and fix most comm
 
 #### Procedure
 
-1. To open the **Troubleshooting** page, click the **<icon icon="fa-solid fa-lightbulb" size="lg" />** icon.
+1. To open the **Troubleshooting** page, click the **<Icon icon="fa-solid fa-lightbulb" size="lg" />** icon.
 1. To test the connection to the container engine, click the **Ping** button.
 
    Expect a reply such as: _Responded: 79,75 (9.10ms)_.

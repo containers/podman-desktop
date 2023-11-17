@@ -18,7 +18,7 @@ Consider installing Podman Desktop extensions to enrich the default capabilities
 
 #### Procedure
 
-1. Go to the **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Extensions**.
+1. Go to the **<Icon icon="fa-solid fa-cog" size="lg" /> Settings > Extensions**.
 
 1. In the **Name of the Image** field, write the extension OCI image name.
 

@@ -31,7 +31,7 @@ The service redirects `/var/run/docker` to the fixed user-assigned UNIX socket l
    sudo podman-mac-helper install
    ```
 
-1. Restart your Podman machine: go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**, and in the Podman tile, click <icon icon="fa-solid fa-repeat" size="lg" />.
+1. Restart your Podman machine: go to **<Icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**, and in the Podman tile, click <Icon icon="fa-solid fa-repeat" size="lg" />.
 
 #### Verification
 

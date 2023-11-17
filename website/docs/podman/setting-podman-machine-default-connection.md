@@ -44,7 +44,7 @@ After an event that might have changed the default Podman machine connection, su
    $ podman machine start
    ```
 
-1. Refresh Podman Desktop connection to Podman: click the **<icon icon="fa-solid fa-lightbulb" size="lg" />** icon to open the **Troubleshooting** page, and click the **Reconnect providers** button.
+1. Refresh Podman Desktop connection to Podman: click the **<Icon icon="fa-solid fa-lightbulb" size="lg" />** icon to open the **Troubleshooting** page, and click the **Reconnect providers** button.
 
 #### Verification
 

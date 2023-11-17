@@ -17,7 +17,7 @@ You can create multiple local Minikube-powered Kubernetes clusters.
 
 #### Procedure
 
-1. Go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**
+1. Go to **<Icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**
 1. In the Minikube tile, click on the **Create new ...** button.
 1. Choose your options, and click the **Create** button.
 
@@ -32,5 +32,5 @@ You can create multiple local Minikube-powered Kubernetes clusters.
 
 #### Verification
 
-1. In **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**, in the **Minikube** tile, your `<minikube>` instance is running.
+1. In **<Icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**, in the **Minikube** tile, your `<minikube>` instance is running.
 1. In the Podman Desktop tray, open the **Kubernetes** menu, you can set the context to your Minikube cluster: `minikube`.

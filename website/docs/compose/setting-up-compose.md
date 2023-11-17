@@ -12,7 +12,7 @@ Podman Desktop can install the Compose engine.
 
 #### Procedure
 
-1. Go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**.
+1. Go to **<Icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**.
 1. In the **Compose** tile, click **Setup**, and follow the prompts.
 
 #### Verification
