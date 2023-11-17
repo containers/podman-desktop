@@ -23,23 +23,23 @@ Consider running containers in a pod to:
 
 #### Procedure
 
-1. Go to **<icon icon="fa-solid fa-cube" size="lg" /> Containers**.
+1. Go to **<Icon icon="fa-solid fa-cube" size="lg" /> Containers**.
 1. Click the checkbox in the container line for your containers, such as `database` and `frontend`.
-1. Click **<icon icon="fa-solid fa-cubes" size="lg" />**.
+1. Click **<Icon icon="fa-solid fa-cubes" size="lg" />**.
 1. In the **Copy containers to a pod** screen:
    1. **Name of the pod**: enter your pod name, such as `my-pod`.
    1. **All selected ports will be exposed**:
       1. Select `frontend`.
       1. Clear `database`.
-1. Click **<icon icon="fa-solid fa-cube" size="lg" /> Create Pod**.
+1. Click **<Icon icon="fa-solid fa-cube" size="lg" /> Create Pod**.
 
 #### Verification
 
-1. Go to **<icon icon="fa-solid fa-cubes" size="lg" /> Pods**.
+1. Go to **<Icon icon="fa-solid fa-cubes" size="lg" /> Pods**.
 1. Click your pod, such as `my-pod`.
 1. Go to **Logs**: see the combined logs from the two containers.
 1. Go to **Summary**: see the containers.
 1. Click `frontend-podified`.
-1. Click **<icon icon="fa-solid fa-external-link" size="lg" />**.
+1. Click **<Icon icon="fa-solid fa-external-link" size="lg" />**.
 1. Your browser opens the service exposed by your `frontend-podified` container.
-1. Go to **<icon icon="fa-solid fa-cube" size="lg" /> Containers**: see the running containers.
+1. Go to **<Icon icon="fa-solid fa-cube" size="lg" /> Containers**: see the running containers.

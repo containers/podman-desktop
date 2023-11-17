@@ -23,7 +23,7 @@ With Podman Desktop, you can authenticate to a set of pre-configured registries:
 
 #### Procedure
 
-1. Go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Registries**.
+1. Go to **<Icon icon="fa-solid fa-cog" size="lg" /> Settings > Registries**.
 1. On your registry line, click **Configure**.
 
    1. **User name**: Enter your user name.

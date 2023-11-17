@@ -16,7 +16,7 @@ tags: [migrating-to-kubernetes, minikube]
 #### Verification
 
 1. The status bar doesn't display **Minikube**.
-1. **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources** contain a **Minikube** tile.
+1. **<Icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources** contain a **Minikube** tile.
    ![Minikube resource tile](img/minikube-resource.png)
 1. You can run the `minikube` CLI:
 
