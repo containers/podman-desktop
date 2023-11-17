@@ -136,6 +136,35 @@ declare module '@podman-desktop/api' {
     readonly storagePath: string;
   }
 
+  /**
+   * A provider result represents the values a provider, like the {@linkcode ImageCheckerProvider},
+   * may return. For once this is the actual result type `T`, like `ImageChecks`, or a Promise that resolves
+   * to that type `T`. In addition, `null` and `undefined` can be returned - either directly or from a
+   * Promise.
+   *
+   * The snippets below are all valid implementations of the {@linkcode ImageCheckerProvider}:
+   *
+   * ```ts
+   * let a: ImageCheckerProvider = {
+   *  check(image: ImageInfo, token?: CancellationToken): ProviderResult<ImageChecks> {
+   *    return new ImageChecks();
+   *  }
+   *
+   * let b: ImageCheckerProvider = {
+   *  async check(image: ImageInfo, token?: CancellationToken): ProviderResult<ImageChecks> {
+   * 		return new ImageChecks();
+   * 	}
+   * }
+   *
+   * let c: ImageCheckerProvider = {
+   *  check(image: ImageInfo, token?: CancellationToken): ProviderResult<ImageChecks> {
+   * 		return; // undefined
+   * 	}
+   * }
+   * ```
+   */
+  export type ProviderResult<T> = T | undefined | Promise<T | undefined>;
+
   export type ProviderStatus =
     | 'not-installed'
     | 'installed'
@@ -2487,5 +2516,31 @@ declare module '@podman-desktop/api' {
      * @returns CliTool instance
      */
     export function createCliTool(options: CliToolOptions): CliTool;
+  }
+
+  export interface ImageCheck {
+    name: string;
+    status: 'success' | 'failed';
+    severity?: 'low' | 'medium' | 'high' | 'critical';
+    markdownDescription?: string;
+  }
+
+  export interface ImageChecks {
+    checks: ImageCheck[];
+  }
+
+  export interface ImageCheckerProvider {
+    check(image: ImageInfo, token?: CancellationToken): ProviderResult<ImageChecks>;
+  }
+
+  export interface ImageCheckerProviderMetadata {
+    readonly label: string;
+  }
+
+  export namespace imageChecker {
+    export function registerImageCheckerProvider(
+      imageCheckerProvider: ImageCheckerProvider,
+      metadata?: ImageCheckerProviderMetadata,
+    ): Disposable;
   }
 }

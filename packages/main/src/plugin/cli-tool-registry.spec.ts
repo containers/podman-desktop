@@ -47,6 +47,7 @@ import type { Proxy } from './proxy.js';
 import { afterEach } from 'node:test';
 import type { CliToolOptions } from '@podman-desktop/api';
 import type { NotificationRegistry } from './notification-registry.js';
+import type { ImageCheckerImpl } from './image-checker.js';
 
 const apiSender: ApiSenderType = {
   send: vi.fn(),
@@ -92,6 +93,7 @@ suite('cli module', () => {
       vi.fn() as unknown as KubeGeneratorRegistry,
       cliToolRegistry,
       vi.fn() as unknown as NotificationRegistry,
+      vi.fn() as unknown as ImageCheckerImpl,
     );
   });
 

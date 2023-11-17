@@ -54,6 +54,7 @@ import type {
   ProviderKubernetesConnectionInfo,
 } from '../../main/src/plugin/api/provider-info';
 import type { CliToolInfo } from '../../main/src/plugin/api/cli-tool-info';
+import type { ImageCheckerInfo } from '../../main/src/plugin/api/image-checker-info';
 import type { IConfigurationPropertyRecordedSchema } from '../../main/src/plugin/configuration-registry';
 import type { PullEvent } from '../../main/src/plugin/api/pull-event';
 import { Deferred } from './util/deferred';
@@ -1708,6 +1709,21 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('clearNotificationsQueue', async (): Promise<void> => {
     return ipcInvoke('notificationRegistry:clearNotificationsQueue');
   });
+
+  contextBridge.exposeInMainWorld('getImageCheckerProviders', async (): Promise<ImageCheckerInfo[]> => {
+    return ipcInvoke('image-checker:getProviders');
+  });
+
+  contextBridge.exposeInMainWorld(
+    'imageCheck',
+    async (
+      id: string,
+      image: string,
+      cancellationToken?: number,
+    ): Promise<containerDesktopAPI.ImageChecks | undefined> => {
+      return ipcInvoke('image-checker:check', id, image, cancellationToken);
+    },
+  );
 }
 
 // expose methods
