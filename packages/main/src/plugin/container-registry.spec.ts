@@ -144,6 +144,10 @@ class TestContainerProviderRegistry extends ContainerProviderRegistry {
   setStreamsPerContainerId(id: string, data: NodeJS.ReadWriteStream) {
     this.streamsPerContainerId.set(id, data);
   }
+
+  setRetryDelayEvents(delay: number): void {
+    super.retryDelayEvents = delay;
+  }
 }
 
 let containerRegistry: TestContainerProviderRegistry;
@@ -2209,4 +2213,88 @@ test('createNetwork', async () => {
 
   // check that it's calling the right nock method
   await containerRegistry.createNetwork(providerConnectionInfo, { Name: 'myNetwork' });
+});
+
+test('setupConnectionAPI with errors', async () => {
+  // create a stream that we return to nock
+  const stream = new PassThrough();
+  // need to reply with a stream
+  nock('http://localhost').get('/events').reply(200, stream);
+
+  const internalContainerProvider: InternalContainerProvider = {
+    name: 'podman',
+    id: 'podman1',
+    connection: {
+      type: 'podman',
+      name: 'podman',
+      endpoint: {
+        socketPath: 'http://localhost',
+      },
+      status: () => 'started',
+    },
+  };
+
+  const providerConnectionInfo: podmanDesktopAPI.ContainerProviderConnection = {
+    name: 'podman',
+    type: 'podman',
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+    status: () => 'started',
+  };
+
+  // check that api is being added
+  expect(internalContainerProvider.api).toBeUndefined();
+  expect(internalContainerProvider.libpodApi).toBeUndefined();
+  containerRegistry.setupConnectionAPI(internalContainerProvider, providerConnectionInfo);
+
+  // change delay of setRetryDelayEvents to be 200ms
+  containerRegistry.setRetryDelayEvents(200);
+
+  // wait 0.5s
+  await new Promise(resolve => setTimeout(resolve, 500));
+  expect(internalContainerProvider.api).toBeDefined();
+
+  // ok now send an error
+
+  // and send an error in the stream
+  stream.emit('error', new Error('my error'));
+  // close the stream
+  stream.end();
+
+  // we should not have the api anymore
+  expect(internalContainerProvider.api).toBeUndefined();
+
+  // and it should try to reconnect to the nock
+
+  // wait 0.5s
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // mock again /events
+  const stream2 = new PassThrough();
+  nock('http://localhost').get('/events').reply(200, stream2);
+
+  // emit a container start event, we should proceed it as expected
+  const fakeId = '123456';
+  stream2.write(
+    JSON.stringify({
+      status: 'start',
+      Type: 'container',
+      id: fakeId,
+    }),
+  );
+  // check apiSender if we have a message 'container-started-event' with the right id
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  expect(internalContainerProvider.api).toBeDefined();
+
+  // last call should be with the 'container-started-event' message
+  const allCalls = vi.mocked(apiSender.send).mock.calls;
+  expect(allCalls).toBeDefined();
+  const lastCall = allCalls[allCalls.length - 1];
+  expect(lastCall).toStrictEqual(['container-started-event', fakeId]);
+
+  stream2.end();
+
+  // it should have reconnect to the stream now and add again the api object
+  expect(internalContainerProvider.api).toBeDefined();
 });

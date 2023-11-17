@@ -29,6 +29,7 @@ import { router } from 'tinro';
 import { lastPage } from '/@/stores/breadcrumb';
 
 const listPodsMock = vi.fn();
+const listContainersMock = vi.fn();
 const kubernetesListPodsMock = vi.fn();
 
 const myPod: PodInfo = {
@@ -52,6 +53,7 @@ const getContributedMenusMock = vi.fn();
 
 beforeAll(() => {
   (window as any).listPods = listPodsMock;
+  (window as any).listContainers = listContainersMock.mockResolvedValue([]);
   (window as any).kubernetesListPods = kubernetesListPodsMock;
   (window as any).removePod = removePodMock;
   (window as any).getContributedMenus = getContributedMenusMock;

@@ -31,6 +31,7 @@ import { router } from 'tinro';
 
 const getProvidersInfoMock = vi.fn();
 const listPodsMock = vi.fn();
+const listContainersMock = vi.fn();
 const kubernetesListPodsMock = vi.fn();
 const getContributedMenusMock = vi.fn();
 
@@ -260,6 +261,7 @@ const ocppod: PodInfo = {
 beforeAll(() => {
   (window as any).getProviderInfos = getProvidersInfoMock;
   (window as any).listPods = listPodsMock;
+  (window as any).listContainers = listContainersMock.mockResolvedValue([]);
   (window as any).kubernetesListPods = kubernetesListPodsMock;
   (window as any).onDidUpdateProviderStatus = vi.fn().mockResolvedValue(undefined);
   (window.events as unknown) = {

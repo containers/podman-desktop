@@ -91,8 +91,8 @@ Podman Desktop helps you [installing the `kind` CLI](/docs/kind/installing):
    $ podman system connection default podman-machine-default-root
    ```
 
-1. Go to **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**
-1. In the **<img src="/img/podman-icon.png" alt="Podman icon" style={{height: '1.5em', display: 'inline'}} /> Podman** tile, click on the **<icon icon="fa-solid fa-repeat" size="lg" />** icon to restart the Podman container engine.
+1. Go to **<Icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**
+1. In the **<img src="/img/podman-icon.png" alt="Podman icon" style={{height: '1.5em', display: 'inline'}} /> Podman** tile, click on the **<Icon icon="fa-solid fa-repeat" size="lg" />** icon to restart the Podman container engine.
 1. In the **<img src="/img/kind-icon.png" alt="Kind icon" style={{height: '1.5em', display: 'inline'}} /> Kind** tile, click on the **Create new** button.
    1. **Name**: enter `kind-cluster`.
    1. **Provider Type**: select `podman`.
@@ -105,7 +105,7 @@ Podman Desktop helps you [installing the `kind` CLI](/docs/kind/installing):
 
 #### Verification
 
-1. In **<icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources** your Kind cluster is running/
+1. In **<Icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources** your Kind cluster is running/
 
    ![Kind cluster is running](img/running-a-local-kubernetes-cluster-with-podman-desktop/kind-cluster-is-running.png)
 
@@ -128,32 +128,32 @@ This is functionally equal to the `redis-leader` deployment that the Kubernetes 
 
 #### Procedure
 
-1. Open **<icon icon="fa-solid fa-cloud" size="lg" /> Images > <icon icon="fa-solid fa-arrow-circle-down" size="lg" /> Pull an image**.
+1. Open **<Icon icon="fa-solid fa-cloud" size="lg" /> Images > <Icon icon="fa-solid fa-arrow-circle-down" size="lg" /> Pull an image**.
    1. **Image to Pull**: enter `docker.io/redis:6.0.5`
    1. Click **Pull image** to pull the image to your container engine local image registry.
    1. Click **Done** to get back to the images list.
-1. **<icon icon="fa-solid fa-cloud" size="lg" /> Search images**: enter `redis:6.0.5` to find the image.
-1. Click **<icon icon="fa-solid fa-play" size="lg" />** to open the **Create a container from image** dialog.
+1. **<Icon icon="fa-solid fa-cloud" size="lg" /> Search images**: enter `redis:6.0.5` to find the image.
+1. Click **<Icon icon="fa-solid fa-play" size="lg" />** to open the **Create a container from image** dialog.
    1. **Container name**: enter `leader`,
    1. **Local port for `6379/tcp`**: `6379`.
-   1. Click **<icon icon="fa-solid fa-play" size="lg" /> Start Container** to start the container in your container engine.
-1. **<icon icon="fa-solid fa-cloud" size="lg" /> Search containers**: enter `leader` to find the running container.
-1. Click **<icon icon="fa-solid fa-stop" size="lg" />** to stop the container, and leave the `6379` port available for the Redis follower container.
+   1. Click **<Icon icon="fa-solid fa-play" size="lg" /> Start Container** to start the container in your container engine.
+1. **<Icon icon="fa-solid fa-cloud" size="lg" /> Search containers**: enter `leader` to find the running container.
+1. Click **<Icon icon="fa-solid fa-stop" size="lg" />** to stop the container, and leave the `6379` port available for the Redis follower container.
 
-1. Click **<icon icon="fa-solid fa-ellipsis-v" size="lg" /> > <icon icon="fa-solid fa-rocket" size="lg" /> Deploy to Kubernetes** to open the **Deploy generated pod to Kubernetes** screen.
+1. Click **<Icon icon="fa-solid fa-ellipsis-v" size="lg" /> > <Icon icon="fa-solid fa-rocket" size="lg" /> Deploy to Kubernetes** to open the **Deploy generated pod to Kubernetes** screen.
 
    1. **Pod Name**: enter `redis-leader`.
    1. **Use Kubernetes Services**: select **Replace `hostPort` exposure on containers by Services. It is the recommended way to expose ports, as a cluster policy might prevent to use `hostPort`.**
    1. **Expose service locally using Kubernetes Ingress**: deselect **Create a Kubernetes ingress to get access to the ports that this pod exposes, at the default ingress controller location. Example: on a default Kind cluster created with Podman Desktop: `http://localhost:9090`. Requirements: your cluster has an ingress controller`**.
    1. **Kubernetes namespaces**: select `default`.
-   1. Click **<icon icon="fa-solid fa-rocket" size="lg" /> Deploy**.
+   1. Click **<Icon icon="fa-solid fa-rocket" size="lg" /> Deploy**.
       ![Deploy generated leader pod to Kubernetes screen](img/running-a-local-kubernetes-cluster-with-podman-desktop/deploy-generated-leader-pod-to-kubernetes.png)
    1. Wait for the pod to reach the state: **Phase: Running**.
    1. Click **Done**.
 
 #### Verification
 
-- The **<icon icon="fa-solid fa-cubes" size="lg" /> Pods** screen lists the running `redis-leader` pod.
+- The **<Icon icon="fa-solid fa-cubes" size="lg" /> Pods** screen lists the running `redis-leader` pod.
 
   ![leader pod is running](img/running-a-local-kubernetes-cluster-with-podman-desktop/leader-pod-is-running.png)
 
@@ -166,23 +166,23 @@ This is functionally equal to the `redis-follower` deployment that the Kubernete
 
 #### Procedure
 
-1. Open **<icon icon="fa-solid fa-cloud" size="lg" /> Images > <icon icon="fa-solid fa-arrow-circle-down" size="lg" /> Pull an image**.
+1. Open **<Icon icon="fa-solid fa-cloud" size="lg" /> Images > <Icon icon="fa-solid fa-arrow-circle-down" size="lg" /> Pull an image**.
    1. **Image to Pull**: enter `gcr.io/google_samples/gb-redis-follower:v2`
    1. Click **Pull image** to pull the image to your container engine local image registry.
    1. Click **Done** to get back to the images list.
-1. **<icon icon="fa-solid fa-cloud" size="lg" /> Search images**: enter `gb-redis-follower:v2` to find the image.
-1. Click **<icon icon="fa-solid fa-play" size="lg" />** to open the **Create a container from image** dialog.
+1. **<Icon icon="fa-solid fa-cloud" size="lg" /> Search images**: enter `gb-redis-follower:v2` to find the image.
+1. Click **<Icon icon="fa-solid fa-play" size="lg" />** to open the **Create a container from image** dialog.
    1. **Container name**: enter `follower`,
    1. **Local port for `6379/tcp`**: `6379`.
-   1. Click **<icon icon="fa-solid fa-play" size="lg" /> Start Container** to start the container in your container engine.
-1. **<icon icon="fa-solid fa-cloud" size="lg" /> Search containers**: enter `follower` to find the running container.
-1. Click **<icon icon="fa-solid fa-stop" size="lg" />** to stop the container: you do not need it to run in the container engine.
-1. Click **<icon icon="fa-solid fa-ellipsis-v" size="lg" /> > <icon icon="fa-solid fa-rocket" size="lg" /> Deploy to Kubernetes** to open the **Deploy generated pod to Kubernetes** screen.
+   1. Click **<Icon icon="fa-solid fa-play" size="lg" /> Start Container** to start the container in your container engine.
+1. **<Icon icon="fa-solid fa-cloud" size="lg" /> Search containers**: enter `follower` to find the running container.
+1. Click **<Icon icon="fa-solid fa-stop" size="lg" />** to stop the container: you do not need it to run in the container engine.
+1. Click **<Icon icon="fa-solid fa-ellipsis-v" size="lg" /> > <Icon icon="fa-solid fa-rocket" size="lg" /> Deploy to Kubernetes** to open the **Deploy generated pod to Kubernetes** screen.
    1. **Pod Name**: enter `redis-follower`.
    1. **Use Kubernetes Services**: select **Replace `hostPort` exposure on containers by Services. It is the recommended way to expose ports, as a cluster policy might prevent to use `hostPort`.**
    1. **Expose service locally using Kubernetes Ingress**: deselect **Create a Kubernetes ingress to get access to the ports that this pod exposes, at the default ingress controller location. Example: on a default Kind cluster created with Podman Desktop: `http://localhost:9090`. Requirements: your cluster has an ingress controller`**.
    1. **Kubernetes namespaces**: select `default`.
-   1. Click **<icon icon="fa-solid fa-rocket" size="lg" /> Deploy**.
+   1. Click **<Icon icon="fa-solid fa-rocket" size="lg" /> Deploy**.
       ![Deploy generated follower pod to Kubernetes screen](img/running-a-local-kubernetes-cluster-with-podman-desktop/deploy-generated-follower-pod-to-kubernetes.png)
    1. Wait for the pod to reach the state: **Phase: Running**.
    1. Click **Done**.
@@ -190,7 +190,7 @@ This is functionally equal to the `redis-follower` deployment that the Kubernete
 
 #### Verification
 
-- The **<icon icon="fa-solid fa-cubes" size="lg" /> Pods** screen lists the running `redis-follower` pods.
+- The **<Icon icon="fa-solid fa-cubes" size="lg" /> Pods** screen lists the running `redis-follower` pods.
 
   ![follower pods are running](img/running-a-local-kubernetes-cluster-with-podman-desktop/follower-pods-are-running.png)
 
@@ -208,31 +208,31 @@ This is functionally equal to the `frontend` deployment that the Kubernetes exam
 
 #### Procedure
 
-1. Open **<icon icon="fa-solid fa-cloud" size="lg" /> Images > <icon icon="fa-solid fa-arrow-circle-down" size="lg" /> Pull an image**.
+1. Open **<Icon icon="fa-solid fa-cloud" size="lg" /> Images > <Icon icon="fa-solid fa-arrow-circle-down" size="lg" /> Pull an image**.
    1. **Image to Pull**: enter `gcr.io/google_samples/gb-frontend:v5`
    1. Click **Pull image** to pull the image to your container engine local image registry.
    1. Wait for the pull to complete.
    1. Click **Done** to get back to the images list.
-1. **<icon icon="fa-solid fa-cloud" size="lg" /> Search images**: enter `gb-frontend:v5` to find the image.
-1. Click **<icon icon="fa-solid fa-play" size="lg" />** to open the **Create a container from image** dialog.
+1. **<Icon icon="fa-solid fa-cloud" size="lg" /> Search images**: enter `gb-frontend:v5` to find the image.
+1. Click **<Icon icon="fa-solid fa-play" size="lg" />** to open the **Create a container from image** dialog.
    1. **Container name**: enter `frontend`,
    1. **Local port for `80/tcp`**: `9000`.
-   1. Click **<icon icon="fa-solid fa-play" size="lg" /> Start Container** to start the container in your container engine.
-1. **<icon icon="fa-solid fa-cloud" size="lg" /> Search containers**: enter `frontend` to find the running container.
-1. Click **<icon icon="fa-solid fa-stop" size="lg" />** to stop the container: you do not need it to run in the container engine.
-1. Click **<icon icon="fa-solid fa-ellipsis-v" size="lg" /> > <icon icon="fa-solid fa-rocket" size="lg" /> Deploy to Kubernetes** to open the **Deploy generated pod to Kubernetes** screen.
+   1. Click **<Icon icon="fa-solid fa-play" size="lg" /> Start Container** to start the container in your container engine.
+1. **<Icon icon="fa-solid fa-cloud" size="lg" /> Search containers**: enter `frontend` to find the running container.
+1. Click **<Icon icon="fa-solid fa-stop" size="lg" />** to stop the container: you do not need it to run in the container engine.
+1. Click **<Icon icon="fa-solid fa-ellipsis-v" size="lg" /> > <Icon icon="fa-solid fa-rocket" size="lg" /> Deploy to Kubernetes** to open the **Deploy generated pod to Kubernetes** screen.
    1. **Pod Name**: enter `frontend`.
    1. **Use Kubernetes Services**: select **Replace `hostPort` exposure on containers by Services. It is the recommended way to expose ports, as a cluster policy might prevent to use `hostPort`.**
    1. **Expose service locally using Kubernetes Ingress**: select **Create a Kubernetes ingress to get access to the ports that this pod exposes, at the default ingress controller location. Example: on a default Kind cluster created with Podman Desktop: `http://localhost:9090`. Requirements: your cluster has an ingress controller`**.
    1. **Kubernetes namespaces**: select `default`.
-   1. Click **<icon icon="fa-solid fa-rocket" size="lg" /> Deploy**.
+   1. Click **<Icon icon="fa-solid fa-rocket" size="lg" /> Deploy**.
       ![Deploy generated frontend pod to Kubernetes screen](img/running-a-local-kubernetes-cluster-with-podman-desktop/deploy-generated-frontend-pod-to-kubernetes.png)
    1. Wait for the pod to reach the state: **Phase: Running**.
    1. Click **Done**.
 
 #### Verification
 
-1. The **<icon icon="fa-solid fa-cubes" size="lg" /> Pods** screen lists the running `frontend` pod.
+1. The **<Icon icon="fa-solid fa-cubes" size="lg" /> Pods** screen lists the running `frontend` pod.
 
    ![`frontend` pod is running](img/running-a-local-kubernetes-cluster-with-podman-desktop/frontend-pod-is-running.png)
 

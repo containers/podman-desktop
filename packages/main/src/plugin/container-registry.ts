@@ -90,6 +90,9 @@ export class ContainerProviderRegistry {
   private readonly _onEvent = new Emitter<JSONEvent>();
   readonly onEvent: Event<JSONEvent> = this._onEvent.event;
 
+  // delay in ms before retrying to connect to the provider when /events connection fails
+  protected retryDelayEvents: number = 5000;
+
   private envfileParser = new EnvfileParser();
 
   constructor(
@@ -111,10 +114,13 @@ export class ContainerProviderRegistry {
   protected streamsPerContainerId: Map<string, NodeJS.ReadWriteStream> = new Map();
   protected streamsOutputPerContainerId: Map<string, Buffer[]> = new Map();
 
-  handleEvents(api: Dockerode) {
+  handleEvents(api: Dockerode, errorCallback: (error: Error) => void) {
+    let nbEvents = 0;
+    const startDate = performance.now();
     const eventEmitter = new EventEmitter();
 
     eventEmitter.on('event', (jsonEvent: JSONEvent) => {
+      nbEvents++;
       console.log('event is', jsonEvent);
       this._onEvent.fire(jsonEvent);
       if (jsonEvent.status === 'stop' && jsonEvent?.Type === 'container') {
@@ -163,7 +169,21 @@ export class ContainerProviderRegistry {
     api.getEvents((err, stream) => {
       if (err) {
         console.log('error is', err);
+        errorCallback(new Error('Error in handling events', err));
       }
+
+      stream?.on('error', error => {
+        console.error('/event stream received an error.', error);
+        // log why it failed and after how many ms connection dropped
+        this.telemetryService.track('handleContainerEventsFailure', {
+          nbEvents,
+          failureAfter: performance.now() - startDate,
+          error,
+        });
+        // notify the error (do not throw as we're inside handlers/callbacks)
+        errorCallback(new Error('Error in handling events', error));
+      });
+
       const pipeline = stream?.pipe(StreamValues.withParser());
       pipeline?.on('error', error => {
         console.error('Error while parsing events', error);
@@ -210,11 +230,33 @@ export class ContainerProviderRegistry {
     internalProvider: InternalContainerProvider,
     containerProviderConnection: containerDesktopAPI.ContainerProviderConnection,
   ) {
+    // abort if connection is stopped
+    if (containerProviderConnection.status() === 'stopped') {
+      console.log('Aborting reconnect due to error as connection is now stopped');
+      return;
+    }
+
     internalProvider.api = new Dockerode({ socketPath: containerProviderConnection.endpoint.socketPath });
     if (containerProviderConnection.type === 'podman') {
       internalProvider.libpodApi = internalProvider.api as unknown as LibPod;
     }
-    this.handleEvents(internalProvider.api);
+
+    // in case of errors reported during handling events like the connection is aborted, etc.
+    // we need to reconnect the provider
+    const errorHandler = (error: Error) => {
+      console.warn('Error when handling events', error, 'Will reconnect in 5s', error);
+      internalProvider.api = undefined;
+      internalProvider.libpodApi = undefined;
+
+      // ok we had some errors so we need to reconnect the provider
+      // delay the reconnection to avoid too many reconnections
+      // retry in 5 seconds
+      setTimeout(() => {
+        this.setupConnectionAPI(internalProvider, containerProviderConnection);
+      }, this.retryDelayEvents);
+    };
+
+    this.handleEvents(internalProvider.api, errorHandler);
     this.apiSender.send('provider-change', {});
   }
 

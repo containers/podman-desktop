@@ -17,28 +17,44 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeEach } from 'vitest';
+import { test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import PodActions from './PodActions.svelte';
 import type { PodInfoUI } from './PodInfoUI';
+import type { ContainerInfo, Port } from '@podman-desktop/api';
 
 const pod: PodInfoUI = {
   id: 'pod',
+  containers: [{ Id: 'pod' }],
+  status: 'RUNNING',
+  kind: 'podman',
 } as PodInfoUI;
 
 const errorCallback = vi.fn();
+const listContainersMock = vi.fn();
 const getContributedMenusMock = vi.fn();
 
 beforeEach(() => {
   (window as any).kubernetesDeletePod = vi.fn();
-  vi.resetAllMocks();
-  vi.clearAllMocks();
+  (window as any).listContainers = listContainersMock;
+  (window as any).removePod = vi.fn();
+
+  listContainersMock.mockResolvedValue([
+    { Id: 'pod', Ports: [{ PublicPort: 8080 } as Port] as Port[] } as ContainerInfo,
+  ]);
 
   (window as any).getContributedMenus = getContributedMenusMock;
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
 });
 
+afterEach(() => {
+  vi.resetAllMocks();
+  vi.clearAllMocks();
+});
+
 test('Expect no error deleting pod', async () => {
+  listContainersMock.mockResolvedValue([]);
+
   render(PodActions, { pod, errorCallback });
 
   // click on delete button

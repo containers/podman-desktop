@@ -1,5 +1,13 @@
 <script lang="ts">
-import { faFileCode, faPlay, faRocket, faStop, faArrowsRotate, faTrash } from '@fortawesome/free-solid-svg-icons';
+import {
+  faFileCode,
+  faPlay,
+  faRocket,
+  faStop,
+  faArrowsRotate,
+  faTrash,
+  faExternalLinkSquareAlt,
+} from '@fortawesome/free-solid-svg-icons';
 import type { PodInfoUI } from './PodInfoUI';
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
@@ -9,6 +17,7 @@ import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 import { onMount } from 'svelte';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
+import { ContainerUtils } from '../container/container-utils';
 
 export let pod: PodInfoUI;
 export let dropdownMenu = false;
@@ -20,6 +29,28 @@ export let errorCallback: (erroMessage: string) => void = () => {};
 let contributions: Menu[] = [];
 onMount(async () => {
   contributions = await window.getContributedMenus(MenuContext.DASHBOARD_POD);
+});
+
+let urls: Array<string> = [];
+$: openingUrls = urls;
+
+function extractPort(urlString: string) {
+  const match = urlString.match(/:(\d+)/);
+  return match ? parseInt(match[1], 10) : undefined;
+}
+
+onMount(async () => {
+  const containerUtils = new ContainerUtils();
+
+  const containerIds = pod.containers.map(podContainer => podContainer.Id);
+  const podContainers = (await window.listContainers()).filter(
+    container => containerIds.findIndex(containerInfo => containerInfo === container.Id) >= 0,
+  );
+
+  podContainers.forEach(container => {
+    const openingUrls = containerUtils.getOpeningUrls(container);
+    urls = [...new Set([...urls, ...openingUrls])];
+  });
 });
 
 async function startPod(podInfoUI: PodInfoUI) {
@@ -128,6 +159,37 @@ if (dropdownMenu) {
       menu="{dropdownMenu}"
       detailed="{detailed}"
       icon="{faRocket}" />
+    {#if openingUrls.length === 0}
+      <ListItemButtonIcon
+        title="Open Exposed Port"
+        menu="{dropdownMenu}"
+        enabled="{false}"
+        hidden="{dropdownMenu}"
+        detailed="{detailed}"
+        icon="{faExternalLinkSquareAlt}" />
+    {:else if openingUrls.length === 1}
+      <ListItemButtonIcon
+        title="Open {extractPort(openingUrls[0])}"
+        onClick="{() => window.openExternal(openingUrls[0])}"
+        menu="{dropdownMenu}"
+        enabled="{pod.status === 'RUNNING'}"
+        hidden="{dropdownMenu}"
+        detailed="{detailed}"
+        icon="{faExternalLinkSquareAlt}" />
+    {:else if openingUrls.length > 1}
+      <DropdownMenu icon="{faExternalLinkSquareAlt}" hidden="{dropdownMenu}" shownAsMenuActionItem="{true}">
+        {#each openingUrls as url}
+          <ListItemButtonIcon
+            title="Open {extractPort(url)}"
+            onClick="{() => window.openExternal(url)}"
+            menu="{!dropdownMenu}"
+            enabled="{pod.status === 'RUNNING'}"
+            hidden="{dropdownMenu}"
+            detailed="{detailed}"
+            icon="{faExternalLinkSquareAlt}" />
+        {/each}
+      </DropdownMenu>
+    {/if}
     <ListItemButtonIcon
       title="Restart Pod"
       onClick="{() => restartPod(pod)}"

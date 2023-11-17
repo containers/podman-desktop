@@ -113,6 +113,12 @@ export class ContainerUtils {
     }
   }
 
+  getOpeningUrls(containerInfo: ContainerInfo): string[] {
+    return containerInfo.Ports?.filter(port => port.PublicPort)
+      .map(port => port.PublicPort)
+      .map(port => `http://localhost:${port}`);
+  }
+
   getEngineId(containerInfo: ContainerInfo): string {
     return containerInfo.engineId;
   }
