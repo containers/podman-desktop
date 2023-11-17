@@ -36,6 +36,8 @@ export interface KubeContextUI {
   user: string;
   clusterInfo?: KubeContextClusterUI;
   icon?: string;
+  // error to display in case of deletion (or other operation) error
+  error?: string;
 }
 
 // Function that takes in the clusters and contexts and returns the KubeContextUI
@@ -68,4 +70,18 @@ export function getKubeUIContexts(contexts: Context[], clusters: Cluster[]): Kub
     });
   });
   return kubeContexts;
+}
+
+export function setKubeUIContextError(contexts: Context[], contextName: string, error: Error): Context[] {
+  return contexts.map(ctx => {
+    if (ctx.name === contextName) {
+      return { ...ctx, error: String(error) };
+    } else {
+      return ctx;
+    }
+  });
+}
+
+export function clearKubeUIContextErrors(contexts: Context[]): Context[] {
+  return contexts.map(ctx => ({ ...ctx, error: undefined }));
 }
