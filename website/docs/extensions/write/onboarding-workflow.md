@@ -10,7 +10,7 @@ keywords: [podman desktop, extension, writing, onboarding]
 
 A Podman Desktop extension can offer an onboarding workflow to guide users in installing and setting up all the necessary tools for the extension to work, and/or to provide explanations about the capabilities of the extension.
 
-Adding onboarding to an extension is as simple as writing a JSON schema in the `package.json`. Podman Desktop will convert the JSON object into actual code to render all items.
+Adding onboarding to an extension is as simple as writing JSON in the `package.json`. Podman Desktop will convert the JSON object into actual code to render all items.
 
 Onboarding consists of a title, a description, media (image), an enablement clause, and a list of steps. Before getting into the details, let's examine the JSON schema.
 
@@ -114,7 +114,7 @@ The **title**, the **description** and the **media** are all placed in the top l
 Only the title is required. The description and the media are optional.
 If the media is not specified, Podman Desktop will display the default extension icon.
 
-This is how this JSON will be rendered
+This is how this JSON is defined:
 
 ```json
 "icon": "icon.png",
@@ -224,7 +224,7 @@ The **title**, **description** and **media** works as explained earlier. The onl
 
 ![img2](img/step_title_media_description.png)
 
-**Note:** If the media is not specified, Podman Desktop will display the default extension icon.
+**Note:** If media is not specified, Podman Desktop will display the extension's icon providing the onboarding.
 
 #### Command
 
@@ -340,16 +340,16 @@ After updating the context, the UI is refreshed, and Podman Desktop moves the us
 
 #### Content
 
-The **content** property is an array of arrays where each item in the parent array defines a row, and each item in the child arrays defines a column.
+The **content** property is an array of arrays where each item in the parent array defines a row, and each item in the child arrays defines a cell.
 
 ```
 content = [
-    ["column", "column"], //row
-    ["column", "column", "column"], //row
+    ["cell", "cell"], //row
+    ["cell", "cell", "cell"], //row
 ]
 ```
 
-The JSON schema for a content column entry is
+The JSON schema for a content cell entry is
 
 ```json
 "type": "object",
