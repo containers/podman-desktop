@@ -20,22 +20,20 @@ export let row: Row<any>;
 
 // number of selected items in the list
 export let selectedItemsNumber: number = 0;
-$: selectedItemsNumber = row.selectable
-  ? data.filter(object => row.selectable?.(object)).filter(object => object.selected).length
+$: selectedItemsNumber = row.info.selectable
+  ? data.filter(object => row.info.selectable?.(object)).filter(object => object.selected).length
   : 0;
 
 // do we need to unselect all checkboxes if we don't have all items being selected ?
-$: selectedAllCheckboxes = row.selectable
-  ? data.filter(object => row.selectable?.(object)).every(object => object.selected)
+$: selectedAllCheckboxes = row.info.selectable
+  ? data.filter(object => row.info.selectable?.(object)).every(object => object.selected)
   : false;
 
 function toggleAll(checked: boolean) {
-  if (!row.selectable) {
+  if (!row.info.selectable) {
     return;
   }
-  const toggleData = data;
-  toggleData.filter(object => row.selectable?.(object)).forEach(object => (object.selected = checked));
-  data = toggleData;
+  data.filter(object => row.info.selectable?.(object)).forEach(object => (object.selected = checked));
 }
 
 let sortCol: Column<any>;
@@ -46,7 +44,7 @@ function sort(column: Column<any>) {
     return;
   }
 
-  let comparator = column.comparator;
+  let comparator = column.info.comparator;
   if (!comparator) {
     // column is not sortable
     return;
@@ -63,9 +61,9 @@ function sort(column: Column<any>) {
     let comparatorTemp = comparator;
     comparator = (a, b) => -comparatorTemp(a, b);
   }
-  const sortedData = data;
-  sortedData.sort(comparator);
-  data = sortedData;
+
+  // eslint-disable-next-line etc/no-assign-mutated-array
+  data = data.sort(comparator);
 }
 
 afterUpdate(async () => {
@@ -75,18 +73,16 @@ afterUpdate(async () => {
 
 function setGridColumns() {
   // section and checkbox columns
-  let columnWidths: string[] = ['20px', '32px'];
+  let columnWidths: string[] = ['20px'];
+
+  if (row.info.selectable) columnWidths.push('32px');
 
   // custom columns
-  for (const column of columns) {
-    if (column.info.width) {
-      columnWidths.push(column.info.width);
-    } else {
-      columnWidths.push('1fr');
-    }
-  }
+  columns.map(c => c.info.width ?? '1fr').forEach(w => columnWidths.push(w));
 
+  // final spacer
   columnWidths.push('5px');
+
   let wid = columnWidths.join(' ');
   let grids: HTMLCollection = document.getElementsByClassName('grid-table');
   for (const element of grids) {
@@ -101,15 +97,15 @@ function setGridColumns() {
     class="grid grid-table gap-x-0.5 mx-5 h-7 sticky top-0 bg-charcoal-700 text-xs text-gray-600 font-bold uppercase z-[2]"
     role="row">
     <div class="whitespace-nowrap justify-self-start"></div>
-    <div class="whitespace-nowrap place-self-center" role="columnheader">
-      {#if row.selectable}
+    {#if row.info.selectable}
+      <div class="whitespace-nowrap place-self-center" role="columnheader">
         <Checkbox
           title="Toggle all"
           bind:checked="{selectedAllCheckboxes}"
           indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
           on:click="{event => toggleAll(event.detail)}" />
-      {/if}
-    </div>
+      </div>
+    {/if}
     {#each columns as column}
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-interactive-supports-focus -->
@@ -121,7 +117,7 @@ function setGridColumns() {
             : 'justify-self-start'} self-center"
         on:click="{() => sort(column)}"
         role="columnheader">
-        {column.title}{#if column.comparator}<i
+        {column.title}{#if column.info.comparator}<i
             class="fas pl-0.5"
             class:fa-sort="{sortCol !== column}"
             class:fa-sort-up="{sortCol === column && !sortAscending}"
@@ -138,15 +134,15 @@ function setGridColumns() {
       animate:flip="{{ duration: 300 }}"
       role="row">
       <div class="whitespace-nowrap justify-self-start"></div>
-      <div class="whitespace-nowrap place-self-center">
-        {#if row.selectable}
+      {#if row.info.selectable}
+        <div class="whitespace-nowrap place-self-center">
           <Checkbox
             title="Toggle {kind}"
             bind:checked="{object.selected}"
-            disabled="{!row.selectable(object)}"
-            disabledTooltip="{row.disabledText}}" />
-        {/if}
-      </div>
+            disabled="{!row.info.selectable(object)}"
+            disabledTooltip="{row.info.disabledText}" />
+        </div>
+      {/if}
       {#each columns as column}
         <div
           class="whitespace-nowrap {column.info.align === 'right'

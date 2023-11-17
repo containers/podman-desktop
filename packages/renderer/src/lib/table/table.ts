@@ -19,7 +19,7 @@
 /**
  * Options to be used when creating a Column.
  */
-export interface ColumnInformation {
+export interface ColumnInformation<Type> {
   /**
    * Column alignment, one of 'left', 'center', or 'right'.
    *
@@ -40,44 +40,43 @@ export interface ColumnInformation {
    * same type as the Column.
    */
   readonly renderer?: any;
-}
-
-/**
- * A table Column.
- */
-export class Column<Type> {
-  comparator: ((object1: Type, object2: Type) => number) | undefined;
-
-  constructor(
-    readonly title: string,
-    readonly info: ColumnInformation,
-  ) {}
 
   /**
    * Set a comparator used to sort the data by the values in this column.
    *
    * @param comparator
    */
-  setComparator(comparator: (object1: Type, object2: Type) => number) {
-    this.comparator = comparator;
-  }
+  readonly comparator?: (object1: Type, object2: Type) => number;
+}
+
+/**
+ * A table Column.
+ */
+export class Column<Type> {
+  constructor(
+    readonly title: string,
+    readonly info: ColumnInformation<Type>,
+  ) {}
+}
+
+/**
+ * Options to be used when creating a Row.
+ */
+export interface RowInformation<Type> {
+  /**
+   * Returns true if a row can be selested, and false otherwise.
+   */
+  readonly selectable?: (object: Type) => boolean;
+
+  /**
+   * Tooltip text to show when row selection is disabled.
+   */
+  readonly disabledText?: string;
 }
 
 /**
  * A table row.
  */
 export class Row<Type> {
-  selectable?: (object: Type) => boolean;
-  disabledText?: string;
-
-  /**
-   * Set a function to be used to determine which objects in the data can be selected.
-   *
-   * @param selectable a function that returns false when the object should not be selectable
-   * @param disabledText text to display as a tooltip when selection is disabled
-   */
-  setSelectable(selectable: (object: Type) => boolean, disabledText: string) {
-    this.selectable = selectable;
-    this.disabledText = disabledText;
-  }
+  constructor(readonly info: RowInformation<Type>) {}
 }
