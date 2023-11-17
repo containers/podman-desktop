@@ -29,6 +29,7 @@ import type {
   V1APIResource,
   V1APIGroup,
   Cluster,
+  V1Deployment,
 } from '@kubernetes/client-node';
 import {
   ApisApi,
@@ -446,6 +447,24 @@ export class KubernetesClient {
     return [];
   }
 
+  // List all deployments
+  async listDeployments(): Promise<V1Deployment[]> {
+    const ns = this.getCurrentNamespace();
+    // Only retrieve deployments if valid namespace && valid connection, otherwise we will return an empty array
+    const connected = await this.checkConnection();
+    if (ns && connected) {
+      // Get the deployments via the kubernetes api
+      try {
+        const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
+        const deployments = await k8sAppsApi.listNamespacedDeployment(ns);
+        return deployments.body.items;
+      } catch (_) {
+        // do nothing
+      }
+    }
+    return [];
+  }
+
   // List all ingresses
   async listIngresses(): Promise<V1Ingress[]> {
     const ns = this.getCurrentNamespace();
@@ -513,6 +532,24 @@ export class KubernetesClient {
       throw this.wrapK8sClientError(error);
     } finally {
       this.telemetry.track('kubernetesDeletePod', telemetryOptions);
+    }
+  }
+
+  async deleteDeployment(name: string): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      const ns = this.getCurrentNamespace();
+      // Only delete deployment if valid namespace && valid connection
+      const connected = await this.checkConnection();
+      if (ns && connected) {
+        const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
+        await k8sAppsApi.deleteNamespacedDeployment(name, ns);
+      }
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw this.wrapK8sClientError(error);
+    } finally {
+      this.telemetry.track('kubernetesDeleteDeployment', telemetryOptions);
     }
   }
 
