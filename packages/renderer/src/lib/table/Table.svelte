@@ -7,7 +7,7 @@
 <script lang="ts">
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
-import { afterUpdate, tick } from 'svelte';
+import { afterUpdate, onMount, tick } from 'svelte';
 import Checkbox from '../ui/Checkbox.svelte';
 import type { Column, Row } from './table';
 import { flip } from 'svelte/animate';
@@ -17,11 +17,12 @@ export let kind: string;
 export let data: any[];
 export let columns: Column<any>[];
 export let row: Row<any>;
+export let defaultSortColumn: string | undefined = undefined;
 
 // number of selected items in the list
 export let selectedItemsNumber: number = 0;
 $: selectedItemsNumber = row.info.selectable
-  ? data.filter(object => row.info.selectable?.(object)).filter(object => object.selected).length
+  ? data.filter(object => row.info.selectable?.(object) && object.selected).length
   : 0;
 
 // do we need to unselect all checkboxes if we don't have all items being selected ?
@@ -65,6 +66,17 @@ function sort(column: Column<any>) {
   // eslint-disable-next-line etc/no-assign-mutated-array
   data = data.sort(comparator);
 }
+
+onMount(async () => {
+  if (defaultSortColumn) {
+    for (const column of columns) {
+      if (column.title === defaultSortColumn) {
+        sortCol = column;
+        sortAscending = true;
+      }
+    }
+  }
+});
 
 afterUpdate(async () => {
   await tick();
@@ -122,6 +134,7 @@ function setGridColumns() {
             class:fa-sort="{sortCol !== column}"
             class:fa-sort-up="{sortCol === column && !sortAscending}"
             class:fa-sort-down="{sortCol === column && sortAscending}"
+            class:text-charcoal-200="{sortCol !== column}"
             aria-hidden="true"></i
           >{/if}
       </div>
