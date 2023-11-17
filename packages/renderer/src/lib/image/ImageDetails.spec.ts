@@ -29,6 +29,7 @@ import { router } from 'tinro';
 import { lastPage } from '/@/stores/breadcrumb';
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import { containersInfos } from '/@/stores/containers';
+import { imageCheckerProviders } from '/@/stores/image-checker-providers';
 
 const listImagesMock = vi.fn();
 const getContributedMenusMock = vi.fn();
@@ -202,4 +203,60 @@ describe('expect display usage of an image', () => {
     const usage = screen.getByRole('status', { name: 'UNUSED' });
     expect(usage).toBeInTheDocument();
   });
+});
+
+test('expect Check tab is not displayed by default', () => {
+  const imageID = '123456';
+  const engineId = 'podman';
+  const myImage = {
+    engineId,
+    Id: imageID,
+    Size: 0,
+  } as unknown as ImageInfo;
+  imagesInfos.set([myImage]);
+
+  hasAuthMock.mockImplementation(() => {
+    return new Promise(() => false);
+  });
+
+  render(ImageDetails, {
+    imageID,
+    engineId,
+    base64RepoTag: Buffer.from('<none>', 'binary').toString('base64'),
+  });
+  const summaryTab = screen.getByRole('link', { name: 'Summary' });
+  expect(summaryTab).toBeInTheDocument();
+  const checkTab = screen.queryByRole('link', { name: 'Check' });
+  expect(checkTab).not.toBeInTheDocument();
+});
+
+test('expect Check tab is displayed when an image checker provider exists', () => {
+  const imageID = '123456';
+  const engineId = 'podman';
+  const myImage = {
+    engineId,
+    Id: imageID,
+    Size: 0,
+  } as unknown as ImageInfo;
+  imagesInfos.set([myImage]);
+
+  hasAuthMock.mockImplementation(() => {
+    return new Promise(() => false);
+  });
+
+  imageCheckerProviders.set([
+    {
+      id: 'provider1',
+      label: 'Image Checker',
+    },
+  ]);
+  render(ImageDetails, {
+    imageID,
+    engineId,
+    base64RepoTag: Buffer.from('<none>', 'binary').toString('base64'),
+  });
+  const summaryTab = screen.getByRole('link', { name: 'Summary' });
+  expect(summaryTab).toBeInTheDocument();
+  const checkTab = screen.getByRole('link', { name: 'Check' });
+  expect(checkTab).toBeInTheDocument();
 });
