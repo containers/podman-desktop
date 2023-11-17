@@ -18,16 +18,24 @@ const people: Person[] = [
   { name: 'Charlie', age: 43 },
 ];
 
-const nameCol: Column<Person> = new Column('Name', { width: '3fr', renderer: TestColumnName });
-nameCol.setComparator((a, b) => a.name.localeCompare(b.name));
+const nameCol: Column<Person> = new Column('Name', {
+  width: '3fr',
+  renderer: TestColumnName,
+  comparator: (a, b) => a.name.localeCompare(b.name),
+});
 
-const ageCol: Column<Person> = new Column('Age', { align: 'right', renderer: TestColumnAge });
-ageCol.setComparator((a, b) => a.age - b.age);
+const ageCol: Column<Person> = new Column('Age', {
+  align: 'right',
+  renderer: TestColumnAge,
+  comparator: (a, b) => a.age - b.age,
+});
 
-const columns: Column<any>[] = [nameCol, ageCol];
+const columns: Column<Person>[] = [nameCol, ageCol];
 
-const row = new Row<Person>();
-row.setSelectable(person => person.age < 50, 'People over 50 cannot be deleted');
+const row = new Row<Person>({
+  selectable: person => person.age < 50,
+  disabledText: 'People over 50 cannot be deleted',
+});
 </script>
 
 <Table
