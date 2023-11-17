@@ -21,6 +21,7 @@ onMount(() => {
 </script>
 
 <div
+  title="Drop Down Menu Items"
   bind:clientHeight="{dropDownHeight}"
   bind:this="{dropDownElement}"
   class="origin-top-right absolute right-0 z-10 m-2 rounded-md shadow-lg bg-charcoal-600 ring-2 ring-purple-900 hover:ring-purple-700 divide-y divide-charcoal-600 focus:outline-none">
