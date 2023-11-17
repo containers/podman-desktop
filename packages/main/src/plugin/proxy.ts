@@ -22,7 +22,7 @@ import { Emitter } from './events/emitter.js';
 import { getProxyUrl } from './proxy-resolver.js';
 import { ProxyAgent } from 'undici';
 
-function ensureURL(urlstring: string | undefined): string | undefined {
+export function ensureURL(urlstring: string | undefined): string | undefined {
   if (urlstring) {
     try {
       const url = new URL(urlstring);

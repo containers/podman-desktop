@@ -208,8 +208,25 @@ describe.each([
   'http://hostname.domain.com:8080',
   'http://hostname-suffix.domain.com',
   'http://hostname-suffix.domain.com:8080',
-])('Test proxy addresses', address => {
+])('Test accepted proxy addresses', address => {
   test(`Test address ${address}`, () => {
     expect(validateProxyAddress(address)).toBeUndefined();
+  });
+});
+
+describe.each([
+  '127.0.1',
+  '127.0.0.1:8080',
+  'hostname',
+  'hostname:8080',
+  'hostname-suffix',
+  'hostname-suffix:8080',
+  'hostname.domain.com',
+  'hostname.domain.com:8080',
+  'hostname-suffix.domain.com',
+  'hostname-suffix.domain.com:8080',
+])('Test rejected proxy addresses', address => {
+  test(`Test address ${address}`, () => {
+    expect(validateProxyAddress(address)).toBeDefined();
   });
 });
