@@ -16,8 +16,8 @@ const disabledClasses = 'text-gray-900 bg-charcoal-800';
   <!-- Use a div + onclick so there's no "blind spots" for when clicking-->
   <div class="{`p-3 ${enabled ? enabledClasses : disabledClasses}`}" role="none" on:click="{onClick}">
     <span title="{title}" class="group flex items-center text-sm no-underline whitespace-nowrap" tabindex="-1">
-      <Fa class="h-4 w-4 text-md mr-2" icon="{icon}" />
-      {title}
+      <Fa class="h-4 w-4 text-md" icon="{icon}" />
+      {#if title}<span class="ml-2">{title}</span>{/if}
     </span>
   </div>
 {/if}
