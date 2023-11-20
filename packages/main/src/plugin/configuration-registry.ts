@@ -270,7 +270,11 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     }
     const event = { key, value, scope };
     this._onDidChangeConfiguration.fire(event);
-
+    // notify renderer
+    // send only for default scope
+    if (scope === CONFIGURATION_DEFAULT_SCOPE) {
+      this.apiSender.send('onDidChangeConfiguration', event);
+    }
     return promise;
   }
 
