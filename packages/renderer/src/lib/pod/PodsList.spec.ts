@@ -277,18 +277,14 @@ beforeAll(() => {
 async function waitRender(customProperties: object): Promise<void> {
   const result = render(PodsList, { ...customProperties });
   // wait that result.component.$$.ctx[2] is set
-  while (result.component.$$.ctx[2] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  await vi.waitUntil(() => result.component.$$.ctx[2] !== undefined, { timeout: 5000 });
 }
 
 test('Expect no pods being displayed', async () => {
   getProvidersInfoMock.mockResolvedValue([provider]);
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
 
-  while (get(providerInfos).length === 0) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
+  await vi.waitUntil(() => get(providerInfos).length !== 0);
 
   render(PodsList);
   const noPods = screen.getByText(/No pods/);
@@ -302,13 +298,7 @@ test('Expect single podman pod being displayed', async () => {
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   window.dispatchEvent(new CustomEvent('extensions-already-started'));
 
-  while (get(providerInfos).length !== 1) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
-
-  while (get(podsInfos).length !== 1) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
+  await vi.waitUntil(() => get(providerInfos).length === 1 && get(podsInfos).length === 1, { timeout: 5000 });
 
   render(PodsList);
   const pod1Details = screen.getByRole('cell', { name: 'pod1 beab2512' });
@@ -328,13 +318,7 @@ test('Expect 2 podman pods being displayed', async () => {
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   window.dispatchEvent(new CustomEvent('extensions-already-started'));
 
-  while (get(providerInfos).length !== 1) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
-
-  while (get(podsInfos).length !== 2) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
+  await vi.waitUntil(() => get(providerInfos).length === 1 && get(podsInfos).length === 2, { timeout: 5000 });
 
   render(PodsList);
   const pod1Details = screen.getByRole('cell', { name: 'pod1 beab2512' });
@@ -356,13 +340,7 @@ test('Expect single kubernetes pod being displayed', async () => {
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   window.dispatchEvent(new CustomEvent('extensions-already-started'));
 
-  while (get(providerInfos).length !== 1) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
-
-  while (get(podsInfos).length !== 1) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
+  await vi.waitUntil(() => get(providerInfos).length === 1 && get(podsInfos).length === 1, { timeout: 5000 });
 
   render(PodsList);
   const pod1Details = screen.getByRole('row', {
@@ -378,13 +356,7 @@ test('Expect 2 kubernetes pods being displayed', async () => {
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   window.dispatchEvent(new CustomEvent('extensions-already-started'));
 
-  while (get(providerInfos).length !== 1) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
-
-  while (get(podsInfos).length !== 2) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
+  await vi.waitUntil(() => get(providerInfos).length === 1 && get(podsInfos).length === 2, { timeout: 5000 });
 
   render(PodsList);
   const pod1Details = screen.getByRole('row', {
@@ -404,13 +376,7 @@ test('Expect filter empty screen', async () => {
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   window.dispatchEvent(new CustomEvent('extensions-already-started'));
 
-  while (get(providerInfos).length !== 1) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
-
-  while (get(podsInfos).length !== 1) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
+  await vi.waitUntil(() => get(providerInfos).length === 1 && get(podsInfos).length === 1, { timeout: 5000 });
 
   render(PodsList, { searchTerm: 'No match' });
   const filterButton = screen.getByRole('button', { name: 'Clear filter' });
@@ -424,17 +390,15 @@ test('Expect the route to a pod details page is correctly encoded with an engine
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   window.dispatchEvent(new CustomEvent('extensions-already-started'));
 
-  while (get(providerInfos).length !== 1) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
+  await vi.waitUntil(() => get(providerInfos).length === 1, { timeout: 5000 });
 
-  for (;;) {
-    const infos = get(podsInfos);
-    if (infos.length === 1 && infos[0].Name === ocppod.Name) {
-      break;
-    }
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
+  await vi.waitUntil(
+    () => {
+      const infos = get(podsInfos);
+      return infos.length === 1 && infos[0].Name === ocppod.Name;
+    },
+    { timeout: 5000 },
+  );
   render(PodsList);
   const podDetails = screen.getByRole('cell', { name: 'ocppod e8129c57' });
   expect(podDetails).toBeInTheDocument();
@@ -459,13 +423,7 @@ test('Expect the pod1 row to have 3 status dots with the correct colors and the 
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   window.dispatchEvent(new CustomEvent('extensions-already-started'));
 
-  while (get(providerInfos).length !== 1) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
-
-  while (get(podsInfos).length !== 2) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
+  await vi.waitUntil(() => get(providerInfos).length === 1 && get(podsInfos).length === 2, { timeout: 5000 });
 
   waitRender(PodsList);
 
@@ -496,13 +454,7 @@ test('Expect the manyPod row to show 9 dots representing every status', async ()
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   window.dispatchEvent(new CustomEvent('extensions-already-started'));
 
-  while (get(providerInfos).length !== 1) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
-
-  while (get(podsInfos).length !== 1) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
+  await vi.waitUntil(() => get(providerInfos).length === 1 && get(podsInfos).length === 1, { timeout: 5000 });
 
   waitRender(PodsList);
 
