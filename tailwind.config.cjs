@@ -23,6 +23,7 @@ module.exports = {
     'packages/renderer/index.html',
     'packages/renderer/src/**/*.{svelte,ts,css}',
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       boxShadow: {

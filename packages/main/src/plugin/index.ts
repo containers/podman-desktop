@@ -143,6 +143,7 @@ import type { NotificationCard, NotificationCardOptions } from './api/notificati
 import { NotificationRegistry } from './notification-registry.js';
 import { ImageCheckerImpl } from './image-checker.js';
 import type { ImageCheckerInfo } from './api/image-checker-info.js';
+import { AppearanceInit } from './appearance-init.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -689,6 +690,10 @@ export class PluginSystem {
     commandRegistry.registerCommand('troubleshooting', () => {
       apiSender.send('display-troubleshooting', '');
     });
+
+    // register appearance (light, dark, auto being system)
+    const appearanceConfiguration = new AppearanceInit(configurationRegistry);
+    appearanceConfiguration.init();
 
     const terminalInit = new TerminalInit(configurationRegistry);
     terminalInit.init();

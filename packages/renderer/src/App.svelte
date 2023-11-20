@@ -39,6 +39,7 @@ import CustomPick from './lib/dialogs/CustomPick.svelte';
 import ContextKey from './lib/context/ContextKey.svelte';
 import CreateVolume from './lib/volume/CreateVolume.svelte';
 import CommandPalette from './lib/dialogs/CommandPalette.svelte';
+import Appearance from './lib/appearance/Appearance.svelte';
 
 router.mode.hash();
 
@@ -64,6 +65,7 @@ window.events?.receive('display-troubleshooting', () => {
 <Route path="/*" breadcrumb="Home" let:meta>
   <main class="flex flex-col w-screen h-screen overflow-hidden bg-charcoal-800">
     <IconsStyle />
+    <Appearance />
     <TitleBar />
     <ContextKey />
 
