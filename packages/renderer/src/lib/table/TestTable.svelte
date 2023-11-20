@@ -1,5 +1,6 @@
 <script lang="ts">
 import Table from './Table.svelte';
+import TestColumnId from './TestColumnId.svelte';
 import TestColumnName from './TestColumnName.svelte';
 import TestColumnAge from './TestColumnAge.svelte';
 import { Column, Row } from './table';
@@ -8,15 +9,22 @@ let table: Table;
 let selectedItemsNumber: number;
 
 type Person = {
+  id: number;
   name: string;
   age: number;
 };
 
 const people: Person[] = [
-  { name: 'John', age: 57 },
-  { name: 'Henry', age: 27 },
-  { name: 'Charlie', age: 43 },
+  { id: 1, name: 'John', age: 57 },
+  { id: 2, name: 'Henry', age: 27 },
+  { id: 3, name: 'Charlie', age: 43 },
 ];
+
+const idCol: Column<Person> = new Column('Id', {
+  align: 'right',
+  renderer: TestColumnId,
+  comparator: (a, b) => a.id - b.id,
+});
 
 const nameCol: Column<Person> = new Column('Name', {
   width: '3fr',
@@ -30,7 +38,7 @@ const ageCol: Column<Person> = new Column('Age', {
   comparator: (a, b) => a.age - b.age,
 });
 
-const columns: Column<Person>[] = [nameCol, ageCol];
+const columns: Column<Person>[] = [idCol, nameCol, ageCol];
 
 const row = new Row<Person>({
   selectable: person => person.age < 50,
@@ -44,5 +52,6 @@ const row = new Row<Person>({
   bind:selectedItemsNumber="{selectedItemsNumber}"
   data="{people}"
   columns="{columns}"
-  row="{row}">
+  row="{row}"
+  defaultSortColumn="Id">
 </Table>
