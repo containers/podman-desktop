@@ -601,7 +601,7 @@ describe('waitForRunningState', () => {
   });
 });
 
-test('execComposeCommand', async () => {
+test('execComposeCommand on a non-Windows OS', async () => {
   vi.spyOn(contributionManager, 'findComposeBinary').mockResolvedValue('/my/compose');
 
   // create tuple
@@ -619,6 +619,8 @@ test('execComposeCommand', async () => {
   // mock exec
   vi.spyOn(exec, 'exec').mockResolvedValue({} as RunResult);
 
+  vi.spyOn(util, 'isWindows').mockImplementation(() => false);
+
   // call
   await contributionManager.execComposeCommand('/fake/directory', ['arg1', 'arg2']);
 
@@ -627,6 +629,37 @@ test('execComposeCommand', async () => {
     '/my/compose',
     ['arg1', 'arg2'],
     expect.objectContaining({ env: { DOCKER_HOST: 'unix:///my/socket' }, cwd: '/fake/directory' }),
+  );
+});
+
+test('execComposeCommand on a Windows OS', async () => {
+  vi.spyOn(contributionManager, 'findComposeBinary').mockResolvedValue('/my/compose');
+
+  // create tuple
+  const tuple = [
+    {
+      endpoint: {
+        socketPath: '\\\\.\\pipe\\socket',
+      },
+    },
+    'arg2',
+  ];
+
+  getFirstRunningConnectionMock.mockReturnValue(tuple);
+
+  // mock exec
+  vi.spyOn(exec, 'exec').mockResolvedValue({} as RunResult);
+
+  vi.spyOn(util, 'isWindows').mockImplementation(() => true);
+
+  // call
+  await contributionManager.execComposeCommand('/fake/directory', ['arg1', 'arg2']);
+
+  // check
+  expect(exec.exec).toBeCalledWith(
+    '/my/compose',
+    ['arg1', 'arg2'],
+    expect.objectContaining({ env: { DOCKER_HOST: 'npipe:////./pipe/socket' }, cwd: '/fake/directory' }),
   );
 });
 
