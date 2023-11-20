@@ -353,7 +353,10 @@ export class ContributionManager {
     const providerContainerConnectionInfo = connection[0];
 
     const socketPath = providerContainerConnectionInfo.endpoint.socketPath;
-    const DOCKER_HOST = `unix://${socketPath}`;
+    let DOCKER_HOST = `unix://${socketPath}`;
+    if (isWindows()) {
+      DOCKER_HOST = socketPath.replace('\\\\.\\pipe\\', 'npipe:////./pipe/');
+    }
     const env = {
       // add DOCKER_HOST
       DOCKER_HOST: DOCKER_HOST,

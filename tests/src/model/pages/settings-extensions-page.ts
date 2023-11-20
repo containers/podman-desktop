@@ -48,6 +48,6 @@ export class SettingsExtensionsPage extends SettingsPage {
   }
 
   public getFeaturedExtension(extensionName: string): Locator {
-    return this.featuredExtensions.getByLabel(extensionName);
+    return this.featuredExtensions.getByLabel(extensionName, { exact: true });
   }
 }
