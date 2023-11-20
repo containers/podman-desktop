@@ -66,13 +66,13 @@ describe('Verification of Podman extension', async () => {
   test('Podman is enabled and present', async () => {
     await verifyPodmanExtensionStatus(true);
   });
-  test('Disable Podman extension from Settings -> Extensions -> Podman page and verify status', async () => {
+  test('Podman extension can be disabled from Podman Extension Page', async () => {
     await openSettingsExtensionsPage();
     const podmanExtensionPage = await openSettingsExtensionsPodmanPage();
     await podmanExtensionPage.disableButton.click();
     await verifyPodmanExtensionStatus(false);
   });
-  test('Re-Enable Podman extension from Settings -> Extensions page and verify podman status', async () => {
+  test('Podman extension can be re-enabled from Settings Extension Page', async () => {
     const settingsExtensionsPage = await openSettingsExtensionsPage();
     const podmanExtensionRowLocator = settingsExtensionsPage.getExtensionRowFromTable(
       SETTINGS_EXTENSIONS_TABLE_PODMAN_TITLE,
