@@ -35,7 +35,7 @@ let termFit: FitAddon;
 let currentRouterPath: string;
 
 // Router path for the logging
-let logsRouterPath = `/compose/${encodeURI(compose.name)}/${encodeURI(compose.engineId)}/logs`;
+let logsRouterPath = `/compose/details/${encodeURI(compose.name)}/${encodeURI(compose.engineId)}/logs`;
 
 // Create a map that will store the ANSI 256 colour for each container name
 // if we run out of colours, we'll start from the beginning.
