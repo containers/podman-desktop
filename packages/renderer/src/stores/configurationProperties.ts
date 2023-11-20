@@ -17,7 +17,10 @@
  ***********************************************************************/
 
 import { writable, type Writable } from 'svelte/store';
-import type { IConfigurationPropertyRecordedSchema } from '../../../main/src/plugin/configuration-registry';
+import type {
+  IConfigurationChangeEvent,
+  IConfigurationPropertyRecordedSchema,
+} from '../../../main/src/plugin/configuration-registry';
 import { EventStore } from './event-store';
 
 const windowEvents = ['extensions-started', 'extension-started', 'extension-stopped', 'configuration-changed'];
@@ -47,3 +50,22 @@ export async function fetchConfigurationProperties(): Promise<IConfigurationProp
   }
   return properties;
 }
+
+class ConfigurationChange extends EventTarget {}
+export const onDidChangeConfiguration = new ConfigurationChange();
+
+class ConfigurationChangeEvent extends CustomEvent<IConfigurationChangeEvent> {
+  constructor(detail: IConfigurationChangeEvent) {
+    // use the key of the configuration as event name
+    super(detail.key, { detail });
+  }
+}
+
+export function setupConfigurationChange() {
+  // be notified when a specific property is being changed
+  window.events?.receive('onDidChangeConfiguration', async (data: IConfigurationChangeEvent) => {
+    onDidChangeConfiguration.dispatchEvent(new ConfigurationChangeEvent(data));
+  });
+}
+
+setupConfigurationChange();
