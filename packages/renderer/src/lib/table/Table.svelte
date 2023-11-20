@@ -69,11 +69,10 @@ function sort(column: Column<any>) {
 
 onMount(async () => {
   if (defaultSortColumn) {
-    for (const column of columns) {
-      if (column.title === defaultSortColumn) {
-        sortCol = column;
-        sortAscending = true;
-      }
+    const column: Column<any> | undefined = columns.find(column => column.title === defaultSortColumn);
+    if (column) {
+      sortCol = column;
+      sortAscending = true;
     }
   }
 });
