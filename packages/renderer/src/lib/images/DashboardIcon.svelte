@@ -1,5 +1,5 @@
 <script lang="ts">
-export let size = '24';
+export let size = '1em';
 </script>
 
 <svg
@@ -11,7 +11,7 @@ export let size = '24';
   version="1.1"
   xml:space="preserve"
   xmlns="http://www.w3.org/2000/svg"
-  ><defs></defs><g transform="translate(28.70309,-15.045389)"
+  ><g transform="translate(28.70309,-15.045389)"
     ><g transform="translate(15.017747,-0.13247817)"
       ><path
         style="fill:currentColor;stroke-linecap:round;stroke-linejoin:round"
