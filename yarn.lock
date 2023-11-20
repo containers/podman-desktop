@@ -14081,10 +14081,10 @@ svelte-steps@2.4.1:
   resolved "https://registry.yarnpkg.com/svelte-steps/-/svelte-steps-2.4.1.tgz#64e055735818e81454e1ca5be8b7b9fe23a8b239"
   integrity sha512-2Xq2lLcGJf3PaEY46f1w5s+/O+tLl4U2V+Z+sCeoUm/kEPFXeZP/aFr2JVKwdzSlXCT+raz75xqXtnZrPWJ0zA==
 
-svelte@4.2.4:
-  version "4.2.4"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-4.2.4.tgz#0d8d0dd73230fe575388b5eb8251a13063e9a9d9"
-  integrity sha512-hpl7nZhSY+pCL/gsXTyixmGR9H0qDrbn9TT8wfLQyX9jRZeDgIvMca7vrE/tgPXZmQpjIcJ6AsoSdAlyRCDuiQ==
+svelte@4.2.5:
+  version "4.2.5"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-4.2.5.tgz#f50ae5aa3d60dab3c89ddd8c5ee0c2985eba3f9c"
+  integrity sha512-P9YPKsGkNdw4OJbtpd1uzimQHPj7Ai2sPcOHmmD6VgkFhFDmcYevQi7vE4cQ1g8/Vs64aL2TwMoCNFAzv7TPaQ==
   dependencies:
     "@ampproject/remapping" "^2.2.1"
     "@jridgewell/sourcemap-codec" "^1.4.15"
