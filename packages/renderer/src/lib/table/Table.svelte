@@ -149,7 +149,7 @@ function setGridColumns() {
             ? 'justify-self-end'
             : column.info.align === 'center'
               ? 'justify-self-center'
-              : 'justify-self-start'} self-center overflow-hidden"
+              : 'justify-self-start'} self-center overflow-hidden max-w-full"
           role="cell">
           {#if column.info.renderer}
             <svelte:component this="{column.info.renderer}" object="{object}" />
