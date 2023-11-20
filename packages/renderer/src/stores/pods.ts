@@ -65,11 +65,9 @@ export const filtered = derived([searchPattern, podsInfos], ([$searchPattern, $i
     )
     .filter(pod => {
       if ($searchPattern.includes('is:running')) {
-        console.log(pod.Status);
         return pod.Status === 'Running';
       }
       if ($searchPattern.includes('is:stopped')) {
-        console.log(pod.Status);
         return pod.Status !== 'Running';
       }
       return true;
