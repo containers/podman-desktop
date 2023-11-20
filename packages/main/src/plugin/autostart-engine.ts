@@ -40,12 +40,7 @@ export class AutostartEngine {
 
   private registerProviderConfiguration(extensionId: string, extensionDisplayName: string): IConfigurationNode {
     const extensionConfiguration = this.configurationRegistry.getConfiguration(`preferences.${extensionId}`);
-    let autostart = extensionConfiguration.get<boolean>('engine.autostart');
-    // if there is no configuration set, we try to retrieve the value of the old deprecated preferences.engine.autostart setting
-    if (autostart === undefined) {
-      const autoStartConfigurationGlobal = this.configurationRegistry.getConfiguration('preferences.engine');
-      autostart = autoStartConfigurationGlobal.get<boolean>('autostart');
-    }
+    const autostart = extensionConfiguration.get<boolean>('engine.autostart', true);
 
     const autoStartConfigurationNode: IConfigurationNode = {
       id: `preferences.${extensionId}.engine.autostart`,
@@ -58,7 +53,7 @@ export class AutostartEngine {
         [`preferences.${extensionId}.engine.autostart`]: {
           description: `Autostart ${extensionDisplayName} engine when launching Podman Desktop`,
           type: 'boolean',
-          default: autostart !== undefined ? autostart : true,
+          default: autostart,
           scope: [CONFIGURATION_DEFAULT_SCOPE, CONFIGURATION_ONBOARDING_SCOPE],
         },
       },
@@ -72,7 +67,8 @@ export class AutostartEngine {
     this.providerExtension.forEach((extensionId, providerInternalId) => {
       // grab value
       const autoStartConfiguration = this.configurationRegistry.getConfiguration(`preferences.${extensionId}`);
-      const autostart = autoStartConfiguration.get<boolean>('engine.autostart');
+      // if there is no value in the config, we use the default true value
+      const autostart = autoStartConfiguration.get<boolean>('engine.autostart', true);
       if (autostart) {
         console.log(`Autostarting ${extensionId} container engine`);
         // send autostart
@@ -83,7 +79,7 @@ export class AutostartEngine {
 
       // start the engine if we toggle the property
       this.configurationRegistry.onDidChangeConfiguration(async e => {
-        if (e.key === `${extensionId}.engine.autostart` && e.value === true) {
+        if (e.key === `preferences.${extensionId}.engine.autostart` && e.value === true) {
           await this.providerRegistry.runAutostart(providerInternalId);
         }
       });

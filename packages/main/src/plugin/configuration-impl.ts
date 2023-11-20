@@ -55,12 +55,8 @@ export class ConfigurationImpl implements containerDesktopAPI.Configuration {
     const localView = this.getLocalView();
     if (localView[localKey] !== undefined) {
       return localView[localKey];
-    } else if (defaultValue) {
-      // not there but we have a default value, then return it
-      return defaultValue;
-    } else {
-      return undefined;
     }
+    return defaultValue;
   }
 
   has(section: string): boolean {
