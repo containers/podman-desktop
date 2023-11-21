@@ -18,16 +18,23 @@ interface CheckUI {
   check: ImageCheck;
 }
 
+interface ProviderError {
+  provider: ImageCheckerInfo;
+  error: Error;
+}
+
 let providers: ImageCheckerInfo[];
 let results: CheckUI[] = [];
 let cancellableTokenId: number = 0;
 
 let remainingProviders: number;
 let aborted = false;
+let providerErrors: ProviderError[];
 
 let providersUnsubscribe: Unsubscriber;
 
 onMount(async () => {
+  providerErrors = [];
   providersUnsubscribe = imageCheckerProviders.subscribe(providers => {
     callProviders(providers);
   });
@@ -80,7 +87,18 @@ async function callProviders(_providers: readonly ImageCheckerInfo[]) {
         });
         results = [...results];
       })
-      .catch((e: unknown) => console.log('check error', e));
+      .catch((error: unknown) => {
+        if (error instanceof Error) {
+          remainingProviders--;
+          providerErrors = [
+            ...providerErrors,
+            {
+              provider,
+              error,
+            },
+          ];
+        }
+      });
   });
 }
 
@@ -108,6 +126,13 @@ function handleAbort() {
   </div>
 {/if}
 <div class="h-full overflow-y-auto">
+  {#if providerErrors?.length}
+    <div class="m-5">
+      {#each providerErrors as providerError}
+        <WarningMessage error="{providerError.provider.label}: {providerError.error}" />
+      {/each}
+    </div>
+  {/if}
   {#each results as result}
     <div class="bg-charcoal-700 rounded-lg m-2 p-2">
       <div
