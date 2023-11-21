@@ -50,17 +50,11 @@ beforeAll(() => {
   providerRegistry.runAutostart = mockRunAutostart;
 });
 
-test('Check that default value is false if provider autostart setting is undefined and old global setting is false', async () => {
-  vi.spyOn(configurationRegistry, 'getConfiguration').mockImplementation((section?: string) => {
-    if (section === `preferences.${extensionId}`) {
-      return {
-        get: (_section: string) => undefined,
-      } as Configuration;
-    } else {
-      return {
-        get: (_section: string) => false,
-      } as Configuration;
-    }
+test('Check that default value is false if provider autostart setting is false', async () => {
+  vi.spyOn(configurationRegistry, 'getConfiguration').mockImplementation(() => {
+    return {
+      get: (_section: string, _defaultValue: boolean) => false,
+    } as Configuration;
   });
 
   const autoStartConfigurationNode: IConfigurationNode = {
@@ -85,23 +79,10 @@ test('Check that default value is false if provider autostart setting is undefin
   expect(mockRegisterConfiguration).toBeCalledWith([autoStartConfigurationNode]);
 });
 
-test('Check that old global setting is not checked if provider autostart setting is already set', async () => {
-  const getConfigurationMock = vi.spyOn(configurationRegistry, 'getConfiguration').mockImplementation(() => {
-    return {
-      get: (_section: string) => false,
-    } as Configuration;
-  });
-
-  const disposable = autostartEngine.registerProvider(extensionId, extensionDisplayName, 'internalId');
-  disposable.dispose();
-  expect(getConfigurationMock).toBeCalledTimes(1);
-  expect(getConfigurationMock).toBeCalledWith(`preferences.${extensionId}`);
-});
-
-test('Check that default value is true if neither provider autostart setting nor old autostart setting are set', async () => {
+test('Check that default value is true if provider autostart setting is not set', async () => {
   vi.spyOn(configurationRegistry, 'getConfiguration').mockImplementation(() => {
     return {
-      get: (_section: string) => undefined,
+      get: (_section: string, defaultValue: boolean) => defaultValue,
     } as Configuration;
   });
 
@@ -131,7 +112,7 @@ test('Check that default value is true if neither provider autostart setting nor
 test('Check that runAutostart is called once if only one provider has registered autostart process', async () => {
   vi.spyOn(configurationRegistry, 'getConfiguration').mockImplementation(() => {
     return {
-      get: (_section: string) => true,
+      get: (_section: string, _defaultValue: boolean) => true,
     } as Configuration;
   });
 
@@ -146,7 +127,7 @@ test('Check that runAutostart is called once if only one provider has registered
 test('Check that runAutostart is never called if only one provider has registered autostart process but its setting is false', async () => {
   vi.spyOn(configurationRegistry, 'getConfiguration').mockImplementation(() => {
     return {
-      get: (_section: string) => false,
+      get: (_section: string, _defaultValue: boolean) => false,
     } as Configuration;
   });
 
@@ -161,7 +142,7 @@ test('Check that runAutostart is never called if only one provider has registere
 test('Check that runAutostart is called twice if only two providers has registered autostart process', async () => {
   vi.spyOn(configurationRegistry, 'getConfiguration').mockImplementation(() => {
     return {
-      get: (_section: string) => true,
+      get: (_section: string, _defaultValue: boolean) => true,
     } as Configuration;
   });
 

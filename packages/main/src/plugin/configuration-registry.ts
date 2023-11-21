@@ -173,7 +173,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
         // register default if not yet set
         if (
           configProperty.default &&
-          !configProperty.scope &&
+          this.isDefaultScope(configProperty.scope) &&
           this.configurationValues.get(CONFIGURATION_DEFAULT_SCOPE)[key] === undefined
         ) {
           this.configurationValues.get(CONFIGURATION_DEFAULT_SCOPE)[key] = configProperty.default;
@@ -189,6 +189,16 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
       this._onDidUpdateConfiguration.fire({ properties });
     }
     return properties;
+  }
+
+  private isDefaultScope(scope?: ConfigurationScope | ConfigurationScope[]): boolean {
+    if (!scope) {
+      return true;
+    }
+    if (Array.isArray(scope) && scope.find(s => s === CONFIGURATION_DEFAULT_SCOPE)) {
+      return true;
+    }
+    return scope === CONFIGURATION_DEFAULT_SCOPE;
   }
 
   public deregisterConfigurations(configurations: IConfigurationNode[]): void {
