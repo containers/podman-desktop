@@ -36,12 +36,14 @@ $: {
     }
   } else {
     if (type === 'primary') {
-      classes = 'bg-purple-600 border-none text-white hover:bg-purple-500 rounded-[4px] text-[13px]';
+      classes =
+        'bg-purple-400 dark:bg-purple-600 border-none text-charcoal-900 dark:text-white hover:bg-purple-500 rounded-[4px] text-[13px]';
     } else if (type === 'secondary') {
       classes =
-        'border-[1px] border-gray-200 text-white hover:border-purple-500 hover:text-purple-500 rounded-[4px] text-[13px]';
+        'border-[1px] border-gray-200 text-charcoal-900 dark:text-white hover:border-purple-500 hover:text-purple-500 rounded-[4px] text-[13px]';
     } else if (type === 'tab') {
-      classes = 'pb-2 border-b-[3px] border-charcoal-700 hover:cursor-pointer py-2 text-gray-600 no-underline';
+      classes =
+        'pb-2 border-b-[3px] border-charcoal-700 hover:cursor-pointer py-2 text-charcoal-700 dark:text-gray-600 no-underline';
     } else {
       classes = 'border-none text-purple-400 hover:bg-white hover:bg-opacity-10 rounded-[4px] text-[13px]';
     }
@@ -51,10 +53,10 @@ $: {
 
 <button
   type="button"
-  class="relative {padding} box-border whitespace-nowrap select-none transition-all {classes} {$$props.class || ''}"
+  class="relative {padding} box-border whitespace-nowrap select-none transition-all {classes} {$$props.class ||
+    ''} {type === 'tab' && selected ? 'text-charcoal-900 dark:text-white' : ''}"
   class:border-purple-500="{type === 'tab' && selected}"
   class:hover:border-charcoal-100="{type === 'tab' && !selected}"
-  class:text-white="{type === 'tab' && selected}"
   title="{title}"
   aria-label="{$$props['aria-label']}"
   on:click

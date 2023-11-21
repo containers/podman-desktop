@@ -134,10 +134,13 @@ function onInstallationClick() {
 }
 </script>
 
-<div class="p-2 flex flex-col bg-charcoal-800 rounded-lg" role="region" aria-label="{provider.name} Provider">
+<div
+  class="p-2 flex flex-col bg-gray-200 dark:bg-charcoal-800 rounded-lg"
+  role="region"
+  aria-label="{provider.name} Provider">
   <ProviderLogo provider="{provider}" />
   <div class="flex flex-col items-center text-center">
-    <p class="text-xl text-gray-400" aria-label="Actual State">
+    <p class="text-xl text-gray-900 dark:text-gray-400" aria-label="Actual State">
       {provider.name}
       {#if provider.version}
         v{provider.version}
@@ -164,7 +167,7 @@ function onInstallationClick() {
       <div
         class="-z-1 min-w-[130px] m-auto bg-primary text-[13px] text-white"
         class:hidden="{!installationOptionsMenuVisible}">
-        <ul class="w-full outline-none bg-charcoal-800 rounded-sm placeholder-gray-700">
+        <ul class="w-full outline-none bg-gray-200 dark:bg-charcoal-800 rounded-sm placeholder-gray-700">
           <li>
             <button
               class="w-full p-2 {installationOptionSelected === InitializeOnlyMode

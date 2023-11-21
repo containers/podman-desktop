@@ -33,7 +33,7 @@ export class AppearanceInit {
           type: 'string',
           enum: ['system', 'dark', 'light'],
           default: 'system',
-          hidden: true,
+          hidden: false,
         },
       },
     };

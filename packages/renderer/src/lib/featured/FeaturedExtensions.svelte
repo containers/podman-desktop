@@ -12,7 +12,7 @@ import FeaturedExtensionDownload from './FeaturedExtensionDownload.svelte';
     <div
       title="{featuredExtension.description}"
       class="rounded-md
-               bg-charcoal-800 flex flex-row justify-center p-4 h-20 border-2 border-charcoal-800 hover:border-dustypurple-500"
+               bg-gray-200 dark:bg-charcoal-800 flex flex-row justify-center p-4 h-20 border-2 border-charcoal-800 hover:border-dustypurple-500"
       aria-label="{featuredExtension.displayName}">
       <div class=" flex flex-col flex-1">
         <div class="flex flex-row place-items-center flex-1">

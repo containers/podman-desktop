@@ -11,14 +11,17 @@ export let provider: ProviderInfo;
 let preflightChecks: CheckStatus[] = [];
 </script>
 
-<div class="p-2 flex flex-col bg-charcoal-800 rounded-lg" role="region" aria-label="{provider.name} Provider">
+<div
+  class="p-2 flex flex-col bg-gray-200 dark:bg-charcoal-800 rounded-lg"
+  role="region"
+  aria-label="{provider.name} Provider">
   <ProviderLogo provider="{provider}" />
   <div class="flex flex-col items-center text-center">
-    <p class="text-xl text-gray-400" aria-label="Actual State">
+    <p class="text-xl text-gray-900 dark:text-gray-400" aria-label="Actual State">
       {provider.name} is running
     </p>
     {#if provider.version}
-      <p class="text-base capitalize font-semibold text-gray-700" aria-label="Provider Version">
+      <p class="text-base capitalize font-semibold text-gray-800 dark:text-gray-700" aria-label="Provider Version">
         version {provider.version}
       </p>
     {/if}

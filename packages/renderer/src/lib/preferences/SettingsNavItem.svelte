@@ -26,8 +26,9 @@ function rotate(node: unknown, { clockwise = true }) {
 
 <a class="no-underline" href="{href}" aria-label="{title}" on:click="{() => (expanded = !expanded)}">
   <div
-    class="flex w-full pr-1 justify-between items-center cursor-pointer border-l-[4px] border-charcoal-600"
-    class:text-white="{selected}"
+    class="flex w-full pr-1 justify-between items-center cursor-pointer border-l-[4px] border-gray-800 dark:border-charcoal-600"
+    class:text-charcoal-900="{selected}"
+    class:dark:text-white="{selected}"
     class:py-3="{!child}"
     class:pl-3="{!child}"
     class:py-2="{child}"
@@ -36,12 +37,18 @@ function rotate(node: unknown, { clockwise = true }) {
     class:text-sm="{child}"
     class:font-extralight="{child}"
     class:font-semibold="{!child}"
-    class:bg-charcoal-300="{selected}"
-    class:border-purple-500="{selected}"
-    class:text-gray-400="{!selected}"
-    class:hover:text-gray-300="{!selected}"
-    class:hover:bg-charcoal-500="{!selected}"
-    class:hover:border-charcoal-500="{!selected}">
+    class:bg-gray-800="{selected}"
+    class:dark:bg-charcoal-300="{selected}"
+    class:border-purple-700="{selected}"
+    class:dark:border-purple-500="{selected}"
+    class:text-charcoal-300="{!selected}"
+    class:dark:text-gray-400="{!selected}"
+    class:hover:text-charcoal-700="{!selected}"
+    class:dark:hover:text-gray-300="{!selected}"
+    class:hover:bg-charcoal-50="{!selected}"
+    class:dark:hover:bg-charcoal-500="{!selected}"
+    class:hover:border-charcoal-50="{!selected}"
+    class:dark:hover:border-charcoal-500="{!selected}">
     <span class="block group-hover:block" class:capitalize="{!child}">{title}</span>
     {#if section}
       <div class="px-2 relative w-4 h-4">

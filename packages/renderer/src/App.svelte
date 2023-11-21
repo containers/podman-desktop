@@ -63,7 +63,8 @@ window.events?.receive('display-troubleshooting', () => {
 </script>
 
 <Route path="/*" breadcrumb="Home" let:meta>
-  <main class="flex flex-col w-screen h-screen overflow-hidden bg-charcoal-800">
+  {@const urlStartsWithPreferences = meta.url.startsWith('/preferences')}
+  <main class="flex flex-col w-screen h-screen overflow-hidden bg-gray-200 dark:bg-charcoal-800">
     <IconsStyle />
     <Appearance />
     <TitleBar />
@@ -77,14 +78,16 @@ window.events?.receive('display-troubleshooting', () => {
       <CustomPick />
       <CommandPalette />
       <AppNavigation meta="{meta}" exitSettingsCallback="{() => router.goto(nonSettingsPage)}" />
-      {#if meta.url.startsWith('/preferences')}
+      {#if urlStartsWithPreferences}
         <PreferencesNavigation meta="{meta}" />
       {/if}
 
       <div
         class="flex flex-col w-full h-full overflow-hidden"
-        class:bg-charcoal-700="{!meta.url.startsWith('/preferences')}"
-        class:bg-charcoal-800="{meta.url.startsWith('/preferences')}">
+        class:bg-gray-400="{!urlStartsWithPreferences}"
+        class:dark:bg-charcoal-700="{!urlStartsWithPreferences}"
+        class:bg-gray-200="{urlStartsWithPreferences}"
+        class:dark:bg-charcoal-800="{urlStartsWithPreferences}">
         <TaskManager />
         <SendFeedback />
         <ToastHandler />

@@ -57,9 +57,7 @@ async function awaitRender(): Promise<RenderResult<Appearance>> {
   return result;
 }
 
-// temporary as only dark mode is supported as rendering for now
-// it should return empty later
-test('Expect dark mode using system when OS is set to light', async () => {
+test('Expect light mode using system when OS is set to light', async () => {
   (window as any).matchMedia = vi.fn().mockReturnValue({
     matches: false,
     addEventListener: vi.fn(),
@@ -72,8 +70,8 @@ test('Expect dark mode using system when OS is set to light', async () => {
 
   const val = getRootElementClassesValue(container);
 
-  // expect to have class being "dark" as for now we force dark mode in system mode
-  expect(val).toBe('dark');
+  // expect to have class being "" as no dark mode if matchMedia matches if false
+  expect(val).toBe('');
 });
 
 test('Expect dark mode using system when OS is set to dark', async () => {
