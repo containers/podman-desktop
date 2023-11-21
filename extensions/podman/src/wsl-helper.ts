@@ -61,8 +61,7 @@ function getVersionFromWSLOutput(line: string, value: string): string {
 }
 
 /**
- * WSL uses a different encoding based on the default system language (utf-8 for english, utf-16 for chinese)
- * when using a non-latin language like chinese, WSL also uses a different value for the colon symbol
+ * When using a non-latin language like chinese, WSL also uses a different value for the colon symbol
  * There are three colons:
  * symbol | name            | number
  * :      | vertical colon  | 58

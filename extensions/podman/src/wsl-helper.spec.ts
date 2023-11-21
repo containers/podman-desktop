@@ -59,7 +59,7 @@ Windows version: 10.0.22621.2134
   expect(windowsVersion).toBe('10.0.22621.2134');
 
   // expect called with wsl --version
-  expect(extensionApi.process.exec).toHaveBeenCalledWith('wsl', ['--version']);
+  expect(extensionApi.process.exec).toHaveBeenCalledWith('wsl', ['--version'], { encoding: 'utf16le' });
 });
 
 test('should grab correct versions even with an output with a language different from english', async () => {
@@ -83,5 +83,28 @@ test('should grab correct versions even with an output with a language different
   expect(windowsVersion).toBe('10.0.22621.2283');
 
   // expect called with wsl --version
-  expect(extensionApi.process.exec).toHaveBeenCalledWith('wsl', ['--version']);
+  expect(extensionApi.process.exec).toHaveBeenCalledWith('wsl', ['--version'], { encoding: 'utf16le' });
+});
+
+test('should grab correct versions even with an output in chinese', async () => {
+  const wslOutput = `WSL 版本： 2.0.4.0
+  内核版本： 5.15.123.1-1
+  WSLg 版本： 1.0.58
+  MSRDC 版本： 1.2.4485
+  Direct3D 版本： 1.608.2-61064218
+  DXCore 版本： 10.0.25880.1000-230602-1350.main
+  Windows 版本： 10.0.22621.2715
+`;
+
+  (extensionApi.process.exec as Mock).mockReturnValue({
+    stdout: wslOutput,
+  } as extensionApi.RunResult);
+
+  const wslVersionInfo = await wslHelper.getWSLVersionData();
+
+  expect(wslVersionInfo.wslVersion).toBe('2.0.4.0');
+  expect(wslVersionInfo.windowsVersion).toBe('10.0.22621.2715');
+
+  // expect called with wsl --version
+  expect(extensionApi.process.exec).toHaveBeenCalledWith('wsl', ['--version'], { encoding: 'utf16le' });
 });
