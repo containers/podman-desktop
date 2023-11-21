@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect, test, vi } from 'vitest';
-import { Proxy } from '/@/plugin/proxy.js';
+import { describe, expect, test, vi } from 'vitest';
+import { ensureURL, Proxy } from '/@/plugin/proxy.js';
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
 import * as http from 'http';
 import { createProxy, type ProxyServer } from 'proxy';
@@ -75,4 +75,27 @@ test('fetch with http proxy', async () => {
   proxyServer.on('connect', () => (connectDone = true));
   await fetch(URL);
   expect(connectDone).toBeTruthy();
+});
+
+describe.each([
+  { original: '127.0.0.1', converted: 'http://127.0.0.1' },
+  { original: '127.0.0.1:8080', converted: 'http://127.0.0.1:8080' },
+  { original: '192.168.1.1', converted: 'http://192.168.1.1' },
+  { original: '192.168.1.1:8080', converted: 'http://192.168.1.1:8080' },
+  { original: 'myhostname', converted: 'http://myhostname' },
+  { original: 'myhostname:8080', converted: 'http://myhostname:8080' },
+  { original: 'myhostname.domain.com', converted: 'http://myhostname.domain.com' },
+  { original: 'myhostname.domain.com:8080', converted: 'http://myhostname.domain.com:8080' },
+  { original: 'http://127.0.0.1', converted: 'http://127.0.0.1' },
+  { original: 'http://127.0.0.1:8080', converted: 'http://127.0.0.1:8080' },
+  { original: 'http://192.168.1.1', converted: 'http://192.168.1.1' },
+  { original: 'http://192.168.1.1:8080', converted: 'http://192.168.1.1:8080' },
+  { original: 'http://myhostname', converted: 'http://myhostname' },
+  { original: 'http://myhostname:8080', converted: 'http://myhostname:8080' },
+  { original: 'http://myhostname.domain.com', converted: 'http://myhostname.domain.com' },
+  { original: 'http://myhostname.domain.com:8080', converted: 'http://myhostname.domain.com:8080' },
+])('Ensure URL returns corrected value', ({ original, converted }) => {
+  test(`Ensure ${original} is converted to ${converted}`, () => {
+    expect(ensureURL(original)).toBe(converted);
+  });
 });

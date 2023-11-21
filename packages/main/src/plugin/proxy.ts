@@ -22,6 +22,30 @@ import { Emitter } from './events/emitter.js';
 import { getProxyUrl } from './proxy-resolver.js';
 import { ProxyAgent } from 'undici';
 
+export function ensureURL(urlstring: string | undefined): string | undefined {
+  if (urlstring) {
+    try {
+      const url = new URL(urlstring);
+      if (url.hostname) {
+        return urlstring;
+      }
+    } catch (err) {
+      /* empty */
+    }
+    return `http://${urlstring}`;
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function asURL(url: any): URL {
+  if (url instanceof URL) {
+    return url;
+  } else if (typeof url === 'string') {
+    return new URL(url);
+  }
+  return new URL((url as Request).url);
+}
+
 /**
  * Handle proxy settings for Podman Desktop
  */
@@ -93,14 +117,16 @@ export class Proxy {
     const isEnabled = proxyConfiguration.get<boolean>('enabled') || false;
 
     this.proxySettings = {
-      httpProxy,
-      httpsProxy,
+      httpProxy: ensureURL(httpProxy),
+      httpsProxy: ensureURL(httpsProxy),
       noProxy,
     };
     this.proxyState = isEnabled;
   }
 
   async setProxy(proxy: ProxySettings): Promise<void> {
+    proxy.httpProxy = ensureURL(proxy.httpProxy);
+    proxy.httpsProxy = ensureURL(proxy.httpsProxy);
     // notify
     this._onDidUpdateProxy.fire(proxy);
 
@@ -141,7 +167,7 @@ export class Proxy {
     const _me = this;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     globalThis.fetch = function (url: any, opts?: any) {
-      const proxyurl = getProxyUrl(_me);
+      const proxyurl = getProxyUrl(_me, asURL(url).protocol === 'https');
       if (proxyurl) {
         opts = Object.assign({}, opts, { dispatcher: new ProxyAgent(proxyurl) });
       }
