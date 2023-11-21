@@ -25,9 +25,10 @@ import PodsList from '/@/lib/pod/PodsList.svelte';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { get } from 'svelte/store';
 import { providerInfos } from '/@/stores/providers';
-import { podsInfos } from '/@/stores/pods';
+import { filtered, podsInfos } from '/@/stores/pods';
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
 import { router } from 'tinro';
+import userEvent from '@testing-library/user-event';
 
 const getProvidersInfoMock = vi.fn();
 const listPodsMock = vi.fn();
@@ -491,4 +492,108 @@ test('Expect the manyPod row to show 9 dots representing every status', async ()
 
   expect(statusDots[8].title).toBe('Dead: 1');
   expect(statusDots[8]).toHaveClass('bg-status-dead');
+});
+
+const runningPod: PodInfo = {
+  Cgroup: '',
+  // Three containers within the pod, one running, one terminated, one exited
+  Containers: [
+    {
+      Names: 'container1',
+      Id: 'container1',
+      Status: 'running',
+    },
+  ],
+  Created: '',
+  Id: 'beab25123a40',
+  InfraId: 'pod1',
+  Labels: {},
+  Name: 'pod1',
+  Namespace: '',
+  Networks: [],
+  Status: 'Running',
+  engineId: 'podman',
+  engineName: 'podman',
+  kind: 'podman',
+};
+
+const stoppedPod: PodInfo = {
+  Cgroup: '',
+  Containers: [
+    {
+      Names: 'container4',
+      Id: 'container4',
+      Status: 'stopped',
+    },
+  ],
+  Created: '',
+  Id: 'e8129c5720b3',
+  InfraId: 'pod2',
+  Labels: {},
+  Name: 'pod2',
+  Namespace: '',
+  Networks: [],
+  Status: 'Stopped',
+  engineId: 'podman',
+  engineName: 'podman',
+  kind: 'podman',
+};
+
+test('Expect All tab to show all pods running and stopped (not running)', async () => {
+  getProvidersInfoMock.mockResolvedValue([provider]);
+  listPodsMock.mockResolvedValue([stoppedPod, runningPod]);
+  kubernetesListPodsMock.mockResolvedValue([]);
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+
+  render(PodsList);
+
+  await vi.waitUntil(() => get(providerInfos).length === 1 && get(filtered).length === 2, { timeout: 5000 });
+
+  expect(get(filtered)).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ Status: 'Running' }),
+      expect.objectContaining({ Status: 'Stopped' }),
+    ]),
+  );
+});
+
+test('Expect Running tab to show running pods only', async () => {
+  getProvidersInfoMock.mockResolvedValue([provider]);
+  listPodsMock.mockResolvedValue([stoppedPod, runningPod]);
+  kubernetesListPodsMock.mockResolvedValue([]);
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+
+  render(PodsList);
+
+  await vi.waitUntil(() => get(providerInfos).length === 1 && get(filtered).length === 2, { timeout: 5000 });
+
+  const runningTab = screen.getByRole('button', { name: 'Running' });
+
+  await userEvent.click(runningTab);
+
+  await vi.waitUntil(() => get(filtered).length === 1, { timeout: 5000 });
+
+  expect(get(filtered)).toEqual(expect.arrayContaining([expect.objectContaining({ Status: 'Running' })]));
+});
+
+test('Expect Stopped tab to show stopped (not running) pods only', async () => {
+  getProvidersInfoMock.mockResolvedValue([provider]);
+  listPodsMock.mockResolvedValue([stoppedPod, runningPod]);
+  kubernetesListPodsMock.mockResolvedValue([]);
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+
+  render(PodsList);
+
+  await vi.waitUntil(() => get(providerInfos).length === 1 && get(filtered).length === 2, { timeout: 5000 });
+
+  const runningTab = screen.getByRole('button', { name: 'Stopped' });
+
+  await userEvent.click(runningTab);
+
+  await vi.waitUntil(() => get(filtered).length === 1, { timeout: 5000 });
+
+  expect(get(filtered)).toEqual(expect.arrayContaining([expect.objectContaining({ Status: 'Stopped' })]));
 });
