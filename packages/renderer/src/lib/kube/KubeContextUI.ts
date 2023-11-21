@@ -16,60 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Cluster, Context } from '@kubernetes/client-node';
+import type { Context } from '@kubernetes/client-node';
 import { kubernetesIconBase64 } from './KubeIcon';
+import type { KubeContext } from '../../../../main/src/plugin/kubernetes-context';
 
-export interface KubeContextClusterUI {
-  name: string;
-  server: string;
-  skipTLSVerify?: boolean;
-  tlsServerName?: string;
-}
-
-export interface KubeConnectionInfo {
-  online: boolean; // Checks if the cluster is online via checkConnection
-}
-
-export interface KubeContextUI {
-  name: string;
-  cluster: string;
-  user: string;
-  clusterInfo?: KubeContextClusterUI;
-  icon?: string;
-  // error to display in case of deletion (or other operation) error
-  error?: string;
-}
-
-// Function that takes in the clusters and contexts and returns the KubeContextUI
-// for the UI to use.
-// If the cluster is not found, the clusterInfo will be undefined.
-export function getKubeUIContexts(contexts: Context[], clusters: Cluster[]): KubeContextUI[] {
-  const kubeContexts: KubeContextUI[] = [];
-
-  // Go through each context
-  contexts.forEach(context => {
-    // Try and find the cluster
-    const cluster = clusters.find(c => c.name === context.cluster);
-
-    // If the cluster is not found, just return undefined for clusterInfo
-    // as sometimes in the context we have information, but nothing about
-    // the cluster.
-    kubeContexts.push({
-      name: context.name,
-      cluster: context.cluster,
-      user: context.user,
-      icon: kubernetesIconBase64,
-      clusterInfo: cluster
-        ? {
-            name: cluster.name,
-            server: cluster.server,
-            skipTLSVerify: cluster.skipTLSVerify,
-            tlsServerName: cluster.tlsServerName,
-          }
-        : undefined,
-    });
+// Function that goes through KubeContext and adds kubernetesIconBase64 icon to each context
+// TODO: In the future we will analyze which icon to use based on the cluster name and cluster information
+// We have this in here rather than /plugin because this is UI related.
+export function addIconToContexts(contexts: KubeContext[]): KubeContext[] {
+  return contexts.map(ctx => {
+    return { ...ctx, icon: kubernetesIconBase64 };
   });
-  return kubeContexts;
 }
 
 export function setKubeUIContextError(contexts: Context[], contextName: string, error: Error): Context[] {

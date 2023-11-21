@@ -18,7 +18,8 @@
 
 import { writable, type Writable } from 'svelte/store';
 import { EventStore } from './event-store';
-import { getKubeUIContexts, type KubeContextUI } from '../lib/kube/KubeContextUI';
+import type { KubeContext } from '../../../main/src/plugin/kubernetes-context';
+import { addIconToContexts } from '../lib/kube/KubeContextUI';
 
 const windowEvents: string[] = ['extensions-started', 'kubernetes-context-update'];
 const windowListeners = ['extensions-already-started'];
@@ -34,9 +35,9 @@ export async function checkForUpdate(eventName: string): Promise<boolean> {
   return readyToUpdate;
 }
 
-export const kubernetesContexts: Writable<KubeContextUI[]> = writable([]);
+export const kubernetesContexts: Writable<KubeContext[]> = writable([]);
 
-const eventStore = new EventStore<KubeContextUI[]>(
+const eventStore = new EventStore<KubeContext[]>(
   'kubernetes contexts',
   kubernetesContexts,
   checkForUpdate,
@@ -46,11 +47,10 @@ const eventStore = new EventStore<KubeContextUI[]>(
 );
 eventStore.setup();
 
-export async function grabKubernetesContexts(): Promise<KubeContextUI[]> {
-  // Retrieve both the contexts and clusters
-  const k8sContexts = await window.kubernetesGetContexts();
-  const k8sClusters = await window.kubernetesGetClusters();
+export async function grabKubernetesContexts(): Promise<KubeContext[]> {
+  // Retrieve the detailed contexts which includes cluster information, current context, etc.
+  const contexts = await window.kubernetesGetDetailedContexts();
 
-  // Convert them to KubeContextUI so we can safely render them.
-  return getKubeUIContexts(k8sContexts, k8sClusters);
+  // Add the icon to each context and return it
+  return addIconToContexts(contexts);
 }
