@@ -23,11 +23,7 @@ import * as path from 'node:path';
 
 afterEach(async (context: RunnerTestContext) => {
   context.onTestFailed(async () => {
-    const normalizedFilePath = context.task.name
-      .replace(/'/g, '')
-      .replace(/\//g, '_')
-      .replace(/:/g, '_')
-      .replace(/ /g, '_');
+    const normalizedFilePath = context.task.name.replace(/([/: ])/g, '_').replace(/(['"><|*?\r\n])/g, '');
     let fileName = `${normalizedFilePath}_failure`;
     let counter = 0;
     while (fs.existsSync(path.resolve(context.pdRunner.getTestOutput(), 'screenshots', `${fileName}.png`))) {
