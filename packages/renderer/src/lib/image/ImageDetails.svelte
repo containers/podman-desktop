@@ -68,9 +68,7 @@ onMount(() => {
 
 onDestroy(() => {
   // unsubscribe from the store
-  if (providersUnsubscribe) {
-    providersUnsubscribe();
-  }
+  providersUnsubscribe?.();
 });
 </script>
 

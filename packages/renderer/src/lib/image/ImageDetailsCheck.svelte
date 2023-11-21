@@ -35,9 +35,7 @@ onMount(async () => {
 
 onDestroy(() => {
   // unsubscribe from the store
-  if (providersUnsubscribe) {
-    providersUnsubscribe();
-  }
+  providersUnsubscribe?.();
 });
 
 async function callProviders(_providers: readonly ImageCheckerInfo[]) {
