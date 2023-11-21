@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 
-const { createServer, build, createLogger } = require('vite');
-const electronPath = require('electron');
-const { spawn } = require('child_process');
-const { generateAsync } = require('dts-for-context-bridge');
-const path = require('path');
+import { createServer, build, createLogger } from 'vite';
+import electronPath from 'electron';
+import { spawn } from 'child_process';
+import { generateAsync } from 'dts-for-context-bridge';
+import { dirname, resolve } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /** @type 'production' | 'development'' */
 const mode = (process.env.MODE = process.env.MODE || 'development');
@@ -142,7 +145,7 @@ const setupPreloadDockerExtensionPackageWatcher = ({ ws }) =>
  */
 const setupExtensionApiWatcher = name => {
   let spawnProcess;
-  const folderName = path.resolve(name);
+  const folderName = resolve(name);
 
   console.log('dirname is', folderName);
   spawnProcess = spawn('yarn', ['--cwd', folderName, 'watch'], { shell: process.platform === 'win32' });
@@ -159,7 +162,7 @@ const setupExtensionApiWatcher = name => {
 };
 
 const setupBuiltinExtensionApiWatcher = name => {
-  setupExtensionApiWatcher(path.resolve(__dirname, '../extensions/' + name));
+  setupExtensionApiWatcher(resolve(__dirname, '../extensions/' + name));
 }
 
 (async () => {
@@ -167,7 +170,7 @@ const setupBuiltinExtensionApiWatcher = name => {
     const extensions = []
     for(let index=0; index < process.argv.length;index++) {
       if (process.argv[index] === EXTENSION_OPTION && index < process.argv.length - 1) {
-        extensions.push(path.resolve(process.argv[++index]));
+        extensions.push(resolve(process.argv[++index]));
       }
     }
     const viteDevServer = await createServer({
