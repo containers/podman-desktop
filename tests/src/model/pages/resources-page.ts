@@ -19,19 +19,13 @@
 import type { Locator, Page } from 'playwright';
 import { SettingsPage } from './settings-page';
 
-export class ExtensionPage extends SettingsPage {
+export class ResourcesPage extends SettingsPage {
   readonly heading: Locator;
-  readonly enableButton: Locator;
-  readonly disableButton: Locator;
-  readonly removeExtensionButton: Locator;
-  readonly status: Locator;
+  readonly featuredProviderResources: Locator;
 
-  constructor(page: Page, extensionTitle: string, heading: string) {
-    super(page, extensionTitle);
-    this.heading = page.getByText(heading);
-    this.enableButton = page.getByRole('button', { name: 'Enable' });
-    this.disableButton = page.getByRole('button', { name: 'Disable' });
-    this.removeExtensionButton = page.getByRole('button', { name: 'Remove' });
-    this.status = page.getByLabel('connection-status-label');
+  constructor(page: Page) {
+    super(page, 'Resources');
+    this.heading = page.getByRole('heading', { name: 'Resources' });
+    this.featuredProviderResources = page.getByRole('region', { name: 'Featured Provider Resources' });
   }
 }
