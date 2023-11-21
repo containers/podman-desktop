@@ -98,7 +98,7 @@ test('Expect light mode using light configuration', async () => {
   // expect to have class being ""  as we should be in light mode
   expect(getRootElementClassesValue(container)).toBe('');
 
-  // expect to have color-scheme: dark
+  // expect to have color-scheme: light
   expect(getRootElement(container)).toHaveStyle('color-scheme: light');
 });
 
