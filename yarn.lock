@@ -3787,10 +3787,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/stream-json@^1.7.6":
-  version "1.7.6"
-  resolved "https://registry.yarnpkg.com/@types/stream-json/-/stream-json-1.7.6.tgz#e7ff3aa65678fe6fe47f2d0b49465953b2cf0739"
-  integrity sha512-ABja1RSTb7mImRPO665nxLHsLsuUEGNC1QC57Z4UQs835PIZHrLfQ9gMM+71+E9Tx5bZSNsyg1zaVThwZvgU4Q==
+"@types/stream-json@^1.7.7":
+  version "1.7.7"
+  resolved "https://registry.yarnpkg.com/@types/stream-json/-/stream-json-1.7.7.tgz#8660101e15ee52e9a2370727334269ad7ec6a759"
+  integrity sha512-hHG7cLQ09H/m9i0jzL6UJAeLLxIWej90ECn0svO4T8J0nGcl89xZDQ2ujT4WKlvg0GWkcxJbjIDzW/v7BYUM6Q==
   dependencies:
     "@types/node" "*"
     "@types/stream-chain" "*"
