@@ -28,8 +28,10 @@ async function updateAppearance(): Promise<void> {
   // toggle the dark class on the html element
   if (isDark) {
     html.classList.add('dark');
+    html.setAttribute('style', 'color-scheme: dark;');
   } else {
     html.classList.remove('dark');
+    html.setAttribute('style', 'color-scheme: light;');
   }
 }
 
