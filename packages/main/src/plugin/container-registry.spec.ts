@@ -146,7 +146,7 @@ class TestContainerProviderRegistry extends ContainerProviderRegistry {
   }
 
   setRetryDelayEvents(delay: number): void {
-    super.retryDelayEvents = delay;
+    this.retryDelayEvents = delay;
   }
 }
 
