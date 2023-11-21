@@ -35,14 +35,17 @@ beforeEach(() => {
   });
 });
 
-function getRootElementClassesValue(container: HTMLElement): string | undefined {
+function getRootElement(container: HTMLElement): HTMLElement {
   // get root html element
   let rootElement: HTMLElement | null = container;
   while (rootElement?.parentElement) {
     rootElement = container.parentElement;
   }
+  return rootElement as HTMLElement;
+}
 
-  return rootElement?.classList.value;
+function getRootElementClassesValue(container: HTMLElement): string | undefined {
+  return getRootElement(container).classList.value;
 }
 
 async function awaitRender(): Promise<RenderResult<Appearance>> {
@@ -94,6 +97,9 @@ test('Expect light mode using light configuration', async () => {
 
   // expect to have class being ""  as we should be in light mode
   expect(getRootElementClassesValue(container)).toBe('');
+
+  // expect to have color-scheme: dark
+  expect(getRootElement(container)).toHaveStyle('color-scheme: light');
 });
 
 test('Expect dark mode using dark configuration', async () => {
@@ -101,6 +107,9 @@ test('Expect dark mode using dark configuration', async () => {
 
   const { container } = await awaitRender();
 
-  // expect to have class being "dark"  as we should be in light mode
+  // expect to have class being "dark" as we should be in light mode
   expect(getRootElementClassesValue(container)).toBe('dark');
+
+  // expect to have color-scheme: dark
+  expect(getRootElement(container)).toHaveStyle('color-scheme: dark');
 });
