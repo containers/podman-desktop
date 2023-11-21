@@ -65,7 +65,7 @@
     "test:renderer": "vitest -c packages/renderer/vite.config.js run packages/renderer --passWithNoTests --coverage",
     "test:tools": "vitest run tools --passWithNoTests --coverage",
     "test:watch": "vitest watch",
-    "watch": "node scripts/watch.cjs",
+    "watch": "node scripts/watch.mjs",
     "format:check": "prettier --cache --check \"{extensions,packages,tests,types,tools,website-argos}/**/*.{ts,svelte}\" \"extensions/*/scripts/build.js\" \"website/**/*.{md,js}\" \"website/src/**/*.{css,tsx}\"",
     "format:fix": "prettier --cache --write \"{extensions,packages,tests,types,tools,website-argos}/**/*.{ts,svelte}\" \"extensions/*/scripts/build.js\" \"website/**/*.{md,js}\" \"website/src/**/*.{css,tsx}\"",
     "markdownlint:check": "markdownlint-cli2 \"website/**/*.md\" \"#website/node_modules\"",
