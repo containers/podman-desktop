@@ -36,4 +36,4 @@ Podman Desktop can install the Compose engine.
 #### Additional resources
 
 - (Alternatively) Use an alternative Compose implementation in Python with Podman integration: [install Podman Compose](https://github.com/containers/podman-compose#installation).
-- (Alternatively) [Download and install Compose yourself](https://github.com/docker/compose/relases).
+- (Alternatively) [Download and install Compose yourself](https://github.com/docker/compose/releases).
