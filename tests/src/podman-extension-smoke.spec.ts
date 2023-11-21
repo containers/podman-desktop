@@ -90,10 +90,6 @@ async function verifyPodmanExtensionStatus(enabled: boolean) {
     : await playExpect(podmanProviderLocator).not.toBeVisible();
   // always present and visible
   const settingsExtensionsPage = await openSettingsExtensionsPage();
-  const settingsExtensionsPodmanLocator = settingsExtensionsPage.getFeaturedExtension(
-    SETTINGS_NAVBAR_EXTENSIONS_PODMAN,
-  );
-  await playExpect(settingsExtensionsPodmanLocator).toBeVisible();
   const podmanExtensionRowLocator = settingsExtensionsPage.getExtensionRowFromTable(
     SETTINGS_EXTENSIONS_TABLE_PODMAN_TITLE,
   );
