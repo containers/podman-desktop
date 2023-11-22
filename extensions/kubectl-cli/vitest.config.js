@@ -17,6 +17,10 @@
  ***********************************************************************/
 
 import path from 'node:path';
+import { coverageConfig, testConfig } from '../../vitest-shared-extensions.config';
+
+const PACKAGE_ROOT = __dirname;
+const PACKAGE_NAME = 'extensions/kube-context';
 
 /**
  * Config for global end-to-end tests
@@ -24,24 +28,15 @@ import path from 'node:path';
  * @type {import('vite').UserConfig}
  * @see https://vitest.dev/config/
  */
+
 const config = {
   test: {
-    globals: true,
-    environment: 'jsdom',
-    /**
-     * By default, vitest search test files in all packages.
-     * For e2e tests have sense search only is project root tests folder
-     */
-    include: ['**/src/**/*.spec.ts'],
-    /**
-     * A default timeout of 5000ms is sometimes not enough for playwright.
-     */
-    testTimeout: 60_000,
-    hookTimeout: 60_000,
+    ...testConfig(),
+    ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
   },
   resolve: {
     alias: {
-      '@podman-desktop/api': path.resolve('../../', '__mocks__/@podman-desktop/api.js'),
+      '@podman-desktop/api': path.resolve(PACKAGE_ROOT, '../../', '__mocks__/@podman-desktop/api.js'),
     },
   },
 };
