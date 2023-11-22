@@ -2225,6 +2225,11 @@ declare module '@podman-desktop/api' {
      * admin privileges required
      */
     isAdmin?: boolean;
+
+    /**
+     * The encoding to use. Default utf8
+     */
+    encoding?: BufferEncoding;
   }
 
   /**

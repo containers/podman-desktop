@@ -180,8 +180,8 @@ export class Exec {
         reject(errResult);
       });
 
-      childProcess.stdout.setEncoding('utf8');
-      childProcess.stderr.setEncoding('utf8');
+      childProcess.stdout.setEncoding(options?.encoding ?? 'utf8');
+      childProcess.stderr.setEncoding(options?.encoding ?? 'utf8');
 
       childProcess.stdout.on('data', data => {
         stdout += data.toString();
