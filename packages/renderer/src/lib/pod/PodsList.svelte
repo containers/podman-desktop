@@ -1,7 +1,6 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
 
-import { router } from 'tinro';
 import type { Unsubscriber } from 'svelte/store';
 import type { PodInfoUI } from './PodInfoUI';
 import { filtered, searchPattern, podsInfos } from '../../stores/pods';
@@ -12,20 +11,21 @@ import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
 import PodEmptyScreen from './PodEmptyScreen.svelte';
 import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
-import StatusIcon from '../images/StatusIcon.svelte';
 import PodIcon from '../images/PodIcon.svelte';
-import PodActions from './PodActions.svelte';
 import KubePlayButton from '../kube/KubePlayButton.svelte';
 import moment from 'moment';
 import Prune from '../engine/Prune.svelte';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
-import Checkbox from '../ui/Checkbox.svelte';
 import Button from '../ui/Button.svelte';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import StateChange from '../ui/StateChange.svelte';
-import ProviderInfo from '../ui/ProviderInfo.svelte';
-import Dots from '../ui/Dots.svelte';
+import Table from '../table/Table.svelte';
+import { Column, Row } from '../table/table';
+import PodColumnStatus from './PodColumnStatus.svelte';
+import PodColumnName from './PodColumnName.svelte';
+import PodColumnEnvironment from './PodColumnEnvironment.svelte';
+import PodColumnContainers from './PodColumnContainers.svelte';
+import PodColumnAge from './PodColumnAge.svelte';
+import PodColumnActions from './PodColumnActions.svelte';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -44,12 +44,6 @@ $: providerPodmanConnections = $providerInfos
   // keep only podman providers as it is not supported by docker
   .filter(providerContainerConnection => providerContainerConnection.type === 'podman')
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
-
-// number of selected items in the list
-$: selectedItemsNumber = pods.filter(pod => pod.selected).length;
-
-// do we need to unselect all checkboxes if we don't have all items being selected ?
-$: selectedAllCheckboxes = pods.every(pod => pod.selected);
 
 const podUtils = new PodUtils();
 
@@ -96,12 +90,6 @@ onDestroy(() => {
   }
 });
 
-function toggleAllPods(checked: boolean) {
-  const togglePods = pods;
-  togglePods.forEach(pod => (pod.selected = checked));
-  pods = togglePods;
-}
-
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
 async function deleteSelectedPods() {
@@ -126,20 +114,13 @@ async function deleteSelectedPods() {
   }
 }
 
-function openDetailsPod(pod: PodInfoUI) {
-  router.goto(`/pods/${encodeURI(pod.kind)}/${encodeURI(pod.name)}/${encodeURIComponent(pod.engineId)}/logs`);
-}
-
-function openContainersFromPod(pod: PodInfoUI) {
-  router.goto(`/containers/?filter=${pod.shortId}`);
-}
-
 let refreshTimeouts: NodeJS.Timeout[] = [];
 const SECOND = 1000;
 function refreshAge() {
-  pods = pods.map(podInfo => {
-    return { ...podInfo, age: podUtils.refreshAge(podInfo) };
-  });
+  for (const podInfo of pods) {
+    podInfo.age = podUtils.refreshAge(podInfo);
+  }
+  pods = pods;
 
   // compute new interval
   const newInterval = computeInterval();
@@ -178,6 +159,50 @@ function computeInterval(): number {
   // every day
   return 60 * 60 * 24 * SECOND;
 }
+
+let selectedItemsNumber: number;
+let table: Table;
+
+let statusColumn = new Column<PodInfoUI>('Status', {
+  align: 'center',
+  width: '70px',
+  renderer: PodColumnStatus,
+  comparator: (a, b) => b.status.localeCompare(a.status),
+});
+
+let nameColumn = new Column<PodInfoUI>('Name', {
+  width: '2fr',
+  renderer: PodColumnName,
+  comparator: (a, b) => a.name.localeCompare(b.name),
+});
+
+let envColumn = new Column<PodInfoUI>('Environment', {
+  renderer: PodColumnEnvironment,
+  comparator: (a, b) => a.kind.localeCompare(b.kind),
+});
+
+let containersColumn = new Column<PodInfoUI>('Containers', {
+  renderer: PodColumnContainers,
+  comparator: (a, b) => a.containers.length - b.containers.length,
+  initialOrder: 'descending',
+  overflow: true,
+});
+
+let ageColumn = new Column<PodInfoUI>('Age', {
+  renderer: PodColumnAge,
+  comparator: (a, b) => moment().diff(a.created) - moment().diff(b.created),
+});
+
+const columns: Column<PodInfoUI>[] = [
+  statusColumn,
+  nameColumn,
+  envColumn,
+  containersColumn,
+  ageColumn,
+  new Column<PodInfoUI>('Actions', { align: 'right', width: '150px', renderer: PodColumnActions, overflow: true }),
+];
+
+const row = new Row<PodInfoUI>({ selectable: _pod => true });
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="pods">
@@ -238,98 +263,15 @@ function computeInterval(): number {
   </svelte:fragment>
 
   <div class="flex min-w-full h-full" slot="content">
-    <table class="mx-5 w-full h-fit" class:hidden="{pods.length === 0}">
-      <!-- title -->
-      <thead class="sticky top-0 bg-charcoal-700 z-[2]">
-        <tr class="h-7 uppercase text-xs text-gray-600">
-          <th class="whitespace-nowrap w-5"></th>
-          <th class="px-2 w-5">
-            <Checkbox
-              title="Toggle all"
-              bind:checked="{selectedAllCheckboxes}"
-              indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
-              on:click="{checked => toggleAllPods(checked.detail)}" />
-          </th>
-          <th class="text-center font-extrabold w-10 px-2">Status</th>
-          <th>Name</th>
-          <th class="pl-3">Environment</th>
-          <th class="pl-3">Containers</th>
-          <th class="whitespace-nowrap px-6">Age</th>
-          <th class="text-right pr-2">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each pods as pod}
-          <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
-            <td class="rounded-tl-lg rounded-bl-lg w-5"> </td>
-            <td class="px-2">
-              <Checkbox title="Toggle pod" bind:checked="{pod.selected}" />
-            </td>
-            <td class="bg-charcoal-800 group-hover:bg-zinc-700 flex flex-row justify-center h-12">
-              <div class="grid place-content-center ml-3 mr-4">
-                <StatusIcon icon="{PodIcon}" status="{pod.status}" />
-              </div>
-            </td>
-            <td class="whitespace-nowrap w-10 hover:cursor-pointer" on:click="{() => openDetailsPod(pod)}">
-              <div class="flex items-center">
-                <div class="">
-                  <div class="flex flex-row items-center">
-                    <div class="text-sm text-gray-300">{pod.name}</div>
-                  </div>
-                  <div class="flex flex-row items-center">
-                    <div class="text-xs text-violet-400">{pod.shortId}</div>
-                  </div>
-                </div>
-              </div>
-            </td>
-            <td class="pl-3 whitespace-nowrap hover:cursor-pointer group">
-              <div class="flex items-center text-xs p-1 rounded-md text-gray-500">
-                <ProviderInfo provider="{pod.kind}" context="{pod.engineId}" />
-              </div>
-            </td>
-
-            <td class="pl-3 whitespace-nowrap">
-              <!-- If this is podman, make the dots clickable as it'll take us to the container menu 
-              this does not work if you click on a kubernetes type pod -->
-              {#if pod.kind === 'podman'}
-                <button
-                  class:cursor-pointer="{pod.containers.length > 0}"
-                  on:click="{() => openContainersFromPod(pod)}">
-                  <Dots containers="{pod.containers}" />
-                </button>
-              {:else}
-                <div class="flex items-center">
-                  <Dots containers="{pod.containers}" />
-                </div>
-              {/if}
-            </td>
-            <td class="px-6 py-2 whitespace-nowrap w-10">
-              <div class="flex items-center">
-                <div class="text-sm text-gray-700">
-                  <StateChange state="{pod.status}">{pod.age}</StateChange>
-                </div>
-              </div>
-            </td>
-
-            <td class="pl-6 text-right whitespace-nowrap rounded-tr-lg rounded-br-lg">
-              <div class="flex w-full">
-                <div class="flex items-center w-5">
-                  {#if pod.actionError}
-                    <ErrorMessage error="{pod.actionError}" icon />
-                  {:else}
-                    <div>&nbsp;</div>
-                  {/if}
-                </div>
-                <div class="text-right w-full">
-                  <PodActions pod="{pod}" dropdownMenu="{true}" on:update="{() => (pods = [...pods])}" />
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr><td class="leading-[8px]">&nbsp;</td></tr>
-        {/each}
-      </tbody>
-    </table>
+    <Table
+      kind="pod"
+      bind:this="{table}"
+      bind:selectedItemsNumber="{selectedItemsNumber}"
+      data="{pods}"
+      columns="{columns}"
+      row="{row}"
+      on:update="{() => (pods = pods)}">
+    </Table>
 
     {#if $filtered.length === 0 && providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
