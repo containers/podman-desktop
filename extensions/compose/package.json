@@ -87,7 +87,6 @@
           "id": "composeDownloaded",
           "title": "Compose Successfully Downloaded",
           "when": "onboardingContext:composeIsNotDownloaded == false",
-          "state": "succeeded",
           "content": [
             [
               {
@@ -116,7 +115,7 @@
           "id": "composeInstalledSystemWide",
           "title": "Compose Successfully Installed",
           "when": "compose.isComposeInstalledSystemWide == true",
-          "state": "succeeded",
+          "state": "completed",
           "content": [
             [
               {
@@ -139,7 +138,10 @@
         "compose.binary.installComposeSystemWide": {
           "type": "boolean",
           "default": false,
-          "scope": ["DEFAULT", "Onboarding"],
+          "scope": [
+            "DEFAULT",
+            "Onboarding"
+          ],
           "hidden": true,
           "description": "Install system-wide instead of just your user directory, so compose can be accessed on the command line. Note: You may be prompted for elevated system privileges when enabling this."
         }
