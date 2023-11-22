@@ -21,11 +21,11 @@
         "title": "Compose: Checks..."
       },
       {
-        "command": "compose.onboarding.checkComposeDownloaded",
+        "command": "compose.onboarding.checkDownloadedCommand",
         "title": "Compose: Check Compose Downloaded"
       },
       {
-        "command": "compose.onboarding.downloadCompose",
+        "command": "compose.onboarding.downloadCommand",
         "title": "Compose: Download Compose"
       }
     ],
@@ -34,16 +34,16 @@
       "enablement": "!compose.isComposeInstalledSystemWide",
       "steps": [
         {
-          "id": "checkComposeDownloaded",
+          "id": "checkDownloadedCommand",
           "label": "Check Compose",
           "title": "Checking for Compose installation",
-          "command": "compose.onboarding.checkComposeDownloaded",
+          "command": "compose.onboarding.checkDownloadedCommand",
           "completionEvents": [
-            "onCommand:compose.onboarding.checkComposeDownloaded"
+            "onCommand:compose.onboarding.checkDownloadedCommand"
           ]
         },
         {
-          "id": "startComposeDownload",
+          "id": "welcomeDownloadView",
           "label": "Compose Download",
           "title": "Compose Download",
           "when": "onboardingContext:composeIsNotDownloaded == true",
@@ -68,23 +68,23 @@
           ]
         },
         {
-          "id": "downloadComposeView",
+          "id": "downloadCommand",
           "title": "Downloading Compose ${onboardingContext:composeDownloadVersion}",
           "description": "Downloading the binary.\n\nOnce downloaded, the next step will install Compose system-wide.",
           "when": "onboardingContext:composeIsNotDownloaded == true",
-          "command": "compose.onboarding.downloadCompose",
+          "command": "compose.onboarding.downloadCommand",
           "completionEvents": [
-            "onCommand:compose.onboarding.downloadCompose"
+            "onCommand:compose.onboarding.downloadCommand"
           ]
         },
         {
-          "id": "composeFailedDownload",
+          "id": "downloadFailure",
           "title": "Failed Downloading Compose",
           "when": "onboardingContext:composeIsNotDownloaded == true",
           "state": "failed"
         },
         {
-          "id": "composeDownloaded",
+          "id": "downloadSuccessfulView",
           "title": "Compose Successfully Downloaded",
           "when": "onboardingContext:composeIsNotDownloaded == false",
           "content": [
@@ -96,23 +96,23 @@
           ]
         },
         {
-          "id": "installComposeSystemWide",
+          "id": "installSystemWideCommand",
           "title": "Install Compose",
           "description": "Installing the binary system-wide.\n\n You may be prompted for elevated system privileges.",
           "when": "compose.isComposeInstalledSystemWide == false",
-          "command": "compose.onboarding.installSystemWide",
+          "command": "compose.onboarding.installSystemWideCommand",
           "completionEvents": [
-            "onCommand:compose.onboarding.installSystemWide"
+            "onCommand:compose.onboarding.installSystemWideCommand"
           ]
         },
         {
-          "id": "composeFailedInstalledSystemWide",
+          "id": "installSystemWideFailure",
           "title": "Failed Installing Compose",
           "when": "compose.isComposeInstalledSystemWide == false",
           "state": "failed"
         },
         {
-          "id": "composeInstalledSystemWide",
+          "id": "installSystemWideSuccess",
           "title": "Compose Successfully Installed",
           "when": "compose.isComposeInstalledSystemWide == true",
           "state": "completed",
