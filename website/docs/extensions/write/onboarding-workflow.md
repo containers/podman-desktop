@@ -8,7 +8,7 @@ keywords: [podman desktop, extension, writing, onboarding]
 
 # Onboarding
 
-A Podman Desktop extension can offer an onboarding workflow to guide users in installing and setting up all the necessary tools for the extension to work, and/or to provide explanations about the capabilities of the extension.
+A Podman Desktop extension can offer an onboarding workflow to guide users in installing and setting up all the necessary tools for the extension to work, and optionally to provide explanations about the capabilities of the extension.
 
 Adding onboarding to an extension is as simple as writing JSON in the `package.json`. Podman Desktop will convert the JSON object into actual code to render all items.
 
@@ -134,9 +134,9 @@ When this condition is met, the user will find a setup button within the resourc
 
 ![img1](img/setup_button.png)
 
-The enablement clause is mandatory and must be written by using [when clauses](when-clause-context.md).
+The enablement clause is mandatory and must be written by using [when clauses](/docs/extensions/write/when-clause-context).
 
-In the following example, we specify that the onboarding needs to be enabled if and only if the user's OS is Linux, and the `podmanIsNotInstalled` context value is true. Alternatively, if the user's OS is different from Linux, that the `podmanMachineExists` context value must be false. In other words, if the user is on Linux, the onboarding must be enabled only if podman is not installed; for all other operating systems, it should be enabled if there is no Podman machine.
+In the following example, we specify that the onboarding needs to be enabled if and only if the user's OS is Linux, and the `podmanIsNotInstalled` context value is true. Alternatively, if the user's OS is different from Linux, that the `podmanMachineExists` context value must be false. Essentially, if the user is on Linux, the onboarding must be enabled only if podman is not installed; for all other operating systems, it should be enabled if there is no Podman machine.
 
 ```json
 "enablement": "(isLinux && onboardingContext:podmanIsNotInstalled) || (!isLinux && !onboardingContext:podmanMachineExists)"
@@ -147,7 +147,7 @@ In the following example, we specify that the onboarding needs to be enabled if 
 The steps property is required and includes the actual content that will be displayed to the user during the workflow.
 
 Each step can contribute to the onboarding process in various ways.
-You can choose to display content explaining concepts to the user, incorporate input elements (such as buttons or textboxes) to encourage user interaction, execute commands to perform installations, or showcase settings to be configured.
+You can choose to display content explaining concepts to the user, incorporate input elements (such as buttons or textboxes) to encourage user interaction, run commands to perform installations, or showcase settings to be configured.
 
 Let's look again at its schema:
 
@@ -226,7 +226,7 @@ The **id** must be unique to identify a step, and it is never displayed directly
 
 The **title**, **description** and **media** works as explained earlier. The only difference is their placement - they will appear in the top-center of the body.
 
-![img2](img/step_title_media_description.png)
+![img2](img/step_title_description_media.png)
 
 **Note:** If media is not specified, Podman Desktop will display the icon of the extension providing the onboarding.
 
@@ -235,7 +235,7 @@ The **title**, **description** and **media** works as explained earlier. The onl
 The **command** field allows you to declare the name of a command that must be run when the step becomes active.
 The command must be registered by the extension beforehand, or it will result in an error.
 
-In the example below, we tell Podman Desktop to invoke `podman.onboarding.checkPodmanInstalled` when the `checkPodmanInstalled` step becomes active.
+In the example below, we tell Podman Desktop to call `podman.onboarding.checkPodmanInstalled` when the `checkPodmanInstalled` step becomes active.
 Based on the result, we can then prompt the user to move to another step or display a message.
 
 ```json
@@ -326,7 +326,7 @@ Here's another example, this time using a context value:
 
 When the `checkPodmanInstalled` step becomes active, the command `podman.onboarding.checkPodmanInstalled` is invoked. As soon as the context value `podmanVersion` equals `4.7.2`, the step is marked as completed, and the user is moved to the next one.
 
-You might wonder: who or what sets the context value? If you use a custom context value, it should be your extension's job to set it. Following the example above, we could set the context value during the execution of `podman.onboarding.checkPodmanInstalled` like
+You might wonder: who or what sets the context value? If you use a custom context value, it should be your extension's job to set it. Following the example above, we could set the context value during the execution of `podman.onboarding.checkPodmanInstalled` such as
 
 ```
 extensionApi.commands.registerCommand(
@@ -474,12 +474,12 @@ extensionApi.context.setValue('warningsMarkdown', warnings, 'onboarding');
 
 ![img6](img/warnings_micromark.png)
 
-The **highlight** and **when** properties are optional. They are used to change the background color or define when the content column should be visible, respectively.
+The **highlight** and **when** properties are optional. They are used to change the background color or define when the content column should be visible.
 
 #### Component
 
-Podman Desktop has some built-in components that can fit perfectly into an onboarding workflow, like the `create new connection` wizard.
-If you are working on an extension that allows creating a Kubernetes cluster, it would not make sense to recreate a page where the user can add the name, the resources to use, etc. This is when the component field comes in handy.
+Podman Desktop has some built-in components that can fit perfectly into an onboarding workflow, such as the `create new connection` wizard.
+If you are working on an extension that allows creating a Kubernetes cluster, it would not make sense to re-create a page where the user can add the name, the resources to use, and so on. This is when the component field comes in handy.
 
 By specifying the component you want to import, all the elements, styling, and actions are embedded into the step.
 
@@ -513,7 +513,7 @@ The **state**, when set, allows Podman Desktop to distinguish a normal step from
 
 **Note:** the last workflow step should have `completed` state.
 
-Based on the **state**, Podman Desktop may show some default objects.
+Based on the **state**, Podman Desktop might show some default objects.
 
 When a step with a failed state is encountered, Podman Desktop displays a `Retry` button, allowing the user to restart the workflow.
 
