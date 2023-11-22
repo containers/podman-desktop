@@ -291,6 +291,9 @@ jobs:
       - name: Execute yarn
         run: yarn --frozen-lockfile
 
+      - name: setup playwright
+        run: npx playwright install
+
       - name: Run E2E smoke tests
         run: yarn test:e2e:smoke
 
