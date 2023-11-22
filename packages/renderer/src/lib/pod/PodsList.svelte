@@ -200,14 +200,14 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="pods">
-  <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
+  <svelte:fragment slot="additional-actions">
     {#if $podsInfos.length > 0}
       <Prune type="pods" engines="{enginesList}" />
     {/if}
     {#if providerPodmanConnections.length > 0}
       <KubePlayButton />
     {/if}
-  </div>
+  </svelte:fragment>
 
   <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
     {#if selectedItemsNumber > 0}

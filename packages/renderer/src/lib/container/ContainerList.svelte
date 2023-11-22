@@ -455,7 +455,7 @@ function setStoppedFilter() {
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="containers">
-  <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
+  <svelte:fragment slot="additional-actions">
     <!-- Only show if there are containers-->
     {#if $containersInfos.length > 0}
       <Prune type="containers" engines="{enginesList}" />
@@ -464,7 +464,7 @@ function setStoppedFilter() {
     {#if providerPodmanConnections.length > 0}
       <KubePlayButton />
     {/if}
-  </div>
+  </svelte:fragment>
   <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
     {#if selectedItemsNumber > 0}
       <Button

@@ -12,7 +12,9 @@ export let searchEnabled = true;
       </div>
       <div class="flex flex-1 justify-end">
         <div class="px-5" role="group" aria-label="additionalActions">
-          <slot name="additional-actions">&nbsp;</slot>
+          {#if $$slots['additional-actions']}
+            <div class="space-x-2 flex flex-nowrap"><slot name="additional-actions" /></div>
+          {:else}&nbsp;{/if}
         </div>
       </div>
     </div>
