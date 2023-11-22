@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-const zipper = require('zip-local');
+const AdmZip = require('adm-zip');
 const path = require('path');
 const packageJson = require('../package.json');
 const fs = require('fs');
@@ -35,12 +35,14 @@ if (fs.existsSync(builtinDirectory)) {
   fs.rmSync(builtinDirectory, { recursive: true, force: true });
 }
 
-const zip = zipper.sync.zip(path.resolve(__dirname, '../'));
+const zip = new AdmZip();
+zip.addLocalFolder(path.resolve(__dirname, '../'));
 // delete assets from cdix file
-zip.lowLevel().remove('assets');
-zip.compress().save(destFile);
+zip.deleteFile('assets/');
+zip.writeZip(destFile);
 
 // create unzipped built-in
 mkdirp(unzippedDirectory).then(() => {
-  zipper.sync.unzip(destFile).save(unzippedDirectory);
+  const unzip = new AdmZip(destFile);
+  unzip.extractAllTo(unzippedDirectory);
 });
