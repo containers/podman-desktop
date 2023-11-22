@@ -1044,17 +1044,17 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   });
 
   const onboardingCheckInstallationCommand = extensionApi.commands.registerCommand(
-    'podman.onboarding.checkPodmanInstalled',
+    'podman.onboarding.checkInstalledCommand',
     async () => {
       const installation = await getPodmanInstallation();
       const installed = installation ? true : false;
       extensionApi.context.setValue('podmanIsNotInstalled', !installed, 'onboarding');
       if (installed) {
-        extensionApi.context.setValue('podmanInstalledTitle', 'Podman already installed', 'onboarding');
+        extensionApi.context.setValue('installationSuccessViewTitle', 'Podman already installed', 'onboarding');
       } else {
-        extensionApi.context.setValue('podmanInstalledTitle', 'Podman successfully installed', 'onboarding');
+        extensionApi.context.setValue('installationSuccessViewTitle', 'Podman successfully installed', 'onboarding');
       }
-      telemetryLogger.logUsage('podman.onboarding.checkPodmanInstalled', {
+      telemetryLogger.logUsage('podman.onboarding.checkInstalledCommand', {
         status: installed,
         version: installation?.version || '',
       });
@@ -1062,7 +1062,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   );
 
   const onboardingCheckReqsCommand = extensionApi.commands.registerCommand(
-    'podman.onboarding.checkPodmanRequirements',
+    'podman.onboarding.checkRequirementsCommand',
     async () => {
       const checks = podmanInstall.getInstallChecks() || [];
       const result = [];
@@ -1114,7 +1114,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
       extensionApi.context.setValue('requirementsStatus', successful ? 'ok' : 'failed', 'onboarding');
       extensionApi.context.setValue('warningsMarkdown', warnings, 'onboarding');
-      telemetryLogger.logUsage('podman.onboarding.checkPodmanRequirements', telemetryRecords);
+      telemetryLogger.logUsage('podman.onboarding.checkRequirementsCommand', telemetryRecords);
     },
   );
 
