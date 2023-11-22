@@ -3,28 +3,17 @@ import SettingsPage from './SettingsPage.svelte';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import { onMount } from 'svelte';
-import type { KubeContextUI } from '../kube/KubeContextUI';
-import { clearKubeUIContextErrors, getKubeUIContexts, setKubeUIContextError } from '../kube/KubeContextUI';
 import Link from '../ui/Link.svelte';
-import type { Cluster } from '@kubernetes/client-node';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import { kubernetesContexts } from '../../stores/kubernetes-contexts';
+import { clearKubeUIContextErrors, setKubeUIContextError } from '../kube/KubeContextUI';
 
 let currentContextName: string | undefined;
-let contexts: KubeContextUI[] = [];
-let k8sClusters: Cluster[] = [];
-
-$: contexts;
 
 onMount(async () => {
-  // Retrieve both the contexts and clusters
   currentContextName = await window.kubernetesGetCurrentContextName();
-  let k8sContexts = await window.kubernetesGetContexts();
-  k8sClusters = await window.kubernetesGetClusters();
-
-  // Convert them to KubeContextUI so we can safely render them.
-  contexts = getKubeUIContexts(k8sContexts, k8sClusters);
 });
 
 async function handleDeleteContext(contextName: string) {
@@ -39,13 +28,12 @@ async function handleDeleteContext(contextName: string) {
       return;
     }
   }
-  contexts = clearKubeUIContextErrors(contexts);
+  $kubernetesContexts = clearKubeUIContextErrors($kubernetesContexts);
   try {
-    const newK8sContexts = await window.kubernetesDeleteContext(contextName);
-    contexts = getKubeUIContexts(newK8sContexts, k8sClusters);
+    await window.kubernetesDeleteContext(contextName);
   } catch (e: unknown) {
     if (e instanceof Error) {
-      contexts = setKubeUIContextError(contexts, contextName, e);
+      $kubernetesContexts = setKubeUIContextError($kubernetesContexts, contextName, e);
     }
   }
 }
@@ -59,8 +47,8 @@ async function handleDeleteContext(contextName: string) {
       icon="{EngineIcon}"
       title="No Kubernetes contexts found"
       message="Check that $HOME/.kube/config exists or KUBECONFIG environment variable has been set correctly."
-      hidden="{contexts.length > 0}" />
-    {#each contexts as context}
+      hidden="{$kubernetesContexts.length > 0}" />
+    {#each $kubernetesContexts as context}
       <div role="row" class="bg-charcoal-600 mb-5 rounded-md p-3 flex-nowrap">
         <div class="pb-2">
           <div class="flex">

@@ -185,6 +185,9 @@ export class KubernetesClient {
     });
   }
 
+  // The below methods (update, create, delete)
+  // help send information to the renderer process to notify any
+  // stores (in particular kube context store) as well as extensions (extensions/kube-context)
   setupWatcher(kubeconfigFile: string): void {
     // cancel the previous one (if any)
     this.kubeConfigWatcher?.dispose();
@@ -198,6 +201,7 @@ export class KubernetesClient {
     this.kubeConfigWatcher.onDidChange(async () => {
       this._onDidUpdateKubeconfig.fire({ type: 'UPDATE', location });
       await this.refresh();
+      this.apiSender.send('kubernetes-context-update');
     });
 
     this.kubeConfigWatcher.onDidCreate(async () => {
