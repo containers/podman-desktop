@@ -12,7 +12,8 @@ A Podman Desktop extension can offer an onboarding workflow to guide users in in
 
 Adding onboarding to an extension is as simple as writing JSON in the `package.json`. Podman Desktop will convert the JSON object into actual code to render all items.
 
-Onboarding consists of a title, a description, media (image), an enablement clause, and a list of steps. Before getting into the details, let's examine the JSON schema.
+Onboarding consists of a title, a description, media (image), an enablement clause, and a list of steps. Only the title, enablement clause, and the steps are mandatory, as they constitute the minimum information required to define a workflow.
+Before getting into the details, let's examine the JSON schema.
 
 ```json
 {
@@ -112,7 +113,7 @@ Onboarding consists of a title, a description, media (image), an enablement clau
 
 The **title**, the **description** and the **media** are all placed in the top left of the onboarding page.
 Only the title is required. The description and the media are optional.
-If the media is not specified, Podman Desktop will display the default extension icon.
+If the media is not specified, Podman Desktop will display the default icon set by the extension in its `package.json`.
 
 This is how this JSON is defined:
 
@@ -145,7 +146,10 @@ In the following example, we specify that the onboarding needs to be enabled if 
 
 The steps property is required and includes the actual content that will be displayed to the user during the workflow.
 
-Let's look again at its schema
+Each step can contribute to the onboarding process in various ways.
+You can choose to display content explaining concepts to the user, incorporate input elements (such as buttons or textboxes) to encourage user interaction, execute commands to perform installations, or showcase settings to be configured.
+
+Let's look again at its schema:
 
 ```json
 "type": "object",
@@ -224,7 +228,7 @@ The **title**, **description** and **media** works as explained earlier. The onl
 
 ![img2](img/step_title_media_description.png)
 
-**Note:** If media is not specified, Podman Desktop will display the extension's icon providing the onboarding.
+**Note:** If media is not specified, Podman Desktop will display the icon of the extension providing the onboarding.
 
 #### Command
 
@@ -266,7 +270,7 @@ CompletionEvents define the conditions under which a step should be considered c
 It currently supports `onboardingContext` and `onCommand` events.
 The former can be used to evaluate a context value, such as `onboardingContext:podmanIsInstalled`. The latter checks if the command has been executed - `onCommand:podman.onboarding.installPodman`.
 
-A practical example of progressing the user to the next step after the command finishes its execution is
+A practical example of progressing the user to the next step after the command finishes its execution is:
 
 ```json
 "commands": [
@@ -367,15 +371,13 @@ The JSON schema for a content cell entry is
 "required": ["value"]
 ```
 
-With **value** being the only mandatory field.
-
-**Value** can be a simple string or a Markdown string to render advanced objects.
+**Value** is the only mandatory field and it can be a simple string or a Markdown string to render advanced objects.
 
 In addition to all the standard Markdown syntax, Podman Desktop provides 3 custom Markdown components: button, link, and warnings list.
 
 1 - You can create a button that executes a command (syntax - `:button[Name of the button]{command=command.example title="tooltip text"}`) or behaves like a link (syntax - `:button[Name of the button]{href=http://my-link title="tooltip text"}`).
 
-E.g
+E.g.:
 
 ```json
 "value": ":button[Check requirements again]{command=podman.onboarding.checkPodmanRequirements}"
@@ -385,7 +387,7 @@ E.g
 
 2 - Similarly, you can create a link that executes a command (syntax `:link[Name of the command link]{command=command.example title="tooltip text"}`) or behaves like a normal link (syntax - `:link[Name of the command link]{href=http://my-link title="tooltip text"}`)
 
-E.g:
+E.g.:
 
 ```json
 "value": "To install Podman please follow these :link[installation instructions]{href=https://podman.io/docs/installation#installing-on-linux}"
@@ -393,7 +395,7 @@ E.g:
 
 ![img5](img/link_micromark.png)
 
-3 - The warning component allows displaying a list of items (syntax - `:warnings[[item]]`), where an item consists of
+3 - The warning component allows displaying a list of items (syntax - `:warnings[[item]]`), where an item consists of:
 
 ```json
 "type": "object",
@@ -499,7 +501,7 @@ An example can be seen in the Podman extension, where you can create a Podman ma
 
 ![img6](img/component_field.png)
 
-**N.B:** when using the **component** field, you should omit the **content**
+**Note:** when using the **component** field, you should omit the **content**
 
 #### When
 
@@ -509,7 +511,7 @@ The **when** property defines when a step must be visible. You can use any when 
 
 The **state**, when set, allows Podman Desktop to distinguish a normal step from a special one. It is used to associate a step with a failed state (`failed`) or, alternatively, with a complete state (`completed`).
 
-**N.B:** the last workflow step should have `completed` state.
+**Note:** the last workflow step should have `completed` state.
 
 Based on the **state**, Podman Desktop may show some default objects.
 
