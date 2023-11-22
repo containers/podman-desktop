@@ -220,7 +220,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
     {/if}
   </div>
 
-  <div class="flex flex-row px-2 mb-2 border-b border-charcoal-400" slot="tabs">
+  <svelte:fragment slot="tabs">
     <Button
       type="tab"
       on:click="{() => {
@@ -254,7 +254,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
         searchTerm = temp ? `${temp} is:stopped` : 'is:stopped';
       }}"
       selected="{searchTerm.includes('is:stopped')}">Stopped</Button>
-  </div>
+  </svelte:fragment>
 
   <div class="flex min-w-full h-full" slot="content">
     <table class="mx-5 w-full h-fit" class:hidden="{pods.length === 0}">

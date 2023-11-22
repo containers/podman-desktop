@@ -46,7 +46,11 @@ export let searchEnabled = true;
       </div>
     {/if}
 
-    <slot name="tabs" />
+    {#if $$slots.tabs}
+      <div class="flex flex-row px-2 mb-2 border-b border-charcoal-400">
+        <slot name="tabs" />
+      </div>
+    {/if}
 
     <div class="flex w-full h-full overflow-auto" role="region" aria-label="content">
       <slot name="content" />
