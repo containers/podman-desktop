@@ -11,7 +11,7 @@ image: /blog/img/sharing-podman-images-with-kubernetes-cluster/selkie-family.png
 As developers we constantly improve and refine our applications. One of the challenges we face is quickly iterating when working with container images and kubernetes deployments/pods.
 
 For example, when we want to try a new image in a kubernetes pod, this image needs to be available on a private/public registry or on the kubernetes cluster.
-Sometimes we need to call extra commands such as `kind docker-image` or `minikube cache add <image>` or publish the image first to a 3rd party registry.
+Sometimes we need to call extra commands such as `kind load docker-image` or `minikube cache add <image>` or publish the image first to a 3rd party registry.
 
 You'll agree that trying out a new image in a Kubernetes pod should be as seamless as building the image itself.
 
@@ -31,7 +31,7 @@ Minikube is publishing 8 ways of doing that at https://minikube.sigs.k8s.io/docs
 
 There are pros and cons either way. Starting a registry requires publishing your image each time you want to build. Podman Desktop could automate the synchronization but there is still a duplication of layers.
 
-Loading images requires to pack/unpack the files so for large images it can take a while.
+Loading images requires to pack/unpack the files so it's not adequate for large images.
 
 Minikube offers a podman environment but it's a version 3.4 running inside a container inside the podman machine (it means that there are two podman instances).
 
@@ -139,7 +139,7 @@ Ok now let's try in two steps:
 1. Create a podman machine:
 
 ```shell
-podman machine init --cpus 4 --memory 6000 --rotful
+podman machine init --cpus 4 --memory 6000 --rootful
 ```
 
 2. Start the cluster using our kicbase image
