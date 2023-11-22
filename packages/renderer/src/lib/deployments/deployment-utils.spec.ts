@@ -34,9 +34,9 @@ test('expect basic UI conversion', async () => {
       namespace: 'test-namespace',
     },
     status: {
-      replicas : 4,
+      replicas: 4,
       readyReplicas: 2,
-    }
+    },
   } as V1Deployment;
   const deploymentUI = deploymentUtils.getDeploymentUI(deployment);
   expect(deploymentUI.name).toEqual('my-deployment');
