@@ -76,11 +76,29 @@ export class EventStore<T> {
 
   constructor(
     private name: string,
+
+    // The store to actually update / return the data
     private store: Writable<T>,
+
+    // This is the "check" function that will be called to check if we need to update the store
+    // this is good for checking to see if all extensions have started or waiting for a specific event
+    // to occur before proceeding
     private checkForUpdate: (eventName: string, args?: unknown[]) => Promise<boolean>,
+
+    // The list of window events and listeners to listen for to trigger an update, for example:
+    // Window event: 'extension-started'
+    // Window listener: 'extensions-already-started''
     private windowEvents: string[],
     private windowListeners: string[],
+
+    // The main "updater" function that will be called to update the store.
+    // For example, you can pass in a custom function such as "grabAllPods"
+    // or a function with parameters such as "fetchPodsForNamespace(namespace: string)"
+    // or even a simple window call such as "window.listPods()"
+    // Whatever is returned from the "updater" function will be set to the writeable store above.
     private updater: (...args: unknown[]) => Promise<T>,
+
+    // Optional icon component to display in the UI
     private iconComponent?: ComponentType,
   ) {
     if (!iconComponent) {

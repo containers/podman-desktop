@@ -17,33 +17,34 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { expect, test, vi } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import PreferencesKubernetesContextsRendering from './PreferencesKubernetesContextsRendering.svelte';
-import type { Cluster, Context } from '@kubernetes/client-node';
+import { kubernetesContexts } from '/@/stores/kubernetes-contexts';
+import type { KubeContextUI } from '../kube/KubeContextUI';
 
-// Create a fake Context
-const mockContext = {
+// Create a fake KubeContextUI
+const mockContext: KubeContextUI = {
   name: 'context-name',
   cluster: 'cluster-name',
   user: 'user-name',
-  namespace: 'namespace-name',
-} as Context;
+  clusterInfo: {
+    name: 'cluster-name',
+    server: 'https://server-name',
+  },
+};
 
-// Create a fake Cluster
-const mockCluster = {
-  name: 'cluster-name',
-  server: 'server-name',
-} as Cluster;
+beforeAll(() => {
+  kubernetesContexts.set([mockContext]);
+});
 
 test('test that name, cluster and the server is displayed when rendering', async () => {
-  (window as any).kubernetesGetContexts = vi.fn().mockResolvedValue([mockContext]);
-  (window as any).kubernetesGetClusters = vi.fn().mockResolvedValue([mockCluster]);
   (window as any).kubernetesGetCurrentContextName = vi.fn().mockResolvedValue('my-current-context');
   render(PreferencesKubernetesContextsRendering, {});
   expect(await screen.findByText('context-name')).toBeInTheDocument();
   expect(await screen.findByText('cluster-name')).toBeInTheDocument();
-  expect(await screen.findByText('server-name')).toBeInTheDocument();
+  expect(await screen.findByText('user-name')).toBeInTheDocument();
+  expect(await screen.findByText('https://server-name')).toBeInTheDocument();
 });
 
 test('If nothing is returned for contexts, expect that the page shows a message', async () => {
