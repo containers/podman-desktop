@@ -51,6 +51,10 @@ async function callProviders(_providers: readonly ImageCheckerInfo[]) {
   remainingProviders = providers.length;
 
   _providers.forEach(provider => {
+    let telemetryOptions = {
+      provider: provider.label,
+      error: '',
+    };
     window
       .imageCheck(provider.id, image.name, cancellableTokenId)
       .then(_result => {
@@ -89,6 +93,7 @@ async function callProviders(_providers: readonly ImageCheckerInfo[]) {
       })
       .catch((error: unknown) => {
         if (error instanceof Error) {
+          telemetryOptions.error = String(error);
           remainingProviders--;
           providerErrors = [
             ...providerErrors,
@@ -98,6 +103,9 @@ async function callProviders(_providers: readonly ImageCheckerInfo[]) {
             },
           ];
         }
+      })
+      .finally(() => {
+        window.telemetryTrack('imageCheck', telemetryOptions);
       });
   });
 }
@@ -107,6 +115,7 @@ function handleAbort() {
     window.cancelToken(cancellableTokenId);
   }
   aborted = true;
+  window.telemetryTrack('imageCheck.aborted');
 }
 </script>
 

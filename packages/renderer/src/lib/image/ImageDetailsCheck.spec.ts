@@ -16,6 +16,7 @@ beforeAll(() => {
   getCancellableTokenSourceMock.mockImplementation(() => tokenID);
   (window as any).imageCheck = imageCheckMock;
   (window as any).cancelToken = cancelTokenSpy;
+  (window as any).telemetryTrack = vi.fn();
 });
 
 test('expect to display wait message before to receive results', async () => {
