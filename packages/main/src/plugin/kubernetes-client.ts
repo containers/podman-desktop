@@ -57,6 +57,7 @@ import type { ApiSenderType } from './api.js';
 import { parseAllDocuments } from 'yaml';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import * as jsYaml from 'js-yaml';
+import type { KubeContext } from './kubernetes-context.js';
 
 function toContainerStatus(state: V1ContainerState | undefined): string {
   if (state) {
@@ -268,6 +269,35 @@ export class KubernetesClient {
 
   getCurrentNamespace(): string | undefined {
     return this.currentNamespace;
+  }
+
+  getDetailedContexts(): KubeContext[] {
+    const kubeContexts: KubeContext[] = [];
+
+    // Go through each context
+    this.kubeConfig.contexts.forEach(context => {
+      // Try and find the cluster
+      const cluster = this.kubeConfig.clusters.find(c => c.name === context.cluster);
+
+      // If the cluster is not found, just return undefined for clusterInfo
+      // as sometimes in the context we have information, but nothing about
+      // the cluster.
+      kubeContexts.push({
+        name: context.name,
+        cluster: context.cluster,
+        user: context.user,
+        currentContext: context.name === this.currentContextName, // Set the current context to true if the name matches the current context name
+        clusterInfo: cluster
+          ? {
+              name: cluster.name,
+              server: cluster.server,
+              skipTLSVerify: cluster.skipTLSVerify,
+              tlsServerName: cluster.tlsServerName,
+            }
+          : undefined,
+      });
+    });
+    return kubeContexts;
   }
 
   async deleteContext(contextName: string): Promise<Context[]> {

@@ -145,6 +145,7 @@ import { NotificationRegistry } from './notification-registry.js';
 import { ImageCheckerImpl } from './image-checker.js';
 import type { ImageCheckerInfo } from './api/image-checker-info.js';
 import { AppearanceInit } from './appearance-init.js';
+import type { KubeContext } from './kubernetes-context.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -1875,6 +1876,10 @@ export class PluginSystem {
 
     this.ipcHandle('kubernetes-client:getContexts', async (): Promise<KubernetesContext[]> => {
       return kubernetesClient.getContexts();
+    });
+
+    this.ipcHandle('kubernetes-client:getDetailedContexts', async (): Promise<KubeContext[]> => {
+      return kubernetesClient.getDetailedContexts();
     });
 
     this.ipcHandle('kubernetes-client:getClusters', async (): Promise<Cluster[]> => {

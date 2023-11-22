@@ -49,7 +49,10 @@ async function handleDeleteContext(contextName: string) {
       message="Check that $HOME/.kube/config exists or KUBECONFIG environment variable has been set correctly."
       hidden="{$kubernetesContexts.length > 0}" />
     {#each $kubernetesContexts as context}
-      <div role="row" class="bg-charcoal-600 mb-5 rounded-md p-3 flex-nowrap">
+      <!-- If current context, use lighter background -->
+      <div
+        role="row"
+        class="{context.currentContext ? 'bg-charcoal-600' : 'bg-charcoal-700'} mb-5 rounded-md p-3 flex-nowrap">
         <div class="pb-2">
           <div class="flex">
             {#if context?.icon}
@@ -61,8 +64,15 @@ async function handleDeleteContext(contextName: string) {
                   class="max-w-[40px] h-full" />
               {/if}
             {/if}
-            <span id="{context.name}" class="my-auto text-gray-400 ml-3 break-words flex-auto" aria-label="context-name"
-              >{context.name}</span>
+            <!-- Centered items div -->
+            <div class="pl-3 flex-grow flex flex-col justify-center">
+              <div class="flex flex-col items-left">
+                {#if context.currentContext}
+                  <span class="text-xs text-gray-600" aria-label="current-context">Current Context</span>
+                {/if}
+                <span class="text-md" aria-label="context-name">{context.name}</span>
+              </div>
+            </div>
             <ListItemButtonIcon
               title="Delete Context"
               icon="{faTrash}"

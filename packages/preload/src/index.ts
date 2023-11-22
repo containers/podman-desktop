@@ -84,6 +84,7 @@ import type {
   GenerateKubeResult,
   KubernetesGeneratorArgument,
 } from '../../main/src/plugin/kube-generator-registry';
+import type { KubeContext } from '../../main/src/plugin/kubernetes-context';
 
 import type { KubernetesGeneratorInfo } from '../../main/src/plugin/api/KubernetesGeneratorInfo';
 import type { NotificationCard, NotificationCardOptions } from '../../main/src/plugin/api/notification';
@@ -1415,6 +1416,10 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('kubernetesGetContexts', async (): Promise<Context[]> => {
     return ipcInvoke('kubernetes-client:getContexts');
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesGetDetailedContexts', async (): Promise<KubeContext[]> => {
+    return ipcInvoke('kubernetes-client:getDetailedContexts');
   });
 
   contextBridge.exposeInMainWorld('kubernetesDeleteContext', async (contextName: string): Promise<Context[]> => {

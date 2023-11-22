@@ -17,14 +17,14 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import PreferencesKubernetesContextsRendering from './PreferencesKubernetesContextsRendering.svelte';
 import { kubernetesContexts } from '/@/stores/kubernetes-contexts';
-import type { KubeContextUI } from '../kube/KubeContextUI';
+import type { KubeContext } from '../../../../main/src/plugin/kubernetes-context';
 
 // Create a fake KubeContextUI
-const mockContext: KubeContextUI = {
+const mockContext1: KubeContext = {
   name: 'context-name',
   cluster: 'cluster-name',
   user: 'user-name',
@@ -34,8 +34,19 @@ const mockContext: KubeContextUI = {
   },
 };
 
-beforeAll(() => {
-  kubernetesContexts.set([mockContext]);
+const mockContext2: KubeContext = {
+  name: 'context-name2',
+  cluster: 'cluster-name2',
+  user: 'user-name2',
+  clusterInfo: {
+    name: 'cluster-name2',
+    server: 'https://server-name2',
+  },
+  currentContext: true,
+};
+
+beforeEach(() => {
+  kubernetesContexts.set([mockContext1, mockContext2]);
 });
 
 test('test that name, cluster and the server is displayed when rendering', async () => {
@@ -48,9 +59,23 @@ test('test that name, cluster and the server is displayed when rendering', async
 });
 
 test('If nothing is returned for contexts, expect that the page shows a message', async () => {
-  (window as any).kubernetesGetContexts = vi.fn().mockResolvedValue([]);
-  (window as any).kubernetesGetClusters = vi.fn().mockResolvedValue([]);
-  (window as any).kubernetesGetCurrentContextName = vi.fn().mockResolvedValue('my-current-context');
+  kubernetesContexts.set([]);
   render(PreferencesKubernetesContextsRendering, {});
   expect(await screen.findByText('No Kubernetes contexts found')).toBeInTheDocument();
+});
+
+test('Test that context-name2 is the current context', async () => {
+  (window as any).kubernetesGetCurrentContextName = vi.fn().mockResolvedValue('context-name2');
+  render(PreferencesKubernetesContextsRendering, {});
+
+  // Get current-context by aria label
+  // find "context-name" which is located within the same parent div as current-context
+  // make sure the content is context-name2
+  const currentContext = await screen.findByLabelText('current-context');
+  expect(currentContext).toBeInTheDocument();
+
+  // Make sure that the span with the text "context-name2" is within the same parent div as current-context (to make sure that it is the current context)
+  const spanContextName = await screen.findByText('context-name2');
+  expect(spanContextName).toBeInTheDocument();
+  expect(spanContextName.parentElement).toEqual(currentContext.parentElement);
 });
