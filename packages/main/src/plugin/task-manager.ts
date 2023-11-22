@@ -44,7 +44,7 @@ export class TaskManager {
     return task;
   }
 
-  public createNotificationTask(notificationInfo: NotificationInfo): Task {
+  public createNotificationTask(notificationInfo: NotificationInfo): NotificationTask {
     this.taskId++;
     const task: NotificationTask = {
       id: `main-${this.taskId}`,

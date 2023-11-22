@@ -67,7 +67,7 @@ function gotoTask(taskUI: StatefulTaskUI) {
 
       <div class="flex flex-col flex-grow items-end">
         <!-- if completed task, display a close icon-->
-        {#if isNotificationTask(task) || (taskManager.isStatefulTaskUI(taskUI) && taskUI.state === 'completed')}
+        {#if isNotificationTask(task) || (isStatefulTask(taskUI) && taskUI.state === 'completed')}
           <button
             title="Clear notification"
             class="hover:bg-charcoal-800 hover:text-purple-500"
@@ -83,7 +83,7 @@ function gotoTask(taskUI: StatefulTaskUI) {
         </div>
       {/if}
     {/if}
-    {#if taskManager.isStatefulTaskUI(taskUI)}
+    {#if isStatefulTask(taskUI)}
       {#if taskUI.error}
         <div class:hidden="{!showError}" class="text-xs my-2 break-words">{taskUI.error}</div>
       {/if}
@@ -92,7 +92,7 @@ function gotoTask(taskUI: StatefulTaskUI) {
     {/if}
 
     <!-- if in-progress task, display a link to resume-->
-    {#if taskManager.isStatefulTaskUI(taskUI) && taskUI.status === 'in-progress'}
+    {#if isStatefulTask(taskUI) && taskUI.status === 'in-progress'}
       <div class="flex flex-row w-full">
         {#if (taskUI.progress || 0) >= 0}
           <ProgressBar progress="{taskUI.progress}" />
@@ -102,7 +102,7 @@ function gotoTask(taskUI: StatefulTaskUI) {
             <button
               class="text-purple-500 cursor-pointer"
               on:click="{() => {
-                if (taskManager.isStatefulTaskUI(taskUI)) gotoTask(taskUI);
+                if (isStatefulTask(taskUI)) gotoTask(taskUI);
               }}">Go to task ></button>
           {/if}
         </div>
@@ -110,7 +110,7 @@ function gotoTask(taskUI: StatefulTaskUI) {
     {/if}
 
     <!-- if failed task, display the error-->
-    {#if taskManager.isStatefulTaskUI(taskUI) && taskUI.status === 'failure'}
+    {#if isStatefulTask(taskUI) && taskUI.status === 'failure'}
       <div class="flex flex-col w-full items-end">
         <button on:click="{() => (showError = !showError)}" class="text-purple-200 text-xs">
           View Error

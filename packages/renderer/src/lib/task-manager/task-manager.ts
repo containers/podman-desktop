@@ -55,8 +55,4 @@ export class TaskManager {
 
     return task as NotificationTask;
   }
-
-  isStatefulTaskUI(task: StatefulTaskUI | NotificationTask): task is StatefulTaskUI {
-    return 'state' in task;
-  }
 }
