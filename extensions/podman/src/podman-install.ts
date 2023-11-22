@@ -489,7 +489,7 @@ class WSL2Check extends BaseCheck {
       const installSucceeded = await this.installWSL();
       if (installSucceeded) {
         // if action succeeded, do a re-check of all podman requirements so user can be moved forward if all missing pieces have been installed
-        await extensionApi.commands.executeCommand('podman.onboarding.checkPodmanRequirements');
+        await extensionApi.commands.executeCommand('podman.onboarding.checkRequirementsCommand');
       }
     });
   }
