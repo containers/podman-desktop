@@ -21,7 +21,8 @@ import * as path from 'path';
 import * as fs from 'fs';
 import type { CommandRegistry } from './command-registry.js';
 import type { ExtensionError, ExtensionInfo, ExtensionUpdateInfo } from './api/extension-info.js';
-import * as zipper from 'zip-local';
+import AdmZip from 'adm-zip';
+
 import type { TrayMenuRegistry } from './tray-menu-registry.js';
 import { Disposable } from './types/disposable.js';
 import type { ProviderRegistry } from './provider-registry.js';
@@ -203,7 +204,8 @@ export class ExtensionLoader {
     const unpackedDirectory = path.resolve(dirname, `../unpacked/${filename}`);
     fs.mkdirSync(unpackedDirectory, { recursive: true });
     // extract to an existing directory
-    zipper.sync.unzip(filePath).save(unpackedDirectory);
+    const admZip = new AdmZip(filePath);
+    admZip.extractAllTo(unpackedDirectory, true);
 
     const extension = await this.analyzeExtension(unpackedDirectory, true);
     if (!extension.error) {
