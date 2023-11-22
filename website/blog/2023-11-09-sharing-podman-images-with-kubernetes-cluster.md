@@ -190,6 +190,12 @@ It will list the images of podman
 
 Note: by default, kubernetes will use the image pull policy `Always` using the `latest` tag on your image. So it might try to fetch/pull/refresh the image you built locally. Use a specific tag or change the `imagePullPolicy` to `IfNotPresent` in your deployments.
 
+You can now use your own Containerfile/Dockerfile and build an image using `podman build` command. And then check that the image is available as well in the kubernetes cluster by listing images:
+
+```shell
+crictl images
+```
+
 ### Conclusion
 
 We have explored how developers can significantly reduce turnaround times by integrating Podman and Kubernetes seamlessly.
