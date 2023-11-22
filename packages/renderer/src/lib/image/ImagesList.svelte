@@ -248,7 +248,8 @@ const row = new Row<ImageInfoUI>({ selectable: image => !image.inUse, disabledTe
       bind:selectedItemsNumber="{selectedItemsNumber}"
       data="{images}"
       columns="{columns}"
-      row="{row}">
+      row="{row}"
+      defaultSortColumn="Age">
     </Table>
 
     {#if providerConnections.length === 0}
