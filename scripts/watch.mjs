@@ -182,7 +182,6 @@ const setupExtensionApiWatcher = name => {
     const extensionsFolder = resolve(__dirname, '../extensions/');
 
     // loop on all subfolders from the extensions folder
-    // loop on all subfolders from the extensions folder
     readdirSync(extensionsFolder, { withFileTypes: true })
       .filter(dirent => dirent.isDirectory())
       .forEach(dirent => setupExtensionApiWatcher(join(extensionsFolder, dirent.name)));
