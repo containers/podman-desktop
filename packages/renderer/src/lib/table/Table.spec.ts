@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 import { test, expect } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, within } from '@testing-library/svelte';
 
 import TestTable from './TestTable.svelte';
 
@@ -49,13 +49,13 @@ test('Expect column headers with sort indicators', async () => {
 
   const headers = await screen.findAllByRole('columnheader');
   expect(headers).toBeDefined();
-  expect(headers.length).toBe(4);
-  expect(headers[1].textContent).toContain('Id');
-  expect(headers[1].innerHTML).toContain('fa-sort');
-  expect(headers[2].textContent).toContain('Name');
+  expect(headers.length).toBe(5);
+  expect(headers[2].textContent).toContain('Id');
   expect(headers[2].innerHTML).toContain('fa-sort');
-  expect(headers[3].textContent).toContain('Age');
+  expect(headers[3].textContent).toContain('Name');
   expect(headers[3].innerHTML).toContain('fa-sort');
+  expect(headers[4].textContent).toContain('Age');
+  expect(headers[4].innerHTML).toContain('fa-sort');
 });
 
 test('Expect default sort indicator', async () => {
@@ -63,9 +63,9 @@ test('Expect default sort indicator', async () => {
 
   const headers = await screen.findAllByRole('columnheader');
   expect(headers).toBeDefined();
-  expect(headers.length).toBe(4);
-  expect(headers[1].textContent).toContain('Id');
-  expect(headers[1].innerHTML).toContain('fa-sort-down');
+  expect(headers.length).toBe(5);
+  expect(headers[2].textContent).toContain('Id');
+  expect(headers[2].innerHTML).toContain('fa-sort-down');
 });
 
 test('Expect no default sort indicator on other columns', async () => {
@@ -73,11 +73,11 @@ test('Expect no default sort indicator on other columns', async () => {
 
   const headers = await screen.findAllByRole('columnheader');
   expect(headers).toBeDefined();
-  expect(headers.length).toBe(4);
-  expect(headers[2].innerHTML).not.toContain('fa-sort-up');
-  expect(headers[2].innerHTML).not.toContain('fa-sort-down');
+  expect(headers.length).toBe(5);
   expect(headers[3].innerHTML).not.toContain('fa-sort-up');
   expect(headers[3].innerHTML).not.toContain('fa-sort-down');
+  expect(headers[4].innerHTML).not.toContain('fa-sort-up');
+  expect(headers[4].innerHTML).not.toContain('fa-sort-down');
 });
 
 test('Expect sorting by name works', async () => {
@@ -120,4 +120,29 @@ test('Expect sorting by age works', async () => {
   expect(rows[1].textContent).toContain('Henry');
   expect(rows[2].textContent).toContain('Charlie');
   expect(rows[3].textContent).toContain('John');
+});
+
+test('Expect correct aria roles', async () => {
+  render(TestTable, {});
+
+  // table data is 3 objects with 3 properties, so
+  // there should be 5 column headers (expander, checkbox, 3 columns)
+  const headers = await screen.findAllByRole('columnheader');
+  expect(headers).toBeDefined();
+  expect(headers.length).toBe(5);
+  expect(headers[2].textContent).toContain('Id');
+  expect(headers[3].textContent).toContain('Name');
+  expect(headers[4].textContent).toContain('Age');
+
+  // and 4 rows (first is header)
+  const rows = await screen.findAllByRole('row');
+  expect(rows).toBeDefined();
+  expect(rows.length).toBe(4);
+
+  // and each non-header row should have 5 cells (expander, checkbox, 3 cells)
+  for (let i = 1; i < 4; i++) {
+    const cells = await within(rows[i]).findAllByRole('cell');
+    expect(cells).toBeDefined();
+    expect(cells.length).toBe(5);
+  }
 });
