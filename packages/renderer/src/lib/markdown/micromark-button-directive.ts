@@ -43,7 +43,7 @@ export function button(d: any) {
   if (d.attributes && 'command' in d.attributes) {
     // Make this a button if it's a command
     this.tag(
-      '<button class="px-4 py-[6px] rounded-[4px] flex text-white text-[13px] whitespace-nowrap bg-purple-600 hover:bg-purple-500 no-underline" data-command="' +
+      '<button class="px-4 py-[6px] rounded-[4px] text-white text-[13px] whitespace-nowrap bg-purple-600 hover:bg-purple-500 no-underline" data-command="' +
         this.encode(d.attributes.command) +
         '">',
     );
