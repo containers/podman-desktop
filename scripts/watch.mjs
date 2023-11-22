@@ -6,6 +6,7 @@ import { spawn } from 'child_process';
 import { generateAsync } from 'dts-for-context-bridge';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
+import { readdirSync } from 'node:fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -161,10 +162,6 @@ const setupExtensionApiWatcher = name => {
   spawnProcess.on('exit', process.exit);
 };
 
-const setupBuiltinExtensionApiWatcher = name => {
-  setupExtensionApiWatcher(resolve(__dirname, '../extensions/' + name));
-}
-
 (async () => {
   try {
     const extensions = []
@@ -180,13 +177,20 @@ const setupBuiltinExtensionApiWatcher = name => {
     });
 
     await viteDevServer.listen();
-    setupBuiltinExtensionApiWatcher('compose');
-    setupBuiltinExtensionApiWatcher('docker');
-    setupBuiltinExtensionApiWatcher('kube-context');
-    setupBuiltinExtensionApiWatcher('lima');
-    setupBuiltinExtensionApiWatcher('podman');
-    setupBuiltinExtensionApiWatcher('kind');
-    setupBuiltinExtensionApiWatcher('registries');
+
+    // get extensions folder
+    const extensionsFolder = resolve(__dirname, '../extensions/');
+
+    // loop on all subfolders from the extensions folder
+    const extensionsFolders = readdirSync(extensionsFolder, { withFileTypes: true })
+      .filter(dirent => dirent.isDirectory())
+      .map(dirent => resolve(__dirname, '../extensions/' + dirent.name));
+
+    // for each subfolder, start a watcher
+    for (const extensionFolder of extensionsFolders) {
+      setupExtensionApiWatcher(extensionFolder);
+    }
+
     for (const extension of extensions) {
       setupExtensionApiWatcher(extension);
     }
