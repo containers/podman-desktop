@@ -35,6 +35,8 @@ Loading images requires to pack/unpack the files so it's not adequate for large 
 
 Minikube offers a podman environment but it's a version 3.4 running inside a container inside the podman machine (it means that there are two podman instances).
 
+This 3.4 version is very old and do not provide new enhancements and support towards compose, compliance with Docker REST API and 3rd party tools.
+
 Could we just build the image and use that image in kubernetes ?
 
 ## podman and kubernetes/cri-o
@@ -97,6 +99,8 @@ Let's do our own base image named kicbase image.
 Minikube includes a default configuration file for cri-o.
 https://github.com/kubernetes/minikube/blob/0b29983f4bdc1ad55180ee43e3f34cae6c24dee4/deploy/kicbase/02-crio.conf
 
+We need to change this default configuration to say that for storing the images, cri-o needs to use another directory. This new directory `/host-containers` will be mounted from the `/var/lib/containers` folder inside the podman machine. This is how cri-o is able to see podman images.
+
 Let's include the configuration part in this file.
 
 ```toml
@@ -105,7 +109,9 @@ root = "/host-containers/storage"
 runroot = "/host-containers/storage"
 ```
 
-Let's upgrade as well podman that is inside the container adding the instruction
+Let's upgrade as well podman that is inside the container adding the instruction in the Dockerfile.
+
+The Dockerfile is coming from https://github.com/kubernetes/minikube/blob/v1.32.0/deploy/kicbase/Dockerfile#L178-L186
 
 instead of
 
