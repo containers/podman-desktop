@@ -143,9 +143,9 @@ function setGridColumns() {
       class="grid grid-table gap-x-0.5 mx-5 h-12 bg-charcoal-800 hover:bg-zinc-700 rounded-lg mb-2"
       animate:flip="{{ duration: 300 }}"
       role="row">
-      <div class="whitespace-nowrap justify-self-start"></div>
+      <div class="whitespace-nowrap justify-self-start" role="cell"></div>
       {#if row.info.selectable}
-        <div class="whitespace-nowrap place-self-center">
+        <div class="whitespace-nowrap place-self-center" role="cell">
           <Checkbox
             title="Toggle {kind}"
             bind:checked="{object.selected}"
@@ -159,7 +159,7 @@ function setGridColumns() {
             ? 'justify-self-end'
             : column.info.align === 'center'
               ? 'justify-self-center'
-              : 'justify-self-start'} self-center overflow-hidden"
+              : 'justify-self-start'} self-center overflow-hidden max-w-full"
           role="cell">
           {#if column.info.renderer}
             <svelte:component this="{column.info.renderer}" object="{object}" />
