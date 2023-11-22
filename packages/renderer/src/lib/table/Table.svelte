@@ -105,7 +105,7 @@ function setGridColumns() {
   <div
     class="grid grid-table gap-x-0.5 mx-5 h-7 sticky top-0 bg-charcoal-700 text-xs text-gray-600 font-bold uppercase z-[2]"
     role="row">
-    <div class="whitespace-nowrap justify-self-start"></div>
+    <div class="whitespace-nowrap justify-self-start" role="columnheader"></div>
     {#if row.info.selectable}
       <div class="whitespace-nowrap place-self-center" role="columnheader">
         <Checkbox
