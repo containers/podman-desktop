@@ -20,9 +20,8 @@
     "@podman-desktop/api": "^0.0.1"
   },
   "devDependencies": {
-    "7zip-min": "^1.4.4",
+    "adm-zip": "^0.5.10",
     "mkdirp": "^3.0.1",
-    "rollup-plugin-copy": "^3.5.0",
-    "zip-local": "^0.3.5"
+    "rollup-plugin-copy": "^3.5.0"
   }
 }
