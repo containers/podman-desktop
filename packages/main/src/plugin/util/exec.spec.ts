@@ -49,6 +49,8 @@ vi.mock('child_process', () => {
   };
 });
 
+const setEncodingMock = vi.fn();
+
 describe('exec', () => {
   const proxy: Proxy = {
     isEnabled: vi.fn().mockReturnValue(false),
@@ -71,8 +73,8 @@ describe('exec', () => {
       }
     }) as unknown as Readable;
     const spawnMock = vi.mocked(spawn).mockReturnValue({
-      stdout: { on, setEncoding: vi.fn() },
-      stderr: { on, setEncoding: vi.fn() },
+      stdout: { on, setEncoding: setEncodingMock },
+      stderr: { on, setEncoding: setEncodingMock },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
         if (event === 'exit') {
           cb(0);
@@ -85,6 +87,7 @@ describe('exec', () => {
     expect(spawnMock).toHaveBeenCalledWith(command, args, { env: expect.any(Object) });
     expect(stdout).toBeDefined();
     expect(stdout).toContain('Hello, World!');
+    expect(setEncodingMock).toBeCalledWith('utf8');
   });
 
   test('should run the command with custom cwd and resolve with the result', async () => {
@@ -98,8 +101,8 @@ describe('exec', () => {
       }
     }) as unknown as Readable;
     const spawnMock = vi.mocked(spawn).mockReturnValue({
-      stdout: { on, setEncoding: vi.fn() },
-      stderr: { on, setEncoding: vi.fn() },
+      stdout: { on, setEncoding: setEncodingMock },
+      stderr: { on, setEncoding: setEncodingMock },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
         if (event === 'exit') {
           cb(0);
@@ -113,6 +116,7 @@ describe('exec', () => {
     expect(spawnMock).toHaveBeenCalledWith(command, args, expect.objectContaining({ cwd: cwd }));
     expect(stdout).toBeDefined();
     expect(stdout).toContain('Hello, World!');
+    expect(setEncodingMock).toBeCalledWith('utf8');
   });
 
   test('should reject with an error when the command execution returns non-zero exit code', async () => {
@@ -124,8 +128,8 @@ describe('exec', () => {
       }
     }) as unknown as Readable;
     vi.mocked(spawn).mockReturnValue({
-      stdout: { on, setEncoding: vi.fn() },
-      stderr: { on, setEncoding: vi.fn() },
+      stdout: { on, setEncoding: setEncodingMock },
+      stderr: { on, setEncoding: setEncodingMock },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
         if (event === 'exit') {
           cb(1);
@@ -135,6 +139,7 @@ describe('exec', () => {
     const execResult = exec.exec(command);
     await expect(execResult).rejects.toThrowError(/Command execution failed with exit code 1/);
     await expect(execResult).rejects.toThrowError(Error);
+    expect(setEncodingMock).toBeCalledWith('utf8');
   });
 
   test('should reject with an error when the process error event received', async () => {
@@ -153,8 +158,8 @@ describe('exec', () => {
     }) as unknown as Readable;
     const error = new Error('Error message');
     vi.mocked(spawn).mockReturnValue({
-      stdout: { on, setEncoding: vi.fn() },
-      stderr: { on, setEncoding: vi.fn() },
+      stdout: { on, setEncoding: setEncodingMock },
+      stderr: { on, setEncoding: setEncodingMock },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: Error) => void) => {
         if (event === 'error') {
           cb(error);
@@ -164,6 +169,7 @@ describe('exec', () => {
     const execResult = exec.exec(command);
     await expect(execResult).rejects.toThrowError(/Failed to execute command: Error message/);
     await expect(execResult).rejects.toThrowError(Error);
+    expect(setEncodingMock).toBeCalledWith('utf8');
   });
 
   test('should reject with an error when the execution is cancelled on macOS and linux', async () => {
@@ -180,8 +186,8 @@ describe('exec', () => {
 
     const childProcessMock: unknown = {
       killed: false,
-      stdout: { on: vi.fn(), setEncoding: vi.fn() },
-      stderr: { on: vi.fn(), setEncoding: vi.fn() },
+      stdout: { on: vi.fn(), setEncoding: setEncodingMock },
+      stderr: { on: vi.fn(), setEncoding: setEncodingMock },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
         if (event === 'exit') {
           cb(0);
@@ -200,6 +206,7 @@ describe('exec', () => {
     await expect(result).rejects.toThrowError(Error);
     expect((childProcessMock as any).kill).toHaveBeenCalled();
     expect(options.logger.error).toHaveBeenCalledWith('Execution cancelled');
+    expect(setEncodingMock).toBeCalledWith('utf8');
   });
 
   test('should reject with an error when the callback called with error in admin mode on windows', async () => {
@@ -234,8 +241,8 @@ describe('exec', () => {
       }
     }) as unknown as Readable;
     const spawnMock = vi.mocked(spawn).mockReturnValue({
-      stdout: { on, setEncoding: vi.fn() },
-      stderr: { on, setEncoding: vi.fn() },
+      stdout: { on, setEncoding: setEncodingMock },
+      stderr: { on, setEncoding: setEncodingMock },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
         if (event === 'exit') {
           cb(0);
@@ -258,6 +265,7 @@ describe('exec', () => {
     });
     expect(stdout).toBeDefined();
     expect(stdout).toContain('Hello, World!');
+    expect(setEncodingMock).toBeCalledWith('utf8');
   });
 
   test('should run the command and set HTTPS_PROXY', async () => {
@@ -270,8 +278,8 @@ describe('exec', () => {
       }
     }) as unknown as Readable;
     const spawnMock = vi.mocked(spawn).mockReturnValue({
-      stdout: { on, setEncoding: vi.fn() },
-      stderr: { on, setEncoding: vi.fn() },
+      stdout: { on, setEncoding: setEncodingMock },
+      stderr: { on, setEncoding: setEncodingMock },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
         if (event === 'exit') {
           cb(0);
@@ -294,6 +302,7 @@ describe('exec', () => {
     });
     expect(stdout).toBeDefined();
     expect(stdout).toContain('Hello, World!');
+    expect(setEncodingMock).toBeCalledWith('utf8');
   });
 
   test('should run the command and set NO_PROXY', async () => {
@@ -306,8 +315,8 @@ describe('exec', () => {
       }
     }) as unknown as Readable;
     const spawnMock = vi.mocked(spawn).mockReturnValue({
-      stdout: { on, setEncoding: vi.fn() },
-      stderr: { on, setEncoding: vi.fn() },
+      stdout: { on, setEncoding: setEncodingMock },
+      stderr: { on, setEncoding: setEncodingMock },
       on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
         if (event === 'exit') {
           cb(0);
@@ -328,6 +337,7 @@ describe('exec', () => {
     expect(spawnMock).toHaveBeenCalledWith(command, args, { env: expect.objectContaining({ NO_PROXY: '127.0.0.1' }) });
     expect(stdout).toBeDefined();
     expect(stdout).toContain('Hello, World!');
+    expect(setEncodingMock).toBeCalledWith('utf8');
   });
 
   test('should run the command with privileges on macOS', async () => {
@@ -498,6 +508,45 @@ describe('exec', () => {
     expect(options).toBeDefined();
     expect(options.env).toBeDefined();
     expect(options.env['MY(VAR']).not.toBeDefined();
+  });
+
+  test('should run the command and set specific encoding', async () => {
+    const command = 'echo';
+    const args = ['Hello, World!'];
+
+    (util.isLinux as Mock).mockReturnValue(true);
+
+    const on: any = vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
+      if (event === 'data') {
+        cb('Hello, World!');
+      }
+    }) as unknown as Readable;
+    const spawnMock = vi.mocked(spawn).mockReturnValue({
+      stdout: { on, setEncoding: setEncodingMock },
+      stderr: { on, setEncoding: setEncodingMock },
+      on: vi.fn().mockImplementation((event: string, cb: (arg0: number) => void) => {
+        if (event === 'exit') {
+          cb(0);
+        }
+      }),
+    } as any);
+
+    // emulate flatpak environment
+    const { stdout } = await exec.exec(command, args, {
+      env: { FLATPAK_ID: 'true' },
+      isAdmin: true,
+      encoding: 'utf16le',
+    });
+
+    // caller should contains the cwd provided
+    expect(spawnMock).toHaveBeenCalledWith(
+      'flatpak-spawn',
+      expect.arrayContaining(['--host', 'pkexec', 'echo', 'Hello, World!']),
+      expect.anything(),
+    );
+    expect(stdout).toBeDefined();
+    expect(stdout).toContain('Hello, World!');
+    expect(setEncodingMock).toBeCalledWith('utf16le');
   });
 });
 
