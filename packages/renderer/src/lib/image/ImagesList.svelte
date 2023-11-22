@@ -227,7 +227,7 @@ function computeInterval(): number {
     <Button on:click="{() => gotoBuildImage()}" title="Build Image from Containerfile" icon="{faCube}">Build</Button>
   </svelte:fragment>
 
-  <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
+  <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
         on:click="{() => deleteSelectedImages()}"
@@ -236,7 +236,7 @@ function computeInterval(): number {
         icon="{faTrash}" />
       <span class="pl-2">On {selectedItemsNumber} selected items.</span>
     {/if}
-  </div>
+  </svelte:fragment>
 
   <div class="flex min-w-full h-full" slot="content">
     <table class="mx-5 w-full h-fit" class:hidden="{images.length === 0}">

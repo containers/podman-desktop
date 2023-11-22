@@ -209,7 +209,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
     {/if}
   </svelte:fragment>
 
-  <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
+  <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
         on:click="{() => deleteSelectedPods()}"
@@ -218,7 +218,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
         icon="{faTrash}" />
       <span class="pl-2">On {selectedItemsNumber} selected items.</span>
     {/if}
-  </div>
+  </svelte:fragment>
 
   <svelte:fragment slot="tabs">
     <Button

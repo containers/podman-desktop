@@ -465,7 +465,7 @@ function setStoppedFilter() {
       <KubePlayButton />
     {/if}
   </svelte:fragment>
-  <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
+  <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
         on:click="{() => deleteSelectedContainers()}"
@@ -480,7 +480,7 @@ function setStoppedFilter() {
         icon="{SolidPodIcon}" />
       <span class="pl-2">On {selectedItemsNumber} selected items.</span>
     {/if}
-  </div>
+  </svelte:fragment>
 
   <svelte:fragment slot="tabs">
     <Button type="tab" on:click="{() => resetRunningFilter()}" selected="{containerUtils.filterIsAll(searchTerm)}"
