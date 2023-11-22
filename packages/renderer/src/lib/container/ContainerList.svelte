@@ -473,12 +473,11 @@ function setStoppedFilter() {
         title="Delete {selectedItemsNumber} selected items"
         bind:inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />
-      <div class="px-1"></div>
       <Button
         on:click="{() => createPodFromContainers()}"
         title="Create Pod with {selectedItemsNumber} selected items"
         icon="{SolidPodIcon}" />
-      <span class="pl-2">On {selectedItemsNumber} selected items.</span>
+      <span>On {selectedItemsNumber} selected items.</span>
     {/if}
   </svelte:fragment>
 

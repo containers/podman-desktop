@@ -44,7 +44,7 @@ export let searchEnabled = true;
         </div>
         <div class="flex flex-1 px-5" role="group" aria-label="bottomAdditionalActions">
           {#if $$slots['bottom-additional-actions']}
-            <div class="flex flex-row justify-start items-center w-full">
+            <div class="space-x-2 flex flex-row justify-start items-center w-full">
               <slot name="bottom-additional-actions" />
             </div>
           {:else}&nbsp;#{/if}

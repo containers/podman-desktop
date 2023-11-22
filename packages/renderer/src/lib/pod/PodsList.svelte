@@ -216,7 +216,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
         title="Delete {selectedItemsNumber} selected items"
         inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />
-      <span class="pl-2">On {selectedItemsNumber} selected items.</span>
+      <span>On {selectedItemsNumber} selected items.</span>
     {/if}
   </svelte:fragment>
 
