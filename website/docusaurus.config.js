@@ -262,17 +262,14 @@ const config = {
             from: ['/docs/working-with-containers', '/docs/getting-started/getting-started', '/docs/getting-started'],
           },
           {
-            to: '/docs/containers/registries/authenticating-to-a-preconfigured-registry',
+            to: '/docs/containers/registries',
             from: [
-              '/docs/working-with-containers/registries/authenticating-to-a-preconfigured-registry',
+              '/docs/containers/registries/authenticating-to-a-preconfigured-registry',
+              '/docs/containers/registries/insecure-registry',
               '/docs/getting-started/authenticating-to-a-preconfigured-registry',
-            ],
-          },
-          {
-            to: '/docs/containers/registries/insecure-registry',
-            from: [
-              '/docs/working-with-containers/registries/insecure-registry',
               '/docs/getting-started/insecure-registry',
+              '/docs/working-with-containers/registries/authenticating-to-a-preconfigured-registry',
+              '/docs/working-with-containers/registries/insecure-registry',
             ],
           },
           {
