@@ -20,7 +20,7 @@ import { writable, type Writable } from 'svelte/store';
 import type { ImageCheckerInfo } from '../../../main/src/plugin/api/image-checker-info';
 import { EventStore } from './event-store';
 
-const windowEvents = ['image-checker-provider-update'];
+const windowEvents = ['image-checker-provider-update', 'image-checker-provider-remove'];
 const windowListeners = ['extensions-already-started'];
 
 let readyToUpdate = false;

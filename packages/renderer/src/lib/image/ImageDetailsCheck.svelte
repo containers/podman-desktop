@@ -23,6 +23,9 @@ interface ProviderError {
   error: Error;
 }
 
+const orderStatus = ['failed', 'success'];
+const orderSeverity = ['critical', 'high', 'medium', 'low', undefined];
+
 let providers: ImageCheckerInfo[];
 let results: CheckUI[] = [];
 let cancellableTokenId: number = 0;
@@ -49,6 +52,7 @@ onDestroy(() => {
 
 async function callProviders(_providers: readonly ImageCheckerInfo[]) {
   providers = [..._providers];
+  const sortedProvidersIds = providers.map(p => p.id).sort();
   cancellableTokenId = await window.getCancellableTokenSource();
   remainingProviders = providers.length;
 
@@ -68,10 +72,6 @@ async function callProviders(_providers: readonly ImageCheckerInfo[]) {
           });
         });
         results.sort((a, b) => {
-          const orderStatus = ['failed', 'success'];
-          const orderSeverity = ['critical', 'high', 'medium', 'low', undefined];
-          const orderProvider = providers.map(p => p.id).sort();
-
           const statusA = orderStatus.indexOf(a.check.status);
           const statusB = orderStatus.indexOf(b.check.status);
           if (statusA !== statusB) {
@@ -84,8 +84,8 @@ async function callProviders(_providers: readonly ImageCheckerInfo[]) {
             return severityA - severityB;
           }
 
-          const providerA = orderProvider.indexOf(a.provider.id);
-          const providerB = orderProvider.indexOf(b.provider.id);
+          const providerA = sortedProvidersIds.indexOf(a.provider.id);
+          const providerB = sortedProvidersIds.indexOf(b.provider.id);
           if (providerA !== providerB) {
             return providerA - providerB;
           }
