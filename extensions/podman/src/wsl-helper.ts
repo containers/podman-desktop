@@ -9,7 +9,7 @@ export interface WSLVersionInfo {
 
 export class WslHelper {
   async getWSLVersionData(): Promise<WSLVersionInfo> {
-    const { stdout } = await extensionApi.process.exec('wsl', ['--version']);
+    const { stdout } = await extensionApi.process.exec('wsl', ['--version'], { encoding: 'utf16le' });
     /*
       got something like
       WSL version: 1.2.5.0
@@ -53,9 +53,28 @@ function getVersionFromWSLOutput(line: string, value: string): string {
   if (!line) {
     return undefined;
   }
-  const colonPosition = line.indexOf(':');
+  const colonPosition = indexOfColons(line);
   if (colonPosition >= 0 && line.substring(0, colonPosition).toLowerCase().includes(value)) {
     return line.substring(colonPosition + 1).trim();
   }
   return undefined;
+}
+
+/**
+ * When using a non-latin language like chinese, WSL also uses a different value for the colon symbol
+ * There are three colons:
+ * symbol | name            | number
+ * :      | vertical colon  | 58
+ * ：     | fullwidth colon | 65306
+ * ﹕     | small colon     | 65109
+ * This function returns the position of the first colon symbol found in the string
+ */
+function indexOfColons(value: string): number {
+  for (let i = 0; i < value.length; i++) {
+    const codeChar = value.charCodeAt(i);
+    if (codeChar === 58 || codeChar === 65306 || codeChar === 65109) {
+      return i;
+    }
+  }
+  return -1;
 }
