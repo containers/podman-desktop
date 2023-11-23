@@ -200,27 +200,27 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="pods">
-  <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
+  <svelte:fragment slot="additional-actions">
     {#if $podsInfos.length > 0}
       <Prune type="pods" engines="{enginesList}" />
     {/if}
     {#if providerPodmanConnections.length > 0}
       <KubePlayButton />
     {/if}
-  </div>
+  </svelte:fragment>
 
-  <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
+  <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
         on:click="{() => deleteSelectedPods()}"
         title="Delete {selectedItemsNumber} selected items"
         inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />
-      <span class="pl-2">On {selectedItemsNumber} selected items.</span>
+      <span>On {selectedItemsNumber} selected items.</span>
     {/if}
-  </div>
+  </svelte:fragment>
 
-  <div class="flex flex-row px-2 mb-2 border-b border-charcoal-400" slot="tabs">
+  <svelte:fragment slot="tabs">
     <Button
       type="tab"
       on:click="{() => {
@@ -254,7 +254,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
         searchTerm = temp ? `${temp} is:stopped` : 'is:stopped';
       }}"
       selected="{searchTerm.includes('is:stopped')}">Stopped</Button>
-  </div>
+  </svelte:fragment>
 
   <div class="flex min-w-full h-full" slot="content">
     <table class="mx-5 w-full h-fit" class:hidden="{pods.length === 0}">

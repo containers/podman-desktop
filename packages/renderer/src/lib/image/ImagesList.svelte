@@ -217,7 +217,7 @@ function computeInterval(): number {
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="images">
-  <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
+  <svelte:fragment slot="additional-actions">
     {#if $imagesInfos.length > 0}
       <Prune type="images" engines="{enginesList}" />
     {/if}
@@ -225,18 +225,18 @@ function computeInterval(): number {
       Pull
     </Button>
     <Button on:click="{() => gotoBuildImage()}" title="Build Image from Containerfile" icon="{faCube}">Build</Button>
-  </div>
+  </svelte:fragment>
 
-  <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
+  <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
         on:click="{() => deleteSelectedImages()}"
         title="Delete {selectedItemsNumber} selected items"
         bind:inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />
-      <span class="pl-2">On {selectedItemsNumber} selected items.</span>
+      <span>On {selectedItemsNumber} selected items.</span>
     {/if}
-  </div>
+  </svelte:fragment>
 
   <div class="flex min-w-full h-full" slot="content">
     <table class="mx-5 w-full h-fit" class:hidden="{images.length === 0}">

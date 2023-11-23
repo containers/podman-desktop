@@ -455,7 +455,7 @@ function setStoppedFilter() {
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="containers">
-  <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
+  <svelte:fragment slot="additional-actions">
     <!-- Only show if there are containers-->
     {#if $containersInfos.length > 0}
       <Prune type="containers" engines="{enginesList}" />
@@ -464,8 +464,8 @@ function setStoppedFilter() {
     {#if providerPodmanConnections.length > 0}
       <KubePlayButton />
     {/if}
-  </div>
-  <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
+  </svelte:fragment>
+  <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
         on:click="{() => deleteSelectedContainers()}"
@@ -473,23 +473,22 @@ function setStoppedFilter() {
         title="Delete {selectedItemsNumber} selected items"
         bind:inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />
-      <div class="px-1"></div>
       <Button
         on:click="{() => createPodFromContainers()}"
         title="Create Pod with {selectedItemsNumber} selected items"
         icon="{SolidPodIcon}" />
-      <span class="pl-2">On {selectedItemsNumber} selected items.</span>
+      <span>On {selectedItemsNumber} selected items.</span>
     {/if}
-  </div>
+  </svelte:fragment>
 
-  <div class="flex flex-row px-2 mb-2 border-b border-charcoal-400" slot="tabs">
+  <svelte:fragment slot="tabs">
     <Button type="tab" on:click="{() => resetRunningFilter()}" selected="{containerUtils.filterIsAll(searchTerm)}"
       >All containers</Button>
     <Button type="tab" on:click="{() => setRunningFilter()}" selected="{containerUtils.filterIsRunning(searchTerm)}"
       >Running containers</Button>
     <Button type="tab" on:click="{() => setStoppedFilter()}" selected="{containerUtils.filterIsStopped(searchTerm)}"
       >Stopped containers</Button>
-  </div>
+  </svelte:fragment>
 
   <div class="flex min-w-full h-full" slot="content">
     <table class="mx-5 w-full h-fit" class:hidden="{containerGroups.length === 0}">

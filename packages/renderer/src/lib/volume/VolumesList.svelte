@@ -188,7 +188,7 @@ function gotoCreateVolume(): void {
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="volumes">
-  <div slot="additional-actions" class="space-x-2 flex flex-nowrap">
+  <svelte:fragment slot="additional-actions">
     {#if providerConnections.length > 0}
       <Button on:click="{() => gotoCreateVolume()}" icon="{faPlusCircle}" title="Create a volume">Create</Button>
     {/if}
@@ -201,18 +201,18 @@ function gotoCreateVolume(): void {
         title="Collect usage data for volumes. It can take a while..."
         icon="{faPieChart}">Collect usage data</Button>
     {/if}
-  </div>
+  </svelte:fragment>
 
-  <div slot="bottom-additional-actions" class="flex flex-row justify-start items-center w-full">
+  <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
         on:click="{() => deleteSelectedVolumes()}"
         title="Delete {selectedItemsNumber} selected items"
         inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />
-      <span class="pl-2">On {selectedItemsNumber} selected items.</span>
+      <span>On {selectedItemsNumber} selected items.</span>
     {/if}
-  </div>
+  </svelte:fragment>
 
   <div class="flex min-w-full h-full" slot="content">
     <table class="mx-5 w-full h-fit" class:hidden="{volumes.length === 0}">

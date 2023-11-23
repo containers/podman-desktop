@@ -12,7 +12,9 @@ export let searchEnabled = true;
       </div>
       <div class="flex flex-1 justify-end">
         <div class="px-5" role="group" aria-label="additionalActions">
-          <slot name="additional-actions">&nbsp;</slot>
+          {#if $$slots['additional-actions']}
+            <div class="space-x-2 flex flex-nowrap"><slot name="additional-actions" /></div>
+          {:else}&nbsp;{/if}
         </div>
       </div>
     </div>
@@ -41,12 +43,20 @@ export let searchEnabled = true;
           </div>
         </div>
         <div class="flex flex-1 px-5" role="group" aria-label="bottomAdditionalActions">
-          <slot name="bottom-additional-actions">&nbsp;</slot>
+          {#if $$slots['bottom-additional-actions']}
+            <div class="space-x-2 flex flex-row justify-start items-center w-full">
+              <slot name="bottom-additional-actions" />
+            </div>
+          {:else}&nbsp;#{/if}
         </div>
       </div>
     {/if}
 
-    <slot name="tabs" />
+    {#if $$slots.tabs}
+      <div class="flex flex-row px-2 mb-2 border-b border-charcoal-400">
+        <slot name="tabs" />
+      </div>
+    {/if}
 
     <div class="flex w-full h-full overflow-auto" role="region" aria-label="content">
       <slot name="content" />
