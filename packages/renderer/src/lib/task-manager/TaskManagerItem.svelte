@@ -67,7 +67,7 @@ function gotoTask(taskUI: StatefulTaskUI) {
 
       <div class="flex flex-col flex-grow items-end">
         <!-- if completed task, display a close icon-->
-        {#if isNotificationTask(task) || (isStatefulTask(taskUI) && taskUI.state === 'completed')}
+        {#if isNotificationTask(taskUI) || (isStatefulTask(taskUI) && taskUI.state === 'completed')}
           <button
             title="Clear notification"
             class="hover:bg-charcoal-800 hover:text-purple-500"
@@ -75,11 +75,11 @@ function gotoTask(taskUI: StatefulTaskUI) {
         {/if}
       </div>
     </div>
-    {#if isNotificationTask(task)}
-      <div class="text-gray-700 text-xs my-2">{task.description}</div>
-      {#if task.markdownActions}
+    {#if isNotificationTask(taskUI)}
+      <div class="text-gray-700 text-xs my-2">{taskUI.description}</div>
+      {#if taskUI.markdownActions}
         <div class="flex justify-end">
-          <Markdown>{task.markdownActions}</Markdown>
+          <Markdown>{taskUI.markdownActions}</Markdown>
         </div>
       {/if}
     {/if}

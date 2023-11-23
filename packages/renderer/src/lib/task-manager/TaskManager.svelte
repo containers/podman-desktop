@@ -29,11 +29,6 @@ function hide() {
   showTaskManager = false;
 }
 
-function clearCompleted() {
-  // needs to delete the task from the svelte store
-  clearNotifications();
-}
-
 // If we hit ESC while the menu is open, close it
 function handleEscape({ key }: any) {
   // if the task manager is not open, do not check any keys
@@ -114,7 +109,7 @@ window.events?.receive('toggle-task-manager', () => {
       {#if notificationsTasks.length > 0}
         <div class="flex flex-row w-full">
           <div class="p-2 flex flex-row space-x-2 w-full">
-            <Button on:click="{() => clearCompleted()}">Clear notifications</Button>
+            <Button on:click="{() => clearNotifications()}">Clear</Button>
             <!--<Button>View task history</Button>-->
           </div>
         </div>
