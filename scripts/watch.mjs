@@ -6,7 +6,7 @@ import { spawn } from 'child_process';
 import { generateAsync } from 'dts-for-context-bridge';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
-import { readdirSync } from 'node:fs';
+import { readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -184,7 +184,7 @@ const setupExtensionApiWatcher = name => {
 
     // loop on all subfolders from the extensions folder
     readdirSync(extensionsFolder, { withFileTypes: true })
-      .filter(dirent => dirent.isDirectory())
+      .filter(dirent => dirent.isDirectory() && existsSync(join(extensionsFolder, dirent.name, 'package.json')))
       .forEach(dirent => setupExtensionApiWatcher(join(extensionsFolder, dirent.name)));
 
     for (const extension of extensions) {
