@@ -21,6 +21,12 @@ import { _electron as electron } from '@playwright/test';
 import { join } from 'node:path';
 import type { BrowserWindow } from 'electron';
 
+type WindowState = {
+  isVisible: boolean;
+  isDevToolsOpened: boolean;
+  isCrashed: boolean;
+};
+
 export class PodmanDesktopRunner {
   private _options: object;
   private _running: boolean;
@@ -60,6 +66,14 @@ export class PodmanDesktopRunner {
       console.log(`STDERR: ${data}`);
     });
 
+    // Evaluate that the main window is visible
+    // at the same time, the function also makes sure that event 'ready-to-show' was triggered
+    const windowState = await this.getBrowserWindowState();
+    console.log(`Application Browser's window is visible: ${windowState.isVisible}`);
+
+    // close dev tools windows
+    await this.closeDevTools();
+
     return this._page;
   }
 
@@ -85,6 +99,42 @@ export class PodmanDesktopRunner {
 
   public async screenshot(filename: string) {
     await this.getPage().screenshot({ path: join(this._testOutput, 'screenshots', filename) });
+  }
+
+  public async closeDevTools(): Promise<void> {
+    await (
+      await this.getBrowserWindow()
+    ).evaluate(mainWindow => {
+      console.log(`Closing Dev Tools Window`);
+      mainWindow.webContents.closeDevTools();
+    });
+  }
+
+  public async getBrowserWindowState(): Promise<WindowState> {
+    return await (
+      await this.getBrowserWindow()
+    ).evaluate((mainWindow): Promise<WindowState> => {
+      const getState = () => {
+        return {
+          isVisible: mainWindow.isVisible(),
+          isDevToolsOpened: mainWindow.webContents.isDevToolsOpened(),
+          isCrashed: mainWindow.webContents.isCrashed(),
+        };
+      };
+
+      return new Promise(resolve => {
+        /**
+         * The main window is created hidden, and is shown only when it is ready.
+         * See {@link ../packages/main/src/mainWindow.ts} function
+         */
+        if (mainWindow.isVisible()) {
+          resolve(getState());
+        } else
+          mainWindow.once('ready-to-show', () => {
+            resolve(getState());
+          });
+      });
+    });
   }
 
   async saveVideoAs(path: string) {
