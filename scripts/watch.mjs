@@ -7,6 +7,7 @@ import { generateAsync } from 'dts-for-context-bridge';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { readdirSync } from 'node:fs';
+import { join } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
