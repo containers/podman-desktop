@@ -47,6 +47,19 @@ export interface ColumnInformation<Type> {
    * @param comparator
    */
   readonly comparator?: (object1: Type, object2: Type) => number;
+
+  /**
+   * The 'natural' or initial sort direction. Most columns are
+   * naturally sorted in ascending order and do not need to
+   * specify this value - e.g. names are sorted alphabetically.
+   *
+   * Columns that are naturally sorted in descending order -
+   * e.g. file sizes or 'number of children' by biggest first -
+   * can set this value to change the initial sort direction.
+   *
+   * Defaults to 'ascending'.
+   */
+  readonly initialOrder?: 'ascending' | 'descending';
 }
 
 /**

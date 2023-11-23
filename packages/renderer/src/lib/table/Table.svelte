@@ -40,6 +40,10 @@ function toggleAll(checked: boolean) {
 let sortCol: Column<any>;
 let sortAscending: boolean;
 
+if (data) {
+  sortImpl();
+}
+
 function sort(column: Column<any>) {
   if (!column) {
     return;
@@ -55,8 +59,23 @@ function sort(column: Column<any>) {
     sortAscending = !sortAscending;
   } else {
     sortCol = column;
-    sortAscending = true;
+    sortAscending = column.info.initialOrder ? column.info.initialOrder !== 'descending' : true;
   }
+  sortImpl();
+}
+
+function sortImpl() {
+  // confirm we're sorting
+  if (!sortCol) {
+    return;
+  }
+
+  let comparator = sortCol.info.comparator;
+  if (!comparator) {
+    // column is not sortable
+    return;
+  }
+
   if (!sortAscending) {
     // we're already sorted, switch to reverse order
     let comparatorTemp = comparator;
@@ -69,9 +88,9 @@ function sort(column: Column<any>) {
 
 onMount(async () => {
   const column: Column<any> | undefined = columns.find(column => column.title === defaultSortColumn);
-  if (column) {
+  if (column?.info.comparator) {
     sortCol = column;
-    sortAscending = true;
+    sortAscending = column.info.initialOrder ? column.info.initialOrder !== 'descending' : true;
   }
 });
 
@@ -84,7 +103,9 @@ function setGridColumns() {
   // section and checkbox columns
   let columnWidths: string[] = ['20px'];
 
-  if (row.info.selectable) columnWidths.push('32px');
+  if (row.info.selectable) {
+    columnWidths.push('32px');
+  }
 
   // custom columns
   columns.map(c => c.info.width ?? '1fr').forEach(w => columnWidths.push(w));
@@ -129,8 +150,8 @@ function setGridColumns() {
         {column.title}{#if column.info.comparator}<i
             class="fas pl-0.5"
             class:fa-sort="{sortCol !== column}"
-            class:fa-sort-up="{sortCol === column && !sortAscending}"
-            class:fa-sort-down="{sortCol === column && sortAscending}"
+            class:fa-sort-up="{sortCol === column && sortAscending}"
+            class:fa-sort-down="{sortCol === column && !sortAscending}"
             class:text-charcoal-200="{sortCol !== column}"
             aria-hidden="true"></i
           >{/if}

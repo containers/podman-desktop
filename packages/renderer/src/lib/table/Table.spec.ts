@@ -65,7 +65,7 @@ test('Expect default sort indicator', async () => {
   expect(headers).toBeDefined();
   expect(headers.length).toBe(5);
   expect(headers[2].textContent).toContain('Id');
-  expect(headers[2].innerHTML).toContain('fa-sort-down');
+  expect(headers[2].innerHTML).toContain('fa-sort-up');
 });
 
 test('Expect no default sort indicator on other columns', async () => {
