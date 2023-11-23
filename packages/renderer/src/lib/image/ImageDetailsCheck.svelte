@@ -43,6 +43,8 @@ onMount(async () => {
 onDestroy(() => {
   // unsubscribe from the store
   providersUnsubscribe?.();
+
+  handleAbort();
 });
 
 async function callProviders(_providers: readonly ImageCheckerInfo[]) {
@@ -111,11 +113,12 @@ async function callProviders(_providers: readonly ImageCheckerInfo[]) {
 }
 
 function handleAbort() {
-  if (cancellableTokenId !== 0) {
+  if (cancellableTokenId !== 0 && remainingProviders > 0) {
     window.cancelToken(cancellableTokenId);
+    aborted = true;
+    window.telemetryTrack('imageCheck.aborted');
+    cancellableTokenId = 0;
   }
-  aborted = true;
-  window.telemetryTrack('imageCheck.aborted');
 }
 </script>
 
