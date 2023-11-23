@@ -30,6 +30,8 @@ let page: Page;
 let registryUrl: string;
 let registryUsername: string;
 let registryPswdSecret: string;
+let imageName: string;
+let imageTag: string;
 
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
@@ -39,6 +41,8 @@ beforeAll(async () => {
   registryUrl = '';
   registryUsername = '';
   registryPswdSecret = process.env.registryPswdSecret ? process.env.registryPswdSecret : 'invalidPswd';
+  imageName = '';
+  imageTag = '';
 
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
@@ -65,16 +69,15 @@ describe('Registry workflow verification', async () => {
     await playExpect(registryPage.addRegistryButton).isEnabled();
 
     await registryPage.createRegistry('invalidUrl', 'invalidName', 'invalidPswd');
-    const errorMsg =
+    const urlErrorMsg =
       'Unable to find auth info for https://invalidUrl/v2/. Error: RequestError: getaddrinfo ENOTFOUND invalidUrl';
-    await playExpect(errorMsg).isVisible();
+    await playExpect(urlErrorMsg).isVisible();
     const cancelButton = page.getByRole('button', { name: 'Cancel' });
     await cancelButton.click();
 
     await registryPage.createRegistry(registryUrl, 'invalidName', 'invalidPswd');
-    errorMsg = 'Wrong Username or Password.';
-    await playExpect(errorMsg).isVisible();
-    const cancelButton = page.getByRole('button', { name: 'Cancel' });
+    const credsErrorMsg = 'Wrong Username or Password.';
+    await playExpect(credsErrorMsg).isVisible();
     await cancelButton.click();
 
     await registryPage.createRegistry(registryUrl, registryUsername, registryPswdSecret);
@@ -90,6 +93,15 @@ describe('Registry workflow verification', async () => {
     await playExpect(errorMsg).isVisible();
     const cancelButton = page.getByRole('button', { name: 'Cancel' });
     await cancelButton.click();
+  });
+  test('Pull image from registry', async () => {
+    const navBar = page.getByRole('navigation', { name: 'AppNavigation' });
+    const imagesPage = await navBar.openImages();
+
+    const pullImagePage = await imagesPage.openPullImage();
+    const updatedImages = await pullImagePage.pullImage(imageName.concat(imageTag));
+
+    playExpect(updatedImages.imageExists(imageName)).toBeTruthy();
   });
   test('Remove registry', async () => {
     const registryPage = new RegistriesPage(page);
