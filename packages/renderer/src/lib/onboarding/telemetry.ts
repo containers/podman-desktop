@@ -83,7 +83,6 @@ function telemetryAddStep(data: TelemetryData, i: number, id: string, title: str
 
 function telemetrySetStepDuration(data: TelemetryData, i: number, stepId: string, ms: number): TelemetryData {
   const completeId = getStepCompleteId(i, stepId);
-  console.log('step duration', completeId, ms);
   const stepIndex = data.steps.findLastIndex(step => step.id === completeId);
   if (stepIndex < 0) {
     return data;
@@ -124,7 +123,6 @@ function telemetryToSend(data: TelemetryData) {
       data.errors.push(`${step.error} [${step.title}]`);
     }
   }
-  console.log('data', data);
   return data;
 }
 
