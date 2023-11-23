@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest';
 import { OnboardingRegistry } from './onboarding-registry.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import type { AnalyzedExtension } from './extension-loader.js';
@@ -179,82 +179,94 @@ describe('an OnboardingRegistry instance exists', () => {
   });
 });
 
-test('checkIdsReadability should detect non valid ids', () => {
-  const onboardingRegistry = new OnboardingRegistry(configurationRegistry, context);
-  const extensionPath = '/root/path';
-  const extension = {
-    path: extensionPath,
-    id: extensionId,
-  } as AnalyzedExtension;
-  const onboarding = {
-    title: 'Get started with Podman Desktop',
-    steps: [
-      {
-        id: 'welcomeViewNotOK',
-        label: 'Check Podman',
-        title: 'Checking for Podman installation',
-      },
-      {
-        id: 'welcomeView',
-        label: 'Check Podman',
-        title: 'Checking for Podman installation',
-      },
-      {
-        id: 'checkInstalledCommandNotOK',
-        label: 'Check Podman',
-        title: 'Checking for Podman installation',
-        command: 'podman.onboarding.checkPodmanInstalled',
-        completionEvents: ['onCommand:podman.onboarding.checkPodmanInstalled'],
-      },
-      {
-        id: 'checkInstalledCommand',
-        label: 'Check Podman',
-        title: 'Checking for Podman installation',
-        command: 'podman.onboarding.checkPodmanInstalled',
-        completionEvents: ['onCommand:podman.onboarding.checkPodmanInstalled'],
-      },
-      {
-        id: 'installFailure',
-        label: 'Installation failed',
-        title: 'Installation failed',
-        state: 'failed' as OnboardingState,
-      },
-      {
-        id: 'installFailureNotOK',
-        label: 'Installation failed',
-        title: 'Installation failed',
-        state: 'failed' as OnboardingState,
-      },
-      {
-        id: 'installSuccess',
-        label: 'Installation successful',
-        title: 'Installation successful',
-        state: 'completed' as OnboardingState,
-      },
-      {
-        id: 'installSuccessNotOK',
-        label: 'Installation successful',
-        title: 'Installation successful',
-        state: 'completed' as OnboardingState,
-      },
-    ],
-    enablement: 'true',
-  };
-
+describe('checkIdsReadability tests', () => {
   const consoleWarnMock = vi.fn();
-  console.warn = consoleWarnMock;
-  registerOnboardingDisposable = onboardingRegistry.registerOnboarding(extension, onboarding);
-  expect(consoleWarnMock).toBeCalledTimes(4);
-  expect(consoleWarnMock).toBeCalledWith(
-    `[myextension.id]: Missing suffix 'Command' for the step 'checkInstalledCommandNotOK' that defines a command`,
-  );
-  expect(consoleWarnMock).toBeCalledWith(
-    `[myextension.id]: Missing suffix 'Failure' for the step 'installFailureNotOK' that has a 'failed' state`,
-  );
-  expect(consoleWarnMock).toBeCalledWith(
-    `[myextension.id]: Missing suffix 'Success' for the step 'installSuccessNotOK' that has a 'completed' state`,
-  );
-  expect(consoleWarnMock).toBeCalledWith(
-    `[myextension.id]: Missing suffix 'View' for the step 'welcomeViewNotOK' that is neither a Command, Failure or Success step`,
-  );
+  const originalConsoleWarn = console.warn;
+
+  beforeEach(() => {
+    console.warn = consoleWarnMock;
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    console.warn = originalConsoleWarn;
+  });
+
+  test('checkIdsReadability should detect non valid ids', () => {
+    const onboardingRegistry = new OnboardingRegistry(configurationRegistry, context);
+    const extensionPath = '/root/path';
+    const extension = {
+      path: extensionPath,
+      id: extensionId,
+    } as AnalyzedExtension;
+    const onboarding = {
+      title: 'Get started with Podman Desktop',
+      steps: [
+        {
+          id: 'welcomeViewNotOK',
+          label: 'Check Podman',
+          title: 'Checking for Podman installation',
+        },
+        {
+          id: 'welcomeView',
+          label: 'Check Podman',
+          title: 'Checking for Podman installation',
+        },
+        {
+          id: 'checkInstalledCommandNotOK',
+          label: 'Check Podman',
+          title: 'Checking for Podman installation',
+          command: 'podman.onboarding.checkPodmanInstalled',
+          completionEvents: ['onCommand:podman.onboarding.checkPodmanInstalled'],
+        },
+        {
+          id: 'checkInstalledCommand',
+          label: 'Check Podman',
+          title: 'Checking for Podman installation',
+          command: 'podman.onboarding.checkPodmanInstalled',
+          completionEvents: ['onCommand:podman.onboarding.checkPodmanInstalled'],
+        },
+        {
+          id: 'installFailure',
+          label: 'Installation failed',
+          title: 'Installation failed',
+          state: 'failed' as OnboardingState,
+        },
+        {
+          id: 'installFailureNotOK',
+          label: 'Installation failed',
+          title: 'Installation failed',
+          state: 'failed' as OnboardingState,
+        },
+        {
+          id: 'installSuccess',
+          label: 'Installation successful',
+          title: 'Installation successful',
+          state: 'completed' as OnboardingState,
+        },
+        {
+          id: 'installSuccessNotOK',
+          label: 'Installation successful',
+          title: 'Installation successful',
+          state: 'completed' as OnboardingState,
+        },
+      ],
+      enablement: 'true',
+    };
+
+    registerOnboardingDisposable = onboardingRegistry.registerOnboarding(extension, onboarding);
+    expect(consoleWarnMock).toBeCalledTimes(4);
+    expect(consoleWarnMock).toBeCalledWith(
+      `[myextension.id]: Missing suffix 'Command' for the step 'checkInstalledCommandNotOK' that defines a command`,
+    );
+    expect(consoleWarnMock).toBeCalledWith(
+      `[myextension.id]: Missing suffix 'Failure' for the step 'installFailureNotOK' that has a 'failed' state`,
+    );
+    expect(consoleWarnMock).toBeCalledWith(
+      `[myextension.id]: Missing suffix 'Success' for the step 'installSuccessNotOK' that has a 'completed' state`,
+    );
+    expect(consoleWarnMock).toBeCalledWith(
+      `[myextension.id]: Missing suffix 'View' for the step 'welcomeViewNotOK' that is neither a Command, Failure or Success step`,
+    );
+  });
 });
