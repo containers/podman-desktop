@@ -152,7 +152,7 @@ export class OnboardingRegistry {
    */
   checkIdsReadability(extension: AnalyzedExtension, onboarding: Onboarding) {
     const warn = (msg: string) => {
-      console.warn(`${extension.name} Onboarding: ${msg}`);
+      console.warn(`[${extension.id}]: ${msg}`);
     };
     onboarding.steps.forEach(step => {
       const id = step.id;
@@ -160,16 +160,16 @@ export class OnboardingRegistry {
       const isFailedState = step.state === 'failed';
       const isCompletedState = step.state === 'completed';
       if (isCommand && !id.endsWith('Command')) {
-        warn(`step ${id} defines a command, its id should end with 'Command'`);
+        warn(`Missing suffix 'Command' for the step '${id}' that defines a command`);
       }
       if (isFailedState && !id.endsWith('Failure')) {
-        warn(`step ${id} has a 'failed' state, its id should end with 'Failure'`);
+        warn(`Missing suffix 'Failure' for the step '${id}' that has a 'failed' state`);
       }
       if (isCompletedState && !id.endsWith('Success')) {
-        warn(`step ${id} has a 'completed' state, its id should end with 'Success'`);
+        warn(`Missing suffix 'Success' for the step '${id}' that has a 'completed' state`);
       }
       if (!isCommand && !isFailedState && !isCompletedState && !id.endsWith('View')) {
-        warn(`step ${id} should end with 'View'`);
+        warn(`Missing suffix 'View' for the step '${id}' that is neither a Command, Failure or Success step`);
       }
     });
   }
