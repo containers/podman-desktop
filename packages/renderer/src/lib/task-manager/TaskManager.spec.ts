@@ -125,7 +125,7 @@ test('Expect delete completed tasks remove tasks', async () => {
   expect(task).toBeInTheDocument();
 
   // click on the button "Clear notifications"
-  const clearNotificationsButton = screen.getByRole('button', { name: 'Clear notifications' });
+  const clearNotificationsButton = screen.getByRole('button', { name: 'Clear' });
   expect(clearNotificationsButton).toBeInTheDocument();
   await fireEvent.click(clearNotificationsButton);
 
@@ -134,7 +134,7 @@ test('Expect delete completed tasks remove tasks', async () => {
   expect(afterTask).not.toBeInTheDocument();
 
   // button is also gone
-  const afterClearNotificationsButton = screen.queryByRole('button', { name: 'Clear notifications' });
+  const afterClearNotificationsButton = screen.queryByRole('button', { name: 'Clear' });
   expect(afterClearNotificationsButton).not.toBeInTheDocument();
 });
 
@@ -147,7 +147,7 @@ test('Expect click on faClose icon remove the task', async () => {
   expect(task).toBeInTheDocument();
 
   // click on the button with title "Clear notification"
-  const clearCompletedButton = screen.getByRole('button', { name: 'Clear notification' });
+  const clearCompletedButton = screen.getByRole('button', { name: 'Clear' });
   expect(clearCompletedButton).toBeInTheDocument();
   await fireEvent.click(clearCompletedButton);
 
@@ -182,7 +182,7 @@ test('Expect clear notifications remove completed tasks and notifications', asyn
   expect(notification).toBeInTheDocument();
 
   // click on the button "Clear notifications"
-  const clearNotificationsButton = screen.getByRole('button', { name: 'Clear notifications' });
+  const clearNotificationsButton = screen.getByRole('button', { name: 'Clear' });
   expect(clearNotificationsButton).toBeInTheDocument();
   await fireEvent.click(clearNotificationsButton);
 
@@ -193,6 +193,6 @@ test('Expect clear notifications remove completed tasks and notifications', asyn
   expect(afterNotification).not.toBeInTheDocument();
 
   // button is also gone
-  const afterClearNotificationsButton = screen.queryByRole('button', { name: 'Clear notifications' });
+  const afterClearNotificationsButton = screen.queryByRole('button', { name: 'Clear' });
   expect(afterClearNotificationsButton).not.toBeInTheDocument();
 });
