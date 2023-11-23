@@ -68,6 +68,7 @@ import type {
   Cluster,
   Context,
   V1ConfigMap,
+  V1Deployment,
   V1Ingress,
   V1NamespaceList,
   V1Pod,
@@ -1481,15 +1482,15 @@ function initExposure(): void {
     return ipcInvoke('kubernetes-client:listPods');
   });
 
-  contextBridge.exposeInMainWorld('kubernetesListDeployments', async (): Promise<PodInfo[]> => {
+  contextBridge.exposeInMainWorld('kubernetesListDeployments', async (): Promise<V1Deployment[]> => {
     return ipcInvoke('kubernetes-client:listDeployments');
   });
 
-  contextBridge.exposeInMainWorld('kubernetesListIngresses', async (): Promise<PodInfo[]> => {
+  contextBridge.exposeInMainWorld('kubernetesListIngresses', async (): Promise<V1Ingress[]> => {
     return ipcInvoke('kubernetes-client:listIngresses');
   });
 
-  contextBridge.exposeInMainWorld('kubernetesListRoutes', async (): Promise<PodInfo[]> => {
+  contextBridge.exposeInMainWorld('kubernetesListRoutes', async (): Promise<V1Route[]> => {
     return ipcInvoke('kubernetes-client:listRoutes');
   });
 
