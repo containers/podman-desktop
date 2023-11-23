@@ -61,7 +61,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // ONBOARDING: Command to check compose is downloaded
   const onboardingCheckDownloadCommand = extensionApi.commands.registerCommand(
-    'compose.onboarding.checkComposeDownloaded',
+    'compose.onboarding.checkDownloadedCommand',
     async () => {
       // Check that docker-compose binary has been downloaded to the storage folder.
       // instead of checking for `docker-compose` on the command line, the most reliable way is to see
@@ -91,7 +91,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       }
 
       // Log if it's downloaded and what version is being selected for download (can be either latest, or chosen by user)
-      telemetryLogger.logUsage('compose.onboarding.checkComposeDownloaded', {
+      telemetryLogger.logUsage('compose.onboarding.checkDownloadedCommand', {
         downloaded: isDownloaded === '' ? false : true,
         version: composeVersionMetadata?.tag,
       });
@@ -101,7 +101,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // ONBOARDING; Command to download the compose binary. We will get the value that the user has "picked"
   // from the context value. This is because we have the option to either "select a version" or "download the latest"
   const onboardingDownloadComposeCommand = extensionApi.commands.registerCommand(
-    'compose.onboarding.downloadCompose',
+    'compose.onboarding.downloadCommand',
     async () => {
       // If the version is undefined (checks weren't run, or the user didn't select a version)
       // we will just download the latest version
@@ -120,7 +120,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       } finally {
         // Make sure we log the telemetry even if we encounter an error
         // If we have downloaded the binary, we can log it as being succcessfully downloaded
-        telemetryLogger.logUsage('compose.onboarding.downloadCompose', {
+        telemetryLogger.logUsage('compose.onboarding.downloadCommand', {
           successful: downloaded,
           version: composeVersionMetadata?.tag,
         });
@@ -157,7 +157,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // ONBOARDING: Install compose system wide step
   const onboardingInstallSystemWideCommand = extensionApi.commands.registerCommand(
-    'compose.onboarding.installSystemWide',
+    'compose.onboarding.installSystemWideCommand',
     async () => {
       // This is TEMPORARY until we re-add the "Installing compose system wide" toggle again
       // We will just call the handler function directly
@@ -166,7 +166,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         await handler.installComposeBinary(detect, extensionContext);
         installed = true;
       } finally {
-        telemetryLogger.logUsage('compose.onboarding.installSystemWide', {
+        telemetryLogger.logUsage('compose.onboarding.installSystemWideCommand', {
           successful: installed,
         });
       }
