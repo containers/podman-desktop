@@ -47,7 +47,7 @@ export let searchEnabled = true;
             <div class="space-x-2 flex flex-row justify-start items-center w-full">
               <slot name="bottom-additional-actions" />
             </div>
-          {:else}&nbsp;#{/if}
+          {:else}&nbsp;{/if}
         </div>
       </div>
     {/if}
