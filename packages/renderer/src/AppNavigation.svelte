@@ -6,12 +6,14 @@ import { podsInfos } from './stores/pods';
 import { containersInfos } from './stores/containers';
 import { imagesInfos } from './stores/images';
 import { volumeListInfos } from './stores/volumes';
+import { deployments } from './stores/deployments';
 import { ImageUtils } from './lib/image/image-utils';
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import ContainerIcon from './lib/images/ContainerIcon.svelte';
 import PodIcon from './lib/images/PodIcon.svelte';
 import ImageIcon from './lib/images/ImageIcon.svelte';
 import VolumeIcon from './lib/images/VolumeIcon.svelte';
+import DeploymentIcon from './lib/images/DeploymentIcon.svelte';
 import NavItem from './lib/ui/NavItem.svelte';
 import type { TinroRouteMeta } from 'tinro';
 import type { Unsubscriber } from 'svelte/store';
@@ -23,11 +25,13 @@ let podInfoSubscribe: Unsubscriber;
 let containerInfoSubscribe: Unsubscriber;
 let imageInfoSubscribe: Unsubscriber;
 let volumeInfoSubscribe: Unsubscriber;
+let deploymentsSubscribe: Unsubscriber;
 
 let podCount = '';
 let containerCount = '';
 let imageCount = '';
 let volumeCount = '';
+let deploymentCount = '';
 
 const imageUtils = new ImageUtils();
 export let exitSettingsCallback: () => void;
@@ -65,6 +69,13 @@ onMount(async () => {
       volumeCount = '';
     }
   });
+  deploymentsSubscribe = deployments.subscribe(value => {
+    if (value.length > 0) {
+      deploymentCount = ' (' + value.length + ')';
+    } else {
+      deploymentCount = '';
+    }
+  });
 });
 
 onDestroy(() => {
@@ -79,6 +90,9 @@ onDestroy(() => {
   }
   if (volumeInfoSubscribe) {
     volumeInfoSubscribe();
+  }
+  if (deploymentsSubscribe) {
+    deploymentsSubscribe();
   }
 });
 
@@ -116,6 +130,9 @@ export let meta: TinroRouteMeta;
   </NavItem>
   <NavItem href="/volumes" tooltip="Volumes{volumeCount}" ariaLabel="Volumes" bind:meta="{meta}">
     <VolumeIcon size="24" />
+  </NavItem>
+  <NavItem href="/deployments" tooltip="Deployments{deploymentCount}" ariaLabel="Deployments" bind:meta="{meta}">
+    <DeploymentIcon size="24" />
   </NavItem>
 
   {#if $contributions.length > 0}
