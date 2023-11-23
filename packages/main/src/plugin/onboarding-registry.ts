@@ -51,6 +51,7 @@ export class OnboardingRegistry {
   }
 
   createOnboardingInfo(extension: AnalyzedExtension, onboarding: Onboarding): OnboardingInfo {
+    this.checkIdsReadability(extension, onboarding);
     //TODO we need to check the onboarding has a valid schema. contains atleast a step and substep
     this.convertImages(extension, onboarding);
     return {
@@ -139,6 +140,36 @@ export class OnboardingRegistry {
         if (key.startsWith(`${onboarding.extension}.onboarding`)) {
           this.context.removeValue(key, true);
         }
+      }
+    });
+  }
+
+  /**
+   * checkIdsReadibility checks that the IDs of the steps of the onboarding
+   * respect specific rules, so they are easily readable in Telemetry.
+   *
+   * In case of a rule not respected, a warning is displayed in the console.
+   */
+  checkIdsReadability(extension: AnalyzedExtension, onboarding: Onboarding) {
+    const warn = (msg: string) => {
+      console.warn(`[${extension.id}]: ${msg}`);
+    };
+    onboarding.steps.forEach(step => {
+      const id = step.id;
+      const isCommand = !!step.command || !!step.component;
+      const isFailedState = step.state === 'failed';
+      const isCompletedState = step.state === 'completed';
+      if (isCommand && !id.endsWith('Command')) {
+        warn(`Missing suffix 'Command' for the step '${id}' that defines a command`);
+      }
+      if (isFailedState && !id.endsWith('Failure')) {
+        warn(`Missing suffix 'Failure' for the step '${id}' that has a 'failed' state`);
+      }
+      if (isCompletedState && !id.endsWith('Success')) {
+        warn(`Missing suffix 'Success' for the step '${id}' that has a 'completed' state`);
+      }
+      if (!isCommand && !isFailedState && !isCompletedState && !id.endsWith('View')) {
+        warn(`Missing suffix 'View' for the step '${id}' that is neither a Command, Failure or Success step`);
       }
     });
   }
