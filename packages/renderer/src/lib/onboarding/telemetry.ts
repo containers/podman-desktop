@@ -42,6 +42,9 @@ export class TelemetrySession {
   }
 
   startStep(i: number, id: string, title: string) {
+    if (id === this.previousStepId) {
+      return;
+    }
     if (this.previousStepIndex >= 0) {
       this.savePreviousDuration();
     }
