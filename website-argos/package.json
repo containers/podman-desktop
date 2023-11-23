@@ -8,7 +8,7 @@
   },
   "devDependencies": {
     "@argos-ci/cli": "^1.0.3",
-    "@argos-ci/playwright": "^1.2.2",
+    "@argos-ci/playwright": "^1.3.0",
     "@playwright/test": "1.37.1",
     "cheerio": "^1.0.0-rc.12"
   }
