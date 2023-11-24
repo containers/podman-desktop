@@ -166,10 +166,10 @@
     "@jridgewell/gen-mapping" "^0.3.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
-"@argos-ci/browser@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@argos-ci/browser/-/browser-1.0.0.tgz#a7bc160351d3efe02dfd95103cab4efe599f686b"
-  integrity sha512-v2Oi5+qX3hkBPgIeRbpUOBRL6M8QtDYFcOaK2krWzTy2Njrh8CPu+JHhnXpQTTrg7r12NJWtc3TEPAhYWJdh0A==
+"@argos-ci/browser@1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@argos-ci/browser/-/browser-1.1.0.tgz#c92966db364eee1a49ed69e4c59a46bcfa23cee2"
+  integrity sha512-ZtSjZu0eJ5JMCRkBTgK+wCIJ0rWbiQ80Nq7BKn04VIwbjjsQfhSKoMQnlEmaokS6cU8TnHsySOQzMcvipd+Prg==
 
 "@argos-ci/cli@^1.0.4":
   version "1.0.4"
@@ -180,19 +180,6 @@
     commander "^11.0.0"
     ora "^7.0.1"
     update-notifier "^6.0.2"
-
-"@argos-ci/core@1.2.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@argos-ci/core/-/core-1.2.1.tgz#86de9b94873318c6482b58cacf0119ecc82f2e99"
-  integrity sha512-mutWqVyL7ffduFznkPZiFirusx9dLsHzdxnmmh2HARrkQlqfKFwMYgRedY87ifZrOLdoPYBDB+RwRImU9ZQX3w==
-  dependencies:
-    "@argos-ci/util" "1.1.0"
-    axios "^1.5.0"
-    convict "^6.2.4"
-    debug "^4.3.4"
-    fast-glob "^3.3.1"
-    sharp "^0.32.5"
-    tmp "^0.2.1"
 
 "@argos-ci/core@1.3.0":
   version "1.3.0"
@@ -207,13 +194,13 @@
     sharp "^0.32.5"
     tmp "^0.2.1"
 
-"@argos-ci/playwright@^1.2.2":
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-1.2.2.tgz#0dcf471a8bdc79121499388469632ace06a559ef"
-  integrity sha512-wbtDziNX5XALONVVudDOJ8wzJjgLFQ7XuQlr+0mnHNjt1/EwaU9bVxwxx9UG7MaWPAjCwPFpaieUru9rZj0TMA==
+"@argos-ci/playwright@^1.3.1":
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-1.3.1.tgz#d6da8c99978ded1a39b02c739bd09ac6de4ebc66"
+  integrity sha512-JeWpG+eDfZplgNNwy0jP9XvimymxG2lkQ/+8bW9Xy+eiKwhmakiRixmSNQ2kik6R2VwvfPdOILzsQVMTZChdHA==
   dependencies:
-    "@argos-ci/browser" "1.0.0"
-    "@argos-ci/core" "1.2.1"
+    "@argos-ci/browser" "1.1.0"
+    "@argos-ci/core" "1.3.0"
     "@argos-ci/util" "1.1.0"
 
 "@argos-ci/util@1.1.0":
