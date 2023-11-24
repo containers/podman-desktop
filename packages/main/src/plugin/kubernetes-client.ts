@@ -232,10 +232,20 @@ export class KubernetesClient {
           '/api/v1/namespaces/' + ns + '/pods',
           {},
           () => this.apiSender.send('pod-event'),
-          err => console.warn('Kube watch ended', String(err)),
+          err => console.warn('Kube pod watch ended', String(err)),
         )
         .then(req => (this.kubeWatcher = req))
-        .catch((err: unknown) => console.error('Kube event error', err));
+        .catch((err: unknown) => console.error('Kube pod event error', err));
+
+      watch
+        .watch(
+          '/apis/apps/v1/namespaces/' + ns + '/deployments',
+          {},
+          () => this.apiSender.send('deployment-event'),
+          err => console.warn('Kube deployment watch ended', String(err)),
+        )
+        .then(req => (this.kubeWatcher = req))
+        .catch((err: unknown) => console.error('Kube deployment event error', err));
     }
   }
 
