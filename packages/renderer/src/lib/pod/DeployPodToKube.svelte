@@ -569,7 +569,7 @@ function updateKubeResult() {
               <ul class="list-disc list-inside">
                 {#each createdRoutes as createdRoute}
                   <li class="pt-2">
-                    Port {createdRoute.spec.port.targetPort} is reachable with route
+                    Port {createdRoute.spec.port?.targetPort} is reachable with route
                     <Link on:click="{() => openRoute(createdRoute)}">{createdRoute.metadata.name}</Link>
                   </li>
                 {/each}

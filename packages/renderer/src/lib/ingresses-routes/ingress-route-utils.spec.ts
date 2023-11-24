@@ -63,7 +63,7 @@ test('expect basic UI conversion for ingress', async () => {
   expect(ingressUI.rules).equal(ingress.spec?.rules);
 });
 
-test('expect basic UI conversion for route', async () => {
+test('expect basic UI conversion for route with port', async () => {
   const route = {
     metadata: {
       name: 'my-route',
@@ -84,7 +84,33 @@ test('expect basic UI conversion for route', async () => {
   expect(routeUI.name).toEqual('my-route');
   expect(routeUI.namespace).toEqual('test-namespace');
   expect(routeUI.host).toEqual(route.spec.host);
-  expect(routeUI.port).toEqual(route.spec.port.targetPort);
+  expect(routeUI.port).toEqual(route.spec.port?.targetPort);
+  expect(routeUI.path).toBeUndefined();
+  expect(routeUI.to.kind).toEqual(route.spec.to.kind);
+  expect(routeUI.to.name).toEqual(route.spec.to.name);
+});
+
+test('expect basic UI conversion for route with path', async () => {
+  const route = {
+    metadata: {
+      name: 'my-route',
+      namespace: 'test-namespace',
+    },
+    spec: {
+      host: 'foo.bar.com',
+      path: '/test',
+      to: {
+        kind: 'Service',
+        name: 'service',
+      },
+    },
+  } as V1Route;
+  const routeUI = ingressRouteUtils.getRouteUI(route);
+  expect(routeUI.name).toEqual('my-route');
+  expect(routeUI.namespace).toEqual('test-namespace');
+  expect(routeUI.host).toEqual(route.spec.host);
+  expect(routeUI.port).toBeUndefined();
+  expect(routeUI.path).toEqual(route.spec.path);
   expect(routeUI.to.kind).toEqual(route.spec.to.kind);
   expect(routeUI.to.name).toEqual(route.spec.to.name);
 });

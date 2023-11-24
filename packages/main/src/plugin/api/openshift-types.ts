@@ -26,9 +26,10 @@ export type V1Route = {
   };
   spec: {
     host: string;
-    port: {
+    port?: {
       targetPort: string;
     };
+    path?: string;
     tls: {
       insecureEdgeTerminationPolicy: string;
       termination: string;
