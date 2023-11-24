@@ -20,7 +20,7 @@ export interface ServiceUI {
   name: string;
   status: string;
   namespace: string;
-  created: Date | undefined;
+  created?: Date;
   age: string;
   conditions: Condition[];
   selected: boolean;
@@ -28,5 +28,5 @@ export interface ServiceUI {
 
 export interface Condition {
   type: string;
-  message: string | undefined;
+  message?: string;
 }

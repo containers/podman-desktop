@@ -50,9 +50,9 @@ export class ServiceUtils {
     }
 
     return {
-      name: service.metadata?.name || '',
+      name: service.metadata?.name ?? '',
       status: 'RUNNING',
-      namespace: service.metadata?.namespace || '',
+      namespace: service.metadata?.namespace ?? '',
       created: service.metadata?.creationTimestamp,
       age: service.metadata?.creationTimestamp ? this.humanizeAge(service.metadata.creationTimestamp.toString()) : '',
       conditions: conditions,
