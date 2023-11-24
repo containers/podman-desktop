@@ -3,8 +3,9 @@ import type { ImageCheckerInfo } from '../../../../main/src/plugin/api/image-che
 
 export interface ProviderUI {
   info: ImageCheckerInfo;
-  state: 'running' | 'success' | 'failed';
+  state: 'running' | 'success' | 'failed' | 'canceled';
   error?: Error;
+  checked?: boolean;
 }
 
 export interface CheckUI {

@@ -11,6 +11,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import type { ProviderUI } from './ProviderResultPage';
 import Spinner from './Spinner.svelte';
+import SlideToggle from './SlideToggle.svelte';
 
 interface CheckUI {
   provider: ImageCheckerInfo;
@@ -20,6 +21,9 @@ interface CheckUI {
 export let providers: ProviderUI[] = [];
 
 export let results: CheckUI[] = [];
+
+$: checkedProviders = getCheckedProviders(providers);
+$: filteredResults = getFilteredResults(results, checkedProviders);
 
 function getIcon(check: ImageCheck): IconDefinition {
   if (check.status === 'success') {
@@ -35,6 +39,23 @@ function getIcon(check: ImageCheck): IconDefinition {
       return faCircleMinus;
   }
 }
+
+function getCheckedProviders(providers: ProviderUI[]): string[] {
+  return providers.filter(p => p.checked === undefined || p.checked).map(p => p.info.id);
+}
+
+function onProviderChecked(id: string, checked: boolean) {
+  providers = providers.map(p => {
+    if (p.info.id === id) {
+      p.checked = checked;
+    }
+    return p;
+  });
+}
+
+function getFilteredResults(results: CheckUI[], checkedProviders: string[]): CheckUI[] {
+  return results.filter(r => checkedProviders.includes(r.provider.id));
+}
 </script>
 
 <div class="flex flex-col w-full h-full p-8 pr-0">
@@ -46,8 +67,8 @@ function getIcon(check: ImageCheck): IconDefinition {
     <div class="h-full overflow-y-auto w-1/3">
       {#each providers as provider}
         <div class="rounded-lg bg-charcoal-700 mb-4 p-4 flex flex-col">
-          <div class="flex flex-row">
-            <span class="w-full">{provider.info.label}</span>
+          <div class="flex flex-row items-center">
+            <span class="grow">{provider.info.label}</span>
             {#if provider.state === 'running'}
               <Spinner size="12"></Spinner>
             {/if}
@@ -56,15 +77,28 @@ function getIcon(check: ImageCheck): IconDefinition {
                 <Fa size="18" icon="{faExclamationTriangle}" />
               </span>
             {/if}
+            {#if provider.state === 'canceled'}
+              <span class="text-gray-500">
+                <Fa size="18" icon="{faCircleMinus}" />
+              </span>
+            {/if}
+            {#if provider.state === 'success'}
+              <SlideToggle
+                on:checked="{event => onProviderChecked(provider.info.id, event.detail)}"
+                checked="{provider.checked ?? true}" />
+            {/if}
           </div>
           {#if provider.error}
             <div class="text-red-500 text-sm">{provider.error}</div>
+          {/if}
+          {#if provider.state === 'canceled'}
+            <div class="text-gray-900 text-sm">Canceled by user</div>
           {/if}
         </div>
       {/each}
     </div>
     <div class="h-full w-full pr-4 overflow-y-auto pb-16">
-      {#each results as result}
+      {#each filteredResults as result}
         <div
           class="rounded-r-lg bg-charcoal-700 mb-4 mr-4 p-4 border-l-2"
           class:border-l-red-600="{result.check.severity === 'critical'}"
@@ -81,8 +115,8 @@ function getIcon(check: ImageCheck): IconDefinition {
               class:text-green-500="{result.check.status === 'success'}"
               ><Fa size="18" class="mt-1" icon="{getIcon(result.check)}" />
             </span>
-            <div class="font-bold whitespace-nowrap">{result.check.name}</div>
-            <div class="text-gray-900 text-sm w-full text-right">Reported by {result.provider.label}</div>
+            <div class="font-bold">{result.check.name}</div>
+            <div class="text-gray-900 text-sm grow text-right">Reported by {result.provider.label}</div>
           </div>
           {#if result.check.markdownDescription}
             <div class="mt-4">{result.check.markdownDescription}</div>
