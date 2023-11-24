@@ -35,7 +35,8 @@ export class IngressRouteUtils {
       name: route.metadata?.name || '',
       namespace: route.metadata?.namespace || '',
       host: route.spec.host,
-      port: route.spec.port.targetPort,
+      port: route.spec.port?.targetPort,
+      path: route.spec.path,
       to: {
         kind: route.spec.to.kind,
         name: route.spec.to.name,
