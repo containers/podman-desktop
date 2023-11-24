@@ -95,7 +95,9 @@ async function createWindow(): Promise<BrowserWindow> {
     }
 
     if (import.meta.env.DEV) {
-      browserWindow?.webContents.openDevTools();
+      if (!process.env.CLOSE_DEVTOOLS || process.env.CLOSE_DEVTOOLS !== 'true') {
+        browserWindow?.webContents.openDevTools();
+      }
     }
   });
 
