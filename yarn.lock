@@ -171,12 +171,12 @@
   resolved "https://registry.yarnpkg.com/@argos-ci/browser/-/browser-1.0.0.tgz#a7bc160351d3efe02dfd95103cab4efe599f686b"
   integrity sha512-v2Oi5+qX3hkBPgIeRbpUOBRL6M8QtDYFcOaK2krWzTy2Njrh8CPu+JHhnXpQTTrg7r12NJWtc3TEPAhYWJdh0A==
 
-"@argos-ci/cli@^1.0.3":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@argos-ci/cli/-/cli-1.0.3.tgz#fc9b25bb6beaaffaac6dd4d2fc754d243a8f65b2"
-  integrity sha512-/CWgHEdP6q0QfnQ8JqTDkHUozYyffnuIyBzb6hoTarAZG3zlsb2+2yVlVRxrlNOAxeABdhn4BY6RFKkPw2rTBg==
+"@argos-ci/cli@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@argos-ci/cli/-/cli-1.0.4.tgz#b0d8f668ed6442b818b255c36bd9627ec771a379"
+  integrity sha512-wcaUFzDJ04ODCGeDG3CGfmkZXbNvHRMhKGglR9bcKO47T9vUP0enJQ0CKsGe1278Kht77ZBlByfu8Or5L+WZKA==
   dependencies:
-    "@argos-ci/core" "1.2.1"
+    "@argos-ci/core" "1.3.0"
     commander "^11.0.0"
     ora "^7.0.1"
     update-notifier "^6.0.2"
@@ -185,6 +185,19 @@
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@argos-ci/core/-/core-1.2.1.tgz#86de9b94873318c6482b58cacf0119ecc82f2e99"
   integrity sha512-mutWqVyL7ffduFznkPZiFirusx9dLsHzdxnmmh2HARrkQlqfKFwMYgRedY87ifZrOLdoPYBDB+RwRImU9ZQX3w==
+  dependencies:
+    "@argos-ci/util" "1.1.0"
+    axios "^1.5.0"
+    convict "^6.2.4"
+    debug "^4.3.4"
+    fast-glob "^3.3.1"
+    sharp "^0.32.5"
+    tmp "^0.2.1"
+
+"@argos-ci/core@1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@argos-ci/core/-/core-1.3.0.tgz#6215bba2fdfea9f7a0c1455bf7b35e2716e11686"
+  integrity sha512-f/8oMNeaj5iraZppdbi4SR9tzxuWvTrtiNyQZUVndaL8AuSjMk2tMrnHK/XEAin7ki64cwCNaa0FEMLKrKbgzA==
   dependencies:
     "@argos-ci/util" "1.1.0"
     axios "^1.5.0"
