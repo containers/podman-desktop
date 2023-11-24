@@ -4,7 +4,7 @@ export let solid = false;
 
 let boxStyle = 'fill: currentColor;';
 if (!solid) {
-  boxStyle = 'stroke-miterlimit: 10; stroke-width: 1; stroke: currentColor; stroke-opacity: 1;';
+  boxStyle = 'stroke-miterlimit: 10; stroke: currentColor;';
 }
 </script>
 
@@ -24,8 +24,7 @@ if (!solid) {
     <path d="M13.927,10.469L19.030,10.469L19.030,14.000L13.927,14.000Z"></path>
   </g>
   <!-- lines -->
-  <g
-    style="fill: none; stroke-linejoin: round; stroke-miterlimit: 10; stroke-width: 0.7; stroke: currentColor; stroke-opacity: 1;">
+  <g class="fill-none" style="stroke-linejoin: round; stroke-miterlimit: 10; stroke-width: 0.7; stroke: currentColor;">
     <path d="M9.515,3.531L9.515,7.000L2.555,7.000L2.555,10.464"></path>
     <path d="M9.515,3.531L9.515,7.000L16.475,7.000L16.475,10.464"></path>
     <path d="M9.500,3.534L9.500,7.002L9.530,7.002L9.530,10.466"></path>
