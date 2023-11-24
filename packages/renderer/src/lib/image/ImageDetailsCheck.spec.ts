@@ -53,12 +53,12 @@ test('expect to display wait message before to receive results', async () => {
   });
 
   vi.waitFor(() => {
-    const msg = screen.getByText(content => content.includes('Analyzing'));
+    const msg = screen.getByText(content => content.includes('Image analysis in progress'));
     expect(msg).toBeInTheDocument();
   });
 });
 
-test('expect to abort when clicking the Abort button', async () => {
+test('expect to cancel when clicking the Cancel button', async () => {
   imageCheckerProviders.set([
     {
       id: 'provider1',
@@ -89,19 +89,19 @@ test('expect to abort when clicking the Abort button', async () => {
   });
 
   await vi.waitFor(async () => {
-    const abortBtn = screen.getByRole('button', { name: 'Abort' });
+    const abortBtn = screen.getByRole('button', { name: 'Cancel' });
     await fireEvent.click(abortBtn);
   });
 
   vi.waitFor(() => {
-    const msg = screen.getByText(content => content.includes('Check aborted'));
+    const msg = screen.getByText(content => content.includes('Image analysis canceled'));
     expect(msg).toBeInTheDocument();
   });
 
   expect(cancelTokenSpy).toHaveBeenCalledWith(tokenID);
 });
 
-test('expect to abort when destroying the component', async () => {
+test('expect to cancel when destroying the component', async () => {
   imageCheckerProviders.set([
     {
       id: 'provider1',
@@ -132,7 +132,7 @@ test('expect to abort when destroying the component', async () => {
   });
 
   await vi.waitFor(async () => {
-    screen.getByRole('button', { name: 'Abort' });
+    screen.getByRole('button', { name: 'Cancel' });
   });
 
   result.unmount();
@@ -140,7 +140,7 @@ test('expect to abort when destroying the component', async () => {
   expect(cancelTokenSpy).toHaveBeenCalledWith(tokenID);
 });
 
-test('expect to not abort again when destroying the component after abort', async () => {
+test('expect to not cancel again when destroying the component after manual cancel', async () => {
   imageCheckerProviders.set([
     {
       id: 'provider1',
@@ -171,12 +171,12 @@ test('expect to not abort again when destroying the component after abort', asyn
   });
 
   await vi.waitFor(async () => {
-    const abortBtn = screen.getByRole('button', { name: 'Abort' });
+    const abortBtn = screen.getByRole('button', { name: 'Cancel' });
     await fireEvent.click(abortBtn);
   });
 
   vi.waitFor(() => {
-    const msg = screen.getByText(content => content.includes('Check aborted'));
+    const msg = screen.getByText(content => content.includes('Image analysis canceled'));
     expect(msg).toBeInTheDocument();
   });
 
@@ -224,12 +224,17 @@ test('expect to display results from image checker provider', async () => {
   });
 
   vi.waitFor(() => {
+    const msg = screen.getByText(content => content.includes('Image analysis complete'));
+    expect(msg).toBeInTheDocument();
+  });
+
+  vi.waitFor(() => {
     const cell = screen.getByText('check1');
     expect(cell).toBeInTheDocument();
   });
 });
 
-test('expect to not abort when destroying te component after displaying results from image checker provider', async () => {
+test('expect to not cancel when destroying the component after displaying results from image checker provider', async () => {
   imageCheckerProviders.set([
     {
       id: 'provider1',
