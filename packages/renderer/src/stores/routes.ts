@@ -45,7 +45,7 @@ export const filtered = derived([searchPattern, routes], ([$searchPattern, $rout
   $routeInfos.filter(route => findMatchInLeaves(route, $searchPattern.toLowerCase())),
 );
 
-const eventStore = new EventStore<V1Route[]>(
+export const routesEventStore = new EventStore<V1Route[]>(
   'routes',
   routes,
   checkForUpdate,
@@ -54,8 +54,12 @@ const eventStore = new EventStore<V1Route[]>(
   grabAllRoutes,
   IngressRouteIcon,
 );
-eventStore.setupWithDebounce();
+const routesEventStoreInfo = routesEventStore.setupWithDebounce();
 
 export async function grabAllRoutes(): Promise<V1Route[]> {
   return window.kubernetesListRoutes();
 }
+
+export const fetchRoutesWithData = async () => {
+  await routesEventStoreInfo.fetch('fetchUsage');
+};

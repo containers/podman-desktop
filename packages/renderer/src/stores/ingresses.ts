@@ -45,7 +45,7 @@ export const filtered = derived([searchPattern, ingresses], ([$searchPattern, $i
   $ingressInfos.filter(ingress => findMatchInLeaves(ingress, $searchPattern.toLowerCase())),
 );
 
-const eventStore = new EventStore<V1Ingress[]>(
+export const ingressesEventStore = new EventStore<V1Ingress[]>(
   'ingresses',
   ingresses,
   checkForUpdate,
@@ -54,8 +54,12 @@ const eventStore = new EventStore<V1Ingress[]>(
   grabAllIngresses,
   IngressRouteIcon,
 );
-eventStore.setupWithDebounce();
+const ingressesEventStoreInfo = ingressesEventStore.setupWithDebounce();
 
 export async function grabAllIngresses(): Promise<V1Ingress[]> {
   return window.kubernetesListIngresses();
 }
+
+export const fetchIngressesWithData = async () => {
+  await ingressesEventStoreInfo.fetch('fetchUsage');
+};
