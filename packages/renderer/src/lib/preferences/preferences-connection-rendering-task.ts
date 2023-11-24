@@ -20,7 +20,7 @@ import { createConnectionsInfo } from '/@/stores/create-connections';
 import { router } from 'tinro';
 
 import type { Logger as LoggerType } from '@podman-desktop/api';
-import { createTask, removeTask } from '/@/stores/tasks';
+import { createTask, isStatefulTask, removeTask } from '/@/stores/tasks';
 import type { Task } from '../../../../main/src/plugin/api/task';
 
 export interface ConnectionCallback extends LoggerType {
@@ -163,7 +163,7 @@ function getKey(): symbol {
 
 export function eventCollect(key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]): void {
   const task = allTasks.get(key);
-  if (task) {
+  if (task && isStatefulTask(task)) {
     if (eventName === 'error') {
       task.status = 'failure';
       task.error = args.join('\n');

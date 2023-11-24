@@ -18,7 +18,7 @@
 
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
-import type { Task } from '../../../main/src/plugin/api/task';
+import type { NotificationTask, StatefulTask, Task } from '../../../main/src/plugin/api/task';
 
 /**
  * Defines the store used to define the tasks.
@@ -44,16 +44,16 @@ function updateTask(task: Task) {
 }
 
 // remove element from the store that are completed
-export function clearCompletedTasks() {
-  tasksInfo.update(tasks => tasks.filter(task => task.state !== 'completed'));
+export function clearNotifications() {
+  tasksInfo.update(tasks => tasks.filter(task => isStatefulTask(task) && task.state !== 'completed'));
 }
 
 let taskId = 0;
 
 // create a new task
-export function createTask(name: string): Task {
+export function createTask(name: string): StatefulTask {
   taskId++;
-  const task: Task = {
+  const task: StatefulTask = {
     id: `ui-${taskId}`,
     name,
     started: new Date().getTime(),
@@ -73,3 +73,11 @@ window.events?.receive('task-updated', (task: Task) => {
 window.events?.receive('task-removed', (task: Task) => {
   removeTask(task.id);
 });
+
+export function isStatefulTask(task: Task): task is StatefulTask {
+  return 'state' in task;
+}
+
+export function isNotificationTask(task: Task): task is NotificationTask {
+  return 'description' in task;
+}

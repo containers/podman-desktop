@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faCheck, faChevronDown, faCircle } from '@fortawesome/free-solid-svg-icons';
-import { clearCompletedTasks, tasksInfo } from '/@/stores/tasks';
+import { clearNotifications, isStatefulTask, tasksInfo } from '/@/stores/tasks';
 
 import Fa from 'svelte-fa';
 import TaskIcon from '../images/TaskIcon.svelte';
@@ -11,17 +11,22 @@ import Button from '../ui/Button.svelte';
 // display or not the tasks manager (defaut is false)
 export let showTaskManager = false;
 
-$: runningTasks = $tasksInfo.filter(task => task.state === 'running');
-$: completedTasks = $tasksInfo.filter(task => task.state === 'completed');
+$: runningTasks = $tasksInfo.filter(task => {
+  if (isStatefulTask(task)) {
+    return task.state === 'running';
+  }
+  return false;
+});
+$: notificationsTasks = $tasksInfo.filter(task => {
+  if (isStatefulTask(task)) {
+    return task.state === 'completed';
+  }
+  return true;
+});
 
 // hide the task manager
 function hide() {
   showTaskManager = false;
-}
-
-function clearCompleted() {
-  // needs to delete the task from the svelte store
-  clearCompletedTasks();
 }
 
 // If we hit ESC while the menu is open, close it
@@ -87,13 +92,13 @@ window.events?.receive('toggle-task-manager', () => {
           {/if}
 
           <!-- completed tasks-->
-          {#if completedTasks.length > 0}
+          {#if notificationsTasks.length > 0}
             <div class="flex bg-charcoal-600 pt-1 px-4">
               <TaskManagerGroup
                 lineColor="bg-zinc-400"
                 icon="{faCheck}"
-                tasks="{completedTasks}"
-                title="completed tasks" />
+                tasks="{notificationsTasks}"
+                title="notifications" />
             </div>
           {/if}
         </div>
@@ -101,10 +106,10 @@ window.events?.receive('toggle-task-manager', () => {
 
       <!-- footer of the task manager -->
       <!-- only if there are tasks-->
-      {#if completedTasks.length > 0}
+      {#if notificationsTasks.length > 0}
         <div class="flex flex-row w-full">
           <div class="p-2 flex flex-row space-x-2 w-full">
-            <Button on:click="{() => clearCompleted()}">Clear completed</Button>
+            <Button on:click="{() => clearNotifications()}">Clear</Button>
             <!--<Button>View task history</Button>-->
           </div>
         </div>

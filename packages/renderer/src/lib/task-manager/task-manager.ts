@@ -17,9 +17,10 @@
  ***********************************************************************/
 
 import humanizeDuration from 'humanize-duration';
-import type { Task } from '../../../../main/src/plugin/api/task';
+import type { NotificationTask, StatefulTask, Task } from '../../../../main/src/plugin/api/task';
+import { isStatefulTask } from '/@/stores/tasks';
 
-export interface TaskUI extends Task {
+export interface StatefulTaskUI extends StatefulTask {
   age: string;
   progress?: number;
   hasGotoTask: boolean;
@@ -27,27 +28,31 @@ export interface TaskUI extends Task {
 }
 
 export class TaskManager {
-  toTaskUi(task: Task): TaskUI {
-    const taskUI: TaskUI = {
-      id: task.id,
-      name: task.name,
-      started: task.started,
-      state: task.state,
-      status: task.status,
-      hasGotoTask: false,
-      age: `${humanizeDuration(new Date().getTime() - task.started, { round: true, largest: 1 })} ago`,
-      error: task.error,
-    };
+  toTaskUi(task: Task): StatefulTaskUI | NotificationTask {
+    if (isStatefulTask(task)) {
+      const taskUI: StatefulTaskUI = {
+        id: task.id,
+        name: task.name,
+        started: task.started,
+        state: task.state,
+        status: task.status,
+        hasGotoTask: false,
+        age: `${humanizeDuration(new Date().getTime() - task.started, { round: true, largest: 1 })} ago`,
+        error: task.error,
+      };
 
-    if (task.status === 'in-progress') {
-      taskUI.progress = task.progress;
-      if (task.gotoTask) {
-        taskUI.hasGotoTask = true;
-        taskUI.gotoTask = task.gotoTask;
-      } else {
-        taskUI.hasGotoTask = false;
+      if (task.status === 'in-progress') {
+        taskUI.progress = task.progress;
+        if (task.gotoTask) {
+          taskUI.hasGotoTask = true;
+          taskUI.gotoTask = task.gotoTask;
+        } else {
+          taskUI.hasGotoTask = false;
+        }
       }
+      return taskUI;
     }
-    return taskUI;
+
+    return task as NotificationTask;
   }
 }

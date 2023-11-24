@@ -18,7 +18,7 @@
 
 import { router } from 'tinro';
 import { type BuildImageInfo, buildImagesInfo } from '/@/stores/build-images';
-import { createTask, removeTask } from '/@/stores/tasks';
+import { createTask, isStatefulTask, removeTask } from '/@/stores/tasks';
 import type { Task } from '../../../../main/src/plugin/api/task';
 
 export interface BuildImageCallback {
@@ -156,7 +156,7 @@ function getKey(): symbol {
 // anonymous function to collect events
 export function eventCollect(key: symbol, eventName: 'finish' | 'stream' | 'error', data: string): void {
   const task = allTasks.get(key);
-  if (task) {
+  if (task && isStatefulTask(task)) {
     if (eventName === 'error') {
       // If we errored out, we should store the error message in the task so it is correctly displayed
       task.error = data;

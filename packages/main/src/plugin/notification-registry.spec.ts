@@ -20,16 +20,19 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import type { ApiSenderType } from './api.js';
 import type { Disposable } from './types/disposable.js';
 import { NotificationRegistry } from './notification-registry.js';
+import type { TaskManager } from './task-manager.js';
 
 let notificationRegistry: NotificationRegistry;
 const extensionId = 'myextension.id';
 const apiSender: ApiSenderType = { send: vi.fn() } as unknown as ApiSenderType;
+const createNotificationtaskMock = vi.fn();
+const taskManager: TaskManager = { createNotificationTask: createNotificationtaskMock } as unknown as TaskManager;
 
 let registerNotificationDisposable: Disposable;
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeEach(() => {
-  notificationRegistry = new NotificationRegistry(apiSender);
+  notificationRegistry = new NotificationRegistry(apiSender, taskManager);
   registerNotificationDisposable = notificationRegistry.registerExtension(extensionId);
 });
 
@@ -61,6 +64,10 @@ test('expect notification added to the queue', async () => {
   expect(queue[0].extensionId).toEqual(extensionId);
   expect(queue[0].title).toEqual('title');
   expect(queue[0].type).toEqual('info');
+  expect(createNotificationtaskMock).toBeCalledWith({
+    title: 'title',
+    body: 'description',
+  });
 });
 
 test('expect latest added notification is in top of the queue', async () => {

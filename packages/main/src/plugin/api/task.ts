@@ -23,9 +23,17 @@ export interface Task {
   id: string;
   name: string;
   started: number;
+}
+
+export interface StatefulTask extends Task {
   state: TaskState;
   status: TaskStatus;
   progress?: number;
   gotoTask?: () => void;
   error?: string;
+}
+
+export interface NotificationTask extends Task {
+  description: string;
+  markdownActions?: string;
 }
