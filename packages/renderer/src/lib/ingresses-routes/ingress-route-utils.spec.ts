@@ -90,7 +90,7 @@ test('expect basic UI conversion for route with port', async () => {
   expect(routeUI.to.name).toEqual(route.spec.to.name);
 });
 
-test('expect basic UI conversion for route with port', async () => {
+test('expect basic UI conversion for route with path', async () => {
   const route = {
     metadata: {
       name: 'my-route',
