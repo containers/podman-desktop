@@ -568,6 +568,24 @@ export class KubernetesClient {
     return [];
   }
 
+  // List all services
+  async listServices(): Promise<V1Service[]> {
+    const ns = this.getCurrentNamespace();
+    // Only retrieve services if valid namespace && valid connection, otherwise we will return an empty array
+    const connected = await this.checkConnection();
+    if (ns && connected) {
+      // Get the services via the kubernetes api
+      try {
+        const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
+        const services = await k8sApi.listNamespacedService(ns);
+        return services.body.items;
+      } catch (_) {
+        // do nothing
+      }
+    }
+    return [];
+  }
+
   async readPodLog(name: string, container: string, callback: (name: string, data: string) => void): Promise<void> {
     this.telemetry.track('kubernetesReadPodLog');
     const ns = this.currentNamespace;
@@ -652,6 +670,24 @@ export class KubernetesClient {
       throw this.wrapK8sClientError(error);
     } finally {
       this.telemetry.track('kubernetesDeleteRoute', telemetryOptions);
+    }
+  }
+
+  async deleteService(name: string): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      const ns = this.getCurrentNamespace();
+      // Only delete service if valid namespace && valid connection
+      const connected = await this.checkConnection();
+      if (ns && connected) {
+        const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
+        await k8sApi.deleteNamespacedService(name, ns);
+      }
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw this.wrapK8sClientError(error);
+    } finally {
+      this.telemetry.track('kubernetesDeleteService', telemetryOptions);
     }
   }
 

@@ -21,7 +21,7 @@ import { KubernetesClient } from './kubernetes-client.js';
 import type { ApiSenderType } from './api.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import { FilesystemMonitoring } from './filesystem-monitoring.js';
-import type { V1Ingress, Watch, V1Deployment } from '@kubernetes/client-node';
+import type { V1Ingress, Watch, V1Deployment, V1Service } from '@kubernetes/client-node';
 import { KubeConfig } from '@kubernetes/client-node';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import * as fs from 'node:fs';
@@ -539,4 +539,97 @@ test('Expect deleteRoute to be called if there is active connection', async () =
 
   await client.deleteRoute('name');
   expect(deleteRouteMock).toBeCalled();
+});
+
+test('should return empty service list if there is no active namespace', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+
+  const list = await client.listServices();
+  expect(list.length).toBe(0);
+});
+
+test('should return empty service list if cannot connect to cluster', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  client.setCurrentNamespace('default');
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.reject(new Error('K8sError')),
+  });
+
+  const list = await client.listServices();
+  expect(list.length).toBe(0);
+});
+
+test('should return empty service list if cannot execute call to cluster', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  client.setCurrentNamespace('default');
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+    listNamespacedService: () => Promise.reject(new Error('K8sError')),
+  });
+
+  const list = await client.listServices();
+  expect(list.length).toBe(0);
+});
+
+test('should return service list if connection to cluster is ok', async () => {
+  const v1Service: V1Service = {
+    apiVersion: 'k8s.io/v1',
+    kind: 'Service',
+    metadata: {
+      name: 'service',
+    },
+  };
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  client.setCurrentNamespace('default');
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+    listNamespacedService: () =>
+      Promise.resolve({
+        body: {
+          items: [v1Service],
+        },
+      }),
+  });
+
+  const list = await client.listServices();
+  expect(list.length).toBe(1);
+  expect(list[0].metadata?.name).toEqual('service');
+});
+
+test('Expect deleteService is not called if there is no active namespace', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  const deleteServiceMock = vi.fn();
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+    deleteNamespacedService: deleteServiceMock,
+  });
+
+  await client.deleteService('name');
+  expect(deleteServiceMock).not.toBeCalled();
+});
+
+test('Expect deleteService is not called if there is no active connection', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  client.setCurrentNamespace('default');
+  const deleteServiceMock = vi.fn();
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.reject(new Error('K8sError')),
+    deleteNamespacedService: deleteServiceMock,
+  });
+
+  await client.deleteService('name');
+  expect(deleteServiceMock).not.toBeCalled();
+});
+
+test('Expect deleteService to be called if there is an active connection', async () => {
+  const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
+  client.setCurrentNamespace('default');
+  const deleteServiceMock = vi.fn();
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+    deleteNamespacedService: deleteServiceMock,
+  });
+
+  await client.deleteService('name');
+  expect(deleteServiceMock).toBeCalled();
 });

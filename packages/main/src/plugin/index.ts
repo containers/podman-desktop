@@ -1801,6 +1801,10 @@ export class PluginSystem {
       return kubernetesClient.listRoutes();
     });
 
+    this.ipcHandle('kubernetes-client:listServices', async (): Promise<V1Service[]> => {
+      return kubernetesClient.listServices();
+    });
+
     this.ipcHandle(
       'kubernetes-client:readPodLog',
       async (_listener, name: string, container: string, onDataId: number): Promise<void> => {
@@ -1824,6 +1828,10 @@ export class PluginSystem {
 
     this.ipcHandle('kubernetes-client:deleteRoute', async (_listener, name: string): Promise<void> => {
       return kubernetesClient.deleteRoute(name);
+    });
+
+    this.ipcHandle('kubernetes-client:deleteService', async (_listener, name: string): Promise<void> => {
+      return kubernetesClient.deleteService(name);
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
