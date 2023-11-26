@@ -1,7 +1,6 @@
 <script lang="ts">
 import { lastPage, currentPage } from '../../stores/breadcrumb';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa';
 import { router } from 'tinro';
 import Link from './Link.svelte';
 import Tooltip from './Tooltip.svelte';
@@ -22,6 +21,9 @@ function handleKeydown(e: KeyboardEvent) {
 }
 
 let copyToolTip = 'copy';
+
+let isOverTitle: boolean;
+$: isOverTitle = false;
 
 async function handleCopyTitle() {
   try {
@@ -53,17 +55,27 @@ async function handleCopyTitle() {
         </div>
         <div class="flex flex-col grow pr-2">
           <div class="flex flex-row">
-            <h1 aria-label="{title}" class="text-xl leading-tight">{title}</h1>
             <button
               title="Copy To Clipboard"
-              class="mr-2 p-1"
               on:click="{handleCopyTitle}"
-              on:mouseenter="{() => (copyToolTip = 'copy')}">
+              on:mouseenter="{() => {
+                isOverTitle = true;
+              }}"
+              on:mouseleave="{() => {
+                isOverTitle = false;
+              }}">
               {' '}
               <Tooltip tip="{copyToolTip}" top>
-                <Fa icon="{faCopy}" size="xs" />
+                <h1 aria-label="{title}" class="text-xl leading-tight">
+                  {title}
+                </h1>
               </Tooltip>
             </button>
+            {#if isOverTitle}
+              <div class="flex pl-3">
+                <Fa style="align-self: center" icon="{faCopy}" size="xs" />
+              </div>
+            {/if}
             <div class="text-violet-400 ml-2 leading-normal" class:hidden="{!titleDetail}">{titleDetail}</div>
           </div>
           <div class="pt-1">
