@@ -2,6 +2,7 @@
 import { lastPage, currentPage } from '../../stores/breadcrumb';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
 import { router } from 'tinro';
+import Fa from 'svelte-fa';
 import Link from './Link.svelte';
 import Tooltip from './Tooltip.svelte';
 
