@@ -12,6 +12,8 @@ import {
 import type { ProviderUI } from './ProviderResultPage';
 import Spinner from './Spinner.svelte';
 import SlideToggle from './SlideToggle.svelte';
+import ToggleButton from './ToggleButton.svelte';
+import ToggleButtonGroup from './ToggleButtonGroup.svelte';
 
 interface CheckUI {
   provider: ImageCheckerInfo;
@@ -22,8 +24,18 @@ export let providers: ProviderUI[] = [];
 
 export let results: CheckUI[] = [];
 
+const selectedSeverities = {
+  critical: true,
+  high: true,
+  medium: true,
+  low: true,
+  success: true,
+};
+
 $: checkedProviders = getCheckedProviders(providers);
-$: filteredResults = getFilteredResults(results, checkedProviders);
+$: resultsFilteredByProvider = getFilteredResultsByProvider(results, checkedProviders);
+$: countBySeverity = getCountBySeverity(resultsFilteredByProvider);
+$: filtered = getFilteredResultsBySeverity(resultsFilteredByProvider, selectedSeverities);
 
 function getIcon(check: ImageCheck): IconDefinition {
   if (check.status === 'success') {
@@ -44,6 +56,29 @@ function getCheckedProviders(providers: ProviderUI[]): string[] {
   return providers.filter(p => p.checked === undefined || p.checked).map(p => p.info.id);
 }
 
+function getCountBySeverity(results: CheckUI[]) {
+  return results.reduce(
+    (acc, current) => {
+      if (current.check.status === 'success') {
+        acc['success']++;
+        return acc;
+      }
+      if (!current.check.severity) {
+        return acc;
+      }
+      acc[current.check.severity]++;
+      return acc;
+    },
+    {
+      critical: 0,
+      high: 0,
+      medium: 0,
+      low: 0,
+      success: 0,
+    },
+  );
+}
+
 function onProviderChecked(id: string, checked: boolean) {
   providers = providers.map(p => {
     if (p.info.id === id) {
@@ -53,8 +88,24 @@ function onProviderChecked(id: string, checked: boolean) {
   });
 }
 
-function getFilteredResults(results: CheckUI[], checkedProviders: string[]): CheckUI[] {
+function getFilteredResultsByProvider(results: CheckUI[], checkedProviders: string[]): CheckUI[] {
   return results.filter(r => checkedProviders.includes(r.provider.id));
+}
+
+function getFilteredResultsBySeverity(results: CheckUI[], selectedSeverities: any) {
+  return results.filter(r => {
+    if (r.check.status === 'success') {
+      return selectedSeverities['success'];
+    }
+    if (r.check.severity) {
+      return selectedSeverities[r.check.severity];
+    }
+    return true;
+  });
+}
+
+function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 'success', clicked: boolean) {
+  selectedSeverities[severity] = clicked;
 }
 </script>
 
@@ -62,7 +113,41 @@ function getFilteredResults(results: CheckUI[], checkedProviders: string[]): Che
   <div class="pr-4">
     <slot name="header-info" />
   </div>
-  <div class="mb-2">Checkers</div>
+  <div class="mb-2 flex flex-row pr-12 pb-2">
+    <span class="grow">Checkers</span>
+    <div>
+      <ToggleButtonGroup>
+        <ToggleButton
+          selected="{true}"
+          disabled="{countBySeverity.critical === 0}"
+          icon="{faExclamationCircle}"
+          on:click="{event => onSeverityClicked('critical', event.detail)}"
+          >Critical ({countBySeverity.critical})</ToggleButton>
+        <ToggleButton
+          selected="{true}"
+          disabled="{countBySeverity.high === 0}"
+          icon="{faExclamationTriangle}"
+          on:click="{event => onSeverityClicked('high', event.detail)}">High ({countBySeverity.high})</ToggleButton>
+        <ToggleButton
+          selected="{true}"
+          disabled="{countBySeverity.medium === 0}"
+          icon="{faExclamationTriangle}"
+          on:click="{event => onSeverityClicked('medium', event.detail)}"
+          >Medium ({countBySeverity.medium})</ToggleButton>
+        <ToggleButton
+          selected="{true}"
+          disabled="{countBySeverity.low === 0}"
+          icon="{faCircleMinus}"
+          on:click="{event => onSeverityClicked('low', event.detail)}">Low ({countBySeverity.low})</ToggleButton>
+        <ToggleButton
+          selected="{true}"
+          disabled="{countBySeverity.success === 0}"
+          icon="{faCheckSquare}"
+          on:click="{event => onSeverityClicked('success', event.detail)}"
+          >Passed ({countBySeverity.success})</ToggleButton>
+      </ToggleButtonGroup>
+    </div>
+  </div>
   <div class="h-full flex flex-row space-x-8">
     <div class="h-full overflow-y-auto w-1/3">
       {#each providers as provider}
@@ -97,8 +182,8 @@ function getFilteredResults(results: CheckUI[], checkedProviders: string[]): Che
         </div>
       {/each}
     </div>
-    <div class="h-full w-full pr-4 overflow-y-auto pb-16">
-      {#each filteredResults as result}
+    <div class="h-full w-full pr-4 overflow-y-scroll pb-16">
+      {#each filtered as result}
         <div
           class="rounded-r-lg bg-charcoal-700 mb-4 mr-4 p-4 border-l-2"
           class:border-l-red-600="{result.check.severity === 'critical'}"
