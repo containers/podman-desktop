@@ -156,7 +156,7 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
   <div class="h-full flex flex-row space-x-8">
     <div class="h-full overflow-y-auto w-1/3">
       {#each providers as provider}
-        <div class="rounded-lg bg-charcoal-700 mb-4 p-4 flex flex-col">
+        <div role="row" class="rounded-lg bg-charcoal-700 mb-4 p-4 flex flex-col">
           <div class="flex flex-row items-center">
             <span class="grow">{provider.info.label}</span>
             {#if provider.state === 'running'}
@@ -190,6 +190,7 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
     <div class="h-full w-full pr-4 overflow-y-scroll pb-16">
       {#each filtered as result}
         <div
+          role="row"
           class="rounded-r-lg bg-charcoal-700 mb-4 mr-4 p-4 border-l-2"
           class:border-l-red-600="{result.check.severity === 'critical'}"
           class:border-l-amber-500="{result.check.severity === 'high'}"
