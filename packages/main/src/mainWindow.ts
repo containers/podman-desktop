@@ -94,10 +94,11 @@ async function createWindow(): Promise<BrowserWindow> {
       browserWindow.show();
     }
 
-    if (import.meta.env.DEV) {
-      if (!process.env.CLOSE_DEVTOOLS || process.env.CLOSE_DEVTOOLS !== 'true') {
-        browserWindow?.webContents.openDevTools();
-      }
+    // Only in DEV mode, if OPEN_DEVTOOLS is not set or is true, we want to open Developer tools window
+    // When running the E2E tests, to avoid problems with small application window, we are settings
+    // OPEN_DEVTOOLS=false.
+    if (import.meta.env.DEV && (!process.env.OPEN_DEVTOOLS || process.env.OPEN_DEVTOOLS === 'true')) {
+      browserWindow?.webContents.openDevTools();
     }
   });
 
