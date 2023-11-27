@@ -175,3 +175,22 @@ test('Expect correct aria roles', async () => {
     expect(cells.length).toBe(5);
   }
 });
+
+test('Expect rowgroups', async () => {
+  render(TestTable, {});
+
+  // there should be two role groups
+  const rowgroups = await screen.findAllByRole('rowgroup');
+  expect(rowgroups).toBeDefined();
+  expect(rowgroups.length).toBe(2);
+
+  // one for the header row
+  const headers = await within(rowgroups[0]).findAllByRole('columnheader');
+  expect(headers).toBeDefined();
+  expect(headers.length).toBe(5);
+
+  // and one for the data rows
+  const dataRows = await within(rowgroups[1]).findAllByRole('row');
+  expect(dataRows).toBeDefined();
+  expect(dataRows.length).toBe(3);
+});
