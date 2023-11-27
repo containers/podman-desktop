@@ -6,6 +6,7 @@ import { podsInfos } from './stores/pods';
 import { containersInfos } from './stores/containers';
 import { imagesInfos } from './stores/images';
 import { volumeListInfos } from './stores/volumes';
+import { kubernetesContexts } from './stores/kubernetes-contexts';
 import { deployments } from './stores/deployments';
 import { ImageUtils } from './lib/image/image-utils';
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
@@ -25,12 +26,14 @@ let podInfoSubscribe: Unsubscriber;
 let containerInfoSubscribe: Unsubscriber;
 let imageInfoSubscribe: Unsubscriber;
 let volumeInfoSubscribe: Unsubscriber;
+let contextsSubscribe: Unsubscriber;
 let deploymentsSubscribe: Unsubscriber;
 
 let podCount = '';
 let containerCount = '';
 let imageCount = '';
 let volumeCount = '';
+let contextCount = 0;
 let deploymentCount = '';
 
 const imageUtils = new ImageUtils();
@@ -76,6 +79,9 @@ onMount(async () => {
       deploymentCount = '';
     }
   });
+  contextsSubscribe = kubernetesContexts.subscribe(value => {
+    contextCount = value.length;
+  });
 });
 
 onDestroy(() => {
@@ -90,6 +96,9 @@ onDestroy(() => {
   }
   if (volumeInfoSubscribe) {
     volumeInfoSubscribe();
+  }
+  if (contextsSubscribe) {
+    contextsSubscribe();
   }
   if (deploymentsSubscribe) {
     deploymentsSubscribe();
@@ -131,9 +140,11 @@ export let meta: TinroRouteMeta;
   <NavItem href="/volumes" tooltip="Volumes{volumeCount}" ariaLabel="Volumes" bind:meta="{meta}">
     <VolumeIcon size="24" />
   </NavItem>
-  <NavItem href="/deployments" tooltip="Deployments{deploymentCount}" ariaLabel="Deployments" bind:meta="{meta}">
-    <DeploymentIcon size="24" />
-  </NavItem>
+  {#if contextCount > 0}
+    <NavItem href="/deployments" tooltip="Deployments{deploymentCount}" ariaLabel="Deployments" bind:meta="{meta}">
+      <DeploymentIcon size="24" />
+    </NavItem>
+  {/if}
 
   {#if $contributions.length > 0}
     <div class="mx-3 my-2 h-[1px] bg-zinc-600"></div>
