@@ -325,6 +325,27 @@ export class KubernetesClient {
     return this.getContexts();
   }
 
+  // setContext takes a context name and sets it as the current context within the kubeconfig
+  async setContext(contextName: string): Promise<void> {
+    const newConfig = new KubeConfig();
+
+    // Load the configuration with all the standard contexts, clusters, users, etc.
+    // but change the currentContext to the provided contextName.
+    newConfig.loadFromOptions({
+      contexts: this.kubeConfig.contexts,
+      clusters: this.kubeConfig.clusters,
+      users: this.kubeConfig.users,
+      currentContext: contextName,
+    });
+
+    // Save the configuration to the kubeconfig file and set the current context to the context name.
+    await this.saveKubeConfig(newConfig);
+
+    // If saving the file succeeds then set the kubeConfig to the newConfig & set the current context name.
+    this.kubeConfig = newConfig;
+    this.currentContextName = contextName;
+  }
+
   async saveKubeConfig(config: KubeConfig) {
     const jsonString = config.exportConfig();
     const yamlString = jsYaml.dump(JSON.parse(jsonString));
