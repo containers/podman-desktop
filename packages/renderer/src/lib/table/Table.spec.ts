@@ -101,11 +101,11 @@ test('Expect sorting by name works', async () => {
   expect(rows[3].textContent).toContain('John');
 });
 
-test('Expect sorting by age works', async () => {
+test('Expect sorting by age sorts descending initially', async () => {
   render(TestTable, {});
 
-  const ageCol = screen.getByText('Age');
-  expect(ageCol).toBeInTheDocument();
+  const ageCol = await screen.findByRole('columnheader', { name: 'Age' });
+  expect(ageCol).toBeDefined();
 
   let rows = await screen.findAllByRole('row');
   expect(rows).toBeDefined();
@@ -115,6 +115,35 @@ test('Expect sorting by age works', async () => {
   expect(rows[3].textContent).toContain('Charlie');
 
   await fireEvent.click(ageCol);
+
+  expect(ageCol.innerHTML).toContain('fa-sort-down');
+
+  rows = await screen.findAllByRole('row');
+  expect(rows[1].textContent).toContain('John');
+  expect(rows[2].textContent).toContain('Charlie');
+  expect(rows[3].textContent).toContain('Henry');
+});
+
+test('Expect sorting by age twice sorts ascending', async () => {
+  render(TestTable, {});
+
+  const ageCol = await screen.findByRole('columnheader', { name: 'Age' });
+  expect(ageCol).toBeDefined();
+
+  let rows = await screen.findAllByRole('row');
+  expect(rows).toBeDefined();
+  expect(rows.length).toBe(4);
+  expect(rows[1].textContent).toContain('John');
+  expect(rows[2].textContent).toContain('Henry');
+  expect(rows[3].textContent).toContain('Charlie');
+
+  await fireEvent.click(ageCol);
+
+  expect(ageCol.innerHTML).toContain('fa-sort-down');
+
+  await fireEvent.click(ageCol);
+
+  expect(ageCol.innerHTML).toContain('fa-sort-up');
 
   rows = await screen.findAllByRole('row');
   expect(rows[1].textContent).toContain('Henry');
