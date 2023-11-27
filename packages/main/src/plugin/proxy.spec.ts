@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect, test, vi } from 'vitest';
-import { Proxy, PROXY_DISABLED, PROXY_MANUAL } from '/@/plugin/proxy.js';
+import { expect, test, vi, describe } from 'vitest';
+import { ensureURL, Proxy, PROXY_DISABLED, PROXY_MANUAL } from '/@/plugin/proxy.js';
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
 import * as http from 'http';
 import { createProxy, type ProxyServer } from 'proxy';

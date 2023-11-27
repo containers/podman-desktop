@@ -31,7 +31,6 @@ export const PROXY_DISABLED = 2;
 
 export type ProxyState = 0 | 1 | 2;
 
-
 export function ensureURL(urlstring: string | undefined): string | undefined {
   if (urlstring) {
     try {
