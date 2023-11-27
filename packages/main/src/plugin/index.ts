@@ -1897,6 +1897,10 @@ export class PluginSystem {
       },
     );
 
+    this.ipcHandle('kubernetes-client:setContext', async (_listener, contextName: string): Promise<void> => {
+      return kubernetesClient.setContext(contextName);
+    });
+
     this.ipcHandle('feedback:send', async (_listener, feedbackProperties: unknown): Promise<void> => {
       return telemetry.sendFeedback(feedbackProperties);
     });
