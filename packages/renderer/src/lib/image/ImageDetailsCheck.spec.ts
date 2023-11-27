@@ -52,7 +52,7 @@ test('expect to display wait message before to receive results', async () => {
     },
   });
 
-  vi.waitFor(() => {
+  await vi.waitFor(() => {
     const msg = screen.getByText(content => content.includes('Image analysis in progress'));
     expect(msg).toBeInTheDocument();
   });
@@ -93,7 +93,7 @@ test('expect to cancel when clicking the Cancel button', async () => {
     await fireEvent.click(abortBtn);
   });
 
-  vi.waitFor(() => {
+  await vi.waitFor(() => {
     const msg = screen.getByText(content => content.includes('Image analysis canceled'));
     expect(msg).toBeInTheDocument();
   });
@@ -175,7 +175,7 @@ test('expect to not cancel again when destroying the component after manual canc
     await fireEvent.click(abortBtn);
   });
 
-  vi.waitFor(() => {
+  await vi.waitFor(() => {
     const msg = screen.getByText(content => content.includes('Image analysis canceled'));
     expect(msg).toBeInTheDocument();
   });
@@ -223,12 +223,12 @@ test('expect to display results from image checker provider', async () => {
     },
   });
 
-  vi.waitFor(() => {
+  await vi.waitFor(() => {
     const msg = screen.getByText(content => content.includes('Image analysis complete'));
     expect(msg).toBeInTheDocument();
   });
 
-  vi.waitFor(() => {
+  await vi.waitFor(() => {
     const cell = screen.getByText('check1');
     expect(cell).toBeInTheDocument();
   });
@@ -270,7 +270,7 @@ test('expect to not cancel when destroying the component after displaying result
     },
   });
 
-  vi.waitFor(() => {
+  await vi.waitFor(() => {
     const cell = screen.getByText('check1');
     expect(cell).toBeInTheDocument();
   });
