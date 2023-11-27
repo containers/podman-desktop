@@ -36,6 +36,7 @@ const ageCol: Column<Person> = new Column('Age', {
   align: 'right',
   renderer: TestColumnAge,
   comparator: (a, b) => a.age - b.age,
+  initialOrder: 'descending',
 });
 
 const columns: Column<Person>[] = [idCol, nameCol, ageCol];
