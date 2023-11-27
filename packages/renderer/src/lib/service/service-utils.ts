@@ -18,7 +18,7 @@
 
 import moment from 'moment';
 import humanizeDuration from 'humanize-duration';
-import type { Condition, ServiceUI } from './ServiceUI';
+import type { ServiceUI } from './ServiceUI';
 import type { V1Service } from '@kubernetes/client-node';
 
 export class ServiceUtils {
@@ -38,16 +38,9 @@ export class ServiceUtils {
   }
 
   getServiceUI(service: V1Service): ServiceUI {
-    const conditions = [];
-    if (service.status?.conditions) {
-      for (const con of service.status.conditions) {
-        const c: Condition = {
-          type: con.type,
-          message: con.message,
-        };
-        conditions.push(c);
-      }
-    }
+    const conditions = (service.status?.conditions ?? []).map(c => {
+      return { type: c.type, message: c.message };
+    });
 
     return {
       name: service.metadata?.name ?? '',
