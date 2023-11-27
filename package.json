@@ -43,7 +43,7 @@
     "compile:current": "cross-env MODE=production npm run build && electron-builder build --config .electron-builder.config.cjs",
     "test": "npm run test:unit && npm run test:e2e",
     "test:unit": "npm run test:main && npm run test:preload && npm run test:preload-docker-extension && npm run test:renderer && npm run test:tools && npm run test:extensions",
-    "test:e2e": "cross-env NODE_ENV=development MODE=development DEBUG=pw:browser npm run build && npm run test:e2e:run",
+    "test:e2e": "npm run test:e2e:build && npm run test:e2e:run",
     "test:e2e:build": "cross-env NODE_ENV=development MODE=development DEBUG=pw:browser npm run build",
     "test:e2e:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- vitest run tests/src/ --threads false",
     "test:e2e:smoke": "npm run test:e2e:build && npm run test:e2e:smoke:run",
@@ -92,7 +92,8 @@
     "website:prod": "cd website && yarn run docusaurus build && yarn serve",
     "website:dev": "cd website && yarn run docusaurus start",
     "website:screenshots": "cd website-argos && yarn run screenshot",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "postinstall": "playwright install"
   },
   "lint-staged": {
     "*.{js,ts,tsx,svelte}": [
