@@ -121,28 +121,33 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
           selected="{true}"
           disabled="{countBySeverity.critical === 0}"
           icon="{faExclamationCircle}"
+          iconClass="text-red-600"
           on:click="{event => onSeverityClicked('critical', event.detail)}"
           >Critical ({countBySeverity.critical})</ToggleButton>
         <ToggleButton
           selected="{true}"
           disabled="{countBySeverity.high === 0}"
           icon="{faExclamationTriangle}"
+          iconClass="text-amber-500"
           on:click="{event => onSeverityClicked('high', event.detail)}">High ({countBySeverity.high})</ToggleButton>
         <ToggleButton
           selected="{true}"
           disabled="{countBySeverity.medium === 0}"
           icon="{faExclamationTriangle}"
+          iconClass="text-gray-800"
           on:click="{event => onSeverityClicked('medium', event.detail)}"
           >Medium ({countBySeverity.medium})</ToggleButton>
         <ToggleButton
           selected="{true}"
           disabled="{countBySeverity.low === 0}"
           icon="{faCircleMinus}"
+          iconClass="text-gray-500"
           on:click="{event => onSeverityClicked('low', event.detail)}">Low ({countBySeverity.low})</ToggleButton>
         <ToggleButton
           selected="{true}"
           disabled="{countBySeverity.success === 0}"
           icon="{faCheckSquare}"
+          iconClass="text-green-500"
           on:click="{event => onSeverityClicked('success', event.detail)}"
           >Passed ({countBySeverity.success})</ToggleButton>
       </ToggleButtonGroup>
