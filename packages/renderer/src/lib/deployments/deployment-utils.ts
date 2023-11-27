@@ -18,11 +18,14 @@
 
 import moment from 'moment';
 import humanizeDuration from 'humanize-duration';
-import type { DeploymentCondition, DeploymentUI } from './DeploymentUI';
+import type { DeploymentUI } from './DeploymentUI';
 import type { V1Deployment } from '@kubernetes/client-node';
 
 export class DeploymentUtils {
-  humanizeAge(started: string): string {
+  humanizeAge(started: string | undefined): string {
+    if (!started) {
+      return '';
+    }
     // get start time in ms
     const uptimeInMs = moment().diff(started);
     // make it human friendly
@@ -38,16 +41,9 @@ export class DeploymentUtils {
   }
 
   getDeploymentUI(deployment: V1Deployment): DeploymentUI {
-    const conditions = [];
-    if (deployment.status?.conditions) {
-      for (const con of deployment.status.conditions) {
-        const c: DeploymentCondition = {
-          type: con.type,
-          message: con.message,
-        };
-        conditions.push(c);
-      }
-    }
+    const conditions = (deployment.status?.conditions ?? []).map(c => {
+      return { type: c.type, message: c.message };
+    });
     let status = 'STOPPED';
     if (deployment.status?.readyReplicas && deployment.status?.readyReplicas > 0) {
       if (deployment.status?.replicas === deployment.status?.readyReplicas) {
@@ -61,9 +57,7 @@ export class DeploymentUtils {
       status: status,
       namespace: deployment.metadata?.namespace || '',
       created: deployment.metadata?.creationTimestamp,
-      age: deployment.metadata?.creationTimestamp
-        ? this.humanizeAge(deployment.metadata.creationTimestamp.toString())
-        : '',
+      age: this.humanizeAge(deployment.metadata?.creationTimestamp?.toString()),
       // number of replicas
       replicas: deployment.status?.replicas || 0,
       // ready pods

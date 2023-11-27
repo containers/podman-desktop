@@ -22,7 +22,7 @@ export interface DeploymentUI {
   namespace: string;
   replicas: number;
   ready: number;
-  created: Date | undefined;
+  created?: Date;
   age: string;
   selected: boolean;
   conditions: DeploymentCondition[];
@@ -30,5 +30,5 @@ export interface DeploymentUI {
 
 export interface DeploymentCondition {
   type: string;
-  message: string | undefined;
+  message?: string;
 }
