@@ -123,10 +123,10 @@ function handleAbort() {
   <div class="flex flex-row" slot="header-info">
     <div class="w-full flex mb-4 space-x-4">
       <Fa size="24" icon="{faStethoscope}" />
-      {#if remainingProviders > 0}
-        <span>Image analysis in progress...</span>
-      {:else if aborted}
+      {#if aborted}
         <span>Image analysis canceled</span>
+      {:else if remainingProviders > 0}
+        <span>Image analysis in progress...</span>
       {:else}
         <span>Image analysis complete</span>
       {/if}
