@@ -18,6 +18,9 @@ import DeploymentColumnActions from './DeploymentColumnActions.svelte';
 import moment from 'moment';
 import Button from '../ui/Button.svelte';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import DeploymentIcon from '../images/DeploymentIcon.svelte';
+import DeploymentEmptyScreen from './DeploymentEmptyScreen.svelte';
+import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -181,5 +184,13 @@ const row = new Row<DeploymentUI>({ selectable: _deployment => true });
       columns="{columns}"
       row="{row}">
     </Table>
+
+    {#if $filtered.length === 0}
+      {#if searchTerm}
+        <FilteredEmptyScreen icon="{DeploymentIcon}" kind="deployments" bind:searchTerm="{searchTerm}" />
+      {:else}
+        <DeploymentEmptyScreen />
+      {/if}
+    {/if}
   </div>
 </NavPage>
