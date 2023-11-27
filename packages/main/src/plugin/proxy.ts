@@ -29,26 +29,6 @@ export const PROXY_DISABLED = 2;
 
 export type ProxyState = 0 | 1 | 2;
 
-function ensureURL(urlstring: string | undefined): string | undefined {
-  if (urlstring) {
-    try {
-      new URL(urlstring);
-      return urlstring;
-    } catch (err) {
-      return `http://${urlstring}`;
-    }
-  }
-}
-
-function asURL(url: RequestInfo | URL): URL {
-  if (url instanceof URL) {
-    return url;
-  } else if (typeof url === 'string') {
-    return new URL(url);
-  }
-  return new URL((url as Request).url);
-}
-
 export function ensureURL(urlstring: string | undefined): string | undefined {
   if (urlstring) {
     try {

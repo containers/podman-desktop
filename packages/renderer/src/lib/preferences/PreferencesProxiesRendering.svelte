@@ -43,10 +43,6 @@ async function updateProxySettings() {
   });
 }
 
-async function updateProxyState() {
-  await window.setProxyState(proxyState);
-}
-
 function validate(event: any) {
   if (event.target.id === 'httpProxy' || event.target.id === 'httpsProxy') {
     const error = validateProxyAddress(event.target.value);
