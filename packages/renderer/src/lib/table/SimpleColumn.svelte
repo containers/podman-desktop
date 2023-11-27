@@ -2,4 +2,6 @@
 export let object: any;
 </script>
 
-{object.name}
+<div class="text-sm text-gray-700">
+  {object}
+</div>

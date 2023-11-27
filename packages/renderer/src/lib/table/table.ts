@@ -35,6 +35,14 @@ export interface ColumnInformation<Type> {
   readonly width?: string;
 
   /**
+   * Map the source object to another type for rendering. Allows
+   * easier reuse and sharing of renderers by converting to simple
+   * types (e.g. rendering 'string' instead of 'type.name') or
+   * converting to a different type.
+   */
+  readonly renderMapping?: (object: Type) => any;
+
+  /**
    * Svelte component, renderer for each cell in the column.
    * The component must have a property 'object' that has the
    * same type as the Column.

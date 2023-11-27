@@ -1,9 +1,7 @@
 <script lang="ts">
 import Table from './Table.svelte';
-import TestColumnId from './TestColumnId.svelte';
-import TestColumnName from './TestColumnName.svelte';
-import TestColumnAge from './TestColumnAge.svelte';
 import { Column, Row } from './table';
+import SimpleColumn from './SimpleColumn.svelte';
 
 let table: Table;
 let selectedItemsNumber: number;
@@ -22,19 +20,22 @@ const people: Person[] = [
 
 const idCol: Column<Person> = new Column('Id', {
   align: 'right',
-  renderer: TestColumnId,
+  renderMapping: obj => obj.id,
+  renderer: SimpleColumn,
   comparator: (a, b) => a.id - b.id,
 });
 
 const nameCol: Column<Person> = new Column('Name', {
   width: '3fr',
-  renderer: TestColumnName,
+  renderMapping: obj => obj.name,
+  renderer: SimpleColumn,
   comparator: (a, b) => a.name.localeCompare(b.name),
 });
 
 const ageCol: Column<Person> = new Column('Age', {
   align: 'right',
-  renderer: TestColumnAge,
+  renderMapping: obj => obj.age,
+  renderer: SimpleColumn,
   comparator: (a, b) => a.age - b.age,
   initialOrder: 'descending',
 });
