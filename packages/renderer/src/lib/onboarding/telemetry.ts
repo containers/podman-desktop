@@ -1,22 +1,22 @@
-export interface TelemetryStep {
+export interface OnboardingTelemetryStep {
   id: string;
   title: string;
   durationMs: number;
   error: undefined | string;
 }
 
-export interface TelemetryData {
+export interface OnboardingTelemetryData {
   extension: string;
   skipped: boolean;
-  steps: TelemetryStep[];
+  steps: OnboardingTelemetryStep[];
   stepsDetails?: any;
   durationMs: number;
   skipAtStep?: string;
   errors?: string[];
 }
 
-export class TelemetrySession {
-  private data: TelemetryData;
+export class OnboardingTelemetrySession {
+  private data: OnboardingTelemetryData;
   private onboardingStartTime: number;
   private stepStartTime: number;
   private previousStepIndex: number;
@@ -78,13 +78,23 @@ export class TelemetrySession {
   }
 }
 
-function telemetryAddStep(data: TelemetryData, i: number, id: string, title: string): TelemetryData {
+function telemetryAddStep(
+  data: OnboardingTelemetryData,
+  i: number,
+  id: string,
+  title: string,
+): OnboardingTelemetryData {
   const completeId = getStepCompleteId(i, id);
   data.steps.push({ id: completeId, title, durationMs: 0, error: undefined });
   return data;
 }
 
-function telemetrySetStepDuration(data: TelemetryData, i: number, stepId: string, ms: number): TelemetryData {
+function telemetrySetStepDuration(
+  data: OnboardingTelemetryData,
+  i: number,
+  stepId: string,
+  ms: number,
+): OnboardingTelemetryData {
   const completeId = getStepCompleteId(i, stepId);
   const stepIndex = data.steps.findLastIndex(step => step.id === completeId);
   if (stepIndex < 0) {
@@ -94,7 +104,12 @@ function telemetrySetStepDuration(data: TelemetryData, i: number, stepId: string
   return data;
 }
 
-function telemetrySetStepError(data: TelemetryData, i: number, stepId: string, error: Error): TelemetryData {
+function telemetrySetStepError(
+  data: OnboardingTelemetryData,
+  i: number,
+  stepId: string,
+  error: Error,
+): OnboardingTelemetryData {
   const completeId = getStepCompleteId(i, stepId);
   const stepIndex = data.steps.findLastIndex(step => step.id === completeId);
   if (stepIndex < 0) {
@@ -104,7 +119,7 @@ function telemetrySetStepError(data: TelemetryData, i: number, stepId: string, e
   return data;
 }
 
-function telemetryToSend(data: TelemetryData) {
+function telemetryToSend(data: OnboardingTelemetryData) {
   if (data.skipped) {
     data.skipAtStep = data.steps[data.steps.length - 1].id;
   }

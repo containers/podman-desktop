@@ -54,7 +54,7 @@ import Button from '../ui/Button.svelte';
 import Link from '../ui/Link.svelte';
 import OnboardingComponent from './OnboardingComponent.svelte';
 import Spinner from '../ui/Spinner.svelte';
-import { TelemetrySession } from './telemetry';
+import { OnboardingTelemetrySession } from './telemetry';
 
 export let extensionIds: string[] = [];
 
@@ -68,7 +68,7 @@ let displayCancelSetup = false;
 
 let executedCommands: string[] = [];
 
-let telemetrySession = new TelemetrySession();
+let telemetrySession = new OnboardingTelemetrySession();
 
 /*
 $: enableNextButton = false;*/
