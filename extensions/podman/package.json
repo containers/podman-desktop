@@ -61,6 +61,7 @@
           "default": 4000000000,
           "maximum": "HOST_TOTAL_MEMORY",
           "scope": "ContainerConnection",
+          "step": 500000000,
           "description": "Memory"
         },
         "podman.machine.memoryUsage": {
@@ -76,6 +77,7 @@
           "default": 100000000000,
           "maximum": "HOST_TOTAL_DISKSIZE",
           "scope": "ContainerConnection",
+          "step": 500000000,
           "description": "Disk size"
         },
         "podman.machine.diskSizeUsage": {
