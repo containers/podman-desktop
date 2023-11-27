@@ -54,7 +54,10 @@ async function callProviders(_providers: readonly ImageCheckerInfo[]) {
     window
       .imageCheck(provider.info.id, image.name, cancellableTokenId)
       .then(_result => {
-        provider.state = 'success';
+        // we test if it is still running, as it could have been marked as 'canceled'
+        if (provider.state === 'running') {
+          provider.state = 'success';
+        }
         providers = providers;
         remainingProviders--;
         _result?.checks.forEach(check => {
@@ -103,6 +106,12 @@ async function callProviders(_providers: readonly ImageCheckerInfo[]) {
 function handleAbort() {
   if (cancellableTokenId !== 0 && remainingProviders > 0) {
     window.cancelToken(cancellableTokenId);
+    providers = providers.map(p => {
+      if (p.state === 'running') {
+        p.state = 'canceled';
+      }
+      return p;
+    });
     aborted = true;
     window.telemetryTrack('imageCheck.aborted');
     cancellableTokenId = 0;
