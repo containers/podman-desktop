@@ -9,12 +9,10 @@ function openDetailsImage(image: ImageInfoUI) {
 }
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="hover:cursor-pointer flex flex-col" on:click="{() => openDetailsImage(object)}">
+<button class="flex flex-col" on:click="{() => openDetailsImage(object)}">
   <div class="text-sm text-gray-300">{object.name}</div>
   <div class="flex flex-row text-xs gap-1">
     <div class="text-violet-400">{object.shortId}</div>
     <div class="font-extra-light text-gray-400">{object.tag}</div>
   </div>
-</div>
+</button>
