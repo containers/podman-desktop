@@ -257,13 +257,13 @@ test('Check update with empty kubeconfig file', async () => {
 test('kube watcher', () => {
   const client = new TestKubernetesClient({} as ApiSenderType, configurationRegistry, fileSystemMonitoring, telemetry);
   client.setCurrentNamespace('fooNS');
-  let path;
+  const path: string[] = [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let errorHandler: any;
 
   // mock TestKubernetesClient.createWatchObject
   const watchMethodMock = vi.fn().mockImplementation((pathMethod, _ignore1, _ignore2, c) => {
-    path = pathMethod;
+    path.push(pathMethod);
     errorHandler = c;
     return Promise.resolve();
   });
@@ -274,7 +274,8 @@ test('kube watcher', () => {
 
   client.setupKubeWatcher();
 
-  expect(path).toBe('/api/v1/namespaces/fooNS/pods');
+  expect(path).toContain('/api/v1/namespaces/fooNS/pods');
+  expect(path).toContain('/apis/apps/v1/namespaces/fooNS/deployments');
   expect(errorHandler).toBeDefined();
 
   // call the error Handler with undefined
