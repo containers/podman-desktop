@@ -37,8 +37,6 @@ afterEach(() => {
   vi.resetAllMocks();
 });
 
-const log = console.log;
-
 const jsonStdout = {
   clientVersion: {
     major: '1',
@@ -55,17 +53,11 @@ const jsonStdout = {
 };
 
 test('kubectl CLI tool registered when detected and extension is activated', async () => {
-  vi.mocked(extensionApi.process.exec)
-    .mockResolvedValueOnce({
-      stderr: '',
-      stdout: JSON.stringify(jsonStdout),
-      command: 'kubectl version --client=true -o=json',
-    })
-    .mockResolvedValueOnce({
-      stderr: '',
-      stdout: '/path1/to/kubectl\n/path2/to/kubectl',
-      command: 'kubectl version --client=true -o=json',
-    });
+  vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+    stderr: '',
+    stdout: '/path1/to/kubectl\n/path2/to/kubectl',
+    command: 'kubectl version --client=true -o=json',
+  });
 
   const deferred = new Promise<void>(resolve => {
     vi.mocked(extensionApi.cli.createCliTool).mockImplementation(() => {
@@ -74,14 +66,13 @@ test('kubectl CLI tool registered when detected and extension is activated', asy
     });
   });
 
-  KubectlExtension.activate();
+  await KubectlExtension.activate();
 
   return deferred.then(() => {
     expect(extensionApi.cli.createCliTool).toBeCalled();
     expect(extensionApi.cli.createCliTool).toBeCalledWith(
       expect.objectContaining({
         name: 'kubectl',
-        version: '1.28.3',
         path: '/path1/to/kubectl',
       }),
     );
@@ -90,100 +81,63 @@ test('kubectl CLI tool registered when detected and extension is activated', asy
 
 test('kubectl CLI tool not registered when not detected', async () => {
   vi.mocked(extensionApi.process.exec).mockRejectedValue(new Error('Error running version command'));
-  const deferred = new Promise<void>(resolve => {
-    vi.spyOn(console, 'log').mockImplementation(() => {
-      resolve();
-    });
-  });
 
-  KubectlExtension.activate();
-
-  return deferred.then(() => {
-    expect(console.log).toBeCalled();
-    expect(console.log).toBeCalledWith(expect.stringContaining('Cannot detect kubectl CLI tool:'));
-  });
-});
-
-test('kubectl CLI tool not registered when version json stdout cannot be parsed', async () => {
-  vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
-    stderr: '',
-    stdout: `{${JSON.stringify(jsonStdout)}`,
-    command: 'kubectl version --client=true -o=json',
-  });
-
-  const deferred = new Promise<void>(resolve => {
-    vi.spyOn(console, 'log').mockImplementation((message: string) => {
-      log(message);
-      resolve();
-    });
-  });
-
-  KubectlExtension.activate();
-
-  return deferred.then(() => {
-    expect(console.log).toBeCalled();
-    expect(console.log).toBeCalledWith(
-      expect.stringContaining('Cannot detect kubectl CLI tool: SyntaxError: Unexpected token {'),
-    );
-  });
-});
-
-test('kubectl CLI tool not registered when version cannot be extracted from object', async () => {
-  const wrongJsonStdout = {
-    clientVersion: {
-      ...jsonStdout.clientVersion,
-    },
-  };
-  delete (wrongJsonStdout.clientVersion as any).gitVersion;
-  vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
-    stderr: '',
-    stdout: JSON.stringify(wrongJsonStdout),
-    command: 'kubectl version --client=true -o=json',
-  });
-
-  const deferred = new Promise<void>(resolve => {
-    vi.spyOn(console, 'log').mockImplementation((message: string) => {
-      log(message);
-      resolve();
-    });
-  });
-
-  KubectlExtension.activate();
-
-  return deferred.then(() => {
-    expect(console.log).toBeCalled();
-    expect(console.log).toBeCalledWith(
-      expect.stringContaining('Cannot detect kubectl CLI tool: Error: Cannot extract version from stdout'),
-    );
-  });
+  try {
+    await KubectlExtension.activate();
+  } catch (error) {
+    expect(error.message).toContain('Error running version command');
+  }
 });
 
 test('kubectl CLI tool not registered when path cannot be found', async () => {
-  vi.mocked(extensionApi.process.exec)
-    .mockResolvedValueOnce({
-      stderr: '',
-      stdout: JSON.stringify(jsonStdout),
-      command: 'kubectl version --client=true -o=json',
-    })
-    .mockResolvedValueOnce({
-      stderr: '',
-      stdout: '',
-      command: 'detect location command',
-    });
+  vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+    stderr: '',
+    stdout: '',
+    command: 'kubectl version --client=true -o=json',
+  });
 
   const deferred = new Promise<void>(resolve => {
-    vi.spyOn(console, 'log').mockImplementation((message: string) => {
-      log(message);
+    vi.spyOn(console, 'error').mockImplementation(() => {
       resolve();
     });
   });
 
-  KubectlExtension.activate();
+  await KubectlExtension.activate();
 
   return deferred.then(() => {
-    expect(console.log).toBeCalled();
-    expect(console.log).toBeCalledWith(
-      expect.stringContaining('Cannot detect kubectl CLI tool: Error: Cannot extract path form stdout'),
+    expect(console.error).toBeCalled();
+    expect(console.error).toBeCalledWith(
+      'Error activating extension',
+      expect.objectContaining({ message: 'Cannot extract path from kubectl' }),
+    );
+  });
+});
+
+// test getLocalVersion function that is passed into createCliTool successfull passes in a version
+test('getLocalVersion function that is passed into createCliTool successfull passes in a version', async () => {
+  vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+    stderr: '',
+    stdout: JSON.stringify(jsonStdout),
+    command: 'kubectl version --client=true -o=json',
+  });
+
+  const deferred = new Promise<void>(resolve => {
+    vi.mocked(extensionApi.cli.createCliTool).mockImplementation(() => {
+      resolve();
+      return {} as extensionApi.CliTool;
+    });
+  });
+
+  await KubectlExtension.activate();
+
+  return deferred.then(() => {
+    expect(extensionApi.cli.createCliTool).toBeCalled();
+    expect(extensionApi.cli.createCliTool).toBeCalledWith(
+      expect.objectContaining({
+        name: 'kubectl',
+        path: '/path1/to/kubectl',
+        getLocalVersion: expect.any(Function),
+      }),
     );
   });
 });

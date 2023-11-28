@@ -2481,16 +2481,25 @@ declare module '@podman-desktop/api' {
     displayName: string;
     markdownDescription: string;
     images: ProviderImages;
+    path: string;
 
     /**
-     * Within your extension, it is reccommended to implement your own functionality to check the current
+     * Within your extension, it is recommended to implement your own functionality to check the current
      * version number of the CLI tool. For example, parsing the information from the CLI tool's `--version` flag.
      * Passing in path will also help to show where the CLI tool is expected to be installed.
-     * This is usually the ~/.local/share/containers/podman-desktop/extensions-storage directory.
+     *
+     * You can either pass in the current version in the `version` field or implement `getLocalVersion` function to
+     * return the current version of the CLI tool.
+     *
      * Note: The expected value should not include 'v'.
      */
-    version: string;
-    path: string;
+    version?: string;
+
+    /**
+     * Since it's difficult to determine how to retrieve the exact version of the local binary, we recommend the
+     * extension use the getLocalVersion function to retrieve the version of the CLI tool.
+     */
+    getLocalVersion: () => Promise<string>;
   }
 
   export type CliToolState = 'registered';
@@ -2506,6 +2515,7 @@ declare module '@podman-desktop/api' {
       id: string;
       label: string;
     };
+    getLocalVersion: () => Promise<string>;
   }
 
   /**

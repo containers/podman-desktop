@@ -24,7 +24,7 @@ import { ComposeGitHubReleases } from './compose-github-releases';
 import { OS } from './os';
 import * as handler from './handler';
 import { ComposeDownload } from './download';
-import * as path from 'path';
+import { process as podmanProcess } from '@podman-desktop/api';
 
 let composeVersionMetadata: ComposeGithubReleaseArtifactMetadata | undefined;
 let composeCliTool: extensionApi.CliTool | undefined;
@@ -200,29 +200,16 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // Push the CLI tool as well (but it will do it postActivation so it does not block the activate() function)
   // Post activation
   setTimeout(() => {
-    postActivate(extensionContext).catch((error: unknown) => {
+    postActivate().catch((error: unknown) => {
       console.error('Error activating extension', error);
     });
   }, 0);
 }
 
 // Activate the CLI tool (check version, etc) and register the CLi so it does not block activation.
-async function postActivate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  // The location of the binary (local storage folder)
-  const binaryPath = path.join(
-    extensionContext.storagePath,
-    'bin',
-    os.isWindows() ? composeCliName + '.exe' : composeCliName,
-  );
-  let binaryVersion = '';
-
-  // Retrieve the version of the binary by running exec with --short
-  try {
-    const result = await extensionApi.process.exec(binaryPath, ['--version', '--short']);
-    binaryVersion = result.stdout;
-  } catch (e) {
-    console.error(`Error getting compose version: ${e}`);
-  }
+async function postActivate(): Promise<void> {
+  // Find the location of the binary using which / when.
+  const binaryPath = await detectPath(composeCliName);
 
   // Register the CLI tool so it appears in the preferences page. We will detect which version is being ran by
   // checking the local storage folder for the binary. If it exists, we will run `--version` and parse the information.
@@ -233,8 +220,16 @@ async function postActivate(extensionContext: extensionApi.ExtensionContext): Pr
     images: {
       icon: imageLocation,
     },
-    version: binaryVersion,
     path: binaryPath,
+    getLocalVersion: async () => {
+      try {
+        const result = await extensionApi.process.exec(binaryPath, ['--version', '--short']);
+        return result.stdout;
+      } catch (e) {
+        console.error(`Error getting compose version: ${e}`);
+      }
+      return '';
+    },
   });
 }
 
@@ -243,4 +238,13 @@ export async function deactivate(): Promise<void> {
   if (composeCliTool) {
     composeCliTool.dispose();
   }
+}
+
+async function detectPath(toolName: string): Promise<string> {
+  const result = await podmanProcess.exec(process.platform === 'win32' ? 'where' : 'which', [toolName]);
+  const location = result.stdout.split('\n')[0];
+  if (location) {
+    return location;
+  }
+  throw new Error(`Cannot extract path from ${toolName}`);
 }

@@ -114,8 +114,8 @@ suite('cli module', () => {
         displayName: 'tool-display-name',
         markdownDescription: 'markdown description',
         images: {},
-        version: '1.0.1',
         path: 'path/to/tool-name',
+        getLocalVersion: async () => '1.0.1',
       };
       const newCliTool = api.cli.createCliTool(options);
       expect(newCliTool.id).equals(`${extManifest.publisher}.${extManifest.name}.${options.name}`);
@@ -133,25 +133,25 @@ suite('cli module', () => {
         displayName: 'tool-display-name',
         markdownDescription: 'markdown description',
         images: {},
-        version: '1.0.1',
+        getLocalVersion: async () => '1.0.1',
         path: 'path/to/tool-name',
       };
       api.cli.createCliTool(options);
       expect(apiSender.send).toBeCalledWith('cli-tool-create');
     });
 
-    test('CLI Tool registry generates CliToolInfo array for created tools', () => {
+    test('CLI Tool registry generates CliToolInfo array for created tools', async () => {
       const api = extLoader.createApi('/path', extManifest);
       const options: CliToolOptions = {
         name: 'tool-name',
         displayName: 'tool-display-name',
         markdownDescription: 'markdown description',
         images: {},
-        version: '1.0.1',
+        getLocalVersion: async () => '1.0.1',
         path: 'path/to/tool-name',
       };
       const newCliTool = api.cli.createCliTool(options);
-      const infoList = cliToolRegistry.getCliToolInfos();
+      const infoList = await cliToolRegistry.getCliToolInfos();
       expect(infoList.length).equals(1);
       expect(infoList[0]).toMatchObject({
         id: newCliTool.id,
@@ -173,7 +173,7 @@ suite('cli module', () => {
         displayName: 'tool-display-name',
         markdownDescription: 'markdown description',
         images: {},
-        version: '1.0.1',
+        getLocalVersion: async () => '1.0.1',
         path: 'path/to/tool-name',
       };
       const newCliTool = api.cli.createCliTool(options);
@@ -181,21 +181,21 @@ suite('cli module', () => {
       expect(apiSender.send).toBeCalledWith('cli-tool-remove', newCliTool.id);
     });
 
-    test('removes cli tool from the registry', () => {
+    test('removes cli tool from the registry', async () => {
       const api = extLoader.createApi('/path', extManifest);
       const options: CliToolOptions = {
         name: 'tool-name',
         displayName: 'tool-display-name',
         markdownDescription: 'markdown description',
         images: {},
-        version: '1.0.1',
+        getLocalVersion: async () => '1.0.1',
         path: 'path/to/tool-name',
       };
       const newCliTool = api.cli.createCliTool(options);
-      const infoListAfterCreate = cliToolRegistry.getCliToolInfos();
+      const infoListAfterCreate = await cliToolRegistry.getCliToolInfos();
       expect(infoListAfterCreate.length).equals(1);
       newCliTool.dispose();
-      const infoListAfterDispose = cliToolRegistry.getCliToolInfos();
+      const infoListAfterDispose = await cliToolRegistry.getCliToolInfos();
       expect(infoListAfterDispose.length).equals(0);
     });
   });

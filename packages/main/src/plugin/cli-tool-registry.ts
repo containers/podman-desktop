@@ -36,6 +36,17 @@ export class CliToolImpl implements CliTool, Disposable {
     this.id = `${extensionInfo.id}.${_options.name}`;
   }
 
+  // Use the getLocalVersion function from _options
+  async getLocalVersion(): Promise<string> {
+    try {
+      // The path is already known to this class instance
+      return await this._options.getLocalVersion();
+    } catch (error) {
+      console.error(`Error getting local version for CLI tool at path ${this.path}:`, error);
+      throw error;
+    }
+  }
+
   get state() {
     return this._state;
   }
@@ -90,8 +101,11 @@ export class CliToolRegistry {
     this.apiSender.send('cli-tool-remove', cliTool.id);
   }
 
-  getCliToolInfos(): CliToolInfo[] {
-    return Array.from(this.cliTools.values()).map(cliTool => {
+  async getCliToolInfos(): Promise<CliToolInfo[]> {
+    const cliToolsArray = Array.from(this.cliTools.values());
+
+    // Map each cliTool to a promise that resolves to its info
+    const cliToolInfoPromises = cliToolsArray.map(async cliTool => {
       return {
         id: cliTool.id,
         name: cliTool.name,
@@ -100,9 +114,12 @@ export class CliToolRegistry {
         state: cliTool.state,
         images: cliTool.images,
         extensionInfo: cliTool.extensionInfo,
-        version: cliTool.version,
+        version: await cliTool.getLocalVersion(),
         path: cliTool.path,
       };
     });
+
+    // Wait for all promises to resolve
+    return Promise.all(cliToolInfoPromises);
   }
 }

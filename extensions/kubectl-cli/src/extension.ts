@@ -16,11 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { CliToolOptions } from '@podman-desktop/api';
+import type * as extensionApi from '@podman-desktop/api';
 import { cli, process as podmanProcess } from '@podman-desktop/api';
 
-type KubectlInfo = Pick<CliToolOptions, 'version' | 'path'>;
-
+let kubectlCliTool: extensionApi.CliTool | undefined;
 interface KubectlVersionOutput {
   clientVersion: {
     major: string;
@@ -36,16 +35,41 @@ interface KubectlVersionOutput {
   kustomizeVersion: string;
 }
 
-export function activate() {
+export async function activate(): Promise<void> {
+  // We put the cli activation in postActivate so that the extension is activated
+  // immediately, and the cli is activated asynchronously.
   setTimeout(() => {
-    detectTool('kubectl', ['version', '--client=true', '-o=json'])
-      .then(result => registerTool(result))
-      .catch((error: unknown) => console.log(`Cannot detect kubectl CLI tool: ${String(error)}`));
+    postActivate().catch((error: unknown) => {
+      console.error('Error activating extension', error);
+    });
+  }, 0);
+}
+async function postActivate(): Promise<void> {
+  const binaryPath = await detectPath('kubectl');
+  kubectlCliTool = cli.createCliTool({
+    markdownDescription,
+    name: 'kubectl',
+    displayName: 'kubectl',
+    images: {
+      icon: 'icon.png',
+    },
+    path: binaryPath,
+    getLocalVersion: async () => {
+      return detectVersion('kubectl', ['version', '--client=true', '-o=json']);
+    },
   });
 }
 
-function extractVersion(stdout: string): string {
-  const versionOutput = JSON.parse(stdout) as KubectlVersionOutput;
+export async function deactivate(): Promise<void> {
+  // Dispose the CLI tool
+  if (kubectlCliTool) {
+    kubectlCliTool.dispose();
+  }
+}
+
+async function detectVersion(toolName: string, versionOptions: string[]): Promise<string> {
+  const result = await podmanProcess.exec(toolName, versionOptions);
+  const versionOutput = JSON.parse(result.stdout) as KubectlVersionOutput;
   const version: string = versionOutput?.clientVersion?.gitVersion?.replace('v', '');
   if (version) {
     return version;
@@ -53,33 +77,13 @@ function extractVersion(stdout: string): string {
   throw new Error('Cannot extract version from stdout');
 }
 
-function extractPath(stdout: string): string {
-  const location = stdout.split('\n')[0];
+const markdownDescription = `A command line tool for communicating with a Kubernetes cluster's control plane, using the Kubernetes API.\n\nMore information: [kubernetes.io](https://kubernetes.io/docs/reference/kubectl/)`;
+
+async function detectPath(toolName: string): Promise<string> {
+  const result = await podmanProcess.exec(process.platform === 'win32' ? 'where' : 'which', [toolName]);
+  const location = result.stdout.split('\n')[0];
   if (location) {
     return location;
   }
-  throw new Error('Cannot extract path form stdout');
-}
-
-async function detectTool(toolName: string, versionOptions: string[]): Promise<KubectlInfo> {
-  const version = await podmanProcess.exec(toolName, versionOptions).then(result => extractVersion(result.stdout));
-  const path = await podmanProcess
-    .exec(process.platform === 'win32' ? 'where' : 'which', [toolName])
-    .then(result => extractPath(result.stdout));
-  return { version, path };
-}
-
-const markdownDescription = `A command line tool for communicating with a Kubernetes cluster's control plane, using the Kubernetes API.\n\nMore information: [kubernetes.io](https://kubernetes.io/docs/reference/kubectl/)`;
-
-async function registerTool(cliInfo: KubectlInfo) {
-  cli.createCliTool({
-    markdownDescription,
-    name: 'kubectl',
-    displayName: 'kubectl',
-    images: {
-      icon: 'icon.png',
-    },
-    version: cliInfo.version,
-    path: cliInfo.path,
-  });
+  throw new Error(`Cannot extract path from ${toolName}`);
 }
