@@ -623,14 +623,17 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
       }
       if (effective) {
         const state = podmanMachinesStatuses.get(machineInfo.name);
-        if (state === 'started') {
-          await lifecycle.stop(context, logger);
-        }
-        await extensionApi.process.exec(getPodmanCli(), args, {
-          logger: new LoggerDelegator(context, logger),
-        });
-        if (state === 'started') {
-          await lifecycle.start(context, logger);
+        try {
+          if (state === 'started') {
+            await lifecycle.stop(context, logger);
+          }
+          await extensionApi.process.exec(getPodmanCli(), args, {
+            logger: new LoggerDelegator(context, logger),
+          });
+        } finally {
+          if (state === 'started') {
+            await lifecycle.start(context, logger);
+          }
         }
       }
     },
