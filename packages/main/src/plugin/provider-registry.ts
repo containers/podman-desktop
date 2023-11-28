@@ -936,6 +936,7 @@ export class ProviderRegistry {
       await lifecycle.edit(context, params, logHandler, token);
     } catch (err) {
       console.warn(`Can't edit connection ${provider.id}.${providerConnectionInfo.name}`, err);
+      throw err;
     }
   }
 

@@ -352,6 +352,8 @@ async function handleOnSubmit(e: any) {
       return;
     }
     errorMessage = error;
+    operationStarted = false;
+    operationInProgress = false;
   }
 }
 
