@@ -608,7 +608,7 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
     },
     edit: async (context, params, logger, _token): Promise<void> => {
       let effective = false;
-      const args = ['machine', 'set'];
+      const args = ['machine', 'set', machineInfo.name];
       for (const key of Object.keys(params)) {
         if (key === 'podman.machine.cpus') {
           args.push('--cpus', params[key]);
