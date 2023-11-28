@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest';
-import { fireEvent, render, screen, within, cleanup } from '@testing-library/svelte';
-import { afterEach, describe, expect, test } from 'vitest';
+import { fireEvent, render, screen, within } from '@testing-library/svelte';
+import { describe, expect, test } from 'vitest';
 import ProviderResultPage from './ProviderResultPage.svelte';
 import type { CheckUI, ProviderUI } from './ProviderResultPage';
 
@@ -89,10 +89,6 @@ describe('test ProviderResultPage', async () => {
     },
   ];
 
-  afterEach(() => {
-    cleanup();
-  });
-
   test('all providers are displayed as running', () => {
     const checkProviderRunning = (text: string) => {
       const providerEntry = screen.getByRole('row', { name: text });
@@ -103,6 +99,8 @@ describe('test ProviderResultPage', async () => {
       expect(spinner).toBeInTheDocument();
     };
 
+    providers[0].state = 'running';
+    providers[1].state = 'running';
     render(ProviderResultPage, {
       providers: providers,
     });
@@ -154,11 +152,6 @@ describe('test ProviderResultPage', async () => {
     await fireEvent.click(cb);
     results.filter(r => r.provider.id === 'provider1').forEach(result => checkResultNotDisplayed(result));
     results.filter(r => r.provider.id === 'provider2').forEach(result => checkResultDisplayed(result));
-    // TODO(feloy) This should not be necessary, as component is unmounted between tests
-    // but it fails to work correctly without it
-    await fireEvent.click(cb);
-    results.filter(r => r.provider.id === 'provider1').forEach(result => checkResultDisplayed(result));
-    results.filter(r => r.provider.id === 'provider2').forEach(result => checkResultDisplayed(result));
   });
 
   test('results from selected providers -1st- only are displayed', async () => {
@@ -174,9 +167,6 @@ describe('test ProviderResultPage', async () => {
     await fireEvent.click(cb);
     results.filter(r => r.provider.id === 'provider1').forEach(result => checkResultDisplayed(result));
     results.filter(r => r.provider.id === 'provider2').forEach(result => checkResultNotDisplayed(result));
-    await fireEvent.click(cb);
-    results.filter(r => r.provider.id === 'provider1').forEach(result => checkResultDisplayed(result));
-    results.filter(r => r.provider.id === 'provider2').forEach(result => checkResultDisplayed(result));
   });
 
   test('results from selected severities only are displayed', async () => {
@@ -190,9 +180,6 @@ describe('test ProviderResultPage', async () => {
     const criticalButton = screen.getByRole('button', { name: 'Critical (2)' });
     await fireEvent.click(criticalButton);
     results.filter(r => r.check.severity === 'critical').forEach(result => checkResultNotDisplayed(result));
-    results.filter(r => r.check.severity !== 'critical').forEach(result => checkResultDisplayed(result));
-    await fireEvent.click(criticalButton);
-    results.filter(r => r.check.severity === 'critical').forEach(result => checkResultDisplayed(result));
     results.filter(r => r.check.severity !== 'critical').forEach(result => checkResultDisplayed(result));
   });
 });
