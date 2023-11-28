@@ -43,6 +43,7 @@ import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
 import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-api';
 import type { CatalogExtension } from '../../main/src/plugin/extensions-catalog/extensions-catalog-api';
 import type { CommandInfo } from '../../main/src/plugin/api/command-info';
+import type { InformerResourcesType } from '../../main/src/plugin/api/informer-info';
 
 import type { V1Route } from '../../main/src/plugin/api/openshift-types';
 import type { AuthenticationProviderInfo } from '../../main/src/plugin/authentication';
@@ -1550,6 +1551,21 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('kubernetesListIngresses', async (): Promise<V1Ingress[]> => {
     return ipcInvoke('kubernetes-client:listIngresses');
+  });
+
+  contextBridge.exposeInMainWorld(
+    'kubernetesStartInformer',
+    async (resourcesType: InformerResourcesType): Promise<number> => {
+      return ipcInvoke('kubernetes-client:startInformer', resourcesType);
+    },
+  );
+
+  contextBridge.exposeInMainWorld('kubernetesRefreshInformer', async (id: number): Promise<void> => {
+    return ipcInvoke('kubernetes-client:refreshInformer', id);
+  });
+
+  contextBridge.exposeInMainWorld('stopInformer', async (id: number): Promise<void> => {
+    return ipcInvoke('informer-registry:stopInformer', id);
   });
 
   contextBridge.exposeInMainWorld('kubernetesListRoutes', async (): Promise<V1Route[]> => {
