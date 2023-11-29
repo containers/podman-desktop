@@ -483,11 +483,11 @@ function setStoppedFilter() {
 
   <svelte:fragment slot="tabs">
     <Button type="tab" on:click="{() => resetRunningFilter()}" selected="{containerUtils.filterIsAll(searchTerm)}"
-      >All containers</Button>
+      >All</Button>
     <Button type="tab" on:click="{() => setRunningFilter()}" selected="{containerUtils.filterIsRunning(searchTerm)}"
-      >Running containers</Button>
+      >Running</Button>
     <Button type="tab" on:click="{() => setStoppedFilter()}" selected="{containerUtils.filterIsStopped(searchTerm)}"
-      >Stopped containers</Button>
+      >Stopped</Button>
   </svelte:fragment>
 
   <div class="flex min-w-full h-full" slot="content">
