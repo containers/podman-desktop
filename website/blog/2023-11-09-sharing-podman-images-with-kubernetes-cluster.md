@@ -97,7 +97,7 @@ How to configure cri-o. For now it's not possible using minikube options. But mi
 Let's do our own base image named kicbase image.
 
 Minikube includes a default configuration file for cri-o.
-https://github.com/kubernetes/minikube/blob/0b29983f4bdc1ad55180ee43e3f34cae6c24dee4/deploy/kicbase/02-crio.conf
+https://github.com/kubernetes/minikube/blob/v1.32.0/deploy/kicbase/02-crio.conf
 
 We need to change this default configuration to say that for storing the images, cri-o needs to use another directory. This new directory `/host-containers` will be mounted from the `/var/lib/containers` folder inside the podman machine. This is how cri-o is able to see podman images.
 
