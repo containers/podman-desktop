@@ -131,6 +131,10 @@ RUN sh -c "echo 'deb https://downloadcontent.opensuse.org/repositories/devel:/ku
 ```
 
 Let's rebuild the image and publish them. It has been published on `quay.io/fbenoit/kicbase:multiarch-2023-11-06` .
+To build the image, clone https://github.com/kubernetes/minikube repository, and edit the files referenced before.
+
+The command to build the kicbase image is `make local-kicbase`.
+
 
 #### Trying out cri-o using the podman machine storage folder
 
