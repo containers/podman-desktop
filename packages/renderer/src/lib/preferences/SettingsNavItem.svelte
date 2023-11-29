@@ -26,11 +26,9 @@ function rotate(node: unknown, { clockwise = true }) {
 
 <a class="no-underline" href="{href}" aria-label="{title}" on:click="{() => (expanded = !expanded)}">
   <div
-    class="flex w-full pr-1 justify-between items-center cursor-pointer border-l-[4px] border-charcoal-600"
+    class="flex w-full pr-1 py-2 justify-between items-center cursor-pointer border-l-[4px] border-charcoal-600"
     class:text-white="{selected}"
-    class:py-3="{!child}"
     class:pl-3="{!child}"
-    class:py-2="{child}"
     class:pl-4="{child}"
     class:leading-none="{child}"
     class:text-sm="{child}"
