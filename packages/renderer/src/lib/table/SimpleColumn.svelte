@@ -1,5 +1,5 @@
 <script lang="ts">
-export let object: any;
+export let object: string;
 </script>
 
 <div class="text-sm text-gray-700">

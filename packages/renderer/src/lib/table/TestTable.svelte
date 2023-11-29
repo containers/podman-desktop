@@ -18,29 +18,29 @@ const people: Person[] = [
   { id: 3, name: 'Charlie', age: 43 },
 ];
 
-const idCol: Column<Person> = new Column('Id', {
+const idCol: Column<Person, string> = new Column('Id', {
   align: 'right',
-  renderMapping: obj => obj.id,
+  renderMapping: obj => obj.id.toString(),
   renderer: SimpleColumn,
   comparator: (a, b) => a.id - b.id,
 });
 
-const nameCol: Column<Person> = new Column('Name', {
+const nameCol: Column<Person, string> = new Column('Name', {
   width: '3fr',
   renderMapping: obj => obj.name,
   renderer: SimpleColumn,
   comparator: (a, b) => a.name.localeCompare(b.name),
 });
 
-const ageCol: Column<Person> = new Column('Age', {
+const ageCol: Column<Person, string> = new Column('Age', {
   align: 'right',
-  renderMapping: obj => obj.age,
+  renderMapping: obj => obj.age.toString(),
   renderer: SimpleColumn,
   comparator: (a, b) => a.age - b.age,
   initialOrder: 'descending',
 });
 
-const columns: Column<Person>[] = [idCol, nameCol, ageCol];
+const columns: Column<Person, string>[] = [idCol, nameCol, ageCol];
 
 const row = new Row<Person>({
   selectable: person => person.age < 50,

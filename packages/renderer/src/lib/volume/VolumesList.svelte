@@ -189,13 +189,13 @@ let envColumn = new Column<VolumeInfoUI>('Environment', {
   comparator: (a, b) => a.engineName.localeCompare(b.engineName),
 });
 
-let ageColumn = new Column<VolumeInfoUI>('Age', {
+let ageColumn = new Column<VolumeInfoUI, string>('Age', {
   renderMapping: object => object.age,
   renderer: SimpleColumn,
   comparator: (a, b) => moment().diff(a.created) - moment().diff(b.created),
 });
 
-let sizeColumn = new Column<VolumeInfoUI>('Size', {
+let sizeColumn = new Column<VolumeInfoUI, string>('Size', {
   align: 'right',
   renderMapping: object => object.humanSize,
   renderer: SimpleColumn,
@@ -203,7 +203,7 @@ let sizeColumn = new Column<VolumeInfoUI>('Size', {
   initialOrder: 'descending',
 });
 
-const columns: Column<VolumeInfoUI>[] = [
+const columns: Column<VolumeInfoUI, VolumeInfoUI | string>[] = [
   statusColumn,
   nameColumn,
   envColumn,

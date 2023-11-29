@@ -19,7 +19,7 @@
 /**
  * Options to be used when creating a Column.
  */
-export interface ColumnInformation<Type> {
+export interface ColumnInformation<Type, RenderType = Type> {
   /**
    * Column alignment, one of 'left', 'center', or 'right'.
    *
@@ -40,7 +40,7 @@ export interface ColumnInformation<Type> {
    * types (e.g. rendering 'string' instead of 'type.name') or
    * converting to a different type.
    */
-  readonly renderMapping?: (object: Type) => any;
+  readonly renderMapping?: (object: Type) => RenderType;
 
   /**
    * Svelte component, renderer for each cell in the column.
@@ -73,10 +73,10 @@ export interface ColumnInformation<Type> {
 /**
  * A table Column.
  */
-export class Column<Type> {
+export class Column<Type, RenderType = Type> {
   constructor(
     readonly title: string,
-    readonly info: ColumnInformation<Type>,
+    readonly info: ColumnInformation<Type, RenderType>,
   ) {}
 }
 
