@@ -135,7 +135,6 @@ To build the image, clone https://github.com/kubernetes/minikube repository, and
 
 The command to build the kicbase image is `make local-kicbase`.
 
-
 #### Trying out cri-o using the podman machine storage folder
 
 At the time of the blog post, the version `v1.32.0-beta.0` has been used. For different versions you might need to build your own kicbase image.
