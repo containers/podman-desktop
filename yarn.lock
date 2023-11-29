@@ -2391,10 +2391,10 @@
   resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-6.5.0.tgz#5d3912d28a2fb3e6c867320eb27a71f23e7bcb29"
   integrity sha512-vYC8oN2l8meu05sRi1j3Iie/HNFAeIxpitYFhsUrBc11TxiMken9QdXnSQ0q16FYsOSt/6soxs5ghdk+VYGiog==
 
-"@fortawesome/fontawesome-free@^6.4.2":
-  version "6.4.2"
-  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-free/-/fontawesome-free-6.4.2.tgz#36b6a9cb5ffbecdf89815c94d0c0ffa489ac5ecb"
-  integrity sha512-m5cPn3e2+FDCOgi1mz0RexTUvvQibBebOUlUlW0+YrMjDTPkiJ6VTKukA1GRsvRw+12KyJndNjj0O4AgTxm2Pg==
+"@fortawesome/fontawesome-free@^6.5.0":
+  version "6.5.0"
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-free/-/fontawesome-free-6.5.0.tgz#054bfee3488f0a7de2a52138b4244c5743d6743d"
+  integrity sha512-npV8sIYN4tQmLkzkWU6Q2Ot8L3XqBzLpS+rGTl96nFM7qbMWIoFqcdp0YrcWlfRDQx5G+gA2sn8uSFNRAYTrrA==
 
 "@fortawesome/fontawesome-svg-core@^6.5.0":
   version "6.5.0"
