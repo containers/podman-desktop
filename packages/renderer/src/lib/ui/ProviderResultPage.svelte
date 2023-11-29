@@ -24,6 +24,8 @@ export let providers: ProviderUI[] = [];
 
 export let results: CheckUI[] = [];
 
+let selectedProviders = new Map<string, boolean>();
+
 const selectedSeverities = {
   critical: true,
   high: true,
@@ -32,8 +34,7 @@ const selectedSeverities = {
   success: true,
 };
 
-$: checkedProviders = getCheckedProviders(providers);
-$: resultsFilteredByProvider = getFilteredResultsByProvider(results, checkedProviders);
+$: resultsFilteredByProvider = getFilteredResultsByProvider(results, selectedProviders);
 $: countBySeverity = getCountBySeverity(resultsFilteredByProvider);
 $: filtered = getFilteredResultsBySeverity(resultsFilteredByProvider, selectedSeverities);
 
@@ -50,10 +51,6 @@ function getIcon(check: ImageCheck): IconDefinition {
     default:
       return faCircleMinus;
   }
-}
-
-function getCheckedProviders(providers: ProviderUI[]): string[] {
-  return providers.filter(p => p.checked === undefined || p.checked).map(p => p.info.id);
 }
 
 function getCountBySeverity(results: CheckUI[]) {
@@ -80,16 +77,12 @@ function getCountBySeverity(results: CheckUI[]) {
 }
 
 function onProviderChecked(id: string, checked: boolean) {
-  providers = providers.map(p => {
-    if (p.info.id === id) {
-      p.checked = checked;
-    }
-    return p;
-  });
+  selectedProviders.set(id, checked);
+  selectedProviders = selectedProviders;
 }
 
-function getFilteredResultsByProvider(results: CheckUI[], checkedProviders: string[]): CheckUI[] {
-  return results.filter(r => checkedProviders.includes(r.provider.id));
+function getFilteredResultsByProvider(results: CheckUI[], checkedProviders: Map<string, boolean>): CheckUI[] {
+  return results.filter(r => checkedProviders.get(r.provider.id) === undefined || checkedProviders.get(r.provider.id));
 }
 
 function getFilteredResultsBySeverity(results: CheckUI[], selectedSeverities: any) {
@@ -175,7 +168,7 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
             {#if provider.state === 'success'}
               <SlideToggle
                 on:checked="{event => onProviderChecked(provider.info.id, event.detail)}"
-                checked="{provider.checked ?? true}" />
+                checked="{selectedProviders.get(provider.info.id) ?? true}" />
             {/if}
           </div>
           {#if provider.error}
