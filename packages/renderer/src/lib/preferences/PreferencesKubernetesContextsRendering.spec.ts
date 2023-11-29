@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 import { beforeEach, expect, test, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, within } from '@testing-library/svelte';
 import PreferencesKubernetesContextsRendering from './PreferencesKubernetesContextsRendering.svelte';
 import { kubernetesContexts } from '/@/stores/kubernetes-contexts';
 import type { KubeContext } from '../../../../main/src/plugin/kubernetes-context';
@@ -78,4 +78,40 @@ test('Test that context-name2 is the current context', async () => {
   const spanContextName = await screen.findByText('context-name2');
   expect(spanContextName).toBeInTheDocument();
   expect(spanContextName.parentElement).toEqual(currentContext.parentElement);
+});
+
+test('when deleting the current context, a popup should ask confirmation', async () => {
+  const showMessageBoxMock = vi.fn();
+  (window as any).showMessageBox = showMessageBoxMock;
+  showMessageBoxMock.mockResolvedValue({ result: 1 });
+
+  render(PreferencesKubernetesContextsRendering, {});
+  const currentContext = screen.getAllByRole('row')[1];
+  expect(currentContext).toBeInTheDocument();
+
+  const label = within(currentContext).queryByLabelText('current-context');
+  expect(label).toBeInTheDocument();
+
+  const deleteBtn = within(currentContext).getByRole('button', { name: 'Delete Context' });
+  expect(deleteBtn).toBeInTheDocument();
+  await fireEvent.click(deleteBtn);
+  expect(showMessageBoxMock).toHaveBeenCalledOnce();
+});
+
+test('when deleting the non current context, no popup should ask confirmation', async () => {
+  const showMessageBoxMock = vi.fn();
+  (window as any).showMessageBox = showMessageBoxMock;
+  showMessageBoxMock.mockResolvedValue({ result: 1 });
+
+  render(PreferencesKubernetesContextsRendering, {});
+  const currentContext = screen.getAllByRole('row')[0];
+  expect(currentContext).toBeInTheDocument();
+
+  const label = within(currentContext).queryByLabelText('current-context');
+  expect(label).not.toBeInTheDocument();
+
+  const deleteBtn = within(currentContext).getByRole('button', { name: 'Delete Context' });
+  expect(deleteBtn).toBeInTheDocument();
+  await fireEvent.click(deleteBtn);
+  expect(showMessageBoxMock).not.toHaveBeenCalled();
 });
