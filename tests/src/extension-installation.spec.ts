@@ -39,6 +39,7 @@ let extensionSettingsBox: Locator;
 let installButtonLabel: string;
 let settingsLink: string;
 let resourceLabel: string;
+let imageLink: string;
 
 const _startup = async function () {
   console.log('running before all');
@@ -93,7 +94,17 @@ describe.each([
   });
 
   test('Install extension through Settings', async () => {
-    const installButton = extensionSettingsBox.getByRole('button', { name: installButtonLabel });
+    let installButton = extensionSettingsBox.getByRole('button', { name: installButtonLabel });
+    if (await installButton.isHidden()) {
+      const settingsPage = new SettingsExtensionsPage(page);
+      const imageInstallBox = settingsPage.imageInstallBox;
+      const imageInput = imageInstallBox.getByLabel('ociImage');
+      await imageInput.fill(imageLink);
+
+      installButton = imageInstallBox.getByRole('button', { name: 'Install extension from the OCI image' });
+      await installButton.isEnabled();
+    }
+
     await installButton.click();
     const installedLabel = extensionSettingsBox.getByText('installed');
     await playExpect(installedLabel).toBeVisible({ timeout: 180000 });
@@ -193,6 +204,7 @@ function initializeLocators(extensionType: string) {
       installButtonLabel = 'Install redhat.redhat-sandbox Extension';
       settingsLink = 'Red Hat OpenShift Sandbox';
       resourceLabel = 'redhat.sandbox';
+      imageLink = 'ghcr.io/redhat-developer/podman-desktop-sandbox-ext:0.0.2';
       break;
     }
     case 'Openshift Local': {
@@ -203,6 +215,7 @@ function initializeLocators(extensionType: string) {
       installButtonLabel = 'Install redhat.openshift-local Extension';
       settingsLink = 'Red Hat OpenShift Local';
       resourceLabel = 'crc';
+      imageLink = 'quay.io/redhat-developer/openshift-local-extension:v1.3.0';
       break;
     }
   }
