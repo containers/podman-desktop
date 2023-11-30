@@ -21,6 +21,7 @@ import * as util from '../util.js';
 import { getProxySettingsFromSystem } from '/@/plugin/proxy-system.js';
 import { Exec } from '/@/plugin/util/exec.js';
 import type { RunResult } from '@podman-desktop/api';
+import type { Proxy } from '/@/plugin/proxy.js';
 
 function setupPlatform(windows: boolean, macos: boolean, linux: boolean) {
   vi.spyOn(util, 'isWindows').mockReturnValue(windows);
@@ -32,7 +33,7 @@ describe('Windows platform tests', () => {
   setupPlatform(true, false, false);
   test('No state returned in case of execution error', async () => {
     vi.spyOn(Exec.prototype, 'exec').mockRejectedValue(new Error('execution error'));
-    const settings = await getProxySettingsFromSystem();
+    const settings = await getProxySettingsFromSystem({} as Proxy);
     expect(settings).toBeDefined();
     expect(settings.httpProxy).toBeUndefined();
     expect(settings.httpsProxy).toBeUndefined();
@@ -42,7 +43,7 @@ describe('Windows platform tests', () => {
   test('No state returned in case of proxy disabled', async () => {
     setupPlatform(true, false, false);
     vi.spyOn(Exec.prototype, 'exec').mockResolvedValue({ stdout: 'ProxyEnable    REG_DWORD    0x0' } as RunResult);
-    const settings = await getProxySettingsFromSystem();
+    const settings = await getProxySettingsFromSystem({} as Proxy);
     expect(settings).toBeDefined();
     expect(settings.httpProxy).toBeUndefined();
     expect(settings.httpsProxy).toBeUndefined();
@@ -52,7 +53,7 @@ describe('Windows platform tests', () => {
   test('Empty state returned in case of proxy enabled only', async () => {
     setupPlatform(true, false, false);
     vi.spyOn(Exec.prototype, 'exec').mockResolvedValue({ stdout: 'ProxyEnable    REG_DWORD    0x1' } as RunResult);
-    const settings = await getProxySettingsFromSystem();
+    const settings = await getProxySettingsFromSystem({} as Proxy);
     expect(settings).toBeDefined();
     expect(settings?.httpProxy).toBeUndefined();
     expect(settings?.httpsProxy).toBeUndefined();
@@ -64,7 +65,7 @@ describe('Windows platform tests', () => {
     vi.spyOn(Exec.prototype, 'exec').mockResolvedValue({
       stdout: 'ProxyEnable    REG_DWORD    0x1\r\nProxyServer    REG_SZ    http=127.0.0.1:8888;https=127.0.0.1:8889',
     } as RunResult);
-    const settings = await getProxySettingsFromSystem();
+    const settings = await getProxySettingsFromSystem({} as Proxy);
     expect(settings).toBeDefined();
     expect(settings?.httpProxy).toBe('http://127.0.0.1:8888');
     expect(settings?.httpsProxy).toBe('http://127.0.0.1:8889');
@@ -77,7 +78,7 @@ describe('Windows platform tests', () => {
       stdout:
         'ProxyEnable    REG_DWORD    0x1\r\nProxyServer    REG_SZ    http=127.0.0.1:8888;https=127.0.0.1:8889\r\nProxyOverride    REG_SZ    *.internal',
     } as RunResult);
-    const settings = await getProxySettingsFromSystem();
+    const settings = await getProxySettingsFromSystem({} as Proxy);
     expect(settings).toBeDefined();
     expect(settings?.httpProxy).toBe('http://127.0.0.1:8888');
     expect(settings?.httpsProxy).toBe('http://127.0.0.1:8889');
@@ -95,7 +96,7 @@ describe('Linux platform test', () => {
       delete process.env.HTTP_PROXY;
       delete process.env.HTTPS_PROXY;
       delete process.env.NO_PROXY;
-      const settings = await getProxySettingsFromSystem();
+      const settings = await getProxySettingsFromSystem({} as Proxy);
       expect(settings).toBeDefined();
       expect(settings.httpProxy).toBeUndefined();
       expect(settings.httpsProxy).toBeUndefined();
@@ -116,7 +117,7 @@ describe('Linux platform test', () => {
       process.env.HTTP_PROXY = 'http://127.0.0.1:8888';
       delete process.env.HTTPS_PROXY;
       delete process.env.NO_PROXY;
-      const settings = await getProxySettingsFromSystem();
+      const settings = await getProxySettingsFromSystem({} as Proxy);
       expect(settings).toBeDefined();
       expect(settings?.httpProxy).toBe('http://127.0.0.1:8888');
       expect(settings?.httpsProxy).toBeUndefined();
@@ -137,7 +138,7 @@ describe('Linux platform test', () => {
       process.env.HTTPS_PROXY = 'http://127.0.0.1:8888';
       delete process.env.HTTP_PROXY;
       delete process.env.NO_PROXY;
-      const settings = await getProxySettingsFromSystem();
+      const settings = await getProxySettingsFromSystem({} as Proxy);
       expect(settings).toBeDefined();
       expect(settings?.httpProxy).toBeUndefined();
       expect(settings?.httpsProxy).toBe('http://127.0.0.1:8888');
@@ -158,7 +159,7 @@ describe('Linux platform test', () => {
       delete process.env.HTTP_PROXY;
       delete process.env.HTTPS_PROXY;
       process.env.NO_PROXY = '*.internal';
-      const settings = await getProxySettingsFromSystem();
+      const settings = await getProxySettingsFromSystem({} as Proxy);
       expect(settings).toBeDefined();
       expect(settings?.httpProxy).toBeUndefined();
       expect(settings?.httpsProxy).toBeUndefined();
@@ -175,7 +176,7 @@ describe('MacOS platform tests', () => {
   test('No state returned in case of execution error', async () => {
     setupPlatform(false, true, false);
     vi.spyOn(Exec.prototype, 'exec').mockRejectedValue(new Error('execution error'));
-    const settings = await getProxySettingsFromSystem();
+    const settings = await getProxySettingsFromSystem({} as Proxy);
     expect(settings).toBeDefined();
     expect(settings.httpProxy).toBeUndefined();
     expect(settings.httpsProxy).toBeUndefined();
@@ -185,7 +186,7 @@ describe('MacOS platform tests', () => {
   test('No state returned if no network connections', async () => {
     setupPlatform(false, true, false);
     vi.spyOn(Exec.prototype, 'exec').mockResolvedValue({ stdout: '' } as RunResult);
-    const settings = await getProxySettingsFromSystem();
+    const settings = await getProxySettingsFromSystem({} as Proxy);
     expect(settings).toBeDefined();
     expect(settings.httpProxy).toBeUndefined();
     expect(settings.httpsProxy).toBeUndefined();
@@ -195,7 +196,7 @@ describe('MacOS platform tests', () => {
   test('No state returned if network connection is disabled', async () => {
     setupPlatform(false, true, false);
     vi.spyOn(Exec.prototype, 'exec').mockResolvedValue({ stdout: '\n*Connection' } as RunResult);
-    const settings = await getProxySettingsFromSystem();
+    const settings = await getProxySettingsFromSystem({} as Proxy);
     expect(settings).toBeDefined();
     expect(settings.httpProxy).toBeUndefined();
     expect(settings.httpsProxy).toBeUndefined();
@@ -212,7 +213,7 @@ describe('MacOS platform tests', () => {
       }
       throw new Error('Unsupported call');
     });
-    const settings = await getProxySettingsFromSystem();
+    const settings = await getProxySettingsFromSystem({} as Proxy);
     expect(settings).toBeDefined();
     expect(settings?.httpProxy).toBe('http://127.0.0.1:8888');
     expect(settings?.httpsProxy).toBeUndefined();
@@ -229,7 +230,7 @@ describe('MacOS platform tests', () => {
       }
       throw new Error('Unsupported call');
     });
-    const settings = await getProxySettingsFromSystem();
+    const settings = await getProxySettingsFromSystem({} as Proxy);
     expect(settings).toBeDefined();
     expect(settings?.httpProxy).toBeUndefined();
     expect(settings?.httpsProxy).toBe('http://127.0.0.1:8888');
@@ -246,7 +247,7 @@ describe('MacOS platform tests', () => {
       }
       throw new Error('Unsupported call');
     });
-    const settings = await getProxySettingsFromSystem();
+    const settings = await getProxySettingsFromSystem({} as Proxy);
     expect(settings).toBeDefined();
     expect(settings?.httpProxy).toBeUndefined();
     expect(settings?.httpsProxy).toBeUndefined();
