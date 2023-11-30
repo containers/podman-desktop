@@ -20,13 +20,11 @@ import { isLinux, isMac, isWindows } from '../util.js';
 import { Exec } from './util/exec.js';
 import type { Proxy } from './proxy.js';
 
-const exec = new Exec({} as Proxy);
-
-export async function getProxySettingsFromSystem(): Promise<ProxySettings> {
+export async function getProxySettingsFromSystem(proxy: Proxy): Promise<ProxySettings> {
   if (isWindows()) {
-    return getWindowsProxySettings();
+    return getWindowsProxySettings(new Exec(proxy));
   } else if (isMac()) {
-    return getMacOSProxySettings();
+    return getMacOSProxySettings(new Exec(proxy));
   } else if (isLinux()) {
     const httpProxy = process.env.HTTP_PROXY;
     const httpsProxy = process.env.HTTPS_PROXY;
@@ -36,7 +34,7 @@ export async function getProxySettingsFromSystem(): Promise<ProxySettings> {
   return {} as ProxySettings;
 }
 
-async function getWindowsProxySettings(): Promise<ProxySettings> {
+async function getWindowsProxySettings(exec: Exec): Promise<ProxySettings> {
   try {
     const result = await exec.exec('reg', [
       'query',
@@ -77,7 +75,11 @@ async function getWindowsProxySettings(): Promise<ProxySettings> {
   }
 }
 
-async function getMacOSConnectionProxyInfo(connection: string, secure: boolean): Promise<string | undefined> {
+async function getMacOSConnectionProxyInfo(
+  exec: Exec,
+  connection: string,
+  secure: boolean,
+): Promise<string | undefined> {
   try {
     const result = await exec.exec('networksetup', [secure ? '-getsecurewebproxy' : '-getwebproxy', connection]);
     let enabled = false;
@@ -102,7 +104,7 @@ async function getMacOSConnectionProxyInfo(connection: string, secure: boolean):
   }
 }
 
-async function getMacOSConnectionProxyByPass(connection: string): Promise<string | undefined> {
+async function getMacOSConnectionProxyByPass(exec: Exec, connection: string): Promise<string | undefined> {
   try {
     const result = await exec.exec('networksetup', ['-getproxybypassdomains', connection]);
     const lines = result.stdout.split(/\r?\n/);
@@ -112,7 +114,7 @@ async function getMacOSConnectionProxyByPass(connection: string): Promise<string
   }
 }
 
-async function getMacOSProxySettings(): Promise<ProxySettings> {
+async function getMacOSProxySettings(exec: Exec): Promise<ProxySettings> {
   try {
     const result = await exec.exec('networksetup', ['-listnetworkservices']);
     const lines = result.stdout.split(/\r?\n/);
@@ -122,13 +124,13 @@ async function getMacOSProxySettings(): Promise<ProxySettings> {
     for (let index = 1; index < lines.length; ++index) {
       if (!lines[index].startsWith('*')) {
         if (!httpProxy) {
-          httpProxy = await getMacOSConnectionProxyInfo(lines[index], false);
+          httpProxy = await getMacOSConnectionProxyInfo(exec, lines[index], false);
         }
         if (!httpsProxy) {
-          httpsProxy = await getMacOSConnectionProxyInfo(lines[index], true);
+          httpsProxy = await getMacOSConnectionProxyInfo(exec, lines[index], true);
         }
         if (!noProxy) {
-          noProxy = await getMacOSConnectionProxyByPass(lines[index]);
+          noProxy = await getMacOSConnectionProxyByPass(exec, lines[index]);
         }
       }
     }
