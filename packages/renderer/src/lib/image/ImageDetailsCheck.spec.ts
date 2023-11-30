@@ -36,19 +36,18 @@ test('expect to display wait message before to receive results', async () => {
   });
 
   render(ImageDetailsCheck, {
-    image: {
-      id: '123456',
-      shortId: '123',
-      name: 'an-image',
-      engineId: 'podman',
+    imageInfo: {
+      engineId: 'podman.Podman',
       engineName: 'Podman',
-      tag: 'a-tag',
-      createdAt: 123,
-      age: '1 day',
-      humanSize: '1Mb',
-      base64RepoTag: Buffer.from('<none>', 'binary').toString('base64'),
-      selected: false,
-      inUse: false,
+      Id: 'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
+      ParentId: '7f8297e79d497136a7d75d506781b545b20ea599041f02ab14aa092e24f110b7',
+      RepoTags: ['quay.io/user/image-name:v0.0.1'],
+      Created: 1701338214,
+      Size: 34134140,
+      VirtualSize: 34134140,
+      SharedSize: 0,
+      Labels: {},
+      Containers: 0,
     },
   });
 
@@ -72,19 +71,18 @@ test('expect to cancel when clicking the Cancel button', async () => {
   });
 
   render(ImageDetailsCheck, {
-    image: {
-      id: '123456',
-      shortId: '123',
-      name: 'an-image',
-      engineId: 'podman',
+    imageInfo: {
+      engineId: 'podman.Podman',
       engineName: 'Podman',
-      tag: 'a-tag',
-      createdAt: 123,
-      age: '1 day',
-      humanSize: '1Mb',
-      base64RepoTag: Buffer.from('<none>', 'binary').toString('base64'),
-      selected: false,
-      inUse: false,
+      Id: 'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
+      ParentId: '7f8297e79d497136a7d75d506781b545b20ea599041f02ab14aa092e24f110b7',
+      RepoTags: ['quay.io/user/image-name:v0.0.1'],
+      Created: 1701338214,
+      Size: 34134140,
+      VirtualSize: 34134140,
+      SharedSize: 0,
+      Labels: {},
+      Containers: 0,
     },
   });
 
@@ -115,19 +113,18 @@ test('expect to cancel when destroying the component', async () => {
   });
 
   const result = render(ImageDetailsCheck, {
-    image: {
-      id: '123456',
-      shortId: '123',
-      name: 'an-image',
-      engineId: 'podman',
+    imageInfo: {
+      engineId: 'podman.Podman',
       engineName: 'Podman',
-      tag: 'a-tag',
-      createdAt: 123,
-      age: '1 day',
-      humanSize: '1Mb',
-      base64RepoTag: Buffer.from('<none>', 'binary').toString('base64'),
-      selected: false,
-      inUse: false,
+      Id: 'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
+      ParentId: '7f8297e79d497136a7d75d506781b545b20ea599041f02ab14aa092e24f110b7',
+      RepoTags: ['quay.io/user/image-name:v0.0.1'],
+      Created: 1701338214,
+      Size: 34134140,
+      VirtualSize: 34134140,
+      SharedSize: 0,
+      Labels: {},
+      Containers: 0,
     },
   });
 
@@ -154,19 +151,18 @@ test('expect to not cancel again when destroying the component after manual canc
   });
 
   const result = render(ImageDetailsCheck, {
-    image: {
-      id: '123456',
-      shortId: '123',
-      name: 'an-image',
-      engineId: 'podman',
+    imageInfo: {
+      engineId: 'podman.Podman',
       engineName: 'Podman',
-      tag: 'a-tag',
-      createdAt: 123,
-      age: '1 day',
-      humanSize: '1Mb',
-      base64RepoTag: Buffer.from('<none>', 'binary').toString('base64'),
-      selected: false,
-      inUse: false,
+      Id: 'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
+      ParentId: '7f8297e79d497136a7d75d506781b545b20ea599041f02ab14aa092e24f110b7',
+      RepoTags: ['quay.io/user/image-name:v0.0.1'],
+      Created: 1701338214,
+      Size: 34134140,
+      VirtualSize: 34134140,
+      SharedSize: 0,
+      Labels: {},
+      Containers: 0,
     },
   });
 
@@ -207,19 +203,18 @@ test('expect to display results from image checker provider', async () => {
   } as ImageChecks);
 
   render(ImageDetailsCheck, {
-    image: {
-      id: '123456',
-      shortId: '123',
-      name: 'an-image',
-      engineId: 'podman',
+    imageInfo: {
+      engineId: 'podman.Podman',
       engineName: 'Podman',
-      tag: 'a-tag',
-      createdAt: 123,
-      age: '1 day',
-      humanSize: '1Mb',
-      base64RepoTag: Buffer.from('<none>', 'binary').toString('base64'),
-      selected: false,
-      inUse: false,
+      Id: 'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
+      ParentId: '7f8297e79d497136a7d75d506781b545b20ea599041f02ab14aa092e24f110b7',
+      RepoTags: ['quay.io/user/image-name:v0.0.1'],
+      Created: 1701338214,
+      Size: 34134140,
+      VirtualSize: 34134140,
+      SharedSize: 0,
+      Labels: {},
+      Containers: 0,
     },
   });
 
@@ -254,19 +249,18 @@ test('expect to not cancel when destroying the component after displaying result
   } as ImageChecks);
 
   const result = render(ImageDetailsCheck, {
-    image: {
-      id: '123456',
-      shortId: '123',
-      name: 'an-image',
-      engineId: 'podman',
+    imageInfo: {
+      engineId: 'podman.Podman',
       engineName: 'Podman',
-      tag: 'a-tag',
-      createdAt: 123,
-      age: '1 day',
-      humanSize: '1Mb',
-      base64RepoTag: Buffer.from('<none>', 'binary').toString('base64'),
-      selected: false,
-      inUse: false,
+      Id: 'sha256:3696f18be9a51a60395a7c2667e2fcebd2d913af0ad6da287e03810fda566833',
+      ParentId: '7f8297e79d497136a7d75d506781b545b20ea599041f02ab14aa092e24f110b7',
+      RepoTags: ['quay.io/user/image-name:v0.0.1'],
+      Created: 1701338214,
+      Size: 34134140,
+      VirtualSize: 34134140,
+      SharedSize: 0,
+      Labels: {},
+      Containers: 0,
     },
   });
 

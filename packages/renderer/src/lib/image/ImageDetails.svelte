@@ -18,6 +18,7 @@ import { containersInfos } from '/@/stores/containers';
 import ImageDetailsCheck from './ImageDetailsCheck.svelte';
 import { imageCheckerProviders } from '/@/stores/image-checker-providers';
 import type { Unsubscriber } from 'svelte/motion';
+import type { ImageInfo } from '@podman-desktop/api';
 
 export let imageID: string;
 export let engineId: string;
@@ -38,6 +39,7 @@ function closeModals() {
   renameImageModal = false;
 }
 
+let imageInfo: ImageInfo | undefined;
 let image: ImageInfoUI;
 let detailsPage: DetailsPage;
 
@@ -52,10 +54,10 @@ onMount(() => {
   const imageUtils = new ImageUtils();
   // loading image info
   return imagesInfos.subscribe(images => {
-    const matchingImage = images.find(c => c.Id === imageID && c.engineId === engineId);
+    imageInfo = images.find(c => c.Id === imageID && c.engineId === engineId);
     let tempImage;
-    if (matchingImage) {
-      tempImage = imageUtils.getImageInfoUI(matchingImage, base64RepoTag, $containersInfos);
+    if (imageInfo) {
+      tempImage = imageUtils.getImageInfoUI(imageInfo, base64RepoTag, $containersInfos);
     }
     if (tempImage) {
       image = tempImage;
@@ -101,7 +103,7 @@ onDestroy(() => {
         <ImageDetailsInspect image="{image}" />
       </Route>
       <Route path="/check" breadcrumb="Check" navigationHint="tab">
-        <ImageDetailsCheck image="{image}" />
+        <ImageDetailsCheck imageInfo="{imageInfo}" />
       </Route>
     </svelte:fragment>
   </DetailsPage>
