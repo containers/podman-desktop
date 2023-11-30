@@ -476,7 +476,9 @@ function setStoppedFilter() {
       <Button
         on:click="{() => createPodFromContainers()}"
         title="Create Pod with {selectedItemsNumber} selected items"
-        icon="{SolidPodIcon}" />
+        icon="{SolidPodIcon}">
+        Create Pod
+      </Button>
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
   </svelte:fragment>
