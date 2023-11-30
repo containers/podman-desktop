@@ -47,7 +47,7 @@ async function callProviders(_providers: readonly ImageCheckerInfo[]) {
   remainingProviders = providers.length;
 
   providers.forEach(provider => {
-    if (imageInfo === undefined) {
+    if (!imageInfo) {
       return;
     }
     let telemetryOptions = {
