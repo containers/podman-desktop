@@ -188,7 +188,7 @@ function setGridColumns() {
             {#if column.info.renderer}
               <svelte:component
                 this="{column.info.renderer}"
-                object="{column.info.renderMapping ? column.info.renderMapping(object) : object}" />
+                object="{column.info.renderMapping?.(object) ?? object}" />
             {/if}
           </div>
         {/each}
