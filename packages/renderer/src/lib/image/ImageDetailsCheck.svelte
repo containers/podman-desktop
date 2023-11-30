@@ -1,6 +1,5 @@
 <script lang="ts">
 import type { ImageCheckerInfo } from '../../../../main/src/plugin/api/image-checker-info';
-import type { ImageInfoUI } from './ImageInfoUI';
 import Fa from 'svelte-fa';
 import { faStethoscope } from '@fortawesome/free-solid-svg-icons';
 import Button from '../ui/Button.svelte';
@@ -9,11 +8,12 @@ import { onDestroy, onMount } from 'svelte';
 import { imageCheckerProviders } from '/@/stores/image-checker-providers';
 import ProviderResultPage from '../ui/ProviderResultPage.svelte';
 import { type CheckUI, type ProviderUI } from '../ui/ProviderResultPage';
+import type { ImageInfo } from '@podman-desktop/api';
 
 const orderStatus = ['failed', 'success'];
 const orderSeverity = ['critical', 'high', 'medium', 'low', undefined];
 
-export let image: ImageInfoUI;
+export let imageInfo: ImageInfo | undefined;
 
 let providers: ProviderUI[];
 let results: CheckUI[] = [];
@@ -47,12 +47,15 @@ async function callProviders(_providers: readonly ImageCheckerInfo[]) {
   remainingProviders = providers.length;
 
   providers.forEach(provider => {
+    if (imageInfo === undefined) {
+      return;
+    }
     let telemetryOptions = {
       provider: provider.info.label,
       error: '',
     };
     window
-      .imageCheck(provider.info.id, image.name, cancellableTokenId)
+      .imageCheck(provider.info.id, imageInfo, cancellableTokenId)
       .then(_result => {
         // we test if it is still running, as it could have been marked as 'canceled'
         if (provider.state === 'running') {

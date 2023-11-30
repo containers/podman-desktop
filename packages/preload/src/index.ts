@@ -1747,7 +1747,7 @@ function initExposure(): void {
     'imageCheck',
     async (
       id: string,
-      image: string,
+      image: containerDesktopAPI.ImageInfo,
       cancellationToken?: number,
     ): Promise<containerDesktopAPI.ImageChecks | undefined> => {
       return ipcInvoke('image-checker:check', id, image, cancellationToken);
