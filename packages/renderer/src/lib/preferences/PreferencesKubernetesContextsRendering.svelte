@@ -9,7 +9,7 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import { kubernetesContexts } from '../../stores/kubernetes-contexts';
 import { clearKubeUIContextErrors, setKubeUIContextError } from '../kube/KubeContextUI';
 
-$: currentContextName = $kubernetesContexts.filter(c => c.currentContext).map(c => c.name)[0];
+$: currentContextName = $kubernetesContexts.find(c => c.currentContext)?.name;
 
 async function handleSetContext(contextName: string) {
   $kubernetesContexts = clearKubeUIContextErrors($kubernetesContexts);
