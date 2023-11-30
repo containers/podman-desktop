@@ -26,16 +26,27 @@ import Button from './Button.svelte';
 test('Check primary button styling', async () => {
   render(Button, { type: 'primary' });
 
-  // check for one element of the styling
+  // check for a few elements of the styling
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
   expect(button).toHaveClass('bg-purple-600');
+  expect(button).toHaveClass('text-[13px]');
+});
+
+test('Check disabled/in-progress primary button styling', async () => {
+  render(Button, { type: 'primary', inProgress: true });
+
+  // check for a few elements of the styling
+  const button = screen.getByRole('button');
+  expect(button).toBeInTheDocument();
+  expect(button).toHaveClass('bg-charcoal-50');
+  expect(button).toHaveClass('text-[13px]');
 });
 
 test('Check primary button is the default', async () => {
   render(Button);
 
-  // check for one element of the styling
+  // check for a few elements of the styling
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
   expect(button).toHaveClass('bg-purple-600');
@@ -44,10 +55,21 @@ test('Check primary button is the default', async () => {
 test('Check secondary button styling', async () => {
   render(Button, { type: 'secondary' });
 
-  // check for one element of the styling
+  // check for a few elements of the styling
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
   expect(button).toHaveClass('border-gray-200');
+  expect(button).toHaveClass('text-[13px]');
+});
+
+test('Check disabled/in-progress secondary button styling', async () => {
+  render(Button, { type: 'secondary', inProgress: true });
+
+  // check for a few elements of the styling
+  const button = screen.getByRole('button');
+  expect(button).toBeInTheDocument();
+  expect(button).toHaveClass('bg-charcoal-50');
+  expect(button).toHaveClass('text-[13px]');
 });
 
 test('Check link button styling', async () => {
@@ -59,4 +81,28 @@ test('Check link button styling', async () => {
   expect(button).toHaveClass('border-none');
   expect(button).toHaveClass('hover:bg-white');
   expect(button).toHaveClass('hover:bg-opacity-10');
+  expect(button).toHaveClass('text-[13px]');
+});
+
+test('Check disabled/in-progress link button styling', async () => {
+  render(Button, { type: 'link', inProgress: true });
+
+  // check for a few elements of the styling
+  const button = screen.getByRole('button');
+  expect(button).toBeInTheDocument();
+  expect(button).toHaveClass('text-charcoal-50');
+  expect(button).toHaveClass('text-[13px]');
+});
+
+test('Check tab button styling', async () => {
+  render(Button, { type: 'tab' });
+
+  // check for a few elements of the styling
+  const button = screen.getByRole('button');
+  expect(button).toBeInTheDocument();
+  expect(button).toHaveClass('border-b-[3px]');
+  expect(button).toHaveClass('border-charcoal-700');
+  expect(button).toHaveClass('pb-2');
+  expect(button).toHaveClass('hover:cursor-pointer');
+  expect(button).not.toHaveClass('text-[13px]');
 });
