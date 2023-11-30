@@ -144,7 +144,7 @@ export class Proxy {
         noProxy,
       };
     } else if (this.proxyState === PROXY_SYSTEM) {
-      this.proxySettings = await getProxySettingsFromSystem();
+      this.proxySettings = await getProxySettingsFromSystem(this);
     } else {
       this.proxySettings = {} as ProxySettings;
     }
@@ -154,18 +154,20 @@ export class Proxy {
     if (this.proxyState === PROXY_MANUAL) {
       proxy.httpProxy = ensureURL(proxy.httpProxy);
       proxy.httpsProxy = ensureURL(proxy.httpsProxy);
-      // notify
-      this._onDidUpdateProxy.fire(proxy);
-
-      // update
-      this.proxySettings = proxy;
-
-      // update configuration
-      const proxyConfiguration = this.configurationRegistry.getConfiguration('proxy');
-      await proxyConfiguration.update('http', proxy.httpProxy);
-      await proxyConfiguration.update('https', proxy.httpsProxy);
-      await proxyConfiguration.update('no', proxy.noProxy);
+    } else if (this.proxyState === PROXY_SYSTEM) {
+      proxy = await getProxySettingsFromSystem(this);
     }
+    // notify
+    this._onDidUpdateProxy.fire(proxy);
+
+    // update
+    this.proxySettings = proxy;
+
+    // update configuration
+    const proxyConfiguration = this.configurationRegistry.getConfiguration('proxy');
+    await proxyConfiguration.update('http', proxy.httpProxy);
+    await proxyConfiguration.update('https', proxy.httpsProxy);
+    await proxyConfiguration.update('no', proxy.noProxy);
   }
 
   get proxy(): ProxySettings | undefined {
