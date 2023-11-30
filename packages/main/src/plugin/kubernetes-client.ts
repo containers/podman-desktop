@@ -332,6 +332,9 @@ export class KubernetesClient {
     await this.saveKubeConfig(newConfig);
     // the config is saved back only if saving the file succeeds
     this.kubeConfig = newConfig;
+    // We send an update event here, even if another one will be sent after the file change is detected,
+    // because that one can get some time to be sent (as cluster connectivity will be tested)
+    this.apiSender.send('kubernetes-context-update');
     return this.getContexts();
   }
 
@@ -354,6 +357,9 @@ export class KubernetesClient {
     // If saving the file succeeds then set the kubeConfig to the newConfig & set the current context name.
     this.kubeConfig = newConfig;
     this.currentContextName = contextName;
+    // We send an update event here, even if another one will be sent after the file change is detected,
+    // because that one can get some time to be sent (as cluster connectivity will be tested)
+    this.apiSender.send('kubernetes-context-update');
   }
 
   async saveKubeConfig(config: KubeConfig) {

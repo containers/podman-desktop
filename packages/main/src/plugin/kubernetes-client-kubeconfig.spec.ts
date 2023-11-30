@@ -40,6 +40,8 @@ describe('context tests', () => {
 
   let client: TestKubernetesClient;
 
+  const apiSendMock = vi.fn();
+
   function createClient(): TestKubernetesClient {
     const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
     const fileSystemMonitoring: FilesystemMonitoring = new FilesystemMonitoring();
@@ -47,7 +49,7 @@ describe('context tests', () => {
       track: vi.fn().mockImplementation(async () => {}),
     } as unknown as Telemetry;
     const apiSender: ApiSenderType = {
-      send: () => {},
+      send: apiSendMock,
       receive: () => {},
     };
 
@@ -76,6 +78,8 @@ describe('context tests', () => {
     expect(contexts[0]).toStrictEqual(originalContexts[0]);
     expect(client.getContexts().length).toBe(1);
     expect(client.getContexts()[0]).toStrictEqual(originalContexts[0]);
+    expect(apiSendMock).toHaveBeenCalledTimes(1);
+    expect(apiSendMock).toHaveBeenCalledWith('kubernetes-context-update');
   });
 
   test('should delete context from config and related user and cluster not referenced anymore', async () => {
@@ -134,5 +138,8 @@ describe('context tests', () => {
     expect(contexts[0].currentContext).toBe(false);
     // The second context should be true since it is the current context
     expect(contexts[1].currentContext).toBe(true);
+
+    expect(apiSendMock).toHaveBeenCalledTimes(1);
+    expect(apiSendMock).toHaveBeenCalledWith('kubernetes-context-update');
   });
 });
