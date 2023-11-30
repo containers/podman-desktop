@@ -10,7 +10,7 @@ image: /blog/img/sharing-podman-images-with-kubernetes-cluster/selkie-family.png
 
 As developers we constantly improve and refine our applications. One of the challenges we face is quickly iterating when working with container images and kubernetes deployments/pods.
 
-For example, when we want to try a new image in a kubernetes pod, this image needs to be available on a private/public registry or on the kubernetes cluster.
+For example, when we want to try a new image in a kubernetes pod, this image needs to be available on a private/public registry or on the nodes of the kubernetes cluster.
 Sometimes we need to call extra commands such as `kind load docker-image` or `minikube cache add <image>` or publish the image first to a 3rd party registry.
 
 You'll agree that trying out a new image in a Kubernetes pod should be as seamless as building the image itself.
@@ -37,7 +37,7 @@ Minikube offers a podman environment but it's a version 3.4 running inside a con
 
 This 3.4 version is very old and do not provide new enhancements and support towards compose, compliance with Docker REST API and 3rd party tools.
 
-Could we just build the image and use that image in kubernetes ?
+Could we just build the image and use that image in kubernetes?
 
 ## podman and kubernetes/cri-o
 
@@ -54,7 +54,7 @@ And this is what is really interesting as a podman user. As it is using common l
 
 If we move one step ahead, if we mount the `/var/lib/containers` folder of podman into the cri-o container it means that the kubernetes cluster could find the images that the podman machine is building.
 
-Oh wait, it means that no more registry, additional steps would be required ? just build it and load it.
+Oh wait, it means that no more registry, additional steps would be required? just build it and load it.
 
 ## Minikube to the rescue
 
@@ -82,11 +82,11 @@ One issue is that we have then two 'podman engine', one which is running inside 
 
 Can we mount the podman machine `/var/lib/containers` into the container ?
 
-yes ! minikube provides some options to do additional mount with `--mount-string` argument. It is not obvious but you also need to add the `--mount` in addition to this parameter. Full argument is `--mount --mount-string "<host-path:container-path>"`
+yes! minikube provides some options to do additional mount with `--mount-string` argument. It is not obvious but you also need to add the `--mount` in addition to this parameter. Full argument is `--mount --mount-string "<host-path:container-path>"`
 
 But `/var` is already a mounted folder. So here the idea is to change the path of where cri-o is storing its data.
 
-So we can provide a custom mounted path and cri-o use that custom location. Let's pickup `/host-containers`.
+So we can provide a custom mounted path and make cri-o use that custom location. Let's pickup `/host-containers`.
 
 When starting minikube we need then to add `--mount --mount-string "/var/lib/containers:/host-containers"`.
 
@@ -130,7 +130,7 @@ RUN sh -c "echo 'deb https://downloadcontent.opensuse.org/repositories/devel:/ku
     clean-install dbus-user-session podman && \
 ```
 
-Let's rebuild the image and publish them. It has been published on `quay.io/fbenoit/kicbase:multiarch-2023-11-06` .
+Let's rebuild the image and publish it. It has been published on `quay.io/fbenoit/kicbase:multiarch-2023-11-06` .
 To build the image, clone https://github.com/kubernetes/minikube repository, and edit the files referenced before.
 
 The command to build the kicbase image is `make local-kicbase`.
@@ -139,7 +139,7 @@ The command to build the kicbase image is `make local-kicbase`.
 
 At the time of the blog post, the version `v1.32.0-beta.0` has been used. For different versions you might need to build your own kicbase image.
 
-One last thing: as cri-o is running in root mode, this is why we mount to /var/lib/containers (and then in rootful mode).
+One last thing: cri-o is running in root mode, this is why we mount to /var/lib/containers (and then in rootful mode).
 
 For simplicity, let's use a rootful podman machine to map the same folder at the two locations.
 
