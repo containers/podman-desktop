@@ -2,7 +2,6 @@
 import SettingsPage from './SettingsPage.svelte';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
-import { onMount } from 'svelte';
 import Link from '../ui/Link.svelte';
 import { faTrash, faRightToBracket } from '@fortawesome/free-solid-svg-icons';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
@@ -10,11 +9,7 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import { kubernetesContexts } from '../../stores/kubernetes-contexts';
 import { clearKubeUIContextErrors, setKubeUIContextError } from '../kube/KubeContextUI';
 
-let currentContextName: string | undefined;
-
-onMount(async () => {
-  currentContextName = await window.kubernetesGetCurrentContextName();
-});
+$: currentContextName = $kubernetesContexts.find(c => c.currentContext)?.name;
 
 async function handleSetContext(contextName: string) {
   $kubernetesContexts = clearKubeUIContextErrors($kubernetesContexts);
