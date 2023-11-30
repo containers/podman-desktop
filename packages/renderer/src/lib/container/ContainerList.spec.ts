@@ -104,13 +104,13 @@ test('Expect no containers being displayed', async () => {
   const noContainers = screen.getByRole('heading', { name: 'No containers' });
   expect(noContainers).toBeInTheDocument();
 
-  const runningTab = screen.getByRole('button', { name: 'Running containers' });
+  const runningTab = screen.getByRole('button', { name: 'Running' });
   await fireEvent.click(runningTab);
 
   const noRunningContainers = screen.getByRole('heading', { name: 'No running containers' });
   expect(noRunningContainers).toBeInTheDocument();
 
-  const stoppedTab = screen.getByRole('button', { name: 'Stopped containers' });
+  const stoppedTab = screen.getByRole('button', { name: 'Stopped' });
   await fireEvent.click(stoppedTab);
 
   const noStoppedContainers = screen.getByRole('heading', { name: 'No stopped containers' });
@@ -146,13 +146,13 @@ test('Expect is:running / is:stopped is added to the filter field', async () => 
   expect(searchField).not.toHaveDisplayValue(/is:running/);
   expect(searchField).not.toHaveDisplayValue(/is:stopped/);
 
-  const runningTab = screen.getByRole('button', { name: 'Running containers' });
+  const runningTab = screen.getByRole('button', { name: 'Running' });
   await fireEvent.click(runningTab);
 
   expect(searchField).toHaveDisplayValue(/is:running/);
   expect(searchField).not.toHaveDisplayValue(/is:stopped/);
 
-  const stoppedTab = screen.getByRole('button', { name: 'Stopped containers' });
+  const stoppedTab = screen.getByRole('button', { name: 'Stopped' });
   await fireEvent.click(stoppedTab);
 
   expect(searchField).not.toHaveDisplayValue(/is:running/);
@@ -189,11 +189,11 @@ test('Expect filter is preserved between tabs', async () => {
   await user.type(searchField, 'foobar');
   expect(searchField).toHaveDisplayValue(/foobar/);
 
-  const runningTab = screen.getByRole('button', { name: 'Running containers' });
+  const runningTab = screen.getByRole('button', { name: 'Running' });
   await fireEvent.click(runningTab);
   expect(searchField).toHaveDisplayValue(/foobar/);
 
-  const stoppedTab = screen.getByRole('button', { name: 'Stopped containers' });
+  const stoppedTab = screen.getByRole('button', { name: 'Stopped' });
   await fireEvent.click(stoppedTab);
   expect(searchField).toHaveDisplayValue(/foobar/);
 });
@@ -553,7 +553,7 @@ test('Expect clear filter in empty screen to clear serach term, except is:...', 
   await user.type(searchField, 'foobar');
   expect(searchField).toHaveDisplayValue(/foobar/);
 
-  const runningTab = screen.getByRole('button', { name: 'Running containers' });
+  const runningTab = screen.getByRole('button', { name: 'Running' });
   await fireEvent.click(runningTab);
   expect(searchField).toHaveDisplayValue(/foobar/);
   expect(searchField).toHaveDisplayValue(/is:running/);
@@ -710,7 +710,7 @@ test('Expect to display running / stopped containers depending on tab', async ()
       absentLabels: [],
     },
     {
-      tabLabel: 'Running containers',
+      tabLabel: 'Running',
       presentCells: [
         'pod1 (pod) 2 containers',
         'container1-pod1 RUNNING',
@@ -721,7 +721,7 @@ test('Expect to display running / stopped containers depending on tab', async ()
       absentLabels: [/container2-pod2.*/, /pod3 \(pod\).*/, /container1-pod3.*/, /container2-pod3.*/],
     },
     {
-      tabLabel: 'Stopped containers',
+      tabLabel: 'Stopped',
       presentCells: [
         'pod2 (pod) 2 containers (1 filtered)',
         'container2-pod2 STOPPED',
