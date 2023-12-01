@@ -125,14 +125,14 @@ This is how this JSON is defined:
 }
 ```
 
-![img0](img/title_media_description.png)
+![img0](/img/extensions/write/title_media_description.png)
 
 ### Enablement
 
 The enablement clause allows Podman Desktop to determine when the onboarding should be enabled.
 When this condition is met, the user will find a setup button within the resources page. Clicking on it will initiate the onboarding workflow.
 
-![img1](img/setup_button.png)
+![img1](/img/extensions/write/setup_button.png)
 
 The enablement clause is mandatory and must be written by using [when clauses](/docs/extensions/write/when-clause-context).
 
@@ -226,7 +226,7 @@ The **id** must be unique to identify a step, and it is never displayed directly
 
 The **title**, **description** and **media** works as explained earlier. The only difference is their placement - they will appear in the top-center of the body.
 
-![img2](img/step_title_description_media.png)
+![img2](/img/extensions/write/step_title_description_media.png)
 
 **Note:** If media is not specified, Podman Desktop will display the icon of the extension providing the onboarding.
 
@@ -261,7 +261,7 @@ Based on the result, we can then prompt the user to move to another step or disp
 
 During the execution of the command, the user will see a spinner next to the title.
 
-![img3](img/spinner_title.png)
+![img3](/img/extensions/write/spinner_title.png)
 
 #### CompletionEvents
 
@@ -383,7 +383,7 @@ E.g.:
 "value": ":button[Check requirements again]{command=podman.onboarding.checkPodmanRequirements}"
 ```
 
-![img4](img/button_micromark.png)
+![img4](/img/extensions/write/button_micromark.png)
 
 2 - Similarly, you can create a link that executes a command (syntax `:link[Name of the command link]{command=command.example title="tooltip text"}`) or behaves like a normal link (syntax - `:link[Name of the command link]{href=http://my-link title="tooltip text"}`)
 
@@ -393,7 +393,7 @@ E.g.:
 "value": "To install Podman please follow these :link[installation instructions]{href=https://podman.io/docs/installation#installing-on-linux}"
 ```
 
-![img5](img/link_micromark.png)
+![img5](/img/extensions/write/link_micromark.png)
 
 3 - The warning component allows displaying a list of items (syntax - `:warnings[[item]]`), where an item consists of:
 
@@ -472,7 +472,7 @@ warnings.push(warning);
 extensionApi.context.setValue('warningsMarkdown', warnings, 'onboarding');
 ```
 
-![img6](img/warnings_micromark.png)
+![img6](/img/extensions/write/warnings_micromark.png)
 
 The **highlight** and **when** properties are optional. They are used to change the background color or define when the content column should be visible.
 
@@ -499,7 +499,7 @@ An example can be seen in the Podman extension, where you can create a Podman ma
 },
 ```
 
-![img6](img/component_field.png)
+![img7](/img/extensions/write/component_field.png)
 
 **Note:** when using the **component** field, you should omit the **content**
 
