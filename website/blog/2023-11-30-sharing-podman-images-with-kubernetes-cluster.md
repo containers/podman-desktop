@@ -130,7 +130,7 @@ RUN sh -c "echo 'deb https://downloadcontent.opensuse.org/repositories/devel:/ku
     clean-install dbus-user-session podman && \
 ```
 
-Let's rebuild the image and publish it. It has been published on `quay.io/fbenoit/kicbase:multiarch-2023-11-06` .
+Let's rebuild the image and publish it. You can find it at `quay.io/fbenoit/kicbase:multiarch-2023-11-06` .
 To build the image, clone https://github.com/kubernetes/minikube repository, and edit the files referenced before.
 
 The command to build the kicbase image is `make local-kicbase`.
@@ -139,7 +139,7 @@ The command to build the kicbase image is `make local-kicbase`.
 
 At the time of writing this blog post, the version `v1.32.0-beta.0` has been used. For different versions you might need to build your own kicbase image.
 
-One crucial note: cri-o is running in root mode, this is why we mount to /var/lib/containers (and then in rootful mode).
+One crucial note: cri-o is running in root mode, this is why we mount to `/var/lib/containers` (and then in rootful mode).
 
 For simplicity, let's use a rootful podman machine to map the same folder at the two locations.
 
