@@ -22,8 +22,7 @@ import { Column, Row } from '../table/table';
 import VolumeColumnStatus from './VolumeColumnStatus.svelte';
 import VolumeColumnName from './VolumeColumnName.svelte';
 import VolumeColumnEnvironment from './VolumeColumnEnvironment.svelte';
-import VolumeColumnSize from './VolumeColumnSize.svelte';
-import VolumeColumnAge from './VolumeColumnAge.svelte';
+import SimpleColumn from '../table/SimpleColumn.svelte';
 import VolumeColumnActions from './VolumeColumnActions.svelte';
 
 export let searchTerm = '';
@@ -190,19 +189,21 @@ let envColumn = new Column<VolumeInfoUI>('Environment', {
   comparator: (a, b) => a.engineName.localeCompare(b.engineName),
 });
 
-let ageColumn = new Column<VolumeInfoUI>('Age', {
-  renderer: VolumeColumnAge,
+let ageColumn = new Column<VolumeInfoUI, string>('Age', {
+  renderMapping: object => object.age,
+  renderer: SimpleColumn,
   comparator: (a, b) => moment().diff(a.created) - moment().diff(b.created),
 });
 
-let sizeColumn = new Column<VolumeInfoUI>('Size', {
+let sizeColumn = new Column<VolumeInfoUI, string>('Size', {
   align: 'right',
-  renderer: VolumeColumnSize,
+  renderMapping: object => object.humanSize,
+  renderer: SimpleColumn,
   comparator: (a, b) => a.size - b.size,
   initialOrder: 'descending',
 });
 
-const columns: Column<VolumeInfoUI>[] = [
+const columns: Column<VolumeInfoUI, VolumeInfoUI | string>[] = [
   statusColumn,
   nameColumn,
   envColumn,

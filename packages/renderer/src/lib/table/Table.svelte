@@ -186,7 +186,9 @@ function setGridColumns() {
                 : 'justify-self-start'} self-center overflow-hidden max-w-full"
             role="cell">
             {#if column.info.renderer}
-              <svelte:component this="{column.info.renderer}" object="{object}" />
+              <svelte:component
+                this="{column.info.renderer}"
+                object="{column.info.renderMapping?.(object) ?? object}" />
             {/if}
           </div>
         {/each}
