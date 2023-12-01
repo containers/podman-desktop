@@ -30,6 +30,7 @@ export interface KubeContext {
   name: string;
   cluster: string;
   user: string;
+  namespace?: string;
   clusterInfo?: KubeCluster;
 
   // Is this the current context? Should be true for ONE context in the array list of contexts.

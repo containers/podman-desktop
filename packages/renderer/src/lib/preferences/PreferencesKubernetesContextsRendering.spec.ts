@@ -45,8 +45,19 @@ const mockContext2: KubeContext = {
   currentContext: true,
 };
 
+const mockContext3: KubeContext = {
+  name: 'context-name3',
+  cluster: 'cluster-name3',
+  user: 'user-name3',
+  namespace: 'namespace-name3',
+  clusterInfo: {
+    name: 'cluster-name3',
+    server: 'https://server-name3',
+  },
+};
+
 beforeEach(() => {
-  kubernetesContexts.set([mockContext1, mockContext2]);
+  kubernetesContexts.set([mockContext1, mockContext2, mockContext3]);
 });
 
 test('test that name, cluster and the server is displayed when rendering', async () => {
@@ -56,6 +67,11 @@ test('test that name, cluster and the server is displayed when rendering', async
   expect(await screen.findByText('cluster-name')).toBeInTheDocument();
   expect(await screen.findByText('user-name')).toBeInTheDocument();
   expect(await screen.findByText('https://server-name')).toBeInTheDocument();
+});
+
+test('Test that namespace is displayed when available in the context', async () => {
+  render(PreferencesKubernetesContextsRendering, {});
+  expect(await screen.findByText('namespace-name3')).toBeInTheDocument();
 });
 
 test('If nothing is returned for contexts, expect that the page shows a message', async () => {

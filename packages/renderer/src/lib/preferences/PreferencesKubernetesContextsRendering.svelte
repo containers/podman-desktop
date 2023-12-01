@@ -113,6 +113,14 @@ async function handleDeleteContext(contextName: string) {
             <span class="my-auto font-bold col-span-1 text-right">USER</span>
             <span class="my-auto col-span-5 text-left pl-0.5 ml-3" aria-label="context-user">{context.user}</span>
           </div>
+
+          {#if context.namespace}
+            <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1 grid grid-cols-6">
+              <span class="my-auto font-bold col-span-1 text-right">NAMESPACE</span>
+              <span class="my-auto col-span-5 text-left pl-0.5 ml-3" aria-label="context-namespace"
+                >{context.namespace}</span>
+            </div>
+          {/if}
         </div>
       </div>
     {/each}

@@ -296,6 +296,7 @@ export class KubernetesClient {
         name: context.name,
         cluster: context.cluster,
         user: context.user,
+        namespace: context.namespace,
         currentContext: context.name === this.currentContextName, // Set the current context to true if the name matches the current context name
         clusterInfo: cluster
           ? {
