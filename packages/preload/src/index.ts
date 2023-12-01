@@ -842,6 +842,26 @@ function initExposure(): void {
     },
   );
 
+  ipcRenderer.on(
+    'provider-registry:updateCliTool-onData',
+    (_, onDataCallbacksTaskConnectionId: number, channel: string, data: string[]) => {
+      // grab callback from the map
+      const callback = onDataCallbacksTaskConnectionLogs.get(onDataCallbacksTaskConnectionId);
+      const key = onDataCallbacksTaskConnectionKeys.get(onDataCallbacksTaskConnectionId);
+      if (callback && key) {
+        if (channel === 'log') {
+          callback(key, 'log', data);
+        } else if (channel === 'warn') {
+          callback(key, 'warn', data);
+        } else if (channel === 'error') {
+          callback(key, 'error', data);
+        } else if (channel === 'finish') {
+          callback(key, 'finish', data);
+        }
+      }
+    },
+  );
+
   contextBridge.exposeInMainWorld(
     'startProviderConnectionLifecycle',
     async (
@@ -965,6 +985,20 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('getCliToolInfos', async (): Promise<CliToolInfo[]> => {
     return ipcInvoke('cli-tool-registry:getCliToolInfos');
   });
+
+  contextBridge.exposeInMainWorld(
+    'updateCliTool',
+    async (
+      id: string,
+      key: symbol,
+      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
+    ): Promise<void> => {
+      onDataCallbacksTaskConnectionId++;
+      onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
+      onDataCallbacksTaskConnectionLogs.set(onDataCallbacksTaskConnectionId, keyLogger);
+      return ipcInvoke('cli-tool-registry:updateCliTool', id, onDataCallbacksTaskConnectionId);
+    },
+  );
 
   contextBridge.exposeInMainWorld('getContributedMenus', async (context: string): Promise<Menu[]> => {
     return ipcInvoke('menu-registry:getContributedMenus', context);

@@ -16,58 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { CliTool, CliToolOptions, CliToolState, Disposable } from '@podman-desktop/api';
+import type { CliTool, CliToolOptions, CliToolUpdate, Logger } from '@podman-desktop/api';
+import { Disposable } from './types/disposable.js';
 import type { CliToolExtensionInfo, CliToolInfo } from './api/cli-tool-info.js';
 import type { ApiSenderType } from './api.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import type { Exec } from './util/exec.js';
-
-export class CliToolImpl implements CliTool, Disposable {
-  readonly id: string;
-  private _state: CliToolState = 'registered';
-
-  constructor(
-    private _apiSender: ApiSenderType,
-    private _exec: Exec,
-    readonly extensionInfo: CliToolExtensionInfo,
-    readonly registry: CliToolRegistry,
-    private _options: CliToolOptions,
-  ) {
-    this.id = `${extensionInfo.id}.${_options.name}`;
-  }
-
-  get state() {
-    return this._state;
-  }
-
-  get name() {
-    return this._options.name;
-  }
-
-  get displayName() {
-    return this._options.displayName;
-  }
-
-  get markdownDescription() {
-    return this._options.markdownDescription;
-  }
-
-  get version() {
-    return this._options.version;
-  }
-
-  get path() {
-    return this._options.path;
-  }
-
-  get images() {
-    return Object.freeze(this._options.images);
-  }
-
-  dispose(): void {
-    this.registry.disposeCliTool(this);
-  }
-}
+import { CliToolImpl } from './cli-tool-impl.js';
 
 export class CliToolRegistry {
   constructor(
@@ -77,16 +32,34 @@ export class CliToolRegistry {
   ) {}
 
   private cliTools = new Map<string, CliToolImpl>();
+  private cliToolsUpdater = new Map<string, CliToolUpdate>();
 
   createCliTool(extensionInfo: CliToolExtensionInfo, options: CliToolOptions): CliTool {
     const cliTool = new CliToolImpl(this.apiSender, this.exec, extensionInfo, this, options);
     this.cliTools.set(cliTool.id, cliTool);
     this.apiSender.send('cli-tool-create');
+    cliTool.onDidUpdateVersion(() => this.apiSender.send('cli-tool-change', cliTool.id));
     return cliTool;
+  }
+
+  registerUpdate(cliTool: CliToolImpl, updater: CliToolUpdate): Disposable {
+    this.cliToolsUpdater.set(cliTool.id, updater);
+
+    return Disposable.create(() => {
+      this.cliToolsUpdater.delete(cliTool.id);
+    });
+  }
+
+  async updateCliTool(id: string, logger: Logger): Promise<void> {
+    const cliToolUpdater = this.cliToolsUpdater.get(id);
+    if (cliToolUpdater) {
+      await cliToolUpdater.doUpdate(logger);
+    }
   }
 
   disposeCliTool(cliTool: CliToolImpl): void {
     this.cliTools.delete(cliTool.id);
+    this.cliToolsUpdater.delete(cliTool.id);
     this.apiSender.send('cli-tool-remove', cliTool.id);
   }
 
@@ -102,6 +75,7 @@ export class CliToolRegistry {
         extensionInfo: cliTool.extensionInfo,
         version: cliTool.version,
         path: cliTool.path,
+        newVersion: this.cliToolsUpdater.get(cliTool.id)?.version,
       };
     });
   }
