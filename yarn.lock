@@ -4436,15 +4436,10 @@ acorn-walk@^8.0.0, acorn-walk@^8.1.1, acorn-walk@^8.2.0:
   resolved "https://registry.yarnpkg.com/acorn-walk/-/acorn-walk-8.2.0.tgz#741210f2e2426454508853a2f44d0ab83b7f69c1"
   integrity sha512-k+iyHEuPgSw6SbuDpGQM+06HQUa04DZ3o+F6CSzXMvvI5KMvnaEqXe+YVe555R9nn6GPt404fos4wcgpw12SDA==
 
-acorn@^8.0.0:
+acorn@^8.0.0, acorn@^8.0.4, acorn@^8.4.1, acorn@^8.5.0, acorn@^8.7.1, acorn@^8.8.2, acorn@^8.9.0:
   version "8.11.2"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.11.2.tgz#ca0d78b51895be5390a5903c5b3bdcdaf78ae40b"
   integrity sha512-nc0Axzp/0FILLEVsm4fNwLCwMttvhEI263QtVPQcbpfZZ3ts0hLsZGOpE6czNlid7CJ9MlyH8reXkpsf3YUY4w==
-
-acorn@^8.0.4, acorn@^8.4.1, acorn@^8.5.0, acorn@^8.7.1, acorn@^8.8.2, acorn@^8.9.0:
-  version "8.9.0"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.9.0.tgz#78a16e3b2bcc198c10822786fa6679e245db5b59"
-  integrity sha512-jaVNAFBHNLXspO543WnNNPZFRtavh3skAkITqD0/2aeMkKZTN+254PyhwxFYrk3vQ1xfY+2wbesJMs/JC8/PwQ==
 
 address@^1.0.1, address@^1.1.2:
   version "1.1.2"
@@ -15008,10 +15003,10 @@ svelte-steps@2.4.1:
   resolved "https://registry.yarnpkg.com/svelte-steps/-/svelte-steps-2.4.1.tgz#64e055735818e81454e1ca5be8b7b9fe23a8b239"
   integrity sha512-2Xq2lLcGJf3PaEY46f1w5s+/O+tLl4U2V+Z+sCeoUm/kEPFXeZP/aFr2JVKwdzSlXCT+raz75xqXtnZrPWJ0zA==
 
-svelte@4.2.7:
-  version "4.2.7"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-4.2.7.tgz#8594fad998d11d4dd179f5a91e67d1fc04d8f6e3"
-  integrity sha512-UExR1KS7raTdycsUrKLtStayu4hpdV3VZQgM0akX8XbXgLBlosdE/Sf3crOgyh9xIjqSYB3UEBuUlIQKRQX2hg==
+svelte@4.2.8:
+  version "4.2.8"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-4.2.8.tgz#a279d8b6646131ffb11bc692840f8839b8ae4ed1"
+  integrity sha512-hU6dh1MPl8gh6klQZwK/n73GiAHiR95IkFsesLPbMeEZi36ydaXL/ZAb4g9sayT0MXzpxyZjR28yderJHxcmYA==
   dependencies:
     "@ampproject/remapping" "^2.2.1"
     "@jridgewell/sourcemap-codec" "^1.4.15"
