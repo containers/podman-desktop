@@ -21,6 +21,7 @@ import type { CliToolState, ProviderImages } from '@podman-desktop/api';
 export type CliToolExtensionInfo = {
   id: string;
   label: string;
+  icon?: string | { light: string; dark: string };
 };
 
 export interface CliToolInfo {
