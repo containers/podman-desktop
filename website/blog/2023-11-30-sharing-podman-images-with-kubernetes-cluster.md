@@ -29,7 +29,7 @@ When using kind or minikube or other 3rd party tools to setup a local kubernetes
 
 Minikube published 8 ways of doing that at https://minikube.sigs.k8s.io/docs/handbook/pushing/
 
-There are pros and cons either way. Starting a registry requires publishing your image each time you want to build. Podman Desktop could automate the synchronization but there is still a duplication of layers.
+There are pros and cons either way. Using a third party registry implies that you need to publish the image after each build of the image before being able to use it in the kubernetes cluster. While Podman Desktop could automate the synchronization between the local registry (where you are doing `podman build`) and the third party registry, there remains a duplication of layers between the local and third party registry. And if you change the first layer, it can take a lot of time to send again all the data.
 
 Loading images requires to pack/unpack the files so it's not adequate for large images.
 
