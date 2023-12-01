@@ -27,7 +27,7 @@
     "@docusaurus/plugin-client-redirects": "^3.0.0",
     "@docusaurus/preset-classic": "^3.0.0",
     "@docusaurus/theme-mermaid": "^3.0.0",
-    "@fortawesome/fontawesome-svg-core": "^6.5.0",
+    "@fortawesome/fontawesome-svg-core": "^6.5.1",
     "@fortawesome/free-brands-svg-icons": "^6.5.1",
     "@fortawesome/free-solid-svg-icons": "^6.5.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
