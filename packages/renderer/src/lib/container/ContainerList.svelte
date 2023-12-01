@@ -467,18 +467,22 @@ function setStoppedFilter() {
   </svelte:fragment>
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
-      <Button
-        on:click="{() => deleteSelectedContainers()}"
-        aria-label="Delete selected containers and pods"
-        title="Delete {selectedItemsNumber} selected items"
-        bind:inProgress="{bulkDeleteInProgress}"
-        icon="{faTrash}" />
-      <Button
-        on:click="{() => createPodFromContainers()}"
-        title="Create Pod with {selectedItemsNumber} selected items"
-        icon="{SolidPodIcon}">
-        Create Pod
-      </Button>
+      <div style="display: inline-flex;">
+        <Button
+          on:click="{() => deleteSelectedContainers()}"
+          aria-label="Delete selected containers and pods"
+          title="Delete {selectedItemsNumber} selected items"
+          bind:inProgress="{bulkDeleteInProgress}"
+          icon="{faTrash}">
+        </Button>
+        &nbsp;
+        <Button
+          on:click="{() => createPodFromContainers()}"
+          title="Create Pod with {selectedItemsNumber} selected items"
+          icon="{SolidPodIcon}">
+          Create Pod
+        </Button>
+      </div>
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
   </svelte:fragment>
