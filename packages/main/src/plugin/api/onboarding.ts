@@ -40,13 +40,11 @@ export interface OnboardingStep {
   description?: string;
   media?: { path: string; altText: string };
   command?: string;
-  enableCompletionEvents?: string[];
   completionEvents?: string[];
   content?: OnboardingStepItem[][];
   component?: OnboardingEmbeddedComponentType;
   when?: string;
   status?: OnboardingStatus;
-  showNext?: boolean;
   state?: OnboardingState;
 }
 
