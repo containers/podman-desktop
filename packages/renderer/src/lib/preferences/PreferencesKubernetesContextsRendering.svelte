@@ -2,7 +2,6 @@
 import SettingsPage from './SettingsPage.svelte';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
-import Link from '../ui/Link.svelte';
 import { faTrash, faRightToBracket } from '@fortawesome/free-solid-svg-icons';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
@@ -105,9 +104,7 @@ async function handleDeleteContext(contextName: string) {
             <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1 grid grid-cols-6">
               <span class="my-auto font-bold col-span-1 text-right">SERVER</span>
               <span class="my-auto col-span-5 text-left ml-3">
-                <Link class="text-xs" externalRef="{context.clusterInfo.server}">
-                  {context.clusterInfo.server}
-                </Link>
+                {context.clusterInfo.server}
               </span>
             </div>
           {/if}
