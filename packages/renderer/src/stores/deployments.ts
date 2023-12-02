@@ -23,7 +23,13 @@ import { findMatchInLeaves } from './search-util';
 import { EventStore } from './event-store';
 import DeploymentIcon from '../lib/images/DeploymentIcon.svelte';
 
-const windowEvents = ['extension-started', 'extension-stopped', 'provider-change', 'extensions-started'];
+const windowEvents = [
+  'extension-started',
+  'extension-stopped',
+  'provider-change',
+  'extensions-started',
+  'deployment-event',
+];
 const windowListeners = ['extensions-already-started'];
 
 let readyToUpdate = false;

@@ -77,6 +77,7 @@ export async function installComposeBinary(
     } catch (error) {
       console.error(error);
       await extensionApi.window.showErrorMessage(`Unable to install docker-compose binary: ${error}`);
+      throw error;
     } finally {
       // Regardless of what happens, always update the configuration setting and context
       // for example, if this fails when installing, the configuration setting will be set back to false

@@ -1230,6 +1230,21 @@ export class PluginSystem {
       return cliToolRegistry.getCliToolInfos();
     });
 
+    this.ipcHandle(
+      'cli-tool-registry:updateCliTool',
+      async (_listener, id: string, loggerId: string): Promise<void> => {
+        const logger = this.getLogHandler('provider-registry:updateCliTool-onData', loggerId);
+        try {
+          await cliToolRegistry.updateCliTool(id, logger);
+        } catch (error) {
+          logger.error(error);
+          throw error;
+        } finally {
+          logger.onEnd();
+        }
+      },
+    );
+
     this.ipcHandle('menu-registry:getContributedMenus', async (_, context: string): Promise<Menu[]> => {
       return menuRegistry.getContributedMenus(context);
     });
@@ -1670,7 +1685,7 @@ export class PluginSystem {
         providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
         loggerId: string,
       ): Promise<void> => {
-        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+        const logger = this.getLogHandler('provider-registry:taskConnection-onData', loggerId);
         await providerRegistry.startProviderConnection(providerId, providerConnectionInfo, logger);
         logger.onEnd();
       },
@@ -1684,7 +1699,7 @@ export class PluginSystem {
         providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
         loggerId: string,
       ): Promise<void> => {
-        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+        const logger = this.getLogHandler('provider-registry:taskConnection-onData', loggerId);
         await providerRegistry.stopProviderConnection(providerId, providerConnectionInfo, logger);
         logger.onEnd();
       },
@@ -1698,7 +1713,7 @@ export class PluginSystem {
         providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
         loggerId: string,
       ): Promise<void> => {
-        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+        const logger = this.getLogHandler('provider-registry:taskConnection-onData', loggerId);
         await providerRegistry.deleteProviderConnection(providerId, providerConnectionInfo, logger);
         logger.onEnd();
       },
@@ -1713,7 +1728,7 @@ export class PluginSystem {
         loggerId: string,
         tokenId?: number,
       ): Promise<void> => {
-        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+        const logger = this.getLogHandler('provider-registry:taskConnection-onData', loggerId);
         let token;
         if (tokenId) {
           const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
@@ -1750,7 +1765,7 @@ export class PluginSystem {
         loggerId: string,
         tokenId?: number,
       ): Promise<void> => {
-        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+        const logger = this.getLogHandler('provider-registry:taskConnection-onData', loggerId);
         let token;
         if (tokenId) {
           const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
@@ -1904,6 +1919,10 @@ export class PluginSystem {
         return kubernetesClient.deleteContext(contextName);
       },
     );
+
+    this.ipcHandle('kubernetes-client:setContext', async (_listener, contextName: string): Promise<void> => {
+      return kubernetesClient.setContext(contextName);
+    });
 
     this.ipcHandle('feedback:send', async (_listener, feedbackProperties: unknown): Promise<void> => {
       return telemetry.sendFeedback(feedbackProperties);
@@ -2094,7 +2113,7 @@ export class PluginSystem {
     this.isReady = true;
   }
 
-  getLogHandlerCreateConnection(channel: string, loggerId: string): LoggerWithEnd {
+  getLogHandler(channel: string, loggerId: string): LoggerWithEnd {
     return {
       log: (...data: unknown[]) => {
         this.getWebContentsSender().send(channel, loggerId, 'log', data);

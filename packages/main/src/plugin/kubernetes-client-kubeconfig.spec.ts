@@ -27,18 +27,20 @@ class TestKubernetesClient extends KubernetesClient {
   }
 }
 
-describe('delete context', () => {
+describe('context tests', () => {
   const originalUsers = [{ name: 'user1' }, { name: 'user2' }];
   const originalClusters = [
     { name: 'cluster1', server: 'server1' },
     { name: 'cluster2', server: 'server2' },
   ];
   const originalContexts = [
-    { name: 'ctx1', user: 'user1', cluster: 'cluster1' },
+    { name: 'ctx1', user: 'user1', cluster: 'cluster1', currentContext: true },
     { name: 'ctx1bis', user: 'user1', cluster: 'cluster1' },
   ];
 
   let client: TestKubernetesClient;
+
+  const apiSendMock = vi.fn();
 
   function createClient(): TestKubernetesClient {
     const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
@@ -47,7 +49,7 @@ describe('delete context', () => {
       track: vi.fn().mockImplementation(async () => {}),
     } as unknown as Telemetry;
     const apiSender: ApiSenderType = {
-      send: () => {},
+      send: apiSendMock,
       receive: () => {},
     };
 
@@ -76,6 +78,8 @@ describe('delete context', () => {
     expect(contexts[0]).toStrictEqual(originalContexts[0]);
     expect(client.getContexts().length).toBe(1);
     expect(client.getContexts()[0]).toStrictEqual(originalContexts[0]);
+    expect(apiSendMock).toHaveBeenCalledTimes(1);
+    expect(apiSendMock).toHaveBeenCalledWith('kubernetes-context-update');
   });
 
   test('should delete context from config and related user and cluster not referenced anymore', async () => {
@@ -119,5 +123,23 @@ describe('delete context', () => {
 
     await client.deleteContext(originalContexts[0].name);
     expect(client.getCurrentContextName()).toBe(originalContexts[0].name);
+  });
+
+  test('test that setContext updates the current context since it also modified the .kube/config file', async () => {
+    client.saveKubeConfig = vi.fn().mockImplementation((_config: KubeConfig) => {});
+
+    // Set the current context to something else and then check that it is the current context via getCurrentContextName
+    await client.setContext(originalContexts[1].name);
+    expect(client.getCurrentContextName()).toBe(originalContexts[1].name);
+
+    // We also want to check that it has also been set for currentContext in the detailed contexts retrieval
+    const contexts = client.getDetailedContexts();
+    // The first context should be false since it is not the current context anymore
+    expect(contexts[0].currentContext).toBe(false);
+    // The second context should be true since it is the current context
+    expect(contexts[1].currentContext).toBe(true);
+
+    expect(apiSendMock).toHaveBeenCalledTimes(1);
+    expect(apiSendMock).toHaveBeenCalledWith('kubernetes-context-update');
   });
 });

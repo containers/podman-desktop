@@ -1,7 +1,7 @@
 <script lang="ts">
-import type { VolumeInfoUI } from './VolumeInfoUI';
+import type { ImageInfoUI } from './ImageInfoUI';
 
-export let object: VolumeInfoUI;
+export let object: ImageInfoUI;
 </script>
 
 <div class="text-sm text-gray-700">

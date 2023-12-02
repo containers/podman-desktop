@@ -14,7 +14,7 @@ export let selected: boolean | undefined = undefined;
 $: if (selected !== undefined && type !== 'tab') {
   console.error('property selected can be used with type=tab only');
 }
-export let padding: string = 'px-4 py-[6px]';
+export let padding: string = 'px-4 py-[5px]';
 
 let iconType: string | undefined = undefined;
 
@@ -36,15 +36,18 @@ $: {
     }
   } else {
     if (type === 'primary') {
-      classes = 'bg-purple-600 border-none text-white hover:bg-purple-500 rounded-[4px] text-[13px]';
+      classes = 'bg-purple-600 border-none text-white hover:bg-purple-500';
     } else if (type === 'secondary') {
-      classes =
-        'border-[1px] border-gray-200 text-white hover:border-purple-500 hover:text-purple-500 rounded-[4px] text-[13px]';
+      classes = 'border-[1px] border-gray-200 text-white hover:border-purple-500 hover:text-purple-500';
     } else if (type === 'tab') {
       classes = 'pb-2 border-b-[3px] border-charcoal-700 hover:cursor-pointer py-2 text-gray-600 no-underline';
     } else {
-      classes = 'border-none text-purple-400 hover:bg-white hover:bg-opacity-10 rounded-[4px] text-[13px]';
+      classes = 'border-none text-purple-400 hover:bg-white hover:bg-opacity-10';
     }
+  }
+
+  if (type !== 'tab') {
+    classes += ' rounded-[4px] text-[13px]';
   }
 }
 </script>

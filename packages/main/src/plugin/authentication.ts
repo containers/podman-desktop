@@ -52,6 +52,7 @@ export interface AuthenticationProviderInfo {
 export interface ExtensionInfo {
   id: string;
   label: string;
+  icon?: string | { light: string; dark: string };
 }
 
 export interface AllowedExtension {

@@ -25,6 +25,7 @@ export interface ImageInfoUI {
   tag: string;
   createdAt: number;
   age: string;
+  size: number;
   humanSize: string;
   // fully qualified tag of the image (should be one of the RepoTags field encoded with base64)
   // no tag, we encode <none>

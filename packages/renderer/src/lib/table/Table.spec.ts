@@ -65,7 +65,7 @@ test('Expect default sort indicator', async () => {
   expect(headers).toBeDefined();
   expect(headers.length).toBe(5);
   expect(headers[2].textContent).toContain('Id');
-  expect(headers[2].innerHTML).toContain('fa-sort-down');
+  expect(headers[2].innerHTML).toContain('fa-sort-up');
 });
 
 test('Expect no default sort indicator on other columns', async () => {
@@ -101,11 +101,11 @@ test('Expect sorting by name works', async () => {
   expect(rows[3].textContent).toContain('John');
 });
 
-test('Expect sorting by age works', async () => {
+test('Expect sorting by age sorts descending initially', async () => {
   render(TestTable, {});
 
-  const ageCol = screen.getByText('Age');
-  expect(ageCol).toBeInTheDocument();
+  const ageCol = await screen.findByRole('columnheader', { name: 'Age' });
+  expect(ageCol).toBeDefined();
 
   let rows = await screen.findAllByRole('row');
   expect(rows).toBeDefined();
@@ -115,6 +115,35 @@ test('Expect sorting by age works', async () => {
   expect(rows[3].textContent).toContain('Charlie');
 
   await fireEvent.click(ageCol);
+
+  expect(ageCol.innerHTML).toContain('fa-sort-down');
+
+  rows = await screen.findAllByRole('row');
+  expect(rows[1].textContent).toContain('John');
+  expect(rows[2].textContent).toContain('Charlie');
+  expect(rows[3].textContent).toContain('Henry');
+});
+
+test('Expect sorting by age twice sorts ascending', async () => {
+  render(TestTable, {});
+
+  const ageCol = await screen.findByRole('columnheader', { name: 'Age' });
+  expect(ageCol).toBeDefined();
+
+  let rows = await screen.findAllByRole('row');
+  expect(rows).toBeDefined();
+  expect(rows.length).toBe(4);
+  expect(rows[1].textContent).toContain('John');
+  expect(rows[2].textContent).toContain('Henry');
+  expect(rows[3].textContent).toContain('Charlie');
+
+  await fireEvent.click(ageCol);
+
+  expect(ageCol.innerHTML).toContain('fa-sort-down');
+
+  await fireEvent.click(ageCol);
+
+  expect(ageCol.innerHTML).toContain('fa-sort-up');
 
   rows = await screen.findAllByRole('row');
   expect(rows[1].textContent).toContain('Henry');
@@ -145,4 +174,23 @@ test('Expect correct aria roles', async () => {
     expect(cells).toBeDefined();
     expect(cells.length).toBe(5);
   }
+});
+
+test('Expect rowgroups', async () => {
+  render(TestTable, {});
+
+  // there should be two role groups
+  const rowgroups = await screen.findAllByRole('rowgroup');
+  expect(rowgroups).toBeDefined();
+  expect(rowgroups.length).toBe(2);
+
+  // one for the header row
+  const headers = await within(rowgroups[0]).findAllByRole('columnheader');
+  expect(headers).toBeDefined();
+  expect(headers.length).toBe(5);
+
+  // and one for the data rows
+  const dataRows = await within(rowgroups[1]).findAllByRole('row');
+  expect(dataRows).toBeDefined();
+  expect(dataRows.length).toBe(3);
 });

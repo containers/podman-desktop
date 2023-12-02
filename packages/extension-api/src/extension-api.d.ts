@@ -2493,6 +2493,22 @@ declare module '@podman-desktop/api' {
     path: string;
   }
 
+  /**
+   * Options to update CliTool instance
+   */
+  export interface CliToolUpdateOptions {
+    version: string;
+    displayName?: string;
+    markdownDescription?: string;
+    images?: ProviderImages;
+    path?: string;
+  }
+
+  export interface CliToolUpdate {
+    version: string;
+    doUpdate: (logger: Logger) => Promise<void>;
+  }
+
   export type CliToolState = 'registered';
 
   export interface CliTool extends Disposable {
@@ -2506,6 +2522,12 @@ declare module '@podman-desktop/api' {
       id: string;
       label: string;
     };
+
+    updateVersion(version: CliToolUpdateOptions): void;
+    onDidUpdateVersion: Event<string>;
+
+    // register cli update flow
+    registerUpdate(update: CliToolUpdate): Disposable;
   }
 
   /**
