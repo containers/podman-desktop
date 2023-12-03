@@ -44,6 +44,10 @@ $: providerConnectionConfiguration = tmpProviderContainerConfiguration.filter(
         </div>
       {/each}
       <div class="flex flex-row mt-5">
+        <span class="font-semibold min-w-[150px]">Type</span>
+        <span aria-label="kubernetes">Kubernetes</span>
+      </div>
+      <div class="flex flex-row mt-5">
         <span class="font-semibold min-w-[150px]">Endpoint</span>
         <span aria-label="{kubernetesConnectionInfo.endpoint.apiURL}">{kubernetesConnectionInfo.endpoint.apiURL}</span>
       </div>
