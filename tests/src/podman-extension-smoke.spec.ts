@@ -28,7 +28,7 @@ import type { SettingsBar } from './model/pages/settings-bar';
 import { SettingsExtensionsPage } from './model/pages/settings-extensions-page';
 import { ExtensionPage } from './model/pages/extension-page';
 
-const SETTINGS_EXTENSIONS_TABLE_PODMAN_TITLE: string = 'Podman (default extension)';
+const SETTINGS_EXTENSIONS_TABLE_PODMAN_TITLE: string = 'podman';
 const SETTINGS_EXTENSIONS_TABLE_EXTENSION_STATUS_LABEL: string = 'connection-status-label';
 const PODMAN_EXTENSION_STATUS_RUNNING: string = 'RUNNING';
 const PODMAN_EXTENSION_STATUS_OFF: string = 'OFF';

@@ -83,7 +83,10 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
       <h1 class="text-lg mb-2">Install a new extension from OCI Image</h1>
 
       <div class="flex flex-col w-full">
-        <div class="flex flex-row mb-2 w-full space-x-8 items-center">
+        <div
+          class="flex flex-row mb-2 w-full space-x-8 items-center"
+          role="region"
+          aria-label="Install Extension From OCI">
           <input
             name="ociImage"
             id="ociImage"
@@ -117,11 +120,11 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
       </div>
     </div>
     <div class="bg-charcoal-600 mt-5 rounded-md p-3">
-      <table class="min-w-full">
+      <table class="min-w-full" aria-label="Installed Extensions">
         <tbody>
           {#each $extensionInfos as extension}
-            <tr class="border-y border-gray-900">
-              <td class="px-6 py-2">
+            <tr class="border-y border-gray-900" aria-label="{extension.name}">
+              <td class="px-6 py-2" aria-label="Extension Details">
                 <div class="flex items-center">
                   <div class="flex-shrink-0 h-10 w-10 py-3" title="Extension {extension.name} is {extension.state}">
                     <Fa
@@ -132,7 +135,7 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
                       icon="{faPuzzlePiece}" />
                   </div>
                   <div class="ml-4">
-                    <div class="flex flex-row">
+                    <div class="flex flex-row" aria-label="Extension Details">
                       <div class="text-sm text-gray-300">
                         {extension.displayName}
                         {extension.removable ? '(user)' : '(default extension)'}
@@ -142,13 +145,16 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
                           <button
                             class="mx-2 px-2 text-xs font-medium text-center text-white bg-violet-600 rounded-sm hover:bg-dustypurple-800 focus:ring-2 focus:outline-none focus:ring-dustypurple-700"
                             title="Update to {extension.update.version}"
+                            aria-label="Extension Action Update"
                             on:click="{() => updateExtension(extension, extensionUpdate.ociUri)}">
                             Update</button>
                         {/if}
                       </div>
                     </div>
-                    <div class="flex flex-row">
-                      <div class="text-sm text-gray-700 italic">{extension.description}</div>
+                    <div class="flex flex-row" aria-label="Extension Description">
+                      <div class="text-sm text-gray-700 italic">
+                        {extension.description}
+                      </div>
                     </div>
                     <div class="flex">
                       <ConnectionStatus status="{extension.state}" />
@@ -156,15 +162,17 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
                   </div>
                 </div>
               </td>
-              <td class="px-2 py-2 whitespace-nowrap">
+              <td class="px-2 py-2 whitespace-nowrap" aria-label="Extension Actions">
                 <div class="flex flex-row justify-end">
                   <button
                     title="Start extension"
+                    aria-label="Extension Action Start"
                     on:click="{() => startExtension(extension)}"
                     class="{buttonClass}"
                     class:hidden="{extension.state !== 'stopped'}"><Fa class="h-4 w-4" icon="{faPlay}" /></button>
                   <button
                     title="Stop extension"
+                    aria-label="Extension Action Stop"
                     class="{buttonClass}"
                     on:click="{() => stopExtension(extension)}"
                     hidden
@@ -174,6 +182,7 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
                     {#if extension.state === 'stopped'}
                       <button
                         title="Remove extension"
+                        aria-label="Extension Action Remove"
                         class="{buttonClass}"
                         on:click="{() => removeExtension(extension)}"><Fa class="h-4 w-4" icon="{faTrash}" /></button>
                     {:else}

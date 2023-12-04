@@ -36,15 +36,15 @@ export class SettingsExtensionsPage extends SettingsPage {
   }
 
   public getExtensionRowFromTable(extensionName: string): Locator {
-    return this.extensionsTable.getByRole('row').filter({ hasText: extensionName });
+    return this.extensionsTable.getByRole('row', { name: extensionName });
   }
 
   public getExtensionStopButton(extensionRow: Locator): Locator {
-    return extensionRow.getByRole('button', { name: 'Stop extension' });
+    return extensionRow.getByLabel('Extension Action Stop');
   }
 
   public getExtensionStartButton(extensionRow: Locator): Locator {
-    return extensionRow.getByRole('button', { name: 'Start extension' });
+    return extensionRow.getByLabel('Extension Action Start');
   }
 
   public getFeaturedExtension(extensionName: string): Locator {
