@@ -34,10 +34,13 @@ export interface IProviderConnectionConfigurationPropertyRecorded extends IConfi
   providerId: string;
 }
 
-export interface IConnectionStatus {
+export interface ILoadingStatus {
   status: string;
   action?: string;
   inProgress: boolean;
+}
+
+export interface IConnectionStatus extends ILoadingStatus {
   error?: string;
 }
 
