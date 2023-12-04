@@ -25,6 +25,7 @@ import { OS } from './os';
 import * as handler from './handler';
 import { ComposeDownload } from './download';
 import * as path from 'path';
+import { installBinaryToSystem } from './cli-run';
 
 let composeVersionMetadata: ComposeGithubReleaseArtifactMetadata | undefined;
 let composeCliTool: extensionApi.CliTool | undefined;
@@ -164,6 +165,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       let installed: boolean;
       try {
         await handler.installComposeBinary(detect, extensionContext);
+        // update the cli version
+        composeCliTool.updateVersion({
+          version: composeVersionMetadata?.tag.replace('v', ''),
+        });
         installed = true;
       } finally {
         telemetryLogger.logUsage('compose.onboarding.installSystemWideCommand', {
@@ -200,14 +205,17 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // Push the CLI tool as well (but it will do it postActivation so it does not block the activate() function)
   // Post activation
   setTimeout(() => {
-    postActivate(extensionContext).catch((error: unknown) => {
+    postActivate(extensionContext, composeDownload).catch((error: unknown) => {
       console.error('Error activating extension', error);
     });
   }, 0);
 }
 
 // Activate the CLI tool (check version, etc) and register the CLi so it does not block activation.
-async function postActivate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+async function postActivate(
+  extensionContext: extensionApi.ExtensionContext,
+  composeDownload: ComposeDownload,
+): Promise<void> {
   // The location of the binary (local storage folder)
   const binaryPath = path.join(
     extensionContext.storagePath,
@@ -236,6 +244,23 @@ async function postActivate(extensionContext: extensionApi.ExtensionContext): Pr
     version: binaryVersion,
     path: binaryPath,
   });
+
+  // check if there is a new version to be installed and register the updater
+  const lastReleaseMetadata = await composeDownload.getLatestVersionAsset();
+  const lastReleaseVersion = lastReleaseMetadata.tag.replace('v', '').trim();
+  if (lastReleaseVersion !== binaryVersion) {
+    composeCliTool.registerUpdate({
+      version: lastReleaseVersion,
+      doUpdate: async _logger => {
+        // download, install system wide and update cli version
+        await composeDownload.download(lastReleaseMetadata);
+        await installBinaryToSystem(binaryPath, 'docker-compose');
+        composeCliTool.updateVersion({
+          version: lastReleaseVersion,
+        });
+      },
+    });
+  }
 }
 
 export async function deactivate(): Promise<void> {
