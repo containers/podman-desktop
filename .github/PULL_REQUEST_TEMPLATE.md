@@ -1,9 +1,9 @@
 ### What does this PR do?
 
-### Screenshot/screencast of this PR
+### Screenshot / video of UI
 
-<!-- Please include a screenshot or a screencast 
-explaining what is doing this PR -->
+<!-- If this PR is changing UI, please include 
+screenshots or screencasts showing the difference -->
 
 ### What issues does this PR fix or reference?
 
