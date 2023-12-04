@@ -29,6 +29,7 @@ import { installBinaryToSystem } from './cli-run';
 
 let composeVersionMetadata: ComposeGithubReleaseArtifactMetadata | undefined;
 let composeCliTool: extensionApi.CliTool | undefined;
+let composeCliToolUpdaterDisposable: extensionApi.Disposable | undefined;
 const os = new OS();
 
 // Telemetry
@@ -249,7 +250,7 @@ async function postActivate(
   const lastReleaseMetadata = await composeDownload.getLatestVersionAsset();
   const lastReleaseVersion = lastReleaseMetadata.tag.replace('v', '').trim();
   if (lastReleaseVersion !== binaryVersion) {
-    composeCliTool.registerUpdate({
+    composeCliToolUpdaterDisposable = composeCliTool.registerUpdate({
       version: lastReleaseVersion,
       doUpdate: async _logger => {
         // download, install system wide and update cli version
@@ -258,6 +259,7 @@ async function postActivate(
         composeCliTool.updateVersion({
           version: lastReleaseVersion,
         });
+        composeCliToolUpdaterDisposable.dispose();
       },
     });
   }
