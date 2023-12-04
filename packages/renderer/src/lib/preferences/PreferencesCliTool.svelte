@@ -74,7 +74,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
         </div>
         <div class="">
           <div class="p-0.5 rounded-lg bg-charcoal-900 w-fit">
-            {#if cliToolStatus}
+            {#if cliTool.version && cliToolStatus}
               <LoadingIconButton
                 action="update"
                 clickAction="{() => {
@@ -85,7 +85,8 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
                 icon="{faCircleArrowUp}"
                 leftPosition="left-[0.4rem]"
                 state="{cliToolStatus}"
-                color="primary" />
+                color="primary"
+                tooltip="{!cliTool.newVersion ? 'No updates' : `Update to v.${cliTool.newVersion}`}" />
             {/if}
           </div>
         </div>

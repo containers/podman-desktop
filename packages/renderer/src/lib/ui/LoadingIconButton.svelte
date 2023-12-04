@@ -10,6 +10,7 @@ export let icon: IconDefinition;
 export let state: ILoadingStatus | undefined;
 export let leftPosition: string;
 export let color: 'primary' | 'secondary' = 'secondary';
+export let tooltip: string = capitalize(action);
 export let clickAction: () => Promise<void> | void;
 
 $: disable =
@@ -36,7 +37,7 @@ function getStyleByState(state: ILoadingStatus | undefined, action: string) {
 }
 </script>
 
-<Tooltip tip="{capitalize(action)}" bottom>
+<Tooltip tip="{tooltip}" bottom>
   <button
     aria-label="{capitalize(action)}"
     class="mx-2.5 my-2 {getStyleByState(state, action)}"

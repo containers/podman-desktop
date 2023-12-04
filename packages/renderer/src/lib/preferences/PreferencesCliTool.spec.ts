@@ -93,9 +93,8 @@ suite('CLI Tool item', () => {
     expect(displayNameElement.textContent).equal(cliToolInfoItem1.displayName);
     const versionElement = screen.queryByLabelText('cli-version');
     expect(versionElement).not.toBeInTheDocument();
-    const updateLoadingButton = screen.getByRole('button', { name: 'Update' });
-    expect(updateLoadingButton).toBeDefined();
-    expect(updateLoadingButton).toBeDisabled();
+    const updateLoadingButton = screen.queryByRole('button', { name: 'Update' });
+    expect(updateLoadingButton).not.toBeInTheDocument();
   });
 
   test('check tool infos are displayed as expected and version is specified but there is no new version available', () => {
@@ -115,7 +114,7 @@ suite('CLI Tool item', () => {
     expect(versionElement).toBeDefined();
     expect(versionElement.textContent).equal(`${cliToolInfoItem2.name} v${cliToolInfoItem2.version}`);
     const updateLoadingButton = screen.getByRole('button', { name: 'Update' });
-    expect(updateLoadingButton).toBeDefined();
+    expect(updateLoadingButton).toBeInTheDocument();
     expect(updateLoadingButton).toBeDisabled();
   });
 
@@ -139,7 +138,7 @@ suite('CLI Tool item', () => {
     expect(updateAvailableElement).toBeDefined();
     expect(updateAvailableElement.textContent).toBe('Update available');
     const updateLoadingButton = screen.getByRole('button', { name: 'Update' });
-    expect(updateLoadingButton).toBeDefined();
+    expect(updateLoadingButton).toBeInTheDocument();
     expect(updateLoadingButton).toBeEnabled();
   });
 
