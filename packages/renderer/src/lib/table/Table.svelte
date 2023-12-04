@@ -145,7 +145,8 @@ function setGridColumns() {
             ? 'justify-self-end'
             : column.info.align === 'center'
               ? 'justify-self-center'
-              : 'justify-self-start'} self-center"
+              : 'justify-self-start'} self-center select-none"
+          class:cursor-pointer="{column.info.comparator}"
           on:click="{() => sort(column)}"
           role="columnheader">
           {column.title}{#if column.info.comparator}<i

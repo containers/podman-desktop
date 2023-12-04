@@ -10,12 +10,13 @@ type Person = {
   id: number;
   name: string;
   age: number;
+  hobby: string;
 };
 
 const people: Person[] = [
-  { id: 1, name: 'John', age: 57 },
-  { id: 2, name: 'Henry', age: 27 },
-  { id: 3, name: 'Charlie', age: 43 },
+  { id: 1, name: 'John', age: 57, hobby: 'Skydiving' },
+  { id: 2, name: 'Henry', age: 27, hobby: 'Cooking' },
+  { id: 3, name: 'Charlie', age: 43, hobby: 'Biking' },
 ];
 
 const idCol: Column<Person, string> = new Column('Id', {
@@ -40,7 +41,12 @@ const ageCol: Column<Person, string> = new Column('Age', {
   initialOrder: 'descending',
 });
 
-const columns: Column<Person, string>[] = [idCol, nameCol, ageCol];
+const hobbyCol: Column<Person, string> = new Column('Hobby', {
+  renderMapping: obj => obj.hobby,
+  renderer: SimpleColumn,
+});
+
+const columns: Column<Person, string>[] = [idCol, nameCol, ageCol, hobbyCol];
 
 const row = new Row<Person>({
   selectable: person => person.age < 50,
