@@ -1,6 +1,6 @@
 <!-- The markdown rendered has it's own style that you'll have to customize / check against podman desktop 
 UI guidelines -->
-<style>
+<style lang="postcss">
 .markdown > :global(p) {
   line-height: normal;
   padding-bottom: 8px;
@@ -33,6 +33,14 @@ UI guidelines -->
 .markdown > :global(blockquote) {
   opacity: 0.8;
   line-height: normal;
+}
+.markdown :global(a) {
+  color: theme(colors.purple.500);
+  text-decoration: none;
+}
+.markdown :global(a):hover {
+  color: theme(colors.purple.400);
+  text-decoration: underline;
 }
 </style>
 
