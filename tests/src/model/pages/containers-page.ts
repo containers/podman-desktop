@@ -73,13 +73,15 @@ export class ContainersPage extends MainPage {
     return (await this.getContainerRowByName(name)) !== undefined ? true : false;
   }
 
-  async openCreatePodPage(name: string): Promise<CreatePodsPage> {
-    const row = await this.getContainerRowByName(name);
-    if (row === undefined) {
-      throw Error('Container cannot be podified');
+  async openCreatePodPage(names: string[]): Promise<CreatePodsPage> {
+    for await (const containerName of names) {
+      const row = await this.getContainerRowByName(containerName);
+      if (row === undefined) {
+        throw Error('Container cannot be podified');
+      }
+      await row.getByRole('cell').nth(1).click();
     }
-    await row.getByRole('cell').nth(1).click();
-    await this.page.getByRole('button', { name: 'Create Pod with 1 selected items' }).click();
+    await this.page.getByRole('button', { name: `Create Pod with ${names.length} selected items` }).click();
     return new CreatePodsPage(this.page);
   }
 }

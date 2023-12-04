@@ -85,6 +85,7 @@ const setupPodmanNotification: extensionApi.NotificationOptions = {
   highlight: true,
   silent: true,
 };
+let notificationDisposable: extensionApi.Disposable;
 
 export type MachineJSON = {
   Name: string;
@@ -124,7 +125,7 @@ export async function updateMachines(provider: extensionApi.Provider): Promise<v
   } catch (error) {
     if (shouldNotifySetup) {
       // push setup notification
-      extensionApi.window.showNotification(setupPodmanNotification);
+      notificationDisposable = extensionApi.window.showNotification(setupPodmanNotification);
       shouldNotifySetup = false;
     }
     throw error;
@@ -135,7 +136,7 @@ export async function updateMachines(provider: extensionApi.Provider): Promise<v
   extensionApi.context.setValue('podmanMachineExists', machines.length > 0, 'onboarding');
   if (shouldNotifySetup && machines.length === 0) {
     // push setup notification
-    extensionApi.window.showNotification(setupPodmanNotification);
+    notificationDisposable = extensionApi.window.showNotification(setupPodmanNotification);
     shouldNotifySetup = false;
   }
 
@@ -551,7 +552,7 @@ async function monitorProvider(provider: extensionApi.Provider) {
         // and the notification is handled by checking the machine
         if (isLinux() && shouldNotifySetup) {
           // push setup notification
-          extensionApi.window.showNotification(setupPodmanNotification);
+          notificationDisposable = extensionApi.window.showNotification(setupPodmanNotification);
           shouldNotifySetup = false;
         }
       } else if (installedPodman.version) {
@@ -564,6 +565,8 @@ async function monitorProvider(provider: extensionApi.Provider) {
         // if podman has been installed, we reset the notification flag so if podman is uninstalled in future we can show the notification again
         if (isLinux()) {
           shouldNotifySetup = true;
+          // notification is no more required
+          notificationDisposable?.dispose();
         }
       }
     } catch (error) {
@@ -1431,6 +1434,8 @@ export async function createMachine(
   }
   extensionApi.context.setValue('podmanMachineExists', true, 'onboarding');
   shouldNotifySetup = true;
+  // notification is no more required
+  notificationDisposable?.dispose();
 }
 
 function setupDisguisedPodmanSocketWatcher(

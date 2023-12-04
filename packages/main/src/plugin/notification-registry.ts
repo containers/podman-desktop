@@ -45,6 +45,11 @@ export class NotificationRegistry {
       ...notificationInfo,
       id: this.notificationId,
     };
+    // if there is the same notification already in the queue we remove it and put it at the head of the queue
+    this.notificationQueue = this.notificationQueue.filter(
+      notification =>
+        notification.extensionId !== notificationInfo.extensionId || notification.title !== notificationInfo.title,
+    );
     // we add the new notification to the beginning of the queue to display the queue head in the dashboard
     this.notificationQueue.unshift(notification);
     // send event
@@ -88,7 +93,7 @@ export class NotificationRegistry {
 
   removeNotificationsByExtensionAndTitle(extensionId: string, title: string): void {
     this.notificationQueue = this.notificationQueue.filter(
-      notification => notification.extensionId !== extensionId && notification.title !== title,
+      notification => notification.extensionId !== extensionId || notification.title !== title,
     );
     // send event
     this.apiSender.send('notifications-updated');

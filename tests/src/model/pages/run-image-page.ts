@@ -70,4 +70,15 @@ export class RunImagePage extends BasePage {
     }
     return containers;
   }
+
+  async setCustomPortMapping(customPortMapping: string): Promise<void> {
+    // add port mapping
+    await this.activateTab('Basic');
+    const addPortMappingButton = this.page.getByRole('button', { name: 'Add custom port mapping' });
+    await addPortMappingButton.click();
+    const hostPort = this.page.getByLabel('host port');
+    const containerPort = this.page.getByLabel('container port');
+    await hostPort.fill(customPortMapping.split(':')[0]);
+    await containerPort.fill(customPortMapping.split(':')[1]);
+  }
 }

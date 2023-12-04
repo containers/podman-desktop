@@ -54,6 +54,7 @@ import Button from '../ui/Button.svelte';
 import Link from '../ui/Link.svelte';
 import OnboardingComponent from './OnboardingComponent.svelte';
 import Spinner from '../ui/Spinner.svelte';
+import { OnboardingTelemetrySession } from './telemetry';
 
 export let extensionIds: string[] = [];
 
@@ -66,6 +67,8 @@ let globalContext: ContextUI;
 let displayCancelSetup = false;
 
 let executedCommands: string[] = [];
+
+let telemetrySession = new OnboardingTelemetrySession();
 
 /*
 $: enableNextButton = false;*/
@@ -111,6 +114,7 @@ async function startOnboarding(): Promise<void> {
   if (!started && globalContext && onboardings.length > 0) {
     started = true;
     if (!isOnboardingsSetupCompleted(onboardings)) {
+      telemetrySession.restart();
       await restartSetup();
     }
   }
@@ -141,6 +145,7 @@ async function setActiveStep() {
             whenDeserialized = ContextKeyExpr.deserialize(when);
           }
           if (!step.when || whenDeserialized?.evaluate(globalContext)) {
+            telemetrySession.startStep(i, step.id, step.title);
             activeStep = {
               onboarding,
               step,
@@ -154,7 +159,13 @@ async function setActiveStep() {
                 });
               }) || [];
             if (step.command) {
-              await doExecuteCommand(step.command);
+              try {
+                await doExecuteCommand(step.command);
+              } catch (error: unknown) {
+                if (error instanceof Error) {
+                  telemetrySession.setStepError(i, step.id, error);
+                }
+              }
               // after command has been executed, we check if the step must be marked as completed
               await assertStepCompletedAfterCommandExecution();
             }
@@ -167,6 +178,7 @@ async function setActiveStep() {
       }
     }
   }
+  telemetrySession.send(onboardings.map(o => o.extension).join(','), false);
   // if it reaches this point it means that the onboarding is fully completed and the user is redirected to the dashboard
   router.goto($lastPage.path);
 }
@@ -193,7 +205,7 @@ async function doExecuteCommand(command: string) {
     await window.executeCommand(command);
   } catch (e) {
     inProgressCommandExecution(command, 'failed', e);
-    return;
+    throw e;
   }
   inProgressCommandExecution(command, 'successful');
 }
@@ -262,9 +274,7 @@ async function cancelSetup() {
   // TODO: it cancels all running commands
   // it redirect the user to the dashboard
   await cleanSetup(onboardings, globalContext);
-  window.telemetryTrack('onboarding.cancelSetup', {
-    extensions: onboardings.map(o => o.extension).join(','),
-  });
+  telemetrySession.send(onboardings.map(o => o.extension).join(','), true);
   router.goto($lastPage.path);
 }
 

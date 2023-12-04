@@ -946,6 +946,7 @@ export class ExtensionLoader {
       version: extManifest.version,
       publisher: extManifest.publisher,
       name: extManifest.name,
+      icon: extManifest.icon ? instance.updateImage(extManifest.icon, extensionPath) : undefined,
     };
     const authentication: typeof containerDesktopAPI.authentication = {
       getSession: (providerId, scopes, options) => {

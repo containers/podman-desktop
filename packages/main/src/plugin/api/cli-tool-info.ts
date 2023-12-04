@@ -33,4 +33,5 @@ export interface CliToolInfo {
   extensionInfo: CliToolExtensionInfo;
   version?: string;
   path?: string;
+  newVersion?: string;
 }

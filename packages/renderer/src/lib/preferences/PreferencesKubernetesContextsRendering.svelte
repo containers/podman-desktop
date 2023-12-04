@@ -2,19 +2,25 @@
 import SettingsPage from './SettingsPage.svelte';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
-import { onMount } from 'svelte';
 import Link from '../ui/Link.svelte';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faRightToBracket } from '@fortawesome/free-solid-svg-icons';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import { kubernetesContexts } from '../../stores/kubernetes-contexts';
 import { clearKubeUIContextErrors, setKubeUIContextError } from '../kube/KubeContextUI';
 
-let currentContextName: string | undefined;
+$: currentContextName = $kubernetesContexts.find(c => c.currentContext)?.name;
 
-onMount(async () => {
-  currentContextName = await window.kubernetesGetCurrentContextName();
-});
+async function handleSetContext(contextName: string) {
+  $kubernetesContexts = clearKubeUIContextErrors($kubernetesContexts);
+  try {
+    await window.kubernetesSetContext(contextName);
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      $kubernetesContexts = setKubeUIContextError($kubernetesContexts, contextName, e);
+    }
+  }
+}
 
 async function handleDeleteContext(contextName: string) {
   if (currentContextName === contextName) {
@@ -73,6 +79,13 @@ async function handleDeleteContext(contextName: string) {
                 <span class="text-md" aria-label="context-name">{context.name}</span>
               </div>
             </div>
+            <!-- Only show the set context button if it is not the current context -->
+            {#if !context.currentContext}
+              <ListItemButtonIcon
+                title="Set as Current Context"
+                icon="{faRightToBracket}"
+                onClick="{() => handleSetContext(context.name)}"></ListItemButtonIcon>
+            {/if}
             <ListItemButtonIcon
               title="Delete Context"
               icon="{faTrash}"

@@ -31,6 +31,14 @@ Some of the things you can edit:
 - Modify the cluster setup (the Kubernetes distribution)
 - Run **both** of container workloads and Kubernetes workloads
 
+### Directory
+
+To find the location of the instance directory (`Dir`):
+
+```bash
+limactl list <instance> --format '{{.Dir}}'
+```
+
 ### Containers
 
 You can install a container engine, in addition to the existing runtime.
@@ -44,6 +52,7 @@ After that you can port forward the socket, to the host `Dir`.
 
 ```bash
 export DOCKER_HOST="unix://{{.Dir}}/sock/docker.sock"
+export CONTAINER_HOST="unix://{{.Dir}}/sock/podman.sock"
 ```
 
 ### Kubernetes
