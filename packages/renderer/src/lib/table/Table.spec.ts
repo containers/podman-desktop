@@ -44,18 +44,36 @@ test('Expect basic table layout', async () => {
   expect(rows[3].textContent).toContain('43');
 });
 
-test('Expect column headers with sort indicators', async () => {
+test('Expect basic column headers', async () => {
   render(TestTable, {});
 
   const headers = await screen.findAllByRole('columnheader');
   expect(headers).toBeDefined();
-  expect(headers.length).toBe(5);
+  expect(headers.length).toBe(6);
   expect(headers[2].textContent).toContain('Id');
-  expect(headers[2].innerHTML).toContain('fa-sort');
+  expect(headers[2]).toHaveClass('select-none');
   expect(headers[3].textContent).toContain('Name');
-  expect(headers[3].innerHTML).toContain('fa-sort');
+  expect(headers[3]).toHaveClass('select-none');
   expect(headers[4].textContent).toContain('Age');
+  expect(headers[4]).toHaveClass('select-none');
+  expect(headers[5].textContent).toContain('Hobby');
+  expect(headers[5]).toHaveClass('select-none');
+});
+
+test('Expect column sort indicators', async () => {
+  render(TestTable, {});
+
+  const headers = await screen.findAllByRole('columnheader');
+  expect(headers).toBeDefined();
+  expect(headers.length).toBe(6);
+  expect(headers[2].innerHTML).toContain('fa-sort');
+  expect(headers[2]).toHaveClass('cursor-pointer');
+  expect(headers[3].innerHTML).toContain('fa-sort');
+  expect(headers[3]).toHaveClass('cursor-pointer');
   expect(headers[4].innerHTML).toContain('fa-sort');
+  expect(headers[4]).toHaveClass('cursor-pointer');
+  expect(headers[5].innerHTML).not.toContain('fa-sort');
+  expect(headers[5]).not.toHaveClass('cursor-pointer');
 });
 
 test('Expect default sort indicator', async () => {
@@ -63,7 +81,7 @@ test('Expect default sort indicator', async () => {
 
   const headers = await screen.findAllByRole('columnheader');
   expect(headers).toBeDefined();
-  expect(headers.length).toBe(5);
+  expect(headers.length).toBe(6);
   expect(headers[2].textContent).toContain('Id');
   expect(headers[2].innerHTML).toContain('fa-sort-up');
 });
@@ -73,7 +91,7 @@ test('Expect no default sort indicator on other columns', async () => {
 
   const headers = await screen.findAllByRole('columnheader');
   expect(headers).toBeDefined();
-  expect(headers.length).toBe(5);
+  expect(headers.length).toBe(6);
   expect(headers[3].innerHTML).not.toContain('fa-sort-up');
   expect(headers[3].innerHTML).not.toContain('fa-sort-down');
   expect(headers[4].innerHTML).not.toContain('fa-sort-up');
@@ -154,25 +172,22 @@ test('Expect sorting by age twice sorts ascending', async () => {
 test('Expect correct aria roles', async () => {
   render(TestTable, {});
 
-  // table data is 3 objects with 3 properties, so
-  // there should be 5 column headers (expander, checkbox, 3 columns)
+  // table data is 3 objects with 4 properties, so
+  // there should be 6 column headers (expander, checkbox, 4 columns)
   const headers = await screen.findAllByRole('columnheader');
   expect(headers).toBeDefined();
-  expect(headers.length).toBe(5);
-  expect(headers[2].textContent).toContain('Id');
-  expect(headers[3].textContent).toContain('Name');
-  expect(headers[4].textContent).toContain('Age');
+  expect(headers.length).toBe(6);
 
   // and 4 rows (first is header)
   const rows = await screen.findAllByRole('row');
   expect(rows).toBeDefined();
   expect(rows.length).toBe(4);
 
-  // and each non-header row should have 5 cells (expander, checkbox, 3 cells)
+  // and each non-header row should have 6 cells (expander, checkbox, 4 cells)
   for (let i = 1; i < 4; i++) {
     const cells = await within(rows[i]).findAllByRole('cell');
     expect(cells).toBeDefined();
-    expect(cells.length).toBe(5);
+    expect(cells.length).toBe(6);
   }
 });
 
@@ -187,7 +202,7 @@ test('Expect rowgroups', async () => {
   // one for the header row
   const headers = await within(rowgroups[0]).findAllByRole('columnheader');
   expect(headers).toBeDefined();
-  expect(headers.length).toBe(5);
+  expect(headers.length).toBe(6);
 
   // and one for the data rows
   const dataRows = await within(rowgroups[1]).findAllByRole('row');
