@@ -467,7 +467,7 @@ function setStoppedFilter() {
   </svelte:fragment>
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
-      <div style="display: inline-flex;">
+      <div style="display: inline-flex;" class="space-x-2">
         <Button
           on:click="{() => deleteSelectedContainers()}"
           aria-label="Delete selected containers and pods"
@@ -475,7 +475,7 @@ function setStoppedFilter() {
           bind:inProgress="{bulkDeleteInProgress}"
           icon="{faTrash}">
         </Button>
-        &nbsp;
+
         <Button
           on:click="{() => createPodFromContainers()}"
           title="Create Pod with {selectedItemsNumber} selected items"
