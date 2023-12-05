@@ -227,6 +227,7 @@ suite('cli module', () => {
 
       // dispose the updater and check it is not called again
       disposeUpdater.dispose();
+      expect(apiSender.send).toBeCalledWith('cli-tool-change', 'ext-publisher.ext-name.tool-name');
       await cliToolRegistry.updateCliTool(newCliTool.id, {} as unknown as Logger);
 
       expect(updateMock).not.toBeCalled();

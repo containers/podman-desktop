@@ -47,6 +47,7 @@ export class CliToolRegistry {
 
     return Disposable.create(() => {
       this.cliToolsUpdater.delete(cliTool.id);
+      this.apiSender.send('cli-tool-change', cliTool.id);
     });
   }
 
