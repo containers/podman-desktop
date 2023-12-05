@@ -59,7 +59,7 @@ export function button(d: any) {
   } else {
     // If href is passed in, make this an anchor tag but make it look like a button
     this.tag(
-      '<a class="px-4 py-[6px] rounded-[4px] text-white text-[13px] whitespace-nowrap bg-purple-600 hover:bg-purple-500 no-underline"',
+      '<a class="px-4 py-[6px] rounded-[4px] !text-white text-[13px] whitespace-nowrap bg-purple-600 hover:bg-purple-500 !no-underline"',
     );
 
     // Href & title
