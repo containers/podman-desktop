@@ -75,9 +75,9 @@ test('Expect deployments list', async () => {
   await waitRender({});
 
   const deploymentName = screen.getByRole('cell', { name: 'my-deployment' });
-  const deploymentSize = screen.getByRole('cell', { name: 'test-namespace' });
+  const deploymentNamespace = screen.getByRole('cell', { name: 'test-namespace' });
   expect(deploymentName).toBeInTheDocument();
-  expect(deploymentSize).toBeInTheDocument();
+  expect(deploymentNamespace).toBeInTheDocument();
 });
 
 test('Expect filter empty screen', async () => {

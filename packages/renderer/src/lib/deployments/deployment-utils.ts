@@ -22,7 +22,7 @@ import type { DeploymentUI } from './DeploymentUI';
 import type { V1Deployment } from '@kubernetes/client-node';
 
 export class DeploymentUtils {
-  humanizeAge(started: string | undefined): string {
+  humanizeAge(started: Date | undefined): string {
     if (!started) {
       return '';
     }
@@ -37,7 +37,7 @@ export class DeploymentUtils {
       return '';
     }
     // make it human friendly
-    return this.humanizeAge(deployment.created.toString());
+    return this.humanizeAge(deployment.created);
   }
 
   getDeploymentUI(deployment: V1Deployment): DeploymentUI {
@@ -57,7 +57,7 @@ export class DeploymentUtils {
       status: status,
       namespace: deployment.metadata?.namespace || '',
       created: deployment.metadata?.creationTimestamp,
-      age: this.humanizeAge(deployment.metadata?.creationTimestamp?.toString()),
+      age: this.humanizeAge(deployment.metadata?.creationTimestamp),
       // number of replicas
       replicas: deployment.status?.replicas || 0,
       // ready pods

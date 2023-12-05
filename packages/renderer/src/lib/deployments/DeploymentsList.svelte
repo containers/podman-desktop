@@ -9,10 +9,8 @@ import Table from '../table/Table.svelte';
 import { Column, Row } from '../table/table';
 import DeploymentColumnStatus from './DeploymentColumnStatus.svelte';
 import DeploymentColumnName from './DeploymentColumnName.svelte';
-import DeploymentColumnNamespace from './DeploymentColumnNamespace.svelte';
 import DeploymentColumnConditions from './DeploymentColumnConditions.svelte';
 import DeploymentColumnPods from './DeploymentColumnPods.svelte';
-import DeploymentColumnAge from './DeploymentColumnAge.svelte';
 import { DeploymentUtils } from './deployment-utils';
 import DeploymentColumnActions from './DeploymentColumnActions.svelte';
 import moment from 'moment';
@@ -21,6 +19,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import DeploymentIcon from '../images/DeploymentIcon.svelte';
 import DeploymentEmptyScreen from './DeploymentEmptyScreen.svelte';
 import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
+import SimpleColumn from '../table/SimpleColumn.svelte';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -132,8 +131,9 @@ let nameColumn = new Column<DeploymentUI>('Name', {
   comparator: (a, b) => a.name.localeCompare(b.name),
 });
 
-let namespaceColumn = new Column<DeploymentUI>('Namespace', {
-  renderer: DeploymentColumnNamespace,
+let namespaceColumn = new Column<DeploymentUI, string>('Namespace', {
+  renderMapping: deployment => deployment.namespace,
+  renderer: SimpleColumn,
   comparator: (a, b) => a.namespace.localeCompare(b.namespace),
 });
 
@@ -146,11 +146,13 @@ let podsColumn = new Column<DeploymentUI>('Pods', {
   renderer: DeploymentColumnPods,
 });
 
-let ageColumn = new Column<DeploymentUI>('Age', {
-  renderer: DeploymentColumnAge,
+let ageColumn = new Column<DeploymentUI, string>('Age', {
+  renderMapping: deployment => deployment.age,
+  renderer: SimpleColumn,
+  comparator: (a, b) => moment(b.created).diff(moment(a.created)),
 });
 
-const columns: Column<DeploymentUI>[] = [
+const columns: Column<DeploymentUI, DeploymentUI | string>[] = [
   statusColumn,
   nameColumn,
   namespaceColumn,
@@ -182,7 +184,8 @@ const row = new Row<DeploymentUI>({ selectable: _deployment => true });
       bind:selectedItemsNumber="{selectedItemsNumber}"
       data="{deployments}"
       columns="{columns}"
-      row="{row}">
+      row="{row}"
+      defaultSortColumn="Name">
     </Table>
 
     {#if $filtered.length === 0}
