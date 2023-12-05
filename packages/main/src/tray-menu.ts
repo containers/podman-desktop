@@ -87,6 +87,7 @@ export class TrayMenu {
             kubernetesProviderConnectionCreation: false,
             containerProviderConnectionInitialization: false,
             kubernetesProviderConnectionInitialization: false,
+            cleanupSupport: false,
             extensionId: '',
           });
         }

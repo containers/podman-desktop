@@ -60,6 +60,7 @@ const provider: ProviderInfo = {
   status: 'started',
   warnings: [],
   extensionId: '',
+  cleanupSupport: false,
 };
 
 const pod1: PodInfo = {

@@ -41,6 +41,7 @@ import type {
   ProviderConnectionStatus,
   AuditResult,
   AuditRequestItems,
+  ProviderCleanup,
 } from '@podman-desktop/api';
 import type {
   ProviderContainerConnectionInfo,
@@ -86,6 +87,7 @@ export class ProviderRegistry {
   private providerInstallations: Map<string, ProviderInstallation> = new Map();
   private providerUpdates: Map<string, ProviderUpdate> = new Map();
   private providerAutostarts: Map<string, ProviderAutostart> = new Map();
+  private providerCleanup: Map<string, ProviderCleanup> = new Map();
   private autostartEngine: AutostartEngine | undefined = undefined;
 
   private connectionLifecycleContexts: Map<
@@ -259,6 +261,14 @@ export class ProviderRegistry {
     return Disposable.create(() => {
       this.providerAutostarts.delete(providerImpl.internalId);
       disposable.dispose();
+    });
+  }
+
+  registerCleanup(providerImpl: ProviderImpl, cleanup: ProviderCleanup): Disposable {
+    this.providerCleanup.set(providerImpl.internalId, cleanup);
+
+    return Disposable.create(() => {
+      this.providerCleanup.delete(providerImpl.internalId);
     });
   }
 
@@ -617,6 +627,12 @@ export class ProviderRegistry {
       installationSupport = true;
     }
 
+    // cleanup supported ?
+    let cleanupSupport = false;
+    if (this.providerCleanup.has(provider.internalId)) {
+      cleanupSupport = true;
+    }
+
     const providerInfo: ProviderInfo = {
       id: provider.id,
       internalId: provider.internalId,
@@ -640,6 +656,7 @@ export class ProviderRegistry {
       version: provider.version,
       warnings: provider.warnings,
       installationSupport,
+      cleanupSupport,
     };
 
     // handle update

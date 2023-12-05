@@ -39,6 +39,7 @@ import type {
   KubernetesProviderConnectionFactory,
   ProviderInformation,
   Auditor,
+  ProviderCleanup,
 } from '@podman-desktop/api';
 import type { ProviderRegistry } from './provider-registry.js';
 import { Emitter } from './events/emitter.js';
@@ -258,5 +259,9 @@ export class ProviderImpl implements Provider, IDisposable {
 
   registerAutostart(update: ProviderAutostart): Disposable {
     return this.providerRegistry.registerAutostart(this, update);
+  }
+
+  registerCleanup(cleanup: ProviderCleanup): Disposable {
+    return this.providerRegistry.registerCleanup(this, cleanup);
   }
 }
