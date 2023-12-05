@@ -1,6 +1,6 @@
 <script lang="ts">
 import Fa from 'svelte-fa';
-import { faPuzzlePiece, faTrash, faPlay, faStop, faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faPlay, faStop, faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
 import { afterUpdate } from 'svelte';
 import { extensionInfos } from '../../stores/extensions';
 import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
@@ -9,6 +9,7 @@ import SettingsPage from '../preferences/SettingsPage.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import FeaturedExtensions from '../featured/FeaturedExtensions.svelte';
 import Button from '../ui/Button.svelte';
+import ExtensionIcon from './ExtensionIcon.svelte';
 
 export let ociImage: string | undefined = undefined;
 
@@ -126,13 +127,8 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
             <tr class="border-y border-gray-900" aria-label="{extension.name}">
               <td class="px-6 py-2" aria-label="Extension Details">
                 <div class="flex items-center">
-                  <div class="flex-shrink-0 h-10 w-10 py-3" title="Extension {extension.name} is {extension.state}">
-                    <Fa
-                      class="h-10 w-10 rounded-full {extension.state === 'started'
-                        ? 'text-violet-600'
-                        : 'text-gray-900'}"
-                      size="25"
-                      icon="{faPuzzlePiece}" />
+                  <div class="flex items-center h-10 w-10">
+                    <ExtensionIcon extension="{extension}" />
                   </div>
                   <div class="ml-4">
                     <div class="flex flex-row" aria-label="Extension Details">

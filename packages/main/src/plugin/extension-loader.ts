@@ -193,6 +193,7 @@ export class ExtensionLoader {
       path: extension.path,
       removable: extension.removable,
       update: extension.update,
+      icon: extension.manifest.icon ? this.updateImage(extension.manifest.icon, extension.path) : undefined,
     }));
   }
 

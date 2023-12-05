@@ -38,6 +38,7 @@ export interface ExtensionInfo {
   state: string;
   error?: ExtensionError;
   path: string;
+  icon?: string | { light: string; dark: string };
   update?: {
     version: string;
     ociUri: string;
