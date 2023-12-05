@@ -167,9 +167,15 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       try {
         await handler.installComposeBinary(detect, extensionContext);
         // update the cli version
+        const versionInstalled = composeVersionMetadata.tag.replace('v', '');
         composeCliTool.updateVersion({
-          version: composeVersionMetadata?.tag.replace('v', ''),
+          version: versionInstalled,
         });
+        // if installed version is the newest, dispose the updater
+        const lastReleaseMetadata = await composeDownload.getLatestVersionAsset();
+        if (lastReleaseMetadata.tag.replace('v', '').trim() === versionInstalled) {
+          composeCliToolUpdaterDisposable?.dispose();
+        }
         installed = true;
       } finally {
         telemetryLogger.logUsage('compose.onboarding.installSystemWideCommand', {
