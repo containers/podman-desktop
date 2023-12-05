@@ -25,6 +25,7 @@ import type { KubectlGithubReleaseArtifactMetadata } from './kubectl-github-rele
 import { KubectlGitHubReleases } from './kubectl-github-releases';
 import { KubectlDownload } from './download';
 import * as path from 'path';
+import type { CliTool } from '@podman-desktop/api';
 
 interface KubectlVersionOutput {
   clientVersion: {
@@ -42,6 +43,7 @@ interface KubectlVersionOutput {
 }
 
 let kubectlVersionMetadata: KubectlGithubReleaseArtifactMetadata | undefined;
+let kubectlCliTool: CliTool | undefined;
 const os = new OS();
 
 // Telemetry
@@ -130,6 +132,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
         // We are all done, so we can set the context value to false / downloaded to true
         extensionApi.context.setValue('kubectlIsNotDownloaded', false, 'onboarding');
+        kubectlCliTool.updateVersion({
+          version: kubectlVersionMetadata.tag.slice(1),
+        });
         downloaded = true;
       } finally {
         // Make sure we log the telemetry even if we encounter an error
@@ -240,18 +245,17 @@ async function postActivate(extensionContext: extensionApi.ExtensionContext): Pr
 
   // Register the CLI tool so it appears in the preferences page. We will detect which version is being ran by
   // checking the local storage folder for the binary. If it exists, we will run `--version` and parse the information.
-  extensionContext.subscriptions.push(
-    extensionApi.cli.createCliTool({
-      name: kubectlCliName,
-      displayName: kubectlCliDisplayName,
-      markdownDescription: kubectlCliDescription,
-      images: {
-        icon: imageLocation,
-      },
-      version: binaryVersion,
-      path: binaryPath,
-    }),
-  );
+  kubectlCliTool = extensionApi.cli.createCliTool({
+    name: kubectlCliName,
+    displayName: kubectlCliDisplayName,
+    markdownDescription: kubectlCliDescription,
+    images: {
+      icon: imageLocation,
+    },
+    version: binaryVersion,
+    path: binaryPath,
+  });
+  extensionContext.subscriptions.push(kubectlCliTool);
 }
 
 function extractVersion(stdout: string): string {
