@@ -161,6 +161,9 @@ const apiSender: ApiSenderType = {
 };
 
 beforeEach(() => {
+  vi.mocked(apiSender.receive).mockClear();
+  vi.mocked(apiSender.send).mockClear();
+
   const certificates: Certificates = {
     init: vi.fn(),
     getAllCertificates: vi.fn(),
@@ -2297,4 +2300,54 @@ test('setupConnectionAPI with errors', async () => {
 
   // it should have reconnect to the stream now and add again the api object
   expect(internalContainerProvider.api).toBeDefined();
+});
+
+test('setupConnectionAPI with errors after machine being removed', async () => {
+  const internalContainerProvider: InternalContainerProvider = {
+    name: 'podman',
+    id: 'podman1',
+    connection: {
+      type: 'podman',
+      name: 'podman',
+      endpoint: {
+        socketPath: 'http://localhost',
+      },
+      status: () => 'started',
+    },
+  };
+
+  const undefinedStatus: podmanDesktopAPI.ProviderConnectionStatus =
+    undefined as unknown as podmanDesktopAPI.ProviderConnectionStatus;
+
+  const providerConnectionInfo: podmanDesktopAPI.ContainerProviderConnection = {
+    name: 'podman',
+    type: 'podman',
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+    status: () => undefinedStatus,
+  };
+
+  // check that api is being added
+  expect(internalContainerProvider.api).toBeUndefined();
+  expect(internalContainerProvider.libpodApi).toBeUndefined();
+
+  const originalConsoleLog = console.log;
+  const mockedConsoleLog = vi.fn();
+  console.log = mockedConsoleLog;
+  try {
+    containerRegistry.setupConnectionAPI(internalContainerProvider, providerConnectionInfo);
+  } finally {
+    console.log = originalConsoleLog;
+  }
+
+  // should have returned immediately and nothing should be setup
+  expect(internalContainerProvider.api).toBeUndefined();
+  expect(internalContainerProvider.libpodApi).toBeUndefined();
+
+  expect(apiSender.send).not.toHaveBeenCalled();
+
+  expect(mockedConsoleLog).toHaveBeenCalledWith(
+    'Aborting reconnect due to error as connection has been removed (probably machine has been removed)',
+  );
 });

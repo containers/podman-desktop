@@ -236,6 +236,12 @@ export class ContainerProviderRegistry {
       return;
     }
 
+    // abort if connection has been removed
+    if (containerProviderConnection.status() === undefined) {
+      console.log('Aborting reconnect due to error as connection has been removed (probably machine has been removed)');
+      return;
+    }
+
     internalProvider.api = new Dockerode({ socketPath: containerProviderConnection.endpoint.socketPath });
     if (containerProviderConnection.type === 'podman') {
       internalProvider.libpodApi = internalProvider.api as unknown as LibPod;
