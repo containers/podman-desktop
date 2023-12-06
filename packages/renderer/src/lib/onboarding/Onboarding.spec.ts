@@ -63,7 +63,7 @@ test('Expect to have the "Try again" and Cancel buttons if the step represent a 
   expect(button).toBeInTheDocument();
   const buttonCancel = screen.getByRole('button', { name: 'Cancel setup' });
   expect(buttonCancel).toBeInTheDocument();
-  const infoMessage = screen.queryByLabelText('next-info-message');
+  const infoMessage = screen.queryByLabelText('Next Info Message');
   expect(infoMessage).not.toBeInTheDocument();
 });
 
@@ -94,11 +94,11 @@ test('Expect not to have the "Try again" and "Cancel" buttons if the step repres
   expect(buttonTryAgain).not.toBeInTheDocument();
   const buttonCancel = screen.queryByRole('button', { name: 'Cancel setup' });
   expect(buttonCancel).not.toBeInTheDocument();
-  const infoMessage = screen.getByLabelText('next-info-message');
+  const infoMessage = screen.getByLabelText('Next Info Message');
   expect(infoMessage).toBeInTheDocument();
 });
 
-test('Expect to have the "step body" div if the step does not include a component', async () => {
+test('Expect to have the "Step Body" div if the step does not include a component', async () => {
   (window as any).resetOnboarding = vi.fn();
   (window as any).updateStepState = vi.fn();
 
@@ -121,9 +121,9 @@ test('Expect to have the "step body" div if the step does not include a componen
   await waitRender({
     extensionIds: ['id'],
   });
-  const bodyDiv = screen.getByLabelText('step body');
+  const bodyDiv = screen.getByLabelText('Step Body');
   expect(bodyDiv).toBeInTheDocument();
-  const onboardingComponent = screen.queryByLabelText('onboarding component');
+  const onboardingComponent = screen.queryByLabelText('Onboarding Component');
   expect(onboardingComponent).not.toBeInTheDocument();
 });
 
@@ -152,9 +152,9 @@ test('Expect to have the embedded component if the step includes a component', a
     extensionIds: ['id'],
   });
 
-  const onboardingComponent = screen.getByLabelText('onboarding component');
+  const onboardingComponent = screen.getByLabelText('Onboarding Component');
   expect(onboardingComponent).toBeInTheDocument();
-  const bodyDiv = screen.queryByLabelText('step body');
+  const bodyDiv = screen.queryByLabelText('Step Body');
   expect(bodyDiv).not.toBeInTheDocument();
 });
 
@@ -279,7 +279,7 @@ test('Expect content with "when" to change dynamically when setting has been upd
   expect(helloExists[0]).toBeInTheDocument();
 });
 
-test('Expect step body to clean up if new step has no content to display.', async () => {
+test('Expect Step Body to clean up if new step has no content to display.', async () => {
   (window as any).resetOnboarding = vi.fn();
   (window as any).updateStepState = vi.fn();
 
