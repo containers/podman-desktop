@@ -41,7 +41,7 @@ export function initTelemetryLogger(): void {
 
 const composeCliName = 'docker-compose';
 const composeDisplayName = 'Compose';
-const composeDescription = `The Compose extension provides optional command line support for [compose files](https://compose-spec.io/) with Podman.\n\nMore information: [Podman Desktop Documentation](https://podman-desktop.io/docs/tags/compose)`;
+const composeDescription = `The Compose extension provides optional command line support for [Compose files](https://compose-spec.io/) with Podman.\n\nMore information: [Podman Desktop Documentation](https://podman-desktop.io/docs/tags/compose)`;
 const imageLocation = './icon.png';
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
@@ -204,6 +204,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     },
   };
 
+  providerOptions.emptyConnectionMarkdownDescription = composeDescription;
   const provider = extensionApi.provider.createProvider(providerOptions);
   extensionContext.subscriptions.push(provider);
 
