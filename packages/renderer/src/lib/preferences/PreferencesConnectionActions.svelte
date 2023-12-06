@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faPlay, faRotateRight, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faPlay, faRotateRight, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
 import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
@@ -8,6 +8,8 @@ import type {
 import LoadingIconButton from '../ui/LoadingIconButton.svelte';
 import { type ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
 import { type IConnectionRestart, type IConnectionStatus } from './Util';
+import { router } from 'tinro';
+import { Buffer } from 'buffer';
 
 export let connectionStatus: IConnectionStatus | undefined;
 export let provider: ProviderInfo;
@@ -97,6 +99,17 @@ async function stopConnectionProvider(
   }
 }
 
+async function editConnectionProvider(
+  provider: ProviderInfo,
+  providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+): Promise<void> {
+  router.goto(
+    `/preferences/container-connection/edit/${provider.internalId}/${Buffer.from(providerConnectionInfo.name).toString(
+      'base64',
+    )}`,
+  );
+}
+
 async function deleteConnectionProvider(
   provider: ProviderInfo,
   providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
@@ -166,6 +179,14 @@ function getLoggerHandler(
             clickAction="{() => stopConnectionProvider(provider, connection)}"
             action="stop"
             icon="{faStop}"
+            state="{connectionStatus}"
+            leftPosition="left-[0.22rem]" />
+        {/if}
+        {#if connection.lifecycleMethods.includes('edit')}
+          <LoadingIconButton
+            clickAction="{() => editConnectionProvider(provider, connection)}"
+            action="edit"
+            icon="{faEdit}"
             state="{connectionStatus}"
             leftPosition="left-[0.22rem]" />
         {/if}

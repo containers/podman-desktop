@@ -19,19 +19,24 @@
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 import type { IConfigurationPropertyRecordedSchema } from '../../../main/src/plugin/configuration-registry';
-import type { ProviderInfo } from '../../../main/src/plugin/api/provider-info';
+import type {
+  ProviderInfo,
+  ProviderContainerConnectionInfo,
+  ProviderKubernetesConnectionInfo,
+} from '../../../main/src/plugin/api/provider-info';
 
-interface CreateConnectionInfo {
-  createKey: symbol;
+interface OperationConnectionInfo {
+  operationKey: symbol;
   providerInfo: ProviderInfo;
+  connectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo | undefined;
   properties: IConfigurationPropertyRecordedSchema[];
   propertyScope: string;
-  creationInProgress: boolean;
-  creationSuccessful: boolean;
-  creationStarted: boolean;
+  operationInProgress: boolean;
+  operationSuccessful: boolean;
+  operationStarted: boolean;
   errorMessage: string;
   tokenId?: number;
 }
 
 // current create key
-export const createConnectionsInfo: Writable<Map<number, CreateConnectionInfo>> = writable(new Map());
+export const operationConnectionsInfo: Writable<Map<number, OperationConnectionInfo>> = writable(new Map());

@@ -562,6 +562,9 @@ export class ProviderRegistry {
       if (connection.lifecycle.stop) {
         lifecycleMethods.push('stop');
       }
+      if (connection.lifecycle.edit) {
+        lifecycleMethods.push('edit');
+      }
       providerConnection.lifecycleMethods = lifecycleMethods;
     }
     return providerConnection;
@@ -900,6 +903,40 @@ export class ProviderRegistry {
           status: 'started',
         });
       }
+    }
+  }
+
+  async editProviderConnection(
+    internalProviderId: string,
+    providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    params: { [key: string]: any },
+    logHandler?: Logger,
+    token?: CancellationToken,
+  ): Promise<void> {
+    // grab the correct provider
+    const connection = this.getMatchingConnectionFromProvider(internalProviderId, providerConnectionInfo);
+
+    const lifecycle = connection.lifecycle;
+    if (!lifecycle?.edit) {
+      throw new Error('The container connection does not support edit lifecycle');
+    }
+
+    const context = this.connectionLifecycleContexts.get(connection);
+    if (!context) {
+      throw new Error('The connection does not have context to edit');
+    }
+
+    const provider = this.providers.get(internalProviderId);
+    if (!provider) {
+      throw new Error('Cannot find provider');
+    }
+
+    try {
+      await lifecycle.edit(context, params, logHandler, token);
+    } catch (err) {
+      console.warn(`Can't edit connection ${provider.id}.${providerConnectionInfo.name}`, err);
+      throw err;
     }
   }
 

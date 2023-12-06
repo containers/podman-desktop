@@ -43,6 +43,7 @@
           "format": "cpu",
           "minimum": 1,
           "default": 2,
+          "maximum": "HOST_TOTAL_CPU",
           "scope": "ContainerConnection",
           "description": "CPU(s)"
         },
@@ -50,34 +51,41 @@
           "type": "number",
           "format": "cpuUsage",
           "scope": "ContainerConnection",
-          "description": "CPU(s) usage"
+          "description": "CPU(s) usage",
+          "readonly": true
         },
         "podman.machine.memory": {
           "type": "number",
           "format": "memory",
           "minimum": 1000000000,
           "default": 4000000000,
+          "maximum": "HOST_TOTAL_MEMORY",
           "scope": "ContainerConnection",
+          "step": 500000000,
           "description": "Memory"
         },
         "podman.machine.memoryUsage": {
           "type": "number",
           "format": "memoryUsage",
           "scope": "ContainerConnection",
-          "description": "Memory usage"
+          "description": "Memory usage",
+          "readonly": true
         },
         "podman.machine.diskSize": {
-          "type": "array",
+          "type": "number",
           "format": "diskSize",
           "default": 100000000000,
+          "maximum": "HOST_TOTAL_DISKSIZE",
           "scope": "ContainerConnection",
+          "step": 500000000,
           "description": "Disk size"
         },
         "podman.machine.diskSizeUsage": {
           "type": "number",
           "format": "diskSizeUsage",
           "scope": "ContainerConnection",
-          "description": "Disk size usage"
+          "description": "Disk size usage",
+          "readonly": true
         },
         "podman.factory.machine.name": {
           "type": "string",

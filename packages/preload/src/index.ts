@@ -903,6 +903,31 @@ function initExposure(): void {
   );
 
   contextBridge.exposeInMainWorld(
+    'editProviderConnectionLifecycle',
+    async (
+      providerId: string,
+      providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      params: { [key: string]: any },
+      key: symbol,
+      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
+      tokenId?: number,
+    ): Promise<void> => {
+      onDataCallbacksTaskConnectionId++;
+      onDataCallbacksTaskConnectionKeys.set(onDataCallbacksTaskConnectionId, key);
+      onDataCallbacksTaskConnectionLogs.set(onDataCallbacksTaskConnectionId, keyLogger);
+      return ipcInvoke(
+        'provider-registry:editProviderConnectionLifecycle',
+        providerId,
+        providerConnectionInfo,
+        params,
+        onDataCallbacksTaskConnectionId,
+        tokenId,
+      );
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
     'deleteProviderConnectionLifecycle',
     async (
       providerId: string,

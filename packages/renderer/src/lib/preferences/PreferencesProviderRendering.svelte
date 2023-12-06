@@ -3,18 +3,23 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 
 import { providerInfos } from '../../stores/providers';
 import { onMount } from 'svelte';
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type {
+  ProviderInfo,
+  ProviderContainerConnectionInfo,
+  ProviderKubernetesConnectionInfo,
+} from '../../../../main/src/plugin/api/provider-info';
 import { router } from 'tinro';
 import Modal from '../dialogs/Modal.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import { writeToTerminal } from './Util';
-import PreferencesConnectionCreationRendering from './PreferencesConnectionCreationRendering.svelte';
+import PreferencesConnectionCreationRendering from './PreferencesConnectionCreationOrEditRendering.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Route from '../../Route.svelte';
 import { faHistory, faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
 import type { Terminal } from 'xterm';
 import Button from '../ui/Button.svelte';
 import FormPage from '../ui/FormPage.svelte';
+import { operationConnectionsInfo } from '/@/stores/operation-connections';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string | undefined = undefined;
@@ -27,11 +32,18 @@ router.subscribe(() => {
   providerLifecycleError = '';
 });
 
+let connectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo | undefined = undefined;
+
 let providers: ProviderInfo[] = [];
 onMount(() => {
   providerLifecycleError = '';
   providerInfos.subscribe(value => {
     providers = value;
+  });
+  operationConnectionsInfo.subscribe(operationsMap => {
+    if (taskId) {
+      connectionInfo = operationsMap.get(taskId)?.connectionInfo;
+    }
   });
 });
 
@@ -45,6 +57,9 @@ $: providerDisplayName =
     : providerInfo?.kubernetesProviderConnectionCreation
       ? providerInfo?.kubernetesProviderConnectionCreationDisplayName
       : undefined) || providerInfo?.name;
+
+let title: string;
+$: title = connectionInfo ? `Update ${providerDisplayName} ${connectionInfo.name}` : `Create ${providerDisplayName}`;
 
 let logsTerminal: Terminal;
 
@@ -71,7 +86,7 @@ async function stopReceivingLogs(providerInternalId: string): Promise<void> {
 </script>
 
 <Route path="/*" breadcrumb="{providerInfo?.name}" navigationHint="details">
-  <FormPage title="Create a {providerDisplayName}">
+  <FormPage title="{title}">
     <svelte:fragment slot="icon">
       {#if providerInfo?.images?.icon}
         {#if typeof providerInfo.images.icon === 'string'}
