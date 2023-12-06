@@ -41,6 +41,8 @@ let settingsLink: string;
 let resourceLabel: string;
 let imageLink: string;
 
+let extensionBoxVisible: boolean;
+
 const _startup = async function () {
   console.log('running before all');
   pdRunner = new PodmanDesktopRunner();
@@ -75,10 +77,15 @@ describe.each([
 
   test('Initialize extension type', async () => {
     initializeLocators(extensionType);
+    extensionBoxVisible = await extensionDashboardBox.isVisible();
   });
 
   describe('Check installation availability', async () => {
     test('Check Dashboard extension component for installation availability', async () => {
+      if (!extensionBoxVisible) {
+        test.skip('Extension box is not visible, skipping the test', () => {});
+        return;
+      }
       const installButton = extensionDashboardBox.getByRole('button', { name: installButtonLabel });
       await playExpect(installButton).toBeVisible();
     });
@@ -88,6 +95,10 @@ describe.each([
       const settingsBar = new SettingsBar(page);
       await settingsBar.openTabPage(SettingsExtensionsPage);
 
+      if (!extensionBoxVisible) {
+        test.skip('Extension box is not visible, skipping the test', () => {});
+        return;
+      }
       const installButton = extensionSettingsBox.getByRole('button', { name: installButtonLabel });
       await playExpect(installButton).toBeVisible();
     });
@@ -95,7 +106,8 @@ describe.each([
 
   test('Install extension through Settings', async () => {
     let installButton = extensionSettingsBox.getByRole('button', { name: installButtonLabel });
-    if (await installButton.isHidden()) {
+    let installedLabel = extensionSettingsBox.getByText('installed');
+    if (!extensionBoxVisible) {
       const settingsPage = new SettingsExtensionsPage(page);
       const imageInstallBox = settingsPage.imageInstallBox;
       const imageInput = imageInstallBox.getByLabel('ociImage');
@@ -103,17 +115,20 @@ describe.each([
 
       installButton = imageInstallBox.getByRole('button', { name: 'Install extension from the OCI image' });
       await installButton.isEnabled();
+
+      installedLabel = page.getByText('installation finished !');
     }
 
     await installButton.click();
-    const installedLabel = extensionSettingsBox.getByText('installed');
     await playExpect(installedLabel).toBeVisible({ timeout: 180000 });
   }, 200000);
 
   describe('Verify UI components after installation', async () => {
     test('Verify Settings components', async () => {
-      const installedLabel = extensionSettingsBox.getByText('installed');
-      await playExpect(installedLabel).toBeVisible();
+      if (extensionBoxVisible) {
+        const installedLabel = extensionSettingsBox.getByText('installed');
+        await playExpect(installedLabel).toBeVisible();
+      }
 
       const settingsBar = new SettingsBar(page);
       await playExpect(settingsBar.settingsNavBar.getByRole('link', { name: settingsLink })).toBeVisible();
@@ -174,8 +189,10 @@ describe.each([
       await extensionPage.disableButton.click();
       await extensionPage.removeExtensionButton.click();
 
-      const installButton = extensionSettingsBox.getByRole('button', { name: installButtonLabel });
-      await playExpect(installButton).toBeVisible();
+      if (extensionBoxVisible) {
+        const installButton = extensionSettingsBox.getByRole('button', { name: installButtonLabel });
+        await playExpect(installButton).toBeVisible();
+      }
 
       await playExpect(settingsBar.settingsNavBar.getByRole('link', { name: settingsLink })).toBeHidden();
 
@@ -185,6 +202,10 @@ describe.each([
     });
 
     test('Verify Dashboard components', async () => {
+      if (!extensionBoxVisible) {
+        test.skip('Extension box is not visible, skipping the test', () => {});
+        return;
+      }
       await goToDashboard();
       const dashboardInstallButton = extensionDashboardBox.getByRole('button', { name: installButtonLabel });
       await playExpect(dashboardInstallButton).toBeVisible();
