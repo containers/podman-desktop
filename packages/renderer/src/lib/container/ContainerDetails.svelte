@@ -64,18 +64,6 @@ onMount(() => {
     }
   });
 });
-
-function inProgressCallback(inProgress: boolean, state: string | undefined): void {
-  container.actionInProgress = inProgress;
-  if (state && inProgress) {
-    container.state = state;
-  }
-}
-
-function errorCallback(errorMessage: string): void {
-  container.actionError = errorMessage;
-  container.state = 'ERROR';
-}
 </script>
 
 {#if container}
@@ -89,11 +77,7 @@ function errorCallback(errorMessage: string): void {
           <div>&nbsp;</div>
         {/if}
       </div>
-      <ContainerActions
-        inProgressCallback="{(flag, state) => inProgressCallback(flag, state)}"
-        errorCallback="{error => errorCallback(error)}"
-        container="{container}"
-        detailed="{true}" />
+      <ContainerActions container="{container}" detailed="{true}" on:update="{() => (container = container)}" />
     </svelte:fragment>
     <div slot="detail" class="flex py-2 w-full justify-end text-sm text-gray-700">
       <StateChange state="{container.state}" />

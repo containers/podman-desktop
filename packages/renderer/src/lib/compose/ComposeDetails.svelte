@@ -91,7 +91,7 @@ onDestroy(() => {
       <div class="flex items-center w-5">
         <div>&nbsp;</div>
       </div>
-      <ComposeActions compose="{compose}" detailed="{true}" />
+      <ComposeActions compose="{compose}" detailed="{true}" on:update="{() => (compose = compose)}" />
     </svelte:fragment>
     <svelte:fragment slot="tabs">
       <Tab title="Summary" url="summary" />
