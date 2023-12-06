@@ -376,7 +376,7 @@ async function restartSetup() {
           </div>
         {/if}
 
-        <div class="flex flex-col mx-auto">
+        <div class="max-w-[80%] flex flex-col mx-auto">
           {#if activeStepContent}
             {#each activeStepContent as row}
               <div class="flex flex-row mx-auto">

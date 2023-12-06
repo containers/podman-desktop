@@ -41,7 +41,7 @@ export function initTelemetryLogger(): void {
 
 const composeCliName = 'docker-compose';
 const composeDisplayName = 'Compose';
-const composeDescription = `Compose is a specification for defining and running multi-container applications. We support both [podman compose](https://docs.podman.io/en/latest/markdown/podman-compose.1.html) and [docker compose](https://github.com/docker/compose) commands.\n\nMore information: [compose-spec.io](https://compose-spec.io/)`;
+const composeDescription = `The Compose extension provides optional command line support for [Compose files](https://compose-spec.io/) with Podman.\n\nMore information: [Podman Desktop Documentation](https://podman-desktop.io/docs/tags/compose)`;
 const imageLocation = './icon.png';
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
@@ -205,7 +205,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   };
 
   providerOptions.emptyConnectionMarkdownDescription = composeDescription;
-
   const provider = extensionApi.provider.createProvider(providerOptions);
   extensionContext.subscriptions.push(provider);
 
