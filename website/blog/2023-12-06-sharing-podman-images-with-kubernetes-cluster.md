@@ -5,7 +5,7 @@ slug: sharing-podman-images-with-kubernetes-cluster
 authors: [benoitf]
 tags: [podman-desktop, podman, images, kubernetes]
 hide_table_of_contents: false
-image: /blog/img/sharing-podman-images-with-kubernetes-cluster/selkie-family.png
+image: /img/blog/sharing-podman-images-with-kubernetes-cluster/selkie-family.png
 ---
 
 As developers we constantly improve and refine our applications. One of the challenges we face is quickly iterating when working with container images and kubernetes deployments/pods.
