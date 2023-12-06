@@ -26,6 +26,7 @@ import { KubectlGitHubReleases } from './kubectl-github-releases';
 import { KubectlDownload } from './download';
 import * as path from 'path';
 import type { CliTool } from '@podman-desktop/api';
+import { installBinaryToSystem } from './cli-run';
 
 interface KubectlVersionOutput {
   clientVersion: {
@@ -44,6 +45,7 @@ interface KubectlVersionOutput {
 
 let kubectlVersionMetadata: KubectlGithubReleaseArtifactMetadata | undefined;
 let kubectlCliTool: CliTool | undefined;
+let kubectlCliToolUpdaterDisposable: extensionApi.Disposable | undefined;
 const os = new OS();
 
 // Telemetry
@@ -135,6 +137,11 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         kubectlCliTool.updateVersion({
           version: kubectlVersionMetadata.tag.slice(1),
         });
+        // if installed version is the newest, dispose the updater
+        const lastReleaseMetadata = await kubectlDownload.getLatestVersionAsset();
+        if (lastReleaseMetadata.tag === kubectlVersionMetadata.tag) {
+          kubectlCliToolUpdaterDisposable?.dispose();
+        }
         downloaded = true;
       } finally {
         // Make sure we log the telemetry even if we encounter an error
@@ -219,14 +226,17 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // Push the CLI tool as well (but it will do it postActivation so it does not block the activate() function)
   // Post activation
   setTimeout(() => {
-    postActivate(extensionContext).catch((error: unknown) => {
+    postActivate(extensionContext, kubectlDownload).catch((error: unknown) => {
       console.error('Error activating extension', error);
     });
   }, 0);
 }
 
 // Activate the CLI tool (check version, etc) and register the CLi so it does not block activation.
-async function postActivate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+async function postActivate(
+  extensionContext: extensionApi.ExtensionContext,
+  kubectlDownload: KubectlDownload,
+): Promise<void> {
   // The location of the binary (local storage folder)
   const binaryPath = path.join(
     extensionContext.storagePath,
@@ -255,6 +265,25 @@ async function postActivate(extensionContext: extensionApi.ExtensionContext): Pr
     version: binaryVersion,
     path: binaryPath,
   });
+
+  // check if there is a new version to be installed and register the updater
+  const lastReleaseMetadata = await kubectlDownload.getLatestVersionAsset();
+  const lastReleaseVersion = lastReleaseMetadata.tag.slice(1);
+  if (lastReleaseVersion !== binaryVersion) {
+    kubectlCliToolUpdaterDisposable = kubectlCliTool.registerUpdate({
+      version: lastReleaseVersion,
+      doUpdate: async _logger => {
+        // download, install system wide and update cli version
+        await kubectlDownload.download(lastReleaseMetadata);
+        await installBinaryToSystem(binaryPath, 'kubectl');
+        kubectlCliTool.updateVersion({
+          version: lastReleaseVersion,
+        });
+        kubectlCliToolUpdaterDisposable.dispose();
+      },
+    });
+  }
+
   extensionContext.subscriptions.push(kubectlCliTool);
 }
 
