@@ -42,18 +42,6 @@ onMount(() => {
     }
   });
 });
-
-function inProgressCallback(inProgress: boolean, state: string | undefined): void {
-  pod.actionInProgress = inProgress;
-  if (state && inProgress) {
-    pod.status = state;
-  }
-}
-
-function errorCallback(errorMessage: string): void {
-  pod.actionError = errorMessage;
-  pod.status = 'ERROR';
-}
 </script>
 
 {#if pod}
@@ -67,11 +55,7 @@ function errorCallback(errorMessage: string): void {
           <div>&nbsp;</div>
         {/if}
       </div>
-      <PodActions
-        pod="{pod}"
-        inProgressCallback="{(flag, state) => inProgressCallback(flag, state)}"
-        errorCallback="{error => errorCallback(error)}"
-        detailed="{true}" />
+      <PodActions pod="{pod}" detailed="{true}" on:update="{() => (pod = pod)}" />
     </svelte:fragment>
     <div slot="detail" class="flex py-2 w-full justify-end text-sm text-gray-700">
       <StateChange state="{pod.status}" />
