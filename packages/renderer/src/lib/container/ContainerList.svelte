@@ -181,14 +181,20 @@ async function deleteSelectedContainers() {
     bulkDeleteInProgress = true;
     await Promise.all(
       selectedContainers.map(async container => {
-        inProgressCallback(container, true);
+        container.actionInProgress = true;
+        // reset error when starting task
+        container.actionError = '';
+        container.state = 'DELETING';
+        containerGroups = [...containerGroups];
         try {
           await window.deleteContainer(container.engineId, container.id);
         } catch (e) {
           console.log('error while removing container', e);
-          errorCallback(container, String(e));
+          container.actionError = String(e);
+          container.state = 'ERROR';
         } finally {
-          inProgressCallback(container, false);
+          container.actionInProgress = false;
+          containerGroups = [...containerGroups];
         }
       }),
     );
@@ -406,41 +412,6 @@ function toggleAllContainerGroups(checked: boolean) {
   containerGroups = toggleContainers;
 }
 
-function inProgressCallback(container: ContainerInfoUI, inProgress: boolean, state?: string): void {
-  container.actionInProgress = inProgress;
-  // reset error when starting task
-  if (inProgress) {
-    container.actionError = '';
-  }
-  if (state) {
-    container.state = state;
-  }
-
-  containerGroups = [...containerGroups];
-}
-
-// Go through each container passed in and update the progress
-function composeGroupInProgressCallback(containers: ContainerInfoUI[], inProgress: boolean, state?: string): void {
-  containers.forEach(container => {
-    container.actionInProgress = inProgress;
-    // reset error when starting task
-    if (inProgress) {
-      container.actionError = '';
-    }
-    if (state) {
-      container.state = state;
-    }
-  });
-
-  containerGroups = [...containerGroups];
-}
-
-function errorCallback(container: ContainerInfoUI, errorMessage: string): void {
-  container.actionError = errorMessage;
-  container.state = 'ERROR';
-  containerGroups = [...containerGroups];
-}
-
 function resetRunningFilter() {
   searchTerm = containerUtils.filterResetRunning(searchTerm);
 }
@@ -590,7 +561,8 @@ function setStoppedFilter() {
                       })),
                       kind: 'podman',
                     }}"
-                    dropdownMenu="{true}" />
+                    dropdownMenu="{true}"
+                    on:update="{() => (containerGroups = [...containerGroups])}" />
                 {/if}
                 {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE && containerGroup.status && containerGroup.engineId && containerGroup.engineType}
                   <ComposeActions
@@ -602,8 +574,9 @@ function setStoppedFilter() {
                       containers: containerGroup.containers,
                     }}"
                     dropdownMenu="{true}"
-                    inProgressCallback="{(containers, flag, state) =>
-                      composeGroupInProgressCallback(containerGroup.containers, flag, state)}" />
+                    on:update="{() => {
+                      containerGroups = [...containerGroups];
+                    }}" />
                 {/if}
               </td>
             </tr>
@@ -680,10 +653,9 @@ function setStoppedFilter() {
                     </div>
                     <div class="text-right w-full">
                       <ContainerActions
-                        errorCallback="{error => errorCallback(container, error)}"
-                        inProgressCallback="{(flag, state) => inProgressCallback(container, flag, state)}"
                         container="{container}"
-                        dropdownMenu="{true}" />
+                        dropdownMenu="{true}"
+                        on:update="{() => (containerGroups = [...containerGroups])}" />
                     </div>
                   </div>
                 </td>

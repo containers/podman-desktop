@@ -5,18 +5,16 @@ import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
-import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
-import { onMount } from 'svelte';
+import { createEventDispatcher, onMount } from 'svelte';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
 
 export let compose: ComposeInfoUI;
 export let dropdownMenu = false;
 export let detailed = false;
 
-export let inProgressCallback: (containers: ContainerInfoUI[], inProgress: boolean, state?: string) => void = () => {};
-export let errorCallback: (erroMessage: string) => void = () => {};
+const dispatch = createEventDispatcher<{ update: ComposeInfoUI }>();
 
 const composeLabel = 'com.docker.compose.project';
 
@@ -25,46 +23,76 @@ onMount(async () => {
   contributions = await window.getContributedMenus(MenuContext.DASHBOARD_COMPOSE);
 });
 
-async function startCompose(composeInfoUI: ComposeInfoUI) {
-  inProgressCallback(composeInfoUI.containers, true, 'STARTING');
+function inProgress(inProgress: boolean, state?: string): void {
+  compose.actionInProgress = inProgress;
+  // reset error when starting task
+  if (inProgress) {
+    compose.actionError = '';
+  }
+  if (state) {
+    compose.status = state;
+  }
+
+  compose.containers.forEach(container => {
+    container.actionInProgress = inProgress;
+    // reset error when starting task
+    if (inProgress) {
+      container.actionError = '';
+    }
+    if (state) {
+      container.state = state;
+    }
+  });
+  dispatch('update', compose);
+}
+
+function handleError(errorMessage: string): void {
+  compose.actionError = errorMessage;
+  compose.status = 'ERROR';
+
+  dispatch('update', compose);
+}
+
+async function startCompose() {
+  inProgress(true, 'STARTING');
   try {
-    await window.startContainersByLabel(composeInfoUI.engineId, composeLabel, composeInfoUI.name);
+    await window.startContainersByLabel(compose.engineId, composeLabel, compose.name);
   } catch (error) {
-    errorCallback(String(error));
+    handleError(String(error));
   } finally {
-    inProgressCallback(composeInfoUI.containers, false, 'RUNNING');
+    inProgress(false);
   }
 }
-async function stopCompose(composeInfoUI: ComposeInfoUI) {
-  inProgressCallback(composeInfoUI.containers, true, 'STOPPING');
+async function stopCompose() {
+  inProgress(true, 'STOPPING');
   try {
-    await window.stopContainersByLabel(composeInfoUI.engineId, composeLabel, composeInfoUI.name);
+    await window.stopContainersByLabel(compose.engineId, composeLabel, compose.name);
   } catch (error) {
-    errorCallback(String(error));
+    handleError(String(error));
   } finally {
-    inProgressCallback(composeInfoUI.containers, false, 'STOPPED');
+    inProgress(false);
   }
 }
 
-async function deleteCompose(composeInfoUI: ComposeInfoUI) {
-  inProgressCallback(composeInfoUI.containers, true, 'DELETING');
+async function deleteCompose() {
+  inProgress(true, 'DELETING');
   try {
-    await window.deleteContainersByLabel(composeInfoUI.engineId, composeLabel, composeInfoUI.name);
+    await window.deleteContainersByLabel(compose.engineId, composeLabel, compose.name);
   } catch (error) {
-    errorCallback(String(error));
+    handleError(String(error));
   } finally {
-    inProgressCallback(composeInfoUI.containers, false, 'STOPPED');
+    inProgress(false);
   }
 }
 
-async function restartCompose(composeInfoUI: ComposeInfoUI) {
-  inProgressCallback(composeInfoUI.containers, true, 'RESTARTING');
+async function restartCompose() {
+  inProgress(true, 'RESTARTING');
   try {
-    await window.restartContainersByLabel(composeInfoUI.engineId, composeLabel, composeInfoUI.name);
+    await window.restartContainersByLabel(compose.engineId, composeLabel, compose.name);
   } catch (error) {
-    errorCallback(String(error));
+    handleError(String(error));
   } finally {
-    inProgressCallback(composeInfoUI.containers, false);
+    inProgress(false);
   }
 }
 
@@ -88,7 +116,7 @@ if (dropdownMenu) {
 
 <ListItemButtonIcon
   title="Start Compose"
-  onClick="{() => startCompose(compose)}"
+  onClick="{() => startCompose()}"
   hidden="{compose.status === 'RUNNING' || compose.status === 'STOPPING'}"
   detailed="{detailed}"
   inProgress="{compose.actionInProgress && compose.status === 'STARTING'}"
@@ -97,7 +125,7 @@ if (dropdownMenu) {
 
 <ListItemButtonIcon
   title="Stop Compose"
-  onClick="{() => stopCompose(compose)}"
+  onClick="{() => stopCompose()}"
   hidden="{!(compose.status === 'RUNNING' || compose.status === 'STOPPING')}"
   detailed="{detailed}"
   inProgress="{compose.actionInProgress && compose.status === 'STOPPING'}"
@@ -105,7 +133,7 @@ if (dropdownMenu) {
 
 <ListItemButtonIcon
   title="Delete Compose"
-  onClick="{() => deleteCompose(compose)}"
+  onClick="{() => deleteCompose()}"
   icon="{faTrash}"
   detailed="{detailed}"
   inProgress="{compose.actionInProgress && compose.status === 'DELETING'}" />
@@ -129,7 +157,7 @@ if (dropdownMenu) {
     icon="{faRocket}" />
   <ListItemButtonIcon
     title="Restart Compose"
-    onClick="{() => restartCompose(compose)}"
+    onClick="{() => restartCompose()}"
     menu="{dropdownMenu}"
     detailed="{detailed}"
     icon="{faArrowsRotate}" />
@@ -138,6 +166,5 @@ if (dropdownMenu) {
     contextPrefix="composeItem"
     dropdownMenu="{dropdownMenu}"
     contributions="{contributions}"
-    detailed="{detailed}"
-    onError="{errorCallback}" />
+    onError="{handleError}" />
 </svelte:component>
