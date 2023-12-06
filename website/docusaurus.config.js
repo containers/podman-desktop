@@ -326,6 +326,8 @@ const config = {
           blogTitle: 'Podman Desktop blog!',
           blogDescription: 'Discover articles about Podman Desktop',
           postsPerPage: 'ALL',
+          blogSidebarTitle: 'All blog posts',
+          blogSidebarCount: 'ALL',
           feedOptions: {
             type: 'all',
             copyright: `Copyright © ${new Date().getFullYear()} Podman Desktop`,
