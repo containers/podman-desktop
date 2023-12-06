@@ -1106,7 +1106,7 @@ export class KubernetesClient {
         });
         // if id is defined, we are refreshing an informer so we have to update its entry in the registry
         if (id) {
-          this.apiSender.send(`kubernetes-informer-refresh`, id);
+          this.apiSender.send('kubernetes-informer-refresh', id);
           this.informerManager.updateInformer(id, informer, currentContext);
         } else {
           // else we are creating a new informer and add it to the registry

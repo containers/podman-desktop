@@ -53,9 +53,11 @@ function informerListener(...args: unknown[]) {
       );
     } else if (event === 'kubernetes-ingress-update') {
       const index = ingressesList.findIndex(
-        ing => ing.metadata?.name !== ingress.metadata?.name || ing.metadata?.namespace !== ingress.metadata?.namespace,
+        ing => ing.metadata?.name === ingress.metadata?.name && ing.metadata?.namespace === ingress.metadata?.namespace,
       );
-      ingressesList[index] = ingress;
+      if (index > -1) {
+        ingressesList[index] = ingress;
+      }
     }
     return ingressesList;
   });
