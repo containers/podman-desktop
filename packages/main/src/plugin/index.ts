@@ -156,6 +156,7 @@ import { WebviewRegistry } from './webview/webview-registry.js';
 import type { IDisposable } from './types/disposable.js';
 
 import { KubernetesUtils } from './kubernetes-util.js';
+import { LearningCenter } from './learning-center/learning-center.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -2208,6 +2209,7 @@ export class PluginSystem {
       },
     );
 
+<<<<<<< HEAD
     this.ipcHandle('webview:get-preload-script', async (): Promise<string> => {
       const preloadScriptPath = path.join(__dirname, '../../preload-webview/dist/index.cjs');
       return `file://${preloadScriptPath}`;
@@ -2215,6 +2217,10 @@ export class PluginSystem {
 
     this.ipcHandle('webview:get-registry-http-port', async (): Promise<number> => {
       return webviewRegistry.getRegistryHttpPort();
+=======
+    this.ipcHandle('learning-center:listGuides', async () => {
+      return LearningCenter.guides;
+>>>>>>> e0f8b442b (feat: getting started carousel on dashboard page)
     });
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
