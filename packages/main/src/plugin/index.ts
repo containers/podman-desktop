@@ -1716,7 +1716,7 @@ export class PluginSystem {
         loggerId: string,
         tokenId?: number,
       ): Promise<void> => {
-        const logger = this.getLogHandlerCreateConnection('provider-registry:taskConnection-onData', loggerId);
+        const logger = this.getLogHandler('provider-registry:taskConnection-onData', loggerId);
         let token;
         if (tokenId) {
           const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
