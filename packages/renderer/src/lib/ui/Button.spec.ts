@@ -65,6 +65,18 @@ test('Check secondary button styling', async () => {
   expect(button).toHaveClass('text-white');
 });
 
+test('Check danger button styling', async () => {
+  render(Button, { type: 'danger' });
+
+  // check for a few elements of the styling
+  const button = screen.getByRole('button');
+  expect(button).toBeInTheDocument();
+  expect(button).toHaveClass('border-red-600');
+  expect(button).toHaveClass('bg-charcoal-700');
+  expect(button).toHaveClass('text-[13px]');
+  expect(button).toHaveClass('text-white');
+});
+
 test('Check disabled/in-progress secondary button styling', async () => {
   render(Button, { type: 'secondary', inProgress: true });
 
