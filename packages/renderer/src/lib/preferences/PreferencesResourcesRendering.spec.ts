@@ -151,6 +151,25 @@ test('Expect to be start, delete actions disabled and stop, restart enabled when
   expect(deleteButton.classList.contains('cursor-not-allowed'));
 });
 
+test('Expect type to be reported for Podman engines', async () => {
+  providerInfos.set([providerInfo]);
+  render(PreferencesResourcesRendering, {});
+  const typeDiv = screen.getByLabelText('machine type');
+  expect(typeDiv.textContent).toBe('Podman endpoint');
+  const endpointSpan = screen.getByLabelText('machine endpoint');
+  expect(endpointSpan.textContent).toBe('socket');
+});
+
+test('Expect type to be reported for Docker engines', async () => {
+  providerInfo.containerConnections[0].type = 'docker';
+  providerInfos.set([providerInfo]);
+  render(PreferencesResourcesRendering, {});
+  const typeDiv = screen.getByLabelText('machine type');
+  expect(typeDiv.textContent).toBe('Docker endpoint');
+  const endpointSpan = screen.getByLabelText('machine endpoint');
+  expect(endpointSpan.textContent).toBe('socket');
+});
+
 test('Expect to see the no resource message when there is no providers', async () => {
   providerInfos.set([]);
   render(PreferencesResourcesRendering, {});

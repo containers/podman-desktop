@@ -26,7 +26,7 @@ import { render, screen } from '@testing-library/svelte';
 import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
 import PreferencesContainerConnectionDetailsSummary from './PreferencesContainerConnectionDetailsSummary.svelte';
 
-const containerConnection: ProviderContainerConnectionInfo = {
+const podmanContainerConnection: ProviderContainerConnectionInfo = {
   name: 'connection',
   endpoint: {
     socketPath: 'socket',
@@ -35,12 +35,37 @@ const containerConnection: ProviderContainerConnectionInfo = {
   type: 'podman',
 };
 
-test('Expect that name and socket are displayed', async () => {
+const dockerContainerConnection: ProviderContainerConnectionInfo = {
+  name: 'connection',
+  endpoint: {
+    socketPath: 'socket',
+  },
+  status: 'started',
+  type: 'docker',
+};
+
+test('Expect that name, socket and type are displayed for Podman', async () => {
   render(PreferencesContainerConnectionDetailsSummary, {
-    containerConnectionInfo: containerConnection,
+    containerConnectionInfo: podmanContainerConnection,
   });
   const spanConnection = screen.getByLabelText('connection');
   expect(spanConnection).toBeInTheDocument();
   const spanSocket = screen.getByLabelText('socket');
   expect(spanSocket).toBeInTheDocument();
+  const spanType = screen.getByLabelText('podman');
+  expect(spanType).toBeInTheDocument();
+  expect(spanType.textContent).toBe('Podman');
+});
+
+test('Expect that name, socket and type are displayed for Docker', async () => {
+  render(PreferencesContainerConnectionDetailsSummary, {
+    containerConnectionInfo: dockerContainerConnection,
+  });
+  const spanConnection = screen.getByLabelText('connection');
+  expect(spanConnection).toBeInTheDocument();
+  const spanSocket = screen.getByLabelText('socket');
+  expect(spanSocket).toBeInTheDocument();
+  const spanType = screen.getByLabelText('docker');
+  expect(spanType).toBeInTheDocument();
+  expect(spanType.textContent).toBe('Docker');
 });
