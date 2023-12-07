@@ -321,7 +321,7 @@ async function handleOnSubmit(e: any) {
   const data: { [key: string]: FormDataEntryValue } = {};
   for (let field of formData) {
     const [key, value] = field;
-    if (configurationValues.get(key)?.modified) {
+    if (!connectionInfo || configurationValues.get(key)?.modified) {
       data[key] = value;
     }
   }
