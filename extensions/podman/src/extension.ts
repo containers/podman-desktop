@@ -38,6 +38,8 @@ import { WslHelper } from './wsl-helper';
 import { QemuHelper } from './qemu-helper';
 import { PodmanBinaryLocationHelper } from './podman-binary-location-helper';
 import { PodmanInfoHelper } from './podman-info-helper';
+import { PodmanCleanupMacOS } from './podman-cleanup-macos';
+import { PodmanCleanupWindows } from './podman-cleanup-windows';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 
@@ -977,6 +979,12 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       install: () => podmanInstall.doInstallPodman(provider),
       preflightChecks: () => installChecks,
     });
+  }
+
+  if (isMac()) {
+    provider.registerCleanup(new PodmanCleanupMacOS());
+  } else if (isWindows()) {
+    provider.registerCleanup(new PodmanCleanupWindows());
   }
 
   // provide an installation path ?
