@@ -1226,6 +1226,18 @@ export class PluginSystem {
       return providerRegistry.getProviderInfos();
     });
 
+    this.ipcHandle(
+      'provider-registry:cleanup',
+      async (_listener, providerIds: string[], loggerId: string, tokenId: number): Promise<void> => {
+        const logger = this.getLogHandler('provider-registry:cleanup-onData', loggerId);
+
+        const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
+        const token = tokenSource?.token;
+
+        return providerRegistry.executeCleanupActions(logger, providerIds, token);
+      },
+    );
+
     this.ipcHandle('cli-tool-registry:getCliToolInfos', async (): Promise<CliToolInfo[]> => {
       return cliToolRegistry.getCliToolInfos();
     });

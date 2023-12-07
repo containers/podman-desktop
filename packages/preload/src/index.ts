@@ -842,6 +842,49 @@ function initExposure(): void {
     },
   );
 
+  let onDataCallbacksCleanupId = 0;
+
+  const onDataCallbacksCleanupProviders = new Map<
+    number,
+    (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void
+  >();
+  const onDataCallbacksCleanupProvidersKeys = new Map<number, symbol>();
+
+  contextBridge.exposeInMainWorld(
+    'cleanupProviders',
+    async (
+      providerIds: string[],
+      key: symbol,
+      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
+      tokenId?: number,
+    ): Promise<void> => {
+      onDataCallbacksCleanupId++;
+      onDataCallbacksCleanupProvidersKeys.set(onDataCallbacksCleanupId, key);
+      onDataCallbacksCleanupProviders.set(onDataCallbacksCleanupId, keyLogger);
+      return ipcInvoke('provider-registry:cleanup', providerIds, onDataCallbacksCleanupId, tokenId);
+    },
+  );
+
+  ipcRenderer.on(
+    'provider-registry:cleanup-onData',
+    (_, onDataCallbacksCleanupId: number, channel: string, data: string[]) => {
+      // grab callback from the map
+      const callback = onDataCallbacksCleanupProviders.get(onDataCallbacksCleanupId);
+      const key = onDataCallbacksCleanupProvidersKeys.get(onDataCallbacksCleanupId);
+      if (callback && key) {
+        if (channel === 'log') {
+          callback(key, 'log', data);
+        } else if (channel === 'warn') {
+          callback(key, 'warn', data);
+        } else if (channel === 'error') {
+          callback(key, 'error', data);
+        } else if (channel === 'finish') {
+          callback(key, 'finish', data);
+        }
+      }
+    },
+  );
+
   ipcRenderer.on(
     'provider-registry:updateCliTool-onData',
     (_, onDataCallbacksTaskConnectionId: number, channel: string, data: string[]) => {
