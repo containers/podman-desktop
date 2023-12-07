@@ -288,3 +288,80 @@ test('Expect to see error message if action fails', async () => {
   // expect to see the delete failed button
   expect(deleteFailedButton).toBeInTheDocument();
 });
+
+test('Expect startContainerProvider to only be called once when restarting', async () => {
+  const socketPath = '/my/common-socket-path';
+  const podmanMachineName = 'podman machine';
+
+  const stopConnectionMock = vi.fn();
+  const startConnectionMock = vi.fn();
+  (window as any).stopProviderConnectionLifecycle = stopConnectionMock;
+  (window as any).startProviderConnectionLifecycle = startConnectionMock;
+
+  const providerInfo: ProviderInfo = {
+    id: 'podman',
+    name: 'podman',
+    images: {
+      icon: 'img',
+    },
+    status: 'started',
+    warnings: [],
+    containerProviderConnectionCreation: true,
+    detectionChecks: [],
+    containerConnections: [
+      {
+        name: podmanMachineName,
+        status: 'started',
+        endpoint: {
+          socketPath,
+        },
+        type: 'podman',
+        lifecycleMethods: ['start', 'stop'],
+      },
+    ],
+    installationSupport: false,
+    internalId: '0',
+    kubernetesConnections: [],
+    kubernetesProviderConnectionCreation: true,
+    links: [],
+    containerProviderConnectionInitialization: false,
+    containerProviderConnectionCreationDisplayName: 'Podman machine',
+    kubernetesProviderConnectionInitialization: false,
+    extensionId: '',
+  };
+
+  providerInfos.set([providerInfo]);
+
+  // encode name with base64 of the second machine
+  const name = Buffer.from(podmanMachineName).toString('base64');
+
+  const connection = Buffer.from(socketPath).toString('base64');
+
+  render(PreferencesContainerConnectionRendering, {
+    name,
+    connection,
+    providerInternalId: '0',
+  });
+
+  // restart the connection
+  const restartButton = screen.getByRole('button', { name: 'Restart' });
+
+  // click on it
+  await userEvent.click(restartButton);
+
+  // update provider connection status, simulate it was stopped
+  providerInfo.containerConnections[0].status = 'stopped';
+  providerInfos.set([providerInfo]);
+
+  // wait a bit
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  // update provider connection status - simulate it is started again
+  providerInfo.containerConnections[0].status = 'started';
+  providerInfos.set([providerInfo]);
+
+  // wait a bit
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  expect(startConnectionMock).toBeCalledTimes(1);
+});
