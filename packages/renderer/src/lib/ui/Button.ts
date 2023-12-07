@@ -20,7 +20,8 @@
  * Type of button:
  *  primary   - a main action (the default)
  *  secondary - a secondary action
+ *  danger    - a danger action
  *  link      - close, cancel, or other non-default button
  *  tab       - displayed as tab
  */
-export type ButtonType = 'primary' | 'secondary' | 'link' | 'tab';
+export type ButtonType = 'primary' | 'secondary' | 'danger' | 'link' | 'tab';
