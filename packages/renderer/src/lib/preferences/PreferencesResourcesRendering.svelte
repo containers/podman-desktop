@@ -474,12 +474,14 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                 {/if}
               </div>
               <div class="mt-2">
-                <div class="text-gray-700 text-xs">
+                <div class="text-gray-700 text-xs" aria-label="{container.name} type">
                   {#if container.type === 'docker'}Docker{:else if container.type === 'podman'}Podman{/if} endpoint
                 </div>
                 <div class="mt-1">
-                  <span class="my-auto text-xs" class:text-gray-900="{container.status !== 'started'}"
-                    >{container.endpoint.socketPath}</span>
+                  <span
+                    class="my-auto text-xs"
+                    class:text-gray-900="{container.status !== 'started'}"
+                    aria-label="{container.name} endpoint">{container.endpoint.socketPath}</span>
                 </div>
               </div>
 

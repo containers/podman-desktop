@@ -34,7 +34,7 @@ const kubernetesConnection: ProviderKubernetesConnectionInfo = {
   status: 'started',
 };
 
-test('Expect that name and url are displayed', async () => {
+test('Expect that name, url and kubernetes are displayed', async () => {
   render(PreferencesKubernetesConnectionDetailsSummary, {
     kubernetesConnectionInfo: kubernetesConnection,
   });
@@ -42,4 +42,7 @@ test('Expect that name and url are displayed', async () => {
   expect(spanConnection).toBeInTheDocument();
   const spanUrl = screen.getByLabelText('url');
   expect(spanUrl).toBeInTheDocument();
+  const kubernetes = screen.getByLabelText('kubernetes');
+  expect(kubernetes).toBeInTheDocument();
+  expect(kubernetes.textContent).toBe('Kubernetes');
 });
