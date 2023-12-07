@@ -63,6 +63,11 @@ $: providerContainerConfiguration = tmpProviderContainerConfiguration.filter(
         </div>
       {/each}
       <div class="flex flex-row mt-5">
+        <span class="font-semibold min-w-[150px]">Type</span>
+        <span aria-label="{containerConnectionInfo.type}"
+          >{#if containerConnectionInfo.type === 'docker'}Docker{:else if containerConnectionInfo.type === 'podman'}Podman{/if}</span>
+      </div>
+      <div class="flex flex-row mt-5">
         <span class="font-semibold min-w-[150px]">Endpoint</span>
         <span aria-label="{containerConnectionInfo.endpoint.socketPath}"
           >{containerConnectionInfo.endpoint.socketPath}</span>
