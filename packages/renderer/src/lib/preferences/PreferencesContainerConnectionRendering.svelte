@@ -36,7 +36,7 @@ let connectionStatus: IConnectionStatus;
 let noLog = true;
 let connectionInfo: ProviderContainerConnectionInfo | undefined;
 let providerInfo: ProviderInfo | undefined;
-let loggerHandlerKey: symbol;
+let loggerHandlerKey: symbol | undefined;
 let configurationKeys: IConfigurationPropertyRecordedSchema[];
 $: configurationKeys = properties
   .filter(property => property.scope === 'ContainerConnection')
@@ -68,6 +68,7 @@ onMount(async () => {
           status: connectionInfo.status,
         };
         startContainerProvider(providerInfo, connectionInfo, loggerHandlerKey);
+        loggerHandlerKey = undefined;
       } else {
         connectionStatus = {
           inProgress: false,
