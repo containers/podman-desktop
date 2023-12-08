@@ -41,3 +41,16 @@ test('Expect content slot is defined', async () => {
   const element = screen.getByLabelText('content');
   expect(element).toBeInTheDocument();
 });
+
+test('Expect tabs slot is defined', async () => {
+  render(FormPageSpec);
+
+  const fooTabElement = screen.getByRole('link', { name: 'Foo' });
+  expect(fooTabElement).toBeInTheDocument();
+
+  const barTabElement = screen.getByRole('link', { name: 'Bar' });
+  expect(barTabElement).toBeInTheDocument();
+
+  const bazTabElement = screen.getByRole('link', { name: 'Baz' });
+  expect(bazTabElement).toBeInTheDocument();
+});
