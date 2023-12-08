@@ -29,10 +29,20 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import type { ProviderInfo, ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
 import { get } from 'svelte/store';
 import { operationConnectionsInfo } from '/@/stores/operation-connections';
+import { eventCollect } from '/@/lib/preferences/preferences-connection-rendering-task';
 
 type LoggerEventName = 'log' | 'warn' | 'error' | 'finish';
 
-const properties: IConfigurationPropertyRecordedSchema[] = [];
+const properties: IConfigurationPropertyRecordedSchema[] = [
+  {
+    title: 'FactoryProperty',
+    parentId: '',
+    scope: 'ContainerProviderConnectionFactory',
+    id: 'test.factoryProperty',
+    type: 'number',
+    description: 'test.factoryProperty',
+  },
+];
 const providerInfo: ProviderInfo = {
   id: 'test',
   internalId: 'test',
@@ -41,7 +51,7 @@ const providerInfo: ProviderInfo = {
 const connectionInfo = {
   name: 'test connection',
 } as unknown as ProviderContainerConnectionInfo;
-const propertyScope = 'FOO';
+const propertyScope = 'ContainerProviderConnectionFactory';
 
 beforeAll(() => {
   (window as any).getConfigurationValue = vi.fn();
@@ -85,6 +95,8 @@ describe.each([
     closeTelemetryEvent: 'createNewProviderConnectionPageUserClosed',
     cancelTelemetryEvent: 'createNewProviderConnectionRequestUserCanceled',
     connectionInfo: undefined,
+    taskId: 2,
+    create: true,
   },
   {
     action: 'update',
@@ -92,8 +104,10 @@ describe.each([
     closeTelemetryEvent: 'updateProviderConnectionPageUserClosed',
     cancelTelemetryEvent: 'updateProviderConnectionRequestUserCanceled',
     connectionInfo: connectionInfo,
+    taskId: 3,
+    create: false,
   },
-])('$label', ({ action, label, closeTelemetryEvent, cancelTelemetryEvent, connectionInfo }) => {
+])('$label', ({ action, label, closeTelemetryEvent, cancelTelemetryEvent, connectionInfo, taskId, create }) => {
   test(`Expect that the ${action} button is available`, async () => {
     const callback = vi.fn();
     render(PreferencesConnectionCreationOrEditRendering, {
@@ -126,7 +140,7 @@ describe.each([
       propertyScope,
       callback,
       pageIsLoading: false,
-      taskId: 2,
+      taskId,
     });
 
     const closeButton = screen.getByRole('button', { name: 'Close page' });
@@ -155,8 +169,9 @@ describe.each([
       propertyScope,
       callback,
       pageIsLoading: false,
-      taskId: 2,
+      taskId,
     });
+    await vi.waitUntil(() => screen.queryByRole('textbox', { name: 'test.factoryProperty' }));
     const createButton = screen.getByRole('button', { name: `${label}` });
     expect(createButton).toBeInTheDocument();
     // click on the button
@@ -165,38 +180,48 @@ describe.each([
     // do we have a task
     const currentConnectionInfoMap = get(operationConnectionsInfo);
     expect(currentConnectionInfoMap).toBeDefined();
-    const currentConnectionInfo = currentConnectionInfoMap.values().next().value;
-    expect(currentConnectionInfo.operationInProgress).toBeTruthy();
-    expect(currentConnectionInfo.operationStarted).toBeTruthy();
-    expect(currentConnectionInfo.operationSuccessful).toBeFalsy();
+    const currentConnectionInfo = currentConnectionInfoMap.get(taskId);
+    expect(currentConnectionInfo).toBeDefined();
+    if (currentConnectionInfo) {
+      expect(currentConnectionInfo.operationInProgress).toBeTruthy();
+      expect(currentConnectionInfo.operationStarted).toBeTruthy();
+      expect(currentConnectionInfo.operationSuccessful).toBeFalsy();
 
-    const showLogsButton = screen.getByRole('button', { name: 'Show Logs' });
-    expect(showLogsButton).toBeInTheDocument();
+      const showLogsButton = screen.getByRole('button', { name: 'Show Logs' });
+      expect(showLogsButton).toBeInTheDocument();
 
-    const cancelButton = screen.getByRole('button', { name: `Cancel ${action}` });
-    expect(cancelButton).toBeInTheDocument();
+      const cancelButton = screen.getByRole('button', { name: `Cancel ${action}` });
+      expect(cancelButton).toBeInTheDocument();
 
-    expect(currentConnectionInfo.propertyScope).toBe(propertyScope);
-    expect(currentConnectionInfo.providerInfo).toBe(providerInfo);
+      expect(currentConnectionInfo.propertyScope).toBe(propertyScope);
+      expect(currentConnectionInfo.providerInfo).toBe(providerInfo);
 
-    expect(callback).toHaveBeenCalled();
-    expect(providedKeyLogger).toBeDefined();
+      expect(callback).toHaveBeenCalled();
+      expect(callback).toBeCalledWith(
+        'test',
+        create ? { 'test.factoryProperty': '0' } : {},
+        expect.anything(),
+        eventCollect,
+        undefined,
+      );
+      expect(providedKeyLogger).toBeDefined();
 
-    // simulate end of the create operation
-    if (providedKeyLogger) {
-      providedKeyLogger(currentConnectionInfo.operationKey, 'finish', []);
+      // simulate end of the create operation
+      if (providedKeyLogger) {
+        providedKeyLogger(currentConnectionInfo.operationKey, 'finish', []);
+      }
+
+      // expect it is successful
+      const currentConnectionInfoAfterMap = get(operationConnectionsInfo);
+      expect(currentConnectionInfoAfterMap).toBeDefined();
+      const currentConnectionInfoAfter = currentConnectionInfoAfterMap.get(taskId);
+
+      expect(currentConnectionInfoAfter?.operationInProgress).toBeFalsy();
+      expect(currentConnectionInfoAfter?.operationStarted).toBeTruthy();
+      expect(currentConnectionInfoAfter?.operationSuccessful).toBeTruthy();
+      const closeButton = screen.getByRole('button', { name: 'Close panel' });
+      expect(closeButton).toBeInTheDocument();
     }
-
-    // expect it is successful
-    const currentConnectionInfoAfterMap = get(operationConnectionsInfo);
-    expect(currentConnectionInfoAfterMap).toBeDefined();
-    const currentConnectionInfoAfter = currentConnectionInfoAfterMap.get(2);
-
-    expect(currentConnectionInfoAfter?.operationInProgress).toBeFalsy();
-    expect(currentConnectionInfoAfter?.operationStarted).toBeTruthy();
-    expect(currentConnectionInfoAfter?.operationSuccessful).toBeTruthy();
-    const closeButton = screen.getByRole('button', { name: 'Close panel' });
-    expect(closeButton).toBeInTheDocument();
   });
 
   test(`Expect cancelling the ${action}, trigger the cancellation token`, async () => {
@@ -214,7 +239,7 @@ describe.each([
       propertyScope,
       callback,
       pageIsLoading: false,
-      taskId: 2,
+      taskId,
     });
     const createButton = screen.getByRole('button', { name: `${label}` });
     expect(createButton).toBeInTheDocument();
@@ -276,7 +301,7 @@ describe.each([
       propertyScope,
       callback,
       pageIsLoading: false,
-      taskId: 2,
+      taskId,
       hideCloseButton: true,
       hideProviderImage: true,
     });
