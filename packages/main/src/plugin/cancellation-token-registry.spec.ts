@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeAll, expect, expectTypeOf, test } from 'vitest';
+import { assertType, beforeAll, expect, test } from 'vitest';
 import { CancellationTokenSource } from './cancellation-token.js';
 import { CancellationTokenRegistry } from './cancellation-token-registry.js';
 
@@ -31,8 +31,8 @@ beforeAll(() => {
 test('Should return CancellationTokenSources with progressive id', async () => {
   const tokenSourceId1 = cancellationTokenRegistry.createCancellationTokenSource();
   const tokenSourceid2 = cancellationTokenRegistry.createCancellationTokenSource();
-  expectTypeOf(tokenSourceId1).toBeNumber();
-  expectTypeOf(tokenSourceid2).toBeNumber();
+  assertType<number>(tokenSourceId1);
+  assertType<number>(tokenSourceid2);
   expect(tokenSourceid2).toBeGreaterThan(tokenSourceId1);
 });
 
@@ -49,8 +49,8 @@ test('Return undefined if id not valid', async () => {
 
 test('Return CancellationToken if id valid', async () => {
   const tokenSourceId = cancellationTokenRegistry.createCancellationTokenSource();
-  expectTypeOf(tokenSourceId).toBeNumber();
+  assertType<number>(tokenSourceId);
   const token = cancellationTokenRegistry.getCancellationTokenSource(tokenSourceId);
-  expectTypeOf(token).toBeObject();
+  expect(token).toBeDefined();
   expect(token instanceof CancellationTokenSource);
 });
