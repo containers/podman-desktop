@@ -40,6 +40,7 @@ const properties: IConfigurationPropertyRecordedSchema[] = [
     scope: 'ContainerProviderConnectionFactory',
     id: 'test.factoryProperty',
     type: 'number',
+    description: 'test.factoryProperty',
   },
 ];
 const providerInfo: ProviderInfo = {
@@ -170,7 +171,7 @@ describe.each([
       pageIsLoading: false,
       taskId,
     });
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await vi.waitUntil(() => screen.queryByRole('textbox', { name: 'test.factoryProperty' }));
     const createButton = screen.getByRole('button', { name: `${label}` });
     expect(createButton).toBeInTheDocument();
     // click on the button
