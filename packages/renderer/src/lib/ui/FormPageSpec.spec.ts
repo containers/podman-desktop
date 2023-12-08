@@ -19,24 +19,24 @@
 import '@testing-library/jest-dom/vitest';
 import { test, expect } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
-import FormPageTest from './FormPageSpec.svelte';
+import FormPageSpec from './FormPageSpec.svelte';
 
 test('Expect icon slot is defined', async () => {
-  render(FormPageTest);
+  render(FormPageSpec);
 
   const element = screen.getByLabelText('icon');
   expect(element).toBeInTheDocument();
 });
 
 test('Expect actions slot is defined', async () => {
-  render(FormPageTest);
+  render(FormPageSpec);
 
   const element = screen.getByLabelText('actions');
   expect(element).toBeInTheDocument();
 });
 
 test('Expect content slot is defined', async () => {
-  render(FormPageTest);
+  render(FormPageSpec);
 
   const element = screen.getByLabelText('content');
   expect(element).toBeInTheDocument();
