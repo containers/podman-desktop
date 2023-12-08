@@ -8,7 +8,7 @@ let baseURL = $router.path.substring(0, $router.path.lastIndexOf('/'));
 </script>
 
 <div
-  class="pb-2 border-b-[3px] border-charcoal-700 whitespace-nowrap hover:cursor-pointer"
+  class="pb-1 border-b-[3px] border-charcoal-700 whitespace-nowrap hover:cursor-pointer"
   class:border-purple-500="{$router.path === baseURL + '/' + url}"
   class:hover:border-charcoal-100="{$router.path !== baseURL + '/' + url}">
   <a

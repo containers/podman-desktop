@@ -14,8 +14,8 @@ function openContainer(containerID: string) {
   <div class="w-full">
     <table>
       <tr>
-        <td class="pt-2 pr-2">Name:</td>
-        <td class="pt-2 pr-2">{compose.name}</td>
+        <td class="pr-2">Name:</td>
+        <td>{compose.name}</td>
       </tr>
     </table>
   </div>
@@ -25,8 +25,8 @@ function openContainer(containerID: string) {
       <table>
         {#each compose.containers as container}
           <tr class="cursor-pointer" on:click="{() => openContainer(container.id)}">
-            <td class="pt-2 pr-2">{container.name}</td>
-            <td class="pt-2 pr-2">{container.id}</td>
+            <td class="pr-2">{container.name}</td>
+            <td>{container.id}</td>
           </tr>
         {/each}
       </table>

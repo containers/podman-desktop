@@ -45,12 +45,12 @@ ass KubeDetailsSummary will automatically add a 'Loading ... ' section -->
     <div class="w-full">
       <table>
         <tr>
-          <td class="pt-2 pr-2">Name:</td>
-          <td class="pt-2 pr-2">{pod.name}</td>
+          <td class="pr-2">Name:</td>
+          <td>{pod.name}</td>
         </tr>
         <tr>
-          <td class="pt-2 pr-2">Id:</td>
-          <td class="pt-2 pr-2">{pod.id}</td>
+          <td class="pr-2">Id:</td>
+          <td>{pod.id}</td>
         </tr>
       </table>
     </div>
@@ -60,8 +60,8 @@ ass KubeDetailsSummary will automatically add a 'Loading ... ' section -->
         <table>
           {#each pod.containers as container}
             <tr class="cursor-pointer" on:click="{() => openContainer(container.Id)}">
-              <td class="pt-2 pr-2">{container.Names}</td>
-              <td class="pt-2 pr-2">{container.Id}</td>
+              <td class="pr-2">{container.Names}</td>
+              <td>{container.Id}</td>
             </tr>
           {/each}
         </table>
