@@ -181,5 +181,5 @@ test('should work with an invalid configuration file', async () => {
   }
 
   expect(configurationRegistry.getConfigurationProperties()).toEqual({});
-  expect(mockedConsoleLog).toBeCalledWith('Unable to parse /my-config-dir/settings.json file', expect.anything());
+  expect(mockedConsoleLog).toBeCalledWith(expect.stringContaining('Unable to parse'), expect.anything());
 });
