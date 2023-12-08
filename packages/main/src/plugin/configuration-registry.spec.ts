@@ -159,3 +159,27 @@ test('Should not find configuration after dispose', async () => {
   const afterDisposeRecord = records['my.fake.property'];
   expect(afterDisposeRecord).toBeUndefined();
 });
+
+test('should work with an invalid configuration file', async () => {
+  vi.resetAllMocks();
+
+  getConfigurationDirectoryMock.mockReturnValue('/my-config-dir');
+
+  configurationRegistry = new ConfigurationRegistry(apiSender, directories);
+  readFileSync.mockReturnValue('invalid JSON content');
+
+  configurationRegistry = new ConfigurationRegistry(apiSender, directories);
+
+  // configuration is broken but it should not throw any error, just that config is empty
+  const originalConsoleError = console.error;
+  const mockedConsoleLog = vi.fn();
+  console.error = mockedConsoleLog;
+  try {
+    configurationRegistry.init();
+  } finally {
+    console.error = originalConsoleError;
+  }
+
+  expect(configurationRegistry.getConfigurationProperties()).toEqual({});
+  expect(mockedConsoleLog).toBeCalledWith('Unable to parse /my-config-dir/settings.json file', expect.anything());
+});

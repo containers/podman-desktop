@@ -145,7 +145,14 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     }
 
     const settingsRawContent = fs.readFileSync(settingsFile, 'utf-8');
-    this.configurationValues.set(CONFIGURATION_DEFAULT_SCOPE, JSON.parse(settingsRawContent));
+    let configData: unknown;
+    try {
+      configData = JSON.parse(settingsRawContent);
+    } catch (error) {
+      console.error(`Unable to parse ${settingsFile} file`, error);
+      configData = {};
+    }
+    this.configurationValues.set(CONFIGURATION_DEFAULT_SCOPE, configData);
   }
 
   public registerConfigurations(configurations: IConfigurationNode[]): Disposable {
