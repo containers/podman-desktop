@@ -60,11 +60,9 @@ function handleKeydown(e: KeyboardEvent) {
       </div>
     </div>
   </div>
-  {#if $$slots.tabs}
-    <div class="flex flex-row px-2 border-b border-charcoal-400">
-      <slot name="tabs" />
-    </div>
-  {/if}
+  <div class="flex flex-row px-2 border-b border-charcoal-400">
+    <slot name="tabs" />
+  </div>
   <div class="h-full bg-charcoal-900 min-h-0">
     <slot name="content" />
   </div>
