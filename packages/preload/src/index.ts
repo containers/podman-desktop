@@ -1513,6 +1513,33 @@ function initExposure(): void {
   );
 
   contextBridge.exposeInMainWorld(
+    'kubernetesReadNamespacedDeployment',
+    async (name: string, namespace: string): Promise<V1Deployment | undefined> => {
+      return ipcInvoke('kubernetes-client:readNamespacedDeployment', name, namespace);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'kubernetesReadNamespacedIngress',
+    async (name: string, namespace: string): Promise<V1Ingress | undefined> => {
+      return ipcInvoke('kubernetes-client:readNamespacedIngress', name, namespace);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'kubernetesReadNamespacedRoute',
+    async (name: string, namespace: string): Promise<V1Route | undefined> => {
+      return ipcInvoke('kubernetes-client:readNamespacedRoute', name, namespace);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'kubernetesReadNamespacedService',
+    async (name: string, namespace: string): Promise<V1Service | undefined> => {
+      return ipcInvoke('kubernetes-client:readNamespacedService', name, namespace);
+    },
+  );
+  contextBridge.exposeInMainWorld(
     'kubernetesReadNamespacedConfigMap',
     async (name: string, namespace: string): Promise<V1ConfigMap | undefined> => {
       return ipcInvoke('kubernetes-client:readNamespacedConfigMap', name, namespace);
