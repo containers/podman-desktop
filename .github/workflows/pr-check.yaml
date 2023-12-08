@@ -80,12 +80,6 @@ jobs:
           name: windows-exe-arm64
           path: ./dist/podman-desktop*-next-arm64.exe
 
-      - name: Set the default env variables
-        env:
-          DEFAULT_SECRET: 'registryPswdSecret'
-        run: |
-          echo "REGISTRY_PSWD_SECRET=${{ secrets.QUAY_IO_TEST || env.DEFAULT_SECRET }} " >> $GITHUB_ENV 
-
   linux:
     name: Linux
     runs-on: ubuntu-22.04
@@ -313,3 +307,9 @@ jobs:
         with:
           name: smoke-e2e-tests
           path: ./tests/output/
+
+      - name: Set the default env variables
+        env:
+          DEFAULT_SECRET: 'REGISTRY_PSWD_SECRET'
+        run: |
+          echo "REGISTRY_PSWD_SECRET=${{ secrets.PODMANDESKTOP_CI_BOT_TOKEN || env.DEFAULT_SECRET }} " >> $GITHUB_ENV 

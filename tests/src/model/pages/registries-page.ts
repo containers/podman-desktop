@@ -45,8 +45,8 @@ export class RegistriesPage extends SettingsPage {
     await loginButton.click();
   }
 
-  async editRegistry(url: string, newUsername: string, newPswd: string) {
-    const registryBox = this.registriesTable.getByLabel(url);
+  async editRegistry(title: string, newUsername: string, newPswd: string) {
+    const registryBox = this.registriesTable.getByLabel(title);
     const dropdownMenu = registryBox.getByLabel('Dropdown menu');
     await dropdownMenu.click();
 
@@ -60,5 +60,14 @@ export class RegistriesPage extends SettingsPage {
 
     const loginButton = registryBox.getByRole('button', { name: 'Login' });
     await loginButton.click();
+  }
+
+  async removeRegistry(title: string) {
+    const registryBox = this.registriesTable.getByLabel(title);
+    const dropdownMenu = registryBox.getByLabel('Dropdown menu');
+    await dropdownMenu.click();
+
+    const editButton = registryBox.getByLabel('Remove');
+    await editButton.click();
   }
 }
