@@ -496,3 +496,92 @@ describe('expect checkCredentials', async () => {
     expect(registries2.length).toBe(1);
   });
 });
+
+test('getBestManifest returns the expected manifest', () => {
+  const manifests = {
+    'linux-amd64': {
+      platform: {
+        architecture: 'amd64',
+        os: 'linux',
+      },
+      name: 'linux-amd64',
+    },
+    'linux-arm64': {
+      platform: {
+        architecture: 'arm64',
+        os: 'linux',
+      },
+      name: 'linux-arm64',
+    },
+    'windows-amd64': {
+      platform: {
+        architecture: 'amd64',
+        os: 'windows',
+      },
+      name: 'windows-amd64',
+    },
+    'windows-arm64': {
+      platform: {
+        architecture: 'arm64',
+        os: 'windows',
+      },
+      name: 'windows-arm64',
+    },
+    'darwin-amd64': {
+      platform: {
+        architecture: 'amd64',
+        os: 'darwin',
+      },
+      name: 'darwin-amd64',
+    },
+  };
+
+  // Exact matches
+  expect(
+    imageRegistry.getBestManifest(
+      [manifests['linux-amd64'], manifests['linux-arm64'], manifests['windows-amd64'], manifests['windows-arm64']],
+      'amd64',
+      'linux',
+    ),
+  ).toHaveProperty('name', 'linux-amd64');
+  expect(
+    imageRegistry.getBestManifest(
+      [manifests['linux-amd64'], manifests['linux-arm64'], manifests['windows-amd64'], manifests['windows-arm64']],
+      'amd64',
+      'windows',
+    ),
+  ).toHaveProperty('name', 'windows-amd64');
+
+  // Linux by default
+  expect(
+    imageRegistry.getBestManifest(
+      [manifests['linux-amd64'], manifests['linux-arm64'], manifests['windows-amd64'], manifests['windows-arm64']],
+      'amd64',
+      'darwin',
+    ),
+  ).toHaveProperty('name', 'linux-amd64');
+  expect(
+    imageRegistry.getBestManifest([manifests['windows-amd64'], manifests['linux-amd64']], 'amd64', 'darwin'),
+  ).toHaveProperty('name', 'linux-amd64');
+
+  // Only one os by default
+  expect(
+    imageRegistry.getBestManifest([manifests['windows-arm64'], manifests['windows-amd64']], 'amd64', 'darwin'),
+  ).toHaveProperty('name', 'windows-amd64');
+  expect(
+    imageRegistry.getBestManifest([manifests['windows-arm64'], manifests['windows-amd64']], 'arm64', 'darwin'),
+  ).toHaveProperty('name', 'windows-arm64');
+  expect(
+    imageRegistry.getBestManifest([manifests['windows-arm64'], manifests['windows-amd64']], 'unknown-arch', 'darwin'),
+  ).toHaveProperty('name', 'windows-amd64');
+
+  // amd64 arch by default, linux os by default
+  expect(
+    imageRegistry.getBestManifest([manifests['windows-amd64'], manifests['linux-amd64']], 'arm64', 'darwin'),
+  ).toHaveProperty('name', 'linux-amd64');
+
+  // no default OS found
+  expect(
+    imageRegistry.getBestManifest([manifests['windows-amd64'], manifests['darwin-amd64']], 'amd64', 'linux'),
+  ).toBeUndefined();
+});
