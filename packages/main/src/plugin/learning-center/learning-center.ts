@@ -19,8 +19,6 @@
 import type { Guide } from './learning-center-api.js';
 import { default as guidesJson } from './guides.json';
 
-export class LearningCenter {
-  static get guides() {
-    return guidesJson.guides as Guide[];
-  }
+export function downloadGuideList(): Guide[] {
+  return guidesJson.guides;
 }

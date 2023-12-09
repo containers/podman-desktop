@@ -157,6 +157,7 @@ import type { IDisposable } from './types/disposable.js';
 
 import { KubernetesUtils } from './kubernetes-util.js';
 import { LearningCenter } from './learning-center/learning-center.js';
+import { downloadGuideList } from './learning-center/learning-center.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -2219,8 +2220,12 @@ export class PluginSystem {
       return webviewRegistry.getRegistryHttpPort();
 =======
     this.ipcHandle('learning-center:listGuides', async () => {
+<<<<<<< HEAD
       return LearningCenter.guides;
 >>>>>>> e0f8b442b (feat: getting started carousel on dashboard page)
+=======
+      return downloadGuideList();
+>>>>>>> 9efe5cb4b (fix: replace static class method with function)
     });
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
