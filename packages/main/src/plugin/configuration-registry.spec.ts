@@ -29,6 +29,7 @@ let configurationRegistry: ConfigurationRegistry;
 
 // mock the fs methods
 const readFileSync = vi.spyOn(fs, 'readFileSync');
+const cpSync = vi.spyOn(fs, 'cpSync');
 
 const getConfigurationDirectoryMock = vi.fn();
 const directories = {
@@ -57,6 +58,7 @@ beforeEach(() => {
   configurationRegistry = new ConfigurationRegistry(apiSender, directories, notificationRegistry);
   readFileSync.mockReturnValue(JSON.stringify({}));
 
+  cpSync.mockReturnValue(undefined);
   configurationRegistry.init();
 
   const node: IConfigurationNode = {
@@ -185,4 +187,15 @@ test('should work with an invalid configuration file', async () => {
 
   expect(configurationRegistry.getConfigurationProperties()).toEqual({});
   expect(mockedConsoleLog).toBeCalledWith(expect.stringContaining('Unable to parse'), expect.anything());
+
+  // check we added a notification
+  expect(notificationRegistry.addNotification).toBeCalledWith(
+    expect.objectContaining({ highlight: true, type: 'warn', title: 'Corrupted configuration file' }),
+  );
+
+  // check we did a backup of the file
+  expect(cpSync).toBeCalledWith(
+    expect.stringContaining('settings.json'),
+    expect.stringContaining('settings.json.backup'),
+  );
 });

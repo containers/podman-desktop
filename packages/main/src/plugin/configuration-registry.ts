@@ -152,6 +152,20 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
       configData = JSON.parse(settingsRawContent);
     } catch (error) {
       console.error(`Unable to parse ${settingsFile} file`, error);
+
+      const backupFilename = `${settingsFile}.backup-${Date.now()}`;
+      // keep original file as a backup
+      fs.cpSync(settingsFile, backupFilename);
+
+      // notify the user
+      this.notificationRegistry.addNotification({
+        title: 'Corrupted configuration file',
+        body: `Configuration file located at ${settingsFile} was invalid. Created a copy at '${backupFilename}' and started with default settings.`,
+        extensionId: 'core',
+        type: 'warn',
+        highlight: true,
+        silent: true,
+      });
       configData = {};
     }
     this.configurationValues.set(CONFIGURATION_DEFAULT_SCOPE, configData);
