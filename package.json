@@ -121,7 +121,7 @@
     "@types/validator": "^13.11.7",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
     "@typescript-eslint/parser": "^6.13.2",
-    "@vitest/coverage-v8": "^1.0.2",
+    "@vitest/coverage-v8": "^1.0.4",
     "cross-env": "7.0.3",
     "dts-for-context-bridge": "0.7.1",
     "electron": "27.1.3",
@@ -147,7 +147,7 @@
     "typescript": "5.3.3",
     "validator": "^13.11.0",
     "vite": "^5.0.7",
-    "vitest": "^1.0.2",
+    "vitest": "^1.0.4",
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
