@@ -96,9 +96,8 @@ function getInitializationContext(id: string): InitializationContext {
             <ProviderStopped provider="{providerStopped}" />
           {/each}
         {/if}
-
-        <FeaturedExtensions />
         <LearningCenter />
+        <FeaturedExtensions />
       </div>
     </div>
   </div>
