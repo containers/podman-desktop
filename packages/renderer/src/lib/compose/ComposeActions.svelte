@@ -33,7 +33,7 @@ function inProgress(inProgress: boolean, state?: string): void {
     compose.status = state;
   }
 
-  compose.containers.forEach(container => {
+  for (const container of compose.containers) {
     container.actionInProgress = inProgress;
     // reset error when starting task
     if (inProgress) {
@@ -42,7 +42,7 @@ function inProgress(inProgress: boolean, state?: string): void {
     if (state) {
       container.state = state;
     }
-  });
+  }
   dispatch('update', compose);
 }
 
