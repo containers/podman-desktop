@@ -7,6 +7,9 @@ keywords: [podman desktop, podman, containers, registries]
 hide_table_of_contents: false
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Setting up container registries
 
 ## Overview
@@ -115,23 +118,37 @@ If your registry has an insecure certificate, such as a self-signed certificate,
 
    1. Go to a location where you can edit the `registries.conf` file:
 
-      - Windows and macOS
+      <Tabs groupId="operating-systems">
+      <TabItem value="win" label="Windows">
 
-        The configuration file is in the Podman machine: open a terminal in the Podman Machine.
+      - The configuration file is in the Podman machine: open a terminal in the Podman Machine.
 
         ```shell-session
         $ podman machine ssh [optional-machine-name]
         ```
 
-      - Linux
+      </TabItem>
+      <TabItem value="mac" label="macOS">
 
-        The configuration file is in your host: open a terminal with superuser privileges.
+      - The configuration file is in the Podman machine: open a terminal in the Podman Machine.
+
+        ```shell-session
+        $ podman machine ssh [optional-machine-name]
+        ```
+
+      </TabItem>
+      <TabItem value="linux" label="Linux">
+
+      - The configuration file is in your host: open a terminal with superuser privileges.
 
         ```shell-session
         $ sudo su -
         ```
 
-   2. Edit the registry optional configuration file.
+      </TabItem>
+      </Tabs>
+
+   1. Edit the registry optional configuration file.
 
       ```shell-session
       # vim /etc/containers/registries.conf`
@@ -156,26 +173,38 @@ If your registry has an insecure certificate, such as a self-signed certificate,
 
 1. Restart Podman to apply the changes.
 
-   - Windows and macOS
+   <Tabs groupId="operating-systems">
+   <TabItem value="win" label="Windows">
 
-     1. Go to **<Icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**.
-     2. Restart the Podman machine.
+   1. Go to **<Icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**.
+   1. Restart the Podman machine.
 
-   - Linux (rootful)
+   </TabItem>
+   <TabItem value="mac" label="macOS">
 
-     - Restart Podman.
+   1. Go to **<Icon icon="fa-solid fa-cog" size="lg" /> Settings > Resources**.
+   1. Restart the Podman machine.
 
-       ```shell-session
-       $ sudo systemctl restart podman
-       ```
+   </TabItem>
+   <TabItem value="linux" label="Linux (rootless)">
 
-   - Linux (rootless)
+   - Stop all Podman processes.
 
-     - Stop all Podman processes.
+     ```shell-session
+     $ pkill podman
+     ```
 
-       ```shell-session
-       $ pkill podman
-       ```
+   </TabItem>
+   <TabItem value="linux-rootful" label="Linux (rootful)">
+
+   - Restart Podman.
+
+     ```shell-session
+     $ sudo systemctl restart podman
+     ```
+
+   </TabItem>
+   </Tabs>
 
 ## Verifying your registry is properly configured
 
