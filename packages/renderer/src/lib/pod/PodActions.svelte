@@ -78,7 +78,7 @@ async function startPod() {
   } catch (error) {
     handleError(String(error));
   } finally {
-    inProgress(false, 'RUNNING');
+    inProgress(false);
   }
 }
 
@@ -100,7 +100,7 @@ async function stopPod() {
   } catch (error) {
     handleError(String(error));
   } finally {
-    inProgress(false, 'STOPPED');
+    inProgress(false);
   }
 }
 
