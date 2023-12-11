@@ -26,6 +26,7 @@ import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants.
 import type { Directories } from './directories.js';
 import { Disposable } from './types/disposable.js';
 import type { ApiSenderType } from './api.js';
+import type { NotificationRegistry } from './notification-registry.js';
 
 export type IConfigurationPropertySchemaType =
   | 'markdown'
@@ -122,6 +123,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
   constructor(
     private apiSender: ApiSenderType,
     private directories: Directories,
+    private notificationRegistry: NotificationRegistry,
   ) {
     this.configurationProperties = {};
     this.configurationContributors = [];

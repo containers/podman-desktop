@@ -23,6 +23,7 @@ import { ConfigurationRegistry } from './configuration-registry.js';
 import type { Directories } from './directories.js';
 import type { Disposable } from './types/disposable.js';
 import type { ApiSenderType } from '/@/plugin/api.js';
+import type { NotificationRegistry } from './notification-registry.js';
 
 let configurationRegistry: ConfigurationRegistry;
 
@@ -37,6 +38,10 @@ const apiSender = {
   send: vi.fn(),
 } as unknown as ApiSenderType;
 
+const notificationRegistry = {
+  addNotification: vi.fn(),
+} as unknown as NotificationRegistry;
+
 let registerConfigurationsDisposable: Disposable;
 
 beforeAll(() => {
@@ -49,7 +54,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   getConfigurationDirectoryMock.mockReturnValue('/my-config-dir');
 
-  configurationRegistry = new ConfigurationRegistry(apiSender, directories);
+  configurationRegistry = new ConfigurationRegistry(apiSender, directories, notificationRegistry);
   readFileSync.mockReturnValue(JSON.stringify({}));
 
   configurationRegistry.init();
@@ -165,10 +170,8 @@ test('should work with an invalid configuration file', async () => {
 
   getConfigurationDirectoryMock.mockReturnValue('/my-config-dir');
 
-  configurationRegistry = new ConfigurationRegistry(apiSender, directories);
+  configurationRegistry = new ConfigurationRegistry(apiSender, directories, notificationRegistry);
   readFileSync.mockReturnValue('invalid JSON content');
-
-  configurationRegistry = new ConfigurationRegistry(apiSender, directories);
 
   // configuration is broken but it should not throw any error, just that config is empty
   const originalConsoleError = console.error;
