@@ -102,7 +102,7 @@ test('Check tab button styling', async () => {
   expect(button).toBeInTheDocument();
   expect(button).toHaveClass('border-b-[3px]');
   expect(button).toHaveClass('border-charcoal-700');
-  expect(button).toHaveClass('pb-2');
+  expect(button).toHaveClass('pb-1');
   expect(button).toHaveClass('hover:cursor-pointer');
   expect(button).not.toHaveClass('text-[13px]');
 });

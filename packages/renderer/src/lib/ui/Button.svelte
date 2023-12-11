@@ -14,7 +14,7 @@ export let selected: boolean | undefined = undefined;
 $: if (selected !== undefined && type !== 'tab') {
   console.error('property selected can be used with type=tab only');
 }
-export let padding: string = 'px-4 py-[5px]';
+export let padding: string = type !== 'tab' ? 'px-4 py-[5px]' : 'px-4 pb-1';
 
 let iconType: string | undefined = undefined;
 
@@ -40,7 +40,7 @@ $: {
     } else if (type === 'secondary') {
       classes = 'border-[1px] border-gray-200 text-white hover:border-purple-500 hover:text-purple-500';
     } else if (type === 'tab') {
-      classes = 'pb-2 border-b-[3px] border-charcoal-700 hover:cursor-pointer py-2 text-gray-600 no-underline';
+      classes = 'border-b-[3px] border-charcoal-700 hover:cursor-pointer text-gray-600 no-underline';
     } else {
       classes = 'border-none text-purple-400 hover:bg-white hover:bg-opacity-10';
     }
