@@ -675,11 +675,7 @@ export class ImageRegistry {
 
     let wantedOses = manifestsMap.get(wantedOs);
     if (!wantedOses) {
-      if (manifestsMap.size === 1) {
-        wantedOses = manifestsMap.get(manifestsMap.keys().next().value);
-      } else {
-        wantedOses = manifestsMap.get('linux');
-      }
+      wantedOses = manifestsMap.get('linux');
     }
     if (!wantedOses) {
       return;

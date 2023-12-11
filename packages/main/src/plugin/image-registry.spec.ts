@@ -567,13 +567,13 @@ test('getBestManifest returns the expected manifest', () => {
   // Only one os by default
   expect(
     imageRegistry.getBestManifest([manifests['windows-arm64'], manifests['windows-amd64']], 'amd64', 'darwin'),
-  ).toHaveProperty('name', 'windows-amd64');
+  ).toBeUndefined();
   expect(
     imageRegistry.getBestManifest([manifests['windows-arm64'], manifests['windows-amd64']], 'arm64', 'darwin'),
-  ).toHaveProperty('name', 'windows-arm64');
+  ).toBeUndefined();
   expect(
     imageRegistry.getBestManifest([manifests['windows-arm64'], manifests['windows-amd64']], 'unknown-arch', 'darwin'),
-  ).toHaveProperty('name', 'windows-amd64');
+  ).toBeUndefined();
 
   // amd64 arch by default, linux os by default
   expect(
