@@ -81,6 +81,8 @@ The URL you need to share with the users to install the extension is the URL of 
 If the manifest does not contain an image for the platform of the user, Podman Desktop will install the
 image for Linux (amd64 or arm64 depending on the architecture of the user's platform).
 
+You can leverage the [Buildah Build action](https://github.com/redhat-actions/buildah-build) to build this manifest.
+
 #### Next steps
 
 - [Installing a Podman Desktop extension](/docs/extensions/install)
