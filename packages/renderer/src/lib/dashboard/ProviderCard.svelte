@@ -7,7 +7,7 @@ import ProviderLogo from './ProviderLogo.svelte';
 export let provider: ProviderInfo;
 </script>
 
-<div class="bg-charcoal-800 mb-5 rounded-md p-3 flex-nowrap" role="row">
+<div class="bg-charcoal-800 mb-5 rounded-md p-3 flex-nowrap" role="region" aria-label="{provider.name} Provider">
   <div class="flex flex-row">
     <div class="flex flex-row">
       <ProviderLogo provider="{provider}" />
