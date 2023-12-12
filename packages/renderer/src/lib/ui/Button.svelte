@@ -36,9 +36,9 @@ $: {
     }
   } else {
     if (type === 'primary') {
-      classes = 'bg-purple-600 border-none text-white hover:bg-purple-500';
+      classes = 'bg-purple-600 border-none hover:bg-purple-500';
     } else if (type === 'secondary') {
-      classes = 'border-[1px] border-gray-200 text-white hover:border-purple-500 hover:text-purple-500';
+      classes = 'border-[1px] border-gray-200 hover:border-purple-500 hover:text-purple-500';
     } else if (type === 'tab') {
       classes = 'border-b-[3px] border-charcoal-700 hover:cursor-pointer text-gray-600 no-underline';
     } else {
@@ -57,7 +57,7 @@ $: {
   class="relative {padding} box-border whitespace-nowrap select-none transition-all {classes} {$$props.class || ''}"
   class:border-purple-500="{type === 'tab' && selected}"
   class:hover:border-charcoal-100="{type === 'tab' && !selected}"
-  class:text-white="{type === 'tab' && selected}"
+  class:text-white="{(type === 'tab' && selected) || type === 'primary' || type === 'secondary'}"
   title="{title}"
   aria-label="{$$props['aria-label']}"
   on:click
