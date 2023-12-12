@@ -209,3 +209,26 @@ test('Expect rowgroups', async () => {
   expect(dataRows).toBeDefined();
   expect(dataRows.length).toBe(3);
 });
+
+test('Expect overflow-hidden', async () => {
+  render(TestTable, {});
+
+  // get the 4 rows (first is header)
+  const rows = await screen.findAllByRole('row');
+  expect(rows).toBeDefined();
+  expect(rows.length).toBe(4);
+
+  // and each non-header row should have 6 cells (expander, checkbox, 4 cells).
+  // all 4 data cells should have overflow-hidden, except for age which has it
+  // disabled
+  for (let i = 1; i < 4; i++) {
+    const cells = await within(rows[i]).findAllByRole('cell');
+    expect(cells).toBeDefined();
+    expect(cells.length).toBe(6);
+
+    expect(cells[2]).toHaveClass('overflow-hidden');
+    expect(cells[3]).toHaveClass('overflow-hidden');
+    expect(cells[4]).not.toHaveClass('overflow-hidden');
+    expect(cells[5]).toHaveClass('overflow-hidden');
+  }
+});

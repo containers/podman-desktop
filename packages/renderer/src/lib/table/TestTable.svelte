@@ -39,6 +39,7 @@ const ageCol: Column<Person, string> = new Column('Age', {
   renderer: SimpleColumn,
   comparator: (a, b) => a.age - b.age,
   initialOrder: 'descending',
+  overflow: true,
 });
 
 const hobbyCol: Column<Person, string> = new Column('Hobby', {
