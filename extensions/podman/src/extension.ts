@@ -780,7 +780,11 @@ async function registerUpdatesIfAny(
   if (updateInfo.hasUpdate) {
     provider.registerUpdate({
       version: updateInfo.bundledVersion,
-      update: () => podmanInstall.performUpdate(provider, installedPodman),
+      update: () => {
+        // disable notification before the update to prevent the notification to be shown and re-enabled when update is done
+        shouldNotifySetup = false;
+        return podmanInstall.performUpdate(provider, installedPodman).finally(() => (shouldNotifySetup = true));
+      },
       preflightChecks: () => podmanInstall.getUpdatePreflightChecks(),
     });
   }
