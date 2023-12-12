@@ -91,9 +91,10 @@ function registerProvider(
 }
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  const engineType = configuration.getConfiguration('lima').get('type') || 'podman';
-  const instanceName = configuration.getConfiguration('lima').get('name') || engineType;
-  const socketName = configuration.getConfiguration('lima').get('socket') || engineType + '.sock';
+  const engineType: string = configuration.getConfiguration('lima').get('type') || 'podman';
+  const instanceName: string = configuration.getConfiguration('lima').get('name') || engineType;
+  const socketName: string = configuration.getConfiguration('lima').get('socket') || engineType + '.sock';
+
   const limaHome = 'LIMA_HOME' in process.env ? process.env['LIMA_HOME'] : os.homedir() + '/.lima';
   const socketPath = path.resolve(limaHome, instanceName + '/sock/' + socketName);
   const configPath = path.resolve(limaHome, instanceName + '/copied-from-guest/kubeconfig.yaml');
