@@ -331,6 +331,7 @@ test('Expect startContainerProvider to only be called once when restarting', asy
     containerProviderConnectionCreationDisplayName: 'Podman machine',
     kubernetesProviderConnectionInitialization: false,
     extensionId: '',
+    cleanupSupport: false,
   };
 
   providerInfos.set([providerInfo]);
