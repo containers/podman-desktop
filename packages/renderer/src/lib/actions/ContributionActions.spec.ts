@@ -43,6 +43,41 @@ test('Expect one ListItemButtonIcon', async () => {
   expect(item).toBeInTheDocument();
 });
 
+test('Expect one ListItemButtonIcon without detail', async () => {
+  render(ContributionActions, {
+    args: [],
+    contributions: [
+      {
+        command: 'dummy.command',
+        title: 'dummy-title',
+      },
+    ],
+    onError: () => {},
+    dropdownMenu: false,
+  });
+  const item = screen.getByLabelText('dummy-title');
+  expect(item).toBeInTheDocument();
+  expect(item).toHaveClass('m-0.5');
+});
+
+test('Expect one ListItemButtonIcon with detail', async () => {
+  render(ContributionActions, {
+    args: [],
+    contributions: [
+      {
+        command: 'dummy.command',
+        title: 'dummy-title',
+      },
+    ],
+    onError: () => {},
+    dropdownMenu: false,
+    detailed: true,
+  });
+  const item = screen.getByLabelText('dummy-title');
+  expect(item).toBeInTheDocument();
+  expect(item).not.toHaveClass('m-0.5');
+});
+
 test('Expect executeCommand to be called', async () => {
   render(ContributionActions, {
     args: [],

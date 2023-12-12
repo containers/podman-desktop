@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
-import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
+import { faPlug } from '@fortawesome/free-solid-svg-icons';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import { removeNonSerializableProperties } from '/@/lib/actions/ActionUtils';
 import type { ContextUI } from '/@/lib/context/context';
@@ -16,6 +16,7 @@ export let contextPrefix: string | undefined = undefined;
 
 export let dropdownMenu = false;
 export let contributions: Menu[] = [];
+export let detailed = false;
 
 let filteredContributions: Menu[] = [];
 $: {
@@ -75,6 +76,7 @@ async function executeContribution(menu: Menu): Promise<void> {
     title="{menu.title}"
     onClick="{() => executeContribution(menu)}"
     menu="{dropdownMenu}"
-    icon="{faEllipsisVertical}"
+    icon="{faPlug}"
+    detailed="{detailed}"
     disabledWhen="{menu.disabled}" />
 {/each}
