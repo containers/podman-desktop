@@ -771,7 +771,7 @@ async function doHandleWSLDistroNotFoundError(
   return false;
 }
 
-async function registerUpdatesIfAny(
+export async function registerUpdatesIfAny(
   provider: extensionApi.Provider,
   installedPodman: InstalledPodman,
   podmanInstall: PodmanInstall,
