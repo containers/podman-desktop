@@ -213,7 +213,7 @@ const columns: Column<ImageInfoUI>[] = [
   envColumn,
   ageColumn,
   sizeColumn,
-  new Column<ImageInfoUI>('Actions', { align: 'right', width: '150px', renderer: ImageColumnActions }),
+  new Column<ImageInfoUI>('Actions', { align: 'right', width: '150px', renderer: ImageColumnActions, overflow: true }),
 ];
 
 const row = new Row<ImageInfoUI>({ selectable: image => !image.inUse, disabledText: 'Image is used by a container' });

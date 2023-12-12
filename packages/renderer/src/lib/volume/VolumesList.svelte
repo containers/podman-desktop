@@ -209,7 +209,7 @@ const columns: Column<VolumeInfoUI, VolumeInfoUI | string>[] = [
   envColumn,
   ageColumn,
   sizeColumn,
-  new Column<VolumeInfoUI>('Actions', { align: 'right', renderer: VolumeColumnActions }),
+  new Column<VolumeInfoUI>('Actions', { align: 'right', renderer: VolumeColumnActions, overflow: true }),
 ];
 
 const row = new Row<VolumeInfoUI>({
