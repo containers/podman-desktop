@@ -24,6 +24,7 @@ import type {
   ProviderStatus,
   Link,
   ProviderInformation,
+  ProviderCleanupAction,
 } from '@podman-desktop/api';
 
 export type LifecycleMethod = 'start' | 'stop' | 'delete' | 'edit';
@@ -117,4 +118,11 @@ export interface CheckStatus {
 export interface PreflightCheckEvent {
   type: 'start' | 'stop';
   status: CheckStatus;
+}
+
+export interface ProviderCleanupActionInfo {
+  providerId: string;
+  providerName: string;
+  actions: Promise<ProviderCleanupAction[]>;
+  instance: unknown;
 }
