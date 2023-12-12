@@ -19,7 +19,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, expect, test } from 'vitest';
+import { expect, test } from 'vitest';
 import ProviderCard from './ProviderCard.svelte';
 import { screen, render } from '@testing-library/svelte';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
