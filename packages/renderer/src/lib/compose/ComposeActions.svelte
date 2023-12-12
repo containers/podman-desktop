@@ -138,5 +138,6 @@ if (dropdownMenu) {
     contextPrefix="composeItem"
     dropdownMenu="{dropdownMenu}"
     contributions="{contributions}"
+    detailed="{detailed}"
     onError="{errorCallback}" />
 </svelte:component>
