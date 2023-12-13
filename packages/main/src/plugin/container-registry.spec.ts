@@ -2351,3 +2351,37 @@ test('setupConnectionAPI with errors after machine being removed', async () => {
     'Aborting reconnect due to error as connection has been removed (probably machine has been removed)',
   );
 });
+
+test('check handleEvents with loadArchive', async () => {
+  const getEventsMock = vi.fn();
+  let eventsMockCallback: any;
+  // keep the function passed in parameter of getEventsMock
+  getEventsMock.mockImplementation((options: any) => {
+    eventsMockCallback = options;
+  });
+
+  const passThrough = new PassThrough();
+  const fakeDockerode = {
+    getEvents: getEventsMock,
+  } as unknown as Dockerode;
+
+  const errorCallback = vi.fn();
+
+  containerRegistry.handleEvents(fakeDockerode, errorCallback);
+
+  if (eventsMockCallback) {
+    eventsMockCallback?.(undefined, passThrough);
+  }
+
+  // send loadArchive event
+  passThrough.emit('data', JSON.stringify({ status: 'loadfromarchive', Type: 'image', id: '123456' }));
+
+  // wait 1s
+  await new Promise(resolve => setTimeout(resolve, 3000));
+
+  // check callback is defined
+  expect(eventsMockCallback).toBeDefined();
+
+  // check we send the event to notify renderer part
+  expect(apiSender.send).toBeCalledWith('image-loadfromarchive-event', '123456');
+});
