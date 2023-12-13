@@ -22,12 +22,13 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import * as extension from './extension';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanCli } from './podman-cli';
-import type { Configuration, ContainerEngineInfo } from '@podman-desktop/api';
+import type { Configuration, ContainerEngineInfo, ContainerProviderConnection } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
-import { LoggerDelegator } from './util';
+import { isMac, LoggerDelegator } from './util';
 import { DarwinSocketCompatibility } from './compatibility-mode';
 import { PodmanInstall } from './podman-install';
+import { Disposable } from '@podman-desktop/api';
 
 const config: Configuration = {
   get: () => {
@@ -166,6 +167,9 @@ vi.mock('@podman-desktop/api', async () => {
     containerEngine: {
       info: vi.fn(),
     },
+    Disposable: {
+      from: vi.fn(),
+    },
   };
 });
 
@@ -215,6 +219,17 @@ vi.mock('./wsl-helper', async () => {
         }),
       };
     }),
+  };
+});
+
+vi.mock('./util', async () => {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+  const actual = await vi.importActual<typeof import('./util')>('./util');
+  return {
+    ...actual,
+    isMac: vi.fn(),
+    isWindows: vi.fn(),
+    isLinux: vi.fn(),
   };
 });
 
@@ -995,4 +1010,42 @@ test('ensure showNotification is not called during update', async () => {
   await expect(extension.updateMachines(provider)).rejects.toThrow('error');
 
   expect(showNotificationMock).toBeCalled();
+});
+
+test('provider is registered with edit capabilities on MacOS', async () => {
+  // Mock platform to be darwin
+  vi.mocked(isMac).mockReturnValue(true);
+  extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
+  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
+  spyExecPromise.mockImplementation(() => {
+    return Promise.reject(new Error('wsl bootstrap script failed: exit status 0xffffffff'));
+  });
+  let registeredConnection: ContainerProviderConnection;
+  vi.mocked(provider.registerContainerProviderConnection).mockImplementation(connection => {
+    registeredConnection = connection;
+    return Disposable.from({ dispose: () => {} });
+  });
+  await extension.registerProviderFor(provider, machineInfo, undefined);
+  expect(registeredConnection).toBeDefined();
+  expect(registeredConnection.lifecycle).toBeDefined();
+  expect(registeredConnection.lifecycle.edit).toBeDefined();
+});
+
+test('provider is registered without edit capabilities on Windows', async () => {
+  // Mock platform to be darwin
+  vi.mocked(isMac).mockReturnValue(false);
+  extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
+  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
+  spyExecPromise.mockImplementation(() => {
+    return Promise.reject(new Error('wsl bootstrap script failed: exit status 0xffffffff'));
+  });
+  let registeredConnection: ContainerProviderConnection;
+  vi.mocked(provider.registerContainerProviderConnection).mockImplementation(connection => {
+    registeredConnection = connection;
+    return Disposable.from({ dispose: () => {} });
+  });
+  await extension.registerProviderFor(provider, machineInfo, undefined);
+  expect(registeredConnection).toBeDefined();
+  expect(registeredConnection.lifecycle).toBeDefined();
+  expect(registeredConnection.lifecycle.edit).toBeUndefined();
 });
