@@ -951,7 +951,8 @@ test('ensure showNotification is not called during update', async () => {
       }),
   );
 
-  const podmanInstall: PodmanInstall = new PodmanInstall('');
+  const extensionContext = { subscriptions: [], storagePath: '' } as extensionApi.ExtensionContext;
+  const podmanInstall: PodmanInstall = new PodmanInstall(extensionContext);
   vi.spyOn(podmanInstall, 'checkForUpdate').mockImplementation((_installedPodman: InstalledPodman) => {
     return Promise.resolve({
       hasUpdate: true,

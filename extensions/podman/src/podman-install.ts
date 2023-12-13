@@ -123,8 +123,11 @@ export class PodmanInstall {
 
   private installers = new Map<NodeJS.Platform, Installer>();
 
-  constructor(private readonly storagePath: string) {
-    this.installers.set('win32', new WinInstaller());
+  private readonly storagePath: string;
+
+  constructor(readonly extensionContext: extensionApi.ExtensionContext) {
+    this.storagePath = extensionContext.storagePath;
+    this.installers.set('win32', new WinInstaller(extensionContext));
     this.installers.set('darwin', new MacOSInstaller());
   }
 
@@ -284,6 +287,10 @@ abstract class BaseInstaller implements Installer {
 }
 
 export class WinInstaller extends BaseInstaller {
+  constructor(private extensionContext: extensionApi.ExtensionContext) {
+    super();
+  }
+
   getUpdatePreflightChecks(): extensionApi.InstallCheck[] {
     return [];
   }
@@ -295,7 +302,7 @@ export class WinInstaller extends BaseInstaller {
       new WinMemoryCheck(),
       new VirtualMachinePlatformCheck(),
       new WSLVersionCheck(),
-      new WSL2Check(),
+      new WSL2Check(this.extensionContext),
     ];
   }
 
@@ -484,14 +491,19 @@ class WSL2Check extends BaseCheck {
   title = 'WSL2 Installed';
   installWSLCommandId = 'podman.onboarding.installWSL';
 
+  constructor(private extensionContext: extensionApi.ExtensionContext) {
+    super();
+  }
+
   async init(): Promise<void> {
-    extensionApi.commands.registerCommand(this.installWSLCommandId, async () => {
+    const wslCommand = extensionApi.commands.registerCommand(this.installWSLCommandId, async () => {
       const installSucceeded = await this.installWSL();
       if (installSucceeded) {
         // if action succeeded, do a re-check of all podman requirements so user can be moved forward if all missing pieces have been installed
         await extensionApi.commands.executeCommand('podman.onboarding.checkRequirementsCommand');
       }
     });
+    this.extensionContext.subscriptions.push(wslCommand);
   }
 
   async execute(): Promise<extensionApi.CheckResult> {
