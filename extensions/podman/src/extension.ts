@@ -807,7 +807,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   initTelemetryLogger();
 
-  const podmanInstall = new PodmanInstall(extensionContext.storagePath);
+  const podmanInstall = new PodmanInstall(extensionContext);
 
   const installedPodman = await getPodmanInstallation();
   const version: string | undefined = installedPodman?.version;
