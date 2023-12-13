@@ -20,12 +20,14 @@
 import type { Mock } from 'vitest';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import * as extension from './extension';
+import type { InstalledPodman } from './podman-cli';
 import { getPodmanCli } from './podman-cli';
 import type { Configuration, ContainerEngineInfo } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
 import { LoggerDelegator } from './util';
 import { DarwinSocketCompatibility } from './compatibility-mode';
+import { PodmanInstall } from './podman-install';
 
 const config: Configuration = {
   get: () => {
@@ -35,6 +37,7 @@ const config: Configuration = {
   update: vi.fn(),
 };
 
+const registerUpdateMock = vi.fn();
 const provider: extensionApi.Provider = {
   setContainerProviderConnectionFactory: vi.fn(),
   setKubernetesProviderConnectionFactory: vi.fn(),
@@ -42,7 +45,7 @@ const provider: extensionApi.Provider = {
   registerKubernetesProviderConnection: vi.fn(),
   registerLifecycle: vi.fn(),
   registerInstallation: vi.fn(),
-  registerUpdate: vi.fn(),
+  registerUpdate: registerUpdateMock,
   registerAutostart: vi.fn(),
   dispose: vi.fn(),
   name: '',
@@ -146,6 +149,7 @@ vi.mock('@podman-desktop/api', async () => {
     window: {
       showErrorMessage: vi.fn(),
       showInformationMessage: vi.fn(),
+      showNotification: vi.fn(),
     },
     context: {
       setValue: vi.fn(),
@@ -933,4 +937,62 @@ test('ensure stopped machine reports configuration', async () => {
   expect(config.update).toBeCalledWith('machine.cpusUsage', 0);
   expect(config.update).toBeCalledWith('machine.memoryUsage', 0);
   expect(config.update).toBeCalledWith('machine.diskSizeUsage', 0);
+});
+
+test('ensure showNotification is not called during update', async () => {
+  const showNotificationMock = vi.spyOn(extensionApi.window, 'showNotification');
+  extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+    (_command, args) =>
+      new Promise<extensionApi.RunResult>((resolve, reject) => {
+        if (args[0] === 'machine' && args[1] === 'list') {
+          reject(new Error('error'));
+        }
+      }),
+  );
+
+  const extensionContext = { subscriptions: [], storagePath: '' } as extensionApi.ExtensionContext;
+  const podmanInstall: PodmanInstall = new PodmanInstall(extensionContext);
+  vi.spyOn(podmanInstall, 'checkForUpdate').mockImplementation((_installedPodman: InstalledPodman) => {
+    return Promise.resolve({
+      hasUpdate: true,
+      bundledVersion: 'v1.2',
+      installedVersion: 'v1',
+    });
+  });
+  vi.spyOn(podmanInstall, 'performUpdate').mockImplementation(
+    async (_provider: extensionApi.Provider, _installedPodman: InstalledPodman | undefined) => {
+      await new Promise(resolve => setTimeout(resolve, 500));
+    },
+  );
+
+  let updater: extensionApi.ProviderUpdate;
+  registerUpdateMock.mockImplementation((update: extensionApi.ProviderUpdate) => {
+    updater = update;
+  });
+  await extension.registerUpdatesIfAny(
+    provider,
+    {
+      version: '1.1',
+    },
+    podmanInstall,
+  );
+
+  // check updater is registered
+  expect(updater).toBeDefined();
+  expect(updater.version).equal('v1.2');
+
+  // run the updater (it will sleep for 500ms before returning and resetting the shouldNotifySetup flag
+  // run the updateMachine which should not call the showNotification func because shouldNotifySetup is false
+  updater.update(undefined).catch(() => {});
+  await expect(extension.updateMachines(provider)).rejects.toThrow('error');
+
+  expect(showNotificationMock).not.toBeCalled();
+
+  // wait 500ms so that the updater is complete and shouldNotifySetup reset. Call again the updateMachines func, this time the showNotification is called
+  // as there is no update in progress
+  await new Promise(resolve => setTimeout(resolve, 500));
+  await expect(extension.updateMachines(provider)).rejects.toThrow('error');
+
+  expect(showNotificationMock).toBeCalled();
 });

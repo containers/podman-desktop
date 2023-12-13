@@ -614,9 +614,13 @@ export class ImageRegistry {
       }
     }
 
-    // check mediaType of the manifest
-    // if it is application/vnd.oci.image.index.v1+json it is an index
-    if (parsedManifest.mediaType === 'application/vnd.oci.image.index.v1+json') {
+    // https://github.com/opencontainers/image-spec/blob/main/image-index.md
+    // check schemaVersion and (mediaType of the manifest or if it contains manifests field being an array)
+    if (
+      parsedManifest.schemaVersion === 2 &&
+      (parsedManifest.mediaType === 'application/vnd.oci.image.index.v1+json' ||
+        Array.isArray(parsedManifest.manifests))
+    ) {
       // need to grab correct manifest from the index corresponding to our platform
       let platformArch: 'amd64' | 'arm64' = 'amd64';
       const arch = os.arch();

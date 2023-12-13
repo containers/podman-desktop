@@ -771,7 +771,7 @@ async function doHandleWSLDistroNotFoundError(
   return false;
 }
 
-async function registerUpdatesIfAny(
+export async function registerUpdatesIfAny(
   provider: extensionApi.Provider,
   installedPodman: InstalledPodman,
   podmanInstall: PodmanInstall,
@@ -780,7 +780,11 @@ async function registerUpdatesIfAny(
   if (updateInfo.hasUpdate) {
     provider.registerUpdate({
       version: updateInfo.bundledVersion,
-      update: () => podmanInstall.performUpdate(provider, installedPodman),
+      update: () => {
+        // disable notification before the update to prevent the notification to be shown and re-enabled when update is done
+        shouldNotifySetup = false;
+        return podmanInstall.performUpdate(provider, installedPodman).finally(() => (shouldNotifySetup = true));
+      },
       preflightChecks: () => podmanInstall.getUpdatePreflightChecks(),
     });
   }
@@ -803,7 +807,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   initTelemetryLogger();
 
-  const podmanInstall = new PodmanInstall(extensionContext.storagePath);
+  const podmanInstall = new PodmanInstall(extensionContext);
 
   const installedPodman = await getPodmanInstallation();
   const version: string | undefined = installedPodman?.version;

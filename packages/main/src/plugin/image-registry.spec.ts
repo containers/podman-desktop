@@ -585,3 +585,78 @@ test('getBestManifest returns the expected manifest', () => {
     imageRegistry.getBestManifest([manifests['windows-amd64'], manifests['darwin-amd64']], 'amd64', 'linux'),
   ).toBeUndefined();
 });
+
+test('getManifestFromUrl returns the expected manifest with mediaType', async () => {
+  const fakeManifest = {
+    schemaVersion: 2,
+    mediaType: 'application/vnd.oci.image.index.v1+json',
+    manifests: [],
+  };
+
+  // image index
+  nock('https://my-podman-desktop-fake-registry.io').get('/v2/foo/bar/manifests/latest').reply(200, fakeManifest);
+
+  // digest
+  nock('https://my-podman-desktop-fake-registry.io')
+    .get('/v2/foo/bar/manifests/1234')
+    .reply(200, JSON.stringify({ endManifest: true }));
+
+  // mock getBestManifest
+  const spyGetBestManifest = vi.spyOn(imageRegistry, 'getBestManifest');
+  spyGetBestManifest.mockReturnValue({
+    digest: 1234,
+  });
+
+  const manifest = await imageRegistry.getManifest(
+    {
+      name: 'foo/bar',
+      tag: 'latest',
+      registry: 'my-podman-desktop-fake-registry.io',
+      registryURL: 'https://my-podman-desktop-fake-registry.io/v2',
+    },
+    'dummyToken',
+  );
+
+  expect(manifest).toBeDefined();
+  expect(manifest).toHaveProperty('endManifest', true);
+  expect(spyGetBestManifest).toHaveBeenCalled();
+});
+
+test('getManifestFromUrl returns the expected manifest without mediaType but with manifests', async () => {
+  const fakeManifest = {
+    schemaVersion: 2,
+    manifests: [
+      {
+        dummyManifest: true,
+      },
+    ],
+  };
+
+  // image index
+  nock('https://my-podman-desktop-fake-registry.io').get('/v2/foo/bar/manifests/latest').reply(200, fakeManifest);
+
+  // digest
+  nock('https://my-podman-desktop-fake-registry.io')
+    .get('/v2/foo/bar/manifests/1234')
+    .reply(200, JSON.stringify({ endManifest: true }));
+
+  // mock getBestManifest
+  const spyGetBestManifest = vi.spyOn(imageRegistry, 'getBestManifest');
+  spyGetBestManifest.mockReturnValue({
+    digest: 1234,
+  });
+
+  const manifest = await imageRegistry.getManifest(
+    {
+      name: 'foo/bar',
+      tag: 'latest',
+      registry: 'my-podman-desktop-fake-registry.io',
+      registryURL: 'https://my-podman-desktop-fake-registry.io/v2',
+    },
+    'dummyToken',
+  );
+
+  expect(manifest).toBeDefined();
+  expect(manifest).toHaveProperty('endManifest', true);
+  expect(spyGetBestManifest).toHaveBeenCalled();
+});

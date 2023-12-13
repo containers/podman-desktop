@@ -68,6 +68,18 @@ export interface ColumnInformation<Type, RenderType = Type> {
    * Defaults to 'ascending'.
    */
   readonly initialOrder?: 'ascending' | 'descending';
+
+  /**
+   * By default, columns are limited to rendering within their
+   * own cell to stop long or extraneous content (e.g. long
+   * user-provided names) from interfering with other columns.
+   * More advanced column renderers that need to render outside
+   * of their cells (e.g. with popup menus or tooltips) can use
+   * this property to allow this behaviour.
+   *
+   * Defaults to 'false'.
+   */
+  readonly overflow?: boolean;
 }
 
 /**
