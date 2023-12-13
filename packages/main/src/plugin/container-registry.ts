@@ -163,6 +163,9 @@ export class ContainerProviderRegistry {
       } else if (jsonEvent.status === 'build' && jsonEvent?.Type === 'image') {
         // need to notify that image are being pulled
         this.apiSender.send('image-build-event', jsonEvent.id);
+      } else if (jsonEvent.status === 'loadfromarchive' && jsonEvent?.Type === 'image') {
+        // need to notify that image are being pulled
+        this.apiSender.send('image-loadfromarchive-event', jsonEvent.id);
       }
     });
 
