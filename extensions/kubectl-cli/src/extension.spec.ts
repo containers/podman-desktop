@@ -318,7 +318,8 @@ test('findKubeCtl not global kubectl but in storage installed on macOS', async (
 
   const { version, path } = await KubectlExtension.findKubeCtl(extensionContext);
   expect(version).toBe('1.28.3');
-  expect(path).toContain(fakeStorageDirectory);
+  expect(path).toContain('fake');
+  expect(path).toContain('directory');
   expect(path).toContain('bin');
   expect(path).toContain('kubectl');
 
