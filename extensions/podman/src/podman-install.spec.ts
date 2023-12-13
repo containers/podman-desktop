@@ -25,6 +25,10 @@ import * as os from 'node:os';
 const originalConsoleError = console.error;
 const consoleErrorMock = vi.fn();
 
+const extensionContext = {
+  subscriptions: [],
+} as unknown as extensionApi.ExtensionContext;
+
 // mock release
 vi.mock('node:os', async () => {
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports
@@ -69,6 +73,8 @@ const progress = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  // reset array of subscriptions
+  extensionContext.subscriptions.length = 0;
   console.error = consoleErrorMock;
 });
 
@@ -91,7 +97,7 @@ test('expect update on windows to show notification in case of 0 exit code', asy
   vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const result = await installer.update();
   expect(result).toBeTruthy();
   expect(extensionApi.window.showNotification).toHaveBeenCalled();
@@ -112,7 +118,7 @@ test('expect update on windows not to show notification in case of 1602 exit cod
   vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const result = await installer.update();
   expect(result).toBeTruthy();
   expect(extensionApi.window.showNotification).not.toHaveBeenCalled();
@@ -134,7 +140,7 @@ test('expect update on windows to throw error if non zero exit code', async () =
   vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const result = await installer.update();
   expect(result).toBeFalsy();
   expect(extensionApi.window.showErrorMessage).toHaveBeenCalled();
@@ -145,7 +151,7 @@ test('expect winbit preflight check return successful result if the arch is x64'
     value: 'x64',
   });
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winBitCheck = preflights[0];
   const result = await winBitCheck.execute();
@@ -157,7 +163,7 @@ test('expect winbit preflight check return successful result if the arch is arm6
     value: 'arm64',
   });
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winBitCheck = preflights[0];
   const result = await winBitCheck.execute();
@@ -169,7 +175,7 @@ test('expect winbit preflight check return failure result if the arch is not sup
     value: 'x86',
   });
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winBitCheck = preflights[0];
   const result = await winBitCheck.execute();
@@ -184,7 +190,7 @@ test('expect winbit preflight check return failure result if the arch is not sup
 test('expect winversion preflight check return successful result if the version is greater than min valid version', async () => {
   vi.spyOn(os, 'release').mockReturnValue('10.0.19043');
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winVersionCheck = preflights[1];
   const result = await winVersionCheck.execute();
@@ -194,7 +200,7 @@ test('expect winversion preflight check return successful result if the version 
 test('expect winversion preflight check return failure result if the version is greater than 9. and less than min build version', async () => {
   vi.spyOn(os, 'release').mockReturnValue('10.0.19042');
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winVersionCheck = preflights[1];
   const result = await winVersionCheck.execute();
@@ -209,7 +215,7 @@ test('expect winversion preflight check return failure result if the version is 
 test('expect winversion preflight check return failure result if the version is less than 10.0.0', async () => {
   vi.spyOn(os, 'release').mockReturnValue('9.0.19000');
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winVersionCheck = preflights[1];
   const result = await winVersionCheck.execute();
@@ -225,7 +231,7 @@ test('expect winMemory preflight check return successful result if the machine h
   const SYSTEM_MEM = 7 * 1024 * 1024 * 1024;
   vi.spyOn(os, 'totalmem').mockReturnValue(SYSTEM_MEM);
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winMemoryCheck = preflights[2];
   const result = await winMemoryCheck.execute();
@@ -236,7 +242,7 @@ test('expect winMemory preflight check return failure result if the machine has 
   const SYSTEM_MEM = 4 * 1024 * 1024 * 1024;
   vi.spyOn(os, 'totalmem').mockReturnValue(SYSTEM_MEM);
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winMemoryCheck = preflights[2];
   const result = await winMemoryCheck.execute();
@@ -259,7 +265,7 @@ test('expect winVirtualMachine preflight check return successful result if the v
       }),
   );
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winVirtualMachinePlatformCheck = preflights[3];
   const result = await winVirtualMachinePlatformCheck.execute();
@@ -279,7 +285,7 @@ test('expect winVirtualMachine preflight check return successful result if the v
       }),
   );
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winVirtualMachinePlatformCheck = preflights[3];
   const result = await winVirtualMachinePlatformCheck.execute();
@@ -300,7 +306,7 @@ test('expect winVirtualMachine preflight check return successful result if there
       }),
   );
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winVirtualMachinePlatformCheck = preflights[3];
   const result = await winVirtualMachinePlatformCheck.execute();
@@ -315,7 +321,7 @@ test('expect winVirtualMachine preflight check return successful result if there
 test('expect WSLVersion preflight check return fail result if wsl --version command fails its execution', async () => {
   vi.spyOn(extensionApi.process, 'exec').mockRejectedValue('');
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winWSLCheck = preflights[4];
   const result = await winWSLCheck.execute();
@@ -330,7 +336,7 @@ test('expect WSLVersion preflight check return fail result if first line output 
     command: 'command',
   });
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winWSLCheck = preflights[4];
   const result = await winWSLCheck.execute();
@@ -345,7 +351,7 @@ test('expect WSLVersion preflight check return fail result if first line output 
     command: 'command',
   });
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winWSLCheck = preflights[4];
   const result = await winWSLCheck.execute();
@@ -360,7 +366,7 @@ test('expect WSLVersion preflight check return fail result if first line output 
     command: 'command',
   });
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winWSLCheck = preflights[4];
   const result = await winWSLCheck.execute();
@@ -377,7 +383,7 @@ test('expect WSLVersion preflight check return fail result if first line output 
     command: 'command',
   });
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winWSLCheck = preflights[4];
   const result = await winWSLCheck.execute();
@@ -391,7 +397,7 @@ test('expect WSLVersion preflight check return fail result if first line output 
     command: 'command',
   });
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winWSLCheck = preflights[4];
   const result = await winWSLCheck.execute();
@@ -421,7 +427,7 @@ test('expect winWSL2 preflight check return successful result if the machine has
     }
   });
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winWSLCheck = preflights[5];
   const result = await winWSLCheck.execute();
@@ -461,7 +467,7 @@ test('expect winWSL2 preflight check return failure result if the machine has WS
     }
   });
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winWSLCheck = preflights[5];
   const result = await winWSLCheck.execute();
@@ -503,7 +509,7 @@ test('expect winWSL2 preflight check return successful result if the machine has
     }
   });
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winWSLCheck = preflights[5];
   const result = await winWSLCheck.execute();
@@ -533,7 +539,7 @@ test('expect winWSL2 preflight check return failure result if user do not have w
     }
   });
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winWSLCheck = preflights[5];
   const result = await winWSLCheck.execute();
@@ -566,7 +572,7 @@ test('expect winWSL2 preflight check return failure result if user do not have w
     }
   });
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winWSLCheck = preflights[5];
   const result = await winWSLCheck.execute();
@@ -595,7 +601,7 @@ test('expect winWSL2 preflight check return failure result if it fails when chec
     }
   });
 
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winWSLCheck = preflights[5];
   const result = await winWSLCheck.execute();
@@ -604,11 +610,28 @@ test('expect winWSL2 preflight check return failure result if it fails when chec
   expect(result.docLinks[0].title).equal('WSL2 Manual Installation Steps');
 });
 
-test('expect winWSL2 init to rgister WSLInstall command', async () => {
+test('expect winWSL2 init to register WSLInstall command', async () => {
   const registerCommandMock = vi.spyOn(extensionApi.commands, 'registerCommand');
-  const installer = new WinInstaller();
+  const installer = new WinInstaller(extensionContext);
   const preflights = installer.getPreflightChecks();
   const winWSLCheck = preflights[5];
   await winWSLCheck.init();
   expect(registerCommandMock).toBeCalledWith('podman.onboarding.installWSL', expect.any(Function));
+});
+
+test('expect winWSL2 command to be registered as disposable', async () => {
+  const registerCommandMock = vi.spyOn(extensionApi.commands, 'registerCommand');
+  const disposableMock = {
+    dispose: vi.fn(),
+  };
+  registerCommandMock.mockReturnValue(disposableMock);
+  const installer = new WinInstaller(extensionContext);
+  const preflights = installer.getPreflightChecks();
+  const winWSLCheck = preflights[5];
+  await winWSLCheck.init();
+  expect(registerCommandMock).toBeCalledWith('podman.onboarding.installWSL', expect.any(Function));
+
+  // should contain a subscription with a disposable function
+  expect(extensionContext.subscriptions[0]).toBeDefined();
+  expect(extensionContext.subscriptions[0].dispose).toBeDefined();
 });
