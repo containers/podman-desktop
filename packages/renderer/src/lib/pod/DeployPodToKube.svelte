@@ -365,7 +365,7 @@ function updateKubeResult() {
 }
 </script>
 
-<FormPage title="Deploy generated pod to Kubernetes">
+<FormPage title="Deploy generated pod to Kubernetes" inProgress="{deployStarted && !deployFinished}">
   <i class="fas fa-rocket fa-2x" slot="icon" aria-hidden="true"></i>
 
   <div slot="content" class="p-5 min-w-full h-fit">

@@ -133,7 +133,7 @@ function requestFocus(element: HTMLInputElement) {
 }
 </script>
 
-<FormPage title="Pull Image From a Registry">
+<FormPage title="Pull Image From a Registry" inProgress="{pullInProgress}">
   <svelte:fragment slot="icon">
     <i class="fas fa-arrow-circle-down fa-2x" aria-hidden="true"></i>
   </svelte:fragment>
