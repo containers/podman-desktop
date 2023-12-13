@@ -35,6 +35,7 @@ const windowEvents = [
   'image-tag-event',
   'image-untag-event',
   'extensions-started',
+  'image-loadfromarchive-event',
 ];
 const windowListeners = ['image-build', 'extensions-already-started'];
 
@@ -56,7 +57,7 @@ const listImages = (): Promise<ImageInfo[]> => {
   return window.listImages();
 };
 
-const imagesEventStore = new EventStore<ImageInfo[]>(
+export const imagesEventStore = new EventStore<ImageInfo[]>(
   'images',
   imagesInfos,
   checkForUpdate,
