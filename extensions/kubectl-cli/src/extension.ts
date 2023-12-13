@@ -56,6 +56,8 @@ export function initTelemetryLogger(): void {
 }
 
 const kubectlCliName = 'kubectl';
+const kubectlExecutableName = extensionApi.env.isWindows ? kubectlCliName + '.exe' : kubectlCliName;
+
 const kubectlCliDisplayName = 'kubectl';
 const kubectlCliDescription = `A command line tool for communicating with a Kubernetes cluster's control plane, using the Kubernetes API.\n\nMore information: [kubernetes.io](https://kubernetes.io/docs/reference/kubectl/)`;
 const imageLocation = './icon.png';
@@ -232,29 +234,83 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   }, 0);
 }
 
+interface CliFinder {
+  version: string;
+  path: string;
+}
+
+export function getStorageKubectlPath(extensionContext: extensionApi.ExtensionContext): string {
+  // The location of the binary (using system path)
+  return path.join(extensionContext.storagePath, 'bin', kubectlExecutableName);
+}
+
+export async function findKubeCtl(extensionContext: extensionApi.ExtensionContext): Promise<CliFinder> {
+  let binaryVersion = '';
+  let binaryPath = '';
+
+  // Retrieve the version of the binary by running exec with --client
+  try {
+    const result = await extensionApi.process.exec(kubectlExecutableName, [
+      'version',
+      '--client',
+      'true',
+      '-o',
+      'json',
+    ]);
+    binaryVersion = extractVersion(result.stdout);
+
+    // grab full path for Linux and mac
+    if (extensionApi.env.isLinux || extensionApi.env.isMac) {
+      try {
+        const { stdout: fullPath } = await extensionApi.process.exec('which', [kubectlExecutableName]);
+        binaryPath = fullPath;
+      } catch (err) {
+        console.warn('Error getting kubectl full path', err);
+      }
+    } else if (extensionApi.env.isWindows) {
+      // grab full path for Windows
+      try {
+        const { stdout: fullPath } = await extensionApi.process.exec('where', [kubectlExecutableName]);
+        // remove all line break/carriage return characters from full path
+        const withoutCR = fullPath.replace(/(\r\n|\n|\r)/gm, '');
+        binaryPath = withoutCR;
+      } catch (err) {
+        console.warn('Error getting kubectl full path', err);
+      }
+    }
+
+    if (!binaryPath) {
+      binaryPath = 'kubectl';
+    }
+  } catch (e) {
+    console.warn(`Error getting kubectl from user PATH: ${e}, trying from extension storage path`);
+    try {
+      const result = await extensionApi.process.exec(getStorageKubectlPath(extensionContext), [
+        'version',
+        '--client',
+        'true',
+        '-o',
+        'json',
+      ]);
+      binaryVersion = extractVersion(result.stdout);
+      binaryPath = getStorageKubectlPath(extensionContext);
+    } catch (error) {
+      console.warn('Error getting kubectl version system from extension storage path', error);
+    }
+  }
+
+  return { version: binaryVersion, path: binaryPath };
+}
+
 // Activate the CLI tool (check version, etc) and register the CLi so it does not block activation.
 async function postActivate(
   extensionContext: extensionApi.ExtensionContext,
   kubectlDownload: KubectlDownload,
 ): Promise<void> {
-  // The location of the binary (local storage folder)
-  const binaryPath = path.join(
-    extensionContext.storagePath,
-    'bin',
-    os.isWindows() ? kubectlCliName + '.exe' : kubectlCliName,
-  );
-  let binaryVersion = '';
-
-  // Retrieve the version of the binary by running exec with --short
-  try {
-    const result = await extensionApi.process.exec(binaryPath, ['version', '--client', 'true', '-o', 'json']);
-    binaryVersion = extractVersion(result.stdout);
-  } catch (e) {
-    console.error(`Error getting kubectl version: ${e}`);
-  }
+  const { version, path } = await findKubeCtl(extensionContext);
 
   // Register the CLI tool so it appears in the preferences page. We will detect which version is being ran by
-  // checking the local storage folder for the binary. If it exists, we will run `--version` and parse the information.
+  // checking the binary. If it exists, we will run `--version` and parse the information.
   kubectlCliTool = extensionApi.cli.createCliTool({
     name: kubectlCliName,
     displayName: kubectlCliDisplayName,
@@ -262,20 +318,20 @@ async function postActivate(
     images: {
       icon: imageLocation,
     },
-    version: binaryVersion,
-    path: binaryPath,
+    version,
+    path,
   });
 
   // check if there is a new version to be installed and register the updater
   const lastReleaseMetadata = await kubectlDownload.getLatestVersionAsset();
   const lastReleaseVersion = lastReleaseMetadata.tag.slice(1);
-  if (lastReleaseVersion !== binaryVersion) {
+  if (lastReleaseVersion !== version) {
     kubectlCliToolUpdaterDisposable = kubectlCliTool.registerUpdate({
       version: lastReleaseVersion,
       doUpdate: async _logger => {
         // download, install system wide and update cli version
         await kubectlDownload.download(lastReleaseMetadata);
-        await installBinaryToSystem(binaryPath, 'kubectl');
+        await installBinaryToSystem(path, 'kubectl');
         kubectlCliTool.updateVersion({
           version: lastReleaseVersion,
         });
