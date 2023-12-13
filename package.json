@@ -107,7 +107,7 @@
     "@commitlint/config-conventional": "^18.4.3",
     "@playwright/test": "1.37.1",
     "@rollup/plugin-commonjs": "^25.0.7",
-    "@rollup/plugin-json": "^6.0.1",
+    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.5",
     "@types/adm-zip": "^0.5.5",
