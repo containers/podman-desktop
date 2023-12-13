@@ -72,24 +72,22 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
           {/if}
           <span id="{cliTool.id}" class="my-auto ml-3 break-words" aria-label="cli-name">{cliTool.name}</span>
         </div>
-        <div class="">
+        {#if cliTool.version && cliToolStatus}
           <div class="p-0.5 rounded-lg bg-charcoal-900 w-fit">
-            {#if cliTool.version && cliToolStatus}
-              <LoadingIconButton
-                action="update"
-                clickAction="{() => {
-                  if (cliTool.newVersion) {
-                    update(cliTool);
-                  }
-                }}"
-                icon="{faCircleArrowUp}"
-                leftPosition="left-[0.4rem]"
-                state="{cliToolStatus}"
-                color="primary"
-                tooltip="{!cliTool.newVersion ? 'No updates' : `Update to v.${cliTool.newVersion}`}" />
-            {/if}
+            <LoadingIconButton
+              action="update"
+              clickAction="{() => {
+                if (cliTool.newVersion) {
+                  update(cliTool);
+                }
+              }}"
+              icon="{faCircleArrowUp}"
+              leftPosition="left-[0.4rem]"
+              state="{cliToolStatus}"
+              color="primary"
+              tooltip="{!cliTool.newVersion ? 'No updates' : `Update to v${cliTool.newVersion}`}" />
           </div>
-        </div>
+        {/if}
       </div>
     </div>
     <!-- cli-tools columns -->
@@ -103,9 +101,10 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
           <Markdown markdown="{cliTool.description}" />
         </div>
         {#if cliTool.version}
-          <div class="flex flex-row justify-between bg-charcoal-900 p-2 rounded-lg min-w-[320px] w-fit">
-            <span class="text-white-400 font-bold text-xs" aria-label="cli-version"
-              >{cliTool.name} v{cliTool.version}</span>
+          <div class="flex flex-row justify-between align-center bg-charcoal-900 p-2 rounded-lg min-w-[320px] w-fit">
+            <div class="flex text-white-400 font-bold text-xs items-center" aria-label="cli-version">
+              {cliTool.name} v{cliTool.version}
+            </div>
             {#if cliTool.newVersion}
               <Button
                 type="link"
@@ -116,7 +115,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
                     update(cliTool);
                   }
                 }}"
-                title="{`Update ${cliTool.displayName} to v.${cliTool.newVersion}?`}"
+                title="{`${cliTool.displayName} will be updated to v${cliTool.newVersion}`}"
                 disabled="{!cliTool.newVersion}"
                 aria-label="Update available">
                 Update available
