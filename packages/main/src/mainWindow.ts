@@ -247,7 +247,7 @@ async function createWindow(): Promise<BrowserWindow> {
       : new URL('../renderer/dist/index.html', 'file://' + __dirname).toString();
 
   await browserWindow.loadURL(pageUrl);
-
+  await browserWindow.webContents.setVisualZoomLevelLimits(1, 1);
   return browserWindow;
 }
 
