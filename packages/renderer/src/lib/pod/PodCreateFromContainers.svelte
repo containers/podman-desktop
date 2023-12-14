@@ -194,7 +194,7 @@ function updatePortExposure(port: number, checked: boolean) {
 }
 </script>
 
-<FormPage title="Copy containers to a pod">
+<FormPage title="Copy containers to a pod" inProgress="{createInProgress}">
   <SolidPodIcon slot="icon" size="40" />
 
   <div class="min-w-full h-fit" slot="content">

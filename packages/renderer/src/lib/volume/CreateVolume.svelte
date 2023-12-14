@@ -55,7 +55,7 @@ let createVolumeFinished = false;
 export let volumeName = '';
 </script>
 
-<FormPage title="Create a volume">
+<FormPage title="Create a volume" inProgress="{createVolumeInProgress}">
   <svelte:fragment slot="icon">
     <VolumeIcon />
   </svelte:fragment>
