@@ -133,9 +133,9 @@ async function deleteSelectedImages() {
 let refreshTimeouts: NodeJS.Timeout[] = [];
 const SECOND = 1000;
 function refreshAge() {
-  images.forEach(imageInfo => {
+  for (const imageInfo of images) {
     imageInfo.age = imageUtils.refreshAge(imageInfo);
-  });
+  }
   images = images;
 
   // compute new interval
