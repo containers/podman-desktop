@@ -30,6 +30,8 @@ import type {
   V1APIGroup,
   Cluster,
   V1Deployment,
+  KubernetesObject,
+  ListPromise,
 } from '@kubernetes/client-node';
 import {
   ApisApi,
@@ -41,6 +43,7 @@ import {
   Log,
   Watch,
   VersionApi,
+  makeInformer,
 } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types.js';
 import type * as containerDesktopAPI from '@podman-desktop/api';
@@ -58,6 +61,8 @@ import { parseAllDocuments } from 'yaml';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import * as jsYaml from 'js-yaml';
 import type { KubeContext } from './kubernetes-context.js';
+import type { KubernetesInformerManager } from './kubernetes-informer-registry.js';
+import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 
 function toContainerStatus(state: V1ContainerState | undefined): string {
   if (state) {
@@ -137,6 +142,7 @@ export class KubernetesClient {
     private readonly apiSender: ApiSenderType,
     private readonly configurationRegistry: ConfigurationRegistry,
     private readonly fileSystemMonitoring: FilesystemMonitoring,
+    private readonly informerManager: KubernetesInformerManager,
     private readonly telemetry: Telemetry,
   ) {
     this.kubeConfig = new KubeConfig();
@@ -439,6 +445,7 @@ export class KubernetesClient {
     this.apiResources.clear();
     await this.fetchAPIGroups();
     this.apiSender.send('pod-event');
+    this.apiSender.send('kubeconfig-update');
   }
 
   newError(message: string, cause: Error): Error {
@@ -1042,6 +1049,88 @@ export class KubernetesClient {
         'kubernetesCreateResource',
         Object.assign({ manifestsSize: manifests?.length }, telemetryOptions),
       );
+    }
+  }
+
+  async createIngressesInformer(id?: number): Promise<number> {
+    const ns = this.getCurrentNamespace();
+    if (ns) {
+      const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
+      return this.makeKubernetesInformer<V1Ingress>(
+        'INGRESS',
+        '/apis/networking.k8s.io/v1/namespaces/' + ns + '/ingresses',
+        () => k8sNetworkingApi.listNamespacedIngress(ns),
+        id,
+      );
+    }
+    throw new Error('no active namespace');
+  }
+
+  async startInformer(resourcesType: KubernetesInformerResourcesType, id?: number): Promise<number> {
+    switch (resourcesType) {
+      case 'INGRESS': {
+        return this.createIngressesInformer(id);
+      }
+    }
+  }
+
+  async makeKubernetesInformer<T extends KubernetesObject>(
+    resourcesType: KubernetesInformerResourcesType,
+    path: string,
+    listPromiseFn: ListPromise<T>,
+    id?: number,
+  ): Promise<number> {
+    const currentContext = this.kubeConfig.getContextObject(this.kubeConfig.currentContext);
+    if (currentContext) {
+      // set up the informer
+      try {
+        const informer = makeInformer<T>(this.kubeConfig, path, listPromiseFn);
+        informer.on('add', resource => {
+          this.apiSender.send(`kubernetes-${resourcesType.toLowerCase()}-add`, resource);
+        });
+        informer.on('update', resource => {
+          this.apiSender.send(`kubernetes-${resourcesType.toLowerCase()}-update`, resource);
+        });
+        informer.on('delete', resource => {
+          this.apiSender.send(`kubernetes-${resourcesType.toLowerCase()}-deleted`, resource);
+        });
+        informer.on('error', _resource => {
+          this.apiSender.send('kubernetes-error');
+          // Restart informer after 5sec
+          setTimeout(() => {
+            informer.start().catch((e: unknown) => console.error(e));
+          }, 5000);
+        });
+        informer.on('connect', _resource => {
+          this.apiSender.send('kubernetes-connect');
+        });
+        // if id is defined, we are refreshing an informer so we have to update its entry in the registry
+        if (id) {
+          this.apiSender.send('kubernetes-informer-refresh', id);
+          this.informerManager.updateInformer(id, informer, currentContext);
+        } else {
+          // else we are creating a new informer and add it to the registry
+          id = this.informerManager.addInformer(informer, currentContext, resourcesType);
+        }
+        // start informer
+        await informer.start();
+        // return its id
+        return id;
+      } catch (_) {
+        // do nothing
+      }
+    }
+
+    throw new Error('error when setting the informer');
+  }
+
+  async refreshInformer(id: number) {
+    const currentContext = this.kubeConfig.getContextObject(this.kubeConfig.currentContext);
+    const informerInfo = this.informerManager.getInformerInfo(id);
+    // if context changed after we started the informer, we recreate it with the new context
+    if (informerInfo && JSON.stringify(informerInfo.context) !== JSON.stringify(currentContext)) {
+      await informerInfo.informer.stop();
+      await this.startInformer(informerInfo.resourcesType, id);
     }
   }
 }
