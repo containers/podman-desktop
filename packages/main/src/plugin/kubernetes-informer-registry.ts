@@ -17,19 +17,19 @@
  ***********************************************************************/
 
 import type { Context, Informer, KubernetesObject } from '@kubernetes/client-node';
-import type { InformerInfo, InformerResourcesType } from './api/informer-info.js';
+import type { KubernetesInformerInfo, KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 
-export class InformerManager {
+export class KubernetesInformerManager {
   private informerId = 0;
 
-  private informers = new Map<number, InformerInfo>();
+  private informers = new Map<number, KubernetesInformerInfo>();
 
   constructor() {}
 
   public addInformer(
     informer: Informer<KubernetesObject>,
     context: Context,
-    resourcesType: InformerResourcesType,
+    resourcesType: KubernetesInformerResourcesType,
   ): number {
     this.informerId++;
     this.informers.set(this.informerId, {
@@ -51,7 +51,7 @@ export class InformerManager {
     }
   }
 
-  public getInformerInfo(id: number): InformerInfo | undefined {
+  public getInformerInfo(id: number): KubernetesInformerInfo | undefined {
     return this.informers.get(id);
   }
 

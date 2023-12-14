@@ -36,10 +36,10 @@ import * as clientNode from '@kubernetes/client-node';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import * as fs from 'node:fs';
 import type { V1Route } from './api/openshift-types.js';
-import { InformerManager } from './informer-registry.js';
+import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 
 const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
-const informerManager: InformerManager = new InformerManager();
+const informerManager: KubernetesInformerManager = new KubernetesInformerManager();
 const fileSystemMonitoring: FilesystemMonitoring = new FilesystemMonitoring();
 const telemetry: Telemetry = {
   track: vi.fn().mockImplementation(async () => {

@@ -20,8 +20,8 @@
 
 import { get } from 'svelte/store';
 import { beforeAll, expect, test, vi } from 'vitest';
-import { customWritable, type InformerWritable } from './informerWritable';
-import { EventStoreWithInformer } from './informer-event-store';
+import { customWritable, type KubernetesInformerWritable } from './kubernetesInformerWritable';
+import { EventStoreWithKubernetesInformer } from './kubernetes-informer-event-store';
 
 // first, path window object
 const callbacks = new Map<string, any>();
@@ -50,12 +50,12 @@ interface MyCustomTypeInfo {
 }
 
 test('expect informerEvents call informerListener', async () => {
-  const store: InformerWritable<MyCustomTypeInfo[]> = customWritable([]);
+  const store: KubernetesInformerWritable<MyCustomTypeInfo[]> = customWritable([]);
   const informerEvents = ['a', 'b'];
   const informerRefreshEvents = ['c'];
   const informerListener = vi.fn();
 
-  const eventStoreWithInformer = new EventStoreWithInformer(
+  const eventStoreWithInformer = new EventStoreWithKubernetesInformer(
     store,
     informerEvents,
     informerRefreshEvents,
@@ -72,13 +72,13 @@ test('expect informerEvents call informerListener', async () => {
 });
 
 test('expect informerRefreshEvents call kubernetesRefreshInformer', async () => {
-  const store: InformerWritable<MyCustomTypeInfo[]> = customWritable([]);
+  const store: KubernetesInformerWritable<MyCustomTypeInfo[]> = customWritable([]);
   vi.spyOn(store, 'getInformerId').mockReturnValue(1);
   const informerEvents = ['a', 'b'];
   const informerRefreshEvents = ['c'];
   const informerListener = vi.fn();
 
-  const eventStoreWithInformer = new EventStoreWithInformer(
+  const eventStoreWithInformer = new EventStoreWithKubernetesInformer(
     store,
     informerEvents,
     informerRefreshEvents,
@@ -95,7 +95,7 @@ test('expect informerRefreshEvents call kubernetesRefreshInformer', async () => 
 });
 
 test('expect kubernetes-informer-refresh event empties the store', async () => {
-  const store: InformerWritable<MyCustomTypeInfo[]> = customWritable([
+  const store: KubernetesInformerWritable<MyCustomTypeInfo[]> = customWritable([
     {
       name: 'test',
     },
@@ -105,7 +105,7 @@ test('expect kubernetes-informer-refresh event empties the store', async () => {
   const informerRefreshEvents = ['c'];
   const informerListener = vi.fn();
 
-  const eventStoreWithInformer = new EventStoreWithInformer(
+  const eventStoreWithInformer = new EventStoreWithKubernetesInformer(
     store,
     informerEvents,
     informerRefreshEvents,

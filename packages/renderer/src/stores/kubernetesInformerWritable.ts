@@ -2,7 +2,7 @@ import type { Invalidator, StartStopNotifier, Subscriber, Unsubscriber, Writable
 import { writable } from 'svelte/store';
 
 /** Writable interface for both updating and subscribing. */
-export interface InformerWritable<T> extends Writable<T> {
+export interface KubernetesInformerWritable<T> extends Writable<T> {
   /**
    * Get the active informer id
    */
@@ -13,18 +13,18 @@ export function customWritable<T>(
   value: T,
   startInformer?: () => Promise<number>,
   start?: StartStopNotifier<T>,
-): InformerWritable<T> {
+): KubernetesInformerWritable<T> {
   let informer: number | undefined;
   const origWritable = writable(value, start);
 
   function subscribe(this: void, run: Subscriber<T>, invalidate?: Invalidator<T>): Unsubscriber {
     startInformer?.()
       .then(id => (informer = id))
-      .catch((e: unknown) => console.error(e));
+      .catch((e: unknown) => console.error(`Error when starting the informer - ${String(e)}`));
     const unsubscriber = origWritable.subscribe(run, invalidate);
     return () => {
       if (informer) {
-        window.stopInformer(informer);
+        window.kubernetesStopInformer(informer);
         informer = undefined;
       }
       unsubscriber();

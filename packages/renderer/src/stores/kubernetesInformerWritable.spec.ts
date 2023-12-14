@@ -18,12 +18,12 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { beforeAll, expect, test, vi } from 'vitest';
-import { customWritable, type InformerWritable } from './informerWritable';
+import { customWritable, type KubernetesInformerWritable } from './kubernetesInformerWritable';
 
 const stopInformerMock = vi.fn();
 Object.defineProperty(global, 'window', {
   value: {
-    stopInformer: stopInformerMock,
+    kubernetesStopInformer: stopInformerMock,
   },
 });
 
@@ -37,7 +37,7 @@ interface MyCustomTypeInfo {
 
 test('expect startInformer to be called when subscribing', async () => {
   const startInformer = vi.fn().mockResolvedValue(1);
-  const store: InformerWritable<MyCustomTypeInfo[]> = customWritable([], startInformer);
+  const store: KubernetesInformerWritable<MyCustomTypeInfo[]> = customWritable([], startInformer);
 
   const unsubscribe = store.subscribe(() => {
     // nothing

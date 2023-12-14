@@ -17,13 +17,13 @@
  ***********************************************************************/
 
 // eslint-disable-next-line import/no-duplicates
-import type { InformerWritable } from './informerWritable';
+import type { KubernetesInformerWritable } from './kubernetesInformerWritable';
 
 // Helper to manage store updated from events
-export class EventStoreWithInformer<T> {
+export class EventStoreWithKubernetesInformer<T> {
   constructor(
     // The store to actually update / return the data
-    private store: InformerWritable<T>,
+    private store: KubernetesInformerWritable<T>,
 
     // The list of informer events to listen for to trigger an update or to refresh the informer, for example:
     // Informer event: 'kubernetes-ingress-add'

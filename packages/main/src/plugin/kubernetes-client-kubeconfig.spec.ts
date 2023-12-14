@@ -5,7 +5,7 @@ import { FilesystemMonitoring } from './filesystem-monitoring.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import type { ApiSenderType } from './api.js';
 import { KubernetesClient } from './kubernetes-client.js';
-import { InformerManager } from './informer-registry.js';
+import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 
 // WARNING: Do not import anything from kubernetes-client.spec.ts
 // or it will execute the modules mocks from there, incompatibles with tests in this file
@@ -46,7 +46,7 @@ describe('context tests', () => {
   function createClient(): TestKubernetesClient {
     const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
     const fileSystemMonitoring: FilesystemMonitoring = new FilesystemMonitoring();
-    const informerManager = new InformerManager();
+    const informerManager = new KubernetesInformerManager();
     const telemetry: Telemetry = {
       track: vi.fn().mockImplementation(async () => {}),
     } as unknown as Telemetry;

@@ -17,10 +17,10 @@
  ***********************************************************************/
 
 import { expect, test, vi } from 'vitest';
-import { InformerManager } from './informer-registry.js';
+import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { Context, Informer, KubernetesObject } from '@kubernetes/client-node';
 
-const informerManager = new InformerManager();
+const informerManager = new KubernetesInformerManager();
 const context: Context = {
   cluster: 'cluster',
   name: 'name',

@@ -61,8 +61,8 @@ import { parseAllDocuments } from 'yaml';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import * as jsYaml from 'js-yaml';
 import type { KubeContext } from './kubernetes-context.js';
-import type { InformerManager } from './informer-registry.js';
-import type { InformerResourcesType } from './api/informer-info.js';
+import type { KubernetesInformerManager } from './kubernetes-informer-registry.js';
+import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 
 function toContainerStatus(state: V1ContainerState | undefined): string {
   if (state) {
@@ -142,7 +142,7 @@ export class KubernetesClient {
     private readonly apiSender: ApiSenderType,
     private readonly configurationRegistry: ConfigurationRegistry,
     private readonly fileSystemMonitoring: FilesystemMonitoring,
-    private readonly informerManager: InformerManager,
+    private readonly informerManager: KubernetesInformerManager,
     private readonly telemetry: Telemetry,
   ) {
     this.kubeConfig = new KubeConfig();
@@ -1066,7 +1066,7 @@ export class KubernetesClient {
     throw new Error('no active namespace');
   }
 
-  async startInformer(resourcesType: InformerResourcesType, id?: number): Promise<number> {
+  async startInformer(resourcesType: KubernetesInformerResourcesType, id?: number): Promise<number> {
     switch (resourcesType) {
       case 'INGRESS': {
         return this.createIngressesInformer(id);
@@ -1075,7 +1075,7 @@ export class KubernetesClient {
   }
 
   async makeKubernetesInformer<T extends KubernetesObject>(
-    resourcesType: InformerResourcesType,
+    resourcesType: KubernetesInformerResourcesType,
     path: string,
     listPromiseFn: ListPromise<T>,
     id?: number,

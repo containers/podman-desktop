@@ -146,8 +146,8 @@ import { ImageCheckerImpl } from './image-checker.js';
 import type { ImageCheckerInfo } from './api/image-checker-info.js';
 import { AppearanceInit } from './appearance-init.js';
 import type { KubeContext } from './kubernetes-context.js';
-import { InformerManager } from './informer-registry.js';
-import type { InformerResourcesType } from './api/informer-info.js';
+import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
+import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -419,12 +419,12 @@ export class PluginSystem {
     const fileSystemMonitoring = new FilesystemMonitoring();
     const customPickRegistry = new CustomPickRegistry(apiSender);
     const onboardingRegistry = new OnboardingRegistry(configurationRegistry, context);
-    const informerRegistry = new InformerManager();
+    const kubernetesInformerRegistry = new KubernetesInformerManager();
     const kubernetesClient = new KubernetesClient(
       apiSender,
       configurationRegistry,
       fileSystemMonitoring,
-      informerRegistry,
+      kubernetesInformerRegistry,
       telemetry,
     );
     await kubernetesClient.init();
@@ -1845,7 +1845,7 @@ export class PluginSystem {
 
     this.ipcHandle(
       'kubernetes-client:startInformer',
-      async (_listener, resourcesType: InformerResourcesType): Promise<number> => {
+      async (_listener, resourcesType: KubernetesInformerResourcesType): Promise<number> => {
         return kubernetesClient.startInformer(resourcesType);
       },
     );
@@ -1854,8 +1854,8 @@ export class PluginSystem {
       return kubernetesClient.refreshInformer(id);
     });
 
-    this.ipcHandle('informer-registry:stopInformer', async (_listener, id: number): Promise<void> => {
-      return informerRegistry.stopInformer(id);
+    this.ipcHandle('kubernetes-informer-registry:stopInformer', async (_listener, id: number): Promise<void> => {
+      return kubernetesInformerRegistry.stopInformer(id);
     });
 
     this.ipcHandle('kubernetes-client:listRoutes', async (): Promise<V1Route[]> => {

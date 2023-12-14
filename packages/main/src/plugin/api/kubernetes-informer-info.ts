@@ -17,10 +17,10 @@
  ***********************************************************************/
 import type { Context, Informer, KubernetesObject } from '@kubernetes/client-node';
 
-export type InformerResourcesType = 'INGRESS';
+export type KubernetesInformerResourcesType = 'INGRESS';
 
-export interface InformerInfo {
+export interface KubernetesInformerInfo {
   informer: Informer<KubernetesObject>;
   context: Context;
-  resourcesType: InformerResourcesType;
+  resourcesType: KubernetesInformerResourcesType;
 }

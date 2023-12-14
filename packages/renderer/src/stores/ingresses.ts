@@ -17,15 +17,15 @@
  ***********************************************************************/
 
 import type { V1Ingress } from '@kubernetes/client-node';
-import { customWritable, type InformerWritable } from './informerWritable';
-import { EventStoreWithInformer } from './informer-event-store';
+import { customWritable, type KubernetesInformerWritable } from './kubernetesInformerWritable';
+import { EventStoreWithKubernetesInformer } from './kubernetes-informer-event-store';
 
 const informerEvents = ['kubernetes-ingress-add', 'kubernetes-ingress-update', 'kubernetes-ingress-deleted'];
 const informerRefreshEvents = ['provider-change', 'kubeconfig-update'];
 
-export const ingresses: InformerWritable<V1Ingress[]> = customWritable([], startInformer);
+export const ingresses: KubernetesInformerWritable<V1Ingress[]> = customWritable([], startInformer);
 
-export const ingressesEventStore = new EventStoreWithInformer<V1Ingress[]>(
+export const ingressesEventStore = new EventStoreWithKubernetesInformer<V1Ingress[]>(
   ingresses,
   informerEvents,
   informerRefreshEvents,
