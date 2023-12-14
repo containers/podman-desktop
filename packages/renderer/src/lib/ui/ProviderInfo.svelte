@@ -15,7 +15,7 @@ export let context = '';
 // bg-sky-600 = kubernetes
 // bg-gray-900 = unknown
 function getProviderColour(providerName: string): string {
-  switch (providerName) {
+  switch (providerName?.toLowerCase()) {
     case ContainerGroupInfoTypeUI.PODMAN:
       return 'bg-purple-600';
     case ContainerGroupInfoTypeUI.DOCKER:
