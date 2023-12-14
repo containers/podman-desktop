@@ -53,7 +53,7 @@
     "test:main": "vitest run -r packages/main --passWithNoTests --coverage",
     "test:preload": "vitest run -r packages/preload --passWithNoTests --coverage",
     "test:preload-docker-extension": "vitest run -r packages/preload-docker-extension --passWithNoTests --coverage",
-    "test:extensions": "npm run test:extensions:compose && npm run test:extensions:kind && npm run test:extensions:docker && npm run test:extensions:lima && npm run test:extensions:kube && npm run test:extensions:podman && npm run test:extensions:registries && npm run test:extensions:kubectl-cli",
+    "test:extensions": "vitest run -r extensions --passWithNoTests --coverage && npm run test:extensions:compose && npm run test:extensions:kind && npm run test:extensions:docker && npm run test:extensions:lima && npm run test:extensions:kube && npm run test:extensions:podman && npm run test:extensions:registries && npm run test:extensions:kubectl-cli",
     "test:extensions:kind": "vitest run -r extensions/kind --passWithNoTests --coverage ",
     "test:extensions:compose": "vitest run -r extensions/compose --passWithNoTests --coverage",
     "test:extensions:docker": "vitest run -r extensions/docker --passWithNoTests --coverage ",
