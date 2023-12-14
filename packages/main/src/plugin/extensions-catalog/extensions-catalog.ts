@@ -144,7 +144,7 @@ export class ExtensionsCatalog {
       // specify short timeout
       timeout: {
         lookup: 1000,
-        connect: 500,
+        connect: 2000,
         secureConnect: 500,
         socket: 1000,
         send: 10000,
