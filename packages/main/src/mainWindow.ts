@@ -24,6 +24,9 @@ import { join } from 'path';
 import { URL } from 'url';
 import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
 import { isLinux, isMac, stoppedExtensions } from './util.js';
+import { OpenDevTools } from './open-dev-tools.js';
+
+const openDevTools = new OpenDevTools();
 
 async function createWindow(): Promise<BrowserWindow> {
   const INITIAL_APP_WIDTH = 1050;
@@ -93,10 +96,6 @@ async function createWindow(): Promise<BrowserWindow> {
     } else {
       browserWindow.show();
     }
-
-    if (import.meta.env.DEV) {
-      browserWindow?.webContents.openDevTools();
-    }
   });
 
   // select a file using native widget
@@ -135,6 +134,9 @@ async function createWindow(): Promise<BrowserWindow> {
   let configurationRegistry: ConfigurationRegistry;
   ipcMain.on('configuration-registry', (_, data) => {
     configurationRegistry = data;
+
+    // open dev tools (if required)
+    openDevTools.open(browserWindow, configurationRegistry);
   });
 
   // receive the message because an update is in progress and we need to quit the app
