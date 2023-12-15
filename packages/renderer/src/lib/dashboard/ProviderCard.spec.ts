@@ -24,6 +24,7 @@ import ProviderCard from './ProviderCard.svelte';
 import { screen, render } from '@testing-library/svelte';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import type { ProviderImages } from '@podman-desktop/api';
+import { tick } from 'svelte';
 
 test('Expect provider region', async () => {
   const provider: ProviderInfo = {
@@ -74,6 +75,36 @@ test('Expect provider name', async () => {
   const name = screen.getByLabelText('context-name');
   expect(name).toBeInTheDocument();
   expect(name.textContent).toContain(provider.name);
+});
+
+test('Expect provider icon', async () => {
+  const provider: ProviderInfo = {
+    internalId: 'internal-id',
+    id: 'my-provider',
+    extensionId: '',
+    name: 'Podman',
+    containerConnections: [],
+    kubernetesConnections: [],
+    status: 'not-installed',
+    containerProviderConnectionCreation: false,
+    containerProviderConnectionInitialization: false,
+    kubernetesProviderConnectionCreation: false,
+    kubernetesProviderConnectionInitialization: false,
+    links: [],
+    detectionChecks: [],
+    warnings: [],
+    images: { icon: 'test.png' } as ProviderImages,
+    installationSupport: false,
+  };
+
+  render(ProviderCard, { provider });
+
+  // allow IconImage to render
+  await tick();
+
+  const logo = screen.getByRole('img');
+  expect(logo).toBeInTheDocument();
+  expect(logo).toHaveAttribute('src', provider.images.icon);
 });
 
 test('Expect no provider version', async () => {
