@@ -18,8 +18,9 @@
 
 import type { ElectronApplication, JSHandle, Page } from '@playwright/test';
 import { _electron as electron } from '@playwright/test';
-import { join } from 'node:path';
+import path, { join } from 'node:path';
 import type { BrowserWindow } from 'electron';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 
 type WindowState = {
   isVisible: boolean;
@@ -71,9 +72,6 @@ export class PodmanDesktopRunner {
     const windowState = await this.getBrowserWindowState();
     console.log(`Application Browser's window is visible: ${windowState.isVisible}`);
 
-    // close dev tools windows
-    await this.closeDevTools();
-
     return this._page;
   }
 
@@ -99,15 +97,6 @@ export class PodmanDesktopRunner {
 
   public async screenshot(filename: string) {
     await this.getPage().screenshot({ path: join(this._testOutput, 'screenshots', filename) });
-  }
-
-  public async closeDevTools(): Promise<void> {
-    await (
-      await this.getBrowserWindow()
-    ).evaluate(mainWindow => {
-      console.log(`Closing Dev Tools Window`);
-      mainWindow.webContents.closeDevTools();
-    });
   }
 
   public async getBrowserWindowState(): Promise<WindowState> {
@@ -205,6 +194,24 @@ export class PodmanDesktopRunner {
     const dir = join(this._customFolder);
     console.log(`podman desktop custom config will be written to: ${dir}`);
     env.PODMAN_DESKTOP_HOME_DIR = dir;
+
+    // add a custom config file by disabling OpenDevTools
+    const settingsFile = path.resolve(dir, 'configuration', 'settings.json');
+
+    // create parent folder if missing
+    const parentDir = path.dirname(settingsFile);
+    if (!existsSync(parentDir)) {
+      mkdirSync(parentDir, { recursive: true });
+    }
+
+    const settingsContent = JSON.stringify({
+      'preferences.OpenDevTools': 'none',
+    });
+
+    // write the file
+    console.log(`disabling OpenDevTools in configuration file ${settingsFile}`);
+    writeFileSync(settingsFile, settingsContent);
+
     return env;
   }
 
