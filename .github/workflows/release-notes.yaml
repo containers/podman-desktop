@@ -65,7 +65,7 @@ jobs:
           node tools/dist/release-notes-generator.cjs --milestone ${{ github.event.inputs.milestone }} >release-notes.md
 
       - name: Archive the generated release notes
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: release-notes
           path: release-notes.md
