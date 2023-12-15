@@ -91,7 +91,8 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
           <input
             name="ociImage"
             id="ociImage"
-            aria-label="ociImage"
+            aria-label="OCI Image Name"
+            type="text"
             bind:value="{ociImage}"
             placeholder="Name of the Image"
             class="w-1/2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"

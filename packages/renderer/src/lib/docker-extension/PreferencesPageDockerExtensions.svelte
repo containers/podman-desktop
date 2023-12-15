@@ -72,7 +72,8 @@ function deleteContribution(extensionName: string) {
         <input
           name="ociImage"
           id="ociImage"
-          aria-label="ociImage"
+          aria-label="OCI Image Name"
+          type="text"
           bind:value="{ociImage}"
           placeholder="Name of the Image"
           class="text-sm rounded-sm focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-charcoal-800 border-gray-900 placeholder-gray-400 text-white"

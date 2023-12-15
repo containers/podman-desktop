@@ -18,7 +18,6 @@
 
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './base-page';
-import * as os from 'os';
 
 export class DashboardPage extends BasePage {
   readonly mainPage: Locator;
@@ -43,20 +42,11 @@ export class DashboardPage extends BasePage {
 
     this.devSandboxProvider = page.getByLabel('Developer Sandbox Provider');
     this.devSandboxBox = this.featuredExtensions.getByLabel('Developer Sandbox');
-    this.devSandboxEnabledStatus = page.getByText('Developer Sandbox is running');
+    this.devSandboxEnabledStatus = this.devSandboxProvider.getByText('RUNNING');
 
     this.openshiftLocalProvider = page.getByLabel('OpenShift Local Provider');
     this.openshiftLocalBox = this.featuredExtensions.getByLabel('OpenShift Local');
-    this.openshiftLocalEnabledStatus = this.getOpenShiftStatusLocator();
-  }
-
-  getOpenShiftStatusLocator(): Locator {
-    const currentOS = os.platform();
-    if (currentOS === 'linux') {
-      return this.content.getByText('Podman Desktop was not able to find an installation of OpenShift Local.');
-    }
-    const pattern = new RegExp('OpenShift Local v([0-9.]*) is installed but not ready');
-    return this.content.getByText(pattern);
+    this.openshiftLocalEnabledStatus = this.openshiftLocalProvider.getByText('NOT-INSTALLED');
   }
 
   public getPodmanStatusLocator(): Locator {
