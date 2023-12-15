@@ -230,6 +230,12 @@ export function initExposure(): void {
   contextBridge.exposeInMainWorld('listImages', async (): Promise<ImageInfo[]> => {
     return ipcInvoke('container-provider-registry:listImages');
   });
+  contextBridge.exposeInMainWorld(
+    'getImageLayers',
+    async (engineId: string, id: string): Promise<Map<string, string[]>> => {
+      return ipcInvoke('container-provider-registry:getImageLayers', engineId, id);
+    },
+  );
 
   contextBridge.exposeInMainWorld('listVolumes', async (fetchUsage = true): Promise<VolumeListInfo[]> => {
     return ipcInvoke('container-provider-registry:listVolumes', fetchUsage);

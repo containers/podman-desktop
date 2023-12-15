@@ -648,6 +648,12 @@ export class PluginSystem {
     this.ipcHandle('container-provider-registry:listImages', async (): Promise<ImageInfo[]> => {
       return containerProviderRegistry.listImages();
     });
+    this.ipcHandle(
+      'container-provider-registry:getImageLayers',
+      async (_listener, engineId: string, id: string): Promise<Map<string, string[]>> => {
+        return containerProviderRegistry.getImageLayers(engineId, id);
+      },
+    );
     this.ipcHandle('container-provider-registry:listPods', async (): Promise<PodInfo[]> => {
       return containerProviderRegistry.listPods();
     });

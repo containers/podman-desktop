@@ -29,6 +29,7 @@ import {
 import { context } from '/@/stores/context';
 import type { ContextUI } from '../context/context';
 import Badge from '../ui/Badge.svelte';
+import ImageDetailsFiles from './ImageDetailsFiles.svelte';
 
 export let imageID: string;
 export let engineId: string;
@@ -143,6 +144,7 @@ onDestroy(() => {
       <Tab title="Summary" url="summary" />
       <Tab title="History" url="history" />
       <Tab title="Inspect" url="inspect" />
+      <Tab title="Files" url="files" />
       {#if showCheckTab}
         <Tab title="Check" url="check" />
       {/if}
@@ -156,6 +158,9 @@ onDestroy(() => {
       </Route>
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <ImageDetailsInspect image="{image}" />
+      </Route>
+      <Route path="/files" breadcrumb="Files" navigationHint="tab">
+        <ImageDetailsFiles image="{image}" />
       </Route>
       <Route path="/check" breadcrumb="Check" navigationHint="tab">
         <ImageDetailsCheck imageInfo="{imageInfo}" />

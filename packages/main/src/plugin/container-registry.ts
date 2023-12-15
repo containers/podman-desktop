@@ -60,6 +60,9 @@ import type { NetworkInspectInfo } from './api/network-info.js';
 import type { Event } from './events/emitter.js';
 import { Emitter } from './events/emitter.js';
 import fs from 'node:fs';
+import os from 'node:os';
+import nodeTar from 'tar';
+import path from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import type { ApiSenderType } from './api.js';
 import { type Stream, Writable } from 'node:stream';
@@ -2065,6 +2068,29 @@ export class ContainerProviderRegistry {
     } finally {
       this.telemetryService.track('imageSave', telemetryOptions);
     }
+  }
+
+  async getImageLayers(engineId: string, id: string): Promise<Map<string, string[]>> {
+    const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), 'podman-desktop'));
+    const tarFile = path.join(tmpdir, id + '.tar');
+    await this.saveImage(engineId, id, tarFile);
+    await nodeTar.extract({ file: tarFile, cwd: tmpdir });
+    const manifest = JSON.parse(fs.readFileSync(path.join(tmpdir, 'manifest.json'), 'utf-8'));
+    const layers = manifest[0].Layers;
+    const layersMap = new Map<string, string[]>();
+    for (const layer of layers) {
+      const entries: string[] = [];
+      const layerTar = path.join(tmpdir, layer);
+      await nodeTar.list({
+        file: layerTar,
+        onentry: (entry: nodeTar.ReadEntry) => {
+          entries.push(entry.path);
+        },
+      });
+      layersMap.set(layer, entries);
+    }
+    fs.rmSync(tmpdir, { force: true, recursive: true });
+    return layersMap;
   }
 
   async getPodInspect(engineId: string, id: string): Promise<PodInspectInfo> {
