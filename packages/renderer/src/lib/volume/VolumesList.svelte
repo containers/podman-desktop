@@ -112,9 +112,10 @@ async function deleteSelectedVolumes() {
 let refreshTimeouts: NodeJS.Timeout[] = [];
 const SECOND = 1000;
 function refreshAge() {
-  volumes = volumes.map(volumeInfo => {
-    return { ...volumeInfo, age: volumeUtils.refreshAge(volumeInfo) };
-  });
+  for (const volumeInfo of volumes) {
+    volumeInfo.age = volumeUtils.refreshAge(volumeInfo)
+  }
+  volumes = volumes;
 
   // compute new interval
   const newInterval = computeInterval();

@@ -9,8 +9,6 @@ function openDetailsVolume(volume: VolumeInfoUI) {
 }
 </script>
 
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="hover:cursor-pointer flex text-sm text-gray-300" on:click="{() => openDetailsVolume(object)}">
+<button class="hover:cursor-pointer flex text-sm text-gray-300" on:click="{() => openDetailsVolume(object)}">
   {object.shortName}
-</div>
+</button>
