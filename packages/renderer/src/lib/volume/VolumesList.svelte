@@ -113,7 +113,7 @@ let refreshTimeouts: NodeJS.Timeout[] = [];
 const SECOND = 1000;
 function refreshAge() {
   for (const volumeInfo of volumes) {
-    volumeInfo.age = volumeUtils.refreshAge(volumeInfo)
+    volumeInfo.age = volumeUtils.refreshAge(volumeInfo);
   }
   volumes = volumes;
 
