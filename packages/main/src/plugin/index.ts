@@ -148,6 +148,7 @@ import { AppearanceInit } from './appearance-init.js';
 import type { KubeContext } from './kubernetes-context.js';
 import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
+import { OpenDevToolsInit } from './open-devtools-init.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -710,6 +711,12 @@ export class PluginSystem {
 
     const terminalInit = new TerminalInit(configurationRegistry);
     terminalInit.init();
+
+    // only in development mode
+    if (import.meta.env.DEV) {
+      const openDevToolsInit = new OpenDevToolsInit(configurationRegistry);
+      openDevToolsInit.init();
+    }
 
     // init editor configuration
     const editorInit = new EditorInit(configurationRegistry);
