@@ -96,6 +96,7 @@ import type { NotificationCard, NotificationCardOptions } from '../../main/src/p
 import type { ApiSenderType } from '../../main/src/plugin/api';
 import type { IDisposable } from '../../main/src/plugin/types/disposable';
 import type { ContextGeneralState, ResourceName } from '../../main/src/plugin/kubernetes-context-state.js';
+import type { ImageLayer } from '../../main/src/plugin/image-layers.js';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 export type OpenSaveDialogResultCallback = (result: string | string[] | undefined) => void;
@@ -230,12 +231,9 @@ export function initExposure(): void {
   contextBridge.exposeInMainWorld('listImages', async (): Promise<ImageInfo[]> => {
     return ipcInvoke('container-provider-registry:listImages');
   });
-  contextBridge.exposeInMainWorld(
-    'getImageLayers',
-    async (engineId: string, id: string): Promise<Map<string, string[]>> => {
-      return ipcInvoke('container-provider-registry:getImageLayers', engineId, id);
-    },
-  );
+  contextBridge.exposeInMainWorld('getImageLayers', async (engineId: string, id: string): Promise<ImageLayer[]> => {
+    return ipcInvoke('container-provider-registry:getImageLayers', engineId, id);
+  });
 
   contextBridge.exposeInMainWorld('listVolumes', async (fetchUsage = true): Promise<VolumeListInfo[]> => {
     return ipcInvoke('container-provider-registry:listVolumes', fetchUsage);

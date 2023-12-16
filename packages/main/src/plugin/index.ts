@@ -161,6 +161,7 @@ import type { Deferred } from './util/deferred.js';
 import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
 import { Updater } from '/@/plugin/updater.js';
 import { RecommendationsRegistry } from './recommendations/recommendations-registry.js';
+import type { ImageLayer } from './image-layers.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -650,7 +651,7 @@ export class PluginSystem {
     });
     this.ipcHandle(
       'container-provider-registry:getImageLayers',
-      async (_listener, engineId: string, id: string): Promise<Map<string, string[]>> => {
+      async (_listener, engineId: string, id: string): Promise<ImageLayer[]> => {
         return containerProviderRegistry.getImageLayers(engineId, id);
       },
     );

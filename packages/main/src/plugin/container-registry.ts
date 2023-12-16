@@ -70,6 +70,7 @@ import datejs from 'date.js';
 import { isWindows } from '../util.js';
 import { EnvfileParser } from './env-file-parser.js';
 import type { ProviderRegistry } from '/@/plugin/provider-registry.js';
+import type { ImageLayer } from './image-layers.js';
 
 export interface InternalContainerProvider {
   name: string;
@@ -2070,27 +2071,44 @@ export class ContainerProviderRegistry {
     }
   }
 
-  async getImageLayers(engineId: string, id: string): Promise<Map<string, string[]>> {
+  async getImageLayers(engineId: string, id: string): Promise<ImageLayer[]> {
     const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), 'podman-desktop'));
     const tarFile = path.join(tmpdir, id + '.tar');
     await this.saveImage(engineId, id, tarFile);
     await nodeTar.extract({ file: tarFile, cwd: tmpdir });
+
     const manifest = JSON.parse(fs.readFileSync(path.join(tmpdir, 'manifest.json'), 'utf-8'));
     const layers = manifest[0].Layers;
-    const layersMap = new Map<string, string[]>();
+
+    const configFile = manifest[0].Config;
+    const config = JSON.parse(fs.readFileSync(path.join(tmpdir, configFile), 'utf-8'));
+    const history = config.history;
+    const layersResult: ImageLayer[] = [];
     for (const layer of layers) {
-      const entries: string[] = [];
+      const entries: nodeTar.ReadEntry[] = [];
       const layerTar = path.join(tmpdir, layer);
       await nodeTar.list({
         file: layerTar,
         onentry: (entry: nodeTar.ReadEntry) => {
-          entries.push(entry.path);
+          entries.push(entry);
         },
       });
-      layersMap.set(layer, entries);
+      let layerHistory: string | undefined;
+      for (;;) {
+        const hist = history.shift();
+        if (!hist) {
+          break;
+        }
+        if (hist.empty_layer) {
+          continue;
+        }
+        layerHistory = hist.created_by.replace(/^\/bin\/sh -c /, '');
+        break;
+      }
+      layersResult.push({ id: layer, files: entries, history: layerHistory });
     }
     fs.rmSync(tmpdir, { force: true, recursive: true });
-    return layersMap;
+    return layersResult;
   }
 
   async getPodInspect(engineId: string, id: string): Promise<PodInspectInfo> {
