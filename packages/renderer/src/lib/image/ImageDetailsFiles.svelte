@@ -41,7 +41,9 @@ function onLayerSelected(layer: ImageLayer) {
       </div>
       <div class="h-full w-full pr-4 overflow-y-scroll pb-16">
         {#if currentRoot}
-          <TreeView tree="{currentRoot}" />
+          <div class="grid grid-cols-[120px_80px_60px_1fr]">
+            <TreeView tree="{currentRoot}" />
+          </div>
         {/if}
       </div>
     </div>

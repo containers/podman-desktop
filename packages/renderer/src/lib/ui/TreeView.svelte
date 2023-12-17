@@ -1,10 +1,4 @@
 <style>
-ul {
-  margin: 0;
-  list-style: none;
-  padding-left: 1.2rem;
-  user-select: none;
-}
 .no-arrow {
   padding-left: 1rem;
 }
@@ -25,13 +19,10 @@ const _expansionState = new Map<string, boolean>();
 import type { fileNode } from '../../../../main/src/plugin/filetree';
 
 export let tree: fileNode<any>;
-$: label =
-  (tree.data ? getModeString(tree.data.type, tree.data.mode) : '') +
-  ' ' +
-  (tree.data ? getHumanSize(tree.data.size) : '') +
-  ' ' +
-  tree.name +
-  getLink(tree.data);
+export let margin = 0;
+export let root = true;
+
+$: label = tree.name + getLink(tree.data);
 $: children = tree.children;
 $: file = tree.data;
 
@@ -85,24 +76,28 @@ function getLink(file: any): string {
 }
 </script>
 
-<ul>
-  <!-- transition:slide -->
-  <li>
-    {#if children.size || (file && file.type === 'Directory')}
-      <button on:click="{toggleExpansion}">
-        <span class="arrow mr-1" class:arrowDown="{arrowDown}">&gt;</span>
-        {label}
-      </button>
-      {#if expanded}
-        {#each children as [_, child]}
-          <svelte:self tree="{child}" />
-        {/each}
-      {/if}
-    {:else}
-      <span>
-        <span class="no-arrow"></span>
-        {label}
-      </span>
+{#if root}
+  {#each children as [_, child]}
+    <svelte:self root="{false}" margin="{margin + 2}" tree="{child}" />
+  {/each}
+{:else}
+  <div>{tree.data ? getModeString(tree.data.type, tree.data.mode) : ''}</div>
+  <div class="text-right">{tree.data ? tree.data.uid + ':' + tree.data.gid : ''}</div>
+  <div class="text-right">{tree.data ? getHumanSize(tree.data.size) : ''}</div>
+  {#if children.size || (file && file.type === 'Directory')}
+    <button class="{`text-left ml-${margin}`}" on:click="{toggleExpansion}">
+      <span class="arrow mr-1" class:arrowDown="{arrowDown}">&gt;</span>
+      {label}
+    </button>
+    {#if expanded}
+      {#each children as [_, child]}
+        <svelte:self root="{false}" margin="{margin + 2}" tree="{child}" />
+      {/each}
     {/if}
-  </li>
-</ul>
+  {:else}
+    <div>
+      <span class="{`no-arrow ml-${margin}`}"></span>
+      {label}
+    </div>
+  {/if}
+{/if}
