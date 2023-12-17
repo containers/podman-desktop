@@ -43,6 +43,7 @@ function getColor(name: string, data: any) {
   if (isExecutable(data.mode)) {
     return 'text-green-500';
   }
+  return '';
 }
 
 function isRemoved(data: any): boolean {
@@ -55,7 +56,6 @@ const toggleExpansion = () => {
   _expansionState.set(label, expanded);
 };
 $: arrowDown = expanded;
-$: console.log(tree);
 function getModeString(type: string, mode: number): string {
   return (
     (type === 'Directory' ? 'd' : '-') +
