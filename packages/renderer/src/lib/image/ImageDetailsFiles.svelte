@@ -1,73 +1,48 @@
 <script lang="ts">
-import type { ReadEntry } from 'tar';
 import type { ImageLayer } from '../../../../main/src/plugin/image-layers';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { onMount } from 'svelte';
+import TreeView from '../ui/TreeView.svelte';
 
 export let image: ImageInfoUI;
-
 let layers: ImageLayer[];
+$: currentRoot = layers ? layers[0].tree.root : undefined;
 
 onMount(async () => {
   layers = await window.getImageLayers(image.engineId, image.id);
 });
 
-function getModeString(mode: number): string {
-  return (
-    (mode & 0o400 ? 'r' : '-') +
-    (mode & 0o200 ? 'w' : '-') +
-    (mode & 0o100 ? 'x' : '-') +
-    (mode & 0o040 ? 'r' : '-') +
-    (mode & 0o020 ? 'w' : '-') +
-    (mode & 0o010 ? 'x' : '-') +
-    (mode & 0o004 ? 'r' : '-') +
-    (mode & 0o002 ? 'w' : '-') +
-    (mode & 0o001 ? 'x' : '-')
-  );
-}
-
-function getHumanSize(size: number): string {
-  let u = '';
-  if (size > 1024) {
-    size = Math.floor(size / 100) / 10;
-    u = 'k';
-  }
-  if (size > 1024) {
-    size = Math.floor(size / 100) / 10;
-    u = 'M';
-  }
-
-  if (size > 99) {
-    size = Math.floor(size);
-  }
-  return size + u;
-}
-
-function getLink(file: ReadEntry): string {
-  if (file.type === 'SymbolicLink' || file.type === 'Link') {
-    return ' → ' + file.linkpath;
-  }
-  return '';
+function onLayerSelected(layer: ImageLayer) {
+  currentRoot = layer.tree.root;
 }
 </script>
 
 {#if layers}
-  <div class="w-full h-full overflow-y-auto">
-    {#each layers as imageLayer}
-      <div class="p-4 bg-charcoal-700">
-        <div>{imageLayer.id}</div>
-        <div>{imageLayer.history}</div>
-      </div>
-      <div class="px-4">
-        {#each imageLayer.files as file}
-          <div class="font-mono">
-            {file.type === 'Directory' ? 'd' : '-'}{getModeString(file.mode ?? 0)}
-            {file.uid}:{file.gid}
-            {getHumanSize(file.size ?? 0)}
-            {file.path}{getLink(file)}
-          </div>
+  <div class="flex flex-col w-full h-full p-8 pr-0">
+    <div class="pr-4">
+      <slot name="header-info" />
+    </div>
+    <div class="mb-2 flex flex-row pr-12 pb-2">
+      <span class="grow">Layers</span>
+    </div>
+    <div class="h-full flex flex-row space-x-8">
+      <div class="h-full overflow-y-auto w-1/3">
+        {#each layers as layer}
+          <button
+            on:click="{() => onLayerSelected(layer)}"
+            role="row"
+            class="rounded-lg bg-charcoal-700 mb-4 p-4 flex flex-col">
+            <div class="flex flex-row items-center">
+              <span class="grow">{layer.id}</span>
+            </div>
+          </button>
         {/each}
       </div>
-    {/each}
+      <div class="h-full w-full pr-4 overflow-y-scroll pb-16">
+        {#if currentRoot}
+          <TreeView tree="{currentRoot}" />
+        {/if}
+      </div>
+    </div>
   </div>
 {/if}

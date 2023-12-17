@@ -70,7 +70,7 @@ import datejs from 'date.js';
 import { isWindows } from '../util.js';
 import { EnvfileParser } from './env-file-parser.js';
 import type { ProviderRegistry } from '/@/plugin/provider-registry.js';
-import type { ImageLayer } from './image-layers.js';
+import { getLayersFromImageArchive, type ImageLayer } from './image-layers.js';
 
 export interface InternalContainerProvider {
   name: string;
@@ -2076,39 +2076,9 @@ export class ContainerProviderRegistry {
     const tarFile = path.join(tmpdir, id + '.tar');
     await this.saveImage(engineId, id, tarFile);
     await nodeTar.extract({ file: tarFile, cwd: tmpdir });
-
-    const manifest = JSON.parse(fs.readFileSync(path.join(tmpdir, 'manifest.json'), 'utf-8'));
-    const layers = manifest[0].Layers;
-
-    const configFile = manifest[0].Config;
-    const config = JSON.parse(fs.readFileSync(path.join(tmpdir, configFile), 'utf-8'));
-    const history = config.history;
-    const layersResult: ImageLayer[] = [];
-    for (const layer of layers) {
-      const entries: nodeTar.ReadEntry[] = [];
-      const layerTar = path.join(tmpdir, layer);
-      await nodeTar.list({
-        file: layerTar,
-        onentry: (entry: nodeTar.ReadEntry) => {
-          entries.push(entry);
-        },
-      });
-      let layerHistory: string | undefined;
-      for (;;) {
-        const hist = history.shift();
-        if (!hist) {
-          break;
-        }
-        if (hist.empty_layer) {
-          continue;
-        }
-        layerHistory = hist.created_by.replace(/^\/bin\/sh -c /, '');
-        break;
-      }
-      layersResult.push({ id: layer, files: entries, history: layerHistory });
-    }
+    const result = await getLayersFromImageArchive(tmpdir);
     fs.rmSync(tmpdir, { force: true, recursive: true });
-    return layersResult;
+    return result;
   }
 
   async getPodInspect(engineId: string, id: string): Promise<PodInspectInfo> {
