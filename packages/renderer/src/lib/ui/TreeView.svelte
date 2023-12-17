@@ -11,39 +11,40 @@ ul {
 .arrow {
   cursor: pointer;
   display: inline-block;
-  /* transition: transform 200ms; */
 }
 .arrowDown {
   transform: rotate(90deg);
 }
 </style>
 
-<script context="module">
-const _expansionState = {};
+<script context="module" lang="ts">
+const _expansionState = new Map<string, boolean>();
 </script>
 
 <script lang="ts">
 import type { fileNode } from '../../../../main/src/plugin/filetree';
 
-//	import { slide } from 'svelte/transition'
 export let tree: fileNode<any>;
 $: label =
-  (tree.data ? getModeString(tree.data.mode) : '') +
+  (tree.data ? getModeString(tree.data.type, tree.data.mode) : '') +
   ' ' +
   (tree.data ? getHumanSize(tree.data.size) : '') +
   ' ' +
   tree.name +
   getLink(tree.data);
 $: children = tree.children;
+$: file = tree.data;
 
-$: expanded = _expansionState[label] || false;
+$: expanded = _expansionState.get(label) || false;
 const toggleExpansion = () => {
-  expanded = _expansionState[label] = !expanded;
+  expanded = !expanded;
+  _expansionState.set(label, expanded);
 };
 $: arrowDown = expanded;
-
-function getModeString(mode: number): string {
+$: console.log(tree);
+function getModeString(type: string, mode: number): string {
   return (
+    (type === 'Directory' ? 'd' : '-') +
     (mode & 0o400 ? 'r' : '-') +
     (mode & 0o200 ? 'w' : '-') +
     (mode & 0o100 ? 'x' : '-') +
@@ -87,7 +88,7 @@ function getLink(file: any): string {
 <ul>
   <!-- transition:slide -->
   <li>
-    {#if children.size}
+    {#if children.size || (file && file.type === 'Directory')}
       <button on:click="{toggleExpansion}">
         <span class="arrow mr-1" class:arrowDown="{arrowDown}">&gt;</span>
         {label}

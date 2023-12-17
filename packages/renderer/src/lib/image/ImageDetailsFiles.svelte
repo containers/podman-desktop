@@ -26,14 +26,15 @@ function onLayerSelected(layer: ImageLayer) {
       <span class="grow">Layers</span>
     </div>
     <div class="h-full flex flex-row space-x-8">
-      <div class="h-full overflow-y-auto w-1/3">
+      <div class="h-full overflow-y-auto w-3/4">
         {#each layers as layer}
           <button
             on:click="{() => onLayerSelected(layer)}"
             role="row"
-            class="rounded-lg bg-charcoal-700 mb-4 p-4 flex flex-col">
-            <div class="flex flex-row items-center">
-              <span class="grow">{layer.id}</span>
+            class="rounded-lg bg-charcoal-700 mb-4 p-4 flex flex-col w-full text-left">
+            <div>
+              <div class="text-sm">{layer.history}</div>
+              <div class="text-xs text-gray-700">{layer.id}</div>
             </div>
           </button>
         {/each}
