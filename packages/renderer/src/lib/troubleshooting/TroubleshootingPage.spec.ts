@@ -20,7 +20,7 @@
 
 import '@testing-library/jest-dom/vitest';
 import { beforeAll, test, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import TroubleshootingPage from './TroubleshootingPage.svelte';
 
 const getDevtoolsConsoleLogsMock = vi.fn();
@@ -33,7 +33,21 @@ test('Check Troubleshooting Page', async () => {
   getDevtoolsConsoleLogsMock.mockReturnValue([]);
   render(TroubleshootingPage, {});
 
+  // click on the first tab
+  const repairConnectionsLink = screen.getByRole('link', { name: 'Repair & Connections' });
+  expect(repairConnectionsLink).toBeInTheDocument();
+  await fireEvent.click(repairConnectionsLink);
+
   // check we have the container connections role
   const containerConnections = screen.getByRole('status', { name: 'container connections' });
   expect(containerConnections).toBeInTheDocument();
+
+  // click on the stores tab
+  const storesLink = screen.getByRole('link', { name: 'Stores' });
+  expect(storesLink).toBeInTheDocument();
+  await fireEvent.click(storesLink);
+
+  // check we have stores displayed
+  const stores = screen.getByRole('status', { name: 'stores' });
+  expect(stores).toBeInTheDocument();
 });

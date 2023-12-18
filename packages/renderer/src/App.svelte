@@ -59,7 +59,7 @@ window.events?.receive('display-help', () => {
 });
 
 window.events?.receive('display-troubleshooting', () => {
-  router.goto('/troubleshooting');
+  router.goto('/troubleshooting/repair-connections');
 });
 </script>
 
@@ -174,7 +174,7 @@ window.events?.receive('display-troubleshooting', () => {
         <Route path="/help" breadcrumb="Help">
           <HelpPage />
         </Route>
-        <Route path="/troubleshooting" breadcrumb="Troubleshooting">
+        <Route path="/troubleshooting/*" breadcrumb="Troubleshooting">
           <TroubleshootingPage />
         </Route>
       </div>
