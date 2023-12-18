@@ -402,7 +402,7 @@ test('Expect the route to a pod details page is correctly encoded with an engine
     { timeout: 5000 },
   );
   render(PodsList);
-  const podDetails = screen.getByRole('cell', { name: 'ocppod e8129c57' });
+  const podDetails = screen.getByText('ocppod');
   expect(podDetails).toBeInTheDocument();
 
   const podRow = screen.getByRole('row', {
