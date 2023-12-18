@@ -5,6 +5,7 @@ description: Working with container registries
 tags: [podman-desktop, containers]
 keywords: [podman desktop, podman, containers, registries]
 hide_table_of_contents: false
+image: /img/docs/containers/registries/img/registries.png
 ---
 
 import Tabs from '@theme/Tabs';
@@ -16,23 +17,15 @@ import TabItem from '@theme/TabItem';
 
 Podman Desktop allows you to configure Podman container registries from its graphical user interface: no need to use the command line interface.
 
-![Registries](img/registries.png)
-
-### Who is this for
-
 If you are a developer who deals with containers, often finds yourself pulling and pushing container images – this tutorial is tailor-made for you!
 
-### What will you gain
+By the end of this tutorial, you will be able to [set up a container registry in the most straightforward context: a pre-configured container registry](#setting-up-a-pre-configured-container-registry), and also in more complex contexts such as [a custom container registry](#setting-up-a-custom-container-registry), or [a custom container registry with an insecure certificate, such as a self-signed certificate](#setting-up-a-custom-container-registry-with-an-insecure-certificate).
 
-By the end of this tutorial, you'll be able to:
+You will also be able to maintain your registry configuration: [verify that your registry is properly configured](#verifying-your-registry-is-properly-configured), [change your registry credentials](#changing-your-registry-credentials), and [remove a registry configuration](#removing-a-registry).
 
-- [Set up a pre-configured container registry](#setting-up-a-pre-configured-container-registry).
-- [Set up a custom container registry](#setting-up-a-custom-container-registry).
-- [Set up a custom container registry with an insecure certificate, such as a self-signed certificate](#setting-up-a-custom-container-registry-with-an-insecure-certificate).
-- [Verify your registry is properly configured](#verifying-your-registry-is-properly-configured).
-- [Change your registry credentials](#changing-your-registry-credentials).
-- [Remove a registry configuration](#removing-a-registry).
-- [Understand the registry configuration](#understanding-the-registry-configuration).
+If you want to dive deeper, you will get some explanations to [understand the registry configuration](#understanding-the-registry-configuration).
+
+![Registries](img/registries.png)
 
 ## Before you start
 
