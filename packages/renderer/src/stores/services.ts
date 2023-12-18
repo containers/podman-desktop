@@ -16,60 +16,61 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { V1Route } from '../../../main/src/plugin/api/openshift-types';
+import type { V1Service } from '@kubernetes/client-node';
 import { customWritable, type KubernetesInformerWritable } from './kubernetesInformerWritable';
 import { EventStoreWithKubernetesInformer } from './kubernetes-informer-event-store';
 import { writable, derived } from 'svelte/store';
 import { findMatchInLeaves } from './search-util';
 
-const informerEvents = ['kubernetes-route-add', 'kubernetes-route-update', 'kubernetes-route-deleted'];
+const informerEvents = ['kubernetes-service-add', 'kubernetes-service-update', 'kubernetes-service-deleted'];
 const informerRefreshEvents = ['provider-change', 'kubeconfig-update'];
 
-export const routes: KubernetesInformerWritable<V1Route[]> = customWritable([], startInformer);
+export const services: KubernetesInformerWritable<V1Service[]> = customWritable([], startInformer);
 
-export const routesEventStore = new EventStoreWithKubernetesInformer<V1Route[]>(
-  routes,
+export const servicesEventStore = new EventStoreWithKubernetesInformer<V1Service[]>(
+  services,
   informerEvents,
   informerRefreshEvents,
   informerListener,
 );
 
-routesEventStore.setup();
+servicesEventStore.setup();
 
 export const searchPattern = writable('');
 
-export const filtered = derived([searchPattern, routes], ([$searchPattern, $routes]) =>
-  $routes.filter(route => findMatchInLeaves(route, $searchPattern.toLowerCase())),
+export const filtered = derived([searchPattern, services], ([$searchPattern, $services]) =>
+  $services.filter(service => findMatchInLeaves(service, $searchPattern.toLowerCase())),
 );
 
 function informerListener(...args: unknown[]) {
   const event = args[0];
-  const route = args[1] as V1Route;
-  routes.update(routesList => {
-    if (event === 'kubernetes-route-add') {
+  const service = args[1] as V1Service;
+  services.update(servicesList => {
+    if (event === 'kubernetes-service-add') {
       if (
-        !routesList.find(
-          ing => ing.metadata?.name === route.metadata?.name && ing.metadata?.namespace === route.metadata?.namespace,
+        !servicesList.find(
+          ing =>
+            ing.metadata?.name === service.metadata?.name && ing.metadata?.namespace === service.metadata?.namespace,
         )
       ) {
-        routesList.push(route);
+        servicesList.push(service);
       }
-    } else if (event === 'kubernetes-route-deleted') {
-      routesList = routesList.filter(
-        ing => ing.metadata?.name !== route.metadata?.name || ing.metadata?.namespace !== route.metadata?.namespace,
+    } else if (event === 'kubernetes-service-deleted') {
+      servicesList = servicesList.filter(
+        ing => ing.metadata?.name !== service.metadata?.name || ing.metadata?.namespace !== service.metadata?.namespace,
       );
-    } else if (event === 'kubernetes-route-update') {
-      const index = routesList.findIndex(
-        ing => ing.metadata?.name === route.metadata?.name && ing.metadata?.namespace === route.metadata?.namespace,
+    } else if (event === 'kubernetes-service-update') {
+      const index = servicesList.findIndex(
+        ing => ing.metadata?.name === service.metadata?.name && ing.metadata?.namespace === service.metadata?.namespace,
       );
       if (index > -1) {
-        routesList[index] = route;
+        servicesList[index] = service;
       }
     }
-    return routesList;
+    return servicesList;
   });
 }
 
 async function startInformer(): Promise<number> {
-  return window.kubernetesStartInformer('ROUTE');
+  return window.kubernetesStartInformer('SERVICE');
 }

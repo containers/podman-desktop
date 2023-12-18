@@ -19,10 +19,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { get } from 'svelte/store';
-import type { Mock } from 'vitest';
 import { beforeAll, expect, test, vi } from 'vitest';
 import type { V1Route } from '../../../main/src/plugin/api/openshift-types';
-import { fetchRoutesWithData, routes, routesEventStore } from './routes';
+import { routes, routesEventStore } from './routes';
 
 // first, path window object
 const callbacks = new Map<string, any>();
@@ -32,11 +31,8 @@ const eventEmitter = {
   },
 };
 
-const listRoutesMock: Mock<any, Promise<V1Route[]>> = vi.fn();
-
 Object.defineProperty(global, 'window', {
   value: {
-    kubernetesListRoutes: listRoutesMock,
     events: {
       receive: eventEmitter.receive,
     },
@@ -49,53 +45,91 @@ beforeAll(() => {
   vi.clearAllMocks();
 });
 
-test('routes should be updated in case of a extension is removed', async () => {
-  // initial routes
-  listRoutesMock.mockResolvedValue([
-    {
-      metadata: {
-        name: 'my-route',
-        namespace: 'test-namespace',
-      },
-      spec: {
-        host: 'foo.bar.com',
-        port: {
-          targetPort: '80',
-        },
-        to: {
-          kind: 'Service',
-          name: 'service',
-        },
-      },
-    } as unknown as V1Route,
-  ]);
+const v1Route: V1Route = {
+  apiVersion: 'v1',
+  kind: 'Route',
+  metadata: {
+    name: 'route',
+    namespace: 'default',
+  },
+  spec: {
+    host: 'a',
+    tls: {
+      insecureEdgeTerminationPolicy: '',
+      termination: '',
+    },
+    to: {
+      kind: '',
+      name: '',
+      weight: 0,
+    },
+    wildcardPolicy: '',
+  },
+};
+
+const v2Route: V1Route = {
+  apiVersion: 'v1',
+  kind: 'Route',
+  metadata: {
+    name: 'route',
+    namespace: 'default',
+  },
+  spec: {
+    host: 'b',
+    tls: {
+      insecureEdgeTerminationPolicy: '',
+      termination: '',
+    },
+    to: {
+      kind: '',
+      name: '',
+      weight: 0,
+    },
+    wildcardPolicy: '',
+  },
+};
+
+test('routes should be updated when informer sends signals', async () => {
   routesEventStore.setup();
 
-  const callback = callbacks.get('extensions-already-started');
-  // send 'extensions-already-started' event
-  expect(callback).toBeDefined();
-  await callback();
-
-  // now ready to fetch routes
-  await fetchRoutesWithData();
-
-  // now get list
+  // get list
   const listRoutes = get(routes);
-  expect(listRoutes.length).toBe(1);
-  expect(listRoutes[0].metadata.name).toBe('my-route');
+  expect(listRoutes.length).toBe(0);
 
-  // ok now mock the listRoutes function to return an empty list
-  listRoutesMock.mockResolvedValue([]);
+  // call 'kubernetes-route-add' event
+  const RouteAddCallback = callbacks.get('kubernetes-route-add');
+  expect(RouteAddCallback).toBeDefined();
+  await RouteAddCallback(v1Route);
 
-  // call 'extension-stopped' event
-  const extensionStoppedCallback = callbacks.get('extension-stopped');
-  expect(extensionStoppedCallback).toBeDefined();
-  await extensionStoppedCallback();
-
-  // wait debounce
+  // wait
   await new Promise(resolve => setTimeout(resolve, 2000));
 
   // check if the routes are updated
   const routes2 = get(routes);
-  expect(routes2.length).toBe(0);
+  expect(routes2.length).toBe(1);
+  expect(routes2[0].metadata?.name).equal('route');
+  expect(routes2[0].spec?.host).equal('a');
+
+  // call 'kubernetes-route-update' event - update the route
+  const RouteUpdateCallback = callbacks.get('kubernetes-route-update');
+  expect(RouteUpdateCallback).toBeDefined();
+  await RouteUpdateCallback(v2Route);
+
+  // check if the routes are updated
+  const routes3 = get(routes);
+  expect(routes3.length).toBe(1);
+  expect(routes3[0].metadata?.name).equal('route');
+  expect(routes3[0].spec?.host).equal('b');
+
+  // call 'kubernetes-route-deleted' event
+  const RouteDeleteCallback = callbacks.get('kubernetes-route-deleted');
+  expect(RouteDeleteCallback).toBeDefined();
+  await RouteDeleteCallback(v1Route);
+
+  // wait
+  await new Promise(resolve => setTimeout(resolve, 2000));
+
+  // check if the routes are updated
+  const routes4 = get(routes);
+  expect(routes4.length).toBe(0);
 });
