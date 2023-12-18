@@ -59,6 +59,9 @@ test('expect grab 5 releases', async () => {
   const result = await composeGitHubReleases.grabLatestsReleasesMetadata();
   expect(result).toBeDefined();
   expect(result.length).toBe(5);
+
+  // expect v2.24.0-birthday.10 is not fetched as it's a pre-release
+  expect(result.filter(release => release.label.includes('birthday')).length).toBe(0);
 });
 
 describe('Grab asset id for a given release id', async () => {

@@ -41,8 +41,13 @@ export class ComposeGitHubReleases {
     const lastReleases = await this.octokit.repos.listReleases({
       owner: ComposeGitHubReleases.COMPOSE_GITHUB_OWNER,
       repo: ComposeGitHubReleases.COMPOSE_GITHUB_REPOSITORY,
-      per_page: 5, // limit to last 5 releases
     });
+
+    // keep only releases and not pre-releases
+    lastReleases.data = lastReleases.data.filter(release => !release.prerelease);
+
+    // keep only the last 5 releases
+    lastReleases.data = lastReleases.data.slice(0, 5);
 
     return lastReleases.data.map(release => {
       return {

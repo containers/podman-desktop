@@ -100,7 +100,7 @@ test('pick the 4th option option in the quickpickmenu and expect it to return th
   const showQuickPickMock = vi.spyOn(extensionApi.window, 'showQuickPick');
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  showQuickPickMock.mockResolvedValue({ id: 86626999, label: 'v2.14.2', tag: 'v2.14.2' } as any);
+  showQuickPickMock.mockResolvedValue({ id: 129676495, label: 'v2.23.1', tag: 'v2.23.1' } as any);
 
   // Expect the test to return the first release from the list (as the function simply returns the first one)
   const composeDownload = new ComposeDownload(extensionContext, composeGitHubReleasesMock, os);
