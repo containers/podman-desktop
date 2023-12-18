@@ -17,7 +17,7 @@
  ***********************************************************************/
 import type { Context, Informer, KubernetesObject } from '@kubernetes/client-node';
 
-export type KubernetesInformerResourcesType = 'INGRESS';
+export type KubernetesInformerResourcesType = 'DEPLOYMENT' | 'INGRESS' | 'ROUTE' | 'SERVICE';
 
 export interface KubernetesInformerInfo {
   informer: Informer<KubernetesObject>;

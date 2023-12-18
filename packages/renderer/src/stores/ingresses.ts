@@ -19,6 +19,8 @@
 import type { V1Ingress } from '@kubernetes/client-node';
 import { customWritable, type KubernetesInformerWritable } from './kubernetesInformerWritable';
 import { EventStoreWithKubernetesInformer } from './kubernetes-informer-event-store';
+import { writable, derived } from 'svelte/store';
+import { findMatchInLeaves } from './search-util';
 
 const informerEvents = ['kubernetes-ingress-add', 'kubernetes-ingress-update', 'kubernetes-ingress-deleted'];
 const informerRefreshEvents = ['provider-change', 'kubeconfig-update'];
@@ -33,6 +35,12 @@ export const ingressesEventStore = new EventStoreWithKubernetesInformer<V1Ingres
 );
 
 ingressesEventStore.setup();
+
+export const searchPattern = writable('');
+
+export const filtered = derived([searchPattern, ingresses], ([$searchPattern, $ingresses]) =>
+  $ingresses.filter(deployment => findMatchInLeaves(deployment, $searchPattern.toLowerCase())),
+);
 
 function informerListener(...args: unknown[]) {
   const event = args[0];

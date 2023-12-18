@@ -16,52 +16,66 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { writable, derived, type Writable } from 'svelte/store';
 import type { V1Deployment } from '@kubernetes/client-node';
-
+import { customWritable, type KubernetesInformerWritable } from './kubernetesInformerWritable';
+import { EventStoreWithKubernetesInformer } from './kubernetes-informer-event-store';
+import { writable, derived } from 'svelte/store';
 import { findMatchInLeaves } from './search-util';
-import { EventStore } from './event-store';
-import DeploymentIcon from '../lib/images/DeploymentIcon.svelte';
 
-const windowEvents = [
-  'extension-started',
-  'extension-stopped',
-  'provider-change',
-  'extensions-started',
-  'deployment-event',
-];
-const windowListeners = ['extensions-already-started'];
+const informerEvents = ['kubernetes-deployment-add', 'kubernetes-deployment-update', 'kubernetes-deployment-deleted'];
+const informerRefreshEvents = ['provider-change', 'kubeconfig-update'];
 
-let readyToUpdate = false;
+export const deployments: KubernetesInformerWritable<V1Deployment[]> = customWritable([], startInformer);
 
-export async function checkForUpdate(eventName: string): Promise<boolean> {
-  if ('extensions-already-started' === eventName) {
-    readyToUpdate = true;
-  }
+export const deploymentsEventStore = new EventStoreWithKubernetesInformer<V1Deployment[]>(
+  deployments,
+  informerEvents,
+  informerRefreshEvents,
+  informerListener,
+);
 
-  // do not fetch until extensions are all started
-  return readyToUpdate;
-}
-
-export const deployments: Writable<V1Deployment[]> = writable([]);
+deploymentsEventStore.setup();
 
 export const searchPattern = writable('');
 
-export const filtered = derived([searchPattern, deployments], ([$searchPattern, $deploymentInfos]) =>
-  $deploymentInfos.filter(deployment => findMatchInLeaves(deployment, $searchPattern.toLowerCase())),
+export const filtered = derived([searchPattern, deployments], ([$searchPattern, $deployments]) =>
+  $deployments.filter(deployment => findMatchInLeaves(deployment, $searchPattern.toLowerCase())),
 );
 
-const eventStore = new EventStore<V1Deployment[]>(
-  'deployments',
-  deployments,
-  checkForUpdate,
-  windowEvents,
-  windowListeners,
-  grabAllDeployments,
-  DeploymentIcon,
-);
-eventStore.setupWithDebounce();
+function informerListener(...args: unknown[]) {
+  const event = args[0];
+  const deployment = args[1] as V1Deployment;
+  deployments.update(deploymentsList => {
+    if (event === 'kubernetes-deployment-add') {
+      if (
+        !deploymentsList.find(
+          ing =>
+            ing.metadata?.name === deployment.metadata?.name &&
+            ing.metadata?.namespace === deployment.metadata?.namespace,
+        )
+      ) {
+        deploymentsList.push(deployment);
+      }
+    } else if (event === 'kubernetes-deployment-deleted') {
+      deploymentsList = deploymentsList.filter(
+        ing =>
+          ing.metadata?.name !== deployment.metadata?.name ||
+          ing.metadata?.namespace !== deployment.metadata?.namespace,
+      );
+    } else if (event === 'kubernetes-deployment-update') {
+      const index = deploymentsList.findIndex(
+        ing =>
+          ing.metadata?.name === deployment.metadata?.name &&
+          ing.metadata?.namespace === deployment.metadata?.namespace,
+      );
+      if (index > -1) {
+        deploymentsList[index] = deployment;
+      }
+    }
+    return deploymentsList;
+  });
+}
 
-export async function grabAllDeployments(): Promise<V1Deployment[]> {
-  return window.kubernetesListDeployments();
+async function startInformer(): Promise<number> {
+  return window.kubernetesStartInformer('DEPLOYMENT');
 }
