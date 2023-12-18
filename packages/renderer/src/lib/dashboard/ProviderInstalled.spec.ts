@@ -64,6 +64,7 @@ test('Expect installed provider shows button', async () => {
     status: 'installed',
     warnings: [],
     extensionId: '',
+    cleanupSupport: false,
   };
 
   const initializationContext: InitializationContext = { mode: InitializeAndStartMode };
@@ -111,6 +112,7 @@ test('Expect to see the initialize context error if provider installation fails'
     status: 'installed',
     warnings: [],
     extensionId: '',
+    cleanupSupport: false,
   };
 
   const initializationContext: InitializationContext = { mode: InitializeAndStartMode };

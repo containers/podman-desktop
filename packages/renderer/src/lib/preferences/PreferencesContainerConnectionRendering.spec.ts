@@ -81,6 +81,7 @@ test('Expect that the right machine is displayed', async () => {
     containerProviderConnectionCreationDisplayName: 'Podman machine',
     kubernetesProviderConnectionInitialization: false,
     extensionId: '',
+    cleanupSupport: false,
   };
 
   // 3 connections with the same socket path
@@ -159,6 +160,7 @@ test('Expect that removing the connection is going back to the previous page', a
     containerProviderConnectionCreationDisplayName: 'Podman machine',
     kubernetesProviderConnectionInitialization: false,
     extensionId: '',
+    cleanupSupport: false,
   };
 
   // 3 connections with the same socket path
@@ -250,6 +252,7 @@ test('Expect to see error message if action fails', async () => {
     containerProviderConnectionCreationDisplayName: 'Podman machine',
     kubernetesProviderConnectionInitialization: false,
     extensionId: '',
+    cleanupSupport: false,
   };
 
   providerInfos.set([providerInfo]);
@@ -328,6 +331,7 @@ test('Expect startContainerProvider to only be called once when restarting', asy
     containerProviderConnectionCreationDisplayName: 'Podman machine',
     kubernetesProviderConnectionInitialization: false,
     extensionId: '',
+    cleanupSupport: false,
   };
 
   providerInfos.set([providerInfo]);

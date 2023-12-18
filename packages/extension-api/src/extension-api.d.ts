@@ -355,6 +355,26 @@ declare module '@podman-desktop/api' {
     start(logger: Logger): Promise<void>;
   }
 
+  /**
+   * Allow to clean some resources in case for example
+   */
+  export interface ProviderCleanup {
+    getActions(): Promise<ProviderCleanupAction[]>;
+  }
+
+  export interface ProviderCleanupExecuteOptions {
+    logger: Logger;
+    token?: CancellationToken;
+  }
+
+  // describe the action to perform
+  // for example, "remove a folder" or 'kill foo process'
+  export interface ProviderCleanupAction {
+    name: string;
+    // execute the action (can be canceled)
+    execute(options: ProviderCleanupExecuteOptions): Promise<void>;
+  }
+
   export type ProviderLinks = Link;
 
   export interface ProviderImages {
@@ -384,6 +404,8 @@ declare module '@podman-desktop/api' {
 
     // register autostart flow
     registerAutostart(autostart: ProviderAutostart): Disposable;
+
+    registerCleanup(cleanup: ProviderCleanup): Disposable;
 
     dispose(): void;
     readonly name: string;

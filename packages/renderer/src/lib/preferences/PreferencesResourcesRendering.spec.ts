@@ -59,6 +59,7 @@ const providerInfo: ProviderInfo = {
   containerProviderConnectionInitialization: false,
   containerProviderConnectionCreationDisplayName: 'Podman machine',
   kubernetesProviderConnectionInitialization: false,
+  cleanupSupport: false,
 };
 
 // mock the router

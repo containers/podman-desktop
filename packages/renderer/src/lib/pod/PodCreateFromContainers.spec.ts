@@ -55,6 +55,7 @@ const providerInfo: ProviderInfo = {
   containerProviderConnectionCreationDisplayName: 'Podman machine',
   kubernetesProviderConnectionInitialization: false,
   extensionId: '',
+  cleanupSupport: false,
 };
 
 const podCreation: PodCreation = {

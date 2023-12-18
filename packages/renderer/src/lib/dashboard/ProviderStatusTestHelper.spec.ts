@@ -56,6 +56,7 @@ export function verifyStatus<C extends SvelteComponent>(
       version: sameVersions ? '1.0.0' : '1.0.1',
     },
     extensionId: '',
+    cleanupSupport: false,
   };
 
   const initializationContext = { mode: InitializeAndStartMode };

@@ -23,7 +23,7 @@ import type { ContainerProviderRegistry } from './container-registry.js';
 
 import { ProviderRegistry } from './provider-registry.js';
 import type { Telemetry } from './telemetry/telemetry.js';
-import type { ContainerProviderConnection, KubernetesProviderConnection } from '@podman-desktop/api';
+import type { ContainerProviderConnection, KubernetesProviderConnection, ProviderCleanup } from '@podman-desktop/api';
 import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info.js';
 import type { ApiSenderType } from './api.js';
 import { LifecycleContextImpl } from './lifecycle-context.js';
@@ -566,4 +566,160 @@ test('should throw error if no provider found with id', async () => {
   expect(() => providerRegistry.getMatchingProviderInternalId('internal')).toThrowError(
     'no provider matching provider id internal',
   );
+});
+
+test('should register a cleanup', async () => {
+  const fakeProviderImpl = { internalId: '123' } as ProviderImpl;
+
+  const myCleanup: ProviderCleanup = {
+    getActions: vi.fn(),
+  };
+  const disposable = providerRegistry.registerCleanup(fakeProviderImpl, myCleanup);
+
+  expect(disposable).toBeDefined();
+  expect(disposable.dispose).toBeDefined();
+
+  vi.mocked(myCleanup.getActions).mockResolvedValue([{ name: 'foo', execute: vi.fn() }]);
+
+  // ok check we can call the cleanup
+  const actions = await providerRegistry.getCleanupActionsFromProvider(fakeProviderImpl.internalId);
+  expect(actions).toBeDefined();
+  expect(actions).lengthOf(1);
+  expect(myCleanup.getActions).toBeCalled();
+
+  // check we can dispose
+  disposable.dispose();
+  const actions2 = await providerRegistry.getCleanupActionsFromProvider(fakeProviderImpl.internalId);
+  // should not be there anymore
+  expect(actions2).toStrictEqual([]);
+});
+
+test('should retrieve cleanup actions without provider Id', async () => {
+  const provider1 = providerRegistry.createProvider('id', 'name', {
+    id: 'internal1',
+    name: 'internal1',
+    status: 'installed',
+  });
+  const provider2 = providerRegistry.createProvider('id', 'name', {
+    id: 'internal2',
+    name: 'internal2',
+    status: 'installed',
+  });
+
+  const myCleanup1: ProviderCleanup = {
+    getActions: vi.fn(),
+  };
+  const myCleanup2: ProviderCleanup = {
+    getActions: vi.fn(),
+  };
+  provider1.registerCleanup(myCleanup1);
+  provider2.registerCleanup(myCleanup2);
+
+  const allActions = await providerRegistry.getCleanupActions();
+
+  expect(myCleanup1.getActions).toBeCalled();
+  expect(myCleanup2.getActions).toBeCalled();
+
+  expect(allActions).toBeDefined();
+  expect(allActions).lengthOf(2);
+  expect(allActions[0].providerName).toBe('internal1');
+  expect(allActions[1].providerName).toBe('internal2');
+});
+
+test('should retrieve cleanup actions with a given provider Id', async () => {
+  const provider1 = providerRegistry.createProvider('id', 'name', {
+    id: 'internal1',
+    name: 'internal1',
+    status: 'installed',
+  }) as ProviderImpl;
+  const provider2 = providerRegistry.createProvider('id', 'name', {
+    id: 'internal2',
+    name: 'internal2',
+    status: 'installed',
+  });
+
+  const myCleanup1: ProviderCleanup = {
+    getActions: vi.fn(),
+  };
+  const myCleanup2: ProviderCleanup = {
+    getActions: vi.fn(),
+  };
+  provider1.registerCleanup(myCleanup1);
+  provider2.registerCleanup(myCleanup2);
+
+  const allActions = await providerRegistry.getCleanupActions([provider1.internalId]);
+
+  // should return only the actions of provider1
+  expect(myCleanup1.getActions).toBeCalled();
+
+  expect(allActions).toBeDefined();
+  expect(allActions).lengthOf(1);
+  expect(allActions[0].providerName).toBe('internal1');
+});
+
+test('should execute actions', async () => {
+  const logger = { log: vi.fn(), error: vi.fn(), warn: vi.fn() };
+
+  // mock getCleanupActions
+  const getCleanupActionsMock = vi.spyOn(providerRegistry, 'getCleanupActions');
+
+  const myCleanup1: ProviderCleanup = {
+    getActions: vi.fn(),
+  };
+
+  const info = {
+    providerId: '123',
+    providerName: 'foo',
+    actions: Promise.resolve([{ name: 'hello', execute: vi.fn() }]),
+    instance: myCleanup1,
+  };
+
+  getCleanupActionsMock.mockResolvedValue([info]);
+
+  // execute actions
+  await providerRegistry.executeCleanupActions(logger, []);
+
+  // check no error
+  expect(logger.error).not.toBeCalled();
+
+  // check logs
+  expect(logger.log).toBeCalledWith('executing action ', 'hello');
+
+  // check telemetry
+  expect(telemetryTrackMock).toBeCalledWith('executeCleanupActions', { success: true });
+});
+
+test('should execute actions with error', async () => {
+  const logger = { log: vi.fn(), error: vi.fn(), warn: vi.fn() };
+
+  // mock getCleanupActions
+  const getCleanupActionsMock = vi.spyOn(providerRegistry, 'getCleanupActions');
+
+  const myCleanup1: ProviderCleanup = {
+    getActions: vi.fn(),
+  };
+
+  const executeMock = vi.fn();
+  executeMock.mockRejectedValue(new Error('fake error'));
+
+  const info = {
+    providerId: '123',
+    providerName: 'foo',
+    actions: Promise.resolve([{ name: 'hello', execute: executeMock }]),
+    instance: myCleanup1,
+  };
+
+  getCleanupActionsMock.mockResolvedValue([info]);
+
+  // execute actions
+  await providerRegistry.executeCleanupActions(logger, []);
+
+  // check no error
+  expect(logger.error).toBeCalledWith('Error while executing cleanup action hello: Error: fake error');
+
+  // check logs
+  expect(logger.log).toBeCalledWith('executing action ', 'hello');
+
+  // check telemetry should have an error and success false
+  expect(telemetryTrackMock).toBeCalledWith('executeCleanupActions', { success: false, error: ['Error: fake error'] });
 });
