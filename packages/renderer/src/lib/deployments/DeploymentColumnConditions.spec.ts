@@ -29,7 +29,6 @@ const deployment: DeploymentUI = {
   namespace: '',
   replicas: 0,
   ready: 0,
-  age: '',
   selected: false,
   conditions: [
     { type: 'Available', message: 'Running fine' },
