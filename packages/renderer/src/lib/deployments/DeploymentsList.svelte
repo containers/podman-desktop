@@ -1,7 +1,6 @@
 <script lang="ts">
-import { onDestroy, onMount } from 'svelte';
+import { onMount } from 'svelte';
 
-import type { Unsubscriber } from 'svelte/store';
 import type { DeploymentUI } from './DeploymentUI';
 import { filtered, searchPattern } from '../../stores/deployments';
 import NavPage from '../ui/NavPage.svelte';
@@ -20,6 +19,7 @@ import DeploymentIcon from '../images/DeploymentIcon.svelte';
 import DeploymentEmptyScreen from './DeploymentEmptyScreen.svelte';
 import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import SimpleColumn from '../table/SimpleColumn.svelte';
+import DurationColumn from '../table/DurationColumn.svelte';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -28,26 +28,10 @@ let deployments: DeploymentUI[] = [];
 
 const deploymentUtils = new DeploymentUtils();
 
-let deploymentsUnsubscribe: Unsubscriber;
-onMount(async () => {
-  deploymentsUnsubscribe = filtered.subscribe(value => {
+onMount(() => {
+  return filtered.subscribe(value => {
     deployments = value.map(deployment => deploymentUtils.getDeploymentUI(deployment));
   });
-
-  // compute refresh interval
-  const interval = computeInterval();
-  refreshTimeouts.push(setTimeout(refreshAge, interval));
-});
-
-onDestroy(() => {
-  // kill timers
-  refreshTimeouts.forEach(timeout => clearTimeout(timeout));
-  refreshTimeouts.length = 0;
-
-  // unsubscribe from the store
-  if (deploymentsUnsubscribe) {
-    deploymentsUnsubscribe();
-  }
 });
 
 // delete the items selected in the list
@@ -68,51 +52,6 @@ async function deleteSelectedDeployments() {
     );
     bulkDeleteInProgress = false;
   }
-}
-
-let refreshTimeouts: NodeJS.Timeout[] = [];
-const SECOND = 1000;
-function refreshAge() {
-  deployments = deployments.map(deployment => {
-    return { ...deployment, age: deploymentUtils.refreshAge(deployment) };
-  });
-
-  // compute new interval
-  const newInterval = computeInterval();
-  refreshTimeouts.forEach(timeout => clearTimeout(timeout));
-  refreshTimeouts.length = 0;
-  refreshTimeouts.push(setTimeout(refreshAge, newInterval));
-}
-
-function computeInterval(): number {
-  // no deployments, no refresh
-  if (deployments.length === 0) {
-    return -1;
-  }
-
-  // do we have deployments that have been created in less than 1 minute
-  // if so, need to update every second
-  const deploymentsCreatedInLessThan1Mn = deployments.filter(volume => moment().diff(volume.created, 'minutes') < 1);
-  if (deploymentsCreatedInLessThan1Mn.length > 0) {
-    return 2 * SECOND;
-  }
-
-  // every minute for deployments created less than 1 hour
-  const deploymentsCreatedInLessThan1Hour = deployments.filter(volume => moment().diff(volume.created, 'hours') < 1);
-  if (deploymentsCreatedInLessThan1Hour.length > 0) {
-    // every minute
-    return 60 * SECOND;
-  }
-
-  // every hour for deployments created less than 1 day
-  const deploymentsCreatedInLessThan1Day = deployments.filter(volume => moment().diff(volume.created, 'days') < 1);
-  if (deploymentsCreatedInLessThan1Day.length > 0) {
-    // every hour
-    return 60 * 60 * SECOND;
-  }
-
-  // every day
-  return 60 * 60 * 24 * SECOND;
 }
 
 let selectedItemsNumber: number;
@@ -146,13 +85,13 @@ let podsColumn = new Column<DeploymentUI>('Pods', {
   renderer: DeploymentColumnPods,
 });
 
-let ageColumn = new Column<DeploymentUI, string>('Age', {
-  renderMapping: deployment => deployment.age,
-  renderer: SimpleColumn,
+let ageColumn = new Column<DeploymentUI, Date | undefined>('Age', {
+  renderMapping: deployment => deployment.created,
+  renderer: DurationColumn,
   comparator: (a, b) => moment(b.created).diff(moment(a.created)),
 });
 
-const columns: Column<DeploymentUI, DeploymentUI | string>[] = [
+const columns: Column<DeploymentUI, DeploymentUI | string | Date | undefined>[] = [
   statusColumn,
   nameColumn,
   namespaceColumn,
@@ -190,7 +129,11 @@ const row = new Row<DeploymentUI>({ selectable: _deployment => true });
 
     {#if $filtered.length === 0}
       {#if searchTerm}
-        <FilteredEmptyScreen icon="{DeploymentIcon}" kind="deployments" bind:searchTerm="{searchTerm}" />
+        <FilteredEmptyScreen
+          icon="{DeploymentIcon}"
+          kind="deployments"
+          searchTerm="{searchTerm}"
+          on:resetFilter="{() => (searchTerm = '')}" />
       {:else}
         <DeploymentEmptyScreen />
       {/if}
