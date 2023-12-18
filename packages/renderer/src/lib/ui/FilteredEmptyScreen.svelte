@@ -8,7 +8,9 @@ export let searchTerm: string;
 
 const dispatch = createEventDispatcher();
 function onResetFilter() {
-  dispatch('resetFilter');
+  if (dispatch('resetFilter', searchTerm, { cancelable: true })) {
+    searchTerm = '';
+  }
 }
 
 $: filter = searchTerm && searchTerm.length > 20 ? 'filter' : `'${searchTerm}'`;
