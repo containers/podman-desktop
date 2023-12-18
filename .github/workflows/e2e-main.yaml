@@ -68,6 +68,10 @@ jobs:
             sudo apt-get update && \
             sudo apt-get -y install podman; }
           podman version
+          # downgrade conmon package version to workaround issue with starting containers, see  https://github.com/containers/conmon/issues/475
+          # remove once the repository contains conmon 2.1.10
+          wget https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/amd64/conmon_2.1.2~0_amd64.deb -O /tmp/conmon_2.1.2.deb
+          sudo apt install /tmp/conmon_2.1.2.deb
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path

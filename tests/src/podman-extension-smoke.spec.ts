@@ -56,7 +56,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await pdRunner.close();
-});
+}, 120000);
 
 beforeEach<RunnerTestContext>(async ctx => {
   ctx.pdRunner = pdRunner;

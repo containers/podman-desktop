@@ -48,13 +48,16 @@ export class RunImagePage extends BasePage {
 
   // If the container has a defined exposed port, the mapping offers only one part of the input box, host port
   // Example of the placeholder: 'Enter value for port 80/tcp' : settable value
-  async setHostPortToExposedContainerPort(placeholder: string, port: string) {
-    const portMapping = this.page.getByPlaceholder(placeholder);
+  async setHostPortToExposedContainerPort(exposedPort: string, port: string) {
+    await this.activateTab('Basic');
+    const portMapping = this.page
+      .getByRole('textbox')
+      .and(this.page.getByPlaceholder(`Enter value for port ${exposedPort}/tcp`));
     await portMapping.waitFor({ state: 'visible', timeout: 1000 });
     await portMapping.fill(port);
   }
 
-  async startContainer(customName = '', interactive = true): Promise<ContainersPage> {
+  async startContainer(customName = '', interactive?: boolean): Promise<ContainersPage> {
     if (customName !== '') {
       await this.activateTab('Basic');
       // ToDo: improve UI side with aria-labels
