@@ -6,14 +6,17 @@ import TreeView from '../ui/TreeView.svelte';
 
 export let image: ImageInfoUI;
 let layers: ImageLayer[];
+let currentLayerId: string;
 $: currentRoot = layers ? layers[0].tree.root : undefined;
 
 onMount(async () => {
   layers = await window.getImageLayers(image.engineId, image.id);
+  currentLayerId = layers[0].id;
 });
 
 function onLayerSelected(layer: ImageLayer) {
   currentRoot = layer.tree.root;
+  currentLayerId = layer.id;
 }
 </script>
 
@@ -31,7 +34,9 @@ function onLayerSelected(layer: ImageLayer) {
           <button
             on:click="{() => onLayerSelected(layer)}"
             role="row"
-            class="rounded-lg bg-charcoal-700 mb-4 p-4 flex flex-col w-full text-left">
+            class="rounded-lg mb-4 p-4 flex flex-col w-full text-left truncate"
+            class:bg-charcoal-700="{layer.id !== currentLayerId}"
+            class:bg-charcoal-400="{layer.id === currentLayerId}">
             <div>
               <div class="text-sm">{layer.history}</div>
               <div class="text-xs text-gray-700">{layer.id}</div>
