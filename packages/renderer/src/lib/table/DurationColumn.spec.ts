@@ -23,10 +23,12 @@ import { render, screen } from '@testing-library/svelte';
 import SimpleDurationColumn from './DurationColumn.svelte';
 
 test('Expect simple column styling', async () => {
-  const obj = new Date();
-  render(SimpleDurationColumn, { object: obj });
+  // pick a date an hour ago
+  const date = new Date();
+  date.setTime(date.getTime() - 3600000);
+  render(SimpleDurationColumn, { object: date });
 
-  const text = screen.getByText('');
+  const text = screen.getByText('1 hour');
   expect(text).toBeInTheDocument();
   expect(text).toHaveClass('text-sm');
   expect(text).toHaveClass('text-gray-700');
