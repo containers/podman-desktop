@@ -86,6 +86,13 @@ export class PodUtils {
       return uniqueName;
     }
   }
+
+  filterResetSearchTerm(f: string): string {
+    return f
+      .split(' ')
+      .filter(part => part.startsWith('is:'))
+      .join(' ');
+  }
 }
 
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
