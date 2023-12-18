@@ -23,7 +23,6 @@ export interface DeploymentUI {
   replicas: number;
   ready: number;
   created?: Date;
-  age: string;
   selected: boolean;
   conditions: DeploymentCondition[];
 }
