@@ -44,6 +44,7 @@ test('Expect provider region', async () => {
     warnings: [],
     images: {} as ProviderImages,
     installationSupport: false,
+    cleanupSupport: false,
   };
   render(ProviderCard, { provider });
 
@@ -69,6 +70,7 @@ test('Expect provider name', async () => {
     warnings: [],
     images: {} as ProviderImages,
     installationSupport: false,
+    cleanupSupport: false,
   };
   render(ProviderCard, { provider });
 
@@ -95,6 +97,7 @@ test('Expect provider icon', async () => {
     warnings: [],
     images: { icon: 'test.png' } as ProviderImages,
     installationSupport: false,
+    cleanupSupport: false,
   };
 
   render(ProviderCard, { provider });
@@ -125,6 +128,7 @@ test('Expect no provider version', async () => {
     warnings: [],
     images: {} as ProviderImages,
     installationSupport: false,
+    cleanupSupport: false,
     // no version
   };
   render(ProviderCard, { provider });
@@ -152,6 +156,7 @@ test('Expect provider version', async () => {
     images: {} as ProviderImages,
     installationSupport: false,
     version: '1.2.3',
+    cleanupSupport: false,
   };
   render(ProviderCard, { provider });
 
@@ -178,6 +183,7 @@ test('Expect provider state', async () => {
     warnings: [],
     images: {} as ProviderImages,
     installationSupport: false,
+    cleanupSupport: false,
   };
   render(ProviderCard, { provider });
 
