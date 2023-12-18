@@ -13,7 +13,7 @@
 
 <link rel="preconnect" href="https://podman-desktop-website.goatcounter.com">
 <script async src="//gc.zgo.at/count.js" data-goatcounter="https://podman-desktop-website.goatcounter.com/count"></script><link rel="stylesheet" href="/assets/css/styles.a096ca79.css">
-<script src="/assets/js/runtime~main.c24bab17.js" defer="defer"></script>
+<script src="/assets/js/runtime~main.eb715a68.js" defer="defer"></script>
 <script src="/assets/js/main.5dcfcb36.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -63,6 +63,20 @@ The extension requires no runtime:</p>
 <div class="language-shell-session codeBlockContainer_mQmQ theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_D5yF"><pre tabindex="0" class="prism-code language-shell-session codeBlock_RMoD thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_AclH"><span class="token-line" style="color:#F8F8F2"><span class="token command shell-symbol important">$</span><span class="token command"> </span><span class="token command bash language-bash">podman push quay.io/fbenoit/my-first-extension</span><br></span></code></pre><div class="buttonGroup_aaMX"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_z5j7" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_FoOz"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_L0B6"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
 </li>
 </ol>
+<h4 class="anchor anchorWithStickyNavbar_JmGV" id="adding-platform-specific-files">Adding platform-specific files<a href="#adding-platform-specific-files" class="hash-link" aria-label="Direct link to Adding platform-specific files" title="Direct link to Adding platform-specific files">​</a></h4>
+<p>You may want to add a system-native executable to the extension&#x27;s image, so the extension can execute it.</p>
+<p>In contrast to the extension&#x27;s code (transpiled into JavaScript) which is executable in any platform, you will
+need to prepare several OCI images, one for each platform (OS and architecture) you want the extension to support.</p>
+<p>For this, you will need to create:</p>
+<ul>
+<li>one Containerfile for each platform (or a common Containerfile with parameters), to create
+one image per platform,</li>
+<li>one manifest, to reference all images created at the previous step.</li>
+</ul>
+<p>The URL you need to share with the users to install the extension is the URL of the manifest.</p>
+<p>If the manifest does not contain an image for the platform of the user, Podman Desktop will install the
+image for Linux (amd64 or arm64 depending on the architecture of the user&#x27;s platform).</p>
+<p>You can leverage the <a href="https://github.com/redhat-actions/buildah-build" target="_blank" rel="noopener noreferrer">Buildah Build action</a> to build this manifest.</p>
 <h4 class="anchor anchorWithStickyNavbar_JmGV" id="next-steps">Next steps<a href="#next-steps" class="hash-link" aria-label="Direct link to Next steps" title="Direct link to Next steps">​</a></h4>
 <ul>
 <li><a href="/docs/extensions/install">Installing a Podman Desktop extension</a></li>
