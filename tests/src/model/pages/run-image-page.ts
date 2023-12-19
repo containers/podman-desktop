@@ -19,6 +19,7 @@
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './base-page';
 import { ContainersPage } from './containers-page';
+import { waitWhile } from '../../utility/wait';
 
 export class RunImagePage extends BasePage {
   readonly name: Locator;
@@ -27,6 +28,7 @@ export class RunImagePage extends BasePage {
   readonly backToImageDetailsLink: Locator;
   readonly imageName: string;
   readonly startContainerButton: Locator;
+  readonly errorAlert: Locator;
 
   constructor(page: Page, name: string) {
     super(page);
@@ -34,6 +36,7 @@ export class RunImagePage extends BasePage {
     this.name = page.getByLabel('name').and(page.getByText('Run Image'));
     this.heading = page.getByRole('heading', { name: this.imageName });
     this.closeLink = page.getByRole('link', { name: 'Close' });
+    this.errorAlert = page.getByRole('alert', { name: 'Error Message Content' });
     this.backToImageDetailsLink = page.getByRole('link', { name: 'Go back to Image Details' });
     this.startContainerButton = page.getByRole('button', { name: 'Start Container' });
   }
@@ -41,6 +44,17 @@ export class RunImagePage extends BasePage {
   async activateTab(name: string) {
     const tabactive = this.page.getByRole('link', { name: name, exact: true }).and(this.page.getByText(name));
     await tabactive.click();
+  }
+
+  // If the container has a defined exposed port, the mapping offers only one part of the input box, host port
+  // Example of the placeholder: 'Enter value for port 80/tcp' : settable value
+  async setHostPortToExposedContainerPort(exposedPort: string, port: string) {
+    await this.activateTab('Basic');
+    const portMapping = this.page
+      .getByRole('textbox')
+      .and(this.page.getByPlaceholder(`Enter value for port ${exposedPort}/tcp`));
+    await portMapping.waitFor({ state: 'visible', timeout: 1000 });
+    await portMapping.fill(port);
   }
 
   async startContainer(customName = '', interactive?: boolean): Promise<ContainersPage> {
@@ -59,14 +73,28 @@ export class RunImagePage extends BasePage {
     }
 
     await this.startContainerButton.waitFor({ state: 'visible', timeout: 1000 });
+    // If the start button is not enabled, we can expect an error in the form to be visible
+    if (!(await this.startContainerButton.isEnabled())) {
+      console.log('Start Container Button is not enabled.');
+      await this.errorAlert.waitFor({ state: 'visible', timeout: 1000 });
+      const errMessage = await this.errorAlert.innerText({ timeout: 1000 });
+      throw Error(`Start Button not enabled: ${errMessage}`);
+    }
     await this.startContainerButton.click();
     // wait for containers page to appear
     const containers = new ContainersPage(this.page);
     try {
-      await containers.heading.waitFor({ state: 'visible', timeout: 3000 });
-    } catch (error) {
-      console.log(`Containers Page seems not to be visible`);
-      // consume the error
+      await waitWhile(
+        async () => await this.startContainerButton.isVisible(),
+        5000,
+        900,
+        true,
+        'Error starting a container',
+      );
+    } catch (err) {
+      await this.errorAlert.waitFor({ state: 'visible', timeout: 2000 });
+      const errMessage = await this.errorAlert.innerText({ timeout: 1000 });
+      throw new Error(`Error starting a container: ${errMessage}`);
     }
     return containers;
   }

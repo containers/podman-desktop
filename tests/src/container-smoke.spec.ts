@@ -92,7 +92,13 @@ describe('Verification of container creation workflow', async () => {
     const runImage = await imageDetails.openRunImage();
     await pdRunner.screenshot('containers-run-image.png');
     const containers = await runImage.startContainer(containerToRun);
-    await waitUntil(async () => await containers.containerExists(containerToRun), 10000, 1000);
+    await waitUntil(
+      async () => await containers.containerExists(containerToRun),
+      10000,
+      1000,
+      true,
+      'Failed to start a container',
+    );
     await pdRunner.screenshot('containers-container-exists.png');
     const containerDetails = await containers.openContainersDetails(containerToRun);
     await waitUntil(async () => {
