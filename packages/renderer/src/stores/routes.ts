@@ -49,18 +49,18 @@ function informerListener(...args: unknown[]) {
     if (event === 'kubernetes-route-add') {
       if (
         !routesList.find(
-          ing => ing.metadata?.name === route.metadata?.name && ing.metadata?.namespace === route.metadata?.namespace,
+          rte => rte.metadata?.name === route.metadata?.name && rte.metadata?.namespace === route.metadata?.namespace,
         )
       ) {
         routesList.push(route);
       }
     } else if (event === 'kubernetes-route-deleted') {
       routesList = routesList.filter(
-        ing => ing.metadata?.name !== route.metadata?.name || ing.metadata?.namespace !== route.metadata?.namespace,
+        rte => rte.metadata?.name !== route.metadata?.name || rte.metadata?.namespace !== route.metadata?.namespace,
       );
     } else if (event === 'kubernetes-route-update') {
       const index = routesList.findIndex(
-        ing => ing.metadata?.name === route.metadata?.name && ing.metadata?.namespace === route.metadata?.namespace,
+        rte => rte.metadata?.name === route.metadata?.name && rte.metadata?.namespace === route.metadata?.namespace,
       );
       if (index > -1) {
         routesList[index] = route;

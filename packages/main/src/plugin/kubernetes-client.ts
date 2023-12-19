@@ -1135,7 +1135,7 @@ export class KubernetesClient {
     throw new Error('no active namespace');
   }
 
-  async createRoutesInformer(_id?: number): Promise<number> {
+  async createRoutesInformer(id?: number): Promise<number> {
     const ns = this.getCurrentNamespace();
     if (ns) {
       const customObjectsApi = this.kubeConfig.makeApiClient(CustomObjectsApi);
@@ -1147,7 +1147,7 @@ export class KubernetesClient {
             response: IncomingMessage;
             body: KubernetesListObject<V1Route>;
           }>,
-        _id,
+        id,
       );
     }
     throw new Error('no active namespace');

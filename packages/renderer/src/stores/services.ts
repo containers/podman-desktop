@@ -49,19 +49,19 @@ function informerListener(...args: unknown[]) {
     if (event === 'kubernetes-service-add') {
       if (
         !servicesList.find(
-          ing =>
-            ing.metadata?.name === service.metadata?.name && ing.metadata?.namespace === service.metadata?.namespace,
+          svc =>
+            svc.metadata?.name === service.metadata?.name && svc.metadata?.namespace === service.metadata?.namespace,
         )
       ) {
         servicesList.push(service);
       }
     } else if (event === 'kubernetes-service-deleted') {
       servicesList = servicesList.filter(
-        ing => ing.metadata?.name !== service.metadata?.name || ing.metadata?.namespace !== service.metadata?.namespace,
+        svc => svc.metadata?.name !== service.metadata?.name || svc.metadata?.namespace !== service.metadata?.namespace,
       );
     } else if (event === 'kubernetes-service-update') {
       const index = servicesList.findIndex(
-        ing => ing.metadata?.name === service.metadata?.name && ing.metadata?.namespace === service.metadata?.namespace,
+        svc => svc.metadata?.name === service.metadata?.name && svc.metadata?.namespace === service.metadata?.namespace,
       );
       if (index > -1) {
         servicesList[index] = service;
