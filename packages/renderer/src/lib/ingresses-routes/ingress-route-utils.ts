@@ -44,4 +44,7 @@ export class IngressRouteUtils {
       selected: false,
     };
   }
+  isIngress(object: IngressUI | RouteUI): object is IngressUI {
+    return 'rules' in object;
+  }
 }

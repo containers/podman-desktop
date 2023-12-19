@@ -23,6 +23,8 @@ import NewContentOnDashboardBadge from './lib/dashboard/NewContentOnDashboardBad
 import SettingsIcon from './lib/images/SettingsIcon.svelte';
 import DashboardIcon from './lib/images/DashboardIcon.svelte';
 import ServiceIcon from './lib/images/ServiceIcon.svelte';
+import IngressRouteIcon from './lib/images/IngressRouteIcon.svelte';
+import { ingresses } from './stores/ingresses';
 
 let podInfoSubscribe: Unsubscriber;
 let containerInfoSubscribe: Unsubscriber;
@@ -31,6 +33,7 @@ let volumeInfoSubscribe: Unsubscriber;
 let contextsSubscribe: Unsubscriber;
 let deploymentsSubscribe: Unsubscriber;
 let servicesSubscribe: Unsubscriber;
+let ingressesRoutesSubscribe: Unsubscriber;
 
 let podCount = '';
 let containerCount = '';
@@ -39,6 +42,7 @@ let volumeCount = '';
 let contextCount = 0;
 let deploymentCount = '';
 let serviceCount = '';
+let ingressesRoutesCount = '';
 
 const imageUtils = new ImageUtils();
 export let exitSettingsCallback: () => void;
@@ -90,6 +94,13 @@ onMount(async () => {
       serviceCount = '';
     }
   });
+  ingressesRoutesSubscribe = ingresses.subscribe(value => {
+    if (value.length > 0) {
+      ingressesRoutesCount = ' (' + value.length + ')';
+    } else {
+      ingressesRoutesCount = '';
+    }
+  });
   contextsSubscribe = kubernetesContexts.subscribe(value => {
     contextCount = value.length;
   });
@@ -117,6 +128,7 @@ onDestroy(() => {
   if (servicesSubscribe) {
     servicesSubscribe();
   }
+  ingressesRoutesSubscribe?.();
 });
 
 function clickSettings(b: boolean) {
@@ -160,6 +172,13 @@ export let meta: TinroRouteMeta;
     </NavItem>
     <NavItem href="/services" tooltip="Services{serviceCount}" ariaLabel="Services" bind:meta="{meta}">
       <ServiceIcon size="24" />
+    </NavItem>
+    <NavItem
+      href="/ingressesRoutes"
+      tooltip="Ingresses & Routes{ingressesRoutesCount}"
+      ariaLabel="Ingresses & Routes"
+      bind:meta="{meta}">
+      <IngressRouteIcon size="24" />
     </NavItem>
   {/if}
 

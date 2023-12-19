@@ -165,7 +165,7 @@ function setGridColumns() {
   <div role="rowgroup">
     {#each data as object (object)}
       <div
-        class="grid grid-table gap-x-0.5 mx-5 h-12 bg-charcoal-800 hover:bg-zinc-700 rounded-lg mb-2"
+        class="grid grid-table gap-x-0.5 mx-5 min-h-[48px] h-fit bg-charcoal-800 hover:bg-zinc-700 rounded-lg mb-2"
         animate:flip="{{ duration: 300 }}"
         role="row">
         <div class="whitespace-nowrap justify-self-start" role="cell"></div>
