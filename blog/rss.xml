@@ -16,7 +16,7 @@
             <pubDate>Mon, 18 Dec 2023 00:00:00 GMT</pubDate>
             <description><![CDATA[Podman Desktop 1.6 has been released!]]></description>
             <content:encoded><![CDATA[<p>Podman Desktop 1.6 Release! 🎉</p>
-<p><img loading="lazy" alt="Podman-desktop-1-6-hero" src="https://podman-desktop.io/assets/images/SantaSeal-53d399f20690910707cb93295dd700ce.png" width="1920" height="1080" class="img_SS3x"></p>
+<p><img loading="lazy" alt="Podman-desktop-1-6-hero" src="https://podman-desktop.io/assets/images/santaseal-53d399f20690910707cb93295dd700ce.png" width="1920" height="1080" class="img_SS3x"></p>
 <p>This release introduces:</p>
 <ul>
 <li><strong>Minikube Featured Extension</strong>: Minikube extension to create local Kubernetes clusters in containers.</li>
