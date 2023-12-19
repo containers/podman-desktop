@@ -222,6 +222,16 @@ A step has only two mandatory fields - id and title. All other properties are op
 
 The **id** must be unique to identify a step, and it is never displayed directly to the user.
 
+To analyze more easily in telemetry the steps executed by users, the **id** values must respect some rules.
+To help developers respect these rules, a warning is displayed in case of non-repsect when Podman Destop loads the onboarding.
+
+The rules are:
+
+- for a step defining a command, the id must terminate with `Command`,
+- for a state defining `state='failed'`, the id must terminate with `Failure`,
+- for a state defining `state='completed'`, the id must terminate with `Success`,
+- for any other step, the id must termminate with `View`.
+
 #### Title, description and media
 
 The **title**, **description** and **media** works as explained earlier. The only difference is their placement - they will appear in the top-center of the body.
