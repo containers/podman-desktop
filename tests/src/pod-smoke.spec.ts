@@ -26,6 +26,7 @@ import { NavigationBar } from './model/workbench/navigation';
 import { waitUntil, waitWhile } from './utility/wait';
 import { deleteContainer, deleteImage, deletePod } from './utility/operations';
 import { ContainerState, PodState } from './model/core/states';
+import * as os from 'node:os';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -36,6 +37,7 @@ const imagesTag = 'v1';
 const backendContainer = 'backend';
 const frontendContainer = 'frontend';
 const podToRun = 'frontend-app-pod';
+const isMac = os.platform() === 'darwin';
 
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
@@ -111,6 +113,10 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       images = await navigationBar.openImages();
       imageDetails = await images.openImageDetails(frontendImage);
       runImage = await imageDetails.openRunImage();
+      if (isMac) {
+        await runImage.setHostPortToExposedContainerPort('5000', '5101');
+      }
+      await pdRunner.screenshot('pods-run-frontend-image.png');
       await pdRunner.screenshot('pods-run-frontend-image.png');
       containers = await runImage.startContainer(frontendContainer, false);
       await waitUntil(async () => containers.containerExists(frontendContainer), 10000, 1000);

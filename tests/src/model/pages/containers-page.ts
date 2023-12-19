@@ -81,7 +81,7 @@ export class ContainersPage extends MainPage {
       }
       await row.getByRole('cell').nth(1).click();
     }
-    await this.page.getByRole('button', { name: `Create Pod with ${names.length} selected items` }).click();
+    await this.page.getByRole('button', { name: `Create Pod` }).click();
     return new CreatePodsPage(this.page);
   }
 }
