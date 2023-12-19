@@ -39,6 +39,10 @@ let extensionSettingsBox: Locator;
 let installButtonLabel: string;
 let settingsLink: string;
 let resourceLabel: string;
+let imageLink: string;
+let settingsTableLabel: string;
+
+let extensionBoxVisible: boolean;
 
 const _startup = async function () {
   console.log('running before all');
@@ -74,36 +78,49 @@ describe.each([
 
   test('Initialize extension type', async () => {
     initializeLocators(extensionType);
+    extensionBoxVisible = await extensionDashboardBox.isVisible();
   });
 
   describe('Check installation availability', async () => {
-    test('Check Dashboard extension component for installation availability', async () => {
+    test.runIf(extensionBoxVisible)('Check Dashboard extension component for installation availability', async () => {
       const installButton = extensionDashboardBox.getByRole('button', { name: installButtonLabel });
       await playExpect(installButton).toBeVisible();
     });
 
-    test('Check Settings extension component for installation availability', async () => {
+    test('Go to settings', async () => {
       await goToSettings();
       const settingsBar = new SettingsBar(page);
       await settingsBar.openTabPage(SettingsExtensionsPage);
+    });
 
+    test.runIf(extensionBoxVisible)('Check Settings extension component for installation availability', async () => {
       const installButton = extensionSettingsBox.getByRole('button', { name: installButtonLabel });
       await playExpect(installButton).toBeVisible();
     });
   });
 
   test('Install extension through Settings', async () => {
-    const installButton = extensionSettingsBox.getByRole('button', { name: installButtonLabel });
+    const settingsPage = new SettingsExtensionsPage(page);
+    let installButton = extensionSettingsBox.getByRole('button', { name: installButtonLabel });
+
+    if (!extensionBoxVisible) {
+      const imageInstallBox = settingsPage.imageInstallBox;
+      const imageInput = imageInstallBox.getByLabel('OCI Image Name');
+      await imageInput.fill(imageLink);
+
+      installButton = imageInstallBox.getByRole('button', { name: 'Install extension from the OCI image' });
+      await installButton.isEnabled();
+    }
+
     await installButton.click();
-    const installedLabel = extensionSettingsBox.getByText('installed');
-    await playExpect(installedLabel).toBeVisible({ timeout: 180000 });
+
+    const installedExtensionRow = settingsPage.getExtensionRowFromTable(settingsTableLabel);
+    const extensionRunningLabel = installedExtensionRow.getByText('RUNNING');
+    await playExpect(extensionRunningLabel).toBeVisible({ timeout: 180000 });
   }, 200000);
 
   describe('Verify UI components after installation', async () => {
     test('Verify Settings components', async () => {
-      const installedLabel = extensionSettingsBox.getByText('installed');
-      await playExpect(installedLabel).toBeVisible();
-
       const settingsBar = new SettingsBar(page);
       await playExpect(settingsBar.settingsNavBar.getByRole('link', { name: settingsLink })).toBeVisible();
 
@@ -163,17 +180,18 @@ describe.each([
       await extensionPage.disableButton.click();
       await extensionPage.removeExtensionButton.click();
 
-      const installButton = extensionSettingsBox.getByRole('button', { name: installButtonLabel });
-      await playExpect(installButton).toBeVisible();
-
       await playExpect(settingsBar.settingsNavBar.getByRole('link', { name: settingsLink })).toBeHidden();
+
+      const settingsPage = new SettingsExtensionsPage(page);
+      const installedExtensionRow = settingsPage.getExtensionRowFromTable(settingsTableLabel);
+      await playExpect(installedExtensionRow).toBeHidden();
 
       const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
       const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', { name: resourceLabel });
       await playExpect(extensionResourceBox).toBeHidden();
     });
 
-    test('Verify Dashboard components', async () => {
+    test.runIf(extensionBoxVisible)('Verify Dashboard components', async () => {
       await goToDashboard();
       const dashboardInstallButton = extensionDashboardBox.getByRole('button', { name: installButtonLabel });
       await playExpect(dashboardInstallButton).toBeVisible();
@@ -193,6 +211,8 @@ function initializeLocators(extensionType: string) {
       installButtonLabel = 'Install redhat.redhat-sandbox Extension';
       settingsLink = 'Red Hat OpenShift Sandbox';
       resourceLabel = 'redhat.sandbox';
+      imageLink = 'ghcr.io/redhat-developer/podman-desktop-sandbox-ext:0.0.2';
+      settingsTableLabel = 'redhat-sandbox';
       break;
     }
     case 'Openshift Local': {
@@ -203,6 +223,8 @@ function initializeLocators(extensionType: string) {
       installButtonLabel = 'Install redhat.openshift-local Extension';
       settingsLink = 'Red Hat OpenShift Local';
       resourceLabel = 'crc';
+      imageLink = 'quay.io/redhat-developer/openshift-local-extension:v1.3.0';
+      settingsTableLabel = 'openshift-local';
       break;
     }
   }

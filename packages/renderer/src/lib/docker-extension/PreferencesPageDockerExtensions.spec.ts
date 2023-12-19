@@ -39,7 +39,7 @@ describe('PreferencesPageDockerExtensions', () => {
   test('Expect that textbox is available and button is displayed', async () => {
     render(PreferencesPageDockerExtensions, {});
 
-    const input = screen.getByRole('textbox', { name: 'Image name:' });
+    const input = screen.getByRole('textbox', { name: 'OCI Image Name' });
     expect(input).toBeInTheDocument();
     const button = screen.getByRole('button', { name: buttonText });
     expect(button).toBeInTheDocument();
