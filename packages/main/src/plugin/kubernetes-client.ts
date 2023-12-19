@@ -32,6 +32,7 @@ import type {
   V1Deployment,
   KubernetesObject,
   ListPromise,
+  KubernetesListObject,
 } from '@kubernetes/client-node';
 import {
   ApisApi,
@@ -63,6 +64,7 @@ import * as jsYaml from 'js-yaml';
 import type { KubeContext } from './kubernetes-context.js';
 import type { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
+import type { IncomingMessage } from 'node:http';
 
 function toContainerStatus(state: V1ContainerState | undefined): string {
   if (state) {
@@ -1134,19 +1136,20 @@ export class KubernetesClient {
   }
 
   async createRoutesInformer(_id?: number): Promise<number> {
-    // : Promise<{ response: http.IncomingMessage; body: V1IngressList;  }> {
-    // : Promise<{ response: http.IncomingMessage; body: object;  }> {
-    /*const ns = this.getCurrentNamespace();
+    const ns = this.getCurrentNamespace();
     if (ns) {
       const customObjectsApi = this.kubeConfig.makeApiClient(CustomObjectsApi);
       return this.makeKubernetesInformer<V1Route>(
         'ROUTE',
         '/apis/route.openshift.io/v1/namespaces/' + ns + '/routes',
-        //() => new Promise<{ response: {} as IncomingMessage, body: {KubernetesListObject<V1Route>} }>,
-        //customObjectsApi.listNamespacedCustomObject('route.openshift.io', 'v1', ns, 'routes').body as V1Route[],
-        id,
+        () =>
+          customObjectsApi.listNamespacedCustomObject('route.openshift.io', 'v1', ns, 'routes') as Promise<{
+            response: IncomingMessage;
+            body: KubernetesListObject<V1Route>;
+          }>,
+        _id,
       );
-    }*/
+    }
     throw new Error('no active namespace');
   }
 
