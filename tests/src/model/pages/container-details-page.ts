@@ -87,13 +87,12 @@ export class ContainerDetailsPage extends BasePage {
     return new ContainersPage(this.page);
   }
 
-  async checkMappedPort(port: string): Promise<boolean> {
+  async getContainerPort(): Promise<string> {
     await this.activateTab(ContainerDetailsPage.SUMMARY_TAB);
     const summaryTable = this.getPage().getByRole('table');
     const portsRow = summaryTable.locator('tr:has-text("Ports")');
     const portsCell = portsRow.getByRole('cell').nth(1);
     await portsCell.waitFor({ state: 'visible', timeout: 500 });
-    const portsText = await portsCell.innerText();
-    return portsText.includes(port);
+    return await portsCell.innerText({ timeout: 5000 });
   }
 }

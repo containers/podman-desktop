@@ -31,6 +31,8 @@ import { PodsPage } from './model/pages/pods-page';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
+let backendPort: string;
+let frontendPort: string;
 
 const backendImage = 'quay.io/podman-desktop-demo/podify-demo-backend';
 const frontendImage = 'quay.io/podman-desktop-demo/podify-demo-frontend';
@@ -121,7 +123,8 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       }, 5000);
       await waitUntil(async () => {
         await pdRunner.screenshot('pods-backend-container-port-set.png');
-        return await containerDetails.checkMappedPort('6379');
+        backendPort = await containerDetails.getContainerPort();
+        return backendPort.includes('6379');
       }, 5000);
       images = await navigationBar.openImages();
       imageDetails = await images.openImageDetails(frontendImage);
@@ -135,6 +138,9 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       await waitUntil(async () => containers.containerExists(frontendContainer), 10000, 1000);
       await pdRunner.screenshot('pods-frontend-container-exists.png');
       containerDetails = await containers.openContainersDetails(frontendContainer);
+      frontendPort = await containerDetails.getContainerPort();
+      const expectedPort = isMac ? '5101' : '5000';
+      playExpect(frontendPort).toContain(expectedPort);
       await waitUntil(async () => {
         return (await containerDetails.getState()) === ContainerState.Running;
       }, 5000);
@@ -181,6 +187,49 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       await pdRunner.screenshot('pods-pod-details-kube.png');
     });
 
+    test('Checking original containers stopped', async () => {
+      const navigationBar = new NavigationBar(page);
+      const containers = await navigationBar.openContainers();
+      const backendContainerDetails = await containers.openContainersDetails(backendContainer);
+      await waitUntil(
+        async () => {
+          return (await backendContainerDetails.getState()) === ContainerState.Exited;
+        },
+        10000,
+        1000,
+      );
+      await navigationBar.openContainers();
+      const frontendContainerDetails = await containers.openContainersDetails(frontendContainer);
+      await waitUntil(
+        async () => {
+          return (await frontendContainerDetails.getState()) === ContainerState.Exited;
+        },
+        10000,
+        1000,
+      );
+      await pdRunner.screenshot('pods-original-containers-stopped.png');
+    });
+
+    test('Checking pods page options buttons', async () => {
+      const navigationBar = new NavigationBar(page);
+      const pods = await navigationBar.openPods();
+      await pods.selectPod([podToRun]);
+      await pdRunner.screenshot('pods-pod-selected.png');
+      const deleteButton = pods.getPage().getByRole('button', { name: 'Delete 1 selected items', exact: true });
+      await playExpect(deleteButton).toBeVisible();
+
+      const actionsMenuButton = await pods.getPodActionsMenu(podToRun);
+      await playExpect(actionsMenuButton).toBeVisible();
+      await actionsMenuButton.click();
+      const kubeButton = pods.getPage().getByTitle('Generate Kube');
+      const kubernetesButton = pods.getPage().getByTitle('Deploy to Kubernetes');
+      const restartButton = pods.getPage().getByTitle('Restart Pod');
+      await playExpect(kubeButton).toBeVisible();
+      await playExpect(kubernetesButton).toBeVisible();
+      await playExpect(restartButton).toBeVisible();
+      await pdRunner.screenshot('pods-pod-actions-menu-open.png');
+    });
+
     test(`Checking pods under containers`, async () => {
       const navigationBar = new NavigationBar(page);
       const containers = await navigationBar.openContainers();
@@ -190,31 +239,96 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       await pdRunner.screenshot('pods-pod-containers-exist.png');
     });
 
-    test('Stopping pods', async () => {
+    test('Checking deployed application', async () => {
+      // fetch the application page
+      // this might not work on macos
+      const address = 'http://localhost:' + frontendPort;
+
+      await waitUntil(
+        async function appRunningOnPort(): Promise<boolean> {
+          return await fetch(address)
+            .then(response => {
+              return response.ok;
+            })
+            .catch(() => {
+              return false;
+            });
+        },
+        30000,
+        3000,
+        true,
+        'App was not available on the port in time',
+      );
+
+      for (let i = 2; i < 5; i++) {
+        const response: Response = await fetch(address);
+        const blob: Blob = await response.blob();
+        const text: string = await blob.text();
+        expect(text).toContain('Hello World!');
+        // regex for div with number of visits
+        const regex = /<div[^>]*>(\d+)<\/div>/i;
+        const matches = RegExp(regex).exec(text);
+        expect(matches![1]).toEqual(i.toString());
+        expect(matches).toBeDefined();
+        expect(text).toContain('time(s)');
+      }
+    });
+
+    test('Restarting pod', async () => {
       const navigationBar = new NavigationBar(page);
       const pods = await navigationBar.openPods();
       const podDetails = await pods.openPodDetails(podToRun);
       await playExpect(podDetails.heading).toBeVisible();
       await playExpect(podDetails.heading).toContainText(podToRun);
-      await podDetails.stopPod();
+      await podDetails.restartPod();
       await waitUntil(
         async () => {
-          return (await podDetails.getState()) === PodState.Exited;
+          return (await podDetails.getState()) === PodState.Restarting;
         },
-        20000,
-        1500,
+        15000,
+        1000,
       );
-      const startButton = podDetails.getPage().getByRole('button', { name: 'Start Pod', exact: true });
-      await playExpect(startButton).toBeVisible();
-      await pdRunner.screenshot('pods-pod-stopped.png');
+      await waitUntil(
+        async () => {
+          return (await podDetails.getState()) === PodState.Running;
+        },
+        30000,
+        2000,
+      );
+      const stopButton = podDetails.getPage().getByRole('button', { name: 'Stop Pod', exact: true });
+      await playExpect(stopButton).toBeVisible();
+      await pdRunner.screenshot('pods-pod-restarted.png');
     });
 
-    test('Deleting pods', async () => {
+    test('Stopping and starting pod', async () => {
       const navigationBar = new NavigationBar(page);
       const pods = await navigationBar.openPods();
-      const podDetails = await pods.openPodDetails(podToRun);
-      await playExpect(podDetails.heading).toContainText(podToRun);
-      const podsPage = await podDetails.deletePod(10000);
+      const podDetailsPage = await pods.openPodDetails(podToRun);
+      await podDetailsPage.stopPod(podToRun, true);
+      await pdRunner.screenshot('pods-pod-stopped-sr.png');
+
+      await podDetailsPage.startPod(true);
+      await waitUntil(
+        async () => {
+          return (await podDetailsPage.getState()) === PodState.Running;
+        },
+        21000,
+        1500,
+      );
+      const startButton = podDetailsPage.getPage().getByRole('button', { name: 'Stop Pod', exact: true });
+      await playExpect(startButton).toBeVisible();
+      await pdRunner.screenshot('pods-pod-started-again.png');
+    });
+
+    test('Stopping and deleting pod', async () => {
+      const navigationBar = new NavigationBar(page);
+      const pods = await navigationBar.openPods();
+      const podDetailsPage = await pods.openPodDetails(podToRun);
+      await podDetailsPage.stopPod(podToRun, true);
+      await pdRunner.screenshot('pods-pod-stopped-sd.png');
+
+      await playExpect(podDetailsPage.heading).toContainText(podToRun);
+      const podsPage = await podDetailsPage.deletePod(10000);
       playExpect(podsPage).toBeDefined();
       playExpect(await podsPage.podExists(podToRun)).toBeFalsy();
       await pdRunner.screenshot('pods-pod-deleted.png');
@@ -246,12 +360,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
 
       for (const pod of podNames) {
         const podDetailsPage = await new PodsPage(page).openPodDetails(pod);
-        await playExpect(podDetailsPage.heading).toContainText(pod);
-        await podDetailsPage.stopPod();
-        await playExpect
-          .poll(async () => (await podDetailsPage.getState()) === PodState.Exited, { timeout: 25000 })
-          .toBeTruthy();
-
+        await podDetailsPage.stopPod(pod, true);
         const podsPage = await navigationBar.openPods();
         await playExpect(podsPage.heading).toBeVisible();
         await podsPage.prunePods();
