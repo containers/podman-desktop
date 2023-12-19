@@ -13,7 +13,7 @@
 
 <link rel="preconnect" href="https://podman-desktop-website.goatcounter.com">
 <script async src="//gc.zgo.at/count.js" data-goatcounter="https://podman-desktop-website.goatcounter.com/count"></script><link rel="stylesheet" href="/assets/css/styles.a096ca79.css">
-<script src="/assets/js/runtime~main.1ad85984.js" defer="defer"></script>
+<script src="/assets/js/runtime~main.82c98736.js" defer="defer"></script>
 <script src="/assets/js/main.73aab66a.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -46,6 +46,15 @@ You can choose to display content explaining concepts to the user, incorporate i
 <p>A step has only two mandatory fields - id and title. All other properties are optional.</p>
 <h4 class="anchor anchorWithStickyNavbar_JmGV" id="id">Id<a href="#id" class="hash-link" aria-label="Direct link to Id" title="Direct link to Id">​</a></h4>
 <p>The <strong>id</strong> must be unique to identify a step, and it is never displayed directly to the user.</p>
+<p>To analyze more easily in telemetry the steps executed by users, the <strong>id</strong> values must respect some rules.
+To help developers respect these rules, a warning is displayed in case of non-repsect when Podman Destop loads the onboarding.</p>
+<p>The rules are:</p>
+<ul>
+<li>for a step defining a command, the id must terminate with <code>Command</code>,</li>
+<li>for a state defining <code>state=&#x27;failed&#x27;</code>, the id must terminate with <code>Failure</code>,</li>
+<li>for a state defining <code>state=&#x27;completed&#x27;</code>, the id must terminate with <code>Success</code>,</li>
+<li>for any other step, the id must termminate with <code>View</code>.</li>
+</ul>
 <h4 class="anchor anchorWithStickyNavbar_JmGV" id="title-description-and-media-1">Title, description and media<a href="#title-description-and-media-1" class="hash-link" aria-label="Direct link to Title, description and media" title="Direct link to Title, description and media">​</a></h4>
 <p>The <strong>title</strong>, <strong>description</strong> and <strong>media</strong> works as explained earlier. The only difference is their placement - they will appear in the top-center of the body.</p>
 <p><img loading="lazy" alt="img2" src="/assets/images/step_title_description_media-185a47edbda6dd96d333a8d4a8b763be.png" width="1539" height="981" class="img_SS3x"></p>
