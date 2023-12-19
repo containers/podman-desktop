@@ -10,7 +10,7 @@ export let provider: ProviderInfo;
 <div class="bg-charcoal-800 mb-5 rounded-md p-3 flex-nowrap" role="region" aria-label="{provider.name} Provider">
   <div class="flex flex-row">
     <div class="flex flex-row">
-      <IconImage image="{provider?.images?.icon}" class="mx-auto max-h-12" alt="{provider.name}"></IconImage>
+      <IconImage image="{provider?.images?.icon}" class="max-h-12" alt="{provider.name}"></IconImage>
       <div class="flex flex-col text-gray-400 ml-3 whitespace-nowrap" aria-label="context-name">
         <div class="flex flex-row items-center">
           {provider.name}
@@ -25,7 +25,7 @@ export let provider: ProviderInfo;
         </div>
       </div>
     </div>
-    <div class="flex flex-col items-center text-center flex-grow">
+    <div class="flex flex-col items-center text-center grow">
       <slot name="content" />
     </div>
   </div>

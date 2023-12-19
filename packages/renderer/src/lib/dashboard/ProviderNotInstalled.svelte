@@ -15,7 +15,7 @@ let preflightChecks: CheckStatus[] = [];
 
 <ProviderCard provider="{provider}">
   <svelte:fragment slot="content">
-    <p class="text-base text-gray-700" aria-label="Suggested Actions">
+    <p class="text-base text-gray-700 max-w-xs" aria-label="Suggested Actions">
       Could not find an installation. To start working with containers, {provider.name} needs to be detected/installed.
     </p>
     <div class="mt-5 mb-1 w-full flex justify-around">

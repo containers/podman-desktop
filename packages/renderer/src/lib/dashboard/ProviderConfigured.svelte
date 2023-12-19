@@ -48,11 +48,8 @@ onMount(() => {
 
 <ProviderCard provider="{provider}">
   <svelte:fragment slot="content">
-    <p class="text-base text-gray-700">
-      To start working with containers, {provider.name}
-      {#if provider.version}
-        v{provider.version}
-      {/if} needs to be started.
+    <p class="text-base text-gray-700 max-w-xs">
+      To start working with containers, {provider.name} needs to be started.
     </p>
 
     {#if !runAtStart && !runInProgress}
