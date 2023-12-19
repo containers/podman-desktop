@@ -22,7 +22,7 @@ function handleKeydown(e: KeyboardEvent) {
 <svelte:window on:keydown="{handleKeydown}" />
 
 <div class="flex flex-col w-full h-full shadow-pageheader">
-  <div class="flex flex-row w-full h-fit px-5 py-4">
+  <div class="flex flex-row w-full h-fit px-5 pt-4 pb-2">
     <div class="flex flex-col w-full h-fit">
       <div class="flex flew-row items-center text-sm text-gray-700">
         <Link class="text-sm" aria-label="back" internalRef="{$lastPage.path}" title="Go back to {$lastPage.name}"
@@ -42,7 +42,7 @@ function handleKeydown(e: KeyboardEvent) {
             <h1 aria-label="{title}" class="text-xl leading-tight">{title}</h1>
             <div class="text-violet-400 ml-2 leading-normal" class:hidden="{!titleDetail}">{titleDetail}</div>
           </div>
-          <div class="pt-1">
+          <div>
             <span class="text-sm leading-none text-gray-900" class:hidden="{!subtitle}">{subtitle}</span>
             <slot name="subtitle" />
           </div>

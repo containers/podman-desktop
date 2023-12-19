@@ -19,10 +19,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { get } from 'svelte/store';
-import type { Mock } from 'vitest';
 import { beforeAll, expect, test, vi } from 'vitest';
 import type { V1Ingress } from '@kubernetes/client-node';
-import { fetchIngressesWithData, ingresses, ingressesEventStore } from './ingresses';
+import { ingresses, ingressesEventStore } from './ingresses';
 
 // first, path window object
 const callbacks = new Map<string, any>();
@@ -32,11 +31,8 @@ const eventEmitter = {
   },
 };
 
-const listIngressesMock: Mock<any, Promise<V1Ingress[]>> = vi.fn();
-
 Object.defineProperty(global, 'window', {
   value: {
-    kubernetesListIngresses: listIngressesMock,
     events: {
       receive: eventEmitter.receive,
     },
@@ -49,64 +45,69 @@ beforeAll(() => {
   vi.clearAllMocks();
 });
 
-test('ingresses should be updated in case of a extension is removed', async () => {
-  // initial ingresses
-  listIngressesMock.mockResolvedValue([
-    {
-      metadata: {
-        name: 'my-ingress',
-        namespace: 'test-namespace',
-      },
-      spec: {
-        rules: [
-          {
-            host: 'foo.bar.com',
-            http: {
-              paths: [
-                {
-                  path: '/foo',
-                  pathType: 'Prefix',
-                  backend: {
-                    resource: {
-                      name: 'bucket',
-                      kind: 'StorageBucket',
-                    },
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    } as unknown as V1Ingress,
-  ]);
+const v1Ingress: V1Ingress = {
+  apiVersion: 'networking.k8s.io/v1',
+  kind: 'Ingress',
+  metadata: {
+    name: 'ingress',
+  },
+  spec: {
+    ingressClassName: 'class',
+  },
+};
+
+const v2Ingress: V1Ingress = {
+  apiVersion: 'networking.k8s.io/v1',
+  kind: 'Ingress',
+  metadata: {
+    name: 'ingress',
+  },
+  spec: {
+    ingressClassName: 'class2',
+  },
+};
+
+test('ingresses should be updated in case informer send signals', async () => {
   ingressesEventStore.setup();
 
-  const callback = callbacks.get('extensions-already-started');
-  // send 'extensions-already-started' event
-  expect(callback).toBeDefined();
-  await callback();
-
-  // now ready to fetch ingresses
-  await fetchIngressesWithData();
-
-  // now get list
+  // get list
   const listIngresses = get(ingresses);
-  expect(listIngresses.length).toBe(1);
-  expect(listIngresses[0].metadata?.name).toBe('my-ingress');
+  expect(listIngresses.length).toBe(0);
 
-  // ok now mock the listIngresses function to return an empty list
-  listIngressesMock.mockResolvedValue([]);
+  // call 'kubernetes-ingress-add' event
+  const IngressAddCallback = callbacks.get('kubernetes-ingress-add');
+  expect(IngressAddCallback).toBeDefined();
+  await IngressAddCallback(v1Ingress);
 
-  // call 'extension-stopped' event
-  const extensionStoppedCallback = callbacks.get('extension-stopped');
-  expect(extensionStoppedCallback).toBeDefined();
-  await extensionStoppedCallback();
-
-  // wait debounce
+  // wait
   await new Promise(resolve => setTimeout(resolve, 2000));
 
   // check if the ingresses are updated
   const ingresses2 = get(ingresses);
-  expect(ingresses2.length).toBe(0);
+  expect(ingresses2.length).toBe(1);
+  expect(ingresses2[0].metadata?.name).equal('ingress');
+  expect(ingresses2[0].spec?.ingressClassName).equal('class');
+
+  // call 'kubernetes-ingress-update' event - update the ingress
+  const IngressUpdateCallback = callbacks.get('kubernetes-ingress-update');
+  expect(IngressUpdateCallback).toBeDefined();
+  await IngressUpdateCallback(v2Ingress);
+
+  // check if the ingresses are updated
+  const ingresses3 = get(ingresses);
+  expect(ingresses3.length).toBe(1);
+  expect(ingresses3[0].metadata?.name).equal('ingress');
+  expect(ingresses3[0].spec?.ingressClassName).equal('class2');
+
+  // call 'kubernetes-ingress-deleted' event
+  const IngressDeleteCallback = callbacks.get('kubernetes-ingress-deleted');
+  expect(IngressDeleteCallback).toBeDefined();
+  await IngressDeleteCallback(v1Ingress);
+
+  // wait
+  await new Promise(resolve => setTimeout(resolve, 2000));
+
+  // check if the ingresses are updated
+  const ingresses4 = get(ingresses);
+  expect(ingresses4.length).toBe(0);
 });

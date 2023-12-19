@@ -43,6 +43,7 @@ import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
 import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-api';
 import type { CatalogExtension } from '../../main/src/plugin/extensions-catalog/extensions-catalog-api';
 import type { CommandInfo } from '../../main/src/plugin/api/command-info';
+import type { KubernetesInformerResourcesType } from '../../main/src/plugin/api/kubernetes-informer-info';
 
 import type { V1Route } from '../../main/src/plugin/api/openshift-types';
 import type { AuthenticationProviderInfo } from '../../main/src/plugin/authentication';
@@ -842,6 +843,49 @@ function initExposure(): void {
     },
   );
 
+  let onDataCallbacksCleanupId = 0;
+
+  const onDataCallbacksCleanupProviders = new Map<
+    number,
+    (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void
+  >();
+  const onDataCallbacksCleanupProvidersKeys = new Map<number, symbol>();
+
+  contextBridge.exposeInMainWorld(
+    'cleanupProviders',
+    async (
+      providerIds: string[],
+      key: symbol,
+      keyLogger: (key: symbol, eventName: 'log' | 'warn' | 'error' | 'finish', args: string[]) => void,
+      tokenId?: number,
+    ): Promise<void> => {
+      onDataCallbacksCleanupId++;
+      onDataCallbacksCleanupProvidersKeys.set(onDataCallbacksCleanupId, key);
+      onDataCallbacksCleanupProviders.set(onDataCallbacksCleanupId, keyLogger);
+      return ipcInvoke('provider-registry:cleanup', providerIds, onDataCallbacksCleanupId, tokenId);
+    },
+  );
+
+  ipcRenderer.on(
+    'provider-registry:cleanup-onData',
+    (_, onDataCallbacksCleanupId: number, channel: string, data: string[]) => {
+      // grab callback from the map
+      const callback = onDataCallbacksCleanupProviders.get(onDataCallbacksCleanupId);
+      const key = onDataCallbacksCleanupProvidersKeys.get(onDataCallbacksCleanupId);
+      if (callback && key) {
+        if (channel === 'log') {
+          callback(key, 'log', data);
+        } else if (channel === 'warn') {
+          callback(key, 'warn', data);
+        } else if (channel === 'error') {
+          callback(key, 'error', data);
+        } else if (channel === 'finish') {
+          callback(key, 'finish', data);
+        }
+      }
+    },
+  );
+
   ipcRenderer.on(
     'provider-registry:updateCliTool-onData',
     (_, onDataCallbacksTaskConnectionId: number, channel: string, data: string[]) => {
@@ -1512,6 +1556,33 @@ function initExposure(): void {
   );
 
   contextBridge.exposeInMainWorld(
+    'kubernetesReadNamespacedDeployment',
+    async (name: string, namespace: string): Promise<V1Deployment | undefined> => {
+      return ipcInvoke('kubernetes-client:readNamespacedDeployment', name, namespace);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'kubernetesReadNamespacedIngress',
+    async (name: string, namespace: string): Promise<V1Ingress | undefined> => {
+      return ipcInvoke('kubernetes-client:readNamespacedIngress', name, namespace);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'kubernetesReadNamespacedRoute',
+    async (name: string, namespace: string): Promise<V1Route | undefined> => {
+      return ipcInvoke('kubernetes-client:readNamespacedRoute', name, namespace);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'kubernetesReadNamespacedService',
+    async (name: string, namespace: string): Promise<V1Service | undefined> => {
+      return ipcInvoke('kubernetes-client:readNamespacedService', name, namespace);
+    },
+  );
+  contextBridge.exposeInMainWorld(
     'kubernetesReadNamespacedConfigMap',
     async (name: string, namespace: string): Promise<V1ConfigMap | undefined> => {
       return ipcInvoke('kubernetes-client:readNamespacedConfigMap', name, namespace);
@@ -1550,6 +1621,21 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('kubernetesListIngresses', async (): Promise<V1Ingress[]> => {
     return ipcInvoke('kubernetes-client:listIngresses');
+  });
+
+  contextBridge.exposeInMainWorld(
+    'kubernetesStartInformer',
+    async (resourcesType: KubernetesInformerResourcesType): Promise<number> => {
+      return ipcInvoke('kubernetes-client:startInformer', resourcesType);
+    },
+  );
+
+  contextBridge.exposeInMainWorld('kubernetesRefreshInformer', async (id: number): Promise<void> => {
+    return ipcInvoke('kubernetes-client:refreshInformer', id);
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesStopInformer', async (id: number): Promise<void> => {
+    return ipcInvoke('kubernetes-informer-registry:stopInformer', id);
   });
 
   contextBridge.exposeInMainWorld('kubernetesListRoutes', async (): Promise<V1Route[]> => {

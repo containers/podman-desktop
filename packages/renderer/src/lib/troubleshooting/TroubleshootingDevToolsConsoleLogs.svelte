@@ -24,8 +24,8 @@ function copyLogsToClipboard() {
 }
 </script>
 
-<div class="flex flex-col bg-charcoal-600 p-4 rounded-lg">
-  <div class="flex flex-row align-middle items-center w-full">
+<div class="flex flex-col w-full m-4 bg-charcoal-600 p-4 rounded-lg">
+  <div class="flex flex-row align-middle items-center w-full mb-4">
     <Fa size="30" class="pr-3 text-gray-700" icon="{faFileLines}" />
     <div class="text-xl">Logs</div>
     <div class="flex flex-1 justify-end">
@@ -34,7 +34,7 @@ function copyLogsToClipboard() {
     </div>
   </div>
   {#if logs.length > 0}
-    <div class="h-40 overflow-auto m-2 p-2 bg-charcoal-800">
+    <div class="h-full overflow-auto p-2 bg-charcoal-800">
       <ul aria-label="logs">
         {#each logs as log}
           <li>

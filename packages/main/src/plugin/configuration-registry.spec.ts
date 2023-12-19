@@ -23,11 +23,13 @@ import { ConfigurationRegistry } from './configuration-registry.js';
 import type { Directories } from './directories.js';
 import type { Disposable } from './types/disposable.js';
 import type { ApiSenderType } from '/@/plugin/api.js';
+import type { NotificationRegistry } from './notification-registry.js';
 
 let configurationRegistry: ConfigurationRegistry;
 
 // mock the fs methods
 const readFileSync = vi.spyOn(fs, 'readFileSync');
+const cpSync = vi.spyOn(fs, 'cpSync');
 
 const getConfigurationDirectoryMock = vi.fn();
 const directories = {
@@ -36,6 +38,10 @@ const directories = {
 const apiSender = {
   send: vi.fn(),
 } as unknown as ApiSenderType;
+
+const notificationRegistry = {
+  addNotification: vi.fn(),
+} as unknown as NotificationRegistry;
 
 let registerConfigurationsDisposable: Disposable;
 
@@ -49,9 +55,10 @@ beforeEach(() => {
   vi.clearAllMocks();
   getConfigurationDirectoryMock.mockReturnValue('/my-config-dir');
 
-  configurationRegistry = new ConfigurationRegistry(apiSender, directories);
+  configurationRegistry = new ConfigurationRegistry(apiSender, directories, notificationRegistry);
   readFileSync.mockReturnValue(JSON.stringify({}));
 
+  cpSync.mockReturnValue(undefined);
   configurationRegistry.init();
 
   const node: IConfigurationNode = {
@@ -158,4 +165,37 @@ test('Should not find configuration after dispose', async () => {
   records = configurationRegistry.getConfigurationProperties();
   const afterDisposeRecord = records['my.fake.property'];
   expect(afterDisposeRecord).toBeUndefined();
+});
+
+test('should work with an invalid configuration file', async () => {
+  vi.resetAllMocks();
+
+  getConfigurationDirectoryMock.mockReturnValue('/my-config-dir');
+
+  configurationRegistry = new ConfigurationRegistry(apiSender, directories, notificationRegistry);
+  readFileSync.mockReturnValue('invalid JSON content');
+
+  // configuration is broken but it should not throw any error, just that config is empty
+  const originalConsoleError = console.error;
+  const mockedConsoleLog = vi.fn();
+  console.error = mockedConsoleLog;
+  try {
+    configurationRegistry.init();
+  } finally {
+    console.error = originalConsoleError;
+  }
+
+  expect(configurationRegistry.getConfigurationProperties()).toEqual({});
+  expect(mockedConsoleLog).toBeCalledWith(expect.stringContaining('Unable to parse'), expect.anything());
+
+  // check we added a notification
+  expect(notificationRegistry.addNotification).toBeCalledWith(
+    expect.objectContaining({ highlight: true, type: 'warn', title: 'Corrupted configuration file' }),
+  );
+
+  // check we did a backup of the file
+  expect(cpSync).toBeCalledWith(
+    expect.stringContaining('settings.json'),
+    expect.stringContaining('settings.json.backup'),
+  );
 });

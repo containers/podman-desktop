@@ -63,6 +63,26 @@ To enable users to install your extension, consider publishing your extension to
    $ podman push quay.io/fbenoit/my-first-extension
    ```
 
+#### Adding platform-specific files
+
+You may want to add a system-native executable to the extension's image, so the extension can execute it.
+
+In contrast to the extension's code (transpiled into JavaScript) which is executable in any platform, you will
+need to prepare several OCI images, one for each platform (OS and architecture) you want the extension to support.
+
+For this, you will need to create:
+
+- one Containerfile for each platform (or a common Containerfile with parameters), to create
+  one image per platform,
+- one manifest, to reference all images created at the previous step.
+
+The URL you need to share with the users to install the extension is the URL of the manifest.
+
+If the manifest does not contain an image for the platform of the user, Podman Desktop will install the
+image for Linux (amd64 or arm64 depending on the architecture of the user's platform).
+
+You can leverage the [Buildah Build action](https://github.com/redhat-actions/buildah-build) to build this manifest.
+
 #### Next steps
 
 - [Installing a Podman Desktop extension](/docs/extensions/install)

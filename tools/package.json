@@ -13,7 +13,7 @@
     "@octokit/graphql": "^7.0.2"
   },
   "devDependencies": {
-    "typescript": "^5.3.2",
-    "vitest": "^0.34.6"
+    "typescript": "^5.3.3",
+    "vitest": "^1.0.4"
   }
 }

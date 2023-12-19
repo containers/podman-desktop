@@ -592,7 +592,11 @@ function prettyMachineName(machineName: string): string {
   return name;
 }
 
-async function registerProviderFor(provider: extensionApi.Provider, machineInfo: MachineInfo, socketPath: string) {
+export async function registerProviderFor(
+  provider: extensionApi.Provider,
+  machineInfo: MachineInfo,
+  socketPath: string,
+) {
   const lifecycle: extensionApi.ProviderConnectionLifecycle = {
     start: async (context, logger): Promise<void> => {
       await startMachine(provider, machineInfo, context, logger, undefined, false);
@@ -606,7 +610,10 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
     delete: async (logger): Promise<void> => {
       await extensionApi.process.exec(getPodmanCli(), ['machine', 'rm', '-f', machineInfo.name], { logger });
     },
-    edit: async (context, params, logger, _token): Promise<void> => {
+  };
+  //support edit only on MacOS as Podman WSL is nop and generates errors
+  if (isMac()) {
+    lifecycle.edit = async (context, params, logger, _token): Promise<void> => {
       let effective = false;
       const args = ['machine', 'set', machineInfo.name];
       for (const key of Object.keys(params)) {
@@ -636,8 +643,8 @@ async function registerProviderFor(provider: extensionApi.Provider, machineInfo:
           }
         }
       }
-    },
-  };
+    };
+  }
 
   const containerProviderConnection: extensionApi.ContainerProviderConnection = {
     name: prettyMachineName(machineInfo.name),
@@ -771,7 +778,7 @@ async function doHandleWSLDistroNotFoundError(
   return false;
 }
 
-async function registerUpdatesIfAny(
+export async function registerUpdatesIfAny(
   provider: extensionApi.Provider,
   installedPodman: InstalledPodman,
   podmanInstall: PodmanInstall,
@@ -780,7 +787,11 @@ async function registerUpdatesIfAny(
   if (updateInfo.hasUpdate) {
     provider.registerUpdate({
       version: updateInfo.bundledVersion,
-      update: () => podmanInstall.performUpdate(provider, installedPodman),
+      update: () => {
+        // disable notification before the update to prevent the notification to be shown and re-enabled when update is done
+        shouldNotifySetup = false;
+        return podmanInstall.performUpdate(provider, installedPodman).finally(() => (shouldNotifySetup = true));
+      },
       preflightChecks: () => podmanInstall.getUpdatePreflightChecks(),
     });
   }
@@ -803,7 +814,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   initTelemetryLogger();
 
-  const podmanInstall = new PodmanInstall(extensionContext.storagePath);
+  const podmanInstall = new PodmanInstall(extensionContext);
 
   const installedPodman = await getPodmanInstallation();
   const version: string | undefined = installedPodman?.version;

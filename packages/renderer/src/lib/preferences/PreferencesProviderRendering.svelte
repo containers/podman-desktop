@@ -24,6 +24,7 @@ import { operationConnectionsInfo } from '/@/stores/operation-connections';
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string | undefined = undefined;
 export let taskId: number | undefined = undefined;
+let inProgress: boolean = false;
 
 let showModalProviderInfo: ProviderInfo | undefined = undefined;
 
@@ -86,7 +87,7 @@ async function stopReceivingLogs(providerInternalId: string): Promise<void> {
 </script>
 
 <Route path="/*" breadcrumb="{providerInfo?.name}" navigationHint="details">
-  <FormPage title="{title}">
+  <FormPage title="{title}" inProgress="{inProgress}">
     <svelte:fragment slot="icon">
       {#if providerInfo?.images?.icon}
         {#if typeof providerInfo.images.icon === 'string'}
@@ -151,7 +152,8 @@ async function stopReceivingLogs(providerInternalId: string): Promise<void> {
             properties="{properties}"
             propertyScope="ContainerProviderConnectionFactory"
             callback="{window.createContainerProviderConnection}"
-            taskId="{taskId}" />
+            taskId="{taskId}"
+            bind:inProgress="{inProgress}" />
         {/if}
 
         <!-- Create connection panel-->
@@ -161,7 +163,8 @@ async function stopReceivingLogs(providerInternalId: string): Promise<void> {
             properties="{properties}"
             propertyScope="KubernetesProviderConnectionFactory"
             callback="{window.createKubernetesProviderConnection}"
-            taskId="{taskId}" />
+            taskId="{taskId}"
+            bind:inProgress="{inProgress}" />
         {/if}
       </div>
     </div>

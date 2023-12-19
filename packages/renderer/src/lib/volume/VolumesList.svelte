@@ -112,9 +112,10 @@ async function deleteSelectedVolumes() {
 let refreshTimeouts: NodeJS.Timeout[] = [];
 const SECOND = 1000;
 function refreshAge() {
-  volumes = volumes.map(volumeInfo => {
-    return { ...volumeInfo, age: volumeUtils.refreshAge(volumeInfo) };
-  });
+  for (const volumeInfo of volumes) {
+    volumeInfo.age = volumeUtils.refreshAge(volumeInfo);
+  }
+  volumes = volumes;
 
   // compute new interval
   const newInterval = computeInterval();
@@ -209,7 +210,7 @@ const columns: Column<VolumeInfoUI, VolumeInfoUI | string>[] = [
   envColumn,
   ageColumn,
   sizeColumn,
-  new Column<VolumeInfoUI>('Actions', { align: 'right', renderer: VolumeColumnActions }),
+  new Column<VolumeInfoUI>('Actions', { align: 'right', renderer: VolumeColumnActions, overflow: true }),
 ];
 
 const row = new Row<VolumeInfoUI>({

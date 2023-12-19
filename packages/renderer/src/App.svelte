@@ -21,6 +21,7 @@ import PreferencesNavigation from './PreferencesNavigation.svelte';
 import AppNavigation from './AppNavigation.svelte';
 import VolumesList from './lib/volume/VolumesList.svelte';
 import VolumeDetails from './lib/volume/VolumeDetails.svelte';
+import DeploymentsList from './lib/deployments/DeploymentsList.svelte';
 import KubePlayYAML from './lib/kube/KubePlayYAML.svelte';
 import PodDetails from './lib/pod/PodDetails.svelte';
 import ComposeDetails from './lib/compose/ComposeDetails.svelte';
@@ -58,7 +59,7 @@ window.events?.receive('display-help', () => {
 });
 
 window.events?.receive('display-troubleshooting', () => {
-  router.goto('/troubleshooting');
+  router.goto('/troubleshooting/repair-connections');
 });
 </script>
 
@@ -161,6 +162,9 @@ window.events?.receive('display-troubleshooting', () => {
         <Route path="/volumes/:name/:engineId/*" breadcrumb="Volume Details" let:meta navigationHint="details">
           <VolumeDetails volumeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
         </Route>
+        <Route path="/deployments" breadcrumb="Deployments" navigationHint="root">
+          <DeploymentsList />
+        </Route>
         <Route path="/preferences/*" breadcrumb="Settings">
           <PreferencesPage />
         </Route>
@@ -170,7 +174,7 @@ window.events?.receive('display-troubleshooting', () => {
         <Route path="/help" breadcrumb="Help">
           <HelpPage />
         </Route>
-        <Route path="/troubleshooting" breadcrumb="Troubleshooting">
+        <Route path="/troubleshooting/*" breadcrumb="Troubleshooting">
           <TroubleshootingPage />
         </Route>
       </div>

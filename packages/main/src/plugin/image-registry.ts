@@ -37,6 +37,7 @@ import * as nodeTar from 'tar';
 
 import { pipeline } from 'node:stream/promises';
 import { createWriteStream } from 'node:fs';
+import { isMac, isWindows } from '../util.js';
 
 export interface RegistryAuthInfo {
   authUrl: string;
@@ -613,9 +614,13 @@ export class ImageRegistry {
       }
     }
 
-    // check mediaType of the manifest
-    // if it is application/vnd.oci.image.index.v1+json it is an index
-    if (parsedManifest.mediaType === 'application/vnd.oci.image.index.v1+json') {
+    // https://github.com/opencontainers/image-spec/blob/main/image-index.md
+    // check schemaVersion and (mediaType of the manifest or if it contains manifests field being an array)
+    if (
+      parsedManifest.schemaVersion === 2 &&
+      (parsedManifest.mediaType === 'application/vnd.oci.image.index.v1+json' ||
+        Array.isArray(parsedManifest.manifests))
+    ) {
       // need to grab correct manifest from the index corresponding to our platform
       let platformArch: 'amd64' | 'arm64' = 'amd64';
       const arch = os.arch();
@@ -626,12 +631,18 @@ export class ImageRegistry {
         platformArch = 'arm64';
       }
 
+      let platformOs: 'linux' | 'windows' | 'darwin' = 'linux';
+      if (isMac()) {
+        platformOs = 'darwin';
+      } else if (isWindows()) {
+        platformOs = 'windows';
+      }
       // find the manifest corresponding to our platform
-      const matchedManifest = parsedManifest.manifests.find(
+      const matchedManifest = this.getBestManifest(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (manifestIterator: any) =>
-          manifestIterator.mediaType === 'application/vnd.oci.image.manifest.v1+json' &&
-          manifestIterator.platform.architecture === platformArch,
+        parsedManifest.manifests.filter((m: any) => m.mediaType === 'application/vnd.oci.image.manifest.v1+json'),
+        platformArch,
+        platformOs,
       );
 
       // need to grab that manifest
@@ -641,9 +652,48 @@ export class ImageRegistry {
         const manifestURL = `${imageData.registryURL}/${imageData.name}/manifests/${matchedManifestDigest}`;
         return this.getManifestFromURL(manifestURL, imageData, token);
       }
-      throw new Error('Unable to find a manifest corresponding to the platform/architecture');
+      throw new Error(
+        `Unable to find a manifest corresponding to the platform os/architecture ${platformOs}/${platformArch}`,
+      );
     }
     return parsedManifest;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getBestManifest(manifests: any[], wantedArch: string, wantedOs: string): any {
+    // eslint-disable-next-line etc/no-commented-out-code
+    // manifestsMap [os] [arch] = manifest
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const manifestsMap = new Map<string, Map<string, any>>();
+    manifests.forEach(manifest => {
+      const arch = manifest.platform.architecture;
+      const os = manifest.platform.os;
+      let manifestsForOs = manifestsMap.get(os);
+      if (!manifestsForOs) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        manifestsForOs = new Map<string, any>();
+      }
+      manifestsForOs.set(arch, manifest);
+      manifestsMap.set(os, manifestsForOs);
+    });
+
+    let wantedOses = manifestsMap.get(wantedOs);
+    if (!wantedOses) {
+      wantedOses = manifestsMap.get('linux');
+    }
+    if (!wantedOses) {
+      return;
+    }
+
+    let wanted = wantedOses.get(wantedArch);
+    if (!wanted) {
+      if (wantedOses.size === 1) {
+        wanted = wantedOses.get(wantedOses.keys().next().value);
+      } else {
+        wanted = wantedOses.get('amd64');
+      }
+    }
+    return wanted;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

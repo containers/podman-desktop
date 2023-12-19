@@ -2,9 +2,11 @@
 import { lastPage, currentPage } from '../../stores/breadcrumb';
 import { router } from 'tinro';
 import Link from './Link.svelte';
+import LinearProgress from './LinearProgress.svelte';
 
 export let title: string;
 export let showBreadcrumb = true;
+export let inProgress = false;
 
 export function close(): void {
   router.goto($lastPage.path);
@@ -21,7 +23,7 @@ function handleKeydown(e: KeyboardEvent) {
 <svelte:window on:keydown="{handleKeydown}" />
 
 <div class="flex flex-col w-full h-full shadow-pageheader">
-  <div class="flex flex-row w-full h-fit px-5 py-4">
+  <div class="flex flex-row w-full h-fit px-5 pt-4" class:pb-3.5="{inProgress}" class:pb-4="{!inProgress}">
     <div class="flex flex-col w-full h-fit">
       {#if showBreadcrumb}
         <div class="flex flew-row items-center text-sm text-gray-700">
@@ -56,6 +58,14 @@ function handleKeydown(e: KeyboardEvent) {
       </div>
     </div>
   </div>
+  {#if inProgress}
+    <LinearProgress />
+  {/if}
+  {#if $$slots.tabs}
+    <div class="flex flex-row px-2 border-b border-charcoal-400">
+      <slot name="tabs" />
+    </div>
+  {/if}
   <div class="flex w-full h-full bg-zinc-700 overflow-auto">
     <slot name="content" />
   </div>

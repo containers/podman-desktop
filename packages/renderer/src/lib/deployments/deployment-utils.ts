@@ -22,23 +22,48 @@ import type { DeploymentUI } from './DeploymentUI';
 import type { V1Deployment } from '@kubernetes/client-node';
 
 export class DeploymentUtils {
-  humanizeAge(started: string): string {
+  humanizeAge(started: Date | undefined): string {
+    if (!started) {
+      return '';
+    }
     // get start time in ms
     const uptimeInMs = moment().diff(started);
     // make it human friendly
     return humanizeDuration(uptimeInMs, { round: true, largest: 1 });
   }
 
+  refreshAge(deployment: DeploymentUI): string {
+    if (!deployment.created) {
+      return '';
+    }
+    // make it human friendly
+    return this.humanizeAge(deployment.created);
+  }
+
   getDeploymentUI(deployment: V1Deployment): DeploymentUI {
+    const conditions = (deployment.status?.conditions ?? []).map(c => {
+      return { type: c.type, message: c.message };
+    });
+    let status = 'STOPPED';
+    if (deployment.status?.readyReplicas && deployment.status?.readyReplicas > 0) {
+      if (deployment.status?.replicas === deployment.status?.readyReplicas) {
+        status = 'RUNNING';
+      } else {
+        status = 'DEGRADED';
+      }
+    }
     return {
       name: deployment.metadata?.name || '',
+      status: status,
       namespace: deployment.metadata?.namespace || '',
-      age: this.humanizeAge((deployment.metadata?.creationTimestamp || '').toString()),
+      created: deployment.metadata?.creationTimestamp,
+      age: this.humanizeAge(deployment.metadata?.creationTimestamp),
       // number of replicas
       replicas: deployment.status?.replicas || 0,
       // ready pods
       ready: deployment.status?.readyReplicas || 0,
       selected: false,
+      conditions: conditions,
     };
   }
 }

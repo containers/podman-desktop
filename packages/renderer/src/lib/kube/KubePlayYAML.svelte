@@ -160,7 +160,7 @@ async function getKubernetesfileLocation() {
 {/if}
 
 {#if providerConnections.length > 0}
-  <FormPage title="Play Pods or Containers from a Kubernetes YAML File">
+  <FormPage title="Play Pods or Containers from a Kubernetes YAML File" inProgress="{runStarted && !runFinished}">
     <KubePlayIcon slot="icon" size="30px" />
 
     <div slot="content" class="p-5 min-w-full h-fit">

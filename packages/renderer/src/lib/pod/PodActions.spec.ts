@@ -30,13 +30,16 @@ const pod: PodInfoUI = {
   kind: 'podman',
 } as PodInfoUI;
 
-const errorCallback = vi.fn();
 const listContainersMock = vi.fn();
 const getContributedMenusMock = vi.fn();
+const updateMock = vi.fn();
 
 beforeEach(() => {
   (window as any).kubernetesDeletePod = vi.fn();
   (window as any).listContainers = listContainersMock;
+  (window as any).startPod = vi.fn();
+  (window as any).stopPod = vi.fn();
+  (window as any).restartPod = vi.fn();
   (window as any).removePod = vi.fn();
 
   listContainersMock.mockResolvedValue([
@@ -52,14 +55,62 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-test('Expect no error deleting pod', async () => {
+test('Expect no error and status starting pod', async () => {
   listContainersMock.mockResolvedValue([]);
 
-  render(PodActions, { pod, errorCallback });
+  const { component } = render(PodActions, { pod });
+  component.$on('update', updateMock);
+
+  // click on start button
+  const startButton = screen.getByRole('button', { name: 'Start Pod' });
+  await fireEvent.click(startButton);
+
+  expect(pod.status).toEqual('STARTING');
+  expect(pod.actionError).toEqual('');
+  expect(updateMock).toHaveBeenCalled();
+});
+
+test('Expect no error and status stopping pod', async () => {
+  listContainersMock.mockResolvedValue([]);
+
+  const { component } = render(PodActions, { pod });
+  component.$on('update', updateMock);
+
+  // click on stop button
+  const stopButton = screen.getByRole('button', { name: 'Stop Pod' });
+  await fireEvent.click(stopButton);
+
+  expect(pod.status).toEqual('STOPPING');
+  expect(pod.actionError).toEqual('');
+  expect(updateMock).toHaveBeenCalled();
+});
+
+test('Expect no error and status restarting pod', async () => {
+  listContainersMock.mockResolvedValue([]);
+
+  const { component } = render(PodActions, { pod });
+  component.$on('update', updateMock);
+
+  // click on restart button
+  const restartButton = screen.getByRole('button', { name: 'Restart Pod' });
+  await fireEvent.click(restartButton);
+
+  expect(pod.status).toEqual('RESTARTING');
+  expect(pod.actionError).toEqual('');
+  expect(updateMock).toHaveBeenCalled();
+});
+
+test('Expect no error and status deleting pod', async () => {
+  listContainersMock.mockResolvedValue([]);
+
+  const { component } = render(PodActions, { pod });
+  component.$on('update', updateMock);
 
   // click on delete button
   const deleteButton = screen.getByRole('button', { name: 'Delete Pod' });
   await fireEvent.click(deleteButton);
 
-  expect(errorCallback).not.toHaveBeenCalled();
+  expect(pod.status).toEqual('DELETING');
+  expect(pod.actionError).toEqual('');
+  expect(updateMock).toHaveBeenCalled();
 });

@@ -473,6 +473,16 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                   <ConnectionErrorInfoButton status="{status}" />
                 {/if}
               </div>
+              <div class="mt-2 text-gray-700 text-xs" aria-label="{container.name} type">
+                {#if container.type === 'docker'}Docker{:else if container.type === 'podman'}Podman{/if} endpoint
+              </div>
+              <div
+                class="mt-1 my-auto text-xs truncate"
+                class:text-gray-900="{container.status !== 'started'}"
+                aria-label="{container.name} endpoint"
+                title="{container.endpoint.socketPath}">
+                {container.endpoint.socketPath}
+              </div>
 
               {#if providerContainerConfiguration.has(provider.internalId)}
                 {@const providerConfiguration = providerContainerConfiguration.get(provider.internalId) || []}

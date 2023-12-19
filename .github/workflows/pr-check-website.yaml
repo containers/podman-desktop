@@ -58,7 +58,7 @@ jobs:
           echo "${{ github.event.pull_request.head.sha }}" > PR_SHA
 
       - name: Upload artifact website-content
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v4
         with:
           name: website-content
           path: |

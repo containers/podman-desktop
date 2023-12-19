@@ -14,16 +14,16 @@ function openContainer(containerID: string) {
   <div class="w-full">
     <table>
       <tr>
-        <td class="pt-2 pr-2">Name:</td>
-        <td class="pt-2 pr-2">{volume.name}</td>
+        <td class="pr-2">Name:</td>
+        <td>{volume.name}</td>
       </tr>
       <tr>
-        <td class="pt-2 pr-2">Size:</td>
-        <td class="pt-2 pr-2">{volume.humanSize}</td>
+        <td class="pr-2">Size:</td>
+        <td>{volume.humanSize}</td>
       </tr>
       <tr>
-        <td class="pt-2 pr-2">Age:</td>
-        <td class="pt-2 pr-2">{volume.age}</td>
+        <td class="pr-2">Age:</td>
+        <td>{volume.age}</td>
       </tr>
     </table>
   </div>
@@ -33,8 +33,8 @@ function openContainer(containerID: string) {
       {#each volume.containersUsage as container}
         <table>
           <tr class="cursor-pointer" on:click="{() => openContainer(container.id)}">
-            <td class="pt-2 pr-2">{container.names.join('')}</td>
-            <td class="pt-2 pr-2">{container.id}</td>
+            <td class="pr-2">{container.names.join('')}</td>
+            <td>{container.id}</td>
           </tr>
         </table>
       {/each}

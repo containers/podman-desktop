@@ -26,6 +26,7 @@ import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants.
 import type { Directories } from './directories.js';
 import { Disposable } from './types/disposable.js';
 import type { ApiSenderType } from './api.js';
+import type { NotificationRegistry } from './notification-registry.js';
 
 export type IConfigurationPropertySchemaType =
   | 'markdown'
@@ -122,6 +123,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
   constructor(
     private apiSender: ApiSenderType,
     private directories: Directories,
+    private notificationRegistry: NotificationRegistry,
   ) {
     this.configurationProperties = {};
     this.configurationContributors = [];
@@ -145,7 +147,28 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     }
 
     const settingsRawContent = fs.readFileSync(settingsFile, 'utf-8');
-    this.configurationValues.set(CONFIGURATION_DEFAULT_SCOPE, JSON.parse(settingsRawContent));
+    let configData: unknown;
+    try {
+      configData = JSON.parse(settingsRawContent);
+    } catch (error) {
+      console.error(`Unable to parse ${settingsFile} file`, error);
+
+      const backupFilename = `${settingsFile}.backup-${Date.now()}`;
+      // keep original file as a backup
+      fs.cpSync(settingsFile, backupFilename);
+
+      // notify the user
+      this.notificationRegistry.addNotification({
+        title: 'Corrupted configuration file',
+        body: `Configuration file located at ${settingsFile} was invalid. Created a copy at '${backupFilename}' and started with default settings.`,
+        extensionId: 'core',
+        type: 'warn',
+        highlight: true,
+        silent: true,
+      });
+      configData = {};
+    }
+    this.configurationValues.set(CONFIGURATION_DEFAULT_SCOPE, configData);
   }
 
   public registerConfigurations(configurations: IConfigurationNode[]): Disposable {

@@ -51,9 +51,9 @@ export let taskId: number | undefined = undefined;
 export let disableEmptyScreen = false;
 export let hideCloseButton = false;
 export let connectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo | undefined = undefined;
+export let inProgress = false;
 
 $: configurationValues = new Map<string, { modified: boolean; value: string | boolean | number }>();
-let operationInProgress = false;
 let operationStarted = false;
 let operationSuccessful = false;
 let operationCancelled = false;
@@ -119,7 +119,7 @@ onMount(async () => {
       propertyScope = value.propertyScope;
 
       // set the flag as before
-      operationInProgress = value.operationInProgress;
+      inProgress = value.operationInProgress;
       operationStarted = value.operationStarted;
       errorMessage = value.errorMessage;
       operationSuccessful = value.operationSuccessful;
@@ -267,7 +267,7 @@ function getLoggerHandler(): ConnectionCallback {
 }
 
 async function ended() {
-  operationInProgress = false;
+  inProgress = false;
   tokenId = undefined;
   if (!operationCancelled && !operationFailed) {
     window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
@@ -284,7 +284,7 @@ async function cleanup() {
   }
   errorMessage = undefined;
   showLogs = false;
-  operationInProgress = false;
+  inProgress = false;
   operationStarted = false;
   operationFailed = false;
   operationCancelled = false;
@@ -303,7 +303,7 @@ function updateStore() {
         connectionInfo,
         properties,
         propertyScope,
-        operationInProgress: operationInProgress,
+        operationInProgress: inProgress,
         operationSuccessful: operationSuccessful,
         operationStarted: operationStarted,
         errorMessage: errorMessage || '',
@@ -321,13 +321,13 @@ async function handleOnSubmit(e: any) {
   const data: { [key: string]: FormDataEntryValue } = {};
   for (let field of formData) {
     const [key, value] = field;
-    if (configurationValues.get(key)?.modified) {
+    if (!connectionInfo || configurationValues.get(key)?.modified) {
       data[key] = value;
     }
   }
 
   // send the data to the right provider
-  operationInProgress = true;
+  inProgress = true;
   operationStarted = true;
   operationFailed = false;
   operationCancelled = false;
@@ -353,7 +353,7 @@ async function handleOnSubmit(e: any) {
     }
     errorMessage = error;
     operationStarted = false;
-    operationInProgress = false;
+    inProgress = false;
   }
 }
 
@@ -423,7 +423,7 @@ function getConnectionResourceConfigurationValue(
         {#if operationStarted}
           <div class="w-4/5">
             <div class="mt-2 mb-8">
-              {#if operationInProgress}
+              {#if inProgress}
                 <LinearProgress />
               {/if}
               <div class="mt-2 float-right">
@@ -439,7 +439,7 @@ function getConnectionResourceConfigurationValue(
                   disabled="{!tokenId}"
                   on:click="{cancelCreation}">Cancel</button>
                 <button
-                  class="text-xs hover:underline {operationInProgress ? 'hidden' : ''}"
+                  class="text-xs hover:underline {inProgress ? 'hidden' : ''}"
                   aria-label="Close panel"
                   on:click="{closePanel}">Close</button>
               </div>
@@ -457,7 +457,7 @@ function getConnectionResourceConfigurationValue(
           </div>
         {/if}
 
-        <div class="p-3 mt-2 w-4/5 h-fit {operationInProgress ? 'opacity-40 pointer-events-none' : ''}">
+        <div class="p-3 mt-2 w-4/5 h-fit {inProgress ? 'opacity-40 pointer-events-none' : ''}">
           {#if connectionAuditResult && (connectionAuditResult.records?.length || 0) > 0}
             <AuditMessageBox auditResult="{connectionAuditResult}" />
           {/if}
@@ -499,10 +499,8 @@ function getConnectionResourceConfigurationValue(
                 {#if !hideCloseButton}
                   <Button type="link" aria-label="Close page" on:click="{closePage}">Close</Button>
                 {/if}
-                <Button
-                  disabled="{!isValid}"
-                  inProgress="{operationInProgress}"
-                  on:click="{() => formEl.requestSubmit()}">{buttonLabel}</Button>
+                <Button disabled="{!isValid}" inProgress="{inProgress}" on:click="{() => formEl.requestSubmit()}"
+                  >{buttonLabel}</Button>
               </div>
             </div>
           </form>

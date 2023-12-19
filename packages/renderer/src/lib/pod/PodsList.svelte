@@ -178,25 +178,6 @@ function computeInterval(): number {
   // every day
   return 60 * 60 * 24 * SECOND;
 }
-
-function inProgressCallback(pod: PodInfoUI, inProgress: boolean, state?: string): void {
-  pod.actionInProgress = inProgress;
-  // reset error when starting task
-  if (inProgress) {
-    pod.actionError = '';
-  }
-  if (state) {
-    pod.status = state;
-  }
-
-  pods = [...pods];
-}
-
-function errorCallback(pod: PodInfoUI, errorMessage: string): void {
-  pod.actionError = errorMessage;
-  pod.status = 'ERROR';
-  pods = [...pods];
-}
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="pods">
@@ -340,11 +321,7 @@ function errorCallback(pod: PodInfoUI, errorMessage: string): void {
                   {/if}
                 </div>
                 <div class="text-right w-full">
-                  <PodActions
-                    pod="{pod}"
-                    errorCallback="{error => errorCallback(pod, error)}"
-                    inProgressCallback="{(flag, state) => inProgressCallback(pod, flag, state)}"
-                    dropdownMenu="{true}" />
+                  <PodActions pod="{pod}" dropdownMenu="{true}" on:update="{() => (pods = [...pods])}" />
                 </div>
               </div>
             </td>

@@ -18,9 +18,17 @@
 
 export interface DeploymentUI {
   name: string;
+  status: string;
   namespace: string;
   replicas: number;
   ready: number;
+  created?: Date;
   age: string;
   selected: boolean;
+  conditions: DeploymentCondition[];
+}
+
+export interface DeploymentCondition {
+  type: string;
+  message?: string;
 }

@@ -496,3 +496,167 @@ describe('expect checkCredentials', async () => {
     expect(registries2.length).toBe(1);
   });
 });
+
+test('getBestManifest returns the expected manifest', () => {
+  const manifests = {
+    'linux-amd64': {
+      platform: {
+        architecture: 'amd64',
+        os: 'linux',
+      },
+      name: 'linux-amd64',
+    },
+    'linux-arm64': {
+      platform: {
+        architecture: 'arm64',
+        os: 'linux',
+      },
+      name: 'linux-arm64',
+    },
+    'windows-amd64': {
+      platform: {
+        architecture: 'amd64',
+        os: 'windows',
+      },
+      name: 'windows-amd64',
+    },
+    'windows-arm64': {
+      platform: {
+        architecture: 'arm64',
+        os: 'windows',
+      },
+      name: 'windows-arm64',
+    },
+    'darwin-amd64': {
+      platform: {
+        architecture: 'amd64',
+        os: 'darwin',
+      },
+      name: 'darwin-amd64',
+    },
+  };
+
+  // Exact matches
+  expect(
+    imageRegistry.getBestManifest(
+      [manifests['linux-amd64'], manifests['linux-arm64'], manifests['windows-amd64'], manifests['windows-arm64']],
+      'amd64',
+      'linux',
+    ),
+  ).toHaveProperty('name', 'linux-amd64');
+  expect(
+    imageRegistry.getBestManifest(
+      [manifests['linux-amd64'], manifests['linux-arm64'], manifests['windows-amd64'], manifests['windows-arm64']],
+      'amd64',
+      'windows',
+    ),
+  ).toHaveProperty('name', 'windows-amd64');
+
+  // Linux by default
+  expect(
+    imageRegistry.getBestManifest(
+      [manifests['linux-amd64'], manifests['linux-arm64'], manifests['windows-amd64'], manifests['windows-arm64']],
+      'amd64',
+      'darwin',
+    ),
+  ).toHaveProperty('name', 'linux-amd64');
+  expect(
+    imageRegistry.getBestManifest([manifests['windows-amd64'], manifests['linux-amd64']], 'amd64', 'darwin'),
+  ).toHaveProperty('name', 'linux-amd64');
+
+  // Only one os by default
+  expect(
+    imageRegistry.getBestManifest([manifests['windows-arm64'], manifests['windows-amd64']], 'amd64', 'darwin'),
+  ).toBeUndefined();
+  expect(
+    imageRegistry.getBestManifest([manifests['windows-arm64'], manifests['windows-amd64']], 'arm64', 'darwin'),
+  ).toBeUndefined();
+  expect(
+    imageRegistry.getBestManifest([manifests['windows-arm64'], manifests['windows-amd64']], 'unknown-arch', 'darwin'),
+  ).toBeUndefined();
+
+  // amd64 arch by default, linux os by default
+  expect(
+    imageRegistry.getBestManifest([manifests['windows-amd64'], manifests['linux-amd64']], 'arm64', 'darwin'),
+  ).toHaveProperty('name', 'linux-amd64');
+
+  // no default OS found
+  expect(
+    imageRegistry.getBestManifest([manifests['windows-amd64'], manifests['darwin-amd64']], 'amd64', 'linux'),
+  ).toBeUndefined();
+});
+
+test('getManifestFromUrl returns the expected manifest with mediaType', async () => {
+  const fakeManifest = {
+    schemaVersion: 2,
+    mediaType: 'application/vnd.oci.image.index.v1+json',
+    manifests: [],
+  };
+
+  // image index
+  nock('https://my-podman-desktop-fake-registry.io').get('/v2/foo/bar/manifests/latest').reply(200, fakeManifest);
+
+  // digest
+  nock('https://my-podman-desktop-fake-registry.io')
+    .get('/v2/foo/bar/manifests/1234')
+    .reply(200, JSON.stringify({ endManifest: true }));
+
+  // mock getBestManifest
+  const spyGetBestManifest = vi.spyOn(imageRegistry, 'getBestManifest');
+  spyGetBestManifest.mockReturnValue({
+    digest: 1234,
+  });
+
+  const manifest = await imageRegistry.getManifest(
+    {
+      name: 'foo/bar',
+      tag: 'latest',
+      registry: 'my-podman-desktop-fake-registry.io',
+      registryURL: 'https://my-podman-desktop-fake-registry.io/v2',
+    },
+    'dummyToken',
+  );
+
+  expect(manifest).toBeDefined();
+  expect(manifest).toHaveProperty('endManifest', true);
+  expect(spyGetBestManifest).toHaveBeenCalled();
+});
+
+test('getManifestFromUrl returns the expected manifest without mediaType but with manifests', async () => {
+  const fakeManifest = {
+    schemaVersion: 2,
+    manifests: [
+      {
+        dummyManifest: true,
+      },
+    ],
+  };
+
+  // image index
+  nock('https://my-podman-desktop-fake-registry.io').get('/v2/foo/bar/manifests/latest').reply(200, fakeManifest);
+
+  // digest
+  nock('https://my-podman-desktop-fake-registry.io')
+    .get('/v2/foo/bar/manifests/1234')
+    .reply(200, JSON.stringify({ endManifest: true }));
+
+  // mock getBestManifest
+  const spyGetBestManifest = vi.spyOn(imageRegistry, 'getBestManifest');
+  spyGetBestManifest.mockReturnValue({
+    digest: 1234,
+  });
+
+  const manifest = await imageRegistry.getManifest(
+    {
+      name: 'foo/bar',
+      tag: 'latest',
+      registry: 'my-podman-desktop-fake-registry.io',
+      registryURL: 'https://my-podman-desktop-fake-registry.io/v2',
+    },
+    'dummyToken',
+  );
+
+  expect(manifest).toBeDefined();
+  expect(manifest).toHaveProperty('endManifest', true);
+  expect(spyGetBestManifest).toHaveBeenCalled();
+});

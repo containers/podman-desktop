@@ -114,3 +114,25 @@ test('Expect Escape key works', async () => {
 
   expect(router.goto).toHaveBeenCalledWith('/back');
 });
+
+test('Expect no progress', async () => {
+  currentPage.set({ name: 'My name', path: '/' } as TinroBreadcrumb);
+  render(FormPage, {
+    title: 'No Title',
+    inProgress: false,
+  });
+
+  const progress = screen.queryByRole('progressbar');
+  expect(progress).toBeNull();
+});
+
+test('Expect progress', async () => {
+  currentPage.set({ name: 'My name', path: '/' } as TinroBreadcrumb);
+  render(FormPage, {
+    title: 'No Title',
+    inProgress: true,
+  });
+
+  const progress = screen.getByRole('progressbar');
+  expect(progress).toBeInTheDocument();
+});

@@ -1,8 +1,6 @@
 <script lang="ts">
 import type { CheckStatus, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import PreflightChecks from './PreflightChecks.svelte';
-import ProviderLinks from './ProviderLinks.svelte';
-import ProviderLogo from './ProviderLogo.svelte';
 import ProviderUpdateButton from './ProviderUpdateButton.svelte';
 import { onDestroy, onMount } from 'svelte';
 import { Terminal } from 'xterm';
@@ -13,6 +11,7 @@ import { getPanelDetailColor } from '../color/color';
 import { type InitializationContext, InitializationSteps, InitializeAndStartMode } from './ProviderInitUtils';
 import Steps from '../ui/Steps.svelte';
 import Spinner from '../ui/Spinner.svelte';
+import ProviderCard from './ProviderCard.svelte';
 
 export let provider: ProviderInfo;
 export let initializationContext: InitializationContext;
@@ -86,18 +85,9 @@ onDestroy(() => {
 });
 </script>
 
-<div class="p-2 flex flex-col bg-charcoal-800 rounded-lg" role="region" aria-label="{provider.name} Provider">
-  <ProviderLogo provider="{provider}" />
-  <div class="flex flex-col items-center text-center">
-    <p class="text-xl text-gray-400" aria-label="Actual State">
-      {provider.name}
-      {#if provider.version}
-        v{provider.version}
-      {/if}
-      is initializing
-    </p>
-
-    <div class="mt-5">
+<ProviderCard provider="{provider}">
+  <svelte:fragment slot="content">
+    <div>
       {#if initializationContext.mode === InitializeAndStartMode}
         <Steps steps="{InitializationSteps}" />
       {/if}
@@ -118,15 +108,12 @@ onDestroy(() => {
       class:min-w-full="{noErrors === false}"
       bind:this="{logsXtermDiv}">
     </div>
-  </div>
 
-  {#if provider.updateInfo}
-    <div class="mt-5 mb-1 w-full flex justify-around">
-      <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
-    </div>
-  {/if}
-  <PreflightChecks preflightChecks="{preflightChecks}" />
-
-  <div class="mt-5 mb-1 w-full flex justify-around"></div>
-  <ProviderLinks provider="{provider}" />
-</div>
+    {#if provider.updateInfo}
+      <div class="mt-5 mb-1 w-full flex justify-around">
+        <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
+      </div>
+    {/if}
+    <PreflightChecks preflightChecks="{preflightChecks}" />
+  </svelte:fragment>
+</ProviderCard>

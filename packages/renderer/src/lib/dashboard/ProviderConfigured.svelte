@@ -2,8 +2,6 @@
 import type { CheckStatus, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import PreflightChecks from './PreflightChecks.svelte';
-import ProviderLinks from './ProviderLinks.svelte';
-import ProviderLogo from './ProviderLogo.svelte';
 import ProviderUpdateButton from './ProviderUpdateButton.svelte';
 import Steps from '../ui/Steps.svelte';
 
@@ -11,6 +9,7 @@ import { onMount } from 'svelte';
 import { InitializeAndStartMode, InitializationSteps, type InitializationContext } from './ProviderInitUtils';
 import Spinner from '../ui/Spinner.svelte';
 import Button from '../ui/Button.svelte';
+import ProviderCard from './ProviderCard.svelte';
 
 export let provider: ProviderInfo;
 export let initializationContext: InitializationContext;
@@ -47,17 +46,9 @@ onMount(() => {
 });
 </script>
 
-<div class="p-2 flex flex-col bg-charcoal-800 rounded-lg" role="region" aria-label="{provider.name} Provider">
-  <ProviderLogo provider="{provider}" />
-  <div class="flex flex-col items-center text-center">
-    <p class="text-xl text-gray-400" aria-label="Actual State">
-      {provider.name}
-      {#if provider.version}
-        v{provider.version}
-      {/if}
-      is stopped
-    </p>
-    <p class="text-base text-gray-700" aria-label="Suggested Actions">
+<ProviderCard provider="{provider}">
+  <svelte:fragment slot="content">
+    <p class="text-base text-gray-700">
       To start working with containers, {provider.name}
       {#if provider.version}
         v{provider.version}
@@ -88,13 +79,12 @@ onMount(() => {
     {#if runError}
       <ErrorMessage class="flex flex-col mt-2 my-2 text-sm" error="{runError}" />
     {/if}
-  </div>
-  {#if provider.updateInfo?.version && provider.version !== provider.updateInfo?.version}
-    <div class="mt-5 mb-1 w-full flex justify-around">
-      <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
-    </div>
-  {/if}
-  <PreflightChecks preflightChecks="{preflightChecks}" />
-  <div class="mt-5 mb-1 w-full flex justify-around"></div>
-  <ProviderLinks provider="{provider}" />
-</div>
+
+    {#if provider.updateInfo?.version && provider.version !== provider.updateInfo?.version}
+      <div class="mt-5 mb-1 w-full flex justify-around">
+        <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
+      </div>
+    {/if}
+    <PreflightChecks preflightChecks="{preflightChecks}" />
+  </svelte:fragment>
+</ProviderCard>

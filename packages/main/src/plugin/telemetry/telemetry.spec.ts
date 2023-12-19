@@ -202,7 +202,7 @@ describe('TelemetryLoggerImpl', () => {
   test('dispose', async () => {
     const telemetryLogger = new TelemetryLoggerImpl(dummyExtensionInfo, senderMock);
 
-    expect((telemetryLogger as any).commonProperties).toContain({ 'common.extensionVersion': '1.0.0' });
+    expect((telemetryLogger as any).commonProperties).toMatchObject({ 'common.extensionVersion': '1.0.0' });
     telemetryLogger.dispose();
     expect((telemetryLogger as any).commonProperties).toStrictEqual({});
   });

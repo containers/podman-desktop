@@ -1,18 +1,31 @@
 <script>
 import FormPage from '../ui/FormPage.svelte';
+import Tab from '../ui/Tab.svelte';
 import TroubleshootingDevToolsConsoleLogs from './TroubleshootingDevToolsConsoleLogs.svelte';
 import TroubleshootingPageProviders from './TroubleshootingPageProviders.svelte';
 import TroubleshootingPageStores from './TroubleshootingPageStores.svelte';
+import Route from '/@/Route.svelte';
 </script>
 
 <FormPage title="Troubleshooting" showBreadcrumb="{false}">
   <i slot="icon" class="fas fa-lightbulb fa-2x" aria-hidden="true"></i>
 
-  <div slot="content" class="flex flex-col space-y-4 p-4">
-    <TroubleshootingPageProviders />
+  <svelte:fragment slot="tabs">
+    <Tab title="Repair & Connections" url="repair-connections" />
+    <Tab title="Logs" url="logs" />
+    <Tab title="Stores" url="stores" />
+  </svelte:fragment>
+  <svelte:fragment slot="content">
+    <Route path="/repair-connections" breadcrumb="Repair & Connections" navigationHint="tab">
+      <TroubleshootingPageProviders />
+    </Route>
 
-    <TroubleshootingDevToolsConsoleLogs />
+    <Route path="/logs" breadcrumb="Logs" navigationHint="tab">
+      <TroubleshootingDevToolsConsoleLogs />
+    </Route>
 
-    <TroubleshootingPageStores />
-  </div>
+    <Route path="/stores" breadcrumb="Stores" navigationHint="tab">
+      <TroubleshootingPageStores />
+    </Route>
+  </svelte:fragment>
 </FormPage>

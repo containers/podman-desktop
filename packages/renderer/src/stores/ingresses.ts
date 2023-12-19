@@ -16,50 +16,53 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { writable, derived, type Writable } from 'svelte/store';
-
-import { findMatchInLeaves } from './search-util';
-import { EventStore } from './event-store';
 import type { V1Ingress } from '@kubernetes/client-node';
-import IngressRouteIcon from '../lib/images/IngressRouteIcon.svelte';
+import { customWritable, type KubernetesInformerWritable } from './kubernetesInformerWritable';
+import { EventStoreWithKubernetesInformer } from './kubernetes-informer-event-store';
 
-const windowEvents = ['extension-started', 'extension-stopped', 'provider-change', 'extensions-started'];
-const windowListeners = ['extensions-already-started'];
+const informerEvents = ['kubernetes-ingress-add', 'kubernetes-ingress-update', 'kubernetes-ingress-deleted'];
+const informerRefreshEvents = ['provider-change', 'kubeconfig-update'];
 
-let readyToUpdate = false;
+export const ingresses: KubernetesInformerWritable<V1Ingress[]> = customWritable([], startInformer);
 
-export async function checkForUpdate(eventName: string): Promise<boolean> {
-  if ('extensions-already-started' === eventName) {
-    readyToUpdate = true;
-  }
-
-  // do not fetch until extensions are all started
-  return readyToUpdate;
-}
-
-export const ingresses: Writable<V1Ingress[]> = writable([]);
-
-export const searchPattern = writable('');
-
-export const filtered = derived([searchPattern, ingresses], ([$searchPattern, $ingressInfos]) =>
-  $ingressInfos.filter(ingress => findMatchInLeaves(ingress, $searchPattern.toLowerCase())),
-);
-
-export const ingressesEventStore = new EventStore<V1Ingress[]>(
-  'ingresses',
+export const ingressesEventStore = new EventStoreWithKubernetesInformer<V1Ingress[]>(
   ingresses,
-  checkForUpdate,
-  windowEvents,
-  windowListeners,
-  grabAllIngresses,
-  IngressRouteIcon,
+  informerEvents,
+  informerRefreshEvents,
+  informerListener,
 );
-const ingressesEventStoreInfo = ingressesEventStore.setupWithDebounce();
 
-export async function grabAllIngresses(): Promise<V1Ingress[]> {
-  return window.kubernetesListIngresses();
+ingressesEventStore.setup();
+
+function informerListener(...args: unknown[]) {
+  const event = args[0];
+  const ingress = args[1] as V1Ingress;
+  ingresses.update(ingressesList => {
+    if (event === 'kubernetes-ingress-add') {
+      if (
+        !ingressesList.find(
+          ing =>
+            ing.metadata?.name === ingress.metadata?.name && ing.metadata?.namespace === ingress.metadata?.namespace,
+        )
+      ) {
+        ingressesList.push(ingress);
+      }
+    } else if (event === 'kubernetes-ingress-deleted') {
+      ingressesList = ingressesList.filter(
+        ing => ing.metadata?.name !== ingress.metadata?.name || ing.metadata?.namespace !== ingress.metadata?.namespace,
+      );
+    } else if (event === 'kubernetes-ingress-update') {
+      const index = ingressesList.findIndex(
+        ing => ing.metadata?.name === ingress.metadata?.name && ing.metadata?.namespace === ingress.metadata?.namespace,
+      );
+      if (index > -1) {
+        ingressesList[index] = ingress;
+      }
+    }
+    return ingressesList;
+  });
 }
 
-export const fetchIngressesWithData = async () => {
-  await ingressesEventStoreInfo.fetch('fetchUsage');
-};
+async function startInformer(): Promise<number> {
+  return window.kubernetesStartInformer('INGRESS');
+}

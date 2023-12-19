@@ -31,6 +31,7 @@ test('Check primary button styling', async () => {
   expect(button).toBeInTheDocument();
   expect(button).toHaveClass('bg-purple-600');
   expect(button).toHaveClass('text-[13px]');
+  expect(button).toHaveClass('text-white');
 });
 
 test('Check disabled/in-progress primary button styling', async () => {
@@ -50,6 +51,7 @@ test('Check primary button is the default', async () => {
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
   expect(button).toHaveClass('bg-purple-600');
+  expect(button).toHaveClass('text-white');
 });
 
 test('Check secondary button styling', async () => {
@@ -60,6 +62,19 @@ test('Check secondary button styling', async () => {
   expect(button).toBeInTheDocument();
   expect(button).toHaveClass('border-gray-200');
   expect(button).toHaveClass('text-[13px]');
+  expect(button).toHaveClass('text-white');
+});
+
+test('Check danger button styling', async () => {
+  render(Button, { type: 'danger' });
+
+  // check for a few elements of the styling
+  const button = screen.getByRole('button');
+  expect(button).toBeInTheDocument();
+  expect(button).toHaveClass('border-red-600');
+  expect(button).toHaveClass('bg-charcoal-700');
+  expect(button).toHaveClass('text-[13px]');
+  expect(button).toHaveClass('text-white');
 });
 
 test('Check disabled/in-progress secondary button styling', async () => {
@@ -82,6 +97,7 @@ test('Check link button styling', async () => {
   expect(button).toHaveClass('hover:bg-white');
   expect(button).toHaveClass('hover:bg-opacity-10');
   expect(button).toHaveClass('text-[13px]');
+  expect(button).toHaveClass('text-purple-400');
 });
 
 test('Check disabled/in-progress link button styling', async () => {
@@ -102,7 +118,18 @@ test('Check tab button styling', async () => {
   expect(button).toBeInTheDocument();
   expect(button).toHaveClass('border-b-[3px]');
   expect(button).toHaveClass('border-charcoal-700');
-  expect(button).toHaveClass('pb-2');
+  expect(button).toHaveClass('pb-1');
+  expect(button).toHaveClass('text-gray-600');
   expect(button).toHaveClass('hover:cursor-pointer');
   expect(button).not.toHaveClass('text-[13px]');
+});
+
+test('Check selected tab button styling', async () => {
+  render(Button, { type: 'tab', selected: true });
+
+  // check for a few elements of the styling
+  const button = screen.getByRole('button');
+  expect(button).toBeInTheDocument();
+  expect(button).toHaveClass('text-white');
+  expect(button).toHaveClass('border-purple-500');
 });

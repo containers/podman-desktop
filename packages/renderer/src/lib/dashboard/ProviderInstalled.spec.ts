@@ -64,15 +64,17 @@ test('Expect installed provider shows button', async () => {
     status: 'installed',
     warnings: [],
     extensionId: '',
+    cleanupSupport: false,
   };
 
   const initializationContext: InitializationContext = { mode: InitializeAndStartMode };
   render(ProviderInstalled, { provider: provider, initializationContext: initializationContext });
 
-  const providerText = screen.getByText(
-    content => content.includes('MyProvider') && content.includes('is installed but not ready'),
-  );
+  const providerText = screen.getByText(content => content === 'MyProvider');
   expect(providerText).toBeInTheDocument();
+
+  const installedText = screen.getByText(content => content.toLowerCase().includes('installed but not ready'));
+  expect(installedText).toBeInTheDocument();
 
   const button = screen.getByRole('button', { name: 'Initialize and start' });
   expect(button).toBeInTheDocument();
@@ -110,15 +112,17 @@ test('Expect to see the initialize context error if provider installation fails'
     status: 'installed',
     warnings: [],
     extensionId: '',
+    cleanupSupport: false,
   };
 
   const initializationContext: InitializationContext = { mode: InitializeAndStartMode };
   render(ProviderInstalled, { provider: provider, initializationContext: initializationContext });
 
-  const providerText = screen.getByText(
-    content => content.includes('MyProvider') && content.includes('is installed but not ready'),
-  );
+  const providerText = screen.getByText(content => content === 'MyProvider');
   expect(providerText).toBeInTheDocument();
+
+  const installedText = screen.getByText(content => content.toLowerCase().includes('installed but not ready'));
+  expect(installedText).toBeInTheDocument();
 
   const button = screen.getByRole('button', { name: 'Initialize and start' });
   expect(button).toBeInTheDocument();

@@ -133,9 +133,10 @@ async function deleteSelectedImages() {
 let refreshTimeouts: NodeJS.Timeout[] = [];
 const SECOND = 1000;
 function refreshAge() {
-  images = images.map(imageInfo => {
-    return { ...imageInfo, age: imageUtils.refreshAge(imageInfo) };
-  });
+  for (const imageInfo of images) {
+    imageInfo.age = imageUtils.refreshAge(imageInfo);
+  }
+  images = images;
 
   // compute new interval
   const newInterval = computeInterval();
@@ -213,7 +214,7 @@ const columns: Column<ImageInfoUI>[] = [
   envColumn,
   ageColumn,
   sizeColumn,
-  new Column<ImageInfoUI>('Actions', { align: 'right', width: '150px', renderer: ImageColumnActions }),
+  new Column<ImageInfoUI>('Actions', { align: 'right', width: '150px', renderer: ImageColumnActions, overflow: true }),
 ];
 
 const row = new Row<ImageInfoUI>({ selectable: image => !image.inUse, disabledText: 'Image is used by a container' });

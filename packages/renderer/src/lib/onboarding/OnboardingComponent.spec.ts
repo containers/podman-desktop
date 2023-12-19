@@ -53,6 +53,7 @@ const providerInfo: ProviderInfo = {
   containerProviderConnectionCreationDisplayName: 'Podman machine',
   kubernetesProviderConnectionInitialization: false,
   extensionId: 'id',
+  cleanupSupport: false,
 };
 
 async function waitRender(customProperties: any): Promise<void> {

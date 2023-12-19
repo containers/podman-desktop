@@ -41,6 +41,9 @@ import type {
   ProviderConnectionStatus,
   AuditResult,
   AuditRequestItems,
+  ProviderCleanup,
+  ProviderCleanupAction,
+  ProviderCleanupExecuteOptions,
 } from '@podman-desktop/api';
 import type {
   ProviderContainerConnectionInfo,
@@ -48,6 +51,7 @@ import type {
   ProviderKubernetesConnectionInfo,
   LifecycleMethod,
   PreflightChecksCallback,
+  ProviderCleanupActionInfo,
 } from './api/provider-info.js';
 import type { ContainerProviderRegistry } from './container-registry.js';
 import type { Event } from './events/emitter.js';
@@ -86,6 +90,7 @@ export class ProviderRegistry {
   private providerInstallations: Map<string, ProviderInstallation> = new Map();
   private providerUpdates: Map<string, ProviderUpdate> = new Map();
   private providerAutostarts: Map<string, ProviderAutostart> = new Map();
+  private providerCleanup: Map<string, ProviderCleanup> = new Map();
   private autostartEngine: AutostartEngine | undefined = undefined;
 
   private connectionLifecycleContexts: Map<
@@ -259,6 +264,14 @@ export class ProviderRegistry {
     return Disposable.create(() => {
       this.providerAutostarts.delete(providerImpl.internalId);
       disposable.dispose();
+    });
+  }
+
+  registerCleanup(providerImpl: ProviderImpl, cleanup: ProviderCleanup): Disposable {
+    this.providerCleanup.set(providerImpl.internalId, cleanup);
+
+    return Disposable.create(() => {
+      this.providerCleanup.delete(providerImpl.internalId);
     });
   }
 
@@ -442,6 +455,80 @@ export class ProviderRegistry {
     return providerInstall.install(new LoggerImpl());
   }
 
+  async executeCleanupActions(logger: Logger, providerIds: string[], token?: CancellationToken): Promise<void> {
+    // first, grab all matching actions
+    const actions = await this.getCleanupActions(providerIds);
+
+    const cleanupErrors: string[] = [];
+    // now, execute them
+    for (const action of actions) {
+      // get all actions
+      const providerActions = await action.actions;
+
+      // execute them
+      for (const providerAction of providerActions) {
+        try {
+          const options: ProviderCleanupExecuteOptions = {
+            logger,
+            token,
+          };
+          logger.log('executing action ', providerAction.name);
+          await providerAction.execute.apply(action.instance, [options]);
+        } catch (err) {
+          cleanupErrors.push(String(err));
+          logger.error(`Error while executing cleanup action ${providerAction.name}: ${err}`);
+        }
+      }
+    }
+    const telemetryOptions: { error?: string[]; success?: boolean } = {};
+    if (cleanupErrors.length > 0) {
+      telemetryOptions.error = cleanupErrors;
+      telemetryOptions.success = false;
+    } else {
+      telemetryOptions.success = true;
+    }
+    this.telemetryService.track('executeCleanupActions', telemetryOptions);
+  }
+
+  async getCleanupActions(providerIds?: string[]): Promise<ProviderCleanupActionInfo[]> {
+    if (!providerIds || providerIds.length === 0) {
+      // grab from all providers
+      return Array.from(this.providerCleanup.entries()).map(([providerInternalId, providerCleanup]) => {
+        const provider = this.getMatchingProvider(providerInternalId);
+        return {
+          providerId: providerInternalId,
+          providerName: provider.name,
+          actions: providerCleanup.getActions(),
+          instance: providerCleanup,
+        };
+      });
+    } else {
+      // grab from the list of providers
+      return providerIds.map(providerInternalId => {
+        const provider = this.getMatchingProvider(providerInternalId);
+        const providerCleanup = this.providerCleanup.get(providerInternalId);
+        if (!providerCleanup) {
+          throw new Error(`No matching cleanup for provider ${provider.internalId}`);
+        }
+        return {
+          providerId: providerInternalId,
+          providerName: provider.name,
+          instance: providerCleanup,
+          actions: providerCleanup.getActions(),
+        };
+      });
+    }
+  }
+
+  async getCleanupActionsFromProvider(providerInternalId: string): Promise<ProviderCleanupAction[]> {
+    const providerCleanup = this.providerCleanup.get(providerInternalId);
+    // empty if not defined
+    if (!providerCleanup) {
+      return [];
+    }
+    return providerCleanup.getActions();
+  }
+
   async updateProvider(providerInternalId: string): Promise<void> {
     const provider = this.getMatchingProvider(providerInternalId);
 
@@ -617,6 +704,12 @@ export class ProviderRegistry {
       installationSupport = true;
     }
 
+    // cleanup supported ?
+    let cleanupSupport = false;
+    if (this.providerCleanup.has(provider.internalId)) {
+      cleanupSupport = true;
+    }
+
     const providerInfo: ProviderInfo = {
       id: provider.id,
       internalId: provider.internalId,
@@ -640,6 +733,7 @@ export class ProviderRegistry {
       version: provider.version,
       warnings: provider.warnings,
       installationSupport,
+      cleanupSupport,
     };
 
     // handle update

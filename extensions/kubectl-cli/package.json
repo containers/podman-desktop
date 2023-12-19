@@ -1,5 +1,5 @@
 {
-  "name": "kubectl-cli-tool",
+  "name": "kubectl-cli",
   "displayName": "kubectl CLI",
   "description": "Install and update kubectl CLI Tools without leaving Podman Desktop",
   "version": "0.0.1",
@@ -153,6 +153,6 @@
     "byline": "^5.0.0",
     "copyfiles": "^2.4.1",
     "mkdirp": "^3.0.1",
-    "vitest": "^0.34.6"
+    "vitest": "^1.0.4"
   }
 }

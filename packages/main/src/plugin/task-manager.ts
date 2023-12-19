@@ -18,7 +18,7 @@
 
 import type { ApiSenderType } from './api.js';
 import type { NotificationInfo } from './api/notification.js';
-import type { NotificationTask, StatefulTask, Task } from '/@/plugin/api/task.js';
+import type { NotificationTask, StatefulTask, Task } from './api/task.js';
 
 /**
  * Contribution manager to provide the list of external OCI contributions
