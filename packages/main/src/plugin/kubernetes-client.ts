@@ -33,6 +33,8 @@ import type {
   KubernetesObject,
   ListPromise,
   KubernetesListObject,
+  Informer,
+  ObjectCache,
 } from '@kubernetes/client-node';
 import {
   ApisApi,
@@ -65,6 +67,12 @@ import type { KubeContext } from './kubernetes-context.js';
 import type { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import type { IncomingMessage } from 'node:http';
+
+interface ContextState {
+  podInformer?: Informer<V1Pod> & ObjectCache<V1Pod>;
+  reachable: boolean;
+  podsCount: number;
+}
 
 function toContainerStatus(state: V1ContainerState | undefined): string {
   if (state) {
@@ -135,6 +143,8 @@ export class KubernetesClient {
    with custom resources. The key is the apiGroup (including version) like 'networking.k8s.io/v1'
    */
   private apiResources = new Map<string, Array<V1APIResource>>();
+
+  private contextsState = new Map<string, ContextState>();
 
   private readonly _onDidUpdateKubeconfig = new Emitter<containerDesktopAPI.KubeconfigUpdateEvent>();
   readonly onDidUpdateKubeconfig: containerDesktopAPI.Event<containerDesktopAPI.KubeconfigUpdateEvent> =
@@ -451,6 +461,19 @@ export class KubernetesClient {
     await this.fetchAPIGroups();
     this.apiSender.send('pod-event');
     this.apiSender.send('kubeconfig-update');
+
+    for (const context of this.kubeConfig.contexts) {
+      if (this.contextsState.get(context.name) === undefined) {
+        this.contextsState.set(context.name, { reachable: false, podsCount: 0 });
+        const informer = this.createKubeContextInformer(context);
+        if (informer) {
+          const previous = this.contextsState.get(context.name);
+          if (previous) {
+            previous.podInformer = informer;
+          }
+        }
+      }
+    }
   }
 
   newError(message: string, cause: Error): Error {
@@ -1244,6 +1267,88 @@ export class KubernetesClient {
     if (informerInfo && JSON.stringify(informerInfo.context) !== JSON.stringify(currentContext)) {
       await informerInfo.informer.stop();
       await this.startInformer(informerInfo.resourcesType, id);
+    }
+  }
+
+  createKubeContextInformer(context: KubeContext): (Informer<V1Pod> & ObjectCache<V1Pod>) | undefined {
+    console.log(`==> ${context.name}: creating informer`);
+
+    const kc = new KubeConfig();
+    const cluster = this.kubeConfig.clusters.find(c => c.name === context.cluster);
+    const user = this.kubeConfig.users.find(u => u.name === context.user);
+    if (!cluster || !user) {
+      return;
+    }
+    kc.loadFromOptions({
+      clusters: [cluster],
+      users: [user],
+      contexts: [context],
+      currentContext: context.name,
+    });
+
+    const k8sApi = kc.makeApiClient(CoreV1Api);
+    const listFn = () => k8sApi.listNamespacedPod(context.namespace ?? 'default');
+    const informer = makeInformer(kc, `/api/v1/namespaces/${context.namespace}/pods`, listFn);
+
+    informer.on('add', (obj: V1Pod) => {
+      console.log(`==> ${context.name}: Added: ${obj.metadata!.name}`);
+      const previous = this.contextsState.get(context.name);
+      if (previous) {
+        previous.podsCount++;
+      }
+      this.displayContextsState();
+    });
+
+    //    informer.on('update', (obj: V1Pod) => {
+    //      console.log(`==> ${context.name}: Updated: ${obj.metadata!.name}`);
+    //      this.displayContextsState();
+    //    });
+    //    informer.on('change', (obj: V1Pod) => {
+    //      console.log(`==> ${context.name}: Changed: ${obj.metadata!.name}`);
+    //      this.displayContextsState();
+    //    });
+
+    informer.on('delete', (obj: V1Pod) => {
+      console.log(`==> ${context.name}: Deleted: ${obj.metadata!.name}`);
+      const previous = this.contextsState.get(context.name);
+      if (previous) {
+        previous.podsCount--;
+      }
+      this.displayContextsState();
+    });
+    informer.on('error', (err: unknown) => {
+      console.error(`==> ${context.name}: error`, err);
+      const previous = this.contextsState.get(context.name);
+      if (previous) {
+        previous.reachable = err === undefined;
+      }
+      this.displayContextsState();
+      // Restart informer after 5sec
+      setTimeout(() => {
+        informer
+          .start()
+          .then(() => {})
+          .catch(() => {}); // TODO
+      }, 5000);
+    });
+    informer.on('connect', (err: unknown) => {
+      console.error(`==> ${context.name}: connect`, err);
+      const previous = this.contextsState.get(context.name);
+      if (previous) {
+        previous.reachable = err === undefined;
+      }
+      this.displayContextsState();
+    });
+    informer
+      .start()
+      .then(() => {})
+      .catch(() => {}); // TODO
+    return informer;
+  }
+
+  displayContextsState() {
+    for (const [key, val] of this.contextsState) {
+      console.log(`==> ${key}: ${val.reachable}/${val.podsCount}`);
     }
   }
 }
