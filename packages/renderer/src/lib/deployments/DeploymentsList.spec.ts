@@ -19,16 +19,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect, vi, beforeEach } from 'vitest';
+import { test, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import DeploymentsList from './DeploymentsList.svelte';
 import { get } from 'svelte/store';
-import { deployments } from '/@/stores/deployments';
+import { deployments, deploymentsEventStore } from '/@/stores/deployments';
+import type { V1Deployment } from '@kubernetes/client-node';
 
-const listDeploymentsMock = vi.fn();
+const callbacks = new Map<string, any>();
+const eventEmitter = {
+  receive: (message: string, callback: any) => {
+    callbacks.set(message, callback);
+  },
+};
 
-beforeAll(() => {
-  (window as any).kubernetesListDeployments = listDeploymentsMock;
+Object.defineProperty(global, 'window', {
+  value: {
+    events: {
+      receive: eventEmitter.receive,
+    },
+    addEventListener: eventEmitter.receive,
+  },
+  writable: true,
 });
 
 beforeEach(() => {
@@ -45,27 +57,31 @@ async function waitRender(customProperties: object): Promise<void> {
 }
 
 test('Expect deployment empty screen', async () => {
-  listDeploymentsMock.mockResolvedValue([]);
   render(DeploymentsList);
   const noDeployments = screen.getByRole('heading', { name: 'No deployments' });
   expect(noDeployments).toBeInTheDocument();
 });
 
 test('Expect deployments list', async () => {
-  listDeploymentsMock.mockResolvedValue([
-    {
-      metadata: {
-        name: 'my-deployment',
-        namespace: 'test-namespace',
-      },
-      status: {
-        replicas: 4,
-        readyReplicas: 2,
-      },
+  const deployment: V1Deployment = {
+    apiVersion: 'apps/v1',
+    kind: 'Deployment',
+    metadata: {
+      name: 'my-deployment',
+      namespace: 'test-namespace',
     },
-  ]);
+    spec: {
+      replicas: 2,
+      selector: {},
+      template: {},
+    },
+  };
 
-  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+  deploymentsEventStore.setup();
+
+  const DeploymentAddCallback = callbacks.get('kubernetes-deployment-add');
+  expect(DeploymentAddCallback).toBeDefined();
+  await DeploymentAddCallback(deployment);
 
   // wait while store is populated
   while (get(deployments).length === 0) {
@@ -81,20 +97,25 @@ test('Expect deployments list', async () => {
 });
 
 test('Expect filter empty screen', async () => {
-  listDeploymentsMock.mockResolvedValue([
-    {
-      metadata: {
-        name: 'my-deployment',
-        namespace: 'test-namespace',
-      },
-      status: {
-        replicas: 4,
-        readyReplicas: 2,
-      },
+  const deployment: V1Deployment = {
+    apiVersion: 'apps/v1',
+    kind: 'Deployment',
+    metadata: {
+      name: 'my-deployment',
+      namespace: 'test-namespace',
     },
-  ]);
+    spec: {
+      replicas: 2,
+      selector: {},
+      template: {},
+    },
+  };
 
-  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+  deploymentsEventStore.setup();
+
+  const DeploymentAddCallback = callbacks.get('kubernetes-deployment-add');
+  expect(DeploymentAddCallback).toBeDefined();
+  await DeploymentAddCallback(deployment);
 
   // wait while store is populated
   while (get(deployments).length === 0) {

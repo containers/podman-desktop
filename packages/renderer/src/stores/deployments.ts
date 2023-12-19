@@ -49,24 +49,24 @@ function informerListener(...args: unknown[]) {
     if (event === 'kubernetes-deployment-add') {
       if (
         !deploymentsList.find(
-          ing =>
-            ing.metadata?.name === deployment.metadata?.name &&
-            ing.metadata?.namespace === deployment.metadata?.namespace,
+          dep =>
+            dep.metadata?.name === deployment.metadata?.name &&
+            dep.metadata?.namespace === deployment.metadata?.namespace,
         )
       ) {
         deploymentsList.push(deployment);
       }
     } else if (event === 'kubernetes-deployment-deleted') {
       deploymentsList = deploymentsList.filter(
-        ing =>
-          ing.metadata?.name !== deployment.metadata?.name ||
-          ing.metadata?.namespace !== deployment.metadata?.namespace,
+        dep =>
+          dep.metadata?.name !== deployment.metadata?.name ||
+          dep.metadata?.namespace !== deployment.metadata?.namespace,
       );
     } else if (event === 'kubernetes-deployment-update') {
       const index = deploymentsList.findIndex(
-        ing =>
-          ing.metadata?.name === deployment.metadata?.name &&
-          ing.metadata?.namespace === deployment.metadata?.namespace,
+        dep =>
+          dep.metadata?.name === deployment.metadata?.name &&
+          dep.metadata?.namespace === deployment.metadata?.namespace,
       );
       if (index > -1) {
         deploymentsList[index] = deployment;
