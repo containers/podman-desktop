@@ -13,40 +13,19 @@ import TabItem from '@theme/TabItem';
 
 # Setting up container registries
 
-## Overview
 
-Podman Desktop allows you to configure Podman container registries from its graphical user interface: no need to use the command line interface.
-
-If you are a developer who deals with containers, often finds yourself pulling and pushing container images – this tutorial is tailor-made for you!
-
-By the end of this tutorial, you will be able to [set up a container registry in the most straightforward context: a pre-configured container registry](#setting-up-a-pre-configured-container-registry), and also in more complex contexts such as [a custom container registry](#setting-up-a-custom-container-registry), or [a custom container registry with an insecure certificate, such as a self-signed certificate](#setting-up-a-custom-container-registry-with-an-insecure-certificate).
-
-You will also be able to maintain your registry configuration: [verify that your registry is properly configured](#verifying-your-registry-is-properly-configured), [change your registry credentials](#changing-your-registry-credentials), and [remove a registry configuration](#removing-a-registry).
-
-If you want to dive deeper, you will get some explanations to [understand the registry configuration](#understanding-the-registry-configuration).
-
-![Registries](img/registries.png)
 
 ## Before you start
 
-Before you start the tutorial, you should:
+Before you start, you should:
 
-- Have a running Podman environment:
-  - Podman machine on Windows and macOS.
-  - Native Podman on Linux.
 - Get authentication details for your container registry:
   - Registry URL.
   - User name.
   - Password, or OAuth secret.
 - Get the fully qualified name of a private image stored in your registry, such as:
-  - `quay.io/my-repository/my-image`
-  - `ghcr.io/my-repository/my-image`
-  - `docker.io/my-repository/my-image`
   - `my-registry.tld/my-repository/my-image`
 - Get the fully qualified image name that your registry requires to push an image, such as:
-  - `quay.io/my-repository/my-image`
-  - `ghcr.io/my-repository/my-image`
-  - `docker.io/my-repository/my-image`
   - `my-registry.tld/my-repository/my-image`
 
 ## Setting up a pre-configured container registry
