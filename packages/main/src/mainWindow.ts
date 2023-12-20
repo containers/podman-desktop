@@ -20,11 +20,13 @@ import type { BrowserWindowConstructorOptions, FileFilter } from 'electron';
 import { autoUpdater, Menu, BrowserWindow, ipcMain, app, dialog, screen, nativeTheme } from 'electron';
 import contextMenu from 'electron-context-menu';
 import { aboutMenuItem } from 'electron-util';
-import { join } from 'path';
+import path, { join } from 'path';
 import { URL } from 'url';
 import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
 import { isLinux, isMac, stoppedExtensions } from './util.js';
 import { OpenDevTools } from './open-dev-tools.js';
+import http from 'http';
+import nodeStatic = require('node-static');
 
 const openDevTools = new OpenDevTools();
 
@@ -243,14 +245,33 @@ async function createWindow(): Promise<BrowserWindow> {
    * Vite dev server for development.
    * `file://../renderer/index.html` for production and test
    */
-  const pageUrl =
-    import.meta.env.DEV && import.meta.env.VITE_DEV_SERVER_URL !== undefined
-      ? import.meta.env.VITE_DEV_SERVER_URL
-      : new URL('../renderer/dist/index.html', 'file://' + __dirname).toString();
+  if (import.meta.env.DEV && import.meta.env.VITE_DEV_SERVER_URL !== undefined) {
+    await browserWindow.loadURL(import.meta.env.VITE_DEV_SERVER_URL);
+    return browserWindow;
+  }
 
-  await browserWindow.loadURL(pageUrl);
-
-  return browserWindow;
+  return new Promise<BrowserWindow>((resolve, reject) => {
+    const file = new nodeStatic.Server(path.resolve(`${__dirname}/../..`));
+    const server = http.createServer((request, response) =>
+      request.on('end', () => file.serve(request, response)).resume(),
+    );
+    server.listen(0, 'localhost', undefined, () => {
+      const address = server.address();
+      if (address && typeof address !== 'string') {
+        browserWindow
+          .loadURL(`http://localhost:${address.port}/renderer/dist/index.html`)
+          .then(() => resolve(browserWindow))
+          .catch(reject);
+      } else {
+        reject(new Error('Error starting http server'));
+      }
+    });
+  }).catch(async (error: unknown) => {
+    console.log(String(error));
+    const pageUrl = new URL('../renderer/dist/index.html', 'file://' + __dirname).toString();
+    await browserWindow.loadURL(pageUrl);
+    return browserWindow;
+  });
 }
 
 // Create a new window if there is no existing window

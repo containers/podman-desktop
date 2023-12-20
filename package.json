@@ -168,6 +168,7 @@
     "got": "^13.0.0",
     "hpagent": "^1.2.0",
     "moment": "^2.29.4",
+    "node-static": "^0.7.11",
     "os-locale": "^6.0.2",
     "stream-json": "^1.8.0",
     "sudo-prompt": "^9.2.1",
