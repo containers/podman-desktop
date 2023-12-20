@@ -28,7 +28,7 @@ export class RegistriesPage extends SettingsPage {
     super(page, 'Registries');
     this.heading = page.getByText('Registries');
     this.addRegistryButton = page.getByRole('button', { name: 'Add registry' });
-    this.registriesTable = page.getByRole('region', { name: 'Registries table' });
+    this.registriesTable = page.getByRole('table', { name: 'Registries' });
   }
 
   async createRegistry(url: string, username: string, pswd: string) {
@@ -36,7 +36,7 @@ export class RegistriesPage extends SettingsPage {
 
     const registryUrl = this.page.getByLabel('Register URL');
     const registryUsername = this.page.getByLabel('Username');
-    const registryPswd = this.page.getByLabel('Password');
+    const registryPswd = this.page.getByRole('textbox', { name: 'Password' });
     await registryUrl.fill(url);
     await registryUsername.fill(username);
     await registryPswd.fill(pswd);
@@ -46,15 +46,16 @@ export class RegistriesPage extends SettingsPage {
   }
 
   async editRegistry(title: string, newUsername: string, newPswd: string) {
-    const registryBox = this.registriesTable.getByLabel(title);
-    const dropdownMenu = registryBox.getByLabel('Dropdown menu');
+    const registryBox = await this.getRegistryRowByName(title);
+
+    const dropdownMenu = registryBox.getByRole('button', { name: 'kebab menu' });
     await dropdownMenu.click();
 
-    const editButton = registryBox.getByLabel('Edit password');
+    const editButton = registryBox.getByTitle('Edit password');
     await editButton.click();
 
     const registryUsername = registryBox.getByLabel('Username');
-    const registryPswd = registryBox.getByLabel('Password');
+    const registryPswd = registryBox.getByRole('textbox', { name: 'Password' });
     await registryUsername.fill(newUsername);
     await registryPswd.fill(newPswd);
 
@@ -63,11 +64,16 @@ export class RegistriesPage extends SettingsPage {
   }
 
   async removeRegistry(title: string) {
-    const registryBox = this.registriesTable.getByLabel(title);
-    const dropdownMenu = registryBox.getByLabel('Dropdown menu');
+    const registryBox = await this.getRegistryRowByName(title);
+
+    const dropdownMenu = registryBox.getByRole('button', { name: 'kebab menu' });
     await dropdownMenu.click();
 
-    const editButton = registryBox.getByLabel('Remove');
+    const editButton = registryBox.getByTitle('Remove');
     await editButton.click();
+  }
+
+  async getRegistryRowByName(name: string): Promise<Locator> {
+    return this.registriesTable.getByRole('row', { name: name });
   }
 }

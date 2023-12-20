@@ -89,6 +89,8 @@ jobs:
         run: yarn --frozen-lockfile
 
       - name: Run All E2E tests
+        env:
+          PODMANDESKTOP_CI_BOT_TOKEN: ${{ secrets.PODMANDESKTOP_CI_BOT_TOKEN }}
         run: yarn test:e2e
 
       - uses: actions/upload-artifact@v4
