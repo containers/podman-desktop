@@ -204,5 +204,6 @@ if (dropdownMenu) {
     contextPrefix="containerItem"
     dropdownMenu="{dropdownMenu}"
     contributions="{contributions}"
+    detailed="{detailed}"
     onError="{handleError}" />
 </svelte:component>
