@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
+import { test, expect, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/svelte';
 
 import TestTable from './TestTable.svelte';
@@ -231,4 +231,17 @@ test('Expect overflow-hidden', async () => {
     expect(cells[4]).not.toHaveClass('overflow-hidden');
     expect(cells[5]).toHaveClass('overflow-hidden');
   }
+});
+
+test('Expect update callback', async () => {
+  const callback = vi.fn();
+  const result = render(TestTable);
+  result.component.$on('update', callback);
+
+  const ageCol = await screen.findByRole('columnheader', { name: 'Age' });
+  expect(ageCol).toBeDefined();
+
+  await fireEvent.click(ageCol);
+
+  expect(callback).toHaveBeenCalled();
 });
