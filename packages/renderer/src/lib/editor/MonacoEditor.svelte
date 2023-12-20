@@ -13,6 +13,10 @@ let Monaco;
 
 export let content = '';
 export let language = 'json';
+export let readOnly = true;
+// Add "default" text that will show if the content is blank
+// once typing occurs it'll clear.
+export let defaultText = '';
 
 onMount(async () => {
   self.MonacoEnvironment = {
@@ -45,11 +49,12 @@ onMount(async () => {
     value: content,
     fontSize,
     language,
-    readOnly: true,
+    readOnly: readOnly,
     theme: 'podmanDesktopTheme',
     automaticLayout: true,
     scrollBeyondLastLine: false,
   });
+
 });
 
 onDestroy(() => {
@@ -59,4 +64,4 @@ onDestroy(() => {
 $: content, editor?.getModel()?.setValue(content);
 </script>
 
-<div bind:this="{divEl}" class="h-full"></div>
+<div bind:this="{divEl}" class="h-full" data-testid="monaco"></div>

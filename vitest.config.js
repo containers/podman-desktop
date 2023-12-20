@@ -60,3 +60,7 @@ const config = {
 };
 
 export default config;
+
+// Due to importing 'monaco-editor' which uses JSDOM, we require this to be set as
+// it uses the clipboard API which is not supported by JSDOM.
+global.document.queryCommandSupported = () => {};
