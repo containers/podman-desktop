@@ -23,10 +23,8 @@ Before you start, you should:
   - Registry URL.
   - User name.
   - Password, or OAuth secret.
-- Get the fully qualified name of a private image stored in your registry, such as:
-  - `my-registry.tld/my-repository/my-image`
-- Get the fully qualified image name that your registry requires to push an image, such as:
-  - `my-registry.tld/my-repository/my-image`
+- Get the fully qualified name of a private image stored in your registry, such as `my-registry.tld/my-repository/my-image`
+- Get the fully qualified image name that your registry requires to push an image, such as `my-registry.tld/my-repository/my-image`
 
 ## Setting up a pre-configured container registry
 
