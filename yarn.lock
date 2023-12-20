@@ -13391,10 +13391,10 @@ react-loadable-ssr-addon-v5-slorber@^1.0.1:
   dependencies:
     "@babel/runtime" "^7.10.3"
 
-react-player@^2.14.0:
-  version "2.14.0"
-  resolved "https://registry.yarnpkg.com/react-player/-/react-player-2.14.0.tgz#b8fabb2e528ff6fbc39c5e729ca3ad62b9703864"
-  integrity sha512-tUyv6oVD+B+ccJD81GuQQUVU++q3wsMUoDeDsZ0wAivRsmkq0RjERLT79Bi/JDcMwQm3wCwBEzXYbLnCW7c2nQ==
+react-player@^2.14.1:
+  version "2.14.1"
+  resolved "https://registry.yarnpkg.com/react-player/-/react-player-2.14.1.tgz#fc434c0e1e6161e76f5d5970721596c4acec52b1"
+  integrity sha512-jILj7F9o+6NHzrJ1GqZIxfJgskvGmKeJ05FNhPvgiCpvMZFmFneKEkukywHcULDO2lqITm+zcEkLSq42mX0FbA==
   dependencies:
     deepmerge "^4.0.0"
     load-script "^1.0.0"
