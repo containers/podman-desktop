@@ -2,9 +2,12 @@
 import Table from './Table.svelte';
 import { Column, Row } from './table';
 import SimpleColumn from './SimpleColumn.svelte';
+import { createEventDispatcher } from 'svelte';
 
 let table: Table;
 let selectedItemsNumber: number;
+
+const dispatch = createEventDispatcher<{ update: string }>();
 
 type Person = {
   id: number;
@@ -37,7 +40,10 @@ const ageCol: Column<Person, string> = new Column('Age', {
   align: 'right',
   renderMapping: obj => obj.age.toString(),
   renderer: SimpleColumn,
-  comparator: (a, b) => a.age - b.age,
+  comparator: (a, b) => {
+    dispatch('update', 'sorting');
+    return a.age - b.age;
+  },
   initialOrder: 'descending',
   overflow: true,
 });
@@ -62,5 +68,6 @@ const row = new Row<Person>({
   data="{people}"
   columns="{columns}"
   row="{row}"
-  defaultSortColumn="Id">
+  defaultSortColumn="Id"
+  on:update>
 </Table>
