@@ -79,6 +79,7 @@ import type Dockerode from 'dockerode';
 import { AutostartEngine } from './autostart-engine.js';
 import { CloseBehavior } from './close-behavior.js';
 import { TrayIconColor } from './tray-icon-color.js';
+import type { ContextState } from './kubernetes-client.js';
 import { KubernetesClient } from './kubernetes-client.js';
 import type {
   V1Pod,
@@ -2029,6 +2030,10 @@ export class PluginSystem {
 
     this.ipcHandle('kubernetes-client:setContext', async (_listener, contextName: string): Promise<void> => {
       return kubernetesClient.setContext(contextName);
+    });
+
+    this.ipcHandle('kubernetes-client:getContextsState', async (): Promise<Map<string, ContextState>> => {
+      return kubernetesClient.getContextsState();
     });
 
     this.ipcHandle('feedback:send', async (_listener, feedbackProperties: unknown): Promise<void> => {

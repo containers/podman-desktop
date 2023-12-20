@@ -68,8 +68,11 @@ import type { KubernetesInformerManager } from './kubernetes-informer-registry.j
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import type { IncomingMessage } from 'node:http';
 
-interface ContextState {
+interface ContextInternalState {
   podInformer?: Informer<V1Pod> & ObjectCache<V1Pod>;
+}
+
+export interface ContextState {
   reachable: boolean;
   podsCount: number;
 }
@@ -145,6 +148,7 @@ export class KubernetesClient {
   private apiResources = new Map<string, Array<V1APIResource>>();
 
   private contextsState = new Map<string, ContextState>();
+  private contextsInternalState = new Map<string, ContextInternalState>();
 
   private readonly _onDidUpdateKubeconfig = new Emitter<containerDesktopAPI.KubeconfigUpdateEvent>();
   readonly onDidUpdateKubeconfig: containerDesktopAPI.Event<containerDesktopAPI.KubeconfigUpdateEvent> =
@@ -463,14 +467,11 @@ export class KubernetesClient {
     this.apiSender.send('kubeconfig-update');
 
     for (const context of this.kubeConfig.contexts) {
-      if (this.contextsState.get(context.name) === undefined) {
+      if (this.contextsInternalState.get(context.name) === undefined) {
         this.contextsState.set(context.name, { reachable: false, podsCount: 0 });
         const informer = this.createKubeContextInformer(context);
         if (informer) {
-          const previous = this.contextsState.get(context.name);
-          if (previous) {
-            previous.podInformer = informer;
-          }
+          this.contextsInternalState.set(context.name, { podInformer: informer });
         }
       }
     }
@@ -1271,8 +1272,6 @@ export class KubernetesClient {
   }
 
   createKubeContextInformer(context: KubeContext): (Informer<V1Pod> & ObjectCache<V1Pod>) | undefined {
-    console.log(`==> ${context.name}: creating informer`);
-
     const kc = new KubeConfig();
     const cluster = this.kubeConfig.clusters.find(c => c.name === context.cluster);
     const user = this.kubeConfig.users.find(u => u.name === context.user);
@@ -1287,34 +1286,24 @@ export class KubernetesClient {
     });
 
     const k8sApi = kc.makeApiClient(CoreV1Api);
-    const listFn = () => k8sApi.listNamespacedPod(context.namespace ?? 'default');
-    const informer = makeInformer(kc, `/api/v1/namespaces/${context.namespace}/pods`, listFn);
+    const ns = context.namespace ?? 'default';
+    const listFn = () => k8sApi.listNamespacedPod(ns);
+    const informer = makeInformer(kc, `/api/v1/namespaces/${ns}/pods`, listFn);
 
-    informer.on('add', (obj: V1Pod) => {
-      console.log(`==> ${context.name}: Added: ${obj.metadata!.name}`);
+    informer.on('add', (_obj: V1Pod) => {
       const previous = this.contextsState.get(context.name);
       if (previous) {
         previous.podsCount++;
       }
-      this.displayContextsState();
+      this.dispatchContextsState();
     });
 
-    //    informer.on('update', (obj: V1Pod) => {
-    //      console.log(`==> ${context.name}: Updated: ${obj.metadata!.name}`);
-    //      this.displayContextsState();
-    //    });
-    //    informer.on('change', (obj: V1Pod) => {
-    //      console.log(`==> ${context.name}: Changed: ${obj.metadata!.name}`);
-    //      this.displayContextsState();
-    //    });
-
-    informer.on('delete', (obj: V1Pod) => {
-      console.log(`==> ${context.name}: Deleted: ${obj.metadata!.name}`);
+    informer.on('delete', (_obj: V1Pod) => {
       const previous = this.contextsState.get(context.name);
       if (previous) {
         previous.podsCount--;
       }
-      this.displayContextsState();
+      this.dispatchContextsState();
     });
     informer.on('error', (err: unknown) => {
       console.error(`==> ${context.name}: error`, err);
@@ -1322,7 +1311,7 @@ export class KubernetesClient {
       if (previous) {
         previous.reachable = err === undefined;
       }
-      this.displayContextsState();
+      this.dispatchContextsState();
       // Restart informer after 5sec
       setTimeout(() => {
         this.restartInformer(informer, context);
@@ -1334,7 +1323,7 @@ export class KubernetesClient {
       if (previous) {
         previous.reachable = err === undefined;
       }
-      this.displayContextsState();
+      this.dispatchContextsState();
     });
     this.restartInformer(informer, context);
     return informer;
@@ -1350,7 +1339,7 @@ export class KubernetesClient {
         if (previous) {
           previous.reachable = err === undefined;
         }
-        this.displayContextsState();
+        this.dispatchContextsState();
         // Restart informer after 5sec
         setTimeout(() => {
           this.restartInformer(informer, context);
@@ -1358,9 +1347,11 @@ export class KubernetesClient {
       });
   }
 
-  displayContextsState() {
-    for (const [key, val] of this.contextsState) {
-      console.log(`==> ${key}: ${val.reachable}/${val.podsCount}`);
-    }
+  dispatchContextsState() {
+    this.apiSender.send(`kubernetes-contexts-state-update`, this.contextsState);
+  }
+
+  getContextsState(): Map<string, ContextState> {
+    return this.contextsState;
   }
 }

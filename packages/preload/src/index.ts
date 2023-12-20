@@ -45,7 +45,7 @@ import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-
 import type { CatalogExtension } from '../../main/src/plugin/extensions-catalog/extensions-catalog-api';
 import type { CommandInfo } from '../../main/src/plugin/api/command-info';
 import type { KubernetesInformerResourcesType } from '../../main/src/plugin/api/kubernetes-informer-info';
-
+import type { ContextState } from '../../main/src/plugin/kubernetes-client';
 import type { V1Route } from '../../main/src/plugin/api/openshift-types';
 import type { AuthenticationProviderInfo } from '../../main/src/plugin/authentication';
 import type {
@@ -1552,6 +1552,9 @@ function initExposure(): void {
   });
   contextBridge.exposeInMainWorld('kubernetesSetContext', async (contextName: string): Promise<void> => {
     return ipcInvoke('kubernetes-client:setContext', contextName);
+  });
+  contextBridge.exposeInMainWorld('kubernetesGetContextsState', async (): Promise<Map<string, ContextState>> => {
+    return ipcInvoke('kubernetes-client:getContextsState');
   });
 
   contextBridge.exposeInMainWorld('kubernetesGetClusters', async (): Promise<Cluster[]> => {

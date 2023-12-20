@@ -7,6 +7,7 @@ import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import { kubernetesContexts } from '../../stores/kubernetes-contexts';
 import { clearKubeUIContextErrors, setKubeUIContextError } from '../kube/KubeContextUI';
+import { kubernetesContextsState } from '/@/stores/kubernetes-contexts-state';
 
 $: currentContextName = $kubernetesContexts.find(c => c.currentContext)?.name;
 
@@ -119,6 +120,18 @@ async function handleDeleteContext(contextName: string) {
               <span class="my-auto font-bold col-span-1 text-right">NAMESPACE</span>
               <span class="my-auto col-span-5 text-left pl-0.5 ml-3" aria-label="context-namespace"
                 >{context.namespace}</span>
+            </div>
+          {/if}
+          <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1 grid grid-cols-6">
+            <span class="my-auto font-bold col-span-1 text-right">Reachable</span>
+            <span class="my-auto col-span-5 text-left pl-0.5 ml-3" aria-label="context-namespace"
+              >{$kubernetesContextsState.get(context.name)?.reachable}</span>
+          </div>
+          {#if $kubernetesContextsState.get(context.name)?.reachable}
+            <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1 grid grid-cols-6">
+              <span class="my-auto font-bold col-span-1 text-right">Pods</span>
+              <span class="my-auto col-span-5 text-left pl-0.5 ml-3" aria-label="context-namespace"
+                >{$kubernetesContextsState.get(context.name)?.podsCount}</span>
             </div>
           {/if}
         </div>
