@@ -1325,10 +1325,7 @@ export class KubernetesClient {
       this.displayContextsState();
       // Restart informer after 5sec
       setTimeout(() => {
-        informer
-          .start()
-          .then(() => {})
-          .catch(() => {}); // TODO
+        this.restartInformer(informer, context);
       }, 5000);
     });
     informer.on('connect', (err: unknown) => {
@@ -1339,11 +1336,26 @@ export class KubernetesClient {
       }
       this.displayContextsState();
     });
+    this.restartInformer(informer, context);
+    return informer;
+  }
+
+  restartInformer(informer: Informer<V1Pod> & ObjectCache<V1Pod>, context: KubeContext) {
     informer
       .start()
       .then(() => {})
-      .catch(() => {}); // TODO
-    return informer;
+      .catch((err: unknown) => {
+        console.log('==> catched err', err);
+        const previous = this.contextsState.get(context.name);
+        if (previous) {
+          previous.reachable = err === undefined;
+        }
+        this.displayContextsState();
+        // Restart informer after 5sec
+        setTimeout(() => {
+          this.restartInformer(informer, context);
+        }, 5000);
+      });
   }
 
   displayContextsState() {
