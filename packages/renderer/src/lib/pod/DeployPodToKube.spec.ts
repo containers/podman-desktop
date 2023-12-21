@@ -121,7 +121,7 @@ afterEach(() => {
 });
 
 async function waitRender(customProperties: any): Promise<void> {
-  const result = render(DeployPodToKube, { resourceId: 'foo', engineId: 'bar', ...customProperties });
+  const result = render(DeployPodToKube, { resourceId: 'foo', engineId: 'bar', type: 'unknown', ...customProperties });
   // wait that result.component.$$.ctx[0] is set
   while (result.component.$$.ctx[0] === undefined) {
     await new Promise(resolve => setTimeout(resolve, 100));

@@ -303,7 +303,6 @@ describe.each([
       pageIsLoading: false,
       taskId,
       hideCloseButton: true,
-      hideProviderImage: true,
     });
 
     const closeButton = screen.queryByRole('button', { name: 'Close page' });
