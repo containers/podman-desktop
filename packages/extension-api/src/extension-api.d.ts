@@ -1221,6 +1221,16 @@ declare module '@podman-desktop/api' {
     static file(path: string): Uri;
 
     /**
+     * Create a new uri which path is the result of joining
+     * the path of the base uri with the provided path segments.
+     *
+     * @param base An uri. Must have a path.
+     * @param pathSegments One more more path fragments
+     * @returns A new uri which path is joined with the given fragments
+     */
+    static joinPath(base: Uri, ...pathSegments: string[]): Uri;
+
+    /**
      * Use the `file` and `parse` factory functions to create new `Uri` objects.
      */
     private constructor(scheme: string, authority: string, path: string, query: string, fragment: string);

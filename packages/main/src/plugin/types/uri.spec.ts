@@ -49,3 +49,49 @@ test('toString', () => {
   const uri = Uri.parse('https://podman-desktop.io');
   expect(uri.toString()).toBe('https://podman-desktop.io/');
 });
+
+test('joinPath without path', () => {
+  const uri = Uri.parse('https://podman-desktop.io');
+
+  // delete path for the error
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  delete (uri as any)._path;
+
+  expect(() => Uri.joinPath(uri, 'foo')).toThrowError('cannot call joinPath on Uri without a path');
+});
+
+test.each([
+  ['file:///foo/', '../../bar', 'file:///bar'],
+  ['file:///foo', '../../bar', 'file:///bar'],
+  ['file:///foo/bar', './baz', 'file:///foo/bar/baz'],
+  ['http://foo', 'bar', 'http://foo/bar'],
+  ['https://foo', 'bar', 'https://foo/bar'],
+])('joinPath %s %s', (left, right, expected) => {
+  const leftUri = Uri.parse(left);
+  const joinPathUri = Uri.joinPath(leftUri, right);
+  expect(joinPathUri.toString()).toBe(expected);
+});
+
+test('Uri.with without any change should return same object', () => {
+  const uri = Uri.parse('https://podman-desktop.io');
+
+  const updatedUri = uri.with();
+
+  expect(updatedUri).toBe(uri);
+});
+
+test('Uri.with and undefined path', () => {
+  const uri = Uri.parse('https://podman-desktop.io');
+
+  const updatedUri = uri.with({ scheme: 'http' });
+
+  expect(updatedUri.scheme).toBe('http');
+});
+
+test('Uri.with and same change', () => {
+  const uri = Uri.parse('https://podman-desktop.io');
+
+  const updatedUri = uri.with({ scheme: 'https', authority: 'podman-desktop.io', path: '/', query: '', fragment: '' });
+
+  expect(updatedUri).toBe(uri);
+});
