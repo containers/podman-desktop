@@ -180,6 +180,11 @@ export class KubernetesClient {
           default: defaultKubeconfigPath,
           format: 'file',
         },
+        ['kubernetes.LiveContextsInfo']: {
+          description: 'Get information about clusters declared in Kubeconfig',
+          type: 'boolean',
+          default: false,
+        },
       },
     };
 
@@ -205,6 +210,8 @@ export class KubernetesClient {
         const val = e.value as string;
         this.setupWatcher(val);
         await this.setKubeconfig(Uri.file(val));
+      } else if (e.key === 'kubernetes.LiveContextsInfo') {
+        await this.refresh();
       }
     });
   }
@@ -466,15 +473,38 @@ export class KubernetesClient {
     this.apiSender.send('pod-event');
     this.apiSender.send('kubeconfig-update');
 
-    for (const context of this.kubeConfig.contexts) {
-      if (this.contextsInternalState.get(context.name) === undefined) {
-        this.contextsState.set(context.name, { reachable: false, podsCount: 0 });
-        const informer = this.createKubeContextInformer(context);
-        if (informer) {
-          this.contextsInternalState.set(context.name, { podInformer: informer });
+    const kubernetesConfiguration = this.configurationRegistry.getConfiguration('kubernetes');
+    const liveContextsInfo = kubernetesConfiguration.get<boolean>('LiveContextsInfo');
+
+    if (liveContextsInfo) {
+      // Add informers for new contexts
+      for (const context of this.kubeConfig.contexts) {
+        if (this.contextsInternalState.get(context.name) === undefined) {
+          this.contextsState.set(context.name, { reachable: false, podsCount: 0 });
+          const informer = this.createKubeContextInformer(context);
+          if (informer) {
+            this.contextsInternalState.set(context.name, { podInformer: informer });
+          }
         }
       }
+      // Delete informers for removed contexts
+      for (const [name, state] of this.contextsInternalState) {
+        if (!this.kubeConfig.contexts.find(c => c.name === name)) {
+          await state.podInformer?.stop();
+          this.contextsInternalState.delete(name);
+          this.contextsState.delete(name);
+        }
+      }
+    } else {
+      for (const state of this.contextsInternalState.values()) {
+        await state.podInformer?.stop();
+      }
+      this.contextsInternalState.clear();
+      this.contextsState.clear();
+      this.dispatchContextsState();
     }
+
+    console.log('==> # informers', this.contextsInternalState.size, this.contextsState.size);
   }
 
   newError(message: string, cause: Error): Error {
@@ -1330,6 +1360,12 @@ export class KubernetesClient {
   }
 
   restartInformer(informer: Informer<V1Pod> & ObjectCache<V1Pod>, context: KubeContext) {
+    const kubernetesConfiguration = this.configurationRegistry.getConfiguration('kubernetes');
+    const liveContextsInfo = kubernetesConfiguration.get<boolean>('LiveContextsInfo');
+    if (!liveContextsInfo) {
+      return;
+    }
+
     informer
       .start()
       .then(() => {})

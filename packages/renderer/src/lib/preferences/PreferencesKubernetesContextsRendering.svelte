@@ -122,17 +122,19 @@ async function handleDeleteContext(contextName: string) {
                 >{context.namespace}</span>
             </div>
           {/if}
-          <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1 grid grid-cols-6">
-            <span class="my-auto font-bold col-span-1 text-right">Reachable</span>
-            <span class="my-auto col-span-5 text-left pl-0.5 ml-3" aria-label="context-namespace"
-              >{$kubernetesContextsState.get(context.name)?.reachable}</span>
-          </div>
-          {#if $kubernetesContextsState.get(context.name)?.reachable}
+          {#if $kubernetesContextsState.get(context.name)}
             <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1 grid grid-cols-6">
-              <span class="my-auto font-bold col-span-1 text-right">Pods</span>
+              <span class="my-auto font-bold col-span-1 text-right">Reachable</span>
               <span class="my-auto col-span-5 text-left pl-0.5 ml-3" aria-label="context-namespace"
-                >{$kubernetesContextsState.get(context.name)?.podsCount}</span>
+                >{$kubernetesContextsState.get(context.name)?.reachable}</span>
             </div>
+            {#if $kubernetesContextsState.get(context.name)?.reachable}
+              <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1 grid grid-cols-6">
+                <span class="my-auto font-bold col-span-1 text-right">Pods</span>
+                <span class="my-auto col-span-5 text-left pl-0.5 ml-3" aria-label="context-namespace"
+                  >{$kubernetesContextsState.get(context.name)?.podsCount}</span>
+              </div>
+            {/if}
           {/if}
         </div>
       </div>
