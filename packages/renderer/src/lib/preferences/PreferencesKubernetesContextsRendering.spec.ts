@@ -22,6 +22,7 @@ import { fireEvent, render, screen, within } from '@testing-library/svelte';
 import PreferencesKubernetesContextsRendering from './PreferencesKubernetesContextsRendering.svelte';
 import { kubernetesContexts } from '/@/stores/kubernetes-contexts';
 import type { KubeContext } from '../../../../main/src/plugin/kubernetes-context';
+import type { ContextState } from '../../../../main/src/plugin/kubernetes-client';
 
 // Create a fake KubeContextUI
 const mockContext1: KubeContext = {
@@ -58,6 +59,7 @@ const mockContext3: KubeContext = {
 
 beforeEach(() => {
   kubernetesContexts.set([mockContext1, mockContext2, mockContext3]);
+  (window as any).kubernetesGetContextsState = vi.fn().mockResolvedValue(new Map<string, ContextState>());
 });
 
 test('test that name, cluster and the server is displayed when rendering', async () => {
