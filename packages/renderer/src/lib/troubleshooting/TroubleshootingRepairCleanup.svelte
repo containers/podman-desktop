@@ -46,7 +46,7 @@ async function cleanup() {
 <div class="flex flex-row items-center">
   <div>
     <div class="text-gray-700 flex flex-row items-center">Clean / Purge data</div>
-    <div class="text-gray-900 text-xs flex flex-row items-center">
+    <div class="text-gray-900 text-sm flex flex-row items-center pt-1">
       <Fa class="pr-1" size="9" icon="{faWarning}" />Proceeding with this action may result in data loss, including
       existing volumes, containers, images, etc.
     </div>
@@ -56,10 +56,9 @@ async function cleanup() {
     <Button
       type="danger"
       on:click="{() => openCleanupDialog()}"
-      disabled="{cleanupInProgress}"
       inProgress="{cleanupInProgress}"
       aria-label="Cleanup"
-      icon="{faBroom}">Cleanup</Button>
+      icon="{faBroom}">Cleanup / Purge data</Button>
   </div>
 
   <div>
