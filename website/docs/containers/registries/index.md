@@ -229,7 +229,7 @@ To remove your registry, you can do the following steps:
 
 Podman Desktop removes the registry from the settings, and logs Podman out from the registry.
 
-## Understanding the registry configuration
+## Finding Podman registry configuration files
 
 Podman has two files to configure registries:
 
