@@ -27,7 +27,7 @@ import EmptyScreen from './EmptyScreen.svelte';
 test('Expect copy in clipboard', async () => {
   const mock = vi.fn().mockImplementation(() => {});
   (window as any).clipboardWriteText = mock;
-  render(EmptyScreen, { commandline: 'podman run hello:world' });
+  render(EmptyScreen, { icon: '', commandline: 'podman run hello:world' });
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
   expect(button).toBeEnabled();
