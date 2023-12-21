@@ -33,16 +33,18 @@
     }
   },
   "scripts": {
-    "build": "tsc && node ./scripts/build.js",
+    "build": "vite build && node ./scripts/build.js",
     "test": "vitest run --coverage --passWithNoTests",
     "test:watch": "vitest watch --coverage --passWithNoTests",
-    "watch": "tsc -w"
+    "watch": "vite build --watch"
   },
   "dependencies": {
     "@podman-desktop/api": "^0.0.1"
   },
   "devDependencies": {
     "adm-zip": "^0.5.10",
-    "mkdirp": "^3.0.1"
+    "mkdirp": "^3.0.1",
+    "vite": "^5.0.10",
+    "vitest": "^1.1.0"
   }
 }
