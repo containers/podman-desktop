@@ -639,6 +639,18 @@ export class ExtensionLoader {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createApi(extensionPath: string, extManifest: any): typeof containerDesktopAPI {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const instance = this;
+    const extensionInfo = {
+      id: `${extManifest.publisher}.${extManifest.name}`,
+      label: extManifest.displayName,
+      version: extManifest.version,
+      publisher: extManifest.publisher,
+      name: extManifest.name,
+      extensionPath,
+      icon: extManifest.icon ? instance.updateImage(extManifest.icon, extensionPath) : undefined,
+    };
+
     const commandRegistry = this.commandRegistry;
     const commands: typeof containerDesktopAPI.commands = {
       registerCommand(
@@ -660,8 +672,6 @@ export class ExtensionLoader {
 
     const providerRegistry = this.providerRegistry;
 
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const instance = this;
     const provider: typeof containerDesktopAPI.provider = {
       createProvider(providerOptions: containerDesktopAPI.ProviderOptions): containerDesktopAPI.Provider {
         // update path of images using the extension path
@@ -941,14 +951,7 @@ export class ExtensionLoader {
     };
 
     const authenticationProviderRegistry = this.authenticationProviderRegistry;
-    const extensionInfo = {
-      id: `${extManifest.publisher}.${extManifest.name}`,
-      label: extManifest.displayName,
-      version: extManifest.version,
-      publisher: extManifest.publisher,
-      name: extManifest.name,
-      icon: extManifest.icon ? instance.updateImage(extManifest.icon, extensionPath) : undefined,
-    };
+
     const authentication: typeof containerDesktopAPI.authentication = {
       getSession: (providerId, scopes, options) => {
         return authenticationProviderRegistry.getSession(extensionInfo, providerId, scopes, options);
@@ -1154,6 +1157,8 @@ export class ExtensionLoader {
     const storagePath = path.resolve(this.extensionsStorageDirectory, extension.id);
     const oldStoragePath = path.resolve(this.extensionsStorageDirectory, extension.name);
 
+    const extensionUri = Uri.file(extension.path);
+
     // Migrate old storage path to new storage path
     if (fs.existsSync(oldStoragePath) && !fs.existsSync(storagePath)) {
       await fs.promises.rename(oldStoragePath, storagePath);
@@ -1162,6 +1167,7 @@ export class ExtensionLoader {
     const extensionContext: containerDesktopAPI.ExtensionContext = {
       subscriptions,
       storagePath,
+      extensionUri,
     };
     let deactivateFunction = undefined;
     if (typeof extensionMain?.['deactivate'] === 'function') {

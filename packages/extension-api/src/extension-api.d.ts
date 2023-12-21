@@ -134,6 +134,11 @@ declare module '@podman-desktop/api' {
      * up to the extension.
      */
     readonly storagePath: string;
+
+    /**
+     * The uri of the directory containing the extension.
+     */
+    readonly extensionUri: Uri;
   }
 
   /**
