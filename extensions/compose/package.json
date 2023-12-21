@@ -46,7 +46,7 @@
           "id": "welcomeDownloadView",
           "label": "Compose Download",
           "title": "Compose Download",
-          "when": "onboardingContext:composeIsNotDownloaded == true",
+          "when": "!compose.isComposeInstalledSystemWide && onboardingContext:composeIsNotDownloaded",
           "content": [
             [
               {
@@ -71,7 +71,7 @@
           "id": "downloadCommand",
           "title": "Downloading Compose ${onboardingContext:composeDownloadVersion}",
           "description": "Downloading the binary.\n\nOnce downloaded, the next step will install Compose system-wide.",
-          "when": "onboardingContext:composeIsNotDownloaded == true",
+          "when": "!compose.isComposeInstalledSystemWide && onboardingContext:composeIsNotDownloaded",
           "command": "compose.onboarding.downloadCommand",
           "completionEvents": [
             "onCommand:compose.onboarding.downloadCommand"
@@ -80,13 +80,13 @@
         {
           "id": "downloadFailure",
           "title": "Failed Downloading Compose",
-          "when": "onboardingContext:composeIsNotDownloaded == true",
+          "when": "!compose.isComposeInstalledSystemWide && onboardingContext:composeIsNotDownloaded",
           "state": "failed"
         },
         {
           "id": "downloadSuccessfulView",
           "title": "Compose Successfully Downloaded",
-          "when": "onboardingContext:composeIsNotDownloaded == false",
+          "when": "!compose.isComposeInstalledSystemWide && !onboardingContext:composeIsNotDownloaded",
           "content": [
             [
               {
@@ -99,7 +99,7 @@
           "id": "installSystemWideCommand",
           "title": "Install Compose",
           "description": "Installing the binary system-wide.\n\n You may be prompted for elevated system privileges.",
-          "when": "compose.isComposeInstalledSystemWide == false",
+          "when": "!compose.isComposeInstalledSystemWide && !compose.isComposeInstalledSystemWide",
           "command": "compose.onboarding.installSystemWideCommand",
           "completionEvents": [
             "onCommand:compose.onboarding.installSystemWideCommand"
@@ -108,18 +108,18 @@
         {
           "id": "installSystemWideFailure",
           "title": "Failed Installing Compose",
-          "when": "compose.isComposeInstalledSystemWide == false",
+          "when": "!compose.isComposeInstalledSystemWide && !compose.isComposeInstalledSystemWide",
           "state": "failed"
         },
         {
           "id": "installSystemWideSuccess",
-          "title": "Compose Successfully Installed",
-          "when": "compose.isComposeInstalledSystemWide == true",
+          "title": "Compose Installed",
+          "when": "compose.isComposeInstalledSystemWide",
           "state": "completed",
           "content": [
             [
               {
-                "value": "Compose has been successfully installed system-wide!"
+                "value": "Compose is installed system-wide!"
               }
             ],
             [
