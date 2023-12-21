@@ -15,7 +15,7 @@ import TabItem from '@theme/TabItem';
 
 
 
-## Before you start
+:::tip[Before you start]
 
 Before you start, you should:
 
@@ -26,7 +26,9 @@ Before you start, you should:
 - Get the fully qualified name of a private image stored in your registry, such as `my-registry.tld/my-repository/my-image`.
 - Get the fully qualified image name that your registry requires to push an image, such as `my-registry.tld/my-repository/my-image`.
 
-## Setting up a pre-configured container registry
+:::
+
+## Setting up a pre-configured registry
 
 To ease usage of the most popular container registries, Podman Desktop has pre-configured registries, including:
 
@@ -54,7 +56,7 @@ If you enter the wrong credentials, you see an error message:
 1. Enter the correct credentials
 2. Click **Login** again.
 
-## Setting up a custom container registry
+## Setting up a custom registry
 
 You have a custom container registry, or one that is not available in the pre-configured list: we have got you covered. Follow the steps:
 
@@ -76,7 +78,7 @@ If you enter the wrong credentials, you see an error message:
 1. Enter the correct credentials
 2. Click **Login** again.
 
-## Setting up a custom container registry with an insecure certificate
+## Setting up a registry with an insecure certificate
 
 If your registry has an insecure certificate, such as a self-signed certificate, you see a warning when setting up the registry.
 
@@ -176,7 +178,7 @@ If your registry has an insecure certificate, such as a self-signed certificate,
    </TabItem>
    </Tabs>
 
-## Verifying your registry is properly configured
+## Verifying your registry setup
 
 To verify your registry has been properly configured, you can do the following steps:
 
@@ -206,7 +208,7 @@ To verify your registry has been properly configured, you can do the following s
 
       The contextual menu has a **Push Image to _your registry_** entry.
 
-## Changing your registry credentials
+## Changing your credentials
 
 To change your registry credentials, you can do the following steps:
 
