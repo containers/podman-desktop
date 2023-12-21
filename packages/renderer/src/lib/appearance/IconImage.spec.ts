@@ -67,7 +67,7 @@ test('Expect valid source and alt text with light mode', async () => {
   expect(imageElement).toHaveAttribute('alt', 'this is alt text');
 });
 
-test('Expect empty alt and default imagr', async () => {
+test('Expect no alt attribute if missing and default image', async () => {
   getConfigurationValueMock.mockResolvedValue(AppearanceSettings.LightEnumValue);
 
   const image = render(IconImage, { image: 'image.png' });
@@ -80,5 +80,7 @@ test('Expect empty alt and default imagr', async () => {
 
   // expect to have valid source
   expect(imageElement).toHaveAttribute('src', 'image.png');
-  expect(imageElement).toHaveAttribute('alt', '');
+
+  // alt should be missing
+  expect(imageElement).not.toHaveAttribute('alt');
 });
