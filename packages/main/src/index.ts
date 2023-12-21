@@ -48,7 +48,7 @@ const additionalData: AdditionalData = {
 // provide additional data to the second instance
 const isSingleInstance = app.requestSingleInstanceLock(additionalData);
 if (!isSingleInstance) {
-  console.log('An instance of Podman Desktop is already running. Stopping');
+  console.warn('An instance of Podman Desktop is already running. Stopping');
   app.quit();
   process.exit(0);
 }
