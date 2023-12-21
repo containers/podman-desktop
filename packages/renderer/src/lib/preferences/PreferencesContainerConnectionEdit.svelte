@@ -13,8 +13,8 @@ import { isContainerConnection } from './Util';
 import type { Unsubscriber } from 'svelte/store';
 import PreferencesConnectionCreationRendering from '/@/lib/preferences/PreferencesConnectionCreationOrEditRendering.svelte';
 import DetailsPage from '/@/lib/ui/DetailsPage.svelte';
-import CustomIcon from '/@/lib/images/CustomIcon.svelte';
 import WarningMessage from '/@/lib/ui/WarningMessage.svelte';
+import IconImage from '../appearance/IconImage.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string | undefined = undefined;
@@ -62,7 +62,7 @@ async function editConnection(
         propertyScope="{scope}"
         callback="{editConnection}" />
     </svelte:fragment>
-    <CustomIcon slot="icon" icon="{providerInfo?.images?.icon}" altText="{providerInfo?.name}" classes="max-h-10" />
+    <IconImage slot="icon" image="{providerInfo?.images?.icon}" alt="{providerInfo?.name}" class="max-h-10" />
     <svelte:fragment slot="subtitle">
       {#if connectionInfo.status === 'started'}
         <WarningMessage
