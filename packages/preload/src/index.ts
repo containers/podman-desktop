@@ -45,7 +45,6 @@ import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-
 import type { CatalogExtension } from '../../main/src/plugin/extensions-catalog/extensions-catalog-api';
 import type { CommandInfo } from '../../main/src/plugin/api/command-info';
 import type { KubernetesInformerResourcesType } from '../../main/src/plugin/api/kubernetes-informer-info';
-import type { ContextState } from '../../main/src/plugin/kubernetes-client';
 import type { V1Route } from '../../main/src/plugin/api/openshift-types';
 import type { AuthenticationProviderInfo } from '../../main/src/plugin/authentication';
 import type {
@@ -92,6 +91,7 @@ import type { KubernetesGeneratorInfo } from '../../main/src/plugin/api/Kubernet
 import type { NotificationCard, NotificationCardOptions } from '../../main/src/plugin/api/notification';
 import type { ApiSenderType } from '../../main/src/plugin/api';
 import type { IDisposable } from '../../main/src/plugin/types/disposable';
+import type { ContextState } from '../../main/src/plugin/kubernetes-context-state.js';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 

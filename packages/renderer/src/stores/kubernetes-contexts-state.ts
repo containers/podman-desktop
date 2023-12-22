@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { readable } from 'svelte/store';
-import type { ContextState } from '../../../main/src/plugin/kubernetes-client';
+import type { ContextState } from '../../../main/src/plugin/kubernetes-context-state';
 
 export const kubernetesContextsState = readable(new Map<string, ContextState>(), set => {
   window.kubernetesGetContextsState().then(value => set(value));

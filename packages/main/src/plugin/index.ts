@@ -79,7 +79,6 @@ import type Dockerode from 'dockerode';
 import { AutostartEngine } from './autostart-engine.js';
 import { CloseBehavior } from './close-behavior.js';
 import { TrayIconColor } from './tray-icon-color.js';
-import type { ContextState } from './kubernetes-client.js';
 import { KubernetesClient } from './kubernetes-client.js';
 import type {
   V1Pod,
@@ -154,6 +153,7 @@ import { OpenDevToolsInit } from './open-devtools-init.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import { WebviewRegistry } from './webview/webview-registry.js';
 import type { IDisposable } from './types/disposable.js';
+import type { ContextState } from './kubernetes-context-state.js';
 
 import { KubernetesUtils } from './kubernetes-util.js';
 

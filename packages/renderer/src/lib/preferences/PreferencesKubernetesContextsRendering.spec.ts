@@ -22,7 +22,7 @@ import { fireEvent, render, screen, within } from '@testing-library/svelte';
 import PreferencesKubernetesContextsRendering from './PreferencesKubernetesContextsRendering.svelte';
 import { kubernetesContexts } from '/@/stores/kubernetes-contexts';
 import type { KubeContext } from '../../../../main/src/plugin/kubernetes-context';
-import type { ContextState } from '../../../../main/src/plugin/kubernetes-client';
+import type { ContextState } from '../../../../main/src/plugin/kubernetes-context-state';
 
 // Create a fake KubeContextUI
 const mockContext1: KubeContext = {
