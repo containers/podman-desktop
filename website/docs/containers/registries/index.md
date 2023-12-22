@@ -13,8 +13,6 @@ import TabItem from '@theme/TabItem';
 
 # Setting up container registries
 
-
-
 :::tip[Before you start]
 
 Before you start, you should:
