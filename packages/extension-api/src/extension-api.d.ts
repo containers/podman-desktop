@@ -1221,6 +1221,16 @@ declare module '@podman-desktop/api' {
     static file(path: string): Uri;
 
     /**
+     * Create a new uri which path is the result of joining
+     * the path of the base uri with the provided path segments.
+     *
+     * @param base An uri. Must have a path.
+     * @param pathSegments One more more path fragments
+     * @returns A new uri which path is joined with the given fragments
+     */
+    static joinPath(base: Uri, ...pathSegments: string[]): Uri;
+
+    /**
      * Use the `file` and `parse` factory functions to create new `Uri` objects.
      */
     private constructor(scheme: string, authority: string, path: string, query: string, fragment: string);
@@ -1256,6 +1266,43 @@ declare module '@podman-desktop/api' {
      * Fragment is the `fragment` part of `http://www.example.com/some/path?query#fragment`.
      */
     readonly fragment: string;
+
+    /**
+     * Derive a new Uri from this Uri.
+     *
+     * ```ts
+     * const foo = Uri.parse('http://foo');
+     * const httpsFoo = foo.with({ scheme: 'https' });
+     * // httpsFoo is now 'https://foo'
+     * ```
+     *
+     * @param change An object that describes a change to this Uri. To unset components use `undefined` or
+     *  the empty string.
+     * @returns A new Uri that reflects the given change. Will return `this` Uri if the change
+     *  is not changing anything.
+     */
+    with(change: {
+      /**
+       * The new scheme, defaults to this Uri's scheme.
+       */
+      scheme?: string;
+      /**
+       * The new authority, defaults to this Uri's authority.
+       */
+      authority?: string;
+      /**
+       * The new path, defaults to this Uri's path.
+       */
+      path?: string;
+      /**
+       * The new query, defaults to this Uri's query.
+       */
+      query?: string;
+      /**
+       * The new fragment, defaults to this Uri's fragment.
+       */
+      fragment?: string;
+    }): Uri;
 
     toString(): string;
   }
