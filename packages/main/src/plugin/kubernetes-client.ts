@@ -35,6 +35,7 @@ import type {
   KubernetesListObject,
   Informer,
   ObjectCache,
+  V1ReplicaSet,
 } from '@kubernetes/client-node';
 import {
   ApisApi,
@@ -66,16 +67,8 @@ import * as jsYaml from 'js-yaml';
 import type { KubeContext } from './kubernetes-context.js';
 import type { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
+import type { ContextInternalState, ContextState } from './kubernetes-context-state.js';
 import type { IncomingMessage } from 'node:http';
-
-interface ContextInternalState {
-  podInformer?: Informer<V1Pod> & ObjectCache<V1Pod>;
-}
-
-export interface ContextState {
-  reachable: boolean;
-  podsCount: number;
-}
 
 function toContainerStatus(state: V1ContainerState | undefined): string {
   if (state) {
@@ -480,10 +473,15 @@ export class KubernetesClient {
       // Add informers for new contexts
       for (const context of this.kubeConfig.contexts) {
         if (this.contextsInternalState.get(context.name) === undefined) {
-          this.contextsState.set(context.name, { reachable: false, podsCount: 0 });
-          const informer = this.createKubeContextInformer(context);
-          if (informer) {
-            this.contextsInternalState.set(context.name, { podInformer: informer });
+          this.contextsState.set(context.name, {
+            reachable: false,
+            podsCount: 0,
+            deploymentsCount: 0,
+            replicasetsCount: 0,
+          });
+          const informers = this.createKubeContextInformers(context);
+          if (informers) {
+            this.contextsInternalState.set(context.name, informers);
           }
         }
       }
@@ -491,6 +489,8 @@ export class KubernetesClient {
       for (const [name, state] of this.contextsInternalState) {
         if (!this.kubeConfig.contexts.find(c => c.name === name)) {
           await state.podInformer?.stop();
+          await state.deploymentInformer?.stop();
+          await state.replicasetInformer?.stop();
           this.contextsInternalState.delete(name);
           this.contextsState.delete(name);
         }
@@ -498,6 +498,8 @@ export class KubernetesClient {
     } else {
       for (const state of this.contextsInternalState.values()) {
         await state.podInformer?.stop();
+        await state.deploymentInformer?.stop();
+        await state.replicasetInformer?.stop();
       }
       this.contextsInternalState.clear();
       this.contextsState.clear();
@@ -1301,7 +1303,7 @@ export class KubernetesClient {
     }
   }
 
-  createKubeContextInformer(context: KubeContext): (Informer<V1Pod> & ObjectCache<V1Pod>) | undefined {
+  createKubeContextInformers(context: KubeContext): ContextInternalState | undefined {
     const kc = new KubeConfig();
     const cluster = this.kubeConfig.clusters.find(c => c.name === context.cluster);
     const user = this.kubeConfig.users.find(u => u.name === context.user);
@@ -1315,8 +1317,16 @@ export class KubernetesClient {
       currentContext: context.name,
     });
 
-    const k8sApi = kc.makeApiClient(CoreV1Api);
     const ns = context.namespace ?? 'default';
+    return {
+      podInformer: this.createPodInformer(kc, ns, context),
+      deploymentInformer: this.createDeploymentInformer(kc, ns, context),
+      replicasetInformer: this.createReplicasetInformer(kc, ns, context),
+    };
+  }
+
+  createPodInformer(kc: KubeConfig, ns: string, context: KubeContext): Informer<V1Pod> & ObjectCache<V1Pod> {
+    const k8sApi = kc.makeApiClient(CoreV1Api);
     const listFn = () => k8sApi.listNamespacedPod(ns);
     const informer = makeInformer(kc, `/api/v1/namespaces/${ns}/pods`, listFn);
 
@@ -1359,7 +1369,75 @@ export class KubernetesClient {
     return informer;
   }
 
-  restartInformer(informer: Informer<V1Pod> & ObjectCache<V1Pod>, context: KubeContext) {
+  createDeploymentInformer(
+    kc: KubeConfig,
+    ns: string,
+    context: KubeContext,
+  ): Informer<V1Deployment> & ObjectCache<V1Deployment> {
+    const k8sApi = kc.makeApiClient(AppsV1Api);
+    const listFn = () => k8sApi.listNamespacedDeployment(ns);
+    const informer = makeInformer(kc, `/apis/apps/v1/namespaces/${ns}/deployments`, listFn);
+
+    informer.on('add', (_obj: V1Deployment) => {
+      const previous = this.contextsState.get(context.name);
+      if (previous) {
+        previous.deploymentsCount++;
+      }
+      this.dispatchContextsState();
+    });
+
+    informer.on('delete', (_obj: V1Deployment) => {
+      const previous = this.contextsState.get(context.name);
+      if (previous) {
+        previous.deploymentsCount--;
+      }
+      this.dispatchContextsState();
+    });
+    informer.on('error', (_err: unknown) => {
+      // Restart informer after 5sec
+      setTimeout(() => {
+        this.restartInformer(informer, context);
+      }, 5000);
+    });
+    this.restartInformer(informer, context);
+    return informer;
+  }
+
+  createReplicasetInformer(
+    kc: KubeConfig,
+    ns: string,
+    context: KubeContext,
+  ): Informer<V1ReplicaSet> & ObjectCache<V1ReplicaSet> {
+    const k8sApi = kc.makeApiClient(AppsV1Api);
+    const listFn = () => k8sApi.listNamespacedReplicaSet(ns);
+    const informer = makeInformer(kc, `/apis/apps/v1/namespaces/${ns}/replicasets`, listFn);
+
+    informer.on('add', (_obj: V1ReplicaSet) => {
+      const previous = this.contextsState.get(context.name);
+      if (previous) {
+        previous.replicasetsCount++;
+      }
+      this.dispatchContextsState();
+    });
+
+    informer.on('delete', (_obj: V1ReplicaSet) => {
+      const previous = this.contextsState.get(context.name);
+      if (previous) {
+        previous.replicasetsCount--;
+      }
+      this.dispatchContextsState();
+    });
+    informer.on('error', (_err: unknown) => {
+      // Restart informer after 5sec
+      setTimeout(() => {
+        this.restartInformer(informer, context);
+      }, 5000);
+    });
+    this.restartInformer(informer, context);
+    return informer;
+  }
+
+  restartInformer(informer: Informer<KubernetesObject> & ObjectCache<KubernetesObject>, context: KubeContext) {
     const kubernetesConfiguration = this.configurationRegistry.getConfiguration('kubernetes');
     const liveContextsInfo = kubernetesConfiguration.get<boolean>('LiveContextsInfo');
     if (!liveContextsInfo) {
