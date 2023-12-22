@@ -62,6 +62,10 @@ test('check stopPodmanProcesses', async () => {
     stderr: '',
   });
 
+  // mock stopProcessesPids
+  const getProcessesToStopMock = vi.spyOn(podmanCleanupWindows, 'stopProcessesPids');
+  getProcessesToStopMock.mockResolvedValue();
+
   await podmanCleanupWindows.stopPodmanProcesses({ logger: { log: vi.fn(), error: vi.fn(), warn: vi.fn() } });
 
   expect(process.exec).toHaveBeenNthCalledWith(1, 'wsl', ['--list', '--running', '--quiet'], {
@@ -86,6 +90,9 @@ test('check stopPodmanProcesses with error', async () => {
   // mock process.exec
   vi.mocked(process.exec).mockRejectedValue(new Error('dummy error'));
 
+  const getProcessesToStopMock = vi.spyOn(podmanCleanupWindows, 'stopProcessesPids');
+  getProcessesToStopMock.mockResolvedValue();
+
   await podmanCleanupWindows.stopPodmanProcesses({ logger: { log: vi.fn(), error: vi.fn(), warn: vi.fn() } });
 
   expect(process.exec).toBeCalledWith('wsl', ['--list', '--running', '--quiet'], { env: { WSL_UTF8: '1' } });
@@ -104,4 +111,46 @@ test('check folders to delete', async () => {
   const folders = podmanCleanupWindows.getFoldersToDelete();
 
   expect(folders).lengthOf(3);
+});
+
+test('check terminateProcess', async () => {
+  await podmanCleanupWindows.terminateProcess(123456);
+
+  expect(vi.mocked(process.exec)).toBeCalledWith('taskkill', ['/f', '/pid', '123456']);
+});
+
+test('check getProcessesToStop', async () => {
+  const stdout = `Image Name                     PID Session Name        Session#    Mem Usage\r\n========================= ======== ================ =========== ============\r\nwin-sshproxy.exe               123 Console                    1      1,000 K\r\ngvproxy.exe                    456 Console                    1      1,000 K\r\n`;
+
+  // mock external exec process
+  vi.mocked(process.exec).mockResolvedValue({
+    stdout,
+    command: 'tasklist',
+    stderr: '',
+  });
+
+  const processesToTerminate = await podmanCleanupWindows.getPidProcesses(['win-sshproxy.exe']);
+
+  expect(processesToTerminate).toStrictEqual([{ pid: 123, name: 'win-sshproxy.exe' }]);
+});
+
+test('check stopProcessesPids', async () => {
+  // mock getPidProcesses
+  const getPidProcessesMock = vi.spyOn(podmanCleanupWindows, 'getPidProcesses');
+  getPidProcessesMock.mockResolvedValue([
+    { pid: 123, name: 'win-ssh-proxy.exe' },
+    { pid: 456, name: 'gvproxy.exe' },
+  ]);
+
+  // mock terminateProcess
+  const terminateProcessMock = vi.spyOn(podmanCleanupWindows, 'terminateProcess');
+  terminateProcessMock.mockResolvedValue(undefined);
+
+  await podmanCleanupWindows.stopProcessesPids({ logger: { log: vi.fn(), error: vi.fn(), warn: vi.fn() } });
+
+  expect(podmanCleanupWindows.getPidProcesses).toBeCalledWith(['win-sshproxy.exe', 'gvproxy.exe']);
+
+  // expect should have call terminateProcess twice
+  expect(terminateProcessMock).toBeCalledWith(123);
+  expect(terminateProcessMock).toBeCalledWith(456);
 });

@@ -29,6 +29,13 @@ const extensionContext = {
   subscriptions: [],
 } as unknown as extensionApi.ExtensionContext;
 
+// mock ps-list
+vi.mock('ps-list', async () => {
+  return {
+    default: vi.fn(),
+  };
+});
+
 // mock release
 vi.mock('node:os', async () => {
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports

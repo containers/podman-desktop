@@ -56,41 +56,41 @@ beforeEach(() => {
 });
 
 test('check stopPodmanProcesses', async () => {
-  // mock getProcessesToKill
-  const getProcessesToKillMock = vi.spyOn(podmanCleanupMacOS, 'getProcessesToKill');
-  getProcessesToKillMock.mockResolvedValue([123, 456]);
+  // mock getProcessesToStop
+  const getProcessesToStopMock = vi.spyOn(podmanCleanupMacOS, 'getProcessesToStop');
+  getProcessesToStopMock.mockResolvedValue([123, 456]);
 
-  // mock killProcess
-  const killProcessMock = vi.spyOn(podmanCleanupMacOS, 'killProcess');
-  killProcessMock.mockResolvedValue(undefined);
+  // mock terminateProcess
+  const terminateProcessMock = vi.spyOn(podmanCleanupMacOS, 'terminateProcess');
+  terminateProcessMock.mockResolvedValue(undefined);
 
   await podmanCleanupMacOS.stopPodmanProcesses({ logger: { log: vi.fn(), error: vi.fn(), warn: vi.fn() } });
 
-  expect(killProcessMock).toBeCalledWith(123);
-  expect(killProcessMock).toBeCalledWith(456);
+  expect(terminateProcessMock).toBeCalledWith(123);
+  expect(terminateProcessMock).toBeCalledWith(456);
 });
 
 test('check stopPodmanProcesses with error', async () => {
-  // mock getProcessesToKill
-  const getProcessesToKillMock = vi.spyOn(podmanCleanupMacOS, 'getProcessesToKill');
-  getProcessesToKillMock.mockResolvedValue([123]);
+  // mock getProcessesToStop
+  const getProcessesToStopMock = vi.spyOn(podmanCleanupMacOS, 'getProcessesToStop');
+  getProcessesToStopMock.mockResolvedValue([123]);
 
   // mock killProcess
-  const killProcessMock = vi.spyOn(podmanCleanupMacOS, 'killProcess');
-  const killError = new Error('fake error');
-  killProcessMock.mockRejectedValue(killError);
+  const terminateProcessMock = vi.spyOn(podmanCleanupMacOS, 'terminateProcess');
+  const terminateError = new Error('fake error');
+  terminateProcessMock.mockRejectedValue(terminateError);
 
   const logger = { log: vi.fn(), error: vi.fn(), warn: vi.fn() };
   await podmanCleanupMacOS.stopPodmanProcesses({ logger });
 
-  expect(killProcessMock).toBeCalledWith(123);
-  expect(logger.error).toBeCalledWith('Error killing process', killError);
+  expect(terminateProcessMock).toBeCalledWith(123);
+  expect(logger.error).toBeCalledWith('Error terminating process', terminateError);
 });
 
-test('check killProcess', async () => {
-  await podmanCleanupMacOS.killProcess(123456);
+test('check terminateProcess', async () => {
+  await podmanCleanupMacOS.terminateProcess(123456);
 
-  expect(vi.mocked(process.exec)).toBeCalledWith('/bin/kill', ['-9', '123456']);
+  expect(vi.mocked(process.exec)).toBeCalledWith('/bin/kill', ['-SIGTERM', '123456']);
 });
 
 test('check folders to delete', async () => {
@@ -99,12 +99,12 @@ test('check folders to delete', async () => {
   expect(folders).lengthOf(2);
 });
 
-test('check getProcessesToKill', async () => {
+test('check getProcessesToStop', async () => {
   vi.mocked(psList).mockResolvedValue([{ pid: 123, name: 'gvproxy', cmd: 'podman gvproxy', ppid: 123 }]);
 
-  const processesToKill = await podmanCleanupMacOS.getProcessesToKill(['gvproxy']);
+  const processesToTerminate = await podmanCleanupMacOS.getProcessesToStop(['gvproxy']);
 
-  expect(processesToKill).toStrictEqual([123]);
+  expect(processesToTerminate).toStrictEqual([123]);
 });
 
 test('check getContainersConfPath', async () => {

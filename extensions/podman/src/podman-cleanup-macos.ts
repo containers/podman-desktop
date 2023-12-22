@@ -7,24 +7,24 @@ import { AbsPodmanCleanup } from './podman-cleanup-abstract';
 
 // Handle cleanup of Podman on macOS
 export class PodmanCleanupMacOS extends AbsPodmanCleanup {
-  async killProcess(processId: number): Promise<void> {
-    await process.exec('/bin/kill', ['-9', String(processId)]);
+  async terminateProcess(processId: number): Promise<void> {
+    await process.exec('/bin/kill', ['-SIGTERM', String(processId)]);
   }
 
   async stopPodmanProcesses(options: ProviderCleanupExecuteOptions): Promise<void> {
     // grab process
-    const pidsToKill = await this.getProcessesToKill(['gvproxy', 'qemu', 'vfkit']);
+    const pidsToStop = await this.getProcessesToStop(['gvproxy', 'qemu', 'vfkit']);
 
     // remove any duplicates in PID
-    const uniquePidsToKill = [...new Set(pidsToKill)];
+    const uniquePidsToStop = [...new Set(pidsToStop)];
 
-    // kill each process
-    for (const pid of uniquePidsToKill) {
+    // terminate each process
+    for (const pid of uniquePidsToStop) {
       try {
-        options.logger.log(`Killing process ${pid}`);
-        await this.killProcess(pid);
+        options.logger.log(`Terminating process ${pid}`);
+        await this.terminateProcess(pid);
       } catch (error) {
-        options.logger.error('Error killing process', error);
+        options.logger.error('Error terminating process', error);
       }
     }
   }
@@ -38,7 +38,7 @@ export class PodmanCleanupMacOS extends AbsPodmanCleanup {
     return [configContainersFolder, localShareContainersFolder];
   }
 
-  async getProcessesToKill(processNames: string[]): Promise<number[]> {
+  async getProcessesToStop(processNames: string[]): Promise<number[]> {
     const processes = await psList();
 
     // ok, now split each line and check if it matches one of the process name

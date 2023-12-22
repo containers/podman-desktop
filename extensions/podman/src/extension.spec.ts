@@ -90,6 +90,13 @@ const telemetryLogger: extensionApi.TelemetryLogger = {
   logError: vi.fn(),
 } as unknown as extensionApi.TelemetryLogger;
 
+// mock ps-list
+vi.mock('ps-list', async () => {
+  return {
+    default: vi.fn(),
+  };
+});
+
 beforeEach(() => {
   fakeMachineJSON = [
     {

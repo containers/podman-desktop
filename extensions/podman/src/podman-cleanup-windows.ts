@@ -56,6 +56,52 @@ export class PodmanCleanupWindows extends AbsPodmanCleanup {
     } catch (error) {
       options.logger.error('error while listing wsl machines', error);
     }
+
+    // stop processes
+    await this.stopProcessesPids(options);
+  }
+
+  async getPidProcesses(processNames: string[]): Promise<{ pid: number; name: string }[]> {
+    const pids: { pid: number; name: string }[] = [];
+
+    // get all windows processes matching processNames
+    for (const processName of processNames) {
+      // get all processes matching processName
+      const { stdout } = await process.exec('tasklist', ['/fi', `imagename eq ${processName}`]);
+
+      // keep only lines with process name
+      const processLines = stdout.split('\r\n').filter(line => line.includes(processName));
+
+      // extract PID which is 2nd column
+      const matchingPids = processLines.map(line => line.split(/\s+/)[1]);
+      pids.push(...matchingPids.map(pid => ({ pid: Number(pid), name: processName })));
+    }
+
+    return pids;
+  }
+
+  async terminateProcess(processId: number): Promise<void> {
+    await process.exec('taskkill', ['/f', '/pid', `${processId}`]);
+  }
+
+  async stopProcessesPids(options: ProviderCleanupExecuteOptions): Promise<void> {
+    // grab win-ssh-proxy & gvproxy processes
+    const pidsToStop = await this.getPidProcesses(['win-sshproxy.exe', 'gvproxy.exe']);
+
+    // now stop them
+    try {
+      for (const pidToStop of pidsToStop) {
+        options.logger.log(`Stopping process ${pidToStop.name} with pid ${pidToStop.pid}...`);
+        // kill it
+        try {
+          await this.terminateProcess(pidToStop.pid);
+        } catch (error) {
+          options.logger.error(`unable to kill process ${pidToStop.name}`, error);
+        }
+      }
+    } catch (error) {
+      options.logger.error('error while stopping processes', error);
+    }
   }
 
   getContainersConfPath(): string {
