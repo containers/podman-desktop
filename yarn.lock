@@ -194,14 +194,15 @@
     sharp "^0.32.5"
     tmp "^0.2.1"
 
-"@argos-ci/playwright@^1.4.2":
-  version "1.4.2"
-  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-1.4.2.tgz#961a53588dd821ae6d491d5821143145b9967662"
-  integrity sha512-W81rQ+C+xG/a4RlaaOMY5VssIRh/WUio8gGaGeqSNgUVN4M7hmDR8m0Plok0RU4KtXJwC1WNaRUyuYsEdOVAFQ==
+"@argos-ci/playwright@^1.5.0":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-1.5.0.tgz#fb9b1227a9f28c09252e9c4c85490865e9bdbf3e"
+  integrity sha512-hSRZSsDzDVvEchXv4t7orklLrOpG686hTmOJu323qOTzTmIU6IMwR3fAilbwyhJA3j/GTOfg44jR4DLrpXq5LA==
   dependencies:
     "@argos-ci/browser" "1.2.2"
     "@argos-ci/core" "1.3.0"
     "@argos-ci/util" "1.1.0"
+    chalk "^5.3.0"
 
 "@argos-ci/util@1.1.0":
   version "1.1.0"
