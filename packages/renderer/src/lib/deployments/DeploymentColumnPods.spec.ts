@@ -30,7 +30,6 @@ test('Expect simple column styling', async () => {
     namespace: '',
     replicas: 0,
     ready: 0,
-    age: '',
     selected: false,
     conditions: [],
   };

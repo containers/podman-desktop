@@ -20,8 +20,8 @@ import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import PreferencesKubernetesConnectionDetailsSummary from './PreferencesKubernetesConnectionDetailsSummary.svelte';
 import PreferencesConnectionDetailsLogs from './PreferencesConnectionDetailsLogs.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
-import CustomIcon from '../images/CustomIcon.svelte';
 import ConnectionErrorInfoButton from '../ui/ConnectionErrorInfoButton.svelte';
+import IconImage from '../appearance/IconImage.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string | undefined = undefined;
@@ -149,7 +149,7 @@ function setNoLogs() {
         {/if}
       </svelte:fragment>
       <svelte:fragment slot="icon">
-        <CustomIcon icon="{providerInfo?.images?.icon}" altText="{providerInfo?.name}" classes="max-h-10" />
+        <IconImage image="{providerInfo?.images?.icon}" alt="{providerInfo?.name}" class="max-h-10" />
       </svelte:fragment>
       <svelte:fragment slot="tabs">
         <Tab title="Summary" url="summary" />

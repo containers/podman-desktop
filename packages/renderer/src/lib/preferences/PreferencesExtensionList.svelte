@@ -80,7 +80,7 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
       <FeaturedExtensions />
     </div>
 
-    <div class="bg-charcoal-700 mt-5 rounded-md p-3">
+    <div class="bg-charcoal-700 mt-5 rounded-md p-3" role="region" aria-label="OCI image installation box">
       <h1 class="text-lg mb-2">Install a new extension from OCI Image</h1>
 
       <div class="flex flex-col w-full">
@@ -91,6 +91,8 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
           <input
             name="ociImage"
             id="ociImage"
+            aria-label="OCI Image Name"
+            type="text"
             bind:value="{ociImage}"
             placeholder="Name of the Image"
             class="w-1/2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"

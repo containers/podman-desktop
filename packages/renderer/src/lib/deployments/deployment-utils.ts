@@ -16,30 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import moment from 'moment';
-import humanizeDuration from 'humanize-duration';
 import type { DeploymentUI } from './DeploymentUI';
 import type { V1Deployment } from '@kubernetes/client-node';
 
 export class DeploymentUtils {
-  humanizeAge(started: Date | undefined): string {
-    if (!started) {
-      return '';
-    }
-    // get start time in ms
-    const uptimeInMs = moment().diff(started);
-    // make it human friendly
-    return humanizeDuration(uptimeInMs, { round: true, largest: 1 });
-  }
-
-  refreshAge(deployment: DeploymentUI): string {
-    if (!deployment.created) {
-      return '';
-    }
-    // make it human friendly
-    return this.humanizeAge(deployment.created);
-  }
-
   getDeploymentUI(deployment: V1Deployment): DeploymentUI {
     const conditions = (deployment.status?.conditions ?? []).map(c => {
       return { type: c.type, message: c.message };
@@ -57,7 +37,6 @@ export class DeploymentUtils {
       status: status,
       namespace: deployment.metadata?.namespace || '',
       created: deployment.metadata?.creationTimestamp,
-      age: this.humanizeAge(deployment.metadata?.creationTimestamp),
       // number of replicas
       replicas: deployment.status?.replicas || 0,
       // ready pods

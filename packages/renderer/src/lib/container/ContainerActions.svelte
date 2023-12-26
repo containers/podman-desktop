@@ -19,49 +19,66 @@ import FlatMenu from '../ui/FlatMenu.svelte';
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
-import { onMount } from 'svelte';
+import { createEventDispatcher, onMount } from 'svelte';
 export let container: ContainerInfoUI;
 export let dropdownMenu = false;
 export let detailed = false;
 
-export let inProgressCallback: (inProgress: boolean, state?: string) => void = () => {};
-export let errorCallback: (erroMessage: string) => void = () => {};
+const dispatch = createEventDispatcher<{ update: ContainerInfoUI }>();
 
 let contributions: Menu[] = [];
 onMount(async () => {
   contributions = await window.getContributedMenus(MenuContext.DASHBOARD_CONTAINER);
 });
 
+function inProgress(inProgress: boolean, state?: string): void {
+  container.actionInProgress = inProgress;
+  // reset error when starting task
+  if (inProgress) {
+    container.actionError = '';
+  }
+  if (state) {
+    container.state = state;
+  }
+  dispatch('update', container);
+}
+
+function handleError(errorMessage: string): void {
+  container.actionError = errorMessage;
+  container.state = 'ERROR';
+  dispatch('update', container);
+}
+
 async function startContainer() {
-  inProgressCallback(true, 'STARTING');
+  inProgress(true, 'STARTING');
   try {
     await window.startContainer(container.engineId, container.id);
   } catch (error) {
-    errorCallback(String(error));
+    handleError(String(error));
   } finally {
-    inProgressCallback(false, 'RUNNING');
+    inProgress(false);
   }
 }
 
 async function restartContainer() {
-  inProgressCallback(true, 'RESTARTING');
+  inProgress(true, 'RESTARTING');
   try {
     await window.restartContainer(container.engineId, container.id);
   } catch (error) {
-    errorCallback(String(error));
+    handleError(String(error));
   } finally {
-    inProgressCallback(false);
+    inProgress(false);
   }
 }
 
 async function stopContainer() {
-  inProgressCallback(true, 'STOPPING');
+  inProgress(true, 'STOPPING');
   try {
     await window.stopContainer(container.engineId, container.id);
   } catch (error) {
-    errorCallback(String(error));
+    handleError(String(error));
   } finally {
-    inProgressCallback(false, 'STOPPED');
+    inProgress(false);
   }
 }
 
@@ -77,13 +94,13 @@ function openLogs(): void {
 }
 
 async function deleteContainer(): Promise<void> {
-  inProgressCallback(true, 'DELETING');
+  inProgress(true, 'DELETING');
   try {
     await window.deleteContainer(container.engineId, container.id);
   } catch (error) {
-    errorCallback(String(error));
+    handleError(String(error));
   } finally {
-    inProgressCallback(false);
+    inProgress(false);
   }
 }
 
@@ -188,5 +205,5 @@ if (dropdownMenu) {
     dropdownMenu="{dropdownMenu}"
     contributions="{contributions}"
     detailed="{detailed}"
-    onError="{errorCallback}" />
+    onError="{handleError}" />
 </svelte:component>

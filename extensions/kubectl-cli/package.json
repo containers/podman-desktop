@@ -46,7 +46,7 @@
           "id": "welcomeDownloadView",
           "label": "kubectl Download",
           "title": "kubectl Download",
-          "when": "onboardingContext:kubectlIsNotDownloaded == true",
+          "when": "!kubectl.isKubectlInstalledSystemWide && onboardingContext:kubectlIsNotDownloaded",
           "content": [
             [
               {
@@ -65,7 +65,7 @@
           "id": "downloadCommand",
           "title": "Downloading kubectl ${onboardingContext:kubectlDownloadVersion}",
           "description": "Downloading the binary.\n\nOnce downloaded, the next step will install kubectl system-wide.",
-          "when": "onboardingContext:kubectlIsNotDownloaded == true",
+          "when": "!kubectl.isKubectlInstalledSystemWide && onboardingContext:kubectlIsNotDownloaded",
           "command": "kubectl.onboarding.downloadCommand",
           "completionEvents": [
             "onCommand:kubectl.onboarding.downloadCommand"
@@ -74,17 +74,17 @@
         {
           "id": "downloadFailure",
           "title": "Failed Downloading kubectl",
-          "when": "onboardingContext:kubectlIsNotDownloaded == true",
+          "when": "!kubectl.isKubectlInstalledSystemWide && onboardingContext:kubectlIsNotDownloaded",
           "state": "failed"
         },
         {
           "id": "downloadSuccessfulView",
           "title": "kubectl Successfully Downloaded",
-          "when": "onboardingContext:kubectlIsNotDownloaded == false",
+          "when": "!kubectl.isKubectlInstalledSystemWide && !onboardingContext:kubectlIsNotDownloaded",
           "content": [
             [
               {
-                "value": "kubectl has been successfully downloaded! In order to use kubectl from a shell, it is required for kubectl to be installed system-wide.\n\nThe next step will install kubectl system-wide. **You will be prompted for system privileges when enabling this.**"
+                "value": "kubectl has been successfully downloaded! In order to use kubectl from the terminal, it is required for kubectl to be installed system-wide.\n\nThe next step will install kubectl system-wide. **You will be prompted for system privileges when enabling this.**"
               }
             ]
           ]
@@ -93,7 +93,7 @@
           "id": "installSystemWideCommand",
           "title": "Install kubectl",
           "description": "Installing the binary system-wide.\n\n You may be prompted for elevated system privileges.",
-          "when": "kubectl.isKubectlInstalledSystemWide == false",
+          "when": "!kubectl.isKubectlInstalledSystemWide && !kubectl.isKubectlInstalledSystemWide",
           "command": "kubectl.onboarding.installSystemWideCommand",
           "completionEvents": [
             "onCommand:kubectl.onboarding.installSystemWideCommand"
@@ -102,18 +102,24 @@
         {
           "id": "installSystemWideFailure",
           "title": "Failed Installing kubectl",
-          "when": "kubectl.isKubectlInstalledSystemWide == false",
+          "when": "!kubectl.isKubectlInstalledSystemWide && !kubectl.isKubectlInstalledSystemWide",
           "state": "failed"
         },
         {
           "id": "installSystemWideSuccess",
           "title": "kubectl Successfully Installed",
-          "when": "kubectl.isKubectlInstalledSystemWide == true",
+          "when": "kubectl.isKubectlInstalledSystemWide",
           "state": "completed",
           "content": [
             [
               {
                 "value": "kubectl has been successfully installed system-wide!"
+              }
+            ],
+            [
+              {
+                "value": "#### How to use kubectl \nRun `kubectl help` in the terminal for a list of commands to interact with your Kubernetes cluster. For example, try the 'Deploy to Kubernetes' button within Podman Desktop and view your pods with `kubectl`:\n\n`$ kubectl get pods`",
+                "highlight": true
               }
             ]
           ]
@@ -153,6 +159,7 @@
     "byline": "^5.0.0",
     "copyfiles": "^2.4.1",
     "mkdirp": "^3.0.1",
-    "vitest": "^1.0.4"
+    "vite": "^5.0.10",
+    "vitest": "^1.1.0"
   }
 }

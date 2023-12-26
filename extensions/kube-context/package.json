@@ -32,10 +32,10 @@
     }
   },
   "scripts": {
-    "build": "rollup --bundleConfigAsCjs --config rollup.config.js --compact --environment BUILD:production  && node ./scripts/build.js",
-    "test": "vitest run --coverage --passWithNoTests",
-    "test:watch": "vitest watch --coverage --passWithNoTests",
-    "watch": "rollup --bundleConfigAsCjs --config rollup.config.js -w"
+    "build": "vite build && node ./scripts/build.js",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest watch --coverage",
+    "watch": "vite build -w"
   },
   "dependencies": {
     "@podman-desktop/api": "^0.0.1",
@@ -45,6 +45,7 @@
     "adm-zip": "^0.5.10",
     "@types/js-yaml": "^4.0.9",
     "mkdirp": "^3.0.1",
-    "vitest": "^1.0.4"
+    "vite": "^5.0.10",
+    "vitest": "^1.1.0"
   }
 }

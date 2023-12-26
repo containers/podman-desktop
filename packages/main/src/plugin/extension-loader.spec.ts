@@ -774,3 +774,32 @@ test('check dispose when deactivating', async () => {
 
   expect(telemetry.track).toBeCalledWith('deactivateExtension', { extensionId });
 });
+
+test('Verify extension uri', async () => {
+  const id = 'extension.id';
+  const activateMethod = vi.fn();
+
+  configurationRegistryGetConfigurationMock.mockReturnValue({ get: vi.fn().mockReturnValue(1) });
+
+  await extensionLoader.activateExtension(
+    {
+      id: id,
+      name: 'id',
+      path: 'dummy',
+      api: {} as typeof containerDesktopAPI,
+      mainPath: '',
+      removable: false,
+      manifest: {},
+      subscriptions: [],
+      dispose: vi.fn(),
+    },
+    { activate: activateMethod },
+  );
+
+  expect(activateMethod).toBeCalled();
+
+  // check extensionUri
+  const grabUri: containerDesktopAPI.Uri = activateMethod.mock.calls[0][0].extensionUri;
+  expect(grabUri).toBeDefined();
+  expect(grabUri.fsPath).toBe('dummy');
+});

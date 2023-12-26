@@ -20,8 +20,8 @@ import PreferencesContainerConnectionDetailsSummary from './PreferencesContainer
 import PreferencesConnectionDetailsLogs from './PreferencesConnectionDetailsLogs.svelte';
 import Tab from '../ui/Tab.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
-import CustomIcon from '../images/CustomIcon.svelte';
 import ConnectionErrorInfoButton from '../ui/ConnectionErrorInfoButton.svelte';
+import IconImage from '../appearance/IconImage.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string | undefined = undefined;
@@ -153,7 +153,7 @@ function setNoLogs() {
           </div>
         {/if}
       </svelte:fragment>
-      <CustomIcon slot="icon" icon="{providerInfo?.images?.icon}" altText="{providerInfo?.name}" classes="max-h-10" />
+      <IconImage slot="icon" image="{providerInfo?.images?.icon}" alt="{providerInfo?.name}" class="max-h-10" />
       <svelte:fragment slot="tabs">
         <Tab title="Summary" url="summary" />
         {#if connectionInfo.lifecycleMethods && connectionInfo.lifecycleMethods.length > 0}

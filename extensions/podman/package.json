@@ -284,15 +284,16 @@
     }
   },
   "scripts": {
-    "build": "rollup --bundleConfigAsCjs --config rollup.config.js --compact --environment BUILD:production && npx ts-node ./scripts/download.ts  && node ./scripts/build.js",
-    "watch": "rollup --bundleConfigAsCjs --config rollup.config.js -w",
-    "test": "vitest run --coverage",
-    "test:watch": "vitest watch --coverage"
+    "build": "vite build && npx ts-node ./scripts/download.ts && node ./scripts/build.js",
+    "test": "vitest run --coverage --passWithNoTests",
+    "test:watch": "vitest watch --coverage --passWithNoTests",
+    "watch": "vite build -w"
   },
   "dependencies": {
     "@ltd/j-toml": "^1.38.0",
     "@podman-desktop/api": "^0.0.1",
-    "compare-versions": "^6.1.0"
+    "compare-versions": "^6.1.0",
+    "ps-list": "^8.1.1"
   },
   "devDependencies": {
     "adm-zip": "^0.5.10",
@@ -301,6 +302,7 @@
     "nock": "^13.4.0",
     "octokit": "^3.1.2",
     "ts-node": "^10.9.2",
-    "vitest": "^1.0.4"
+    "vite": "^5.0.10",
+    "vitest": "^1.1.0"
   }
 }

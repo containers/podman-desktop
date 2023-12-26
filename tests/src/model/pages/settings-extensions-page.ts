@@ -25,6 +25,8 @@ export class SettingsExtensionsPage extends SettingsPage {
   readonly devSandboxBox: Locator;
   readonly openshiftLocalBox: Locator;
   readonly extensionsTable: Locator;
+  readonly imageInstallBox: Locator;
+  readonly installedExtensions: Locator;
 
   constructor(page: Page) {
     super(page, 'Extensions');
@@ -33,6 +35,8 @@ export class SettingsExtensionsPage extends SettingsPage {
     this.devSandboxBox = this.featuredExtensions.getByLabel('Developer Sandbox');
     this.openshiftLocalBox = this.featuredExtensions.getByLabel('OpenShift Local');
     this.extensionsTable = page.getByRole('table');
+    this.imageInstallBox = page.getByRole('region', { name: 'OCI image installation box' });
+    this.installedExtensions = page.getByLabel('Installed Extensions');
   }
 
   public getExtensionRowFromTable(extensionName: string): Locator {
