@@ -124,7 +124,8 @@ const row = new Row<DeploymentUI>({ selectable: _deployment => true });
       data="{deployments}"
       columns="{columns}"
       row="{row}"
-      defaultSortColumn="Name">
+      defaultSortColumn="Name"
+      on:update="{() => (deployments = deployments)}">
     </Table>
 
     {#if $filtered.length === 0}

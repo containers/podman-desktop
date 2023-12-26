@@ -21,10 +21,10 @@
 import '@testing-library/jest-dom/vitest';
 import { test, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
-import DeploymentsList from './DeploymentsList.svelte';
+import ServicesList from './ServicesList.svelte';
 import { get } from 'svelte/store';
-import { deployments, deploymentsEventStore } from '/@/stores/deployments';
-import type { V1Deployment } from '@kubernetes/client-node';
+import type { V1Service } from '@kubernetes/client-node';
+import { services, servicesEventStore } from '/@/stores/services';
 
 const callbacks = new Map<string, any>();
 const eventEmitter = {
@@ -49,76 +49,72 @@ beforeEach(() => {
 });
 
 async function waitRender(customProperties: object): Promise<void> {
-  const result = render(DeploymentsList, { ...customProperties });
+  const result = render(ServicesList, { ...customProperties });
   // wait that result.component.$$.ctx[2] is set
   while (result.component.$$.ctx[2] === undefined) {
     await new Promise(resolve => setTimeout(resolve, 100));
   }
 }
 
-test('Expect deployment empty screen', async () => {
-  render(DeploymentsList);
-  const noDeployments = screen.getByRole('heading', { name: 'No deployments' });
-  expect(noDeployments).toBeInTheDocument();
+test('Expect service empty screen', async () => {
+  render(ServicesList);
+  const noServices = screen.getByRole('heading', { name: 'No services' });
+  expect(noServices).toBeInTheDocument();
 });
 
-test('Expect deployments list', async () => {
-  const deployment: V1Deployment = {
-    apiVersion: 'apps/v1',
-    kind: 'Deployment',
+test('Expect services list', async () => {
+  const service: V1Service = {
+    apiVersion: 'v1',
+    kind: 'Service',
     metadata: {
-      name: 'my-deployment',
-      namespace: 'test-namespace',
+      name: 'my-service',
     },
     spec: {
-      replicas: 2,
       selector: {},
-      template: {},
+      ports: [],
+      externalName: 'serve',
     },
   };
 
-  deploymentsEventStore.setup();
+  servicesEventStore.setup();
 
-  const DeploymentAddCallback = callbacks.get('kubernetes-deployment-add');
-  expect(DeploymentAddCallback).toBeDefined();
-  await DeploymentAddCallback(deployment);
+  const ServiceAddCallback = callbacks.get('kubernetes-service-add');
+  expect(ServiceAddCallback).toBeDefined();
+  await ServiceAddCallback(service);
 
   // wait while store is populated
-  while (get(deployments).length === 0) {
+  while (get(services).length === 0) {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 
   await waitRender({});
 
-  const deploymentName = screen.getByRole('cell', { name: 'my-deployment' });
-  const deploymentNamespace = screen.getByRole('cell', { name: 'test-namespace' });
-  expect(deploymentName).toBeInTheDocument();
-  expect(deploymentNamespace).toBeInTheDocument();
+  const serviceName = screen.getByRole('cell', { name: 'my-service' });
+  expect(serviceName).toBeInTheDocument();
 });
 
 test('Expect filter empty screen', async () => {
-  const deployment: V1Deployment = {
-    apiVersion: 'apps/v1',
-    kind: 'Deployment',
+  const service: V1Service = {
+    apiVersion: 'v1',
+    kind: 'Service',
     metadata: {
-      name: 'my-deployment',
-      namespace: 'test-namespace',
+      name: 'my-service',
     },
     spec: {
-      replicas: 2,
       selector: {},
-      template: {},
+      ports: [],
+      externalName: 'serve',
     },
   };
 
-  deploymentsEventStore.setup();
+  servicesEventStore.setup();
 
-  const DeploymentAddCallback = callbacks.get('kubernetes-deployment-add');
-  expect(DeploymentAddCallback).toBeDefined();
-  await DeploymentAddCallback(deployment);
+  const ServiceAddCallback = callbacks.get('kubernetes-service-add');
+  expect(ServiceAddCallback).toBeDefined();
+  await ServiceAddCallback(service);
 
   // wait while store is populated
-  while (get(deployments).length === 0) {
+  while (get(services).length === 0) {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 

@@ -15,12 +15,21 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type { Context, Informer, KubernetesObject } from '@kubernetes/client-node';
 
-export type KubernetesInformerResourcesType = 'DEPLOYMENT' | 'INGRESS' | 'ROUTE' | 'SERVICE';
+import type { ServiceUI } from './ServiceUI';
+import type { V1Service } from '@kubernetes/client-node';
 
-export interface KubernetesInformerInfo {
-  informer: Informer<KubernetesObject>;
-  context: Context;
-  resourcesType: KubernetesInformerResourcesType;
+export class ServiceUtils {
+  getServiceUI(service: V1Service): ServiceUI {
+    return {
+      name: service.metadata?.name ?? '',
+      status: 'RUNNING',
+      namespace: service.metadata?.namespace ?? '',
+      created: service.metadata?.creationTimestamp,
+      selected: false,
+      type: service.spec?.type ?? '',
+      clusterIP: service.spec?.clusterIP ?? '',
+      ports: (service.spec?.ports ?? []).map(port => port.port + '/' + port.protocol).join(', '),
+    };
+  }
 }

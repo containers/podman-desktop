@@ -14,6 +14,12 @@
     "configuration": {
       "title": "Lima",
       "properties": {
+        "lima.binary.path": {
+          "type": "string",
+          "format": "file",
+          "default": "",
+          "description": "Custom path to limactl binary (Default is blank)"
+        },
         "lima.type": {
           "type": "string",
           "default": "podman",
@@ -30,7 +36,21 @@
           "description": "Instance name (default is same name as type)"
         }
       }
-    }
+    },
+    "menus": {
+      "dashboard/image": [
+        {
+          "command": "lima.image.move",
+          "title": "Push image to Lima cluster"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "lima.image.move",
+        "title": "Lima: Move image to cluster..."
+      }
+    ]
   },
   "scripts": {
     "build": "vite build && node ./scripts/build.js",
@@ -45,6 +65,7 @@
     "adm-zip": "^0.5.10",
     "mkdirp": "^3.0.1",
     "vite": "^5.0.10",
-    "vitest": "^1.1.0"
+    "vitest": "^1.1.0",
+    "tmp-promise": "^3.0.3"
   }
 }

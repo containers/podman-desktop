@@ -32,6 +32,7 @@ import type {
   V1Deployment,
   KubernetesObject,
   ListPromise,
+  KubernetesListObject,
 } from '@kubernetes/client-node';
 import {
   ApisApi,
@@ -63,6 +64,7 @@ import * as jsYaml from 'js-yaml';
 import type { KubeContext } from './kubernetes-context.js';
 import type { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
+import type { IncomingMessage } from 'node:http';
 
 function toContainerStatus(state: V1ContainerState | undefined): string {
   if (state) {
@@ -1105,6 +1107,20 @@ export class KubernetesClient {
     }
   }
 
+  async createDeploymentsInformer(id?: number): Promise<number> {
+    const ns = this.getCurrentNamespace();
+    if (ns) {
+      const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
+      return this.makeKubernetesInformer<V1Deployment>(
+        'DEPLOYMENT',
+        '/apis/apps/v1/namespaces/' + ns + '/deployments',
+        () => k8sAppsApi.listNamespacedDeployment(ns),
+        id,
+      );
+    }
+    throw new Error('no active namespace');
+  }
+
   async createIngressesInformer(id?: number): Promise<number> {
     const ns = this.getCurrentNamespace();
     if (ns) {
@@ -1119,10 +1135,51 @@ export class KubernetesClient {
     throw new Error('no active namespace');
   }
 
+  async createRoutesInformer(id?: number): Promise<number> {
+    const ns = this.getCurrentNamespace();
+    if (ns) {
+      const customObjectsApi = this.kubeConfig.makeApiClient(CustomObjectsApi);
+      return this.makeKubernetesInformer<V1Route>(
+        'ROUTE',
+        '/apis/route.openshift.io/v1/namespaces/' + ns + '/routes',
+        () =>
+          customObjectsApi.listNamespacedCustomObject('route.openshift.io', 'v1', ns, 'routes') as Promise<{
+            response: IncomingMessage;
+            body: KubernetesListObject<V1Route>;
+          }>,
+        id,
+      );
+    }
+    throw new Error('no active namespace');
+  }
+
+  async createServicesInformer(id?: number): Promise<number> {
+    const ns = this.getCurrentNamespace();
+    if (ns) {
+      const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
+      return this.makeKubernetesInformer<V1Service>(
+        'SERVICE',
+        '/api/v1/namespaces/' + ns + '/services',
+        () => k8sApi.listNamespacedService(ns),
+        id,
+      );
+    }
+    throw new Error('no active namespace');
+  }
+
   async startInformer(resourcesType: KubernetesInformerResourcesType, id?: number): Promise<number> {
     switch (resourcesType) {
+      case 'DEPLOYMENT': {
+        return this.createDeploymentsInformer(id);
+      }
       case 'INGRESS': {
         return this.createIngressesInformer(id);
+      }
+      case 'ROUTE': {
+        return this.createRoutesInformer(id);
+      }
+      case 'SERVICE': {
+        return this.createServicesInformer(id);
       }
     }
   }

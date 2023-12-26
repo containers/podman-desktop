@@ -21,9 +21,15 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
 
-import { configuration } from '@podman-desktop/api';
+import { configuration, ProgressLocation } from '@podman-desktop/api';
+import { getLimactl } from './limactl';
+import { ImageHandler } from './image-handler';
 
 type limaProviderType = 'docker' | 'podman' | 'kubernetes';
+
+const LIMA_MOVE_IMAGE_COMMAND = 'lima.image.move';
+
+const imageHandler = new ImageHandler();
 
 function registerProvider(
   extensionContext: extensionApi.ExtensionContext,
@@ -32,6 +38,7 @@ function registerProvider(
 ): void {
   let providerState: extensionApi.ProviderConnectionStatus = 'unknown';
   const providerType: limaProviderType = configuration.getConfiguration('lima').get('type');
+  const instanceName: string = configuration.getConfiguration('lima').get('name') || providerType;
   if (providerType === 'podman' || providerType === 'docker') {
     const connection: extensionApi.ContainerProviderConnection = {
       name: 'Lima',
@@ -57,6 +64,18 @@ function registerProvider(
     const disposable = provider.registerKubernetesProviderConnection(connection);
     provider.updateStatus('started');
     extensionContext.subscriptions.push(disposable);
+    extensionContext.subscriptions.push(
+      extensionApi.commands.registerCommand(LIMA_MOVE_IMAGE_COMMAND, async image => {
+        return extensionApi.window.withProgress(
+          { location: ProgressLocation.TASK_WIDGET, title: `Loading ${image.name} to lima.` },
+          async progress => {
+            await imageHandler.moveImage(image, instanceName, getLimactl());
+            // Mark the task as completed
+            progress.report({ increment: -1 });
+          },
+        );
+      }),
+    );
   }
   console.log('Lima extension is active');
 }

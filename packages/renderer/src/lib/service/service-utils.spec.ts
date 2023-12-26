@@ -15,12 +15,27 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type { Context, Informer, KubernetesObject } from '@kubernetes/client-node';
 
-export type KubernetesInformerResourcesType = 'DEPLOYMENT' | 'INGRESS' | 'ROUTE' | 'SERVICE';
+import { beforeEach, expect, test, vi } from 'vitest';
+import { ServiceUtils } from './service-utils';
+import type { V1Service } from '@kubernetes/client-node';
 
-export interface KubernetesInformerInfo {
-  informer: Informer<KubernetesObject>;
-  context: Context;
-  resourcesType: KubernetesInformerResourcesType;
-}
+let serviceUtils: ServiceUtils;
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  serviceUtils = new ServiceUtils();
+});
+
+test('expect basic UI conversion', async () => {
+  const service = {
+    metadata: {
+      name: 'my-service',
+      namespace: 'test-namespace',
+    },
+    status: {},
+  } as V1Service;
+  const serviceUI = serviceUtils.getServiceUI(service);
+  expect(serviceUI.name).toEqual('my-service');
+  expect(serviceUI.namespace).toEqual('test-namespace');
+});

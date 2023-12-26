@@ -15,12 +15,27 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type { Context, Informer, KubernetesObject } from '@kubernetes/client-node';
 
-export type KubernetesInformerResourcesType = 'DEPLOYMENT' | 'INGRESS' | 'ROUTE' | 'SERVICE';
+import '@testing-library/jest-dom/vitest';
+import { test, expect } from 'vitest';
+import { render, screen } from '@testing-library/svelte';
 
-export interface KubernetesInformerInfo {
-  informer: Informer<KubernetesObject>;
-  context: Context;
-  resourcesType: KubernetesInformerResourcesType;
-}
+import ServiceColumnStatus from './ServiceColumnStatus.svelte';
+import type { ServiceUI } from './ServiceUI';
+
+test('Expect simple column styling', async () => {
+  const service: ServiceUI = {
+    name: 'my-service',
+    status: 'RUNNING',
+    namespace: '',
+    selected: false,
+    type: '',
+    clusterIP: '',
+    ports: '',
+  };
+  render(ServiceColumnStatus, { object: service });
+
+  const text = screen.getByRole('status');
+  expect(text).toBeInTheDocument();
+  expect(text).toHaveClass('bg-green-400');
+});
