@@ -5,6 +5,7 @@ slug: wasm-workloads-on-macos-and-windows-with-podman
 authors: [benoitf]
 tags: [podman-desktop, wasm, wasi, WebAssembly]
 hide_table_of_contents: false
+image: /img/blog/run-webassembly-wasm-workloads-windows-and-macos/webassembly-podman.webp
 ---
 
 import Tabs from '@theme/Tabs';
@@ -17,6 +18,8 @@ You might have heard excitement recently about Wasm and WASI. Imagine a world wh
 Though the concept seemed straightforward, accomplishing this task proved to be quite challenging, particularly on macOS and Windows. The complexity comes from the additional virtual machine running Linux. This machine needs all of the dependencies and prerequisites correctly setup.
 
 The wait is over. Our blog post unveils the solution, guiding you through the process of enabling Wasm workloads on both macOS and Windows.
+
+![hero](img/run-webassembly-wasm-workloads-windows-and-macos/webassembly-podman.webp)
 
 <!--truncate-->
 
