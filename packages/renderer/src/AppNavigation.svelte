@@ -8,6 +8,7 @@ import { imagesInfos } from './stores/images';
 import { volumeListInfos } from './stores/volumes';
 import { kubernetesContexts } from './stores/kubernetes-contexts';
 import { deployments } from './stores/deployments';
+import { services } from './stores/services';
 import { ImageUtils } from './lib/image/image-utils';
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import ContainerIcon from './lib/images/ContainerIcon.svelte';
@@ -21,6 +22,7 @@ import type { Unsubscriber } from 'svelte/store';
 import NewContentOnDashboardBadge from './lib/dashboard/NewContentOnDashboardBadge.svelte';
 import SettingsIcon from './lib/images/SettingsIcon.svelte';
 import DashboardIcon from './lib/images/DashboardIcon.svelte';
+import ServiceIcon from './lib/images/ServiceIcon.svelte';
 
 let podInfoSubscribe: Unsubscriber;
 let containerInfoSubscribe: Unsubscriber;
@@ -28,6 +30,7 @@ let imageInfoSubscribe: Unsubscriber;
 let volumeInfoSubscribe: Unsubscriber;
 let contextsSubscribe: Unsubscriber;
 let deploymentsSubscribe: Unsubscriber;
+let servicesSubscribe: Unsubscriber;
 
 let podCount = '';
 let containerCount = '';
@@ -35,6 +38,7 @@ let imageCount = '';
 let volumeCount = '';
 let contextCount = 0;
 let deploymentCount = '';
+let serviceCount = '';
 
 const imageUtils = new ImageUtils();
 export let exitSettingsCallback: () => void;
@@ -79,6 +83,13 @@ onMount(async () => {
       deploymentCount = '';
     }
   });
+  servicesSubscribe = services.subscribe(value => {
+    if (value.length > 0) {
+      serviceCount = ' (' + value.length + ')';
+    } else {
+      serviceCount = '';
+    }
+  });
   contextsSubscribe = kubernetesContexts.subscribe(value => {
     contextCount = value.length;
   });
@@ -102,6 +113,9 @@ onDestroy(() => {
   }
   if (deploymentsSubscribe) {
     deploymentsSubscribe();
+  }
+  if (servicesSubscribe) {
+    servicesSubscribe();
   }
 });
 
@@ -143,6 +157,9 @@ export let meta: TinroRouteMeta;
   {#if contextCount > 0}
     <NavItem href="/deployments" tooltip="Deployments{deploymentCount}" ariaLabel="Deployments" bind:meta="{meta}">
       <DeploymentIcon size="24" />
+    </NavItem>
+    <NavItem href="/services" tooltip="Services{serviceCount}" ariaLabel="Services" bind:meta="{meta}">
+      <ServiceIcon size="24" />
     </NavItem>
   {/if}
 

@@ -16,50 +16,60 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { writable, derived, type Writable } from 'svelte/store';
-
-import { findMatchInLeaves } from './search-util';
-import { EventStore } from './event-store';
-import IngressRouteIcon from '../lib/images/IngressRouteIcon.svelte';
 import type { V1Route } from '../../../main/src/plugin/api/openshift-types';
+import { customWritable, type KubernetesInformerWritable } from './kubernetesInformerWritable';
+import { EventStoreWithKubernetesInformer } from './kubernetes-informer-event-store';
+import { writable, derived } from 'svelte/store';
+import { findMatchInLeaves } from './search-util';
 
-const windowEvents = ['extension-started', 'extension-stopped', 'provider-change', 'extensions-started'];
-const windowListeners = ['extensions-already-started'];
+const informerEvents = ['kubernetes-route-add', 'kubernetes-route-update', 'kubernetes-route-deleted'];
+const informerRefreshEvents = ['provider-change', 'kubeconfig-update'];
 
-let readyToUpdate = false;
+export const routes: KubernetesInformerWritable<V1Route[]> = customWritable([], startInformer);
 
-export async function checkForUpdate(eventName: string): Promise<boolean> {
-  if ('extensions-already-started' === eventName) {
-    readyToUpdate = true;
-  }
+export const routesEventStore = new EventStoreWithKubernetesInformer<V1Route[]>(
+  routes,
+  informerEvents,
+  informerRefreshEvents,
+  informerListener,
+);
 
-  // do not fetch until extensions are all started
-  return readyToUpdate;
-}
-
-export const routes: Writable<V1Route[]> = writable([]);
+routesEventStore.setup();
 
 export const searchPattern = writable('');
 
-export const filtered = derived([searchPattern, routes], ([$searchPattern, $routeInfos]) =>
-  $routeInfos.filter(route => findMatchInLeaves(route, $searchPattern.toLowerCase())),
+export const filtered = derived([searchPattern, routes], ([$searchPattern, $routes]) =>
+  $routes.filter(route => findMatchInLeaves(route, $searchPattern.toLowerCase())),
 );
 
-export const routesEventStore = new EventStore<V1Route[]>(
-  'routes',
-  routes,
-  checkForUpdate,
-  windowEvents,
-  windowListeners,
-  grabAllRoutes,
-  IngressRouteIcon,
-);
-const routesEventStoreInfo = routesEventStore.setupWithDebounce();
-
-export async function grabAllRoutes(): Promise<V1Route[]> {
-  return window.kubernetesListRoutes();
+function informerListener(...args: unknown[]) {
+  const event = args[0];
+  const route = args[1] as V1Route;
+  routes.update(routesList => {
+    if (event === 'kubernetes-route-add') {
+      if (
+        !routesList.find(
+          rte => rte.metadata?.name === route.metadata?.name && rte.metadata?.namespace === route.metadata?.namespace,
+        )
+      ) {
+        routesList.push(route);
+      }
+    } else if (event === 'kubernetes-route-deleted') {
+      routesList = routesList.filter(
+        rte => rte.metadata?.name !== route.metadata?.name || rte.metadata?.namespace !== route.metadata?.namespace,
+      );
+    } else if (event === 'kubernetes-route-update') {
+      const index = routesList.findIndex(
+        rte => rte.metadata?.name === route.metadata?.name && rte.metadata?.namespace === route.metadata?.namespace,
+      );
+      if (index > -1) {
+        routesList[index] = route;
+      }
+    }
+    return routesList;
+  });
 }
 
-export const fetchRoutesWithData = async () => {
-  await routesEventStoreInfo.fetch('fetchUsage');
-};
+async function startInformer(): Promise<number> {
+  return window.kubernetesStartInformer('ROUTE');
+}
