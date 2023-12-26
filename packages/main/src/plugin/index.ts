@@ -1914,6 +1914,34 @@ export class PluginSystem {
       return kubernetesClient.deleteService(name);
     });
 
+    this.ipcHandle(
+      'kubernetes-client:readNamespacedDeployment',
+      async (_listener, name: string, namespace: string): Promise<V1Deployment | undefined> => {
+        return kubernetesClient.readNamespacedDeployment(name, namespace);
+      },
+    );
+
+    this.ipcHandle(
+      'kubernetes-client:readNamespacedIngress',
+      async (_listener, name: string, namespace: string): Promise<V1Ingress | undefined> => {
+        return kubernetesClient.readNamespacedIngress(name, namespace);
+      },
+    );
+
+    this.ipcHandle(
+      'kubernetes-client:readNamespacedRoute',
+      async (_listener, name: string, namespace: string): Promise<V1Route | undefined> => {
+        return kubernetesClient.readNamespacedRoute(name, namespace);
+      },
+    );
+
+    this.ipcHandle(
+      'kubernetes-client:readNamespacedService',
+      async (_listener, name: string, namespace: string): Promise<V1Service | undefined> => {
+        return kubernetesClient.readNamespacedService(name, namespace);
+      },
+    );
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.ipcHandle(
       'kubernetes-client:createResourcesFromFile',
