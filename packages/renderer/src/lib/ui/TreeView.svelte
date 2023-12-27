@@ -1,24 +1,11 @@
-<style>
-.no-arrow {
-  padding-left: 1rem;
-}
-.arrow {
-  cursor: pointer;
-  display: inline-block;
-}
-.arrowDown {
-  transform: rotate(90deg);
-}
-</style>
-
 <script context="module" lang="ts">
 const _expansionState = new Map<string, boolean>();
 </script>
 
 <script lang="ts">
-import type { fileNode } from '../../../../main/src/plugin/filetree';
+import type { FileNode } from '../../../../main/src/plugin/file-tree';
 
-export let tree: fileNode<any>;
+export let tree: FileNode<any>;
 export let margin = 0;
 export let root = true;
 
@@ -113,7 +100,7 @@ function getLink(file: any): string {
   <div class="text-right">{tree.data && !isRemoved(tree) ? getHumanSize(tree.data.size) : ''}</div>
   {#if children.size || (file && file.type === 'Directory')}
     <button class="{`text-left ml-${margin} ${colorClass}`}" on:click="{toggleExpansion}">
-      <span class="arrow mr-1" class:arrowDown="{arrowDown}">&gt;</span>
+      <span class="cursor-pointer inline-block mr-1" class:rotate-90="{arrowDown}">&gt;</span>
       {label}<span class="text-gray-900 text-sm">{getLink(tree.data)}</span>
     </button>
     {#if expanded}
@@ -123,7 +110,7 @@ function getLink(file: any): string {
     {/if}
   {:else}
     <div class="{`${colorClass}`}">
-      <span class="{`no-arrow ml-${margin}`}"></span>
+      <span class="{`pl-4 ml-${margin}`}"></span>
       {label}<span class="text-gray-900 text-sm">{getLink(tree.data)}</span>
     </div>
   {/if}
