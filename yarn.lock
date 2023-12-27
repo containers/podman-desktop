@@ -11764,10 +11764,10 @@ modify-filename@^1.1.0:
   resolved "https://registry.yarnpkg.com/modify-filename/-/modify-filename-1.1.0.tgz#9a2dec83806fbb2d975f22beec859ca26b393aa1"
   integrity sha512-EickqnKq3kVVaZisYuCxhtKbZjInCuwgwZWyAmRIp1NTMhri7r3380/uqwrUHfaDiPzLVTuoNy4whX66bxPVog==
 
-moment@^2.29.4:
-  version "2.29.4"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
-  integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
+moment@^2.30.0:
+  version "2.30.0"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.30.0.tgz#c2a65bb962bdf2a9c49c69b5358c41f6c66ad10e"
+  integrity sha512-8XSlYFhOSJvnEJOas6RpDCNU2PYeVC+oE33d3Z9tIsXpD8LIgBeqrHPjP8es4b3fcJpf07D1PJWGDUfdbqDLnQ==
 
 monaco-editor@^0.45.0:
   version "0.45.0"
