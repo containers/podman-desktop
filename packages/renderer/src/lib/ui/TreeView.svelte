@@ -9,32 +9,28 @@ export let tree: FileNode<any>;
 export let margin = 0;
 export let root = true;
 
-$: label = isRemoved(tree) ? tree.name.substring(4) : tree.name;
+$: label = tree.name;
 $: children = tree.children;
 $: file = tree.data;
-$: colorClass = getColor(tree.name, tree.data);
+$: colorClass = getColor(tree);
 
-function getColor(name: string, data: any) {
-  if (!data) {
+function getColor(tree: any) {
+  if (!tree.data) {
     return '';
   }
-  if (name.startsWith('.wh.')) {
+  if (tree.isRemoved) {
     return 'text-red-500';
   }
-  if (data.type === 'SymbolicLink') {
+  if (tree.data.isLink) {
     return 'text-sky-300';
   }
-  if (data.type === 'Directory') {
+  if (tree.data.isDir) {
     return 'text-sky-500';
   }
-  if (isExecutable(data.mode)) {
+  if (tree.data.isExec) {
     return 'text-green-500';
   }
   return '';
-}
-
-function isRemoved(data: any): boolean {
-  return data?.name.startsWith('.wh.');
 }
 
 $: expanded = _expansionState.get(label) || false;
@@ -43,24 +39,6 @@ const toggleExpansion = () => {
   _expansionState.set(label, expanded);
 };
 $: arrowDown = expanded;
-function getModeString(type: string, mode: number): string {
-  return (
-    (type === 'Directory' ? 'd' : '-') +
-    (mode & 0o400 ? 'r' : '-') +
-    (mode & 0o200 ? 'w' : '-') +
-    (mode & 0o100 ? 'x' : '-') +
-    (mode & 0o040 ? 'r' : '-') +
-    (mode & 0o020 ? 'w' : '-') +
-    (mode & 0o010 ? 'x' : '-') +
-    (mode & 0o004 ? 'r' : '-') +
-    (mode & 0o002 ? 'w' : '-') +
-    (mode & 0o001 ? 'x' : '-')
-  );
-}
-
-function isExecutable(mode: number): boolean {
-  return (mode & 0o111) !== 0;
-}
 
 function getHumanSize(size: number): string {
   let u = '';
@@ -83,8 +61,8 @@ function getLink(file: any): string {
   if (!file) {
     return '';
   }
-  if (file.type === 'SymbolicLink') {
-    return ' → ' + file.linkpath;
+  if (file.isLink) {
+    return ' → ' + file.linkTarget;
   }
   return '';
 }
@@ -95,9 +73,9 @@ function getLink(file: any): string {
     <svelte:self root="{false}" margin="{margin + 2}" tree="{child}" />
   {/each}
 {:else}
-  <div class="font-mono">{tree.data && !isRemoved(tree) ? getModeString(tree.data.type, tree.data.mode) : ''}</div>
-  <div class="text-right">{tree.data && !isRemoved(tree) ? tree.data.uid + ':' + tree.data.gid : ''}</div>
-  <div class="text-right">{tree.data && !isRemoved(tree) ? getHumanSize(tree.data.size) : ''}</div>
+  <div class="font-mono">{tree.data && !tree.isRemoved ? tree.data.typeChar + tree.data.modeString : ''}</div>
+  <div class="text-right">{tree.data && !tree.isRemoved ? tree.data.uid + ':' + tree.data.gid : ''}</div>
+  <div class="text-right">{tree.data && !tree.isRemoved ? getHumanSize(tree.data.size) : ''}</div>
   {#if children.size || (file && file.type === 'Directory')}
     <button class="{`text-left ml-${margin} ${colorClass}`}" on:click="{toggleExpansion}">
       <span class="cursor-pointer inline-block mr-1" class:rotate-90="{arrowDown}">&gt;</span>

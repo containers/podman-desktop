@@ -21,13 +21,52 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { FileTree } from './file-tree.js';
 
+export interface Colorable {
+  isDir: boolean;
+  isLink: boolean;
+  isFifo: boolean;
+  isBlock: boolean;
+  isChar: boolean;
+  isExec: boolean;
+  isSUID: boolean;
+  isSGID: boolean;
+}
+
+export interface File extends Colorable {
+  typeChar: string;
+  modeString: string;
+  uid: number | undefined;
+  gid: number | undefined;
+  size: number | undefined;
+  linkTarget: string | undefined;
+}
+
 export interface ImageLayer {
   id: string;
   history?: string;
-  files: nodeTar.ReadEntry[];
-  tree: FileTree<nodeTar.ReadEntry>;
+  tree: FileTree<File>;
 }
 
+interface ExtendedNodeEntry extends nodeTar.ReadEntry {
+  linkpath: string;
+}
+
+function getModeString(mode: number | undefined): string {
+  if (!mode) {
+    return '';
+  }
+  return (
+    (mode & 0o400 ? 'r' : '-') +
+    (mode & 0o200 ? 'w' : '-') +
+    (mode & 0o100 ? 'x' : '-') +
+    (mode & 0o040 ? 'r' : '-') +
+    (mode & 0o020 ? 'w' : '-') +
+    (mode & 0o010 ? 'x' : '-') +
+    (mode & 0o004 ? 'r' : '-') +
+    (mode & 0o002 ? 'w' : '-') +
+    (mode & 0o001 ? 'x' : '-')
+  );
+}
 export async function getLayersFromImageArchive(tmpdir: string): Promise<ImageLayer[]> {
   const manifest = JSON.parse(fs.readFileSync(path.join(tmpdir, 'manifest.json'), 'utf-8'));
   const layers = manifest[0].Layers;
@@ -37,14 +76,28 @@ export async function getLayersFromImageArchive(tmpdir: string): Promise<ImageLa
   const history = config.history;
   const layersResult: ImageLayer[] = [];
   for (const layer of layers) {
-    const tree = new FileTree<nodeTar.ReadEntry>(layer);
-    const entries: nodeTar.ReadEntry[] = [];
+    const tree = new FileTree<File>(layer);
     const layerTar = path.join(tmpdir, layer);
     await nodeTar.list({
       file: layerTar,
-      onentry: (entry: nodeTar.ReadEntry) => {
-        entries.push(entry);
-        tree.addPath(entry.path, entry);
+      onentry: (entry: ExtendedNodeEntry) => {
+        const file = {
+          typeChar: entry.type === nodeTar.types.Directory ? 'd' : '-',
+          modeString: getModeString(entry.mode),
+          uid: entry.uid,
+          gid: entry.gid,
+          size: entry.size,
+          isDir: entry.type === 'Directory',
+          isLink: entry.type === 'SymbolicLink',
+          isFifo: entry.type === 'FIFO',
+          isBlock: entry.type === 'BlockDevice',
+          isChar: entry.type === 'CharacterDevice',
+          isExec: !!entry.mode && (entry.mode & 0o111) !== 0,
+          isSUID: !!entry.mode && (entry.mode & 0o4000) !== 0,
+          isSGID: !!entry.mode && (entry.mode & 0o2000) !== 0,
+          linkTarget: entry.type === 'SymbolicLink' ? entry.linkpath : undefined,
+        };
+        tree.addPath(entry.path, file);
         tree.addFileSize(entry.size ?? 0);
       },
     });
@@ -60,7 +113,7 @@ export async function getLayersFromImageArchive(tmpdir: string): Promise<ImageLa
       layerHistory = hist.created_by.replace(/^\/bin\/sh -c /, '');
       break;
     }
-    layersResult.push({ id: layer, files: entries, tree: tree, history: layerHistory });
+    layersResult.push({ id: layer, tree: tree, history: layerHistory } as ImageLayer);
   }
   return layersResult;
 }

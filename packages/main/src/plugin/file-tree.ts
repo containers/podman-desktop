@@ -18,11 +18,13 @@
 
 export class FileNode<T> {
   name: string;
+  isRemoved: boolean;
   data: T | undefined;
   children: Map<string, FileNode<T>>;
 
   constructor(name: string) {
-    this.name = name;
+    this.isRemoved = name.startsWith('.wh.');
+    this.name = this.isRemoved ? name.substring(4) : name;
     this.children = new Map<string, FileNode<T>>();
   }
 
