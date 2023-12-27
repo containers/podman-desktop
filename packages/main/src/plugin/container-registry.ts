@@ -2073,12 +2073,14 @@ export class ContainerProviderRegistry {
 
   async getImageLayers(engineId: string, id: string): Promise<ImageLayer[]> {
     const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), 'podman-desktop'));
-    const tarFile = path.join(tmpdir, id + '.tar');
-    await this.saveImage(engineId, id, tarFile);
-    await nodeTar.extract({ file: tarFile, cwd: tmpdir });
-    const result = await getLayersFromImageArchive(tmpdir);
-    fs.rmSync(tmpdir, { force: true, recursive: true });
-    return result;
+    try {
+      const tarFile = path.join(tmpdir, id + '.tar');
+      await this.saveImage(engineId, id, tarFile);
+      await nodeTar.extract({ file: tarFile, cwd: tmpdir });
+      return await getLayersFromImageArchive(tmpdir);
+    } finally {
+      fs.rmSync(tmpdir, { force: true, recursive: true });
+    }
   }
 
   async getPodInspect(engineId: string, id: string): Promise<PodInspectInfo> {
