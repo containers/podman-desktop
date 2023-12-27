@@ -1,12 +1,12 @@
 import { expect, test } from 'vitest';
-import { fileTree } from './filetree.js';
+import { FileTree } from './file-tree.js';
 
 interface typ {
   path: string;
 }
 
 test('add paths to filetree', () => {
-  const tree = new fileTree<typ>('tree1');
+  const tree = new FileTree<typ>('tree1');
   tree.addPath('A', { path: 'A-path' });
   tree.addPath('a/', { path: 'a/-path' });
   tree.addPath('a/b/c/d.txt', { path: 'a/b/c/d.txt-path' });

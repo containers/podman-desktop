@@ -1,29 +1,29 @@
-export class fileNode<T> {
+export class FileNode<T> {
   name: string;
   data: T | undefined;
-  children: Map<string, fileNode<T>>;
+  children: Map<string, FileNode<T>>;
 
   constructor(name: string) {
     this.name = name;
-    this.children = new Map<string, fileNode<T>>();
+    this.children = new Map<string, FileNode<T>>();
   }
 
-  addChild(name: string): fileNode<T> {
-    const child = new fileNode<T>(name);
+  addChild(name: string): FileNode<T> {
+    const child = new FileNode<T>(name);
     this.children.set(name, child);
     return child;
   }
 }
 
-export class fileTree<T> {
+export class FileTree<T> {
   name: string;
   fileSize: number;
-  root: fileNode<T>;
+  root: FileNode<T>;
 
   constructor(name: string) {
     this.name = name;
     this.fileSize = 0;
-    this.root = new fileNode<T>('/');
+    this.root = new FileNode<T>('/');
   }
 
   addFileSize(s: number) {

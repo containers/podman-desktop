@@ -1,13 +1,13 @@
 import nodeTar from 'tar';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileTree } from './filetree.js';
+import { FileTree } from './file-tree.js';
 
 export interface ImageLayer {
   id: string;
   history?: string;
   files: nodeTar.ReadEntry[];
-  tree: fileTree<nodeTar.ReadEntry>;
+  tree: FileTree<nodeTar.ReadEntry>;
 }
 
 export async function getLayersFromImageArchive(tmpdir: string): Promise<ImageLayer[]> {
@@ -19,7 +19,7 @@ export async function getLayersFromImageArchive(tmpdir: string): Promise<ImageLa
   const history = config.history;
   const layersResult: ImageLayer[] = [];
   for (const layer of layers) {
-    const tree = new fileTree<nodeTar.ReadEntry>(layer);
+    const tree = new FileTree<nodeTar.ReadEntry>(layer);
     const entries: nodeTar.ReadEntry[] = [];
     const layerTar = path.join(tmpdir, layer);
     await nodeTar.list({
