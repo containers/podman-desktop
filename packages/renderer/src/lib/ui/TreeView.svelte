@@ -4,6 +4,7 @@ const _expansionState = new Map<string, boolean>();
 
 <script lang="ts">
 import type { FileNode } from '../../../../main/src/plugin/file-tree';
+import { ImageUtils } from '../image/image-utils';
 
 export let tree: FileNode<any>;
 export let margin = 0;
@@ -40,23 +41,6 @@ const toggleExpansion = () => {
 };
 $: arrowDown = expanded;
 
-function getHumanSize(size: number): string {
-  let u = '';
-  if (size > 1024) {
-    size = Math.floor(size / 100) / 10;
-    u = 'k';
-  }
-  if (size > 1024) {
-    size = Math.floor(size / 100) / 10;
-    u = 'M';
-  }
-
-  if (size > 99) {
-    size = Math.floor(size);
-  }
-  return size + u;
-}
-
 function getLink(file: any): string {
   if (!file) {
     return '';
@@ -75,11 +59,11 @@ function getLink(file: any): string {
 {:else}
   <div class="font-mono">{tree.data && !tree.isRemoved ? tree.data.typeChar + tree.data.modeString : ''}</div>
   <div class="text-right">{tree.data && !tree.isRemoved ? tree.data.uid + ':' + tree.data.gid : ''}</div>
-  <div class="text-right">{tree.data && !tree.isRemoved ? getHumanSize(tree.data.size) : ''}</div>
+  <span class="text-right">{!tree.isRemoved ? new ImageUtils().getHumanSize(tree.size) : ''}</span>
   {#if children.size || (file && file.type === 'Directory')}
     <button class="{`text-left ml-${margin} ${colorClass}`}" on:click="{toggleExpansion}">
       <span class="cursor-pointer inline-block mr-1" class:rotate-90="{arrowDown}">&gt;</span>
-      {label}<span class="text-gray-900 text-sm">{getLink(tree.data)}</span>
+      {label}<span class="text-gray-900">{getLink(tree.data)}</span>
     </button>
     {#if expanded}
       {#each children as [_, child]}
@@ -89,7 +73,7 @@ function getLink(file: any): string {
   {:else}
     <div class="{`${colorClass}`}">
       <span class="{`pl-4 ml-${margin}`}"></span>
-      {label}<span class="text-gray-900 text-sm">{getLink(tree.data)}</span>
+      {label}<span class="text-gray-900">{getLink(tree.data)}</span>
     </div>
   {/if}
 {/if}

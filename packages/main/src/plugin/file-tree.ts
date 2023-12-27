@@ -21,11 +21,13 @@ export class FileNode<T> {
   isRemoved: boolean;
   data: T | undefined;
   children: Map<string, FileNode<T>>;
+  size: number;
 
   constructor(name: string) {
     this.isRemoved = name.startsWith('.wh.');
     this.name = this.isRemoved ? name.substring(4) : name;
     this.children = new Map<string, FileNode<T>>();
+    this.size = 0;
   }
 
   addChild(name: string): FileNode<T> {
@@ -37,19 +39,17 @@ export class FileNode<T> {
 
 export class FileTree<T> {
   name: string;
-  fileSize: number;
   root: FileNode<T>;
+  size: number;
 
   constructor(name: string) {
     this.name = name;
-    this.fileSize = 0;
     this.root = new FileNode<T>('/');
+    this.size = 0;
   }
 
-  addFileSize(s: number) {
-    this.fileSize += s;
-  }
-  addPath(path: string, entry: T) {
+  addPath(path: string, entry: T, size: number) {
+    this.size += size;
     const parts = path.split('/');
     let node = this.root;
     for (let i = 0; i < parts.length; i++) {
@@ -63,6 +63,7 @@ export class FileTree<T> {
       } else {
         node = node.addChild(part);
       }
+      node.size += size;
     }
     node.data = entry;
   }

@@ -3,6 +3,7 @@ import type { ImageLayer } from '../../../../main/src/plugin/image-layers';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { onMount } from 'svelte';
 import TreeView from '../ui/TreeView.svelte';
+import { ImageUtils } from './image-utils';
 
 export let image: ImageInfoUI;
 let layers: ImageLayer[];
@@ -40,13 +41,14 @@ function onLayerSelected(layer: ImageLayer) {
             <div>
               <div class="text-sm">{layer.history}</div>
               <div class="text-xs text-gray-700">{layer.id}</div>
+              <div class="text-xs text-gray-700">{new ImageUtils().getHumanSize(layer.tree.size)}</div>
             </div>
           </button>
         {/each}
       </div>
       <div class="h-full w-full pr-4 overflow-y-scroll pb-16">
         {#if currentRoot}
-          <div class="grid grid-cols-[120px_80px_60px_1fr]">
+          <div class="text-xs grid grid-cols-[90px_60px_70px_1fr]">
             <TreeView tree="{currentRoot}" />
           </div>
         {/if}

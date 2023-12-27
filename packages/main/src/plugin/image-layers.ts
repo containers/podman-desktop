@@ -82,7 +82,7 @@ export async function getLayersFromImageArchive(tmpdir: string): Promise<ImageLa
       file: layerTar,
       onentry: (entry: ExtendedNodeEntry) => {
         const file = {
-          typeChar: entry.type === nodeTar.types.Directory ? 'd' : '-',
+          typeChar: entry.type === 'Directory' ? 'd' : '-',
           modeString: getModeString(entry.mode),
           uid: entry.uid,
           gid: entry.gid,
@@ -97,8 +97,7 @@ export async function getLayersFromImageArchive(tmpdir: string): Promise<ImageLa
           isSGID: !!entry.mode && (entry.mode & 0o2000) !== 0,
           linkTarget: entry.type === 'SymbolicLink' ? entry.linkpath : undefined,
         };
-        tree.addPath(entry.path, file);
-        tree.addFileSize(entry.size ?? 0);
+        tree.addPath(entry.path, file, entry.size ?? 0);
       },
     });
     let layerHistory: string | undefined;
