@@ -22,6 +22,7 @@ import type {
   AuthenticationProviderAuthenticationSessionsChangeEvent,
   AuthenticationSession,
 } from '@podman-desktop/api';
+import { window } from '@podman-desktop/api';
 import { Octokit } from '@octokit/rest';
 
 class GithubSession implements AuthenticationSession {
@@ -43,7 +44,7 @@ class GithubSession implements AuthenticationSession {
   }
 }
 
-class GitHubProvider implements AuthenticationProvider {
+export class GitHubProvider implements AuthenticationProvider {
   private _onDidChangeSession =
     new extensionApi.EventEmitter<AuthenticationProviderAuthenticationSessionsChangeEvent>();
   onDidChangeSessions: extensionApi.Event<extensionApi.AuthenticationProviderAuthenticationSessionsChangeEvent> =
@@ -67,6 +68,7 @@ class GitHubProvider implements AuthenticationProvider {
 
     // Check if the token exists
     if (accessToken === undefined || accessToken.length === 0) {
+      await window.showErrorMessage('No access token provided.');
       throw new Error('No access token provided.'); // todo: create a notification ?
     }
 
@@ -132,7 +134,7 @@ export async function activate(): Promise<void> {
     try {
       await authProvider.createSession([]);
     } catch (e) {
-      // TODO: we might want to inform the user the token is not valid ?
+      await window.showErrorMessage(`GitHub access token is not valid.`);
       console.error(e);
     }
   }
