@@ -149,6 +149,7 @@ import type { KubeContext } from './kubernetes-context.js';
 import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import { OpenDevToolsInit } from './open-devtools-init.js';
+import type { KubernetesConnection } from '/@/plugin/kubernetes-connection.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -1996,6 +1997,12 @@ export class PluginSystem {
 
     this.ipcHandle('kubernetes-client:getDetailedContexts', async (): Promise<KubeContext[]> => {
       return kubernetesClient.getDetailedContexts();
+    });
+
+    this.ipcHandle('kubernetes-client:getConnectionStatus', async (): Promise<KubernetesConnection | undefined> => {
+      const value = kubernetesClient.getConnectionStatus();
+      console.log('getConnectionStatus', value);
+      return value;
     });
 
     this.ipcHandle('kubernetes-client:getClusters', async (): Promise<Cluster[]> => {

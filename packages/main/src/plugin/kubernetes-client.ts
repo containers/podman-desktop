@@ -65,6 +65,9 @@ import type { KubeContext } from './kubernetes-context.js';
 import type { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import type { IncomingMessage } from 'node:http';
+import type { KubernetesConnection } from '/@/plugin/kubernetes-connection.js';
+import type http from 'http';
+import type { VersionInfo } from '@kubernetes/client-node/dist/gen/model/versionInfo.js';
 
 function toContainerStatus(state: V1ContainerState | undefined): string {
   if (state) {
@@ -113,7 +116,7 @@ const DEFAULT_NAMESPACE = 'default';
  * Handle calls to kubernetes API
  */
 export class KubernetesClient {
-  protected kubeConfig;
+  protected kubeConfig: KubeConfig;
 
   private static readonly DEFAULT_KUBECONFIG_PATH = resolve(homedir(), '.kube', 'config');
 
@@ -287,6 +290,24 @@ export class KubernetesClient {
 
   getCurrentNamespace(): string | undefined {
     return this.currentNamespace;
+  }
+
+  async getConnectionStatus(): Promise<KubernetesConnection | undefined> {
+    const currentContextName = this.getCurrentContextName();
+    if (currentContextName === undefined) return undefined;
+    try {
+      await this.getCode();
+      return {
+        context: currentContextName,
+        status: 'connected',
+      };
+    } catch (e) {
+      return {
+        context: currentContextName,
+        status: 'error',
+        error: `error: ${e}`,
+      };
+    }
   }
 
   getDetailedContexts(): KubeContext[] {
@@ -851,13 +872,18 @@ export class KubernetesClient {
   // We will check via trying to retrieve a list of API Versions from the server.
   async checkConnection(): Promise<boolean> {
     try {
-      const k8sApi = this.kubeConfig.makeApiClient(VersionApi);
       // getCode will error out if we're unable to connect to the cluster
-      await k8sApi.getCode();
+      await this.getCode();
       return true;
     } catch (error) {
       return false;
     }
+  }
+
+  // Thrown an error if the server cannot be contacted
+  private async getCode(): Promise<{ response: http.IncomingMessage; body: VersionInfo }> {
+    const k8sApi = this.kubeConfig.makeApiClient(VersionApi);
+    return k8sApi.getCode();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
