@@ -5,7 +5,7 @@ import type { Unsubscriber } from 'svelte/store';
 import NavPage from '../ui/NavPage.svelte';
 import Table from '../table/Table.svelte';
 import { Column, Row } from '../table/table';
-import IngressRouteColumnActions from './IngressColumnActions.svelte';
+import IngressRouteColumnActions from './IngressRouteColumnActions.svelte';
 import Button from '../ui/Button.svelte';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';

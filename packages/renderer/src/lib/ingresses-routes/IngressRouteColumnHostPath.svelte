@@ -12,7 +12,7 @@ const ingressRouteUtils = new IngressRouteUtils();
 {#each ingressRouteUtils.getHostPaths(object) as hostPath}
   <div class="text-sm text-gray-500">
     {#if hostPath.url}
-      <Link externalRef="{hostPath.url}">
+      <Link aria-label="{hostPath.label}" externalRef="{hostPath.url}">
         {hostPath.label}
       </Link>
     {:else}

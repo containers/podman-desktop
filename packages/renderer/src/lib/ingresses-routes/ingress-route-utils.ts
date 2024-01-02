@@ -52,7 +52,7 @@ export class IngressRouteUtils {
     };
   }
   isIngress(object: IngressUI | RouteUI): object is IngressUI {
-    return 'rules' in object;
+    return !('to' in object);
   }
   getHostPaths(ingressRoute: IngressUI | RouteUI): HostPathObject[] {
     if (this.isIngress(ingressRoute)) {
