@@ -69,7 +69,7 @@ export class GitHubProvider implements AuthenticationProvider {
     // Check if the token exists
     if (accessToken === undefined || accessToken.length === 0) {
       await window.showErrorMessage('No access token provided.');
-      throw new Error('No access token provided.'); // todo: create a notification ?
+      throw new Error('No access token provided.');
     }
 
     // Validate the token
