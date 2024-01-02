@@ -6,4 +6,4 @@ import type { RouteUI } from './RouteUI';
 export let object: IngressUI | RouteUI;
 </script>
 
-<IngressRouteActions ingressRoute="{object}" />
+<IngressRouteActions ingressRoute="{object}" on:update />

@@ -39,7 +39,7 @@ ingressesEventStore.setup();
 export const searchPattern = writable('');
 
 export const filtered = derived([searchPattern, ingresses], ([$searchPattern, $ingresses]) =>
-  $ingresses.filter(deployment => findMatchInLeaves(deployment, $searchPattern.toLowerCase())),
+  $ingresses.filter(ingress => findMatchInLeaves(ingress, $searchPattern.toLowerCase())),
 );
 
 function informerListener(...args: unknown[]) {

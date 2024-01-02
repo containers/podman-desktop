@@ -2,7 +2,6 @@
 import { onDestroy, onMount } from 'svelte';
 
 import type { Unsubscriber } from 'svelte/store';
-import { filtered, searchPattern } from '../../stores/deployments';
 import NavPage from '../ui/NavPage.svelte';
 import Table from '../table/Table.svelte';
 import { Column, Row } from '../table/table';
@@ -13,26 +12,37 @@ import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import SimpleColumn from '../table/SimpleColumn.svelte';
 import type { IngressUI } from './IngressUI';
 import { IngressRouteUtils } from './ingress-route-utils';
-import { ingresses } from '/@/stores/ingresses';
+import { filtered as filteredIngresses, searchPattern as searchPatternIngresses } from '/@/stores/ingresses';
 import IngressRouteIcon from '../images/IngressRouteIcon.svelte';
 import type { RouteUI } from './RouteUI';
 import IngressRouteColumnName from './IngressRouteColumnName.svelte';
 import IngressRouteEmptyScreen from './IngressRouteEmptyScreen.svelte';
 import IngressRouteColumnHostPath from './IngressRouteColumnHostPath.svelte';
 import IngressRouteColumnBackend from './IngressRouteColumnBackend.svelte';
+import { filtered as filteredRoutes, searchPattern as searchPatternRoutes } from '/@/stores/routes';
+import IngressRouteColumnStatus from './IngressRouteColumnStatus.svelte';
 
 export let searchTerm = '';
-$: searchPattern.set(searchTerm);
+$: searchPatternRoutes.set(searchTerm);
+$: searchPatternIngresses.set(searchTerm);
 
+let ingressesUI: IngressUI[] = [];
+let routesUI: RouteUI[] = [];
 let ingressesRoutesUI: (IngressUI | RouteUI)[] = [];
 
 const ingressRouteUtils = new IngressRouteUtils();
 
 let ingressesUnsubscribe: Unsubscriber;
 let routesUnsubscribe: Unsubscriber;
-onMount(async () => {
-  ingressesUnsubscribe = ingresses.subscribe(value => {
-    ingressesRoutesUI = value.map(ingress => ingressRouteUtils.getIngressUI(ingress));
+onMount(() => {
+  ingressesUnsubscribe = filteredIngresses.subscribe(value => {
+    ingressesUI = value.map(ingress => ingressRouteUtils.getIngressUI(ingress));
+    ingressesRoutesUI = [...ingressesUI, ...routesUI];
+  });
+
+  routesUnsubscribe = filteredRoutes.subscribe(value => {
+    routesUI = value.map(route => ingressRouteUtils.getRouteUI(route));
+    ingressesRoutesUI = [...ingressesUI, ...routesUI];
   });
 });
 
@@ -70,12 +80,11 @@ async function deleteSelectedIngressesRoutes() {
 let selectedItemsNumber: number;
 let table: Table;
 
-/* let statusColumn = new Column<IngressUI>('Status', {
+let statusColumn = new Column<IngressUI>('Status', {
   align: 'center',
   width: '70px',
-  renderer: DeploymentColumnStatus,
-  comparator: () => 1, //a.status.localeCompare(b.status),
-}); */
+  renderer: IngressRouteColumnStatus,
+});
 
 let nameColumn = new Column<IngressUI | RouteUI>('Name', {
   width: '2fr',
@@ -91,14 +100,28 @@ let namespaceColumn = new Column<IngressUI | RouteUI, string>('Namespace', {
 
 let pathColumn = new Column<IngressUI | RouteUI, string>('Host/Path', {
   renderer: IngressRouteColumnHostPath,
+  comparator: (a, b) => compareHostPath(a, b),
 });
+
+function compareHostPath(object1: IngressUI | RouteUI, object2: IngressUI | RouteUI): number {
+  const hostPathObject1 = ingressRouteUtils.getHostPaths(object1)[0] ?? '';
+  const hostPathObject2 = ingressRouteUtils.getHostPaths(object2)[0] ?? '';
+  return hostPathObject1.label.localeCompare(hostPathObject2.label);
+}
 
 let backendColumn = new Column<IngressUI | RouteUI, string>('Backend', {
   renderer: IngressRouteColumnBackend,
+  comparator: (a, b) => compareBackend(a, b),
 });
 
+function compareBackend(object1: IngressUI | RouteUI, object2: IngressUI | RouteUI): number {
+  const backendObject1 = ingressRouteUtils.getBackends(object1)[0] ?? '';
+  const backendObject2 = ingressRouteUtils.getBackends(object2)[0] ?? '';
+  return backendObject1.localeCompare(backendObject2);
+}
+
 const columns: Column<IngressUI | RouteUI, IngressUI | RouteUI | string>[] = [
-  //statusColumn,
+  statusColumn,
   nameColumn,
   namespaceColumn,
   pathColumn,
@@ -129,10 +152,11 @@ const row = new Row<IngressUI | RouteUI>({ selectable: _ingressRoute => true });
       data="{ingressesRoutesUI}"
       columns="{columns}"
       row="{row}"
-      defaultSortColumn="Name">
+      defaultSortColumn="Name"
+      on:update="{() => (ingressesRoutesUI = ingressesRoutesUI)}">
     </Table>
 
-    {#if $filtered.length === 0}
+    {#if $filteredIngresses.length === 0 && $filteredRoutes.length === 0}
       {#if searchTerm}
         <FilteredEmptyScreen icon="{IngressRouteIcon}" kind="ingresses && routes" bind:searchTerm="{searchTerm}" />
       {:else}

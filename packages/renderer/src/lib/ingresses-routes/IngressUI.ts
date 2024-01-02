@@ -21,6 +21,7 @@ import type { V1IngressRule } from '@kubernetes/client-node';
 export interface IngressUI {
   name: string;
   namespace: string;
+  status: string;
   rules?: Array<V1IngressRule>;
   selected: boolean;
 }

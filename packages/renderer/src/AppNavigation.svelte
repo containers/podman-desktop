@@ -25,6 +25,7 @@ import DashboardIcon from './lib/images/DashboardIcon.svelte';
 import ServiceIcon from './lib/images/ServiceIcon.svelte';
 import IngressRouteIcon from './lib/images/IngressRouteIcon.svelte';
 import { ingresses } from './stores/ingresses';
+import { routes } from './stores/routes';
 
 let podInfoSubscribe: Unsubscriber;
 let containerInfoSubscribe: Unsubscriber;
@@ -33,7 +34,8 @@ let volumeInfoSubscribe: Unsubscriber;
 let contextsSubscribe: Unsubscriber;
 let deploymentsSubscribe: Unsubscriber;
 let servicesSubscribe: Unsubscriber;
-let ingressesRoutesSubscribe: Unsubscriber;
+let ingressesSubscribe: Unsubscriber;
+let routesSubscribe: Unsubscriber;
 
 let podCount = '';
 let containerCount = '';
@@ -42,6 +44,8 @@ let volumeCount = '';
 let contextCount = 0;
 let deploymentCount = '';
 let serviceCount = '';
+let ingressesCount = 0;
+let routesCount = 0;
 let ingressesRoutesCount = '';
 
 const imageUtils = new ImageUtils();
@@ -94,12 +98,13 @@ onMount(async () => {
       serviceCount = '';
     }
   });
-  ingressesRoutesSubscribe = ingresses.subscribe(value => {
-    if (value.length > 0) {
-      ingressesRoutesCount = ' (' + value.length + ')';
-    } else {
-      ingressesRoutesCount = '';
-    }
+  ingressesSubscribe = ingresses.subscribe(value => {
+    ingressesCount = value.length;
+    updateIngressesRoutesCount(ingressesCount + routesCount);
+  });
+  routesSubscribe = routes.subscribe(value => {
+    routesCount = value.length;
+    updateIngressesRoutesCount(ingressesCount + routesCount);
   });
   contextsSubscribe = kubernetesContexts.subscribe(value => {
     contextCount = value.length;
@@ -128,8 +133,17 @@ onDestroy(() => {
   if (servicesSubscribe) {
     servicesSubscribe();
   }
-  ingressesRoutesSubscribe?.();
+  ingressesSubscribe?.();
+  routesSubscribe?.();
 });
+
+function updateIngressesRoutesCount(count: number) {
+  if (count > 0) {
+    ingressesRoutesCount = ' (' + count + ')';
+  } else {
+    ingressesRoutesCount = '';
+  }
+}
 
 function clickSettings(b: boolean) {
   if (b) {
