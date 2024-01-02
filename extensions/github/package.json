@@ -17,7 +17,7 @@
         "github.token": {
           "type": "string",
           "default": "",
-          "description": "GitHub token"
+          "markdownDescription": "GitHub token to act as an authenficated user. You can create one on [github.com/settings/token](https://github.com/settings/tokens/new)."
         }
       }
     },
