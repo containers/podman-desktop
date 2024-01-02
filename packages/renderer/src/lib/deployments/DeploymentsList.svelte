@@ -20,6 +20,7 @@ import DeploymentEmptyScreen from './DeploymentEmptyScreen.svelte';
 import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import SimpleColumn from '../table/SimpleColumn.svelte';
 import DurationColumn from '../table/DurationColumn.svelte';
+import ConnectionStatusBadge from '/@/lib/ui/ConnectionStatusBadge.svelte';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -114,6 +115,9 @@ const row = new Row<DeploymentUI>({ selectable: _deployment => true });
         icon="{faTrash}" />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
+    <div class="flex min-w-full justify-end">
+      <ConnectionStatusBadge />
+    </div>
   </svelte:fragment>
 
   <div class="flex min-w-full h-full" slot="content">

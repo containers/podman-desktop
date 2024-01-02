@@ -1,7 +1,6 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 import { filtered, searchPattern } from '../../stores/services';
-import { kubernetesConnection } from '../../stores/kubernetes-connection';
 import NavPage from '../ui/NavPage.svelte';
 import Table from '../table/Table.svelte';
 import { Column, Row } from '../table/table';
@@ -19,33 +18,19 @@ import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import SimpleColumn from '../table/SimpleColumn.svelte';
 import DurationColumn from '../table/DurationColumn.svelte';
 import ServiceColumnType from './ServiceColumnType.svelte';
-import type { KubernetesConnection } from '../../../../main/src/plugin/kubernetes-connection';
-import type { Unsubscriber } from 'svelte/store';
-import Badge from '/@/lib/ui/Badge.svelte';
+import ConnectionStatusBadge from '/@/lib/ui/ConnectionStatusBadge.svelte';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 let services: ServiceUI[] = [];
-let connection: KubernetesConnection | undefined = undefined;
 
 const serviceUtils = new ServiceUtils();
 
 onMount(() => {
-  let unsubscribers: Unsubscriber[] = [];
-
-  unsubscribers.push(
-    kubernetesConnection.subscribe(value => {
-      connection = value;
-    }),
-  );
-
-  unsubscribers.push(
-    filtered.subscribe(value => {
-      services = value.map(service => serviceUtils.getServiceUI(service));
-    }),
-  );
-  return () => unsubscribers.forEach(unsubscribe => unsubscribe());
+  return filtered.subscribe(value => {
+    services = value.map(service => serviceUtils.getServiceUI(service));
+  });
 });
 
 // delete the items selected in the list
@@ -125,12 +110,6 @@ const columns: Column<ServiceUI, ServiceUI | string | Date | undefined>[] = [
 ];
 
 const row = new Row<ServiceUI>({ selectable: _service => true });
-
-function getConnectionBadgeColor() {
-  if (connection === undefined || connection.status === 'error') return 'bg-gray-900';
-
-  return 'bg-green-900';
-}
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="services">
@@ -144,9 +123,7 @@ function getConnectionBadgeColor() {
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
     <div class="flex min-w-full justify-end">
-      {#if connection !== undefined}
-        <Badge text="{connection.status}" classColor="{getConnectionBadgeColor()}" tooltip="{connection.error}" />
-      {/if}
+      <ConnectionStatusBadge />
     </div>
   </svelte:fragment>
 
