@@ -16,29 +16,24 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { promises } from 'fs';
-import { OS } from './os';
-import { Octokit } from '@octokit/rest';
-import * as extensionApi from '@podman-desktop/api';
+import path from 'node:path';
+import { coverageConfig, testConfig } from '../../vitest-shared-extensions.config';
+import { join } from 'path';
 
-export async function makeExecutable(filePath: string): Promise<void> {
-  // New OS class
-  const os = new OS();
-  if (os.isLinux() || os.isMac()) {
-    await promises.chmod(filePath, 0o755);
-  }
-}
+const PACKAGE_ROOT = __dirname;
+const PACKAGE_NAME = 'extensions/kind';
 
-export async function createOctokitClient(): Promise<Octokit> {
-  console.log('kind createOctokitClient');
-  let session = undefined;
-  try {
-    session = await extensionApi.authentication.getSession('github', []);
-  } catch (ex) {
-    console.error(ex);
-  }
+const config = {
+  test: {
+    ...testConfig(),
+    ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
+  },
+  resolve: {
+    alias: {
+      '@podman-desktop/api': path.resolve('../../', '__mocks__/@podman-desktop/api.js'),
+      '/@/': join(PACKAGE_ROOT, 'src') + '/',
+    },
+  },
+};
 
-  return new Octokit({
-    auth: session?.accessToken,
-  });
-}
+export default config;

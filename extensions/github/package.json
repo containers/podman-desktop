@@ -1,0 +1,47 @@
+{
+  "name": "github",
+  "displayName": "GitHub",
+  "description": "GitHub Authentication Provider",
+  "version": "0.0.1",
+  "icon": "icon.png",
+  "publisher": "podman-desktop",
+  "license": "Apache-2.0",
+  "engines": {
+    "podman-desktop": "^0.0.1"
+  },
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "GitHub",
+      "properties": {
+        "github.token": {
+          "type": "string",
+          "default": "",
+          "description": "GitHub token"
+        }
+      }
+    },
+    "menus": {},
+    "views": {},
+    "commands": []
+  },
+  "scripts": {
+    "build": "vite build && node ./scripts/build.js",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest watch --coverage",
+    "watch": "vite build -w"
+  },
+  "dependencies": {
+    "@octokit/rest": "^20.0.2",
+    "@podman-desktop/api": "^0.0.1",
+    "mustache": "^4.2.0",
+    "yaml": "^2.3.4"
+  },
+  "devDependencies": {
+    "adm-zip": "^0.5.10",
+    "mkdirp": "^3.0.1",
+    "tmp-promise": "^3.0.3",
+    "vite": "^5.0.10",
+    "vitest": "^1.1.1"
+  }
+}
