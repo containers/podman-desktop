@@ -18,6 +18,8 @@
 
 const exec = require('child_process').exec;
 const Arch = require('builder-util').Arch;
+const path = require('path');
+const { flipFuses, FuseVersion, FuseV1Options } = require('@electron/fuses');
 
 if (process.env.VITE_APP_VERSION === undefined) {
   const now = new Date();
@@ -32,6 +34,30 @@ if (process.env.AIRGAP_DOWNLOAD) {
   artifactNameSuffix = '-airgap';
   // Create only one universal build for airgap mode
   macosArches = ['universal'];
+}
+
+async function addElectronFuses(context) {
+  const { electronPlatformName, arch } = context;
+
+  const ext = {
+    darwin: '.app',
+    win32: '.exe',
+    linux: [''],
+  }[electronPlatformName];
+
+  const IS_LINUX = context.electronPlatformName === 'linux';
+  const executableName = IS_LINUX
+    ? context.packager.appInfo.productFilename.toLowerCase().replace('-dev', '').replace(' ', '-')
+    : context.packager.appInfo.productFilename; // .toLowerCase() to accomodate Linux file named `name` but productFileName is `Name` -- Replaces '-dev' because on Linux the executable name is `name` even for the DEV builds
+
+  const electronBinaryPath = path.join(context.appOutDir, `${executableName}${ext}`);
+
+  await flipFuses(electronBinaryPath, {
+    version: FuseVersion.V1,
+    [FuseV1Options.RunAsNode]: false,
+    [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
+    [FuseV1Options.EnableNodeCliInspectArguments]: false,
+  });
 }
 
 /**
@@ -80,6 +106,9 @@ const config = {
     if (context.arch === Arch.arm64 && context.electronPlatformName === 'win32') {
       context.packager.config.extraResources.push('extensions/podman/assets/podman-image-arm64.tar.xz');
     }
+  },
+  afterPack: async context => {
+    await addElectronFuses(context);
   },
   files: ['packages/**/dist/**', 'extensions/**/builtin/*.cdix/**'],
   portable: {
