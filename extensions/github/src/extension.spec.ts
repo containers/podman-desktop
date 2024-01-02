@@ -1,8 +1,22 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { activate, getGitHubAccessToken, GitHubProvider } from './extension';
 import * as extensionApi from '@podman-desktop/api';
-import type { AuthenticationProvider, AuthenticationProviderOptions, Configuration } from '@podman-desktop/api';
+import type {
+  AuthenticationProvider,
+  AuthenticationProviderOptions,
+  Configuration,
+  TelemetryLogger,
+} from '@podman-desktop/api';
 
+// Mock telemetry
+const telemetryLogUsageMock = vi.fn();
+const telemetryLogErrorMock = vi.fn();
+const telemetryLoggerMock = {
+  logUsage: telemetryLogUsageMock,
+  logError: telemetryLogErrorMock,
+} as unknown as TelemetryLogger;
+
+// Mock configurable properties
 function fakeConfiguration(accessToken?: string): Configuration {
   return {
     get(section: string, defaultValue?: string): string | undefined {
@@ -18,6 +32,7 @@ function fakeConfiguration(accessToken?: string): Configuration {
 }
 
 const fireMock = vi.hoisted(() => vi.fn());
+
 vi.mock('@podman-desktop/api', async () => {
   return {
     EventEmitter: vi.fn().mockReturnValue({
@@ -28,6 +43,12 @@ vi.mock('@podman-desktop/api', async () => {
     },
     authentication: {
       registerAuthenticationProvider: vi.fn(),
+    },
+    env: {
+      createTelemetryLogger: vi.fn().mockImplementation(() => telemetryLoggerMock),
+    },
+    window: {
+      showErrorMessage: vi.fn(),
     },
   };
 });
@@ -60,7 +81,7 @@ test('expect token configuration defined', async () => {
 test('error: cannot create session: empty access token', async () => {
   vi.spyOn(extensionApi.configuration, 'getConfiguration').mockReturnValue(fakeConfiguration());
 
-  const authProvider = new GitHubProvider();
+  const authProvider = new GitHubProvider(telemetryLoggerMock);
 
   // createSession without access token configured
   try {
@@ -77,7 +98,7 @@ test('valid access token', async () => {
   // Configured access token
   vi.spyOn(extensionApi.configuration, 'getConfiguration').mockReturnValue(fakeConfiguration('dummy'));
 
-  const authProvider = new GitHubProvider();
+  const authProvider = new GitHubProvider(telemetryLoggerMock);
 
   // createSession without access token configured
   const session = await authProvider.createSession([]);
@@ -125,7 +146,7 @@ test('expect createSession not to be called automatically', async () => {
 test('expect session removed properly', async () => {
   vi.spyOn(extensionApi.configuration, 'getConfiguration').mockReturnValue(fakeConfiguration('dummy'));
 
-  const authProvider = new GitHubProvider();
+  const authProvider = new GitHubProvider(telemetryLoggerMock);
 
   // createSession with access token configured
   const session = await authProvider.createSession([]);

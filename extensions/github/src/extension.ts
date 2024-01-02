@@ -52,6 +52,8 @@ export class GitHubProvider implements AuthenticationProvider {
 
   protected sessions: GithubSession[] = [];
 
+  constructor(private telemetryLogger: extensionApi.TelemetryLogger) {}
+
   async getSessions(scopes?: string[]): Promise<readonly extensionApi.AuthenticationSession[]> {
     if (scopes?.length > 0) throw new Error('Scopes are not supported.');
     return this.sessions;
@@ -91,6 +93,8 @@ export class GitHubProvider implements AuthenticationProvider {
       [],
     );
 
+    this.telemetryLogger.logUsage('github-create-auth-session');
+
     // Fire events
     this._onDidChangeSession.fire({
       added: [session],
@@ -113,7 +117,8 @@ export class GitHubProvider implements AuthenticationProvider {
 let disposable: extensionApi.Disposable | undefined = undefined;
 
 export async function activate(): Promise<void> {
-  const authProvider = new GitHubProvider();
+  const telemetryLogger = extensionApi.env.createTelemetryLogger();
+  const authProvider = new GitHubProvider(telemetryLogger);
 
   // Register the AuthenticationProvider
   disposable = extensionApi.authentication.registerAuthenticationProvider('github', 'GitHub', authProvider, {
