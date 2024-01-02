@@ -1,5 +1,5 @@
 <script lang="ts">
-import { kubernetesConnection } from '../../stores/kubernetes-connection';
+import { kubernetesConnection } from '/@/stores/kubernetes-connection';
 import { onMount } from 'svelte';
 import type { KubernetesConnection } from '../../../../main/src/plugin/kubernetes-connection';
 import Badge from '/@/lib/ui/Badge.svelte';
