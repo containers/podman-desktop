@@ -70,6 +70,7 @@ import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plug
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { NotificationRegistry } from './notification-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
+import type { SubviewRegistry } from '/@/plugin/subview-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -161,6 +162,7 @@ export class ExtensionLoader {
     private cliToolRegistry: CliToolRegistry,
     private notificationRegistry: NotificationRegistry,
     private imageCheckerProvider: ImageCheckerImpl,
+    private subviewRegistry: SubviewRegistry,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -1055,6 +1057,14 @@ export class ExtensionLoader {
       },
     };
 
+    const subviewRegistry = this.subviewRegistry;
+    const subview: typeof containerDesktopAPI.subview = {
+      registerSubview(option: containerDesktopAPI.SubviewOption): containerDesktopAPI.Disposable {
+        return subviewRegistry.register({
+          ...option,
+        });
+      },
+    };
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
@@ -1084,6 +1094,7 @@ export class ExtensionLoader {
       context: contextAPI,
       cli,
       imageChecker,
+      subview,
     };
   }
 

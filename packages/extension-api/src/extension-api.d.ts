@@ -2651,4 +2651,19 @@ declare module '@podman-desktop/api' {
       metadata?: ImageCheckerProviderMetadata,
     ): Disposable;
   }
+
+  export interface SubviewOption {
+    // unique identifier
+    id: string;
+    // name to display
+    name: string;
+    // the path to index.html or url
+    source: string;
+    // base64 icon
+    icon: string;
+  }
+
+  export namespace subview {
+    export function registerSubview(option: SubviewOption): Disposable;
+  }
 }

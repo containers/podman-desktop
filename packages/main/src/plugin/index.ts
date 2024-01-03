@@ -767,6 +767,7 @@ export class PluginSystem {
       cliToolRegistry,
       notificationRegistry,
       imageChecker,
+      subviewRegistry,
     );
     await this.extensionLoader.init();
 

@@ -26,7 +26,7 @@ export interface SubviewInfo {
   // base64 encoded icon in format: 'data:image/svg+xml;base64,<content>'
   icon: string;
   // extension id related to the subview
-  extensionId: string;
+  extensionId?: string;
   // port use for the exposure and to allow the extension to connect to the service
   vmServicePort?: number;
 }
