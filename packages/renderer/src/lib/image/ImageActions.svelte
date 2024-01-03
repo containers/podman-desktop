@@ -96,6 +96,36 @@ function onError(error: string): void {
   icon="{faTrash}"
   enabled="{!image.inUse}" />
 
+{#if errorMessage}
+  <div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center p-8 lg:p-0 z-50" tabindex="-1">
+    <div class="border-t-red-600 border-t-2 p-4 bg-charcoal-600" aria-label="Success alert">
+      <div class="flex flex-row justify-center items-center pb-2">
+        <Fa icon="{faExclamationCircle}" class="text-red-500 mr-2" />
+        <div class="text-red-500 font-bold text-sm">
+          {errorTitle}
+        </div>
+        <Fa
+          icon="{faTimes}"
+          class="text-gray-900 pl-2 cursor-pointer"
+          on:click="{() => {
+            errorMessage = undefined;
+          }}" />
+      </div>
+      <div class="flex justify-center break-words whitespace-normal text-xs pb-2">
+        {errorMessage}
+      </div>
+
+      <div class="flex flex-row justify-center">
+        <Button
+          type="link"
+          on:click="{() => {
+            errorMessage = undefined;
+          }}">Ignore</Button>
+      </div>
+    </div>
+  </div>
+{/if}
+
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
 <ActionsWrapper
   dropdownMenu="{dropdownMenu}"
@@ -134,34 +164,4 @@ function onError(error: string): void {
     contextPrefix="imageItem"
     detailed="{detailed}"
     onError="{onError}" />
-
-  {#if errorMessage}
-    <div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center p-8 lg:p-0 z-50" tabindex="-1">
-      <div class="border-t-red-600 border-t-2 p-4 bg-charcoal-600" aria-label="Success alert">
-        <div class="flex flex-row justify-center items-center pb-2">
-          <Fa icon="{faExclamationCircle}" class="text-red-500 mr-2" />
-          <div class="text-red-500 font-bold text-sm">
-            {errorTitle}
-          </div>
-          <Fa
-            icon="{faTimes}"
-            class="text-gray-900 pl-2 cursor-pointer"
-            on:click="{() => {
-              errorMessage = undefined;
-            }}" />
-        </div>
-        <div class="flex justify-center break-words whitespace-normal text-xs pb-2">
-          {errorMessage}
-        </div>
-
-        <div class="flex flex-row justify-center">
-          <Button
-            type="link"
-            on:click="{() => {
-              errorMessage = undefined;
-            }}">Ignore</Button>
-        </div>
-      </div>
-    </div>
-  {/if}
 </ActionsWrapper>
