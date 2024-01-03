@@ -17,26 +17,42 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { test, expect, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 
 import DeploymentColumnName from './DeploymentColumnName.svelte';
 import type { DeploymentUI } from './DeploymentUI';
+import { router } from 'tinro';
+
+const deployment: DeploymentUI = {
+  name: 'my-deployment',
+  status: '',
+  namespace: 'default',
+  replicas: 0,
+  ready: 0,
+  selected: false,
+  conditions: [],
+};
 
 test('Expect simple column styling', async () => {
-  const deployment: DeploymentUI = {
-    name: 'my-deployment',
-    status: '',
-    namespace: '',
-    replicas: 0,
-    ready: 0,
-    selected: false,
-    conditions: [],
-  };
   render(DeploymentColumnName, { object: deployment });
 
   const text = screen.getByText(deployment.name);
   expect(text).toBeInTheDocument();
   expect(text).toHaveClass('text-sm');
   expect(text).toHaveClass('text-gray-300');
+});
+
+test('Expect clicking works', async () => {
+  render(DeploymentColumnName, { object: deployment });
+
+  const text = screen.getByText(deployment.name);
+  expect(text).toBeInTheDocument();
+
+  // test click
+  const routerGotoSpy = vi.spyOn(router, 'goto');
+
+  fireEvent.click(text);
+
+  expect(routerGotoSpy).toBeCalledWith('/deployments/my-deployment/default/summary');
 });
