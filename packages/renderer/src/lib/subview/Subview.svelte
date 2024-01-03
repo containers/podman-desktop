@@ -1,22 +1,22 @@
 <script lang="ts">
 import { afterUpdate, onMount } from 'svelte';
-import { contributions } from '../../stores/contribs';
+import { subviews } from '../../stores/subviews';
 import Route from '../../Route.svelte';
 
-export let name: string;
+export let id: string;
 let source: string | undefined;
 let arch: string;
 let hostname: string;
 let platform: string;
 
 let preloadPath: string;
-$: currentContrib = $contributions.find(contrib => contrib.name === name);
+$: currentSubview = $subviews.find(subview => subview.id === id);
 
-$: webviewId = name.replaceAll(' ', '-');
+$: webviewId = id.replaceAll(' ', '-');
 
 afterUpdate(() => {
-  console.log('contribution', currentContrib);
-  source = currentContrib?.uiUri;
+  console.log('contribution', currentSubview);
+  source = currentSubview?.source;
 });
 
 onMount(async () => {
@@ -25,7 +25,7 @@ onMount(async () => {
   hostname = await window.getOsHostname();
   platform = await window.getOsPlatform();
   preloadPath = await window.getDDPreloadPath();
-  source = currentContrib?.uiUri;
+  source = currentSubview?.source;
 });
 
 window.events?.receive('dev-tools:open-extension', (extensionId: any) => {
@@ -38,10 +38,10 @@ window.events?.receive('dev-tools:open-extension', (extensionId: any) => {
 </script>
 
 {#if source && preloadPath}
-  <Route path="/*" breadcrumb="{name}">
+  <Route path="/*" breadcrumb="{id}">
     <webview
       id="dd-webview-{webviewId}"
-      src="{source}?extensionName={currentContrib?.extensionId}&arch={arch}&hostname={hostname}&platform={platform}&vmServicePort={currentContrib?.vmServicePort}"
+      src="{source}?extensionName={currentSubview?.extensionId}&arch={arch}&hostname={hostname}&platform={platform}&vmServicePort={currentSubview?.vmServicePort}"
       preload="{preloadPath}"
       style="height: 100%; width: 100%"></webview>
   </Route>

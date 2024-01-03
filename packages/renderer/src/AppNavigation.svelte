@@ -1,5 +1,5 @@
 <script lang="ts">
-import { contributions } from './stores/contribs';
+import { subviews } from './stores/subviews';
 import { onDestroy, onMount } from 'svelte';
 import { CommandRegistry } from './lib/CommandRegistry';
 import { podsInfos } from './stores/pods';
@@ -163,12 +163,12 @@ export let meta: TinroRouteMeta;
     </NavItem>
   {/if}
 
-  {#if $contributions.length > 0}
+  {#if $subviews.length > 0}
     <div class="mx-3 my-2 h-[1px] bg-zinc-600"></div>
   {/if}
-  {#each $contributions as contribution}
-    <NavItem href="/contribs/{contribution.name}" tooltip="{contribution.name}" bind:meta="{meta}">
-      <img src="{contribution.icon}" width="24" height="24" alt="{contribution.name}" />
+  {#each $subviews as subview}
+    <NavItem href="/subviews/{subview.id}" tooltip="{subview.name}" bind:meta="{meta}">
+      <img src="{subview.icon}" width="24" height="24" alt="{subview.name}" />
     </NavItem>
   {/each}
 

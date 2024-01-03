@@ -9,7 +9,7 @@ import ImagesList from './lib/image/ImagesList.svelte';
 import PreferencesPage from './lib/preferences/PreferencesPage.svelte';
 import BuildImageFromContainerfile from './lib/image/BuildImageFromContainerfile.svelte';
 import PullImage from './lib/image/PullImage.svelte';
-import DockerExtension from './lib/docker-extension/DockerExtension.svelte';
+import Subview from './lib/subview/Subview.svelte';
 import ContainerDetails from './lib/container/ContainerDetails.svelte';
 import WelcomePage from './lib/welcome/WelcomePage.svelte';
 import DashboardPage from './lib/dashboard/DashboardPage.svelte';
@@ -172,8 +172,8 @@ window.events?.receive('display-troubleshooting', () => {
         <Route path="/preferences/*" breadcrumb="Settings">
           <PreferencesPage />
         </Route>
-        <Route path="/contribs/:name/*" breadcrumb="Extension" let:meta>
-          <DockerExtension name="{decodeURI(meta.params.name)}" />
+        <Route path="/subviews/:name/*" breadcrumb="Extension" let:meta>
+          <Subview id="{decodeURI(meta.params.name)}" />
         </Route>
         <Route path="/help" breadcrumb="Help">
           <HelpPage />

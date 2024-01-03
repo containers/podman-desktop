@@ -27,6 +27,7 @@ import * as jsYaml from 'js-yaml';
 import type { RunResult } from '@podman-desktop/api';
 import type { ContainerProviderRegistry } from './container-registry.js';
 import { isLinux, isMac, isWindows } from '../util.js';
+import type { SubviewRegistry } from '/@/plugin/subview-registry.js';
 
 export interface DockerExtensionMetadata {
   name: string;
@@ -74,6 +75,7 @@ export class ContributionManager {
     private directories: Directories,
     private containerRegistry: ContainerProviderRegistry,
     private exec: Exec,
+    private subviewRegistry: SubviewRegistry,
   ) {}
 
   // load the existing contributions
@@ -141,6 +143,17 @@ export class ContributionManager {
     // flatten
     this.contributions = allContribs.flat();
     this.apiSender.send('contribution-register', this.contributions);
+
+    this.contributions.forEach(contribution => {
+      this.subviewRegistry.register({
+        id: contribution.id,
+        source: contribution.uiUri,
+        name: contribution.name,
+        icon: contribution.icon,
+        extensionId: contribution.extensionId,
+        vmServicePort: contribution.vmServicePort,
+      });
+    });
 
     // start vm engine but do not hold before returning
     this.startVMs().catch((error: unknown) => {

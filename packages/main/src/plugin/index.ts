@@ -149,6 +149,8 @@ import type { KubeContext } from './kubernetes-context.js';
 import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import { OpenDevToolsInit } from './open-devtools-init.js';
+import { SubviewRegistry } from './subview-registry.js';
+import type { SubviewInfo } from '/@/plugin/api/subviewInfo.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -431,6 +433,8 @@ export class PluginSystem {
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
     await closeBehaviorConfiguration.init();
+
+    const subviewRegistry = new SubviewRegistry(apiSender);
 
     // Don't show the tray icon options on Mac
     if (!isMac()) {
@@ -776,7 +780,13 @@ export class PluginSystem {
     // setup security restrictions on links
     await this.setupSecurityRestrictionsOnLinks(messageBox);
 
-    const contributionManager = new ContributionManager(apiSender, directories, containerProviderRegistry, exec);
+    const contributionManager = new ContributionManager(
+      apiSender,
+      directories,
+      containerProviderRegistry,
+      exec,
+      subviewRegistry,
+    );
     this.ipcHandle('container-provider-registry:listContainers', async (): Promise<ContainerInfo[]> => {
       return containerProviderRegistry.listContainers();
     });
@@ -1596,6 +1606,10 @@ export class PluginSystem {
 
     this.ipcHandle('contributions:listContributions', async (): Promise<ContributionInfo[]> => {
       return contributionManager.listContributions();
+    });
+
+    this.ipcHandle('subviews:listSubviews', async (): Promise<SubviewInfo[]> => {
+      return subviewRegistry.listSubviews();
     });
 
     this.ipcHandle('extension-loader:listExtensions', async (): Promise<ExtensionInfo[]> => {

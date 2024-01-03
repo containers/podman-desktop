@@ -90,6 +90,7 @@ import type { KubeContext } from '../../main/src/plugin/kubernetes-context';
 
 import type { KubernetesGeneratorInfo } from '../../main/src/plugin/api/KubernetesGeneratorInfo';
 import type { NotificationCard, NotificationCardOptions } from '../../main/src/plugin/api/notification';
+import type { SubviewInfo } from '../../main/src/plugin/api/subviewInfo';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
@@ -1243,6 +1244,10 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('listContributions', async (): Promise<ContributionInfo[]> => {
     return ipcInvoke('contributions:listContributions');
+  });
+
+  contextBridge.exposeInMainWorld('listSubviews', async (): Promise<SubviewInfo[]> => {
+    return ipcInvoke('subviews:listSubviews');
   });
 
   contextBridge.exposeInMainWorld('listIcons', async (): Promise<IconInfo[]> => {
