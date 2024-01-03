@@ -402,3 +402,34 @@ test('Expect to redirect to extension onboarding page if onboarding is enabled a
   // redirect to create new page
   expect(router.goto).toHaveBeenCalledWith('/preferences/onboarding/id');
 });
+
+test('Expect providers to refresh if extensionOnboardingEnablement has changed', async () => {
+  // clone providerInfo and change id and status
+  const customProviderInfo: ProviderInfo = { ...providerInfo };
+  customProviderInfo.containerProviderConnectionCreationDisplayName = undefined;
+  customProviderInfo.status = 'installed';
+  customProviderInfo.name = 'foo-provider';
+  providerInfos.set([customProviderInfo]);
+
+  const onboarding: OnboardingInfo = {
+    extension: 'id',
+    steps: [],
+    title: 'onboarding',
+    enablement: 'true',
+  };
+  onboardingList.set([onboarding]);
+  render(PreferencesResourcesRendering, {});
+  const button = screen.queryByRole('button', { name: 'Setup foo-provider' });
+  expect(button).toBeInTheDocument();
+
+  // change onboarding enablement
+  onboarding.enablement = 'false';
+  onboardingList.set([onboarding]);
+
+  // Using await findByRole to wait for the DOM to update
+  await screen.findByRole('button', { name: 'Setup foo-provider' });
+
+  // Expect it to be gone since onboarding.enablement is now false
+  const buttonAfterChange = screen.queryByRole('button', { name: 'Setup foo-provider' });
+  expect(buttonAfterChange).not.toBeInTheDocument();
+});

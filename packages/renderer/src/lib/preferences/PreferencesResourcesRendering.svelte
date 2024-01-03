@@ -46,7 +46,13 @@ export let properties: IConfigurationPropertyRecordedSchema[] = [];
 let providers: ProviderInfo[] = [];
 $: containerConnectionStatus = new Map<string, IConnectionStatus>();
 $: providerInstallationInProgress = new Map<string, boolean>();
+
+// If the onboarding is updated, we should force an update of the providers
+// rendering as the "Setup ..." button may have been changed based on extension contexts.
 $: extensionOnboardingEnablement = new Map<string, string>();
+$: if (extensionOnboardingEnablement) {
+  providers = providers;
+}
 
 let isStatusUpdated = false;
 let displayInstallModal = false;
