@@ -39,10 +39,11 @@ const imageUtils = new ImageUtils();
 let contributions: Menu[] = [];
 let globalContext: ContextUI;
 let contextsUnsubscribe: Unsubscriber;
-let groupingContributions = groupContributions && !dropdownMenu && contributions.length > 1;
+let groupingContributions = false;
 
 onMount(async () => {
   contributions = await window.getContributedMenus(MenuContext.DASHBOARD_IMAGE);
+  groupingContributions = groupContributions && !dropdownMenu && contributions.length > 1;
   contextsUnsubscribe = context.subscribe(value => {
     globalContext = value;
   });
