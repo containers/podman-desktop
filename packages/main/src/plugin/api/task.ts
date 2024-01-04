@@ -23,6 +23,7 @@ export interface Task {
   id: string;
   name: string;
   started: number;
+  cancellationTokenCallbackId?: number;
 }
 
 export interface StatefulTask extends Task {
@@ -31,7 +32,6 @@ export interface StatefulTask extends Task {
   progress?: number;
   gotoTask?: () => void;
   error?: string;
-  cancellationTokenCallbackId?: number;
 }
 
 export interface NotificationTask extends Task {

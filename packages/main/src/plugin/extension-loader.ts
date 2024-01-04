@@ -823,7 +823,7 @@ export class ExtensionLoader {
         options: containerDesktopAPI.ProgressOptions,
         task: (
           progress: containerDesktopAPI.Progress<{ message?: string; increment?: number }>,
-          token: containerDesktopAPI.CancellationToken,
+          token?: containerDesktopAPI.CancellationToken,
         ) => Promise<R>,
       ): Promise<R> => {
         return progress.withProgress(options, task);

@@ -25,7 +25,6 @@ export interface StatefulTaskUI extends StatefulTask {
   progress?: number;
   hasGotoTask: boolean;
   gotoTask?: () => void;
-  cancellationTokenCallbackId?: number;
 }
 
 export class TaskManager {

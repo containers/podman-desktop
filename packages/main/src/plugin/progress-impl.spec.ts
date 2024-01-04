@@ -122,6 +122,25 @@ test('Should create a task and propagate the result', async () => {
 });
 
 
+test('The task should not be cancelable', async () => {
+  const apiSender = {
+    send: apiSenderSendMock,
+  } as unknown as ApiSenderType;
+
+  const progress = new ProgressImpl(
+    new TaskManager(apiSender),
+    cancellationTokenRegistryMock as unknown as CancellationTokenRegistry,
+  );
+
+  await progress.withProgress(
+    { location: ProgressLocation.TASK_WIDGET, title: 'My task', cancellable: false },
+    async (_progress, cancellationToken) => {
+      // Since cancellable is false
+      expect(cancellationToken).toBeUndefined();
+    },
+  );
+});
+
 test('The task should be cancelled', async () => {
   const apiSender = {
     send: apiSenderSendMock,
@@ -151,7 +170,7 @@ test('The task should be cancelled', async () => {
   // E.g. the external frontend should use `await window.cancelToken(tokenId)`
   await progress.withProgress(
     { location: ProgressLocation.TASK_WIDGET, title: 'My task', cancellable: true },
-    async (progress, cancellationToken) => {
+    async (_progress, cancellationToken) => {
       // Since cancellable is true
       expect(cancellationToken).toBeDefined();
 

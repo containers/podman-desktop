@@ -1494,7 +1494,7 @@ declare module '@podman-desktop/api' {
 
     export function withProgress<R>(
       options: ProgressOptions,
-      task: (progress: Progress<{ message?: string; increment?: number }>, token: CancellationToken) => Promise<R>,
+      task: (progress: Progress<{ message?: string; increment?: number }>, token?: CancellationToken) => Promise<R>,
     ): Promise<R>;
 
     /**
