@@ -55,7 +55,7 @@ async function deleteImage(): Promise<void> {
   try {
     await imageUtils.deleteImage(image);
   } catch (error) {
-    onError(`Error while deleting image: ${error}`);
+    onError(`Error while deleting image: ${String(error)}`);
   }
 }
 
