@@ -101,4 +101,9 @@ describe('Image workflow verification', async () => {
     expect(imageDeleted).equals(true);
     expect(await imagesPage.waitForImageExists('quay.io/podman/hi')).equals(true);
   });
+
+  test('Build image', async () => {
+    const imagesPage = await navBar.openImages();
+    await imagesPage.openBuildImage();
+  });
 });
