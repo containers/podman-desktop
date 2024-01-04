@@ -30,7 +30,6 @@ export async function makeExecutable(filePath: string): Promise<void> {
 }
 
 export async function createOctokitClient(): Promise<Octokit> {
-  console.log('kind createOctokitClient');
   let session = undefined;
   try {
     session = await extensionApi.authentication.getSession('github', []);
