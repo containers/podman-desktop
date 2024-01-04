@@ -130,7 +130,7 @@ function onError(error: string): void {
       icon="{faLayerGroup}" />
   {/if}
 
-  <ActionsWrapper dropdownMenu="{groupingContributions}">
+  <ActionsWrapper dropdownMenu="{groupingContributions}" dropdownMenuAsMenuActionItem="{groupingContributions}">
     <ContributionActions
       args="{[image]}"
       dropdownMenu="{groupingContributions}"
