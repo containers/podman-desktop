@@ -133,7 +133,7 @@ function onError(error: string): void {
   <ActionsWrapper dropdownMenu="{groupingContributions}" dropdownMenuAsMenuActionItem="{groupingContributions}">
     <ContributionActions
       args="{[image]}"
-      dropdownMenu="{groupingContributions}"
+      dropdownMenu="{groupingContributions ? true : dropdownMenu}"
       contributions="{contributions}"
       contextPrefix="imageItem"
       detailed="{detailed}"
