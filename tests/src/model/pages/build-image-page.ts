@@ -17,20 +17,46 @@
  ***********************************************************************/
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './base-page';
+import { ImagesPage } from './images-page';
+import { expect as playExpect } from '@playwright/test';
 
 export class BuildImagePage extends BasePage {
   readonly heading: Locator;
   readonly containerFilePathInput: Locator;
-  readonly buildFolderPathInput: Locator;
-  readonly imageName: Locator;
+  readonly buildContextDirectoryInput: Locator;
+  readonly imageNameInput: Locator;
   readonly buildButton: Locator;
+  readonly doneButton: Locator;
+  readonly containerFilePathButton: Locator;
 
   constructor(page: Page) {
     super(page);
     this.heading = page.getByRole('heading', { name: 'Build Image from Containerfile' });
-    this.containerFilePathInput = page.getByRole('textbox', { name: 'containerFilePath' });
-    this.buildFolderPathInput = page.getByRole('textbox', { name: 'containerBuildContextDirectory' });
-    this.imageName = page.getByRole('textbox', { name: 'containerImageName' });
+    this.containerFilePathInput = page.locator("[id='containerFilePath']");
+    this.buildContextDirectoryInput = page.locator("[id='containerBuildContextDirectory']");
+    this.imageNameInput = page.locator("[id='containerImageName']");
     this.buildButton = page.getByRole('button', { name: 'Build' });
+    this.doneButton = page.getByRole('button', { name: 'Done' });
+    this.containerFilePathButton = page.getByRole('button', { name: 'Browse...' }).first();
+  }
+
+  async buildImage(imageName: string, containerFilePath: string, contextDirectory: string): Promise<ImagesPage> {
+    if (!containerFilePath) {
+      throw Error(`Path to containerfile is incorrect or not provided!`);
+    }
+
+    await this.containerFilePathInput.fill(containerFilePath);
+
+    if (contextDirectory) await this.buildContextDirectoryInput.fill(contextDirectory);
+    if (imageName) {
+      await this.imageNameInput.clear();
+      await this.imageNameInput.fill(imageName);
+    }
+
+    await playExpect(this.buildButton).toBeEnabled();
+    await this.buildButton.click();
+    await playExpect(this.doneButton).toBeEnabled();
+    await this.doneButton.click();
+    return new ImagesPage(this.page);
   }
 }

@@ -24,6 +24,7 @@ import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
 import { NavigationBar } from './model/workbench/navigation';
 import { ImageDetailsPage } from './model/pages/image-details-page';
+import path from 'path';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -103,7 +104,20 @@ describe('Image workflow verification', async () => {
   });
 
   test('Build image', async () => {
-    const imagesPage = await navBar.openImages();
-    await imagesPage.openBuildImage();
+    let imagesPage = await navBar.openImages();
+    await playExpect(imagesPage.heading).toBeVisible();
+
+    const buildImagePage = await imagesPage.openBuildImage();
+    await playExpect(buildImagePage.heading).toBeVisible();
+    const dockerfilePath = path.resolve(__dirname, 'fixtures', 'test-Dockerfile');
+    const contextDirectory = path.resolve(__dirname, 'fixtures');
+
+    imagesPage = await buildImagePage.buildImage('build-test-image', dockerfilePath, contextDirectory);
+    expect(await imagesPage.waitForImageExists('build-test-image')).toBeTruthy();
+
+    const imageDetailsPage = await imagesPage.openImageDetails('build-test-image');
+    await playExpect(imageDetailsPage.heading).toBeVisible();
+    imagesPage = await imageDetailsPage.deleteImage();
+    expect(await imagesPage.waitForImageDelete('build-test-image')).toBeTruthy();
   });
 });
