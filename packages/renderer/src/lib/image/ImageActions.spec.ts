@@ -46,8 +46,9 @@ const fakedImage: ImageInfoUI = {
   name: 'dummy',
 } as unknown as ImageInfoUI;
 
-
 test('Expect showMessageBox to be called when error occurs', async () => {
+  getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
+
   render(ImageActions, {
     onPushImage: vi.fn(),
     onRenameImage: vi.fn(),
