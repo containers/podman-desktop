@@ -83,7 +83,8 @@ onDestroy(() => {
       onPushImage="{handlePushImageModal}"
       onRenameImage="{handleRenameImageModal}"
       detailed="{true}"
-      dropdownMenu="{false}" />
+      dropdownMenu="{false}"
+      groupContributions="{true}" />
     <svelte:fragment slot="tabs">
       <Tab title="Summary" url="summary" />
       <Tab title="History" url="history" />

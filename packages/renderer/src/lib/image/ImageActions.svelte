@@ -29,6 +29,7 @@ export let onRenameImage: (imageInfo: ImageInfoUI) => void;
 export let image: ImageInfoUI;
 export let dropdownMenu = false;
 export let detailed = false;
+export let groupContributions = false;
 
 let errorTitle: string | undefined = undefined;
 let errorMessage: string | undefined = undefined;
@@ -38,9 +39,11 @@ const imageUtils = new ImageUtils();
 let contributions: Menu[] = [];
 let globalContext: ContextUI;
 let contextsUnsubscribe: Unsubscriber;
+let groupingContributions = false;
 
 onMount(async () => {
   contributions = await window.getContributedMenus(MenuContext.DASHBOARD_IMAGE);
+  groupingContributions = groupContributions && !dropdownMenu && contributions.length > 1;
   contextsUnsubscribe = context.subscribe(value => {
     globalContext = value;
   });
@@ -127,13 +130,15 @@ function onError(error: string): void {
       icon="{faLayerGroup}" />
   {/if}
 
-  <ContributionActions
-    args="{[image]}"
-    dropdownMenu="{dropdownMenu}"
-    contributions="{contributions}"
-    contextPrefix="imageItem"
-    detailed="{detailed}"
-    onError="{onError}" />
+  <ActionsWrapper dropdownMenu="{groupingContributions}" dropdownMenuAsMenuActionItem="{groupingContributions}">
+    <ContributionActions
+      args="{[image]}"
+      dropdownMenu="{groupingContributions ? true : dropdownMenu}"
+      contributions="{contributions}"
+      contextPrefix="imageItem"
+      detailed="{detailed}"
+      onError="{onError}" />
+  </ActionsWrapper>
 
   {#if errorMessage}
     <div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center p-8 lg:p-0 z-50" tabindex="-1">
