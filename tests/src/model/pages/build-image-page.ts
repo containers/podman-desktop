@@ -32,9 +32,9 @@ export class BuildImagePage extends BasePage {
   constructor(page: Page) {
     super(page);
     this.heading = page.getByRole('heading', { name: 'Build Image from Containerfile' });
-    this.containerFilePathInput = page.locator("[id='containerFilePath']");
-    this.buildContextDirectoryInput = page.locator("[id='containerBuildContextDirectory']");
-    this.imageNameInput = page.locator("[id='containerImageName']");
+    this.containerFilePathInput = page.locator(`[id='containerFilePath']`);
+    this.buildContextDirectoryInput = page.locator(`[id='containerBuildContextDirectory']`);
+    this.imageNameInput = page.locator(`[id='containerImageName']`);
     this.buildButton = page.getByRole('button', { name: 'Build' });
     this.doneButton = page.getByRole('button', { name: 'Done' });
     this.containerFilePathButton = page.getByRole('button', { name: 'Browse...' }).first();
