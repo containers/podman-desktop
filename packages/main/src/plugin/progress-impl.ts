@@ -35,6 +35,13 @@ export enum ProgressLocation {
 export class ProgressImpl {
   constructor(private taskManager: TaskManager) {}
 
+  /**
+   * Execute a task with progress, based on the provided options and task function.
+   * @template R - The type of the result of the task.
+   * @param {extensionApi.ProgressOptions} options - The options for the progress.
+   * @param {Function} task - The task function to be executed with progress.
+   * @returns {Promise<R>} - A promise that resolves to the result of the task.
+   */
   withProgress<R>(
     options: extensionApi.ProgressOptions,
     task: (
@@ -94,16 +101,21 @@ export class ProgressImpl {
         new CancellationTokenImpl(),
       )
         .then(value => {
+          // Middleware to capture the success of the task
           t.status = 'success';
           t.state = 'completed';
+          // We propagate the result to the caller, so he can use the result
           resolve(value);
         })
         .catch((err: unknown) => {
+          // Middleware to set to error the task
           t.status = 'failure';
           t.state = 'completed';
+          // We propagate the error to the caller, so it can handle it if needed
           reject(err);
         })
         .finally(() => {
+          // Ensure the taskManager is updated properly is every case
           this.taskManager.updateTask(t);
         });
     });
