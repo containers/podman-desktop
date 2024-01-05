@@ -28,6 +28,7 @@ import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../
 import userEvent from '@testing-library/user-event';
 
 const pullImageMock = vi.fn();
+const getCancellableTokenSourceMock = vi.fn();
 
 // fake the window.events object
 beforeAll(() => {
@@ -43,6 +44,7 @@ beforeAll(() => {
     addListener: vi.fn(),
   });
   (window as any).pullImage = pullImageMock;
+  (window as any).getCancellableTokenSource = getCancellableTokenSourceMock;
 
   Object.defineProperty(window, 'matchMedia', {
     value: () => {
