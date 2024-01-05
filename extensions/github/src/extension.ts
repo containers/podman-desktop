@@ -114,7 +114,6 @@ export class GitHubProvider implements AuthenticationProvider {
   }
 }
 
-let disposable: extensionApi.Disposable | undefined = undefined;
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   const telemetryLogger = extensionApi.env.createTelemetryLogger();
