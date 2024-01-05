@@ -14997,10 +14997,10 @@ svelte-check@^3.6.2:
     postcss "^8.4.29"
     postcss-scss "^4.0.8"
 
-svelte-fa@^3.0.4:
-  version "3.0.4"
-  resolved "https://registry.yarnpkg.com/svelte-fa/-/svelte-fa-3.0.4.tgz#22543b801950fe4a9a801ba8d4769a53d80c0782"
-  integrity sha512-y04vEuAoV1wwVDItSCzPW7lzT6v1bj/y1p+W1V+NtIMpQ+8hj8MBkx7JFD7JHSnalPU1QiI8BVfguqheEA3nPg==
+svelte-fa@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/svelte-fa/-/svelte-fa-4.0.1.tgz#9354fde1b2e40287e3970f980e9023e40293edce"
+  integrity sha512-+9+h2A6+pLdPW/vJNr1RhhQGKHlbtJD0dm+IabShawH3XNVUwlxH+Euet6HKR47DtNeqzDndD/xySrUVLVaEzQ==
 
 svelte-hmr@^0.15.3:
   version "0.15.3"
