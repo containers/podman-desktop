@@ -966,6 +966,7 @@ export class ContainerProviderRegistry {
     providerContainerConnectionInfo: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
     imageName: string,
     callback: (event: PullEvent) => void,
+    abortController?: AbortController,
   ): Promise<void> {
     let telemetryOptions = {};
     try {
@@ -973,6 +974,7 @@ export class ContainerProviderRegistry {
       const matchingEngine = this.getMatchingEngineFromConnection(providerContainerConnectionInfo);
       const pullStream = await matchingEngine.pull(imageName, {
         authconfig,
+        abortSignal: abortController?.signal,
       });
       // eslint-disable-next-line @typescript-eslint/ban-types
       let resolve: () => void;
