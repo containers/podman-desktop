@@ -132,7 +132,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       },
     },
   });
-
+extensionContext.subscriptions.push(disposable);
   // If we have a defined GitHub preference access token, let's create the session
   if (getGitHubAccessToken()) {
     try {
