@@ -67,5 +67,5 @@ test('Expect specified size', async () => {
   expect(loadingIcon).toBeInTheDocument();
 
   // check the font-size attribute of the loading icon is set to 20
-  expect(loadingIcon).toHaveAttribute('style', expect.stringContaining('font-size:20;'));
+  expect(loadingIcon).toHaveAttribute('style', expect.stringContaining('font-size:20'));
 });
