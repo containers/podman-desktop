@@ -120,7 +120,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const authProvider = new GitHubProvider(telemetryLogger);
 
   // Register the AuthenticationProvider
-  disposable = extensionApi.authentication.registerAuthenticationProvider('github', 'GitHub', authProvider, {
+  const disposable = extensionApi.authentication.registerAuthenticationProvider('github', 'GitHub', authProvider, {
     images: {
       icon: {
         light: './logo-light.png',
