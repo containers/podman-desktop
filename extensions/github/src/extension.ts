@@ -114,7 +114,6 @@ export class GitHubProvider implements AuthenticationProvider {
   }
 }
 
-
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   const telemetryLogger = extensionApi.env.createTelemetryLogger();
   const authProvider = new GitHubProvider(telemetryLogger);
@@ -132,7 +131,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       },
     },
   });
-extensionContext.subscriptions.push(disposable);
+  extensionContext.subscriptions.push(disposable);
   // If we have a defined GitHub preference access token, let's create the session
   if (getGitHubAccessToken()) {
     try {
@@ -145,7 +144,7 @@ extensionContext.subscriptions.push(disposable);
 }
 
 export function deactivate(): void {
-   console.log('stopping github extension');
+  console.log('stopping github extension');
 }
 
 export function getGitHubAccessToken(): string | undefined {
