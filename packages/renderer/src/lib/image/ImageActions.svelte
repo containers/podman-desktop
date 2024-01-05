@@ -1,13 +1,5 @@
 <script lang="ts">
-import {
-  faArrowUp,
-  faLayerGroup,
-  faPlay,
-  faTrash,
-  faEdit,
-  faExclamationCircle,
-  faTimes,
-} from '@fortawesome/free-solid-svg-icons';
+import { faArrowUp, faLayerGroup, faPlay, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { router } from 'tinro';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
@@ -21,26 +13,25 @@ import ActionsWrapper from './ActionsMenu.svelte';
 import type { Unsubscriber } from 'svelte/motion';
 import type { ContextUI } from '../context/context';
 import { context } from '/@/stores/context';
-import Fa from 'svelte-fa';
-import Button from '../ui/Button.svelte';
 
 export let onPushImage: (imageInfo: ImageInfoUI) => void;
 export let onRenameImage: (imageInfo: ImageInfoUI) => void;
 export let image: ImageInfoUI;
 export let dropdownMenu = false;
 export let detailed = false;
+export let groupContributions = false;
 
-let errorTitle: string | undefined = undefined;
-let errorMessage: string | undefined = undefined;
 let isAuthenticatedForThisImage = false;
 const imageUtils = new ImageUtils();
 
 let contributions: Menu[] = [];
 let globalContext: ContextUI;
 let contextsUnsubscribe: Unsubscriber;
+let groupingContributions = false;
 
 onMount(async () => {
   contributions = await window.getContributedMenus(MenuContext.DASHBOARD_IMAGE);
+  groupingContributions = groupContributions && !dropdownMenu && contributions.length > 1;
   contextsUnsubscribe = context.subscribe(value => {
     globalContext = value;
   });
@@ -64,8 +55,7 @@ async function deleteImage(): Promise<void> {
   try {
     await imageUtils.deleteImage(image);
   } catch (error) {
-    errorTitle = 'Error while deleting image';
-    errorMessage = String(error);
+    onError(`Error while deleting image: ${String(error)}`);
   }
 }
 
@@ -82,8 +72,11 @@ async function showLayersImage(): Promise<void> {
 }
 
 function onError(error: string): void {
-  errorTitle = 'Something went wrong.';
-  errorMessage = error;
+  window.showMessageBox({
+    title: 'Something went wrong.',
+    message: error,
+    type: 'error',
+  });
 }
 </script>
 
@@ -127,41 +120,13 @@ function onError(error: string): void {
       icon="{faLayerGroup}" />
   {/if}
 
-  <ContributionActions
-    args="{[image]}"
-    dropdownMenu="{dropdownMenu}"
-    contributions="{contributions}"
-    contextPrefix="imageItem"
-    detailed="{detailed}"
-    onError="{onError}" />
-
-  {#if errorMessage}
-    <div class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center p-8 lg:p-0 z-50" tabindex="-1">
-      <div class="border-t-red-600 border-t-2 p-4 bg-charcoal-600" aria-label="Success alert">
-        <div class="flex flex-row justify-center items-center pb-2">
-          <Fa icon="{faExclamationCircle}" class="text-red-500 mr-2" />
-          <div class="text-red-500 font-bold text-sm">
-            {errorTitle}
-          </div>
-          <Fa
-            icon="{faTimes}"
-            class="text-gray-900 pl-2 cursor-pointer"
-            on:click="{() => {
-              errorMessage = undefined;
-            }}" />
-        </div>
-        <div class="flex justify-center break-words whitespace-normal text-xs pb-2">
-          {errorMessage}
-        </div>
-
-        <div class="flex flex-row justify-center">
-          <Button
-            type="link"
-            on:click="{() => {
-              errorMessage = undefined;
-            }}">Ignore</Button>
-        </div>
-      </div>
-    </div>
-  {/if}
+  <ActionsWrapper dropdownMenu="{groupingContributions}" dropdownMenuAsMenuActionItem="{groupingContributions}">
+    <ContributionActions
+      args="{[image]}"
+      dropdownMenu="{groupingContributions ? true : dropdownMenu}"
+      contributions="{contributions}"
+      contextPrefix="imageItem"
+      detailed="{detailed}"
+      onError="{onError}" />
+  </ActionsWrapper>
 </ActionsWrapper>
