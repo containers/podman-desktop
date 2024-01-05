@@ -82,3 +82,30 @@ test('Should create a task and propagate the exception', async () => {
     status: 'failure',
   });
 });
+
+test('Should create a task and propagate the result', async () => {
+  const createTaskMock = vi.fn();
+  const updateTaskMock = vi.fn();
+  const taskManager = {
+    createTask: createTaskMock,
+    updateTask: updateTaskMock,
+  } as unknown as TaskManager;
+
+  createTaskMock.mockImplementation(() => ({}));
+
+  const progress = new ProgressImpl(taskManager);
+
+  const result: string = await progress.withProgress<string>(
+    { location: ProgressLocation.TASK_WIDGET, title: 'My task' },
+    async () => {
+      return 'dummy result';
+    },
+  );
+  expect(result).toBe('dummy result');
+
+  expect(updateTaskMock).toHaveBeenCalledTimes(1);
+  expect(updateTaskMock).toHaveBeenCalledWith({
+    state: 'completed',
+    status: 'success',
+  });
+});

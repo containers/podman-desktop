@@ -85,39 +85,37 @@ export class ProgressImpl {
   ): Promise<R> {
     const t = this.taskManager.createTask(options.title);
 
-    return new Promise<R>((resolve, reject) => {
-      task(
-        {
-          report: value => {
-            if (value.message) {
-              t.error = value.message;
-            }
-            if (value.increment) {
-              t.progress = value.increment;
-            }
-            this.taskManager.updateTask(t);
-          },
-        },
-        new CancellationTokenImpl(),
-      )
-        .then(value => {
-          // Middleware to capture the success of the task
-          t.status = 'success';
-          t.state = 'completed';
-          // We propagate the result to the caller, so he can use the result
-          resolve(value);
-        })
-        .catch((err: unknown) => {
-          // Middleware to set to error the task
-          t.status = 'failure';
-          t.state = 'completed';
-          // We propagate the error to the caller, so it can handle it if needed
-          reject(err);
-        })
-        .finally(() => {
-          // Ensure the taskManager is updated properly is every case
+    return task(
+      {
+        report: value => {
+          if (value.message) {
+            t.error = value.message;
+          }
+          if (value.increment) {
+            t.progress = value.increment;
+          }
           this.taskManager.updateTask(t);
-        });
-    });
+        },
+      },
+      new CancellationTokenImpl(),
+    )
+      .then(value => {
+        // Middleware to capture the success of the task
+        t.status = 'success';
+        t.state = 'completed';
+        // We propagate the result to the caller, so he can use the result
+        return value;
+      })
+      .catch((err: unknown) => {
+        // Middleware to set to error the task
+        t.status = 'failure';
+        t.state = 'completed';
+        // We propagate the error to the caller, so it can handle it if needed
+        throw err;
+      })
+      .finally(() => {
+        // Ensure the taskManager is updated properly is every case
+        this.taskManager.updateTask(t);
+      });
   }
 }
