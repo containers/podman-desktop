@@ -21,6 +21,7 @@ import * as path from 'node:path';
 import * as extensionApi from '@podman-desktop/api';
 import type { KindInstaller } from './kind-installer';
 import * as http from 'node:http';
+import { Octokit } from '@octokit/rest';
 
 const windows = os.platform() === 'win32';
 export function isWindows(): boolean {
@@ -156,5 +157,18 @@ export async function getMemTotalInfo(socketPath: string): Promise<number> {
     req.once('error', err => {
       reject(new Error(err.message));
     });
+  });
+}
+
+export async function createOctokitClient(): Promise<Octokit> {
+  let session = undefined;
+  try {
+    session = await extensionApi.authentication.getSession('github', []);
+  } catch (ex) {
+    console.error(ex);
+  }
+
+  return new Octokit({
+    auth: session?.accessToken,
   });
 }
