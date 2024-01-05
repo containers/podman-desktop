@@ -45,6 +45,10 @@ export class TaskManager {
     return task;
   }
 
+  public getTask(taskId: string): Task | undefined {
+    return this.tasks.get(taskId);
+  }
+
   public createNotificationTask(notificationInfo: NotificationInfo): NotificationTask {
     this.taskId++;
     const task: NotificationTask = {

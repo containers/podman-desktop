@@ -1929,6 +1929,13 @@ function initExposure(): void {
       return ipcInvoke('image-checker:check', id, image, cancellationToken);
     },
   );
+
+  contextBridge.exposeInMainWorld(
+    'cancelTask',
+    async (taskId?: string): Promise<containerDesktopAPI.ImageChecks | undefined> => {
+      return ipcInvoke('task:cancel', taskId);
+    },
+  );
 }
 
 // expose methods

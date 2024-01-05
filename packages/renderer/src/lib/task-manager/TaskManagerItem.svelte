@@ -52,6 +52,10 @@ function gotoTask(taskUI: StatefulTaskUI) {
   // and open the task
   taskUI?.gotoTask?.();
 }
+
+function cancelTask(taskUI: Task) {
+  if (taskUI.cancellationTokenCallbackId) window.cancelTask(taskUI.id);
+}
 </script>
 
 <!-- Display a task item-->
@@ -107,6 +111,15 @@ function gotoTask(taskUI: StatefulTaskUI) {
           {/if}
         </div>
       </div>
+      {#if taskUI.cancellationTokenCallbackId}
+        <div class="flex flex-col w-full items-end">
+          <button
+            on:click="{() => {
+              cancelTask(taskUI);
+            }}"
+            class="text-purple-500 cursor-pointer">Cancel</button>
+        </div>
+      {/if}
     {/if}
 
     <!-- if failed task, display the error-->

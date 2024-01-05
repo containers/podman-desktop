@@ -1106,7 +1106,9 @@ export class PluginSystem {
         return progressImpl.withProgress(
           { location: ProgressLocation.TASK_WIDGET, title: `Pulling ${imageName}.`, cancellable: true },
           async (progress, token) => {
+            const abortController = new AbortController();
             token?.onCancellationRequested(() => {
+              abortController.abort('cancelled');
               progress.report({ message: 'cancelled' });
             });
 
@@ -1117,10 +1119,11 @@ export class PluginSystem {
                 (event: PullEvent) => {
                   this.getWebContentsSender().send('container-provider-registry:pullImage-onData', callbackId, event);
                 },
+                abortController,
               );
             } catch (e) {
               progress.report({ message: `Error while pulling ${imageName}: ${String(e)}` });
-              return Promise.reject(e);
+              throw e;
             }
           },
         );
@@ -2216,6 +2219,26 @@ export class PluginSystem {
 
     this.ipcHandle('webview:get-registry-http-port', async (): Promise<number> => {
       return webviewRegistry.getRegistryHttpPort();
+    });
+
+    this.ipcHandle('task:cancel', async (_listener, taskId: string): Promise<void> => {
+      const task = taskManager.getTask(taskId);
+      // Ensure the task is cancellable
+      if (!task?.cancellationTokenCallbackId) return;
+
+      const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(task.cancellationTokenCallbackId);
+      // If the token source exist
+      if (tokenSource) {
+        // We cancel it
+        tokenSource.cancel();
+        // Update the task accordinaly
+        if (taskManager.isStatefulTask(task)) {
+          task.state = 'completed';
+          task.status = 'cancelled';
+          task.error = 'task cancelled';
+        }
+        taskManager.updateTask(task);
+      }
     });
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
