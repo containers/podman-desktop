@@ -145,7 +145,7 @@ extensionContext.subscriptions.push(disposable);
 }
 
 export function deactivate(): void {
-  disposable?.dispose();
+   console.log('stopping github extension');
 }
 
 export function getGitHubAccessToken(): string | undefined {
