@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { Octokit } from '@octokit/rest';
 import * as extensionApi from '@podman-desktop/api';
 import { Detect } from './detect';
 import type { ComposeGithubReleaseArtifactMetadata } from './compose-github-releases';
@@ -25,7 +26,6 @@ import * as handler from './handler';
 import { ComposeDownload } from './download';
 import * as path from 'path';
 import { installBinaryToSystem } from './cli-run';
-import { createOctokitClient } from './utils';
 
 let composeVersionMetadata: ComposeGithubReleaseArtifactMetadata | undefined;
 let composeCliTool: extensionApi.CliTool | undefined;
@@ -55,7 +55,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   handler.handleConfigurationChanges(extensionContext);
 
   // Create new classes to handle the onboarding sequence
-  const octokit = await createOctokitClient();
+  const octokit = new Octokit();
   const detect = new Detect(os, extensionContext.storagePath);
 
   const composeGitHubReleases = new ComposeGitHubReleases(octokit);

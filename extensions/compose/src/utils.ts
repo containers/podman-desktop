@@ -18,8 +18,6 @@
 
 import { promises } from 'fs';
 import { OS } from './os';
-import { Octokit } from '@octokit/rest';
-import * as extensionApi from '@podman-desktop/api';
 
 export async function makeExecutable(filePath: string): Promise<void> {
   // New OS class
@@ -27,17 +25,4 @@ export async function makeExecutable(filePath: string): Promise<void> {
   if (os.isLinux() || os.isMac()) {
     await promises.chmod(filePath, 0o755);
   }
-}
-
-export async function createOctokitClient(): Promise<Octokit> {
-  let session = undefined;
-  try {
-    session = await extensionApi.authentication.getSession('github', []);
-  } catch (ex) {
-    console.error(ex);
-  }
-
-  return new Octokit({
-    auth: session?.accessToken,
-  });
 }

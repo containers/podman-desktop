@@ -20,7 +20,8 @@ import { ProgressLocation } from '@podman-desktop/api';
 import * as os from 'node:os';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { isWindows, installBinaryToSystem, createOctokitClient } from './util';
+import { Octokit } from '@octokit/rest';
+import { isWindows, installBinaryToSystem } from './util';
 import type { components } from '@octokit/openapi-types';
 
 const githubOrganization = 'kubernetes-sigs';
@@ -86,7 +87,7 @@ export class KindInstaller {
   async getAssetInfo(): Promise<AssetInfo> {
     if (!(await this.assetPromise)) {
       const assetName = this.assetNames.get(os.platform().concat('-').concat(os.arch()));
-      const octokit = await createOctokitClient();
+      const octokit = new Octokit();
       this.assetPromise = octokit.repos
         .listReleases({ owner: githubOrganization, repo: githubRepo })
         .then(response => this.findAssetInfo(response.data, assetName))
@@ -119,7 +120,7 @@ export class KindInstaller {
           try {
             const assetInfo = await this.getAssetInfo();
             if (assetInfo) {
-              const octokit = await createOctokitClient();
+              const octokit = new Octokit();
               const asset = await octokit.repos.getReleaseAsset({
                 owner: githubOrganization,
                 repo: githubRepo,
