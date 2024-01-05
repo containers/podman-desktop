@@ -154,6 +154,7 @@ import { OpenDevToolsInit } from './open-devtools-init.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import { WebviewRegistry } from './webview/webview-registry.js';
 import type { IDisposable } from './types/disposable.js';
+import type { Task } from '/@/plugin/api/task.js';
 
 import { KubernetesUtils } from './kubernetes-util.js';
 
@@ -1101,17 +1102,22 @@ export class PluginSystem {
         providerContainerConnectionInfo: ProviderContainerConnectionInfo,
         imageName: string,
         callbackId: number,
+        cancellableTokenId?: number,
       ): Promise<void> => {
-        // Create a progress task
-        return progressImpl.withProgress(
-          { location: ProgressLocation.TASK_WIDGET, title: `Pulling ${imageName}.`, cancellable: true },
-          async (progress, token) => {
-            const abortController = new AbortController();
-            token?.onCancellationRequested(() => {
-              abortController.abort('cancelled');
-              progress.report({ message: 'cancelled' });
-            });
+        // Create an abort controller from the provided cancellableTokenId
+        const abortController = this.createAbortControllerOnCancellationToken(
+          cancellationTokenRegistry,
+          cancellableTokenId,
+        );
 
+        // Create a progress task with our cancellableTokenId
+        return progressImpl.withProgress(
+          {
+            location: ProgressLocation.TASK_WIDGET,
+            title: `Pulling ${imageName}.`,
+            cancellableTokenId: cancellableTokenId,
+          },
+          async (progress, _token) => {
             try {
               await containerProviderRegistry.pullImage(
                 providerContainerConnectionInfo,
@@ -2075,6 +2081,10 @@ export class PluginSystem {
       if (!tokenSource?.token.isCancellationRequested) {
         tokenSource?.dispose(true);
       }
+      // Tasks can be associated with a cancellableToken, let's cancel them also (if exist)
+      taskManager.findByCancellableToken(id).forEach(task => {
+        this.cancelTask(taskManager, task);
+      });
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -2224,9 +2234,9 @@ export class PluginSystem {
     this.ipcHandle('task:cancel', async (_listener, taskId: string): Promise<void> => {
       const task = taskManager.getTask(taskId);
       // Ensure the task is cancellable
-      if (!task?.cancellationTokenCallbackId) return;
+      if (!task?.cancellableTokenId) return;
 
-      const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(task.cancellationTokenCallbackId);
+      const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(task.cancellableTokenId);
       // If the token source exist
       if (tokenSource) {
         // We cancel it
@@ -2311,6 +2321,15 @@ export class PluginSystem {
         this.getWebContentsSender().send(channel, loggerId, 'finish');
       },
     };
+  }
+
+  cancelTask(taskManager: TaskManager, task: Task): void {
+    if (taskManager.isStatefulTask(task)) {
+      task.state = 'completed';
+      task.status = 'cancelled';
+      task.error = 'task cancelled';
+    }
+    taskManager.updateTask(task);
   }
 
   createAbortControllerOnCancellationToken(

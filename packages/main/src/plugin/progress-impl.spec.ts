@@ -133,7 +133,7 @@ test('The task should not be cancelable', async () => {
   );
 
   await progress.withProgress(
-    { location: ProgressLocation.TASK_WIDGET, title: 'My task', cancellable: false },
+    { location: ProgressLocation.TASK_WIDGET, title: 'My task' },
     async (_progress, cancellationToken) => {
       // Since cancellable is false
       expect(cancellationToken).toBeUndefined();
@@ -149,13 +149,6 @@ test('The task should be cancelled', async () => {
   // Create a cancellationRegistry
   const cancellationTokenRegistry = new CancellationTokenRegistry();
 
-  let callbackId: number | undefined = undefined;
-  // Capture the callbackId created.
-  createCancellationTokenSourceMock.mockImplementation(() => {
-    callbackId = cancellationTokenRegistry.createCancellationTokenSource();
-    return callbackId;
-  });
-
   // Mimic full behavior
   getCancellationTokenSourceMock.mockImplementation(id => cancellationTokenRegistry.getCancellationTokenSource(id));
   hasCancellationTokenSourceMock.mockImplementation(id => cancellationTokenRegistry.hasCancellationTokenSource(id));
@@ -166,10 +159,12 @@ test('The task should be cancelled', async () => {
     cancellationTokenRegistryMock as unknown as CancellationTokenRegistry,
   );
 
+  const cancellableTokenId = cancellationTokenRegistry.createCancellationTokenSource();
+
   // This task will cancel itself (not realistic, the cancel should be done externally)
   // E.g. the external frontend should use `await window.cancelToken(tokenId)`
   await progress.withProgress(
-    { location: ProgressLocation.TASK_WIDGET, title: 'My task', cancellable: true },
+    { location: ProgressLocation.TASK_WIDGET, title: 'My task', cancellableTokenId },
     async (_progress, cancellationToken) => {
       // Since cancellable is true
       expect(cancellationToken).toBeDefined();
@@ -179,8 +174,7 @@ test('The task should be cancelled', async () => {
         onCancellationRequestedCalled = true;
       });
 
-      expect(callbackId).toBeDefined();
-      cancellationTokenRegistry.getCancellationTokenSource(callbackId as number)?.cancel();
+      cancellationTokenRegistry.getCancellationTokenSource(cancellableTokenId)?.cancel();
       expect(onCancellationRequestedCalled).toBe(true);
     },
   );

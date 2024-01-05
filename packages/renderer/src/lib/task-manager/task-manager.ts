@@ -39,7 +39,7 @@ export class TaskManager {
         hasGotoTask: false,
         age: `${humanizeDuration(new Date().getTime() - task.started, { round: true, largest: 1 })} ago`,
         error: task.error,
-        cancellationTokenCallbackId: task.cancellationTokenCallbackId,
+        cancellableTokenId: task.cancellableTokenId,
       };
 
       if (task.status === 'in-progress') {

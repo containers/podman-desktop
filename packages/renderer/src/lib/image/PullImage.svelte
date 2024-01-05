@@ -17,6 +17,8 @@ let logsPull: Terminal;
 let pullError = '';
 let pullInProgress = false;
 let pullFinished = false;
+let cancellableTokenId: number | undefined = undefined;
+
 export let imageToPull: string | undefined = undefined;
 
 $: providerConnections = $providerInfos
@@ -91,13 +93,16 @@ async function pullImage() {
 
   pullInProgress = true;
   try {
-    await window.pullImage(selectedProviderConnection, imageToPull.trim(), callback);
+    cancellableTokenId = await window.getCancellableTokenSource();
+    await window.pullImage(selectedProviderConnection, imageToPull.trim(), callback, cancellableTokenId);
     pullInProgress = false;
     pullFinished = true;
   } catch (error: any) {
     const errorMessage = error.message ? error.message : error;
     pullError = `Error while pulling image from ${selectedProviderConnection.name}: ${errorMessage}`;
     pullInProgress = false;
+  } finally {
+    cancellableTokenId = undefined;
   }
 }
 
@@ -130,6 +135,13 @@ function validateImageName(event: any): void {
 
 function requestFocus(element: HTMLInputElement) {
   element.focus();
+}
+
+async function abortPull() {
+  if (cancellableTokenId) {
+    await window.cancelToken(cancellableTokenId);
+    cancellableTokenId = undefined;
+  }
 }
 </script>
 
@@ -206,6 +218,9 @@ function requestFocus(element: HTMLInputElement) {
             {/if}
             {#if pullError}
               <ErrorMessage error="{pullError}" />
+            {/if}
+            {#if cancellableTokenId}
+              <Button on:click="{() => abortPull()}" class="w-full mt-2">Cancel</Button>
             {/if}
           </div>
         </footer>

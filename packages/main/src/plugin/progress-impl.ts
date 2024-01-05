@@ -87,12 +87,7 @@ export class ProgressImpl {
       token: extensionApi.CancellationToken,
     ) => Promise<R>,
   ): Promise<R> {
-    let cancellationTokenCallbackId: number | undefined = undefined;
-    if (options.cancellable) {
-      cancellationTokenCallbackId = this.cancellationTokenRegistry.createCancellationTokenSource();
-    }
-
-    const t = this.taskManager.createTask(options.title, cancellationTokenCallbackId);
+    const t = this.taskManager.createTask(options.title, options.cancellableTokenId);
 
     return task(
       {
@@ -106,8 +101,8 @@ export class ProgressImpl {
           this.taskManager.updateTask(t);
         },
       },
-      cancellationTokenCallbackId
-        ? this.cancellationTokenRegistry.getCancellationTokenSource(cancellationTokenCallbackId)?.token
+      options.cancellableTokenId
+        ? this.cancellationTokenRegistry.getCancellationTokenSource(options.cancellableTokenId)?.token
         : undefined,
     )
       .then(value => {

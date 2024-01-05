@@ -708,12 +708,9 @@ declare module '@podman-desktop/api' {
     title?: string;
 
     /**
-     * Controls if a cancel button should show to allow the user to
-     * cancel the long running operation.  Note that currently only
-     * `ProgressLocation.Notification` is supporting to show a cancel
-     * button.
+     * Correspond to a cancel token that can be used to cancel the task
      */
-    cancellable?: boolean;
+    cancellableTokenId?: number;
   }
 
   /**

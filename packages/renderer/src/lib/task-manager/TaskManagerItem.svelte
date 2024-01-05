@@ -54,7 +54,7 @@ function gotoTask(taskUI: StatefulTaskUI) {
 }
 
 function cancelTask(taskUI: Task) {
-  if (taskUI.cancellationTokenCallbackId) window.cancelTask(taskUI.id);
+  if (taskUI.cancellableTokenId) window.cancelTask(taskUI.id);
 }
 </script>
 
@@ -111,7 +111,7 @@ function cancelTask(taskUI: Task) {
           {/if}
         </div>
       </div>
-      {#if taskUI.cancellationTokenCallbackId}
+      {#if taskUI.cancellableTokenId}
         <div class="flex flex-col w-full items-end">
           <button
             on:click="{() => {

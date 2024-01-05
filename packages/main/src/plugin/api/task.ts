@@ -23,7 +23,7 @@ export interface Task {
   id: string;
   name: string;
   started: number;
-  cancellationTokenCallbackId?: number;
+  cancellableTokenId?: number;
 }
 
 export interface StatefulTask extends Task {

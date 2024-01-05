@@ -38,7 +38,7 @@ export class TaskManager {
       started: new Date().getTime(),
       state: 'running',
       status: 'in-progress',
-      cancellationTokenCallbackId: cancellationTokenCallbackId,
+      cancellableTokenId: cancellationTokenCallbackId,
     };
     this.tasks.set(task.id, task);
     this.apiSender.send('task-created', task);
@@ -68,6 +68,10 @@ export class TaskManager {
     if (this.isStatefulTask(task) && task.state === 'completed') {
       this.tasks.delete(task.id);
     }
+  }
+
+  public findByCancellableToken(cancellableTokenId: number): Task[] {
+    return Array.from(this.tasks.values()).filter(task => task.cancellableTokenId === cancellableTokenId);
   }
 
   isStatefulTask(task: Task): task is StatefulTask {
