@@ -24,6 +24,7 @@ import DesktopIcon from '../images/DesktopIcon.svelte';
 
 test('Expect basic styling', async () => {
   render(FilteredEmptyScreen, { icon: DesktopIcon, kind: 'object', searchTerm: 'test' });
+  // eslint-disable-next-line quotes
   const title = screen.getByText("No object matching 'test' found");
   expect(title).toBeInTheDocument();
   expect(title).toHaveClass('text-xl');
@@ -54,6 +55,7 @@ test('Expect button to fire event and clear search term', async () => {
 
   // confirm search term has changed
   expect(resetMock).toHaveBeenCalledOnce();
+  // eslint-disable-next-line quotes
   const title = screen.getByText("No object matching '' found");
   expect(title).toBeInTheDocument();
 });
@@ -76,6 +78,7 @@ test('Expect button to fire event and respect event listener', async () => {
 
   // confirm search term has not changed
   expect(resetMock).toHaveBeenCalledOnce();
+  // eslint-disable-next-line quotes
   const title = screen.getByText("No object matching 'test' found");
   expect(title).toBeInTheDocument();
 });
