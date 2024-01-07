@@ -42,7 +42,7 @@ test('Expect basic column styling', async () => {
 
   const dot = text.parentElement?.children[0].children[0];
   expect(dot).toBeInTheDocument();
-  expect(dot).toHaveClass('bg-gray-900');
+  expect(dot).toHaveClass('bg-gray-600');
 });
 
 test('Expect column styling ClusterIP', async () => {
@@ -55,7 +55,7 @@ test('Expect column styling ClusterIP', async () => {
 
   const dot = text.parentElement?.children[0].children[0];
   expect(dot).toBeInTheDocument();
-  expect(dot).toHaveClass('bg-green-600');
+  expect(dot).toHaveClass('bg-sky-500');
 });
 
 test('Expect column styling LoadBalancer', async () => {
@@ -68,7 +68,7 @@ test('Expect column styling LoadBalancer', async () => {
 
   const dot = text.parentElement?.children[0].children[0];
   expect(dot).toBeInTheDocument();
-  expect(dot).toHaveClass('bg-sky-400');
+  expect(dot).toHaveClass('bg-purple-500');
 });
 
 test('Expect column styling NodePort', async () => {
@@ -81,5 +81,5 @@ test('Expect column styling NodePort', async () => {
 
   const dot = text.parentElement?.children[0].children[0];
   expect(dot).toBeInTheDocument();
-  expect(dot).toHaveClass('bg-amber-600');
+  expect(dot).toHaveClass('bg-fuschia-600');
 });
