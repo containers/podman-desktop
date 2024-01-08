@@ -27,6 +27,6 @@ export async function removeFolderIfExists(path: string) {
   console.log(`Cleaning up folder: ${path}`);
   if (existsSync(path)) {
     console.log(`Folder found, removing...`);
-    await rm(path, { recursive: true, force: true });
+    await rm(path, { recursive: true, force: true, maxRetries: 5 });
   }
 }
