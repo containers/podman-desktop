@@ -109,7 +109,7 @@ describe('Image workflow verification', async () => {
 
     const buildImagePage = await imagesPage.openBuildImage();
     await playExpect(buildImagePage.heading).toBeVisible();
-    const dockerfilePath = path.resolve(__dirname, '..', 'resources', 'test-Dockerfile');
+    const dockerfilePath = path.resolve(__dirname, '..', 'resources', 'test-containerfile');
     const contextDirectory = path.resolve(__dirname, '..', 'resources');
 
     imagesPage = await buildImagePage.buildImage('build-test-image', dockerfilePath, contextDirectory);
