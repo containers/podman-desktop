@@ -47,7 +47,33 @@ limactl list <instance> --format '{{.Dir}}'
 
 The resources can be set per instance, or as a global default.
 
+```yaml
+# CPUs
+# 🟢 Builtin default: min(4, host CPU cores)
+cpus: null
+
+# Memory size
+# 🟢 Builtin default: min("4GiB", half of host memory)
+memory: null
+
+# Disk size
+# 🟢 Builtin default: "100GiB"
+disk: null
+```
+
 To set the default, edit `_config/default.yaml` in Lima home.
+
+```yaml
+# The builtin defaults can be changed globally by creating a $LIMA_HOME/_config/default.yaml
+# file. It will be used by ALL instances under the same $LIMA_HOME, and it
+# will be applied on each `limactl start`, so can affect instance restarts.
+
+# A similar mechanism is $LIMA_HOME/_config/override.yaml, which will take
+# precedence even over the settings in an instances lima.yaml file.
+# It too applies to ALL instances under the same $LIMA_HOME, and is applied
+# on each restart. It can be used to globally override settings, e.g. make
+# the mount of the home directory writable.
+```
 
 ### VM and Mount
 
@@ -59,6 +85,20 @@ Optionally you can use "qemu" vm with "9p" (aka virtfs) mount.
 
 On macOS 13+, you can also use "vz" vm with "virtiofs" mount.
 
+```yaml
+# VM type: "qemu" or "vz" (on macOS 13 and later).
+# The vmType can be specified only on creating the instance.
+# The vmType of existing instances cannot be changed.
+# 🟢 Builtin default: "qemu"
+vmType: null
+
+# Mount type for above mounts, such as "reverse-sshfs" (from sshocker),
+# "9p" (EXPERIMENTAL, from QEMU’s virtio-9p-pci, aka virtfs),
+# or "virtiofs" (EXPERIMENTAL, needs `vmType: vz`)
+# 🟢 Builtin default: "reverse-sshfs" (for QEMU), "virtiofs" (for vz)
+mountType: null
+```
+
 ### Containers
 
 You can install a container engine, in addition to the existing runtime.
@@ -66,6 +106,14 @@ You can install a container engine, in addition to the existing runtime.
 For instance you can install [Podman Engine](https://github.com/containers/podman),
 or you can install [Docker Engine](https://github.com/docker/docker).
 After that you can port forward the socket, to the host `Dir`.
+
+```yaml
+portForwards:
+  - guestSocket: '/var/run/docker.sock'
+    hostSocket: '{{.Dir}}/sock/docker.sock'
+  - guestSocket: '/run/podman/podman.sock'
+    hostSocket: '{{.Dir}}/sock/podman.sock'
+```
 
 - `/var/run/docker.sock`
 - `/run/podman/podman.sock`
@@ -82,6 +130,16 @@ You can install Kubernetes, on top of the existing container engine.
 For instance you can use [CRI-O](https://github.com/cri-o/cri-o) for Podman,
 or [CRI-Dockerd](https://github.com/Mirantis/cri-dockerd) for Docker.
 After that you can copy the `kubeconfig.yaml` file, to the host `Dir`.
+
+```yaml
+copyToHost:
+  - guest: '/etc/rancher/k3s/k3s.yaml'
+    host: '{{.Dir}}/copied-from-guest/kubeconfig.yaml'
+    deleteOnStop: true
+  - guest: '/etc/kubernetes/admin.conf'
+    host: '{{.Dir}}/copied-from-guest/kubeconfig.yaml'
+    deleteOnStop: true
+```
 
 - `/etc/rancher/k3s/k3s.yaml`
 - `/etc/kubernetes/admin.conf`
