@@ -36,6 +36,7 @@ Some of the things you can edit:
 See also:
 
 - [Lima documentation](https://lima-vm.io/docs/)
+- [Lima GUI](https://github.com/afbjorklund/lima-gui) (with editor)
 
 ### Directory
 
