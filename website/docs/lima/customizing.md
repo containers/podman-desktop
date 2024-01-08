@@ -10,6 +10,8 @@ tags: [lima]
 
 You can customize Lima instance, using YAML and `yq`.
 
+For more information on yq, see the yq [documentation](https://mikefarah.gitbook.io/yq/).
+
 #### Procedure
 
 - To create a new instance:
