@@ -103,7 +103,7 @@ describe('Image workflow verification', async () => {
     expect(await imagesPage.waitForImageExists('quay.io/podman/hi')).equals(true);
   });
 
-  test.only('Build image', async () => {
+  test('Build image', async () => {
     let imagesPage = await navBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();
 
