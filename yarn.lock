@@ -2138,10 +2138,10 @@
     fs-extra "^11.1.1"
     tslib "^2.6.0"
 
-"@docusaurus/tsconfig@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@docusaurus/tsconfig/-/tsconfig-3.0.1.tgz#170f230c34ff12e55995bd7e9f1f21db33035d8f"
-  integrity sha512-hT2HCdNE3pWTzXV/7cSsowfmaOxXVOTFOXmkqaYjBWjaxjJ3FO0nHbdJ8rF6Da7PvWmIPbUekdP5gep1XCJ7Vg==
+"@docusaurus/tsconfig@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@docusaurus/tsconfig/-/tsconfig-3.1.0.tgz#ab6936a72b5a52904f37c0ef7d65c6d6aa6ab46d"
+  integrity sha512-PE6fSuj5gJy5sNC1OO+bYAU1/xZH5YqddGjhrNu3/T7OAUroqkMZfVl13Tz70CjYB8no4OWcraqSkObAeNdIcQ==
 
 "@docusaurus/types@3.0.0":
   version "3.0.0"
