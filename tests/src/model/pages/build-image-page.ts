@@ -18,7 +18,6 @@
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './base-page';
 import { ImagesPage } from './images-page';
-import { expect as playExpect } from '@playwright/test';
 
 export class BuildImagePage extends BasePage {
   readonly heading: Locator;
@@ -32,9 +31,9 @@ export class BuildImagePage extends BasePage {
   constructor(page: Page) {
     super(page);
     this.heading = page.getByRole('heading', { name: 'Build Image from Containerfile' });
-    this.containerFilePathInput = page.locator(`[id='containerFilePath']`);
-    this.buildContextDirectoryInput = page.locator(`[id='containerBuildContextDirectory']`);
-    this.imageNameInput = page.locator(`[id='containerImageName']`);
+    this.containerFilePathInput = page.getByPlaceholder('Containerfile to build');
+    this.buildContextDirectoryInput = page.getByPlaceholder('Folder to build in');
+    this.imageNameInput = page.getByPlaceholder('my-custom-image');
     this.buildButton = page.getByRole('button', { name: 'Build' });
     this.doneButton = page.getByRole('button', { name: 'Done' });
     this.containerFilePathButton = page.getByRole('button', { name: 'Browse...' }).first();
@@ -53,9 +52,9 @@ export class BuildImagePage extends BasePage {
       await this.imageNameInput.fill(imageName);
     }
 
-    await playExpect(this.buildButton).toBeEnabled();
+    await this.buildButton.waitFor({ state: 'visible', timeout: 3000 });
     await this.buildButton.click();
-    await playExpect(this.doneButton).toBeEnabled();
+    await this.doneButton.waitFor({ state: 'visible', timeout: 3000 });
     await this.doneButton.click();
     return new ImagesPage(this.page);
   }

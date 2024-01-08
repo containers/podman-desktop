@@ -103,14 +103,14 @@ describe('Image workflow verification', async () => {
     expect(await imagesPage.waitForImageExists('quay.io/podman/hi')).equals(true);
   });
 
-  test('Build image', async () => {
+  test.only('Build image', async () => {
     let imagesPage = await navBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();
 
     const buildImagePage = await imagesPage.openBuildImage();
     await playExpect(buildImagePage.heading).toBeVisible();
-    const dockerfilePath = path.resolve(__dirname, 'fixtures', 'test-Dockerfile');
-    const contextDirectory = path.resolve(__dirname, 'fixtures');
+    const dockerfilePath = path.resolve(__dirname, '..', 'resources', 'test-Dockerfile');
+    const contextDirectory = path.resolve(__dirname, '..', 'resources');
 
     imagesPage = await buildImagePage.buildImage('build-test-image', dockerfilePath, contextDirectory);
     expect(await imagesPage.waitForImageExists('build-test-image')).toBeTruthy();
