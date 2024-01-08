@@ -19,6 +19,7 @@
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './base-page';
 import { PodDetailsPage } from './pods-details-page';
+import { PlayKubeYamlPage } from './play-kube-yaml-page';
 
 export class PodsPage extends BasePage {
   readonly heading: Locator;
@@ -85,5 +86,10 @@ export class PodsPage extends BasePage {
 
   async podExists(name: string): Promise<boolean> {
     return (await this.getPodRowByName(name)) !== undefined ? true : false;
+  }
+
+  async openPlayKubeYaml(): Promise<PlayKubeYamlPage> {
+    await this.playKubernetesYAMLButton.click();
+    return new PlayKubeYamlPage(this.page);
   }
 }
