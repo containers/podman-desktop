@@ -31,6 +31,10 @@ Some of the things you can edit:
 - Modify the cluster setup (the Kubernetes distribution)
 - Run **both** of container workloads and Kubernetes workloads
 
+See also:
+
+- [Lima documentation](https://lima-vm.io/docs/)
+
 ### Directory
 
 To find the location of the instance directory (`Dir`):
@@ -38,6 +42,22 @@ To find the location of the instance directory (`Dir`):
 ```bash
 limactl list <instance> --format '{{.Dir}}'
 ```
+
+### Resources
+
+The resources can be set per instance, or as a global default.
+
+To set the default, edit `_config/default.yaml` in Lima home.
+
+### VM and Mount
+
+Any virtual machine (or server) with ssh can be used for Lima.
+
+Most compatible mount type is "reverse-sshfs" (from [sshocker](https://github.com/lima-vm/sshocker)).
+
+Optionally you can use "qemu" vm with "9p" (aka virtfs) mount.
+
+On macOS 13+, you can also use "vz" vm with "virtiofs" mount.
 
 ### Containers
 
