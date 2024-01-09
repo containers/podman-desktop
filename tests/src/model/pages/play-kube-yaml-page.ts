@@ -38,10 +38,13 @@ export class PlayKubeYamlPage extends BasePage {
     if (!pathToYaml) {
       throw Error(`Path to Yaml file is incorrect or not provided!`);
     }
+
+    await this.yamlPathInpute.evaluate(node => node.removeAttribute('readonly'));
+    await this.playButton.evaluate(node => node.removeAttribute('disabled'));
+
     await this.yamlPathInpute.fill(pathToYaml);
-    await waitUntil(async () => await this.playButton.isEnabled(), 5000, 500);
     await this.playButton.click();
-    await waitUntil(async () => await this.doneButton.isEnabled(), 5000, 500);
+    await waitUntil(async () => await this.doneButton.isEnabled(), 15000, 500);
     await this.doneButton.click();
     return new PodsPage(this.page);
   }

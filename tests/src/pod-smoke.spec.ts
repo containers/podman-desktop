@@ -208,12 +208,21 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       await pdRunner.screenshot('pods-pod-deleted.png');
     });
 
-    test.only('Playing yaml', async () => {
+    test('Playing yaml', async () => {
       const navigationBar = new NavigationBar(page);
       let podsPage = await navigationBar.openPods();
+      await playExpect(podsPage.heading).toBeVisible();
+
       const playYamlPage = await podsPage.openPlayKubeYaml();
+      await playExpect(playYamlPage.heading).toBeVisible();
+
       const yamlFilePath = path.resolve(__dirname, '..', 'resources', 'primary-podify-demo.yaml');
       podsPage = await playYamlPage.playYaml(yamlFilePath);
+      await playExpect(podsPage.heading).toBeVisible();
+
+      playExpect(await podsPage.podExists('podify-demo-pod')).toBeTruthy();
+      await deletePod(page, 'podify-demo-pod');
+      playExpect(await podsPage.podExists('podify-demo-pod')).toBeFalsy();
     });
   },
 );
