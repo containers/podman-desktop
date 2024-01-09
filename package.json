@@ -154,7 +154,7 @@
   "dependencies": {
     "@docker/extension-api-client-types": "0.3.4",
     "@kubernetes/client-node": "^0.20.0",
-    "@segment/analytics-node": "^1.1.4",
+    "@segment/analytics-node": "^1.2.0",
     "@types/stream-json": "^1.7.7",
     "adm-zip": "^0.5.10",
     "check-disk-space": "^3.4.0",
