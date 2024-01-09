@@ -22,14 +22,14 @@ import { waitUntil } from '../../utility/wait';
 
 export class PlayKubeYamlPage extends BasePage {
   readonly heading: Locator;
-  readonly yamlPathInpute: Locator;
+  readonly yamlPathInput: Locator;
   readonly playButton: Locator;
   readonly doneButton: Locator;
 
   constructor(page: Page) {
     super(page);
     this.heading = page.getByRole('heading', { name: 'Play Pods or Containers from a Kubernetes YAML File' });
-    this.yamlPathInpute = page.getByPlaceholder('Select a .yaml file to play');
+    this.yamlPathInput = page.getByPlaceholder('Select a .yaml file to play');
     this.playButton = page.getByRole('button', { name: 'Play' });
     this.doneButton = page.getByRole('button', { name: 'Done' });
   }
@@ -39,10 +39,10 @@ export class PlayKubeYamlPage extends BasePage {
       throw Error(`Path to Yaml file is incorrect or not provided!`);
     }
 
-    await this.yamlPathInpute.evaluate(node => node.removeAttribute('readonly'));
+    await this.yamlPathInput.evaluate(node => node.removeAttribute('readonly'));
     await this.playButton.evaluate(node => node.removeAttribute('disabled'));
 
-    await this.yamlPathInpute.fill(pathToYaml);
+    await this.yamlPathInput.fill(pathToYaml);
     await this.playButton.click();
     await waitUntil(async () => await this.doneButton.isEnabled(), 15000, 500);
     await this.doneButton.click();
