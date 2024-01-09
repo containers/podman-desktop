@@ -101,26 +101,29 @@ export class ImageRegistry {
    */
   getAuthconfigForImage(imageName: string): Dockerode.AuthConfig | undefined {
     const registryServer = this.extractRegistryServerFromImage(imageName);
-    let authconfig;
     if (registryServer) {
-      const matchingUrl = registryServer;
-      // grab authentication data for this server
-      const matchingRegistry = this.getRegistries().find(
-        registry => registry.serverUrl.toLowerCase() === matchingUrl.toLowerCase(),
-      );
-      if (matchingRegistry) {
-        let serveraddress = matchingRegistry.serverUrl.toLowerCase();
-        if (serveraddress === 'docker.io') {
-          serveraddress = 'https://index.docker.io/v2/';
-        }
-        authconfig = {
-          username: matchingRegistry.username,
-          password: matchingRegistry.secret,
-          serveraddress,
-        };
-      }
+      return this.getAuthconfigForServer(registryServer);
     }
-    return authconfig;
+    return undefined;
+  }
+
+  getAuthconfigForServer(registryServer: string): Dockerode.AuthConfig | undefined {
+    const matchingUrl = registryServer;
+    // grab authentication data for this server
+    const matchingRegistry = this.getRegistries().find(
+      registry => registry.serverUrl.toLowerCase() === matchingUrl.toLowerCase(),
+    );
+    if (matchingRegistry) {
+      let serveraddress = matchingRegistry.serverUrl.toLowerCase();
+      if (serveraddress === 'docker.io') {
+        serveraddress = 'https://index.docker.io/v2/';
+      }
+      return {
+        username: matchingRegistry.username,
+        password: matchingRegistry.secret,
+        serveraddress,
+      };
+    }
   }
 
   /**
@@ -790,6 +793,13 @@ export class ImageRegistry {
     let rawResponse: string | undefined;
     const options = this.getOptions();
 
+    // if we have auth for this registry, add basic auth to the headers
+    const authServer = this.getAuthconfigForServer(imageData.registry);
+    if (authServer) {
+      options.headers = options.headers || {};
+      const loginAndPassWord = `${authServer.username}:${authServer.password}`;
+      options.headers.Authorization = `Basic ${Buffer.from(loginAndPassWord).toString('base64')}`;
+    }
     // need to replace repository%3Auser with repository:user coming from imageData
     let tokenUrl = authInfo.authUrl.replace('user%2Fimage', imageData.name.replaceAll('/', '%2F'));
 
