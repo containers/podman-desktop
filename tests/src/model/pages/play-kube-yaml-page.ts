@@ -18,6 +18,7 @@
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './base-page';
 import { PodsPage } from './pods-page';
+import { waitUntil } from '../../utility/wait';
 
 export class PlayKubeYamlPage extends BasePage {
   readonly heading: Locator;
@@ -33,7 +34,15 @@ export class PlayKubeYamlPage extends BasePage {
     this.doneButton = page.getByRole('button', { name: 'Done' });
   }
 
-  async playYaml(): Promise<PodsPage> {
+  async playYaml(pathToYaml: string): Promise<PodsPage> {
+    if (!pathToYaml) {
+      throw Error(`Path to Yaml file is incorrect or not provided!`);
+    }
+    await this.yamlPathInpute.fill(pathToYaml);
+    await waitUntil(async () => await this.playButton.isEnabled(), 5000, 500);
+    await this.playButton.click();
+    await waitUntil(async () => await this.doneButton.isEnabled(), 5000, 500);
+    await this.doneButton.click();
     return new PodsPage(this.page);
   }
 }
