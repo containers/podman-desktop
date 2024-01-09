@@ -3085,29 +3085,31 @@
   resolved "https://registry.yarnpkg.com/@rollup/rollup-win32-x64-msvc/-/rollup-win32-x64-msvc-4.5.1.tgz#0e79117bacb5817ff9a88ab19cb59df839638d6d"
   integrity sha512-5I3Nz4Sb9TYOtkRwlH0ow+BhMH2vnh38tZ4J4mggE48M/YyJyp/0sPSxhw1UeS1+oBgQ8q7maFtSeKpeRJu41Q==
 
-"@segment/analytics-core@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-core/-/analytics-core-1.4.0.tgz#327ee91a0b2435807d96d268a7c06d44cacad7ba"
-  integrity sha512-rLUv5Se0iDccykxY8bWUuoZT4gg8fNW00zMPqkJN+ONfj5/P1eaGQgygq2EHlR9j20a7tNtp5Y9bZ4rLzViIXQ==
+"@segment/analytics-core@1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-core/-/analytics-core-1.4.1.tgz#af0e5ec31f3d1978a56dee4683af4c34b207effb"
+  integrity sha512-kV0Pf33HnthuBOVdYNani21kYyj118Fn+9757bxqoksiXoZlYvBsFq6giNdCsKcTIE1eAMqNDq3xE1VQ0cfsHA==
   dependencies:
     "@lukeed/uuid" "^2.0.0"
-    "@segment/analytics-generic-utils" "1.1.0"
+    "@segment/analytics-generic-utils" "1.1.1"
     dset "^3.1.2"
     tslib "^2.4.1"
 
-"@segment/analytics-generic-utils@1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-generic-utils/-/analytics-generic-utils-1.1.0.tgz#b3e4de81ec76e98ef94977a5b995af0a42760708"
-  integrity sha512-nOgmbfsKD0jFzH3df+PtjLq3qTspdcFpIy/F5ziho5qiE+QATM8wY9TpvCNBbcHr2f3OGzT6SgjJLFlmM5Yb+w==
+"@segment/analytics-generic-utils@1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-generic-utils/-/analytics-generic-utils-1.1.1.tgz#8603a38cc6bce5b0b0d2edfd97518489551ae789"
+  integrity sha512-THTIzBPHnvu1HYJU3fARdJ3qIkukO3zDXsmDm+kAeUks5R9CBXOQ6rPChiASVzSmwAIIo5uFIXXnCraojlq/Gw==
+  dependencies:
+    tslib "^2.4.1"
 
-"@segment/analytics-node@^1.1.4":
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-node/-/analytics-node-1.1.4.tgz#2b8e1a79365d3e1957542f1e6829813471921935"
-  integrity sha512-yfhWjos0VKrueIhL7NwwaKJTMmDTDPMeNA9nmCZbbIppxWfgfUdqhkSOktQKTUdxLHOygTwuldvayjuftBsRBA==
+"@segment/analytics-node@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-node/-/analytics-node-1.2.0.tgz#535d5108b2ea3f9e689314f87397ac43ceb22939"
+  integrity sha512-uvP9U/TI5YAMOa0CrAxrWFJaHjm3hW8zaq8wKRgcOdM4g3YGhOLLKfg2bPzrQliEuZS4Bl1/VsREXwQp0T3eBQ==
   dependencies:
     "@lukeed/uuid" "^2.0.0"
-    "@segment/analytics-core" "1.4.0"
-    "@segment/analytics-generic-utils" "1.1.0"
+    "@segment/analytics-core" "1.4.1"
+    "@segment/analytics-generic-utils" "1.1.1"
     buffer "^6.0.3"
     node-fetch "^2.6.7"
     tslib "^2.4.1"
