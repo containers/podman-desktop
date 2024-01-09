@@ -20,6 +20,7 @@ import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './base-page';
 import { RunImagePage } from './run-image-page';
 import { ImageEditPage } from './image-edit-page';
+import { ImagesPage } from './images-page';
 
 export class ImageDetailsPage extends BasePage {
   readonly name: Locator;
@@ -57,5 +58,10 @@ export class ImageDetailsPage extends BasePage {
   async openEditImage(): Promise<ImageEditPage> {
     await this.editButton.click();
     return new ImageEditPage(this.page, this.imageName);
+  }
+
+  async deleteImage(): Promise<ImagesPage> {
+    await this.deleteButton.click();
+    return new ImagesPage(this.page);
   }
 }
