@@ -18,7 +18,6 @@
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './base-page';
 import { PodsPage } from './pods-page';
-import { waitUntil } from '../../utility/wait';
 
 export class PlayKubeYamlPage extends BasePage {
   readonly heading: Locator;
@@ -45,7 +44,7 @@ export class PlayKubeYamlPage extends BasePage {
 
     await this.yamlPathInput.fill(pathToYaml);
     await this.playButton.click();
-    await waitUntil(async () => await this.doneButton.isEnabled(), 60000, 500);
+    await this.doneButton.waitFor({ state: 'visible', timeout: 60000 });
     await this.doneButton.click();
     return new PodsPage(this.page);
   }
