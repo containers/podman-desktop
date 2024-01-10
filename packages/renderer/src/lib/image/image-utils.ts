@@ -104,7 +104,7 @@ export class ImageUtils {
           tag: '',
           base64RepoTag: this.getBase64EncodedName('<none>'),
           selected: false,
-          inUse: this.getInUse(imageInfo, containersInfo),
+          status: this.getInUse(imageInfo, containersInfo) ? 'USED' : 'UNUSED',
         },
       ];
     } else {
@@ -122,7 +122,7 @@ export class ImageUtils {
           tag: this.getTag(repoTag),
           base64RepoTag: this.getBase64EncodedName(repoTag),
           selected: false,
-          inUse: this.getInUse(imageInfo, containersInfo),
+          status: this.getInUse(imageInfo, containersInfo) ? 'USED' : 'UNUSED',
         };
       });
     }

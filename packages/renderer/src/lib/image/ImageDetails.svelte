@@ -76,7 +76,7 @@ onDestroy(() => {
 
 {#if image}
   <DetailsPage title="{image.name}" titleDetail="{image.shortId}" subtitle="{image.tag}" bind:this="{detailsPage}">
-    <StatusIcon slot="icon" icon="{ImageIcon}" size="{24}" status="{image.inUse ? 'USED' : 'UNUSED'}" />
+    <StatusIcon slot="icon" icon="{ImageIcon}" size="{24}" status="{image.status}" />
     <ImageActions
       slot="actions"
       image="{image}"
@@ -84,7 +84,8 @@ onDestroy(() => {
       onRenameImage="{handleRenameImageModal}"
       detailed="{true}"
       dropdownMenu="{false}"
-      groupContributions="{true}" />
+      groupContributions="{true}"
+      on:update="{() => (image = image)}" />
     <svelte:fragment slot="tabs">
       <Tab title="Summary" url="summary" />
       <Tab title="History" url="history" />

@@ -6,4 +6,4 @@ import StatusIcon from '../images/StatusIcon.svelte';
 export let object: ImageInfoUI;
 </script>
 
-<StatusIcon icon="{ImageIcon}" status="{object.inUse ? 'USED' : 'UNUSED'}" />
+<StatusIcon icon="{ImageIcon}" status="{object.status}" />

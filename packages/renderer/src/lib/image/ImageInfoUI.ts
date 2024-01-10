@@ -31,5 +31,5 @@ export interface ImageInfoUI {
   // no tag, we encode <none>
   base64RepoTag: string;
   selected: boolean;
-  inUse: boolean;
+  status: string;
 }
