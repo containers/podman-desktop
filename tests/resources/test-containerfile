@@ -1,0 +1,2 @@
+FROM ghcr.io/linuxcontainers/alpine
+CMD ["/bin/sh", "-c", "echo 'Image built!'"]

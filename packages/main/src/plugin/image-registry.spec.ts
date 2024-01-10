@@ -19,7 +19,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { beforeAll, beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, expectTypeOf, test, vi, vitest } from 'vitest';
 import type { ApiSenderType } from './api.js';
 
 import { ImageRegistry } from './image-registry.js';
@@ -659,4 +659,92 @@ test('getManifestFromUrl returns the expected manifest without mediaType but wit
   expect(manifest).toBeDefined();
   expect(manifest).toHaveProperty('endManifest', true);
   expect(spyGetBestManifest).toHaveBeenCalled();
+});
+
+test('getAuthconfigForServer returns the expected authconfig', async () => {
+  imageRegistry.registerRegistry({
+    serverUrl: 'my-podman-desktop-fake-registry.io',
+    username: 'foo',
+    secret: 'my-secret',
+    source: 'podman-desktop',
+  });
+  const config = imageRegistry.getAuthconfigForServer('my-podman-desktop-fake-registry.io');
+
+  expect(config).toBeDefined();
+  expect(config?.username).toBe('foo');
+  expect(config?.password).toBe('my-secret');
+  expect(config?.serveraddress).toBe('my-podman-desktop-fake-registry.io');
+});
+
+test('getAuthconfigForServer returns the expected authconfig', async () => {
+  imageRegistry.registerRegistry({
+    serverUrl: 'my-podman-desktop-fake-registry.io',
+    username: 'foo',
+    secret: 'my-secret',
+    source: 'podman-desktop',
+  });
+  const config = imageRegistry.getAuthconfigForServer('my-podman-desktop-fake-registry.io');
+
+  expect(config).toBeDefined();
+  expect(config?.username).toBe('foo');
+  expect(config?.password).toBe('my-secret');
+  expect(config?.serveraddress).toBe('my-podman-desktop-fake-registry.io');
+});
+
+test('getToken with registry auth', async () => {
+  imageRegistry.registerRegistry({
+    serverUrl: 'my-podman-desktop-fake-registry.io',
+    username: 'foo',
+    secret: 'my-secret',
+    source: 'podman-desktop',
+  });
+
+  // expect that the authorization header will be set by the getToken method
+  nock('https://my-podman-desktop-fake-registry.io', {
+    reqheaders: {
+      authorization: 'Basic Zm9vOm15LXNlY3JldA==',
+    },
+  })
+    .get('/?scope=repository%3Afoo%2Fbar%3Apull')
+    .reply(200, {
+      token: '12345',
+    });
+
+  const token = await imageRegistry.getToken(
+    {
+      authUrl: 'https://my-podman-desktop-fake-registry.io',
+      scheme: 'http',
+    },
+    {
+      name: 'foo/bar',
+      tag: 'latest',
+      registry: 'my-podman-desktop-fake-registry.io',
+      registryURL: 'https://my-podman-desktop-fake-registry.io/v2',
+    },
+  );
+
+  expect(token).toBeDefined();
+  expect(token).toBe('12345');
+});
+
+test('getToken without registry auth', async () => {
+  nock('https://my-podman-desktop-fake-registry.io').get('/?scope=repository%3Afoo%2Fbar%3Apull').reply(200, {
+    token: '12345',
+  });
+
+  const token = await imageRegistry.getToken(
+    {
+      authUrl: 'https://my-podman-desktop-fake-registry.io',
+      scheme: 'http',
+    },
+    {
+      name: 'foo/bar',
+      tag: 'latest',
+      registry: 'my-podman-desktop-fake-registry.io',
+      registryURL: 'https://my-podman-desktop-fake-registry.io/v2',
+    },
+  );
+
+  expect(token).toBeDefined();
+  expect(token).toBe('12345');
 });

@@ -120,8 +120,8 @@
     "@types/tar": "^6.1.10",
     "@types/tar-fs": "^2.0.4",
     "@types/validator": "^13.11.7",
-    "@typescript-eslint/eslint-plugin": "^6.18.0",
-    "@typescript-eslint/parser": "^6.18.0",
+    "@typescript-eslint/eslint-plugin": "^6.18.1",
+    "@typescript-eslint/parser": "^6.18.1",
     "@vitest/coverage-v8": "^1.1.3",
     "cross-env": "7.0.3",
     "dts-for-context-bridge": "0.7.1",
@@ -154,7 +154,7 @@
   "dependencies": {
     "@docker/extension-api-client-types": "0.3.4",
     "@kubernetes/client-node": "^0.20.0",
-    "@segment/analytics-node": "^1.1.4",
+    "@segment/analytics-node": "^1.2.0",
     "@types/stream-json": "^1.7.7",
     "adm-zip": "^0.5.10",
     "check-disk-space": "^3.4.0",
@@ -174,7 +174,7 @@
     "sudo-prompt": "^9.2.1",
     "tar": "^6.2.0",
     "tar-fs": "^3.0.4",
-    "undici": "^6.2.1",
+    "undici": "^6.3.0",
     "win-ca": "^3.5.1",
     "yaml": "^2.3.4"
   },

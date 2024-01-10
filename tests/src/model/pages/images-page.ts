@@ -21,6 +21,7 @@ import { MainPage } from './main-page';
 import { ImageDetailsPage } from './image-details-page';
 import { PullImagePage } from './pull-image-page';
 import { waitUntil, waitWhile } from '../../utility/wait';
+import { BuildImagePage } from './build-image-page';
 
 export class ImagesPage extends MainPage {
   readonly pullImageButton: Locator;
@@ -50,6 +51,11 @@ export class ImagesPage extends MainPage {
     const imageRowName = imageRow.getByRole('cell').nth(3);
     await imageRowName.click();
     return new ImageDetailsPage(this.page, name);
+  }
+
+  async openBuildImage(): Promise<BuildImagePage> {
+    await this.buildImageButton.click();
+    return new BuildImagePage(this.page);
   }
 
   async getImageRowByName(name: string): Promise<Locator | undefined> {
