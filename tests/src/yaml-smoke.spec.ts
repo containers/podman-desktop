@@ -63,6 +63,7 @@ describe('Play yaml file to pull images and create pods', async () => {
     playExpect(await podsPage.podExists('podify-demo-pod')).toBeFalsy();
 
     let imagesPage = await navigationBar.openImages();
+    await playExpect(imagesPage.heading).toBeVisible();
     expect(await imagesPage.waitForImageExists('podify-demo-backend')).toBeTruthy();
 
     const imageDetailsPage = await imagesPage.openImageDetails('podify-demo-backend');
