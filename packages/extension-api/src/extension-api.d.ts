@@ -1898,6 +1898,7 @@ declare module '@podman-desktop/api' {
 
     // environment files to use
     EnvFiles?: string[];
+    Labels?: { [label: string]: string };
 
     // eslint-disable-next-line @typescript-eslint/ban-types
     ExposedPorts?: { [port: string]: {} };
