@@ -39,6 +39,7 @@ export class PlayKubeYamlPage extends BasePage {
       throw Error(`Path to Yaml file is incorrect or not provided!`);
     }
 
+    // TODO: evaluate() is required due to noninteractivity of fields currently, once https://github.com/containers/podman-desktop/issues/5479 is done they will no longer be needed
     await this.yamlPathInput.evaluate(node => node.removeAttribute('readonly'));
     await this.playButton.evaluate(node => node.removeAttribute('disabled'));
 
