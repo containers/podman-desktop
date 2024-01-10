@@ -16,7 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { existsSync, rmSync } from 'node:fs';
+import type { Stats } from 'node:fs';
+import { existsSync, readdirSync, rmSync, statSync } from 'node:fs';
+import path from 'node:path';
+import { userInfo } from 'os';
 
 /**
  * Force remove recursively folder, if exists
@@ -26,6 +29,35 @@ export async function removeFolderIfExists(path: string) {
   console.log(`Cleaning up folder: ${path}`);
   if (existsSync(path)) {
     console.log(`Folder found, removing...`);
+    walkDir(path);
     rmSync(path, { recursive: true, force: true, maxRetries: 5 });
   }
+}
+
+function walkDir(dir: string): void {
+  const files = readdirSync(dir);
+  getUserInfo();
+
+  files.forEach(file => {
+    const filePath = path.join(dir, file);
+    const isDirectory = statSync(filePath).isDirectory();
+    const stats = statSync(filePath);
+
+    if (isDirectory) {
+      console.log(`[Folder]: ${filePath}`);
+      printStats(stats);
+      walkDir(filePath);
+    } else {
+      console.log(`[File]: ${filePath}`);
+      printStats(stats);
+    }
+  });
+}
+
+function getUserInfo(): void {
+  console.log(userInfo());
+}
+
+function printStats(stats: Stats) {
+  console.log(` - owner: ${stats.uid} + mode: ${stats.mode.toString(8)} + Last modified: ${stats.mtime}`);
 }
