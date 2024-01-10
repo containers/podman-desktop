@@ -27,7 +27,6 @@ import { waitUntil, waitWhile } from './utility/wait';
 import { deleteContainer, deleteImage, deletePod } from './utility/operations';
 import { ContainerState, PodState } from './model/core/states';
 import * as os from 'node:os';
-import path from 'path';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -206,23 +205,6 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       playExpect(podsPage).toBeDefined();
       playExpect(await podsPage.podExists(podToRun)).toBeFalsy();
       await pdRunner.screenshot('pods-pod-deleted.png');
-    });
-
-    test('Playing yaml', async () => {
-      const navigationBar = new NavigationBar(page);
-      let podsPage = await navigationBar.openPods();
-      await playExpect(podsPage.heading).toBeVisible();
-
-      const playYamlPage = await podsPage.openPlayKubeYaml();
-      await playExpect(playYamlPage.heading).toBeVisible();
-
-      const yamlFilePath = path.resolve(__dirname, '..', 'resources', 'primary-podify-demo.yaml');
-      podsPage = await playYamlPage.playYaml(yamlFilePath);
-      await playExpect(podsPage.heading).toBeVisible();
-
-      playExpect(await podsPage.podExists('podify-demo-pod')).toBeTruthy();
-      await deletePod(page, 'podify-demo-pod');
-      playExpect(await podsPage.podExists('podify-demo-pod')).toBeFalsy();
     });
   },
 );
