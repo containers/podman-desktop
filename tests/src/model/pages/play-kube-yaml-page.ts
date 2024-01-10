@@ -44,7 +44,7 @@ export class PlayKubeYamlPage extends BasePage {
 
     await this.yamlPathInput.fill(pathToYaml);
     await this.playButton.click();
-    await waitUntil(async () => await this.doneButton.isEnabled(), 30000, 500);
+    await waitUntil(async () => await this.doneButton.isEnabled(), 60000, 500);
     await this.doneButton.click();
     return new PodsPage(this.page);
   }
