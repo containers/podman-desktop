@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,199 +16,84 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Locator, Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
 import { expect as playExpect } from '@playwright/test';
-import { SettingsBar } from './model/pages/settings-bar';
-import { SettingsExtensionsPage } from './model/pages/settings-extensions-page';
-import { DashboardPage } from './model/pages/dashboard-page';
-import { OpenshiftLocalExtensionPage } from './model/pages/openshift-local-extension-page';
-import { SandboxExtensionPage } from './model/pages/sandbox-extension-page';
+import type { SettingsBar } from './model/pages/settings-bar';
+import type { DashboardPage } from './model/pages/dashboard-page';
 import type { RunnerTestContext } from './testContext/runner-test-context';
 import { ResourcesPage } from './model/pages/resources-page';
+import { NavigationBar } from './model/workbench/navigation';
+import { platform } from 'os';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
+let navBar: NavigationBar;
+let dashboardPage: DashboardPage;
+let settingsBar: SettingsBar;
+const os = platform();
 
-let extensionDashboardStatus: Locator;
-let extensionDashboardBox: Locator;
-let extensionDashboardProvider: Locator;
-let extensionSettingsBox: Locator;
-let installButtonLabel: string;
-let settingsLink: string;
-let resourceLabel: string;
-
-const _startup = async function () {
-  console.log('running before all');
+beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
+  pdRunner.setVideoName('podman-detection');
 
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
-};
+  navBar = new NavigationBar(page); // always present on the left side of the page
+  dashboardPage = await navBar.openDashboard();
+});
 
-const _shutdown = async function () {
-  console.log('running after all');
+afterAll(async () => {
   await pdRunner.close();
-};
+});
 
 beforeEach<RunnerTestContext>(async ctx => {
-  console.log('running before each');
   ctx.pdRunner = pdRunner;
 });
 
 describe('Podman Detection verification', async () => {
-  beforeAll(_startup);
-  afterAll(_shutdown);
+  // TODO: add skipif in case where we expect podman to be installed, not running
+  describe.runIf(os === 'linux')('On Linux', async () => {
+    test('Podman is installed and running on Dashboard', async () => {
+      const podmanProvider = dashboardPage.getPodmanStatusLocator();
+      await playExpect(podmanProvider).toBeVisible();
 
-  test('Initialize the test', async () => {
-    // some initialization?
-  });
-
-  describe('Check installation availability', async () => {
-    test('Check Dashboard extension component for installation availability', async () => {
-      const installButton = extensionDashboardBox.getByRole('button', { name: installButtonLabel });
-      await playExpect(installButton).toBeVisible();
+      // TODO: missing ARIA functionality
+      const actualState = podmanProvider.getByLabel('Actual State');
+      await playExpect(actualState).toBeVisible();
+      await playExpect(actualState).toContainText('running', { ignoreCase: true });
+      const providerVersion = podmanProvider.getByLabel('Provider Version');
+      await playExpect(providerVersion).toBeVisible();
+      await playExpect(providerVersion).toContainText(/v\d.\d.\d/, { ignoreCase: true });
     });
 
-    test('Check Settings extension component for installation availability', async () => {
-      await goToSettings();
-      const settingsBar = new SettingsBar(page);
-      await settingsBar.openTabPage(SettingsExtensionsPage);
-
-      const installButton = extensionSettingsBox.getByRole('button', { name: installButtonLabel });
-      await playExpect(installButton).toBeVisible();
-    });
-  });
-
-  test('Install extension through Settings', async () => {
-    const installButton = extensionSettingsBox.getByRole('button', { name: installButtonLabel });
-    await installButton.click();
-    const installedLabel = extensionSettingsBox.getByText('installed');
-    await playExpect(installedLabel).toBeVisible({ timeout: 180000 });
-  }, 200000);
-
-  describe('Verify UI components after installation', async () => {
-    test('Verify Settings components', async () => {
-      const installedLabel = extensionSettingsBox.getByText('installed');
-      await playExpect(installedLabel).toBeVisible();
-
-      const settingsBar = new SettingsBar(page);
-      await playExpect(settingsBar.settingsNavBar.getByRole('link', { name: settingsLink })).toBeVisible();
-
-      const extensionPage = await settingsBar.openTabPage(extensionPageType);
-      await playExpect(extensionPage.heading).toBeVisible();
-      await playExpect(extensionPage.status).toHaveText('ENABLED');
-    });
-
-    describe('Toggle and verify extension status', async () => {
-      test('Disable extension and verify Dashboard and Resources components', async () => {
-        const extensionPage = new extensionPageType(page);
-
-        await extensionPage.disableButton.click();
-        await playExpect(extensionPage.status).toHaveText('DISABLED');
-
-        await goToDashboard();
-        await playExpect(extensionDashboardProvider).toBeHidden();
-        await playExpect(extensionDashboardStatus).toBeHidden();
-
-        await goToSettings();
-        const settingsBar = new SettingsBar(page);
-        const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
-        const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
-          name: resourceLabel,
-        });
-        await playExpect(extensionResourceBox).toBeHidden();
-      });
-
-      test('Enable extension and verify Dashboard and Resources components', async () => {
-        const settingsBar = new SettingsBar(page);
-        await settingsBar.openTabPage(SettingsExtensionsPage);
-        const extensionPage = await settingsBar.openTabPage(extensionPageType);
-
-        await extensionPage.enableButton.click();
-        await playExpect(extensionPage.status).toHaveText('ENABLED', { timeout: 10000 });
-
-        await goToDashboard();
-        await playExpect(extensionDashboardProvider).toBeVisible();
-        await playExpect(extensionDashboardStatus).toBeVisible();
-
-        await goToSettings();
-        const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
-        const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
-          name: resourceLabel,
-        });
-        await playExpect(extensionResourceBox).toBeVisible();
-      });
-    });
-  });
-
-  describe('Remove extension and verify UI', async () => {
-    test('Remove extension and verify Settings components', async () => {
-      const settingsBar = new SettingsBar(page);
-      await settingsBar.openTabPage(SettingsExtensionsPage);
-      const extensionPage = await settingsBar.openTabPage(extensionPageType);
-
-      await extensionPage.disableButton.click();
-      await extensionPage.removeExtensionButton.click();
-
-      const installButton = extensionSettingsBox.getByRole('button', { name: installButtonLabel });
-      await playExpect(installButton).toBeVisible();
-
-      await playExpect(settingsBar.settingsNavBar.getByRole('link', { name: settingsLink })).toBeHidden();
-
+    test('Podman provider is running in Resources', async () => {
+      settingsBar = await navBar.openSettings();
       const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
-      const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', { name: resourceLabel });
-      await playExpect(extensionResourceBox).toBeHidden();
-    });
+      const podmanBox = resourcesPage.featuredProviderResources.getByRole('region', {
+        name: 'podman',
+      });
+      await playExpect(podmanBox).toBeVisible();
 
-    test('Verify Dashboard components', async () => {
-      await goToDashboard();
-      const dashboardInstallButton = extensionDashboardBox.getByRole('button', { name: installButtonLabel });
-      await playExpect(dashboardInstallButton).toBeVisible();
+      const setupButton = podmanBox.getByRole('button', { name: 'Setup Podman' });
+      await playExpect(setupButton).toBeVisible();
+      const connectionStatusLabel = podmanBox.getByLabel('connection-status-label');
+      await playExpect(connectionStatusLabel).toBeVisible();
+      await playExpect(connectionStatusLabel).toContainText('RUNNING');
+      const podmanTypeLabel = podmanBox.getByLabel('Podman type');
+      await playExpect(podmanTypeLabel).toBeVisible();
+      await playExpect(podmanTypeLabel).toContainText('Podman endpoint');
+      const podmanEndpointLabel = podmanBox.getByLabel('Podman endpoint');
+      await playExpect(podmanEndpointLabel).toBeVisible();
+      await playExpect(podmanEndpointLabel).toContainText('podman.sock');
+    });
+  });
+  describe.runIf(os === 'win32')('On Windows', async () => {
+    test('Podman is installed and machine started', async () => {
+      // TODO add windows and mac specific test
     });
   });
 });
-
-function initializeLocators(extensionType: string) {
-  const dashboardPage = new DashboardPage(page);
-  const settingsExtensionsPage = new SettingsExtensionsPage(page);
-  switch (extensionType) {
-    case 'Developer Sandbox': {
-      extensionDashboardStatus = dashboardPage.devSandboxEnabledStatus;
-      extensionDashboardBox = dashboardPage.devSandboxBox;
-      extensionDashboardProvider = dashboardPage.devSandboxProvider;
-      extensionSettingsBox = settingsExtensionsPage.devSandboxBox;
-      installButtonLabel = 'Install redhat.redhat-sandbox Extension';
-      settingsLink = 'Red Hat OpenShift Sandbox';
-      resourceLabel = 'redhat.sandbox';
-      break;
-    }
-    case 'Openshift Local': {
-      extensionDashboardStatus = dashboardPage.openshiftLocalEnabledStatus;
-      extensionDashboardBox = dashboardPage.openshiftLocalBox;
-      extensionDashboardProvider = dashboardPage.openshiftLocalProvider;
-      extensionSettingsBox = settingsExtensionsPage.openshiftLocalBox;
-      installButtonLabel = 'Install redhat.openshift-local Extension';
-      settingsLink = 'Red Hat OpenShift Local';
-      resourceLabel = 'crc';
-      break;
-    }
-  }
-}
-
-async function goToDashboard() {
-  const navBar = page.getByRole('navigation', { name: 'AppNavigation' });
-  const dashboardLink = navBar.getByRole('link', { name: 'Dashboard' });
-  await playExpect(dashboardLink).toBeVisible();
-  await dashboardLink.click();
-}
-
-async function goToSettings() {
-  const navBar = page.getByRole('navigation', { name: 'AppNavigation' });
-  const settingsLink = navBar.getByRole('link', { name: 'Settings' });
-  await playExpect(settingsLink).toBeVisible();
-  await settingsLink.click();
-}
