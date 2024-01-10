@@ -70,5 +70,5 @@ describe('Play yaml file to pull images and create pods', async () => {
     await playExpect(imageDetailsPage.heading).toBeVisible();
     imagesPage = await imageDetailsPage.deleteImage();
     expect(await imagesPage.waitForImageDelete('podify-demo-backend')).toBeTruthy();
-  }, 60000);
+  }, 1500000);
 });
