@@ -110,7 +110,7 @@
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-typescript": "^11.1.5",
+    "@rollup/plugin-typescript": "^11.1.6",
     "@types/adm-zip": "^0.5.5",
     "@types/analytics-node": "^3.1.14",
     "@types/dockerode": "^3.3.23",
