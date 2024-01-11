@@ -3085,10 +3085,10 @@
   dependencies:
     tslib "^2.4.1"
 
-"@segment/analytics-node@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-node/-/analytics-node-1.2.0.tgz#535d5108b2ea3f9e689314f87397ac43ceb22939"
-  integrity sha512-uvP9U/TI5YAMOa0CrAxrWFJaHjm3hW8zaq8wKRgcOdM4g3YGhOLLKfg2bPzrQliEuZS4Bl1/VsREXwQp0T3eBQ==
+"@segment/analytics-node@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-node/-/analytics-node-1.3.0.tgz#4129ea2c5e2bc9d5795cbf5d5ad1e3071a221783"
+  integrity sha512-lRLz1WZaDokMoUe299yP5JkInc3OgJuqNNlxb6j0q22umCiq6b5iDo2gRmFn93reirIvJxWIicQsGrHd93q8GQ==
   dependencies:
     "@lukeed/uuid" "^2.0.0"
     "@segment/analytics-core" "1.4.1"
