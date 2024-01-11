@@ -1948,22 +1948,14 @@ export class ContainerProviderRegistry {
     containerBuildContextDirectory: string,
     relativeContainerfilePath: string,
     imageName: string,
-    selectedProvider: ProviderContainerConnectionInfo,
+    selectedProvider: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
     eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
     abortController?: AbortController,
   ): Promise<unknown> {
     let telemetryOptions = {};
     try {
       // grab all connections
-      const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
-        containerProvider =>
-          containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
-          containerProvider.connection.name === selectedProvider.name &&
-          selectedProvider.status === 'started',
-      );
-      if (!matchingContainerProvider?.api) {
-        throw new Error('No provider with a running engine');
-      }
+      const matchingContainerProviderApi = this.getMatchingEngineFromConnection(selectedProvider);
 
       // grab auth for all registries
       const registryconfig = this.imageRegistry.getRegistryConfig();
@@ -1978,7 +1970,7 @@ export class ContainerProviderRegistry {
 
       let streamingPromise: Stream;
       try {
-        streamingPromise = (await matchingContainerProvider.api.buildImage(tarStream, {
+        streamingPromise = (await matchingContainerProviderApi.buildImage(tarStream, {
           registryconfig,
           dockerfile: relativeContainerfilePath,
           t: imageName,
@@ -2023,7 +2015,7 @@ export class ContainerProviderRegistry {
         }
       };
 
-      matchingContainerProvider.api.modem.followProgress(streamingPromise, onFinished, onProgress);
+      matchingContainerProviderApi.modem.followProgress(streamingPromise, onFinished, onProgress);
       return promise;
     } catch (error) {
       telemetryOptions = { error: error };
