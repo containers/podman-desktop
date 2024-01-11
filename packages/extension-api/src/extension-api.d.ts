@@ -1629,6 +1629,37 @@ declare module '@podman-desktop/api' {
     MaximumRetryCount?: number;
   }
 
+  type MountType = 'bind' | 'volume' | 'tmpfs';
+
+  type MountConsistency = 'default' | 'consistent' | 'cached' | 'delegated';
+
+  type MountPropagation = 'private' | 'rprivate' | 'shared' | 'rshared' | 'slave' | 'rslave';
+
+  interface MountSettings {
+    Target: string;
+    Source: string;
+    Type: MountType;
+    ReadOnly?: boolean;
+    Consistency?: MountConsistency;
+    BindOptions?: {
+      Propagation: MountPropagation;
+    };
+    VolumeOptions?: {
+      NoCopy: boolean;
+      Labels: { [label: string]: string };
+      DriverConfig: {
+        Name: string;
+        Options: { [option: string]: string };
+      };
+    };
+    TmpfsOptions?: {
+      SizeBytes: number;
+      Mode: number;
+    };
+  }
+
+  type MountConfig = MountSettings[];
+
   interface HostConfig {
     AutoRemove?: boolean;
     Binds?: string[];
