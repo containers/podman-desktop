@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,15 @@ import { expect as playExpect } from '@playwright/test';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
 import { NavigationBar } from './model/workbench/navigation';
-import { deletePod } from './utility/operations';
+import { deleteImage, deletePod } from './utility/operations';
 import path from 'path';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
+const podAppName = 'primary-podify-demo';
+const podName = 'podify-demo-pod';
+const frontendImage = 'podify-demo-frontend';
+const backendImage = 'podify-demo-backend';
 
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
@@ -42,11 +46,14 @@ beforeEach<RunnerTestContext>(async ctx => {
 });
 
 afterAll(async () => {
+  await deletePod(page, podName);
+  await deleteImage(page, backendImage);
+  await deleteImage(page, frontendImage);
   await pdRunner.close();
 });
 
 describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')(
-  'Play yaml file to pull images and create pods',
+  `Play yaml file to pull images and create pod for app ${podAppName}`,
   async () => {
     test('Playing yaml', async () => {
       const navigationBar = new NavigationBar(page);
@@ -56,22 +63,38 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       const playYamlPage = await podsPage.openPlayKubeYaml();
       await playExpect(playYamlPage.heading).toBeVisible();
 
-      const yamlFilePath = path.resolve(__dirname, '..', 'resources', 'primary-podify-demo.yaml');
+      const yamlFilePath = path.resolve(__dirname, '..', 'resources', `${podAppName}.yaml`);
       podsPage = await playYamlPage.playYaml(yamlFilePath);
       await playExpect(podsPage.heading).toBeVisible();
+    }, 75000);
 
-      playExpect(await podsPage.podExists('podify-demo-pod')).toBeTruthy();
-      await deletePod(page, 'podify-demo-pod');
-      playExpect(await podsPage.podExists('podify-demo-pod')).toBeFalsy();
+    test('Checking that created pod from yaml is correct', async () => {
+      const navigationBar = new NavigationBar(page);
+      const podsPage = await navigationBar.openPods();
+      await playExpect(podsPage.heading).toBeVisible();
 
+      playExpect(await podsPage.podExists(podName)).toBeTruthy();
+      await deletePod(page, podName);
+      playExpect(await podsPage.podExists(podName)).toBeFalsy();
+    });
+
+    test('Checking that pulled images from yaml are correct', async () => {
+      const navigationBar = new NavigationBar(page);
       let imagesPage = await navigationBar.openImages();
       await playExpect(imagesPage.heading).toBeVisible();
-      expect(await imagesPage.waitForImageExists('podify-demo-backend')).toBeTruthy();
 
-      const imageDetailsPage = await imagesPage.openImageDetails('podify-demo-backend');
+      expect(await imagesPage.waitForImageExists(backendImage)).toBeTruthy();
+      expect(await imagesPage.waitForImageExists(frontendImage)).toBeTruthy();
+
+      let imageDetailsPage = await imagesPage.openImageDetails(backendImage);
       await playExpect(imageDetailsPage.heading).toBeVisible();
       imagesPage = await imageDetailsPage.deleteImage();
-      expect(await imagesPage.waitForImageDelete('podify-demo-backend')).toBeTruthy();
-    }, 75000);
+      expect(await imagesPage.waitForImageDelete(backendImage)).toBeTruthy();
+
+      imageDetailsPage = await imagesPage.openImageDetails(frontendImage);
+      await playExpect(imageDetailsPage.heading).toBeVisible();
+      imagesPage = await imageDetailsPage.deleteImage();
+      expect(await imagesPage.waitForImageDelete(frontendImage)).toBeTruthy();
+    });
   },
 );
