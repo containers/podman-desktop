@@ -27,6 +27,7 @@ let buildFinished = false;
 let containerImageName = 'my-custom-image';
 let containerFilePath: string;
 let containerBuildContextDirectory: string;
+let containerBuildPlatform: string;
 
 let buildImageInfo: BuildImageInfo | undefined = undefined;
 let cancellableTokenId: number | undefined = undefined;
@@ -69,6 +70,7 @@ async function buildContainerImage(): Promise<void> {
         containerBuildContextDirectory,
         relativeContainerfilePath,
         containerImageName,
+        containerBuildPlatform,
         selectedProvider,
         buildImageInfo.buildImageKey,
         eventCollect,

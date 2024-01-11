@@ -1948,6 +1948,7 @@ export class ContainerProviderRegistry {
     containerBuildContextDirectory: string,
     relativeContainerfilePath: string,
     imageName: string,
+    platform: string,
     selectedProvider: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
     eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
     abortController?: AbortController,
@@ -1974,6 +1975,7 @@ export class ContainerProviderRegistry {
           registryconfig,
           dockerfile: relativeContainerfilePath,
           t: imageName,
+          platform: platform,
           abortSignal: abortController?.signal,
         })) as unknown as Stream;
       } catch (error: unknown) {
