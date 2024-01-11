@@ -22,6 +22,7 @@ import TerminalWindow from '../ui/TerminalWindow.svelte';
 import type { Terminal } from 'xterm';
 import Button from '../ui/Button.svelte';
 import { faCube } from '@fortawesome/free-solid-svg-icons';
+import BuildImageFromContainerfileCards from './BuildImageFromContainerfileCards.svelte';
 
 let buildFinished = false;
 let containerImageName = 'my-custom-image';
@@ -214,6 +215,11 @@ async function abortBuild() {
           {#if providerConnections.length === 1 && selectedProviderConnection}
             <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection.name}" />
           {/if}
+        </div>
+
+        <div hidden="{buildImageInfo?.buildRunning}">
+          <label for="containerBuildPlatform" class="block mb-2 text-sm font-bold text-gray-400">Platform</label>
+          <BuildImageFromContainerfileCards bind:platforms="{containerBuildPlatform}" />
         </div>
 
         <div class="w-full flex flex-row space-x-4">
