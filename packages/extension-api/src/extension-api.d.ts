@@ -1920,6 +1920,14 @@ declare module '@podman-desktop/api' {
     ): Promise<void>;
     export function stopContainer(engineId: string, id: string): Promise<void>;
     export function deleteContainer(engineId: string, id: string): Promise<void>;
+    export function buildImage(
+      containerBuildContextDirectory: string,
+      relativeContainerfilePath: string,
+      imageName: string,
+      selectedProvider: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
+      eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
+      abortController?: AbortController,
+    );
     export function saveImage(engineId: string, id: string, filename: string): Promise<void>;
     export function listImages(): Promise<ImageInfo[]>;
     export function tagImage(engineId: string, imageId: string, repo: string, tag?: string): Promise<void>;

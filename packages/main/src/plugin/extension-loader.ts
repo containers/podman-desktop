@@ -906,6 +906,23 @@ export class ExtensionLoader {
       deleteContainer(engineId: string, id: string) {
         return containerProviderRegistry.deleteContainer(engineId, id);
       },
+      buildImage(
+        containerBuildContextDirectory: string,
+        relativeContainerfilePath: string,
+        imageName: string,
+        selectedProvider: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
+        eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
+        abortController?: AbortController,
+      ) {
+        return containerProviderRegistry.buildImage(
+          containerBuildContextDirectory,
+          relativeContainerfilePath,
+          imageName,
+          selectedProvider,
+          eventCollect,
+          abortController,
+        );
+      },
       listImages(): Promise<containerDesktopAPI.ImageInfo[]> {
         return containerProviderRegistry.listImages();
       },
