@@ -1924,6 +1924,7 @@ declare module '@podman-desktop/api' {
       containerBuildContextDirectory: string,
       relativeContainerfilePath: string,
       imageName: string,
+      platform: string,
       selectedProvider: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
       eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
       abortController?: AbortController,

@@ -1195,6 +1195,7 @@ export class PluginSystem {
         containerBuildContextDirectory: string,
         relativeContainerfilePath: string,
         imageName: string,
+        platform: string,
         selectedProvider: ProviderContainerConnectionInfo,
         onDataCallbacksBuildImageId: number,
         cancellableTokenId?: number,
@@ -1208,6 +1209,7 @@ export class PluginSystem {
           containerBuildContextDirectory,
           relativeContainerfilePath,
           imageName,
+          platform,
           selectedProvider,
           (eventName: string, data: string) => {
             this.getWebContentsSender().send(
