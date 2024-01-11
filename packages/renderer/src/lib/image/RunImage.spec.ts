@@ -77,7 +77,7 @@ async function createRunImage(entrypoint?: string | string[], cmd?: string[]) {
     size: 0,
     humanSize: '',
     id: '',
-    inUse: false,
+    status: 'USED',
     name: '',
     selected: false,
     shortId: '',

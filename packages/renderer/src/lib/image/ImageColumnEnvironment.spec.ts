@@ -37,7 +37,7 @@ test('Expect simple column styling', async () => {
     humanSize: '',
     base64RepoTag: '',
     selected: false,
-    inUse: false,
+    status: 'USED',
   };
   render(ImageColumnEnvironment, { object: image });
 

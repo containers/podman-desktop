@@ -54,6 +54,7 @@ test('Expect showMessageBox to be called when error occurs', async () => {
     onRenameImage: vi.fn(),
     image: {
       name: 'dummy',
+      status: 'UNUSED',
     } as unknown as ImageInfoUI,
   });
   const button = screen.getByTitle('Delete Image');

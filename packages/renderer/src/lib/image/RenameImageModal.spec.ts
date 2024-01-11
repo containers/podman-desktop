@@ -14,7 +14,7 @@ const imageInfo = {
   humanSize: '128kb',
   age: '2 hours',
   selected: false,
-  inUse: false,
+  status: 'UNUSED',
 };
 const closeCallback = () => {};
 

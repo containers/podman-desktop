@@ -38,7 +38,7 @@ const image: ImageInfoUI = {
   humanSize: '',
   base64RepoTag: 'repoTag',
   selected: false,
-  inUse: false,
+  status: 'USED',
 };
 
 test('Expect simple column styling', async () => {
