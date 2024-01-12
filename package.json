@@ -47,7 +47,7 @@
     "test:e2e:build": "cross-env NODE_ENV=development MODE=development DEBUG=pw:browser npm run build",
     "test:e2e:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- vitest run tests/src/ --pool=threads --poolOptions.threads.singleThread",
     "test:e2e:smoke": "npm run test:e2e:build && npm run test:e2e:smoke:run",
-    "test:e2e:smoke:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- vitest run tests/src/*smoke.spec.ts --pool=threads --poolOptions.threads.singleThread",
+    "test:e2e:smoke:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- vitest run tests/src/*smoke.spec.ts --pool=threads --poolOptions.threads.singleThread --no-file-parallelism",
     "test:e2e:extension": "npm run test:e2e:build && npm run test:e2e:extension:run",
     "test:e2e:extension:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- vitest run tests/src/extension-installation.spec.ts --pool=threads --poolOptions.threads.singleThread",
     "test:main": "vitest run -r packages/main --passWithNoTests --coverage",
