@@ -47,7 +47,7 @@ let navigationBar: NavigationBar;
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
-  pdRunner.setVideoName('settings-extensions-e2e');
+  pdRunner.setVideoAndTraceName('settings-extensions-e2e');
 
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);

@@ -62,6 +62,9 @@ export class PodmanDesktopRunner {
     // Direct Electron console to Node terminal.
     this.getPage().on('console', console.log);
 
+    // Start playwright tracing
+    await this.startTracing();
+
     // also get stderr from the node process
     this._app.process().stderr?.on('data', data => {
       console.log(`STDERR: ${data}`);
@@ -97,6 +100,20 @@ export class PodmanDesktopRunner {
 
   public async screenshot(filename: string) {
     await this.getPage().screenshot({ path: join(this._testOutput, 'screenshots', filename) });
+  }
+
+  public async startTracing() {
+    await this.getPage().context().tracing.start({ screenshots: true, snapshots: true });
+  }
+
+  public async stopTracing() {
+    let name = '';
+    if (this._videoName) name = this._videoName;
+
+    name = name + '_trace.zip';
+    await this.getPage()
+      .context()
+      .tracing.stop({ path: join(this._testOutput, 'traces', name) });
   }
 
   public async getBrowserWindowState(): Promise<WindowState> {
@@ -139,10 +156,15 @@ export class PodmanDesktopRunner {
     if (!this.isRunning()) {
       throw Error('Podman Desktop is not running');
     }
+
+    // Stop playwright tracing
+    await this.stopTracing();
+
     if (this.getElectronApp()) {
       const elapsed = await this.trackTime(async () => await this.getElectronApp().close());
       console.log(`Elapsed time of closing the electron app: ${elapsed} ms`);
     }
+
     if (this._videoName) {
       const videoPath = join(this._testOutput, 'videos', `${this._videoName}.webm`);
       const elapsed = await this.trackTime(async () => await this.saveVideoAs(videoPath));
@@ -223,7 +245,7 @@ export class PodmanDesktopRunner {
     this._options = value;
   }
 
-  public setVideoName(name: string) {
+  public setVideoAndTraceName(name: string) {
     this._videoName = name;
   }
 

@@ -36,7 +36,7 @@ const backendImage = 'podify-demo-backend';
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
-  pdRunner.setVideoName('play-yaml-e2e');
+  pdRunner.setVideoAndTraceName('play-yaml-e2e');
 
   await new WelcomePage(page).handleWelcomePage(true);
 });
