@@ -70,6 +70,7 @@ onMount(() => {
   class="rounded-md p-2 min-w-32 w-32 cursor-pointer hover:bg-charcoal-700 {checked
     ? 'border-dustypurple-700'
     : 'border-gray-700'} border-2 flex flex-row"
+  aria-label="{value}"
   on:click|preventDefault="{() => handleClick()}">
   <div>
     {#if !additionalItem}
