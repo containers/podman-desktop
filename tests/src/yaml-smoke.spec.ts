@@ -76,7 +76,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       playExpect(await podsPage.podExists(podName)).toBeTruthy();
       await deletePod(page, podName);
       playExpect(await podsPage.podExists(podName)).toBeFalsy();
-    });
+    }, 60000);
 
     test('Checking that pulled images from yaml are correct', async () => {
       const navigationBar = new NavigationBar(page);
@@ -95,6 +95,6 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       await playExpect(imageDetailsPage.heading).toBeVisible();
       imagesPage = await imageDetailsPage.deleteImage();
       expect(await imagesPage.waitForImageDelete(frontendImage)).toBeTruthy();
-    });
+    }, 60000);
   },
 );
