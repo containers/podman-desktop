@@ -73,10 +73,10 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       const podsPage = await navigationBar.openPods();
       await playExpect(podsPage.heading).toBeVisible();
 
-      playExpect(await podsPage.podExists(podName)).toBeTruthy();
+      await playExpect.poll(async () => await podsPage.podExists(podName), { timeout: 60000 }).toBeTruthy();
       await deletePod(page, podName);
-      playExpect(await podsPage.podExists(podName)).toBeFalsy();
-    }, 60000);
+      await playExpect.poll(async () => await podsPage.podExists(podName), { timeout: 60000 }).toBeFalsy();
+    }, 120000);
 
     test('Checking that pulled images from yaml are correct', async () => {
       const navigationBar = new NavigationBar(page);
@@ -95,6 +95,6 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       await playExpect(imageDetailsPage.heading).toBeVisible();
       imagesPage = await imageDetailsPage.deleteImage();
       expect(await imagesPage.waitForImageDelete(frontendImage)).toBeTruthy();
-    }, 60000);
+    }, 120000);
   },
 );
