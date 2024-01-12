@@ -16,7 +16,6 @@ interface CardInfo {
   checked: boolean;
   value: string;
   icon: unknown;
-  fontAwesomeIcon: boolean;
 }
 
 const DEFAULT_CARDS: CardInfo[] = [
@@ -27,7 +26,6 @@ const DEFAULT_CARDS: CardInfo[] = [
     checked: false,
     value: 'linux/amd64',
     icon: faLinux,
-    fontAwesomeIcon: true,
   },
   {
     title: 'Linux',
@@ -36,7 +34,6 @@ const DEFAULT_CARDS: CardInfo[] = [
     checked: false,
     value: 'linux/arm64',
     icon: faLinux,
-    fontAwesomeIcon: true,
   },
 ];
 
@@ -48,7 +45,6 @@ const ADVANCED_CARDS: CardInfo[] = [
     checked: false,
     value: 'linux/ppc64le',
     icon: faLinux,
-    fontAwesomeIcon: true,
   },
   {
     title: 'Linux',
@@ -57,7 +53,6 @@ const ADVANCED_CARDS: CardInfo[] = [
     checked: false,
     value: 'linux/s390x',
     icon: faLinux,
-    fontAwesomeIcon: true,
   },
   {
     title: 'WebAssembly',
@@ -66,7 +61,6 @@ const ADVANCED_CARDS: CardInfo[] = [
     checked: false,
     value: 'wasi/wasm',
     icon: WebAssemblyIcon,
-    fontAwesomeIcon: false,
   },
 ];
 
@@ -125,14 +119,13 @@ function addCard(item: { value: string }) {
     checked: true,
     value: item.value,
     icon: faLayerGroup,
-    fontAwesomeIcon: true,
   };
   advancedCards.push(card);
   advancedCards = advancedCards;
 }
 </script>
 
-<div class="flex flex-col">
+<div class="flex flex-col" role="region" aria-label="Build Platform Options">
   <div class="flex flex-row gap-x-4 gap-y-4 flex-wrap">
     {#each sortedCards as card}
       <BuildImageFromContainerfileCard
@@ -142,7 +135,6 @@ function addCard(item: { value: string }) {
         badge="{card.badge}"
         value="{card.value}"
         icon="{card.icon}"
-        fontAwesomeIcon="{card.fontAwesomeIcon}"
         on:card="{item => handleCard(item)}" />
     {/each}
   </div>
@@ -165,7 +157,6 @@ function addCard(item: { value: string }) {
             badge="{card.badge}"
             value="{card.value}"
             icon="{card.icon}"
-            fontAwesomeIcon="{card.fontAwesomeIcon}"
             on:card="{item => handleCard(item)}" />
         {/each}
         <BuildImageFromContainerfileCard
@@ -175,7 +166,6 @@ function addCard(item: { value: string }) {
           badge=""
           value=""
           icon="{faPlusCircle}"
-          fontAwesomeIcon="{true}"
           additionalItem="{true}"
           on:addcard="{item => addCard(item.detail)}" />
       </div>

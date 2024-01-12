@@ -11,11 +11,10 @@ export let isDefault: boolean = false;
 export let checked: boolean = false;
 export let value: string = '';
 export let icon: any;
+let iconType: 'fontAwesome' | 'unknown' | undefined = undefined;
 
 export let additionalItem: boolean = false;
 let additionalValue: string = '';
-
-export let fontAwesomeIcon = false;
 
 let displayValueFieldInput = false;
 
@@ -55,6 +54,12 @@ function handleClick() {
 }
 
 onMount(() => {
+  if (icon?.prefix?.startsWith('fa')) {
+    iconType = 'fontAwesome';
+  } else {
+    iconType = 'unknown';
+  }
+
   if (isDefault) {
     dispatch('card', { mode: 'add', value: value });
   }
@@ -76,9 +81,9 @@ onMount(() => {
   <div class="mr-2 text-gray-700">
     <div class="flex flex-row">
       <div class="ml-1">
-        {#if fontAwesomeIcon}
+        {#if iconType === 'fontAwesome'}
           <Fa class="text-gray-700 cursor-pointer" icon="{icon}" size="24" />
-        {:else}
+        {:else if iconType === 'unknown'}
           <svelte:component this="{icon}" class="text-gray-700 cursor-pointer" size="24" />
         {/if}
       </div>
