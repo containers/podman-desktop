@@ -187,6 +187,7 @@ export class PodmanDesktopRunner {
 
   private defaultOptions() {
     const directory = join(this._testOutput, 'videos');
+    const tracesDir = join(this._testOutput, 'traces', 'raw');
     console.log(`video will be written to: ${directory}`);
     const env = this.setupPodmanDesktopCustomFolder();
     const recordVideo = {
@@ -208,6 +209,7 @@ export class PodmanDesktopRunner {
       executablePath,
       env,
       recordVideo,
+      tracesDir,
     };
   }
 
