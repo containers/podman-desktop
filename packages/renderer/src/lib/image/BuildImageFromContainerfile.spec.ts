@@ -42,6 +42,7 @@ beforeAll(() => {
   });
   (window as any).openFileDialog = vi.fn().mockResolvedValue({ canceled: false, filePaths: ['Containerfile'] });
   (window as any).telemetryPage = vi.fn().mockResolvedValue(undefined);
+  (window as any).getOsArch = vi.fn();
 });
 
 // the build image page expects to have a valid provider connection, so let's mock one
