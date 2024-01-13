@@ -219,21 +219,18 @@ export class ContextsState {
       return;
     }
 
-    informer
-      .start()
-      .then(() => {})
-      .catch((err: unknown) => {
-        console.log('==> catched err', err);
-        const previous = this.contextsState.get(context.name);
-        if (previous) {
-          previous.reachable = err === undefined;
-        }
-        this.dispatchContextsState();
-        // Restart informer after 5sec
-        setTimeout(() => {
-          this.restartInformer(informer, context);
-        }, 5000);
-      });
+    informer.start().catch((err: unknown) => {
+      console.log('==> catched err', err);
+      const previous = this.contextsState.get(context.name);
+      if (previous) {
+        previous.reachable = err === undefined;
+      }
+      this.dispatchContextsState();
+      // Restart informer after 5sec
+      setTimeout(() => {
+        this.restartInformer(informer, context);
+      }, 5000);
+    });
   }
 
   private dispatchContextsState() {
