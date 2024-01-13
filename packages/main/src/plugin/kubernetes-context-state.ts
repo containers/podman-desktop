@@ -78,8 +78,11 @@ export class ContextsState {
   private createKubeContextInformers(context: KubeContext): ContextInternalState | undefined {
     const kc = new KubeConfig();
     const cluster = this.kubeConfig.clusters.find(c => c.name === context.cluster);
+    if (!cluster) {
+      return;
+    }
     const user = this.kubeConfig.users.find(u => u.name === context.user);
-    if (!cluster || !user) {
+    if (!user) {
       return;
     }
     kc.loadFromOptions({
@@ -102,7 +105,7 @@ export class ContextsState {
     const listFn = () => k8sApi.listNamespacedPod(ns);
     const informer = makeInformer(kc, `/api/v1/namespaces/${ns}/pods`, listFn);
 
-    informer.on('add', (_obj: V1Pod) => {
+    informer.on('add', () => {
       const previous = this.contextsState.get(context.name);
       if (previous) {
         previous.podsCount++;
@@ -110,7 +113,7 @@ export class ContextsState {
       this.dispatchContextsState();
     });
 
-    informer.on('delete', (_obj: V1Pod) => {
+    informer.on('delete', () => {
       const previous = this.contextsState.get(context.name);
       if (previous) {
         previous.podsCount--;
@@ -150,7 +153,7 @@ export class ContextsState {
     const listFn = () => k8sApi.listNamespacedDeployment(ns);
     const informer = makeInformer(kc, `/apis/apps/v1/namespaces/${ns}/deployments`, listFn);
 
-    informer.on('add', (_obj: V1Deployment) => {
+    informer.on('add', () => {
       const previous = this.contextsState.get(context.name);
       if (previous) {
         previous.deploymentsCount++;
@@ -158,14 +161,14 @@ export class ContextsState {
       this.dispatchContextsState();
     });
 
-    informer.on('delete', (_obj: V1Deployment) => {
+    informer.on('delete', () => {
       const previous = this.contextsState.get(context.name);
       if (previous) {
         previous.deploymentsCount--;
       }
       this.dispatchContextsState();
     });
-    informer.on('error', (_err: unknown) => {
+    informer.on('error', () => {
       // Restart informer after 5sec
       setTimeout(() => {
         this.restartInformer(informer, context);
@@ -184,7 +187,7 @@ export class ContextsState {
     const listFn = () => k8sApi.listNamespacedReplicaSet(ns);
     const informer = makeInformer(kc, `/apis/apps/v1/namespaces/${ns}/replicasets`, listFn);
 
-    informer.on('add', (_obj: V1ReplicaSet) => {
+    informer.on('add', () => {
       const previous = this.contextsState.get(context.name);
       if (previous) {
         previous.replicasetsCount++;
@@ -192,14 +195,14 @@ export class ContextsState {
       this.dispatchContextsState();
     });
 
-    informer.on('delete', (_obj: V1ReplicaSet) => {
+    informer.on('delete', () => {
       const previous = this.contextsState.get(context.name);
       if (previous) {
         previous.replicasetsCount--;
       }
       this.dispatchContextsState();
     });
-    informer.on('error', (_err: unknown) => {
+    informer.on('error', () => {
       // Restart informer after 5sec
       setTimeout(() => {
         this.restartInformer(informer, context);
