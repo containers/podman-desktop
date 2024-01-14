@@ -11,12 +11,15 @@ import type { KubeContext } from './kubernetes-context.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import type { ApiSenderType } from './api.js';
 
+// ContextInternalState stores informers for a kube context
 interface ContextInternalState {
   podInformer?: Informer<V1Pod> & ObjectCache<V1Pod>;
   deploymentInformer?: Informer<V1Deployment> & ObjectCache<V1Deployment>;
   replicasetInformer?: Informer<V1ReplicaSet> & ObjectCache<V1ReplicaSet>;
 }
 
+// ContextState stores information for the user about a kube context: is the cluster reachable, the number
+// of instances of different resources
 export interface ContextState {
   reachable: boolean;
   podsCount: number;
@@ -24,6 +27,8 @@ export interface ContextState {
   replicasetsCount: number;
 }
 
+// the ContextsState singleton (instantiated by the kubernetes-client singleton)
+// manages the state of the different kube contexts
 export class ContextsState {
   private kubeConfig = new KubeConfig();
   private contextsState = new Map<string, ContextState>();
@@ -34,6 +39,10 @@ export class ContextsState {
     private readonly apiSender: ApiSenderType,
   ) {}
 
+  // update is the reconcile function, it gets as input:
+  // - the user preference indicating if the user wants to get live information about kube contexts
+  // - the last known kube config
+  // and starts/stops informers for different kube contexts, depending on these inputs
   async update(enabled: boolean | undefined, kubeconfig: KubeConfig) {
     this.kubeConfig = kubeconfig;
     if (enabled) {
@@ -53,6 +62,7 @@ export class ContextsState {
         }
       }
       // Delete informers for removed contexts
+      let removed = false;
       for (const [name, state] of this.contextsInternalState) {
         if (!this.kubeConfig.contexts.find(c => c.name === name)) {
           await state.podInformer?.stop();
@@ -60,7 +70,11 @@ export class ContextsState {
           await state.replicasetInformer?.stop();
           this.contextsInternalState.delete(name);
           this.contextsState.delete(name);
+          removed = true;
         }
+      }
+      if (removed) {
+        this.dispatchContextsState();
       }
     } else {
       for (const state of this.contextsInternalState.values()) {
@@ -72,10 +86,9 @@ export class ContextsState {
       this.contextsState.clear();
       this.dispatchContextsState();
     }
-    console.log('==> # informers', this.contextsInternalState.size, this.contextsState.size);
   }
 
-  private createKubeContextInformers(context: KubeContext): ContextInternalState | undefined {
+  createKubeContextInformers(context: KubeContext): ContextInternalState | undefined {
     const kc = new KubeConfig();
     const cluster = this.kubeConfig.clusters.find(c => c.name === context.cluster);
     if (!cluster) {
@@ -121,7 +134,9 @@ export class ContextsState {
       this.dispatchContextsState();
     });
     informer.on('error', (err: unknown) => {
-      console.error(`==> ${context.name}: error`, err);
+      if (err !== undefined) {
+        console.error(`pod informer error for context ${context.name}: `, String(err));
+      }
       const previous = this.contextsState.get(context.name);
       if (previous) {
         previous.reachable = err === undefined;
@@ -133,7 +148,9 @@ export class ContextsState {
       }, 5000);
     });
     informer.on('connect', (err: unknown) => {
-      console.error(`==> ${context.name}: connect`, err);
+      if (err !== undefined) {
+        console.error(`pod informer connect error for context ${context.name}: `, String(err));
+      }
       const previous = this.contextsState.get(context.name);
       if (previous) {
         previous.reachable = err === undefined;
@@ -220,7 +237,9 @@ export class ContextsState {
     }
 
     informer.start().catch((err: unknown) => {
-      console.log('==> catched err', err);
+      if (err !== undefined) {
+        console.log('informer start error: ', String(err));
+      }
       const previous = this.contextsState.get(context.name);
       if (previous) {
         previous.reachable = err === undefined;
