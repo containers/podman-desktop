@@ -78,6 +78,7 @@ let namespaceColumn = new Column<DeploymentUI, string>('Namespace', {
 
 let conditionsColumn = new Column<DeploymentUI>('Conditions', {
   width: '2fr',
+  overflow: true,
   renderer: DeploymentColumnConditions,
 });
 
