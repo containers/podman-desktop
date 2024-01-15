@@ -1920,10 +1920,15 @@ declare module '@podman-desktop/api' {
   }
 
   export interface BuildImageOptions {
+    // Specifies a Containerfile which contains instructions for building the image
     containerFile?: string;
-    target?: string;
+    // Specifies the name which is assigned to the resulting image if the build process completes successfully.
+    tag?: string;
+    // Set the os/arch of the built image (and its base image, when using one) to the provided value instead of using the current operating system and architecture of the host
     platform?: string;
+    // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
     provider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection;
+    // The abort controller for running the build image operation
     abortController?: AbortController;
   }
 
