@@ -24,7 +24,7 @@ import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
 import { NavigationBar } from './model/workbench/navigation';
 import { waitUntil, waitWhile } from './utility/wait';
-import { deleteContainer, deleteImage, pressConfirmationButton } from './utility/operations';
+import { deleteContainer, deleteImage } from './utility/operations';
 import { ContainerState } from './model/core/states';
 import type { ImagesPage } from './model/pages/images-page';
 
@@ -154,7 +154,6 @@ describe('Verification of container creation workflow', async () => {
     const containersDetails = await containers.openContainersDetails(containerToRun);
     await playExpect(containersDetails.heading).toContainText(containerToRun);
     const containersPage = await containersDetails.deleteContainer(10000);
-    await pressConfirmationButton(page, true);
     playExpect(containersPage).toBeDefined();
     playExpect(await containersPage.containerExists(containerToRun)).toBeFalsy();
     await pdRunner.screenshot('containers-container-deleted.png');

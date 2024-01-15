@@ -44,6 +44,7 @@ export async function deleteContainer(page: Page, name: string) {
     // delete the container
     const deleteButton = container.getByRole('button').and(container.getByLabel('Delete Container'));
     await deleteButton.click();
+    await handleConfirmationDialog(page);
     // wait for container to disappear
     try {
       console.log('Waiting for container to get deleted ...');
@@ -74,6 +75,7 @@ export async function deleteImage(page: Page, name: string) {
     const deleteButton = row.getByRole('button', { name: 'Delete Image' });
     if (await deleteButton.isEnabled({ timeout: 2000 })) {
       await deleteButton.click();
+      await handleConfirmationDialog(page);
     } else {
       throw Error(`Cannot delete image ${name}, because it is in use`);
     }
@@ -109,6 +111,8 @@ export async function deletePod(page: Page, name: string) {
     // delete the pod
     const deleteButton = pod.getByRole('button').and(pod.getByLabel('Delete Pod'));
     await deleteButton.click();
+    // config delete dialog
+    await handleConfirmationDialog(page);
     // wait for pod to disappear
     try {
       console.log('Waiting for pod to get deleted ...');
@@ -123,13 +127,11 @@ export async function deletePod(page: Page, name: string) {
   }
 }
 
-export async function pressConfirmationButton(page: Page, boolean: boolean) {
+// Handles dialog that has accessible name `dialogTitle` and either confirms or rejects it.
+export async function handleConfirmationDialog(page: Page, dialogTitle = 'Confirmation', confirm = true) {
   // wait for dialog to appear using waitFor
-  await waitWhile(async () => {
-    const dialog = page.locator('dialog');
-    return (await dialog.count()) > 0 ? true : false;
-  });
-
-  const button = boolean ? page.getByRole('button', { name: 'Yes' }) : page.getByRole('button', { name: 'No' });
+  const dialog = page.getByRole('heading', { name: dialogTitle, exact: true });
+  await dialog.waitFor({ state: 'visible', timeout: 3000 });
+  const button = confirm ? dialog.getByRole('button', { name: 'Yes' }) : dialog.getByRole('button', { name: 'No' });
   await button.click();
 }
