@@ -1960,7 +1960,7 @@ export class ContainerProviderRegistry {
         // grab all connections
         matchingContainerProviderApi = this.getMatchingEngineFromConnection(selectedProvider);
       } else {
-        // Get
+        // Get the first running connection (preference for podman)
         matchingContainerProviderApi = this.getFirstRunningConnection()[1];
       }
 
