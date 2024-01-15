@@ -43,8 +43,8 @@ export class ExtensionsUpdater {
     const autoUpdateKey = `${ExtensionsUpdaterSettings.SectionName}.${ExtensionsUpdaterSettings.AutoUpdate}`;
 
     const extensionLoaderConfiguration: IConfigurationNode = {
-      id: 'preferences.extensions',
-      title: 'Extensions Updates',
+      id: 'preferences.extension',
+      title: 'Extensions',
       type: 'object',
       properties: {
         [autoCheckUpdatesKey]: {
