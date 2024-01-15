@@ -45,13 +45,13 @@ Description:
 
 ## Download and run the example application
 
-Our example application is located at [github.com/redhat-developer/podman-desktop-compose-example](https://github.com/redhat-developer/podman-desktop-compose-example).
+Our example application is located at [github.com/redhat-developer/podman-desktop-demo](https://github.com/redhat-developer/podman-desktop-demo).
 
 We will use `git clone` so we can build the Go binary web application:
 
 ```sh
-git clone https://github.com/redhat-developer/podman-desktop-compose-example
-cd podman-desktop-compose-example
+git clone https://github.com/redhat-developer/podman-desktop-demo
+cd podman-desktop-demo/guestbook-compose
 ```
 
 Run `podman compose up -d` to start the application:
