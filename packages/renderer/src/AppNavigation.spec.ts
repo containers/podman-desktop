@@ -17,19 +17,19 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect } from 'vitest';
+import { beforeAll, test, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import AppNavigation from './AppNavigation.svelte';
 import type { TinroRouteMeta } from 'tinro';
+import { kubernetesContexts } from './stores/kubernetes-contexts';
 
-// fake the window.events object
+const eventsMock = vi.fn();
+const getConfigurationValueMock = vi.fn();
+
+// fake the window object
 beforeAll(() => {
-  (window.events as unknown) = {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    receive: (_channel: string, func: any) => {
-      func();
-    },
-  };
+  (window as any).events = eventsMock;
+  (window as any).getConfigurationValue = getConfigurationValueMock;
 });
 
 test('Test rendering of the navigation bar with empty items', () => {
@@ -57,4 +57,79 @@ test('Test rendering of the navigation bar with empty items', () => {
   expect(volumes).toBeInTheDocument();
   const settings = screen.getByRole('link', { name: 'Settings' });
   expect(settings).toBeInTheDocument();
+
+  const deployments = screen.queryByRole('link', { name: 'Deployments' });
+  expect(deployments).not.toBeInTheDocument();
+  const services = screen.queryByRole('link', { name: 'Services' });
+  expect(services).not.toBeInTheDocument();
+});
+
+test('Test Kubernetes experimental hidden with valid context', async () => {
+  kubernetesContexts.set([
+    {
+      name: 'context-name',
+      cluster: 'cluster-name',
+      user: 'user-name',
+      clusterInfo: {
+        name: 'cluster-name',
+        server: 'https://server-name',
+      },
+    },
+  ]);
+  getConfigurationValueMock.mockResolvedValue(false);
+
+  const meta = {
+    url: '/',
+  } as unknown as TinroRouteMeta;
+
+  render(AppNavigation, {
+    meta,
+    exitSettingsCallback: () => {},
+  });
+
+  const navigationBar = screen.getByRole('navigation', { name: 'AppNavigation' });
+  expect(navigationBar).toBeInTheDocument();
+
+  // wait 100ms for stores to initialize
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  const deployments = screen.queryByRole('link', { name: 'Deployments' });
+  expect(deployments).not.toBeInTheDocument();
+  const services = screen.queryByRole('link', { name: 'Services' });
+  expect(services).not.toBeInTheDocument();
+});
+
+test('Test Kubernetes experimental enablement', async () => {
+  kubernetesContexts.set([
+    {
+      name: 'context-name',
+      cluster: 'cluster-name',
+      user: 'user-name',
+      clusterInfo: {
+        name: 'cluster-name',
+        server: 'https://server-name',
+      },
+    },
+  ]);
+  getConfigurationValueMock.mockResolvedValue(true);
+
+  const meta = {
+    url: '/',
+  } as unknown as TinroRouteMeta;
+
+  render(AppNavigation, {
+    meta,
+    exitSettingsCallback: () => {},
+  });
+
+  const navigationBar = screen.getByRole('navigation', { name: 'AppNavigation' });
+  expect(navigationBar).toBeInTheDocument();
+
+  // wait 100ms for stores to initialize
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  const deployments = screen.getByRole('link', { name: 'Deployments' });
+  expect(deployments).toBeInTheDocument();
+  const services = screen.getByRole('link', { name: 'Services' });
+  expect(services).toBeInTheDocument();
 });
