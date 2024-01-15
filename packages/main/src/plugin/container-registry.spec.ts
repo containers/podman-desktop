@@ -986,6 +986,17 @@ describe('buildImage', () => {
     );
   });
 
+  test('called getFirstRunningConnection when undefined provider', async () => {
+    const getFirstRunningConnection = vi.spyOn(containerRegistry, 'getFirstRunningConnection');
+    getFirstRunningConnection.mockImplementation(() => {
+      throw new Error('mocked');
+    });
+
+    await expect(containerRegistry.buildImage('context', () => {})).rejects.toThrow('mocked');
+
+    expect(getFirstRunningConnection).toHaveBeenCalledOnce();
+  });
+
   test('throw if there is no running provider with containerProviderConnection input', async () => {
     const fakeDockerode = {} as Dockerode;
 
