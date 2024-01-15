@@ -124,7 +124,7 @@ test('Expect correct column overflow', async () => {
 
   await waitRender({});
 
-  let rows = await screen.findAllByRole('row');
+  const rows = await screen.findAllByRole('row');
   expect(rows).toBeDefined();
   expect(rows.length).toBe(2);
 
