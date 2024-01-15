@@ -50,7 +50,7 @@ export class ProgressImpl {
     options: extensionApi.ProgressOptions,
     task: (
       progress: extensionApi.Progress<{ message?: string; increment?: number }>,
-      token: extensionApi.CancellationToken,
+      token?: extensionApi.CancellationToken,
     ) => Promise<R>,
   ): Promise<R> {
     if (options.location === ProgressLocation.APP_ICON) {
@@ -64,7 +64,7 @@ export class ProgressImpl {
     options: extensionApi.ProgressOptions,
     task: (
       progress: extensionApi.Progress<{ message?: string; increment?: number }>,
-      token: extensionApi.CancellationToken,
+      token?: extensionApi.CancellationToken,
     ) => Promise<R>,
   ): Promise<R> {
     return task(
@@ -84,7 +84,7 @@ export class ProgressImpl {
     options: extensionApi.ProgressOptions,
     task: (
       progress: extensionApi.Progress<{ message?: string; increment?: number }>,
-      token: extensionApi.CancellationToken,
+      token?: extensionApi.CancellationToken,
     ) => Promise<R>,
   ): Promise<R> {
     const t = this.taskManager.createTask(options.title, options.cancellableTokenId);
