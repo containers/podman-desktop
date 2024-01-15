@@ -1963,7 +1963,7 @@ declare module '@podman-desktop/api' {
     export function buildImage(
       context: string,
       eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
-      option?: BuildImageOptions,
+      options?: BuildImageOptions,
     );
     export function saveImage(engineId: string, id: string, filename: string): Promise<void>;
     export function listImages(): Promise<ImageInfo[]>;
