@@ -25,6 +25,7 @@ import { test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 import DeployPodToKube from './DeployPodToKube.svelte';
 import * as jsYaml from 'js-yaml';
+import { router } from 'tinro';
 
 const generatePodmanKubeMock = vi.fn();
 const kubernetesGetCurrentContextNameMock = vi.fn();
@@ -37,6 +38,17 @@ const kubernetesCreateIngressMock = vi.fn();
 const kubernetesCreateServiceMock = vi.fn();
 const kubernetesIsAPIGroupSupported = vi.fn();
 const listSimpleContainersByLabelMock = vi.fn();
+const kubernetesReadNamespacedPodMock = vi.fn();
+const queryCommandSupportedMock = vi.fn();
+
+// mock the router
+vi.mock('tinro', () => {
+  return {
+    router: {
+      goto: vi.fn(),
+    },
+  };
+});
 
 beforeEach(() => {
   Object.defineProperty(window, 'generatePodmanKube', {
@@ -48,7 +60,9 @@ beforeEach(() => {
   Object.defineProperty(window, 'kubernetesGetCurrentNamespace', {
     value: kubernetesGetCurrentNamespaceMock,
   });
-
+  Object.defineProperty(window, 'kubernetesReadNamespacedPod', {
+    value: kubernetesReadNamespacedPodMock,
+  });
   Object.defineProperty(window, 'kubernetesListNamespaces', {
     value: kubernetesListNamespacesMock,
   });
@@ -72,6 +86,9 @@ beforeEach(() => {
   });
   Object.defineProperty(window, 'listSimpleContainersByLabel', {
     value: listSimpleContainersByLabelMock,
+  });
+  Object.defineProperty(document, 'queryCommandSupported', {
+    value: queryCommandSupportedMock,
   });
 
   // podYaml with volumes
@@ -324,4 +341,41 @@ test('Fail to deploy ingress if service is not selected', async () => {
 
   // Expect kubernetesCreateIngress to not be called since we error out as service wasn't selected
   await waitFor(() => expect(kubernetesCreateIngressMock).not.toHaveBeenCalled());
+});
+
+test('Should display Open pod button after successful deployment', async () => {
+  await waitFor(() => kubernetesGetCurrentContextNameMock.mockResolvedValue('default'));
+  await waitRender({});
+  const createButton = screen.getByRole('button', { name: 'Deploy' });
+  expect(createButton).toBeInTheDocument();
+  expect(createButton).toBeEnabled();
+
+  await waitFor(() =>
+    kubernetesCreatePodMock.mockResolvedValue({
+      metadata: { name: 'hello', namespace: 'default' },
+    }),
+  );
+  await waitFor(() =>
+    kubernetesReadNamespacedPodMock.mockResolvedValue({
+      metadata: { name: 'hello' },
+      status: {
+        phase: 'Running',
+      },
+    }),
+  );
+
+  vi.useFakeTimers();
+  await fireEvent.click(createButton);
+  await vi.runAllTimersAsync();
+
+  const doneButton = screen.getByRole('button', { name: 'Done' });
+  expect(doneButton).toBeInTheDocument();
+  expect(doneButton).toBeEnabled();
+
+  const openPodButton = screen.getByRole('button', { name: 'Open Pod' });
+  expect(openPodButton).toBeInTheDocument();
+  expect(openPodButton).toBeEnabled();
+
+  await fireEvent.click(openPodButton);
+  expect(router.goto).toHaveBeenCalledWith(`/pods/kubernetes/hello/default/logs`);
 });
