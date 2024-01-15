@@ -1946,17 +1946,23 @@ export class ContainerProviderRegistry {
 
   async buildImage(
     containerBuildContextDirectory: string,
-    relativeContainerfilePath: string,
-    imageName: string,
-    platform: string,
-    selectedProvider: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
     eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
+    relativeContainerfilePath?: string,
+    imageName?: string,
+    platform?: string,
+    selectedProvider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
     abortController?: AbortController,
   ): Promise<unknown> {
     let telemetryOptions = {};
     try {
-      // grab all connections
-      const matchingContainerProviderApi = this.getMatchingEngineFromConnection(selectedProvider);
+      let matchingContainerProviderApi: Dockerode;
+      if (selectedProvider !== undefined) {
+        // grab all connections
+        matchingContainerProviderApi = this.getMatchingEngineFromConnection(selectedProvider);
+      } else {
+        // Get
+        matchingContainerProviderApi = this.getFirstRunningConnection()[1];
+      }
 
       // grab auth for all registries
       const registryconfig = this.imageRegistry.getRegistryConfig();
@@ -1965,7 +1971,7 @@ export class ContainerProviderRegistry {
         `Uploading the build context from ${containerBuildContextDirectory}...Can take a while...\r\n`,
       );
       const tarStream = tar.pack(containerBuildContextDirectory);
-      if (isWindows()) {
+      if (isWindows() && relativeContainerfilePath !== undefined) {
         relativeContainerfilePath = relativeContainerfilePath.replace(/\\/g, '/');
       }
 

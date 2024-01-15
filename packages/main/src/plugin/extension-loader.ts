@@ -907,22 +907,18 @@ export class ExtensionLoader {
         return containerProviderRegistry.deleteContainer(engineId, id);
       },
       buildImage(
-        containerBuildContextDirectory: string,
-        relativeContainerfilePath: string,
-        imageName: string,
-        platform: string,
-        selectedProvider: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
+        context: string,
         eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
-        abortController?: AbortController,
+        option?: containerDesktopAPI.BuildImageOptions,
       ) {
         return containerProviderRegistry.buildImage(
-          containerBuildContextDirectory,
-          relativeContainerfilePath,
-          imageName,
-          platform,
-          selectedProvider,
+          context,
           eventCollect,
-          abortController,
+          option?.containerFile,
+          option?.target,
+          option?.platform,
+          option?.provider,
+          option?.abortController,
         );
       },
       listImages(): Promise<containerDesktopAPI.ImageInfo[]> {

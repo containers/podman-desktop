@@ -1919,6 +1919,14 @@ declare module '@podman-desktop/api' {
     id: string;
   }
 
+  export interface BuildImageOptions {
+    containerFile?: string;
+    target?: string;
+    platform?: string;
+    provider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection;
+    abortController?: AbortController;
+  }
+
   export interface NetworkCreateOptions {
     Name: string;
   }
@@ -1953,13 +1961,9 @@ declare module '@podman-desktop/api' {
     export function stopContainer(engineId: string, id: string): Promise<void>;
     export function deleteContainer(engineId: string, id: string): Promise<void>;
     export function buildImage(
-      containerBuildContextDirectory: string,
-      relativeContainerfilePath: string,
-      imageName: string,
-      platform: string,
-      selectedProvider: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
+      context: string,
       eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
-      abortController?: AbortController,
+      option?: BuildImageOptions,
     );
     export function saveImage(engineId: string, id: string, filename: string): Promise<void>;
     export function listImages(): Promise<ImageInfo[]>;

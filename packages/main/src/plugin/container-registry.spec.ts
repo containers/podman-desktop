@@ -981,7 +981,7 @@ describe('buildImage', () => {
       lifecycleMethods: undefined,
       status: 'started',
     };
-    await expect(containerRegistry.buildImage('context', 'file', 'name', '', connection, () => {})).rejects.toThrow(
+    await expect(containerRegistry.buildImage('context', () => {}, 'file', 'name', '', connection)).rejects.toThrow(
       'no running provider for the matching container',
     );
   });
@@ -1009,7 +1009,7 @@ describe('buildImage', () => {
       },
       status: () => 'started',
     };
-    await expect(containerRegistry.buildImage('context', 'file', 'name', '', connection, () => {})).rejects.toThrow(
+    await expect(containerRegistry.buildImage('context', () => {}, 'file', 'name', '', connection)).rejects.toThrow(
       'no running provider for the matching container',
     );
   });
@@ -1046,7 +1046,7 @@ describe('buildImage', () => {
     vi.spyOn(tar, 'pack').mockReturnValue({} as NodeJS.ReadableStream);
     vi.spyOn(dockerAPI, 'buildImage').mockRejectedValue('human error message');
 
-    await expect(containerRegistry.buildImage('context', 'file', 'name', '', connection, () => {})).rejects.toThrow(
+    await expect(containerRegistry.buildImage('context', () => {}, 'file', 'name', '', connection)).rejects.toThrow(
       'human error message',
     );
   });
@@ -1082,7 +1082,7 @@ describe('buildImage', () => {
     vi.spyOn(tar, 'pack').mockReturnValue({} as NodeJS.ReadableStream);
     vi.spyOn(dockerAPI, 'buildImage').mockRejectedValue('human error message');
 
-    await expect(containerRegistry.buildImage('context', 'file', 'name', '', connection, () => {})).rejects.toThrow(
+    await expect(containerRegistry.buildImage('context', () => {}, 'file', 'name', '', connection)).rejects.toThrow(
       'human error message',
     );
   });
@@ -1122,7 +1122,7 @@ describe('buildImage', () => {
       return f(null, []);
     });
 
-    await containerRegistry.buildImage('context', '\\path\\file', 'name', '', connection, () => {});
+    await containerRegistry.buildImage('context', () => {}, '\\path\\file', 'name', '', connection);
 
     expect(dockerAPI.buildImage).toBeCalledWith({} as NodeJS.ReadableStream, {
       registryconfig: {},
@@ -1166,7 +1166,7 @@ describe('buildImage', () => {
       return f(null, []);
     });
 
-    await containerRegistry.buildImage('context', '\\path\\file', 'name', '', connection, () => {});
+    await containerRegistry.buildImage('context', () => {}, '\\path\\file', 'name', '', connection);
 
     expect(dockerAPI.buildImage).toBeCalledWith({} as NodeJS.ReadableStream, {
       registryconfig: {},
@@ -1211,7 +1211,7 @@ describe('buildImage', () => {
       return f(null, []);
     });
 
-    await containerRegistry.buildImage('context', '/dir/dockerfile', 'name', '', connection, () => {});
+    await containerRegistry.buildImage('context', () => {}, '/dir/dockerfile', 'name', '', connection);
 
     expect(dockerAPI.buildImage).toBeCalledWith({} as NodeJS.ReadableStream, {
       registryconfig: {},
