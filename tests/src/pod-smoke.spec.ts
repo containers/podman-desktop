@@ -42,7 +42,7 @@ const isMac = os.platform() === 'darwin';
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
-  pdRunner.setVideoName('pods-e2e');
+  pdRunner.setVideoAndTraceName('pods-e2e');
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
   // wait giving a time to podman desktop to load up
