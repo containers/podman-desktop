@@ -70,6 +70,10 @@ export class TaskManager {
     }
   }
 
+  /**
+   * Retrieve tasks by a cancellable token
+   * @param cancellableTokenId The id of the cancellable token
+   */
   public findByCancellableToken(cancellableTokenId: number): Task[] {
     return Array.from(this.tasks.values()).filter(task => task.cancellableTokenId === cancellableTokenId);
   }
