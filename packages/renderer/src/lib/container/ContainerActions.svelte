@@ -145,6 +145,7 @@ if (dropdownMenu) {
 
 <ListItemButtonIcon
   title="Delete Container"
+  confirm="{true}"
   onClick="{() => deleteContainer()}"
   icon="{faTrash}"
   detailed="{detailed}"

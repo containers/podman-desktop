@@ -47,6 +47,8 @@ const fakedImage: ImageInfoUI = {
 } as unknown as ImageInfoUI;
 
 test('Expect showMessageBox to be called when error occurs', async () => {
+  // Mock the showMessageBox to return 0 (yes)
+  showMessageBoxMock.mockResolvedValue({ response: 0 });
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
 
   render(ImageActions, {

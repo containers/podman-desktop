@@ -122,3 +122,14 @@ export async function deletePod(page: Page, name: string) {
     }
   }
 }
+
+export async function pressConfirmationButton(page: Page, boolean: boolean) {
+  // wait for dialog to appear using waitFor
+  await waitWhile(async () => {
+    const dialog = page.locator('dialog');
+    return (await dialog.count()) > 0 ? true : false;
+  });
+
+  const button = boolean ? page.getByRole('button', { name: 'Yes' }) : page.getByRole('button', { name: 'No' });
+  await button.click();
+}

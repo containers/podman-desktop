@@ -17,8 +17,8 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll, beforeEach } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/svelte';
+import { test, expect, vi, beforeAll } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 
 import ContainerDetails from './ContainerDetails.svelte';
 import { get } from 'svelte/store';
@@ -31,6 +31,7 @@ import { lastPage } from '/@/stores/breadcrumb';
 const listContainersMock = vi.fn();
 
 const getContainerInspectMock = vi.fn();
+const showMessageBoxMock = vi.fn();
 
 const myContainer: ContainerInfo = {
   Id: 'myContainer',
@@ -59,6 +60,7 @@ vi.mock('xterm', () => {
 });
 
 beforeAll(() => {
+  (window as any).showMessageBox = showMessageBoxMock;
   (window as any).listContainers = listContainersMock;
   (window as any).deleteContainer = deleteContainerMock;
   (window as any).getContainerInspect = getContainerInspectMock;
@@ -74,8 +76,6 @@ beforeAll(() => {
   (window as any).getContributedMenus = getContributedMenusMock;
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
 });
-
-beforeEach(() => {});
 
 test('Expect logs when tty is not enabled', async () => {
   router.goto('/');
@@ -137,6 +137,8 @@ test('Expect show tty if container has tty enabled', async () => {
 });
 
 test('Expect redirect to previous page if container is deleted', async () => {
+  // Mock the showMessageBox to return 0 (yes)
+  showMessageBoxMock.mockResolvedValue({ response: 0 });
   router.goto('/');
 
   getContainerInspectMock.mockResolvedValue({
@@ -173,6 +175,9 @@ test('Expect redirect to previous page if container is deleted', async () => {
   // click on delete container button
   const deleteButton = screen.getByRole('button', { name: 'Delete Container' });
   await fireEvent.click(deleteButton);
+
+  // Wait for confirmation modal to disappear after clicking on delete
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
   // check that delete method has been called
   expect(deleteContainerMock).toHaveBeenCalled();
