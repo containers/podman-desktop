@@ -2242,12 +2242,7 @@ export class PluginSystem {
         // We cancel it
         tokenSource.cancel();
         // Update the task accordinaly
-        if (taskManager.isStatefulTask(task)) {
-          task.state = 'completed';
-          task.status = 'cancelled';
-          task.error = 'task cancelled';
-        }
-        taskManager.updateTask(task);
+        this.cancelTask(taskManager, task);
       }
     });
 

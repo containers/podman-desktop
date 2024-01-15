@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 import { beforeAll, test, expect, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import TaskManager from './TaskManager.svelte';
 import userEvent from '@testing-library/user-event';
 import { tasksInfo } from '/@/stores/tasks';
@@ -40,6 +40,7 @@ const IN_PROGRESS_TASK: StatefulTask = {
   state: 'running',
   started,
   status: 'in-progress',
+  cancellableTokenId: 1,
 };
 const SUCCEED_TASK: StatefulTask = { id: '1', name: 'Running Task 1', state: 'completed', started, status: 'success' };
 const NOTIFICATION_TASK: NotificationTask = {
@@ -47,6 +48,14 @@ const NOTIFICATION_TASK: NotificationTask = {
   name: 'Notification Task 1',
   description: ' description',
   started,
+};
+const CANCELLED_TASK: StatefulTask = {
+  id: '1',
+  name: 'Cancelled Task 1',
+  state: 'completed',
+  started,
+  status: 'cancelled',
+  cancellableTokenId: 1,
 };
 
 test('Expect that the tasks manager is hidden by default', async () => {
@@ -195,4 +204,30 @@ test('Expect clear notifications remove completed tasks and notifications', asyn
   // button is also gone
   const afterClearNotificationsButton = screen.queryByRole('button', { name: 'Clear' });
   expect(afterClearNotificationsButton).not.toBeInTheDocument();
+});
+
+test('Expect cancel button to cancel task', async () => {
+  const cancelTaskMock = vi.fn();
+  (window.cancelTask as unknown) = cancelTaskMock;
+  cancelTaskMock.mockImplementation((taskId: string) => {
+    expect(taskId).toBe(IN_PROGRESS_TASK.id);
+    tasksInfo.set([CANCELLED_TASK]);
+  });
+
+  tasksInfo.set([IN_PROGRESS_TASK]);
+  render(TaskManager, { showTaskManager: true });
+
+  // expect the task name is visible
+  const task = screen.queryByText(IN_PROGRESS_TASK.name);
+  expect(task).toBeInTheDocument();
+
+  // click on the button "Clear notifications"
+  const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+  expect(cancelButton).toBeInTheDocument();
+  await fireEvent.click(cancelButton);
+
+  await waitFor(() => {
+    const cancelledTask = screen.queryByText(CANCELLED_TASK.name);
+    expect(cancelledTask).toBeInTheDocument();
+  });
 });

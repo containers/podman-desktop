@@ -26,19 +26,22 @@ let icon: IconDefinition;
 let iconColor: string;
 onMount(() => {
   if (isStatefulTask(task)) {
-    if (task.status === 'success') {
-      icon = faSquareCheck;
-      iconColor = 'text-green-600';
-      return;
-    } else if (task.status === 'failure') {
-      icon = faTriangleExclamation;
-      iconColor = 'text-red-500';
-      return;
+    switch (task.status) {
+      case 'success':
+        icon = faSquareCheck;
+        iconColor = 'text-green-600';
+        break;
+      case 'failure':
+      case 'cancelled':
+        icon = faTriangleExclamation;
+        iconColor = 'text-red-500';
+        break;
+      default:
+        icon = faInfoCircle;
+        iconColor = 'text-purple-500';
+        break;
     }
   }
-
-  icon = faInfoCircle;
-  iconColor = 'text-purple-500';
 });
 
 function closeCompleted(taskUI: StatefulTaskUI | NotificationTask) {
@@ -61,7 +64,7 @@ function cancelTask(taskUI: Task) {
 <!-- Display a task item-->
 <div class="flex flew-row w-full py-2">
   <!-- first column is the icon-->
-  <div class="flex w-3 {iconColor} justify-center">
+  <div class="flex w-3 {iconColor} mt-1 justify-center">
     <Fa size="14" icon="{icon}" />
   </div>
   <!-- second column is about the task-->
