@@ -61,7 +61,7 @@ onMount(async () => {
     }
   });
   imageInfoSubscribe = imagesInfos.subscribe(value => {
-    let images = value.map((imageInfo: ImageInfo) => imageUtils.getImagesInfoUI(imageInfo, [])).flat();
+    let images = value.map((imageInfo: ImageInfo) => imageUtils.getImagesInfoUI(imageInfo, [], undefined, [])).flat();
     if (images.length > 0) {
       imageCount = ' (' + images.length + ')';
     } else {

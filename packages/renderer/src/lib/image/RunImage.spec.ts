@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-ins
 import { mockBreadcrumb } from '../../stores/breadcrumb.spec';
 import userEvent from '@testing-library/user-event';
 import { router } from 'tinro';
+import ImageIcon from '../images/ImageIcon.svelte';
 
 const originalConsoleDebug = console.debug;
 
@@ -82,6 +83,7 @@ async function createRunImage(entrypoint?: string | string[], cmd?: string[]) {
     selected: false,
     shortId: '',
     tag: '',
+    icon: ImageIcon,
   });
   const imageInfo: ImageInspectInfo = {
     Architecture: '',

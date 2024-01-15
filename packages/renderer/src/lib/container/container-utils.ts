@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2023 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import humanizeDuration from 'humanize-duration';
 import { filesize } from 'filesize';
 import type { Port } from '@podman-desktop/api';
 import type { ContextUI } from '../context/context';
-import type { ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
+import { isViewContributionIcon, type ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
 import { ContextKeyExpr } from '../context/contextKey';
 import ContainerIcon from '../images/ContainerIcon.svelte';
 
@@ -260,19 +260,21 @@ export class ContainerUtils {
     let icon;
     // loop over all contribution for this view
     for (const contribution of viewContributions) {
-      // adapt the context to work with containers (e.g save container labels into the context)
-      this.adaptContextOnContainer(context, container);
-      // deserialize the when clause
-      const whenDeserialized = ContextKeyExpr.deserialize(contribution.when);
-      // if the when clause has to be applied to this container
-      if (whenDeserialized?.evaluate(context)) {
-        // handle ${} in icon class
-        // and interpret the value and replace with the class-name
-        const match = contribution.icon.match(/\$\{(.*)\}/);
-        if (match && match.length === 2) {
-          const className = match[1];
-          icon = contribution.icon.replace(match[0], `podman-desktop-icon-${className}`);
-          return icon;
+      if (isViewContributionIcon(contribution.value)) {
+        // adapt the context to work with containers (e.g save container labels into the context)
+        this.adaptContextOnContainer(context, container);
+        // deserialize the when clause
+        const whenDeserialized = ContextKeyExpr.deserialize(contribution.value.when);
+        // if the when clause has to be applied to this container
+        if (whenDeserialized?.evaluate(context)) {
+          // handle ${} in icon class
+          // and interpret the value and replace with the class-name
+          const match = contribution.value.icon.match(/\$\{(.*)\}/);
+          if (match && match.length === 2) {
+            const className = match[1];
+            icon = contribution.value.icon.replace(match[0], `podman-desktop-icon-${className}`);
+            return icon;
+          }
         }
       }
     }

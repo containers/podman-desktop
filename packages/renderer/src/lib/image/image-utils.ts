@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,10 @@ import humanizeDuration from 'humanize-duration';
 import { filesize } from 'filesize';
 import { Buffer } from 'buffer';
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
+import { isViewContributionIcon, type ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
+import type { ContextUI } from '../context/context';
+import { ContextKeyExpr } from '../context/contextKey';
+import ImageIcon from '../images/ImageIcon.svelte';
 
 export class ImageUtils {
   // extract SHA256 from image id and take the first 12 digits
@@ -88,7 +92,43 @@ export class ImageUtils {
     return containersInfo.some(container => container.ImageID === imageInfo.Id);
   }
 
-  getImagesInfoUI(imageInfo: ImageInfo, containersInfo: ContainerInfo[]): ImageInfoUI[] {
+  iconClass(imageInfo: ImageInfo, context?: ContextUI, viewContributions?: ViewInfoUI[]): string | undefined {
+    if (!context || !viewContributions) {
+      return undefined;
+    }
+
+    let icon;
+    if (context && viewContributions) {
+      for (const contribution of viewContributions) {
+        if (isViewContributionIcon(contribution.value)) {
+          // adapt the context to work with images (e.g save image labels into the context)
+          this.adaptContextOnImage(context, imageInfo);
+          // deserialize the when clause
+          const whenDeserialized = ContextKeyExpr.deserialize(contribution.value.when);
+          // if the when clause has to be applied to this image
+          if (whenDeserialized?.evaluate(context)) {
+            // handle ${} in icon class
+            // and interpret the value and replace with the class-name
+            const match = contribution.value.icon.match(/\$\{(.*)\}/);
+            if (match && match.length === 2) {
+              const className = match[1];
+              icon = contribution.value.icon.replace(match[0], `podman-desktop-icon-${className}`);
+            }
+          }
+        }
+      }
+    }
+    return icon;
+  }
+
+  getImagesInfoUI(
+    imageInfo: ImageInfo,
+    containersInfo: ContainerInfo[],
+    context?: ContextUI,
+    viewContributions?: ViewInfoUI[],
+  ): ImageInfoUI[] {
+    const icon = this.iconClass(imageInfo, context, viewContributions) || ImageIcon;
+
     if (!imageInfo.RepoTags) {
       return [
         {
@@ -105,6 +145,8 @@ export class ImageUtils {
           base64RepoTag: this.getBase64EncodedName('<none>'),
           selected: false,
           inUse: this.getInUse(imageInfo, containersInfo),
+          icon,
+          labels: imageInfo.Labels,
         },
       ];
     } else {
@@ -123,9 +165,15 @@ export class ImageUtils {
           base64RepoTag: this.getBase64EncodedName(repoTag),
           selected: false,
           inUse: this.getInUse(imageInfo, containersInfo),
+          icon,
+          labels: imageInfo.Labels,
         };
       });
     }
+  }
+
+  adaptContextOnImage(context: ContextUI, image: ImageInfo): void {
+    context.setValue('imageLabelKeys', image.Labels ? Object.keys(image.Labels) : []);
   }
 
   deleteImage(image: ImageInfoUI) {
@@ -137,8 +185,10 @@ export class ImageUtils {
     imageInfo: ImageInfo,
     base64RepoTag: string,
     containersInfo: ContainerInfo[],
+    context?: ContextUI,
+    viewContributions?: ViewInfoUI[],
   ): ImageInfoUI | undefined {
-    const images = this.getImagesInfoUI(imageInfo, containersInfo);
+    const images = this.getImagesInfoUI(imageInfo, containersInfo, context, viewContributions);
     return images.find(image => image.base64RepoTag === base64RepoTag);
   }
 }

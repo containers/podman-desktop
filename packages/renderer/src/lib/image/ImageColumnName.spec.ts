@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import ImageColumnName from './ImageColumnName.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { router } from 'tinro';
 import { fireEvent } from '@testing-library/dom';
+import ImageIcon from '../images/ImageIcon.svelte';
 
 const image: ImageInfoUI = {
   id: 'my-image',
@@ -39,6 +40,7 @@ const image: ImageInfoUI = {
   base64RepoTag: 'repoTag',
   selected: false,
   inUse: false,
+  icon: ImageIcon,
 };
 
 test('Expect simple column styling', async () => {

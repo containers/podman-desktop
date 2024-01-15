@@ -3,7 +3,6 @@ import type { ImageInfoUI } from './ImageInfoUI';
 import Route from '../../Route.svelte';
 import { onDestroy, onMount } from 'svelte';
 import { imagesInfos } from '../../stores/images';
-import ImageIcon from '../images/ImageIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
 import ImageActions from './ImageActions.svelte';
 import { ImageUtils } from './image-utils';
@@ -19,10 +18,21 @@ import ImageDetailsCheck from './ImageDetailsCheck.svelte';
 import { imageCheckerProviders } from '/@/stores/image-checker-providers';
 import type { Unsubscriber } from 'svelte/motion';
 import type { ImageInfo } from '@podman-desktop/api';
+import { viewsContributions } from '/@/stores/views';
+import type { ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
+import { IMAGE_DETAILS_VIEW_ICONS, IMAGE_VIEW_ICONS } from '../view/views';
+import { context } from '/@/stores/context';
+import type { ContextUI } from '../context/context';
 
 export let imageID: string;
 export let engineId: string;
 export let base64RepoTag: string;
+
+let globalContext: ContextUI;
+let viewContributions: ViewInfoUI[] = [];
+let allImages: ImageInfo[];
+
+const imageUtils = new ImageUtils();
 
 let pushImageModal = false;
 function handlePushImageModal() {
@@ -45,38 +55,60 @@ let detailsPage: DetailsPage;
 
 let showCheckTab: boolean = false;
 let providersUnsubscribe: Unsubscriber;
+let viewsUnsubscribe: Unsubscriber;
+let contextsUnsubscribe: Unsubscriber;
+
+function updateImage() {
+  if (!allImages) {
+    return;
+  }
+  imageInfo = allImages.find(c => c.Id === imageID && c.engineId === engineId);
+  let tempImage;
+  if (imageInfo) {
+    tempImage = imageUtils.getImageInfoUI(imageInfo, base64RepoTag, $containersInfos, globalContext, viewContributions);
+  }
+  if (tempImage) {
+    image = tempImage;
+  } else {
+    // the image has been deleted
+    detailsPage.close();
+  }
+}
 
 onMount(() => {
   providersUnsubscribe = imageCheckerProviders.subscribe(providers => {
     showCheckTab = providers.length > 0;
   });
 
-  const imageUtils = new ImageUtils();
+  viewsUnsubscribe = viewsContributions.subscribe(value => {
+    viewContributions =
+      value.filter(view => view.viewId === IMAGE_DETAILS_VIEW_ICONS || view.viewId === IMAGE_VIEW_ICONS) || [];
+    updateImage();
+  });
+
+  contextsUnsubscribe = context.subscribe(value => {
+    globalContext = value;
+    updateImage();
+  });
+
   // loading image info
   return imagesInfos.subscribe(images => {
-    imageInfo = images.find(c => c.Id === imageID && c.engineId === engineId);
-    let tempImage;
-    if (imageInfo) {
-      tempImage = imageUtils.getImageInfoUI(imageInfo, base64RepoTag, $containersInfos);
-    }
-    if (tempImage) {
-      image = tempImage;
-    } else {
-      // the image has been deleted
-      detailsPage.close();
-    }
+    allImages = images;
+    updateImage();
   });
 });
 
 onDestroy(() => {
   // unsubscribe from the store
   providersUnsubscribe?.();
+  viewsUnsubscribe?.();
+  contextsUnsubscribe?.();
 });
 </script>
 
 {#if image}
   <DetailsPage title="{image.name}" titleDetail="{image.shortId}" subtitle="{image.tag}" bind:this="{detailsPage}">
-    <StatusIcon slot="icon" icon="{ImageIcon}" size="{24}" status="{image.inUse ? 'USED' : 'UNUSED'}" />
+    <StatusIcon slot="icon" icon="{image.icon}" size="{24}" status="{image.inUse ? 'USED' : 'UNUSED'}" />
     <ImageActions
       slot="actions"
       image="{image}"

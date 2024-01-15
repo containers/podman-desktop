@@ -2,10 +2,10 @@
 import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import DropdownMenuItem from './DropDownMenuItem.svelte';
 import Fa from 'svelte-fa';
-import { onMount, onDestroy } from 'svelte';
+import { onDestroy } from 'svelte';
 import type { Unsubscriber } from 'svelte/motion';
 import type { ContextUI } from '../context/context';
-import { context } from '/@/stores/context';
+import { context as storeContext } from '/@/stores/context';
 import { ContextKeyExpr } from '../context/contextKey';
 
 export let title: string;
@@ -18,6 +18,8 @@ export let menu = false;
 export let detailed = false;
 export let inProgress = false;
 export let iconOffset = '';
+export let contextUI: ContextUI | undefined = undefined;
+
 let positionLeftClass = 'left-1';
 if (detailed) positionLeftClass = 'left-2';
 let positionTopClass = 'top-1';
@@ -26,18 +28,30 @@ if (detailed) positionTopClass = '[0.2rem]';
 let globalContext: ContextUI;
 let contextsUnsubscribe: Unsubscriber;
 
-onMount(async () => {
+$: {
   if (disabledWhen !== '') {
-    contextsUnsubscribe = context.subscribe(value => {
-      globalContext = value;
-      // Deserialize the `when` property
-      const whenDeserialized = ContextKeyExpr.deserialize(disabledWhen);
-      // if there is some error when evaluating the when expression, we use the default value enabled = true
-      const disabled = whenDeserialized?.evaluate(globalContext) || false;
-      enabled = !disabled;
-    });
+    if (contextUI) {
+      globalContext = contextUI;
+      computeEnabled();
+    } else {
+      if (contextsUnsubscribe) {
+        contextsUnsubscribe();
+      }
+      contextsUnsubscribe = storeContext.subscribe(value => {
+        globalContext = value;
+        computeEnabled();
+      });
+    }
   }
-});
+}
+
+function computeEnabled() {
+  // Deserialize the `when` property
+  const whenDeserialized = ContextKeyExpr.deserialize(disabledWhen);
+  // if there is some error when evaluating the when expression, we use the default value enabled = true
+  const disabled = whenDeserialized?.evaluate(globalContext) || false;
+  enabled = !disabled;
+}
 
 onDestroy(() => {
   // unsubscribe from the store

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ export class ViewRegistry {
       value.forEach((contributions, view) => {
         contributions.forEach(contribution => {
           listViewInfoUI.push({
-            ...contribution,
+            value: contribution,
             extensionId: extension,
             viewId: view,
           });
@@ -79,7 +79,7 @@ export class ViewRegistry {
     viewContributions.forEach((contributions, view) => {
       contributions.forEach(contribution => {
         listViewInfoUI.push({
-          ...contribution,
+          value: contribution,
           extensionId: extensionId,
           viewId: view,
         });

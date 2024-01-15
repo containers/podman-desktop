@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,19 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-export interface ViewContribution {
+export type ViewContribution = ViewContributionIcon;
+
+export interface ViewContributionIcon {
   when: string | undefined;
   icon: string;
 }
 
-export interface ViewInfoUI extends ViewContribution {
+export interface ViewInfoUI {
   extensionId: string;
   viewId: string;
+  value: ViewContributionIcon;
+}
+
+export function isViewContributionIcon(value: ViewContributionIcon): value is ViewContributionIcon {
+  return (value as ViewContributionIcon).icon !== undefined;
 }

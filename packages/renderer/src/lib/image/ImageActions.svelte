@@ -11,7 +11,7 @@ import { onDestroy, onMount } from 'svelte';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
 import ActionsWrapper from './ActionsMenu.svelte';
 import type { Unsubscriber } from 'svelte/motion';
-import type { ContextUI } from '../context/context';
+import { ContextUI } from '../context/context';
 import { context } from '/@/stores/context';
 
 export let onPushImage: (imageInfo: ImageInfoUI) => void;
@@ -33,7 +33,15 @@ onMount(async () => {
   contributions = await window.getContributedMenus(MenuContext.DASHBOARD_IMAGE);
   groupingContributions = groupContributions && !dropdownMenu && contributions.length > 1;
   contextsUnsubscribe = context.subscribe(value => {
-    globalContext = value;
+    // Copy context, do not use reference
+    globalContext = new ContextUI();
+    const allValues = value.collectAllValues();
+    for (const k in allValues) {
+      globalContext.setValue(k, allValues[k]);
+    }
+
+    const labels = image.labels ? Object.keys(image.labels) : [];
+    globalContext.setValue('imageLabelKeys', labels);
   });
 });
 
@@ -127,6 +135,7 @@ function onError(error: string): void {
       contributions="{contributions}"
       contextPrefix="imageItem"
       detailed="{detailed}"
-      onError="{onError}" />
+      onError="{onError}"
+      contextUI="{globalContext}" />
   </ActionsWrapper>
 </ActionsWrapper>
