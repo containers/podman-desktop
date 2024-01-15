@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { describe, test, expect, vi, beforeAll, afterEach } from 'vitest';
+import { describe, test, expect, vi, afterEach, beforeEach } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 
 import ImageDetails from './ImageDetails.svelte';
@@ -30,6 +30,8 @@ import { lastPage } from '/@/stores/breadcrumb';
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import { containersInfos } from '/@/stores/containers';
 import { imageCheckerProviders } from '/@/stores/image-checker-providers';
+import { IMAGE_DETAILS_VIEW_ICONS, IMAGE_LIST_VIEW_ICONS, IMAGE_VIEW_ICONS } from '../view/views';
+import { viewsContributions } from '/@/stores/views';
 
 const listImagesMock = vi.fn();
 const getContributedMenusMock = vi.fn();
@@ -56,7 +58,9 @@ delete myNoneNameImage.RepoTags;
 const deleteImageMock = vi.fn();
 const hasAuthMock = vi.fn();
 
-beforeAll(() => {
+beforeEach(() => {
+  imagesInfos.set([]);
+  viewsContributions.set([]);
   (window as any).listImages = listImagesMock;
   (window as any).listContainers = vi.fn();
   (window as any).deleteImage = deleteImageMock;
@@ -259,4 +263,61 @@ test('expect Check tab is displayed when an image checker provider exists', () =
   expect(summaryTab).toBeInTheDocument();
   const checkTab = screen.getByRole('link', { name: 'Check' });
   expect(checkTab).toBeInTheDocument();
+});
+
+test.each([
+  { viewIdContrib: IMAGE_VIEW_ICONS },
+  { viewIdContrib: IMAGE_DETAILS_VIEW_ICONS },
+  { viewIdContrib: IMAGE_LIST_VIEW_ICONS },
+])('Expect image status being changed with %s contribution', async ({ viewIdContrib }) => {
+  const imageWithLabels: ImageInfo = {
+    ...myImage,
+    Labels: {
+      'io.podman-desktop': 'true',
+    },
+  };
+  listImagesMock.mockResolvedValue([imageWithLabels]);
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+
+  while (get(imagesInfos).length !== 1) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  hasAuthMock.mockImplementation(() => {
+    return new Promise(() => false);
+  });
+
+  const contribs = [
+    {
+      extensionId: 'foo.bar',
+      viewId: viewIdContrib,
+      value: {
+        icon: '${my-custom-icon}',
+        when: 'io.podman-desktop in imageLabelKeys',
+      },
+    },
+  ];
+
+  // set viewsContributions
+  viewsContributions.set(contribs);
+
+  // render the component
+  render(ImageDetails, {
+    imageID: 'myImage',
+    engineId: 'engine0',
+    base64RepoTag: Buffer.from('myImageTag').toString('base64'),
+  });
+
+  // grab status icon of the image
+  const statusElement = screen.getByRole('status', { name: 'UNUSED' });
+  expect(statusElement).toBeInTheDocument();
+
+  // now assert status item contains the icon
+  const subElement = statusElement.getElementsByClassName('podman-desktop-icon-my-custom-icon');
+  // should not be overriden for list contribution
+  if (IMAGE_LIST_VIEW_ICONS === viewIdContrib) {
+    expect(subElement.length).toBe(0);
+  } else {
+    expect(subElement.length).toBe(1);
+  }
 });

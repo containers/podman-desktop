@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +19,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect, vi } from 'vitest';
+import { test, expect, vi, beforeEach, describe } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import ImagesList from './ImagesList.svelte';
 import { imagesInfos } from '../../stores/images';
 import { get } from 'svelte/store';
 import { providerInfos } from '../../stores/providers';
+import { viewsContributions } from '/@/stores/views';
+import { IMAGE_LIST_VIEW_ICONS, IMAGE_VIEW_ICONS } from '../view/views';
 
 const listImagesMock = vi.fn();
 const getProviderInfosMock = vi.fn();
+const listViewsContributionsMock = vi.fn();
 
 // fake the window.events object
-beforeAll(() => {
+beforeEach(() => {
+  providerInfos.set([]);
+  imagesInfos.set([]);
+  viewsContributions.set([]);
   (window as any).getConfigurationValue = vi.fn();
   (window as any).updateConfigurationValue = vi.fn();
   (window as any).getContributedMenus = vi.fn();
@@ -43,6 +49,8 @@ beforeAll(() => {
   (window as any).listContainers = vi.fn();
   (window as any).listImages = listImagesMock;
   (window as any).getProviderInfos = getProviderInfosMock;
+  (window as any).listViewsContributions = listViewsContributionsMock;
+  listViewsContributionsMock.mockResolvedValue([]);
 
   (window.events as unknown) = {
     receive: (_channel: string, func: any) => {
@@ -179,4 +187,84 @@ test('Expect filter empty screen', async () => {
 
   const filterButton = screen.getByRole('button', { name: 'Clear filter' });
   expect(filterButton).toBeInTheDocument();
+});
+
+describe('Contributions', () => {
+  test.each([{ viewIdContrib: IMAGE_VIEW_ICONS }, { viewIdContrib: IMAGE_LIST_VIEW_ICONS }])(
+    'Expect image status being changed with %s contribution',
+    async ({ viewIdContrib }) => {
+      getProviderInfosMock.mockResolvedValue([
+        {
+          name: 'podman',
+          status: 'started',
+          internalId: 'podman-internal-id',
+          containerConnections: [
+            {
+              name: 'podman-machine-default',
+              status: 'started',
+            },
+          ],
+        },
+      ]);
+
+      const labels = {
+        'podman-desktop.label': true,
+      };
+
+      listImagesMock.mockResolvedValue([
+        {
+          Id: 'sha256:1234567890123',
+          RepoTags: ['fedora:old'],
+          Created: 1644009612,
+          Size: 123,
+          Status: 'Running',
+          engineId: 'podman',
+          engineName: 'podman',
+          Labels: labels,
+        },
+      ]);
+
+      window.dispatchEvent(new CustomEvent('extensions-already-started'));
+      window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+      window.dispatchEvent(new CustomEvent('image-build'));
+
+      const contribs = [
+        {
+          extensionId: 'foo.bar',
+          viewId: viewIdContrib,
+          value: {
+            icon: '${my-custom-icon}',
+            when: 'podman-desktop.label in imageLabelKeys',
+          },
+        },
+      ];
+
+      listViewsContributionsMock.mockReset();
+      listViewsContributionsMock.mockResolvedValue(contribs);
+      // set viewsContributions
+      viewsContributions.set(contribs);
+
+      // wait store are populated
+      while (get(imagesInfos).length === 0) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      while (get(providerInfos).length === 0) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      await waitRender({});
+
+      // check image icon of status being overrided due to contributed menu
+
+      const fedoraOld = screen.getByRole('cell', { name: 'fedora 123456789012 old' });
+      expect(fedoraOld).toBeInTheDocument();
+
+      // now check that there is a custom icon for status column
+      const statusElement = screen.getByRole('status', { name: 'UNUSED' });
+
+      // now assert status item contains the icon
+      const subElement = statusElement.getElementsByClassName('podman-desktop-icon-my-custom-icon');
+      expect(subElement.length).toBe(1);
+    },
+  );
 });

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 import { beforeEach, expect, expectTypeOf, test, vi } from 'vitest';
 import { ViewRegistry } from './view-registry.js';
 import type { Disposable } from './types/disposable.js';
+import type { ViewContributionIcon } from './api/view-info.js';
 
 let viewRegistry: ViewRegistry;
 
@@ -58,8 +59,8 @@ test('View context should have a single entry', async () => {
   expect(views).toBeDefined();
   expectTypeOf(views).toBeArray();
   expect(views.length).toBe(1);
-  expect(views[0].when).toBe('io.x-k8s.kind.cluster in containerLabelKeys');
-  expect(views[0].icon).toBe('${kind-icon}');
+  expect((views[0].value as ViewContributionIcon).when).toBe('io.x-k8s.kind.cluster in containerLabelKeys');
+  expect((views[0].value as ViewContributionIcon).icon).toBe('${kind-icon}');
 });
 
 test('Should not find menus after dispose', async () => {

@@ -4,8 +4,8 @@ import { faPlug } from '@fortawesome/free-solid-svg-icons';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import { removeNonSerializableProperties } from '/@/lib/actions/ActionUtils';
 import type { ContextUI } from '/@/lib/context/context';
-import { onDestroy, onMount } from 'svelte';
-import { context } from '/@/stores/context';
+import { onDestroy } from 'svelte';
+import { context as storeContext } from '/@/stores/context';
 import type { Unsubscriber } from 'svelte/store';
 import { ContextKeyExpr } from '/@/lib/context/contextKey';
 import { transformObjectToContext } from '/@/lib/context/ContextUtils';
@@ -17,6 +17,7 @@ export let contextPrefix: string | undefined = undefined;
 export let dropdownMenu = false;
 export let contributions: Menu[] = [];
 export let detailed = false;
+export let contextUI: ContextUI | undefined = undefined;
 
 let filteredContributions: Menu[] = [];
 $: {
@@ -48,11 +49,18 @@ $: {
 let globalContext: ContextUI;
 let contextsUnsubscribe: Unsubscriber;
 
-onMount(async () => {
-  contextsUnsubscribe = context.subscribe(value => {
-    globalContext = value;
-  });
-});
+$: {
+  if (contextUI) {
+    globalContext = contextUI;
+  } else {
+    if (contextsUnsubscribe) {
+      contextsUnsubscribe();
+    }
+    contextsUnsubscribe = storeContext.subscribe(value => {
+      globalContext = value;
+    });
+  }
+}
 
 onDestroy(() => {
   // unsubscribe from the store
@@ -78,5 +86,6 @@ async function executeContribution(menu: Menu): Promise<void> {
     menu="{dropdownMenu}"
     icon="{faPlug}"
     detailed="{detailed}"
-    disabledWhen="{menu.disabled}" />
+    disabledWhen="{menu.disabled}"
+    contextUI="{globalContext}" />
 {/each}

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import { render, screen } from '@testing-library/svelte';
 
 import ImageColumnSize from './ImageColumnSize.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
+import ImageIcon from '../images/ImageIcon.svelte';
 
 test('Expect simple column styling', async () => {
   const image: ImageInfoUI = {
@@ -38,6 +39,7 @@ test('Expect simple column styling', async () => {
     base64RepoTag: '',
     selected: false,
     inUse: false,
+    icon: ImageIcon,
   };
   render(ImageColumnSize, { object: image });
 

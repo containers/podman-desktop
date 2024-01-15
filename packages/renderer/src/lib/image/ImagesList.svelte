@@ -28,6 +28,11 @@ import ImageColumnEnvironment from './ImageColumnEnvironment.svelte';
 import ImageColumnAge from './ImageColumnAge.svelte';
 import ImageColumnSize from './ImageColumnSize.svelte';
 import ImageColumnActions from './ImageColumnActions.svelte';
+import type { ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
+import { viewsContributions } from '/@/stores/views';
+import { IMAGE_VIEW_ICONS, IMAGE_LIST_VIEW_ICONS } from '../view/views';
+import type { ContextUI } from '../context/context';
+import { context } from '../../stores/context';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -42,9 +47,14 @@ $: providerConnections = $providerInfos
 
 const imageUtils = new ImageUtils();
 
-function updateImages() {
+let globalContext: ContextUI;
+let viewContributions: ViewInfoUI[] = [];
+
+function updateImages(globalContext: ContextUI) {
   const computedImages = storeImages
-    .map((imageInfo: ImageInfo) => imageUtils.getImagesInfoUI(imageInfo, storeContainers))
+    .map((imageInfo: ImageInfo) =>
+      imageUtils.getImagesInfoUI(imageInfo, storeContainers, globalContext, viewContributions),
+    )
     .flat();
 
   // update selected items based on current selected items
@@ -80,18 +90,35 @@ function updateImages() {
 
 let imagesUnsubscribe: Unsubscriber;
 let containersUnsubscribe: Unsubscriber;
+let contextsUnsubscribe: Unsubscriber;
+let viewsUnsubscribe: Unsubscriber;
 let storeContainers: ContainerInfo[] = [];
 let storeImages: ImageInfo[] = [];
 
 onMount(async () => {
   containersUnsubscribe = containersInfos.subscribe(value => {
     storeContainers = value;
-    updateImages();
+    updateImages(globalContext);
   });
 
   imagesUnsubscribe = filtered.subscribe(value => {
     storeImages = value;
-    updateImages();
+    updateImages(globalContext);
+  });
+
+  contextsUnsubscribe = context.subscribe(value => {
+    globalContext = value;
+    if (images.length > 0) {
+      updateImages(globalContext);
+    }
+  });
+
+  viewsUnsubscribe = viewsContributions.subscribe(value => {
+    viewContributions =
+      value.filter(view => view.viewId === IMAGE_LIST_VIEW_ICONS || view.viewId === IMAGE_VIEW_ICONS) || [];
+    if (images.length > 0) {
+      updateImages(globalContext);
+    }
   });
 });
 
@@ -106,6 +133,12 @@ onDestroy(() => {
   }
   if (containersUnsubscribe) {
     containersUnsubscribe();
+  }
+  if (contextsUnsubscribe) {
+    contextsUnsubscribe();
+  }
+  if (viewsUnsubscribe) {
+    viewsUnsubscribe();
   }
 });
 

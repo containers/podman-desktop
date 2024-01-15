@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2023 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -225,8 +225,10 @@ test('should expect icon to be valid value with context/view set', async () => {
   const view: ViewInfoUI = {
     extensionId: 'extension',
     viewId: 'id',
-    icon: '${kind-icon}',
-    when: 'io.x-k8s.kind.cluster in containerLabelKeys',
+    value: {
+      icon: '${kind-icon}',
+      when: 'io.x-k8s.kind.cluster in containerLabelKeys',
+    },
   };
   const containerInfo = {
     Image: 'docker.io/kindest/node:foobar',
