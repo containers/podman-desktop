@@ -64,7 +64,6 @@ test('Should create a task and report 2 updates', async () => {
   expect(apiSenderSendMock).toHaveBeenNthCalledWith(3, 'task-updated', expect.objectContaining({ state: 'completed' }));
 });
 
-
 test('Should create a task and propagate the exception', async () => {
   const createTaskMock = vi.fn();
   const updateTaskMock = vi.fn();
@@ -120,7 +119,6 @@ test('Should create a task and propagate the result', async () => {
     status: 'success',
   });
 });
-
 
 test('The task should not be cancelable', async () => {
   const apiSender = {
