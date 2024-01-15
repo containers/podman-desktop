@@ -71,11 +71,7 @@ import Tooltip from '/@/lib/ui/Tooltip.svelte';
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Authentication Provider name and status item end -->
-
-          <div class="flex">
             {#if provider?.accounts?.length > 0}
               <!-- Authentication Provider Session label start -->
               <div class="pt-3 pb-3 text-sm">
@@ -100,20 +96,21 @@ import Tooltip from '/@/lib/ui/Tooltip.svelte';
                 {/each}
               </div>
             {/if}
-            <!-- Authentication Provider Session label start -->
-            <div class="ml-4 flex items-center">
-              {#if (provider.sessionRequests || []).length > 0}
-                {@const sessionRequests = provider.sessionRequests || []}
-                <DropdownMenu>
-                  {#each sessionRequests as request}
-                    <DropdownMenuItem
-                      title="Sign in to use {request.extensionLabel}"
-                      onClick="{() => window.requestAuthenticationProviderSignIn(request.id)}"
-                      icon="{faArrowRightToBracket}" />
-                  {/each}
-                </DropdownMenu>
-              {/if}
-            </div>
+          </div>
+
+          <!-- Authentication Provider Session label start -->
+          <div class="ml-4 flex items-center">
+            {#if (provider.sessionRequests || []).length > 0}
+              {@const sessionRequests = provider.sessionRequests || []}
+              <DropdownMenu>
+                {#each sessionRequests as request}
+                  <DropdownMenuItem
+                    title="Sign in to use {request.extensionLabel}"
+                    onClick="{() => window.requestAuthenticationProviderSignIn(request.id)}"
+                    icon="{faArrowRightToBracket}" />
+                {/each}
+              </DropdownMenu>
+            {/if}
           </div>
         </div>
       </div>
