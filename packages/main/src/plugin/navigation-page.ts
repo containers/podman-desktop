@@ -1,4 +1,4 @@
-export enum Page {
+export enum NavigationPage {
   CONTAINERS = 'containers',
   CONTAINER = 'container',
   CONTAINER_LOGS = 'container-logs',
@@ -13,9 +13,4 @@ export enum Page {
   CONTRIBUTION = 'contribution',
   TROUBLESHOOTING = 'troubleshooting',
   HELP = 'help',
-}
-
-export interface NavigateRequest {
-  page: Page;
-  parameters?: Record<string, string>;
 }

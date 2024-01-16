@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { Page } from '../../main/src/plugin/routes';
+import { NavigationPage } from '../../main/src/plugin/navigation-page';
 import { router } from 'tinro';
 
 /**
@@ -28,51 +28,51 @@ import { router } from 'tinro';
  */
 export type NavigationHint = 'root' | 'details' | 'tab';
 
-export const navigationHandle = (page: Page, parameters?: Record<string, string>) => {
+export const navigationHandle = (page: NavigationPage, parameters?: Record<string, string>) => {
   switch (page) {
-    case Page.CONTAINERS:
+    case NavigationPage.CONTAINERS:
       router.goto('/containers');
       break;
-    case Page.CONTAINER:
+    case NavigationPage.CONTAINER:
       parameters && router.goto(`/containers/${parameters['id']}/`);
       break;
-    case Page.CONTAINER_LOGS:
+    case NavigationPage.CONTAINER_LOGS:
       parameters && router.goto(`/containers/${parameters['id']}/logs`);
       break;
-    case Page.CONTAINER_INSPECT:
+    case NavigationPage.CONTAINER_INSPECT:
       parameters && router.goto(`/containers/${parameters['id']}/inspect`);
       break;
-    case Page.CONTAINER_TERMINAL:
+    case NavigationPage.CONTAINER_TERMINAL:
       parameters && router.goto(`/containers/${parameters['id']}/terminal`);
       break;
-    case Page.IMAGES:
+    case NavigationPage.IMAGES:
       router.goto(`/images`);
       break;
-    case Page.IMAGE:
+    case NavigationPage.IMAGE:
       if (parameters) {
         const tagBase64 = Buffer.from(parameters['tag']).toString('base64');
         router.goto(`/images/${parameters['id']}/${parameters['engineId']}/${tagBase64}`);
       }
       break;
-    case Page.PODS:
+    case NavigationPage.PODS:
       router.goto(`/pods`);
       break;
-    case Page.POD:
+    case NavigationPage.POD:
       parameters && router.goto(`/pods/${parameters['kind']}/${parameters['name']}/${parameters['engineId']}/`);
       break;
-    case Page.VOLUMES:
+    case NavigationPage.VOLUMES:
       router.goto('/volumes');
       break;
-    case Page.VOLUME:
+    case NavigationPage.VOLUME:
       parameters && router.goto(`/volumes/${parameters['name']}/`);
       break;
-    case Page.CONTRIBUTION:
+    case NavigationPage.CONTRIBUTION:
       parameters && router.goto(`/contribs/${parameters['name']}/`);
       break;
-    case Page.TROUBLESHOOTING:
+    case NavigationPage.TROUBLESHOOTING:
       router.goto('/troubleshooting/repair-connections');
       break;
-    case Page.HELP:
+    case NavigationPage.HELP:
       router.goto('/help');
       break;
   }

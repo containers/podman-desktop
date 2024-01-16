@@ -2703,59 +2703,34 @@ declare module '@podman-desktop/api' {
     ): Disposable;
   }
 
-  export interface ContainerNavigation {
+  export namespace navigation {
     // Navigate to the Containers page in Podman-Desktop
-    viewContainers(): Promise<void>;
+    export function navigateToContainers(): Promise<void>;
     // Navigate to the Container page in Podman-Desktop
-    viewContainer(id: string): Promise<void>;
+    export function navigateToContainer(id: string): Promise<void>;
     // Navigate to the Container logs tab in Podman-Desktop
-    viewContainerLogs(id: string): Promise<void>;
+    export function navigateToContainerLogs(id: string): Promise<void>;
     // Navigate to the Container inspect tab in Podman-Desktop
-    viewContainerInspect(id: string): Promise<void>;
+    export function navigateToContainerInspect(id: string): Promise<void>;
     // Navigate to the Container terminal tab in Podman-Desktop
-    viewContainerTerminal(id: string): Promise<void>;
-  }
+    export function navigateToContainerTerminal(id: string): Promise<void>;
 
-  export interface ImageNavigation {
     // Navigate to the Images page in Podman-Desktop
-    viewImages(): Promise<void>;
+    export function navigateToImages(): Promise<void>;
     // Navigate to a specific image referenced by id, engineId and tag in Podman-Desktop
-    viewImage(id: string, engineId: string, tag: string): Promise<void>;
-  }
+    export function navigateToImage(id: string, engineId: string, tag: string): Promise<void>;
 
-  export interface VolumeNavigation {
     // Navigate to the Volumes page in Podman-Desktop
-    viewVolumes(): Promise<void>;
+    export function navigateToVolumes(): Promise<void>;
     // Navigate to a specific volume in Podman-Desktop
-    viewVolume(name: string, engineId: string): Promise<void>;
-  }
+    export function navigateToVolume(name: string, engineId: string): Promise<void>;
 
-  export interface PodNavigation {
     // Navigate to the Pods page in Podman-Desktop
-    viewPods(): Promise<void>;
+    export function navigateToPods(): Promise<void>;
     // Navigate to a specific pod referenced by kind, name and engineId in Podman-Desktop
-    viewPod(kind: string, name: string, engineId: string): Promise<void>;
-  }
+    export function navigateToPod(kind: string, name: string, engineId: string): Promise<void>;
 
-  export interface ContributionNavigation {
     // Navigate to a specific contribution (aka extension page) referenced by name in Podman-Desktop
-    viewContribution(name: string): Promise<void>;
-  }
-
-  export namespace navigate {
-    // Navigation methods related to containers
-    export const container: ContainerNavigation;
-
-    // Navigation methods related to images
-    export const image: ImageNavigation;
-
-    // Navigation methods related to volumes
-    export const volume: VolumeNavigation;
-
-    // Navigation methods related to pods
-    export const pod: PodNavigation;
-
-    // Navigation methods related to contributions
-    export const contribution: ContributionNavigation;
+    export function navigateToContribution(name: string): Promise<void>;
   }
 }

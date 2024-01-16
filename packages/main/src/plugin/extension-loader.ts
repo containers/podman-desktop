@@ -70,8 +70,8 @@ import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plug
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { NotificationRegistry } from './notification-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
-import type { NavigateRequest } from '/@/plugin/routes.js';
-import { Page } from '/@/plugin/routes.js';
+import type { NavigationRequest } from '/@/plugin/navigation-request.js';
+import { NavigationPage } from '/@/plugin/navigation-page.js';
 
 /**
  * Handle the loading of an extension
@@ -1072,106 +1072,96 @@ export class ExtensionLoader {
       },
     };
 
-    const _navigate = (navigateRequest: NavigateRequest) => {
+    const navigateTo = (navigateRequest: NavigationRequest) => {
       this.apiSender.send('navigate', navigateRequest);
     };
-    const navigate: typeof containerDesktopAPI.navigate = {
-      container: {
-        viewContainers: async function (): Promise<void> {
-          _navigate({ page: Page.CONTAINERS });
-        },
-        viewContainer: async function (id: string): Promise<void> {
-          _navigate({
-            page: Page.CONTAINER,
-            parameters: {
-              id: id,
-            },
-          });
-        },
-        viewContainerLogs: async function (id: string): Promise<void> {
-          _navigate({
-            page: Page.CONTAINER_LOGS,
-            parameters: {
-              id: id,
-            },
-          });
-        },
-        viewContainerInspect: async function (id: string): Promise<void> {
-          _navigate({
-            page: Page.CONTAINER_INSPECT,
-            parameters: {
-              id: id,
-            },
-          });
-        },
-        viewContainerTerminal: async function (id: string): Promise<void> {
-          _navigate({
-            page: Page.CONTAINER_TERMINAL,
-            parameters: {
-              id: id,
-            },
-          });
-        },
+    const navigation: typeof containerDesktopAPI.navigation = {
+      navigateToContainers: async function (): Promise<void> {
+        navigateTo({ page: NavigationPage.CONTAINERS });
       },
-      image: {
-        viewImages: async function (): Promise<void> {
-          _navigate({
-            page: Page.IMAGES,
-          });
-        },
-        viewImage: async function (id: string, engineId: string, tag: string): Promise<void> {
-          _navigate({
-            page: Page.IMAGE,
-            parameters: {
-              id: id,
-              engineId: engineId,
-              tag: tag,
-            },
-          });
-        },
+      navigateToContainer: async function (id: string): Promise<void> {
+        navigateTo({
+          page: NavigationPage.CONTAINER,
+          parameters: {
+            id: id,
+          },
+        });
       },
-      volume: {
-        viewVolumes: async function (): Promise<void> {
-          _navigate({
-            page: Page.VOLUMES,
-          });
-        },
-        viewVolume: async function (name: string, engineId: string): Promise<void> {
-          _navigate({
-            page: Page.VOLUME,
-            parameters: {
-              name: name,
-              engineId: engineId,
-            },
-          });
-        },
+      navigateToContainerLogs: async function (id: string): Promise<void> {
+        navigateTo({
+          page: NavigationPage.CONTAINER_LOGS,
+          parameters: {
+            id: id,
+          },
+        });
       },
-      pod: {
-        viewPods: async function (): Promise<void> {
-          _navigate({
-            page: Page.PODS,
-          });
-        },
-        viewPod: async function (kind: string, name: string, engineId: string): Promise<void> {
-          _navigate({
-            page: Page.POD,
-            parameters: {
-              kind: kind,
-              name: name,
-              engineId: engineId,
-            },
-          });
-        },
+      navigateToContainerInspect: async function (id: string): Promise<void> {
+        navigateTo({
+          page: NavigationPage.CONTAINER_INSPECT,
+          parameters: {
+            id: id,
+          },
+        });
       },
-      contribution: {
-        viewContribution: async function (name: string): Promise<void> {
-          _navigate({
-            page: Page.CONTRIBUTION,
-            parameters: {
-              name: name,
-            },
-          });
-        },
+      navigateToContainerTerminal: async function (id: string): Promise<void> {
+        navigateTo({
+          page: NavigationPage.CONTAINER_TERMINAL,
+          parameters: {
+            id: id,
+          },
+        });
+      },
+      navigateToImages: async function (): Promise<void> {
+        navigateTo({
+          page: NavigationPage.IMAGES,
+        });
+      },
+      navigateToImage: async function (id: string, engineId: string, tag: string): Promise<void> {
+        navigateTo({
+          page: NavigationPage.IMAGE,
+          parameters: {
+            id: id,
+            engineId: engineId,
+            tag: tag,
+          },
+        });
+      },
+      navigateToVolumes: async function (): Promise<void> {
+        navigateTo({
+          page: NavigationPage.VOLUMES,
+        });
+      },
+      navigateToVolume: async function (name: string, engineId: string): Promise<void> {
+        navigateTo({
+          page: NavigationPage.VOLUME,
+          parameters: {
+            name: name,
+            engineId: engineId,
+          },
+        });
+      },
+      navigateToPods: async function (): Promise<void> {
+        navigateTo({
+          page: NavigationPage.PODS,
+        });
+      },
+      navigateToPod: async function (kind: string, name: string, engineId: string): Promise<void> {
+        navigateTo({
+          page: NavigationPage.POD,
+          parameters: {
+            kind: kind,
+            name: name,
+            engineId: engineId,
+          },
+        });
+      },
+      navigateToContribution: async function (name: string): Promise<void> {
+        navigateTo({
+          page: NavigationPage.CONTRIBUTION,
+          parameters: {
+            name: name,
+          },
+        });
       },
     };
 
@@ -1204,7 +1194,7 @@ export class ExtensionLoader {
       context: contextAPI,
       cli,
       imageChecker,
-      navigate,
+      navigation,
     };
   }
 
