@@ -29,7 +29,7 @@ import { SettingsExtensionsPage } from './model/pages/settings-extensions-page';
 import { ExtensionPage } from './model/pages/extension-page';
 
 const SETTINGS_EXTENSIONS_TABLE_PODMAN_TITLE: string = 'podman';
-const SETTINGS_EXTENSIONS_TABLE_EXTENSION_STATUS_LABEL: string = 'Connection Status Label';
+const SETTINGS_EXTENSIONS_TABLE_EXTENSION_STATUS_LABEL: string = 'connection-status-label';
 const PODMAN_EXTENSION_STATUS_RUNNING: string = 'RUNNING';
 const PODMAN_EXTENSION_STATUS_OFF: string = 'OFF';
 const SETTINGS_NAVBAR_PREFERENCES_PODMAN_EXTENSION: string = 'Extension: Podman';

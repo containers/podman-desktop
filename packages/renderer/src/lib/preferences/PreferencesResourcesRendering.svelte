@@ -449,9 +449,9 @@ function hasAnyConfiguration(provider: ProviderInfo) {
             {@const peerProperties = new PeerProperties()}
             <div class="px-5 py-2 w-[240px]" role="region" aria-label="{container.name}">
               <div class="float-right">
-                <Tooltip tip="{provider.name} Details" bottom>
+                <Tooltip tip="{provider.name} details" bottom>
                   <button
-                    aria-label="Connection Details"
+                    aria-label="{provider.name} details"
                     type="button"
                     on:click="{() =>
                       router.goto(
@@ -473,13 +473,13 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                   <ConnectionErrorInfoButton status="{status}" />
                 {/if}
               </div>
-              <div class="mt-2 text-gray-700 text-xs" aria-label="Connection Type">
+              <div class="mt-2 text-gray-700 text-xs" aria-label="{container.name} type">
                 {#if container.type === 'docker'}Docker{:else if container.type === 'podman'}Podman{/if} endpoint
               </div>
               <div
                 class="mt-1 my-auto text-xs truncate"
                 class:text-gray-900="{container.status !== 'started'}"
-                aria-label="Connection endpoint"
+                aria-label="{container.name} endpoint"
                 title="{container.endpoint.socketPath}">
                 {container.endpoint.socketPath}
               </div>
