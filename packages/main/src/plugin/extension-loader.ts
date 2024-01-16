@@ -1076,7 +1076,7 @@ export class ExtensionLoader {
       this.apiSender.send('navigate', navigateRequest);
     };
     const navigation: typeof containerDesktopAPI.navigation = {
-      navigateToContainers: async : Promise<void> => {
+      navigateToContainers: async (): Promise<void> => {
         navigateTo({ page: NavigationPage.CONTAINERS });
       },
       navigateToContainer: async (id: string): Promise<void> => {
