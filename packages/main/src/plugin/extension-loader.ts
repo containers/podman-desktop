@@ -1072,105 +1072,105 @@ export class ExtensionLoader {
       },
     };
 
-    const apiSender = this.apiSender;
+    const _navigate = (navigateRequest: NavigateRequest) => {
+      this.apiSender.send('navigate', navigateRequest);
+    };
     const navigate: typeof containerDesktopAPI.navigate = {
       container: {
         viewContainers: async function (): Promise<void> {
-          apiSender.send('navigate', {
-            page: Page.CONTAINERS,
-          } as NavigateRequest);
+          _navigate({ page: Page.CONTAINERS });
         },
         viewContainer: async function (id: string): Promise<void> {
-          apiSender.send('navigate', {
+          _navigate({
             page: Page.CONTAINER,
             parameters: {
               id: id,
             },
-          } as NavigateRequest);
+          });
         },
         viewContainerLogs: async function (id: string): Promise<void> {
-          apiSender.send('navigate', {
+          _navigate({
             page: Page.CONTAINER_LOGS,
             parameters: {
               id: id,
             },
-          } as NavigateRequest);
+          });
         },
         viewContainerInspect: async function (id: string): Promise<void> {
-          apiSender.send('navigate', {
+          _navigate({
             page: Page.CONTAINER_INSPECT,
             parameters: {
               id: id,
             },
-          } as NavigateRequest);
+          });
         },
         viewContainerTerminal: async function (id: string): Promise<void> {
-          apiSender.send('navigate', {
+          _navigate({
             page: Page.CONTAINER_TERMINAL,
             parameters: {
               id: id,
             },
-          } as NavigateRequest);
+          });
         },
       },
       image: {
         viewImages: async function (): Promise<void> {
-          apiSender.send('navigate', {
+          _navigate({
             page: Page.IMAGES,
-          } as NavigateRequest);
+          });
         },
         viewImage: async function (id: string, engineId: string, tag: string): Promise<void> {
-          apiSender.send('navigate', {
+          _navigate({
             page: Page.IMAGE,
             parameters: {
               id: id,
               engineId: engineId,
               tag: tag,
             },
-          } as NavigateRequest);
+          });
         },
       },
       volume: {
         viewVolumes: async function (): Promise<void> {
-          apiSender.send('navigate', {
+          _navigate({
             page: Page.VOLUMES,
-          } as NavigateRequest);
+          });
         },
         viewVolume: async function (name: string, engineId: string): Promise<void> {
-          apiSender.send('navigate', {
+          _navigate({
             page: Page.VOLUME,
             parameters: {
               name: name,
               engineId: engineId,
             },
-          } as NavigateRequest);
+          });
         },
       },
       pod: {
         viewPods: async function (): Promise<void> {
-          apiSender.send('navigate', {
+          _navigate({
             page: Page.PODS,
-          } as NavigateRequest);
+          });
         },
         viewPod: async function (kind: string, name: string, engineId: string): Promise<void> {
-          apiSender.send('navigate', {
+          _navigate({
             page: Page.POD,
             parameters: {
               kind: kind,
               name: name,
               engineId: engineId,
             },
-          } as NavigateRequest);
+          });
         },
       },
       contribution: {
         viewContribution: async function (name: string): Promise<void> {
-          apiSender.send('navigate', {
+          _navigate({
             page: Page.CONTRIBUTION,
             parameters: {
               name: name,
             },
-          } as NavigateRequest);
+          });
         },
       },
     };
