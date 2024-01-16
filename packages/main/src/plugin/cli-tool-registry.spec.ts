@@ -49,6 +49,7 @@ import type { CliToolOptions, CliToolUpdate, Logger } from '@podman-desktop/api'
 import type { NotificationRegistry } from './notification-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
 import type { CliToolImpl } from './cli-tool-impl.js';
+import type { ContributionManager } from '/@/plugin/contribution-manager.js';
 
 const apiSender: ApiSenderType = {
   send: vi.fn(),
@@ -95,6 +96,7 @@ suite('cli module', () => {
       cliToolRegistry,
       vi.fn() as unknown as NotificationRegistry,
       vi.fn() as unknown as ImageCheckerImpl,
+      vi.fn() as unknown as ContributionManager,
     );
   });
 

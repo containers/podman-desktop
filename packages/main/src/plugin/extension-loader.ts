@@ -72,6 +72,7 @@ import type { NotificationRegistry } from './notification-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
 import type { NavigationRequest } from '/@/plugin/navigation-request.js';
 import { NavigationPage } from '/@/plugin/navigation-page.js';
+import type { ContributionManager } from '/@/plugin/contribution-manager.js';
 
 /**
  * Handle the loading of an extension
@@ -163,6 +164,7 @@ export class ExtensionLoader {
     private cliToolRegistry: CliToolRegistry,
     private notificationRegistry: NotificationRegistry,
     private imageCheckerProvider: ImageCheckerImpl,
+    private contributionManager: ContributionManager,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -1075,11 +1077,50 @@ export class ExtensionLoader {
     const navigateTo = (navigateRequest: NavigationRequest) => {
       this.apiSender.send('navigate', navigateRequest);
     };
+    const assertContainerIdExist = async (id: string) => {
+      const containers = await containerEngine.listContainers();
+      if (containers.find(container => container.Id === id) === undefined)
+        throw new Error(`Container with id ${id} cannot be found.`);
+    };
+    const assertImageExist = async (id: string, engineId: string, tag: string) => {
+      const images = await containerEngine.listImages();
+      const imageInfo = images.find(c => c.Id === id && c.engineId === engineId);
+      if (imageInfo === undefined) {
+        throw new Error(`Image with id ${id} and engine id ${engineId} cannot be found.`);
+      }
+      if (imageInfo.RepoTags?.find(repoTag => repoTag === tag) === undefined) {
+        throw new Error(`Image with id ${id}, engine id ${engineId} and tag ${tag} cannot be found.`);
+      }
+    };
+    const assertVolumeExist = async (name: string, engineId: string) => {
+      const volumes = await containerProviderRegistry.listVolumes();
+      const allVolumes = volumes.map(volume => volume.Volumes).flat();
+      const matchingVolume = allVolumes.find(volume => volume.Name === name && volume.engineId === engineId);
+      if (matchingVolume === undefined) {
+        throw new Error(`Volume with name ${name} and engine id ${engineId} cannot be found.`);
+      }
+    };
+    const assertPodExist = async (kind: string, name: string, engineId: string) => {
+      const pods = await containerProviderRegistry.listPods();
+      const matchingPod = pods.find(
+        podInPods => podInPods.Name === name && podInPods.engineId === engineId && kind === podInPods.kind,
+      );
+      if (matchingPod === undefined) {
+        throw new Error(`Pod with kind ${kind}, name ${name} and engine id ${engineId} cannot be found.`);
+      }
+    };
+    const assertContributionExist = async (name: string) => {
+      const contribs = this.contributionManager.listContributions();
+      if (contribs.find(contrib => contrib.name === name) === undefined) {
+        throw new Error(`Pod with name ${name} cannot be found.`);
+      }
+    };
     const navigation: typeof containerDesktopAPI.navigation = {
       navigateToContainers: async (): Promise<void> => {
         navigateTo({ page: NavigationPage.CONTAINERS });
       },
       navigateToContainer: async (id: string): Promise<void> => {
+        await assertContainerIdExist(id);
         navigateTo({
           page: NavigationPage.CONTAINER,
           parameters: {
@@ -1088,6 +1129,7 @@ export class ExtensionLoader {
         });
       },
       navigateToContainerLogs: async (id: string): Promise<void> => {
+        await assertContainerIdExist(id);
         navigateTo({
           page: NavigationPage.CONTAINER_LOGS,
           parameters: {
@@ -1096,6 +1138,7 @@ export class ExtensionLoader {
         });
       },
       navigateToContainerInspect: async (id: string): Promise<void> => {
+        await assertContainerIdExist(id);
         navigateTo({
           page: NavigationPage.CONTAINER_INSPECT,
           parameters: {
@@ -1104,6 +1147,7 @@ export class ExtensionLoader {
         });
       },
       navigateToContainerTerminal: async (id: string): Promise<void> => {
+        await assertContainerIdExist(id);
         navigateTo({
           page: NavigationPage.CONTAINER_TERMINAL,
           parameters: {
@@ -1117,6 +1161,7 @@ export class ExtensionLoader {
         });
       },
       navigateToImage: async (id: string, engineId: string, tag: string): Promise<void> => {
+        await assertImageExist(id, engineId, tag);
         navigateTo({
           page: NavigationPage.IMAGE,
           parameters: {
@@ -1132,6 +1177,7 @@ export class ExtensionLoader {
         });
       },
       navigateToVolume: async (name: string, engineId: string): Promise<void> => {
+        await assertVolumeExist(name, engineId);
         navigateTo({
           page: NavigationPage.VOLUME,
           parameters: {
@@ -1146,6 +1192,7 @@ export class ExtensionLoader {
         });
       },
       navigateToPod: async (kind: string, name: string, engineId: string): Promise<void> => {
+        await assertPodExist(kind, name, engineId);
         navigateTo({
           page: NavigationPage.POD,
           parameters: {
@@ -1156,6 +1203,7 @@ export class ExtensionLoader {
         });
       },
       navigateToContribution: async (name: string): Promise<void> => {
+        await assertContributionExist(name);
         navigateTo({
           page: NavigationPage.CONTRIBUTION,
           parameters: {

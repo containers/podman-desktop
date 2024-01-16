@@ -56,6 +56,7 @@ import type { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { NotificationRegistry } from './notification-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
+import type { ContributionManager } from '/@/plugin/contribution-manager.js';
 
 vi.mock('../util.js', async () => {
   return {
@@ -278,6 +279,7 @@ suite('Authentication', () => {
       vi.fn() as unknown as CliToolRegistry,
       vi.fn() as unknown as NotificationRegistry,
       vi.fn() as unknown as ImageCheckerImpl,
+      vi.fn() as unknown as ContributionManager,
     );
     providerMock = {
       onDidChangeSessions: vi.fn(),

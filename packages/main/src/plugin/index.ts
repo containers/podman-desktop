@@ -745,6 +745,8 @@ export class PluginSystem {
 
     const imageChecker = new ImageCheckerImpl(apiSender);
 
+    const contributionManager = new ContributionManager(apiSender, directories, containerProviderRegistry, exec);
+
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
       menuRegistry,
@@ -774,6 +776,7 @@ export class PluginSystem {
       cliToolRegistry,
       notificationRegistry,
       imageChecker,
+      contributionManager,
     );
     await this.extensionLoader.init();
 
@@ -787,7 +790,6 @@ export class PluginSystem {
     // setup security restrictions on links
     await this.setupSecurityRestrictionsOnLinks(messageBox);
 
-    const contributionManager = new ContributionManager(apiSender, directories, containerProviderRegistry, exec);
     this.ipcHandle('container-provider-registry:listContainers', async (): Promise<ContainerInfo[]> => {
       return containerProviderRegistry.listContainers();
     });
