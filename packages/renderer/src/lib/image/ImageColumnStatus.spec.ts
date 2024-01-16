@@ -40,6 +40,7 @@ test('Expect simple column styling', async () => {
     selected: false,
     inUse: true,
     icon: ImageIcon,
+    badges: [],
   };
   render(ImageColumnStatus, { object: image });
 

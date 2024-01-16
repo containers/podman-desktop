@@ -25,6 +25,7 @@ import type { ImageInfoUI } from './ImageInfoUI';
 import { router } from 'tinro';
 import { fireEvent } from '@testing-library/dom';
 import ImageIcon from '../images/ImageIcon.svelte';
+import { AppearanceSettings } from '../../../../main/src/plugin/appearance-settings';
 
 const image: ImageInfoUI = {
   id: 'my-image',
@@ -41,6 +42,7 @@ const image: ImageInfoUI = {
   selected: false,
   inUse: false,
   icon: ImageIcon,
+  badges: [],
 };
 
 test('Expect simple column styling', async () => {
@@ -73,4 +75,90 @@ test('Expect clicking works', async () => {
   fireEvent.click(text);
 
   expect(routerGotoSpy).toBeCalledWith('/images/my-image/podman/repoTag/summary');
+});
+
+test('Expect badge with simple color', async () => {
+  const imageWithBadges: ImageInfoUI = {
+    ...image,
+    badges: [
+      {
+        label: 'my-badge',
+        color: '#ff0000',
+      },
+    ],
+  };
+  render(ImageColumnName, { object: imageWithBadges });
+
+  // wait for image to be rendered using timeout
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  const text = screen.getByText(image.name);
+  expect(text).toBeInTheDocument();
+
+  // get label 'my-badge'
+  const badge = screen.getByText('my-badge');
+  expect(badge).toBeInTheDocument();
+
+  // check background color
+  expect(badge).toHaveStyle('background-color: #ff0000');
+});
+
+test('Expect badge with dark color', async () => {
+  (window as any).getConfigurationValue = vi.fn().mockResolvedValue(AppearanceSettings.DarkEnumValue);
+  const imageWithBadges: ImageInfoUI = {
+    ...image,
+    badges: [
+      {
+        label: 'my-dark-badge',
+        color: {
+          dark: '#0000ff',
+          light: '#00ff00',
+        },
+      },
+    ],
+  };
+  render(ImageColumnName, { object: imageWithBadges });
+
+  // wait for image to be rendered using timeout
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  const text = screen.getByText(image.name);
+  expect(text).toBeInTheDocument();
+
+  // get label 'my-badge'
+  const badge = screen.getByText('my-dark-badge');
+  expect(badge).toBeInTheDocument();
+
+  // check background color
+  expect(badge).toHaveStyle('background-color: #0000ff');
+});
+
+test('Expect badge with light color', async () => {
+  (window as any).getConfigurationValue = vi.fn().mockResolvedValue(AppearanceSettings.LightEnumValue);
+  const imageWithBadges: ImageInfoUI = {
+    ...image,
+    badges: [
+      {
+        label: 'my-light-badge',
+        color: {
+          dark: '#0000ff',
+          light: '#00ff00',
+        },
+      },
+    ],
+  };
+  render(ImageColumnName, { object: imageWithBadges });
+
+  // wait for image to be rendered using timeout
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  const text = screen.getByText(image.name);
+  expect(text).toBeInTheDocument();
+
+  // get label 'my-badge'
+  const badge = screen.getByText('my-light-badge');
+  expect(badge).toBeInTheDocument();
+
+  // check background color
+  expect(badge).toHaveStyle('background-color: #00ff00');
 });

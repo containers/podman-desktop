@@ -30,7 +30,7 @@ import ImageColumnSize from './ImageColumnSize.svelte';
 import ImageColumnActions from './ImageColumnActions.svelte';
 import type { ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
 import { viewsContributions } from '/@/stores/views';
-import { IMAGE_VIEW_ICONS, IMAGE_LIST_VIEW_ICONS } from '../view/views';
+import { IMAGE_VIEW_ICONS, IMAGE_LIST_VIEW_ICONS, IMAGE_VIEW_BADGES, IMAGE_LIST_VIEW_BADGES } from '../view/views';
 import type { ContextUI } from '../context/context';
 import { context } from '../../stores/context';
 
@@ -115,7 +115,13 @@ onMount(async () => {
 
   viewsUnsubscribe = viewsContributions.subscribe(value => {
     viewContributions =
-      value.filter(view => view.viewId === IMAGE_LIST_VIEW_ICONS || view.viewId === IMAGE_VIEW_ICONS) || [];
+      value.filter(
+        view =>
+          view.viewId === IMAGE_LIST_VIEW_ICONS ||
+          view.viewId === IMAGE_VIEW_ICONS ||
+          view.viewId === IMAGE_LIST_VIEW_BADGES ||
+          view.viewId === IMAGE_VIEW_BADGES,
+      ) || [];
     if (images.length > 0) {
       updateImages(globalContext);
     }
