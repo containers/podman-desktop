@@ -70,6 +70,7 @@ import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plug
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { NotificationRegistry } from './notification-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
+import { Buffer } from 'buffer';
 
 /**
  * Handle the loading of an extension
@@ -1070,6 +1071,57 @@ export class ExtensionLoader {
       },
     };
 
+    const apiSender = this.apiSender;
+    const navigate: typeof containerDesktopAPI.navigate = {
+      container: {
+        viewContainers: async function (): Promise<void> {
+          apiSender.send('navigate', '/containers');
+        },
+        viewContainer: async function (id: string): Promise<void> {
+          apiSender.send('navigate', `/containers/${id}/`);
+        },
+        viewContainerLogs: async function (id: string): Promise<void> {
+          apiSender.send('navigate', `/containers/${id}/logs`);
+        },
+        viewContainerInspect: async function (id: string): Promise<void> {
+          apiSender.send('navigate', `/containers/${id}/inspect`);
+        },
+        viewContainerTerminal: async function (id: string): Promise<void> {
+          apiSender.send('navigate', `/containers/${id}/terminal`);
+        },
+      },
+      image: {
+        viewImages: async function (): Promise<void> {
+          apiSender.send('navigate', '/images');
+        },
+        viewImage: async function (id: string, engineId: string, tag: string): Promise<void> {
+          const base64Tag = Buffer.from(tag, 'binary').toString('base64');
+          apiSender.send('navigate', `/images/${id}/${engineId}/${base64Tag}`);
+        },
+      },
+      volume: {
+        viewVolumes: async function (): Promise<void> {
+          apiSender.send('navigate', '/volumes');
+        },
+        viewVolume: async function (name: string, engineId: string): Promise<void> {
+          apiSender.send('navigate', `/volumes/${name}/${engineId}`);
+        },
+      },
+      pod: {
+        viewPods: async function (): Promise<void> {
+          apiSender.send('navigate', '/pods');
+        },
+        viewPod: async function (kind: string, name: string, engineId: string): Promise<void> {
+          apiSender.send('navigate', `/pods/${kind}/${name}/${engineId}/`);
+        },
+      },
+      contribution: {
+        viewContribution: async function (name: string): Promise<void> {
+          apiSender.send('navigate', `/contribs/${name}/`);
+        },
+      },
+    };
+
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
@@ -1099,6 +1151,7 @@ export class ExtensionLoader {
       context: contextAPI,
       cli,
       imageChecker,
+      navigate,
     };
   }
 

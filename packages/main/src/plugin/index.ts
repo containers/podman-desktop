@@ -700,11 +700,11 @@ export class PluginSystem {
     });
 
     commandRegistry.registerCommand('help', () => {
-      apiSender.send('display-help', '');
+      apiSender.send('navigate', '/help');
     });
 
     commandRegistry.registerCommand('troubleshooting', () => {
-      apiSender.send('display-troubleshooting', '');
+      apiSender.send('navigate', '/troubleshooting/repair-connections');
     });
 
     // register appearance (light, dark, auto being system)

@@ -54,14 +54,8 @@ router.subscribe(function (navigation) {
   }
 });
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-window.events?.receive('display-help', () => {
-  router.goto('/help');
-});
-
-window.events?.receive('display-troubleshooting', () => {
-  router.goto('/troubleshooting/repair-connections');
+window.events?.receive('navigate', (path: string) => {
+  router.goto(path);
 });
 </script>
 
