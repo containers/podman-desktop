@@ -28,22 +28,22 @@ import { router } from 'tinro';
  */
 export type NavigationHint = 'root' | 'details' | 'tab';
 
-export const navigationHandle = (page: NavigationPage, parameters?: Record<string, string>) => {
+export const navigationHandle = (page: NavigationPage, parameters?: { [key: string]: string }) => {
   switch (page) {
     case NavigationPage.CONTAINERS:
       router.goto('/containers');
       break;
     case NavigationPage.CONTAINER:
-      parameters && router.goto(`/containers/${parameters['id']}/`);
+      router.goto(`/containers/${parameters?.['id']}/`);
       break;
     case NavigationPage.CONTAINER_LOGS:
-      parameters && router.goto(`/containers/${parameters['id']}/logs`);
+      router.goto(`/containers/${parameters?.['id']}/logs`);
       break;
     case NavigationPage.CONTAINER_INSPECT:
-      parameters && router.goto(`/containers/${parameters['id']}/inspect`);
+      router.goto(`/containers/${parameters?.['id']}/inspect`);
       break;
     case NavigationPage.CONTAINER_TERMINAL:
-      parameters && router.goto(`/containers/${parameters['id']}/terminal`);
+      router.goto(`/containers/${parameters?.['id']}/terminal`);
       break;
     case NavigationPage.IMAGES:
       router.goto(`/images`);
@@ -58,16 +58,16 @@ export const navigationHandle = (page: NavigationPage, parameters?: Record<strin
       router.goto(`/pods`);
       break;
     case NavigationPage.POD:
-      parameters && router.goto(`/pods/${parameters['kind']}/${parameters['name']}/${parameters['engineId']}/`);
+      router.goto(`/pods/${parameters?.['kind']}/${parameters?.['name']}/${parameters?.['engineId']}/`);
       break;
     case NavigationPage.VOLUMES:
       router.goto('/volumes');
       break;
     case NavigationPage.VOLUME:
-      parameters && router.goto(`/volumes/${parameters['name']}/`);
+      router.goto(`/volumes/${parameters?.['name']}/`);
       break;
     case NavigationPage.CONTRIBUTION:
-      parameters && router.goto(`/contribs/${parameters['name']}/`);
+      router.goto(`/contribs/${parameters?.['name']}/`);
       break;
     case NavigationPage.TROUBLESHOOTING:
       router.goto('/troubleshooting/repair-connections');

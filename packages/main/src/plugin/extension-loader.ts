@@ -1079,7 +1079,7 @@ export class ExtensionLoader {
       navigateToContainers: async function (): Promise<void> {
         navigateTo({ page: NavigationPage.CONTAINERS });
       },
-      navigateToContainer: async function (id: string): Promise<void> {
+      navigateToContainer: async (id: string): Promise<void> => {
         navigateTo({
           page: NavigationPage.CONTAINER,
           parameters: {
@@ -1087,7 +1087,7 @@ export class ExtensionLoader {
           },
         });
       },
-      navigateToContainerLogs: async function (id: string): Promise<void> {
+      navigateToContainerLogs: async (id: string): Promise<void> => {
         navigateTo({
           page: NavigationPage.CONTAINER_LOGS,
           parameters: {
@@ -1095,7 +1095,7 @@ export class ExtensionLoader {
           },
         });
       },
-      navigateToContainerInspect: async function (id: string): Promise<void> {
+      navigateToContainerInspect: async (id: string): Promise<void> => {
         navigateTo({
           page: NavigationPage.CONTAINER_INSPECT,
           parameters: {
@@ -1103,7 +1103,7 @@ export class ExtensionLoader {
           },
         });
       },
-      navigateToContainerTerminal: async function (id: string): Promise<void> {
+      navigateToContainerTerminal: async (id: string): Promise<void> => {
         navigateTo({
           page: NavigationPage.CONTAINER_TERMINAL,
           parameters: {
@@ -1111,12 +1111,12 @@ export class ExtensionLoader {
           },
         });
       },
-      navigateToImages: async function (): Promise<void> {
+      navigateToImages: async (): Promise<void> => {
         navigateTo({
           page: NavigationPage.IMAGES,
         });
       },
-      navigateToImage: async function (id: string, engineId: string, tag: string): Promise<void> {
+      navigateToImage: async (id: string, engineId: string, tag: string): Promise<void> => {
         navigateTo({
           page: NavigationPage.IMAGE,
           parameters: {
@@ -1126,12 +1126,12 @@ export class ExtensionLoader {
           },
         });
       },
-      navigateToVolumes: async function (): Promise<void> {
+      navigateToVolumes: async (): Promise<void> => {
         navigateTo({
           page: NavigationPage.VOLUMES,
         });
       },
-      navigateToVolume: async function (name: string, engineId: string): Promise<void> {
+      navigateToVolume: async (name: string, engineId: string): Promise<void> => {
         navigateTo({
           page: NavigationPage.VOLUME,
           parameters: {
@@ -1140,12 +1140,12 @@ export class ExtensionLoader {
           },
         });
       },
-      navigateToPods: async function (): Promise<void> {
+      navigateToPods: async (): Promise<void> => {
         navigateTo({
           page: NavigationPage.PODS,
         });
       },
-      navigateToPod: async function (kind: string, name: string, engineId: string): Promise<void> {
+      navigateToPod: async (kind: string, name: string, engineId: string): Promise<void> => {
         navigateTo({
           page: NavigationPage.POD,
           parameters: {
@@ -1155,7 +1155,7 @@ export class ExtensionLoader {
           },
         });
       },
-      navigateToContribution: async function (name: string): Promise<void> {
+      navigateToContribution: async (name: string): Promise<void> => {
         navigateTo({
           page: NavigationPage.CONTRIBUTION,
           parameters: {
