@@ -156,12 +156,12 @@ export class KubernetesClient {
 
     // add configuration
     const kubeconfigConfigurationNode: IConfigurationNode = {
-      id: 'preferences.Kubernetes.Kubeconfig',
-      title: 'Path to the kubeconfig file',
+      id: 'preferences.kubernetes',
+      title: 'Kubernetes',
       type: 'object',
       properties: {
         ['kubernetes.Kubeconfig']: {
-          description: 'Kubeconfig path to use for accessing clusters. (Default is usually ~/.kube/config)',
+          description: 'Path to the Kubeconfig file for accessing clusters. (Default is usually ~/.kube/config)',
           type: 'string',
           default: defaultKubeconfigPath,
           format: 'file',
