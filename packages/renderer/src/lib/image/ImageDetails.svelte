@@ -20,9 +20,15 @@ import type { Unsubscriber } from 'svelte/motion';
 import type { ImageInfo } from '@podman-desktop/api';
 import { viewsContributions } from '/@/stores/views';
 import type { ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
-import { IMAGE_DETAILS_VIEW_ICONS, IMAGE_VIEW_ICONS } from '../view/views';
+import {
+  IMAGE_DETAILS_VIEW_BADGES,
+  IMAGE_DETAILS_VIEW_ICONS,
+  IMAGE_VIEW_BADGES,
+  IMAGE_VIEW_ICONS,
+} from '../view/views';
 import { context } from '/@/stores/context';
 import type { ContextUI } from '../context/context';
+import Badge from '../ui/Badge.svelte';
 
 export let imageID: string;
 export let engineId: string;
@@ -82,7 +88,13 @@ onMount(() => {
 
   viewsUnsubscribe = viewsContributions.subscribe(value => {
     viewContributions =
-      value.filter(view => view.viewId === IMAGE_DETAILS_VIEW_ICONS || view.viewId === IMAGE_VIEW_ICONS) || [];
+      value.filter(
+        view =>
+          view.viewId === IMAGE_DETAILS_VIEW_ICONS ||
+          view.viewId === IMAGE_VIEW_ICONS ||
+          view.viewId === IMAGE_VIEW_BADGES ||
+          view.viewId === IMAGE_DETAILS_VIEW_BADGES,
+      ) || [];
     updateImage();
   });
 
@@ -109,6 +121,15 @@ onDestroy(() => {
 {#if image}
   <DetailsPage title="{image.name}" titleDetail="{image.shortId}" subtitle="{image.tag}" bind:this="{detailsPage}">
     <StatusIcon slot="icon" icon="{image.icon}" size="{24}" status="{image.inUse ? 'USED' : 'UNUSED'}" />
+    <svelte:fragment slot="subtitle">
+      {#if image.badges.length}
+        <div class="flex flex-row">
+          {#each image.badges as badge}
+            <Badge color="{badge.color}" label="{badge.label}" />
+          {/each}
+        </div>
+      {/if}
+    </svelte:fragment>
     <ImageActions
       slot="actions"
       image="{image}"

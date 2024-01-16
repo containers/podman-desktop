@@ -20,3 +20,6 @@ export const CONTAINER_LIST_VIEW = 'icons/containersList';
 export const IMAGE_LIST_VIEW_ICONS = 'icons/imagesList';
 export const IMAGE_DETAILS_VIEW_ICONS = 'icons/imageDetails';
 export const IMAGE_VIEW_ICONS = 'icons/image';
+export const IMAGE_VIEW_BADGES = 'badges/image';
+export const IMAGE_DETAILS_VIEW_BADGES = 'badges/imageDetails';
+export const IMAGE_LIST_VIEW_BADGES = 'badges/imagesList';

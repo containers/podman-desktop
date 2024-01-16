@@ -101,3 +101,39 @@ test('check parsing of image info without labels', async () => {
   } as unknown as ImageInfo;
   imageUtils.adaptContextOnImage(context, imageInfo);
 });
+
+test('should expect badge to be undefined if no context/view is passed', async () => {
+  const imageInfo = {
+    Id: '12345',
+    Labels: {},
+  } as unknown as ImageInfo;
+  const badges = imageUtils.computeBagdes(imageInfo);
+  expect(badges).toStrictEqual([]);
+});
+
+test('should expect badge to be valid value with context/view set', async () => {
+  const context = new ContextUI();
+  const view: ViewInfoUI = {
+    extensionId: 'extension',
+    viewId: 'id',
+    value: {
+      badge: {
+        label: 'my-custom-badge',
+        color: '#ff0000',
+      },
+      when: 'io.x-k8s.kind.cluster in imageLabelKeys',
+    },
+  };
+  const imageInfo = {
+    Id: '12345',
+    Labels: {
+      'io.x-k8s.kind.cluster': 'ok',
+    },
+  } as unknown as ImageInfo;
+  const badges = imageUtils.computeBagdes(imageInfo, context, [view]);
+  // size should be one
+  expect(badges.length).toBe(1);
+
+  expect(badges[0].label).toBe('my-custom-badge');
+  expect(badges[0].color).toBe('#ff0000');
+});

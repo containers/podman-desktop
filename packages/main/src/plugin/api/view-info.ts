@@ -15,19 +15,37 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-export type ViewContribution = ViewContributionIcon;
+export type ViewContribution = ViewContributionIcon | ViewContributionBadge;
 
 export interface ViewContributionIcon {
   when: string | undefined;
   icon: string;
 }
 
+export interface ViewContributionBadge {
+  when: string | undefined;
+  badge: ViewContributionBadgeValue;
+}
+
+export interface ViewContributionBadgeValue {
+  label: string;
+  color?: string | { light: string; dark: string };
+}
+
 export interface ViewInfoUI {
   extensionId: string;
   viewId: string;
-  value: ViewContributionIcon;
+  value: ViewContributionIcon | ViewContributionBadge;
 }
 
-export function isViewContributionIcon(value: ViewContributionIcon): value is ViewContributionIcon {
+export function isViewContributionIcon(
+  value: ViewContributionIcon | ViewContributionBadge,
+): value is ViewContributionIcon {
   return (value as ViewContributionIcon).icon !== undefined;
+}
+
+export function isViewContributionBadge(
+  value: ViewContributionIcon | ViewContributionBadge,
+): value is ViewContributionBadge {
+  return (value as ViewContributionBadge).badge !== undefined;
 }

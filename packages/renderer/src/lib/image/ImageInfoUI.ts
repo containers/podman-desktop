@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ViewContributionBadgeValue } from '../../../../main/src/plugin/api/view-info';
+
 export interface ImageInfoUI {
   id: string;
   shortId: string;
@@ -34,4 +36,5 @@ export interface ImageInfoUI {
   inUse: boolean;
   icon: any;
   labels?: { [label: string]: string };
+  badges: ViewContributionBadgeValue[];
 }

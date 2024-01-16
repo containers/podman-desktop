@@ -84,6 +84,7 @@ async function createRunImage(entrypoint?: string | string[], cmd?: string[]) {
     shortId: '',
     tag: '',
     icon: ImageIcon,
+    badges: [],
   });
   const imageInfo: ImageInspectInfo = {
     Architecture: '',

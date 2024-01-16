@@ -23,7 +23,12 @@ import humanizeDuration from 'humanize-duration';
 import { filesize } from 'filesize';
 import { Buffer } from 'buffer';
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
-import { isViewContributionIcon, type ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
+import {
+  isViewContributionBadge,
+  isViewContributionIcon,
+  type ViewContributionBadgeValue,
+  type ViewInfoUI,
+} from '../../../../main/src/plugin/api/view-info';
 import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
 import ImageIcon from '../images/ImageIcon.svelte';
@@ -92,6 +97,32 @@ export class ImageUtils {
     return containersInfo.some(container => container.ImageID === imageInfo.Id);
   }
 
+  computeBagdes(
+    imageInfo: ImageInfo,
+    context?: ContextUI,
+    viewContributions?: ViewInfoUI[],
+  ): ViewContributionBadgeValue[] {
+    if (!context || !viewContributions) {
+      return [];
+    }
+    const badges: ViewContributionBadgeValue[] = [];
+    if (context && viewContributions) {
+      for (const contribution of viewContributions) {
+        if (isViewContributionBadge(contribution.value)) {
+          // adapt the context to work with images (e.g save image labels into the context)
+          this.adaptContextOnImage(context, imageInfo);
+          // deserialize the when clause
+          const whenDeserialized = ContextKeyExpr.deserialize(contribution.value.when);
+          // if the when clause has to be applied to this image
+          if (whenDeserialized?.evaluate(context)) {
+            badges.push(contribution.value.badge);
+          }
+        }
+      }
+    }
+    return badges;
+  }
+
   iconClass(imageInfo: ImageInfo, context?: ContextUI, viewContributions?: ViewInfoUI[]): string | undefined {
     if (!context || !viewContributions) {
       return undefined;
@@ -128,6 +159,7 @@ export class ImageUtils {
     viewContributions?: ViewInfoUI[],
   ): ImageInfoUI[] {
     const icon = this.iconClass(imageInfo, context, viewContributions) || ImageIcon;
+    const badges = this.computeBagdes(imageInfo, context, viewContributions);
 
     if (!imageInfo.RepoTags) {
       return [
@@ -145,6 +177,7 @@ export class ImageUtils {
           base64RepoTag: this.getBase64EncodedName('<none>'),
           selected: false,
           inUse: this.getInUse(imageInfo, containersInfo),
+          badges,
           icon,
           labels: imageInfo.Labels,
         },
@@ -165,6 +198,7 @@ export class ImageUtils {
           base64RepoTag: this.getBase64EncodedName(repoTag),
           selected: false,
           inUse: this.getInUse(imageInfo, containersInfo),
+          badges,
           icon,
           labels: imageInfo.Labels,
         };

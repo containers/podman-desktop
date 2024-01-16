@@ -26,7 +26,7 @@ import { imagesInfos } from '../../stores/images';
 import { get } from 'svelte/store';
 import { providerInfos } from '../../stores/providers';
 import { viewsContributions } from '/@/stores/views';
-import { IMAGE_LIST_VIEW_ICONS, IMAGE_VIEW_ICONS } from '../view/views';
+import { IMAGE_LIST_VIEW_BADGES, IMAGE_LIST_VIEW_ICONS, IMAGE_VIEW_BADGES, IMAGE_VIEW_ICONS } from '../view/views';
 
 const listImagesMock = vi.fn();
 const getProviderInfosMock = vi.fn();
@@ -265,6 +265,86 @@ describe('Contributions', () => {
       // now assert status item contains the icon
       const subElement = statusElement.getElementsByClassName('podman-desktop-icon-my-custom-icon');
       expect(subElement.length).toBe(1);
+    },
+  );
+
+  test.each([{ viewIdContrib: IMAGE_VIEW_BADGES }, { viewIdContrib: IMAGE_LIST_VIEW_BADGES }])(
+    'Expect bagde being added with %s contribution',
+    async ({ viewIdContrib }) => {
+      getProviderInfosMock.mockResolvedValue([
+        {
+          name: 'podman',
+          status: 'started',
+          internalId: 'podman-internal-id',
+          containerConnections: [
+            {
+              name: 'podman-machine-default',
+              status: 'started',
+            },
+          ],
+        },
+      ]);
+
+      const labels = {
+        'podman-desktop.label': true,
+      };
+
+      listImagesMock.mockResolvedValue([
+        {
+          Id: 'sha256:1234567890123',
+          RepoTags: ['fedora:old'],
+          Created: 1644009612,
+          Size: 123,
+          Status: 'Running',
+          engineId: 'podman',
+          engineName: 'podman',
+          Labels: labels,
+        },
+      ]);
+
+      window.dispatchEvent(new CustomEvent('extensions-already-started'));
+      window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+      window.dispatchEvent(new CustomEvent('image-build'));
+
+      const contribs = [
+        {
+          extensionId: 'foo.bar',
+          viewId: viewIdContrib,
+          value: {
+            badge: {
+              label: 'my-custom-badge',
+              color: '#ff00ff',
+            },
+            when: 'podman-desktop.label in imageLabelKeys',
+          },
+        },
+      ];
+
+      listViewsContributionsMock.mockReset();
+      listViewsContributionsMock.mockResolvedValue(contribs);
+      // set viewsContributions
+      viewsContributions.set(contribs);
+
+      // wait store are populated
+      while (get(imagesInfos).length === 0) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      while (get(providerInfos).length === 0) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      await waitRender({});
+
+      // check few ms
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // check badge is being added
+
+      const fedoraOld = screen.getByRole('cell', { name: 'fedora my-custom-badge 123456789012 old' });
+      expect(fedoraOld).toBeInTheDocument();
+
+      // check background color
+      expect(fedoraOld.innerHTML).contain('background-color: #ff00ff');
     },
   );
 });
