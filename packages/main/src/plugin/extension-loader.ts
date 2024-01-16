@@ -32,10 +32,10 @@ import type { MessageBox } from './message-box.js';
 import type { ProgressImpl } from './progress-impl.js';
 import { ProgressLocation } from './progress-impl.js';
 import {
-  StatusBarItemImpl,
   StatusBarAlignLeft,
   StatusBarAlignRight,
   StatusBarItemDefaultPriority,
+  StatusBarItemImpl,
 } from './statusbar/statusbar-item.js';
 import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
 import type { FilesystemMonitoring } from './filesystem-monitoring.js';
@@ -44,7 +44,7 @@ import type { KubernetesClient } from './kubernetes-client.js';
 import type { Proxy } from './proxy.js';
 import type { ContainerProviderRegistry } from './container-registry.js';
 import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
-import { QuickPickItemKind, InputBoxValidationSeverity } from './input-quickpick/input-quickpick-registry.js';
+import { InputBoxValidationSeverity, QuickPickItemKind } from './input-quickpick/input-quickpick-registry.js';
 import type { MenuRegistry } from '/@/plugin/menu-registry.js';
 import { Emitter } from './events/emitter.js';
 import { CancellationTokenSource } from './cancellation-token.js';
@@ -70,7 +70,8 @@ import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plug
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { NotificationRegistry } from './notification-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
-import { Buffer } from 'buffer';
+import type { NavigateRequest } from '/@/plugin/routes.js';
+import { Page } from '/@/plugin/routes.js';
 
 /**
  * Handle the loading of an extension
@@ -1075,49 +1076,101 @@ export class ExtensionLoader {
     const navigate: typeof containerDesktopAPI.navigate = {
       container: {
         viewContainers: async function (): Promise<void> {
-          apiSender.send('navigate', '/containers');
+          apiSender.send('navigate', {
+            page: Page.CONTAINERS,
+          } as NavigateRequest);
         },
         viewContainer: async function (id: string): Promise<void> {
-          apiSender.send('navigate', `/containers/${id}/`);
+          apiSender.send('navigate', {
+            page: Page.CONTAINER,
+            parameters: {
+              id: id,
+            },
+          } as NavigateRequest);
         },
         viewContainerLogs: async function (id: string): Promise<void> {
-          apiSender.send('navigate', `/containers/${id}/logs`);
+          apiSender.send('navigate', {
+            page: Page.CONTAINER_LOGS,
+            parameters: {
+              id: id,
+            },
+          } as NavigateRequest);
         },
         viewContainerInspect: async function (id: string): Promise<void> {
-          apiSender.send('navigate', `/containers/${id}/inspect`);
+          apiSender.send('navigate', {
+            page: Page.CONTAINER_INSPECT,
+            parameters: {
+              id: id,
+            },
+          } as NavigateRequest);
         },
         viewContainerTerminal: async function (id: string): Promise<void> {
-          apiSender.send('navigate', `/containers/${id}/terminal`);
+          apiSender.send('navigate', {
+            page: Page.CONTAINER_TERMINAL,
+            parameters: {
+              id: id,
+            },
+          } as NavigateRequest);
         },
       },
       image: {
         viewImages: async function (): Promise<void> {
-          apiSender.send('navigate', '/images');
+          apiSender.send('navigate', {
+            page: Page.IMAGES,
+          } as NavigateRequest);
         },
         viewImage: async function (id: string, engineId: string, tag: string): Promise<void> {
-          const base64Tag = Buffer.from(tag, 'binary').toString('base64');
-          apiSender.send('navigate', `/images/${id}/${engineId}/${base64Tag}`);
+          apiSender.send('navigate', {
+            page: Page.IMAGE,
+            parameters: {
+              id: id,
+              engineId: engineId,
+              tag: tag,
+            },
+          } as NavigateRequest);
         },
       },
       volume: {
         viewVolumes: async function (): Promise<void> {
-          apiSender.send('navigate', '/volumes');
+          apiSender.send('navigate', {
+            page: Page.VOLUMES,
+          } as NavigateRequest);
         },
         viewVolume: async function (name: string, engineId: string): Promise<void> {
-          apiSender.send('navigate', `/volumes/${name}/${engineId}`);
+          apiSender.send('navigate', {
+            page: Page.VOLUME,
+            parameters: {
+              name: name,
+              engineId: engineId,
+            },
+          } as NavigateRequest);
         },
       },
       pod: {
         viewPods: async function (): Promise<void> {
-          apiSender.send('navigate', '/pods');
+          apiSender.send('navigate', {
+            page: Page.PODS,
+          } as NavigateRequest);
         },
         viewPod: async function (kind: string, name: string, engineId: string): Promise<void> {
-          apiSender.send('navigate', `/pods/${kind}/${name}/${engineId}/`);
+          apiSender.send('navigate', {
+            page: Page.POD,
+            parameters: {
+              kind: kind,
+              name: name,
+              engineId: engineId,
+            },
+          } as NavigateRequest);
         },
       },
       contribution: {
         viewContribution: async function (name: string): Promise<void> {
-          apiSender.send('navigate', `/contribs/${name}/`);
+          apiSender.send('navigate', {
+            page: Page.CONTRIBUTION,
+            parameters: {
+              name: name,
+            },
+          } as NavigateRequest);
         },
       },
     };

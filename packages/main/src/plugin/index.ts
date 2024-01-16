@@ -149,6 +149,8 @@ import type { KubeContext } from './kubernetes-context.js';
 import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import { OpenDevToolsInit } from './open-devtools-init.js';
+import type { NavigateRequest } from '/@/plugin/routes.js';
+import { Page } from '/@/plugin/routes.js';
 import type { IDisposable } from './types/disposable.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
@@ -700,11 +702,15 @@ export class PluginSystem {
     });
 
     commandRegistry.registerCommand('help', () => {
-      apiSender.send('navigate', '/help');
+      apiSender.send('navigate', {
+        page: Page.HELP,
+      } as NavigateRequest);
     });
 
     commandRegistry.registerCommand('troubleshooting', () => {
-      apiSender.send('navigate', '/troubleshooting/repair-connections');
+      apiSender.send('navigate', {
+        page: Page.TROUBLESHOOTING,
+      } as NavigateRequest);
     });
 
     // register appearance (light, dark, auto being system)
