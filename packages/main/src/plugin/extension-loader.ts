@@ -231,7 +231,7 @@ export class ExtensionLoader {
     this.moduleLoader.overrideRequire();
     // register configuration for the max activation time
     const maxActivationTimeConfiguration: IConfigurationNode = {
-      id: 'preferences.extension',
+      id: 'preferences.extensions',
       title: 'Extensions',
       type: 'object',
       properties: {
