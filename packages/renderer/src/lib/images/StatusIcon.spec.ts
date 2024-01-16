@@ -63,3 +63,33 @@ test('Expect deleting styling', async () => {
   expect(spinner).toBeInTheDocument();
   expect(spinner).toHaveAttribute('width', '1.4em');
 });
+
+test('Expect fixed width/height and font size for font icon with default size', async () => {
+  render(StatusIcon, { icon: 'custom-font' });
+  const icon = screen.getByRole('status');
+  expect(icon).toBeInTheDocument();
+
+  // get child element of icon element
+  const iconChild = icon.firstChild;
+
+  // expect element is 20px x 20px
+  expect(iconChild).toHaveStyle('width: 20px');
+  expect(iconChild).toHaveStyle('height: 20px');
+  expect(iconChild).toHaveStyle('font-size: 20px');
+  expect(iconChild).toHaveStyle('line-height: 20px');
+});
+
+test('Expect fixed width/height and font size for font icon with custom size', async () => {
+  render(StatusIcon, { icon: 'custom-font', size: 24 });
+  const icon = screen.getByRole('status');
+  expect(icon).toBeInTheDocument();
+
+  // get child element of icon element
+  const iconChild = icon.firstChild;
+
+  // expect element is 20px x 20px
+  expect(iconChild).toHaveStyle('width: 24px');
+  expect(iconChild).toHaveStyle('height: 24px');
+  expect(iconChild).toHaveStyle('font-size: 24px');
+  expect(iconChild).toHaveStyle('line-height: 24px');
+});

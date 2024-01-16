@@ -11,9 +11,9 @@ export let size = 20;
 $: solid = status === 'RUNNING' || status === 'STARTING' || status === 'USED' || status === 'DEGRADED';
 </script>
 
-<div class="grid place-content-center" style="position:relative">
+<div class="grid place-items-center" style="position:relative">
   <div
-    class="grid place-content-center rounded aspect-square text-xs"
+    class="grid place-items-center rounded aspect-square"
     class:bg-green-400="{status === 'RUNNING' || status === 'USED'}"
     class:bg-green-600="{status === 'STARTING'}"
     class:bg-amber-600="{status === 'DEGRADED'}"
@@ -27,7 +27,10 @@ $: solid = status === 'RUNNING' || status === 'STARTING' || status === 'USED' ||
     {#if status === 'DELETING'}
       <Spinner size="1.4em" />
     {:else if typeof icon === 'string'}
-      <span class="{icon}" aria-hidden="true"></span>
+      <span
+        class="{icon}"
+        aria-hidden="true"
+        style="width: {size}px; height: {size}px; font-size: {size}px; line-height: {size}px;"></span>
     {:else}
       <svelte:component this="{icon}" size="{size}" solid="{solid}" />
     {/if}
