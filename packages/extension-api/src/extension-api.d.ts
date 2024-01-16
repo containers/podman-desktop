@@ -1966,6 +1966,7 @@ declare module '@podman-desktop/api' {
     export function stopContainer(engineId: string, id: string): Promise<void>;
     export function deleteContainer(engineId: string, id: string): Promise<void>;
     export function buildImage(
+      // build context directory
       context: string,
       eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
       options?: BuildImageOptions,
