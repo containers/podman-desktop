@@ -71,7 +71,7 @@ beforeEach<RunnerTestContext>(async ctx => {
 
 afterAll(async () => {
   await deleteContainer(page, containerToRun);
-  for (const container in containerList) {
+  for (const container of containerList) {
     await deleteContainer(page, container);
   }
 
