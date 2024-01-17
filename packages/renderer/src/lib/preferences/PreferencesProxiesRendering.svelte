@@ -70,7 +70,7 @@ function validate(event: any) {
         id="toggle-proxy"
         class="sr-only peer" />
       <div
-        class="w-9 h-5 peer-focus:ring-violet-800 rounded-full peer bg-zinc-400 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-400 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-900 peer-checked:bg-violet-600">
+        class="w-9 h-5 rounded-full peer bg-zinc-400 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-400 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-900 peer-checked:bg-violet-600">
       </div>
       <span class="ml-3 text-sm font-medium text-gray-400"
         >Proxy configuration {proxyState ? 'enabled' : 'disabled'}</span>
