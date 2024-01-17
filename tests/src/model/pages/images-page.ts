@@ -69,15 +69,9 @@ export class ImagesPage extends MainPage {
       return undefined;
     }
     const rows = await table.getByRole('row').all();
-    let first: boolean = true;
 
     if (rows.length > 0) {
       for (let i = rows.length - 1; i >= 0; i--) {
-        if (first) {
-          // skip first row (header)
-          first = false;
-          continue;
-        }
         // test on empty row - contains on 0th position &nbsp; character (ISO 8859-1 character set: 160)
         const zeroCell = await rows[i].getByRole('cell').nth(0).innerText();
         if (zeroCell.indexOf(String.fromCharCode(160)) === 0) {
