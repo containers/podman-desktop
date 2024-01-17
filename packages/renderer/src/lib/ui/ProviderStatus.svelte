@@ -86,5 +86,5 @@ $: statusStyle = statusesStyle.get(status) || {
 };
 </script>
 
-<div aria-label="connection-status-icon" class="{roundIconStyle} {statusStyle.bgColor}"></div>
-<span aria-label="connection-status-label" class="{labelStyle} {statusStyle.txtColor}">{statusStyle.label}</span>
+<div aria-label="Connection Status Icon" class="{roundIconStyle} {statusStyle.bgColor}"></div>
+<span aria-label="Connection Status Label" class="{labelStyle} {statusStyle.txtColor}">{statusStyle.label}</span>
