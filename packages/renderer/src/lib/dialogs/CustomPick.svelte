@@ -29,7 +29,8 @@ onMount(() => {
   window.events?.receive('showCustomPick:add', showCustomPickCallback);
 });
 
-async function showCustomPickCallback(options?: CustomPickOptions) {
+function showCustomPickCallback(customQuickPickParameter: unknown) {
+  const options: CustomPickOptions | undefined = customQuickPickParameter as CustomPickOptions;
   id = options?.id || 0;
   title = options?.title || '';
   description = options?.description || '';

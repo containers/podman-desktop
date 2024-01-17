@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2023 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,6 +90,8 @@ import type { KubeContext } from '../../main/src/plugin/kubernetes-context';
 
 import type { KubernetesGeneratorInfo } from '../../main/src/plugin/api/KubernetesGeneratorInfo';
 import type { NotificationCard, NotificationCardOptions } from '../../main/src/plugin/api/notification';
+import type { ApiSenderType } from '../../main/src/plugin/api';
+import type { IDisposable } from '../../main/src/plugin/types/disposable';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
@@ -112,21 +114,27 @@ export interface KeyLogger {
   warn(key: symbol, ...data: any[]): void;
 }
 
-// initialize extension loader mechanism
-function initExposure(): void {
+export const buildApiSender = (): ApiSenderType => {
   const eventEmitter = new EventEmitter();
-  const apiSender = {
-    send: (channel: string, data: string) => {
+
+  return {
+    send: (channel: string, data: unknown) => {
       eventEmitter.emit(channel, data);
     },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    receive: (channel: string, func: any) => {
-      eventEmitter.on(channel, data => {
-        func(data);
-      });
+    receive: (channel: string, func: (...args: unknown[]) => void): IDisposable => {
+      eventEmitter.on(channel, func);
+      return {
+        dispose: () => {
+          eventEmitter.removeListener(channel, func);
+        },
+      };
     },
   };
+};
+
+// initialize extension loader mechanism
+function initExposure(): void {
+  const apiSender = buildApiSender();
 
   interface ErrorMessage {
     name: string;

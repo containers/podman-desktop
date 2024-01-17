@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,13 +38,13 @@ export class EventStoreWithKubernetesInformer<T> {
 
   setup() {
     this.informerEvents.forEach(eventName => {
-      window.events?.receive(eventName, async (args?: unknown[]) => {
+      window.events?.receive(eventName, (args: unknown) => {
         this.informerListener(eventName, args);
       });
     });
 
     this.informerRefreshEvents.forEach(eventName => {
-      window.events?.receive(eventName, async (_args?: unknown[]) => {
+      window.events?.receive(eventName, (_: unknown) => {
         const informerId = this.store.getInformerId();
         if (informerId) {
           window.kubernetesRefreshInformer(informerId);
@@ -52,7 +52,7 @@ export class EventStoreWithKubernetesInformer<T> {
       });
     });
 
-    window.events?.receive(`kubernetes-informer-refresh`, async (id: number) => {
+    window.events?.receive(`kubernetes-informer-refresh`, (id: unknown) => {
       const informerId = this.store.getInformerId();
       // if informer has been refreshed we reset the store, most probably the kubeconfig changed and we're connected to a new namespace/cluster
       if (informerId === id) {

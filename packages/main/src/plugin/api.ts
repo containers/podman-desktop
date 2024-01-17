@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { ContainerInfo } from './api/container-info.js';
+import type { IDisposable } from './types/disposable.js';
 
 export interface RemoteAPI {
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -24,8 +25,6 @@ export interface RemoteAPI {
 }
 
 export type ApiSenderType = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  send: (channel: string, data?: any) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  receive: (channel: string, func: any) => void;
+  send: (channel: string, data?: unknown) => void;
+  receive: (channel: string, func: (...args: unknown[]) => void) => IDisposable;
 };
