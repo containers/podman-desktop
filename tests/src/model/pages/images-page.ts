@@ -36,9 +36,13 @@ export class ImagesPage extends MainPage {
   }
 
   async openPullImage(): Promise<PullImagePage> {
-    if (await this.noContainerEngine()) {
-      throw Error('No Container Engine is present, cannot pull an image');
-    }
+    await waitWhile(
+      () => this.noContainerEngine(),
+      5000,
+      1000,
+      true,
+      'No Container Engine is available, cannot pull an image',
+    );
     await this.pullImageButton.click();
     return new PullImagePage(this.page);
   }

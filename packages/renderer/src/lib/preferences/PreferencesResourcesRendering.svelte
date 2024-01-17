@@ -373,7 +373,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
         class="bg-charcoal-600 mb-5 rounded-md p-3 divide-x divide-gray-900 flex"
         role="region"
         aria-label="{provider.id}">
-        <div>
+        <div role="region" aria-label="Provider Setup">
           <!-- left col - provider icon/name + "create new" button -->
           <div class="min-w-[170px] max-w-[200px]">
             <div class="flex">
@@ -441,13 +441,13 @@ function hasAnyConfiguration(provider: ProviderInfo) {
           </div>
         </div>
         <!-- providers columns -->
-        <div class="grow flex flex-wrap divide-gray-900 ml-2">
+        <div class="grow flex flex-wrap divide-gray-900 ml-2" role="region" aria-label="Provider Connections">
           <PreferencesConnectionsEmptyRendering
             message="{provider.emptyConnectionMarkdownDescription}"
             hidden="{provider.containerConnections.length > 0 || provider.kubernetesConnections.length > 0}" />
           {#each provider.containerConnections as container}
             {@const peerProperties = new PeerProperties()}
-            <div class="px-5 py-2 w-[240px]">
+            <div class="px-5 py-2 w-[240px]" role="region" aria-label="{container.name}">
               <div class="float-right">
                 <Tooltip tip="{provider.name} details" bottom>
                   <button
@@ -466,7 +466,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
               <div class="{container.status !== 'started' ? 'text-gray-900' : ''} text-sm">
                 {container.name}
               </div>
-              <div class="flex">
+              <div class="flex" aria-label="Connection Status">
                 <ConnectionStatus status="{container.status}" />
                 {#if containerConnectionStatus.has(getProviderConnectionName(provider, container))}
                   {@const status = containerConnectionStatus.get(getProviderConnectionName(provider, container))}
@@ -529,13 +529,13 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                 connectionStatus="{containerConnectionStatus.get(getProviderConnectionName(provider, container))}"
                 updateConnectionStatus="{updateContainerStatus}"
                 addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
-              <div class="mt-1.5 text-gray-900 text-[9px]">
+              <div class="mt-1.5 text-gray-900 text-[9px]" aria-label="Connection Version">
                 <div>{provider.name} {provider.version ? `v${provider.version}` : ''}</div>
               </div>
             </div>
           {/each}
           {#each provider.kubernetesConnections as kubeConnection}
-            <div class="px-5 py-2 w-[240px]">
+            <div class="px-5 py-2 w-[240px]" role="region" aria-label="{kubeConnection.name}">
               <div class="float-right">
                 <Tooltip tip="{provider.name} details" bottom>
                   <button

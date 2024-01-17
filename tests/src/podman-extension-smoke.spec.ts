@@ -47,7 +47,7 @@ let navigationBar: NavigationBar;
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
-  pdRunner.setVideoAndTraceName('settings-extensions-e2e');
+  pdRunner.setVideoAndTraceName('podman-extensions-e2e');
 
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
@@ -96,6 +96,7 @@ async function verifyPodmanExtensionStatus(enabled: boolean) {
   await playExpect(podmanExtensionRowLocator).toBeVisible();
   const connectionStatusLabel = podmanExtensionRowLocator.getByLabel(SETTINGS_EXTENSIONS_TABLE_EXTENSION_STATUS_LABEL);
   await playExpect(connectionStatusLabel).toBeVisible();
+  await connectionStatusLabel.scrollIntoViewIfNeeded();
   const connectionStatusLocatorText = await connectionStatusLabel.innerText({ timeout: 3000 });
   // --------------------------
   await playExpect(
