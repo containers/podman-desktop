@@ -184,10 +184,6 @@ module.exports = {
       white: '#fff',
       // The remaining colors below are not part of our palette and are only here
       // to maintain existing code. No new use.
-      'slate': {
-        400: tailwindColors.slate[400],
-        800: tailwindColors.slate[800],
-      },
       'zinc': {
         100: tailwindColors.zinc[100],
         200: tailwindColors.zinc[200],
@@ -206,7 +202,6 @@ module.exports = {
         500: tailwindColors.violet[500],
         600: tailwindColors.violet[600],
         700: tailwindColors.violet[700],
-        800: tailwindColors.violet[800],
       },
     },
   },
