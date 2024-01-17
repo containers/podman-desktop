@@ -62,9 +62,15 @@ export class ImagesPage extends MainPage {
     if (await this.pageIsEmpty()) {
       return undefined;
     }
-    const table = await this.getTable();
+    let table;
+    try {
+      table = await this.getTable();
+    } catch (err) {
+      return undefined;
+    }
     const rows = await table.getByRole('row').all();
     let first: boolean = true;
+
     for (const row of rows) {
       if (first) {
         // skip first row (header)

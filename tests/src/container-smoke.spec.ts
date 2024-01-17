@@ -27,12 +27,14 @@ import { waitUntil, waitWhile } from './utility/wait';
 import { deleteContainer, deleteImage } from './utility/operations';
 import { ContainerState } from './model/core/states';
 import type { ImagesPage } from './model/pages/images-page';
+import { ContainersPage } from './model/pages/containers-page';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
 const imageToPull = 'ghcr.io/linuxcontainers/alpine';
 const imageTag = 'latest';
 const containerToRun = 'alpine-container';
+const containerList = ['first', 'second', 'third'];
 
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
@@ -69,6 +71,10 @@ beforeEach<RunnerTestContext>(async ctx => {
 
 afterAll(async () => {
   await deleteContainer(page, containerToRun);
+  for (const container in containerList) {
+    await deleteContainer(page, container);
+  }
+
   await deleteImage(page, imageToPull);
   await pdRunner.close();
 }, 90000);
@@ -157,5 +163,34 @@ describe('Verification of container creation workflow', async () => {
     playExpect(containersPage).toBeDefined();
     playExpect(await containersPage.containerExists(containerToRun)).toBeFalsy();
     await pdRunner.screenshot('containers-container-deleted.png');
+  });
+
+  test('Prune containers', async () => {
+    const navigationBar = new NavigationBar(page);
+
+    for (const container of containerList) {
+      const images = await navigationBar.openImages();
+      const imageDetails = await images.openImageDetails(imageToPull);
+      const runImage = await imageDetails.openRunImage();
+      const containersPage = await runImage.startContainer(container);
+      await playExpect
+        .poll(async () => await containersPage.containerExists(container), { timeout: 15000 })
+        .toBeTruthy();
+    }
+
+    for (const container of containerList) {
+      let containersPage = new ContainersPage(page);
+      const containersDetails = await containersPage.openContainersDetails(container);
+      await playExpect(containersDetails.heading).toBeVisible();
+      await playExpect(containersDetails.heading).toContainText(container);
+      playExpect(await containersDetails.getState()).toContain(ContainerState.Running);
+      await containersDetails.stopContainer();
+      await playExpect(await containersDetails.getStateLocator()).toHaveText(ContainerState.Exited, { timeout: 20000 });
+      containersPage = await navigationBar.openContainers();
+      await containersPage.pruneContainers();
+      await playExpect
+        .poll(async () => await containersPage.containerExists(container), { timeout: 15000 })
+        .toBeFalsy();
+    }
   });
 });

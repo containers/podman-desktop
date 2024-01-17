@@ -32,11 +32,9 @@ export class PodsPage extends BasePage {
   }
 
   async getTable(): Promise<Locator> {
-    if (!(await this.pageIsEmpty())) {
-      return this.page.getByRole('table');
-    } else {
-      throw Error('Pods page is empty, there are no pods');
-    }
+    if (await this.pageIsEmpty()) throw Error('Page is empty, there are no pods');
+
+    return this.page.getByRole('table');
   }
 
   async pageIsEmpty(): Promise<boolean> {
@@ -62,7 +60,12 @@ export class PodsPage extends BasePage {
     if (await this.pageIsEmpty()) {
       return undefined;
     }
-    const podsTable = await this.getTable();
+    let podsTable;
+    try {
+      podsTable = await this.getTable();
+    } catch (err) {
+      return undefined;
+    }
     const rows = await podsTable.getByRole('row').all();
     let first: boolean = true;
     for (const row of rows) {

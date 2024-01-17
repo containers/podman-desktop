@@ -25,12 +25,14 @@ export class ContainersPage extends MainPage {
   readonly pruneContainersButton: Locator;
   readonly createContainerButton: Locator;
   readonly playKubernetesYAMLButton: Locator;
+  readonly pruneConfirmationButton: Locator;
 
   constructor(page: Page) {
     super(page, 'containers');
     this.pruneContainersButton = this.additionalActions.getByRole('button', { name: 'Prune' });
     this.createContainerButton = this.additionalActions.getByRole('button', { name: 'Create' });
     this.playKubernetesYAMLButton = this.additionalActions.getByRole('button', { name: 'Play Kubernetes YAML' });
+    this.pruneConfirmationButton = this.page.getByRole('button', { name: 'Yes' });
   }
 
   async openContainersDetails(name: string): Promise<ContainerDetailsPage> {
@@ -47,26 +49,35 @@ export class ContainersPage extends MainPage {
     if (await this.pageIsEmpty()) {
       return undefined;
     }
-    const containersTable = await this.getTable();
+    let containersTable;
+    try {
+      containersTable = await this.getTable();
+    } catch (err) {
+      return undefined;
+    }
     const rows = await containersTable.getByRole('row').all();
-    for (const row of rows) {
-      // test on empty row - contains on 0th position &nbsp; character (ISO 8859-1 character set: 160)
-      const zeroCell = await row.getByRole('cell').nth(0).innerText({ timeout: 500 });
-      if (zeroCell.indexOf(String.fromCharCode(160)) === 0) {
-        continue;
-      }
-      let thirdCell = undefined;
-      try {
-        thirdCell = await row.getByRole('cell').nth(3).innerText({ timeout: 1000 });
-      } catch (error) {
-        thirdCell = await row.getByRole('cell').nth(3).allInnerTexts();
-        console.log(`We got an timeout error on innertext, allinnerTexts: ${thirdCell}`);
-      }
-      const index = thirdCell.indexOf(name);
-      if (index >= 0) {
-        return row;
+
+    if (rows.length > 0) {
+      for (let i = rows.length - 1; i >= 0; i--) {
+        // test on empty row - contains on 0th position &nbsp; character (ISO 8859-1 character set: 160)
+        const zeroCell = await rows[i].getByRole('cell').nth(0).innerText({ timeout: 1000 });
+        if (zeroCell.indexOf(String.fromCharCode(160)) === 0) {
+          continue;
+        }
+        let thirdCell = undefined;
+        try {
+          thirdCell = await rows[i].getByRole('cell').nth(3).innerText({ timeout: 1000 });
+        } catch (error) {
+          thirdCell = await rows[i].getByRole('cell').nth(3).allInnerTexts();
+          console.log(`We got an timeout error on innertext, allinnerTexts: ${thirdCell}`);
+        }
+        const index = thirdCell.indexOf(name);
+        if (index >= 0) {
+          return rows[i];
+        }
       }
     }
+    return undefined;
   }
 
   async containerExists(name: string): Promise<boolean> {
@@ -83,5 +94,12 @@ export class ContainersPage extends MainPage {
     }
     await this.page.getByRole('button', { name: `Create Pod` }).click();
     return new CreatePodsPage(this.page);
+  }
+
+  async pruneContainers(): Promise<ContainersPage> {
+    await this.pruneContainersButton.click();
+    await this.pruneConfirmationButton.waitFor({ state: 'visible', timeout: 3000 });
+    await this.pruneConfirmationButton.click();
+    return this;
   }
 }

@@ -73,10 +73,8 @@ export abstract class MainPage extends BasePage {
   }
 
   async getTable(): Promise<Locator> {
-    if (!(await this.pageIsEmpty())) {
-      return this.content.getByRole('table');
-    } else {
-      throw Error('Images page is empty, there are no images');
-    }
+    if (await this.pageIsEmpty()) throw Error('Page is empty, there is no content');
+
+    return this.content.getByRole('table');
   }
 }
