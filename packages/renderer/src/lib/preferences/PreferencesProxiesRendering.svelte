@@ -8,16 +8,17 @@ import { validateProxyAddress } from './Util';
 import ErrorMessage from '/@/lib/ui/ErrorMessage.svelte';
 
 let proxySettings: ProxySettings;
-let proxyState: boolean;
+let proxyState: number;
 let httpProxyError: string | undefined;
 let httpsProxyError: string | undefined;
 
 onMount(async () => {
   proxySettings = await window.getProxySettings();
-  proxyState = await window.isProxyEnabled();
+  proxyState = await window.getProxyState();
 });
 
 async function updateProxySettings() {
+  await window.setProxyState(proxyState);
   await window.updateProxySettings(proxySettings);
 
   // loop over all providers and container connections to see if there are any running engines
@@ -42,10 +43,6 @@ async function updateProxySettings() {
   });
 }
 
-async function updateProxyState() {
-  await window.setProxyState(proxyState);
-}
-
 function validate(event: any) {
   if (event.target.id === 'httpProxy' || event.target.id === 'httpsProxy') {
     const error = validateProxyAddress(event.target.value);
@@ -62,31 +59,29 @@ function validate(event: any) {
   <div class="flex flex-col bg-charcoal-600 rounded-md p-3 space-y-2">
     <!-- if proxy is not enabled, display a toggle -->
 
-    <label for="toggle-proxy" class="inline-flex relative items-center mt-1 mb-4 cursor-pointer">
-      <input
-        type="checkbox"
-        bind:checked="{proxyState}"
-        on:change="{() => updateProxyState()}"
+    <label for="toggle-proxy" class="inline-flex relative items-center mt-1 mb-4 cursor-pointer"
+      >Proxy configuration
+      <select
+        class="p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
         id="toggle-proxy"
-        class="sr-only peer" />
-      <div
-        class="w-9 h-5 peer-focus:ring-violet-800 rounded-full peer bg-zinc-400 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-400 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-900 peer-checked:bg-violet-600">
-      </div>
-      <span class="ml-3 text-sm font-medium text-gray-400"
-        >Proxy configuration {proxyState ? 'enabled' : 'disabled'}</span>
+        bind:value="{proxyState}">
+        <option value="{0}">System</option>
+        <option value="{1}">Manual</option>
+        <option value="{2}">Disabled</option>
+      </select>
     </label>
 
     {#if proxySettings}
       <div class="space-y-2">
         <label
           for="httpProxy"
-          class="mb-2 text-sm font-medium {proxyState
+          class="mb-2 text-sm font-medium {proxyState === 1
             ? 'text-gray-400 dark:text-gray-400'
             : 'text-gray-900 dark:text-gray-900'}">Web Proxy (HTTP):</label>
         <input
           name="httpProxy"
           id="httpProxy"
-          disabled="{!proxyState}"
+          disabled="{proxyState !== 1}"
           bind:value="{proxySettings.httpProxy}"
           class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
           placeholder="URL of the proxy for http: URLs (eg http://myproxy.domain.com:8080)"
@@ -99,13 +94,13 @@ function validate(event: any) {
       <div class="space-y-2">
         <label
           for="httpsProxy"
-          class="pt-4 mb-2 text-sm font-medium {proxyState
+          class="pt-4 mb-2 text-sm font-medium {proxyState === 1
             ? 'text-gray-400 dark:text-gray-400'
             : 'text-gray-900 dark:text-gray-900'}">Secure Web Proxy (HTTPS):</label>
         <input
           name="httpsProxy"
           id="httpsProxy"
-          disabled="{!proxyState}"
+          disabled="{proxyState !== 1}"
           bind:value="{proxySettings.httpsProxy}"
           class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
           placeholder="URL of the proxy for https: URLs (eg http://myproxy.domain.com:8080)"
@@ -118,22 +113,20 @@ function validate(event: any) {
       <div class="space-y-2">
         <label
           for="httpProxy"
-          class="pt-4 mb-2 text-sm font-medium {proxyState
+          class="pt-4 mb-2 text-sm font-medium {proxyState === 1
             ? 'text-gray-400 dark:text-gray-400'
             : 'text-gray-900 dark:text-gray-900'}">Bypass proxy settings for these hosts and domains:</label>
         <input
           name="noProxy"
           id="noProxy"
-          disabled="{!proxyState}"
+          disabled="{proxyState !== 1}"
           bind:value="{proxySettings.noProxy}"
           placeholder="Example: *.domain.com, 192.168.*.*"
           class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
           required />
       </div>
       <div class="my-2 pt-4">
-        <Button on:click="{() => updateProxySettings()}" disabled="{!proxyState}" class="w-full" icon="{faPen}">
-          Update
-        </Button>
+        <Button on:click="{() => updateProxySettings()}" class="w-full" icon="{faPen}">Update</Button>
       </div>
     {/if}
   </div>

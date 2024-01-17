@@ -261,7 +261,7 @@ describe('exec', () => {
     const { stdout } = await httpExec.exec(command, args);
 
     expect(spawnMock).toHaveBeenCalledWith(command, args, {
-      env: expect.objectContaining({ HTTP_PROXY: 'http://127.0.0.1:8888' }),
+      env: expect.objectContaining({ HTTP_PROXY: '127.0.0.1:8888' }),
     });
     expect(stdout).toBeDefined();
     expect(stdout).toContain('Hello, World!');
@@ -298,7 +298,7 @@ describe('exec', () => {
     const { stdout } = await httpsExec.exec(command, args);
 
     expect(spawnMock).toHaveBeenCalledWith(command, args, {
-      env: expect.objectContaining({ HTTPS_PROXY: 'http://127.0.0.1:8888' }),
+      env: expect.objectContaining({ HTTPS_PROXY: '127.0.0.1:8888' }),
     });
     expect(stdout).toBeDefined();
     expect(stdout).toContain('Hello, World!');

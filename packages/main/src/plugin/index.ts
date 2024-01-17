@@ -95,7 +95,7 @@ import type { V1Route } from './api/openshift-types.js';
 import type { NetworkInspectInfo } from './api/network-info.js';
 import { FilesystemMonitoring } from './filesystem-monitoring.js';
 import { Certificates } from './certificates.js';
-import { Proxy } from './proxy.js';
+import { Proxy, type ProxyState } from './proxy.js';
 import { EditorInit } from './editor-init.js';
 import { WelcomeInit } from './welcome/welcome-init.js';
 import { ExtensionInstaller } from './install/extension-installer.js';
@@ -1695,16 +1695,16 @@ export class PluginSystem {
       },
     );
 
-    this.ipcHandle('proxy:setState', async (_listener: Electron.IpcMainInvokeEvent, state: boolean): Promise<void> => {
-      return proxy.setState(state);
+    this.ipcHandle('proxy:setState', async (_listener: Electron.IpcMainInvokeEvent, state: number): Promise<void> => {
+      return proxy.setState(state as ProxyState);
     });
 
     this.ipcHandle('proxy:getSettings', async (): Promise<containerDesktopAPI.ProxySettings | undefined> => {
       return proxy.proxy;
     });
 
-    this.ipcHandle('proxy:isEnabled', async (): Promise<boolean> => {
-      return proxy.isEnabled();
+    this.ipcHandle('proxy:getState', async (): Promise<number> => {
+      return proxy.getState();
     });
 
     this.ipcHandle(
