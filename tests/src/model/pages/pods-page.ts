@@ -67,22 +67,17 @@ export class PodsPage extends BasePage {
       return undefined;
     }
     const rows = await podsTable.getByRole('row').all();
-    let first: boolean = true;
-    for (const row of rows) {
-      if (first) {
-        // skip first row (header)
-        first = false;
-        continue;
-      }
+
+    for (let i = rows.length - 1; i > 0; i--) {
       // test on empty row - contains on 0th position &nbsp; character (ISO 8859-1 character set: 160)
-      const zeroCell = await row.getByRole('cell').nth(0).innerText();
+      const zeroCell = await rows[i].getByRole('cell').nth(0).innerText();
       if (zeroCell.indexOf(String.fromCharCode(160)) === 0) {
         continue;
       }
-      const nameCell = await row.getByRole('cell').nth(3).innerText();
+      const nameCell = await rows[i].getByRole('cell').nth(3).innerText();
       const index = nameCell.indexOf(name);
       if (index >= 0) {
-        return row;
+        return rows[i];
       }
     }
   }
