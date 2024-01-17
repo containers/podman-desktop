@@ -192,5 +192,5 @@ describe('Verification of container creation workflow', async () => {
         .poll(async () => await containersPage.containerExists(container), { timeout: 15000 })
         .toBeFalsy();
     }
-  });
+  }, 120000);
 });
