@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2023 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,6 +149,7 @@ import type { KubeContext } from './kubernetes-context.js';
 import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import { OpenDevToolsInit } from './open-devtools-init.js';
+import type { IDisposable } from './types/disposable.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -286,7 +287,7 @@ export class PluginSystem {
   }
 
   getApiSender(webContents: WebContents): ApiSenderType {
-    const queuedEvents: { channel: string; data: string }[] = [];
+    const queuedEvents: { channel: string; data: unknown }[] = [];
 
     const flushQueuedEvents = () => {
       // flush queued events ?
@@ -307,8 +308,7 @@ export class PluginSystem {
 
     const eventEmitter = new EventEmitter();
     return {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      send: (channel: string, data: any) => {
+      send: (channel: string, data: unknown) => {
         // send only when the UI is ready
         if (this.uiReady && this.isReady) {
           flushQueuedEvents();
@@ -319,11 +319,13 @@ export class PluginSystem {
         }
         eventEmitter.emit(channel, data);
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      receive: (channel: string, func: any) => {
-        eventEmitter.on(channel, data => {
-          func(data);
-        });
+      receive: (channel: string, func: (...args: unknown[]) => void): IDisposable => {
+        eventEmitter.on(channel, func);
+        return {
+          dispose: () => {
+            eventEmitter.removeListener(channel, func);
+          },
+        };
       },
     };
   }

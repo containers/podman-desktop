@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -258,8 +258,10 @@ export class EventStore<T> {
     };
 
     this.windowEvents.forEach(eventName => {
-      window.events?.receive(eventName, async (args?: unknown[]) => {
-        await update(eventName, args);
+      window.events?.receive(eventName, (args?: unknown) => {
+        update(eventName, args as unknown[]).catch((error: unknown) => {
+          console.error(`Failed to update ${this.name}`, error);
+        });
       });
     });
 

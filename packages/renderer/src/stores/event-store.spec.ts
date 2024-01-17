@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,6 +89,11 @@ test('should call fetch method using window event', async () => {
   updater.mockResolvedValue([myCustomTypeInfo]);
 
   await callback();
+
+  // wait updater method being called
+  while (updater.mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
 
   // check the updater is called
   expect(updater).toHaveBeenCalled();
@@ -227,6 +232,11 @@ test('should call fetch method using window event and object argument', async ()
   updater.mockResolvedValue([myCustomTypeInfo]);
 
   await callback({});
+
+  // wait updater method being called
+  while (updater.mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
 
   // check the updater is called
   expect(updater).toHaveBeenCalledWith({});

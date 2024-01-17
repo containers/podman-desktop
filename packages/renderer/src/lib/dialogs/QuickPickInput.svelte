@@ -32,7 +32,8 @@ let quickPickCanPickMany = false;
 let inputElement: HTMLInputElement | HTMLTextAreaElement | undefined = undefined;
 let outerDiv: HTMLDivElement | undefined = undefined;
 
-const showInputCallback = async (options?: InputBoxOptions) => {
+const showInputCallback = (inputCallpackParameter: unknown) => {
+  const options: InputBoxOptions | undefined = inputCallpackParameter as InputBoxOptions;
   mode = 'InputBox';
   inputValue = options?.value;
   placeHolder = options?.placeHolder;
@@ -48,17 +49,22 @@ const showInputCallback = async (options?: InputBoxOptions) => {
 
   validationEnabled = options?.validate || false;
   display = true;
-  await tick();
-
-  if (display && inputElement) {
-    inputElement.focus();
-    if (options?.valueSelection) {
-      inputElement.setSelectionRange(options.valueSelection[0], options.valueSelection[1]);
-    }
-  }
+  tick()
+    .then(() => {
+      if (display && inputElement) {
+        inputElement.focus();
+        if (options?.valueSelection) {
+          inputElement.setSelectionRange(options.valueSelection[0], options.valueSelection[1]);
+        }
+      }
+    })
+    .catch((error: unknown) => {
+      console.error('Unable to focus/select input box', error);
+    });
 };
 
-const showQuickPickCallback = async (options?: QuickPickOptions) => {
+const showQuickPickCallback = (quickpickParameter: unknown) => {
+  const options: QuickPickOptions | undefined = quickpickParameter as QuickPickOptions;
   mode = 'QuickPick';
   placeHolder = options?.placeHolder;
   title = options?.title;
@@ -96,11 +102,15 @@ const showQuickPickCallback = async (options?: QuickPickOptions) => {
 
   display = true;
 
-  await tick();
-
-  if (display && inputElement) {
-    inputElement.focus();
-  }
+  tick()
+    .then(() => {
+      if (display && inputElement) {
+        inputElement.focus();
+      }
+    })
+    .catch((error: unknown) => {
+      console.error('Unable to focus input box', error);
+    });
 };
 
 onMount(() => {

@@ -43,8 +43,9 @@ onMount(() => {
     toast.push(object.message, { pausable: true, theme });
   };
 
-  window.events?.receive('toast:handler', (object: { type: string; message: string }) => {
-    callback(object);
+  window.events?.receive('toast:handler', (object: unknown) => {
+    const value = object as { type: string; message: string };
+    callback(value);
   });
 });
 

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,16 +22,18 @@ import { ContextUI } from '../lib/context/context';
 
 export const context: Writable<ContextUI> = writable(new ContextUI());
 
-window.events?.receive('context-value-updated', async (value: { key: string; value: string }) => {
+window.events?.receive('context-value-updated', (value: unknown) => {
+  const typedValue = value as { key: string; value: string };
   context.update(ctx => {
-    ctx.setValue(value.key, value.value);
+    ctx.setValue(typedValue.key, typedValue.value);
     return ctx;
   });
 });
 
-window.events?.receive('context-key-removed', async (value: { key: string; value: string }) => {
+window.events?.receive('context-key-removed', (value: unknown) => {
+  const typedValue = value as { key: string; value: string };
   context.update(ctx => {
-    ctx.removeValue(value.key);
+    ctx.removeValue(typedValue.key);
     return ctx;
   });
 });
