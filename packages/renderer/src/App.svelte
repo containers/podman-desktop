@@ -48,6 +48,8 @@ import type { NavigationRequest } from '../../main/src/plugin/navigation/navigat
 import { navigationHandle } from '/@/Route';
 import IngressesRoutesList from './lib/ingresses-routes/IngressesRoutesList.svelte';
 import Webview from './lib/webview/Webview.svelte';
+import IngressDetails from './lib/ingresses-routes/IngressDetails.svelte';
+import RouteDetails from './lib/ingresses-routes/RouteDetails.svelte';
 
 router.mode.hash();
 
@@ -178,6 +180,20 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         </Route>
         <Route path="/ingressesRoutes" breadcrumb="Ingresses & Routes" navigationHint="root">
           <IngressesRoutesList />
+        </Route>
+        <Route
+          path="/ingressesRoutes/ingress/:name/:namespace/*"
+          breadcrumb="Ingress Details"
+          let:meta
+          navigationHint="details">
+          <IngressDetails name="{decodeURI(meta.params.name)}" namespace="{decodeURI(meta.params.namespace)}" />
+        </Route>
+        <Route
+          path="/ingressesRoutes/route/:name/:namespace/*"
+          breadcrumb="Route Details"
+          let:meta
+          navigationHint="details">
+          <RouteDetails name="{decodeURI(meta.params.name)}" namespace="{decodeURI(meta.params.namespace)}" />
         </Route>
         <Route path="/preferences/*" breadcrumb="Settings">
           <PreferencesPage />
