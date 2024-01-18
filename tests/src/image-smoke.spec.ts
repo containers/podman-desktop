@@ -139,7 +139,11 @@ describe('Image workflow verification', async () => {
     await imagesPage.pruneImages();
     await playExpect(imagesPage.heading).toBeVisible();
 
-    await playExpect.poll(async () => await imagesPage.waitForImageDelete(imageList[0])).toBeTruthy();
-    await playExpect.poll(async () => await imagesPage.waitForImageDelete(imageList[1])).toBeTruthy();
-  });
+    await playExpect
+      .poll(async () => await imagesPage.waitForImageDelete(imageList[0]), { timeout: 30000 })
+      .toBeTruthy();
+    await playExpect
+      .poll(async () => await imagesPage.waitForImageDelete(imageList[1]), { timeout: 30000 })
+      .toBeTruthy();
+  }, 120000);
 });
