@@ -149,8 +149,6 @@ import type { KubeContext } from './kubernetes-context.js';
 import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import { OpenDevToolsInit } from './open-devtools-init.js';
-import { NavigationPage } from '/@/plugin/navigation/navigation-page.js';
-import type { NavigationRequest } from '/@/plugin/navigation/navigation-request.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { IDisposable } from './types/disposable.js';
 
@@ -702,19 +700,12 @@ export class PluginSystem {
       apiSender.send('display-feedback', '');
     });
 
-    const navigateTo = (navigationRequest: NavigationRequest) => {
-      apiSender.send('navigate', navigationRequest);
-    };
     commandRegistry.registerCommand('help', () => {
-      navigateTo({
-        page: NavigationPage.HELP,
-      });
+      return navigationManager.navigateToHelp();
     });
 
     commandRegistry.registerCommand('troubleshooting', () => {
-      navigateTo({
-        page: NavigationPage.TROUBLESHOOTING,
-      });
+      return navigationManager.navigateToTroubleshooting();
     });
 
     // register appearance (light, dark, auto being system)

@@ -15,6 +15,18 @@ export class NavigationManager {
     this.apiSender.send('navigate', navigateRequest);
   }
 
+  async navigateToHelp(): Promise<void> {
+    this.navigateTo({
+      page: NavigationPage.HELP,
+    });
+  }
+
+  async navigateToTroubleshooting(): Promise<void> {
+    this.navigateTo({
+      page: NavigationPage.TROUBLESHOOTING,
+    });
+  }
+
   async navigateToContainers(): Promise<void> {
     this.navigateTo({
       page: NavigationPage.CONTAINERS,
