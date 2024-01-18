@@ -23,6 +23,9 @@ import NewContentOnDashboardBadge from './lib/dashboard/NewContentOnDashboardBad
 import SettingsIcon from './lib/images/SettingsIcon.svelte';
 import DashboardIcon from './lib/images/DashboardIcon.svelte';
 import ServiceIcon from './lib/images/ServiceIcon.svelte';
+import IngressRouteIcon from './lib/images/IngressRouteIcon.svelte';
+import { ingresses } from './stores/ingresses';
+import { routes } from './stores/routes';
 
 let podInfoSubscribe: Unsubscriber;
 let containerInfoSubscribe: Unsubscriber;
@@ -31,6 +34,8 @@ let volumeInfoSubscribe: Unsubscriber;
 let contextsSubscribe: Unsubscriber;
 let deploymentsSubscribe: Unsubscriber;
 let servicesSubscribe: Unsubscriber;
+let ingressesSubscribe: Unsubscriber;
+let routesSubscribe: Unsubscriber;
 
 let podCount = '';
 let containerCount = '';
@@ -39,6 +44,9 @@ let volumeCount = '';
 let contextCount = 0;
 let deploymentCount = '';
 let serviceCount = '';
+let ingressesCount = 0;
+let routesCount = 0;
+let ingressesRoutesCount = '';
 
 const imageUtils = new ImageUtils();
 export let exitSettingsCallback: () => void;
@@ -90,6 +98,14 @@ onMount(async () => {
       serviceCount = '';
     }
   });
+  ingressesSubscribe = ingresses.subscribe(value => {
+    ingressesCount = value.length;
+    updateIngressesRoutesCount(ingressesCount + routesCount);
+  });
+  routesSubscribe = routes.subscribe(value => {
+    routesCount = value.length;
+    updateIngressesRoutesCount(ingressesCount + routesCount);
+  });
   contextsSubscribe = kubernetesContexts.subscribe(value => {
     contextCount = value.length;
   });
@@ -117,7 +133,17 @@ onDestroy(() => {
   if (servicesSubscribe) {
     servicesSubscribe();
   }
+  ingressesSubscribe?.();
+  routesSubscribe?.();
 });
+
+function updateIngressesRoutesCount(count: number) {
+  if (count > 0) {
+    ingressesRoutesCount = ' (' + count + ')';
+  } else {
+    ingressesRoutesCount = '';
+  }
+}
 
 function clickSettings(b: boolean) {
   if (b) {
@@ -160,6 +186,13 @@ export let meta: TinroRouteMeta;
     </NavItem>
     <NavItem href="/services" tooltip="Services{serviceCount}" ariaLabel="Services" bind:meta="{meta}">
       <ServiceIcon size="24" />
+    </NavItem>
+    <NavItem
+      href="/ingressesRoutes"
+      tooltip="Ingresses & Routes{ingressesRoutesCount}"
+      ariaLabel="Ingresses & Routes"
+      bind:meta="{meta}">
+      <IngressRouteIcon size="24" />
     </NavItem>
   {/if}
 

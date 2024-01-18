@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export interface RouteToReference {
-  kind: string;
-  name: string;
-}
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-export interface RouteUI {
-  name: string;
-  namespace: string;
-  status: string;
-  host: string;
-  port?: string;
-  path?: string;
-  to: RouteToReference;
-  selected: boolean;
-}
+import '@testing-library/jest-dom/vitest';
+import { test, expect } from 'vitest';
+import { render, screen } from '@testing-library/svelte';
+import IngressRouteEmptyScreen from './IngressRouteEmptyScreen.svelte';
+
+test('Expect deployment empty screen', async () => {
+  render(IngressRouteEmptyScreen);
+  const noDeployments = screen.getByRole('heading', { name: 'No ingresses or routes' });
+  expect(noDeployments).toBeInTheDocument();
+});
