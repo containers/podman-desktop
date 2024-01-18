@@ -7,6 +7,7 @@ import KeyIcon from '../images/KeyIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
 import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
+import Tooltip from '/@/lib/ui/Tooltip.svelte';
 </script>
 
 <SettingsPage title="Authentication">
@@ -19,9 +20,13 @@ import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
       hidden="{$authenticationProviders.length > 0}" />
     {#each $authenticationProviders as provider}
       <!-- Registered Authentication Provider row start -->
-      <div class="flex flex-col w-full">
-        <div class="flex rounded-md border-0" style="background-color: rgb(39 39 42 / var(--tw-bg-opacity))">
+      <div class="flex flex-col w-full mb-5">
+        <div
+          class="flex rounded-md border-0 justify-between"
+          style="background-color: rgb(39 39 42 / var(--tw-bg-opacity))">
+          <!-- Icon + status -->
           <div class="ml-4 flex items-center">
+            <!-- Icon -->
             <div class="flex">
               {#if provider?.images?.icon}
                 {#if typeof provider.images.icon === 'string'}
@@ -45,48 +50,54 @@ import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
                   aria-label="Default icon for {provider.displayName} provider" />
               {/if}
             </div>
-          </div>
-          <!-- Authentication Provider name and status item start -->
-          <div class="px-5 py-2 text-sm w-1/3 m-auto">
-            <div class="flex flex-col">
-              <div class="flex items-center text-lg w-full h-full">
-                {provider.displayName}
-              </div>
-              <div class="flex flex-row items-center w-full h-full">
-                <dif>
-                  <Fa
-                    class="h-3 w-3 text-md mr-2 text-{provider.accounts.length > 0 ? 'green' : 'gray'}-500"
-                    icon="{faCircle}" />
-                </dif>
-                <div class="uppercase text-xs text-{provider.accounts.length > 0 ? 'green' : 'gray'}-500">
-                  <span>
-                    {provider.accounts.length > 0 ? 'Logged in' : 'Logged out'}
-                  </span>
-                </div>
-                {#if provider.accounts.length > 0}
-                  <button
-                    aria-label="Sign out of {provider.accounts[0].label}"
-                    class="pl-2 hover:cursor-pointer hover:text-white text-white"
-                    on:click="{() =>
-                      window.requestAuthenticationProviderSignOut(provider.id, provider.accounts[0].id)}">
-                    <Fa class="h-3 w-3 text-md mr-2" icon="{faRightFromBracket}" />
-                  </button>
-                {/if}
-              </div>
-            </div>
-          </div>
-          <!-- Authentication Provider name and status item end -->
 
-          <!-- Authentication Provider Session label start -->
-          <div class="pt-3 pb-3 text-sm w-2/3 m-auto">
-            <div class="flex flex-row">
-              <div class="flex items-center w-full">
-                <span>
-                  {provider.accounts.length > 0 ? provider.accounts[0].label : ''}
-                </span>
+            <!-- Authentication Provider name and status item start -->
+            <div class="px-5 py-2 text-sm m-auto">
+              <div class="flex flex-col">
+                <div class="flex items-center text-lg w-full h-full">
+                  {provider.displayName}
+                </div>
+                <div class="flex flex-row items-center w-full h-full">
+                  <dif>
+                    <Fa
+                      class="h-3 w-3 text-md mr-2 text-{provider.accounts.length > 0 ? 'green' : 'gray'}-500"
+                      icon="{faCircle}" />
+                  </dif>
+                  <div class="uppercase text-xs text-{provider.accounts.length > 0 ? 'green' : 'gray'}-500">
+                    <span>
+                      {provider.accounts.length > 0 ? 'Logged in' : 'Logged out'}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
+
+            {#if provider?.accounts?.length > 0}
+              <!-- Authentication Provider Session label start -->
+              <div class="pt-3 pb-3 text-sm">
+                {#each provider.accounts as account}
+                  <div class="flex flex-row">
+                    <div class="flex items-center w-full">
+                      <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1">
+                        <span class="my-auto font-bold col-span-1 text-right">
+                          {account.label}
+                        </span>
+                        <Tooltip tip="Sign out of {account.label}" left>
+                          <button
+                            aria-label="Sign out of {account.label}"
+                            class="pl-2 hover:cursor-pointer hover:text-white text-white"
+                            on:click="{() => window.requestAuthenticationProviderSignOut(provider.id, account.id)}">
+                            <Fa class="h-3 w-3 text-md mr-2" icon="{faRightFromBracket}" />
+                          </button>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  </div>
+                {/each}
+              </div>
+            {/if}
           </div>
+
           <!-- Authentication Provider Session label start -->
           <div class="ml-4 flex items-center">
             {#if (provider.sessionRequests || []).length > 0}

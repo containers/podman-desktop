@@ -29,7 +29,7 @@ import { SettingsExtensionsPage } from './model/pages/settings-extensions-page';
 import { ExtensionPage } from './model/pages/extension-page';
 
 const SETTINGS_EXTENSIONS_TABLE_PODMAN_TITLE: string = 'podman';
-const SETTINGS_EXTENSIONS_TABLE_EXTENSION_STATUS_LABEL: string = 'connection-status-label';
+const SETTINGS_EXTENSIONS_TABLE_EXTENSION_STATUS_LABEL: string = 'Connection Status Label';
 const PODMAN_EXTENSION_STATUS_RUNNING: string = 'RUNNING';
 const PODMAN_EXTENSION_STATUS_OFF: string = 'OFF';
 const SETTINGS_NAVBAR_PREFERENCES_PODMAN_EXTENSION: string = 'Extension: Podman';
@@ -47,7 +47,7 @@ let navigationBar: NavigationBar;
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
-  pdRunner.setVideoAndTraceName('settings-extensions-e2e');
+  pdRunner.setVideoAndTraceName('podman-extensions-e2e');
 
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
@@ -96,6 +96,7 @@ async function verifyPodmanExtensionStatus(enabled: boolean) {
   await playExpect(podmanExtensionRowLocator).toBeVisible();
   const connectionStatusLabel = podmanExtensionRowLocator.getByLabel(SETTINGS_EXTENSIONS_TABLE_EXTENSION_STATUS_LABEL);
   await playExpect(connectionStatusLabel).toBeVisible();
+  await connectionStatusLabel.scrollIntoViewIfNeeded();
   const connectionStatusLocatorText = await connectionStatusLabel.innerText({ timeout: 3000 });
   // --------------------------
   await playExpect(
