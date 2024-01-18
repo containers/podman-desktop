@@ -57,6 +57,7 @@
   "ignorePatterns": [
     "packages/preload/exposedInMainWorld.d.ts",
     "packages/preload-docker-extension/exposedInDockerExtension.d.ts",
+    "packages/preload-webview/exposedInWebview.d.ts",
     "node_modules/**",
     "**/dist/**"
   ],

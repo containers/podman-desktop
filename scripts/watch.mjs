@@ -1,5 +1,23 @@
 #!/usr/bin/env node
 
+/**********************************************************************
+ * Copyright (C) 2022-2024 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ***********************************************************************/
+
 import { createServer, build, createLogger } from 'vite';
 import electronPath from 'electron';
 import { spawn } from 'child_process';
@@ -141,6 +159,26 @@ const setupPreloadDockerExtensionPackageWatcher = ({ ws }) =>
     },
   });
 
+  const setupPreloadWebviewPackageWatcher = ({ ws }) =>
+  getWatcher({
+    name: 'reload-page-on-preload-webview-package-change',
+    configFile: 'packages/preload-webview/vite.config.js',
+    writeBundle() {
+      // Generating exposedInWebview.d.ts when preload package is changed.
+      generateAsync({
+        input: 'packages/preload-webview/tsconfig.json',
+        output: 'packages/preload-webview/exposedInWebview.d.ts',
+      });
+
+      if (ws) {
+        ws.send({
+          type: 'full-reload',
+        });
+      }
+    },
+  });
+
+
 /**
  * Start or restart App when source files are changed
  * @param {{ws: import('vite').WebSocketServer}} WebSocketServer
@@ -192,6 +230,7 @@ const setupExtensionApiWatcher = name => {
     }
     await setupPreloadPackageWatcher(viteDevServer);
     await setupPreloadDockerExtensionPackageWatcher(viteDevServer);
+    await setupPreloadWebviewPackageWatcher(viteDevServer);
     await setupMainPackageWatcher(viteDevServer);
   } catch (e) {
     console.error(e);
