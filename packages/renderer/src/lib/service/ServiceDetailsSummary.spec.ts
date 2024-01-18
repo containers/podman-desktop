@@ -29,7 +29,7 @@ const serviceUI: ServiceUI = {
   namespace: 'default',
   selected: false,
   type: '',
-  clusterIP: '10.1.1.0',
+  clusterIP: 'the-cluster-ip',
   ports: '80/TCP',
 };
 
