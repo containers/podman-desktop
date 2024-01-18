@@ -42,7 +42,7 @@ beforeEach(() => {
   existSyncSpy.mockImplementation(() => true);
 
   const mkdirSpy = vi.spyOn(fs, 'mkdirSync');
-  mkdirSpy.mockImplementation(() => Promise.resolve(''));
+  mkdirSpy.mockImplementation(() => '');
 });
 
 afterEach(() => {
