@@ -2063,4 +2063,27 @@ export class ContainerProviderRegistry {
       };
     }
   }
+
+  async containerExist(id: string): Promise<boolean> {
+    const containers = await this.listContainers();
+    return containers.some(container => container.Id === id);
+  }
+
+  async imageExist(id: string, engineId: string, tag: string): Promise<boolean> {
+    const images = await this.listImages();
+    const imageInfo = images.find(c => c.Id === id && c.engineId === engineId);
+    return imageInfo?.RepoTags !== undefined && imageInfo.RepoTags.some(repoTag => repoTag === tag);
+  }
+
+  async volumeExist(name: string, engineId: string): Promise<boolean> {
+    const volumes = await this.listVolumes();
+    const allVolumes = volumes.map(volume => volume.Volumes).flat();
+    return allVolumes.some(volume => volume.Name === name && volume.engineId === engineId);
+  }
+  async podExist(kind: string, name: string, engineId: string): Promise<boolean> {
+    const pods = await this.listPods();
+    return pods.some(
+      podInPods => podInPods.Name === name && podInPods.engineId === engineId && kind === podInPods.kind,
+    );
+  }
 }

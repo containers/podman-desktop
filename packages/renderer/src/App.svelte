@@ -42,6 +42,8 @@ import ContextKey from './lib/context/ContextKey.svelte';
 import CreateVolume from './lib/volume/CreateVolume.svelte';
 import CommandPalette from './lib/dialogs/CommandPalette.svelte';
 import Appearance from './lib/appearance/Appearance.svelte';
+import type { NavigationRequest } from '../../main/src/plugin/navigation/navigation-request';
+import { navigationHandle } from '/@/Route';
 import IngressesRoutesList from './lib/ingresses-routes/IngressesRoutesList.svelte';
 
 router.mode.hash();
@@ -54,14 +56,9 @@ router.subscribe(function (navigation) {
   }
 });
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-window.events?.receive('display-help', () => {
-  router.goto('/help');
-});
-
-window.events?.receive('display-troubleshooting', () => {
-  router.goto('/troubleshooting/repair-connections');
+window.events?.receive('navigate', (navigationRequest: unknown) => {
+  const navRequest = navigationRequest as NavigationRequest;
+  navigationHandle(navRequest.page, navRequest.parameters);
 });
 </script>
 

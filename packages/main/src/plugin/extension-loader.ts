@@ -32,10 +32,10 @@ import type { MessageBox } from './message-box.js';
 import type { ProgressImpl } from './progress-impl.js';
 import { ProgressLocation } from './progress-impl.js';
 import {
-  StatusBarItemImpl,
   StatusBarAlignLeft,
   StatusBarAlignRight,
   StatusBarItemDefaultPriority,
+  StatusBarItemImpl,
 } from './statusbar/statusbar-item.js';
 import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
 import type { FilesystemMonitoring } from './filesystem-monitoring.js';
@@ -44,7 +44,7 @@ import type { KubernetesClient } from './kubernetes-client.js';
 import type { Proxy } from './proxy.js';
 import type { ContainerProviderRegistry } from './container-registry.js';
 import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
-import { QuickPickItemKind, InputBoxValidationSeverity } from './input-quickpick/input-quickpick-registry.js';
+import { InputBoxValidationSeverity, QuickPickItemKind } from './input-quickpick/input-quickpick-registry.js';
 import type { MenuRegistry } from '/@/plugin/menu-registry.js';
 import { Emitter } from './events/emitter.js';
 import { CancellationTokenSource } from './cancellation-token.js';
@@ -70,6 +70,7 @@ import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plug
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { NotificationRegistry } from './notification-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
+import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 
 /**
  * Handle the loading of an extension
@@ -165,6 +166,7 @@ export class ExtensionLoader {
     private cliToolRegistry: CliToolRegistry,
     private notificationRegistry: NotificationRegistry,
     private imageCheckerProvider: ImageCheckerImpl,
+    private navigationManager: NavigationManager,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -1074,6 +1076,45 @@ export class ExtensionLoader {
       },
     };
 
+    const navigation: typeof containerDesktopAPI.navigation = {
+      navigateToContainers: async (): Promise<void> => {
+        await this.navigationManager.navigateToContainers();
+      },
+      navigateToContainer: async (id: string): Promise<void> => {
+        await this.navigationManager.navigateToContainer(id);
+      },
+      navigateToContainerLogs: async (id: string): Promise<void> => {
+        await this.navigationManager.navigateToContainerLogs(id);
+      },
+      navigateToContainerInspect: async (id: string): Promise<void> => {
+        await this.navigationManager.navigateToContainerInspect(id);
+      },
+      navigateToContainerTerminal: async (id: string): Promise<void> => {
+        await this.navigationManager.navigateToContainerTerminal(id);
+      },
+      navigateToImages: async (): Promise<void> => {
+        await this.navigationManager.navigateToImages();
+      },
+      navigateToImage: async (id: string, engineId: string, tag: string): Promise<void> => {
+        await this.navigationManager.navigateToImage(id, engineId, tag);
+      },
+      navigateToVolumes: async (): Promise<void> => {
+        await this.navigationManager.navigateToVolumes();
+      },
+      navigateToVolume: async (name: string, engineId: string): Promise<void> => {
+        await this.navigationManager.navigateToVolume(name, engineId);
+      },
+      navigateToPods: async (): Promise<void> => {
+        await this.navigationManager.navigateToPods();
+      },
+      navigateToPod: async (kind: string, name: string, engineId: string): Promise<void> => {
+        await this.navigationManager.navigateToPod(kind, name, engineId);
+      },
+      navigateToContribution: async (name: string): Promise<void> => {
+        await this.navigationManager.navigateToContribution(name);
+      },
+    };
+
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
@@ -1103,6 +1144,7 @@ export class ExtensionLoader {
       context: contextAPI,
       cli,
       imageChecker,
+      navigation,
     };
   }
 

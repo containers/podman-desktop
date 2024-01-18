@@ -2702,4 +2702,35 @@ declare module '@podman-desktop/api' {
       metadata?: ImageCheckerProviderMetadata,
     ): Disposable;
   }
+
+  export namespace navigation {
+    // Navigate to the Containers page
+    export function navigateToContainers(): Promise<void>;
+    // Navigate to the Container page
+    export function navigateToContainer(id: string): Promise<void>;
+    // Navigate to the Container logs tab
+    export function navigateToContainerLogs(id: string): Promise<void>;
+    // Navigate to the Container inspect tab
+    export function navigateToContainerInspect(id: string): Promise<void>;
+    // Navigate to the Container terminal tab
+    export function navigateToContainerTerminal(id: string): Promise<void>;
+
+    // Navigate to the Images page
+    export function navigateToImages(): Promise<void>;
+    // Navigate to a specific image referenced by id, engineId and tag
+    export function navigateToImage(id: string, engineId: string, tag: string): Promise<void>;
+
+    // Navigate to the Volumes page
+    export function navigateToVolumes(): Promise<void>;
+    // Navigate to a specific volume
+    export function navigateToVolume(name: string, engineId: string): Promise<void>;
+
+    // Navigate to the Pods page
+    export function navigateToPods(): Promise<void>;
+    // Navigate to a specific pod referenced by kind, name and engineId
+    export function navigateToPod(kind: string, name: string, engineId: string): Promise<void>;
+
+    // Navigate to a specific contribution (aka extension page) referenced by name
+    export function navigateToContribution(name: string): Promise<void>;
+  }
 }

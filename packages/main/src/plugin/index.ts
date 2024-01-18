@@ -149,6 +149,7 @@ import type { KubeContext } from './kubernetes-context.js';
 import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import { OpenDevToolsInit } from './open-devtools-init.js';
+import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { IDisposable } from './types/disposable.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
@@ -700,11 +701,11 @@ export class PluginSystem {
     });
 
     commandRegistry.registerCommand('help', () => {
-      apiSender.send('display-help', '');
+      return navigationManager.navigateToHelp();
     });
 
     commandRegistry.registerCommand('troubleshooting', () => {
-      apiSender.send('display-troubleshooting', '');
+      return navigationManager.navigateToTroubleshooting();
     });
 
     // register appearance (light, dark, auto being system)
@@ -736,6 +737,10 @@ export class PluginSystem {
 
     const imageChecker = new ImageCheckerImpl(apiSender);
 
+    const contributionManager = new ContributionManager(apiSender, directories, containerProviderRegistry, exec);
+
+    const navigationManager = new NavigationManager(apiSender, containerProviderRegistry, contributionManager);
+
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
       menuRegistry,
@@ -765,6 +770,7 @@ export class PluginSystem {
       cliToolRegistry,
       notificationRegistry,
       imageChecker,
+      navigationManager,
     );
     await this.extensionLoader.init();
 
@@ -778,7 +784,6 @@ export class PluginSystem {
     // setup security restrictions on links
     await this.setupSecurityRestrictionsOnLinks(messageBox);
 
-    const contributionManager = new ContributionManager(apiSender, directories, containerProviderRegistry, exec);
     this.ipcHandle('container-provider-registry:listContainers', async (): Promise<ContainerInfo[]> => {
       return containerProviderRegistry.listContainers();
     });
