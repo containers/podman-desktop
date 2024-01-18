@@ -120,4 +120,14 @@ describe('Image workflow verification', async () => {
     imagesPage = await imageDetailsPage.deleteImage();
     expect(await imagesPage.waitForImageDelete('build-test-image')).toBeTruthy();
   });
+
+  test('Prune images', async () => {
+    let imagesPage = await navBar.openImages();
+    await playExpect(imagesPage.heading).toBeVisible();
+
+    const pullImagePage = await imagesPage.openPullImage();
+    imagesPage = await pullImagePage.pullImage('quay.io/podman/hello');
+    const imageDetailsPage = await imagesPage.openImageDetails('quay.io/podman/hello');
+    await imageDetailsPage.openEditImage();
+  });
 });
