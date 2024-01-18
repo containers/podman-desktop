@@ -40,7 +40,6 @@ const service: V1Service = {
 beforeAll(() => {
   (window as any).kubernetesDeleteService = kubernetesDeleteServiceMock;
   (window as any).kubernetesReadNamespacedService = vi.fn();
-  //kubernetesGetCurrentNamespace
 });
 
 test('Expect redirect to previous page if service is deleted', async () => {
