@@ -53,7 +53,6 @@ import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { NotificationRegistry } from './notification-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
 import type { ContributionManager } from '/@/plugin/contribution-manager.js';
-import type { NavigationRequest } from '/@/plugin/navigation/navigation-request.js';
 import { NavigationPage } from '/@/plugin/navigation/navigation-page.js';
 import type { VolumeInfo, VolumeListInfo } from '/@/plugin/api/volume-info.js';
 import type { PodInfo } from '/@/plugin/api/pod-info.js';
@@ -835,7 +834,49 @@ describe('Navigation', async () => {
     await api.navigation.navigateToContainers();
     expect(sendMock).toBeCalledWith('navigate', { page: NavigationPage.CONTAINERS });
   });
-  test('navigateToContainerX existing container', async () => {
+
+  test.each([
+    {
+      name: 'navigateToContainer valid',
+      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainer,
+      expected: {
+        page: NavigationPage.CONTAINER,
+        parameters: {
+          id: 'valid',
+        },
+      },
+    },
+    {
+      name: 'navigateToContainerLogs valid',
+      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainerLogs,
+      expected: {
+        page: NavigationPage.CONTAINER_LOGS,
+        parameters: {
+          id: 'valid',
+        },
+      },
+    },
+    {
+      name: 'navigateToContainerInspect valid',
+      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainerInspect,
+      expected: {
+        page: NavigationPage.CONTAINER_INSPECT,
+        parameters: {
+          id: 'valid',
+        },
+      },
+    },
+    {
+      name: 'navigateToContainerTerminal valid',
+      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainerTerminal,
+      expected: {
+        page: NavigationPage.CONTAINER_TERMINAL,
+        parameters: {
+          id: 'valid',
+        },
+      },
+    },
+  ])('$name', async ({ method, expected }) => {
     const api = extensionLoader.createApi('path', {
       name: 'name',
       publisher: 'publisher',
@@ -851,66 +892,34 @@ describe('Navigation', async () => {
     // Spy send method
     const sendMock = vi.spyOn(apiSender, 'send');
 
-    // First let's define our test cases
-    const tests: {
-      name: string;
-      method: (id: string) => Promise<void>;
-      expected: NavigationRequest;
-    }[] = [
-      {
-        name: 'navigateToContainer',
-        method: api.navigation.navigateToContainer,
-        expected: {
-          page: NavigationPage.CONTAINER,
-          parameters: {
-            id: 'valid',
-          },
-        },
-      },
-      {
-        name: 'navigateToContainerLogs',
-        method: api.navigation.navigateToContainerLogs,
-        expected: {
-          page: NavigationPage.CONTAINER_LOGS,
-          parameters: {
-            id: 'valid',
-          },
-        },
-      },
-      {
-        name: 'navigateToContainerInspect',
-        method: api.navigation.navigateToContainerInspect,
-        expected: {
-          page: NavigationPage.CONTAINER_INSPECT,
-          parameters: {
-            id: 'valid',
-          },
-        },
-      },
-      {
-        name: 'navigateToContainerTerminal',
-        method: api.navigation.navigateToContainerTerminal,
-        expected: {
-          page: NavigationPage.CONTAINER_TERMINAL,
-          parameters: {
-            id: 'valid',
-          },
-        },
-      },
-    ];
+    // Call the method provided
+    await method(api.navigation)('valid');
 
-    for (const testCase of tests) {
-      // Call the method provided
-      await testCase.method('valid');
+    // Ensure the send method is called properly
+    expect(sendMock).toBeCalledWith('navigate', expected);
 
-      // Ensure the send method is called properly
-      expect(sendMock, `test case ${testCase.name} failed.`).toBeCalledWith('navigate', testCase.expected);
-    }
-
-    // Valid we listed the contains properly each time
-    expect(listSimpleContainerSpy).toHaveBeenCalledTimes(tests.length);
+    // Valid we listed the contains properly
+    expect(listSimpleContainerSpy).toHaveBeenCalledOnce();
   });
-  test('navigateToContainerX non-existent container', async () => {
+
+  test.each([
+    {
+      name: 'navigateToContainer invalid',
+      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainer,
+    },
+    {
+      name: 'navigateToContainerLogs invalid',
+      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainerLogs,
+    },
+    {
+      name: 'navigateToContainerInspect invalid',
+      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainerInspect,
+    },
+    {
+      name: 'navigateToContainerTerminal invalid',
+      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainerTerminal,
+    },
+  ])('$name', async ({ method }) => {
     const api = extensionLoader.createApi('path', {
       name: 'name',
       publisher: 'publisher',
@@ -921,47 +930,20 @@ describe('Navigation', async () => {
     // Mock listSimpleContainer implementation
     const listSimpleContainerSpy = vi.spyOn(containerProviderRegistry, 'listSimpleContainers');
     listSimpleContainerSpy.mockImplementation(async () => []);
-    // Spy send method
-    const sendMock = vi.spyOn(apiSender, 'send');
 
-    // First let's define our test cases
-    const tests: {
-      name: string;
-      method: (id: string) => Promise<void>;
-    }[] = [
-      {
-        name: 'navigateToContainer',
-        method: api.navigation.navigateToContainer,
-      },
-      {
-        name: 'navigateToContainerLogs',
-        method: api.navigation.navigateToContainerLogs,
-      },
-      {
-        name: 'navigateToContainerInspect',
-        method: api.navigation.navigateToContainerInspect,
-      },
-      {
-        name: 'navigateToContainerTerminal',
-        method: api.navigation.navigateToContainerTerminal,
-      },
-    ];
-
-    for (const testCase of tests) {
-      // Call the method provided
-      let error = undefined;
-      try {
-        await testCase.method('non-valid');
-      } catch (e) {
-        error = e;
-      }
-      expect(error).toBeDefined();
+    // Call the method provided
+    let error = undefined;
+    try {
+      await method(api.navigation)('invalid');
+    } catch (e) {
+      error = e;
     }
+    expect(error).toBeDefined();
 
-    // Valid we listed the contains properly each time
-    expect(listSimpleContainerSpy).toHaveBeenCalledTimes(tests.length);
-    expect(sendMock).toHaveBeenCalledTimes(0);
+    // Valid we listed the contains properly
+    expect(listSimpleContainerSpy).toHaveBeenCalledOnce();
   });
+
   test('navigateToImages', async () => {
     const api = extensionLoader.createApi('path', {
       name: 'name',
