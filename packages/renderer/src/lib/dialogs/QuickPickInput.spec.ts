@@ -207,4 +207,78 @@ describe('QuickPickInput', () => {
     const area = await screen.findByRole('textbox');
     expect(area).toBeInTheDocument();
   });
+
+  test('Expect that filtering works', async () => {
+    const idRequest = 123;
+
+    const quickPickOptions: QuickPickOptions = {
+      items: ['itemA', 'itemB'],
+      title: 'My custom title',
+      canPickMany: false,
+      placeHolder: 'placeHolder',
+      prompt: '',
+      id: idRequest,
+      onSelectCallback: false,
+    };
+
+    receiveFunctionMock.mockImplementation((message: string, callback: (options: QuickPickOptions) => void) => {
+      if (message === 'showQuickPick:add') {
+        callback(quickPickOptions);
+      }
+    });
+
+    render(QuickPickInput, {});
+
+    const input = screen.getByRole('textbox');
+    expect(input).toBeInTheDocument();
+
+    const itemA1 = await screen.findByText('itemA');
+    expect(itemA1).toBeInTheDocument();
+    const itemB1 = await screen.findByText('itemB');
+    expect(itemB1).toBeInTheDocument();
+
+    await userEvent.type(input, 'B');
+
+    const itemA2 = screen.queryByText('itemA');
+    expect(itemA2).not.toBeInTheDocument();
+    const itemB2 = await screen.findByText('itemB');
+    expect(itemB2).toBeInTheDocument();
+  });
+
+  test('Expect that filtering is case insensitive', async () => {
+    const idRequest = 123;
+
+    const quickPickOptions: QuickPickOptions = {
+      items: ['itemA', 'itemB'],
+      title: 'My custom title',
+      canPickMany: false,
+      placeHolder: 'placeHolder',
+      prompt: '',
+      id: idRequest,
+      onSelectCallback: false,
+    };
+
+    receiveFunctionMock.mockImplementation((message: string, callback: (options: QuickPickOptions) => void) => {
+      if (message === 'showQuickPick:add') {
+        callback(quickPickOptions);
+      }
+    });
+
+    render(QuickPickInput, {});
+
+    const input = screen.getByRole('textbox');
+    expect(input).toBeInTheDocument();
+
+    const itemA1 = await screen.findByText('itemA');
+    expect(itemA1).toBeInTheDocument();
+    const itemB1 = await screen.findByText('itemB');
+    expect(itemB1).toBeInTheDocument();
+
+    await userEvent.type(input, 'a');
+
+    const itemA2 = await screen.findByText('itemA');
+    expect(itemA2).toBeInTheDocument();
+    const itemB2 = screen.queryByText('itemB');
+    expect(itemB2).not.toBeInTheDocument();
+  });
 });

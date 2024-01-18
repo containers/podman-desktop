@@ -114,7 +114,8 @@ onMount(() => {
 async function onInputChange(event: any) {
   // in case of quick pick, filter the items
   if (mode === 'QuickPick') {
-    quickPickFilteredItems = quickPickItems.filter(item => item.value.includes(event.target.value));
+    let val = event.target.value.toLowerCase();
+    quickPickFilteredItems = quickPickItems.filter(item => item.value.toLowerCase().includes(val));
     quickPickSelectedFilteredIndex = 0;
     if (quickPickFilteredItems.length > 0) {
       quickPickSelectedIndex = quickPickItems.indexOf(quickPickFilteredItems[quickPickSelectedFilteredIndex]);
