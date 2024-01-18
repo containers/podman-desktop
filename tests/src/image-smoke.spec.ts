@@ -116,21 +116,29 @@ describe('Image workflow verification', async () => {
   });
 
   test('Prune images', async () => {
-    const imageList = ['image1', 'image2'];
+    const imageList = ['quay.io/podman/image1', 'quay.io/podman/image2'];
 
     let imagesPage = await navBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();
 
     for (const image of imageList) {
       const pullImagePage = await imagesPage.openPullImage();
+      await playExpect(pullImagePage.heading).toBeVisible();
       imagesPage = await pullImagePage.pullImage('quay.io/podman/hello');
+      await playExpect(imagesPage.heading).toBeVisible();
+      await playExpect.poll(async () => await imagesPage.waitForImageExists('quay.io/podman/hello')).toBeTruthy();
+
       const imageDetailsPage = await imagesPage.openImageDetails('quay.io/podman/hello');
+      await playExpect(imageDetailsPage.heading).toContainText('quay.io/podman/hello');
       const editImagePage = await imageDetailsPage.openEditImage();
       imagesPage = await editImagePage.renameImage(image);
+      await playExpect(imagesPage.heading).toBeVisible();
       await playExpect.poll(async () => await imagesPage.waitForImageExists(image)).toBeTruthy();
     }
 
     await imagesPage.pruneImages();
+    await playExpect(imagesPage.heading).toBeVisible();
+
     for (const image of imageList)
       await playExpect.poll(async () => await imagesPage.waitForImageDelete(image)).toBeTruthy();
   });

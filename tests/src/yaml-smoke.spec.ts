@@ -18,7 +18,7 @@
 
 import type { Page } from '@playwright/test';
 import type { RunnerTestContext } from './testContext/runner-test-context';
-import { afterAll, beforeAll, test, describe, beforeEach, expect } from 'vitest';
+import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
@@ -83,18 +83,20 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       let imagesPage = await navigationBar.openImages();
       await playExpect(imagesPage.heading).toBeVisible();
 
-      expect(await imagesPage.waitForImageExists(backendImage)).toBeTruthy();
-      expect(await imagesPage.waitForImageExists(frontendImage)).toBeTruthy();
+      await playExpect.poll(async () => await imagesPage.waitForImageExists(backendImage)).toBeTruthy();
+      await playExpect.poll(async () => await imagesPage.waitForImageExists(frontendImage)).toBeTruthy();
 
       let imageDetailsPage = await imagesPage.openImageDetails(backendImage);
-      await playExpect(imageDetailsPage.heading).toBeVisible();
+      await playExpect(imageDetailsPage.heading).toContainText(backendImage);
       imagesPage = await imageDetailsPage.deleteImage();
-      expect(await imagesPage.waitForImageDelete(backendImage)).toBeTruthy();
+      await playExpect(imagesPage.heading).toBeVisible();
+      await playExpect.poll(async () => await imagesPage.waitForImageDelete(backendImage)).toBeTruthy();
 
       imageDetailsPage = await imagesPage.openImageDetails(frontendImage);
-      await playExpect(imageDetailsPage.heading).toBeVisible();
+      await playExpect(imageDetailsPage.heading).toContainText(frontendImage);
       imagesPage = await imageDetailsPage.deleteImage();
-      expect(await imagesPage.waitForImageDelete(frontendImage)).toBeTruthy();
+      await playExpect(imagesPage.heading).toBeVisible();
+      await playExpect.poll(async () => await imagesPage.waitForImageDelete(frontendImage)).toBeTruthy();
     }, 120000);
   },
 );

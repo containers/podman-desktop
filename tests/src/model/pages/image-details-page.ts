@@ -21,6 +21,7 @@ import { BasePage } from './base-page';
 import { RunImagePage } from './run-image-page';
 import { ImageEditPage } from './image-edit-page';
 import { ImagesPage } from './images-page';
+import { waitUntil } from '../../utility/wait';
 
 export class ImageDetailsPage extends BasePage {
   readonly name: Locator;
@@ -61,6 +62,7 @@ export class ImageDetailsPage extends BasePage {
   }
 
   async deleteImage(): Promise<ImagesPage> {
+    await waitUntil(async () => await this.deleteButton.isEnabled(), 5000, 500);
     await this.deleteButton.click();
     return new ImagesPage(this.page);
   }

@@ -77,22 +77,16 @@ export class ImagesPage extends MainPage {
     }
     const table = await this.getTable();
     const rows = await table.getByRole('row').all();
-    let first: boolean = true;
-    for (const row of rows) {
-      if (first) {
-        // skip first row (header)
-        first = false;
-        continue;
-      }
+    for (let i = rows.length - 1; i > 0; i--) {
       // test on empty row - contains on 0th position &nbsp; character (ISO 8859-1 character set: 160)
-      const zeroCell = await row.getByRole('cell').nth(0).innerText();
+      const zeroCell = await rows[i].getByRole('cell').nth(0).innerText();
       if (zeroCell.indexOf(String.fromCharCode(160)) === 0) {
         continue;
       }
-      const thirdCell = await row.getByRole('cell').nth(3).innerText();
+      const thirdCell = await rows[i].getByRole('cell').nth(3).innerText();
       const index = thirdCell.indexOf(name);
       if (index >= 0) {
-        return row;
+        return rows[i];
       }
     }
   }
@@ -103,12 +97,12 @@ export class ImagesPage extends MainPage {
   }
 
   async waitForImageExists(name: string): Promise<boolean> {
-    await waitUntil(async () => await this.imageExists(name), 3000, 900);
+    await waitUntil(async () => await this.imageExists(name), 5000, 500);
     return true;
   }
 
   async waitForImageDelete(name: string): Promise<boolean> {
-    await waitWhile(async () => await this.imageExists(name), 3000, 900);
+    await waitWhile(async () => await this.imageExists(name), 5000, 500);
     return true;
   }
 }

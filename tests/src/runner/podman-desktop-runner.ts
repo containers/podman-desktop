@@ -53,11 +53,11 @@ export class PodmanDesktopRunner {
     }
 
     // start the app with given properties
+    this._running = true;
     this._app = await electron.launch({
       ...this._options,
     });
     // setup state
-    this._running = true;
     this._page = await this.getElectronApp().firstWindow();
     // Direct Electron console to Node terminal.
     this.getPage().on('console', console.log);
@@ -153,12 +153,12 @@ export class PodmanDesktopRunner {
   }
 
   public async close() {
+    // Stop playwright tracing
+    await this.stopTracing();
+
     if (!this.isRunning()) {
       throw Error('Podman Desktop is not running');
     }
-
-    // Stop playwright tracing
-    await this.stopTracing();
 
     if (this.getElectronApp()) {
       const elapsed = await this.trackTime(async () => await this.getElectronApp().close());
@@ -204,11 +204,13 @@ export class PodmanDesktopRunner {
     } else {
       args = ['.'];
     }
+    const timeout = 45000;
     return {
       args,
       executablePath,
       env,
       recordVideo,
+      timeout,
       tracesDir,
     };
   }
