@@ -42,7 +42,7 @@ import ContextKey from './lib/context/ContextKey.svelte';
 import CreateVolume from './lib/volume/CreateVolume.svelte';
 import CommandPalette from './lib/dialogs/CommandPalette.svelte';
 import Appearance from './lib/appearance/Appearance.svelte';
-import type { NavigationRequest } from '../../main/src/plugin/navigation-request';
+import type { NavigationRequest } from '../../main/src/plugin/navigation/navigation-request';
 import { navigationHandle } from '/@/Route';
 import IngressesRoutesList from './lib/ingresses-routes/IngressesRoutesList.svelte';
 

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { NavigationPage } from '../../main/src/plugin/navigation-page';
+import { NavigationPage } from '../../main/src/plugin/navigation/navigation-page';
 import { router } from 'tinro';
 
 /**

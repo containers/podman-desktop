@@ -149,8 +149,8 @@ import type { KubeContext } from './kubernetes-context.js';
 import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import { OpenDevToolsInit } from './open-devtools-init.js';
-import { NavigationPage } from '/@/plugin/navigation-page.js';
-import type { NavigationRequest } from '/@/plugin/navigation-request.js';
+import { NavigationPage } from '/@/plugin/navigation/navigation-page.js';
+import type { NavigationRequest } from '/@/plugin/navigation/navigation-request.js';
 import type { IDisposable } from './types/disposable.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';

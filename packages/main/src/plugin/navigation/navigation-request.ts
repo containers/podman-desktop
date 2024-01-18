@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { NavigationPage } from '/@/plugin/navigation-page.js';
+import type { NavigationPage } from '/@/plugin/navigation/navigation-page.js';
 
 export interface NavigationRequest {
   page: NavigationPage;
