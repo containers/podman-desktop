@@ -171,7 +171,7 @@ describe('Verification of container creation workflow', async () => {
   test('Prune containers', async () => {
     const navigationBar = new NavigationBar(page);
 
-    for await (const container of containerList) {
+    for (const container of containerList) {
       const images = await navigationBar.openImages();
       const imageDetails = await images.openImageDetails(imageToPull);
       const runImage = await imageDetails.openRunImage();
@@ -181,7 +181,7 @@ describe('Verification of container creation workflow', async () => {
         .toBeTruthy();
     }
 
-    for await (const container of containerList) {
+    for (const container of containerList) {
       let containersPage = new ContainersPage(page);
       const containersDetails = await containersPage.openContainersDetails(container);
       await playExpect(containersDetails.heading).toBeVisible();
