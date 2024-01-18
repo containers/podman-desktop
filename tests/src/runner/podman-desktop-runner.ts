@@ -51,14 +51,37 @@ export class PodmanDesktopRunner {
     if (this.isRunning()) {
       throw Error('Podman Desktop is already running');
     }
+    let retry = true;
+    let counter = 0;
 
-    // start the app with given properties
-    this._running = true;
-    this._app = await electron.launch({
-      ...this._options,
-    });
-    // setup state
-    this._page = await this.getElectronApp().firstWindow();
+    while (retry) {
+      try {
+        counter++;
+        // start the app with given properties
+        this._running = true;
+        this._app = await electron.launch({
+          ...this._options,
+        });
+        // setup state
+        this._page = await this.getElectronApp().firstWindow();
+
+        // Evaluate that the main window is visible
+        // at the same time, the function also makes sure that event 'ready-to-show' was triggered
+        const windowState = await this.getBrowserWindowState();
+        console.log(`Application Browser's window is visible: ${windowState.isVisible}`);
+
+        break;
+      } catch (err) {
+        if (counter > 1) retry = false;
+
+        this._running = false;
+        this._app = undefined;
+        this._page = undefined;
+
+        console.log(`Caught exception in startup: ${err}`);
+        if (!retry) throw Error(`Podman Desktop could not be started correctly with error: ${err}`);
+      }
+    }
     // Direct Electron console to Node terminal.
     this.getPage().on('console', console.log);
 
@@ -66,14 +89,12 @@ export class PodmanDesktopRunner {
     await this.startTracing();
 
     // also get stderr from the node process
-    this._app.process().stderr?.on('data', data => {
-      console.log(`STDERR: ${data}`);
-    });
-
-    // Evaluate that the main window is visible
-    // at the same time, the function also makes sure that event 'ready-to-show' was triggered
-    const windowState = await this.getBrowserWindowState();
-    console.log(`Application Browser's window is visible: ${windowState.isVisible}`);
+    if (this._app) {
+      this._app.process().stderr?.on('data', data => {
+        console.log(`STDERR: ${data}`);
+      });
+    }
+    if (!this._page) throw Error('Podman Desktop startup error!');
 
     return this._page;
   }
