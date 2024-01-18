@@ -70,9 +70,7 @@ import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plug
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { NotificationRegistry } from './notification-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
-import type { NavigationRequest } from '/@/plugin/navigation/navigation-request.js';
-import { NavigationPage } from '/@/plugin/navigation/navigation-page.js';
-import type { ContributionManager } from '/@/plugin/contribution-manager.js';
+import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 
 /**
  * Handle the loading of an extension
@@ -164,7 +162,7 @@ export class ExtensionLoader {
     private cliToolRegistry: CliToolRegistry,
     private notificationRegistry: NotificationRegistry,
     private imageCheckerProvider: ImageCheckerImpl,
-    private contributionManager: ContributionManager,
+    private navigationManager: NavigationManager,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -1074,142 +1072,42 @@ export class ExtensionLoader {
       },
     };
 
-    const navigateTo = (navigateRequest: NavigationRequest) => {
-      this.apiSender.send('navigate', navigateRequest);
-    };
-    const assertContainerIdExist = async (id: string) => {
-      const containers = await containerEngine.listContainers();
-      if (containers.find(container => container.Id === id) === undefined)
-        throw new Error(`Container with id ${id} cannot be found.`);
-    };
-    const assertImageExist = async (id: string, engineId: string, tag: string) => {
-      const images = await containerEngine.listImages();
-      const imageInfo = images.find(c => c.Id === id && c.engineId === engineId);
-      if (imageInfo === undefined) {
-        throw new Error(`Image with id ${id} and engine id ${engineId} cannot be found.`);
-      }
-      if (imageInfo.RepoTags?.find(repoTag => repoTag === tag) === undefined) {
-        throw new Error(`Image with id ${id}, engine id ${engineId} and tag ${tag} cannot be found.`);
-      }
-    };
-    const assertVolumeExist = async (name: string, engineId: string) => {
-      const volumes = await containerProviderRegistry.listVolumes();
-      const allVolumes = volumes.map(volume => volume.Volumes).flat();
-      const matchingVolume = allVolumes.find(volume => volume.Name === name && volume.engineId === engineId);
-      if (matchingVolume === undefined) {
-        throw new Error(`Volume with name ${name} and engine id ${engineId} cannot be found.`);
-      }
-    };
-    const assertPodExist = async (kind: string, name: string, engineId: string) => {
-      const pods = await containerProviderRegistry.listPods();
-      const matchingPod = pods.find(
-        podInPods => podInPods.Name === name && podInPods.engineId === engineId && kind === podInPods.kind,
-      );
-      if (matchingPod === undefined) {
-        throw new Error(`Pod with kind ${kind}, name ${name} and engine id ${engineId} cannot be found.`);
-      }
-    };
-    const assertContributionExist = async (name: string) => {
-      const contribs = this.contributionManager.listContributions();
-      if (contribs.find(contrib => contrib.name === name) === undefined) {
-        throw new Error(`Pod with name ${name} cannot be found.`);
-      }
-    };
     const navigation: typeof containerDesktopAPI.navigation = {
       navigateToContainers: async (): Promise<void> => {
-        navigateTo({ page: NavigationPage.CONTAINERS });
+        await this.navigationManager.navigateToContainers();
       },
       navigateToContainer: async (id: string): Promise<void> => {
-        await assertContainerIdExist(id);
-        navigateTo({
-          page: NavigationPage.CONTAINER,
-          parameters: {
-            id: id,
-          },
-        });
+        await this.navigationManager.navigateToContainer(id);
       },
       navigateToContainerLogs: async (id: string): Promise<void> => {
-        await assertContainerIdExist(id);
-        navigateTo({
-          page: NavigationPage.CONTAINER_LOGS,
-          parameters: {
-            id: id,
-          },
-        });
+        await this.navigationManager.navigateToContainerLogs(id);
       },
       navigateToContainerInspect: async (id: string): Promise<void> => {
-        await assertContainerIdExist(id);
-        navigateTo({
-          page: NavigationPage.CONTAINER_INSPECT,
-          parameters: {
-            id: id,
-          },
-        });
+        await this.navigationManager.navigateToContainerInspect(id);
       },
       navigateToContainerTerminal: async (id: string): Promise<void> => {
-        await assertContainerIdExist(id);
-        navigateTo({
-          page: NavigationPage.CONTAINER_TERMINAL,
-          parameters: {
-            id: id,
-          },
-        });
+        await this.navigationManager.navigateToContainerTerminal(id);
       },
       navigateToImages: async (): Promise<void> => {
-        navigateTo({
-          page: NavigationPage.IMAGES,
-        });
+        await this.navigationManager.navigateToImages();
       },
       navigateToImage: async (id: string, engineId: string, tag: string): Promise<void> => {
-        await assertImageExist(id, engineId, tag);
-        navigateTo({
-          page: NavigationPage.IMAGE,
-          parameters: {
-            id: id,
-            engineId: engineId,
-            tag: tag,
-          },
-        });
+        await this.navigationManager.navigateToImage(id, engineId, tag);
       },
       navigateToVolumes: async (): Promise<void> => {
-        navigateTo({
-          page: NavigationPage.VOLUMES,
-        });
+        await this.navigationManager.navigateToVolumes();
       },
       navigateToVolume: async (name: string, engineId: string): Promise<void> => {
-        await assertVolumeExist(name, engineId);
-        navigateTo({
-          page: NavigationPage.VOLUME,
-          parameters: {
-            name: name,
-            engineId: engineId,
-          },
-        });
+        await this.navigationManager.navigateToVolume(name, engineId);
       },
       navigateToPods: async (): Promise<void> => {
-        navigateTo({
-          page: NavigationPage.PODS,
-        });
+        await this.navigationManager.navigateToPods();
       },
       navigateToPod: async (kind: string, name: string, engineId: string): Promise<void> => {
-        await assertPodExist(kind, name, engineId);
-        navigateTo({
-          page: NavigationPage.POD,
-          parameters: {
-            kind: kind,
-            name: name,
-            engineId: engineId,
-          },
-        });
+        await this.navigationManager.navigateToPod(kind, name, engineId);
       },
       navigateToContribution: async (name: string): Promise<void> => {
-        await assertContributionExist(name);
-        navigateTo({
-          page: NavigationPage.CONTRIBUTION,
-          parameters: {
-            name: name,
-          },
-        });
+        await this.navigationManager.navigateToContribution(name);
       },
     };
 

@@ -57,6 +57,7 @@ import { NavigationPage } from '/@/plugin/navigation/navigation-page.js';
 import type { VolumeInfo, VolumeListInfo } from '/@/plugin/api/volume-info.js';
 import type { PodInfo } from '/@/plugin/api/pod-info.js';
 import type { ContributionInfo } from '/@/plugin/api/contribution-info.js';
+import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -167,6 +168,8 @@ const contributionManager: ContributionManager = {
   listContributions: vi.fn(),
 } as unknown as ContributionManager;
 
+const navigationManager: NavigationManager = {} as unknown as NavigationManager;
+
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeAll(() => {
   extensionLoader = new TestExtensionLoader(
@@ -199,6 +202,7 @@ beforeAll(() => {
     notificationRegistry,
     imageCheckerImpl,
     contributionManager,
+    navigationManager,
   );
 });
 

@@ -151,6 +151,7 @@ import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-
 import { OpenDevToolsInit } from './open-devtools-init.js';
 import { NavigationPage } from '/@/plugin/navigation/navigation-page.js';
 import type { NavigationRequest } from '/@/plugin/navigation/navigation-request.js';
+import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { IDisposable } from './types/disposable.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
@@ -747,6 +748,8 @@ export class PluginSystem {
 
     const contributionManager = new ContributionManager(apiSender, directories, containerProviderRegistry, exec);
 
+    const navigationManager = new NavigationManager(apiSender, containerProviderRegistry, contributionManager);
+
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
       menuRegistry,
@@ -776,7 +779,7 @@ export class PluginSystem {
       cliToolRegistry,
       notificationRegistry,
       imageChecker,
-      contributionManager,
+      navigationManager,
     );
     await this.extensionLoader.init();
 

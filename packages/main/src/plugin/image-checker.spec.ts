@@ -48,7 +48,7 @@ import { afterEach } from 'node:test';
 import type { CancellationToken, ImageChecks, ImageInfo, ProviderResult } from '@podman-desktop/api';
 import type { NotificationRegistry } from './notification-registry.js';
 import { ImageCheckerImpl } from './image-checker.js';
-import type { ContributionManager } from '/@/plugin/contribution-manager.js';
+import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 
 const apiSender: ApiSenderType = {
   send: vi.fn(),
@@ -95,7 +95,7 @@ suite('image checker module', () => {
       vi.fn() as unknown as CliToolRegistry,
       vi.fn() as unknown as NotificationRegistry,
       imageChecker,
-      vi.fn() as unknown as ContributionManager,
+      vi.fn() as unknown as NavigationManager,
     );
   });
 
