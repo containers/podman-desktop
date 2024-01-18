@@ -96,13 +96,13 @@ export class ImagesPage extends MainPage {
     return result !== undefined;
   }
 
-  async waitForImageExists(name: string): Promise<boolean> {
-    await waitUntil(async () => await this.imageExists(name), 5000, 500);
+  async waitForImageExists(name: string, timeout = 5000): Promise<boolean> {
+    await waitUntil(async () => await this.imageExists(name), timeout, 500);
     return true;
   }
 
-  async waitForImageDelete(name: string): Promise<boolean> {
-    await waitWhile(async () => await this.imageExists(name), 5000, 500);
+  async waitForImageDelete(name: string, timeout = 5000): Promise<boolean> {
+    await waitWhile(async () => await this.imageExists(name), timeout, 500);
     return true;
   }
 }

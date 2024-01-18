@@ -140,10 +140,10 @@ describe('Image workflow verification', async () => {
     await playExpect(imagesPage.heading).toBeVisible();
 
     await playExpect
-      .poll(async () => await imagesPage.waitForImageDelete(imageList[0]), { timeout: 60000 })
+      .poll(async () => await imagesPage.waitForImageDelete(imageList[0], 60000), { timeout: 0 })
       .toBeTruthy();
     await playExpect
-      .poll(async () => await imagesPage.waitForImageDelete(imageList[1]), { timeout: 60000 })
+      .poll(async () => await imagesPage.waitForImageDelete(imageList[1], 60000), { timeout: 0 })
       .toBeTruthy();
   }, 150000);
 });
