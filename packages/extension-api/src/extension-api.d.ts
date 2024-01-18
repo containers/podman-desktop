@@ -1919,6 +1919,19 @@ declare module '@podman-desktop/api' {
     id: string;
   }
 
+  export interface BuildImageOptions {
+    // Specifies a Containerfile which contains instructions for building the image
+    containerFile?: string;
+    // Specifies the name which is assigned to the resulting image if the build process completes successfully.
+    tag?: string;
+    // Set the os/arch of the built image (and its base image, when using one) to the provided value instead of using the current operating system and architecture of the host
+    platform?: string;
+    // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
+    provider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection;
+    // The abort controller for running the build image operation
+    abortController?: AbortController;
+  }
+
   export interface NetworkCreateOptions {
     Name: string;
   }
@@ -1953,13 +1966,10 @@ declare module '@podman-desktop/api' {
     export function stopContainer(engineId: string, id: string): Promise<void>;
     export function deleteContainer(engineId: string, id: string): Promise<void>;
     export function buildImage(
-      containerBuildContextDirectory: string,
-      relativeContainerfilePath: string,
-      imageName: string,
-      platform: string,
-      selectedProvider: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
+      // build context directory
+      context: string,
       eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
-      abortController?: AbortController,
+      options?: BuildImageOptions,
     );
     export function saveImage(engineId: string, id: string, filename: string): Promise<void>;
     export function listImages(): Promise<ImageInfo[]>;

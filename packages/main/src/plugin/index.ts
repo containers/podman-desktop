@@ -1209,10 +1209,6 @@ export class PluginSystem {
 
         return containerProviderRegistry.buildImage(
           containerBuildContextDirectory,
-          relativeContainerfilePath,
-          imageName,
-          platform,
-          selectedProvider,
           (eventName: string, data: string) => {
             this.getWebContentsSender().send(
               'container-provider-registry:buildImage-onData',
@@ -1221,6 +1217,10 @@ export class PluginSystem {
               data,
             );
           },
+          relativeContainerfilePath,
+          imageName,
+          platform,
+          selectedProvider,
           abortController,
         );
       },
