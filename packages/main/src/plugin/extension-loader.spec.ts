@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,7 @@ import type { ContributionManager } from '/@/plugin/contribution-manager.js';
 import { NavigationPage } from '/@/plugin/navigation/navigation-page.js';
 import type { ContributionInfo } from '/@/plugin/api/contribution-info.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
+import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -175,6 +176,7 @@ const navigationManager: NavigationManager = new NavigationManager(
   containerProviderRegistry,
   contributionManager,
 );
+const webviewRegistry: WebviewRegistry = {} as unknown as WebviewRegistry;
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeAll(() => {
@@ -208,6 +210,7 @@ beforeAll(() => {
     notificationRegistry,
     imageCheckerImpl,
     navigationManager,
+    webviewRegistry,
   );
 });
 

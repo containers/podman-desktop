@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ import type { CancellationToken, ImageChecks, ImageInfo, ProviderResult } from '
 import type { NotificationRegistry } from './notification-registry.js';
 import { ImageCheckerImpl } from './image-checker.js';
 import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
+import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 
 const apiSender: ApiSenderType = {
   send: vi.fn(),
@@ -96,6 +97,7 @@ suite('image checker module', () => {
       vi.fn() as unknown as NotificationRegistry,
       imageChecker,
       vi.fn() as unknown as NavigationManager,
+      vi.fn() as unknown as WebviewRegistry,
     );
   });
 

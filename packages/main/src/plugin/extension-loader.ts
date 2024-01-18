@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2023 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,7 @@ import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { NotificationRegistry } from './notification-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
 import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
+import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -167,6 +168,7 @@ export class ExtensionLoader {
     private notificationRegistry: NotificationRegistry,
     private imageCheckerProvider: ImageCheckerImpl,
     private navigationManager: NavigationManager,
+    private webviewRegistry: WebviewRegistry,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -856,6 +858,13 @@ export class ExtensionLoader {
       },
       createCustomPick: <T extends containerDesktopAPI.CustomPickItem>(): containerDesktopAPI.CustomPick<T> => {
         return customPickRegistry.createCustomPick();
+      },
+      createWebviewPanel: (
+        viewType: string,
+        title: string,
+        options?: containerDesktopAPI.WebviewOptions,
+      ): containerDesktopAPI.WebviewPanel => {
+        return this.webviewRegistry.createWebviewPanel(extensionInfo, viewType, title, options);
       },
     };
 
