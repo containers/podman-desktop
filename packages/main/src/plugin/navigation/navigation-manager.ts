@@ -69,7 +69,7 @@ export class NavigationManager {
     });
   }
 
-  private async assertImageExist(id: string, engineId: string, tag: string): Promise<void> {
+  async assertImageExist(id: string, engineId: string, tag: string): Promise<void> {
     if (!(await this.containerRegistry.imageExist(id, engineId, tag)))
       throw new Error(`Image with id ${id}, engine id ${engineId} and tag ${tag} cannot be found.`);
   }
@@ -93,7 +93,7 @@ export class NavigationManager {
     });
   }
 
-  private async assertVolumeExist(id: string, engineId: string): Promise<void> {
+  async assertVolumeExist(id: string, engineId: string): Promise<void> {
     if (!(await this.containerRegistry.volumeExist(id, engineId)))
       throw new Error(`Volume with name ${name} and engine id ${engineId} cannot be found.`);
   }
@@ -115,7 +115,7 @@ export class NavigationManager {
     });
   }
 
-  private async assertPodExist(kind: string, name: string, engineId: string): Promise<void> {
+  async assertPodExist(kind: string, name: string, engineId: string): Promise<void> {
     if (!(await this.containerRegistry.podExist(kind, name, engineId)))
       throw new Error(`Pod with kind ${kind}, name ${name} and engine id ${engineId} cannot be found.`);
   }
