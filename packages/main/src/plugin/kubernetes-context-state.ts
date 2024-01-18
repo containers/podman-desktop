@@ -122,6 +122,7 @@ export class ContextsState {
       const previous = this.contextsState.get(context.name);
       if (previous) {
         previous.podsCount++;
+        previous.reachable = true;
       }
       this.dispatchContextsState();
     });
@@ -130,6 +131,7 @@ export class ContextsState {
       const previous = this.contextsState.get(context.name);
       if (previous) {
         previous.podsCount--;
+        previous.reachable = true;
       }
       this.dispatchContextsState();
     });
@@ -252,8 +254,16 @@ export class ContextsState {
     });
   }
 
+  private timeoutId: NodeJS.Timeout | undefined;
   private dispatchContextsState() {
-    this.apiSender.send(`kubernetes-contexts-state-update`, this.contextsState);
+    // Debounce: send only the latest value if several values are sent in a short period
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+    }
+
+    this.timeoutId = setTimeout(() => {
+      this.apiSender.send(`kubernetes-contexts-state-update`, this.contextsState);
+    }, 100);
   }
 
   public getContextsState(): Map<string, ContextState> {

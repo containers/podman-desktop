@@ -146,6 +146,7 @@ test('should send info of resources in all reachable contexts and nothing in non
     deploymentsCount: 12,
     replicasetsCount: 22,
   } as ContextState);
+  await new Promise(resolve => setTimeout(resolve, 200));
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-state-update', expectedMap);
 
   // => removing contexts, should remving clusters from sent info
@@ -199,11 +200,13 @@ test('should send info of resources in all reachable contexts and nothing in non
     deploymentsCount: 11,
     replicasetsCount: 21,
   } as ContextState);
+  await new Promise(resolve => setTimeout(resolve, 200));
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-state-update', expectedMap);
 
   // => disabling feature, should send empty map
   vi.clearAllMocks();
   await client.update(false, kubeConfig);
   expectedMap = new Map<string, ContextState>();
+  await new Promise(resolve => setTimeout(resolve, 200));
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-state-update', expectedMap);
 });
