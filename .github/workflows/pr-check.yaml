@@ -41,7 +41,7 @@ jobs:
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn cache dir)" >> ${env:GITHUB_OUTPUT}
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -97,7 +97,7 @@ jobs:
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -152,7 +152,7 @@ jobs:
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -210,7 +210,7 @@ jobs:
         id: yarn-cache-dir-path-unix
         run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         if: ${{ matrix.os=='windows-2022' }}
         id: yarn-cache-windows
         with:
@@ -219,7 +219,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         if: ${{ matrix.os=='ubuntu-22.04'}}
         id: yarn-cache-unix
         with:
@@ -288,7 +288,7 @@ jobs:
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
