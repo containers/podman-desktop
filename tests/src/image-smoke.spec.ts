@@ -139,8 +139,7 @@ describe('Image workflow verification', async () => {
     await imagesPage.pruneImages();
     await playExpect(imagesPage.heading).toBeVisible();
 
-    for (const image of imageList) {
-      await playExpect.poll(async () => await imagesPage.waitForImageDelete(image)).toBeTruthy();
-    }
+    await playExpect.poll(async () => await imagesPage.waitForImageDelete(imageList[0])).toBeTruthy();
+    await playExpect.poll(async () => await imagesPage.waitForImageDelete(imageList[1])).toBeTruthy();
   });
 });
