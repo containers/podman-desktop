@@ -80,13 +80,7 @@ describe('Image workflow verification', async () => {
   test('Rename image', async () => {
     const imageDetailsPage = new ImageDetailsPage(page, 'quay.io/podman/hello');
     const editPage = await imageDetailsPage.openEditImage();
-    await playExpect(editPage.cancelButton).toBeEnabled();
-    await playExpect(editPage.saveButton).toBeVisible();
-    await playExpect(editPage.saveButton).toBeDisabled();
-    await editPage.imageName.fill('quay.io/podman/hi');
-    await playExpect(editPage.saveButton).toBeEnabled();
-    await editPage.saveButton.click();
-    const imagesPage = await navBar.openImages();
+    const imagesPage = await editPage.renameImage('quay.io/podman/hi');
     expect(await imagesPage.waitForImageExists('quay.io/podman/hi')).equals(true);
   });
 
@@ -122,12 +116,22 @@ describe('Image workflow verification', async () => {
   });
 
   test('Prune images', async () => {
+    const imageList = ['image1', 'image2'];
+
     let imagesPage = await navBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();
 
-    const pullImagePage = await imagesPage.openPullImage();
-    imagesPage = await pullImagePage.pullImage('quay.io/podman/hello');
-    const imageDetailsPage = await imagesPage.openImageDetails('quay.io/podman/hello');
-    await imageDetailsPage.openEditImage();
+    for (const image of imageList) {
+      const pullImagePage = await imagesPage.openPullImage();
+      imagesPage = await pullImagePage.pullImage('quay.io/podman/hello');
+      const imageDetailsPage = await imagesPage.openImageDetails('quay.io/podman/hello');
+      const editImagePage = await imageDetailsPage.openEditImage();
+      imagesPage = await editImagePage.renameImage(image);
+      await playExpect.poll(async () => await imagesPage.waitForImageExists(image)).toBeTruthy();
+    }
+
+    await imagesPage.pruneImages();
+    for (const image of imageList)
+      await playExpect.poll(async () => await imagesPage.waitForImageDelete(image)).toBeTruthy();
   });
 });

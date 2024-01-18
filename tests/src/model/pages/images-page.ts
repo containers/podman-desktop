@@ -27,12 +27,14 @@ export class ImagesPage extends MainPage {
   readonly pullImageButton: Locator;
   readonly pruneImagesButton: Locator;
   readonly buildImageButton: Locator;
+  readonly pruneConfirmationButton: Locator;
 
   constructor(page: Page) {
     super(page, 'images');
     this.pullImageButton = this.additionalActions.getByRole('button', { name: 'Pull' });
     this.pruneImagesButton = this.additionalActions.getByRole('button', { name: 'Prune' });
     this.buildImageButton = this.additionalActions.getByRole('button', { name: 'Build' });
+    this.pruneConfirmationButton = this.page.getByRole('button', { name: 'Yes' });
   }
 
   async openPullImage(): Promise<PullImagePage> {
@@ -55,6 +57,13 @@ export class ImagesPage extends MainPage {
     const imageRowName = imageRow.getByRole('cell').nth(3);
     await imageRowName.click();
     return new ImageDetailsPage(this.page, name);
+  }
+
+  async pruneImages(): Promise<ImagesPage> {
+    await this.pruneImagesButton.click();
+    await this.pruneConfirmationButton.waitFor({ state: 'visible', timeout: 3000 });
+    await this.pruneConfirmationButton.click();
+    return this;
   }
 
   async openBuildImage(): Promise<BuildImagePage> {
