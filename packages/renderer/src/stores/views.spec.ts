@@ -82,6 +82,9 @@ test('views should be updated in case of an extension is stopped', async () => {
   expect(extensionStoppedCallback).toBeDefined();
   await extensionStoppedCallback();
 
+  // wait a little
+  await new Promise(resolve => setTimeout(resolve, 100));
+
   // check if the volumes are updated
   const views2 = get(viewsContributions);
   expect(views2.length).toBe(0);

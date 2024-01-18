@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2023 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -200,24 +200,24 @@ export class ContainerProviderRegistry {
   }
 
   setupListeners() {
-    const cleanStreamMap = (containerId: string) => {
-      this.streamsPerContainerId.delete(containerId);
-      this.streamsOutputPerContainerId.delete(containerId);
+    const cleanStreamMap = (containerId: unknown) => {
+      this.streamsPerContainerId.delete(String(containerId));
+      this.streamsOutputPerContainerId.delete(String(containerId));
     };
 
-    this.apiSender.receive('container-stopped-event', (containerId: string) => {
+    this.apiSender.receive('container-stopped-event', (containerId: unknown) => {
       cleanStreamMap(containerId);
     });
 
-    this.apiSender.receive('container-die-event', (containerId: string) => {
+    this.apiSender.receive('container-die-event', (containerId: unknown) => {
       cleanStreamMap(containerId);
     });
 
-    this.apiSender.receive('container-kill-event', (containerId: string) => {
+    this.apiSender.receive('container-kill-event', (containerId: unknown) => {
       cleanStreamMap(containerId);
     });
 
-    this.apiSender.receive('container-removed-event', (containerId: string) => {
+    this.apiSender.receive('container-removed-event', (containerId: unknown) => {
       cleanStreamMap(containerId);
     });
   }

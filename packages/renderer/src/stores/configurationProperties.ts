@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2023 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,8 +63,8 @@ class ConfigurationChangeEvent extends CustomEvent<IConfigurationChangeEvent> {
 
 export function setupConfigurationChange() {
   // be notified when a specific property is being changed
-  window.events?.receive('onDidChangeConfiguration', async (data: IConfigurationChangeEvent) => {
-    onDidChangeConfiguration.dispatchEvent(new ConfigurationChangeEvent(data));
+  window.events?.receive('onDidChangeConfiguration', (data: unknown) => {
+    onDidChangeConfiguration.dispatchEvent(new ConfigurationChangeEvent(data as IConfigurationChangeEvent));
   });
 }
 

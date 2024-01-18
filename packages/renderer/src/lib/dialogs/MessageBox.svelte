@@ -23,7 +23,8 @@ let display = false;
 let inputElement: HTMLInputElement | undefined = undefined;
 let messageBox: HTMLDivElement;
 
-const showMessageBoxCallback = async (options?: MessageBoxOptions) => {
+const showMessageBoxCallback = (messageBoxParameter: unknown) => {
+  const options: MessageBoxOptions | undefined = messageBoxParameter as MessageBoxOptions;
   currentId = options?.id || 0;
   title = options?.title || '';
   message = options?.message || '';
@@ -74,11 +75,15 @@ const showMessageBoxCallback = async (options?: MessageBoxOptions) => {
 
   display = true;
 
-  await tick();
-
-  if (display && inputElement) {
-    inputElement.focus();
-  }
+  tick()
+    .then(() => {
+      if (display && inputElement) {
+        inputElement.focus();
+      }
+    })
+    .catch((error: unknown) => {
+      console.error('Unable to focus on input element', error);
+    });
 };
 
 onMount(() => {

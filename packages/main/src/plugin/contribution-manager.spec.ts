@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import type { RunResult } from '@podman-desktop/api';
 import { EventEmitter } from 'stream-json/Assembler.js';
 import type { ContributionInfo } from './api/contribution-info.js';
 import type { Proxy } from './proxy.js';
+import type { IDisposable } from './types/disposable.js';
 let contributionManager: TestContributionManager;
 
 let composeFileExample: any;
@@ -42,14 +43,17 @@ const portNumber = 10000;
 
 const eventEmitter = new EventEmitter();
 
-const send = (channel: string, data?: any) => {
+const send = (channel: string, data?: unknown) => {
   eventEmitter.emit(channel, data);
 };
 
-const receive = (channel: string, func: any) => {
-  eventEmitter.on(channel, data => {
-    func(data);
-  });
+const receive = (channel: string, func: (...args: unknown[]) => void): IDisposable => {
+  eventEmitter.on(channel, func);
+  return {
+    dispose: () => {
+      eventEmitter.off(channel, func);
+    },
+  } as unknown as IDisposable;
 };
 
 const apiSender: ApiSenderType = {

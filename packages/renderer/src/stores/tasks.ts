@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,14 +64,14 @@ export function createTask(name: string): StatefulTask {
   return task;
 }
 
-window.events?.receive('task-created', (task: Task) => {
-  tasksInfo.update(tasks => [...tasks, task]);
+window.events?.receive('task-created', (task: unknown) => {
+  tasksInfo.update(tasks => [...tasks, task as Task]);
 });
-window.events?.receive('task-updated', (task: Task) => {
-  updateTask(task);
+window.events?.receive('task-updated', (task: unknown) => {
+  updateTask(task as Task);
 });
-window.events?.receive('task-removed', (task: Task) => {
-  removeTask(task.id);
+window.events?.receive('task-removed', (task: unknown) => {
+  removeTask((task as Task).id);
 });
 
 export function isStatefulTask(task: Task): task is StatefulTask {

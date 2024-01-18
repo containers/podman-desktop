@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,6 +81,9 @@ test('onboarding should be updated in case of an extension is stopped', async ()
   const extensionStoppedCallback = callbacks.get('extension-stopped');
   expect(extensionStoppedCallback).toBeDefined();
   await extensionStoppedCallback();
+
+  // wait a little
+  await new Promise(resolve => setTimeout(resolve, 100));
 
   // check if the onboardings are updated
   const onboardingList2 = get(onboardingList);

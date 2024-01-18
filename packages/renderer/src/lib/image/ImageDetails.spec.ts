@@ -30,7 +30,14 @@ import { lastPage } from '/@/stores/breadcrumb';
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import { containersInfos } from '/@/stores/containers';
 import { imageCheckerProviders } from '/@/stores/image-checker-providers';
-import { IMAGE_DETAILS_VIEW_ICONS, IMAGE_LIST_VIEW_ICONS, IMAGE_VIEW_ICONS } from '../view/views';
+import {
+  IMAGE_DETAILS_VIEW_BADGES,
+  IMAGE_DETAILS_VIEW_ICONS,
+  IMAGE_LIST_VIEW_BADGES,
+  IMAGE_LIST_VIEW_ICONS,
+  IMAGE_VIEW_BADGES,
+  IMAGE_VIEW_ICONS,
+} from '../view/views';
 import { viewsContributions } from '/@/stores/views';
 
 const listImagesMock = vi.fn();
@@ -319,5 +326,65 @@ test.each([
     expect(subElement.length).toBe(0);
   } else {
     expect(subElement.length).toBe(1);
+  }
+});
+
+test.each([
+  { viewIdContrib: IMAGE_VIEW_BADGES },
+  { viewIdContrib: IMAGE_LIST_VIEW_BADGES },
+  { viewIdContrib: IMAGE_DETAILS_VIEW_BADGES },
+])('Expect badges added with %s contribution', async ({ viewIdContrib }) => {
+  const imageWithLabels: ImageInfo = {
+    ...myImage,
+    Labels: {
+      'io.podman-desktop': 'true',
+    },
+  };
+  listImagesMock.mockResolvedValue([imageWithLabels]);
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+
+  while (get(imagesInfos).length !== 1) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  hasAuthMock.mockImplementation(() => {
+    return new Promise(() => false);
+  });
+
+  const contribs = [
+    {
+      extensionId: 'foo.bar',
+      viewId: viewIdContrib,
+      value: {
+        badge: { label: 'my-custom-badge', color: '#ff0000' },
+        when: 'io.podman-desktop in imageLabelKeys',
+      },
+    },
+  ];
+
+  // set viewsContributions
+  viewsContributions.set(contribs);
+
+  // render the component
+  render(ImageDetails, {
+    imageID: 'myImage',
+    engineId: 'engine0',
+    base64RepoTag: Buffer.from('myImageTag').toString('base64'),
+  });
+
+  // wait a litlle
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  // grab badge with label 'my-custom-badge'
+  const badge = screen.queryByText('my-custom-badge');
+
+  // should not be overriden for list contribution
+
+  if (IMAGE_LIST_VIEW_BADGES === viewIdContrib) {
+    expect(badge).not.toBeInTheDocument();
+  } else {
+    expect(badge).toBeInTheDocument();
+    // color should be #ff0000
+    expect(badge).toHaveStyle('background-color: #ff0000');
   }
 });

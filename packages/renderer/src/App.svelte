@@ -42,6 +42,7 @@ import ContextKey from './lib/context/ContextKey.svelte';
 import CreateVolume from './lib/volume/CreateVolume.svelte';
 import CommandPalette from './lib/dialogs/CommandPalette.svelte';
 import Appearance from './lib/appearance/Appearance.svelte';
+import IngressesRoutesList from './lib/ingresses-routes/IngressesRoutesList.svelte';
 
 router.mode.hash();
 
@@ -168,6 +169,9 @@ window.events?.receive('display-troubleshooting', () => {
         </Route>
         <Route path="/services" breadcrumb="Services" navigationHint="root">
           <ServicesList />
+        </Route>
+        <Route path="/ingressesRoutes" breadcrumb="Ingresses & Routes" navigationHint="root">
+          <IngressesRoutesList />
         </Route>
         <Route path="/preferences/*" breadcrumb="Settings">
           <PreferencesPage />

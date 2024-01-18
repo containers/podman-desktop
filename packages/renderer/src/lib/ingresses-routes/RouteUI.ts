@@ -24,6 +24,7 @@ export interface RouteToReference {
 export interface RouteUI {
   name: string;
   namespace: string;
+  status: string;
   host: string;
   port?: string;
   path?: string;
