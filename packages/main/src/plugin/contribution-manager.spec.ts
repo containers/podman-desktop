@@ -47,7 +47,7 @@ const send = (channel: string, data?: unknown) => {
   eventEmitter.emit(channel, data);
 };
 
-const receive = (channel: string, func: any): IDisposable => {
+const receive = (channel: string, func: (...args: unknown[]) => void): IDisposable => {
   eventEmitter.on(channel, func);
   return {
     dispose: () => {
