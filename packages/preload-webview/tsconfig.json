@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "esnext",
+    "sourceMap": false,
+    "moduleResolution": "Node",
+    "skipLibCheck": true,
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
+
+    "types": ["node"],
+
+    "baseUrl": ".",
+    "paths": {
+      "/@/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "exposedInWebview.d.ts", "../../types/**/*.d.ts"]
+}
