@@ -56,8 +56,9 @@ router.subscribe(function (navigation) {
   }
 });
 
-window.events?.receive('navigate', (navigationRequest: NavigationRequest) => {
-  navigationHandle(navigationRequest.page, navigationRequest.parameters);
+window.events?.receive('navigate', (navigationRequest: unknown) => {
+  const navRequest = navigationRequest as NavigationRequest;
+  navigationHandle(navRequest.page, navRequest.parameters);
 });
 </script>
 
