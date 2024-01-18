@@ -1946,17 +1946,23 @@ export class ContainerProviderRegistry {
 
   async buildImage(
     containerBuildContextDirectory: string,
-    relativeContainerfilePath: string,
-    imageName: string,
-    platform: string,
-    selectedProvider: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
     eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
+    relativeContainerfilePath?: string,
+    imageName?: string,
+    platform?: string,
+    selectedProvider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
     abortController?: AbortController,
   ): Promise<unknown> {
     let telemetryOptions = {};
     try {
-      // grab all connections
-      const matchingContainerProviderApi = this.getMatchingEngineFromConnection(selectedProvider);
+      let matchingContainerProviderApi: Dockerode;
+      if (selectedProvider !== undefined) {
+        // grab all connections
+        matchingContainerProviderApi = this.getMatchingEngineFromConnection(selectedProvider);
+      } else {
+        // Get the first running connection (preference for podman)
+        matchingContainerProviderApi = this.getFirstRunningConnection()[1];
+      }
 
       // grab auth for all registries
       const registryconfig = this.imageRegistry.getRegistryConfig();
@@ -1965,7 +1971,7 @@ export class ContainerProviderRegistry {
         `Uploading the build context from ${containerBuildContextDirectory}...Can take a while...\r\n`,
       );
       const tarStream = tar.pack(containerBuildContextDirectory);
-      if (isWindows()) {
+      if (isWindows() && relativeContainerfilePath !== undefined) {
         relativeContainerfilePath = relativeContainerfilePath.replace(/\\/g, '/');
       }
 
@@ -2056,5 +2062,28 @@ export class ContainerProviderRegistry {
         memory: dockerInfo.MemTotal,
       };
     }
+  }
+
+  async containerExist(id: string): Promise<boolean> {
+    const containers = await this.listContainers();
+    return containers.some(container => container.Id === id);
+  }
+
+  async imageExist(id: string, engineId: string, tag: string): Promise<boolean> {
+    const images = await this.listImages();
+    const imageInfo = images.find(c => c.Id === id && c.engineId === engineId);
+    return imageInfo?.RepoTags !== undefined && imageInfo.RepoTags.some(repoTag => repoTag === tag);
+  }
+
+  async volumeExist(name: string, engineId: string): Promise<boolean> {
+    const volumes = await this.listVolumes();
+    const allVolumes = volumes.map(volume => volume.Volumes).flat();
+    return allVolumes.some(volume => volume.Name === name && volume.engineId === engineId);
+  }
+  async podExist(kind: string, name: string, engineId: string): Promise<boolean> {
+    const pods = await this.listPods();
+    return pods.some(
+      podInPods => podInPods.Name === name && podInPods.engineId === engineId && kind === podInPods.kind,
+    );
   }
 }

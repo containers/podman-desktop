@@ -18,11 +18,11 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { beforeAll, beforeEach, test, expect, vi, describe } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { CommandRegistry } from './command-registry.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import type { ContainerProviderRegistry } from './container-registry.js';
-import type { ActivatedExtension, AnalyzedExtension } from './extension-loader.js';
+import type { ActivatedExtension, AnalyzedExtension, RequireCacheDict } from './extension-loader.js';
 import { ExtensionLoader } from './extension-loader.js';
 import type { FilesystemMonitoring } from './filesystem-monitoring.js';
 import type { ImageRegistry } from './image-registry.js';
@@ -52,6 +52,10 @@ import type { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { NotificationRegistry } from './notification-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
+import type { ContributionManager } from '/@/plugin/contribution-manager.js';
+import { NavigationPage } from '/@/plugin/navigation/navigation-page.js';
+import type { ContributionInfo } from '/@/plugin/api/contribution-info.js';
+import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -76,6 +80,10 @@ class TestExtensionLoader extends ExtensionLoader {
 
   doRequire(module: string): NodeRequire {
     return super.doRequire(module);
+  }
+
+  getRequireCache(): RequireCacheDict {
+    return super.requireCache;
   }
 
   setActivatedExtension(extensionId: string, activatedExtension: ActivatedExtension): void {
@@ -120,7 +128,12 @@ const fileSystemMonitoring: FilesystemMonitoring = {} as unknown as FilesystemMo
 
 const proxy: Proxy = {} as unknown as Proxy;
 
-const containerProviderRegistry: ContainerProviderRegistry = {} as unknown as ContainerProviderRegistry;
+const containerProviderRegistry: ContainerProviderRegistry = {
+  containerExist: vi.fn(),
+  imageExist: vi.fn(),
+  volumeExist: vi.fn(),
+  podExist: vi.fn(),
+} as unknown as ContainerProviderRegistry;
 
 const inputQuickPickRegistry: InputQuickPickRegistry = {} as unknown as InputQuickPickRegistry;
 
@@ -153,6 +166,16 @@ const notificationRegistry: NotificationRegistry = {} as unknown as Notification
 
 const imageCheckerImpl: ImageCheckerImpl = {} as unknown as ImageCheckerImpl;
 
+const contributionManager: ContributionManager = {
+  listContributions: vi.fn(),
+} as unknown as ContributionManager;
+
+const navigationManager: NavigationManager = new NavigationManager(
+  apiSender,
+  containerProviderRegistry,
+  contributionManager,
+);
+
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeAll(() => {
   extensionLoader = new TestExtensionLoader(
@@ -184,6 +207,7 @@ beforeAll(() => {
     cliToolRegistry,
     notificationRegistry,
     imageCheckerImpl,
+    navigationManager,
   );
 });
 
@@ -654,6 +678,28 @@ describe('check loadRuntime', async () => {
     // expect require to be called with the mainPath
     expect(doRequireMock).not.toBeCalled();
   });
+
+  test('check cache entry without id and children', async () => {
+    // override doRequire method
+    const doRequireMock = vi.spyOn(extensionLoader, 'doRequire');
+    doRequireMock.mockResolvedValue({} as NodeRequire);
+
+    const getRequireCacheMock = vi.spyOn(extensionLoader, 'getRequireCache');
+    getRequireCacheMock.mockReturnValue({
+      foo: {
+        // no id and no children
+      } as unknown as NodeModule,
+    });
+
+    const fakeExtension = {
+      mainPath: '/fake/path',
+    } as unknown as AnalyzedExtension;
+
+    extensionLoader.loadRuntime(fakeExtension);
+
+    // expect require to be called with the mainPath and no exception
+    expect(doRequireMock).toHaveBeenCalledWith(fakeExtension.mainPath);
+  });
 });
 
 describe('analyze extension and main', async () => {
@@ -802,4 +848,414 @@ test('Verify extension uri', async () => {
   const grabUri: containerDesktopAPI.Uri = activateMethod.mock.calls[0][0].extensionUri;
   expect(grabUri).toBeDefined();
   expect(grabUri.fsPath).toBe('dummy');
+});
+
+describe('Navigation', async () => {
+  test('navigateToContainers', async () => {
+    const api = extensionLoader.createApi('path', {
+      name: 'name',
+      publisher: 'publisher',
+      version: '1',
+      displayName: 'dname',
+    });
+
+    // Spy send method
+    const sendMock = vi.spyOn(apiSender, 'send');
+
+    await api.navigation.navigateToContainers();
+    expect(sendMock).toBeCalledWith('navigate', { page: NavigationPage.CONTAINERS });
+  });
+
+  test.each([
+    {
+      name: 'navigateToContainer valid',
+      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainer,
+      expected: {
+        page: NavigationPage.CONTAINER,
+        parameters: {
+          id: 'valid',
+        },
+      },
+    },
+    {
+      name: 'navigateToContainerLogs valid',
+      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainerLogs,
+      expected: {
+        page: NavigationPage.CONTAINER_LOGS,
+        parameters: {
+          id: 'valid',
+        },
+      },
+    },
+    {
+      name: 'navigateToContainerInspect valid',
+      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainerInspect,
+      expected: {
+        page: NavigationPage.CONTAINER_INSPECT,
+        parameters: {
+          id: 'valid',
+        },
+      },
+    },
+    {
+      name: 'navigateToContainerTerminal valid',
+      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainerTerminal,
+      expected: {
+        page: NavigationPage.CONTAINER_TERMINAL,
+        parameters: {
+          id: 'valid',
+        },
+      },
+    },
+  ])('$name', async ({ method, expected }) => {
+    const api = extensionLoader.createApi('path', {
+      name: 'name',
+      publisher: 'publisher',
+      version: '1',
+      displayName: 'dname',
+    });
+
+    // Mock listSimpleContainer implementation
+    const containerExistSpy = vi.spyOn(containerProviderRegistry, 'containerExist');
+    containerExistSpy.mockImplementation(() => Promise.resolve(true));
+
+    // Spy send method
+    const sendMock = vi.spyOn(apiSender, 'send');
+
+    // Call the method provided
+    await method(api.navigation)('valid');
+
+    // Ensure the send method is called properly
+    expect(sendMock).toBeCalledWith('navigate', expected);
+
+    // Valid we listed the contains properly
+    expect(containerExistSpy).toHaveBeenCalledOnce();
+  });
+
+  test.each([
+    {
+      name: 'navigateToContainer invalid',
+      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainer,
+    },
+    {
+      name: 'navigateToContainerLogs invalid',
+      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainerLogs,
+    },
+    {
+      name: 'navigateToContainerInspect invalid',
+      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainerInspect,
+    },
+    {
+      name: 'navigateToContainerTerminal invalid',
+      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainerTerminal,
+    },
+  ])('$name', async ({ method }) => {
+    const api = extensionLoader.createApi('path', {
+      name: 'name',
+      publisher: 'publisher',
+      version: '1',
+      displayName: 'dname',
+    });
+
+    // Mock listSimpleContainer implementation
+    const containerExistSpy = vi.spyOn(containerProviderRegistry, 'containerExist');
+    containerExistSpy.mockImplementation(() => Promise.resolve(false));
+
+    // Call the method provided
+    let error = undefined;
+    try {
+      await method(api.navigation)('invalid');
+    } catch (e) {
+      error = e;
+    }
+    expect(error).toBeDefined();
+
+    // Valid we listed the contains properly
+    expect(containerExistSpy).toHaveBeenCalledOnce();
+  });
+
+  test('navigateToImages', async () => {
+    const api = extensionLoader.createApi('path', {
+      name: 'name',
+      publisher: 'publisher',
+      version: '1',
+      displayName: 'dname',
+    });
+
+    // Spy send method
+    const sendMock = vi.spyOn(apiSender, 'send');
+
+    await api.navigation.navigateToImages();
+    expect(sendMock).toBeCalledWith('navigate', { page: NavigationPage.IMAGES });
+  });
+  test('navigateToImage existing image', async () => {
+    const api = extensionLoader.createApi('path', {
+      name: 'name',
+      publisher: 'publisher',
+      version: '1',
+      displayName: 'dname',
+    });
+
+    // Mock listSimpleContainer implementation
+    const imageExistSpy = vi.spyOn(containerProviderRegistry, 'imageExist');
+    imageExistSpy.mockImplementation(() => Promise.resolve(true));
+    // Spy send method
+    const sendMock = vi.spyOn(apiSender, 'send');
+
+    // Call the method provided
+    await api.navigation.navigateToImage('valid-id', 'valid-engine', 'valid-tag');
+
+    // Ensure the send method is called properly
+    expect(sendMock).toBeCalledWith('navigate', {
+      page: NavigationPage.IMAGE,
+      parameters: {
+        id: 'valid-id',
+        engineId: 'valid-engine',
+        tag: 'valid-tag',
+      },
+    });
+
+    // Valid we listed the contains properly each time
+    expect(imageExistSpy).toHaveBeenCalledOnce();
+  });
+  test('navigateToImage non-existent image', async () => {
+    const api = extensionLoader.createApi('path', {
+      name: 'name',
+      publisher: 'publisher',
+      version: '1',
+      displayName: 'dname',
+    });
+
+    // Mock listSimpleContainer implementation
+    const imageExistSpy = vi.spyOn(containerProviderRegistry, 'imageExist');
+    imageExistSpy.mockImplementation(() => Promise.resolve(false));
+
+    // Spy send method
+    const sendMock = vi.spyOn(apiSender, 'send');
+
+    // Call the method provided
+    let error = undefined;
+    try {
+      await api.navigation.navigateToImage('non-valid-id', 'non-valid-engine', 'non-valid-tag');
+    } catch (e) {
+      error = e;
+    }
+    expect(error).toBeDefined();
+
+    // Ensure the send method is never called
+    expect(sendMock).toHaveBeenCalledTimes(0);
+
+    // Valid we listed the contains properly each time
+    expect(imageExistSpy).toHaveBeenCalledOnce();
+  });
+  test('navigateToVolumes', async () => {
+    const api = extensionLoader.createApi('path', {
+      name: 'name',
+      publisher: 'publisher',
+      version: '1',
+      displayName: 'dname',
+    });
+
+    // Spy send method
+    const sendMock = vi.spyOn(apiSender, 'send');
+
+    await api.navigation.navigateToVolumes();
+    expect(sendMock).toBeCalledWith('navigate', { page: NavigationPage.VOLUMES });
+  });
+  test('navigateToVolume existing volume', async () => {
+    const api = extensionLoader.createApi('path', {
+      name: 'name',
+      publisher: 'publisher',
+      version: '1',
+      displayName: 'dname',
+    });
+
+    // Mock listSimpleContainer implementation
+    const volumeExistSpy = vi.spyOn(containerProviderRegistry, 'volumeExist');
+    volumeExistSpy.mockImplementation(() => Promise.resolve(true));
+    // Spy send method
+    const sendMock = vi.spyOn(apiSender, 'send');
+
+    // Call the method provided
+    await api.navigation.navigateToVolume('valid-name', 'valid-engine');
+
+    // Ensure the send method is called properly
+    expect(sendMock).toBeCalledWith('navigate', {
+      page: NavigationPage.VOLUME,
+      parameters: {
+        name: 'valid-name',
+        engineId: 'valid-engine',
+      },
+    });
+
+    // Valid we listed the contains properly each time
+    expect(volumeExistSpy).toHaveBeenCalledOnce();
+  });
+  test('navigateToVolume non-existent volume', async () => {
+    const api = extensionLoader.createApi('path', {
+      name: 'name',
+      publisher: 'publisher',
+      version: '1',
+      displayName: 'dname',
+    });
+
+    // Mock listSimpleContainer implementation
+    const volumeExistSpy = vi.spyOn(containerProviderRegistry, 'volumeExist');
+    volumeExistSpy.mockImplementation(() => Promise.resolve(false));
+
+    // Spy send method
+    const sendMock = vi.spyOn(apiSender, 'send');
+
+    // Call the method provided
+    let error = undefined;
+    try {
+      await api.navigation.navigateToVolume('non-valid-name', 'non-valid-engine');
+    } catch (e) {
+      error = e;
+    }
+    expect(error).toBeDefined();
+
+    // Ensure the send method is called properly
+    expect(sendMock).toHaveBeenCalledTimes(0);
+
+    // Valid we listed the contains properly each time
+    expect(volumeExistSpy).toHaveBeenCalledOnce();
+  });
+  test('navigateToPods', async () => {
+    const api = extensionLoader.createApi('path', {
+      name: 'name',
+      publisher: 'publisher',
+      version: '1',
+      displayName: 'dname',
+    });
+
+    // Spy send method
+    const sendMock = vi.spyOn(apiSender, 'send');
+
+    await api.navigation.navigateToPods();
+    expect(sendMock).toBeCalledWith('navigate', { page: NavigationPage.PODS });
+  });
+  test('navigateToPod existing pod', async () => {
+    const api = extensionLoader.createApi('path', {
+      name: 'name',
+      publisher: 'publisher',
+      version: '1',
+      displayName: 'dname',
+    });
+
+    // Mock listSimpleContainer implementation
+    const podExistSpy = vi.spyOn(containerProviderRegistry, 'podExist');
+    podExistSpy.mockImplementation(() => Promise.resolve(true));
+
+    // Spy send method
+    const sendMock = vi.spyOn(apiSender, 'send');
+
+    // Call the method provided
+    await api.navigation.navigateToPod('valid-kind', 'valid-name', 'valid-engine');
+
+    // Ensure the send method is called properly
+    expect(sendMock).toBeCalledWith('navigate', {
+      page: NavigationPage.POD,
+      parameters: {
+        kind: 'valid-kind',
+        name: 'valid-name',
+        engineId: 'valid-engine',
+      },
+    });
+
+    // Valid we listed the contains properly each time
+    expect(podExistSpy).toHaveBeenCalledOnce();
+  });
+  test('navigateToPod non-existent volume', async () => {
+    const api = extensionLoader.createApi('path', {
+      name: 'name',
+      publisher: 'publisher',
+      version: '1',
+      displayName: 'dname',
+    });
+
+    // Mock listSimpleContainer implementation
+    const podExistSpy = vi.spyOn(containerProviderRegistry, 'podExist');
+    podExistSpy.mockImplementation(() => Promise.resolve(false));
+
+    // Spy send method
+    const sendMock = vi.spyOn(apiSender, 'send');
+
+    // Call the method provided
+    let error = undefined;
+    try {
+      await api.navigation.navigateToPod('non-valid-kind', 'non-valid-name', 'non-valid-engine');
+    } catch (e) {
+      error = e;
+    }
+    expect(error).toBeDefined();
+
+    // Ensure the send method is called properly
+    expect(sendMock).toHaveBeenCalledTimes(0);
+
+    // Valid we listed the contains properly each time
+    expect(podExistSpy).toHaveBeenCalledOnce();
+  });
+
+  test('navigateToContribution existing contribution', async () => {
+    const api = extensionLoader.createApi('path', {
+      name: 'name',
+      publisher: 'publisher',
+      version: '1',
+      displayName: 'dname',
+    });
+
+    // Mock listSimpleContainer implementation
+    const listContributionsSpy = vi.spyOn(contributionManager, 'listContributions');
+    listContributionsSpy.mockImplementation(() => [
+      {
+        name: 'valid-name',
+      } as unknown as ContributionInfo,
+    ]);
+    // Spy send method
+    const sendMock = vi.spyOn(apiSender, 'send');
+
+    // Call the method provided
+    await api.navigation.navigateToContribution('valid-name');
+
+    // Ensure the send method is called properly
+    expect(sendMock).toBeCalledWith('navigate', {
+      page: NavigationPage.CONTRIBUTION,
+      parameters: {
+        name: 'valid-name',
+      },
+    });
+
+    // Valid we listed the contains properly each time
+    expect(listContributionsSpy).toHaveBeenCalledOnce();
+  });
+  test('navigateToContribution non-existent contribution', async () => {
+    const api = extensionLoader.createApi('path', {
+      name: 'name',
+      publisher: 'publisher',
+      version: '1',
+      displayName: 'dname',
+    });
+
+    // Mock listContributions implementation
+    const listContributionsSpy = vi.spyOn(contributionManager, 'listContributions');
+    listContributionsSpy.mockImplementation(() => []);
+    // Spy send method
+    const sendMock = vi.spyOn(apiSender, 'send');
+
+    // Call the method provided
+    let error = undefined;
+    try {
+      await api.navigation.navigateToContribution('non-valid-name');
+    } catch (e) {
+      error = e;
+    }
+    expect(error).toBeDefined();
+
+    // Ensure the send method is called properly
+    expect(sendMock).toHaveBeenCalledTimes(0);
+
+    // Valid we listed the contains properly each time
+    expect(listContributionsSpy).toHaveBeenCalledOnce();
+  });
 });
