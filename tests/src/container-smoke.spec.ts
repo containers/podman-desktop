@@ -176,6 +176,7 @@ describe('Verification of container creation workflow', async () => {
       const imageDetails = await images.openImageDetails(imageToPull);
       const runImage = await imageDetails.openRunImage();
       const containersPage = await runImage.startContainer(container);
+      await playExpect(containersPage.heading).toBeVisible();
       await playExpect
         .poll(async () => await containersPage.containerExists(container), { timeout: 15000 })
         .toBeTruthy();
@@ -190,6 +191,7 @@ describe('Verification of container creation workflow', async () => {
       await containersDetails.stopContainer();
       await playExpect(await containersDetails.getStateLocator()).toHaveText(ContainerState.Exited, { timeout: 20000 });
       containersPage = await navigationBar.openContainers();
+      await playExpect(containersPage.heading).toBeVisible();
       await containersPage.pruneContainers();
       await playExpect
         .poll(async () => await containersPage.containerExists(container), { timeout: 15000 })
