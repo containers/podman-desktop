@@ -70,13 +70,16 @@ beforeEach<RunnerTestContext>(async ctx => {
 });
 
 afterAll(async () => {
-  await deleteContainer(page, containerToRun);
-  for (const container of containerList) {
-    await deleteContainer(page, container);
-  }
+  try {
+    await deleteContainer(page, containerToRun);
+    for (const container of containerList) {
+      await deleteContainer(page, container);
+    }
 
-  await deleteImage(page, imageToPull);
-  await pdRunner.close();
+    await deleteImage(page, imageToPull);
+  } finally {
+    await pdRunner.close();
+  }
 }, 90000);
 
 describe('Verification of container creation workflow', async () => {
@@ -168,7 +171,7 @@ describe('Verification of container creation workflow', async () => {
   test('Prune containers', async () => {
     const navigationBar = new NavigationBar(page);
 
-    for (const container of containerList) {
+    for await (const container of containerList) {
       const images = await navigationBar.openImages();
       const imageDetails = await images.openImageDetails(imageToPull);
       const runImage = await imageDetails.openRunImage();
@@ -178,7 +181,7 @@ describe('Verification of container creation workflow', async () => {
         .toBeTruthy();
     }
 
-    for (const container of containerList) {
+    for await (const container of containerList) {
       let containersPage = new ContainersPage(page);
       const containersDetails = await containersPage.openContainersDetails(container);
       await playExpect(containersDetails.heading).toBeVisible();

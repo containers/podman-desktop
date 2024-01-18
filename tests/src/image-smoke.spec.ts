@@ -121,7 +121,7 @@ describe('Image workflow verification', async () => {
     let imagesPage = await navBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();
 
-    for (const image of imageList) {
+    for await (const image of imageList) {
       const pullImagePage = await imagesPage.openPullImage();
       await playExpect(pullImagePage.heading).toBeVisible();
       imagesPage = await pullImagePage.pullImage('quay.io/podman/hello');
@@ -139,6 +139,7 @@ describe('Image workflow verification', async () => {
     await imagesPage.pruneImages();
     await playExpect(imagesPage.heading).toBeVisible();
 
-    for (const image of imageList) expect(await imagesPage.waitForImageDelete(image)).toBeTruthy();
+    for await (const image of imageList)
+      await playExpect.poll(async () => await imagesPage.waitForImageDelete(image)).toBeTruthy();
   });
 });

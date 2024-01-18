@@ -46,10 +46,13 @@ beforeEach<RunnerTestContext>(async ctx => {
 });
 
 afterAll(async () => {
-  await deletePod(page, podName);
-  await deleteImage(page, backendImage);
-  await deleteImage(page, frontendImage);
-  await pdRunner.close();
+  try {
+    await deletePod(page, podName);
+    await deleteImage(page, backendImage);
+    await deleteImage(page, frontendImage);
+  } finally {
+    await pdRunner.close();
+  }
 });
 
 describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')(
