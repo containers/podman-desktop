@@ -111,6 +111,10 @@ export interface ActivatedExtension {
 
 const EXTENSION_OPTION = '--extension-folder';
 
+export interface RequireCacheDict {
+  [key: string]: NodeModule | undefined;
+}
+
 export class ExtensionLoader {
   private overrideRequireDone = false;
 
@@ -1111,18 +1115,23 @@ export class ExtensionLoader {
     return require(path);
   }
 
+  // helper function to get require cache
+  protected get requireCache(): RequireCacheDict {
+    return require.cache;
+  }
+
   loadRuntime(extension: AnalyzedExtension): NodeRequire | undefined {
     // cleaning the cache for all files of that plug-in.
-    Object.keys(require.cache).forEach(function (key): void {
-      const mod: NodeJS.Module | undefined = require.cache[key];
+    Object.keys(this.requireCache).forEach(key => {
+      const mod: NodeJS.Module | undefined = this.requireCache[key];
 
       // attempting to reload a native module will throw an error, so skip them
-      if (mod?.id.endsWith('.node')) {
+      if (mod?.id?.endsWith('.node')) {
         return;
       }
 
       // remove children that are part of the plug-in
-      let i = mod?.children.length || 0;
+      let i = mod?.children?.length || 0;
       while (i--) {
         const childMod: NodeJS.Module | undefined = mod?.children[i];
         // ensure the child module is not null, is in the plug-in folder, and is not a native module (see above)

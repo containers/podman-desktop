@@ -22,7 +22,7 @@ import { beforeAll, beforeEach, test, expect, vi, describe } from 'vitest';
 import type { CommandRegistry } from './command-registry.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import type { ContainerProviderRegistry } from './container-registry.js';
-import type { ActivatedExtension, AnalyzedExtension } from './extension-loader.js';
+import type { ActivatedExtension, AnalyzedExtension, RequireCacheDict } from './extension-loader.js';
 import { ExtensionLoader } from './extension-loader.js';
 import type { FilesystemMonitoring } from './filesystem-monitoring.js';
 import type { ImageRegistry } from './image-registry.js';
@@ -76,6 +76,10 @@ class TestExtensionLoader extends ExtensionLoader {
 
   doRequire(module: string): NodeRequire {
     return super.doRequire(module);
+  }
+
+  getRequireCache(): RequireCacheDict {
+    return super.requireCache;
   }
 
   setActivatedExtension(extensionId: string, activatedExtension: ActivatedExtension): void {
@@ -653,6 +657,28 @@ describe('check loadRuntime', async () => {
 
     // expect require to be called with the mainPath
     expect(doRequireMock).not.toBeCalled();
+  });
+
+  test('check cache entry without id and children', async () => {
+    // override doRequire method
+    const doRequireMock = vi.spyOn(extensionLoader, 'doRequire');
+    doRequireMock.mockResolvedValue({} as NodeRequire);
+
+    const getRequireCacheMock = vi.spyOn(extensionLoader, 'getRequireCache');
+    getRequireCacheMock.mockReturnValue({
+      foo: {
+        // no id and no children
+      } as unknown as NodeModule,
+    });
+
+    const fakeExtension = {
+      mainPath: '/fake/path',
+    } as unknown as AnalyzedExtension;
+
+    extensionLoader.loadRuntime(fakeExtension);
+
+    // expect require to be called with the mainPath and no exception
+    expect(doRequireMock).toHaveBeenCalledWith(fakeExtension.mainPath);
   });
 });
 
