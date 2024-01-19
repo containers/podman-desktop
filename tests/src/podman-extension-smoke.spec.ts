@@ -94,16 +94,17 @@ async function verifyPodmanExtensionStatus(enabled: boolean) {
     SETTINGS_EXTENSIONS_TABLE_PODMAN_TITLE,
   );
   await playExpect(podmanExtensionRowLocator).toBeVisible();
-  const connectionStatusLabel = podmanExtensionRowLocator.getByLabel(SETTINGS_EXTENSIONS_TABLE_EXTENSION_STATUS_LABEL);
-  await playExpect(connectionStatusLabel).toBeVisible();
-  await connectionStatusLabel.scrollIntoViewIfNeeded();
-  const connectionStatusLocatorText = await connectionStatusLabel.innerText({ timeout: 3000 });
-  // --------------------------
+  // -> await for the stop button to be visible to prevent state when the extension status is STARTING
   await playExpect(
     enabled
       ? settingsExtensionsPage.getExtensionStopButton(podmanExtensionRowLocator)
       : settingsExtensionsPage.getExtensionStartButton(podmanExtensionRowLocator),
   ).toBeVisible();
+  const connectionStatusLabel = podmanExtensionRowLocator.getByLabel(SETTINGS_EXTENSIONS_TABLE_EXTENSION_STATUS_LABEL);
+  await playExpect(connectionStatusLabel).toBeVisible();
+  await connectionStatusLabel.scrollIntoViewIfNeeded();
+  const connectionStatusLocatorText = await connectionStatusLabel.innerText({ timeout: 3000 });
+  // --------------------------
   playExpect(
     enabled
       ? connectionStatusLocatorText === PODMAN_EXTENSION_STATUS_RUNNING
