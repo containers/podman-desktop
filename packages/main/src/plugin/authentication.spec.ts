@@ -57,6 +57,7 @@ import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { NotificationRegistry } from './notification-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
 import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
+import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 
 vi.mock('../util.js', async () => {
   return {
@@ -280,6 +281,7 @@ suite('Authentication', () => {
       vi.fn() as unknown as NotificationRegistry,
       vi.fn() as unknown as ImageCheckerImpl,
       vi.fn() as unknown as NavigationManager,
+      vi.fn() as unknown as WebviewRegistry,
     );
     providerMock = {
       onDidChangeSessions: vi.fn(),

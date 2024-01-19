@@ -126,6 +126,7 @@ import { Directories } from './directories.js';
 import { CustomPickRegistry } from './custompick/custompick-registry.js';
 import { ViewRegistry } from './view-registry.js';
 import type { ViewInfoUI } from './api/view-info.js';
+import type { WebviewInfo } from './api/webview-info.js';
 import { Context } from './context/context.js';
 import { OnboardingRegistry } from './onboarding-registry.js';
 import type { OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
@@ -150,6 +151,7 @@ import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import { OpenDevToolsInit } from './open-devtools-init.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
+import { WebviewRegistry } from './webview/webview-registry.js';
 import type { IDisposable } from './types/disposable.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
@@ -740,6 +742,8 @@ export class PluginSystem {
     const contributionManager = new ContributionManager(apiSender, directories, containerProviderRegistry, exec);
 
     const navigationManager = new NavigationManager(apiSender, containerProviderRegistry, contributionManager);
+    const webviewRegistry = new WebviewRegistry(apiSender);
+    await webviewRegistry.start();
 
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
@@ -771,6 +775,7 @@ export class PluginSystem {
       notificationRegistry,
       imageChecker,
       navigationManager,
+      webviewRegistry,
     );
     await this.extensionLoader.init();
 
@@ -2065,6 +2070,22 @@ export class PluginSystem {
     this.ipcHandle('viewRegistry:listViewsContributions', async (_listener): Promise<ViewInfoUI[]> => {
       return viewRegistry.listViewsContributions();
     });
+    this.ipcHandle('webviewRegistry:listWebviews', async (_listener): Promise<WebviewInfo[]> => {
+      return webviewRegistry.listWebviews();
+    });
+    this.ipcHandle(
+      'webviewRegistry:post-message',
+      async (_listener, id: string, message: { data: unknown }): Promise<void> => {
+        return webviewRegistry.postMessageToWebview(id, message);
+      },
+    );
+    this.ipcHandle('webviewRegistry:update-state', async (_listener, id: string, state: unknown): Promise<void> => {
+      return webviewRegistry.updateWebviewState(id, state);
+    });
+
+    this.ipcHandle('webviewRegistry:makeDefaultWebviewVisible', async (_listener, webviewId: string): Promise<void> => {
+      return webviewRegistry.makeDefaultWebviewVisible(webviewId);
+    });
 
     this.ipcHandle('viewRegistry:fetchViewsContributions', async (_listener, id: string): Promise<ViewInfoUI[]> => {
       return viewRegistry.fetchViewsContributions(id);
@@ -2159,6 +2180,15 @@ export class PluginSystem {
         return imageChecker.check(id, image, token);
       },
     );
+
+    this.ipcHandle('webview:get-preload-script', async (): Promise<string> => {
+      const preloadScriptPath = path.join(__dirname, '../../preload-webview/dist/index.cjs');
+      return `file://${preloadScriptPath}`;
+    });
+
+    this.ipcHandle('webview:get-registry-http-port', async (): Promise<number> => {
+      return webviewRegistry.getRegistryHttpPort();
+    });
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,
