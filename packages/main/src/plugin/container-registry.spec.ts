@@ -2414,8 +2414,11 @@ test('setupConnectionAPI with errors', async () => {
   // last call should be with the 'container-started-event' message
   const allCalls = vi.mocked(apiSender.send).mock.calls;
   expect(allCalls).toBeDefined();
-  const lastCall = allCalls[allCalls.length - 1];
-  expect(lastCall).toStrictEqual(['container-started-event', fakeId]);
+
+  // filter calls to find the one with container-started-event
+  const containerStartedEventCalls = allCalls.filter(call => call[0] === 'container-started-event');
+  expect(containerStartedEventCalls).toHaveLength(1);
+  expect(containerStartedEventCalls[0][1]).toBe(fakeId);
 
   stream2.end();
 

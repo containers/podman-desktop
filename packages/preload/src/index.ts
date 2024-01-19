@@ -39,6 +39,7 @@ import type { HistoryInfo } from '../../main/src/plugin/api/history-info';
 import type { ContainerInspectInfo } from '../../main/src/plugin/api/container-inspect-info';
 import type { ContainerStatsInfo } from '../../main/src/plugin/api/container-stats-info';
 import type { IconInfo } from '../../main/src/plugin/api/icon-info';
+import type { WebviewInfo } from '../../main/src/plugin/api/webview-info';
 import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
 import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-api';
 import type { CatalogExtension } from '../../main/src/plugin/extensions-catalog/extensions-catalog-api';
@@ -1265,6 +1266,12 @@ function initExposure(): void {
     apiSender.send('dev-tools:open-extension', extensionId);
   });
 
+  // Handle callback to open devtools for webviews
+  // by delegating to the renderer process
+  ipcRenderer.on('dev-tools:open-webview', (_, webviewId: string) => {
+    apiSender.send('dev-tools:open-webview', webviewId);
+  });
+
   // Handle callback on dialog file/folder by calling the callback once we get the answer
   ipcRenderer.on(
     'dialog:open-file-or-folder-response',
@@ -1514,6 +1521,14 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('ddExtensionDelete', async (extensionName: string): Promise<void> => {
     return ipcInvoke('docker-desktop-plugin:delete', extensionName);
+  });
+
+  contextBridge.exposeInMainWorld('getWebviewPreloadPath', async (): Promise<string> => {
+    return ipcInvoke('webview:get-preload-script');
+  });
+
+  contextBridge.exposeInMainWorld('getWebviewRegistryHttpPort', async (): Promise<number> => {
+    return ipcInvoke('webview:get-registry-http-port');
   });
 
   contextBridge.exposeInMainWorld('getDDPreloadPath', async (): Promise<string> => {
@@ -1832,6 +1847,12 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('listViewsContributions', async (): Promise<ViewInfoUI[]> => {
     return ipcInvoke('viewRegistry:listViewsContributions');
+  });
+  contextBridge.exposeInMainWorld('listWebviews', async (): Promise<WebviewInfo[]> => {
+    return ipcInvoke('webviewRegistry:listWebviews');
+  });
+  contextBridge.exposeInMainWorld('makeDefaultWebviewVisible', async (webviewId: string): Promise<void> => {
+    return ipcInvoke('webviewRegistry:makeDefaultWebviewVisible', webviewId);
   });
 
   contextBridge.exposeInMainWorld(
