@@ -115,8 +115,7 @@ export class WebviewPreload {
     return this.ipcInvoke('webviewRegistry:listWebviews') as Promise<WebviewInfo[]>;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected ipcRendererOn(channel: string, listener: (event: IpcRendererEvent, ...args: any[]) => void) {
+  protected ipcRendererOn(channel: string, listener: (event: IpcRendererEvent, ...args: unknown[]) => void) {
     ipcRenderer.on(channel, listener);
   }
 
@@ -133,13 +132,14 @@ export class WebviewPreload {
     this.changeContent();
 
     // broadcast messages from the main process to the webview
-    this.ipcRendererOn('webview-post-message', (_, target: { message: unknown }) => {
-      window.dispatchEvent(new MessageEvent('message', { data: target.message }));
+    this.ipcRendererOn('webview-post-message', (_, target: unknown) => {
+      const targetData = target as { message: unknown };
+      window.dispatchEvent(new MessageEvent('message', { data: targetData.message }));
     });
 
     this.ipcRendererOn('webview-update-html', (_, html) => {
       if (this.#webviewInfo) {
-        this.#webviewInfo.html = html;
+        this.#webviewInfo.html = html as string;
         this.changeContent();
       }
     });

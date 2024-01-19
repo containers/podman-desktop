@@ -34,7 +34,7 @@ class TestWebwiewPreload extends WebviewPreload {
   buildApi(): unknown {
     return super.buildApi();
   }
-  ipcRendererOn(channel: string, listener: (event: IpcRendererEvent, ...args: any[]) => void) {
+  ipcRendererOn(channel: string, listener: (event: IpcRendererEvent, ...args: unknown[]) => void) {
     super.ipcRendererOn(channel, listener);
   }
   async ipcInvoke(channel: string, ...args: unknown[]): Promise<unknown> {
@@ -79,7 +79,7 @@ vi.mock('electron', async () => {
 });
 
 let spyIpcRendererOn: MockInstance<
-  [channel: string, listener: (event: IpcRendererEvent, ...args: any[]) => void],
+  [channel: string, listener: (event: IpcRendererEvent, ...args: unknown[]) => void],
   void
 >;
 let spyBuildApi: MockInstance<[], unknown>;

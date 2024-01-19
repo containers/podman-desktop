@@ -26,6 +26,7 @@ import ServiceIcon from './lib/images/ServiceIcon.svelte';
 import IngressRouteIcon from './lib/images/IngressRouteIcon.svelte';
 import { ingresses } from './stores/ingresses';
 import { routes } from './stores/routes';
+import Webviews from '/@/lib/webview/Webviews.svelte';
 
 let podInfoSubscribe: Unsubscriber;
 let containerInfoSubscribe: Unsubscriber;
@@ -204,6 +205,8 @@ export let meta: TinroRouteMeta;
       <img src="{contribution.icon}" width="24" height="24" alt="{contribution.name}" />
     </NavItem>
   {/each}
+
+  <Webviews bind:meta="{meta}" />
 
   <div class="grow"></div>
 

@@ -45,6 +45,7 @@ import Appearance from './lib/appearance/Appearance.svelte';
 import type { NavigationRequest } from '../../main/src/plugin/navigation/navigation-request';
 import { navigationHandle } from '/@/Route';
 import IngressesRoutesList from './lib/ingresses-routes/IngressesRoutesList.svelte';
+import Webview from './lib/webview/Webview.svelte';
 
 router.mode.hash();
 
@@ -175,6 +176,9 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         </Route>
         <Route path="/contribs/:name/*" breadcrumb="Extension" let:meta>
           <DockerExtension name="{decodeURI(meta.params.name)}" />
+        </Route>
+        <Route path="/webviews/:id/*" breadcrumb="Webview" let:meta>
+          <Webview id="{meta.params.id}" />
         </Route>
         <Route path="/help" breadcrumb="Help">
           <HelpPage />
