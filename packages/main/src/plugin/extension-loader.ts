@@ -72,6 +72,7 @@ import type { NotificationRegistry } from './notification-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
 import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
+import type { ImageInspectInfo } from '/@/plugin/api/image-inspect-info.js';
 
 /**
  * Handle the loading of an extension
@@ -962,6 +963,9 @@ export class ExtensionLoader {
       },
       deleteImage(engineId: string, id: string) {
         return containerProviderRegistry.deleteImage(engineId, id);
+      },
+      getImageInspect(engineId: string, id: string): Promise<ImageInspectInfo> {
+        return containerProviderRegistry.getImageInspect(engineId, id);
       },
       info(engineId: string): Promise<containerDesktopAPI.ContainerEngineInfo> {
         return containerProviderRegistry.info(engineId);

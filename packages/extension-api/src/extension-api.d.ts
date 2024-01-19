@@ -1671,6 +1671,79 @@ declare module '@podman-desktop/api' {
     Containers: number;
   }
 
+  export interface ImageInspectInfo {
+    engineId: string;
+    engineName: string;
+    Id: string;
+    RepoTags: string[];
+    RepoDigests: string[];
+    Parent: string;
+    Comment: string;
+    Created: string;
+    Container: string;
+    ContainerConfig: {
+      Hostname: string;
+      Domainname: string;
+      User: string;
+      AttachStdin: boolean;
+      AttachStdout: boolean;
+      AttachStderr: boolean;
+      ExposedPorts: { [portAndProtocol: string]: unknown };
+      Tty: boolean;
+      OpenStdin: boolean;
+      StdinOnce: boolean;
+      Env: string[];
+      Cmd: string[];
+      ArgsEscaped: boolean;
+      Image: string;
+      Volumes: { [path: string]: unknown };
+      WorkingDir: string;
+      Entrypoint?: string | string[];
+      OnBuild?: unknown[];
+      Labels: { [label: string]: string };
+    };
+    DockerVersion: string;
+    Author: string;
+    Config: {
+      Hostname: string;
+      Domainname: string;
+      User: string;
+      AttachStdin: boolean;
+      AttachStdout: boolean;
+      AttachStderr: boolean;
+      ExposedPorts: { [portAndProtocol: string]: unknown };
+      Tty: boolean;
+      OpenStdin: boolean;
+      StdinOnce: boolean;
+      Env: string[];
+      Cmd: string[];
+      ArgsEscaped: boolean;
+      Image: string;
+      Volumes: { [path: string]: unknown };
+      WorkingDir: string;
+      Entrypoint?: string | string[];
+      OnBuild: unknown[];
+      Labels: { [label: string]: string };
+    };
+    Architecture: string;
+    Os: string;
+    Size: number;
+    VirtualSize: number;
+    GraphDriver: {
+      Name: string;
+      Data: {
+        DeviceId: string;
+        DeviceName: string;
+        DeviceSize: string;
+      };
+    };
+    RootFS: {
+      Type: string;
+      Layers?: string[];
+      BaseLayer?: string;
+    };
+  }
+
   export interface NetworkContainer {
     Name: string;
     EndpointID: string;
@@ -2139,6 +2212,7 @@ declare module '@podman-desktop/api' {
       callback: (event: PullEvent) => void,
     ): Promise<void>;
     export function deleteImage(engineId: string, id: string): Promise<void>;
+    export function getImageInspect(engineId: string, id: string): Promise<ImageInspectInfo>;
 
     export function info(engineId: string): Promise<ContainerEngineInfo>;
     export const onEvent: Event<ContainerJSONEvent>;
