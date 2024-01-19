@@ -1356,14 +1356,12 @@ declare module '@podman-desktop/api' {
      *
      * Webview content can post strings or json serializable objects back to an extension.
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    readonly onDidReceiveMessage: Event<any>;
+    readonly onDidReceiveMessage: Event<unknown>;
 
     /**
      * Post a message to the webview content.
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    postMessage(message: any): Promise<boolean>;
+    postMessage(message: unknown): Promise<boolean>;
 
     /**
      * Convert a uri for the local file system to one that can be used inside webviews.
