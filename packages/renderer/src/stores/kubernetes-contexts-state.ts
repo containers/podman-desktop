@@ -21,7 +21,7 @@ import type { ContextState } from '../../../main/src/plugin/kubernetes-context-s
 
 export const kubernetesContextsState = readable(new Map<string, ContextState>(), set => {
   window.kubernetesGetContextsState().then(value => set(value));
-  window.events?.receive('kubernetes-contexts-state-update', (value: Map<string, ContextState>) => {
-    set(value);
+  window.events?.receive('kubernetes-contexts-state-update', (value: unknown) => {
+    set(value as Map<string, ContextState>);
   });
 });
