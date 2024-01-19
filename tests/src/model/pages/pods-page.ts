@@ -24,11 +24,15 @@ import { PlayKubeYamlPage } from './play-kube-yaml-page';
 export class PodsPage extends BasePage {
   readonly heading: Locator;
   readonly playKubernetesYAMLButton: Locator;
+  readonly prunePodsButton: Locator;
+  readonly pruneConfirmationButton: Locator;
 
   constructor(page: Page) {
     super(page);
     this.heading = this.page.getByRole('heading', { name: 'pods', exact: true });
     this.playKubernetesYAMLButton = this.page.getByRole('button', { name: 'Play Kubernetes YAML' });
+    this.prunePodsButton = this.page.getByRole('button', { name: 'Prune' });
+    this.pruneConfirmationButton = this.page.getByRole('button', { name: 'Yes' });
   }
 
   async getTable(): Promise<Locator> {
@@ -89,5 +93,12 @@ export class PodsPage extends BasePage {
   async openPlayKubeYaml(): Promise<PlayKubeYamlPage> {
     await this.playKubernetesYAMLButton.click();
     return new PlayKubeYamlPage(this.page);
+  }
+
+  async prunePods(): Promise<PodsPage> {
+    await this.prunePodsButton.click();
+    await this.pruneConfirmationButton.waitFor({ state: 'visible', timeout: 3000 });
+    await this.pruneConfirmationButton.click();
+    return this;
   }
 }

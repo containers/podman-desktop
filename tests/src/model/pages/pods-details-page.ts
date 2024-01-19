@@ -52,12 +52,7 @@ export class PodDetailsPage extends BasePage {
   async getState(): Promise<string> {
     for (const state in PodState) {
       const stateDiv = this.getPage().getByTitle(state.toUpperCase(), { exact: true });
-      try {
-        await stateDiv.waitFor({ state: 'visible', timeout: 200 });
-        return state.toUpperCase();
-      } catch (error) {
-        // go to next state
-      }
+      if ((await stateDiv.count()) > 0) return state.toUpperCase();
     }
     return PodState.Unknown;
   }

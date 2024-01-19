@@ -52,6 +52,7 @@ export class ImageDetailsPage extends BasePage {
   }
 
   async openRunImage(): Promise<RunImagePage> {
+    await waitUntil(async () => await this.runImageButton.isEnabled(), 5000, 500);
     await this.runImageButton.click();
     return new RunImagePage(this.page, this.imageName);
   }
