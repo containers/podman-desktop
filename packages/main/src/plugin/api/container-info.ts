@@ -107,3 +107,5 @@ export interface NetworkCreateResult {
 export interface VolumeCreateOptions {
   Name?: string;
 }
+
+export interface VolumeCreateResponseInfo extends Dockerode.VolumeCreateResponse {}

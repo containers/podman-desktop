@@ -46,6 +46,7 @@ import type {
   ContainerInfo,
   SimpleContainerInfo,
   VolumeCreateOptions,
+  VolumeCreateResponseInfo,
 } from './api/container-info.js';
 import type { ImageInfo } from './api/image-info.js';
 import type { PullEvent } from './api/pull-event.js';
@@ -1080,7 +1081,7 @@ export class PluginSystem {
         _listener,
         providerContainerConnectionInfo: ProviderContainerConnectionInfo,
         options: VolumeCreateOptions,
-      ): Promise<void> => {
+      ): Promise<VolumeCreateResponseInfo> => {
         return containerProviderRegistry.createVolume(providerContainerConnectionInfo, options);
       },
     );

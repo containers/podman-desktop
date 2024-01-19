@@ -978,6 +978,17 @@ export class ExtensionLoader {
       ): Promise<containerDesktopAPI.NetworkCreateResult> {
         return containerProviderRegistry.createNetwork(providerContainerConnection, networkCreateOptions);
       },
+      listVolumes(): Promise<containerDesktopAPI.VolumeListInfo[]> {
+        return containerProviderRegistry.listVolumes();
+      },
+      createVolume(
+        volumeCreateOptions?: containerDesktopAPI.VolumeCreateOptions,
+      ): Promise<containerDesktopAPI.VolumeCreateResponseInfo> {
+        return containerProviderRegistry.createVolume(volumeCreateOptions?.provider, volumeCreateOptions);
+      },
+      deleteVolume(volumeName: string, options?: containerDesktopAPI.VolumeDeleteOptions): Promise<void> {
+        return containerProviderRegistry.deleteVolume(volumeName, options);
+      },
     };
 
     const authenticationProviderRegistry = this.authenticationProviderRegistry;
