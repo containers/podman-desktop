@@ -80,28 +80,21 @@ export class ContainersPage extends MainPage {
     return undefined;
   }
 
-  async uncheckAllContainers(): Promise<ContainersPage> {
+  async uncheckAllContainers(): Promise<void> {
     let containersTable;
     try {
       containersTable = await this.getTable();
       const rows = await containersTable.getByRole('row').all();
 
-      if (rows.length > 0) {
-        for (let i = rows.length - 1; i >= 0; i--) {
-          // test on empty row - contains on 0th position &nbsp; character (ISO 8859-1 character set: 160)
-          const zeroCell = await rows[i].getByRole('cell').nth(0).innerText({ timeout: 1000 });
-          if (zeroCell.indexOf(String.fromCharCode(160)) === 0) {
-            continue;
-          }
+      for (let i = rows.length - 1; i >= 0; i--) {
+        const zeroCell = await rows[i].getByRole('cell').nth(0).innerText({ timeout: 1000 });
+        if (zeroCell.indexOf(String.fromCharCode(160)) === 0) continue;
 
-          if (await rows[i].getByRole('checkbox').isChecked()) await rows[i].getByRole('cell').nth(1).click();
-        }
+        if (await rows[i].getByRole('checkbox').isChecked()) await rows[i].getByRole('cell').nth(1).click();
       }
     } catch (err) {
-      console.log(`Exception caught on containers page with message: ${err}`);
+      console.log(`Exception caught on containers page when checking cells for unchecking with message: ${err}`);
     }
-
-    return this;
   }
 
   async containerExists(name: string): Promise<boolean> {
