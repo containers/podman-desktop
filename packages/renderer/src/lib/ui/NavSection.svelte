@@ -38,7 +38,7 @@ function fadeSlide(node: any, { delay = 0, duration = 400, easing = cubicOut }) 
   {/if}
 
   <button class="inline-block flex flex-col justify-center items-center" on:click="{() => (expanded = !expanded)}">
-    <Tooltip class="flex flex-col justify-center items-center pb-2" tip="{tooltip}" right>
+    <Tooltip class="flex flex-col justify-center items-center pb-1" tip="{tooltip}" right>
       {#if !expanded}
         <div class="pt-2 pb-2" transition:fadeSlide="{{ duration: 500 }}">
           <slot name="icon" />
