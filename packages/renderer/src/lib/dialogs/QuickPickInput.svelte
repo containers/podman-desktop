@@ -129,6 +129,11 @@ async function onInputChange(event: any) {
     quickPickSelectedFilteredIndex = 0;
     if (quickPickFilteredItems.length > 0) {
       quickPickSelectedIndex = quickPickItems.indexOf(quickPickFilteredItems[quickPickSelectedFilteredIndex]);
+    } else {
+      quickPickSelectedIndex = -1;
+    }
+    if (onSelectCallbackEnabled) {
+      window.sendShowQuickPickOnSelect(currentId, quickPickSelectedIndex);
     }
     return;
   }
@@ -176,7 +181,11 @@ function validateQuickPick() {
         selectedItems.map(item => quickPickItems.indexOf(item)),
       );
     } else {
-      window.sendShowQuickPickValues(currentId, [quickPickSelectedIndex]);
+      if (quickPickSelectedIndex >= 0) {
+        window.sendShowQuickPickValues(currentId, [quickPickSelectedIndex]);
+      } else {
+        window.sendShowQuickPickValues(currentId, []);
+      }
     }
   }
   cleanup();
