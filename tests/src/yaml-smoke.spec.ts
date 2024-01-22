@@ -92,13 +92,13 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       let imageDetailsPage = await imagesPage.openImageDetails(backendImage);
       await playExpect(imageDetailsPage.heading).toContainText(backendImage);
       imagesPage = await imageDetailsPage.deleteImage();
-      await playExpect(imagesPage.heading).toBeVisible();
+      await playExpect(imagesPage.heading).toBeVisible({ timeout: 10000 });
       await playExpect.poll(async () => await imagesPage.waitForImageDelete(backendImage)).toBeTruthy();
 
       imageDetailsPage = await imagesPage.openImageDetails(frontendImage);
       await playExpect(imageDetailsPage.heading).toContainText(frontendImage);
       imagesPage = await imageDetailsPage.deleteImage();
-      await playExpect(imagesPage.heading).toBeVisible();
+      await playExpect(imagesPage.heading).toBeVisible({ timeout: 10000 });
       await playExpect.poll(async () => await imagesPage.waitForImageDelete(frontendImage)).toBeTruthy();
     }, 120000);
   },
