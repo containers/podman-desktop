@@ -56,7 +56,7 @@ You can also create a Pod that uses the loaded image:
    1. **Kubernetes YAML file**: select your `verify_my_image.yaml` file.
    1. **Select Runtime**: **Using a Kubernetes cluster**.
    1. Click **Play**.
-   1. Clik **Done**
+   1. Click **Done**
 1. Open **<Icon icon="fa-solid fa-cubes" size="lg" /> Pods**.
 1. **<Icon icon="fa-solid fa-search" size="lg" /> Search pods**: `<verify-my-image>`.
 1. The pod **Status** is **Running**.
