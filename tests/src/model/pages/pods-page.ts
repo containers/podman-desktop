@@ -42,13 +42,8 @@ export class PodsPage extends BasePage {
   }
 
   async pageIsEmpty(): Promise<boolean> {
-    const noPodsHeading = this.page.getByRole('heading', { name: 'No Pods', exact: true });
-    try {
-      await noPodsHeading.waitFor({ state: 'visible', timeout: 500 });
-    } catch (err) {
-      return false;
-    }
-    return true;
+    const noPodsHeading = await this.page.getByRole('heading', { name: 'No Pods', exact: true }).count();
+    return noPodsHeading > 0;
   }
 
   async openPodDetails(name: string): Promise<PodDetailsPage> {
