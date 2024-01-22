@@ -22,9 +22,10 @@ import '@testing-library/jest-dom/vitest';
 import { test, expect } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import NavItem from './NavItem.svelte';
+import NavItemTest from './NavItemTest.svelte';
 
-function renderIt(tooltip: string, href: string, meta: any, onClick?: any, inSection?: boolean): void {
-  render(NavItem, { tooltip: tooltip, href: href, meta: meta, onClick: onClick, inSection });
+function renderIt(tooltip: string, href: string, meta: any, onClick?: any): void {
+  render(NavItem, { tooltip: tooltip, href: href, meta: meta, onClick: onClick });
 }
 
 test('Expect correct role and href', async () => {
@@ -83,7 +84,7 @@ test('Expect not to have selection styling', async () => {
 
 test('Expect in-section styling', async () => {
   const tooltip = 'Dashboard';
-  renderIt(tooltip, '/test', { url: '/elsewhere' }, undefined, true);
+  render(NavItemTest);
 
   const element = screen.getByLabelText(tooltip);
   expect(element).toBeInTheDocument();
@@ -95,8 +96,7 @@ test('Expect in-section styling', async () => {
 
 test('Expect in-section selection styling', async () => {
   const tooltip = 'Dashboard';
-  const href = '/test';
-  renderIt(tooltip, href, { url: href }, undefined, true);
+  render(NavItemTest);
 
   const element = screen.getByLabelText(tooltip);
   expect(element).toBeInTheDocument();

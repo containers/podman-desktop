@@ -1,17 +1,29 @@
 <script lang="ts">
 import type { TinroRouteMeta } from 'tinro';
 import Tooltip from './Tooltip.svelte';
+import { getContext, onDestroy, onMount } from 'svelte';
+import type { Writable } from 'svelte/store';
 
 export let href: string;
 export let tooltip: string;
 export let ariaLabel: string | undefined = undefined;
 export let meta: TinroRouteMeta;
 export let onClick: any = undefined;
-export let inSection: boolean = false;
 
+let inSection: boolean = false;
 let uri = encodeURI(href);
 let selected: boolean;
 $: selected = meta.url === uri || (uri !== '/' && meta.url.startsWith(uri));
+
+const navItems: Writable<number> = getContext('nav-items');
+
+onMount(() => {
+  inSection = navItems !== undefined;
+  navItems?.update(i => i + 1);
+});
+onDestroy(() => {
+  navItems?.update(i => i - 1);
+});
 </script>
 
 <a
