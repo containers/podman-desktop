@@ -72,9 +72,6 @@ export class WebviewPreload {
     // use a timeout to perform the update
     setTimeout(() => {
       const webviewContentHtml = new DOMParser().parseFromString(webviewHtmlContent, 'text/html');
-
-      webviewContentHtml.documentElement.style.setProperty('font-family', 'Montserrat');
-
       const htmlContent = '<!DOCTYPE html>\n' + webviewContentHtml.documentElement.outerHTML;
 
       document.open();
