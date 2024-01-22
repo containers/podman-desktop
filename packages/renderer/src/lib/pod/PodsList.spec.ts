@@ -35,6 +35,7 @@ const listPodsMock = vi.fn();
 const listContainersMock = vi.fn();
 const kubernetesListPodsMock = vi.fn();
 const getContributedMenusMock = vi.fn();
+const kubernetesGetCurrentNamespaceMock = vi.fn();
 
 const provider: ProviderInfo = {
   containerConnections: [
@@ -265,6 +266,7 @@ beforeAll(() => {
   (window as any).listPods = listPodsMock;
   (window as any).listContainers = listContainersMock.mockResolvedValue([]);
   (window as any).kubernetesListPods = kubernetesListPodsMock;
+  (window as any).kubernetesGetCurrentNamespace = kubernetesGetCurrentNamespaceMock;
   (window as any).onDidUpdateProviderStatus = vi.fn().mockResolvedValue(undefined);
   (window.events as unknown) = {
     receive: (_channel: string, func: any) => {

@@ -91,7 +91,8 @@ $: styleClass = detailed
     on:click="{handleClick}"
     class="{styleClass} relative"
     class:disabled="{inProgress}"
-    class:hidden="{hidden}">
+    class:hidden="{hidden}"
+    disabled="{!enabled}">
     <Fa class="h-4 w-4 {iconOffset}" icon="{icon}" />
     <div
       aria-label="spinner"
