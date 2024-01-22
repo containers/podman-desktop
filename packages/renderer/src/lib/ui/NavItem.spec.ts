@@ -23,8 +23,8 @@ import { test, expect } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import NavItem from './NavItem.svelte';
 
-function renderIt(tooltip: string, href: string, meta: any, onClick?: any): void {
-  render(NavItem, { tooltip: tooltip, href: href, meta: meta, onClick: onClick });
+function renderIt(tooltip: string, href: string, meta: any, onClick?: any, inSection?: boolean): void {
+  render(NavItem, { tooltip: tooltip, href: href, meta: meta, onClick: onClick, inSection });
 }
 
 test('Expect correct role and href', async () => {
@@ -79,6 +79,30 @@ test('Expect not to have selection styling', async () => {
   expect(element.firstChild).toBeInTheDocument();
   expect(element.firstChild).not.toHaveClass('border-l-purple-500');
   expect(element.firstChild).toHaveClass('border-l-charcoal-800');
+});
+
+test('Expect in-section styling', async () => {
+  const tooltip = 'Dashboard';
+  renderIt(tooltip, '/test', { url: '/elsewhere' }, undefined, true);
+
+  const element = screen.getByLabelText(tooltip);
+  expect(element).toBeInTheDocument();
+  expect(element.firstChild).toBeInTheDocument();
+  expect(element.firstChild).toHaveClass('border-charcoal-600');
+  expect(element.firstChild).not.toHaveClass('border-l-purple-500');
+  expect(element.firstChild).not.toHaveClass('border-l-charcoal-800');
+});
+
+test('Expect in-section selection styling', async () => {
+  const tooltip = 'Dashboard';
+  const href = '/test';
+  renderIt(tooltip, href, { url: href }, undefined, true);
+
+  const element = screen.getByLabelText(tooltip);
+  expect(element).toBeInTheDocument();
+  expect(element.firstChild).toBeInTheDocument();
+  expect(element.firstChild).toHaveClass('text-purple-500');
+  expect(element.firstChild).not.toHaveClass('border-l-purple-500');
 });
 
 test('Expect that having an onClick handler overrides href and works', async () => {

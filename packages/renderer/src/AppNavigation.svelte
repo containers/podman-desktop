@@ -22,11 +22,13 @@ import type { Unsubscriber } from 'svelte/store';
 import NewContentOnDashboardBadge from './lib/dashboard/NewContentOnDashboardBadge.svelte';
 import SettingsIcon from './lib/images/SettingsIcon.svelte';
 import DashboardIcon from './lib/images/DashboardIcon.svelte';
+import NavSection from './lib/ui/NavSection.svelte';
 import ServiceIcon from './lib/images/ServiceIcon.svelte';
 import IngressRouteIcon from './lib/images/IngressRouteIcon.svelte';
 import { ingresses } from './stores/ingresses';
 import { routes } from './stores/routes';
 import Webviews from '/@/lib/webview/Webviews.svelte';
+import PuzzleIcon from './lib/images/PuzzleIcon.svelte';
 
 let podInfoSubscribe: Unsubscriber;
 let containerInfoSubscribe: Unsubscriber;
@@ -158,9 +160,7 @@ export let meta: TinroRouteMeta;
 </script>
 
 <svelte:window />
-<nav
-  class="group w-leftnavbar min-w-leftnavbar flex flex-col justify-between hover:overflow-y-none"
-  aria-label="AppNavigation">
+<nav class="group w-leftnavbar min-w-leftnavbar flex flex-col hover:overflow-y-none" aria-label="AppNavigation">
   <NavItem href="/" tooltip="Dashboard" bind:meta="{meta}">
     <div class="relative w-full">
       <div class="flex items-center w-full h-full">
@@ -197,14 +197,14 @@ export let meta: TinroRouteMeta;
     </NavItem>
   {/if}
 
-  {#if $contributions.length > 0}
-    <div class="mx-3 my-2 h-[1px] bg-zinc-600"></div>
-  {/if}
-  {#each $contributions as contribution}
-    <NavItem href="/contribs/{contribution.name}" tooltip="{contribution.name}" bind:meta="{meta}">
-      <img src="{contribution.icon}" width="24" height="24" alt="{contribution.name}" />
-    </NavItem>
-  {/each}
+  <NavSection tooltip="Desktop Extensions">
+    <PuzzleIcon size="24" slot="icon" />
+    {#each $contributions as contribution}
+      <NavItem href="/contribs/{contribution.name}" tooltip="{contribution.name}" bind:meta="{meta}" inSection="{true}">
+        <img src="{contribution.icon}" width="24" height="24" alt="{contribution.name}" />
+      </NavItem>
+    {/each}
+  </NavSection>
 
   <Webviews bind:meta="{meta}" />
 

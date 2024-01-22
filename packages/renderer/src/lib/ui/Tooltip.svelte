@@ -48,7 +48,7 @@ export let left = false;
 </script>
 
 <div class="relative inline-block">
-  <span class="group tooltip-slot">
+  <span class="group tooltip-slot {$$props.class}">
     <slot />
   </span>
   <div

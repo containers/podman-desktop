@@ -27,6 +27,7 @@ import type { InputBoxOptions, QuickPickOptions } from './quickpick-input';
 
 const sendShowQuickPickValuesMock = vi.fn();
 const sendShowInputBoxValueMock = vi.fn();
+const sendShowQuickPickOnSelectMock = vi.fn();
 const receiveFunctionMock = vi.fn();
 
 // mock some methods of the window object
@@ -36,6 +37,7 @@ beforeAll(() => {
   };
   (window as any).sendShowQuickPickValues = sendShowQuickPickValuesMock;
   (window as any).sendShowInputBoxValue = sendShowInputBoxValueMock;
+  (window as any).sendShowQuickPickOnSelect = sendShowQuickPickOnSelectMock;
 });
 
 describe('QuickPickInput', () => {
@@ -218,7 +220,7 @@ describe('QuickPickInput', () => {
       placeHolder: 'placeHolder',
       prompt: '',
       id: idRequest,
-      onSelectCallback: false,
+      onSelectCallback: true,
     };
 
     receiveFunctionMock.mockImplementation((message: string, callback: (options: QuickPickOptions) => void) => {
@@ -237,12 +239,20 @@ describe('QuickPickInput', () => {
     const itemB1 = await screen.findByText('itemB');
     expect(itemB1).toBeInTheDocument();
 
+    expect(sendShowQuickPickOnSelectMock).toHaveBeenCalled();
+    expect(sendShowQuickPickOnSelectMock).toHaveBeenCalledWith(123, 0);
+    sendShowQuickPickOnSelectMock.mockClear();
+
     await userEvent.type(input, 'B');
 
     const itemA2 = screen.queryByText('itemA');
     expect(itemA2).not.toBeInTheDocument();
     const itemB2 = await screen.findByText('itemB');
     expect(itemB2).toBeInTheDocument();
+
+    expect(sendShowQuickPickOnSelectMock).toHaveBeenCalled();
+    expect(sendShowQuickPickOnSelectMock).toHaveBeenCalledWith(123, 1);
+    sendShowQuickPickOnSelectMock.mockClear();
   });
 
   test('Expect that filtering is case insensitive', async () => {
@@ -255,7 +265,7 @@ describe('QuickPickInput', () => {
       placeHolder: 'placeHolder',
       prompt: '',
       id: idRequest,
-      onSelectCallback: false,
+      onSelectCallback: true,
     };
 
     receiveFunctionMock.mockImplementation((message: string, callback: (options: QuickPickOptions) => void) => {
@@ -274,11 +284,62 @@ describe('QuickPickInput', () => {
     const itemB1 = await screen.findByText('itemB');
     expect(itemB1).toBeInTheDocument();
 
+    expect(sendShowQuickPickOnSelectMock).toHaveBeenCalled();
+    expect(sendShowQuickPickOnSelectMock).toHaveBeenCalledWith(123, 0);
+    sendShowQuickPickOnSelectMock.mockClear();
+
     await userEvent.type(input, 'a');
 
     const itemA2 = await screen.findByText('itemA');
     expect(itemA2).toBeInTheDocument();
     const itemB2 = screen.queryByText('itemB');
     expect(itemB2).not.toBeInTheDocument();
+    expect(sendShowQuickPickOnSelectMock).toHaveBeenCalled();
+    expect(sendShowQuickPickOnSelectMock).toHaveBeenCalledWith(123, 0);
+    sendShowQuickPickOnSelectMock.mockClear();
+  });
+
+  test('Expect that invalid filter clears selection', async () => {
+    const idRequest = 123;
+
+    const quickPickOptions: QuickPickOptions = {
+      items: ['itemA', 'itemB'],
+      title: 'My custom title',
+      canPickMany: false,
+      placeHolder: 'placeHolder',
+      prompt: '',
+      id: idRequest,
+      onSelectCallback: true,
+    };
+
+    receiveFunctionMock.mockImplementation((message: string, callback: (options: QuickPickOptions) => void) => {
+      if (message === 'showQuickPick:add') {
+        callback(quickPickOptions);
+      }
+    });
+
+    render(QuickPickInput, {});
+
+    const input = screen.getByRole('textbox');
+    expect(input).toBeInTheDocument();
+
+    const itemA1 = await screen.findByText('itemA');
+    expect(itemA1).toBeInTheDocument();
+    const itemB1 = await screen.findByText('itemB');
+    expect(itemB1).toBeInTheDocument();
+
+    expect(sendShowQuickPickOnSelectMock).toHaveBeenCalled();
+    expect(sendShowQuickPickOnSelectMock).toHaveBeenCalledWith(123, 0);
+    sendShowQuickPickOnSelectMock.mockClear();
+
+    await userEvent.type(input, 'q');
+
+    const itemA3 = screen.queryByText('itemA');
+    expect(itemA3).not.toBeInTheDocument();
+    const itemB3 = screen.queryByText('itemB');
+    expect(itemB3).not.toBeInTheDocument();
+
+    expect(sendShowQuickPickOnSelectMock).toHaveBeenCalled();
+    expect(sendShowQuickPickOnSelectMock).toHaveBeenCalledWith(123, -1);
   });
 });
