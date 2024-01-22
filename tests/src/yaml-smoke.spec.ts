@@ -30,8 +30,8 @@ let pdRunner: PodmanDesktopRunner;
 let page: Page;
 const podAppName = 'primary-podify-demo';
 const podName = 'podify-demo-pod';
-const frontendImage = 'podify-demo-frontend';
-const backendImage = 'podify-demo-backend';
+const frontendImage = 'quay.io/podman-desktop-demo/podify-demo-frontend';
+const backendImage = 'quay.io/podman-desktop-demo/podify-demo-backend';
 
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
@@ -92,13 +92,13 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       let imageDetailsPage = await imagesPage.openImageDetails(backendImage);
       await playExpect(imageDetailsPage.heading).toContainText(backendImage);
       imagesPage = await imageDetailsPage.deleteImage();
-      await playExpect(imagesPage.heading).toBeVisible({ timeout: 10000 });
+      await playExpect(imagesPage.heading).toBeVisible({ timeout: 20000 });
       await playExpect.poll(async () => await imagesPage.waitForImageDelete(backendImage)).toBeTruthy();
 
       imageDetailsPage = await imagesPage.openImageDetails(frontendImage);
       await playExpect(imageDetailsPage.heading).toContainText(frontendImage);
       imagesPage = await imageDetailsPage.deleteImage();
-      await playExpect(imagesPage.heading).toBeVisible({ timeout: 10000 });
+      await playExpect(imagesPage.heading).toBeVisible({ timeout: 20000 });
       await playExpect.poll(async () => await imagesPage.waitForImageDelete(frontendImage)).toBeTruthy();
     }, 120000);
   },

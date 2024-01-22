@@ -55,7 +55,7 @@ export class ContainersPage extends MainPage {
       const rows = await containersTable.getByRole('row').all();
 
       for (let i = rows.length - 1; i >= 0; i--) {
-        const thirdCell = await rows[i].getByRole('cell').nth(3).getByText(name).count();
+        const thirdCell = await rows[i].getByRole('cell').nth(3).getByText(name, { exact: true }).count();
 
         if (thirdCell) {
           return rows[i];

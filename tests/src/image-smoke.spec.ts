@@ -106,13 +106,13 @@ describe('Image workflow verification', async () => {
     const dockerfilePath = path.resolve(__dirname, '..', 'resources', 'test-containerfile');
     const contextDirectory = path.resolve(__dirname, '..', 'resources');
 
-    imagesPage = await buildImagePage.buildImage('build-test-image', dockerfilePath, contextDirectory);
-    expect(await imagesPage.waitForImageExists('build-test-image')).toBeTruthy();
+    imagesPage = await buildImagePage.buildImage('build-image-test', dockerfilePath, contextDirectory);
+    expect(await imagesPage.waitForImageExists('docker.io/library/build-image-test')).toBeTruthy();
 
-    const imageDetailsPage = await imagesPage.openImageDetails('build-test-image');
+    const imageDetailsPage = await imagesPage.openImageDetails('docker.io/library/build-image-test');
     await playExpect(imageDetailsPage.heading).toBeVisible();
     imagesPage = await imageDetailsPage.deleteImage();
-    expect(await imagesPage.waitForImageDelete('build-test-image')).toBeTruthy();
+    expect(await imagesPage.waitForImageDelete('docker.io/library/build-image-test')).toBeTruthy();
   });
 
   test('Prune images', async () => {

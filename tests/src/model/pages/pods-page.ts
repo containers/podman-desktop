@@ -63,7 +63,7 @@ export class PodsPage extends BasePage {
       const podsTable = await this.getTable();
       const rows = await podsTable.getByRole('row').all();
       for (let i = rows.length - 1; i > 0; i--) {
-        const nameCell = await rows[i].getByRole('cell').nth(3).getByText(name).count();
+        const nameCell = await rows[i].getByRole('cell').nth(3).getByText(name, { exact: true }).count();
         if (nameCell) {
           return rows[i];
         }
