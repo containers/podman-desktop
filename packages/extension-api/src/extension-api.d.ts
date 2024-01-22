@@ -2174,6 +2174,51 @@ declare module '@podman-desktop/api' {
     diskUsed?: number;
   }
 
+  export interface VolumeInfo {
+    engineId: string;
+    engineName: string;
+    CreatedAt: string;
+    containersUsage: { id: string; names: string[] }[];
+    Name: string;
+    Driver: string;
+    Mountpoint: string;
+    Status?: { [key: string]: string };
+    Labels: { [key: string]: string };
+    Scope: 'local' | 'global';
+    Options?: { [key: string]: string } | null;
+    UsageData?: {
+      Size: number;
+      RefCount: number;
+    } | null;
+  }
+  export interface VolumeListInfo {
+    Volumes: VolumeInfo[];
+    Warnings: string[];
+    engineId: string;
+    engineName: string;
+  }
+  export interface VolumeCreateOptions {
+    // name of the volume to create
+    Name: string;
+    // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
+    provider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection;
+  }
+
+  export interface VolumeDeleteOptions {
+    // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
+    provider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection;
+  }
+
+  export interface VolumeCreateResponseInfo {
+    Name: string;
+    Driver: string;
+    Mountpoint: string;
+    CreatedAt?: string;
+    Status?: { [key: string]: string };
+    Labels: { [label: string]: string };
+    Scope: string;
+  }
+
   export namespace containerEngine {
     export function listContainers(): Promise<ContainerInfo[]>;
     export function inspectContainer(engineId: string, id: string): Promise<ContainerInspectInfo>;
@@ -2222,6 +2267,10 @@ declare module '@podman-desktop/api' {
       containerProviderConnection: ContainerProviderConnection,
       networkCreateOptions: NetworkCreateOptions,
     ): Promise<NetworkCreateResult>;
+
+    export function listVolumes(): Promise<VolumeListInfo[]>;
+    export function createVolume(options?: VolumeCreateOptions): Promise<VolumeCreateResponseInfo>;
+    export function deleteVolume(volumeName: string, options?: VolumeDeleteOptions): Promise<void>;
   }
 
   /**

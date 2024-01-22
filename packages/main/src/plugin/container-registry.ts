@@ -29,6 +29,7 @@ import type {
   NetworkCreateResult,
   SimpleContainerInfo,
   VolumeCreateOptions,
+  VolumeCreateResponseInfo,
 } from './api/container-info.js';
 import type { ImageInfo } from './api/image-info.js';
 import type { PodInfo, PodInspectInfo } from './api/pod-info.js';
@@ -766,6 +767,29 @@ export class ContainerProviderRegistry {
     }
   }
 
+  // method like remove Volume but instead of taking engineId/engineName it's taking connection info
+  async deleteVolume(
+    volumeName: string,
+    options?: { provider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection },
+  ): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      let matchingContainerProviderApi: Dockerode;
+      if (options?.provider) {
+        // grab all connections
+        matchingContainerProviderApi = this.getMatchingEngineFromConnection(options.provider);
+      } else {
+        // Get the first running connection (preference for podman)
+        matchingContainerProviderApi = this.getFirstRunningConnection()[1];
+      }
+      return matchingContainerProviderApi.getVolume(volumeName).remove();
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService.track('removeVolume', telemetryOptions);
+    }
+  }
   async removeVolume(engineId: string, volumeName: string): Promise<void> {
     let telemetryOptions = {};
     try {
@@ -1700,21 +1724,21 @@ export class ContainerProviderRegistry {
     }
   }
 
-  async createVolume(selectedProvider: ProviderContainerConnectionInfo, options: VolumeCreateOptions): Promise<void> {
+  async createVolume(
+    selectedProvider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
+    options?: VolumeCreateOptions,
+  ): Promise<VolumeCreateResponseInfo> {
     let telemetryOptions = {};
     try {
-      // filter from connections
-      const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
-        containerProvider =>
-          containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
-          containerProvider.connection.name === selectedProvider.name &&
-          selectedProvider.status === 'started',
-      );
-      if (!matchingContainerProvider?.api) {
-        throw new Error('No provider with a running engine');
+      let matchingContainerProviderApi: Dockerode;
+      if (selectedProvider) {
+        // grab all connections
+        matchingContainerProviderApi = this.getMatchingEngineFromConnection(selectedProvider);
+      } else {
+        // Get the first running connection (preference for podman)
+        matchingContainerProviderApi = this.getFirstRunningConnection()[1];
       }
-
-      await matchingContainerProvider.api.createVolume(options);
+      return matchingContainerProviderApi.createVolume(options);
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;
