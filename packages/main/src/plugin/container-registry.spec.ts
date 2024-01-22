@@ -35,6 +35,7 @@ import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
 import * as util from '../util.js';
 import { PassThrough } from 'node:stream';
 import type { EnvfileParser } from './env-file-parser.js';
+import type { ProviderRegistry } from './provider-registry.js';
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 
 /* eslint-disable @typescript-eslint/no-empty-function */
@@ -1828,6 +1829,169 @@ describe('createVolume', () => {
 
     // check that it's calling the right nock method
     await containerRegistry.createVolume(providerConnectionInfo, {});
+  });
+
+  test('provided user API connection', async () => {
+    nock('http://localhost').post('/volumes/create?Name=myFirstVolume').reply(200, '');
+
+    const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    const internalContainerProvider: InternalContainerProvider = {
+      name: 'podman',
+      id: 'podman1',
+      api,
+      connection: {
+        type: 'podman',
+        name: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+        status: () => 'started',
+      },
+    };
+
+    const containerProviderConnection: podmanDesktopAPI.ContainerProviderConnection = {
+      name: 'podman',
+      type: 'podman',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      status: () => 'started',
+    } as unknown as podmanDesktopAPI.ContainerProviderConnection;
+
+    // set provider
+    containerRegistry.addInternalProvider('podman', internalContainerProvider);
+
+    // check that it's calling the right nock method
+    await containerRegistry.createVolume(containerProviderConnection, { Name: 'myFirstVolume' });
+  });
+
+  test('no provider', async () => {
+    nock('http://localhost').post('/volumes/create?Name=myFirstVolume').reply(200, '');
+
+    const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    const internalContainerProvider: InternalContainerProvider = {
+      name: 'podman',
+      id: 'podman1',
+      api,
+      connection: {
+        type: 'podman',
+        name: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+        status: () => 'started',
+      },
+    };
+    // set provider
+    containerRegistry.addInternalProvider('podman.podman', internalContainerProvider);
+
+    const containerProviderConnection: podmanDesktopAPI.ContainerProviderConnection = {
+      name: 'podman',
+      type: 'podman',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      status: () => 'started',
+    } as unknown as podmanDesktopAPI.ContainerProviderConnection;
+
+    const podmanProvider = {
+      name: 'podman',
+      id: 'podman',
+    } as unknown as podmanDesktopAPI.Provider;
+
+    const providerRegistry: ProviderRegistry = {
+      onBeforeDidUpdateContainerConnection: vi.fn(),
+      onDidUpdateContainerConnection: vi.fn(),
+    } as unknown as ProviderRegistry;
+
+    containerRegistry.registerContainerConnection(podmanProvider, containerProviderConnection, providerRegistry);
+
+    // check that it's calling the right nock method
+    await containerRegistry.createVolume(undefined, { Name: 'myFirstVolume' });
+  });
+});
+
+describe('deleteVolume', () => {
+  test('no provider', async () => {
+    nock('http://localhost').delete('/volumes/myFirstVolume').reply(204, '');
+
+    const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    const internalContainerProvider: InternalContainerProvider = {
+      name: 'podman',
+      id: 'podman1',
+      api,
+      connection: {
+        type: 'podman',
+        name: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+        status: () => 'started',
+      },
+    };
+    // set provider
+    containerRegistry.addInternalProvider('podman.podman', internalContainerProvider);
+
+    const containerProviderConnection: podmanDesktopAPI.ContainerProviderConnection = {
+      name: 'podman',
+      type: 'podman',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      status: () => 'started',
+    } as unknown as podmanDesktopAPI.ContainerProviderConnection;
+
+    const podmanProvider = {
+      name: 'podman',
+      id: 'podman',
+    } as unknown as podmanDesktopAPI.Provider;
+
+    const providerRegistry: ProviderRegistry = {
+      onBeforeDidUpdateContainerConnection: vi.fn(),
+      onDidUpdateContainerConnection: vi.fn(),
+    } as unknown as ProviderRegistry;
+
+    containerRegistry.registerContainerConnection(podmanProvider, containerProviderConnection, providerRegistry);
+
+    // check that it's calling the right nock method
+    await containerRegistry.deleteVolume('myFirstVolume');
+  });
+
+  test('provided connection', async () => {
+    nock('http://localhost').delete('/volumes/myFirstVolume').reply(204, '');
+
+    const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    const internalContainerProvider: InternalContainerProvider = {
+      name: 'podman',
+      id: 'podman1',
+      api,
+      connection: {
+        type: 'podman',
+        name: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+        status: () => 'started',
+      },
+    };
+
+    const containerProviderConnection: podmanDesktopAPI.ContainerProviderConnection = {
+      name: 'podman',
+      type: 'podman',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      status: () => 'started',
+    } as unknown as podmanDesktopAPI.ContainerProviderConnection;
+
+    // set provider
+    containerRegistry.addInternalProvider('podman', internalContainerProvider);
+    // check that it's calling the right nock method
+    await containerRegistry.deleteVolume('myFirstVolume', { provider: containerProviderConnection });
   });
 });
 
