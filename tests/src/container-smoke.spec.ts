@@ -162,9 +162,9 @@ describe('Verification of container creation workflow', async () => {
     const containers = await navigationBar.openContainers();
     const containersDetails = await containers.openContainersDetails(containerToRun);
     await playExpect(containersDetails.heading).toContainText(containerToRun);
-    const containersPage = await containersDetails.deleteContainer(10000);
-    playExpect(containersPage).toBeDefined();
-    playExpect(await containersPage.containerExists(containerToRun)).toBeFalsy();
+    const containersPage = await containersDetails.deleteContainer();
+    await playExpect(containersPage.heading).toBeVisible();
+    await playExpect.poll(async () => await containersPage.containerExists(containerToRun)).toBeFalsy();
     await pdRunner.screenshot('containers-container-deleted.png');
   });
 
