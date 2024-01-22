@@ -93,6 +93,16 @@ export interface ContainerCreateOptions {
   hostname?: string;
   image?: string;
   name?: string;
+  mounts?: Array<{
+    Name?: string;
+    Type: string;
+    Source: string;
+    Destination: string;
+    Driver?: string;
+    Mode: string;
+    RW: boolean;
+    Propagation: string;
+  }>;
 }
 
 export interface PodRemoveOptions {

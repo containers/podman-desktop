@@ -109,6 +109,100 @@ const fakeContainer: Dockerode.ContainerInfo = {
     },
   },
 };
+
+const fakeContainerInspectInfo: Dockerode.ContainerInspectInfo = {
+  Id: '1234',
+  Name: 'container2',
+  Image: 'image2',
+  Created: '1234567890',
+  State: {
+    Status: 'running',
+    Running: true,
+    Paused: false,
+    Restarting: false,
+    OOMKilled: false,
+    Dead: false,
+    Pid: 26852,
+    ExitCode: 0,
+    Error: '',
+    StartedAt: '2024-01-22T17:42:34.56349523+01:00',
+    FinishedAt: '0001-01-01T00:00:00Z',
+  },
+  Mounts: [
+    {
+      Destination: 'destination',
+      Mode: '',
+      Propagation: '',
+      RW: true,
+      Source: 'source',
+    },
+  ],
+  HostConfig: {
+    NetworkMode: 'bridge',
+  },
+  Path: '',
+  Args: [],
+  ResolvConfPath: '',
+  HostnamePath: '',
+  HostsPath: '',
+  LogPath: '',
+  RestartCount: 0,
+  Driver: '',
+  Platform: '',
+  MountLabel: '',
+  ProcessLabel: '',
+  AppArmorProfile: '',
+  GraphDriver: {
+    Name: '',
+    Data: {
+      DeviceId: '',
+      DeviceName: '',
+      DeviceSize: '',
+    },
+  },
+  Config: {
+    Hostname: '',
+    Domainname: '',
+    User: '',
+    AttachStdin: false,
+    AttachStdout: false,
+    AttachStderr: false,
+    ExposedPorts: {},
+    Tty: false,
+    OpenStdin: false,
+    StdinOnce: false,
+    Env: [],
+    Cmd: [],
+    Image: '',
+    Volumes: {},
+    WorkingDir: '',
+    Entrypoint: undefined,
+    OnBuild: undefined,
+    Labels: {},
+  },
+  NetworkSettings: {
+    Bridge: '',
+    SandboxID: '',
+    HairpinMode: false,
+    LinkLocalIPv6Address: '',
+    LinkLocalIPv6PrefixLen: 0,
+    Ports: {},
+    SandboxKey: '',
+    SecondaryIPAddresses: undefined,
+    SecondaryIPv6Addresses: undefined,
+    EndpointID: '',
+    Gateway: '',
+    GlobalIPv6Address: '',
+    GlobalIPv6PrefixLen: 0,
+    IPAddress: '',
+    IPPrefixLen: 0,
+    IPv6Gateway: '',
+    MacAddress: '',
+    Networks: {},
+    Node: undefined,
+  },
+};
+
 class TestContainerProviderRegistry extends ContainerProviderRegistry {
   public getMatchingEngine(engineId: string): Dockerode {
     return super.getMatchingEngine(engineId);
@@ -2672,4 +2766,51 @@ test('check handleEvents with loadArchive', async () => {
 
   // check we send the event to notify renderer part
   expect(apiSender.send).toBeCalledWith('image-loadfromarchive-event', '123456');
+});
+
+test('check volume mounted is replicated when executing replicatePodmanContainer', async () => {
+  const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  const createPodmanContainerMock = vi.fn();
+  const fakeLibPod = {
+    createPodmanContainer: createPodmanContainerMock,
+  } as unknown as LibPod;
+
+  const inspectMock = vi.fn().mockResolvedValue(fakeContainerInspectInfo);
+
+  const dockerodeContainer = {
+    inspect: inspectMock,
+  } as unknown as Dockerode.Container;
+
+  vi.spyOn(dockerAPI, 'getContainer').mockReturnValue(dockerodeContainer);
+
+  // set providers with docker being first
+  containerRegistry.addInternalProvider('podman1', {
+    name: 'podman',
+    id: 'podman1',
+    api: dockerAPI,
+    libpodApi: fakeLibPod,
+    connection: {
+      type: 'podman',
+    },
+  } as unknown as InternalContainerProvider);
+
+  await containerRegistry.replicatePodmanContainer(
+    {
+      engineId: 'podman1',
+      id: 'id',
+    },
+    {
+      engineId: 'podman1',
+    },
+    {},
+  );
+
+  expect(createPodmanContainerMock).toBeCalledWith({
+    command: fakeContainerInspectInfo.Config.Cmd,
+    entrypoint: fakeContainerInspectInfo.Config.Entrypoint,
+    env: {},
+    image: fakeContainerInspectInfo.Config.Image,
+    mounts: fakeContainerInspectInfo.Mounts,
+  });
 });
