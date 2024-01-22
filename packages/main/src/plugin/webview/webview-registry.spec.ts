@@ -457,6 +457,36 @@ test('check listWebviews', async () => {
   expect(webviews[1].html).toBe('html2');
 });
 
+test('check listSimpleWebviews', async () => {
+  // register two webviews
+  const panel1 = webviewRegistry.createWebviewPanel(
+    { id: 'extensionId1', extensionPath: '/extensionPath1' },
+    'viewTypeInfo',
+    'customTitle1',
+  );
+  const panelImpl1 = panel1 as WebviewPanelImpl;
+  panel1.webview.html = 'html1';
+  const panel2 = webviewRegistry.createWebviewPanel(
+    { id: 'extensionId2', extensionPath: '/extensionPath2' },
+    'viewTypeInfo',
+    'customTitle2',
+  );
+  const panelImpl2 = panel2 as WebviewPanelImpl;
+  panel2.webview.html = 'html2';
+
+  const webviews = await webviewRegistry.listSimpleWebviews();
+
+  // check
+  expect(webviews.length).toBe(2);
+  expect(webviews[0].id).toBe(panelImpl1.internalId);
+  expect(webviews[0].viewType).toBe('viewTypeInfo');
+  expect(webviews[0].title).toBe('customTitle1');
+
+  expect(webviews[1].id).toBe(panelImpl2.internalId);
+  expect(webviews[1].viewType).toBe('viewTypeInfo');
+  expect(webviews[1].title).toBe('customTitle2');
+});
+
 test('check disposeWebviewPanel', async () => {
   // register two webviews
   const panel1 = webviewRegistry.createWebviewPanel(

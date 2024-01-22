@@ -793,6 +793,7 @@ export class ExtensionLoader {
     const progress = this.progress;
     const inputQuickPickRegistry = this.inputQuickPickRegistry;
     const customPickRegistry = this.customPickRegistry;
+    const webviewRegistry = this.webviewRegistry;
     const windowObj: typeof containerDesktopAPI.window = {
       showInformationMessage: (message: string, ...items: string[]) => {
         return messageBox.showDialog('info', extManifest.displayName, message, items);
@@ -865,7 +866,10 @@ export class ExtensionLoader {
         title: string,
         options?: containerDesktopAPI.WebviewOptions,
       ): containerDesktopAPI.WebviewPanel => {
-        return this.webviewRegistry.createWebviewPanel(extensionInfo, viewType, title, options);
+        return webviewRegistry.createWebviewPanel(extensionInfo, viewType, title, options);
+      },
+      listWebviews(): Promise<containerDesktopAPI.WebviewInfo[]> {
+        return webviewRegistry.listSimpleWebviews();
       },
     };
 

@@ -176,7 +176,9 @@ const navigationManager: NavigationManager = new NavigationManager(
   containerProviderRegistry,
   contributionManager,
 );
-const webviewRegistry: WebviewRegistry = {} as unknown as WebviewRegistry;
+const webviewRegistry: WebviewRegistry = {
+  listSimpleWebviews: vi.fn(),
+} as unknown as WebviewRegistry;
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeAll(() => {
@@ -1261,4 +1263,45 @@ describe('Navigation', async () => {
     // Valid we listed the contains properly each time
     expect(listContributionsSpy).toHaveBeenCalledOnce();
   });
+});
+
+test('check listWebviews', async () => {
+  const api = extensionLoader.createApi('path', {
+    name: 'name',
+    publisher: 'publisher',
+    version: '1',
+    displayName: 'dname',
+  });
+
+  // Mock listSimpleWebviews implementation
+  const listSimpleWebviewsSpy = vi.spyOn(webviewRegistry, 'listSimpleWebviews');
+  listSimpleWebviewsSpy.mockImplementation(() =>
+    Promise.resolve([
+      {
+        id: '123',
+        viewType: 'customView',
+        title: 'customTitle1',
+      },
+      {
+        id: '456',
+        viewType: 'anotherView',
+        title: 'customTitle2',
+      },
+    ]),
+  );
+  // Call the method provided
+  const result = await api.window.listWebviews();
+
+  // check we called method
+  expect(listSimpleWebviewsSpy).toHaveBeenCalledOnce();
+
+  // esnure we got result
+  expect(result).toBeDefined();
+  expect(result.length).toBe(2);
+  expect(result[0].id).toBe('123');
+  expect(result[0].viewType).toBe('customView');
+  expect(result[0].title).toBe('customTitle1');
+  expect(result[1].id).toBe('456');
+  expect(result[1].viewType).toBe('anotherView');
+  expect(result[1].title).toBe('customTitle2');
 });

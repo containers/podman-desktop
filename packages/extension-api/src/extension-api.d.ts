@@ -1597,6 +1597,8 @@ declare module '@podman-desktop/api' {
      * @returns New webview panel.
      */
     export function createWebviewPanel(viewType: string, title: string, options?: WebviewOptions): WebviewPanel;
+
+    export function listWebviews(): Promise<WebviewInfo[]>;
   }
 
   export namespace kubernetes {
@@ -2142,6 +2144,12 @@ declare module '@podman-desktop/api' {
 
   export interface ContainerCreateResult {
     id: string;
+  }
+
+  export interface WebviewInfo {
+    id: string;
+    viewType: string;
+    title: string;
   }
 
   export interface BuildImageOptions {
