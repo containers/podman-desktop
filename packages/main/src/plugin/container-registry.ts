@@ -129,6 +129,9 @@ export class ContainerProviderRegistry {
       } else if (jsonEvent.status === 'init' && jsonEvent?.Type === 'container') {
         // need to notify that a container has been started
         this.apiSender.send('container-init-event', jsonEvent.id);
+      } else if (jsonEvent.status === 'create' && jsonEvent?.Type === 'container') {
+        // need to notify that a container has been created
+        this.apiSender.send('container-created-event', jsonEvent.id);
       } else if (jsonEvent.status === 'start' && jsonEvent?.Type === 'container') {
         // need to notify that a container has been started
         this.apiSender.send('container-started-event', jsonEvent.id);

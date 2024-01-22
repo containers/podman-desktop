@@ -29,6 +29,9 @@ const windowEvents = [
   'container-stopped-event',
   'container-die-event',
   'container-kill-event',
+  'container-init-event',
+  'container-removed-event',
+  'container-created-event',
   'container-started-event',
   'provider-change',
   'pod-event',
@@ -74,7 +77,7 @@ export const filtered = derived([searchPattern, podsInfos], ([$searchPattern, $i
     });
 });
 
-const eventStore = new EventStore<PodInfo[]>(
+export const podsEventStore = new EventStore<PodInfo[]>(
   'pods',
   podsInfos,
   checkForUpdate,
@@ -83,7 +86,7 @@ const eventStore = new EventStore<PodInfo[]>(
   grabAllPods,
   PodIcon,
 );
-eventStore.setupWithDebounce();
+podsEventStore.setupWithDebounce();
 
 export async function grabAllPods(): Promise<PodInfo[]> {
   let result = await window.listPods();

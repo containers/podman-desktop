@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2023 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,8 @@ const windowEvents = [
   'container-stopped-event',
   'container-die-event',
   'container-kill-event',
+  'container-init-event',
+  'container-created-event',
   'container-started-event',
   'container-removed-event',
   'provider-change',
@@ -52,7 +54,7 @@ const listContainers = (): Promise<ContainerInfo[]> => {
   return window.listContainers();
 };
 
-const containersEventStore = new EventStore<ContainerInfo[]>(
+export const containersEventStore = new EventStore<ContainerInfo[]>(
   'containers',
   containersInfos,
   checkForUpdate,
