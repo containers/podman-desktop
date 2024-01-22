@@ -1,10 +1,13 @@
 <script lang="ts">
+/* eslint-disable import/no-duplicates */
+// https://github.com/import-js/eslint-plugin-import/issues/1479
 import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import Tooltip from './Tooltip.svelte';
 import Fa from 'svelte-fa';
 import { onMount, setContext } from 'svelte';
 import { cubicOut } from 'svelte/easing';
 import { writable, type Writable } from 'svelte/store';
+/* eslint-disable import/no-duplicates */
 
 export let expanded: boolean = true;
 export let tooltip: string;
