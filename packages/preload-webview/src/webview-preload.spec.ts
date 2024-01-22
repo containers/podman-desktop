@@ -174,7 +174,7 @@ test('check changeContent', async () => {
 
   // check the document.write method has been called
   expect(spyDocumentWrite).toHaveBeenCalledWith(`<!DOCTYPE html>
-<html style="font-family: Montserrat;"><head></head><body>hello world</body></html>`);
+<html><head></head><body>hello world</body></html>`);
 });
 
 test('check buildApi', async () => {
