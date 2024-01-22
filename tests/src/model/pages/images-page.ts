@@ -79,14 +79,8 @@ export class ImagesPage extends MainPage {
       const table = await this.getTable();
       const rows = await table.getByRole('row').all();
       for (let i = rows.length - 1; i > 0; i--) {
-        // test on empty row - contains on 0th position &nbsp; character (ISO 8859-1 character set: 160)
-        const zeroCell = await rows[i].getByRole('cell').nth(0).innerText();
-        if (zeroCell.indexOf(String.fromCharCode(160)) === 0) {
-          continue;
-        }
-        const thirdCell = await rows[i].getByRole('cell').nth(3).innerText();
-        const index = thirdCell.indexOf(name);
-        if (index >= 0) {
+        const thirdCell = await rows[i].getByRole('cell').nth(3).getByText(name).count();
+        if (thirdCell) {
           return rows[i];
         }
       }
