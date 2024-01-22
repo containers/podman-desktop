@@ -27,3 +27,9 @@ export interface WebviewInfo {
   // persistent state of the webview
   state: unknown;
 }
+
+export interface WebviewSimpleInfo {
+  id: string;
+  viewType: string;
+  title: string;
+}
