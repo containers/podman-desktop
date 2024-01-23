@@ -1194,10 +1194,11 @@ export class ContainerProviderRegistry {
         entrypoint: containerToReplicate.Config.Entrypoint,
         env: updatedEnv,
         image: containerToReplicate.Config.Image,
+        mounts: containerToReplicate.Mounts,
       };
 
       // add extra information
-      const configuration = {
+      const configuration: ContainerCreateOptions = {
         ...originalConfiguration,
         ...overrideParameters,
       };
