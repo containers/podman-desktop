@@ -270,6 +270,8 @@ declare module '@podman-desktop/api' {
   export interface PodCreateOptions {
     name: string;
     portmappings?: PodCreatePortOptions[];
+    // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
+    provider?: ProviderContainerConnectionInfo | ContainerProviderConnection;
   }
 
   export interface KubernetesProviderConnectionEndpoint {
@@ -2294,10 +2296,7 @@ declare module '@podman-desktop/api' {
     export function createVolume(options?: VolumeCreateOptions): Promise<VolumeCreateResponseInfo>;
     export function deleteVolume(volumeName: string, options?: VolumeDeleteOptions): Promise<void>;
 
-    export function createPod(
-      podOptions: PodCreateOptions,
-      selectedProvider?: ProviderContainerConnectionInfo | ContainerProviderConnection,
-    ): Promise<{ engineId: string; Id: string }>;
+    export function createPod(podOptions: PodCreateOptions): Promise<{ engineId: string; Id: string }>;
     export function replicatePodmanContainer(
       source: { engineId: string; id: string },
       target: { engineId: string },

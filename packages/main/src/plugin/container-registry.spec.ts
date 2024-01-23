@@ -2966,12 +2966,10 @@ test('check createPod uses running podman connection if ContainerProviderConnect
     type: 'podman',
   };
 
-  const result = await containerRegistry.createPod(
-    {
-      name: 'pod',
-    },
-    containerProviderConnection,
-  );
+  const result = await containerRegistry.createPod({
+    name: 'pod',
+    provider: containerProviderConnection,
+  });
   expect(result.Id).equal('id');
   expect(result.engineId).equal('podman1');
 });
@@ -3009,12 +3007,10 @@ test('check createPod uses running podman connection if ProviderContainerConnect
     type: 'podman',
   };
 
-  const result = await containerRegistry.createPod(
-    {
-      name: 'pod',
-    },
-    containerProviderConnection,
-  );
+  const result = await containerRegistry.createPod({
+    name: 'pod',
+    provider: containerProviderConnection,
+  });
   expect(result.Id).equal('id');
   expect(result.engineId).equal('podman1');
 });
