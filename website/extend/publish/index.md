@@ -1,6 +1,6 @@
 ---
 sidebar_position: 3
-title: Publishing
+title: ☁️ Publishing
 description: Publishing a Podman Desktop extension
 tags: [podman-desktop, extension, publishing]
 keywords: [podman desktop, extension, publishing]

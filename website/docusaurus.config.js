@@ -309,6 +309,27 @@ const config = {
         ],
       },
     ],
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'extend',
+        path: 'extend',
+        routeBasePath: 'extend',
+      },
+    ],
+    [
+      'docusaurus-plugin-typedoc',
+      {
+        id: 'extend',
+        plugin: ['typedoc-plugin-markdown'],
+        entryPoints: ['..\\packages\\extension-api\\src\\extension-api.d.ts'],
+        out: 'write/api',
+        docsRoot: 'extend',
+        hideBreadcrumbs: true,
+        readme: 'none',
+        tsconfig: '..\\packages\\extension-api\\tsconfig.json',
+      },
+    ],
   ],
   presets: [
     [
