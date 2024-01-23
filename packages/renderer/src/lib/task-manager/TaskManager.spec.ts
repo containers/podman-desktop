@@ -221,7 +221,7 @@ test('Expect cancel button to cancel task', async () => {
   const task = screen.queryByText(IN_PROGRESS_TASK.name);
   expect(task).toBeInTheDocument();
 
-  // click on the button "Clear notifications"
+  // click on the button "Cancel"
   const cancelButton = screen.getByRole('button', { name: 'Cancel' });
   expect(cancelButton).toBeInTheDocument();
   await fireEvent.click(cancelButton);
