@@ -2234,6 +2234,7 @@ declare module '@podman-desktop/api' {
     export function createContainer(
       engineId: string,
       containerCreateOptions: ContainerCreateOptions,
+      startOnCreation?: boolean,
     ): Promise<ContainerCreateResult>;
     export function startContainer(engineId: string, id: string): Promise<void>;
     export function logsContainer(
