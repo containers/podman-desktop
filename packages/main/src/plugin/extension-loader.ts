@@ -908,10 +908,8 @@ export class ExtensionLoader {
       createContainer(
         engineId: string,
         containerCreateOptions: containerDesktopAPI.ContainerCreateOptions,
-        startOnCreation?: boolean,
       ): Promise<containerDesktopAPI.ContainerCreateResult> {
-        const doStartContainer = startOnCreation === undefined ? true : startOnCreation;
-        return containerProviderRegistry.createAndStartContainer(engineId, containerCreateOptions, doStartContainer);
+        return containerProviderRegistry.createContainer(engineId, containerCreateOptions);
       },
       inspectContainer(engineId: string, id: string): Promise<containerDesktopAPI.ContainerInspectInfo> {
         return containerProviderRegistry.getContainerInspect(engineId, id);

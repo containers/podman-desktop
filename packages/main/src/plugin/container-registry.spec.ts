@@ -2117,8 +2117,8 @@ test('container logs callback notified when messages arrive', async () => {
   expect(telemetry.track).toHaveBeenCalled;
 });
 
-describe('createAndStartContainer', () => {
-  test('test createAndStartContainer', async () => {
+describe('createContainer', () => {
+  test('test create and start Container', async () => {
     const createdId = '1234';
 
     const startMock = vi.fn();
@@ -2147,14 +2147,14 @@ describe('createAndStartContainer', () => {
       api: fakeDockerode,
     } as InternalContainerProvider);
 
-    const container = await containerRegistry.createAndStartContainer('podman1', {}, true);
+    const container = await containerRegistry.createContainer('podman1', { startOnCreation: true });
 
     expect(container.id).toBe(createdId);
     expect(createContainerMock).toHaveBeenCalled();
     expect(startMock).toHaveBeenCalled();
   });
 
-  test('test createAndStartContainer with envfiles', async () => {
+  test('test create and start Container with envfiles', async () => {
     const createdId = '1234';
 
     const startMock = vi.fn();
@@ -2189,11 +2189,7 @@ describe('createAndStartContainer', () => {
 
     spyEnvParser.mockReturnValue({ parseEnvFiles: parseEnvFilesMock } as unknown as EnvfileParser);
 
-    const container = await containerRegistry.createAndStartContainer(
-      'podman1',
-      { EnvFiles: ['file1', 'file2'] },
-      true,
-    );
+    const container = await containerRegistry.createContainer('podman1', { EnvFiles: ['file1', 'file2'] });
 
     expect(container.id).toBe(createdId);
     expect(createContainerMock).toHaveBeenCalled();
@@ -2238,7 +2234,7 @@ describe('createAndStartContainer', () => {
       api: fakeDockerode,
     } as InternalContainerProvider);
 
-    const container = await containerRegistry.createAndStartContainer('podman1', {}, false);
+    const container = await containerRegistry.createContainer('podman1', { startOnCreation: false });
 
     expect(container.id).toBe(createdId);
     expect(createContainerMock).toHaveBeenCalled();

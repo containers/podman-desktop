@@ -2140,6 +2140,7 @@ declare module '@podman-desktop/api' {
     OpenStdin?: boolean;
     StdinOnce?: boolean;
     Detach?: boolean;
+    startOnCreation?: boolean;
   }
 
   export interface ContainerCreateResult {
@@ -2234,7 +2235,6 @@ declare module '@podman-desktop/api' {
     export function createContainer(
       engineId: string,
       containerCreateOptions: ContainerCreateOptions,
-      startOnCreation?: boolean,
     ): Promise<ContainerCreateResult>;
     export function startContainer(engineId: string, id: string): Promise<void>;
     export function logsContainer(
