@@ -259,6 +259,19 @@ declare module '@podman-desktop/api' {
     status(): ProviderConnectionStatus;
   }
 
+  export interface PodCreatePortOptions {
+    host_ip: string;
+    container_port: number;
+    host_port: number;
+    protocol: string;
+    range: number;
+  }
+
+  export interface PodCreateOptions {
+    name: string;
+    portmappings?: PodCreatePortOptions[];
+  }
+
   export interface KubernetesProviderConnectionEndpoint {
     apiURL: string;
   }
@@ -2280,6 +2293,17 @@ declare module '@podman-desktop/api' {
     export function listVolumes(): Promise<VolumeListInfo[]>;
     export function createVolume(options?: VolumeCreateOptions): Promise<VolumeCreateResponseInfo>;
     export function deleteVolume(volumeName: string, options?: VolumeDeleteOptions): Promise<void>;
+
+    export function createPod(
+      selectedProvider: ProviderContainerConnectionInfo | ContainerProviderConnection,
+      podOptions: PodCreateOptions,
+    ): Promise<{ engineId: string; Id: string }>;
+    export function replicatePodmanContainer(
+      source: { engineId: string; id: string },
+      target: { engineId: string },
+      overrideParameters: ContainerCreateOptions,
+    ): Promise<{ Id: string; Warnings: string[] }>;
+    export function startPod(engineId: string, podId: string): Promise<void>;
   }
 
   /**

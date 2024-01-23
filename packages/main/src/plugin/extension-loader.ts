@@ -997,6 +997,22 @@ export class ExtensionLoader {
       deleteVolume(volumeName: string, options?: containerDesktopAPI.VolumeDeleteOptions): Promise<void> {
         return containerProviderRegistry.deleteVolume(volumeName, options);
       },
+      createPod(
+        selectedProvider: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
+        podOptions: containerDesktopAPI.PodCreateOptions,
+      ): Promise<{ engineId: string; Id: string }> {
+        return containerProviderRegistry.createPod(selectedProvider, podOptions);
+      },
+      replicatePodmanContainer(
+        source: { engineId: string; id: string },
+        target: { engineId: string },
+        overrideParameters: containerDesktopAPI.ContainerCreateOptions,
+      ): Promise<{ Id: string; Warnings: string[] }> {
+        return containerProviderRegistry.replicatePodmanContainer(source, target, overrideParameters);
+      },
+      startPod(engineId: string, podId: string): Promise<void> {
+        return containerProviderRegistry.startPod(engineId, podId);
+      },
     };
 
     const authenticationProviderRegistry = this.authenticationProviderRegistry;

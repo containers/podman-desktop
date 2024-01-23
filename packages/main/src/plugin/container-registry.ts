@@ -1132,7 +1132,7 @@ export class ContainerProviderRegistry {
   }
 
   async createPod(
-    selectedProvider: ProviderContainerConnectionInfo,
+    selectedProvider: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
     podOptions: PodCreateOptions,
   ): Promise<{ engineId: string; Id: string }> {
     let telemetryOptions = {};
