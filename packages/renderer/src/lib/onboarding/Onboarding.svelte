@@ -282,7 +282,16 @@ async function restartSetup() {
   await cleanSetup(onboardings, globalContext);
   await setActiveStep();
 }
+
+// If the user hits escape, prompt them to exit the onboarding
+function handleEscape({ key }: any) {
+  if (key === 'Escape') {
+    setDisplayCancelSetup(true);
+  }
+}
 </script>
+
+<svelte:window on:keydown="{handleEscape}" />
 
 {#if activeStep}
   <!-- fake div used to hide scrollbar shadow behind the header as it's a bit transparent  -->

@@ -22,6 +22,7 @@ import Onboarding from './Onboarding.svelte';
 import { ContextUI } from '../context/context';
 import { onboardingList } from '/@/stores/onboarding';
 import { context } from '/@/stores/context';
+import userEvent from '@testing-library/user-event';
 
 async function waitRender(customProperties: object): Promise<void> {
   const result = render(Onboarding, { ...customProperties });
@@ -333,4 +334,55 @@ test('Expect Step Body to clean up if new step has no content to display.', asyn
   // Expect "helloworld" to not be in the document
   const helloDoesntExist = screen.queryByText('helloworld');
   expect(helloDoesntExist).not.toBeInTheDocument();
+});
+
+// Expect that hitting "Escape" key will trigger the sendShowMessageBoxOnSelect
+test('Expect that Esc closes', async () => {
+  (window as any).resetOnboarding = vi.fn();
+  (window as any).updateStepState = vi.fn();
+
+  const contextConfig = new ContextUI();
+  context.set(contextConfig);
+  contextConfig.setValue('config.test', false);
+
+  onboardingList.set([
+    {
+      extension: 'id',
+      title: 'onboarding',
+      steps: [
+        {
+          id: 'step',
+          title: 'step',
+          content: [
+            [
+              {
+                value: 'helloworld',
+              },
+            ],
+          ],
+        },
+        {
+          id: 'step2',
+          title: 'step2',
+          state: 'completed',
+        },
+      ],
+      enablement: 'true',
+    },
+  ]);
+
+  await waitRender({
+    extensionIds: ['id'],
+  });
+
+  // Expect "helloworld" to exist
+  const helloExists = screen.getAllByText('helloworld');
+  expect(helloExists[0]).toBeInTheDocument();
+
+  // Press esc
+  await userEvent.keyboard('{Escape}');
+
+  // Espect the div 'Skip Setup Popup' to be in the document
+  const skipSetupPopup = screen.getByLabelText('Skip Setup Popup');
+  expect(skipSetupPopup).toBeInTheDocument();
 });

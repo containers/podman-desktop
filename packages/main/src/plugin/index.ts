@@ -155,6 +155,8 @@ import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import { WebviewRegistry } from './webview/webview-registry.js';
 import type { IDisposable } from './types/disposable.js';
 
+import { KubernetesUtils } from './kubernetes-util.js';
+
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
 export const UPDATER_UPDATE_AVAILABLE_ICON = 'fa fa-exclamation-triangle';
@@ -745,6 +747,10 @@ export class PluginSystem {
     const navigationManager = new NavigationManager(apiSender, containerProviderRegistry, contributionManager);
     const webviewRegistry = new WebviewRegistry(apiSender);
     await webviewRegistry.start();
+
+    // init kubernetes configuration
+    const kubernetesUtils = new KubernetesUtils(configurationRegistry);
+    kubernetesUtils.init();
 
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
