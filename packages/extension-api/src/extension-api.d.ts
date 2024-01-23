@@ -2140,7 +2140,7 @@ declare module '@podman-desktop/api' {
     OpenStdin?: boolean;
     StdinOnce?: boolean;
     Detach?: boolean;
-    startOnCreation?: boolean;
+    start?: boolean;
   }
 
   export interface ContainerCreateResult {
