@@ -1718,7 +1718,7 @@ export class ContainerProviderRegistry {
 
       const container = await engine.api.createContainer(options);
       await this.attachToContainer(engine, container, options.Tty, options.OpenStdin);
-      if (options.startOnCreation === true || options.startOnCreation === undefined) {
+      if (options.start === true || options.start === undefined) {
         await container.start();
       }
       return { id: container.id };

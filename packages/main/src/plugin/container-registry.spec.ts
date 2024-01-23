@@ -2147,7 +2147,7 @@ describe('createContainer', () => {
       api: fakeDockerode,
     } as InternalContainerProvider);
 
-    const container = await containerRegistry.createContainer('podman1', { startOnCreation: true });
+    const container = await containerRegistry.createContainer('podman1', { start: true });
 
     expect(container.id).toBe(createdId);
     expect(createContainerMock).toHaveBeenCalled();
@@ -2234,7 +2234,7 @@ describe('createContainer', () => {
       api: fakeDockerode,
     } as InternalContainerProvider);
 
-    const container = await containerRegistry.createContainer('podman1', { startOnCreation: false });
+    const container = await containerRegistry.createContainer('podman1', { start: false });
 
     expect(container.id).toBe(createdId);
     expect(createContainerMock).toHaveBeenCalled();
