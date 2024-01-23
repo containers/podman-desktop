@@ -62,7 +62,7 @@ test('Expect to have the "Try again" and Cancel buttons if the step represent a 
   });
   const button = screen.getByRole('button', { name: 'Try again' });
   expect(button).toBeInTheDocument();
-  const buttonCancel = screen.getByRole('button', { name: 'Cancel setup' });
+  const buttonCancel = screen.getByRole('button', { name: 'Cancel Setup' });
   expect(buttonCancel).toBeInTheDocument();
   const infoMessage = screen.queryByLabelText('Next Info Message');
   expect(infoMessage).not.toBeInTheDocument();
@@ -93,7 +93,7 @@ test('Expect not to have the "Try again" and "Cancel" buttons if the step repres
   });
   const buttonTryAgain = screen.queryByRole('button', { name: 'Try again' });
   expect(buttonTryAgain).not.toBeInTheDocument();
-  const buttonCancel = screen.queryByRole('button', { name: 'Cancel setup' });
+  const buttonCancel = screen.queryByRole('button', { name: 'Cancel Setup' });
   expect(buttonCancel).not.toBeInTheDocument();
   const infoMessage = screen.getByLabelText('Next Info Message');
   expect(infoMessage).toBeInTheDocument();
@@ -323,7 +323,7 @@ test('Expect Step Body to clean up if new step has no content to display.', asyn
   expect(helloExists[0]).toBeInTheDocument();
 
   // click on the next button
-  const nextButton = screen.getByRole('button', { name: 'Next' });
+  const nextButton = screen.getByLabelText('Next Step');
   expect(nextButton).toBeInTheDocument();
   await fireEvent.click(nextButton);
 
