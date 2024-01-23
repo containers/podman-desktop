@@ -95,6 +95,7 @@ export interface ContainerCreateOptions {
   OpenStdin?: boolean;
   StdinOnce?: boolean;
   Detach?: boolean;
+  start?: boolean;
 }
 
 export interface NetworkCreateOptions {

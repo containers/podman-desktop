@@ -909,7 +909,7 @@ export class ExtensionLoader {
         engineId: string,
         containerCreateOptions: containerDesktopAPI.ContainerCreateOptions,
       ): Promise<containerDesktopAPI.ContainerCreateResult> {
-        return containerProviderRegistry.createAndStartContainer(engineId, containerCreateOptions);
+        return containerProviderRegistry.createContainer(engineId, containerCreateOptions);
       },
       inspectContainer(engineId: string, id: string): Promise<containerDesktopAPI.ContainerInspectInfo> {
         return containerProviderRegistry.getContainerInspect(engineId, id);

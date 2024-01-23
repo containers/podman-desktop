@@ -1692,7 +1692,7 @@ export class ContainerProviderRegistry {
     }
   }
 
-  async createAndStartContainer(engineId: string, options: ContainerCreateOptions): Promise<{ id: string }> {
+  async createContainer(engineId: string, options: ContainerCreateOptions): Promise<{ id: string }> {
     let telemetryOptions = {};
     try {
       // need to find the container engine of the container
@@ -1718,13 +1718,15 @@ export class ContainerProviderRegistry {
 
       const container = await engine.api.createContainer(options);
       await this.attachToContainer(engine, container, options.Tty, options.OpenStdin);
-      await container.start();
+      if (options.start === true || options.start === undefined) {
+        await container.start();
+      }
       return { id: container.id };
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('createAndStartContainer', telemetryOptions);
+      this.telemetryService.track('createContainer', telemetryOptions);
     }
   }
 

@@ -2117,8 +2117,8 @@ test('container logs callback notified when messages arrive', async () => {
   expect(telemetry.track).toHaveBeenCalled;
 });
 
-describe('createAndStartContainer', () => {
-  test('test createAndStartContainer', async () => {
+describe('createContainer', () => {
+  test('test create and start Container', async () => {
     const createdId = '1234';
 
     const startMock = vi.fn();
@@ -2147,14 +2147,14 @@ describe('createAndStartContainer', () => {
       api: fakeDockerode,
     } as InternalContainerProvider);
 
-    const container = await containerRegistry.createAndStartContainer('podman1', {});
+    const container = await containerRegistry.createContainer('podman1', { start: true });
 
     expect(container.id).toBe(createdId);
     expect(createContainerMock).toHaveBeenCalled();
     expect(startMock).toHaveBeenCalled();
   });
 
-  test('test createAndStartContainer with envfiles', async () => {
+  test('test create and start Container with envfiles', async () => {
     const createdId = '1234';
 
     const startMock = vi.fn();
@@ -2189,7 +2189,7 @@ describe('createAndStartContainer', () => {
 
     spyEnvParser.mockReturnValue({ parseEnvFiles: parseEnvFilesMock } as unknown as EnvfileParser);
 
-    const container = await containerRegistry.createAndStartContainer('podman1', { EnvFiles: ['file1', 'file2'] });
+    const container = await containerRegistry.createContainer('podman1', { EnvFiles: ['file1', 'file2'] });
 
     expect(container.id).toBe(createdId);
     expect(createContainerMock).toHaveBeenCalled();
@@ -2203,6 +2203,42 @@ describe('createAndStartContainer', () => {
 
     // Check EnvFiles is not propagated to the remote
     expect(createContainerMock).toHaveBeenCalledWith(expect.not.objectContaining({ EnvFiles: ['file1', 'file2'] }));
+  });
+
+  test('test container is created but not started', async () => {
+    const createdId = '1234';
+
+    const startMock = vi.fn();
+    const inspectMock = vi.fn();
+    const createContainerMock = vi
+      .fn()
+      .mockResolvedValue({ id: createdId, start: startMock, inspect: inspectMock } as unknown as Dockerode.Container);
+
+    inspectMock.mockResolvedValue({
+      Config: {
+        Tty: false,
+        OpenStdin: false,
+      },
+    });
+
+    const fakeDockerode = {
+      createContainer: createContainerMock,
+    } as unknown as Dockerode;
+
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman1',
+      id: 'podman1',
+      connection: {
+        type: 'podman',
+      },
+      api: fakeDockerode,
+    } as InternalContainerProvider);
+
+    const container = await containerRegistry.createContainer('podman1', { start: false });
+
+    expect(container.id).toBe(createdId);
+    expect(createContainerMock).toHaveBeenCalled();
+    expect(startMock).not.toHaveBeenCalled();
   });
 });
 
