@@ -875,6 +875,12 @@ export class ContainerProviderRegistry {
     ];
   }
 
+  /**
+   * it finds a running podman provider by fetching all internalProviders.
+   * It filters by checking the libpodApi
+   * @returns a running podman provider
+   * @throws if no running podman provider is found
+   */
   public getFirstRunningPodmanContainerProvider(): InternalContainerProvider {
     // grab the first running podman provider
     const matchingPodmanContainerProvider = Array.from(this.internalProviders.values()).find(
