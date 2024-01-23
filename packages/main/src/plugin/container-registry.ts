@@ -47,7 +47,6 @@ import type { HistoryInfo } from './api/history-info.js';
 import type {
   LibPod,
   PlayKubeInfo,
-  PodCreateOptions,
   ContainerCreateOptions as PodmanContainerCreateOptions,
   PodInfo as LibpodPodInfo,
 } from './dockerode/libpod-dockerode.js';
@@ -1158,16 +1157,13 @@ export class ContainerProviderRegistry {
     }
   }
 
-  async createPod(
-    podOptions: PodCreateOptions,
-    selectedProvider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
-  ): Promise<{ engineId: string; Id: string }> {
+  async createPod(podOptions: containerDesktopAPI.PodCreateOptions): Promise<{ engineId: string; Id: string }> {
     let telemetryOptions = {};
     try {
       let internalContainerProvider: InternalContainerProvider;
-      if (selectedProvider) {
+      if (podOptions.provider) {
         // grab connection
-        internalContainerProvider = this.getMatchingContainerProvider(selectedProvider);
+        internalContainerProvider = this.getMatchingContainerProvider(podOptions.provider);
       } else {
         // Get the first running podman connection
         internalContainerProvider = this.getFirstRunningPodmanContainerProvider();

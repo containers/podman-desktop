@@ -73,7 +73,6 @@ import type { VolumeInspectInfo, VolumeListInfo } from './api/volume-info.js';
 import type { ContainerStatsInfo } from './api/container-stats-info.js';
 import type {
   PlayKubeInfo,
-  PodCreateOptions,
   ContainerCreateOptions as PodmanContainerCreateOptions,
 } from './dockerode/libpod-dockerode.js';
 import type Dockerode from 'dockerode';
@@ -883,10 +882,9 @@ export class PluginSystem {
       'container-provider-registry:createPod',
       async (
         _listener,
-        selectedProvider: ProviderContainerConnectionInfo,
-        createOptions: PodCreateOptions,
+        createOptions: containerDesktopAPI.PodCreateOptions,
       ): Promise<{ engineId: string; Id: string }> => {
-        return containerProviderRegistry.createPod(createOptions, selectedProvider);
+        return containerProviderRegistry.createPod(createOptions);
       },
     );
     this.ipcHandle(

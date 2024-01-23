@@ -997,11 +997,8 @@ export class ExtensionLoader {
       deleteVolume(volumeName: string, options?: containerDesktopAPI.VolumeDeleteOptions): Promise<void> {
         return containerProviderRegistry.deleteVolume(volumeName, options);
       },
-      createPod(
-        podOptions: containerDesktopAPI.PodCreateOptions,
-        selectedProvider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
-      ): Promise<{ engineId: string; Id: string }> {
-        return containerProviderRegistry.createPod(podOptions, selectedProvider);
+      createPod(podOptions: containerDesktopAPI.PodCreateOptions): Promise<{ engineId: string; Id: string }> {
+        return containerProviderRegistry.createPod(podOptions);
       },
       replicatePodmanContainer(
         source: { engineId: string; id: string },
