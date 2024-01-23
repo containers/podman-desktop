@@ -886,7 +886,7 @@ export class PluginSystem {
         selectedProvider: ProviderContainerConnectionInfo,
         createOptions: PodCreateOptions,
       ): Promise<{ engineId: string; Id: string }> => {
-        return containerProviderRegistry.createPod(selectedProvider, createOptions);
+        return containerProviderRegistry.createPod(createOptions, selectedProvider);
       },
     );
     this.ipcHandle(

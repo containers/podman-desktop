@@ -876,6 +876,18 @@ export class ContainerProviderRegistry {
     ];
   }
 
+  public getFirstRunningPodmanContainerProvider(): InternalContainerProvider {
+    // grab the first running podman provider
+    const matchingPodmanContainerProvider = Array.from(this.internalProviders.values()).find(
+      containerProvider => containerProvider.libpodApi,
+    );
+    if (!matchingPodmanContainerProvider) {
+      throw new Error('No podman provider with a running engine');
+    }
+
+    return matchingPodmanContainerProvider;
+  }
+
   protected getMatchingEngineFromConnection(
     providerContainerConnectionInfo: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
   ): Dockerode {
@@ -889,6 +901,21 @@ export class ContainerProviderRegistry {
       throw new Error('no running provider for the matching container');
     }
     return matchingContainerProvider.api;
+  }
+
+  protected getMatchingContainerProvider(
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
+  ): InternalContainerProvider {
+    // grab all connections
+    const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
+      containerProvider =>
+        containerProvider.connection.endpoint.socketPath === providerContainerConnectionInfo.endpoint.socketPath &&
+        containerProvider.connection.name === providerContainerConnectionInfo.name,
+    );
+    if (!matchingContainerProvider?.api) {
+      throw new Error('no running provider for the matching container');
+    }
+    return matchingContainerProvider;
   }
 
   protected getMatchingContainer(engineId: string, id: string): Dockerode.Container {
@@ -1132,22 +1159,24 @@ export class ContainerProviderRegistry {
   }
 
   async createPod(
-    selectedProvider: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
     podOptions: PodCreateOptions,
+    selectedProvider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
   ): Promise<{ engineId: string; Id: string }> {
     let telemetryOptions = {};
     try {
-      // grab all connections
-      const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
-        containerProvider =>
-          containerProvider.connection.endpoint.socketPath === selectedProvider.endpoint.socketPath &&
-          containerProvider.connection.name === selectedProvider.name,
-      );
-      if (!matchingContainerProvider?.libpodApi) {
-        throw new Error('No provider with a running engine');
+      let internalContainerProvider: InternalContainerProvider;
+      if (selectedProvider) {
+        // grab connection
+        internalContainerProvider = this.getMatchingContainerProvider(selectedProvider);
+      } else {
+        // Get the first running podman connection
+        internalContainerProvider = this.getFirstRunningPodmanContainerProvider();
       }
-      const result = await matchingContainerProvider.libpodApi.createPod(podOptions);
-      return { Id: result.Id, engineId: matchingContainerProvider.id };
+      if (!internalContainerProvider?.libpodApi) {
+        throw new Error('No podman provider with a running engine');
+      }
+      const result = await internalContainerProvider.libpodApi.createPod(podOptions);
+      return { Id: result.Id, engineId: internalContainerProvider.id };
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;

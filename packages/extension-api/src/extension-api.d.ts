@@ -2295,8 +2295,8 @@ declare module '@podman-desktop/api' {
     export function deleteVolume(volumeName: string, options?: VolumeDeleteOptions): Promise<void>;
 
     export function createPod(
-      selectedProvider: ProviderContainerConnectionInfo | ContainerProviderConnection,
       podOptions: PodCreateOptions,
+      selectedProvider?: ProviderContainerConnectionInfo | ContainerProviderConnection,
     ): Promise<{ engineId: string; Id: string }>;
     export function replicatePodmanContainer(
       source: { engineId: string; id: string },
