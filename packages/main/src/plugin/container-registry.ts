@@ -891,11 +891,7 @@ export class ContainerProviderRegistry {
     providerContainerConnectionInfo: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
   ): Dockerode {
     // grab all connections
-    const matchingContainerProvider = Array.from(this.internalProviders.values()).find(
-      containerProvider =>
-        containerProvider.connection.endpoint.socketPath === providerContainerConnectionInfo.endpoint.socketPath &&
-        containerProvider.connection.name === providerContainerConnectionInfo.name,
-    );
+    const matchingContainerProvider = this.getMatchingContainerProvider(providerContainerConnectionInfo);
     if (!matchingContainerProvider?.api) {
       throw new Error('no running provider for the matching container');
     }
