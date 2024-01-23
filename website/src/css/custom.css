@@ -158,3 +158,12 @@ li.footer__item a svg {
     font-size: 1.2em;
   }
 }
+
+.breadcrumbs {
+  display: flex;
+}
+
+.breadcrumbs__item {
+  display: flex;
+  align-items: center;
+}
