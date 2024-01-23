@@ -1077,7 +1077,7 @@ export class PluginSystem {
     this.ipcHandle(
       'container-provider-registry:createAndStartContainer',
       async (_listener, engine: string, options: ContainerCreateOptions): Promise<{ id: string }> => {
-        options.startOnCreation = true;
+        options.start = true;
         return containerProviderRegistry.createContainer(engine, options);
       },
     );
