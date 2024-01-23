@@ -124,7 +124,7 @@
     "@types/tar": "^6.1.10",
     "@types/tar-fs": "^2.0.4",
     "@types/validator": "^13.11.8",
-    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.1",
     "@typescript-eslint/parser": "^6.19.0",
     "@vitest/coverage-v8": "^1.2.1",
     "cross-env": "7.0.3",
