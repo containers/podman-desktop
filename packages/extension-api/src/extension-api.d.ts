@@ -2132,6 +2132,26 @@ declare module '@podman-desktop/api' {
     errorDetails?: { message?: string };
   }
 
+  export interface PodmanContainerCreateOptions {
+    command?: string[];
+    entrypoint?: string | string[];
+    env?: { [key: string]: string };
+    pod?: string;
+    hostname?: string;
+    image?: string;
+    name?: string;
+    mounts?: Array<{
+      Name?: string;
+      Type: string;
+      Source: string;
+      Destination: string;
+      Driver?: string;
+      Mode: string;
+      RW: boolean;
+      Propagation: string;
+    }>;
+  }
+
   export interface ContainerCreateOptions {
     name?: string;
     Hostname?: string;
@@ -2300,7 +2320,7 @@ declare module '@podman-desktop/api' {
     export function replicatePodmanContainer(
       source: { engineId: string; id: string },
       target: { engineId: string },
-      overrideParameters: ContainerCreateOptions,
+      overrideParameters: PodmanContainerCreateOptions,
     ): Promise<{ Id: string; Warnings: string[] }>;
     export function startPod(engineId: string, podId: string): Promise<void>;
   }
