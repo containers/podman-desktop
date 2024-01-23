@@ -1,18 +1,18 @@
 {
-  "version": "4.8.3",
+  "version": "4.9.0",
   "platform": {
     "win32": {
-      "version": "v4.8.3",
-      "fileName": "podman-4.8.3-setup.exe"
+      "version": "v4.9.0",
+      "fileName": "podman-4.9.0-setup.exe"
     },
     "darwin": {
-      "version": "v4.8.3",
+      "version": "v4.9.0",
       "arch": {
         "x64": {
-          "fileName": "podman-installer-macos-amd64-v4.8.3.pkg"
+          "fileName": "podman-installer-macos-amd64-v4.9.0.pkg"
         },
         "arm64": {
-          "fileName": "podman-installer-macos-aarch64-v4.8.3.pkg"
+          "fileName": "podman-installer-macos-aarch64-v4.9.0.pkg"
         }
       }
     }
