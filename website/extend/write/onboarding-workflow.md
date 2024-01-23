@@ -134,7 +134,7 @@ When this condition is met, the user will find a setup button within the resourc
 
 ![img1](/img/extensions/write/setup_button.png)
 
-The enablement clause is mandatory and must be written by using [when clauses](/docs/extensions/write/when-clause-context).
+The enablement clause is mandatory and must be written by using [when clauses](/extend/write/when-clause-context).
 
 In the following example, we specify that the onboarding needs to be enabled if and only if the user's OS is Linux, and the `podmanIsNotInstalled` context value is true. Alternatively, if the user's OS is different from Linux, that the `podmanMachineExists` context value must be false. Essentially, if the user is on Linux, the onboarding must be enabled only if podman is not installed; for all other operating systems, it should be enabled if there is no Podman machine.
 

@@ -203,4 +203,4 @@ Write the extension features.
 
 #### Next steps
 
-- [Publishing a Podman Desktop extension](/docs/extensions/publish)
+- [Publishing a Podman Desktop extension](/extend/publish)

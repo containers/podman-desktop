@@ -14,7 +14,7 @@ Consider installing Podman Desktop extensions to enrich the default capabilities
 
 - The extension Open Container Initiative (OCI) image name, such as: `quay.io/fbenoit/my-first-extension`.
 
-  See [Publishing a Podman Desktop extension](/docs/extensions/publish).
+  See [Publishing a Podman Desktop extension](/extend/publish).
 
 #### Procedure
 
