@@ -212,6 +212,12 @@ class TestContainerProviderRegistry extends ContainerProviderRegistry {
     return super.getMatchingContainer(engineId, containerId);
   }
 
+  public getMatchingContainerProvider(
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo | podmanDesktopAPI.ContainerProviderConnection,
+  ): InternalContainerProvider {
+    return super.getMatchingContainerProvider(providerContainerConnectionInfo);
+  }
+
   addInternalProvider(name: string, provider: InternalContainerProvider): void {
     this.internalProviders.set(name, provider);
   }
@@ -659,6 +665,56 @@ test('getFirstRunningConnection', async () => {
   // first should be podman 1 as we're first ordering podman providers
   expect(connection[0].name).toBe('podman1');
   expect(connection[0].endpoint.socketPath).toBe('/podman1.socket');
+});
+
+test('getFirstRunningPodmanContainerProvider', async () => {
+  const fakeDockerode = {} as Dockerode;
+
+  // set providers with docker being first
+  containerRegistry.addInternalProvider('docker1', {
+    name: 'docker1',
+    id: 'docker1',
+    connection: {
+      type: 'docker',
+    },
+    api: fakeDockerode,
+  } as InternalContainerProvider);
+  containerRegistry.addInternalProvider('podman1', {
+    name: 'podman1',
+    id: 'podman1',
+    connection: {
+      type: 'podman',
+    },
+    api: fakeDockerode,
+  } as unknown as InternalContainerProvider);
+
+  containerRegistry.addInternalProvider('docker2', {
+    name: 'docker2',
+    id: 'docker2',
+    connection: {
+      type: 'docker',
+    },
+    api: fakeDockerode,
+  } as InternalContainerProvider);
+
+  containerRegistry.addInternalProvider('podman2', {
+    name: 'podman2',
+    id: 'podman2',
+    connection: {
+      type: 'podman',
+      endpoint: {
+        socketPath: '/podman1.socket',
+      },
+    },
+    api: fakeDockerode,
+    libpodApi: fakeDockerode,
+  } as unknown as InternalContainerProvider);
+
+  const connection = containerRegistry.getFirstRunningPodmanContainerProvider();
+
+  // first should be podman 1 as we're first ordering podman providers
+  expect(connection.name).toBe('podman2');
+  expect(connection.connection.endpoint.socketPath).toBe('/podman1.socket');
 });
 
 describe('listContainers', () => {
@@ -2849,4 +2905,156 @@ test('check volume mounted is replicated when executing replicatePodmanContainer
     image: fakeContainerInspectInfo.Config.Image,
     mounts: fakeContainerInspectInfo.Mounts,
   });
+});
+
+test('check createPod uses running podman connection if no selectedProvider is provided', async () => {
+  const createPodMock = vi.fn().mockResolvedValue({
+    Id: 'id',
+  });
+  const fakeDockerode = {
+    createPod: createPodMock,
+  } as unknown as Dockerode;
+
+  const internalProvider = {
+    name: 'podman1',
+    id: 'podman1',
+    connection: {
+      type: 'podman',
+    },
+    api: fakeDockerode,
+    libpodApi: fakeDockerode,
+  } as unknown as InternalContainerProvider;
+
+  containerRegistry.addInternalProvider('podman2', internalProvider);
+  const result = await containerRegistry.createPod({
+    name: 'pod',
+  });
+  expect(result.Id).equal('id');
+  expect(result.engineId).equal('podman1');
+});
+
+test('check createPod uses running podman connection if ContainerProviderConnection is provided', async () => {
+  const createPodMock = vi.fn().mockResolvedValue({
+    Id: 'id',
+  });
+  const fakeDockerode = {
+    createPod: createPodMock,
+  } as unknown as Dockerode;
+
+  const internalProvider = {
+    name: 'podman1',
+    id: 'podman1',
+    connection: {
+      name: 'podman1',
+      type: 'podman',
+      endpoint: {
+        socketPath: 'podman.sock',
+      },
+    },
+    api: fakeDockerode,
+    libpodApi: fakeDockerode,
+  } as unknown as InternalContainerProvider;
+
+  containerRegistry.addInternalProvider('podman1', internalProvider);
+
+  const containerProviderConnection: podmanDesktopAPI.ContainerProviderConnection = {
+    name: 'podman1',
+    endpoint: {
+      socketPath: 'podman.sock',
+    },
+    status: vi.fn(),
+    type: 'podman',
+  };
+
+  const result = await containerRegistry.createPod({
+    name: 'pod',
+    provider: containerProviderConnection,
+  });
+  expect(result.Id).equal('id');
+  expect(result.engineId).equal('podman1');
+});
+
+test('check createPod uses running podman connection if ProviderContainerConnectionInfo is provided', async () => {
+  const createPodMock = vi.fn().mockResolvedValue({
+    Id: 'id',
+  });
+  const fakeDockerode = {
+    createPod: createPodMock,
+  } as unknown as Dockerode;
+
+  const internalProvider = {
+    name: 'podman1',
+    id: 'podman1',
+    connection: {
+      name: 'podman1',
+      type: 'podman',
+      endpoint: {
+        socketPath: 'podman.sock',
+      },
+    },
+    api: fakeDockerode,
+    libpodApi: fakeDockerode,
+  } as unknown as InternalContainerProvider;
+
+  containerRegistry.addInternalProvider('podman1', internalProvider);
+
+  const containerProviderConnection: ProviderContainerConnectionInfo = {
+    name: 'podman1',
+    endpoint: {
+      socketPath: 'podman.sock',
+    },
+    status: 'started',
+    type: 'podman',
+  };
+
+  const result = await containerRegistry.createPod({
+    name: 'pod',
+    provider: containerProviderConnection,
+  });
+  expect(result.Id).equal('id');
+  expect(result.engineId).equal('podman1');
+});
+
+test('check that fails if there is no podman provider running', async () => {
+  const internalProvider = {
+    name: 'podman1',
+    id: 'podman1',
+    connection: {
+      name: 'podman1',
+      type: 'podman',
+    },
+  } as unknown as InternalContainerProvider;
+
+  containerRegistry.addInternalProvider('podman1', internalProvider);
+  await expect(
+    containerRegistry.createPod({
+      name: 'pod',
+    }),
+  ).rejects.toThrowError('No podman provider with a running engine');
+});
+
+test('check that fails if selected provider is not a podman one', async () => {
+  const createPodMock = vi.fn().mockResolvedValue({
+    Id: 'id',
+  });
+  const fakeDockerode = {
+    createPod: createPodMock,
+  } as unknown as Dockerode;
+
+  const internalProvider = {
+    name: 'podman1',
+    id: 'podman1',
+    connection: {
+      name: 'podman1',
+      type: 'docker',
+    },
+    api: fakeDockerode,
+  } as unknown as InternalContainerProvider;
+
+  containerRegistry.addInternalProvider('podman1', internalProvider);
+  await expect(
+    containerRegistry.createPod({
+      name: 'pod',
+    }),
+  ).rejects.toThrowError('No podman provider with a running engine');
 });

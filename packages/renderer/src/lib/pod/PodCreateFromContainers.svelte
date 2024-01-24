@@ -85,7 +85,7 @@ async function doCreatePodFromContainers() {
     .filter(item => item !== undefined) as PodCreatePortOptions[];
 
   // first create pod
-  const { Id, engineId } = await window.createPod(selectedProvider, { name: podCreation.name, portmappings });
+  const { Id, engineId } = await window.createPod({ name: podCreation.name, portmappings, provider: selectedProvider });
   // now, for each container, recreate it with the pod
   // but before, stop the container
 
