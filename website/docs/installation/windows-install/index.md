@@ -108,28 +108,55 @@ Alternatively, consider installing the Podman Preset in OpenShift Local when you
 
 </summary>
 
-1. Install the OpenShift Local extension.
+1. Install the OpenShift Local extension:
 
-2. Install OpenShift Local.
+   Go to the **Dashboard**.
 
-3. To run the next commands, open the Command Prompt.
+   In the **Featured extensions > OpenShift Local** tile, click the **<Icon icon="fa-solid fa-download" size="lg" />** button.
 
-4. Select the [Podman container runtime preset](https://access.redhat.com/documentation/en-us/red_hat_openshift_local/2.12/html/getting_started_guide/using_gsg#about-presets_gsg):
+1. Install OpenShift Local:
+
+   In the **OpenShift Local** tile, click the **<Icon icon="fa-solid fa-rocket" size="lg" /> Install** button.
+
+   Validate all confirmation screens.
+
+1. Selecting a preset is a mandatory step.
+   However the **Podman** preset is not visible in Podman Desktop UI.
+
+   Select **Microshift**.
+
+   OpenShift Local downloads the preset in the background. However you do not intent to use this preset.
+
+1. Restart your computer.
+
+1. Use the OpenShift Local CLI to select the **Podman** preset.
+
+   To run the next commands, open the Command Prompt.
+
+1. Select the [Podman container runtime preset](https://access.redhat.com/documentation/en-us/red_hat_openshift_local/2.12/html/getting_started_guide/using_gsg#about-presets_gsg):
 
    ```shell-session
    > crc config set preset podman
    ```
 
-5. Set up your host machine for Red Hat OpenShift Local:
+1. Set up your host machine for Red Hat OpenShift Local, and download the Podman bundle:
 
    ```shell-session
    > crc setup
    ```
 
-6. Start the Red Hat OpenShift instance:
+1. Start the Red Hat OpenShift instance:
 
    ```shell-session
    > crc start
+   ```
+
+1. The Podman Desktop **Dashboard** displays: _OpenShift Local is running Version x.y.z (Podman)_.
+
+1. Configure your terminal to use the Podman CLI:
+
+   ```shell-session
+   > eval $(crc podman-env)
    ```
 
 </details>
@@ -143,56 +170,58 @@ To install the Podman Machine:
    > wsl --install --no-distribution
    ```
 
-1. Open Podman Desktop.
+2. Open Podman Desktop.
 
-1. At first run, you see the **Get started with Podman Desktop** screen.
+3. At first run, you see the **Get started with Podman Desktop** screen.
 
    Click on the **Go to Podman Desktop** button.
 
-1. The **Dashboard** screen displays: _<Icon icon="fa-solid fa-info" size="lg" /> Podman needs to be set up_.
+4. The **Dashboard** screen displays: _<Icon icon="fa-solid fa-info" size="lg" /> Podman needs to be set up_.
 
    Click the **Set up** button.
 
-1. The **Podman Setup** screen displays: _We could not find Podman. Let's install it!_
+5. The **Podman Setup** screen displays: _We could not find Podman. Let's install it!_
 
    Click the **Next** button.
 
-1. Podman Desktop checks the prerequisites to install Podman.
+6. Podman Desktop checks the prerequisites to install Podman.
    When necessary, follow the instructions to install prerequisites.
 
-1. The **Podman** dialog displays: _Podman is not installed on this system, would you like to install Podman?_
+7. The **Podman** dialog displays: _Podman is not installed on this system, would you like to install Podman?_
 
    Click the **Yes** button.
 
-1. The **Podman Setup** window asks for confirmation.
+8. The **Podman Setup** window asks for confirmation.
 
    Click the **Install** button.
 
-1. The **User Account Control** window asks for confirmation.
+9. The **User Account Control** window asks for confirmation.
 
    Click the **Yes** button.
 
-1. The **Podman Setup** window asks for confirmation.
+10. The **Podman Setup** window asks for confirmation.
 
-   Click the **Close** button.
+Click the **Close** button.
 
-1. Get back to the **Podman Desktop** window.
+11. Get back to the **Podman Desktop** window.
 
-   The **Podman Setup** screen displays _Podman successfully installed_.
+The **Podman Setup** screen displays _Podman successfully installed_.
 
-   Review the options, and click the **Next** button.
+Review the options, and click the **Next** button.
 
-1. The **Podman Setup** screen displays: _We could not find any Podman machine. Let's create one!_
+12. The **Podman Setup** screen displays: _We could not find any Podman machine. Let's create one!_
 
-   Click the **Next** button.
+Click the **Next** button.
 
-1. The **Podman Setup** screen displays: _Create a Podman machine_.
+13. The **Podman Setup** screen displays: _Create a Podman machine_.
 
-   Review the options, browse to the bottom of the page, and click the **Create** button.
+Review the options, browse to the bottom of the page, and click the **Create** button.
 
-1. The Podman Desktop window displays the **Dashboard** screen again.
+While Podman Desktop is creating the Podman Machine, to follow the operation in detail, consider browsing to the top of the page, and clicking **Show Logs**.
 
-   The **Podman** tile displays _Podman is running_.
+14. The Podman Desktop window displays the **Dashboard** screen again.
+
+The **Podman** tile displays _Podman is running_.
 
 #### Next steps
 
