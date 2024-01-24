@@ -2280,7 +2280,7 @@ declare module '@podman-desktop/api' {
       callback: (name: string, data: string) => void,
       token?: CancellationToken,
     ): Promise<void>;
-    export function stopContainer(engineId: string, id: string): Promise<void>;
+    export function stopContainer(engineId: string, id: string, token?: CancellationToken): Promise<void>;
     export function deleteContainer(engineId: string, id: string): Promise<void>;
 
     /**

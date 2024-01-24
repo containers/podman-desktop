@@ -931,8 +931,9 @@ export class ExtensionLoader {
         const abortController = createAbortControllerOnCancellationToken(token);
         return containerProviderRegistry.logsContainer(engineId, id, callback, abortController);
       },
-      stopContainer(engineId: string, id: string) {
-        return containerProviderRegistry.stopContainer(engineId, id);
+      stopContainer(engineId: string, id: string, token: containerDesktopAPI.CancellationToken | undefined) {
+        const abortController = createAbortControllerOnCancellationToken(token);
+        return containerProviderRegistry.stopContainer(engineId, id, abortController);
       },
       deleteContainer(engineId: string, id: string) {
         return containerProviderRegistry.deleteContainer(engineId, id);
