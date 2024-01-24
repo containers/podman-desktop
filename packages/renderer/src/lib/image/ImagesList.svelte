@@ -222,7 +222,7 @@ let statusColumn = new Column<ImageInfoUI>('Status', {
   align: 'center',
   width: '70px',
   renderer: ImageColumnStatus,
-  comparator: (a, b) => Number(b.inUse) - Number(a.inUse),
+  comparator: (a, b) => b.status.localeCompare(a.status),
 });
 
 let nameColumn = new Column<ImageInfoUI>('Name', {
@@ -256,7 +256,10 @@ const columns: Column<ImageInfoUI>[] = [
   new Column<ImageInfoUI>('Actions', { align: 'right', width: '150px', renderer: ImageColumnActions, overflow: true }),
 ];
 
-const row = new Row<ImageInfoUI>({ selectable: image => !image.inUse, disabledText: 'Image is used by a container' });
+const row = new Row<ImageInfoUI>({
+  selectable: image => image.status === 'UNUSED',
+  disabledText: 'Image is used by a container',
+});
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="images">
