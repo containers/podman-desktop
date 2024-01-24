@@ -397,7 +397,7 @@ export class ContainerProviderRegistry {
     });
   }
 
-  async listContainers(): Promise<ContainerInfo[]> {
+  async listContainers(abortController?: AbortController): Promise<ContainerInfo[]> {
     let telemetryOptions = {};
     const containers = await Promise.all(
       Array.from(this.internalProviders.values()).map(async provider => {
@@ -426,7 +426,10 @@ export class ContainerProviderRegistry {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           let containers: CompatContainerInfo[] = [];
           if (provider.libpodApi) {
-            const podmanContainers = await provider.libpodApi.listPodmanContainers({ all: true });
+            const podmanContainers = await provider.libpodApi.listPodmanContainers(
+              { all: true },
+              abortController?.signal,
+            );
 
             // convert Podman containers to Dockerode containers
             containers = podmanContainers.map(podmanContainer => {
@@ -470,7 +473,7 @@ export class ContainerProviderRegistry {
               };
             });
           } else {
-            containers = await providerApi.listContainers({ all: true });
+            containers = await providerApi.listContainers({ all: true, abortSignal: abortController?.signal });
             containers.forEach(container => {
               let StartedAt;
               if (container.State.toUpperCase() === 'RUNNING' && !container.StartedAt && container.Status) {
@@ -495,7 +498,7 @@ export class ContainerProviderRegistry {
 
           let pods: LibpodPodInfo[] = [];
           if (provider.libpodApi) {
-            pods = await provider.libpodApi.listPods();
+            pods = await provider.libpodApi.listPods(abortController?.signal);
           }
 
           return Promise.all(
@@ -1159,7 +1162,10 @@ export class ContainerProviderRegistry {
     }
   }
 
-  async createPod(podOptions: containerDesktopAPI.PodCreateOptions): Promise<{ engineId: string; Id: string }> {
+  async createPod(
+    podOptions: containerDesktopAPI.PodCreateOptions,
+    abortController?: AbortController,
+  ): Promise<{ engineId: string; Id: string }> {
     let telemetryOptions = {};
     try {
       let internalContainerProvider: InternalContainerProvider;
@@ -1173,7 +1179,7 @@ export class ContainerProviderRegistry {
       if (!internalContainerProvider?.libpodApi) {
         throw new Error('No podman provider with a running engine');
       }
-      const result = await internalContainerProvider.libpodApi.createPod(podOptions);
+      const result = await internalContainerProvider.libpodApi.createPod(podOptions, abortController?.signal);
       return { Id: result.Id, engineId: internalContainerProvider.id };
     } catch (error) {
       telemetryOptions = { error: error };
@@ -1671,6 +1677,7 @@ export class ContainerProviderRegistry {
     container: Dockerode.Container,
     hasTty?: boolean,
     openStdin?: boolean,
+    abortController?: AbortController,
   ): Promise<void> {
     // if option is not specified, try to look if the container is using tty or not
     if (hasTty === undefined || openStdin === undefined) {
@@ -1686,7 +1693,7 @@ export class ContainerProviderRegistry {
     // if tty, attach a terminal using compat API or Podman API
     let attachStream;
     if (engine.libpodApi) {
-      attachStream = await engine.libpodApi.podmanAttach(container.id);
+      attachStream = await engine.libpodApi.podmanAttach(container.id, abortController?.signal);
     } else {
       const attachOptions: ContainerAttachOptions = {
         stdin: true,
@@ -1879,7 +1886,7 @@ export class ContainerProviderRegistry {
     }
   }
 
-  async getPodInspect(engineId: string, id: string): Promise<PodInspectInfo> {
+  async getPodInspect(engineId: string, id: string, abortController?: AbortController): Promise<PodInspectInfo> {
     let telemetryOptions = {};
     try {
       // need to find the container engine of the container
@@ -1891,7 +1898,7 @@ export class ContainerProviderRegistry {
         throw new Error('no running provider for the matching container');
       }
 
-      const containerInspect = await provider.libpodApi.getPodInspect(id);
+      const containerInspect = await provider.libpodApi.getPodInspect(id, abortController?.signal);
       return {
         engineName: provider.name,
         engineId: provider.id,
@@ -1980,6 +1987,7 @@ export class ContainerProviderRegistry {
   async playKube(
     kubernetesYamlFilePath: string,
     selectedProvider: ProviderContainerConnectionInfo,
+    abortController?: AbortController,
   ): Promise<PlayKubeInfo> {
     let telemetryOptions = {};
     try {
@@ -1992,7 +2000,7 @@ export class ContainerProviderRegistry {
       if (!matchingContainerProvider?.libpodApi) {
         throw new Error('No provider with a running engine');
       }
-      return matchingContainerProvider.libpodApi.playKube(kubernetesYamlFilePath);
+      return matchingContainerProvider.libpodApi.playKube(kubernetesYamlFilePath, abortController?.signal);
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;
@@ -2094,7 +2102,7 @@ export class ContainerProviderRegistry {
     return this.envfileParser;
   }
 
-  async info(engineId: string): Promise<containerDesktopAPI.ContainerEngineInfo> {
+  async info(engineId: string, abortController?: AbortController): Promise<containerDesktopAPI.ContainerEngineInfo> {
     const provider = this.internalProviders.get(engineId);
     if (!provider) {
       throw new Error('no engine matching this container');
@@ -2103,7 +2111,7 @@ export class ContainerProviderRegistry {
       throw new Error('no running provider for the matching container');
     }
     if (provider.libpodApi) {
-      const podmanInfo = await provider.libpodApi.podmanInfo();
+      const podmanInfo = await provider.libpodApi.podmanInfo(abortController?.signal);
       return {
         cpus: podmanInfo.host.cpus,
         cpuIdle: podmanInfo.host.cpuUtilization.idlePercent,

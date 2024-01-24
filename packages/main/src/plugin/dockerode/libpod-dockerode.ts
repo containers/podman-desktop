@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import Dockerode from 'dockerode';
+import type { DialOptions } from 'docker-modem';
 
 export interface PodContainerInfo {
   Id: string;
@@ -284,21 +285,24 @@ export interface Version {
 
 // API of libpod that we want to expose on our side
 export interface LibPod {
-  createPod(podOptions: PodCreateOptions): Promise<{ Id: string }>;
-  createPodmanContainer(containerCreateOptions: ContainerCreateOptions): Promise<{ Id: string; Warnings: string[] }>;
-  listPods(): Promise<PodInfo[]>;
-  listPodmanContainers(opts?: { all: boolean }): Promise<PodmanContainerInfo[]>;
-  prunePods(): Promise<void>;
-  podmanAttach(containerId: string): Promise<NodeJS.ReadWriteStream>;
-  getPodInspect(podId: string): Promise<PodInspectInfo>;
-  startPod(podId: string): Promise<void>;
-  stopPod(podId: string): Promise<void>;
-  removePod(podId: string, options?: PodRemoveOptions): Promise<void>;
-  restartPod(podId: string): Promise<void>;
-  generateKube(names: string[]): Promise<string>;
-  playKube(yamlContentFilePath: string): Promise<PlayKubeInfo>;
-  pruneAllImages(dangling: boolean): Promise<void>;
-  podmanInfo(): Promise<Info>;
+  createPod(podOptions: PodCreateOptions, abortSignal?: AbortSignal): Promise<{ Id: string }>;
+  createPodmanContainer(
+    containerCreateOptions: ContainerCreateOptions,
+    abortSignal?: AbortSignal,
+  ): Promise<{ Id: string; Warnings: string[] }>;
+  listPods(abortSignal?: AbortSignal): Promise<PodInfo[]>;
+  listPodmanContainers(opts?: { all: boolean }, abortSignal?: AbortSignal): Promise<PodmanContainerInfo[]>;
+  prunePods(abortSignal?: AbortSignal): Promise<void>;
+  podmanAttach(containerId: string, abortSignal?: AbortSignal): Promise<NodeJS.ReadWriteStream>;
+  getPodInspect(podId: string, abortSignal?: AbortSignal): Promise<PodInspectInfo>;
+  startPod(podId: string, abortSignal?: AbortSignal): Promise<void>;
+  stopPod(podId: string, abortSignal?: AbortSignal): Promise<void>;
+  removePod(podId: string, options?: PodRemoveOptions, abortSignal?: AbortSignal): Promise<void>;
+  restartPod(podId: string, abortSignal?: AbortSignal): Promise<void>;
+  generateKube(names: string[], abortSignal?: AbortSignal): Promise<string>;
+  playKube(yamlContentFilePath: string, abortSignal?: AbortSignal): Promise<PlayKubeInfo>;
+  pruneAllImages(dangling: boolean, abortSignal?: AbortSignal): Promise<void>;
+  podmanInfo(abortSignal?: AbortSignal): Promise<Info>;
 }
 
 // tweak Dockerode by adding the support of libpod API
@@ -309,8 +313,8 @@ export class LibpodDockerode {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const prototypeOfDockerode = Dockerode.prototype as any;
     // add listPodmanContainers
-    prototypeOfDockerode.listPodmanContainers = function (opts?: { all: boolean }) {
-      const optsf = {
+    prototypeOfDockerode.listPodmanContainers = function (opts?: { all: boolean }, abortSignal?: AbortSignal) {
+      const optsf: DialOptions = {
         path: '/v4.2.0/libpod/containers/json?',
         method: 'GET',
         options: opts,
@@ -319,6 +323,7 @@ export class LibpodDockerode {
           400: 'bad parameter',
           500: 'server error',
         },
+        abortSignal: abortSignal,
       };
       return new Promise((resolve, reject) => {
         this.modem.dial(optsf, (err: unknown, data: unknown) => {
@@ -331,8 +336,11 @@ export class LibpodDockerode {
     };
 
     // add createPodmanContainer
-    prototypeOfDockerode.createPodmanContainer = function (containerCreateOptions: ContainerCreateOptions) {
-      const optsf = {
+    prototypeOfDockerode.createPodmanContainer = function (
+      containerCreateOptions: ContainerCreateOptions,
+      abortSignal?: AbortSignal,
+    ) {
+      const optsf: DialOptions = {
         path: '/v4.2.0/libpod/containers/create',
         method: 'POST',
         options: containerCreateOptions,
@@ -344,6 +352,7 @@ export class LibpodDockerode {
           409: 'status conflict',
           500: 'server error',
         },
+        abortSignal: abortSignal,
       };
 
       return new Promise((resolve, reject) => {
@@ -357,8 +366,8 @@ export class LibpodDockerode {
     };
 
     // add listPods
-    prototypeOfDockerode.listPods = function () {
-      const optsf = {
+    prototypeOfDockerode.listPods = function (abortSignal?: AbortSignal) {
+      const optsf: DialOptions = {
         path: '/v4.2.0/libpod/pods/json',
         method: 'GET',
         options: {},
@@ -367,6 +376,7 @@ export class LibpodDockerode {
           400: 'bad parameter',
           500: 'server error',
         },
+        abortSignal: abortSignal,
       };
       return new Promise((resolve, reject) => {
         this.modem.dial(optsf, (err: unknown, data: unknown) => {
@@ -379,8 +389,8 @@ export class LibpodDockerode {
     };
 
     // add attach
-    prototypeOfDockerode.podmanAttach = function (containerId: string) {
-      const optsf = {
+    prototypeOfDockerode.podmanAttach = function (containerId: string, abortSignal?: AbortSignal) {
+      const optsf: DialOptions = {
         path: `/v4.2.0/libpod/containers/${containerId}/attach?stdin=true&stdout=true&stderr=true&`,
         method: 'POST',
         isStream: true,
@@ -392,6 +402,7 @@ export class LibpodDockerode {
           500: 'server error',
         },
         options: {},
+        abortSignal: abortSignal,
       };
 
       // patch the modem to not send any data. By default dockerode send query parameters as JSON payload
@@ -417,8 +428,8 @@ export class LibpodDockerode {
     };
 
     // add pruneAllImages
-    prototypeOfDockerode.pruneAllImages = function () {
-      const optsf = {
+    prototypeOfDockerode.pruneAllImages = function (abortSignal?: AbortSignal) {
+      const optsf: DialOptions = {
         path: '/v4.2.0/libpod/images/prune?all=true&', // this works
         // For some reason the below doesn't work? TODO / help / fixme
         // options: {all: 'true'}, // this doesn't work
@@ -428,6 +439,7 @@ export class LibpodDockerode {
           400: 'bad parameter',
           500: 'server error',
         },
+        abortSignal: abortSignal,
       };
       return new Promise((resolve, reject) => {
         this.modem.dial(optsf, (err: unknown, data: unknown) => {
@@ -440,8 +452,8 @@ export class LibpodDockerode {
     };
 
     // add createPod
-    prototypeOfDockerode.createPod = function (podOptions: PodCreateOptions) {
-      const optsf = {
+    prototypeOfDockerode.createPod = function (podOptions: PodCreateOptions, abortSignal?: AbortSignal) {
+      const optsf: DialOptions = {
         path: '/v4.2.0/libpod/pods/create',
         method: 'POST',
         options: podOptions,
@@ -452,6 +464,7 @@ export class LibpodDockerode {
           409: 'status conflict',
           500: 'server error',
         },
+        abortSignal: abortSignal,
       };
 
       return new Promise((resolve, reject) => {
@@ -465,8 +478,8 @@ export class LibpodDockerode {
     };
 
     // add getPodInspect
-    prototypeOfDockerode.getPodInspect = function (podId: string) {
-      const optsf = {
+    prototypeOfDockerode.getPodInspect = function (podId: string, abortSignal?: AbortSignal) {
+      const optsf: DialOptions = {
         path: `/v4.2.0/libpod/pods/${podId}/json`,
         method: 'GET',
         statusCodes: {
@@ -476,6 +489,7 @@ export class LibpodDockerode {
           500: 'server error',
         },
         options: {},
+        abortSignal: abortSignal,
       };
 
       return new Promise((resolve, reject) => {
@@ -489,8 +503,8 @@ export class LibpodDockerode {
     };
 
     // add startPod
-    prototypeOfDockerode.startPod = function (podId: string) {
-      const optsf = {
+    prototypeOfDockerode.startPod = function (podId: string, abortSignal?: AbortSignal) {
+      const optsf: DialOptions = {
         path: `/v4.2.0/libpod/pods/${podId}/start?`,
         method: 'POST',
         statusCodes: {
@@ -502,6 +516,7 @@ export class LibpodDockerode {
           500: 'server error',
         },
         options: {},
+        abortSignal: abortSignal,
       };
 
       return new Promise((resolve, reject) => {
@@ -521,8 +536,8 @@ export class LibpodDockerode {
     };
 
     // add stopPod
-    prototypeOfDockerode.stopPod = function (podId: string) {
-      const optsf = {
+    prototypeOfDockerode.stopPod = function (podId: string, abortSignal?: AbortSignal) {
+      const optsf: DialOptions = {
         path: `/v4.2.0/libpod/pods/${podId}/stop?`,
         method: 'POST',
         statusCodes: {
@@ -533,6 +548,7 @@ export class LibpodDockerode {
           500: 'server error',
         },
         options: {},
+        abortSignal: abortSignal,
       };
 
       return new Promise((resolve, reject) => {
@@ -546,8 +562,8 @@ export class LibpodDockerode {
     };
 
     // add restartPod
-    prototypeOfDockerode.restartPod = function (podId: string) {
-      const optsf = {
+    prototypeOfDockerode.restartPod = function (podId: string, abortSignal?: AbortSignal) {
+      const optsf: DialOptions = {
         path: `/v4.2.0/libpod/pods/${podId}/restart?`,
         method: 'POST',
         statusCodes: {
@@ -558,6 +574,7 @@ export class LibpodDockerode {
           500: 'server error',
         },
         options: {},
+        abortSignal: abortSignal,
       };
 
       return new Promise((resolve, reject) => {
@@ -571,8 +588,8 @@ export class LibpodDockerode {
     };
 
     // add removePod
-    prototypeOfDockerode.removePod = function (podId: string, options?: { force: boolean }) {
-      const optsf = {
+    prototypeOfDockerode.removePod = function (podId: string, options?: { force: boolean }, abortSignal?: AbortSignal) {
+      const optsf: DialOptions = {
         path: `/v4.2.0/libpod/pods/${podId}?`,
         method: 'DELETE',
         statusCodes: {
@@ -583,6 +600,7 @@ export class LibpodDockerode {
           500: 'server error',
         },
         options: options || {},
+        abortSignal: abortSignal,
       };
 
       return new Promise((resolve, reject) => {
@@ -596,8 +614,8 @@ export class LibpodDockerode {
     };
 
     // add prunePods
-    prototypeOfDockerode.prunePods = function () {
-      const optsf = {
+    prototypeOfDockerode.prunePods = function (abortSignal?: AbortSignal) {
+      const optsf: DialOptions = {
         path: '/v4.2.0/libpod/pods/prune',
         method: 'POST',
         statusCodes: {
@@ -605,6 +623,7 @@ export class LibpodDockerode {
           500: 'server error',
         },
         options: {},
+        abortSignal: abortSignal,
       };
       return new Promise((resolve, reject) => {
         this.modem.dial(optsf, (err: unknown, data: unknown) => {
@@ -617,7 +636,7 @@ export class LibpodDockerode {
     };
 
     // add generateKube
-    prototypeOfDockerode.generateKube = function (names: string[]) {
+    prototypeOfDockerode.generateKube = function (names: string[], abortSignal?: AbortSignal) {
       // transform array into a list of queries
       const queries = names
         .map(name => {
@@ -626,7 +645,7 @@ export class LibpodDockerode {
         .join('&');
 
       const path = `/v4.2.0/libpod/generate/kube?${queries}`;
-      const optsf = {
+      const optsf: DialOptions = {
         path,
         method: 'GET',
         options: {},
@@ -634,6 +653,7 @@ export class LibpodDockerode {
           200: true,
           500: 'server error',
         },
+        abortSignal: abortSignal,
       };
       return new Promise((resolve, reject) => {
         this.modem.dial(optsf, (err: unknown, data: unknown) => {
@@ -650,8 +670,8 @@ export class LibpodDockerode {
     };
 
     // add playKube
-    prototypeOfDockerode.playKube = function (yamlContentFilePath: string) {
-      const optsf = {
+    prototypeOfDockerode.playKube = function (yamlContentFilePath: string, abortSignal?: AbortSignal) {
+      const optsf: DialOptions = {
         path: '/v4.2.0/libpod/play/kube',
         method: 'POST',
         file: yamlContentFilePath,
@@ -661,6 +681,7 @@ export class LibpodDockerode {
           500: 'server error',
         },
         options: {},
+        abortSignal: abortSignal,
       };
 
       return new Promise((resolve, reject) => {
@@ -674,8 +695,8 @@ export class LibpodDockerode {
     };
 
     // info
-    prototypeOfDockerode.podmanInfo = function () {
-      const optsf = {
+    prototypeOfDockerode.podmanInfo = function (abortSignal?: AbortSignal) {
+      const optsf: DialOptions = {
         path: '/v4.2.0/libpod/info',
         method: 'GET',
         statusCodes: {
@@ -683,6 +704,7 @@ export class LibpodDockerode {
           500: 'server error',
         },
         options: {},
+        abortSignal: abortSignal,
       };
 
       return new Promise((resolve, reject) => {

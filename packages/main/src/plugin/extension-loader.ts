@@ -73,6 +73,7 @@ import type { ImageCheckerImpl } from './image-checker.js';
 import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 import type { ImageInspectInfo } from '/@/plugin/api/image-inspect-info.js';
+import { createAbortControllerOnCancellationToken } from '/@/plugin/extension-loader-utils.js';
 
 /**
  * Handle the loading of an extension
@@ -902,8 +903,11 @@ export class ExtensionLoader {
 
     const containerProviderRegistry = this.containerProviderRegistry;
     const containerEngine: typeof containerDesktopAPI.containerEngine = {
-      listContainers(): Promise<containerDesktopAPI.ContainerInfo[]> {
-        return containerProviderRegistry.listSimpleContainers();
+      listContainers(
+        token: containerDesktopAPI.CancellationToken | undefined,
+      ): Promise<containerDesktopAPI.ContainerInfo[]> {
+        const abortController = createAbortControllerOnCancellationToken(token);
+        return containerProviderRegistry.listSimpleContainers(abortController);
       },
       createContainer(
         engineId: string,
@@ -914,11 +918,18 @@ export class ExtensionLoader {
       inspectContainer(engineId: string, id: string): Promise<containerDesktopAPI.ContainerInspectInfo> {
         return containerProviderRegistry.getContainerInspect(engineId, id);
       },
-      startContainer(engineId: string, id: string) {
-        return containerProviderRegistry.startContainer(engineId, id);
+      startContainer(engineId: string, id: string, token: containerDesktopAPI.CancellationToken | undefined) {
+        const abortController = createAbortControllerOnCancellationToken(token);
+        return containerProviderRegistry.startContainer(engineId, id, abortController);
       },
-      logsContainer(engineId: string, id: string, callback: (name: string, data: string) => void) {
-        return containerProviderRegistry.logsContainer(engineId, id, callback);
+      logsContainer(
+        engineId: string,
+        id: string,
+        callback: (name: string, data: string) => void,
+        token: containerDesktopAPI.CancellationToken | undefined,
+      ) {
+        const abortController = createAbortControllerOnCancellationToken(token);
+        return containerProviderRegistry.logsContainer(engineId, id, callback, abortController);
       },
       stopContainer(engineId: string, id: string) {
         return containerProviderRegistry.stopContainer(engineId, id);
@@ -931,6 +942,8 @@ export class ExtensionLoader {
         eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
         options?: containerDesktopAPI.BuildImageOptions,
       ) {
+        const abortController = createAbortControllerOnCancellationToken(options?.token);
+
         return containerProviderRegistry.buildImage(
           context,
           eventCollect,
@@ -938,7 +951,7 @@ export class ExtensionLoader {
           options?.tag,
           options?.platform,
           options?.provider,
-          options?.abortController,
+          abortController,
         );
       },
       listImages(): Promise<containerDesktopAPI.ImageInfo[]> {
@@ -952,15 +965,19 @@ export class ExtensionLoader {
         imageId: string,
         callback: (name: string, data: string) => void,
         authInfo: containerDesktopAPI.ContainerAuthInfo | undefined,
+        token: containerDesktopAPI.CancellationToken | undefined,
       ): Promise<void> {
-        return containerProviderRegistry.pushImage(engineId, imageId, callback, authInfo);
+        const abortController = createAbortControllerOnCancellationToken(token);
+        return containerProviderRegistry.pushImage(engineId, imageId, callback, authInfo, abortController);
       },
       pullImage(
         providerContainerConnection: containerDesktopAPI.ContainerProviderConnection,
         imageName: string,
         callback: (event: containerDesktopAPI.PullEvent) => void,
+        token: containerDesktopAPI.CancellationToken | undefined,
       ): Promise<void> {
-        return containerProviderRegistry.pullImage(providerContainerConnection, imageName, callback);
+        const abortController = createAbortControllerOnCancellationToken(token);
+        return containerProviderRegistry.pullImage(providerContainerConnection, imageName, callback, abortController);
       },
       tagImage(engineId: string, imageId: string, repo: string, tag: string | undefined): Promise<void> {
         return containerProviderRegistry.tagImage(engineId, imageId, repo, tag);

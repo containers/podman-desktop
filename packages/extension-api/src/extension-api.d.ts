@@ -748,11 +748,11 @@ declare module '@podman-desktop/api' {
     onCancellationRequested: Event<any>;
   }
 
-  export interface CancellationTokenSource {
+  export class CancellationTokenSource {
     /**
      * The cancellation token of this source.
      */
-    token: CancellationToken;
+    readonly token: CancellationToken;
 
     /**
      * Signal cancellation on the token.
@@ -2197,8 +2197,10 @@ declare module '@podman-desktop/api' {
     platform?: string;
     // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
     provider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection;
-    // The abort controller for running the build image operation
-    abortController?: AbortController;
+    /**
+     * The cancellationToken to use for possibly cancelling the build image action.
+     */
+    token?: CancellationToken;
   }
 
   export interface NetworkCreateOptions {
@@ -2264,21 +2266,29 @@ declare module '@podman-desktop/api' {
   }
 
   export namespace containerEngine {
-    export function listContainers(): Promise<ContainerInfo[]>;
+    export function listContainers(token?: CancellationToken): Promise<ContainerInfo[]>;
     export function inspectContainer(engineId: string, id: string): Promise<ContainerInspectInfo>;
 
     export function createContainer(
       engineId: string,
       containerCreateOptions: ContainerCreateOptions,
     ): Promise<ContainerCreateResult>;
-    export function startContainer(engineId: string, id: string): Promise<void>;
+    export function startContainer(engineId: string, id: string, token?: CancellationToken): Promise<void>;
     export function logsContainer(
       engineId: string,
       id: string,
       callback: (name: string, data: string) => void,
+      token?: CancellationToken,
     ): Promise<void>;
     export function stopContainer(engineId: string, id: string): Promise<void>;
     export function deleteContainer(engineId: string, id: string): Promise<void>;
+
+    /**
+     *
+     * @param context The build context directory
+     * @param eventCollect Callback methods for streaming build events
+     * @param options The options for building the image
+     */
     export function buildImage(
       // build context directory
       context: string,
@@ -2293,12 +2303,14 @@ declare module '@podman-desktop/api' {
       imageId: string,
       callback: (name: string, data: string) => void,
       authInfo?: ContainerAuthInfo,
+      token?: CancellationToken,
     ): Promise<void>;
 
     export function pullImage(
       containerProviderConnection: ContainerProviderConnection,
       imageName: string,
       callback: (event: PullEvent) => void,
+      token?: CancellationToken,
     ): Promise<void>;
     export function deleteImage(engineId: string, id: string): Promise<void>;
     export function getImageInspect(engineId: string, id: string): Promise<ImageInspectInfo>;
