@@ -4,6 +4,7 @@ import { ContainersPage } from '../pages/containers-page';
 import { PodsPage } from '../pages/pods-page';
 import { SettingsBar } from '../pages/settings-bar';
 import { DashboardPage } from '../pages/dashboard-page';
+import { VolumesPage } from '../pages/volumes-page';
 
 export class NavigationBar {
   readonly page: Page;
@@ -48,6 +49,12 @@ export class NavigationBar {
     await this.podsLink.waitFor({ state: 'visible', timeout: 3000 });
     await this.podsLink.click({ timeout: 5000 });
     return new PodsPage(this.page);
+  }
+
+  async openVolumes(): Promise<VolumesPage> {
+    await this.volumesLink.waitFor({ state: 'visible', timeout: 3000 });
+    await this.volumesLink.click({ timeout: 5000 });
+    return new VolumesPage(this.page);
   }
 
   async openSettings(): Promise<SettingsBar> {
