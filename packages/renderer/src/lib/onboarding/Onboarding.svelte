@@ -423,11 +423,15 @@ function handleEscape({ key }: any) {
           class="flex flex-row-reverse p-6 bg-charcoal-700 fixed w-[calc(100%-theme(width.leftnavbar)-theme(width.leftsidebar))] bottom-0 mb-5 pr-10 max-h-20 bg-opacity-90 z-20"
           role="group"
           aria-label="Step Buttons">
-          <Button type="primary" disabled="{activeStep.step.state === 'failed'}" on:click="{() => next()}">Next</Button>
+          <Button
+            type="primary"
+            aria-label="Next Step"
+            disabled="{activeStep.step.state === 'failed'}"
+            on:click="{() => next()}">Next</Button>
           {#if activeStep.step.state !== 'completed'}
             <Button
               type="secondary"
-              aria-label="Cancel setup"
+              aria-label="Cancel Setup"
               class="mr-2 opacity-100"
               on:click="{() => setDisplayCancelSetup(true)}">Cancel</Button>
           {/if}
