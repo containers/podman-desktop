@@ -96,7 +96,7 @@ function onError(error: string): void {
   onClick="{() => deleteImage()}"
   detailed="{detailed}"
   icon="{faTrash}"
-  enabled="{!image.inUse}" />
+  enabled="{image.status === 'UNUSED'}" />
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
 <ActionsWrapper

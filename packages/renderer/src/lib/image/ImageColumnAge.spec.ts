@@ -38,7 +38,7 @@ test('Expect simple column styling', async () => {
     humanSize: '',
     base64RepoTag: '',
     selected: false,
-    inUse: false,
+    status: 'UNUSED',
     icon: ImageIcon,
     badges: [],
   };

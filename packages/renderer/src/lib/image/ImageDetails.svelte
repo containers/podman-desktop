@@ -120,7 +120,7 @@ onDestroy(() => {
 
 {#if image}
   <DetailsPage title="{image.name}" titleDetail="{image.shortId}" subtitle="{image.tag}" bind:this="{detailsPage}">
-    <StatusIcon slot="icon" icon="{image.icon}" size="{24}" status="{image.inUse ? 'USED' : 'UNUSED'}" />
+    <StatusIcon slot="icon" icon="{image.icon}" size="{24}" status="{image.status}" />
     <svelte:fragment slot="subtitle">
       {#if image.badges.length}
         <div class="flex flex-row">
