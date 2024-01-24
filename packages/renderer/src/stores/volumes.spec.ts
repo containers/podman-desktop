@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,4 +91,55 @@ test('volumes should be updated in case of a container is removed', async () => 
   // check if the volumes are updated
   const volumes2 = get(volumeListInfos);
   expect(volumes2.length).toBe(0);
+});
+
+test.each([
+  ['container-created-event'],
+  ['container-stopped-event'],
+  ['container-kill-event'],
+  ['container-die-event'],
+  ['container-init-event'],
+  ['container-started-event'],
+  ['container-created-event'],
+  ['container-removed-event'],
+])('fetch volumes when receiving event %s', async eventName => {
+  // fast delays (10 & 10ms)
+  volumesEventStore.setupWithDebounce(10, 10);
+
+  // empty list
+  listVolumesMock.mockResolvedValue([]);
+
+  // mark as ready to receive updates
+  callbacks.get('extensions-already-started')();
+
+  // clear mock calls
+  listVolumesMock.mockClear();
+
+  // now, setup listVolumesMock
+  listVolumesMock.mockResolvedValue([
+    {
+      Volumes: [
+        {
+          Name: 'volume1',
+          Driver: 'driver1',
+          Mountpoint: 'mountpoint1',
+        },
+      ],
+    } as unknown as VolumeInspectInfo,
+  ]);
+
+  // send event
+  const callback = callbacks.get(eventName);
+  expect(callback).toBeDefined();
+  await callback();
+
+  // wait listContainersMock is called
+  while (listVolumesMock.mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 10));
+  }
+
+  // now get list
+  const volumeListResult = get(volumeListInfos);
+  expect(volumeListResult.length).toBe(1);
+  expect(volumeListResult[0].Volumes[0].Name).toEqual('volume1');
 });

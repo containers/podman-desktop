@@ -793,6 +793,7 @@ export class ExtensionLoader {
     const progress = this.progress;
     const inputQuickPickRegistry = this.inputQuickPickRegistry;
     const customPickRegistry = this.customPickRegistry;
+    const webviewRegistry = this.webviewRegistry;
     const windowObj: typeof containerDesktopAPI.window = {
       showInformationMessage: (message: string, ...items: string[]) => {
         return messageBox.showDialog('info', extManifest.displayName, message, items);
@@ -865,7 +866,10 @@ export class ExtensionLoader {
         title: string,
         options?: containerDesktopAPI.WebviewOptions,
       ): containerDesktopAPI.WebviewPanel => {
-        return this.webviewRegistry.createWebviewPanel(extensionInfo, viewType, title, options);
+        return webviewRegistry.createWebviewPanel(extensionInfo, viewType, title, options);
+      },
+      listWebviews(): Promise<containerDesktopAPI.WebviewInfo[]> {
+        return webviewRegistry.listSimpleWebviews();
       },
     };
 
@@ -905,7 +909,7 @@ export class ExtensionLoader {
         engineId: string,
         containerCreateOptions: containerDesktopAPI.ContainerCreateOptions,
       ): Promise<containerDesktopAPI.ContainerCreateResult> {
-        return containerProviderRegistry.createAndStartContainer(engineId, containerCreateOptions);
+        return containerProviderRegistry.createContainer(engineId, containerCreateOptions);
       },
       inspectContainer(engineId: string, id: string): Promise<containerDesktopAPI.ContainerInspectInfo> {
         return containerProviderRegistry.getContainerInspect(engineId, id);
@@ -992,6 +996,19 @@ export class ExtensionLoader {
       },
       deleteVolume(volumeName: string, options?: containerDesktopAPI.VolumeDeleteOptions): Promise<void> {
         return containerProviderRegistry.deleteVolume(volumeName, options);
+      },
+      createPod(podOptions: containerDesktopAPI.PodCreateOptions): Promise<{ engineId: string; Id: string }> {
+        return containerProviderRegistry.createPod(podOptions);
+      },
+      replicatePodmanContainer(
+        source: { engineId: string; id: string },
+        target: { engineId: string },
+        overrideParameters: containerDesktopAPI.ContainerCreateOptions,
+      ): Promise<{ Id: string; Warnings: string[] }> {
+        return containerProviderRegistry.replicatePodmanContainer(source, target, overrideParameters);
+      },
+      startPod(engineId: string, podId: string): Promise<void> {
+        return containerProviderRegistry.startPod(engineId, podId);
       },
     };
 

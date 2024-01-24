@@ -36,25 +36,29 @@ test('Expect correct button and tooltip', async () => {
   expect(within(button).queryByText(tooltip)).toBeInTheDocument();
 });
 
+test('Expect section is open by default', async () => {
+  render(NavSectionTest);
+
+  const content = screen.queryByLabelText('Item1');
+  expect(content).toBeInTheDocument();
+
+  const icon = screen.queryByTestId('icon');
+  expect(icon).not.toBeInTheDocument();
+});
+
 test('Expect button expands and contracts', async () => {
   render(NavSectionTest);
 
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
 
-  const content = screen.queryByTestId('content');
-  expect(content).not.toBeInTheDocument();
-
-  const icon = screen.queryByTestId('icon');
-  expect(icon).toBeInTheDocument();
-
   const expand = screen.getByTestId('expand');
   expect(expand).toBeInTheDocument();
-  expect(expand.textContent).toEqual('false');
-
-  await userEvent.click(button);
   expect(expand.textContent).toEqual('true');
 
   await userEvent.click(button);
   expect(expand.textContent).toEqual('false');
+
+  await userEvent.click(button);
+  expect(expand.textContent).toEqual('true');
 });

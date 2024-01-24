@@ -63,7 +63,6 @@ import { Deferred } from './util/deferred';
 import type { StatusBarEntryDescriptor } from '../../main/src/plugin/statusbar/statusbar-registry';
 import type {
   PlayKubeInfo,
-  PodCreateOptions,
   ContainerCreateOptions as PodmanContainerCreateOptions,
 } from '../../main/src/plugin/dockerode/libpod-dockerode';
 import type {
@@ -264,11 +263,8 @@ function initExposure(): void {
   );
   contextBridge.exposeInMainWorld(
     'createPod',
-    async (
-      selectedProvider: ProviderContainerConnectionInfo,
-      podCreateOptions: PodCreateOptions,
-    ): Promise<{ engineId: string; Id: string }> => {
-      return ipcInvoke('container-provider-registry:createPod', selectedProvider, podCreateOptions);
+    async (podCreateOptions: containerDesktopAPI.PodCreateOptions): Promise<{ engineId: string; Id: string }> => {
+      return ipcInvoke('container-provider-registry:createPod', podCreateOptions);
     },
   );
   contextBridge.exposeInMainWorld('startPod', async (engine: string, podId: string): Promise<void> => {

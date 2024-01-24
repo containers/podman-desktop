@@ -259,6 +259,21 @@ declare module '@podman-desktop/api' {
     status(): ProviderConnectionStatus;
   }
 
+  export interface PodCreatePortOptions {
+    host_ip: string;
+    container_port: number;
+    host_port: number;
+    protocol: string;
+    range: number;
+  }
+
+  export interface PodCreateOptions {
+    name: string;
+    portmappings?: PodCreatePortOptions[];
+    // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
+    provider?: ProviderContainerConnectionInfo | ContainerProviderConnection;
+  }
+
   export interface KubernetesProviderConnectionEndpoint {
     apiURL: string;
   }
@@ -1597,6 +1612,8 @@ declare module '@podman-desktop/api' {
      * @returns New webview panel.
      */
     export function createWebviewPanel(viewType: string, title: string, options?: WebviewOptions): WebviewPanel;
+
+    export function listWebviews(): Promise<WebviewInfo[]>;
   }
 
   export namespace kubernetes {
@@ -2115,6 +2132,26 @@ declare module '@podman-desktop/api' {
     errorDetails?: { message?: string };
   }
 
+  export interface PodmanContainerCreateOptions {
+    command?: string[];
+    entrypoint?: string | string[];
+    env?: { [key: string]: string };
+    pod?: string;
+    hostname?: string;
+    image?: string;
+    name?: string;
+    mounts?: Array<{
+      Name?: string;
+      Type: string;
+      Source: string;
+      Destination: string;
+      Driver?: string;
+      Mode: string;
+      RW: boolean;
+      Propagation: string;
+    }>;
+  }
+
   export interface ContainerCreateOptions {
     name?: string;
     Hostname?: string;
@@ -2138,10 +2175,17 @@ declare module '@podman-desktop/api' {
     OpenStdin?: boolean;
     StdinOnce?: boolean;
     Detach?: boolean;
+    start?: boolean;
   }
 
   export interface ContainerCreateResult {
     id: string;
+  }
+
+  export interface WebviewInfo {
+    id: string;
+    viewType: string;
+    title: string;
   }
 
   export interface BuildImageOptions {
@@ -2271,6 +2315,14 @@ declare module '@podman-desktop/api' {
     export function listVolumes(): Promise<VolumeListInfo[]>;
     export function createVolume(options?: VolumeCreateOptions): Promise<VolumeCreateResponseInfo>;
     export function deleteVolume(volumeName: string, options?: VolumeDeleteOptions): Promise<void>;
+
+    export function createPod(podOptions: PodCreateOptions): Promise<{ engineId: string; Id: string }>;
+    export function replicatePodmanContainer(
+      source: { engineId: string; id: string },
+      target: { engineId: string },
+      overrideParameters: PodmanContainerCreateOptions,
+    ): Promise<{ Id: string; Warnings: string[] }>;
+    export function startPod(engineId: string, podId: string): Promise<void>;
   }
 
   /**

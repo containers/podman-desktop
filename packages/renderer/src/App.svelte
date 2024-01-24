@@ -22,7 +22,9 @@ import AppNavigation from './AppNavigation.svelte';
 import VolumesList from './lib/volume/VolumesList.svelte';
 import VolumeDetails from './lib/volume/VolumeDetails.svelte';
 import DeploymentsList from './lib/deployments/DeploymentsList.svelte';
+import DeploymentDetails from './lib/deployments/DeploymentDetails.svelte';
 import ServicesList from './lib/service/ServicesList.svelte';
+import ServiceDetails from './lib/service/ServiceDetails.svelte';
 import KubePlayYAML from './lib/kube/KubePlayYAML.svelte';
 import PodDetails from './lib/pod/PodDetails.svelte';
 import ComposeDetails from './lib/compose/ComposeDetails.svelte';
@@ -165,8 +167,14 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         <Route path="/deployments" breadcrumb="Deployments" navigationHint="root">
           <DeploymentsList />
         </Route>
+        <Route path="/deployments/:name/:namespace/*" breadcrumb="Deployment Details" let:meta navigationHint="details">
+          <DeploymentDetails name="{decodeURI(meta.params.name)}" namespace="{decodeURI(meta.params.namespace)}" />
+        </Route>
         <Route path="/services" breadcrumb="Services" navigationHint="root">
           <ServicesList />
+        </Route>
+        <Route path="/services/:name/:namespace/*" breadcrumb="Service Details" let:meta navigationHint="details">
+          <ServiceDetails name="{decodeURI(meta.params.name)}" namespace="{decodeURI(meta.params.namespace)}" />
         </Route>
         <Route path="/ingressesRoutes" breadcrumb="Ingresses & Routes" navigationHint="root">
           <IngressesRoutesList />

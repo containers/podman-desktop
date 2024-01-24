@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faChevronCircleDown, faChevronRight, faLayerGroup, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { faChevronCircleDown, faChevronRight, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 import { faLinux } from '@fortawesome/free-brands-svg-icons';
 import Fa from 'svelte-fa';
 import BuildImageFromContainerfileCard from './BuildImageFromContainerfileCard.svelte';
@@ -20,7 +20,7 @@ interface CardInfo {
 
 const DEFAULT_CARDS: CardInfo[] = [
   {
-    title: 'Linux',
+    title: 'Intel and AMD x86_64 systems',
     badge: 'AMD64',
     isDefault: false,
     checked: false,
@@ -28,7 +28,7 @@ const DEFAULT_CARDS: CardInfo[] = [
     icon: faLinux,
   },
   {
-    title: 'Linux',
+    title: 'ARM® aarch64 systems',
     badge: 'ARM64',
     isDefault: false,
     checked: false,
@@ -39,7 +39,7 @@ const DEFAULT_CARDS: CardInfo[] = [
 
 const ADVANCED_CARDS: CardInfo[] = [
   {
-    title: 'Linux',
+    title: 'Power ppc64le systems',
     badge: 'PPC64LE',
     isDefault: false,
     checked: false,
@@ -47,7 +47,7 @@ const ADVANCED_CARDS: CardInfo[] = [
     icon: faLinux,
   },
   {
-    title: 'Linux',
+    title: 'IBM s390x zSystems',
     badge: 'S390X',
     isDefault: false,
     checked: false,
@@ -166,7 +166,6 @@ function addCard(item: { value: string }) {
           checked="{false}"
           badge=""
           value=""
-          icon="{faPlusCircle}"
           additionalItem="{true}"
           on:addcard="{item => addCard(item.detail)}" />
       </div>

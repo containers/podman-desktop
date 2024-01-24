@@ -21,7 +21,7 @@ import { WebviewPanelImpl } from './webview-panel-impl.js';
 import type { ApiSenderType } from '/@/plugin/api.js';
 import { Uri } from '/@/plugin/types/uri.js';
 import { WebviewImpl } from './webview-impl.js';
-import type { WebviewInfo } from '/@/plugin/api/webview-info.js';
+import type { WebviewInfo, WebviewSimpleInfo } from '/@/plugin/api/webview-info.js';
 
 type IconPath = Uri | { readonly light: Uri; readonly dark: Uri };
 
@@ -302,6 +302,20 @@ export class WebviewRegistry {
         name: webviewPanelImpl.title,
         uuid: webviewPanelImpl.webview.uuid,
         state,
+      };
+    });
+  }
+
+  // for external usage, do not expose path/html/internal details
+  async listSimpleWebviews(): Promise<WebviewSimpleInfo[]> {
+    return Array.from(this.#webviews.entries()).map(entry => {
+      const id = entry[0];
+      const webviewPanelImpl = entry[1];
+      const viewType: string = webviewPanelImpl.viewType;
+      return {
+        id,
+        viewType,
+        title: webviewPanelImpl.title,
       };
     });
   }

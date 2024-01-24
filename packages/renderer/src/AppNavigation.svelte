@@ -28,6 +28,7 @@ import IngressRouteIcon from './lib/images/IngressRouteIcon.svelte';
 import { ingresses } from './stores/ingresses';
 import { routes } from './stores/routes';
 import Webviews from '/@/lib/webview/Webviews.svelte';
+import { webviews } from '/@/stores/webviews';
 import PuzzleIcon from './lib/images/PuzzleIcon.svelte';
 import { onDidChangeConfiguration } from './stores/configurationProperties';
 
@@ -214,16 +215,18 @@ export let meta: TinroRouteMeta;
     </NavItem>
   {/if}
 
-  <NavSection tooltip="Desktop Extensions">
-    <PuzzleIcon size="24" slot="icon" />
-    {#each $contributions as contribution}
-      <NavItem href="/contribs/{contribution.name}" tooltip="{contribution.name}" bind:meta="{meta}" inSection="{true}">
-        <img src="{contribution.icon}" width="24" height="24" alt="{contribution.name}" />
-      </NavItem>
-    {/each}
-  </NavSection>
+  {#if $contributions.length + $webviews.length > 0}
+    <NavSection tooltip="Extensions">
+      <PuzzleIcon size="24" slot="icon" />
+      {#each $contributions as contribution}
+        <NavItem href="/contribs/{contribution.name}" tooltip="{contribution.name}" bind:meta="{meta}">
+          <img src="{contribution.icon}" width="24" height="24" alt="{contribution.name}" />
+        </NavItem>
+      {/each}
 
-  <Webviews bind:meta="{meta}" />
+      <Webviews bind:meta="{meta}" />
+    </NavSection>
+  {/if}
 
   <div class="grow"></div>
 
