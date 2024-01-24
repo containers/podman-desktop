@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,8 @@ test('Expect selection styling', async () => {
   expect(element).toBeInTheDocument();
   expect(element.firstChild).toBeInTheDocument();
   expect(element.firstChild).toHaveClass('border-l-purple-500');
+  expect(element.firstChild).not.toHaveClass('hover:bg-charcoal-700');
+  expect(element.firstChild).not.toHaveClass('hover:border-charcoal-700');
 });
 
 test('Expect selection styling for encoded URLs', async () => {
@@ -78,8 +80,11 @@ test('Expect not to have selection styling', async () => {
   const element = screen.getByLabelText(tooltip);
   expect(element).toBeInTheDocument();
   expect(element.firstChild).toBeInTheDocument();
-  expect(element.firstChild).not.toHaveClass('border-l-purple-500');
   expect(element.firstChild).toHaveClass('border-l-charcoal-800');
+  expect(element.firstChild).toHaveClass('hover:bg-charcoal-700');
+  expect(element.firstChild).toHaveClass('hover:border-charcoal-700');
+  expect(element.firstChild).not.toHaveClass('border-l-purple-500');
+  expect(element.firstChild).not.toHaveClass('px-2');
 });
 
 test('Expect in-section styling', async () => {
@@ -89,11 +94,15 @@ test('Expect in-section styling', async () => {
   const element = screen.getByLabelText(tooltip);
   expect(element).toBeInTheDocument();
   expect(element.firstChild).toBeInTheDocument();
-  expect(element.firstChild).toHaveClass('border-charcoal-600');
+  expect(element.firstChild).toHaveClass('px-2');
+  expect(element.firstChild).toHaveClass('hover:bg-charcoal-700');
+  expect(element.firstChild).not.toHaveClass('border-charcoal-600');
   expect(element.firstChild).not.toHaveClass('border-l-purple-500');
   expect(element.firstChild).not.toHaveClass('border-l-charcoal-800');
+  expect(element.firstChild).not.toHaveClass('hover:border-charcoal-700');
 });
-
+// class:hover:bg-charcoal-700="{!selected || inSection}"
+// class:hover:border-charcoal-700="{!selected && !inSection}"
 test('Expect in-section selection styling', async () => {
   const tooltip = 'Dashboard';
   render(NavItemTest);
@@ -102,7 +111,10 @@ test('Expect in-section selection styling', async () => {
   expect(element).toBeInTheDocument();
   expect(element.firstChild).toBeInTheDocument();
   expect(element.firstChild).toHaveClass('text-purple-500');
+  expect(element.firstChild).toHaveClass('px-2');
+  expect(element.firstChild).toHaveClass('hover:bg-charcoal-700');
   expect(element.firstChild).not.toHaveClass('border-l-purple-500');
+  expect(element.firstChild).not.toHaveClass('hover:border-charcoal-700');
 });
 
 test('Expect that having an onClick handler overrides href and works', async () => {
