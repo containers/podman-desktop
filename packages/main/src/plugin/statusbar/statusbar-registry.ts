@@ -52,10 +52,10 @@ export class StatusBarRegistry implements IDisposable {
     }
   }
 
-  setBadged(entryId: string, badged: boolean) {
+  setDotted(entryId: string, dotted: boolean) {
     const existingEntry = this.entries.get(entryId);
     if (!existingEntry) return;
-    this.entries.set(entryId, { ...existingEntry, entry: { ...existingEntry.entry, dotted: badged } });
+    this.entries.set(entryId, { ...existingEntry, entry: { ...existingEntry.entry, dotted: dotted } });
     this.apiSender.send(STATUS_BAR_UPDATED_EVENT_NAME, undefined);
   }
 

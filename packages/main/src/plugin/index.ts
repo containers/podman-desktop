@@ -490,7 +490,7 @@ export class PluginSystem {
     );
 
     commandRegistry.registerCommand('show-task-manager', () => {
-      statusBarRegistry.setBadged('tasks', false);
+      statusBarRegistry.setDotted('tasks', false);
       apiSender.send('toggle-task-manager', '');
     });
 

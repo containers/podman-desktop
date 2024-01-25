@@ -19,7 +19,7 @@
 import type { ApiSenderType } from './api.js';
 import type { NotificationInfo } from './api/notification.js';
 import type { NotificationTask, StatefulTask, Task } from './api/task.js';
-import type { StatusBarEntry, StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
+import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
 
 /**
  * Contribution manager to provide the list of external OCI contributions
@@ -29,13 +29,11 @@ export class TaskManager {
 
   private tasks = new Map<string, Task>();
 
-  private statusBarEntry: StatusBarEntry;
-
   constructor(
     private apiSender: ApiSenderType,
-    statusBarRegistry: StatusBarRegistry,
+    private statusBarRegistry: StatusBarRegistry,
   ) {
-    this.statusBarEntry = statusBarRegistry.setEntry(
+    statusBarRegistry.setEntry(
       'tasks',
       false,
       0,
@@ -63,8 +61,8 @@ export class TaskManager {
   }
 
   private notify(channel: string, task: Task) {
+    this.statusBarRegistry.setDotted('tasks', true);
     this.apiSender.send(channel, task);
-    this.statusBarEntry.dotted = true;
   }
 
   public createNotificationTask(notificationInfo: NotificationInfo): NotificationTask {
