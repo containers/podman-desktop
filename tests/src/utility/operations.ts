@@ -130,8 +130,8 @@ export async function deletePod(page: Page, name: string) {
 // Handles dialog that has accessible name `dialogTitle` and either confirms or rejects it.
 export async function handleConfirmationDialog(page: Page, dialogTitle = 'Confirmation', confirm = true) {
   // wait for dialog to appear using waitFor
-  const dialog = page.getByRole('heading', { name: dialogTitle, exact: true });
+  const dialog = page.getByRole('dialog', { name: dialogTitle, exact: true });
   await dialog.waitFor({ state: 'visible', timeout: 3000 });
-  const button = confirm ? dialog.getByRole('button', { name: 'Yes' }) : dialog.getByRole('button', { name: 'No' });
+  const button = confirm ? dialog.getByRole('button', { name: 'Yes' }) : dialog.getByRole('button', { name: 'Cancel' });
   await button.click();
 }

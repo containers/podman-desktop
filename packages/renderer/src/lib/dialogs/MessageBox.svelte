@@ -141,6 +141,7 @@ function getButtonType(b: boolean): ButtonType {
       class="flex flex-col place-self-center w-[550px] rounded-xl bg-charcoal-800 shadow-xl shadow-black"
       role="dialog"
       aria-labelledby="{title}"
+      aria-label="{title}"
       bind:this="{messageBox}">
       <div class="flex items-center justify-between pl-4 pr-3 py-3 space-x-2 text-gray-400">
         {#if type === 'error'}
@@ -155,7 +156,7 @@ function getButtonType(b: boolean): ButtonType {
         {:else if type === 'question'}
           <Fa class="h-4 w-4" icon="{faCircleQuestion}" />
         {/if}
-        <h1 aria-label="{title}" class="grow text-lg font-bold capitalize">{title}</h1>
+        <h1 class="grow text-lg font-bold capitalize">{title}</h1>
 
         <button
           class="p-2 hover:text-gray-300 hover:bg-charcoal-500 rounded-full cursor-pointer"
