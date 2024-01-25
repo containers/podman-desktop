@@ -657,11 +657,12 @@ export class ContainerProviderRegistry {
   async createNetwork(
     providerContainerConnectionInfo: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
     options: NetworkCreateOptions,
+    abortController?: AbortController,
   ): Promise<NetworkCreateResult> {
     let telemetryOptions = {};
     try {
       const matchingEngine = this.getMatchingEngineFromConnection(providerContainerConnectionInfo);
-      const network = await matchingEngine.createNetwork(options);
+      const network = await matchingEngine.createNetwork({ ...options, abortSignal: abortController?.signal });
       return { Id: network.id };
     } catch (error) {
       telemetryOptions = { error: error };
@@ -1150,10 +1151,10 @@ export class ContainerProviderRegistry {
     }
   }
 
-  async startPod(engineId: string, podId: string): Promise<void> {
+  async startPod(engineId: string, podId: string, abortController?: AbortController): Promise<void> {
     let telemetryOptions = {};
     try {
-      return this.getMatchingPodmanEngine(engineId).startPod(podId);
+      return this.getMatchingPodmanEngine(engineId).startPod(podId, abortController?.signal);
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;
@@ -1726,7 +1727,11 @@ export class ContainerProviderRegistry {
     }
   }
 
-  async createContainer(engineId: string, options: ContainerCreateOptions): Promise<{ id: string }> {
+  async createContainer(
+    engineId: string,
+    options: ContainerCreateOptions,
+    abortController?: AbortController,
+  ): Promise<{ id: string }> {
     let telemetryOptions = {};
     try {
       // need to find the container engine of the container
@@ -1750,7 +1755,7 @@ export class ContainerProviderRegistry {
         delete options.EnvFiles;
       }
 
-      const container = await engine.api.createContainer(options);
+      const container = await engine.api.createContainer({ ...options, abortSignal: abortController?.signal });
       await this.attachToContainer(engine, container, options.Tty, options.OpenStdin);
       if (options.start === true || options.start === undefined) {
         await container.start();

@@ -903,48 +903,49 @@ export class ExtensionLoader {
 
     const containerProviderRegistry = this.containerProviderRegistry;
     const containerEngine: typeof containerDesktopAPI.containerEngine = {
-      listContainers(
-        token: containerDesktopAPI.CancellationToken | undefined,
-      ): Promise<containerDesktopAPI.ContainerInfo[]> {
-        const abortController = createAbortControllerOnCancellationToken(token);
-        return containerProviderRegistry.listSimpleContainers(abortController);
+      listContainers(token?: containerDesktopAPI.CancellationToken): Promise<containerDesktopAPI.ContainerInfo[]> {
+        return containerProviderRegistry.listSimpleContainers(createAbortControllerOnCancellationToken(token));
       },
       createContainer(
         engineId: string,
         containerCreateOptions: containerDesktopAPI.ContainerCreateOptions,
       ): Promise<containerDesktopAPI.ContainerCreateResult> {
-        return containerProviderRegistry.createContainer(engineId, containerCreateOptions);
+        return containerProviderRegistry.createContainer(
+          engineId,
+          containerCreateOptions,
+          createAbortControllerOnCancellationToken(containerCreateOptions?.token),
+        );
       },
       inspectContainer(engineId: string, id: string): Promise<containerDesktopAPI.ContainerInspectInfo> {
         return containerProviderRegistry.getContainerInspect(engineId, id);
       },
-      startContainer(engineId: string, id: string, token: containerDesktopAPI.CancellationToken | undefined) {
-        const abortController = createAbortControllerOnCancellationToken(token);
-        return containerProviderRegistry.startContainer(engineId, id, abortController);
+      startContainer(engineId: string, id: string, token?: containerDesktopAPI.CancellationToken) {
+        return containerProviderRegistry.startContainer(engineId, id, createAbortControllerOnCancellationToken(token));
       },
       logsContainer(
         engineId: string,
         id: string,
         callback: (name: string, data: string) => void,
-        token: containerDesktopAPI.CancellationToken | undefined,
+        token?: containerDesktopAPI.CancellationToken,
       ) {
-        const abortController = createAbortControllerOnCancellationToken(token);
-        return containerProviderRegistry.logsContainer(engineId, id, callback, abortController);
+        return containerProviderRegistry.logsContainer(
+          engineId,
+          id,
+          callback,
+          createAbortControllerOnCancellationToken(token),
+        );
       },
       stopContainer(engineId: string, id: string, token: containerDesktopAPI.CancellationToken | undefined) {
-        const abortController = createAbortControllerOnCancellationToken(token);
-        return containerProviderRegistry.stopContainer(engineId, id, abortController);
+        return containerProviderRegistry.stopContainer(engineId, id, createAbortControllerOnCancellationToken(token));
       },
-      deleteContainer(engineId: string, id: string) {
-        return containerProviderRegistry.deleteContainer(engineId, id);
+      deleteContainer(engineId: string, id: string, token?: containerDesktopAPI.CancellationToken) {
+        return containerProviderRegistry.deleteContainer(engineId, id, createAbortControllerOnCancellationToken(token));
       },
       buildImage(
         context: string,
         eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
         options?: containerDesktopAPI.BuildImageOptions,
       ) {
-        const abortController = createAbortControllerOnCancellationToken(options?.token);
-
         return containerProviderRegistry.buildImage(
           context,
           eventCollect,
@@ -952,7 +953,7 @@ export class ExtensionLoader {
           options?.tag,
           options?.platform,
           options?.provider,
-          abortController,
+          createAbortControllerOnCancellationToken(options?.token),
         );
       },
       listImages(): Promise<containerDesktopAPI.ImageInfo[]> {
@@ -968,8 +969,13 @@ export class ExtensionLoader {
         authInfo: containerDesktopAPI.ContainerAuthInfo | undefined,
         token: containerDesktopAPI.CancellationToken | undefined,
       ): Promise<void> {
-        const abortController = createAbortControllerOnCancellationToken(token);
-        return containerProviderRegistry.pushImage(engineId, imageId, callback, authInfo, abortController);
+        return containerProviderRegistry.pushImage(
+          engineId,
+          imageId,
+          callback,
+          authInfo,
+          createAbortControllerOnCancellationToken(token),
+        );
       },
       pullImage(
         providerContainerConnection: containerDesktopAPI.ContainerProviderConnection,
@@ -977,8 +983,12 @@ export class ExtensionLoader {
         callback: (event: containerDesktopAPI.PullEvent) => void,
         token: containerDesktopAPI.CancellationToken | undefined,
       ): Promise<void> {
-        const abortController = createAbortControllerOnCancellationToken(token);
-        return containerProviderRegistry.pullImage(providerContainerConnection, imageName, callback, abortController);
+        return containerProviderRegistry.pullImage(
+          providerContainerConnection,
+          imageName,
+          callback,
+          createAbortControllerOnCancellationToken(token),
+        );
       },
       tagImage(engineId: string, imageId: string, repo: string, tag: string | undefined): Promise<void> {
         return containerProviderRegistry.tagImage(engineId, imageId, repo, tag);
@@ -989,8 +999,11 @@ export class ExtensionLoader {
       getImageInspect(engineId: string, id: string): Promise<ImageInspectInfo> {
         return containerProviderRegistry.getImageInspect(engineId, id);
       },
-      info(engineId: string): Promise<containerDesktopAPI.ContainerEngineInfo> {
-        return containerProviderRegistry.info(engineId);
+      info(
+        engineId: string,
+        token?: containerDesktopAPI.CancellationToken,
+      ): Promise<containerDesktopAPI.ContainerEngineInfo> {
+        return containerProviderRegistry.info(engineId, createAbortControllerOnCancellationToken(token));
       },
       onEvent: (listener, thisArg, disposables) => {
         return containerProviderRegistry.onEvent(listener, thisArg, disposables);
@@ -1002,7 +1015,11 @@ export class ExtensionLoader {
         providerContainerConnection: containerDesktopAPI.ContainerProviderConnection,
         networkCreateOptions: containerDesktopAPI.NetworkCreateOptions,
       ): Promise<containerDesktopAPI.NetworkCreateResult> {
-        return containerProviderRegistry.createNetwork(providerContainerConnection, networkCreateOptions);
+        return containerProviderRegistry.createNetwork(
+          providerContainerConnection,
+          networkCreateOptions,
+          createAbortControllerOnCancellationToken(networkCreateOptions?.token),
+        );
       },
       listVolumes(): Promise<containerDesktopAPI.VolumeListInfo[]> {
         return containerProviderRegistry.listVolumes();
@@ -1016,7 +1033,10 @@ export class ExtensionLoader {
         return containerProviderRegistry.deleteVolume(volumeName, options);
       },
       createPod(podOptions: containerDesktopAPI.PodCreateOptions): Promise<{ engineId: string; Id: string }> {
-        return containerProviderRegistry.createPod(podOptions);
+        return containerProviderRegistry.createPod(
+          podOptions,
+          createAbortControllerOnCancellationToken(podOptions?.token),
+        );
       },
       replicatePodmanContainer(
         source: { engineId: string; id: string },
@@ -1025,8 +1045,8 @@ export class ExtensionLoader {
       ): Promise<{ Id: string; Warnings: string[] }> {
         return containerProviderRegistry.replicatePodmanContainer(source, target, overrideParameters);
       },
-      startPod(engineId: string, podId: string): Promise<void> {
-        return containerProviderRegistry.startPod(engineId, podId);
+      startPod(engineId: string, podId: string, token?: containerDesktopAPI.CancellationToken): Promise<void> {
+        return containerProviderRegistry.startPod(engineId, podId, createAbortControllerOnCancellationToken(token));
       },
     };
 

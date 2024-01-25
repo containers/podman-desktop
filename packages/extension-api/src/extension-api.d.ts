@@ -272,6 +272,10 @@ declare module '@podman-desktop/api' {
     portmappings?: PodCreatePortOptions[];
     // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
     provider?: ProviderContainerConnectionInfo | ContainerProviderConnection;
+    /**
+     * The cancellationToken to use for possibly cancelling the build image action.
+     */
+    token?: CancellationToken;
   }
 
   export interface KubernetesProviderConnectionEndpoint {
@@ -2176,6 +2180,10 @@ declare module '@podman-desktop/api' {
     StdinOnce?: boolean;
     Detach?: boolean;
     start?: boolean;
+    /**
+     * The cancellationToken to use for possibly cancelling the build image action.
+     */
+    token?: CancellationToken;
   }
 
   export interface ContainerCreateResult {
@@ -2205,6 +2213,10 @@ declare module '@podman-desktop/api' {
 
   export interface NetworkCreateOptions {
     Name: string;
+    /**
+     * The cancellationToken to use for possibly cancelling the build image action.
+     */
+    token?: CancellationToken;
   }
 
   export interface NetworkCreateResult {
@@ -2334,7 +2346,7 @@ declare module '@podman-desktop/api' {
       target: { engineId: string },
       overrideParameters: PodmanContainerCreateOptions,
     ): Promise<{ Id: string; Warnings: string[] }>;
-    export function startPod(engineId: string, podId: string): Promise<void>;
+    export function startPod(engineId: string, podId: string, token?: CancellationToken): Promise<void>;
   }
 
   /**
