@@ -2293,7 +2293,7 @@ declare module '@podman-desktop/api' {
       token?: CancellationToken,
     ): Promise<void>;
     export function stopContainer(engineId: string, id: string, token?: CancellationToken): Promise<void>;
-    export function deleteContainer(engineId: string, id: string): Promise<void>;
+    export function deleteContainer(engineId: string, id: string, token?: CancellationToken): Promise<void>;
 
     /**
      *
@@ -2327,7 +2327,7 @@ declare module '@podman-desktop/api' {
     export function deleteImage(engineId: string, id: string): Promise<void>;
     export function getImageInspect(engineId: string, id: string): Promise<ImageInspectInfo>;
 
-    export function info(engineId: string): Promise<ContainerEngineInfo>;
+    export function info(engineId: string, token?: CancellationToken): Promise<ContainerEngineInfo>;
     export const onEvent: Event<ContainerJSONEvent>;
 
     export function listNetworks(): Promise<NetworkInspectInfo[]>;
