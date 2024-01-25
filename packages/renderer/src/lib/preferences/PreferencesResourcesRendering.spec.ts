@@ -71,6 +71,9 @@ vi.mock('tinro', () => {
   };
 });
 
+// getOsPlatformMock is needed when using PreferencesResourcesRenderingCopyButton
+const getOsPlatformMock = vi.fn().mockResolvedValue('linux');
+
 beforeEach(() => {
   (window.events as unknown) = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -79,6 +82,7 @@ beforeEach(() => {
   (window as any).telemetryTrack = vi.fn().mockResolvedValue(undefined);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).telemetryPage = vi.fn().mockResolvedValue(undefined);
+  (window as any).getOsPlatform = getOsPlatformMock;
 });
 
 test('Expect to see elements regarding default provider name', async () => {
