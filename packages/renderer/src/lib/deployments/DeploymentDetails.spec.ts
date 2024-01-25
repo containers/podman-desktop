@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 import { test, expect, vi, beforeAll } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 
 import DeploymentDetails from './DeploymentDetails.svelte';
 
@@ -49,6 +49,10 @@ beforeAll(() => {
 });
 
 test('Expect redirect to previous page if deployment is deleted', async () => {
+  const showMessageBoxMock = vi.fn();
+  (window as any).showMessageBox = showMessageBoxMock;
+  showMessageBoxMock.mockResolvedValue({ response: 0 });
+
   const routerGotoSpy = vi.spyOn(router, 'goto');
   deployments.set([deployment]);
 
@@ -71,6 +75,10 @@ test('Expect redirect to previous page if deployment is deleted', async () => {
   // click on delete button
   const deleteButton = screen.getByRole('button', { name: 'Delete Deployment' });
   await fireEvent.click(deleteButton);
+  expect(showMessageBoxMock).toHaveBeenCalledOnce();
+
+  // Wait for confirmation modal to disappear after clicking on delete
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
   // check that delete method has been called
   expect(kubernetesDeleteDeploymentMock).toHaveBeenCalled();
