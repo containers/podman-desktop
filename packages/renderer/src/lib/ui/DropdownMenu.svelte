@@ -8,6 +8,7 @@ export let onBeforeToggle = () => {};
 export let icon: IconDefinition = faEllipsisVertical;
 export let shownAsMenuActionItem = false;
 export let hidden = false;
+export let title = '';
 
 // Show and hide the menu using clickOutside
 let showMenu = false;
@@ -43,12 +44,13 @@ function onWindowClick(e: any) {
   <div class="relative inline-block text-left">
     <!-- Button for the dropdown menu -->
     <button
-      aria-label="kebab menu"
+      aria-label="{title.length > 0 ? title : 'kebab menu'}"
       on:click="{e => {
         // keep track of the cursor position
         clientY = e.clientY;
         toggleMenu();
       }}"
+      title="{title}"
       bind:this="{outsideWindow}"
       class="text-gray-400 {shownAsMenuActionItem
         ? 'bg-charcoal-800 px-3'

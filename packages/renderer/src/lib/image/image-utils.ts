@@ -90,11 +90,19 @@ export class ImageUtils {
 
   // is that this image is used by a container or not
   // search if there is a container matching this image
-  getInUse(imageInfo: ImageInfo, containersInfo?: ContainerInfo[]): boolean {
+  getInUse(imageInfo: ImageInfo, repositoryTag?: string, containersInfo?: ContainerInfo[]): boolean {
     if (!containersInfo) {
       return false;
     }
-    return containersInfo.some(container => container.ImageID === imageInfo.Id);
+
+    // if there is a container with the same image id and the same repository tag, it's in use
+    // else check if we have an untagged ilmage and in that case we check that container is matching the image id
+    return containersInfo.some(container => {
+      return (
+        (container.ImageID === imageInfo.Id && container.Image === repositoryTag) ||
+        (!!repositoryTag === false && imageInfo.Id.includes(container.Image) && (imageInfo.RepoTags ?? []).length === 0)
+      );
+    });
   }
 
   computeBagdes(
@@ -176,7 +184,7 @@ export class ImageUtils {
           tag: '',
           base64RepoTag: this.getBase64EncodedName('<none>'),
           selected: false,
-          inUse: this.getInUse(imageInfo, containersInfo),
+          inUse: this.getInUse(imageInfo, undefined, containersInfo),
           badges,
           icon,
           labels: imageInfo.Labels,
@@ -197,7 +205,7 @@ export class ImageUtils {
           tag: this.getTag(repoTag),
           base64RepoTag: this.getBase64EncodedName(repoTag),
           selected: false,
-          inUse: this.getInUse(imageInfo, containersInfo),
+          inUse: this.getInUse(imageInfo, repoTag, containersInfo),
           badges,
           icon,
           labels: imageInfo.Labels,

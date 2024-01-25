@@ -11,6 +11,11 @@ async function removeVolume(): Promise<void> {
 }
 </script>
 
-{#if !volume.inUse}
-  <ListItemButtonIcon title="Delete Volume" onClick="{() => removeVolume()}" detailed="{detailed}" icon="{faTrash}" />
+{#if volume.status === 'UNUSED'}
+  <ListItemButtonIcon
+    title="Delete Volume"
+    confirm="{true}"
+    onClick="{() => removeVolume()}"
+    detailed="{detailed}"
+    icon="{faTrash}" />
 {/if}

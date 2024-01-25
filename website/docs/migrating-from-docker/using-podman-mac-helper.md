@@ -8,7 +8,7 @@ tags: [migrating-from-docker, mac0S]
 
 # Using the `podman-mac-helper` tool to migrate from Docker to Podman on macOS
 
-Consider using `podman-mac-help` to migrate transparently to Podman on macOS.
+Consider using `podman-mac-helper` to migrate transparently to Podman on macOS.
 
 - Continue using familiar Docker commands.
 - Take advantage of the benefits of Podman on macOS.

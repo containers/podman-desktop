@@ -176,7 +176,7 @@ let statusColumn = new Column<VolumeInfoUI>('Status', {
   align: 'center',
   width: '70px',
   renderer: VolumeColumnStatus,
-  comparator: (a, b) => Number(b.inUse) - Number(a.inUse),
+  comparator: (a, b) => b.status.localeCompare(a.status),
 });
 
 let nameColumn = new Column<VolumeInfoUI>('Name', {
@@ -214,7 +214,7 @@ const columns: Column<VolumeInfoUI, VolumeInfoUI | string>[] = [
 ];
 
 const row = new Row<VolumeInfoUI>({
-  selectable: volume => !volume.inUse,
+  selectable: volume => volume.status === 'UNUSED',
   disabledText: 'Volume is used by a container',
 });
 </script>

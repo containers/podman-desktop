@@ -20,7 +20,7 @@
 
 import '@testing-library/jest-dom/vitest';
 import { beforeAll, test, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
+import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 import ContainerList from './ContainerList.svelte';
 import { containersInfos } from '../../stores/containers';
 import { get } from 'svelte/store';
@@ -29,6 +29,7 @@ import { providerInfos } from '../../stores/providers';
 const listContainersMock = vi.fn();
 const getProviderInfosMock = vi.fn();
 const getContributedMenusMock = vi.fn();
+const showMessageBoxMock = vi.fn();
 
 const listPodsMock = vi.fn();
 
@@ -38,6 +39,7 @@ const deleteContainersByLabelMock = vi.fn();
 
 // fake the window.events object
 beforeAll(() => {
+  (window as any).showMessageBox = showMessageBoxMock;
   const onDidUpdateProviderStatusMock = vi.fn();
   (window as any).onDidUpdateProviderStatus = onDidUpdateProviderStatusMock;
   onDidUpdateProviderStatusMock.mockImplementation(() => Promise.resolve());
@@ -77,6 +79,8 @@ test('Expect no container engines being displayed', async () => {
 });
 
 test('Delete a group of compose containers succesfully', async () => {
+  // Mock the showMessageBox to return 0 (yes)
+  showMessageBoxMock.mockResolvedValue({ response: 0 });
   getProviderInfosMock.mockResolvedValue([
     {
       name: 'podman',
@@ -135,6 +139,9 @@ test('Delete a group of compose containers succesfully', async () => {
 
   // Click on it
   await fireEvent.click(deleteButton);
+
+  // Wait for confirmation modal to disappear after clicking on delete
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
   // wait deleteContainerMock is called
   while (deleteContainersByLabelMock.mock.calls.length === 0) {

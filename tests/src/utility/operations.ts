@@ -44,6 +44,7 @@ export async function deleteContainer(page: Page, name: string) {
     // delete the container
     const deleteButton = container.getByRole('button').and(container.getByLabel('Delete Container'));
     await deleteButton.click();
+    await handleConfirmationDialog(page);
     // wait for container to disappear
     try {
       console.log('Waiting for container to get deleted ...');
@@ -74,6 +75,7 @@ export async function deleteImage(page: Page, name: string) {
     const deleteButton = row.getByRole('button', { name: 'Delete Image' });
     if (await deleteButton.isEnabled({ timeout: 2000 })) {
       await deleteButton.click();
+      await handleConfirmationDialog(page);
     } else {
       throw Error(`Cannot delete image ${name}, because it is in use`);
     }
@@ -109,6 +111,8 @@ export async function deletePod(page: Page, name: string) {
     // delete the pod
     const deleteButton = pod.getByRole('button').and(pod.getByLabel('Delete Pod'));
     await deleteButton.click();
+    // config delete dialog
+    await handleConfirmationDialog(page);
     // wait for pod to disappear
     try {
       console.log('Waiting for pod to get deleted ...');
@@ -121,4 +125,13 @@ export async function deletePod(page: Page, name: string) {
       }
     }
   }
+}
+
+// Handles dialog that has accessible name `dialogTitle` and either confirms or rejects it.
+export async function handleConfirmationDialog(page: Page, dialogTitle = 'Confirmation', confirm = true) {
+  // wait for dialog to appear using waitFor
+  const dialog = page.getByRole('dialog', { name: dialogTitle, exact: true });
+  await dialog.waitFor({ state: 'visible', timeout: 3000 });
+  const button = confirm ? dialog.getByRole('button', { name: 'Yes' }) : dialog.getByRole('button', { name: 'Cancel' });
+  await button.click();
 }

@@ -18,12 +18,13 @@
 
 import '@testing-library/jest-dom/vitest';
 import { test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import ServiceActions from './ServiceActions.svelte';
 import type { ServiceUI } from './ServiceUI';
 
 const updateMock = vi.fn();
 const deleteMock = vi.fn();
+const showMessageBoxMock = vi.fn();
 
 const service: ServiceUI = {
   name: 'my-service',
@@ -36,6 +37,7 @@ const service: ServiceUI = {
 };
 
 beforeEach(() => {
+  (window as any).showMessageBox = showMessageBoxMock;
   (window as any).kubernetesDeleteService = deleteMock;
 });
 
@@ -45,12 +47,17 @@ afterEach(() => {
 });
 
 test('Expect no error and status deleting service', async () => {
+  // Mock the showMessageBox to return 0 (yes)
+  showMessageBoxMock.mockResolvedValue({ response: 0 });
   const { component } = render(ServiceActions, { service });
   component.$on('update', updateMock);
 
   // click on delete button
   const deleteButton = screen.getByRole('button', { name: 'Delete Service' });
   await fireEvent.click(deleteButton);
+
+  // Wait for confirmation modal to disappear after clicking on delete
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
   expect(service.status).toEqual('DELETING');
   expect(updateMock).toHaveBeenCalled();

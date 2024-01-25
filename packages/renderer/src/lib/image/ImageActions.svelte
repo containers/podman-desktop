@@ -92,6 +92,7 @@ function onError(error: string): void {
 
 <ListItemButtonIcon
   title="Delete Image"
+  confirm="{true}"
   onClick="{() => deleteImage()}"
   detailed="{detailed}"
   icon="{faTrash}"

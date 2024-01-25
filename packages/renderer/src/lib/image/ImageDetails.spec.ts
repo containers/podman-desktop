@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 import { describe, test, expect, vi, afterEach, beforeEach } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 
 import ImageDetails from './ImageDetails.svelte';
 import { get } from 'svelte/store';
@@ -42,6 +42,7 @@ import { viewsContributions } from '/@/stores/views';
 
 const listImagesMock = vi.fn();
 const getContributedMenusMock = vi.fn();
+const showMessageBoxMock = vi.fn();
 
 const myImage: ImageInfo = {
   Id: 'myImage',
@@ -66,6 +67,7 @@ const deleteImageMock = vi.fn();
 const hasAuthMock = vi.fn();
 
 beforeEach(() => {
+  (window as any).showMessageBox = showMessageBoxMock;
   imagesInfos.set([]);
   viewsContributions.set([]);
   (window as any).listImages = listImagesMock;
@@ -82,6 +84,9 @@ afterEach(() => {
 });
 
 test('Expect redirect to previous page if image is deleted', async () => {
+  // Mock the showMessageBox to return 0 (yes)
+  showMessageBoxMock.mockResolvedValue({ response: 0 });
+
   const routerGotoSpy = vi.spyOn(router, 'goto');
   listImagesMock.mockResolvedValue([myImage]);
   window.dispatchEvent(new CustomEvent('extensions-already-started'));
@@ -111,6 +116,9 @@ test('Expect redirect to previous page if image is deleted', async () => {
   // click on delete image button
   const deleteButton = screen.getByRole('button', { name: 'Delete Image' });
   await fireEvent.click(deleteButton);
+
+  // Wait for modal to disappear after clicking on delete
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
   // check that delete method has been called
   expect(deleteImageMock).toHaveBeenCalled();
@@ -146,6 +154,9 @@ test('expect delete image called with image id when image name is <none>', async
   // click on delete image button
   const deleteButton = screen.getByRole('button', { name: 'Delete Image' });
   await fireEvent.click(deleteButton);
+
+  // Wait for confirmation modal to disappear after clicking on delete
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
   // check that delete method has been called
   expect(deleteImageMock).toHaveBeenCalledWith(myNoneNameImage.engineId, myNoneNameImage.Id);

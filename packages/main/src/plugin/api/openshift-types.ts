@@ -23,6 +23,7 @@ export type V1Route = {
     name: string;
     namespace: string;
     annotations?: { [key: string]: string };
+    labels?: { [key: string]: string };
   };
   spec: {
     host: string;

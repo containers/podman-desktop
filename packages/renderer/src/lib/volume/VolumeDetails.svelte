@@ -40,7 +40,7 @@ onMount(() => {
 
 {#if volume}
   <DetailsPage title="{volume.shortName}" subtitle="{volume.humanSize}" bind:this="{detailsPage}">
-    <StatusIcon slot="icon" icon="{VolumeIcon}" size="{24}" status="{volume.inUse ? 'USED' : 'UNUSED'}" />
+    <StatusIcon slot="icon" icon="{VolumeIcon}" size="{24}" status="{volume.status}" />
     <VolumeActions slot="actions" volume="{volume}" detailed="{true}" />
     <svelte:fragment slot="tabs">
       <Tab title="Summary" url="summary" />
