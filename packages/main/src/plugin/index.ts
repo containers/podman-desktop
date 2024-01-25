@@ -395,8 +395,8 @@ export class PluginSystem {
 
     const iconRegistry = new IconRegistry(apiSender);
     const directories = new Directories();
-
-    const taskManager = new TaskManager(apiSender);
+    const statusBarRegistry = new StatusBarRegistry(apiSender);
+    const taskManager = new TaskManager(apiSender, statusBarRegistry);
     const notificationRegistry = new NotificationRegistry(apiSender, taskManager);
 
     const configurationRegistry = new ConfigurationRegistry(apiSender, directories, notificationRegistry);
@@ -422,7 +422,6 @@ export class PluginSystem {
     const cancellationTokenRegistry = new CancellationTokenRegistry();
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
-    const statusBarRegistry = new StatusBarRegistry(apiSender);
     const inputQuickPickRegistry = new InputQuickPickRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
     const customPickRegistry = new CustomPickRegistry(apiSender);
