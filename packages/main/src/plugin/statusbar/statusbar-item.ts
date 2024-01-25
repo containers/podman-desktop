@@ -38,6 +38,7 @@ export class StatusBarItemImpl implements StatusBarItem {
   private _command: string | undefined;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _commandArgs: any[] | undefined;
+  private _dotted: boolean = false;
 
   private registry: StatusBarRegistry;
 
@@ -72,6 +73,15 @@ export class StatusBarItemImpl implements StatusBarItem {
   public set tooltip(tooltip: string | undefined) {
     this._tooltip = tooltip;
     this.update();
+  }
+
+  public set dotted(dotted: boolean) {
+    this._dotted = dotted;
+    this.update();
+  }
+
+  public get dotted(): boolean {
+    return this._dotted;
   }
 
   public get iconClass(): string | { active: string; inactive: string } | undefined {
@@ -140,6 +150,7 @@ export class StatusBarItemImpl implements StatusBarItem {
       this._enabled,
       this._command,
       this._commandArgs,
+      this._dotted,
     );
   }
 
