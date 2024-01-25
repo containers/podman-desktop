@@ -33,8 +33,12 @@ export class TaskManager {
     private apiSender: ApiSenderType,
     private statusBarRegistry: StatusBarRegistry,
   ) {
+    this.init();
+  }
+
+  private init() {
     // The TaskManager is responsible for creating the entry he will be using
-    statusBarRegistry.setEntry(
+    this.statusBarRegistry.setEntry(
       'tasks',
       false,
       0,
