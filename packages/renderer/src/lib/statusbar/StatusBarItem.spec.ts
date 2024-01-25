@@ -19,12 +19,14 @@
 import { test, expect } from 'vitest';
 import type { StatusBarEntry } from '../../../../main/src/plugin/statusbar/statusbar-registry';
 import { iconClass } from './StatusBarItem';
+import { render, screen } from '@testing-library/svelte';
+import StatusBarItem from '/@/lib/statusbar/StatusBarItem.svelte';
 
 test('check iconClass with font awesome icons', () => {
   const statusBarEntry: StatusBarEntry = {
     enabled: true,
     activeIconClass: 'fas fa-podman',
-    badged: false,
+    dotted: false,
   };
 
   const icon = iconClass(statusBarEntry);
@@ -35,7 +37,7 @@ test('check iconClass with custom icon name', () => {
   const statusBarEntry: StatusBarEntry = {
     enabled: true,
     activeIconClass: '${podman}',
-    badged: false,
+    dotted: false,
   };
 
   const icon = iconClass(statusBarEntry);
@@ -46,9 +48,35 @@ test('check iconClass with font awesome icons and spinning', () => {
   const statusBarEntry: StatusBarEntry = {
     enabled: true,
     activeIconClass: 'fas fa-sync~spin',
-    badged: false,
+    dotted: false,
   };
 
   const icon = iconClass(statusBarEntry);
   expect(icon).toBe('fas fa-sync animate-spin');
+});
+
+test('expect dot not rendered', async () => {
+  const statusBarEntry: StatusBarEntry = {
+    enabled: true,
+    activeIconClass: '${podman}',
+    dotted: false,
+  };
+
+  render(StatusBarItem, { entry: statusBarEntry });
+
+  const dot = screen.queryByRole('status');
+  expect(dot).toBeNull();
+});
+
+test('expect dot rendered', () => {
+  const statusBarEntry: StatusBarEntry = {
+    enabled: true,
+    activeIconClass: '${podman}',
+    dotted: true,
+  };
+
+  render(StatusBarItem, { entry: statusBarEntry });
+
+  const dot = screen.getByRole('status');
+  expect(dot).toBeDefined();
 });

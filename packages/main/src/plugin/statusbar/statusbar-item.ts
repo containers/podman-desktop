@@ -38,7 +38,7 @@ export class StatusBarItemImpl implements StatusBarItem {
   private _command: string | undefined;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _commandArgs: any[] | undefined;
-  private _badged: boolean = false;
+  private _dotted: boolean = false;
 
   private registry: StatusBarRegistry;
 
@@ -75,13 +75,13 @@ export class StatusBarItemImpl implements StatusBarItem {
     this.update();
   }
 
-  public set badged(badged: boolean) {
-    this._badged = badged;
+  public set dotted(badged: boolean) {
+    this._dotted = badged;
     this.update();
   }
 
-  public get badged(): boolean {
-    return this._badged;
+  public get dotted(): boolean {
+    return this._dotted;
   }
 
   public get iconClass(): string | { active: string; inactive: string } | undefined {
@@ -150,7 +150,7 @@ export class StatusBarItemImpl implements StatusBarItem {
       this._enabled,
       this._command,
       this._commandArgs,
-      this._badged,
+      this._dotted,
     );
   }
 

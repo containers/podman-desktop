@@ -43,7 +43,7 @@ async function executeCommand(entry: StatusBarEntry) {
   {#if entry.text}
     <span class="ml-1">{entry.text}</span>
   {/if}
-  {#if entry.badged}
-    <span class="absolute bg-purple-500" style="border-radius: 50%; padding: 4px 4px;top: -4px; right: -2px;"></span>
+  {#if entry.dotted}
+    <span role="status" class="absolute bg-purple-500 rounded-full p-1 top-[-4px] right-[-2px]"></span>
   {/if}
 </button>

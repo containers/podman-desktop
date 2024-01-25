@@ -30,7 +30,7 @@ export interface StatusBarEntry {
   command?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   commandArgs?: any[];
-  badged?: boolean;
+  dotted?: boolean;
 }
 
 export interface StatusBarEntryDescriptor {
@@ -55,7 +55,7 @@ export class StatusBarRegistry implements IDisposable {
   setBadged(entryId: string, badged: boolean) {
     const existingEntry = this.entries.get(entryId);
     if (!existingEntry) return;
-    this.entries.set(entryId, { ...existingEntry, entry: { ...existingEntry.entry, badged: badged } });
+    this.entries.set(entryId, { ...existingEntry, entry: { ...existingEntry.entry, dotted: badged } });
     this.apiSender.send(STATUS_BAR_UPDATED_EVENT_NAME, undefined);
   }
 
@@ -70,8 +70,8 @@ export class StatusBarRegistry implements IDisposable {
     command: string | undefined,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     commandArgs: any[] | undefined,
-    badged?: boolean,
-  ) {
+    dotted?: boolean,
+  ): StatusBarEntry {
     const existingEntry = this.entries.get(entryId);
     if (existingEntry && (existingEntry.alignLeft !== alignLeft || existingEntry.priority !== priority)) {
       this.entries.delete(entryId);
@@ -80,8 +80,10 @@ export class StatusBarRegistry implements IDisposable {
     const activeIconClass = typeof iconClass === 'string' ? iconClass : iconClass?.active;
     const inactiveIconClass = typeof iconClass !== 'string' ? iconClass?.inactive : undefined;
 
+    let entry: StatusBarEntry;
+
     if (!existingEntry) {
-      const newEntry: StatusBarEntry = {
+      entry = {
         text: text,
         tooltip: tooltip,
         activeIconClass: activeIconClass,
@@ -89,28 +91,29 @@ export class StatusBarRegistry implements IDisposable {
         enabled: enabled,
         command: command,
         commandArgs: commandArgs,
-        badged: badged,
+        dotted: dotted,
       };
 
       const entryDescriptor: StatusBarEntryDescriptor = {
         alignLeft: alignLeft,
         priority: priority,
-        entry: newEntry,
+        entry: entry,
       };
       this.entries.set(entryId, entryDescriptor);
     } else {
-      const entryToUpdate = existingEntry.entry;
-      entryToUpdate.text = text;
-      entryToUpdate.tooltip = tooltip;
-      entryToUpdate.activeIconClass = activeIconClass;
-      entryToUpdate.inactiveIconClass = inactiveIconClass;
-      entryToUpdate.enabled = enabled;
-      entryToUpdate.command = command;
-      entryToUpdate.commandArgs = commandArgs;
-      entryToUpdate.badged = badged;
+      entry = existingEntry.entry;
+      entry.text = text;
+      entry.tooltip = tooltip;
+      entry.activeIconClass = activeIconClass;
+      entry.inactiveIconClass = inactiveIconClass;
+      entry.enabled = enabled;
+      entry.command = command;
+      entry.commandArgs = commandArgs;
+      entry.dotted = dotted;
     }
 
     this.apiSender.send(STATUS_BAR_UPDATED_EVENT_NAME, undefined);
+    return entry;
   }
 
   dispose(): void {

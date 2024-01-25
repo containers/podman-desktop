@@ -19,6 +19,7 @@
 import type { ApiSenderType } from './api.js';
 import type { NotificationInfo } from './api/notification.js';
 import type { NotificationTask, StatefulTask, Task } from './api/task.js';
+import type { StatusBarEntry, StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
 
 /**
  * Contribution manager to provide the list of external OCI contributions
@@ -28,7 +29,24 @@ export class TaskManager {
 
   private tasks = new Map<string, Task>();
 
-  constructor(private apiSender: ApiSenderType) {}
+  private statusBarEntry: StatusBarEntry;
+
+  constructor(
+    private apiSender: ApiSenderType,
+    statusBarRegistry: StatusBarRegistry,
+  ) {
+    this.statusBarEntry = statusBarRegistry.setEntry(
+      'tasks',
+      false,
+      0,
+      undefined,
+      'Tasks',
+      'fa fa-bell',
+      true,
+      'show-task-manager',
+      undefined,
+    );
+  }
 
   public createTask(title: string | undefined): StatefulTask {
     this.taskId++;
@@ -40,8 +58,13 @@ export class TaskManager {
       status: 'in-progress',
     };
     this.tasks.set(task.id, task);
-    this.apiSender.send('task-created', task);
+    this.notify('task-created', task);
     return task;
+  }
+
+  private notify(channel: string, task: Task) {
+    this.apiSender.send(channel, task);
+    this.statusBarEntry.dotted = true;
   }
 
   public createNotificationTask(notificationInfo: NotificationInfo): NotificationTask {
@@ -54,12 +77,12 @@ export class TaskManager {
       markdownActions: notificationInfo.markdownActions,
     };
     this.tasks.set(task.id, task);
-    this.apiSender.send('task-created', task);
+    this.notify('task-created', task);
     return task;
   }
 
   public updateTask(task: Task) {
-    this.apiSender.send('task-updated', task);
+    this.notify('task-updated', task);
     if (this.isStatefulTask(task) && task.state === 'completed') {
       this.tasks.delete(task.id);
     }
