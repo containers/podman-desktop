@@ -75,8 +75,8 @@ export class StatusBarItemImpl implements StatusBarItem {
     this.update();
   }
 
-  public set dotted(badged: boolean) {
-    this._dotted = badged;
+  public set dotted(dotted: boolean) {
+    this._dotted = dotted;
     this.update();
   }
 
