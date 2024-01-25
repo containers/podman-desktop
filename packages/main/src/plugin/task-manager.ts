@@ -57,8 +57,17 @@ export class TaskManager {
       status: 'in-progress',
     };
     this.tasks.set(task.id, task);
-    this.apiSender.send('task-created', task);
+    this.notify('task-created', task);
     return task;
+  }
+
+  public clearDotted() {
+    this.statusBarRegistry.setDotted('tasks', false);
+  }
+
+  private notify(channel: string, task: Task) {
+    this.statusBarRegistry.setDotted('tasks', true);
+    this.apiSender.send(channel, task);
   }
 
   public createNotificationTask(notificationInfo: NotificationInfo): NotificationTask {
@@ -71,12 +80,12 @@ export class TaskManager {
       markdownActions: notificationInfo.markdownActions,
     };
     this.tasks.set(task.id, task);
-    this.apiSender.send('task-created', task);
+    this.notify('task-created', task);
     return task;
   }
 
   public updateTask(task: Task) {
-    this.apiSender.send('task-updated', task);
+    this.notify('task-updated', task);
     if (this.isStatefulTask(task) && task.state === 'completed') {
       this.tasks.delete(task.id);
     }

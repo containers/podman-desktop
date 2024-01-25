@@ -490,6 +490,7 @@ export class PluginSystem {
     );
 
     commandRegistry.registerCommand('show-task-manager', () => {
+      taskManager.clearDotted();
       apiSender.send('toggle-task-manager', '');
     });
 
