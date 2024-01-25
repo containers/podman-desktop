@@ -53,10 +53,10 @@ export class Exec {
 
     if (this.proxy.isEnabled()) {
       if (this.proxy.proxy?.httpsProxy) {
-        env.HTTPS_PROXY = `http://${this.proxy.proxy.httpsProxy}`;
+        env.HTTPS_PROXY = `${this.proxy.proxy.httpsProxy}`;
       }
       if (this.proxy.proxy?.httpProxy) {
-        env.HTTP_PROXY = `http://${this.proxy.proxy.httpProxy}`;
+        env.HTTP_PROXY = `${this.proxy.proxy.httpProxy}`;
       }
       if (this.proxy.proxy?.noProxy) {
         env.NO_PROXY = this.proxy.proxy.noProxy;
