@@ -484,18 +484,6 @@ export class PluginSystem {
     statusBarRegistry.setEntry('help', false, 0, undefined, 'Help', 'fa fa-question-circle', true, 'help', undefined);
 
     statusBarRegistry.setEntry(
-      'tasks',
-      false,
-      0,
-      undefined,
-      'Tasks',
-      'fa fa-bell',
-      true,
-      'show-task-manager',
-      undefined,
-    );
-
-    statusBarRegistry.setEntry(
       'troubleshooting',
       false,
       0,
