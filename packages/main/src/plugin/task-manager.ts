@@ -19,6 +19,7 @@
 import type { ApiSenderType } from './api.js';
 import type { NotificationInfo } from './api/notification.js';
 import type { NotificationTask, StatefulTask, Task } from './api/task.js';
+import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
 
 /**
  * Contribution manager to provide the list of external OCI contributions
@@ -28,7 +29,23 @@ export class TaskManager {
 
   private tasks = new Map<string, Task>();
 
-  constructor(private apiSender: ApiSenderType) {}
+  constructor(
+    private apiSender: ApiSenderType,
+    private statusBarRegistry: StatusBarRegistry,
+  ) {
+    // The TaskManager is responsible for creating the entry he will be using
+    statusBarRegistry.setEntry(
+      'tasks',
+      false,
+      0,
+      undefined,
+      'Tasks',
+      'fa fa-bell',
+      true,
+      'show-task-manager',
+      undefined,
+    );
+  }
 
   public createTask(title: string | undefined): StatefulTask {
     this.taskId++;
