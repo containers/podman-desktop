@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 import { test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import ComposeActions from './ComposeActions.svelte';
 import type { ComposeInfoUI } from './ComposeInfoUI';
 import type { ContainerInfoUI } from '../container/ContainerInfoUI';
@@ -41,8 +41,10 @@ const compose: ComposeInfoUI = {
 
 const getContributedMenusMock = vi.fn();
 const updateMock = vi.fn();
+const showMessageBoxMock = vi.fn();
 
 beforeEach(() => {
+  (window as any).showMessageBox = showMessageBoxMock;
   (window as any).startContainersByLabel = vi.fn();
   (window as any).stopContainersByLabel = vi.fn();
   (window as any).restartContainersByLabel = vi.fn();
@@ -103,12 +105,17 @@ test('Expect no error and status restarting compose', async () => {
 });
 
 test('Expect no error and status deleting compose', async () => {
+  // Mock the showMessageBox to return 0 (yes)
+  showMessageBoxMock.mockResolvedValue({ response: 0 });
   const { component } = render(ComposeActions, { compose });
   component.$on('update', updateMock);
 
   // click on delete button
   const deleteButton = screen.getByRole('button', { name: 'Delete Compose' });
   await fireEvent.click(deleteButton);
+
+  // Wait for confirmation modal to disappear after clicking on delete
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
   expect(compose.status).toEqual('DELETING');
   expect(compose.actionError).toEqual('');

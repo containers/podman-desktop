@@ -25,6 +25,7 @@ import { WelcomePage } from './model/pages/welcome-page';
 import { NavigationBar } from './model/workbench/navigation';
 import { ImageDetailsPage } from './model/pages/image-details-page';
 import path from 'path';
+import { handleConfirmationDialog } from './utility/operations';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -97,6 +98,7 @@ describe('Image workflow verification', async () => {
     const imageDetailPage = await imagesPage.openImageDetails('quay.io/podman/hello');
     await playExpect(imageDetailPage.deleteButton).toBeVisible();
     await imageDetailPage.deleteButton.click();
+    await handleConfirmationDialog(page);
 
     const imageDeleted = await imagesPage.waitForImageDelete('quay.io/podman/hello');
     expect(imageDeleted).equals(true);

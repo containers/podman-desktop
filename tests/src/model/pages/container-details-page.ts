@@ -21,6 +21,7 @@ import { BasePage } from './base-page';
 import { ContainersPage } from './containers-page';
 import { waitUntil, waitWhile } from '../../utility/wait';
 import { ContainerState } from '../core/states';
+import { handleConfirmationDialog } from '../../utility/operations';
 
 export class ContainerDetailsPage extends BasePage {
   readonly labelName: Locator;
@@ -82,6 +83,7 @@ export class ContainerDetailsPage extends BasePage {
   async deleteContainer(timeout: number): Promise<ContainersPage> {
     const deleteButton = this.page.getByRole('button').and(this.page.getByLabel('Delete Container'));
     await deleteButton.click();
+    await handleConfirmationDialog(this.page);
     await waitWhile(
       async () => await this.heading.isVisible(),
       timeout,

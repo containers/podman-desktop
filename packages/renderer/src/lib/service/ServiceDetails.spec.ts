@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 import { test, expect, vi, beforeAll } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 
 import ServiceDetails from './ServiceDetails.svelte';
 
@@ -43,6 +43,10 @@ beforeAll(() => {
 });
 
 test('Expect redirect to previous page if service is deleted', async () => {
+  const showMessageBoxMock = vi.fn();
+  (window as any).showMessageBox = showMessageBoxMock;
+  showMessageBoxMock.mockResolvedValue({ response: 0 });
+
   const routerGotoSpy = vi.spyOn(router, 'goto');
   services.set([service]);
 
@@ -65,6 +69,11 @@ test('Expect redirect to previous page if service is deleted', async () => {
   // click on delete button
   const deleteButton = screen.getByRole('button', { name: 'Delete Service' });
   await fireEvent.click(deleteButton);
+
+  expect(showMessageBoxMock).toHaveBeenCalledOnce();
+
+  // Wait for confirmation modal to disappear after clicking on delete
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
   // check that delete method has been called
   expect(kubernetesDeleteServiceMock).toHaveBeenCalled();

@@ -139,6 +139,9 @@ function getButtonType(b: boolean): ButtonType {
   <div class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 bg-blend-multiply h-full grid z-50">
     <div
       class="flex flex-col place-self-center w-[550px] rounded-xl bg-charcoal-800 shadow-xl shadow-black"
+      role="dialog"
+      aria-labelledby="{title}"
+      aria-label="{title}"
       bind:this="{messageBox}">
       <div class="flex items-center justify-between pl-4 pr-3 py-3 space-x-2 text-gray-400">
         {#if type === 'error'}
@@ -163,10 +166,10 @@ function getButtonType(b: boolean): ButtonType {
       </div>
 
       <div class="max-h-80 overflow-auto">
-        <div class="px-10 py-4 text-sm text-gray-500 leading-5">{message}</div>
+        <div class="px-10 py-4 text-sm text-gray-500 leading-5" aria-label="Dialog Message">{message}</div>
 
         {#if detail}
-          <div class="px-10 pb-4 text-sm text-gray-500 leading-5">{detail}</div>
+          <div class="px-10 pb-4 text-sm text-gray-500 leading-5" aria-label="Dialog Details">{detail}</div>
         {/if}
       </div>
 
