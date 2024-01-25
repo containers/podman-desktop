@@ -864,7 +864,7 @@ describe('listContainers', () => {
       },
     ];
 
-    nock('http://localhost').get('/containers/json?all=true').reply(200, containersWithDockerAPI);
+    nock('http://localhost').get('/containers/json?all=true&abortSignal=').reply(200, containersWithDockerAPI);
 
     // mock listPods
 
@@ -2543,7 +2543,7 @@ describe('attachToContainer', () => {
     //send some data
     stream.write(data);
 
-    expect(attachMock).toBeCalledWith(container.id);
+    expect(attachMock).toBeCalledWith(container.id, undefined);
 
     const streams = containerRegistry.getStreamsOutputPerContainerId().get(container.id);
     expect(streams).toBeDefined();
@@ -2655,7 +2655,7 @@ describe('attachToContainer', () => {
 });
 
 test('createNetwork', async () => {
-  nock('http://localhost').post('/networks/create?Name=myNetwork').reply(200, '');
+  nock('http://localhost').post('/networks/create?Name=myNetwork&abortSignal=').reply(200, '');
 
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
