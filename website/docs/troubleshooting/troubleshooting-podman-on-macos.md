@@ -167,7 +167,9 @@ On Apple Silicon, when Podman Machine starts, it stays indefinitely blocked with
 
 #### Solution
 
-Gor M1 and M2 processors: update to Podman 4.9.
+For M1 and M2 processors:
+
+- Update to Podman 4.9.
 
 #### Workaround
 
@@ -181,7 +183,7 @@ For M3 processors:
       $ sudo rm -rf opt/podman
       ```
 
-   1. Remove brew installations
+   1. Remove brew installations:
 
       ```shell-session
       $ brew uninstall podman-desktop
@@ -189,7 +191,7 @@ For M3 processors:
       $ brew uninstall qemu
       ```
 
-   1. Remove podman files
+   1. Remove Podman files:
 
       ```shell-session
       $ rm -rf ~/.ssh/podman-machine-default
@@ -198,7 +200,7 @@ For M3 processors:
       $ rm -rf ~/.config/containers
       ```
 
-1. Reinstall using brew
+1. Reinstall Podman using brew:
 
    ```shell-session
    $ brew install podman
@@ -216,11 +218,10 @@ For M3 processors:
    $ curl -sL https://github.com/AkihiroSuda/qemu/raw/704f7cad5105246822686f65765ab92045f71a3b/pc-bios/edk2-aarch64-code.fd.bz2 | bunzip2 > /opt/homebrew/Cellar/qemu/8.2.0/share/qemu/edk2-aarch64-code.fd
    ```
 
-1. Install patched EDK2
+1. Install patched EDK2.
+   Download [EDK2](https://github.com/lima-vm/edk2-patched.tmp/releases/download/edk2-stable202311%2Blima.0/edk2-aarch64-code.fd.gz) from [lima-vm/edk2-patched.tmp/releases](https://github.com/lima-vm/edk2-patched.tmp/releases).
 
-   Download [EDK2](https://github.com/lima-vm/edk2-patched.tmp/releases/download/edk2-stable202311%2Blima.0/edk2-aarch64-code.fd.gz) from [lima-vm/edk2-patched.tmp/releases](https://github.com/lima-vm/edk2-patched.tmp/releases)
-
-1. Init podman machine
+1. Init podman machine.
 
 1. Find QEMU configuration directory to define _`qemu-config-directory`_ in next step:
 
@@ -235,7 +236,7 @@ For M3 processors:
    $ sed -i 's@file=.\*edk2-aarch64-code.fd@file=/path/to/downloaded/edk2-aarch64-code.fd@g' qemu-config-directory/podman-machine-default.json
    ```
 
-1. Start machine
+1. Start Podman machine.
 
 #### Additional resources
 
