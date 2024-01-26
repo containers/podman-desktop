@@ -27,9 +27,9 @@ import { router } from 'tinro';
 import PreferencesConnectionCreationOrEditRendering from './PreferencesConnectionCreationOrEditRendering.svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import type { ProviderInfo, ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
-import { get } from 'svelte/store';
 import { operationConnectionsInfo } from '/@/stores/operation-connections';
 import { eventCollect } from '/@/lib/preferences/preferences-connection-rendering-task';
+import { get } from 'svelte/store';
 
 type LoggerEventName = 'log' | 'warn' | 'error' | 'finish';
 
@@ -309,5 +309,27 @@ describe.each([
     expect(closeButton).not.toBeInTheDocument();
     const mainImage = screen.queryByLabelText('main image');
     expect(mainImage).not.toBeInTheDocument();
+  });
+
+  test('Expect Terminal Component to be acessible after error being thrown', async () => {
+    const callback = vi.fn();
+    callback.mockRejectedValue(new Error('error'));
+
+    // eslint-disable-next-line @typescript-eslint/await-thenable
+    const result = render(PreferencesConnectionCreationOrEditRendering, {
+      properties,
+      providerInfo,
+      connectionInfo,
+      propertyScope,
+      callback,
+      pageIsLoading: false,
+      taskId,
+    });
+    await vi.waitUntil(() => screen.queryByRole('textbox', { name: 'test.factoryProperty' }));
+    const createButton = screen.getByRole('button', { name: `${label}` });
+    expect(createButton).toBeInTheDocument();
+    await fireEvent.click(createButton);
+    const showLogsButton = screen.getByRole('button', { name: 'Show Logs' });
+    expect(showLogsButton).toBeInTheDocument();
   });
 });
