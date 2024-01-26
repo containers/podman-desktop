@@ -122,8 +122,8 @@ test('Should create a task and have it in state failure', async () => {
 
   const progress = new ProgressImpl(taskManager);
 
-  await progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async (progress) => {
-    progress.report({ message: 'something wrong'});
+  await progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async progress => {
+    progress.report({ message: 'something wrong' });
   });
 
   expect(updateTaskMock).toHaveBeenLastCalledWith({
@@ -132,4 +132,3 @@ test('Should create a task and have it in state failure', async () => {
     error: 'something wrong',
   });
 });
-
