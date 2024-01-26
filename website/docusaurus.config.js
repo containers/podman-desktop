@@ -309,6 +309,27 @@ const config = {
         ],
       },
     ],
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'api',
+        path: 'api',
+        routeBasePath: 'api',
+      },
+    ],
+    [
+      'docusaurus-plugin-typedoc',
+      {
+        id: 'api',
+        plugin: ['typedoc-plugin-markdown'],
+        entryPoints: ['..\\packages\\extension-api\\src\\extension-api.d.ts'],
+        out: 'api',
+        docsRoot: 'api',
+        hideBreadcrumbs: true,
+        readme: 'none',
+        tsconfig: '..\\packages\\extension-api\\tsconfig.json',
+      },
+    ],
   ],
   presets: [
     [
