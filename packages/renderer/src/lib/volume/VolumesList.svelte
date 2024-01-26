@@ -254,7 +254,8 @@ const row = new Row<VolumeInfoUI>({
       data="{volumes}"
       columns="{columns}"
       row="{row}"
-      defaultSortColumn="Name">
+      defaultSortColumn="Name"
+      on:update="{() => (volumes = volumes)}">
     </Table>
 
     {#if providerConnections.length === 0}
