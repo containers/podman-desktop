@@ -16,6 +16,12 @@ const telemetryLoggerMock = {
   logError: telemetryLogErrorMock,
 } as unknown as TelemetryLogger;
 
+const extensionContextMock = {
+  subscriptions: {
+    push: vi.fn(),
+  },
+} as unknown as extensionApi.ExtensionContext;
+
 // Mock configurable properties
 function fakeConfiguration(accessToken?: string): Configuration {
   return {
@@ -121,7 +127,7 @@ test('expect createSession to be called automatically', async () => {
     },
   );
 
-  await activate();
+  await activate(extensionContextMock);
   expect(provider).toBeDefined();
   expect(await provider.getSessions([])).toHaveLength(1);
 });
@@ -138,7 +144,7 @@ test('expect createSession not to be called automatically', async () => {
     },
   );
 
-  await activate();
+  await activate(extensionContextMock);
   expect(provider).toBeDefined();
   expect(await provider.getSessions([])).toHaveLength(0);
 });

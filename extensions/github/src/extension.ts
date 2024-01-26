@@ -121,14 +121,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // Register the AuthenticationProvider
   const disposable = extensionApi.authentication.registerAuthenticationProvider('github', 'GitHub', authProvider, {
     images: {
-      icon: {
-        light: './logo-light.png',
-        dark: './logo-dark.png',
-      },
-      logo: {
-        light: './logo-light.png',
-        dark: './logo-dark.png',
-      },
+      icon: 'icon.png',
     },
   });
   extensionContext.subscriptions.push(disposable);
