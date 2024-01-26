@@ -292,7 +292,8 @@ const row = new Row<ImageInfoUI>({
       data="{images}"
       columns="{columns}"
       row="{row}"
-      defaultSortColumn="Age">
+      defaultSortColumn="Age"
+      on:update="{() => (images = images)}">
     </Table>
 
     {#if providerConnections.length === 0}

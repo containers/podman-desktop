@@ -30,7 +30,8 @@ function closeModals() {
   image="{object}"
   onPushImage="{handlePushImageModal}"
   onRenameImage="{handleRenameImageModal}"
-  dropdownMenu="{true}" />
+  dropdownMenu="{true}"
+  on:update />
 
 {#if pushImageModal && pushImageModalImageInfo}
   <PushImageModal
