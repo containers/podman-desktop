@@ -32,3 +32,8 @@ export function setupRegistry() {
       : '';
   return [registryUrl, registryUsername, registryPswdSecret];
 }
+
+export function canTestRegistry() {
+  const [registry, username, passwd] = setupRegistry();
+  return registry && username && passwd;
+}
