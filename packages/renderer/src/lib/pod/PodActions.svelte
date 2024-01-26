@@ -18,6 +18,7 @@ import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 import { createEventDispatcher, onMount } from 'svelte';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
 import { ContainerUtils } from '../container/container-utils';
+import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 
 export let pod: PodInfoUI;
 export let dropdownMenu = false;
@@ -32,6 +33,7 @@ onMount(async () => {
 
 let urls: Array<string> = [];
 $: openingUrls = urls;
+$: openingKubernetesUrls = new Map();
 
 function extractPort(urlString: string) {
   const match = urlString.match(/:(\d+)/);
@@ -39,17 +41,37 @@ function extractPort(urlString: string) {
 }
 
 onMount(async () => {
-  const containerUtils = new ContainerUtils();
+  if (pod.kind === 'podman') {
+    const containerUtils = new ContainerUtils();
 
-  const containerIds = pod.containers.map(podContainer => podContainer.Id);
-  const podContainers = (await window.listContainers()).filter(
-    container => containerIds.findIndex(containerInfo => containerInfo === container.Id) >= 0,
-  );
+    const containerIds = pod.containers.map(podContainer => podContainer.Id);
+    const podContainers = (await window.listContainers()).filter(
+      container => containerIds.findIndex(containerInfo => containerInfo === container.Id) >= 0,
+    );
 
-  podContainers.forEach(container => {
-    const openingUrls = containerUtils.getOpeningUrls(container);
-    urls = [...new Set([...urls, ...openingUrls])];
-  });
+    podContainers.forEach(container => {
+      const openingUrls = containerUtils.getOpeningUrls(container);
+      urls = [...new Set([...urls, ...openingUrls])];
+    });
+  } else if (pod.kind === 'kubernetes') {
+    const ns = await window.kubernetesGetCurrentNamespace();
+    if (ns) {
+      const kubepod = await window.kubernetesReadNamespacedPod(pod.name, ns);
+      if (kubepod?.metadata?.labels?.app) {
+        const appName = kubepod.metadata.labels.app;
+        const routes = await window.kubernetesListRoutes();
+        const appRoutes: V1Route[] = (routes as any).items.filter(
+          (r: V1Route) => r.metadata.labels && r.metadata.labels['app'] === appName,
+        );
+        appRoutes.forEach((route: V1Route) => {
+          openingKubernetesUrls = openingKubernetesUrls.set(
+            route.metadata.name,
+            route.spec.tls ? `https://${route.spec.host}` : `http://${route.spec.host}`,
+          );
+        });
+      }
+    }
+  }
 });
 
 function inProgress(inProgress: boolean, state?: string): void {
@@ -156,6 +178,7 @@ if (dropdownMenu) {
 <ListItemButtonIcon
   title="Delete Pod"
   onClick="{() => deletePod()}"
+  confirm="{true}"
   icon="{faTrash}"
   detailed="{detailed}"
   inProgress="{pod.actionInProgress && pod.status === 'DELETING'}" />
@@ -208,13 +231,50 @@ if (dropdownMenu) {
         {/each}
       </DropdownMenu>
     {/if}
-    <ListItemButtonIcon
-      title="Restart Pod"
-      onClick="{() => restartPod()}"
-      menu="{dropdownMenu}"
-      detailed="{detailed}"
-      icon="{faArrowsRotate}" />
   {/if}
+  {#if pod.kind === 'kubernetes'}
+    {#if openingKubernetesUrls.size === 0}
+      <ListItemButtonIcon
+        title="Open Browser"
+        menu="{dropdownMenu}"
+        enabled="{false}"
+        hidden="{dropdownMenu}"
+        detailed="{detailed}"
+        icon="{faExternalLinkSquareAlt}" />
+    {:else if openingKubernetesUrls.size === 1}
+      <ListItemButtonIcon
+        title="Open {[...openingKubernetesUrls][0][0]}"
+        onClick="{() => window.openExternal([...openingKubernetesUrls][0][1])}"
+        menu="{dropdownMenu}"
+        enabled="{pod.status === 'RUNNING'}"
+        hidden="{dropdownMenu}"
+        detailed="{detailed}"
+        icon="{faExternalLinkSquareAlt}" />
+    {:else if openingKubernetesUrls.size > 1}
+      <DropdownMenu
+        title="Open Kubernetes Routes"
+        icon="{faExternalLinkSquareAlt}"
+        hidden="{dropdownMenu}"
+        shownAsMenuActionItem="{true}">
+        {#each Array.from(openingKubernetesUrls) as [routeName, routeHost]}
+          <ListItemButtonIcon
+            title="Open {routeName}"
+            onClick="{() => window.openExternal(routeHost)}"
+            menu="{!dropdownMenu}"
+            enabled="{pod.status === 'RUNNING'}"
+            hidden="{dropdownMenu}"
+            detailed="{detailed}"
+            icon="{faExternalLinkSquareAlt}" />
+        {/each}
+      </DropdownMenu>
+    {/if}
+  {/if}
+  <ListItemButtonIcon
+    title="Restart Pod"
+    onClick="{() => restartPod()}"
+    menu="{dropdownMenu}"
+    detailed="{detailed}"
+    icon="{faArrowsRotate}" />
   <ContributionActions
     args="{[pod]}"
     contextPrefix="podItem"

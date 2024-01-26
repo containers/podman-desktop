@@ -133,6 +133,7 @@ if (dropdownMenu) {
 
 <ListItemButtonIcon
   title="Delete Compose"
+  confirm="{true}"
   onClick="{() => deleteCompose()}"
   icon="{faTrash}"
   detailed="{detailed}"

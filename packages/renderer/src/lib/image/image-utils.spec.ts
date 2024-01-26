@@ -21,6 +21,7 @@ import { ImageUtils } from './image-utils';
 import type { ImageInfo } from '../../../../main/src/plugin/api/image-info';
 import { ContextUI } from '../context/context';
 import type { ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
+import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 
 let imageUtils: ImageUtils;
 
@@ -136,4 +137,49 @@ test('should expect badge to be valid value with context/view set', async () => 
 
   expect(badges[0].label).toBe('my-custom-badge');
   expect(badges[0].color).toBe('#ff0000');
+});
+
+describe('inUse', () => {
+  const imageInfoHello = {
+    Id: 'sha256:1b10fa0fd8d184d9de22a553688af8f9f8adbabb11f5dfc15f1a0fdd21873db2',
+    RepoTags: ['quay.io/podman/hello3:latest', 'quay.io/podman/hello2:latest', 'quay.io/podman/hello:latest'],
+  } as unknown as ImageInfo;
+
+  const untaggedImageInfo = {
+    Id: 'sha256:1b10fa0fd8d184d9de22a553688af8f9f8adbabb11f5dfc15f1a0fdd21873db2',
+  } as unknown as ImageInfo;
+
+  const containerInfo = {
+    Id: 'container1',
+    Image: 'quay.io/podman/hello:latest',
+    ImageID: 'sha256:1b10fa0fd8d184d9de22a553688af8f9f8adbabb11f5dfc15f1a0fdd21873db2',
+  } as unknown as ContainerInfo;
+
+  test('should expect inUsed with an untagged image', async () => {
+    const containerInfo = {
+      Id: 'container1',
+      Image: 'sha256:1b10fa0fd8d184d9de22a553688af8f9f8adbabb11f5dfc15f1a0fdd21873db2',
+      ImageID: 'sha256:1b10fa0fd8d184d9de22a553688af8f9f8adbabb11f5dfc15f1a0fdd21873db2',
+    } as unknown as ContainerInfo;
+
+    const isUsed = imageUtils.getInUse(untaggedImageInfo, undefined, [containerInfo]);
+    // image should be used
+    expect(isUsed).toBeTruthy();
+  });
+
+  test('should not expect inUsed without a containerInfo', async () => {
+    const isUsed = imageUtils.getInUse(imageInfoHello);
+    // image should not be used
+    expect(isUsed).toBeFalsy();
+  });
+
+  test.each([
+    ['quay.io/podman/hello:latest', true],
+    ['quay.io/podman/hello2:latest', false],
+    ['quay.io/podman/hello3:latest', false],
+  ])('should expect different inUsed based on repoTag %s', async (repoTag: string, expected: boolean) => {
+    const isUsed = imageUtils.getInUse(imageInfoHello, repoTag, [containerInfo]);
+    // image should be used
+    expect(isUsed).toBe(expected);
+  });
 });

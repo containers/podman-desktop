@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,70 +18,56 @@
 
 import '@testing-library/jest-dom/vitest';
 import { test, expect, vi, beforeAll } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 
-import DeploymentDetails from './DeploymentDetails.svelte';
+import IngressRouteDetails from './IngressDetails.svelte';
 
 import { router } from 'tinro';
 import { lastPage } from '/@/stores/breadcrumb';
-import { deployments } from '/@/stores/deployments';
-import type { V1Deployment } from '@kubernetes/client-node';
+import type { V1Ingress } from '@kubernetes/client-node';
+import { ingresses } from '/@/stores/ingresses';
 
-const kubernetesDeleteDeploymentMock = vi.fn();
+const kubernetesDeleteIngressMock = vi.fn();
 
-const deployment: V1Deployment = {
-  apiVersion: 'apps/v1',
-  kind: 'Deployment',
+const ingress: V1Ingress = {
   metadata: {
-    name: 'my-deployment',
+    name: 'my-ingress',
     namespace: 'default',
   },
-  spec: {
-    replicas: 2,
-    selector: {},
-    template: {},
-  },
+  status: {},
 };
 
 beforeAll(() => {
-  (window as any).kubernetesDeleteDeployment = kubernetesDeleteDeploymentMock;
-  (window as any).kubernetesReadNamespacedDeployment = vi.fn();
+  (window as any).kubernetesDeleteIngress = kubernetesDeleteIngressMock;
+  (window as any).kubernetesReadNamespacedIngress = vi.fn();
 });
 
-test('Expect redirect to previous page if deployment is deleted', async () => {
-  const showMessageBoxMock = vi.fn();
-  (window as any).showMessageBox = showMessageBoxMock;
-  showMessageBoxMock.mockResolvedValue({ response: 0 });
-
+test('Expect redirect to previous page if ingress is deleted', async () => {
   const routerGotoSpy = vi.spyOn(router, 'goto');
-  deployments.set([deployment]);
+  ingresses.set([ingress]);
 
-  // remove deployment from the store when we call delete
-  kubernetesDeleteDeploymentMock.mockImplementation(() => {
-    deployments.set([]);
+  // remove ingress from the store when we call delete
+  kubernetesDeleteIngressMock.mockImplementation(() => {
+    ingresses.set([]);
   });
 
   // define a fake lastPage so we can check where we will be redirected
   lastPage.set({ name: 'Fake Previous', path: '/last' });
 
   // render the component
-  render(DeploymentDetails, { name: 'my-deployment', namespace: 'default' });
-  expect(screen.getByText('my-deployment')).toBeInTheDocument();
+  render(IngressRouteDetails, { name: 'my-ingress', namespace: 'default' });
+  expect(screen.getByText('my-ingress')).toBeInTheDocument();
 
   // grab current route
   const currentRoute = window.location;
   expect(currentRoute.href).toBe('http://localhost:3000/');
 
   // click on delete button
-  const deleteButton = screen.getByRole('button', { name: 'Delete Deployment' });
+  const deleteButton = screen.getByRole('button', { name: 'Delete Ingress' });
   await fireEvent.click(deleteButton);
-  expect(showMessageBoxMock).toHaveBeenCalledOnce();
-
-  // Wait for confirmation modal to disappear after clicking on delete
-  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
   // check that delete method has been called
-  expect(kubernetesDeleteDeploymentMock).toHaveBeenCalled();
+  expect(kubernetesDeleteIngressMock).toHaveBeenCalled();
 
   // expect that we have called the router when page has been removed
   // to jump to the previous page

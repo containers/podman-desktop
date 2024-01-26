@@ -11,6 +11,7 @@ import { ensureRestrictedSecurityContext } from '/@/lib/pod/pod-utils';
 import Button from '../ui/Button.svelte';
 import { faExternalLink, faRocket } from '@fortawesome/free-solid-svg-icons';
 import Link from '../ui/Link.svelte';
+import { router } from 'tinro';
 
 export let resourceId: string;
 export let engineId: string;
@@ -134,6 +135,13 @@ onDestroy(() => {
 
 function goBackToHistory(): void {
   window.history.go(-1);
+}
+
+function openPodDetails(): void {
+  if (!createdPod?.metadata?.name || !defaultContextName) {
+    return;
+  }
+  router.goto(`/pods/kubernetes/${encodeURI(createdPod.metadata.name)}/${encodeURI(defaultContextName)}/logs`);
 }
 
 function openRoute(route: V1Route) {
@@ -585,8 +593,10 @@ function updateKubeResult() {
       {/if}
 
       {#if deployFinished}
-        <div class="pt-4">
-          <Button on:click="{() => goBackToHistory()}" class="w-full">Done</Button>
+        <div class="pt-4 flex flex-row space-x-2 justify-end">
+          <Button on:click="{() => goBackToHistory()}">Done</Button>
+          <Button on:click="{() => openPodDetails()}" disabled="{!createdPod?.metadata?.name || !defaultContextName}"
+            >Open Pod</Button>
         </div>
       {/if}
     </div>

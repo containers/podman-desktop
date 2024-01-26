@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 import { test, expect, vi, beforeAll } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 
 import PodDetails from './PodDetails.svelte';
 import { get } from 'svelte/store';
@@ -31,6 +31,7 @@ import { lastPage } from '/@/stores/breadcrumb';
 const listPodsMock = vi.fn();
 const listContainersMock = vi.fn();
 const kubernetesListPodsMock = vi.fn();
+const showMessageBoxMock = vi.fn();
 
 const myPod: PodInfo = {
   Cgroup: '',
@@ -52,6 +53,7 @@ const removePodMock = vi.fn();
 const getContributedMenusMock = vi.fn();
 
 beforeAll(() => {
+  (window as any).showMessageBox = showMessageBoxMock;
   (window as any).listPods = listPodsMock;
   (window as any).listContainers = listContainersMock.mockResolvedValue([]);
   (window as any).kubernetesListPods = kubernetesListPodsMock;
@@ -61,6 +63,8 @@ beforeAll(() => {
 });
 
 test('Expect redirect to previous page if pod is deleted', async () => {
+  // Mock the showMessageBox to return 0 (yes)
+  showMessageBoxMock.mockResolvedValue({ response: 0 });
   const routerGotoSpy = vi.spyOn(router, 'goto');
   listPodsMock.mockResolvedValue([myPod]);
   kubernetesListPodsMock.mockResolvedValue([]);
@@ -88,6 +92,9 @@ test('Expect redirect to previous page if pod is deleted', async () => {
   // click on delete pod button
   const deleteButton = screen.getByRole('button', { name: 'Delete Pod' });
   await fireEvent.click(deleteButton);
+
+  // Wait for confirmation modal to disappear after clicking on delete
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
   // check that remove method has been called
   expect(removePodMock).toHaveBeenCalled();

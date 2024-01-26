@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 import { test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import DeploymentActions from './DeploymentActions.svelte';
 import type { DeploymentUI } from './DeploymentUI';
 
@@ -45,12 +45,20 @@ afterEach(() => {
 });
 
 test('Expect no error and status deleting deployment', async () => {
+  const showMessageBoxMock = vi.fn();
+  (window as any).showMessageBox = showMessageBoxMock;
+  showMessageBoxMock.mockResolvedValue({ response: 0 });
+
   const { component } = render(DeploymentActions, { deployment });
   component.$on('update', updateMock);
 
-  // click on delete button
+  // click on delete buttons
   const deleteButton = screen.getByRole('button', { name: 'Delete Deployment' });
   await fireEvent.click(deleteButton);
+  expect(showMessageBoxMock).toHaveBeenCalledOnce();
+
+  // Wait for confirmation modal to disappear after clicking on delete
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
   expect(deployment.status).toEqual('DELETING');
   expect(updateMock).toHaveBeenCalled();

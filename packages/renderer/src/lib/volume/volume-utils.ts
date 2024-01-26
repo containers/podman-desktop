@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ export class VolumeUtils {
       engineId: volumeInfo.engineId,
       engineName: volumeInfo.engineName,
       selected: false,
-      inUse: (volumeInfo.UsageData?.RefCount || 0) > 0,
+      status: (volumeInfo.UsageData?.RefCount || 0) > 0 ? 'USED' : 'UNUSED',
       containersUsage: volumeInfo.containersUsage,
     };
   }
