@@ -25,7 +25,6 @@ import { AutostartEngine } from './autostart-engine.js';
 import type { Configuration } from '@podman-desktop/api';
 import { CONFIGURATION_DEFAULT_SCOPE, CONFIGURATION_ONBOARDING_SCOPE } from './configuration-registry-constants.js';
 import type { ApiSenderType } from '/@/plugin/api.js';
-import type { NotificationRegistry } from './notification-registry.js';
 
 let configurationRegistry: ConfigurationRegistry;
 let providerRegistry: ProviderRegistry;
@@ -43,7 +42,7 @@ beforeEach(() => {
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeAll(() => {
-  configurationRegistry = new ConfigurationRegistry({} as ApiSenderType, {} as Directories, {} as NotificationRegistry);
+  configurationRegistry = new ConfigurationRegistry({} as ApiSenderType, {} as Directories);
   providerRegistry = {} as unknown as ProviderRegistry;
   autostartEngine = new AutostartEngine(configurationRegistry, providerRegistry);
   configurationRegistry.registerConfigurations = mockRegisterConfiguration;

@@ -21,7 +21,6 @@ import { ConfigurationRegistry } from './configuration-registry.js';
 import * as util from '../util.js';
 import type { Directories } from './directories.js';
 import type { ApiSenderType } from '/@/plugin/api.js';
-import type { NotificationRegistry } from './notification-registry.js';
 
 vi.mock('./util', () => {
   return {
@@ -33,7 +32,7 @@ let closeBehavior: CloseBehavior;
 let configurationRegistry: ConfigurationRegistry;
 
 beforeEach(() => {
-  configurationRegistry = new ConfigurationRegistry({} as ApiSenderType, {} as Directories, {} as NotificationRegistry);
+  configurationRegistry = new ConfigurationRegistry({} as ApiSenderType, {} as Directories);
   closeBehavior = new CloseBehavior(configurationRegistry);
 });
 
