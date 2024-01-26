@@ -109,3 +109,27 @@ test('Should create a task and propagate the result', async () => {
     status: 'success',
   });
 });
+
+test('Should create a task and have it in state failure', async () => {
+  const createTaskMock = vi.fn();
+  const updateTaskMock = vi.fn();
+  const taskManager = {
+    createTask: createTaskMock,
+    updateTask: updateTaskMock,
+  } as unknown as TaskManager;
+
+  createTaskMock.mockImplementation(() => ({}));
+
+  const progress = new ProgressImpl(taskManager);
+
+  await progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async (progress) => {
+    progress.report({ message: 'something wrong'});
+  });
+
+  expect(updateTaskMock).toHaveBeenLastCalledWith({
+    state: 'completed',
+    status: 'failure',
+    error: 'something wrong',
+  });
+});
+

@@ -101,7 +101,7 @@ export class ProgressImpl {
     )
       .then(value => {
         // Middleware to capture the success of the task
-        t.status = 'success';
+        t.status = t.error?'failure':'success';
         t.state = 'completed';
         // We propagate the result to the caller, so he can use the result
         return value;
