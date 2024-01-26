@@ -130,8 +130,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     try {
       await authProvider.createSession([]);
     } catch (e) {
-      await window.showErrorMessage(`GitHub access token is not valid.`);
       console.error(e);
+      await window.showErrorMessage(`GitHub access token is not valid: ${String(e)}.`);
     }
   }
 }

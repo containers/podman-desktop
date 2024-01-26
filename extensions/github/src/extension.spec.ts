@@ -8,6 +8,10 @@ import type {
   TelemetryLogger,
 } from '@podman-desktop/api';
 
+const mocks = vi.hoisted(() => ({
+  push: vi.fn(),
+}));
+
 // Mock telemetry
 const telemetryLogUsageMock = vi.fn();
 const telemetryLogErrorMock = vi.fn();
@@ -18,7 +22,7 @@ const telemetryLoggerMock = {
 
 const extensionContextMock = {
   subscriptions: {
-    push: vi.fn(),
+    push: mocks.push,
   },
 } as unknown as extensionApi.ExtensionContext;
 
@@ -130,6 +134,7 @@ test('expect createSession to be called automatically', async () => {
   await activate(extensionContextMock);
   expect(provider).toBeDefined();
   expect(await provider.getSessions([])).toHaveLength(1);
+  expect(mocks.push).toHaveBeenCalledOnce();
 });
 
 test('expect createSession not to be called automatically', async () => {
