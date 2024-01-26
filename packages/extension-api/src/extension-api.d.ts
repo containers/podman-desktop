@@ -2979,8 +2979,7 @@ declare module '@podman-desktop/api' {
     /**
      * Store a new value for key in the context.
      * This can be used in enablement of command or with the when property.
-     * The key should consists of '<extension-
-     * id>.<actual-key>'.
+     * The key should consists of '"extension-id"."actual-key"'.
      *
      * @param key the key of the key/value pair to be added to the context
      * @param value value associated to the key

@@ -323,7 +323,7 @@ const config = {
         id: 'api',
         plugin: ['typedoc-plugin-markdown'],
         entryPoints: ['..\\packages\\extension-api\\src\\extension-api.d.ts'],
-        out: 'api',
+        out: '.',
         docsRoot: 'api',
         hideBreadcrumbs: true,
         readme: 'none',
