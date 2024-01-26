@@ -26,7 +26,8 @@ import { SettingsBar } from './model/pages/settings-bar';
 import { RegistriesPage } from './model/pages/registries-page';
 import { NavigationBar } from './model/workbench/navigation';
 import { ImagesPage } from './model/pages/images-page';
-import { setupRegistry } from './setupFiles/setup-registry';
+import { canTestRegistry, setupRegistry } from './setupFiles/setup-registry';
+import { handleConfirmationDialog } from './utility/operations';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -54,16 +55,28 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  const imagesPage = new ImagesPage(page);
-  const imageDetailPage = await imagesPage.openImageDetails(imageUrl);
-  await imageDetailPage.deleteButton.click();
+  try {
+    const imagesPage = new ImagesPage(page);
+    let imageDetailPage;
+    try {
+      imageDetailPage = await imagesPage.openImageDetails(imageUrl);
+    } catch (error) {
+      if ((error as Error).message.includes('does not exist')) {
+        // image does not exist
+      } else {
+        throw error;
+      }
+    }
+    await imageDetailPage?.deleteButton.click();
+    await handleConfirmationDialog(page);
 
-  await navBar.openSettings();
-  const settingsBar = new SettingsBar(page);
-  const registryPage = await settingsBar.openTabPage(RegistriesPage);
-  await registryPage.removeRegistry('GitHub');
-
-  await pdRunner.close();
+    await navBar.openSettings();
+    const settingsBar = new SettingsBar(page);
+    const registryPage = await settingsBar.openTabPage(RegistriesPage);
+    await registryPage.removeRegistry('GitHub');
+  } finally {
+    await pdRunner.close();
+  }
 });
 
 beforeEach<RunnerTestContext>(async ctx => {
@@ -90,7 +103,7 @@ describe('Pulling image from authenticated registry workflow verification', asyn
 
     await playExpect(errorMessage).toBeVisible();
   });
-  test.runIf(registryUrl !== '' && registryUsername !== '' && registryPswdSecret !== '')('Add registry', async () => {
+  test.runIf(canTestRegistry())('Add registry', async () => {
     await navBar.openSettings();
     const settingsBar = new SettingsBar(page);
     const registryPage = await settingsBar.openTabPage(RegistriesPage);
@@ -101,17 +114,14 @@ describe('Pulling image from authenticated registry workflow verification', asyn
     const username = registryBox.getByText(registryUsername);
     await playExpect(username).toBeVisible();
   });
-  test.runIf(registryUrl !== '' && registryUsername !== '' && registryPswdSecret !== '')(
-    'Image pulling from authenticated registry verification',
-    async () => {
-      const imagesPage = await navBar.openImages();
+  test.runIf(canTestRegistry())('Image pulling from authenticated registry verification', async () => {
+    const imagesPage = await navBar.openImages();
 
-      const fullImageTitle = imageUrl.concat(':' + imageTag);
-      const pullImagePage = await imagesPage.openPullImage();
-      const updatedImages = await pullImagePage.pullImage(fullImageTitle);
+    const fullImageTitle = imageUrl.concat(':' + imageTag);
+    const pullImagePage = await imagesPage.openPullImage();
+    const updatedImages = await pullImagePage.pullImage(fullImageTitle);
 
-      const exists = await updatedImages.waitForImageExists(imageUrl);
-      playExpect(exists, fullImageTitle + ' image not present in the list of images').toBeTruthy();
-    },
-  );
+    const exists = await updatedImages.waitForImageExists(imageUrl);
+    playExpect(exists, fullImageTitle + ' image not present in the list of images').toBeTruthy();
+  });
 });

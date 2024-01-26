@@ -25,7 +25,7 @@ import { WelcomePage } from './model/pages/welcome-page';
 import { SettingsBar } from './model/pages/settings-bar';
 import { RegistriesPage } from './model/pages/registries-page';
 import { NavigationBar } from './model/workbench/navigation';
-import { setupRegistry } from './setupFiles/setup-registry';
+import { canTestRegistry, setupRegistry } from './setupFiles/setup-registry';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -72,61 +72,49 @@ describe('Registries handling verification', async () => {
     }
   });
   describe('Registry addition workflow verification', async () => {
-    test.runIf(registryUrl !== '' && registryUsername !== '' && registryPswdSecret !== '')(
-      'Cannot add invalid registry',
-      async () => {
-        const registryPage = new RegistriesPage(page);
-
-        await registryPage.createRegistry('invalidUrl', 'invalidName', 'invalidPswd');
-        const urlErrorMsg = page.getByText(
-          /Unable to find auth info for https:\/\/invalidUrl\/v2\/\. Error: RequestError: getaddrinfo [A-Z_]+ invalidurl$/,
-        );
-        await playExpect(urlErrorMsg).toBeVisible({ timeout: 50000 });
-        const cancelButton = page.getByRole('button', { name: 'Cancel' });
-        await cancelButton.click();
-
-        await registryPage.createRegistry(registryUrl, 'invalidName', 'invalidPswd');
-        const credsErrorMsg = page.getByText('Wrong Username or Password.');
-        await playExpect(credsErrorMsg).toBeVisible();
-        await cancelButton.click();
-      },
-    );
-    test.runIf(registryUrl !== '' && registryUsername !== '' && registryPswdSecret !== '')(
-      'Valid registry addition verification',
-      async () => {
-        const registryPage = new RegistriesPage(page);
-
-        await registryPage.createRegistry(registryUrl, registryUsername, registryPswdSecret);
-        await pdRunner.screenshot('registry-addition.png');
-
-        const registryBox = registryPage.registriesTable.getByLabel(registryName);
-        const username = registryBox.getByText(registryUsername);
-        await playExpect(username).toBeVisible({ timeout: 50000 });
-      },
-    );
-  });
-  test.runIf(registryUrl !== '' && registryUsername !== '' && registryPswdSecret !== '')(
-    'Registry editing availability and invalid credentials verification',
-    async () => {
+    test('Cannot add invalid registry', async () => {
       const registryPage = new RegistriesPage(page);
 
-      await registryPage.editRegistry(registryName, 'invalidName', 'invalidPswd');
-      const errorMsg = page.getByText('Wrong Username or Password.');
-      await playExpect(errorMsg).toBeVisible();
-
+      await registryPage.createRegistry('invalidUrl', 'invalidName', 'invalidPswd');
+      const urlErrorMsg = page.getByText(
+        /Unable to find auth info for https:\/\/invalidUrl\/v2\/\. Error: RequestError: getaddrinfo [A-Z_]+ invalidurl$/,
+      );
+      await playExpect(urlErrorMsg).toBeVisible({ timeout: 50000 });
       const cancelButton = page.getByRole('button', { name: 'Cancel' });
       await cancelButton.click();
-    },
-  );
-  test.runIf(registryUrl !== '' && registryUsername !== '' && registryPswdSecret !== '')(
-    'Registry removal verification',
-    async () => {
+
+      await registryPage.createRegistry(registryUrl, 'invalidName', 'invalidPswd');
+      const credsErrorMsg = page.getByText('Wrong Username or Password.');
+      await playExpect(credsErrorMsg).toBeVisible();
+      await cancelButton.click();
+    });
+    test.runIf(canTestRegistry())('Valid registry addition verification', async () => {
       const registryPage = new RegistriesPage(page);
 
-      await registryPage.removeRegistry(registryName);
+      await registryPage.createRegistry(registryUrl, registryUsername, registryPswdSecret);
+      await pdRunner.screenshot('registry-addition.png');
+
       const registryBox = registryPage.registriesTable.getByLabel(registryName);
       const username = registryBox.getByText(registryUsername);
-      await playExpect(username).toBeHidden();
-    },
-  );
+      await playExpect(username).toBeVisible({ timeout: 50000 });
+    });
+  });
+  test.runIf(canTestRegistry())('Registry editing availability and invalid credentials verification', async () => {
+    const registryPage = new RegistriesPage(page);
+
+    await registryPage.editRegistry(registryName, 'invalidName', 'invalidPswd');
+    const errorMsg = page.getByText('Wrong Username or Password.');
+    await playExpect(errorMsg).toBeVisible();
+
+    const cancelButton = page.getByRole('button', { name: 'Cancel' });
+    await cancelButton.click();
+  });
+  test.runIf(canTestRegistry())('Registry removal verification', async () => {
+    const registryPage = new RegistriesPage(page);
+
+    await registryPage.removeRegistry(registryName);
+    const registryBox = registryPage.registriesTable.getByLabel(registryName);
+    const username = registryBox.getByText(registryUsername);
+    await playExpect(username).toBeHidden();
+  });
 });
