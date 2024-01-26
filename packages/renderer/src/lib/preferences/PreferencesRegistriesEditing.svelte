@@ -198,7 +198,7 @@ async function loginToRegistry(registry: containerDesktopAPI.Registry) {
         title: 'Invalid Certificate',
         type: 'warning',
         message: 'The certificate for this registry is not trusted / verifiable. Would you like to still add it?',
-        buttons: ['Yes', 'No'],
+        buttons: ['Yes', 'Cancel'],
       });
       if (result && result.response === 0) {
         registry.insecure = true;
