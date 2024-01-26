@@ -449,7 +449,8 @@ export class PluginSystem {
 
     // Add all notifications to notification registry
     notifications.forEach(notification => notificationRegistry.addNotification(notification));
-
+notifications.length = 0;
+Object.freeze(notifications);
     kubeGeneratorRegistry.registerDefaultKubeGenerator({
       name: 'PodmanKube',
       types: ['Compose', 'Container', 'Pod'],
