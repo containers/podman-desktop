@@ -377,6 +377,8 @@ export class PluginSystem {
 
   // initialize extension loader mechanism
   async initExtensions(): Promise<ExtensionLoader> {
+    const notifications: NotificationCardOptions[] = [];
+
     this.isReady = false;
     this.uiReady = false;
     this.ipcHandle('extension-system:isReady', async (): Promise<boolean> => {
@@ -399,8 +401,8 @@ export class PluginSystem {
     const taskManager = new TaskManager(apiSender);
     const notificationRegistry = new NotificationRegistry(apiSender, taskManager);
 
-    const configurationRegistry = new ConfigurationRegistry(apiSender, directories, notificationRegistry);
-    configurationRegistry.init();
+    const configurationRegistry = new ConfigurationRegistry(apiSender, directories);
+    notifications.push(...configurationRegistry.init());
 
     const proxy = new Proxy(configurationRegistry);
     await proxy.init();
@@ -445,6 +447,10 @@ export class PluginSystem {
       await trayIconColor.init();
     }
 
+    // Add all notifications to notification registry
+    notifications.forEach(notification => notificationRegistry.addNotification(notification));
+    notifications.length = 0;
+    Object.freeze(notifications);
     kubeGeneratorRegistry.registerDefaultKubeGenerator({
       name: 'PodmanKube',
       types: ['Compose', 'Container', 'Pod'],
