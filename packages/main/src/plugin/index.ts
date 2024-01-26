@@ -398,8 +398,6 @@ export class PluginSystem {
     const iconRegistry = new IconRegistry(apiSender);
     const directories = new Directories();
     const statusBarRegistry = new StatusBarRegistry(apiSender);
-    const taskManager = new TaskManager(apiSender, statusBarRegistry);
-    const notificationRegistry = new NotificationRegistry(apiSender, taskManager);
 
     const configurationRegistry = new ConfigurationRegistry(apiSender, directories);
     notifications.push(...configurationRegistry.init());
@@ -413,6 +411,9 @@ export class PluginSystem {
     const exec = new Exec(proxy);
 
     const commandRegistry = new CommandRegistry(apiSender, telemetry);
+    const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
+
+    const notificationRegistry = new NotificationRegistry(apiSender, taskManager);
     const menuRegistry = new MenuRegistry(commandRegistry);
     const kubeGeneratorRegistry = new KubeGeneratorRegistry();
     const certificates = new Certificates();
@@ -494,10 +495,6 @@ export class PluginSystem {
       'troubleshooting',
       undefined,
     );
-
-    commandRegistry.registerCommand('show-task-manager', () => {
-      apiSender.send('toggle-task-manager', '');
-    });
 
     statusBarRegistry.setEntry(
       'feedback',

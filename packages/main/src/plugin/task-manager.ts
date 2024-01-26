@@ -20,6 +20,7 @@ import type { ApiSenderType } from './api.js';
 import type { NotificationInfo } from './api/notification.js';
 import type { NotificationTask, StatefulTask, Task } from './api/task.js';
 import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
+import type { CommandRegistry } from '/@/plugin/command-registry.js';
 
 /**
  * Contribution manager to provide the list of external OCI contributions
@@ -32,6 +33,7 @@ export class TaskManager {
   constructor(
     private apiSender: ApiSenderType,
     private statusBarRegistry: StatusBarRegistry,
+    private commandRegistry: CommandRegistry,
   ) {
     this.init();
   }
@@ -49,6 +51,10 @@ export class TaskManager {
       'show-task-manager',
       undefined,
     );
+
+    this.commandRegistry.registerCommand('show-task-manager', () => {
+      this.apiSender.send('toggle-task-manager', '');
+    });
   }
 
   public createTask(title: string | undefined): StatefulTask {
