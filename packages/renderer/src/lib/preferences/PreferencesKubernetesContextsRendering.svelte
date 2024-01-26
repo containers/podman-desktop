@@ -27,7 +27,7 @@ async function handleDeleteContext(contextName: string) {
       title: 'Delete Context',
       message:
         'You will delete the current context. If you delete it, you will need to switch to another context. Continue?',
-      buttons: ['Yes', 'No'],
+      buttons: ['Yes', 'Cancel'],
     });
     if (result.response !== 0) {
       return;
