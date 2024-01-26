@@ -9307,10 +9307,10 @@ humanize-duration@^3.31.0:
   resolved "https://registry.yarnpkg.com/humanize-duration/-/humanize-duration-3.31.0.tgz#a0384d22555024cd17e6e9f8561540d37756bf4c"
   integrity sha512-fRrehgBG26NNZysRlTq1S+HPtDpp3u+Jzdc/d5A4cEzOD86YLAkDaJyJg8krSdCi7CJ+s7ht3fwRj8Dl+Btd0w==
 
-husky@^9.0.1:
-  version "9.0.1"
-  resolved "https://registry.yarnpkg.com/husky/-/husky-9.0.1.tgz#710ed0d06b7fb2f5723ea8db436b632e7aecc284"
-  integrity sha512-rXCT8yF2v3awSG03AG6IgICDhJ+m8o3jL1ROwsT4nQZ6urEyKSj0IWFDIh5YC2zgZeAxWksNMbN6rYY4BE1Zrw==
+husky@^9.0.6:
+  version "9.0.6"
+  resolved "https://registry.yarnpkg.com/husky/-/husky-9.0.6.tgz#cee0245d60480b12279cf492ec6cfc1aeb7fa759"
+  integrity sha512-EEuw/rfTiMjOfuL7pGO/i9otg1u36TXxqjIA6D9qxVjd/UXoDOsLor/BSFf5hTK50shwzCU3aVVwdXDp/lp7RA==
 
 iconv-corefoundation@^1.1.7:
   version "1.1.7"
