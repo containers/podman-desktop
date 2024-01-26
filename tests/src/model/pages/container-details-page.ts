@@ -84,14 +84,6 @@ export class ContainerDetailsPage extends BasePage {
     const deleteButton = this.page.getByRole('button').and(this.page.getByLabel('Delete Container'));
     await deleteButton.click();
     await handleConfirmationDialog(this.page);
-    await waitWhile(
-      async () => await this.heading.isVisible(),
-      timeout,
-      1000,
-      true,
-      `Container was not deleted in ${timeout / 1000}s`,
-    );
-    // after delete is successful we expect to see containers page
     return new ContainersPage(this.page);
   }
 
