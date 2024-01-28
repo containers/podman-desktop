@@ -94,19 +94,25 @@ let bulkDeleteInProgress = false;
 async function deleteSelectedVolumes() {
   const selectedVolumes = volumes.filter(volume => volume.selected);
 
-  if (selectedVolumes.length > 0) {
-    bulkDeleteInProgress = true;
-    await Promise.all(
-      selectedVolumes.map(async volume => {
-        try {
-          await window.removeVolume(volume.engineId, volume.name);
-        } catch (e) {
-          console.log('error while removing volume', e);
-        }
-      }),
-    );
-    bulkDeleteInProgress = false;
+  if (selectedVolumes.length === 0) {
+    return;
   }
+
+  // mark volumes for deletion
+  bulkDeleteInProgress = true;
+  selectedVolumes.forEach(volume => (volume.status = 'DELETING'));
+  volumes = volumes;
+
+  await Promise.all(
+    selectedVolumes.map(async volume => {
+      try {
+        await window.removeVolume(volume.engineId, volume.name);
+      } catch (e) {
+        console.log('error while removing volume', e);
+      }
+    }),
+  );
+  bulkDeleteInProgress = false;
 }
 
 let refreshTimeouts: NodeJS.Timeout[] = [];

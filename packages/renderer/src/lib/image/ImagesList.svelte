@@ -159,8 +159,16 @@ function gotoPullImage(): void {
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
 async function deleteSelectedImages() {
-  bulkDeleteInProgress = true;
   const selectedImages = images.filter(image => image.selected);
+  if (selectedImages.length === 0) {
+    return;
+  }
+
+  // mark images for deletion
+  bulkDeleteInProgress = true;
+  selectedImages.forEach(image => (image.status = 'DELETING'));
+  images = images;
+
   await selectedImages.reduce((prev: Promise<void>, image) => {
     return prev
       .then(() => imageUtils.deleteImage(image))
