@@ -177,6 +177,26 @@ test('Check SecurityRestrictions on known domains', async () => {
   expect(shell.openExternal).toBeCalledWith('https://www.podman-desktop.io');
 });
 
+test('Check no securityRestrictions on open external files', async () => {
+  const showMessageBoxMock = vi.fn();
+  const messageBox = {
+    showMessageBox: showMessageBoxMock,
+  } as unknown as MessageBox;
+
+  // configure
+  await pluginSystem.setupSecurityRestrictionsOnLinks(messageBox);
+
+  // call with a file link
+  const value = await securityRestrictionCurrentHandler.handler?.('file:///foobar');
+  expect(value).toBeTruthy();
+
+  expect(showMessageBoxMock).not.toBeCalled();
+
+  // expect openExternal has been called
+  expect(shell.openExternal).toBeCalledWith(expect.stringContaining('file://'));
+  expect(shell.openExternal).toBeCalledWith(expect.stringContaining('foobar'));
+});
+
 test('Should apiSender handle local receive events', async () => {
   const apiSender = pluginSystem.getApiSender(webContents);
   expect(apiSender).toBeDefined();
