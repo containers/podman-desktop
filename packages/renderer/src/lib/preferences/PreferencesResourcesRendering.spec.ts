@@ -159,10 +159,11 @@ test('Expect to be start, delete actions disabled and stop, restart enabled when
 test('Expect type to be reported for Podman engines', async () => {
   providerInfos.set([providerInfo]);
   render(PreferencesResourcesRendering, {});
+
   const typeDiv = screen.getByLabelText('machine type');
   expect(typeDiv.textContent).toBe('Podman endpoint');
-  const endpointSpan = screen.getByLabelText('machine endpoint');
-  expect(endpointSpan.textContent).toBe('socket');
+  const endpointSpan = await vi.waitFor(() => screen.getByTitle('unix://socket'));
+  expect(endpointSpan.textContent).toBe('unix://socket');
 });
 
 test('Expect type to be reported for Docker engines', async () => {
@@ -171,8 +172,8 @@ test('Expect type to be reported for Docker engines', async () => {
   render(PreferencesResourcesRendering, {});
   const typeDiv = screen.getByLabelText('machine type');
   expect(typeDiv.textContent).toBe('Docker endpoint');
-  const endpointSpan = screen.getByLabelText('machine endpoint');
-  expect(endpointSpan.textContent).toBe('socket');
+  const endpointSpan = await vi.waitFor(() => screen.getByTitle('unix://socket'));
+  expect(endpointSpan.textContent).toBe('unix://socket');
 });
 
 test('Expect to see the no resource message when there is no providers', async () => {

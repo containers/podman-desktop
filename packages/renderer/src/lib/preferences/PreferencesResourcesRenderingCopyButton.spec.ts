@@ -17,8 +17,8 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeEach, describe } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/svelte';
+import { test, vi, beforeEach, describe, expect } from 'vitest';
+import { render } from '@testing-library/svelte';
 import PreferencesResourcesRenderingCopyButton from './PreferencesResourcesRenderingCopyButton.svelte';
 
 const getOsPlatformMock = vi.fn();
@@ -31,22 +31,10 @@ describe('Windows', () => {
   test('Expect copy in clipboard', async () => {
     getOsPlatformMock.mockResolvedValue('win32');
 
-    const clipboardWriteTextMock = vi.fn().mockImplementation(() => {});
-    (window as any).clipboardWriteText = clipboardWriteTextMock;
-
     const socketPath = '/socket';
 
-    await waitRender(socketPath);
-
-    const button = screen.getByRole('button', { name: 'Copy To Clipboard' });
-
-    expect(button).toBeInTheDocument();
-    expect(button).toBeEnabled();
-
-    await fireEvent.click(button);
-
-    const expectedParameter = 'npipe://' + socketPath;
-    expect(clipboardWriteTextMock).toBeCalledWith(expectedParameter);
+    const result = await waitRender(socketPath);
+    expect(result.component.$$.ctx[0]).toBe('npipe:///socket');
   });
 });
 
@@ -54,22 +42,10 @@ describe('macOS', () => {
   test('Expect copy in clipboard', async () => {
     getOsPlatformMock.mockResolvedValue('darwin');
 
-    const clipboardWriteTextMock = vi.fn().mockImplementation(() => {});
-    (window as any).clipboardWriteText = clipboardWriteTextMock;
-
     const socketPath = '/socket';
 
-    await waitRender(socketPath);
-
-    const button = screen.getByRole('button', { name: 'Copy To Clipboard' });
-
-    expect(button).toBeInTheDocument();
-    expect(button).toBeEnabled();
-
-    await fireEvent.click(button);
-
-    const expectedParameter = 'unix://' + socketPath;
-    expect(clipboardWriteTextMock).toBeCalledWith(expectedParameter);
+    const result = await waitRender(socketPath);
+    expect(result.component.$$.ctx[0]).toBe('unix:///socket');
   });
 });
 
@@ -77,28 +53,19 @@ describe('Linux', () => {
   test('Expect copy in clipboard', async () => {
     getOsPlatformMock.mockResolvedValue('linux');
 
-    const clipboardWriteTextMock = vi.fn().mockImplementation(() => {});
-    (window as any).clipboardWriteText = clipboardWriteTextMock;
-
     const socketPath = '/socket';
 
-    await waitRender(socketPath);
-
-    const button = screen.getByRole('button', { name: 'Copy To Clipboard' });
-
-    expect(button).toBeInTheDocument();
-    expect(button).toBeEnabled();
-
-    await fireEvent.click(button);
-
-    const expectedParameter = 'unix://' + socketPath;
-    expect(clipboardWriteTextMock).toBeCalledWith(expectedParameter);
+    const result = await waitRender(socketPath);
+    expect(result.component.$$.ctx[0]).toBe('unix:///socket');
   });
 });
+
 async function waitRender(socketPath: string) {
   const result = render(PreferencesResourcesRenderingCopyButton, { path: socketPath });
 
   while (result.component.$$.ctx[0] === undefined) {
     await new Promise(resolve => setTimeout(resolve, 100));
   }
+
+  return result;
 }

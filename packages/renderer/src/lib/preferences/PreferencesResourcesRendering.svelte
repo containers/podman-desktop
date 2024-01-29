@@ -355,6 +355,10 @@ function hasAnyConfiguration(provider: ProviderInfo) {
 }
 </script>
 
+<div aria-label="bla" title="bla">
+  <PreferencesResourcesRenderingCopyButton path="bla" />
+</div>
+
 <SettingsPage title="Resources">
   <span slot="subtitle" class:hidden="{providers.length === 0}">
     Additional provider information is available under <a
@@ -477,17 +481,9 @@ function hasAnyConfiguration(provider: ProviderInfo) {
               <div class="mt-2 text-gray-700 text-xs" aria-label="{container.name} type">
                 {#if container.type === 'docker'}Docker{:else if container.type === 'podman'}Podman{/if} endpoint
               </div>
-              <div class="float-right">
-                <PreferencesResourcesRenderingCopyButton path="{container.endpoint.socketPath}" />
-              </div>
-              <div
-                class="mt-1 my-auto text-xs truncate"
-                class:text-gray-900="{container.status !== 'started'}"
-                aria-label="{container.name} endpoint"
-                title="{container.endpoint.socketPath}">
-                {container.endpoint.socketPath}
-              </div>
-
+              <PreferencesResourcesRenderingCopyButton
+                class="{container.status !== 'started' ? 'text-gray-900' : ''}"
+                path="{container.endpoint.socketPath}" />
               {#if providerContainerConfiguration.has(provider.internalId)}
                 {@const providerConfiguration = providerContainerConfiguration.get(provider.internalId) || []}
                 <div
