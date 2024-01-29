@@ -52,7 +52,7 @@ async function deleteSelectedDeployments() {
       try {
         await window.kubernetesDeleteDeployment(deployment.name);
       } catch (e) {
-        console.log('error while deleting deployment', e);
+        console.error('error while deleting deployment', e);
       }
     }),
   );

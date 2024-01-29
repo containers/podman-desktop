@@ -172,7 +172,7 @@ async function deleteSelectedImages() {
   await selectedImages.reduce((prev: Promise<void>, image) => {
     return prev
       .then(() => imageUtils.deleteImage(image))
-      .catch((e: unknown) => console.log('error while removing image', e));
+      .catch((e: unknown) => console.error('error while removing image', e));
   }, Promise.resolve());
   bulkDeleteInProgress = false;
 }

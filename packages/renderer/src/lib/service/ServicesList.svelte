@@ -50,7 +50,7 @@ async function deleteSelectedServices() {
       try {
         await window.kubernetesDeleteService(service.name);
       } catch (e) {
-        console.log('error while deleting service', e);
+        console.error('error while deleting service', e);
       }
     }),
   );

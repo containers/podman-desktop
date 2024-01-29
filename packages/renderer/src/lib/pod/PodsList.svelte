@@ -112,7 +112,7 @@ async function deleteSelectedPods() {
           await window.kubernetesDeletePod(pod.name);
         }
       } catch (e) {
-        console.log('error while removing pod', e);
+        console.error('error while removing pod', e);
       }
     }),
   );

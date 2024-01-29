@@ -108,7 +108,7 @@ async function deleteSelectedVolumes() {
       try {
         await window.removeVolume(volume.engineId, volume.name);
       } catch (e) {
-        console.log('error while removing volume', e);
+        console.error('error while removing volume', e);
       }
     }),
   );

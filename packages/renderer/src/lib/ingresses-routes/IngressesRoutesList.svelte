@@ -77,7 +77,7 @@ async function deleteSelectedIngressesRoutes() {
             await window.kubernetesDeleteRoute(ingressRoute.name);
           }
         } catch (e) {
-          console.log(`error while deleting ${isIngress ? 'ingress' : 'route'}`, e);
+          console.error(`error while deleting ${isIngress ? 'ingress' : 'route'}`, e);
         }
       }),
     );
