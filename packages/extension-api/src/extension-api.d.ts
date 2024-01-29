@@ -1540,7 +1540,7 @@ declare module '@podman-desktop/api' {
      * );
      * ```
      * @example
-     * The error are propagated if one is thrown inside the task.
+     * The error is propagated if thrown inside the task callback.
      * ```ts
      * try {
      *    await window.withProgress(
