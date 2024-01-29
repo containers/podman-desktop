@@ -66,18 +66,15 @@ test('Should create a task and propagate the exception', async () => {
 
   const progress = new ProgressImpl(taskManager);
 
-  try {
-    await progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async () => {
+  await expect(
+    progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async () => {
       throw new Error('dummy error');
-    });
-    // Should NEVER be here.
-    expect(true).toBe(false);
-  } catch (e: unknown) {
-    expect((e as Error).message).toBe('dummy error');
-  }
+    }),
+  ).rejects.toThrowError('dummy error');
 
   expect(updateTaskMock).toHaveBeenCalledTimes(1);
   expect(updateTaskMock).toHaveBeenCalledWith({
+    error: 'Error: dummy error',
     state: 'completed',
     status: 'failure',
   });
@@ -105,6 +102,29 @@ test('Should create a task and propagate the result', async () => {
 
   expect(updateTaskMock).toHaveBeenCalledTimes(1);
   expect(updateTaskMock).toHaveBeenCalledWith({
+    state: 'completed',
+    status: 'success',
+  });
+});
+
+test('Should update the task name', async () => {
+  const createTaskMock = vi.fn();
+  const updateTaskMock = vi.fn();
+  const taskManager = {
+    createTask: createTaskMock,
+    updateTask: updateTaskMock,
+  } as unknown as TaskManager;
+
+  createTaskMock.mockImplementation(() => ({}));
+  const progress = new ProgressImpl(taskManager);
+
+  await progress.withProgress<void>({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async progress => {
+    progress.report({ message: 'New title' });
+  });
+
+  expect(updateTaskMock).toHaveBeenCalledTimes(2);
+  expect(updateTaskMock).toHaveBeenLastCalledWith({
+    name: 'New title',
     state: 'completed',
     status: 'success',
   });
