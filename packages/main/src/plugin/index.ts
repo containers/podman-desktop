@@ -349,7 +349,7 @@ export class PluginSystem {
         domain => urlObject.hostname.endsWith(domain) || urlObject.hostname === domain,
       );
 
-      if (skipConfirmationUrl) {
+      if (skipConfirmationUrl || urlObject.protocol === 'file:') {
         await shell.openExternal(url);
         return true;
       }
