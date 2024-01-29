@@ -397,9 +397,7 @@ export class PluginSystem {
 
     const iconRegistry = new IconRegistry(apiSender);
     const directories = new Directories();
-
-    const taskManager = new TaskManager(apiSender);
-    const notificationRegistry = new NotificationRegistry(apiSender, taskManager);
+    const statusBarRegistry = new StatusBarRegistry(apiSender);
 
     const configurationRegistry = new ConfigurationRegistry(apiSender, directories);
     notifications.push(...configurationRegistry.init());
@@ -413,6 +411,10 @@ export class PluginSystem {
     const exec = new Exec(proxy);
 
     const commandRegistry = new CommandRegistry(apiSender, telemetry);
+    const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
+    taskManager.init();
+
+    const notificationRegistry = new NotificationRegistry(apiSender, taskManager);
     const menuRegistry = new MenuRegistry(commandRegistry);
     const kubeGeneratorRegistry = new KubeGeneratorRegistry();
     const certificates = new Certificates();
@@ -424,7 +426,6 @@ export class PluginSystem {
     const cancellationTokenRegistry = new CancellationTokenRegistry();
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
-    const statusBarRegistry = new StatusBarRegistry(apiSender);
     const inputQuickPickRegistry = new InputQuickPickRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
     const customPickRegistry = new CustomPickRegistry(apiSender);
@@ -485,18 +486,6 @@ export class PluginSystem {
     statusBarRegistry.setEntry('help', false, 0, undefined, 'Help', 'fa fa-question-circle', true, 'help', undefined);
 
     statusBarRegistry.setEntry(
-      'tasks',
-      false,
-      0,
-      undefined,
-      'Tasks',
-      'fa fa-bell',
-      true,
-      'show-task-manager',
-      undefined,
-    );
-
-    statusBarRegistry.setEntry(
       'troubleshooting',
       false,
       0,
@@ -507,10 +496,6 @@ export class PluginSystem {
       'troubleshooting',
       undefined,
     );
-
-    commandRegistry.registerCommand('show-task-manager', () => {
-      apiSender.send('toggle-task-manager', '');
-    });
 
     statusBarRegistry.setEntry(
       'feedback',

@@ -22,8 +22,17 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import type { ApiSenderType } from './api.js';
 import { ProgressImpl, ProgressLocation } from './progress-impl.js';
 import { TaskManager } from './task-manager.js';
+import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
+import type { CommandRegistry } from '/@/plugin/command-registry.js';
 
 const apiSenderSendMock = vi.fn();
+const statusBarRegistry: StatusBarRegistry = {
+  setEntry: vi.fn(),
+} as unknown as StatusBarRegistry;
+
+const commandRegistry: CommandRegistry = {
+  registerCommand: vi.fn(),
+} as unknown as CommandRegistry;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -33,7 +42,7 @@ test('Should create a task and report update', async () => {
   const apiSender = {
     send: apiSenderSendMock,
   } as unknown as ApiSenderType;
-  const progress = new ProgressImpl(new TaskManager(apiSender));
+  const progress = new ProgressImpl(new TaskManager(apiSender, statusBarRegistry, commandRegistry));
   await progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async () => 0);
   expect(apiSenderSendMock).toBeCalledTimes(2);
   expect(apiSenderSendMock).toHaveBeenNthCalledWith(1, 'task-created', expect.anything());
@@ -44,7 +53,7 @@ test('Should create a task and report 2 updates', async () => {
   const apiSender = {
     send: apiSenderSendMock,
   } as unknown as ApiSenderType;
-  const progress = new ProgressImpl(new TaskManager(apiSender));
+  const progress = new ProgressImpl(new TaskManager(apiSender, statusBarRegistry, commandRegistry));
   await progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async progress => {
     progress.report({ increment: 50 });
   });
