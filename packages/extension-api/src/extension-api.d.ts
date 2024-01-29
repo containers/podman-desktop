@@ -1512,18 +1512,33 @@ declare module '@podman-desktop/api' {
      * If the promise complete without raising an exception the task will be marked as completed, otherwise it will be marked as failed.
      *
      * ```ts
-     * try {
-     *  void podmanDesktopApi.window.withProgress<void>(
-     *       { location: podmanDesktopApi.ProgressLocation.TASK_WIDGET, title: `Running task` },
+     * await window.withProgress(
+     *       { location: ProgressLocation.TASK_WIDGET, title: `Running task` },
      *       async progress => {
-     *           // might throw an error
-     *           await complicatedTask();
+     *          progress.report({message: 'task1' });
+     *          await task1();
+     *          progress.report({increment: 50, message: 'task2' });
+     *          await task2();
+     *       },
+     *     );
+     * ```
+    * // in case of error during the callback, the error is rethrown so you'll need to use try/catch around the call to withProgress
+     * ```ts
+     * try {
+     *   await window.withProgress(
+     *       { location: ProgressLocation.TASK_WIDGET, title: `Running task` },
+     *       async progress => {
+     *          throw new Error('error when running a task');
      *       },
      *     );
      * } catch (error) {
-     *    // to something with the error
+     *    // do something with the error
      * }
      * ```
+     
+     
+     
+     
      *
      * @param options The option to use
      * @param task The promise to execute
