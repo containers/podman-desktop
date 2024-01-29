@@ -1555,7 +1555,7 @@ declare module '@podman-desktop/api' {
      * ```
      *
      * @example
-     * You can return a value from the task callback 
+     * You can return a value from the task callback
      * ```ts
      * const result: number = await window.withProgress<number>(
      *    { location: ProgressLocation.TASK_WIDGET, title: `Running task` },
