@@ -20,7 +20,7 @@ import type { ApiSenderType } from './api.js';
 import type { NotificationInfo } from './api/notification.js';
 import type { NotificationTask, StatefulTask, Task } from './api/task.js';
 import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
-import type { CommandRegistry } from '/@/plugin/command-registry.js';
+import type { CommandRegistry } from './command-registry.js';
 
 /**
  * Contribution manager to provide the list of external OCI contributions
@@ -34,11 +34,9 @@ export class TaskManager {
     private apiSender: ApiSenderType,
     private statusBarRegistry: StatusBarRegistry,
     private commandRegistry: CommandRegistry,
-  ) {
-    this.init();
-  }
+  ) {}
 
-  private init() {
+  public init() {
     // The TaskManager is responsible for creating the entry he will be using
     this.statusBarRegistry.setEntry(
       'tasks',

@@ -24,16 +24,21 @@ import type { CommandRegistry } from '/@/plugin/command-registry.js';
 
 const apiSenderSendMock = vi.fn();
 
+const mocks = vi.hoisted(() => ({
+  registerCommandMock: vi.fn(),
+  setEntryMock: vi.fn(),
+}));
+
 const apiSender = {
   send: apiSenderSendMock,
 } as unknown as ApiSenderType;
 
 const statusBarRegistry: StatusBarRegistry = {
-  setEntry: vi.fn(),
+  setEntry: mocks.setEntryMock,
 } as unknown as StatusBarRegistry;
 
 const commandRegistry: CommandRegistry = {
-  registerCommand: vi.fn(),
+  registerCommand: mocks.registerCommandMock,
 } as unknown as CommandRegistry;
 
 test('create stateful task with title', async () => {
@@ -178,4 +183,12 @@ test('return false if it is not a notificationTask', async () => {
   const task = taskManager.createTask('title');
   const result = taskManager.isNotificationTask(task);
   expect(result).toBeFalsy();
+});
+
+test('Ensure init setup command and statusbar registry', async () => {
+  const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
+  taskManager.init();
+
+  expect(mocks.registerCommandMock).toHaveBeenCalledOnce();
+  expect(mocks.setEntryMock).toHaveBeenCalledOnce();
 });

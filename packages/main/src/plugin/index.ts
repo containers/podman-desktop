@@ -412,6 +412,7 @@ export class PluginSystem {
 
     const commandRegistry = new CommandRegistry(apiSender, telemetry);
     const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
+    taskManager.init();
 
     const notificationRegistry = new NotificationRegistry(apiSender, taskManager);
     const menuRegistry = new MenuRegistry(commandRegistry);
