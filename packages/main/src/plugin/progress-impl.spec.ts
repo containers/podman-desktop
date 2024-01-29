@@ -122,12 +122,9 @@ test('Should update the task name', async () => {
   createTaskMock.mockImplementation(() => ({}));
   const progress = new ProgressImpl(taskManager);
 
-  void (await progress.withProgress<void>(
-    { location: ProgressLocation.TASK_WIDGET, title: 'My task' },
-    async progress => {
-      progress.report({ message: 'New title' });
-    },
-  ));
+  await progress.withProgress<void>({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async progress => {
+    progress.report({ message: 'New title' });
+  });
 
   expect(updateTaskMock).toHaveBeenCalledTimes(2);
   expect(updateTaskMock).toHaveBeenLastCalledWith({
