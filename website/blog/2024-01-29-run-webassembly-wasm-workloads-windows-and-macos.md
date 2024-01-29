@@ -74,30 +74,14 @@ Depending on the output of the command, you might have extra steps to do.
 
 </TabItem>
 <TabItem value="mac" label="macOS">
-On macOS, the support of Wasm runtime is not included by default. The podman machine is using Fedora CoreOS and crun/Wasm integration is only available in the next stream channel but by default podman machines are using testing channel.
 
-- Option 1: use next channel of Fedora CoreOS
-  You need to create a compliant machine first by running podman machine init command using next as image-path so it'll fetch the next channel Fedora CoreOS instead of the latest testing binaries.
+On macOS, ensure that your podman machine is a recent one. You can check using the `podman version` command. It requires v4.8+.
 
-  Here is the command to create and start a new podman machine including Wasm:
+Depending on the output of the command, you might have extra steps to do.
 
-  ```shell-session
-  $ podman machine init --cpus 2 --memory 2048 --image-path next --now
-  ```
-
-  You can use another machine by adding a parameter (machine name) at the end of the command line:
-
-  ```shell-session
-  $ podman machine init --cpus 2 --memory 2048 --image-path next --now wasm
-  ```
-
-- Option 2: install dependencies in the current Fedora CoreOS machine.
-
-  It's also possible to connect to the podman machine with podman machine ssh command and then install the Wasm runtime using
-
-  ```shell-session
-  $ sudo rpm-ostree install crun-wasm wasmedge-rt
-  ```
+- Client's version and server's side version >= v4.8.0: Nothing to do, Wasm support is already there using the wasmedge runtime by default.
+- Client's version >= 4.8.0 but server's side version < 4.8. You need to create a new podman machine using the command podman machine init --now wasm
+- Old client/old server (< 4.8.0) or podman not being installed: follow the getting started at [podman.io](https://podman.io)
 
 </TabItem>
 </Tabs>
