@@ -1,5 +1,6 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
+import { resolve } from 'node:path';
 
 const lightCodeTheme = require('prism-react-renderer').themes.github;
 const darkCodeTheme = require('prism-react-renderer').themes.dracula;
@@ -322,11 +323,11 @@ const config = {
       {
         id: 'api',
         plugin: ['typedoc-plugin-markdown'],
-        entryPoints: [require.resolve('../packages/extension-api/src/extension-api.d.ts')],
+        entryPoints: [resolve('../packages/extension-api/src/extension-api.d.ts')],
         out: 'api',
         hideBreadcrumbs: true,
         readme: 'none',
-        tsconfig: require.resolve('../packages/extension-api/tsconfig.json'),
+        tsconfig: resolve('../packages/extension-api/tsconfig.json'),
       },
     ],
   ],
