@@ -52,7 +52,7 @@ import type { ApiSenderType } from './api.js';
 import type { AuthenticationImpl } from './authentication.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import { TelemetryTrustedValue } from './types/telemetry.js';
-import { clipboard as electronClipboard } from 'electron';
+import { app, clipboard as electronClipboard } from 'electron';
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import type { IconRegistry } from './icon-registry.js';
 import type { Directories } from './directories.js';
@@ -1156,6 +1156,8 @@ export class ExtensionLoader {
       },
     };
 
+    const version = app.getVersion();
+
     return <typeof containerDesktopAPI>{
       // Types
       Disposable: Disposable,
@@ -1163,6 +1165,7 @@ export class ExtensionLoader {
       EventEmitter: Emitter,
       CancellationTokenSource: CancellationTokenSource,
       TelemetryTrustedValue: TelemetryTrustedValue,
+      version,
       commands,
       env,
       process,

@@ -18,6 +18,11 @@
 
 declare module '@podman-desktop/api' {
   /**
+   * The version of Podman Desktop.
+   */
+  export const version: string;
+
+  /**
    * Represents a reference to a command. Provides a title which
    * will be used to represent a command in the UI and, optionally,
    * an array of arguments which will be passed to the command handler

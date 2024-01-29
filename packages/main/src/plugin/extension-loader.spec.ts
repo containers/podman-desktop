@@ -57,6 +57,7 @@ import { NavigationPage } from '/@/plugin/navigation/navigation-page.js';
 import type { ContributionInfo } from '/@/plugin/api/contribution-info.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
+import { app } from 'electron';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -179,6 +180,14 @@ const navigationManager: NavigationManager = new NavigationManager(
 const webviewRegistry: WebviewRegistry = {
   listSimpleWebviews: vi.fn(),
 } as unknown as WebviewRegistry;
+
+vi.mock('electron', () => {
+  return {
+    app: {
+      getVersion: vi.fn(),
+    },
+  };
+});
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 beforeAll(() => {
@@ -1304,4 +1313,23 @@ test('check listWebviews', async () => {
   expect(result[1].id).toBe('456');
   expect(result[1].viewType).toBe('anotherView');
   expect(result[1].title).toBe('customTitle2');
+});
+
+test('check version', async () => {
+  const fakeVersion = '1.2.3.4';
+  // mock electron.app.getVersion
+  vi.mocked(app.getVersion).mockReturnValue(fakeVersion);
+
+  const api = extensionLoader.createApi('path', {
+    name: 'name',
+    publisher: 'publisher',
+    version: '1',
+    displayName: 'dname',
+  });
+
+  const readPodmanVersion = api.version;
+
+  // check we called method
+  expect(readPodmanVersion).toBeDefined();
+  expect(readPodmanVersion).toBe(fakeVersion);
 });
