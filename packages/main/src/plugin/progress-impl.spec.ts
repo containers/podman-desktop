@@ -78,6 +78,7 @@ test('Should create a task and propagate the exception', async () => {
 
   expect(updateTaskMock).toHaveBeenCalledTimes(1);
   expect(updateTaskMock).toHaveBeenCalledWith({
+    error: 'Error: dummy error',
     state: 'completed',
     status: 'failure',
   });
@@ -105,6 +106,32 @@ test('Should create a task and propagate the result', async () => {
 
   expect(updateTaskMock).toHaveBeenCalledTimes(1);
   expect(updateTaskMock).toHaveBeenCalledWith({
+    state: 'completed',
+    status: 'success',
+  });
+});
+
+test('Should update the task name', async () => {
+  const createTaskMock = vi.fn();
+  const updateTaskMock = vi.fn();
+  const taskManager = {
+    createTask: createTaskMock,
+    updateTask: updateTaskMock,
+  } as unknown as TaskManager;
+
+  createTaskMock.mockImplementation(() => ({}));
+  const progress = new ProgressImpl(taskManager);
+
+  void (await progress.withProgress<void>(
+    { location: ProgressLocation.TASK_WIDGET, title: 'My task' },
+    async progress => {
+      progress.report({ message: 'New title' });
+    },
+  ));
+
+  expect(updateTaskMock).toHaveBeenCalledTimes(2);
+  expect(updateTaskMock).toHaveBeenLastCalledWith({
+    name: 'New title',
     state: 'completed',
     status: 'success',
   });

@@ -1507,6 +1507,27 @@ declare module '@podman-desktop/api' {
      */
     export function showErrorMessage(message: string, ...items: string[]): Promise<string | undefined>;
 
+    /**
+     * Create a Task inside the TaskManager with a progress bar, by default indeterminate for the time of the promise you gave.
+     * If the promise complete without raising an exception the task will be marked as completed, otherwise it will be marked as failed.
+     *
+     * ```ts
+     * try {
+     *  void podmanDesktopApi.window.withProgress<void>(
+     *       { location: podmanDesktopApi.ProgressLocation.TASK_WIDGET, title: `Running task` },
+     *       async progress => {
+     *           // might throw an error
+     *           await complicatedTask();
+     *       },
+     *     );
+     * } catch (error) {
+     *    // to something with the error
+     * }
+     * ```
+     *
+     * @param options The option to use
+     * @param task The promise to execute
+     */
     export function withProgress<R>(
       options: ProgressOptions,
       task: (progress: Progress<{ message?: string; increment?: number }>, token: CancellationToken) => Promise<R>,
