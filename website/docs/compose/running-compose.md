@@ -10,7 +10,7 @@ With Podman Desktop, you can manage multi-container applications defined in a Co
 
 #### Prerequisites
 
-- [Podman](/docs/onboarding-for-containers/installing-podman) 4.7.0 or greater.
+- [Podman](/docs/podman/installing) 4.7.0 or greater.
 - [You have set up Compose](/docs/compose/setting-up-compose).
 - [You have a Compose file](https://github.com/compose-spec/compose-spec/blob/master/spec.md#compose-file), such as `compose.yaml`.
 
