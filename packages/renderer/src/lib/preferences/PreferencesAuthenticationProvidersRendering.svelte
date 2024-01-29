@@ -78,8 +78,8 @@ import Tooltip from '/@/lib/ui/Tooltip.svelte';
                 {#each provider.accounts as account}
                   <div class="flex flex-row">
                     <div class="flex items-center w-full">
-                      <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1">
-                        <span class="my-auto font-bold col-span-1 text-right">
+                      <div class="flex flex-row text-xs bg-charcoal-800 p-2 rounded-lg mt-1">
+                        <span class="my-auto font-bold col-span-1 text-ellipsis overflow-hidden max-w-64">
                           {account.label}
                         </span>
                         <Tooltip tip="Sign out of {account.label}" left>
