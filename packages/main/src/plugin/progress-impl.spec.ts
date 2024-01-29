@@ -66,15 +66,11 @@ test('Should create a task and propagate the exception', async () => {
 
   const progress = new ProgressImpl(taskManager);
 
-  try {
-    await progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async () => {
+  await expect(
+    progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async () => {
       throw new Error('dummy error');
-    });
-    // Should NEVER be here.
-    expect(true).toBe(false);
-  } catch (e: unknown) {
-    expect((e as Error).message).toBe('dummy error');
-  }
+    }),
+  ).rejects.toThrowError('dummy error');
 
   expect(updateTaskMock).toHaveBeenCalledTimes(1);
   expect(updateTaskMock).toHaveBeenCalledWith({
