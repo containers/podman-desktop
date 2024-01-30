@@ -1,28 +1,124 @@
 ---
 sidebar_position: 1
 title: Windows
-description: How to install Podman on Windows.
+description: How to install Podman Desktop and Podman on Windows.
 tags: [podman-desktop, installing, windows]
 keywords: [podman desktop, containers, podman, installing, installation, windows]
 ---
 
-# Installing Podman Desktop using the Windows installer
+# Installing Podman Desktop and Podman on Windows
 
-Consider using this installation method if you don't require another method such as:
+## Installing Podman Desktop
 
-- [Installing silently with the Windows installer](/docs/installation/windows-install/installing-podman-desktop-silently-with-the-windows-installer)
-- [Installing with Chocolatey](/docs/installation/windows-install/installing-podman-desktop-with-chocolatey)
-- [Installing with Scoop](/docs/installation/windows-install/installing-podman-desktop-with-scoop)
-- [Installing with Winget](/docs/installation/windows-install/installing-podman-desktop-with-winget)
-- [Installing Podman Desktop and Podman in a restricted environment](/docs/installation/windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment)
-
-#### Procedure
+To install Podman Desktop:
 
 1. [Download the Windows installer](/downloads/windows).
 
-2. Open the downloaded file to start the Podman Desktop installer.
+1. To start the Podman Desktop installer, open the downloaded file.
+
+   ![Podman Desktop Setup installing](img/podman-desktop-setup-installing.png)
+
+<details>
+<summary>
+Alternatively, when your environment requires another installation method, consider installing with:
+- Silent Windows installer
+- Chocolatey
+- Scoop
+- Winget
+</summary>
+
+#### Silent Windows installer
+
+1. [Download the Windows installer](/downloads/windows).
+
+1. To install the Podman Desktop Windows installer without user interaction, run the Windows installer with the silent flag `/S` from the Command Prompt:
+
+   ```shell-session
+   > podman-desktop-1.6.4-setup-x64.exe /S
+   ```
+
+#### Chocolatey
+
+1. Install the [Chocolatey package manager](https://chocolatey.org/install).
+
+1. To install the [Podman Desktop Chocolatey package](https://community.chocolatey.org/packages/podman-desktop), run the command from the Command Prompt:
+
+   ```shell-session
+   > choco install podman-desktop
+   ```
+
+#### Scoop package manager for Windows
+
+1. [Install the Scoop package manager](https://github.com/ScoopInstaller/Install#readme).
+
+1. To install the [Podman Desktop Scoop package](https://scoop.sh/#/apps?q=podman-desktop&s=0&d=1&o=true), run the commands from the Command Prompt:
+
+   ```shell-session
+   > scoop bucket add extras
+   > scoop install podman-desktop
+   ```
+
+#### Winget
+
+1. [Install the Winget Package manager for Windows](https://aka.ms/getwinget).
+
+1. To install the [Podman Desktop Winget package](https://winget.run/pkg/RedHat/Podman-Desktop), run the command from the Command Prompt:
+
+   ```shell-session
+   > winget install -e --id RedHat.Podman-Desktop
+   ```
+
+</details>
+
+## Installing Podman
+
+On Windows, running the Podman container engine requires running a Linux distribution on a virtual machine.
+
+Podman Desktop can assist you to install the Podman container engine in a Fedora distribution of Linux, on a [Windows Subsystem for Linux version 2 (WSL 2)](https://learn.microsoft.com/en-us/windows/wsl/about#what-is-wsl-2) virtual machine: the Podman Machine.
+
+Main benefits are:
+
+- Ease of use.
+- WSL 2 native virtualization performance.
+
+Check that your environment has:
+
+- 6 GB RAM for the Podman Machine.
+- Windows Subsystem for Linux version 2 (WSL 2) prerequisites. See [Enabling WSL 2](https://docs.microsoft.com/en-us/windows/wsl/install), [WSL basic commands](https://learn.microsoft.com/en-us/windows/wsl/basic-commands), and [Troubleshooting WSL 2](https://learn.microsoft.com/en-us/windows/wsl/troubleshooting#error-0x80370102-the-virtual-machine-could-not-be-started-because-a-required-feature-is-not-installed):
+  - The Windows user has administrator privileges.
+  - Windows 64bit.
+  - Windows 10 Build 19043 or greater, or Windows 11.
+  - On a virtual machine: [Nested Virtualization enabled](https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/nested-virtualization#configure-nested-virtualization).
+
+To install the Podman Machine:
+
+1. To prepare your system, enable the WSL feature, without installing the default Ubuntu distribution of Linux.
+
+   Open the Command Prompt, and run:.
+
+   ```shell-session
+   > wsl --install --no-distribution
+   ```
+
+1. Restart your computer.
+
+1. The **Dashboard** screen displays: _<Icon icon="fa-solid fa-info" size="lg" /> Podman needs to be set up_.
+
+   ![Podman needs set up screen](img/dashboard-podman-needs-set-up.png)
+
+   Click the **Set up** button.
+
+   Review and validate all confirmation screens to set up the Podman Machine.
+
+   When necessary, follow the instructions to install system prerequisites.
+
+To verify that Podman is set up:
+
+- In the **Dashboard**, the **Podman** tile displays _Podman is running_.
+
+  ![Podman is running screen](img/dashboard-podman-is-running.png)
 
 #### Next steps
 
-- [Onboard for container workloads](/docs/containers).
-- [Onboard for Kubernetes workloads](/docs/kubernetes).
+- [Work with containers](/docs/containers).
+- [Work with Kubernetes](/docs/kubernetes).
