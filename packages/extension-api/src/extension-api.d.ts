@@ -1507,6 +1507,65 @@ declare module '@podman-desktop/api' {
      */
     export function showErrorMessage(message: string, ...items: string[]): Promise<string | undefined>;
 
+    /**
+     * Show progress in Podman Desktop. Progress is shown while running the given callback
+     * and while the promise it returned isn't resolved nor rejected. The location at which
+     * progress should show (and other details) is defined via the passed {@linkcode ProgressOptions}.
+     *
+     * @param options the options for the task's details
+     * @param task A callback returning a promise. Progress state can be reported with
+     * the provided {@link Progress}-object.
+     *
+     * To report discrete progress, use `increment` to indicate how much work has been completed. Each call with
+     * a `increment` value will be summed up and reflected as overall progress until 100% is reached (a value of
+     * e.g. `10` accounts for `10%` of work done).
+     * Note that currently only `ProgressLocation.Notification` is capable of showing discrete progress.
+     *
+     * To monitor if the operation has been cancelled by the user, use the provided {@linkcode CancellationToken}.
+     * Note that currently only `ProgressLocation.Notification` is supporting to show a cancel button to cancel the
+     * long-running operation.
+     *
+     * @return The promise the task-callback returned.
+     *
+     * @example
+     * Here is a simple example
+     * ```ts
+     * await window.withProgress({ location: ProgressLocation.TASK_WIDGET, title: `Running task` },
+     *   async progress => {
+     *     progress.report({message: 'task1' });
+     *     await task1();
+     *     progress.report({increment: 50, message: 'task2' });
+     *     await task2();
+     *   },
+     * );
+     * ```
+     * @example
+     * The error is propagated if thrown inside the task callback.
+     * ```ts
+     * try {
+     *    await window.withProgress(
+     *        { location: ProgressLocation.TASK_WIDGET, title: `Running task` },
+     *        async progress => {
+     *           throw new Error('error when running a task');
+     *        },
+     *      );
+     *  } catch (error) {
+     *     // do something with the error
+     *  }
+     * ```
+     *
+     * @example
+     * You can return a value from the task callback
+     * ```ts
+     * const result: number = await window.withProgress<number>(
+     *    { location: ProgressLocation.TASK_WIDGET, title: `Running task` },
+     *    async progress => {
+     *       // compute something
+     *       return 55;
+     *    },
+     * );
+     * ```
+     */
     export function withProgress<R>(
       options: ProgressOptions,
       task: (progress: Progress<{ message?: string; increment?: number }>, token: CancellationToken) => Promise<R>,

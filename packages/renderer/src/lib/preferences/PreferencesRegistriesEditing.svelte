@@ -198,7 +198,7 @@ async function loginToRegistry(registry: containerDesktopAPI.Registry) {
         title: 'Invalid Certificate',
         type: 'warning',
         message: 'The certificate for this registry is not trusted / verifiable. Would you like to still add it?',
-        buttons: ['Yes', 'No'],
+        buttons: ['Yes', 'Cancel'],
       });
       if (result && result.response === 0) {
         registry.insecure = true;
@@ -257,7 +257,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
   <div class="container bg-charcoal-600 rounded-md p-3">
     <!-- Registries table start -->
     <div class="w-full border-t border-b border-gray-900" role="table" aria-label="Registries">
-      <div class="flex w-full" role="rowgroup" aria-label="header">
+      <div class="flex w-full space-x-2" role="rowgroup" aria-label="header">
         <div class="flex-1 text-left py-4 pl-5 text-sm font-bold w-auto" role="columnheader">Registry Location</div>
         <div class="text-left py-4 text-sm font-bold w-1/4" role="columnheader">Username</div>
         <div class="text-left py-4 text-sm font-bold w-2/5" role="columnheader">Password</div>
@@ -269,7 +269,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
           class="flex flex-col w-full border-t border-gray-900"
           role="row"
           aria-label="{registry.name ? registry.name : registry.serverUrl}">
-          <div class="flex flex-row items-center pt-4 pb-3">
+          <div class="flex flex-row items-center pt-4 pb-3 space-x-2">
             <div class="flex-1 pl-5 pr-5 text-sm w-auto m-auto" role="cell">
               <div class="flex w-full h-full">
                 <div class="flex items-center">
@@ -295,7 +295,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
             </div>
 
             <!-- Username -->
-            <div class="text-sm w-1/4 m-auto" role="cell">
+            <div class="text-sm w-1/4 m-auto text-ellipsis overflow-hidden max-x-32" role="cell">
               {#if originRegistries.some(r => r.serverUrl === registry.serverUrl)}
                 <div class="text-left h-7 pr-5 mt-1.5 mb-0.5 text-sm w-full">
                   <input
@@ -433,7 +433,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
       {#each $registriesSuggestedInfos as registry, i (registry)}
         <!-- Add new registry form start -->
         <div
-          class="flex flex-col w-full border-t border-gray-900"
+          class="flex flex-col w-full border-t border-gray-900 space-x-2"
           role="row"
           aria-label="{registry.name ? registry.name : registry.url}">
           <div class="flex flex-row items-center pt-4 pb-3">
@@ -540,7 +540,7 @@ const processPasswordElement = (node: HTMLInputElement, registry: containerDeskt
 
       {#if showNewRegistryForm}
         <!-- Add new registry form start -->
-        <div class="flex flex-col w-full border-t border-gray-900">
+        <div class="flex flex-col w-full border-t border-gray-900 space-x-2">
           <div class="flex flex-row items-center pt-4 pb-3">
             <div class="flex-1 pl-10 pr-5 text-sm w-auto m-auto">
               <input

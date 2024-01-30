@@ -26,7 +26,7 @@ import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants.
 import type { Directories } from './directories.js';
 import { Disposable } from './types/disposable.js';
 import type { ApiSenderType } from './api.js';
-import type { NotificationRegistry } from './notification-registry.js';
+import type { NotificationCardOptions } from './api/notification.js';
 
 export type IConfigurationPropertySchemaType =
   | 'markdown'
@@ -123,7 +123,6 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
   constructor(
     private apiSender: ApiSenderType,
     private directories: Directories,
-    private notificationRegistry: NotificationRegistry,
   ) {
     this.configurationProperties = {};
     this.configurationContributors = [];
@@ -136,7 +135,9 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     return path.resolve(this.directories.getConfigurationDirectory(), 'settings.json');
   }
 
-  public init(): void {
+  public init(): NotificationCardOptions[] {
+    const notifications: NotificationCardOptions[] = [];
+
     const settingsFile = this.getSettingsFile();
     const parentDirectory = path.dirname(settingsFile);
     if (!fs.existsSync(parentDirectory)) {
@@ -157,8 +158,8 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
       // keep original file as a backup
       fs.cpSync(settingsFile, backupFilename);
 
-      // notify the user
-      this.notificationRegistry.addNotification({
+      // append notification for the user
+      notifications.push({
         title: 'Corrupted configuration file',
         body: `Configuration file located at ${settingsFile} was invalid. Created a copy at '${backupFilename}' and started with default settings.`,
         extensionId: 'core',
@@ -169,6 +170,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
       configData = {};
     }
     this.configurationValues.set(CONFIGURATION_DEFAULT_SCOPE, configData);
+    return notifications;
   }
 
   public registerConfigurations(configurations: IConfigurationNode[]): Disposable {

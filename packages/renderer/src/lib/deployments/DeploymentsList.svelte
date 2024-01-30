@@ -38,20 +38,25 @@ onMount(() => {
 let bulkDeleteInProgress = false;
 async function deleteSelectedDeployments() {
   const selectedDeployments = deployments.filter(deployment => deployment.selected);
-
-  if (selectedDeployments.length > 0) {
-    bulkDeleteInProgress = true;
-    await Promise.all(
-      selectedDeployments.map(async deployment => {
-        try {
-          await window.kubernetesDeleteDeployment(deployment.name);
-        } catch (e) {
-          console.log('error while deleting deployment', e);
-        }
-      }),
-    );
-    bulkDeleteInProgress = false;
+  if (selectedDeployments.length === 0) {
+    return;
   }
+
+  // mark deployments for deletion
+  bulkDeleteInProgress = true;
+  selectedDeployments.forEach(image => (image.status = 'DELETING'));
+  deployments = deployments;
+
+  await Promise.all(
+    selectedDeployments.map(async deployment => {
+      try {
+        await window.kubernetesDeleteDeployment(deployment.name);
+      } catch (e) {
+        console.error('error while deleting deployment', e);
+      }
+    }),
+  );
+  bulkDeleteInProgress = false;
 }
 
 let selectedItemsNumber: number;

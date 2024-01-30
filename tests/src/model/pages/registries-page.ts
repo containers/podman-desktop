@@ -18,6 +18,7 @@
 
 import type { Locator, Page } from 'playwright';
 import { SettingsPage } from './settings-page';
+import { waitUntil } from '../../utility/wait';
 
 export class RegistriesPage extends SettingsPage {
   readonly heading: Locator;
@@ -42,7 +43,7 @@ export class RegistriesPage extends SettingsPage {
     await registryPswd.fill(pswd);
 
     const loginButton = this.page.getByRole('button', { name: 'Login' });
-    await loginButton.click();
+    await this.loginButtonHandling(loginButton);
   }
 
   async editRegistry(title: string, newUsername: string, newPswd: string) {
@@ -60,13 +61,18 @@ export class RegistriesPage extends SettingsPage {
     await registryPswd.fill(newPswd);
 
     const loginButton = registryBox.getByRole('button', { name: 'Login' });
-    await loginButton.click();
+    await this.loginButtonHandling(loginButton);
   }
 
   async removeRegistry(title: string) {
     const registryBox = await this.getRegistryRowByName(title);
 
     const dropdownMenu = registryBox.getByRole('button', { name: 'kebab menu' });
+    try {
+      await dropdownMenu.waitFor({ state: 'visible', timeout: 3000 });
+    } catch (err) {
+      throw Error(`Dropdown menu on ${title} registry not available.`);
+    }
     await dropdownMenu.click();
 
     const editButton = registryBox.getByTitle('Remove');
@@ -75,5 +81,22 @@ export class RegistriesPage extends SettingsPage {
 
   async getRegistryRowByName(name: string): Promise<Locator> {
     return this.registriesTable.getByRole('row', { name: name });
+  }
+
+  private async loginButtonHandling(loginButton: Locator): Promise<void> {
+    try {
+      await waitUntil(
+        async function loginIsEnabled() {
+          return await loginButton.isEnabled();
+        },
+        5000,
+        1000,
+        true,
+        'Login Button not enabled in time',
+      );
+      await loginButton.click({ timeout: 3000 });
+    } catch (err) {
+      throw Error(`An error occured when trying to log into registry: ${(err as Error).message}`);
+    }
   }
 }

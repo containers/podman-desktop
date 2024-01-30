@@ -20,7 +20,7 @@ async function openPruneDialog(): Promise<void> {
   const result = await window.showMessageBox({
     title: 'Prune',
     message: message,
-    buttons: ['Yes', 'No'],
+    buttons: ['Yes', 'Cancel'],
   });
 
   if (result && result.response === 0) {

@@ -19,15 +19,30 @@
 import { expect, test, vi } from 'vitest';
 import { TaskManager } from './task-manager.js';
 import type { ApiSenderType } from './api.js';
+import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
+import type { CommandRegistry } from '/@/plugin/command-registry.js';
 
 const apiSenderSendMock = vi.fn();
+
+const mocks = vi.hoisted(() => ({
+  registerCommandMock: vi.fn(),
+  setEntryMock: vi.fn(),
+}));
 
 const apiSender = {
   send: apiSenderSendMock,
 } as unknown as ApiSenderType;
 
+const statusBarRegistry: StatusBarRegistry = {
+  setEntry: mocks.setEntryMock,
+} as unknown as StatusBarRegistry;
+
+const commandRegistry: CommandRegistry = {
+  registerCommand: mocks.registerCommandMock,
+} as unknown as CommandRegistry;
+
 test('create stateful task with title', async () => {
-  const taskManager = new TaskManager(apiSender);
+  const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
   const task = taskManager.createTask('title');
   expect(task.id).equal('main-1');
   expect(task.name).equal('title');
@@ -37,7 +52,7 @@ test('create stateful task with title', async () => {
 });
 
 test('create stateful task without title', async () => {
-  const taskManager = new TaskManager(apiSender);
+  const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
   const task = taskManager.createTask(undefined);
   expect(task.id).equal('main-1');
   expect(task.name).equal('Task 1');
@@ -47,7 +62,7 @@ test('create stateful task without title', async () => {
 });
 
 test('create multiple stateful tasks with title', async () => {
-  const taskManager = new TaskManager(apiSender);
+  const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
   const task = taskManager.createTask('title');
   expect(task.id).equal('main-1');
   expect(task.name).equal('title');
@@ -71,7 +86,7 @@ test('create multiple stateful tasks with title', async () => {
 });
 
 test('create notification task with body', async () => {
-  const taskManager = new TaskManager(apiSender);
+  const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
   const task = taskManager.createNotificationTask({
     title: 'title',
     body: 'body',
@@ -84,7 +99,7 @@ test('create notification task with body', async () => {
 });
 
 test('create stateful task without body', async () => {
-  const taskManager = new TaskManager(apiSender);
+  const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
   const task = taskManager.createNotificationTask({
     title: 'title',
   });
@@ -96,7 +111,7 @@ test('create stateful task without body', async () => {
 });
 
 test('create stateful task with markdown actions', async () => {
-  const taskManager = new TaskManager(apiSender);
+  const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
   const task = taskManager.createNotificationTask({
     title: 'title',
     markdownActions: 'action',
@@ -109,7 +124,7 @@ test('create stateful task with markdown actions', async () => {
 });
 
 test('create multiple stateful tasks with title', async () => {
-  const taskManager = new TaskManager(apiSender);
+  const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
   const task = taskManager.createNotificationTask({
     title: 'title',
   });
@@ -139,14 +154,14 @@ test('create multiple stateful tasks with title', async () => {
 });
 
 test('return true if statefulTask', async () => {
-  const taskManager = new TaskManager(apiSender);
+  const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
   const task = taskManager.createTask('title');
   const result = taskManager.isStatefulTask(task);
   expect(result).toBeTruthy();
 });
 
 test('return false if it is not a statefulTask', async () => {
-  const taskManager = new TaskManager(apiSender);
+  const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
   const task = taskManager.createNotificationTask({
     title: 'title',
   });
@@ -155,7 +170,7 @@ test('return false if it is not a statefulTask', async () => {
 });
 
 test('return true if notificationTask', async () => {
-  const taskManager = new TaskManager(apiSender);
+  const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
   const task = taskManager.createNotificationTask({
     title: 'title',
   });
@@ -164,8 +179,16 @@ test('return true if notificationTask', async () => {
 });
 
 test('return false if it is not a notificationTask', async () => {
-  const taskManager = new TaskManager(apiSender);
+  const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
   const task = taskManager.createTask('title');
   const result = taskManager.isNotificationTask(task);
   expect(result).toBeFalsy();
+});
+
+test('Ensure init setup command and statusbar registry', async () => {
+  const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
+  taskManager.init();
+
+  expect(mocks.registerCommandMock).toHaveBeenCalledOnce();
+  expect(mocks.setEntryMock).toHaveBeenCalledOnce();
 });

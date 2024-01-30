@@ -56,6 +56,14 @@ onDestroy(() => {
 let bulkDeleteInProgress = false;
 async function deleteSelectedIngressesRoutes() {
   const selectedIngressesRoutes = ingressesRoutesUI.filter(ingressesRoutesUI => ingressesRoutesUI.selected);
+  if (selectedIngressesRoutes.length === 0) {
+    return;
+  }
+
+  // mark ingress or route for deletion
+  bulkDeleteInProgress = true;
+  selectedIngressesRoutes.forEach(ingressRoute => (ingressRoute.status = 'DELETING'));
+  ingressesRoutesUI = ingressesRoutesUI;
 
   if (selectedIngressesRoutes.length > 0) {
     bulkDeleteInProgress = true;
@@ -69,7 +77,7 @@ async function deleteSelectedIngressesRoutes() {
             await window.kubernetesDeleteRoute(ingressRoute.name);
           }
         } catch (e) {
-          console.log(`error while deleting ${isIngress ? 'ingress' : 'route'}`, e);
+          console.error(`error while deleting ${isIngress ? 'ingress' : 'route'}`, e);
         }
       }),
     );

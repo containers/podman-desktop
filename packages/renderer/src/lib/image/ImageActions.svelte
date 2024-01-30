@@ -7,7 +7,7 @@ import { runImageInfo } from '../../stores/run-image-store';
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 import { ImageUtils } from './image-utils';
-import { onDestroy, onMount } from 'svelte';
+import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
 import ActionsWrapper from './ActionsMenu.svelte';
 import type { Unsubscriber } from 'svelte/motion';
@@ -28,6 +28,8 @@ let contributions: Menu[] = [];
 let globalContext: ContextUI;
 let contextsUnsubscribe: Unsubscriber;
 let groupingContributions = false;
+
+const dispatch = createEventDispatcher<{ update: ImageInfoUI }>();
 
 onMount(async () => {
   contributions = await window.getContributedMenus(MenuContext.DASHBOARD_IMAGE);
@@ -60,6 +62,9 @@ async function runImage(imageInfo: ImageInfoUI) {
 $: window.hasAuthconfigForImage(image.name).then(result => (isAuthenticatedForThisImage = result));
 
 async function deleteImage(): Promise<void> {
+  image.status = 'DELETING';
+  dispatch('update', image);
+
   try {
     await imageUtils.deleteImage(image);
   } catch (error) {

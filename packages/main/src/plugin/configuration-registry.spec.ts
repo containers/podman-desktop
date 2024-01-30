@@ -55,7 +55,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   getConfigurationDirectoryMock.mockReturnValue('/my-config-dir');
 
-  configurationRegistry = new ConfigurationRegistry(apiSender, directories, notificationRegistry);
+  configurationRegistry = new ConfigurationRegistry(apiSender, directories);
   readFileSync.mockReturnValue(JSON.stringify({}));
 
   cpSync.mockReturnValue(undefined);
@@ -172,7 +172,7 @@ test('should work with an invalid configuration file', async () => {
 
   getConfigurationDirectoryMock.mockReturnValue('/my-config-dir');
 
-  configurationRegistry = new ConfigurationRegistry(apiSender, directories, notificationRegistry);
+  configurationRegistry = new ConfigurationRegistry(apiSender, directories);
   readFileSync.mockReturnValue('invalid JSON content');
 
   // configuration is broken but it should not throw any error, just that config is empty
@@ -180,7 +180,7 @@ test('should work with an invalid configuration file', async () => {
   const mockedConsoleLog = vi.fn();
   console.error = mockedConsoleLog;
   try {
-    configurationRegistry.init();
+    configurationRegistry.init().forEach(notification => notificationRegistry.addNotification(notification));
   } finally {
     console.error = originalConsoleError;
   }

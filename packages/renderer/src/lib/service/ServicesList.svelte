@@ -36,20 +36,25 @@ onMount(() => {
 let bulkDeleteInProgress = false;
 async function deleteSelectedServices() {
   const selectedServices = services.filter(service => service.selected);
-
-  if (selectedServices.length > 0) {
-    bulkDeleteInProgress = true;
-    await Promise.all(
-      selectedServices.map(async service => {
-        try {
-          await window.kubernetesDeleteService(service.name);
-        } catch (e) {
-          console.log('error while deleting service', e);
-        }
-      }),
-    );
-    bulkDeleteInProgress = false;
+  if (selectedServices.length === 0) {
+    return;
   }
+
+  // mark services for deletion
+  bulkDeleteInProgress = true;
+  selectedServices.forEach(service => (service.status = 'DELETING'));
+  services = services;
+
+  await Promise.all(
+    selectedServices.map(async service => {
+      try {
+        await window.kubernetesDeleteService(service.name);
+      } catch (e) {
+        console.error('error while deleting service', e);
+      }
+    }),
+  );
+  bulkDeleteInProgress = false;
 }
 
 let selectedItemsNumber: number;

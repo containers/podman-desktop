@@ -420,7 +420,7 @@ function getConnectionResourceConfigurationValue(
           <Spinner size="2em" />
         </div>
       {:else}
-        {#if operationStarted}
+        {#if operationStarted || errorMessage}
           <div class="w-4/5">
             <div class="mt-2 mb-8">
               {#if inProgress}
@@ -452,7 +452,7 @@ function getConnectionResourceConfigurationValue(
           </div>
         {/if}
         {#if errorMessage}
-          <div class="w-4/5 mt-2">
+          <div class="pt-3 mt-2 w-4/5 h-fit">
             <ErrorMessage error="{errorMessage}" />
           </div>
         {/if}

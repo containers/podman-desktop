@@ -22,8 +22,17 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import type { ApiSenderType } from './api.js';
 import { ProgressImpl, ProgressLocation } from './progress-impl.js';
 import { TaskManager } from './task-manager.js';
+import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
+import type { CommandRegistry } from '/@/plugin/command-registry.js';
 
 const apiSenderSendMock = vi.fn();
+const statusBarRegistry: StatusBarRegistry = {
+  setEntry: vi.fn(),
+} as unknown as StatusBarRegistry;
+
+const commandRegistry: CommandRegistry = {
+  registerCommand: vi.fn(),
+} as unknown as CommandRegistry;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -33,7 +42,7 @@ test('Should create a task and report update', async () => {
   const apiSender = {
     send: apiSenderSendMock,
   } as unknown as ApiSenderType;
-  const progress = new ProgressImpl(new TaskManager(apiSender));
+  const progress = new ProgressImpl(new TaskManager(apiSender, statusBarRegistry, commandRegistry));
   await progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async () => 0);
   expect(apiSenderSendMock).toBeCalledTimes(2);
   expect(apiSenderSendMock).toHaveBeenNthCalledWith(1, 'task-created', expect.anything());
@@ -44,7 +53,7 @@ test('Should create a task and report 2 updates', async () => {
   const apiSender = {
     send: apiSenderSendMock,
   } as unknown as ApiSenderType;
-  const progress = new ProgressImpl(new TaskManager(apiSender));
+  const progress = new ProgressImpl(new TaskManager(apiSender, statusBarRegistry, commandRegistry));
   await progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async progress => {
     progress.report({ increment: 50 });
   });
@@ -66,18 +75,15 @@ test('Should create a task and propagate the exception', async () => {
 
   const progress = new ProgressImpl(taskManager);
 
-  try {
-    await progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async () => {
+  await expect(
+    progress.withProgress({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async () => {
       throw new Error('dummy error');
-    });
-    // Should NEVER be here.
-    expect(true).toBe(false);
-  } catch (e: unknown) {
-    expect((e as Error).message).toBe('dummy error');
-  }
+    }),
+  ).rejects.toThrowError('dummy error');
 
   expect(updateTaskMock).toHaveBeenCalledTimes(1);
   expect(updateTaskMock).toHaveBeenCalledWith({
+    error: 'Error: dummy error',
     state: 'completed',
     status: 'failure',
   });
@@ -105,6 +111,29 @@ test('Should create a task and propagate the result', async () => {
 
   expect(updateTaskMock).toHaveBeenCalledTimes(1);
   expect(updateTaskMock).toHaveBeenCalledWith({
+    state: 'completed',
+    status: 'success',
+  });
+});
+
+test('Should update the task name', async () => {
+  const createTaskMock = vi.fn();
+  const updateTaskMock = vi.fn();
+  const taskManager = {
+    createTask: createTaskMock,
+    updateTask: updateTaskMock,
+  } as unknown as TaskManager;
+
+  createTaskMock.mockImplementation(() => ({}));
+  const progress = new ProgressImpl(taskManager);
+
+  await progress.withProgress<void>({ location: ProgressLocation.TASK_WIDGET, title: 'My task' }, async progress => {
+    progress.report({ message: 'New title' });
+  });
+
+  expect(updateTaskMock).toHaveBeenCalledTimes(2);
+  expect(updateTaskMock).toHaveBeenLastCalledWith({
+    name: 'New title',
     state: 'completed',
     status: 'success',
   });
