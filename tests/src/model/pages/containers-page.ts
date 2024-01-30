@@ -114,7 +114,7 @@ export class ContainersPage extends MainPage {
 
   async pruneContainers(): Promise<ContainersPage> {
     await this.pruneContainersButton.click();
-    await handleConfirmationDialog(this.page);
+    await handleConfirmationDialog(this.page, 'Prune');
     return this;
   }
 }

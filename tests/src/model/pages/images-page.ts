@@ -83,7 +83,7 @@ export class ImagesPage extends MainPage {
 
   async pruneImages(): Promise<ImagesPage> {
     await this.pruneImagesButton.click();
-    await handleConfirmationDialog(this.page);
+    await handleConfirmationDialog(this.page, 'Prune');
     return this;
   }
 

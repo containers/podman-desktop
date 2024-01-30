@@ -86,7 +86,7 @@ export class PodsPage extends BasePage {
 
   async prunePods(): Promise<PodsPage> {
     await this.prunePodsButton.click();
-    await handleConfirmationDialog(this.page);
+    await handleConfirmationDialog(this.page, 'Prune');
     return this;
   }
 }
