@@ -22,7 +22,7 @@ import { ContainerDetailsPage } from './container-details-page';
 import { CreatePodsPage } from './create-pod-page';
 import { expect as playExpect } from '@playwright/test';
 import { ContainerState } from '../core/states';
-import { handleConfirmationDialog } from '/@/utility/operations';
+import { handleConfirmationDialog } from '../../utility/operations';
 
 export class ContainersPage extends MainPage {
   readonly pruneContainersButton: Locator;

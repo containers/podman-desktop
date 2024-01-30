@@ -24,7 +24,7 @@ import { waitUntil, waitWhile } from '../../utility/wait';
 import { BuildImagePage } from './build-image-page';
 import { expect as playExpect } from '@playwright/test';
 import type { ContainersPage } from './containers-page';
-import { handleConfirmationDialog } from '/@/utility/operations';
+import { handleConfirmationDialog } from '../../utility/operations';
 
 export class ImagesPage extends MainPage {
   readonly pullImageButton: Locator;
