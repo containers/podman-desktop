@@ -120,36 +120,6 @@ export function LinuxDownloads(): JSX.Element {
         </div>
       </div>
     </div>
-
-    /*
-    <section className="text-gray-700 bg-gray-900 min-h-full">
-      <div className="container px-5 py-24 mx-auto center">
-        <h1 className="text-3xl font-medium title-font text-white mb-12 text-center">
-          {downloadData.version}: Downloads for Linux
-        </h1>
-        <div className="w-2/3 flex mx-auto justify-center center">
-          <div className="p-4 ">
-            <div className="h-full bg-gray-900 bg-opacity-40 p-8 rounded">
-              <div className="w-full flex flex-col justify-center center">
-                <p className="mb-6 text-5xl">Tgz archive of binary</p>
-                <Link
-                  className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg"
-                  to={downloadData.binary}>
-                  <svg
-                    className="w-5 h-5 mr-2 mt-1"
-                    fill="currentColor"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20">
-                    <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
-                  </svg>
-                  Download .tgz
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>*/
   );
 }
 
