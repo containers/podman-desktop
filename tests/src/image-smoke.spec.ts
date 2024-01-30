@@ -120,20 +120,15 @@ describe('Image workflow verification', async () => {
   });
 
   test('Prune images', async () => {
-    let imagesPage = await navBar.openImages();
+    const imagesPage = await navBar.openImages();
     await playExpect(imagesPage.heading).toBeVisible();
 
     for (const image of imageList) {
-      const pullImagePage = await imagesPage.openPullImage();
-      await playExpect(pullImagePage.heading).toBeVisible();
-      imagesPage = await pullImagePage.pullImage(helloContainer);
+      await imagesPage.pullImage(helloContainer);
       await playExpect(imagesPage.heading).toBeVisible();
       await playExpect.poll(async () => await imagesPage.waitForImageExists(helloContainer)).toBeTruthy();
 
-      const imageDetailsPage = await imagesPage.openImageDetails(helloContainer);
-      await playExpect(imageDetailsPage.heading).toContainText(helloContainer);
-      const editImagePage = await imageDetailsPage.openEditImage();
-      imagesPage = await editImagePage.renameImage(image);
+      await imagesPage.renameImage(helloContainer, image);
       await playExpect(imagesPage.heading).toBeVisible();
       await playExpect.poll(async () => await imagesPage.waitForImageExists(image)).toBeTruthy();
     }

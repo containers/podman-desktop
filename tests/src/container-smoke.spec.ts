@@ -173,9 +173,7 @@ describe('Verification of container creation workflow', async () => {
 
     for (const container of containerList) {
       const images = await navigationBar.openImages();
-      const imageDetails = await images.openImageDetails(imageToPull);
-      const runImage = await imageDetails.openRunImage();
-      const containersPage = await runImage.startContainer(container);
+      const containersPage = await images.startContainerWithImage(imageToPull, container);
       await playExpect(containersPage.heading).toBeVisible();
       await playExpect
         .poll(async () => await containersPage.containerExists(container), { timeout: 15000 })
@@ -184,11 +182,7 @@ describe('Verification of container creation workflow', async () => {
 
     for (const container of containerList) {
       let containersPage = new ContainersPage(page);
-      const containersDetails = await containersPage.openContainersDetails(container);
-      await playExpect(containersDetails.heading).toBeVisible();
-      await playExpect(containersDetails.heading).toContainText(container);
-      playExpect(await containersDetails.getState()).toContain(ContainerState.Running);
-      await containersDetails.stopContainer();
+      const containersDetails = await containersPage.stopContainer(container);
       await playExpect(await containersDetails.getStateLocator()).toHaveText(ContainerState.Exited, { timeout: 20000 });
       containersPage = await navigationBar.openContainers();
       await playExpect(containersPage.heading).toBeVisible();

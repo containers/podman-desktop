@@ -20,6 +20,8 @@ import type { Locator, Page } from '@playwright/test';
 import { MainPage } from './main-page';
 import { ContainerDetailsPage } from './container-details-page';
 import { CreatePodsPage } from './create-pod-page';
+import { expect as playExpect } from '@playwright/test';
+import { ContainerState } from '../core/states';
 
 export class ContainersPage extends MainPage {
   readonly pruneContainersButton: Locator;
@@ -43,6 +45,15 @@ export class ContainersPage extends MainPage {
     const containerRowName = containerRow.getByRole('cell').nth(3);
     await containerRowName.click();
     return new ContainerDetailsPage(this.page, name);
+  }
+
+  async stopContainer(container: string): Promise<ContainerDetailsPage> {
+    const containerDetailsPage = await this.openContainersDetails(container);
+    await playExpect(containerDetailsPage.heading).toBeVisible();
+    await playExpect(containerDetailsPage.heading).toContainText(container);
+    playExpect(await containerDetailsPage.getState()).toContain(ContainerState.Running);
+    await containerDetailsPage.stopContainer();
+    return containerDetailsPage;
   }
 
   async getContainerRowByName(name: string): Promise<Locator | undefined> {

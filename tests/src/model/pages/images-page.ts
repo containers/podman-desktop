@@ -22,6 +22,8 @@ import { ImageDetailsPage } from './image-details-page';
 import { PullImagePage } from './pull-image-page';
 import { waitUntil, waitWhile } from '../../utility/wait';
 import { BuildImagePage } from './build-image-page';
+import { expect as playExpect } from '@playwright/test';
+import type { ContainersPage } from './containers-page';
 
 export class ImagesPage extends MainPage {
   readonly pullImageButton: Locator;
@@ -47,6 +49,25 @@ export class ImagesPage extends MainPage {
     );
     await this.pullImageButton.click();
     return new PullImagePage(this.page);
+  }
+
+  async pullImage(image: string): Promise<ImagesPage> {
+    const pullImagePage = await this.openPullImage();
+    await playExpect(pullImagePage.heading).toBeVisible();
+    return await pullImagePage.pullImage(image);
+  }
+
+  async renameImage(oldname: string, newname: string): Promise<ImagesPage> {
+    const imageDetailsPage = await this.openImageDetails(oldname);
+    await playExpect(imageDetailsPage.heading).toContainText(oldname);
+    const editImagePage = await imageDetailsPage.openEditImage();
+    return await editImagePage.renameImage(newname);
+  }
+
+  async startContainerWithImage(image: string, containerName: string): Promise<ContainersPage> {
+    const imageDetails = await this.openImageDetails(image);
+    const runImage = await imageDetails.openRunImage();
+    return await runImage.startContainer(containerName);
   }
 
   async openImageDetails(name: string): Promise<ImageDetailsPage> {
