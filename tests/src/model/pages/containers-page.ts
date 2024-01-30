@@ -22,6 +22,7 @@ import { ContainerDetailsPage } from './container-details-page';
 import { CreatePodsPage } from './create-pod-page';
 import { expect as playExpect } from '@playwright/test';
 import { ContainerState } from '../core/states';
+import { handleConfirmationDialog } from '/@/utility/operations';
 
 export class ContainersPage extends MainPage {
   readonly pruneContainersButton: Locator;
@@ -113,8 +114,7 @@ export class ContainersPage extends MainPage {
 
   async pruneContainers(): Promise<ContainersPage> {
     await this.pruneContainersButton.click();
-    await this.pruneConfirmationButton.waitFor({ state: 'visible', timeout: 3000 });
-    await this.pruneConfirmationButton.click();
+    await handleConfirmationDialog(this.page);
     return this;
   }
 }

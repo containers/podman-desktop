@@ -24,6 +24,7 @@ import { waitUntil, waitWhile } from '../../utility/wait';
 import { BuildImagePage } from './build-image-page';
 import { expect as playExpect } from '@playwright/test';
 import type { ContainersPage } from './containers-page';
+import { handleConfirmationDialog } from '/@/utility/operations';
 
 export class ImagesPage extends MainPage {
   readonly pullImageButton: Locator;
@@ -82,8 +83,7 @@ export class ImagesPage extends MainPage {
 
   async pruneImages(): Promise<ImagesPage> {
     await this.pruneImagesButton.click();
-    await this.pruneConfirmationButton.waitFor({ state: 'visible', timeout: 3000 });
-    await this.pruneConfirmationButton.click();
+    await handleConfirmationDialog(this.page);
     return this;
   }
 

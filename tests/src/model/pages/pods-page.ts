@@ -20,6 +20,7 @@ import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './base-page';
 import { PodDetailsPage } from './pods-details-page';
 import { PlayKubeYamlPage } from './play-kube-yaml-page';
+import { handleConfirmationDialog } from '/@/utility/operations';
 
 export class PodsPage extends BasePage {
   readonly heading: Locator;
@@ -85,8 +86,7 @@ export class PodsPage extends BasePage {
 
   async prunePods(): Promise<PodsPage> {
     await this.prunePodsButton.click();
-    await this.pruneConfirmationButton.waitFor({ state: 'visible', timeout: 3000 });
-    await this.pruneConfirmationButton.click();
+    await handleConfirmationDialog(this.page);
     return this;
   }
 }
