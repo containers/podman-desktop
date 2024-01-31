@@ -329,6 +329,9 @@ const config = {
         hideBreadcrumbs: true,
         readme: 'none',
         tsconfig: resolve('../packages/extension-api/tsconfig.json'),
+        textContentMappings: {
+          'footer.generator': '',
+        },
       },
     ],
   ],
