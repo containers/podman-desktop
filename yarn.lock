@@ -7024,10 +7024,10 @@ docusaurus-plugin-goatcounter@^3.0.0:
   resolved "https://registry.yarnpkg.com/docusaurus-plugin-goatcounter/-/docusaurus-plugin-goatcounter-3.0.0.tgz#da55f2fae91a70ccf0af09ee3f53d000c61a2642"
   integrity sha512-nlB8VOj+kzL9rAY0zICsktbaJoy2M8CBcRAOaltGAo5RrvDj7pMCgV067FiFF0dBrgn2k6+aC4/g/T50XvvJJw==
 
-docusaurus-plugin-typedoc@1.0.0-next.25:
-  version "1.0.0-next.25"
-  resolved "https://registry.yarnpkg.com/docusaurus-plugin-typedoc/-/docusaurus-plugin-typedoc-1.0.0-next.25.tgz#95334bc1e2deb819eea726a60c86d2d952a5f92d"
-  integrity sha512-la5T4vppmWsThCb8K9WDWTZioa5IQMAHE9WUrvJgXBDPzXXHnxsuXqTGovtYBc0bSMVmlV4oFMGgF4wxp6ddUw==
+docusaurus-plugin-typedoc@1.0.0-next.27:
+  version "1.0.0-next.27"
+  resolved "https://registry.yarnpkg.com/docusaurus-plugin-typedoc/-/docusaurus-plugin-typedoc-1.0.0-next.27.tgz#a8617163b63cde9604da0f45451bb2053d2218a2"
+  integrity sha512-X0A0SSczmPXiyOS86ydQWhyfpZkPgBLP7lZ83m3+98W7kQSefzS7OcrjMBJA6ojLiXjF7VxrEi+0C3P+DnyF0A==
 
 dom-accessibility-api@^0.5.9:
   version "0.5.16"
@@ -15684,10 +15684,10 @@ typedarray-to-buffer@^3.1.5:
   dependencies:
     is-typedarray "^1.0.0"
 
-typedoc-plugin-markdown@4.0.0-next.43:
-  version "4.0.0-next.43"
-  resolved "https://registry.yarnpkg.com/typedoc-plugin-markdown/-/typedoc-plugin-markdown-4.0.0-next.43.tgz#8bf523ac6043a297d43c243213b56a95b7852c79"
-  integrity sha512-YgMZsPPH5Uk6RvNsSwOCiVVsCE+hkH7Y/Fwp7OC7iXhXYxLOQesywzDynxFy5zZiWOaAq6tYuFMCqdVje+gbaQ==
+typedoc-plugin-markdown@4.0.0-next.45:
+  version "4.0.0-next.45"
+  resolved "https://registry.yarnpkg.com/typedoc-plugin-markdown/-/typedoc-plugin-markdown-4.0.0-next.45.tgz#c4111d3da160c311f142ab1ee11a20fdec4e299e"
+  integrity sha512-cZPsWqnWboyQf05N8HQXyXZPx3FucHKdmcAP4yFnT4lzG1GZCyjF5BZrdMmdZHUzllG8N9V/haj5obY4mvAxEQ==
 
 typedoc@^0.25.7:
   version "0.25.7"

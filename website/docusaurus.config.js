@@ -316,6 +316,7 @@ const config = {
         id: 'api',
         path: 'api',
         routeBasePath: 'api',
+        sidebarPath: resolve('./sidebars-api.js'),
       },
     ],
     [
