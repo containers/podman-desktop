@@ -6,22 +6,13 @@ import { onDestroy, onMount } from 'svelte';
 let resizeObserver: ResizeObserver;
 
 export let cards: any[];
-export let cardWidth = 250;
+export let cardWidth = 340;
+export let cardHeight = 280;
 
 let cardsFit = 1;
 let containerId = Math.random().toString(36).slice(-6);
 
 $: visibleCards = cards.slice(0, cardsFit);
-
-function debounce(callback: any, delay = 200) {
-  var time: any;
-  return (...args: any[]) => {
-    clearTimeout(time);
-    time = setTimeout(() => {
-      callback(...args);
-    }, delay);
-  };
-}
 
 function calcCardsToFit(width: number) {
   const cf = Math.floor(width / cardWidth);
@@ -37,7 +28,7 @@ onMount(() => {
   const cardsContainer = document.getElementById(`carousel-cards-${containerId}`);
   const initialWidth = cardsContainer?.offsetWidth as number;
   cardsFit = calcCardsToFit(initialWidth);
-  resizeObserver = new ResizeObserver(debounce(update));
+  resizeObserver = new ResizeObserver(update);
   resizeObserver.observe(cardsContainer as Element);
 });
 
@@ -64,7 +55,7 @@ function rotateRight() {
     <Fa class="w-8 h-8" icon="{faLessThan}" color="black" />
   </button>
 
-  <div id="carousel-cards-{containerId}" class="flex grow gap-3">
+  <div id="carousel-cards-{containerId}" class="flex flex-grow gap-3 overflow-hidden min-h-[{cardHeight}px]">
     {#each visibleCards as card}
       <slot card="{card}" />
     {/each}
