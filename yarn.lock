@@ -3090,15 +3090,16 @@
   dependencies:
     tslib "^2.4.1"
 
-"@segment/analytics-node@^1.3.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-node/-/analytics-node-1.3.0.tgz#4129ea2c5e2bc9d5795cbf5d5ad1e3071a221783"
-  integrity sha512-lRLz1WZaDokMoUe299yP5JkInc3OgJuqNNlxb6j0q22umCiq6b5iDo2gRmFn93reirIvJxWIicQsGrHd93q8GQ==
+"@segment/analytics-node@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-node/-/analytics-node-2.0.0.tgz#297acf76dc787e373d4236fceb38a67f110e1a7c"
+  integrity sha512-DU25dmsTsMEQ/A1OxVr2vHpGUyUZ2wukH3dH9bYRgvQOlhnnRHBP9hB3smNLfygC0IU2CKhT1rP6CGtVfdf4Sg==
   dependencies:
     "@lukeed/uuid" "^2.0.0"
     "@segment/analytics-core" "1.4.1"
     "@segment/analytics-generic-utils" "1.1.1"
     buffer "^6.0.3"
+    jose "^5.1.0"
     node-fetch "^2.6.7"
     tslib "^2.4.1"
 
@@ -10002,6 +10003,11 @@ jose@^4.10.0:
   version "4.11.1"
   resolved "https://registry.yarnpkg.com/jose/-/jose-4.11.1.tgz#8f7443549befe5bddcf4bae664a9cbc1a62da4fa"
   integrity sha512-YRv4Tk/Wlug8qicwqFNFVEZSdbROCHRAC6qu/i0dyNKr5JQdoa2pIGoS04lLO/jXQX7Z9omoNewYIVIxqZBd9Q==
+
+jose@^5.1.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-5.2.0.tgz#d0ffd7f7e31253f633eefb190a930cd14a916995"
+  integrity sha512-oW3PCnvyrcm1HMvGTzqjxxfnEs9EoFOFWi2HsEGhlFVOXxTE3K9GKWVMFoFw06yPUqwpvEWic1BmtUZBI/tIjw==
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
