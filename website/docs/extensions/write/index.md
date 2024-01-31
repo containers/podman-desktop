@@ -197,6 +197,21 @@ Write the extension features.
 
 - All runtime dependencies are inside the final binary.
 
+## Developing a Podman Desktop extension
+
+#### Prerequisites
+
+- JavaScript or TypeScript
+- A clone of the Podman Desktop repository
+
+#### Procedure
+
+1. To start Podman Desktop with your extension loaded, run:
+
+```
+yarn watch --extension-folder /path/to/your/extension
+```
+
 #### Additional resources
 
 - Consider a packer such as [Rollup](https://rollupjs.org) or [Webpack](https://webpack.js.org) to shrink the size of the artifact.
