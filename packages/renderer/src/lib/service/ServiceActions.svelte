@@ -22,4 +22,5 @@ async function deleteService(): Promise<void> {
   confirm="{true}"
   onClick="{() => deleteService()}"
   detailed="{detailed}"
+  enabled="{service.status !== 'DELETING'}"
   icon="{faTrash}" />

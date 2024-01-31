@@ -93,7 +93,12 @@ function onError(error: string): void {
 }
 </script>
 
-<ListItemButtonIcon title="Run Image" onClick="{() => runImage(image)}" detailed="{detailed}" icon="{faPlay}" />
+<ListItemButtonIcon
+  title="Run Image"
+  onClick="{() => runImage(image)}"
+  detailed="{detailed}"
+  icon="{faPlay}"
+  enabled="{image.status !== 'DELETING'}" />
 
 <ListItemButtonIcon
   title="Delete Image"
@@ -115,6 +120,7 @@ function onError(error: string): void {
       onClick="{() => pushImage(image)}"
       menu="{dropdownMenu}"
       detailed="{detailed}"
+      enabled="{image.status !== 'DELETING'}"
       icon="{faArrowUp}" />
   {/if}
 
@@ -123,6 +129,7 @@ function onError(error: string): void {
     onClick="{() => renameImage(image)}"
     menu="{dropdownMenu}"
     detailed="{detailed}"
+    enabled="{image.status !== 'DELETING'}"
     icon="{faEdit}" />
 
   {#if !detailed}
@@ -131,6 +138,7 @@ function onError(error: string): void {
       onClick="{() => showLayersImage()}"
       menu="{dropdownMenu}"
       detailed="{detailed}"
+      enabled="{image.status !== 'DELETING'}"
       icon="{faLayerGroup}" />
   {/if}
 

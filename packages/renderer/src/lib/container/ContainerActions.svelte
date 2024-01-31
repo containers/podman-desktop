@@ -132,6 +132,7 @@ if (dropdownMenu) {
   hidden="{container.state === 'RUNNING' || container.state === 'STOPPING'}"
   detailed="{detailed}"
   inProgress="{container.actionInProgress && container.state === 'STARTING'}"
+  enabled="{container.state !== 'STARTING' && container.state !== 'DELETING'}"
   icon="{faPlay}"
   iconOffset="pl-[0.15rem]" />
 
@@ -141,6 +142,7 @@ if (dropdownMenu) {
   hidden="{!(container.state === 'RUNNING' || container.state === 'STOPPING')}"
   detailed="{detailed}"
   inProgress="{container.actionInProgress && container.state === 'STOPPING'}"
+  enabled="{container.state !== 'STOPPING' && container.state !== 'DELETING'}"
   icon="{faStop}" />
 
 <ListItemButtonIcon
@@ -149,7 +151,8 @@ if (dropdownMenu) {
   onClick="{() => deleteContainer()}"
   icon="{faTrash}"
   detailed="{detailed}"
-  inProgress="{container.actionInProgress && container.state === 'DELETING'}" />
+  inProgress="{container.actionInProgress && container.state === 'DELETING'}"
+  enabled="{container.state !== 'DELETING'}" />
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
 <svelte:component this="{actionsStyle}">
@@ -167,6 +170,7 @@ if (dropdownMenu) {
       hidden="{!(
         container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE
       )}"
+      enabled="{container.state !== 'DELETING'}"
       detailed="{detailed}"
       icon="{faFileCode}" />
   {/if}
@@ -176,6 +180,7 @@ if (dropdownMenu) {
     menu="{dropdownMenu}"
     hidden="{!(container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE)}"
     detailed="{detailed}"
+    enabled="{container.state !== 'DELETING'}"
     icon="{faRocket}" />
   <ListItemButtonIcon
     title="Open Browser"
@@ -199,6 +204,7 @@ if (dropdownMenu) {
     onClick="{() => restartContainer()}"
     menu="{dropdownMenu}"
     detailed="{detailed}"
+    enabled="{container.state !== 'DELETING'}"
     icon="{faArrowsRotate}" />
   <ContributionActions
     args="{[container]}"
