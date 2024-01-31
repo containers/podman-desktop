@@ -23,11 +23,13 @@ export function extractSitemapPathnames(sitemapPath: string): string[] {
   // filter out all /tags/ pages
   urls = urls.filter(url => !url.includes('/tags/') && !url.endsWith('/tags'));
 
+  let pathnames = urls.map(url => new URL(url).pathname);
+
   // filter out all /api pages since they are auto generated
   // keeping an example of each type (namespace, enum, class, interface, type, variable) to avoid regression.
-  urls = urls.filter(url => !url.startsWith('/api') || allowed.includes(url));
+  pathnames = pathnames.filter(url => !url.startsWith('/api') || allowed.includes(url));
 
-  return urls.map(url => new URL(url).pathname);
+  return pathnames;
 }
 
 // Converts a pathname to a decent screenshot name
