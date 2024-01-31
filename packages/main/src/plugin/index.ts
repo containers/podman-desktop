@@ -344,7 +344,7 @@ export class PluginSystem {
 
       // if url is a known domain, open it directly
       const urlObject = new URL(url);
-      const validDomains = ['podman-desktop.io', 'podman.io'];
+      const validDomains = ['podman-desktop.io', 'podman.io', 'localhost', '127.0.0.1'];
       const skipConfirmationUrl = validDomains.some(
         domain => urlObject.hostname.endsWith(domain) || urlObject.hostname === domain,
       );
