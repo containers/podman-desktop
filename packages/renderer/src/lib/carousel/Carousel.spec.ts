@@ -49,7 +49,7 @@ test('carousel cards get visible when size permits', async () => {
   console.log(window.innerWidth);
   expect(card1).toBeVisible();
 
-  callback([{ contentRect: { width: 400 } }]);
+  callback([{ contentRect: { width: 680 } }]);
 
   await waitFor(() => {
     const card2 = screen.getByText('card 2');
@@ -59,7 +59,7 @@ test('carousel cards get visible when size permits', async () => {
   const cards = screen.queryAllByText('card 3');
   expect(cards.length).toBe(0);
 
-  callback([{ contentRect: { width: 600 } }]);
+  callback([{ contentRect: { width: 1020 } }]);
 
   await waitFor(() => {
     const card3 = screen.getByText('card 3');
@@ -115,11 +115,13 @@ test('carousel left and right buttons enabled when all items does not fit into s
   expect(left).toBeEnabled();
   expect(right).toBeEnabled();
 
-  callback([{ contentRect: { width: 600 } }]);
+  callback([{ contentRect: { width: 1020 } }]);
 
   await waitFor(() => {
     const card1 = screen.getByText('card 1');
     expect(card1).toBeVisible();
+    const card2 = screen.getByText('card 2');
+    expect(card2).toBeVisible();
     const card3 = screen.getByText('card 3');
     expect(card3).toBeVisible();
   });
