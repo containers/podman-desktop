@@ -19,7 +19,6 @@
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './base-page';
 import { ContainersPage } from './containers-page';
-import { waitWhile } from '../../utility/wait';
 
 export class RunImagePage extends BasePage {
   readonly name: Locator;
@@ -81,22 +80,7 @@ export class RunImagePage extends BasePage {
       throw Error(`Start Button not enabled: ${errMessage}`);
     }
     await this.startContainerButton.click();
-    // wait for containers page to appear
-    const containers = new ContainersPage(this.page);
-    try {
-      await waitWhile(
-        async () => await this.startContainerButton.isVisible(),
-        5000,
-        900,
-        true,
-        'Error starting a container',
-      );
-    } catch (err) {
-      await this.errorAlert.waitFor({ state: 'visible', timeout: 2000 });
-      const errMessage = await this.errorAlert.innerText({ timeout: 1000 });
-      throw new Error(`Error starting a container: ${errMessage}`);
-    }
-    return containers;
+    return new ContainersPage(this.page);
   }
 
   async setCustomPortMapping(customPortMapping: string): Promise<void> {

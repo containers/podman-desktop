@@ -20,17 +20,22 @@ import type { Locator, Page } from '@playwright/test';
 import { MainPage } from './main-page';
 import { ContainerDetailsPage } from './container-details-page';
 import { CreatePodsPage } from './create-pod-page';
+import { expect as playExpect } from '@playwright/test';
+import { ContainerState } from '../core/states';
+import { handleConfirmationDialog } from '../../utility/operations';
 
 export class ContainersPage extends MainPage {
   readonly pruneContainersButton: Locator;
   readonly createContainerButton: Locator;
   readonly playKubernetesYAMLButton: Locator;
+  readonly pruneConfirmationButton: Locator;
 
   constructor(page: Page) {
     super(page, 'containers');
     this.pruneContainersButton = this.additionalActions.getByRole('button', { name: 'Prune' });
     this.createContainerButton = this.additionalActions.getByRole('button', { name: 'Create' });
     this.playKubernetesYAMLButton = this.additionalActions.getByRole('button', { name: 'Play Kubernetes YAML' });
+    this.pruneConfirmationButton = this.page.getByRole('button', { name: 'Yes' });
   }
 
   async openContainersDetails(name: string): Promise<ContainerDetailsPage> {
@@ -43,29 +48,51 @@ export class ContainersPage extends MainPage {
     return new ContainerDetailsPage(this.page, name);
   }
 
+  async stopContainer(container: string): Promise<ContainerDetailsPage> {
+    const containerDetailsPage = await this.openContainersDetails(container);
+    await playExpect(containerDetailsPage.heading).toBeVisible();
+    await playExpect(containerDetailsPage.heading).toContainText(container);
+    playExpect(await containerDetailsPage.getState()).toContain(ContainerState.Running);
+    await containerDetailsPage.stopContainer();
+    return containerDetailsPage;
+  }
+
   async getContainerRowByName(name: string): Promise<Locator | undefined> {
     if (await this.pageIsEmpty()) {
       return undefined;
     }
-    const containersTable = await this.getTable();
-    const rows = await containersTable.getByRole('row').all();
-    for (const row of rows) {
-      // test on empty row - contains on 0th position &nbsp; character (ISO 8859-1 character set: 160)
-      const zeroCell = await row.getByRole('cell').nth(0).innerText({ timeout: 500 });
-      if (zeroCell.indexOf(String.fromCharCode(160)) === 0) {
-        continue;
+    let containersTable;
+    try {
+      containersTable = await this.getTable();
+      const rows = await containersTable.getByRole('row').all();
+
+      for (let i = rows.length - 1; i >= 0; i--) {
+        const thirdCell = await rows[i].getByRole('cell').nth(3).getByText(name, { exact: true }).count();
+
+        if (thirdCell) {
+          return rows[i];
+        }
       }
-      let thirdCell = undefined;
-      try {
-        thirdCell = await row.getByRole('cell').nth(3).innerText({ timeout: 1000 });
-      } catch (error) {
-        thirdCell = await row.getByRole('cell').nth(3).allInnerTexts();
-        console.log(`We got an timeout error on innertext, allinnerTexts: ${thirdCell}`);
+    } catch (err) {
+      console.log(`Exception caught on containers page with message: ${err}`);
+    }
+    return undefined;
+  }
+
+  async uncheckAllContainers(): Promise<void> {
+    let containersTable;
+    try {
+      containersTable = await this.getTable();
+      const rows = await containersTable.getByRole('row').all();
+
+      for (let i = rows.length - 1; i >= 0; i--) {
+        const zeroCell = await rows[i].getByRole('cell').nth(0).innerText({ timeout: 1000 });
+        if (zeroCell.indexOf(String.fromCharCode(160)) === 0) continue;
+
+        if (await rows[i].getByRole('checkbox').isChecked()) await rows[i].getByRole('cell').nth(1).click();
       }
-      const index = thirdCell.indexOf(name);
-      if (index >= 0) {
-        return row;
-      }
+    } catch (err) {
+      console.log(`Exception caught on containers page when checking cells for unchecking with message: ${err}`);
     }
   }
 
@@ -83,5 +110,11 @@ export class ContainersPage extends MainPage {
     }
     await this.page.getByRole('button', { name: `Create Pod` }).click();
     return new CreatePodsPage(this.page);
+  }
+
+  async pruneContainers(): Promise<ContainersPage> {
+    await this.pruneContainersButton.click();
+    await handleConfirmationDialog(this.page, 'Prune');
+    return this;
   }
 }

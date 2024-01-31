@@ -52,13 +52,24 @@ export class PodmanDesktopRunner {
       throw Error('Podman Desktop is already running');
     }
 
-    // start the app with given properties
-    this._app = await electron.launch({
-      ...this._options,
-    });
-    // setup state
-    this._running = true;
-    this._page = await this.getElectronApp().firstWindow();
+    try {
+      // start the app with given properties
+      this._running = true;
+      this._app = await electron.launch({
+        ...this._options,
+      });
+      // setup state
+      this._page = await this.getElectronApp().firstWindow();
+
+      // Evaluate that the main window is visible
+      // at the same time, the function also makes sure that event 'ready-to-show' was triggered
+      const windowState = await this.getBrowserWindowState();
+      console.log(`Application Browser's window is visible: ${windowState.isVisible}`);
+    } catch (err) {
+      console.log(`Caught exception in startup: ${err}`);
+      throw Error(`Podman Desktop could not be started correctly with error: ${err}`);
+    }
+
     // Direct Electron console to Node terminal.
     this.getPage().on('console', console.log);
 
@@ -69,11 +80,6 @@ export class PodmanDesktopRunner {
     this._app.process().stderr?.on('data', data => {
       console.log(`STDERR: ${data}`);
     });
-
-    // Evaluate that the main window is visible
-    // at the same time, the function also makes sure that event 'ready-to-show' was triggered
-    const windowState = await this.getBrowserWindowState();
-    console.log(`Application Browser's window is visible: ${windowState.isVisible}`);
 
     return this._page;
   }
@@ -153,12 +159,12 @@ export class PodmanDesktopRunner {
   }
 
   public async close() {
+    // Stop playwright tracing
+    await this.stopTracing();
+
     if (!this.isRunning()) {
       throw Error('Podman Desktop is not running');
     }
-
-    // Stop playwright tracing
-    await this.stopTracing();
 
     if (this.getElectronApp()) {
       const elapsed = await this.trackTime(async () => await this.getElectronApp().close());
@@ -204,11 +210,13 @@ export class PodmanDesktopRunner {
     } else {
       args = ['.'];
     }
+    const timeout = 45000;
     return {
       args,
       executablePath,
       env,
       recordVideo,
+      timeout,
       tracesDir,
     };
   }

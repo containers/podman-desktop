@@ -27,6 +27,7 @@ import { waitUntil, waitWhile } from './utility/wait';
 import { deleteContainer, deleteImage, deletePod } from './utility/operations';
 import { ContainerState, PodState } from './model/core/states';
 import * as os from 'node:os';
+import { PodsPage } from './model/pages/pods-page';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -38,6 +39,8 @@ const backendContainer = 'backend';
 const frontendContainer = 'frontend';
 const podToRun = 'frontend-app-pod';
 const isMac = os.platform() === 'darwin';
+const containerNames = ['container1', 'container2', 'container3'];
+const podNames = ['pod1', 'pod2', 'pod3'];
 
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
@@ -64,12 +67,22 @@ beforeEach<RunnerTestContext>(async ctx => {
 });
 
 afterAll(async () => {
-  await deletePod(page, podToRun);
-  await deleteContainer(page, backendContainer);
-  await deleteContainer(page, frontendContainer);
-  await deleteImage(page, backendImage);
-  await deleteImage(page, frontendImage);
-  await pdRunner.close();
+  try {
+    for (const pod of podNames) {
+      await deletePod(page, pod);
+    }
+    await deletePod(page, podToRun);
+
+    for (const container of containerNames) {
+      await deleteContainer(page, container);
+    }
+    await deleteContainer(page, backendContainer);
+    await deleteContainer(page, frontendContainer);
+    await deleteImage(page, backendImage);
+    await deleteImage(page, frontendImage);
+  } finally {
+    await pdRunner.close();
+  }
 }, 90000);
 
 describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')(
@@ -206,5 +219,44 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       playExpect(await podsPage.podExists(podToRun)).toBeFalsy();
       await pdRunner.screenshot('pods-pod-deleted.png');
     });
+
+    test('Pruning pods', async () => {
+      const navigationBar = new NavigationBar(page);
+      const portsList = [5001, 5002, 5003];
+
+      for (let i = 0; i < 3; i++) {
+        const imagesPage = await navigationBar.openImages();
+        await playExpect(imagesPage.heading).toBeVisible();
+        const imageDetailsPage = await imagesPage.openImageDetails(backendImage);
+        await playExpect(imageDetailsPage.heading).toContainText(backendImage);
+        const runImagePage = await imageDetailsPage.openRunImage();
+        await playExpect(runImagePage.heading).toContainText(backendImage);
+        await runImagePage.setCustomPortMapping(`${portsList[i]}:${portsList[i]}`);
+        const containersPage = await runImagePage.startContainer(containerNames[i]);
+        await playExpect(containersPage.heading).toBeVisible();
+        await playExpect
+          .poll(async () => containersPage.containerExists(containerNames[i]), { timeout: 15000 })
+          .toBeTruthy();
+        await containersPage.uncheckAllContainers();
+        const createPodPage = await containersPage.openCreatePodPage(Array.of(containerNames[i]));
+        const podsPage = await createPodPage.createPod(podNames[i]);
+        await playExpect(podsPage.heading).toBeVisible();
+        await playExpect.poll(async () => await podsPage.podExists(podNames[i]), { timeout: 15000 }).toBeTruthy();
+      }
+
+      for (const pod of podNames) {
+        const podDetailsPage = await new PodsPage(page).openPodDetails(pod);
+        await playExpect(podDetailsPage.heading).toContainText(pod);
+        await podDetailsPage.stopPod();
+        await playExpect
+          .poll(async () => (await podDetailsPage.getState()) === PodState.Exited, { timeout: 25000 })
+          .toBeTruthy();
+
+        const podsPage = await navigationBar.openPods();
+        await playExpect(podsPage.heading).toBeVisible();
+        await podsPage.prunePods();
+        await playExpect.poll(async () => await podsPage.podExists(pod), { timeout: 15000 }).toBeFalsy();
+      }
+    }, 90000);
   },
 );

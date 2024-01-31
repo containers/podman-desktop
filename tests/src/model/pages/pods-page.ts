@@ -20,33 +20,31 @@ import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './base-page';
 import { PodDetailsPage } from './pods-details-page';
 import { PlayKubeYamlPage } from './play-kube-yaml-page';
+import { handleConfirmationDialog } from '../../utility/operations';
 
 export class PodsPage extends BasePage {
   readonly heading: Locator;
   readonly playKubernetesYAMLButton: Locator;
+  readonly prunePodsButton: Locator;
+  readonly pruneConfirmationButton: Locator;
 
   constructor(page: Page) {
     super(page);
     this.heading = this.page.getByRole('heading', { name: 'pods', exact: true });
     this.playKubernetesYAMLButton = this.page.getByRole('button', { name: 'Play Kubernetes YAML' });
+    this.prunePodsButton = this.page.getByRole('button', { name: 'Prune' });
+    this.pruneConfirmationButton = this.page.getByRole('button', { name: 'Yes' });
   }
 
   async getTable(): Promise<Locator> {
-    if (!(await this.pageIsEmpty())) {
-      return this.page.getByRole('table');
-    } else {
-      throw Error('Pods page is empty, there are no pods');
-    }
+    if (await this.pageIsEmpty()) throw Error('Page is empty, there are no pods');
+
+    return this.page.getByRole('table');
   }
 
   async pageIsEmpty(): Promise<boolean> {
-    const noPodsHeading = this.page.getByRole('heading', { name: 'No Pods', exact: true });
-    try {
-      await noPodsHeading.waitFor({ state: 'visible', timeout: 500 });
-    } catch (err) {
-      return false;
-    }
-    return true;
+    const noPodsHeading = await this.page.getByRole('heading', { name: 'No Pods', exact: true }).count();
+    return noPodsHeading > 0;
   }
 
   async openPodDetails(name: string): Promise<PodDetailsPage> {
@@ -62,26 +60,19 @@ export class PodsPage extends BasePage {
     if (await this.pageIsEmpty()) {
       return undefined;
     }
-    const podsTable = await this.getTable();
-    const rows = await podsTable.getByRole('row').all();
-    let first: boolean = true;
-    for (const row of rows) {
-      if (first) {
-        // skip first row (header)
-        first = false;
-        continue;
+    try {
+      const podsTable = await this.getTable();
+      const rows = await podsTable.getByRole('row').all();
+      for (let i = rows.length - 1; i > 0; i--) {
+        const nameCell = await rows[i].getByRole('cell').nth(3).getByText(name, { exact: true }).count();
+        if (nameCell) {
+          return rows[i];
+        }
       }
-      // test on empty row - contains on 0th position &nbsp; character (ISO 8859-1 character set: 160)
-      const zeroCell = await row.getByRole('cell').nth(0).innerText();
-      if (zeroCell.indexOf(String.fromCharCode(160)) === 0) {
-        continue;
-      }
-      const nameCell = await row.getByRole('cell').nth(3).innerText();
-      const index = nameCell.indexOf(name);
-      if (index >= 0) {
-        return row;
-      }
+    } catch (err) {
+      console.log(`Exception caught on pod page with message: ${err}`);
     }
+    return undefined;
   }
 
   async podExists(name: string): Promise<boolean> {
@@ -91,5 +82,11 @@ export class PodsPage extends BasePage {
   async openPlayKubeYaml(): Promise<PlayKubeYamlPage> {
     await this.playKubernetesYAMLButton.click();
     return new PlayKubeYamlPage(this.page);
+  }
+
+  async prunePods(): Promise<PodsPage> {
+    await this.prunePodsButton.click();
+    await handleConfirmationDialog(this.page, 'Prune');
+    return this;
   }
 }

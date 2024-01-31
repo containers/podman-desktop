@@ -51,32 +51,21 @@ export abstract class MainPage extends BasePage {
    * @returns true, if there are any items present in the content's table, false otherwise
    */
   async pageIsEmpty(): Promise<boolean> {
-    if (!(await this.noContainerEngine())) {
-      const noImagesHeading = this.content.getByRole('heading', { name: `No ${this.title}`, exact: true });
-      try {
-        await noImagesHeading.waitFor({ state: 'visible', timeout: 500 });
-      } catch (err) {
-        return false;
-      }
-    }
-    return true;
+    if (await this.noContainerEngine()) return true;
+
+    const noImagesHeading = this.content.getByRole('heading', { name: `No ${this.title}`, exact: true });
+    return (await noImagesHeading.count()) > 0;
   }
 
   async noContainerEngine(): Promise<boolean> {
     const noContainerEngineHeading = this.content.getByRole('heading', { name: 'No Container Engine', exact: true });
-    try {
-      await noContainerEngineHeading.waitFor({ state: 'visible', timeout: 500 });
-    } catch (err) {
-      return false;
-    }
-    return true;
+
+    return (await noContainerEngineHeading.count()) > 0;
   }
 
   async getTable(): Promise<Locator> {
-    if (!(await this.pageIsEmpty())) {
-      return this.content.getByRole('table');
-    } else {
-      throw Error('Images page is empty, there are no images');
-    }
+    if (await this.pageIsEmpty()) throw Error('Page is empty, there is no content');
+
+    return this.content.getByRole('table');
   }
 }
