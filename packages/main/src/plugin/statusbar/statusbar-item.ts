@@ -34,6 +34,7 @@ export class StatusBarItemImpl implements StatusBarItem {
   private isVisible = false;
   private _iconClass: string | { active: string; inactive: string } | undefined;
   private _enabled = true;
+  private _important = false;
 
   private _command: string | undefined;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -46,6 +47,15 @@ export class StatusBarItemImpl implements StatusBarItem {
     this._alignment = alignment;
     this._priority = priority;
     this._id = StatusBarItemImpl.nextId();
+  }
+
+  public get important(): boolean {
+    return this._important;
+  }
+
+  public set important(important: boolean) {
+    this._important = important;
+    this.update();
   }
 
   public get alignment(): StatusBarAlignment {
