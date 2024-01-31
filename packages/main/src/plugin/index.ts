@@ -90,6 +90,7 @@ import type {
   Context as KubernetesContext,
   Cluster,
   V1Deployment,
+  KubernetesObject,
 } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types.js';
 import type { NetworkInspectInfo } from './api/network-info.js';
@@ -1988,6 +1989,13 @@ export class PluginSystem {
       'kubernetes-client:createResourcesFromFile',
       async (_listener, context: string, file: string, namespace: string): Promise<void> => {
         return kubernetesClient.createResourcesFromFile(context, file, namespace);
+      },
+    );
+
+    this.ipcHandle(
+      'kubernetes-client:applyResourcesFromFile',
+      async (_listener, context: string, file: string): Promise<KubernetesObject[]> => {
+        return kubernetesClient.applyResourcesFromFile(context, file);
       },
     );
 

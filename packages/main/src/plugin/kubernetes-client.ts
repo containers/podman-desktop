@@ -45,6 +45,7 @@ import {
   Watch,
   VersionApi,
   makeInformer,
+  KubernetesObjectApi,
 } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types.js';
 import type * as containerDesktopAPI from '@podman-desktop/api';
@@ -987,46 +988,6 @@ export class KubernetesClient {
     return tags;
   }
 
-  // load yaml file and extract manifests
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async loadManifestsFromFile(file: string): Promise<any[]> {
-    // throw exception if file does not exist
-    if (!fs.existsSync(file)) {
-      throw new Error(`File ${file} does not exist`);
-    }
-
-    // load file and create resources
-    const content = await fs.promises.readFile(file, 'utf-8');
-
-    const manifests = parseAllDocuments(content, { customTags: this.getTags });
-    // filter out null manifests
-    return manifests.map(manifest => manifest.toJSON()).filter(manifest => !!manifest);
-  }
-
-  async createResourcesFromFile(context: string, filePath: string, namespace: string): Promise<void> {
-    let telemetryOptions = {};
-    try {
-      const manifests = await this.loadManifestsFromFile(filePath);
-      try {
-        await this.createResources(context, manifests, namespace);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (error: any) {
-        if (error?.response?.body) {
-          if (error.response.body.message) {
-            throw new Error(error.response.body.message);
-          }
-          throw new Error(error.response.body);
-        }
-        throw error;
-      }
-    } catch (error) {
-      telemetryOptions = { error: error };
-      throw error;
-    } finally {
-      this.telemetry.track('kubernetesCreateResourcesFromFile', telemetryOptions);
-    }
-  }
-
   async getAPIResource(
     client: CustomObjectsApi,
     apiGroup: { group: string; version: string },
@@ -1049,64 +1010,159 @@ export class KubernetesClient {
     throw new Error(`Unable to find API resource for ${apiGroup.group}/${apiGroup.version}/${kind}`);
   }
 
+  // load yaml file and extract manifests
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async loadManifestsFromFile(file: string): Promise<any[]> {
+    // throw exception if file does not exist
+    if (!fs.existsSync(file)) {
+      throw new Error(`File ${file} does not exist`);
+    }
+
+    // load file and create resources
+    const content = await fs.promises.readFile(file, 'utf-8');
+
+    const manifests = parseAllDocuments(content, { customTags: this.getTags });
+    // filter out null manifests
+    return manifests.map(manifest => manifest.toJSON()).filter(manifest => !!manifest);
+  }
+
   /**
-   * Create Kubernetes resources on the specified cluster. Resources are create sequentially.
+   * Create a given yaml file on a context, i.e. 'kubectl create -f'. If the resources exists
+   * an error will be thrown.
+   *
+   * @param context a context
+   * @param filePath file system path to a YAML Kubernetes spec
+   * @param namespace the namespace to use for any resources that don't include one
+   */
+  async createResourcesFromFile(context: string, filePath: string, namespace?: string): Promise<void> {
+    const manifests = await this.loadManifestsFromFile(filePath);
+    await this.syncResources(context, manifests, 'create', namespace);
+  }
+
+  /**
+   * Create Kubernetes resources on the specified cluster. Resources are created sequentially.
    *
    * @param context the context name to use
    * @param manifests the list of Kubernetes resources to create
+   * @param namespace the namespace to use for any resources that don't include one
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async createResources(context: string, manifests: any[], optionalNamespace?: string): Promise<void> {
-    let telemetryOptions = {};
+  async createResources(context: string, manifests: any[], namespace?: string): Promise<void> {
+    await this.syncResources(context, manifests, 'create', namespace);
+  }
+
+  /**
+   * Apply a given yaml file to a context, i.e. 'kubectl apply -f'. Resources that exist
+   * on the context are patched, and any new resources are created.
+   *
+   * @param context a context
+   * @param filePath file system path to a YAML Kubernetes spec
+   * @param namespace the namespace to use for any resources that don't include one
+   * @return an array of resources created
+   */
+  async applyResourcesFromFile(context: string, filePath: string, namespace?: string): Promise<KubernetesObject[]> {
+    const manifests = await this.loadManifestsFromFile(filePath);
+    return this.syncResources(context, manifests, 'apply', namespace);
+  }
+
+  /**
+   * Apply a given yaml file to a context, i.e. 'kubectl apply -f'. Resources that exist
+   * on the context are patched, and any new resources are created.
+   *
+   * @param context a context
+   * @param filePath file system path to a YAML Kubernetes spec
+   * @param namespace the namespace to use for any resources that don't include one
+   * @return an array of resources created
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async applyResources(context: string, manifests: any[], namespace?: string): Promise<KubernetesObject[]> {
+    return this.syncResources(context, manifests, 'apply', namespace);
+  }
+
+  /**
+   * Applies or creates a set of resources to a context, via creation or patching.
+   *
+   * @param context a context
+   * @param manifests a set of Kubernetes spec manifests
+   * @param action 'create' (only create new resources, do not overwrite existing) or 'apply' (create or patch as necessary)
+   * @param namespace the namespace to use for any resources that don't include one
+   * @return an array of resources created
+   *
+   * Heavily influenced by the API example:
+   * https://github.com/kubernetes-client/javascript/blob/0fbfd8fc2dcc7f4ec3e6fcd64a5c55169b6ef0b8/examples/typescript/apply/apply-example.ts
+   */
+
+  async syncResources(
+    context: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    manifests: any[],
+    action: 'create' | 'apply',
+    namespace?: string,
+  ): Promise<KubernetesObject[]> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const telemetryOptions: Record<string, any> = {
+      manifestsSize: manifests?.length,
+      action: action,
+    };
+    if (namespace) {
+      telemetryOptions.namespace = namespace;
+    }
+
     try {
       const ctx = new KubeConfig();
       ctx.loadFromFile(this.kubeconfigPath);
       ctx.currentContext = context;
-      for (const manifest of manifests) {
-        // https://github.com/kubernetes-client/javascript/issues/487
-        if (manifest?.metadata?.creationTimestamp) {
-          manifest.metadata.creationTimestamp = new Date(manifest.metadata.creationTimestamp);
+
+      const validSpecs = manifests.filter(s => s?.kind);
+
+      const client = ctx.makeApiClient(KubernetesObjectApi);
+      const created: KubernetesObject[] = [];
+      for (const spec of validSpecs) {
+        // this is to convince TypeScript that metadata exists even though we already filtered specs
+        // without metadata out
+        spec.metadata = spec.metadata || {};
+        spec.metadata.annotations = spec.metadata.annotations || {};
+
+        delete spec.metadata.annotations['kubectl.kubernetes.io/last-applied-configuration'];
+        spec.metadata.annotations['kubectl.kubernetes.io/last-applied-configuration'] = JSON.stringify(spec);
+
+        if (!spec.metadata.namespace) {
+          spec.metadata.namespace = namespace || DEFAULT_NAMESPACE;
         }
-        const groupVersion = this.groupAndVersion(manifest.apiVersion);
-        const namespaceToUse = manifest.metadata?.namespace || optionalNamespace || DEFAULT_NAMESPACE;
-        if (groupVersion.group === '') {
-          const client = ctx.makeApiClient(CoreV1Api);
-          await this.createV1Resource(client, manifest, namespaceToUse);
-        } else if (groupVersion.group === 'apps') {
-          const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
-          if (manifest.kind === 'Deployment') {
-            await k8sAppsApi.createNamespacedDeployment(namespaceToUse, manifest);
-          } else if (manifest.kind === 'DaemonSet') {
-            await k8sAppsApi.createNamespacedDaemonSet(namespaceToUse, manifest);
+        try {
+          // try to get the resource, if it does not exist an error will be thrown and we will
+          // end up in the catch block
+          await client.read(spec);
+          // we got the resource, so it exists: patch it
+          //
+          // Note that this could fail if the spec refers to a custom resource. For custom resources
+          // you may need to specify a different patch merge strategy in the content-type header
+          //
+          // See: https://github.com/kubernetes/kubernetes/issues/97423
+          if (action === 'apply') {
+            const response = await client.patch(spec);
+            created.push(response.body);
           }
-        } else if (groupVersion.group === 'networking.k8s.io') {
-          // Add networking object support (Ingress for now)
-          const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
-          if (manifest.kind === 'Ingress') {
-            await k8sNetworkingApi.createNamespacedIngress(namespaceToUse, manifest);
-          }
-        } else {
-          const client = ctx.makeApiClient(CustomObjectsApi);
-          const apiResource = await this.getAPIResource(client, groupVersion, manifest.kind);
-          await this.createCustomResource(
-            client,
-            groupVersion.group,
-            groupVersion.version,
-            apiResource.name,
-            apiResource.namespaced ? namespaceToUse : undefined,
-            manifest,
-          );
+        } catch (error) {
+          // we did not get the resource, so it does not exist: create it
+          const response = await client.create(spec);
+          created.push(response.body);
         }
       }
-      return undefined;
-    } catch (error) {
-      telemetryOptions = { error: error };
+      return created;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.log(error);
+      telemetryOptions.error = error;
+      if (error?.response?.body) {
+        if (error.response.body.message) {
+          throw new Error(error.response.body.message);
+        }
+        throw new Error(error.response.body);
+      }
       throw error;
     } finally {
-      this.telemetry.track(
-        'kubernetesCreateResource',
-        Object.assign({ manifestsSize: manifests?.length }, telemetryOptions),
-      );
+      this.telemetry.track('kubernetesSyncResources', telemetryOptions);
     }
   }
 
