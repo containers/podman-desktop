@@ -7,7 +7,6 @@ let resizeObserver: ResizeObserver;
 
 export let cards: any[];
 export let cardWidth = 340;
-export let cardHeight = 280;
 
 let cardsFit = 1;
 let containerId = Math.random().toString(36).slice(-6);
@@ -55,7 +54,7 @@ function rotateRight() {
     <Fa class="w-8 h-8" icon="{faLessThan}" color="black" />
   </button>
 
-  <div id="carousel-cards-{containerId}" class="flex flex-grow gap-3 overflow-hidden min-h-[{cardHeight}px]">
+  <div id="carousel-cards-{containerId}" class="flex flex-grow gap-3 overflow-hidden">
     {#each visibleCards as card}
       <slot card="{card}" />
     {/each}
