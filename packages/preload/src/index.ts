@@ -70,6 +70,7 @@ import type {
 import type {
   Cluster,
   Context,
+  KubernetesObject,
   V1ConfigMap,
   V1Deployment,
   V1Ingress,
@@ -1752,6 +1753,13 @@ function initExposure(): void {
     'kubernetesCreateResourcesFromFile',
     async (context: string, file: string, namespace: string): Promise<void> => {
       return ipcInvoke('kubernetes-client:createResourcesFromFile', context, file, namespace);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'kubernetesApplyResourcesFromFile',
+    async (context: string, file: string): Promise<KubernetesObject[]> => {
+      return ipcInvoke('kubernetes-client:applyResourcesFromFile', context, file);
     },
   );
 
