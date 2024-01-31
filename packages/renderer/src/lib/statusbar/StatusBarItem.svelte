@@ -44,6 +44,6 @@ async function executeCommand(entry: StatusBarEntry) {
     <span class="ml-1">{entry.text}</span>
   {/if}
   {#if entry.important}
-    <span role="status" class="absolute bg-purple-500 rounded-full p-1 top-[-4px] right-[-2px]"></span>
+    <span role="status" class="absolute bg-purple-500 rounded-full p-1 top-[-2px] right-[-2px]"></span>
   {/if}
 </button>
