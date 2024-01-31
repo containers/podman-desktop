@@ -197,7 +197,7 @@ Write the extension features.
 
 - All runtime dependencies are inside the final binary.
 
-## Testing a Podman Desktop extension
+## Developing a Podman Desktop extension
 
 #### Prerequisites
 
@@ -206,7 +206,7 @@ Write the extension features.
 
 #### Procedure
 
-1. To test Podman Desktop with your extension, run:
+1. To start Podman Desktop with your extension loaded, run:
 
 ```
 yarn watch --extension-folder /path/to/your/extension
