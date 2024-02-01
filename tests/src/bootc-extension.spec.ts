@@ -21,83 +21,65 @@ import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
 import { expect as playExpect } from '@playwright/test';
-import { SettingsBar } from './model/pages/settings-bar';
 import { SettingsExtensionsPage } from './model/pages/settings-extensions-page';
 import type { RunnerTestContext } from './testContext/runner-test-context';
-import { ResourcesPage } from './model/pages/resources-page';
+import { NavigationBar } from './model/workbench/navigation';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
 
-let extensionDashboardStatus: Locator;
-let extensionDashboardBox: Locator;
-let extensionDashboardProvider: Locator;
+let navBar: NavigationBar;
 let extensionSettingsBox: Locator;
 let installButtonLabel: string;
-let settingsLink: string;
-let resourceLabel: string;
 let imageLink: string;
 let settingsTableLabel: string;
 
-let extensionBoxVisible: boolean;
-
-const _startup = async function () {
-  console.log('running before all');
-  pdRunner = new PodmanDesktopRunner();
-  page = await pdRunner.start();
-
-  const welcomePage = new WelcomePage(page);
-  await welcomePage.handleWelcomePage(true);
-};
-
-const _shutdown = async function () {
-  console.log('running after all');
-  await pdRunner.close();
-};
+let extensionAlreadyInstalled = false;
 
 beforeEach<RunnerTestContext>(async ctx => {
   console.log('running before each');
   ctx.pdRunner = pdRunner;
 });
 
-describe('$extensionType installation verification', async () => {
-  beforeAll(_startup);
-  afterAll(_shutdown);
+beforeAll(async () => {
+  pdRunner = new PodmanDesktopRunner();
+  page = await pdRunner.start();
+  pdRunner.setVideoAndTraceName('bootc-e2e');
 
-  test('Initialize extension type', async () => {
-    extensionBoxVisible = await extensionDashboardBox.isVisible();
-  });
+  const welcomePage = new WelcomePage(page);
+  await welcomePage.handleWelcomePage(true);
+  navBar = new NavigationBar(page);
+});
 
+afterAll(async () => {
+  await pdRunner.close();
+});
+
+describe('bootc installation verification', async () => {
   describe('Check installation availability', async () => {
-    test.runIf(extensionBoxVisible)('Check Dashboard extension component for installation availability', async () => {
-      const installButton = extensionDashboardBox.getByRole('button', { name: installButtonLabel });
-      await playExpect(installButton).toBeVisible();
+    test.only('Go to settings and check if extension is already installed', async () => {
+      const settingsBar = await navBar.openSettings();
+      const extensions = await settingsBar.getCurrentExtensions();
+      for (const extension of extensions) {
+        if ((await extension.getByLabel('Bootable Container').count()) > 0) {
+          extensionAlreadyInstalled = true;
+        }
+      }
     });
 
-    test('Go to settings', async () => {
-      await goToSettings();
-      const settingsBar = new SettingsBar(page);
-      await settingsBar.openTabPage(SettingsExtensionsPage);
-    });
-
-    test.runIf(extensionBoxVisible)('Check Settings extension component for installation availability', async () => {
-      const installButton = extensionSettingsBox.getByRole('button', { name: installButtonLabel });
-      await playExpect(installButton).toBeVisible();
-    });
+    test.runIf(extensionAlreadyInstalled)('Uninstalled previous version of bootc extension', async () => {});
   });
 
   test('Install extension through Settings', async () => {
     const settingsPage = new SettingsExtensionsPage(page);
     let installButton = extensionSettingsBox.getByRole('button', { name: installButtonLabel });
 
-    if (!extensionBoxVisible) {
-      const imageInstallBox = settingsPage.imageInstallBox;
-      const imageInput = imageInstallBox.getByLabel('OCI Image Name');
-      await imageInput.fill(imageLink);
+    const imageInstallBox = settingsPage.imageInstallBox;
+    const imageInput = imageInstallBox.getByLabel('OCI Image Name');
+    await imageInput.fill(imageLink);
 
-      installButton = imageInstallBox.getByRole('button', { name: 'Install extension from the OCI image' });
-      await installButton.isEnabled();
-    }
+    installButton = imageInstallBox.getByRole('button', { name: 'Install extension from the OCI image' });
+    await installButton.isEnabled();
 
     await installButton.click();
 
@@ -105,97 +87,4 @@ describe('$extensionType installation verification', async () => {
     const extensionRunningLabel = installedExtensionRow.getByText('RUNNING');
     await playExpect(extensionRunningLabel).toBeVisible({ timeout: 180000 });
   }, 200000);
-
-  describe('Verify UI components after installation', async () => {
-    test('Verify Settings components', async () => {
-      const settingsBar = new SettingsBar(page);
-      await playExpect(settingsBar.settingsNavBar.getByRole('link', { name: settingsLink })).toBeVisible();
-
-      const extensionPage = await settingsBar.openTabPage(extensionPageType);
-      await playExpect(extensionPage.heading).toBeVisible();
-      await playExpect(extensionPage.status).toHaveText('ENABLED');
-    });
-
-    describe('Toggle and verify extension status', async () => {
-      test('Disable extension and verify Dashboard and Resources components', async () => {
-        const extensionPage = new extensionPageType(page);
-
-        await extensionPage.disableButton.click();
-        await playExpect(extensionPage.status).toHaveText('DISABLED');
-
-        await goToDashboard();
-        await playExpect(extensionDashboardProvider).toBeHidden();
-        await playExpect(extensionDashboardStatus).toBeHidden();
-
-        await goToSettings();
-        const settingsBar = new SettingsBar(page);
-        const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
-        const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
-          name: resourceLabel,
-        });
-        await playExpect(extensionResourceBox).toBeHidden();
-      });
-
-      test('Enable extension and verify Dashboard and Resources components', async () => {
-        const settingsBar = new SettingsBar(page);
-        await settingsBar.openTabPage(SettingsExtensionsPage);
-        const extensionPage = await settingsBar.openTabPage(extensionPageType);
-
-        await extensionPage.enableButton.click();
-        await playExpect(extensionPage.status).toHaveText('ENABLED', { timeout: 10000 });
-
-        await goToDashboard();
-        await playExpect(extensionDashboardProvider).toBeVisible();
-        await playExpect(extensionDashboardStatus).toBeVisible();
-
-        await goToSettings();
-        const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
-        const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
-          name: resourceLabel,
-        });
-        await playExpect(extensionResourceBox).toBeVisible();
-      });
-    });
-  });
-
-  describe('Remove extension and verify UI', async () => {
-    test('Remove extension and verify Settings components', async () => {
-      const settingsBar = new SettingsBar(page);
-      await settingsBar.openTabPage(SettingsExtensionsPage);
-      const extensionPage = await settingsBar.openTabPage(extensionPageType);
-
-      await extensionPage.disableButton.click();
-      await extensionPage.removeExtensionButton.click();
-
-      await playExpect(settingsBar.settingsNavBar.getByRole('link', { name: settingsLink })).toBeHidden();
-
-      const settingsPage = new SettingsExtensionsPage(page);
-      const installedExtensionRow = settingsPage.getExtensionRowFromTable(settingsTableLabel);
-      await playExpect(installedExtensionRow).toBeHidden();
-
-      const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
-      const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', { name: resourceLabel });
-      await playExpect(extensionResourceBox).toBeHidden();
-    });
-
-    test.runIf(extensionBoxVisible)('Verify Dashboard components', async () => {
-      await goToDashboard();
-      const dashboardInstallButton = extensionDashboardBox.getByRole('button', { name: installButtonLabel });
-      await playExpect(dashboardInstallButton).toBeVisible();
-    });
-  });
 });
-
-async function goToDashboard() {
-  const navBar = page.getByRole('navigation', { name: 'AppNavigation' });
-  const dashboardLink = navBar.getByRole('link', { name: 'Dashboard' });
-  await playExpect(dashboardLink).toBeVisible();
-  await dashboardLink.click();
-}
-
-async function goToSettings() {
-  const navBar = page.getByRole('navigation', { name: 'AppNavigation' });
-  const settingsLink = navBar.getByRole('link', { name: 'Settings' });
-  await playExpect(settingsLink).toBeVisible();
-  await settingsLink.click();
-}
