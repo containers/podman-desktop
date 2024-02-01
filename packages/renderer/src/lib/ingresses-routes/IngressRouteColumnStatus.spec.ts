@@ -35,7 +35,7 @@ test('Expect simple column styling with Ingress', async () => {
 
   const text = screen.getByRole('status');
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('bg-green-400');
+  expect(text).toHaveClass('bg-status-running');
 });
 
 test('Expect simple column styling with Route', async () => {
@@ -55,5 +55,5 @@ test('Expect simple column styling with Route', async () => {
 
   const text = screen.getByRole('status');
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('bg-green-400');
+  expect(text).toHaveClass('bg-status-running');
 });

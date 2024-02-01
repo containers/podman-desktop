@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2023 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@ module.exports = {
         'waiting': tailwindColors.amber[600],
 
         // Podman only
+        'starting': tailwindColors.green[600],
 
         // Stopped & Exited are the same color / same thing in the eyes of statuses
         'stopped': tailwindColors.gray[300],

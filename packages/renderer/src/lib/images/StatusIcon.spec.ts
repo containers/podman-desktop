@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ test('Expect starting styling', async () => {
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveAttribute('title', status);
 
-  expect(icon).toHaveClass('bg-green-600');
+  expect(icon).toHaveClass('bg-status-starting');
 });
 
 test('Expect running styling', async () => {
@@ -38,7 +38,7 @@ test('Expect running styling', async () => {
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveAttribute('title', status);
 
-  expect(icon).toHaveClass('bg-green-400');
+  expect(icon).toHaveClass('bg-status-running');
 });
 
 test('Expect degraded styling', async () => {
@@ -48,7 +48,7 @@ test('Expect degraded styling', async () => {
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveAttribute('title', status);
 
-  expect(icon).toHaveClass('bg-amber-600');
+  expect(icon).toHaveClass('bg-status-degraded');
 });
 
 test('Expect deleting styling', async () => {
