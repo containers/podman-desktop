@@ -1,5 +1,6 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
+import { resolve } from 'node:path';
 
 const lightCodeTheme = require('prism-react-renderer').themes.github;
 const darkCodeTheme = require('prism-react-renderer').themes.dracula;
@@ -307,6 +308,28 @@ const config = {
             from: '/docs/kubernetes/openshift',
           },
         ],
+      },
+    ],
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'api',
+        path: 'api',
+        routeBasePath: 'api',
+        sidebarPath: resolve('./sidebars-api.js'),
+      },
+    ],
+    [
+      'docusaurus-plugin-typedoc',
+      {
+        id: 'api',
+        plugin: ['typedoc-plugin-markdown'],
+        entryPoints: [resolve('../packages/extension-api/src/extension-api.d.ts')],
+        out: 'api',
+        hideBreadcrumbs: true,
+        readme: 'none',
+        tsconfig: resolve('../packages/extension-api/tsconfig.json'),
+        hideGenerator: true,
       },
     ],
   ],
