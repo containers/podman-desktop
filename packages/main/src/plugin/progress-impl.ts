@@ -40,6 +40,7 @@ export class ProgressImpl {
    * @template R - The type of the result of the task.
    * @param {extensionApi.ProgressOptions} options - The options for the progress.
    * @param {Function} task - The task function to be executed with progress.
+   * @param {string} extensionId - The extension id that own the task function provided.
    * @returns {Promise<R>} - A promise that resolves to the result of the task.
    */
   withProgress<R>(
@@ -48,11 +49,12 @@ export class ProgressImpl {
       progress: extensionApi.Progress<{ message?: string; increment?: number }>,
       token: extensionApi.CancellationToken,
     ) => Promise<R>,
+    extensionId?: string,
   ): Promise<R> {
     if (options.location === ProgressLocation.APP_ICON) {
       return this.withApplicationIcon(options, task);
     } else {
-      return this.withWidget(options, task);
+      return this.withWidget(options, task, extensionId);
     }
   }
 
@@ -82,8 +84,9 @@ export class ProgressImpl {
       progress: extensionApi.Progress<{ message?: string; increment?: number }>,
       token: extensionApi.CancellationToken,
     ) => Promise<R>,
+    extensionId?: string,
   ): Promise<R> {
-    const t = this.taskManager.createTask(options.title);
+    const t = this.taskManager.createTask(options.title, extensionId);
 
     return task(
       {

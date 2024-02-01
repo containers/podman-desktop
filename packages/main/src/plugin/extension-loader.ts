@@ -826,7 +826,7 @@ export class ExtensionLoader {
           token: containerDesktopAPI.CancellationToken,
         ) => Promise<R>,
       ): Promise<R> => {
-        return progress.withProgress(options, task);
+        return progress.withProgress(options, task, extensionInfo.id);
       },
 
       showNotification: (notificationInfo: containerDesktopAPI.NotificationOptions): containerDesktopAPI.Disposable => {

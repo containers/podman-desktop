@@ -48,6 +48,7 @@ test('create stateful task with title', async () => {
   expect(task.name).equal('title');
   expect(task.state).equal('running');
   expect(task.status).equal('in-progress');
+  expect(task.extensionId).toBeUndefined();
   expect(apiSenderSendMock).toBeCalledWith('task-created', task);
 });
 
@@ -58,6 +59,7 @@ test('create stateful task without title', async () => {
   expect(task.name).equal('Task 1');
   expect(task.state).equal('running');
   expect(task.status).equal('in-progress');
+  expect(task.extensionId).toBeUndefined();
   expect(apiSenderSendMock).toBeCalledWith('task-created', task);
 });
 
@@ -68,6 +70,7 @@ test('create multiple stateful tasks with title', async () => {
   expect(task.name).equal('title');
   expect(task.state).equal('running');
   expect(task.status).equal('in-progress');
+  expect(task.extensionId).toBeUndefined();
   expect(apiSenderSendMock).toBeCalledWith('task-created', task);
 
   const task2 = taskManager.createTask('another title');
@@ -75,6 +78,7 @@ test('create multiple stateful tasks with title', async () => {
   expect(task2.name).equal('another title');
   expect(task2.state).equal('running');
   expect(task2.status).equal('in-progress');
+  expect(task2.extensionId).toBeUndefined();
   expect(apiSenderSendMock).toBeCalledWith('task-created', task2);
 
   const task3 = taskManager.createTask('third title');
@@ -82,6 +86,7 @@ test('create multiple stateful tasks with title', async () => {
   expect(task3.name).equal('third title');
   expect(task3.state).equal('running');
   expect(task3.status).equal('in-progress');
+  expect(task3.extensionId).toBeUndefined();
   expect(apiSenderSendMock).toBeCalledWith('task-created', task3);
 });
 
@@ -191,4 +196,10 @@ test('Ensure init setup command and statusbar registry', async () => {
 
   expect(mocks.registerCommandMock).toHaveBeenCalledOnce();
   expect(mocks.setEntryMock).toHaveBeenCalledOnce();
+});
+
+test('create tasks with title and extensionId', async () => {
+  const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
+  const task = taskManager.createTask('title', 'random-extension-id');
+  expect(task.extensionId).equal('random-extension-id');
 });

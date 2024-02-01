@@ -55,7 +55,7 @@ export class TaskManager {
     });
   }
 
-  public createTask(title: string | undefined): StatefulTask {
+  public createTask(title: string | undefined, extensionId?: string): StatefulTask {
     this.taskId++;
     const task: StatefulTask = {
       id: `main-${this.taskId}`,
@@ -63,13 +63,14 @@ export class TaskManager {
       started: new Date().getTime(),
       state: 'running',
       status: 'in-progress',
+      extensionId: extensionId,
     };
     this.tasks.set(task.id, task);
     this.apiSender.send('task-created', task);
     return task;
   }
 
-  public createNotificationTask(notificationInfo: NotificationInfo): NotificationTask {
+  public createNotificationTask(notificationInfo: NotificationInfo, extensionId?: string): NotificationTask {
     this.taskId++;
     const task: NotificationTask = {
       id: `main-${this.taskId}`,
@@ -77,6 +78,7 @@ export class TaskManager {
       started: new Date().getTime(),
       description: notificationInfo.body || '',
       markdownActions: notificationInfo.markdownActions,
+      extensionId: extensionId,
     };
     this.tasks.set(task.id, task);
     this.apiSender.send('task-created', task);

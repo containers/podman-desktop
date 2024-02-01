@@ -138,3 +138,23 @@ test('Should update the task name', async () => {
     status: 'success',
   });
 });
+
+test('Should propagate the extension id to the create task method', async () => {
+  const createTaskMock = vi.fn();
+  const updateTaskMock = vi.fn();
+  const taskManager = {
+    createTask: createTaskMock,
+    updateTask: updateTaskMock,
+  } as unknown as TaskManager;
+
+  createTaskMock.mockImplementation(() => ({}));
+  const progress = new ProgressImpl(taskManager);
+
+  await progress.withProgress<void>(
+    { location: ProgressLocation.TASK_WIDGET, title: 'My task' },
+    () => Promise.resolve(),
+    'random-extension-id',
+  );
+
+  expect(createTaskMock).toHaveBeenCalledWith('My task', 'random-extension-id');
+});

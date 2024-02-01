@@ -23,6 +23,7 @@ export interface Task {
   id: string;
   name: string;
   started: number;
+  readonly extensionId?: string;
 }
 
 export interface StatefulTask extends Task {
