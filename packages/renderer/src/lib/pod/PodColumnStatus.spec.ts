@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,5 +42,5 @@ test('Expect simple column styling', async () => {
 
   const status = screen.getByRole('status');
   expect(status).toBeInTheDocument();
-  expect(status).toHaveClass('bg-green-400');
+  expect(status).toHaveClass('bg-status-running');
 });
