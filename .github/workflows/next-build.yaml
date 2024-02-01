@@ -75,7 +75,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-22.04, macos-12]
+        os: [windows-2022, ubuntu-22.04, macos-14]
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
@@ -95,7 +95,7 @@ jobs:
         run: echo "dir=$(yarn cache dir)" >> ${env:GITHUB_OUTPUT}
 
       - name: Get yarn cache directory path (mac/Linux)
-        if: ${{ matrix.os=='ubuntu-22.04' || matrix.os=='macos-12' }}
+        if: ${{ matrix.os=='ubuntu-22.04' || matrix.os=='macos-14' }}
         id: yarn-cache-dir-path-unix
         run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
 
@@ -109,7 +109,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - uses: actions/cache@v4
-        if: ${{ matrix.os=='ubuntu-22.04' || matrix.os=='macos-12' }}
+        if: ${{ matrix.os=='ubuntu-22.04' || matrix.os=='macos-14' }}
         id: yarn-cache-unix
         with:
           path: ${{ steps.yarn-cache-dir-path-unix.outputs.dir }}
