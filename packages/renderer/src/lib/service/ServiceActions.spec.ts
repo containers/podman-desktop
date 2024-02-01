@@ -63,3 +63,11 @@ test('Expect no error and status deleting service', async () => {
   expect(updateMock).toHaveBeenCalled();
   expect(deleteMock).toHaveBeenCalled();
 });
+
+test('Expect buttons to be disabled when deleting', async () => {
+  render(ServiceActions, { service });
+  service.status = 'DELETING';
+
+  const deletePodButton = screen.getByRole('button', { name: 'Delete Service' });
+  expect(deletePodButton).toBeDisabled();
+});
