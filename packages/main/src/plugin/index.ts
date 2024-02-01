@@ -57,7 +57,7 @@ import { getFreePort, getFreePortRange, isFreePort } from './util/port.js';
 import { isLinux, isMac } from '../util.js';
 import type { MessageBoxOptions, MessageBoxReturnValue } from './message-box.js';
 import { MessageBox } from './message-box.js';
-import { ProgressImpl } from './progress-impl.js';
+import { ProgressImpl, ProgressLocation } from './progress-impl.js';
 import type { ContributionInfo } from './api/contribution-info.js';
 import { ContributionManager } from './contribution-manager.js';
 import { DockerDesktopInstallation } from './docker-extension/docker-desktop-installation.js';
@@ -742,6 +742,8 @@ export class PluginSystem {
     const kubernetesUtils = new KubernetesUtils(configurationRegistry);
     kubernetesUtils.init();
 
+    const progressImpl = new ProgressImpl(taskManager);
+
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
       menuRegistry,
@@ -751,7 +753,7 @@ export class PluginSystem {
       apiSender,
       trayMenuRegistry,
       messageBox,
-      new ProgressImpl(taskManager),
+      progressImpl,
       statusBarRegistry,
       kubernetesClient,
       fileSystemMonitoring,
@@ -1090,9 +1092,21 @@ export class PluginSystem {
         imageName: string,
         callbackId: number,
       ): Promise<void> => {
-        return containerProviderRegistry.pullImage(providerContainerConnectionInfo, imageName, (event: PullEvent) => {
-          this.getWebContentsSender().send('container-provider-registry:pullImage-onData', callbackId, event);
-        });
+        // Create a progress task
+        return progressImpl
+          .withProgress<void>(
+            {
+              location: ProgressLocation.TASK_WIDGET,
+              title: `Pulling ${imageName}.`,
+            },
+            () =>
+              containerProviderRegistry.pullImage(providerContainerConnectionInfo, imageName, (event: PullEvent) => {
+                this.getWebContentsSender().send('container-provider-registry:pullImage-onData', callbackId, event);
+              }),
+          )
+          .catch((err: unknown) => {
+            console.error(`Error while pulling ${imageName}`, err);
+          });
       },
     );
     this.ipcHandle(
