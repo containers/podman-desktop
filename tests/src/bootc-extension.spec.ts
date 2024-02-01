@@ -24,17 +24,14 @@ import { expect as playExpect } from '@playwright/test';
 import { SettingsExtensionsPage } from './model/pages/settings-extensions-page';
 import type { RunnerTestContext } from './testContext/runner-test-context';
 import { NavigationBar } from './model/workbench/navigation';
+import { SettingsBar } from './model/pages/settings-bar';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
 
 let navBar: NavigationBar;
-let extensionSettingsBox: Locator;
-let installButtonLabel: string;
-let imageLink: string;
-let settingsTableLabel: string;
 
-let extensionAlreadyInstalled = false;
+let extensionInstalled = false;
 
 beforeEach<RunnerTestContext>(async ctx => {
   console.log('running before each');
@@ -56,35 +53,34 @@ afterAll(async () => {
 });
 
 describe('bootc installation verification', async () => {
-  describe('Check installation availability', async () => {
-    test.only('Go to settings and check if extension is already installed', async () => {
-      const settingsBar = await navBar.openSettings();
-      const extensions = await settingsBar.getCurrentExtensions();
-      for (const extension of extensions) {
-        if ((await extension.getByLabel('Bootable Container').count()) > 0) {
-          extensionAlreadyInstalled = true;
-        }
-      }
-    });
+  test('Go to settings and check if extension is already installed', async () => {
+    const settingsBar = await navBar.openSettings();
+    const extensions = await settingsBar.getCurrentExtensions();
+    if (await checkForBootcInExtensions(extensions)) extensionInstalled = true;
+  });
 
-    test.runIf(extensionAlreadyInstalled)('Uninstalled previous version of bootc extension', async () => {});
+  test.runIf(extensionInstalled)('Uninstalled previous version of bootc extension', async () => {
+    throw new Error('not implemented');
   });
 
   test('Install extension through Settings', async () => {
-    const settingsPage = new SettingsExtensionsPage(page);
-    let installButton = extensionSettingsBox.getByRole('button', { name: installButtonLabel });
+    const settingsExtensionPage = new SettingsExtensionsPage(page);
+    await settingsExtensionPage.installExtensionFromOCIImage('ghcr.io/containers/podman-desktop-extension-bootc');
 
-    const imageInstallBox = settingsPage.imageInstallBox;
-    const imageInput = imageInstallBox.getByLabel('OCI Image Name');
-    await imageInput.fill(imageLink);
-
-    installButton = imageInstallBox.getByRole('button', { name: 'Install extension from the OCI image' });
-    await installButton.isEnabled();
-
-    await installButton.click();
-
-    const installedExtensionRow = settingsPage.getExtensionRowFromTable(settingsTableLabel);
-    const extensionRunningLabel = installedExtensionRow.getByText('RUNNING');
-    await playExpect(extensionRunningLabel).toBeVisible({ timeout: 180000 });
+    const settingsBar = new SettingsBar(page);
+    const extensions = await settingsBar.getCurrentExtensions();
+    await playExpect.poll(async () => await checkForBootcInExtensions(extensions), { timeout: 30000 }).toBeTruthy();
   }, 200000);
 });
+
+async function checkForBootcInExtensions(extensionList: Locator[]): Promise<boolean> {
+  for (const extension of extensionList) {
+    if ((await extension.getByText('Bootable Container', { exact: true }).count()) > 0) {
+      console.log('bootc extension found installed');
+      return true;
+    }
+  }
+
+  console.log('bootc extension not found to be installed');
+  return false;
+}

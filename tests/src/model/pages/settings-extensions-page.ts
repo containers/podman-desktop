@@ -18,6 +18,7 @@
 
 import type { Locator, Page } from '@playwright/test';
 import { SettingsPage } from './settings-page';
+import { expect as playExpect } from '@playwright/test';
 
 export class SettingsExtensionsPage extends SettingsPage {
   readonly heading: Locator;
@@ -37,6 +38,18 @@ export class SettingsExtensionsPage extends SettingsPage {
     this.extensionsTable = page.getByRole('table');
     this.imageInstallBox = page.getByRole('region', { name: 'OCI image installation box' });
     this.installedExtensions = page.getByLabel('Installed Extensions');
+  }
+
+  public async installExtensionFromOCIImage(extension: string): Promise<SettingsExtensionsPage> {
+    const imageInput = this.imageInstallBox.getByLabel('OCI Image Name');
+    await imageInput.fill(extension);
+
+    const installButton = this.imageInstallBox.getByRole('button', { name: 'Install extension from the OCI image' });
+    await playExpect(installButton).toBeEnabled();
+
+    await installButton.click();
+    await playExpect(this.imageInstallBox).toContainText('installation finished', { timeout: 30000 });
+    return this;
   }
 
   public getExtensionRowFromTable(extensionName: string): Locator {
