@@ -69,6 +69,7 @@ test('Expect no error and status deleting route', async () => {
       name: 'service',
     },
     selected: false,
+    tlsEnabled: false,
   };
 
   const { component } = render(IngressRouteActions, { ingressRoute: routeUI });

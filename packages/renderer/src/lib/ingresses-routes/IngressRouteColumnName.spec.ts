@@ -43,6 +43,7 @@ const routeUI: RouteUI = {
     name: 'service',
   },
   selected: false,
+  tlsEnabled: false,
 };
 
 test('Expect simple column styling with Ingress', async () => {
