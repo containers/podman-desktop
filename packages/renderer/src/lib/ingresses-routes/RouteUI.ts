@@ -30,4 +30,5 @@ export interface RouteUI {
   path?: string;
   to: RouteToReference;
   selected: boolean;
+  tlsEnabled: boolean;
 }

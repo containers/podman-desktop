@@ -51,6 +51,7 @@ const routeUI: RouteUI = {
     name: 'service',
   },
   selected: false,
+  tlsEnabled: false,
 };
 
 const route: V1Route = {
