@@ -21,7 +21,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeEach, afterEach } from 'vitest';
+import { test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 import DeployPodToKube from './DeployPodToKube.svelte';
 import * as jsYaml from 'js-yaml';
@@ -40,6 +40,13 @@ const kubernetesIsAPIGroupSupported = vi.fn();
 const listSimpleContainersByLabelMock = vi.fn();
 const kubernetesReadNamespacedPodMock = vi.fn();
 const queryCommandSupportedMock = vi.fn();
+const openshiftCreateRouteMock = vi.fn();
+const openExternalMock = vi.fn();
+
+// replace Monaco Editor by a Spinner so we don't need to load tons of stuff
+vi.mock('../editor/MonacoEditor.svelte', actual => {
+  return vi.importActual('../ui/Spinner.svelte');
+});
 
 // mock the router
 vi.mock('tinro', () => {
@@ -51,6 +58,8 @@ vi.mock('tinro', () => {
 });
 
 beforeEach(() => {
+  vi.resetAllMocks();
+
   Object.defineProperty(window, 'generatePodmanKube', {
     value: generatePodmanKubeMock,
   });
@@ -84,8 +93,14 @@ beforeEach(() => {
   Object.defineProperty(window, 'telemetryTrack', {
     value: telemetryTrackMock,
   });
+  Object.defineProperty(window, 'openshiftCreateRoute', {
+    value: openshiftCreateRouteMock,
+  });
   Object.defineProperty(window, 'listSimpleContainersByLabel', {
     value: listSimpleContainersByLabelMock,
+  });
+  Object.defineProperty(window, 'openExternal', {
+    value: openExternalMock,
   });
   Object.defineProperty(document, 'queryCommandSupported', {
     value: queryCommandSupportedMock,
@@ -104,6 +119,13 @@ beforeEach(() => {
             {
               name: 'hello',
               mountPath: '/hello',
+            },
+          ],
+          ports: [
+            {
+              hostPort: 8080,
+              protocol: 'TCP',
+              containerPort: 8080,
             },
           ],
         },
@@ -132,11 +154,6 @@ beforeEach(() => {
   listSimpleContainersByLabelMock.mockResolvedValue([simpleContainerInfo]);
 });
 
-afterEach(() => {
-  vi.resetAllMocks();
-  vi.clearAllMocks();
-});
-
 async function waitRender(customProperties: any): Promise<void> {
   const result = render(DeployPodToKube, { resourceId: 'foo', engineId: 'bar', type: 'unknown', ...customProperties });
   // wait that result.component.$$.ctx[0] is set
@@ -144,6 +161,96 @@ async function waitRender(customProperties: any): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, 100));
   }
 }
+
+test('Expect to create routes with OpenShift and open Link', async () => {
+  kubernetesReadNamespacedConfigMapMock.mockResolvedValue({
+    data: {
+      consoleURL: 'https://console-openshift-console.apps.cluster-1.example.com',
+    },
+  });
+  kubernetesGetCurrentContextNameMock.mockResolvedValue('default');
+  kubernetesCreatePodMock.mockResolvedValue({
+    metadata: { name: 'hello', namespace: 'default' },
+  });
+
+  kubernetesReadNamespacedPodMock.mockResolvedValue({
+    metadata: { name: 'hello' },
+    status: {
+      phase: 'Running',
+    },
+  });
+
+  // say the pod has been created
+  kubernetesReadNamespacedPodMock.mockResolvedValue({
+    metadata: { name: 'hello' },
+    status: {
+      phase: 'Running',
+    },
+  });
+
+  openshiftCreateRouteMock.mockResolvedValue({
+    metadata: {
+      name: 'hello-8080',
+    },
+    spec: {
+      host: 'my-spec-host',
+      port: {
+        targetPort: '8080',
+      },
+    },
+  });
+
+  kubernetesIsAPIGroupSupported.mockResolvedValue(true);
+  await waitRender({});
+
+  const createButton = screen.getByRole('button', { name: 'Deploy' });
+  expect(createButton).toBeInTheDocument();
+  expect(createButton).toBeEnabled();
+  await fireEvent.click(createButton);
+
+  // wait that openshiftCreateRouteMock is called
+  while (openshiftCreateRouteMock.mock.calls.length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  expect(telemetryTrackMock).toBeCalledWith('deployToKube', {
+    useRoutes: true,
+    useServices: true,
+    isOpenshift: true,
+    createIngress: false,
+  });
+
+  // check tls option is used
+  expect(openshiftCreateRouteMock).toBeCalledWith('default', {
+    apiVersion: 'route.openshift.io/v1',
+    kind: 'Route',
+    metadata: {
+      name: 'hello-8080',
+      namespace: 'default',
+    },
+    spec: {
+      port: {
+        targetPort: 8080,
+      },
+      tls: {
+        termination: 'edge',
+      },
+      to: {
+        kind: 'Service',
+        name: 'hello-8080',
+      },
+    },
+  });
+
+  // now, grab the link 'openRoute' with name 'hello-8080'
+  const openRouteButton = screen.getByRole('link', { name: 'hello-8080' });
+
+  // click the button
+  await fireEvent.click(openRouteButton);
+
+  // expect the router to be called with the correct url
+  expect(openExternalMock).toBeCalledWith('https://my-spec-host');
+});
 
 test('Expect to send telemetry event', async () => {
   await waitRender({});
@@ -224,6 +331,12 @@ test('When deploying a pod, volumes should not be added (they are deleted by pod
             name: 'hello',
             image: 'hello-world',
             imagePullPolicy: 'IfNotPresent',
+            ports: [
+              {
+                containerPort: 8080,
+                protocol: 'TCP',
+              },
+            ],
           },
         ],
       },
@@ -251,6 +364,12 @@ test('Test deploying a group of compose containers with type compose still funct
             name: 'hello',
             image: 'hello-world',
             imagePullPolicy: 'IfNotPresent',
+            ports: [
+              {
+                containerPort: 8080,
+                protocol: 'TCP',
+              },
+            ],
           },
         ],
       },
@@ -278,6 +397,12 @@ test('When modifying the pod name, metadata.apps.label should also have been cha
             name: 'hello',
             image: 'hello-world',
             imagePullPolicy: 'IfNotPresent',
+            ports: [
+              {
+                containerPort: 8080,
+                protocol: 'TCP',
+              },
+            ],
           },
         ],
       },
@@ -308,6 +433,13 @@ test('When deploying a pod, restricted security context is added', async () => {
             name: 'hello',
             image: 'hello-world',
             imagePullPolicy: 'IfNotPresent',
+            ports: [
+              {
+                containerPort: 8080,
+                protocol: 'TCP',
+              },
+            ],
+
             securityContext: {
               allowPrivilegeEscalation: false,
               capabilities: {
@@ -325,7 +457,7 @@ test('When deploying a pod, restricted security context is added', async () => {
   );
 });
 
-test('Fail to deploy ingress if service is not selected', async () => {
+test('Succeed to deploy ingress if service is selected', async () => {
   await waitRender({});
   const createButton = screen.getByRole('button', { name: 'Deploy' });
   expect(createButton).toBeInTheDocument();
@@ -340,7 +472,20 @@ test('Fail to deploy ingress if service is not selected', async () => {
   await fireEvent.click(createButton);
 
   // Expect kubernetesCreateIngress to not be called since we error out as service wasn't selected
-  await waitFor(() => expect(kubernetesCreateIngressMock).not.toHaveBeenCalled());
+  expect(kubernetesCreateIngressMock).toHaveBeenCalled();
+});
+
+test('fail to deploy ingress if service is unselected', async () => {
+  await waitRender({});
+  const createButton = screen.getByRole('button', { name: 'Deploy' });
+  expect(createButton).toBeInTheDocument();
+  expect(createButton).toBeEnabled();
+
+  // Press the deploy button
+  await fireEvent.click(createButton);
+
+  // Expect kubernetesCreateIngress to not be called since we error out as service wasn't selected
+  expect(kubernetesCreateIngressMock).not.toHaveBeenCalled();
 });
 
 test('Should display Open pod button after successful deployment', async () => {
