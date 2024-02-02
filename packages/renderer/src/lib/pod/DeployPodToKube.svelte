@@ -137,7 +137,7 @@ function goBackToHistory(): void {
 }
 
 function openRoute(route: V1Route) {
-  window.openExternal(`http://${route.spec.host}`);
+  window.openExternal(`https://${route.spec.host}`);
 }
 
 async function deployToKube() {
@@ -201,6 +201,9 @@ async function deployToKube() {
                 to: {
                   kind: 'Service',
                   name: `${bodyPod.metadata.name}-${port.hostPort}`,
+                },
+                tls: {
+                  termination: 'edge',
                 },
               },
             };
