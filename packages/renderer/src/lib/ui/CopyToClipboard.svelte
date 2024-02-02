@@ -22,6 +22,6 @@ function copyTextToClipboard() {
     </button>
   </Tooltip>
 </div>
-<div class="mt-1 my-auto text-xs truncate {$$props.class || ''}" aria-label="{title} copy to clipboard" title="{title}">
+<div class="mt-1 my-auto truncate {$$props.class || ''}" aria-label="{title} copy to clipboard" title="{title}">
   {title}
 </div>
