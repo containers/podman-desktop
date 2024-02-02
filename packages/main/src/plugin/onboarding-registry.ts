@@ -54,9 +54,14 @@ export class OnboardingRegistry {
     this.checkIdsReadability(extension, onboarding);
     //TODO we need to check the onboarding has a valid schema. contains atleast a step and substep
     this.convertImages(extension, onboarding);
+
     return {
       ...onboarding,
       extension: extension.id,
+      name: extension.name,
+      displayName: extension.manifest?.displayName || extension.name,
+      description: extension.manifest?.description || '',
+      icon: onboarding.media?.path || '',
     };
   }
 

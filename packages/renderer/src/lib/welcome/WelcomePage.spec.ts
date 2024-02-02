@@ -26,6 +26,7 @@ import { get, type Unsubscriber } from 'svelte/store';
 import { router } from 'tinro';
 import { featuredExtensionInfos } from '/@/stores/featuredExtensions';
 import type { FeaturedExtension } from '../../../../main/src/plugin/featured/featured-api';
+import { onboardingList } from '/@/stores/onboarding';
 
 let routerUnsubscribe: Unsubscriber;
 let path: string;
@@ -114,6 +115,84 @@ test('Expect that telemetry UI is visible when necessary', async () => {
   expect(checkbox).toBeInTheDocument();
 });
 
+test('Expect welcome screen to show three onboarding providers', async () => {
+  onboardingList.set([
+    {
+      extension: 'id',
+      title: 'onboarding',
+      name: 'foobar1',
+      displayName: 'FooBar1',
+      icon: 'data:image/png;base64,foobar1',
+      steps: [
+        {
+          id: 'step',
+          title: 'step',
+          state: 'failed',
+          completionEvents: [],
+        },
+      ],
+      enablement: 'true',
+    },
+    {
+      extension: 'id',
+      title: 'onboarding',
+      name: 'foobar2',
+      displayName: 'FooBar2',
+      icon: 'data:image/png;base64,foobar2',
+      steps: [
+        {
+          id: 'step',
+          title: 'step',
+          state: 'failed',
+          completionEvents: [],
+        },
+      ],
+      enablement: 'true',
+    },
+    {
+      extension: 'id',
+      title: 'onboarding',
+      name: 'foobar3',
+      displayName: 'FooBar3',
+      icon: 'data:image/png;base64,foobar3',
+      steps: [
+        {
+          id: 'step',
+          title: 'step',
+          state: 'failed',
+          completionEvents: [],
+        },
+      ],
+      enablement: 'true',
+    },
+  ]);
+
+  // wait until the onboarding list is populated
+  while (get(onboardingList).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  await waitRender({ showWelcome: true });
+
+  // wait until aria-label 'providerList' is populated
+  while (screen.queryAllByLabelText('providerList').length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  // Check that the logos for foobar1, foobar2, and foobar3 are present
+  const image1 = screen.getByRole('img', { name: 'foobar1 logo' });
+  expect(image1).toBeInTheDocument();
+  expect(image1).toHaveAttribute('src', 'data:image/png;base64,foobar1');
+
+  const image2 = screen.getByRole('img', { name: 'foobar2 logo' });
+  expect(image2).toBeInTheDocument();
+  expect(image2).toHaveAttribute('src', 'data:image/png;base64,foobar2');
+
+  const image3 = screen.getByRole('img', { name: 'foobar3 logo' });
+  expect(image3).toBeInTheDocument();
+  expect(image3).toHaveAttribute('src', 'data:image/png;base64,foobar3');
+});
+
 test('Expect that featured extensions are displayed', async () => {
   const featuredExtension1: FeaturedExtension = {
     builtin: true,
@@ -162,4 +241,63 @@ test('Expect that featured extensions are displayed', async () => {
   expect(imageExt2).toBeInTheDocument();
   // expect image source is correct
   expect(imageExt2).toHaveAttribute('src', 'data:image/png;base64,foobaz');
+});
+
+test('Expect that if the onboarding extension has the same name as featured extension, the featured extension wont be shown', async () => {
+  onboardingList.set([
+    {
+      extension: 'id',
+      title: 'onboarding',
+      name: 'foo.bar',
+      displayName: 'FooBar',
+      icon: 'data:image/png;base64,foobar',
+      steps: [
+        {
+          id: 'step',
+          title: 'step',
+          state: 'failed',
+          completionEvents: [],
+        },
+      ],
+      enablement: 'true',
+    },
+  ]);
+
+  // wait until the onboarding list is populated
+  while (get(onboardingList).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  const featuredExtension1: FeaturedExtension = {
+    builtin: true,
+    id: 'foo.bar',
+    displayName: 'FooBar',
+    description: 'Foobar description',
+    icon: 'data:image/png;base64,foobar',
+    categories: [],
+    fetchable: true,
+    fetchLink: 'oci-hello/world',
+    fetchVersion: '1.2.3',
+    installed: true,
+  };
+
+  getFeaturedExtensionsMock.mockResolvedValue([featuredExtension1]);
+
+  // ask to update the featured Extensions store
+  window.dispatchEvent(new CustomEvent('system-ready'));
+
+  // wait store are populated
+  while (get(featuredExtensionInfos).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  await waitRender({ showWelcome: true });
+
+  // Expect 'FooBar' logo to only be shown once, not twice.
+  const imageExt = screen.getAllByRole('img', { name: 'FooBar logo' });
+  expect(imageExt.length).toBe(1);
+
+  // Expect the title to be shown only once as well
+  const titleExt = screen.getAllByText('FooBar');
+  expect(titleExt.length).toBe(1);
 });

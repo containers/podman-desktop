@@ -57,8 +57,10 @@ import Spinner from '../ui/Spinner.svelte';
 import { OnboardingTelemetrySession } from './telemetry';
 
 export let extensionIds: string[] = [];
+export let global: boolean = false;
 
 let onboardings: OnboardingInfo[] = [];
+$: onboardingItems = onboardings;
 let activeStep: ActiveOnboardingStep;
 let activeStepContent: OnboardingStepItem[][];
 
@@ -71,7 +73,7 @@ let executedCommands: string[] = [];
 let telemetrySession = new OnboardingTelemetrySession();
 
 /*
-$: enableNextButton = false;*/
+  $: enableNextButton = false;*/
 let onboardingUnsubscribe: Unsubscriber;
 let contextsUnsubscribe: Unsubscriber;
 // variable used to mark if the onboarding is running or not
@@ -289,6 +291,28 @@ function handleEscape({ key }: any) {
     setDisplayCancelSetup(true);
   }
 }
+
+async function skipCurrentOnboarding() {
+  if (activeStep) {
+    // Find the current onboarding based on the activeStep's extension
+    const currentOnboarding = onboardings.find(o => o.extension === activeStep.onboarding.extension);
+    if (currentOnboarding) {
+      // Iterate over each step of the current onboarding
+      for (const step of currentOnboarding.steps) {
+        // Update each step's status to STATUS_SKIPPED
+        await updateOnboardingStepStatus(currentOnboarding, step, STATUS_SKIPPED);
+      }
+    }
+    // Set the next active step after skipping the current onboarding
+    await setActiveStep();
+  }
+}
+
+// Below is reactive classes & variables for globalOnboarding, this is needed
+// when doing the "global onboarding" sequence, replacing some UI elements with
+// full-screen ones.
+let globalOnboarding = false;
+$: globalOnboarding = global;
 </script>
 
 <svelte:window on:keydown="{handleEscape}" />
@@ -300,7 +324,9 @@ function handleEscape({ key }: any) {
     id="stepBody"
     role="region"
     aria-label="Onboarding Body"
-    class="flex flex-col bg-charcoal-500 h-full overflow-y-auto w-full overflow-x-hidden"
+    class="flex flex-col {globalOnboarding
+      ? 'flex-auto fixed top-0 left-0 right-0 bottom-0 bg-zinc-700 bg-no-repeat z-50 pt-9'
+      : 'bg-charcoal-500 h-full overflow-y-auto w-full overflow-x-hidden'}"
     class:bodyWithBar="{!activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}">
     <div class="flex flex-col h-full">
       <div
@@ -309,37 +335,73 @@ function handleEscape({ key }: any) {
         aria-level="{2}"
         aria-label="{activeStep.onboarding.title} Header">
         <div class="flex flew-row">
-          {#if activeStep.onboarding.media}
+          {#if activeStep?.onboarding?.media && !globalOnboarding}
             <img
-              class="w-14 h-14 object-contain"
+              class="w-14 h-14 object-contain mr-3"
               alt="{activeStep.onboarding.media.altText}"
               src="{activeStep.onboarding.media.path}" />
           {/if}
-          <div class="flex flex-col ml-8 my-2">
-            <div class="text-lg font-bold text-white">
-              {replaceContextKeyPlaceholders(
-                activeStep.onboarding.title,
-                activeStep.onboarding.extension,
-                globalContext,
-              )}
-            </div>
-            {#if activeStep.onboarding.description}
-              <div class="text-sm text-white">
+          <div class="flex flex-col">
+            {#if globalOnboarding}
+              <div class="text-lg font-bold text-white">Get started with Podman Desktop</div>
+            {:else}
+              <div class="text-lg font-bold text-white">
                 {replaceContextKeyPlaceholders(
-                  activeStep.onboarding.description,
+                  activeStep.onboarding.title,
                   activeStep.onboarding.extension,
                   globalContext,
                 )}
               </div>
+              {#if activeStep.onboarding.description}
+                <div class="text-sm text-white">
+                  {replaceContextKeyPlaceholders(
+                    activeStep.onboarding.description,
+                    activeStep.onboarding.extension,
+                    globalContext,
+                  )}
+                </div>
+              {/if}
             {/if}
             <button
-              class="flex flex-row text-xs items-center hover:underline"
+              class="flex flex-row text-xs items-center hover:underline text-gray-400 mt-1"
               on:click="{() => setDisplayCancelSetup(true)}">
               <span class="mr-1">Skip this entire setup</span>
               <Fa icon="{faForward}" size="0.8x" />
             </button>
           </div>
         </div>
+        <!-- New section for listing onboardings -->
+        {#if globalOnboarding}
+          <div class="flex justify-right mr-3">
+            {#each onboardingItems as onboarding}
+              <div class="flex flex-col items-center ml-8">
+                <!-- Dot indicating active/inactive state -->
+                <span>
+                  <div
+                    class="w-5 h-5 rounded-full mb-1 border-2 {onboarding.extension ===
+                    activeStep?.onboarding?.extension
+                      ? 'bg-purple-700 border-purple-700'
+                      : 'border-gray-700 bg-transparent'}">
+                  </div></span>
+
+                <!-- Onboarding title -->
+                <div class="text-md">
+                  {onboarding.title}
+                </div>
+
+                <!-- Skip button for the onboarding -->
+                {#if onboarding.extension === activeStep?.onboarding?.extension}
+                  <button
+                    class="mt-1 flex flex-row text-xs items-center hover:underline text-gray-400"
+                    on:click="{() => skipCurrentOnboarding()}">
+                    <span class="mr-1">Skip</span>
+                    <Fa icon="{faForward}" size="12" />
+                  </button>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        {/if}
       </div>
       {#if activeStep.step.component}
         <div class="min-w-[700px] mx-auto mt-32" aria-label="Onboarding Component">
@@ -409,7 +471,9 @@ function handleEscape({ key }: any) {
 
       {#if !activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}
         <!-- fake div used to hide scrollbar shadow  -->
-        <div class="fixed bg-charcoal-500 right-0 bottom-0 h-[70px] w-[30px] z-10 mb-6"></div>
+        {#if !globalOnboarding}
+          <div class="fixed bg-charcoal-500 right-0 bottom-0 h-[70px] w-[30px] z-10 mb-6"></div>
+        {/if}
         <div class="grow"></div>
         {#if activeStep.step.state !== 'failed'}
           <div class="mt-10 mx-auto text-sm min-h-[120px]" aria-label="Next Info Message">
@@ -421,7 +485,9 @@ function handleEscape({ key }: any) {
           </div>
         {/if}
         <div
-          class="flex flex-row-reverse p-6 bg-charcoal-700 fixed w-[calc(100%-theme(width.leftnavbar)-theme(width.leftsidebar))] bottom-0 mb-5 pr-10 max-h-20 bg-opacity-90 z-20"
+          class="flex flex-row-reverse p-6 bg-charcoal-700 fixed {globalOnboarding
+            ? 'w-full'
+            : 'w-[calc(100%-theme(width.leftnavbar)-theme(width.leftsidebar))] mb-5'} bottom-0 pr-10 max-h-20 bg-opacity-90 z-20"
           role="group"
           aria-label="Step Buttons">
           <Button

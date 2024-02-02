@@ -3,20 +3,31 @@ import bgImage from './background.png';
 import DesktopIcon from '../images/DesktopIcon.svelte';
 import Fa from 'svelte-fa';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
-import { onMount } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import { WelcomeUtils } from './welcome-utils';
 import { router } from 'tinro';
 import { featuredExtensionInfos } from '/@/stores/featuredExtensions';
 import Tooltip from '../ui/Tooltip.svelte';
 import Button from '../ui/Button.svelte';
+import { onboardingList } from '/@/stores/onboarding';
+import type { OnboardingInfo } from '../../../../main/src/plugin/api/onboarding';
+import { derived, type Unsubscriber } from 'svelte/store';
 
 export let showWelcome = false;
 export let showTelemetry = false;
 
 let telemetry = true;
 
+let onboardingsUnsubscribe: Unsubscriber;
 const welcomeUtils = new WelcomeUtils();
 let podmanDesktopVersion: string;
+
+// Extend ProviderInfo to have a selected property
+interface OnboardingInfoWithSelected extends OnboardingInfo {
+  selected?: boolean;
+}
+
+let onboardingProviders: OnboardingInfoWithSelected[] = [];
 
 onMount(async () => {
   const ver = await welcomeUtils.getVersion();
@@ -24,11 +35,29 @@ onMount(async () => {
     welcomeUtils.updateVersion('initial');
     showWelcome = true;
   }
+
   const telemetryPrompt = await welcomeUtils.havePromptedForTelemetry();
   if (!telemetryPrompt) {
     showTelemetry = true;
   }
   podmanDesktopVersion = await window.getPodmanDesktopVersion();
+
+  onboardingsUnsubscribe = onboardingList.subscribe(value => {
+    // Add "selected" property to each provider and add to onboardingEnabledProviders
+    onboardingProviders = value.map(provider => {
+      return {
+        ...provider,
+        selected: false,
+      };
+    });
+    console.log(onboardingProviders);
+  });
+});
+
+onDestroy(() => {
+  if (onboardingsUnsubscribe) {
+    onboardingsUnsubscribe();
+  }
 });
 
 function closeWelcome() {
@@ -37,6 +66,35 @@ function closeWelcome() {
     welcomeUtils.setTelemetry(telemetry);
   }
 }
+
+// Function to toggle provider selection
+function toggleOnboardingSelection(providerName: string) {
+  // Go through providers, find the provider name and toggle the selected value
+  // then update providers
+  onboardingProviders = onboardingProviders.map(provider => {
+    if (provider.name === providerName) {
+      provider.selected = !provider.selected;
+    }
+    return provider;
+  });
+}
+
+function startOnboardingQueue() {
+  const selectedProviders = onboardingProviders.filter(provider => provider.selected);
+  const extensionIds = selectedProviders.map(provider => provider.extension);
+  const queryParams = new URLSearchParams({ ids: extensionIds.join(',') }).toString();
+  router.goto(`/global-onboarding?${queryParams}`);
+}
+
+// Uses the derived feature to filter out the onboarding providers from the featuredExtensionInfos
+const filteredFeaturedExtensions = derived(
+  [featuredExtensionInfos, onboardingList],
+  ([$featuredExtensionInfos, $onboardingList]) => {
+    return $featuredExtensionInfos.filter(
+      extension => !$onboardingList.some(provider => provider.extension === extension.id),
+    );
+  },
+);
 </script>
 
 {#if showWelcome}
@@ -56,11 +114,46 @@ function closeWelcome() {
       </div>
       <div class="flex flex-row justify-center">
         <div class="bg-charcoal-500 px-4 pb-4 pt-2 rounded">
-          <div class="flex justify-center text-sm text-gray-700 pb-2">
-            <div>Podman desktop supports many container engines and orchestrators, such as:</div>
+          {#if onboardingProviders && onboardingProviders.length > 0}
+            <div class="flex justify-center text-sm text-gray-700 pb-2">
+              <div>Click below to start the onboarding for the following extensions:</div>
+            </div>
+            <div aria-label="providerList" class="grid grid-cols-3 gap-3">
+              {#each onboardingProviders as onboarding}
+                <div
+                  class="rounded-md bg-charcoal-700 flex flex-row justify-between border-2 p-4 {onboarding.selected
+                    ? 'border-purple-500'
+                    : 'border-charcoal-700'}">
+                  <div class="place-items-top flex flex-col flex-1">
+                    <div class="flex flex-row place-items-left flex-1">
+                      <div>
+                        {#if typeof onboarding.icon === 'string'}
+                          <img alt="{onboarding.name} logo" class="max-h-12 h-auto w-auto" src="{onboarding.icon}" />
+                        {/if}
+                      </div>
+                      <div
+                        class="flex flex-1 mx-2 underline decoration-2 decoration-dotted underline-offset-2 cursor-default justify-left text-capitalize">
+                        <Tooltip tip="{onboarding.description}" top>
+                          {onboarding.displayName}
+                        </Tooltip>
+                      </div>
+                    </div>
+                  </div>
+
+                  <input
+                    type="checkbox"
+                    bind:checked="{onboarding.selected}"
+                    on:click="{() => toggleOnboardingSelection(onboarding.name)}"
+                    class="form-checkbox h-5 w-5 text-purple-600" />
+                </div>
+              {/each}
+            </div>
+          {/if}
+          <div class="flex justify-center text-sm text-gray-700 pb-2 mt-4">
+            <div>Podman Desktop supports many container engines and orchestrators, such as:</div>
           </div>
-          <div class="grid grid-cols-3 gap-3">
-            {#each $featuredExtensionInfos as featuredExtension}
+          <div class="grid grid-cols-3 gap-3 justify-center content-center">
+            {#each $filteredFeaturedExtensions as featuredExtension}
               <div
                 class="rounded-md
            bg-charcoal-700 flex flex-row justify-center border-charcoal-700 p-2">
@@ -72,8 +165,7 @@ function closeWelcome() {
                         class="max-h-6 max-w-[24px] h-auto w-auto"
                         src="{featuredExtension.icon}" />
                     </div>
-                    <div
-                      class="flex flex-1 mx-2 underline decoration-2 decoration-dotted underline-offset-2 cursor-default justify-center">
+                    <div class="flex flex-1 mx-2 cursor-help justify-center">
                       <Tooltip tip="{featuredExtension.description}" top>
                         {featuredExtension.displayName}
                       </Tooltip>
@@ -85,6 +177,7 @@ function closeWelcome() {
           </div>
         </div>
       </div>
+
       <div class="flex justify-center p-2 text-sm">
         Configure these and more under <button
           class="text-violet-400 pl-1"
@@ -139,10 +232,28 @@ function closeWelcome() {
     <!-- Footer - button bar -->
     <div class="flex justify-end flex-none bg-charcoal-600 p-8">
       <div class="flex flex-row">
-        <Button
-          on:click="{() => {
-            closeWelcome();
-          }}">Go to Podman Desktop</Button>
+        <!-- If Providers have any onboarding elements selected, create a button that says "Start onboarding" rather than Go to Podman Desktop -->
+        {#if onboardingProviders && onboardingProviders.filter(o => o.selected).length > 0}
+          <!-- We will "always" show the "Go to Podman Desktop" button
+          in-case anything were to happen with the Start onboarding button / sequence not working correctly.
+        we do not want the user to not be able to continue. -->
+          <Button
+            type="secondary"
+            on:click="{() => {
+              closeWelcome();
+            }}">Go to Podman Desktop</Button>
+          <Button
+            class="ml-2"
+            on:click="{() => {
+              closeWelcome();
+              startOnboardingQueue();
+            }}">Start onboarding</Button>
+        {:else}
+          <Button
+            on:click="{() => {
+              closeWelcome();
+            }}">Go to Podman Desktop</Button>
+        {/if}
       </div>
     </div>
   </div>
