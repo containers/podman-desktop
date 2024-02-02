@@ -3062,18 +3062,48 @@ declare module '@podman-desktop/api' {
     export function createCliTool(options: CliToolOptions): CliTool;
   }
 
+  /**
+   * a specific error/recommendation found during an image check
+   */
   export interface ImageCheck {
+    /**
+     * a short and descriptive name for the error/recommendation
+     */
     name: string;
+    /**
+     * either the feedback is positive or negative
+     */
     status: 'success' | 'failed';
+    /**
+     * severity of the error/recommendation, when the status is `failed`
+     */
     severity?: 'low' | 'medium' | 'high' | 'critical';
+    /**
+     * full description of the error/recommendation
+     */
     markdownDescription?: string;
   }
 
+  /**
+   * the complete result of an image check
+   */
   export interface ImageChecks {
+    /**
+     * the list of errors/recommendations found during the image check
+     */
     checks: ImageCheck[];
   }
 
+  /**
+   * Interface to be implemented by image checker providers
+   */
   export interface ImageCheckerProvider {
+    /**
+     *
+     * @param image Info about the image to analyze
+     * @param token a cancellation token the function can use to be informed when the caller asks for the operation to be cancelled
+     * @return the complete result of the analyze, either synchronously of through a Promise
+     */
     check(image: ImageInfo, token?: CancellationToken): ProviderResult<ImageChecks>;
   }
 
@@ -3081,7 +3111,24 @@ declare module '@podman-desktop/api' {
     readonly label: string;
   }
 
+  /**
+   * Module providing to extensions a way to register as an image checker.
+   *
+   * An Image Checker is a program analyzing container images and
+   * returning errors and recommendations, related to security,
+   * optimization, best practices, etc.
+   */
   export namespace imageChecker {
+    /**
+     * Register the extension as an Image Checker.
+     *
+     * As an image checker, a provider needs to implement a specific interface, so the core
+     * application can call the provider with specific tasks when necessary.
+     *
+     * @param imageCheckerProvider an object implementing the `ImageCheckerProvider` interface
+     * @param metadata optional metadata attached to this provider
+     * @return A disposable that unregisters this provider when being disposed
+     */
     export function registerImageCheckerProvider(
       imageCheckerProvider: ImageCheckerProvider,
       metadata?: ImageCheckerProviderMetadata,
