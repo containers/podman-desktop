@@ -355,10 +355,6 @@ function hasAnyConfiguration(provider: ProviderInfo) {
 }
 </script>
 
-<div aria-label="bla" title="bla">
-  <PreferencesResourcesRenderingCopyButton path="bla" />
-</div>
-
 <SettingsPage title="Resources">
   <span slot="subtitle" class:hidden="{providers.length === 0}">
     Additional provider information is available under <a
