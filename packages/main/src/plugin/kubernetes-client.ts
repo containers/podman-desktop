@@ -323,6 +323,8 @@ export class KubernetesClient {
     const previousContexts = this.kubeConfig.contexts;
     const newContexts = this.kubeConfig.contexts.filter(ctx => ctx.name !== contextName);
     const newConfig = new KubeConfig();
+    const newCurrentContextName: string | undefined =
+      contextName !== this.currentContextName ? this.currentContextName : undefined;
     newConfig.loadFromOptions({
       contexts: newContexts,
       clusters: this.kubeConfig.clusters.filter(cluster => {
@@ -336,11 +338,12 @@ export class KubernetesClient {
         // remove users not referenced anymore, except if there were already not referenced before
         return newContexts.some(ctx => ctx.user === user.name) || !previousContexts.some(ctx => ctx.user === user.name);
       }),
-      currentContext: this.kubeConfig.currentContext,
+      currentContext: newCurrentContextName ?? '',
     });
     await this.saveKubeConfig(newConfig);
     // the config is saved back only if saving the file succeeds
     this.kubeConfig = newConfig;
+    this.currentContextName = newCurrentContextName;
     // We send an update event here, even if another one will be sent after the file change is detected,
     // because that one can get some time to be sent (as cluster connectivity will be tested)
     this.apiSender.send('kubernetes-context-update');
