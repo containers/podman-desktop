@@ -44,9 +44,10 @@ test('Expect title is defined', async () => {
     title,
   });
 
-  const titleElement = screen.getByRole('heading', { level: 1, name: title });
+  const titleElement = screen.getByTitle(title);
   expect(titleElement).toBeInTheDocument();
   expect(titleElement).toHaveTextContent(title);
+  expect(titleElement.ariaLabel).toBe(`${title} copy to clipboard`);
 });
 
 test('Expect name is defined', async () => {
