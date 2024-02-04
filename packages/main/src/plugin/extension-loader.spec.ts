@@ -1330,6 +1330,5 @@ test('check version', async () => {
   const readPodmanVersion = api.version;
 
   // check we called method
-  expect(readPodmanVersion).toBeDefined();
   expect(readPodmanVersion).toBe(fakeVersion);
 });

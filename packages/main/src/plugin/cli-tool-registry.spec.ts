@@ -51,11 +51,20 @@ import type { ImageCheckerImpl } from './image-checker.js';
 import type { CliToolImpl } from './cli-tool-impl.js';
 import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
+import { app } from 'electron';
 
 const apiSender: ApiSenderType = {
   send: vi.fn(),
   receive: vi.fn(),
 };
+
+vi.mock('electron', () => {
+  return {
+    app: {
+      getVersion: vi.fn(),
+    },
+  };
+});
 
 const directories = {
   getPluginsDirectory: () => '/fake-plugins-directory',
@@ -100,6 +109,9 @@ suite('cli module', () => {
       vi.fn() as unknown as NavigationManager,
       vi.fn() as unknown as WebviewRegistry,
     );
+
+    // mock electron.app.getVersion
+    vi.mocked(app.getVersion).mockReturnValue('1.2.3');
   });
 
   afterEach(() => {
