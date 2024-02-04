@@ -67,11 +67,13 @@ function DownloadClientLinks() {
     );
   } else {
     mainButton = (
-      <Link
-        className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg"
-        to="/downloads">
-        Download Page
-      </Link>
+      <div>
+        <Link
+          className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 mt-6 mb-1 focus:outline-none hover:bg-purple-600 rounded text-lg"
+          to="/downloads">
+          Download Page
+        </Link>
+      </div>
     );
   }
 
@@ -87,7 +89,7 @@ function DownloadGenericLinks() {
   return (
     <div className="flex justify-center">
       <Link
-        className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg"
+        className="no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 mt-6 mb-1 focus:outline-none hover:bg-purple-600 rounded text-lg"
         to="/downloads">
         Download Page
       </Link>

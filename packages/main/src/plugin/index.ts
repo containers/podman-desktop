@@ -344,12 +344,12 @@ export class PluginSystem {
 
       // if url is a known domain, open it directly
       const urlObject = new URL(url);
-      const validDomains = ['podman-desktop.io', 'podman.io'];
+      const validDomains = ['podman-desktop.io', 'podman.io', 'localhost', '127.0.0.1'];
       const skipConfirmationUrl = validDomains.some(
         domain => urlObject.hostname.endsWith(domain) || urlObject.hostname === domain,
       );
 
-      if (skipConfirmationUrl) {
+      if (skipConfirmationUrl || urlObject.protocol === 'file:') {
         await shell.openExternal(url);
         return true;
       }
@@ -377,6 +377,8 @@ export class PluginSystem {
 
   // initialize extension loader mechanism
   async initExtensions(): Promise<ExtensionLoader> {
+    const notifications: NotificationCardOptions[] = [];
+
     this.isReady = false;
     this.uiReady = false;
     this.ipcHandle('extension-system:isReady', async (): Promise<boolean> => {
@@ -395,12 +397,10 @@ export class PluginSystem {
 
     const iconRegistry = new IconRegistry(apiSender);
     const directories = new Directories();
+    const statusBarRegistry = new StatusBarRegistry(apiSender);
 
-    const taskManager = new TaskManager(apiSender);
-    const notificationRegistry = new NotificationRegistry(apiSender, taskManager);
-
-    const configurationRegistry = new ConfigurationRegistry(apiSender, directories, notificationRegistry);
-    configurationRegistry.init();
+    const configurationRegistry = new ConfigurationRegistry(apiSender, directories);
+    notifications.push(...configurationRegistry.init());
 
     const proxy = new Proxy(configurationRegistry);
     await proxy.init();
@@ -411,6 +411,10 @@ export class PluginSystem {
     const exec = new Exec(proxy);
 
     const commandRegistry = new CommandRegistry(apiSender, telemetry);
+    const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
+    taskManager.init();
+
+    const notificationRegistry = new NotificationRegistry(apiSender, taskManager);
     const menuRegistry = new MenuRegistry(commandRegistry);
     const kubeGeneratorRegistry = new KubeGeneratorRegistry();
     const certificates = new Certificates();
@@ -422,7 +426,6 @@ export class PluginSystem {
     const cancellationTokenRegistry = new CancellationTokenRegistry();
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
-    const statusBarRegistry = new StatusBarRegistry(apiSender);
     const inputQuickPickRegistry = new InputQuickPickRegistry(apiSender);
     const fileSystemMonitoring = new FilesystemMonitoring();
     const customPickRegistry = new CustomPickRegistry(apiSender);
@@ -445,6 +448,10 @@ export class PluginSystem {
       await trayIconColor.init();
     }
 
+    // Add all notifications to notification registry
+    notifications.forEach(notification => notificationRegistry.addNotification(notification));
+    notifications.length = 0;
+    Object.freeze(notifications);
     kubeGeneratorRegistry.registerDefaultKubeGenerator({
       name: 'PodmanKube',
       types: ['Compose', 'Container', 'Pod'],
@@ -479,18 +486,6 @@ export class PluginSystem {
     statusBarRegistry.setEntry('help', false, 0, undefined, 'Help', 'fa fa-question-circle', true, 'help', undefined);
 
     statusBarRegistry.setEntry(
-      'tasks',
-      false,
-      0,
-      undefined,
-      'Tasks',
-      'fa fa-bell',
-      true,
-      'show-task-manager',
-      undefined,
-    );
-
-    statusBarRegistry.setEntry(
       'troubleshooting',
       false,
       0,
@@ -501,10 +496,6 @@ export class PluginSystem {
       'troubleshooting',
       undefined,
     );
-
-    commandRegistry.registerCommand('show-task-manager', () => {
-      apiSender.send('toggle-task-manager', '');
-    });
 
     statusBarRegistry.setEntry(
       'feedback',

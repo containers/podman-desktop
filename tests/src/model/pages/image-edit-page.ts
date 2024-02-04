@@ -18,6 +18,8 @@
 
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './base-page';
+import { ImagesPage } from './images-page';
+import { waitUntil } from '../../utility/wait';
 
 export class ImageEditPage extends BasePage {
   readonly name: string;
@@ -32,5 +34,19 @@ export class ImageEditPage extends BasePage {
     this.saveButton = page.getByRole('button', { name: 'Save' });
     this.name = name;
     this.imageTag = page.getByLabel('imageTag');
+  }
+
+  async renameImage(name: string): Promise<ImagesPage> {
+    if (!name) {
+      throw Error(`Provide name is invalid!`);
+    }
+
+    await this.saveButton.waitFor({ state: 'visible' });
+    await this.imageName.clear();
+    await this.imageName.fill(name);
+
+    await waitUntil(async () => await this.saveButton.isEnabled(), 5000, 500);
+    await this.saveButton.click();
+    return new ImagesPage(this.page);
   }
 }

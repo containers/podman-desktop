@@ -21,6 +21,7 @@ import { BasePage } from './base-page';
 import { PodsPage } from './pods-page';
 import { waitUntil, waitWhile } from '../../utility/wait';
 import { PodState } from '../core/states';
+import { handleConfirmationDialog } from '../../utility/operations';
 
 export class PodDetailsPage extends BasePage {
   readonly labelName: Locator;
@@ -52,12 +53,7 @@ export class PodDetailsPage extends BasePage {
   async getState(): Promise<string> {
     for (const state in PodState) {
       const stateDiv = this.getPage().getByTitle(state.toUpperCase(), { exact: true });
-      try {
-        await stateDiv.waitFor({ state: 'visible', timeout: 200 });
-        return state.toUpperCase();
-      } catch (error) {
-        // go to next state
-      }
+      if ((await stateDiv.count()) > 0) return state.toUpperCase();
     }
     return PodState.Unknown;
   }
@@ -78,6 +74,7 @@ export class PodDetailsPage extends BasePage {
   async deletePod(timeout: number): Promise<PodsPage> {
     const deleteButton = this.page.getByRole('button').and(this.page.getByLabel('Delete Pod'));
     await deleteButton.click();
+    await handleConfirmationDialog(this.page);
     await waitWhile(
       async () => await this.heading.isVisible(),
       timeout,

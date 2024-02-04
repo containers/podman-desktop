@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 import { test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import ContainerActions from './ContainerActions.svelte';
 import type { ContainerInfoUI } from './ContainerInfoUI';
 
@@ -26,8 +26,10 @@ const container: ContainerInfoUI = {} as ContainerInfoUI;
 
 const getContributedMenusMock = vi.fn();
 const updateMock = vi.fn();
+const showMessageBoxMock = vi.fn();
 
 beforeEach(() => {
+  (window as any).showMessageBox = showMessageBoxMock;
   (window as any).startContainer = vi.fn();
   (window as any).stopContainer = vi.fn();
   (window as any).restartContainer = vi.fn();
@@ -82,12 +84,17 @@ test('Expect no error and status restarting container', async () => {
 });
 
 test('Expect no error and status deleting container', async () => {
+  // Mock the showMessageBox to return 0 (yes)
+  showMessageBoxMock.mockResolvedValue({ response: 0 });
   const { component } = render(ContainerActions, { container });
   component.$on('update', updateMock);
 
   // click on delete button
   const deleteButton = screen.getByRole('button', { name: 'Delete Container' });
   await fireEvent.click(deleteButton);
+
+  // Wait for confirmation modal to disappear after clicking on delete
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
   expect(container.state).toEqual('DELETING');
   expect(container.actionError).toEqual('');

@@ -5,4 +5,4 @@ import type { VolumeInfoUI } from './VolumeInfoUI';
 export let object: VolumeInfoUI;
 </script>
 
-<VolumeActions volume="{object}" />
+<VolumeActions volume="{object}" on:update />

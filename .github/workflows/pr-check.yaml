@@ -137,7 +137,7 @@ jobs:
 
   darwin:
     name: macOS
-    runs-on: macos-12
+    runs-on: macos-14
     timeout-minutes: 40
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -279,10 +279,6 @@ jobs:
           # remove once the repository contains conmon 2.1.10
           wget https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/amd64/conmon_2.1.2~0_amd64.deb -O /tmp/conmon_2.1.2.deb
           sudo apt install /tmp/conmon_2.1.2.deb
-      
-      - name: Set test specific environment variable
-        run: |
-          echo "PODMANDESKTOP_CI_BOT_TOKEN=${{secrets.PODMANDESKTOP_CI_BOT_TOKEN}}" >> $GITHUB_ENV
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path

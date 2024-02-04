@@ -29,6 +29,6 @@ export interface VolumeInfoUI {
   engineId: string;
   engineName: string;
   selected: boolean;
-  status: 'USED' | 'UNUSED';
+  status: 'USED' | 'UNUSED' | 'DELETING';
   containersUsage: { id: string; names: string[] }[];
 }

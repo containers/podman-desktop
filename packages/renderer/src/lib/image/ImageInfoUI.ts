@@ -33,7 +33,7 @@ export interface ImageInfoUI {
   // no tag, we encode <none>
   base64RepoTag: string;
   selected: boolean;
-  inUse: boolean;
+  status: 'USED' | 'UNUSED' | 'DELETING';
   icon: any;
   labels?: { [label: string]: string };
   badges: ViewContributionBadgeValue[];

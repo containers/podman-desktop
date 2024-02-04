@@ -94,24 +94,29 @@ onDestroy(() => {
 let bulkDeleteInProgress = false;
 async function deleteSelectedPods() {
   const selectedPods = pods.filter(pod => pod.selected);
-
-  if (selectedPods.length > 0) {
-    bulkDeleteInProgress = true;
-    await Promise.all(
-      selectedPods.map(async pod => {
-        try {
-          if (pod.kind === 'podman') {
-            await window.removePod(pod.engineId, pod.id);
-          } else {
-            await window.kubernetesDeletePod(pod.name);
-          }
-        } catch (e) {
-          console.log('error while removing pod', e);
-        }
-      }),
-    );
-    bulkDeleteInProgress = false;
+  if (selectedPods.length === 0) {
+    return;
   }
+
+  // mark pods for deletion
+  bulkDeleteInProgress = true;
+  selectedPods.forEach(pod => (pod.status = 'DELETING'));
+  pods = pods;
+
+  await Promise.all(
+    selectedPods.map(async pod => {
+      try {
+        if (pod.kind === 'podman') {
+          await window.removePod(pod.engineId, pod.id);
+        } else {
+          await window.kubernetesDeletePod(pod.name);
+        }
+      } catch (e) {
+        console.error('error while removing pod', e);
+      }
+    }),
+  );
+  bulkDeleteInProgress = false;
 }
 
 let refreshTimeouts: NodeJS.Timeout[] = [];

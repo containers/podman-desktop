@@ -1507,6 +1507,65 @@ declare module '@podman-desktop/api' {
      */
     export function showErrorMessage(message: string, ...items: string[]): Promise<string | undefined>;
 
+    /**
+     * Show progress in Podman Desktop. Progress is shown while running the given callback
+     * and while the promise it returned isn't resolved nor rejected. The location at which
+     * progress should show (and other details) is defined via the passed {@linkcode ProgressOptions}.
+     *
+     * @param options the options for the task's details
+     * @param task A callback returning a promise. Progress state can be reported with
+     * the provided {@link Progress}-object.
+     *
+     * To report discrete progress, use `increment` to indicate how much work has been completed. Each call with
+     * a `increment` value will be summed up and reflected as overall progress until 100% is reached (a value of
+     * e.g. `10` accounts for `10%` of work done).
+     * Note that currently only `ProgressLocation.Notification` is capable of showing discrete progress.
+     *
+     * To monitor if the operation has been cancelled by the user, use the provided {@linkcode CancellationToken}.
+     * Note that currently only `ProgressLocation.Notification` is supporting to show a cancel button to cancel the
+     * long-running operation.
+     *
+     * @return The promise the task-callback returned.
+     *
+     * @example
+     * Here is a simple example
+     * ```ts
+     * await window.withProgress({ location: ProgressLocation.TASK_WIDGET, title: `Running task` },
+     *   async progress => {
+     *     progress.report({message: 'task1' });
+     *     await task1();
+     *     progress.report({increment: 50, message: 'task2' });
+     *     await task2();
+     *   },
+     * );
+     * ```
+     * @example
+     * The error is propagated if thrown inside the task callback.
+     * ```ts
+     * try {
+     *    await window.withProgress(
+     *        { location: ProgressLocation.TASK_WIDGET, title: `Running task` },
+     *        async progress => {
+     *           throw new Error('error when running a task');
+     *        },
+     *      );
+     *  } catch (error) {
+     *     // do something with the error
+     *  }
+     * ```
+     *
+     * @example
+     * You can return a value from the task callback
+     * ```ts
+     * const result: number = await window.withProgress<number>(
+     *    { location: ProgressLocation.TASK_WIDGET, title: `Running task` },
+     *    async progress => {
+     *       // compute something
+     *       return 55;
+     *    },
+     * );
+     * ```
+     */
     export function withProgress<R>(
       options: ProgressOptions,
       task: (progress: Progress<{ message?: string; increment?: number }>, token: CancellationToken) => Promise<R>,
@@ -2920,8 +2979,7 @@ declare module '@podman-desktop/api' {
     /**
      * Store a new value for key in the context.
      * This can be used in enablement of command or with the when property.
-     * The key should consists of '<extension-
-     * id>.<actual-key>'.
+     * The key should consists of '"extension-id"."actual-key"'.
      *
      * @param key the key of the key/value pair to be added to the context
      * @param value value associated to the key
@@ -3004,18 +3062,48 @@ declare module '@podman-desktop/api' {
     export function createCliTool(options: CliToolOptions): CliTool;
   }
 
+  /**
+   * a specific error/recommendation found during an image check
+   */
   export interface ImageCheck {
+    /**
+     * a short and descriptive name for the error/recommendation
+     */
     name: string;
+    /**
+     * either the feedback is positive or negative
+     */
     status: 'success' | 'failed';
+    /**
+     * severity of the error/recommendation, when the status is `failed`
+     */
     severity?: 'low' | 'medium' | 'high' | 'critical';
+    /**
+     * full description of the error/recommendation
+     */
     markdownDescription?: string;
   }
 
+  /**
+   * the complete result of an image check
+   */
   export interface ImageChecks {
+    /**
+     * the list of errors/recommendations found during the image check
+     */
     checks: ImageCheck[];
   }
 
+  /**
+   * Interface to be implemented by image checker providers
+   */
   export interface ImageCheckerProvider {
+    /**
+     *
+     * @param image Info about the image to analyze
+     * @param token a cancellation token the function can use to be informed when the caller asks for the operation to be cancelled
+     * @return the complete result of the analyze, either synchronously of through a Promise
+     */
     check(image: ImageInfo, token?: CancellationToken): ProviderResult<ImageChecks>;
   }
 
@@ -3023,7 +3111,24 @@ declare module '@podman-desktop/api' {
     readonly label: string;
   }
 
+  /**
+   * Module providing to extensions a way to register as an image checker.
+   *
+   * An Image Checker is a program analyzing container images and
+   * returning errors and recommendations, related to security,
+   * optimization, best practices, etc.
+   */
   export namespace imageChecker {
+    /**
+     * Register the extension as an Image Checker.
+     *
+     * As an image checker, a provider needs to implement a specific interface, so the core
+     * application can call the provider with specific tasks when necessary.
+     *
+     * @param imageCheckerProvider an object implementing the `ImageCheckerProvider` interface
+     * @param metadata optional metadata attached to this provider
+     * @return A disposable that unregisters this provider when being disposed
+     */
     export function registerImageCheckerProvider(
       imageCheckerProvider: ImageCheckerProvider,
       metadata?: ImageCheckerProviderMetadata,

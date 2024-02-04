@@ -153,10 +153,26 @@ function toggleCheckboxContainerGroup(checked: boolean, containerGroup: Containe
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
 async function deleteSelectedContainers() {
-  // delete pods first if any
   const podGroups = containerGroups
     .filter(group => group.type === ContainerGroupInfoTypeUI.POD)
     .filter(pod => pod.selected);
+  const selectedContainers = containerGroups
+    .filter(group => group.type !== ContainerGroupInfoTypeUI.POD)
+    .map(group => group.containers)
+    .flat()
+    .filter(container => container.selected);
+
+  if (podGroups.length + selectedContainers.length === 0) {
+    return;
+  }
+
+  // mark pods and containers for deletion
+  bulkDeleteInProgress = true;
+  podGroups.forEach(pod => (pod.status = 'DELETING'));
+  selectedContainers.forEach(container => (container.state = 'DELETING'));
+  containerGroups = [...containerGroups];
+
+  // delete pods first if any
   if (podGroups.length > 0) {
     await Promise.all(
       podGroups.map(async podGroup => {
@@ -170,21 +186,14 @@ async function deleteSelectedContainers() {
       }),
     );
   }
-  // then containers (that are not inside a pod)
-  const selectedContainers = containerGroups
-    .filter(group => group.type !== ContainerGroupInfoTypeUI.POD)
-    .map(group => group.containers)
-    .flat()
-    .filter(container => container.selected);
 
+  // then containers (that are not inside a pod)
   if (selectedContainers.length > 0) {
-    bulkDeleteInProgress = true;
     await Promise.all(
       selectedContainers.map(async container => {
         container.actionInProgress = true;
         // reset error when starting task
         container.actionError = '';
-        container.state = 'DELETING';
         containerGroups = [...containerGroups];
         try {
           await window.deleteContainer(container.engineId, container.id);
@@ -198,8 +207,8 @@ async function deleteSelectedContainers() {
         }
       }),
     );
-    bulkDeleteInProgress = false;
   }
+  bulkDeleteInProgress = false;
 }
 
 function createPodFromContainers() {

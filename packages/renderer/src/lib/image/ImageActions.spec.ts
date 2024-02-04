@@ -47,14 +47,19 @@ const fakedImage: ImageInfoUI = {
 } as unknown as ImageInfoUI;
 
 test('Expect showMessageBox to be called when error occurs', async () => {
+  // Mock the showMessageBox to return 0 (yes)
+  showMessageBoxMock.mockResolvedValue({ response: 0 });
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
+
+  const image: ImageInfoUI = {
+    name: 'dummy',
+    status: 'UNUSED',
+  } as ImageInfoUI;
 
   render(ImageActions, {
     onPushImage: vi.fn(),
     onRenameImage: vi.fn(),
-    image: {
-      name: 'dummy',
-    } as unknown as ImageInfoUI,
+    image,
   });
   const button = screen.getByTitle('Delete Image');
   expect(button).toBeDefined();
@@ -63,6 +68,8 @@ test('Expect showMessageBox to be called when error occurs', async () => {
   await waitFor(() => {
     expect(showMessageBoxMock).toHaveBeenCalledOnce();
   });
+
+  expect(image.status).toBe('DELETING');
 });
 
 test('Expect no dropdown when one contribution and dropdownMenu off', async () => {

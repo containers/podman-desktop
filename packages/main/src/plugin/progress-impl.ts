@@ -89,7 +89,7 @@ export class ProgressImpl {
       {
         report: value => {
           if (value.message) {
-            t.error = value.message;
+            t.name = value.message;
           }
           if (value.increment) {
             t.progress = value.increment;
@@ -110,6 +110,7 @@ export class ProgressImpl {
         // Middleware to set to error the task
         t.status = 'failure';
         t.state = 'completed';
+        t.error = String(err);
         // We propagate the error to the caller, so it can handle it if needed
         throw err;
       })

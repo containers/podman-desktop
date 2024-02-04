@@ -19,8 +19,9 @@
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './base-page';
 import { ContainersPage } from './containers-page';
-import { waitUntil, waitWhile } from '../../utility/wait';
+import { waitUntil } from '../../utility/wait';
 import { ContainerState } from '../core/states';
+import { handleConfirmationDialog } from '../../utility/operations';
 
 export class ContainerDetailsPage extends BasePage {
   readonly labelName: Locator;
@@ -79,17 +80,10 @@ export class ContainerDetailsPage extends BasePage {
     }
   }
 
-  async deleteContainer(timeout: number): Promise<ContainersPage> {
+  async deleteContainer(): Promise<ContainersPage> {
     const deleteButton = this.page.getByRole('button').and(this.page.getByLabel('Delete Container'));
     await deleteButton.click();
-    await waitWhile(
-      async () => await this.heading.isVisible(),
-      timeout,
-      1000,
-      true,
-      `Container was not deleted in ${timeout / 1000}s`,
-    );
-    // after delete is successful we expect to see containers page
+    await handleConfirmationDialog(this.page);
     return new ContainersPage(this.page);
   }
 

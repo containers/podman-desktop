@@ -192,10 +192,6 @@ module.exports = {
         600: tailwindColors.zinc[600],
         700: tailwindColors.zinc[700],
       },
-      'indigo': { // website only
-        500: tailwindColors.indigo[500],
-        600: tailwindColors.indigo[600],
-      },
       'violet': {
          50: tailwindColors.violet[50],
         400: tailwindColors.violet[400],

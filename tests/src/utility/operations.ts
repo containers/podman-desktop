@@ -44,6 +44,7 @@ export async function deleteContainer(page: Page, name: string) {
     // delete the container
     const deleteButton = container.getByRole('button').and(container.getByLabel('Delete Container'));
     await deleteButton.click();
+    await handleConfirmationDialog(page);
     // wait for container to disappear
     try {
       console.log('Waiting for container to get deleted ...');
@@ -52,7 +53,7 @@ export async function deleteContainer(page: Page, name: string) {
         return result ? true : false;
       }, 5000);
     } catch (error) {
-      if ((error as Error).message.includes('Containers page is empty')) {
+      if (!(error as Error).message.includes('Page is empty')) {
         throw Error(`Error waiting for container '${name}' to get removed, ${error}`);
       }
     }
@@ -74,6 +75,7 @@ export async function deleteImage(page: Page, name: string) {
     const deleteButton = row.getByRole('button', { name: 'Delete Image' });
     if (await deleteButton.isEnabled({ timeout: 2000 })) {
       await deleteButton.click();
+      await handleConfirmationDialog(page);
     } else {
       throw Error(`Cannot delete image ${name}, because it is in use`);
     }
@@ -91,7 +93,7 @@ export async function deleteImage(page: Page, name: string) {
         false,
       );
     } catch (error) {
-      if ((error as Error).message.includes('Images page is empty')) {
+      if (!(error as Error).message.includes('Page is empty')) {
         throw Error(`Error waiting for image '${name}' to get removed, ${error}`);
       }
     }
@@ -109,16 +111,27 @@ export async function deletePod(page: Page, name: string) {
     // delete the pod
     const deleteButton = pod.getByRole('button').and(pod.getByLabel('Delete Pod'));
     await deleteButton.click();
+    // config delete dialog
+    await handleConfirmationDialog(page);
     // wait for pod to disappear
     try {
       console.log('Waiting for pod to get deleted ...');
       await waitWhile(async () => {
         return (await pods.getPodRowByName(name)) ? true : false;
-      }, 5000);
+      }, 20000);
     } catch (error) {
-      if ((error as Error).message.includes('Pods page is empty')) {
+      if (!(error as Error).message.includes('Page is empty')) {
         throw Error(`Error waiting for pod '${name}' to get removed, ${error}`);
       }
     }
   }
+}
+
+// Handles dialog that has accessible name `dialogTitle` and either confirms or rejects it.
+export async function handleConfirmationDialog(page: Page, dialogTitle = 'Confirmation', confirm = true) {
+  // wait for dialog to appear using waitFor
+  const dialog = page.getByRole('dialog', { name: dialogTitle, exact: true });
+  await dialog.waitFor({ state: 'visible', timeout: 3000 });
+  const button = confirm ? dialog.getByRole('button', { name: 'Yes' }) : dialog.getByRole('button', { name: 'Cancel' });
+  await button.click();
 }

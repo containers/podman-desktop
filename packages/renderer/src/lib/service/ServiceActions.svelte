@@ -17,4 +17,9 @@ async function deleteService(): Promise<void> {
 }
 </script>
 
-<ListItemButtonIcon title="Delete Service" onClick="{() => deleteService()}" detailed="{detailed}" icon="{faTrash}" />
+<ListItemButtonIcon
+  title="Delete Service"
+  confirm="{true}"
+  onClick="{() => deleteService()}"
+  detailed="{detailed}"
+  icon="{faTrash}" />

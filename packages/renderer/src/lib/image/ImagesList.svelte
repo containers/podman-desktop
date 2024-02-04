@@ -159,12 +159,20 @@ function gotoPullImage(): void {
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
 async function deleteSelectedImages() {
-  bulkDeleteInProgress = true;
   const selectedImages = images.filter(image => image.selected);
+  if (selectedImages.length === 0) {
+    return;
+  }
+
+  // mark images for deletion
+  bulkDeleteInProgress = true;
+  selectedImages.forEach(image => (image.status = 'DELETING'));
+  images = images;
+
   await selectedImages.reduce((prev: Promise<void>, image) => {
     return prev
       .then(() => imageUtils.deleteImage(image))
-      .catch((e: unknown) => console.log('error while removing image', e));
+      .catch((e: unknown) => console.error('error while removing image', e));
   }, Promise.resolve());
   bulkDeleteInProgress = false;
 }
@@ -222,7 +230,7 @@ let statusColumn = new Column<ImageInfoUI>('Status', {
   align: 'center',
   width: '70px',
   renderer: ImageColumnStatus,
-  comparator: (a, b) => Number(b.inUse) - Number(a.inUse),
+  comparator: (a, b) => b.status.localeCompare(a.status),
 });
 
 let nameColumn = new Column<ImageInfoUI>('Name', {
@@ -256,7 +264,10 @@ const columns: Column<ImageInfoUI>[] = [
   new Column<ImageInfoUI>('Actions', { align: 'right', width: '150px', renderer: ImageColumnActions, overflow: true }),
 ];
 
-const row = new Row<ImageInfoUI>({ selectable: image => !image.inUse, disabledText: 'Image is used by a container' });
+const row = new Row<ImageInfoUI>({
+  selectable: image => image.status === 'UNUSED',
+  disabledText: 'Image is used by a container',
+});
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="images">
@@ -289,7 +300,8 @@ const row = new Row<ImageInfoUI>({ selectable: image => !image.inUse, disabledTe
       data="{images}"
       columns="{columns}"
       row="{row}"
-      defaultSortColumn="Age">
+      defaultSortColumn="Age"
+      on:update="{() => (images = images)}">
     </Table>
 
     {#if providerConnections.length === 0}
