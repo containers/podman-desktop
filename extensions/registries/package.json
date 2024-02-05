@@ -13,8 +13,8 @@
   "source": "./src/extension.ts",
   "scripts": {
     "build": "vite build && node ./scripts/build.js",
-    "test": "vitest run --coverage --passWithNoTests",
-    "test:watch": "vitest watch --coverage --passWithNoTests",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest watch --coverage",
     "watch": "vite build --watch"
   },
   "dependencies": {
