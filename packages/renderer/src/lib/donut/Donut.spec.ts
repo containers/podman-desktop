@@ -30,11 +30,11 @@ test('Expect the tooltip to be in document', async () => {
 });
 
 test('Expect the tooltip to display loading', async () => {
-  render(Donut, { value: undefined, loading: true });
+  render(Donut, { value: undefined, title: 'potatoes', loading: true });
 
   const tooltip = screen.getByLabelText('tooltip');
   expect(tooltip).toBeInTheDocument();
-  expect(tooltip.textContent).toBe('Loading...');
+  expect(tooltip.textContent).toBe('Loading potatoes...');
 });
 
 test('Expect text being displayed when not loading', async () => {
@@ -44,9 +44,9 @@ test('Expect text being displayed when not loading', async () => {
   expect(text).toBeInTheDocument();
 });
 
-test('Expect text not being displayed when loading', async () => {
+test('Expect text being displayed when loading', async () => {
   render(Donut, { value: 'dummy-text', loading: true });
 
-  const text = screen.queryByText('dummy-text');
-  expect(text).toBeNull();
+  const text = screen.getByText('dummy-text');
+  expect(text).toBeInTheDocument();
 });
