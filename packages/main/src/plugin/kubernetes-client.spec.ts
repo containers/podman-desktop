@@ -110,6 +110,11 @@ const informer: Informer<KubernetesObject> & ObjectCache<KubernetesObject> = {
   list: vi.fn(),
 };
 
+const mocks = vi.hoisted(() => ({
+  writeFileMock: vi.fn(),
+  readFileMock: vi.fn(),
+}));
+
 beforeAll(() => {
   vi.mock('@kubernetes/client-node', async () => {
     return {
@@ -122,11 +127,20 @@ beforeAll(() => {
       makeInformer: vi.fn(),
     };
   });
+
+  vi.mock('fs', () => ({
+    promises: {
+      writeFile: mocks.writeFileMock,
+      readFile: mocks.readFileMock,
+    },
+  }));
 });
 
 beforeEach(() => {
   vi.clearAllMocks();
   KubeConfig.prototype.loadFromFile = vi.fn();
+  KubeConfig.prototype.loadFromOptions = vi.fn();
+  KubeConfig.prototype.exportConfig = vi.fn().mockReturnValue('{}');
   KubeConfig.prototype.makeApiClient = makeApiClientMock;
   KubeConfig.prototype.getContextObject = getContextObjectMock;
   KubeConfig.prototype.currentContext = 'context';
@@ -1215,4 +1229,62 @@ test('Expect ingress refreshInformer should stop and start the informer again', 
   await client.refreshInformer(id);
   expect(stopInformerMock).toBeCalled();
   expect(apiSenderSendMock).toBeCalledWith('kubernetes-informer-refresh', id);
+});
+
+test('Check setContext is updating config', async () => {
+  const sendMock = vi.fn();
+  const client = new KubernetesClient(
+    {
+      send: sendMock,
+    } as unknown as ApiSenderType,
+    configurationRegistry,
+    fileSystemMonitoring,
+    informerManager,
+    telemetry,
+  );
+  await client.setContext('name');
+  expect(mocks.writeFileMock).toHaveBeenCalledOnce();
+  expect(sendMock).toHaveBeenCalledOnce();
+});
+
+test('Check getConnectionStatus to Kubernetes cluster is error', async () => {
+  // Mock k8sApi.getCode() to return the version of the cluster
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.reject(new Error('K8sError')),
+  });
+
+  const client = new KubernetesClient(
+    {
+      send: vi.fn(),
+    } as unknown as ApiSenderType,
+    configurationRegistry,
+    fileSystemMonitoring,
+    informerManager,
+    telemetry,
+  );
+  await client.setContext('name');
+  const status = await client.getConnectionStatus();
+  expect(status).toBeDefined();
+  expect(status?.status).toBe('error');
+});
+
+test('Check getConnectionStatus to Kubernetes cluster is connected', async () => {
+  // Mock k8sApi.getCode() to return the version of the cluster
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve(),
+  });
+
+  const client = new KubernetesClient(
+    {
+      send: vi.fn(),
+    } as unknown as ApiSenderType,
+    configurationRegistry,
+    fileSystemMonitoring,
+    informerManager,
+    telemetry,
+  );
+  await client.setContext('name');
+  const status = await client.getConnectionStatus();
+  expect(status).toBeDefined();
+  expect(status?.status).toBe('connected');
 });
