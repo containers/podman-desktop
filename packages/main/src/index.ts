@@ -53,14 +53,24 @@ if (!isSingleInstance) {
   process.exit(0);
 }
 
-const handleAdditionalProtocolLauncherArgs = (args: ReadonlyArray<string>) => {
+// if arg starts with 'podman-desktop://extension', replace it with 'podman-desktop:extension'
+export function sanitizeProtocolForExtension(url: string): string {
+  if (url.startsWith('podman-desktop://extension/')) {
+    url = url.replace('podman-desktop://extension/', 'podman-desktop:extension/');
+  }
+
+  return url;
+}
+
+export const handleAdditionalProtocolLauncherArgs = (args: ReadonlyArray<string>) => {
   // On Windows protocol handler will call the app with '<url>' args
   // on macOS it's done with 'open-url' event
   if (isWindows()) {
     // now search if we have 'open-url' in the list of args and give it to the handler
     for (const arg of args) {
-      if (arg.startsWith('podman-desktop:extension/')) {
-        handleOpenUrl(arg);
+      const analyzedArg = sanitizeProtocolForExtension(arg);
+      if (analyzedArg.startsWith('podman-desktop:extension/')) {
+        handleOpenUrl(analyzedArg);
       }
     }
   }
@@ -69,6 +79,10 @@ const handleAdditionalProtocolLauncherArgs = (args: ReadonlyArray<string>) => {
 export const handleOpenUrl = (url: string) => {
   // if the url starts with podman-desktop:extension/<id>
   // we need to install the extension
+
+  // if url starts with 'podman-desktop://extension', replace it with 'podman-desktop:extension'
+  url = sanitizeProtocolForExtension(url);
+
   if (!url.startsWith('podman-desktop:extension/')) {
     console.log(`url ${url} does not start with podman-desktop:extension/, skipping.`);
     return;
