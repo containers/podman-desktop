@@ -17,9 +17,16 @@
  ***********************************************************************/
 
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { handleOpenUrl, mainWindowDeferred } from './index.js';
+import {
+  handleAdditionalProtocolLauncherArgs,
+  handleOpenUrl,
+  mainWindowDeferred,
+  sanitizeProtocolForExtension,
+} from './index.js';
 import type { BrowserWindow } from 'electron';
 import { Deferred } from './plugin/util/deferred.js';
+import * as util from './util.js';
+
 const consoleLogMock = vi.fn();
 const originalConsoleLog = console.log;
 
@@ -49,6 +56,12 @@ vi.mock('./plugin', async () => {
         initExtensions: vi.fn().mockImplementation(() => extensionLoader),
       };
     }),
+  };
+});
+
+vi.mock('../util', async () => {
+  return {
+    isWindows: () => false,
   };
 });
 
@@ -118,6 +131,13 @@ vi.mock('electron', async () => {
 beforeEach(() => {
   console.log = consoleLogMock;
   vi.clearAllMocks();
+  // reset the promise
+  if (mainWindowDeferred.promise !== undefined) {
+    mainWindowDeferred.promise = new Promise<BrowserWindow>((resolve, reject) => {
+      mainWindowDeferred.resolve = resolve;
+      mainWindowDeferred.reject = reject;
+    });
+  }
 });
 
 afterEach(() => {
@@ -126,6 +146,28 @@ afterEach(() => {
 
 test('should send the URL to open when mainWindow is created', async () => {
   handleOpenUrl('podman-desktop:extension/my.extension');
+
+  const deferredCall = new Deferred<boolean>();
+  const sendMock = vi.fn().mockImplementation(() => {
+    deferredCall.resolve(true);
+  });
+  const fakeWindow = {
+    isDestroyed: vi.fn(),
+    webContents: {
+      send: sendMock,
+    },
+  } as unknown as BrowserWindow;
+
+  mainWindowDeferred.resolve(fakeWindow);
+
+  // wait sendMock being called
+  await deferredCall.promise;
+
+  expect(sendMock).toHaveBeenCalledWith('podman-desktop-protocol:install-extension', 'my.extension');
+});
+
+test('should send the URL to open when mainWindow is created with :// format', async () => {
+  handleOpenUrl('podman-desktop://extension/my.extension');
 
   const deferredCall = new Deferred<boolean>();
   const sendMock = vi.fn().mockImplementation(() => {
@@ -156,4 +198,76 @@ test('should not send the URL for invalid URLs', async () => {
     'url podman-desktop:foobar does not start with podman-desktop:extension/, skipping.',
   );
   expect(sendMock).not.toHaveBeenCalled();
+});
+
+test('should handle podman-desktop:extension/ URL on Windows', async () => {
+  vi.spyOn(util, 'isWindows').mockReturnValue(true);
+
+  const deferredCall = new Deferred<boolean>();
+  const sendMock = vi.fn().mockImplementation(() => {
+    deferredCall.resolve(true);
+  });
+
+  const fakeWindow = {
+    isDestroyed: vi.fn(),
+    webContents: {
+      send: sendMock,
+    },
+  } as unknown as BrowserWindow;
+  mainWindowDeferred.resolve(fakeWindow);
+
+  handleAdditionalProtocolLauncherArgs(['podman-desktop:extension/my.extension']);
+
+  // wait sendMock being called
+  await deferredCall.promise;
+
+  // expect handleOpenUrl not be called
+  expect(fakeWindow.webContents.send).toHaveBeenCalledWith('podman-desktop-protocol:install-extension', 'my.extension');
+});
+
+test('should handle podman-desktop://extension/my.extension format URL on Windows', async () => {
+  vi.spyOn(util, 'isWindows').mockReturnValue(true);
+
+  const deferredCall = new Deferred<boolean>();
+  const sendMock = vi.fn().mockImplementation(() => {
+    deferredCall.resolve(true);
+  });
+
+  const fakeWindow = {
+    isDestroyed: vi.fn(),
+    webContents: {
+      send: sendMock,
+    },
+  } as unknown as BrowserWindow;
+  mainWindowDeferred.resolve(fakeWindow);
+
+  handleAdditionalProtocolLauncherArgs(['podman-desktop://extension/my.extension']);
+
+  // wait sendMock being called
+  await deferredCall.promise;
+
+  // expect handleOpenUrl not be called
+  expect(fakeWindow.webContents.send).toHaveBeenCalledWith('podman-desktop-protocol:install-extension', 'my.extension');
+});
+
+test('should not do anything with podman-desktop:extension/ URL on OS different than Windows', async () => {
+  vi.spyOn(util, 'isWindows').mockReturnValue(false);
+
+  // spy .promise field of mainWindowDeferred
+  const spyWindowDefferedPromise = vi.spyOn(mainWindowDeferred, 'promise', 'get');
+
+  handleAdditionalProtocolLauncherArgs(['podman-desktop:extension/my.extension']);
+  // no called on it
+  expect(spyWindowDefferedPromise).not.toHaveBeenCalled();
+});
+
+test('handle sanitizeProtocolForExtension', () => {
+  const fakeLink = 'podman-desktop://extension/my.extension';
+  const sanitizedLink = 'podman-desktop:extension/my.extension';
+  expect(sanitizeProtocolForExtension(fakeLink)).toEqual(sanitizedLink);
+});
+
+test('handle sanitizeProtocolForExtension noop', () => {
+  const sanitizedLink = 'podman-desktop:extension/my.extension';
+  expect(sanitizeProtocolForExtension(sanitizedLink)).toEqual(sanitizedLink);
 });
