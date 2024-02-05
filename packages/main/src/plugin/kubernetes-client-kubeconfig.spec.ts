@@ -85,6 +85,11 @@ describe('context tests', () => {
     client.setClusters(originalClusters);
     client.setContexts(originalContexts);
 
+    const currentContext = originalContexts.find(context => context.currentContext);
+    if (currentContext) {
+      client.setCurrentContext(currentContext.name);
+    }
+
     return client;
   }
 
@@ -143,11 +148,11 @@ describe('context tests', () => {
     expect(client.getClusters().length).toBe(2);
   });
 
-  test('should keep the current context name when we delete the context', async () => {
+  test('should keep the current context name when we delete the context (if not current)', async () => {
     client.saveKubeConfig = vi.fn().mockImplementation((_config: KubeConfig) => {});
     client.setCurrentContext(originalContexts[0].name);
 
-    await client.deleteContext(originalContexts[0].name);
+    await client.deleteContext(originalContexts[1].name);
     expect(client.getCurrentContextName()).toBe(originalContexts[0].name);
   });
 
@@ -167,5 +172,17 @@ describe('context tests', () => {
 
     expect(apiSendMock).toHaveBeenCalledTimes(1);
     expect(apiSendMock).toHaveBeenCalledWith('kubernetes-context-update');
+  });
+
+  test('should delete current context from config and remove current-context', async () => {
+    client.saveKubeConfig = vi.fn().mockImplementation((_config: KubeConfig) => {});
+
+    const currentContext = client.getCurrentContextName();
+    if (!currentContext) throw new Error('currentContext should be defined');
+
+    const contexts = await client.deleteContext(currentContext);
+    expect(contexts.length).toBe(1);
+
+    expect(client.getCurrentContextName()).toBeUndefined();
   });
 });
