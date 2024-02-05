@@ -155,6 +155,7 @@ import { WebviewRegistry } from './webview/webview-registry.js';
 import type { IDisposable } from './types/disposable.js';
 
 import { KubernetesUtils } from './kubernetes-util.js';
+import type { KubernetesConnection } from './kubernetes-connection.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -2007,6 +2008,12 @@ export class PluginSystem {
 
     this.ipcHandle('kubernetes-client:getDetailedContexts', async (): Promise<KubeContext[]> => {
       return kubernetesClient.getDetailedContexts();
+    });
+
+    this.ipcHandle('kubernetes-client:getConnectionStatus', async (): Promise<KubernetesConnection | undefined> => {
+      const value = kubernetesClient.getConnectionStatus();
+      console.log('getConnectionStatus', value);
+      return value;
     });
 
     this.ipcHandle('kubernetes-client:getClusters', async (): Promise<Cluster[]> => {

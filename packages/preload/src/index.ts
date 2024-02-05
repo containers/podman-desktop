@@ -92,6 +92,7 @@ import type { KubernetesGeneratorInfo } from '../../main/src/plugin/api/Kubernet
 import type { NotificationCard, NotificationCardOptions } from '../../main/src/plugin/api/notification';
 import type { ApiSenderType } from '../../main/src/plugin/api';
 import type { IDisposable } from '../../main/src/plugin/types/disposable';
+import type { KubernetesConnection } from '../../main/src/plugin/kubernetes-connection';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 
@@ -1546,6 +1547,13 @@ function initExposure(): void {
   contextBridge.exposeInMainWorld('kubernetesGetDetailedContexts', async (): Promise<KubeContext[]> => {
     return ipcInvoke('kubernetes-client:getDetailedContexts');
   });
+
+  contextBridge.exposeInMainWorld(
+    'kubernetesGetConnectionStatus',
+    async (): Promise<KubernetesConnection | undefined> => {
+      return ipcInvoke('kubernetes-client:getConnectionStatus');
+    },
+  );
 
   contextBridge.exposeInMainWorld('kubernetesDeleteContext', async (contextName: string): Promise<Context[]> => {
     return ipcInvoke('kubernetes-client:deleteContext', contextName);
