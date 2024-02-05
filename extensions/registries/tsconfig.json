@@ -7,11 +7,12 @@
     "outDir": "dist",
     "target": "esnext",
     "moduleResolution": "Node",
+    "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["src"],
+  "include": ["src", "types/*.d.ts"],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS",
