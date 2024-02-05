@@ -49,6 +49,7 @@ import type {
   PlayKubeInfo,
   ContainerCreateOptions as PodmanContainerCreateOptions,
   PodInfo as LibpodPodInfo,
+  ContainerCreateMountOptions,
 } from './dockerode/libpod-dockerode.js';
 import { LibpodDockerode } from './dockerode/libpod-dockerode.js';
 import type { ContainerStatsInfo } from './api/container-stats-info.js';
@@ -1731,39 +1732,91 @@ export class ContainerProviderRegistry {
   async createContainer(engineId: string, options: ContainerCreateOptions): Promise<{ id: string }> {
     let telemetryOptions = {};
     try {
-      // need to find the container engine of the container
-      const engine = this.internalProviders.get(engineId);
-      if (!engine) {
-        throw new Error('no engine matching this container');
+      if (options.pod) {
+        return this.createContainerLibPod(engineId, options);
+      } else {
+        return this.createContainerDockerode(engineId, options);
       }
-      if (!engine.api) {
-        throw new Error('no running provider for the matching container');
-      }
-
-      // handle EnvFile by adding to Env the other variables
-      if (options.EnvFiles) {
-        const envFiles = options.EnvFiles || [];
-        const envFileContent = await this.getEnvFileParser().parseEnvFiles(envFiles);
-
-        const env = options.Env || [];
-        env.push(...envFileContent);
-        options.Env = env;
-        // remove EnvFiles from options
-        delete options.EnvFiles;
-      }
-
-      const container = await engine.api.createContainer(options);
-      await this.attachToContainer(engine, container, options.Tty, options.OpenStdin);
-      if (options.start === true || options.start === undefined) {
-        await container.start();
-      }
-      return { id: container.id };
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;
     } finally {
       this.telemetryService.track('createContainer', telemetryOptions);
     }
+  }
+
+  private async createContainerDockerode(engineId: string, options: ContainerCreateOptions): Promise<{ id: string }> {
+    // need to find the container engine of the container
+    const engine = this.internalProviders.get(engineId);
+    if (!engine) {
+      throw new Error('no engine matching this container');
+    }
+    if (!engine.api) {
+      throw new Error('no running provider for the matching container');
+    }
+
+    // handle EnvFile by adding to Env the other variables
+    if (options.EnvFiles) {
+      const envFiles = options.EnvFiles || [];
+      const envFileContent = await this.getEnvFileParser().parseEnvFiles(envFiles);
+
+      const env = options.Env || [];
+      env.push(...envFileContent);
+      options.Env = env;
+      // remove EnvFiles from options
+      delete options.EnvFiles;
+    }
+
+    const container = await engine.api.createContainer(options);
+    await this.attachToContainer(engine, container, options.Tty, options.OpenStdin);
+    if (options.start === true || options.start === undefined) {
+      await container.start();
+    }
+    return { id: container.id };
+  }
+
+  private async createContainerLibPod(engineId: string, options: ContainerCreateOptions): Promise<{ id: string }> {
+    // will publish in the target engine
+    const libPod = this.getMatchingPodmanEngineLibPod(engineId);
+    if (!libPod) {
+      throw new Error('no podman engine matching this engine');
+    }
+
+    // convert env from array of string to an object with key being the env name
+    const updatedEnv = options.Env?.reduce((acc: { [key: string]: string }, env) => {
+      const [key, value] = env.split('=');
+      acc[key] = value;
+      return acc;
+    }, {});
+
+    let updatedMounts: Array<ContainerCreateMountOptions> | undefined;
+    if (options.HostConfig?.Mounts) {
+      updatedMounts = [];
+      for (const optionMount of options.HostConfig.Mounts) {
+        updatedMounts.push({
+          Destination: optionMount.Target,
+          Source: optionMount.Source,
+          Propagation: optionMount.BindOptions?.Propagation ?? '',
+          RW: !optionMount.ReadOnly,
+          Type: optionMount.Type,
+          Mode: '',
+        });
+      }
+    }
+
+    const podmanOptions: PodmanContainerCreateOptions = {
+      name: options.name,
+      command: options.Cmd,
+      entrypoint: options.Entrypoint,
+      env: updatedEnv,
+      image: options.Image,
+      pod: options.pod,
+      hostname: options.Hostname,
+      mounts: updatedMounts,
+    };
+
+    const container = await libPod.createPodmanContainer(podmanOptions);
+    return { id: container.Id };
   }
 
   async createVolume(
