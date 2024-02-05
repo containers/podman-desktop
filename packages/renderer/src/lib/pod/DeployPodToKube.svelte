@@ -141,7 +141,9 @@ function openPodDetails(): void {
   if (!createdPod?.metadata?.name || !defaultContextName) {
     return;
   }
-  router.goto(`/pods/kubernetes/${encodeURI(createdPod.metadata.name)}/${encodeURI(defaultContextName)}/logs`);
+  router.goto(
+    `/pods/kubernetes/${encodeURIComponent(createdPod.metadata.name)}/${encodeURIComponent(defaultContextName)}/logs`,
+  );
 }
 
 function openRoute(route: V1Route) {
