@@ -253,7 +253,7 @@ describe('exec', () => {
     const httpProxy = {
       isEnabled: vi.fn().mockReturnValue(true),
       proxy: {
-        httpProxy: '127.0.0.1:8888',
+        httpProxy: 'http://127.0.0.1:8888',
       },
     } as unknown as Proxy;
     const httpExec = new Exec(httpProxy);
@@ -290,7 +290,7 @@ describe('exec', () => {
     const httpsProxy = {
       isEnabled: vi.fn().mockReturnValue(true),
       proxy: {
-        httpsProxy: '127.0.0.1:8888',
+        httpsProxy: 'http://127.0.0.1:8888',
       },
     } as unknown as Proxy;
     const httpsExec = new Exec(httpsProxy);
