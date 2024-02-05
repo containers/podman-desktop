@@ -25,6 +25,7 @@ import { SettingsExtensionsPage } from './model/pages/settings-extensions-page';
 import type { RunnerTestContext } from './testContext/runner-test-context';
 import { NavigationBar } from './model/workbench/navigation';
 import { SettingsBar } from './model/pages/settings-bar';
+import { BootcExtensionPage } from './model/pages/bootc-extension-page';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -59,9 +60,13 @@ describe('bootc installation verification', async () => {
     if (await checkForBootcInExtensions(extensions)) extensionInstalled = true;
   });
 
-  test.runIf(extensionInstalled)('Uninstalled previous version of bootc extension', async () => {
-    throw new Error('not implemented');
-  });
+  test.runIf(extensionInstalled)(
+    'Uninstalled previous version of bootc extension',
+    async () => {
+      await ensureBootcIsRemoved();
+    },
+    200000,
+  );
 
   test('Install extension through Settings', async () => {
     const settingsExtensionPage = new SettingsExtensionsPage(page);
@@ -71,6 +76,10 @@ describe('bootc installation verification', async () => {
     const extensions = await settingsBar.getCurrentExtensions();
     await playExpect.poll(async () => await checkForBootcInExtensions(extensions), { timeout: 30000 }).toBeTruthy();
   }, 200000);
+
+  test('Remove bootc extension through Settings', async () => {
+    await ensureBootcIsRemoved();
+  });
 });
 
 async function checkForBootcInExtensions(extensionList: Locator[]): Promise<boolean> {
@@ -83,4 +92,14 @@ async function checkForBootcInExtensions(extensionList: Locator[]): Promise<bool
 
   console.log('bootc extension not found to be installed');
   return false;
+}
+
+async function ensureBootcIsRemoved(): Promise<void> {
+  const settingsBar = new SettingsBar(page);
+  const bootcPage = await settingsBar.openTabPage(BootcExtensionPage);
+  const settingsExtensionPage = await bootcPage.removeExtension();
+  await playExpect(settingsExtensionPage.heading).toBeVisible();
+
+  const extensions = await settingsBar.getCurrentExtensions();
+  await playExpect.poll(async () => await checkForBootcInExtensions(extensions), { timeout: 30000 }).toBeFalsy();
 }

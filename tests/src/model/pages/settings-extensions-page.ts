@@ -31,7 +31,7 @@ export class SettingsExtensionsPage extends SettingsPage {
 
   constructor(page: Page) {
     super(page, 'Extensions');
-    this.heading = page.getByText('Extensions');
+    this.heading = page.getByLabel('Title').getByText('Extensions');
     this.featuredExtensions = page.getByLabel('FeaturedExtensions');
     this.devSandboxBox = this.featuredExtensions.getByLabel('Developer Sandbox');
     this.openshiftLocalBox = this.featuredExtensions.getByLabel('OpenShift Local');
