@@ -49,6 +49,8 @@ export class IngressRouteUtils {
         name: route.spec.to.name,
       },
       selected: false,
+      // true if tls part is defined
+      tlsEnabled: !!route.spec.tls,
     };
   }
   isIngress(object: IngressUI | RouteUI): object is IngressUI {
@@ -82,10 +84,11 @@ export class IngressRouteUtils {
     return hostPaths;
   }
   getRouteHostPaths(routeUI: RouteUI): HostPathObject[] {
+    const protocol = routeUI.tlsEnabled ? 'https' : 'http';
     return [
       {
         label: `${routeUI.host}${routeUI.path ?? ''}`,
-        url: `https://${routeUI.host}${routeUI.path ?? ''}`,
+        url: `${protocol}://${routeUI.host}${routeUI.path ?? ''}`,
       },
     ];
   }

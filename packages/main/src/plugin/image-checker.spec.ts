@@ -50,6 +50,7 @@ import type { NotificationRegistry } from './notification-registry.js';
 import { ImageCheckerImpl } from './image-checker.js';
 import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
+import { app } from 'electron';
 
 const apiSender: ApiSenderType = {
   send: vi.fn(),
@@ -61,6 +62,14 @@ const directories = {
   getPluginsScanDirectory: () => '/fake-plugins-scanning-directory',
   getExtensionsStorageDirectory: () => '/fake-extensions-storage-directory',
 } as unknown as Directories;
+
+vi.mock('electron', () => {
+  return {
+    app: {
+      getVersion: vi.fn(),
+    },
+  };
+});
 
 let imageChecker: ImageCheckerImpl;
 suite('image checker module', () => {
@@ -99,6 +108,9 @@ suite('image checker module', () => {
       vi.fn() as unknown as NavigationManager,
       vi.fn() as unknown as WebviewRegistry,
     );
+
+    // mock electron.app.getVersion
+    vi.mocked(app.getVersion).mockReturnValue('1.2.3');
   });
 
   afterEach(() => {

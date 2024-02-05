@@ -103,6 +103,7 @@ const routeUI: RouteUI = {
     kind: 'Service',
     name: 'service',
   },
+  tlsEnabled: true,
   selected: false,
 };
 
@@ -299,4 +300,49 @@ test('expect to return one hostPathObject with ingress that has multiple path', 
   expect(result.length).toBe(2);
   expect(result[0]).toEqual('StorageBucket bucket');
   expect(result[1]).toEqual('bucket-2:80');
+});
+
+test('expect tls on route', async () => {
+  const route = {
+    metadata: {
+      name: 'my-route',
+      namespace: 'test-namespace',
+    },
+    spec: {
+      host: 'foo.bar.com',
+      port: {
+        targetPort: '80',
+      },
+      tls: {
+        termination: 'edge',
+      },
+      to: {
+        kind: 'Service',
+        name: 'service',
+      },
+    },
+  } as V1Route;
+  const routeUI = ingressRouteUtils.getRouteUI(route);
+  expect(routeUI.tlsEnabled).toBeTruthy();
+});
+
+test('expect no tls on route', async () => {
+  const route = {
+    metadata: {
+      name: 'my-route',
+      namespace: 'test-namespace',
+    },
+    spec: {
+      host: 'foo.bar.com',
+      port: {
+        targetPort: '80',
+      },
+      to: {
+        kind: 'Service',
+        name: 'service',
+      },
+    },
+  } as V1Route;
+  const routeUI = ingressRouteUtils.getRouteUI(route);
+  expect(routeUI.tlsEnabled).toBeFalsy();
 });

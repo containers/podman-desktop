@@ -50,6 +50,7 @@ test('Expect action buttons with route object', async () => {
       name: 'service',
     },
     selected: false,
+    tlsEnabled: false,
   };
 
   render(IngressRouteColumnActions, { object: routeUI });

@@ -42,6 +42,7 @@ import { normalizeOnboardingWhenClause } from '../onboarding/onboarding-utils';
 import Donut from '/@/lib/donut/Donut.svelte';
 import { PeerProperties } from './PeerProperties';
 import ConnectionErrorInfoButton from '../ui/ConnectionErrorInfoButton.svelte';
+import PreferencesResourcesRenderingCopyButton from './PreferencesResourcesRenderingCopyButton.svelte';
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 let providers: ProviderInfo[] = [];
 $: containerConnectionStatus = new Map<string, IConnectionStatus>();
@@ -476,14 +477,9 @@ function hasAnyConfiguration(provider: ProviderInfo) {
               <div class="mt-2 text-gray-700 text-xs" aria-label="{container.name} type">
                 {#if container.type === 'docker'}Docker{:else if container.type === 'podman'}Podman{/if} endpoint
               </div>
-              <div
-                class="mt-1 my-auto text-xs truncate"
-                class:text-gray-900="{container.status !== 'started'}"
-                aria-label="{container.name} endpoint"
-                title="{container.endpoint.socketPath}">
-                {container.endpoint.socketPath}
-              </div>
-
+              <PreferencesResourcesRenderingCopyButton
+                class="{container.status !== 'started' ? 'text-gray-900' : ''}"
+                path="{container.endpoint.socketPath}" />
               {#if providerContainerConfiguration.has(provider.internalId)}
                 {@const providerConfiguration = providerContainerConfiguration.get(provider.internalId) || []}
                 <div

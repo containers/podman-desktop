@@ -166,25 +166,25 @@
     "@jridgewell/gen-mapping" "^0.3.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
-"@argos-ci/browser@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@argos-ci/browser/-/browser-1.4.0.tgz#01eb4aa01e1465d15275531c8874f6da387beaa3"
-  integrity sha512-W/hfHnY9NiiFxST6mgQpGV/5OkUwQabpj7fkFG57fv8BMJF9qN3h7lvwMOEeTmWfFpwDPwuUj8zyqrIzy7Tzqw==
+"@argos-ci/browser@1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@argos-ci/browser/-/browser-1.4.1.tgz#157347d76bca5697976000f7c4289bee498b7022"
+  integrity sha512-XE5TZnoP+zKeV/Gm0pjuJUx0+xoCnVo4ajWBM2V6vyMAP8P+gO7v8HPHWXBLJoEGgF1Ij365fDA3R3+OMD5Hzw==
 
-"@argos-ci/cli@^1.0.8":
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/@argos-ci/cli/-/cli-1.0.8.tgz#6068a8d7b6eb6b873135f8fbb7608c38237220f9"
-  integrity sha512-9DvRl6SgIwlRHa8QCRAB9syU7YNfO4S8rIRhvX2nu14+qXdDs35gEVepDP9Kd6MCCSQc77QMfo8kEHaUn7mSXQ==
+"@argos-ci/cli@^1.0.10":
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/@argos-ci/cli/-/cli-1.0.10.tgz#add9a6ef175925e56b0e1512b857a02acaa032bd"
+  integrity sha512-Dn96RXj9FRFzKTZWUWWXgqKsp3gYYrYZSpexnZeSFK3dOvA8/LE3ORigJSt1IvI007y2Kps8oS39GbmyWe/z9g==
   dependencies:
-    "@argos-ci/core" "1.5.1"
+    "@argos-ci/core" "1.5.3"
     commander "^11.0.0"
     ora "^7.0.1"
     update-notifier "^6.0.2"
 
-"@argos-ci/core@1.5.1":
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/@argos-ci/core/-/core-1.5.1.tgz#3ea5bba8fe878df26fc337034d8272cae785ebd5"
-  integrity sha512-CoCe81ee+eQpah3CRi+Uxv9KAUjnfHWYFHZ3bGz0aUC/p9UkCPFKOEHvakO1W2hjx2Nj1bj6QOSod87Vavty+g==
+"@argos-ci/core@1.5.3":
+  version "1.5.3"
+  resolved "https://registry.yarnpkg.com/@argos-ci/core/-/core-1.5.3.tgz#4ebf0e5900b31d286c68a73dfa56e5d5bc5a4b49"
+  integrity sha512-qODX23ou3CwagOFwtYZyvXPAd2fXOu5ntnH5MbQcSzP3TdK8H2wkacNaLwvLEVpOeT3jdrfoQvROInewMfbHxQ==
   dependencies:
     "@argos-ci/util" "1.2.0"
     axios "^1.5.0"
@@ -194,13 +194,13 @@
     sharp "^0.32.5"
     tmp "^0.2.1"
 
-"@argos-ci/playwright@^1.8.0":
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-1.8.0.tgz#2b530c11958d27429a9b654f391ed0e2bda1eed8"
-  integrity sha512-w/dyVUK7gqf3btaMmO48eAAIYRl/TTkRYp/QwbGz0pn3lyq6TlZSiAGU0NmOWjN9UygPuifmxgR8g/feSrGYvg==
+"@argos-ci/playwright@^1.9.1":
+  version "1.9.1"
+  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-1.9.1.tgz#970f058d67d86d73f8eb7be500f14bbf15ba77ba"
+  integrity sha512-gh9upfhE+cyxCF3XTdAMcD+DXDWfWogJlYdL6Gc7litJX7h1yckBmO+deAtsh6xT58DfUIg4SJUjOHDq/CKzDw==
   dependencies:
-    "@argos-ci/browser" "1.4.0"
-    "@argos-ci/core" "1.5.1"
+    "@argos-ci/browser" "1.4.1"
+    "@argos-ci/core" "1.5.3"
     "@argos-ci/util" "1.2.0"
     chalk "^5.3.0"
 
@@ -2932,12 +2932,12 @@
   dependencies:
     esquery "^1.4.0"
 
-"@playwright/test@1.41.1":
-  version "1.41.1"
-  resolved "https://registry.yarnpkg.com/@playwright/test/-/test-1.41.1.tgz#6954139ed4a67999f1b17460aa3d184f4b334f18"
-  integrity sha512-9g8EWTjiQ9yFBXc6HjCWe41msLpxEX0KhmfmPl9RPLJdfzL4F0lg2BdJ91O9azFdl11y1pmpwdjBiSxvqc+btw==
+"@playwright/test@1.41.2":
+  version "1.41.2"
+  resolved "https://registry.yarnpkg.com/@playwright/test/-/test-1.41.2.tgz#bd9db40177f8fd442e16e14e0389d23751cdfc54"
+  integrity sha512-qQB9h7KbibJzrDpkXkYvsmiDJK14FULCCZgEcoe2AvFAS64oCirWTwzTlAYEbKaRxWs5TFesE1Na6izMv3HfGg==
   dependencies:
-    playwright "1.41.1"
+    playwright "1.41.2"
 
 "@pnpm/config.env-replace@^1.1.0":
   version "1.1.0"
@@ -3737,9 +3737,9 @@
     "@types/node" "*"
 
 "@types/node@*", "@types/node@^17.0.5", "@types/node@^18", "@types/node@^18.11.18", "@types/node@^20.1.1":
-  version "18.19.13"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.13.tgz#c3e989ca967b862a1f6c8c4148fe31865eedaf1a"
-  integrity sha512-kgnbRDj8ioDyGxoiaXsiu1Ybm/K14ajCgMOkwiqpHrnF7d7QiYRoRqHIpglMMs3DwXinlK4qJ8TZGlj4hfleJg==
+  version "18.19.14"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.14.tgz#1880ff1b3ac913f3877f711588e5ed227da01886"
+  integrity sha512-EnQ4Us2rmOS64nHDWr0XqAD8DsO6f3XR6lf9UIIrZQpUzPVdN/oPuEzfDWNHSyXLvoGgjuEm/sPwFGSSs35Wtg==
   dependencies:
     undici-types "~5.26.4"
 
@@ -9317,10 +9317,10 @@ humanize-duration@^3.31.0:
   resolved "https://registry.yarnpkg.com/humanize-duration/-/humanize-duration-3.31.0.tgz#a0384d22555024cd17e6e9f8561540d37756bf4c"
   integrity sha512-fRrehgBG26NNZysRlTq1S+HPtDpp3u+Jzdc/d5A4cEzOD86YLAkDaJyJg8krSdCi7CJ+s7ht3fwRj8Dl+Btd0w==
 
-husky@^9.0.7:
-  version "9.0.7"
-  resolved "https://registry.yarnpkg.com/husky/-/husky-9.0.7.tgz#047f24ec1b6c681206af714b4217c13ee97fff20"
-  integrity sha512-vWdusw+y12DUEeoZqW1kplOFqk3tedGV8qlga8/SF6a3lOiWLqGZZQvfWvY0fQYdfiRi/u1DFNpudTSV9l1aCg==
+husky@^9.0.10:
+  version "9.0.10"
+  resolved "https://registry.yarnpkg.com/husky/-/husky-9.0.10.tgz#ddca8908deb5f244e9286865ebc80b54387672c2"
+  integrity sha512-TQGNknoiy6bURzIO77pPRu+XHi6zI7T93rX+QnJsoYFf3xdjKOur+IlfqzJGMHIK/wXrLg+GsvMs8Op7vI2jVA==
 
 iconv-corefoundation@^1.1.7:
   version "1.1.7"
@@ -12643,17 +12643,17 @@ pkg-up@^3.1.0:
   dependencies:
     find-up "^3.0.0"
 
-playwright-core@1.41.1:
-  version "1.41.1"
-  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.41.1.tgz#9c152670010d9d6f970f34b68e3e935d3c487431"
-  integrity sha512-/KPO5DzXSMlxSX77wy+HihKGOunh3hqndhqeo/nMxfigiKzogn8kfL0ZBDu0L1RKgan5XHCPmn6zXd2NUJgjhg==
+playwright-core@1.41.2:
+  version "1.41.2"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.41.2.tgz#db22372c708926c697acc261f0ef8406606802d9"
+  integrity sha512-VaTvwCA4Y8kxEe+kfm2+uUUw5Lubf38RxF7FpBxLPmGe5sdNkSg5e3ChEigaGrX7qdqT3pt2m/98LiyvU2x6CA==
 
-playwright@1.41.1:
-  version "1.41.1"
-  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.41.1.tgz#83325f34165840d019355c2a78a50f21ed9b9c85"
-  integrity sha512-gdZAWG97oUnbBdRL3GuBvX3nDDmUOuqzV/D24dytqlKt+eI5KbwusluZRGljx1YoJKZ2NRPaeWiFTeGZO7SosQ==
+playwright@1.41.2:
+  version "1.41.2"
+  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.41.2.tgz#4e760b1c79f33d9129a8c65cc27953be6dd35042"
+  integrity sha512-v0bOa6H2GJChDL8pAeLa/LZC4feoAMbSQm1/jF/ySsWWoaNItvrMP7GEkvEEFyCTUYKMxjQKaTSg5up7nR6/8A==
   dependencies:
-    playwright-core "1.41.1"
+    playwright-core "1.41.2"
   optionalDependencies:
     fsevents "2.3.2"
 
@@ -13110,10 +13110,10 @@ prettier-plugin-svelte@^3.1.2:
   resolved "https://registry.yarnpkg.com/prettier-plugin-svelte/-/prettier-plugin-svelte-3.1.2.tgz#2e050eb56dbb467a42c45ad6ce18bb277d28ffa0"
   integrity sha512-7xfMZtwgAWHMT0iZc8jN4o65zgbAQ3+O32V6W7pXrqNvKnHnkoyQCGCbKeUyXKZLbYE0YhFRnamfxfkEGxm8qA==
 
-prettier@^3.2.4:
-  version "3.2.4"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.2.4.tgz#4723cadeac2ce7c9227de758e5ff9b14e075f283"
-  integrity sha512-FWu1oLHKCrtpO1ypU6J0SbK2d9Ckwysq6bHj/uaCP26DxrPpppCLQRGVuqAxSTvhF00AcvDRyYrLNW7ocBhFFQ==
+prettier@^3.2.5:
+  version "3.2.5"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.2.5.tgz#e52bc3090586e824964a8813b09aba6233b28368"
+  integrity sha512-3/GWa9aOC0YeD7LUfvOG2NiDyhOWRvt1k+rcKhOuYnMY24iiCphgneUfJDyFXd6rZCAnuLBv6UeAULtrhT/F4A==
 
 pretty-error@^4.0.0:
   version "4.0.0"
@@ -15684,10 +15684,10 @@ typedarray-to-buffer@^3.1.5:
   dependencies:
     is-typedarray "^1.0.0"
 
-typedoc-plugin-markdown@4.0.0-next.45:
-  version "4.0.0-next.45"
-  resolved "https://registry.yarnpkg.com/typedoc-plugin-markdown/-/typedoc-plugin-markdown-4.0.0-next.45.tgz#c4111d3da160c311f142ab1ee11a20fdec4e299e"
-  integrity sha512-cZPsWqnWboyQf05N8HQXyXZPx3FucHKdmcAP4yFnT4lzG1GZCyjF5BZrdMmdZHUzllG8N9V/haj5obY4mvAxEQ==
+typedoc-plugin-markdown@4.0.0-next.50:
+  version "4.0.0-next.50"
+  resolved "https://registry.yarnpkg.com/typedoc-plugin-markdown/-/typedoc-plugin-markdown-4.0.0-next.50.tgz#312eeba52922bff98d6d12069949f56d8e2daa6c"
+  integrity sha512-iHrO2HnN+jY6SE3U4Yti1Uhl+75wz2i8NY+9steqzZsvvD1liC/4DkAk7DP/4doqPeiX0BM4PW0fkzs9jH/V1Q==
 
 typedoc@^0.25.7:
   version "0.25.7"

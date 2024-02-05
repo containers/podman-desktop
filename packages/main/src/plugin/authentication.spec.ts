@@ -58,10 +58,19 @@ import type { NotificationRegistry } from './notification-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
 import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
+import { app } from 'electron';
 
 vi.mock('../util.js', async () => {
   return {
     getBase64Image: vi.fn(),
+  };
+});
+
+vi.mock('electron', () => {
+  return {
+    app: {
+      getVersion: vi.fn(),
+    },
   };
 });
 
@@ -117,6 +126,9 @@ const directories = {
 
 beforeEach(function () {
   authModule = new AuthenticationImpl(apiSender);
+
+  // mock electron.app.getVersion
+  vi.mocked(app.getVersion).mockReturnValue('1.2.3');
 });
 
 test('Registered authentication provider stored in authentication module', async () => {

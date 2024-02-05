@@ -30,7 +30,7 @@ jobs:
 
   publish-to-brew:
     name: Publish Podman Desktop to Brew cask
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
       - name: Set version
         id: VERSION

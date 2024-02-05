@@ -128,6 +128,7 @@ test('Expect simple column styling with route', async () => {
       name: 'service',
     },
     selected: false,
+    tlsEnabled: false,
   };
   render(IngressRouteColumnBackend, { object: routeUI });
 
