@@ -2846,12 +2846,12 @@ declare module '@podman-desktop/api' {
     // name of the volume to create
     Name: string;
     // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
-    provider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection;
+    provider?: ContainerProviderConnection;
   }
 
   export interface VolumeDeleteOptions {
     // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
-    provider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection;
+    provider?: ContainerProviderConnection;
   }
 
   export interface VolumeCreateResponseInfo {
