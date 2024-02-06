@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,7 +110,7 @@ test('Expect that the install button is there and can click on it to install', a
   await new Promise(r => setTimeout(r, 300));
 
   // and expect to have 'installed' label
-  const installedLabel = screen.getByText('Installed');
+  const installedLabel = screen.getByText('INSTALLED');
   expect(installedLabel).toBeInTheDocument();
 });
 
@@ -158,6 +158,6 @@ test('Expect that the installed label is there if extension is already installed
   expect(installButtonAfterClick).not.toBeInTheDocument();
 
   // and expect to have 'installed' label
-  const installedLabel = screen.getByText('Installed');
+  const installedLabel = screen.getByText('INSTALLED');
   expect(installedLabel).toBeInTheDocument();
 });
