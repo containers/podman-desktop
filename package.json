@@ -123,7 +123,7 @@
     "@types/node": "^18",
     "@types/tar": "^6.1.11",
     "@types/tar-fs": "^2.0.4",
-    "@types/validator": "^13.11.8",
+    "@types/validator": "^13.11.9",
     "@typescript-eslint/eslint-plugin": "^6.20.0",
     "@typescript-eslint/parser": "^6.20.0",
     "@vitest/coverage-v8": "^1.2.2",
