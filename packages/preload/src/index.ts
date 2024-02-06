@@ -1080,6 +1080,10 @@ function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld('troubleshootingSaveLogs', async (destinaton: string): Promise<string[]> => {
+    return ipcInvoke('troubleshooting:saveLogs', memoryLogs, destinaton);
+  });
+
   contextBridge.exposeInMainWorld('getContributedMenus', async (context: string): Promise<Menu[]> => {
     return ipcInvoke('menu-registry:getContributedMenus', context);
   });
@@ -1292,6 +1296,30 @@ function initExposure(): void {
   let idDialog = 0;
 
   const dialogResponses = new Map<string, DialogResultCallback>();
+
+  contextBridge.exposeInMainWorld('saveFileDialog', async (message: string, defaultPath: string) => {
+    // generate id
+    const dialogId = idDialog;
+    idDialog++;
+
+    // create defer object
+    const defer = new Deferred<Electron.SaveDialogReturnValue>();
+
+    // store the dialogID
+    dialogResponses.set(`${dialogId}`, (result: Electron.SaveDialogReturnValue) => {
+      defer.resolve(result);
+    });
+
+    // ask to open file dialog
+    ipcRenderer.send('dialog:saveFile', {
+      dialogId: `${dialogId}`,
+      message,
+      defaultPath,
+    });
+
+    // wait for response
+    return defer.promise;
+  });
 
   contextBridge.exposeInMainWorld(
     'openFileDialog',
