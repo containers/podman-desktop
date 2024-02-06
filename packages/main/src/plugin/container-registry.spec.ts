@@ -262,6 +262,7 @@ const apiSender: ApiSenderType = {
 };
 
 beforeEach(() => {
+  nock.cleanAll();
   vi.mocked(apiSender.receive).mockClear();
   vi.mocked(apiSender.send).mockClear();
 
@@ -3057,4 +3058,43 @@ test('check that fails if selected provider is not a podman one', async () => {
       name: 'pod',
     }),
   ).rejects.toThrowError('No podman provider with a running engine');
+});
+
+test('list pods', async () => {
+  const podsList = [
+    {
+      Labels: {
+        key1: 'value1',
+        key2: 'value2',
+      },
+    },
+  ];
+
+  nock('http://localhost').get('/v4.2.0/libpod/pods/json').reply(200, podsList);
+
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  // set provider
+  containerRegistry.addInternalProvider('podman', {
+    name: 'podman',
+    id: 'podman1',
+    api,
+    libpodApi: api,
+    connection: {
+      type: 'podman',
+    },
+  } as unknown as InternalContainerProvider);
+
+  const pods = await containerRegistry.listPods();
+  // ensure the field are correct
+  expect(pods).toBeDefined();
+  expect(pods).toHaveLength(1);
+  const pod = pods[0];
+  expect(pod.engineId).toBe('podman1');
+  expect(pod.engineName).toBe('podman');
+  expect(pod.kind).toBe('podman');
+  expect(pod.Labels).toStrictEqual({
+    key1: 'value1',
+    key2: 'value2',
+  });
 });

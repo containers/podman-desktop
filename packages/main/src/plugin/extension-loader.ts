@@ -73,6 +73,7 @@ import type { ImageCheckerImpl } from './image-checker.js';
 import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 import type { ImageInspectInfo } from '/@/plugin/api/image-inspect-info.js';
+import type { PodInfo } from './api/pod-info.js';
 
 /**
  * Handle the loading of an extension
@@ -999,6 +1000,9 @@ export class ExtensionLoader {
       },
       createPod(podOptions: containerDesktopAPI.PodCreateOptions): Promise<{ engineId: string; Id: string }> {
         return containerProviderRegistry.createPod(podOptions);
+      },
+      listPods(): Promise<PodInfo[]> {
+        return containerProviderRegistry.listPods();
       },
       replicatePodmanContainer(
         source: { engineId: string; id: string },
