@@ -2004,18 +2004,14 @@ export class ContainerProviderRegistry {
   async buildImage(
     containerBuildContextDirectory: string,
     eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
-    relativeContainerfilePath?: string,
-    imageName?: string,
-    platform?: string,
-    selectedProvider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
-    abortController?: AbortController,
+    options?: containerDesktopAPI.BuildImageOptions,
   ): Promise<unknown> {
     let telemetryOptions = {};
     try {
       let matchingContainerProviderApi: Dockerode;
-      if (selectedProvider !== undefined) {
+      if (options?.provider !== undefined) {
         // grab all connections
-        matchingContainerProviderApi = this.getMatchingEngineFromConnection(selectedProvider);
+        matchingContainerProviderApi = this.getMatchingEngineFromConnection(options.provider);
       } else {
         // Get the first running connection (preference for podman)
         matchingContainerProviderApi = this.getFirstRunningConnection()[1];
@@ -2028,18 +2024,39 @@ export class ContainerProviderRegistry {
         `Uploading the build context from ${containerBuildContextDirectory}...Can take a while...\r\n`,
       );
       const tarStream = tar.pack(containerBuildContextDirectory);
-      if (isWindows() && relativeContainerfilePath !== undefined) {
-        relativeContainerfilePath = relativeContainerfilePath.replace(/\\/g, '/');
+      if (isWindows() && options?.containerFile !== undefined) {
+        options.containerFile = options.containerFile.replace(/\\/g, '/');
       }
 
       let streamingPromise: Stream;
       try {
         streamingPromise = (await matchingContainerProviderApi.buildImage(tarStream, {
           registryconfig,
-          dockerfile: relativeContainerfilePath,
-          t: imageName,
-          platform: platform,
-          abortSignal: abortController?.signal,
+          abortSignal: options?.abortController?.signal,
+          dockerfile: options?.containerFile,
+          t: options?.tag,
+          platform: options?.platform,
+          extrahosts: options?.extrahosts,
+          remote: options?.remote,
+          q: options?.q,
+          cachefrom: options?.cachefrom,
+          pull: options?.pull,
+          rm: options?.rm,
+          forcerm: options?.forcerm,
+          memory: options?.memory,
+          memswap: options?.memswap,
+          cpushares: options?.cpushares,
+          cpusetcpus: options?.cpusetcpus,
+          cpuperiod: options?.cpuperiod,
+          cpuquota: options?.cpuquota,
+          buildargs: options?.buildargs,
+          shmsize: options?.shmsize,
+          squash: options?.squash,
+          labels: options?.labels,
+          networkmode: options?.networkmode,
+          target: options?.target,
+          outputs: options?.outputs,
+          nocache: options?.nocache,
         })) as unknown as Stream;
       } catch (error: unknown) {
         console.log('error in buildImage', error);
@@ -2047,7 +2064,7 @@ export class ContainerProviderRegistry {
         eventCollect('error', errorMessage);
         throw error;
       }
-      eventCollect('stream', `Building ${imageName}...\r\n`);
+      eventCollect('stream', `Building ${options?.tag}...\r\n`);
       // eslint-disable-next-line @typescript-eslint/ban-types
       let resolve: (output: {}) => void;
       let reject: (err: Error) => void;

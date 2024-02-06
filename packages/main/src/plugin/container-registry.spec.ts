@@ -1132,9 +1132,14 @@ describe('buildImage', () => {
       lifecycleMethods: undefined,
       status: 'started',
     };
-    await expect(containerRegistry.buildImage('context', () => {}, 'file', 'name', '', connection)).rejects.toThrow(
-      'no running provider for the matching container',
-    );
+    await expect(
+      containerRegistry.buildImage('context', () => {}, {
+        containerFile: 'file',
+        tag: 'name',
+        platform: '',
+        provider: connection,
+      }),
+    ).rejects.toThrow('no running provider for the matching container');
   });
 
   test('called getFirstRunningConnection when undefined provider', async () => {
@@ -1171,9 +1176,14 @@ describe('buildImage', () => {
       },
       status: () => 'started',
     };
-    await expect(containerRegistry.buildImage('context', () => {}, 'file', 'name', '', connection)).rejects.toThrow(
-      'no running provider for the matching container',
-    );
+    await expect(
+      containerRegistry.buildImage('context', () => {}, {
+        containerFile: 'file',
+        tag: 'name',
+        platform: '',
+        provider: connection,
+      }),
+    ).rejects.toThrow('no running provider for the matching container');
   });
 
   test('throw if build command fail', async () => {
@@ -1208,9 +1218,14 @@ describe('buildImage', () => {
     vi.spyOn(tar, 'pack').mockReturnValue({} as NodeJS.ReadableStream);
     vi.spyOn(dockerAPI, 'buildImage').mockRejectedValue('human error message');
 
-    await expect(containerRegistry.buildImage('context', () => {}, 'file', 'name', '', connection)).rejects.toThrow(
-      'human error message',
-    );
+    await expect(
+      containerRegistry.buildImage('context', () => {}, {
+        containerFile: 'file',
+        tag: 'name',
+        platform: '',
+        provider: connection,
+      }),
+    ).rejects.toThrow('human error message');
   });
 
   test('throw if build command fail using a ContainerProviderConnection input', async () => {
@@ -1244,9 +1259,14 @@ describe('buildImage', () => {
     vi.spyOn(tar, 'pack').mockReturnValue({} as NodeJS.ReadableStream);
     vi.spyOn(dockerAPI, 'buildImage').mockRejectedValue('human error message');
 
-    await expect(containerRegistry.buildImage('context', () => {}, 'file', 'name', '', connection)).rejects.toThrow(
-      'human error message',
-    );
+    await expect(
+      containerRegistry.buildImage('context', () => {}, {
+        containerFile: 'file',
+        tag: 'name',
+        platform: '',
+        provider: connection,
+      }),
+    ).rejects.toThrow('human error message');
   });
 
   test('verify relativeFilePath gets sanitized on Windows', async () => {
@@ -1284,7 +1304,12 @@ describe('buildImage', () => {
       return f(null, []);
     });
 
-    await containerRegistry.buildImage('context', () => {}, '\\path\\file', 'name', '', connection);
+    await containerRegistry.buildImage('context', () => {}, {
+      containerFile: '\\path\\file',
+      tag: 'name',
+      platform: '',
+      provider: connection,
+    });
 
     expect(dockerAPI.buildImage).toBeCalledWith({} as NodeJS.ReadableStream, {
       registryconfig: {},
@@ -1328,7 +1353,12 @@ describe('buildImage', () => {
       return f(null, []);
     });
 
-    await containerRegistry.buildImage('context', () => {}, '\\path\\file', 'name', '', connection);
+    await containerRegistry.buildImage('context', () => {}, {
+      containerFile: '\\path\\file',
+      tag: 'name',
+      platform: '',
+      provider: connection,
+    });
 
     expect(dockerAPI.buildImage).toBeCalledWith({} as NodeJS.ReadableStream, {
       registryconfig: {},
@@ -1338,7 +1368,7 @@ describe('buildImage', () => {
     });
   });
 
-  test('verify buildImage receives correct args on non-Windows OS', async () => {
+  async function verifyBuildImage(extraArgs: object): Promise<void> {
     const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
 
     // set providers with docker being first
@@ -1373,14 +1403,113 @@ describe('buildImage', () => {
       return f(null, []);
     });
 
-    await containerRegistry.buildImage('context', () => {}, '/dir/dockerfile', 'name', '', connection);
+    await containerRegistry.buildImage('context', () => {}, {
+      containerFile: '/dir/dockerfile',
+      tag: 'name',
+      platform: '',
+      provider: connection,
+      ...extraArgs,
+    });
 
     expect(dockerAPI.buildImage).toBeCalledWith({} as NodeJS.ReadableStream, {
       registryconfig: {},
       platform: '',
       dockerfile: '/dir/dockerfile',
       t: 'name',
+      ...extraArgs,
     });
+  }
+
+  test('verify buildImage receives correct args on non-Windows OS', async () => {
+    await verifyBuildImage({});
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with extrahosts', async () => {
+    await verifyBuildImage({ extrahosts: 'a string' });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with remote', async () => {
+    await verifyBuildImage({ remote: 'a string' });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with q', async () => {
+    await verifyBuildImage({ q: true });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with cachefrom', async () => {
+    await verifyBuildImage({ cachefrom: 'quay.io/ubi9/ubi' });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with cachefrom', async () => {
+    await verifyBuildImage({ cachefrom: 'quay.io/ubi9/ubi' });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with pull', async () => {
+    await verifyBuildImage({ pull: 'quay.io/ubi9/ubi' });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with rm', async () => {
+    await verifyBuildImage({ rm: true });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with forcerm', async () => {
+    await verifyBuildImage({ forcerm: true });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with memory', async () => {
+    await verifyBuildImage({ memory: 12 });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with memswap', async () => {
+    await verifyBuildImage({ memswap: 13 });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with cpushares', async () => {
+    await verifyBuildImage({ cpushares: 14 });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with cpusetcpus', async () => {
+    await verifyBuildImage({ cpusetcpus: 15 });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with cpuperiod', async () => {
+    await verifyBuildImage({ cpuperiod: 16 });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with cpuquota', async () => {
+    await verifyBuildImage({ cpuquota: 17 });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with buildargs', async () => {
+    await verifyBuildImage({ buildargs: { KEY1: 'VALUE1' } });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with shmsize', async () => {
+    await verifyBuildImage({ shmsize: 18 });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with squash', async () => {
+    await verifyBuildImage({ squash: false });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with labels', async () => {
+    await verifyBuildImage({ labels: { LABEL1: 'VALUE_LABEL1' } });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with networkmode', async () => {
+    await verifyBuildImage({ networkmode: 'bridge' });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with target', async () => {
+    await verifyBuildImage({ target: 'target' });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with outputs', async () => {
+    await verifyBuildImage({ outputs: 'outputs' });
+  });
+
+  test('verify buildImage receives correct args on non-Windows OS with nocache', async () => {
+    await verifyBuildImage({ nocache: true });
   });
 });
 
