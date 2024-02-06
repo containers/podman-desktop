@@ -38,7 +38,7 @@ function handleKeydown(e: KeyboardEvent) {
           <slot name="icon" />
         </div>
         <div class="flex flex-col grow pr-2">
-          <div class="flex flex-row">
+          <div class="flex flex-row items-baseline">
             <h1 aria-label="{title}" class="text-xl leading-tight">{title}</h1>
             <div class="text-violet-400 ml-2 leading-normal" class:hidden="{!titleDetail}">{titleDetail}</div>
           </div>
