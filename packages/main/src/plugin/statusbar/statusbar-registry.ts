@@ -30,6 +30,7 @@ export interface StatusBarEntry {
   command?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   commandArgs?: any[];
+  highlight?: boolean;
 }
 
 export interface StatusBarEntryDescriptor {
@@ -62,6 +63,7 @@ export class StatusBarRegistry implements IDisposable {
     command: string | undefined,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     commandArgs: any[] | undefined,
+    highlight?: boolean,
   ) {
     const existingEntry = this.entries.get(entryId);
     if (existingEntry && (existingEntry.alignLeft !== alignLeft || existingEntry.priority !== priority)) {
@@ -80,6 +82,7 @@ export class StatusBarRegistry implements IDisposable {
         enabled: enabled,
         command: command,
         commandArgs: commandArgs,
+        highlight: highlight,
       };
 
       const entryDescriptor: StatusBarEntryDescriptor = {
@@ -97,6 +100,7 @@ export class StatusBarRegistry implements IDisposable {
       entryToUpdate.enabled = enabled;
       entryToUpdate.command = command;
       entryToUpdate.commandArgs = commandArgs;
+      entryToUpdate.highlight = highlight;
     }
 
     this.apiSender.send(STATUS_BAR_UPDATED_EVENT_NAME, undefined);

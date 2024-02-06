@@ -570,6 +570,7 @@ export class PluginSystem {
           true,
           'update',
           undefined,
+          true,
         );
       });
 

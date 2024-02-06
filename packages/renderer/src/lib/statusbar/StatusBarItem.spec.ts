@@ -19,6 +19,8 @@
 import { test, expect } from 'vitest';
 import type { StatusBarEntry } from '../../../../main/src/plugin/statusbar/statusbar-registry';
 import { iconClass } from './StatusBarItem';
+import { render, screen } from '@testing-library/svelte';
+import StatusBarItem from './StatusBarItem.svelte';
 
 test('check iconClass with font awesome icons', () => {
   const statusBarEntry: StatusBarEntry = {
@@ -48,4 +50,30 @@ test('check iconClass with font awesome icons and spinning', () => {
 
   const icon = iconClass(statusBarEntry);
   expect(icon).toBe('fas fa-sync animate-spin');
+});
+
+test('expect dot not rendered', async () => {
+  const statusBarEntry: StatusBarEntry = {
+    enabled: true,
+    activeIconClass: '${podman}',
+    highlight: false,
+  };
+
+  render(StatusBarItem, { entry: statusBarEntry });
+
+  const dot = screen.queryByRole('status');
+  expect(dot).toBeNull();
+});
+
+test('expect dot rendered', () => {
+  const statusBarEntry: StatusBarEntry = {
+    enabled: true,
+    activeIconClass: '${podman}',
+    highlight: true,
+  };
+
+  render(StatusBarItem, { entry: statusBarEntry });
+
+  const dot = screen.getByRole('status');
+  expect(dot).toBeDefined();
 });
