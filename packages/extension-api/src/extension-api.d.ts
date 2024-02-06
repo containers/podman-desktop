@@ -2630,6 +2630,11 @@ declare module '@podman-desktop/api' {
     Shell?: string[];
 
     NetworkConfig?: NetworkingConfig;
+
+    /**
+     * Pod where to create the container in
+     */
+    pod?: string;
   }
 
   /**
