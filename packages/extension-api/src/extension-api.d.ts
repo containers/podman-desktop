@@ -1908,6 +1908,28 @@ declare module '@podman-desktop/api' {
     MacAddress: string;
   }
 
+  interface PodContainerInfo {
+    Id: string;
+    Names: string;
+    Status: string;
+  }
+
+  interface PodInfo {
+    engineId: string;
+    engineName: string;
+    kind: 'kubernetes' | 'podman';
+    Cgroup: string;
+    Containers: PodContainerInfo[];
+    Created: string;
+    Id: string;
+    InfraId: string;
+    Labels: { [key: string]: string };
+    Name: string;
+    Namespace: string;
+    Networks: string[];
+    Status: string;
+  }
+
   interface AuthConfig {
     username: string;
     password: string;
@@ -2388,6 +2410,7 @@ declare module '@podman-desktop/api' {
       overrideParameters: PodmanContainerCreateOptions,
     ): Promise<{ Id: string; Warnings: string[] }>;
     export function startPod(engineId: string, podId: string): Promise<void>;
+    export function listPods(): Promise<PodInfo[]>;
   }
 
   /**

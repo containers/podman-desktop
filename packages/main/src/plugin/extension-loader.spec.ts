@@ -135,6 +135,7 @@ const containerProviderRegistry: ContainerProviderRegistry = {
   imageExist: vi.fn(),
   volumeExist: vi.fn(),
   podExist: vi.fn(),
+  listPods: vi.fn(),
 } as unknown as ContainerProviderRegistry;
 
 const inputQuickPickRegistry: InputQuickPickRegistry = {} as unknown as InputQuickPickRegistry;
@@ -1331,4 +1332,16 @@ test('check version', async () => {
 
   // check we called method
   expect(readPodmanVersion).toBe(fakeVersion);
+});
+
+test('listPods', async () => {
+  const listPodsSpy = vi.spyOn(containerProviderRegistry, 'listPods');
+  const api = extensionLoader.createApi('path', {
+    name: 'name',
+    publisher: 'publisher',
+    version: '1',
+    displayName: 'dname',
+  });
+  await api.containerEngine.listPods();
+  expect(listPodsSpy).toHaveBeenCalledOnce();
 });
