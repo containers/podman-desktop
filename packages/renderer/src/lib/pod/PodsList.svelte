@@ -26,6 +26,7 @@ import PodColumnEnvironment from './PodColumnEnvironment.svelte';
 import PodColumnContainers from './PodColumnContainers.svelte';
 import PodColumnAge from './PodColumnAge.svelte';
 import PodColumnActions from './PodColumnActions.svelte';
+import { deleteSelection } from '../ui/Util';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -93,29 +94,15 @@ onDestroy(() => {
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
 async function deleteSelectedPods() {
-  const selectedPods = pods.filter(pod => pod.selected);
-  if (selectedPods.length === 0) {
-    return;
-  }
-
-  // mark pods for deletion
   bulkDeleteInProgress = true;
-  selectedPods.forEach(pod => (pod.status = 'DELETING'));
+  await deleteSelection(pods, async (pod: PodInfoUI) => {
+    if (pod.kind === 'podman') {
+      await window.removePod(pod.engineId, pod.id);
+    } else {
+      await window.kubernetesDeletePod(pod.name);
+    }
+  });
   pods = pods;
-
-  await Promise.all(
-    selectedPods.map(async pod => {
-      try {
-        if (pod.kind === 'podman') {
-          await window.removePod(pod.engineId, pod.id);
-        } else {
-          await window.kubernetesDeletePod(pod.name);
-        }
-      } catch (e) {
-        console.error('error while removing pod', e);
-      }
-    }),
-  );
   bulkDeleteInProgress = false;
 }
 

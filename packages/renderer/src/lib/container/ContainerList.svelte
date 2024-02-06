@@ -41,6 +41,7 @@ import StateChange from '../ui/StateChange.svelte';
 import SolidPodIcon from '../images/SolidPodIcon.svelte';
 import ProviderInfo from '../ui/ProviderInfo.svelte';
 import { findMatchInLeaves } from '../../stores/search-util';
+import { deleteSelection } from '../ui/Util';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -153,61 +154,39 @@ function toggleCheckboxContainerGroup(checked: boolean, containerGroup: Containe
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
 async function deleteSelectedContainers() {
-  const podGroups = containerGroups
-    .filter(group => group.type === ContainerGroupInfoTypeUI.POD)
-    .filter(pod => pod.selected);
-  const selectedContainers = containerGroups
+  const podGroups = containerGroups.filter(group => group.type === ContainerGroupInfoTypeUI.POD);
+
+  const containers = containerGroups
     .filter(group => group.type !== ContainerGroupInfoTypeUI.POD)
     .map(group => group.containers)
-    .flat()
-    .filter(container => container.selected);
+    .flat();
 
-  if (podGroups.length + selectedContainers.length === 0) {
-    return;
-  }
-
-  // mark pods and containers for deletion
   bulkDeleteInProgress = true;
-  podGroups.forEach(pod => (pod.status = 'DELETING'));
-  selectedContainers.forEach(container => (container.state = 'DELETING'));
-  containerGroups = [...containerGroups];
-
   // delete pods first if any
-  if (podGroups.length > 0) {
-    await Promise.all(
-      podGroups.map(async podGroup => {
-        if (podGroup.engineId && podGroup.id) {
-          try {
-            await window.removePod(podGroup.engineId, podGroup.id);
-          } catch (e) {
-            console.error('error while removing pod', e);
-          }
-        }
-      }),
-    );
-  }
+  await deleteSelection(podGroups, async (podGroup: ContainerGroupInfoUI) => {
+    if (podGroup.engineId && podGroup.id) {
+      await window.removePod(podGroup.engineId, podGroup.id);
+    }
+  });
 
   // then containers (that are not inside a pod)
-  if (selectedContainers.length > 0) {
-    await Promise.all(
-      selectedContainers.map(async container => {
-        container.actionInProgress = true;
-        // reset error when starting task
-        container.actionError = '';
-        containerGroups = [...containerGroups];
-        try {
-          await window.deleteContainer(container.engineId, container.id);
-        } catch (e) {
-          console.log('error while removing container', e);
-          container.actionError = String(e);
-          container.state = 'ERROR';
-        } finally {
-          container.actionInProgress = false;
-          containerGroups = [...containerGroups];
-        }
-      }),
-    );
-  }
+  await deleteSelection(containers, async (container: ContainerInfoUI) => {
+    container.actionInProgress = true;
+    // reset error when starting task
+    container.actionError = '';
+    containerGroups = [...containerGroups];
+    try {
+      await window.deleteContainer(container.engineId, container.id);
+    } catch (e) {
+      container.actionError = String(e);
+      container.state = 'ERROR';
+    } finally {
+      container.actionInProgress = false;
+      containerGroups = [...containerGroups];
+    }
+  });
+
+  containerGroups = [...containerGroups];
   bulkDeleteInProgress = false;
 }
 

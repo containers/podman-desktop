@@ -20,6 +20,7 @@ import DeploymentEmptyScreen from './DeploymentEmptyScreen.svelte';
 import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import SimpleColumn from '../table/SimpleColumn.svelte';
 import DurationColumn from '../table/DurationColumn.svelte';
+import { deleteSelection } from '../ui/Util';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -37,25 +38,11 @@ onMount(() => {
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
 async function deleteSelectedDeployments() {
-  const selectedDeployments = deployments.filter(deployment => deployment.selected);
-  if (selectedDeployments.length === 0) {
-    return;
-  }
-
-  // mark deployments for deletion
   bulkDeleteInProgress = true;
-  selectedDeployments.forEach(image => (image.status = 'DELETING'));
+  await deleteSelection(deployments, async (deployment: DeploymentUI) => {
+    await window.kubernetesDeleteDeployment(deployment.name);
+  });
   deployments = deployments;
-
-  await Promise.all(
-    selectedDeployments.map(async deployment => {
-      try {
-        await window.kubernetesDeleteDeployment(deployment.name);
-      } catch (e) {
-        console.error('error while deleting deployment', e);
-      }
-    }),
-  );
   bulkDeleteInProgress = false;
 }
 
