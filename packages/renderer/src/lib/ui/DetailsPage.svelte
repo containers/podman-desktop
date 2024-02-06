@@ -2,6 +2,7 @@
 import { lastPage, currentPage } from '../../stores/breadcrumb';
 import { router } from 'tinro';
 import Link from './Link.svelte';
+import CopyToClipboard from './CopyToClipboard.svelte';
 
 export let title: string;
 export let titleDetail: string | undefined = undefined;
@@ -39,8 +40,8 @@ function handleKeydown(e: KeyboardEvent) {
         </div>
         <div class="flex flex-col grow pr-2">
           <div class="flex flex-row">
-            <h1 aria-label="{title}" class="text-xl leading-tight">{title}</h1>
-            <div class="text-violet-400 ml-2 leading-normal" class:hidden="{!titleDetail}">{titleDetail}</div>
+            <div><CopyToClipboard title="{title}" clipboardData="{title}" class="text-xl inline-block mt-1" /></div>
+            <div class="text-violet-400 ml-2 leading-normal mt-2" class:hidden="{!titleDetail}">{titleDetail}</div>
           </div>
           <div>
             <span class="text-sm leading-none text-gray-900" class:hidden="{!subtitle}">{subtitle}</span>
