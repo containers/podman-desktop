@@ -83,6 +83,7 @@ export interface PodCreatePortOptions {
 export interface PodCreateOptions {
   name: string;
   portmappings?: PodCreatePortOptions[];
+  labels?: { [key: string]: string };
 }
 
 export interface ContainerCreateOptions {
