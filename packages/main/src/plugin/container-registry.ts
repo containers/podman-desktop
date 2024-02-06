@@ -18,7 +18,7 @@
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import { Disposable } from './types/disposable.js';
-import type { ContainerAttachOptions } from 'dockerode';
+import type { ContainerAttachOptions, ImageBuildOptions } from 'dockerode';
 import Dockerode from 'dockerode';
 import StreamValues from 'stream-json/streamers/StreamValues.js';
 import type {
@@ -2030,16 +2030,14 @@ export class ContainerProviderRegistry {
 
       let streamingPromise: Stream;
       try {
-        streamingPromise = (await matchingContainerProviderApi.buildImage(tarStream, {
+        const buildOptions: ImageBuildOptions = {
           registryconfig,
           abortSignal: options?.abortController?.signal,
           dockerfile: options?.containerFile,
           t: options?.tag,
           platform: options?.platform,
-          extrahosts: options?.extrahosts,
           remote: options?.remote,
           q: options?.q,
-          cachefrom: options?.cachefrom,
           pull: options?.pull,
           rm: options?.rm,
           forcerm: options?.forcerm,
@@ -2049,15 +2047,29 @@ export class ContainerProviderRegistry {
           cpusetcpus: options?.cpusetcpus,
           cpuperiod: options?.cpuperiod,
           cpuquota: options?.cpuquota,
-          buildargs: options?.buildargs,
           shmsize: options?.shmsize,
           squash: options?.squash,
-          labels: options?.labels,
           networkmode: options?.networkmode,
           target: options?.target,
           outputs: options?.outputs,
           nocache: options?.nocache,
-        })) as unknown as Stream;
+        };
+        if (options?.extrahosts) {
+          buildOptions.extrahosts = options.extrahosts;
+        }
+        if (options?.cachefrom) {
+          buildOptions.cachefrom = options.cachefrom;
+        }
+        if (options?.buildargs) {
+          buildOptions.buildargs = options.buildargs;
+        }
+        if (options?.labels) {
+          buildOptions.labels = options.labels;
+        }
+        streamingPromise = (await matchingContainerProviderApi.buildImage(
+          tarStream,
+          buildOptions,
+        )) as unknown as Stream;
       } catch (error: unknown) {
         console.log('error in buildImage', error);
         const errorMessage = error instanceof Error ? error.message : '' + error;
