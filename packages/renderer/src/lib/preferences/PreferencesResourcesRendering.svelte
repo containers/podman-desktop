@@ -478,7 +478,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                 {#if container.type === 'docker'}Docker{:else if container.type === 'podman'}Podman{/if} endpoint
               </div>
               <PreferencesResourcesRenderingCopyButton
-                class="{container.status !== 'started' ? 'text-gray-900' : ''}"
+                class="text-xs {container.status !== 'started' ? 'text-gray-900' : ''}"
                 path="{container.endpoint.socketPath}" />
               {#if providerContainerConfiguration.has(provider.internalId)}
                 {@const providerConfiguration = providerContainerConfiguration.get(provider.internalId) || []}

@@ -12,16 +12,16 @@ function copyTextToClipboard() {
 </script>
 
 <div class="float-right">
-  <Tooltip tip="Copy to Clipboard" bottom>
+  <Tooltip tip="Copy to Clipboard" bottom class="{$$props.class || ''}">
     <button
       title="Copy To Clipboard"
-      class="ml-5 {$$props.class || ''}"
+      class="ml-3 {$$props.class || ''}"
       aria-label="Copy To Clipboard"
       on:click="{() => copyTextToClipboard()}">
       <Fa icon="{faPaste}" />
     </button>
   </Tooltip>
 </div>
-<div class="mt-1 my-auto text-xs truncate {$$props.class || ''}" aria-label="{title} copy to clipboard" title="{title}">
+<div class="mt-1 my-auto truncate {$$props.class || ''}" aria-label="{title} copy to clipboard" title="{title}">
   {title}
 </div>
