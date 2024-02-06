@@ -168,3 +168,16 @@ test('Check info', async () => {
   expect(info).toBeDefined();
   expect(info).toStrictEqual(podmanInfo);
 });
+
+test('Check labels are passed to the api when creating a pod', async () => {
+  nock('http://localhost')
+    .post('/v4.2.0/libpod/pods/create', { name: 'pod1', labels: { key1: 'value1' } })
+    .reply(201);
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+  await (api as unknown as LibPod).createPod({
+    name: 'pod1',
+    labels: {
+      key1: 'value1',
+    },
+  });
+});

@@ -275,6 +275,7 @@ declare module '@podman-desktop/api' {
   export interface PodCreateOptions {
     name: string;
     portmappings?: PodCreatePortOptions[];
+    labels?: { [key: string]: string };
     // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
     provider?: ProviderContainerConnectionInfo | ContainerProviderConnection;
   }
