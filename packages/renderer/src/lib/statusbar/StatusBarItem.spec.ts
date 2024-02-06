@@ -56,7 +56,7 @@ test('expect dot not rendered', async () => {
   const statusBarEntry: StatusBarEntry = {
     enabled: true,
     activeIconClass: '${podman}',
-    important: false,
+    highlight: false,
   };
 
   render(StatusBarItem, { entry: statusBarEntry });
@@ -69,7 +69,7 @@ test('expect dot rendered', () => {
   const statusBarEntry: StatusBarEntry = {
     enabled: true,
     activeIconClass: '${podman}',
-    important: true,
+    highlight: true,
   };
 
   render(StatusBarItem, { entry: statusBarEntry });
