@@ -1829,8 +1829,8 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'kubernetesApplyResourcesFromFile',
-    async (context: string, file: string): Promise<KubernetesObject[]> => {
-      return ipcInvoke('kubernetes-client:applyResourcesFromFile', context, file);
+    async (context: string, file: string, namespace?: string): Promise<KubernetesObject[]> => {
+      return ipcInvoke('kubernetes-client:applyResourcesFromFile', context, file, namespace);
     },
   );
 

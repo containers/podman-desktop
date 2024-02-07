@@ -1218,22 +1218,27 @@ test('Expect ingress refreshInformer should stop and start the informer again', 
 
 test('Expect apply with invalid file should error', async () => {
   const client = createTestClient('default');
+  let expectedError: unknown;
   try {
     await client.applyResourcesFromFile('default', 'missing-file.yaml');
-    throw Error('should never get here');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (err: any) {
-    expect(err).to.be.a('Error');
-    expect(err.message).equal('File missing-file.yaml does not exist');
+  } catch (err: unknown) {
+    expectedError = err;
   }
+  expect(expectedError).to.be.a('Error');
+  expect((expectedError as Error).message).equal('File missing-file.yaml does not exist');
 });
 
-test('Expect apply with empty yaml should return no objects', async () => {
+test('Expect apply with empty yaml should throw error', async () => {
   const client = createTestClient('default');
   vi.spyOn(client, 'loadManifestsFromFile').mockReturnValue(Promise.resolve([]));
-
-  const objects = await client.applyResourcesFromFile('default', 'missing-file.yaml');
-  expect(objects).toEqual([]);
+  let expectedError: unknown;
+  try {
+    await client.applyResourcesFromFile('default', 'missing-file.yaml');
+  } catch (err: unknown) {
+    expectedError = err;
+  }
+  expect(expectedError).to.be.a('Error');
+  expect((expectedError as Error).message).equal('No valid Kubernetes resources found in file');
 });
 
 test('Expect apply should create if object does not exist', async () => {

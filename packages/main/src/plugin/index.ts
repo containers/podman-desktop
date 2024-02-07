@@ -2010,8 +2010,8 @@ export class PluginSystem {
 
     this.ipcHandle(
       'kubernetes-client:applyResourcesFromFile',
-      async (_listener, context: string, file: string): Promise<KubernetesObject[]> => {
-        return kubernetesClient.applyResourcesFromFile(context, file);
+      async (_listener, context: string, file: string, namespace?: string): Promise<KubernetesObject[]> => {
+        return kubernetesClient.applyResourcesFromFile(context, file, namespace);
       },
     );
 
