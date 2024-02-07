@@ -35,3 +35,9 @@ test('Test navigationHandle to a specific container', () => {
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/containers/123/');
 });
+
+test('Test navigationHandle to a specific webview', () => {
+  handleNavigation(NavigationPage.WEBVIEW, { id: '123' });
+
+  expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/webviews/123');
+});

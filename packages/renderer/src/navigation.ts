@@ -75,5 +75,8 @@ export const handleNavigation = (page: NavigationPage, parameters?: { [key: stri
     case NavigationPage.HELP:
       router.goto('/help');
       break;
+    case NavigationPage.WEBVIEW:
+      router.goto(`/webviews/${parameters?.['id']}`);
+      break;
   }
 };

@@ -31,4 +31,5 @@ export enum NavigationPage {
   CONTRIBUTION = 'contribution',
   TROUBLESHOOTING = 'troubleshooting',
   HELP = 'help',
+  WEBVIEW = 'webview',
 }

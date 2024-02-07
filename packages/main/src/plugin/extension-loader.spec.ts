@@ -58,6 +58,7 @@ import type { ContributionInfo } from '/@/plugin/api/contribution-info.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 import { app } from 'electron';
+import type { WebviewInfo } from './api/webview-info.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -173,14 +174,17 @@ const contributionManager: ContributionManager = {
   listContributions: vi.fn(),
 } as unknown as ContributionManager;
 
+const webviewRegistry: WebviewRegistry = {
+  listSimpleWebviews: vi.fn(),
+  listWebviews: vi.fn(),
+} as unknown as WebviewRegistry;
+
 const navigationManager: NavigationManager = new NavigationManager(
   apiSender,
   containerProviderRegistry,
   contributionManager,
+  webviewRegistry,
 );
-const webviewRegistry: WebviewRegistry = {
-  listSimpleWebviews: vi.fn(),
-} as unknown as WebviewRegistry;
 
 vi.mock('electron', () => {
   return {
@@ -1272,6 +1276,33 @@ describe('Navigation', async () => {
 
     // Valid we listed the contains properly each time
     expect(listContributionsSpy).toHaveBeenCalledOnce();
+  });
+
+  test('navigateToWebview', async () => {
+    const api = extensionLoader.createApi('path', {
+      name: 'name',
+      publisher: 'publisher',
+      version: '1',
+      displayName: 'dname',
+    });
+
+    vi.mocked(webviewRegistry.listWebviews).mockReturnValue([
+      {
+        id: 'myWebviewId',
+      } as unknown as WebviewInfo,
+    ]);
+
+    await api.navigation.navigateToWebview('myWebviewId');
+
+    // Ensure the send method is called properly
+    expect(vi.mocked(apiSender).send).toBeCalledWith('navigate', {
+      page: NavigationPage.WEBVIEW,
+      parameters: {
+        id: 'myWebviewId',
+      },
+    });
+
+    expect(vi.mocked(webviewRegistry.listWebviews)).toHaveBeenCalled();
   });
 });
 
