@@ -10,8 +10,7 @@ let logs: string[] = [];
 async function saveLogsAsZip() {
   const result = await window.saveFileDialog('Save Logs as .zip', generateLogFileName('podman-desktop', 'zip'));
   if (!result.canceled && result.filePath) {
-    const logFiles = await window.troubleshootingSaveLogs(result.filePath);
-    logs = logFiles;
+logs = await window.troubleshootingSaveLogs(result.filePath);
   }
 }
 </script>
