@@ -154,7 +154,7 @@ export class NavigationManager {
   protected assertContributionExist(name: string): void {
     const contribs = this.contributionManager.listContributions();
     if (contribs.find(contrib => contrib.name === name) === undefined) {
-      throw new Error(`Pod with name ${name} cannot be found.`);
+      throw new Error(`Contribution with name ${name} cannot be found.`);
     }
   }
 
