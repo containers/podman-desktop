@@ -31,7 +31,6 @@ export interface FileMap {
 export type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
 export class Troubleshooting {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(private apiSender: any) {}
 
   // The "main" function that is exposes that is used to gather
