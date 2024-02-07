@@ -53,7 +53,6 @@ export class Troubleshooting {
       zip.addFile(fileMap.fileName, Buffer.from(fileMap.content, 'utf8'));
     });
     zip.writeZip(destination);
-    console.log(`Zip file saved to ${destination}`);
   }
 
   getConsoleLogs(consoleLogs: { logType: LogType; message: string }[]): FileMap[] {
