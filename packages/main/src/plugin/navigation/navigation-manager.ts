@@ -151,7 +151,7 @@ export class NavigationManager {
     });
   }
 
-  private async assertContributionExist(name: string): Promise<void> {
+  protected assertContributionExist(name: string): void {
     const contribs = this.contributionManager.listContributions();
     if (contribs.find(contrib => contrib.name === name) === undefined) {
       throw new Error(`Pod with name ${name} cannot be found.`);
@@ -159,7 +159,7 @@ export class NavigationManager {
   }
 
   async navigateToContribution(name: string): Promise<void> {
-    await this.assertContributionExist(name);
+    this.assertContributionExist(name);
 
     this.navigateTo({
       page: NavigationPage.CONTRIBUTION,
