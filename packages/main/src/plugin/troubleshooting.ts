@@ -92,7 +92,6 @@ export class Troubleshooting {
 
         // Check if the file exists, if not, skip it.
         if (!fs.existsSync(filePath)) {
-          console.log(`File ${filePath} does not exist, skipping`);
           continue;
         }
 
