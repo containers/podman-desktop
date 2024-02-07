@@ -76,7 +76,7 @@ export class Troubleshooting {
 
   private async getFileSystemContent(filePath: string, logName: string): Promise<FileMap> {
     try {
-      const content = await fs.promises.readFile(filePath, 'utf8');
+      const content = await fs.promises.readFile(filePath, 'utf-8');
       return { fileName: generateLogFileName(SYSTEM_FILENAME + '-' + logName), content };
     } catch (error) {
       console.error(`Error reading file from ${filePath}: `, error);
