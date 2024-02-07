@@ -136,6 +136,8 @@ const containerProviderRegistry: ContainerProviderRegistry = {
   volumeExist: vi.fn(),
   podExist: vi.fn(),
   listPods: vi.fn(),
+  stopPod: vi.fn(),
+  removePod: vi.fn(),
 } as unknown as ContainerProviderRegistry;
 
 const inputQuickPickRegistry: InputQuickPickRegistry = {} as unknown as InputQuickPickRegistry;
@@ -1344,4 +1346,28 @@ test('listPods', async () => {
   });
   await api.containerEngine.listPods();
   expect(listPodsSpy).toHaveBeenCalledOnce();
+});
+
+test('stopPod', async () => {
+  const stopPodSpy = vi.spyOn(containerProviderRegistry, 'stopPod');
+  const api = extensionLoader.createApi('path', {
+    name: 'name',
+    publisher: 'publisher',
+    version: '1',
+    displayName: 'dname',
+  });
+  await api.containerEngine.stopPod('engine1', 'pod1');
+  expect(stopPodSpy).toHaveBeenCalledWith('engine1', 'pod1');
+});
+
+test('removePod', async () => {
+  const removePodSpy = vi.spyOn(containerProviderRegistry, 'removePod');
+  const api = extensionLoader.createApi('path', {
+    name: 'name',
+    publisher: 'publisher',
+    version: '1',
+    displayName: 'dname',
+  });
+  await api.containerEngine.removePod('engine1', 'pod1');
+  expect(removePodSpy).toHaveBeenCalledWith('engine1', 'pod1');
 });

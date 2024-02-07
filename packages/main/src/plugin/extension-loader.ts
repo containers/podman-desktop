@@ -1004,6 +1004,12 @@ export class ExtensionLoader {
       listPods(): Promise<PodInfo[]> {
         return containerProviderRegistry.listPods();
       },
+      stopPod(engineId: string, podId: string): Promise<void> {
+        return containerProviderRegistry.stopPod(engineId, podId);
+      },
+      removePod(engineId: string, podId: string): Promise<void> {
+        return containerProviderRegistry.removePod(engineId, podId);
+      },
       replicatePodmanContainer(
         source: { engineId: string; id: string },
         target: { engineId: string },
