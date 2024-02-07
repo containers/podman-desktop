@@ -2038,7 +2038,6 @@ export class ContainerProviderRegistry {
           platform: options?.platform,
           remote: options?.remote,
           q: options?.q,
-          pull: options?.pull,
           rm: options?.rm,
           forcerm: options?.forcerm,
           memory: options?.memory,
@@ -2065,6 +2064,9 @@ export class ContainerProviderRegistry {
         }
         if (options?.labels) {
           buildOptions.labels = options.labels;
+        }
+        if (options?.pull) {
+          buildOptions.pull = options.pull;
         }
         streamingPromise = (await matchingContainerProviderApi.buildImage(
           tarStream,
