@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
+import Input from '../../ui/Input.svelte';
 export let record: IConfigurationPropertyRecordedSchema;
 export let value: string | undefined;
 export let onChange = async (_id: string, _value: string) => {};
@@ -13,11 +14,10 @@ function onInput(event: Event) {
 }
 </script>
 
-<input
+<Input
   on:input="{onInput}"
-  class="grow py-1 px-2 w-full outline-0 border-b-2 border-gray-800 hover:border-violet-500 focus:border-violet-500 placeholder-gray-900 bg-zinc-700"
+  class="grow"
   name="{record.id}"
-  type="text"
   placeholder="{record.placeholder}"
   bind:value="{value}"
   readonly="{!!record.readonly}"
