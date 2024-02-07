@@ -735,9 +735,15 @@ export class PluginSystem {
 
     const contributionManager = new ContributionManager(apiSender, directories, containerProviderRegistry, exec);
 
-    const navigationManager = new NavigationManager(apiSender, containerProviderRegistry, contributionManager);
     const webviewRegistry = new WebviewRegistry(apiSender);
     await webviewRegistry.start();
+
+    const navigationManager = new NavigationManager(
+      apiSender,
+      containerProviderRegistry,
+      contributionManager,
+      webviewRegistry,
+    );
 
     // init kubernetes configuration
     const kubernetesUtils = new KubernetesUtils(configurationRegistry);

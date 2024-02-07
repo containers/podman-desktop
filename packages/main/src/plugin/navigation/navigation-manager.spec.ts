@@ -21,12 +21,18 @@ import type { ApiSenderType } from '../api.js';
 import { NavigationManager } from './navigation-manager.js';
 import type { ContributionManager } from '../contribution-manager.js';
 import type { ContainerProviderRegistry } from '../container-registry.js';
+import type { WebviewRegistry } from '../webview/webview-registry.js';
+import type { WebviewInfo } from '../api/webview-info.js';
+import { NavigationPage } from './navigation-page.js';
 
 let navigationManager: TestNavigationManager;
 
 class TestNavigationManager extends NavigationManager {
   assertContributionExist(name: string): void {
     return super.assertContributionExist(name);
+  }
+  assertWebviewExist(webviewId: string): void {
+    return super.assertWebviewExist(webviewId);
   }
 }
 
@@ -41,9 +47,13 @@ const contributionManager = {
   listContributions: vi.fn(),
 } as unknown as ContributionManager;
 
+const webviewRegistry = {
+  listWebviews: vi.fn(),
+} as unknown as WebviewRegistry;
+
 beforeEach(() => {
   vi.resetAllMocks();
-  navigationManager = new TestNavigationManager(apiSender, containerRegistry, contributionManager);
+  navigationManager = new TestNavigationManager(apiSender, containerRegistry, contributionManager, webviewRegistry);
 });
 
 test('check contribution does not exist', async () => {
@@ -52,4 +62,29 @@ test('check contribution does not exist', async () => {
   expect(() => navigationManager.assertContributionExist('dummy')).toThrow(
     'Contribution with name dummy cannot be found',
   );
+});
+
+test('check webview exist', async () => {
+  vi.mocked(webviewRegistry.listWebviews).mockReturnValue([{ id: 'validId' } as WebviewInfo]);
+
+  navigationManager.assertWebviewExist('validId');
+});
+
+test('check webview does not exist', async () => {
+  vi.mocked(webviewRegistry.listWebviews).mockReturnValue([]);
+
+  expect(() => navigationManager.assertWebviewExist('invalidId')).toThrow('Webview with id invalidId cannot be found');
+});
+
+test('check navigateToWebview', async () => {
+  vi.mocked(webviewRegistry.listWebviews).mockReturnValue([{ id: 'validId' } as WebviewInfo]);
+
+  await navigationManager.navigateToWebview('validId');
+
+  expect(apiSender.send).toHaveBeenCalledWith('navigate', {
+    page: NavigationPage.WEBVIEW,
+    parameters: {
+      id: 'validId',
+    },
+  });
 });

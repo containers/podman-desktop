@@ -1156,6 +1156,9 @@ export class ExtensionLoader {
       navigateToContribution: async (name: string): Promise<void> => {
         await this.navigationManager.navigateToContribution(name);
       },
+      navigateToWebview: async (webviewId: string): Promise<void> => {
+        await this.navigationManager.navigateToWebview(webviewId);
+      },
     };
 
     const version = app.getVersion();

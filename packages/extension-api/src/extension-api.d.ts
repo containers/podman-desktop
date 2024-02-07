@@ -3271,5 +3271,13 @@ declare module '@podman-desktop/api' {
 
     // Navigate to a specific contribution (aka extension page) referenced by name
     export function navigateToContribution(name: string): Promise<void>;
+
+    /**
+     * Navigate to a specific Webview
+     * @param webviewId The id of the Webview to navigate to
+     * @see {@link window.listWebviews listWebviews} to get a list of Webviews and their ids
+     * @see {@link window.createWebviewPanel createWebviewPanel} for creating a Webview
+     */
+    export function navigateToWebview(webviewId: string): Promise<void>;
   }
 }
