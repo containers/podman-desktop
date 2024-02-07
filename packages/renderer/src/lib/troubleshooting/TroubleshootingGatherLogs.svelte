@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faFileLines, faScroll } from '@fortawesome/free-solid-svg-icons';
-import Button from '../ui/Button.svelte';
+import Button from '/@/lib/ui/Button.svelte';
 import Fa from 'svelte-fa';
 import { generateLogFileName } from '../../../../main/src/plugin/troubleshooting';
 
