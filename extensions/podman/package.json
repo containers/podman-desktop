@@ -153,7 +153,7 @@
           "type": "boolean",
           "default": false,
           "description": "Docker compatibility mode is a feature that allows you to use Podman as a drop-in replacement for Docker-compatible CLI tools. Podman will automatically emulate a Docker API socket connection (typically) to /var/run/docker.sock. NOTE: This requires administrative privileges.",
-          "when": "!isWindows"
+          "when": "isMac"
         }
       }
     },

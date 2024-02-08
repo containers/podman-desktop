@@ -19,13 +19,14 @@
 
 import type { Mock } from 'vitest';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { checkDisguisedPodmanSocket } from './extension';
 import * as extension from './extension';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanCli } from './podman-cli';
 import type { Configuration, ContainerEngineInfo, ContainerProviderConnection } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
-import { isMac, LoggerDelegator } from './util';
+import { isLinux, isMac, LoggerDelegator } from './util';
 import { DarwinSocketCompatibility } from './compatibility-mode';
 import { PodmanInstall } from './podman-install';
 import { Disposable } from '@podman-desktop/api';
@@ -39,6 +40,7 @@ const config: Configuration = {
 };
 
 const registerUpdateMock = vi.fn();
+const updateWarningsMock = vi.fn();
 const provider: extensionApi.Provider = {
   setContainerProviderConnectionFactory: vi.fn(),
   setKubernetesProviderConnectionFactory: vi.fn(),
@@ -63,7 +65,7 @@ const provider: extensionApi.Provider = {
   detectionChecks: [],
   updateDetectionChecks: vi.fn(),
   warnings: [],
-  updateWarnings: vi.fn(),
+  updateWarnings: updateWarningsMock,
   onDidUpdateDetectionChecks: undefined,
 };
 
@@ -1056,4 +1058,16 @@ test('provider is registered without edit capabilities on Windows', async () => 
   expect(registeredConnection).toBeDefined();
   expect(registeredConnection.lifecycle).toBeDefined();
   expect(registeredConnection.lifecycle.edit).toBeUndefined();
+});
+
+test('checkDisguisedPodmanSocket: does not run updateWarnings when called with Linux', async () => {
+  vi.mocked(isLinux).mockReturnValue(true);
+  await checkDisguisedPodmanSocket(provider);
+  expect(updateWarningsMock).not.toBeCalled();
+});
+
+test('checkDisguisedPodmanSocket: runs updateWarnings when called not on Linux', async () => {
+  vi.mocked(isLinux).mockReturnValue(false);
+  await checkDisguisedPodmanSocket(provider);
+  expect(updateWarningsMock).toBeCalled();
 });
