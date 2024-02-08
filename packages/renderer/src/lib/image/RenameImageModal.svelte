@@ -5,6 +5,7 @@ import Modal from '../dialogs/Modal.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Button from '../ui/Button.svelte';
+import Input from '/@/lib/ui/Input.svelte';
 
 export let closeCallback: () => void;
 export let detailed = false;
@@ -77,13 +78,11 @@ async function renameImage(imageName: string, imageTag: string) {
     <div class="flex flex-col px-10 py-4 text-sm leading-5 space-y-5">
       <div>
         <label for="imageName" class="block my-2 text-sm font-bold text-gray-400">Image Name</label>
-        <input
-          type="text"
+        <Input
           bind:value="{imageName}"
           name="imageName"
           id="imageName"
           placeholder="Enter image name (e.g. quay.io/namespace/my-image-name)"
-          class="w-full my-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
           on:input="{event => validateImageName(event)}"
           aria-invalid="{imageNameErrorMessage !== ''}"
           aria-label="imageName"
@@ -93,13 +92,11 @@ async function renameImage(imageName: string, imageTag: string) {
         {/if}
 
         <label for="imageTag" class="block my-2 text-sm font-bold text-gray-400">Image Tag</label>
-        <input
-          type="text"
+        <Input
           bind:value="{imageTag}"
           name="imageTag"
           id="imageTag"
           placeholder="Enter image tag (e.g. latest)"
-          class="w-full my-2 p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
           on:input="{event => validateImageTag(event)}"
           aria-invalid="{imageTagErrorMessage !== ''}"
           aria-label="imageTag"
