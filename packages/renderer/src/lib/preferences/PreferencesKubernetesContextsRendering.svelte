@@ -98,7 +98,7 @@ async function handleDeleteContext(contextName: string) {
         <div class="grow flex-column divide-gray-900 text-gray-400">
           <div class="flex flex-row">
             {#if $kubernetesContextsState.get(context.name)}
-              <div class="flex-none w-48">
+              <div class="flex-none w-36">
                 {#if $kubernetesContextsState.get(context.name)?.reachable}
                   <div class="flex flex-row pt-2">
                     <div class="w-3 h-3 rounded-full bg-green-500"></div>
@@ -115,12 +115,6 @@ async function handleDeleteContext(contextName: string) {
                       <div class="font-bold text-[9px] text-gray-800">DEPLOYMENTS</div>
                       <div class="text-[16px] text-white">
                         {$kubernetesContextsState.get(context.name)?.deploymentsCount}
-                      </div>
-                    </div>
-                    <div class="text-center">
-                      <div class="font-bold text-[9px] text-gray-800">REPLICASETS</div>
-                      <div class="text-[16px] text-white">
-                        {$kubernetesContextsState.get(context.name)?.replicasetsCount}
                       </div>
                     </div>
                   </div>

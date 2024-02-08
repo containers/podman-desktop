@@ -51,13 +51,6 @@ function fakeMakeInformer(
       return new FakeInformer(12, connectResult);
     case '/apis/apps/v1/namespaces/default/deployments':
       return new FakeInformer(19, connectResult);
-
-    case '/apis/apps/v1/namespaces/ns1/replicasets':
-      return new FakeInformer(21, connectResult);
-    case '/apis/apps/v1/namespaces/ns2/replicasets':
-      return new FakeInformer(22, connectResult);
-    case '/apis/apps/v1/namespaces/default/replicasets':
-      return new FakeInformer(29, connectResult);
   }
   return new FakeInformer(0, connectResult);
 }
@@ -126,25 +119,21 @@ test('should send info of resources in all reachable contexts and nothing in non
     reachable: false,
     podsCount: 0,
     deploymentsCount: 0,
-    replicasetsCount: 0,
   } as ContextState);
   expectedMap.set('context2', {
     reachable: true,
     podsCount: 9,
     deploymentsCount: 19,
-    replicasetsCount: 29,
   } as ContextState);
   expectedMap.set('context2-1', {
     reachable: true,
     podsCount: 1,
     deploymentsCount: 11,
-    replicasetsCount: 21,
   } as ContextState);
   expectedMap.set('context2-2', {
     reachable: true,
     podsCount: 2,
     deploymentsCount: 12,
-    replicasetsCount: 22,
   } as ContextState);
   await new Promise(resolve => setTimeout(resolve, 200));
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-state-update', expectedMap);
@@ -192,13 +181,11 @@ test('should send info of resources in all reachable contexts and nothing in non
     reachable: true,
     podsCount: 9,
     deploymentsCount: 19,
-    replicasetsCount: 29,
   } as ContextState);
   expectedMap.set('context2-1', {
     reachable: true,
     podsCount: 1,
     deploymentsCount: 11,
-    replicasetsCount: 21,
   } as ContextState);
   await new Promise(resolve => setTimeout(resolve, 200));
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-state-update', expectedMap);

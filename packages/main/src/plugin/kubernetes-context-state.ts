@@ -1,11 +1,4 @@
-﻿import type {
-  Informer,
-  KubernetesObject,
-  ObjectCache,
-  V1Deployment,
-  V1Pod,
-  V1ReplicaSet,
-} from '@kubernetes/client-node';
+﻿import type { Informer, KubernetesObject, ObjectCache, V1Deployment, V1Pod } from '@kubernetes/client-node';
 import { AppsV1Api, CoreV1Api, KubeConfig, makeInformer } from '@kubernetes/client-node';
 import type { KubeContext } from './kubernetes-context.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
@@ -15,7 +8,6 @@ import type { ApiSenderType } from './api.js';
 interface ContextInternalState {
   podInformer?: Informer<V1Pod> & ObjectCache<V1Pod>;
   deploymentInformer?: Informer<V1Deployment> & ObjectCache<V1Deployment>;
-  replicasetInformer?: Informer<V1ReplicaSet> & ObjectCache<V1ReplicaSet>;
 }
 
 // ContextState stores information for the user about a kube context: is the cluster reachable, the number
@@ -24,7 +16,6 @@ export interface ContextState {
   reachable: boolean;
   podsCount: number;
   deploymentsCount: number;
-  replicasetsCount: number;
 }
 
 // the ContextsState singleton (instantiated by the kubernetes-client singleton)
@@ -53,7 +44,6 @@ export class ContextsState {
             reachable: false,
             podsCount: 0,
             deploymentsCount: 0,
-            replicasetsCount: 0,
           });
           const informers = this.createKubeContextInformers(context);
           if (informers) {
@@ -67,7 +57,6 @@ export class ContextsState {
         if (!this.kubeConfig.contexts.find(c => c.name === name)) {
           await state.podInformer?.stop();
           await state.deploymentInformer?.stop();
-          await state.replicasetInformer?.stop();
           this.contextsInternalState.delete(name);
           this.contextsState.delete(name);
           removed = true;
@@ -80,7 +69,6 @@ export class ContextsState {
       for (const state of this.contextsInternalState.values()) {
         await state.podInformer?.stop();
         await state.deploymentInformer?.stop();
-        await state.replicasetInformer?.stop();
       }
       this.contextsInternalState.clear();
       this.contextsState.clear();
@@ -109,7 +97,6 @@ export class ContextsState {
     return {
       podInformer: this.createPodInformer(kc, ns, context),
       deploymentInformer: this.createDeploymentInformer(kc, ns, context),
-      replicasetInformer: this.createReplicasetInformer(kc, ns, context),
     };
   }
 
@@ -184,40 +171,6 @@ export class ContextsState {
       const previous = this.contextsState.get(context.name);
       if (previous) {
         previous.deploymentsCount--;
-      }
-      this.dispatchContextsState();
-    });
-    informer.on('error', () => {
-      // Restart informer after 5sec
-      setTimeout(() => {
-        this.restartInformer(informer, context);
-      }, 5000);
-    });
-    this.restartInformer(informer, context);
-    return informer;
-  }
-
-  private createReplicasetInformer(
-    kc: KubeConfig,
-    ns: string,
-    context: KubeContext,
-  ): Informer<V1ReplicaSet> & ObjectCache<V1ReplicaSet> {
-    const k8sApi = kc.makeApiClient(AppsV1Api);
-    const listFn = () => k8sApi.listNamespacedReplicaSet(ns);
-    const informer = makeInformer(kc, `/apis/apps/v1/namespaces/${ns}/replicasets`, listFn);
-
-    informer.on('add', () => {
-      const previous = this.contextsState.get(context.name);
-      if (previous) {
-        previous.replicasetsCount++;
-      }
-      this.dispatchContextsState();
-    });
-
-    informer.on('delete', () => {
-      const previous = this.contextsState.get(context.name);
-      if (previous) {
-        previous.replicasetsCount--;
       }
       this.dispatchContextsState();
     });
