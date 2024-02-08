@@ -23,6 +23,7 @@ import type { Terminal } from 'xterm';
 import Button from '../ui/Button.svelte';
 import { faCube } from '@fortawesome/free-solid-svg-icons';
 import BuildImageFromContainerfileCards from './BuildImageFromContainerfileCards.svelte';
+import Input from '/@/lib/ui/Input.svelte';
 
 let buildFinished = false;
 let containerImageName = 'my-custom-image';
@@ -160,15 +161,14 @@ async function abortBuild() {
       <div class="bg-charcoal-900 pt-5 space-y-6 px-8 sm:pb-6 xl:pb-8 rounded-lg">
         <div hidden="{buildImageInfo?.buildRunning}">
           <label for="containerFilePath" class="block mb-2 text-sm font-bold text-gray-400">Containerfile Path</label>
-          <div class="flex flex-row">
-            <input
+          <div class="flex flex-row space-x-3">
+            <Input
               name="containerFilePath"
               id="containerFilePath"
               bind:value="{containerFilePath}"
               placeholder="Containerfile to build"
-              class="w-full p-2 mr-3 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+              class="w-full"
               required />
-
             <Button on:click="{() => getContainerfileLocation()}">Browse...</Button>
           </div>
         </div>
@@ -176,13 +176,13 @@ async function abortBuild() {
         <div hidden="{buildImageInfo?.buildRunning}">
           <label for="containerBuildContextDirectory" class="block mb-2 text-sm font-bold text-gray-400"
             >Build Context Directory</label>
-          <div class="flex flex-row">
-            <input
+          <div class="flex flex-row space-x-3">
+            <Input
               name="containerBuildContextDirectory"
               id="containerBuildContextDirectory"
               bind:value="{containerBuildContextDirectory}"
               placeholder="Folder to build in"
-              class="w-full p-2 mr-3 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+              class="w-full"
               required />
             <Button on:click="{() => getContainerBuildContextDirectory()}">Browse...</Button>
           </div>
@@ -190,13 +190,12 @@ async function abortBuild() {
 
         <div hidden="{buildImageInfo?.buildRunning}">
           <label for="containerImageName" class="block mb-2 text-sm font-bold text-gray-400">Image Name</label>
-          <input
-            type="text"
+          <Input
             bind:value="{containerImageName}"
             name="containerImageName"
             id="containerImageName"
             placeholder="image name (e.g. quay.io/namespace/my-custom-image)"
-            class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+            class="w-full"
             required />
           {#if providerConnections.length > 1}
             <label for="providerChoice" class="py-6 block mb-2 text-sm font-bold text-gray-400"
