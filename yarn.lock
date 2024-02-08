@@ -15684,10 +15684,10 @@ typedarray-to-buffer@^3.1.5:
   dependencies:
     is-typedarray "^1.0.0"
 
-typedoc-plugin-markdown@4.0.0-next.50:
-  version "4.0.0-next.50"
-  resolved "https://registry.yarnpkg.com/typedoc-plugin-markdown/-/typedoc-plugin-markdown-4.0.0-next.50.tgz#312eeba52922bff98d6d12069949f56d8e2daa6c"
-  integrity sha512-iHrO2HnN+jY6SE3U4Yti1Uhl+75wz2i8NY+9steqzZsvvD1liC/4DkAk7DP/4doqPeiX0BM4PW0fkzs9jH/V1Q==
+typedoc-plugin-markdown@4.0.0-next.52:
+  version "4.0.0-next.52"
+  resolved "https://registry.yarnpkg.com/typedoc-plugin-markdown/-/typedoc-plugin-markdown-4.0.0-next.52.tgz#bab78dbe80c0c06daecbbf6c41d185bf7d4bc0df"
+  integrity sha512-L6yyNqxasIqfYJyZl40ritn2KFA/x0GDb3s0e3mjpDidGnS9+XBoaoloa+vv22BZlDc5lLoK/8OcNC9qZVfpGg==
 
 typedoc@^0.25.7:
   version "0.25.7"
