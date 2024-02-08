@@ -2286,6 +2286,82 @@ declare module '@podman-desktop/api' {
     provider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection;
     // The abort controller for running the build image operation
     abortController?: AbortController;
+    // Extra hosts to add to /etc/hosts
+    extrahosts?: string;
+    /*
+     * A Git repository URI or HTTP/HTTPS context URI. If the URI points to a single text file, the file’s contents are
+     * placed into a file called Dockerfile and the image is built from that file. If the URI points to a tarball, the
+     * file is downloaded by the daemon and the contents therein used as the context for the build. If the URI points
+     * to a tarball and the dockerfile parameter is also specified, there must be a file with the corresponding path
+     * inside the tarball.
+     */
+    remote?: string;
+    /*
+     * Default: false
+     * Suppress verbose build output.
+     */
+    q?: boolean;
+    // JSON array of images used for build cache resolution.
+    cachefrom?: string;
+    // Attempt to pull the image even if an older image exists locally.
+    pull?: string;
+    /*
+     * Default: true
+     * Remove intermediate containers after a successful build.
+     */
+    rm?: boolean;
+    /*
+     * Default: false
+     * Always remove intermediate containers, even upon failure.
+     */
+    forcerm?: boolean;
+    // Set memory limit for build.
+    memory?: number;
+    // Total memory (memory + swap). Set as -1 to disable swap.
+    memswap?: number;
+    // CPU shares (relative weight).
+    cpushares?: number;
+    // CPUs in which to allow execution (e.g., 0-3, 0,1).
+    cpusetcpus?: number;
+    // The length of a CPU period in microseconds.
+    cpuperiod?: number;
+    // Microseconds of CPU time that the container can get in a CPU period.
+    cpuquota?: number;
+    /*
+     * JSON map of string pairs for build-time variables. Users pass these values at build-time. Docker uses the
+     * buildargs as the environment context for commands run via the ```Dockerfile``` RUN instruction, or for variable
+     * expansion in other ```Dockerfilev instructions. This is not meant for passing secret values.
+     * For example, the build arg ```FOO=bar``` would become ```{"FOO":"bar"}``` in JSON. This would result in the query
+     * parameter ```buildargs={"FOO":"bar"}```. Note that ```{"FOO":"bar"}``` should be URI component encoded.
+     */
+    buildargs?: { [key: string]: string };
+    //Size of ```/dev/shm``` in bytes. The size must be greater than 0. If omitted the system uses 64MB.
+    shmsize?: number;
+    // Squash the resulting images layers into a single layer.
+    squash?: boolean;
+    // Arbitrary key/value labels to set on the image, as a JSON map of string pairs.
+    labels?: { [key: string]: string };
+    /*
+     * Sets the networking mode for the run commands during build. Supported standard values are: ```bridge```,
+     * ```host```, ```none```, and ```container:<name|id>```. Any other value is taken as a custom network's name or ID
+     * to which this container should connect to.
+     */
+    networkmode?: string;
+    /*
+     * Default: ""
+     * Target build stage
+     */
+    target?: string;
+    /*
+     *  Default: ""
+     * BuildKit output configuration
+     */
+    outputs?: string;
+    /*
+     *  Default: false
+     * Do not use the cache when building the image.
+     */
+    nocache?: boolean;
   }
 
   export interface NetworkCreateOptions {

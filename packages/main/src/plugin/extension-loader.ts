@@ -932,15 +932,7 @@ export class ExtensionLoader {
         eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
         options?: containerDesktopAPI.BuildImageOptions,
       ) {
-        return containerProviderRegistry.buildImage(
-          context,
-          eventCollect,
-          options?.containerFile,
-          options?.tag,
-          options?.platform,
-          options?.provider,
-          options?.abortController,
-        );
+        return containerProviderRegistry.buildImage(context, eventCollect, options);
       },
       listImages(): Promise<containerDesktopAPI.ImageInfo[]> {
         return containerProviderRegistry.listImages();

@@ -1225,11 +1225,13 @@ export class PluginSystem {
               data,
             );
           },
-          relativeContainerfilePath,
-          imageName,
-          platform,
-          selectedProvider,
-          abortController,
+          {
+            containerFile: relativeContainerfilePath,
+            tag: imageName,
+            platform,
+            provider: selectedProvider,
+            abortController,
+          },
         );
       },
     );
