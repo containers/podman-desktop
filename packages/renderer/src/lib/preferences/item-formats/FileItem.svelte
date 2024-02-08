@@ -27,7 +27,6 @@ function handleCleanValue(event: CustomEvent<MouseEvent>) {
     class="grow mr-2"
     name="{record.id}"
     readonly
-    type="clear"
     placeholder="{record.placeholder}"
     value="{value || ''}"
     id="input-standard-{record.id}"
