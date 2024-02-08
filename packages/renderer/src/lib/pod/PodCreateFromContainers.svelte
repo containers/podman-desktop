@@ -14,6 +14,7 @@ import Fa from 'svelte-fa';
 import SolidPodIcon from '../images/SolidPodIcon.svelte';
 import Button from '../ui/Button.svelte';
 import type { PodCreatePortOptions } from '../../../../main/src/plugin/dockerode/libpod-dockerode';
+import Input from '../ui/Input.svelte';
 
 let podCreation: PodCreation;
 let createInProgress = false;
@@ -232,13 +233,13 @@ function updatePortExposure(port: number, checked: boolean) {
             <span class="block text-sm font-semibold rounded text-gray-400 dark:text-gray-400">Name of the pod:</span>
           </div>
           <div class="mb-4">
-            <input
+            <Input
               name="podName"
               id="podName"
               bind:value="{podCreation.name}"
               placeholder="Select name of the pod..."
               aria-label="Pod name"
-              class="w-full mt-1 p-2 outline-0 text-sm bg-charcoal-500 focus:bg-charcoal-900 border-violet-700 border-b focus:border-violet-700 focus:border rounded-sm text-gray-500 focus:text-gray-700 placeholder-gray-700"
+              class="w-full mt-1"
               required />
           </div>
 
