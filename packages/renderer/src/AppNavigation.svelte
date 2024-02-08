@@ -31,6 +31,7 @@ import Webviews from '/@/lib/webview/Webviews.svelte';
 import { webviews } from '/@/stores/webviews';
 import PuzzleIcon from './lib/images/PuzzleIcon.svelte';
 import { onDidChangeConfiguration } from './stores/configurationProperties';
+import KubeIcon from './lib/images/KubeIcon.svelte';
 
 let podInfoSubscribe: Unsubscriber;
 let containerInfoSubscribe: Unsubscriber;
@@ -200,19 +201,22 @@ export let meta: TinroRouteMeta;
     <VolumeIcon size="24" />
   </NavItem>
   {#if contextCount > 0 && showKubernetesNav}
-    <NavItem href="/deployments" tooltip="Deployments{deploymentCount}" ariaLabel="Deployments" bind:meta="{meta}">
-      <DeploymentIcon size="24" />
-    </NavItem>
-    <NavItem href="/services" tooltip="Services{serviceCount}" ariaLabel="Services" bind:meta="{meta}">
-      <ServiceIcon size="24" />
-    </NavItem>
-    <NavItem
-      href="/ingressesRoutes"
-      tooltip="Ingresses & Routes{ingressesRoutesCount}"
-      ariaLabel="Ingresses & Routes"
-      bind:meta="{meta}">
-      <IngressRouteIcon size="24" />
-    </NavItem>
+    <NavSection tooltip="Kubernetes">
+      <KubeIcon size="24" slot="icon" />
+      <NavItem href="/deployments" tooltip="Deployments{deploymentCount}" ariaLabel="Deployments" bind:meta="{meta}">
+        <DeploymentIcon size="24" />
+      </NavItem>
+      <NavItem href="/services" tooltip="Services{serviceCount}" ariaLabel="Services" bind:meta="{meta}">
+        <ServiceIcon size="24" />
+      </NavItem>
+      <NavItem
+        href="/ingressesRoutes"
+        tooltip="Ingresses & Routes{ingressesRoutesCount}"
+        ariaLabel="Ingresses & Routes"
+        bind:meta="{meta}">
+        <IngressRouteIcon size="24" />
+      </NavItem>
+    </NavSection>
   {/if}
 
   {#if $contributions.length + $webviews.length > 0}
