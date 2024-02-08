@@ -654,7 +654,7 @@ async function assertAllPortAreValid(): Promise<void> {
           </div>
           <div>
             <Route path="/basic" breadcrumb="Basic" navigationHint="tab">
-              <div class="h-96 overflow-y-auto pr-4">
+              <div class="overflow-y-auto pr-4">
                 <label for="modalContainerName" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
                   >Container name:</label>
                 <input
