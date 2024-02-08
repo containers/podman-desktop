@@ -10,6 +10,7 @@ import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import FeaturedExtensions from '../featured/FeaturedExtensions.svelte';
 import Button from '../ui/Button.svelte';
 import ExtensionIcon from './ExtensionIcon.svelte';
+import Input from '../ui/Input.svelte';
 
 export let ociImage: string | undefined = undefined;
 
@@ -85,17 +86,16 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
 
       <div class="flex flex-col w-full">
         <div
-          class="flex flex-row mb-2 w-full space-x-8 items-center"
+          class="flex flex-row mb-2 w-full space-x-4 items-center"
           role="region"
           aria-label="Install Extension From OCI">
-          <input
+          <Input
             name="ociImage"
             id="ociImage"
             aria-label="OCI Image Name"
-            type="text"
             bind:value="{ociImage}"
             placeholder="Name of the Image"
-            class="w-1/2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
+            class="w-1/2"
             required />
 
           <Button
