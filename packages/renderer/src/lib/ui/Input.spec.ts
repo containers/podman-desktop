@@ -27,10 +27,18 @@ function renderInput(
   value: string,
   placeholder?: string,
   readonly?: boolean,
+  disabled?: boolean,
   clearable?: boolean,
   onClick?: any,
 ): void {
-  render(Input, { value: value, placeholder: placeholder, readonly: readonly, clearable: clearable, onClick: onClick });
+  render(Input, {
+    value: value,
+    placeholder: placeholder,
+    disabled: disabled,
+    readonly: readonly,
+    clearable: clearable,
+    onClick: onClick,
+  });
 }
 
 test('Expect basic styling', async () => {
@@ -86,9 +94,36 @@ test('Expect basic readonly styling', async () => {
   expect(element.parentElement).not.toHaveClass('hover:border-purple-400');
 });
 
-test('Expect clear styling', async () => {
+test('Expect basic disabled styling', async () => {
   const value = 'test';
   renderInput(value, value, false, true);
+
+  const element = screen.getByPlaceholderText(value);
+  expect(element).toBeInTheDocument();
+  expect(element).toHaveClass('px-1');
+  expect(element).toHaveClass('outline-0');
+  expect(element).toHaveClass('bg-charcoal-500');
+  expect(element).toHaveClass('text-sm');
+  expect(element).toHaveClass('text-gray-700');
+
+  expect(element).not.toHaveClass('group-hover:bg-charcoal-900');
+  expect(element).not.toHaveClass('group-focus-within:bg-charcoal-900');
+  expect(element).not.toHaveClass('group-hover-placeholder:text-gray-900');
+
+  expect(element.parentElement).toBeInTheDocument();
+  expect(element.parentElement).toHaveClass('bg-charcoal-500');
+  expect(element.parentElement).toHaveClass('border-[1px]');
+  expect(element.parentElement).toHaveClass('border-charcoal-500');
+  expect(element.parentElement).toHaveClass('border-b-charcoal-100');
+
+  expect(element.parentElement).not.toHaveClass('hover:bg-charcoal-900');
+  expect(element.parentElement).not.toHaveClass('hover:rounded-md');
+  expect(element.parentElement).not.toHaveClass('hover:border-purple-400');
+});
+
+test('Expect clear styling', async () => {
+  const value = 'test';
+  renderInput(value, value, false, false, true);
 
   const element = screen.getByRole('button');
   expect(element).toBeInTheDocument();

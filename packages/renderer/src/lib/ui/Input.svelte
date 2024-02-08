@@ -10,6 +10,7 @@ export let value: string | undefined = undefined;
 export let readonly: boolean = false;
 export let required: boolean = false;
 export let clearable: boolean = false;
+export let disabled: boolean = false;
 
 export let element: HTMLInputElement | undefined = undefined;
 
@@ -31,24 +32,27 @@ async function onClear() {
 <div
   class="flex flex-row items-center px-1 py-1 group bg-charcoal-500 border-[1px] border-charcoal-500 {$$props.class ||
     ''}"
-  class:hover:bg-charcoal-900="{!readonly}"
-  class:focus-within:bg-charcoal-900="{!readonly}"
-  class:hover:rounded-md="{!readonly}"
-  class:focus-within:rounded-md="{!readonly}"
-  class:border-b-purple-500="{!readonly}"
-  class:hover:border-purple-400="{!readonly}"
-  class:focus-within:border-purple-500="{!readonly}"
-  class:border-b-charcoal-100="{readonly}">
+  class:hover:bg-charcoal-900="{!readonly && !disabled}"
+  class:focus-within:bg-charcoal-900="{!readonly && !disabled}"
+  class:hover:rounded-md="{!readonly && !disabled}"
+  class:focus-within:rounded-md="{!readonly && !disabled}"
+  class:border-b-purple-500="{!readonly && !disabled}"
+  class:hover:border-purple-400="{!readonly && !disabled}"
+  class:focus-within:border-purple-500="{!readonly && !disabled}"
+  class:border-b-charcoal-100="{readonly || disabled}">
   <slot name="left" />
   <input
     bind:this="{element}"
     on:input
-    class="grow px-1 outline-0 bg-charcoal-500 text-sm text-white placeholder:text-gray-700 overflow-hidden"
-    class:group-hover:bg-charcoal-900="{!readonly}"
-    class:group-focus-within:bg-charcoal-900="{!readonly}"
-    class:group-hover-placeholder:text-gray-900="{!readonly}"
+    class="grow px-1 outline-0 bg-charcoal-500 text-sm placeholder:text-gray-700 overflow-hidden"
+    class:text-white="{!disabled}"
+    class:text-gray-700="{disabled}"
+    class:group-hover:bg-charcoal-900="{!readonly && !disabled}"
+    class:group-focus-within:bg-charcoal-900="{!readonly && !disabled}"
+    class:group-hover-placeholder:text-gray-900="{!readonly && !disabled}"
     name="{name}"
     type="text"
+    disabled="{disabled}"
     readonly="{readonly}"
     required="{required}"
     placeholder="{placeholder}"
@@ -59,7 +63,7 @@ async function onClear() {
   {#if clearable}
     <button
       class="px-1 cursor-pointer text-gray-700 group-hover:text-gray-900 group-focus-within:text-gray-900"
-      class:hidden="{!value || readonly}"
+      class:hidden="{!value || readonly || disabled}"
       aria-label="clear"
       on:click="{onClear}">
       <Fa icon="{faXmark}" />

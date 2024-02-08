@@ -6,6 +6,7 @@ import Button from '../ui/Button.svelte';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
 import { validateProxyAddress } from './Util';
 import ErrorMessage from '/@/lib/ui/ErrorMessage.svelte';
+import Input from '/@/lib/ui/Input.svelte';
 
 let proxySettings: ProxySettings;
 let proxyState: boolean;
@@ -63,7 +64,7 @@ function validate(event: any) {
     <!-- if proxy is not enabled, display a toggle -->
 
     <label for="toggle-proxy" class="inline-flex relative items-center mt-1 mb-4 cursor-pointer">
-      <input
+      <Input
         type="checkbox"
         bind:checked="{proxyState}"
         on:change="{() => updateProxyState()}"
@@ -80,12 +81,11 @@ function validate(event: any) {
       <div class="space-y-2">
         <label for="httpProxy" class="mb-2 text-sm font-medium {proxyState ? 'text-gray-400' : 'text-gray-900'}"
           >Web Proxy (HTTP):</label>
-        <input
+        <Input
           name="httpProxy"
           id="httpProxy"
           disabled="{!proxyState}"
           bind:value="{proxySettings.httpProxy}"
-          class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
           placeholder="URL of the proxy for http: URLs (eg http://myproxy.domain.com:8080)"
           required
           on:input="{event => validate(event)}" />
@@ -96,12 +96,11 @@ function validate(event: any) {
       <div class="space-y-2">
         <label for="httpsProxy" class="pt-4 mb-2 text-sm font-medium {proxyState ? 'text-gray-400' : 'text-gray-900'}"
           >Secure Web Proxy (HTTPS):</label>
-        <input
+        <Input
           name="httpsProxy"
           id="httpsProxy"
           disabled="{!proxyState}"
           bind:value="{proxySettings.httpsProxy}"
-          class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
           placeholder="URL of the proxy for https: URLs (eg http://myproxy.domain.com:8080)"
           required
           on:input="{event => validate(event)}" />
@@ -113,12 +112,12 @@ function validate(event: any) {
         <label for="httpProxy" class="pt-4 mb-2 text-sm font-medium {proxyState ? 'text-gray-400' : 'text-gray-900'}"
           >Bypass proxy settings for these hosts and domains:</label>
         <input
+          <Input
           name="noProxy"
           id="noProxy"
           disabled="{!proxyState}"
           bind:value="{proxySettings.noProxy}"
           placeholder="Example: *.domain.com, 192.168.*.*"
-          class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
           required />
       </div>
       <div class="my-2 pt-4">
