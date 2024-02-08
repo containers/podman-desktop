@@ -147,6 +147,7 @@ import { ImageCheckerImpl } from './image-checker.js';
 import type { ImageCheckerInfo } from './api/image-checker-info.js';
 import { AppearanceInit } from './appearance-init.js';
 import type { KubeContext } from './kubernetes-context.js';
+import { Troubleshooting } from './troubleshooting.js';
 import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import { OpenDevToolsInit } from './open-devtools-init.js';
@@ -733,6 +734,8 @@ export class PluginSystem {
 
     const imageChecker = new ImageCheckerImpl(apiSender);
 
+    const troubleshooting = new Troubleshooting(apiSender);
+
     const contributionManager = new ContributionManager(apiSender, directories, containerProviderRegistry, exec);
 
     const webviewRegistry = new WebviewRegistry(apiSender);
@@ -1277,6 +1280,24 @@ export class PluginSystem {
     this.ipcHandle('cli-tool-registry:getCliToolInfos', async (): Promise<CliToolInfo[]> => {
       return cliToolRegistry.getCliToolInfos();
     });
+
+    this.ipcHandle(
+      'troubleshooting:saveLogs',
+      async (
+        _listener,
+        consoleLogs: { logType: LogType; message: string }[],
+        destinaton: string,
+      ): Promise<string[]> => {
+        return troubleshooting.saveLogs(consoleLogs, destinaton);
+      },
+    );
+
+    this.ipcHandle(
+      'troubleshooting:generateLogFileName',
+      async (_listener, filename: string, prefix?: string): Promise<string> => {
+        return troubleshooting.generateLogFileName(filename, prefix);
+      },
+    );
 
     this.ipcHandle(
       'cli-tool-registry:updateCliTool',

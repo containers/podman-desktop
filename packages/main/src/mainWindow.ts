@@ -131,6 +131,22 @@ async function createWindow(): Promise<BrowserWindow> {
       });
   });
 
+  ipcMain.on('dialog:saveFile', (_, param: { dialogId: string; message: string; defaultPath: string }) => {
+    dialog
+      .showSaveDialog(browserWindow, {
+        title: param.message,
+        defaultPath: param.defaultPath,
+      })
+      .then(response => {
+        if (!response.canceled && response.filePath) {
+          browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
+        }
+      })
+      .catch((err: unknown) => {
+        console.error('Error saving file', err);
+      });
+  });
+
   let configurationRegistry: ConfigurationRegistry;
   ipcMain.on('configuration-registry', (_, data) => {
     configurationRegistry = data;

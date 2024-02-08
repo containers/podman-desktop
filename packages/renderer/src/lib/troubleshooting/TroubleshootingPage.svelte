@@ -2,6 +2,7 @@
 import FormPage from '../ui/FormPage.svelte';
 import Tab from '../ui/Tab.svelte';
 import TroubleshootingDevToolsConsoleLogs from './TroubleshootingDevToolsConsoleLogs.svelte';
+import TroubleshootingGatherLogs from './TroubleshootingGatherLogs.svelte';
 import TroubleshootingPageProviders from './TroubleshootingPageProviders.svelte';
 import TroubleshootingPageStores from './TroubleshootingPageStores.svelte';
 import Route from '/@/Route.svelte';
@@ -13,6 +14,7 @@ import Route from '/@/Route.svelte';
   <svelte:fragment slot="tabs">
     <Tab title="Repair & Connections" url="repair-connections" />
     <Tab title="Logs" url="logs" />
+    <Tab title="Gather Logs" url="gatherlogs" />
     <Tab title="Stores" url="stores" />
   </svelte:fragment>
   <svelte:fragment slot="content">
@@ -22,6 +24,10 @@ import Route from '/@/Route.svelte';
 
     <Route path="/logs" breadcrumb="Logs" navigationHint="tab">
       <TroubleshootingDevToolsConsoleLogs />
+    </Route>
+
+    <Route path="/gatherlogs" breadcrumb="GatherLogs" navigationHint="tab">
+      <TroubleshootingGatherLogs />
     </Route>
 
     <Route path="/stores" breadcrumb="Stores" navigationHint="tab">
