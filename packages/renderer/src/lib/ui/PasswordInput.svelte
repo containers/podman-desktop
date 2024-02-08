@@ -30,6 +30,7 @@ async function onShowHide() {
   class="{$$props.class || ''}"
   id="password-{id}"
   name="password-{id}"
+  placeholder="Password"
   bind:value="{password}"
   aria-label="password {id}"
   bind:readonly="{readonly}"

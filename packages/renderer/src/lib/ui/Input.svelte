@@ -43,7 +43,7 @@ async function onClear() {
   <input
     bind:this="{element}"
     on:input
-    class="grow px-1 outline-0 bg-charcoal-500 text-sm text-white placeholder:text-gray-700"
+    class="grow px-1 outline-0 bg-charcoal-500 text-sm text-white placeholder:text-gray-700 overflow-hidden"
     class:group-hover:bg-charcoal-900="{!readonly}"
     class:group-focus-within:bg-charcoal-900="{!readonly}"
     class:group-hover-placeholder:text-gray-900="{!readonly}"
