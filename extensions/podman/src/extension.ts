@@ -1532,7 +1532,7 @@ function setupDisguisedPodmanSocketWatcher(
   return socketWatcher;
 }
 
-async function checkDisguisedPodmanSocket(provider: extensionApi.Provider) {
+export async function checkDisguisedPodmanSocket(provider: extensionApi.Provider) {
   // Check to see if the socket is disguised or not. If it is, we'll push a warning up
   // to the plugin library to the let the provider know that there is a warning
   const disguisedCheck = await isDisguisedPodman();
