@@ -2,15 +2,15 @@
 import { faFileLines, faScroll } from '@fortawesome/free-solid-svg-icons';
 import Button from '/@/lib/ui/Button.svelte';
 import Fa from 'svelte-fa';
-import { generateLogFileName } from '../../../../main/src/plugin/troubleshooting';
 
 let logs: string[] = [];
 
 // Save files as a zip file (we first ask the user for the dialog, and then save the files to the filepath)
 async function saveLogsAsZip() {
-  const result = await window.saveFileDialog('Save Logs as .zip', generateLogFileName('podman-desktop', 'zip'));
+  const filename = await window.troubleshootingGenerateLogFileName('podman-desktop', 'zip');
+  const result = await window.saveFileDialog('Save Logs as .zip', filename);
   if (!result.canceled && result.filePath) {
-logs = await window.troubleshootingSaveLogs(result.filePath);
+    logs = await window.troubleshootingSaveLogs(result.filePath);
   }
 }
 </script>

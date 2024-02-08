@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,19 @@ import AdmZip from 'adm-zip';
 import moment from 'moment';
 import * as os from 'node:os';
 import * as fs from 'node:fs';
+import type { ApiSenderType } from './api.js';
 
 const SYSTEM_FILENAME = 'system';
 
-export interface FileMap {
-  fileName: string;
+export interface TroubleshootingFileMap {
+  filename: string;
   content: string;
 }
 
 export type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
 export class Troubleshooting {
-  constructor(private apiSender: any) {}
+  constructor(private apiSender: ApiSenderType) {}
 
   // The "main" function that is exposes that is used to gather
   // all the logs and save them to a zip file.
@@ -41,25 +42,27 @@ export class Troubleshooting {
     const consoleLogs = this.getConsoleLogs(console);
     const fileMaps = [...systemLogs, ...consoleLogs];
     await this.saveLogsToZip(fileMaps, destination);
-    return fileMaps.map(fileMap => fileMap.fileName);
+    return fileMaps.map(fileMap => fileMap.filename);
   }
 
-  async saveLogsToZip(fileMaps: FileMap[], destination: string): Promise<void> {
-    if (fileMaps.length === 0) return;
+  async saveLogsToZip(fileMaps: TroubleshootingFileMap[], destination: string): Promise<void> {
+    if (fileMaps.length === 0) {
+      return;
+    }
 
     const zip = new AdmZip();
     fileMaps.forEach(fileMap => {
-      zip.addFile(fileMap.fileName, Buffer.from(fileMap.content, 'utf8'));
+      zip.addFile(fileMap.filename, Buffer.from(fileMap.content, 'utf8'));
     });
     zip.writeZip(destination);
   }
 
-  getConsoleLogs(consoleLogs: { logType: LogType; message: string }[]): FileMap[] {
+  getConsoleLogs(consoleLogs: { logType: LogType; message: string }[]): TroubleshootingFileMap[] {
     const content = consoleLogs.map(log => `${log.logType} : ${log.message}`).join('\n');
-    return [{ fileName: generateLogFileName('console'), content }];
+    return [{ filename: this.generateLogFileName('console'), content }];
   }
 
-  async getSystemLogs(): Promise<FileMap[]> {
+  async getSystemLogs(): Promise<TroubleshootingFileMap[]> {
     switch (os.platform()) {
       case 'darwin':
         return this.getLogsFromFiles(
@@ -69,23 +72,18 @@ export class Troubleshooting {
       case 'win32':
         return this.getLogsFromFiles(['podman-desktop'], `${os.homedir()}/AppData/Roaming/Podman Desktop/logs`);
       default:
-        console.log('Unsupported platform for retrieving system logs');
+        // Unsupported platform, so do not return anything
         return [];
     }
   }
 
-  private async getFileSystemContent(filePath: string, logName: string): Promise<FileMap> {
-    try {
-      const content = await fs.promises.readFile(filePath, 'utf-8');
-      return { fileName: generateLogFileName(SYSTEM_FILENAME + '-' + logName), content };
-    } catch (error) {
-      console.error(`Error reading file from ${filePath}: `, error);
-      throw error;
-    }
+  private async getFileSystemContent(filePath: string, logName: string): Promise<TroubleshootingFileMap> {
+    const content = await fs.promises.readFile(filePath, 'utf-8');
+    return { filename: this.generateLogFileName(SYSTEM_FILENAME + '-' + logName), content };
   }
 
-  private async getLogsFromFiles(logFiles: string[], logDir: string): Promise<FileMap[]> {
-    const logs: FileMap[] = [];
+  private async getLogsFromFiles(logFiles: string[], logDir: string): Promise<TroubleshootingFileMap[]> {
+    const logs: TroubleshootingFileMap[] = [];
     for (const file of logFiles) {
       try {
         const filePath = `${logDir}/${file}`;
@@ -103,13 +101,12 @@ export class Troubleshooting {
     }
     return logs;
   }
-}
-
-export function generateLogFileName(filename: string, extension?: string): string {
-  // If the filename has an extension like .log, move it to the end ofthe generated name
-  // otherwise just use .txt
-  const filenameParts = filename.split('.');
-  // Use the file extension if it's provided, otherwise use the one from the file name, or default to txt
-  const fileExtension = extension ? extension : filenameParts.length > 1 ? filenameParts[1] : 'txt';
-  return `${filenameParts[0]}-${moment().format('YYYYMMDDHHmmss')}.${fileExtension}`;
+  generateLogFileName(filename: string, extension?: string): string {
+    // If the filename has an extension like .log, move it to the end ofthe generated name
+    // otherwise just use .txt
+    const filenameParts = filename.split('.');
+    // Use the file extension if it's provided, otherwise use the one from the file name, or default to txt
+    const fileExtension = extension ? extension : filenameParts.length > 1 ? filenameParts[1] : 'txt';
+    return `${filenameParts[0]}-${moment().format('YYYYMMDDHHmmss')}.${fileExtension}`;
+  }
 }

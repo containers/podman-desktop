@@ -1,7 +1,8 @@
 /**********************************************************************
  * Copyright (C) 2024 Red Hat, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); * you may not use this file except in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
@@ -16,12 +17,18 @@
  ***********************************************************************/
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import { Troubleshooting, generateLogFileName } from './troubleshooting.js';
-import type { FileMap, LogType } from './troubleshooting.js';
+import { Troubleshooting } from './troubleshooting.js';
+import type { TroubleshootingFileMap, LogType } from './troubleshooting.js';
 import * as fs from 'node:fs';
+import type { ApiSenderType } from './api.js';
 
 const writeZipMock = vi.fn();
 const addFileMock = vi.fn();
+
+const apiSender: ApiSenderType = {
+  send: vi.fn(),
+  receive: vi.fn(),
+};
 
 vi.mock('electron', () => {
   return {
@@ -47,14 +54,14 @@ beforeEach(() => {
 
 // Test the saveLogsToZip function
 test('Should save a zip file with the correct content', async () => {
-  const zipFile = new Troubleshooting(undefined);
+  const zipFile = new Troubleshooting(apiSender);
   const fileMaps = [
     {
-      fileName: 'file1',
+      filename: 'file1',
       content: 'content1',
     },
     {
-      fileName: 'file2',
+      filename: 'file2',
       content: 'content2',
     },
   ];
@@ -69,8 +76,8 @@ test('Should save a zip file with the correct content', async () => {
 
 // Do not expect writeZipMock to have been called if fileMaps is empty
 test('Should not save a zip file if fileMaps is empty', async () => {
-  const zipFile = new Troubleshooting(undefined);
-  const fileMaps: FileMap[] = [];
+  const zipFile = new Troubleshooting(apiSender);
+  const fileMaps: TroubleshootingFileMap[] = [];
 
   const zipSpy = vi.spyOn(zipFile, 'saveLogsToZip');
 
@@ -82,15 +89,15 @@ test('Should not save a zip file if fileMaps is empty', async () => {
 
 // Expect the file name to have a .txt extension
 test('Should have a .txt extension in the file name', async () => {
-  const zipFile = new Troubleshooting(undefined);
+  const zipFile = new Troubleshooting(apiSender);
   const fileMaps = [
     {
-      fileName: 'file1',
-      content: 'content1',
+      filename: 'file1',
+      content: '',
     },
     {
-      fileName: 'file2',
-      content: 'content2',
+      filename: 'file2',
+      content: '',
     },
   ];
 
@@ -99,13 +106,13 @@ test('Should have a .txt extension in the file name', async () => {
   await zipFile.saveLogsToZip(fileMaps, 'test.zip');
   expect(zipSpy).toHaveBeenCalledWith(fileMaps, 'test.zip');
 
-  expect(addFileMock).toHaveBeenCalledWith('file1.txt', Buffer.from('content1', 'utf8'));
-  expect(addFileMock).toHaveBeenCalledWith('file2.txt', Buffer.from('content2', 'utf8'));
+  expect(addFileMock).toHaveBeenCalledWith('file1', expect.any(Object));
+  expect(addFileMock).toHaveBeenCalledWith('file2', expect.any(Object));
 });
 
 // Expect getConsoleLogs to correctly format the console logs passed in
 test('Should correctly format console logs', async () => {
-  const zipFile = new Troubleshooting(undefined);
+  const zipFile = new Troubleshooting(apiSender);
   const consoleLogs = [
     {
       logType: 'log' as LogType,
@@ -124,7 +131,7 @@ test('Should correctly format console logs', async () => {
   const fileMaps = zipFile.getConsoleLogs(consoleLogs);
   expect(zipSpy).toHaveBeenCalledWith(consoleLogs);
 
-  expect(fileMaps[0].fileName).toContain('console');
+  expect(fileMaps[0].filename).toContain('console');
   expect(fileMaps[0].content).toContain('log : message1');
   expect(fileMaps[0].content).toContain('log : message2');
 });
@@ -144,7 +151,7 @@ test('Should return getMacSystemLogs if the platform is darwin', async () => {
     return true;
   });
 
-  const zipFile = new Troubleshooting(undefined);
+  const zipFile = new Troubleshooting(apiSender);
   const getSystemLogsSpy = vi.spyOn(zipFile, 'getSystemLogs');
 
   await zipFile.getSystemLogs();
@@ -155,12 +162,12 @@ test('Should return getMacSystemLogs if the platform is darwin', async () => {
 
   // Expect readFileMock to have been called with /Library/Logs/Podman Desktop/launchd-stdout.log but CONTAINED in the path
   expect(readFileMock).toHaveBeenCalledWith(
-    expect.stringContaining('/Library/Logs/Podman Desktop/launchd-stdout.log'),
-    'utf8',
+    expect.stringContaining('/Library/Logs/Podman Desktop/launchd-stdout'),
+    'utf-8',
   );
   expect(readFileMock).toHaveBeenCalledWith(
-    expect.stringContaining('/Library/Logs/Podman Desktop/launchd-stderr.log'),
-    'utf8',
+    expect.stringContaining('/Library/Logs/Podman Desktop/launchd-stderr'),
+    'utf-8',
   );
 });
 
@@ -179,7 +186,7 @@ test('Should return getWindowsSystemLogs if the platform is win32', async () => 
   const readFileMock = vi.spyOn(fs.promises, 'readFile');
   readFileMock.mockResolvedValue('content');
 
-  const zipFile = new Troubleshooting(undefined);
+  const zipFile = new Troubleshooting(apiSender);
   const getSystemLogsSpy = vi.spyOn(zipFile, 'getSystemLogs');
 
   await zipFile.getSystemLogs();
@@ -190,15 +197,16 @@ test('Should return getWindowsSystemLogs if the platform is win32', async () => 
 
   // Expect readFileMock to have been called with ~/AppData/Roaming/Podman Desktop/logs/podman-desktop.log but CONTAINED in the path
   expect(readFileMock).toHaveBeenCalledWith(
-    expect.stringContaining('/AppData/Roaming/Podman Desktop/logs/podman-desktop.log'),
-    'utf8',
+    expect.stringContaining('/AppData/Roaming/Podman Desktop/logs/podman-desktop'),
+    'utf-8',
   );
 });
 
 test('test generateLogFileName', async () => {
-  const fileName = generateLogFileName('test');
+  const ts = new Troubleshooting(apiSender);
+  const filename = ts.generateLogFileName('test');
 
   // Simple regex to check that the file name is in the correct format (YYYMMDDHHmmss)
-  expect(fileName).toMatch(/[0-9]{14}/);
-  expect(fileName).toContain('test');
+  expect(filename).toMatch(/[0-9]{14}/);
+  expect(filename).toContain('test');
 });

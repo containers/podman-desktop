@@ -1294,6 +1294,13 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
+      'troubleshooting:generateLogFileName',
+      async (_listener, filename: string, prefix?: string): Promise<string> => {
+        return troubleshooting.generateLogFileName(filename, prefix);
+      },
+    );
+
+    this.ipcHandle(
       'cli-tool-registry:updateCliTool',
       async (_listener, id: string, loggerId: string): Promise<void> => {
         const logger = this.getLogHandler('provider-registry:updateCliTool-onData', loggerId);

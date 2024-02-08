@@ -1084,6 +1084,13 @@ function initExposure(): void {
     return ipcInvoke('troubleshooting:saveLogs', memoryLogs, destinaton);
   });
 
+  contextBridge.exposeInMainWorld(
+    'troubleshootingGenerateLogFileName',
+    async (filename: string, extension?: string): Promise<string> => {
+      return ipcInvoke('troubleshooting:generateLogFileName', filename, extension);
+    },
+  );
+
   contextBridge.exposeInMainWorld('getContributedMenus', async (context: string): Promise<Menu[]> => {
     return ipcInvoke('menu-registry:getContributedMenus', context);
   });
