@@ -2411,6 +2411,8 @@ declare module '@podman-desktop/api' {
     ): Promise<{ Id: string; Warnings: string[] }>;
     export function startPod(engineId: string, podId: string): Promise<void>;
     export function listPods(): Promise<PodInfo[]>;
+    export function stopPod(engineId: string, podId: string): Promise<void>;
+    export function removePod(engineId: string, podId: string): Promise<void>;
   }
 
   /**
