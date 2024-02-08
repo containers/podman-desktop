@@ -55,28 +55,6 @@ In foldable details, you can find alternative steps for least common contexts:
 
    :::
 
-1. The communication channel between your WSL distribution and the Podman Machine is a special file (a socket).
-   The Podman Machine creates this file with specific permissions.
-   On your WSL distribution, to communicate with the Podman Machine, your user must have the write permissions on this file.
-
-   To give access to the remote Podman machine to your user, assign group membership:
-
-   ```shell-session
-   $ sudo usermod --append --groups 10 your_user
-   ```
-
-1. Exit your session on the WSL distribution to apply the new group membership:
-
-   ```shell-session
-   $ exit
-   ```
-
-1. Start a new WSL session:
-
-   ```shell-session
-   > wsl
-   ```
-
 1. By default, the Podman client in your WSL distribution communicates with the local Podman.
    It should rather communicate with the remote Podman machine defined by Podman Desktop.
 
@@ -159,19 +137,26 @@ In foldable details, you can find alternative steps for least common contexts:
    </div>
    </details>
 
-1. Podman requires you to actively confirm that you want to use a remote connection.
+1. Podman requires you to actively confirm that you want to use a remote connection with the `--remote` flag.
 
-   To always enable the remote connection, set an alias:
+   To always enable the remote connection, edit the `~/.config/containers/containers.conf`, and add the section:
 
-   ```shell-session
-   $ alias podman='podman --remote'
+   ```toml
+   [engine]
+   remote=true
    ```
 
-   :::tip
+1. The communication channel between your WSL distribution and the Podman Machine is a special file (a socket).
+   The Podman Machine creates this file with specific permissions.
+   On your WSL distribution, to communicate with the Podman Machine, your user must have the write permissions on this file.
 
-   On a custom WSL distribution with a Podman client version 4, you might skip this step.
+   To give access to the remote Podman machine to your user: create the group if necessary, assign group membership, and exit your session on the WSL distribution to apply the new group membership:
 
-   :::
+   ```shell-session
+   $ sudo groupadd --gid 10 --force podman
+   $ sudo usermod --append --groups 10 $(whoami)
+   $ exit
+   ```
 
 ## Testing the connection
 
@@ -233,12 +218,6 @@ Verify that, on your WSL distribution, the Podman CLI communicates with your Pod
 
    ```shell-session
    $ podman system connection list
-   ```
-
-1. Verify that your session has an `alias` for `podman --remote`:
-
-   ```shell-session
-   $ alias | grep podman
    ```
 
 1. Verify that Podman has a `Server` version corresponding to your Podman Machine version:
