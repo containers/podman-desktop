@@ -59,6 +59,7 @@ import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 import { app } from 'electron';
 import type { WebviewInfo } from './api/webview-info.js';
+import { getBase64Image } from '../util.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -145,7 +146,9 @@ const inputQuickPickRegistry: InputQuickPickRegistry = {} as unknown as InputQui
 
 const customPickRegistry: CustomPickRegistry = {} as unknown as CustomPickRegistry;
 
-const authenticationProviderRegistry: AuthenticationImpl = {} as unknown as AuthenticationImpl;
+const authenticationProviderRegistry: AuthenticationImpl = {
+  registerAuthenticationProvider: vi.fn(),
+} as unknown as AuthenticationImpl;
 
 const iconRegistry: IconRegistry = {} as unknown as IconRegistry;
 
@@ -193,6 +196,12 @@ vi.mock('electron', () => {
     app: {
       getVersion: vi.fn(),
     },
+  };
+});
+
+vi.mock('../util.js', async () => {
+  return {
+    getBase64Image: vi.fn(),
   };
 });
 
@@ -1401,4 +1410,105 @@ test('removePod', async () => {
   });
   await api.containerEngine.removePod('engine1', 'pod1');
   expect(removePodSpy).toHaveBeenCalledWith('engine1', 'pod1');
+});
+
+describe('authentication Provider', async () => {
+  const BASE64ENCODEDIMAGE = 'BASE64ENCODEDIMAGE';
+
+  const providerMock = {
+    onDidChangeSessions: vi.fn(),
+    getSessions: vi.fn().mockResolvedValue([]),
+    createSession: vi.fn(),
+    removeSession: vi.fn(),
+  };
+
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  test('basic registerAuthenticationProvider ', async () => {
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+    api.authentication.registerAuthenticationProvider('provider1.id', 'Provider1 Label', providerMock, {
+      supportsMultipleAccounts: true,
+    });
+
+    expect(authenticationProviderRegistry.registerAuthenticationProvider).toBeCalledWith(
+      'provider1.id',
+      'Provider1 Label',
+      providerMock,
+      { supportsMultipleAccounts: true },
+    );
+  });
+
+  test('allows images option to be undefined or empty', async () => {
+    vi.mocked(getBase64Image).mockReturnValue(BASE64ENCODEDIMAGE);
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    api.authentication.registerAuthenticationProvider('provider1.id', 'Provider1 Label', providerMock, {});
+
+    // grab the call to authenticationProviderRegistry.registerAuthenticationProvider
+    const call = vi.mocked(authenticationProviderRegistry.registerAuthenticationProvider).mock.calls[0];
+
+    // get options from the call
+    const options = call[3];
+
+    expect(options?.images?.logo).toBeUndefined();
+    expect(options?.images?.icon).toBeUndefined();
+  });
+
+  test('allows images option to be single image', async () => {
+    vi.mocked(getBase64Image).mockReturnValue(BASE64ENCODEDIMAGE);
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    api.authentication.registerAuthenticationProvider('provider1.id', 'Provider1 Label', providerMock, {
+      images: {
+        icon: './image.png',
+        logo: './image.png',
+      },
+    });
+    // grab the call to authenticationProviderRegistry.registerAuthenticationProvider
+    const call = vi.mocked(authenticationProviderRegistry.registerAuthenticationProvider).mock.calls[0];
+
+    // get options from the call
+    const options = call[3];
+
+    expect(options?.images?.logo).equals(BASE64ENCODEDIMAGE);
+    expect(options?.images?.icon).equals(BASE64ENCODEDIMAGE);
+  });
+
+  test('allows images option to be light/dark image', async () => {
+    vi.mocked(getBase64Image).mockReturnValue(BASE64ENCODEDIMAGE);
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    api.authentication.registerAuthenticationProvider('provider1.id', 'Provider1 Label', providerMock, {
+      images: {
+        icon: {
+          light: './image.png',
+          dark: './image.png',
+        },
+        logo: {
+          light: './image.png',
+          dark: './image.png',
+        },
+      },
+    });
+    // grab the call to authenticationProviderRegistry.registerAuthenticationProvider
+    const call = vi.mocked(authenticationProviderRegistry.registerAuthenticationProvider).mock.calls[0];
+
+    // get options from the call
+    const options = call[3];
+
+    const themeIcon = typeof options?.images?.icon === 'string' ? undefined : options?.images?.icon;
+    expect(themeIcon).toBeDefined();
+    expect(themeIcon?.light).equals(BASE64ENCODEDIMAGE);
+    expect(themeIcon?.dark).equals(BASE64ENCODEDIMAGE);
+    const themeLogo = typeof options?.images?.logo === 'string' ? undefined : options?.images?.logo;
+    expect(themeLogo).toBeDefined();
+    expect(themeLogo?.light).equals(BASE64ENCODEDIMAGE);
+    expect(themeLogo?.dark).equals(BASE64ENCODEDIMAGE);
+  });
 });
