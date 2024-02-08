@@ -9,7 +9,7 @@ import type { ContextUI } from '../context/context';
 import { context } from '/@/stores/context';
 import { onDestroy, onMount } from 'svelte';
 import { type Unsubscriber } from 'svelte/store';
-import Input from '../ui/Input.svelte';
+import SearchInput from '../ui/SearchInput.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let key: string;
@@ -67,15 +67,7 @@ function updateSearchValue(event: any) {
 
 <Route path="/" breadcrumb="{key}">
   <SettingsPage title="Preferences">
-    <Input
-      slot="header"
-      on:input="{e => updateSearchValue(e)}"
-      class="mt-4"
-      name="search"
-      type="search"
-      placeholder="Search preferences"
-      id="input-search"
-      aria-label="input-search" />
+    <SearchInput slot="header" title="preferences" class="mt-4" on:input="{e => updateSearchValue(e)}" />
     <div class="flex flex-col space-y-5">
       {#if matchingRecords.size === 0}
         <div>No Settings Found</div>

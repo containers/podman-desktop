@@ -24,18 +24,18 @@ import { render, screen } from '@testing-library/svelte';
 import Input from './Input.svelte';
 
 function renderInput(
-  type: 'text' | 'search' | 'password' | 'clear',
   value: string,
-  placeholder: string,
-  readonly: boolean,
+  placeholder?: string,
+  readonly?: boolean,
+  clearable?: boolean,
   onClick?: any,
 ): void {
-  render(Input, { type: type, value: value, placeholder: placeholder, readonly: readonly, onClick: onClick });
+  render(Input, { value: value, placeholder: placeholder, readonly: readonly, clearable: clearable, onClick: onClick });
 }
 
 test('Expect basic styling', async () => {
   const value = 'test';
-  renderInput('text', value, value, false);
+  renderInput(value, value);
 
   const element = screen.getByPlaceholderText(value);
   expect(element).toBeInTheDocument();
@@ -61,7 +61,7 @@ test('Expect basic styling', async () => {
 
 test('Expect basic readonly styling', async () => {
   const value = 'test';
-  renderInput('text', value, value, true);
+  renderInput(value, value, true);
 
   const element = screen.getByPlaceholderText(value);
   expect(element).toBeInTheDocument();
@@ -86,30 +86,12 @@ test('Expect basic readonly styling', async () => {
   expect(element.parentElement).not.toHaveClass('hover:border-purple-400');
 });
 
-test('Expect search type', async () => {
+test('Expect clear styling', async () => {
   const value = 'test';
-  renderInput('search', value, value, false);
-
-  const element = screen.getByRole('img');
-  expect(element).toBeInTheDocument();
-});
-
-test('Expect clear type', async () => {
-  const value = 'test';
-  renderInput('clear', value, value, false);
+  renderInput(value, value, false, true);
 
   const element = screen.getByRole('button');
   expect(element).toBeInTheDocument();
   expect(element).toHaveAttribute('aria-label', 'clear');
-  expect(element).toHaveClass('cursor-pointer');
-});
-
-test('Expect password type', async () => {
-  const value = 'test';
-  renderInput('password', value, value, false);
-
-  const element = screen.getByRole('button');
-  expect(element).toBeInTheDocument();
-  expect(element).toHaveAttribute('aria-label', 'show/hide');
   expect(element).toHaveClass('cursor-pointer');
 });

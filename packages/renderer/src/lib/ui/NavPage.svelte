@@ -1,5 +1,5 @@
 <script lang="ts">
-import Input from './Input.svelte';
+import SearchInput from './SearchInput.svelte';
 
 export let title: string;
 export let searchTerm = '';
@@ -23,7 +23,7 @@ export let searchEnabled = true;
     {#if searchEnabled}
       <div class="flex flex-row pb-4" role="region" aria-label="search">
         <div class="pl-5 lg:w-[35rem] w-[22rem]">
-          <Input bind:value="{searchTerm}" name="containerSearchName" type="search" placeholder="Search {title}...." />
+          <SearchInput bind:searchTerm="{searchTerm}" title="{title}" />
         </div>
         <div class="flex flex-1 px-5" role="group" aria-label="bottomAdditionalActions">
           {#if $$slots['bottom-additional-actions']}
