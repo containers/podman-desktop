@@ -161,7 +161,9 @@ const viewRegistry: ViewRegistry = {} as unknown as ViewRegistry;
 
 const context: Context = new Context(apiSender);
 
-const cliToolRegistry: CliToolRegistry = {} as unknown as CliToolRegistry;
+const cliToolRegistry: CliToolRegistry = {
+  createCliTool: vi.fn(),
+} as unknown as CliToolRegistry;
 
 const directories = {
   getPluginsDirectory: () => '/fake-plugins-directory',
@@ -1511,4 +1513,25 @@ describe('authentication Provider', async () => {
     expect(themeLogo?.light).equals(BASE64ENCODEDIMAGE);
     expect(themeLogo?.dark).equals(BASE64ENCODEDIMAGE);
   });
+});
+
+test('createCliTool ', async () => {
+  const api = extensionLoader.createApi('/path', {});
+  expect(api).toBeDefined();
+
+  const options: containerDesktopAPI.CliToolOptions = {
+    name: 'tool-name',
+    displayName: 'tool-display-name',
+    markdownDescription: 'markdown description',
+    images: {},
+    version: '1.0.1',
+    path: 'path/to/tool-name',
+  };
+
+  vi.mocked(cliToolRegistry.createCliTool).mockReturnValue({ id: 'created' } as containerDesktopAPI.CliTool);
+
+  const newCliTool = api.cli.createCliTool(options);
+
+  expect(cliToolRegistry.createCliTool).toBeCalledWith(expect.objectContaining({ extensionPath: '/path' }), options);
+  expect(newCliTool).toStrictEqual({ id: 'created' });
 });
