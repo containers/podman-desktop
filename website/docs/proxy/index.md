@@ -85,16 +85,16 @@ On Windows, to install Podman Desktop and Podman in a restricted environment, co
 
    <details>
    <summary>
-   
+
    Optionally, when you are using a VPN, consider enabling user mode networking:
-   
+
    </summary>
    <div>
-   
+
    - When you are using a VPN, you might have problems to access, from your host, resources that the Podman Machine exposes.
 
      To enable access from your host to resources on your Podman Machine, in the **Create Podman machine** screen, enable the **User mode networking (traffic relayed by a user process)** option.
-   
+
    </div>
    </details>
 
