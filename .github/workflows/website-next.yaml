@@ -26,7 +26,7 @@ on:
       - 'package.json'
       - 'yarn.lock'
       - 'website/**'
-      - 'packages/extension-api/src'
+      - 'packages/extension-api/src/**'
 
 env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
