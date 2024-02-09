@@ -16,7 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Informer, KubernetesObject, ObjectCache, V1Deployment, V1Pod } from '@kubernetes/client-node';
+import type {
+  Informer,
+  KubernetesObject,
+  ListPromise,
+  ObjectCache,
+  V1Deployment,
+  V1Pod,
+} from '@kubernetes/client-node';
 import { AppsV1Api, CoreV1Api, KubeConfig, makeInformer } from '@kubernetes/client-node';
 import type { KubeContext } from './kubernetes-context.js';
 import type { ApiSenderType } from './api.js';
@@ -33,6 +40,10 @@ export interface ContextState {
   reachable: boolean;
   podsCount: number;
   deploymentsCount: number;
+}
+
+interface CreateInformerOptions {
+  checkReachable?: boolean;
 }
 
 // the ContextsState singleton (instantiated by the kubernetes-client singleton)
@@ -107,51 +118,8 @@ export class ContextsState {
   private createPodInformer(kc: KubeConfig, ns: string, context: KubeContext): Informer<V1Pod> & ObjectCache<V1Pod> {
     const k8sApi = kc.makeApiClient(CoreV1Api);
     const listFn = () => k8sApi.listNamespacedPod(ns);
-    const informer = makeInformer(kc, `/api/v1/namespaces/${ns}/pods`, listFn);
-
-    informer.on('add', () => {
-      const previous = this.contextsState.get(context.name);
-      if (previous) {
-        previous.podsCount++;
-        previous.reachable = true;
-      }
-      this.dispatchContextsState();
-    });
-
-    informer.on('delete', () => {
-      const previous = this.contextsState.get(context.name);
-      if (previous) {
-        previous.podsCount--;
-        previous.reachable = true;
-      }
-      this.dispatchContextsState();
-    });
-    informer.on('error', (err: unknown) => {
-      if (err !== undefined) {
-        console.error(`pod informer error for context ${context.name}: `, String(err));
-      }
-      const previous = this.contextsState.get(context.name);
-      if (previous) {
-        previous.reachable = err === undefined;
-      }
-      this.dispatchContextsState();
-      // Restart informer after 5sec
-      setTimeout(() => {
-        this.restartInformer(informer, context);
-      }, 5000);
-    });
-    informer.on('connect', (err: unknown) => {
-      if (err !== undefined) {
-        console.error(`pod informer connect error for context ${context.name}: `, String(err));
-      }
-      const previous = this.contextsState.get(context.name);
-      if (previous) {
-        previous.reachable = err === undefined;
-      }
-      this.dispatchContextsState();
-    });
-    this.restartInformer(informer, context);
-    return informer;
+    const path = `/api/v1/namespaces/${ns}/pods`;
+    return this.createInformer<V1Pod>(kc, context, path, listFn, 'podsCount', { checkReachable: true });
   }
 
   private createDeploymentInformer(
@@ -161,29 +129,62 @@ export class ContextsState {
   ): Informer<V1Deployment> & ObjectCache<V1Deployment> {
     const k8sApi = kc.makeApiClient(AppsV1Api);
     const listFn = () => k8sApi.listNamespacedDeployment(ns);
-    const informer = makeInformer(kc, `/apis/apps/v1/namespaces/${ns}/deployments`, listFn);
+    const path = `/apis/apps/v1/namespaces/${ns}/deployments`;
+    return this.createInformer<V1Deployment>(kc, context, path, listFn, 'deploymentsCount', { checkReachable: false });
+  }
+
+  private createInformer<T extends KubernetesObject>(
+    kc: KubeConfig,
+    context: KubeContext,
+    path: string,
+    listPromiseFn: ListPromise<T>,
+    countKey: keyof ContextState,
+    options: CreateInformerOptions,
+  ): Informer<T> & ObjectCache<T> {
+    const informer = makeInformer(kc, path, listPromiseFn);
 
     informer.on('add', () => {
-      const previous = this.contextsState.get(context.name);
-      if (previous) {
-        previous.deploymentsCount++;
-      }
-      this.dispatchContextsState();
+      this.safeSetState(context.name, previous => {
+        previous[countKey]++;
+        if (options.checkReachable) {
+          previous.reachable = true;
+        }
+      });
     });
 
     informer.on('delete', () => {
-      const previous = this.contextsState.get(context.name);
-      if (previous) {
-        previous.deploymentsCount--;
-      }
-      this.dispatchContextsState();
+      this.safeSetState(context.name, previous => {
+        previous[countKey]--;
+        if (options.checkReachable) {
+          previous.reachable = true;
+        }
+      });
     });
-    informer.on('error', () => {
+    informer.on('error', (err: unknown) => {
+      if (err !== undefined) {
+        console.error(`pod informer error for context ${context.name}: `, String(err));
+      }
+      if (options.checkReachable) {
+        this.safeSetState(context.name, previous => {
+          previous.reachable = err === undefined;
+        });
+      }
       // Restart informer after 5sec
       setTimeout(() => {
         this.restartInformer(informer, context);
       }, 5000);
     });
+
+    if (options.checkReachable) {
+      informer.on('connect', (err: unknown) => {
+        if (err !== undefined) {
+          console.error(`pod informer connect error for context ${context.name}: `, String(err));
+        }
+        this.safeSetState(context.name, previous => {
+          previous.reachable = err === undefined;
+        });
+      });
+    }
     this.restartInformer(informer, context);
     return informer;
   }
@@ -193,11 +194,9 @@ export class ContextsState {
       if (err !== undefined) {
         console.log('informer start error: ', String(err));
       }
-      const previous = this.contextsState.get(context.name);
-      if (previous) {
+      this.safeSetState(context.name, previous => {
         previous.reachable = err === undefined;
-      }
-      this.dispatchContextsState();
+      });
       // Restart informer after 5sec
       setTimeout(() => {
         this.restartInformer(informer, context);
@@ -219,5 +218,13 @@ export class ContextsState {
 
   public getContextsState(): Map<string, ContextState> {
     return this.contextsState;
+  }
+
+  private safeSetState(name: string, update: (previous: ContextState) => void) {
+    const previous = this.contextsState.get(name);
+    if (previous) {
+      update(previous);
+      this.dispatchContextsState();
+    }
   }
 }
