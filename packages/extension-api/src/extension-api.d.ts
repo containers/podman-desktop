@@ -2200,12 +2200,16 @@ declare module '@podman-desktop/api' {
     Type?: string;
   }
 
+  /**
+   * Authentication credentials, used when pushing an image to a registry
+   */
   interface ContainerAuthInfo {
     username: string;
     password: string;
     serveraddress: string;
     email?: string;
   }
+
   interface PullEvent {
     stream?: string;
     id?: string;
@@ -2240,32 +2244,111 @@ declare module '@podman-desktop/api' {
   }
 
   export interface ContainerCreateOptions {
+    /**
+     * Assign the specified name to the container. Must match the regular expression`/?[a-zA-Z0-9][a-zA-Z0-9_.-]+`. If not speficied, the platform assigns a unique name to the container
+     */
     name?: string;
+    /**
+     * The hostname to use for the container, as a valid RFC 1123 hostname
+     */
     Hostname?: string;
+
+    /**
+     * The user that commands are run as inside the container
+     */
     User?: string;
+
+    /**
+     * A list of environment variables to set inside the container in the form `["VAR=value", ...]`. A variable without `=` is removed from the environment, rather than to have an empty value
+     */
     Env?: string[];
 
-    // environment files to use
+    /**
+     * Environment files to use
+     * */
     EnvFiles?: string[];
+
+    /**
+     * User-defined key/value metadata
+     */
     Labels?: { [label: string]: string };
 
+    /**
+     * An object mapping ports to an empty object in the form: `{"<port>/<tcp|udp|sctp>": {}}`
+     */
     // eslint-disable-next-line @typescript-eslint/ban-types
     ExposedPorts?: { [port: string]: {} };
+
+    /**
+     * Container configuration that depends on the host we are running on
+     */
     HostConfig?: HostConfig;
+
+    /**
+     * The name (or reference) of the image to use when creating the container
+     */
     Image?: string;
+
+    /**
+     * Attach standard streams to a TTY, including stdin if it is not closed (default false)
+     */
     Tty?: boolean;
+
+    /**
+     * Command to run specified as an array of strings
+     */
     Cmd?: string[];
+
+    /**
+     * The entry point for the container as a string or an array of strings.
+     *
+     * If the array consists of exactly one empty string (`[""]`) then the entry point is reset to system default (i.e., the entry point used by docker when there is no ENTRYPOINT instruction in the Containerfile).
+     */
     Entrypoint?: string | string[];
+
+    /**
+     * Whether to attach to `stdin` (default false)
+     */
     AttachStdin?: boolean;
+
+    /**
+     * Whether to attach to `stdout`(default false)
+     */
     AttachStdout?: boolean;
+
+    /**
+     * Whether to attach to `stderr` (default false)
+     */
     AttachStderr?: boolean;
+
+    /**
+     * Whether to open `stdin` (default false)
+     */
     OpenStdin?: boolean;
+
+    /**
+     * Close `stdin` after one attached client disconnects (deafult false)
+     */
     StdinOnce?: boolean;
+
+    /**
+     * Run the container in the background
+     */
     Detach?: boolean;
+
+    /**
+     * Start the container immediately (default true)
+     */
     start?: boolean;
   }
 
+  /**
+   * Information about the container created by calling the {@link containerEngine.createContainer} method
+   */
   export interface ContainerCreateResult {
+    /**
+     * a string uniquely identifying the created container, which can be used to execute other methods on the container ({@link containerEngine.deleteContainer}, {@link containerEngine.inspectContainer}, {@link containerEngine.startContainer}, {@link containerEngine.stopContainer}, {@link containerEngine.logsContainer})
+     */
     id: string;
   }
 
@@ -2276,19 +2359,37 @@ declare module '@podman-desktop/api' {
   }
 
   export interface BuildImageOptions {
-    // Specifies a Containerfile which contains instructions for building the image
+    /**
+     * Specifies a Containerfile which contains instructions for building the image
+     */
     containerFile?: string;
-    // Specifies the name which is assigned to the resulting image if the build process completes successfully.
+
+    /**
+     * Specifies the name which is assigned to the resulting image if the build process completes successfully
+     */
     tag?: string;
-    // Set the os/arch of the built image (and its base image, when using one) to the provided value instead of using the current operating system and architecture of the host
+
+    /**
+     * Set the os/arch of the built image (and its base image, when using one) to the provided value instead of using the current operating system and architecture of the host
+     */
     platform?: string;
-    // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
+
+    /**
+     * Set the provider to use, if not we will try select the first one available (sorted in favor of Podman)
+     */
     provider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection;
-    // The abort controller for running the build image operation
+
+    /**
+     * The abort controller for running the build image operation
+     */
     abortController?: AbortController;
-    // Extra hosts to add to /etc/hosts
+
+    /**
+     * Extra hosts to add to /etc/hosts
+     */
     extrahosts?: string;
-    /*
+
+    /**
      * A Git repository URI or HTTP/HTTPS context URI. If the URI points to a single text file, the file’s contents are
      * placed into a file called Dockerfile and the image is built from that file. If the URI points to a tarball, the
      * file is downloaded by the daemon and the contents therein used as the context for the build. If the URI points
@@ -2296,69 +2397,116 @@ declare module '@podman-desktop/api' {
      * inside the tarball.
      */
     remote?: string;
-    /*
+
+    /**
      * Default: false
+     *
      * Suppress verbose build output.
      */
     q?: boolean;
-    // JSON array of images used for build cache resolution.
+
+    /**
+     *  JSON array of images used for build cache resolution.
+     */
     cachefrom?: string;
-    // Attempt to pull the image even if an older image exists locally.
+
+    /**
+     * Attempt to pull the image even if an older image exists locally.
+     */
     pull?: string;
-    /*
+
+    /**
      * Default: true
+     *
      * Remove intermediate containers after a successful build.
      */
     rm?: boolean;
-    /*
+
+    /**
      * Default: false
+     *
      * Always remove intermediate containers, even upon failure.
      */
     forcerm?: boolean;
-    // Set memory limit for build.
+
+    /**
+     * Set memory limit for build.
+     */
     memory?: number;
-    // Total memory (memory + swap). Set as -1 to disable swap.
+
+    /**
+     * Total memory (memory + swap). Set as -1 to disable swap.
+     */
     memswap?: number;
-    // CPU shares (relative weight).
+
+    /**
+     * CPU shares (relative weight).
+     */
     cpushares?: number;
-    // CPUs in which to allow execution (e.g., 0-3, 0,1).
+
+    /**
+     * CPUs in which to allow execution (e.g., 0-3, 0,1).
+     */
     cpusetcpus?: number;
-    // The length of a CPU period in microseconds.
+
+    /**
+     * The length of a CPU period in microseconds.
+     */
     cpuperiod?: number;
-    // Microseconds of CPU time that the container can get in a CPU period.
+
+    /**
+     * Microseconds of CPU time that the container can get in a CPU period.
+     */
     cpuquota?: number;
-    /*
+
+    /**
      * JSON map of string pairs for build-time variables. Users pass these values at build-time. Docker uses the
      * buildargs as the environment context for commands run via the ```Dockerfile``` RUN instruction, or for variable
-     * expansion in other ```Dockerfilev instructions. This is not meant for passing secret values.
+     * expansion in other ```Dockerfilev``` instructions. This is not meant for passing secret values.
      * For example, the build arg ```FOO=bar``` would become ```{"FOO":"bar"}``` in JSON. This would result in the query
      * parameter ```buildargs={"FOO":"bar"}```. Note that ```{"FOO":"bar"}``` should be URI component encoded.
      */
     buildargs?: { [key: string]: string };
-    //Size of ```/dev/shm``` in bytes. The size must be greater than 0. If omitted the system uses 64MB.
+
+    /**
+     * Size of ```/dev/shm``` in bytes. The size must be greater than 0. If omitted the system uses 64MB.
+     */
     shmsize?: number;
-    // Squash the resulting images layers into a single layer.
+
+    /**
+     * Squash the resulting images layers into a single layer.
+     */
     squash?: boolean;
-    // Arbitrary key/value labels to set on the image, as a JSON map of string pairs.
+
+    /**
+     * Arbitrary key/value labels to set on the image, as a JSON map of string pairs.
+     */
     labels?: { [key: string]: string };
-    /*
+
+    /**
      * Sets the networking mode for the run commands during build. Supported standard values are: ```bridge```,
      * ```host```, ```none```, and ```container:<name|id>```. Any other value is taken as a custom network's name or ID
      * to which this container should connect to.
      */
     networkmode?: string;
-    /*
+
+    /**
      * Default: ""
+     *
      * Target build stage
      */
     target?: string;
-    /*
-     *  Default: ""
+
+    /**
+     * Default: ""
+     *
      * BuildKit output configuration
      */
     outputs?: string;
-    /*
-     *  Default: false
+
+    /**
+     * Default: false
+     *
      * Do not use the cache when building the image.
      */
     nocache?: boolean;
@@ -2426,31 +2574,124 @@ declare module '@podman-desktop/api' {
     Scope: string;
   }
 
+  /**
+   *  Module providing operations to execute on all container providers
+   */
   export namespace containerEngine {
+    /**
+     * Returns the list of containers across all container engines, in any state (running or not).
+     *
+     * @return A promise resolving to an array of containers information. This method returns a subset of the available information for containers. To get the complete description of a specific container, you can use the {@link containerEngine.inspectContainer} method.
+     */
     export function listContainers(): Promise<ContainerInfo[]>;
+
+    /**
+     * Get the complete low-level information about a specific container.
+     *
+     * @param engineId the id of the engine managing the container, obtained from the result of {@link containerEngine.listContainers}
+     * @param id the id or name of the container on this engine, obtained from the result of {@link containerEngine.listContainers} or as the result of {@link containerEngine.createContainer}
+     * @return A promise resolving to a structure containing the container information
+     */
     export function inspectContainer(engineId: string, id: string): Promise<ContainerInspectInfo>;
 
+    /**
+     * Create a new container on a specific container engine
+     *
+     * @param engineId the id of the engine on which to create the container, obtained from the result of {@link containerEngine.listContainers}
+     * @param containerCreateOptions the details of the container to create
+     * @return A promise resolving to the information on the created container
+     */
     export function createContainer(
       engineId: string,
       containerCreateOptions: ContainerCreateOptions,
     ): Promise<ContainerCreateResult>;
+
+    /**
+     * Start an existing container
+     *
+     * @param engineId the id of the engine managing the container, obtained from the result of {@link containerEngine.listContainers}
+     * @param id the id or name of the container on this engine, obtained from the result of {@link containerEngine.listContainers} or as the result of {@link containerEngine.createContainer}
+     */
     export function startContainer(engineId: string, id: string): Promise<void>;
+
+    /**
+     * Get the streamed logs of a container
+     *
+     * @param engineId the id of the engine managing the container, obtained from the result of {@link containerEngine.listContainers}
+     * @param id the id of the container on this engine, obtained from the result of {@link containerEngine.listContainers} or as the result of {@link containerEngine.createContainer}
+     * @param callback the function called when new logs are emitted or new events happen on the stream. The value of `name` can be either `data` (and `data` contains the logs), or `end` indicating the end of the stream, or `first-message` indicating no data has been emitted yet on the stream.
+     */
     export function logsContainer(
       engineId: string,
       id: string,
       callback: (name: string, data: string) => void,
     ): Promise<void>;
+
+    /**
+     * Stop an existing container
+     *
+     * @param engineId the id of the engine managing the container, obtained from the result of {@link containerEngine.listContainers}
+     * @param id the id of the container on this engine, obtained from the result of {@link containerEngine.listContainers} or as the result of {@link containerEngine.createContainer}
+     */
     export function stopContainer(engineId: string, id: string): Promise<void>;
+
+    /**
+     * Delete an existing container
+     *
+     * @param engineId the id of the engine managing the container, obtained from the result of {@link containerEngine.listContainers}
+     * @param id the id of the container on this engine, obtained from the result of {@link containerEngine.listContainers} or as the result of {@link containerEngine.createContainer}
+     */
+
     export function deleteContainer(engineId: string, id: string): Promise<void>;
+    /**
+     * Build a container image
+     *
+     * @param context the build context directory
+     * @param eventCollect a function called when new build logs are emitted or new events happen during the build operation. The value of `eventName` can be either `stream` (and `data` contains the logs), or `finish` indicating the end of the build operation, or `error` in case of build error (and `data` contains the error message)
+     * @param options parameters for the build operation
+     */
     export function buildImage(
-      // build context directory
       context: string,
       eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
       options?: BuildImageOptions,
     );
+
+    /**
+     * Save on disk a tarball containing the image and its metadata.
+     *
+     * @param engineId the id of the engine managing the image, obtained from the result of {@link containerEngine.listImages}
+     * @param id the id or name of the image on this engine, obtained from the result of {@link containerEngine.listImages}
+     * @param filename the file on which to save the container image content
+     */
     export function saveImage(engineId: string, id: string, filename: string): Promise<void>;
+
+    /**
+     * List the container images across all container engines. Only images from a final layer (no children) are returned.
+     *
+     * @return A promise resolving to an array of images information. This method returns a subset of the available information for images. To get the complete description of a specific image, you can use the {@link containerEngine.getImageInspect} method.
+     */
     export function listImages(): Promise<ImageInfo[]>;
+
+    /**
+     * Tag an image so that it becomes part of a repository
+     *
+     * @param engineId the id of the engine managing the image, obtained from the result of {@link containerEngine.listImages}
+     * @param imageId the id of the image on this engine, obtained from the result of {@link containerEngine.listImages}
+     * @param repo The repository to tag in. For example, `someuser/someimage`
+     * @param tag The name of the new tag
+     */
     export function tagImage(engineId: string, imageId: string, repo: string, tag?: string): Promise<void>;
+
+    /**
+     * Push an image to a registry.
+     *
+     * If you wish to push an image on to a private registry, that image must already have a tag which references the registry. For example, `registry.example.com/myimage:latest`.
+     *
+     * @param engineId the id of the engine managing the image, obtained from the result of {@link containerEngine.listImages}
+     * @param imageId the id of the image on this engine, obtained from the result of {@link containerEngine.listImages}
+     * @param callback the function called when new logs are emitted or new events happen on the stream. The value of `name` can be either `data`(and `data` contains the logs), or `end` indicating the end of the stream, or `first-message` indicating no data has been emitted yet on the stream.
+     * @param authInfo Authentication credentials
+     */
     export function pushImage(
       engineId: string,
       imageId: string,
@@ -2458,12 +2699,34 @@ declare module '@podman-desktop/api' {
       authInfo?: ContainerAuthInfo,
     ): Promise<void>;
 
+    /**
+     * Pull an image from a registry
+     *
+     * @param containerProviderConnection the connection to the local engine to use for pulling the image
+     * @param imageName the name of the image to pull
+     * @param callback the function called when new logs are emitted during the pull operation
+     */
     export function pullImage(
       containerProviderConnection: ContainerProviderConnection,
       imageName: string,
       callback: (event: PullEvent) => void,
     ): Promise<void>;
+
+    /**
+     * Delete a container image from a local engine
+     *
+     * @param engineId the id of the engine managing the image, obtained from the result of {@link containerEngine.listImages}
+     * @param id the id of the image on this engine, obtained from the result of {@link containerEngine.listImages}
+     */
     export function deleteImage(engineId: string, id: string): Promise<void>;
+
+    /**
+     * Return low-level information about an image
+     *
+     * @param engineId the id of the engine managing the image, obtained from the result of {@link containerEngine.listImages}
+     * @param id the id of the image on this engine, obtained from the result of {@link containerEngine.listImages}
+     * @return A promise resolving to a structure containing the image information
+     */
     export function getImageInspect(engineId: string, id: string): Promise<ImageInspectInfo>;
 
     export function info(engineId: string): Promise<ContainerEngineInfo>;
