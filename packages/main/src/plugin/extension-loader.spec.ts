@@ -60,6 +60,7 @@ import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 import { app } from 'electron';
 import type { WebviewInfo } from './api/webview-info.js';
 import { getBase64Image } from '../util.js';
+import { Disposable } from './types/disposable.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -175,7 +176,9 @@ const exec = new Exec(proxy);
 
 const notificationRegistry: NotificationRegistry = {} as unknown as NotificationRegistry;
 
-const imageCheckerImpl: ImageCheckerImpl = {} as unknown as ImageCheckerImpl;
+const imageCheckerImpl: ImageCheckerImpl = {
+  registerImageCheckerProvider: vi.fn(),
+} as unknown as ImageCheckerImpl;
 
 const contributionManager: ContributionManager = {
   listContributions: vi.fn(),
@@ -1534,4 +1537,35 @@ test('createCliTool ', async () => {
 
   expect(cliToolRegistry.createCliTool).toBeCalledWith(expect.objectContaining({ extensionPath: '/path' }), options);
   expect(newCliTool).toStrictEqual({ id: 'created' });
+});
+
+test('registerImageCheckerProvider ', async () => {
+  const api = extensionLoader.createApi('/path', {});
+  expect(api).toBeDefined();
+
+  const provider = {
+    check: (
+      _image: containerDesktopAPI.ImageInfo,
+      _token?: containerDesktopAPI.CancellationToken,
+    ): containerDesktopAPI.ProviderResult<containerDesktopAPI.ImageChecks> => {
+      return {
+        checks: [
+          {
+            name: 'check1',
+            status: 'failed',
+          },
+        ],
+      };
+    },
+  };
+
+  vi.mocked(imageCheckerImpl.registerImageCheckerProvider).mockReturnValue(Disposable.create(() => {}));
+
+  api.imageChecker.registerImageCheckerProvider(provider, { label: 'dummyLabel' });
+
+  expect(imageCheckerImpl.registerImageCheckerProvider).toBeCalledWith(
+    expect.objectContaining({ extensionPath: '/path' }),
+    provider,
+    { label: 'dummyLabel' },
+  );
 });
