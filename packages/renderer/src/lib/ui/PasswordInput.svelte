@@ -31,7 +31,7 @@ async function onShowHide() {
   id="password-{id}"
   name="password-{id}"
   bind:value="{password}"
-  aria-label="password"
+  aria-label="password {id}"
   bind:readonly="{readonly}"
   on:input
   bind:element="{element}">
