@@ -11,7 +11,7 @@ export let searchTerm: string = '';
   name="search-{title}"
   placeholder="Search {title}..."
   bind:value="{searchTerm}"
-  aria-label="search"
+  aria-label="search {title}"
   clearable
   on:input>
   <svelte:fragment slot="left">
