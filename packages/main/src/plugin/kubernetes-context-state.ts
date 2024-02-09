@@ -42,8 +42,11 @@ export interface ContextState {
   deploymentsCount: number;
 }
 
-interface CreateInformerOptions {
+interface CreateInformerOptions<T> {
   checkReachable?: boolean;
+  onAdd?: (obj: T) => void;
+  onDelete?: (obj: T) => void;
+  onReachable?: (reachable: boolean) => void;
 }
 
 // the ContextsState singleton (instantiated by the kubernetes-client singleton)
@@ -119,7 +122,11 @@ export class ContextsState {
     const k8sApi = kc.makeApiClient(CoreV1Api);
     const listFn = () => k8sApi.listNamespacedPod(ns);
     const path = `/api/v1/namespaces/${ns}/pods`;
-    return this.createInformer<V1Pod>(kc, context, path, listFn, 'podsCount', { checkReachable: true });
+    return this.createInformer<V1Pod>(kc, context, path, listFn, {
+      onAdd: _obj => this.safeSetState(context.name, state => state.podsCount++),
+      onDelete: _obj => this.safeSetState(context.name, state => state.podsCount--),
+      onReachable: reachable => this.safeSetState(context.name, state => (state.reachable = reachable)),
+    });
   }
 
   private createDeploymentInformer(
@@ -130,7 +137,10 @@ export class ContextsState {
     const k8sApi = kc.makeApiClient(AppsV1Api);
     const listFn = () => k8sApi.listNamespacedDeployment(ns);
     const path = `/apis/apps/v1/namespaces/${ns}/deployments`;
-    return this.createInformer<V1Deployment>(kc, context, path, listFn, 'deploymentsCount', { checkReachable: false });
+    return this.createInformer<V1Deployment>(kc, context, path, listFn, {
+      onAdd: _obj => this.safeSetState(context.name, state => state.deploymentsCount++),
+      onDelete: _obj => this.safeSetState(context.name, state => state.deploymentsCount--),
+    });
   }
 
   private createInformer<T extends KubernetesObject>(
@@ -138,68 +148,55 @@ export class ContextsState {
     context: KubeContext,
     path: string,
     listPromiseFn: ListPromise<T>,
-    countKey: keyof ContextState,
-    options: CreateInformerOptions,
+    options: CreateInformerOptions<T>,
   ): Informer<T> & ObjectCache<T> {
     const informer = makeInformer(kc, path, listPromiseFn);
 
-    informer.on('add', () => {
-      this.safeSetState(context.name, previous => {
-        previous[countKey]++;
-        if (options.checkReachable) {
-          previous.reachable = true;
-        }
-      });
+    informer.on('add', (obj: T) => {
+      options.onAdd?.(obj);
+      options.onReachable?.(true);
     });
 
-    informer.on('delete', () => {
-      this.safeSetState(context.name, previous => {
-        previous[countKey]--;
-        if (options.checkReachable) {
-          previous.reachable = true;
-        }
-      });
+    informer.on('delete', (obj: T) => {
+      options.onDelete?.(obj);
+      options.onReachable?.(true);
     });
     informer.on('error', (err: unknown) => {
       if (err !== undefined) {
         console.error(`pod informer error for context ${context.name}: `, String(err));
       }
-      if (options.checkReachable) {
-        this.safeSetState(context.name, previous => {
-          previous.reachable = err === undefined;
-        });
-      }
+      options.onReachable?.(err === undefined);
       // Restart informer after 5sec
       setTimeout(() => {
-        this.restartInformer(informer, context);
+        this.restartInformer<T>(informer, context, options);
       }, 5000);
     });
 
-    if (options.checkReachable) {
+    if (options.onReachable) {
       informer.on('connect', (err: unknown) => {
         if (err !== undefined) {
           console.error(`pod informer connect error for context ${context.name}: `, String(err));
         }
-        this.safeSetState(context.name, previous => {
-          previous.reachable = err === undefined;
-        });
+        options.onReachable?.(err === undefined);
       });
     }
-    this.restartInformer(informer, context);
+    this.restartInformer<T>(informer, context, options);
     return informer;
   }
 
-  private restartInformer(informer: Informer<KubernetesObject> & ObjectCache<KubernetesObject>, context: KubeContext) {
+  private restartInformer<T>(
+    informer: Informer<KubernetesObject> & ObjectCache<KubernetesObject>,
+    context: KubeContext,
+    options: CreateInformerOptions<T>,
+  ) {
     informer.start().catch((err: unknown) => {
       if (err !== undefined) {
         console.log('informer start error: ', String(err));
       }
-      this.safeSetState(context.name, previous => {
-        previous.reachable = err === undefined;
-      });
+      options.onReachable?.(err === undefined);
       // Restart informer after 5sec
       setTimeout(() => {
-        this.restartInformer(informer, context);
+        this.restartInformer<T>(informer, context, options);
       }, 5000);
     });
   }
