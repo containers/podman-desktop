@@ -163,7 +163,7 @@ export class ContextsState {
     });
     informer.on('error', (err: unknown) => {
       if (err !== undefined) {
-        console.error(`pod informer error for context ${context.name}: `, String(err));
+        console.error(`informer error on path ${path} for context ${context.name}: `, String(err));
       }
       options.onReachable?.(err === undefined);
       // Restart informer after 5sec
@@ -175,7 +175,7 @@ export class ContextsState {
     if (options.onReachable) {
       informer.on('connect', (err: unknown) => {
         if (err !== undefined) {
-          console.error(`pod informer connect error for context ${context.name}: `, String(err));
+          console.error(`informer connect error on path ${path} for context ${context.name}: `, String(err));
         }
         options.onReachable?.(err === undefined);
       });
