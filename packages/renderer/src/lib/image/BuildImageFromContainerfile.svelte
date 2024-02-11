@@ -199,7 +199,7 @@ async function abortBuild() {
             class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
             required />
           {#if providerConnections.length > 1}
-            <label for="providerChoice" class="py-6 block mb-2 text-sm font-bold text-gray-400 dark:text-gray-400"
+            <label for="providerChoice" class="py-6 block mb-2 text-sm font-bold text-gray-400"
               >Container Engine
               <select
                 class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"

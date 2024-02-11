@@ -655,7 +655,7 @@ async function assertAllPortAreValid(): Promise<void> {
           <div>
             <Route path="/basic" breadcrumb="Basic" navigationHint="tab">
               <div class="h-96 overflow-y-auto pr-4">
-                <label for="modalContainerName" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+                <label for="modalContainerName" class="block mb-2 text-sm font-medium text-gray-400"
                   >Container name:</label>
                 <input
                   type="text"
@@ -670,25 +670,22 @@ async function assertAllPortAreValid(): Promise<void> {
                 {#if containerNameError}
                   <ErrorMessage class="text-sm" error="{containerNameError}" />
                 {/if}
-                <label
-                  for="modalEntrypoint"
-                  class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400">Entrypoint:</label>
+                <label for="modalEntrypoint" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
+                  >Entrypoint:</label>
                 <input
                   type="text"
                   bind:value="{entrypoint}"
                   name="modalEntrypoint"
                   id="modalEntrypoint"
                   class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700 border border-charcoal-800" />
-                <label for="modalCommand" class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
-                  >Command:</label>
+                <label for="modalCommand" class="pt-4 block mb-2 text-sm font-medium text-gray-400">Command:</label>
                 <input
                   type="text"
                   bind:value="{command}"
                   name="modalCommand"
                   id="modalCommand"
                   class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700 border border-charcoal-800" />
-                <label for="volumes" class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
-                  >Volumes:</label>
+                <label for="volumes" class="pt-4 block mb-2 text-sm font-medium text-gray-400">Volumes:</label>
                 <!-- Display the list of volumes -->
                 {#each volumeMounts as volumeMount, index}
                   <div class="flex flex-row justify-center items-center w-full py-1">
@@ -727,9 +724,8 @@ async function assertAllPortAreValid(): Promise<void> {
                 {/each}
 
                 <!-- add a label for each port-->
-                <label
-                  for="modalContainerName"
-                  class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400">Port mapping:</label>
+                <label for="modalContainerName" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
+                  >Port mapping:</label>
                 {#each exposedPorts as port, index}
                   <div class="flex flex-row justify-center items-center w-full">
                     <span class="text-sm flex-1 inline-block align-middle whitespace-nowrap text-gray-700"
@@ -773,9 +769,7 @@ async function assertAllPortAreValid(): Promise<void> {
                     </button>
                   </div>
                 {/each}
-                <label
-                  for="modalEnvironmentVariables"
-                  class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+                <label for="modalEnvironmentVariables" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
                   >Environment variables:</label>
                 <!-- Display the list of existing environment variables -->
                 {#each environmentVariables as environmentVariable, index}
@@ -807,9 +801,8 @@ async function assertAllPortAreValid(): Promise<void> {
                 {/each}
               </div>
 
-              <label
-                for="modalEnvironmentFiles"
-                class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400">Environment files:</label>
+              <label for="modalEnvironmentFiles" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
+                >Environment files:</label>
               <!-- Display the list of existing environment files -->
               {#each environmentFiles as environmentFile, index}
                 <div class="flex flex-row justify-center items-center w-full py-1">
@@ -853,8 +846,7 @@ async function assertAllPortAreValid(): Promise<void> {
             <Route path="/advanced" breadcrumb="Advanced" navigationHint="tab">
               <div class="h-96 overflow-y-auto pr-4">
                 <!-- Use tty -->
-                <label for="containerTty" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
-                  >Use TTY:</label>
+                <label for="containerTty" class="block mb-2 text-sm font-medium text-gray-400">Use TTY:</label>
                 <div class="flex flex-row justify-start items-center align-middle w-full text-gray-700 text-sm">
                   <input
                     type="checkbox"
@@ -873,7 +865,7 @@ async function assertAllPortAreValid(): Promise<void> {
                 </div>
 
                 <!-- Specify user-->
-                <label for="containerUser" class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+                <label for="containerUser" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
                   >Specify user to run container as:</label>
                 <div class="flex flex-row justify-center items-center w-full">
                   <input
@@ -884,9 +876,7 @@ async function assertAllPortAreValid(): Promise<void> {
                 </div>
 
                 <!-- Autoremove-->
-                <label
-                  for="containerAutoRemove"
-                  class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+                <label for="containerAutoRemove" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
                   >Auto removal of container:</label>
                 <div class="flex flex-row justify-start items-center align-middle w-full text-gray-700 text-sm">
                   <input type="checkbox" bind:checked="{autoRemove}" class="mx-2 outline-none text-sm" />
@@ -894,9 +884,8 @@ async function assertAllPortAreValid(): Promise<void> {
                 </div>
 
                 <!-- RestartPolicy-->
-                <label
-                  for="containerRestartPolicy"
-                  class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400">Restart policy:</label>
+                <label for="containerRestartPolicy" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
+                  >Restart policy:</label>
                 <div class="p-0 flex flex-row justify-start items-center align-middle w-full text-gray-700">
                   <span class="text-sm w-28 inline-block align-middle whitespace-nowrap text-gray-700"
                     >Policy name:</span>
@@ -934,7 +923,7 @@ async function assertAllPortAreValid(): Promise<void> {
             <Route path="/security" breadcrumb="Security" navigationHint="tab">
               <div class="h-96 overflow-y-auto pr-4">
                 <!-- Privileged-->
-                <label for="containerPrivileged" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+                <label for="containerPrivileged" class="block mb-2 text-sm font-medium text-gray-400"
                   >Privileged:</label>
                 <div class="flex flex-row justify-start items-center align-middle w-full text-gray-700 text-sm">
                   <input type="checkbox" bind:checked="{privileged}" class="mx-2 outline-none text-sm" />
@@ -942,17 +931,14 @@ async function assertAllPortAreValid(): Promise<void> {
                 </div>
 
                 <!-- Read-Only -->
-                <label
-                  for="containerReadOnly"
-                  class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400">Read only:</label>
+                <label for="containerReadOnly" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
+                  >Read only:</label>
                 <div class="flex flex-row justify-start items-center align-middle w-full text-gray-700 text-sm">
                   <input type="checkbox" bind:checked="{readOnly}" class="mx-2 outline-none text-sm" />
                   Make containers root filesystem read-only
                 </div>
 
-                <label
-                  for="ContainerSecurityOptions"
-                  class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+                <label for="ContainerSecurityOptions" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
                   >Security options (security-opt):</label>
                 <!-- Display the list of existing security options -->
                 {#each securityOpts as securityOpt, index}
@@ -978,14 +964,12 @@ async function assertAllPortAreValid(): Promise<void> {
                   </div>
                 {/each}
 
-                <label
-                  for="ContainerSecurityCapabilitiesAdd"
-                  class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400">Capabilities:</label>
+                <label for="ContainerSecurityCapabilitiesAdd" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
+                  >Capabilities:</label>
 
                 <label
                   for="ContainerSecurityCapabilitiesAdd"
-                  class="pl-4 pt-2 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
-                  >Add to the container (CapAdd):</label>
+                  class="pl-4 pt-2 block mb-2 text-sm font-medium text-gray-400">Add to the container (CapAdd):</label>
                 <!-- Display the list of existing capAdd -->
                 {#each capAdds as capAdd, index}
                   <div class="flex flex-row justify-center items-center w-full py-1">
@@ -1011,7 +995,7 @@ async function assertAllPortAreValid(): Promise<void> {
                 {/each}
                 <label
                   for="ContainerSecurityCapabilitiesDrop"
-                  class="pl-4 pt-2 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+                  class="pl-4 pt-2 block mb-2 text-sm font-medium text-gray-400"
                   >Drop from the container (CapDrop):</label>
                 <!-- Display the list of existing capDrop -->
                 {#each capDrops as capDrop, index}
@@ -1038,9 +1022,7 @@ async function assertAllPortAreValid(): Promise<void> {
                 {/each}
 
                 <!-- Specify user namespace-->
-                <label
-                  for="containerUserNamespace"
-                  class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+                <label for="containerUserNamespace" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
                   >Specify user namespace to use:</label>
                 <div class="flex flex-row justify-center items-center w-full">
                   <input
@@ -1055,7 +1037,7 @@ async function assertAllPortAreValid(): Promise<void> {
             <Route path="/networking" breadcrumb="Networking" navigationHint="tab">
               <div class="h-96 overflow-y-auto pr-4">
                 <!-- hostname-->
-                <label for="containerHostname" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+                <label for="containerHostname" class="block mb-2 text-sm font-medium text-gray-400"
                   >Defines container hostname:</label>
                 <div class="flex flex-row justify-center items-center w-full">
                   <input
@@ -1066,7 +1048,7 @@ async function assertAllPortAreValid(): Promise<void> {
                 </div>
 
                 <!-- DNS -->
-                <label for="ContainerDns" class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+                <label for="ContainerDns" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
                   >Custom DNS server(s):</label>
 
                 {#each dnsServers as dnsServer, index}
@@ -1092,9 +1074,7 @@ async function assertAllPortAreValid(): Promise<void> {
                   </div>
                 {/each}
 
-                <label
-                  for="containerExtraHosts"
-                  class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+                <label for="containerExtraHosts" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
                   >Add extra hosts (appends to /etc/hosts file):</label>
                 <!-- Display the list of existing environment variables -->
                 {#each extraHosts as extraHost, index}
@@ -1126,9 +1106,7 @@ async function assertAllPortAreValid(): Promise<void> {
                 {/each}
 
                 <!-- Select network -->
-                <label
-                  for="containerNetwork"
-                  class="pt-4 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+                <label for="containerNetwork" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
                   >Select container networking:</label>
                 <div class="p-0 flex flex-row justify-start items-center align-middle w-full text-gray-700">
                   <span class="text-sm w-28 inline-block align-middle whitespace-nowrap text-gray-700">Mode:</span>

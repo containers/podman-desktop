@@ -108,7 +108,7 @@ function deleteContribution(extensionName: string) {
           <div class="flex flex-col bg-purple-600 h-[100px]">
             <div class="flex justify-end flex-wrap">
               <button
-                class="inline-block text-gray-100 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-700 focus:outline-none rounded-lg text-sm p-1.5"
+                class="inline-block text-gray-100 hover:text-gray-700 focus:outline-none rounded-lg text-sm p-1.5"
                 type="button">
                 <i
                   class="fas fa-times"
