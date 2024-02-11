@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,20 @@ export class AppearanceUtil {
       isDark = true;
     }
     return isDark;
+  }
+
+  async getTheme(): Promise<string> {
+    const themeName = await window.getConfigurationValue<string>(
+      AppearanceSettings.SectionName + '.' + AppearanceSettings.Appearance,
+    );
+
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
+    if (themeName === AppearanceSettings.SystemEnumValue) {
+      return systemTheme;
+    }
+
+    return themeName ?? systemTheme;
   }
 
   /**
