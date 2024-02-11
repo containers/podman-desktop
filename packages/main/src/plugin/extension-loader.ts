@@ -74,6 +74,7 @@ import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 import type { ImageInspectInfo } from '/@/plugin/api/image-inspect-info.js';
 import type { PodInfo } from './api/pod-info.js';
+import type { FormDialog } from './form-dialog.js';
 
 /**
  * Handle the loading of an extension
@@ -149,6 +150,7 @@ export class ExtensionLoader {
     private apiSender: ApiSenderType,
     private trayMenuRegistry: TrayMenuRegistry,
     private messageBox: MessageBox,
+    private formDialog: FormDialog,
     private progress: ProgressImpl,
     private statusBarRegistry: StatusBarRegistry,
     private kubernetesClient: KubernetesClient,
@@ -791,6 +793,7 @@ export class ExtensionLoader {
     };
 
     const messageBox = this.messageBox;
+    const formDialog = this.formDialog;
     const progress = this.progress;
     const inputQuickPickRegistry = this.inputQuickPickRegistry;
     const customPickRegistry = this.customPickRegistry;
@@ -805,7 +808,9 @@ export class ExtensionLoader {
       showErrorMessage: (message: string, ...items: string[]) => {
         return messageBox.showDialog('error', extManifest.displayName, message, items);
       },
-
+      showFormDialog: (title: string) => {
+        return formDialog.showDialog(title);
+      },
       showInputBox: (options?: containerDesktopAPI.InputBoxOptions, token?: containerDesktopAPI.CancellationToken) => {
         return inputQuickPickRegistry.showInputBox(options, token);
       },

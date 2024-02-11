@@ -1513,6 +1513,8 @@ declare module '@podman-desktop/api' {
      */
     export function showErrorMessage(message: string, ...items: string[]): Promise<string | undefined>;
 
+    export function showFormDialog(title: string): Promise<void>;
+
     /**
      * Show progress in Podman Desktop. Progress is shown while running the given callback
      * and while the promise it returned isn't resolved nor rejected. The location at which

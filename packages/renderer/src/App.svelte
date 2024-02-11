@@ -50,6 +50,7 @@ import IngressesRoutesList from './lib/ingresses-routes/IngressesRoutesList.svel
 import Webview from './lib/webview/Webview.svelte';
 import IngressDetails from './lib/ingresses-routes/IngressDetails.svelte';
 import RouteDetails from './lib/ingresses-routes/RouteDetails.svelte';
+import FormDialog from './lib/dialogs/FormDialog.svelte';
 
 router.mode.hash();
 
@@ -78,6 +79,7 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
 
     <div class="flex flex-row w-full h-full overflow-hidden">
       <MessageBox />
+      <FormDialog />
       <QuickPickInput />
       <CustomPick />
       <CommandPalette />

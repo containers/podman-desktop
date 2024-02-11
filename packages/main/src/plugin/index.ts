@@ -156,6 +156,7 @@ import { WebviewRegistry } from './webview/webview-registry.js';
 import type { IDisposable } from './types/disposable.js';
 
 import { KubernetesUtils } from './kubernetes-util.js';
+import { FormDialog } from './form-dialog.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -728,6 +729,8 @@ export class PluginSystem {
 
     const messageBox = new MessageBox(apiSender);
 
+    const formDialog = new FormDialog(apiSender);
+
     const authentication = new AuthenticationImpl(apiSender);
 
     const cliToolRegistry = new CliToolRegistry(apiSender, exec, telemetry);
@@ -761,6 +764,7 @@ export class PluginSystem {
       apiSender,
       trayMenuRegistry,
       messageBox,
+      formDialog,
       new ProgressImpl(taskManager),
       statusBarRegistry,
       kubernetesClient,
