@@ -119,8 +119,7 @@ let pushLogsXtermDiv: HTMLDivElement;
 
     <div class="flex flex-col px-10 py-4 text-sm leading-5 space-y-5">
       <div>
-        <label for="modalImageTag" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
-          >Image Tag</label>
+        <label for="modalImageTag" class="block mb-2 text-sm font-medium text-gray-400">Image Tag</label>
         <select
           class="border text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 bg-charcoal-600 border-gray-900 placeholder-gray-700 text-white"
           name="imageChoice"

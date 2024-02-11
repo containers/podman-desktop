@@ -70,7 +70,7 @@ function validate(event: any) {
         id="toggle-proxy"
         class="sr-only peer" />
       <div
-        class="w-9 h-5 rounded-full peer bg-zinc-400 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-400 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-900 peer-checked:bg-violet-600">
+        class="w-9 h-5 rounded-full peer bg-zinc-400 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-400 after:border after:rounded-full after:h-4 after:w-4 after:transition-all border-gray-900 peer-checked:bg-violet-600">
       </div>
       <span class="ml-3 text-sm font-medium text-gray-400"
         >Proxy configuration {proxyState ? 'enabled' : 'disabled'}</span>
@@ -78,11 +78,8 @@ function validate(event: any) {
 
     {#if proxySettings}
       <div class="space-y-2">
-        <label
-          for="httpProxy"
-          class="mb-2 text-sm font-medium {proxyState
-            ? 'text-gray-400 dark:text-gray-400'
-            : 'text-gray-900 dark:text-gray-900'}">Web Proxy (HTTP):</label>
+        <label for="httpProxy" class="mb-2 text-sm font-medium {proxyState ? 'text-gray-400' : 'text-gray-900'}"
+          >Web Proxy (HTTP):</label>
         <input
           name="httpProxy"
           id="httpProxy"
@@ -97,11 +94,8 @@ function validate(event: any) {
         {/if}
       </div>
       <div class="space-y-2">
-        <label
-          for="httpsProxy"
-          class="pt-4 mb-2 text-sm font-medium {proxyState
-            ? 'text-gray-400 dark:text-gray-400'
-            : 'text-gray-900 dark:text-gray-900'}">Secure Web Proxy (HTTPS):</label>
+        <label for="httpsProxy" class="pt-4 mb-2 text-sm font-medium {proxyState ? 'text-gray-400' : 'text-gray-900'}"
+          >Secure Web Proxy (HTTPS):</label>
         <input
           name="httpsProxy"
           id="httpsProxy"
@@ -116,11 +110,8 @@ function validate(event: any) {
         {/if}
       </div>
       <div class="space-y-2">
-        <label
-          for="httpProxy"
-          class="pt-4 mb-2 text-sm font-medium {proxyState
-            ? 'text-gray-400 dark:text-gray-400'
-            : 'text-gray-900 dark:text-gray-900'}">Bypass proxy settings for these hosts and domains:</label>
+        <label for="httpProxy" class="pt-4 mb-2 text-sm font-medium {proxyState ? 'text-gray-400' : 'text-gray-900'}"
+          >Bypass proxy settings for these hosts and domains:</label>
         <input
           name="noProxy"
           id="noProxy"

@@ -201,9 +201,7 @@ async function getKubernetesfileLocation() {
                 </div>
                 <div hidden="{runStarted}">
                   {#if providerConnections.length > 1}
-                    <label
-                      for="providerConnectionName"
-                      class="py-6 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+                    <label for="providerConnectionName" class="py-6 block mb-2 text-sm font-medium text-gray-400"
                       >Container Engine
                       <select
                         class="border text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 bg-gray-900 border-gray-900 placeholder-gray-700 text-white"
