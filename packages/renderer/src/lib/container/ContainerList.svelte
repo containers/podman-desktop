@@ -499,8 +499,8 @@ function setStoppedFilter() {
       </thead>
 
       <!-- Display each group -->
-      {#each containerGroups as containerGroup}
-        <tbody>
+      <tbody>
+        {#each containerGroups as containerGroup}
           {#if containerGroup.type === ContainerGroupInfoTypeUI.COMPOSE || containerGroup.type === ContainerGroupInfoTypeUI.POD}
             <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
               <td
@@ -671,9 +671,9 @@ function setStoppedFilter() {
               </tr>
             {/each}
           {/if}
-        </tbody>
-        <tr><td class="leading-[8px]">&nbsp;</td></tr>
-      {/each}
+          <tr><td class="leading-[8px]">&nbsp;</td></tr>
+        {/each}
+      </tbody>
     </table>
 
     {#if providerConnections.length === 0}

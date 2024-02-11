@@ -13,18 +13,20 @@ function openContainer(containerID: string) {
 <div class="flex px-5 py-4 flex-col h-full overflow-auto">
   <div class="w-full">
     <table>
-      <tr>
-        <td class="pr-2">Name:</td>
-        <td>{volume.name}</td>
-      </tr>
-      <tr>
-        <td class="pr-2">Size:</td>
-        <td>{volume.humanSize}</td>
-      </tr>
-      <tr>
-        <td class="pr-2">Age:</td>
-        <td>{volume.age}</td>
-      </tr>
+      <tbody>
+        <tr>
+          <td class="pr-2">Name:</td>
+          <td>{volume.name}</td>
+        </tr>
+        <tr>
+          <td class="pr-2">Size:</td>
+          <td>{volume.humanSize}</td>
+        </tr>
+        <tr>
+          <td class="pr-2">Age:</td>
+          <td>{volume.age}</td>
+        </tr>
+      </tbody>
     </table>
   </div>
   {#if volume.containersUsage.length > 0}
@@ -32,10 +34,12 @@ function openContainer(containerID: string) {
       <span>Containers using this volume:</span>
       {#each volume.containersUsage as container}
         <table>
-          <tr class="cursor-pointer" on:click="{() => openContainer(container.id)}">
-            <td class="pr-2">{container.names.join('')}</td>
-            <td>{container.id}</td>
-          </tr>
+          <tbody>
+            <tr class="cursor-pointer" on:click="{() => openContainer(container.id)}">
+              <td class="pr-2">{container.names.join('')}</td>
+              <td>{container.id}</td>
+            </tr>
+          </tbody>
         </table>
       {/each}
     </div>
