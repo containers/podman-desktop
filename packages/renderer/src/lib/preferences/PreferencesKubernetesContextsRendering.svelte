@@ -102,18 +102,18 @@ async function handleDeleteContext(contextName: string) {
                 {#if $kubernetesContextsState.get(context.name)?.reachable}
                   <div class="flex flex-row pt-2">
                     <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                    <div class="ml-1 font-bold text-[9px] text-green-500">REACHABLE</div>
+                    <div class="ml-1 font-bold text-[9px] text-green-500" aria-label="context-reachable">REACHABLE</div>
                   </div>
                   <div class="flex flex-row gap-4 mt-4">
                     <div class="text-center">
                       <div class="font-bold text-[9px] text-gray-800">PODS</div>
-                      <div class="text-[16px] text-white">
+                      <div class="text-[16px] text-white" aria-label="context-pods-count">
                         {$kubernetesContextsState.get(context.name)?.podsCount}
                       </div>
                     </div>
                     <div class="text-center">
                       <div class="font-bold text-[9px] text-gray-800">DEPLOYMENTS</div>
-                      <div class="text-[16px] text-white">
+                      <div class="text-[16px] text-white" aria-label="context-deployments-count">
                         {$kubernetesContextsState.get(context.name)?.deploymentsCount}
                       </div>
                     </div>
