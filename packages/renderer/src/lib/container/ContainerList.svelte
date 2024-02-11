@@ -702,7 +702,8 @@ function setStoppedFilter() {
     on:close="{() => {
       openChoiceModal = false;
     }}">
-    <button
+    <div
+      role="presentation"
       class="inline-block w-full overflow-hidden text-left transition-all transform bg-charcoal-600 z-50 rounded-xl shadow-xl shadow-charcoal-900"
       on:keydown="{keydownChoice}">
       <div class="flex items-center justify-between bg-black px-5 py-4 border-b-2 border-violet-700">
@@ -724,6 +725,6 @@ function setStoppedFilter() {
           <Button type="secondary" on:click="{() => fromExistingImage()}">Existing image</Button>
         </div>
       </div>
-    </button>
+    </div>
   </Modal>
 {/if}
