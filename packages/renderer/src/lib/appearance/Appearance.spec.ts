@@ -24,13 +24,14 @@ import Appearance from './Appearance.svelte';
 import { AppearanceSettings } from '../../../../main/src/plugin/appearance-settings';
 
 const getConfigurationValueMock = vi.fn();
+const addEventListenerMock = vi.fn();
 
 beforeEach(() => {
   vi.resetAllMocks();
   (window as any).getConfigurationValue = getConfigurationValueMock;
   (window as any).matchMedia = vi.fn().mockReturnValue({
     matches: false,
-    addEventListener: vi.fn(),
+    addEventListener: addEventListenerMock,
     removeEventListener: vi.fn(),
   });
 });
@@ -112,4 +113,30 @@ test('Expect dark mode using dark configuration', async () => {
 
   // expect to have color-scheme: dark
   expect(getRootElement(container)).toHaveStyle('color-scheme: dark');
+});
+
+test('Expect event being changed when changing the default appearance on the operating system', async () => {
+  const spyDispatchEvent = vi.spyOn(window, 'dispatchEvent');
+
+  let userCallback: () => void = () => {};
+  addEventListenerMock.mockImplementation((event: string, callback: () => void) => {
+    if (event === 'change') {
+      userCallback = callback;
+    }
+  });
+
+  await awaitRender();
+
+  // check no dispatched event for now
+  expect(spyDispatchEvent).not.toHaveBeenCalled();
+
+  // call the callback on matchMedia
+  userCallback();
+
+  // check dispatched event
+  expect(spyDispatchEvent).toHaveBeenCalled();
+
+  // get details of the event
+  const event = spyDispatchEvent.mock.calls[0][0];
+  expect(event.type).toBe('appearance-changed');
 });
