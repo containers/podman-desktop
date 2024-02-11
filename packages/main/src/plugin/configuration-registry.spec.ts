@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -198,4 +198,75 @@ test('should work with an invalid configuration file', async () => {
     expect.stringContaining('settings.json'),
     expect.stringContaining('settings.json.backup'),
   );
+});
+
+test('addConfigurationEnum', async () => {
+  const enumNode: IConfigurationNode = {
+    id: 'my.enum.property',
+    title: 'Fake Enum Property',
+    type: 'object',
+    properties: {
+      ['my.fake.enum.property']: {
+        description: 'Autostart container engine when launching Podman Desktop',
+        type: 'string',
+        default: 'myDefault',
+        enum: ['myValue1', 'myValue2'],
+      },
+    },
+  };
+
+  configurationRegistry.registerConfigurations([enumNode]);
+
+  // now call the addConfigurationEnum
+  const disposable = configurationRegistry.addConfigurationEnum('my.fake.enum.property', ['myValue3'], 'myDefault');
+
+  const records = configurationRegistry.getConfigurationProperties();
+  const record = records['my.fake.enum.property'];
+  expect(record).toBeDefined();
+  expect(record.enum).toEqual(['myValue1', 'myValue2', 'myValue3']);
+
+  // now call the dispose
+  disposable.dispose();
+
+  // should be removed after disposable
+
+  const afterDisposeRecord = records['my.fake.enum.property'];
+  expect(afterDisposeRecord).toBeDefined();
+  expect(afterDisposeRecord.enum).toEqual(['myValue1', 'myValue2']);
+});
+
+test('addConfigurationEnum with a previous default value', async () => {
+  const enumNode: IConfigurationNode = {
+    id: 'my.enum.property',
+    title: 'Fake Enum Property',
+    type: 'object',
+    properties: {
+      ['my.fake.enum.property']: {
+        description: 'Autostart container engine when launching Podman Desktop',
+        type: 'string',
+        default: 'myDefault',
+        enum: ['myValue1', 'myValue2'],
+      },
+    },
+  };
+
+  configurationRegistry.registerConfigurations([enumNode]);
+
+  // now call the addConfigurationEnum
+  const disposable = configurationRegistry.addConfigurationEnum('my.fake.enum.property', ['myValue3'], 'myValue1');
+
+  // set value to myValue3
+  await configurationRegistry.updateConfigurationValue('my.fake.enum.property', 'myValue3');
+
+  const records = configurationRegistry.getConfigurationProperties();
+  const record = records['my.fake.enum.property'];
+  expect(record).toBeDefined();
+  expect(record.enum).toEqual(['myValue1', 'myValue2', 'myValue3']);
+
+  // now call the dispose
+  disposable.dispose();
+
+  // check default property is no longer 'myValue3' but it is defaulted to myValue1
+  const val = configurationRegistry.getConfiguration('my.fake')?.get<string>('enum.property');
+  expect(val).toEqual('myValue1');
 });
