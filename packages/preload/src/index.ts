@@ -1487,6 +1487,13 @@ function initExposure(): void {
   );
 
   contextBridge.exposeInMainWorld(
+    'sendFormDialogResponse',
+    async (formDialogId: number, result: string[]): Promise<void> => {
+      return ipcInvoke('showFormDialog:onOK', formDialogId, result);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
     'sendCustomPickItemsOnConfirmation',
     async (customPickId: number, selectedIndexes: number[]): Promise<void> => {
       return ipcInvoke('customPick:values', customPickId, selectedIndexes);

@@ -1512,6 +1512,10 @@ export class PluginSystem {
       },
     );
 
+    this.ipcHandle('showFormDialog:onOK', async (_listener, id: number, result: string[]): Promise<void> => {
+      return formDialog.onDidOK(id, result);
+    });
+
     this.ipcHandle('customPick:values', async (_listener, id: number, indexes: number[]): Promise<void> => {
       return customPickRegistry.onConfirmSelection(id, indexes);
     });

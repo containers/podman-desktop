@@ -464,6 +464,19 @@ declare module '@podman-desktop/api' {
     onDidUpdateDetectionChecks: Event<ProviderDetectionCheck[]>;
   }
 
+  export type FormDialogInputText = {
+    type: 'text';
+    title: string;
+  };
+
+  export type FormDialogInputSelect = {
+    type: 'select';
+    title: string;
+    options: string[];
+  };
+
+  export type FormDialogInput = FormDialogInputText | FormDialogInputSelect;
+
   export namespace commands {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     export function registerCommand(command: string, callback: (...args: any[]) => any, thisArg?: any): Disposable;
@@ -1513,7 +1526,32 @@ declare module '@podman-desktop/api' {
      */
     export function showErrorMessage(message: string, ...items: string[]): Promise<string | undefined>;
 
-    export function showFormDialog(title: string): Promise<void>;
+    /**
+     * Show a form dialog.
+     * @param title the title of the dialog
+     * @param inputs the list of input fields
+     * @return A promise that resolves to the values for each input field passed in `inputs``
+     *
+     * @example
+     * podmanDesktopApi.window.showFormDialog('a form dialog', [
+     *   {
+     *     type: 'text',
+     *     title: 'input 1',
+     *   },
+     *   {
+     *     type: 'select',
+     *     title: 'input 2',
+     *     options: ['option1', 'option2'],
+     *   },
+     *   {
+     *     type: 'text',
+     *     title: 'input 3',
+     *   },
+     * ]).then(result => {
+     *   console.log('==> result', result);
+     * }).catch((err: unknown) => console.error(err));
+     */
+    export function showFormDialog(title: string, inputs: FormDialogInput[]): Promise<string[]>;
 
     /**
      * Show progress in Podman Desktop. Progress is shown while running the given callback

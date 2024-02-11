@@ -808,8 +808,8 @@ export class ExtensionLoader {
       showErrorMessage: (message: string, ...items: string[]) => {
         return messageBox.showDialog('error', extManifest.displayName, message, items);
       },
-      showFormDialog: (title: string) => {
-        return formDialog.showDialog(title);
+      showFormDialog: (title: string, inputs: containerDesktopAPI.FormDialogInput[]) => {
+        return formDialog.showDialog(title, inputs);
       },
       showInputBox: (options?: containerDesktopAPI.InputBoxOptions, token?: containerDesktopAPI.CancellationToken) => {
         return inputQuickPickRegistry.showInputBox(options, token);

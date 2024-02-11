@@ -15,40 +15,36 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+import type { FormDialogInput } from '@podman-desktop/api';
 import { Deferred } from './util/deferred.js';
 
 export interface FormDialogOptions {
-  /**
-   * The title of the form dialog.
-   */
   title: string;
-}
-
-export interface FormDialogReturnValue {
-  response: number | undefined;
+  inputs: FormDialogInput[];
 }
 
 export class FormDialog {
   private callbackId = 0;
 
-  private callbacksMessageBox = new Map<number, Deferred<FormDialogReturnValue>>();
+  private callbacks = new Map<number, Deferred<string[]>>();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(private apiSender: any) {}
 
-  async showFormDialog(options: FormDialogOptions): Promise<FormDialogReturnValue> {
+  async showFormDialog(options: FormDialogOptions): Promise<string[]> {
     // keep track of this request
     this.callbackId++;
 
     // create a promise that will be resolved when the frontend sends the result
-    const deferred = new Deferred<FormDialogReturnValue>();
+    const deferred = new Deferred<string[]>();
 
     // store the callback that will resolve the promise
-    this.callbacksMessageBox.set(this.callbackId, deferred);
+    this.callbacks.set(this.callbackId, deferred);
 
     const data = {
       id: this.callbackId,
       title: options.title,
+      inputs: options.inputs,
     };
 
     // need to send the options to the frontend
@@ -58,30 +54,24 @@ export class FormDialog {
     return deferred.promise;
   }
 
-  async showDialog(title: string): Promise<void> {
-    await this.showFormDialog({
-      title: title,
+  async showDialog(title: string, inputs: FormDialogInput[]): Promise<string[]> {
+    return await this.showFormDialog({
+      title,
+      inputs,
     });
-
-    return undefined;
   }
 
   // this method is called by the frontend when the user selected a button
-  //  async onDidSelectButton(id: number, selectedIndex: number | undefined) {
-  //    // get the callback
-  //    const callback = this.callbacksMessageBox.get(id);
-  //
-  //    // if there is a callback
-  //    if (callback) {
-  //      // grab item
-  //      const val: FormDialogReturnValue = {
-  //        response: selectedIndex,
-  //      };
-  //      // resolve the promise
-  //      callback.resolve(val);
-  //    }
-  //
-  //    // remove the callback
-  //    this.callbacksMessageBox.delete(id);
-  //  }
+  async onDidOK(id: number, result: string[]) {
+    // get the callback
+    const callback = this.callbacks.get(id);
+    // if there is a callback
+    if (callback) {
+      // grab item
+      // resolve the promise
+      callback.resolve(result);
+    }
+    // remove the callback
+    this.callbacks.delete(id);
+  }
 }

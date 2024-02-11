@@ -16,7 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { FormDialogInput } from '@podman-desktop/api';
+
 export interface FormDialogOptions {
   id: number;
   title: string;
+  inputs: FormDialogInput[];
 }
