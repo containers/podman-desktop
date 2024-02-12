@@ -1,6 +1,6 @@
 ---
 sidebar_position: 5
-title: Working with your Kind cluster
+title: Working with a cluster
 description: Working with your local Kind-powered Kubernetes cluster.
 keywords: [podman desktop, podman, containers, migrating, kubernetes, kind]
 tags: [migrating-to-kubernetes, kind]

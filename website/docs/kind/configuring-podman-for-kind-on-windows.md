@@ -1,6 +1,6 @@
 ---
 sidebar_position: 3
-title: Configuring Podman for Kind
+title: Configuring Podman
 description: Configuring Podman for Kind on Windows Subsystem for Linux (WSL).
 keywords: [podman desktop, podman, containers, migrating, kubernetes, kind]
 tags: [migrating-to-kubernetes, kind]
