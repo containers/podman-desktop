@@ -3396,11 +3396,6 @@
   dependencies:
     "@types/node" "*"
 
-"@types/analytics-node@^3.1.14":
-  version "3.1.14"
-  resolved "https://registry.yarnpkg.com/@types/analytics-node/-/analytics-node-3.1.14.tgz#aa4be9cddbb2b7901e67418fcaf155a599c1ffea"
-  integrity sha512-m7+SReJIPwwS0eqnJ+5WwdR4U5aU0WhVUYuQ/n177iPpyXObPy/wP7HU7mohyNeRqxGsTO8mIUYC3MRGkyxhwQ==
-
 "@types/aria-query@^5.0.1":
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/@types/aria-query/-/aria-query-5.0.1.tgz#3286741fb8f1e1580ac28784add4c7a1d49bdfbc"
