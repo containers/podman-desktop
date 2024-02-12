@@ -236,9 +236,10 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
     <!-- Registries table start -->
     <div class="w-full border-t border-b border-gray-900" role="table" aria-label="Registries">
       <div class="flex w-full space-x-2" role="rowgroup" aria-label="header">
-        <div class="flex-1 text-left py-4 pl-5 text-sm font-bold w-auto" role="columnheader">Registry Location</div>
-        <div class="text-left py-4 text-sm font-bold w-1/4" role="columnheader">Username</div>
-        <div class="text-left py-4 text-sm font-bold w-2/5" role="columnheader">Password</div>
+        <div class="text-left py-4 text-sm font-bold w-2/5 pl-5" role="columnheader">Registry Location</div>
+        <div class="text-left py-4 text-sm font-bold w-1/5" role="columnheader">Username</div>
+        <div class="text-left py-4 text-sm font-bold w-1/5" role="columnheader">Password</div>
+        <div class="text-left py-4 text-sm font-bold w-1/5" role="columnheader"></div>
       </div>
 
       {#each $registriesInfos as registry}
@@ -248,7 +249,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
           role="row"
           aria-label="{registry.name ? registry.name : registry.serverUrl}">
           <div class="flex flex-row items-center pt-4 pb-3 space-x-2">
-            <div class="flex-1 pl-5 pr-5 text-sm w-auto m-auto" role="cell">
+            <div class="pl-5 text-sm w-2/5" role="cell">
               <div class="flex w-full h-full">
                 <div class="flex items-center">
                   <!-- Only show if a "suggested" registry icon has been added -->
@@ -273,11 +274,9 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
             </div>
 
             <!-- Username -->
-            <div class="text-sm w-1/4 m-auto text-ellipsis overflow-hidden max-x-32" role="cell">
+            <div class="text-sm w-1/5 text-ellipsis overflow-hidden" role="cell">
               {#if originRegistries.some(r => r.serverUrl === registry.serverUrl)}
-                <div class="text-left h-7 pr-5 mt-1.5 mb-0.5 text-sm w-full">
-                  <Input placeholder="Username" aria-label="Username" bind:value="{registry.username}" />
-                </div>
+                <Input placeholder="Username" aria-label="Username" bind:value="{registry.username}" />
               {:else if !registry.username && !registry.secret}
                 <Button on:click="{() => markRegistryAsModified(registry)}">Login now</Button>
               {:else}
@@ -286,94 +285,91 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
             </div>
 
             <!-- Password -->
-            <div class="text-sm w-2/5" role="cell">
-              <div class="flex flex-row">
-                {#if originRegistries.some(r => r.serverUrl === registry.serverUrl)}
-                  <div class="flex text-left h-7 pr-5 text-sm w-full">
-                    <PasswordInput
-                      id="r.serverUrl"
-                      bind:password="{registry.secret}"
-                      on:action="{() =>
-                        setPasswordForRegistryVisible(
-                          registry,
-                          !showPasswordForServerUrls.some(r => r === registry.serverUrl),
-                        )}" />
-                  </div>
-                  <div class="h-7 text-sm">
-                    <Button on:click="{() => loginToRegistry(registry)}" inProgress="{loggingIn}">Login</Button>
-                  </div>
-                  <div class="h-7 text-sm">
-                    <Button on:click="{() => markRegistryAsClean(registry)}" type="link">Cancel</Button>
-                  </div>
-                {:else}
-                  <!-- Password field start -->
-                  <div class="container mx-auto w-full self-center items-center truncate">
-                    {#if !registry.username && !registry.secret}
-                      <span class="no-user-select">&nbsp;</span>
-                    {:else if showPasswordForServerUrls.some(r => r === registry.serverUrl)}
-                      {registry.secret}
-                    {:else}
-                      ····················
-                    {/if}
-                  </div>
-                  <!-- Password field end -->
-                  <!-- Show/hide password start -->
-                  <div class="self-center w-8">
-                    {#if registry.username && registry.secret}
-                      {#if showPasswordForServerUrls.some(r => r === registry.serverUrl)}
-                        <button
-                          type="button"
-                          class="inline-flex w-full justify-center text-sm shadow-sm"
-                          id="hide-password"
-                          title="Hide password"
-                          aria-expanded="true"
-                          aria-haspopup="true"
-                          on:click="{() => setPasswordForRegistryVisible(registry, false)}">
-                          <i class="fa fa-eye-slash"></i>
-                        </button>
-                      {:else}
-                        <button
-                          type="button"
-                          class="inline-flex w-full justify-center text-sm shadow-sm"
-                          id="show-password"
-                          title="Show password"
-                          aria-expanded="true"
-                          aria-haspopup="true"
-                          on:click="{() => setPasswordForRegistryVisible(registry, true)}">
-                          <i class="fa fa-eye"></i>
-                        </button>
-                      {/if}
-                    {/if}
-                  </div>
-                  <!-- Show/hide password end -->
-                  <!-- containerDesktopAPI.Registry menu start -->
-                  <DropdownMenu>
-                    <DropdownMenuItem
-                      title="Login"
-                      onClick="{() => markRegistryAsModified(registry)}"
-                      hidden="{!!registry.username && !!registry.secret}"
-                      icon="{faUser}" />
-                    <DropdownMenuItem
-                      title="Edit password"
-                      onClick="{() => markRegistryAsModified(registry)}"
-                      hidden="{!registry.username && !registry.secret}"
-                      icon="{faUserPen}" />
-                    <DropdownMenuItem
-                      title="Remove"
-                      onClick="{() => removeExistingRegistry(registry)}"
-                      icon="{faTrash}" />
-                  </DropdownMenu>
-                {/if}
+            {#if originRegistries.some(r => r.serverUrl === registry.serverUrl)}
+              <div class="text-sm w-1/5" role="cell">
+                <PasswordInput
+                  id="r.serverUrl"
+                  bind:password="{registry.secret}"
+                  on:action="{() =>
+                    setPasswordForRegistryVisible(
+                      registry,
+                      !showPasswordForServerUrls.some(r => r === registry.serverUrl),
+                    )}" />
               </div>
-            </div>
+              <div class="text-sm w-1/5" role="cell">
+                <Button on:click="{() => loginToRegistry(registry)}" inProgress="{loggingIn}">Login</Button>
+                <Button on:click="{() => markRegistryAsClean(registry)}" type="link">Cancel</Button>
+              </div>
+            {:else}
+              <div class="text-sm w-1/5" role="cell">
+                <!-- Password field start -->
+                <div class="container mx-auto w-full self-center items-center truncate">
+                  {#if !registry.username && !registry.secret}
+                    <span class="no-user-select">&nbsp;</span>
+                  {:else if showPasswordForServerUrls.some(r => r === registry.serverUrl)}
+                    {registry.secret}
+                  {:else}
+                    ····················
+                  {/if}
+                </div>
+                <!-- Password field end -->
+              </div>
+              <div class="text-sm w-1/5 flex flex-row space-x-2" role="cell">
+                <!-- Show/hide password start -->
+                {#if registry.username && registry.secret}
+                  {#if showPasswordForServerUrls.some(r => r === registry.serverUrl)}
+                    <button
+                      type="button"
+                      class="justify-center text-sm shadow-sm"
+                      id="hide-password"
+                      title="Hide password"
+                      aria-expanded="true"
+                      aria-haspopup="true"
+                      on:click="{() => setPasswordForRegistryVisible(registry, false)}">
+                      <i class="fa fa-eye-slash"></i>
+                    </button>
+                  {:else}
+                    <button
+                      type="button"
+                      class="justify-center text-sm shadow-sm"
+                      id="show-password"
+                      title="Show password"
+                      aria-expanded="true"
+                      aria-haspopup="true"
+                      on:click="{() => setPasswordForRegistryVisible(registry, true)}">
+                      <i class="fa fa-eye"></i>
+                    </button>
+                  {/if}
+                {/if}
+
+                <!-- Show/hide password end -->
+                <!-- containerDesktopAPI.Registry menu start -->
+                <DropdownMenu>
+                  <DropdownMenuItem
+                    title="Login"
+                    onClick="{() => markRegistryAsModified(registry)}"
+                    hidden="{!!registry.username && !!registry.secret}"
+                    icon="{faUser}" />
+                  <DropdownMenuItem
+                    title="Edit password"
+                    onClick="{() => markRegistryAsModified(registry)}"
+                    hidden="{!registry.username && !registry.secret}"
+                    icon="{faUserPen}" />
+                  <DropdownMenuItem
+                    title="Remove"
+                    onClick="{() => removeExistingRegistry(registry)}"
+                    icon="{faTrash}" />
+                </DropdownMenu>
+              </div>
+            {/if}
           </div>
-          <div class="flex flex-row-reverse w-full pb-3 -mt-2">
-            <span class="w-2/3 pl-4 text-sm font-bold">
-              {#if originRegistries.some(r => r.serverUrl === registry.serverUrl)}
-                {errorResponses.find(o => o.serverUrl === registry.serverUrl)?.error || ''}
-              {/if}
-            </span>
-          </div>
+        </div>
+        <div class="flex flex-row-reverse w-full pb-3 -mt-2">
+          <span class="w-2/3 pl-4 text-sm font-bold">
+            {#if originRegistries.some(r => r.serverUrl === registry.serverUrl)}
+              {errorResponses.find(o => o.serverUrl === registry.serverUrl)?.error || ''}
+            {/if}
+          </span>
         </div>
         <!-- containerDesktopAPI.Registry row end -->
       {/each}
@@ -381,11 +377,11 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
       {#each $registriesSuggestedInfos as registry, i (registry)}
         <!-- Add new registry form start -->
         <div
-          class="flex flex-col w-full border-t border-gray-900 space-x-2"
+          class="flex flex-col w-full border-t border-gray-900"
           role="row"
           aria-label="{registry.name ? registry.name : registry.url}">
-          <div class="flex flex-row items-center pt-4 pb-3">
-            <div class="flex-1 pl-5 pr-5 text-sm w-auto m-auto" role="cell">
+          <div class="flex flex-row items-center pt-4 pb-3 space-x-2">
+            <div class="pl-5 text-sm w-2/5" role="cell">
               <div class="flex w-full h-full">
                 <div class="flex items-center">
                   {#if registry.icon}
@@ -406,48 +402,40 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
                 </div>
               </div>
             </div>
-            <div class="flex pr-5 text-sm w-1/4" role="cell">
+            <div class="text-sm w-1/5" role="cell">
               {#if listedSuggestedRegistries[i]}
                 <Input placeholder="Username" aria-label="Username" bind:value="{newRegistryRequest.username}" />
               {/if}
             </div>
-            <div class="text-sm w-2/5" role="cell">
-              <div class="flex flex-row items-center">
-                <div class="relative flex-1 mr-5">
-                  {#if listedSuggestedRegistries[i]}
-                    <PasswordInput
-                      id="r.serverUrl"
-                      bind:password="{newRegistryRequest.secret}"
-                      on:action="{() =>
-                        setPasswordForRegistryVisible(
-                          newRegistryRequest,
-                          !showPasswordForServerUrls.some(r => r === ''),
-                        )}" />
-                  {/if}
-                </div>
+            <div class="text-sm w-1/5" role="cell">
+              {#if listedSuggestedRegistries[i]}
+                <PasswordInput
+                  id="r.serverUrl"
+                  bind:password="{newRegistryRequest.secret}"
+                  on:action="{() =>
+                    setPasswordForRegistryVisible(
+                      newRegistryRequest,
+                      !showPasswordForServerUrls.some(r => r === ''),
+                    )}" />
+              {/if}
+            </div>
+            <div class="text-sm w-1/5" role="cell">
+              {#if listedSuggestedRegistries[i]}
+                <Button
+                  on:click="{() => loginToRegistry(newRegistryRequest)}"
+                  disabled="{!newRegistryRequest.serverUrl ||
+                    !newRegistryRequest.username ||
+                    !newRegistryRequest.secret}"
+                  inProgress="{loggingIn}">
+                  Login
+                </Button>
+              {/if}
 
-                <div class="flex text-sm">
-                  {#if listedSuggestedRegistries[i]}
-                    <Button
-                      on:click="{() => loginToRegistry(newRegistryRequest)}"
-                      disabled="{!newRegistryRequest.serverUrl ||
-                        !newRegistryRequest.username ||
-                        !newRegistryRequest.secret}"
-                      inProgress="{loggingIn}">
-                      Login
-                    </Button>
-                  {/if}
-                </div>
-                <div class="flex text-sm">
-                  <div class="h-7 pr-5 text-sm">
-                    {#if listedSuggestedRegistries[i]}
-                      <Button on:click="{() => hideSuggestedRegistries()}" type="link">Cancel</Button>
-                    {:else}
-                      <Button on:click="{() => setNewSuggestedRegistryFormVisible(i, registry)}">Configure</Button>
-                    {/if}
-                  </div>
-                </div>
-              </div>
+              {#if listedSuggestedRegistries[i]}
+                <Button on:click="{() => hideSuggestedRegistries()}" type="link">Cancel</Button>
+              {:else}
+                <Button on:click="{() => setNewSuggestedRegistryFormVisible(i, registry)}">Configure</Button>
+              {/if}
             </div>
           </div>
           <div class="flex flex-row w-full pb-3 -mt-2 pl-10">
@@ -463,42 +451,32 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
 
       {#if showNewRegistryForm}
         <!-- Add new registry form start -->
-        <div class="flex flex-col w-full border-t border-gray-900 space-x-2">
-          <div class="flex flex-row items-center pt-4 pb-3">
-            <div class="flex-1 pl-10 pr-5 text-sm w-auto m-auto">
+        <div class="flex flex-col w-full border-t border-gray-900">
+          <div class="flex flex-row items-center pt-4 pb-3 space-x-2">
+            <div class="pl-5 text-sm w-2/5">
               <Input
                 placeholder="URL (HTTPS only)"
                 aria-label="Register URL"
                 bind:value="{newRegistryRequest.serverUrl}" />
             </div>
-            <div class="flex pr-5 text-sm w-1/4">
+            <div class="text-sm w-1/5">
               <Input placeholder="Username" aria-label="Username" bind:value="{newRegistryRequest.username}" />
             </div>
-            <div class="text-sm w-2/5">
-              <div class="flex flex-row">
-                <PasswordInput
-                  id="newRegistryRequest"
-                  bind:password="{newRegistryRequest.secret}"
-                  on:action="{() =>
-                    setPasswordForRegistryVisible(
-                      newRegistryRequest,
-                      !showPasswordForServerUrls.some(r => r === ''),
-                    )}" />
-
-                <div class="flex text-sm">
-                  <Button
-                    on:click="{() => loginToRegistry(newRegistryRequest)}"
-                    disabled="{!newRegistryRequest.serverUrl ||
-                      !newRegistryRequest.username ||
-                      !newRegistryRequest.secret}"
-                    inProgress="{loggingIn}">
-                    Login
-                  </Button>
-                </div>
-                <div class="flex text-sm">
-                  <Button on:click="{() => setNewRegistryFormVisible(false)}" type="link">Cancel</Button>
-                </div>
-              </div>
+            <div class="text-sm w-1/5">
+              <PasswordInput
+                id="newRegistryRequest"
+                bind:password="{newRegistryRequest.secret}"
+                on:action="{() =>
+                  setPasswordForRegistryVisible(newRegistryRequest, !showPasswordForServerUrls.some(r => r === ''))}" />
+            </div>
+            <div class="text-sm w-1/5" role="cell">
+              <Button
+                on:click="{() => loginToRegistry(newRegistryRequest)}"
+                disabled="{!newRegistryRequest.serverUrl || !newRegistryRequest.username || !newRegistryRequest.secret}"
+                inProgress="{loggingIn}">
+                Login
+              </Button>
+              <Button on:click="{() => setNewRegistryFormVisible(false)}" type="link">Cancel</Button>
             </div>
           </div>
           <div class="flex flex-row w-full pb-3 -mt-2 pl-10">
