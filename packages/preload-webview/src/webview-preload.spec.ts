@@ -24,6 +24,7 @@ import { WebviewPreload } from './webview-preload';
 import type { WebviewInfo } from '../../main/src/plugin/api/webview-info';
 import type { IpcRendererEvent } from 'electron';
 import { ipcRenderer, contextBridge } from 'electron';
+import type { ColorInfo } from '../../main/src/plugin/api/color-info';
 
 let webviewPreload: TestWebwiewPreload;
 
@@ -45,6 +46,12 @@ class TestWebwiewPreload extends WebviewPreload {
   }
   postWebviewMessage(message: unknown) {
     super.postWebviewMessage(message);
+  }
+  async getTheme(): Promise<string> {
+    return super.getTheme();
+  }
+  async getColors(themeId: string): Promise<ColorInfo[]> {
+    return super.getColors(themeId);
   }
 }
 
@@ -88,7 +95,11 @@ beforeEach(() => {
   webviewPreload = new TestWebwiewPreload('123');
   // mock the window object
   (window as any).addEventListener = vi.fn();
-
+  (window as any).matchMedia = vi.fn().mockReturnValue({
+    matches: false,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  });
   // override the getWebviews method
   const spyGetWebviews = vi.spyOn(webviewPreload, 'getWebviews');
   spyGetWebviews.mockResolvedValue([webviewInfo]);
@@ -152,6 +163,14 @@ test('check changeContent', async () => {
   // spy document.write method
   const spyDocumentWrite = vi.spyOn(document, 'write');
 
+  // spy getTheme method
+  const spyGetTheme = vi.spyOn(webviewPreload, 'getTheme');
+  spyGetTheme.mockResolvedValue('light');
+
+  // spy getColors method
+  const spyGetColors = vi.spyOn(webviewPreload, 'getColors');
+  spyGetColors.mockResolvedValue([{ id: 'my-color', value: 'test', cssVar: '--pd-my-color' }]);
+
   // override window.addEventListener to keep the callback
   const spyAddEventListener = vi.spyOn(window, 'addEventListener');
 
@@ -175,6 +194,16 @@ test('check changeContent', async () => {
   // check the document.write method has been called
   expect(spyDocumentWrite).toHaveBeenCalledWith(`<!DOCTYPE html>
 <html><head></head><body>hello world</body></html>`);
+
+  // check getTheme has been called
+  expect(spyGetTheme).toHaveBeenCalled();
+
+  // check getColors has been called
+  expect(spyGetColors).toHaveBeenCalledWith('light');
+
+  // check the createCssForColors method has been called and contains the expected css
+  expect(document.head.innerHTML).toContain('<style type="text/css"');
+  expect(document.head.textContent).toContain('--pd-my-color: test;');
 });
 
 test('check buildApi', async () => {
