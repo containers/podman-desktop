@@ -1,6 +1,6 @@
 ---
 sidebar_position: 2
-title: Installing the `minikube` CLI
+title: Installing the CLI
 description: Minikube is one way to get Kubernetes running on your workstation.
 keywords: [podman desktop, podman, containers, migrating, kubernetes, minikube]
 tags: [migrating-to-kubernetes, minikube]
