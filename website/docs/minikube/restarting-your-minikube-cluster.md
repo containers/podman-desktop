@@ -1,6 +1,6 @@
 ---
 sidebar_position: 6
-title: Restarting your Minikube cluster
+title: Restarting a cluster
 description: Restarting your local Minikube-powered Kubernetes cluster.
 keywords: [podman desktop, podman, containers, migrating, kubernetes, minikube]
 tags: [migrating-to-kubernetes, minikube]

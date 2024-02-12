@@ -1,5 +1,7 @@
 ---
 sidebar_position: 100
+title: Podman on OpenShift
+description: How to investigate when Podman does not work as expected.
 ---
 
 # Troubleshooting OpenShift Local

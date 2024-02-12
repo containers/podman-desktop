@@ -1,6 +1,6 @@
 ---
 sidebar_position: 10
-title: Troubleshooting Podman
+title: Podman
 description: How to investigate when Podman does not work as expected.
 ---
 
