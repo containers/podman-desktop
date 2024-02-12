@@ -21,7 +21,6 @@ export let dropdownMenu = false;
 export let detailed = false;
 export let groupContributions = false;
 
-let isAuthenticatedForThisImage = false;
 const imageUtils = new ImageUtils();
 
 let contributions: Menu[] = [];
@@ -58,8 +57,6 @@ async function runImage(imageInfo: ImageInfoUI) {
   runImageInfo.set(imageInfo);
   router.goto('/images/run/basic');
 }
-
-$: window.hasAuthconfigForImage(image.name).then(result => (isAuthenticatedForThisImage = result));
 
 async function deleteImage(): Promise<void> {
   image.status = 'DELETING';
@@ -109,14 +106,12 @@ function onError(error: string): void {
   onBeforeToggle="{() => {
     globalContext?.setValue('selectedImageId', image.id);
   }}">
-  {#if isAuthenticatedForThisImage}
-    <ListItemButtonIcon
-      title="Push Image"
-      onClick="{() => pushImage(image)}"
-      menu="{dropdownMenu}"
-      detailed="{detailed}"
-      icon="{faArrowUp}" />
-  {/if}
+  <ListItemButtonIcon
+    title="Push Image"
+    onClick="{() => pushImage(image)}"
+    menu="{dropdownMenu}"
+    detailed="{detailed}"
+    icon="{faArrowUp}" />
 
   <ListItemButtonIcon
     title="Edit Image"
