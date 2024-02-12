@@ -61,6 +61,7 @@ import { app } from 'electron';
 import type { WebviewInfo } from './api/webview-info.js';
 import { getBase64Image } from '../util.js';
 import { Disposable } from './types/disposable.js';
+import type { ColorRegistry } from './color-registry.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -174,7 +175,9 @@ const directories = {
 
 const exec = new Exec(proxy);
 
-const notificationRegistry: NotificationRegistry = {} as unknown as NotificationRegistry;
+const notificationRegistry: NotificationRegistry = {
+  registerExtension: vi.fn(),
+} as unknown as NotificationRegistry;
 
 const imageCheckerImpl: ImageCheckerImpl = {
   registerImageCheckerProvider: vi.fn(),
@@ -195,6 +198,10 @@ const navigationManager: NavigationManager = new NavigationManager(
   contributionManager,
   webviewRegistry,
 );
+
+const colorRegistry = {
+  registerExtensionThemes: vi.fn(),
+} as unknown as ColorRegistry;
 
 vi.mock('electron', () => {
   return {
@@ -243,6 +250,7 @@ beforeAll(() => {
     imageCheckerImpl,
     navigationManager,
     webviewRegistry,
+    colorRegistry,
   );
 });
 
@@ -1568,4 +1576,31 @@ test('registerImageCheckerProvider ', async () => {
     provider,
     { label: 'dummyLabel' },
   );
+});
+
+test('loadExtension with themes', async () => {
+  const manifest = {
+    name: 'hello',
+    contributes: {
+      themes: [
+        {
+          id: 'custom-dark',
+          name: 'Custom dark theme',
+          parent: 'dark',
+          colors: {
+            TitlebarBg: 'red',
+          },
+        },
+      ],
+    },
+  };
+
+  const fakeExtension = {
+    manifest,
+    subscriptions: [],
+  } as unknown as AnalyzedExtension;
+
+  await extensionLoader.loadExtension(fakeExtension);
+
+  expect(colorRegistry.registerExtensionThemes).toBeCalledWith(fakeExtension, manifest.contributes.themes);
 });

@@ -74,6 +74,7 @@ import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 import type { ImageInspectInfo } from '/@/plugin/api/image-inspect-info.js';
 import type { PodInfo } from './api/pod-info.js';
+import type { ColorRegistry } from '/@/plugin/color-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -171,6 +172,7 @@ export class ExtensionLoader {
     private imageCheckerProvider: ImageCheckerImpl,
     private navigationManager: NavigationManager,
     private webviewRegistry: WebviewRegistry,
+    private colorRegistry: ColorRegistry,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -591,6 +593,12 @@ export class ExtensionLoader {
     const icons = extension.manifest?.contributes?.icons;
     if (icons) {
       this.iconRegistry.registerIconContribution(extension, icons);
+    }
+
+    const themes = extension.manifest?.contributes?.themes;
+    if (themes) {
+      const disposable = this.colorRegistry.registerExtensionThemes(extension, themes);
+      extension.subscriptions.push(disposable);
     }
 
     const views = extension.manifest?.contributes?.views;

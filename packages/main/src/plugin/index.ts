@@ -789,6 +789,7 @@ export class PluginSystem {
       imageChecker,
       navigationManager,
       webviewRegistry,
+      colorRegistry,
     );
     await this.extensionLoader.init();
 
