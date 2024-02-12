@@ -22,4 +22,6 @@ async function deleteDeployment(): Promise<void> {
   confirm="{true}"
   onClick="{() => deleteDeployment()}"
   detailed="{detailed}"
+  enabled="{deployment.status !== 'DELETING'}"
+  inProgress="{deployment.status === 'DELETING'}"
   icon="{faTrash}" />

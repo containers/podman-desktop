@@ -192,3 +192,30 @@ test('Expect kubernetes routes kebab menu to be displayed', async () => {
   const routesDropDownMenu = await screen.findByTitle('Drop Down Menu Items');
   expect(routesDropDownMenu).toBeVisible();
 });
+
+test('Expect buttons to be disabled when deleting', async () => {
+  const pod: PodInfoUI = {
+    id: 'pod',
+    name: 'name',
+    containers: [{ Id: 'pod' }],
+    status: 'DELETING',
+    kind: 'podman',
+  } as PodInfoUI;
+
+  render(PodActions, { pod: pod });
+
+  const startPodButton = screen.getByRole('button', { name: 'Start Pod' });
+  expect(startPodButton).toBeDisabled();
+
+  const stopPodButton = screen.getByRole('button', { name: 'Stop Pod' });
+  expect(stopPodButton).toBeDisabled();
+
+  const deletePodButton = screen.getByRole('button', { name: 'Delete Pod' });
+  expect(deletePodButton).toBeDisabled();
+
+  const generateKubeButton = screen.getByRole('button', { name: 'Generate Kube' });
+  expect(generateKubeButton).toBeDisabled();
+
+  const deployKubeButton = screen.getByRole('button', { name: 'Deploy to Kubernetes' });
+  expect(deployKubeButton).toBeDisabled();
+});

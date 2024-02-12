@@ -64,3 +64,11 @@ test('Expect no error and status deleting deployment', async () => {
   expect(updateMock).toHaveBeenCalled();
   expect(deleteMock).toHaveBeenCalled();
 });
+
+test('Expect buttons to be disabled when deleting', async () => {
+  render(DeploymentActions, { deployment });
+  deployment.status = 'DELETING';
+
+  const deleteButton = screen.getByRole('button', { name: 'Delete Deployment' });
+  expect(deleteButton).toBeDisabled();
+});

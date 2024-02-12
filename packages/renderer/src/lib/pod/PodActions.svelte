@@ -165,6 +165,7 @@ if (dropdownMenu) {
     hidden="{pod.status === 'RUNNING' || pod.status === 'STOPPING'}"
     detailed="{detailed}"
     inProgress="{pod.actionInProgress && pod.status === 'STARTING'}"
+    enabled="{pod.status !== 'STARTING' && pod.status !== 'DELETING'}"
     icon="{faPlay}"
     iconOffset="pl-[0.15rem]" />
   <ListItemButtonIcon
@@ -173,6 +174,7 @@ if (dropdownMenu) {
     hidden="{!(pod.status === 'RUNNING' || pod.status === 'STOPPING')}"
     detailed="{detailed}"
     inProgress="{pod.actionInProgress && pod.status === 'STOPPING'}"
+    enabled="{pod.status !== 'STOPPING' && pod.status !== 'DELETING'}"
     icon="{faStop}" />
 {/if}
 <ListItemButtonIcon
@@ -181,7 +183,8 @@ if (dropdownMenu) {
   confirm="{true}"
   icon="{faTrash}"
   detailed="{detailed}"
-  inProgress="{pod.actionInProgress && pod.status === 'DELETING'}" />
+  inProgress="{pod.actionInProgress && pod.status === 'DELETING'}"
+  enabled="{pod.status !== 'DELETING'}" />
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
 <svelte:component this="{actionsStyle}">
@@ -192,6 +195,7 @@ if (dropdownMenu) {
         onClick="{() => openGenerateKube()}"
         menu="{dropdownMenu}"
         detailed="{detailed}"
+        enabled="{pod.status !== 'DELETING'}"
         icon="{faFileCode}" />
     {/if}
     <ListItemButtonIcon
@@ -199,6 +203,7 @@ if (dropdownMenu) {
       onClick="{() => deployToKubernetes()}"
       menu="{dropdownMenu}"
       detailed="{detailed}"
+      enabled="{pod.status !== 'DELETING'}"
       icon="{faRocket}" />
     {#if openingUrls.length === 0}
       <ListItemButtonIcon
@@ -274,6 +279,7 @@ if (dropdownMenu) {
     onClick="{() => restartPod()}"
     menu="{dropdownMenu}"
     detailed="{detailed}"
+    enabled="{pod.status !== 'DELETING'}"
     icon="{faArrowsRotate}" />
   <ContributionActions
     args="{[pod]}"

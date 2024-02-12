@@ -154,3 +154,28 @@ test('Expect no dropdown when several contributions and dropdownMenu mode on', a
     expect(button.lastChild?.textContent).toBe('dummy-contrib');
   });
 });
+
+test('Expect buttons to be disabled when deleting', async () => {
+  const image: ImageInfoUI = {
+    name: 'dummy',
+    status: 'DELETING',
+  } as ImageInfoUI;
+
+  render(ImageActions, {
+    onPushImage: vi.fn(),
+    onRenameImage: vi.fn(),
+    image,
+  });
+
+  const runImagesButton = screen.getByRole('button', { name: 'Run Image' });
+  expect(runImagesButton).toBeDisabled();
+
+  const deleteButton = screen.getByRole('button', { name: 'Delete Image' });
+  expect(deleteButton).toBeDisabled();
+
+  const editImageButton = screen.getByRole('button', { name: 'Edit Image' });
+  expect(editImageButton).toBeDisabled();
+
+  const showHistoryButton = screen.getByRole('button', { name: 'Show History' });
+  expect(showHistoryButton).toBeDisabled();
+});

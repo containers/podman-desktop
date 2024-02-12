@@ -53,3 +53,31 @@ test('Expect prompt dialog and deletion', async () => {
   expect(volume.status).toBe('DELETING');
   expect(removeVolumeMock).toHaveBeenCalled();
 });
+
+test('Expect buttons to be disabled when deleting', async () => {
+  const volume: VolumeInfoUI = {
+    name: 'dummy',
+    status: 'DELETING',
+  } as VolumeInfoUI;
+
+  render(VolumeActions, {
+    volume,
+  });
+
+  const button = screen.getByTitle('Delete Volume');
+  expect(button).toBeDisabled();
+});
+
+test('Expect delete to be disabled when volume is being used', async () => {
+  const volume: VolumeInfoUI = {
+    name: 'dummy',
+    status: 'USED',
+  } as VolumeInfoUI;
+
+  render(VolumeActions, {
+    volume,
+  });
+
+  const button = screen.getByTitle('Delete Volume');
+  expect(button).toBeDisabled();
+});

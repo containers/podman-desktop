@@ -100,3 +100,26 @@ test('Expect no error and status deleting container', async () => {
   expect(container.actionError).toEqual('');
   expect(updateMock).toHaveBeenCalled();
 });
+
+test('Expect buttons to be disabled when deleting', async () => {
+  render(ContainerActions, { container });
+  container.state = 'DELETING';
+
+  const deleteButton = screen.getByRole('button', { name: 'Delete Container' });
+  expect(deleteButton).toBeDisabled();
+
+  const startButton = screen.getByRole('button', { name: 'Start Container' });
+  expect(startButton).toBeDisabled();
+
+  const stopButton = screen.getByRole('button', { name: 'Stop Container' });
+  expect(stopButton).toBeDisabled();
+
+  const generateKubeButton = screen.getByRole('button', { name: 'Generate Kube' });
+  expect(generateKubeButton).toBeDisabled();
+
+  const deployToKubeButton = screen.getByRole('button', { name: 'Deploy to Kubernetes' });
+  expect(deployToKubeButton).toBeDisabled();
+
+  const restartContainerButton = screen.getByRole('button', { name: 'Restart Container' });
+  expect(restartContainerButton).toBeDisabled();
+});
