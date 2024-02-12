@@ -1,5 +1,7 @@
 ---
 sidebar_position: 120
+title: Troubleshooting
+description: How to investigate when it does not work as expected.
 ---
 
 # Troubleshooting
