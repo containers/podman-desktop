@@ -64,7 +64,7 @@ function validate(event: any) {
     <!-- if proxy is not enabled, display a toggle -->
 
     <label for="toggle-proxy" class="inline-flex relative items-center mt-1 mb-4 cursor-pointer">
-      <Input
+      <input
         type="checkbox"
         bind:checked="{proxyState}"
         on:change="{() => updateProxyState()}"
@@ -111,8 +111,7 @@ function validate(event: any) {
       <div class="space-y-2">
         <label for="httpProxy" class="pt-4 mb-2 text-sm font-medium {proxyState ? 'text-gray-400' : 'text-gray-900'}"
           >Bypass proxy settings for these hosts and domains:</label>
-        <input
-          <Input
+        <Input
           name="noProxy"
           id="noProxy"
           disabled="{!proxyState}"
