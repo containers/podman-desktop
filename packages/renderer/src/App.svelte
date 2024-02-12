@@ -50,6 +50,7 @@ import IngressesRoutesList from './lib/ingresses-routes/IngressesRoutesList.svel
 import Webview from './lib/webview/Webview.svelte';
 import IngressDetails from './lib/ingresses-routes/IngressDetails.svelte';
 import RouteDetails from './lib/ingresses-routes/RouteDetails.svelte';
+import ColorsStyle from './lib/style/ColorsStyle.svelte';
 
 router.mode.hash();
 
@@ -69,6 +70,7 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
 
 <Route path="/*" breadcrumb="Home" let:meta>
   <main class="flex flex-col w-screen h-screen overflow-hidden bg-charcoal-800">
+    <ColorsStyle />
     <IconsStyle />
     <Appearance />
     <TitleBar />
