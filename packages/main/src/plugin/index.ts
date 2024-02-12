@@ -157,6 +157,8 @@ import type { IDisposable } from './types/disposable.js';
 
 import { KubernetesUtils } from './kubernetes-util.js';
 import { downloadGuideList } from './learning-center/learning-center.js';
+import type { ColorInfo } from './api/color-info.js';
+import { ColorRegistry } from './color-registry.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -403,6 +405,9 @@ export class PluginSystem {
 
     const configurationRegistry = new ConfigurationRegistry(apiSender, directories);
     notifications.push(...configurationRegistry.init());
+
+    const colorRegistry = new ColorRegistry(apiSender, configurationRegistry);
+    colorRegistry.init();
 
     const proxy = new Proxy(configurationRegistry);
     await proxy.init();
@@ -2093,6 +2098,10 @@ export class PluginSystem {
 
     this.ipcHandle('iconRegistry:listIcons', async (): Promise<IconInfo[]> => {
       return iconRegistry.listIcons();
+    });
+
+    this.ipcHandle('colorRegistry:listColors', async (_listener, themeId: string): Promise<ColorInfo[]> => {
+      return colorRegistry.listColors(themeId);
     });
 
     this.ipcHandle('viewRegistry:listViewsContributions', async (_listener): Promise<ViewInfoUI[]> => {
