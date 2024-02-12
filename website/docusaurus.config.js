@@ -339,8 +339,8 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          sidebarCollapsed: false,
           sidebarPath: require.resolve('./sidebars.js'),
+          sidebarCollapsed: true,
           editUrl: 'https://github.com/containers/podman-desktop/tree/main/website',
         },
         blog: {
@@ -371,6 +371,7 @@ const config = {
       },
       docs: {
         sidebar: {
+          autoCollapseCategories: false,
           hideable: true,
         },
       },
