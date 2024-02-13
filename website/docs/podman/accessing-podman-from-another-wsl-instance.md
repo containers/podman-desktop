@@ -153,7 +153,6 @@ In foldable details, you can find alternative steps for least common contexts:
    To give access to the remote Podman machine to your user: create the group if necessary, assign group membership, and exit your session on the WSL distribution to apply the new group membership:
 
    ```shell-session
-   $ sudo groupadd --gid 10 --force podman
    $ sudo usermod --append --groups 10 $(whoami)
    $ exit
    ```
