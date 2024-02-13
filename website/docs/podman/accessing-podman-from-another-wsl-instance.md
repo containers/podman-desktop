@@ -202,13 +202,13 @@ Verify that, on your WSL distribution, the Podman CLI communicates with your Pod
    - Rootful Podman:
 
      ```shell-session
-     $ grep :10: /etc/group
+     $ getent group 10
      ```
 
    - Rootless Podman:
 
      ```shell-session
-     $ grep :1000: /etc/group
+     $ getent group 1000
      ```
 
    </div>
