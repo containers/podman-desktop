@@ -6,7 +6,7 @@ description: On Windows, access your Podman Desktop containers from another Wind
 
 # Accessing Podman from another WSL distribution
 
-On Windows, [Podman Desktop configures Podman in a dedicated Windows Subsystem for Linux (WSL) distribution: the Podman Machine](/docs/podman/creating-a-podman-machine.md).
+On Windows, [Podman Desktop creates a Windows Subsystem for Linux (WSL) virtual machine: the Podman Machine](/docs/podman/creating-a-podman-machine.md).
 It also configures the Windows Podman client to communicate with the Podman Machine.
 However, it does not configure your other WSL distributions.
 
