@@ -61,23 +61,3 @@ Alternatively, you can install Podman Desktop from:
 #### Next steps
 
 - [Working with containers](/docs/containers)
-
-## Installing Podman Desktop from a compressed tar file {#archive}
-
-When your environment forbids you installing from Flathub, consider installing from an archive.
-
-#### Prerequisites
-
-- [Podman](https://podman.io/)
-
-#### Procedure
-
-1. Download the
-   `podman-desktop-<version>.tar.gz` archive from the [Git repository release assets](https://github.com/containers/podman-desktop/releases).
-2. Extract the content.
-   The extracted directory contains the `podman-desktop` executable file, and associated libraries, locales, and resources.
-4. Double-click on the `podman-desktop` executable file.
-
-#### Next steps
-
-- [Getting started](/docs/containers)
