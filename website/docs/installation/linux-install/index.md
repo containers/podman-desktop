@@ -78,7 +78,7 @@ Consider installing from an archive rather than [from Flathub](/docs/installatio
 1. Download the
    `podman-desktop-<version>.tar.gz` archive from the [Git repository release assets](https://github.com/containers/podman-desktop/releases).
 2. Extract the content.
-3. Go to the extracted directory.
+   The extracted directory contains the `podman-desktop` executable file, and associated libraries, locales, and resources.
 4. Double-click on the `podman-desktop` executable file.
 
 #### Next steps
