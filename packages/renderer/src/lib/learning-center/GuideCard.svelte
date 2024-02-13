@@ -19,7 +19,7 @@ export let height = 300;
   </dif>
   <div class="flex justify-center items-end flex-1 pt-4">
     <Button
-      class="justify-self-center self-end text-lg"
+      class="justify-self-center self-end text-md"
       on:click="{() => window.openExternal(guide.url)}"
       title="Get started">Get started</Button>
   </div>
