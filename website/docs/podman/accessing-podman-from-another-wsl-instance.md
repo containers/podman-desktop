@@ -148,7 +148,7 @@ In foldable details, you can find alternative steps for least common contexts:
 
 1. The communication channel between your WSL distribution and the Podman Machine is a special file (a socket).
    The Podman Machine creates this file with specific permissions.
-   On your WSL distribution, to communicate with the Podman Machine, your user must have the write permissions on this file.
+   To communicate with the Podman Machine from your WSL distribution your user must have write permissions for the socket.
 
    To give access to the remote Podman machine to your user: create the group if necessary, assign group membership, and exit your session on the WSL distribution to apply the new group membership:
 
