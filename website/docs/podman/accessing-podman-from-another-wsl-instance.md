@@ -115,15 +115,6 @@ In foldable details, you can find alternative steps for least common contexts:
    </div>
    </details>
 
-1. Podman requires you to actively confirm that you want to use a remote connection with the `--remote` flag.
-
-   To always enable the remote connection, edit the `~/.config/containers/containers.conf`, and add the section:
-
-   ```toml
-   [engine]
-   remote=true
-   ```
-
 1. The communication channel between your WSL distribution and the Podman Machine is a special file (a socket).
    The Podman Machine creates this file with specific permissions.
    To communicate with the Podman Machine from your WSL distribution your user must have write permissions for the socket.
