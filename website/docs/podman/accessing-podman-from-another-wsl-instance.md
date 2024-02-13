@@ -36,10 +36,7 @@ In foldable details, you can find alternative steps for least common contexts:
 
    Download the `podman-remote` binary from the [Podman releases page](https://github.com/containers/podman/releases/latest).
 
-1. By default, the Podman client in your WSL distribution communicates with the local Podman.
-   It should rather communicate with the remote Podman machine defined by Podman Desktop.
-
-   Configure the Podman client in your WSL distribution to communicate with the remote Podman machine defined by Podman Desktop.
+1. Configure the Podman client in your WSL distribution to communicate with the remote Podman machine defined by Podman Desktop.
 
    This will ensure consistency when you are working with Podman from all your different environments
 
