@@ -183,7 +183,7 @@ You need:
    </summary>
    <div>
 
-   1. Store your proxy Certificate Authorities (CA) in Privacy-Enhanced Mail (PEM) format, in your home directory, in the `proxy_ca.pem` file.
+   1. Store your proxy Certificate Authorities (CA), in Privacy-Enhanced Mail (PEM) format, in the `proxy_ca.pem` file.
 
    2. Copy the certificate to the Podman machine:
 
