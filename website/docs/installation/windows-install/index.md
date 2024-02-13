@@ -31,7 +31,7 @@ Alternatively, when your environment requires another installation method, consi
 
 1. [Download the Windows installer](/downloads/windows).
 
-1. To install the Podman Desktop Windows installer without user interaction, run the Windows installer with the silent flag `/S` from the Command Prompt:
+1. To install without user interaction, run the Windows installer with the silent flag `/S` from the Command Prompt:
 
    ```shell-session
    > podman-desktop-1.6.4-setup-x64.exe /S
