@@ -21,9 +21,9 @@ In a restricted environment you might face the following challenges:
 
 - The Podman Machine receives a network address distinct to your computer network address.
 
-  However, resources in your VPN might be available only for the traffic going through your computer network address.
+  When you are using a VPN, you might have problems to access, from your host, resources that the Podman Machine exposes.
 
-  Consider enabling the **User mode networking** option when creating your Podman Machine to route the network traffic through your VPN.
+  Consider enabling the **User mode networking** option when creating your Podman Machine to route the network traffic through your host.
 
 - The Podman Machine connects directly to the external network.
 
