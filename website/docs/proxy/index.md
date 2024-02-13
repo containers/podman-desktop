@@ -9,7 +9,7 @@ keywords: [podman desktop, containers, podman, installing, installation, windows
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Installing and using Podman Desktop and Podman in a restricted environment
+# Installing in a restricted environment
 
 In a restricted environment you might face the following challenges:
 
