@@ -17,7 +17,7 @@ In a restricted environment you might face the following challenges:
 
   However, a network restricted environment might refuse access to these external resources.
 
-  Consider rather using a specific installation method.
+  Consider rather using the restricted environment installation method.
 
 - The Podman Machine receives a network address distinct to your computer network address.
 
