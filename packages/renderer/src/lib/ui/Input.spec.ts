@@ -29,6 +29,7 @@ function renderInput(
   readonly?: boolean,
   disabled?: boolean,
   clearable?: boolean,
+  error?: string,
   onClick?: any,
 ): void {
   render(Input, {
@@ -37,6 +38,7 @@ function renderInput(
     disabled: disabled,
     readonly: readonly,
     clearable: clearable,
+    error: error,
     onClick: onClick,
   });
 }
@@ -129,4 +131,22 @@ test('Expect clear styling', async () => {
   expect(element).toBeInTheDocument();
   expect(element).toHaveAttribute('aria-label', 'clear');
   expect(element).toHaveClass('cursor-pointer');
+});
+
+test('Expect basic error styling', async () => {
+  const value = 'test';
+  const error = 'Test error';
+  renderInput(value, value, false, false, false, error);
+
+  const element = screen.getByPlaceholderText(value);
+  expect(element).toBeInTheDocument();
+
+  expect(element.parentElement).toBeInTheDocument();
+  expect(element.parentElement).toHaveClass('border-[1px]');
+  expect(element.parentElement).toHaveClass('border-b-red-500');
+
+  expect(element.parentElement).not.toHaveClass('hover:border-red-500');
+
+  const err = screen.getByText(error);
+  expect(err).toBeInTheDocument();
 });
