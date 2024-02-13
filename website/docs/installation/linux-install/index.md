@@ -71,7 +71,7 @@ Consider installing from an archive rather than [from Flathub](/docs/installatio
 
 #### Prerequisites
 
-- [Podman](https://podman.io/) stable version
+- [Podman](https://podman.io/)
 
 #### Procedure
 
