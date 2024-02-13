@@ -107,7 +107,7 @@
   },
   "devDependencies": {
     "@commitlint/cli": "^18.6.1",
-    "@commitlint/config-conventional": "^18.6.0",
+    "@commitlint/config-conventional": "^18.6.1",
     "@electron/fuses": "^1.7.0",
     "@playwright/test": "1.41.2",
     "@rollup/plugin-commonjs": "^25.0.7",
