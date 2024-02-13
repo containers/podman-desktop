@@ -41,7 +41,7 @@ Alternatively, when your environment requires another installation method, consi
 
 1. Install the [Chocolatey package manager](https://chocolatey.org/install).
 
-1. To install the [Podman Desktop Chocolatey package](https://community.chocolatey.org/packages/podman-desktop), run the command from the Command Prompt:
+1. Install from the terminal:
 
    ```shell-session
    > choco install podman-desktop
@@ -51,7 +51,7 @@ Alternatively, when your environment requires another installation method, consi
 
 1. [Install the Scoop package manager](https://github.com/ScoopInstaller/Install#readme).
 
-1. To install the [Podman Desktop Scoop package](https://scoop.sh/#/apps?q=podman-desktop&s=0&d=1&o=true), run the commands from the Command Prompt:
+1. Install from the terminal:
 
    ```shell-session
    > scoop bucket add extras
@@ -62,7 +62,7 @@ Alternatively, when your environment requires another installation method, consi
 
 1. [Install the Winget Package manager for Windows](https://aka.ms/getwinget).
 
-1. To install the [Podman Desktop Winget package](https://winget.run/pkg/RedHat/Podman-Desktop), run the command from the Command Prompt:
+1. Install from the terminal:
 
    ```shell-session
    > winget install -e --id RedHat.Podman-Desktop
