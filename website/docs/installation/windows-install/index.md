@@ -20,7 +20,7 @@ To install Podman Desktop:
 
 <details>
 <summary>
-Alternatively, when your environment requires another installation method, consider installing with:
+Alternate installation methods:
 - Silent Windows installer
 - Chocolatey
 - Scoop
