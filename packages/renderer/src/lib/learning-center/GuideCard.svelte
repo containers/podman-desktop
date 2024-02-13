@@ -2,7 +2,7 @@
 import type { Guide } from '../../../../main/src/plugin/learning-center/learning-center-api';
 import Button from '../ui/Button.svelte';
 export let guide: Guide;
-export let width = 340;
+export let width = 300;
 export let height = 300;
 </script>
 
@@ -12,10 +12,10 @@ export let height = 300;
     <div class="px-4">
       <img src="{`data:image/png;base64,${guide.icon}`}" class="h-[48px]" alt="{guide.id}" />
     </div>
-    <div class="px-4 pt-4 text-nowrap font-bold">
+    <div class="px-4 pt-4 text-nowrap text-gray-400">
       {guide.title}
     </div>
-    <p class="line-clamp-4 px-4 pt-4">{guide.description}</p>
+    <p class="line-clamp-4 px-4 pt-4 text-base text-gray-700">{guide.description}</p>
   </dif>
   <div class="flex justify-center items-end flex-1 pt-4">
     <Button
