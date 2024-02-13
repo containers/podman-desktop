@@ -2391,6 +2391,47 @@ describe('createContainer', () => {
     expect(createContainerMock).toHaveBeenCalledWith(expect.not.objectContaining({ EnvFiles: ['file1', 'file2'] }));
   });
 
+  test('test create and start Container with healthcheck', async () => {
+    const createdId = '1234';
+
+    const startMock = vi.fn();
+    const inspectMock = vi.fn();
+    const createContainerMock = vi
+      .fn()
+      .mockResolvedValue({ id: createdId, start: startMock, inspect: inspectMock } as unknown as Dockerode.Container);
+
+    inspectMock.mockResolvedValue({
+      Config: {
+        Tty: false,
+        OpenStdin: false,
+      },
+    });
+
+    const fakeDockerode = {
+      createContainer: createContainerMock,
+    } as unknown as Dockerode;
+
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman1',
+      id: 'podman1',
+      connection: {
+        type: 'podman',
+      },
+      api: fakeDockerode,
+    } as InternalContainerProvider);
+
+    const container = await containerRegistry.createContainer('podman1', { HealthCheck: { Test: ['cmd', 'arg1'] } });
+
+    expect(container.id).toBe(createdId);
+    expect(createContainerMock).toHaveBeenCalled();
+    expect(startMock).toHaveBeenCalled();
+
+    // expect healthcheck to be set
+    expect(createContainerMock).toHaveBeenCalledWith(
+      expect.objectContaining({ HealthCheck: { Test: ['cmd', 'arg1'] } }),
+    );
+  });
+
   test('test container is created but not started', async () => {
     const createdId = '1234';
 
