@@ -71,6 +71,18 @@ Consider creating a custom Lima instance to:
        - Name: docker
          ![Lima preferences Docker](img/lima-preferences-docker.png)
 
+   - Go to **<Icon icon="fa-solid fa-cog" size="lg" /> Settings > Preferences > Extension: Lima**, to configure a custom socket name.
+
+     - The default socket name is:
+
+       - `podman.sock` for Podman
+
+       - `docker.sock` for Docker
+
+     - To use a custom socket name:
+
+       ![Lima preferences Socket](img/lima-preferences-socket.png)
+
    - Go to **<Icon icon="fa-solid fa-cog" size="lg" /> Settings > Extensions > Lima**, to disable and enable the extension after changes.
 
 #### Verification
