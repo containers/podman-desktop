@@ -45,6 +45,7 @@ import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-
 import type { CatalogExtension } from '../../main/src/plugin/extensions-catalog/extensions-catalog-api';
 import type { CommandInfo } from '../../main/src/plugin/api/command-info';
 import type { KubernetesInformerResourcesType } from '../../main/src/plugin/api/kubernetes-informer-info';
+import type { Guide } from '../../main/src/plugin/learning-center/learning-center-api';
 
 import type { V1Route } from '../../main/src/plugin/api/openshift-types';
 import type { AuthenticationProviderInfo } from '../../main/src/plugin/authentication';
@@ -1960,6 +1961,10 @@ function initExposure(): void {
       return ipcInvoke('image-checker:check', id, image, cancellationToken);
     },
   );
+
+  contextBridge.exposeInMainWorld('listGuides', async (): Promise<Guide[]> => {
+    return ipcInvoke('learning-center:listGuides');
+  });
 }
 
 // expose methods

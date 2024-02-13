@@ -156,6 +156,7 @@ import { WebviewRegistry } from './webview/webview-registry.js';
 import type { IDisposable } from './types/disposable.js';
 
 import { KubernetesUtils } from './kubernetes-util.js';
+import { downloadGuideList } from './learning-center/learning-center.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -2215,6 +2216,10 @@ export class PluginSystem {
 
     this.ipcHandle('webview:get-registry-http-port', async (): Promise<number> => {
       return webviewRegistry.getRegistryHttpPort();
+    });
+
+    this.ipcHandle('learning-center:listGuides', async () => {
+      return downloadGuideList();
     });
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
