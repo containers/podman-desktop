@@ -11,7 +11,7 @@ import TabItem from '@theme/TabItem';
 
 # Installing and using Podman Desktop and Podman in a restricted environment
 
-In a restricted environment you might face this challenges:
+In a restricted environment you might face the following challenges:
 
 - The default Podman Desktop and Podman installation methods download assets during the setup.
 
