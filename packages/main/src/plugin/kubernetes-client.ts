@@ -1017,7 +1017,7 @@ export class KubernetesClient {
 
   // load yaml file and extract manifests
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async loadManifestsFromFile(file: string): Promise<any[]> {
+  async loadManifestsFromFile(file: string): Promise<KubernetesObject[]> {
     // throw exception if file does not exist
     if (!fs.existsSync(file)) {
       throw new Error(`File ${file} does not exist`);
@@ -1123,8 +1123,7 @@ export class KubernetesClient {
       const client = ctx.makeApiClient(KubernetesObjectApi);
       const created: KubernetesObject[] = [];
       for (const spec of validSpecs) {
-        // this is to convince TypeScript that metadata exists even though we already filtered specs
-        // without metadata out
+        // this is to convince TypeScript that metadata exists
         spec.metadata = spec.metadata || {};
         spec.metadata.annotations = spec.metadata.annotations || {};
 
