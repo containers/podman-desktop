@@ -13,8 +13,3 @@ repository (or from another issue tracker). -->
 ### How to test this PR?
 
 <!-- Please explain steps to reproduce -->
-
-### Do you have unit tests?
-
-<!-- In case of adding new or updating actual functionality
-you need to provide unit tests -->

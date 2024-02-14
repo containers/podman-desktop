@@ -23,10 +23,3 @@ body:
     attributes:
       label: Additional context
       description: Add any other context or screenshots here.
-
-  - type: textarea
-    id: quality-consideration
-    attributes:
-      label: Please consider the quality aspects of the new functionality
-      description: |
-        Please create separated issue with acceptance criteria, overal automation expectations and provide a link here.
