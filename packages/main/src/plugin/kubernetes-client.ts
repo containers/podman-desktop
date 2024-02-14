@@ -1074,8 +1074,7 @@ export class KubernetesClient {
    * @param namespace the namespace to use for any resources that don't include one
    * @return an array of resources created
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async applyResources(context: string, manifests: any[], namespace?: string): Promise<KubernetesObject[]> {
+  async applyResources(context: string, manifests: unknown[], namespace?: string): Promise<KubernetesObject[]> {
     return this.syncResources(context, manifests, 'apply', namespace);
   }
 
@@ -1091,16 +1090,13 @@ export class KubernetesClient {
    * Heavily influenced by the API example:
    * https://github.com/kubernetes-client/javascript/blob/0fbfd8fc2dcc7f4ec3e6fcd64a5c55169b6ef0b8/examples/typescript/apply/apply-example.ts
    */
-
   async syncResources(
     context: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    manifests: any[],
+    manifests: unknown[],
     action: 'create' | 'apply',
     namespace?: string,
   ): Promise<KubernetesObject[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const telemetryOptions: Record<string, any> = {
+    const telemetryOptions: Record<string, unknown> = {
       manifestsSize: manifests?.length,
       action: action,
     };
@@ -1113,7 +1109,7 @@ export class KubernetesClient {
       ctx.loadFromFile(this.kubeconfigPath);
       ctx.currentContext = context;
 
-      const validSpecs = manifests.filter(s => s?.kind);
+      const validSpecs = manifests.filter(s => (s as { kind: unknown })?.kind) as KubernetesObject[];
 
       const client = ctx.makeApiClient(KubernetesObjectApi);
       const created: KubernetesObject[] = [];
@@ -1132,7 +1128,8 @@ export class KubernetesClient {
         try {
           // try to get the resource, if it does not exist an error will be thrown and we will
           // end up in the catch block
-          await client.read(spec);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await client.read(spec as any);
           // we got the resource, so it exists: patch it
           //
           // Note that this could fail if the spec refers to a custom resource. For custom resources
@@ -1150,15 +1147,16 @@ export class KubernetesClient {
         }
       }
       return created;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.log(error);
+    } catch (error: unknown) {
       telemetryOptions.error = error;
-      if (error?.response?.body) {
-        if (error.response.body.message) {
-          throw new Error(error.response.body.message);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((error as any)?.response?.body) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const err: any = error as { response: { body: unknown } };
+        if (err.response.body.message) {
+          throw new Error(err.response.body.message);
         }
-        throw new Error(error.response.body);
+        throw new Error(err.response.body);
       }
       throw error;
     } finally {
