@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faGreaterThan, faLessThan } from '@fortawesome/free-solid-svg-icons';
+import { faChevronRight, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 import { onDestroy, onMount } from 'svelte';
 
@@ -49,9 +49,9 @@ function rotateRight() {
     id="left"
     on:click="{rotateLeft}"
     aria-label="Rotate left"
-    class="h-8 w-8 mr-3 bg-gray-800 rounded-full disabled:bg-zinc-700"
+    class="h-8 w-8 mr-3 bg-gray-800 rounded-full disabled:bg-charcoal-700"
     disabled="{visibleCards.length === cards.length}">
-    <Fa class="w-8 h-8" icon="{faLessThan}" color="black" />
+    <Fa class="w-8 h-8" icon="{faChevronLeft}" color="black" />
   </button>
 
   <div id="carousel-cards-{containerId}" class="flex flex-grow gap-3 overflow-hidden">
@@ -64,8 +64,8 @@ function rotateRight() {
     id="right"
     on:click="{rotateRight}"
     aria-label="Rotate right"
-    class="h-8 w-8 ml-3 bg-gray-800 rounded-full disabled:bg-zinc-700"
+    class="h-8 w-8 ml-3 bg-gray-800 rounded-full disabled:bg-charcoal-700"
     disabled="{visibleCards.length === cards.length}">
-    <Fa class="h-8 w-8" icon="{faGreaterThan}" color="black" />
+    <Fa class="h-8 w-8" icon="{faChevronRight}" color="black" />
   </button>
 </div>
