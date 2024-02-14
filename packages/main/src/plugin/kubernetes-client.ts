@@ -1124,8 +1124,8 @@ export class KubernetesClient {
       const created: KubernetesObject[] = [];
       for (const spec of validSpecs) {
         // this is to convince TypeScript that metadata exists
-        spec.metadata = spec.metadata || {};
-        spec.metadata.annotations = spec.metadata.annotations || {};
+        spec.metadata = spec.metadata ?? {};
+        spec.metadata.annotations = spec.metadata.annotations ?? {};
 
         delete spec.metadata.annotations['kubectl.kubernetes.io/last-applied-configuration'];
         spec.metadata.annotations['kubectl.kubernetes.io/last-applied-configuration'] = JSON.stringify(spec);
