@@ -62,6 +62,7 @@ import type { WebviewInfo } from './api/webview-info.js';
 import { getBase64Image } from '../util.js';
 import { Disposable } from './types/disposable.js';
 import type { ColorRegistry } from './color-registry.js';
+import type { DialogRegistry } from './dialog-registry.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -202,6 +203,13 @@ const navigationManager: NavigationManager = new NavigationManager(
 const colorRegistry = {
   registerExtensionThemes: vi.fn(),
 } as unknown as ColorRegistry;
+const openDialogMock = vi.fn();
+const saveDialogMock = vi.fn();
+
+const dialogRegistry: DialogRegistry = {
+  openDialog: openDialogMock,
+  saveDialog: saveDialogMock,
+} as unknown as DialogRegistry;
 
 vi.mock('electron', () => {
   return {
@@ -251,6 +259,7 @@ beforeAll(() => {
     navigationManager,
     webviewRegistry,
     colorRegistry,
+    dialogRegistry,
   );
 });
 
@@ -1603,4 +1612,35 @@ test('loadExtension with themes', async () => {
   await extensionLoader.loadExtension(fakeExtension);
 
   expect(colorRegistry.registerExtensionThemes).toBeCalledWith(fakeExtension, manifest.contributes.themes);
+});
+
+describe('window', async () => {
+  test('showOpenDialog ', async () => {
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    const filePaths = ['/path-to-file1', '/path-to-file2'];
+    vi.mocked(dialogRegistry.openDialog).mockResolvedValue(filePaths);
+
+    const uris = await api.window.showOpenDialog();
+    expect(uris?.length).toBe(2);
+    const urisArray = uris as containerDesktopAPI.Uri[];
+
+    expect(dialogRegistry.openDialog).toBeCalled();
+    expect(urisArray[0].fsPath).toContain('path-to-file1');
+    expect(urisArray[1].fsPath).toContain('path-to-file2');
+  });
+
+  test('showSaveDialog ', async () => {
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    const filePath = '/path-to-file1';
+    vi.mocked(dialogRegistry.saveDialog).mockResolvedValue(filePath);
+
+    const uri = await api.window.showSaveDialog();
+
+    expect(dialogRegistry.saveDialog).toBeCalled();
+    expect(uri?.fsPath).toContain('path-to-file1');
+  });
 });

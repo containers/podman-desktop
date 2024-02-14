@@ -75,6 +75,7 @@ import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 import type { ImageInspectInfo } from '/@/plugin/api/image-inspect-info.js';
 import type { PodInfo } from './api/pod-info.js';
 import type { ColorRegistry } from '/@/plugin/color-registry.js';
+import type { DialogRegistry } from './dialog-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -173,6 +174,7 @@ export class ExtensionLoader {
     private navigationManager: NavigationManager,
     private webviewRegistry: WebviewRegistry,
     private colorRegistry: ColorRegistry,
+    private dialogRegistry: DialogRegistry,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -805,6 +807,7 @@ export class ExtensionLoader {
     const inputQuickPickRegistry = this.inputQuickPickRegistry;
     const customPickRegistry = this.customPickRegistry;
     const webviewRegistry = this.webviewRegistry;
+    const dialogRegistry = this.dialogRegistry;
     const windowObj: typeof containerDesktopAPI.window = {
       showInformationMessage: (message: string, ...items: string[]) => {
         return messageBox.showDialog('info', extManifest.displayName, message, items);
@@ -881,6 +884,22 @@ export class ExtensionLoader {
       },
       listWebviews(): Promise<containerDesktopAPI.WebviewInfo[]> {
         return webviewRegistry.listSimpleWebviews();
+      },
+      showOpenDialog: async (
+        options?: containerDesktopAPI.OpenDialogOptions,
+      ): Promise<containerDesktopAPI.Uri[] | undefined> => {
+        const result = await dialogRegistry.openDialog(options);
+        if (result) {
+          return result.map(uri => Uri.file(uri));
+        }
+      },
+      showSaveDialog: async (
+        options?: containerDesktopAPI.SaveDialogOptions,
+      ): Promise<containerDesktopAPI.Uri | undefined> => {
+        const result = await dialogRegistry.saveDialog(options);
+        if (result) {
+          return Uri.file(result);
+        }
       },
     };
 

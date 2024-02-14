@@ -15,8 +15,14 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+
+/* eslint-disable sonarjs/no-unused-collection */
+
 import { beforeEach, expect, test, vi } from 'vitest';
-import { buildApiSender } from '.';
+import { buildApiSender, initExposure } from '.';
+import type { IpcRenderer, IpcRendererEvent } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron';
+import type { OpenDialogOptions, SaveDialogOptions } from '@podman-desktop/api';
 
 vi.mock('electron', async () => {
   return {
@@ -27,6 +33,8 @@ vi.mock('electron', async () => {
       on: vi.fn(),
       emit: vi.fn(),
       handle: vi.fn(),
+      send: vi.fn(),
+      invoke: vi.fn(),
     },
     ipcMain: {
       on: vi.fn(),
@@ -68,4 +76,108 @@ test('build Api Sender', () => {
   apiSender.send('channel', 'message3');
   // should not be received anymore as we disposed the listener
   expect(received.length).toBe(2);
+});
+
+test('openDialog', async () => {
+  // store the exposeInMainWorld calls
+  const exposeInMainWorldCalls: Map<string, (...args: unknown[]) => unknown> = new Map();
+
+  vi.mocked(contextBridge.exposeInMainWorld).mockImplementation(
+    (funcName: string, func: (...args: unknown[]) => unknown) => {
+      exposeInMainWorldCalls.set(funcName, func);
+    },
+  );
+
+  // store the ipcRenderer.on calls
+  const ipcRendererOnCalls: Map<string, (event: IpcRendererEvent, ...args: unknown[]) => void> = new Map();
+
+  vi.mocked(ipcRenderer.on).mockImplementation(
+    (eventName: string, listener: (event: IpcRendererEvent, ...args: unknown[]) => void): IpcRenderer => {
+      ipcRendererOnCalls.set(eventName, listener);
+      return {} as IpcRenderer;
+    },
+  );
+  // call init exposure
+  initExposure();
+
+  // mock ipcRenderer.invoke
+  vi.mocked(ipcRenderer.invoke).mockResolvedValue({ error: undefined, result: undefined });
+
+  // grab openDialog exposure
+  const openDialogExposure = exposeInMainWorldCalls.get('openDialog');
+  expect(openDialogExposure).toBeDefined();
+
+  // get the 'dialog:open-save-dialog-response'
+  const dialogOpenSaveDialogResponse = ipcRendererOnCalls.get('dialog:open-save-dialog-response');
+  expect(dialogOpenSaveDialogResponse).toBeDefined();
+
+  // call the exposure
+  const openDialogOptions: OpenDialogOptions = {
+    title: 'MyCustomTitle',
+  };
+
+  // send the response after the call
+  setTimeout(() => {
+    dialogOpenSaveDialogResponse?.({} as IpcRendererEvent, '0', ['file1', 'file2']);
+  }, 100);
+
+  const result = await openDialogExposure?.(openDialogOptions);
+
+  // check we invoke ipcRenderer.invoke
+  expect(ipcRenderer.invoke).toBeCalled();
+
+  // check the result
+  expect(result).toEqual(['file1', 'file2']);
+});
+
+test('saveDialog', async () => {
+  // store the exposeInMainWorld calls
+  const exposeInMainWorldCalls: Map<string, (...args: unknown[]) => unknown> = new Map();
+
+  vi.mocked(contextBridge.exposeInMainWorld).mockImplementation(
+    (funcName: string, func: (...args: unknown[]) => unknown) => {
+      exposeInMainWorldCalls.set(funcName, func);
+    },
+  );
+
+  // store the ipcRenderer.on calls
+  const ipcRendererOnCalls: Map<string, (event: IpcRendererEvent, ...args: unknown[]) => void> = new Map();
+
+  vi.mocked(ipcRenderer.on).mockImplementation(
+    (eventName: string, listener: (event: IpcRendererEvent, ...args: unknown[]) => void): IpcRenderer => {
+      ipcRendererOnCalls.set(eventName, listener);
+      return {} as IpcRenderer;
+    },
+  );
+  // call init exposure
+  initExposure();
+
+  // mock ipcRenderer.invoke
+  vi.mocked(ipcRenderer.invoke).mockResolvedValue({ error: undefined, result: undefined });
+
+  // grab openDialog exposure
+  const saveDialogExposure = exposeInMainWorldCalls.get('saveDialog');
+  expect(saveDialogExposure).toBeDefined();
+
+  // get the 'dialog:open-save-dialog-response'
+  const dialogOpenSaveDialogResponse = ipcRendererOnCalls.get('dialog:open-save-dialog-response');
+  expect(dialogOpenSaveDialogResponse).toBeDefined();
+
+  // call the exposure
+  const saveDialogOptions: SaveDialogOptions = {
+    title: 'MyCustomTitle',
+  };
+
+  // send the response after the call
+  setTimeout(() => {
+    dialogOpenSaveDialogResponse?.({} as IpcRendererEvent, '0', 'file1');
+  }, 100);
+
+  const result = await saveDialogExposure?.(saveDialogOptions);
+
+  // check we invoke ipcRenderer.invoke
+  expect(ipcRenderer.invoke).toBeCalled();
+
+  // check the result
+  expect(result).toEqual('file1');
 });
