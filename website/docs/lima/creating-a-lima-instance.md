@@ -8,7 +8,7 @@ keywords: [podman desktop, containers, lima, onboarding, linux, macos]
 
 # Creating a Lima instance for container workloads with Podman Desktop
 
-To use the Lima provider you need a Lima instance running a Linux virtual machine.
+To use the Lima provider you need a Lima instance running a Linux machine.
 
 In the future, Podman Desktop might be able to create Lima instances.
 

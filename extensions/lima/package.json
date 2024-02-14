@@ -1,7 +1,7 @@
 {
   "name": "lima",
   "displayName": "Lima",
-  "description": "Integration for Lima: Linux virtual machines (typically macOS)",
+  "description": "Integration for Lima: Linux Machines (typically macOS)",
   "version": "0.0.1",
   "icon": "icon.png",
   "publisher": "podman-desktop",
