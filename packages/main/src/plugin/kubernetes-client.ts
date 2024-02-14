@@ -46,6 +46,7 @@ import {
   VersionApi,
   makeInformer,
   KubernetesObjectApi,
+  HttpError,
 } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types.js';
 import type * as containerDesktopAPI from '@podman-desktop/api';
@@ -66,6 +67,10 @@ import type { KubeContext } from './kubernetes-context.js';
 import type { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import type { IncomingMessage } from 'node:http';
+
+interface KubernetesObjectWithKind extends KubernetesObject {
+  kind: string;
+}
 
 function toContainerStatus(state: V1ContainerState | undefined): string {
   if (state) {
@@ -1074,7 +1079,11 @@ export class KubernetesClient {
    * @param namespace the namespace to use for any resources that don't include one
    * @return an array of resources created
    */
-  async applyResources(context: string, manifests: unknown[], namespace?: string): Promise<KubernetesObject[]> {
+  async applyResources(
+    context: string,
+    manifests: KubernetesObject[],
+    namespace?: string,
+  ): Promise<KubernetesObject[]> {
     return this.syncResources(context, manifests, 'apply', namespace);
   }
 
@@ -1092,7 +1101,7 @@ export class KubernetesClient {
    */
   async syncResources(
     context: string,
-    manifests: unknown[],
+    manifests: KubernetesObject[],
     action: 'create' | 'apply',
     namespace?: string,
   ): Promise<KubernetesObject[]> {
@@ -1109,7 +1118,7 @@ export class KubernetesClient {
       ctx.loadFromFile(this.kubeconfigPath);
       ctx.currentContext = context;
 
-      const validSpecs = manifests.filter(s => (s as { kind: unknown })?.kind) as KubernetesObject[];
+      const validSpecs = manifests.filter(s => s?.kind) as KubernetesObjectWithKind[];
 
       const client = ctx.makeApiClient(KubernetesObjectApi);
       const created: KubernetesObject[] = [];
@@ -1149,14 +1158,12 @@ export class KubernetesClient {
       return created;
     } catch (error: unknown) {
       telemetryOptions.error = error;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if ((error as any)?.response?.body) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const err: any = error as { response: { body: unknown } };
-        if (err.response.body.message) {
-          throw new Error(err.response.body.message);
+      if (error instanceof HttpError) {
+        const httpError = error as HttpError;
+        if (httpError.message) {
+          throw new Error(httpError.message);
         }
-        throw new Error(err.response.body);
+        throw new Error(httpError.body);
       }
       throw error;
     } finally {
