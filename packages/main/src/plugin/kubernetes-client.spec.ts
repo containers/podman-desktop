@@ -1229,7 +1229,7 @@ test('Expect apply with empty yaml should return no objects', async () => {
 
 test('Expect apply should create if object does not exist', async () => {
   const client = createTestClient('default');
-  const manifests = { kind: test, metadata: { annotations: test } };
+  const manifests = { kind: test, metadata: { annotations: test } } as unknown as KubernetesObject;
   const createdObj = { kind: 'created' };
   vi.spyOn(client, 'loadManifestsFromFile').mockReturnValue(Promise.resolve([manifests]));
   makeApiClientMock.mockReturnValue({
@@ -1244,7 +1244,7 @@ test('Expect apply should create if object does not exist', async () => {
 
 test('Expect apply should patch if object exists', async () => {
   const client = createTestClient('default');
-  const manifests = { kind: test, metadata: { annotations: test } };
+  const manifests = { kind: test, metadata: { annotations: test } } as unknown as KubernetesObject;
   const patchedObj = { kind: 'patched' };
   vi.spyOn(client, 'loadManifestsFromFile').mockReturnValue(Promise.resolve([manifests]));
   makeApiClientMock.mockReturnValue({
