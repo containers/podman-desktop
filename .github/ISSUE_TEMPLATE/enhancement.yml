@@ -40,3 +40,10 @@ body:
     attributes:
       label: Additional context
       description: Add any other context or screenshots here.
+
+  - type: textarea
+    id: quality-consideration
+    attributes:
+      label: Please consider whether the changes can affect any tests
+      description: |
+        Do you need to add/update unit tests? Are your changes possibly breaking E2E tests? Do you need to introduce new tests?

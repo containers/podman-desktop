@@ -40,3 +40,12 @@ body:
     attributes:
       label: Additional context
       description: Add any other context or screenshots here.
+
+  - type: textarea
+    id: quality-consideration
+    attributes:
+      label: Please consider the quality aspects of the new functionality
+      description: |
+        What are the acceptance criteria of the new feature?
+        Is it enough to provide unit tests?
+        In case of more complex features, end-to-end tests might be needed, please create separated issue and provide a link here.
