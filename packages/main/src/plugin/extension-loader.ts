@@ -576,14 +576,16 @@ export class ExtensionLoader {
       extension.subscriptions.push(this.configurationRegistry.registerConfigurations([extensionConfiguration]));
     }
 
-    const menus = extension.manifest?.contributes?.menus;
-    if (menus) {
-      extension.subscriptions.push(this.menuRegistry.registerMenus(menus));
-    }
     const extensionCommands = extension.manifest?.contributes?.commands;
     if (extensionCommands) {
       const disposable = this.commandRegistry.registerCommandsFromExtension(extension.id, extensionCommands);
       extension.subscriptions.push(disposable);
+    }
+
+    // register menus after the contributed commands so we can see if contributed commands have icons
+    const menus = extension.manifest?.contributes?.menus;
+    if (menus) {
+      extension.subscriptions.push(this.menuRegistry.registerMenus(menus));
     }
 
     const icons = extension.manifest?.contributes?.icons;
