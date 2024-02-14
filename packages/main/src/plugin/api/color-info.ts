@@ -26,4 +26,5 @@ export interface ColorDefinition {
 export interface ColorInfo {
   id: string;
   value: Color;
+  cssVar: string;
 }

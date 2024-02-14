@@ -184,7 +184,7 @@ test('initTitlebar', async () => {
   expect(spyOnRegisterColor.mock.calls.length).toBeGreaterThanOrEqual(3);
 
   // check the first call
-  expect(spyOnRegisterColor.mock.calls[0][0]).toBe('TitlebarBg');
+  expect(spyOnRegisterColor.mock.calls[0][0]).toStrictEqual('titlebar-bg');
   expect(spyOnRegisterColor.mock.calls[0][1].light).toBe('#efefef');
   expect(spyOnRegisterColor.mock.calls[0][1].dark).toBe('#0f0f11');
 });
@@ -232,13 +232,14 @@ describe('registerColor', () => {
 describe('listColors', () => {
   test('listColors provides default theme if unknown', async () => {
     // register the color first
-    colorRegistry.registerColor('dummyColor', { light: 'lightColor', dark: 'darkColor' });
+    colorRegistry.registerColor('dummy-color', { light: 'lightColor', dark: 'darkColor' });
 
     // ask for a theme that does not exit, should reply with dark theme
     const colors = colorRegistry.listColors('unknownTheme');
     expect(colors).toBeDefined();
     expect(colors).toHaveLength(1);
-    expect(colors[0].id).toBe('dummyColor');
+    expect(colors[0].id).toBe('dummy-color');
+    expect(colors[0].cssVar).toBe('--pd-dummy-color');
     expect(colors[0].value).toBe('darkColor');
   });
 });
@@ -259,7 +260,7 @@ describe('registerExtensionThemes', () => {
         name: 'Dark Theme 1',
         parent: 'dark',
         colors: {
-          TitlebarBg: 'myCustomValueDark',
+          titlebarBg: 'myCustomValueDark',
         },
       },
       {
@@ -267,7 +268,7 @@ describe('registerExtensionThemes', () => {
         name: 'Light Theme 1',
         parent: 'light',
         colors: {
-          TitlebarBg: 'myCustomValueLight',
+          titlebarBg: 'myCustomValueLight',
         },
       },
     ]);
@@ -275,24 +276,24 @@ describe('registerExtensionThemes', () => {
     // now ask for the a color defined in 'dark-theme1'
     const colors = colorRegistry.listColors('dark-theme1');
     expect(colors).toBeDefined();
-    const titlebarBg = colors.find(c => c.id === 'TitlebarBg');
+    const titlebarBg = colors.find(c => c.id === 'titlebar-bg');
     expect(titlebarBg).toBeDefined();
     expect(titlebarBg?.value).toBe('myCustomValueDark');
 
     // now check for a color not defined in 'dark-theme1'
-    const titlebarTextColor = colors.find(c => c.id === 'TitlebarText');
+    const titlebarTextColor = colors.find(c => c.id === 'titlebar-text');
     expect(titlebarTextColor).toBeDefined();
     expect(titlebarTextColor?.value).toBe('#fff');
 
     // now ask for the a color defined in 'light-theme1'
     const colorsLight = colorRegistry.listColors('light-theme1');
     expect(colorsLight).toBeDefined();
-    const titlebarBgLight = colorsLight.find(c => c.id === 'TitlebarBg');
+    const titlebarBgLight = colorsLight.find(c => c.id === 'titlebar-bg');
     expect(titlebarBgLight).toBeDefined();
     expect(titlebarBgLight?.value).toBe('myCustomValueLight');
 
     // now check for a color not defined in 'light-theme1'
-    const titlebarTextColorLight = colorsLight.find(c => c.id === 'TitlebarText');
+    const titlebarTextColorLight = colorsLight.find(c => c.id === 'titlebar-text');
     expect(titlebarTextColorLight).toBeDefined();
     expect(titlebarTextColorLight?.value).toBe('#0f0f11');
   });
@@ -308,7 +309,7 @@ describe('registerExtensionThemes', () => {
         name: 'Dark Theme 1',
         parent: 'dark',
         colors: {
-          TitlebarBg: 'myCustomValueDark',
+          titlebarBg: 'myCustomValueDark',
         },
       },
     ]);
@@ -316,7 +317,7 @@ describe('registerExtensionThemes', () => {
     // now ask for the a color defined in 'dark-theme1'
     let colors = colorRegistry.listColors('dark-theme1');
     expect(colors).toBeDefined();
-    let titlebarBg = colors.find(c => c.id === 'TitlebarBg');
+    let titlebarBg = colors.find(c => c.id === 'titlebar-bg');
     expect(titlebarBg).toBeDefined();
     expect(titlebarBg?.value).toBe('myCustomValueDark');
 
@@ -327,7 +328,7 @@ describe('registerExtensionThemes', () => {
     colors = colorRegistry.listColors('dark-theme1');
 
     expect(colors).toBeDefined();
-    titlebarBg = colors.find(c => c.id === 'TitlebarBg');
+    titlebarBg = colors.find(c => c.id === 'titlebar-bg');
     expect(titlebarBg).toBeDefined();
     expect(titlebarBg?.value).toBe('#0f0f11');
   });

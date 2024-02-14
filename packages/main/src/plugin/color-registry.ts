@@ -90,7 +90,9 @@ export class ColorRegistry {
       // iterate over all color definitions and register either default or provided color
       for (const colorDefinitionId of this.#definitions.keys()) {
         // get the color from the theme
-        let color: string | undefined = theme.colors[colorDefinitionId];
+        // need to convert kebab-case to camelCase as in json it's contributed with camelCase
+        const camelCaseColorDefinitionId = colorDefinitionId.replace(/-([a-z])/g, g => g[1].toUpperCase());
+        let color: string | undefined = theme.colors[camelCaseColorDefinitionId];
         if (!color) {
           color = parentTheme?.get(colorDefinitionId);
         }
@@ -150,10 +152,13 @@ export class ColorRegistry {
 
     // now, iterate over all color ids
     return Array.from(this.#definitions.keys()).map(id => {
+      // css variable name is based from the color id and --pd- prefix
+      const cssVar = `--pd-${id}`;
+
       // check if color is defined in the theme
       if (theme?.has(id)) {
         // return the color
-        return { id, value: theme.get(id)! };
+        return { id, cssVar, value: theme.get(id)! };
       } else {
         // error
         throw new Error(`Color ${id} is not defined in theme ${themeName}`);
@@ -200,50 +205,52 @@ export class ColorRegistry {
   }
 
   protected initGlobalNav(): void {
+    const glNav = 'global-nav-';
+
     // Global navbar
-    this.registerColor('GlobalNavBg', {
+    this.registerColor(`${glNav}bg`, {
       // it is defined as charcoal-600 in design
       dark: colorPalette.charcoal[800],
       light: colorPalette.gray[200],
     });
-    this.registerColor('GlobalNavIcon', {
+    this.registerColor(`${glNav}icon`, {
       dark: colorPalette.gray[600],
       light: colorPalette.charcoal[200],
     });
-    this.registerColor('GlobalNavIconHover', {
+    this.registerColor(`${glNav}icon-hover`, {
       dark: colorPalette.white,
       light: colorPalette.white,
     });
-    this.registerColor('GlobalNavIconHoverBg', {
+    this.registerColor(`${glNav}icon-hover-bg`, {
       dark: colorPalette.purple[700],
       light: colorPalette.purple[700],
     });
-    this.registerColor('GlobalNavIconSelected', {
+    this.registerColor(`${glNav}icon-selected`, {
       dark: colorPalette.white,
       light: colorPalette.white,
     });
-    this.registerColor('GlobalNavIconSelectedBg', {
+    this.registerColor(`${glNav}icon-selected-bg`, {
       dark: colorPalette.charcoal[500],
       light: colorPalette.gray[300],
     });
-    this.registerColor('GlobalNavIconSelectedHighlight', {
+    this.registerColor(`${glNav}icon-selected-highlight`, {
       dark: colorPalette.purple[500],
       light: colorPalette.purple[500],
     });
   }
 
   protected initTitlebar(): void {
-    this.registerColor('TitlebarBg', {
+    this.registerColor('titlebar-bg', {
       dark: colorPalette.charcoal[900],
       light: colorPalette.gray[200],
     });
 
-    this.registerColor('TitlebarText', {
+    this.registerColor('titlebar-text', {
       dark: colorPalette.white,
       light: colorPalette.charcoal[900],
     });
 
-    this.registerColor('TitlebarIcon', {
+    this.registerColor('titlebar-icon', {
       dark: colorPalette.white,
       light: colorPalette.charcoal[900],
     });
@@ -251,79 +258,82 @@ export class ColorRegistry {
 
   // secondary nav (settings)
   protected initSecondaryNav(): void {
-    this.registerColor('SecondaryNavBg', {
+    const sNav = 'secondary-nav-';
+
+    this.registerColor(`${sNav}bg`, {
       dark: colorPalette.charcoal[700],
       light: colorPalette.gray[100],
     });
 
-    this.registerColor('SecondaryNavHeaderText', {
+    this.registerColor(`${sNav}header-text`, {
       dark: colorPalette.white,
       light: colorPalette.charcoal[900],
     });
 
-    this.registerColor('SecondaryNavText', {
+    this.registerColor(`${sNav}text`, {
       dark: colorPalette.gray[300],
       light: colorPalette.charcoal[700],
     });
 
-    this.registerColor('SecondaryNavTextHover', {
+    this.registerColor(`${sNav}text-hover`, {
       dark: colorPalette.white,
       light: colorPalette.charcoal[900],
     });
 
-    this.registerColor('SecondaryNavTextHoverBg', {
+    this.registerColor(`${sNav}text-hover-bg`, {
       dark: colorPalette.purple[700],
       light: colorPalette.purple[700],
     });
 
-    this.registerColor('SecondaryNavTextSelected', {
+    this.registerColor(`${sNav}text-selected`, {
       dark: colorPalette.white,
       light: colorPalette.charcoal[900],
     });
 
-    this.registerColor('SecondaryNavSelectedBg', {
+    this.registerColor(`${sNav}selected-bg`, {
       dark: colorPalette.charcoal[500],
       light: colorPalette.gray[300],
     });
 
-    this.registerColor('SecondaryNavSelectedHighlight', {
+    this.registerColor(`${sNav}selected-highlight`, {
       dark: colorPalette.purple[500],
       light: colorPalette.purple[500],
     });
 
-    this.registerColor('SecondaryNavExpander', {
+    this.registerColor(`${sNav}expander`, {
       dark: colorPalette.white,
       light: colorPalette.charcoal[700],
     });
   }
 
   protected initInvertContent(): void {
-    this.registerColor('InvertContentBg', {
+    const invCt = 'invert-content-';
+    this.registerColor(`${invCt}bg`, {
       dark: colorPalette.charcoal[800],
       light: colorPalette.gray[50],
     });
 
-    this.registerColor('InvertContentHeaderText', {
+    this.registerColor(`${invCt}header-text`, {
       dark: colorPalette.white,
       light: colorPalette.charcoal[900],
     });
 
-    this.registerColor('InvertContentHeader2Text', {
+    this.registerColor(`${invCt}header2-text`, {
       dark: colorPalette.white,
       light: colorPalette.charcoal[50],
     });
 
-    this.registerColor('InvertContentCardBg', {
+    this.registerColor(`${invCt}card-bg`, {
       dark: colorPalette.charcoal[600],
       light: colorPalette.gray[200],
     });
 
-    this.registerColor('InvertContentCardHeaderText', {
+    this.registerColor(`${invCt}card-header-text`, {
       dark: colorPalette.white,
       light: colorPalette.charcoal[900],
     });
 
-    this.registerColor('InvertContentCardText', {
+    this.registerColor(`${invCt}card-text`, {
       dark: colorPalette.gray[300],
       light: colorPalette.charcoal[700],
     });
