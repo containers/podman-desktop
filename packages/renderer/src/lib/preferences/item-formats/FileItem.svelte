@@ -1,45 +1,28 @@
 <script lang="ts">
-import { Button, Input } from '@podman-desktop/ui-svelte';
+import type { OpenDialogOptions } from '@podman-desktop/api';
+
+import FileInput from '/@/lib/ui/FileInput.svelte';
 
 import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
 
 export let record: IConfigurationPropertyRecordedSchema;
 export let value: string;
-export let onChange = async (_id: string, _value: string) => {};
 
 let invalidEntry = false;
-
-async function selectFilePath() {
-  invalidEntry = false;
-  const filePaths = await window.openDialog({
-    title: `Select ${record.description}`,
-    selectors: record.format === 'folder' ? ['openDirectory'] : ['openFile'],
-  });
-  if (record.id && filePaths && filePaths.length === 1) {
-    onChange(record.id, filePaths[0]).catch((_: unknown) => (invalidEntry = true));
-  }
-}
-
-function handleCleanValue(event: CustomEvent<MouseEvent>) {
-  if (record.id) onChange(record.id, '');
-  event.preventDefault();
-}
+let dialogOptions: OpenDialogOptions = {
+  title: `Select ${record.description}`,
+  selectors: record.format === 'folder' ? ['openDirectory'] : ['openFile'],
+};
 </script>
 
 <div class="w-full flex">
-  <Input
-    class="grow mr-2"
+  <FileInput
+    id="input-standard-{record.id}"
     name="{record.id}"
     readonly
     placeholder="{record.placeholder}"
+    options="{dialogOptions}"
     value="{value || ''}"
-    id="input-standard-{record.id}"
     aria-invalid="{invalidEntry}"
-    aria-label="{record.description}"
-    on:action="{event => handleCleanValue(event)}" />
-  <Button
-    on:click="{() => selectFilePath()}"
-    id="rendering.FilePath.{record.id}"
-    aria-invalid="{invalidEntry}"
-    aria-label="button-{record.description}">Browse ...</Button>
+    aria-label="{record.description}" />
 </div>

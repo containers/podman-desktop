@@ -147,7 +147,7 @@ test('Expect a text input when record is type number and enableSlider is false',
   expect((input as HTMLInputElement).name).toBe('record');
 });
 
-test('Expect an input button with Browse as placeholder when record is type string and format file', async () => {
+test('Expect a fileinput when record is type string and format file', async () => {
   const record: IConfigurationPropertyRecordedSchema = {
     title: 'record',
     parentId: 'parent.record',
@@ -161,12 +161,11 @@ test('Expect an input button with Browse as placeholder when record is type stri
   expect(readOnlyInput).toBeInTheDocument();
   expect(readOnlyInput instanceof HTMLInputElement).toBe(true);
   expect((readOnlyInput as HTMLInputElement).placeholder).toBe(record.placeholder);
-  const input = screen.getByLabelText('button-record-description');
+  const input = screen.getByLabelText('browse');
   expect(input).toBeInTheDocument();
-  expect(input.textContent).toBe('Browse ...');
 });
 
-test('Expect an input button with Browse as placeholder when record is type string and format folder', async () => {
+test('Expect a fileinput when record is type string and format folder', async () => {
   const record: IConfigurationPropertyRecordedSchema = {
     title: 'record',
     parentId: 'parent.record',
@@ -180,9 +179,8 @@ test('Expect an input button with Browse as placeholder when record is type stri
   expect(readOnlyInput).toBeInTheDocument();
   expect(readOnlyInput instanceof HTMLInputElement).toBe(true);
   expect((readOnlyInput as HTMLInputElement).placeholder).toBe(record.placeholder);
-  const input = screen.getByLabelText('button-record-description');
+  const input = screen.getByLabelText('browse');
   expect(input).toBeInTheDocument();
-  expect(input.textContent).toBe('Browse ...');
 });
 
 test('Expect a select when record is type string and has enum values', async () => {

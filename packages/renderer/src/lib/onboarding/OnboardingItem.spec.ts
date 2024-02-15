@@ -104,7 +104,7 @@ test('Expect boolean configuration placeholder to be replaced with a checkbox', 
   expect((input as HTMLInputElement).name).toBe('extension.boolean.prop');
 });
 
-test('Expect when configuration placeholder is type string and format file to be replaced with an input button with Browse', async () => {
+test('Expect when configuration placeholder is type string and format file to be replaced with a file input', async () => {
   const textComponent: OnboardingStepItem = {
     value: '${configuration:extension.format.prop}',
   };
@@ -133,9 +133,8 @@ test('Expect when configuration placeholder is type string and format file to be
   expect(readOnlyInput).toBeInTheDocument();
   expect(readOnlyInput instanceof HTMLInputElement).toBe(true);
   expect((readOnlyInput as HTMLInputElement).placeholder).toBe('Example: text');
-  const input = screen.getByLabelText('button-record-description');
+  const input = screen.getByLabelText('browse');
   expect(input).toBeInTheDocument();
-  expect(input.textContent).toBe('Browse ...');
 });
 
 test('Expect a type text configuration placeholder to be replaced by a text input', async () => {
