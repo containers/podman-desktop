@@ -25,19 +25,9 @@ function onClick(
 }
 </script>
 
-<label class="{$$props.class || ''}">
-  <input
-    aria-label="{title}"
-    type="checkbox"
-    id="{id}"
-    name="{name}"
-    bind:checked="{checked}"
-    disabled="{disabled}"
-    required="{required}"
-    class="sr-only"
-    on:click="{onClick}" />
+<label class="relative p-1 {$$props.class || ''}">
   <div
-    class="grid place-content-center"
+    class="grid place-content-center absolute inset-0"
     title="{disabled ? disabledTooltip : title}"
     class:cursor-pointer="{!disabled}"
     class:cursor-not-allowed="{disabled}">
@@ -51,4 +41,14 @@ function onClick(
       <Fa size="1.1x" icon="{faOutlineSquare}" class="text-gray-400" />
     {/if}
   </div>
+  <input
+    aria-label="{title}"
+    type="checkbox"
+    id="{id}"
+    name="{name}"
+    bind:checked="{checked}"
+    disabled="{disabled}"
+    required="{required}"
+    class="opacity-0 absolute"
+    on:click="{onClick}" />
 </label>
