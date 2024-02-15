@@ -228,6 +228,25 @@ test('Expect when property to be true multiple args', async () => {
   expect(item).toBeInTheDocument();
 });
 
+test('Expect default icon if no custom icon', async () => {
+  render(ContributionActions, {
+    args: [],
+    contributions: [
+      {
+        command: 'dummy.command',
+        title: 'dummy-title',
+      },
+    ],
+    onError: () => {},
+    dropdownMenu: true,
+  });
+
+  const iconItem = screen.getByRole('img', { name: '', hidden: true });
+  expect(iconItem).toBeInTheDocument();
+  // expect to have the svelte-fa class
+  expect(iconItem).toHaveClass('svelte-fa');
+});
+
 test('Expect custom icon on the contributed action', async () => {
   render(ContributionActions, {
     args: [],
