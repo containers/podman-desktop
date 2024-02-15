@@ -9,6 +9,12 @@ sidebar_position: 1
 📦 Podman Desktop supports the three major workstation platforms: you can install [on Windows](/docs/installation/windows-install), [on macOS](/docs/installation/macos-install), and [on Linux](/docs/installation/linux-install).
 If your environment does not allow you to download resources at runtime, checkout how to [get started on network restricted environments](/docs/proxy).
 
+```mdx-code-block
+import ReactPlayer from 'react-player'
+
+ <ReactPlayer playing controls url="https://www.youtube.com/watch?v=OeJ_cwdoQm8" />
+```
+
 ## Need containers?
 
 🪄 On Windows and macOS, Podman Desktop manages your Podman engine in a virtual machine: the Podman machine.
@@ -22,12 +28,6 @@ You can configure your environment to [continue using tools that work with Docke
 You can also [connect to an existing Kubernetes](/docs/kubernetes/existing-kubernetes).
 
 ⛵ You get a GUI for your Kubernetes workloads: [select the current Kubernetes context](/docs/kubernetes/viewing-and-selecting-current-kubernete-context), [deploy a container](/docs/kubernetes/deploying-a-container-to-kubernetes), [deploy a pod](/docs/kubernetes/deploying-a-pod-to-kubernetes).
-
-```mdx-code-block
-import ReactPlayer from 'react-player'
-
- <ReactPlayer playing controls url="https://www.youtube.com/watch?v=OeJ_cwdoQm8" />
-```
 
 ## Need more?
 
