@@ -104,10 +104,17 @@ export interface HealthConfig {
   Retries?: number;
 }
 
+export interface NetworkingConfig {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  EndpointsConfig?: { [key: string]: {} };
+}
+
 export interface ContainerCreateOptions {
   name?: string;
+  platform?: string;
   Hostname?: string;
   User?: string;
+  Domainname?: string;
   // Env using ["MYVAR=value", ...]
   Env?: string[];
 
@@ -130,6 +137,17 @@ export interface ContainerCreateOptions {
   Detach?: boolean;
   start?: boolean;
   HealthCheck?: HealthConfig;
+  ArgsEscaped?: boolean;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  Volumes?: { [volume: string]: {} };
+  WorkingDir?: string;
+  NetworkDisabled?: boolean;
+  MacAddress?: string;
+  OnBuild?: string[];
+  StopSignal?: string;
+  StopTimeout?: number;
+  Shell?: string[];
+  NetworkConfig?: NetworkingConfig;
 }
 
 export interface NetworkCreateOptions {

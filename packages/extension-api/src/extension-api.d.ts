@@ -2256,6 +2256,11 @@ declare module '@podman-desktop/api' {
     Retries?: number;
   }
 
+  interface NetworkingConfig {
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    EndpointsConfig?: { [key: string]: {} };
+  }
+
   export interface PodmanContainerCreateOptions {
     command?: string[];
     entrypoint?: string | string[];
@@ -2281,10 +2286,33 @@ declare module '@podman-desktop/api' {
      * Assign the specified name to the container. Must match the regular expression`/?[a-zA-Z0-9][a-zA-Z0-9_.-]+`. If not speficied, the platform assigns a unique name to the container
      */
     name?: string;
+
+    /**
+     *  Default: ""
+     *
+     * Platform in the format ```os[/arch[/variant]]``` used for image lookup.
+     *
+     * When specified, the daemon checks if the requested image is present in the local image cache with the given OS and Architecture, and otherwise returns a ```404``` status.
+     *
+     * If the option is not set, the host's native OS and Architecture are used to look up the image in the image cache. However, if no platform is passed and the given image does exist in the local image cache, but its OS or architecture does not match, the container is created with the available image, and a warning is added to the ```Warnings``` field in the response, for example;
+     *
+     * ```
+     * WARNING: The requested image's platform (linux/arm64/v8) does not
+     *          match the detected host platform (linux/amd64) and no
+     *          specific platform was requested
+     * ```
+     */
+    platform?: string;
+
     /**
      * The hostname to use for the container, as a valid RFC 1123 hostname
      */
     Hostname?: string;
+
+    /**
+     * The domain name to use for the container.
+     */
+    Domainname?: string;
 
     /**
      * The user that commands are run as inside the container
@@ -2378,6 +2406,58 @@ declare module '@podman-desktop/api' {
      * A test to perform to check that the container is healthy.
      */
     HealthCheck?: HealthConfig;
+
+    /**
+     *  Default: ```false```
+     *
+     * Command is already escaped (Windows only)
+     */
+    ArgsEscaped?: boolean;
+
+    /**
+     * An object mapping mount point paths inside the container to empty objects.
+     */
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    Volumes?: { [volume: string]: {} };
+
+    /**
+     * The working directory for commands to run in.
+     */
+    WorkingDir?: string;
+
+    /**
+     * Disable networking for the container.
+     */
+    NetworkDisabled?: boolean;
+
+    /**
+     * MAC address of the container.
+     */
+    MacAddress?: string;
+
+    /**
+     * ```ONBUILD``` metadata that were defined in the image's ```Dockerfile```.
+     */
+    OnBuild?: string[];
+
+    /**
+     * Signal to stop a container as a string or unsigned integer.
+     */
+    StopSignal?: string;
+
+    /**
+     *  Default: ```10```
+     *
+     * Timeout to stop a container in seconds.
+     */
+    StopTimeout?: number;
+
+    /**
+     * Shell for when ```RUN```, ```CMD```, and ```ENTRYPOINT``` uses a shell.
+     */
+    Shell?: string[];
+
+    NetworkConfig?: NetworkingConfig;
   }
 
   /**
