@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ test('Expect selection styling', async () => {
   const element = screen.getByLabelText(title);
   expect(element).toBeInTheDocument();
   expect(element.firstChild).toBeInTheDocument();
-  expect(element.firstChild).toHaveClass('border-purple-500');
+  expect(element.firstChild).toHaveClass('border-[var(--pd-secondary-nav-selected-highlight)]');
 });
 
 test('Expect not to have selection styling', async () => {
@@ -55,8 +55,8 @@ test('Expect not to have selection styling', async () => {
   const element = screen.getByLabelText(title);
   expect(element).toBeInTheDocument();
   expect(element.firstChild).toBeInTheDocument();
-  expect(element.firstChild).not.toHaveClass('border-purple-500');
-  expect(element.firstChild).toHaveClass('border-charcoal-600');
+  expect(element.firstChild).not.toHaveClass('border-[var(--pd-secondary-nav-selected-highlight)]');
+  expect(element.firstChild).toHaveClass('border-[var(--pd-secondary-nav-bg)]');
 });
 
 test('Expect child styling', async () => {
