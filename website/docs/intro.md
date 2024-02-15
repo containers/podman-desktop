@@ -7,94 +7,32 @@ import TabItem from '@theme/TabItem';
 
 # Introduction
 
-Podman Desktop is an open source graphical tool to work with containers and Kubernetes from your local environment.
+🦭 Podman Desktop is an open source graphical tool to work with 🦭 containers and :sailboat: Kubernetes from your local environment.
 
-## Getting started for containers
+## Working with containers and Kubernetes
 
-<Tabs groupId="operating-systems">
-<TabItem value="win" label="Windows">
+- 📦 Podman Desktop supports the three major workstation platforms: you can install [on Windows](/docs/installation/windows-install), [on macOS](/docs/installation/macos-install), and [on Linux](/docs/installation/linux-install).
 
-- [Install Podman Desktop on Windows](/docs/installation/windows-install).
+- 🚪 If your environment does not allow you to download resources at runtime, checkout how to [get started on network restricted environments](/docs/proxy).
 
-</TabItem>
-<TabItem value="macos" label="macOS">
+- 🪄 On Windows and macOS, Podman Desktop manages your Podman engine in a virtual machine: the Podman machine.
 
-- [Install Podman Desktop on macOS](/docs/installation/macos-install).
+- ⚓ You can configure your environment to [continue using tools that work with Docker](/docs/migrating-from-docker).
 
-</TabItem>
-<TabItem value="linux" label="Linux">
+- 🦭 You get a GUI for your container workloads: [setup your registries](/docs/containers/registries), [build, push, and pull images](/docs/containers/images), [start a container](/docs/containers/starting-a-container), or start a container group [with Compose](/docs/compose), and even better [work with pods on your container engine](/docs/containers/creating-a-pod).
 
-- [Install Podman Desktop on Linux](/docs/installation/linux-install).
+- 🪄 You can setup your Kubernetes engine: [Red Hat Developer Sandbox](/docs/openshift/developer-sandbox), [Kind](/docs/kind), [Lima](/docs/lima), [Minikube](/docs/minikube), or [Red Hat OpenShift Local](/docs/openshift/openshift-local).
 
-</TabItem>
-<TabItem value="restricted" label="Restricted environment">
+- 🤝 You can also [connect to an existing Kubernetes](/docs/kubernetes/existing-kubernetes).
 
-- [Getting started in a restricted environment](/docs/proxy).
+- ⛵ You get a GUI for your Kubernetes workloads: [select the current Kubernetes context](/docs/kubernetes/viewing-and-selecting-current-kubernete-context), [deploy a container](/docs/kubernetes/deploying-a-container-to-kubernetes), [deploy a pod](/docs/kubernetes/deploying-a-pod-to-kubernetes).
 
-</TabItem>
-</Tabs>
+- 🫵 If you need more, you can [write an extension](/docs/extensions).
 
-- [Migrate from Docker](/docs/migrating-from-docker).
+- 💔 Sometimes, things do not work as expected, be sure to visit the [troubleshooting section](/docs/troubleshooting).
 
-## Working with containers
+- 🧑‍🤝‍🧑 You can [engage with the community on Discord](https://discord.com/invite/x5GzFF6QH4).
 
-- [Work with registries](/docs/containers/registries).
+- 🐛 If you found a bug, consider reporting it [to the issue tracker](https://github.com/containers/podman-desktop/issues/).
 
-- [Work with images](/docs/containers/images).
-
-- [Start a container](/docs/containers/starting-a-container).
-
-- [Work with Compose](/docs/compose).
-
-- [Work with pods](/docs/containers/creating-a-pod).
-
-## Getting started for Kubernetes
-
-<Tabs groupId="engines">
-<TabItem value="sandbox" label="Red Hat Developer Sandbox">
-
-- [Set up Red Hat Developer Sandbox](/docs/openshift/developer-sandbox).
-
-</TabItem>
-<TabItem value="kubeconfig" label="Existing Kubernetes">
-
-- [Set up an existing Kubernetes](/docs/kubernetes/existing-kubernetes).
-
-</TabItem>
-<TabItem value="kind" label="Kind">
-
-- [Set up Kind](/docs/kind).
-
-</TabItem>
-<TabItem value="lima" label="Lima">
-
-- [Set up Lima](/docs/lima).
-
-</TabItem>
-<TabItem value="minikube" label="Minikube">
-
-- [Set up Minikube](/docs/minikube).
-
-</TabItem>
-<TabItem value="crc" label="Red Hat OpenShift Local">
-
-- [Set up Red Hat OpenShift Local](/docs/openshift/openshift-local).
-
-</TabItem>
-</Tabs>
-
-## Working with Kubernetes
-
-- [Select the current Kubernetes context](/docs/kubernetes/viewing-and-selecting-current-kubernete-context).
-
-- [Deploy a container](/docs/kubernetes/deploying-a-container-to-kubernetes).
-
-- [Deploy a pod](/docs/kubernetes/deploying-a-pod-to-kubernetes).
-
-## Extending
-
-- [Write extensions](/docs/extensions).
-
-## Troubleshooting
-
-- [Troubleshooting](/docs/troubleshooting)
+- 🥠 If you are curious about the future, [see the tasks engineers are working on](https://github.com/orgs/containers/projects/4/views/8).
