@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2022 Red Hat, Inc.
+# Copyright (C) 2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ jobs:
     steps:
     - uses: actions/stale@v9
       with:
-        repo-token: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
        # Please refer to https://github.com/actions/stale/
         # limit to 10 operations per run (to see how it works)
         operations-per-run: 10
