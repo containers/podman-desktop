@@ -417,7 +417,7 @@ test('When deploying a pod, restricted security context is added', async () => {
   expect(createButton).toBeEnabled();
 
   // Click restricted
-  const useRestricted = screen.getByTestId('useRestricted');
+  const useRestricted = screen.getByRole('checkbox', { name: 'Use restricted security context' });
   await fireEvent.click(useRestricted);
 
   // Press the deploy button
@@ -464,7 +464,7 @@ test('Succeed to deploy ingress if service is selected', async () => {
   expect(createButton).toBeEnabled();
 
   // Checkmark the ingress
-  const checkbox = screen.getByLabelText('Expose Service Locally Using Kubernetes Ingress:');
+  const checkbox = screen.getByRole('checkbox', { name: 'Create Ingress' });
   await fireEvent.click(checkbox);
   expect(checkbox).toHaveProperty('checked', true);
 
