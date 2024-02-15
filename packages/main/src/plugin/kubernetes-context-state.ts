@@ -49,12 +49,56 @@ interface CreateInformerOptions<T> {
   onReachable?: (reachable: boolean) => void;
 }
 
+class ContextsStates {
+  private published = new Map<string, ContextState>();
+  private informers = new Map<string, ContextInternalState>();
+
+  has(name: string) {
+    return this.informers.has(name);
+  }
+
+  setInformers(name: string, informers: ContextInternalState | undefined) {
+    if (informers) {
+      this.informers.set(name, informers);
+    }
+  }
+
+  getContextsNames() {
+    return this.informers.keys();
+  }
+
+  getPublished(): Map<string, ContextState> {
+    return this.published;
+  }
+
+  safeSetState(name: string, update: (previous: ContextState) => void) {
+    if (!this.published.has(name)) {
+      this.published.set(name, {
+        reachable: false,
+        podsCount: 0,
+        deploymentsCount: 0,
+      });
+    }
+    const val = this.published.get(name);
+    if (!val) {
+      throw new Error('value not correctly set in map');
+    }
+    update(val);
+  }
+
+  async dispose(name: string) {
+    await this.informers.get(name)?.podInformer?.stop();
+    await this.informers.get(name)?.deploymentInformer?.stop();
+    this.informers.delete(name);
+    this.published.delete(name);
+  }
+}
+
 // the ContextsState singleton (instantiated by the kubernetes-client singleton)
 // manages the state of the different kube contexts
-export class ContextsState {
+export class ContextsManager {
   private kubeConfig = new KubeConfig();
-  private contextsState = new Map<string, ContextState>();
-  private contextsInternalState = new Map<string, ContextInternalState>();
+  private states = new ContextsStates();
 
   constructor(private readonly apiSender: ApiSenderType) {}
 
@@ -66,26 +110,16 @@ export class ContextsState {
     this.kubeConfig = kubeconfig;
     // Add informers for new contexts
     for (const context of this.kubeConfig.contexts) {
-      if (this.contextsInternalState.get(context.name) === undefined) {
-        this.contextsState.set(context.name, {
-          reachable: false,
-          podsCount: 0,
-          deploymentsCount: 0,
-        });
+      if (!this.states.has(context.name)) {
         const informers = this.createKubeContextInformers(context);
-        if (informers) {
-          this.contextsInternalState.set(context.name, informers);
-        }
+        this.states.setInformers(context.name, informers);
       }
     }
     // Delete informers for removed contexts
     let removed = false;
-    for (const [name, state] of this.contextsInternalState) {
+    for (const name of this.states.getContextsNames()) {
       if (!this.kubeConfig.contexts.find(c => c.name === name)) {
-        await state.podInformer?.stop();
-        await state.deploymentInformer?.stop();
-        this.contextsInternalState.delete(name);
-        this.contextsState.delete(name);
+        await this.states.dispose(name);
         removed = true;
       }
     }
@@ -123,9 +157,9 @@ export class ContextsState {
     const listFn = () => k8sApi.listNamespacedPod(ns);
     const path = `/api/v1/namespaces/${ns}/pods`;
     return this.createInformer<V1Pod>(kc, context, path, listFn, {
-      onAdd: _obj => this.safeSetState(context.name, state => state.podsCount++),
-      onDelete: _obj => this.safeSetState(context.name, state => state.podsCount--),
-      onReachable: reachable => this.safeSetState(context.name, state => (state.reachable = reachable)),
+      onAdd: _obj => this.setStateAndDispatch(context.name, state => state.podsCount++),
+      onDelete: _obj => this.setStateAndDispatch(context.name, state => state.podsCount--),
+      onReachable: reachable => this.setStateAndDispatch(context.name, state => (state.reachable = reachable)),
     });
   }
 
@@ -138,8 +172,8 @@ export class ContextsState {
     const listFn = () => k8sApi.listNamespacedDeployment(ns);
     const path = `/apis/apps/v1/namespaces/${ns}/deployments`;
     return this.createInformer<V1Deployment>(kc, context, path, listFn, {
-      onAdd: _obj => this.safeSetState(context.name, state => state.deploymentsCount++),
-      onDelete: _obj => this.safeSetState(context.name, state => state.deploymentsCount--),
+      onAdd: _obj => this.setStateAndDispatch(context.name, state => state.deploymentsCount++),
+      onDelete: _obj => this.setStateAndDispatch(context.name, state => state.deploymentsCount--),
     });
   }
 
@@ -209,19 +243,16 @@ export class ContextsState {
     }
 
     this.timeoutId = setTimeout(() => {
-      this.apiSender.send(`kubernetes-contexts-state-update`, this.contextsState);
+      this.apiSender.send(`kubernetes-contexts-state-update`, this.states.getPublished());
     }, 100);
   }
 
   public getContextsState(): Map<string, ContextState> {
-    return this.contextsState;
+    return this.states.getPublished();
   }
 
-  private safeSetState(name: string, update: (previous: ContextState) => void) {
-    const previous = this.contextsState.get(name);
-    if (previous) {
-      update(previous);
-      this.dispatchContextsState();
-    }
+  private setStateAndDispatch(name: string, update: (previous: ContextState) => void) {
+    this.states.safeSetState(name, update);
+    this.dispatchContextsState();
   }
 }

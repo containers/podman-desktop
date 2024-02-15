@@ -67,7 +67,7 @@ import type { KubeContext } from './kubernetes-context.js';
 import type { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import type { IncomingMessage } from 'node:http';
-import { ContextsState } from './kubernetes-context-state.js';
+import { ContextsManager } from './kubernetes-context-state.js';
 
 interface KubernetesObjectWithKind extends KubernetesObject {
   kind: string;
@@ -143,7 +143,7 @@ export class KubernetesClient {
    */
   private apiResources = new Map<string, Array<V1APIResource>>();
 
-  private contextsState: ContextsState;
+  private contextsState: ContextsManager;
 
   private readonly _onDidUpdateKubeconfig = new Emitter<containerDesktopAPI.KubeconfigUpdateEvent>();
   readonly onDidUpdateKubeconfig: containerDesktopAPI.Event<containerDesktopAPI.KubeconfigUpdateEvent> =
@@ -157,7 +157,7 @@ export class KubernetesClient {
     private readonly telemetry: Telemetry,
   ) {
     this.kubeConfig = new KubeConfig();
-    this.contextsState = new ContextsState(this.apiSender);
+    this.contextsState = new ContextsManager(this.apiSender);
   }
 
   async init(): Promise<void> {

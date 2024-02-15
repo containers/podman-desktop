@@ -18,7 +18,7 @@
 
 import { expect, test, vi } from 'vitest';
 import type { ContextState } from './kubernetes-context-state.js';
-import { ContextsState } from './kubernetes-context-state.js';
+import { ContextsManager } from './kubernetes-context-state.js';
 import type { ApiSenderType } from './api.js';
 import { FakeInformer } from './testutils/fake-informer.js';
 import * as kubeclient from '@kubernetes/client-node';
@@ -70,7 +70,7 @@ vi.mock('@kubernetes/client-node', async importOriginal => {
 });
 
 test('should send info of resources in all reachable contexts and nothing in non reachable', async () => {
-  const client = new ContextsState(apiSender);
+  const client = new ContextsManager(apiSender);
   const kubeConfig = new kubeclient.KubeConfig();
   kubeConfig.loadFromOptions({
     clusters: [
@@ -192,5 +192,5 @@ test('should send info of resources in all reachable contexts and nothing in non
     deploymentsCount: 11,
   } as ContextState);
   await new Promise(resolve => setTimeout(resolve, 200));
-  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-state-update', expectedMap);
+  expect(apiSenderSendMock).toHaveBeenLastCalledWith('kubernetes-contexts-state-update', expectedMap);
 });
