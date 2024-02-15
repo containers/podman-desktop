@@ -39,6 +39,7 @@ import type { HistoryInfo } from '../../main/src/plugin/api/history-info';
 import type { ContainerInspectInfo } from '../../main/src/plugin/api/container-inspect-info';
 import type { ContainerStatsInfo } from '../../main/src/plugin/api/container-stats-info';
 import type { IconInfo } from '../../main/src/plugin/api/icon-info';
+import type { ColorInfo } from '../../main/src/plugin/api/color-info';
 import type { WebviewInfo } from '../../main/src/plugin/api/webview-info';
 import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
 import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-api';
@@ -1266,6 +1267,10 @@ function initExposure(): void {
 
   contextBridge.exposeInMainWorld('listIcons', async (): Promise<IconInfo[]> => {
     return ipcInvoke('iconRegistry:listIcons');
+  });
+
+  contextBridge.exposeInMainWorld('listColors', async (themeId: string): Promise<ColorInfo[]> => {
+    return ipcInvoke('colorRegistry:listColors', themeId);
   });
 
   // Handle callback to open devtools for extensions
