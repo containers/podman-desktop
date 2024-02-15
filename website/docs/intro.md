@@ -18,3 +18,9 @@ sidebar_position: 1
 - 🧑‍🤝‍🧑 You can [engage with the community on Discord](https://discord.com/invite/x5GzFF6QH4).
 - 🐛 If you found a bug, consider reporting it [to the issue tracker](https://github.com/containers/podman-desktop/issues/).
 - 🥠 If you are curious about the future, [see the tasks engineers are working on](https://github.com/orgs/containers/projects/4/views/8).
+
+```mdx-code-block
+import ReactPlayer from 'react-player'
+
+ <ReactPlayer playing controls url="https://www.youtube.com/watch?v=OeJ_cwdoQm8" />
+```
