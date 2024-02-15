@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023, 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import { expect, test } from 'vitest';
 import Checkbox from './Checkbox.svelte';
 
 function getPeer(checkbox: HTMLElement): Element | undefined {
-  return checkbox.parentElement?.children[1];
+  return checkbox.parentElement?.children[0];
 }
 
 test('Basic check', async () => {
