@@ -43,6 +43,7 @@ test('Check link styling', async () => {
   expect(link).toHaveClass('text-purple-400');
   expect(link).toHaveClass('hover:bg-white');
   expect(link).toHaveClass('hover:bg-opacity-10');
+  expect(link).toHaveClass('cursor-pointer');
 });
 
 test('Check icon styling', async () => {
