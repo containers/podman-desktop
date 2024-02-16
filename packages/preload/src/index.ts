@@ -1290,23 +1290,6 @@ export function initExposure(): void {
     apiSender.send('dev-tools:open-webview', webviewId);
   });
 
-  // Handle callback on dialog file/folder by calling the callback once we get the answer
-  ipcRenderer.on(
-    'dialog:open-file-or-folder-response',
-    (_, dialogId: string, openDialogReturnValue: Electron.OpenDialogReturnValue) => {
-      // grab from stored map
-      const callback = dialogResponses.get(dialogId);
-      if (callback) {
-        callback(openDialogReturnValue);
-
-        // remove callback
-        dialogResponses.delete(dialogId);
-      } else {
-        console.error('Got response for an unknown dialog id', dialogId);
-      }
-    },
-  );
-
   // Handle callback on dialogs by calling the callback once we get the answer
   ipcRenderer.on('dialog:open-save-dialog-response', (_, dialogId: string, result: string | string[] | undefined) => {
     // grab from stored map
@@ -1370,84 +1353,6 @@ export function initExposure(): void {
       return handle.deferred.promise as Promise<string | undefined>;
     },
   );
-
-  let idDialog = 0;
-
-  const dialogResponses = new Map<string, DialogResultCallback>();
-
-  contextBridge.exposeInMainWorld('saveFileDialog', async (message: string, defaultPath: string) => {
-    // generate id
-    const dialogId = idDialog;
-    idDialog++;
-
-    // create defer object
-    const defer = new Deferred<Electron.SaveDialogReturnValue>();
-
-    // store the dialogID
-    dialogResponses.set(`${dialogId}`, (result: Electron.SaveDialogReturnValue) => {
-      defer.resolve(result);
-    });
-
-    // ask to open file dialog
-    ipcRenderer.send('dialog:saveFile', {
-      dialogId: `${dialogId}`,
-      message,
-      defaultPath,
-    });
-
-    // wait for response
-    return defer.promise;
-  });
-
-  contextBridge.exposeInMainWorld(
-    'openFileDialog',
-    async (message: string, filter?: { extensions: string[]; name: string }) => {
-      // generate id
-      const dialogId = idDialog;
-      idDialog++;
-
-      // create defer object
-      const defer = new Deferred<Electron.OpenDialogReturnValue>();
-
-      // store the dialogID
-      dialogResponses.set(`${dialogId}`, (result: Electron.OpenDialogReturnValue) => {
-        defer.resolve(result);
-      });
-
-      // ask to open file dialog
-      ipcRenderer.send('dialog:openFile', {
-        dialogId: `${dialogId}`,
-        message,
-        filter,
-      });
-
-      // wait for response
-      return defer.promise;
-    },
-  );
-
-  contextBridge.exposeInMainWorld('openFolderDialog', async (message: string) => {
-    // generate id
-    const dialogId = idDialog;
-    idDialog++;
-
-    // create defer object
-    const defer = new Deferred<Electron.OpenDialogReturnValue>();
-
-    // store the dialogID
-    dialogResponses.set(`${dialogId}`, (result: Electron.OpenDialogReturnValue) => {
-      defer.resolve(result);
-    });
-
-    // ask to open file dialog
-    ipcRenderer.send('dialog:openFolder', {
-      dialogId: `${dialogId}`,
-      message,
-    });
-
-    // wait for response
-    return defer.promise;
-  });
 
   contextBridge.exposeInMainWorld('getFreePort', async (port: number): Promise<number> => {
     return ipcInvoke('system:get-free-port', port);
