@@ -118,17 +118,14 @@ This tutorial is guiding you through the required steps to work in a restricted 
 </TabItem>
 <TabItem value="linux" label="Linux">
 
-To install the Podman Desktop and Podman in a restricted environment, consider using the Podman Desktop archive for restricted environments.
-
-- It has all artifacts required to install Podman Desktop.
-- It does not require Internet access to download resources during installation.
-- It does not contain additional utilities such as Podman CLI, Compose or Kind.
-
 1. The Podman Destkop archive for restricted environments does not contain Podman CLI.
 
    To install Podman, go to [the Podman website](https://podman.io/), and follow the installation instructions.
 
-1. To download the Podman Desktop archive, from a host that has access to external resources, go to [the Linux Downloads page](https://podman-desktop.io/downloads/linux), and click the **AMD64 binary (tar.gz)** link.
+1. Download the _AMD64 binary (tar.gz)_ archive from [the Linux Downloads page](https://podman-desktop.io/downloads/linux).
+
+   It has all artifacts required to install Podman Desktop, and does not require Internet access to download resources during installation.
+   However, it does not contain additional utilities, such as Podman CLI, Compose or Kind.
 
 1. Copy the downloaded file to the Linux host in a restricted environment, and extract the archive content.
 
