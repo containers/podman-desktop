@@ -21,7 +21,7 @@ on:
   schedule:
     - cron: "5 0 * * *"
   workflow_dispatch:
-  
+
 permissions:
   contents: read
 
@@ -45,13 +45,13 @@ jobs:
         exempt-issue-labels: lifecycle/frozen
         stale-issue-message: >
             This issue has been automatically marked as stale because it has not had
-            activity in the last year. It will be closed in 30 days if no further activity occurs. Please
+            activity in the last 500 days. It will be closed in 30 days if no further activity occurs. Please
             feel free to leave a comment if you believe the issue is still relevant.
             Thank you for your contributions!
         close-issue-message: >
             This issue has been automatically closed because it has not had any further
-            activity in the last 30 days. Thank you for your contributions!            
-        days-before-pr-stale: 200
+            activity in the last 30 days. Thank you for your contributions!
+        days-before-pr-stale: 180
         days-before-pr-close: 14
         stale-pr-label: lifecycle/stale
         exempt-pr-labels: lifecycle/frozen
@@ -63,4 +63,3 @@ jobs:
           This pull request has been automatically closed because it has not had any further
           activity in the last 2 weeks. Thank you for your contributions!
         remove-stale-when-updated: true
-        debug-only: true
