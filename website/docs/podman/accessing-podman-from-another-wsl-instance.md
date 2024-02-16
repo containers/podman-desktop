@@ -54,7 +54,7 @@ In foldable details, you can find alternative steps for least common contexts:
 
    This will ensure consistency when you are working with Podman from all your different environments
 
-   Set the default Podman system connection to your Podman Machine:
+   Set the default Podman system connection to your Podman Machine (assuming Podman Desktop is configured with the default of Podman Machine enabled with root privileges):
 
    ```shell-session
    $ podman system connection add --default podman-machine-default-root unix:///mnt/wsl/podman-sockets/podman-machine-default/podman-root.sock
