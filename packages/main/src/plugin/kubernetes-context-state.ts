@@ -263,7 +263,7 @@ export class ContextsManager {
   ) {
     informer.start().catch((err: unknown) => {
       if (err !== undefined) {
-        console.log('informer start error: ', String(err));
+        console.warn('informer start error: ', String(err));
       }
       options.onReachable?.(err === undefined);
       // Restart informer later
