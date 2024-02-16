@@ -171,12 +171,12 @@
   resolved "https://registry.yarnpkg.com/@argos-ci/browser/-/browser-1.4.1.tgz#157347d76bca5697976000f7c4289bee498b7022"
   integrity sha512-XE5TZnoP+zKeV/Gm0pjuJUx0+xoCnVo4ajWBM2V6vyMAP8P+gO7v8HPHWXBLJoEGgF1Ij365fDA3R3+OMD5Hzw==
 
-"@argos-ci/cli@^1.0.10":
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/@argos-ci/cli/-/cli-1.0.10.tgz#add9a6ef175925e56b0e1512b857a02acaa032bd"
-  integrity sha512-Dn96RXj9FRFzKTZWUWWXgqKsp3gYYrYZSpexnZeSFK3dOvA8/LE3ORigJSt1IvI007y2Kps8oS39GbmyWe/z9g==
+"@argos-ci/cli@^1.0.11":
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/@argos-ci/cli/-/cli-1.0.11.tgz#4e465eb4169295d16b3f87f2266913a9bdb9bd19"
+  integrity sha512-pZjjxljBUN22Dz3Q8n5JUUm7yzrny/XdsyJU5soMpGPGwD6oNaDdFucyyIDv07qck/qTG85GlNord/0SuqHZBA==
   dependencies:
-    "@argos-ci/core" "1.5.3"
+    "@argos-ci/core" "1.5.4"
     commander "^11.0.0"
     ora "^7.0.1"
     update-notifier "^6.0.2"
@@ -187,6 +187,19 @@
   integrity sha512-qODX23ou3CwagOFwtYZyvXPAd2fXOu5ntnH5MbQcSzP3TdK8H2wkacNaLwvLEVpOeT3jdrfoQvROInewMfbHxQ==
   dependencies:
     "@argos-ci/util" "1.2.0"
+    axios "^1.5.0"
+    convict "^6.2.4"
+    debug "^4.3.4"
+    fast-glob "^3.3.1"
+    sharp "^0.32.5"
+    tmp "^0.2.1"
+
+"@argos-ci/core@1.5.4":
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/@argos-ci/core/-/core-1.5.4.tgz#a3fee71caf1fe816d7aeb842a91f6ba6242df881"
+  integrity sha512-XgRJSJYfauCbqOGNLFFiVri70TAp0TORfKrK/6yXyt7k9NgZD6vD10hUhSMeJP7REwYrqD3wxY7l85K+wwoo3Q==
+  dependencies:
+    "@argos-ci/util" "1.2.1"
     axios "^1.5.0"
     convict "^6.2.4"
     debug "^4.3.4"
@@ -208,6 +221,11 @@
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@argos-ci/util/-/util-1.2.0.tgz#b50014b611ca11a7063530f5193d1ede60ac29bb"
   integrity sha512-e/sAEECDzUr02v5sXPcd1Ky3WqNOMDWkutfBC8RBizj3Z+CUp6uwV+bzyTZaE9Zms9WekqXAfKe1rZkEie+DrA==
+
+"@argos-ci/util@1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@argos-ci/util/-/util-1.2.1.tgz#ed1b4984b53e2eab62ee8728e9b520932e760c60"
+  integrity sha512-/o7t0TcSED3BsBnnPrvXdmT+reThGMoGC9Lk+TTghrEE9GFlSKhjBmfYt4fUgXj5hQIe5tcdO01BVB2TsjjYSw==
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.16.0", "@babel/code-frame@^7.18.6", "@babel/code-frame@^7.22.13", "@babel/code-frame@^7.23.4", "@babel/code-frame@^7.8.3":
   version "7.23.4"
