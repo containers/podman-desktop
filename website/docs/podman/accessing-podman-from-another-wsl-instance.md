@@ -64,6 +64,11 @@ In foldable details, you can find alternative steps for least common contexts:
    <summary>
    On a custom Podman Machine, the remote Podman Machine destination might be different.
 
+Two parameters can change:
+
+- The machine name might differ from `podman-machine-default`.
+- The socket name is different when the Podman machine has root privileges disabled (rootless mode).
+
    Find your Podman Machine name and connection path:
    </summary>
    <div>
