@@ -41,13 +41,13 @@ test('check remove prefix', async () => {
   expect(base64Content).toBe('content');
 });
 
-test('activate is registering 4 registries', async () => {
+test('activate is registering 5 registries', async () => {
   const extensionContext = { subscriptions: [] } as unknown as extensionApi.ExtensionContext;
 
   await activate(extensionContext);
 
-  // should be called 4 times
-  expect(vi.mocked(extensionApi.registry.suggestRegistry)).toHaveBeenCalledTimes(4);
+  // should be called 5 times
+  expect(vi.mocked(extensionApi.registry.suggestRegistry)).toHaveBeenCalledTimes(5);
 
   // should be called with the right parameters
   expect(vi.mocked(extensionApi.registry.suggestRegistry)).toHaveBeenCalledWith({
@@ -56,6 +56,6 @@ test('activate is registering 4 registries', async () => {
     icon: '/src/images/docker.io.png',
   });
 
-  // 4 subscriptions/disposables should be added
-  expect(extensionContext.subscriptions.length).toBe(4);
+  // 5 subscriptions/disposables should be added
+  expect(extensionContext.subscriptions.length).toBe(5);
 });

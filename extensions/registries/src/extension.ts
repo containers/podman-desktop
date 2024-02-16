@@ -20,6 +20,7 @@ import dockerIoImage from './images/docker.io.png';
 import ghcrIoImage from './images/ghcr.io.png';
 import gcrIoImage from './images/gcr.io.png';
 import quayIoImage from './images/quay.io.png';
+import redHatImage from './images/red_hat.png';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
@@ -53,6 +54,11 @@ const defaultRegistries: extensionApi.RegistrySuggestedProvider[] = [
     name: 'Red Hat Quay',
     url: 'quay.io',
     icon: quayIoImage,
+  },
+  {
+    name: 'Red Hat Container Registry',
+    url: 'registry.redhat.io',
+    icon: redHatImage,
   },
   {
     name: 'GitHub',
