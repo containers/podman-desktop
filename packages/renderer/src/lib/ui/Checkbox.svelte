@@ -20,7 +20,7 @@ function onClick(checked: boolean) {
 }
 </script>
 
-<label>
+<label class="{$$props.class || ''}">
   <input
     aria-label="{title}"
     type="checkbox"
