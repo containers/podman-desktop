@@ -9,6 +9,7 @@ export let disabled = false;
 export let indeterminate = false;
 export let disabledTooltip = '';
 export let title = '';
+export let id: string | undefined = undefined;
 export let name: string | undefined = undefined;
 
 const dispatch = createEventDispatcher<{ click: boolean }>();
@@ -22,6 +23,7 @@ function onClick(checked: boolean) {
   <input
     aria-label="{title}"
     type="checkbox"
+    id="{id}"
     name="{name}"
     bind:checked="{checked}"
     disabled="{disabled}"
