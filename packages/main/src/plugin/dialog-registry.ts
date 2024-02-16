@@ -57,7 +57,7 @@ export class DialogRegistry {
 
     const uri = options?.defaultUri;
     let defaultPath: string | undefined;
-    if (uri && uri.scheme === 'file') {
+    if (uri?.scheme === 'file') {
       // convert defaultUri into defaultPath if file
       defaultPath = uri.fsPath;
     }
@@ -95,7 +95,7 @@ export class DialogRegistry {
     // convert options into electron dialog options
     const uri = options?.defaultUri;
     let defaultPath: string | undefined;
-    if (uri && uri.scheme === 'file') {
+    if (uri?.scheme === 'file') {
       // convert defaultUri into defaultPath if file
       defaultPath = uri.fsPath;
     }
