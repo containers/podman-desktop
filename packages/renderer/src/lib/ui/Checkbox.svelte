@@ -11,6 +11,7 @@ export let disabledTooltip = '';
 export let title = '';
 export let id: string | undefined = undefined;
 export let name: string | undefined = undefined;
+export let required = false;
 
 const dispatch = createEventDispatcher<{ click: boolean }>();
 
@@ -27,6 +28,7 @@ function onClick(checked: boolean) {
     name="{name}"
     bind:checked="{checked}"
     disabled="{disabled}"
+    required="{required}"
     class="sr-only"
     on:click="{event => onClick(event.currentTarget.checked)}" />
   <div
