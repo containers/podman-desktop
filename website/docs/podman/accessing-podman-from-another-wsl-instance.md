@@ -46,6 +46,10 @@ In foldable details, you can find alternative steps for least common contexts:
    $ wget https://github.com/containers/podman/releases/download/v4.9.1/podman-remote-static-linux_amd64.tar.gz
    $ sudo tar -C /usr/local -xzf podman-remote-static-linux_amd64.tar.gz
 
+   Make this executable as `podman` with the following addition to `.bashrc`:
+
+
+   $ export PATH="$PATH:/usr/local/bin"
 1. Configure the Podman client in your WSL distribution to communicate with the remote Podman machine defined by Podman Desktop.
 
    This will ensure consistency when you are working with Podman from all your different environments
