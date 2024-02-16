@@ -27,7 +27,7 @@ In foldable details, you can find alternative steps for least common contexts:
 1. Start a session in your WSL distribution:
 
    ```shell-session
-   > wsl
+   > wsl --distribution your-distribution-name
    ```
 
 1. To communicate with the remote Podman Machine, you need a Podman client.
