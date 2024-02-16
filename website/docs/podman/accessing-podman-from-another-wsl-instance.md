@@ -66,74 +66,76 @@ In foldable details, you can find alternative steps for least common contexts:
 
    <details>
    <summary>
+
    On a custom Podman Machine, the remote Podman Machine destination might be different.
 
-Two parameters can change:
+   Two parameters can change:
 
-- The machine name might differ from `podman-machine-default`.
-- The socket name is different when the Podman machine has root privileges disabled (rootless mode).
+   - The machine name might differ from `podman-machine-default`.
+   - The socket name is different when the Podman machine has root privileges disabled (rootless mode).
 
-  Find your Podman Machine name and connection path:
+   Find your Podman Machine name and connection path:
+
    </summary>
    <div>
 
-  1. Identify the sockets available in your WSL distribution.
+   1. Identify the sockets available in your WSL distribution.
 
-     The Podman machine shares sockets in a `/mnt/wsl/podman-sockets/` subdirectory named after the Podman machine name.
+      The Podman machine shares sockets in a `/mnt/wsl/podman-sockets/` subdirectory named after the Podman machine name.
 
-     In your WSL session, list the available sockets:
+      In your WSL session, list the available sockets:
 
-     ```shell-session
-     $ find /mnt/wsl/podman-sockets/ -name '*.sock'
-     ```
+      ```shell-session
+      $ find /mnt/wsl/podman-sockets/ -name '*.sock'
+      ```
 
-     Each Podman Machine has a socket for:
+      Each Podman Machine has a socket for:
 
-     - Rootful Podman: `podman-root.sock`
-     - Rootless Podman: `podman-user.sock`
+      - Rootful Podman: `podman-root.sock`
+      - Rootless Podman: `podman-user.sock`
 
-     Sample output:
+      Sample output:
 
-     ```shell-session
-     /mnt/wsl/podman-sockets/podman-machine-default/podman-root.sock
-     /mnt/wsl/podman-sockets/podman-machine-default/podman-user.sock
-     ```
+      ```shell-session
+      /mnt/wsl/podman-sockets/podman-machine-default/podman-root.sock
+      /mnt/wsl/podman-sockets/podman-machine-default/podman-user.sock
+      ```
 
-  2. Identify the socket that Podman Desktop uses.
+   1. Identify the socket that Podman Desktop uses.
 
-     Podman Desktop defaults to rootful Podman.
-     However, consider identifying the active socket.
+      Podman Desktop defaults to rootful Podman.
+      However, consider identifying the active socket.
 
-     The active socket is the default Podman system connection in your Windows session.
+      The active socket is the default Podman system connection in your Windows session.
 
-     Open a new Command Prompt, and list your Podman system connections:
+      Open a new Command Prompt, and list your Podman system connections:
 
-     ```shell-session
-     > podman system connection list
-     ```
+      ```shell-session
+      > podman system connection list
+      ```
 
-     The default connection line ends with `true`.
+      The default connection line ends with `true`.
 
-     Identify your Podman Machine socket by its URI in Windows:
+      Identify your Podman Machine socket by its URI in Windows:
 
-     - Rootful Podman: `ssh://root@127.0.0.1:59292/run/podman/podman.sock`
-     - Rootless Podman: `ssh://user@127.0.0.1:59292/run/user/1000/podman/podman.sock`
+      - Rootful Podman: `ssh://root@127.0.0.1:59292/run/podman/podman.sock`
+      - Rootless Podman: `ssh://user@127.0.0.1:59292/run/user/1000/podman/podman.sock`
 
-     Sample output:
+      Sample output:
 
-     ```shell-session
-     Name                         URI                                                          Identity                                                  Default
+      ```shell-session
+      Name                         URI                                                          Identity                                                  Default
 
-     podman-machine-default ssh://user@127.0.0.1:59292/run/user/1000/podman/podman.sock C:\Users\Podman Desktop User\.ssh\podman-machine-default false
-     podman-machine-default-root ssh://root@127.0.0.1:59292/run/podman/podman.sock C:\Users\Podman Desktop User\.ssh\podman-machine-default true
-     ```
+      podman-machine-default ssh://user@127.0.0.1:59292/run/user/1000/podman/podman.sock C:\Users\Podman Desktop User\.ssh\podman-machine-default false
+      podman-machine-default-root ssh://root@127.0.0.1:59292/run/podman/podman.sock C:\Users\Podman Desktop User\.ssh\podman-machine-default true
+      ```
 
-  3. To define the Podman machine remote destination, prepend with `unix://` the socket path that is available in your WSL, and corresponds to the Podman Desktop active socket:
+   1. To define the Podman machine remote destination, prepend with `unix://` the socket path that is available in your WSL, and corresponds to the Podman Desktop active socket:
 
-     For the default Podman machine:
+      For the default Podman machine:
 
-     - Rootful Podman: `unix:///mnt/wsl/podman-sockets/podman-machine-default/podman-root.sock`
-     - Rootless Podman: `unix:///mnt/wsl/podman-sockets/podman-machine-default/podman-user.sock`
+      - Rootful Podman: `unix:///mnt/wsl/podman-sockets/podman-machine-default/podman-root.sock`
+      - Rootless Podman: `unix:///mnt/wsl/podman-sockets/podman-machine-default/podman-user.sock`
 
    </div>
    </details>
@@ -256,7 +258,7 @@ Verify that, on your WSL distribution, the Podman CLI communicates with your Pod
 
 Podman Desktop only has visibility to either rootless or rootful containers but not both at the same time.
 
-To change the connection:
+To change the active connection:
 
 1. In your Windows terminal, change the connection:
 
@@ -268,23 +270,23 @@ To change the connection:
 
    - To set the connection to rootful:
 
-   ```shell-session
-   $ podman machine set --rootful=true
-   ```
+     ```shell-session
+     $ podman machine set --rootful=true
+     ```
 
 1. In your WSL session, Change the Podman system connection configuration:
 
    - To set the connection to rootless:
 
-   ```shell-session
-   $ podman system connection add --default podman-machine-default-user unix:///mnt/wsl/podman-sockets/podman-machine-default/podman-user.sock
-   ```
+     ```shell-session
+     $ podman system connection add --default podman-machine-default-user unix:///mnt/wsl/podman-sockets/podman-machine-default/podman-user.sock
+     ```
 
    - To set the connection to rootful:
 
-   ```shell-session
-   $ podman system connection add --default podman-machine-default-root unix:///mnt/wsl/podman-sockets/podman-machine-default/podman-root.sock
-   ```
+     ```shell-session
+     $ podman system connection add --default podman-machine-default-root unix:///mnt/wsl/podman-sockets/podman-machine-default/podman-root.sock
+     ```
 
 ## Next steps
 
