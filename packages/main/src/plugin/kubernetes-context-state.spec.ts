@@ -139,7 +139,7 @@ test('should send info of resources in all reachable contexts and nothing in non
     podsCount: 2,
     deploymentsCount: 12,
   } as ContextState);
-  await new Promise(resolve => setTimeout(resolve, 200));
+  await new Promise(resolve => setTimeout(resolve, 1200));
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-state-update', expectedMap);
 
   // => removing contexts, should remving clusters from sent info
@@ -191,6 +191,6 @@ test('should send info of resources in all reachable contexts and nothing in non
     podsCount: 1,
     deploymentsCount: 11,
   } as ContextState);
-  await new Promise(resolve => setTimeout(resolve, 200));
+  await new Promise(resolve => setTimeout(resolve, 1200));
   expect(apiSenderSendMock).toHaveBeenLastCalledWith('kubernetes-contexts-state-update', expectedMap);
 });

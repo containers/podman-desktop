@@ -47,6 +47,35 @@ interface CreateInformerOptions<T> {
   onAdd?: (obj: T) => void;
   onDelete?: (obj: T) => void;
   onReachable?: (reachable: boolean) => void;
+  timer: NodeJS.Timeout | undefined;
+  backoff: Backoff;
+}
+
+class Backoff {
+  private readonly initial: number;
+  constructor(
+    public value: number,
+    private readonly max: number,
+    private readonly jitter: number,
+  ) {
+    this.initial = value;
+    this.value += this.getJitter();
+  }
+  get() {
+    const current = this.value;
+    if (this.value < this.max) {
+      this.value *= 2;
+      this.value += this.getJitter();
+    }
+    return current;
+  }
+  reset() {
+    this.value = this.initial + this.getJitter();
+  }
+
+  private getJitter(): number {
+    return Math.floor(this.jitter * Math.random());
+  }
 }
 
 class ContextsStates {
@@ -99,6 +128,8 @@ class ContextsStates {
 export class ContextsManager {
   private kubeConfig = new KubeConfig();
   private states = new ContextsStates();
+  private podTimer: NodeJS.Timeout | undefined;
+  private deploymentTimer: NodeJS.Timeout | undefined;
 
   constructor(private readonly apiSender: ApiSenderType) {}
 
@@ -157,6 +188,8 @@ export class ContextsManager {
     const listFn = () => k8sApi.listNamespacedPod(ns);
     const path = `/api/v1/namespaces/${ns}/pods`;
     return this.createInformer<V1Pod>(kc, context, path, listFn, {
+      timer: this.podTimer,
+      backoff: new Backoff(1000, 60_000, 300),
       onAdd: _obj => this.setStateAndDispatch(context.name, state => state.podsCount++),
       onDelete: _obj => this.setStateAndDispatch(context.name, state => state.podsCount--),
       onReachable: reachable => this.setStateAndDispatch(context.name, state => (state.reachable = reachable)),
@@ -172,6 +205,8 @@ export class ContextsManager {
     const listFn = () => k8sApi.listNamespacedDeployment(ns);
     const path = `/apis/apps/v1/namespaces/${ns}/deployments`;
     return this.createInformer<V1Deployment>(kc, context, path, listFn, {
+      timer: this.deploymentTimer,
+      backoff: new Backoff(1000, 60_000, 300),
       onAdd: _obj => this.setStateAndDispatch(context.name, state => state.deploymentsCount++),
       onDelete: _obj => this.setStateAndDispatch(context.name, state => state.deploymentsCount--),
     });
@@ -189,21 +224,24 @@ export class ContextsManager {
     informer.on('add', (obj: T) => {
       options.onAdd?.(obj);
       options.onReachable?.(true);
+      options.backoff.reset();
     });
 
     informer.on('delete', (obj: T) => {
       options.onDelete?.(obj);
       options.onReachable?.(true);
+      options.backoff.reset();
     });
     informer.on('error', (err: unknown) => {
       if (err !== undefined) {
         console.error(`informer error on path ${path} for context ${context.name}: `, String(err));
       }
       options.onReachable?.(err === undefined);
-      // Restart informer after 5sec
-      setTimeout(() => {
+      // Restart informer later
+      clearTimeout(options.timer);
+      options.timer = setTimeout(() => {
         this.restartInformer<T>(informer, context, options);
-      }, 5000);
+      }, options.backoff.get());
     });
 
     if (options.onReachable) {
@@ -228,23 +266,21 @@ export class ContextsManager {
         console.log('informer start error: ', String(err));
       }
       options.onReachable?.(err === undefined);
-      // Restart informer after 5sec
-      setTimeout(() => {
+      // Restart informer later
+      clearTimeout(options.timer);
+      options.timer = setTimeout(() => {
         this.restartInformer<T>(informer, context, options);
-      }, 5000);
+      }, options.backoff.get());
     });
   }
 
   private timeoutId: NodeJS.Timeout | undefined;
   private dispatchContextsState() {
     // Debounce: send only the latest value if several values are sent in a short period
-    if (this.timeoutId) {
-      clearTimeout(this.timeoutId);
-    }
-
+    clearTimeout(this.timeoutId);
     this.timeoutId = setTimeout(() => {
       this.apiSender.send(`kubernetes-contexts-state-update`, this.states.getPublished());
-    }, 100);
+    }, 1000);
   }
 
   public getContextsState(): Map<string, ContextState> {
