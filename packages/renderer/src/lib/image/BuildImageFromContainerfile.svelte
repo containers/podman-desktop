@@ -123,9 +123,9 @@ onDestroy(() => {
 });
 
 async function getContainerfileLocation() {
-  const result = await window.openFileDialog('Select Containerfile to build');
-  if (!result.canceled && result.filePaths.length === 1) {
-    containerFilePath = result.filePaths[0];
+  const result = await window.openDialog({ title: 'Select Containerfile to build' });
+  if (result?.[0]) {
+    containerFilePath = result[0];
     if (!containerBuildContextDirectory) {
       // select the parent directory of the file as default
       // eslint-disable-next-line no-useless-escape
@@ -135,10 +135,10 @@ async function getContainerfileLocation() {
 }
 
 async function getContainerBuildContextDirectory() {
-  const result = await window.openFolderDialog('Select Root Context');
+  const result = await window.openDialog({ title: 'Select Root Context', selectors: ['openDirectory'] });
 
-  if (!result.canceled && result.filePaths.length === 1) {
-    containerBuildContextDirectory = result.filePaths[0];
+  if (result?.[0]) {
+    containerBuildContextDirectory = result[0];
   }
 }
 
