@@ -1473,6 +1473,68 @@ declare module '@podman-desktop/api' {
   }
 
   /**
+   * Options to configure the behaviour of a file open dialog.
+   */
+  export interface OpenDialogOptions {
+    /**
+     * The resource the dialog shows when opened.
+     */
+    defaultUri?: Uri;
+
+    /**
+     * A human-readable string for the open button.
+     */
+    openLabel?: string;
+
+    /**
+     * Contains which features the dialog should use. The following values are
+     * supported:
+     */
+    selectors?: Array<'openFile' | 'openDirectory' | 'multiSelections' | 'showHiddenFiles'>;
+
+    /**
+     * A set of file filters that are used by the dialog.
+     */
+    filters?: {
+      extensions: string[];
+      name: string;
+    }[];
+
+    /**
+     * Dialog title.
+     */
+    title?: string;
+  }
+
+  /**
+   * Options to configure the behaviour of a file save dialog.
+   */
+  export interface SaveDialogOptions {
+    /**
+     * The resource the dialog shows when opened.
+     */
+    defaultUri?: Uri;
+
+    /**
+     * A human-readable string for the save button.
+     */
+    saveLabel?: string;
+
+    /**
+     * A set of file filters that are used by the dialog.
+     */
+    filters?: {
+      extensions: string[];
+      name: string;
+    }[];
+
+    /**
+     * Dialog title.
+     */
+    title?: string;
+  }
+
+  /**
    * Event fired when a webview panel's view state changes.
    */
   export interface WebviewPanelOnDidChangeViewStateEvent {
@@ -1604,6 +1666,24 @@ declare module '@podman-desktop/api' {
      * @return A promise that resolves to a string the user provided or to `undefined` in case of dismissal.
      */
     export function showInputBox(options?: InputBoxOptions, token?: CancellationToken): Promise<string | undefined>;
+
+    /**
+     * Shows a file open dialog to the user which allows to select a file
+     * for opening-purposes.
+     *
+     * @param options Options that control the dialog.
+     * @returns A promise that resolves to the selected resources or `undefined`.
+     */
+    export function showOpenDialog(options?: OpenDialogOptions): Promise<Uri[] | undefined>;
+
+    /**
+     * Shows a file save dialog to the user which allows to select a file
+     * for saving-purposes.
+     *
+     * @param options Options that control the dialog.
+     * @returns A promise that resolves to the selected resource or `undefined`.
+     */
+    export function showSaveDialog(options?: SaveDialogOptions): Promise<Uri | undefined>;
 
     /**
      * Shows a selection list allowing multiple selections.

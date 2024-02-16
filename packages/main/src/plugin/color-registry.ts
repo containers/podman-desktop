@@ -209,9 +209,12 @@ export class ColorRegistry {
 
     // Global navbar
     this.registerColor(`${glNav}bg`, {
-      // it is defined as charcoal-600 in design
-      dark: colorPalette.charcoal[800],
-      light: colorPalette.gray[200],
+      dark: colorPalette.charcoal[600],
+      light: colorPalette.gray[100],
+    });
+    this.registerColor(`${glNav}icon-notification-dot`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[600],
     });
     this.registerColor(`${glNav}icon`, {
       dark: colorPalette.gray[600],
@@ -219,40 +222,44 @@ export class ColorRegistry {
     });
     this.registerColor(`${glNav}icon-hover`, {
       dark: colorPalette.white,
-      light: colorPalette.white,
+      light: colorPalette.purple[800],
     });
     this.registerColor(`${glNav}icon-hover-bg`, {
       dark: colorPalette.purple[700],
-      light: colorPalette.purple[700],
+      light: colorPalette.purple[300],
+    });
+    this.registerColor(`${glNav}icon-inset-bg`, {
+      dark: colorPalette.charcoal[800],
+      light: colorPalette.dustypurple[200],
     });
     this.registerColor(`${glNav}icon-selected`, {
       dark: colorPalette.white,
-      light: colorPalette.white,
+      light: colorPalette.purple[800],
     });
     this.registerColor(`${glNav}icon-selected-bg`, {
       dark: colorPalette.charcoal[500],
-      light: colorPalette.gray[300],
+      light: colorPalette.purple[300],
     });
     this.registerColor(`${glNav}icon-selected-highlight`, {
       dark: colorPalette.purple[500],
-      light: colorPalette.purple[500],
+      light: colorPalette.purple[600],
     });
   }
 
   protected initTitlebar(): void {
     this.registerColor('titlebar-bg', {
       dark: colorPalette.charcoal[900],
-      light: colorPalette.gray[200],
+      light: colorPalette.gray[50],
     });
 
     this.registerColor('titlebar-text', {
       dark: colorPalette.white,
-      light: colorPalette.charcoal[900],
+      light: colorPalette.purple[900],
     });
 
     this.registerColor('titlebar-icon', {
       dark: colorPalette.white,
-      light: colorPalette.charcoal[900],
+      light: colorPalette.purple[900],
     });
   }
 
@@ -262,7 +269,7 @@ export class ColorRegistry {
 
     this.registerColor(`${sNav}bg`, {
       dark: colorPalette.charcoal[700],
-      light: colorPalette.gray[100],
+      light: colorPalette.dustypurple[100],
     });
 
     this.registerColor(`${sNav}header-text`, {
@@ -277,27 +284,32 @@ export class ColorRegistry {
 
     this.registerColor(`${sNav}text-hover`, {
       dark: colorPalette.white,
-      light: colorPalette.charcoal[900],
+      light: colorPalette.purple[800],
     });
 
     this.registerColor(`${sNav}text-hover-bg`, {
       dark: colorPalette.purple[700],
-      light: colorPalette.purple[700],
+      light: colorPalette.purple[300],
     });
 
     this.registerColor(`${sNav}text-selected`, {
       dark: colorPalette.white,
-      light: colorPalette.charcoal[900],
+      light: colorPalette.purple[800],
     });
 
     this.registerColor(`${sNav}selected-bg`, {
       dark: colorPalette.charcoal[500],
-      light: colorPalette.gray[300],
+      light: colorPalette.purple[300],
     });
 
     this.registerColor(`${sNav}selected-highlight`, {
       dark: colorPalette.purple[500],
-      light: colorPalette.purple[500],
+      light: colorPalette.purple[600],
+    });
+
+    this.registerColor(`${sNav}icon-notification-dot`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[600],
     });
 
     this.registerColor(`${sNav}expander`, {
@@ -320,12 +332,12 @@ export class ColorRegistry {
 
     this.registerColor(`${invCt}header2-text`, {
       dark: colorPalette.white,
-      light: colorPalette.charcoal[50],
+      light: colorPalette.charcoal[900],
     });
 
     this.registerColor(`${invCt}card-bg`, {
       dark: colorPalette.charcoal[600],
-      light: colorPalette.gray[200],
+      light: colorPalette.gray[300],
     });
 
     this.registerColor(`${invCt}card-header-text`, {
@@ -336,6 +348,21 @@ export class ColorRegistry {
     this.registerColor(`${invCt}card-text`, {
       dark: colorPalette.gray[300],
       light: colorPalette.charcoal[700],
+    });
+
+    this.registerColor(`${invCt}button-active`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[600],
+    });
+
+    this.registerColor(`${invCt}button-inactive`, {
+      dark: colorPalette.charcoal[50],
+      light: colorPalette.charcoal[50],
+    });
+
+    this.registerColor(`${invCt}info-icon`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[600],
     });
   }
 }

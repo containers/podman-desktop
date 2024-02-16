@@ -209,7 +209,7 @@ app.whenReady().then(
     const trayMenu = new TrayMenu(tray, animatedTray);
 
     // Start extensions
-    const pluginSystem = new PluginSystem(trayMenu);
+    const pluginSystem = new PluginSystem(trayMenu, mainWindowDeferred);
     extensionLoader = await pluginSystem.initExtensions();
 
     // Get the configuration registry (saves all our settings)
