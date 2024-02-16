@@ -15,6 +15,9 @@ export let error: string | undefined = undefined;
 
 export let element: HTMLInputElement | undefined = undefined;
 
+let enabled: boolean = true;
+$: enabled = !readonly && !disabled;
+
 const dispatch = createEventDispatcher();
 
 // clear the value if the parent doesn't override
@@ -32,29 +35,29 @@ async function onClear() {
 
 <div class="flex flex-col w-full">
   <div
-    class="flex flex-row w-full items-center px-1 py-1 group bg-charcoal-500 border-[1px] border-charcoal-500 {$$props.class ||
+    class="flex flex-row w-full items-center px-1 py-1 group bg-transparent border-[1px] border-transparent {$$props.class ||
       ''}"
-    class:hover:bg-charcoal-900="{!readonly && !disabled}"
-    class:focus-within:bg-charcoal-900="{!readonly && !disabled}"
-    class:hover:rounded-md="{!readonly && !disabled}"
-    class:focus-within:rounded-md="{!readonly && !disabled}"
-    class:border-b-purple-500="{!readonly && !disabled && !error}"
-    class:border-b-red-500="{!readonly && !disabled && error}"
-    class:hover:border-purple-400="{!readonly && !disabled && !error}"
-    class:hover:border-red-400="{!readonly && !disabled && error}"
-    class:focus-within:border-purple-500="{!readonly && !disabled && !error}"
-    class:focus-within:border-red-500="{!readonly && !disabled && error}"
+    class:hover:bg-charcoal-900="{enabled}"
+    class:focus-within:bg-charcoal-900="{enabled}"
+    class:hover:rounded-md="{enabled}"
+    class:focus-within:rounded-md="{enabled}"
+    class:border-b-purple-500="{enabled && !error}"
+    class:border-b-red-500="{enabled && error}"
+    class:hover:border-purple-400="{enabled && !error}"
+    class:hover:border-red-400="{enabled && error}"
+    class:focus-within:border-purple-500="{enabled && !error}"
+    class:focus-within:border-red-500="{enabled && error}"
     class:border-b-charcoal-100="{readonly || disabled}">
     <slot name="left" />
     <input
       bind:this="{element}"
       on:input
-      class="grow px-1 outline-0 bg-charcoal-500 text-sm placeholder:text-gray-700 overflow-hidden"
+      class="grow px-1 outline-0 text-sm bg-transparent placeholder:text-gray-700 overflow-hidden"
       class:text-white="{!disabled}"
       class:text-gray-700="{disabled}"
-      class:group-hover:bg-charcoal-900="{!readonly && !disabled}"
-      class:group-focus-within:bg-charcoal-900="{!readonly && !disabled}"
-      class:group-hover-placeholder:text-gray-900="{!readonly && !disabled}"
+      class:group-hover:bg-charcoal-900="{enabled}"
+      class:group-focus-within:bg-charcoal-900="{enabled}"
+      class:group-hover-placeholder:text-gray-900="{enabled}"
       name="{name}"
       type="text"
       disabled="{disabled}"
