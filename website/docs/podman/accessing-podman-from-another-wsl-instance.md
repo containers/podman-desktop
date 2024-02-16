@@ -51,6 +51,7 @@ In foldable details, you can find alternative steps for least common contexts:
 
    ```shell-session
    $ export PATH="$PATH:/usr/local/bin"
+   $ alias podman='podman-remote-static-linux_amd64'
    ```
 
 1. Configure the Podman client in your WSL distribution to communicate with the remote Podman machine defined by Podman Desktop.
