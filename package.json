@@ -143,7 +143,7 @@
     "husky": "^9.0.11",
     "js-yaml": "^4.1.0",
     "lint-staged": "^15.2.2",
-    "nock": "^13.5.0",
+    "nock": "^13.5.1",
     "postcss-import": "^16.0.1",
     "prettier": "^3.2.5",
     "prettier-plugin-svelte": "^3.2.1",
