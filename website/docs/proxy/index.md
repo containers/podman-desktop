@@ -38,12 +38,6 @@ This tutorial is guiding you through the required steps to work in a restricted 
 <Tabs groupId="operating-systems">
 <TabItem value="win" label="Windows">
 
-On Windows, to install Podman Desktop and Podman in a restricted environment, consider using the installer for restricted environments.
-
-- It has all artifacts required to install Podman Desktop and Podman.
-- It does not require Internet access to download resources during installation.
-- However, it does not contain additional utilities, such as Compose or Kind.
-
 1. Check that your environment has:
 
    - 6 GB RAM for the Podman Machine.
@@ -65,15 +59,12 @@ On Windows, to install Podman Desktop and Podman in a restricted environment, co
 
 1. Restart your computer.
 
-1. Download the installer for restricted environments.
+1. Download the _Installer for restricted environments_ from to the [Windows downloads page](/downloads/windows).
 
-   From a host that has access to external resources, go to the [Windows downloads page](/downloads/windows), and click the link for your platform: `x64` or `arm64`.
+   It has all artifacts required to install Podman Desktop and Podman, and does not require Internet access to download resources during installation.
+   However, it does not contain additional utilities, such as Compose or Kind.
 
-1. Copy the downloaded file to the Windows host in a restricted environment.
-
-1. Install Podman Desktop.
-
-   Run the Windows installer for restricted environments.
+1. Copy the downloaded file to the Windows host in a restricted environment, and run it.
 
 1. The **Dashboard** screen displays: _<Icon icon="fa-solid fa-info" size="lg" /> Podman needs to be set up_.
 
@@ -101,19 +92,12 @@ On Windows, to install Podman Desktop and Podman in a restricted environment, co
 </TabItem>
 <TabItem value="mac" label="macOS">
 
-On macOS, to install Podman Desktop and Podman in a restricted environment, consider using the Disk Image for restricted environments.
+1. Download the _Disk Image for restricted environments_ from the [macOS downloads page](/downloads/macos).
 
-- It has all artifacts required to install Podman Desktop and Podman.
-- It does not require Internet access to download resources during installation.
-- However, it does not contain additional utilities such as Compose or Kind.
+   It has all artifacts required to install Podman Desktop and Podman, and does not require Internet access to download resources during installation.
+   However, it does not contain additional utilities, such as Compose or Kind.
 
-1. Download the Disk Image for restricted environments.
-
-   From a host that has access to external resources, go to the [macOS downloads page](/downloads/macos), and click the `Disk Image for restricted environments` link.
-
-1. Copy the downloaded file to the macOS host in a restricted environment.
-
-1. Double-click the copied the file.
+1. Copy the downloaded file to the macOS host in a restricted environment, and double-click it.
 
 1. Drag the Podman Desktop icon to the Applications folder.
 
@@ -146,9 +130,7 @@ To install the Podman Desktop and Podman in a restricted environment, consider u
 
 1. To download the Podman Desktop archive, from a host that has access to external resources, go to [the Linux Downloads page](https://podman-desktop.io/downloads/linux), and click the **AMD64 binary (tar.gz)** link.
 
-1. Copy the downloaded file to the Linux host in a restricted environment.
-
-1. Extract the archive content.
+1. Copy the downloaded file to the Linux host in a restricted environment, and extract the archive content.
 
 1. In the extracted directory, open the `podman-desktop` executable file.
 
@@ -163,7 +145,7 @@ To install the Podman Desktop and Podman in a restricted environment, consider u
 
 ## Using a proxy
 
-You need:
+Requirements:
 
 - `<your.proxy.tld:port>`: Your proxy URL.
 - Optionally: your proxy Certificate Authorities (CA) in Privacy-Enhanced Mail (PEM) format.
