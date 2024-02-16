@@ -20,14 +20,53 @@ import { expect, test, vi } from 'vitest';
 import type { ContextState } from './kubernetes-context-state.js';
 import { ContextsManager } from './kubernetes-context-state.js';
 import type { ApiSenderType } from './api.js';
-import { FakeInformer } from './testutils/fake-informer.js';
 import * as kubeclient from '@kubernetes/client-node';
+import type { ErrorCallback, KubernetesObject, ObjectCallback } from '@kubernetes/client-node';
 
-const apiSenderSendMock = vi.fn();
-const apiSender: ApiSenderType = {
-  send: apiSenderSendMock,
-  receive: vi.fn(),
-};
+export class FakeInformer {
+  private onCb: Map<string, ObjectCallback<KubernetesObject>>;
+  private offCb: Map<string, ObjectCallback<KubernetesObject>>;
+  private onErrorCb: Map<string, ErrorCallback>;
+
+  constructor(
+    private resourcesCount: number,
+    private connectResponse: Error | undefined,
+  ) {
+    this.onCb = new Map<string, ObjectCallback<KubernetesObject>>();
+    this.offCb = new Map<string, ObjectCallback<KubernetesObject>>();
+    this.onErrorCb = new Map<string, ErrorCallback>();
+  }
+  async start(): Promise<void> {
+    this.onErrorCb.get('connect')?.(this.connectResponse);
+    if (this.connectResponse === undefined) {
+      for (let i = 0; i < this.resourcesCount; i++) {
+        this.onCb.get('add')?.({});
+      }
+    }
+  }
+  stop() {}
+  on(
+    verb: 'change' | 'add' | 'update' | 'delete' | 'error' | 'connect',
+    cb: ErrorCallback | ObjectCallback<KubernetesObject>,
+  ) {
+    switch (verb) {
+      case 'error':
+      case 'connect':
+        this.onErrorCb.set(verb, cb as ErrorCallback);
+        break;
+      default:
+        this.onCb.set(verb, cb as ObjectCallback<KubernetesObject>);
+    }
+  }
+  off(
+    verb: 'change' | 'add' | 'update' | 'delete' | 'error' | 'connect',
+    cb: ErrorCallback | ObjectCallback<KubernetesObject>,
+  ) {
+    this.offCb.set(verb, cb);
+  }
+  get() {}
+  list() {}
+}
 
 // fakeMakeInformer describes how many resources are in the different namespaces and if cluster is reachable
 function fakeMakeInformer(
@@ -60,6 +99,12 @@ function fakeMakeInformer(
   }
   return new FakeInformer(0, connectResult);
 }
+
+const apiSenderSendMock = vi.fn();
+const apiSender: ApiSenderType = {
+  send: apiSenderSendMock,
+  receive: vi.fn(),
+};
 
 vi.mock('@kubernetes/client-node', async importOriginal => {
   const actual = await importOriginal<typeof kubeclient>();
