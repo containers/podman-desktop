@@ -39,13 +39,13 @@ jobs:
        # Please refer to https://github.com/actions/stale/
         # limit to 10 operations per run (to see how it works)
         operations-per-run: 10
-        days-before-issue-stale: 500
+        days-before-issue-stale: 180
         days-before-issue-close: 30
         stale-issue-label: lifecycle/stale
         exempt-issue-labels: lifecycle/frozen
         stale-issue-message: >
             This issue has been automatically marked as stale because it has not had
-            activity in the last 500 days. It will be closed in 30 days if no further activity occurs. Please
+            activity in the last 6 months. It will be closed in 30 days if no further activity occurs. Please
             feel free to leave a comment if you believe the issue is still relevant.
             Thank you for your contributions!
         close-issue-message: >
