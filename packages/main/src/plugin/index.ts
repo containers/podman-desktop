@@ -160,6 +160,8 @@ import { KubernetesUtils } from './kubernetes-util.js';
 import { downloadGuideList } from './learning-center/learning-center.js';
 import type { ColorInfo } from './api/color-info.js';
 import { ColorRegistry } from './color-registry.js';
+import { DialogRegistry } from './dialog-registry.js';
+import type { Deferred } from './util/deferred.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -187,7 +189,10 @@ export class PluginSystem {
   private extensionLoader!: ExtensionLoader;
   private validExtList!: ExtensionInfo[];
 
-  constructor(private trayMenu: TrayMenu) {
+  constructor(
+    private trayMenu: TrayMenu,
+    private mainWindowDeferred: Deferred<BrowserWindow>,
+  ) {
     app.on('before-quit', () => {
       this.isQuitting = true;
     });
@@ -748,6 +753,9 @@ export class PluginSystem {
     const webviewRegistry = new WebviewRegistry(apiSender);
     await webviewRegistry.start();
 
+    const dialogRegistry = new DialogRegistry(this.mainWindowDeferred);
+    dialogRegistry.init();
+
     const navigationManager = new NavigationManager(
       apiSender,
       containerProviderRegistry,
@@ -791,6 +799,7 @@ export class PluginSystem {
       navigationManager,
       webviewRegistry,
       colorRegistry,
+      dialogRegistry,
     );
     await this.extensionLoader.init();
 
@@ -2239,6 +2248,23 @@ export class PluginSystem {
     this.ipcHandle('learning-center:listGuides', async () => {
       return downloadGuideList();
     });
+
+    this.ipcHandle(
+      'dialog:openDialog',
+      async (_listener, dialogId: string, options: containerDesktopAPI.OpenDialogOptions): Promise<void> => {
+        dialogRegistry.openDialog(options, dialogId).catch((error: unknown) => {
+          console.error('Error opening dialog', error);
+        });
+      },
+    );
+    this.ipcHandle(
+      'dialog:saveDialog',
+      async (_listener, dialogId: string, options: containerDesktopAPI.SaveDialogOptions): Promise<void> => {
+        dialogRegistry.saveDialog(options, dialogId).catch((error: unknown) => {
+          console.error('Error opening dialog', error);
+        });
+      },
+    );
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,
