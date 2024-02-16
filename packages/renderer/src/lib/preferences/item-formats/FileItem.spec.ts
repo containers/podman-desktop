@@ -5,10 +5,10 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/s
 import FileItem from './FileItem.svelte';
 import userEvent from '@testing-library/user-event';
 
-const openFileDialogMock = vi.fn();
+const openDialogMock = vi.fn();
 beforeAll(() => {
   (window as any).getConfigurationValue = vi.fn();
-  (window as any).openFileDialog = openFileDialogMock;
+  (window as any).openDialog = openDialogMock;
 });
 
 test('Ensure HTMLInputElement', async () => {
@@ -28,12 +28,8 @@ test('Ensure HTMLInputElement', async () => {
   expect(input instanceof HTMLInputElement).toBe(true);
 });
 
-test('Ensure clicking on Browser invoke openFileDialog', async () => {
-  openFileDialogMock.mockResolvedValue({
-    id: undefined,
-    canceled: true,
-    filePaths: [],
-  });
+test('Ensure clicking on Browser invoke openDialog', async () => {
+  openDialogMock.mockResolvedValue([]);
   const record: IConfigurationPropertyRecordedSchema = {
     id: 'record',
     title: 'record',
@@ -48,5 +44,5 @@ test('Ensure clicking on Browser invoke openFileDialog', async () => {
   expect(input).toBeInTheDocument();
   await userEvent.click(input);
 
-  expect(openFileDialogMock).toBeCalled();
+  expect(openDialogMock).toBeCalled();
 });
