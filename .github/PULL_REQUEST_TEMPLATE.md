@@ -15,4 +15,4 @@ repository (or from another issue tracker). -->
 <!-- Please explain steps to verify the functionality,
 do not forget to provide unit/component tests -->
 
-- [ ] Tests are covering the bug-fix or the new feature
+- [ ] Tests are covering the bug fix or the new feature
