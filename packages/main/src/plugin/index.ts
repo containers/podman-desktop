@@ -90,6 +90,7 @@ import type {
   Context as KubernetesContext,
   Cluster,
   V1Deployment,
+  KubernetesObject,
 } from '@kubernetes/client-node';
 import type { V1Route } from './api/openshift-types.js';
 import type { NetworkInspectInfo } from './api/network-info.js';
@@ -157,6 +158,10 @@ import type { IDisposable } from './types/disposable.js';
 
 import { KubernetesUtils } from './kubernetes-util.js';
 import { downloadGuideList } from './learning-center/learning-center.js';
+import type { ColorInfo } from './api/color-info.js';
+import { ColorRegistry } from './color-registry.js';
+import { DialogRegistry } from './dialog-registry.js';
+import type { Deferred } from './util/deferred.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -184,7 +189,10 @@ export class PluginSystem {
   private extensionLoader!: ExtensionLoader;
   private validExtList!: ExtensionInfo[];
 
-  constructor(private trayMenu: TrayMenu) {
+  constructor(
+    private trayMenu: TrayMenu,
+    private mainWindowDeferred: Deferred<BrowserWindow>,
+  ) {
     app.on('before-quit', () => {
       this.isQuitting = true;
     });
@@ -403,6 +411,9 @@ export class PluginSystem {
 
     const configurationRegistry = new ConfigurationRegistry(apiSender, directories);
     notifications.push(...configurationRegistry.init());
+
+    const colorRegistry = new ColorRegistry(apiSender, configurationRegistry);
+    colorRegistry.init();
 
     const proxy = new Proxy(configurationRegistry);
     await proxy.init();
@@ -742,6 +753,9 @@ export class PluginSystem {
     const webviewRegistry = new WebviewRegistry(apiSender);
     await webviewRegistry.start();
 
+    const dialogRegistry = new DialogRegistry(this.mainWindowDeferred);
+    dialogRegistry.init();
+
     const navigationManager = new NavigationManager(
       apiSender,
       containerProviderRegistry,
@@ -784,6 +798,8 @@ export class PluginSystem {
       imageChecker,
       navigationManager,
       webviewRegistry,
+      colorRegistry,
+      dialogRegistry,
     );
     await this.extensionLoader.init();
 
@@ -1993,6 +2009,13 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
+      'kubernetes-client:applyResourcesFromFile',
+      async (_listener, context: string, file: string): Promise<KubernetesObject[]> => {
+        return kubernetesClient.applyResourcesFromFile(context, file);
+      },
+    );
+
+    this.ipcHandle(
       'openshift-client:createRoute',
       async (_listener, namespace: string, route: V1Route): Promise<V1Route> => {
         return kubernetesClient.createOpenShiftRoute(namespace, route);
@@ -2093,6 +2116,10 @@ export class PluginSystem {
 
     this.ipcHandle('iconRegistry:listIcons', async (): Promise<IconInfo[]> => {
       return iconRegistry.listIcons();
+    });
+
+    this.ipcHandle('colorRegistry:listColors', async (_listener, themeId: string): Promise<ColorInfo[]> => {
+      return colorRegistry.listColors(themeId);
     });
 
     this.ipcHandle('viewRegistry:listViewsContributions', async (_listener): Promise<ViewInfoUI[]> => {
@@ -2221,6 +2248,23 @@ export class PluginSystem {
     this.ipcHandle('learning-center:listGuides', async () => {
       return downloadGuideList();
     });
+
+    this.ipcHandle(
+      'dialog:openDialog',
+      async (_listener, dialogId: string, options: containerDesktopAPI.OpenDialogOptions): Promise<void> => {
+        dialogRegistry.openDialog(options, dialogId).catch((error: unknown) => {
+          console.error('Error opening dialog', error);
+        });
+      },
+    );
+    this.ipcHandle(
+      'dialog:saveDialog',
+      async (_listener, dialogId: string, options: containerDesktopAPI.SaveDialogOptions): Promise<void> => {
+        dialogRegistry.saveDialog(options, dialogId).catch((error: unknown) => {
+          console.error('Error opening dialog', error);
+        });
+      },
+    );
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,

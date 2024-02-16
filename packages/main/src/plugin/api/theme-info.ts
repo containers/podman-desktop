@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export interface CommandInfo {
+export interface RawThemeContribution {
   id: string;
-  title?: string;
-  enablement?: string;
-  icon?: string;
+  name: string;
+  parent: string;
+  // definition of colors
+  colors: { [key: string]: string };
 }

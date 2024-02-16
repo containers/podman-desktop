@@ -23,6 +23,7 @@ export interface Menu {
   title: string;
   when?: string;
   disabled?: string;
+  icon?: string;
 }
 
 export enum MenuContext {
@@ -57,6 +58,16 @@ export class MenuRegistry {
 
   registerMenu(context: string, menu: Menu): void {
     let contextMenus = this.menus.get(context);
+
+    // do we have a single match for the command ? if yes, get the command
+    const matchingCommandDefinition = this.commandRegisty
+      .getCommandPaletteCommands()
+      .find(command => command.id === menu.command);
+    // apply the icon if one
+    if (matchingCommandDefinition?.icon) {
+      menu.icon = matchingCommandDefinition.icon;
+    }
+
     if (!contextMenus) {
       contextMenus = new Map<string, Menu>();
       this.menus.set(context, contextMenus);

@@ -12,6 +12,7 @@ import Button from '../ui/Button.svelte';
 import { faExternalLink, faRocket } from '@fortawesome/free-solid-svg-icons';
 import Link from '../ui/Link.svelte';
 import { router } from 'tinro';
+import Input from '/@/lib/ui/Input.svelte';
 
 export let resourceId: string;
 export let engineId: string;
@@ -393,13 +394,7 @@ function updateKubeResult() {
       {#if bodyPod}
         <div class="pt-2 pb-4">
           <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-400">Pod Name:</label>
-          <input
-            type="text"
-            bind:value="{bodyPod.metadata.name}"
-            name="podName"
-            id="podName"
-            class=" cursor-default w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
-            required />
+          <Input bind:value="{bodyPod.metadata.name}" name="podName" id="podName" class="w-full" required />
         </div>
       {/if}
 
@@ -487,13 +482,12 @@ function updateKubeResult() {
       {#if defaultContextName}
         <div class="pt-2">
           <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-400">Kubernetes Context:</label>
-          <input
-            type="text"
+          <Input
             bind:value="{defaultContextName}"
             name="defaultContextName"
             id="defaultContextName"
             readonly
-            class="cursor-default w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
+            class="w-full"
             required />
         </div>
       {/if}

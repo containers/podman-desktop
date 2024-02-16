@@ -171,22 +171,22 @@
   resolved "https://registry.yarnpkg.com/@argos-ci/browser/-/browser-1.4.1.tgz#157347d76bca5697976000f7c4289bee498b7022"
   integrity sha512-XE5TZnoP+zKeV/Gm0pjuJUx0+xoCnVo4ajWBM2V6vyMAP8P+gO7v8HPHWXBLJoEGgF1Ij365fDA3R3+OMD5Hzw==
 
-"@argos-ci/cli@^1.0.10":
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/@argos-ci/cli/-/cli-1.0.10.tgz#add9a6ef175925e56b0e1512b857a02acaa032bd"
-  integrity sha512-Dn96RXj9FRFzKTZWUWWXgqKsp3gYYrYZSpexnZeSFK3dOvA8/LE3ORigJSt1IvI007y2Kps8oS39GbmyWe/z9g==
+"@argos-ci/cli@^1.0.11":
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/@argos-ci/cli/-/cli-1.0.11.tgz#4e465eb4169295d16b3f87f2266913a9bdb9bd19"
+  integrity sha512-pZjjxljBUN22Dz3Q8n5JUUm7yzrny/XdsyJU5soMpGPGwD6oNaDdFucyyIDv07qck/qTG85GlNord/0SuqHZBA==
   dependencies:
-    "@argos-ci/core" "1.5.3"
+    "@argos-ci/core" "1.5.4"
     commander "^11.0.0"
     ora "^7.0.1"
     update-notifier "^6.0.2"
 
-"@argos-ci/core@1.5.3":
-  version "1.5.3"
-  resolved "https://registry.yarnpkg.com/@argos-ci/core/-/core-1.5.3.tgz#4ebf0e5900b31d286c68a73dfa56e5d5bc5a4b49"
-  integrity sha512-qODX23ou3CwagOFwtYZyvXPAd2fXOu5ntnH5MbQcSzP3TdK8H2wkacNaLwvLEVpOeT3jdrfoQvROInewMfbHxQ==
+"@argos-ci/core@1.5.4":
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/@argos-ci/core/-/core-1.5.4.tgz#a3fee71caf1fe816d7aeb842a91f6ba6242df881"
+  integrity sha512-XgRJSJYfauCbqOGNLFFiVri70TAp0TORfKrK/6yXyt7k9NgZD6vD10hUhSMeJP7REwYrqD3wxY7l85K+wwoo3Q==
   dependencies:
-    "@argos-ci/util" "1.2.0"
+    "@argos-ci/util" "1.2.1"
     axios "^1.5.0"
     convict "^6.2.4"
     debug "^4.3.4"
@@ -194,20 +194,20 @@
     sharp "^0.32.5"
     tmp "^0.2.1"
 
-"@argos-ci/playwright@^1.9.1":
-  version "1.9.1"
-  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-1.9.1.tgz#970f058d67d86d73f8eb7be500f14bbf15ba77ba"
-  integrity sha512-gh9upfhE+cyxCF3XTdAMcD+DXDWfWogJlYdL6Gc7litJX7h1yckBmO+deAtsh6xT58DfUIg4SJUjOHDq/CKzDw==
+"@argos-ci/playwright@^1.9.2":
+  version "1.9.2"
+  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-1.9.2.tgz#79bd15ac34a042d12462f5d6a6337ed2944b4573"
+  integrity sha512-gasqd5s46gEb0LPjuNvD2bsH2vCAGK+O4U8Xm4H+BATJiig58B6O1Kmy1YK4MtgReNqZRbOFhVl1SDYGfnVBOw==
   dependencies:
     "@argos-ci/browser" "1.4.1"
-    "@argos-ci/core" "1.5.3"
-    "@argos-ci/util" "1.2.0"
+    "@argos-ci/core" "1.5.4"
+    "@argos-ci/util" "1.2.1"
     chalk "^5.3.0"
 
-"@argos-ci/util@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@argos-ci/util/-/util-1.2.0.tgz#b50014b611ca11a7063530f5193d1ede60ac29bb"
-  integrity sha512-e/sAEECDzUr02v5sXPcd1Ky3WqNOMDWkutfBC8RBizj3Z+CUp6uwV+bzyTZaE9Zms9WekqXAfKe1rZkEie+DrA==
+"@argos-ci/util@1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@argos-ci/util/-/util-1.2.1.tgz#ed1b4984b53e2eab62ee8728e9b520932e760c60"
+  integrity sha512-/o7t0TcSED3BsBnnPrvXdmT+reThGMoGC9Lk+TTghrEE9GFlSKhjBmfYt4fUgXj5hQIe5tcdO01BVB2TsjjYSw==
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.16.0", "@babel/code-frame@^7.18.6", "@babel/code-frame@^7.22.13", "@babel/code-frame@^7.23.4", "@babel/code-frame@^7.8.3":
   version "7.23.4"
@@ -1561,10 +1561,10 @@
     resolve-global "1.0.0"
     yargs "^17.0.0"
 
-"@commitlint/config-conventional@^18.6.1":
-  version "18.6.1"
-  resolved "https://registry.yarnpkg.com/@commitlint/config-conventional/-/config-conventional-18.6.1.tgz#febb4bed074413162da989640a42d4d72383a618"
-  integrity sha512-ftpfAOQyI+IHvut0cRF4EFM39PWCqde+uOXCjH9NpK6FpqfhncAbEvP0E7OIpFsrDX0aS7k81tzH5Yz7prcNxA==
+"@commitlint/config-conventional@^18.6.2":
+  version "18.6.2"
+  resolved "https://registry.yarnpkg.com/@commitlint/config-conventional/-/config-conventional-18.6.2.tgz#617f3ee761578040cade530631058699642cbd78"
+  integrity sha512-PcgSYg1AKGQIwDQKbaHtJsfqYy4uJTC7crLVZ83lfjcPaec4Pry2vLeaWej7ao2KsT20l9dWoMPpEGg8LWdUuA==
   dependencies:
     "@commitlint/types" "^18.6.1"
     conventional-changelog-conventionalcommits "^7.0.2"
@@ -3734,9 +3734,9 @@
     "@types/node" "*"
 
 "@types/node@*", "@types/node@^17.0.5", "@types/node@^18", "@types/node@^18.11.18", "@types/node@^20.1.1":
-  version "18.19.15"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.15.tgz#313a9d75435669a57fc28dc8694e7f4c4319f419"
-  integrity sha512-AMZ2UWx+woHNfM11PyAEQmfSxi05jm9OlkxczuHeEqmvwPkYj6MWv44gbzDPefYOLysTOFyI3ziiy2ONmUZfpA==
+  version "18.19.17"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.17.tgz#a581a9fb4b2cfdbc61f008804f4436b2d5c40354"
+  integrity sha512-SzyGKgwPzuWp2SHhlpXKzCX0pIOfcI4V2eF37nNBJOhwlegQ83omtVQ1XxZpDE06V/d6AQvfQdPfnw0tRC//Ng==
   dependencies:
     undici-types "~5.26.4"
 
@@ -7396,10 +7396,10 @@ electron-util@^0.17.2:
     electron-is-dev "^1.1.0"
     new-github-issue-url "^0.2.1"
 
-electron@28.2.2:
-  version "28.2.2"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-28.2.2.tgz#d5aa4a33c00927d83ca893f8726f7c62aad98c41"
-  integrity sha512-8UcvIGFcjplHdjPFNAHVFg5bS0atDyT3Zx21WwuE4iLfxcAMsyMEOgrQX3im5LibA8srwsUZs7Cx0JAUfcQRpw==
+electron@28.2.3:
+  version "28.2.3"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-28.2.3.tgz#d26821bcfda7ee445b4b75231da4b057a7ce6e7b"
+  integrity sha512-he9nGphZo03ejDjYBXpmFVw0KBKogXvR2tYxE4dyYvnfw42uaFIBFrwGeenvqoEOfheJfcI0u4rFG6h3QxDwnA==
   dependencies:
     "@electron/get" "^2.0.0"
     "@types/node" "^18.11.18"
@@ -12822,10 +12822,10 @@ postcss-import@^15.1.0:
     read-cache "^1.0.0"
     resolve "^1.1.7"
 
-postcss-import@^16.0.0:
-  version "16.0.0"
-  resolved "https://registry.yarnpkg.com/postcss-import/-/postcss-import-16.0.0.tgz#2be1c78391b3f43f129fccfe5cc0cc1a11baef54"
-  integrity sha512-e77lhVvrD1I2y7dYmBv0k9ULTdArgEYZt97T4w6sFIU5uxIHvDFQlKgUUyY7v7Barj0Yf/zm5A4OquZN7jKm5Q==
+postcss-import@^16.0.1:
+  version "16.0.1"
+  resolved "https://registry.yarnpkg.com/postcss-import/-/postcss-import-16.0.1.tgz#c2e0478c5af8cb39ab3964c35d8fee8e70c362b8"
+  integrity sha512-i2Pci0310NaLHr/5JUFSw1j/8hf1CzwMY13g6ZDxgOavmRHQi2ba3PmUHoihO+sjaum+KmCNzskNsw7JDrg03g==
   dependencies:
     postcss-value-parser "^4.0.0"
     read-cache "^1.0.0"
@@ -15206,10 +15206,10 @@ svelte-steps@2.4.1:
   resolved "https://registry.yarnpkg.com/svelte-steps/-/svelte-steps-2.4.1.tgz#64e055735818e81454e1ca5be8b7b9fe23a8b239"
   integrity sha512-2Xq2lLcGJf3PaEY46f1w5s+/O+tLl4U2V+Z+sCeoUm/kEPFXeZP/aFr2JVKwdzSlXCT+raz75xqXtnZrPWJ0zA==
 
-svelte@4.2.10:
-  version "4.2.10"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-4.2.10.tgz#3bef8d79ca75eb53cc4d03f9fac1546e60393f77"
-  integrity sha512-Ep06yCaCdgG1Mafb/Rx8sJ1QS3RW2I2BxGp2Ui9LBHSZ2/tO/aGLc5WqPjgiAP6KAnLJGaIr/zzwQlOo1b8MxA==
+svelte@4.2.11:
+  version "4.2.11"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-4.2.11.tgz#b1a57a41d01686b4f7230611f89a5c25b23a1745"
+  integrity sha512-YIQk3J4X89wOLhjsqIW8tqY3JHPuBdtdOIkASP2PZeAMcSW9RsIjQzMesCrxOF3gdWYC0mKknlKF7OqmLM+Zqg==
   dependencies:
     "@ampproject/remapping" "^2.2.1"
     "@jridgewell/sourcemap-codec" "^1.4.15"
@@ -16225,10 +16225,10 @@ vite-node@1.2.2:
     picocolors "^1.0.0"
     vite "^5.0.0"
 
-vite@^5.0.0, vite@^5.1.1:
-  version "5.1.1"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-5.1.1.tgz#294e39b199d669981efc7e0261b14f78ec80819e"
-  integrity sha512-wclpAgY3F1tR7t9LL5CcHC41YPkQIpKUGeIuT8MdNwNZr6OqOTLs7JX5vIHAtzqLWXts0T+GDrh9pN2arneKqg==
+vite@^5.0.0, vite@^5.1.3:
+  version "5.1.3"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-5.1.3.tgz#dd072653a80225702265550a4700561740dfde55"
+  integrity sha512-UfmUD36DKkqhi/F75RrxvPpry+9+tTkrXfMNZD+SboZqBCMsxKtO52XeGzzuh7ioz+Eo/SYDBbdb0Z7vgcDJew==
   dependencies:
     esbuild "^0.19.3"
     postcss "^8.4.35"

@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
 import DropdownMenuItem from './DropDownMenuItem.svelte';
 import Fa from 'svelte-fa';
 import { onDestroy } from 'svelte';
@@ -9,7 +9,7 @@ import { context as storeContext } from '/@/stores/context';
 import { ContextKeyExpr } from '../context/contextKey';
 
 export let title: string;
-export let icon: IconDefinition;
+export let icon: IconDefinition | string;
 export let hidden = false;
 export let disabledWhen = '';
 export let enabled: boolean = true;

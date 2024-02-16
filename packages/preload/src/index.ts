@@ -39,6 +39,7 @@ import type { HistoryInfo } from '../../main/src/plugin/api/history-info';
 import type { ContainerInspectInfo } from '../../main/src/plugin/api/container-inspect-info';
 import type { ContainerStatsInfo } from '../../main/src/plugin/api/container-stats-info';
 import type { IconInfo } from '../../main/src/plugin/api/icon-info';
+import type { ColorInfo } from '../../main/src/plugin/api/color-info';
 import type { WebviewInfo } from '../../main/src/plugin/api/webview-info';
 import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
 import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-api';
@@ -69,6 +70,7 @@ import type {
 import type {
   Cluster,
   Context,
+  KubernetesObject,
   V1ConfigMap,
   V1Deployment,
   V1Ingress,
@@ -95,6 +97,7 @@ import type { ApiSenderType } from '../../main/src/plugin/api';
 import type { IDisposable } from '../../main/src/plugin/types/disposable';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
+export type OpenSaveDialogResultCallback = (result: string | string[] | undefined) => void;
 
 export type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 const originalConsole = console;
@@ -134,7 +137,7 @@ export const buildApiSender = (): ApiSenderType => {
 };
 
 // initialize extension loader mechanism
-function initExposure(): void {
+export function initExposure(): void {
   const apiSender = buildApiSender();
 
   interface ErrorMessage {
@@ -1268,6 +1271,10 @@ function initExposure(): void {
     return ipcInvoke('iconRegistry:listIcons');
   });
 
+  contextBridge.exposeInMainWorld('listColors', async (themeId: string): Promise<ColorInfo[]> => {
+    return ipcInvoke('colorRegistry:listColors', themeId);
+  });
+
   // Handle callback to open devtools for extensions
   // by delegating to the renderer process
   ipcRenderer.on('dev-tools:open-extension', (_, extensionId: string) => {
@@ -1294,6 +1301,70 @@ function initExposure(): void {
       } else {
         console.error('Got response for an unknown dialog id', dialogId);
       }
+    },
+  );
+
+  // Handle callback on dialogs by calling the callback once we get the answer
+  ipcRenderer.on('dialog:open-save-dialog-response', (_, dialogId: string, result: string | string[] | undefined) => {
+    // grab from stored map
+    const callback = openSaveDialogResponses.get(dialogId);
+    if (callback) {
+      callback(result);
+
+      // remove callback
+      openSaveDialogResponses.delete(dialogId);
+    } else {
+      console.error('Got response for an unknown dialog id', dialogId);
+    }
+  });
+
+  let idOpenSaveDialog = 0;
+
+  const openSaveDialogResponses = new Map<string, OpenSaveDialogResultCallback>();
+
+  const deferedHandleDialog = (): { id: string; deferred: Deferred<string | string[] | undefined> } => {
+    // generate id
+    const dialogId = idOpenSaveDialog;
+    idOpenSaveDialog++;
+
+    // create defer object
+    const deferred = new Deferred<string | string[] | undefined>();
+
+    // store the dialogID
+    openSaveDialogResponses.set(`${dialogId}`, (result: string | string[] | undefined) => {
+      deferred.resolve(result);
+    });
+
+    return { deferred: deferred, id: `${dialogId}` };
+  };
+
+  contextBridge.exposeInMainWorld(
+    'openDialog',
+    async (options?: containerDesktopAPI.OpenDialogOptions): Promise<string[] | undefined> => {
+      const handle = deferedHandleDialog();
+
+      // ask to open file dialog
+      ipcInvoke('dialog:openDialog', handle.id, options).catch((error: unknown) => {
+        handle.deferred.reject(error);
+      });
+
+      // wait for response
+      return handle.deferred.promise as Promise<string[] | undefined>;
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'saveDialog',
+    async (options?: containerDesktopAPI.SaveDialogOptions): Promise<string | undefined> => {
+      const handle = deferedHandleDialog();
+
+      // ask to open file dialog
+      ipcInvoke('dialog:saveDialog', handle.id, options).catch((error: unknown) => {
+        handle.deferred.reject(error);
+      });
+
+      // wait for response
+      return handle.deferred.promise as Promise<string | undefined>;
     },
   );
 
@@ -1747,6 +1818,13 @@ function initExposure(): void {
     'kubernetesCreateResourcesFromFile',
     async (context: string, file: string, namespace: string): Promise<void> => {
       return ipcInvoke('kubernetes-client:createResourcesFromFile', context, file, namespace);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'kubernetesApplyResourcesFromFile',
+    async (context: string, file: string): Promise<KubernetesObject[]> => {
+      return ipcInvoke('kubernetes-client:applyResourcesFromFile', context, file);
     },
   );
 
