@@ -32,9 +32,19 @@ In foldable details, you can find alternative steps for least common contexts:
 
 1. To communicate with the remote Podman Machine, you need a Podman client.
 
-   To benefit from the latest features, such as `podman kube` subcommands, and to enable the remote mode by default, consider installing the `podman-remote` binary rather than the `podman` package from the distribution.
+   To benefit from the latest features, such as `podman kube` subcommands, use a recent Podman version rather than the `podman` package from the distribution.
+   
+   The Podman client is available with a full `podman` installation or with the `podman-remote` version 4.x and higher. On Ubuntu it is generally easier to install `podman-remote`.
+   
+   With `podman-remote` you also enable the remote mode by default.
 
-   Download the `podman-remote` binary from the [Podman releases page](https://github.com/containers/podman/releases/latest).
+   Check for the latest release which includes the `podman-remote` binary from the [Podman releases page](https://github.com/containers/podman/releases/latest).
+   
+   Download and unpack the binary:
+   
+   ```shell-session
+   $ wget https://github.com/containers/podman/releases/download/v4.9.1/podman-remote-static-linux_amd64.tar.gz
+   $ sudo tar -C /usr/local -xzf podman-remote-static-linux_amd64.tar.gz
 
 1. Configure the Podman client in your WSL distribution to communicate with the remote Podman machine defined by Podman Desktop.
 
