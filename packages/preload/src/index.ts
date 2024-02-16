@@ -1085,9 +1085,11 @@ export function initExposure(): void {
   });
 
   contextBridge.exposeInMainWorld(
-    'troubleshootingGenerateLogFileName',
-    async (filename: string, extension?: string): Promise<string> => {
-      return ipcInvoke('troubleshooting:generateLogFileName', filename, extension);
+    'troubleshootingGenerateLogFileUri',
+    async (filename: string, extension?: string): Promise<containerDesktopAPI.Uri> => {
+      const generatedFile = await ipcInvoke('troubleshooting:generateLogFileName', filename, extension);
+      // transform into URI Object
+      return { fsPath: generatedFile, scheme: 'file' } as containerDesktopAPI.Uri;
     },
   );
 
