@@ -40,7 +40,7 @@ jobs:
         # limit to 10 operations per run (to see how it works)
         operations-per-run: 10
         days-before-issue-stale: 500
-        days-before-issue-close: 14
+        days-before-issue-close: 30
         stale-issue-label: lifecycle/stale
         exempt-issue-labels: lifecycle/frozen
         stale-issue-message: >
@@ -50,7 +50,7 @@ jobs:
             Thank you for your contributions!
         close-issue-message: >
             This issue has been automatically closed because it has not had any further
-            activity in the last 2 weeks. Thank you for your contributions!
+            activity in the last 30 days. Thank you for your contributions!
         days-before-pr-stale: 180
         days-before-pr-close: 14
         stale-pr-label: lifecycle/stale
