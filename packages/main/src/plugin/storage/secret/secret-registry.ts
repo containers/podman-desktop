@@ -17,12 +17,7 @@
  ***********************************************************************/
 
 import { Emitter, type Event } from '../../events/emitter.js';
-import type {
-  IStorageEntry,
-  IStorageService,
-  IStorageValueChangeEvent,
-  StorageValue,
-} from '/@/plugin/storage/storage.js';
+import type { IStorageEntry, IStorage, IStorageValueChangeEvent, StorageValue } from '/@/plugin/storage/storage.js';
 import type { Directories } from '/@/plugin/directories.js';
 import path from 'path';
 import * as fs from 'node:fs';
@@ -35,7 +30,7 @@ const isNumber = (value: unknown): value is number => typeof value === 'number';
 const isBoolean = (value: unknown): value is boolean => typeof value === 'boolean';
 const isObject = (value: unknown): value is object => typeof value === 'object';
 
-export class SecretStorage implements IStorageService {
+export class SecretRegistry implements IStorage {
   private readonly _onDidChangeSecret = new Emitter<IStorageValueChangeEvent[]>();
   readonly onDidChangeSecret: Event<IStorageValueChangeEvent[]> = this._onDidChangeSecret.event;
 

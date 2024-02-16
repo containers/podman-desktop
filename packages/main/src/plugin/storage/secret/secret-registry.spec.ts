@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
-import { SecretStorage } from '/@/plugin/storage/secret/secret-registry.js';
+import { SecretRegistry } from '/@/plugin/storage/secret/secret-registry.js';
 import type { Directories } from '/@/plugin/directories.js';
 import type { IEncryptionService } from '/@/plugin/storage/encryption/encryptionService.js';
 
@@ -58,12 +58,12 @@ vi.mock('node:fs', async () => {
 });
 
 test('keys should be empty when init not called', () => {
-  const storage = new SecretStorage(directoriesMock, encryptionServiceMock);
+  const storage = new SecretRegistry(directoriesMock, encryptionServiceMock);
   expect(storage.keys().length).toBe(0);
 });
 
 test('init should load from disk the existing file', async () => {
-  const storage = new SecretStorage(directoriesMock, encryptionServiceMock);
+  const storage = new SecretRegistry(directoriesMock, encryptionServiceMock);
 
   // Mock config path
   mocks.getConfigurationDirectoryMock.mockReturnValue('dummy-path');
@@ -84,7 +84,7 @@ test('init should load from disk the existing file', async () => {
 });
 
 test('init should load from disk the existing secrets', async () => {
-  const storage = new SecretStorage(directoriesMock, encryptionServiceMock);
+  const storage = new SecretRegistry(directoriesMock, encryptionServiceMock);
 
   // Mock config path
   mocks.getConfigurationDirectoryMock.mockReturnValue('dummy-path');
@@ -116,7 +116,7 @@ test('init should load from disk the existing secrets', async () => {
 });
 
 test('save should save to disk the in-memory secrets', async () => {
-  const storage = new SecretStorage(directoriesMock, encryptionServiceMock);
+  const storage = new SecretRegistry(directoriesMock, encryptionServiceMock);
   // Mock decrypt service
   mocks.encryptMock.mockImplementation(value => {
     switch (value) {
@@ -137,25 +137,25 @@ test('save should save to disk the in-memory secrets', async () => {
 });
 
 test('getNumber on string should raise an error', async () => {
-  const storage = new SecretStorage(directoriesMock, encryptionServiceMock);
+  const storage = new SecretRegistry(directoriesMock, encryptionServiceMock);
   storage.store('dummy', 'string');
   expect(() => storage.getNumber('dummy')).toThrowError('wrong value type');
 });
 
 test('getBoolean on string should raise an error', async () => {
-  const storage = new SecretStorage(directoriesMock, encryptionServiceMock);
+  const storage = new SecretRegistry(directoriesMock, encryptionServiceMock);
   storage.store('dummy', 'string');
   expect(() => storage.getBoolean('dummy')).toThrowError('wrong value type');
 });
 
 test('getObject on string should raise an error', async () => {
-  const storage = new SecretStorage(directoriesMock, encryptionServiceMock);
+  const storage = new SecretRegistry(directoriesMock, encryptionServiceMock);
   storage.store('dummy', 'string');
   expect(() => storage.getObject('dummy')).toThrowError('wrong value type');
 });
 
 test('storeAll should store all the item provided', async () => {
-  const storage = new SecretStorage(directoriesMock, encryptionServiceMock);
+  const storage = new SecretRegistry(directoriesMock, encryptionServiceMock);
   storage.storeAll([
     {
       key: 'dummy-1',
@@ -177,7 +177,7 @@ test('storeAll should store all the item provided', async () => {
 });
 
 test('remove should remove the item', async () => {
-  const storage = new SecretStorage(directoriesMock, encryptionServiceMock);
+  const storage = new SecretRegistry(directoriesMock, encryptionServiceMock);
   storage.storeAll([
     {
       key: 'dummy-1',
@@ -195,7 +195,7 @@ test('remove should remove the item', async () => {
 });
 
 test('onDidChangeSecret should be fired when an item is inserted', async () => {
-  const storage = new SecretStorage(directoriesMock, encryptionServiceMock);
+  const storage = new SecretRegistry(directoriesMock, encryptionServiceMock);
 
   const listener = vi.fn();
   storage.onDidChangeSecret(listener);
@@ -206,7 +206,7 @@ test('onDidChangeSecret should be fired when an item is inserted', async () => {
 });
 
 test('onDidChangeSecret should be fired when an item is inserted', async () => {
-  const storage = new SecretStorage(directoriesMock, encryptionServiceMock);
+  const storage = new SecretRegistry(directoriesMock, encryptionServiceMock);
 
   const listener = vi.fn();
   storage.onDidChangeSecret(listener);
@@ -217,7 +217,7 @@ test('onDidChangeSecret should be fired when an item is inserted', async () => {
 });
 
 test('onDidChangeSecret should be fired when multiple items are inserted', async () => {
-  const storage = new SecretStorage(directoriesMock, encryptionServiceMock);
+  const storage = new SecretRegistry(directoriesMock, encryptionServiceMock);
 
   const listener = vi.fn();
   storage.onDidChangeSecret(listener);

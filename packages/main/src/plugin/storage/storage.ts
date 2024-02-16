@@ -38,7 +38,7 @@ export interface IStorageEntry {
   readonly value: StorageValue;
 }
 
-export interface IStorageService {
+export interface IStorage {
   readonly onDidChangeSecret: Event<IStorageValueChangeEvent[]>;
 
   /**
