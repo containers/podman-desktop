@@ -33,23 +33,26 @@ In foldable details, you can find alternative steps for least common contexts:
 1. To communicate with the remote Podman Machine, you need a Podman client.
 
    To benefit from the latest features, such as `podman kube` subcommands, use a recent Podman version rather than the `podman` package from the distribution.
-   
+
    The Podman client is available with a full `podman` installation or with the `podman-remote` version 4.x and higher. On Ubuntu it is generally easier to install `podman-remote`.
-   
+
    With `podman-remote` you also enable the remote mode by default.
 
    Check for the latest release which includes the `podman-remote` binary from the [Podman releases page](https://github.com/containers/podman/releases/latest).
-   
+
    Download and unpack the binary:
-   
+
    ```shell-session
    $ wget https://github.com/containers/podman/releases/download/v4.9.1/podman-remote-static-linux_amd64.tar.gz
    $ sudo tar -C /usr/local -xzf podman-remote-static-linux_amd64.tar.gz
+   ```
 
    Make this executable as `podman` with the following addition to `.bashrc`:
 
-
+   ```shell-session
    $ export PATH="$PATH:/usr/local/bin"
+   ```
+
 1. Configure the Podman client in your WSL distribution to communicate with the remote Podman machine defined by Podman Desktop.
 
    This will ensure consistency when you are working with Podman from all your different environments
@@ -69,11 +72,11 @@ Two parameters can change:
 - The machine name might differ from `podman-machine-default`.
 - The socket name is different when the Podman machine has root privileges disabled (rootless mode).
 
-   Find your Podman Machine name and connection path:
+  Find your Podman Machine name and connection path:
    </summary>
    <div>
 
-   1. Identify the sockets available in your WSL distribution.
+  1.  Identify the sockets available in your WSL distribution.
 
       The Podman machine shares sockets in a `/mnt/wsl/podman-sockets/` subdirectory named after the Podman machine name.
 
@@ -95,7 +98,7 @@ Two parameters can change:
       /mnt/wsl/podman-sockets/podman-machine-default/podman-user.sock
       ```
 
-   2. Identify the socket that Podman Desktop uses.
+  2.  Identify the socket that Podman Desktop uses.
 
       Podman Desktop defaults to rootful Podman.
       However, consider identifying the active socket.
@@ -124,7 +127,7 @@ Two parameters can change:
       podman-machine-default-root ssh://root@127.0.0.1:59292/run/podman/podman.sock C:\Users\Podman Desktop User\.ssh\podman-machine-default true
       ```
 
-   3. To define the Podman machine remote destination, prepend with `unix://` the socket path that is available in your WSL, and corresponds to the Podman Desktop active socket:
+  3.  To define the Podman machine remote destination, prepend with `unix://` the socket path that is available in your WSL, and corresponds to the Podman Desktop active socket:
 
       For the default Podman machine:
 
