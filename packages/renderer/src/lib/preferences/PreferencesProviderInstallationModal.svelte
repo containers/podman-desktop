@@ -5,6 +5,7 @@ import Modal from '../dialogs/Modal.svelte';
 import ProviderLogo from '../dashboard/ProviderLogo.svelte';
 import type { ProviderInfo, CheckStatus } from '../../../../main/src/plugin/api/provider-info';
 import Button from '../ui/Button.svelte';
+import CloseButton from '/@/lib/ui/CloseButton.svelte';
 
 export let providerToBeInstalled: { provider: ProviderInfo; displayName: string };
 export let preflightChecks: CheckStatus[];
@@ -25,9 +26,7 @@ function openLink(e: MouseEvent, url: string): void {
       aria-label="install provider">
       <div class="flex items-center justify-between px-5 py-4 mb-4">
         <h1 class="text-md font-semibold">Create a new {providerToBeInstalled.displayName}</h1>
-        <button class="hover:text-gray-300 px-2 py-1" aria-label="Close" on:click="{() => closeCallback()}">
-          <i class="fas fa-times" aria-hidden="true"></i>
-        </button>
+        <CloseButton class="px-2 py-1" on:click="{() => closeCallback()}" />
       </div>
       <div class="overflow-y-auto px-4 pb-4">
         <div class="flex flex-col rounded-lg">
