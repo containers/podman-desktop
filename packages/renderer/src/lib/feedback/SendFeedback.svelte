@@ -6,6 +6,7 @@ import type { FeedbackProperties } from '../../../../preload/src/index';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Button from '../ui/Button.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
+import CloseButton from '/@/lib/ui/CloseButton.svelte';
 let displayModal = false;
 
 // feedback of the user
@@ -61,9 +62,7 @@ async function sendFeedback(): Promise<void> {
       <div class="flex items-center justify-between bg-black px-5 py-4 border-b-2 border-violet-700">
         <h1 class="text-xl font-bold">Share your feedback</h1>
 
-        <button class="hover:text-gray-300 px-2 py-1" on:click="{() => hideModal()}">
-          <i class="fas fa-times" aria-hidden="true"></i>
-        </button>
+        <CloseButton on:click="{() => hideModal()}" />
       </div>
 
       <div class="overflow-y-auto p-4">

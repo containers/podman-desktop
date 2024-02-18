@@ -6,6 +6,7 @@ import type { ImageInfoUI } from './ImageInfoUI';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Button from '../ui/Button.svelte';
 import Input from '/@/lib/ui/Input.svelte';
+import CloseButton from '/@/lib/ui/CloseButton.svelte';
 
 export let closeCallback: () => void;
 export let detailed = false;
@@ -71,9 +72,7 @@ async function renameImage(imageName: string, imageTag: string) {
     <div class="flex items-center justify-between px-6 py-5 space-x-2">
       <h1 class="grow text-lg font-bold capitalize">Edit Image</h1>
 
-      <button class="hover:text-gray-300 py-1" on:click="{() => closeCallback()}">
-        <i class="fas fa-times" aria-hidden="true"></i>
-      </button>
+      <CloseButton on:click="{() => closeCallback()}" />
     </div>
     <div class="flex flex-col px-10 py-4 text-sm leading-5 space-y-5">
       <div>

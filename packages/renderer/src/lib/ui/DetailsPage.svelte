@@ -2,6 +2,7 @@
 import { lastPage, currentPage } from '../../stores/breadcrumb';
 import { router } from 'tinro';
 import Link from './Link.svelte';
+import CloseButton from '/@/lib/ui/CloseButton.svelte';
 
 export let title: string;
 export let titleDetail: string | undefined = undefined;
@@ -29,9 +30,7 @@ function handleKeydown(e: KeyboardEvent) {
           >{$lastPage.name}</Link>
         <div class="mx-2">&gt;</div>
         <div class="grow font-extralight" aria-label="name">{$currentPage.name}</div>
-        <a href="{$lastPage.path}" title="Close" class="justify-self-end text-gray-900">
-          <i class="fas fa-times" aria-hidden="true"></i>
-        </a>
+        <CloseButton href="{$lastPage.path}" class="justify-self-end" />
       </div>
       <div class="flex flex-row items-start pt-1">
         <div class="pr-3">
