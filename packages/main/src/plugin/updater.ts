@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { MessageBox } from '/@/plugin/message-box.js';
+import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
 import { autoUpdater, type UpdateCheckResult } from 'electron-updater';
 import { UPDATER_UPDATE_AVAILABLE_ICON } from '/@/plugin/index.js';
 import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
@@ -36,6 +37,7 @@ export class Updater {
 
   constructor(
     private messageBox: MessageBox,
+    private configurationRegistry: ConfigurationRegistry,
     private statusBarRegistry: StatusBarRegistry,
     private commandRegistry: CommandRegistry,
   ) {
@@ -166,11 +168,50 @@ export class Updater {
    */
   private onUpdateAvailable(): void {
     this.updateAvailableEntry();
+    if (this.getConfigurationValue() === 'startup') {
+      this.commandRegistry.executeCommand('update').catch((err: unknown) => {
+        console.error('Something went wrong while executing update command', err);
+      });
+    }
   }
 
   /**
    * Handler for update not available event.
    */
+  private registerConfiguration() {
+    this.configurationRegistry.registerConfigurations([
+      {
+        id: 'preferences.update',
+        title: 'Update',
+        type: 'object',
+        properties: {
+          ['preferences.update.reminder']: {
+            description: 'Update reminder',
+            type: 'string',
+            default: 'startup',
+            enum: ['startup', 'never'],
+          },
+        },
+      },
+    ]);
+  }
+
+  private getConfigurationValue(): 'startup' | 'never' {
+    const value = this.configurationRegistry.getConfiguration('preferences').get('update.reminder');
+    if (value !== 'startup' && value !== 'never')
+      throw new Error(`Illegal value in configuration. Expected "startup" or "never" got ${value}`);
+    return value;
+  }
+
+  private updateConfigurationValue(value: 'startup' | 'never'): void {
+    this.configurationRegistry
+      .getConfiguration('preferences')
+      .update('update.reminder', value)
+      .catch((err: unknown) => {
+        console.error('Something went wrong while trying to update update.reminder preference', err);
+      });
+  }
+
   private onUpdateNotAvailable(): void {
     this.#updateInProgress = false;
     this.#updateAlreadyDownloaded = false;
@@ -242,6 +283,7 @@ export class Updater {
     }
 
     this.registerCommands();
+    this.registerConfiguration();
 
     // setup the event listeners
     autoUpdater.on('update-available', this.onUpdateAvailable.bind(this));
