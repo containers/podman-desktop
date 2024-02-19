@@ -3,6 +3,8 @@ import { onDestroy, onMount, tick } from 'svelte';
 import type { InputBoxOptions, QuickPickOptions } from './quickpick-input';
 import Markdown from '/@/lib/markdown/Markdown.svelte';
 import { tabWithinParent } from './dialog-utils';
+import Button from '/@/lib/ui/Button.svelte';
+import Checkbox from '/@/lib/ui/Checkbox.svelte';
 
 const ENTER = 'Enter';
 const ESCAPE = 'Escape';
@@ -332,9 +334,7 @@ function handleMousedown(e: MouseEvent) {
               placeholder="{placeHolder}" />
           {/if}
           {#if quickPickCanPickMany}
-            <button
-              on:click="{() => validateQuickPick()}"
-              class="text-gray-400 bg-violet-600 border border-charcoal-600 focus:outline-none px-1">OK</button>
+            <Button on:click="{() => validateQuickPick()}" class="px-1">OK</Button>
           {/if}
         </div>
 
@@ -353,15 +353,15 @@ function handleMousedown(e: MouseEvent) {
           {#each quickPickFilteredItems as item, i}
             <div
               class="flex w-full flex-row {i === quickPickSelectedFilteredIndex
-                ? 'bg-violet-500'
+                ? 'bg-purple-500'
                 : 'hover:bg-charcoal-600'} ">
               {#if quickPickCanPickMany}
-                <input type="checkbox" class="mx-1 outline-none" bind:checked="{item.checkbox}" />
+                <Checkbox class="mx-1 my-auto" bind:checked="{item.checkbox}" />
               {/if}
               <button
                 on:click="{() => clickQuickPickItem(item, i)}"
                 class="text-gray-400 text-left relative my-1 w-full {i === quickPickSelectedFilteredIndex
-                  ? 'bg-violet-500'
+                  ? 'bg-purple-500'
                   : ''} px-1">
                 <div class="flex flex-col w-full">
                   <!-- first row is Value + optional description-->

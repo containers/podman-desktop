@@ -145,12 +145,17 @@ function goBackToHistory(): void {
 }
 
 async function getKubernetesfileLocation() {
-  const result = await window.openFileDialog('Select a .yaml file to play', {
-    name: 'YAML files',
-    extensions: ['yaml', 'yml'],
+  const filePaths = await window.openDialog({
+    title: 'Select a .yaml file to play',
+    filters: [
+      {
+        name: 'YAML files',
+        extensions: ['yaml', 'yml'],
+      },
+    ],
   });
-  if (!result.canceled && result.filePaths.length === 1) {
-    kubernetesYamlFilePath = result.filePaths[0];
+  if (filePaths?.length === 1) {
+    kubernetesYamlFilePath = filePaths[0];
     hasInvalidFields = false;
   }
 }

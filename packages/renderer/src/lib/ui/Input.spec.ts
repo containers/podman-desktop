@@ -51,7 +51,7 @@ test('Expect basic styling', async () => {
   expect(element).toBeInTheDocument();
   expect(element).toHaveClass('px-1');
   expect(element).toHaveClass('outline-0');
-  expect(element).toHaveClass('bg-charcoal-500');
+  expect(element).toHaveClass('bg-transparent');
   expect(element).toHaveClass('text-sm');
   expect(element).toHaveClass('text-white');
 
@@ -60,9 +60,9 @@ test('Expect basic styling', async () => {
   expect(element).toHaveClass('group-hover-placeholder:text-gray-900');
 
   expect(element.parentElement).toBeInTheDocument();
-  expect(element.parentElement).toHaveClass('bg-charcoal-500');
+  expect(element.parentElement).toHaveClass('bg-transparent');
   expect(element.parentElement).toHaveClass('border-[1px]');
-  expect(element.parentElement).toHaveClass('border-charcoal-500');
+  expect(element.parentElement).toHaveClass('border-transparent');
 
   expect(element.parentElement).toHaveClass('hover:bg-charcoal-900');
   expect(element.parentElement).toHaveClass('hover:rounded-md');
@@ -77,7 +77,7 @@ test('Expect basic readonly styling', async () => {
   expect(element).toBeInTheDocument();
   expect(element).toHaveClass('px-1');
   expect(element).toHaveClass('outline-0');
-  expect(element).toHaveClass('bg-charcoal-500');
+  expect(element).toHaveClass('bg-transparent');
   expect(element).toHaveClass('text-sm');
   expect(element).toHaveClass('text-white');
 
@@ -86,9 +86,9 @@ test('Expect basic readonly styling', async () => {
   expect(element).not.toHaveClass('group-hover-placeholder:text-gray-900');
 
   expect(element.parentElement).toBeInTheDocument();
-  expect(element.parentElement).toHaveClass('bg-charcoal-500');
+  expect(element.parentElement).toHaveClass('bg-transparent');
   expect(element.parentElement).toHaveClass('border-[1px]');
-  expect(element.parentElement).toHaveClass('border-charcoal-500');
+  expect(element.parentElement).toHaveClass('border-transparent');
   expect(element.parentElement).toHaveClass('border-b-charcoal-100');
 
   expect(element.parentElement).not.toHaveClass('hover:bg-charcoal-900');
@@ -104,7 +104,7 @@ test('Expect basic disabled styling', async () => {
   expect(element).toBeInTheDocument();
   expect(element).toHaveClass('px-1');
   expect(element).toHaveClass('outline-0');
-  expect(element).toHaveClass('bg-charcoal-500');
+  expect(element).toHaveClass('bg-transparent');
   expect(element).toHaveClass('text-sm');
   expect(element).toHaveClass('text-gray-700');
 
@@ -113,9 +113,9 @@ test('Expect basic disabled styling', async () => {
   expect(element).not.toHaveClass('group-hover-placeholder:text-gray-900');
 
   expect(element.parentElement).toBeInTheDocument();
-  expect(element.parentElement).toHaveClass('bg-charcoal-500');
+  expect(element.parentElement).toHaveClass('bg-transparent');
   expect(element.parentElement).toHaveClass('border-[1px]');
-  expect(element.parentElement).toHaveClass('border-charcoal-500');
+  expect(element.parentElement).toHaveClass('border-transparent');
   expect(element.parentElement).toHaveClass('border-b-charcoal-100');
 
   expect(element.parentElement).not.toHaveClass('hover:bg-charcoal-900');

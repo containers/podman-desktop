@@ -7,10 +7,10 @@ let logs: string[] = [];
 
 // Save files as a zip file (we first ask the user for the dialog, and then save the files to the filepath)
 async function saveLogsAsZip() {
-  const filename = await window.troubleshootingGenerateLogFileName('podman-desktop', 'zip');
-  const result = await window.saveFileDialog('Save Logs as .zip', filename);
-  if (!result.canceled && result.filePath) {
-    logs = await window.troubleshootingSaveLogs(result.filePath);
+  const defaultUri = await window.troubleshootingGenerateLogFileUri('podman-desktop', 'zip');
+  const filePath = await window.saveDialog({ title: 'Save Logs as .zip', defaultUri });
+  if (filePath) {
+    logs = await window.troubleshootingSaveLogs(filePath);
   }
 }
 </script>

@@ -201,9 +201,9 @@ async function getPortsInfo(portDescriptor: string): Promise<string | undefined>
  * Select an environment file
  */
 async function selectEnvironmentFile(index: number) {
-  const result = await window.openFileDialog('Select environment file');
-  if (!result.canceled && result.filePaths.length === 1) {
-    environmentFiles[index] = result.filePaths[0];
+  const filePaths = await window.openDialog({ title: 'Select environment file' });
+  if (filePaths?.length === 1) {
+    environmentFiles[index] = filePaths[0];
   }
 }
 

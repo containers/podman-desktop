@@ -10,9 +10,9 @@ let invalidEntry = false;
 
 async function selectFilePath() {
   invalidEntry = false;
-  const result = await window.openFileDialog(`Select ${record.description}`);
-  if (record.id && !result.canceled && result.filePaths.length === 1) {
-    onChange(record.id, result.filePaths[0]).catch((_: unknown) => (invalidEntry = true));
+  const filePaths = await window.openDialog({ title: `Select ${record.description}` });
+  if (record.id && filePaths && filePaths.length === 1) {
+    onChange(record.id, filePaths[0]).catch((_: unknown) => (invalidEntry = true));
   }
 }
 
