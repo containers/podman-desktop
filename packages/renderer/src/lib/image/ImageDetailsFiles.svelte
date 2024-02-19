@@ -4,15 +4,20 @@ import type { ImageInfoUI } from './ImageInfoUI';
 import { onMount } from 'svelte';
 import TreeView from '../ui/TreeView.svelte';
 import { ImageUtils } from './image-utils';
+import Spinner from '../ui/Spinner.svelte';
 
 export let image: ImageInfoUI;
+let loading = true;
 let layers: ImageLayer[];
 let currentLayerId: string;
 $: currentRoot = layers ? layers[0].tree.root : undefined;
 
 onMount(async () => {
   layers = await window.getImageLayers(image.engineId, image.id);
-  currentLayerId = layers[0].id;
+  loading = false;
+  if (layers.length > 0) {
+    currentLayerId = layers[0].id;
+  }
 });
 
 function onLayerSelected(layer: ImageLayer) {
@@ -55,4 +60,6 @@ function onLayerSelected(layer: ImageLayer) {
       </div>
     </div>
   </div>
+{:else if loading}
+  <div class="m-4 flex flex-row"><Spinner size="1em" /><span class="ml-4">Loading layers, please wait...</span></div>
 {/if}
