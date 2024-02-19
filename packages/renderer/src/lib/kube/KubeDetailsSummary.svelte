@@ -132,7 +132,6 @@ if (pod?.status?.startTime) {
                 <td class="py-2 px-4">{container.volumeMounts?.map(vm => vm.name).join(', ') || ''}</td>
               </tr>
             {/if}
-            <br />
           {/each}
         {/if}
 
@@ -143,7 +142,6 @@ if (pod?.status?.startTime) {
           </tr>
           {#each pod.spec.volumes as volume}
             <KubeDetailsSummaryVolumes volume="{volume}" />
-            <br />
           {/each}
         {/if}
       </tbody>

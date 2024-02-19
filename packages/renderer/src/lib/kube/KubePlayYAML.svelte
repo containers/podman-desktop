@@ -15,6 +15,7 @@ import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 import Button from '../ui/Button.svelte';
+import Input from '/@/lib/ui/Input.svelte';
 
 let runStarted = false;
 let runFinished = false;
@@ -144,12 +145,17 @@ function goBackToHistory(): void {
 }
 
 async function getKubernetesfileLocation() {
-  const result = await window.openFileDialog('Select a .yaml file to play', {
-    name: 'YAML files',
-    extensions: ['yaml', 'yml'],
+  const filePaths = await window.openDialog({
+    title: 'Select a .yaml file to play',
+    filters: [
+      {
+        name: 'YAML files',
+        extensions: ['yaml', 'yml'],
+      },
+    ],
   });
-  if (!result.canceled && result.filePaths.length === 1) {
-    kubernetesYamlFilePath = result.filePaths[0];
+  if (filePaths?.length === 1) {
+    kubernetesYamlFilePath = filePaths[0];
     hasInvalidFields = false;
   }
 }
@@ -168,15 +174,17 @@ async function getKubernetesfileLocation() {
         <div class="text-xl font-medium">Select file:</div>
         <div hidden="{runStarted}">
           <label for="containerFilePath" class="block mb-2 text-sm font-bold text-gray-400">Kubernetes YAML file</label>
-          <input
-            on:click="{() => getKubernetesfileLocation()}"
-            name="containerFilePath"
-            id="containerFilePath"
-            bind:value="{kubernetesYamlFilePath}"
-            readonly
-            placeholder="Select a .yaml file to play"
-            class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
-            required />
+          <div class="flex flex-row space-x-2">
+            <Input
+              name="containerFilePath"
+              id="containerFilePath"
+              bind:value="{kubernetesYamlFilePath}"
+              readonly
+              placeholder="Select a .yaml file to play"
+              class="w-full p-2"
+              required />
+            <Button on:click="{() => getKubernetesfileLocation()}">Browse ...</Button>
+          </div>
         </div>
 
         <div>
@@ -201,9 +209,7 @@ async function getKubernetesfileLocation() {
                 </div>
                 <div hidden="{runStarted}">
                   {#if providerConnections.length > 1}
-                    <label
-                      for="providerConnectionName"
-                      class="py-6 block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
+                    <label for="providerConnectionName" class="py-6 block mb-2 text-sm font-medium text-gray-400"
                       >Container Engine
                       <select
                         class="border text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 bg-gray-900 border-gray-900 placeholder-gray-700 text-white"
@@ -245,14 +251,13 @@ async function getKubernetesfileLocation() {
                       for="contextToUse"
                       class="block mb-1 text-sm font-bold text-gray-400"
                       class:text-gray-900="{userChoice !== 'kubernetes'}">Kubernetes Context:</label>
-                    <input
-                      type="text"
+                    <Input
                       disabled="{userChoice === 'podman'}"
                       bind:value="{defaultContextName}"
                       name="defaultContextName"
                       id="defaultContextName"
                       readonly
-                      class="cursor-default w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+                      class="w-full"
                       required />
                   </div>
                 {/if}

@@ -1,6 +1,6 @@
 ---
 sidebar_position: 4
-title: Creating a Minikube cluster
+title: Creating a cluster
 description: Creating a local Minikube-powered Kubernetes cluster.
 keywords: [podman desktop, podman, containers, migrating, kubernetes, minikube]
 tags: [migrating-to-kubernetes, minikube]

@@ -154,3 +154,23 @@ test('Expect no dropdown when several contributions and dropdownMenu mode on', a
     expect(button.lastChild?.textContent).toBe('dummy-contrib');
   });
 });
+
+test('Expect Push image to be there', async () => {
+  // Mock the showMessageBox to return 0 (yes)
+  showMessageBoxMock.mockResolvedValue({ response: 0 });
+  getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
+
+  const image: ImageInfoUI = {
+    name: 'dummy',
+    status: 'UNUSED',
+  } as ImageInfoUI;
+
+  render(ImageActions, {
+    onPushImage: vi.fn(),
+    onRenameImage: vi.fn(),
+    image,
+  });
+
+  const button = screen.getByTitle('Push Image');
+  expect(button).toBeDefined();
+});

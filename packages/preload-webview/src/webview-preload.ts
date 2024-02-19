@@ -17,6 +17,8 @@
  ***********************************************************************/
 
 import type { WebviewInfo } from '../../main/src/plugin/api/webview-info';
+import type { ColorInfo } from '../../main/src/plugin/api/color-info';
+import { AppearanceSettings } from '../../main/src/plugin/appearance-settings';
 
 import type { IpcRendererEvent } from 'electron';
 import { contextBridge, ipcRenderer } from 'electron';
@@ -32,6 +34,7 @@ export class WebviewPreload {
   #webviewInfo: WebviewInfo | undefined;
   #domLoaded: boolean = false;
   #acquiredApi: boolean = false;
+  #cssStyleElement: HTMLStyleElement | undefined;
 
   constructor(webviewId: string) {
     this.#webviewId = webviewId;
@@ -72,12 +75,53 @@ export class WebviewPreload {
     // use a timeout to perform the update
     setTimeout(() => {
       const webviewContentHtml = new DOMParser().parseFromString(webviewHtmlContent, 'text/html');
+
+      // add the CSS for the colors
+      this.createOrUpdateCssForColors().catch((error: unknown) => {
+        console.error('Error while creating CSS for colors', error);
+      });
+
       const htmlContent = '<!DOCTYPE html>\n' + webviewContentHtml.documentElement.outerHTML;
 
       document.open();
       document.write(htmlContent);
       document.close();
     }, 0);
+  }
+
+  protected async createOrUpdateCssForColors(): Promise<void> {
+    // get current theme
+    let userTheme = await this.getTheme();
+
+    if (userTheme === AppearanceSettings.SystemEnumValue) {
+      userTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    // grab colors from the main process
+    const colors = await this.getColors(userTheme);
+    const styles: string[] = [];
+    colors.forEach((color: ColorInfo) => {
+      const cssVar = color.cssVar;
+      const colorValue = color.value;
+      styles.push(`${cssVar}: ${colorValue};`);
+    });
+
+    if (!this.#cssStyleElement) {
+      // add a listener for the appearance change in case user change setting on the Operating System
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        this.createOrUpdateCssForColors().catch((error: unknown) => {
+          console.error('Error while creating CSS for colors', error);
+        });
+      });
+
+      this.#cssStyleElement = document.createElement('style');
+      this.#cssStyleElement.type = 'text/css';
+      this.#cssStyleElement.id = 'podman-desktop-colors-styles';
+      this.#cssStyleElement.media = 'screen';
+      document.head.append(this.#cssStyleElement);
+    }
+
+    this.#cssStyleElement.textContent = `:root {\n${styles.join('\n')}\n}`;
   }
 
   // build the function that will be exposed to the webview for getState/postMessage/setState
@@ -106,6 +150,16 @@ export class WebviewPreload {
         },
       });
     };
+  }
+  protected getTheme(): Promise<string> {
+    return this.ipcInvoke(
+      'configuration-registry:getConfigurationValue',
+      AppearanceSettings.SectionName + '.' + AppearanceSettings.Appearance,
+    ) as Promise<string>;
+  }
+
+  protected getColors(themeId: string): Promise<ColorInfo[]> {
+    return this.ipcInvoke('colorRegistry:listColors', themeId) as Promise<ColorInfo[]>;
   }
 
   protected getWebviews(): Promise<WebviewInfo[]> {

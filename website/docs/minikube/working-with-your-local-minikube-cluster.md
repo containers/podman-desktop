@@ -1,6 +1,6 @@
 ---
 sidebar_position: 5
-title: Working with your Minikube cluster
+title: Working with a cluster
 description: Working with your local Minikube-powered Kubernetes cluster.
 keywords: [podman desktop, podman, containers, migrating, kubernetes, minikube]
 tags: [migrating-to-kubernetes, minikube]

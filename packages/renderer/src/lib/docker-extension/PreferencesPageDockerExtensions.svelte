@@ -6,6 +6,7 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import SettingsPage from '../preferences/SettingsPage.svelte';
 import Button from '../ui/Button.svelte';
 import { faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
+import Input from '../ui/Input.svelte';
 
 export let ociImage: string | undefined = undefined;
 
@@ -69,14 +70,12 @@ function deleteContribution(extensionName: string) {
     <div class="container w-full mt-4 flex-col">
       <div class="flex flex-col mb-4">
         <label for="ociImage" class="block mb-2 text-sm font-medium text-gray-400">Image name:</label>
-        <input
+        <Input
           name="ociImage"
           id="ociImage"
           aria-label="OCI Image Name"
-          type="text"
           bind:value="{ociImage}"
           placeholder="Name of the Image"
-          class="text-sm rounded-sm focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-charcoal-800 border-gray-900 placeholder-gray-400 text-white"
           required />
       </div>
     </div>
@@ -109,7 +108,7 @@ function deleteContribution(extensionName: string) {
           <div class="flex flex-col bg-purple-600 h-[100px]">
             <div class="flex justify-end flex-wrap">
               <button
-                class="inline-block text-gray-100 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-700 focus:outline-none rounded-lg text-sm p-1.5"
+                class="inline-block text-gray-100 hover:text-gray-700 focus:outline-none rounded-lg text-sm p-1.5"
                 type="button">
                 <i
                   class="fas fa-times"

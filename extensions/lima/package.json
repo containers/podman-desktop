@@ -1,7 +1,7 @@
 {
   "name": "lima",
   "displayName": "Lima",
-  "description": "Integration for Lima: Linux virtual machines (typically macOS)",
+  "description": "Integration for Lima: Linux Machines (typically macOS)",
   "version": "0.0.1",
   "icon": "icon.png",
   "publisher": "podman-desktop",
@@ -34,6 +34,11 @@
           "type": "string",
           "default": "",
           "description": "Instance name (default is same name as type)"
+        },
+        "lima.socket": {
+          "type": "string",
+          "default": "",
+          "description": "Socket name (default is equal to type.sock)"
         }
       }
     },
@@ -64,7 +69,7 @@
   "devDependencies": {
     "adm-zip": "^0.5.10",
     "mkdirp": "^3.0.1",
-    "vite": "^5.0.12",
+    "vite": "^5.1.3",
     "vitest": "^1.2.2",
     "tmp-promise": "^3.0.3"
   }

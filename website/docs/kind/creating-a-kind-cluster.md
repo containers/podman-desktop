@@ -1,6 +1,6 @@
 ---
 sidebar_position: 4
-title: Creating a Kind cluster
+title: Creating a cluster
 description: Creating a local Kind-powered Kubernetes cluster.
 keywords: [podman desktop, podman, containers, migrating, kubernetes, kind]
 tags: [migrating-to-kubernetes, kind]

@@ -60,6 +60,9 @@ import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 import { app } from 'electron';
 import type { WebviewInfo } from './api/webview-info.js';
 import { getBase64Image } from '../util.js';
+import { Disposable } from './types/disposable.js';
+import type { ColorRegistry } from './color-registry.js';
+import type { DialogRegistry } from './dialog-registry.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -161,7 +164,9 @@ const viewRegistry: ViewRegistry = {} as unknown as ViewRegistry;
 
 const context: Context = new Context(apiSender);
 
-const cliToolRegistry: CliToolRegistry = {} as unknown as CliToolRegistry;
+const cliToolRegistry: CliToolRegistry = {
+  createCliTool: vi.fn(),
+} as unknown as CliToolRegistry;
 
 const directories = {
   getPluginsDirectory: () => '/fake-plugins-directory',
@@ -171,9 +176,13 @@ const directories = {
 
 const exec = new Exec(proxy);
 
-const notificationRegistry: NotificationRegistry = {} as unknown as NotificationRegistry;
+const notificationRegistry: NotificationRegistry = {
+  registerExtension: vi.fn(),
+} as unknown as NotificationRegistry;
 
-const imageCheckerImpl: ImageCheckerImpl = {} as unknown as ImageCheckerImpl;
+const imageCheckerImpl: ImageCheckerImpl = {
+  registerImageCheckerProvider: vi.fn(),
+} as unknown as ImageCheckerImpl;
 
 const contributionManager: ContributionManager = {
   listContributions: vi.fn(),
@@ -190,6 +199,17 @@ const navigationManager: NavigationManager = new NavigationManager(
   contributionManager,
   webviewRegistry,
 );
+
+const colorRegistry = {
+  registerExtensionThemes: vi.fn(),
+} as unknown as ColorRegistry;
+const openDialogMock = vi.fn();
+const saveDialogMock = vi.fn();
+
+const dialogRegistry: DialogRegistry = {
+  openDialog: openDialogMock,
+  saveDialog: saveDialogMock,
+} as unknown as DialogRegistry;
 
 vi.mock('electron', () => {
   return {
@@ -238,6 +258,8 @@ beforeAll(() => {
     imageCheckerImpl,
     navigationManager,
     webviewRegistry,
+    colorRegistry,
+    dialogRegistry,
   );
 });
 
@@ -1510,5 +1532,115 @@ describe('authentication Provider', async () => {
     expect(themeLogo).toBeDefined();
     expect(themeLogo?.light).equals(BASE64ENCODEDIMAGE);
     expect(themeLogo?.dark).equals(BASE64ENCODEDIMAGE);
+  });
+});
+
+test('createCliTool ', async () => {
+  const api = extensionLoader.createApi('/path', {});
+  expect(api).toBeDefined();
+
+  const options: containerDesktopAPI.CliToolOptions = {
+    name: 'tool-name',
+    displayName: 'tool-display-name',
+    markdownDescription: 'markdown description',
+    images: {},
+    version: '1.0.1',
+    path: 'path/to/tool-name',
+  };
+
+  vi.mocked(cliToolRegistry.createCliTool).mockReturnValue({ id: 'created' } as containerDesktopAPI.CliTool);
+
+  const newCliTool = api.cli.createCliTool(options);
+
+  expect(cliToolRegistry.createCliTool).toBeCalledWith(expect.objectContaining({ extensionPath: '/path' }), options);
+  expect(newCliTool).toStrictEqual({ id: 'created' });
+});
+
+test('registerImageCheckerProvider ', async () => {
+  const api = extensionLoader.createApi('/path', {});
+  expect(api).toBeDefined();
+
+  const provider = {
+    check: (
+      _image: containerDesktopAPI.ImageInfo,
+      _token?: containerDesktopAPI.CancellationToken,
+    ): containerDesktopAPI.ProviderResult<containerDesktopAPI.ImageChecks> => {
+      return {
+        checks: [
+          {
+            name: 'check1',
+            status: 'failed',
+          },
+        ],
+      };
+    },
+  };
+
+  vi.mocked(imageCheckerImpl.registerImageCheckerProvider).mockReturnValue(Disposable.create(() => {}));
+
+  api.imageChecker.registerImageCheckerProvider(provider, { label: 'dummyLabel' });
+
+  expect(imageCheckerImpl.registerImageCheckerProvider).toBeCalledWith(
+    expect.objectContaining({ extensionPath: '/path' }),
+    provider,
+    { label: 'dummyLabel' },
+  );
+});
+
+test('loadExtension with themes', async () => {
+  const manifest = {
+    name: 'hello',
+    contributes: {
+      themes: [
+        {
+          id: 'custom-dark',
+          name: 'Custom dark theme',
+          parent: 'dark',
+          colors: {
+            TitlebarBg: 'red',
+          },
+        },
+      ],
+    },
+  };
+
+  const fakeExtension = {
+    manifest,
+    subscriptions: [],
+  } as unknown as AnalyzedExtension;
+
+  await extensionLoader.loadExtension(fakeExtension);
+
+  expect(colorRegistry.registerExtensionThemes).toBeCalledWith(fakeExtension, manifest.contributes.themes);
+});
+
+describe('window', async () => {
+  test('showOpenDialog ', async () => {
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    const filePaths = ['/path-to-file1', '/path-to-file2'];
+    vi.mocked(dialogRegistry.openDialog).mockResolvedValue(filePaths);
+
+    const uris = await api.window.showOpenDialog();
+    expect(uris?.length).toBe(2);
+    const urisArray = uris as containerDesktopAPI.Uri[];
+
+    expect(dialogRegistry.openDialog).toBeCalled();
+    expect(urisArray[0].fsPath).toContain('path-to-file1');
+    expect(urisArray[1].fsPath).toContain('path-to-file2');
+  });
+
+  test('showSaveDialog ', async () => {
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    const filePath = '/path-to-file1';
+    vi.mocked(dialogRegistry.saveDialog).mockResolvedValue(filePath);
+
+    const uri = await api.window.showSaveDialog();
+
+    expect(dialogRegistry.saveDialog).toBeCalled();
+    expect(uri?.fsPath).toContain('path-to-file1');
   });
 });

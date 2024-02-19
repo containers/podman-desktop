@@ -24,7 +24,7 @@ import type { Disposable } from './types/disposable.js';
 import type { ApiSenderType } from './api.js';
 
 let menuRegistry: MenuRegistry;
-let commandRegistry;
+let commandRegistry: CommandRegistry;
 
 let registerMenuDisposable: Disposable;
 
@@ -113,4 +113,58 @@ test('Should not find menus after dispose', async () => {
   registerMenuDisposable.dispose();
   const menus = menuRegistry.getContributedMenus('dashboard/image');
   expect(menus).toStrictEqual([]);
+});
+
+test('Should find icon', async () => {
+  menuRegistry = new MenuRegistry(commandRegistry);
+
+  const manifest = {
+    contributes: {
+      menus: {
+        'dashboard/image': [
+          {
+            command: 'image.command1',
+            title: 'Image 1',
+            icon: '${myIcon1}',
+          },
+        ],
+        'dashboard/container': [
+          {
+            command: 'container.command1',
+            title: 'Container 1',
+            icon: '${myIcon2}',
+          },
+          {
+            command: 'container.command2',
+            title: 'Container 2',
+          },
+        ],
+        'dashboard/unregistered': [
+          {
+            command: 'unregistered.command1',
+            title: 'Unregistered 1',
+          },
+        ],
+      },
+    },
+  };
+
+  // commands are already registered
+  // register the menus now
+  registerMenuDisposable = menuRegistry.registerMenus(manifest.contributes.menus);
+
+  const menus = menuRegistry.getContributedMenus('dashboard/image');
+
+  // icon should be set for the command
+  expect(menus[0].icon).toBe('${myIcon1}');
+
+  const menus2 = menuRegistry.getContributedMenus('dashboard/container');
+  // check icons
+  expect(menus2[0].icon).toBe('${myIcon2}');
+  // other one should be undefined
+  expect(menus2[1].icon).toBe(undefined);
+
+  // and now last item should be undefined as commands is not registered
+  const menus3 = menuRegistry.getContributedMenus('dashboard/unregistered');
+  expect(menus3).toStrictEqual([]);
 });

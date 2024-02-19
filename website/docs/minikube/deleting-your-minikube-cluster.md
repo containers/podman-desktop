@@ -1,6 +1,6 @@
 ---
 sidebar_position: 7
-title: Deleting your Minikube cluster
+title: Deleting a cluster
 description: Deleting your local Minikube-powered Kubernetes cluster.
 keywords: [podman desktop, podman, containers, migrating, kubernetes, minikube]
 tags: [migrating-to-kubernetes, minikube]

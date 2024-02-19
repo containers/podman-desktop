@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { AppearanceUtil } from './appearance-util';
 import { AppearanceSettings } from '../../../../main/src/plugin/appearance-settings';
 
@@ -104,4 +104,80 @@ test('Expect light icon using light configuration', async () => {
   getConfigurationValueMock.mockResolvedValue(AppearanceSettings.LightEnumValue);
 
   expect(await appearanceUtil.getImage(img)).toBe(img.light);
+});
+
+describe('getTheme', () => {
+  test('should return dark if OS is set to dark and theme is set to system ', async () => {
+    (window as any).matchMedia = vi.fn().mockReturnValue({
+      matches: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    });
+    getConfigurationValueMock.mockResolvedValue(AppearanceSettings.SystemEnumValue);
+
+    const theme = await appearanceUtil.getTheme();
+    expect(theme).toBe('dark');
+  });
+
+  test('should return light if OS is set to light and theme is set to system ', async () => {
+    (window as any).matchMedia = vi.fn().mockReturnValue({
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    });
+    getConfigurationValueMock.mockResolvedValue(AppearanceSettings.SystemEnumValue);
+
+    const theme = await appearanceUtil.getTheme();
+    expect(theme).toBe('light');
+  });
+
+  test('should return dark if value is dark even if os is light', async () => {
+    (window as any).matchMedia = vi.fn().mockReturnValue({
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    });
+    getConfigurationValueMock.mockResolvedValue(AppearanceSettings.DarkEnumValue);
+
+    const theme = await appearanceUtil.getTheme();
+    expect(theme).toBe('dark');
+  });
+
+  test('should return light if value is light even if os is dark', async () => {
+    (window as any).matchMedia = vi.fn().mockReturnValue({
+      matches: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    });
+    getConfigurationValueMock.mockResolvedValue(AppearanceSettings.LightEnumValue);
+
+    const theme = await appearanceUtil.getTheme();
+    expect(theme).toBe('light');
+  });
+
+  test('should return custom value even if os is dark', async () => {
+    (window as any).matchMedia = vi.fn().mockReturnValue({
+      matches: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    });
+    const customTheme = 'fooTheme';
+    getConfigurationValueMock.mockResolvedValue(customTheme);
+
+    const theme = await appearanceUtil.getTheme();
+    expect(theme).toBe(customTheme);
+  });
+
+  test('should return custom value even if os is dark', async () => {
+    (window as any).matchMedia = vi.fn().mockReturnValue({
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    });
+    const customTheme = 'fooTheme';
+    getConfigurationValueMock.mockResolvedValue(customTheme);
+
+    const theme = await appearanceUtil.getTheme();
+    expect(theme).toBe(customTheme);
+  });
 });

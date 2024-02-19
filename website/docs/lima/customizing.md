@@ -110,19 +110,31 @@ For instance you can install [Podman Engine](https://github.com/containers/podma
 or you can install [Docker Engine](https://github.com/docker/docker).
 After that you can port forward the socket, to the host `Dir`.
 
+#### Docker
+
 ```yaml
 portForwards:
   - guestSocket: '/var/run/docker.sock'
     hostSocket: '{{.Dir}}/sock/docker.sock'
+```
+
+- `/var/run/docker.sock`
+
+```bash
+export DOCKER_HOST="unix://{{.Dir}}/sock/docker.sock"
+```
+
+#### Podman
+
+```yaml
+portForwards:
   - guestSocket: '/run/podman/podman.sock'
     hostSocket: '{{.Dir}}/sock/podman.sock'
 ```
 
-- `/var/run/docker.sock`
 - `/run/podman/podman.sock`
 
 ```bash
-export DOCKER_HOST="unix://{{.Dir}}/sock/docker.sock"
 export CONTAINER_HOST="unix://{{.Dir}}/sock/podman.sock"
 ```
 
@@ -134,17 +146,30 @@ For instance you can use [CRI-O](https://github.com/cri-o/cri-o) for Podman,
 or [CRI-Dockerd](https://github.com/Mirantis/cri-dockerd) for Docker.
 After that you can copy the `kubeconfig.yaml` file, to the host `Dir`.
 
+#### k3s.io
+
 ```yaml
 copyToHost:
   - guest: '/etc/rancher/k3s/k3s.yaml'
     host: '{{.Dir}}/copied-from-guest/kubeconfig.yaml'
     deleteOnStop: true
+```
+
+- `/etc/rancher/k3s/k3s.yaml`
+
+```bash
+export KUBECONFIG="{{.Dir}}/copied-from-guest/kubeconfig.yaml"
+```
+
+#### k8s.io
+
+```yaml
+copyToHost:
   - guest: '/etc/kubernetes/admin.conf'
     host: '{{.Dir}}/copied-from-guest/kubeconfig.yaml'
     deleteOnStop: true
 ```
 
-- `/etc/rancher/k3s/k3s.yaml`
 - `/etc/kubernetes/admin.conf`
 
 ```bash
