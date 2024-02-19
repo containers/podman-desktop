@@ -103,7 +103,13 @@ const config = {
           },
           {
             to: '/docs/compose',
-            from: ['/docs/podman-compose', '/docs/compose/compose-spec', '/docs/compose/podman-compose'],
+            from: [
+              '/docs/compose/compose-spec',
+              '/docs/compose/podman-compose',
+              '/docs/compose/running-compose',
+              '/docs/compose/setting-up-compose',
+              '/docs/podman-compose',
+            ],
           },
           {
             to: '/docs/kubernetes',
