@@ -9,6 +9,7 @@ import type { ContextUI } from '../context/context';
 import { context } from '/@/stores/context';
 import { onDestroy, onMount } from 'svelte';
 import { type Unsubscriber } from 'svelte/store';
+import SearchInput from '../ui/SearchInput.svelte';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let key: string;
@@ -66,31 +67,7 @@ function updateSearchValue(event: any) {
 
 <Route path="/" breadcrumb="{key}">
   <SettingsPage title="Preferences">
-    <div class="mt-4" slot="header">
-      <div
-        class="flex items-center text-gray-700 rounded-sm rounded-lg border-2 border-charcoal-900 focus-within:border-violet-500">
-        <input
-          on:input="{e => updateSearchValue(e)}"
-          class="w-full bg-charcoal-900 py-1 px-3 outline-0 text-sm"
-          name="search"
-          type="text"
-          placeholder="Search preferences"
-          id="input-search"
-          aria-label="input-search" />
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-4 h-4 mr-2 bg-charcoal-900"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-        </svg>
-      </div>
-    </div>
+    <SearchInput slot="header" title="preferences" class="mt-4" on:input="{e => updateSearchValue(e)}" />
     <div class="flex flex-col space-y-5">
       {#if matchingRecords.size === 0}
         <div>No Settings Found</div>

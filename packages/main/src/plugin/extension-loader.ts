@@ -73,6 +73,9 @@ import type { ImageCheckerImpl } from './image-checker.js';
 import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 import type { ImageInspectInfo } from '/@/plugin/api/image-inspect-info.js';
+import type { PodInfo } from './api/pod-info.js';
+import type { ColorRegistry } from '/@/plugin/color-registry.js';
+import type { DialogRegistry } from './dialog-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -170,6 +173,8 @@ export class ExtensionLoader {
     private imageCheckerProvider: ImageCheckerImpl,
     private navigationManager: NavigationManager,
     private webviewRegistry: WebviewRegistry,
+    private colorRegistry: ColorRegistry,
+    private dialogRegistry: DialogRegistry,
   ) {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
@@ -575,19 +580,27 @@ export class ExtensionLoader {
       extension.subscriptions.push(this.configurationRegistry.registerConfigurations([extensionConfiguration]));
     }
 
-    const menus = extension.manifest?.contributes?.menus;
-    if (menus) {
-      extension.subscriptions.push(this.menuRegistry.registerMenus(menus));
-    }
     const extensionCommands = extension.manifest?.contributes?.commands;
     if (extensionCommands) {
       const disposable = this.commandRegistry.registerCommandsFromExtension(extension.id, extensionCommands);
       extension.subscriptions.push(disposable);
     }
 
+    // register menus after the contributed commands so we can see if contributed commands have icons
+    const menus = extension.manifest?.contributes?.menus;
+    if (menus) {
+      extension.subscriptions.push(this.menuRegistry.registerMenus(menus));
+    }
+
     const icons = extension.manifest?.contributes?.icons;
     if (icons) {
       this.iconRegistry.registerIconContribution(extension, icons);
+    }
+
+    const themes = extension.manifest?.contributes?.themes;
+    if (themes) {
+      const disposable = this.colorRegistry.registerExtensionThemes(extension, themes);
+      extension.subscriptions.push(disposable);
     }
 
     const views = extension.manifest?.contributes?.views;
@@ -794,6 +807,7 @@ export class ExtensionLoader {
     const inputQuickPickRegistry = this.inputQuickPickRegistry;
     const customPickRegistry = this.customPickRegistry;
     const webviewRegistry = this.webviewRegistry;
+    const dialogRegistry = this.dialogRegistry;
     const windowObj: typeof containerDesktopAPI.window = {
       showInformationMessage: (message: string, ...items: string[]) => {
         return messageBox.showDialog('info', extManifest.displayName, message, items);
@@ -871,6 +885,22 @@ export class ExtensionLoader {
       listWebviews(): Promise<containerDesktopAPI.WebviewInfo[]> {
         return webviewRegistry.listSimpleWebviews();
       },
+      showOpenDialog: async (
+        options?: containerDesktopAPI.OpenDialogOptions,
+      ): Promise<containerDesktopAPI.Uri[] | undefined> => {
+        const result = await dialogRegistry.openDialog(options);
+        if (result) {
+          return result.map(uri => Uri.file(uri));
+        }
+      },
+      showSaveDialog: async (
+        options?: containerDesktopAPI.SaveDialogOptions,
+      ): Promise<containerDesktopAPI.Uri | undefined> => {
+        const result = await dialogRegistry.saveDialog(options);
+        if (result) {
+          return Uri.file(result);
+        }
+      },
     };
 
     const fileSystemMonitoring = this.fileSystemMonitoring;
@@ -931,15 +961,7 @@ export class ExtensionLoader {
         eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
         options?: containerDesktopAPI.BuildImageOptions,
       ) {
-        return containerProviderRegistry.buildImage(
-          context,
-          eventCollect,
-          options?.containerFile,
-          options?.tag,
-          options?.platform,
-          options?.provider,
-          options?.abortController,
-        );
+        return containerProviderRegistry.buildImage(context, eventCollect, options);
       },
       listImages(): Promise<containerDesktopAPI.ImageInfo[]> {
         return containerProviderRegistry.listImages();
@@ -999,6 +1021,15 @@ export class ExtensionLoader {
       },
       createPod(podOptions: containerDesktopAPI.PodCreateOptions): Promise<{ engineId: string; Id: string }> {
         return containerProviderRegistry.createPod(podOptions);
+      },
+      listPods(): Promise<PodInfo[]> {
+        return containerProviderRegistry.listPods();
+      },
+      stopPod(engineId: string, podId: string): Promise<void> {
+        return containerProviderRegistry.stopPod(engineId, podId);
+      },
+      removePod(engineId: string, podId: string): Promise<void> {
+        return containerProviderRegistry.removePod(engineId, podId);
       },
       replicatePodmanContainer(
         source: { engineId: string; id: string },
@@ -1153,6 +1184,9 @@ export class ExtensionLoader {
       },
       navigateToContribution: async (name: string): Promise<void> => {
         await this.navigationManager.navigateToContribution(name);
+      },
+      navigateToWebview: async (webviewId: string): Promise<void> => {
+        await this.navigationManager.navigateToWebview(webviewId);
       },
     };
 

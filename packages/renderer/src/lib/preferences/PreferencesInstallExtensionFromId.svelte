@@ -17,10 +17,11 @@ import { onDestroy, onMount } from 'svelte';
 import SettingsPage from '/@/lib/preferences/SettingsPage.svelte';
 import { catalogExtensionInfos } from '/@/stores/catalog-extensions';
 import EmptyScreen from '/@/lib/ui/EmptyScreen.svelte';
-import { faPuzzlePiece } from '@fortawesome/free-solid-svg-icons';
+import { faArrowCircleDown, faPuzzlePiece } from '@fortawesome/free-solid-svg-icons';
 import Markdown from '/@/lib/markdown/Markdown.svelte';
 import { extensionInfos } from '/@/stores/extensions';
 import ErrorMessage from '/@/lib/ui/ErrorMessage.svelte';
+import Button from '../ui/Button.svelte';
 
 export let extensionId: string | undefined = undefined;
 
@@ -146,25 +147,21 @@ onDestroy(() => {
             <div class="text-sm text-gray-300">
               {extensionDetails.displayName}
             </div>
-            <div class="flex">
-              {#if installInProgress}
-                <div
-                  class="px-3 my-1 text-sm font-medium text-center text-white bg-violet-600 rounded-sm focus:outline-none cursor-default"
-                  title="Extension {extensionDetails.extensionName} is already installed.">
-                  Installing...
-                </div>
-              {:else if !isInstalled}
-                <button
-                  class="px-3 my-1 text-sm font-medium text-center text-white bg-violet-600 rounded-sm hover:bg-dustypurple-800 focus:ring-2 focus:outline-none focus:ring-dustypurple-700"
+            <div class="flex my-1">
+              {#if !isInstalled}
+                <Button
                   title="Install extension {extensionDetails.extensionName}"
+                  icon="{faArrowCircleDown}"
+                  inProgress="{installInProgress}"
                   on:click="{() => installExtension()}">
                   Install...
-                </button>
+                </Button>
               {:else}
+                <div aria-label="Installed" class="my-auto w-3 h-3 rounded-full bg-green-500"></div>
                 <div
-                  class="px-3 my-1 text-sm font-medium text-center text-white bg-violet-600 rounded-sm focus:outline-none cursor-default"
+                  class="my-1 text-xs text-green-500 ml-1 font-bold"
                   title="Extension {extensionDetails.extensionName} is already installed.">
-                  Installed
+                  INSTALLED
                 </div>
               {/if}
             </div>

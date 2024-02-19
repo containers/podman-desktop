@@ -8,7 +8,7 @@ keywords: [podman desktop, containers, lima, onboarding, linux, macos]
 
 # Creating a Lima instance for container workloads with Podman Desktop
 
-To use the Lima provider you need a Lima instance running a Linux virtual machine.
+To use the Lima provider you need a Lima instance running a Linux machine.
 
 In the future, Podman Desktop might be able to create Lima instances.
 
@@ -70,6 +70,18 @@ Consider creating a custom Lima instance to:
        - Type: docker
        - Name: docker
          ![Lima preferences Docker](img/lima-preferences-docker.png)
+
+   - Go to **<Icon icon="fa-solid fa-cog" size="lg" /> Settings > Preferences > Extension: Lima**, to configure a custom socket name.
+
+     - The default socket name is:
+
+       - `podman.sock` for Podman
+
+       - `docker.sock` for Docker
+
+     - To use a custom socket name:
+
+       ![Lima preferences Socket](img/lima-preferences-socket.png)
 
    - Go to **<Icon icon="fa-solid fa-cog" size="lg" /> Settings > Extensions > Lima**, to disable and enable the extension after changes.
 

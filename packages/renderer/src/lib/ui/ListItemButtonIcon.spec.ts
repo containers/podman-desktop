@@ -20,7 +20,7 @@ import '@testing-library/jest-dom/vitest';
 import { test, expect, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import ListItemButtonIcon from './ListItemButtonIcon.svelte';
-import { faRocket } from '@fortawesome/free-solid-svg-icons';
+import { faCircleCheck, faRocket } from '@fortawesome/free-solid-svg-icons';
 import { ContextUI } from '../context/context';
 import { context } from '/@/stores/context';
 
@@ -157,4 +157,42 @@ test('With confirmation=no, there will be no confirmation when clicking the butt
   const button = screen.getByRole('button', { name: title });
   await fireEvent.click(button);
   expect(showMessageBoxMock).not.toHaveBeenCalled();
+});
+
+test('With custom font icon', async () => {
+  const title = 'Dummy item';
+
+  render(ListItemButtonIcon, {
+    title,
+    icon: 'podman-desktop-icon-dummyIcon',
+    menu: true,
+    confirm: false,
+    enabled: true,
+    inProgress: false,
+  });
+
+  const iconItem = screen.getByRole('img', { name: title });
+  expect(iconItem).toBeInTheDocument();
+  // expect to have the podman desktop icon class
+  expect(iconItem).toHaveClass('podman-desktop-icon-dummyIcon');
+});
+
+test('With custom Fa icon', async () => {
+  const title = 'Dummy item';
+
+  render(ListItemButtonIcon, {
+    title,
+    icon: faCircleCheck,
+    menu: true,
+    confirm: false,
+    enabled: true,
+    inProgress: false,
+  });
+
+  // grab the svg element
+  const svgElement = screen.getByRole('img', { hidden: true });
+  expect(svgElement).toBeInTheDocument();
+
+  // check it is a svelte-fa class
+  expect(svgElement).toHaveClass('svelte-fa');
 });

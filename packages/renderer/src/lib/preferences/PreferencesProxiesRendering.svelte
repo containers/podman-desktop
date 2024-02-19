@@ -6,6 +6,7 @@ import Button from '../ui/Button.svelte';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
 import { validateProxyAddress } from './Util';
 import ErrorMessage from '/@/lib/ui/ErrorMessage.svelte';
+import Input from '/@/lib/ui/Input.svelte';
 
 let proxySettings: ProxySettings;
 let proxyState: boolean;
@@ -70,7 +71,7 @@ function validate(event: any) {
         id="toggle-proxy"
         class="sr-only peer" />
       <div
-        class="w-9 h-5 rounded-full peer bg-zinc-400 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-400 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-900 peer-checked:bg-violet-600">
+        class="w-9 h-5 rounded-full peer bg-zinc-400 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-400 after:border after:rounded-full after:h-4 after:w-4 after:transition-all border-gray-900 peer-checked:bg-violet-600">
       </div>
       <span class="ml-3 text-sm font-medium text-gray-400"
         >Proxy configuration {proxyState ? 'enabled' : 'disabled'}</span>
@@ -78,17 +79,13 @@ function validate(event: any) {
 
     {#if proxySettings}
       <div class="space-y-2">
-        <label
-          for="httpProxy"
-          class="mb-2 text-sm font-medium {proxyState
-            ? 'text-gray-400 dark:text-gray-400'
-            : 'text-gray-900 dark:text-gray-900'}">Web Proxy (HTTP):</label>
-        <input
+        <label for="httpProxy" class="mb-2 text-sm font-medium {proxyState ? 'text-gray-400' : 'text-gray-900'}"
+          >Web Proxy (HTTP):</label>
+        <Input
           name="httpProxy"
           id="httpProxy"
           disabled="{!proxyState}"
           bind:value="{proxySettings.httpProxy}"
-          class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
           placeholder="URL of the proxy for http: URLs (eg http://myproxy.domain.com:8080)"
           required
           on:input="{event => validate(event)}" />
@@ -97,17 +94,13 @@ function validate(event: any) {
         {/if}
       </div>
       <div class="space-y-2">
-        <label
-          for="httpsProxy"
-          class="pt-4 mb-2 text-sm font-medium {proxyState
-            ? 'text-gray-400 dark:text-gray-400'
-            : 'text-gray-900 dark:text-gray-900'}">Secure Web Proxy (HTTPS):</label>
-        <input
+        <label for="httpsProxy" class="pt-4 mb-2 text-sm font-medium {proxyState ? 'text-gray-400' : 'text-gray-900'}"
+          >Secure Web Proxy (HTTPS):</label>
+        <Input
           name="httpsProxy"
           id="httpsProxy"
           disabled="{!proxyState}"
           bind:value="{proxySettings.httpsProxy}"
-          class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
           placeholder="URL of the proxy for https: URLs (eg http://myproxy.domain.com:8080)"
           required
           on:input="{event => validate(event)}" />
@@ -116,18 +109,14 @@ function validate(event: any) {
         {/if}
       </div>
       <div class="space-y-2">
-        <label
-          for="httpProxy"
-          class="pt-4 mb-2 text-sm font-medium {proxyState
-            ? 'text-gray-400 dark:text-gray-400'
-            : 'text-gray-900 dark:text-gray-900'}">Bypass proxy settings for these hosts and domains:</label>
-        <input
+        <label for="httpProxy" class="pt-4 mb-2 text-sm font-medium {proxyState ? 'text-gray-400' : 'text-gray-900'}"
+          >Bypass proxy settings for these hosts and domains:</label>
+        <Input
           name="noProxy"
           id="noProxy"
           disabled="{!proxyState}"
           bind:value="{proxySettings.noProxy}"
           placeholder="Example: *.domain.com, 192.168.*.*"
-          class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
           required />
       </div>
       <div class="my-2 pt-4">

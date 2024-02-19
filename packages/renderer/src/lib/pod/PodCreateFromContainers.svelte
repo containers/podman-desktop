@@ -14,6 +14,7 @@ import Fa from 'svelte-fa';
 import SolidPodIcon from '../images/SolidPodIcon.svelte';
 import Button from '../ui/Button.svelte';
 import type { PodCreatePortOptions } from '../../../../main/src/plugin/dockerode/libpod-dockerode';
+import Input from '/@/lib/ui/Input.svelte';
 
 let podCreation: PodCreation;
 let createInProgress = false;
@@ -229,21 +230,21 @@ function updatePortExposure(port: number, checked: boolean) {
             </div>
           {/if}
           <div class="mb-2">
-            <span class="block text-sm font-semibold rounded text-gray-400 dark:text-gray-400">Name of the pod:</span>
+            <span class="block text-sm font-semibold rounded text-gray-400">Name of the pod:</span>
           </div>
           <div class="mb-4">
-            <input
+            <Input
               name="podName"
               id="podName"
               bind:value="{podCreation.name}"
               placeholder="Select name of the pod..."
               aria-label="Pod name"
-              class="w-full mt-1 p-2 outline-0 text-sm bg-charcoal-500 focus:bg-charcoal-900 border-violet-700 border-b focus:border-violet-700 focus:border rounded-sm text-gray-500 focus:text-gray-700 placeholder-gray-700"
+              class="w-full mt-1"
               required />
           </div>
 
           <div class="mb-2">
-            <span class="block text-sm font-semibold rounded text-gray-400 dark:text-gray-400" aria-label="Containers"
+            <span class="block text-sm font-semibold rounded text-gray-400" aria-label="Containers"
               >Containers to replicate to the pod:</span>
           </div>
           <div class="w-full bg-charcoal-900 mb-4 max-h-40 overflow-y-auto">
@@ -259,9 +260,8 @@ function updatePortExposure(port: number, checked: boolean) {
 
           {#if mapPortExposed.size > 0}
             <div class="mb-2">
-              <span
-                class="block text-sm font-semibold rounded text-gray-400 dark:text-gray-400"
-                aria-label="Exposed ports">All selected ports will be exposed:</span>
+              <span class="block text-sm font-semibold rounded text-gray-400" aria-label="Exposed ports"
+                >All selected ports will be exposed:</span>
             </div>
             <div class="bg-charcoal-900 mb-4 max-h-40 overflow-y-auto">
               {#each [...mapPortExposed] as [port, value]}
@@ -285,7 +285,7 @@ function updatePortExposure(port: number, checked: boolean) {
           {#if providerConnections.length > 1}
             <label
               for="providerConnectionName"
-              class="p-2 block mb-2 text-sm font-medium rounded bg-zinc-700 text-gray-300 dark:text-gray-300"
+              class="p-2 block mb-2 text-sm font-medium rounded bg-zinc-700 text-gray-300"
               >Container Engine
               <select
                 class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-400 placeholder-gray-400"

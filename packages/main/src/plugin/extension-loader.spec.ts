@@ -58,6 +58,11 @@ import type { ContributionInfo } from '/@/plugin/api/contribution-info.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 import { app } from 'electron';
+import type { WebviewInfo } from './api/webview-info.js';
+import { getBase64Image } from '../util.js';
+import { Disposable } from './types/disposable.js';
+import type { ColorRegistry } from './color-registry.js';
+import type { DialogRegistry } from './dialog-registry.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -135,13 +140,18 @@ const containerProviderRegistry: ContainerProviderRegistry = {
   imageExist: vi.fn(),
   volumeExist: vi.fn(),
   podExist: vi.fn(),
+  listPods: vi.fn(),
+  stopPod: vi.fn(),
+  removePod: vi.fn(),
 } as unknown as ContainerProviderRegistry;
 
 const inputQuickPickRegistry: InputQuickPickRegistry = {} as unknown as InputQuickPickRegistry;
 
 const customPickRegistry: CustomPickRegistry = {} as unknown as CustomPickRegistry;
 
-const authenticationProviderRegistry: AuthenticationImpl = {} as unknown as AuthenticationImpl;
+const authenticationProviderRegistry: AuthenticationImpl = {
+  registerAuthenticationProvider: vi.fn(),
+} as unknown as AuthenticationImpl;
 
 const iconRegistry: IconRegistry = {} as unknown as IconRegistry;
 
@@ -154,7 +164,9 @@ const viewRegistry: ViewRegistry = {} as unknown as ViewRegistry;
 
 const context: Context = new Context(apiSender);
 
-const cliToolRegistry: CliToolRegistry = {} as unknown as CliToolRegistry;
+const cliToolRegistry: CliToolRegistry = {
+  createCliTool: vi.fn(),
+} as unknown as CliToolRegistry;
 
 const directories = {
   getPluginsDirectory: () => '/fake-plugins-directory',
@@ -164,28 +176,52 @@ const directories = {
 
 const exec = new Exec(proxy);
 
-const notificationRegistry: NotificationRegistry = {} as unknown as NotificationRegistry;
+const notificationRegistry: NotificationRegistry = {
+  registerExtension: vi.fn(),
+} as unknown as NotificationRegistry;
 
-const imageCheckerImpl: ImageCheckerImpl = {} as unknown as ImageCheckerImpl;
+const imageCheckerImpl: ImageCheckerImpl = {
+  registerImageCheckerProvider: vi.fn(),
+} as unknown as ImageCheckerImpl;
 
 const contributionManager: ContributionManager = {
   listContributions: vi.fn(),
 } as unknown as ContributionManager;
 
+const webviewRegistry: WebviewRegistry = {
+  listSimpleWebviews: vi.fn(),
+  listWebviews: vi.fn(),
+} as unknown as WebviewRegistry;
+
 const navigationManager: NavigationManager = new NavigationManager(
   apiSender,
   containerProviderRegistry,
   contributionManager,
+  webviewRegistry,
 );
-const webviewRegistry: WebviewRegistry = {
-  listSimpleWebviews: vi.fn(),
-} as unknown as WebviewRegistry;
+
+const colorRegistry = {
+  registerExtensionThemes: vi.fn(),
+} as unknown as ColorRegistry;
+const openDialogMock = vi.fn();
+const saveDialogMock = vi.fn();
+
+const dialogRegistry: DialogRegistry = {
+  openDialog: openDialogMock,
+  saveDialog: saveDialogMock,
+} as unknown as DialogRegistry;
 
 vi.mock('electron', () => {
   return {
     app: {
       getVersion: vi.fn(),
     },
+  };
+});
+
+vi.mock('../util.js', async () => {
+  return {
+    getBase64Image: vi.fn(),
   };
 });
 
@@ -222,6 +258,8 @@ beforeAll(() => {
     imageCheckerImpl,
     navigationManager,
     webviewRegistry,
+    colorRegistry,
+    dialogRegistry,
   );
 });
 
@@ -1272,6 +1310,33 @@ describe('Navigation', async () => {
     // Valid we listed the contains properly each time
     expect(listContributionsSpy).toHaveBeenCalledOnce();
   });
+
+  test('navigateToWebview', async () => {
+    const api = extensionLoader.createApi('path', {
+      name: 'name',
+      publisher: 'publisher',
+      version: '1',
+      displayName: 'dname',
+    });
+
+    vi.mocked(webviewRegistry.listWebviews).mockReturnValue([
+      {
+        id: 'myWebviewId',
+      } as unknown as WebviewInfo,
+    ]);
+
+    await api.navigation.navigateToWebview('myWebviewId');
+
+    // Ensure the send method is called properly
+    expect(vi.mocked(apiSender).send).toBeCalledWith('navigate', {
+      page: NavigationPage.WEBVIEW,
+      parameters: {
+        id: 'myWebviewId',
+      },
+    });
+
+    expect(vi.mocked(webviewRegistry.listWebviews)).toHaveBeenCalled();
+  });
 });
 
 test('check listWebviews', async () => {
@@ -1331,4 +1396,251 @@ test('check version', async () => {
 
   // check we called method
   expect(readPodmanVersion).toBe(fakeVersion);
+});
+
+test('listPods', async () => {
+  const listPodsSpy = vi.spyOn(containerProviderRegistry, 'listPods');
+  const api = extensionLoader.createApi('path', {
+    name: 'name',
+    publisher: 'publisher',
+    version: '1',
+    displayName: 'dname',
+  });
+  await api.containerEngine.listPods();
+  expect(listPodsSpy).toHaveBeenCalledOnce();
+});
+
+test('stopPod', async () => {
+  const stopPodSpy = vi.spyOn(containerProviderRegistry, 'stopPod');
+  const api = extensionLoader.createApi('path', {
+    name: 'name',
+    publisher: 'publisher',
+    version: '1',
+    displayName: 'dname',
+  });
+  await api.containerEngine.stopPod('engine1', 'pod1');
+  expect(stopPodSpy).toHaveBeenCalledWith('engine1', 'pod1');
+});
+
+test('removePod', async () => {
+  const removePodSpy = vi.spyOn(containerProviderRegistry, 'removePod');
+  const api = extensionLoader.createApi('path', {
+    name: 'name',
+    publisher: 'publisher',
+    version: '1',
+    displayName: 'dname',
+  });
+  await api.containerEngine.removePod('engine1', 'pod1');
+  expect(removePodSpy).toHaveBeenCalledWith('engine1', 'pod1');
+});
+
+describe('authentication Provider', async () => {
+  const BASE64ENCODEDIMAGE = 'BASE64ENCODEDIMAGE';
+
+  const providerMock = {
+    onDidChangeSessions: vi.fn(),
+    getSessions: vi.fn().mockResolvedValue([]),
+    createSession: vi.fn(),
+    removeSession: vi.fn(),
+  };
+
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  test('basic registerAuthenticationProvider ', async () => {
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+    api.authentication.registerAuthenticationProvider('provider1.id', 'Provider1 Label', providerMock, {
+      supportsMultipleAccounts: true,
+    });
+
+    expect(authenticationProviderRegistry.registerAuthenticationProvider).toBeCalledWith(
+      'provider1.id',
+      'Provider1 Label',
+      providerMock,
+      { supportsMultipleAccounts: true },
+    );
+  });
+
+  test('allows images option to be undefined or empty', async () => {
+    vi.mocked(getBase64Image).mockReturnValue(BASE64ENCODEDIMAGE);
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    api.authentication.registerAuthenticationProvider('provider1.id', 'Provider1 Label', providerMock, {});
+
+    // grab the call to authenticationProviderRegistry.registerAuthenticationProvider
+    const call = vi.mocked(authenticationProviderRegistry.registerAuthenticationProvider).mock.calls[0];
+
+    // get options from the call
+    const options = call[3];
+
+    expect(options?.images?.logo).toBeUndefined();
+    expect(options?.images?.icon).toBeUndefined();
+  });
+
+  test('allows images option to be single image', async () => {
+    vi.mocked(getBase64Image).mockReturnValue(BASE64ENCODEDIMAGE);
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    api.authentication.registerAuthenticationProvider('provider1.id', 'Provider1 Label', providerMock, {
+      images: {
+        icon: './image.png',
+        logo: './image.png',
+      },
+    });
+    // grab the call to authenticationProviderRegistry.registerAuthenticationProvider
+    const call = vi.mocked(authenticationProviderRegistry.registerAuthenticationProvider).mock.calls[0];
+
+    // get options from the call
+    const options = call[3];
+
+    expect(options?.images?.logo).equals(BASE64ENCODEDIMAGE);
+    expect(options?.images?.icon).equals(BASE64ENCODEDIMAGE);
+  });
+
+  test('allows images option to be light/dark image', async () => {
+    vi.mocked(getBase64Image).mockReturnValue(BASE64ENCODEDIMAGE);
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    api.authentication.registerAuthenticationProvider('provider1.id', 'Provider1 Label', providerMock, {
+      images: {
+        icon: {
+          light: './image.png',
+          dark: './image.png',
+        },
+        logo: {
+          light: './image.png',
+          dark: './image.png',
+        },
+      },
+    });
+    // grab the call to authenticationProviderRegistry.registerAuthenticationProvider
+    const call = vi.mocked(authenticationProviderRegistry.registerAuthenticationProvider).mock.calls[0];
+
+    // get options from the call
+    const options = call[3];
+
+    const themeIcon = typeof options?.images?.icon === 'string' ? undefined : options?.images?.icon;
+    expect(themeIcon).toBeDefined();
+    expect(themeIcon?.light).equals(BASE64ENCODEDIMAGE);
+    expect(themeIcon?.dark).equals(BASE64ENCODEDIMAGE);
+    const themeLogo = typeof options?.images?.logo === 'string' ? undefined : options?.images?.logo;
+    expect(themeLogo).toBeDefined();
+    expect(themeLogo?.light).equals(BASE64ENCODEDIMAGE);
+    expect(themeLogo?.dark).equals(BASE64ENCODEDIMAGE);
+  });
+});
+
+test('createCliTool ', async () => {
+  const api = extensionLoader.createApi('/path', {});
+  expect(api).toBeDefined();
+
+  const options: containerDesktopAPI.CliToolOptions = {
+    name: 'tool-name',
+    displayName: 'tool-display-name',
+    markdownDescription: 'markdown description',
+    images: {},
+    version: '1.0.1',
+    path: 'path/to/tool-name',
+  };
+
+  vi.mocked(cliToolRegistry.createCliTool).mockReturnValue({ id: 'created' } as containerDesktopAPI.CliTool);
+
+  const newCliTool = api.cli.createCliTool(options);
+
+  expect(cliToolRegistry.createCliTool).toBeCalledWith(expect.objectContaining({ extensionPath: '/path' }), options);
+  expect(newCliTool).toStrictEqual({ id: 'created' });
+});
+
+test('registerImageCheckerProvider ', async () => {
+  const api = extensionLoader.createApi('/path', {});
+  expect(api).toBeDefined();
+
+  const provider = {
+    check: (
+      _image: containerDesktopAPI.ImageInfo,
+      _token?: containerDesktopAPI.CancellationToken,
+    ): containerDesktopAPI.ProviderResult<containerDesktopAPI.ImageChecks> => {
+      return {
+        checks: [
+          {
+            name: 'check1',
+            status: 'failed',
+          },
+        ],
+      };
+    },
+  };
+
+  vi.mocked(imageCheckerImpl.registerImageCheckerProvider).mockReturnValue(Disposable.create(() => {}));
+
+  api.imageChecker.registerImageCheckerProvider(provider, { label: 'dummyLabel' });
+
+  expect(imageCheckerImpl.registerImageCheckerProvider).toBeCalledWith(
+    expect.objectContaining({ extensionPath: '/path' }),
+    provider,
+    { label: 'dummyLabel' },
+  );
+});
+
+test('loadExtension with themes', async () => {
+  const manifest = {
+    name: 'hello',
+    contributes: {
+      themes: [
+        {
+          id: 'custom-dark',
+          name: 'Custom dark theme',
+          parent: 'dark',
+          colors: {
+            TitlebarBg: 'red',
+          },
+        },
+      ],
+    },
+  };
+
+  const fakeExtension = {
+    manifest,
+    subscriptions: [],
+  } as unknown as AnalyzedExtension;
+
+  await extensionLoader.loadExtension(fakeExtension);
+
+  expect(colorRegistry.registerExtensionThemes).toBeCalledWith(fakeExtension, manifest.contributes.themes);
+});
+
+describe('window', async () => {
+  test('showOpenDialog ', async () => {
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    const filePaths = ['/path-to-file1', '/path-to-file2'];
+    vi.mocked(dialogRegistry.openDialog).mockResolvedValue(filePaths);
+
+    const uris = await api.window.showOpenDialog();
+    expect(uris?.length).toBe(2);
+    const urisArray = uris as containerDesktopAPI.Uri[];
+
+    expect(dialogRegistry.openDialog).toBeCalled();
+    expect(urisArray[0].fsPath).toContain('path-to-file1');
+    expect(urisArray[1].fsPath).toContain('path-to-file2');
+  });
+
+  test('showSaveDialog ', async () => {
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    const filePath = '/path-to-file1';
+    vi.mocked(dialogRegistry.saveDialog).mockResolvedValue(filePath);
+
+    const uri = await api.window.showSaveDialog();
+
+    expect(dialogRegistry.saveDialog).toBeCalled();
+    expect(uri?.fsPath).toContain('path-to-file1');
+  });
 });

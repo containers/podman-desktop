@@ -23,6 +23,7 @@ import type { Terminal } from 'xterm';
 import Button from '../ui/Button.svelte';
 import { faCube } from '@fortawesome/free-solid-svg-icons';
 import BuildImageFromContainerfileCards from './BuildImageFromContainerfileCards.svelte';
+import Input from '/@/lib/ui/Input.svelte';
 
 let buildFinished = false;
 let containerImageName = 'my-custom-image';
@@ -122,9 +123,9 @@ onDestroy(() => {
 });
 
 async function getContainerfileLocation() {
-  const result = await window.openFileDialog('Select Containerfile to build');
-  if (!result.canceled && result.filePaths.length === 1) {
-    containerFilePath = result.filePaths[0];
+  const result = await window.openDialog({ title: 'Select Containerfile to build' });
+  if (result?.[0]) {
+    containerFilePath = result[0];
     if (!containerBuildContextDirectory) {
       // select the parent directory of the file as default
       // eslint-disable-next-line no-useless-escape
@@ -134,10 +135,10 @@ async function getContainerfileLocation() {
 }
 
 async function getContainerBuildContextDirectory() {
-  const result = await window.openFolderDialog('Select Root Context');
+  const result = await window.openDialog({ title: 'Select Root Context', selectors: ['openDirectory'] });
 
-  if (!result.canceled && result.filePaths.length === 1) {
-    containerBuildContextDirectory = result.filePaths[0];
+  if (result?.[0]) {
+    containerBuildContextDirectory = result[0];
   }
 }
 
@@ -160,15 +161,14 @@ async function abortBuild() {
       <div class="bg-charcoal-900 pt-5 space-y-6 px-8 sm:pb-6 xl:pb-8 rounded-lg">
         <div hidden="{buildImageInfo?.buildRunning}">
           <label for="containerFilePath" class="block mb-2 text-sm font-bold text-gray-400">Containerfile Path</label>
-          <div class="flex flex-row">
-            <input
+          <div class="flex flex-row space-x-3">
+            <Input
               name="containerFilePath"
               id="containerFilePath"
               bind:value="{containerFilePath}"
               placeholder="Containerfile to build"
-              class="w-full p-2 mr-3 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+              class="w-full"
               required />
-
             <Button on:click="{() => getContainerfileLocation()}">Browse...</Button>
           </div>
         </div>
@@ -176,13 +176,13 @@ async function abortBuild() {
         <div hidden="{buildImageInfo?.buildRunning}">
           <label for="containerBuildContextDirectory" class="block mb-2 text-sm font-bold text-gray-400"
             >Build Context Directory</label>
-          <div class="flex flex-row">
-            <input
+          <div class="flex flex-row space-x-3">
+            <Input
               name="containerBuildContextDirectory"
               id="containerBuildContextDirectory"
               bind:value="{containerBuildContextDirectory}"
               placeholder="Folder to build in"
-              class="w-full p-2 mr-3 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+              class="w-full"
               required />
             <Button on:click="{() => getContainerBuildContextDirectory()}">Browse...</Button>
           </div>
@@ -190,16 +190,15 @@ async function abortBuild() {
 
         <div hidden="{buildImageInfo?.buildRunning}">
           <label for="containerImageName" class="block mb-2 text-sm font-bold text-gray-400">Image Name</label>
-          <input
-            type="text"
+          <Input
             bind:value="{containerImageName}"
             name="containerImageName"
             id="containerImageName"
             placeholder="image name (e.g. quay.io/namespace/my-custom-image)"
-            class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+            class="w-full"
             required />
           {#if providerConnections.length > 1}
-            <label for="providerChoice" class="py-6 block mb-2 text-sm font-bold text-gray-400 dark:text-gray-400"
+            <label for="providerChoice" class="py-6 block mb-2 text-sm font-bold text-gray-400"
               >Container Engine
               <select
                 class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"

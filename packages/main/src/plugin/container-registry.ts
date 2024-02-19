@@ -18,7 +18,7 @@
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import { Disposable } from './types/disposable.js';
-import type { ContainerAttachOptions } from 'dockerode';
+import type { ContainerAttachOptions, ImageBuildOptions } from 'dockerode';
 import Dockerode from 'dockerode';
 import StreamValues from 'stream-json/streamers/StreamValues.js';
 import type {
@@ -2004,18 +2004,14 @@ export class ContainerProviderRegistry {
   async buildImage(
     containerBuildContextDirectory: string,
     eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
-    relativeContainerfilePath?: string,
-    imageName?: string,
-    platform?: string,
-    selectedProvider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
-    abortController?: AbortController,
+    options?: containerDesktopAPI.BuildImageOptions,
   ): Promise<unknown> {
     let telemetryOptions = {};
     try {
       let matchingContainerProviderApi: Dockerode;
-      if (selectedProvider !== undefined) {
+      if (options?.provider !== undefined) {
         // grab all connections
-        matchingContainerProviderApi = this.getMatchingEngineFromConnection(selectedProvider);
+        matchingContainerProviderApi = this.getMatchingEngineFromConnection(options.provider);
       } else {
         // Get the first running connection (preference for podman)
         matchingContainerProviderApi = this.getFirstRunningConnection()[1];
@@ -2028,26 +2024,61 @@ export class ContainerProviderRegistry {
         `Uploading the build context from ${containerBuildContextDirectory}...Can take a while...\r\n`,
       );
       const tarStream = tar.pack(containerBuildContextDirectory);
-      if (isWindows() && relativeContainerfilePath !== undefined) {
-        relativeContainerfilePath = relativeContainerfilePath.replace(/\\/g, '/');
+      if (isWindows() && options?.containerFile !== undefined) {
+        options.containerFile = options.containerFile.replace(/\\/g, '/');
       }
 
       let streamingPromise: Stream;
       try {
-        streamingPromise = (await matchingContainerProviderApi.buildImage(tarStream, {
+        const buildOptions: ImageBuildOptions = {
           registryconfig,
-          dockerfile: relativeContainerfilePath,
-          t: imageName,
-          platform: platform,
-          abortSignal: abortController?.signal,
-        })) as unknown as Stream;
+          abortSignal: options?.abortController?.signal,
+          dockerfile: options?.containerFile,
+          t: options?.tag,
+          platform: options?.platform,
+          remote: options?.remote,
+          q: options?.q,
+          rm: options?.rm,
+          forcerm: options?.forcerm,
+          memory: options?.memory,
+          memswap: options?.memswap,
+          cpushares: options?.cpushares,
+          cpusetcpus: options?.cpusetcpus,
+          cpuperiod: options?.cpuperiod,
+          cpuquota: options?.cpuquota,
+          shmsize: options?.shmsize,
+          squash: options?.squash,
+          networkmode: options?.networkmode,
+          target: options?.target,
+          outputs: options?.outputs,
+          nocache: options?.nocache,
+        };
+        if (options?.extrahosts) {
+          buildOptions.extrahosts = options.extrahosts;
+        }
+        if (options?.cachefrom) {
+          buildOptions.cachefrom = options.cachefrom;
+        }
+        if (options?.buildargs) {
+          buildOptions.buildargs = options.buildargs;
+        }
+        if (options?.labels) {
+          buildOptions.labels = options.labels;
+        }
+        if (options?.pull) {
+          buildOptions.pull = options.pull;
+        }
+        streamingPromise = (await matchingContainerProviderApi.buildImage(
+          tarStream,
+          buildOptions,
+        )) as unknown as Stream;
       } catch (error: unknown) {
         console.log('error in buildImage', error);
         const errorMessage = error instanceof Error ? error.message : '' + error;
         eventCollect('error', errorMessage);
         throw error;
       }
-      eventCollect('stream', `Building ${imageName}...\r\n`);
+      eventCollect('stream', `Building ${options?.tag}...\r\n`);
       // eslint-disable-next-line @typescript-eslint/ban-types
       let resolve: (output: {}) => void;
       let reject: (err: Error) => void;

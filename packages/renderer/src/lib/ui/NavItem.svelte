@@ -35,17 +35,18 @@ onDestroy(() => {
   aria-label="{ariaLabel ? ariaLabel : tooltip}"
   on:click|preventDefault="{onClick}">
   <div
-    class="flex py-3 justify-center items-center border-x-[4px] cursor-pointer"
+    class="flex py-3 justify-center items-center cursor-pointer"
+    class:border-x-[4px]="{!inSection}"
+    class:px-2="{inSection}"
     class:border-charcoal-800="{!inSection}"
-    class:border-charcoal-600="{inSection}"
     class:text-white="{!selected || !inSection}"
     class:text-purple-500="{selected && inSection}"
     class:border-l-purple-500="{selected && !inSection}"
     class:bg-charcoal-500="{selected && !inSection}"
     class:border-r-charcoal-500="{selected && !inSection}"
     class:border-l-charcoal-800="{!selected && !inSection}"
-    class:hover:bg-charcoal-700="{!selected}"
-    class:hover:border-charcoal-700="{!selected}">
+    class:hover:bg-charcoal-700="{!selected || inSection}"
+    class:hover:border-charcoal-700="{!selected && !inSection}">
     <Tooltip tip="{tooltip}" right>
       <slot />
     </Tooltip>

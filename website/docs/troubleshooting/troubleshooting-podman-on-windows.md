@@ -1,5 +1,7 @@
 ---
 sidebar_position: 20
+title: Podman on Windows
+description: How to investigate when Podman does not work as expected.
 ---
 
 # Troubleshooting Podman on Windows

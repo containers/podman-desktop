@@ -44,26 +44,30 @@ ass KubeDetailsSummary will automatically add a 'Loading ... ' section -->
   <div class="flex px-5 py-4 flex-col h-full overflow-auto">
     <div class="w-full">
       <table>
-        <tr>
-          <td class="pr-2">Name:</td>
-          <td>{pod.name}</td>
-        </tr>
-        <tr>
-          <td class="pr-2">Id:</td>
-          <td>{pod.id}</td>
-        </tr>
+        <tbody>
+          <tr>
+            <td class="pr-2">Name:</td>
+            <td>{pod.name}</td>
+          </tr>
+          <tr>
+            <td class="pr-2">Id:</td>
+            <td>{pod.id}</td>
+          </tr>
+        </tbody>
       </table>
     </div>
     {#if pod.containers.length > 0}
       <div class="w-full mt-12">
         <span>Containers using this pod:</span>
         <table>
-          {#each pod.containers as container}
-            <tr class="cursor-pointer" on:click="{() => openContainer(container.Id)}">
-              <td class="pr-2">{container.Names}</td>
-              <td>{container.Id}</td>
-            </tr>
-          {/each}
+          <tbody>
+            {#each pod.containers as container}
+              <tr class="cursor-pointer" on:click="{() => openContainer(container.Id)}">
+                <td class="pr-2">{container.Names}</td>
+                <td>{container.Id}</td>
+              </tr>
+            {/each}
+          </tbody>
         </table>
       </div>
     {/if}

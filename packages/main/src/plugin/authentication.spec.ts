@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,56 +23,10 @@ import type {
   AuthenticationSessionAccountInformation,
   Event,
 } from '@podman-desktop/api';
-import { beforeEach, afterEach, expect, test, vi, suite } from 'vitest';
-import type { Mock } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 import type { ApiSenderType } from './api.js';
 import { AuthenticationImpl } from './authentication.js';
-import type { CommandRegistry } from './command-registry.js';
-import type { ConfigurationRegistry } from './configuration-registry.js';
-import type { ContainerProviderRegistry } from './container-registry.js';
 import { Emitter as EventEmitter } from './events/emitter.js';
-import { ExtensionLoader } from './extension-loader.js';
-import type { FilesystemMonitoring } from './filesystem-monitoring.js';
-import type { ImageRegistry } from './image-registry.js';
-import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
-import type { KubernetesClient } from './kubernetes-client.js';
-import type { MenuRegistry } from './menu-registry.js';
-import type { MessageBox } from './message-box.js';
-import type { ProgressImpl } from './progress-impl.js';
-import type { ProviderRegistry } from './provider-registry.js';
-import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
-import type { Telemetry } from './telemetry/telemetry.js';
-import type { TrayMenuRegistry } from './tray-menu-registry.js';
-import type { Proxy } from './proxy.js';
-import type { IconRegistry } from './icon-registry.js';
-import type { Directories } from './directories.js';
-import type { CustomPickRegistry } from './custompick/custompick-registry.js';
-import type { ViewRegistry } from './view-registry.js';
-import type { Context } from './context/context.js';
-import type { OnboardingRegistry } from './onboarding-registry.js';
-import { getBase64Image } from '../util.js';
-import type { Exec } from './util/exec.js';
-import type { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
-import type { CliToolRegistry } from './cli-tool-registry.js';
-import type { NotificationRegistry } from './notification-registry.js';
-import type { ImageCheckerImpl } from './image-checker.js';
-import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
-import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
-import { app } from 'electron';
-
-vi.mock('../util.js', async () => {
-  return {
-    getBase64Image: vi.fn(),
-  };
-});
-
-vi.mock('electron', () => {
-  return {
-    app: {
-      getVersion: vi.fn(),
-    },
-  };
-});
 
 function randomNumber(n = 5) {
   return Math.round(Math.random() * 10 * n);
@@ -118,17 +72,8 @@ const apiSender: ApiSenderType = {
 
 let authModule: AuthenticationImpl;
 
-const directories = {
-  getPluginsDirectory: () => '/fake-plugins-directory',
-  getPluginsScanDirectory: () => '/fake-plugins-scanning-directory',
-  getExtensionsStorageDirectory: () => '/fake-extensions-storage-directory',
-} as unknown as Directories;
-
 beforeEach(function () {
   authModule = new AuthenticationImpl(apiSender);
-
-  // mock electron.app.getVersion
-  vi.mocked(app.getVersion).mockReturnValue('1.2.3');
 });
 
 test('Registered authentication provider stored in authentication module', async () => {
@@ -257,122 +202,28 @@ test('Authentication provider creates session when session request is executed',
   expect(createSessionSpy).toBeCalledTimes(1);
 });
 
-suite('Authentication', () => {
-  let extLoader: ExtensionLoader;
-  let authentication: AuthenticationImpl;
-  let providerMock: AuthenticationProvider;
-  beforeEach(() => {
-    authentication = new AuthenticationImpl(apiSender);
-    extLoader = new ExtensionLoader(
-      vi.fn() as unknown as CommandRegistry,
-      vi.fn() as unknown as MenuRegistry,
-      vi.fn() as unknown as ProviderRegistry,
-      vi.fn() as unknown as ConfigurationRegistry,
-      vi.fn() as unknown as ImageRegistry,
-      vi.fn() as unknown as ApiSenderType,
-      vi.fn() as unknown as TrayMenuRegistry,
-      vi.fn() as unknown as MessageBox,
-      vi.fn() as unknown as ProgressImpl,
-      vi.fn() as unknown as StatusBarRegistry,
-      vi.fn() as unknown as KubernetesClient,
-      vi.fn() as unknown as FilesystemMonitoring,
-      vi.fn() as unknown as Proxy,
-      vi.fn() as unknown as ContainerProviderRegistry,
-      vi.fn() as unknown as InputQuickPickRegistry,
-      vi.fn() as unknown as CustomPickRegistry,
-      authentication,
-      vi.fn() as unknown as IconRegistry,
-      vi.fn() as unknown as OnboardingRegistry,
-      vi.fn() as unknown as Telemetry,
-      vi.fn() as unknown as ViewRegistry,
-      vi.fn() as unknown as Context,
-      directories,
-      vi.fn() as unknown as Exec,
-      vi.fn() as unknown as KubeGeneratorRegistry,
-      vi.fn() as unknown as CliToolRegistry,
-      vi.fn() as unknown as NotificationRegistry,
-      vi.fn() as unknown as ImageCheckerImpl,
-      vi.fn() as unknown as NavigationManager,
-      vi.fn() as unknown as WebviewRegistry,
-    );
-    providerMock = {
-      onDidChangeSessions: vi.fn(),
-      getSessions: vi.fn().mockResolvedValue([]),
-      createSession: vi.fn(),
-      removeSession: vi.fn(),
-    };
+test('getAuthenticationProvidersInfo', async () => {
+  const authentication = new AuthenticationImpl(apiSender);
+
+  const providerMock = {
+    onDidChangeSessions: vi.fn(),
+    getSessions: vi.fn().mockResolvedValue([]),
+    createSession: vi.fn(),
+    removeSession: vi.fn(),
+  };
+  authentication.registerAuthenticationProvider('provider1.id', 'Provider1 Label', providerMock);
+  let providers = await authentication.getAuthenticationProvidersInfo();
+  const provider1 = providers.find(item => item.id === 'provider1.id');
+  expect(provider1).toBeDefined();
+  expect(provider1?.images).toBeUndefined();
+
+  authentication.registerAuthenticationProvider('provider2.id', 'Provider2 Label', providerMock, {
+    images: {},
   });
-
-  afterEach(() => {
-    vi.resetAllMocks();
-  });
-
-  const BASE64ENCODEDIMAGE = 'BASE64ENCODEDIMAGE';
-
-  test('allows images option to be undefined or empty', async () => {
-    (getBase64Image as Mock).mockReturnValue(BASE64ENCODEDIMAGE);
-    const api = extLoader.createApi('/path', {});
-    expect(api).toBeDefined();
-    api.authentication.registerAuthenticationProvider('provider1.id', 'Provider1 Label', providerMock);
-    let providers = await authentication.getAuthenticationProvidersInfo();
-    const provider1 = providers.find(item => item.id === 'provider1.id');
-    expect(provider1).toBeDefined();
-    expect(provider1?.images).toBeUndefined();
-
-    api.authentication.registerAuthenticationProvider('provider2.id', 'Provider2 Label', providerMock, {
-      images: {},
-    });
-    providers = await authentication.getAuthenticationProvidersInfo();
-    const provider2 = providers.find(item => item.id === 'provider2.id');
-    expect(provider2).toBeDefined();
-    expect(provider2?.images).toBeDefined();
-    expect(provider2?.images?.logo).toBeUndefined();
-    expect(provider2?.images?.icon).toBeUndefined();
-  });
-
-  test('converts images.icon path to base 64 image when registering provider', async () => {
-    (getBase64Image as Mock).mockReturnValue(BASE64ENCODEDIMAGE);
-    const api = extLoader.createApi('/path', {});
-    expect(api).toBeDefined();
-    api.authentication.registerAuthenticationProvider('provider1.id', 'Provider1 Label', providerMock, {
-      images: {
-        icon: './image.png',
-        logo: './image.png',
-      },
-    });
-    const providers = await authentication.getAuthenticationProvidersInfo();
-    const provider = providers.find(item => item.id === 'provider1.id');
-    expect(provider).toBeDefined();
-    expect(provider?.images?.icon).equals(BASE64ENCODEDIMAGE);
-    expect(provider?.images?.icon).equals(BASE64ENCODEDIMAGE);
-  });
-
-  test('converts images.icon with themes path to base 64 image when registering provider', async () => {
-    (getBase64Image as Mock).mockReturnValue(BASE64ENCODEDIMAGE);
-    const api = extLoader.createApi('/path', {});
-    expect(api).toBeDefined();
-    api.authentication.registerAuthenticationProvider('provider2.id', 'Provider2 Label', providerMock, {
-      images: {
-        icon: {
-          light: './image.png',
-          dark: './image.png',
-        },
-        logo: {
-          light: './image.png',
-          dark: './image.png',
-        },
-      },
-    });
-    const providers = await authentication.getAuthenticationProvidersInfo();
-    const provider = providers.find(item => item.id === 'provider2.id');
-    expect(provider).toBeDefined();
-    const themeIcon = typeof provider?.images?.icon === 'string' ? undefined : provider?.images?.icon;
-    expect(themeIcon).toBeDefined();
-    expect(themeIcon?.light).equals(BASE64ENCODEDIMAGE);
-    expect(themeIcon?.dark).equals(BASE64ENCODEDIMAGE);
-    const themeLogo = typeof provider?.images?.logo === 'string' ? undefined : provider?.images?.logo;
-    expect(themeLogo).toBeDefined();
-    expect(themeLogo?.light).equals(BASE64ENCODEDIMAGE);
-    expect(themeLogo?.dark).equals(BASE64ENCODEDIMAGE);
-  });
+  providers = await authentication.getAuthenticationProvidersInfo();
+  const provider2 = providers.find(item => item.id === 'provider2.id');
+  expect(provider2).toBeDefined();
+  expect(provider2?.images).toBeDefined();
+  expect(provider2?.images?.logo).toBeUndefined();
+  expect(provider2?.images?.icon).toBeUndefined();
 });

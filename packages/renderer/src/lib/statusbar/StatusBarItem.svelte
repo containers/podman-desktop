@@ -35,12 +35,15 @@ async function executeCommand(entry: StatusBarEntry) {
   on:click="{() => {
     executeCommand(entry);
   }}"
-  class="{opacity(entry)} px-1 flex items-center {hoverBackground(entry)} {hoverCursor(entry)}"
+  class="{opacity(entry)} px-1 flex items-center {hoverBackground(entry)} {hoverCursor(entry)} relative inline-block"
   title="{tooltipText(entry)}">
   {#if iconClass(entry)}
     <span class="{iconClass(entry)}" aria-hidden="true"></span>
   {/if}
   {#if entry.text}
     <span class="ml-1">{entry.text}</span>
+  {/if}
+  {#if entry.highlight}
+    <span role="status" class="absolute bg-purple-500 rounded-full p-1 top-[-2px] right-[-2px]"></span>
   {/if}
 </button>

@@ -45,11 +45,12 @@ import CreateVolume from './lib/volume/CreateVolume.svelte';
 import CommandPalette from './lib/dialogs/CommandPalette.svelte';
 import Appearance from './lib/appearance/Appearance.svelte';
 import type { NavigationRequest } from '../../main/src/plugin/navigation/navigation-request';
-import { navigationHandle } from '/@/Route';
+import { handleNavigation } from '/@/navigation';
 import IngressesRoutesList from './lib/ingresses-routes/IngressesRoutesList.svelte';
 import Webview from './lib/webview/Webview.svelte';
 import IngressDetails from './lib/ingresses-routes/IngressDetails.svelte';
 import RouteDetails from './lib/ingresses-routes/RouteDetails.svelte';
+import ColorsStyle from './lib/style/ColorsStyle.svelte';
 
 router.mode.hash();
 
@@ -63,12 +64,13 @@ router.subscribe(function (navigation) {
 
 window.events?.receive('navigate', (navigationRequest: unknown) => {
   const navRequest = navigationRequest as NavigationRequest;
-  navigationHandle(navRequest.page, navRequest.parameters);
+  handleNavigation(navRequest.page, navRequest.parameters);
 });
 </script>
 
 <Route path="/*" breadcrumb="Home" let:meta>
   <main class="flex flex-col w-screen h-screen overflow-hidden bg-charcoal-800">
+    <ColorsStyle />
     <IconsStyle />
     <Appearance />
     <TitleBar />

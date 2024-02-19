@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -338,5 +338,35 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
       }
     };
     return new ConfigurationImpl(this.apiSender, callback, this.configurationValues, section, scope);
+  }
+
+  addConfigurationEnum(key: string, values: string[], valueWhenRemoved: unknown): Disposable {
+    const property = this.configurationProperties[key];
+    if (property?.enum) {
+      property.enum?.push(...values);
+      this.apiSender.send('configuration-changed');
+    }
+    return Disposable.create(() => {
+      this.removeConfigurationEnum(key, values, valueWhenRemoved);
+    });
+  }
+
+  protected removeConfigurationEnum(key: string, values: string[], valueWhenRemoved: unknown): void {
+    const property = this.configurationProperties[key];
+    if (property) {
+      // remove the values from the enum
+      property.enum = property.enum?.filter(e => !values.includes(e));
+
+      // if the current value is the enum being removed, need to switch back to the previous element
+      // current scope
+      const currentValue = this.configurationValues.get(CONFIGURATION_DEFAULT_SCOPE)[key];
+
+      if (values.some(val => val === currentValue)) {
+        this.updateConfigurationValue(key, valueWhenRemoved).catch((e: unknown) =>
+          console.error(`unable to update default value for the property ${key}`, e),
+        );
+      }
+      this.apiSender.send('configuration-changed');
+    }
   }
 }

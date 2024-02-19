@@ -3,12 +3,14 @@ import type { ContainerProviderRegistry } from '/@/plugin/container-registry.js'
 import type { NavigationRequest } from '/@/plugin/navigation/navigation-request.js';
 import { NavigationPage } from '/@/plugin/navigation/navigation-page.js';
 import type { ContributionManager } from '/@/plugin/contribution-manager.js';
+import type { WebviewRegistry } from '../webview/webview-registry.js';
 
 export class NavigationManager {
   constructor(
     private apiSender: ApiSenderType,
     private containerRegistry: ContainerProviderRegistry,
     private contributionManager: ContributionManager,
+    private webviewRegistry: WebviewRegistry,
   ) {}
 
   navigateTo(navigateRequest: NavigationRequest) {
@@ -151,20 +153,38 @@ export class NavigationManager {
     });
   }
 
-  private async assertContributionExist(name: string): Promise<void> {
+  protected assertContributionExist(name: string): void {
     const contribs = this.contributionManager.listContributions();
     if (contribs.find(contrib => contrib.name === name) === undefined) {
-      throw new Error(`Pod with name ${name} cannot be found.`);
+      throw new Error(`Contribution with name ${name} cannot be found.`);
     }
   }
 
   async navigateToContribution(name: string): Promise<void> {
-    await this.assertContributionExist(name);
+    this.assertContributionExist(name);
 
     this.navigateTo({
       page: NavigationPage.CONTRIBUTION,
       parameters: {
         name: name,
+      },
+    });
+  }
+
+  protected assertWebviewExist(webviewId: string): void {
+    const webviews = this.webviewRegistry.listWebviews();
+    if (webviews.find(webview => webview.id === webviewId) === undefined) {
+      throw new Error(`Webview with id ${webviewId} cannot be found.`);
+    }
+  }
+
+  async navigateToWebview(webviewId: string): Promise<void> {
+    this.assertWebviewExist(webviewId);
+
+    this.navigateTo({
+      page: NavigationPage.WEBVIEW,
+      parameters: {
+        id: webviewId,
       },
     });
   }

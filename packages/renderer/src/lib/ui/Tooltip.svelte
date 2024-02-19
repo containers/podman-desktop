@@ -60,7 +60,7 @@ export let left = false;
     class:top-left="{topLeft}"
     class:top-right="{topRight}">
     {#if tip}
-      <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs" aria-label="tooltip">{tip}</div>
+      <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">{tip}</div>
     {/if}
   </div>
 </div>

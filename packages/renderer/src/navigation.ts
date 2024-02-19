@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import { router } from 'tinro';
  */
 export type NavigationHint = 'root' | 'details' | 'tab';
 
-export const navigationHandle = (page: NavigationPage, parameters?: { [key: string]: string }) => {
+export const handleNavigation = (page: NavigationPage, parameters?: { [key: string]: string }) => {
   switch (page) {
     case NavigationPage.CONTAINERS:
       router.goto('/containers');
@@ -74,6 +74,9 @@ export const navigationHandle = (page: NavigationPage, parameters?: { [key: stri
       break;
     case NavigationPage.HELP:
       router.goto('/help');
+      break;
+    case NavigationPage.WEBVIEW:
+      router.goto(`/webviews/${parameters?.['id']}`);
       break;
   }
 };

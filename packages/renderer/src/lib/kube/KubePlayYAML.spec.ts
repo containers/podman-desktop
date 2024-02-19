@@ -77,7 +77,7 @@ beforeAll(() => {
   (window as any).matchMedia = vi.fn().mockReturnValue({
     addListener: vi.fn(),
   });
-  (window as any).openFileDialog = vi.fn().mockResolvedValue({ canceled: false, filePaths: ['Containerfile'] });
+  (window as any).openDialog = vi.fn().mockResolvedValue(['Containerfile']);
   (window as any).telemetryPage = vi.fn().mockResolvedValue(undefined);
   (window as any).kubernetesGetCurrentContextName = vi.fn().mockResolvedValue(undefined);
   (window as any).kubernetesGetCurrentNamespace = vi.fn().mockResolvedValue(undefined);
@@ -124,7 +124,10 @@ test('error: When pressing the Play button, expect us to show the errors to the 
   // Simulate selecting a file
   const fileInput = screen.getByRole('textbox', { name: 'Kubernetes YAML file' });
   expect(fileInput).toBeInTheDocument();
-  await userEvent.click(fileInput);
+
+  const browseButton = screen.getByRole('button', { name: 'Browse ...' });
+  expect(browseButton).toBeInTheDocument();
+  await userEvent.click(browseButton);
 
   // Simulate selecting a runtime
   const runtimeOption = screen.getByText('Using a Podman container engine');
@@ -153,7 +156,10 @@ test('expect done button is there at the end', async () => {
   // Simulate selecting a file
   const fileInput = screen.getByRole('textbox', { name: 'Kubernetes YAML file' });
   expect(fileInput).toBeInTheDocument();
-  await userEvent.click(fileInput);
+
+  const browseButton = screen.getByRole('button', { name: 'Browse ...' });
+  expect(browseButton).toBeInTheDocument();
+  await userEvent.click(browseButton);
 
   // Simulate selecting a runtime
   const runtimeOption = screen.getByText('Using a Podman container engine');

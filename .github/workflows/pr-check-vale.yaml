@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - uses: errata-ai/vale-action@3f7188c866bcb3259339a09f517d7c4a8838303c # reviewdog branch, https://github.com/errata-ai/vale-action/commit/3f7188c866bcb3259339a09f517d7c4a8838303c
+      - uses: errata-ai/vale-action@38bf078c328061f59879b347ca344a718a736018 # reviewdog branch, https://github.com/errata-ai/vale-action/commit/38bf078c328061f59879b347ca344a718a736018
         env:
           # Required, set by GitHub actions automatically:
           # https://docs.github.com/en/actions/security-guides/automatic-token-authentication#about-the-github_token-secret

@@ -7,7 +7,9 @@ import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings'
 import Modal from '../dialogs/Modal.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 import Button from '../ui/Button.svelte';
-import { faCircleArrowUp } from '@fortawesome/free-solid-svg-icons';
+import Link from '../ui/Link.svelte';
+import { faCheckCircle, faTriangleExclamation, faCircleArrowUp } from '@fortawesome/free-solid-svg-icons';
+import Fa from 'svelte-fa';
 
 export let closeCallback: () => void;
 export let imageInfoToPush: ImageInfoUI;
@@ -102,6 +104,9 @@ function callback(name: string, data: string) {
   }
 }
 let pushLogsXtermDiv: HTMLDivElement;
+
+let isAuthenticatedForThisImage = false;
+$: window.hasAuthconfigForImage(imageInfoToPush.name).then(result => (isAuthenticatedForThisImage = result));
 </script>
 
 <Modal
@@ -110,39 +115,60 @@ let pushLogsXtermDiv: HTMLDivElement;
   }}">
   <div class="modal flex flex-col place-self-center bg-charcoal-800 shadow-xl shadow-black">
     <div class="flex items-center justify-between px-6 py-5 space-x-2">
-      <h1 class="grow text-lg font-bold capitalize">Push Image</h1>
+      <h1 class="grow text-lg font-bold">Push image</h1>
 
       <button class="hover:text-gray-300 py-1" on:click="{() => closeCallback()}">
         <i class="fas fa-times" aria-hidden="true"></i>
       </button>
     </div>
 
-    <div class="flex flex-col px-10 py-4 text-sm leading-5 space-y-5">
-      <div>
-        <label for="modalImageTag" class="block mb-2 text-sm font-medium text-gray-400 dark:text-gray-400"
-          >Image Tag</label>
+    <div class="flex flex-col px-6 py-4 pt-0 text-sm leading-5 space-y-5">
+      <div class="pb-4">
+        <label for="modalImageTag" class="block mb-2 text-sm font-medium text-gray-400">Image tag</label>
+        {#if isAuthenticatedForThisImage}
+          <Fa class="absolute mt-3 ml-1.5 text-green-300" size="16" icon="{faCheckCircle}" />
+        {:else}
+          <Fa class="absolute mt-3 ml-1.5 text-amber-500" size="16" icon="{faTriangleExclamation}" />
+        {/if}
+
         <select
-          class="border text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 bg-charcoal-600 border-gray-900 placeholder-gray-700 text-white"
+          class="text-sm rounded-lg block w-full p-2.5 bg-charcoal-600 pl-6 border-r-8 border-transparent outline-1 outline {isAuthenticatedForThisImage
+            ? 'outline-gray-900'
+            : 'outline-amber-500'} placeholder-gray-700 text-white"
           name="imageChoice"
           bind:value="{selectedImageTag}">
           {#each imageTags as imageTag}
             <option value="{imageTag}">{imageTag}</option>
           {/each}
         </select>
+        <!-- If the image is UNAUTHENTICATED, show a warning that the image is unable to be pushed
+        and to click to go to the registries page -->
+        {#if !isAuthenticatedForThisImage}
+          <p class="text-amber-500 pt-1">
+            No registry with push permissions found. <Link internalRef="/preferences/registries"
+              >Add a registry now.</Link>
+          </p>{/if}
       </div>
 
-      {#if !pushFinished}
-        <Button
-          icon="{faCircleArrowUp}"
-          on:click="{() => {
-            pushImage(selectedImageTag);
-          }}"
-          bind:inProgress="{pushInProgress}">
-          Push image
-        </Button>
-      {:else}
-        <Button on:click="{() => pushImageFinished()}">Done</Button>
-      {/if}
+      <div class="flex justify-end space-x-2">
+        {#if !pushInProgress && !pushFinished}
+          <Button class="w-auto" type="secondary" on:click="{() => closeCallback()}">Cancel</Button>
+        {/if}
+        {#if !pushFinished}
+          <Button
+            class="w-auto"
+            icon="{faCircleArrowUp}"
+            disabled="{!isAuthenticatedForThisImage}"
+            on:click="{() => {
+              pushImage(selectedImageTag);
+            }}"
+            bind:inProgress="{pushInProgress}">
+            Push image
+          </Button>
+        {:else}
+          <Button on:click="{() => pushImageFinished()}" class="w-auto">Done</Button>
+        {/if}
+      </div>
 
       <div bind:this="{pushLogsXtermDiv}"></div>
     </div>

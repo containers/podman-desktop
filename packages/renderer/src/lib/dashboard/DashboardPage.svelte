@@ -12,6 +12,7 @@ import { DoNothingMode } from './ProviderInitUtils';
 import FeaturedExtensions from '/@/lib/featured/FeaturedExtensions.svelte';
 import ProviderConfiguring from '/@/lib/dashboard/ProviderConfiguring.svelte';
 import NotificationsBox from './NotificationsBox.svelte';
+import LearningCenter from '../learning-center/LearningCenter.svelte';
 
 const providerInitContexts = new Map<string, InitializationContext>();
 
@@ -95,7 +96,7 @@ function getInitializationContext(id: string): InitializationContext {
             <ProviderStopped provider="{providerStopped}" />
           {/each}
         {/if}
-
+        <LearningCenter />
         <FeaturedExtensions />
       </div>
     </div>

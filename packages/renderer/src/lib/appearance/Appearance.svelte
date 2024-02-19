@@ -32,6 +32,8 @@ onMount(async () => {
   // add a listener for the appearance change in case user change setting on the Operating System
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
     updateAppearance();
+    // notify changes
+    window.dispatchEvent(new Event('appearance-changed'));
   });
 });
 

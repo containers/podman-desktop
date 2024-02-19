@@ -908,8 +908,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   }
 
   // Compatibility mode status bar item
-  // only available for macOS or Linux (for now).
-  if (isMac() || isLinux()) {
+  // only available for macOS
+  if (isMac()) {
     // Handle any configuration changes (for example, changing the boolean button for compatibility mode)
     extensionApi.configuration.onDidChangeConfiguration(async e => {
       if (e.affectsConfiguration(`podman.${configurationCompatibilityMode}`)) {
@@ -1532,7 +1532,7 @@ function setupDisguisedPodmanSocketWatcher(
   return socketWatcher;
 }
 
-async function checkDisguisedPodmanSocket(provider: extensionApi.Provider) {
+export async function checkDisguisedPodmanSocket(provider: extensionApi.Provider) {
   // Check to see if the socket is disguised or not. If it is, we'll push a warning up
   // to the plugin library to the let the provider know that there is a warning
   const disguisedCheck = await isDisguisedPodman();
@@ -1546,8 +1546,13 @@ async function checkDisguisedPodmanSocket(provider: extensionApi.Provider) {
   // If isDisguisedPodmanSocket is true, we'll push a warning up to the plugin library with getDisguisedPodmanWarning()
   // If isDisguisedPodmanSocket is false, we'll push an empty array up to the plugin library to clear the warning
   // as we have no other warnings to display (or implemented)
-  const retrievedWarnings = isDisguisedPodmanSocket ? [] : [getDisguisedPodmanInformation()];
-  provider.updateWarnings(retrievedWarnings);
+
+  // NOTE: LINUX SUPPORT
+  // Linux does not support compatibility mode button, so do not sending the warning
+  if (!isLinux()) {
+    const retrievedWarnings = isDisguisedPodmanSocket ? [] : [getDisguisedPodmanInformation()];
+    provider.updateWarnings(retrievedWarnings);
+  }
 }
 
 // Shortform for getting the compatibility mode setting

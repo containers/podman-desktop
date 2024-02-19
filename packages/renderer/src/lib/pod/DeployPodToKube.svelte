@@ -12,6 +12,8 @@ import Button from '../ui/Button.svelte';
 import { faExternalLink, faRocket } from '@fortawesome/free-solid-svg-icons';
 import Link from '../ui/Link.svelte';
 import { router } from 'tinro';
+import Input from '/@/lib/ui/Input.svelte';
+import Checkbox from '/@/lib/ui/Checkbox.svelte';
 
 export let resourceId: string;
 export let engineId: string;
@@ -141,7 +143,9 @@ function openPodDetails(): void {
   if (!createdPod?.metadata?.name || !defaultContextName) {
     return;
   }
-  router.goto(`/pods/kubernetes/${encodeURI(createdPod.metadata.name)}/${encodeURI(defaultContextName)}/logs`);
+  router.goto(
+    `/pods/kubernetes/${encodeURIComponent(createdPod.metadata.name)}/${encodeURIComponent(defaultContextName)}/logs`,
+  );
 }
 
 function openRoute(route: V1Route) {
@@ -391,46 +395,36 @@ function updateKubeResult() {
       {#if bodyPod}
         <div class="pt-2 pb-4">
           <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-400">Pod Name:</label>
-          <input
-            type="text"
-            bind:value="{bodyPod.metadata.name}"
-            name="podName"
-            id="podName"
-            class=" cursor-default w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
-            required />
+          <Input bind:value="{bodyPod.metadata.name}" name="podName" id="podName" class="w-full" required />
         </div>
       {/if}
 
       <div class="pt-2 pb-4">
         <label for="services" class="block mb-1 text-sm font-medium text-gray-300">Kubernetes Services:</label>
-        <input
-          type="checkbox"
-          bind:checked="{deployUsingServices}"
-          name="useServices"
-          id="useServices"
-          class=""
-          required />
-        <span class="text-gray-400 text-sm ml-1"
-          >Replace .hostPort exposure on containers by Services. It is the recommended way to expose ports, as a cluster
-          policy may prevent to use hostPort.</span>
+        <div class="flex flex-row">
+          <Checkbox bind:checked="{deployUsingServices}" name="useServices" id="useServices" required />
+          <span class="text-gray-400 text-sm ml-1"
+            >Replace .hostPort exposure on containers by Services. It is the recommended way to expose ports, as a
+            cluster policy may prevent to use hostPort.</span>
+        </div>
       </div>
 
       <div class="pt-2 pb-4">
         <label for="useRestricted" class="block mb-1 text-sm font-medium text-gray-300"
           >Restricted Security Context:</label>
-        <input
-          type="checkbox"
-          bind:checked="{deployUsingRestrictedSecurityContext}"
-          name="useRestricted"
-          id="useRestricted"
-          data-testid="useRestricted"
-          class=""
-          required />
-        <span class="text-gray-400 text-sm ml-1">
-          Update Kubernetes manifest to respect the Pod security <Link
-            externalRef="https://kubernetes.io/docs/concepts/security/pod-security-standards#restricted"
-            >restricted profile</Link
-          >.</span>
+        <div class="flex flex-row">
+          <Checkbox
+            bind:checked="{deployUsingRestrictedSecurityContext}"
+            name="useRestricted"
+            id="useRestricted"
+            title="Use restricted security context"
+            required />
+          <span class="text-gray-400 text-sm ml-1">
+            Update Kubernetes manifest to respect the Pod security <Link
+              externalRef="https://kubernetes.io/docs/concepts/security/pod-security-standards#restricted"
+              >restricted profile</Link
+            >.</span>
+        </div>
       </div>
 
       <!-- Only show for non-OpenShift deployments (we use routes for OpenShift) -->
@@ -438,17 +432,18 @@ function updateKubeResult() {
         <div class="pt-2 pb-4">
           <label for="createIngress" class="block mb-1 text-sm font-medium text-gray-300"
             >Expose Service Locally Using Kubernetes Ingress:</label>
-          <input
-            type="checkbox"
-            bind:checked="{createIngress}"
-            name="createIngress"
-            id="createIngress"
-            class=""
-            required />
-          <span class="text-gray-300 text-sm ml-1">
-            Create an Ingress to get access to the local ports exposed, at the default Ingress Controller location.
-            Example: On default kind cluster created with Podman Desktop, it will be accessible at 'localhost:9090'.
-            Requirements: Your cluster must have an Ingress Controller.</span>
+          <div class="flex flex-row">
+            <Checkbox
+              bind:checked="{createIngress}"
+              name="createIngress"
+              id="createIngress"
+              title="Create Ingress"
+              required />
+            <span class="text-gray-300 text-sm ml-1">
+              Create an Ingress to get access to the local ports exposed, at the default Ingress Controller location.
+              Example: On default kind cluster created with Podman Desktop, it will be accessible at 'localhost:9090'.
+              Requirements: Your cluster must have an Ingress Controller.</span>
+          </div>
         </div>
       {/if}
 
@@ -476,7 +471,7 @@ function updateKubeResult() {
       {#if openshiftRouteGroupSupported}
         <div class="pt-2 m-2">
           <label for="routes" class="block mb-1 text-sm font-medium text-gray-400">Create OpenShift routes:</label>
-          <input type="checkbox" bind:checked="{deployUsingRoutes}" name="useRoutes" id="useRoutes" class="" required />
+          <Checkbox bind:checked="{deployUsingRoutes}" name="useRoutes" id="useRoutes" required />
           <span class="text-gray-400 text-sm ml-1"
             >Create OpenShift routes to get access to the exposed ports of this pod.</span>
         </div>
@@ -485,13 +480,12 @@ function updateKubeResult() {
       {#if defaultContextName}
         <div class="pt-2">
           <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-400">Kubernetes Context:</label>
-          <input
-            type="text"
+          <Input
             bind:value="{defaultContextName}"
             name="defaultContextName"
             id="defaultContextName"
             readonly
-            class="cursor-default w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
+            class="w-full"
             required />
         </div>
       {/if}

@@ -417,7 +417,7 @@ test('When deploying a pod, restricted security context is added', async () => {
   expect(createButton).toBeEnabled();
 
   // Click restricted
-  const useRestricted = screen.getByTestId('useRestricted');
+  const useRestricted = screen.getByRole('checkbox', { name: 'Use restricted security context' });
   await fireEvent.click(useRestricted);
 
   // Press the deploy button
@@ -464,7 +464,7 @@ test('Succeed to deploy ingress if service is selected', async () => {
   expect(createButton).toBeEnabled();
 
   // Checkmark the ingress
-  const checkbox = screen.getByLabelText('Expose Service Locally Using Kubernetes Ingress:');
+  const checkbox = screen.getByRole('checkbox', { name: 'Create Ingress' });
   await fireEvent.click(checkbox);
   expect(checkbox).toHaveProperty('checked', true);
 
@@ -497,12 +497,12 @@ test('Should display Open pod button after successful deployment', async () => {
 
   await waitFor(() =>
     kubernetesCreatePodMock.mockResolvedValue({
-      metadata: { name: 'hello', namespace: 'default' },
+      metadata: { name: 'foobar/api-fake-cluster.com:6443', namespace: 'default' },
     }),
   );
   await waitFor(() =>
     kubernetesReadNamespacedPodMock.mockResolvedValue({
-      metadata: { name: 'hello' },
+      metadata: { name: 'foobar/api-fake-cluster.com:6443' },
       status: {
         phase: 'Running',
       },
@@ -522,5 +522,5 @@ test('Should display Open pod button after successful deployment', async () => {
   expect(openPodButton).toBeEnabled();
 
   await fireEvent.click(openPodButton);
-  expect(router.goto).toHaveBeenCalledWith(`/pods/kubernetes/hello/default/logs`);
+  expect(router.goto).toHaveBeenCalledWith(`/pods/kubernetes/foobar%2Fapi-fake-cluster.com%3A6443/default/logs`);
 });
