@@ -274,19 +274,18 @@ const config = {
             ],
           },
           {
-            to: '/docs/containers/images/building-an-image',
-            from: ['/docs/working-with-containers/images/building-an-image', '/docs/getting-started/building-an-image'],
-          },
-          {
-            to: '/docs/containers/images/pushing-an-image-to-a-registry',
+            to: '/docs/containers/images',
             from: [
-              '/docs/working-with-containers/images/pushing-an-image-to-a-registry',
+              '/docs/containers/images/building-an-image',
+              '/docs/containers/images/pulling-an-image',
+              '/docs/containers/images/pushing-an-image-to-a-registry',
+              '/docs/getting-started/building-an-image',
+              '/docs/getting-started/pulling-an-image',
               '/docs/getting-started/pushing-an-image-to-a-registry',
+              '/docs/working-with-containers/images/building-an-image',
+              '/docs/working-with-containers/images/pulling-an-image',
+              '/docs/working-with-containers/images/pushing-an-image-to-a-registry',
             ],
-          },
-          {
-            to: '/docs/containers/images/pulling-an-image',
-            from: ['/docs/working-with-containers/images/pulling-an-image', '/docs/getting-started/pulling-an-image'],
           },
           {
             to: '/docs/containers/starting-a-container',
