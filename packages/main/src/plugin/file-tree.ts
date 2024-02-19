@@ -48,7 +48,7 @@ export class FileTree<T> {
     this.size = 0;
   }
 
-  addPath(path: string, entry: T, size: number) {
+  addPath(path: string, entry: T, size: number): FileTree<T> {
     this.size += size;
     const parts = path.split('/');
     let node = this.root;
@@ -66,5 +66,6 @@ export class FileTree<T> {
       node.size += size;
     }
     node.data = entry;
+    return this;
   }
 }

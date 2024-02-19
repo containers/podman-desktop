@@ -24,11 +24,11 @@ interface typ {
 }
 
 test('add paths to filetree', () => {
-  const tree = new FileTree<typ>('tree1');
-  tree.addPath('A', { path: 'A-path' }, 5);
-  tree.addPath('a/', { path: 'a/-path' }, 0);
-  tree.addPath('a/b/c/d.txt', { path: 'a/b/c/d.txt-path' }, 3);
-  tree.addPath('a/b/c/e.txt', { path: 'a/b/c/e.txt-path' }, 4);
+  const tree = new FileTree<typ>('tree1')
+    .addPath('A', { path: 'A-path' }, 5)
+    .addPath('a/', { path: 'a/-path' }, 0)
+    .addPath('a/b/c/d.txt', { path: 'a/b/c/d.txt-path' }, 3)
+    .addPath('a/b/c/e.txt', { path: 'a/b/c/e.txt-path' }, 4);
 
   expect(tree.size).toBe(12);
   expect(tree.root.children).toHaveLength(2);
