@@ -67,8 +67,13 @@ function getModeString(mode: number | undefined): string {
     (mode & 0o001 ? 'x' : '-')
   );
 }
+
 export async function getLayersFromImageArchive(tmpdir: string): Promise<ImageLayer[]> {
-  const manifest = JSON.parse(fs.readFileSync(path.join(tmpdir, 'manifest.json'), 'utf-8'));
+  const fileContent = fs.readFileSync(path.join(tmpdir, 'manifest.json'), 'utf-8');
+  const manifest = JSON.parse(fileContent);
+  if (manifest.length < 1) {
+    return [];
+  }
   const layers = manifest[0].Layers;
 
   const configFile = manifest[0].Config;
@@ -109,7 +114,7 @@ export async function getLayersFromImageArchive(tmpdir: string): Promise<ImageLa
       if (hist.empty_layer) {
         continue;
       }
-      layerHistory = hist.created_by.replace(/^\/bin\/sh -c /, '');
+      layerHistory = hist.created_by.replace(/^\/bin\/sh -c #\(nop\) /, '');
       break;
     }
     layersResult.push({ id: layer, tree: tree, history: layerHistory } as ImageLayer);
