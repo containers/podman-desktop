@@ -10,7 +10,7 @@ image: /img/podman-desktop-wins-devies-award/devies-celebration.png
 
 We’re honored to announce that [Podman Desktop](https://podman-desktop.io/) has been recognized with the prestigious [**2024 DEVIES Award**](https://www.developerweek.com/awards/) in the category of **Containers & Kubernetes**. This award is a testimony to the effectiveness of the Podman Desktop team and greater open-source community's efforts to help developers. Podman Desktop increases developer container workflow efficiency as well as provides [an easy transition of applications from containers to Kubernetes](https://developers.redhat.com/articles/2023/11/06/working-kubernetes-podman-desktop), the leading open-source container orchestration platform.
 
-“While Podman Desktop only went into general availability last year, the community response has been very impressive, and we’re happy to help shape the future of container development backed by the vibrant open-source standards that Red Hat supports” said cool person (replace), _position_ on the Podman Desktop team. 
+“While Podman Desktop only went into general availability last year, the community response has been very impressive and incredibly gratifying. We are extremely proud to receive this outstanding recognition which celebrates passion, commitment and innovation for shaping the future of container development backed by the vibrant open-source standards that Red Hat supports. ” said [Stévan Le Meur](https://twitter.com/stevanlm), _Product Manager_ on the Podman Desktop team.
 
 ![hero](/img/blog/podman-desktop-wins-devies-award/devies-celebration.png)
 
