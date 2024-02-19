@@ -18,6 +18,7 @@ import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import SimpleColumn from '../table/SimpleColumn.svelte';
 import DurationColumn from '../table/DurationColumn.svelte';
 import ServiceColumnType from './ServiceColumnType.svelte';
+import { deleteSelection } from '../ui/Util';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -35,25 +36,11 @@ onMount(() => {
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
 async function deleteSelectedServices() {
-  const selectedServices = services.filter(service => service.selected);
-  if (selectedServices.length === 0) {
-    return;
-  }
-
-  // mark services for deletion
   bulkDeleteInProgress = true;
-  selectedServices.forEach(service => (service.status = 'DELETING'));
+  await deleteSelection(services, async (service: ServiceUI) => {
+    await window.kubernetesDeleteService(service.name);
+  });
   services = services;
-
-  await Promise.all(
-    selectedServices.map(async service => {
-      try {
-        await window.kubernetesDeleteService(service.name);
-      } catch (e) {
-        console.error('error while deleting service', e);
-      }
-    }),
-  );
   bulkDeleteInProgress = false;
 }
 

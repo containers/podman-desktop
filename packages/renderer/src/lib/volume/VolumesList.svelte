@@ -24,6 +24,7 @@ import VolumeColumnName from './VolumeColumnName.svelte';
 import VolumeColumnEnvironment from './VolumeColumnEnvironment.svelte';
 import SimpleColumn from '../table/SimpleColumn.svelte';
 import VolumeColumnActions from './VolumeColumnActions.svelte';
+import { deleteSelection } from '../ui/Util';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -92,26 +93,11 @@ onDestroy(() => {
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
 async function deleteSelectedVolumes() {
-  const selectedVolumes = volumes.filter(volume => volume.selected);
-
-  if (selectedVolumes.length === 0) {
-    return;
-  }
-
-  // mark volumes for deletion
   bulkDeleteInProgress = true;
-  selectedVolumes.forEach(volume => (volume.status = 'DELETING'));
+  await deleteSelection(volumes, async (volume: VolumeInfoUI) => {
+    await window.removeVolume(volume.engineId, volume.name);
+  });
   volumes = volumes;
-
-  await Promise.all(
-    selectedVolumes.map(async volume => {
-      try {
-        await window.removeVolume(volume.engineId, volume.name);
-      } catch (e) {
-        console.error('error while removing volume', e);
-      }
-    }),
-  );
   bulkDeleteInProgress = false;
 }
 

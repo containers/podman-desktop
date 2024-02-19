@@ -33,6 +33,7 @@ import { viewsContributions } from '/@/stores/views';
 import { IMAGE_VIEW_ICONS, IMAGE_LIST_VIEW_ICONS, IMAGE_VIEW_BADGES, IMAGE_LIST_VIEW_BADGES } from '../view/views';
 import type { ContextUI } from '../context/context';
 import { context } from '../../stores/context';
+import { deleteSelection } from '../ui/Util';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -159,21 +160,11 @@ function gotoPullImage(): void {
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
 async function deleteSelectedImages() {
-  const selectedImages = images.filter(image => image.selected);
-  if (selectedImages.length === 0) {
-    return;
-  }
-
-  // mark images for deletion
   bulkDeleteInProgress = true;
-  selectedImages.forEach(image => (image.status = 'DELETING'));
+  await deleteSelection(images, async (image: ImageInfoUI) => {
+    await imageUtils.deleteImage(image);
+  });
   images = images;
-
-  await selectedImages.reduce((prev: Promise<void>, image) => {
-    return prev
-      .then(() => imageUtils.deleteImage(image))
-      .catch((e: unknown) => console.error('error while removing image', e));
-  }, Promise.resolve());
   bulkDeleteInProgress = false;
 }
 

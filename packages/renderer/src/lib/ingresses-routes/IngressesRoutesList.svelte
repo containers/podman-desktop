@@ -21,6 +21,7 @@ import IngressRouteColumnHostPath from './IngressRouteColumnHostPath.svelte';
 import IngressRouteColumnBackend from './IngressRouteColumnBackend.svelte';
 import { filtered as filteredRoutes, searchPattern as searchPatternRoutes } from '/@/stores/routes';
 import IngressRouteColumnStatus from './IngressRouteColumnStatus.svelte';
+import { deleteSelection } from '../ui/Util';
 
 export let searchTerm = '';
 $: searchPatternRoutes.set(searchTerm);
@@ -55,34 +56,17 @@ onDestroy(() => {
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
 async function deleteSelectedIngressesRoutes() {
-  const selectedIngressesRoutes = ingressesRoutesUI.filter(ingressesRoutesUI => ingressesRoutesUI.selected);
-  if (selectedIngressesRoutes.length === 0) {
-    return;
-  }
-
-  // mark ingress or route for deletion
   bulkDeleteInProgress = true;
-  selectedIngressesRoutes.forEach(ingressRoute => (ingressRoute.status = 'DELETING'));
+  await deleteSelection(ingressesRoutesUI, async (ingressRoute: IngressUI | RouteUI) => {
+    const isIngress = ingressRouteUtils.isIngress(ingressRoute);
+    if (isIngress) {
+      await window.kubernetesDeleteIngress(ingressRoute.name);
+    } else {
+      await window.kubernetesDeleteRoute(ingressRoute.name);
+    }
+  });
   ingressesRoutesUI = ingressesRoutesUI;
-
-  if (selectedIngressesRoutes.length > 0) {
-    bulkDeleteInProgress = true;
-    await Promise.all(
-      selectedIngressesRoutes.map(async ingressRoute => {
-        const isIngress = ingressRouteUtils.isIngress(ingressRoute);
-        try {
-          if (isIngress) {
-            await window.kubernetesDeleteIngress(ingressRoute.name);
-          } else {
-            await window.kubernetesDeleteRoute(ingressRoute.name);
-          }
-        } catch (e) {
-          console.error(`error while deleting ${isIngress ? 'ingress' : 'route'}`, e);
-        }
-      }),
-    );
-    bulkDeleteInProgress = false;
-  }
+  bulkDeleteInProgress = false;
 }
 
 let selectedItemsNumber: number;
