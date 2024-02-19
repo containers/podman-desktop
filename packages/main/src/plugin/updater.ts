@@ -138,19 +138,20 @@ export class Updater {
 
       const result = await this.messageBox.showMessageBox({
         type: 'info',
-        title: 'Update Available',
+        title: 'Update Available now',
         message: `A new version ${updateVersion} of Podman Desktop is available. Do you want to update your current version ${this.#currentVersion}?`,
-        buttons: ['Update', 'Cancel'],
-        cancelId: 1,
+        buttons: ['Update now', 'Update later', 'Update never'],
       });
-      if (result.response === 0) {
+      if (result.response === 2) {
+        this.updateConfigurationValue('never');
+      } else if (result.response === 0) {
         this.#updateInProgress = true;
         this.#updateAlreadyDownloaded = false;
 
         // Download update and try / catch it and create a dialog if it fails
         try {
           await autoUpdater.downloadUpdate();
-        } catch (error) {
+        } catch (error: unknown) {
           console.error('Update error: ', error);
           await this.messageBox.showMessageBox({
             type: 'error',
@@ -176,7 +177,7 @@ export class Updater {
   }
 
   /**
-   * Handler for update not available event.
+   * Registers configuration settings for update preferences.
    */
   private registerConfiguration() {
     this.configurationRegistry.registerConfigurations([
@@ -196,6 +197,10 @@ export class Updater {
     ]);
   }
 
+  /**
+   * Retrieves the value of the update reminder configuration.
+   * @returns The value of the update reminder configuration.
+   */
   private getConfigurationValue(): 'startup' | 'never' {
     const value = this.configurationRegistry.getConfiguration('preferences').get('update.reminder');
     if (value !== 'startup' && value !== 'never')
@@ -203,6 +208,10 @@ export class Updater {
     return value;
   }
 
+  /**
+   * Updates the value of the update reminder configuration.
+   * @param value - The new value for the update reminder configuration.
+   */
   private updateConfigurationValue(value: 'startup' | 'never'): void {
     this.configurationRegistry
       .getConfiguration('preferences')
@@ -212,6 +221,9 @@ export class Updater {
       });
   }
 
+  /**
+   * Handler for update not available event.
+   */
   private onUpdateNotAvailable(): void {
     this.#updateInProgress = false;
     this.#updateAlreadyDownloaded = false;
