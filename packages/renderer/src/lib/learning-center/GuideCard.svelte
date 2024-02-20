@@ -6,10 +6,10 @@ export let width = 300;
 export let height = 300;
 
 async function openGuide(guide: Guide): Promise<void> {
-  await window.openExternal(guide.url);
   window.telemetryTrack('openLearningCenterGuide', {
     guideId: guide.id,
   });
+  await window.openExternal(guide.url);
 }
 </script>
 
