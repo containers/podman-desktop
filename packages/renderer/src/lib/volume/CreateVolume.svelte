@@ -60,7 +60,7 @@ export let volumeName = '';
   <svelte:fragment slot="icon">
     <VolumeIcon />
   </svelte:fragment>
-  <div slot="content" class="p-5 min-w-full h-fit">
+  <div slot="content" class="p-5 min-w-full h-full">
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else}
