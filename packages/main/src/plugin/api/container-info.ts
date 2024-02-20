@@ -214,8 +214,7 @@ export interface ContainerCreateOptions {
   start?: boolean;
   HealthCheck?: HealthConfig;
   ArgsEscaped?: boolean;
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  Volumes?: { [volume: string]: {} };
+  Volumes?: { [volume: string]: object };
   WorkingDir?: string;
   NetworkDisabled?: boolean;
   MacAddress?: string;

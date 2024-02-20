@@ -2493,8 +2493,7 @@ declare module '@podman-desktop/api' {
     /**
      * An object mapping mount point paths inside the container to empty objects.
      */
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    Volumes?: { [volume: string]: {} };
+    Volumes?: { [volume: string]: object };
 
     /**
      * The working directory for commands to run in.
