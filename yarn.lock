@@ -3733,7 +3733,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/node@*", "@types/node@^17.0.5", "@types/node@^18", "@types/node@^18.11.18", "@types/node@^20.1.1":
+"@types/node@*", "@types/node@^17.0.5", "@types/node@^18", "@types/node@^20.1.1", "@types/node@^20.9.0":
   version "18.19.17"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.17.tgz#a581a9fb4b2cfdbc61f008804f4436b2d5c40354"
   integrity sha512-SzyGKgwPzuWp2SHhlpXKzCX0pIOfcI4V2eF37nNBJOhwlegQ83omtVQ1XxZpDE06V/d6AQvfQdPfnw0tRC//Ng==
@@ -7396,13 +7396,13 @@ electron-util@^0.17.2:
     electron-is-dev "^1.1.0"
     new-github-issue-url "^0.2.1"
 
-electron@28.2.3:
-  version "28.2.3"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-28.2.3.tgz#d26821bcfda7ee445b4b75231da4b057a7ce6e7b"
-  integrity sha512-he9nGphZo03ejDjYBXpmFVw0KBKogXvR2tYxE4dyYvnfw42uaFIBFrwGeenvqoEOfheJfcI0u4rFG6h3QxDwnA==
+electron@29.0.0:
+  version "29.0.0"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-29.0.0.tgz#2c1d34a95fc23a5b3530aa53de6eacca89a410b1"
+  integrity sha512-HhrRC5vWb6fAbWXP3A6ABwKUO9JvYSC4E141RzWFgnDBqNiNtabfmgC8hsVeCR65RQA2MLSDgC8uP52I9zFllQ==
   dependencies:
     "@electron/get" "^2.0.0"
-    "@types/node" "^18.11.18"
+    "@types/node" "^20.9.0"
     extract-zip "^2.0.1"
 
 elkjs@^0.8.2:
