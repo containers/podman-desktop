@@ -1,7 +1,7 @@
 ---
 title: Podman Desktop Wins 2024 DEVIES Award
 description: Podman Desktop has been awarded the 2024 DEVIES Award for Best Innovation in Containers & Kubernetes.
-slug: podman-desktop-wins-devies-award.md
+slug: podman-desktop-wins-devies-award
 authors: [cedric]
 tags: [podman-desktop, podman, award, containers, kubernetes]
 hide_table_of_contents: false
