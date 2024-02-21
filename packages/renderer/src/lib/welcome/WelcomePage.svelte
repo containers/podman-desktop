@@ -50,7 +50,6 @@ onMount(async () => {
         selected: false,
       };
     });
-    console.log(onboardingProviders);
   });
 });
 

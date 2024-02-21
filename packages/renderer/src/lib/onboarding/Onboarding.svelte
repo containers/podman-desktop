@@ -72,8 +72,6 @@ let executedCommands: string[] = [];
 
 let telemetrySession = new OnboardingTelemetrySession();
 
-/*
-  $: enableNextButton = false;*/
 let onboardingUnsubscribe: Unsubscriber;
 let contextsUnsubscribe: Unsubscriber;
 // variable used to mark if the onboarding is running or not
@@ -325,7 +323,7 @@ $: globalOnboarding = global;
     role="region"
     aria-label="Onboarding Body"
     class="flex flex-col {globalOnboarding
-      ? 'flex-auto fixed top-0 left-0 right-0 bottom-0 bg-zinc-700 bg-no-repeat z-50 pt-9'
+      ? 'flex-auto fixed top-0 left-0 right-0 bottom-0 bg-zinc-700 bg-no-repeat z-[45] pt-9'
       : 'bg-charcoal-500 h-full overflow-y-auto w-full overflow-x-hidden'}"
     class:bodyWithBar="{!activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}">
     <div class="flex flex-col h-full">
