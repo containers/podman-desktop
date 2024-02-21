@@ -10,7 +10,7 @@ export let image: ImageInfoUI;
 let loading = true;
 let layers: ImageLayer[];
 let currentLayerId: string;
-$: currentRoot = layers ? layers[0].tree.root : undefined;
+$: currentRoot = layers?.length ? layers[0].tree.root : undefined;
 
 onMount(async () => {
   layers = await window.getImageLayers(image.engineId, image.id);
@@ -35,11 +35,12 @@ function onLayerSelected(layer: ImageLayer) {
       <span class="grow">Layers</span>
     </div>
     <div class="h-full flex flex-row space-x-8">
-      <div class="h-full overflow-y-auto w-3/4">
+      <div role="list" aria-label="layers" class="h-full overflow-y-auto w-3/4">
         {#each layers as layer}
           <button
             on:click="{() => onLayerSelected(layer)}"
             role="row"
+            aria-label="{layer.id}"
             class="rounded-lg mb-4 p-4 flex flex-col w-full text-left truncate"
             class:bg-charcoal-700="{layer.id !== currentLayerId}"
             class:bg-charcoal-400="{layer.id === currentLayerId}">
@@ -51,7 +52,7 @@ function onLayerSelected(layer: ImageLayer) {
           </button>
         {/each}
       </div>
-      <div class="h-full w-full pr-4 overflow-y-scroll pb-16">
+      <div aria-label="tree" class="h-full w-full pr-4 overflow-y-scroll pb-16">
         {#if currentRoot}
           <div class="text-xs grid grid-cols-[90px_60px_70px_1fr]">
             <TreeView tree="{currentRoot}" />
