@@ -1166,9 +1166,19 @@ export class KubernetesClient {
       telemetryOptions.error = error;
       if (error instanceof HttpError) {
         const httpError = error as HttpError;
+
+        // If there is a "message" in the body of the http error, throw that
+        // as that's where Kubernetes tends to put the error message
+        if (httpError.body?.message) {
+          throw new Error(httpError.body.message);
+        }
+
+        // Otherwise, throw the "generic" HTTP error message
         if (httpError.message) {
           throw new Error(httpError.message);
         }
+
+        // If all else fails, throw the body of the error
         throw new Error(httpError.body);
       }
       throw error;

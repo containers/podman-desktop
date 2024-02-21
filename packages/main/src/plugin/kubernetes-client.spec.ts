@@ -37,6 +37,8 @@ import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import * as fs from 'node:fs';
 import type { V1Route } from './api/openshift-types.js';
 import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
+import { IncomingMessage } from 'node:http';
+import { Socket } from 'node:net';
 
 const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
 const informerManager: KubernetesInformerManager = new KubernetesInformerManager();
@@ -121,6 +123,13 @@ beforeAll(() => {
       VersionApi: {},
       makeInformer: vi.fn(),
       KubernetesObjectApi: vi.fn(),
+      HttpError: class HttpError extends Error {
+        statusCode: number;
+        constructor(statusCode: number, message: string) {
+          super(message);
+          this.statusCode = statusCode;
+        }
+      },
     };
   });
 });
@@ -1256,4 +1265,29 @@ test('Expect apply should patch if object exists', async () => {
 
   expect(objects).toHaveLength(1);
   expect(objects[0]).toEqual(patchedObj);
+});
+
+test('If Kubernetes returns a http error, output the http body message error.', async () => {
+  const client = createTestClient();
+  makeApiClientMock.mockReturnValue({
+    read: vi.fn().mockReturnValue({}),
+    create: vi
+      .fn()
+      .mockRejectedValue(
+        new clientNode.HttpError(
+          new IncomingMessage(new Socket()),
+          { body: { message: 'A K8sError within message body' } },
+          500,
+        ),
+      ),
+  });
+  try {
+    await client.createResources('dummy', [{ apiVersion: 'v1' }]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    console.log(err);
+    // Check that the error is clientNode.HttpError
+    expect(err).to.be.a('Error');
+    expect(err.message).contain('A K8sError within message body');
+  }
 });
