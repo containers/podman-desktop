@@ -53,7 +53,7 @@ export class ImageDetailsPage extends BasePage {
     this.inspectTab = page.getByText('Inspect');
     this.closeLink = page.getByRole('link', { name: 'Close Details' });
     this.backToImagesLink = page.getByRole('link', { name: 'Go back to Images' });
-    this.actionsButton = page.getByLabel('kebab-menu');
+    this.actionsButton = page.getByRole('button', { name: 'kebab menu' });
     this.buildDiskImageButton = page.getByTitle('Build Disk Image');
   }
 
@@ -95,7 +95,7 @@ export class ImageDetailsPage extends BasePage {
     await pathInputLocator.press('Enter');
 
     const dialogLocator = this.page.getByRole('dialog', { name: 'Bootable Container', exact: true });
-    await playExpect.poll(async () => (await dialogLocator.count()) > 0, { timeout: 120000 }).toBeTruthy();
+    await playExpect.poll(async () => (await dialogLocator.count()) > 0, { timeout: 300000 }).toBeTruthy();
 
     const dialogMessageLocator = this.page.getByLabel('Dialog Message');
     const result = (await dialogMessageLocator.innerText()).includes('Success!');
