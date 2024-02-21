@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2023 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,6 +67,8 @@ import type { KubeContext } from './kubernetes-context.js';
 import type { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import type { IncomingMessage } from 'node:http';
+import { ContextsManager } from './kubernetes-context-state.js';
+import type { ContextState } from './kubernetes-context-state.js';
 
 interface KubernetesObjectWithKind extends KubernetesObject {
   kind: string;
@@ -142,6 +144,8 @@ export class KubernetesClient {
    */
   private apiResources = new Map<string, Array<V1APIResource>>();
 
+  private contextsState: ContextsManager;
+
   private readonly _onDidUpdateKubeconfig = new Emitter<containerDesktopAPI.KubeconfigUpdateEvent>();
   readonly onDidUpdateKubeconfig: containerDesktopAPI.Event<containerDesktopAPI.KubeconfigUpdateEvent> =
     this._onDidUpdateKubeconfig.event;
@@ -154,6 +158,7 @@ export class KubernetesClient {
     private readonly telemetry: Telemetry,
   ) {
     this.kubeConfig = new KubeConfig();
+    this.contextsState = new ContextsManager(this.apiSender);
   }
 
   async init(): Promise<void> {
@@ -457,6 +462,8 @@ export class KubernetesClient {
     await this.fetchAPIGroups();
     this.apiSender.send('pod-event');
     this.apiSender.send('kubeconfig-update');
+
+    await this.contextsState.update(this.kubeConfig);
   }
 
   newError(message: string, cause: Error): Error {
@@ -1305,5 +1312,9 @@ export class KubernetesClient {
       await informerInfo.informer.stop();
       await this.startInformer(informerInfo.resourcesType, id);
     }
+  }
+
+  public getContextsState(): Map<string, ContextState> {
+    return this.contextsState.getContextsState();
   }
 }
