@@ -92,7 +92,7 @@ describe('bootc installation verification', async () => {
 
     const imageDetailPage = await imagesPage.openImageDetails(imageName);
     await playExpect(imageDetailPage.heading).toBeVisible();
-  });
+  }, 150000);
 
   test.each([
     ['QCOW2', 'ARM64'],
@@ -103,15 +103,19 @@ describe('bootc installation verification', async () => {
     ['RAW', 'AMD64'],
     ['ISO', 'ARM64'],
     ['ISO', 'AMD64'],
-  ])('Building bootable image type: %i for architecture: %i', async (type, architecture) => {
-    const imageDetailsPage = new ImageDetailsPage(page, imageName);
-    await playExpect(imageDetailsPage.heading).toBeVisible();
-    const pathToStore = join('tests', 'output', 'images', `${type}-${architecture}`);
+  ])(
+    'Building bootable image type: %i for architecture: %i',
+    async (type, architecture) => {
+      const imageDetailsPage = new ImageDetailsPage(page, imageName);
+      await playExpect(imageDetailsPage.heading).toBeVisible();
+      const pathToStore = join('tests', 'output', 'images', `${type}-${architecture}`);
 
-    await playExpect
-      .poll(async () => await imageDetailsPage.buildDiskImage(type, architecture, pathToStore), { timeout: 200000 })
-      .toBeTruthy();
-  });
+      await playExpect
+        .poll(async () => await imageDetailsPage.buildDiskImage(type, architecture, pathToStore), { timeout: 200000 })
+        .toBeTruthy();
+    },
+    150000,
+  );
 
   test('Remove bootc extension through Settings', async () => {
     await ensureBootcIsRemoved();
