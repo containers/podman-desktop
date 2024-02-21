@@ -22,6 +22,15 @@ import { fireEvent, render, screen, within } from '@testing-library/svelte';
 import PreferencesKubernetesContextsRendering from './PreferencesKubernetesContextsRendering.svelte';
 import { kubernetesContexts } from '/@/stores/kubernetes-contexts';
 import type { KubeContext } from '../../../../main/src/plugin/kubernetes-context';
+import type { ContextState } from '../../../../main/src/plugin/kubernetes-context-state';
+import * as kubernetesContextsState from '/@/stores/kubernetes-contexts-state';
+import { readable } from 'svelte/store';
+
+vi.mock('/@/stores/kubernetes-contexts-state', async () => {
+  return {
+    kubernetesContextsState: vi.fn(),
+  };
+});
 
 // Create a fake KubeContextUI
 const mockContext1: KubeContext = {
@@ -58,9 +67,11 @@ const mockContext3: KubeContext = {
 
 beforeEach(() => {
   kubernetesContexts.set([mockContext1, mockContext2, mockContext3]);
+  (window as any).kubernetesGetContextsState = vi.fn().mockResolvedValue(new Map<string, ContextState>());
 });
 
 test('test that name, cluster and the server is displayed when rendering', async () => {
+  vi.mocked(kubernetesContextsState).kubernetesContextsState = readable<Map<string, ContextState>>(new Map());
   (window as any).kubernetesGetCurrentContextName = vi.fn().mockResolvedValue('my-current-context');
   render(PreferencesKubernetesContextsRendering, {});
   expect(await screen.findByText('context-name')).toBeInTheDocument();
@@ -70,17 +81,20 @@ test('test that name, cluster and the server is displayed when rendering', async
 });
 
 test('Test that namespace is displayed when available in the context', async () => {
+  vi.mocked(kubernetesContextsState).kubernetesContextsState = readable<Map<string, ContextState>>(new Map());
   render(PreferencesKubernetesContextsRendering, {});
   expect(await screen.findByText('namespace-name3')).toBeInTheDocument();
 });
 
 test('If nothing is returned for contexts, expect that the page shows a message', async () => {
+  vi.mocked(kubernetesContextsState).kubernetesContextsState = readable<Map<string, ContextState>>(new Map());
   kubernetesContexts.set([]);
   render(PreferencesKubernetesContextsRendering, {});
   expect(await screen.findByText('No Kubernetes contexts found')).toBeInTheDocument();
 });
 
 test('Test that context-name2 is the current context', async () => {
+  vi.mocked(kubernetesContextsState).kubernetesContextsState = readable<Map<string, ContextState>>(new Map());
   (window as any).kubernetesGetCurrentContextName = vi.fn().mockResolvedValue('context-name2');
   render(PreferencesKubernetesContextsRendering, {});
 
@@ -97,6 +111,7 @@ test('Test that context-name2 is the current context', async () => {
 });
 
 test('when deleting the current context, a popup should ask confirmation', async () => {
+  vi.mocked(kubernetesContextsState).kubernetesContextsState = readable<Map<string, ContextState>>(new Map());
   const showMessageBoxMock = vi.fn();
   (window as any).showMessageBox = showMessageBoxMock;
   showMessageBoxMock.mockResolvedValue({ result: 1 });
@@ -115,6 +130,7 @@ test('when deleting the current context, a popup should ask confirmation', async
 });
 
 test('when deleting the non current context, no popup should ask confirmation', async () => {
+  vi.mocked(kubernetesContextsState).kubernetesContextsState = readable<Map<string, ContextState>>(new Map());
   const showMessageBoxMock = vi.fn();
   (window as any).showMessageBox = showMessageBoxMock;
   showMessageBoxMock.mockResolvedValue({ result: 1 });
@@ -130,4 +146,42 @@ test('when deleting the non current context, no popup should ask confirmation', 
   expect(deleteBtn).toBeInTheDocument();
   await fireEvent.click(deleteBtn);
   expect(showMessageBoxMock).not.toHaveBeenCalled();
+});
+
+test('state and resources counts are displayed in contexts', () => {
+  const state: Map<string, ContextState> = new Map();
+  state.set('context-name', {
+    reachable: true,
+    podsCount: 1,
+    deploymentsCount: 2,
+  });
+  state.set('context-name2', {
+    reachable: false,
+    podsCount: 0,
+    deploymentsCount: 0,
+  });
+  vi.mocked(kubernetesContextsState).kubernetesContextsState = readable<Map<string, ContextState>>(state);
+  render(PreferencesKubernetesContextsRendering, {});
+  const context1 = screen.getAllByRole('row')[0];
+  const context2 = screen.getAllByRole('row')[1];
+  expect(within(context1).queryByText('REACHABLE')).toBeInTheDocument();
+  expect(within(context1).queryByText('PODS')).toBeInTheDocument();
+  expect(within(context1).queryByText('DEPLOYMENTS')).toBeInTheDocument();
+
+  const checkCount = (el: HTMLElement, label: string, count: number) => {
+    const countEl = within(el).getByLabelText(label);
+    expect(countEl).toBeInTheDocument();
+    expect(within(countEl).queryByText(count));
+  };
+  checkCount(context1, 'context-pods-count', 1);
+  checkCount(context1, 'context-deployments-count', 2);
+
+  expect(within(context2).queryByText('UNREACHABLE')).toBeInTheDocument();
+  expect(within(context2).queryByText('PODS')).not.toBeInTheDocument();
+  expect(within(context2).queryByText('DEPLOYMENTS')).not.toBeInTheDocument();
+
+  const podsCountContext2 = within(context2).queryByLabelText('context-pods-count');
+  expect(podsCountContext2).not.toBeInTheDocument();
+  const deploymentsCountContext2 = within(context2).queryByLabelText('context-deployments-count');
+  expect(deploymentsCountContext2).not.toBeInTheDocument();
 });
