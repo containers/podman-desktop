@@ -166,7 +166,7 @@ async function getKubernetesfileLocation() {
 {/if}
 
 {#if providerConnections.length > 0}
-  <FormPage title="Play Pods or Containers from a Kubernetes YAML File" inProgress="{runStarted && !runFinished}">
+  <FormPage title="Create pods from a Kubernetes YAML file" inProgress="{runStarted && !runFinished}">
     <KubePlayIcon slot="icon" size="30px" />
 
     <div slot="content" class="p-5 min-w-full h-fit">
@@ -188,7 +188,7 @@ async function getKubernetesfileLocation() {
         </div>
 
         <div>
-          <div class="text-sm font-bold text-gray-400 pb-2">Select Runtime:</div>
+          <div class="text-sm font-bold text-gray-400 pb-2">Select runtime:</div>
 
           <div class="px-5">
             <div class="flex flex-col space-y-3">
