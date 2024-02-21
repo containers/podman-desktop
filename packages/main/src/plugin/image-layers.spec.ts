@@ -66,7 +66,7 @@ function newFile(val: FileOptions): File {
 
 test('should return no layer when manifest contains no layers', async () => {
   vi.spyOn(fs, 'readFileSync').mockImplementation((path: fs.PathOrFileDescriptor) => {
-    switch (path) {
+    switch (String(path).replace('\\', '/')) {
       case '/path/to/archive/manifest.json':
         return JSON.stringify([]);
       default:
@@ -137,7 +137,7 @@ test('should add files to filetree', async () => {
     return new Parse();
   });
   vi.spyOn(fs, 'readFileSync').mockImplementation((path: fs.PathOrFileDescriptor) => {
-    switch (path) {
+    switch (String(path).replace('\\', '/')) {
       case '/path/to/archive/manifest.json':
         return JSON.stringify([
           {
