@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
+import { afterAll, beforeAll, test, describe, beforeEach, expect } from 'vitest';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
 import { expect as playExpect } from '@playwright/test';
@@ -26,13 +26,14 @@ import type { RunnerTestContext } from './testContext/runner-test-context';
 import { NavigationBar } from './model/workbench/navigation';
 import { SettingsBar } from './model/pages/settings-bar';
 import { BootcExtensionPage } from './model/pages/bootc-extension-page';
+import path, { join } from 'path';
+import { ImageDetailsPage } from './model/pages/image-details-page';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
-
 let navBar: NavigationBar;
-
 let extensionInstalled = false;
+const imageName = 'quay.io/centos-bootc/fedora-bootc';
 
 beforeEach<RunnerTestContext>(async ctx => {
   console.log('running before each');
@@ -76,6 +77,41 @@ describe('bootc installation verification', async () => {
     const extensions = await settingsBar.getCurrentExtensions();
     await playExpect.poll(async () => await checkForBootcInExtensions(extensions), { timeout: 30000 }).toBeTruthy();
   }, 200000);
+
+  test('Build bootc image', async () => {
+    let imagesPage = await navBar.openImages();
+    await playExpect(imagesPage.heading).toBeVisible();
+
+    const buildImagePage = await imagesPage.openBuildImage();
+    await playExpect(buildImagePage.heading).toBeVisible();
+    const containerFilePath = path.resolve(__dirname, '..', 'resources', 'bootable-containerfile');
+    const contextDirectory = path.resolve(__dirname, '..', 'resources');
+
+    imagesPage = await buildImagePage.buildImage(`${imageName}:eln`, containerFilePath, contextDirectory);
+    expect(await imagesPage.waitForImageExists(imageName)).toBeTruthy();
+
+    const imageDetailPage = await imagesPage.openImageDetails(imageName);
+    await playExpect(imageDetailPage.heading).toBeVisible();
+  });
+
+  test.each([
+    ['QCOW2', 'ARM64'],
+    ['QCOW2', 'AMD64'],
+    ['AMI', 'ARM64'],
+    ['AMI', 'AMD64'],
+    ['RAW', 'ARM64'],
+    ['RAW', 'AMD64'],
+    ['ISO', 'ARM64'],
+    ['ISO', 'AMD64'],
+  ])('Building bootable image type: %i for architecture: %i', async (type, architecture) => {
+    const imageDetailsPage = new ImageDetailsPage(page, imageName);
+    await playExpect(imageDetailsPage.heading).toBeVisible();
+    const pathToStore = join('tests', 'output', 'images', `${type}-${architecture}`);
+
+    await playExpect
+      .poll(async () => await imageDetailsPage.buildDiskImage(type, architecture, pathToStore), { timeout: 200000 })
+      .toBeTruthy();
+  });
 
   test('Remove bootc extension through Settings', async () => {
     await ensureBootcIsRemoved();

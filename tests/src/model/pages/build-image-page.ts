@@ -55,7 +55,7 @@ export class BuildImagePage extends BasePage {
 
     await waitUntil(async () => await this.buildButton.isEnabled(), 5000, 500);
     await this.buildButton.click();
-    await waitUntil(async () => await this.doneButton.isEnabled(), 5000, 500);
+    await waitUntil(async () => await this.doneButton.isEnabled(), 60000, 500);
     await this.doneButton.click();
     return new ImagesPage(this.page);
   }
