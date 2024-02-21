@@ -23,6 +23,7 @@ on:
       - 'package.json'
       - 'yarn.lock'
       - 'website/**'
+      - 'packages/extension-api/src/**'
 
 jobs:
   website-build:
