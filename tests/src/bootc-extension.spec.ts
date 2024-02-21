@@ -28,6 +28,7 @@ import { SettingsBar } from './model/pages/settings-bar';
 import { BootcExtensionPage } from './model/pages/bootc-extension-page';
 import path from 'path';
 import { ImageDetailsPage } from './model/pages/image-details-page';
+import { deleteImage } from './utility/operations';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -51,7 +52,11 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await pdRunner.close();
+  try {
+    await deleteImage(page, imageName);
+  } finally {
+    await pdRunner.close();
+  }
 });
 
 describe('bootc installation verification', async () => {
