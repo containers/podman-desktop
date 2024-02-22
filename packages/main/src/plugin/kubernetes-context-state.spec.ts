@@ -166,21 +166,25 @@ test('should send info of resources in all reachable contexts and nothing in non
   let expectedMap = new Map<string, ContextState>();
   expectedMap.set('context1', {
     reachable: false,
+    error: 'Error: connection error',
     podsCount: 0,
     deploymentsCount: 0,
   } as ContextState);
   expectedMap.set('context2', {
     reachable: true,
+    error: undefined,
     podsCount: 9,
     deploymentsCount: 19,
   } as ContextState);
   expectedMap.set('context2-1', {
     reachable: true,
+    error: undefined,
     podsCount: 1,
     deploymentsCount: 11,
   } as ContextState);
   expectedMap.set('context2-2', {
     reachable: true,
+    error: undefined,
     podsCount: 2,
     deploymentsCount: 12,
   } as ContextState);
