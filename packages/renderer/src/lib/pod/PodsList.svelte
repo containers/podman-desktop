@@ -26,6 +26,7 @@ import PodColumnEnvironment from './PodColumnEnvironment.svelte';
 import PodColumnContainers from './PodColumnContainers.svelte';
 import PodColumnAge from './PodColumnAge.svelte';
 import PodColumnActions from './PodColumnActions.svelte';
+import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -229,6 +230,9 @@ const row = new Row<PodInfoUI>({ selectable: _pod => true });
         icon="{faTrash}" />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
+    <div class="flex min-w-full justify-end">
+      <KubernetesCurrentContextConnectionBadge />
+    </div>
   </svelte:fragment>
 
   <svelte:fragment slot="tabs">
