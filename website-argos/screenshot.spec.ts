@@ -34,18 +34,12 @@ function waitForDocusaurusHydration() {
   return document.documentElement.dataset.hasHydrated === 'true';
 }
 
-async function waitForImageDecoding(): Promise<void> {
-  const images = document.getElementsByName('img');
-  await Promise.all(Array.from(images.values()).map(image => (image as HTMLImageElement)?.decode()));
-}
-
 function screenshotPathname(pathname: string) {
   test(`pathname ${pathname}`, async ({ page }) => {
     test.slow();
     const url = siteUrl + pathname;
     await page.goto(url);
     await page.waitForFunction(waitForDocusaurusHydration);
-    await waitForImageDecoding();
 
     // for downloads page, wait for the version being fetched
     if (pathname.includes('/downloads')) {
