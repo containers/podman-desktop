@@ -11,6 +11,7 @@ let key = 0; // Initial key
 let originalContent = '';
 let editorContent: string;
 let inProgress = false;
+let changesDetected = false;
 
 // Reactive statement to update originalContent only if it's blank and content is not
 // as sometimes content is blank until it's "loaded". This does not work with onMount,
@@ -21,6 +22,9 @@ $: if (originalContent === '' && content !== '') {
 
 // Handle the content change from the MonacoEditor / store it for us to use for applying to the cluster.
 function handleContentChange(event: CustomEvent<string>) {
+  // If the content has changes (event.detail passed the content) vs the originalContent, then we have changes
+  // and set changesDetected to true.
+  changesDetected = event.detail !== originalContent;
   editorContent = event.detail;
 }
 
@@ -32,6 +36,7 @@ function handleContentChange(event: CustomEvent<string>) {
 // when 'revertChanges' button is pressed.
 async function revertChanges() {
   content = originalContent;
+  changesDetected = false;
   key++; // Increment the key to force re-render
 }
 
@@ -51,6 +56,11 @@ async function applyToCluster() {
       message: 'Succesfully applied Kubernetes YAML',
       buttons: ['OK'],
     });
+
+    // If the apply was successful, we update the originalContent to the new active content in the editor
+    // and reset the changesDetected to false.
+    originalContent = editorContent;
+    changesDetected = false;
   } catch (error) {
     console.error('error playing kube file', error);
     await window.showMessageBox({
@@ -70,12 +80,20 @@ async function applyToCluster() {
   role="group"
   aria-label="Edit Buttons">
   <Tooltip tip="Apply the changes to the cluster, similar to 'kubectl apply'" topLeft="{true}">
-    <Button type="primary" aria-label="Apply to cluster" on:click="{applyToCluster}" inProgress="{inProgress}"
-      >Apply to cluster</Button>
+    <Button
+      type="primary"
+      aria-label="Apply changes to cluster"
+      on:click="{applyToCluster}"
+      disabled="{!changesDetected}"
+      inProgress="{inProgress}">Apply changes to cluster</Button>
   </Tooltip>
   <Tooltip tip="Revert the changes to the original content" topLeft="{true}">
-    <Button type="secondary" aria-label="Revert changes" class="mr-2 opacity-100" on:click="{revertChanges}"
-      >Revert edits</Button>
+    <Button
+      type="secondary"
+      aria-label="Revert changes"
+      class="mr-2 opacity-100"
+      on:click="{revertChanges}"
+      disabled="{!changesDetected}">Revert changes</Button>
   </Tooltip>
 </div>
 

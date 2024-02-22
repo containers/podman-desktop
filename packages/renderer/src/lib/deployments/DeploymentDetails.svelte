@@ -63,7 +63,7 @@ async function loadDetails() {
     <svelte:fragment slot="tabs">
       <Tab title="Summary" url="summary" />
       <Tab title="Inspect" url="inspect" />
-      <Tab title="Edit" url="edit" />
+      <Tab title="Kube" url="kube" />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
@@ -72,7 +72,7 @@ async function loadDetails() {
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <MonacoEditor content="{JSON.stringify(kubeDeployment, undefined, 2)}" language="json" />
       </Route>
-      <Route path="/edit" breadcrumb="Edit" navigationHint="tab">
+      <Route path="/kube" breadcrumb="Kube" navigationHint="tab">
         <KubeEditYAML content="{stringify(kubeDeployment)}" />
       </Route>
     </svelte:fragment>

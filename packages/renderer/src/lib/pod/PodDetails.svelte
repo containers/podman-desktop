@@ -64,8 +64,7 @@ onMount(() => {
       <Tab title="Summary" url="summary" />
       <Tab title="Logs" url="logs" />
       <Tab title="Inspect" url="inspect" />
-      <!-- Different title depending on if the pod is k8s or podman as we want to emphasize the "Edit" feature of Kubernetes -->
-      <Tab title="{pod.kind === 'podman' ? 'Kube' : 'Edit'}" url="kube" />
+      <Tab title="Kube" url="kube" />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
