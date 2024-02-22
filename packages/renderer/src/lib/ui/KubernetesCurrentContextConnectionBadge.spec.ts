@@ -62,8 +62,10 @@ test('expect badges to show as there is a context', async () => {
   mocks.getCurrentKubeContextState.mockReturnValue({
     error: undefined,
     reachable: true,
-    deploymentsCount: 0,
-    podsCount: 0,
+    resources: {
+      pods: [],
+      deployments: [],
+    },
   } as ContextState); // no current ContextState
   render(KubernetesCurrentContextConnectionBadge);
 
@@ -76,8 +78,10 @@ test('expect badges to be green when reachable', async () => {
   mocks.getCurrentKubeContextState.mockReturnValue({
     error: undefined,
     reachable: true,
-    deploymentsCount: 0,
-    podsCount: 0,
+    resources: {
+      pods: [],
+      deployments: [],
+    },
   } as ContextState); // no current ContextState
   render(KubernetesCurrentContextConnectionBadge);
 
@@ -90,8 +94,10 @@ test('expect badges to be gray when not reachable', async () => {
   mocks.getCurrentKubeContextState.mockReturnValue({
     error: undefined,
     reachable: false,
-    deploymentsCount: 0,
-    podsCount: 0,
+    resources: {
+      pods: [],
+      deployments: [],
+    },
   } as ContextState); // no current ContextState
   render(KubernetesCurrentContextConnectionBadge);
 
@@ -104,8 +110,10 @@ test('expect no tooltip when no error', async () => {
   mocks.getCurrentKubeContextState.mockReturnValue({
     error: undefined,
     reachable: false,
-    deploymentsCount: 0,
-    podsCount: 0,
+    resources: {
+      pods: [],
+      deployments: [],
+    },
   } as ContextState); // no current ContextState
   render(KubernetesCurrentContextConnectionBadge);
 
@@ -118,8 +126,10 @@ test('expect tooltip when error', async () => {
   mocks.getCurrentKubeContextState.mockReturnValue({
     error: 'error message',
     reachable: false,
-    deploymentsCount: 0,
-    podsCount: 0,
+    resources: {
+      pods: [],
+      deployments: [],
+    },
   } as ContextState); // no current ContextState
   render(KubernetesCurrentContextConnectionBadge);
 
