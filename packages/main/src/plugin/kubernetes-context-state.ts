@@ -39,9 +39,14 @@ interface ContextInternalState {
 export interface ContextState {
   error?: string;
   reachable: boolean;
-  podsCount: number;
-  deploymentsCount: number;
+  resources: ContextStateResources;
 }
+
+type ResourceName = 'pods' | 'deployments';
+
+export type ContextStateResources = {
+  [resourceName in ResourceName]: number;
+};
 
 interface CreateInformerOptions<T> {
   checkReachable?: boolean;
@@ -107,8 +112,10 @@ class ContextsStates {
       this.published.set(name, {
         error: undefined,
         reachable: false,
-        podsCount: 0,
-        deploymentsCount: 0,
+        resources: {
+          pods: 0,
+          deployments: 0,
+        },
       });
     }
     const val = this.published.get(name);
@@ -193,8 +200,8 @@ export class ContextsManager {
     return this.createInformer<V1Pod>(kc, context, path, listFn, {
       timer: this.podTimer,
       backoff: new Backoff(1000, 60_000, 300),
-      onAdd: _obj => this.setStateAndDispatch(context.name, state => state.podsCount++),
-      onDelete: _obj => this.setStateAndDispatch(context.name, state => state.podsCount--),
+      onAdd: _obj => this.setStateAndDispatch(context.name, state => state.resources.pods++),
+      onDelete: _obj => this.setStateAndDispatch(context.name, state => state.resources.pods--),
       onReachable: reachable =>
         this.setStateAndDispatch(context.name, state => {
           state.reachable = reachable;
@@ -215,8 +222,8 @@ export class ContextsManager {
     return this.createInformer<V1Deployment>(kc, context, path, listFn, {
       timer: this.deploymentTimer,
       backoff: new Backoff(1000, 60_000, 300),
-      onAdd: _obj => this.setStateAndDispatch(context.name, state => state.deploymentsCount++),
-      onDelete: _obj => this.setStateAndDispatch(context.name, state => state.deploymentsCount--),
+      onAdd: _obj => this.setStateAndDispatch(context.name, state => state.resources.deployments++),
+      onDelete: _obj => this.setStateAndDispatch(context.name, state => state.resources.deployments--),
     });
   }
 
