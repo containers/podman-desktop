@@ -25,7 +25,6 @@ import Fa from 'svelte-fa';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import { podCreationHolder } from '../../stores/creation-from-containers-store';
 import { podsInfos } from '../../stores/pods';
-import KubePlayButton from '../kube/KubePlayButton.svelte';
 import Prune from '../engine/Prune.svelte';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import { containerGroupsInfo } from '../../stores/containerGroups';
@@ -62,13 +61,6 @@ function fromExistingImage(): void {
 $: providerConnections = $providerInfos
   .map(provider => provider.containerConnections)
   .flat()
-  .filter(providerContainerConnection => providerContainerConnection.status === 'started');
-
-$: providerPodmanConnections = $providerInfos
-  .map(provider => provider.containerConnections)
-  .flat()
-  // keep only podman providers as it is not supported by docker
-  .filter(providerContainerConnection => providerContainerConnection.type === 'podman')
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
 
 // number of selected items in the list
@@ -439,9 +431,6 @@ function setStoppedFilter() {
     <!-- Only show if there are containers-->
     {#if $containersInfos.length > 0}
       <Prune type="containers" engines="{enginesList}" />
-    {/if}
-    {#if providerPodmanConnections.length > 0}
-      <KubePlayButton />
     {/if}
     <Button on:click="{() => toggleCreateContainer()}" icon="{faPlusCircle}" title="Create a container">Create</Button>
   </svelte:fragment>
