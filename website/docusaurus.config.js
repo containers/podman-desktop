@@ -14,7 +14,7 @@ const config = {
   title: 'Podman Desktop',
   url: inDevMode ? 'http://localhost:3000' : 'https://podman-desktop.io',
   baseUrl: '/',
-  onBrokenLinks: 'warn',
+  onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   organizationName: 'containers',
