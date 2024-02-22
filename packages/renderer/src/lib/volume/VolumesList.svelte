@@ -227,9 +227,6 @@ const row = new Row<VolumeInfoUI>({
 
 <NavPage bind:searchTerm="{searchTerm}" title="volumes">
   <svelte:fragment slot="additional-actions">
-    {#if providerConnections.length > 0}
-      <Button on:click="{() => gotoCreateVolume()}" icon="{faPlusCircle}" title="Create a volume">Create</Button>
-    {/if}
     {#if $volumeListInfos.map(volumeInfo => volumeInfo.Volumes).flat().length > 0}
       <Prune type="volumes" engines="{enginesList}" />
 
@@ -238,6 +235,9 @@ const row = new Row<VolumeInfoUI>({
         on:click="{() => fetchUsageData()}"
         title="Collect usage data for volumes. It can take a while..."
         icon="{faPieChart}">Collect usage data</Button>
+    {/if}
+    {#if providerConnections.length > 0}
+      <Button on:click="{() => gotoCreateVolume()}" icon="{faPlusCircle}" title="Create a volume">Create</Button>
     {/if}
   </svelte:fragment>
 

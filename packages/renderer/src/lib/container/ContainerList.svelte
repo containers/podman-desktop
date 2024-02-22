@@ -440,10 +440,10 @@ function setStoppedFilter() {
     {#if $containersInfos.length > 0}
       <Prune type="containers" engines="{enginesList}" />
     {/if}
-    <Button on:click="{() => toggleCreateContainer()}" icon="{faPlusCircle}" title="Create a container">Create</Button>
     {#if providerPodmanConnections.length > 0}
       <KubePlayButton />
     {/if}
+    <Button on:click="{() => toggleCreateContainer()}" icon="{faPlusCircle}" title="Create a container">Create</Button>
   </svelte:fragment>
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
