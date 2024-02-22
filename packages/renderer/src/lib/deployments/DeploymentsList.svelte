@@ -2,7 +2,10 @@
 import { onMount } from 'svelte';
 
 import type { DeploymentUI } from './DeploymentUI';
-import { filtered, searchPattern } from '../../stores/deployments';
+import {
+  kubernetesCurrentContextDeploymentStateFiltered as filtered,
+  deploymentSearchPattern as searchPattern,
+} from '../../stores/kubernetes-contexts-state';
 import NavPage from '../ui/NavPage.svelte';
 import Table from '../table/Table.svelte';
 import { Column, Row } from '../table/table';
