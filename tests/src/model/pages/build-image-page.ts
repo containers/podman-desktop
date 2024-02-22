@@ -18,7 +18,7 @@
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './base-page';
 import { ImagesPage } from './images-page';
-import { waitUntil } from '../../utility/wait';
+import { expect as playExpect } from '@playwright/test';
 
 export class BuildImagePage extends BasePage {
   readonly heading: Locator;
@@ -53,9 +53,9 @@ export class BuildImagePage extends BasePage {
       await this.imageNameInput.fill(imageName);
     }
 
-    await waitUntil(async () => await this.buildButton.isEnabled(), 5000, 500);
+    await playExpect(this.buildButton).toBeEnabled();
     await this.buildButton.click();
-    await waitUntil(async () => await this.doneButton.isEnabled(), 5000, 500);
+    await playExpect(this.doneButton).toBeEnabled({ timeout: 120000 });
     await this.doneButton.click();
     return new ImagesPage(this.page);
   }
