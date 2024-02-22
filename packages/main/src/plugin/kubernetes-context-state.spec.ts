@@ -167,26 +167,34 @@ test('should send info of resources in all reachable contexts and nothing in non
   expectedMap.set('context1', {
     reachable: false,
     error: 'Error: connection error',
-    podsCount: 0,
-    deploymentsCount: 0,
+    resources: {
+      pods: 0,
+      deployments: 0,
+    },
   } as ContextState);
   expectedMap.set('context2', {
     reachable: true,
     error: undefined,
-    podsCount: 9,
-    deploymentsCount: 19,
+    resources: {
+      pods: 9,
+      deployments: 19,
+    },
   } as ContextState);
   expectedMap.set('context2-1', {
     reachable: true,
     error: undefined,
-    podsCount: 1,
-    deploymentsCount: 11,
+    resources: {
+      pods: 1,
+      deployments: 11,
+    },
   } as ContextState);
   expectedMap.set('context2-2', {
     reachable: true,
     error: undefined,
-    podsCount: 2,
-    deploymentsCount: 12,
+    resources: {
+      pods: 2,
+      deployments: 12,
+    },
   } as ContextState);
   await new Promise(resolve => setTimeout(resolve, 1200));
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-state-update', expectedMap);
@@ -232,13 +240,17 @@ test('should send info of resources in all reachable contexts and nothing in non
   expectedMap = new Map<string, ContextState>();
   expectedMap.set('context2', {
     reachable: true,
-    podsCount: 9,
-    deploymentsCount: 19,
+    resources: {
+      pods: 9,
+      deployments: 19,
+    },
   } as ContextState);
   expectedMap.set('context2-1', {
     reachable: true,
-    podsCount: 1,
-    deploymentsCount: 11,
+    resources: {
+      pods: 1,
+      deployments: 11,
+    },
   } as ContextState);
   await new Promise(resolve => setTimeout(resolve, 1200));
   expect(apiSenderSendMock).toHaveBeenLastCalledWith('kubernetes-contexts-state-update', expectedMap);
