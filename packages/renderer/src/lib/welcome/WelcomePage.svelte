@@ -7,16 +7,25 @@ import { onDestroy, onMount } from 'svelte';
 import { WelcomeUtils } from './welcome-utils';
 import { router } from 'tinro';
 import { featuredExtensionInfos } from '/@/stores/featuredExtensions';
+import { context } from '/@/stores/context';
 import Tooltip from '../ui/Tooltip.svelte';
 import Button from '../ui/Button.svelte';
 import { onboardingList } from '/@/stores/onboarding';
 import type { OnboardingInfo } from '../../../../main/src/plugin/api/onboarding';
 import { derived, type Unsubscriber } from 'svelte/store';
+import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ContextUI } from '../context/context';
+import { normalizeOnboardingWhenClause } from '../onboarding/onboarding-utils';
+import { ContextKeyExpr } from '../context/contextKey';
 
 export let showWelcome = false;
 export let showTelemetry = false;
 
 let telemetry = true;
+
+// Global context related
+let contextsUnsubscribe: Unsubscriber;
+let globalContext: ContextUI;
 
 let onboardingsUnsubscribe: Unsubscriber;
 const welcomeUtils = new WelcomeUtils();
@@ -27,6 +36,7 @@ interface OnboardingInfoWithSelected extends OnboardingInfo {
   selected?: boolean;
 }
 
+let providers: ProviderInfo[] = [];
 let onboardingProviders: OnboardingInfoWithSelected[] = [];
 
 onMount(async () => {
@@ -42,12 +52,21 @@ onMount(async () => {
   }
   podmanDesktopVersion = await window.getPodmanDesktopVersion();
 
+  // On mount, get all the providers using getProviderInfos
+  // we do not need to setup a store as we are just concerned about the initial provider
+  // information.
+  providers = await window.getProviderInfos();
+
+  contextsUnsubscribe = context.subscribe(value => {
+    globalContext = value;
+  });
+
   onboardingsUnsubscribe = onboardingList.subscribe(value => {
     // Add "selected" property to each provider and add to onboardingEnabledProviders
     onboardingProviders = value.map(provider => {
       return {
         ...provider,
-        selected: false,
+        selected: doWeOnboard(provider), // Check if we should auto-check the provider for onboarding (based on "when" clause / context)
       };
     });
   });
@@ -56,6 +75,9 @@ onMount(async () => {
 onDestroy(() => {
   if (onboardingsUnsubscribe) {
     onboardingsUnsubscribe();
+  }
+  if (contextsUnsubscribe) {
+    contextsUnsubscribe();
   }
 });
 
@@ -83,6 +105,32 @@ function startOnboardingQueue() {
   const extensionIds = selectedProviders.map(provider => provider.extension);
   const queryParams = new URLSearchParams({ ids: extensionIds.join(',') }).toString();
   router.goto(`/global-onboarding?${queryParams}`);
+}
+
+// Checks against the provider list what the status and "when" clause is.
+function doWeOnboard(onboardingProvider: OnboardingInfo): boolean {
+  // Just return false if we have no providers to look up yet
+  if (!providers) {
+    return false;
+  }
+
+  // Get the provider from the list based on its extensionId
+  // if unable to find, it's false
+  const provider = providers.find(provider => provider.extensionId === onboardingProvider.extension);
+  if (!provider) {
+    return false;
+  }
+
+  // "Onboarding" is ONLY shown if the provider is not installed or unknown
+  if (provider.status !== 'not-installed' && provider.status !== 'unknown') {
+    return false;
+  }
+
+  // Evaluate the "when" clause
+  let whenEnablement = normalizeOnboardingWhenClause(onboardingProvider.enablement, onboardingProvider.extension);
+  const whenDeserialized = ContextKeyExpr.deserialize(whenEnablement);
+  const isEnabled = whenDeserialized?.evaluate(globalContext);
+  return isEnabled || false;
 }
 
 // Uses the derived feature to filter out the onboarding providers from the featuredExtensionInfos
@@ -141,6 +189,7 @@ const filteredFeaturedExtensions = derived(
 
                   <input
                     type="checkbox"
+                    aria-label="{onboarding.displayName} checkbox"
                     bind:checked="{onboarding.selected}"
                     on:click="{() => toggleOnboardingSelection(onboarding.name)}"
                     class="form-checkbox h-5 w-5 text-purple-600" />

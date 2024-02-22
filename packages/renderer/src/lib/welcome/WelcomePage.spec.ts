@@ -32,6 +32,7 @@ let routerUnsubscribe: Unsubscriber;
 let path: string;
 
 const getFeaturedExtensionsMock = vi.fn();
+const getProviderInfosMock = vi.fn();
 
 // fake the window.events object
 beforeAll(() => {
@@ -40,6 +41,7 @@ beforeAll(() => {
   (window as any).getPodmanDesktopVersion = vi.fn();
   (window as any).telemetryConfigure = vi.fn();
   (window as any).getFeaturedExtensions = getFeaturedExtensionsMock;
+  (window as any).getProviderInfos = getProviderInfosMock;
   (window.events as unknown) = {
     receive: (_channel: string, func: any) => {
       func();
@@ -300,4 +302,272 @@ test('Expect that if the onboarding extension has the same name as featured exte
   // Expect the title to be shown only once as well
   const titleExt = screen.getAllByText('FooBar');
   expect(titleExt.length).toBe(1);
+});
+
+test('If onboarding is pending / waiting to be setup for a provider, have it already checked.', async () => {
+  getProviderInfosMock.mockResolvedValue([
+    {
+      id: 'foobar1',
+      name: 'foobar1',
+      extensionId: 'podman-desktop.foobar1',
+      images: {
+        icon: 'img',
+      },
+      status: 'started',
+      warnings: [],
+      containerProviderConnectionCreation: true,
+      detectionChecks: [],
+      containerConnections: [
+        {
+          name: 'machine',
+          status: 'started',
+          endpoint: {
+            socketPath: 'socket',
+          },
+          lifecycleMethods: ['start', 'stop', 'delete'],
+          type: 'podman',
+        },
+      ],
+      installationSupport: false,
+      internalId: '0',
+      kubernetesConnections: [],
+      kubernetesProviderConnectionCreation: true,
+      links: [],
+      containerProviderConnectionInitialization: false,
+      containerProviderConnectionCreationDisplayName: 'Podman machine',
+      kubernetesProviderConnectionInitialization: false,
+      cleanupSupport: false,
+    },
+    {
+      id: 'foobar2',
+      name: 'foobar2',
+      extensionId: 'podman-desktop.foobar2',
+      images: {
+        icon: 'img',
+      },
+      status: 'not-installed',
+      warnings: [],
+      containerProviderConnectionCreation: true,
+      detectionChecks: [],
+      containerConnections: [
+        {
+          name: 'machine',
+          status: 'started',
+          endpoint: {
+            socketPath: 'socket',
+          },
+          lifecycleMethods: ['start', 'stop', 'delete'],
+          type: 'podman',
+        },
+      ],
+      installationSupport: false,
+      internalId: '0',
+      kubernetesConnections: [],
+      kubernetesProviderConnectionCreation: true,
+      links: [],
+      containerProviderConnectionInitialization: false,
+      containerProviderConnectionCreationDisplayName: 'Podman machine',
+      kubernetesProviderConnectionInitialization: false,
+      cleanupSupport: false,
+    },
+    {
+      id: 'foobar3',
+      name: 'foobar3',
+      extensionId: 'podman-desktop.foobar3',
+      images: {
+        icon: 'img',
+      },
+      status: 'unknown',
+      warnings: [],
+      containerProviderConnectionCreation: true,
+      detectionChecks: [],
+      containerConnections: [
+        {
+          name: 'machine',
+          status: 'started',
+          endpoint: {
+            socketPath: 'socket',
+          },
+          lifecycleMethods: ['start', 'stop', 'delete'],
+          type: 'podman',
+        },
+      ],
+      installationSupport: false,
+      internalId: '0',
+      kubernetesConnections: [],
+      kubernetesProviderConnectionCreation: true,
+      links: [],
+      containerProviderConnectionInitialization: false,
+      containerProviderConnectionCreationDisplayName: 'Podman machine',
+      kubernetesProviderConnectionInitialization: false,
+      cleanupSupport: false,
+    },
+    {
+      id: 'foobar4',
+      name: 'foobar4',
+      extensionId: 'podman-desktop.foobar4',
+      images: {
+        icon: 'img',
+      },
+      status: 'installed',
+      warnings: [],
+      containerProviderConnectionCreation: true,
+      detectionChecks: [],
+      containerConnections: [
+        {
+          name: 'machine',
+          status: 'started',
+          endpoint: {
+            socketPath: 'socket',
+          },
+          lifecycleMethods: ['start', 'stop', 'delete'],
+          type: 'podman',
+        },
+      ],
+      installationSupport: false,
+      internalId: '0',
+      kubernetesConnections: [],
+      kubernetesProviderConnectionCreation: true,
+      links: [],
+      containerProviderConnectionInitialization: false,
+      containerProviderConnectionCreationDisplayName: 'Podman machine',
+      kubernetesProviderConnectionInitialization: false,
+      cleanupSupport: false,
+    },
+    {
+      id: 'foobar5',
+      name: 'foobar5',
+      extensionId: 'podman-desktop.foobar4',
+      images: {
+        icon: 'img',
+      },
+      status: 'installed',
+      warnings: [],
+      containerProviderConnectionCreation: true,
+      detectionChecks: [],
+      containerConnections: [
+        {
+          name: 'machine',
+          status: 'started',
+          endpoint: {
+            socketPath: 'socket',
+          },
+          lifecycleMethods: ['start', 'stop', 'delete'],
+          type: 'podman',
+        },
+      ],
+      installationSupport: false,
+      internalId: '0',
+      kubernetesConnections: [],
+      kubernetesProviderConnectionCreation: true,
+      links: [],
+      containerProviderConnectionInitialization: false,
+      containerProviderConnectionCreationDisplayName: 'Podman machine',
+      kubernetesProviderConnectionInitialization: false,
+      cleanupSupport: false,
+    },
+  ]);
+
+  onboardingList.set([
+    {
+      extension: 'podman-desktop.foobar1',
+      title: 'onboarding',
+      name: 'foobar1',
+      displayName: 'FooBar1',
+      icon: 'data:image/png;base64,foobar1',
+      steps: [
+        {
+          id: 'step',
+          title: 'step',
+          state: 'failed',
+          completionEvents: [],
+        },
+      ],
+      enablement: 'true',
+    },
+    {
+      extension: 'podman-desktop.foobar2',
+      title: 'onboarding',
+      name: 'foobar2',
+      displayName: 'FooBar2',
+      icon: 'data:image/png;base64,foobar2',
+      steps: [
+        {
+          id: 'step',
+          title: 'step',
+          state: 'failed',
+          completionEvents: [],
+        },
+      ],
+      enablement: 'true',
+    },
+    {
+      extension: 'podman-desktop.foobar3',
+      title: 'onboarding',
+      name: 'foobar3',
+      displayName: 'FooBar3',
+      icon: 'data:image/png;base64,foobar3',
+      steps: [
+        {
+          id: 'step',
+          title: 'step',
+          state: 'failed',
+          completionEvents: [],
+        },
+      ],
+      enablement: 'true',
+    },
+    {
+      extension: 'podman-desktop.foobar4',
+      title: 'onboarding',
+      name: 'foobar4',
+      displayName: 'FooBar4',
+      icon: 'data:image/png;base64,foobar4',
+      steps: [
+        {
+          id: 'step',
+          title: 'step',
+          state: 'failed',
+          completionEvents: [],
+        },
+      ],
+      enablement: 'false',
+    },
+  ]);
+
+  // wait until the onboarding list is populated
+  while (get(onboardingList).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  await waitRender({ showWelcome: true });
+
+  // wait until aria-label 'providerList' is populated
+  while (screen.queryAllByLabelText('providerList').length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  // Expect FooBar1 to be unchecked since the provider is 'pending', even if enablement is true
+  const checkbox1 = screen.getByRole('checkbox', { name: 'FooBar1 checkbox' });
+  expect(checkbox1).toBeInTheDocument();
+  expect(checkbox1).not.toBeChecked();
+
+  // Expect FooBar2 to be checked since the provider is 'not-installed' and enablement is true
+  const checkbox2 = screen.getByRole('checkbox', { name: 'FooBar2 checkbox' });
+  expect(checkbox2).toBeInTheDocument();
+  expect(checkbox2).toBeChecked();
+
+  // Expect FooBar3 to be checked since the provider is 'unknown' and enablement is true
+  const checkbox3 = screen.getByRole('checkbox', { name: 'FooBar3 checkbox' });
+  expect(checkbox3).toBeInTheDocument();
+  expect(checkbox3).toBeChecked();
+
+  // Expect FooBar4 to be unchecked since the provider is 'installed' and enablement is false
+  const checkbox4 = screen.getByRole('checkbox', { name: 'FooBar4 checkbox' });
+  expect(checkbox4).toBeInTheDocument();
+  expect(checkbox4).not.toBeChecked();
+
+  // Expect FooBar5 to NOT show up since it's not in the onboarding list even if it's part of the provider list
+  const checkbox5 = screen.queryByRole('checkbox', { name: 'FooBar5 checkbox' });
+  expect(checkbox5).not.toBeInTheDocument();
 });
