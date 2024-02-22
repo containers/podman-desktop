@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { AppsV1Api, CoreV1Api, KubeConfig, makeInformer } from '@kubernetes/client-node';
 import type {
   Informer,
   KubernetesObject,
@@ -24,7 +25,6 @@ import type {
   V1Deployment,
   V1Pod,
 } from '@kubernetes/client-node';
-import { AppsV1Api, CoreV1Api, KubeConfig, makeInformer } from '@kubernetes/client-node';
 import type { KubeContext } from './kubernetes-context.js';
 import type { ApiSenderType } from './api.js';
 
@@ -103,8 +103,22 @@ class ContextsStates {
     return this.informers.keys();
   }
 
+  noResource() {
+    return {
+      pods: [],
+      deployments: [],
+    };
+  }
+
   getPublished(): Map<string, ContextState> {
-    return this.published;
+    // We don't want to reset the resources when the informer is disconnected,
+    // because the new informer in the same resource won't send 'add' events again after being reconnected (due to some cache in the kubernetes library?)
+    // So, here, we need to send no resources if not reachable, but keep the resources untouched.
+    const result = new Map<string, ContextState>();
+    this.published.forEach((val, key) =>
+      result.set(key, val.reachable ? val : { ...val, resources: this.noResource() }),
+    );
+    return result;
   }
 
   safeSetState(name: string, update: (previous: ContextState) => void) {
@@ -112,10 +126,7 @@ class ContextsStates {
       this.published.set(name, {
         error: undefined,
         reachable: false,
-        resources: {
-          pods: [],
-          deployments: [],
-        },
+        resources: this.noResource(),
       });
     }
     const val = this.published.get(name);
