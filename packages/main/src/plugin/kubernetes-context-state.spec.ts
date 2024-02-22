@@ -88,14 +88,14 @@ function fakeMakeInformer(
     case '/api/v1/namespaces/ns2/pods':
       return new FakeInformer(2, connectResult);
     case '/api/v1/namespaces/default/pods':
-      return new FakeInformer(9, connectResult);
+      return new FakeInformer(3, connectResult);
 
     case '/apis/apps/v1/namespaces/ns1/deployments':
-      return new FakeInformer(11, connectResult);
+      return new FakeInformer(4, connectResult);
     case '/apis/apps/v1/namespaces/ns2/deployments':
-      return new FakeInformer(12, connectResult);
+      return new FakeInformer(5, connectResult);
     case '/apis/apps/v1/namespaces/default/deployments':
-      return new FakeInformer(19, connectResult);
+      return new FakeInformer(6, connectResult);
   }
   return new FakeInformer(0, connectResult);
 }
@@ -167,26 +167,34 @@ test('should send info of resources in all reachable contexts and nothing in non
   expectedMap.set('context1', {
     reachable: false,
     error: 'Error: connection error',
-    podsCount: 0,
-    deploymentsCount: 0,
+    resources: {
+      pods: [],
+      deployments: [],
+    },
   } as ContextState);
   expectedMap.set('context2', {
     reachable: true,
     error: undefined,
-    podsCount: 9,
-    deploymentsCount: 19,
+    resources: {
+      pods: [{}, {}, {}],
+      deployments: [{}, {}, {}, {}, {}, {}],
+    },
   } as ContextState);
   expectedMap.set('context2-1', {
     reachable: true,
     error: undefined,
-    podsCount: 1,
-    deploymentsCount: 11,
+    resources: {
+      pods: [{}],
+      deployments: [{}, {}, {}, {}],
+    },
   } as ContextState);
   expectedMap.set('context2-2', {
     reachable: true,
     error: undefined,
-    podsCount: 2,
-    deploymentsCount: 12,
+    resources: {
+      pods: [{}, {}],
+      deployments: [{}, {}, {}, {}, {}],
+    },
   } as ContextState);
   await new Promise(resolve => setTimeout(resolve, 1200));
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-state-update', expectedMap);
@@ -232,13 +240,17 @@ test('should send info of resources in all reachable contexts and nothing in non
   expectedMap = new Map<string, ContextState>();
   expectedMap.set('context2', {
     reachable: true,
-    podsCount: 9,
-    deploymentsCount: 19,
+    resources: {
+      pods: [{}, {}, {}],
+      deployments: [{}, {}, {}, {}, {}, {}],
+    },
   } as ContextState);
   expectedMap.set('context2-1', {
     reachable: true,
-    podsCount: 1,
-    deploymentsCount: 11,
+    resources: {
+      pods: [{}],
+      deployments: [{}, {}, {}, {}],
+    },
   } as ContextState);
   await new Promise(resolve => setTimeout(resolve, 1200));
   expect(apiSenderSendMock).toHaveBeenLastCalledWith('kubernetes-contexts-state-update', expectedMap);

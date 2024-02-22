@@ -108,13 +108,13 @@ async function handleDeleteContext(contextName: string) {
                     <div class="text-center">
                       <div class="font-bold text-[9px] text-gray-800">PODS</div>
                       <div class="text-[16px] text-white" aria-label="context-pods-count">
-                        {$kubernetesContextsState.get(context.name)?.podsCount}
+                        {$kubernetesContextsState.get(context.name)?.resources.pods.length}
                       </div>
                     </div>
                     <div class="text-center">
                       <div class="font-bold text-[9px] text-gray-800">DEPLOYMENTS</div>
                       <div class="text-[16px] text-white" aria-label="context-deployments-count">
-                        {$kubernetesContextsState.get(context.name)?.deploymentsCount}
+                        {$kubernetesContextsState.get(context.name)?.resources.deployments.length}
                       </div>
                     </div>
                   </div>
