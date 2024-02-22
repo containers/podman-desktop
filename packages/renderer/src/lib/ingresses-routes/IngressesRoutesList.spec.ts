@@ -48,6 +48,7 @@ Object.defineProperty(global, 'window', {
 beforeEach(() => {
   vi.resetAllMocks();
   vi.clearAllMocks();
+  (window as any).kubernetesGetContextsState = () => new Map();
 });
 
 async function waitRender(customProperties: object): Promise<void> {
