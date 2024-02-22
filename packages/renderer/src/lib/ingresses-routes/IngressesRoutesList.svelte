@@ -21,6 +21,7 @@ import IngressRouteColumnHostPath from './IngressRouteColumnHostPath.svelte';
 import IngressRouteColumnBackend from './IngressRouteColumnBackend.svelte';
 import { filtered as filteredRoutes, searchPattern as searchPatternRoutes } from '/@/stores/routes';
 import IngressRouteColumnStatus from './IngressRouteColumnStatus.svelte';
+import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
 
 export let searchTerm = '';
 $: searchPatternRoutes.set(searchTerm);
@@ -150,6 +151,9 @@ const row = new Row<IngressUI | RouteUI>({ selectable: _ingressRoute => true });
         icon="{faTrash}" />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
+    <div class="flex min-w-full justify-end">
+      <KubernetesCurrentContextConnectionBadge />
+    </div>
   </svelte:fragment>
 
   <div class="flex min-w-full h-full" slot="content">

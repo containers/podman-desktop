@@ -18,6 +18,7 @@ import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import SimpleColumn from '../table/SimpleColumn.svelte';
 import DurationColumn from '../table/DurationColumn.svelte';
 import ServiceColumnType from './ServiceColumnType.svelte';
+import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -126,6 +127,9 @@ const row = new Row<ServiceUI>({ selectable: _service => true });
         icon="{faTrash}" />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
+    <div class="flex min-w-full justify-end">
+      <KubernetesCurrentContextConnectionBadge />
+    </div>
   </svelte:fragment>
 
   <div class="flex min-w-full h-full" slot="content">
