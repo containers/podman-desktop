@@ -9,11 +9,11 @@ import { stringify } from 'yaml';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import type { IngressUI } from './IngressUI';
 import { IngressRouteUtils } from './ingress-route-utils';
-import { ingresses } from '/@/stores/ingresses';
 import IngressRouteActions from './IngressRouteActions.svelte';
 import ServiceDetailsSummary from './IngressRouteDetailsSummary.svelte';
 import ServiceIcon from '../images/ServiceIcon.svelte';
 import Route from '../../Route.svelte';
+import { kubernetesCurrentContextIngressState } from '/@/stores/kubernetes-contexts-state';
 
 export let name: string;
 export let namespace: string;
@@ -26,7 +26,7 @@ let kubeError: string;
 onMount(() => {
   const ingressRouteUtils = new IngressRouteUtils();
 
-  return ingresses.subscribe(ingress => {
+  return kubernetesCurrentContextIngressState.subscribe(ingress => {
     const matchingIngress = ingress.find(srv => srv.metadata?.name === name && srv.metadata?.namespace === namespace);
     if (matchingIngress) {
       try {

@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { derived, type Readable, readable } from 'svelte/store';
+import { derived, type Readable, readable, writable } from 'svelte/store';
 import type { ContextState } from '../../../main/src/plugin/kubernetes-context-state';
 import { kubernetesContexts } from '/@/stores/kubernetes-contexts';
+import { findMatchInLeaves } from './search-util';
 
 export const kubernetesContextsState = readable(new Map<string, ContextState>(), set => {
   window.kubernetesGetContextsState().then(value => set(value));
@@ -34,4 +35,68 @@ export const kubernetesCurrentContextState: Readable<ContextState | undefined> =
     if (currentContextName === undefined) return undefined;
     return $kubernetesContextsState.get(currentContextName);
   },
+);
+
+// All deployments in the current context
+export const kubernetesCurrentContextDeploymentState = derived(
+  [kubernetesCurrentContextState],
+  ([$kubernetesCurrentContextState]) => {
+    return $kubernetesCurrentContextState?.resources.deployments ?? [];
+  },
+);
+
+export const deploymentSearchPattern = writable('');
+
+// The deployments in the current context, filtered with `deploymentSearchPattern`
+export const kubernetesCurrentContextDeploymentStateFiltered = derived(
+  [deploymentSearchPattern, kubernetesCurrentContextDeploymentState],
+  ([$searchPattern, $deployments]) =>
+    $deployments.filter(deployment => findMatchInLeaves(deployment, $searchPattern.toLowerCase())),
+);
+
+// All services in the current context
+export const kubernetesCurrentContextServiceState = derived(
+  [kubernetesCurrentContextState],
+  ([$kubernetesCurrentContextState]) => {
+    return $kubernetesCurrentContextState?.resources.services ?? [];
+  },
+);
+export const serviceSearchPattern = writable('');
+
+// The services in the current context, filtered with `serviceSearchPattern`
+export const kubernetesCurrentContextServiceStateFiltered = derived(
+  [serviceSearchPattern, kubernetesCurrentContextServiceState],
+  ([$searchPattern, $services]) =>
+    $services.filter(service => findMatchInLeaves(service, $searchPattern.toLowerCase())),
+);
+
+// All ingresses in the current context
+export const kubernetesCurrentContextIngressState = derived(
+  [kubernetesCurrentContextState],
+  ([$kubernetesCurrentContextState]) => {
+    return $kubernetesCurrentContextState?.resources.ingresses ?? [];
+  },
+);
+export const ingressSearchPattern = writable('');
+
+// The ingresses in the current context, filtered with `ingressSearchPattern`
+export const kubernetesCurrentContextIngressStateFiltered = derived(
+  [ingressSearchPattern, kubernetesCurrentContextIngressState],
+  ([$searchPattern, $ingresses]) =>
+    $ingresses.filter(ingress => findMatchInLeaves(ingress, $searchPattern.toLowerCase())),
+);
+
+// All routes in the current context
+export const kubernetesCurrentContextRouteState = derived(
+  [kubernetesCurrentContextState],
+  ([$kubernetesCurrentContextState]) => {
+    return $kubernetesCurrentContextState?.resources.routes ?? [];
+  },
+);
+export const routeSearchPattern = writable('');
+
+// The routes in the current context, filtered with `routeSearchPattern`
+export const kubernetesCurrentContextRouteStateFiltered = derived(
+  [routeSearchPattern, kubernetesCurrentContextRouteState],
+  ([$searchPattern, $routes]) => $routes.filter(route => findMatchInLeaves(route, $searchPattern.toLowerCase())),
 );

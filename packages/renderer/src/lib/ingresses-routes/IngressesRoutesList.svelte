@@ -12,20 +12,25 @@ import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import SimpleColumn from '../table/SimpleColumn.svelte';
 import type { IngressUI } from './IngressUI';
 import { IngressRouteUtils } from './ingress-route-utils';
-import { filtered as filteredIngresses, searchPattern as searchPatternIngresses } from '/@/stores/ingresses';
 import IngressRouteIcon from '../images/IngressRouteIcon.svelte';
 import type { RouteUI } from './RouteUI';
 import IngressRouteColumnName from './IngressRouteColumnName.svelte';
 import IngressRouteEmptyScreen from './IngressRouteEmptyScreen.svelte';
 import IngressRouteColumnHostPath from './IngressRouteColumnHostPath.svelte';
 import IngressRouteColumnBackend from './IngressRouteColumnBackend.svelte';
-import { filtered as filteredRoutes, searchPattern as searchPatternRoutes } from '/@/stores/routes';
 import IngressRouteColumnStatus from './IngressRouteColumnStatus.svelte';
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
+import {
+  ingressSearchPattern,
+  kubernetesCurrentContextIngressStateFiltered,
+  kubernetesCurrentContextRouteStateFiltered,
+  routeSearchPattern,
+} from '/@/stores/kubernetes-contexts-state';
+import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 
 export let searchTerm = '';
-$: searchPatternRoutes.set(searchTerm);
-$: searchPatternIngresses.set(searchTerm);
+$: routeSearchPattern.set(searchTerm);
+$: ingressSearchPattern.set(searchTerm);
 
 let ingressesUI: IngressUI[] = [];
 let routesUI: RouteUI[] = [];
@@ -36,13 +41,13 @@ const ingressRouteUtils = new IngressRouteUtils();
 let ingressesUnsubscribe: Unsubscriber;
 let routesUnsubscribe: Unsubscriber;
 onMount(() => {
-  ingressesUnsubscribe = filteredIngresses.subscribe(value => {
+  ingressesUnsubscribe = kubernetesCurrentContextIngressStateFiltered.subscribe(value => {
     ingressesUI = value.map(ingress => ingressRouteUtils.getIngressUI(ingress));
     ingressesRoutesUI = [...ingressesUI, ...routesUI];
   });
 
-  routesUnsubscribe = filteredRoutes.subscribe(value => {
-    routesUI = value.map(route => ingressRouteUtils.getRouteUI(route));
+  routesUnsubscribe = kubernetesCurrentContextRouteStateFiltered.subscribe(value => {
+    routesUI = value.map(route => ingressRouteUtils.getRouteUI(route as V1Route));
     ingressesRoutesUI = [...ingressesUI, ...routesUI];
   });
 });
@@ -168,7 +173,7 @@ const row = new Row<IngressUI | RouteUI>({ selectable: _ingressRoute => true });
       on:update="{() => (ingressesRoutesUI = ingressesRoutesUI)}">
     </Table>
 
-    {#if $filteredIngresses.length === 0 && $filteredRoutes.length === 0}
+    {#if $kubernetesCurrentContextIngressStateFiltered.length === 0 && $kubernetesCurrentContextRouteStateFiltered.length === 0}
       {#if searchTerm}
         <FilteredEmptyScreen icon="{IngressRouteIcon}" kind="ingresses && routes" bind:searchTerm="{searchTerm}" />
       {:else}

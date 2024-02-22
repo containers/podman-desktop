@@ -10,10 +10,10 @@ import { stringify } from 'yaml';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import type { ServiceUI } from './ServiceUI';
 import { ServiceUtils } from './service-utils';
-import { services } from '/@/stores/services';
 import ServiceActions from './ServiceActions.svelte';
 import ServiceDetailsSummary from './ServiceDetailsSummary.svelte';
 import ServiceIcon from '../images/ServiceIcon.svelte';
+import { kubernetesCurrentContextServiceState } from '/@/stores/kubernetes-contexts-state';
 
 export let name: string;
 export let namespace: string;
@@ -26,7 +26,7 @@ let kubeError: string;
 onMount(() => {
   const serviceUtils = new ServiceUtils();
   // loading service info
-  return services.subscribe(services => {
+  return kubernetesCurrentContextServiceState.subscribe(services => {
     const matchingService = services.find(srv => srv.metadata?.name === name && srv.metadata?.namespace === namespace);
     if (matchingService) {
       try {

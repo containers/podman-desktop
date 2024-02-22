@@ -23,15 +23,30 @@ import type {
   ObjectCache,
   V1Deployment,
   V1Pod,
+  V1Service,
+  V1Ingress,
+  KubernetesListObject,
 } from '@kubernetes/client-node';
-import { AppsV1Api, CoreV1Api, KubeConfig, makeInformer } from '@kubernetes/client-node';
+import {
+  AppsV1Api,
+  CoreV1Api,
+  NetworkingV1Api,
+  CustomObjectsApi,
+  KubeConfig,
+  makeInformer,
+} from '@kubernetes/client-node';
 import type { KubeContext } from './kubernetes-context.js';
 import type { ApiSenderType } from './api.js';
+import type { V1Route } from './api/openshift-types.js';
+import type { IncomingMessage } from 'node:http';
 
 // ContextInternalState stores informers for a kube context
 interface ContextInternalState {
   podInformer?: Informer<V1Pod> & ObjectCache<V1Pod>;
   deploymentInformer?: Informer<V1Deployment> & ObjectCache<V1Deployment>;
+  serviceInformer?: Informer<V1Service> & ObjectCache<V1Service>;
+  ingressInformer?: Informer<V1Ingress> & ObjectCache<V1Ingress>;
+  routeInformer?: Informer<V1Route> & ObjectCache<V1Route>;
 }
 
 // ContextState stores information for the user about a kube context: is the cluster reachable, the number
@@ -42,7 +57,7 @@ export interface ContextState {
   resources: ContextStateResources;
 }
 
-type ResourceName = 'pods' | 'deployments';
+type ResourceName = 'pods' | 'deployments' | 'services' | 'ingresses' | 'routes';
 
 export type ContextStateResources = {
   [resourceName in ResourceName]: KubernetesObject[];
@@ -115,6 +130,9 @@ class ContextsStates {
         resources: {
           pods: [],
           deployments: [],
+          services: [],
+          ingresses: [],
+          routes: [],
         },
       });
     }
@@ -128,6 +146,9 @@ class ContextsStates {
   async dispose(name: string) {
     await this.informers.get(name)?.podInformer?.stop();
     await this.informers.get(name)?.deploymentInformer?.stop();
+    await this.informers.get(name)?.serviceInformer?.stop();
+    await this.informers.get(name)?.ingressInformer?.stop();
+    await this.informers.get(name)?.routeInformer?.stop();
     this.informers.delete(name);
     this.published.delete(name);
   }
@@ -140,6 +161,9 @@ export class ContextsManager {
   private states = new ContextsStates();
   private podTimer: NodeJS.Timeout | undefined;
   private deploymentTimer: NodeJS.Timeout | undefined;
+  private serviceTimer: NodeJS.Timeout | undefined;
+  private ingressTimer: NodeJS.Timeout | undefined;
+  private routeTimer: NodeJS.Timeout | undefined;
 
   constructor(private readonly apiSender: ApiSenderType) {}
 
@@ -190,6 +214,9 @@ export class ContextsManager {
     return {
       podInformer: this.createPodInformer(kc, ns, context),
       deploymentInformer: this.createDeploymentInformer(kc, ns, context),
+      serviceInformer: this.createServiceInformer(kc, ns, context),
+      ingressInformer: this.createIngressInformer(kc, ns, context),
+      routeInformer: this.createRouteInformer(kc, ns, context),
     };
   }
 
@@ -233,6 +260,75 @@ export class ContextsManager {
           state =>
             (state.resources.deployments = state.resources.deployments.filter(
               d => d.metadata?.uid !== obj.metadata?.uid,
+            )),
+        ),
+    });
+  }
+
+  private createServiceInformer(
+    kc: KubeConfig,
+    ns: string,
+    context: KubeContext,
+  ): Informer<V1Service> & ObjectCache<V1Service> {
+    const k8sApi = kc.makeApiClient(CoreV1Api);
+    const listFn = () => k8sApi.listNamespacedService(ns);
+    const path = `/apis/v1/namespaces/${ns}/services`;
+    return this.createInformer<V1Service>(kc, context, path, listFn, {
+      timer: this.serviceTimer,
+      backoff: new Backoff(1000, 60_000, 300),
+      onAdd: obj => this.setStateAndDispatch(context.name, state => state.resources.services.push(obj)),
+      onDelete: obj =>
+        this.setStateAndDispatch(
+          context.name,
+          state =>
+            (state.resources.services = state.resources.services.filter(d => d.metadata?.uid !== obj.metadata?.uid)),
+        ),
+    });
+  }
+
+  private createIngressInformer(
+    kc: KubeConfig,
+    ns: string,
+    context: KubeContext,
+  ): Informer<V1Ingress> & ObjectCache<V1Ingress> {
+    const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
+    const listFn = () => k8sNetworkingApi.listNamespacedIngress(ns);
+    const path = `/apis/networking/v1/namespaces/${ns}/ingresses`;
+    return this.createInformer<V1Ingress>(kc, context, path, listFn, {
+      timer: this.ingressTimer,
+      backoff: new Backoff(1000, 60_000, 300),
+      onAdd: obj => this.setStateAndDispatch(context.name, state => state.resources.ingresses.push(obj)),
+      onDelete: obj =>
+        this.setStateAndDispatch(
+          context.name,
+          state =>
+            (state.resources.ingresses = state.resources.ingresses.filter(d => d.metadata?.uid !== obj.metadata?.uid)),
+        ),
+    });
+  }
+
+  private createRouteInformer(
+    kc: KubeConfig,
+    ns: string,
+    context: KubeContext,
+  ): Informer<V1Route> & ObjectCache<V1Route> {
+    const customObjectsApi = this.kubeConfig.makeApiClient(CustomObjectsApi);
+    const listFn = () =>
+      customObjectsApi.listNamespacedCustomObject('route.openshift.io', 'v1', ns, 'routes') as Promise<{
+        response: IncomingMessage;
+        body: KubernetesListObject<V1Route>;
+      }>;
+    const path = `/apis/route.openshift.io/v1/namespaces/${ns}/routes`;
+    return this.createInformer<V1Route>(kc, context, path, listFn, {
+      timer: this.routeTimer,
+      backoff: new Backoff(1000, 60_000, 300),
+      onAdd: obj => this.setStateAndDispatch(context.name, state => state.resources.routes.push(obj)),
+      onDelete: obj =>
+        this.setStateAndDispatch(
+          context.name,
+          state =>
+            (state.resources.routes = state.resources.routes.filter(
+              d => d.metadata !== obj.metadata, // TODO uid
             )),
         ),
     });

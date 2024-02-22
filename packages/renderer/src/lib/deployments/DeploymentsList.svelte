@@ -2,7 +2,6 @@
 import { onMount } from 'svelte';
 
 import type { DeploymentUI } from './DeploymentUI';
-import { filtered, searchPattern } from '../../stores/deployments';
 import NavPage from '../ui/NavPage.svelte';
 import Table from '../table/Table.svelte';
 import { Column, Row } from '../table/table';
@@ -21,16 +20,20 @@ import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import SimpleColumn from '../table/SimpleColumn.svelte';
 import DurationColumn from '../table/DurationColumn.svelte';
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
+import {
+  deploymentSearchPattern,
+  kubernetesCurrentContextDeploymentStateFiltered,
+} from '/@/stores/kubernetes-contexts-state';
 
 export let searchTerm = '';
-$: searchPattern.set(searchTerm);
+$: deploymentSearchPattern.set(searchTerm);
 
 let deployments: DeploymentUI[] = [];
 
 const deploymentUtils = new DeploymentUtils();
 
 onMount(() => {
-  return filtered.subscribe(value => {
+  return kubernetesCurrentContextDeploymentStateFiltered.subscribe(value => {
     deployments = value.map(deployment => deploymentUtils.getDeploymentUI(deployment));
   });
 });
@@ -138,7 +141,7 @@ const row = new Row<DeploymentUI>({ selectable: _deployment => true });
       on:update="{() => (deployments = deployments)}">
     </Table>
 
-    {#if $filtered.length === 0}
+    {#if $kubernetesCurrentContextDeploymentStateFiltered.length === 0}
       {#if searchTerm}
         <FilteredEmptyScreen
           icon="{DeploymentIcon}"

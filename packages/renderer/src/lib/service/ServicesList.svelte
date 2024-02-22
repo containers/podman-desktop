@@ -1,6 +1,5 @@
 <script lang="ts">
 import { onMount } from 'svelte';
-import { filtered, searchPattern } from '../../stores/services';
 import NavPage from '../ui/NavPage.svelte';
 import Table from '../table/Table.svelte';
 import { Column, Row } from '../table/table';
@@ -19,16 +18,20 @@ import SimpleColumn from '../table/SimpleColumn.svelte';
 import DurationColumn from '../table/DurationColumn.svelte';
 import ServiceColumnType from './ServiceColumnType.svelte';
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
+import {
+  kubernetesCurrentContextServiceStateFiltered,
+  serviceSearchPattern,
+} from '/@/stores/kubernetes-contexts-state';
 
 export let searchTerm = '';
-$: searchPattern.set(searchTerm);
+$: serviceSearchPattern.set(searchTerm);
 
 let services: ServiceUI[] = [];
 
 const serviceUtils = new ServiceUtils();
 
 onMount(() => {
-  return filtered.subscribe(value => {
+  return kubernetesCurrentContextServiceStateFiltered.subscribe(value => {
     services = value.map(service => serviceUtils.getServiceUI(service));
   });
 });
@@ -143,7 +146,7 @@ const row = new Row<ServiceUI>({ selectable: _service => true });
       on:update="{() => (services = services)}">
     </Table>
 
-    {#if $filtered.length === 0}
+    {#if $kubernetesCurrentContextServiceStateFiltered.length === 0}
       {#if searchTerm}
         <FilteredEmptyScreen icon="{ServiceIcon}" kind="services" bind:searchTerm="{searchTerm}" />
       {:else}
