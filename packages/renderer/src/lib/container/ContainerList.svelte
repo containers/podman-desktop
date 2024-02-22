@@ -40,6 +40,8 @@ import StateChange from '../ui/StateChange.svelte';
 import SolidPodIcon from '../images/SolidPodIcon.svelte';
 import ProviderInfo from '../ui/ProviderInfo.svelte';
 import { findMatchInLeaves } from '../../stores/search-util';
+import { handleNavigation } from '/@/navigation';
+import { NavigationPage } from '../../../../main/src/plugin/navigation/navigation-page';
 
 const containerUtils = new ContainerUtils();
 let openChoiceModal = false;
@@ -368,7 +370,9 @@ onDestroy(() => {
 });
 
 function openDetailsContainer(container: ContainerInfoUI) {
-  router.goto(`/containers/${container.id}/`);
+  handleNavigation(NavigationPage.CONTAINER, {
+    id: container.id,
+  });
 }
 
 function keydownChoice(e: KeyboardEvent) {
