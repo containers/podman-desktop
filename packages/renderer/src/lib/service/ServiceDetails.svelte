@@ -14,6 +14,7 @@ import { services } from '/@/stores/services';
 import ServiceActions from './ServiceActions.svelte';
 import ServiceDetailsSummary from './ServiceDetailsSummary.svelte';
 import ServiceIcon from '../images/ServiceIcon.svelte';
+import KubeEditYAML from '../kube/KubeEditYAML.svelte';
 
 export let name: string;
 export let namespace: string;
@@ -64,7 +65,7 @@ async function loadDetails() {
     <svelte:fragment slot="tabs">
       <Tab title="Summary" url="summary" />
       <Tab title="Inspect" url="inspect" />
-      <Tab title="Kube" url="kube" />
+      <Tab title="Edit" url="edit" />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
@@ -73,8 +74,8 @@ async function loadDetails() {
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <MonacoEditor content="{JSON.stringify(kubeService, undefined, 2)}" language="json" />
       </Route>
-      <Route path="/kube" breadcrumb="Kube" navigationHint="tab">
-        <MonacoEditor content="{stringify(kubeService)}" language="yaml" />
+      <Route path="/edit" breadcrumb="Edit" navigationHint="tab">
+        <KubeEditYAML content="{stringify(kubeService)}" />
       </Route>
     </svelte:fragment>
   </DetailsPage>

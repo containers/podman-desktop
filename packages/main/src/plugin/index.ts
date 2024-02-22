@@ -2016,6 +2016,13 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
+      'kubernetes-client:applyResourcesFromYAML',
+      async (_listener, context: string, yaml: string): Promise<KubernetesObject[]> => {
+        return kubernetesClient.applyResourcesFromYAML(context, yaml);
+      },
+    );
+
+    this.ipcHandle(
       'openshift-client:createRoute',
       async (_listener, namespace: string, route: V1Route): Promise<V1Route> => {
         return kubernetesClient.createOpenShiftRoute(namespace, route);

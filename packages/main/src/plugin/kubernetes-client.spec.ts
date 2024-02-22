@@ -51,6 +51,33 @@ const telemetry: Telemetry = {
 const makeApiClientMock = vi.fn();
 const getContextObjectMock = vi.fn();
 
+const podAndDeploymentTestYAML = `apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-deployment
+  template:
+    metadata:
+      labels:
+        app: my-deployment
+    spec:
+      containers:
+      - name: my-deployment
+        image: my-deployment-image
+        ports:
+        - containerPort: 80
+`;
+
 class TestKubernetesClient extends KubernetesClient {
   public createWatchObject(): Watch {
     return super.createWatchObject();
@@ -1290,4 +1317,108 @@ test('If Kubernetes returns a http error, output the http body message error.', 
     expect(err).to.be.a('Error');
     expect(err.message).contain('A K8sError within message body');
   }
+});
+
+test('Expect loadManifestsFromYAML to correctly return a KubernetesObject[] from a valid YAML string', async () => {
+  const client = createTestClient();
+  const expectedObjects = [
+    {
+      apiVersion: 'v1',
+      kind: 'Pod',
+      metadata: {
+        name: 'my-pod',
+      },
+    },
+    {
+      apiVersion: 'apps/v1',
+      kind: 'Deployment',
+      metadata: {
+        name: 'my-deployment',
+        namespace: 'default',
+      },
+      spec: {
+        replicas: 3,
+        selector: {
+          matchLabels: {
+            app: 'my-deployment',
+          },
+        },
+        template: {
+          metadata: {
+            labels: {
+              app: 'my-deployment',
+            },
+          },
+          spec: {
+            containers: [
+              {
+                name: 'my-deployment',
+                image: 'my-deployment-image',
+                ports: [
+                  {
+                    containerPort: 80,
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
+    },
+  ];
+  const objects = await client.loadManifestsFromYAML(podAndDeploymentTestYAML);
+  expect(objects).toEqual(expectedObjects);
+});
+
+test('Expect applyResourcesFromYAML to correctly call applyResources after loading the YAML', async () => {
+  const client = createTestClient();
+  const expectedObjects = [
+    {
+      apiVersion: 'v1',
+      kind: 'Pod',
+      metadata: {
+        name: 'my-pod',
+      },
+    },
+    {
+      apiVersion: 'apps/v1',
+      kind: 'Deployment',
+      metadata: {
+        name: 'my-deployment',
+        namespace: 'default',
+      },
+      spec: {
+        replicas: 3,
+        selector: {
+          matchLabels: {
+            app: 'my-deployment',
+          },
+        },
+        template: {
+          metadata: {
+            labels: {
+              app: 'my-deployment',
+            },
+          },
+          spec: {
+            containers: [
+              {
+                name: 'my-deployment',
+                image: 'my-deployment-image',
+                ports: [
+                  {
+                    containerPort: 80,
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
+    },
+  ];
+  const applyResourcesSpy = vi.spyOn(client, 'applyResources').mockReturnValue(Promise.resolve(expectedObjects));
+  const objects = await client.applyResourcesFromYAML('default', podAndDeploymentTestYAML);
+  expect(objects).toEqual(expectedObjects);
+  expect(applyResourcesSpy).toHaveBeenCalledWith('default', expectedObjects, 'apply');
 });

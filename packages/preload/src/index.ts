@@ -1835,6 +1835,13 @@ export function initExposure(): void {
   );
 
   contextBridge.exposeInMainWorld(
+    'kubernetesApplyResourcesFromYAML',
+    async (context: string, yaml: string): Promise<KubernetesObject[]> => {
+      return ipcInvoke('kubernetes-client:applyResourcesFromYAML', context, yaml);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
     'openshiftCreateRoute',
     async (namespace: string, route: V1Route): Promise<V1Route> => {
       return ipcInvoke('openshift-client:createRoute', namespace, route);
