@@ -45,7 +45,7 @@ export interface ContextState {
 type ResourceName = 'pods' | 'deployments';
 
 export type ContextStateResources = {
-  [resourceName in ResourceName]: number;
+  [resourceName in ResourceName]: KubernetesObject[];
 };
 
 interface CreateInformerOptions<T> {
@@ -113,8 +113,8 @@ class ContextsStates {
         error: undefined,
         reachable: false,
         resources: {
-          pods: 0,
-          deployments: 0,
+          pods: [],
+          deployments: [],
         },
       });
     }
@@ -200,8 +200,12 @@ export class ContextsManager {
     return this.createInformer<V1Pod>(kc, context, path, listFn, {
       timer: this.podTimer,
       backoff: new Backoff(1000, 60_000, 300),
-      onAdd: _obj => this.setStateAndDispatch(context.name, state => state.resources.pods++),
-      onDelete: _obj => this.setStateAndDispatch(context.name, state => state.resources.pods--),
+      onAdd: obj => this.setStateAndDispatch(context.name, state => state.resources.pods.push(obj)),
+      onDelete: obj =>
+        this.setStateAndDispatch(
+          context.name,
+          state => (state.resources.pods = state.resources.pods.filter(d => d.metadata?.uid !== obj.metadata?.uid)),
+        ),
       onReachable: reachable =>
         this.setStateAndDispatch(context.name, state => {
           state.reachable = reachable;
@@ -222,8 +226,15 @@ export class ContextsManager {
     return this.createInformer<V1Deployment>(kc, context, path, listFn, {
       timer: this.deploymentTimer,
       backoff: new Backoff(1000, 60_000, 300),
-      onAdd: _obj => this.setStateAndDispatch(context.name, state => state.resources.deployments++),
-      onDelete: _obj => this.setStateAndDispatch(context.name, state => state.resources.deployments--),
+      onAdd: obj => this.setStateAndDispatch(context.name, state => state.resources.deployments.push(obj)),
+      onDelete: obj =>
+        this.setStateAndDispatch(
+          context.name,
+          state =>
+            (state.resources.deployments = state.resources.deployments.filter(
+              d => d.metadata?.uid !== obj.metadata?.uid,
+            )),
+        ),
     });
   }
 

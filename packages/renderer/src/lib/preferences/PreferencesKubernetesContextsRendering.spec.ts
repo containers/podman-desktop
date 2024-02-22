@@ -153,15 +153,15 @@ test('state and resources counts are displayed in contexts', () => {
   state.set('context-name', {
     reachable: true,
     resources: {
-      pods: 1,
-      deployments: 2,
+      pods: [{}],
+      deployments: [{}, {}],
     },
   });
   state.set('context-name2', {
     reachable: false,
     resources: {
-      pods: 0,
-      deployments: 0,
+      pods: [],
+      deployments: [],
     },
   });
   vi.mocked(kubernetesContextsState).kubernetesContextsState = readable<Map<string, ContextState>>(state);
