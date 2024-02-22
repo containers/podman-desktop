@@ -37,6 +37,7 @@ interface ContextInternalState {
 // ContextState stores information for the user about a kube context: is the cluster reachable, the number
 // of instances of different resources
 export interface ContextState {
+  error?: string;
   reachable: boolean;
   podsCount: number;
   deploymentsCount: number;
@@ -47,6 +48,7 @@ interface CreateInformerOptions<T> {
   onAdd?: (obj: T) => void;
   onDelete?: (obj: T) => void;
   onReachable?: (reachable: boolean) => void;
+  onConnectionError?: (error: string) => void;
   timer: NodeJS.Timeout | undefined;
   backoff: Backoff;
 }
@@ -103,6 +105,7 @@ class ContextsStates {
   safeSetState(name: string, update: (previous: ContextState) => void) {
     if (!this.published.has(name)) {
       this.published.set(name, {
+        error: undefined,
         reachable: false,
         podsCount: 0,
         deploymentsCount: 0,
@@ -192,7 +195,12 @@ export class ContextsManager {
       backoff: new Backoff(1000, 60_000, 300),
       onAdd: _obj => this.setStateAndDispatch(context.name, state => state.podsCount++),
       onDelete: _obj => this.setStateAndDispatch(context.name, state => state.podsCount--),
-      onReachable: reachable => this.setStateAndDispatch(context.name, state => (state.reachable = reachable)),
+      onReachable: reachable =>
+        this.setStateAndDispatch(context.name, state => {
+          state.reachable = reachable;
+          state.error = reachable ? undefined : state.error; // if reachable we remove error
+        }),
+      onConnectionError: error => this.setStateAndDispatch(context.name, state => (state.error = error)),
     });
   }
 
@@ -235,8 +243,10 @@ export class ContextsManager {
     informer.on('error', (err: unknown) => {
       if (err !== undefined) {
         console.error(`informer error on path ${path} for context ${context.name}: `, String(err));
+        options.onConnectionError?.(String(err));
       }
       options.onReachable?.(err === undefined);
+
       // Restart informer later
       clearTimeout(options.timer);
       options.timer = setTimeout(() => {
@@ -248,6 +258,7 @@ export class ContextsManager {
       informer.on('connect', (err: unknown) => {
         if (err !== undefined) {
           console.error(`informer connect error on path ${path} for context ${context.name}: `, String(err));
+          options.onConnectionError?.(String(err));
         }
         options.onReachable?.(err === undefined);
       });
@@ -264,6 +275,7 @@ export class ContextsManager {
     informer.start().catch((err: unknown) => {
       if (err !== undefined) {
         console.warn('informer start error: ', String(err));
+        options.onConnectionError?.(String(err));
       }
       options.onReachable?.(err === undefined);
       // Restart informer later
