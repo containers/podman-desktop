@@ -66,6 +66,7 @@ interface MountSettings {
   Type: MountType;
   ReadOnly?: boolean;
   Consistency?: MountConsistency;
+  Mode?: string;
   BindOptions?: {
     Propagation: MountPropagation;
   };
