@@ -2,14 +2,18 @@
 import type { V1Ingress } from '@kubernetes/client-node';
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
-import type { IngressUI } from './IngressUI';
-import type { RouteUI } from './RouteUI';
-import IngressRouteColumnHostPath from './IngressRouteColumnHostPath.svelte';
-import IngressRouteColumnBackend from './IngressRouteColumnBackend.svelte';
+import KubeObjectMetaArtifact from '../kube/details/KubeObjectMetaArtifact.svelte';
+import KubeIngressArtifact from '../kube/details/KubeIngressArtifact.svelte';
+import KubeIngressStatusArtifact from '../kube/details/KubeIngressStatusArtifact.svelte';
+import OpenshiftRouteArtifact from '../kube/details/OpenshiftRouteArtifact.svelte';
 
-export let ingressRouteUI: IngressUI | RouteUI;
 export let ingressRoute: V1Ingress | V1Route | undefined;
 export let kubeError: string | undefined = undefined;
+
+// Determine if the artifact is an Ingress or a Route
+function isIngress(ingressRoute: V1Ingress | V1Route): ingressRoute is V1Ingress {
+  return ingressRoute.kind === 'Ingress';
+}
 </script>
 
 <!-- Show the kube error if we're unable to retrieve the data correctly, but we still want to show the 
@@ -18,26 +22,18 @@ basic information -->
   <ErrorMessage error="{kubeError}" />
 {/if}
 
-<div class="flex px-5 py-4 flex-col h-full overflow-auto">
+<div class="flex px-5 py-4 flex-col items-start h-full overflow-auto">
   {#if ingressRoute}
     <table class="w-full">
       <tbody>
-        <tr>
-          <td class="pr-2">Name</td>
-          <td>{ingressRoute.metadata?.name}</td>
-        </tr>
-        <tr>
-          <td class="pr-2">Namespace</td>
-          <td>{ingressRoute.metadata?.namespace}</td>
-        </tr>
-        <tr>
-          <td class="pr-2">Host/Path</td>
-          <td><IngressRouteColumnHostPath object="{ingressRouteUI}" /></td>
-        </tr>
-        <tr>
-          <td class="pr-2">Backend</td>
-          <td><IngressRouteColumnBackend object="{ingressRouteUI}" /></td>
-        </tr>
+        <KubeObjectMetaArtifact artifact="{ingressRoute.metadata}" />
+        {#if isIngress(ingressRoute)}
+          <KubeIngressStatusArtifact artifact="{ingressRoute.status}" />
+          <KubeIngressArtifact artifact="{ingressRoute.spec}" />
+        {:else}
+          <!-- Routes are shown / structured quite differently than Kubernetes, so we will show these separate. -->
+          <OpenshiftRouteArtifact artifact="{ingressRoute}" />
+        {/if}
       </tbody>
     </table>
   {:else}

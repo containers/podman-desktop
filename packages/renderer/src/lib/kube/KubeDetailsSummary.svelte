@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { V1Pod } from '@kubernetes/client-node';
-import KubeDetailsSummaryVolumes from './KubeDetailsSummaryVolumes.svelte';
+import KubeVolumeArtifact from './details/KubeVolumeArtifact.svelte';
 export let pod: V1Pod | undefined;
 
 // https://github.com/kubernetes-client/javascript/issues/487
@@ -141,7 +141,7 @@ if (pod?.status?.startTime) {
             <td class="py-2 px-4 text-lg pl-1 font-semibold text-purple-400" colspan="2">Volumes</td>
           </tr>
           {#each pod.spec.volumes as volume}
-            <KubeDetailsSummaryVolumes volume="{volume}" />
+            <KubeVolumeArtifact artifact="{volume}" />
           {/each}
         {/if}
       </tbody>

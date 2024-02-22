@@ -59,7 +59,7 @@ test('Expect basic rendering', async () => {
   kubernetesGetCurrentNamespaceMock.mockResolvedValue('default');
   kubernetesReadNamespacedDeploymentMock.mockResolvedValue(deployment);
 
-  render(DeploymentDetailsSummary, { deploymentUI: deploymentUI, deployment: deployment });
+  render(DeploymentDetailsSummary, { deployment: deployment });
 
   expect(screen.getByText(deploymentUI.name)).toBeInTheDocument();
 });
@@ -68,7 +68,7 @@ test('Check more properties', async () => {
   kubernetesGetCurrentNamespaceMock.mockResolvedValue('default');
   kubernetesReadNamespacedDeploymentMock.mockResolvedValue(undefined);
 
-  render(DeploymentDetailsSummary, { deploymentUI: deploymentUI, deployment: deployment });
+  render(DeploymentDetailsSummary, { deployment: deployment });
 
   // Expect the name and namespace to show
   expect(screen.getByText(deploymentUI.name)).toBeInTheDocument();

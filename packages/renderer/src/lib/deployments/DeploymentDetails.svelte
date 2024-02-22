@@ -67,7 +67,7 @@ async function loadDetails() {
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
-        <DeploymentDetailsSummary deploymentUI="{deployment}" deployment="{kubeDeployment}" kubeError="{kubeError}" />
+        <DeploymentDetailsSummary deployment="{kubeDeployment}" kubeError="{kubeError}" />
       </Route>
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <MonacoEditor content="{JSON.stringify(kubeDeployment, undefined, 2)}" language="json" />
