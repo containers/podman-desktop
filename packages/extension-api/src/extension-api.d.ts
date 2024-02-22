@@ -2307,10 +2307,10 @@ declare module '@podman-desktop/api' {
     /**
      * The test to perform. Possible values are:
      *
-     * - ```[]``` inherit healthcheck from image or parent image
-     * - ```["NONE"]``` disable healthcheck
-     * - ```["CMD", args...]``` exec arguments directly
-     * - ```["CMD-SHELL", command]``` run command with system's default shell
+     * - `[]` inherit healthcheck from image or parent image
+     * - `["NONE"]` disable healthcheck
+     * - `["CMD", args...]` exec arguments directly
+     * - `["CMD-SHELL", command]` run command with system's default shell
      */
     Test?: string[];
 
@@ -2407,8 +2407,8 @@ declare module '@podman-desktop/api' {
      * aliases, container short ID, and hostname.
      *
      * These DNS names are non-fully qualified but can contain several dots. You can get fully qualified DNS names by
-     * appending ```.<network-name>```. For instance, if container name is ```my.ctr``` and the network is named
-     * ```testnet```, ```DNSNames``` will contain ```my.ctr``` and the FQDN will be ```my.ctr.testnet```.
+     * appending `.<network-name>`. For instance, if container name is `my.ctr` and the network is named
+     * `testnet`, `DNSNames` will contain `my.ctr` and the FQDN will be `my.ctr.testnet`.
      */
     DNSNames?: string[];
   }
@@ -2446,11 +2446,11 @@ declare module '@podman-desktop/api' {
     /**
      *  Default: ""
      *
-     * Platform in the format ```os[/arch[/variant]]``` used for image lookup.
+     * Platform in the format `os[/arch[/variant]]` used for image lookup.
      *
-     * When specified, the daemon checks if the requested image is present in the local image cache with the given OS and Architecture, and otherwise returns a ```404``` status.
+     * When specified, the daemon checks if the requested image is present in the local image cache with the given OS and Architecture, and otherwise returns a `404` status.
      *
-     * If the option is not set, the host's native OS and Architecture are used to look up the image in the image cache. However, if no platform is passed and the given image does exist in the local image cache, but its OS or architecture does not match, the container is created with the available image, and a warning is added to the ```Warnings``` field in the response, for example;
+     * If the option is not set, the host's native OS and Architecture are used to look up the image in the image cache. However, if no platform is passed and the given image does exist in the local image cache, but its OS or architecture does not match, the container is created with the available image, and a warning is added to the `Warnings` field in the response, for example;
      *
      * ```
      * WARNING: The requested image's platform (linux/arm64/v8) does not
@@ -2564,7 +2564,7 @@ declare module '@podman-desktop/api' {
     HealthCheck?: HealthConfig;
 
     /**
-     *  Default: ```false```
+     *  Default: `false`
      *
      * Command is already escaped (Windows only)
      */
@@ -2591,7 +2591,7 @@ declare module '@podman-desktop/api' {
     MacAddress?: string;
 
     /**
-     * ```ONBUILD``` metadata that were defined in the image's ```Dockerfile```.
+     * `ONBUILD` metadata that were defined in the image's `Dockerfile`.
      */
     OnBuild?: string[];
 
@@ -2601,14 +2601,14 @@ declare module '@podman-desktop/api' {
     StopSignal?: string;
 
     /**
-     *  Default: ```10```
+     *  Default: `10`
      *
      * Timeout to stop a container in seconds.
      */
     StopTimeout?: number;
 
     /**
-     * Shell for when ```RUN```, ```CMD```, and ```ENTRYPOINT``` uses a shell.
+     * Shell for when `RUN`, `CMD`, and `ENTRYPOINT` uses a shell.
      */
     Shell?: string[];
 
@@ -2734,15 +2734,15 @@ declare module '@podman-desktop/api' {
 
     /**
      * JSON map of string pairs for build-time variables. Users pass these values at build-time. Docker uses the
-     * buildargs as the environment context for commands run via the ```Dockerfile``` RUN instruction, or for variable
-     * expansion in other ```Dockerfilev``` instructions. This is not meant for passing secret values.
-     * For example, the build arg ```FOO=bar``` would become ```{"FOO":"bar"}``` in JSON. This would result in the query
-     * parameter ```buildargs={"FOO":"bar"}```. Note that ```{"FOO":"bar"}``` should be URI component encoded.
+     * buildargs as the environment context for commands run via the `Dockerfile` RUN instruction, or for variable
+     * expansion in other `Dockerfilev` instructions. This is not meant for passing secret values.
+     * For example, the build arg `FOO=bar` would become `{"FOO":"bar"}` in JSON. This would result in the query
+     * parameter `buildargs={"FOO":"bar"}`. Note that `{"FOO":"bar"}` should be URI component encoded.
      */
     buildargs?: { [key: string]: string };
 
     /**
-     * Size of ```/dev/shm``` in bytes. The size must be greater than 0. If omitted the system uses 64MB.
+     * Size of `/dev/shm` in bytes. The size must be greater than 0. If omitted the system uses 64MB.
      */
     shmsize?: number;
 
@@ -2757,8 +2757,8 @@ declare module '@podman-desktop/api' {
     labels?: { [key: string]: string };
 
     /**
-     * Sets the networking mode for the run commands during build. Supported standard values are: ```bridge```,
-     * ```host```, ```none```, and ```container:<name|id>```. Any other value is taken as a custom network's name or ID
+     * Sets the networking mode for the run commands during build. Supported standard values are: `bridge`,
+     * `host`, `none`, and `container:<name|id>`. Any other value is taken as a custom network's name or ID
      * to which this container should connect to.
      */
     networkmode?: string;
