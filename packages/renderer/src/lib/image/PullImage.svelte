@@ -133,7 +133,7 @@ function requestFocus(element: HTMLInputElement) {
 }
 </script>
 
-<FormPage title="Pull Image From a Registry" inProgress="{pullInProgress}">
+<FormPage title="Pull image from a registry" inProgress="{pullInProgress}">
   <svelte:fragment slot="icon">
     <i class="fas fa-arrow-circle-down fa-2x" aria-hidden="true"></i>
   </svelte:fragment>
@@ -142,7 +142,7 @@ function requestFocus(element: HTMLInputElement) {
     <Button on:click="{() => gotoManageRegistries()}" icon="{faCog}">Manage registries</Button>
   </svelte:fragment>
 
-  <div slot="content" class="p-5 min-w-full h-fit">
+  <div slot="content" class="p-5 min-w-full h-full">
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else}

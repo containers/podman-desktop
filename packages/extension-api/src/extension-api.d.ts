@@ -2307,10 +2307,10 @@ declare module '@podman-desktop/api' {
     /**
      * The test to perform. Possible values are:
      *
-     * - ```[]``` inherit healthcheck from image or parent image
-     * - ```["NONE"]``` disable healthcheck
-     * - ```["CMD", args...]``` exec arguments directly
-     * - ```["CMD-SHELL", command]``` run command with system's default shell
+     * - `[]` inherit healthcheck from image or parent image
+     * - `["NONE"]` disable healthcheck
+     * - `["CMD", args...]` exec arguments directly
+     * - `["CMD-SHELL", command]` run command with system's default shell
      */
     Test?: string[];
 
@@ -2334,6 +2334,87 @@ declare module '@podman-desktop/api' {
      * The number of consecutive failures needed to consider a container as unhealthy. 0 means inherit.
      */
     Retries?: number;
+  }
+
+  interface EndpointIPAMConfig {
+    IPv4Address?: string;
+    IPv6Address?: string;
+    LinkLocalIPs?: string[];
+  }
+
+  interface EndpointSettings {
+    /**
+     * EndpointIPAMConfig represents an endpoint's IPAM configuration.
+     */
+    IPAMConfig?: EndpointIPAMConfig;
+
+    Links?: string[];
+
+    /**
+     * MAC address for the endpoint on this network. The network driver might ignore this parameter.
+     */
+    MacAddress?: string;
+
+    Aliases?: string[];
+
+    /**
+     * Unique ID of the network.
+     */
+    NetworkID?: string;
+
+    /**
+     * Unique ID for the service endpoint in a Sandbox.
+     */
+    EndpointID?: string;
+
+    /**
+     * Gateway address for this network.
+     */
+    Gateway?: string;
+
+    /**
+     * IPv4 address.
+     */
+    IPAddress?: string;
+
+    /**
+     * Mask length of the IPv4 address.
+     */
+    IPPrefixLen?: number;
+
+    /**
+     * IPv6 gateway address.
+     */
+    IPv6Gateway?: string;
+
+    /**
+     * Global IPv6 address.
+     */
+    GlobalIPv6Address?: string;
+
+    /**
+     * Mask length of the global IPv6 address.
+     */
+    GlobalIPv6PrefixLen?: number;
+
+    /**
+     * DriverOpts is a mapping of driver options and values. These options are passed directly to the driver and are driver specific.
+     */
+    DriverOpts?: { [key: string]: string };
+
+    /**
+     * List of all DNS names an endpoint has on a specific network. This list is based on the container name, network
+     * aliases, container short ID, and hostname.
+     *
+     * These DNS names are non-fully qualified but can contain several dots. You can get fully qualified DNS names by
+     * appending `.<network-name>`. For instance, if container name is `my.ctr` and the network is named
+     * `testnet`, `DNSNames` will contain `my.ctr` and the FQDN will be `my.ctr.testnet`.
+     */
+    DNSNames?: string[];
+  }
+
+  interface NetworkingConfig {
+    EndpointsConfig?: { [key: string]: EndpointSettings };
   }
 
   export interface PodmanContainerCreateOptions {
@@ -2361,10 +2442,33 @@ declare module '@podman-desktop/api' {
      * Assign the specified name to the container. Must match the regular expression`/?[a-zA-Z0-9][a-zA-Z0-9_.-]+`. If not speficied, the platform assigns a unique name to the container
      */
     name?: string;
+
+    /**
+     *  Default: ""
+     *
+     * Platform in the format `os[/arch[/variant]]` used for image lookup.
+     *
+     * When specified, the daemon checks if the requested image is present in the local image cache with the given OS and Architecture, and otherwise returns a `404` status.
+     *
+     * If the option is not set, the host's native OS and Architecture are used to look up the image in the image cache. However, if no platform is passed and the given image does exist in the local image cache, but its OS or architecture does not match, the container is created with the available image, and a warning is added to the `Warnings` field in the response, for example;
+     *
+     * ```
+     * WARNING: The requested image's platform (linux/arm64/v8) does not
+     *          match the detected host platform (linux/amd64) and no
+     *          specific platform was requested
+     * ```
+     */
+    platform?: string;
+
     /**
      * The hostname to use for the container, as a valid RFC 1123 hostname
      */
     Hostname?: string;
+
+    /**
+     * The domain name to use for the container.
+     */
+    Domainname?: string;
 
     /**
      * The user that commands are run as inside the container
@@ -2458,6 +2562,57 @@ declare module '@podman-desktop/api' {
      * A test to perform to check that the container is healthy.
      */
     HealthCheck?: HealthConfig;
+
+    /**
+     *  Default: `false`
+     *
+     * Command is already escaped (Windows only)
+     */
+    ArgsEscaped?: boolean;
+
+    /**
+     * An object mapping mount point paths inside the container to empty objects.
+     */
+    Volumes?: { [volume: string]: object };
+
+    /**
+     * The working directory for commands to run in.
+     */
+    WorkingDir?: string;
+
+    /**
+     * Disable networking for the container.
+     */
+    NetworkDisabled?: boolean;
+
+    /**
+     * MAC address of the container.
+     */
+    MacAddress?: string;
+
+    /**
+     * `ONBUILD` metadata that were defined in the image's `Dockerfile`.
+     */
+    OnBuild?: string[];
+
+    /**
+     * Signal to stop a container as a string or unsigned integer.
+     */
+    StopSignal?: string;
+
+    /**
+     *  Default: `10`
+     *
+     * Timeout to stop a container in seconds.
+     */
+    StopTimeout?: number;
+
+    /**
+     * Shell for when `RUN`, `CMD`, and `ENTRYPOINT` uses a shell.
+     */
+    Shell?: string[];
+
+    NetworkConfig?: NetworkingConfig;
   }
 
   /**
@@ -2579,15 +2734,15 @@ declare module '@podman-desktop/api' {
 
     /**
      * JSON map of string pairs for build-time variables. Users pass these values at build-time. Docker uses the
-     * buildargs as the environment context for commands run via the ```Dockerfile``` RUN instruction, or for variable
-     * expansion in other ```Dockerfilev``` instructions. This is not meant for passing secret values.
-     * For example, the build arg ```FOO=bar``` would become ```{"FOO":"bar"}``` in JSON. This would result in the query
-     * parameter ```buildargs={"FOO":"bar"}```. Note that ```{"FOO":"bar"}``` should be URI component encoded.
+     * buildargs as the environment context for commands run via the `Dockerfile` RUN instruction, or for variable
+     * expansion in other `Dockerfilev` instructions. This is not meant for passing secret values.
+     * For example, the build arg `FOO=bar` would become `{"FOO":"bar"}` in JSON. This would result in the query
+     * parameter `buildargs={"FOO":"bar"}`. Note that `{"FOO":"bar"}` should be URI component encoded.
      */
     buildargs?: { [key: string]: string };
 
     /**
-     * Size of ```/dev/shm``` in bytes. The size must be greater than 0. If omitted the system uses 64MB.
+     * Size of `/dev/shm` in bytes. The size must be greater than 0. If omitted the system uses 64MB.
      */
     shmsize?: number;
 
@@ -2602,8 +2757,8 @@ declare module '@podman-desktop/api' {
     labels?: { [key: string]: string };
 
     /**
-     * Sets the networking mode for the run commands during build. Supported standard values are: ```bridge```,
-     * ```host```, ```none```, and ```container:<name|id>```. Any other value is taken as a custom network's name or ID
+     * Sets the networking mode for the run commands during build. Supported standard values are: `bridge`,
+     * `host`, `none`, and `container:<name|id>`. Any other value is taken as a custom network's name or ID
      * to which this container should connect to.
      */
     networkmode?: string;

@@ -2391,7 +2391,7 @@ describe('createContainer', () => {
     expect(createContainerMock).toHaveBeenCalledWith(expect.not.objectContaining({ EnvFiles: ['file1', 'file2'] }));
   });
 
-  test('test create and start Container with healthcheck', async () => {
+  async function verifyCreateContainer(options: object) {
     const createdId = '1234';
 
     const startMock = vi.fn();
@@ -2420,16 +2420,38 @@ describe('createContainer', () => {
       api: fakeDockerode,
     } as InternalContainerProvider);
 
-    const container = await containerRegistry.createContainer('podman1', { HealthCheck: { Test: ['cmd', 'arg1'] } });
+    const container = await containerRegistry.createContainer('podman1', options);
 
     expect(container.id).toBe(createdId);
     expect(createContainerMock).toHaveBeenCalled();
     expect(startMock).toHaveBeenCalled();
 
     // expect healthcheck to be set
-    expect(createContainerMock).toHaveBeenCalledWith(
-      expect.objectContaining({ HealthCheck: { Test: ['cmd', 'arg1'] } }),
-    );
+    expect(createContainerMock).toHaveBeenCalledWith(expect.objectContaining(options));
+  }
+
+  test('test create and start Container with platform', async () => {
+    await verifyCreateContainer({ platform: 'linux-arm64' });
+  });
+
+  test('test create and start Container with Domainname', async () => {
+    await verifyCreateContainer({ Domainname: 'my-domain' });
+  });
+
+  test('test create and start Container with healthcheck', async () => {
+    await verifyCreateContainer({ HealthCheck: { Test: ['cmd', 'arg1'] } });
+  });
+
+  test('test create and start Container with ArgsEscaped', async () => {
+    await verifyCreateContainer({ ArgsEscaped: true });
+  });
+
+  test('test create and start Container with Volumes', async () => {
+    await verifyCreateContainer({ Volumes: { Vol1: {} } });
+  });
+
+  test('test create and start Container with WorkingDir', async () => {
+    await verifyCreateContainer({ WorkingDir: 'workdir' });
   });
 
   test('test container is created but not started', async () => {

@@ -155,13 +155,13 @@ import { OpenDevToolsInit } from './open-devtools-init.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import { WebviewRegistry } from './webview/webview-registry.js';
 import type { IDisposable } from './types/disposable.js';
-
 import { KubernetesUtils } from './kubernetes-util.js';
 import { downloadGuideList } from './learning-center/learning-center.js';
 import type { ColorInfo } from './api/color-info.js';
 import { ColorRegistry } from './color-registry.js';
 import { DialogRegistry } from './dialog-registry.js';
 import type { Deferred } from './util/deferred.js';
+import type { ContextState } from './kubernetes-context-state.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -2080,6 +2080,10 @@ export class PluginSystem {
 
     this.ipcHandle('kubernetes-client:setContext', async (_listener, contextName: string): Promise<void> => {
       return kubernetesClient.setContext(contextName);
+    });
+
+    this.ipcHandle('kubernetes-client:getContextsState', async (): Promise<Map<string, ContextState>> => {
+      return kubernetesClient.getContextsState();
     });
 
     this.ipcHandle('feedback:send', async (_listener, feedbackProperties: unknown): Promise<void> => {

@@ -21,8 +21,8 @@ With Podman Desktop, you can manage your container engine workloads.
 
 1. [Work with registries](/docs/containers/registries).
 
-   1. [Authenticate to pre-configured registries](/docs/containers/registries/authenticating-to-a-preconfigured-registry).
-   1. [Add an insecure registry](/docs/containers/registries/insecure-registry).
+   1. [Authenticate to pre-configured registries](/docs/containers/registries).
+   1. [Add an insecure registry](/docs/containers/registries).
 
 1. [Work with images](/docs/containers/images).
    1. [Build an image from Containerfile](/docs/containers/images/building-an-image).

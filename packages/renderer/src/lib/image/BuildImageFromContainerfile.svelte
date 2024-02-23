@@ -150,11 +150,11 @@ async function abortBuild() {
 }
 </script>
 
-<FormPage title="Build Image from Containerfile" inProgress="{buildImageInfo?.buildRunning}">
+<FormPage title="Build image from Containerfile" inProgress="{buildImageInfo?.buildRunning}">
   <svelte:fragment slot="icon">
     <i class="fas fa-cube fa-2x" aria-hidden="true"></i>
   </svelte:fragment>
-  <div slot="content" class="p-5 min-w-full h-fit">
+  <div slot="content" class="p-5 min-w-full h-full">
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else}

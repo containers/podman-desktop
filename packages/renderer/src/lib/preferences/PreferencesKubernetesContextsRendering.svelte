@@ -7,6 +7,7 @@ import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import { kubernetesContexts } from '../../stores/kubernetes-contexts';
 import { clearKubeUIContextErrors, setKubeUIContextError } from '../kube/KubeContextUI';
+import { kubernetesContextsState } from '/@/stores/kubernetes-contexts-state';
 
 $: currentContextName = $kubernetesContexts.find(c => c.currentContext)?.name;
 
@@ -95,32 +96,70 @@ async function handleDeleteContext(contextName: string) {
           {/if}
         </div>
         <div class="grow flex-column divide-gray-900 text-gray-400">
-          <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1 grid grid-cols-6">
-            <span class="my-auto font-bold col-span-1 text-right">CLUSTER</span>
-            <span class="my-auto col-span-5 text-left pl-0.5 ml-3" aria-label="context-cluster">{context.cluster}</span>
-          </div>
+          <div class="flex flex-row">
+            {#if $kubernetesContextsState.get(context.name)}
+              <div class="flex-none w-36">
+                {#if $kubernetesContextsState.get(context.name)?.reachable}
+                  <div class="flex flex-row pt-2">
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    <div class="ml-1 font-bold text-[9px] text-green-500" aria-label="context-reachable">REACHABLE</div>
+                  </div>
+                  <div class="flex flex-row gap-4 mt-4">
+                    <div class="text-center">
+                      <div class="font-bold text-[9px] text-gray-800">PODS</div>
+                      <div class="text-[16px] text-white" aria-label="context-pods-count">
+                        {$kubernetesContextsState.get(context.name)?.resources.pods.length}
+                      </div>
+                    </div>
+                    <div class="text-center">
+                      <div class="font-bold text-[9px] text-gray-800">DEPLOYMENTS</div>
+                      <div class="text-[16px] text-white" aria-label="context-deployments-count">
+                        {$kubernetesContextsState.get(context.name)?.resources.deployments.length}
+                      </div>
+                    </div>
+                  </div>
+                {:else}
+                  <div class="flex flex-row pt-2">
+                    <div class="w-3 h-3 rounded-full bg-gray-900"></div>
+                    <div class="ml-1 font-bold text-[9px] text-gray-900">UNREACHABLE</div>
+                  </div>
+                {/if}
+              </div>
+            {/if}
+            <div class="grow">
+              <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1 grid grid-cols-6">
+                <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">CLUSTER</span>
+                <span
+                  class="my-auto col-span-5 text-left pl-0.5 ml-3 overflow-hidden text-ellipsis"
+                  aria-label="context-cluster">{context.cluster}</span>
+              </div>
 
-          {#if context.clusterInfo !== undefined}
-            <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1 grid grid-cols-6">
-              <span class="my-auto font-bold col-span-1 text-right">SERVER</span>
-              <span class="my-auto col-span-5 text-left ml-3">
-                {context.clusterInfo.server}
-              </span>
+              {#if context.clusterInfo !== undefined}
+                <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1 grid grid-cols-6">
+                  <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">SERVER</span>
+                  <span class="my-auto col-span-5 text-left ml-3 overflow-hidden text-ellipsis">
+                    {context.clusterInfo.server}
+                  </span>
+                </div>
+              {/if}
+
+              <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1 grid grid-cols-6">
+                <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">USER</span>
+                <span
+                  class="my-auto col-span-5 text-left pl-0.5 ml-3 overflow-hidden text-ellipsis"
+                  aria-label="context-user">{context.user}</span>
+              </div>
+
+              {#if context.namespace}
+                <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1 grid grid-cols-6">
+                  <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">NAMESPACE</span>
+                  <span
+                    class="my-auto col-span-5 text-left pl-0.5 ml-3 overflow-hidden text-ellipsis"
+                    aria-label="context-namespace">{context.namespace}</span>
+                </div>
+              {/if}
             </div>
-          {/if}
-
-          <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1 grid grid-cols-6">
-            <span class="my-auto font-bold col-span-1 text-right">USER</span>
-            <span class="my-auto col-span-5 text-left pl-0.5 ml-3" aria-label="context-user">{context.user}</span>
           </div>
-
-          {#if context.namespace}
-            <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1 grid grid-cols-6">
-              <span class="my-auto font-bold col-span-1 text-right">NAMESPACE</span>
-              <span class="my-auto col-span-5 text-left pl-0.5 ml-3" aria-label="context-namespace"
-                >{context.namespace}</span>
-            </div>
-          {/if}
         </div>
       </div>
     {/each}
