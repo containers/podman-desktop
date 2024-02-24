@@ -149,6 +149,19 @@ li.footer__item a svg {
   display: none;
 }
 
+/* main nav items bold */
+.theme-doc-sidebar-item-link-level-1 {
+  font-weight: bold;
+}
+li.theme-doc-sidebar-item-category-level-1 > .menu__list-item-collapsible {
+  font-weight: bold;
+}
+
+/* child nav slightly smaller */
+li.theme-doc-sidebar-item-category-level-1 > .menu__list {
+  font-size: 0.85em;
+}
+
 @media (min-width: 1200px) {
   .navbar__title {
     font-size: 2em;
