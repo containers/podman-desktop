@@ -159,7 +159,7 @@ import { ColorRegistry } from './color-registry.js';
 import { DialogRegistry } from './dialog-registry.js';
 import type { Deferred } from './util/deferred.js';
 import { Updater } from '/@/plugin/updater.js';
-import type { ContextGeneralState } from './kubernetes-context-state.js';
+import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -1910,6 +1910,13 @@ export class PluginSystem {
     this.ipcHandle('kubernetes-client:getCurrentContextGeneralState', async (): Promise<ContextGeneralState> => {
       return kubernetesClient.getCurrentContextGeneralState();
     });
+
+    this.ipcHandle(
+      'kubernetes-client:getCurrentContextResources',
+      async (_listener, resourceName: ResourceName): Promise<KubernetesObject[]> => {
+        return kubernetesClient.getCurrentContextResources(resourceName);
+      },
+    );
 
     this.ipcHandle('feedback:send', async (_listener, feedbackProperties: unknown): Promise<void> => {
       return telemetry.sendFeedback(feedbackProperties);

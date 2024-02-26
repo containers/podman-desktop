@@ -16,8 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { readable } from 'svelte/store';
+import { derived, readable, writable } from 'svelte/store';
 import type { ContextGeneralState } from '../../../main/src/plugin/kubernetes-context-state';
+import type { KubernetesObject } from '@kubernetes/client-node';
+import { findMatchInLeaves } from './search-util';
 
 export const kubernetesContextsState = readable(new Map<string, ContextGeneralState>(), set => {
   window.kubernetesGetContextsGeneralState().then(value => set(value));
@@ -38,4 +40,20 @@ export const kubernetesCurrentContextState = readable(
       set(value as ContextGeneralState);
     });
   },
+);
+
+export const kubernetesCurrentContextDeployments = readable<KubernetesObject[]>([], set => {
+  window.kubernetesGetCurrentContextResources('deployments').then(value => set(value));
+  window.events?.receive('kubernetes-current-context-deployments-update', (value: unknown) => {
+    set(value as KubernetesObject[]);
+  });
+});
+
+export const deploymentSearchPattern = writable('');
+
+// The deployments in the current context, filtered with `deploymentSearchPattern`
+export const kubernetesCurrentContextDeploymentsFiltered = derived(
+  [deploymentSearchPattern, kubernetesCurrentContextDeployments],
+  ([$searchPattern, $deployments]) =>
+    $deployments.filter(deployment => findMatchInLeaves(deployment, $searchPattern.toLowerCase())),
 );

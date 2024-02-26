@@ -95,7 +95,7 @@ import type { KubernetesGeneratorInfo } from '../../main/src/plugin/api/Kubernet
 import type { NotificationCard, NotificationCardOptions } from '../../main/src/plugin/api/notification';
 import type { ApiSenderType } from '../../main/src/plugin/api';
 import type { IDisposable } from '../../main/src/plugin/types/disposable';
-import type { ContextGeneralState } from '../../main/src/plugin/kubernetes-context-state.js';
+import type { ContextGeneralState, ResourceName } from '../../main/src/plugin/kubernetes-context-state.js';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 export type OpenSaveDialogResultCallback = (result: string | string[] | undefined) => void;
@@ -1577,6 +1577,12 @@ export function initExposure(): void {
   contextBridge.exposeInMainWorld('kubernetesGetCurrentContextGeneralState', async (): Promise<ContextGeneralState> => {
     return ipcInvoke('kubernetes-client:getCurrentContextGeneralState');
   });
+  contextBridge.exposeInMainWorld(
+    'kubernetesGetCurrentContextResources',
+    async (resourceName: ResourceName): Promise<KubernetesObject[]> => {
+      return ipcInvoke('kubernetes-client:getCurrentContextResources', resourceName);
+    },
+  );
 
   contextBridge.exposeInMainWorld('kubernetesGetClusters', async (): Promise<Cluster[]> => {
     return ipcInvoke('kubernetes-client:getClusters');

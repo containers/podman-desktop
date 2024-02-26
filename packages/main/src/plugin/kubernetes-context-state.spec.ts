@@ -230,6 +230,8 @@ test('should send info of resources in all reachable contexts and nothing in non
       deployments: 4,
     },
   });
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', [{}]);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-deployments-update', [{}, {}, {}, {}]);
   // => removing contexts, should remving clusters from sent info
   kubeConfig.loadFromOptions({
     clusters: [
@@ -308,6 +310,8 @@ test('should send info of resources in all reachable contexts and nothing in non
       deployments: 4,
     },
   });
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', [{}]);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-deployments-update', [{}, {}, {}, {}]);
 });
 
 test('should write logs when connection fails', async () => {

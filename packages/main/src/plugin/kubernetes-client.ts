@@ -68,7 +68,7 @@ import type { KubernetesInformerManager } from './kubernetes-informer-registry.j
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import type { IncomingMessage } from 'node:http';
 import { ContextsManager } from './kubernetes-context-state.js';
-import type { ContextGeneralState } from './kubernetes-context-state.js';
+import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
 
 interface KubernetesObjectWithKind extends KubernetesObject {
   kind: string;
@@ -1359,5 +1359,9 @@ export class KubernetesClient {
 
   public getCurrentContextGeneralState(): ContextGeneralState {
     return this.contextsState.getCurrentContextGeneralState();
+  }
+
+  public getCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
+    return this.contextsState.getCurrentContextResources(resourceName);
   }
 }
