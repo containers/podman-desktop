@@ -30,7 +30,6 @@ import { routes } from './stores/routes';
 import Webviews from '/@/lib/webview/Webviews.svelte';
 import { webviews } from '/@/stores/webviews';
 import PuzzleIcon from './lib/images/PuzzleIcon.svelte';
-import { onDidChangeConfiguration } from './stores/configurationProperties';
 import KubeIcon from './lib/images/KubeIcon.svelte';
 
 let podInfoSubscribe: Unsubscriber;
@@ -56,17 +55,6 @@ let ingressesRoutesCount = '';
 
 const imageUtils = new ImageUtils();
 export let exitSettingsCallback: () => void;
-
-const KUBERNETES_EXPERIMENTAL_CONFIGURATION_KEY = 'kubernetes.experimental';
-let showKubernetesNav = false;
-
-async function updateKubernetesNav(): Promise<void> {
-  showKubernetesNav = (await window.getConfigurationValue<boolean>(KUBERNETES_EXPERIMENTAL_CONFIGURATION_KEY)) || false;
-}
-
-let configurationChangeCallback: EventListenerOrEventListenerObject = () => {
-  updateKubernetesNav();
-};
 
 onMount(async () => {
   const commandRegistry = new CommandRegistry();
@@ -126,10 +114,6 @@ onMount(async () => {
   contextsSubscribe = kubernetesContexts.subscribe(value => {
     contextCount = value.length;
   });
-
-  // set initial Kubernetes experimental state, and listen for changes
-  await updateKubernetesNav();
-  onDidChangeConfiguration.addEventListener(KUBERNETES_EXPERIMENTAL_CONFIGURATION_KEY, configurationChangeCallback);
 });
 
 onDestroy(() => {
@@ -156,7 +140,6 @@ onDestroy(() => {
   }
   ingressesSubscribe?.();
   routesSubscribe?.();
-  onDidChangeConfiguration.removeEventListener(KUBERNETES_EXPERIMENTAL_CONFIGURATION_KEY, configurationChangeCallback);
 });
 
 function updateIngressesRoutesCount(count: number) {
@@ -202,7 +185,7 @@ export let meta: TinroRouteMeta;
   <NavItem href="/volumes" tooltip="Volumes{volumeCount}" ariaLabel="Volumes" bind:meta="{meta}">
     <VolumeIcon size="24" />
   </NavItem>
-  {#if contextCount > 0 && showKubernetesNav}
+  {#if contextCount > 0}
     <NavSection tooltip="Kubernetes">
       <KubeIcon size="24" slot="icon" />
       <NavItem href="/deployments" tooltip="Deployments{deploymentCount}" ariaLabel="Deployments" bind:meta="{meta}">
