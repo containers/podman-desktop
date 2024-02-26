@@ -155,7 +155,6 @@ import { OpenDevToolsInit } from './open-devtools-init.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import { WebviewRegistry } from './webview/webview-registry.js';
 import type { IDisposable } from './types/disposable.js';
-import { KubernetesUtils } from './kubernetes-util.js';
 import { downloadGuideList } from './learning-center/learning-center.js';
 import type { ColorInfo } from './api/color-info.js';
 import { ColorRegistry } from './color-registry.js';
@@ -762,10 +761,6 @@ export class PluginSystem {
       contributionManager,
       webviewRegistry,
     );
-
-    // init kubernetes configuration
-    const kubernetesUtils = new KubernetesUtils(configurationRegistry);
-    kubernetesUtils.init();
 
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
