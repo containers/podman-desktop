@@ -49,7 +49,9 @@ export class AppearanceUtil {
     const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 
     if (themeName === AppearanceSettings.SystemEnumValue) {
-      return systemTheme;
+      //FIXME: for now we hardcode to the dark theme even if the Operating System is using light theme
+      // return systemTheme;
+      return 'dark';
     }
 
     return themeName ?? systemTheme;
