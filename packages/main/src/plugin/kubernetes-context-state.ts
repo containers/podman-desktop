@@ -96,7 +96,7 @@ class Backoff {
 }
 
 class ContextsStates {
-  private published = new Map<string, ContextState>();
+  private state = new Map<string, ContextState>();
   private informers = new Map<string, ContextInternalState>();
 
   has(name: string): boolean {
@@ -114,12 +114,12 @@ class ContextsStates {
   }
 
   getPublished(): Map<string, ContextState> {
-    return this.published;
+    return this.state;
   }
 
   safeSetState(name: string, update: (previous: ContextState) => void): void {
-    if (!this.published.has(name)) {
-      this.published.set(name, {
+    if (!this.state.has(name)) {
+      this.state.set(name, {
         error: undefined,
         reachable: false,
         resources: {
@@ -128,7 +128,7 @@ class ContextsStates {
         },
       });
     }
-    const val = this.published.get(name);
+    const val = this.state.get(name);
     if (!val) {
       throw new Error('value not correctly set in map');
     }
@@ -139,7 +139,7 @@ class ContextsStates {
     await this.informers.get(name)?.podInformer?.stop();
     await this.informers.get(name)?.deploymentInformer?.stop();
     this.informers.delete(name);
-    this.published.delete(name);
+    this.state.delete(name);
   }
 }
 
