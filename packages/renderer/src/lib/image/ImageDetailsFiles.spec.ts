@@ -36,6 +36,8 @@ beforeEach(() => {
   vi.resetAllMocks();
 });
 
+vi.mock('../ui/TreeView.svelte');
+
 test('when the image does not contain layers', async () => {
   mocks.getImageLayersMock.mockResolvedValue([]);
   render(ImageDetailsFiles, {
