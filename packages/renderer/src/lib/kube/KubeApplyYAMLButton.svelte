@@ -11,15 +11,20 @@ async function kubeApply(): Promise<void> {
     return;
   }
 
-  const result = await window.openFileDialog('Select a .yaml file to apply', {
-    name: 'YAML files',
-    extensions: ['yaml', 'yml'],
+  const result = await window.openDialog({
+    title: 'Select a .yaml file to apply',
+    filters: [
+      {
+        name: 'YAML files',
+        extensions: ['yaml', 'yml'],
+      },
+    ],
   });
-  if (result.canceled || result.filePaths.length !== 1) {
+  if (result?.length !== 1) {
     return;
   }
 
-  let file = result.filePaths[0];
+  let file = result[0];
   if (!file) {
     return;
   }

@@ -24,13 +24,13 @@ import KubeApplyYamlButton from './KubeApplyYAMLButton.svelte';
 
 const currentContext: string = 'test-context';
 const currentNamespace: string = 'test-namespace';
-const openFileDialogMock = vi.fn();
+const openDialogMock = vi.fn();
 const kubernetesApplyResourcesFromFileMock = vi.fn();
 const showMessageBoxMock = vi.fn();
 
 // fake the window object
 beforeAll(() => {
-  (window as any).openFileDialog = openFileDialogMock;
+  (window as any).openDialog = openDialogMock;
   (window as any).kubernetesGetCurrentNamespace = vi.fn().mockResolvedValue(currentNamespace);
   (window as any).kubernetesGetCurrentContextName = vi.fn().mockResolvedValue(currentContext);
   (window as any).kubernetesApplyResourcesFromFile = kubernetesApplyResourcesFromFileMock;
@@ -40,13 +40,13 @@ beforeAll(() => {
 test('Verify clicking button will open file dialog and canceling will exit', async () => {
   render(KubeApplyYamlButton);
 
-  openFileDialogMock.mockResolvedValue({ canceled: true });
+  openDialogMock.mockResolvedValue([]);
 
   const button = screen.getByRole('button', { name: 'Apply YAML' });
   expect(button).toBeInTheDocument();
   await userEvent.click(button);
 
-  expect(openFileDialogMock).toHaveBeenCalled();
+  expect(openDialogMock).toHaveBeenCalled();
   expect(kubernetesApplyResourcesFromFileMock).not.toHaveBeenCalled();
 });
 
@@ -54,13 +54,13 @@ test('Verify selected file will be applied', async () => {
   render(KubeApplyYamlButton);
 
   const filename = 'service.yaml';
-  openFileDialogMock.mockResolvedValue({ canceled: false, filePaths: [filename] });
+  openDialogMock.mockResolvedValue([filename]);
 
   const button = screen.getByRole('button', { name: 'Apply YAML' });
   expect(button).toBeInTheDocument();
   await userEvent.click(button);
 
-  expect(openFileDialogMock).toHaveBeenCalled();
+  expect(openDialogMock).toHaveBeenCalled();
   expect(kubernetesApplyResourcesFromFileMock).toHaveBeenCalledWith(currentContext, filename, currentNamespace);
 });
 
@@ -68,14 +68,14 @@ test('Verify success will open an info dialog', async () => {
   render(KubeApplyYamlButton);
 
   const filename = 'service.yaml';
-  openFileDialogMock.mockResolvedValue({ canceled: false, filePaths: [filename] });
+  openDialogMock.mockResolvedValue([filename]);
   kubernetesApplyResourcesFromFileMock.mockReturnValue([{}]);
 
   const button = screen.getByRole('button', { name: 'Apply YAML' });
   expect(button).toBeInTheDocument();
   await userEvent.click(button);
 
-  expect(openFileDialogMock).toHaveBeenCalled();
+  expect(openDialogMock).toHaveBeenCalled();
   expect(kubernetesApplyResourcesFromFileMock).toHaveBeenCalledWith(currentContext, filename, currentNamespace);
 
   expect(showMessageBoxMock).toHaveBeenCalled();
@@ -86,14 +86,14 @@ test('Verify no results will open a warning dialog', async () => {
   render(KubeApplyYamlButton);
 
   const filename = 'service.yaml';
-  openFileDialogMock.mockResolvedValue({ canceled: false, filePaths: [filename] });
+  openDialogMock.mockResolvedValue([filename]);
   kubernetesApplyResourcesFromFileMock.mockReturnValue([]);
 
   const button = screen.getByRole('button', { name: 'Apply YAML' });
   expect(button).toBeInTheDocument();
   await userEvent.click(button);
 
-  expect(openFileDialogMock).toHaveBeenCalled();
+  expect(openDialogMock).toHaveBeenCalled();
   expect(kubernetesApplyResourcesFromFileMock).toHaveBeenCalledWith(currentContext, filename, currentNamespace);
 
   expect(showMessageBoxMock).toHaveBeenCalled();
@@ -104,14 +104,14 @@ test('Verify failure will open an error dialog', async () => {
   render(KubeApplyYamlButton);
 
   const filename = 'service.yaml';
-  openFileDialogMock.mockResolvedValue({ canceled: false, filePaths: [filename] });
+  openDialogMock.mockResolvedValue([filename]);
   kubernetesApplyResourcesFromFileMock.mockRejectedValue('error');
 
   const button = screen.getByRole('button', { name: 'Apply YAML' });
   expect(button).toBeInTheDocument();
   await userEvent.click(button);
 
-  expect(openFileDialogMock).toHaveBeenCalled();
+  expect(openDialogMock).toHaveBeenCalled();
   expect(kubernetesApplyResourcesFromFileMock).toHaveBeenCalledWith(currentContext, filename, currentNamespace);
 
   expect(showMessageBoxMock).toHaveBeenCalled();
