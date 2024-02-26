@@ -170,7 +170,7 @@
     "dockerode": "^4.0.2",
     "electron-context-menu": "^3.6.1",
     "electron-updater": "6.1.8",
-    "electron-util": "^0.17.2",
+    "electron-util": "^0.18.1",
     "express": "^4.18.2",
     "getos": "^3.2.1",
     "got": "^13.0.0",
