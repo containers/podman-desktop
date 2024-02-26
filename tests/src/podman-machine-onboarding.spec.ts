@@ -27,8 +27,13 @@ import { expect as playExpect } from '@playwright/test';
 import { NavigationBar } from './model/workbench/navigation';
 import type { SettingsBar } from './model/pages/settings-bar';
 import { ResourcesPage } from './model/pages/resources-page';
+import { deletePodmanMachine } from './utility/operations';
+import { PodmanOnboardingPage } from './model/pages/podman-onboarding-page';
+import { ResourcesPodmanConnections } from './model/pages/resources-podman-connections-page';
+import { PodmanMachineDetails } from './model/pages/podman-machine-details-page';
 
 const PODMAN_MACHINE_STARTUP_TIMEOUT: number = 360_000;
+const PODMAN_MACHINE_NAME: string = 'Podman Machine';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -36,10 +41,9 @@ let dashboardPage: DashboardPage;
 let resourcesPage: ResourcesPage;
 let settingsBar: SettingsBar;
 let navigationBar: NavigationBar;
+let podmanOnboardingPage: PodmanOnboardingPage;
 
 let notificationPodmanSetup: Locator;
-let onboardingStepBody: Locator;
-let podmanMachineConfiguration: Locator;
 
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
@@ -51,7 +55,12 @@ beforeAll(async () => {
   navigationBar = new NavigationBar(page);
 
   // Delete machine if it already exists
-  await deletePodmanMachine('Podman Machine');
+  if (
+    (process.env.TEST_PODMAN_MACHINE !== undefined && process.env.TEST_PODMAN_MACHINE === 'true') ||
+    (process.env.MACHINE_CLEANUP !== undefined && process.env.MACHINE_CLEANUP === 'true')
+  ) {
+    await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
+  }
 });
 
 afterAll(async () => {
@@ -69,17 +78,14 @@ describe('Podman Machine verification', async () => {
       await playExpect(dashboardPage.mainPage).toBeVisible();
       await playExpect(dashboardPage.notificationsBox).toBeVisible();
       notificationPodmanSetup = dashboardPage.notificationsBox
-        .getByRole('region')
+        .getByRole('region', { name: 'id:' })
         .filter({ hasText: 'Podman needs to be set up' });
       await playExpect(notificationPodmanSetup).toBeVisible();
     });
     describe('Onboarding navigation', async () => {
       test('Open Podman Machine Onboarding through Setup Notification', async () => {
         await notificationPodmanSetup.getByTitle('Set up Podman').click();
-        await playExpect(page.getByRole('heading', { name: 'Podman Setup Header' })).toBeVisible();
-      });
-      test('Podman onboarding first page', async () => {
-        await playExpect(page.getByRole('heading', { name: 'Podman Setup Header' })).toBeVisible();
+        podmanOnboardingPage = await checkPodmanMachineOnboardingPage(page);
       });
       test('Return to Dashboard', async () => {
         dashboardPage = await navigationBar.openDashboard();
@@ -89,156 +95,97 @@ describe('Podman Machine verification', async () => {
         settingsBar = await navigationBar.openSettings();
         await settingsBar.resourcesTab.click();
         resourcesPage = new ResourcesPage(page);
-        const podmanResourcesSectionLocator: Locator = resourcesPage.getPage().getByLabel('podman', { exact: true });
-        await playExpect(podmanResourcesSectionLocator).toBeVisible();
-        await podmanResourcesSectionLocator.getByLabel('Setup Podman').click();
-        await playExpect(page.getByRole('heading', { name: 'Podman Setup Header' })).toBeVisible();
-        onboardingStepBody = page.locator('//*[@id="stepBody"]');
-        await playExpect(onboardingStepBody).toBeVisible();
+        await playExpect(resourcesPage.podmanResources).toBeVisible();
+        await resourcesPage.podmanResources.getByLabel('Setup Podman').click();
+        podmanOnboardingPage = await checkPodmanMachineOnboardingPage(page);
       });
     });
     test('Verify Podman Autostart is enabled and proceed to next page', async () => {
-      const podmanAutostartToggle: Locator = onboardingStepBody.getByLabel(
-        'Autostart Podman engine when launching Podman Desktop',
-      );
-      await playExpect(podmanAutostartToggle).toBeChecked();
-      await onboardingStepBody.getByLabel('Next Step').click();
+      await playExpect(podmanOnboardingPage.podmanAutostartToggle).toBeChecked();
+      await podmanOnboardingPage.nextStepButton.click();
     });
     test('Expect no machine created message and proceed to next page', async () => {
-      await playExpect(onboardingStepBody.getByLabel('Onboarding Status Message')).toHaveText(
+      await playExpect(podmanOnboardingPage.onboardingStatusMessage).toHaveText(
         `We could not find any Podman machine. Let's create one!`,
       );
-      await onboardingStepBody.getByLabel('Next Step').click();
+      await podmanOnboardingPage.nextStepButton.click();
     });
     test('Verify default podman machine settings', async () => {
-      await playExpect(onboardingStepBody.getByLabel('title')).toHaveText(`Create a Podman machine`);
-      podmanMachineConfiguration = onboardingStepBody.getByLabel('Properties Information');
-      await playExpect(podmanMachineConfiguration).toBeVisible();
-      const podmanMachineName: Locator = podmanMachineConfiguration.getByLabel('Name');
-      await playExpect(podmanMachineName).toHaveValue('podman-machine-default');
-      const podmanMachineCPUs: Locator = podmanMachineConfiguration.getByLabel('CPU(s)');
-      await playExpect(podmanMachineCPUs).toBeVisible();
-      const podmanMachineMemory: Locator = podmanMachineConfiguration.getByLabel('Memory');
-      await playExpect(podmanMachineMemory).toBeVisible();
-      const podmanMachineDiskSize: Locator = podmanMachineConfiguration.getByLabel('Disk size');
-      await playExpect(podmanMachineDiskSize).toBeVisible();
-      const podmanMachineImage: Locator = podmanMachineConfiguration.getByLabel('Image Path (Optional)', {
-        exact: true,
-      });
-      await playExpect(podmanMachineImage).toHaveValue('');
-      const podmanMachineRootful: Locator = podmanMachineConfiguration.getByLabel('Machine with root privileges');
-      await playExpect(podmanMachineRootful).toBeChecked();
-      const podmanMachineUserModeNetworking: Locator = podmanMachineConfiguration.getByLabel(
-        'User mode networking (traffic relayed by a user process)',
-        { exact: false },
-      );
-      playExpect(await podmanMachineUserModeNetworking.isChecked()).toBeFalsy();
-      const podmanMachineStartAfterCreation: Locator = podmanMachineConfiguration.getByLabel('Start the machine now');
-      playExpect(await podmanMachineStartAfterCreation.isChecked()).toBeTruthy();
+      await playExpect(podmanOnboardingPage.createMachinePageTitle).toHaveText(`Create a Podman machine`);
+      await playExpect(podmanOnboardingPage.podmanMachineConfiguration).toBeVisible();
+      await playExpect(podmanOnboardingPage.podmanMachineName).toHaveValue('podman-machine-default');
+      await playExpect(podmanOnboardingPage.podmanMachineCPUs).toBeVisible();
+      await playExpect(podmanOnboardingPage.podmanMachineMemory).toBeVisible();
+      await playExpect(podmanOnboardingPage.podmanMachineDiskSize).toBeVisible();
+      await playExpect(podmanOnboardingPage.podmanMachineImage).toHaveValue('');
+      await playExpect(podmanOnboardingPage.podmanMachineRootfulCheckbox).toBeChecked();
+      await playExpect(podmanOnboardingPage.podmanMachineUserModeNetworkingCheckbox).not.toBeChecked();
+      await playExpect(podmanOnboardingPage.podmanMachineStartAfterCreationCheckbox).toBeChecked();
     });
   });
-  describe('Podman Machine creation and operations', async () => {
-    test('Create a default Podman machine', async () => {
-      const createMachineButton: Locator = podmanMachineConfiguration.getByRole('button', { name: 'Create' });
-      await createMachineButton.click();
-      const expandLogsButton: Locator = onboardingStepBody.getByRole('button', { name: 'Show Logs' });
-      await playExpect(expandLogsButton).toBeVisible();
-      await expandLogsButton.click();
-      const machineCreationStatusMessage: Locator = onboardingStepBody.getByLabel('Onboarding Status Message');
-      await playExpect(machineCreationStatusMessage).toBeVisible({ timeout: PODMAN_MACHINE_STARTUP_TIMEOUT });
-      await playExpect(machineCreationStatusMessage).toHaveText('Podman successfully setup');
-      await onboardingStepBody.getByLabel('Next Step').click();
-    });
-    describe('Podman machine operations', async () => {
-      let podmanMachineStatus: Locator;
-      let podmanMachineStartButton: Locator;
-      let podmanMachineRestartButton: Locator;
-      let podmanMachineStopButton: Locator;
-      let podmanMachineDeleteButton: Locator;
-      test('Open podman machine details', async () => {
-        dashboardPage = await navigationBar.openDashboard();
-        await playExpect(dashboardPage.mainPage).toBeVisible();
-        settingsBar = await navigationBar.openSettings();
-        await settingsBar.resourcesTab.click();
-        resourcesPage = new ResourcesPage(page);
-        const podmanResourcesSectionLocator: Locator = resourcesPage.getPage().getByLabel('podman', { exact: true });
-        await playExpect(podmanResourcesSectionLocator).toBeVisible();
-        const podmanConnections: Locator = podmanResourcesSectionLocator.getByRole('region', {
-          name: 'Provider Connections',
+  describe.runIf(process.env.TEST_PODMAN_MACHINE !== undefined && process.env.TEST_PODMAN_MACHINE === 'true')(
+    'Podman Machine creation and operations',
+    async () => {
+      test('Create a default Podman machine', async () => {
+        await podmanOnboardingPage.podmanMachineCreateButton.click();
+        await playExpect(podmanOnboardingPage.podmanMachineShowLogsButton).toBeVisible();
+        await podmanOnboardingPage.podmanMachineShowLogsButton.click();
+        await playExpect(podmanOnboardingPage.onboardingStatusMessage).toBeVisible({
+          timeout: PODMAN_MACHINE_STARTUP_TIMEOUT,
         });
-        await playExpect(podmanConnections).toBeVisible();
-        const podmanMachineDetails: Locator = podmanConnections.getByRole('button', { name: 'Podman details' });
-        await playExpect(podmanMachineDetails).toBeVisible();
-        await podmanMachineDetails.click();
-        podmanMachineStatus = page.getByLabel('Connection Status Label');
-        await playExpect(podmanMachineStatus).toBeVisible();
-        const podmanMachineControls: Locator = page.getByRole('group', { name: 'Connection Actions' });
-        await playExpect(podmanMachineControls).toBeVisible();
-        podmanMachineStartButton = podmanMachineControls.getByRole('button', { name: 'Start', exact: true });
-        await playExpect(podmanMachineStartButton).toBeVisible();
-        podmanMachineRestartButton = podmanMachineControls.getByRole('button', { name: 'Restart' });
-        await playExpect(podmanMachineRestartButton).toBeVisible();
-        podmanMachineStopButton = podmanMachineControls.getByRole('button', { name: 'Stop' });
-        await playExpect(podmanMachineStopButton).toBeVisible();
-        podmanMachineDeleteButton = podmanMachineControls.getByRole('button', { name: 'Delete' });
-        await playExpect(podmanMachineDeleteButton).toBeVisible();
+        await playExpect(podmanOnboardingPage.onboardingStatusMessage).toHaveText('Podman successfully setup');
+        await podmanOnboardingPage.nextStepButton.click();
       });
-      test('Podman machine operations - STOP', async () => {
-        await playExpect(podmanMachineStatus).toHaveText('RUNNING', { timeout: 30_000 });
-        await podmanMachineStopButton.click();
-        await playExpect(podmanMachineStatus).toHaveText('OFF', { timeout: 30_000 });
+      describe('Podman machine operations', async () => {
+        let podmanMachineDetails: PodmanMachineDetails;
+        test('Open podman machine details', async () => {
+          dashboardPage = await navigationBar.openDashboard();
+          await playExpect(dashboardPage.mainPage).toBeVisible();
+          settingsBar = await navigationBar.openSettings();
+          await settingsBar.resourcesTab.click();
+          resourcesPage = new ResourcesPage(page);
+          await playExpect(resourcesPage.podmanResources).toBeVisible();
+          const resourcesPodmanConnections = new ResourcesPodmanConnections(page, PODMAN_MACHINE_NAME);
+          await playExpect(resourcesPodmanConnections.providerConnections).toBeVisible({ timeout: 10_000 });
+          await playExpect(resourcesPodmanConnections.podmanMachineElement).toBeVisible();
+          await playExpect(resourcesPodmanConnections.machineDetailsButton).toBeVisible();
+          await resourcesPodmanConnections.machineDetailsButton.click();
+          podmanMachineDetails = new PodmanMachineDetails(page);
+          await playExpect(podmanMachineDetails.podmanMachineStatus).toBeVisible();
+          await playExpect(podmanMachineDetails.podmanMachineConnectionActions).toBeVisible();
+          await playExpect(podmanMachineDetails.podmanMachineStartButton).toBeVisible();
+          await playExpect(podmanMachineDetails.podmanMachineRestartButton).toBeVisible();
+          await playExpect(podmanMachineDetails.podmanMachineStopButton).toBeVisible();
+          await playExpect(podmanMachineDetails.podmanMachineDeleteButton).toBeVisible();
+        });
+        test('Podman machine operations - STOP', async () => {
+          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 30_000 });
+          await podmanMachineDetails.podmanMachineStopButton.click();
+          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 30_000 });
+        });
+        test('Podman machine operations - START', async () => {
+          await podmanMachineDetails.podmanMachineStartButton.click();
+          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 30_000 });
+        });
+        test('Podman machine operations - RESTART', async () => {
+          await podmanMachineDetails.podmanMachineRestartButton.click();
+          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('OFF', { timeout: 30_000 });
+          await playExpect(podmanMachineDetails.podmanMachineStatus).toHaveText('RUNNING', { timeout: 30_000 });
+        });
       });
-      test('Podman machine operations - START', async () => {
-        await podmanMachineStartButton.click();
-        await playExpect(podmanMachineStatus).toHaveText('RUNNING', { timeout: 30_000 });
-      });
-      test('Podman machine operations - RESTART', async () => {
-        await podmanMachineRestartButton.click();
-        await playExpect(podmanMachineStatus).toHaveText('OFF', { timeout: 30_000 });
-        await playExpect(podmanMachineStatus).toHaveText('RUNNING', { timeout: 30_000 });
-      });
-    });
-    test('Clean Up Podman Machine', async () => {
-      if (process.env.MACHINE_CLEANUP !== undefined && process.env.MACHINE_CLEANUP === 'true') {
-        await deletePodmanMachine('Podman Machine');
-      } else {
-        console.log('MACHINE_CLEANUP is undefined or false, Skipping machine cleanup');
-      }
-    });
-  });
+    },
+  );
+  test.runIf(process.env.MACHINE_CLEANUP !== undefined && process.env.MACHINE_CLEANUP === 'true')(
+    'Clean Up Podman Machine',
+    async () => {
+      await deletePodmanMachine(page, 'Podman Machine');
+    },
+  );
 });
 
-async function deletePodmanMachine(machineVisibleName: string): Promise<void> {
-  dashboardPage = await navigationBar.openDashboard();
-  await playExpect(dashboardPage.mainPage).toBeVisible();
-  settingsBar = await navigationBar.openSettings();
-  await settingsBar.resourcesTab.click();
-  resourcesPage = new ResourcesPage(page);
-  const podmanResourcesSectionLocator: Locator = resourcesPage.getPage().getByLabel('podman', { exact: true });
-  await playExpect(podmanResourcesSectionLocator).toBeVisible();
-  const podmanConnections: Locator = podmanResourcesSectionLocator.getByRole('region', {
-    name: 'Provider Connections',
-  });
-  await playExpect(podmanConnections).toBeVisible();
-  const podmanMachineElement: Locator = podmanConnections.getByRole('region', { name: machineVisibleName });
-  if (await podmanMachineElement.isVisible()) {
-    await playExpect(podmanMachineElement).toBeVisible();
-    const podmanMachineControls: Locator = podmanConnections.getByRole('group', { name: 'Connection Actions' });
-    await playExpect(podmanMachineControls).toBeVisible();
-    const podmanMachineStatus: Locator = podmanResourcesSectionLocator.getByLabel('Connection Status Label');
-    await playExpect(podmanMachineStatus).toBeVisible();
-    if ((await podmanMachineStatus.innerText()) === 'RUNNING') {
-      const podmanMachineStopButton: Locator = podmanMachineControls.getByRole('button', { name: 'Stop' });
-      await playExpect(podmanMachineStopButton).toBeVisible();
-      await podmanMachineStopButton.click();
-      await playExpect(podmanMachineStatus).toHaveText('OFF', { timeout: 30_000 });
-    }
-    const podmanMachineDeleteButton: Locator = podmanMachineControls.getByRole('button', { name: 'Delete' });
-    await playExpect(podmanMachineDeleteButton).toBeVisible();
-    playExpect(await podmanMachineDeleteButton.isEnabled()).toBeTruthy();
-    await podmanMachineDeleteButton.click();
-    await playExpect(podmanMachineElement).not.toBeVisible({ timeout: 30_000 });
-  } else {
-    console.log(`Podman machine [${machineVisibleName}] not present, skipping deletion.`);
-  }
+async function checkPodmanMachineOnboardingPage(page: Page): Promise<PodmanOnboardingPage> {
+  const onboardingPage = new PodmanOnboardingPage(page);
+  await playExpect(onboardingPage.header).toBeVisible();
+  await playExpect(onboardingPage.mainPage).toBeVisible();
+  return onboardingPage;
 }
