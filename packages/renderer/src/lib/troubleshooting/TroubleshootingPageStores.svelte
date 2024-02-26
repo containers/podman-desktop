@@ -27,7 +27,7 @@ onDestroy(() => {
 
 <div class="flex w-full h-fit m-4 flex-col bg-charcoal-600 p-4 rounded-lg">
   <div class="flex flex-row align-middle items-center w-full mb-4">
-    <Fa size="30" class="pr-3 text-gray-700" icon="{faDatabase}" />
+    <Fa size="1.875x" class="pr-3 text-gray-700" icon="{faDatabase}" />
     <div role="status" aria-label="stores" class="text-xl">Stores</div>
   </div>
 

@@ -238,7 +238,7 @@ function dragMe(node: any) {
                           <div class="relative">
                             <div class="absolute right-0 mr-2 text-xl">
                               <button on:click="{() => setSectionVisibility((i / colsPerRow) * colsPerRow + j, true)}">
-                                <Fa size="14" icon="{faXmark}" />
+                                <Fa size="0.9x" icon="{faXmark}" />
                               </button>
                             </div>
                           </div>

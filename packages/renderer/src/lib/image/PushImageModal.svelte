@@ -126,9 +126,9 @@ $: window.hasAuthconfigForImage(imageInfoToPush.name).then(result => (isAuthenti
       <div class="pb-4">
         <label for="modalImageTag" class="block mb-2 text-sm font-medium text-gray-400">Image tag</label>
         {#if isAuthenticatedForThisImage}
-          <Fa class="absolute mt-3 ml-1.5 text-green-300" size="16" icon="{faCheckCircle}" />
+          <Fa class="absolute mt-3 ml-1.5 text-green-300" size="1x" icon="{faCheckCircle}" />
         {:else}
-          <Fa class="absolute mt-3 ml-1.5 text-amber-500" size="16" icon="{faTriangleExclamation}" />
+          <Fa class="absolute mt-3 ml-1.5 text-amber-500" size="1x" icon="{faTriangleExclamation}" />
         {/if}
 
         <select

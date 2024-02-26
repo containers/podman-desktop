@@ -72,25 +72,25 @@ async function sendFeedback(): Promise<void> {
         <div class="flex space-x-4">
           <button aria-label="very-sad-smiley" on:click="{() => selectSmiley(1)}">
             <Fa
-              size="24"
+              size="1.5x"
               class="cursor-pointer {smileyRating === 1 ? 'text-violet-400' : 'text-gray-900'}"
               icon="{faFrown}" />
           </button>
           <button aria-label="sad-smiley" on:click="{() => selectSmiley(2)}">
             <Fa
-              size="24"
+              size="1.5x"
               class="cursor-pointer {smileyRating === 2 ? 'text-violet-400' : 'text-gray-900'}"
               icon="{faMeh}" />
           </button>
           <button aria-label="happy-smiley" on:click="{() => selectSmiley(3)}">
             <Fa
-              size="24"
+              size="1.5x"
               class="cursor-pointer {smileyRating === 3 ? 'text-violet-400' : 'text-gray-900'}"
               icon="{faSmile}" />
           </button>
           <button aria-label="very-happy-smiley" on:click="{() => selectSmiley(4)}">
             <Fa
-              size="24"
+              size="1.5x"
               class="cursor-pointer {smileyRating === 4 ? 'text-violet-400' : 'text-gray-900'}"
               icon="{faGrinStars}" />
           </button>
