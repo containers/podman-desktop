@@ -27,12 +27,21 @@ import PodColumnContainers from './PodColumnContainers.svelte';
 import PodColumnAge from './PodColumnAge.svelte';
 import PodColumnActions from './PodColumnActions.svelte';
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
+import { onDidChangeConfiguration } from '/@/stores/configurationProperties';
+
+const KUBERNETES_EXPERIMENTAL_CONFIGURATION_KEY = 'kubernetes.experimental';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
 
 let pods: PodInfoUI[] = [];
 let enginesList: EngineInfoUI[];
+let showKubernetesConnectionBadge = false;
+
+async function updateKubernetesNav(): Promise<void> {
+  showKubernetesConnectionBadge =
+    (await window.getConfigurationValue<boolean>(KUBERNETES_EXPERIMENTAL_CONFIGURATION_KEY)) || false;
+}
 
 $: providerConnections = $providerInfos
   .map(provider => provider.containerConnections)
@@ -77,6 +86,12 @@ onMount(async () => {
     // compute refresh interval
     const interval = computeInterval();
     refreshTimeouts.push(setTimeout(refreshAge, interval));
+  });
+
+  // set initial Kubernetes experimental state, and listen for changes
+  await updateKubernetesNav();
+  onDidChangeConfiguration.addEventListener(KUBERNETES_EXPERIMENTAL_CONFIGURATION_KEY, () => {
+    updateKubernetesNav();
   });
 });
 
@@ -230,9 +245,11 @@ const row = new Row<PodInfoUI>({ selectable: _pod => true });
         icon="{faTrash}" />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
-    <div class="flex min-w-full justify-end">
-      <KubernetesCurrentContextConnectionBadge />
-    </div>
+    {#if showKubernetesConnectionBadge}
+      <div class="flex min-w-full justify-end">
+        <KubernetesCurrentContextConnectionBadge />
+      </div>
+    {/if}
   </svelte:fragment>
 
   <svelte:fragment slot="tabs">

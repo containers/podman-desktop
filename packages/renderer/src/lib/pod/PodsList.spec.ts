@@ -20,7 +20,7 @@
 
 import '@testing-library/jest-dom/vitest';
 import { beforeAll, test, expect, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import PodsList from '/@/lib/pod/PodsList.svelte';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { get } from 'svelte/store';
@@ -29,6 +29,7 @@ import { filtered, podsInfos } from '/@/stores/pods';
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
 import { router } from 'tinro';
 import userEvent from '@testing-library/user-event';
+import type { ContextState } from '../../../../main/src/plugin/kubernetes-context-state';
 
 const getProvidersInfoMock = vi.fn();
 const listPodsMock = vi.fn();
@@ -36,6 +37,8 @@ const listContainersMock = vi.fn();
 const kubernetesListPodsMock = vi.fn();
 const getContributedMenusMock = vi.fn();
 const kubernetesGetCurrentNamespaceMock = vi.fn();
+const getConfigurationValueMock = vi.fn();
+const getConfigurationPropertiesMock = vi.fn();
 
 const provider: ProviderInfo = {
   containerConnections: [
@@ -260,11 +263,24 @@ const ocppod: PodInfo = {
   kind: 'kubernetes',
 };
 
+const mocks = vi.hoisted(() => ({
+  subscribeMock: vi.fn(),
+  getCurrentKubeContextState: vi.fn(),
+}));
+
+vi.mock('../../stores/kubernetes-contexts-state', () => ({
+  kubernetesCurrentContextState: {
+    subscribe: mocks.subscribeMock,
+  },
+}));
+
 // fake the window.events object
 beforeAll(() => {
   (window as any).kubernetesGetContextsState = () => Promise.resolve(new Map());
   (window as any).getProviderInfos = getProvidersInfoMock;
   (window as any).listPods = listPodsMock;
+  (window as any).getConfigurationValue = getConfigurationValueMock;
+  (window as any).getConfigurationProperties = getConfigurationPropertiesMock;
   (window as any).listContainers = listContainersMock.mockResolvedValue([]);
   (window as any).kubernetesListPods = kubernetesListPodsMock;
   (window as any).kubernetesGetCurrentNamespace = kubernetesGetCurrentNamespaceMock;
@@ -274,6 +290,10 @@ beforeAll(() => {
       func();
     },
   };
+  mocks.subscribeMock.mockImplementation(listener => {
+    listener(mocks.getCurrentKubeContextState());
+    return { unsubscribe: () => {} };
+  });
 
   (window as any).getContributedMenus = getContributedMenusMock;
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
@@ -600,4 +620,32 @@ test('Expect Stopped tab to show stopped (not running) pods only', async () => {
   await vi.waitUntil(() => get(filtered).length === 1, { timeout: 5000 });
 
   expect(get(filtered)).toEqual(expect.arrayContaining([expect.objectContaining({ Status: 'Stopped' })]));
+});
+
+test('Expect KubernetesCurrentContextConnectionBadge to be visible', async () => {
+  getProvidersInfoMock.mockResolvedValue([provider]);
+  listPodsMock.mockResolvedValue([stoppedPod, runningPod]);
+  kubernetesListPodsMock.mockResolvedValue([]);
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+
+  // mock current context
+  mocks.getCurrentKubeContextState.mockReturnValue({
+    error: undefined,
+    reachable: false,
+    resources: {
+      pods: [],
+      deployments: [],
+    },
+  } as ContextState);
+
+  // Kubernetes experimental enabled
+  getConfigurationValueMock.mockResolvedValue(true);
+
+  render(PodsList);
+
+  await waitFor(() => {
+    const status = screen.getByRole('status');
+    expect(status).toBeInTheDocument();
+  });
 });
