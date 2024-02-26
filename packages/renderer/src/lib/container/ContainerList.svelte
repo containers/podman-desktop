@@ -368,9 +368,7 @@ onDestroy(() => {
 });
 
 function openDetailsContainer(container: ContainerInfoUI) {
-  handleNavigation(NavigationPage.CONTAINER, {
-    id: container.id,
-  });
+  router.goto(`/containers/${container.id}/`);
 }
 
 function keydownChoice(e: KeyboardEvent) {
