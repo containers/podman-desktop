@@ -1907,6 +1907,10 @@ export class PluginSystem {
       return kubernetesClient.getContextsGeneralState();
     });
 
+    this.ipcHandle('kubernetes-client:getCurrentContextGeneralState', async (): Promise<ContextGeneralState> => {
+      return kubernetesClient.getCurrentContextGeneralState();
+    });
+
     this.ipcHandle('feedback:send', async (_listener, feedbackProperties: unknown): Promise<void> => {
       return telemetry.sendFeedback(feedbackProperties);
     });

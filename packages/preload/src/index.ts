@@ -1574,6 +1574,9 @@ export function initExposure(): void {
       return ipcInvoke('kubernetes-client:getContextsGeneralState');
     },
   );
+  contextBridge.exposeInMainWorld('kubernetesGetCurrentContextGeneralState', async (): Promise<ContextGeneralState> => {
+    return ipcInvoke('kubernetes-client:getCurrentContextGeneralState');
+  });
 
   contextBridge.exposeInMainWorld('kubernetesGetClusters', async (): Promise<Cluster[]> => {
     return ipcInvoke('kubernetes-client:getClusters');

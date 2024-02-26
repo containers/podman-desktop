@@ -142,6 +142,26 @@ class ContextsStates {
     return result;
   }
 
+  getCurrentContextGeneralState(current: string): ContextGeneralState {
+    if (current) {
+      const state = this.state.get(current);
+      if (state) {
+        return {
+          ...state,
+          resources: {
+            pods: state.resources.pods.length,
+            deployments: state.resources.deployments.length,
+          },
+        };
+      }
+    }
+    return {
+      reachable: false,
+      error: 'no current context',
+      resources: { pods: 0, deployments: 0 },
+    };
+  }
+
   safeSetState(name: string, update: (previous: ContextState) => void): void {
     if (!this.state.has(name)) {
       this.state.set(name, {
@@ -359,6 +379,7 @@ export class ContextsManager {
 
   private dispatch(): void {
     this.dispatchContextsGeneralState();
+    this.dispatchCurrentContextGeneralState();
   }
 
   private generalStateTimeoutId: NodeJS.Timeout | undefined;
@@ -377,5 +398,21 @@ export class ContextsManager {
   private resetConnectionAttempts<T extends KubernetesObject>(options: CreateInformerOptions<T>): void {
     options.backoff.reset();
     clearTimeout(options.timer);
+  }
+
+  private currentStateTimeoutId: NodeJS.Timeout | undefined;
+  private dispatchCurrentContextGeneralState() {
+    // Debounce: send only the latest value if several values are sent in a short period
+    clearTimeout(this.currentStateTimeoutId);
+    this.currentStateTimeoutId = setTimeout(() => {
+      this.apiSender.send(
+        `kubernetes-current-context-general-state-update`,
+        this.states.getCurrentContextGeneralState(this.kubeConfig.currentContext),
+      );
+    }, 1000);
+  }
+
+  public getCurrentContextGeneralState(): ContextGeneralState {
+    return this.states.getCurrentContextGeneralState(this.kubeConfig.currentContext);
   }
 }

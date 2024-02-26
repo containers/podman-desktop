@@ -222,7 +222,14 @@ test('should send info of resources in all reachable contexts and nothing in non
   } as ContextGeneralState);
   await new Promise(resolve => setTimeout(resolve, 2));
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
-
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
+    reachable: true,
+    error: undefined,
+    resources: {
+      pods: 1,
+      deployments: 4,
+    },
+  });
   // => removing contexts, should remving clusters from sent info
   kubeConfig.loadFromOptions({
     clusters: [
@@ -292,7 +299,15 @@ test('should send info of resources in all reachable contexts and nothing in non
     },
   } as ContextGeneralState);
   await new Promise(resolve => setTimeout(resolve, 2));
-  expect(apiSenderSendMock).toHaveBeenLastCalledWith('kubernetes-contexts-general-state-update', expectedMap);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
+    reachable: true,
+    error: undefined,
+    resources: {
+      pods: 1,
+      deployments: 4,
+    },
+  });
 });
 
 test('should write logs when connection fails', async () => {

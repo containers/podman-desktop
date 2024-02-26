@@ -16,9 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { derived, type Readable, readable } from 'svelte/store';
+import { readable } from 'svelte/store';
 import type { ContextGeneralState } from '../../../main/src/plugin/kubernetes-context-state';
-import { kubernetesContexts } from '/@/stores/kubernetes-contexts';
 
 export const kubernetesContextsState = readable(new Map<string, ContextGeneralState>(), set => {
   window.kubernetesGetContextsGeneralState().then(value => set(value));
@@ -27,11 +26,16 @@ export const kubernetesContextsState = readable(new Map<string, ContextGeneralSt
   });
 });
 
-export const kubernetesCurrentContextState: Readable<ContextGeneralState | undefined> = derived(
-  [kubernetesContextsState, kubernetesContexts],
-  ([$kubernetesContextsState, $kubernetesContexts]) => {
-    const currentContextName = $kubernetesContexts.find(c => c.currentContext)?.name;
-    if (currentContextName === undefined) return undefined;
-    return $kubernetesContextsState.get(currentContextName);
+export const kubernetesCurrentContextState = readable(
+  {
+    reachable: false,
+    error: 'initializing',
+    resources: { pods: 0, deployments: 0 },
+  } as ContextGeneralState,
+  set => {
+    window.kubernetesGetCurrentContextGeneralState().then(value => set(value));
+    window.events?.receive('kubernetes-current-context-general-state-update', (value: unknown) => {
+      set(value as ContextGeneralState);
+    });
   },
 );

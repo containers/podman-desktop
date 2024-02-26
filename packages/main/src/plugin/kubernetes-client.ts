@@ -1356,4 +1356,8 @@ export class KubernetesClient {
   public getContextsGeneralState(): Map<string, ContextGeneralState> {
     return this.contextsState.getContextsGeneralState();
   }
+
+  public getCurrentContextGeneralState(): ContextGeneralState {
+    return this.contextsState.getCurrentContextGeneralState();
+  }
 }
