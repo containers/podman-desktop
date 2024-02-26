@@ -17,10 +17,10 @@
 
 name: e2e-tests-main
 
-on: 
+on:
   push:
     branches: [main]
-    
+
   workflow_dispatch:
     inputs:
       organization:
@@ -55,7 +55,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Update podman
         run: |
