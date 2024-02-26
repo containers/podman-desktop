@@ -89,4 +89,22 @@ export class PodsPage extends BasePage {
     await handleConfirmationDialog(this.page, 'Prune');
     return this;
   }
+
+  async selectPod(names: string[]): Promise<void> {
+    for await (const containerName of names) {
+      const row = await this.getPodRowByName(containerName);
+      if (row === undefined) {
+        throw Error('Pod cannot be selected');
+      }
+      await row.getByRole('cell').nth(1).click();
+    }
+  }
+
+  async getPodActionsMenu(name: string): Promise<Locator> {
+    const row = await this.getPodRowByName(name);
+    if (row === undefined) {
+      throw Error('Cannot select actions menu, pod does not exist');
+    }
+    return row.getByRole('button', { name: 'kebab menu', exact: true });
+  }
 }
