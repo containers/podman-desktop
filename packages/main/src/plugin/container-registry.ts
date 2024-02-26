@@ -1843,10 +1843,13 @@ export class ContainerProviderRegistry {
       for (const [key, value] of Object.entries(options.HostConfig?.PortBindings)) {
         const keyAsNumber = parseInt(key);
         if (Array.isArray(value) && 'HostPort' in value[0] && !isNaN(keyAsNumber)) {
-          portmappings.push({
-            container_port: keyAsNumber,
-            host_port: value[0].HostPort,
-          });
+          const valueAsNumber = parseInt(value[0].HostPort);
+          if (!isNaN(valueAsNumber)) {
+            portmappings.push({
+              container_port: keyAsNumber,
+              host_port: valueAsNumber,
+            });
+          }
         }
       }
     }
@@ -1902,28 +1905,28 @@ export class ContainerProviderRegistry {
     if (bindItems.length < 2) {
       return undefined;
     }
-    let flags: string[] = [];
-    if (bindItems.length === 3) {
-      flags = bindItems[2].split(',');
-    }
     let mode = '';
     let propagation = 'rprivate';
-    for (const flag of flags) {
-      switch (flag) {
-        case 'Z':
-        case 'z':
-          mode = flag;
-          break;
-        case 'private':
-        case 'rprivate':
-        case 'shared':
-        case 'rshared':
-        case 'slave':
-        case 'rslave':
-          propagation = flag;
-          break;
+    if (bindItems.length === 3) {
+      const flags = bindItems[2].split(',');
+      for (const flag of flags) {
+        switch (flag) {
+          case 'Z':
+          case 'z':
+            mode = flag;
+            break;
+          case 'private':
+          case 'rprivate':
+          case 'shared':
+          case 'rshared':
+          case 'slave':
+          case 'rslave':
+            propagation = flag;
+            break;
+        }
       }
     }
+
     return {
       Destination: bindItems[1],
       Source: bindItems[0],
