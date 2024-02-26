@@ -19,7 +19,7 @@
 import type { BrowserWindowConstructorOptions } from 'electron';
 import { autoUpdater, Menu, BrowserWindow, ipcMain, app, screen, nativeTheme } from 'electron';
 import contextMenu from 'electron-context-menu';
-import { aboutMenuItem } from 'electron-util';
+import { aboutMenuItem } from 'electron-util/main';
 import { join } from 'path';
 import { URL } from 'url';
 import type { ConfigurationRegistry } from './plugin/configuration-registry.js';

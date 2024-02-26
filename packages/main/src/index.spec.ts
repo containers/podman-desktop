@@ -40,7 +40,7 @@ vi.mock('electron-context-menu', async () => {
     default: vi.fn(),
   };
 });
-vi.mock('electron-util', async () => {
+vi.mock('electron-util/main', async () => {
   return {
     aboutMenuItem: vi.fn(),
   };
