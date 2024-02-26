@@ -262,7 +262,7 @@ const ocppod: PodInfo = {
 
 // fake the window.events object
 beforeAll(() => {
-  (window as any).kubernetesGetContextsState = () => Promise.resolve(new Map());
+  (window as any).kubernetesGetContextsGeneralState = () => Promise.resolve(new Map());
   (window as any).getProviderInfos = getProvidersInfoMock;
   (window as any).listPods = listPodsMock;
   (window as any).listContainers = listContainersMock.mockResolvedValue([]);

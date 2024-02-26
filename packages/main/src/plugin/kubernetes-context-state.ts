@@ -45,16 +45,31 @@ interface ContextInternalState {
 
 // ContextState stores information for the user about a kube context: is the cluster reachable, the number
 // of instances of different resources
-export interface ContextState {
+interface ContextState {
   error?: string;
   reachable: boolean;
   resources: ContextStateResources;
 }
 
+// All resources managed by podman desktop
 type ResourceName = 'pods' | 'deployments';
+
+// A selection of resources, to indicate the 'general' status of a context
+type SelectedResourceName = 'pods' | 'deployments';
 
 export type ContextStateResources = {
   [resourceName in ResourceName]: KubernetesObject[];
+};
+
+// information sent: status and count of selected resources
+export interface ContextGeneralState {
+  error?: string;
+  reachable: boolean;
+  resources: SelectedResourcesCount;
+}
+
+export type SelectedResourcesCount = {
+  [resourceName in SelectedResourceName]: number;
 };
 
 interface CreateInformerOptions<T> {
@@ -113,8 +128,18 @@ class ContextsStates {
     return this.informers.keys();
   }
 
-  getPublished(): Map<string, ContextState> {
-    return this.state;
+  getContextsGeneralState(): Map<string, ContextGeneralState> {
+    const result = new Map<string, ContextGeneralState>();
+    this.state.forEach((val, key) => {
+      result.set(key, {
+        ...val,
+        resources: {
+          pods: val.resources.pods.length,
+          deployments: val.resources.deployments.length,
+        },
+      });
+    });
+    return result;
   }
 
   safeSetState(name: string, update: (previous: ContextState) => void): void {
@@ -158,10 +183,12 @@ export class ContextsManager {
   async update(kubeconfig: KubeConfig): Promise<void> {
     this.kubeConfig = kubeconfig;
     // Add informers for new contexts
+    let added = false;
     for (const context of this.kubeConfig.contexts) {
       if (!this.states.has(context.name)) {
         const informers = this.createKubeContextInformers(context);
         this.states.setInformers(context.name, informers);
+        added = true;
       }
     }
     // Delete informers for removed contexts
@@ -172,8 +199,8 @@ export class ContextsManager {
         removed = true;
       }
     }
-    if (removed) {
-      this.dispatchContextsState();
+    if (added || removed) {
+      this.dispatch();
     }
   }
 
@@ -325,22 +352,26 @@ export class ContextsManager {
     });
   }
 
-  private timeoutId: NodeJS.Timeout | undefined;
-  private dispatchContextsState(): void {
+  private setStateAndDispatch(name: string, update: (previous: ContextState) => void): void {
+    this.states.safeSetState(name, update);
+    this.dispatch();
+  }
+
+  private dispatch(): void {
+    this.dispatchContextsGeneralState();
+  }
+
+  private generalStateTimeoutId: NodeJS.Timeout | undefined;
+  private dispatchContextsGeneralState(): void {
     // Debounce: send only the latest value if several values are sent in a short period
-    clearTimeout(this.timeoutId);
-    this.timeoutId = setTimeout(() => {
-      this.apiSender.send(`kubernetes-contexts-state-update`, this.states.getPublished());
+    clearTimeout(this.generalStateTimeoutId);
+    this.generalStateTimeoutId = setTimeout(() => {
+      this.apiSender.send(`kubernetes-contexts-general-state-update`, this.states.getContextsGeneralState());
     }, connectTimeout);
   }
 
-  public getContextsState(): Map<string, ContextState> {
-    return this.states.getPublished();
-  }
-
-  private setStateAndDispatch(name: string, update: (previous: ContextState) => void): void {
-    this.states.safeSetState(name, update);
-    this.dispatchContextsState();
+  public getContextsGeneralState(): Map<string, ContextGeneralState> {
+    return this.states.getContextsGeneralState();
   }
 
   private resetConnectionAttempts<T extends KubernetesObject>(options: CreateInformerOptions<T>): void {

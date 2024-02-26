@@ -1,14 +1,14 @@
 <script lang="ts">
 import { kubernetesCurrentContextState } from '/@/stores/kubernetes-contexts-state';
-import type { ContextState } from '../../../../main/src/plugin/kubernetes-context-state';
+import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes-context-state';
 import Tooltip from '/@/lib/ui/Tooltip.svelte';
 
-function getText(state: ContextState | undefined): string {
+function getText(state: ContextGeneralState | undefined): string {
   if (state?.reachable) return 'Connected';
   return 'Cluster not reachable';
 }
 
-function getClassColor(state: ContextState | undefined): string {
+function getClassColor(state: ContextGeneralState | undefined): string {
   if (state?.reachable) return 'bg-green-600';
   return 'bg-gray-900';
 }

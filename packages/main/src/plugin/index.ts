@@ -158,8 +158,8 @@ import type { ColorInfo } from './api/color-info.js';
 import { ColorRegistry } from './color-registry.js';
 import { DialogRegistry } from './dialog-registry.js';
 import type { Deferred } from './util/deferred.js';
-import type { ContextState } from './kubernetes-context-state.js';
 import { Updater } from '/@/plugin/updater.js';
+import type { ContextGeneralState } from './kubernetes-context-state.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -1903,8 +1903,8 @@ export class PluginSystem {
       return kubernetesClient.setContext(contextName);
     });
 
-    this.ipcHandle('kubernetes-client:getContextsState', async (): Promise<Map<string, ContextState>> => {
-      return kubernetesClient.getContextsState();
+    this.ipcHandle('kubernetes-client:getContextsGeneralState', async (): Promise<Map<string, ContextGeneralState>> => {
+      return kubernetesClient.getContextsGeneralState();
     });
 
     this.ipcHandle('feedback:send', async (_listener, feedbackProperties: unknown): Promise<void> => {

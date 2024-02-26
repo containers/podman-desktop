@@ -17,17 +17,17 @@
  ***********************************************************************/
 
 import { derived, type Readable, readable } from 'svelte/store';
-import type { ContextState } from '../../../main/src/plugin/kubernetes-context-state';
+import type { ContextGeneralState } from '../../../main/src/plugin/kubernetes-context-state';
 import { kubernetesContexts } from '/@/stores/kubernetes-contexts';
 
-export const kubernetesContextsState = readable(new Map<string, ContextState>(), set => {
-  window.kubernetesGetContextsState().then(value => set(value));
-  window.events?.receive('kubernetes-contexts-state-update', (value: unknown) => {
-    set(value as Map<string, ContextState>);
+export const kubernetesContextsState = readable(new Map<string, ContextGeneralState>(), set => {
+  window.kubernetesGetContextsGeneralState().then(value => set(value));
+  window.events?.receive('kubernetes-contexts-general-state-update', (value: unknown) => {
+    set(value as Map<string, ContextGeneralState>);
   });
 });
 
-export const kubernetesCurrentContextState: Readable<ContextState | undefined> = derived(
+export const kubernetesCurrentContextState: Readable<ContextGeneralState | undefined> = derived(
   [kubernetesContextsState, kubernetesContexts],
   ([$kubernetesContextsState, $kubernetesContexts]) => {
     const currentContextName = $kubernetesContexts.find(c => c.currentContext)?.name;

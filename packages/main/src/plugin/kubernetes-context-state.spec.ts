@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { beforeEach, afterEach, expect, test, vi } from 'vitest';
-import type { ContextState } from './kubernetes-context-state.js';
+import type { ContextGeneralState } from './kubernetes-context-state.js';
 import { ContextsManager } from './kubernetes-context-state.js';
 import type { ApiSenderType } from './api.js';
 import * as kubeclient from '@kubernetes/client-node';
@@ -187,41 +187,41 @@ test('should send info of resources in all reachable contexts and nothing in non
     currentContext: 'context2-1',
   });
   await client.update(kubeConfig);
-  let expectedMap = new Map<string, ContextState>();
+  let expectedMap = new Map<string, ContextGeneralState>();
   expectedMap.set('context1', {
     reachable: false,
     error: 'Error: connection error',
     resources: {
-      pods: [],
-      deployments: [],
+      pods: 0,
+      deployments: 0,
     },
-  } as ContextState);
+  } as ContextGeneralState);
   expectedMap.set('context2', {
     reachable: true,
     error: undefined,
     resources: {
-      pods: [{}, {}, {}],
-      deployments: [{}, {}, {}, {}, {}, {}],
+      pods: 3,
+      deployments: 6,
     },
-  } as ContextState);
+  } as ContextGeneralState);
   expectedMap.set('context2-1', {
     reachable: true,
     error: undefined,
     resources: {
-      pods: [{}],
-      deployments: [{}, {}, {}, {}],
+      pods: 1,
+      deployments: 4,
     },
-  } as ContextState);
+  } as ContextGeneralState);
   expectedMap.set('context2-2', {
     reachable: true,
     error: undefined,
     resources: {
-      pods: [{}, {}],
-      deployments: [{}, {}, {}, {}, {}],
+      pods: 2,
+      deployments: 5,
     },
-  } as ContextState);
+  } as ContextGeneralState);
   await new Promise(resolve => setTimeout(resolve, 2));
-  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-state-update', expectedMap);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
 
   // => removing contexts, should remving clusters from sent info
   kubeConfig.loadFromOptions({
@@ -266,33 +266,33 @@ test('should send info of resources in all reachable contexts and nothing in non
 
   vi.clearAllMocks();
   await client.update(kubeConfig);
-  expectedMap = new Map<string, ContextState>();
+  expectedMap = new Map<string, ContextGeneralState>();
   expectedMap.set('context1', {
     reachable: false,
     error: 'Error: connection error',
     resources: {
-      pods: [],
-      deployments: [],
+      pods: 0,
+      deployments: 0,
     },
-  } as ContextState);
+  } as ContextGeneralState);
   expectedMap.set('context2', {
     reachable: true,
     error: undefined,
     resources: {
-      pods: [{}, {}, {}],
-      deployments: [{}, {}, {}, {}, {}, {}],
+      pods: 3,
+      deployments: 6,
     },
-  } as ContextState);
+  } as ContextGeneralState);
   expectedMap.set('context2-1', {
     reachable: true,
     error: undefined,
     resources: {
-      pods: [{}],
-      deployments: [{}, {}, {}, {}],
+      pods: 1,
+      deployments: 4,
     },
-  } as ContextState);
+  } as ContextGeneralState);
   await new Promise(resolve => setTimeout(resolve, 2));
-  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-state-update', expectedMap);
+  expect(apiSenderSendMock).toHaveBeenLastCalledWith('kubernetes-contexts-general-state-update', expectedMap);
 });
 
 test('should write logs when connection fails', async () => {

@@ -68,7 +68,7 @@ import type { KubernetesInformerManager } from './kubernetes-informer-registry.j
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import type { IncomingMessage } from 'node:http';
 import { ContextsManager } from './kubernetes-context-state.js';
-import type { ContextState } from './kubernetes-context-state.js';
+import type { ContextGeneralState } from './kubernetes-context-state.js';
 
 interface KubernetesObjectWithKind extends KubernetesObject {
   kind: string;
@@ -1353,7 +1353,7 @@ export class KubernetesClient {
     }
   }
 
-  public getContextsState(): Map<string, ContextState> {
-    return this.contextsState.getContextsState();
+  public getContextsGeneralState(): Map<string, ContextGeneralState> {
+    return this.contextsState.getContextsGeneralState();
   }
 }
