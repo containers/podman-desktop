@@ -62,16 +62,13 @@ export let artifact: V1IngressSpec | undefined;
           <!-- Here we use || [] to ensure it's always an array -->
           {#if rule.http}
             {#each rule.http.paths as path}
-              Path: {path.path} •
+              Path: {path.path}
               {#if rule.host}
-                Link:
+                • Link:
                 <Link
                   externalRef="{artifact.tls && artifact.tls.length > 0 ? 'https' : 'http'}://{rule.host}{path.path}">
                   {artifact.tls && artifact.tls.length > 0 ? 'https' : 'http'}://{rule.host}{path.path}
                 </Link>
-              {:else}
-                <!-- If rule.host is undefined, we only show the path without constructing a link -->
-                Path only: {path.path}
               {/if}
               {#if path.backend.service}
                 • Backend: {path.backend.service?.name}{path.backend.service?.port?.number ? ':' : ''}{path.backend

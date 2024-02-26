@@ -98,7 +98,12 @@ export let artifact: V1Volume;
   {#if artifact.emptyDir}
     <tr>
       <Cell>Empty Directory</Cell>
-      <Cell>Medium: {artifact.emptyDir.medium || 'Default'}</Cell>
+      <Cell
+        >Medium: {artifact.emptyDir.medium || 'Default'}
+        {#if artifact.emptyDir.sizeLimit}
+          • Size Limit: {artifact.emptyDir.sizeLimit}
+        {/if}
+      </Cell>
     </tr>
   {/if}
   {#if artifact.ephemeral}
