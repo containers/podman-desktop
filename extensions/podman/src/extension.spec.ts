@@ -1042,8 +1042,25 @@ test('provider is registered with edit capabilities on MacOS', async () => {
 });
 
 test('provider is registered without edit capabilities on Windows', async () => {
-  // Mock platform to be darwin
   vi.mocked(isMac).mockReturnValue(false);
+  extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
+  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
+  spyExecPromise.mockImplementation(() => {
+    return Promise.reject(new Error('wsl bootstrap script failed: exit status 0xffffffff'));
+  });
+  let registeredConnection: ContainerProviderConnection;
+  vi.mocked(provider.registerContainerProviderConnection).mockImplementation(connection => {
+    registeredConnection = connection;
+    return Disposable.from({ dispose: () => {} });
+  });
+  await extension.registerProviderFor(provider, machineInfo, undefined);
+  expect(registeredConnection).toBeDefined();
+  expect(registeredConnection.lifecycle).toBeDefined();
+  expect(registeredConnection.lifecycle.edit).toBeUndefined();
+});
+
+test('provider is registered without edit capabilities on Linux', async () => {
+  vi.mocked(isLinux).mockReturnValue(true);
   extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
   const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
   spyExecPromise.mockImplementation(() => {
