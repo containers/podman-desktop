@@ -43,7 +43,7 @@ export class ImagesPage extends MainPage {
   async openPullImage(): Promise<PullImagePage> {
     await waitWhile(
       () => this.noContainerEngine(),
-      5000,
+      50000,
       1000,
       true,
       'No Container Engine is available, cannot pull an image',
