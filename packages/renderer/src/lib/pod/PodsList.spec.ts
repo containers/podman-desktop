@@ -417,7 +417,7 @@ test('Expect the route to a pod details page is correctly encoded with an engine
   router.goto = routerGotoMock;
   await fireEvent.click(podDetails);
   expect(routerGotoMock).toHaveBeenCalledWith(
-    '/pods/kubernetes/ocppod/userid-dev%2Fapi-sandbox-123-openshiftapps-com%3A6443%2FuserId/logs',
+    '/pods/kubernetes/ocppod/userid-dev%2Fapi-sandbox-123-openshiftapps-com%3A6443%2FuserId/',
   );
 });
 
