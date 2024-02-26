@@ -39,7 +39,7 @@ let copyTextDivElement: HTMLDivElement;
     <div class="flex justify-center text-gray-700 py-2">
       {#if processed}
         {#if fontAwesomeIcon}
-          <Fa icon="{icon}" size="55" />
+          <Fa icon="{icon}" size="4x" />
         {:else}
           <svelte:component this="{icon}" size="55" solid="{false}" />
         {/if}

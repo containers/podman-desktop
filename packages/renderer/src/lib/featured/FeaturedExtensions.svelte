@@ -28,14 +28,14 @@ import FeaturedExtensionDownload from './FeaturedExtensionDownload.svelte';
           <div class="h-full w-18 flex flex-col items-end place-content-center">
             {#if featuredExtension.installed}
               <div class="text-dustypurple-700 p-1 text-center flex flex-row place-items-center">
-                <Fa class="ml-1.5 mr-2" size="18" icon="{faCheckCircle}" />
+                <Fa class="ml-1.5 mr-2" size="1.1x" icon="{faCheckCircle}" />
                 <div class="uppercase font-bold text-xs cursor-default">installed</div>
               </div>
             {:else if featuredExtension.fetchable}
               <FeaturedExtensionDownload featuredExtension="{featuredExtension}" />
             {:else}
               <div class="text-charcoal-300 p-1 text-center flex flex-row place-items-center">
-                <Fa class="ml-1.5 mr-1" size="18" icon="{faCircleXmark}" />
+                <Fa class="ml-1.5 mr-1" size="1.1x" icon="{faCircleXmark}" />
                 <div class="uppercase text-xs cursor-default font-extralight">N/A</div>
               </div>
             {/if}

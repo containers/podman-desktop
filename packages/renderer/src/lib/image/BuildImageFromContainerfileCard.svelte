@@ -86,13 +86,13 @@ onMount(() => {
       {#if !additionalItem}
         <Checkbox bind:checked="{checked}" on:click="{() => handleClick()}" />
       {:else}
-        <Fa class="text-dustypurple-700 cursor-pointer" icon="{faPlusCircle}" size="24" />
+        <Fa class="text-dustypurple-700 cursor-pointer" icon="{faPlusCircle}" size="1.5x" />
       {/if}
     </div>
     <div class="ml-2 text-sm text-left break-normal w-36">{title}</div>
     {#if isDefault}
       <Tooltip tip="Default platform of your computer">
-        <Fa size="7" class="text-dustypurple-700 cursor-pointer" icon="{faCircle}" />
+        <Fa size="0.5x" class="text-dustypurple-700 cursor-pointer" icon="{faCircle}" />
       </Tooltip>
     {/if}
   </div>
@@ -116,7 +116,7 @@ onMount(() => {
     </div>
     <div class="flex grow justify-end">
       {#if iconType === 'fontAwesome'}
-        <Fa class="text-white cursor-pointer" icon="{icon}" size="24" />
+        <Fa class="text-white cursor-pointer" icon="{icon}" size="1.5x" />
       {:else if iconType === 'unknown'}
         <svelte:component this="{icon}" class="text-gray-900 cursor-pointer" size="24" />
       {/if}

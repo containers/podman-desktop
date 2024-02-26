@@ -111,7 +111,7 @@ function closeWelcome() {
             <div
               class="w-4 h-4 rounded border-2 border-gray-700 peer peer-checked:bg-violet-500 peer-checked:border-violet-500">
             </div>
-            <Fa class="w-4 h-4 absolute text-zinc-700" size="10" icon="{faCheck}" />
+            <Fa class="w-4 h-4 absolute text-zinc-700" size="0.6x" icon="{faCheck}" />
             <span class="font-medium font-bold px-2">Telemetry:</span>
           </label>
           <div class="w-2/5 text-gray-400">

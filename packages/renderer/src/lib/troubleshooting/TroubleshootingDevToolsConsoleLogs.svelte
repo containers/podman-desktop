@@ -26,7 +26,7 @@ function copyLogsToClipboard() {
 
 <div class="flex flex-col w-full m-4 bg-charcoal-600 p-4 rounded-lg">
   <div class="flex flex-row align-middle items-center w-full mb-4">
-    <Fa size="30" class="pr-3 text-gray-700" icon="{faFileLines}" />
+    <Fa size="1.875x" class="pr-3 text-gray-700" icon="{faFileLines}" />
     <div class="text-xl">Logs</div>
     <div class="flex flex-1 justify-end">
       <button title="Copy To Clipboard" class="ml-5" on:click="{() => copyLogsToClipboard()}"

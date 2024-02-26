@@ -62,7 +62,7 @@ onMount(() => {
             <slot name="icon" />
           </div>
         {/if}
-        <Fa size="12" icon="{expanded ? faChevronUp : faChevronDown}" />
+        <Fa size="0.8x" icon="{expanded ? faChevronUp : faChevronDown}" />
       </div>
     </Tooltip>
   </button>

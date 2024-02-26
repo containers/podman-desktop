@@ -125,7 +125,7 @@ function handleAbort() {
 <ProviderResultPage providers="{providers}" results="{results}">
   <div class="flex flex-row" slot="header-info">
     <div class="w-full flex mb-4 space-x-4">
-      <Fa size="24" icon="{faStethoscope}" />
+      <Fa size="1.5x" icon="{faStethoscope}" />
       {#if aborted}
         <span>Image analysis canceled</span>
       {:else if remainingProviders > 0}

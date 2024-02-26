@@ -29,7 +29,7 @@ test('Expect default size', async () => {
   const positionTopClass = '';
   const positionLeftClass = '';
   const loading = true;
-  const iconSize = '';
+  const iconSize = undefined;
   render(LoadingIcon, {
     icon,
     iconSize,
@@ -42,8 +42,8 @@ test('Expect default size', async () => {
   const loadingIcon = screen.getByRole('img', { hidden: true, name: '' });
   expect(loadingIcon).toBeInTheDocument();
 
-  // check the font-size attribute of the loading icon is not set
-  expect(loadingIcon).toHaveAttribute('style', expect.not.stringContaining('font-size'));
+  // check the style attribute of the loading icon is not set
+  expect(loadingIcon).not.toHaveAttribute('style');
 });
 
 test('Expect specified size', async () => {
@@ -53,7 +53,7 @@ test('Expect specified size', async () => {
   const positionTopClass = '';
   const positionLeftClass = '';
   const loading = true;
-  const iconSize = '20';
+  const iconSize = '2x';
   render(LoadingIcon, {
     icon,
     iconSize,
@@ -66,6 +66,6 @@ test('Expect specified size', async () => {
   const loadingIcon = screen.getByRole('img', { hidden: true, name: '' });
   expect(loadingIcon).toBeInTheDocument();
 
-  // check the font-size attribute of the loading icon is set to 20
-  expect(loadingIcon).toHaveAttribute('style', expect.stringContaining('font-size:20;'));
+  // check the font-size attribute of the loading icon is set to 2em
+  expect(loadingIcon).toHaveAttribute('style', expect.stringContaining('font-size: 2em;'));
 });
