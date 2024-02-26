@@ -31,6 +31,7 @@ export class SettingsBar {
   readonly extensionsTab: Locator;
   readonly desktopExtensionsTab: Locator;
   readonly preferencesTab: Locator;
+  readonly cliToolsTab: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -42,6 +43,7 @@ export class SettingsBar {
     this.extensionsTab = this.settingsNavBar.getByRole('link', { name: 'Extensions', exact: true });
     this.desktopExtensionsTab = this.settingsNavBar.getByRole('link', { name: 'DesktopExtensions' });
     this.preferencesTab = this.settingsNavBar.getByRole('link', { name: 'preferences' });
+    this.cliToolsTab = this.settingsNavBar.getByRole('link', { name: 'CLI Tools' });
   }
 
   public async openTabPage<T extends SettingsPage>(type: new (page: Page) => T): Promise<T> {
