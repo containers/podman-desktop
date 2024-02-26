@@ -1048,6 +1048,9 @@ export class KubernetesClient {
    */
   async createResourcesFromFile(context: string, filePath: string, namespace?: string): Promise<void> {
     const manifests = await this.loadManifestsFromFile(filePath);
+    if (manifests.filter(s => s?.kind).length === 0) {
+      throw new Error('No valid Kubernetes resources found in file');
+    }
     await this.syncResources(context, manifests, 'create', namespace);
   }
 
@@ -1074,6 +1077,9 @@ export class KubernetesClient {
    */
   async applyResourcesFromFile(context: string, filePath: string, namespace?: string): Promise<KubernetesObject[]> {
     const manifests = await this.loadManifestsFromFile(filePath);
+    if (manifests.filter(s => s?.kind).length === 0) {
+      throw new Error('No valid Kubernetes resources found in file');
+    }
     return this.syncResources(context, manifests, 'apply', namespace);
   }
 

@@ -21,6 +21,7 @@ import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import SimpleColumn from '../table/SimpleColumn.svelte';
 import DurationColumn from '../table/DurationColumn.svelte';
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
+import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);
@@ -112,6 +113,10 @@ const row = new Row<DeploymentUI>({ selectable: _deployment => true });
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="deployments">
+  <svelte:fragment slot="additional-actions">
+    <KubeApplyYamlButton />
+  </svelte:fragment>
+
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
