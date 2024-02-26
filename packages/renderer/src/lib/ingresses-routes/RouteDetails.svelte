@@ -69,7 +69,7 @@ async function loadRouteDetails() {
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
-        <ServiceDetailsSummary ingressRouteUI="{routeUI}" ingressRoute="{kubeService}" kubeError="{kubeError}" />
+        <ServiceDetailsSummary ingressRoute="{kubeService}" kubeError="{kubeError}" />
       </Route>
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <MonacoEditor content="{JSON.stringify(kubeService, undefined, 2)}" language="json" />

@@ -20,7 +20,7 @@ import '@testing-library/jest-dom/vitest';
 import { test, expect } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import type { V1Volume } from '@kubernetes/client-node';
-import KubeDetailsSummaryVolumes from './KubeDetailsSummaryVolumes.svelte';
+import Volume from './KubeVolumeArtifact.svelte';
 
 // Create a fakeVolume from V1Volume including 'name' from ALL possible V1Volume types
 
@@ -187,7 +187,7 @@ const fakeVolume: V1Volume = {
 };
 
 test('Make sure each volume has been rendered with the correct name', async () => {
-  render(KubeDetailsSummaryVolumes, { volume: fakeVolume });
+  render(Volume, { artifact: fakeVolume });
 
   // Expect each volume to be actually shown since the information is available
   expect(screen.getByText('AWS EBS')).toBeInTheDocument();

@@ -20,23 +20,22 @@ import '@testing-library/jest-dom/vitest';
 import { test, vi, expect, beforeAll } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import ServiceDetailsSummary from './ServiceDetailsSummary.svelte';
-import type { ServiceUI } from './ServiceUI';
 import type { V1Service } from '@kubernetes/client-node';
-
-const serviceUI: ServiceUI = {
-  name: 'my-service',
-  status: 'RUNNING',
-  namespace: 'default',
-  selected: false,
-  type: '',
-  clusterIP: 'the-cluster-ip',
-  ports: '80/TCP',
-};
 
 const service: V1Service = {
   metadata: {
     name: 'my-service',
     namespace: 'default',
+  },
+  spec: {
+    clusterIP: '10.10.10.1',
+    ports: [
+      {
+        name: 'http',
+        port: 8080,
+        targetPort: 8080,
+      },
+    ],
   },
   status: {},
 };
@@ -53,19 +52,18 @@ test('Expect basic rendering', async () => {
   kubernetesGetCurrentNamespaceMock.mockResolvedValue('default');
   kubernetesReadNamespacedServiceMock.mockResolvedValue(service);
 
-  render(ServiceDetailsSummary, { serviceUI: serviceUI, service: service });
+  render(ServiceDetailsSummary, { service: service });
 
-  expect(screen.getByText(serviceUI.name)).toBeInTheDocument();
+  expect(screen.getByText('my-service')).toBeInTheDocument();
 });
 
 test('Check more properties', async () => {
   kubernetesGetCurrentNamespaceMock.mockResolvedValue('default');
   kubernetesReadNamespacedServiceMock.mockResolvedValue(undefined);
 
-  render(ServiceDetailsSummary, { serviceUI: serviceUI, service: service });
+  render(ServiceDetailsSummary, { service: service });
 
-  expect(screen.getByText(serviceUI.name)).toBeInTheDocument();
-  expect(screen.getByText(serviceUI.namespace)).toBeInTheDocument();
-  expect(screen.getByText(serviceUI.clusterIP)).toBeInTheDocument();
-  expect(screen.getByText(serviceUI.ports)).toBeInTheDocument();
+  expect(screen.getByText('my-service')).toBeInTheDocument();
+  expect(screen.getByText('default')).toBeInTheDocument();
+  expect(screen.getByText('10.10.10.1')).toBeInTheDocument();
 });
