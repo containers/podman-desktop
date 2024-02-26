@@ -248,7 +248,7 @@ Verify that, on your WSL distribution, the Podman CLI communicates with your Pod
    On your WSL distribution, start a container such as `quay.io/podman/hello`, and list the name of the last running container:
 
    ```shell-session
-   $ podman quay.io/podman/hello
+   $ podman run quay.io/podman/hello
    $ podman ps -a --no-trunc --last 1
    ```
 
