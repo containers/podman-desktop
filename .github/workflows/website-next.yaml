@@ -42,7 +42,7 @@ jobs:
           ref: ${{ needs.tag.outputs.githubTag}}
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
