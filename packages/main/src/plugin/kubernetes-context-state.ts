@@ -84,6 +84,19 @@ interface CreateInformerOptions<T> {
   backoff: Backoff;
 }
 
+type ResourcesDispatchOptions = {
+  [resourceName in ResourceName]?: boolean;
+};
+
+interface DispatchOptions {
+  // do we send general context for all contexts?
+  contextsGeneralState: boolean;
+  // do we send general context for current context?
+  currentContextGeneralState: boolean;
+  // do we end resources data for each resource kind? default false for all resources
+  resources: ResourcesDispatchOptions;
+}
+
 class Backoff {
   private readonly initial: number;
   constructor(
@@ -240,7 +253,11 @@ export class ContextsManager {
       }
     }
     if (added || removed || contextChanged) {
-      this.dispatch();
+      this.dispatch({
+        contextsGeneralState: true,
+        currentContextGeneralState: true,
+        resources: { pods: true, deployments: true },
+      });
     }
   }
 
@@ -277,23 +294,25 @@ export class ContextsManager {
       resource: 'pods',
       timer: timer,
       backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
-      onAdd: obj => this.setStateAndDispatch(context.name, state => state.resources.pods.push(obj)),
+      onAdd: obj => this.setStateAndDispatch(context.name, { pods: true }, state => state.resources.pods.push(obj)),
       onUpdate: obj =>
-        this.setStateAndDispatch(context.name, state => {
+        this.setStateAndDispatch(context.name, { pods: true }, state => {
           state.resources.pods = state.resources.pods.filter(o => o.metadata?.uid !== obj.metadata?.uid);
           state.resources.pods.push(obj);
         }),
       onDelete: obj =>
         this.setStateAndDispatch(
           context.name,
+          { pods: true },
           state => (state.resources.pods = state.resources.pods.filter(d => d.metadata?.uid !== obj.metadata?.uid)),
         ),
       onReachable: reachable =>
-        this.setStateAndDispatch(context.name, state => {
+        this.setStateAndDispatch(context.name, { pods: true, deployments: true }, state => {
           state.reachable = reachable;
           state.error = reachable ? undefined : state.error; // if reachable we remove error
         }),
-      onConnectionError: error => this.setStateAndDispatch(context.name, state => (state.error = error)),
+      onConnectionError: error =>
+        this.setStateAndDispatch(context.name, { pods: true, deployments: true }, state => (state.error = error)),
     });
   }
 
@@ -313,15 +332,17 @@ export class ContextsManager {
       resource: 'deployments',
       timer: timer,
       backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
-      onAdd: obj => this.setStateAndDispatch(context.name, state => state.resources.deployments.push(obj)),
+      onAdd: obj =>
+        this.setStateAndDispatch(context.name, { deployments: true }, state => state.resources.deployments.push(obj)),
       onUpdate: obj =>
-        this.setStateAndDispatch(context.name, state => {
+        this.setStateAndDispatch(context.name, { deployments: true }, state => {
           state.resources.deployments = state.resources.deployments.filter(o => o.metadata?.uid !== obj.metadata?.uid);
           state.resources.deployments.push(obj);
         }),
       onDelete: obj =>
         this.setStateAndDispatch(
           context.name,
+          { deployments: true },
           state =>
             (state.resources.deployments = state.resources.deployments.filter(
               d => d.metadata?.uid !== obj.metadata?.uid,
@@ -408,17 +429,32 @@ export class ContextsManager {
     });
   }
 
-  private setStateAndDispatch(name: string, update: (previous: ContextState) => void): void {
+  private setStateAndDispatch(
+    name: string,
+    options: ResourcesDispatchOptions,
+    update: (previous: ContextState) => void,
+  ): void {
     this.states.safeSetState(name, update);
-    this.dispatch();
+    this.dispatch({
+      contextsGeneralState: true,
+      currentContextGeneralState: true,
+      resources: options,
+    });
   }
 
-  private dispatch(): void {
-    this.dispatchContextsGeneralState();
-    this.dispatchCurrentContextGeneralState();
-    // TODO(feloy) send only when updated
-    this.dispatchCurrentContextResource('pods');
-    this.dispatchCurrentContextResource('deployments');
+  private dispatch(options: DispatchOptions): void {
+    if (options.contextsGeneralState) {
+      this.dispatchContextsGeneralState();
+    }
+    if (options.currentContextGeneralState) {
+      this.dispatchCurrentContextGeneralState();
+    }
+    if (options.resources?.pods) {
+      this.dispatchCurrentContextResource('pods');
+    }
+    if (options.resources?.deployments) {
+      this.dispatchCurrentContextResource('deployments');
+    }
   }
 
   private generalStateTimeoutId: NodeJS.Timeout | undefined;

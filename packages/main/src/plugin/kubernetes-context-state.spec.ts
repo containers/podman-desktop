@@ -141,7 +141,7 @@ afterEach(() => {
 test('should send info of resources in all reachable contexts and nothing in non reachable', async () => {
   const client = new ContextsManager(apiSender);
   const kubeConfig = new kubeclient.KubeConfig();
-  kubeConfig.loadFromOptions({
+  const config = {
     clusters: [
       {
         name: 'cluster1',
@@ -185,7 +185,8 @@ test('should send info of resources in all reachable contexts and nothing in non
       },
     ],
     currentContext: 'context2-1',
-  });
+  };
+  kubeConfig.loadFromOptions(config);
   await client.update(kubeConfig);
   let expectedMap = new Map<string, ContextGeneralState>();
   expectedMap.set('context1', {
@@ -232,44 +233,38 @@ test('should send info of resources in all reachable contexts and nothing in non
   });
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', [{}]);
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-deployments-update', [{}, {}, {}, {}]);
+
+  // switching to unreachable context
+  kubeConfig.loadFromOptions({
+    clusters: config.clusters,
+    users: config.users,
+    contexts: config.contexts,
+    currentContext: 'context1',
+  });
+
+  vi.clearAllMocks();
+  await client.update(kubeConfig);
+
+  await new Promise(resolve => setTimeout(resolve, 1200));
+  expect(apiSenderSendMock).toHaveBeenCalledTimes(4);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
+    reachable: false,
+    error: 'Error: connection error',
+    resources: {
+      pods: 0,
+      deployments: 0,
+    },
+  });
+  // no pods/deployemnt are sent, as the context is not reachable
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', []);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-deployments-update', []);
+
   // => removing contexts, should remving clusters from sent info
   kubeConfig.loadFromOptions({
-    clusters: [
-      {
-        name: 'cluster1',
-        server: 'server1',
-      },
-      {
-        name: 'cluster2',
-        server: 'server2',
-      },
-    ],
-    users: [
-      {
-        name: 'user1',
-      },
-      {
-        name: 'user2',
-      },
-    ],
-    contexts: [
-      {
-        name: 'context1',
-        cluster: 'cluster1',
-        user: 'user1',
-      },
-      {
-        name: 'context2',
-        cluster: 'cluster2',
-        user: 'user2',
-      },
-      {
-        name: 'context2-1',
-        cluster: 'cluster2',
-        user: 'user2',
-        namespace: 'ns1',
-      },
-    ],
+    clusters: config.clusters,
+    users: config.users,
+    contexts: config.contexts.filter(ctx => ctx.name !== 'context2-2'),
     currentContext: 'context2-1',
   });
 
