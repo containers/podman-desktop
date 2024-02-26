@@ -512,10 +512,13 @@ function deleteHostContainerPorts(index: number) {
 
 async function browseFolders(index: number) {
   // need to show the dialog to open a folder and then we update the source of the given index
-  const result = await window.openFolderDialog('Select a directory to mount in the container');
+  const result = await window.openDialog({
+    title: 'Select a directory to mount in the container',
+    selectors: ['openDirectory'],
+  });
 
-  if (!result.canceled && result.filePaths.length === 1) {
-    volumeMounts[index].source = result.filePaths[0];
+  if (result?.length === 1) {
+    volumeMounts[index].source = result[0];
   }
 }
 
