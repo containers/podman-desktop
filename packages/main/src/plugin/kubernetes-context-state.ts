@@ -148,8 +148,8 @@ class ContextsStates {
       result.set(key, {
         ...val,
         resources: {
-          pods: val.resources.pods.length,
-          deployments: val.resources.deployments.length,
+          pods: val.reachable ? val.resources.pods.length : 0,
+          deployments: val.reachable ? val.resources.deployments.length : 0,
         },
       });
     });
@@ -163,8 +163,8 @@ class ContextsStates {
         return {
           ...state,
           resources: {
-            pods: state.resources.pods.length,
-            deployments: state.resources.deployments.length,
+            pods: state.reachable ? state.resources.pods.length : 0,
+            deployments: state.reachable ? state.resources.deployments.length : 0,
           },
         };
       }
@@ -484,7 +484,7 @@ export class ContextsManager {
         `kubernetes-current-context-general-state-update`,
         this.states.getCurrentContextGeneralState(this.kubeConfig.currentContext),
       );
-    }, 1000);
+    }, connectTimeout);
   }
 
   public getCurrentContextGeneralState(): ContextGeneralState {
@@ -502,7 +502,7 @@ export class ContextsManager {
           `kubernetes-current-context-${resourceName}-update`,
           this.states.getCurrentContextResources(this.kubeConfig.currentContext, resourceName),
         );
-      }, 1000),
+      }, connectTimeout),
     );
   }
 
