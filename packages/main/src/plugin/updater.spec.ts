@@ -68,12 +68,12 @@ beforeEach(() => {
   // Simulate PROD env
   vi.stubEnv('PROD', 'true');
 
-  vi.spyOn(app, 'getVersion').mockReturnValue('@debug');
+  vi.mocked(app.getVersion).mockReturnValue('@debug');
   // eslint-disable-next-line no-null/no-null
-  vi.spyOn(autoUpdater, 'checkForUpdates').mockResolvedValue(null);
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue(null);
 
-  vi.spyOn(commandRegistry, 'executeCommand').mockResolvedValue(undefined);
-  vi.spyOn(util, 'isLinux').mockReturnValue(false);
+  vi.mocked(commandRegistry.executeCommand).mockResolvedValue(undefined);
+  vi.mocked(util.isLinux).mockReturnValue(false);
 });
 
 test('expect env PROD to be truthy', () => {
@@ -88,9 +88,8 @@ test('expect init to provide a disposable', () => {
 });
 
 test('expect init to register commands', () => {
-  const registerCommandMock = vi.spyOn(commandRegistry, 'registerCommand');
   new Updater(messageBoxMock, statusBarRegistryMock, commandRegistry).init();
-  expect(registerCommandMock).toHaveBeenCalled();
+  expect(commandRegistry.registerCommand).toHaveBeenCalled();
 });
 
 test('expect update available entry to be displayed when expected', () => {
