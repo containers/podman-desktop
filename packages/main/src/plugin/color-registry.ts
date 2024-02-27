@@ -202,6 +202,7 @@ export class ColorRegistry {
     this.initSecondaryNav();
     this.initTitlebar();
     this.initInvertContent();
+    this.initInputBox();
   }
 
   protected initGlobalNav(): void {
@@ -363,6 +364,77 @@ export class ColorRegistry {
     this.registerColor(`${invCt}info-icon`, {
       dark: colorPalette.purple[500],
       light: colorPalette.purple[600],
+    });
+  }
+
+  // input boxes
+  protected initInputBox(): void {
+    const sNav = 'input-field-';
+
+    this.registerColor(`${sNav}focused-bg`, {
+      dark: colorPalette.charcoal[900],
+      light: colorPalette.gray[100],
+    });
+
+    this.registerColor(`${sNav}disabled-bg`, {
+      dark: colorPalette.charcoal[900],
+      light: colorPalette.charcoal[900],
+    });
+    this.registerColor(`${sNav}hover-bg`, {
+      dark: colorPalette.charcoal[900],
+      light: colorPalette.gray[100],
+    });
+    this.registerColor(`${sNav}focused-text`, {
+      dark: colorPalette.white,
+      light: colorPalette.gray[900],
+    });
+    this.registerColor(`${sNav}error-text`, {
+      dark: colorPalette.red[500],
+      light: colorPalette.red[500],
+    });
+    this.registerColor(`${sNav}disabled-text`, {
+      dark: colorPalette.gray[900],
+      light: colorPalette.gray[900],
+    });
+    this.registerColor(`${sNav}hover-text`, {
+      dark: colorPalette.gray[900],
+      light: colorPalette.gray[900],
+    });
+    this.registerColor(`${sNav}placeholder-text`, {
+      dark: colorPalette.gray[900],
+      light: colorPalette.gray[900],
+    });
+    this.registerColor(`${sNav}stroke`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[600],
+    });
+    this.registerColor(`${sNav}hover-stroke`, {
+      dark: colorPalette.purple[400],
+      light: colorPalette.purple[400],
+    });
+    this.registerColor(`${sNav}stroke-error`, {
+      dark: colorPalette.red[500],
+      light: colorPalette.red[500],
+    });
+    this.registerColor(`${sNav}stroke-readonly`, {
+      dark: colorPalette.charcoal[100],
+      light: colorPalette.charcoal[100],
+    });
+    this.registerColor(`${sNav}icon`, {
+      dark: colorPalette.gray[500],
+      light: colorPalette.gray[500],
+    });
+    this.registerColor(`${sNav}focused-icon`, {
+      dark: colorPalette.gray[500],
+      light: colorPalette.gray[500],
+    });
+    this.registerColor(`${sNav}disabled-icon`, {
+      dark: colorPalette.gray[500],
+      light: colorPalette.gray[500],
+    });
+    this.registerColor(`${sNav}hover-icon`, {
+      dark: colorPalette.gray[500],
+      light: colorPalette.gray[500],
     });
   }
 }
