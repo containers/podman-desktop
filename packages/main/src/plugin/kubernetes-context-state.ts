@@ -259,13 +259,13 @@ export class ContextsManager {
     informer.on('add', (obj: T) => {
       options.onAdd?.(obj);
       options.onReachable?.(true);
-      options.backoff.reset();
+      this.resetConnectionAttempts(options);
     });
 
     informer.on('delete', (obj: T) => {
       options.onDelete?.(obj);
       options.onReachable?.(true);
-      options.backoff.reset();
+      this.resetConnectionAttempts(options);
     });
     informer.on('error', (err: unknown) => {
       const nextTimeout = options.backoff.get();
@@ -335,5 +335,10 @@ export class ContextsManager {
   private setStateAndDispatch(name: string, update: (previous: ContextState) => void) {
     this.states.safeSetState(name, update);
     this.dispatchContextsState();
+  }
+
+  private resetConnectionAttempts<T extends KubernetesObject>(options: CreateInformerOptions<T>) {
+    options.backoff.reset();
+    clearTimeout(options.timer);
   }
 }
