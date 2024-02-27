@@ -579,7 +579,7 @@ export class ContainerProviderRegistry {
     try {
       const provider = this.internalProviders.get(engineId);
       if (provider?.libpodApi) {
-        await this.getMatchingPodmanEngine(engineId).pruneAllImages(true);
+        await this.getMatchingPodmanEngineLibPod(engineId).pruneAllImages(true);
         return;
       }
 
@@ -816,7 +816,7 @@ export class ContainerProviderRegistry {
     return engine.api;
   }
 
-  protected getMatchingPodmanEngine(engineId: string): LibPod {
+  protected getMatchingPodmanEngine(engineId: string): InternalContainerProvider {
     // need to find the container engine of the container
     const engine = this.internalProviders.get(engineId);
     if (!engine) {
@@ -825,6 +825,15 @@ export class ContainerProviderRegistry {
     if (!engine.api) {
       throw new Error('no running provider for the matching engine');
     }
+    if (!engine.libpodApi) {
+      throw new Error('LibPod is not supported by this engine');
+    }
+    return engine;
+  }
+
+  protected getMatchingPodmanEngineLibPod(engineId: string): LibPod {
+    // need to find the container engine of the container
+    const engine = this.getMatchingPodmanEngine(engineId);
     if (!engine.libpodApi) {
       throw new Error('LibPod is not supported by this engine');
     }
@@ -1138,7 +1147,7 @@ export class ContainerProviderRegistry {
   async generatePodmanKube(engineId: string, names: string[]): Promise<string> {
     let telemetryOptions = {};
     try {
-      return this.getMatchingPodmanEngine(engineId).generateKube(names);
+      return this.getMatchingPodmanEngineLibPod(engineId).generateKube(names);
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;
@@ -1150,7 +1159,7 @@ export class ContainerProviderRegistry {
   async startPod(engineId: string, podId: string): Promise<void> {
     let telemetryOptions = {};
     try {
-      return this.getMatchingPodmanEngine(engineId).startPod(podId);
+      return this.getMatchingPodmanEngineLibPod(engineId).startPod(podId);
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;
@@ -1186,7 +1195,7 @@ export class ContainerProviderRegistry {
   async restartPod(engineId: string, podId: string): Promise<void> {
     let telemetryOptions = {};
     try {
-      return this.getMatchingPodmanEngine(engineId).restartPod(podId);
+      return this.getMatchingPodmanEngineLibPod(engineId).restartPod(podId);
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;
@@ -1203,7 +1212,7 @@ export class ContainerProviderRegistry {
     let telemetryOptions = {};
     try {
       // will publish in the target engine
-      const libPod = this.getMatchingPodmanEngine(target.engineId);
+      const libPod = this.getMatchingPodmanEngineLibPod(target.engineId);
 
       // grab content of the current container to replicate
       const containerToReplicate = await this.getContainerInspect(source.engineId, source.id);
@@ -1241,7 +1250,7 @@ export class ContainerProviderRegistry {
   async stopPod(engineId: string, podId: string): Promise<void> {
     let telemetryOptions = {};
     try {
-      return this.getMatchingPodmanEngine(engineId).stopPod(podId);
+      return this.getMatchingPodmanEngineLibPod(engineId).stopPod(podId);
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;
@@ -1253,7 +1262,7 @@ export class ContainerProviderRegistry {
   async removePod(engineId: string, podId: string): Promise<void> {
     let telemetryOptions = {};
     try {
-      return this.getMatchingPodmanEngine(engineId).removePod(podId, { force: true });
+      return this.getMatchingPodmanEngineLibPod(engineId).removePod(podId, { force: true });
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;
@@ -1265,7 +1274,7 @@ export class ContainerProviderRegistry {
   async prunePods(engineId: string): Promise<void> {
     let telemetryOptions = {};
     try {
-      return this.getMatchingPodmanEngine(engineId).prunePods();
+      return this.getMatchingPodmanEngineLibPod(engineId).prunePods();
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;
@@ -1629,7 +1638,7 @@ export class ContainerProviderRegistry {
       const getAttachStream = async () => {
         // use either podman specific API or compat API
         try {
-          const libpod = this.getMatchingPodmanEngine(engineId);
+          const libpod = this.getMatchingPodmanEngineLibPod(engineId);
           return libpod.podmanAttach(container.id);
         } catch (error) {
           // run attach
