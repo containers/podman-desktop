@@ -117,6 +117,15 @@ vi.mock('@kubernetes/client-node', async importOriginal => {
   };
 });
 
+vi.mock('./kubernetes-context-state-constants.js', () => {
+  return {
+    connectTimeout: 1,
+    backoffInitialValue: 1000,
+    backoffLimit: 1000,
+    backoffJitter: 1,
+  };
+});
+
 const originalConsoleDebug = console.debug;
 const consoleDebugMock = vi.fn();
 
@@ -211,7 +220,7 @@ test('should send info of resources in all reachable contexts and nothing in non
       deployments: [{}, {}, {}, {}, {}],
     },
   } as ContextState);
-  await new Promise(resolve => setTimeout(resolve, 1200));
+  await new Promise(resolve => setTimeout(resolve, 2));
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-state-update', expectedMap);
 
   // => removing contexts, should remving clusters from sent info
@@ -282,7 +291,7 @@ test('should send info of resources in all reachable contexts and nothing in non
       deployments: [{}, {}, {}, {}],
     },
   } as ContextState);
-  await new Promise(resolve => setTimeout(resolve, 1200));
+  await new Promise(resolve => setTimeout(resolve, 2));
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-state-update', expectedMap);
 });
 

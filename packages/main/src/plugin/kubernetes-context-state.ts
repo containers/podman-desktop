@@ -27,6 +27,12 @@ import type {
 import { AppsV1Api, CoreV1Api, KubeConfig, makeInformer } from '@kubernetes/client-node';
 import type { KubeContext } from './kubernetes-context.js';
 import type { ApiSenderType } from './api.js';
+import {
+  backoffInitialValue,
+  backoffJitter,
+  backoffLimit,
+  connectTimeout,
+} from './kubernetes-context-state-constants.js';
 
 // ContextInternalState stores informers for a kube context
 interface ContextInternalState {
@@ -201,7 +207,7 @@ export class ContextsManager {
     return this.createInformer<V1Pod>(kc, context, path, listFn, {
       resource: 'pods',
       timer: this.podTimer,
-      backoff: new Backoff(1000, 60_000, 300),
+      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
       onAdd: obj => this.setStateAndDispatch(context.name, state => state.resources.pods.push(obj)),
       onDelete: obj =>
         this.setStateAndDispatch(
@@ -228,7 +234,7 @@ export class ContextsManager {
     return this.createInformer<V1Deployment>(kc, context, path, listFn, {
       resource: 'deployments',
       timer: this.deploymentTimer,
-      backoff: new Backoff(1000, 60_000, 300),
+      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
       onAdd: obj => this.setStateAndDispatch(context.name, state => state.resources.deployments.push(obj)),
       onDelete: obj =>
         this.setStateAndDispatch(
@@ -319,7 +325,7 @@ export class ContextsManager {
     clearTimeout(this.timeoutId);
     this.timeoutId = setTimeout(() => {
       this.apiSender.send(`kubernetes-contexts-state-update`, this.states.getPublished());
-    }, 1000);
+    }, connectTimeout);
   }
 
   public getContextsState(): Map<string, ContextState> {
