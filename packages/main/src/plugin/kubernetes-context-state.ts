@@ -145,8 +145,6 @@ class ContextsStates {
 export class ContextsManager {
   private kubeConfig = new KubeConfig();
   private states = new ContextsStates();
-  private podTimer: NodeJS.Timeout | undefined;
-  private deploymentTimer: NodeJS.Timeout | undefined;
 
   constructor(private readonly apiSender: ApiSenderType) {}
 
@@ -204,9 +202,10 @@ export class ContextsManager {
     const k8sApi = kc.makeApiClient(CoreV1Api);
     const listFn = () => k8sApi.listNamespacedPod(ns);
     const path = `/api/v1/namespaces/${ns}/pods`;
+    let timer: NodeJS.Timeout | undefined;
     return this.createInformer<V1Pod>(kc, context, path, listFn, {
       resource: 'pods',
-      timer: this.podTimer,
+      timer: timer,
       backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
       onAdd: obj => this.setStateAndDispatch(context.name, state => state.resources.pods.push(obj)),
       onDelete: obj =>
@@ -231,9 +230,10 @@ export class ContextsManager {
     const k8sApi = kc.makeApiClient(AppsV1Api);
     const listFn = () => k8sApi.listNamespacedDeployment(ns);
     const path = `/apis/apps/v1/namespaces/${ns}/deployments`;
+    let timer: NodeJS.Timeout | undefined;
     return this.createInformer<V1Deployment>(kc, context, path, listFn, {
       resource: 'deployments',
-      timer: this.deploymentTimer,
+      timer: timer,
       backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
       onAdd: obj => this.setStateAndDispatch(context.name, state => state.resources.deployments.push(obj)),
       onDelete: obj =>
@@ -259,13 +259,13 @@ export class ContextsManager {
     informer.on('add', (obj: T) => {
       options.onAdd?.(obj);
       options.onReachable?.(true);
-      options.backoff.reset();
+      this.resetConnectionAttempts(options);
     });
 
     informer.on('delete', (obj: T) => {
       options.onDelete?.(obj);
       options.onReachable?.(true);
-      options.backoff.reset();
+      this.resetConnectionAttempts(options);
     });
     informer.on('error', (err: unknown) => {
       const nextTimeout = options.backoff.get();
@@ -335,5 +335,10 @@ export class ContextsManager {
   private setStateAndDispatch(name: string, update: (previous: ContextState) => void) {
     this.states.safeSetState(name, update);
     this.dispatchContextsState();
+  }
+
+  private resetConnectionAttempts<T extends KubernetesObject>(options: CreateInformerOptions<T>) {
+    options.backoff.reset();
+    clearTimeout(options.timer);
   }
 }
