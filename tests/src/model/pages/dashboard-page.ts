@@ -31,6 +31,9 @@ export class DashboardPage extends BasePage {
   readonly openshiftLocalProvider: Locator;
   readonly openshiftLocalBox: Locator;
   readonly openshiftLocalEnabledStatus: Locator;
+  readonly initilizeAndStartButton: Locator;
+  readonly transitioningState: Locator;
+  readonly podmanMachineConnectionStatus: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -47,6 +50,9 @@ export class DashboardPage extends BasePage {
     this.openshiftLocalProvider = page.getByLabel('OpenShift Local Provider');
     this.openshiftLocalBox = this.featuredExtensions.getByLabel('OpenShift Local');
     this.openshiftLocalEnabledStatus = this.openshiftLocalProvider.getByText('NOT-INSTALLED');
+    this.initilizeAndStartButton = page.getByRole('button', { name: 'Initialize and start ' });
+    this.transitioningState = page.getByLabel('Transitioning State');
+    this.podmanMachineConnectionStatus = page.getByLabel('Connection Status Label');
   }
 
   public getPodmanStatusLocator(): Locator {
