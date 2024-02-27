@@ -101,7 +101,7 @@ test('expect update available entry to be displayed when expected', () => {
       expect(text).toBe('v@debug');
       expect(tooltip).toBe('Update available');
       expect(iconClass).toBe(UPDATER_UPDATE_AVAILABLE_ICON);
-      expect(enabled).toBe(true);
+      expect(enabled).toBeTruthy();
       expect(command).toBe('update');
       expect(highlight).toBe(true);
     },
