@@ -284,7 +284,7 @@
     }
   },
   "scripts": {
-    "build": "vite build && tsx ./scripts/download.ts && node ./scripts/build.js",
+    "build": "vite build && tsx ./scripts/download.ts && node ./scripts/build.cjs",
     "test": "vitest run --coverage --passWithNoTests",
     "test:watch": "vitest watch --coverage --passWithNoTests",
     "watch": "vite build -w"
