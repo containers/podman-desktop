@@ -236,6 +236,11 @@ test('should send info of resources in all reachable contexts and nothing in non
     ],
     contexts: [
       {
+        name: 'context1',
+        cluster: 'cluster1',
+        user: 'user1',
+      },
+      {
         name: 'context2',
         cluster: 'cluster2',
         user: 'user2',
@@ -253,8 +258,17 @@ test('should send info of resources in all reachable contexts and nothing in non
   vi.clearAllMocks();
   await client.update(kubeConfig);
   expectedMap = new Map<string, ContextState>();
+  expectedMap.set('context1', {
+    reachable: false,
+    error: 'Error: connection error',
+    resources: {
+      pods: [],
+      deployments: [],
+    },
+  } as ContextState);
   expectedMap.set('context2', {
     reachable: true,
+    error: undefined,
     resources: {
       pods: [{}, {}, {}],
       deployments: [{}, {}, {}, {}, {}, {}],
@@ -262,13 +276,14 @@ test('should send info of resources in all reachable contexts and nothing in non
   } as ContextState);
   expectedMap.set('context2-1', {
     reachable: true,
+    error: undefined,
     resources: {
       pods: [{}],
       deployments: [{}, {}, {}, {}],
     },
   } as ContextState);
   await new Promise(resolve => setTimeout(resolve, 1200));
-  expect(apiSenderSendMock).toHaveBeenLastCalledWith('kubernetes-contexts-state-update', expectedMap);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-state-update', expectedMap);
 });
 
 test('should write logs when connection fails', async () => {
