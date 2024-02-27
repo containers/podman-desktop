@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Page } from '@playwright/test';
+import { type Page } from '@playwright/test';
 import { NavigationBar } from '../model/workbench/navigation';
-import { waitWhile } from './wait';
+import { waitUntil, waitWhile } from './wait';
+import { RegistriesPage } from '../model/pages/registries-page';
 
 /**
  * Stop and delete container defined by its name
@@ -96,6 +97,22 @@ export async function deleteImage(page: Page, name: string) {
       if (!(error as Error).message.includes('Page is empty')) {
         throw Error(`Error waiting for image '${name}' to get removed, ${error}`);
       }
+    }
+  }
+}
+
+export async function deleteRegistry(page: Page, name: string, failIfNotExist = false) {
+  const navigationBar = new NavigationBar(page);
+  const settingsBar = await navigationBar.openSettings();
+  const registryPage = await settingsBar.openTabPage(RegistriesPage);
+  const registryRecord = await registryPage.getRegistryRowByName(name);
+  await waitUntil(() => registryRecord.isVisible(), 3000, 500, failIfNotExist);
+  if (await registryRecord.isVisible()) {
+    // it might be that the record exist but there are no credentials -> it is default registry and it is empty
+    // or if there is a kebab memu available
+    const dropdownMenu = registryRecord.getByRole('button', { name: 'kebab menu' });
+    if (await dropdownMenu.isVisible()) {
+      await registryPage.removeRegistry(name);
     }
   }
 }
