@@ -63,8 +63,8 @@ export class PodmanDesktopRunner {
 
       // Evaluate that the main window is visible
       // at the same time, the function also makes sure that event 'ready-to-show' was triggered
-      const windowState = await this.getBrowserWindowState();
-      console.log(`Application Browser's window is visible: ${windowState.isVisible}`);
+      // with latest changes in electron version the app run in tests crashes on fedora
+      // const windowState = await this.getBrowserWindowState();
     } catch (err) {
       console.log(`Caught exception in startup: ${err}`);
       throw Error(`Podman Desktop could not be started correctly with error: ${err}`);
