@@ -212,6 +212,14 @@ class TestContainerProviderRegistry extends ContainerProviderRegistry {
     return super.getMatchingContainer(engineId, containerId);
   }
 
+  public getMatchingPodmanEngine(engineId: string): InternalContainerProvider {
+    return super.getMatchingPodmanEngine(engineId);
+  }
+
+  public getMatchingPodmanEngineLibPod(engineId: string): LibPod {
+    return super.getMatchingPodmanEngineLibPod(engineId);
+  }
+
   public getMatchingContainerProvider(
     providerContainerConnectionInfo: ProviderContainerConnectionInfo | podmanDesktopAPI.ContainerProviderConnection,
   ): InternalContainerProvider {
@@ -3288,5 +3296,68 @@ test('list pods', async () => {
   expect(pod.Labels).toStrictEqual({
     key1: 'value1',
     key2: 'value2',
+  });
+});
+
+describe('getMatchingPodmanEngine', () => {
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+  test('should throw error if no engine is found', () => {
+    expect(() => containerRegistry.getMatchingPodmanEngine('podman')).toThrowError('no engine matching this engine');
+  });
+  test('should throw error if engine has no api', () => {
+    containerRegistry.addInternalProvider('podman', {
+      name: 'podman',
+      id: 'podman1',
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+    expect(() => containerRegistry.getMatchingPodmanEngine('podman')).toThrowError(
+      'no running provider for the matching engine',
+    );
+  });
+  test('should throw error if engine has no libPodApi', () => {
+    containerRegistry.addInternalProvider('podman', {
+      name: 'podman',
+      id: 'podman1',
+      api,
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+    expect(() => containerRegistry.getMatchingPodmanEngine('podman')).toThrowError(
+      'LibPod is not supported by this engine',
+    );
+  });
+  test('should return found engine', () => {
+    const containerProvider = {
+      name: 'podman',
+      id: 'podman1',
+      api,
+      libpodApi: api,
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider;
+    containerRegistry.addInternalProvider('podman', containerProvider);
+    const result = containerRegistry.getMatchingPodmanEngine('podman');
+    expect(result).equal(containerProvider);
+  });
+});
+describe('getMatchingPodmanEngineLibPod', () => {
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+  test('should return found lib', () => {
+    const containerProvider = {
+      name: 'podman',
+      id: 'podman1',
+      api,
+      libpodApi: api,
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider;
+    containerRegistry.addInternalProvider('podman', containerProvider);
+    const result = containerRegistry.getMatchingPodmanEngineLibPod('podman');
+    expect(result).equal(api);
   });
 });
