@@ -298,7 +298,7 @@ test('should write logs when connection fails', async () => {
   await client.update(kubeConfig);
   expect(consoleDebugMock).toHaveBeenCalledWith(
     expect.stringMatching(
-      /Trying to watch pods on the kubernetes context named "context1" but got a connection refused, retrying the connection in .*s. Error: connection error/,
+      /Trying to watch pods on the kubernetes context named "context1" but got a connection refused, retrying the connection in [0-9]*s. Error: connection error/,
     ),
   );
 });
