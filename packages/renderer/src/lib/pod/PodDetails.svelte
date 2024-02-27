@@ -15,6 +15,7 @@ import DetailsPage from '../ui/DetailsPage.svelte';
 import Tab from '../ui/Tab.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import StateChange from '../ui/StateChange.svelte';
+import { router } from 'tinro';
 
 export let podName: string;
 export let engineId: string;
@@ -23,8 +24,16 @@ export let kind: string;
 let pod: PodInfoUI;
 let detailsPage: DetailsPage;
 
+// update current route scheme
+let currentRouterPath: string;
+
 onMount(() => {
   const podUtils = new PodUtils();
+
+  router.subscribe(route => {
+    currentRouterPath = route.path;
+  });
+
   // loading pod info
   return podsInfos.subscribe(pods => {
     const matchingPod = pods.find(
@@ -33,6 +42,10 @@ onMount(() => {
     if (matchingPod) {
       try {
         pod = podUtils.getPodInfoUI(matchingPod);
+
+        if (currentRouterPath.endsWith('/')) {
+          router.goto(`${currentRouterPath}logs`);
+        }
       } catch (err) {
         console.error(err);
       }
