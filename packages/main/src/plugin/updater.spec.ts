@@ -103,7 +103,7 @@ test('expect update available entry to be displayed when expected', () => {
       expect(iconClass).toBe(UPDATER_UPDATE_AVAILABLE_ICON);
       expect(enabled).toBeTruthy();
       expect(command).toBe('update');
-      expect(highlight).toBe(true);
+      expect(highlight).toBeTruthy();
     },
   );
 
