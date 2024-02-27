@@ -18,7 +18,7 @@ Consider emulating Docker CLI with Podman to migrate transparently to Podman.
 
 - Podman
 
-### Linux
+### Linux / macOS
 
 #### Procedure
 
