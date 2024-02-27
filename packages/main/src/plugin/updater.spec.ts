@@ -23,57 +23,42 @@ import type { CommandRegistry } from '/@/plugin/command-registry.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
 import { UPDATER_UPDATE_AVAILABLE_ICON } from '/@/plugin/index.js';
 import { Updater } from '/@/plugin/updater.js';
-
-const mocks = vi.hoisted(() => ({
-  // MessageBoxMock
-  showMessageBoxMock: vi.fn(),
-  // StatusBarRegistry
-  setEntryMock: vi.fn(),
-  // CommandRegistry
-  registerCommandMock: vi.fn(),
-  executeCommandMock: vi.fn(),
-  // Electron App
-  getVersionMock: vi.fn(),
-  // Electron Update
-  downloadUpdateMock: vi.fn(),
-  quitAndInstallMock: vi.fn(),
-  checkForUpdatesMock: vi.fn(),
-  onMock: vi.fn(),
-  // utils
-  isLinuxMock: vi.fn(),
-}));
+import { app } from 'electron';
+import { type AppUpdater, autoUpdater } from 'electron-updater';
+import * as util from '/@/util.js';
+import type { AppUpdaterEvents } from 'electron-updater/out/AppUpdater.js';
 
 vi.mock('electron', () => ({
   app: {
-    getVersion: mocks.getVersionMock,
+    getVersion: vi.fn(),
   },
 }));
 
 vi.mock('electron-updater', () => ({
   autoUpdater: {
-    downloadUpdate: mocks.downloadUpdateMock,
-    quitAndInstall: mocks.quitAndInstallMock,
-    checkForUpdates: mocks.checkForUpdatesMock,
-    on: mocks.onMock,
+    downloadUpdate: vi.fn(),
+    quitAndInstall: vi.fn(),
+    checkForUpdates: vi.fn(),
+    on: vi.fn(),
     autoDownload: true,
   },
 }));
 
 vi.mock('/@/util.js', () => ({
-  isLinux: mocks.isLinuxMock,
+  isLinux: vi.fn(),
 }));
 
 const messageBoxMock = {
-  showMessageBox: mocks.showMessageBoxMock,
+  showMessageBox: vi.fn(),
 } as unknown as MessageBox;
 
 const statusBarRegistryMock = {
-  setEntry: mocks.setEntryMock,
+  setEntry: vi.fn(),
 } as unknown as StatusBarRegistry;
 
 const commandRegistry = {
-  registerCommand: mocks.registerCommandMock,
-  executeCommand: mocks.executeCommandMock,
+  registerCommand: vi.fn(),
+  executeCommand: vi.fn(),
 } as unknown as CommandRegistry;
 
 beforeEach(() => {
@@ -83,10 +68,12 @@ beforeEach(() => {
   // Simulate PROD env
   vi.stubEnv('PROD', 'true');
 
-  mocks.getVersionMock.mockReturnValue('@debug');
-  mocks.checkForUpdatesMock.mockResolvedValue(undefined);
-  mocks.executeCommandMock.mockResolvedValue(undefined);
-  mocks.isLinuxMock.mockReturnValue(false);
+  vi.spyOn(app, 'getVersion').mockReturnValue('@debug');
+  // eslint-disable-next-line no-null/no-null
+  vi.spyOn(autoUpdater, 'checkForUpdates').mockResolvedValue(null);
+
+  vi.spyOn(commandRegistry, 'executeCommand').mockResolvedValue(undefined);
+  vi.spyOn(util, 'isLinux').mockReturnValue(false);
 });
 
 test('expect env PROD to be truthy', () => {
@@ -101,13 +88,14 @@ test('expect init to provide a disposable', () => {
 });
 
 test('expect init to register commands', () => {
+  const registerCommandMock = vi.spyOn(commandRegistry, 'registerCommand');
   new Updater(messageBoxMock, statusBarRegistryMock, commandRegistry).init();
-
-  expect(mocks.registerCommandMock).toHaveBeenCalled();
+  expect(registerCommandMock).toHaveBeenCalled();
 });
 
 test('expect update available entry to be displayed when expected', () => {
-  mocks.setEntryMock.mockImplementation(
+  const setEntryMock = vi.spyOn(statusBarRegistryMock, 'setEntry');
+  setEntryMock.mockImplementation(
     (entryId, _alignLeft, _priority, text, tooltip, iconClass, enabled, command, _commandArgs, highlight) => {
       expect(entryId).toBe('version');
       expect(text).toBe('v@debug');
@@ -120,8 +108,9 @@ test('expect update available entry to be displayed when expected', () => {
   );
 
   let mListener: (() => void) | undefined;
-  mocks.onMock.mockImplementation((channel: string, listener: () => void) => {
-    if (channel === 'update-available') mListener = listener;
+  vi.spyOn(autoUpdater, 'on').mockImplementation((channel: keyof AppUpdaterEvents, listener: unknown): AppUpdater => {
+    if (channel === 'update-available') mListener = listener as () => void;
+    return {} as unknown as AppUpdater;
   });
 
   new Updater(messageBoxMock, statusBarRegistryMock, commandRegistry).init();
@@ -132,11 +121,12 @@ test('expect update available entry to be displayed when expected', () => {
   // call the listener (which should be the private updateAvailableEntry method)
   mListener?.();
 
-  expect(mocks.setEntryMock).toHaveBeenCalled();
+  expect(setEntryMock).toHaveBeenCalled();
 });
 
 test('expect default status entry to be displayed when no update available', () => {
-  mocks.setEntryMock.mockImplementation(
+  const setEntryMock = vi.spyOn(statusBarRegistryMock, 'setEntry');
+  setEntryMock.mockImplementation(
     (entryId, _alignLeft, _priority, text, tooltip, iconClass, enabled, command, _commandArgs, highlight) => {
       expect(entryId).toBe('version');
       expect(text).toBe('v@debug');
@@ -149,8 +139,9 @@ test('expect default status entry to be displayed when no update available', () 
   );
 
   let mListener: (() => void) | undefined;
-  mocks.onMock.mockImplementation((channel: string, listener: () => void) => {
-    if (channel === 'update-not-available') mListener = listener;
+  vi.spyOn(autoUpdater, 'on').mockImplementation((channel: keyof AppUpdaterEvents, listener: unknown): AppUpdater => {
+    if (channel === 'update-not-available') mListener = listener as () => void;
+    return {} as unknown as AppUpdater;
   });
 
   new Updater(messageBoxMock, statusBarRegistryMock, commandRegistry).init();
@@ -161,5 +152,5 @@ test('expect default status entry to be displayed when no update available', () 
   // call the listener (which should be the private onUpdateNotAvailable method)
   mListener?.();
 
-  expect(mocks.setEntryMock).toHaveBeenCalled();
+  expect(setEntryMock).toHaveBeenCalled();
 });
