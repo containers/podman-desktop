@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 export function setupRegistry() {
-  const registryUrl = process.env.REGISTRY_URL ? process.env.REGISTRY_URL : process.env.CI ? 'ghcr.io' : '';
+  const registryUrl = process.env.REGISTRY_URL ? process.env.REGISTRY_URL : 'ghcr.io';
   const registryUsername = process.env.REGISTRY_USERNAME
     ? process.env.REGISTRY_USERNAME
     : process.env.CI
