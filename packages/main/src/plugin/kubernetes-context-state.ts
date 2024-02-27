@@ -49,6 +49,7 @@ export type ContextStateResources = {
 };
 
 interface CreateInformerOptions<T> {
+  resource: string;
   checkReachable?: boolean;
   onAdd?: (obj: T) => void;
   onDelete?: (obj: T) => void;
@@ -198,6 +199,7 @@ export class ContextsManager {
     const listFn = () => k8sApi.listNamespacedPod(ns);
     const path = `/api/v1/namespaces/${ns}/pods`;
     return this.createInformer<V1Pod>(kc, context, path, listFn, {
+      resource: 'pods',
       timer: this.podTimer,
       backoff: new Backoff(1000, 60_000, 300),
       onAdd: obj => this.setStateAndDispatch(context.name, state => state.resources.pods.push(obj)),
@@ -224,6 +226,7 @@ export class ContextsManager {
     const listFn = () => k8sApi.listNamespacedDeployment(ns);
     const path = `/apis/apps/v1/namespaces/${ns}/deployments`;
     return this.createInformer<V1Deployment>(kc, context, path, listFn, {
+      resource: 'deployments',
       timer: this.deploymentTimer,
       backoff: new Backoff(1000, 60_000, 300),
       onAdd: obj => this.setStateAndDispatch(context.name, state => state.resources.deployments.push(obj)),
@@ -259,8 +262,11 @@ export class ContextsManager {
       options.backoff.reset();
     });
     informer.on('error', (err: unknown) => {
+      const nextTimeout = options.backoff.get();
       if (err !== undefined) {
-        console.error(`informer error on path ${path} for context ${context.name}: `, String(err));
+        console.warn(
+          `Trying to watch ${options.resource} on the kubernetes context named "${context.name}" but got a connection refused, retrying the connection in ${nextTimeout / 1000}s. ${String(err)})`,
+        );
         options.onConnectionError?.(String(err));
       }
       options.onReachable?.(err === undefined);
@@ -269,7 +275,7 @@ export class ContextsManager {
       clearTimeout(options.timer);
       options.timer = setTimeout(() => {
         this.restartInformer<T>(informer, context, options);
-      }, options.backoff.get());
+      }, nextTimeout);
     });
 
     if (options.onReachable) {
@@ -291,8 +297,11 @@ export class ContextsManager {
     options: CreateInformerOptions<T>,
   ) {
     informer.start().catch((err: unknown) => {
+      const nextTimeout = options.backoff.get();
       if (err !== undefined) {
-        console.warn('informer start error: ', String(err));
+        console.warn(
+          `Trying to watch ${options.resource} on the kubernetes context named "${context.name}" but got a connection refused, retrying the connection in ${nextTimeout / 1000}s. ${String(err)})`,
+        );
         options.onConnectionError?.(String(err));
       }
       options.onReachable?.(err === undefined);
@@ -300,7 +309,7 @@ export class ContextsManager {
       clearTimeout(options.timer);
       options.timer = setTimeout(() => {
         this.restartInformer<T>(informer, context, options);
-      }, options.backoff.get());
+      }, nextTimeout);
     });
   }
 
