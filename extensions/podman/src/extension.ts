@@ -54,7 +54,7 @@ let autoMachineStarted = false;
 let autoMachineName;
 
 // System default notifier
-let defaultMachineNotify = true;
+let defaultMachineNotify = !isLinux();
 let defaultMachineMonitor = true;
 
 // current status of machines
