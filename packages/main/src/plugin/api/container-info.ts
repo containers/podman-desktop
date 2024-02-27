@@ -71,10 +71,126 @@ export interface HostConfig {
   NetworkMode?: string;
 }
 
+export interface HealthConfig {
+  /**
+   * The test to perform. Possible values are:
+   *
+   * - ```[]``` inherit healthcheck from image or parent image
+   * - ```["NONE"]``` disable healthcheck
+   * - ```["CMD", args...]``` exec arguments directly
+   * - ```["CMD-SHELL", command]``` run command with system's default shell
+   */
+  Test?: string[];
+
+  /**
+   * The time to wait between checks in nanoseconds. It should be 0 or at least 1000000 (1 ms). 0 means inherit.
+   */
+  Interval?: number;
+
+  /**
+   * The time to wait before considering the check to have hung. It should be 0 or at least 1000000 (1 ms). 0 means inherit.
+   */
+  Timeout?: number;
+
+  /**
+   * Start period for the container to initialize before starting health-retries countdown in nanoseconds. It should
+   * be 0 or at least 1000000 (1 ms). 0 means inherit.
+   */
+  StartPeriod?: number;
+
+  /**
+   * The number of consecutive failures needed to consider a container as unhealthy. 0 means inherit.
+   */
+  Retries?: number;
+}
+
+interface EndpointIPAMConfig {
+  IPv4Address?: string;
+  IPv6Address?: string;
+  LinkLocalIPs?: string[];
+}
+
+interface EndpointSettings {
+  /**
+   * EndpointIPAMConfig represents an endpoint's IPAM configuration.
+   */
+  IPAMConfig?: EndpointIPAMConfig;
+
+  Links?: string[];
+
+  /**
+   * MAC address for the endpoint on this network. The network driver might ignore this parameter.
+   */
+  MacAddress?: string;
+
+  Aliases?: string[];
+
+  /**
+   * Unique ID of the network.
+   */
+  NetworkID?: string;
+
+  /**
+   * Unique ID for the service endpoint in a Sandbox.
+   */
+  EndpointID?: string;
+
+  /**
+   * Gateway address for this network.
+   */
+  Gateway?: string;
+
+  /**
+   * IPv4 address.
+   */
+  IPAddress?: string;
+
+  /**
+   * Mask length of the IPv4 address.
+   */
+  IPPrefixLen?: number;
+
+  /**
+   * IPv6 gateway address.
+   */
+  IPv6Gateway?: string;
+
+  /**
+   * Global IPv6 address.
+   */
+  GlobalIPv6Address?: string;
+
+  /**
+   * Mask length of the global IPv6 address.
+   */
+  GlobalIPv6PrefixLen?: number;
+
+  /**
+   * DriverOpts is a mapping of driver options and values. These options are passed directly to the driver and are driver specific.
+   */
+  DriverOpts?: { [key: string]: string };
+
+  /**
+   * List of all DNS names an endpoint has on a specific network. This list is based on the container name, network
+   * aliases, container short ID, and hostname.
+   *
+   * These DNS names are non-fully qualified but can contain several dots. You can get fully qualified DNS names by
+   * appending ```.<network-name>```. For instance, if container name is ```my.ctr``` and the network is named
+   * ```testnet```, ```DNSNames``` will contain ```my.ctr``` and the FQDN will be ```my.ctr.testnet```.
+   */
+  DNSNames?: string[];
+}
+
+export interface NetworkingConfig {
+  EndpointsConfig?: { [key: string]: EndpointSettings };
+}
+
 export interface ContainerCreateOptions {
   name?: string;
+  platform?: string;
   Hostname?: string;
   User?: string;
+  Domainname?: string;
   // Env using ["MYVAR=value", ...]
   Env?: string[];
 
@@ -96,6 +212,17 @@ export interface ContainerCreateOptions {
   StdinOnce?: boolean;
   Detach?: boolean;
   start?: boolean;
+  HealthCheck?: HealthConfig;
+  ArgsEscaped?: boolean;
+  Volumes?: { [volume: string]: object };
+  WorkingDir?: string;
+  NetworkDisabled?: boolean;
+  MacAddress?: string;
+  OnBuild?: string[];
+  StopSignal?: string;
+  StopTimeout?: number;
+  Shell?: string[];
+  NetworkConfig?: NetworkingConfig;
 }
 
 export interface NetworkCreateOptions {

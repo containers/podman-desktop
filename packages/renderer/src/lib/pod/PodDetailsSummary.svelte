@@ -3,7 +3,7 @@ import { router } from 'tinro';
 import type { PodInfoUI } from './PodInfoUI';
 import type { V1Pod } from '@kubernetes/client-node';
 import { onMount } from 'svelte';
-import KubeDetailsSummary from '../kube/KubeDetailsSummary.svelte';
+import KubePodDetailsSummary from '../kube/KubePodDetailsSummary.svelte';
 
 export let pod: PodInfoUI;
 let kubePod: V1Pod | undefined;
@@ -36,9 +36,9 @@ basic pod information -->
 {/if}
 
 <!-- Load the Kubernetes information, pass in kubePod regardless if it's undefined
-ass KubeDetailsSummary will automatically add a 'Loading ... ' section -->
+ass KubePodDetailsSummary will automatically add a 'Loading ... ' section -->
 {#if pod.kind === 'kubernetes'}
-  <KubeDetailsSummary pod="{kubePod}" />
+  <KubePodDetailsSummary pod="{kubePod}" />
 {:else}
   <!-- Still show pod information in case the Kubernetes pod retrieval errors out -->
   <div class="flex px-5 py-4 flex-col h-full overflow-auto">

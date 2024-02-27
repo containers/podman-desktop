@@ -433,7 +433,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                           router.goto(`/preferences/default/preferences.${provider.extensionId}`);
                         }
                       }}">
-                      <Fa size="14" icon="{faGear}" />
+                      <Fa size="0.9x" icon="{faGear}" />
                     </Button>
                   {/if}
                 </div>

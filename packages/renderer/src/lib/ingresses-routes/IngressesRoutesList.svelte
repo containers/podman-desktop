@@ -21,6 +21,8 @@ import IngressRouteColumnHostPath from './IngressRouteColumnHostPath.svelte';
 import IngressRouteColumnBackend from './IngressRouteColumnBackend.svelte';
 import { filtered as filteredRoutes, searchPattern as searchPatternRoutes } from '/@/stores/routes';
 import IngressRouteColumnStatus from './IngressRouteColumnStatus.svelte';
+import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
+import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
 
 export let searchTerm = '';
 $: searchPatternRoutes.set(searchTerm);
@@ -141,6 +143,10 @@ const row = new Row<IngressUI | RouteUI>({ selectable: _ingressRoute => true });
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="Ingresses & Routes">
+  <svelte:fragment slot="additional-actions">
+    <KubeApplyYamlButton />
+  </svelte:fragment>
+
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
@@ -150,6 +156,9 @@ const row = new Row<IngressUI | RouteUI>({ selectable: _ingressRoute => true });
         icon="{faTrash}" />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
+    <div class="flex min-w-full justify-end">
+      <KubernetesCurrentContextConnectionBadge />
+    </div>
   </svelte:fragment>
 
   <div class="flex min-w-full h-full" slot="content">

@@ -18,6 +18,8 @@
 
 import type { Locator, Page } from '@playwright/test';
 import { SettingsPage } from './settings-page';
+import { expect as playExpect } from '@playwright/test';
+import { SettingsExtensionsPage } from './settings-extensions-page';
 
 export class ExtensionPage extends SettingsPage {
   readonly heading: Locator;
@@ -33,5 +35,19 @@ export class ExtensionPage extends SettingsPage {
     this.disableButton = page.getByRole('button', { name: 'Disable' });
     this.removeExtensionButton = page.getByRole('button', { name: 'Remove' });
     this.status = page.getByLabel('Connection Status Label');
+  }
+
+  async disableExtension(): Promise<this> {
+    if ((await this.status.innerText()) === 'DISABLED') return this;
+
+    await this.disableButton.click();
+    await playExpect(this.status).toHaveText('DISABLED');
+    return this;
+  }
+
+  async removeExtension(): Promise<SettingsExtensionsPage> {
+    await this.disableExtension();
+    await this.removeExtensionButton.click();
+    return new SettingsExtensionsPage(this.page);
   }
 }

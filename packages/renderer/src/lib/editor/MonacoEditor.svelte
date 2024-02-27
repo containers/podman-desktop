@@ -1,5 +1,5 @@
 <script lang="ts">
-import { onDestroy, onMount } from 'svelte';
+import { onDestroy, onMount, createEventDispatcher } from 'svelte';
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
 import { EditorSettings } from '../../../../main/src/plugin/editor-settings';
@@ -13,6 +13,9 @@ let Monaco;
 
 export let content = '';
 export let language = 'json';
+export let readOnly = true;
+
+const dispatch = createEventDispatcher<{ contentChange: string }>();
 
 onMount(async () => {
   self.MonacoEnvironment = {
@@ -45,10 +48,15 @@ onMount(async () => {
     value: content,
     fontSize,
     language,
-    readOnly: true,
+    readOnly: readOnly,
     theme: 'podmanDesktopTheme',
     automaticLayout: true,
     scrollBeyondLastLine: false,
+  });
+
+  editor.onDidChangeModelContent(() => {
+    // Emit the content change so we can use it in the parent component
+    dispatch('contentChange', editor.getValue());
   });
 });
 

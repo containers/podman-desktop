@@ -21,11 +21,12 @@ import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import type { TrayMenu } from '../tray-menu.js';
 import { EventEmitter } from 'node:events';
 import { PluginSystem } from './index.js';
-import type { WebContents } from 'electron';
+import type { BrowserWindow, WebContents } from 'electron';
 import { shell, clipboard } from 'electron';
 import type { MessageBox } from './message-box.js';
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import { CancellationTokenRegistry } from './cancellation-token-registry.js';
+import { Deferred } from './util/deferred.js';
 
 let pluginSystem: PluginSystem;
 
@@ -34,6 +35,8 @@ const webContents = emitter as unknown as WebContents;
 
 // add send method
 webContents.send = vi.fn();
+
+const mainWindowDeferred = new Deferred<BrowserWindow>();
 
 beforeAll(() => {
   vi.mock('electron', () => {
@@ -50,7 +53,7 @@ beforeAll(() => {
     };
   });
   const trayMenuMock = {} as unknown as TrayMenu;
-  pluginSystem = new PluginSystem(trayMenuMock);
+  pluginSystem = new PluginSystem(trayMenuMock, mainWindowDeferred);
 });
 
 beforeEach(() => {

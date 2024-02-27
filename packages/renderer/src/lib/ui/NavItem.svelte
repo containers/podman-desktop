@@ -38,15 +38,16 @@ onDestroy(() => {
     class="flex py-3 justify-center items-center cursor-pointer"
     class:border-x-[4px]="{!inSection}"
     class:px-2="{inSection}"
-    class:border-charcoal-800="{!inSection}"
-    class:text-white="{!selected || !inSection}"
-    class:text-purple-500="{selected && inSection}"
-    class:border-l-purple-500="{selected && !inSection}"
-    class:bg-charcoal-500="{selected && !inSection}"
-    class:border-r-charcoal-500="{selected && !inSection}"
-    class:border-l-charcoal-800="{!selected && !inSection}"
-    class:hover:bg-charcoal-700="{!selected || inSection}"
-    class:hover:border-charcoal-700="{!selected && !inSection}">
+    class:border-[var(--pd-global-nav-bg)]="{!inSection}"
+    class:text-[color:var(--pd-global-nav-icon)]="{!selected || !inSection}"
+    class:text-[color:var(--pd-global-nav-icon-selected)]="{selected && inSection}"
+    class:border-l-[var(--pd-global-nav-icon-selected-highlight)]="{selected && !inSection}"
+    class:bg-[var(--pd-global-nav-icon-selected-bg)]="{selected && !inSection}"
+    class:border-r-[var(--pd-global-nav-icon-selected-bg)]="{selected && !inSection}"
+    class:border-l-[var(--pd-global-nav-bg)]="{!selected && !inSection}"
+    class:hover:text-[color:var(--pd-global-nav-icon-hover)]="{!selected || inSection}"
+    class:hover:bg-[var(--pd-global-nav-icon-hover-bg)]="{!selected || inSection}"
+    class:hover:border-[var(--pd-global-nav-icon-hover-bg)]="{!selected && !inSection}">
     <Tooltip tip="{tooltip}" right>
       <slot />
     </Tooltip>

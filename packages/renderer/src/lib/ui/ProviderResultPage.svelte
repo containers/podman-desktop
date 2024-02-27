@@ -157,12 +157,12 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
             {/if}
             {#if provider.state === 'failed'}
               <span class="text-red-600 mt-1">
-                <Fa size="18" icon="{faExclamationTriangle}" />
+                <Fa size="1.1x" icon="{faExclamationTriangle}" />
               </span>
             {/if}
             {#if provider.state === 'canceled'}
               <span class="text-gray-500">
-                <Fa size="18" icon="{faCircleMinus}" />
+                <Fa size="1.1x" icon="{faCircleMinus}" />
               </span>
             {/if}
             {#if provider.state === 'success'}
@@ -197,7 +197,7 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
               class:text-gray-800="{result.check.severity === 'medium'}"
               class:text-gray-500="{result.check.severity === 'low'}"
               class:text-green-500="{result.check.status === 'success'}"
-              ><Fa size="18" class="mt-1" icon="{getIcon(result.check)}" />
+              ><Fa size="1.1x" class="mt-1" icon="{getIcon(result.check)}" />
             </span>
             <div class="font-bold">{result.check.name}</div>
             <div class="text-gray-900 text-sm grow text-right">Reported by {result.provider.label}</div>

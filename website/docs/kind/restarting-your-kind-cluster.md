@@ -1,6 +1,6 @@
 ---
 sidebar_position: 5
-title: Restarting your Kind cluster
+title: Restarting a cluster
 description: Restarting your local Kind-powered Kubernetes cluster.
 keywords: [podman desktop, podman, containers, migrating, kubernetes, kind]
 tags: [migrating-to-kubernetes, kind]

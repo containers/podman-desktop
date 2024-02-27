@@ -42,7 +42,7 @@ onMount(() => {
 });
 </script>
 
-<div class="flex flex-col justify-center items-center mx-1 bg-charcoal-600 rounded my-1">
+<div class="flex flex-col justify-center items-center mx-1 bg-[var(--pd-global-nav-icon-inset-bg)] rounded my-1">
   {#if expanded}
     <div class="inline-block pt-0.5">
       <div transition:fadeSlide="{{ duration: 500 }}">
@@ -62,7 +62,7 @@ onMount(() => {
             <slot name="icon" />
           </div>
         {/if}
-        <Fa size="12" icon="{expanded ? faChevronUp : faChevronDown}" />
+        <Fa size="0.8x" icon="{expanded ? faChevronUp : faChevronDown}" />
       </div>
     </Tooltip>
   </button>

@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { BrowserWindowConstructorOptions, FileFilter } from 'electron';
-import { autoUpdater, Menu, BrowserWindow, ipcMain, app, dialog, screen, nativeTheme } from 'electron';
+import type { BrowserWindowConstructorOptions } from 'electron';
+import { autoUpdater, Menu, BrowserWindow, ipcMain, app, screen, nativeTheme } from 'electron';
 import contextMenu from 'electron-context-menu';
 import { aboutMenuItem } from 'electron-util';
 import { join } from 'path';
@@ -96,55 +96,6 @@ async function createWindow(): Promise<BrowserWindow> {
     } else {
       browserWindow.show();
     }
-  });
-
-  // select a file using native widget
-  ipcMain.on('dialog:openFile', (_, param: { dialogId: string; message: string; filter: FileFilter }) => {
-    dialog
-      .showOpenDialog(browserWindow, {
-        properties: ['openFile'],
-        filters: [param.filter],
-        message: param.message,
-      })
-      .then(response => {
-        // send the response back
-        browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
-      })
-      .catch((err: unknown) => {
-        console.error('Error opening file', err);
-      });
-  });
-
-  // select a folder using native widget
-  ipcMain.on('dialog:openFolder', (_, param: { dialogId: string; message: string }) => {
-    dialog
-      .showOpenDialog(browserWindow, {
-        properties: ['openDirectory'],
-        message: param.message,
-      })
-      .then(response => {
-        // send the response back
-        browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
-      })
-      .catch((err: unknown) => {
-        console.error('Error opening folder', err);
-      });
-  });
-
-  ipcMain.on('dialog:saveFile', (_, param: { dialogId: string; message: string; defaultPath: string }) => {
-    dialog
-      .showSaveDialog(browserWindow, {
-        title: param.message,
-        defaultPath: param.defaultPath,
-      })
-      .then(response => {
-        if (!response.canceled && response.filePath) {
-          browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
-        }
-      })
-      .catch((err: unknown) => {
-        console.error('Error saving file', err);
-      });
   });
 
   let configurationRegistry: ConfigurationRegistry;

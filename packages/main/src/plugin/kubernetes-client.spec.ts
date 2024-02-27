@@ -37,6 +37,8 @@ import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import * as fs from 'node:fs';
 import type { V1Route } from './api/openshift-types.js';
 import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
+import { IncomingMessage } from 'node:http';
+import { Socket } from 'node:net';
 
 const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
 const informerManager: KubernetesInformerManager = new KubernetesInformerManager();
@@ -48,6 +50,33 @@ const telemetry: Telemetry = {
 } as unknown as Telemetry;
 const makeApiClientMock = vi.fn();
 const getContextObjectMock = vi.fn();
+
+const podAndDeploymentTestYAML = `apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-deployment
+  template:
+    metadata:
+      labels:
+        app: my-deployment
+    spec:
+      containers:
+      - name: my-deployment
+        image: my-deployment-image
+        ports:
+        - containerPort: 80
+`;
 
 class TestKubernetesClient extends KubernetesClient {
   public createWatchObject(): Watch {
@@ -120,6 +149,14 @@ beforeAll(() => {
       NetworkingV1Api: {},
       VersionApi: {},
       makeInformer: vi.fn(),
+      KubernetesObjectApi: vi.fn(),
+      HttpError: class HttpError extends Error {
+        statusCode: number;
+        constructor(statusCode: number, message: string) {
+          super(message);
+          this.statusCode = statusCode;
+        }
+      },
     };
   });
 });
@@ -133,29 +170,22 @@ beforeEach(() => {
 });
 
 test('Create Kubernetes resources with empty should return ok', async () => {
-  const client = new KubernetesClient(
-    {} as ApiSenderType,
-    configurationRegistry,
-    fileSystemMonitoring,
-    informerManager,
-    telemetry,
-  );
+  const client = createTestClient();
   await client.createResources('dummy', []);
-  expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', { manifestsSize: 0 });
+  expect(telemetry.track).toHaveBeenCalledWith('kubernetesSyncResources', { action: 'create', manifestsSize: 0 });
 });
 
 test('Create Kubernetes resources with v1 resource should return ok', async () => {
-  const client = new KubernetesClient(
-    {} as ApiSenderType,
-    configurationRegistry,
-    fileSystemMonitoring,
-    informerManager,
-    telemetry,
-  );
-  const spy = vi.spyOn(client, 'createV1Resource').mockReturnValue(Promise.resolve());
+  const client = createTestClient();
+  const readMock = vi.fn().mockRejectedValue(new Error('ResourceDoesntExistError'));
+  const createMock = vi.fn().mockReturnValue({});
+  makeApiClientMock.mockReturnValue({
+    read: readMock,
+    create: createMock,
+  });
   await client.createResources('dummy', [{ apiVersion: 'v1', kind: 'Namespace' }]);
-  expect(spy).toBeCalled();
-  expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', { manifestsSize: 1 });
+  expect(createMock).toHaveBeenCalled();
+  expect(telemetry.track).toHaveBeenCalledWith('kubernetesSyncResources', { action: 'create', manifestsSize: 1 });
 });
 
 describe.each([
@@ -170,21 +200,24 @@ describe.each([
   'Create Kubernetes resources with apps/v1 resource should return ok',
   ({ manifest, namespace, expectedNamespace }) => {
     test(`should use namespace ${expectedNamespace}`, async () => {
-      const client = new KubernetesClient(
-        {} as ApiSenderType,
-        configurationRegistry,
-        fileSystemMonitoring,
-        informerManager,
-        telemetry,
-      );
-      const createNamespacedDeploymentMock = vi.fn();
+      const client = createTestClient();
+      const readMock = vi.fn().mockRejectedValue(new Error('ResourceDoesntExistError'));
+      const createMock = vi.fn().mockReturnValue({});
       makeApiClientMock.mockReturnValue({
-        createNamespacedDeployment: createNamespacedDeploymentMock,
+        read: readMock,
+        create: createMock,
       });
 
       await client.createResources('dummy', [manifest], namespace);
-      expect(createNamespacedDeploymentMock).toBeCalledWith(expectedNamespace, manifest);
-      expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', { manifestsSize: 1 });
+      expect(readMock).toHaveBeenCalled();
+      expect(createMock).toHaveBeenCalledWith(
+        expect.objectContaining({ metadata: expect.objectContaining({ namespace: expectedNamespace }) }),
+      );
+      expect(telemetry.track).toHaveBeenCalledWith('kubernetesSyncResources', {
+        action: 'create',
+        manifestsSize: 1,
+        namespace: namespace,
+      });
     });
   },
 );
@@ -209,33 +242,30 @@ describe.each([
   'Create Kubernetes resources with networking.k8s.io/v1 resource should return ok',
   ({ manifest, namespace, expectedNamespace }) => {
     test(`should use namespace ${expectedNamespace}`, async () => {
-      const client = new KubernetesClient(
-        {} as ApiSenderType,
-        configurationRegistry,
-        fileSystemMonitoring,
-        informerManager,
-        telemetry,
-      );
-      const createNamespacedIngressMock = vi.fn();
+      const client = createTestClient();
+      const readMock = vi.fn().mockRejectedValue(new Error('ResourceDoesntExistError'));
+      const createMock = vi.fn().mockReturnValue({});
       makeApiClientMock.mockReturnValue({
-        createNamespacedIngress: createNamespacedIngressMock,
+        read: readMock,
+        create: createMock,
       });
 
       await client.createResources('dummy', [manifest], namespace);
-      expect(createNamespacedIngressMock).toBeCalledWith(expectedNamespace, manifest);
-      expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', { manifestsSize: 1 });
+      expect(readMock).toHaveBeenCalled();
+      expect(createMock).toHaveBeenCalledWith(
+        expect.objectContaining({ metadata: expect.objectContaining({ namespace: expectedNamespace }) }),
+      );
+      expect(telemetry.track).toHaveBeenCalledWith('kubernetesSyncResources', {
+        action: 'create',
+        manifestsSize: 1,
+        namespace: namespace,
+      });
     });
   },
 );
 
 test('Create Kubernetes resources with v1 resource in error should return error', async () => {
-  const client = new KubernetesClient(
-    {} as ApiSenderType,
-    configurationRegistry,
-    fileSystemMonitoring,
-    informerManager,
-    telemetry,
-  );
+  const client = createTestClient();
   const spy = vi.spyOn(client, 'createV1Resource').mockRejectedValue(new Error('V1Error'));
   try {
     await client.createResources('dummy', [{ apiVersion: 'v1', kind: 'Namespace' }]);
@@ -244,7 +274,8 @@ test('Create Kubernetes resources with v1 resource in error should return error'
     expect(spy).toBeCalled();
     expect(err).to.be.a('Error');
     expect(err.message).equal('V1Error');
-    expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', {
+    expect(telemetry.track).toHaveBeenCalledWith('kubernetesSyncResources', {
+      action: 'create',
       manifestsSize: 1,
       error: new Error('V1Error'),
     });
@@ -252,8 +283,16 @@ test('Create Kubernetes resources with v1 resource in error should return error'
 });
 
 describe.each([
-  { manifest: { apiVersion: 'group/v1', kind: 'Namespace' }, namespace: undefined, expectedNamespace: 'default' },
-  { manifest: { apiVersion: 'group/v1', kind: 'Namespace' }, namespace: 'defaultns', expectedNamespace: 'defaultns' },
+  {
+    manifest: { apiVersion: 'group/v1', kind: 'Namespace' },
+    namespace: undefined,
+    expectedNamespace: 'default',
+  },
+  {
+    manifest: { apiVersion: 'group/v1', kind: 'Namespace' },
+    namespace: 'defaultns',
+    expectedNamespace: 'defaultns',
+  },
   {
     manifest: { apiVersion: 'group/v1', kind: 'Namespace', metadata: { namespace: 'demons' } },
     namespace: undefined,
@@ -261,37 +300,28 @@ describe.each([
   },
 ])('Create custom Kubernetes resources should return ok', ({ manifest, namespace, expectedNamespace }) => {
   test(`should use namespace ${expectedNamespace}`, async () => {
-    const client = new KubernetesClient(
-      {} as ApiSenderType,
-      configurationRegistry,
-      fileSystemMonitoring,
-      informerManager,
-      telemetry,
-    );
-    const spy = vi.spyOn(client, 'createCustomResource').mockReturnValue(Promise.resolve());
-    vi.spyOn(client, 'getAPIResource').mockReturnValue(
-      Promise.resolve({
-        name: 'namespaces',
-        namespaced: true,
-        kind: 'Namespace',
-        singularName: 'namespace',
-        verbs: [],
-      }),
-    );
+    const client = createTestClient();
+    const createMock = vi.fn().mockReturnValue({});
+    const readMock = vi.fn().mockRejectedValue(new Error('ResourceDoesntExistError'));
+    makeApiClientMock.mockReturnValue({
+      read: readMock,
+      create: createMock,
+    });
     await client.createResources('dummy', [manifest], namespace);
-    expect(spy).toBeCalledWith(expect.anything(), 'group', 'v1', 'namespaces', expectedNamespace, manifest);
-    expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', { manifestsSize: 1 });
+    expect(readMock).toHaveBeenCalled();
+    expect(createMock).toHaveBeenCalledWith(
+      expect.objectContaining({ metadata: expect.objectContaining({ namespace: expectedNamespace }) }),
+    );
+    expect(telemetry.track).toHaveBeenCalledWith('kubernetesSyncResources', {
+      action: 'create',
+      manifestsSize: 1,
+      namespace: namespace,
+    });
   });
 });
 
 test('Create custom Kubernetes resources in error should return error', async () => {
-  const client = new KubernetesClient(
-    {} as ApiSenderType,
-    configurationRegistry,
-    fileSystemMonitoring,
-    informerManager,
-    telemetry,
-  );
+  const client = createTestClient();
   const spy = vi.spyOn(client, 'createCustomResource').mockRejectedValue(new Error('CustomError'));
   vi.spyOn(client, 'getAPIResource').mockReturnValue(
     Promise.resolve({ name: 'namespaces', namespaced: true, kind: 'Namespace', singularName: 'namespace', verbs: [] }),
@@ -303,7 +333,8 @@ test('Create custom Kubernetes resources in error should return error', async ()
     expect(spy).toBeCalled();
     expect(err).to.be.a('Error');
     expect(err.message).equal('CustomError');
-    expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', {
+    expect(telemetry.track).toHaveBeenCalledWith('kubernetesSyncResources', {
+      action: 'create',
       manifestsSize: 1,
       error: new Error('CustomError'),
     });
@@ -311,13 +342,7 @@ test('Create custom Kubernetes resources in error should return error', async ()
 });
 
 test('Create unknown custom Kubernetes resources should return error', async () => {
-  const client = new KubernetesClient(
-    {} as ApiSenderType,
-    configurationRegistry,
-    fileSystemMonitoring,
-    informerManager,
-    telemetry,
-  );
+  const client = createTestClient();
   const createSpy = vi.spyOn(client, 'createCustomResource').mockReturnValue(Promise.resolve());
   const pluralSpy = vi.spyOn(client, 'getAPIResource').mockRejectedValue(new Error('CustomError'));
   try {
@@ -328,7 +353,8 @@ test('Create unknown custom Kubernetes resources should return error', async () 
     expect(pluralSpy).toBeCalled();
     expect(err).to.be.a('Error');
     expect(err.message).equal('CustomError');
-    expect(telemetry.track).toHaveBeenCalledWith('kubernetesCreateResource', {
+    expect(telemetry.track).toHaveBeenCalledWith('kubernetesSyncResources', {
+      action: 'create',
       manifestsSize: 1,
       error: new Error('CustomError'),
     });
@@ -1215,4 +1241,189 @@ test('Expect ingress refreshInformer should stop and start the informer again', 
   await client.refreshInformer(id);
   expect(stopInformerMock).toBeCalled();
   expect(apiSenderSendMock).toBeCalledWith('kubernetes-informer-refresh', id);
+});
+
+test('Expect apply with invalid file should error', async () => {
+  const client = createTestClient('default');
+  let expectedError: unknown;
+  try {
+    await client.applyResourcesFromFile('default', 'missing-file.yaml');
+  } catch (err: unknown) {
+    expectedError = err;
+  }
+  expect(expectedError).to.be.a('Error');
+  expect((expectedError as Error).message).equal('File missing-file.yaml does not exist');
+});
+
+test('Expect apply with empty yaml should throw error', async () => {
+  const client = createTestClient('default');
+  vi.spyOn(client, 'loadManifestsFromFile').mockReturnValue(Promise.resolve([]));
+  let expectedError: unknown;
+  try {
+    await client.applyResourcesFromFile('default', 'missing-file.yaml');
+  } catch (err: unknown) {
+    expectedError = err;
+  }
+  expect(expectedError).to.be.a('Error');
+  expect((expectedError as Error).message).equal('No valid Kubernetes resources found in file');
+});
+
+test('Expect apply should create if object does not exist', async () => {
+  const client = createTestClient('default');
+  const manifests = { kind: test, metadata: { annotations: test } } as unknown as KubernetesObject;
+  const createdObj = { kind: 'created' };
+  vi.spyOn(client, 'loadManifestsFromFile').mockReturnValue(Promise.resolve([manifests]));
+  makeApiClientMock.mockReturnValue({
+    create: vi.fn().mockReturnValue({ body: createdObj }),
+  });
+
+  const objects = await client.applyResourcesFromFile('default', 'some-file.yaml');
+
+  expect(objects).toHaveLength(1);
+  expect(objects[0]).toEqual(createdObj);
+});
+
+test('Expect apply should patch if object exists', async () => {
+  const client = createTestClient('default');
+  const manifests = { kind: test, metadata: { annotations: test } } as unknown as KubernetesObject;
+  const patchedObj = { kind: 'patched' };
+  vi.spyOn(client, 'loadManifestsFromFile').mockReturnValue(Promise.resolve([manifests]));
+  makeApiClientMock.mockReturnValue({
+    read: vi.fn(),
+    patch: vi.fn().mockReturnValue({ body: patchedObj }),
+  });
+
+  const objects = await client.applyResourcesFromFile('default', 'some-file.yaml');
+
+  expect(objects).toHaveLength(1);
+  expect(objects[0]).toEqual(patchedObj);
+});
+
+test('If Kubernetes returns a http error, output the http body message error.', async () => {
+  const client = createTestClient();
+  makeApiClientMock.mockReturnValue({
+    read: vi.fn().mockReturnValue({}),
+    create: vi
+      .fn()
+      .mockRejectedValue(
+        new clientNode.HttpError(
+          new IncomingMessage(new Socket()),
+          { body: { message: 'A K8sError within message body' } },
+          500,
+        ),
+      ),
+  });
+  try {
+    await client.createResources('dummy', [{ apiVersion: 'v1' }]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    console.log(err);
+    // Check that the error is clientNode.HttpError
+    expect(err).to.be.a('Error');
+    expect(err.message).contain('A K8sError within message body');
+  }
+});
+
+test('Expect loadManifestsFromYAML to correctly return a KubernetesObject[] from a valid YAML string', async () => {
+  const client = createTestClient();
+  const expectedObjects = [
+    {
+      apiVersion: 'v1',
+      kind: 'Pod',
+      metadata: {
+        name: 'my-pod',
+      },
+    },
+    {
+      apiVersion: 'apps/v1',
+      kind: 'Deployment',
+      metadata: {
+        name: 'my-deployment',
+        namespace: 'default',
+      },
+      spec: {
+        replicas: 3,
+        selector: {
+          matchLabels: {
+            app: 'my-deployment',
+          },
+        },
+        template: {
+          metadata: {
+            labels: {
+              app: 'my-deployment',
+            },
+          },
+          spec: {
+            containers: [
+              {
+                name: 'my-deployment',
+                image: 'my-deployment-image',
+                ports: [
+                  {
+                    containerPort: 80,
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
+    },
+  ];
+  const objects = await client.loadManifestsFromYAML(podAndDeploymentTestYAML);
+  expect(objects).toEqual(expectedObjects);
+});
+
+test('Expect applyResourcesFromYAML to correctly call applyResources after loading the YAML', async () => {
+  const client = createTestClient();
+  const expectedObjects = [
+    {
+      apiVersion: 'v1',
+      kind: 'Pod',
+      metadata: {
+        name: 'my-pod',
+      },
+    },
+    {
+      apiVersion: 'apps/v1',
+      kind: 'Deployment',
+      metadata: {
+        name: 'my-deployment',
+        namespace: 'default',
+      },
+      spec: {
+        replicas: 3,
+        selector: {
+          matchLabels: {
+            app: 'my-deployment',
+          },
+        },
+        template: {
+          metadata: {
+            labels: {
+              app: 'my-deployment',
+            },
+          },
+          spec: {
+            containers: [
+              {
+                name: 'my-deployment',
+                image: 'my-deployment-image',
+                ports: [
+                  {
+                    containerPort: 80,
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
+    },
+  ];
+  const applyResourcesSpy = vi.spyOn(client, 'applyResources').mockReturnValue(Promise.resolve(expectedObjects));
+  const objects = await client.applyResourcesFromYAML('default', podAndDeploymentTestYAML);
+  expect(objects).toEqual(expectedObjects);
+  expect(applyResourcesSpy).toHaveBeenCalledWith('default', expectedObjects, 'apply');
 });

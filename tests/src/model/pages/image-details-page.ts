@@ -23,6 +23,7 @@ import { ImageEditPage } from './image-edit-page';
 import { ImagesPage } from './images-page';
 import { waitUntil } from '../../utility/wait';
 import { handleConfirmationDialog } from '../../utility/operations';
+import { expect as playExpect } from '@playwright/test';
 
 export class ImageDetailsPage extends BasePage {
   readonly name: Locator;
@@ -36,6 +37,8 @@ export class ImageDetailsPage extends BasePage {
   readonly inspectTab: Locator;
   readonly closeLink: Locator;
   readonly backToImagesLink: Locator;
+  readonly actionsButton: Locator;
+  readonly buildDiskImageButton: Locator;
 
   constructor(page: Page, name: string) {
     super(page);
@@ -50,6 +53,8 @@ export class ImageDetailsPage extends BasePage {
     this.inspectTab = page.getByText('Inspect');
     this.closeLink = page.getByRole('link', { name: 'Close Details' });
     this.backToImagesLink = page.getByRole('link', { name: 'Go back to Images' });
+    this.actionsButton = page.getByRole('button', { name: 'kebab menu' });
+    this.buildDiskImageButton = page.getByTitle('Build Disk Image');
   }
 
   async openRunImage(): Promise<RunImagePage> {
@@ -64,9 +69,41 @@ export class ImageDetailsPage extends BasePage {
   }
 
   async deleteImage(): Promise<ImagesPage> {
-    await waitUntil(async () => await this.deleteButton.isEnabled(), 5000, 500);
+    await waitUntil(async () => await this.deleteButton.isEnabled(), 10000, 500);
     await this.deleteButton.click();
     await handleConfirmationDialog(this.page);
     return new ImagesPage(this.page);
+  }
+
+  async buildDiskImage(type: string, architecture: string, pathToStore: string): Promise<boolean> {
+    await this.actionsButton.click();
+    await playExpect(this.buildDiskImageButton).toBeEnabled();
+    await this.buildDiskImageButton.click();
+
+    const typeButtonLocator = this.page.getByRole('button', { name: type });
+    await playExpect(typeButtonLocator).toBeEnabled();
+    await typeButtonLocator.click();
+
+    const architectureButtonLocator = this.page.getByRole('button', { name: architecture });
+    await playExpect(architectureButtonLocator).toBeEnabled();
+    await architectureButtonLocator.click();
+
+    const pathInputLocator = this.page.locator(`input[type='text']`);
+    await playExpect(pathInputLocator).toBeVisible();
+    await pathInputLocator.clear();
+    await pathInputLocator.fill(pathToStore);
+    await pathInputLocator.press('Enter');
+
+    const dialogLocator = this.page.getByRole('dialog', { name: 'Bootable Container', exact: true });
+    await playExpect.poll(async () => (await dialogLocator.count()) > 0, { timeout: 300000 }).toBeTruthy();
+
+    const dialogMessageLocator = this.page.getByLabel('Dialog Message');
+    const result = (await dialogMessageLocator.innerText()).includes('Success!');
+
+    const okButtonLocator = this.page.getByRole('button', { name: 'OK' });
+    await playExpect(okButtonLocator).toBeEnabled();
+    await okButtonLocator.click();
+
+    return result;
   }
 }

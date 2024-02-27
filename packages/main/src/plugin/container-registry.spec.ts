@@ -212,6 +212,14 @@ class TestContainerProviderRegistry extends ContainerProviderRegistry {
     return super.getMatchingContainer(engineId, containerId);
   }
 
+  public getMatchingPodmanEngine(engineId: string): InternalContainerProvider {
+    return super.getMatchingPodmanEngine(engineId);
+  }
+
+  public getMatchingPodmanEngineLibPod(engineId: string): LibPod {
+    return super.getMatchingPodmanEngineLibPod(engineId);
+  }
+
   public getMatchingContainerProvider(
     providerContainerConnectionInfo: ProviderContainerConnectionInfo | podmanDesktopAPI.ContainerProviderConnection,
   ): InternalContainerProvider {
@@ -2391,6 +2399,69 @@ describe('createContainer', () => {
     expect(createContainerMock).toHaveBeenCalledWith(expect.not.objectContaining({ EnvFiles: ['file1', 'file2'] }));
   });
 
+  async function verifyCreateContainer(options: object) {
+    const createdId = '1234';
+
+    const startMock = vi.fn();
+    const inspectMock = vi.fn();
+    const createContainerMock = vi
+      .fn()
+      .mockResolvedValue({ id: createdId, start: startMock, inspect: inspectMock } as unknown as Dockerode.Container);
+
+    inspectMock.mockResolvedValue({
+      Config: {
+        Tty: false,
+        OpenStdin: false,
+      },
+    });
+
+    const fakeDockerode = {
+      createContainer: createContainerMock,
+    } as unknown as Dockerode;
+
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman1',
+      id: 'podman1',
+      connection: {
+        type: 'podman',
+      },
+      api: fakeDockerode,
+    } as InternalContainerProvider);
+
+    const container = await containerRegistry.createContainer('podman1', options);
+
+    expect(container.id).toBe(createdId);
+    expect(createContainerMock).toHaveBeenCalled();
+    expect(startMock).toHaveBeenCalled();
+
+    // expect healthcheck to be set
+    expect(createContainerMock).toHaveBeenCalledWith(expect.objectContaining(options));
+  }
+
+  test('test create and start Container with platform', async () => {
+    await verifyCreateContainer({ platform: 'linux-arm64' });
+  });
+
+  test('test create and start Container with Domainname', async () => {
+    await verifyCreateContainer({ Domainname: 'my-domain' });
+  });
+
+  test('test create and start Container with healthcheck', async () => {
+    await verifyCreateContainer({ HealthCheck: { Test: ['cmd', 'arg1'] } });
+  });
+
+  test('test create and start Container with ArgsEscaped', async () => {
+    await verifyCreateContainer({ ArgsEscaped: true });
+  });
+
+  test('test create and start Container with Volumes', async () => {
+    await verifyCreateContainer({ Volumes: { Vol1: {} } });
+  });
+
+  test('test create and start Container with WorkingDir', async () => {
+    await verifyCreateContainer({ WorkingDir: 'workdir' });
+  });
+
   test('test container is created but not started', async () => {
     const createdId = '1234';
 
@@ -3225,5 +3296,68 @@ test('list pods', async () => {
   expect(pod.Labels).toStrictEqual({
     key1: 'value1',
     key2: 'value2',
+  });
+});
+
+describe('getMatchingPodmanEngine', () => {
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+  test('should throw error if no engine is found', () => {
+    expect(() => containerRegistry.getMatchingPodmanEngine('podman')).toThrowError('no engine matching this engine');
+  });
+  test('should throw error if engine has no api', () => {
+    containerRegistry.addInternalProvider('podman', {
+      name: 'podman',
+      id: 'podman1',
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+    expect(() => containerRegistry.getMatchingPodmanEngine('podman')).toThrowError(
+      'no running provider for the matching engine',
+    );
+  });
+  test('should throw error if engine has no libPodApi', () => {
+    containerRegistry.addInternalProvider('podman', {
+      name: 'podman',
+      id: 'podman1',
+      api,
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+    expect(() => containerRegistry.getMatchingPodmanEngine('podman')).toThrowError(
+      'LibPod is not supported by this engine',
+    );
+  });
+  test('should return found engine', () => {
+    const containerProvider = {
+      name: 'podman',
+      id: 'podman1',
+      api,
+      libpodApi: api,
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider;
+    containerRegistry.addInternalProvider('podman', containerProvider);
+    const result = containerRegistry.getMatchingPodmanEngine('podman');
+    expect(result).equal(containerProvider);
+  });
+});
+describe('getMatchingPodmanEngineLibPod', () => {
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+  test('should return found lib', () => {
+    const containerProvider = {
+      name: 'podman',
+      id: 'podman1',
+      api,
+      libpodApi: api,
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider;
+    containerRegistry.addInternalProvider('podman', containerProvider);
+    const result = containerRegistry.getMatchingPodmanEngineLibPod('podman');
+    expect(result).equal(api);
   });
 });

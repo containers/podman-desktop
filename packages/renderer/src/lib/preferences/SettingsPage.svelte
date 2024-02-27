@@ -6,8 +6,18 @@ export let title: string;
   <div class="min-w-full px-5 py-4" role="region" aria-label="Header">
     <div class="flex flex-row">
       <div class="grow">
-        <div class="capitalize text-xl" role="heading" aria-level="1" aria-label="Title">{title}</div>
-        <div class="text-sm text-gray-700" role="heading" aria-level="2" aria-label="Subtitle">
+        <div
+          class="capitalize text-xl text-[color:var(--pd-invert-content-header-text)]"
+          role="heading"
+          aria-level="1"
+          aria-label="Title">
+          {title}
+        </div>
+        <div
+          class="text-sm text-[color:var(--pd-invert-content-header2-text)]"
+          role="heading"
+          aria-level="2"
+          aria-label="Subtitle">
           <slot name="subtitle"><br /></slot>
         </div>
       </div>

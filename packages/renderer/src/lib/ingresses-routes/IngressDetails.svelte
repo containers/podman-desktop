@@ -14,6 +14,7 @@ import IngressRouteActions from './IngressRouteActions.svelte';
 import ServiceDetailsSummary from './IngressRouteDetailsSummary.svelte';
 import ServiceIcon from '../images/ServiceIcon.svelte';
 import Route from '../../Route.svelte';
+import KubeEditYAML from '../kube/KubeEditYAML.svelte';
 
 export let name: string;
 export let namespace: string;
@@ -68,13 +69,13 @@ async function loadIngressDetails() {
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
-        <ServiceDetailsSummary ingressRouteUI="{ingressUI}" ingressRoute="{kubeService}" kubeError="{kubeError}" />
+        <ServiceDetailsSummary ingressRoute="{kubeService}" kubeError="{kubeError}" />
       </Route>
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <MonacoEditor content="{JSON.stringify(kubeService, undefined, 2)}" language="json" />
       </Route>
       <Route path="/kube" breadcrumb="Kube" navigationHint="tab">
-        <MonacoEditor content="{stringify(kubeService)}" language="yaml" />
+        <KubeEditYAML content="{stringify(kubeService)}" />
       </Route>
     </svelte:fragment>
   </DetailsPage>

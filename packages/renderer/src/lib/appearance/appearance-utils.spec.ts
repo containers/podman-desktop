@@ -128,7 +128,10 @@ describe('getTheme', () => {
     getConfigurationValueMock.mockResolvedValue(AppearanceSettings.SystemEnumValue);
 
     const theme = await appearanceUtil.getTheme();
-    expect(theme).toBe('light');
+
+    // FIXME: for now we hardcode to the dark theme even if the Operating System is using light theme
+    // expect(theme).toBe('light');
+    expect(theme).toBe('dark');
   });
 
   test('should return dark if value is dark even if os is light', async () => {

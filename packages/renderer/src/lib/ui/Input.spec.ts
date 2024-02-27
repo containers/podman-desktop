@@ -27,10 +27,20 @@ function renderInput(
   value: string,
   placeholder?: string,
   readonly?: boolean,
+  disabled?: boolean,
   clearable?: boolean,
+  error?: string,
   onClick?: any,
 ): void {
-  render(Input, { value: value, placeholder: placeholder, readonly: readonly, clearable: clearable, onClick: onClick });
+  render(Input, {
+    value: value,
+    placeholder: placeholder,
+    disabled: disabled,
+    readonly: readonly,
+    clearable: clearable,
+    error: error,
+    onClick: onClick,
+  });
 }
 
 test('Expect basic styling', async () => {
@@ -41,7 +51,7 @@ test('Expect basic styling', async () => {
   expect(element).toBeInTheDocument();
   expect(element).toHaveClass('px-1');
   expect(element).toHaveClass('outline-0');
-  expect(element).toHaveClass('bg-charcoal-500');
+  expect(element).toHaveClass('bg-transparent');
   expect(element).toHaveClass('text-sm');
   expect(element).toHaveClass('text-white');
 
@@ -50,9 +60,9 @@ test('Expect basic styling', async () => {
   expect(element).toHaveClass('group-hover-placeholder:text-gray-900');
 
   expect(element.parentElement).toBeInTheDocument();
-  expect(element.parentElement).toHaveClass('bg-charcoal-500');
+  expect(element.parentElement).toHaveClass('bg-transparent');
   expect(element.parentElement).toHaveClass('border-[1px]');
-  expect(element.parentElement).toHaveClass('border-charcoal-500');
+  expect(element.parentElement).toHaveClass('border-transparent');
 
   expect(element.parentElement).toHaveClass('hover:bg-charcoal-900');
   expect(element.parentElement).toHaveClass('hover:rounded-md');
@@ -67,7 +77,7 @@ test('Expect basic readonly styling', async () => {
   expect(element).toBeInTheDocument();
   expect(element).toHaveClass('px-1');
   expect(element).toHaveClass('outline-0');
-  expect(element).toHaveClass('bg-charcoal-500');
+  expect(element).toHaveClass('bg-transparent');
   expect(element).toHaveClass('text-sm');
   expect(element).toHaveClass('text-white');
 
@@ -76,9 +86,36 @@ test('Expect basic readonly styling', async () => {
   expect(element).not.toHaveClass('group-hover-placeholder:text-gray-900');
 
   expect(element.parentElement).toBeInTheDocument();
-  expect(element.parentElement).toHaveClass('bg-charcoal-500');
+  expect(element.parentElement).toHaveClass('bg-transparent');
   expect(element.parentElement).toHaveClass('border-[1px]');
-  expect(element.parentElement).toHaveClass('border-charcoal-500');
+  expect(element.parentElement).toHaveClass('border-transparent');
+  expect(element.parentElement).toHaveClass('border-b-charcoal-100');
+
+  expect(element.parentElement).not.toHaveClass('hover:bg-charcoal-900');
+  expect(element.parentElement).not.toHaveClass('hover:rounded-md');
+  expect(element.parentElement).not.toHaveClass('hover:border-purple-400');
+});
+
+test('Expect basic disabled styling', async () => {
+  const value = 'test';
+  renderInput(value, value, false, true);
+
+  const element = screen.getByPlaceholderText(value);
+  expect(element).toBeInTheDocument();
+  expect(element).toHaveClass('px-1');
+  expect(element).toHaveClass('outline-0');
+  expect(element).toHaveClass('bg-transparent');
+  expect(element).toHaveClass('text-sm');
+  expect(element).toHaveClass('text-gray-700');
+
+  expect(element).not.toHaveClass('group-hover:bg-charcoal-900');
+  expect(element).not.toHaveClass('group-focus-within:bg-charcoal-900');
+  expect(element).not.toHaveClass('group-hover-placeholder:text-gray-900');
+
+  expect(element.parentElement).toBeInTheDocument();
+  expect(element.parentElement).toHaveClass('bg-transparent');
+  expect(element.parentElement).toHaveClass('border-[1px]');
+  expect(element.parentElement).toHaveClass('border-transparent');
   expect(element.parentElement).toHaveClass('border-b-charcoal-100');
 
   expect(element.parentElement).not.toHaveClass('hover:bg-charcoal-900');
@@ -88,10 +125,28 @@ test('Expect basic readonly styling', async () => {
 
 test('Expect clear styling', async () => {
   const value = 'test';
-  renderInput(value, value, false, true);
+  renderInput(value, value, false, false, true);
 
   const element = screen.getByRole('button');
   expect(element).toBeInTheDocument();
   expect(element).toHaveAttribute('aria-label', 'clear');
   expect(element).toHaveClass('cursor-pointer');
+});
+
+test('Expect basic error styling', async () => {
+  const value = 'test';
+  const error = 'Test error';
+  renderInput(value, value, false, false, false, error);
+
+  const element = screen.getByPlaceholderText(value);
+  expect(element).toBeInTheDocument();
+
+  expect(element.parentElement).toBeInTheDocument();
+  expect(element.parentElement).toHaveClass('border-[1px]');
+  expect(element.parentElement).toHaveClass('border-b-red-500');
+
+  expect(element.parentElement).not.toHaveClass('hover:border-red-500');
+
+  const err = screen.getByText(error);
+  expect(err).toBeInTheDocument();
 });

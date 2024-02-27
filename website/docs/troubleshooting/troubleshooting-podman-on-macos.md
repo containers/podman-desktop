@@ -1,5 +1,7 @@
 ---
 sidebar_position: 30
+title: Podman on MacOS
+description: How to investigate when Podman does not work as expected.
 ---
 
 # Troubleshooting Podman on macOS

@@ -15,6 +15,7 @@ import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 import Button from '../ui/Button.svelte';
+import Input from '/@/lib/ui/Input.svelte';
 
 let runStarted = false;
 let runFinished = false;
@@ -144,12 +145,17 @@ function goBackToHistory(): void {
 }
 
 async function getKubernetesfileLocation() {
-  const result = await window.openFileDialog('Select a .yaml file to play', {
-    name: 'YAML files',
-    extensions: ['yaml', 'yml'],
+  const filePaths = await window.openDialog({
+    title: 'Select a .yaml file to play',
+    filters: [
+      {
+        name: 'YAML files',
+        extensions: ['yaml', 'yml'],
+      },
+    ],
   });
-  if (!result.canceled && result.filePaths.length === 1) {
-    kubernetesYamlFilePath = result.filePaths[0];
+  if (filePaths?.length === 1) {
+    kubernetesYamlFilePath = filePaths[0];
     hasInvalidFields = false;
   }
 }
@@ -160,7 +166,7 @@ async function getKubernetesfileLocation() {
 {/if}
 
 {#if providerConnections.length > 0}
-  <FormPage title="Play Pods or Containers from a Kubernetes YAML File" inProgress="{runStarted && !runFinished}">
+  <FormPage title="Create pods from a Kubernetes YAML file" inProgress="{runStarted && !runFinished}">
     <KubePlayIcon slot="icon" size="30px" />
 
     <div slot="content" class="p-5 min-w-full h-fit">
@@ -168,19 +174,21 @@ async function getKubernetesfileLocation() {
         <div class="text-xl font-medium">Select file:</div>
         <div hidden="{runStarted}">
           <label for="containerFilePath" class="block mb-2 text-sm font-bold text-gray-400">Kubernetes YAML file</label>
-          <input
-            on:click="{() => getKubernetesfileLocation()}"
-            name="containerFilePath"
-            id="containerFilePath"
-            bind:value="{kubernetesYamlFilePath}"
-            readonly
-            placeholder="Select a .yaml file to play"
-            class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
-            required />
+          <div class="flex flex-row space-x-2">
+            <Input
+              name="containerFilePath"
+              id="containerFilePath"
+              bind:value="{kubernetesYamlFilePath}"
+              readonly
+              placeholder="Select a .yaml file to play"
+              class="w-full p-2"
+              required />
+            <Button on:click="{() => getKubernetesfileLocation()}">Browse ...</Button>
+          </div>
         </div>
 
         <div>
-          <div class="text-sm font-bold text-gray-400 pb-2">Select Runtime:</div>
+          <div class="text-sm font-bold text-gray-400 pb-2">Select runtime:</div>
 
           <div class="px-5">
             <div class="flex flex-col space-y-3">
@@ -243,14 +251,13 @@ async function getKubernetesfileLocation() {
                       for="contextToUse"
                       class="block mb-1 text-sm font-bold text-gray-400"
                       class:text-gray-900="{userChoice !== 'kubernetes'}">Kubernetes Context:</label>
-                    <input
-                      type="text"
+                    <Input
                       disabled="{userChoice === 'podman'}"
                       bind:value="{defaultContextName}"
                       name="defaultContextName"
                       id="defaultContextName"
                       readonly
-                      class="cursor-default w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+                      class="w-full"
                       required />
                   </div>
                 {/if}

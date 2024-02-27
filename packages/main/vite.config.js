@@ -53,7 +53,7 @@ const config = {
         '@kubernetes/client-node',
         'tar-fs',
         'ssh2',
-        'analytics-node',
+        '@segment/analytics-node',
         'express',
         'electron-devtools-installer',
         ...builtinModules.flatMap(p => [p, `node:${p}`]),

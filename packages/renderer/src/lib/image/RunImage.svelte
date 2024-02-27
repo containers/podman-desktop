@@ -18,6 +18,7 @@ import { splitSpacesHandlingDoubleQuotes } from '../string/string';
 import { array2String } from '/@/lib/string/string.js';
 import Tab from '../ui/Tab.svelte';
 import Button from '../ui/Button.svelte';
+import Input from '/@/lib/ui/Input.svelte';
 
 interface PortInfo {
   port: string;
@@ -200,9 +201,9 @@ async function getPortsInfo(portDescriptor: string): Promise<string | undefined>
  * Select an environment file
  */
 async function selectEnvironmentFile(index: number) {
-  const result = await window.openFileDialog('Select environment file');
-  if (!result.canceled && result.filePaths.length === 1) {
-    environmentFiles[index] = result.filePaths[0];
+  const filePaths = await window.openDialog({ title: 'Select environment file' });
+  if (filePaths?.length === 1) {
+    environmentFiles[index] = filePaths[0];
   }
 }
 
@@ -511,10 +512,13 @@ function deleteHostContainerPorts(index: number) {
 
 async function browseFolders(index: number) {
   // need to show the dialog to open a folder and then we update the source of the given index
-  const result = await window.openFolderDialog('Select a directory to mount in the container');
+  const result = await window.openDialog({
+    title: 'Select a directory to mount in the container',
+    selectors: ['openDirectory'],
+  });
 
-  if (!result.canceled && result.filePaths.length === 1) {
-    volumeMounts[index].source = result.filePaths[0];
+  if (result?.length === 1) {
+    volumeMounts[index].source = result[0];
   }
 }
 
@@ -657,57 +661,33 @@ async function assertAllPortAreValid(): Promise<void> {
               <div class="h-96 overflow-y-auto pr-4">
                 <label for="modalContainerName" class="block mb-2 text-sm font-medium text-gray-400"
                   >Container name:</label>
-                <input
-                  type="text"
+                <Input
                   on:input="{event => checkContainerName(event)}"
                   bind:value="{containerName}"
                   name="modalContainerName"
                   id="modalContainerName"
                   placeholder="Leave blank to generate a name"
-                  class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700 border {containerNameError
-                    ? 'border-red-500'
-                    : 'border-charcoal-800'}" />
-                {#if containerNameError}
-                  <ErrorMessage class="text-sm" error="{containerNameError}" />
-                {/if}
+                  error="{containerNameError}" />
                 <label for="modalEntrypoint" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
                   >Entrypoint:</label>
-                <input
-                  type="text"
-                  bind:value="{entrypoint}"
-                  name="modalEntrypoint"
-                  id="modalEntrypoint"
-                  class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700 border border-charcoal-800" />
+                <Input bind:value="{entrypoint}" name="modalEntrypoint" id="modalEntrypoint" />
                 <label for="modalCommand" class="pt-4 block mb-2 text-sm font-medium text-gray-400">Command:</label>
-                <input
-                  type="text"
-                  bind:value="{command}"
-                  name="modalCommand"
-                  id="modalCommand"
-                  class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700 border border-charcoal-800" />
+                <Input bind:value="{command}" name="modalCommand" id="modalCommand" />
                 <label for="volumes" class="pt-4 block mb-2 text-sm font-medium text-gray-400">Volumes:</label>
                 <!-- Display the list of volumes -->
                 {#each volumeMounts as volumeMount, index}
                   <div class="flex flex-row justify-center items-center w-full py-1">
-                    <div
-                      class="flex w-full flex-row bg-charcoal-800 rounded-sm text-sm text-gray-700 placeholder-gray-700">
-                      <input
-                        type="text"
-                        bind:value="{volumeMount.source}"
-                        placeholder="Path on the host"
-                        class="ml-2 w-full p-2 outline-none bg-charcoal-800" />
-                      <button
-                        title="Open dialog to select a directory"
-                        class="p-2 outline-none text-gray-700"
-                        on:click="{() => browseFolders(index)}">
-                        <Fa class="h-4 w-4 text-xl" icon="{faFolderOpen}" />
-                      </button>
-                    </div>
-                    <input
-                      type="text"
+                    <Input bind:value="{volumeMount.source}" placeholder="Path on the host" class="ml-2" />
+                    <button
+                      title="Open dialog to select a directory"
+                      class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
+                      on:click="{() => browseFolders(index)}">
+                      <Fa class="h-4 w-4 text-xl" icon="{faFolderOpen}" />
+                    </button>
+                    <Input
                       bind:value="{volumeMount.target}"
                       placeholder="Path inside the container"
-                      class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
+                      class="ml-2 w-full" />
                     <button
                       class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       hidden="{index === volumeMounts.length - 1}"
@@ -730,13 +710,12 @@ async function assertAllPortAreValid(): Promise<void> {
                   <div class="flex flex-row justify-center items-center w-full">
                     <span class="text-sm flex-1 inline-block align-middle whitespace-nowrap text-gray-700"
                       >Local port for {port}:</span>
-                    <input
-                      type="text"
+                    <Input
                       bind:value="{containerPortMapping[index].port}"
                       on:input="{event => onContainerPortMappingInput(event, index)}"
                       placeholder="Enter value for port {port}"
-                      class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700 border-b"
-                      class:border-red-500="{containerPortMapping[index].error.length > 0}"
+                      error="{containerPortMapping[index].error}"
+                      class="ml-2 w-full"
                       title="{containerPortMapping[index].error}" />
                   </div>
                 {/each}
@@ -746,22 +725,20 @@ async function assertAllPortAreValid(): Promise<void> {
                 </Button>
                 <!-- Display the list of existing hostContainerPortMappings -->
                 {#each hostContainerPortMappings as hostContainerPortMapping, index}
-                  <div class="flex flex-row justify-center items-center w-full py-1">
-                    <input
-                      type="text"
+                  <div class="flex flex-row justify-center w-full py-1">
+                    <Input
                       bind:value="{hostContainerPortMapping.hostPort.port}"
                       on:input="{event => onHostContainerPortMappingInput(event, index)}"
                       aria-label="host port"
                       placeholder="Host Port"
-                      class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700 border-b"
-                      class:border-red-500="{hostContainerPortMapping.hostPort.error.length > 0}"
+                      error="{hostContainerPortMapping.hostPort.error}"
+                      class="w-full"
                       title="{hostContainerPortMapping.hostPort.error}" />
-                    <input
-                      type="text"
+                    <Input
                       bind:value="{hostContainerPortMapping.containerPort}"
                       aria-label="container port"
                       placeholder="Container Port"
-                      class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
+                      class="ml-2 w-full" />
                     <button
                       class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       on:click="{() => deleteHostContainerPorts(index)}">
@@ -774,17 +751,12 @@ async function assertAllPortAreValid(): Promise<void> {
                 <!-- Display the list of existing environment variables -->
                 {#each environmentVariables as environmentVariable, index}
                   <div class="flex flex-row justify-center items-center w-full py-1">
-                    <input
-                      type="text"
-                      bind:value="{environmentVariable.key}"
-                      placeholder="Name"
-                      class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
+                    <Input bind:value="{environmentVariable.key}" placeholder="Name" class="w-full" />
 
-                    <input
-                      type="text"
+                    <Input
                       bind:value="{environmentVariable.value}"
                       placeholder="Value (leave blank for empty)"
-                      class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
+                      class="ml-2 w-full" />
                     <button
                       class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       hidden="{index === environmentVariables.length - 1}"
@@ -807,10 +779,9 @@ async function assertAllPortAreValid(): Promise<void> {
               {#each environmentFiles as environmentFile, index}
                 <div class="flex flex-row justify-center items-center w-full py-1">
                   <div class="w-full flex">
-                    <input
-                      class="grow py-1 px-2 outline-0 text-sm bg-charcoal-800 text-gray-700 placeholder-gray-700"
+                    <Input
+                      class="grow"
                       readonly
-                      type="text"
                       placeholder="Environment file containing KEY=VALUE items"
                       bind:value="{environmentFile}"
                       aria-label="environmentFile.{index}" />
@@ -868,11 +839,10 @@ async function assertAllPortAreValid(): Promise<void> {
                 <label for="containerUser" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
                   >Specify user to run container as:</label>
                 <div class="flex flex-row justify-center items-center w-full">
-                  <input
-                    type="text"
+                  <Input
                     bind:value="{runUser}"
                     placeholder="If you specify a username, user must exist in /etc/passwd file (use user id instead)"
-                    class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
+                    class="ml-2" />
                 </div>
 
                 <!-- Autoremove-->
@@ -943,11 +913,10 @@ async function assertAllPortAreValid(): Promise<void> {
                 <!-- Display the list of existing security options -->
                 {#each securityOpts as securityOpt, index}
                   <div class="flex flex-row justify-center items-center w-full py-1">
-                    <input
-                      type="text"
+                    <Input
                       bind:value="{securityOpt}"
                       placeholder="Enter a security option (Ex. seccomp=/path/to/profile.json)"
-                      class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
+                      class="ml-2" />
 
                     <button
                       class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
@@ -973,11 +942,7 @@ async function assertAllPortAreValid(): Promise<void> {
                 <!-- Display the list of existing capAdd -->
                 {#each capAdds as capAdd, index}
                   <div class="flex flex-row justify-center items-center w-full py-1">
-                    <input
-                      type="text"
-                      bind:value="{capAdd}"
-                      placeholder="Enter a kernel capability (Ex. SYS_ADMIN)"
-                      class="ml-4 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
+                    <Input bind:value="{capAdd}" placeholder="Enter a kernel capability (Ex. SYS_ADMIN)" class="ml-4" />
 
                     <button
                       class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
@@ -1000,11 +965,10 @@ async function assertAllPortAreValid(): Promise<void> {
                 <!-- Display the list of existing capDrop -->
                 {#each capDrops as capDrop, index}
                   <div class="flex flex-row justify-center items-center w-full py-1">
-                    <input
-                      type="text"
+                    <Input
                       bind:value="{capDrop}"
                       placeholder="Enter a kernel capability (Ex. SYS_ADMIN)"
-                      class="ml-4 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
+                      class="ml-4" />
 
                     <button
                       class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
@@ -1025,11 +989,7 @@ async function assertAllPortAreValid(): Promise<void> {
                 <label for="containerUserNamespace" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
                   >Specify user namespace to use:</label>
                 <div class="flex flex-row justify-center items-center w-full">
-                  <input
-                    type="text"
-                    bind:value="{userNamespace}"
-                    placeholder="Enter a user namespace"
-                    class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
+                  <Input bind:value="{userNamespace}" placeholder="Enter a user namespace" class="ml-2 w-full" />
                 </div>
               </div>
             </Route>
@@ -1040,11 +1000,7 @@ async function assertAllPortAreValid(): Promise<void> {
                 <label for="containerHostname" class="block mb-2 text-sm font-medium text-gray-400"
                   >Defines container hostname:</label>
                 <div class="flex flex-row justify-center items-center w-full">
-                  <input
-                    type="text"
-                    bind:value="{hostname}"
-                    placeholder="Must be a valid RFC 1123 hostname"
-                    class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
+                  <Input bind:value="{hostname}" placeholder="Must be a valid RFC 1123 hostname" class="ml-2" />
                 </div>
 
                 <!-- DNS -->
@@ -1053,11 +1009,7 @@ async function assertAllPortAreValid(): Promise<void> {
 
                 {#each dnsServers as dnsServer, index}
                   <div class="flex flex-row justify-center items-center w-full py-1">
-                    <input
-                      type="text"
-                      bind:value="{dnsServer}"
-                      placeholder="IP Address"
-                      class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
+                    <Input bind:value="{dnsServer}" placeholder="IP Address" class="ml-2" />
 
                     <button
                       class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
@@ -1079,17 +1031,9 @@ async function assertAllPortAreValid(): Promise<void> {
                 <!-- Display the list of existing environment variables -->
                 {#each extraHosts as extraHost, index}
                   <div class="flex flex-row justify-center items-center w-full py-1">
-                    <input
-                      type="text"
-                      bind:value="{extraHost.host}"
-                      placeholder="Hostname"
-                      class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
+                    <Input bind:value="{extraHost.host}" placeholder="Hostname" class="ml-2 w-full" />
 
-                    <input
-                      type="text"
-                      bind:value="{extraHost.ip}"
-                      placeholder="IP Address"
-                      class="ml-2 w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
+                    <Input bind:value="{extraHost.ip}" placeholder="IP Address" class="ml-2 w-full" />
                     <button
                       class="ml-2 p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
                       hidden="{index === extraHosts.length - 1}"

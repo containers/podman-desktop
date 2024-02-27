@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -150,7 +150,7 @@ test('kubectl CLI tool not registered when version json stdout cannot be parsed'
     expect(console.warn).toBeCalled();
     expect(console.warn).toBeCalledWith(
       expect.stringContaining(
-        'Error getting kubectl from user PATH: SyntaxError: Unexpected token { in JSON at position 1',
+        `Error getting kubectl from user PATH: SyntaxError: Expected property name or '}' in JSON at position 1`,
       ),
     );
   });

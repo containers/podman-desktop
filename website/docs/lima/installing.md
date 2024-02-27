@@ -1,6 +1,6 @@
 ---
 sidebar_position: 1
-title: Installing the `lima` CLI
+title: Installing the CLI
 description: Installing Lima
 keywords: [podman desktop, podman, containers, migrating, kubernetes, lima]
 tags: [migrating-to-kubernetes, lima]

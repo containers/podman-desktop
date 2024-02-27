@@ -47,7 +47,7 @@ async function cleanup() {
   <div>
     <div class="text-gray-700 flex flex-row items-center">Clean / Purge data</div>
     <div class="text-gray-900 text-sm flex flex-row items-center pt-1">
-      <Fa class="pr-1" size="9" icon="{faWarning}" />Proceeding with this action may result in data loss, including
+      <Fa class="pr-1" size="0.8x" icon="{faWarning}" />Proceeding with this action may result in data loss, including
       existing volumes, containers, images, etc.
     </div>
   </div>
@@ -64,7 +64,7 @@ async function cleanup() {
   <div>
     {#if cleanupFailures.length > 0}
       <div class="text-red-500 text-xs flex flex-row items-center" role="alert" aria-label="error">
-        <Fa class="pr-1" size="9" icon="{faWarning}" />{cleanupFailures.length} failures
+        <Fa class="pr-1" size="1x" icon="{faWarning}" />{cleanupFailures.length} failures
       </div>
     {/if}
   </div>

@@ -206,7 +206,7 @@ function updatePortExposure(port: number, checked: boolean) {
             <div class="bg-charcoal-600 border-t-2 border-amber-500 p-4 mb-2" role="alert" aria-label="warning">
               <div class="flex flex-row">
                 <div class="mr-3">
-                  <Fa size="18" class="text-amber-400" icon="{faTriangleExclamation}" />
+                  <Fa size="1.125x" class="text-amber-400" icon="{faTriangleExclamation}" />
                 </div>
                 <div class="flex flex-col">
                   <div class="text-sm text-amber-400">Possible runtime error</div>

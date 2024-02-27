@@ -1,6 +1,6 @@
 ---
 sidebar_position: 10
-title: Push an image to Kind
+title: Pushing an image
 description: Pushing an image to your Kind cluster
 keywords: [podman desktop, podman, containers, images, migrating, kubernetes]
 tags: [migrating-to-kubernetes, images]

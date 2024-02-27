@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IConfigurationNode, IConfigurationRegistry } from './configuration-registry.js';
+import type { Guide } from './learning-center-api.js';
+import { default as guidesJson } from './guides.json';
 
-export class KubernetesUtils {
-  constructor(private configurationRegistry: IConfigurationRegistry) {}
-
-  init() {
-    const kubernetesConfiguration: IConfigurationNode = {
-      id: 'preferences.kubernetes',
-      title: 'Kubernetes',
-      type: 'object',
-      properties: {
-        ['kubernetes.experimental']: {
-          description: 'Experimental extended Kubernetes support.',
-          type: 'boolean',
-          default: false,
-          hidden: false,
-        },
-      },
-    };
-
-    this.configurationRegistry.registerConfigurations([kubernetesConfiguration]);
-  }
+export function downloadGuideList(): Guide[] {
+  return guidesJson.guides;
 }

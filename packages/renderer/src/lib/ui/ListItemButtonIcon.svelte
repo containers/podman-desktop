@@ -1,15 +1,16 @@
 <script lang="ts">
-import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
 import DropdownMenuItem from './DropDownMenuItem.svelte';
 import Fa from 'svelte-fa';
-import { onDestroy } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/motion';
 import type { ContextUI } from '../context/context';
 import { context as storeContext } from '/@/stores/context';
 import { ContextKeyExpr } from '../context/contextKey';
 
 export let title: string;
-export let icon: IconDefinition;
+export let icon: IconDefinition | string;
+export let fontAwesomeIcon: IconDefinition | undefined = undefined;
 export let hidden = false;
 export let disabledWhen = '';
 export let enabled: boolean = true;
@@ -56,6 +57,12 @@ function computeEnabled() {
   const disabled = whenDeserialized?.evaluate(globalContext) || false;
   enabled = !disabled;
 }
+
+onMount(() => {
+  if ((icon as IconDefinition)?.prefix?.startsWith('fa')) {
+    fontAwesomeIcon = icon as IconDefinition;
+  }
+});
 
 onDestroy(() => {
   // unsubscribe from the store
@@ -116,7 +123,10 @@ $: styleClass = detailed
     class:disabled="{inProgress}"
     class:hidden="{hidden}"
     disabled="{!enabled}">
-    <Fa class="h-4 w-4 {iconOffset}" icon="{icon}" />
+    {#if fontAwesomeIcon}
+      <Fa class="h-4 w-4 {iconOffset}" icon="{fontAwesomeIcon}" />
+    {/if}
+
     <div
       aria-label="spinner"
       class="w-6 h-6 rounded-full animate-spin border border-solid border-violet-500 border-t-transparent absolute {positionTopClass} {positionLeftClass}"

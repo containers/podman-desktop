@@ -23,15 +23,15 @@
     "lint:clean": "rimraf .eslintcache"
   },
   "dependencies": {
-    "@docusaurus/core": "^3.0.0",
-    "@docusaurus/plugin-client-redirects": "^3.0.0",
-    "@docusaurus/preset-classic": "^3.0.0",
-    "@docusaurus/theme-mermaid": "^3.0.0",
+    "@docusaurus/core": "^3.1.1",
+    "@docusaurus/plugin-client-redirects": "^3.1.1",
+    "@docusaurus/preset-classic": "^3.1.1",
+    "@docusaurus/theme-mermaid": "^3.1.1",
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
     "@fortawesome/free-brands-svg-icons": "^6.5.1",
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@mdx-js/react": "^3.0.0",
+    "@mdx-js/react": "^3.0.1",
     "clsx": "^2.1.0",
     "docusaurus-plugin-goatcounter": "^3.0.0",
     "docusaurus-plugin-typedoc": "1.0.0-next.27",
@@ -41,14 +41,14 @@
     "react-player": "^2.14.1"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "^3.0.0",
+    "@docusaurus/module-type-aliases": "^3.1.1",
     "@docusaurus/tsconfig": "^3.1.1",
     "autoprefixer": "^10.4.17",
     "markdownlint": "^0.33.0",
     "markdownlint-cli2": "^0.12.1",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
-    "typedoc": "^0.25.8",
+    "typedoc": "^0.25.9",
     "typedoc-plugin-markdown": "4.0.0-next.53",
     "typescript": "^5.3.3"
   },

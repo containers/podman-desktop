@@ -991,50 +991,52 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // add update information asynchronously
   await registerUpdatesIfAny(provider, installedPodman, podmanInstall);
 
-  // register autostart if enabled
-  if (isMac() || isWindows()) {
-    try {
-      await updateMachines(provider);
-    } catch (error) {
-      // ignore the update of machines
-    }
-    provider.registerAutostart({
-      start: async (logger: extensionApi.Logger) => {
-        // do we have a running machine ?
-        const isRunningMachine = Array.from(podmanMachinesStatuses.values()).find(
-          connectionStatus => connectionStatus === 'started' || connectionStatus === 'starting',
-        );
-        if (isRunningMachine) {
-          console.log('Podman extension:', 'Do not start a machine as there is already one starting or started');
-          return;
-        }
-
-        // start the first machine if any
-        const machines = Array.from(podmanMachinesStatuses.entries());
-        if (machines.length > 0) {
-          const [machineName] = machines[0];
-          if (!podmanMachinesInfo.has(machineName)) {
-            console.error('Unable to retrieve machine infos to be autostarted', machineName);
-          } else {
-            console.log('Podman extension:', 'Autostarting machine', machineName);
-            const machineInfo = podmanMachinesInfo.get(machineName);
-            const containerProviderConnection = containerProviderConnections.get(machineName);
-            const context: extensionApi.LifecycleContext = extensionApi.provider.getProviderLifecycleContext(
-              provider.id,
-              containerProviderConnection,
-            );
-            await startMachine(provider, machineInfo, context, logger, undefined, true);
-            autoMachineStarted = true;
-            autoMachineName = machineName;
-          }
-        }
-      },
-    });
+  // If autostart has been enabled for the machine, try to start it.
+  try {
+    await updateMachines(provider);
+  } catch (error) {
+    // ignore the update of machines
   }
+  provider.registerAutostart({
+    start: async (logger: extensionApi.Logger) => {
+      // do we have a running machine ?
+      const isRunningMachine = Array.from(podmanMachinesStatuses.values()).find(
+        connectionStatus => connectionStatus === 'started' || connectionStatus === 'starting',
+      );
+      if (isRunningMachine) {
+        console.log('Podman extension:', 'Do not start a machine as there is already one starting or started');
+        return;
+      }
+
+      // start the first machine if any
+      const machines = Array.from(podmanMachinesStatuses.entries());
+      if (machines.length > 0) {
+        const [machineName] = machines[0];
+        if (!podmanMachinesInfo.has(machineName)) {
+          console.error('Unable to retrieve machine infos to be autostarted', machineName);
+        } else {
+          console.log('Podman extension:', 'Autostarting machine', machineName);
+          const machineInfo = podmanMachinesInfo.get(machineName);
+          const containerProviderConnection = containerProviderConnections.get(machineName);
+          const context: extensionApi.LifecycleContext = extensionApi.provider.getProviderLifecycleContext(
+            provider.id,
+            containerProviderConnection,
+          );
+          await startMachine(provider, machineInfo, context, logger, undefined, true);
+          autoMachineStarted = true;
+          autoMachineName = machineName;
+        }
+      }
+    },
+  });
 
   extensionContext.subscriptions.push(provider);
 
-  // allows to create machines
+  // We allow creating machines for both macOS and Windows
+  // but not Linux. The reasoning being is that podman for Linux is
+  // NOT packaged with qemu + kvm by default. So, we don't want to
+  // create machines on Linux via Podman Desktop, however we will still support
+  // the lifecycle management of one.
   if (isMac() || isWindows()) {
     provider.setContainerProviderConnectionFactory({
       initialize: () => createMachine({}, undefined),
@@ -1043,6 +1045,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     });
   }
 
+  // Linux has native container support (no need for Podman Machine), so we don't need to create machines.
+  // Below is Linux specific code:
+  // * Monitors the system service for an unlimited time
+  // * Uses the native system socket
   if (isLinux()) {
     // on Linux, need to run the system service for unlimited time
     let command = 'podman';
@@ -1084,11 +1090,14 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     initDefaultLinux(provider).catch((error: unknown) => {
       console.error('Error while initializing default linux', error);
     });
-  } else if (isWindows() || isMac()) {
-    monitorMachines(provider).catch((error: unknown) => {
-      console.error('Error while monitoring machines', error);
-    });
   }
+
+  // Podman Machine support is on macOS, Windows and Linux
+  // Despite Linux having native container support, Podman Machine is still supported on Linux
+  // so let's monitor for the machines
+  monitorMachines(provider).catch((error: unknown) => {
+    console.error('Error while monitoring machines', error);
+  });
 
   // monitor provider
   // like version, checks, warnings

@@ -6,6 +6,7 @@ import type { FeedbackProperties } from '../../../../preload/src/index';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Button from '../ui/Button.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
+import CloseButton from '/@/lib/ui/CloseButton.svelte';
 let displayModal = false;
 
 // feedback of the user
@@ -61,9 +62,7 @@ async function sendFeedback(): Promise<void> {
       <div class="flex items-center justify-between bg-black px-5 py-4 border-b-2 border-violet-700">
         <h1 class="text-xl font-bold">Share your feedback</h1>
 
-        <button class="hover:text-gray-300 px-2 py-1" on:click="{() => hideModal()}">
-          <i class="fas fa-times" aria-hidden="true"></i>
-        </button>
+        <CloseButton on:click="{() => hideModal()}" />
       </div>
 
       <div class="overflow-y-auto p-4">
@@ -72,25 +71,25 @@ async function sendFeedback(): Promise<void> {
         <div class="flex space-x-4">
           <button aria-label="very-sad-smiley" on:click="{() => selectSmiley(1)}">
             <Fa
-              size="24"
+              size="1.5x"
               class="cursor-pointer {smileyRating === 1 ? 'text-violet-400' : 'text-gray-900'}"
               icon="{faFrown}" />
           </button>
           <button aria-label="sad-smiley" on:click="{() => selectSmiley(2)}">
             <Fa
-              size="24"
+              size="1.5x"
               class="cursor-pointer {smileyRating === 2 ? 'text-violet-400' : 'text-gray-900'}"
               icon="{faMeh}" />
           </button>
           <button aria-label="happy-smiley" on:click="{() => selectSmiley(3)}">
             <Fa
-              size="24"
+              size="1.5x"
               class="cursor-pointer {smileyRating === 3 ? 'text-violet-400' : 'text-gray-900'}"
               icon="{faSmile}" />
           </button>
           <button aria-label="very-happy-smiley" on:click="{() => selectSmiley(4)}">
             <Fa
-              size="24"
+              size="1.5x"
               class="cursor-pointer {smileyRating === 4 ? 'text-violet-400' : 'text-gray-900'}"
               icon="{faGrinStars}" />
           </button>

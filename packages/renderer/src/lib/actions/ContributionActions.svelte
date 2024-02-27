@@ -1,6 +1,7 @@
 <script lang="ts">
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import { faPlug } from '@fortawesome/free-solid-svg-icons';
+import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import { removeNonSerializableProperties } from '/@/lib/actions/ActionUtils';
 import type { ContextUI } from '/@/lib/context/context';
@@ -62,6 +63,21 @@ $: {
   }
 }
 
+function getIcon(menu: Menu): IconDefinition | string {
+  const defaultIcon = faPlug;
+  if (!menu.icon) {
+    return defaultIcon;
+  }
+
+  const match = menu.icon.match(/\$\{(.*)\}/);
+  if (match && match.length === 2) {
+    const className = match[1];
+    return menu.icon.replace(match[0], `podman-desktop-icon-${className}`);
+  }
+  console.error(`Invalid icon name: ${menu.icon}`);
+  return defaultIcon;
+}
+
 onDestroy(() => {
   // unsubscribe from the store
   if (contextsUnsubscribe) {
@@ -84,7 +100,7 @@ async function executeContribution(menu: Menu): Promise<void> {
     title="{menu.title}"
     onClick="{() => executeContribution(menu)}"
     menu="{dropdownMenu}"
-    icon="{faPlug}"
+    icon="{getIcon(menu)}"
     detailed="{detailed}"
     disabledWhen="{menu.disabled}"
     contextUI="{globalContext}" />

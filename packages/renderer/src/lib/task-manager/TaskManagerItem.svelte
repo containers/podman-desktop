@@ -58,7 +58,7 @@ function gotoTask(taskUI: StatefulTaskUI) {
 <div class="flex flew-row w-full py-2">
   <!-- first column is the icon-->
   <div class="flex w-3 {iconColor} justify-center">
-    <Fa size="14" icon="{icon}" />
+    <Fa size="0.875x" icon="{icon}" />
   </div>
   <!-- second column is about the task-->
   <div class="flex flex-col w-full pl-2">
@@ -71,7 +71,7 @@ function gotoTask(taskUI: StatefulTaskUI) {
           <button
             title="Clear notification"
             class="hover:bg-charcoal-800 hover:text-purple-500"
-            on:click="{() => closeCompleted(taskUI)}"><Fa size="12" icon="{faClose}" /></button>
+            on:click="{() => closeCompleted(taskUI)}"><Fa size="0.75x" icon="{faClose}" /></button>
         {/if}
       </div>
     </div>

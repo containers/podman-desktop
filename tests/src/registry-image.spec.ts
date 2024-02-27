@@ -25,9 +25,8 @@ import { WelcomePage } from './model/pages/welcome-page';
 import { SettingsBar } from './model/pages/settings-bar';
 import { RegistriesPage } from './model/pages/registries-page';
 import { NavigationBar } from './model/workbench/navigation';
-import { ImagesPage } from './model/pages/images-page';
 import { canTestRegistry, setupRegistry } from './setupFiles/setup-registry';
-import { handleConfirmationDialog } from './utility/operations';
+import { deleteImage, deleteRegistry } from './utility/operations';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -56,24 +55,8 @@ beforeAll(async () => {
 
 afterAll(async () => {
   try {
-    const imagesPage = new ImagesPage(page);
-    let imageDetailPage;
-    try {
-      imageDetailPage = await imagesPage.openImageDetails(imageUrl);
-    } catch (error) {
-      if ((error as Error).message.includes('does not exist')) {
-        // image does not exist
-      } else {
-        throw error;
-      }
-    }
-    await imageDetailPage?.deleteButton.click();
-    await handleConfirmationDialog(page);
-
-    await navBar.openSettings();
-    const settingsBar = new SettingsBar(page);
-    const registryPage = await settingsBar.openTabPage(RegistriesPage);
-    await registryPage.removeRegistry('GitHub');
+    await deleteImage(page, imageUrl);
+    await deleteRegistry(page, 'GitHub');
   } finally {
     await pdRunner.close();
   }

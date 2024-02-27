@@ -1,5 +1,7 @@
 ---
 sidebar_position: 40
+title: Podman on Linux
+description: How to investigate when Podman does not work as expected.
 ---
 
 # Troubleshooting Podman on Linux

@@ -40,7 +40,7 @@ beforeAll(() => {
   (window as any).matchMedia = vi.fn().mockReturnValue({
     addListener: vi.fn(),
   });
-  (window as any).openFileDialog = vi.fn().mockResolvedValue({ canceled: false, filePaths: ['Containerfile'] });
+  (window as any).openDialog = vi.fn().mockResolvedValue(['Containerfile']);
   (window as any).telemetryPage = vi.fn().mockResolvedValue(undefined);
   (window as any).getOsArch = vi.fn();
 });

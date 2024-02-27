@@ -78,7 +78,7 @@ function updateSearchValue(event: any) {
             <div>
               <div class="first-letter:uppercase">{records.at(0)?.title}</div>
               {#each records as configItem}
-                <div class="bg-charcoal-600 rounded-md mt-2 ml-2">
+                <div class="bg-[var(--pd-invert-content-card-bg)] rounded-md mt-2 ml-2">
                   <PreferencesRenderingItem record="{configItem}" />
                 </div>
               {/each}
