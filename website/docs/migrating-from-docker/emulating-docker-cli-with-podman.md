@@ -63,6 +63,7 @@ Consider emulating Docker CLI with Podman to migrate transparently to Podman.
    echo Emulate Docker CLI using podman. <- remove this line to avoid the  `Emulate Docker CLI using podman.` message when running the script.
    podman %*
    ```
+
 2. Add C:\Program Files\docker\bin to the SYSTEM/USER environment variable PATH
 3. Close all cmd and powershell instances.
 
@@ -74,4 +75,3 @@ Consider emulating Docker CLI with Podman to migrate transparently to Podman.
   ```PowerShell
   $ docker run -it docker.io/hello-world
   ```
-
