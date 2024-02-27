@@ -70,6 +70,7 @@ vi.mock('./util', async () => {
     runCliCommand: vi.fn(),
     appHomeDir: vi.fn().mockReturnValue(''),
     normalizeWSLOutput: vi.fn().mockImplementation((s: string) => s),
+    isLinux: vi.fn(),
   };
 });
 
