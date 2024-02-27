@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect, test, vi } from 'vitest';
+import { beforeEach, afterEach, expect, test, vi } from 'vitest';
 import type { ContextState } from './kubernetes-context-state.js';
 import { ContextsManager } from './kubernetes-context-state.js';
 import type { ApiSenderType } from './api.js';
@@ -37,7 +37,10 @@ export class FakeInformer {
     this.onErrorCb = new Map<string, ErrorCallback>();
   }
   async start(): Promise<void> {
-    this.onErrorCb.get('connect')?.(this.connectResponse);
+    this.onErrorCb.get('connect')?.();
+    if (this.connectResponse) {
+      this.onErrorCb.get('error')?.(this.connectResponse);
+    }
     if (this.connectResponse === undefined) {
       for (let i = 0; i < this.resourcesCount; i++) {
         this.onCb.get('add')?.({});
@@ -112,6 +115,18 @@ vi.mock('@kubernetes/client-node', async importOriginal => {
     ...actual,
     makeInformer: fakeMakeInformer,
   };
+});
+
+const originalConsoleWarn = console.warn;
+const consoleWarnMock = vi.fn();
+
+beforeEach(() => {
+  vi.resetAllMocks();
+  console.warn = consoleWarnMock;
+});
+
+afterEach(() => {
+  console.warn = originalConsoleWarn;
 });
 
 test('should send info of resources in all reachable contexts and nothing in non reachable', async () => {
@@ -254,4 +269,36 @@ test('should send info of resources in all reachable contexts and nothing in non
   } as ContextState);
   await new Promise(resolve => setTimeout(resolve, 1200));
   expect(apiSenderSendMock).toHaveBeenLastCalledWith('kubernetes-contexts-state-update', expectedMap);
+});
+
+test('should write logs when connection fails', async () => {
+  const client = new ContextsManager(apiSender);
+  const kubeConfig = new kubeclient.KubeConfig();
+  kubeConfig.loadFromOptions({
+    clusters: [
+      {
+        name: 'cluster1',
+        server: 'server1',
+      },
+    ],
+    users: [
+      {
+        name: 'user1',
+      },
+    ],
+    contexts: [
+      {
+        name: 'context1',
+        cluster: 'cluster1',
+        user: 'user1',
+      },
+    ],
+    currentContext: 'context1',
+  });
+  await client.update(kubeConfig);
+  expect(consoleWarnMock).toHaveBeenCalledWith(
+    expect.stringMatching(
+      /Trying to watch pods on the kubernetes context named "context1" but got a connection refused, retrying the connection in .*s. Error: connection error/,
+    ),
+  );
 });
