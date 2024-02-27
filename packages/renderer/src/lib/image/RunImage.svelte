@@ -19,6 +19,7 @@ import { array2String } from '/@/lib/string/string.js';
 import Tab from '../ui/Tab.svelte';
 import Button from '../ui/Button.svelte';
 import Input from '/@/lib/ui/Input.svelte';
+import Checkbox from '/@/lib/ui/Checkbox.svelte';
 
 interface PortInfo {
   port: string;
@@ -819,19 +820,11 @@ async function assertAllPortAreValid(): Promise<void> {
                 <!-- Use tty -->
                 <label for="containerTty" class="block mb-2 text-sm font-medium text-gray-400">Use TTY:</label>
                 <div class="flex flex-row justify-start items-center align-middle w-full text-gray-700 text-sm">
-                  <input
-                    type="checkbox"
-                    bind:checked="{useTty}"
-                    class="mx-2 outline-none text-sm"
-                    aria-label="Attach a pseudo terminal" />
+                  <Checkbox bind:checked="{useTty}" class="mx-2" title="Attach a pseudo terminal" />
                   Attach a pseudo terminal
                 </div>
                 <div class="flex flex-row justify-start items-center align-middle w-full text-gray-700 text-sm">
-                  <input
-                    type="checkbox"
-                    bind:checked="{useInteractive}"
-                    class="mx-2 outline-none text-sm"
-                    aria-label="Use interactive" />
+                  <Checkbox bind:checked="{useInteractive}" class="mx-2" title="Use interactive" />
                   Interactive: Keep STDIN open even if not attached
                 </div>
 
@@ -849,7 +842,7 @@ async function assertAllPortAreValid(): Promise<void> {
                 <label for="containerAutoRemove" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
                   >Auto removal of container:</label>
                 <div class="flex flex-row justify-start items-center align-middle w-full text-gray-700 text-sm">
-                  <input type="checkbox" bind:checked="{autoRemove}" class="mx-2 outline-none text-sm" />
+                  <Checkbox bind:checked="{autoRemove}" class="mx-2" />
                   Automatically remove the container when the process exits
                 </div>
 
@@ -896,7 +889,7 @@ async function assertAllPortAreValid(): Promise<void> {
                 <label for="containerPrivileged" class="block mb-2 text-sm font-medium text-gray-400"
                   >Privileged:</label>
                 <div class="flex flex-row justify-start items-center align-middle w-full text-gray-700 text-sm">
-                  <input type="checkbox" bind:checked="{privileged}" class="mx-2 outline-none text-sm" />
+                  <Checkbox bind:checked="{privileged}" class="mx-2" />
                   Turn off security<i class="pl-1 fas fa-exclamation-triangle"></i>
                 </div>
 
@@ -904,7 +897,7 @@ async function assertAllPortAreValid(): Promise<void> {
                 <label for="containerReadOnly" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
                   >Read only:</label>
                 <div class="flex flex-row justify-start items-center align-middle w-full text-gray-700 text-sm">
-                  <input type="checkbox" bind:checked="{readOnly}" class="mx-2 outline-none text-sm" />
+                  <Checkbox bind:checked="{readOnly}" class="mx-2" />
                   Make containers root filesystem read-only
                 </div>
 
