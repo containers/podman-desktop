@@ -84,7 +84,7 @@ test('expect init to provide a disposable', () => {
   const updater = new Updater(messageBoxMock, statusBarRegistryMock, commandRegistry);
   const disposable: unknown = updater.init();
   expect(disposable).toBeDefined();
-  expect(disposable instanceof Disposable).toBe(true);
+  expect(disposable instanceof Disposable).toBeTruthy();
 });
 
 test('expect init to register commands', () => {
