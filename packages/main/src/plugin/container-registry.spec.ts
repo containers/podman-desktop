@@ -36,7 +36,7 @@ import * as util from '../util.js';
 import { PassThrough } from 'node:stream';
 import type { EnvfileParser } from './env-file-parser.js';
 import type { ProviderRegistry } from './provider-registry.js';
-import { ContainerCreateOptions } from './api/container-info.js';
+import type { ContainerCreateOptions } from './api/container-info.js';
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 
 /* eslint-disable @typescript-eslint/no-empty-function */
