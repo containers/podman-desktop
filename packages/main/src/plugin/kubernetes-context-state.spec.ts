@@ -117,16 +117,16 @@ vi.mock('@kubernetes/client-node', async importOriginal => {
   };
 });
 
-const originalConsoleWarn = console.warn;
-const consoleWarnMock = vi.fn();
+const originalConsoleDebug = console.debug;
+const consoleDebugMock = vi.fn();
 
 beforeEach(() => {
   vi.resetAllMocks();
-  console.warn = consoleWarnMock;
+  console.debug = consoleDebugMock;
 });
 
 afterEach(() => {
-  console.warn = originalConsoleWarn;
+  console.debug = originalConsoleDebug;
 });
 
 test('should send info of resources in all reachable contexts and nothing in non reachable', async () => {
@@ -296,7 +296,7 @@ test('should write logs when connection fails', async () => {
     currentContext: 'context1',
   });
   await client.update(kubeConfig);
-  expect(consoleWarnMock).toHaveBeenCalledWith(
+  expect(consoleDebugMock).toHaveBeenCalledWith(
     expect.stringMatching(
       /Trying to watch pods on the kubernetes context named "context1" but got a connection refused, retrying the connection in .*s. Error: connection error/,
     ),

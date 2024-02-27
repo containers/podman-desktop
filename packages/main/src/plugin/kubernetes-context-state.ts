@@ -264,7 +264,7 @@ export class ContextsManager {
     informer.on('error', (err: unknown) => {
       const nextTimeout = options.backoff.get();
       if (err !== undefined) {
-        console.warn(
+        console.debug(
           `Trying to watch ${options.resource} on the kubernetes context named "${context.name}" but got a connection refused, retrying the connection in ${nextTimeout / 1000}s. ${String(err)})`,
         );
         options.onConnectionError?.(String(err));
@@ -299,7 +299,7 @@ export class ContextsManager {
     informer.start().catch((err: unknown) => {
       const nextTimeout = options.backoff.get();
       if (err !== undefined) {
-        console.warn(
+        console.debug(
           `Trying to watch ${options.resource} on the kubernetes context named "${context.name}" but got a connection refused, retrying the connection in ${nextTimeout / 1000}s. ${String(err)})`,
         );
         options.onConnectionError?.(String(err));
