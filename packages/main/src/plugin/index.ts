@@ -159,7 +159,7 @@ import { ColorRegistry } from './color-registry.js';
 import { DialogRegistry } from './dialog-registry.js';
 import type { Deferred } from './util/deferred.js';
 import type { ContextState } from './kubernetes-context-state.js';
-import { Updater } from '/@/plugin/Updater.js';
+import { Updater } from '/@/plugin/updater.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
