@@ -4,12 +4,13 @@
   "description": "Integration for Podman and Podman Machines",
   "version": "0.0.1",
   "icon": "icon.png",
+  "type": "module",
   "publisher": "podman-desktop",
   "license": "Apache-2.0",
   "engines": {
     "podman-desktop": "^0.0.1"
   },
-  "main": "./dist/extension.js",
+  "main": "./dist/extension.cjs",
   "contributes": {
     "commands": [
       {
@@ -307,7 +308,7 @@
   },
   "devDependencies": {
     "adm-zip": "^0.5.10",
-    "hasha": "^5.2.2",
+    "hasha": "^6.0.0",
     "mkdirp": "^3.0.1",
     "nock": "^13.5.0",
     "octokit": "^3.1.2",
