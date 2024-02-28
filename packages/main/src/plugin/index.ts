@@ -54,7 +54,7 @@ import type { ExtensionInfo } from './api/extension-info.js';
 import type { ImageInspectInfo } from './api/image-inspect-info.js';
 import type { TrayMenu } from '../tray-menu.js';
 import { getFreePort, getFreePortRange, isFreePort } from './util/port.js';
-import { isLinux, isMac } from '../util.js';
+import { isMac } from '../util.js';
 import type { MessageBoxOptions, MessageBoxReturnValue } from './message-box.js';
 import { MessageBox } from './message-box.js';
 import { ProgressImpl } from './progress-impl.js';
@@ -104,8 +104,6 @@ import { InputQuickPickRegistry } from './input-quickpick/input-quickpick-regist
 import type { Menu } from '/@/plugin/menu-registry.js';
 import { MenuRegistry } from '/@/plugin/menu-registry.js';
 import { CancellationTokenRegistry } from './cancellation-token-registry.js';
-import type { UpdateCheckResult } from 'electron-updater';
-import { autoUpdater } from 'electron-updater';
 import type { ApiSenderType } from './api.js';
 import type { AuthenticationProviderInfo } from './authentication.js';
 import { AuthenticationImpl } from './authentication.js';
@@ -161,6 +159,7 @@ import { ColorRegistry } from './color-registry.js';
 import { DialogRegistry } from './dialog-registry.js';
 import type { Deferred } from './util/deferred.js';
 import type { ContextState } from './kubernetes-context-state.js';
+import { Updater } from '/@/plugin/updater.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -454,6 +453,8 @@ export class PluginSystem {
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
     await closeBehaviorConfiguration.init();
 
+    const messageBox = new MessageBox(apiSender);
+
     // Don't show the tray icon options on Mac
     if (!isMac()) {
       const trayIconColor = new TrayIconColor(configurationRegistry, providerRegistry);
@@ -521,188 +522,8 @@ export class PluginSystem {
       undefined,
     );
 
-    // Get the current version of our application
-    const currentVersion = `v${app.getVersion()}`;
-
-    // Add version entry to the status bar
-    const defaultVersionEntry = () => {
-      statusBarRegistry.setEntry(
-        'version',
-        false,
-        0,
-        currentVersion,
-        `Using version ${currentVersion}`,
-        undefined,
-        true,
-        'version',
-        undefined,
-      );
-    };
-    defaultVersionEntry();
-
-    // Show a "No update available" only for macOS and Windows users and on production builds
-    let detailMessage: string;
-    if (!isLinux() && import.meta.env.PROD) {
-      detailMessage = 'No update available';
-    }
-
-    // Register command 'version' that will display the current version and say that no update is available.
-    // Only show the "no update available" command for macOS and Windows users, not linux users.
-    commandRegistry.registerCommand('version', async () => {
-      await messageBox.showMessageBox({
-        type: 'info',
-        title: 'Version',
-        message: `Using version ${currentVersion}`,
-        detail: detailMessage,
-      });
-    });
-
-    // Only check on production builds for Windows and macOS users
-    if (import.meta.env.PROD && !isLinux()) {
-      // disable auto download
-      autoUpdater.autoDownload = false;
-
-      let updateInProgress = false;
-      let updateAlreadyDownloaded = false;
-
-      // setup the event listeners
-      autoUpdater.on('update-available', () => {
-        updateInProgress = false;
-        updateAlreadyDownloaded = false;
-
-        // Update the 'version' entry in the status bar to show that an update is available
-        // this uses setEntry to update the existing entry
-        statusBarRegistry.setEntry(
-          'version',
-          false,
-          0,
-          currentVersion,
-          'Update available',
-          UPDATER_UPDATE_AVAILABLE_ICON,
-          true,
-          'update',
-          undefined,
-          true,
-        );
-      });
-
-      autoUpdater.on('update-not-available', () => {
-        updateInProgress = false;
-        updateAlreadyDownloaded = false;
-
-        // Update the 'version' entry in the status bar to show that no update is available
-        defaultVersionEntry();
-      });
-
-      autoUpdater.on('update-downloaded', () => {
-        updateAlreadyDownloaded = true;
-        updateInProgress = false;
-        messageBox
-          .showMessageBox({
-            title: 'Update Downloaded',
-            message: 'Update downloaded, Do you want to restart Podman Desktop ?',
-            cancelId: 1,
-            type: 'info',
-            buttons: ['Restart', 'Cancel'],
-          })
-          .then(result => {
-            if (result.response === 0) {
-              setImmediate(() => autoUpdater.quitAndInstall());
-            }
-          })
-          .catch((error: unknown) => {
-            console.error('unable to show message box', error);
-          });
-      });
-
-      autoUpdater.on('error', error => {
-        updateInProgress = false;
-        // local build not pushed to GitHub so prevent any 'update'
-        if (error?.message?.includes('No published versions on GitHub')) {
-          console.log('Cannot check for updates, no published versions on GitHub');
-          defaultVersionEntry();
-          return;
-        }
-        console.error('unable to check for updates', error);
-      });
-
-      // check for updates now
-      let updateCheckResult: UpdateCheckResult | null;
-
-      try {
-        updateCheckResult = await autoUpdater.checkForUpdates();
-      } catch (error) {
-        console.error('unable to check for updates', error);
-      }
-
-      // Create an interval to check for updates every 12 hours
-      setInterval(
-        () => {
-          autoUpdater
-            .checkForUpdates()
-            .then(result => (updateCheckResult = result))
-            .catch((error: unknown) => {
-              console.log('unable to check for updates', error);
-            });
-        },
-        1000 * 60 * 60 * 12,
-      );
-
-      // Update will create a standard "autoUpdater" dialog / update process
-      commandRegistry.registerCommand('update', async () => {
-        if (updateAlreadyDownloaded) {
-          const result = await messageBox.showMessageBox({
-            type: 'info',
-            title: 'Update',
-            message: 'There is already an update downloaded. Please Restart Podman Desktop.',
-            cancelId: 1,
-            buttons: ['Restart', 'Cancel'],
-          });
-          if (result.response === 0) {
-            setImmediate(() => autoUpdater.quitAndInstall());
-          }
-          return;
-        }
-
-        if (updateInProgress) {
-          await messageBox.showMessageBox({
-            type: 'info',
-            title: 'Update',
-            message: 'There is already an update in progress. Please wait until it is downloaded',
-            buttons: ['OK'],
-          });
-          return;
-        }
-
-        // Get the version of the update
-        const updateVersion = updateCheckResult?.updateInfo.version ? `v${updateCheckResult?.updateInfo.version}` : '';
-
-        const result = await messageBox.showMessageBox({
-          type: 'info',
-          title: 'Update Available',
-          message: `A new version ${updateVersion} of Podman Desktop is available. Do you want to update your current version ${currentVersion}?`,
-          buttons: ['Update', 'Cancel'],
-          cancelId: 1,
-        });
-        if (result.response === 0) {
-          updateInProgress = true;
-          updateAlreadyDownloaded = false;
-
-          // Download update and try / catch it and create a dialog if it fails
-          try {
-            await autoUpdater.downloadUpdate();
-          } catch (error) {
-            console.error('Update error: ', error);
-            await messageBox.showMessageBox({
-              type: 'error',
-              title: 'Update Failed',
-              message: `An error occurred while trying to update to version ${updateVersion}. See the developer console for more information.`,
-              buttons: ['OK'],
-            });
-          }
-        }
-      });
-    }
+    // Init update logic
+    new Updater(messageBox, statusBarRegistry, commandRegistry).init();
 
     commandRegistry.registerCommand('feedback', () => {
       apiSender.send('display-feedback', '');
@@ -736,8 +557,6 @@ export class PluginSystem {
     // init welcome configuration
     const welcomeInit = new WelcomeInit(configurationRegistry);
     welcomeInit.init();
-
-    const messageBox = new MessageBox(apiSender);
 
     const authentication = new AuthenticationImpl(apiSender);
 
