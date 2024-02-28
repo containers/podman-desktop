@@ -14,7 +14,7 @@ import Fa from 'svelte-fa';
 import SolidPodIcon from '../images/SolidPodIcon.svelte';
 import Button from '../ui/Button.svelte';
 import type { PodCreatePortOptions } from '../../../../main/src/plugin/dockerode/libpod-dockerode';
-import Input from '/@/lib/ui/Input.svelte';
+import { Input } from '@podman-desktop/ui-svelte';
 
 let podCreation: PodCreation;
 let createInProgress = false;

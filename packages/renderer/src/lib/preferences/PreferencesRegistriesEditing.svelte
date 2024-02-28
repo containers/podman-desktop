@@ -7,7 +7,7 @@ import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
 import { faPlusCircle, faTrash, faUser, faUserPen } from '@fortawesome/free-solid-svg-icons';
 import SettingsPage from './SettingsPage.svelte';
 import Button from '../ui/Button.svelte';
-import Input from '/@/lib/ui/Input.svelte';
+import { Input } from '@podman-desktop/ui-svelte';
 import PasswordInput from '/@/lib/ui/PasswordInput.svelte';
 
 // contains the original instances of registries when user clicks on `Edit password` menu item
