@@ -16,11 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeAll, test, vi } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 import ImageDetailsFiles from './ImageDetailsFiles.svelte';
-import { render, screen, within } from '@testing-library/svelte';
+import { fireEvent, render, screen, within } from '@testing-library/svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { beforeEach } from 'node:test';
+import { FileTree } from '../../../../main/src/plugin/file-tree';
 
 const mocks = vi.hoisted(() => {
   return {
@@ -55,7 +56,7 @@ test('when the image contains layers', async () => {
       history: 'history layer 1',
       tree: {
         size: 1000,
-        root: {},
+        root: new FileTree('dir1'),
       },
     },
     {
@@ -63,10 +64,11 @@ test('when the image contains layers', async () => {
       history: 'history layer 2',
       tree: {
         size: 4 * 1000 * 1000,
+        root: new FileTree('dir2'),
       },
     },
   ]);
-  render(ImageDetailsFiles, {
+  const result = render(ImageDetailsFiles, {
     image: {
       engineId: 'engine-1',
       id: 'image-id',
@@ -85,4 +87,12 @@ test('when the image contains layers', async () => {
   within(layer2Btn).getByText('layer2-id');
   within(layer2Btn).getByText('history layer 2');
   within(layer2Btn).getByText('4 MB');
+
+  let currentRoot = result.component.$$.ctx[1];
+  expect(currentRoot).toEqual(new FileTree('dir1'));
+
+  // when click the 2nd layer, its tree is passed to the treeview
+  await fireEvent.click(layer2Btn);
+  currentRoot = result.component.$$.ctx[1];
+  expect(currentRoot).toEqual(new FileTree('dir2'));
 });
