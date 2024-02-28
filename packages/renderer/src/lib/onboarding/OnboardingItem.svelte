@@ -55,7 +55,7 @@ onDestroy(() => {
   contextsUnsubscribe?.();
 });
 
-function updateHtml() {
+function updateHtml(): void {
   const itemHtml = replacePlaceholders(item.value);
   if (html !== itemHtml) {
     html = itemHtml;
