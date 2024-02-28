@@ -22,6 +22,7 @@ import { ContextsManager } from './kubernetes-context-state.js';
 import type { ApiSenderType } from './api.js';
 import * as kubeclient from '@kubernetes/client-node';
 import type { ErrorCallback, KubernetesObject, ObjectCallback } from '@kubernetes/client-node';
+import { makeInformer } from '@kubernetes/client-node';
 
 interface InformerEvent {
   delayMs: number;
@@ -71,7 +72,7 @@ export class FakeInformer {
       });
     }
   }
-  stop(): void {}
+  async stop(): Promise<void> {}
   on(
     verb: 'change' | 'add' | 'update' | 'delete' | 'error' | 'connect',
     cb: ErrorCallback | ObjectCallback<KubernetesObject>,
@@ -91,8 +92,13 @@ export class FakeInformer {
   ): void {
     this.offCb.set(verb, cb);
   }
-  get(): void {}
-  list(): void {}
+  get(): KubernetesObject {
+    return {};
+  }
+
+  list(): KubernetesObject[] {
+    return [];
+  }
 }
 
 // fakeMakeInformer describes how many resources are in the different namespaces and if cluster is reachable
@@ -100,7 +106,7 @@ function fakeMakeInformer(
   kubeconfig: kubeclient.KubeConfig,
   path: string,
   _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
-): FakeInformer {
+): kubeclient.Informer<kubeclient.KubernetesObject> & kubeclient.ObjectCache<kubeclient.KubernetesObject> {
   let connectResult: Error | undefined;
   switch (kubeconfig.currentContext) {
     case 'context1':
@@ -133,17 +139,11 @@ const apiSender: ApiSenderType = {
   receive: vi.fn(),
 };
 
-const mocks = vi.hoisted(() => {
-  return {
-    makeInformerMock: vi.fn(),
-  };
-});
-
 vi.mock('@kubernetes/client-node', async importOriginal => {
   const actual = await importOriginal<typeof kubeclient>();
   return {
     ...actual,
-    makeInformer: mocks.makeInformerMock,
+    makeInformer: vi.fn(),
   };
 });
 
@@ -171,7 +171,7 @@ afterEach(() => {
 });
 
 test('should send info of resources in all reachable contexts and nothing in non reachable', async () => {
-  mocks.makeInformerMock.mockImplementation(fakeMakeInformer);
+  vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
   const client = new ContextsManager(apiSender);
   const kubeConfig = new kubeclient.KubeConfig();
   const config = {
@@ -346,7 +346,7 @@ test('should send info of resources in all reachable contexts and nothing in non
 });
 
 test('should write logs when connection fails', async () => {
-  mocks.makeInformerMock.mockImplementation(fakeMakeInformer);
+  vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
   const client = new ContextsManager(apiSender);
   const kubeConfig = new kubeclient.KubeConfig();
   kubeConfig.loadFromOptions({
@@ -379,7 +379,7 @@ test('should write logs when connection fails', async () => {
 });
 
 test('should send new deployment when a new one is created', async () => {
-  mocks.makeInformerMock.mockImplementation(
+  vi.mocked(makeInformer).mockImplementation(
     (
       _kubeconfig: kubeclient.KubeConfig,
       path: string,
@@ -481,7 +481,7 @@ test('should send new deployment when a new one is created', async () => {
 });
 
 test('should delete deployment when deleted from context', async () => {
-  mocks.makeInformerMock.mockImplementation(
+  vi.mocked(makeInformer).mockImplementation(
     (
       _kubeconfig: kubeclient.KubeConfig,
       path: string,
@@ -598,7 +598,7 @@ test('should delete deployment when deleted from context', async () => {
 });
 
 test('should update deployment when updated on context', async () => {
-  mocks.makeInformerMock.mockImplementation(
+  vi.mocked(makeInformer).mockImplementation(
     (
       _kubeconfig: kubeclient.KubeConfig,
       path: string,
@@ -715,7 +715,7 @@ test('should update deployment when updated on context', async () => {
 });
 
 test('should send appropriate data when context becomes unreachable', async () => {
-  mocks.makeInformerMock.mockImplementation(
+  vi.mocked(makeInformer).mockImplementation(
     (
       _kubeconfig: kubeclient.KubeConfig,
       path: string,
