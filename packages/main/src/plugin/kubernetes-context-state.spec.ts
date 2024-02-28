@@ -154,6 +154,7 @@ vi.mock('./kubernetes-context-state-constants.js', () => {
     backoffInitialValue: 1000,
     backoffLimit: 1000,
     backoffJitter: 0,
+    dispatchTimeout: 1,
   };
 });
 
@@ -432,7 +433,8 @@ test('should send new deployment when a new one is created', async () => {
   };
   kubeConfig.loadFromOptions(config);
   await client.update(kubeConfig);
-  vi.advanceTimersToNextTimer(); // dispatches
+  vi.advanceTimersToNextTimer(); // reachable
+  vi.advanceTimersToNextTimer(); // add
   const expectedMap = new Map<string, ContextGeneralState>();
   expectedMap.set('context1', {
     reachable: true,
@@ -545,7 +547,8 @@ test('should delete deployment when deleted from context', async () => {
   kubeConfig.loadFromOptions(config);
   await client.update(kubeConfig);
   vi.advanceTimersToNextTimer(); // add events
-  vi.advanceTimersToNextTimer(); // dispatches
+  vi.advanceTimersToNextTimer(); // reachable
+  vi.advanceTimersToNextTimer(); // delete
   const expectedMap = new Map<string, ContextGeneralState>();
   expectedMap.set('context1', {
     reachable: true,
@@ -662,7 +665,8 @@ test('should update deployment when updated on context', async () => {
   kubeConfig.loadFromOptions(config);
   await client.update(kubeConfig);
   vi.advanceTimersToNextTimer(); // add events
-  vi.advanceTimersToNextTimer(); // dispatches
+  vi.advanceTimersToNextTimer(); // reachable
+  vi.advanceTimersToNextTimer(); // update
   const expectedMap = new Map<string, ContextGeneralState>();
   expectedMap.set('context1', {
     reachable: true,
@@ -768,6 +772,7 @@ test('should send appropriate data when context becomes unreachable', async () =
   };
   kubeConfig.loadFromOptions(config);
   await client.update(kubeConfig);
+  vi.advanceTimersToNextTimer(); // add deployments
   vi.advanceTimersToNextTimer(); // dispatches
   const expectedMap = new Map<string, ContextGeneralState>();
   expectedMap.set('context1', {

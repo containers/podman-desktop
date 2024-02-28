@@ -16,7 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+// set this value as the (reasonably) maximum time a connection can get to be established
+// or the reachable status of an unreachable context will flash as reachable during the connection attempt
 export const connectTimeout = 1000;
+// initial delay between two connection attempts
 export const backoffInitialValue = 1000;
+// maximum delay between two connection attermpts
 export const backoffLimit = 60_000;
+// jitter to add to the delay between two connection attempts
 export const backoffJitter = 300;
+// the time to wait for any update on the data to dispatch before to send it
+export const dispatchTimeout = 100;
