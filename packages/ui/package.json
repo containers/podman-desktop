@@ -4,11 +4,11 @@
   "type": "module",
   "license": "Apache-2.0",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build && npm run package",
-    "package": "svelte-package",
-    "serve": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "build": "svelte-package",
+    "watch": "svelte-package -w",
+    "test": "vitest run --coverage --passWithNoTests",
+    "test:watch": "vitest watch --coverage --passWithNoTests",
+    "svelte:check": "svelte-check --tsconfig ./tsconfig.json",
     "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
   },
   "files": [
