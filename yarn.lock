@@ -1669,12 +1669,12 @@
     resolve-global "1.0.0"
     yargs "^17.0.0"
 
-"@commitlint/config-conventional@^18.6.2":
-  version "18.6.2"
-  resolved "https://registry.yarnpkg.com/@commitlint/config-conventional/-/config-conventional-18.6.2.tgz#617f3ee761578040cade530631058699642cbd78"
-  integrity sha512-PcgSYg1AKGQIwDQKbaHtJsfqYy4uJTC7crLVZ83lfjcPaec4Pry2vLeaWej7ao2KsT20l9dWoMPpEGg8LWdUuA==
+"@commitlint/config-conventional@^19.0.0":
+  version "19.0.0"
+  resolved "https://registry.yarnpkg.com/@commitlint/config-conventional/-/config-conventional-19.0.0.tgz#3d462be9cd4a3f2676eace218217e487db141e53"
+  integrity sha512-d8lPm+slPUdA8Zof2Y36RqAm/MmAYx/QQIEd2gKbpfLThQK1oYLs+0C3sMPD+4LIq2kh4cnbV9WnPA0P5sN8Ig==
   dependencies:
-    "@commitlint/types" "^18.6.1"
+    "@commitlint/types" "^19.0.0"
     conventional-changelog-conventionalcommits "^7.0.2"
 
 "@commitlint/config-validator@^18.6.1":
@@ -1810,6 +1810,13 @@
   integrity sha512-gwRLBLra/Dozj2OywopeuHj2ac26gjGkz2cZ+86cTJOdtWfiRRr4+e77ZDAGc6MDWxaWheI+mAV5TLWWRwqrFg==
   dependencies:
     chalk "^4.1.0"
+
+"@commitlint/types@^19.0.0":
+  version "19.0.0"
+  resolved "https://registry.yarnpkg.com/@commitlint/types/-/types-19.0.0.tgz#d5af1c8730c85a1622ae885f2d728fced17a4e0c"
+  integrity sha512-qLjLUdYXKi0TIavONrjBkxrElp7KguqDbvzIRbqTdJBV/cAAr8QEhHe1qUq8OcCM3gFWTlUrDz3ISZbkRoGsAg==
+  dependencies:
+    chalk "^5.3.0"
 
 "@develar/schema-utils@~2.6.5":
   version "2.6.5"
