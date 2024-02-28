@@ -17,6 +17,7 @@ import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import { splitSpacesHandlingDoubleQuotes } from '../string/string';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import FormPage from '../ui/FormPage.svelte';
+import NumberInput from '../ui/NumberInput.svelte';
 import Tab from '../ui/Tab.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 
@@ -847,12 +848,10 @@ async function assertAllPortAreValid(): Promise<void> {
                   <span
                     class="text-sm w-28 inline-block align-middle whitespace-nowrap text-gray-700"
                     title="Number of times to retry before giving up.">Retries:</span>
-                  <input
-                    type="number"
-                    min="0"
+                  <NumberInput
+                    minimum="{0}"
                     bind:value="{restartPolicyMaxRetryCount}"
-                    placeholder="Number of times to retry before giving up"
-                    class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
+                    class="w-full p-2"
                     disabled="{restartPolicyName !== 'on-failure'}" />
                 </div>
               </div>

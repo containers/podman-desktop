@@ -33,6 +33,7 @@ function renderInput(
   clearable?: boolean,
   error?: string,
   onClick?: any,
+  inputClass?: string,
 ): void {
   render(Input, {
     value: value,
@@ -42,6 +43,7 @@ function renderInput(
     clearable: clearable,
     error: error,
     onClick: onClick,
+    inputClass: inputClass,
   });
 }
 
@@ -153,4 +155,14 @@ test('Expect basic error styling', async () => {
 
   const err = screen.getByText(error);
   expect(err).toBeInTheDocument();
+});
+
+test('Expect inputClass styling', async () => {
+  const value = 'test';
+  const thisClass = 'this-class';
+  renderInput(value, value, false, false, true, undefined, thisClass);
+
+  const element = screen.getByRole('textbox');
+  expect(element).toBeInTheDocument();
+  expect(element).toHaveClass(thisClass);
 });
