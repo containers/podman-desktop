@@ -6,12 +6,14 @@ import Fa from 'svelte-fa';
 export let placeholder: string | undefined = undefined;
 export let id: string | undefined = undefined;
 export let name: string | undefined = undefined;
-export let value: string | undefined = undefined;
+export let value: string | number | undefined = undefined;
 export let readonly: boolean = false;
 export let required: boolean = false;
 export let clearable: boolean = false;
 export let disabled: boolean = false;
 export let error: string | undefined = undefined;
+export let inputClass: string | undefined = undefined;
+export let showError: boolean = true;
 
 export let element: HTMLInputElement | undefined = undefined;
 
@@ -51,7 +53,9 @@ async function onClear(): Promise<void> {
     <input
       bind:this="{element}"
       on:input
-      class="grow px-1 outline-0 text-sm bg-[var(--pd-input-field-bg)] placeholder:text-[color:var(--pd-input-field-placeholder-text)] overflow-hidden"
+      on:keypress
+      class="grow px-0.5 outline-0 text-sm bg-[var(--pd-input-field-bg)] placeholder:text-[color:var(--pd-input-field-placeholder-text)] overflow-hidden {inputClass ||
+        ''}"
       class:text-[color:var(--pd-input-field-focused-text)]="{!disabled}"
       class:text-[color:var(--pd-input-field-disabled-text)]="{disabled}"
       class:group-hover:bg-[var(--pd-input-field-hover-bg)]="{enabled}"
@@ -67,14 +71,14 @@ async function onClear(): Promise<void> {
       aria-label="{$$props['aria-label']}"
       aria-invalid="{$$props['aria-invalid']}"
       bind:value="{value}" />
-    {#if error}
-      <span class="px-1 text-[color:var(--pd-input-field-error-text)]" aria-label="error">
+    {#if error && showError}
+      <span class="px-0.5 text-[color:var(--pd-input-field-error-text)]" aria-label="error">
         <Fa icon="{faCircleExclamation}" />
       </span>
     {/if}
     {#if clearable}
       <button
-        class="px-1 cursor-pointer text-[color:var(--pd-input-field-icon)] group-hover:text-[color:var(--pd-input-field-hover-icon)] group-focus-within:text-[color:var(--pd-input-field-focused-icon)]"
+        class="px-0.5 cursor-pointer text-[color:var(--pd-input-field-icon)] group-hover:text-[color:var(--pd-input-field-hover-icon)] group-focus-within:text-[color:var(--pd-input-field-focused-icon)]"
         class:hidden="{!value || readonly || disabled}"
         aria-label="clear"
         on:click="{onClear}">
@@ -83,7 +87,7 @@ async function onClear(): Promise<void> {
     {/if}
     <slot name="right" />
   </div>
-  {#if error && error.length > 0}
+  {#if error && error.length > 0 && showError}
     <span class="text-sm text-[color:var(--pd-input-field-error-text)]">{error}</span>
   {/if}
 </div>
