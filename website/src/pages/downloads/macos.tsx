@@ -68,7 +68,7 @@ export function MacOSDownloads(): JSX.Element {
     airgapsetup: '',
   });
 
-  const copyBrewInstructions = async () => {
+  const copyBrewInstructions = async (): Promise<void> => {
     await navigator.clipboard.writeText('brew install podman-desktop');
   };
 
