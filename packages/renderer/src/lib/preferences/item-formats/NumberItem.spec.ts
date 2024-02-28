@@ -25,28 +25,28 @@ import { expect, test } from 'vitest';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
 import NumberItem from './NumberItem.svelte';
 
-test('Expect tooltip if value input is NaN', async () => {
+test('Expect tooltip if value input is invalid', async () => {
   const record: IConfigurationPropertyRecordedSchema = {
     id: 'record',
     title: 'record',
     parentId: 'parent.record',
     description: 'record-description',
     type: 'number',
-    minimum: 1,
+    minimum: 10,
     maximum: 34,
   };
-  const value = 2;
+  const value = 12;
   render(NumberItem, { record, value });
 
   const input = screen.getByLabelText('record-description');
   expect(input).toBeInTheDocument();
   await userEvent.click(input);
   await userEvent.clear(input);
-  await userEvent.keyboard('unknown');
+  await userEvent.keyboard('5');
 
   const tooltip = screen.getByLabelText('tooltip');
   expect(tooltip).toBeInTheDocument();
-  expect(tooltip.textContent).toContain('Expecting a number');
+  expect(tooltip.textContent).toContain('The value cannot be less than 10');
 });
 
 test('Expect decrement button disabled if value is less than minimum', async () => {
