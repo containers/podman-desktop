@@ -63,6 +63,7 @@
   ],
   "rules": {
     "eqeqeq": "error",
+    "@typescript-eslint/explicit-function-return-type": "error",
     "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
     "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/consistent-type-imports": "error",
