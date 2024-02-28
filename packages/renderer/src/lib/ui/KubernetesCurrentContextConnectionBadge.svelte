@@ -3,12 +3,12 @@ import { kubernetesCurrentContextState } from '/@/stores/kubernetes-contexts-sta
 import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes-context-state';
 import Tooltip from '/@/lib/ui/Tooltip.svelte';
 
-function getText(state: ContextGeneralState | undefined): string {
+function getText(state?: ContextGeneralState): string {
   if (state?.reachable) return 'Connected';
   return 'Cluster not reachable';
 }
 
-function getClassColor(state: ContextGeneralState | undefined): string {
+function getClassColor(state?: ContextGeneralState): string {
   if (state?.reachable) return 'bg-green-600';
   return 'bg-gray-900';
 }

@@ -476,7 +476,7 @@ export class ContextsManager {
   }
 
   private currentStateTimeoutId: NodeJS.Timeout | undefined;
-  private dispatchCurrentContextGeneralState() {
+  private dispatchCurrentContextGeneralState(): void {
     // Debounce: send only the latest value if several values are sent in a short period
     clearTimeout(this.currentStateTimeoutId);
     this.currentStateTimeoutId = setTimeout(() => {
@@ -492,7 +492,7 @@ export class ContextsManager {
   }
 
   private resourceTimeoutId = new Map<ResourceName, NodeJS.Timeout>();
-  private dispatchCurrentContextResource(resourceName: ResourceName) {
+  private dispatchCurrentContextResource(resourceName: ResourceName): void {
     // Debounce: send only the latest value if several values are sent in a short period
     clearTimeout(this.resourceTimeoutId.get(resourceName));
     this.resourceTimeoutId.set(
