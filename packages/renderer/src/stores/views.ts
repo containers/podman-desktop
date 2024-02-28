@@ -51,6 +51,6 @@ export const viewsEventStore = new EventStore<ViewInfoUI[]>(
 );
 const viewsEventStoreInfo = viewsEventStore.setup();
 
-export const fetchViews = async () => {
+export const fetchViews = async (): Promise<void> => {
   await viewsEventStoreInfo.fetch();
 };

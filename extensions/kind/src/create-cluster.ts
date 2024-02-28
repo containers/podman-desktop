@@ -32,7 +32,7 @@ export function getKindClusterConfig(
   httpHostPort: number,
   httpsHostPort: number,
   controlPlaneImage?: string,
-) {
+): string {
   return mustache.render(createClusterConfTemplate, {
     clusterName: clusterName,
     httpHostPort: httpHostPort,
@@ -47,7 +47,7 @@ function getTags(tags: any[]): any[] {
     if (tag.tag === 'tag:yaml.org,2002:int') {
       const newTag = { ...tag };
       newTag.test = /^(0[0-7][0-7][0-7])$/;
-      newTag.resolve = str => parseInt(str, 8);
+      newTag.resolve = (str: string): number => parseInt(str, 8);
       tags.unshift(newTag);
       break;
     }
@@ -55,7 +55,7 @@ function getTags(tags: any[]): any[] {
   return tags;
 }
 
-export async function setupIngressController(clusterName: string) {
+export async function setupIngressController(clusterName: string): Promise<void> {
   const manifests = parseAllDocuments(ingressManifests, { customTags: getTags });
   await extensionApi.kubernetes.createResources(
     'kind-' + clusterName,

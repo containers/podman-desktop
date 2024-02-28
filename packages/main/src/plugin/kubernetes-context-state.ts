@@ -22,7 +22,9 @@ import type {
   ListPromise,
   ObjectCache,
   V1Deployment,
+  V1DeploymentList,
   V1Pod,
+  V1PodList,
 } from '@kubernetes/client-node';
 import { AppsV1Api, CoreV1Api, KubeConfig, makeInformer } from '@kubernetes/client-node';
 import type { KubeContext } from './kubernetes-context.js';
@@ -33,6 +35,7 @@ import {
   backoffLimit,
   connectTimeout,
 } from './kubernetes-context-state-constants.js';
+import type { IncomingMessage } from 'node:http';
 
 // ContextInternalState stores informers for a kube context
 interface ContextInternalState {
@@ -75,7 +78,7 @@ class Backoff {
     this.initial = value;
     this.value += this.getJitter();
   }
-  get() {
+  get(): number {
     const current = this.value;
     if (this.value < this.max) {
       this.value *= 2;
@@ -83,7 +86,7 @@ class Backoff {
     }
     return current;
   }
-  reset() {
+  reset(): void {
     this.value = this.initial + this.getJitter();
   }
 
@@ -96,17 +99,17 @@ class ContextsStates {
   private published = new Map<string, ContextState>();
   private informers = new Map<string, ContextInternalState>();
 
-  has(name: string) {
+  has(name: string): boolean {
     return this.informers.has(name);
   }
 
-  setInformers(name: string, informers: ContextInternalState | undefined) {
+  setInformers(name: string, informers: ContextInternalState | undefined): void {
     if (informers) {
       this.informers.set(name, informers);
     }
   }
 
-  getContextsNames() {
+  getContextsNames(): Iterable<string> {
     return this.informers.keys();
   }
 
@@ -114,7 +117,7 @@ class ContextsStates {
     return this.published;
   }
 
-  safeSetState(name: string, update: (previous: ContextState) => void) {
+  safeSetState(name: string, update: (previous: ContextState) => void): void {
     if (!this.published.has(name)) {
       this.published.set(name, {
         error: undefined,
@@ -132,7 +135,7 @@ class ContextsStates {
     update(val);
   }
 
-  async dispose(name: string) {
+  async dispose(name: string): Promise<void> {
     await this.informers.get(name)?.podInformer?.stop();
     await this.informers.get(name)?.deploymentInformer?.stop();
     this.informers.delete(name);
@@ -152,7 +155,7 @@ export class ContextsManager {
   // - the user preference indicating if the user wants to get live information about kube contexts
   // - the last known kube config
   // and starts/stops informers for different kube contexts, depending on these inputs
-  async update(kubeconfig: KubeConfig) {
+  async update(kubeconfig: KubeConfig): Promise<void> {
     this.kubeConfig = kubeconfig;
     // Add informers for new contexts
     for (const context of this.kubeConfig.contexts) {
@@ -200,7 +203,7 @@ export class ContextsManager {
 
   private createPodInformer(kc: KubeConfig, ns: string, context: KubeContext): Informer<V1Pod> & ObjectCache<V1Pod> {
     const k8sApi = kc.makeApiClient(CoreV1Api);
-    const listFn = () => k8sApi.listNamespacedPod(ns);
+    const listFn = (): Promise<{ response: IncomingMessage; body: V1PodList }> => k8sApi.listNamespacedPod(ns);
     const path = `/api/v1/namespaces/${ns}/pods`;
     let timer: NodeJS.Timeout | undefined;
     return this.createInformer<V1Pod>(kc, context, path, listFn, {
@@ -228,7 +231,10 @@ export class ContextsManager {
     context: KubeContext,
   ): Informer<V1Deployment> & ObjectCache<V1Deployment> {
     const k8sApi = kc.makeApiClient(AppsV1Api);
-    const listFn = () => k8sApi.listNamespacedDeployment(ns);
+    const listFn = (): Promise<{
+      response: IncomingMessage;
+      body: V1DeploymentList;
+    }> => k8sApi.listNamespacedDeployment(ns);
     const path = `/apis/apps/v1/namespaces/${ns}/deployments`;
     let timer: NodeJS.Timeout | undefined;
     return this.createInformer<V1Deployment>(kc, context, path, listFn, {
@@ -301,7 +307,7 @@ export class ContextsManager {
     informer: Informer<KubernetesObject> & ObjectCache<KubernetesObject>,
     context: KubeContext,
     options: CreateInformerOptions<T>,
-  ) {
+  ): void {
     informer.start().catch((err: unknown) => {
       const nextTimeout = options.backoff.get();
       if (err !== undefined) {
@@ -320,7 +326,7 @@ export class ContextsManager {
   }
 
   private timeoutId: NodeJS.Timeout | undefined;
-  private dispatchContextsState() {
+  private dispatchContextsState(): void {
     // Debounce: send only the latest value if several values are sent in a short period
     clearTimeout(this.timeoutId);
     this.timeoutId = setTimeout(() => {
@@ -332,12 +338,12 @@ export class ContextsManager {
     return this.states.getPublished();
   }
 
-  private setStateAndDispatch(name: string, update: (previous: ContextState) => void) {
+  private setStateAndDispatch(name: string, update: (previous: ContextState) => void): void {
     this.states.safeSetState(name, update);
     this.dispatchContextsState();
   }
 
-  private resetConnectionAttempts<T extends KubernetesObject>(options: CreateInformerOptions<T>) {
+  private resetConnectionAttempts<T extends KubernetesObject>(options: CreateInformerOptions<T>): void {
     options.backoff.reset();
     clearTimeout(options.timer);
   }

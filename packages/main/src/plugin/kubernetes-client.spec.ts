@@ -114,7 +114,7 @@ const context: Context = {
   user: 'user',
 };
 
-function mockContext() {
+function mockContext(): void {
   const newContext: Context = {
     cluster: 'cluster1',
     name: 'name1',

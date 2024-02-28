@@ -53,7 +53,13 @@ function getIcon(check: ImageCheck): IconDefinition {
   }
 }
 
-function getCountBySeverity(results: CheckUI[]) {
+function getCountBySeverity(results: CheckUI[]): {
+  critical: number;
+  high: number;
+  medium: number;
+  low: number;
+  success: number;
+} {
   return results.reduce(
     (acc, current) => {
       if (current.check.status === 'success') {
@@ -76,7 +82,7 @@ function getCountBySeverity(results: CheckUI[]) {
   );
 }
 
-function onProviderChecked(id: string, checked: boolean) {
+function onProviderChecked(id: string, checked: boolean): void {
   selectedProviders.set(id, checked);
   selectedProviders = selectedProviders;
 }
@@ -85,7 +91,7 @@ function getFilteredResultsByProvider(results: CheckUI[], checkedProviders: Map<
   return results.filter(r => checkedProviders.get(r.provider.id) === undefined || checkedProviders.get(r.provider.id));
 }
 
-function getFilteredResultsBySeverity(results: CheckUI[], selectedSeverities: any) {
+function getFilteredResultsBySeverity(results: CheckUI[], selectedSeverities: any): CheckUI[] {
   return results.filter(r => {
     if (r.check.status === 'success') {
       return selectedSeverities['success'];
@@ -97,7 +103,7 @@ function getFilteredResultsBySeverity(results: CheckUI[], selectedSeverities: an
   });
 }
 
-function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 'success', clicked: boolean) {
+function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 'success', clicked: boolean): void {
   selectedSeverities[severity] = clicked;
 }
 </script>

@@ -290,7 +290,7 @@ export class ExtensionLoader {
     }
   }
 
-  async start() {
+  async start(): Promise<void> {
     // Scan the plugins-scanning directory
     await this.setupScanningDirectory();
 
@@ -442,7 +442,7 @@ export class ExtensionLoader {
     allExtensions: AnalyzedExtension[],
     explored: Map<string, boolean>,
     sorted: AnalyzedExtension[],
-  ) {
+  ): void {
     // flasg the node as explored
     explored.set(analyzedExtension.id, true);
 
@@ -1099,10 +1099,10 @@ export class ExtensionLoader {
       },
       get clipboard(): containerDesktopAPI.Clipboard {
         return {
-          readText: async () => {
+          readText: async (): Promise<string> => {
             return electronClipboard.readText();
           },
-          writeText: async value => {
+          writeText: async (value): Promise<void> => {
             return electronClipboard.writeText(value);
           },
         };

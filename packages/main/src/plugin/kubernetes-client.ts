@@ -240,7 +240,7 @@ export class KubernetesClient {
     return new Watch(this.kubeConfig);
   }
 
-  setupKubeWatcher() {
+  setupKubeWatcher(): void {
     this.kubeWatcher?.abort();
     const ns = this.currentNamespace;
     if (ns) {
@@ -268,7 +268,7 @@ export class KubernetesClient {
     }
   }
 
-  async fetchAPIGroups() {
+  async fetchAPIGroups(): Promise<void> {
     this.apiGroups = [];
     try {
       if (this.kubeConfig) {
@@ -385,7 +385,7 @@ export class KubernetesClient {
     this.apiSender.send('kubernetes-context-update');
   }
 
-  async saveKubeConfig(config: KubeConfig) {
+  async saveKubeConfig(config: KubeConfig): Promise<void> {
     const jsonString = config.exportConfig();
     const yamlString = jsYaml.dump(JSON.parse(jsonString));
     await fs.promises.writeFile(this.kubeconfigPath, yamlString);
@@ -433,7 +433,7 @@ export class KubernetesClient {
     return namespace;
   }
 
-  async refresh() {
+  async refresh(): Promise<void> {
     // check the file is empty
     const fileContent = await fs.promises.readFile(this.kubeconfigPath);
     if (fileContent.length === 0) {
@@ -992,7 +992,7 @@ export class KubernetesClient {
         const newTag = { ...tag };
         newTag.test = /^(0[0-7][0-7][0-7])$/;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        newTag.resolve = (str: any) => parseInt(str, 8);
+        newTag.resolve = (str: any): number => parseInt(str, 8);
         tags.unshift(newTag);
         break;
       }
@@ -1343,7 +1343,7 @@ export class KubernetesClient {
     throw new Error('error when setting the informer');
   }
 
-  async refreshInformer(id: number) {
+  async refreshInformer(id: number): Promise<void> {
     const currentContext = this.kubeConfig.getContextObject(this.kubeConfig.currentContext);
     const informerInfo = this.informerManager.getInformerInfo(id);
     // if context changed after we started the informer, we recreate it with the new context

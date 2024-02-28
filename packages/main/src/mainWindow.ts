@@ -170,7 +170,7 @@ async function createWindow(): Promise<BrowserWindow> {
               // make it visible when link contains contribs and we're inside the extension
               visible:
                 parameters.linkURL.includes('/contribs/') && parameters.pageURL.includes(`/contribs/${extensionId}`),
-              click: () => {
+              click: (): void => {
                 browserWindow.webContents.send('dev-tools:open-extension', extensionId.replaceAll('%20', '-'));
               },
             },
@@ -182,7 +182,7 @@ async function createWindow(): Promise<BrowserWindow> {
               label: `Open DevTools of the webview`,
               visible:
                 parameters.linkURL.includes('/webviews/') && parameters.pageURL.includes(`/webviews/${webviewId}`),
-              click: () => {
+              click: (): void => {
                 browserWindow.webContents.send('dev-tools:open-webview', webviewId);
               },
             },
@@ -245,7 +245,7 @@ export async function createNewWindow(): Promise<BrowserWindow> {
 }
 
 // Restore the window if it is minimized / not shown / there is already another instance running
-export async function restoreWindow() {
+export async function restoreWindow(): Promise<void> {
   const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 
   // Only restore the window if we were able to find it

@@ -40,7 +40,7 @@ export class KubernetesInformerManager {
     return this.informerId;
   }
 
-  public updateInformer(id: number, informer: Informer<KubernetesObject>, context: Context) {
+  public updateInformer(id: number, informer: Informer<KubernetesObject>, context: Context): void {
     const informerSaved = this.getInformerInfo(id);
     if (informerSaved) {
       this.informers.set(id, {

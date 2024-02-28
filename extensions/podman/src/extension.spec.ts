@@ -147,15 +147,15 @@ const consoleErrorMock = vi.fn();
 vi.mock('@podman-desktop/api', async () => {
   return {
     configuration: {
-      getConfiguration: () => config,
-      onDidChangeConfiguration: () => {
+      getConfiguration: (): Configuration => config,
+      onDidChangeConfiguration: (): any => {
         return {
           dispose: vi.fn(),
         };
       },
     },
     proxy: {
-      isEnabled: () => false,
+      isEnabled: (): boolean => false,
     },
     window: {
       showErrorMessage: vi.fn(),
@@ -170,9 +170,9 @@ vi.mock('@podman-desktop/api', async () => {
     },
     env: {
       createTelemetryLogger: vi.fn(),
-      isWindows: () => vi.fn(),
-      isMac: () => vi.fn(),
-      isLinux: () => vi.fn(),
+      isWindows: (): (() => boolean) => vi.fn(),
+      isMac: (): (() => boolean) => vi.fn(),
+      isLinux: (): (() => boolean) => vi.fn(),
     },
     containerEngine: {
       info: vi.fn(),

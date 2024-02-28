@@ -13,7 +13,7 @@ export class NavigationManager {
     private webviewRegistry: WebviewRegistry,
   ) {}
 
-  navigateTo(navigateRequest: NavigationRequest) {
+  navigateTo(navigateRequest: NavigationRequest): void {
     this.apiSender.send('navigate', navigateRequest);
   }
 

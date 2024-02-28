@@ -108,7 +108,7 @@ async function monitorDaemon(extensionContext: extensionApi.ExtensionContext): P
   }
 }
 
-async function updateProvider(extensionContext: extensionApi.ExtensionContext) {
+async function updateProvider(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   try {
     const installedDocker = await getDockerInstallation();
     if (!installedDocker) {
@@ -177,7 +177,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   });
 }
 
-function initProvider(extensionContext: extensionApi.ExtensionContext) {
+function initProvider(extensionContext: extensionApi.ExtensionContext): void {
   provider = extensionApi.provider.createProvider({
     name: 'Docker',
     id: 'docker',
