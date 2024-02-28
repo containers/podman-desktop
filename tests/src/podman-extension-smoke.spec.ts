@@ -82,7 +82,7 @@ describe('Verification of Podman extension', async () => {
   });
 });
 
-async function verifyPodmanExtensionStatus(enabled: boolean) {
+async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
   dashboardPage = await navigationBar.openDashboard();
   const podmanProviderLocator = dashboardPage.getPodmanStatusLocator();
   enabled

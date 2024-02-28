@@ -46,7 +46,7 @@ export class PodDetailsPage extends BasePage {
     this.backToPodsLink = page.getByRole('link', { name: 'Go back to Pods' });
   }
 
-  async activateTab(tabName: string) {
+  async activateTab(tabName: string): Promise<void> {
     const tabItem = this.page.getByRole('link', { name: tabName });
     await tabItem.waitFor({ state: 'visible', timeout: 2000 });
     await tabItem.click();

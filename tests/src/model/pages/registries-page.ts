@@ -32,7 +32,7 @@ export class RegistriesPage extends SettingsPage {
     this.registriesTable = page.getByRole('table', { name: 'Registries' });
   }
 
-  async createRegistry(url: string, username: string, pswd: string) {
+  async createRegistry(url: string, username: string, pswd: string): Promise<void> {
     await this.addRegistryButton.click();
 
     const registryUrl = this.page.getByLabel('Register URL');
@@ -46,7 +46,7 @@ export class RegistriesPage extends SettingsPage {
     await this.loginButtonHandling(loginButton);
   }
 
-  async editRegistry(title: string, newUsername: string, newPswd: string) {
+  async editRegistry(title: string, newUsername: string, newPswd: string): Promise<void> {
     const registryBox = await this.getRegistryRowByName(title);
 
     const dropdownMenu = registryBox.getByRole('button', { name: 'kebab menu' });
@@ -68,7 +68,7 @@ export class RegistriesPage extends SettingsPage {
    * There are two types of registries, if it is custom, then it can be actually deleted
    * If it is default registry, it will delete only the credentials and the record will be kept there.
    */
-  async removeRegistry(title: string) {
+  async removeRegistry(title: string): Promise<void> {
     const registryBox = await this.getRegistryRowByName(title);
 
     const dropdownMenu = registryBox.getByRole('button', { name: 'kebab menu' });
