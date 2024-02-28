@@ -93,7 +93,7 @@ interface DispatchOptions {
   contextsGeneralState: boolean;
   // do we send general context for current context?
   currentContextGeneralState: boolean;
-  // do we end resources data for each resource kind? default false for all resources
+  // do we send resources data for each resource kind? default false for all resources
   resources: ResourcesDispatchOptions;
 }
 
