@@ -3160,12 +3160,12 @@
   dependencies:
     esquery "^1.4.0"
 
-"@playwright/test@1.41.2":
-  version "1.41.2"
-  resolved "https://registry.yarnpkg.com/@playwright/test/-/test-1.41.2.tgz#bd9db40177f8fd442e16e14e0389d23751cdfc54"
-  integrity sha512-qQB9h7KbibJzrDpkXkYvsmiDJK14FULCCZgEcoe2AvFAS64oCirWTwzTlAYEbKaRxWs5TFesE1Na6izMv3HfGg==
+"@playwright/test@1.42.0":
+  version "1.42.0"
+  resolved "https://registry.yarnpkg.com/@playwright/test/-/test-1.42.0.tgz#f65a7dcb92f202f376a7538e71855d873d1e6aa2"
+  integrity sha512-2k1HzC28Fs+HiwbJOQDUwrWMttqSLUVdjCqitBOjdCD0svWOMQUVqrXX6iFD7POps6xXAojsX/dGBpKnjZctLA==
   dependencies:
-    playwright "1.41.2"
+    playwright "1.42.0"
 
 "@pnpm/config.env-replace@^1.1.0":
   version "1.1.0"
@@ -12867,17 +12867,17 @@ pkg-up@^3.1.0:
   dependencies:
     find-up "^3.0.0"
 
-playwright-core@1.41.2:
-  version "1.41.2"
-  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.41.2.tgz#db22372c708926c697acc261f0ef8406606802d9"
-  integrity sha512-VaTvwCA4Y8kxEe+kfm2+uUUw5Lubf38RxF7FpBxLPmGe5sdNkSg5e3ChEigaGrX7qdqT3pt2m/98LiyvU2x6CA==
+playwright-core@1.42.0:
+  version "1.42.0"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.42.0.tgz#bc6525268b13b8bed5fbead761a1a886984555c4"
+  integrity sha512-0HD9y8qEVlcbsAjdpBaFjmaTHf+1FeIddy8VJLeiqwhcNqGCBe4Wp2e8knpqiYbzxtxarxiXyNDw2cG8sCaNMQ==
 
-playwright@1.41.2:
-  version "1.41.2"
-  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.41.2.tgz#4e760b1c79f33d9129a8c65cc27953be6dd35042"
-  integrity sha512-v0bOa6H2GJChDL8pAeLa/LZC4feoAMbSQm1/jF/ySsWWoaNItvrMP7GEkvEEFyCTUYKMxjQKaTSg5up7nR6/8A==
+playwright@1.42.0:
+  version "1.42.0"
+  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.42.0.tgz#6d4265b124d2b87432083aa7af30c46aaec5e703"
+  integrity sha512-Ko7YRUgj5xBHbntrgt4EIw/nE//XBHOKVKnBjO1KuZkmkhlbgyggTe5s9hjqQ1LpN+Xg+kHsQyt5Pa0Bw5XpvQ==
   dependencies:
-    playwright-core "1.41.2"
+    playwright-core "1.42.0"
   optionalDependencies:
     fsevents "2.3.2"
 
