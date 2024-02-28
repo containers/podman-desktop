@@ -1146,7 +1146,10 @@ describe('buildImage', () => {
         containerFile: 'file',
         tag: 'name',
         platform: '',
-        provider: connection,
+        provider: {
+          ...connection,
+          status: () => connection.status,
+        },
       }),
     ).rejects.toThrow('no running provider for the matching container');
   });
@@ -1232,7 +1235,10 @@ describe('buildImage', () => {
         containerFile: 'file',
         tag: 'name',
         platform: '',
-        provider: connection,
+        provider: {
+          ...connection,
+          status: () => connection.status,
+        },
       }),
     ).rejects.toThrow('human error message');
   });
@@ -1317,7 +1323,10 @@ describe('buildImage', () => {
       containerFile: '\\path\\file',
       tag: 'name',
       platform: '',
-      provider: connection,
+      provider: {
+        ...connection,
+        status: () => connection.status,
+      },
     });
 
     expect(dockerAPI.buildImage).toBeCalledWith({} as NodeJS.ReadableStream, {
@@ -1416,7 +1425,10 @@ describe('buildImage', () => {
       containerFile: '/dir/dockerfile',
       tag: 'name',
       platform: '',
-      provider: connection,
+      provider: {
+        ...connection,
+        status: () => connection.status,
+      },
       ...extraArgs,
     });
 
@@ -3210,7 +3222,10 @@ test('check createPod uses running podman connection if ProviderContainerConnect
 
   const result = await containerRegistry.createPod({
     name: 'pod',
-    provider: containerProviderConnection,
+    provider: {
+      ...containerProviderConnection,
+      status: () => containerProviderConnection.status,
+    },
   });
   expect(result.Id).equal('id');
   expect(result.engineId).equal('podman1');

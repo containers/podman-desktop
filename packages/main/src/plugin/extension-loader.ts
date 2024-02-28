@@ -59,7 +59,6 @@ import type { Directories } from './directories.js';
 import { getBase64Image, isLinux, isMac, isWindows } from '../util.js';
 import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 import type { Exec } from './util/exec.js';
-import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info.js';
 import type { ViewRegistry } from './view-registry.js';
 import type { Context } from './context/context.js';
 import type { OnboardingRegistry } from './onboarding-registry.js';
@@ -725,9 +724,12 @@ export class ExtensionLoader {
       },
       getProviderLifecycleContext(
         providerId: string,
-        providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+        containerProviderConnection: containerDesktopAPI.ContainerProviderConnection,
       ): containerDesktopAPI.LifecycleContext {
-        return providerRegistry.getMatchingProviderLifecycleContextByProviderId(providerId, providerConnectionInfo);
+        return providerRegistry.getMatchingProviderLifecycleContextByProviderId(providerId, {
+          ...containerProviderConnection,
+          status: containerProviderConnection.status(),
+        });
       },
     };
 
