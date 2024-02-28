@@ -91,7 +91,7 @@ async function doCreatePodFromContainers() {
     portmappings,
     provider: {
       ...selectedProvider,
-      status: () => selectedProvider.status,
+      status: () => selectedProvider?.status ?? 'unknown',
     },
   });
   // now, for each container, recreate it with the pod
