@@ -80,7 +80,7 @@
     "lint:clean": "rimraf .eslintcache",
     "lint:check": "node --max-old-space-size=4096 node_modules/eslint/bin/eslint.js --cache . --ext js,ts,tsx,svelte",
     "lint:fix": "node --max-old-space-size=4096 node_modules/eslint/bin/eslint.js --cache . --fix --ext js,ts,tsx,svelte",
-    "svelte:check": "svelte-check",
+    "svelte:check": "svelte-check --ignore \"packages/ui/dist\"",
     "typecheck:main": "tsc --noEmit -p packages/main/tsconfig.json",
     "typecheck:preload": "tsc --noEmit -p packages/preload/tsconfig.json",
     "typecheck:preload-dd-extension": "tsc --noEmit -p packages/preload-docker-extension/tsconfig.json",
