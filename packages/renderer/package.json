@@ -52,6 +52,7 @@
   "dependencies": {
     "@zerodevx/svelte-toast": "^0.9.5",
     "electron-context-menu": "^3.6.1",
-    "tinro": "^0.6.12"
+    "tinro": "^0.6.12",
+    "@podman-desktop/ui-svelte": "^0.0.1"
   }
 }
