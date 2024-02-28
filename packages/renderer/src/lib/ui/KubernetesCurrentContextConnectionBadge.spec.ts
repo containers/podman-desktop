@@ -22,7 +22,7 @@ import '@testing-library/jest-dom/vitest';
 import { test, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
-import type { ContextState } from '../../../../main/src/plugin/kubernetes-context-state';
+import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes-context-state';
 
 const mocks = vi.hoisted(() => ({
   subscribeMock: vi.fn(),
@@ -46,7 +46,7 @@ beforeEach(() => {
   });
 
   (window as any).events = mocks.eventsMocks;
-  (window as any).kubernetesGetContextsState = mocks.getCurrentKubeContextState;
+  (window as any).kubernetesGetContextsGeneralState = mocks.getCurrentKubeContextState;
 });
 
 test('expect no badges shown as no context has been provided.', async () => {
@@ -63,10 +63,10 @@ test('expect badges to show as there is a context', async () => {
     error: undefined,
     reachable: true,
     resources: {
-      pods: [],
-      deployments: [],
+      pods: 0,
+      deployments: 0,
     },
-  } as ContextState); // no current ContextState
+  } as ContextGeneralState); // no current ContextState
   render(KubernetesCurrentContextConnectionBadge);
 
   expect(mocks.getCurrentKubeContextState).toHaveBeenCalled();
@@ -79,10 +79,10 @@ test('expect badges to be green when reachable', async () => {
     error: undefined,
     reachable: true,
     resources: {
-      pods: [],
-      deployments: [],
+      pods: 0,
+      deployments: 0,
     },
-  } as ContextState); // no current ContextState
+  } as ContextGeneralState); // no current ContextState
   render(KubernetesCurrentContextConnectionBadge);
 
   expect(mocks.getCurrentKubeContextState).toHaveBeenCalled();
@@ -95,10 +95,10 @@ test('expect badges to be gray when not reachable', async () => {
     error: undefined,
     reachable: false,
     resources: {
-      pods: [],
-      deployments: [],
+      pods: 0,
+      deployments: 0,
     },
-  } as ContextState); // no current ContextState
+  } as ContextGeneralState); // no current ContextState
   render(KubernetesCurrentContextConnectionBadge);
 
   expect(mocks.getCurrentKubeContextState).toHaveBeenCalled();
@@ -111,10 +111,10 @@ test('expect no tooltip when no error', async () => {
     error: undefined,
     reachable: false,
     resources: {
-      pods: [],
-      deployments: [],
+      pods: 0,
+      deployments: 0,
     },
-  } as ContextState); // no current ContextState
+  } as ContextGeneralState); // no current ContextState
   render(KubernetesCurrentContextConnectionBadge);
 
   expect(mocks.getCurrentKubeContextState).toHaveBeenCalled();
@@ -127,10 +127,10 @@ test('expect tooltip when error', async () => {
     error: 'error message',
     reachable: false,
     resources: {
-      pods: [],
-      deployments: [],
+      pods: 0,
+      deployments: 0,
     },
-  } as ContextState); // no current ContextState
+  } as ContextGeneralState); // no current ContextState
   render(KubernetesCurrentContextConnectionBadge);
 
   expect(mocks.getCurrentKubeContextState).toHaveBeenCalled();

@@ -45,27 +45,56 @@ interface ContextInternalState {
 
 // ContextState stores information for the user about a kube context: is the cluster reachable, the number
 // of instances of different resources
-export interface ContextState {
+interface ContextState {
   error?: string;
   reachable: boolean;
   resources: ContextStateResources;
 }
 
-type ResourceName = 'pods' | 'deployments';
+// All resources managed by podman desktop
+export type ResourceName = 'pods' | 'deployments';
+
+// A selection of resources, to indicate the 'general' status of a context
+type SelectedResourceName = 'pods' | 'deployments';
 
 export type ContextStateResources = {
   [resourceName in ResourceName]: KubernetesObject[];
+};
+
+// information sent: status and count of selected resources
+export interface ContextGeneralState {
+  error?: string;
+  reachable: boolean;
+  resources: SelectedResourcesCount;
+}
+
+export type SelectedResourcesCount = {
+  [resourceName in SelectedResourceName]: number;
 };
 
 interface CreateInformerOptions<T> {
   resource: string;
   checkReachable?: boolean;
   onAdd?: (obj: T) => void;
+  onUpdate?: (obj: T) => void;
   onDelete?: (obj: T) => void;
   onReachable?: (reachable: boolean) => void;
   onConnectionError?: (error: string) => void;
   timer: NodeJS.Timeout | undefined;
   backoff: Backoff;
+}
+
+type ResourcesDispatchOptions = {
+  [resourceName in ResourceName]?: boolean;
+};
+
+interface DispatchOptions {
+  // do we send general context for all contexts?
+  contextsGeneralState: boolean;
+  // do we send general context for current context?
+  currentContextGeneralState: boolean;
+  // do we send resources data for each resource kind? default false for all resources
+  resources: ResourcesDispatchOptions;
 }
 
 class Backoff {
@@ -96,7 +125,7 @@ class Backoff {
 }
 
 class ContextsStates {
-  private published = new Map<string, ContextState>();
+  private state = new Map<string, ContextState>();
   private informers = new Map<string, ContextInternalState>();
 
   has(name: string): boolean {
@@ -113,13 +142,56 @@ class ContextsStates {
     return this.informers.keys();
   }
 
-  getPublished(): Map<string, ContextState> {
-    return this.published;
+  getContextsGeneralState(): Map<string, ContextGeneralState> {
+    const result = new Map<string, ContextGeneralState>();
+    this.state.forEach((val, key) => {
+      result.set(key, {
+        ...val,
+        resources: {
+          pods: val.reachable ? val.resources.pods.length : 0,
+          deployments: val.reachable ? val.resources.deployments.length : 0,
+        },
+      });
+    });
+    return result;
+  }
+
+  getCurrentContextGeneralState(current: string): ContextGeneralState {
+    if (current) {
+      const state = this.state.get(current);
+      if (state) {
+        return {
+          ...state,
+          resources: {
+            pods: state.reachable ? state.resources.pods.length : 0,
+            deployments: state.reachable ? state.resources.deployments.length : 0,
+          },
+        };
+      }
+    }
+    return {
+      reachable: false,
+      error: 'no current context',
+      resources: { pods: 0, deployments: 0 },
+    };
+  }
+
+  getCurrentContextResources(current: string, resourceName: ResourceName): KubernetesObject[] {
+    if (current) {
+      const state = this.state.get(current);
+      if (!state?.reachable) {
+        return [];
+      }
+      if (state) {
+        return state.resources[resourceName];
+      }
+    }
+    return [];
   }
 
   safeSetState(name: string, update: (previous: ContextState) => void): void {
-    if (!this.published.has(name)) {
-      this.published.set(name, {
+    if (!this.state.has(name)) {
+      this.state.set(name, {
         error: undefined,
         reachable: false,
         resources: {
@@ -128,7 +200,7 @@ class ContextsStates {
         },
       });
     }
-    const val = this.published.get(name);
+    const val = this.state.get(name);
     if (!val) {
       throw new Error('value not correctly set in map');
     }
@@ -139,7 +211,7 @@ class ContextsStates {
     await this.informers.get(name)?.podInformer?.stop();
     await this.informers.get(name)?.deploymentInformer?.stop();
     this.informers.delete(name);
-    this.published.delete(name);
+    this.state.delete(name);
   }
 }
 
@@ -148,6 +220,7 @@ class ContextsStates {
 export class ContextsManager {
   private kubeConfig = new KubeConfig();
   private states = new ContextsStates();
+  private currentContext: string | undefined;
 
   constructor(private readonly apiSender: ApiSenderType) {}
 
@@ -157,11 +230,18 @@ export class ContextsManager {
   // and starts/stops informers for different kube contexts, depending on these inputs
   async update(kubeconfig: KubeConfig): Promise<void> {
     this.kubeConfig = kubeconfig;
+    let contextChanged = false;
+    if (kubeconfig.currentContext !== this.currentContext) {
+      contextChanged = true;
+      this.currentContext = kubeconfig.currentContext;
+    }
     // Add informers for new contexts
+    let added = false;
     for (const context of this.kubeConfig.contexts) {
       if (!this.states.has(context.name)) {
         const informers = this.createKubeContextInformers(context);
         this.states.setInformers(context.name, informers);
+        added = true;
       }
     }
     // Delete informers for removed contexts
@@ -172,8 +252,12 @@ export class ContextsManager {
         removed = true;
       }
     }
-    if (removed) {
-      this.dispatchContextsState();
+    if (added || removed || contextChanged) {
+      this.dispatch({
+        contextsGeneralState: true,
+        currentContextGeneralState: true,
+        resources: { pods: true, deployments: true },
+      });
     }
   }
 
@@ -210,18 +294,25 @@ export class ContextsManager {
       resource: 'pods',
       timer: timer,
       backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
-      onAdd: obj => this.setStateAndDispatch(context.name, state => state.resources.pods.push(obj)),
+      onAdd: obj => this.setStateAndDispatch(context.name, { pods: true }, state => state.resources.pods.push(obj)),
+      onUpdate: obj =>
+        this.setStateAndDispatch(context.name, { pods: true }, state => {
+          state.resources.pods = state.resources.pods.filter(o => o.metadata?.uid !== obj.metadata?.uid);
+          state.resources.pods.push(obj);
+        }),
       onDelete: obj =>
         this.setStateAndDispatch(
           context.name,
+          { pods: true },
           state => (state.resources.pods = state.resources.pods.filter(d => d.metadata?.uid !== obj.metadata?.uid)),
         ),
       onReachable: reachable =>
-        this.setStateAndDispatch(context.name, state => {
+        this.setStateAndDispatch(context.name, { pods: true, deployments: true }, state => {
           state.reachable = reachable;
           state.error = reachable ? undefined : state.error; // if reachable we remove error
         }),
-      onConnectionError: error => this.setStateAndDispatch(context.name, state => (state.error = error)),
+      onConnectionError: error =>
+        this.setStateAndDispatch(context.name, { pods: true, deployments: true }, state => (state.error = error)),
     });
   }
 
@@ -241,10 +332,17 @@ export class ContextsManager {
       resource: 'deployments',
       timer: timer,
       backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
-      onAdd: obj => this.setStateAndDispatch(context.name, state => state.resources.deployments.push(obj)),
+      onAdd: obj =>
+        this.setStateAndDispatch(context.name, { deployments: true }, state => state.resources.deployments.push(obj)),
+      onUpdate: obj =>
+        this.setStateAndDispatch(context.name, { deployments: true }, state => {
+          state.resources.deployments = state.resources.deployments.filter(o => o.metadata?.uid !== obj.metadata?.uid);
+          state.resources.deployments.push(obj);
+        }),
       onDelete: obj =>
         this.setStateAndDispatch(
           context.name,
+          { deployments: true },
           state =>
             (state.resources.deployments = state.resources.deployments.filter(
               d => d.metadata?.uid !== obj.metadata?.uid,
@@ -266,6 +364,12 @@ export class ContextsManager {
       options.onAdd?.(obj);
       options.onReachable?.(true);
       this.resetConnectionAttempts(options);
+    });
+
+    informer.on('update', (obj: T) => {
+      options.onUpdate?.(obj);
+      options.onReachable?.(true);
+      options.backoff.reset();
     });
 
     informer.on('delete', (obj: T) => {
@@ -325,26 +429,84 @@ export class ContextsManager {
     });
   }
 
-  private timeoutId: NodeJS.Timeout | undefined;
-  private dispatchContextsState(): void {
+  private setStateAndDispatch(
+    name: string,
+    options: ResourcesDispatchOptions,
+    update: (previous: ContextState) => void,
+  ): void {
+    this.states.safeSetState(name, update);
+    this.dispatch({
+      contextsGeneralState: true,
+      currentContextGeneralState: true,
+      resources: options,
+    });
+  }
+
+  private dispatch(options: DispatchOptions): void {
+    if (options.contextsGeneralState) {
+      this.dispatchContextsGeneralState();
+    }
+    if (options.currentContextGeneralState) {
+      this.dispatchCurrentContextGeneralState();
+    }
+    if (options.resources?.pods) {
+      this.dispatchCurrentContextResource('pods');
+    }
+    if (options.resources?.deployments) {
+      this.dispatchCurrentContextResource('deployments');
+    }
+  }
+
+  private generalStateTimeoutId: NodeJS.Timeout | undefined;
+  private dispatchContextsGeneralState(): void {
     // Debounce: send only the latest value if several values are sent in a short period
-    clearTimeout(this.timeoutId);
-    this.timeoutId = setTimeout(() => {
-      this.apiSender.send(`kubernetes-contexts-state-update`, this.states.getPublished());
+    clearTimeout(this.generalStateTimeoutId);
+    this.generalStateTimeoutId = setTimeout(() => {
+      this.apiSender.send(`kubernetes-contexts-general-state-update`, this.states.getContextsGeneralState());
     }, connectTimeout);
   }
 
-  public getContextsState(): Map<string, ContextState> {
-    return this.states.getPublished();
-  }
-
-  private setStateAndDispatch(name: string, update: (previous: ContextState) => void): void {
-    this.states.safeSetState(name, update);
-    this.dispatchContextsState();
+  public getContextsGeneralState(): Map<string, ContextGeneralState> {
+    return this.states.getContextsGeneralState();
   }
 
   private resetConnectionAttempts<T extends KubernetesObject>(options: CreateInformerOptions<T>): void {
     options.backoff.reset();
     clearTimeout(options.timer);
+  }
+
+  private currentStateTimeoutId: NodeJS.Timeout | undefined;
+  private dispatchCurrentContextGeneralState(): void {
+    // Debounce: send only the latest value if several values are sent in a short period
+    clearTimeout(this.currentStateTimeoutId);
+    this.currentStateTimeoutId = setTimeout(() => {
+      this.apiSender.send(
+        `kubernetes-current-context-general-state-update`,
+        this.states.getCurrentContextGeneralState(this.kubeConfig.currentContext),
+      );
+    }, connectTimeout);
+  }
+
+  public getCurrentContextGeneralState(): ContextGeneralState {
+    return this.states.getCurrentContextGeneralState(this.kubeConfig.currentContext);
+  }
+
+  private resourceTimeoutId = new Map<ResourceName, NodeJS.Timeout>();
+  private dispatchCurrentContextResource(resourceName: ResourceName): void {
+    // Debounce: send only the latest value if several values are sent in a short period
+    clearTimeout(this.resourceTimeoutId.get(resourceName));
+    this.resourceTimeoutId.set(
+      resourceName,
+      setTimeout(() => {
+        this.apiSender.send(
+          `kubernetes-current-context-${resourceName}-update`,
+          this.states.getCurrentContextResources(this.kubeConfig.currentContext, resourceName),
+        );
+      }, connectTimeout),
+    );
+  }
+
+  public getCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
+    return this.states.getCurrentContextResources(this.kubeConfig.currentContext, resourceName);
   }
 }

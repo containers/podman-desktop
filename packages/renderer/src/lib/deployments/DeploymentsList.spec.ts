@@ -19,34 +19,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeEach } from 'vitest';
+import { test, expect, vi, beforeEach, beforeAll } from 'vitest';
 import { render, screen, within } from '@testing-library/svelte';
 import DeploymentsList from './DeploymentsList.svelte';
 import { get } from 'svelte/store';
-import { deployments, deploymentsEventStore } from '/@/stores/deployments';
 import type { V1Deployment } from '@kubernetes/client-node';
+import { kubernetesCurrentContextDeployments } from '/@/stores/kubernetes-contexts-state';
 
-const callbacks = new Map<string, any>();
-const eventEmitter = {
-  receive: (message: string, callback: any) => {
-    callbacks.set(message, callback);
-  },
-};
+const kubernetesGetCurrentContextResourcesMock = vi.fn();
 
-Object.defineProperty(global, 'window', {
-  value: {
-    events: {
-      receive: eventEmitter.receive,
-    },
-    addEventListener: eventEmitter.receive,
-  },
-  writable: true,
+beforeAll(() => {
+  (window as any).kubernetesGetCurrentContextResources = kubernetesGetCurrentContextResourcesMock;
 });
 
 beforeEach(() => {
   vi.resetAllMocks();
   vi.clearAllMocks();
-  (window as any).kubernetesGetContextsState = () => Promise.resolve(new Map());
+  (window as any).kubernetesGetContextsGeneralState = () => Promise.resolve(new Map());
+  (window as any).kubernetesGetCurrentContextGeneralState = () => Promise.resolve({});
 });
 
 async function waitRender(customProperties: object): Promise<void> {
@@ -58,6 +48,7 @@ async function waitRender(customProperties: object): Promise<void> {
 }
 
 test('Expect deployment empty screen', async () => {
+  kubernetesGetCurrentContextResourcesMock.mockResolvedValue([]);
   render(DeploymentsList);
   const noDeployments = screen.getByRole('heading', { name: 'No deployments' });
   expect(noDeployments).toBeInTheDocument();
@@ -77,15 +68,10 @@ test('Expect deployments list', async () => {
       template: {},
     },
   };
-
-  deploymentsEventStore.setup();
-
-  const DeploymentAddCallback = callbacks.get('kubernetes-deployment-add');
-  expect(DeploymentAddCallback).toBeDefined();
-  await DeploymentAddCallback(deployment);
+  kubernetesGetCurrentContextResourcesMock.mockResolvedValue([deployment]);
 
   // wait while store is populated
-  while (get(deployments).length === 0) {
+  while (get(kubernetesCurrentContextDeployments).length === 0) {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 
@@ -111,15 +97,10 @@ test('Expect correct column overflow', async () => {
       template: {},
     },
   };
-
-  deploymentsEventStore.setup();
-
-  const DeploymentAddCallback = callbacks.get('kubernetes-deployment-add');
-  expect(DeploymentAddCallback).toBeDefined();
-  await DeploymentAddCallback(deployment);
+  kubernetesGetCurrentContextResourcesMock.mockResolvedValue([deployment]);
 
   // wait while store is populated
-  while (get(deployments).length === 0) {
+  while (get(kubernetesCurrentContextDeployments).length === 0) {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 
@@ -157,14 +138,10 @@ test('Expect filter empty screen', async () => {
     },
   };
 
-  deploymentsEventStore.setup();
-
-  const DeploymentAddCallback = callbacks.get('kubernetes-deployment-add');
-  expect(DeploymentAddCallback).toBeDefined();
-  await DeploymentAddCallback(deployment);
+  kubernetesGetCurrentContextResourcesMock.mockResolvedValue([deployment]);
 
   // wait while store is populated
-  while (get(deployments).length === 0) {
+  while (get(kubernetesCurrentContextDeployments).length === 0) {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 
