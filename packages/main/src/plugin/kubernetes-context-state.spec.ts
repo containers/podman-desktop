@@ -47,11 +47,11 @@ export class FakeInformer {
       }
     }
   }
-  stop() {}
+  stop(): void {}
   on(
     verb: 'change' | 'add' | 'update' | 'delete' | 'error' | 'connect',
     cb: ErrorCallback | ObjectCallback<KubernetesObject>,
-  ) {
+  ): void {
     switch (verb) {
       case 'error':
       case 'connect':
@@ -64,11 +64,11 @@ export class FakeInformer {
   off(
     verb: 'change' | 'add' | 'update' | 'delete' | 'error' | 'connect',
     cb: ErrorCallback | ObjectCallback<KubernetesObject>,
-  ) {
+  ): void {
     this.offCb.set(verb, cb);
   }
-  get() {}
-  list() {}
+  get(): void {}
+  list(): void {}
 }
 
 // fakeMakeInformer describes how many resources are in the different namespaces and if cluster is reachable
@@ -76,7 +76,7 @@ function fakeMakeInformer(
   kubeconfig: kubeclient.KubeConfig,
   path: string,
   _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
-) {
+): FakeInformer {
   let connectResult: Error | undefined;
   switch (kubeconfig.currentContext) {
     case 'context1':

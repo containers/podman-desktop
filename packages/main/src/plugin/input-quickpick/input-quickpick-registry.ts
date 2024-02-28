@@ -88,7 +88,7 @@ export class InputQuickPickRegistry {
   }
 
   // this method is called by the frontend when the user has entered a value
-  onInputBoxValueEntered(id: number, value: string | undefined, error?: string) {
+  onInputBoxValueEntered(id: number, value: string | undefined, error?: string): void {
     // get the callback
     const callback = this.callbacksInputBox.get(id);
 

@@ -109,7 +109,7 @@ export class MessageBox {
   }
 
   // this method is called by the frontend when the user selected a button
-  async onDidSelectButton(id: number, selectedIndex: number | undefined) {
+  async onDidSelectButton(id: number, selectedIndex: number | undefined): Promise<void> {
     // get the callback
     const callback = this.callbacksMessageBox.get(id);
 

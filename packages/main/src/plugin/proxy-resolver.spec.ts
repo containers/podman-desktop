@@ -44,18 +44,18 @@ vi.mock('https', () => {
 
 vi.mock('hpagent', () => {
   return {
-    HttpProxyAgent: function () {
+    HttpProxyAgent: function (): any {
       // @ts-ignore: this implicit any type
       this.https = false;
     },
-    HttpsProxyAgent: function () {
+    HttpsProxyAgent: function (): any {
       // @ts-ignore: this implicit any type
       this.https = true;
     },
   };
 });
 
-function createProxy(enabled: boolean, httpsProxy?: string, httpProxy?: string) {
+function createProxy(enabled: boolean, httpsProxy?: string, httpProxy?: string): Proxy {
   const proxy: {
     isEnabled: () => boolean;
     proxy?: {

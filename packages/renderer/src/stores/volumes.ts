@@ -88,6 +88,6 @@ export const filtered = derived([searchPattern, volumeListInfos], ([$searchPatte
   });
 });
 
-export const fetchVolumesWithData = async () => {
+export const fetchVolumesWithData = async (): Promise<void> => {
   await volumesEventStoreInfo.fetch('fetchUsage');
 };

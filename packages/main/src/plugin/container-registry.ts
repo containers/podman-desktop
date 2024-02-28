@@ -114,7 +114,7 @@ export class ContainerProviderRegistry {
   protected streamsPerContainerId: Map<string, NodeJS.ReadWriteStream> = new Map();
   protected streamsOutputPerContainerId: Map<string, Buffer[]> = new Map();
 
-  handleEvents(api: Dockerode, errorCallback: (error: Error) => void) {
+  handleEvents(api: Dockerode, errorCallback: (error: Error) => void): void {
     let nbEvents = 0;
     const startDate = performance.now();
     const eventEmitter = new EventEmitter();
@@ -202,8 +202,8 @@ export class ContainerProviderRegistry {
     });
   }
 
-  setupListeners() {
-    const cleanStreamMap = (containerId: unknown) => {
+  setupListeners(): void {
+    const cleanStreamMap = (containerId: unknown): void => {
       this.streamsPerContainerId.delete(String(containerId));
       this.streamsOutputPerContainerId.delete(String(containerId));
     };
@@ -225,7 +225,7 @@ export class ContainerProviderRegistry {
     });
   }
 
-  reconnectContainerProviders() {
+  reconnectContainerProviders(): void {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const provider of this.internalProviders.values()) {
       if (provider.api) this.setupConnectionAPI(provider, provider.connection);
@@ -235,7 +235,7 @@ export class ContainerProviderRegistry {
   setupConnectionAPI(
     internalProvider: InternalContainerProvider,
     containerProviderConnection: containerDesktopAPI.ContainerProviderConnection,
-  ) {
+  ): void {
     // abort if connection is stopped
     if (containerProviderConnection.status() === 'stopped') {
       console.log('Aborting reconnect due to error as connection is now stopped');
@@ -255,7 +255,7 @@ export class ContainerProviderRegistry {
 
     // in case of errors reported during handling events like the connection is aborted, etc.
     // we need to reconnect the provider
-    const errorHandler = (error: Error) => {
+    const errorHandler = (error: Error): void => {
       console.warn('Error when handling events', error, 'Will reconnect in 5s', error);
       internalProvider.api = undefined;
       internalProvider.libpodApi = undefined;
@@ -961,7 +961,7 @@ export class ContainerProviderRegistry {
     }
   }
 
-  getImageName(inspectInfo: Dockerode.ImageInspectInfo) {
+  getImageName(inspectInfo: Dockerode.ImageInspectInfo): string {
     const tags = inspectInfo.RepoTags;
     if (!tags) {
       throw new Error('Cannot push an image without a tag');
@@ -1049,14 +1049,14 @@ export class ContainerProviderRegistry {
       });
 
       // eslint-disable-next-line @typescript-eslint/ban-types
-      const onFinished = (err: Error | null) => {
+      const onFinished = (err: Error | null): void => {
         if (err) {
           return reject(err);
         }
         resolve();
       };
 
-      const onProgress = (event: PullEvent) => {
+      const onProgress = (event: PullEvent): void => {
         callback(event);
       };
       matchingEngine.modem.followProgress(pullStream, onFinished, onProgress);
@@ -1499,7 +1499,7 @@ export class ContainerProviderRegistry {
 
     const wrappedAsStream = (redirect: (data: Buffer) => void): Writable => {
       return new Writable({
-        write: (chunk, _encoding, done) => {
+        write: (chunk, _encoding, done): void => {
           redirect(chunk);
           done();
         },
@@ -1512,7 +1512,7 @@ export class ContainerProviderRegistry {
     container.modem.demuxStream(execStream, stdoutEchoStream, stderrEchoStream);
 
     return new Promise((resolve, reject) => {
-      const check = async () => {
+      const check = async (): Promise<void> => {
         const r = await exec.inspect();
 
         if (!r.Running) {
@@ -1577,10 +1577,10 @@ export class ContainerProviderRegistry {
       });
 
       return {
-        write: (param: string) => {
+        write: (param: string): void => {
           execStream.write(param);
         },
-        resize: (w: number, h: number) => {
+        resize: (w: number, h: number): void => {
           exec.resize({ w, h }).catch((err: unknown) => {
             // the resize call sets the size correctly and returns status code 201, but dockerode
             // interprets it as an error
@@ -1609,7 +1609,7 @@ export class ContainerProviderRegistry {
     // check if we have an existing stream
     let attachStream = this.streamsPerContainerId.get(containerId);
 
-    const setupStream = (stream: NodeJS.ReadWriteStream) => {
+    const setupStream = (stream: NodeJS.ReadWriteStream): void => {
       stream.on('data', chunk => {
         onData(chunk.toString('utf-8'));
       });
@@ -1635,7 +1635,7 @@ export class ContainerProviderRegistry {
       // grab the container object
       const container = this.getMatchingContainer(engineId, containerId);
 
-      const getAttachStream = async () => {
+      const getAttachStream = async (): Promise<NodeJS.ReadWriteStream> => {
         // use either podman specific API or compat API
         try {
           const libpod = this.getMatchingPodmanEngineLibPod(engineId);
@@ -2097,7 +2097,7 @@ export class ContainerProviderRegistry {
       });
 
       // eslint-disable-next-line @typescript-eslint/ban-types
-      const onFinished = (err: Error | null, output: {}) => {
+      const onFinished = (err: Error | null, output: {}): void => {
         if (err) {
           eventCollect('finish', err.message);
           return reject(err);
@@ -2112,7 +2112,7 @@ export class ContainerProviderRegistry {
         progress?: string;
         error?: string;
         errorDetails?: { message?: string };
-      }) => {
+      }): void => {
         if (event.stream) {
           eventCollect('stream', event.stream);
         } else if (event.error) {

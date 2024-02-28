@@ -306,11 +306,11 @@ export interface LibPod {
 // WARNING: make sure to not override existing functions
 export class LibpodDockerode {
   // setup the libpod API
-  enhancePrototypeWithLibPod() {
+  enhancePrototypeWithLibPod(): void {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const prototypeOfDockerode = Dockerode.prototype as any;
     // add listPodmanContainers
-    prototypeOfDockerode.listPodmanContainers = function (opts?: { all: boolean }) {
+    prototypeOfDockerode.listPodmanContainers = function (opts?: { all: boolean }): Promise<unknown> {
       const optsf = {
         path: '/v4.2.0/libpod/containers/json?',
         method: 'GET',
@@ -332,7 +332,9 @@ export class LibpodDockerode {
     };
 
     // add createPodmanContainer
-    prototypeOfDockerode.createPodmanContainer = function (containerCreateOptions: ContainerCreateOptions) {
+    prototypeOfDockerode.createPodmanContainer = function (
+      containerCreateOptions: ContainerCreateOptions,
+    ): Promise<unknown> {
       const optsf = {
         path: '/v4.2.0/libpod/containers/create',
         method: 'POST',
@@ -358,7 +360,7 @@ export class LibpodDockerode {
     };
 
     // add listPods
-    prototypeOfDockerode.listPods = function () {
+    prototypeOfDockerode.listPods = function (): Promise<unknown> {
       const optsf = {
         path: '/v4.2.0/libpod/pods/json',
         method: 'GET',
@@ -380,7 +382,7 @@ export class LibpodDockerode {
     };
 
     // add attach
-    prototypeOfDockerode.podmanAttach = function (containerId: string) {
+    prototypeOfDockerode.podmanAttach = function (containerId: string): Promise<unknown> {
       const optsf = {
         path: `/v4.2.0/libpod/containers/${containerId}/attach?stdin=true&stdout=true&stderr=true&`,
         method: 'POST',
@@ -398,8 +400,13 @@ export class LibpodDockerode {
       // patch the modem to not send any data. By default dockerode send query parameters as JSON payload
       // but podman REST API will then echo the response, so send empty data '' instead
       const originalBuildRequest = this.modem.buildRequest;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this.modem.buildRequest = function (options: unknown, context: any, data: unknown, callback: unknown) {
+      this.modem.buildRequest = function (
+        options: unknown,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        context: any,
+        data: unknown,
+        callback: unknown,
+      ): Promise<unknown> {
         if (context.allowEmpty && context.path.includes('/attach?')) {
           data = '';
         }
@@ -418,7 +425,7 @@ export class LibpodDockerode {
     };
 
     // add pruneAllImages
-    prototypeOfDockerode.pruneAllImages = function () {
+    prototypeOfDockerode.pruneAllImages = function (): Promise<unknown> {
       const optsf = {
         path: '/v4.2.0/libpod/images/prune?all=true&', // this works
         // For some reason the below doesn't work? TODO / help / fixme
@@ -441,7 +448,7 @@ export class LibpodDockerode {
     };
 
     // add createPod
-    prototypeOfDockerode.createPod = function (podOptions: PodCreateOptions) {
+    prototypeOfDockerode.createPod = function (podOptions: PodCreateOptions): Promise<unknown> {
       const optsf = {
         path: '/v4.2.0/libpod/pods/create',
         method: 'POST',
@@ -466,7 +473,7 @@ export class LibpodDockerode {
     };
 
     // add getPodInspect
-    prototypeOfDockerode.getPodInspect = function (podId: string) {
+    prototypeOfDockerode.getPodInspect = function (podId: string): Promise<unknown> {
       const optsf = {
         path: `/v4.2.0/libpod/pods/${podId}/json`,
         method: 'GET',
@@ -490,7 +497,7 @@ export class LibpodDockerode {
     };
 
     // add startPod
-    prototypeOfDockerode.startPod = function (podId: string) {
+    prototypeOfDockerode.startPod = function (podId: string): Promise<unknown> {
       const optsf = {
         path: `/v4.2.0/libpod/pods/${podId}/start?`,
         method: 'POST',
@@ -522,7 +529,7 @@ export class LibpodDockerode {
     };
 
     // add stopPod
-    prototypeOfDockerode.stopPod = function (podId: string) {
+    prototypeOfDockerode.stopPod = function (podId: string): Promise<unknown> {
       const optsf = {
         path: `/v4.2.0/libpod/pods/${podId}/stop?`,
         method: 'POST',
@@ -547,7 +554,7 @@ export class LibpodDockerode {
     };
 
     // add restartPod
-    prototypeOfDockerode.restartPod = function (podId: string) {
+    prototypeOfDockerode.restartPod = function (podId: string): Promise<unknown> {
       const optsf = {
         path: `/v4.2.0/libpod/pods/${podId}/restart?`,
         method: 'POST',
@@ -572,7 +579,7 @@ export class LibpodDockerode {
     };
 
     // add removePod
-    prototypeOfDockerode.removePod = function (podId: string, options?: { force: boolean }) {
+    prototypeOfDockerode.removePod = function (podId: string, options?: { force: boolean }): Promise<unknown> {
       const optsf = {
         path: `/v4.2.0/libpod/pods/${podId}?`,
         method: 'DELETE',
@@ -597,7 +604,7 @@ export class LibpodDockerode {
     };
 
     // add prunePods
-    prototypeOfDockerode.prunePods = function () {
+    prototypeOfDockerode.prunePods = function (): Promise<unknown> {
       const optsf = {
         path: '/v4.2.0/libpod/pods/prune',
         method: 'POST',
@@ -618,7 +625,7 @@ export class LibpodDockerode {
     };
 
     // add generateKube
-    prototypeOfDockerode.generateKube = function (names: string[]) {
+    prototypeOfDockerode.generateKube = function (names: string[]): Promise<unknown> {
       // transform array into a list of queries
       const queries = names
         .map(name => {
@@ -651,7 +658,7 @@ export class LibpodDockerode {
     };
 
     // add playKube
-    prototypeOfDockerode.playKube = function (yamlContentFilePath: string) {
+    prototypeOfDockerode.playKube = function (yamlContentFilePath: string): Promise<unknown> {
       const optsf = {
         path: '/v4.2.0/libpod/play/kube',
         method: 'POST',
@@ -675,7 +682,7 @@ export class LibpodDockerode {
     };
 
     // info
-    prototypeOfDockerode.podmanInfo = function () {
+    prototypeOfDockerode.podmanInfo = function (): Promise<unknown> {
       const optsf = {
         path: '/v4.2.0/libpod/info',
         method: 'GET',

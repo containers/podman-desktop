@@ -36,7 +36,7 @@ export class TaskManager {
     private commandRegistry: CommandRegistry,
   ) {}
 
-  public init() {
+  public init(): void {
     // The TaskManager is responsible for creating the entry he will be using
     this.statusBarRegistry.setEntry(
       'tasks',
@@ -83,7 +83,7 @@ export class TaskManager {
     return task;
   }
 
-  public updateTask(task: Task) {
+  public updateTask(task: Task): void {
     this.apiSender.send('task-updated', task);
     if (this.isStatefulTask(task) && task.state === 'completed') {
       this.tasks.delete(task.id);

@@ -208,7 +208,7 @@ export class PluginSystem {
   // this is needed because on the client it will display
   // a generic error message 'Error invoking remote method' and
   // it's not useful for end user
-  encodeIpcError(e: unknown) {
+  encodeIpcError(e: unknown): { name?: string; message: unknown; extra?: Record<string, unknown> } {
     let builtError;
     if (e instanceof Error) {
       builtError = { name: e.name, message: e.message, extra: { ...e } };
@@ -219,7 +219,7 @@ export class PluginSystem {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ipcHandle(channel: string, listener: (event: IpcMainInvokeEvent, ...args: any[]) => Promise<void> | any) {
+  ipcHandle(channel: string, listener: (event: IpcMainInvokeEvent, ...args: any[]) => Promise<void> | any): any {
     ipcMain.handle(channel, async (...args) => {
       try {
         return { result: await Promise.resolve(listener(...args)) };
@@ -232,7 +232,7 @@ export class PluginSystem {
   // Create an Error to access stack trace
   // Match a regex for the file name and return it
   // return nothing if file name not found
-  async getExtName() {
+  async getExtName(): Promise<string | undefined> {
     //Create an error for its stack property
     const stack = new Error().stack;
     //Create a map for extension path => extension name
@@ -270,7 +270,7 @@ export class PluginSystem {
   redirectConsole(logType: LogType): void {
     // keep original method
     const originalConsoleMethod = console[logType];
-    console[logType] = (...args) => {
+    console[logType] = (...args): void => {
       this.getExtName()
         .then(extName => {
           if (extName) args.unshift(extName);
@@ -294,7 +294,7 @@ export class PluginSystem {
   }
 
   // setup pipe/redirect for console.log, console.warn, console.trace, console.debug, console.error
-  redirectLogging() {
+  redirectLogging(): void {
     const logTypes: LogType[] = ['log', 'warn', 'trace', 'debug', 'error'];
     logTypes.forEach(logType => this.redirectConsole(logType));
   }
@@ -302,7 +302,7 @@ export class PluginSystem {
   getApiSender(webContents: WebContents): ApiSenderType {
     const queuedEvents: { channel: string; data: unknown }[] = [];
 
-    const flushQueuedEvents = () => {
+    const flushQueuedEvents = (): void => {
       // flush queued events ?
       if (this.uiReady && this.isReady && queuedEvents.length > 0) {
         console.log(`Delayed startup, flushing ${queuedEvents.length} events`);
@@ -321,7 +321,7 @@ export class PluginSystem {
 
     const eventEmitter = new EventEmitter();
     return {
-      send: (channel: string, data: unknown) => {
+      send: (channel: string, data: unknown): void => {
         // send only when the UI is ready
         if (this.uiReady && this.isReady) {
           flushQueuedEvents();
@@ -335,7 +335,7 @@ export class PluginSystem {
       receive: (channel: string, func: (...args: unknown[]) => void): IDisposable => {
         eventEmitter.on(channel, func);
         return {
-          dispose: () => {
+          dispose: (): void => {
             eventEmitter.removeListener(channel, func);
           },
         };
@@ -343,9 +343,9 @@ export class PluginSystem {
     };
   }
 
-  async setupSecurityRestrictionsOnLinks(messageBox: MessageBox) {
+  async setupSecurityRestrictionsOnLinks(messageBox: MessageBox): Promise<void> {
     // external URLs should be validated by the user
-    securityRestrictionCurrentHandler.handler = async (url: string) => {
+    securityRestrictionCurrentHandler.handler = async (url: string): Promise<boolean> => {
       if (!url) {
         return false;
       }
@@ -2148,16 +2148,16 @@ export class PluginSystem {
 
   getLogHandler(channel: string, loggerId: string): LoggerWithEnd {
     return {
-      log: (...data: unknown[]) => {
+      log: (...data: unknown[]): void => {
         this.getWebContentsSender().send(channel, loggerId, 'log', data);
       },
-      warn: (...data: unknown[]) => {
+      warn: (...data: unknown[]): void => {
         this.getWebContentsSender().send(channel, loggerId, 'warn', data);
       },
-      error: (...data: unknown[]) => {
+      error: (...data: unknown[]): void => {
         this.getWebContentsSender().send(channel, loggerId, 'error', data);
       },
-      onEnd: () => {
+      onEnd: (): void => {
         this.getWebContentsSender().send(channel, loggerId, 'finish');
       },
     };

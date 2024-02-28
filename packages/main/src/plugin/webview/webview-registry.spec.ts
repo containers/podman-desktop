@@ -33,7 +33,7 @@ vi.mock('node:fs');
 
 // mock express dependency and default export
 vi.mock('express', () => ({
-  default: () => {
+  default: (): any => {
     return {
       use: vi.fn(),
       listen: vi.fn().mockImplementation((portNumber, func: any) => {
@@ -47,7 +47,7 @@ vi.mock('express', () => ({
 
 // provide a custom free port number
 vi.mock('../util/port.js', () => ({
-  getFreePort: () => Promise.resolve(45678),
+  getFreePort: (): Promise<number> => Promise.resolve(45678),
 }));
 
 class TestWebviewRegistry extends WebviewRegistry {

@@ -127,7 +127,7 @@ export class AuthenticationImpl {
       this.apiSender.send('authentication-provider-update', { id });
     });
     return {
-      dispose: () => {
+      dispose: (): void => {
         onDidChangeSessionDisposable.dispose();
         this._authenticationProviders.delete(id);
       },
@@ -245,7 +245,7 @@ export class AuthenticationImpl {
   }
 
   // called by the UI to indicate that the user has requested a sing-in
-  async executeSessionRequest(id: string) {
+  async executeSessionRequest(id: string): Promise<void> {
     const data = this._signInRequestsData.get(id);
     if (!data) {
       throw new Error(`Session request '${id}' is not found.`);

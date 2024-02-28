@@ -36,14 +36,14 @@ interface ErrorMessage {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extra: any;
 }
-function decodeError(error: ErrorMessage) {
+function decodeError(error: ErrorMessage): Error {
   const e = new Error(error.message);
   e.name = error.name;
   Object.assign(e, error.extra);
   return e;
 }
 
-async function ipcInvoke(channel: string, ...args: any) {
+async function ipcInvoke(channel: string, ...args: any): Promise<any> {
   const { error, result } = await ipcRenderer.invoke(channel, ...args);
   if (error) {
     throw decodeError(error);
@@ -369,7 +369,7 @@ export class DockerExtensionPreload {
       docker,
     };
 
-    const toastError = (error: Error) => {
+    const toastError = (error: Error): void => {
       console.error(error);
       ipcRenderer.invoke('docker-desktop-adapter:desktopUIToast', 'error', error?.toString()).catch((err: unknown) => {
         console.error('docker-desktop-adapter:desktopUIToast', err);

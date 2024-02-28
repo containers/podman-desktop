@@ -24,7 +24,7 @@ export class TerminalInit {
 
   constructor(private configurationRegistry: IConfigurationRegistry) {}
 
-  init() {
+  init(): void {
     const terminalPlatformConfiguration: IConfigurationNode = {
       id: 'preferences.terminal',
       title: 'Terminal',

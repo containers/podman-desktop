@@ -112,7 +112,7 @@ export class ColorRegistry {
 
     // create Disposable that will remove all theme names from the list of themes
     return {
-      dispose: () => {
+      dispose: (): void => {
         for (const themeId of themeIds) {
           this.#themes.delete(themeId);
         }

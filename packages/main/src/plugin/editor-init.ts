@@ -22,7 +22,7 @@ import { EditorSettings } from './editor-settings.js';
 export class EditorInit {
   constructor(private configurationRegistry: IConfigurationRegistry) {}
 
-  init() {
+  init(): void {
     const editorPlatformConfiguration: IConfigurationNode = {
       id: 'preferences.editor',
       title: 'Editor',

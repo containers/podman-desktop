@@ -76,7 +76,7 @@ vi.mock('./util', async () => {
 
 const progress = {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  report: () => {},
+  report: (): void => {},
 };
 
 beforeEach(() => {

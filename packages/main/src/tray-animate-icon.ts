@@ -57,7 +57,7 @@ export class AnimatedTray {
     return assetsFolder;
   }
 
-  protected animateTrayIcon() {
+  protected animateTrayIcon(): void {
     if (this.trayIconLoopId === 4) {
       this.trayIconLoopId = 0;
     }
@@ -146,7 +146,7 @@ export class AnimatedTray {
     return this.getIconPath('empty');
   }
 
-  setStatus(status: TrayIconStatus) {
+  setStatus(status: TrayIconStatus): void {
     this.status = status;
     this.updateIcon();
   }

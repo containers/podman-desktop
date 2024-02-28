@@ -44,7 +44,7 @@ export class StatusBarRegistry implements IDisposable {
 
   constructor(private apiSender: ApiSenderType) {}
 
-  removeEntry(id: string) {
+  removeEntry(id: string): void {
     const entry = this.entries.get(id);
     if (entry) {
       this.entries.delete(id);
@@ -64,7 +64,7 @@ export class StatusBarRegistry implements IDisposable {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     commandArgs: any[] | undefined,
     highlight?: boolean,
-  ) {
+  ): void {
     const existingEntry = this.entries.get(entryId);
     if (existingEntry && (existingEntry.alignLeft !== alignLeft || existingEntry.priority !== priority)) {
       this.entries.delete(entryId);

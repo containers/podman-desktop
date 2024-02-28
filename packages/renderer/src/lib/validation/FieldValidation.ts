@@ -44,7 +44,7 @@ export function createFieldValidator(
   const validator = buildValidator(validators);
 
   function action(_node: any, binding: any): UpdateAction {
-    function validate(value: string, dirty: boolean) {
+    function validate(value: string, dirty: boolean): void {
       const result = validator(value, dirty);
       writableObject.set(result);
     }

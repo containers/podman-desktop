@@ -123,13 +123,13 @@ export const buildApiSender = (): ApiSenderType => {
   const eventEmitter = new EventEmitter();
 
   return {
-    send: (channel: string, data: unknown) => {
+    send: (channel: string, data: unknown): void => {
       eventEmitter.emit(channel, data);
     },
     receive: (channel: string, func: (...args: unknown[]) => void): IDisposable => {
       eventEmitter.on(channel, func);
       return {
-        dispose: () => {
+        dispose: (): void => {
           eventEmitter.removeListener(channel, func);
         },
       };
@@ -148,7 +148,7 @@ export function initExposure(): void {
     extra: any;
   }
 
-  function decodeError(error: ErrorMessage) {
+  function decodeError(error: ErrorMessage): Error {
     const e = new Error(error.message);
     e.name = error.name;
     Object.assign(e, error.extra);
@@ -156,7 +156,7 @@ export function initExposure(): void {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async function ipcInvoke(channel: string, ...args: any) {
+  async function ipcInvoke(channel: string, ...args: any): Promise<any> {
     const { error, result } = await ipcRenderer.invoke(channel, ...args);
     if (error) {
       throw decodeError(error);
@@ -175,7 +175,7 @@ export function initExposure(): void {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const originalFunction = (originalConsole as any)[logType];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (console as any)[logType] = (...args: unknown[]) => {
+    (console as any)[logType] = (...args: unknown[]): void => {
       originalFunction(...args);
       memoryLogs.push({ logType: logType, date: new Date(), message: args.join(' ') });
     };

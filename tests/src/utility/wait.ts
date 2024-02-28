@@ -97,7 +97,7 @@ export async function executeWithTimeout(
   callback: () => Promise<void>,
   timeout: number,
   error = 'Timeout reached while waiting for a function to finish',
-) {
+): Promise<unknown> {
   let cancelTimeout: NodeJS.Timeout;
 
   const timeoutPromise = new Promise((_, reject) => {

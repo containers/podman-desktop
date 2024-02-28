@@ -152,7 +152,7 @@ test('Check attach API', async () => {
 
   // patch libpod to not wait for the test as websocket is not supported by nock
   const originalBuildRequest = libPod.modem.buildRequest;
-  libPod.modem.buildRequest = function (options: unknown, context: any, data: unknown, callback: unknown) {
+  libPod.modem.buildRequest = function (options: unknown, context: any, data: unknown, callback: unknown): void {
     context.openStdin = false;
     return originalBuildRequest.call(this, options, context, data, callback);
   };
