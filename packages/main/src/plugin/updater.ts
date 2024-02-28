@@ -247,7 +247,7 @@ export class Updater {
     autoUpdater.on('update-available', this.onUpdateAvailable.bind(this));
     autoUpdater.on('update-not-available', this.onUpdateNotAvailable.bind(this));
     autoUpdater.on('update-downloaded', this.onUpdateDownloaded.bind(this));
-    autoUpdater.on('error', this.onUpdateError);
+    autoUpdater.on('error', this.onUpdateError.bind(this));
 
     try {
       this.checkForUpdates();

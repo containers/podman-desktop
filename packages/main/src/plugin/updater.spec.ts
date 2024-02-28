@@ -153,3 +153,34 @@ test('expect default status entry to be displayed when no update available', () 
 
   expect(setEntryMock).toHaveBeenCalled();
 });
+
+test('expect default status entry when error No published versions on GitHub', () => {
+  const setEntryMock = vi.spyOn(statusBarRegistryMock, 'setEntry');
+  setEntryMock.mockImplementation(
+    (entryId, _alignLeft, _priority, text, tooltip, iconClass, enabled, command, _commandArgs, highlight) => {
+      expect(entryId).toBe('version');
+      expect(text).toBe('v@debug');
+      expect(tooltip).toBe('Using version v@debug');
+      expect(iconClass).toBe(undefined);
+      expect(enabled).toBe(true);
+      expect(command).toBe('version');
+      expect(highlight).toBeFalsy();
+    },
+  );
+
+  let mListener: ((error: Error) => void) | undefined;
+  vi.spyOn(autoUpdater, 'on').mockImplementation((channel: keyof AppUpdaterEvents, listener: unknown): AppUpdater => {
+    if (channel === 'error') mListener = listener as () => void;
+    return {} as unknown as AppUpdater;
+  });
+
+  new Updater(messageBoxMock, statusBarRegistryMock, commandRegistry).init();
+
+  // listener should exist
+  expect(mListener).toBeDefined();
+
+  // call the listener (which should be the private onUpdateNotAvailable method)
+  mListener?.(new Error('No published versions on GitHub'));
+
+  expect(setEntryMock).toHaveBeenCalled();
+});
