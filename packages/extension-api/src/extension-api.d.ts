@@ -526,7 +526,7 @@ declare module '@podman-desktop/api' {
      */
     export function getProviderLifecycleContext(
       providerId: string,
-      providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+      providerConnectionInfo: ContainerProviderConnection,
     ): LifecycleContext;
   }
 
