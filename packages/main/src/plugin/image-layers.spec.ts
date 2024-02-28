@@ -66,7 +66,7 @@ function newFile(val: FileOptions): File {
 
 test('should return no layer when manifest contains no layers', async () => {
   vi.spyOn(fs, 'readFileSync').mockImplementation((path: fs.PathOrFileDescriptor) => {
-    switch (String(path).replace('\\', '/')) {
+    switch (String(path).replace(/\\/g, '/')) {
       case '/path/to/archive/manifest.json':
         return JSON.stringify([]);
       default:
@@ -88,7 +88,7 @@ test('should add files to filetree', async () => {
   } as unknown as fileTree.FileTree<File>);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   vi.spyOn(nodeTar, 'list').mockImplementation((options: any) => {
-    switch (options.file) {
+    switch (String(options.file).replace(/\\/g, '/')) {
       case '/path/to/archive/layer1.tar':
         options.onentry?.({
           type: 'Directory',
@@ -137,7 +137,7 @@ test('should add files to filetree', async () => {
     return new Parse();
   });
   vi.spyOn(fs, 'readFileSync').mockImplementation((path: fs.PathOrFileDescriptor) => {
-    switch (String(path).replace('\\', '/')) {
+    switch (String(path).replace(/\\/g, '/')) {
       case '/path/to/archive/manifest.json':
         return JSON.stringify([
           {
