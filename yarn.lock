@@ -2986,10 +2986,10 @@
     "@octokit/types" "^12.0.0"
     universal-user-agent "^6.0.0"
 
-"@octokit/graphql@^8.0.0":
-  version "8.0.0"
-  resolved "https://registry.yarnpkg.com/@octokit/graphql/-/graphql-8.0.0.tgz#2720a3b54eac6a15040f7ae166b7a66197179018"
-  integrity sha512-9B2HwWSb12ldwrp6pC8BFTsSCeidW7do0lMgWNH65IXRVteN503JJSWPH1VEM+qP8+/Ka1pw3MTs+3Q6Bjqukw==
+"@octokit/graphql@^8.0.1":
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/@octokit/graphql/-/graphql-8.0.1.tgz#75d0778fb2fdeb0229d1861c3ba3b9ca7bcf4a37"
+  integrity sha512-lLDb6LhC1gBj2CxEDa5Xk10+H/boonhs+3Mi6jpRyetskDKNHe6crMeKmUE2efoLofMP8ruannLlCUgpTFmVzQ==
   dependencies:
     "@octokit/request" "^9.0.0"
     "@octokit/types" "^12.0.0"
