@@ -48,7 +48,7 @@ export class Updater {
   /**
    * Sets the default version entry in the status bar.
    */
-  private defaultVersionEntry() {
+  private defaultVersionEntry(): void {
     this.statusBarRegistry.setEntry(
       'version',
       false,
@@ -65,7 +65,7 @@ export class Updater {
   /**
    * Sets the update available entry in the status bar.
    */
-  private updateAvailableEntry() {
+  private updateAvailableEntry(): void {
     // Update the 'version' entry in the status bar to show that an update is available
     // this uses setEntry to update the existing entry
     this.statusBarRegistry.setEntry(
@@ -85,7 +85,7 @@ export class Updater {
   /**
    * Registers commands related to version and update.
    */
-  private registerCommands() {
+  private registerCommands(): void {
     // Show a "No update available" only for macOS and Windows users and on production builds
     let detailMessage: string;
     if (!isLinux() && import.meta.env.PROD) {
