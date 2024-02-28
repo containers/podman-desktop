@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBoltLightning, faBoxOpen, faChartLine } from '@fortawesome/free-solid-svg-icons';
 import { faSimplybuilt } from '@fortawesome/free-brands-svg-icons';
 
-function CoreValueHead() {
+function CoreValueHead(): JSX.Element {
   return (
     <div>
       <section className="text-gray-900 dark:text-gray-700 dark:bg-charcoal-600 bg-zinc-200 body-font">
@@ -23,7 +23,7 @@ function CoreValueHead() {
   );
 }
 
-function FastAndLight() {
+function FastAndLight(): JSX.Element {
   return (
     <div>
       <section className="text-gray-900 dark:text-gray-700 dark:bg-charcoal-800 bg-zinc-100 body-font">
@@ -49,7 +49,7 @@ function FastAndLight() {
   );
 }
 
-function Open() {
+function Open(): JSX.Element {
   return (
     <section className="text-gray-900 dark:text-gray-700 dark:bg-charcoal-600 bg-zinc-200 body-font">
       <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
@@ -71,7 +71,7 @@ function Open() {
   );
 }
 
-function Simple() {
+function Simple(): JSX.Element {
   return (
     <div>
       <section className="text-gray-900 dark:text-gray-700 dark:bg-charcoal-800 bg-zinc-100 body-font">
@@ -100,7 +100,7 @@ function Simple() {
   );
 }
 
-function ExtensibleWorkflow() {
+function ExtensibleWorkflow(): JSX.Element {
   return (
     <section className="text-gray-900 dark:text-gray-700 dark:bg-charcoal-600 bg-zinc-200 body-font">
       <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
