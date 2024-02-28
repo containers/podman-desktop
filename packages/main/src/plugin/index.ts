@@ -158,8 +158,8 @@ import type { ColorInfo } from './api/color-info.js';
 import { ColorRegistry } from './color-registry.js';
 import { DialogRegistry } from './dialog-registry.js';
 import type { Deferred } from './util/deferred.js';
-import { Updater } from '/@/plugin/updater.js';
 import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
+import { Updater } from '/@/plugin/updater.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -523,7 +523,7 @@ export class PluginSystem {
     );
 
     // Init update logic
-    new Updater(messageBox, statusBarRegistry, commandRegistry).init();
+    new Updater(messageBox, configurationRegistry, statusBarRegistry, commandRegistry).init();
 
     commandRegistry.registerCommand('feedback', () => {
       apiSender.send('display-feedback', '');
