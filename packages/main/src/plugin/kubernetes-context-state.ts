@@ -511,12 +511,12 @@ export class ContextsManager {
       if (options.currentContextGeneralState) {
         this.dispatchCurrentContextGeneralState();
       }
-      if (options.resources?.pods) {
-        this.dispatchCurrentContextResource('pods');
-      }
-      if (options.resources?.deployments) {
-        this.dispatchCurrentContextResource('deployments');
-      }
+      Object.keys(options.resources).forEach(res => {
+        const resname = res as ResourceName;
+        if (options.resources[resname]) {
+          this.dispatchCurrentContextResource(resname);
+        }
+      });
     }, dispatchTimeout);
   }
 
