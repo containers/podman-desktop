@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type * as Dockerode from 'dockerode';
-import type { ProviderContainerConnectionInfo } from '/@/plugin/api/provider-info.js';
+import type { ProviderContainerConnectionInfo } from './provider-info.js';
 import type { ContainerProviderConnection } from '@podman-desktop/api';
 
 export interface ImageInfo extends Dockerode.ImageInfo {
