@@ -32,7 +32,7 @@ import type {
   VolumeCreateResponseInfo,
 } from './api/container-info.js';
 import type { ImageInfo } from './api/image-info.js';
-import type { PodInfo, PodInspectInfo } from './api/pod-info.js';
+import type { PodCreateOptions, PodInfo, PodInspectInfo } from './api/pod-info.js';
 import type { ImageInspectInfo } from './api/image-inspect-info.js';
 import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
 import type { ImageRegistry } from './image-registry.js';
@@ -1168,7 +1168,7 @@ export class ContainerProviderRegistry {
     }
   }
 
-  async createPod(podOptions: containerDesktopAPI.PodCreateOptions): Promise<{ engineId: string; Id: string }> {
+  async createPod(podOptions: PodCreateOptions): Promise<{ engineId: string; Id: string }> {
     let telemetryOptions = {};
     try {
       let internalContainerProvider: InternalContainerProvider;

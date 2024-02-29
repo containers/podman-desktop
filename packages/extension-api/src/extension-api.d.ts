@@ -277,7 +277,7 @@ declare module '@podman-desktop/api' {
     portmappings?: PodCreatePortOptions[];
     labels?: { [key: string]: string };
     // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
-    provider?: ProviderContainerConnectionInfo | ContainerProviderConnection;
+    provider?: ContainerProviderConnection;
   }
 
   export interface KubernetesProviderConnectionEndpoint {
