@@ -38,7 +38,7 @@ export class DockerPluginAdapter {
     return [cmd, ...result];
   }
 
-  protected addExtraPathToEnv(extensionId: string, env: NodeJS.ProcessEnv) {
+  protected addExtraPathToEnv(extensionId: string, env: NodeJS.ProcessEnv): void {
     // add host path of the contribution
     const contributionPath = this.contributionManager.getExtensionPath(extensionId);
     if (contributionPath) {
@@ -105,10 +105,10 @@ export class DockerPluginAdapter {
       const fullCommandLine = [cmd, ...args];
 
       return new Promise(resolve => {
-        const onStdout = (data: Buffer) => {
+        const onStdout = (data: Buffer): void => {
           execResult.stdout += data.toString();
         };
-        const onStderr = (data: Buffer) => {
+        const onStderr = (data: Buffer): void => {
           execResult.stderr += data.toString();
         };
 
@@ -200,10 +200,10 @@ export class DockerPluginAdapter {
       // merge command and args
       const fullCommandLine = [cmd, ...args];
 
-      const onStdout = (data: Buffer) => {
+      const onStdout = (data: Buffer): void => {
         event.reply('docker-plugin-adapter:execWithOptions-callback-stdout', streamCallbackId, data);
       };
-      const onStderr = (data: Buffer) => {
+      const onStderr = (data: Buffer): void => {
         event.reply('docker-plugin-adapter:execWithOptions-callback-stderr', streamCallbackId, data);
       };
 
@@ -278,7 +278,7 @@ export class DockerPluginAdapter {
     });
   }
 
-  init() {
+  init(): void {
     ipcMain.handle(
       'docker-plugin-adapter:exec',
       async (

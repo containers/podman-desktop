@@ -12,7 +12,7 @@ $: displayedIconClass = disabled ? '' : iconClass;
 
 const dispatch = createEventDispatcher();
 
-function onclick() {
+function onclick(): void {
   selected = !selected;
   dispatch('click', selected);
 }

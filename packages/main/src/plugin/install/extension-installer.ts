@@ -38,7 +38,11 @@ export class ExtensionInstaller {
     private telemetry: Telemetry,
   ) {}
 
-  async extractExtensionFiles(tmpFolderPath: string, finalFolderPath: string, reportLog: (message: string) => void) {
+  async extractExtensionFiles(
+    tmpFolderPath: string,
+    finalFolderPath: string,
+    reportLog: (message: string) => void,
+  ): Promise<void> {
     // files or folder to grab
     const filesExtension: string[] = [];
     const hostFiles: string[] = [];
@@ -312,7 +316,7 @@ export class ExtensionInstaller {
           event.reply('extension-installer:install-from-image-end', logCallbackId, message);
         };
 
-        const extAnalyzed = (extension: AnalyzedExtension) => {
+        const extAnalyzed = (extension: AnalyzedExtension): void => {
           if (extension) {
             telemetryData.extensionId = extension.id;
           }

@@ -23,8 +23,11 @@ import * as https from 'node:https';
 import { Octokit } from 'octokit';
 import type { OctokitOptions } from '@octokit/core/dist-types/types';
 import * as hasha from 'hasha';
+import { fileURLToPath } from 'node:url';
 
-const tools = require('../src/podman.json');
+import * as tools from '../src/podman.json';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const platform = process.platform;
 

@@ -43,7 +43,7 @@ const portNumber = 10000;
 
 const eventEmitter = new EventEmitter();
 
-const send = (channel: string, data?: unknown) => {
+const send = (channel: string, data?: unknown): void => {
   eventEmitter.emit(channel, data);
 };
 
@@ -62,19 +62,19 @@ const apiSender: ApiSenderType = {
 };
 
 class TestContributionManager extends ContributionManager {
-  addContribution(contribution: ContributionInfo) {
+  addContribution(contribution: ContributionInfo): number {
     return this.contributions.push(contribution);
   }
 
-  setStartedContribution(contribId: string, val: boolean) {
+  setStartedContribution(contribId: string, val: boolean): void {
     this.startedContributions.set(contribId, val);
   }
 
-  hasStartedContribution(contribId: string) {
+  hasStartedContribution(contribId: string): boolean {
     return this.startedContributions.has(contribId);
   }
 
-  resetContributions() {
+  resetContributions(): void {
     this.contributions = [];
     this.startedContributions.clear();
   }
@@ -110,7 +110,7 @@ beforeEach(() => {
   vi.resetAllMocks();
   contributionManager.resetContributions();
 
-  const logs = (...args: any[]) => {
+  const logs = (...args: any[]): void => {
     consoleLogMock(...args);
     originalConsoleLogMethod(...args);
   };

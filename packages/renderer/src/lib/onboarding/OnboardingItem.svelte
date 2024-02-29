@@ -1,5 +1,5 @@
 <script lang="ts">
-import { onMount } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import type { OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
 import Markdown from '../markdown/Markdown.svelte';
 import type { ContextUI } from '../context/context';
@@ -9,9 +9,10 @@ import { configurationProperties } from '/@/stores/configurationProperties';
 import PreferencesRenderingItem from '../preferences/PreferencesRenderingItem.svelte';
 import { CONFIGURATION_ONBOARDING_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import { isTargetScope } from '../preferences/Util';
+import { context } from '/@/stores/context';
+import type { Unsubscriber } from 'svelte/store';
 export let extension: string;
 export let item: OnboardingStepItem;
-export let getContext: () => ContextUI;
 export let inProgressCommandExecution: (
   command: string,
   state: 'starting' | 'failed' | 'successful',
@@ -24,6 +25,9 @@ $: html;
 let configurationItems: IConfigurationPropertyRecordedSchema[];
 let configurationItem: IConfigurationPropertyRecordedSchema | undefined;
 $: configurationItem;
+
+let globalContext: ContextUI;
+let contextsUnsubscribe: Unsubscriber;
 
 onMount(() => {
   configurationProperties.subscribe(value => {
@@ -39,14 +43,28 @@ onMount(() => {
     }
   });
 
-  const itemHtml = replacePlaceholders(item.value);
-  html = itemHtml;
+  contextsUnsubscribe = context.subscribe(value => {
+    globalContext = value;
+    updateHtml();
+  });
+
+  updateHtml();
 });
+
+onDestroy(() => {
+  contextsUnsubscribe?.();
+});
+
+function updateHtml(): void {
+  const itemHtml = replacePlaceholders(item.value);
+  if (html !== itemHtml) {
+    html = itemHtml;
+  }
+}
 
 function replacePlaceholders(label: string): string {
   let newLabel = label;
-  const context = getContext();
-  newLabel = replaceContextKeyPlaceholders(newLabel, extension, context);
+  newLabel = replaceContextKeyPlaceholders(newLabel, extension, globalContext);
   newLabel = replaceContextKeyPlaceHoldersByRegex(configurationRegex, newLabel, undefined, undefined, '');
   return newLabel;
 }
@@ -54,7 +72,7 @@ function replacePlaceholders(label: string): string {
 
 <div class="flex justify-center {item.highlight ? 'bg-charcoal-600' : ''} p-3 m-2 rounded-md min-w-[500px]">
   {#if html}
-    <Markdown inProgressMarkdownCommandExecutionCallback="{inProgressCommandExecution}">{html}</Markdown>
+    <Markdown inProgressMarkdownCommandExecutionCallback="{inProgressCommandExecution}" markdown="{html}" />
   {/if}
   {#if configurationItem}
     <div class="min-w-[500px] bg-charcoal-600 rounded-md">

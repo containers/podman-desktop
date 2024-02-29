@@ -104,15 +104,15 @@ export class PodmanDesktopRunner {
     return await this.getElectronApp().browserWindow(this.getPage());
   }
 
-  public async screenshot(filename: string) {
+  public async screenshot(filename: string): Promise<void> {
     await this.getPage().screenshot({ path: join(this._testOutput, 'screenshots', filename) });
   }
 
-  public async startTracing() {
+  public async startTracing(): Promise<void> {
     await this.getPage().context().tracing.start({ screenshots: true, snapshots: true });
   }
 
-  public async stopTracing() {
+  public async stopTracing(): Promise<void> {
     let name = '';
     if (this._videoAndTraceName) name = this._videoAndTraceName;
 
@@ -126,7 +126,7 @@ export class PodmanDesktopRunner {
     return await (
       await this.getBrowserWindow()
     ).evaluate((mainWindow): Promise<WindowState> => {
-      const getState = () => {
+      const getState = (): { isVisible: boolean; isDevToolsOpened: boolean; isCrashed: boolean } => {
         return {
           isVisible: mainWindow.isVisible(),
           isDevToolsOpened: mainWindow.webContents.isDevToolsOpened(),
@@ -149,7 +149,7 @@ export class PodmanDesktopRunner {
     });
   }
 
-  async saveVideoAs(path: string) {
+  async saveVideoAs(path: string): Promise<void> {
     const video = this.getPage().video();
     if (video) {
       await video.saveAs(path);
@@ -158,7 +158,7 @@ export class PodmanDesktopRunner {
     }
   }
 
-  public async close() {
+  public async close(): Promise<void> {
     // Stop playwright tracing
     await this.stopTracing();
 
@@ -191,7 +191,7 @@ export class PodmanDesktopRunner {
       });
   }
 
-  private defaultOptions() {
+  private defaultOptions(): object {
     const directory = join(this._testOutput, 'videos');
     const tracesDir = join(this._testOutput, 'traces', 'raw');
     console.log(`video will be written to: ${directory}`);
@@ -251,11 +251,11 @@ export class PodmanDesktopRunner {
     return this._running;
   }
 
-  public setOptions(value: object) {
+  public setOptions(value: object): void {
     this._options = value;
   }
 
-  public setVideoAndTraceName(name: string) {
+  public setVideoAndTraceName(name: string): void {
     this._videoAndTraceName = name;
   }
 

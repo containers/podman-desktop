@@ -70,12 +70,13 @@ vi.mock('./util', async () => {
     runCliCommand: vi.fn(),
     appHomeDir: vi.fn().mockReturnValue(''),
     normalizeWSLOutput: vi.fn().mockImplementation((s: string) => s),
+    isLinux: vi.fn(),
   };
 });
 
 const progress = {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  report: () => {},
+  report: (): void => {},
 };
 
 beforeEach(() => {

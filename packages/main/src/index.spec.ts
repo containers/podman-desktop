@@ -40,7 +40,7 @@ vi.mock('electron-context-menu', async () => {
     default: vi.fn(),
   };
 });
-vi.mock('electron-util', async () => {
+vi.mock('electron-util/main', async () => {
   return {
     aboutMenuItem: vi.fn(),
   };
@@ -61,7 +61,7 @@ vi.mock('./plugin', async () => {
 
 vi.mock('../util', async () => {
   return {
-    isWindows: () => false,
+    isWindows: (): boolean => false,
   };
 });
 
@@ -69,12 +69,12 @@ vi.mock('electron', async () => {
   class MyCustomWindow {
     constructor() {}
 
-    loadURL() {}
-    setBounds() {}
+    loadURL(): void {}
+    setBounds(): void {}
 
-    on() {}
+    on(): void {}
 
-    static getAllWindows() {
+    static getAllWindows(): unknown[] {
       return [];
     }
   }
@@ -92,8 +92,8 @@ vi.mock('electron', async () => {
       }),
     },
     app: {
-      getAppPath: () => 'a-custom-appPath',
-      getPath: () => 'a-custom-path',
+      getAppPath: (): string => 'a-custom-appPath',
+      getPath: (): string => 'a-custom-path',
       disableHardwareAcceleration: vi.fn(),
       requestSingleInstanceLock: vi.fn().mockReturnValue(true),
       quit: vi.fn(),

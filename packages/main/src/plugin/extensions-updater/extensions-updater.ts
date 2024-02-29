@@ -85,7 +85,7 @@ export class ExtensionsUpdater {
     await this.checkForUpdates();
   }
 
-  async stop() {
+  async stop(): Promise<void> {
     if (this.intervalChecker) {
       clearInterval(this.intervalChecker);
     }
@@ -210,7 +210,7 @@ export class ExtensionsUpdater {
       // uninstall the extension
       await this.extensionLoader.removeExtension(extensionId);
 
-      const reportMessage = (message: string) => {
+      const reportMessage = (message: string): void => {
         console.log(message);
       };
 

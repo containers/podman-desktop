@@ -106,7 +106,7 @@ export class EventStore<T> {
     }
   }
 
-  protected updateEvent(eventStoreInfo: EventStoreInfo, event: EventStoreInfoEvent) {
+  protected updateEvent(eventStoreInfo: EventStoreInfo, event: EventStoreInfoEvent): void {
     // update the info object
     eventStoreInfo.bufferEvents.push(event);
     if (eventStoreInfo.bufferEvents.length > 100) {
@@ -196,11 +196,11 @@ export class EventStore<T> {
     // for throttling every 5s if not already done
     let timeoutThrottle: NodeJS.Timeout | undefined;
 
-    const update = async (eventName: string, args?: unknown[]) => {
+    const update = async (eventName: string, args?: unknown[]): Promise<void> => {
       const needUpdate = await this.checkForUpdate(eventName, args);
 
       // method that do the update
-      const doUpdate = async () => {
+      const doUpdate = async (): Promise<void> => {
         await this.performUpdate(needUpdate, eventStoreInfo, eventName, args);
       };
 

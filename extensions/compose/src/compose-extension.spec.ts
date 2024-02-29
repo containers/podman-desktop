@@ -95,7 +95,7 @@ vi.mock('@podman-desktop/api', () => {
     commands: {
       registerCommand: vi.fn().mockImplementation(() => {
         return {
-          dispose: () => {
+          dispose: (): void => {
             // do nothing
           },
         };
@@ -110,8 +110,8 @@ vi.mock('@podman-desktop/api', () => {
       showInformationMessage: vi.fn(),
     },
     env: {
-      createTelemetryLogger: () => {
-        return telemetryLogger;
+      createTelemetryLogger: (): extensionApi.TelemetryLogger => {
+        return telemetryLogger as unknown as extensionApi.TelemetryLogger;
       },
     },
   };
@@ -119,11 +119,11 @@ vi.mock('@podman-desktop/api', () => {
 
 // allows to call protected methods
 class TestComposeExtension extends ComposeExtension {
-  public publicNotifyOnChecks(firstCheck: boolean) {
+  public async publicNotifyOnChecks(firstCheck: boolean): Promise<void> {
     return super.notifyOnChecks(firstCheck);
   }
 
-  setCurrentInformation(value: string | undefined) {
+  setCurrentInformation(value: string | undefined): void {
     this.currentInformation = value;
   }
 }

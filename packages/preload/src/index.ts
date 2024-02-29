@@ -95,7 +95,7 @@ import type { KubernetesGeneratorInfo } from '../../main/src/plugin/api/Kubernet
 import type { NotificationCard, NotificationCardOptions } from '../../main/src/plugin/api/notification';
 import type { ApiSenderType } from '../../main/src/plugin/api';
 import type { IDisposable } from '../../main/src/plugin/types/disposable';
-import type { ContextState } from '../../main/src/plugin/kubernetes-context-state.js';
+import type { ContextGeneralState, ResourceName } from '../../main/src/plugin/kubernetes-context-state.js';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 export type OpenSaveDialogResultCallback = (result: string | string[] | undefined) => void;
@@ -123,13 +123,13 @@ export const buildApiSender = (): ApiSenderType => {
   const eventEmitter = new EventEmitter();
 
   return {
-    send: (channel: string, data: unknown) => {
+    send: (channel: string, data: unknown): void => {
       eventEmitter.emit(channel, data);
     },
     receive: (channel: string, func: (...args: unknown[]) => void): IDisposable => {
       eventEmitter.on(channel, func);
       return {
-        dispose: () => {
+        dispose: (): void => {
           eventEmitter.removeListener(channel, func);
         },
       };
@@ -148,7 +148,7 @@ export function initExposure(): void {
     extra: any;
   }
 
-  function decodeError(error: ErrorMessage) {
+  function decodeError(error: ErrorMessage): Error {
     const e = new Error(error.message);
     e.name = error.name;
     Object.assign(e, error.extra);
@@ -156,7 +156,7 @@ export function initExposure(): void {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async function ipcInvoke(channel: string, ...args: any) {
+  async function ipcInvoke(channel: string, ...args: any): Promise<any> {
     const { error, result } = await ipcRenderer.invoke(channel, ...args);
     if (error) {
       throw decodeError(error);
@@ -175,7 +175,7 @@ export function initExposure(): void {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const originalFunction = (originalConsole as any)[logType];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (console as any)[logType] = (...args: unknown[]) => {
+    (console as any)[logType] = (...args: unknown[]): void => {
       originalFunction(...args);
       memoryLogs.push({ logType: logType, date: new Date(), message: args.join(' ') });
     };
@@ -1568,9 +1568,21 @@ export function initExposure(): void {
   contextBridge.exposeInMainWorld('kubernetesSetContext', async (contextName: string): Promise<void> => {
     return ipcInvoke('kubernetes-client:setContext', contextName);
   });
-  contextBridge.exposeInMainWorld('kubernetesGetContextsState', async (): Promise<Map<string, ContextState>> => {
-    return ipcInvoke('kubernetes-client:getContextsState');
+  contextBridge.exposeInMainWorld(
+    'kubernetesGetContextsGeneralState',
+    async (): Promise<Map<string, ContextGeneralState>> => {
+      return ipcInvoke('kubernetes-client:getContextsGeneralState');
+    },
+  );
+  contextBridge.exposeInMainWorld('kubernetesGetCurrentContextGeneralState', async (): Promise<ContextGeneralState> => {
+    return ipcInvoke('kubernetes-client:getCurrentContextGeneralState');
   });
+  contextBridge.exposeInMainWorld(
+    'kubernetesGetCurrentContextResources',
+    async (resourceName: ResourceName): Promise<KubernetesObject[]> => {
+      return ipcInvoke('kubernetes-client:getCurrentContextResources', resourceName);
+    },
+  );
 
   contextBridge.exposeInMainWorld('kubernetesGetClusters', async (): Promise<Cluster[]> => {
     return ipcInvoke('kubernetes-client:getClusters');

@@ -40,7 +40,7 @@ vi.mock('electron', async () => {
   class Notification {
     constructor() {}
 
-    show() {}
+    show(): void {}
   }
 
   return {

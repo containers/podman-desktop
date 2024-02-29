@@ -397,7 +397,6 @@ function handleEscape({ key }: any) {
                   <OnboardingItem
                     extension="{activeStep.onboarding.extension}"
                     item="{item}"
-                    getContext="{() => globalContext}"
                     inProgressCommandExecution="{inProgressCommandExecution}" />
                 {/each}
               </div>

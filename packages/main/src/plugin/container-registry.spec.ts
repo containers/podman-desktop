@@ -238,7 +238,7 @@ class TestContainerProviderRegistry extends ContainerProviderRegistry {
     return super.getMatchingEngineFromConnection(providerContainerConnectionInfo);
   }
 
-  setStreamsOutputPerContainerId(id: string, data: Buffer[]) {
+  setStreamsOutputPerContainerId(id: string, data: Buffer[]): void {
     this.streamsOutputPerContainerId.set(id, data);
   }
 
@@ -250,7 +250,7 @@ class TestContainerProviderRegistry extends ContainerProviderRegistry {
     return this.streamsPerContainerId;
   }
 
-  setStreamsPerContainerId(id: string, data: NodeJS.ReadWriteStream) {
+  setStreamsPerContainerId(id: string, data: NodeJS.ReadWriteStream): void {
     this.streamsPerContainerId.set(id, data);
   }
 
@@ -465,7 +465,7 @@ test('test listSimpleContainersByLabel with compose label', async () => {
 
 describe('execInContainer', () => {
   // stream using first Byte being header
-  const writeData = (eventEmitter: EventEmitter, type: 'stdout' | 'stderr', data: string) => {
+  const writeData = (eventEmitter: EventEmitter, type: 'stdout' | 'stderr', data: string): void => {
     const header = Buffer.alloc(8);
     // first byte is type
     header.writeUInt8(type === 'stdout' ? 1 : 2, 0);
@@ -506,12 +506,12 @@ describe('execInContainer', () => {
     vi.spyOn(containerRegistry, 'getMatchingContainer').mockReturnValue(dockerodeContainer);
 
     let stdout = '';
-    const stdoutFunction = (data: Buffer) => {
+    const stdoutFunction = (data: Buffer): void => {
       stdout += data.toString();
     };
 
     let stderr = '';
-    const stderrFunction = (data: Buffer) => {
+    const stderrFunction = (data: Buffer): void => {
       stderr += data.toString();
     };
 
@@ -578,12 +578,12 @@ describe('execInContainer', () => {
     vi.spyOn(containerRegistry, 'getMatchingContainer').mockReturnValue(dockerodeContainer);
 
     let stdout = '';
-    const stdoutFunction = (data: Buffer) => {
+    const stdoutFunction = (data: Buffer): void => {
       stdout += data.toString();
     };
 
     let stderr = '';
-    const stderrFunction = (data: Buffer) => {
+    const stderrFunction = (data: Buffer): void => {
       stderr += data.toString();
     };
 
@@ -2399,7 +2399,7 @@ describe('createContainer', () => {
     expect(createContainerMock).toHaveBeenCalledWith(expect.not.objectContaining({ EnvFiles: ['file1', 'file2'] }));
   });
 
-  async function verifyCreateContainer(options: object) {
+  async function verifyCreateContainer(options: object): Promise<void> {
     const createdId = '1234';
 
     const startMock = vi.fn();

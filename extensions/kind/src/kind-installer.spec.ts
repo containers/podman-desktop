@@ -120,7 +120,7 @@ test('error: expect installBinaryToSystem to fail with a non existing binary', a
 test('expect showNotification to be called', async () => {
   const progress = {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    report: () => {},
+    report: (): void => {},
   };
   vi.spyOn(extensionApi.window, 'withProgress').mockImplementation((options, task) => {
     return task(progress, undefined);
@@ -130,7 +130,7 @@ test('expect showNotification to be called', async () => {
   const spy = vi.spyOn(extensionApi.window, 'showNotification').mockImplementation(() => {
     return {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      dispose: () => {},
+      dispose: (): void => {},
     };
   });
 

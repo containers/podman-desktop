@@ -14,7 +14,10 @@ export let tooltip: string;
 
 const count: Writable<number> = setContext('nav-items', writable(0));
 
-function fadeSlide(node: any, { delay = 0, duration = 400, easing = cubicOut }) {
+function fadeSlide(
+  node: any,
+  { delay = 0, duration = 400, easing = cubicOut },
+): { delay: number; duration: number; easing: (t: number) => number; css: (t: number) => string } {
   const style = getComputedStyle(node);
   const opacity = +style.opacity;
   const height = parseFloat(style.height);

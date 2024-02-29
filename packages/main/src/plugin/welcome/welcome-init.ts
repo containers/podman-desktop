@@ -22,7 +22,7 @@ import { WelcomeSettings } from './welcome-settings.js';
 export class WelcomeInit {
   constructor(private configurationRegistry: IConfigurationRegistry) {}
 
-  init() {
+  init(): void {
     const welcomePlatformConfiguration: IConfigurationNode = {
       id: 'preferences.welcome',
       title: 'Welcome',

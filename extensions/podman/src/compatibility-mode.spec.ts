@@ -127,7 +127,7 @@ test('darwin: mock fs.existsSync returns /usr/local/bin/podman-mac-helper', asyn
   // this imitates that the binary is found in /usr/local/bin and not other folders
   vi.mock('fs', () => {
     return {
-      existsSync: (path: string) => {
+      existsSync: (path: string): boolean => {
         return path === '/usr/local/bin/podman-mac-helper';
       },
     };
@@ -221,7 +221,7 @@ test('darwin: test promptRestart IS NOT ran when findRunningMachine returns unde
   // Mock that findRunningMachine returns undefined
   vi.mock('./extension', () => {
     return {
-      findRunningMachine: () => {
+      findRunningMachine: (): Promise<void> => {
         return Promise.resolve();
       },
     };

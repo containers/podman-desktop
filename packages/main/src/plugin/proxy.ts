@@ -161,12 +161,12 @@ export class Proxy {
     this._onDidStateChange.fire(this.proxyState);
   }
 
-  private overrideFetch() {
+  private overrideFetch(): void {
     const original = globalThis.fetch;
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const _me = this;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    globalThis.fetch = function (url: any, opts?: any) {
+    globalThis.fetch = function (url: any, opts?: any): Promise<Response> {
       const proxyurl = getProxyUrl(_me, asURL(url).protocol === 'https');
       if (proxyurl) {
         opts = Object.assign({}, opts, { dispatcher: new ProxyAgent(proxyurl) });

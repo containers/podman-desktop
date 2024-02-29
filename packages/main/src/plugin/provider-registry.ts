@@ -246,7 +246,7 @@ export class ProviderRegistry {
     });
   }
 
-  registerAutostartEngine(engine: AutostartEngine) {
+  registerAutostartEngine(engine: AutostartEngine): void {
     this.autostartEngine = engine;
   }
 
@@ -1112,7 +1112,7 @@ export class ProviderRegistry {
   onDidRegisterContainerConnectionCallback(
     provider: ProviderImpl,
     containerProviderConnection: ContainerProviderConnection,
-  ) {
+  ): void {
     this.connectionLifecycleContexts.set(containerProviderConnection, new LifecycleContextImpl());
     // notify listeners
     this.containerConnectionLifecycleListeners.forEach(listener => {
@@ -1128,7 +1128,7 @@ export class ProviderRegistry {
   onDidRegisterKubernetesConnectionCallback(
     provider: ProviderImpl,
     kubernetesProviderConnection: KubernetesProviderConnection,
-  ) {
+  ): void {
     this.connectionLifecycleContexts.set(kubernetesProviderConnection, new LifecycleContextImpl());
     this.apiSender.send('provider-register-kubernetes-connection', { name: kubernetesProviderConnection.name });
     this._onDidRegisterKubernetesConnection.fire({ providerId: provider.id });
@@ -1137,7 +1137,7 @@ export class ProviderRegistry {
   onDidChangeContainerProviderConnectionStatus(
     provider: ProviderImpl,
     containerConnection: ContainerProviderConnection,
-  ) {
+  ): void {
     // notify listeners
     this.containerConnectionLifecycleListeners.forEach(listener => {
       listener(
@@ -1148,7 +1148,10 @@ export class ProviderRegistry {
     });
   }
 
-  onDidUnregisterContainerConnectionCallback(provider: ProviderImpl, containerConnection: ContainerProviderConnection) {
+  onDidUnregisterContainerConnectionCallback(
+    provider: ProviderImpl,
+    containerConnection: ContainerProviderConnection,
+  ): void {
     // notify listeners
     this.containerConnectionLifecycleListeners.forEach(listener => {
       listener(
@@ -1163,12 +1166,12 @@ export class ProviderRegistry {
   onDidUnregisterKubernetesConnectionCallback(
     provider: ProviderImpl,
     kubernetesProviderConnection: KubernetesProviderConnection,
-  ) {
+  ): void {
     this.apiSender.send('provider-unregister-kubernetes-connection', { name: kubernetesProviderConnection.name });
     this._onDidUnregisterKubernetesConnection.fire({ providerId: provider.id });
   }
 
-  onDidUpdateProviderStatus(providerId: string, callback: (providerInfo: ProviderInfo) => void) {
+  onDidUpdateProviderStatus(providerId: string, callback: (providerInfo: ProviderInfo) => void): void {
     // add callback for the given providerId
     const provider = this.getMatchingProvider(providerId);
 

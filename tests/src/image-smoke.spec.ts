@@ -26,6 +26,7 @@ import { NavigationBar } from './model/workbench/navigation';
 import { ImageDetailsPage } from './model/pages/image-details-page';
 import path from 'path';
 import { handleConfirmationDialog } from './utility/operations';
+import type { ImagesPage } from './model/pages/images-page';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -52,7 +53,7 @@ beforeEach<RunnerTestContext>(async ctx => {
 });
 
 describe('Image workflow verification', async () => {
-  async function pullImageByName(imageName: string) {
+  async function pullImageByName(imageName: string): Promise<ImagesPage> {
     let imagesPage = await navBar.openImages();
     const pullImagePage = await imagesPage.openPullImage();
     imagesPage = await pullImagePage.pullImage(imageName);

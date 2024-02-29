@@ -32,15 +32,15 @@ export class WelcomePage extends BasePage {
     this.goToPodmanDesktopButton = page.getByRole('button', { name: 'Go to Podman Desktop', exact: true });
   }
 
-  async turnOffTelemetry() {
+  async turnOffTelemetry(): Promise<void> {
     await this.telemetryConsent.uncheck();
   }
 
-  async closeWelcomePage() {
+  async closeWelcomePage(): Promise<void> {
     await this.goToPodmanDesktopButton.click();
   }
 
-  async waitForInitialization() {
+  async waitForInitialization(): Promise<void> {
     // wait for an application to initialize
     const checkLoader = this.page.getByRole('heading', { name: 'Initializing...' });
     await expect(checkLoader).toHaveCount(0, { timeout: 5000 });
@@ -49,7 +49,7 @@ export class WelcomePage extends BasePage {
   /**
    * Waits for application to initialize, turn off telemetry and closes welcome page
    */
-  async handleWelcomePage(skipIfNotPresent: boolean) {
+  async handleWelcomePage(skipIfNotPresent: boolean): Promise<void> {
     await this.waitForInitialization();
     if (skipIfNotPresent) {
       try {

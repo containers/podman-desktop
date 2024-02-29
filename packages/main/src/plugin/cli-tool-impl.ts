@@ -24,6 +24,7 @@ import type {
   CliToolUpdateOptions,
   Disposable,
   Event,
+  ProviderImages,
 } from '@podman-desktop/api';
 import type { CliToolExtensionInfo } from './api/cli-tool-info.js';
 import type { ApiSenderType } from './api.js';
@@ -47,31 +48,31 @@ export class CliToolImpl implements CliTool, Disposable {
     this.id = `${extensionInfo.id}.${_options.name}`;
   }
 
-  get state() {
+  get state(): 'registered' {
     return this._state;
   }
 
-  get name() {
+  get name(): string {
     return this._options.name;
   }
 
-  get displayName() {
+  get displayName(): string {
     return this._options.displayName;
   }
 
-  get markdownDescription() {
+  get markdownDescription(): string {
     return this._options.markdownDescription;
   }
 
-  get version() {
+  get version(): string {
     return this._options.version;
   }
 
-  get path() {
+  get path(): string {
     return this._options.path;
   }
 
-  get images() {
+  get images(): ProviderImages {
     return Object.freeze(this._options.images);
   }
 

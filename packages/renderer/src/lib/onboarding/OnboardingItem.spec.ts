@@ -20,9 +20,10 @@ import { test, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import OnboardingItem from './OnboardingItem.svelte';
 import type { OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
-import { ContextUI } from '../context/context';
+import { context } from '/@/stores/context';
 import { configurationProperties } from '/@/stores/configurationProperties';
 import { CONFIGURATION_ONBOARDING_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
+import { ContextUI } from '../context/context';
 
 test('Expect button html when passing a button tag in markdown', async () => {
   const textComponent: OnboardingStepItem = {
@@ -31,7 +32,6 @@ test('Expect button html when passing a button tag in markdown', async () => {
   render(OnboardingItem, {
     extension: 'extension',
     item: textComponent,
-    getContext: vi.fn(),
     inProgressCommandExecution: vi.fn(),
   });
   const button = screen.getByRole('button', { name: 'label' });
@@ -46,7 +46,6 @@ test('Expect markdown html when passing a text component', async () => {
   render(OnboardingItem, {
     extension: 'extension',
     item: textComponent,
-    getContext: vi.fn(),
     inProgressCommandExecution: vi.fn(),
   });
   const markdownSection = screen.getByLabelText('markdown-content');
@@ -58,12 +57,12 @@ test('Expect placeholders are replaced when passing a text component with placeh
   const textComponent: OnboardingStepItem = {
     value: '${onboardingContext:text}',
   };
-  const context = new ContextUI();
-  context.setValue('extension.onboarding.text', 'placeholder content');
+  const globalContext = new ContextUI();
+  globalContext.setValue('extension.onboarding.text', 'placeholder content');
+  context.set(globalContext);
   render(OnboardingItem, {
     extension: 'extension',
     item: textComponent,
-    getContext: () => context,
     inProgressCommandExecution: vi.fn(),
   });
   const markdownSection = screen.getByLabelText('markdown-content');
@@ -93,7 +92,6 @@ test('Expect boolean configuration placeholder to be replaced with a checkbox', 
   render(OnboardingItem, {
     extension: 'extension',
     item: textComponent,
-    getContext: vi.fn(),
     inProgressCommandExecution: vi.fn(),
   });
   const input = screen.getByLabelText('record-description');
@@ -126,7 +124,6 @@ test('Expect when configuration placeholder is type string and format file to be
   render(OnboardingItem, {
     extension: 'extension',
     item: textComponent,
-    getContext: vi.fn(),
     inProgressCommandExecution: vi.fn(),
   });
   const readOnlyInput = screen.getByLabelText('record-description');
@@ -160,7 +157,6 @@ test('Expect a type text configuration placeholder to be replaced by a text inpu
   render(OnboardingItem, {
     extension: 'extension',
     item: textComponent,
-    getContext: vi.fn(),
     inProgressCommandExecution: vi.fn(),
   });
   const input = screen.getByLabelText('record-description');
@@ -193,7 +189,6 @@ test('Expect a configuration to be visible in the onboarding even if hidden prop
   render(OnboardingItem, {
     extension: 'extension',
     item: textComponent,
-    getContext: vi.fn(),
     inProgressCommandExecution: vi.fn(),
   });
   const input = screen.getByLabelText('record-description');
@@ -202,4 +197,29 @@ test('Expect a configuration to be visible in the onboarding even if hidden prop
   expect((input as HTMLInputElement).type).toBe('text');
   expect((input as HTMLSelectElement).name).toBe('extension.text.prop');
   expect((input as HTMLInputElement).placeholder).toBe('Example: text');
+});
+
+test('Expect value rendered is updated if context value is updated', async () => {
+  const textComponent: OnboardingStepItem = {
+    value: '${onboardingContext:text}',
+  };
+  const globalContext = new ContextUI();
+  globalContext.setValue('extension.onboarding.text', 'first value');
+  context.set(globalContext);
+  render(OnboardingItem, {
+    extension: 'extension',
+    item: textComponent,
+    inProgressCommandExecution: vi.fn(),
+  });
+  const markdownSection = screen.getByLabelText('markdown-content');
+  expect(markdownSection).toBeInTheDocument();
+  expect(markdownSection.innerHTML.includes('first value')).toBe(true);
+
+  // simulate the value in context is updated
+  globalContext.setValue('extension.onboarding.text', 'second value');
+  context.set(globalContext);
+
+  await new Promise(resolve => setTimeout(resolve, 100));
+  const markdownSection2 = screen.getByLabelText('markdown-content');
+  expect(markdownSection2.innerHTML.includes('second value')).toBe(true);
 });

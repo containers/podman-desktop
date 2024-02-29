@@ -266,7 +266,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
     scope?: containerDesktopAPI.ConfigurationScope | containerDesktopAPI.ConfigurationScope[],
-  ) {
+  ): Promise<void> {
     if (Array.isArray(scope)) {
       for (const scopeItem of scope) {
         await this.updateSingleScopeConfigurationValue(key, value, scopeItem);
@@ -289,8 +289,12 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     this._onDidChangeConfigurationAPI.fire({ affectsConfiguration });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async updateSingleScopeConfigurationValue(key: string, value: any, scope?: containerDesktopAPI.ConfigurationScope) {
+  async updateSingleScopeConfigurationValue(
+    key: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    value: any,
+    scope?: containerDesktopAPI.ConfigurationScope,
+  ): Promise<void> {
     // extract parent key with first name before first . notation
     const parentKey = key.substring(0, key.indexOf('.'));
     // extract child key with first name after first . notation
@@ -313,7 +317,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     return promise;
   }
 
-  public saveDefault() {
+  public saveDefault(): void {
     const cloneConfig = { ...this.configurationValues.get(CONFIGURATION_DEFAULT_SCOPE) };
     // for each key being already the default value, remove the entry
     Object.keys(cloneConfig)
@@ -332,7 +336,7 @@ export class ConfigurationRegistry implements IConfigurationRegistry {
     section?: string,
     scope?: containerDesktopAPI.ConfigurationScope,
   ): containerDesktopAPI.Configuration {
-    const callback = (scope: containerDesktopAPI.ConfigurationScope) => {
+    const callback = (scope: containerDesktopAPI.ConfigurationScope): void => {
       if (scope === CONFIGURATION_DEFAULT_SCOPE) {
         this.saveDefault();
       }

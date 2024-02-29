@@ -87,7 +87,10 @@ class ProviderNameExtractor {
 }
 
 // search for clusters
-async function updateClusters(provider: extensionApi.Provider, containers: extensionApi.ContainerInfo[]) {
+async function updateClusters(
+  provider: extensionApi.Provider,
+  containers: extensionApi.ContainerInfo[],
+): Promise<void> {
   const kindContainers = containers.map(container => {
     const clusterName = container.Labels['io.x-k8s.kind.cluster'];
     const clusterStatus = container.State;
@@ -123,7 +126,7 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
 
   kindContainers.forEach(cluster => {
     const item = registeredKubernetesConnections.find(item => item.connection.name === cluster.name);
-    const status = () => {
+    const status = (): 'started' | 'stopped' => {
       return cluster.status;
     };
     if (!item) {
@@ -199,7 +202,7 @@ async function updateClusters(provider: extensionApi.Provider, containers: exten
 }
 
 function getLoggerCallback(context?: extensionApi.LifecycleContext, logger?: Logger) {
-  return (_name: string, data: string) => {
+  return (_name: string, data: string): void => {
     if (data) {
       context?.log?.log(data);
       logger?.log(data);
@@ -217,7 +220,7 @@ async function searchKindClusters(provider: extensionApi.Provider): Promise<void
   await updateClusters(provider, kindContainers);
 }
 
-export function refreshKindClustersOnProviderConnectionUpdate(provider: extensionApi.Provider) {
+export function refreshKindClustersOnProviderConnectionUpdate(provider: extensionApi.Provider): void {
   // when a provider is changing, update the status
   extensionApi.provider.onDidUpdateContainerConnection(async () => {
     // needs to search for kind clusters
@@ -290,7 +293,7 @@ export async function moveImage(
     increment?: number;
   }>,
   image: unknown,
-) {
+): Promise<void> {
   // as the command receive an "any" value we check that it contains an id and an engineId as they are mandatory
   if (!(typeof image === 'object' && 'id' in image && 'engineId' in image)) {
     throw new Error('Image selection not supported yet');
