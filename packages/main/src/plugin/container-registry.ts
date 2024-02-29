@@ -1809,7 +1809,7 @@ export class ContainerProviderRegistry {
           Propagation: optionMount.BindOptions?.Propagation ?? '',
           RW: !optionMount.ReadOnly,
           Type: optionMount.Type,
-          Mode: optionMount.Mode ?? '',
+          Options: optionMount.Mode ? [optionMount.Mode] : [],
         });
       }
       for (const bind of options.HostConfig?.Binds ?? []) {
@@ -1905,7 +1905,7 @@ export class ContainerProviderRegistry {
     if (bindItems.length < 2) {
       return undefined;
     }
-    let mode = '';
+    const options = ['rbind'];
     let propagation = 'rprivate';
     if (bindItems.length === 3) {
       const flags = bindItems[2].split(',');
@@ -1913,7 +1913,7 @@ export class ContainerProviderRegistry {
         switch (flag) {
           case 'Z':
           case 'z':
-            mode = flag;
+            options.push(flag);
             break;
           case 'private':
           case 'rprivate':
@@ -1931,10 +1931,9 @@ export class ContainerProviderRegistry {
       Destination: bindItems[1],
       Source: bindItems[0],
       Propagation: propagation,
-      Mode: mode,
       Type: 'bind',
       RW: true,
-      Options: ['rbind'],
+      Options: options,
     };
   }
 

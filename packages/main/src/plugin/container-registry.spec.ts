@@ -3467,9 +3467,9 @@ describe('createContainerLibPod', () => {
           Destination: 'destination',
           Source: 'source',
           Type: 'bind',
-          Mode: '',
           Propagation: 'rprivate',
           RW: true,
+          Options: [],
         },
       ],
       netns: {
@@ -3519,11 +3519,13 @@ describe('getContainerCreateMountOptionFromBind', () => {
     mode?: string;
     propagation?: string;
   }
-  function verifyGetContainerCreateMountOptionFromBind(options: OptionFromBindOptions) {
+  function verifyGetContainerCreateMountOptionFromBind(options: OptionFromBindOptions): void {
     let bind = `${options.source}:${options.destination}`;
+    const mountOptions = ['rbind'];
     if (options.mode || options.propagation) {
       bind += ':';
       if (options.mode) {
+        mountOptions.push(options.mode);
         bind += `${options.mode},`;
       }
       if (options.propagation) {
@@ -3536,10 +3538,9 @@ describe('getContainerCreateMountOptionFromBind', () => {
       Destination: options.destination,
       Source: options.source,
       Propagation: options.propagation ?? 'rprivate',
-      Mode: options.mode ?? '',
       Type: 'bind',
       RW: true,
-      Options: ['rbind'],
+      Options: mountOptions,
     });
   }
   test('return undefined if bind has an invalid value', () => {

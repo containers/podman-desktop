@@ -92,7 +92,6 @@ export interface ContainerCreateMountOption {
   Source: string;
   Destination: string;
   Driver?: string;
-  Mode: string;
   RW: boolean;
   Propagation: string;
   Options?: string[];
