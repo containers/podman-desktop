@@ -32,7 +32,7 @@ import type {
 import type { ContributionInfo } from '../../main/src/plugin/api/contribution-info';
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import type { VolumeInspectInfo, VolumeListInfo } from '../../main/src/plugin/api/volume-info';
-import type { PodInfo, PodInspectInfo } from '../../main/src/plugin/api/pod-info';
+import type { PodCreateOptions, PodInfo, PodInspectInfo } from '../../main/src/plugin/api/pod-info';
 import type { NetworkInspectInfo } from '../../main/src/plugin/api/network-info';
 import type { ImageInspectInfo } from '../../main/src/plugin/api/image-inspect-info';
 import type { HistoryInfo } from '../../main/src/plugin/api/history-info';
@@ -268,7 +268,7 @@ export function initExposure(): void {
   );
   contextBridge.exposeInMainWorld(
     'createPod',
-    async (podCreateOptions: containerDesktopAPI.PodCreateOptions): Promise<{ engineId: string; Id: string }> => {
+    async (podCreateOptions: PodCreateOptions): Promise<{ engineId: string; Id: string }> => {
       return ipcInvoke('container-provider-registry:createPod', podCreateOptions);
     },
   );
