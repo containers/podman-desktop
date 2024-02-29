@@ -154,6 +154,7 @@ vi.mock('./kubernetes-context-state-constants.js', () => {
     backoffInitialValue: 1000,
     backoffLimit: 1000,
     backoffJitter: 0,
+    dispatchTimeout: 1,
   };
 });
 
@@ -254,6 +255,7 @@ test('should send info of resources in all reachable contexts and nothing in non
       deployments: 5,
     },
   } as ContextGeneralState);
+  vi.advanceTimersToNextTimer();
   vi.advanceTimersToNextTimer();
   expect(apiSenderSendMock).toHaveBeenCalledTimes(4);
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
@@ -432,7 +434,9 @@ test('should send new deployment when a new one is created', async () => {
   };
   kubeConfig.loadFromOptions(config);
   await client.update(kubeConfig);
-  vi.advanceTimersToNextTimer(); // dispatches
+  vi.advanceTimersToNextTimer(); // reachable
+  vi.advanceTimersToNextTimer(); // add
+  vi.advanceTimersToNextTimer(); // reachable now
   const expectedMap = new Map<string, ContextGeneralState>();
   expectedMap.set('context1', {
     reachable: true,
@@ -545,7 +549,8 @@ test('should delete deployment when deleted from context', async () => {
   kubeConfig.loadFromOptions(config);
   await client.update(kubeConfig);
   vi.advanceTimersToNextTimer(); // add events
-  vi.advanceTimersToNextTimer(); // dispatches
+  vi.advanceTimersToNextTimer(); // reachable
+  vi.advanceTimersToNextTimer(); // delete
   const expectedMap = new Map<string, ContextGeneralState>();
   expectedMap.set('context1', {
     reachable: true,
@@ -662,7 +667,8 @@ test('should update deployment when updated on context', async () => {
   kubeConfig.loadFromOptions(config);
   await client.update(kubeConfig);
   vi.advanceTimersToNextTimer(); // add events
-  vi.advanceTimersToNextTimer(); // dispatches
+  vi.advanceTimersToNextTimer(); // reachable
+  vi.advanceTimersToNextTimer(); // update
   const expectedMap = new Map<string, ContextGeneralState>();
   expectedMap.set('context1', {
     reachable: true,
@@ -768,7 +774,9 @@ test('should send appropriate data when context becomes unreachable', async () =
   };
   kubeConfig.loadFromOptions(config);
   await client.update(kubeConfig);
+  vi.advanceTimersToNextTimer(); // add deployments
   vi.advanceTimersToNextTimer(); // dispatches
+  vi.advanceTimersToNextTimer(); // reachable now
   const expectedMap = new Map<string, ContextGeneralState>();
   expectedMap.set('context1', {
     reachable: true,
@@ -793,6 +801,7 @@ test('should send appropriate data when context becomes unreachable', async () =
   apiSenderSendMock.mockReset();
   vi.advanceTimersToNextTimer(); // error event
   vi.advanceTimersToNextTimer(); // dispatches
+  vi.advanceTimersToNextTimer(); // reachable now
   // This time, we do not check the number of calls, as the connection will be retried, and calls will be done after each retry
   expectedMap.set('context1', {
     reachable: false,
@@ -802,7 +811,6 @@ test('should send appropriate data when context becomes unreachable', async () =
       deployments: 0,
     },
   });
-  expect(apiSenderSendMock).toHaveBeenCalledTimes(4);
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
     reachable: false,
