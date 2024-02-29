@@ -726,10 +726,10 @@ export class ExtensionLoader {
         providerId: string,
         containerProviderConnection: containerDesktopAPI.ContainerProviderConnection,
       ): containerDesktopAPI.LifecycleContext {
-        return providerRegistry.getMatchingProviderLifecycleContextByProviderId(providerId, {
-          ...containerProviderConnection,
-          status: containerProviderConnection.status(),
-        });
+        return providerRegistry.getMatchingProviderLifecycleContextByProviderId(
+          providerId,
+          containerProviderConnection,
+        );
       },
     };
 
