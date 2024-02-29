@@ -439,23 +439,25 @@ export class ContextsManager {
   }
 
   private setReachableDelay<T extends KubernetesObject>(options: CreateInformerOptions<T>, reachable: boolean): void {
-    clearTimeout(options.connectionDelay);
-    options.connectionDelay = setTimeout(() => {
-      this.doSetReachable(options, reachable);
-    }, connectTimeout);
+    this.setReachable(options, reachable, connectTimeout);
   }
 
   private setReachableNow<T extends KubernetesObject>(options: CreateInformerOptions<T>, reachable: boolean): void {
-    clearTimeout(options.connectionDelay);
-    options.connectionDelay = undefined;
-    this.doSetReachable(options, reachable);
+    this.setReachable(options, reachable, 0);
   }
 
-  private doSetReachable<T extends KubernetesObject>(options: CreateInformerOptions<T>, reachable: boolean): void {
-    options.onReachable?.(reachable);
-    if (reachable) {
-      this.resetConnectionAttempts(options);
-    }
+  private setReachable<T extends KubernetesObject>(
+    options: CreateInformerOptions<T>,
+    reachable: boolean,
+    delay: number,
+  ): void {
+    clearTimeout(options.connectionDelay);
+    options.connectionDelay = setTimeout(() => {
+      options.onReachable?.(reachable);
+      if (reachable) {
+        this.resetConnectionAttempts(options);
+      }
+    }, delay);
   }
 
   private resetConnectionAttempts<T extends KubernetesObject>(options: CreateInformerOptions<T>): void {

@@ -256,6 +256,7 @@ test('should send info of resources in all reachable contexts and nothing in non
     },
   } as ContextGeneralState);
   vi.advanceTimersToNextTimer();
+  vi.advanceTimersToNextTimer();
   expect(apiSenderSendMock).toHaveBeenCalledTimes(4);
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
@@ -435,6 +436,7 @@ test('should send new deployment when a new one is created', async () => {
   await client.update(kubeConfig);
   vi.advanceTimersToNextTimer(); // reachable
   vi.advanceTimersToNextTimer(); // add
+  vi.advanceTimersToNextTimer(); // reachable now
   const expectedMap = new Map<string, ContextGeneralState>();
   expectedMap.set('context1', {
     reachable: true,
@@ -774,6 +776,7 @@ test('should send appropriate data when context becomes unreachable', async () =
   await client.update(kubeConfig);
   vi.advanceTimersToNextTimer(); // add deployments
   vi.advanceTimersToNextTimer(); // dispatches
+  vi.advanceTimersToNextTimer(); // reachable now
   const expectedMap = new Map<string, ContextGeneralState>();
   expectedMap.set('context1', {
     reachable: true,
@@ -798,6 +801,7 @@ test('should send appropriate data when context becomes unreachable', async () =
   apiSenderSendMock.mockReset();
   vi.advanceTimersToNextTimer(); // error event
   vi.advanceTimersToNextTimer(); // dispatches
+  vi.advanceTimersToNextTimer(); // reachable now
   // This time, we do not check the number of calls, as the connection will be retried, and calls will be done after each retry
   expectedMap.set('context1', {
     reachable: false,
@@ -807,7 +811,6 @@ test('should send appropriate data when context becomes unreachable', async () =
       deployments: 0,
     },
   });
-  expect(apiSenderSendMock).toHaveBeenCalledTimes(4);
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
     reachable: false,
