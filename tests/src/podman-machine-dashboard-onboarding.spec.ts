@@ -43,8 +43,8 @@ afterAll(async () => {
   await pdRunner.close();
 });
 
-describe(`Podman machine onboarding from DP Dashboard`, async () => {
-  test('Create Podman machine from PD Dashboard', async () => {
+describe(`Podman machine onboarding from Dashboard`, async () => {
+  test('Create Podman machine from Dashboard', async () => {
     const dashboardPage = new DashboardPage(page);
     await playExpect(dashboardPage.initilizeAndStartButton).toBeEnabled();
     await dashboardPage.initilizeAndStartButton.click();
