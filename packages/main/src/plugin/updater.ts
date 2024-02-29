@@ -179,7 +179,7 @@ export class Updater {
   /**
    * Registers configuration settings for update preferences.
    */
-  private registerConfiguration() {
+  private registerConfiguration(): void {
     this.configurationRegistry.registerConfigurations([
       {
         id: 'preferences.update',
