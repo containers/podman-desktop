@@ -53,12 +53,20 @@ interface ContextState {
   resources: ContextStateResources;
 }
 
-// All resources managed by podman desktop
-// This is where to add new resources when adding new informers
-export type ResourceName = 'pods' | 'deployments' | 'services';
-
 // A selection of resources, to indicate the 'general' status of a context
-type SelectedResourceName = 'pods' | 'deployments';
+const selectedResources = ['pods', 'deployments'] as const;
+
+// resources managed by podman desktop, excepted the primary ones
+// This is where to add new resources when adding new informers
+const secondaryResources = ['services'] as const;
+
+export type SelectedResourceName = (typeof selectedResources)[number];
+export type SecondaryResourceName = (typeof secondaryResources)[number];
+export type ResourceName = SelectedResourceName | SecondaryResourceName;
+
+function isSecondaryResourceName(value: string): value is SecondaryResourceName {
+  return secondaryResources.includes(value as SecondaryResourceName);
+}
 
 export type ContextStateResources = {
   [resourceName in ResourceName]: KubernetesObject[];
@@ -266,6 +274,20 @@ class ContextsStates {
     this.informers.delete(name);
     this.state.delete(name);
   }
+
+  async disposeSecondaryInformers(contextName: string): Promise<void> {
+    const informers = this.informers.get(contextName);
+    if (informers) {
+      for (const res of Object.keys(informers)) {
+        if (isSecondaryResourceName(res)) {
+          console.debug(`stopping informer for ${res} in ${contextName}`);
+          const resname = res as ResourceName;
+          await informers[resname]?.stop();
+          informers[resname] = undefined;
+        }
+      }
+    }
+  }
 }
 
 // the ContextsState singleton (instantiated by the kubernetes-client singleton)
@@ -295,6 +317,7 @@ export class ContextsManager {
         added = true;
       }
     }
+
     // Delete informers for removed contexts
     let removed = false;
     for (const name of this.states.getContextsNames()) {
@@ -303,6 +326,16 @@ export class ContextsManager {
         removed = true;
       }
     }
+
+    // Delete secondary informers (others than pods/deployments) on non-current contexts
+    if (contextChanged) {
+      const nonCurrentContexts = this.kubeConfig.contexts.filter(ctx => ctx.name !== this.currentContext);
+      for (const ctx of nonCurrentContexts) {
+        const contextName = ctx.name;
+        await this.states.disposeSecondaryInformers(contextName);
+      }
+    }
+
     if (added || removed || contextChanged) {
       this.dispatch({
         contextsGeneralState: true,

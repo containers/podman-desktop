@@ -36,12 +36,16 @@ interface InformerErrorEvent {
   error: string;
 }
 
+const informerStopMock = vi.fn();
+
 export class FakeInformer {
   private onCb: Map<string, ObjectCallback<KubernetesObject>>;
   private offCb: Map<string, ObjectCallback<KubernetesObject>>;
   private onErrorCb: Map<string, ErrorCallback>;
 
   constructor(
+    private contextName: string,
+    private path: string,
     private resourcesCount: number,
     private connectResponse: Error | undefined,
     private events: InformerEvent[],
@@ -72,7 +76,9 @@ export class FakeInformer {
       });
     }
   }
-  async stop(): Promise<void> {}
+  async stop(): Promise<void> {
+    informerStopMock(this.contextName, this.path);
+  }
   on(
     verb: 'change' | 'add' | 'update' | 'delete' | 'error' | 'connect',
     cb: ErrorCallback | ObjectCallback<KubernetesObject>,
@@ -117,20 +123,20 @@ function fakeMakeInformer(
   }
   switch (path) {
     case '/api/v1/namespaces/ns1/pods':
-      return new FakeInformer(1, connectResult, [], []);
+      return new FakeInformer(kubeconfig.currentContext, path, 1, connectResult, [], []);
     case '/api/v1/namespaces/ns2/pods':
-      return new FakeInformer(2, connectResult, [], []);
+      return new FakeInformer(kubeconfig.currentContext, path, 2, connectResult, [], []);
     case '/api/v1/namespaces/default/pods':
-      return new FakeInformer(3, connectResult, [], []);
+      return new FakeInformer(kubeconfig.currentContext, path, 3, connectResult, [], []);
 
     case '/apis/apps/v1/namespaces/ns1/deployments':
-      return new FakeInformer(4, connectResult, [], []);
+      return new FakeInformer(kubeconfig.currentContext, path, 4, connectResult, [], []);
     case '/apis/apps/v1/namespaces/ns2/deployments':
-      return new FakeInformer(5, connectResult, [], []);
+      return new FakeInformer(kubeconfig.currentContext, path, 5, connectResult, [], []);
     case '/apis/apps/v1/namespaces/default/deployments':
-      return new FakeInformer(6, connectResult, [], []);
+      return new FakeInformer(kubeconfig.currentContext, path, 6, connectResult, [], []);
   }
-  return new FakeInformer(0, connectResult, [], []);
+  return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
 }
 
 const apiSenderSendMock = vi.fn();
@@ -380,16 +386,18 @@ test('should write logs when connection fails', async () => {
 test('should send new deployment when a new one is created', async () => {
   vi.mocked(makeInformer).mockImplementation(
     (
-      _kubeconfig: kubeclient.KubeConfig,
+      kubeconfig: kubeclient.KubeConfig,
       path: string,
       _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
     ) => {
       const connectResult = undefined;
       switch (path) {
         case '/api/v1/namespaces/ns1/pods':
-          return new FakeInformer(0, connectResult, [], []);
+          return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
         case '/apis/apps/v1/namespaces/ns1/deployments':
           return new FakeInformer(
+            kubeconfig.currentContext,
+            path,
             0,
             connectResult,
             [
@@ -402,7 +410,7 @@ test('should send new deployment when a new one is created', async () => {
             [],
           );
       }
-      return new FakeInformer(0, connectResult, [], []);
+      return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
     },
   );
   const client = new ContextsManager(apiSender);
@@ -484,16 +492,18 @@ test('should send new deployment when a new one is created', async () => {
 test('should delete deployment when deleted from context', async () => {
   vi.mocked(makeInformer).mockImplementation(
     (
-      _kubeconfig: kubeclient.KubeConfig,
+      kubeconfig: kubeclient.KubeConfig,
       path: string,
       _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
     ) => {
       const connectResult = undefined;
       switch (path) {
         case '/api/v1/namespaces/ns1/pods':
-          return new FakeInformer(0, connectResult, [], []);
+          return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
         case '/apis/apps/v1/namespaces/ns1/deployments':
           return new FakeInformer(
+            kubeconfig.currentContext,
+            path,
             0,
             connectResult,
             [
@@ -516,7 +526,7 @@ test('should delete deployment when deleted from context', async () => {
             [],
           );
       }
-      return new FakeInformer(0, connectResult, [], []);
+      return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
     },
   );
   const client = new ContextsManager(apiSender);
@@ -602,16 +612,18 @@ test('should delete deployment when deleted from context', async () => {
 test('should update deployment when updated on context', async () => {
   vi.mocked(makeInformer).mockImplementation(
     (
-      _kubeconfig: kubeclient.KubeConfig,
+      kubeconfig: kubeclient.KubeConfig,
       path: string,
       _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
     ) => {
       const connectResult = undefined;
       switch (path) {
         case '/api/v1/namespaces/ns1/pods':
-          return new FakeInformer(0, connectResult, [], []);
+          return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
         case '/apis/apps/v1/namespaces/ns1/deployments':
           return new FakeInformer(
+            kubeconfig.currentContext,
+            path,
             0,
             connectResult,
             [
@@ -634,7 +646,7 @@ test('should update deployment when updated on context', async () => {
             [],
           );
       }
-      return new FakeInformer(0, connectResult, [], []);
+      return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
     },
   );
   const client = new ContextsManager(apiSender);
@@ -720,7 +732,7 @@ test('should update deployment when updated on context', async () => {
 test('should send appropriate data when context becomes unreachable', async () => {
   vi.mocked(makeInformer).mockImplementation(
     (
-      _kubeconfig: kubeclient.KubeConfig,
+      kubeconfig: kubeclient.KubeConfig,
       path: string,
       _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
     ) => {
@@ -728,6 +740,8 @@ test('should send appropriate data when context becomes unreachable', async () =
       switch (path) {
         case '/api/v1/namespaces/ns1/pods':
           return new FakeInformer(
+            kubeconfig.currentContext,
+            path,
             0,
             connectResult,
             [],
@@ -740,9 +754,9 @@ test('should send appropriate data when context becomes unreachable', async () =
             ],
           );
         case '/apis/apps/v1/namespaces/ns1/deployments':
-          return new FakeInformer(2, connectResult, [], []);
+          return new FakeInformer(kubeconfig.currentContext, path, 2, connectResult, [], []);
       }
-      return new FakeInformer(0, connectResult, [], []);
+      return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
     },
   );
   const client = new ContextsManager(apiSender);
@@ -825,16 +839,16 @@ test('createServiceInformer should send data for added resource', async () => {
   vi.useFakeTimers();
   vi.mocked(makeInformer).mockImplementation(
     (
-      _kubeconfig: kubeclient.KubeConfig,
+      kubeconfig: kubeclient.KubeConfig,
       path: string,
       _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
     ) => {
       const connectResult = undefined;
       switch (path) {
         case '/api/v1/namespaces/ns1/services':
-          return new FakeInformer(1, connectResult, [], []);
+          return new FakeInformer(kubeconfig.currentContext, path, 1, connectResult, [], []);
       }
-      return new FakeInformer(0, connectResult, [], []);
+      return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
     },
   );
   const client = new ContextsManager(apiSender);
@@ -893,7 +907,7 @@ test('createServiceInformer should send data for deleted and updated resource', 
   vi.useFakeTimers();
   vi.mocked(makeInformer).mockImplementation(
     (
-      _kubeconfig: kubeclient.KubeConfig,
+      kubeconfig: kubeclient.KubeConfig,
       path: string,
       _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
     ) => {
@@ -901,6 +915,8 @@ test('createServiceInformer should send data for deleted and updated resource', 
       switch (path) {
         case '/api/v1/namespaces/ns1/services':
           return new FakeInformer(
+            kubeconfig.currentContext,
+            path,
             0,
             connectResult,
             [
@@ -928,7 +944,7 @@ test('createServiceInformer should send data for deleted and updated resource', 
             [],
           );
       }
-      return new FakeInformer(0, connectResult, [], []);
+      return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
     },
   );
   const client = new ContextsManager(apiSender);
@@ -992,16 +1008,16 @@ test('update should not start service informer', async () => {
   const makeInformerMock = vi.mocked(makeInformer);
   makeInformerMock.mockImplementation(
     (
-      _kubeconfig: kubeclient.KubeConfig,
+      kubeconfig: kubeclient.KubeConfig,
       path: string,
       _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
     ) => {
       const connectResult = undefined;
       switch (path) {
         case '/api/v1/namespaces/ns1/services':
-          return new FakeInformer(0, connectResult, [], []);
+          return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
       }
-      return new FakeInformer(0, connectResult, [], []);
+      return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
     },
   );
   const client = new ContextsManager(apiSender);
@@ -1049,11 +1065,11 @@ test('calling getCurrentContextResources should start service informer, the firs
   const makeInformerMock = vi.mocked(makeInformer);
   makeInformerMock.mockImplementation(
     (
-      _kubeconfig: kubeclient.KubeConfig,
-      _path: string,
+      kubeconfig: kubeclient.KubeConfig,
+      path: string,
       _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
     ) => {
-      return new FakeInformer(0, undefined, [], []);
+      return new FakeInformer(kubeconfig.currentContext, path, 0, undefined, [], []);
     },
   );
   const client = new ContextsManager(apiSender);
@@ -1096,4 +1112,74 @@ test('calling getCurrentContextResources should start service informer, the firs
   makeInformerMock.mockClear();
   client.getCurrentContextResources('services');
   expect(makeInformerMock).not.toHaveBeenCalled();
+});
+
+test('changing context should stop service informer on previous current context', async () => {
+  vi.useFakeTimers();
+  const makeInformerMock = vi.mocked(makeInformer);
+  makeInformerMock.mockImplementation(
+    (
+      kubeconfig: kubeclient.KubeConfig,
+      path: string,
+      _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+    ) => {
+      return new FakeInformer(kubeconfig.currentContext, path, 0, undefined, [], []);
+    },
+  );
+  const client = new ContextsManager(apiSender);
+  const kubeConfig = new kubeclient.KubeConfig();
+  const config = {
+    clusters: [
+      {
+        name: 'cluster1',
+        server: 'server1',
+      },
+    ],
+    users: [
+      {
+        name: 'user1',
+      },
+    ],
+    contexts: [
+      {
+        name: 'context1',
+        cluster: 'cluster1',
+        user: 'user1',
+        namespace: 'ns1',
+      },
+      {
+        name: 'context2',
+        cluster: 'cluster1',
+        user: 'user1',
+        namespace: 'ns2',
+      },
+    ],
+    currentContext: 'context1',
+  };
+  kubeConfig.loadFromOptions(config);
+  await client.update(kubeConfig);
+  vi.advanceTimersToNextTimer();
+
+  makeInformerMock.mockClear();
+
+  // service informer is started
+  client.getCurrentContextResources('services');
+  expect(makeInformerMock).toHaveBeenCalledTimes(1);
+  expect(makeInformerMock).toHaveBeenCalledWith(
+    expect.any(KubeConfig),
+    '/api/v1/namespaces/ns1/services',
+    expect.anything(),
+  );
+
+  makeInformerMock.mockClear();
+
+  config.currentContext = 'context2';
+  kubeConfig.loadFromOptions(config);
+
+  expect(informerStopMock).not.toHaveBeenCalled();
+
+  await client.update(kubeConfig);
+
+  expect(informerStopMock).toHaveBeenCalledTimes(1);
+  expect(informerStopMock).toHaveBeenCalledWith('context1', '/api/v1/namespaces/ns1/services');
 });
