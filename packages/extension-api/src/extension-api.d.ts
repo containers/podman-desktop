@@ -2650,7 +2650,7 @@ declare module '@podman-desktop/api' {
     /**
      * Set the provider to use, if not we will try select the first one available (sorted in favor of Podman)
      */
-    provider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection;
+    provider?: ContainerProviderConnection;
 
     /**
      * The abort controller for running the build image operation
