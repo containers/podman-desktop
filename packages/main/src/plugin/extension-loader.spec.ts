@@ -143,6 +143,8 @@ const containerProviderRegistry: ContainerProviderRegistry = {
   listPods: vi.fn(),
   stopPod: vi.fn(),
   removePod: vi.fn(),
+  getContainerStats: vi.fn(),
+  stopContainerStats: vi.fn(),
   listImages: vi.fn(),
 } as unknown as ContainerProviderRegistry;
 
@@ -1653,6 +1655,29 @@ describe('window', async () => {
 });
 
 describe('containerEngine', async () => {
+  test('statsContainer ', async () => {
+    vi.mocked(containerProviderRegistry.getContainerStats).mockResolvedValue(99);
+    vi.mocked(containerProviderRegistry.stopContainerStats).mockResolvedValue(undefined);
+
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    const disposable = await api.containerEngine.statsContainer('dummyEngineId', 'dummyContainerId', () => {});
+    expect(disposable).toBeDefined();
+    expect(disposable instanceof Disposable).toBeTruthy();
+    expect(containerProviderRegistry.getContainerStats).toHaveBeenCalledWith(
+      'dummyEngineId',
+      'dummyContainerId',
+      expect.anything(),
+    );
+
+    disposable.dispose();
+    await vi.waitUntil(() => {
+      expect(containerProviderRegistry.stopContainerStats).toHaveBeenCalledWith(99);
+      return true;
+    });
+  });
+
   test('listImages without option ', async () => {
     vi.mocked(containerProviderRegistry.listImages).mockResolvedValue([]);
 
