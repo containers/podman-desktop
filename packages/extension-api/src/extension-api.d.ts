@@ -827,7 +827,7 @@ declare module '@podman-desktop/api' {
     /**
      * A description of the field to be show (Markdown format)
      */
-    markdownDescription?;
+    markdownDescription?: string;
 
     /**
      * An optional string to show as placeholder in the input box to guide the user what to type.
@@ -1112,6 +1112,8 @@ declare module '@podman-desktop/api' {
      */
     dispose(): void;
   }
+
+  type NotificationType = 'info' | 'warn' | 'error';
 
   export interface NotificationOptions {
     /**
@@ -1913,6 +1915,13 @@ declare module '@podman-desktop/api' {
     IPv4Address: string;
     IPv6Address: string;
   }
+
+  interface IPAM {
+    Driver: string;
+    Config?: Array<{ [key: string]: string }>;
+    Options?: { [key: string]: string };
+  }
+
   export interface NetworkInspectInfo {
     engineId: string;
     engineName: string;
@@ -2068,6 +2077,14 @@ declare module '@podman-desktop/api' {
   }
 
   type MountConfig = MountSettings[];
+
+  interface DeviceRequest {
+    Driver?: string;
+    Count?: number;
+    DeviceIDs?: string[];
+    Capabilities?: string[][];
+    Options?: { [key: string]: string };
+  }
 
   interface HostConfig {
     AutoRemove?: boolean;
@@ -2927,7 +2944,7 @@ declare module '@podman-desktop/api' {
       context: string,
       eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
       options?: BuildImageOptions,
-    );
+    ): Promise<unknown>;
 
     /**
      * Save on disk a tarball containing the image and its metadata.
