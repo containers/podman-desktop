@@ -17,7 +17,8 @@
  ***********************************************************************/
 
 import type { MessageBox } from '/@/plugin/message-box.js';
-import { autoUpdater, type UpdateCheckResult } from 'electron-updater';
+import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
+import { autoUpdater, type UpdateCheckResult, type UpdateInfo } from 'electron-updater';
 import { UPDATER_UPDATE_AVAILABLE_ICON } from '/@/plugin/index.js';
 import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
 import { app } from 'electron';
@@ -30,12 +31,15 @@ import { Disposable } from '/@/plugin/types/disposable.js';
  */
 export class Updater {
   #currentVersion: string;
+  #nextVersion: string | undefined;
+
   #updateInProgress: boolean;
   #updateAlreadyDownloaded: boolean;
   #updateCheckResult: UpdateCheckResult | undefined;
 
   constructor(
     private messageBox: MessageBox,
+    private configurationRegistry: ConfigurationRegistry,
     private statusBarRegistry: StatusBarRegistry,
     private commandRegistry: CommandRegistry,
   ) {
@@ -77,7 +81,7 @@ export class Updater {
       UPDATER_UPDATE_AVAILABLE_ICON,
       true,
       'update',
-      undefined,
+      ['status-bar-entry'],
       true,
     );
   }
@@ -104,7 +108,7 @@ export class Updater {
     });
 
     // Update will create a standard "autoUpdater" dialog / update process
-    this.commandRegistry.registerCommand('update', async () => {
+    this.commandRegistry.registerCommand('update', async (context?: 'startup' | 'status-bar-entry') => {
       if (this.#updateAlreadyDownloaded) {
         const result = await this.messageBox.showMessageBox({
           type: 'info',
@@ -130,25 +134,32 @@ export class Updater {
       }
 
       // Get the version of the update
-      const updateVersion = this.#updateCheckResult?.updateInfo.version
-        ? `v${this.#updateCheckResult?.updateInfo.version}`
-        : '';
+      const updateVersion = this.#nextVersion ?? '';
+
+      let buttons: string[];
+      if (context === 'startup') {
+        buttons = ['Update now', 'Remind me later', 'Do not show again'];
+      } else {
+        buttons = ['Update now', 'Cancel'];
+      }
 
       const result = await this.messageBox.showMessageBox({
         type: 'info',
-        title: 'Update Available',
+        title: 'Update Available now',
         message: `A new version ${updateVersion} of Podman Desktop is available. Do you want to update your current version ${this.#currentVersion}?`,
-        buttons: ['Update', 'Cancel'],
+        buttons: buttons,
         cancelId: 1,
       });
-      if (result.response === 0) {
+      if (result.response === 2) {
+        this.updateConfigurationValue('never');
+      } else if (result.response === 0) {
         this.#updateInProgress = true;
         this.#updateAlreadyDownloaded = false;
 
         // Download update and try / catch it and create a dialog if it fails
         try {
           await autoUpdater.downloadUpdate();
-        } catch (error) {
+        } catch (error: unknown) {
           console.error('Update error: ', error);
           await this.messageBox.showMessageBox({
             type: 'error',
@@ -161,11 +172,66 @@ export class Updater {
     });
   }
 
+  private getFormattedVersion(updateInfo?: UpdateInfo): string {
+    return updateInfo?.version ? `v${updateInfo.version}` : '';
+  }
+
   /**
    * Handler for update available event.
    */
-  private onUpdateAvailable(): void {
+  private onUpdateAvailable(updateInfo?: UpdateInfo): void {
+    this.#nextVersion = this.getFormattedVersion(updateInfo);
+
     this.updateAvailableEntry();
+    if (this.getConfigurationValue() === 'startup') {
+      this.commandRegistry.executeCommand('update', 'startup').catch((err: unknown) => {
+        console.error('Something went wrong while executing update command', err);
+      });
+    }
+  }
+
+  /**
+   * Registers configuration settings for update preferences.
+   */
+  private registerConfiguration(): void {
+    this.configurationRegistry.registerConfigurations([
+      {
+        id: 'preferences.update',
+        title: 'Update',
+        type: 'object',
+        properties: {
+          ['preferences.update.reminder']: {
+            description: 'Configure whether you receive update reminders when starting Podman Desktop',
+            type: 'string',
+            default: 'startup',
+            enum: ['startup', 'never'],
+          },
+        },
+      },
+    ]);
+  }
+
+  /**
+   * Retrieves the value of the update reminder configuration.
+   * @returns The value of the update reminder configuration.
+   */
+  private getConfigurationValue(): 'startup' | 'never' {
+    return this.configurationRegistry
+      .getConfiguration('preferences')
+      .get<'startup' | 'never'>('update.reminder', 'startup');
+  }
+
+  /**
+   * Updates the value of the update reminder configuration.
+   * @param value - The new value for the update reminder configuration.
+   */
+  private updateConfigurationValue(value: 'startup' | 'never'): void {
+    this.configurationRegistry
+      .getConfiguration('preferences')
+      .update('update.reminder', value)
+      .catch((err: unknown) => {
+        console.error('Something went wrong while trying to update update.reminder preference', err);
+      });
   }
 
   /**
@@ -225,10 +291,17 @@ export class Updater {
   private checkForUpdates(): void {
     autoUpdater
       .checkForUpdates()
-      .then(result => (this.#updateCheckResult = result ?? undefined))
+      .then(result => {
+        this.#updateCheckResult = result ?? undefined;
+        this.#nextVersion = this.getFormattedVersion(this.#updateCheckResult?.updateInfo);
+      })
       .catch((error: unknown) => {
         console.log('unable to check for updates', error);
       });
+  }
+
+  public updateAvailable(): boolean {
+    return this.#updateCheckResult !== undefined;
   }
 
   public init(): Disposable {
@@ -242,6 +315,7 @@ export class Updater {
     }
 
     this.registerCommands();
+    this.registerConfiguration();
 
     // setup the event listeners
     autoUpdater.on('update-available', this.onUpdateAvailable.bind(this));
