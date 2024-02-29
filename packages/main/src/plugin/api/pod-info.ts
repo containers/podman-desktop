@@ -16,10 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ContainerProviderConnection, PodCreatePortOptions } from '@podman-desktop/api';
 import type {
   PodInfo as LibPodPodInfo,
   PodInspectInfo as LibPodPodInspectInfo,
 } from '../dockerode/libpod-dockerode.js';
+import type { ProviderContainerConnectionInfo } from './provider-info.js';
 
 export interface PodInfo extends LibPodPodInfo {
   engineId: string;
@@ -30,4 +32,12 @@ export interface PodInfo extends LibPodPodInfo {
 export interface PodInspectInfo extends LibPodPodInspectInfo {
   engineId: string;
   engineName: string;
+}
+
+export interface PodCreateOptions {
+  name: string;
+  portmappings?: PodCreatePortOptions[];
+  labels?: { [key: string]: string };
+  // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
+  provider?: ProviderContainerConnectionInfo | ContainerProviderConnection;
 }
