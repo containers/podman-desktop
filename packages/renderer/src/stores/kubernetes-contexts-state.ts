@@ -57,3 +57,21 @@ export const kubernetesCurrentContextDeploymentsFiltered = derived(
   ([$searchPattern, $deployments]) =>
     $deployments.filter(deployment => findMatchInLeaves(deployment, $searchPattern.toLowerCase())),
 );
+
+// Services
+
+export const kubernetesCurrentContextServices = readable<KubernetesObject[]>([], set => {
+  window.kubernetesGetCurrentContextResources('services').then(value => set(value));
+  window.events?.receive('kubernetes-current-context-services-update', (value: unknown) => {
+    set(value as KubernetesObject[]);
+  });
+});
+
+export const serviceSearchPattern = writable('');
+
+// The services in the current context, filtered with `serviceSearchPattern`
+export const kubernetesCurrentContextServicesFiltered = derived(
+  [serviceSearchPattern, kubernetesCurrentContextServices],
+  ([$searchPattern, $services]) =>
+    $services.filter(service => findMatchInLeaves(service, $searchPattern.toLowerCase())),
+);

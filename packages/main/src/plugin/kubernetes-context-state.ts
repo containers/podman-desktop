@@ -41,10 +41,9 @@ import {
 import type { IncomingMessage } from 'node:http';
 
 // ContextInternalState stores informers for a kube context
-interface ContextInternalState {
-  podInformer?: Informer<V1Pod> & ObjectCache<V1Pod>;
-  deploymentInformer?: Informer<V1Deployment> & ObjectCache<V1Deployment>;
-}
+type ContextInternalState = {
+  [resourceName in ResourceName]?: Informer<KubernetesObject> & ObjectCache<KubernetesObject>;
+};
 
 // ContextState stores information for the user about a kube context: is the cluster reachable, the number
 // of instances of different resources
@@ -150,14 +149,34 @@ class ContextsStates {
   private state = new Map<string, ContextState>();
   private informers = new Map<string, ContextInternalState>();
 
-  has(name: string): boolean {
+  hasContext(name: string): boolean {
     return this.informers.has(name);
+  }
+
+  hasInformer(context: string, resourceName: ResourceName): boolean {
+    const informers = this.informers.get(context);
+    if (!informers) {
+      return false;
+    }
+    return !!informers[resourceName];
   }
 
   setInformers(name: string, informers: ContextInternalState | undefined): void {
     if (informers) {
       this.informers.set(name, informers);
     }
+  }
+
+  setResourceInformer(
+    contextName: string,
+    resourceName: ResourceName,
+    informer: Informer<KubernetesObject> & ObjectCache<KubernetesObject>,
+  ): void {
+    const informers = this.informers.get(contextName);
+    if (!informers) {
+      throw new Error('informers for context not found');
+    }
+    informers[resourceName] = informer;
   }
 
   getContextsNames(): Iterable<string> {
@@ -211,6 +230,11 @@ class ContextsStates {
     return [];
   }
 
+  isReachable(contextName: string): boolean {
+    const state = this.state.get(contextName);
+    return state?.reachable ?? false;
+  }
+
   safeSetState(name: string, update: (previous: ContextState) => void): void {
     if (!this.state.has(name)) {
       this.state.set(name, {
@@ -232,8 +256,13 @@ class ContextsStates {
   }
 
   async dispose(name: string): Promise<void> {
-    await this.informers.get(name)?.podInformer?.stop();
-    await this.informers.get(name)?.deploymentInformer?.stop();
+    const informers = this.informers.get(name);
+    if (informers) {
+      for (const res in Object.keys(informers)) {
+        const resname = res as ResourceName;
+        await informers[resname]?.stop();
+      }
+    }
     this.informers.delete(name);
     this.state.delete(name);
   }
@@ -260,7 +289,7 @@ export class ContextsManager {
     // Add informers for new contexts
     let added = false;
     for (const context of this.kubeConfig.contexts) {
-      if (!this.states.has(context.name)) {
+      if (!this.states.hasContext(context.name)) {
         const informers = this.createKubeContextInformers(context);
         this.states.setInformers(context.name, informers);
         added = true;
@@ -302,9 +331,27 @@ export class ContextsManager {
 
     const ns = context.namespace ?? 'default';
     return {
-      podInformer: this.createPodInformer(kc, ns, context),
-      deploymentInformer: this.createDeploymentInformer(kc, ns, context),
+      pods: this.createPodInformer(kc, ns, context),
+      deployments: this.createDeploymentInformer(kc, ns, context),
     };
+  }
+
+  startResourceInformer(contextName: string, resourceName: ResourceName): void {
+    const context = this.kubeConfig.contexts.find(c => c.name === contextName);
+    if (!context) {
+      throw new Error('context not found');
+    }
+    const ns = context.namespace ?? 'default';
+    let informer: Informer<KubernetesObject> & ObjectCache<KubernetesObject>;
+    switch (resourceName) {
+      case 'services':
+        informer = this.createServiceInformer(this.kubeConfig, ns, context);
+        break;
+      default:
+        console.debug(`trying to start informer for resource ${resourceName} which is not supported`);
+        return;
+    }
+    this.states.setResourceInformer(contextName, resourceName, informer);
   }
 
   private createPodInformer(kc: KubeConfig, ns: string, context: KubeContext): Informer<V1Pod> & ObjectCache<V1Pod> {
@@ -596,6 +643,19 @@ export class ContextsManager {
   }
 
   public getCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
-    return this.states.getCurrentContextResources(this.kubeConfig.currentContext, resourceName);
+    if (!this.currentContext) {
+      return [];
+    }
+    if (this.states.hasInformer(this.currentContext, resourceName)) {
+      console.debug(`informer for ${resourceName} in ${this.currentContext} running`);
+      return this.states.getCurrentContextResources(this.kubeConfig.currentContext, resourceName);
+    }
+    if (!this.states.isReachable(this.currentContext)) {
+      console.debug(`context ${this.currentContext} is not reachable. Not trying to start an informer`);
+      return [];
+    }
+    console.debug(`informer for ${resourceName} in ${this.currentContext} not found. Starting it...`);
+    this.startResourceInformer(this.currentContext, resourceName);
+    return [];
   }
 }

@@ -22,7 +22,7 @@ import { ContextsManager } from './kubernetes-context-state.js';
 import type { ApiSenderType } from './api.js';
 import * as kubeclient from '@kubernetes/client-node';
 import type { ErrorCallback, KubernetesObject, ObjectCallback } from '@kubernetes/client-node';
-import { makeInformer } from '@kubernetes/client-node';
+import { makeInformer, KubeConfig } from '@kubernetes/client-node';
 
 interface InformerEvent {
   delayMs: number;
@@ -986,4 +986,114 @@ test('createServiceInformer should send data for deleted and updated resource', 
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-services-update', [
     { metadata: { uid: 'svc2', name: 'name2' } },
   ]);
+});
+
+test('update should not start service informer', async () => {
+  const makeInformerMock = vi.mocked(makeInformer);
+  makeInformerMock.mockImplementation(
+    (
+      _kubeconfig: kubeclient.KubeConfig,
+      path: string,
+      _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+    ) => {
+      const connectResult = undefined;
+      switch (path) {
+        case '/api/v1/namespaces/ns1/services':
+          return new FakeInformer(0, connectResult, [], []);
+      }
+      return new FakeInformer(0, connectResult, [], []);
+    },
+  );
+  const client = new ContextsManager(apiSender);
+  const kubeConfig = new kubeclient.KubeConfig();
+  const config = {
+    clusters: [
+      {
+        name: 'cluster1',
+        server: 'server1',
+      },
+    ],
+    users: [
+      {
+        name: 'user1',
+      },
+    ],
+    contexts: [
+      {
+        name: 'context1',
+        cluster: 'cluster1',
+        user: 'user1',
+        namespace: 'ns1',
+      },
+    ],
+    currentContext: 'context1',
+  };
+  kubeConfig.loadFromOptions(config);
+  await client.update(kubeConfig);
+  // makeInformer is called for pod and deployment only
+  expect(makeInformerMock).toHaveBeenCalledTimes(2);
+  expect(makeInformerMock).toHaveBeenCalledWith(
+    expect.any(KubeConfig),
+    '/apis/apps/v1/namespaces/ns1/deployments',
+    expect.anything(),
+  );
+  expect(makeInformerMock).toHaveBeenCalledWith(
+    expect.any(KubeConfig),
+    '/api/v1/namespaces/ns1/pods',
+    expect.anything(),
+  );
+});
+
+test('calling getCurrentContextResources should start service informer, the first time only', async () => {
+  vi.useFakeTimers();
+  const makeInformerMock = vi.mocked(makeInformer);
+  makeInformerMock.mockImplementation(
+    (
+      _kubeconfig: kubeclient.KubeConfig,
+      _path: string,
+      _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+    ) => {
+      return new FakeInformer(0, undefined, [], []);
+    },
+  );
+  const client = new ContextsManager(apiSender);
+  const kubeConfig = new kubeclient.KubeConfig();
+  const config = {
+    clusters: [
+      {
+        name: 'cluster1',
+        server: 'server1',
+      },
+    ],
+    users: [
+      {
+        name: 'user1',
+      },
+    ],
+    contexts: [
+      {
+        name: 'context1',
+        cluster: 'cluster1',
+        user: 'user1',
+        namespace: 'ns1',
+      },
+    ],
+    currentContext: 'context1',
+  };
+  kubeConfig.loadFromOptions(config);
+  await client.update(kubeConfig);
+  vi.advanceTimersToNextTimer();
+
+  makeInformerMock.mockClear();
+  client.getCurrentContextResources('services');
+  expect(makeInformerMock).toHaveBeenCalledTimes(1);
+  expect(makeInformerMock).toHaveBeenCalledWith(
+    expect.any(KubeConfig),
+    '/api/v1/namespaces/ns1/services',
+    expect.anything(),
+  );
+
+  makeInformerMock.mockClear();
+  client.getCurrentContextResources('services');
+  expect(makeInformerMock).not.toHaveBeenCalled();
 });
