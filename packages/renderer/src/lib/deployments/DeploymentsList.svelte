@@ -129,7 +129,7 @@ const row = new Row<DeploymentUI>({ selectable: _deployment => true });
         icon="{faTrash}" />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
-    <div class="flex min-w-full justify-end">
+    <div class="flex grow justify-end">
       <KubernetesCurrentContextConnectionBadge />
     </div>
   </svelte:fragment>
