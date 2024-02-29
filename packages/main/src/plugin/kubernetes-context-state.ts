@@ -53,7 +53,7 @@ interface ContextState {
 }
 
 // All resources managed by podman desktop
-// TODO: add new resources here when adding new informers
+// This is where to add new resources when adding new informers
 export type ResourceName = 'pods' | 'deployments';
 
 // A selection of resources, to indicate the 'general' status of a context
@@ -104,7 +104,7 @@ type ResourcesDispatchOptions = {
 const dispatchAllResources: ResourcesDispatchOptions = {
   pods: true,
   deployments: true,
-  // TODO: add new resources here when adding new informers
+  // add new resources here when adding new informers
 };
 
 interface DispatchOptions {
