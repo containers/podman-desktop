@@ -3222,10 +3222,7 @@ test('check createPod uses running podman connection if ProviderContainerConnect
 
   const result = await containerRegistry.createPod({
     name: 'pod',
-    provider: {
-      ...containerProviderConnection,
-      status: () => containerProviderConnection.status,
-    },
+    provider: containerProviderConnection,
   });
   expect(result.Id).equal('id');
   expect(result.engineId).equal('podman1');
