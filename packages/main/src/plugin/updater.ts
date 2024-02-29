@@ -18,7 +18,7 @@
 
 import type { MessageBox } from '/@/plugin/message-box.js';
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
-import { autoUpdater, type UpdateCheckResult } from 'electron-updater';
+import { autoUpdater, type UpdateCheckResult, type UpdateInfo } from 'electron-updater';
 import { UPDATER_UPDATE_AVAILABLE_ICON } from '/@/plugin/index.js';
 import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
 import { app } from 'electron';
@@ -31,6 +31,8 @@ import { Disposable } from '/@/plugin/types/disposable.js';
  */
 export class Updater {
   #currentVersion: string;
+  #nextVersion: string | undefined;
+
   #updateInProgress: boolean;
   #updateAlreadyDownloaded: boolean;
   #updateCheckResult: UpdateCheckResult | undefined;
@@ -132,9 +134,7 @@ export class Updater {
       }
 
       // Get the version of the update
-      const updateVersion = this.#updateCheckResult?.updateInfo.version
-        ? `v${this.#updateCheckResult?.updateInfo.version}`
-        : '';
+      const updateVersion = this.#nextVersion ?? '';
 
       const result = await this.messageBox.showMessageBox({
         type: 'info',
@@ -164,10 +164,16 @@ export class Updater {
     });
   }
 
+  private getFormattedVersion(updateInfo?: UpdateInfo): string {
+    return updateInfo?.version ? `v${updateInfo.version}` : '';
+  }
+
   /**
    * Handler for update available event.
    */
-  private onUpdateAvailable(): void {
+  private onUpdateAvailable(updateInfo?: UpdateInfo): void {
+    this.#nextVersion = this.getFormattedVersion(updateInfo);
+
     this.updateAvailableEntry();
     if (this.getConfigurationValue() === 'startup') {
       this.commandRegistry.executeCommand('update').catch((err: unknown) => {
@@ -278,10 +284,17 @@ export class Updater {
   private checkForUpdates(): void {
     autoUpdater
       .checkForUpdates()
-      .then(result => (this.#updateCheckResult = result ?? undefined))
+      .then(result => {
+        this.#updateCheckResult = result ?? undefined;
+        this.#nextVersion = this.getFormattedVersion(this.#updateCheckResult?.updateInfo);
+      })
       .catch((error: unknown) => {
         console.log('unable to check for updates', error);
       });
+  }
+
+  public updateAvailable(): boolean {
+    return this.#updateCheckResult !== undefined;
   }
 
   public init(): Disposable {

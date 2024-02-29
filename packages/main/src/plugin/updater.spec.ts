@@ -24,7 +24,7 @@ import { Disposable } from '/@/plugin/types/disposable.js';
 import { UPDATER_UPDATE_AVAILABLE_ICON } from '/@/plugin/index.js';
 import { Updater } from '/@/plugin/updater.js';
 import { app } from 'electron';
-import { type AppUpdater, autoUpdater } from 'electron-updater';
+import { type AppUpdater, autoUpdater, type UpdateCheckResult } from 'electron-updater';
 import * as util from '/@/util.js';
 import type { AppUpdaterEvents } from 'electron-updater/out/AppUpdater.js';
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
@@ -262,4 +262,51 @@ test('clicking on "Update Never" should set the configuration value to never', a
   await mListener?.();
 
   expect(configurationMock.update).toHaveBeenCalledWith('update.reminder', 'never');
+});
+
+test('executing update command should showMessageBox', async () => {
+  vi.mocked(messageBoxMock.showMessageBox).mockResolvedValue({
+    response: 2, // Update never
+  });
+
+  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+    updateInfo: {
+      version: '@debug-next',
+    },
+  } as unknown as UpdateCheckResult);
+
+  let mListener: (() => Promise<void>) | undefined;
+  vi.mocked(commandRegistryMock.registerCommand).mockImplementation(
+    (channel: string, listener: () => Promise<void>) => {
+      if (channel === 'update') mListener = listener;
+      return Disposable.noop();
+    },
+  );
+
+  const updater = new Updater(messageBoxMock, configurationRegistryMock, statusBarRegistryMock, commandRegistryMock);
+  updater.init();
+
+  expect(mListener).toBeDefined();
+
+  // We have to wait for the autoUpdater.checkForUpdates to have been properly processed
+  await vi.waitUntil(
+    () => {
+      return updater.updateAvailable();
+    },
+    {
+      interval: 500,
+      timeout: 2000,
+    },
+  );
+
+  // Call the `update` command listener
+  await mListener?.();
+
+  expect(messageBoxMock.showMessageBox).toHaveBeenCalledWith({
+    buttons: ['Update now', 'Update later', 'Update never'],
+    message:
+      'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
+    title: 'Update Available now',
+    type: 'info',
+  });
 });
