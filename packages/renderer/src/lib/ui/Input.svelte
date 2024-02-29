@@ -21,7 +21,7 @@ $: enabled = !readonly && !disabled;
 const dispatch = createEventDispatcher();
 
 // clear the value if the parent doesn't override
-async function onClear() {
+async function onClear(): Promise<void> {
   if (dispatch('action', { cancelable: true })) {
     value = '';
     if (element) {
