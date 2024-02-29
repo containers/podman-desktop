@@ -21,7 +21,7 @@
 export const connectTimeout = 1000;
 // initial delay between two connection attempts
 export const backoffInitialValue = 1000;
-// maximum delay between two connection attermpts
+// maximum delay between two connection attempts
 export const backoffLimit = 60_000;
 // jitter to add to the delay between two connection attempts
 export const backoffJitter = 300;
