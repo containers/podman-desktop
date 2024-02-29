@@ -222,7 +222,7 @@ test('expect command update to be called when configuration value on startup', (
   mListener?.();
 
   expect(configurationRegistryMock.getConfiguration).toHaveBeenCalled();
-  expect(commandRegistryMock.executeCommand).toHaveBeenCalledWith('update');
+  expect(commandRegistryMock.executeCommand).toHaveBeenCalledWith('update', 'startup');
 });
 
 test('expect command update not to be called when configuration value on never', () => {
