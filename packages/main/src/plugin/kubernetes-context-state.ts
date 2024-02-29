@@ -25,6 +25,8 @@ import type {
   V1DeploymentList,
   V1Pod,
   V1PodList,
+  V1Service,
+  V1ServiceList,
 } from '@kubernetes/client-node';
 import { AppsV1Api, CoreV1Api, KubeConfig, makeInformer } from '@kubernetes/client-node';
 import type { KubeContext } from './kubernetes-context.js';
@@ -54,7 +56,7 @@ interface ContextState {
 
 // All resources managed by podman desktop
 // This is where to add new resources when adding new informers
-export type ResourceName = 'pods' | 'deployments';
+export type ResourceName = 'pods' | 'deployments' | 'services';
 
 // A selection of resources, to indicate the 'general' status of a context
 type SelectedResourceName = 'pods' | 'deployments';
@@ -104,6 +106,7 @@ type ResourcesDispatchOptions = {
 const dispatchAllResources: ResourcesDispatchOptions = {
   pods: true,
   deployments: true,
+  services: true,
   // add new resources here when adding new informers
 };
 
@@ -216,6 +219,8 @@ class ContextsStates {
         resources: {
           pods: [],
           deployments: [],
+          services: [],
+          // add new resources here when adding new informers
         },
       });
     }
@@ -314,10 +319,10 @@ export class ContextsManager {
       backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
       connectionDelay: connectionDelay,
       onAdd: obj => {
-        this.setStateAndDispatch(context.name, { pods: true }, state => state.resources.pods.push(obj));
+        this.setStateAndDispatch(context.name, true, { pods: true }, state => state.resources.pods.push(obj));
       },
       onUpdate: obj => {
-        this.setStateAndDispatch(context.name, { pods: true }, state => {
+        this.setStateAndDispatch(context.name, true, { pods: true }, state => {
           state.resources.pods = state.resources.pods.filter(o => o.metadata?.uid !== obj.metadata?.uid);
           state.resources.pods.push(obj);
         });
@@ -325,18 +330,19 @@ export class ContextsManager {
       onDelete: obj => {
         this.setStateAndDispatch(
           context.name,
+          true,
           { pods: true },
           state => (state.resources.pods = state.resources.pods.filter(d => d.metadata?.uid !== obj.metadata?.uid)),
         );
       },
       onReachable: reachable => {
-        this.setStateAndDispatch(context.name, dispatchAllResources, state => {
+        this.setStateAndDispatch(context.name, true, dispatchAllResources, state => {
           state.reachable = reachable;
           state.error = reachable ? undefined : state.error; // if reachable we remove error
         });
       },
       onConnectionError: error => {
-        this.setStateAndDispatch(context.name, dispatchAllResources, state => (state.error = error));
+        this.setStateAndDispatch(context.name, true, dispatchAllResources, state => (state.error = error));
       },
     });
   }
@@ -360,10 +366,12 @@ export class ContextsManager {
       backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
       connectionDelay: connectionDelay,
       onAdd: obj => {
-        this.setStateAndDispatch(context.name, { deployments: true }, state => state.resources.deployments.push(obj));
+        this.setStateAndDispatch(context.name, true, { deployments: true }, state =>
+          state.resources.deployments.push(obj),
+        );
       },
       onUpdate: obj => {
-        this.setStateAndDispatch(context.name, { deployments: true }, state => {
+        this.setStateAndDispatch(context.name, true, { deployments: true }, state => {
           state.resources.deployments = state.resources.deployments.filter(o => o.metadata?.uid !== obj.metadata?.uid);
           state.resources.deployments.push(obj);
         });
@@ -371,11 +379,51 @@ export class ContextsManager {
       onDelete: obj => {
         this.setStateAndDispatch(
           context.name,
+          true,
           { deployments: true },
           state =>
             (state.resources.deployments = state.resources.deployments.filter(
               d => d.metadata?.uid !== obj.metadata?.uid,
             )),
+        );
+      },
+    });
+  }
+
+  public createServiceInformer(
+    kc: KubeConfig,
+    ns: string,
+    context: KubeContext,
+  ): Informer<V1Service> & ObjectCache<V1Service> {
+    const k8sApi = kc.makeApiClient(CoreV1Api);
+    const listFn = (): Promise<{
+      response: IncomingMessage;
+      body: V1ServiceList;
+    }> => k8sApi.listNamespacedService(ns);
+    const path = `/api/v1/namespaces/${ns}/services`;
+    let timer: NodeJS.Timeout | undefined;
+    let connectionDelay: NodeJS.Timeout | undefined;
+    return this.createInformer<V1Service>(kc, context, path, listFn, {
+      resource: 'services',
+      timer: timer,
+      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      connectionDelay: connectionDelay,
+      onAdd: obj => {
+        this.setStateAndDispatch(context.name, false, { services: true }, state => state.resources.services.push(obj));
+      },
+      onUpdate: obj => {
+        this.setStateAndDispatch(context.name, false, { services: true }, state => {
+          state.resources.services = state.resources.services.filter(o => o.metadata?.uid !== obj.metadata?.uid);
+          state.resources.services.push(obj);
+        });
+      },
+      onDelete: obj => {
+        this.setStateAndDispatch(
+          context.name,
+          false,
+          { services: true },
+          state =>
+            (state.resources.services = state.resources.services.filter(d => d.metadata?.uid !== obj.metadata?.uid)),
         );
       },
     });
@@ -490,13 +538,14 @@ export class ContextsManager {
 
   private setStateAndDispatch(
     name: string,
+    sendGeneral: boolean,
     options: ResourcesDispatchOptions,
     update: (previous: ContextState) => void,
   ): void {
     this.states.safeSetState(name, update);
     this.dispatch({
-      contextsGeneralState: true,
-      currentContextGeneralState: true,
+      contextsGeneralState: sendGeneral,
+      currentContextGeneralState: sendGeneral,
       resources: options,
     });
   }

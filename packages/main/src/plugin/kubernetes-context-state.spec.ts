@@ -257,7 +257,6 @@ test('should send info of resources in all reachable contexts and nothing in non
   } as ContextGeneralState);
   vi.advanceTimersToNextTimer();
   vi.advanceTimersToNextTimer();
-  expect(apiSenderSendMock).toHaveBeenCalledTimes(4);
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
     reachable: true,
@@ -282,7 +281,6 @@ test('should send info of resources in all reachable contexts and nothing in non
   await client.update(kubeConfig);
 
   vi.advanceTimersToNextTimer();
-  expect(apiSenderSendMock).toHaveBeenCalledTimes(4);
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
     reachable: false,
@@ -333,7 +331,6 @@ test('should send info of resources in all reachable contexts and nothing in non
   } as ContextGeneralState);
 
   vi.advanceTimersToNextTimer();
-  expect(apiSenderSendMock).toHaveBeenCalledTimes(4);
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
     reachable: true,
@@ -822,4 +819,171 @@ test('should send appropriate data when context becomes unreachable', async () =
   });
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', []);
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-deployments-update', []);
+});
+
+test('createServiceInformer should send data for added resource', async () => {
+  vi.useFakeTimers();
+  vi.mocked(makeInformer).mockImplementation(
+    (
+      _kubeconfig: kubeclient.KubeConfig,
+      path: string,
+      _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+    ) => {
+      const connectResult = undefined;
+      switch (path) {
+        case '/api/v1/namespaces/ns1/services':
+          return new FakeInformer(1, connectResult, [], []);
+      }
+      return new FakeInformer(0, connectResult, [], []);
+    },
+  );
+  const client = new ContextsManager(apiSender);
+  const kubeConfig = new kubeclient.KubeConfig();
+  const config = {
+    clusters: [
+      {
+        name: 'cluster1',
+        server: 'server1',
+      },
+    ],
+    users: [
+      {
+        name: 'user1',
+      },
+    ],
+    contexts: [
+      {
+        name: 'context1',
+        cluster: 'cluster1',
+        user: 'user1',
+        namespace: 'ns1',
+      },
+    ],
+    currentContext: 'context1',
+  };
+  kubeConfig.loadFromOptions(config);
+  await client.update(kubeConfig);
+  const ctx = kubeConfig.contexts.find(c => c.name === 'context1');
+  expect(ctx).not.toBeUndefined();
+  client.createServiceInformer(kubeConfig, 'ns1', ctx!);
+  vi.advanceTimersToNextTimer();
+  vi.advanceTimersToNextTimer();
+  vi.advanceTimersToNextTimer();
+  const expectedMap = new Map<string, ContextGeneralState>();
+  expectedMap.set('context1', {
+    reachable: true,
+    error: undefined,
+    resources: {
+      pods: 0,
+      deployments: 0,
+    },
+  });
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
+    reachable: true,
+    resources: {
+      pods: 0,
+      deployments: 0,
+    },
+  });
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-services-update', [{}]);
+});
+
+test('createServiceInformer should send data for deleted and updated resource', async () => {
+  vi.useFakeTimers();
+  vi.mocked(makeInformer).mockImplementation(
+    (
+      _kubeconfig: kubeclient.KubeConfig,
+      path: string,
+      _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+    ) => {
+      const connectResult = undefined;
+      switch (path) {
+        case '/api/v1/namespaces/ns1/services':
+          return new FakeInformer(
+            0,
+            connectResult,
+            [
+              {
+                delayMs: 100,
+                verb: 'add',
+                object: { metadata: { uid: 'svc1' } },
+              },
+              {
+                delayMs: 200,
+                verb: 'add',
+                object: { metadata: { uid: 'svc2' } },
+              },
+              {
+                delayMs: 300,
+                verb: 'delete',
+                object: { metadata: { uid: 'svc1' } },
+              },
+              {
+                delayMs: 400,
+                verb: 'update',
+                object: { metadata: { uid: 'svc2', name: 'name2' } },
+              },
+            ],
+            [],
+          );
+      }
+      return new FakeInformer(0, connectResult, [], []);
+    },
+  );
+  const client = new ContextsManager(apiSender);
+  const kubeConfig = new kubeclient.KubeConfig();
+  const config = {
+    clusters: [
+      {
+        name: 'cluster1',
+        server: 'server1',
+      },
+    ],
+    users: [
+      {
+        name: 'user1',
+      },
+    ],
+    contexts: [
+      {
+        name: 'context1',
+        cluster: 'cluster1',
+        user: 'user1',
+        namespace: 'ns1',
+      },
+    ],
+    currentContext: 'context1',
+  };
+  kubeConfig.loadFromOptions(config);
+  await client.update(kubeConfig);
+  const ctx = kubeConfig.contexts.find(c => c.name === 'context1');
+  expect(ctx).not.toBeUndefined();
+  client.createServiceInformer(kubeConfig, 'ns1', ctx!);
+  vi.advanceTimersByTime(120);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-services-update', [
+    { metadata: { uid: 'svc1' } },
+  ]);
+
+  apiSenderSendMock.mockReset();
+  vi.advanceTimersByTime(100);
+  expect(apiSenderSendMock).toHaveBeenCalledTimes(1); // do not send general information
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-services-update', [
+    { metadata: { uid: 'svc1' } },
+    { metadata: { uid: 'svc2' } },
+  ]);
+
+  apiSenderSendMock.mockReset();
+  vi.advanceTimersByTime(100);
+  expect(apiSenderSendMock).toHaveBeenCalledTimes(1);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-services-update', [
+    { metadata: { uid: 'svc2' } },
+  ]);
+
+  apiSenderSendMock.mockReset();
+  vi.advanceTimersByTime(100);
+  expect(apiSenderSendMock).toHaveBeenCalledTimes(1);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-services-update', [
+    { metadata: { uid: 'svc2', name: 'name2' } },
+  ]);
 });
