@@ -343,7 +343,7 @@ test('Create custom Kubernetes resources in error should return error', async ()
 
 test('Create unknown custom Kubernetes resources should return error', async () => {
   const client = createTestClient();
-  const createSpy = vi.spyOn(client, 'createCustomResource').mockReturnValue(Promise.resolve());
+  const createSpy = vi.spyOn(client, 'createCustomResource').mockResolvedValue(undefined);
   const pluralSpy = vi.spyOn(client, 'getAPIResource').mockRejectedValue(new Error('CustomError'));
   try {
     await client.createResources('dummy', [{ apiVersion: 'group/v1', kind: 'Namespace' }]);
@@ -1257,7 +1257,7 @@ test('Expect apply with invalid file should error', async () => {
 
 test('Expect apply with empty yaml should throw error', async () => {
   const client = createTestClient('default');
-  vi.spyOn(client, 'loadManifestsFromFile').mockReturnValue(Promise.resolve([]));
+  vi.spyOn(client, 'loadManifestsFromFile').mockResolvedValue([]);
   let expectedError: unknown;
   try {
     await client.applyResourcesFromFile('default', 'missing-file.yaml');
@@ -1272,7 +1272,7 @@ test('Expect apply should create if object does not exist', async () => {
   const client = createTestClient('default');
   const manifests = { kind: test, metadata: { annotations: test } } as unknown as KubernetesObject;
   const createdObj = { kind: 'created' };
-  vi.spyOn(client, 'loadManifestsFromFile').mockReturnValue(Promise.resolve([manifests]));
+  vi.spyOn(client, 'loadManifestsFromFile').mockResolvedValue([manifests]);
   makeApiClientMock.mockReturnValue({
     create: vi.fn().mockReturnValue({ body: createdObj }),
   });
@@ -1287,16 +1287,33 @@ test('Expect apply should patch if object exists', async () => {
   const client = createTestClient('default');
   const manifests = { kind: test, metadata: { annotations: test } } as unknown as KubernetesObject;
   const patchedObj = { kind: 'patched' };
-  vi.spyOn(client, 'loadManifestsFromFile').mockReturnValue(Promise.resolve([manifests]));
+  vi.spyOn(client, 'loadManifestsFromFile').mockResolvedValue([manifests]);
+  const patchMock = vi.fn();
   makeApiClientMock.mockReturnValue({
     read: vi.fn(),
-    patch: vi.fn().mockReturnValue({ body: patchedObj }),
+    patch: patchMock.mockReturnValue({ body: patchedObj }),
   });
 
   const objects = await client.applyResourcesFromFile('default', 'some-file.yaml');
 
   expect(objects).toHaveLength(1);
   expect(objects[0]).toEqual(patchedObj);
+  expect(patchMock).toHaveBeenCalledWith(expect.any(Object), undefined, undefined, 'podman-desktop');
+});
+
+test('Expect apply should patch with specific field manager', async () => {
+  const client = createTestClient('default');
+  const manifests = { kind: test, metadata: { annotations: test } } as unknown as KubernetesObject;
+  const patchedObj = { kind: 'patched' };
+  vi.spyOn(client, 'loadManifestsFromFile').mockResolvedValue([manifests]);
+  const patchMock = vi.fn();
+  makeApiClientMock.mockReturnValue({
+    read: vi.fn(),
+    patch: patchMock.mockReturnValue({ body: patchedObj }),
+  });
+
+  await client.applyResourcesFromFile('default', 'some-file.yaml');
+  expect(patchMock).toHaveBeenCalledWith(expect.any(Object), undefined, undefined, 'podman-desktop');
 });
 
 test('If Kubernetes returns a http error, output the http body message error.', async () => {
@@ -1422,7 +1439,7 @@ test('Expect applyResourcesFromYAML to correctly call applyResources after loadi
       },
     },
   ];
-  const applyResourcesSpy = vi.spyOn(client, 'applyResources').mockReturnValue(Promise.resolve(expectedObjects));
+  const applyResourcesSpy = vi.spyOn(client, 'applyResources').mockResolvedValue(expectedObjects);
   const objects = await client.applyResourcesFromYAML('default', podAndDeploymentTestYAML);
   expect(objects).toEqual(expectedObjects);
   expect(applyResourcesSpy).toHaveBeenCalledWith('default', expectedObjects, 'apply');

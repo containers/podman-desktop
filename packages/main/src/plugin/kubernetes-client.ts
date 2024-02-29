@@ -117,6 +117,8 @@ const OPENSHIFT_PROJECT_API_GROUP = 'project.openshift.io';
 
 const DEFAULT_NAMESPACE = 'default';
 
+const FIELD_MANAGER = 'podman-desktop';
+
 /**
  * Handle calls to kubernetes API
  */
@@ -1181,7 +1183,12 @@ export class KubernetesClient {
           //
           // See: https://github.com/kubernetes/kubernetes/issues/97423
           if (action === 'apply') {
-            const response = await client.patch(spec);
+            const response = await client.patch(
+              spec,
+              undefined /* pretty */,
+              undefined /* dryRun */,
+              FIELD_MANAGER /* fieldManager */,
+            );
             created.push(response.body);
           }
         } catch (error) {
