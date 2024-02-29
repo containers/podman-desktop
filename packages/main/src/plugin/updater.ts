@@ -81,7 +81,7 @@ export class Updater {
       UPDATER_UPDATE_AVAILABLE_ICON,
       true,
       'update',
-      undefined,
+      ['status-bar-entry'],
       true,
     );
   }
@@ -108,7 +108,7 @@ export class Updater {
     });
 
     // Update will create a standard "autoUpdater" dialog / update process
-    this.commandRegistry.registerCommand('update', async () => {
+    this.commandRegistry.registerCommand('update', async (context?: 'startup' | 'status-bar-entry') => {
       if (this.#updateAlreadyDownloaded) {
         const result = await this.messageBox.showMessageBox({
           type: 'info',
@@ -136,11 +136,19 @@ export class Updater {
       // Get the version of the update
       const updateVersion = this.#nextVersion ?? '';
 
+      let buttons: string[];
+      if (context === 'startup') {
+        buttons = ['Update now', 'Remind me later', 'Do not show again'];
+      } else {
+        buttons = ['Update now', 'Cancel'];
+      }
+
       const result = await this.messageBox.showMessageBox({
         type: 'info',
         title: 'Update Available now',
         message: `A new version ${updateVersion} of Podman Desktop is available. Do you want to update your current version ${this.#currentVersion}?`,
-        buttons: ['Update now', 'Update later', 'Update never'],
+        buttons: buttons,
+        cancelId: 1,
       });
       if (result.response === 2) {
         this.updateConfigurationValue('never');
@@ -176,7 +184,7 @@ export class Updater {
 
     this.updateAvailableEntry();
     if (this.getConfigurationValue() === 'startup') {
-      this.commandRegistry.executeCommand('update').catch((err: unknown) => {
+      this.commandRegistry.executeCommand('update', 'startup').catch((err: unknown) => {
         console.error('Something went wrong while executing update command', err);
       });
     }
@@ -193,7 +201,7 @@ export class Updater {
         type: 'object',
         properties: {
           ['preferences.update.reminder']: {
-            description: 'Update reminder',
+            description: 'Configure whether you receive update reminders when starting Podman Desktop',
             type: 'string',
             default: 'startup',
             enum: ['startup', 'never'],
@@ -208,10 +216,9 @@ export class Updater {
    * @returns The value of the update reminder configuration.
    */
   private getConfigurationValue(): 'startup' | 'never' {
-    const value = this.configurationRegistry.getConfiguration('preferences').get('update.reminder');
-    if (value !== 'startup' && value !== 'never')
-      throw new Error(`Illegal value in configuration. Expected "startup" or "never" got ${value}`);
-    return value;
+    return this.configurationRegistry
+      .getConfiguration('preferences')
+      .get<'startup' | 'never'>('update.reminder', 'startup');
   }
 
   /**

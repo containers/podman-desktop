@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { MessageBox } from '/@/plugin/message-box.js';
 import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
 import type { CommandRegistry } from '/@/plugin/command-registry.js';
@@ -264,49 +264,75 @@ test('clicking on "Update Never" should set the configuration value to never', a
   expect(configurationMock.update).toHaveBeenCalledWith('update.reminder', 'never');
 });
 
-test('executing update command should showMessageBox', async () => {
-  vi.mocked(messageBoxMock.showMessageBox).mockResolvedValue({
-    response: 2, // Update never
+describe('expect update command to depends on context', async () => {
+  type UpdateCommandListener = (context: 'startup' | 'status-bar-entry') => Promise<void>;
+  const getUpdateListener = async (): Promise<UpdateCommandListener> => {
+    vi.mocked(messageBoxMock.showMessageBox).mockResolvedValue({
+      response: 2, // Update never
+    });
+
+    vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+      updateInfo: {
+        version: '@debug-next',
+      },
+    } as unknown as UpdateCheckResult);
+
+    let mListener: UpdateCommandListener | undefined;
+    vi.mocked(commandRegistryMock.registerCommand).mockImplementation(
+      (channel: string, listener: () => Promise<void>) => {
+        if (channel === 'update') mListener = listener;
+        return Disposable.noop();
+      },
+    );
+
+    const updater = new Updater(messageBoxMock, configurationRegistryMock, statusBarRegistryMock, commandRegistryMock);
+    updater.init();
+
+    if (mListener === undefined) throw new Error('mListener undefined');
+
+    // We have to wait for the autoUpdater.checkForUpdates to have been properly processed
+    await vi.waitUntil(
+      () => {
+        return updater.updateAvailable();
+      },
+      {
+        interval: 500,
+        timeout: 2000,
+      },
+    );
+
+    return mListener;
+  };
+
+  test('startup context', async () => {
+    const mListener = await getUpdateListener();
+
+    // Call the `update` command listener
+    await mListener?.('startup');
+
+    expect(messageBoxMock.showMessageBox).toHaveBeenCalledWith({
+      cancelId: 1,
+      buttons: ['Update now', 'Remind me later', 'Do not show again'],
+      message:
+        'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
+      title: 'Update Available now',
+      type: 'info',
+    });
   });
 
-  vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
-    updateInfo: {
-      version: '@debug-next',
-    },
-  } as unknown as UpdateCheckResult);
+  test('startup context', async () => {
+    const mListener = await getUpdateListener();
 
-  let mListener: (() => Promise<void>) | undefined;
-  vi.mocked(commandRegistryMock.registerCommand).mockImplementation(
-    (channel: string, listener: () => Promise<void>) => {
-      if (channel === 'update') mListener = listener;
-      return Disposable.noop();
-    },
-  );
+    // Call the `update` command listener
+    await mListener?.('status-bar-entry');
 
-  const updater = new Updater(messageBoxMock, configurationRegistryMock, statusBarRegistryMock, commandRegistryMock);
-  updater.init();
-
-  expect(mListener).toBeDefined();
-
-  // We have to wait for the autoUpdater.checkForUpdates to have been properly processed
-  await vi.waitUntil(
-    () => {
-      return updater.updateAvailable();
-    },
-    {
-      interval: 500,
-      timeout: 2000,
-    },
-  );
-
-  // Call the `update` command listener
-  await mListener?.();
-
-  expect(messageBoxMock.showMessageBox).toHaveBeenCalledWith({
-    buttons: ['Update now', 'Update later', 'Update never'],
-    message:
-      'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
-    title: 'Update Available now',
-    type: 'info',
+    expect(messageBoxMock.showMessageBox).toHaveBeenCalledWith({
+      cancelId: 1,
+      buttons: ['Update now', 'Cancel'],
+      message:
+        'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
+      title: 'Update Available now',
+      type: 'info',
+    });
   });
 });
