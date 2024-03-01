@@ -153,7 +153,7 @@ class Backoff {
   }
 }
 
-class ContextsStates {
+export class ContextsStates {
   private state = new Map<string, ContextState>();
   private informers = new Map<string, ContextInternalState>();
 
@@ -163,10 +163,7 @@ class ContextsStates {
 
   hasInformer(context: string, resourceName: ResourceName): boolean {
     const informers = this.informers.get(context);
-    if (!informers) {
-      return false;
-    }
-    return !!informers[resourceName];
+    return !!informers?.[resourceName];
   }
 
   setInformers(name: string, informers: ContextInternalState | undefined): void {
@@ -239,8 +236,7 @@ class ContextsStates {
   }
 
   isReachable(contextName: string): boolean {
-    const state = this.state.get(contextName);
-    return state?.reachable ?? false;
+    return this.state.get(contextName)?.reachable ?? false;
   }
 
   safeSetState(name: string, update: (previous: ContextState) => void): void {

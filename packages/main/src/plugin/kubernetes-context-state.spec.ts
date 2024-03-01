@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, afterEach, expect, test, vi } from 'vitest';
-import type { ContextGeneralState } from './kubernetes-context-state.js';
+import { beforeEach, afterEach, expect, test, vi, describe } from 'vitest';
+import { type ContextGeneralState, ContextsStates } from './kubernetes-context-state.js';
 import { ContextsManager } from './kubernetes-context-state.js';
 import type { ApiSenderType } from './api.js';
 import * as kubeclient from '@kubernetes/client-node';
@@ -1199,4 +1199,43 @@ test('changing context should stop service informer on previous current context'
 
   expect(informerStopMock).toHaveBeenCalledTimes(1);
   expect(informerStopMock).toHaveBeenCalledWith('context1', '/api/v1/namespaces/ns1/services');
+});
+
+describe('ContextsStates tests', () => {
+  test('hasInformer should check if informer exists for context', () => {
+    const client = new ContextsStates();
+    client.setInformers('context1', {
+      pods: new FakeInformer('context1', '/path/to/resource', 0, undefined, [], []),
+    });
+    expect(client.hasInformer('context1', 'pods')).toBeTruthy();
+    expect(client.hasInformer('context1', 'deployments')).toBeFalsy();
+    expect(client.hasInformer('context2', 'pods')).toBeFalsy();
+    expect(client.hasInformer('context2', 'deployments')).toBeFalsy();
+  });
+
+  test('getContextsNames should return the names of contexts as array', () => {
+    const client = new ContextsStates();
+    client.setInformers('context1', {
+      pods: new FakeInformer('context1', '/path/to/resource', 0, undefined, [], []),
+    });
+    client.setInformers('context2', {
+      pods: new FakeInformer('context2', '/path/to/resource', 0, undefined, [], []),
+    });
+    expect(Array.from(client.getContextsNames())).toEqual(['context1', 'context2']);
+  });
+
+  test('isReachable', () => {
+    const client = new ContextsStates();
+    client.setInformers('context1', {
+      pods: new FakeInformer('context1', '/path/to/resource', 0, undefined, [], []),
+    });
+    client.setInformers('context2', {
+      pods: new FakeInformer('context2', '/path/to/resource', 0, undefined, [], []),
+    });
+    client.safeSetState('context1', state => (state.reachable = true));
+
+    expect(client.isReachable('context1')).toBeTruthy();
+    expect(client.isReachable('context2')).toBeFalsy();
+    expect(client.isReachable('context3')).toBeFalsy();
+  });
 });
