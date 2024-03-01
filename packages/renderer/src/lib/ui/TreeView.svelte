@@ -53,9 +53,11 @@ function getLink(file: any): string {
 </script>
 
 {#if root}
-  {#each children as [_, child]}
-    <svelte:self root="{false}" margin="{margin + 2}" tree="{child}" />
-  {/each}
+  {#if children}
+    {#each children as [_, child]}
+      <svelte:self root="{false}" margin="{margin + 2}" tree="{child}" />
+    {/each}
+  {/if}
 {:else}
   <div class="font-mono">{tree.data && !tree.isRemoved ? tree.data.typeChar + tree.data.modeString : ''}</div>
   <div class="text-right">{tree.data && !tree.isRemoved ? tree.data.uid + ':' + tree.data.gid : ''}</div>
@@ -65,7 +67,7 @@ function getLink(file: any): string {
       <span class="cursor-pointer inline-block mr-1" class:rotate-90="{arrowDown}">&gt;</span>
       {label}<span class="text-gray-900">{getLink(tree.data)}</span>
     </button>
-    {#if expanded}
+    {#if expanded && children}
       {#each children as [_, child]}
         <svelte:self root="{false}" margin="{margin + 2}" tree="{child}" />
       {/each}
