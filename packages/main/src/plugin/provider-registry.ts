@@ -790,7 +790,7 @@ export class ProviderRegistry {
   getMatchingConnectionLifecycleContext(
     internalId: string,
     providerContainerConnectionInfo:
-      ProviderContainerConnectionInfo
+      | ProviderContainerConnectionInfo
       | ProviderKubernetesConnectionInfo
       | ContainerProviderConnection,
   ): LifecycleContextImpl {
@@ -816,7 +816,7 @@ export class ProviderRegistry {
   getMatchingProviderLifecycleContextByProviderId(
     providerId: string,
     providerConnectionInfo:
-      ProviderContainerConnectionInfo
+      | ProviderContainerConnectionInfo
       | ProviderKubernetesConnectionInfo
       | ContainerProviderConnection,
   ): LifecycleContextImpl {
@@ -928,7 +928,7 @@ export class ProviderRegistry {
   getMatchingConnectionFromProvider(
     internalProviderId: string,
     providerContainerConnectionInfo:
-      ProviderContainerConnectionInfo
+      | ProviderContainerConnectionInfo
       | ProviderKubernetesConnectionInfo
       | ContainerProviderConnection,
   ): ContainerProviderConnection | KubernetesProviderConnection {

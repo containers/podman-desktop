@@ -726,7 +726,7 @@ export class ExtensionLoader {
       getProviderLifecycleContext(
         providerId: string,
         providerConnectionInfo:
-          containerDesktopAPI.ContainerProviderConnection
+          | containerDesktopAPI.ContainerProviderConnection
           | ProviderContainerConnectionInfo
           | ProviderKubernetesConnectionInfo,
       ): containerDesktopAPI.LifecycleContext {
