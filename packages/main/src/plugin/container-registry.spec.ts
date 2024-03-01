@@ -1146,10 +1146,7 @@ describe('buildImage', () => {
         containerFile: 'file',
         tag: 'name',
         platform: '',
-        provider: {
-          ...connection,
-          status: () => connection.status,
-        },
+        provider: connection,
       }),
     ).rejects.toThrow('no running provider for the matching container');
   });
@@ -1235,10 +1232,7 @@ describe('buildImage', () => {
         containerFile: 'file',
         tag: 'name',
         platform: '',
-        provider: {
-          ...connection,
-          status: () => connection.status,
-        },
+        provider: connection,
       }),
     ).rejects.toThrow('human error message');
   });
@@ -1323,10 +1317,7 @@ describe('buildImage', () => {
       containerFile: '\\path\\file',
       tag: 'name',
       platform: '',
-      provider: {
-        ...connection,
-        status: () => connection.status,
-      },
+      provider: connection,
     });
 
     expect(dockerAPI.buildImage).toBeCalledWith({} as NodeJS.ReadableStream, {
@@ -1425,10 +1416,7 @@ describe('buildImage', () => {
       containerFile: '/dir/dockerfile',
       tag: 'name',
       platform: '',
-      provider: {
-        ...connection,
-        status: () => connection.status,
-      },
+      provider: connection,
       ...extraArgs,
     });
 

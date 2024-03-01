@@ -1069,10 +1069,7 @@ export class PluginSystem {
             containerFile: relativeContainerfilePath,
             tag: imageName,
             platform,
-            provider: {
-              ...selectedProvider,
-              status: () => selectedProvider.status,
-            },
+            provider: selectedProvider,
             abortController,
           },
         );
