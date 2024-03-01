@@ -63,6 +63,7 @@ import { getBase64Image } from '../util.js';
 import { Disposable } from './types/disposable.js';
 import type { ColorRegistry } from './color-registry.js';
 import type { DialogRegistry } from './dialog-registry.js';
+import type { ImageInfo } from '/@/plugin/api/image-info.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -143,6 +144,8 @@ const containerProviderRegistry: ContainerProviderRegistry = {
   listPods: vi.fn(),
   stopPod: vi.fn(),
   removePod: vi.fn(),
+  listImagesFromProvider: vi.fn(),
+  getImageInspect: vi.fn(),
 } as unknown as ContainerProviderRegistry;
 
 const inputQuickPickRegistry: InputQuickPickRegistry = {} as unknown as InputQuickPickRegistry;
@@ -1648,5 +1651,69 @@ describe('window', async () => {
 
     expect(dialogRegistry.saveDialog).toBeCalled();
     expect(uri?.fsPath).toContain('path-to-file1');
+  });
+});
+
+describe('containerEngine', async () => {
+  test('getImageInspect with engineId', async () => {
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    await api.containerEngine.getImageInspect('dummyEngineId', 'dummyImageId');
+
+    expect(containerProviderRegistry.listImagesFromProvider).not.toHaveBeenCalled();
+    expect(containerProviderRegistry.getImageInspect).toHaveBeenCalledWith('dummyEngineId', 'dummyImageId');
+  });
+
+  test('getImageInspect with connection provider', async () => {
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    vi.mocked(containerProviderRegistry.listImagesFromProvider).mockResolvedValue([
+      {
+        engineId: 'dummyEngineId',
+        Id: 'dummyImageId',
+        RepoTags: ['dummyImageName'],
+      } as unknown as ImageInfo,
+    ]);
+
+    await api.containerEngine.getImageInspect(
+      {
+        name: 'dummyContainerProviderName',
+        type: 'podman',
+        status: (): 'started' => 'started',
+        endpoint: {
+          socketPath: 'randomSocketPath',
+        },
+      },
+      'dummyImageName',
+    );
+
+    expect(containerProviderRegistry.listImagesFromProvider).toHaveBeenCalled();
+    expect(containerProviderRegistry.getImageInspect).toHaveBeenCalledWith('dummyEngineId', 'dummyImageId');
+  });
+
+  test('getImageInspect with connection provider and image not found', async () => {
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    vi.mocked(containerProviderRegistry.listImagesFromProvider).mockResolvedValue([]);
+
+    await expect(
+      api.containerEngine.getImageInspect(
+        {
+          name: 'dummyContainerProviderName',
+          type: 'podman',
+          status: (): 'started' => 'started',
+          endpoint: {
+            socketPath: 'randomSocketPath',
+          },
+        },
+        'dummyImageName',
+      ),
+    ).rejects.toThrowError('image dummyImageName was not find on provider dummyContainerProviderName.');
+
+    expect(containerProviderRegistry.listImagesFromProvider).toHaveBeenCalled();
+    expect(containerProviderRegistry.getImageInspect).not.toHaveBeenCalled();
   });
 });

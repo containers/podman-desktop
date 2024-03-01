@@ -1008,7 +1008,7 @@ export class ExtensionLoader {
           );
           if (target === undefined)
             throw new Error(`image ${idOrImageName} was not find on provider ${engineIdOrConnection.name}.`);
-          return containerProviderRegistry.getImageInspect(target.engineId, idOrImageName);
+          return containerProviderRegistry.getImageInspect(target.engineId, target.Id);
         }
       },
       info(engineId: string): Promise<containerDesktopAPI.ContainerEngineInfo> {
