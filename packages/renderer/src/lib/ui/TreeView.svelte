@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-const _expansionState = new Map<string, boolean>();
+const expansionState = new Map<string, boolean>();
 </script>
 
 <script lang="ts">
@@ -34,10 +34,10 @@ function getColor(tree: any) {
   return '';
 }
 
-$: expanded = _expansionState.get(label) || false;
+$: expanded = expansionState.get(label) ?? false;
 const toggleExpansion = () => {
   expanded = !expanded;
-  _expansionState.set(label, expanded);
+  expansionState.set(label, expanded);
 };
 $: arrowDown = expanded;
 
