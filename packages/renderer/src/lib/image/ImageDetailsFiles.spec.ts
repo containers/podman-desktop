@@ -23,14 +23,10 @@ import type { ImageInfoUI } from './ImageInfoUI';
 import { beforeEach } from 'node:test';
 import { FileTree } from '../../../../main/src/plugin/file-tree';
 
-const mocks = vi.hoisted(() => {
-  return {
-    getImageLayersMock: vi.fn(),
-  };
-});
+const getImageLayersMock = vi.fn();
 
 beforeAll(() => {
-  (window as any).getImageLayers = mocks.getImageLayersMock;
+  (window as any).getImageLayers = getImageLayersMock;
 });
 
 beforeEach(() => {
@@ -38,7 +34,7 @@ beforeEach(() => {
 });
 
 test('when the image does not contain layers', async () => {
-  mocks.getImageLayersMock.mockResolvedValue([]);
+  getImageLayersMock.mockResolvedValue([]);
   render(ImageDetailsFiles, {
     image: {
       engineId: 'engine-1',
@@ -48,7 +44,7 @@ test('when the image does not contain layers', async () => {
 });
 
 test('when the image contains layers', async () => {
-  mocks.getImageLayersMock.mockResolvedValue([
+  getImageLayersMock.mockResolvedValue([
     {
       id: 'layer1-id',
       history: 'history layer 1',
