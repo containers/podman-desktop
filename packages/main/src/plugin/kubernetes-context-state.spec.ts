@@ -107,6 +107,13 @@ export class FakeInformer {
   }
 }
 
+const PODS_NS1 = 1;
+const PODS_NS2 = 2;
+const PODS_DEFAULT = 3;
+const DEPLOYMENTS_NS1 = 4;
+const DEPLOYMENTS_NS2 = 5;
+const DEPLOYMENTS_DEFAULT = 6;
+
 // fakeMakeInformer describes how many resources are in the different namespaces and if cluster is reachable
 function fakeMakeInformer(
   kubeconfig: kubeclient.KubeConfig,
@@ -114,6 +121,10 @@ function fakeMakeInformer(
   _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
 ): kubeclient.Informer<kubeclient.KubernetesObject> & kubeclient.ObjectCache<kubeclient.KubernetesObject> {
   let connectResult: Error | undefined;
+
+  const buildFakeInformer = (quantity: number): FakeInformer =>
+    new FakeInformer(kubeconfig.currentContext, path, quantity, connectResult, [], []);
+
   switch (kubeconfig.currentContext) {
     case 'context1':
       connectResult = new Error('connection error');
@@ -123,20 +134,20 @@ function fakeMakeInformer(
   }
   switch (path) {
     case '/api/v1/namespaces/ns1/pods':
-      return new FakeInformer(kubeconfig.currentContext, path, 1, connectResult, [], []);
+      return buildFakeInformer(PODS_NS1);
     case '/api/v1/namespaces/ns2/pods':
-      return new FakeInformer(kubeconfig.currentContext, path, 2, connectResult, [], []);
+      return buildFakeInformer(PODS_NS2);
     case '/api/v1/namespaces/default/pods':
-      return new FakeInformer(kubeconfig.currentContext, path, 3, connectResult, [], []);
+      return buildFakeInformer(PODS_DEFAULT);
 
     case '/apis/apps/v1/namespaces/ns1/deployments':
-      return new FakeInformer(kubeconfig.currentContext, path, 4, connectResult, [], []);
+      return buildFakeInformer(DEPLOYMENTS_NS1);
     case '/apis/apps/v1/namespaces/ns2/deployments':
-      return new FakeInformer(kubeconfig.currentContext, path, 5, connectResult, [], []);
+      return buildFakeInformer(DEPLOYMENTS_NS2);
     case '/apis/apps/v1/namespaces/default/deployments':
-      return new FakeInformer(kubeconfig.currentContext, path, 6, connectResult, [], []);
+      return buildFakeInformer(DEPLOYMENTS_DEFAULT);
   }
-  return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+  return buildFakeInformer(0);
 }
 
 const apiSenderSendMock = vi.fn();
@@ -241,24 +252,24 @@ test('should send info of resources in all reachable contexts and nothing in non
     reachable: true,
     error: undefined,
     resources: {
-      pods: 3,
-      deployments: 6,
+      pods: PODS_DEFAULT,
+      deployments: DEPLOYMENTS_DEFAULT,
     },
   } as ContextGeneralState);
   expectedMap.set('context2-1', {
     reachable: true,
     error: undefined,
     resources: {
-      pods: 1,
-      deployments: 4,
+      pods: PODS_NS1,
+      deployments: DEPLOYMENTS_NS1,
     },
   } as ContextGeneralState);
   expectedMap.set('context2-2', {
     reachable: true,
     error: undefined,
     resources: {
-      pods: 2,
-      deployments: 5,
+      pods: PODS_NS2,
+      deployments: DEPLOYMENTS_NS2,
     },
   } as ContextGeneralState);
   vi.advanceTimersToNextTimer();
@@ -268,12 +279,15 @@ test('should send info of resources in all reachable contexts and nothing in non
     reachable: true,
     error: undefined,
     resources: {
-      pods: 1,
-      deployments: 4,
+      pods: PODS_NS1,
+      deployments: DEPLOYMENTS_NS1,
     },
   });
-  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', [{}]);
-  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-deployments-update', [{}, {}, {}, {}]);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', Array(PODS_NS1).fill({}));
+  expect(apiSenderSendMock).toHaveBeenCalledWith(
+    'kubernetes-current-context-deployments-update',
+    Array(DEPLOYMENTS_NS1).fill({}),
+  );
 
   // switching to unreachable context
   kubeConfig.loadFromOptions({
@@ -296,11 +310,11 @@ test('should send info of resources in all reachable contexts and nothing in non
       deployments: 0,
     },
   });
-  // no pods/deployemnt are sent, as the context is not reachable
+  // no pods/deployment are sent, as the context is not reachable
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', []);
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-deployments-update', []);
 
-  // => removing contexts, should remving clusters from sent info
+  // => removing context, should remove context from sent info
   kubeConfig.loadFromOptions({
     clusters: config.clusters,
     users: config.users,
@@ -323,16 +337,16 @@ test('should send info of resources in all reachable contexts and nothing in non
     reachable: true,
     error: undefined,
     resources: {
-      pods: 3,
-      deployments: 6,
+      pods: PODS_DEFAULT,
+      deployments: DEPLOYMENTS_DEFAULT,
     },
   } as ContextGeneralState);
   expectedMap.set('context2-1', {
     reachable: true,
     error: undefined,
     resources: {
-      pods: 1,
-      deployments: 4,
+      pods: PODS_NS1,
+      deployments: DEPLOYMENTS_NS1,
     },
   } as ContextGeneralState);
 
@@ -342,12 +356,15 @@ test('should send info of resources in all reachable contexts and nothing in non
     reachable: true,
     error: undefined,
     resources: {
-      pods: 1,
-      deployments: 4,
+      pods: PODS_NS1,
+      deployments: DEPLOYMENTS_NS1,
     },
   });
-  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', [{}]);
-  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-deployments-update', [{}, {}, {}, {}]);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', Array(PODS_NS1).fill({}));
+  expect(apiSenderSendMock).toHaveBeenCalledWith(
+    'kubernetes-current-context-deployments-update',
+    Array(DEPLOYMENTS_NS1).fill({}),
+  );
 });
 
 test('should write logs when connection fails', async () => {
