@@ -18,7 +18,7 @@ import { splitSpacesHandlingDoubleQuotes } from '../string/string';
 import { array2String } from '/@/lib/string/string.js';
 import Tab from '../ui/Tab.svelte';
 import Button from '../ui/Button.svelte';
-import Input from '/@/lib/ui/Input.svelte';
+import { Input } from '@podman-desktop/ui-svelte';
 
 interface PortInfo {
   port: string;

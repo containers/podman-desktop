@@ -6,7 +6,7 @@ import Button from '../ui/Button.svelte';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
 import { validateProxyAddress } from './Util';
 import ErrorMessage from '/@/lib/ui/ErrorMessage.svelte';
-import Input from '/@/lib/ui/Input.svelte';
+import { Input } from '@podman-desktop/ui-svelte';
 
 let proxySettings: ProxySettings;
 let proxyState: boolean;

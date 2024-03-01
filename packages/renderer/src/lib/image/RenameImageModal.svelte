@@ -5,7 +5,7 @@ import Modal from '../dialogs/Modal.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Button from '../ui/Button.svelte';
-import Input from '/@/lib/ui/Input.svelte';
+import { Input } from '@podman-desktop/ui-svelte';
 import CloseButton from '/@/lib/ui/CloseButton.svelte';
 
 export let closeCallback: () => void;

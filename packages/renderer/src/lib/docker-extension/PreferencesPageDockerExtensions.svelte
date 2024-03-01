@@ -6,7 +6,7 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import SettingsPage from '../preferences/SettingsPage.svelte';
 import Button from '../ui/Button.svelte';
 import { faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
-import Input from '../ui/Input.svelte';
+import { Input } from '@podman-desktop/ui-svelte';
 
 export let ociImage: string | undefined = undefined;
 
