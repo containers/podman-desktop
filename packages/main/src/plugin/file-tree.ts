@@ -16,15 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+const REMOVED_TAG = '.wh.';
+
 export class FileNode<T> {
   name: string;
   isRemoved: boolean;
-  data: T | undefined;
+  data?: T;
   children: Map<string, FileNode<T>>;
   size: number;
 
   constructor(name: string) {
-    this.isRemoved = name.startsWith('.wh.');
+    this.isRemoved = name.startsWith(REMOVED_TAG);
     this.name = this.isRemoved ? name.substring(4) : name;
     this.children = new Map<string, FileNode<T>>();
     this.size = 0;
