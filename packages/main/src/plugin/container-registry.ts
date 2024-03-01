@@ -556,6 +556,7 @@ export class ContainerProviderRegistry {
       });
     } catch (error) {
       console.log('error in engine', provider.name, error);
+      this.telemetryService.track('getImageInfo', { error: error });
       return [];
     }
   }
@@ -1114,7 +1115,7 @@ export class ContainerProviderRegistry {
       telemetryOptions = { error: error };
       throw error;
     } finally {
-      this.telemetryService.track('listContainersFromEngine', telemetryOptions);
+      this.telemetryService.track('listImagesFromProvider', telemetryOptions);
     }
   }
 
