@@ -5,7 +5,7 @@ const expansionState = new Map<string, boolean>();
 <script lang="ts">
 import type { FileNode } from '../../../../main/src/plugin/file-tree';
 import type { ImageLayerFile } from '../../../../main/src/plugin/image-layers';
-import { ImageUtils } from '../image/image-utils';
+import { ImageUtils } from './image-utils';
 
 export let tree: FileNode<ImageLayerFile>;
 export let margin = 0;

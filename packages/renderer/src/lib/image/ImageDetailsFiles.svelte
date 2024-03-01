@@ -2,7 +2,7 @@
 import type { ImageLayerFile, ImageLayer } from '../../../../main/src/plugin/image-layers';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { onMount } from 'svelte';
-import TreeView from '../ui/TreeView.svelte';
+import ImageFileTreeView from './ImageFileTreeView.svelte';
 import { ImageUtils } from './image-utils';
 import Spinner from '../ui/Spinner.svelte';
 import type { FileNode } from '../../../../main/src/plugin/file-tree';
@@ -58,7 +58,7 @@ function onLayerSelected(layer: ImageLayer) {
       <div aria-label="tree" class="h-full w-full pr-4 overflow-y-scroll pb-16">
         {#if currentRoot}
           <div class="text-xs grid grid-cols-[90px_60px_70px_1fr]">
-            <TreeView tree="{currentRoot}" />
+            <ImageFileTreeView tree="{currentRoot}" />
           </div>
         {/if}
       </div>
