@@ -41,9 +41,7 @@ import {
 import type { IncomingMessage } from 'node:http';
 
 // ContextInternalState stores informers for a kube context
-type ContextInternalState = {
-  [resourceName in ResourceName]?: Informer<KubernetesObject> & ObjectCache<KubernetesObject>;
-};
+type ContextInternalState = Map<ResourceName, Informer<KubernetesObject> & ObjectCache<KubernetesObject>>;
 
 // ContextState stores information for the user about a kube context: is the cluster reachable, the number
 // of instances of different resources
@@ -163,7 +161,7 @@ export class ContextsStates {
 
   hasInformer(context: string, resourceName: ResourceName): boolean {
     const informers = this.informers.get(context);
-    return !!informers?.[resourceName];
+    return !!informers?.get(resourceName);
   }
 
   setInformers(name: string, informers: ContextInternalState | undefined): void {
@@ -181,7 +179,7 @@ export class ContextsStates {
     if (!informers) {
       throw new Error(`watchers for context ${contextName} not found`);
     }
-    informers[resourceName] = informer;
+    informers.set(resourceName, informer);
   }
 
   getContextsNames(): Iterable<string> {
@@ -262,9 +260,8 @@ export class ContextsStates {
   async dispose(name: string): Promise<void> {
     const informers = this.informers.get(name);
     if (informers) {
-      for (const res in Object.keys(informers)) {
-        const resname = res as ResourceName;
-        await informers[resname]?.stop();
+      for (const informer of informers.values()) {
+        await informer.stop();
       }
     }
     this.informers.delete(name);
@@ -274,12 +271,11 @@ export class ContextsStates {
   async disposeSecondaryInformers(contextName: string): Promise<void> {
     const informers = this.informers.get(contextName);
     if (informers) {
-      for (const res of Object.keys(informers)) {
-        if (isSecondaryResourceName(res)) {
-          console.debug(`stop watching ${res} in context ${contextName}`);
-          const resname = res as ResourceName;
-          await informers[resname]?.stop();
-          informers[resname] = undefined;
+      for (const [resourceName, informer] of informers) {
+        if (isSecondaryResourceName(resourceName)) {
+          console.debug(`stop watching ${resourceName} in context ${contextName}`);
+          await informer?.stop();
+          informers.delete(resourceName);
         }
       }
     }
@@ -359,10 +355,10 @@ export class ContextsManager {
     });
 
     const ns = context.namespace ?? 'default';
-    return {
-      pods: this.createPodInformer(kc, ns, context),
-      deployments: this.createDeploymentInformer(kc, ns, context),
-    };
+    const result = new Map<ResourceName, Informer<KubernetesObject> & ObjectCache<KubernetesObject>>();
+    result.set('pods', this.createPodInformer(kc, ns, context));
+    result.set('deployments', this.createDeploymentInformer(kc, ns, context));
+    return result;
   }
 
   startResourceInformer(contextName: string, resourceName: ResourceName): void {
