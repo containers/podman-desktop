@@ -4,9 +4,10 @@ const expansionState = new Map<string, boolean>();
 
 <script lang="ts">
 import type { FileNode } from '../../../../main/src/plugin/file-tree';
+import type { File } from '../../../../main/src/plugin/image-layers';
 import { ImageUtils } from '../image/image-utils';
 
-export let tree: FileNode<any>;
+export let tree: FileNode<File>;
 export let margin = 0;
 export let root = true;
 
@@ -15,7 +16,7 @@ $: children = tree.children;
 $: file = tree.data;
 $: colorClass = getColor(tree);
 
-function getColor(tree: any) {
+function getColor(tree: FileNode<File>) {
   if (!tree.data) {
     return '';
   }
@@ -41,7 +42,7 @@ const toggleExpansion = () => {
 };
 $: arrowDown = expanded;
 
-function getLink(file: any): string {
+function getLink(file: File | undefined): string {
   if (!file) {
     return '';
   }
@@ -62,7 +63,7 @@ function getLink(file: any): string {
   <div class="font-mono">{tree.data && !tree.isRemoved ? tree.data.typeChar + tree.data.modeString : ''}</div>
   <div class="text-right">{tree.data && !tree.isRemoved ? tree.data.uid + ':' + tree.data.gid : ''}</div>
   <span class="text-right">{!tree.isRemoved ? new ImageUtils().getHumanSize(tree.size) : ''}</span>
-  {#if children.size || (file && file.type === 'Directory')}
+  {#if children.size || (file && file.isDir)}
     <button class="{`text-left ml-${margin} ${colorClass}`}" on:click="{toggleExpansion}">
       <span class="cursor-pointer inline-block mr-1" class:rotate-90="{arrowDown}">&gt;</span>
       {label}<span class="text-gray-900">{getLink(tree.data)}</span>
