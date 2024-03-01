@@ -86,6 +86,38 @@ export interface PodCreateOptions {
   labels?: { [key: string]: string };
 }
 
+export interface ContainerCreateMountOption {
+  Name?: string;
+  Type: string;
+  Source: string;
+  Destination: string;
+  Driver?: string;
+  RW: boolean;
+  Propagation: string;
+  Options?: string[];
+}
+
+export interface ContainerCreateHealthConfigOption {
+  Test?: string[];
+  Interval?: number;
+  Timeout?: number;
+  StartPeriod?: number;
+  Retries?: number;
+}
+
+export interface ContainerCreatePortMappingOption {
+  container_port: number;
+  host_ip?: string;
+  host_port?: number;
+  protocol?: string;
+  range?: number;
+}
+
+export interface ContainerCreateNetNSOption {
+  nsmode: string;
+  value?: string;
+}
+
 export interface ContainerCreateOptions {
   command?: string[];
   entrypoint?: string | string[];
@@ -94,16 +126,26 @@ export interface ContainerCreateOptions {
   hostname?: string;
   image?: string;
   name?: string;
-  mounts?: Array<{
-    Name?: string;
-    Type: string;
-    Source: string;
-    Destination: string;
-    Driver?: string;
-    Mode: string;
-    RW: boolean;
-    Propagation: string;
-  }>;
+  mounts?: Array<ContainerCreateMountOption>;
+  user?: string;
+  labels?: { [label: string]: string };
+  work_dir?: string;
+  portmappings?: Array<ContainerCreatePortMappingOption>;
+  stop_timeout?: number;
+  healthconfig?: ContainerCreateHealthConfigOption;
+  restart_policy?: string;
+  restart_tries?: number;
+  remove?: boolean;
+  seccomp_policy?: string;
+  seccomp_profile_path?: string;
+  cap_add?: Array<string>;
+  cap_drop?: Array<string>;
+  privileged?: boolean;
+  netns?: ContainerCreateNetNSOption;
+  read_only_filesystem?: boolean;
+  dns_server?: Array<Array<number>>;
+  hostadd?: Array<string>;
+  userns?: string;
 }
 
 export interface PodRemoveOptions {

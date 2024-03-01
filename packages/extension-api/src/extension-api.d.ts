@@ -2059,6 +2059,7 @@ declare module '@podman-desktop/api' {
     Type: MountType;
     ReadOnly?: boolean;
     Consistency?: MountConsistency;
+    Mode?: string;
     BindOptions?: {
       Propagation: MountPropagation;
     };
@@ -2451,6 +2452,7 @@ declare module '@podman-desktop/api' {
       Mode: string;
       RW: boolean;
       Propagation: string;
+      Options?: string[];
     }>;
   }
 
@@ -2630,6 +2632,11 @@ declare module '@podman-desktop/api' {
     Shell?: string[];
 
     NetworkConfig?: NetworkingConfig;
+
+    /**
+     * Pod where to create the container in
+     */
+    pod?: string;
   }
 
   /**

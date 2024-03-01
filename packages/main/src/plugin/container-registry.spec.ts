@@ -28,7 +28,7 @@ import Dockerode from 'dockerode';
 import { EventEmitter } from 'node:events';
 import type * as podmanDesktopAPI from '@podman-desktop/api';
 import nock from 'nock';
-import type { LibPod } from './dockerode/libpod-dockerode.js';
+import type { LibPod, ContainerCreateOptions as PodmanContainerCreateOptions } from './dockerode/libpod-dockerode.js';
 import { LibpodDockerode } from './dockerode/libpod-dockerode.js';
 import moment from 'moment';
 import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
@@ -36,6 +36,7 @@ import * as util from '../util.js';
 import { PassThrough } from 'node:stream';
 import type { EnvfileParser } from './env-file-parser.js';
 import type { ProviderRegistry } from './provider-registry.js';
+import type { ContainerCreateOptions } from './api/container-info.js';
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 
 /* eslint-disable @typescript-eslint/no-empty-function */
@@ -3359,5 +3360,261 @@ describe('getMatchingPodmanEngineLibPod', () => {
     containerRegistry.addInternalProvider('podman', containerProvider);
     const result = containerRegistry.getMatchingPodmanEngineLibPod('podman');
     expect(result).equal(api);
+  });
+});
+
+describe('createContainerLibPod', () => {
+  test('throw if there is no podman engine running', async () => {
+    await expect(() =>
+      containerRegistry.createContainer('engine', {
+        Image: 'image',
+        Env: ['key=value'],
+        pod: 'pod',
+        name: 'name',
+      }),
+    ).rejects.toThrowError('no engine matching this engine');
+  });
+  test('check the createPodmanContainer is correctly called with options param', async () => {
+    const dockerAPI = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    const libpod = new LibpodDockerode();
+    libpod.enhancePrototypeWithLibPod();
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman',
+      id: 'podman1',
+      api: dockerAPI,
+      libpodApi: dockerAPI,
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+
+    const createPodmanContainerMock = vi
+      .spyOn(dockerAPI as unknown as LibPod, 'createPodmanContainer')
+      .mockImplementation(_options =>
+        Promise.resolve({
+          Id: 'id',
+          Warnings: [],
+        }),
+      );
+    vi.spyOn(dockerAPI as unknown as Dockerode, 'getContainer').mockImplementation((_id: string) => {
+      return {
+        start: () => {},
+      } as unknown as Dockerode.Container;
+    });
+    const options: ContainerCreateOptions = {
+      Image: 'image',
+      Env: ['key=value'],
+      pod: 'pod',
+      name: 'name',
+      HostConfig: {
+        Mounts: [
+          {
+            Target: 'destination',
+            Source: 'source',
+            Type: 'bind',
+            BindOptions: {
+              Propagation: 'rprivate',
+            },
+            ReadOnly: false,
+          },
+        ],
+        NetworkMode: 'mode',
+        SecurityOpt: ['default'],
+        PortBindings: {
+          '8080': [
+            {
+              HostPort: '8080',
+            },
+          ],
+        },
+        RestartPolicy: {
+          Name: 'restartpolicy',
+          MaximumRetryCount: 2,
+        },
+        AutoRemove: true,
+        CapAdd: ['add'],
+        CapDrop: ['drop'],
+        Privileged: true,
+        ReadonlyRootfs: true,
+        UsernsMode: 'userns',
+      },
+      Cmd: ['cmd'],
+      Entrypoint: 'entrypoint',
+      Hostname: 'hostname',
+      User: 'user',
+      Labels: {
+        label: '1',
+      },
+      WorkingDir: 'work_dir',
+      StopTimeout: 2,
+      HealthCheck: {
+        Timeout: 100,
+      },
+    };
+    const expectedOptions: PodmanContainerCreateOptions = {
+      name: options.name,
+      command: options.Cmd,
+      entrypoint: options.Entrypoint,
+      env: {
+        key: 'value',
+      },
+      image: options.Image,
+      pod: options.pod,
+      hostname: options.Hostname,
+      mounts: [
+        {
+          Destination: 'destination',
+          Source: 'source',
+          Type: 'bind',
+          Propagation: 'rprivate',
+          RW: true,
+          Options: [],
+        },
+      ],
+      netns: {
+        nsmode: 'mode',
+      },
+      seccomp_policy: 'default',
+      portmappings: [
+        {
+          container_port: 8080,
+          host_port: 8080,
+        },
+      ],
+      user: options.User,
+      labels: options.Labels,
+      work_dir: options.WorkingDir,
+      stop_timeout: options.StopTimeout,
+      healthconfig: options.HealthCheck,
+      restart_policy: options.HostConfig?.RestartPolicy?.Name,
+      restart_tries: options.HostConfig?.RestartPolicy?.MaximumRetryCount,
+      remove: options.HostConfig?.AutoRemove,
+      cap_add: options.HostConfig?.CapAdd,
+      cap_drop: options.HostConfig?.CapDrop,
+      privileged: options.HostConfig?.Privileged,
+      read_only_filesystem: options.HostConfig?.ReadonlyRootfs,
+      hostadd: options.HostConfig?.ExtraHosts,
+      userns: options.HostConfig?.UsernsMode,
+    };
+    vi.spyOn(containerRegistry, 'attachToContainer').mockImplementation(
+      (
+        _engine: InternalContainerProvider,
+        _container: Dockerode.Container,
+        _hasTty?: boolean,
+        _openStdin?: boolean,
+      ) => {
+        return Promise.resolve();
+      },
+    );
+    await containerRegistry.createContainer('podman1', options);
+    expect(createPodmanContainerMock).toBeCalledWith(expectedOptions);
+  });
+});
+
+describe('getContainerCreateMountOptionFromBind', () => {
+  interface OptionFromBindOptions {
+    destination: string;
+    source: string;
+    mode?: string;
+    propagation?: string;
+  }
+  function verifyGetContainerCreateMountOptionFromBind(options: OptionFromBindOptions): void {
+    let bind = `${options.source}:${options.destination}`;
+    const mountOptions = ['rbind'];
+    if (options.mode || options.propagation) {
+      bind += ':';
+      if (options.mode) {
+        mountOptions.push(options.mode);
+        bind += `${options.mode},`;
+      }
+      if (options.propagation) {
+        bind += `${options.propagation}`;
+      }
+    }
+    const result = containerRegistry.getContainerCreateMountOptionFromBind(bind);
+
+    expect(result).toStrictEqual({
+      Destination: options.destination,
+      Source: options.source,
+      Propagation: options.propagation ?? 'rprivate',
+      Type: 'bind',
+      RW: true,
+      Options: mountOptions,
+    });
+  }
+  test('return undefined if bind has an invalid value', () => {
+    const result = containerRegistry.getContainerCreateMountOptionFromBind('invalidBind');
+    expect(result).toBeUndefined();
+  });
+  test('return option with default propagation and mode if no flag is specified', () => {
+    verifyGetContainerCreateMountOptionFromBind({
+      destination: 'v2',
+      source: 'v1',
+    });
+  });
+  test('return option with default propagation and mode as per flag - Z', () => {
+    verifyGetContainerCreateMountOptionFromBind({
+      destination: 'v2',
+      source: 'v1',
+      mode: 'Z',
+    });
+  });
+  test('return option with default propagation and mode as per flag - z', () => {
+    verifyGetContainerCreateMountOptionFromBind({
+      destination: 'v2',
+      source: 'v1',
+      mode: 'z',
+    });
+  });
+  test('return option with default mode and propagation as per flag - rprivate', () => {
+    verifyGetContainerCreateMountOptionFromBind({
+      destination: 'v2',
+      source: 'v1',
+      propagation: 'rprivate',
+    });
+  });
+  test('return option with default mode and propagation as per flag - private', () => {
+    verifyGetContainerCreateMountOptionFromBind({
+      destination: 'v2',
+      source: 'v1',
+      propagation: 'private',
+    });
+  });
+  test('return option with default mode and propagation as per flag - shared', () => {
+    verifyGetContainerCreateMountOptionFromBind({
+      destination: 'v2',
+      source: 'v1',
+      propagation: 'shared',
+    });
+  });
+  test('return option with default mode and propagation as per flag - rshared', () => {
+    verifyGetContainerCreateMountOptionFromBind({
+      destination: 'v2',
+      source: 'v1',
+      propagation: 'rshared',
+    });
+  });
+  test('return option with default mode and propagation as per flag - slave', () => {
+    verifyGetContainerCreateMountOptionFromBind({
+      destination: 'v2',
+      source: 'v1',
+      propagation: 'slave',
+    });
+  });
+  test('return option with default mode and propagation as per flag - rslave', () => {
+    verifyGetContainerCreateMountOptionFromBind({
+      destination: 'v2',
+      source: 'v1',
+      propagation: 'rslave',
+    });
+  });
+  test('return option with mode and propagation as per flag - Z and rslave', () => {
+    verifyGetContainerCreateMountOptionFromBind({
+      destination: 'v2',
+      source: 'v1',
+      mode: 'Z',
+      propagation: 'rslave',
+    });
   });
 });
