@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { File, ImageLayer } from '../../../../main/src/plugin/image-layers';
+import type { ImageLayerFile, ImageLayer } from '../../../../main/src/plugin/image-layers';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { onMount } from 'svelte';
 import TreeView from '../ui/TreeView.svelte';
@@ -7,7 +7,7 @@ import { ImageUtils } from './image-utils';
 import Spinner from '../ui/Spinner.svelte';
 import type { FileNode } from '../../../../main/src/plugin/file-tree';
 
-let currentRoot: FileNode<File> | undefined; // keep this variable declaration first (for the tests to access it at $$.ctx[1] - layers, its dependency, is at 0)
+let currentRoot: FileNode<ImageLayerFile> | undefined; // keep this variable declaration first (for the tests to access it at $$.ctx[1] - layers, its dependency, is at 0)
 
 export let image: ImageInfoUI;
 let loading = true;

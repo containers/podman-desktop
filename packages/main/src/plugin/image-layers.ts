@@ -21,7 +21,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { FileTree } from './file-tree.js';
 
-export interface Colorable {
+export interface FileColorable {
   isDir: boolean;
   isLink: boolean;
   isFifo: boolean;
@@ -32,7 +32,7 @@ export interface Colorable {
   isSGID: boolean;
 }
 
-export interface File extends Colorable {
+export interface ImageLayerFile extends FileColorable {
   typeChar: string;
   modeString: string;
   uid: number | undefined;
@@ -44,7 +44,7 @@ export interface File extends Colorable {
 export interface ImageLayer {
   id: string;
   history?: string;
-  tree: FileTree<File>;
+  tree: FileTree<ImageLayerFile>;
 }
 
 interface ExtendedNodeEntry extends nodeTar.ReadEntry {
@@ -81,7 +81,7 @@ export async function getLayersFromImageArchive(tmpdir: string): Promise<ImageLa
   const history = config.history;
   const layersResult: ImageLayer[] = [];
   for (const layer of layers) {
-    const tree = new FileTree<File>(layer);
+    const tree = new FileTree<ImageLayerFile>(layer);
     const layerTar = path.join(tmpdir, layer);
     await nodeTar.list({
       file: layerTar,

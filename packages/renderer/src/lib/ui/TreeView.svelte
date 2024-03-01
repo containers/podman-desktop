@@ -4,10 +4,10 @@ const expansionState = new Map<string, boolean>();
 
 <script lang="ts">
 import type { FileNode } from '../../../../main/src/plugin/file-tree';
-import type { File } from '../../../../main/src/plugin/image-layers';
+import type { ImageLayerFile } from '../../../../main/src/plugin/image-layers';
 import { ImageUtils } from '../image/image-utils';
 
-export let tree: FileNode<File>;
+export let tree: FileNode<ImageLayerFile>;
 export let margin = 0;
 export let root = true;
 
@@ -16,7 +16,7 @@ $: children = tree.children;
 $: file = tree.data;
 $: colorClass = getColor(tree);
 
-function getColor(tree: FileNode<File>) {
+function getColor(tree: FileNode<ImageLayerFile>) {
   if (!tree.data) {
     return '';
   }
@@ -42,7 +42,7 @@ const toggleExpansion = () => {
 };
 $: arrowDown = expanded;
 
-function getLink(file: File | undefined): string {
+function getLink(file: ImageLayerFile | undefined): string {
   if (!file) {
     return '';
   }

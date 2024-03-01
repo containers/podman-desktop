@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import { type File, getLayersFromImageArchive } from './image-layers.js';
+import { type ImageLayerFile, getLayersFromImageArchive } from './image-layers.js';
 import fs from 'node:fs';
 import nodeTar, { Parse } from 'tar';
 import * as fileTree from './file-tree.js';
@@ -45,7 +45,7 @@ type FileOptions = {
   uid?: number;
 };
 
-function newFile(val: FileOptions): File {
+function newFile(val: FileOptions): ImageLayerFile {
   return {
     isBlock: val.isBlock || false,
     isChar: val.isChar || false,
@@ -82,10 +82,10 @@ test('should add files to filetree', async () => {
   const fileTreeSpy = vi.spyOn(fileTree, 'FileTree');
   fileTreeSpy.mockReturnValueOnce({
     addPath: addPathSpy[0],
-  } as unknown as fileTree.FileTree<File>);
+  } as unknown as fileTree.FileTree<ImageLayerFile>);
   fileTreeSpy.mockReturnValueOnce({
     addPath: addPathSpy[1],
-  } as unknown as fileTree.FileTree<File>);
+  } as unknown as fileTree.FileTree<ImageLayerFile>);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   vi.spyOn(nodeTar, 'list').mockImplementation((options: any) => {
     switch (String(options.file).replace(/\\/g, '/')) {
