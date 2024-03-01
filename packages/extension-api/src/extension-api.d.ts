@@ -3031,11 +3031,26 @@ declare module '@podman-desktop/api' {
      *
      * @param containerProviderConnection the connection to the local engine
      * @param imageName the image name
+     * @return A promise resolving to {@link ImageInspectInfo} or undefined if the imageName is not found locally.
+     *
+     * @example
+     *
+     * Here is an example
+     * ```ts
+     * // Get the first started provider
+     * const provider = provider.getContainerConnections().find(connection => connection.connection.status() === 'started');
+     * // Get the image inspect
+     * const imageInspectInfo = await containerEngine.findImageInspect(provider, 'hello-world:latest');
+     * // If undefined, we pull the image
+     * if(imageInspectInfo === undefined) {
+     *    await containerEngine.pullImage(provider, 'hello-world:latest', () => {});
+     * }
+     * ```
      */
-    export function getImageInspect(
+    export function findImageInspect(
       containerProviderConnection: ContainerProviderConnection,
       imageName: string,
-    ): Promise<ImageInspectInfo>;
+    ): Promise<ImageInspectInfo | undefined>;
 
     export function info(engineId: string): Promise<ContainerEngineInfo>;
     export const onEvent: Event<ContainerJSONEvent>;

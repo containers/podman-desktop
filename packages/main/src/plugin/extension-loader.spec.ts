@@ -1677,7 +1677,7 @@ describe('containerEngine', async () => {
       } as unknown as ImageInfo,
     ]);
 
-    await api.containerEngine.getImageInspect(
+    await api.containerEngine.findImageInspect(
       {
         name: 'dummyContainerProviderName',
         type: 'podman',
@@ -1700,7 +1700,7 @@ describe('containerEngine', async () => {
     vi.mocked(containerProviderRegistry.listImagesFromProvider).mockResolvedValue([]);
 
     await expect(
-      api.containerEngine.getImageInspect(
+      api.containerEngine.findImageInspect(
         {
           name: 'dummyContainerProviderName',
           type: 'podman',
@@ -1711,7 +1711,7 @@ describe('containerEngine', async () => {
         },
         'dummyImageName',
       ),
-    ).rejects.toThrowError('image dummyImageName was not find on provider dummyContainerProviderName.');
+    ).resolves.toBeUndefined();
 
     expect(containerProviderRegistry.listImagesFromProvider).toHaveBeenCalled();
     expect(containerProviderRegistry.getImageInspect).not.toHaveBeenCalled();

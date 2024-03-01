@@ -991,25 +991,19 @@ export class ExtensionLoader {
       deleteImage(engineId: string, id: string) {
         return containerProviderRegistry.deleteImage(engineId, id);
       },
-      getImageInspect: async (
-        engineIdOrConnection: string | containerDesktopAPI.ContainerProviderConnection,
-        idOrImageName: string,
-      ): Promise<ImageInspectInfo> => {
-        // We have two signature for the getImageInspect
-        // The first argument is the differentiator, either a string for engineId or a ContainerProviderConnection
-        if (typeof engineIdOrConnection === 'string') {
-          return containerProviderRegistry.getImageInspect(engineIdOrConnection, idOrImageName);
-        } else {
-          // If we provide a ContainerProviderConnection, we must get images by engine
-          // then filter by repo tags, then inspect.
-          const images: ImageInfo[] = await containerProviderRegistry.listImagesFromProvider(engineIdOrConnection);
-          const target: ImageInfo | undefined = images.find(image =>
-            image.RepoTags?.some(tag => tag === idOrImageName),
-          );
-          if (target === undefined)
-            throw new Error(`image ${idOrImageName} was not find on provider ${engineIdOrConnection.name}.`);
-          return containerProviderRegistry.getImageInspect(target.engineId, target.Id);
-        }
+      getImageInspect: async (engineIdOrConnection: string, id: string): Promise<ImageInspectInfo> => {
+        return containerProviderRegistry.getImageInspect(engineIdOrConnection, id);
+      },
+      findImageInspect: async (
+        providerContainerConnection: containerDesktopAPI.ContainerProviderConnection,
+        imageName: string,
+      ): Promise<ImageInspectInfo | undefined> => {
+        // If we provide a ContainerProviderConnection, we must get images by engine
+        // then filter by repo tags, then inspect.
+        const images: ImageInfo[] = await containerProviderRegistry.listImagesFromProvider(providerContainerConnection);
+        const target: ImageInfo | undefined = images.find(image => image.RepoTags?.some(tag => tag === imageName));
+        if (target === undefined) return undefined;
+        return containerProviderRegistry.getImageInspect(target.engineId, target.Id);
       },
       info(engineId: string): Promise<containerDesktopAPI.ContainerEngineInfo> {
         return containerProviderRegistry.info(engineId);
