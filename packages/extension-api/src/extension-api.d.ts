@@ -3026,6 +3026,17 @@ declare module '@podman-desktop/api' {
      */
     export function getImageInspect(engineId: string, id: string): Promise<ImageInspectInfo>;
 
+    /**
+     * Return low-level information about an image using a {@link ContainerProviderConnection}
+     *
+     * @param containerProviderConnection the connection to the local engine
+     * @param imageName the image name
+     */
+    export function getImageInspect(
+      containerProviderConnection: ContainerProviderConnection,
+      imageName: string,
+    ): Promise<ImageInspectInfo>;
+
     export function info(engineId: string): Promise<ContainerEngineInfo>;
     export const onEvent: Event<ContainerJSONEvent>;
 

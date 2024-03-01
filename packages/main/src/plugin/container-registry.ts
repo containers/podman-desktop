@@ -544,25 +544,26 @@ export class ContainerProviderRegistry {
     return flatttenedContainers;
   }
 
+  private async getImageInfo(provider: InternalContainerProvider): Promise<ImageInfo[]> {
+    try {
+      if (!provider.api) {
+        return [];
+      }
+      const images = await provider.api.listImages({ all: false });
+      return images.map(image => {
+        const imageInfo: ImageInfo = { ...image, engineName: provider.name, engineId: provider.id };
+        return imageInfo;
+      });
+    } catch (error) {
+      console.log('error in engine', provider.name, error);
+      return [];
+    }
+  }
+
   async listImages(): Promise<ImageInfo[]> {
-    let telemetryOptions = {};
+    const telemetryOptions = {};
     const images = await Promise.all(
-      Array.from(this.internalProviders.values()).map(async provider => {
-        try {
-          if (!provider.api) {
-            return [];
-          }
-          const images = await provider.api.listImages({ all: false });
-          return images.map(image => {
-            const imageInfo: ImageInfo = { ...image, engineName: provider.name, engineId: provider.id };
-            return imageInfo;
-          });
-        } catch (error) {
-          console.log('error in engine', provider.name, error);
-          telemetryOptions = { error: error };
-          return [];
-        }
-      }),
+      Array.from(this.internalProviders.values()).map(async provider => this.getImageInfo(provider)),
     );
     const flatttenedImages = images.flat();
     this.telemetryService.track('listImages', Object.assign({ total: flatttenedImages.length }, telemetryOptions));
@@ -1099,6 +1100,21 @@ export class ContainerProviderRegistry {
       throw error;
     } finally {
       this.telemetryService.track('pingContainerEngine', telemetryOptions);
+    }
+  }
+
+  listImagesFromProvider(
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection,
+  ): Promise<ImageInfo[]> {
+    let telemetryOptions = {};
+    try {
+      const provider = this.getMatchingContainerProvider(providerContainerConnectionInfo);
+      return this.getImageInfo(provider);
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService.track('listContainersFromEngine', telemetryOptions);
     }
   }
 
