@@ -60,6 +60,7 @@ import type { NetworkInspectInfo } from './api/network-info.js';
 import type { Event } from './events/emitter.js';
 import { Emitter } from './events/emitter.js';
 import fs from 'node:fs';
+import { mkdtemp, rm } from 'node:fs/promises';
 import os from 'node:os';
 import nodeTar from 'tar';
 import path from 'node:path';
@@ -2072,14 +2073,16 @@ export class ContainerProviderRegistry {
   }
 
   async getImageLayers(engineId: string, id: string): Promise<ImageLayer[]> {
-    const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), 'podman-desktop'));
+    const tmpdir = await mkdtemp(path.join(os.tmpdir(), 'podman-desktop'));
     try {
       const tarFile = path.join(tmpdir, id + '.tar');
       await this.saveImage(engineId, id, tarFile);
       await nodeTar.extract({ file: tarFile, cwd: tmpdir });
       return await getLayersFromImageArchive(tmpdir);
     } finally {
-      fs.rmSync(tmpdir, { force: true, recursive: true });
+      rm(tmpdir, { force: true, recursive: true }).catch((err: unknown) => {
+        console.error(`unable to delete directory ${tmpdir}: ${String(err)}`);
+      });
     }
   }
 
