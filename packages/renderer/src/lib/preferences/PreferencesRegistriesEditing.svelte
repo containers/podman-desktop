@@ -265,7 +265,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
                       {registry.name}
                     </span>
                   {:else}
-                    <span class="ml-0">
+                    <span class="ml-2">
                       {registry.serverUrl.replace('https://', '')}
                     </span>
                   {/if}
