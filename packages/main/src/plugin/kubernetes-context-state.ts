@@ -182,7 +182,7 @@ class ContextsStates {
   ): void {
     const informers = this.informers.get(contextName);
     if (!informers) {
-      throw new Error('informers for context not found');
+      throw new Error(`watchers for context ${contextName} not found`);
     }
     informers[resourceName] = informer;
   }
@@ -280,7 +280,7 @@ class ContextsStates {
     if (informers) {
       for (const res of Object.keys(informers)) {
         if (isSecondaryResourceName(res)) {
-          console.debug(`stopping informer for ${res} in ${contextName}`);
+          console.debug(`stop watching ${res} in context ${contextName}`);
           const resname = res as ResourceName;
           await informers[resname]?.stop();
           informers[resname] = undefined;
@@ -372,7 +372,7 @@ export class ContextsManager {
   startResourceInformer(contextName: string, resourceName: ResourceName): void {
     const context = this.kubeConfig.contexts.find(c => c.name === contextName);
     if (!context) {
-      throw new Error('context not found');
+      throw new Error(`context ${contextName} not found`);
     }
     const ns = context.namespace ?? 'default';
     let informer: Informer<KubernetesObject> & ObjectCache<KubernetesObject>;
@@ -381,7 +381,7 @@ export class ContextsManager {
         informer = this.createServiceInformer(this.kubeConfig, ns, context);
         break;
       default:
-        console.debug(`trying to start informer for resource ${resourceName} which is not supported`);
+        console.debug(`unable to watch ${resourceName} in context ${contextName}, as this resource is not supported`);
         return;
     }
     this.states.setResourceInformer(contextName, resourceName, informer);
@@ -680,14 +680,14 @@ export class ContextsManager {
       return [];
     }
     if (this.states.hasInformer(this.currentContext, resourceName)) {
-      console.debug(`informer for ${resourceName} in ${this.currentContext} running`);
+      console.debug(`already watching ${resourceName} in context ${this.currentContext}`);
       return this.states.getCurrentContextResources(this.kubeConfig.currentContext, resourceName);
     }
     if (!this.states.isReachable(this.currentContext)) {
-      console.debug(`context ${this.currentContext} is not reachable. Not trying to start an informer`);
+      console.debug(`skip watching ${resourceName} in context ${this.currentContext}, as the context is not reachable`);
       return [];
     }
-    console.debug(`informer for ${resourceName} in ${this.currentContext} not found. Starting it...`);
+    console.debug(`start watching ${resourceName} in context ${this.currentContext}`);
     this.startResourceInformer(this.currentContext, resourceName);
     return [];
   }
