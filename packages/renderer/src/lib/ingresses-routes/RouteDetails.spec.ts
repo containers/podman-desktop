@@ -25,7 +25,9 @@ import RouteDetails from './RouteDetails.svelte';
 import { router } from 'tinro';
 import { lastPage } from '/@/stores/breadcrumb';
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
-import { routes } from '/@/stores/routes';
+import type { KubernetesObject } from '@kubernetes/client-node';
+import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
+import { writable } from 'svelte/store';
 
 const kubernetesDeleteRouteMock = vi.fn();
 
@@ -51,6 +53,12 @@ const route: V1Route = {
   },
 };
 
+vi.mock('/@/stores/kubernetes-contexts-state', async () => {
+  return {
+    kubernetesCurrentContextRoutes: vi.fn(),
+  };
+});
+
 beforeAll(() => {
   (window as any).kubernetesDeleteRoute = kubernetesDeleteRouteMock;
   (window as any).kubernetesReadNamespacedRoute = vi.fn();
@@ -58,7 +66,10 @@ beforeAll(() => {
 
 test('Expect redirect to previous page if route is deleted', async () => {
   const routerGotoSpy = vi.spyOn(router, 'goto');
-  routes.set([route]);
+
+  // mock object store
+  const routes = writable<KubernetesObject[]>([route]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextRoutes = routes;
 
   // remove route from the store when we call delete
   kubernetesDeleteRouteMock.mockImplementation(() => {

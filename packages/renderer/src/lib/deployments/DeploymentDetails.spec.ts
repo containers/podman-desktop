@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023,2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,9 @@ import DeploymentDetails from './DeploymentDetails.svelte';
 
 import { router } from 'tinro';
 import { lastPage } from '/@/stores/breadcrumb';
-import { deployments } from '/@/stores/deployments';
-import type { V1Deployment } from '@kubernetes/client-node';
+import type { V1Deployment, KubernetesObject } from '@kubernetes/client-node';
+import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
+import { writable } from 'svelte/store';
 
 const kubernetesDeleteDeploymentMock = vi.fn();
 
@@ -43,6 +44,12 @@ const deployment: V1Deployment = {
   },
 };
 
+vi.mock('/@/stores/kubernetes-contexts-state', async () => {
+  return {
+    kubernetesCurrentContextDeployments: vi.fn(),
+  };
+});
+
 beforeAll(() => {
   (window as any).kubernetesDeleteDeployment = kubernetesDeleteDeploymentMock;
   (window as any).kubernetesReadNamespacedDeployment = vi.fn();
@@ -54,7 +61,10 @@ test('Expect redirect to previous page if deployment is deleted', async () => {
   showMessageBoxMock.mockResolvedValue({ response: 0 });
 
   const routerGotoSpy = vi.spyOn(router, 'goto');
-  deployments.set([deployment]);
+
+  // mock object store
+  const deployments = writable<KubernetesObject[]>([deployment]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextDeployments = deployments;
 
   // remove deployment from the store when we call delete
   kubernetesDeleteDeploymentMock.mockImplementation(() => {

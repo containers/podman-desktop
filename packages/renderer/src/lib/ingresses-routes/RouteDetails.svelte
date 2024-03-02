@@ -13,8 +13,8 @@ import IngressRouteActions from './IngressRouteActions.svelte';
 import ServiceDetailsSummary from './IngressRouteDetailsSummary.svelte';
 import ServiceIcon from '../images/ServiceIcon.svelte';
 import Route from '../../Route.svelte';
-import { routes } from '/@/stores/routes';
 import KubeEditYAML from '../kube/KubeEditYAML.svelte';
+import { kubernetesCurrentContextRoutes } from '/@/stores/kubernetes-contexts-state';
 
 export let name: string;
 export let namespace: string;
@@ -27,11 +27,11 @@ let kubeError: string;
 onMount(() => {
   const ingressRouteUtils = new IngressRouteUtils();
 
-  return routes.subscribe(route => {
+  return kubernetesCurrentContextRoutes.subscribe(route => {
     const matchingRoute = route.find(srv => srv.metadata?.name === name && srv.metadata?.namespace === namespace);
     if (matchingRoute) {
       try {
-        routeUI = ingressRouteUtils.getRouteUI(matchingRoute);
+        routeUI = ingressRouteUtils.getRouteUI(matchingRoute as V1Route);
         loadRouteDetails();
       } catch (err) {
         console.error(err);
