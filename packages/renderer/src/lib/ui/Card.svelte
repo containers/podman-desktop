@@ -1,4 +1,6 @@
 <script lang="ts">
+import CardTitle from './CardTitle.svelte';
+
 export let highlighted: boolean = false;
 export let label: string = '';
 export let icon: string | { light: string; dark: string } | undefined = undefined;
@@ -12,24 +14,7 @@ export let subtitle: string | undefined = undefined;
   aria-label="{label}">
   <div class="pb-2">
     <div class="flex space-x-2">
-      {#if icon}
-        {#if typeof icon === 'string'}
-          <img src="{icon}" alt="{title}" aria-label="logo" class="max-w-[40px] max-h-[40px] h-full" />
-          <!-- TODO check theme used for image, now use dark by default -->
-        {:else}
-          <img src="{icon.dark}" alt="{title}" aria-label="logo" class="max-w-[40px]" />
-        {/if}
-      {/if}
-
-      <!-- Centered items div -->
-      <div class="flex-grow flex flex-col justify-center">
-        <div class="flex flex-col items-left">
-          <span class="text-md" aria-label="context-name">{title}</span>
-          {#if subtitle}
-            <span class="text-xs text-gray-600" aria-label="subtitle">{subtitle}</span>
-          {/if}
-        </div>
-      </div>
+      <CardTitle title="{title}" subtitle="{subtitle}" icon="{icon}" />
       <slot name="actions" />
     </div>
     <slot name="subheader" />
