@@ -20,7 +20,7 @@
 
 import '@testing-library/jest-dom/vitest';
 import { within } from '@testing-library/dom';
-import { afterEach, beforeAll, expect, suite, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, suite, test, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import { cliToolInfos } from '/@/stores/cli-tools';
 import type { CliToolInfo } from '../../../../main/src/plugin/api/cli-tool-info';
@@ -102,7 +102,7 @@ suite('CLI Tool Prefernces page shows', () => {
     });
   }
 
-  beforeAll(() => {
+  beforeEach(async () => {
     cliToolInfos.set(cliTools);
     render(PreferencesCliToolsRendering, {});
     const cliToolsTable = screen.getByRole('table', { name: 'cli-tools' });
@@ -114,7 +114,7 @@ suite('CLI Tool Prefernces page shows', () => {
   });
 
   test('tool`s name', () => {
-    validatePropertyPresentation('cli-name', toolInfo => toolInfo.name);
+    validatePropertyPresentation('title', toolInfo => toolInfo.name);
   });
 
   test('extension`s name that registered the tool', () => {
@@ -130,12 +130,12 @@ suite('CLI Tool Prefernces page shows', () => {
   });
 
   test('tool`s logo is not shown if images.icon property is not present or images property is empty', () => {
-    expect(within(cliToolRows[0]).queryAllByLabelText('cli-logo').length).equals(0);
-    expect(within(cliToolRows[1]).queryAllByLabelText('cli-logo').length).equals(0);
+    expect(within(cliToolRows[0]).queryAllByLabelText('logo').length).equals(0);
+    expect(within(cliToolRows[1]).queryAllByLabelText('logo').length).equals(0);
   });
 
   test('tool`s logo is shown when images.icon property is present', () => {
-    expect(within(cliToolRows[2]).getAllByLabelText('cli-logo').length).equals(1);
+    expect(within(cliToolRows[2]).getAllByLabelText('logo').length).equals(1);
   });
 
   test('test tools version is shown', () => {
