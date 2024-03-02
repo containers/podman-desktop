@@ -11,11 +11,8 @@ onMount(async () => {
 });
 </script>
 
-<div class="flex flex-1 flex-col">
-  <p class="text-lg first-letter:uppercase font-bold pb-5">Learning center:</p>
-  <div class="flex flex-1 flex-col bg-charcoal-800 p-5 rounded-lg">
-    <Carousel cards="{guides}" let:card>
-      <GuideCard guide="{card}" />
-    </Carousel>
-  </div>
+<div class="flex flex-1 flex-col bg-charcoal-800 p-5 rounded-lg">
+  <Carousel cards="{guides}" let:card>
+    <GuideCard guide="{card}" />
+  </Carousel>
 </div>

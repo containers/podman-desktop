@@ -97,10 +97,14 @@ function getInitializationContext(id: string): InitializationContext {
             <ProviderStopped provider="{providerStopped}" />
           {/each}
         {/if}
-        <LearningCenter />
       </div>
-      <div class="px-2 space-y-5 h-full">
-        <Card title="Featured Extensions">
+      <div class="px-2 mt-5 h-full">
+        <Card title="Learning center">
+          <svelte:fragment slot="content">
+            <LearningCenter />
+          </svelte:fragment>
+        </Card>
+        <Card title="Featured extensions">
           <svelte:fragment slot="content">
             <FeaturedExtensions />
           </svelte:fragment>
