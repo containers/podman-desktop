@@ -9,11 +9,11 @@ import Tab from '../ui/Tab.svelte';
 import DeploymentIcon from '../images/DeploymentIcon.svelte';
 import DeploymentActions from './DeploymentActions.svelte';
 import DeploymentDetailsSummary from './DeploymentDetailsSummary.svelte';
-import { deployments } from '/@/stores/deployments';
 import type { V1Deployment } from '@kubernetes/client-node';
 import { stringify } from 'yaml';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import KubeEditYAML from '../kube/KubeEditYAML.svelte';
+import { kubernetesCurrentContextDeployments } from '/@/stores/kubernetes-contexts-state';
 
 export let name: string;
 export let namespace: string;
@@ -26,7 +26,7 @@ let kubeError: string;
 onMount(() => {
   const deploymentUtils = new DeploymentUtils();
   // loading deployment info
-  return deployments.subscribe(deployments => {
+  return kubernetesCurrentContextDeployments.subscribe(deployments => {
     const matchingDeployment = deployments.find(
       dep => dep.metadata?.name === name && dep.metadata?.namespace === namespace,
     );
