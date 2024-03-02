@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023,2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ const eventsMock = vi.fn();
 // fake the window object
 beforeAll(() => {
   (window as any).events = eventsMock;
+  (window as any).kubernetesGetCurrentContextResources = vi.fn().mockImplementation(() => []);
 });
 
 test('Test rendering of the navigation bar with empty items', () => {
