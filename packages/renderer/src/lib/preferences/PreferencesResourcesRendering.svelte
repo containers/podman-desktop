@@ -43,6 +43,7 @@ import Donut from '/@/lib/donut/Donut.svelte';
 import { PeerProperties } from './PeerProperties';
 import ConnectionErrorInfoButton from '../ui/ConnectionErrorInfoButton.svelte';
 import PreferencesResourcesRenderingCopyButton from './PreferencesResourcesRenderingCopyButton.svelte';
+import HorizontalCard from '../ui/HorizontalCard.svelte';
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 let providers: ProviderInfo[] = [];
 $: containerConnectionStatus = new Map<string, IConnectionStatus>();
@@ -353,6 +354,12 @@ function hasAnyConfiguration(provider: ProviderInfo) {
       .filter(property => isPropertyValidInContext(property.when, globalContext)).length > 0
   );
 }
+
+/*
+Changes:
+ aria-label="Provider Setup"       -> aria-label="Title"
+ aria-label="Provider Connections" -> aria-label="Content"
+*/
 </script>
 
 <SettingsPage title="Resources">
@@ -370,206 +377,192 @@ function hasAnyConfiguration(provider: ProviderInfo) {
       hidden="{providers.length > 0}" />
 
     {#each providers as provider}
-      <div
-        class="bg-charcoal-600 mb-5 rounded-md p-3 divide-x divide-gray-900 flex"
-        role="region"
-        aria-label="{provider.id}">
-        <div role="region" aria-label="Provider Setup">
-          <!-- left col - provider icon/name + "create new" button -->
-          <div class="min-w-[170px] max-w-[200px]">
-            <div class="flex">
-              {#if provider.images.icon}
-                {#if typeof provider.images.icon === 'string'}
-                  <img src="{provider.images.icon}" alt="{provider.name}" class="max-w-[40px] h-full" />
-                  <!-- TODO check theme used for image, now use dark by default -->
-                {:else}
-                  <img src="{provider.images.icon.dark}" alt="{provider.name}" class="max-w-[40px]" />
-                {/if}
+      <HorizontalCard label="{provider.id}" icon="{provider.images.icon}" title="{provider.name}">
+        <svelte:fragment slot="actions">
+          <!-- Some providers have a status of 'unknown' so that they do not appear in the dashboard, this allows onboarding to still show. -->
+          {#if isOnboardingEnabled(provider, globalContext) && (provider.status === 'not-installed' || provider.status === 'unknown')}
+            <Button
+              aria-label="Setup {provider.name}"
+              title="Setup {provider.name}"
+              on:click="{() => router.goto(`/preferences/onboarding/${provider.extensionId}`)}">
+              Setup ...
+            </Button>
+          {:else}
+            <div class="flex flex-row justify-around">
+              {#if provider.containerProviderConnectionCreation || provider.kubernetesProviderConnectionCreation}
+                {@const providerDisplayName =
+                  (provider.containerProviderConnectionCreation
+                    ? provider.containerProviderConnectionCreationDisplayName || undefined
+                    : provider.kubernetesProviderConnectionCreation
+                      ? provider.kubernetesProviderConnectionCreationDisplayName
+                      : undefined) || provider.name}
+                {@const buttonTitle =
+                  (provider.containerProviderConnectionCreation
+                    ? provider.containerProviderConnectionCreationButtonTitle || undefined
+                    : provider.kubernetesProviderConnectionCreation
+                      ? provider.kubernetesProviderConnectionCreationButtonTitle
+                      : undefined) || 'Create new'}
+                <!-- create new provider button -->
+                <Tooltip tip="Create new {providerDisplayName}" bottom>
+                  <Button
+                    aria-label="Create new {providerDisplayName}"
+                    inProgress="{providerInstallationInProgress.get(provider.name)}"
+                    on:click="{() => doCreateNew(provider, providerDisplayName)}">
+                    {buttonTitle} ...
+                  </Button>
+                </Tooltip>
               {/if}
-              <span class="my-auto text-gray-400 ml-3 break-words">{provider.name}</span>
-            </div>
-            <div class="text-center mt-10">
-              <!-- Some providers have a status of 'unknown' so that they do not appear in the dashboard, this allows onboarding to still show. -->
-              {#if isOnboardingEnabled(provider, globalContext) && (provider.status === 'not-installed' || provider.status === 'unknown')}
+              {#if isOnboardingEnabled(provider, globalContext) || hasAnyConfiguration(provider)}
                 <Button
                   aria-label="Setup {provider.name}"
                   title="Setup {provider.name}"
-                  on:click="{() => router.goto(`/preferences/onboarding/${provider.extensionId}`)}">
-                  Setup ...
+                  on:click="{() => {
+                    if (isOnboardingEnabled(provider, globalContext)) {
+                      router.goto(`/preferences/onboarding/${provider.extensionId}`);
+                    } else {
+                      router.goto(`/preferences/default/preferences.${provider.extensionId}`);
+                    }
+                  }}">
+                  <Fa size="0.9x" icon="{faGear}" />
                 </Button>
-              {:else}
-                <div class="flex flex-row justify-around">
-                  {#if provider.containerProviderConnectionCreation || provider.kubernetesProviderConnectionCreation}
-                    {@const providerDisplayName =
-                      (provider.containerProviderConnectionCreation
-                        ? provider.containerProviderConnectionCreationDisplayName || undefined
-                        : provider.kubernetesProviderConnectionCreation
-                          ? provider.kubernetesProviderConnectionCreationDisplayName
-                          : undefined) || provider.name}
-                    {@const buttonTitle =
-                      (provider.containerProviderConnectionCreation
-                        ? provider.containerProviderConnectionCreationButtonTitle || undefined
-                        : provider.kubernetesProviderConnectionCreation
-                          ? provider.kubernetesProviderConnectionCreationButtonTitle
-                          : undefined) || 'Create new'}
-                    <!-- create new provider button -->
-                    <Tooltip tip="Create new {providerDisplayName}" bottom>
-                      <Button
-                        aria-label="Create new {providerDisplayName}"
-                        inProgress="{providerInstallationInProgress.get(provider.name)}"
-                        on:click="{() => doCreateNew(provider, providerDisplayName)}">
-                        {buttonTitle} ...
-                      </Button>
-                    </Tooltip>
-                  {/if}
-                  {#if isOnboardingEnabled(provider, globalContext) || hasAnyConfiguration(provider)}
-                    <Button
-                      aria-label="Setup {provider.name}"
-                      title="Setup {provider.name}"
-                      on:click="{() => {
-                        if (isOnboardingEnabled(provider, globalContext)) {
-                          router.goto(`/preferences/onboarding/${provider.extensionId}`);
-                        } else {
-                          router.goto(`/preferences/default/preferences.${provider.extensionId}`);
-                        }
-                      }}">
-                      <Fa size="0.9x" icon="{faGear}" />
-                    </Button>
-                  {/if}
-                </div>
               {/if}
             </div>
-          </div>
-        </div>
-        <!-- providers columns -->
-        <div class="grow flex flex-wrap divide-gray-900 ml-2" role="region" aria-label="Provider Connections">
-          <PreferencesConnectionsEmptyRendering
-            message="{provider.emptyConnectionMarkdownDescription}"
-            hidden="{provider.containerConnections.length > 0 || provider.kubernetesConnections.length > 0}" />
-          {#each provider.containerConnections as container}
-            {@const peerProperties = new PeerProperties()}
-            <div class="px-5 py-2 w-[240px]" role="region" aria-label="{container.name}">
-              <div class="float-right">
-                <Tooltip tip="{provider.name} details" bottom>
-                  <button
-                    aria-label="{provider.name} details"
-                    type="button"
-                    on:click="{() =>
-                      router.goto(
-                        `/preferences/container-connection/view/${provider.internalId}/${Buffer.from(
-                          container.name,
-                        ).toString('base64')}/${Buffer.from(container.endpoint.socketPath).toString('base64')}/summary`,
-                      )}">
-                    <Fa icon="{faArrowUpRightFromSquare}" />
-                  </button>
-                </Tooltip>
-              </div>
-              <div class="{container.status !== 'started' ? 'text-gray-900' : ''} text-sm">
-                {container.name}
-              </div>
-              <div class="flex" aria-label="Connection Status">
-                <ConnectionStatus status="{container.status}" />
-                {#if containerConnectionStatus.has(getProviderConnectionName(provider, container))}
-                  {@const status = containerConnectionStatus.get(getProviderConnectionName(provider, container))}
-                  <ConnectionErrorInfoButton status="{status}" />
+          {/if}
+        </svelte:fragment>
+        <svelte:fragment slot="content">
+          <div class="grow flex flex-wrap">
+            <PreferencesConnectionsEmptyRendering
+              message="{provider.emptyConnectionMarkdownDescription}"
+              hidden="{provider.containerConnections.length > 0 || provider.kubernetesConnections.length > 0}" />
+            {#each provider.containerConnections as container}
+              {@const peerProperties = new PeerProperties()}
+              <div class="px-5 py-2 w-[240px]" role="region" aria-label="{container.name}">
+                <div class="float-right">
+                  <Tooltip tip="{provider.name} details" bottom>
+                    <button
+                      aria-label="{provider.name} details"
+                      type="button"
+                      on:click="{() =>
+                        router.goto(
+                          `/preferences/container-connection/view/${provider.internalId}/${Buffer.from(
+                            container.name,
+                          ).toString(
+                            'base64',
+                          )}/${Buffer.from(container.endpoint.socketPath).toString('base64')}/summary`,
+                        )}">
+                      <Fa icon="{faArrowUpRightFromSquare}" />
+                    </button>
+                  </Tooltip>
+                </div>
+                <div class="{container.status !== 'started' ? 'text-gray-900' : ''} text-sm">
+                  {container.name}
+                </div>
+                <div class="flex" aria-label="Connection Status">
+                  <ConnectionStatus status="{container.status}" />
+                  {#if containerConnectionStatus.has(getProviderConnectionName(provider, container))}
+                    {@const status = containerConnectionStatus.get(getProviderConnectionName(provider, container))}
+                    <ConnectionErrorInfoButton status="{status}" />
+                  {/if}
+                </div>
+                <div class="mt-2 text-gray-700 text-xs" aria-label="{container.name} type">
+                  {#if container.type === 'docker'}Docker{:else if container.type === 'podman'}Podman{/if} endpoint
+                </div>
+                <PreferencesResourcesRenderingCopyButton
+                  class="{container.status !== 'started' ? 'text-gray-900' : ''}"
+                  path="{container.endpoint.socketPath}" />
+                {#if providerContainerConfiguration.has(provider.internalId)}
+                  {@const providerConfiguration = providerContainerConfiguration.get(provider.internalId) || []}
+                  <div
+                    class="flex mt-3 {container.status !== 'started' ? 'text-gray-900' : ''}"
+                    role="group"
+                    aria-label="Provider Configuration">
+                    {#each providerConfiguration.filter(conf => conf.connection === container.name) as connectionSetting}
+                      {#if connectionSetting.format === 'cpu' || connectionSetting.format === 'cpuUsage'}
+                        {#if !peerProperties.isPeerProperty(connectionSetting.id)}
+                          {@const peerValue = peerProperties.getPeerProperty(
+                            connectionSetting.id,
+                            providerConfiguration.filter(conf => conf.connection === container.name),
+                          )}
+                          <div class="mr-4">
+                            <Donut
+                              title="{connectionSetting.description}"
+                              value="{connectionSetting.value}"
+                              percent="{peerValue}" />
+                          </div>
+                        {/if}
+                      {:else if connectionSetting.format === 'memory' || connectionSetting.format === 'memoryUsage' || connectionSetting.format === 'diskSize' || connectionSetting.format === 'diskSizeUsage'}
+                        {#if !peerProperties.isPeerProperty(connectionSetting.id)}
+                          {@const peerValue = peerProperties.getPeerProperty(
+                            connectionSetting.id,
+                            providerConfiguration.filter(conf => conf.connection === container.name),
+                          )}
+                          <div class="mr-4">
+                            <Donut
+                              title="{connectionSetting.description}"
+                              value="{filesize(connectionSetting.value)}"
+                              percent="{peerValue}" />
+                          </div>
+                        {/if}
+                      {:else}
+                        {connectionSetting.description}: {connectionSetting.value}
+                      {/if}
+                    {/each}
+                  </div>
                 {/if}
-              </div>
-              <div class="mt-2 text-gray-700 text-xs" aria-label="{container.name} type">
-                {#if container.type === 'docker'}Docker{:else if container.type === 'podman'}Podman{/if} endpoint
-              </div>
-              <PreferencesResourcesRenderingCopyButton
-                class="{container.status !== 'started' ? 'text-gray-900' : ''}"
-                path="{container.endpoint.socketPath}" />
-              {#if providerContainerConfiguration.has(provider.internalId)}
-                {@const providerConfiguration = providerContainerConfiguration.get(provider.internalId) || []}
-                <div
-                  class="flex mt-3 {container.status !== 'started' ? 'text-gray-900' : ''}"
-                  role="group"
-                  aria-label="Provider Configuration">
-                  {#each providerConfiguration.filter(conf => conf.connection === container.name) as connectionSetting}
-                    {#if connectionSetting.format === 'cpu' || connectionSetting.format === 'cpuUsage'}
-                      {#if !peerProperties.isPeerProperty(connectionSetting.id)}
-                        {@const peerValue = peerProperties.getPeerProperty(
-                          connectionSetting.id,
-                          providerConfiguration.filter(conf => conf.connection === container.name),
-                        )}
-                        <div class="mr-4">
-                          <Donut
-                            title="{connectionSetting.description}"
-                            value="{connectionSetting.value}"
-                            percent="{peerValue}" />
-                        </div>
-                      {/if}
-                    {:else if connectionSetting.format === 'memory' || connectionSetting.format === 'memoryUsage' || connectionSetting.format === 'diskSize' || connectionSetting.format === 'diskSizeUsage'}
-                      {#if !peerProperties.isPeerProperty(connectionSetting.id)}
-                        {@const peerValue = peerProperties.getPeerProperty(
-                          connectionSetting.id,
-                          providerConfiguration.filter(conf => conf.connection === container.name),
-                        )}
-                        <div class="mr-4">
-                          <Donut
-                            title="{connectionSetting.description}"
-                            value="{filesize(connectionSetting.value)}"
-                            percent="{peerValue}" />
-                        </div>
-                      {/if}
-                    {:else}
-                      {connectionSetting.description}: {connectionSetting.value}
-                    {/if}
-                  {/each}
-                </div>
-              {/if}
-              <PreferencesConnectionActions
-                provider="{provider}"
-                connection="{container}"
-                connectionStatus="{containerConnectionStatus.get(getProviderConnectionName(provider, container))}"
-                updateConnectionStatus="{updateContainerStatus}"
-                addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
-              <div class="mt-1.5 text-gray-900 text-[9px]" aria-label="Connection Version">
-                <div>{provider.name} {provider.version ? `v${provider.version}` : ''}</div>
-              </div>
-            </div>
-          {/each}
-          {#each provider.kubernetesConnections as kubeConnection}
-            <div class="px-5 py-2 w-[240px]" role="region" aria-label="{kubeConnection.name}">
-              <div class="float-right">
-                <Tooltip tip="{provider.name} details" bottom>
-                  <button
-                    aria-label="{provider.name} details"
-                    type="button"
-                    on:click="{() =>
-                      router.goto(
-                        `/preferences/kubernetes-connection/${provider.internalId}/${Buffer.from(
-                          kubeConnection.endpoint.apiURL,
-                        ).toString('base64')}/summary`,
-                      )}">
-                    <Fa icon="{faArrowUpRightFromSquare}" />
-                  </button>
-                </Tooltip>
-              </div>
-              <div class="text-sm">
-                {kubeConnection.name}
-              </div>
-              <div class="flex mt-1">
-                <ConnectionStatus status="{kubeConnection.status}" />
-              </div>
-              <div class="mt-2">
-                <div class="text-gray-700 text-xs">Kubernetes endpoint</div>
-                <div class="mt-1">
-                  <span class="my-auto text-xs" class:text-gray-900="{kubeConnection.status !== 'started'}"
-                    >{kubeConnection.endpoint.apiURL}</span>
+                <PreferencesConnectionActions
+                  provider="{provider}"
+                  connection="{container}"
+                  connectionStatus="{containerConnectionStatus.get(getProviderConnectionName(provider, container))}"
+                  updateConnectionStatus="{updateContainerStatus}"
+                  addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
+                <div class="mt-1.5 text-gray-900 text-[9px]" aria-label="Connection Version">
+                  <div>{provider.name} {provider.version ? `v${provider.version}` : ''}</div>
                 </div>
               </div>
-              <PreferencesConnectionActions
-                provider="{provider}"
-                connection="{kubeConnection}"
-                connectionStatus="{containerConnectionStatus.get(getProviderConnectionName(provider, kubeConnection))}"
-                updateConnectionStatus="{updateContainerStatus}"
-                addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
-            </div>
-          {/each}
-        </div>
-      </div>
+            {/each}
+            {#each provider.kubernetesConnections as kubeConnection}
+              <div class="px-5 py-2 w-[240px]" role="region" aria-label="{kubeConnection.name}">
+                <div class="float-right">
+                  <Tooltip tip="{provider.name} details" bottom>
+                    <button
+                      aria-label="{provider.name} details"
+                      type="button"
+                      on:click="{() =>
+                        router.goto(
+                          `/preferences/kubernetes-connection/${provider.internalId}/${Buffer.from(
+                            kubeConnection.endpoint.apiURL,
+                          ).toString('base64')}/summary`,
+                        )}">
+                      <Fa icon="{faArrowUpRightFromSquare}" />
+                    </button>
+                  </Tooltip>
+                </div>
+                <div class="text-sm">
+                  {kubeConnection.name}
+                </div>
+                <div class="flex mt-1">
+                  <ConnectionStatus status="{kubeConnection.status}" />
+                </div>
+                <div class="mt-2">
+                  <div class="text-gray-700 text-xs">Kubernetes endpoint</div>
+                  <div class="mt-1">
+                    <span class="my-auto text-xs" class:text-gray-900="{kubeConnection.status !== 'started'}"
+                      >{kubeConnection.endpoint.apiURL}</span>
+                  </div>
+                </div>
+                <PreferencesConnectionActions
+                  provider="{provider}"
+                  connection="{kubeConnection}"
+                  connectionStatus="{containerConnectionStatus.get(
+                    getProviderConnectionName(provider, kubeConnection),
+                  )}"
+                  updateConnectionStatus="{updateContainerStatus}"
+                  addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
+              </div>
+            {/each}
+          </div>
+        </svelte:fragment>
+      </HorizontalCard>
     {/each}
   </div>
   {#if displayInstallModal && providerToBeInstalled}
