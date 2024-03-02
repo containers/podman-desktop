@@ -7,7 +7,7 @@ export let subtitle: string | undefined = undefined;
 
 <div role="row" class="{highlighted ? 'bg-charcoal-600' : 'bg-charcoal-700'} mb-5 rounded-md p-3 flex-nowrap">
   <div class="pb-2">
-    <div class="flex">
+    <div class="flex space-x-2">
       {#if icon}
         {#if typeof icon === 'string'}
           <img src="{icon}" alt="{title}" aria-label="logo" class="max-w-[40px] max-h-[40px] h-full" />
@@ -18,7 +18,7 @@ export let subtitle: string | undefined = undefined;
       {/if}
 
       <!-- Centered items div -->
-      <div class="pl-3 flex-grow flex flex-col justify-center">
+      <div class="flex-grow flex flex-col justify-center">
         <div class="flex flex-col items-left">
           <span class="text-md" aria-label="context-name">{title}</span>
           {#if subtitle}

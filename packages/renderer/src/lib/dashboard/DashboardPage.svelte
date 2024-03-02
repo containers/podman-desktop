@@ -13,6 +13,7 @@ import FeaturedExtensions from '/@/lib/featured/FeaturedExtensions.svelte';
 import ProviderConfiguring from '/@/lib/dashboard/ProviderConfiguring.svelte';
 import NotificationsBox from './NotificationsBox.svelte';
 import LearningCenter from '../learning-center/LearningCenter.svelte';
+import Card from '../ui/Card.svelte';
 
 const providerInitContexts = new Map<string, InitializationContext>();
 
@@ -97,7 +98,13 @@ function getInitializationContext(id: string): InitializationContext {
           {/each}
         {/if}
         <LearningCenter />
-        <FeaturedExtensions />
+      </div>
+      <div class="px-2 space-y-5 h-full">
+        <Card title="Featured Extensions">
+          <svelte:fragment slot="content">
+            <FeaturedExtensions />
+          </svelte:fragment>
+        </Card>
       </div>
     </div>
   </div>

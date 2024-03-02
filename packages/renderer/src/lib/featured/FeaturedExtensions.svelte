@@ -5,8 +5,6 @@ import Fa from 'svelte-fa';
 import FeaturedExtensionDownload from './FeaturedExtensionDownload.svelte';
 </script>
 
-<!--Title-->
-<p class="text-lg first-letter:uppercase font-bold">featured extensions:</p>
 <div class="grid min-[920px]:grid-cols-2 min-[1180px]:grid-cols-3 gap-3" role="region" aria-label="FeaturedExtensions">
   {#each $featuredExtensionInfos as featuredExtension}
     <div

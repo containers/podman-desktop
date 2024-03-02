@@ -11,6 +11,7 @@ import FeaturedExtensions from '../featured/FeaturedExtensions.svelte';
 import Button from '../ui/Button.svelte';
 import ExtensionIcon from './ExtensionIcon.svelte';
 import { Input } from '@podman-desktop/ui-svelte';
+import Card from '../ui/Card.svelte';
 
 export let ociImage: string | undefined = undefined;
 
@@ -77,9 +78,11 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
 
 <SettingsPage title="Extensions">
   <div class="bg-charcoal-600 rounded-md p-3">
-    <div class="bg-charcoal-700 mb-4 rounded-md p-3">
-      <FeaturedExtensions />
-    </div>
+    <Card title="Featured Extensions">
+      <svelte:fragment slot="content">
+        <FeaturedExtensions />
+      </svelte:fragment>
+    </Card>
 
     <div class="bg-charcoal-700 mt-5 rounded-md p-3" role="region" aria-label="OCI image installation box">
       <h1 class="text-lg mb-2">Install a new extension from OCI Image</h1>
