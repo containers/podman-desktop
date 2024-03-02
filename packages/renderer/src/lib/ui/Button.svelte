@@ -7,6 +7,7 @@ import Spinner from './Spinner.svelte';
 export let title: string | undefined = undefined;
 export let inProgress = false;
 export let disabled = false;
+export let hidden = false;
 export let type: ButtonType = 'primary';
 export let icon: any = undefined;
 export let selected: boolean | undefined = undefined;
@@ -65,9 +66,12 @@ $: {
   title="{title}"
   aria-label="{$$props['aria-label']}"
   on:click
-  disabled="{disabled || inProgress}">
+  disabled="{disabled || inProgress}"
+  hidden="{hidden}">
   {#if icon}
-    <div class="flex flex-row p-0 m-0 bg-transparent justify-center items-center space-x-[4px]">
+    <div
+      class="flex flex-row p-0 m-0 bg-transparent justify-center items-center space-x-[4px]"
+      class:py-[3px]="{!$$slots.default}">
       {#if inProgress}
         <Spinner size="1em" />
       {:else if iconType === 'fa'}
