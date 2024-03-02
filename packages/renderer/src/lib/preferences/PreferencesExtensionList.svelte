@@ -84,47 +84,48 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
       </svelte:fragment>
     </Card>
 
-    <div class="bg-charcoal-700 mt-5 rounded-md p-3" role="region" aria-label="OCI image installation box">
-      <h1 class="text-lg mb-2">Install a new extension from OCI Image</h1>
-
-      <div class="flex flex-col w-full">
-        <div
-          class="flex flex-row mb-2 w-full space-x-4 items-center"
-          role="region"
-          aria-label="Install Extension From OCI">
-          <Input
-            name="ociImage"
-            id="ociImage"
-            aria-label="OCI Image Name"
-            bind:value="{ociImage}"
-            placeholder="Name of the Image"
-            class="w-1/2"
-            required />
-
-          <Button
-            on:click="{() => installExtensionFromImage()}"
-            disabled="{ociImage === undefined || ociImage.trim() === ''}"
-            class="w-full"
-            inProgress="{installInProgress}"
-            icon="{faArrowCircleDown}">
-            Install extension from the OCI image
-          </Button>
-        </div>
-
-        <div class="container w-full flex-col">
+    <Card title="Install a new extension from OCI Image" label="OCI image installation box">
+      <svelte:fragment slot="content">
+        <div class="flex flex-col w-full">
           <div
-            class:opacity-0="{logs.length === 0}"
-            bind:this="{logElement}"
-            class="bg-zinc-700 text-gray-300 mt-4 mb-3 p-1 h-16 overflow-y-auto">
-            {#each logs as log}
-              <p class="font-light text-sm">{log}</p>
-            {/each}
+            class="flex flex-row mb-2 w-full space-x-4 items-center"
+            role="region"
+            aria-label="Install Extension From OCI">
+            <Input
+              name="ociImage"
+              id="ociImage"
+              aria-label="OCI Image Name"
+              bind:value="{ociImage}"
+              placeholder="Name of the Image"
+              class="w-1/2"
+              required />
+
+            <Button
+              on:click="{() => installExtensionFromImage()}"
+              disabled="{ociImage === undefined || ociImage.trim() === ''}"
+              class="w-full"
+              inProgress="{installInProgress}"
+              icon="{faArrowCircleDown}">
+              Install extension from the OCI image
+            </Button>
           </div>
 
-          <ErrorMessage error="{errorInstall}" />
+          <div class="container w-full flex-col">
+            <div
+              class:opacity-0="{logs.length === 0}"
+              bind:this="{logElement}"
+              class="bg-zinc-700 text-gray-300 mt-4 mb-3 p-1 h-16 overflow-y-auto">
+              {#each logs as log}
+                <p class="font-light text-sm">{log}</p>
+              {/each}
+            </div>
+
+            <ErrorMessage error="{errorInstall}" />
+          </div>
         </div>
-      </div>
-    </div>
+      </svelte:fragment>
+    </Card>
+
     <div class="bg-charcoal-600 mt-5 rounded-md p-3">
       <table class="min-w-full" aria-label="Installed Extensions">
         <tbody>
