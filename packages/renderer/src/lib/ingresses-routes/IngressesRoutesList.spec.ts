@@ -24,32 +24,17 @@ import { render, screen } from '@testing-library/svelte';
 import { get } from 'svelte/store';
 import type { V1Ingress } from '@kubernetes/client-node';
 import IngressesRoutesList from './IngressesRoutesList.svelte';
-import { ingresses, ingressesEventStore } from '/@/stores/ingresses';
-import { routes, routesEventStore } from '/@/stores/routes';
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
+import { kubernetesCurrentContextIngresses, kubernetesCurrentContextRoutes } from '/@/stores/kubernetes-contexts-state';
 
-const callbacks = new Map<string, any>();
-const eventEmitter = {
-  receive: (message: string, callback: any) => {
-    callbacks.set(message, callback);
-  },
-};
-
-Object.defineProperty(global, 'window', {
-  value: {
-    events: {
-      receive: eventEmitter.receive,
-    },
-    addEventListener: eventEmitter.receive,
-  },
-  writable: true,
-});
+const kubernetesGetCurrentContextResourcesMock = vi.fn();
 
 beforeEach(() => {
   vi.resetAllMocks();
   vi.clearAllMocks();
   (window as any).kubernetesGetContextsGeneralState = () => Promise.resolve(new Map());
   (window as any).kubernetesGetCurrentContextGeneralState = () => Promise.resolve({});
+  (window as any).kubernetesGetCurrentContextResources = kubernetesGetCurrentContextResourcesMock;
 });
 
 async function waitRender(customProperties: object): Promise<void> {
@@ -111,22 +96,13 @@ test('Expect element in ingresses list', async () => {
     },
   } as V1Route;
 
-  ingressesEventStore.setup();
-  routesEventStore.setup();
-
-  const ingressAddCallback = callbacks.get('kubernetes-ingress-add');
-  expect(ingressAddCallback).toBeDefined();
-  await ingressAddCallback(ingress);
-
-  const routeAddCallback = callbacks.get('kubernetes-route-add');
-  expect(routeAddCallback).toBeDefined();
-  await routeAddCallback(route);
+  kubernetesGetCurrentContextResourcesMock.mockResolvedValue([ingress, route]);
 
   // wait while store is populated
-  while (get(ingresses).length === 0) {
+  while (get(kubernetesCurrentContextIngresses).length === 0) {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
-  while (get(routes).length === 0) {
+  while (get(kubernetesCurrentContextRoutes).length === 0) {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 
@@ -167,14 +143,10 @@ test('Expect filter empty screen if no match', async () => {
     },
   } as V1Ingress;
 
-  ingressesEventStore.setup();
-
-  const ingressAddCallback = callbacks.get('kubernetes-ingress-add');
-  expect(ingressAddCallback).toBeDefined();
-  await ingressAddCallback(ingress);
+  kubernetesGetCurrentContextResourcesMock.mockResolvedValue([ingress]);
 
   // wait while store is populated
-  while (get(ingresses).length === 0) {
+  while (get(kubernetesCurrentContextIngresses).length === 0) {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 

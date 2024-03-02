@@ -75,3 +75,38 @@ export const kubernetesCurrentContextServicesFiltered = derived(
   ([$searchPattern, $services]) =>
     $services.filter(service => findMatchInLeaves(service, $searchPattern.toLowerCase())),
 );
+
+// Ingresses
+
+export const kubernetesCurrentContextIngresses = readable<KubernetesObject[]>([], set => {
+  window.kubernetesGetCurrentContextResources('ingresses').then(value => set(value));
+  window.events?.receive('kubernetes-current-context-ingresses-update', (value: unknown) => {
+    set(value as KubernetesObject[]);
+  });
+});
+
+export const ingressSearchPattern = writable('');
+
+// The ingresses in the current context, filtered with `ingressSearchPattern`
+export const kubernetesCurrentContextIngressesFiltered = derived(
+  [ingressSearchPattern, kubernetesCurrentContextIngresses],
+  ([$searchPattern, $ingresses]) =>
+    $ingresses.filter(ingress => findMatchInLeaves(ingress, $searchPattern.toLowerCase())),
+);
+
+// Routes
+
+export const kubernetesCurrentContextRoutes = readable<KubernetesObject[]>([], set => {
+  window.kubernetesGetCurrentContextResources('routes').then(value => set(value));
+  window.events?.receive('kubernetes-current-context-routes-update', (value: unknown) => {
+    set(value as KubernetesObject[]);
+  });
+});
+
+export const routeSearchPattern = writable('');
+
+// The routes in the current context, filtered with `routeSearchPattern`
+export const kubernetesCurrentContextRoutesFiltered = derived(
+  [routeSearchPattern, kubernetesCurrentContextRoutes],
+  ([$searchPattern, $routes]) => $routes.filter(route => findMatchInLeaves(route, $searchPattern.toLowerCase())),
+);
