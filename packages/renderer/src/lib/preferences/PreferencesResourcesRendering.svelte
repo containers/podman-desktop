@@ -357,6 +357,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
 
 /*
 Changes:
+ role="region"                     -> region="row"
  aria-label="Provider Setup"       -> aria-label="Title"
  aria-label="Provider Connections" -> aria-label="Content"
 */
