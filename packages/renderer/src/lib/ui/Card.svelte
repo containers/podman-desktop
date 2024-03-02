@@ -10,7 +10,9 @@ export let subtitle: string | undefined = undefined;
 
 <div
   role="row"
-  class="{highlighted ? 'bg-charcoal-600' : 'bg-charcoal-700'} mb-5 rounded-md p-3 flex-nowrap"
+  class="{highlighted
+    ? 'bg-[var(--pd-invert-content-card-bg)]'
+    : 'bg-[var(--pd-invert-content-card-bg-highlighted)]'} mb-5 rounded-md p-3 flex-nowrap"
   aria-label="{label}">
   <div class="pb-2">
     <div class="flex space-x-2">
@@ -19,7 +21,7 @@ export let subtitle: string | undefined = undefined;
     </div>
     <slot name="subheader" />
   </div>
-  <div class="grow flex-column divide-gray-900 text-gray-400">
+  <div class="grow flex-column divide-[var(--pd-invert-content-card-divide)] text-[var(--pd-invert-content-card-text)]">
     <slot name="content" />
   </div>
 </div>

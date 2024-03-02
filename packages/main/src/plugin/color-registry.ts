@@ -341,9 +341,24 @@ export class ColorRegistry {
       light: colorPalette.gray[300],
     });
 
+    this.registerColor(`${invCt}card-bg-highlighted`, {
+      dark: colorPalette.charcoal[700],
+      light: colorPalette.gray[200],
+    });
+
+    this.registerColor(`${invCt}card-divide`, {
+      dark: colorPalette.gray[900],
+      light: colorPalette.charcoal[50],
+    });
+
     this.registerColor(`${invCt}card-header-text`, {
       dark: colorPalette.white,
       light: colorPalette.charcoal[900],
+    });
+
+    this.registerColor(`${invCt}card-subtitle-text`, {
+      dark: colorPalette.gray[600],
+      light: colorPalette.charcoal[100],
     });
 
     this.registerColor(`${invCt}card-text`, {

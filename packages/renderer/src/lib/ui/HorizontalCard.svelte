@@ -7,8 +7,8 @@ export let subtitle: string | undefined = undefined;
 export let icon: string | { light: string; dark: string } | undefined = undefined;
 </script>
 
-<div role="row" class="bg-charcoal-600 mb-5 rounded-md p-3 flex flex-col" aria-label="{label}">
-  <div class="divide-x divide-gray-900 flex flex-row">
+<div role="row" class="bg-[var(--pd-invert-content-card-bg)] mb-5 rounded-md p-3 flex flex-col" aria-label="{label}">
+  <div class="divide-x divide-[var(--pd-invert-content-card-divide)] flex flex-row">
     <div role="region" aria-label="Title Region">
       <!-- left col: icon/name + actions -->
       <div class="min-w-[170px] max-w-[200px]">
@@ -21,7 +21,7 @@ export let icon: string | { light: string; dark: string } | undefined = undefine
       </div>
     </div>
     <!-- content -->
-    <div class="divide-gray-900 ml-2" role="region" aria-label="Content">
+    <div class="divide-[var(--pd-invert-content-card-divide)] ml-2" role="region" aria-label="Content">
       <slot name="content" />
     </div>
   </div>

@@ -16,9 +16,9 @@ export let icon: string | { light: string; dark: string } | undefined = undefine
 <!-- Centered items div -->
 <div class="flex-grow flex flex-col justify-center">
   <div class="flex flex-col items-left">
-    <span class="text-md" aria-label="title">{title}</span>
+    <span class="text-md text-[var(--pd-invert-content-card-header-text)]" aria-label="title">{title}</span>
     {#if subtitle}
-      <span class="text-xs text-gray-600" aria-label="subtitle">{subtitle}</span>
+      <span class="text-xs text-[var(--pd-invert-content-card-subtitle-text)]" aria-label="subtitle">{subtitle}</span>
     {/if}
   </div>
 </div>
