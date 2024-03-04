@@ -21,20 +21,34 @@
 import '@testing-library/jest-dom/vitest';
 import { test, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
-import { get } from 'svelte/store';
-import type { V1Ingress } from '@kubernetes/client-node';
+import { readable, writable } from 'svelte/store';
+import type { V1Ingress, KubernetesObject } from '@kubernetes/client-node';
 import IngressesRoutesList from './IngressesRoutesList.svelte';
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
-import { kubernetesCurrentContextIngresses, kubernetesCurrentContextRoutes } from '/@/stores/kubernetes-contexts-state';
+import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
+import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes-context-state';
 
-const kubernetesGetCurrentContextResourcesMock = vi.fn();
+vi.mock('/@/stores/kubernetes-contexts-state', async () => {
+  return {
+    routeSearchPattern: writable(''),
+    ingressSearchPattern: writable(''),
+    kubernetesCurrentContextIngresses: vi.fn(),
+    kubernetesCurrentContextIngressesFiltered: writable<KubernetesObject[]>([]),
+    kubernetesCurrentContextRoutes: vi.fn(),
+    kubernetesCurrentContextRoutesFiltered: writable<KubernetesObject[]>([]),
+    kubernetesCurrentContextState: readable({
+      reachable: true,
+      error: 'initializing',
+      resources: { pods: 0, deployments: 0 },
+    } as ContextGeneralState),
+  };
+});
 
 beforeEach(() => {
   vi.resetAllMocks();
   vi.clearAllMocks();
   (window as any).kubernetesGetContextsGeneralState = () => Promise.resolve(new Map());
   (window as any).kubernetesGetCurrentContextGeneralState = () => Promise.resolve({});
-  (window as any).kubernetesGetCurrentContextResources = kubernetesGetCurrentContextResourcesMock;
 });
 
 async function waitRender(customProperties: object): Promise<void> {
@@ -96,15 +110,11 @@ test('Expect element in ingresses list', async () => {
     },
   } as V1Route;
 
-  kubernetesGetCurrentContextResourcesMock.mockResolvedValue([ingress, route]);
-
-  // wait while store is populated
-  while (get(kubernetesCurrentContextIngresses).length === 0) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
-  while (get(kubernetesCurrentContextRoutes).length === 0) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
+  // mock object stores
+  vi.mocked(kubeContextStore).kubernetesCurrentContextIngresses = readable<KubernetesObject[]>([ingress]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextIngressesFiltered = readable<KubernetesObject[]>([ingress]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextRoutes = readable<KubernetesObject[]>([route]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextRoutesFiltered = readable<KubernetesObject[]>([route]);
 
   await waitRender({});
 
@@ -115,40 +125,9 @@ test('Expect element in ingresses list', async () => {
 });
 
 test('Expect filter empty screen if no match', async () => {
-  const ingress = {
-    metadata: {
-      name: 'my-ingress',
-      namespace: 'test-namespace',
-    },
-    spec: {
-      rules: [
-        {
-          host: 'foo.bar.com',
-          http: {
-            paths: [
-              {
-                path: '/foo',
-                pathType: 'Prefix',
-                backend: {
-                  resource: {
-                    name: 'bucket',
-                    kind: 'StorageBucket',
-                  },
-                },
-              },
-            ],
-          },
-        },
-      ],
-    },
-  } as V1Ingress;
-
-  kubernetesGetCurrentContextResourcesMock.mockResolvedValue([ingress]);
-
-  // wait while store is populated
-  while (get(kubernetesCurrentContextIngresses).length === 0) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
+  // mock object stores
+  vi.mocked(kubeContextStore).kubernetesCurrentContextIngressesFiltered = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextRoutesFiltered = readable<KubernetesObject[]>([]);
 
   await waitRender({ searchTerm: 'No match' });
 
