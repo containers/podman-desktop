@@ -21,19 +21,31 @@ import { beforeAll, test, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import AppNavigation from './AppNavigation.svelte';
 import type { TinroRouteMeta } from 'tinro';
+import { readable } from 'svelte/store';
+import type { KubernetesObject } from '@kubernetes/client-node';
+import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
 
 const eventsMock = vi.fn();
+
+vi.mock('/@/stores/kubernetes-contexts-state', async () => {
+  return {};
+});
 
 // fake the window object
 beforeAll(() => {
   (window as any).events = eventsMock;
-  (window as any).kubernetesGetCurrentContextResources = vi.fn().mockImplementation(() => []);
 });
 
 test('Test rendering of the navigation bar with empty items', () => {
   const meta = {
     url: '/',
   } as unknown as TinroRouteMeta;
+
+  // mock no kubernetes resources
+  vi.mocked(kubeContextStore).kubernetesCurrentContextDeployments = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextServices = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextIngresses = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextRoutes = readable<KubernetesObject[]>([]);
 
   render(AppNavigation, {
     meta,
