@@ -23,9 +23,11 @@ import { expect as playExpect } from '@playwright/test';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
 import { DashboardPage } from './model/pages/dashboard-page';
+import { deletePodmanMachine } from './utility/operations';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
+const PODMAN_MACHINE_NAME = 'Podman Machine';
 
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
@@ -33,6 +35,13 @@ beforeAll(async () => {
   pdRunner.setVideoAndTraceName('podman-machine-dashboard');
 
   await new WelcomePage(page).handleWelcomePage(true);
+
+  if (
+    (process.env.TEST_PODMAN_MACHINE !== undefined && process.env.TEST_PODMAN_MACHINE === 'true') ||
+    (process.env.MACHINE_CLEANUP !== undefined && process.env.MACHINE_CLEANUP === 'true')
+  ) {
+    await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
+  }
 });
 
 beforeEach<RunnerTestContext>(async ctx => {
@@ -52,5 +61,12 @@ describe.runIf(process.env.TEST_PODMAN_MACHINE !== undefined && process.env.TEST
       await dashboardPage.initilizeAndStartButton.click();
       await playExpect(dashboardPage.podmanMachineConnectionStatus).toHaveText('RUNNING', { timeout: 300000 });
     }, 320000);
+
+    test.runIf(process.env.MACHINE_CLEANUP !== undefined && process.env.MACHINE_CLEANUP === 'true')(
+      'Clean Up Podman Machine',
+      async () => {
+        await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
+      },
+    );
   },
 );
