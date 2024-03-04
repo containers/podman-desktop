@@ -302,12 +302,40 @@ export class ContextsStates {
   }
 }
 
+class SecondaryResourceWatchersRegistry {
+  // Map resourceName to number of watchers
+  private watchingSecondaryResource = new Map<string, number>();
+
+  subscribe(resourceName: string): void {
+    let count = this.watchingSecondaryResource.get(resourceName);
+    if (count === undefined) {
+      this.watchingSecondaryResource.set(resourceName, 0);
+      count = 0;
+    }
+    this.watchingSecondaryResource.set(resourceName, count + 1);
+  }
+
+  unsubscribe(resourceName: string): void {
+    const count = this.watchingSecondaryResource.get(resourceName);
+    if (count === undefined) {
+      throw new Error(`unsubscribe before subscribe on resource ${resourceName}`);
+    }
+    this.watchingSecondaryResource.set(resourceName, count - 1);
+  }
+
+  hasSubscribers(resourceName: string): boolean {
+    const count = this.watchingSecondaryResource.get(resourceName);
+    return !!count;
+  }
+}
+
 // the ContextsState singleton (instantiated by the kubernetes-client singleton)
 // manages the state of the different kube contexts
 export class ContextsManager {
   private kubeConfig = new KubeConfig();
   private states = new ContextsStates();
   private currentContext: string | undefined;
+  private secondaryWatchers = new SecondaryResourceWatchersRegistry();
 
   constructor(private readonly apiSender: ApiSenderType) {}
 
@@ -345,6 +373,14 @@ export class ContextsManager {
       for (const ctx of nonCurrentContexts) {
         const contextName = ctx.name;
         await this.states.disposeSecondaryInformers(contextName);
+      }
+    }
+
+    // Restart informers for secondary resources if watchers are subscribing for this resource
+    for (const resourceName of secondaryResources) {
+      if (this.secondaryWatchers.hasSubscribers(resourceName)) {
+        console.debug(`start watching ${resourceName} in context ${this.currentContext}`);
+        this.startResourceInformer(this.currentContext, resourceName);
       }
     }
 
@@ -782,6 +818,9 @@ export class ContextsManager {
   }
 
   public getCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
+    if (isSecondaryResourceName(resourceName)) {
+      this.secondaryWatchers.subscribe(resourceName);
+    }
     if (!this.currentContext) {
       return [];
     }
@@ -795,6 +834,13 @@ export class ContextsManager {
     }
     console.debug(`start watching ${resourceName} in context ${this.currentContext}`);
     this.startResourceInformer(this.currentContext, resourceName);
+    return [];
+  }
+
+  public unregisterGetCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
+    if (isSecondaryResourceName(resourceName)) {
+      this.secondaryWatchers.unsubscribe(resourceName);
+    }
     return [];
   }
 

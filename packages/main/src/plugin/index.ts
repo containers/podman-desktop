@@ -1918,6 +1918,13 @@ export class PluginSystem {
       },
     );
 
+    this.ipcHandle(
+      'kubernetes-client:unregisterGetCurrentContextResources',
+      async (_listener, resourceName: ResourceName): Promise<KubernetesObject[]> => {
+        return kubernetesClient.unregisterGetCurrentContextResources(resourceName);
+      },
+    );
+
     this.ipcHandle('feedback:send', async (_listener, feedbackProperties: unknown): Promise<void> => {
       return telemetry.sendFeedback(feedbackProperties);
     });

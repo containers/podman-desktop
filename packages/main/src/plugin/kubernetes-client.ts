@@ -1371,4 +1371,8 @@ export class KubernetesClient {
   public getCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
     return this.contextsState.getCurrentContextResources(resourceName);
   }
+
+  public unregisterGetCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
+    return this.contextsState.unregisterGetCurrentContextResources(resourceName);
+  }
 }

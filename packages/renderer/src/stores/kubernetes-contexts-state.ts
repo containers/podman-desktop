@@ -65,6 +65,9 @@ export const kubernetesCurrentContextServices = readable<KubernetesObject[]>([],
   window.events?.receive('kubernetes-current-context-services-update', (value: unknown) => {
     set(value as KubernetesObject[]);
   });
+  return () => {
+    window.kubernetesUnregisterGetCurrentContextResources('services');
+  };
 });
 
 export const serviceSearchPattern = writable('');

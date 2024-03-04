@@ -1232,6 +1232,155 @@ describe.each(secondaryInformers)(`Secondary informer $resource`, ({ resource, i
   });
 });
 
+test('changing context should start service informer on current context if watchers have subscribed', async () => {
+  vi.useFakeTimers();
+  const makeInformerMock = vi.mocked(makeInformer);
+  makeInformerMock.mockImplementation(
+    (
+      kubeconfig: kubeclient.KubeConfig,
+      path: string,
+      _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+    ) => {
+      return new FakeInformer(kubeconfig.currentContext, path, 0, undefined, [], []);
+    },
+  );
+  const client = new ContextsManager(apiSender);
+  const kubeConfig = new kubeclient.KubeConfig();
+  const config = {
+    clusters: [
+      {
+        name: 'cluster1',
+        server: 'server1',
+      },
+    ],
+    users: [
+      {
+        name: 'user1',
+      },
+    ],
+    contexts: [
+      {
+        name: 'context1',
+        cluster: 'cluster1',
+        user: 'user1',
+        namespace: 'ns1',
+      },
+      {
+        name: 'context2',
+        cluster: 'cluster1',
+        user: 'user1',
+        namespace: 'ns2',
+      },
+    ],
+    currentContext: 'context1',
+  };
+  kubeConfig.loadFromOptions(config);
+  await client.update(kubeConfig);
+  vi.advanceTimersToNextTimer();
+
+  makeInformerMock.mockClear();
+
+  // service informer is started
+  client.getCurrentContextResources('services');
+  expect(makeInformerMock).toHaveBeenCalledTimes(1);
+  expect(makeInformerMock).toHaveBeenCalledWith(
+    expect.any(KubeConfig),
+    '/api/v1/namespaces/ns1/services',
+    expect.anything(),
+  );
+
+  makeInformerMock.mockClear();
+
+  config.currentContext = 'context2';
+  kubeConfig.loadFromOptions(config);
+
+  expect(informerStopMock).not.toHaveBeenCalled();
+
+  await client.update(kubeConfig);
+
+  expect(informerStopMock).toHaveBeenCalledTimes(1);
+  expect(informerStopMock).toHaveBeenCalledWith('context1', '/api/v1/namespaces/ns1/services');
+  expect(makeInformerMock).toHaveBeenCalledTimes(1);
+  expect(makeInformerMock).toHaveBeenCalledWith(
+    expect.any(KubeConfig),
+    '/api/v1/namespaces/ns2/services',
+    expect.anything(),
+  );
+});
+
+test('changing context should not start service informer on current context if no watchers have subscribed', async () => {
+  vi.useFakeTimers();
+  const makeInformerMock = vi.mocked(makeInformer);
+  makeInformerMock.mockImplementation(
+    (
+      kubeconfig: kubeclient.KubeConfig,
+      path: string,
+      _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+    ) => {
+      return new FakeInformer(kubeconfig.currentContext, path, 0, undefined, [], []);
+    },
+  );
+  const client = new ContextsManager(apiSender);
+  const kubeConfig = new kubeclient.KubeConfig();
+  const config = {
+    clusters: [
+      {
+        name: 'cluster1',
+        server: 'server1',
+      },
+    ],
+    users: [
+      {
+        name: 'user1',
+      },
+    ],
+    contexts: [
+      {
+        name: 'context1',
+        cluster: 'cluster1',
+        user: 'user1',
+        namespace: 'ns1',
+      },
+      {
+        name: 'context2',
+        cluster: 'cluster1',
+        user: 'user1',
+        namespace: 'ns2',
+      },
+    ],
+    currentContext: 'context1',
+  };
+  kubeConfig.loadFromOptions(config);
+  await client.update(kubeConfig);
+  vi.advanceTimersToNextTimer();
+
+  makeInformerMock.mockClear();
+
+  // service informer is started
+  client.getCurrentContextResources('services');
+  expect(makeInformerMock).toHaveBeenCalledTimes(1);
+  expect(makeInformerMock).toHaveBeenCalledWith(
+    expect.any(KubeConfig),
+    '/api/v1/namespaces/ns1/services',
+    expect.anything(),
+  );
+
+  makeInformerMock.mockClear();
+
+  config.currentContext = 'context2';
+  kubeConfig.loadFromOptions(config);
+
+  expect(informerStopMock).not.toHaveBeenCalled();
+
+  client.unregisterGetCurrentContextResources('services');
+
+  await client.update(kubeConfig);
+
+  expect(informerStopMock).toHaveBeenCalledTimes(1);
+  expect(informerStopMock).toHaveBeenCalledWith('context1', '/api/v1/namespaces/ns1/services');
+  expect(makeInformerMock).not.toHaveBeenCalled();
+});
+
 describe('ContextsStates tests', () => {
   test('hasInformer should check if informer exists for context', () => {
     const client = new ContextsStates();

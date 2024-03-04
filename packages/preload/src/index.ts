@@ -1583,6 +1583,12 @@ export function initExposure(): void {
       return ipcInvoke('kubernetes-client:getCurrentContextResources', resourceName);
     },
   );
+  contextBridge.exposeInMainWorld(
+    'kubernetesUnregisterGetCurrentContextResources',
+    async (resourceName: ResourceName): Promise<KubernetesObject[]> => {
+      return ipcInvoke('kubernetes-client:unregisterGetCurrentContextResources', resourceName);
+    },
+  );
 
   contextBridge.exposeInMainWorld('kubernetesGetClusters', async (): Promise<Cluster[]> => {
     return ipcInvoke('kubernetes-client:getClusters');
