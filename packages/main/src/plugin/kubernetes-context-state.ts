@@ -27,8 +27,19 @@ import type {
   V1PodList,
   V1Service,
   V1ServiceList,
+  V1Ingress,
+  V1IngressList,
+  KubernetesListObject,
+  V1ObjectMeta,
 } from '@kubernetes/client-node';
-import { AppsV1Api, CoreV1Api, KubeConfig, makeInformer } from '@kubernetes/client-node';
+import {
+  AppsV1Api,
+  CoreV1Api,
+  NetworkingV1Api,
+  CustomObjectsApi,
+  KubeConfig,
+  makeInformer,
+} from '@kubernetes/client-node';
 import type { KubeContext } from './kubernetes-context.js';
 import type { ApiSenderType } from './api.js';
 import {
@@ -39,6 +50,7 @@ import {
   dispatchTimeout,
 } from './kubernetes-context-state-constants.js';
 import type { IncomingMessage } from 'node:http';
+import type { V1Route } from './api/openshift-types.js';
 
 // ContextInternalState stores informers for a kube context
 type ContextInternalState = Map<ResourceName, Informer<KubernetesObject> & ObjectCache<KubernetesObject>>;
@@ -56,7 +68,7 @@ const selectedResources = ['pods', 'deployments'] as const;
 
 // resources managed by podman desktop, excepted the primary ones
 // This is where to add new resources when adding new informers
-const secondaryResources = ['services'] as const;
+const secondaryResources = ['services', 'ingresses', 'routes'] as const;
 
 export type SelectedResourceName = (typeof selectedResources)[number];
 export type SecondaryResourceName = (typeof secondaryResources)[number];
@@ -112,6 +124,8 @@ const dispatchAllResources: ResourcesDispatchOptions = {
   pods: true,
   deployments: true,
   services: true,
+  ingresses: true,
+  routes: true,
   // add new resources here when adding new informers
 };
 
@@ -246,6 +260,8 @@ export class ContextsStates {
           pods: [],
           deployments: [],
           services: [],
+          ingresses: [],
+          routes: [],
           // add new resources here when adding new informers
         },
       });
@@ -376,6 +392,12 @@ export class ContextsManager {
       case 'services':
         informer = this.createServiceInformer(this.kubeConfig, ns, context);
         break;
+      case 'ingresses':
+        informer = this.createIngressInformer(this.kubeConfig, ns, context);
+        break;
+      case 'routes':
+        informer = this.createRouteInformer(this.kubeConfig, ns, context);
+        break;
       default:
         console.debug(`unable to watch ${resourceName} in context ${contextName}, as this resource is not supported`);
         return;
@@ -500,6 +522,94 @@ export class ContextsManager {
           { services: true },
           state =>
             (state.resources.services = state.resources.services.filter(d => d.metadata?.uid !== obj.metadata?.uid)),
+        );
+      },
+    });
+  }
+
+  public createIngressInformer(
+    kc: KubeConfig,
+    ns: string,
+    context: KubeContext,
+  ): Informer<V1Ingress> & ObjectCache<V1Ingress> {
+    const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
+    const listFn = (): Promise<{
+      response: IncomingMessage;
+      body: V1IngressList;
+    }> => k8sNetworkingApi.listNamespacedIngress(ns);
+    const path = `/apis/networking.k8s.io/v1/namespaces/${ns}/ingresses`;
+    let timer: NodeJS.Timeout | undefined;
+    let connectionDelay: NodeJS.Timeout | undefined;
+    return this.createInformer<V1Ingress>(kc, context, path, listFn, {
+      resource: 'ingresses',
+      timer: timer,
+      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      connectionDelay: connectionDelay,
+      onAdd: obj => {
+        this.setStateAndDispatch(context.name, false, { ingresses: true }, state =>
+          state.resources.ingresses.push(obj),
+        );
+      },
+      onUpdate: obj => {
+        this.setStateAndDispatch(context.name, false, { ingresses: true }, state => {
+          state.resources.ingresses = state.resources.ingresses.filter(o => o.metadata?.uid !== obj.metadata?.uid);
+          state.resources.ingresses.push(obj);
+        });
+      },
+      onDelete: obj => {
+        this.setStateAndDispatch(
+          context.name,
+          false,
+          { ingresses: true },
+          state =>
+            (state.resources.ingresses = state.resources.ingresses.filter(d => d.metadata?.uid !== obj.metadata?.uid)),
+        );
+      },
+    });
+  }
+
+  public createRouteInformer(
+    kc: KubeConfig,
+    ns: string,
+    context: KubeContext,
+  ): Informer<V1Route> & ObjectCache<V1Route> {
+    const customObjectsApi = this.kubeConfig.makeApiClient(CustomObjectsApi);
+    const listFn = (): Promise<{
+      response: IncomingMessage;
+      body: KubernetesListObject<V1Route>;
+    }> =>
+      customObjectsApi.listNamespacedCustomObject('route.openshift.io', 'v1', ns, 'routes') as Promise<{
+        response: IncomingMessage;
+        body: KubernetesListObject<V1Route>;
+      }>;
+    const path = `/apis/route.openshift.io/v1/namespaces/${ns}/routes`;
+    let timer: NodeJS.Timeout | undefined;
+    let connectionDelay: NodeJS.Timeout | undefined;
+    return this.createInformer<V1Route>(kc, context, path, listFn, {
+      resource: 'routes',
+      timer: timer,
+      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      connectionDelay: connectionDelay,
+      onAdd: obj => {
+        this.setStateAndDispatch(context.name, false, { routes: true }, state => state.resources.routes.push(obj));
+      },
+      onUpdate: obj => {
+        this.setStateAndDispatch(context.name, false, { routes: true }, state => {
+          state.resources.routes = state.resources.routes.filter(
+            o => o.metadata?.uid !== (obj.metadata as V1ObjectMeta)?.uid,
+          );
+          state.resources.routes.push(obj);
+        });
+      },
+      onDelete: obj => {
+        this.setStateAndDispatch(
+          context.name,
+          false,
+          { routes: true },
+          state =>
+            (state.resources.routes = state.resources.routes.filter(
+              d => d.metadata?.uid !== (obj.metadata as V1ObjectMeta)?.uid,
+            )),
         );
       },
     });
