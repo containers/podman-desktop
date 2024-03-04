@@ -31,7 +31,7 @@ import type {
   VolumeCreateOptions,
   VolumeCreateResponseInfo,
 } from './api/container-info.js';
-import type { BuildImageOptions, ImageInfo } from './api/image-info.js';
+import type { BuildImageOptions, ImageInfo, ListImagesOptions } from './api/image-info.js';
 import type { PodCreateOptions, PodInfo, PodInspectInfo } from './api/pod-info.js';
 import type { ImageInspectInfo } from './api/image-inspect-info.js';
 import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
@@ -544,16 +544,14 @@ export class ContainerProviderRegistry {
     return flatttenedContainers;
   }
 
-  async listImages(
-    providerContainerConnection?: containerDesktopAPI.ContainerProviderConnection,
-  ): Promise<ImageInfo[]> {
+  async listImages(options?: ListImagesOptions): Promise<ImageInfo[]> {
     let telemetryOptions = {};
 
     let providers: InternalContainerProvider[];
-    if (providerContainerConnection === undefined) {
+    if (options?.provider === undefined) {
       providers = Array.from(this.internalProviders.values());
     } else {
-      providers = [this.getMatchingContainerProvider(providerContainerConnection)];
+      providers = [this.getMatchingContainerProvider(options?.provider)];
     }
 
     const images = await Promise.all(

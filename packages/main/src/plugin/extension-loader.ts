@@ -962,10 +962,8 @@ export class ExtensionLoader {
       ) {
         return containerProviderRegistry.buildImage(context, eventCollect, options);
       },
-      listImages(
-        providerContainerConnection?: containerDesktopAPI.ContainerProviderConnection,
-      ): Promise<containerDesktopAPI.ImageInfo[]> {
-        return containerProviderRegistry.listImages(providerContainerConnection);
+      listImages(options?: containerDesktopAPI.ListImagesOptions): Promise<containerDesktopAPI.ImageInfo[]> {
+        return containerProviderRegistry.listImages(options);
       },
       saveImage(engineId: string, id: string, filename: string) {
         return containerProviderRegistry.saveImage(engineId, id, filename);

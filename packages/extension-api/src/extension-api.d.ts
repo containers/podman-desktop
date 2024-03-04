@@ -2809,6 +2809,15 @@ declare module '@podman-desktop/api' {
     nocache?: boolean;
   }
 
+  export interface ListImagesOptions {
+    /**
+     * The provider we want to list the images. If not provided, will return all container images across all container engines.
+     *
+     * @defaultValue undefined
+     */
+    provider?: ContainerProviderConnection;
+  }
+
   export interface NetworkCreateOptions {
     Name: string;
   }
@@ -2965,7 +2974,7 @@ declare module '@podman-desktop/api' {
     /**
      * List the container images. Only images from a final layer (no children) are returned.
      *
-     * @param providerContainerConnection An optional parameter representing the container provider connection. If not provided, will return all container images across all container engines.
+     * @param options optional options for listing images
      * @returns A promise resolving to an array of images information. This method returns a subset of the available information for images. To get the complete description of a specific image, you can use the {@link containerEngine.getImageInspect} method.
      *
      * @example
@@ -2976,10 +2985,10 @@ declare module '@podman-desktop/api' {
      * @example
      * // Example 2: List container images for a specific provider.
      * const provider = provider.getContainerConnections().find(connection => connection.connection.status() === 'started');
-     * const images = await listImages(provider);
+     * const images = await listImages({provider: provider });
      * console.log(images);
      */
-    export function listImages(providerContainerConnection?: ContainerProviderConnection): Promise<ImageInfo[]>;
+    export function listImages(options?: ListImagesOptions): Promise<ImageInfo[]>;
 
     /**
      * Tag an image so that it becomes part of a repository
