@@ -1131,7 +1131,7 @@ test('calling getCurrentContextResources should start service informer, the firs
   expect(makeInformerMock).not.toHaveBeenCalled();
 });
 
-test('changing context should stop service informer on previous current context', async () => {
+test('changing context should stop service informer on previous current context and clear state', async () => {
   vi.useFakeTimers();
   const makeInformerMock = vi.mocked(makeInformer);
   makeInformerMock.mockImplementation(
@@ -1140,7 +1140,7 @@ test('changing context should stop service informer on previous current context'
       path: string,
       _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
     ) => {
-      return new FakeInformer(kubeconfig.currentContext, path, 0, undefined, [], []);
+      return new FakeInformer(kubeconfig.currentContext, path, 1, undefined, [], []);
     },
   );
   const client = new ContextsManager(apiSender);
@@ -1188,6 +1188,8 @@ test('changing context should stop service informer on previous current context'
     expect.anything(),
   );
 
+  expect(client.getContextResources('context1', 'services').length).toBe(1);
+
   makeInformerMock.mockClear();
 
   config.currentContext = 'context2';
@@ -1199,6 +1201,7 @@ test('changing context should stop service informer on previous current context'
 
   expect(informerStopMock).toHaveBeenCalledTimes(1);
   expect(informerStopMock).toHaveBeenCalledWith('context1', '/api/v1/namespaces/ns1/services');
+  expect(client.getContextResources('context1', 'services').length).toBe(0);
 });
 
 describe('ContextsStates tests', () => {
