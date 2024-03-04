@@ -34,7 +34,7 @@ const config: Configuration = {
 vi.mock('@podman-desktop/api', async () => {
   return {
     configuration: {
-      getConfiguration: () => config,
+      getConfiguration: (): Configuration => config,
     },
     window: {
       showInformationMessage: vi.fn(),

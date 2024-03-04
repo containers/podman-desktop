@@ -36,7 +36,7 @@ let testAnimatedTray: TestAnimatedTray;
 vi.mock('electron', async () => {
   return {
     app: {
-      getAppPath: () => 'a-custom-appPath',
+      getAppPath: (): string => 'a-custom-appPath',
     },
     nativeTheme: {
       on: vi.fn(),

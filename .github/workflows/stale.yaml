@@ -36,9 +36,9 @@ jobs:
     - uses: actions/stale@v9
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-       # Please refer to https://github.com/actions/stale/
-        # limit to 10 operations per run (to see how it works)
-        operations-per-run: 10
+        # Please refer to https://github.com/actions/stale/
+        # limit to 1000 operations per run
+        operations-per-run: 1000
         days-before-issue-stale: 180
         days-before-issue-close: 30
         stale-issue-label: lifecycle/stale

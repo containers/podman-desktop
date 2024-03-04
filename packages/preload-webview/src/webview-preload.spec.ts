@@ -35,16 +35,16 @@ class TestWebwiewPreload extends WebviewPreload {
   buildApi(): unknown {
     return super.buildApi();
   }
-  ipcRendererOn(channel: string, listener: (event: IpcRendererEvent, ...args: unknown[]) => void) {
+  ipcRendererOn(channel: string, listener: (event: IpcRendererEvent, ...args: unknown[]) => void): void {
     super.ipcRendererOn(channel, listener);
   }
   async ipcInvoke(channel: string, ...args: unknown[]): Promise<unknown> {
     return super.ipcInvoke(channel, ...args);
   }
-  changeContent() {
+  changeContent(): void {
     super.changeContent();
   }
-  postWebviewMessage(message: unknown) {
+  postWebviewMessage(message: unknown): void {
     super.postWebviewMessage(message);
   }
   async getTheme(): Promise<string> {

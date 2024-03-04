@@ -25,13 +25,21 @@ import { get } from 'svelte/store';
 import { podsInfos } from '/@/stores/pods';
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
 
-import { router } from 'tinro';
+import { router, type TinroRoute } from 'tinro';
 import { lastPage } from '/@/stores/breadcrumb';
+
+const mocks = vi.hoisted(() => ({
+  TerminalMock: vi.fn(),
+}));
+vi.mock('xterm', () => ({
+  Terminal: mocks.TerminalMock,
+}));
 
 const listPodsMock = vi.fn();
 const listContainersMock = vi.fn();
 const kubernetesListPodsMock = vi.fn();
 const showMessageBoxMock = vi.fn();
+const getConfigurationValueMock = vi.fn();
 
 const myPod: PodInfo = {
   Cgroup: '',
@@ -59,7 +67,19 @@ beforeAll(() => {
   (window as any).kubernetesListPods = kubernetesListPodsMock;
   (window as any).removePod = removePodMock;
   (window as any).getContributedMenus = getContributedMenusMock;
+  (window as any).getConfigurationValue = getConfigurationValueMock;
+  (window as any).addEventListener = vi.fn();
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
+  mocks.TerminalMock.mockReturnValue({
+    loadAddon: vi.fn(),
+    open: vi.fn(),
+    write: vi.fn(),
+  });
+  global.ResizeObserver = vi.fn().mockReturnValue({
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
+  });
 });
 
 test('Expect redirect to previous page if pod is deleted', async () => {
@@ -87,7 +107,7 @@ test('Expect redirect to previous page if pod is deleted', async () => {
 
   // grab current route
   const currentRoute = window.location;
-  expect(currentRoute.href).toBe('http://localhost:3000/');
+  expect(currentRoute.href).toBe('http://localhost:3000/logs');
 
   // click on delete pod button
   const deleteButton = screen.getByRole('button', { name: 'Delete Pod' });
@@ -106,4 +126,28 @@ test('Expect redirect to previous page if pod is deleted', async () => {
   // grab updated route
   const afterRoute = window.location;
   expect(afterRoute.href).toBe('http://localhost:3000/last');
+});
+
+test('Expect redirect to logs', async () => {
+  // Mock the showMessageBox to return 0 (yes)
+  showMessageBoxMock.mockResolvedValue({ response: 0 });
+  const routerGotoSpy = vi.spyOn(router, 'goto');
+  const subscribeSpy = vi.spyOn(router, 'subscribe');
+  subscribeSpy.mockImplementation(listener => {
+    listener({ path: '/pods/podman/myPod/engine0/' } as unknown as TinroRoute);
+    return () => {};
+  });
+  listPodsMock.mockResolvedValue([myPod]);
+  kubernetesListPodsMock.mockResolvedValue([]);
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+  while (get(podsInfos).length !== 1) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  // render the component
+  render(PodDetails, { podName: 'myPod', engineId: 'engine0', kind: 'podman' });
+
+  await waitFor(() => {
+    expect(routerGotoSpy).toHaveBeenCalledWith('/pods/podman/myPod/engine0/logs');
+  });
 });

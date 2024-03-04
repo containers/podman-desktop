@@ -60,7 +60,7 @@ export class OnboardingRegistry {
     };
   }
 
-  convertImages(extension: AnalyzedExtension, onboarding: Onboarding) {
+  convertImages(extension: AnalyzedExtension, onboarding: Onboarding): void {
     if (onboarding.media?.path) {
       const base64Image = getBase64Image(path.resolve(extension.path, onboarding.media.path));
       if (base64Image) {
@@ -150,8 +150,8 @@ export class OnboardingRegistry {
    *
    * In case of a rule not respected, a warning is displayed in the console.
    */
-  checkIdsReadability(extension: AnalyzedExtension, onboarding: Onboarding) {
-    const warn = (msg: string) => {
+  checkIdsReadability(extension: AnalyzedExtension, onboarding: Onboarding): void {
+    const warn = (msg: string): void => {
       console.warn(`[${extension.id}]: ${msg}`);
     };
     onboarding.steps.forEach(step => {

@@ -17,7 +17,7 @@
  ***********************************************************************/
 import { Generator } from './generator';
 
-async function run() {
+async function run(): Promise<void> {
   let token = process.env.GITHUB_TOKEN;
   if (!token) {
     token = process.env.GH_TOKEN;

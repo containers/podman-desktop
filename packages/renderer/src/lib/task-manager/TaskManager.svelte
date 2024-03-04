@@ -73,7 +73,7 @@ window.events?.receive('toggle-task-manager', () => {
           </div>
           -->
           <button on:click="{() => hide()}" title="Hide (Escape)" class="cursor-pointer hover:bg-charcoal-600 p-1 ml-1">
-            <Fa icon="{faChevronDown}" size="15" />
+            <Fa icon="{faChevronDown}" size="0.9x" />
           </button>
         </div>
       </div>

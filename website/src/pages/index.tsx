@@ -20,7 +20,7 @@ import {
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-function DownloadClientLinks() {
+function DownloadClientLinks(): JSX.Element {
   let operatingSystem = '';
   let varIcon = undefined;
   let url = 'macos'; // Just use macos by default as the url before checking the user agent in case of an odd issue (unable to get userAgent / it's blank / etc.)
@@ -85,7 +85,7 @@ function DownloadClientLinks() {
   );
 }
 
-function DownloadGenericLinks() {
+function DownloadGenericLinks(): JSX.Element {
   return (
     <div className="flex justify-center">
       <Link
@@ -97,7 +97,7 @@ function DownloadGenericLinks() {
   );
 }
 
-function Hero() {
+function Hero(): JSX.Element {
   return (
     <section className="text-gray-900 dark:text-gray-400 body-font">
       <div className="container mx-auto flex px-5 pb-24 pt-4 items-center justify-center flex-col">
@@ -132,7 +132,7 @@ function Hero() {
   );
 }
 
-function SectionTitle(props) {
+function SectionTitle(props): JSX.Element {
   return (
     <div>
       <p className="inline-block px-3 py-px mb-4 text-xs font-semibold tracking-wider text-purple-800 uppercase rounded-full dark:bg-purple-400 bg-purple-400">
@@ -142,7 +142,7 @@ function SectionTitle(props) {
   );
 }
 
-function KeepUpToDate() {
+function KeepUpToDate(): JSX.Element {
   return (
     <section className="text-gray-900 dark:text-gray-400 dark:bg-charcoal-800 bg-zinc-100 body-font">
       <div className="container px-5 py-24 mx-auto flex flex-wrap">
@@ -181,7 +181,7 @@ function KeepUpToDate() {
   );
 }
 
-function Extensibility() {
+function Extensibility(): JSX.Element {
   return (
     <section className="text-gray-900 dark:text-gray-400 dark:bg-charcoal-600 bg-zinc-200 body-font">
       <div className="container px-5 py-24 mx-auto flex flex-wrap">
@@ -248,7 +248,7 @@ function Extensibility() {
   );
 }
 
-function Configure() {
+function Configure(): JSX.Element {
   return (
     <section className="text-gray-900 dark:text-gray-400 dark:bg-charcoal-800 bg-zinc-100 body-font py-24">
       <div className="container px-5 mx-auto flex flex-wrap">
@@ -320,7 +320,7 @@ function Configure() {
   );
 }
 
-function EnterpriseReady() {
+function EnterpriseReady(): JSX.Element {
   return (
     <section className="text-gray-900 dark:text-gray-400 dark:bg-charcoal-600 bg-zinc-200 body-font py-24">
       <div className="container px-5 mx-auto flex flex-wrap">
@@ -377,7 +377,7 @@ function EnterpriseReady() {
   );
 }
 
-function RunAnywhere() {
+function RunAnywhere(): JSX.Element {
   return (
     <section className="text-gray-900 dark:text-gray-400 dark:bg-charcoal-600 bg-zinc-200 body-font">
       <div className="container px-5 py-24 mx-auto flex flex-wrap">
@@ -444,7 +444,7 @@ function RunAnywhere() {
   );
 }
 
-function MainFeatures() {
+function MainFeatures(): JSX.Element {
   return (
     <section className="text-gray-900 dark:text-gray-400 dark:bg-charcoal-800 bg-zinc-100 body-font py-24">
       <div className="container px-5 mx-auto flex flex-wrap">
@@ -555,7 +555,7 @@ function MainFeatures() {
   );
 }
 
-function Pods() {
+function Pods(): JSX.Element {
   return (
     <section className="text-gray-900 dark:text-gray-400 dark:bg-charcoal-600 bg-zinc-200 body-font py-24">
       <div className="container px-5 mx-auto flex flex-wrap">

@@ -10,7 +10,7 @@ import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import FeaturedExtensions from '../featured/FeaturedExtensions.svelte';
 import Button from '../ui/Button.svelte';
 import ExtensionIcon from './ExtensionIcon.svelte';
-import Input from '../ui/Input.svelte';
+import { Input } from '@podman-desktop/ui-svelte';
 
 export let ociImage: string | undefined = undefined;
 

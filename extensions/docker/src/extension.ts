@@ -22,6 +22,7 @@ import * as http from 'node:http';
 
 let stopLoop = false;
 
+import { getDockerInstallation } from './docker-cli';
 let socketPath: string;
 let provider: extensionApi.Provider;
 let providerState: extensionApi.ProviderConnectionStatus = 'stopped';
@@ -107,7 +108,22 @@ async function monitorDaemon(extensionContext: extensionApi.ExtensionContext): P
   }
 }
 
-async function updateProvider(extensionContext: extensionApi.ExtensionContext) {
+async function updateProvider(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  try {
+    const installedDocker = await getDockerInstallation();
+    if (!installedDocker) {
+      provider.updateStatus('not-installed');
+    } else if (installedDocker.version) {
+      provider.updateVersion(installedDocker.version);
+      // update provider status if someone has installed docker externally
+      if (provider.status === 'not-installed') {
+        provider.updateStatus('installed');
+      }
+    }
+  } catch (error) {
+    // ignore the update
+  }
+
   // check if the daemon is alive
   const isAlive = await isDockerDaemonAlive(socketPath);
 
@@ -161,7 +177,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   });
 }
 
-function initProvider(extensionContext: extensionApi.ExtensionContext) {
+function initProvider(extensionContext: extensionApi.ExtensionContext): void {
   provider = extensionApi.provider.createProvider({
     name: 'Docker',
     id: 'docker',

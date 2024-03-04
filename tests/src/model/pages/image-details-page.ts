@@ -69,7 +69,7 @@ export class ImageDetailsPage extends BasePage {
   }
 
   async deleteImage(): Promise<ImagesPage> {
-    await waitUntil(async () => await this.deleteButton.isEnabled(), 5000, 500);
+    await waitUntil(async () => await this.deleteButton.isEnabled(), 10000, 500);
     await this.deleteButton.click();
     await handleConfirmationDialog(this.page);
     return new ImagesPage(this.page);

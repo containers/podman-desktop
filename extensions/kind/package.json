@@ -95,7 +95,7 @@
     ]
   },
   "scripts": {
-    "install:contour": "npx ts-node ./scripts/download.ts",
+    "install:contour": "tsx ./scripts/download.ts",
     "build": "vite build && node ./scripts/build.js",
     "test": "vitest run --coverage",
     "test:watch": "vitest watch --coverage",
@@ -105,13 +105,14 @@
     "@octokit/rest": "^20.0.2",
     "@podman-desktop/api": "^0.0.1",
     "mustache": "^4.2.0",
-    "yaml": "^2.3.4"
+    "yaml": "^2.4.0"
   },
   "devDependencies": {
     "adm-zip": "^0.5.10",
     "mkdirp": "^3.0.1",
     "tmp-promise": "^3.0.3",
+    "tsx": "^4.7.1",
     "vite": "^5.1.4",
-    "vitest": "^1.3.0"
+    "vitest": "^1.3.1"
   }
 }

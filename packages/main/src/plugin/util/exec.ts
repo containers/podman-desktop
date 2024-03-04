@@ -93,7 +93,7 @@ export class Exec {
           };
           const sudoCommand = `${command} ${args || [].join(' ')}`;
 
-          const callback = (error?: Error, stdout?: string | Buffer, stderr?: string | Buffer) => {
+          const callback = (error?: Error, stdout?: string | Buffer, stderr?: string | Buffer): void => {
             if (error) {
               // need to return a RunError
               const errResult: RunError = new RunErrorImpl(

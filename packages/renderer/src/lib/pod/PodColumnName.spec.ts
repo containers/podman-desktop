@@ -64,5 +64,5 @@ test('Expect clicking works', async () => {
 
   fireEvent.click(text);
 
-  expect(routerGotoSpy).toBeCalledWith('/pods/podman/my-pod/podman/logs');
+  expect(routerGotoSpy).toBeCalledWith('/pods/podman/my-pod/podman/');
 });

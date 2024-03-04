@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export function setupRegistry() {
-  const registryUrl = process.env.REGISTRY_URL ? process.env.REGISTRY_URL : process.env.CI ? 'ghcr.io' : '';
+export function setupRegistry(): [string, string, string] {
+  const registryUrl = process.env.REGISTRY_URL ? process.env.REGISTRY_URL : 'ghcr.io';
   const registryUsername = process.env.REGISTRY_USERNAME
     ? process.env.REGISTRY_USERNAME
     : process.env.CI
@@ -33,7 +33,7 @@ export function setupRegistry() {
   return [registryUrl, registryUsername, registryPswdSecret];
 }
 
-export function canTestRegistry() {
+export function canTestRegistry(): boolean {
   const [registry, username, passwd] = setupRegistry();
-  return registry && username && passwd;
+  return !!(registry && username && passwd);
 }

@@ -54,7 +54,7 @@ import type { ExtensionInfo } from './api/extension-info.js';
 import type { ImageInspectInfo } from './api/image-inspect-info.js';
 import type { TrayMenu } from '../tray-menu.js';
 import { getFreePort, getFreePortRange, isFreePort } from './util/port.js';
-import { isLinux, isMac } from '../util.js';
+import { isMac } from '../util.js';
 import type { MessageBoxOptions, MessageBoxReturnValue } from './message-box.js';
 import { MessageBox } from './message-box.js';
 import { ProgressImpl } from './progress-impl.js';
@@ -104,8 +104,6 @@ import { InputQuickPickRegistry } from './input-quickpick/input-quickpick-regist
 import type { Menu } from '/@/plugin/menu-registry.js';
 import { MenuRegistry } from '/@/plugin/menu-registry.js';
 import { CancellationTokenRegistry } from './cancellation-token-registry.js';
-import type { UpdateCheckResult } from 'electron-updater';
-import { autoUpdater } from 'electron-updater';
 import type { ApiSenderType } from './api.js';
 import type { AuthenticationProviderInfo } from './authentication.js';
 import { AuthenticationImpl } from './authentication.js';
@@ -155,13 +153,13 @@ import { OpenDevToolsInit } from './open-devtools-init.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import { WebviewRegistry } from './webview/webview-registry.js';
 import type { IDisposable } from './types/disposable.js';
-import { KubernetesUtils } from './kubernetes-util.js';
 import { downloadGuideList } from './learning-center/learning-center.js';
 import type { ColorInfo } from './api/color-info.js';
 import { ColorRegistry } from './color-registry.js';
 import { DialogRegistry } from './dialog-registry.js';
 import type { Deferred } from './util/deferred.js';
-import type { ContextState } from './kubernetes-context-state.js';
+import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
+import { Updater } from '/@/plugin/updater.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -210,7 +208,7 @@ export class PluginSystem {
   // this is needed because on the client it will display
   // a generic error message 'Error invoking remote method' and
   // it's not useful for end user
-  encodeIpcError(e: unknown) {
+  encodeIpcError(e: unknown): { name?: string; message: unknown; extra?: Record<string, unknown> } {
     let builtError;
     if (e instanceof Error) {
       builtError = { name: e.name, message: e.message, extra: { ...e } };
@@ -221,7 +219,7 @@ export class PluginSystem {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ipcHandle(channel: string, listener: (event: IpcMainInvokeEvent, ...args: any[]) => Promise<void> | any) {
+  ipcHandle(channel: string, listener: (event: IpcMainInvokeEvent, ...args: any[]) => Promise<void> | any): any {
     ipcMain.handle(channel, async (...args) => {
       try {
         return { result: await Promise.resolve(listener(...args)) };
@@ -234,7 +232,7 @@ export class PluginSystem {
   // Create an Error to access stack trace
   // Match a regex for the file name and return it
   // return nothing if file name not found
-  async getExtName() {
+  async getExtName(): Promise<string | undefined> {
     //Create an error for its stack property
     const stack = new Error().stack;
     //Create a map for extension path => extension name
@@ -272,7 +270,7 @@ export class PluginSystem {
   redirectConsole(logType: LogType): void {
     // keep original method
     const originalConsoleMethod = console[logType];
-    console[logType] = (...args) => {
+    console[logType] = (...args): void => {
       this.getExtName()
         .then(extName => {
           if (extName) args.unshift(extName);
@@ -296,7 +294,7 @@ export class PluginSystem {
   }
 
   // setup pipe/redirect for console.log, console.warn, console.trace, console.debug, console.error
-  redirectLogging() {
+  redirectLogging(): void {
     const logTypes: LogType[] = ['log', 'warn', 'trace', 'debug', 'error'];
     logTypes.forEach(logType => this.redirectConsole(logType));
   }
@@ -304,7 +302,7 @@ export class PluginSystem {
   getApiSender(webContents: WebContents): ApiSenderType {
     const queuedEvents: { channel: string; data: unknown }[] = [];
 
-    const flushQueuedEvents = () => {
+    const flushQueuedEvents = (): void => {
       // flush queued events ?
       if (this.uiReady && this.isReady && queuedEvents.length > 0) {
         console.log(`Delayed startup, flushing ${queuedEvents.length} events`);
@@ -323,7 +321,7 @@ export class PluginSystem {
 
     const eventEmitter = new EventEmitter();
     return {
-      send: (channel: string, data: unknown) => {
+      send: (channel: string, data: unknown): void => {
         // send only when the UI is ready
         if (this.uiReady && this.isReady) {
           flushQueuedEvents();
@@ -337,7 +335,7 @@ export class PluginSystem {
       receive: (channel: string, func: (...args: unknown[]) => void): IDisposable => {
         eventEmitter.on(channel, func);
         return {
-          dispose: () => {
+          dispose: (): void => {
             eventEmitter.removeListener(channel, func);
           },
         };
@@ -345,9 +343,9 @@ export class PluginSystem {
     };
   }
 
-  async setupSecurityRestrictionsOnLinks(messageBox: MessageBox) {
+  async setupSecurityRestrictionsOnLinks(messageBox: MessageBox): Promise<void> {
     // external URLs should be validated by the user
-    securityRestrictionCurrentHandler.handler = async (url: string) => {
+    securityRestrictionCurrentHandler.handler = async (url: string): Promise<boolean> => {
       if (!url) {
         return false;
       }
@@ -455,6 +453,8 @@ export class PluginSystem {
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
     await closeBehaviorConfiguration.init();
 
+    const messageBox = new MessageBox(apiSender);
+
     // Don't show the tray icon options on Mac
     if (!isMac()) {
       const trayIconColor = new TrayIconColor(configurationRegistry, providerRegistry);
@@ -522,188 +522,8 @@ export class PluginSystem {
       undefined,
     );
 
-    // Get the current version of our application
-    const currentVersion = `v${app.getVersion()}`;
-
-    // Add version entry to the status bar
-    const defaultVersionEntry = () => {
-      statusBarRegistry.setEntry(
-        'version',
-        false,
-        0,
-        currentVersion,
-        `Using version ${currentVersion}`,
-        undefined,
-        true,
-        'version',
-        undefined,
-      );
-    };
-    defaultVersionEntry();
-
-    // Show a "No update available" only for macOS and Windows users and on production builds
-    let detailMessage: string;
-    if (!isLinux() && import.meta.env.PROD) {
-      detailMessage = 'No update available';
-    }
-
-    // Register command 'version' that will display the current version and say that no update is available.
-    // Only show the "no update available" command for macOS and Windows users, not linux users.
-    commandRegistry.registerCommand('version', async () => {
-      await messageBox.showMessageBox({
-        type: 'info',
-        title: 'Version',
-        message: `Using version ${currentVersion}`,
-        detail: detailMessage,
-      });
-    });
-
-    // Only check on production builds for Windows and macOS users
-    if (import.meta.env.PROD && !isLinux()) {
-      // disable auto download
-      autoUpdater.autoDownload = false;
-
-      let updateInProgress = false;
-      let updateAlreadyDownloaded = false;
-
-      // setup the event listeners
-      autoUpdater.on('update-available', () => {
-        updateInProgress = false;
-        updateAlreadyDownloaded = false;
-
-        // Update the 'version' entry in the status bar to show that an update is available
-        // this uses setEntry to update the existing entry
-        statusBarRegistry.setEntry(
-          'version',
-          false,
-          0,
-          currentVersion,
-          'Update available',
-          UPDATER_UPDATE_AVAILABLE_ICON,
-          true,
-          'update',
-          undefined,
-          true,
-        );
-      });
-
-      autoUpdater.on('update-not-available', () => {
-        updateInProgress = false;
-        updateAlreadyDownloaded = false;
-
-        // Update the 'version' entry in the status bar to show that no update is available
-        defaultVersionEntry();
-      });
-
-      autoUpdater.on('update-downloaded', () => {
-        updateAlreadyDownloaded = true;
-        updateInProgress = false;
-        messageBox
-          .showMessageBox({
-            title: 'Update Downloaded',
-            message: 'Update downloaded, Do you want to restart Podman Desktop ?',
-            cancelId: 1,
-            type: 'info',
-            buttons: ['Restart', 'Cancel'],
-          })
-          .then(result => {
-            if (result.response === 0) {
-              setImmediate(() => autoUpdater.quitAndInstall());
-            }
-          })
-          .catch((error: unknown) => {
-            console.error('unable to show message box', error);
-          });
-      });
-
-      autoUpdater.on('error', error => {
-        updateInProgress = false;
-        // local build not pushed to GitHub so prevent any 'update'
-        if (error?.message?.includes('No published versions on GitHub')) {
-          console.log('Cannot check for updates, no published versions on GitHub');
-          defaultVersionEntry();
-          return;
-        }
-        console.error('unable to check for updates', error);
-      });
-
-      // check for updates now
-      let updateCheckResult: UpdateCheckResult | null;
-
-      try {
-        updateCheckResult = await autoUpdater.checkForUpdates();
-      } catch (error) {
-        console.error('unable to check for updates', error);
-      }
-
-      // Create an interval to check for updates every 12 hours
-      setInterval(
-        () => {
-          autoUpdater
-            .checkForUpdates()
-            .then(result => (updateCheckResult = result))
-            .catch((error: unknown) => {
-              console.log('unable to check for updates', error);
-            });
-        },
-        1000 * 60 * 60 * 12,
-      );
-
-      // Update will create a standard "autoUpdater" dialog / update process
-      commandRegistry.registerCommand('update', async () => {
-        if (updateAlreadyDownloaded) {
-          const result = await messageBox.showMessageBox({
-            type: 'info',
-            title: 'Update',
-            message: 'There is already an update downloaded. Please Restart Podman Desktop.',
-            cancelId: 1,
-            buttons: ['Restart', 'Cancel'],
-          });
-          if (result.response === 0) {
-            setImmediate(() => autoUpdater.quitAndInstall());
-          }
-          return;
-        }
-
-        if (updateInProgress) {
-          await messageBox.showMessageBox({
-            type: 'info',
-            title: 'Update',
-            message: 'There is already an update in progress. Please wait until it is downloaded',
-            buttons: ['OK'],
-          });
-          return;
-        }
-
-        // Get the version of the update
-        const updateVersion = updateCheckResult?.updateInfo.version ? `v${updateCheckResult?.updateInfo.version}` : '';
-
-        const result = await messageBox.showMessageBox({
-          type: 'info',
-          title: 'Update Available',
-          message: `A new version ${updateVersion} of Podman Desktop is available. Do you want to update your current version ${currentVersion}?`,
-          buttons: ['Update', 'Cancel'],
-          cancelId: 1,
-        });
-        if (result.response === 0) {
-          updateInProgress = true;
-          updateAlreadyDownloaded = false;
-
-          // Download update and try / catch it and create a dialog if it fails
-          try {
-            await autoUpdater.downloadUpdate();
-          } catch (error) {
-            console.error('Update error: ', error);
-            await messageBox.showMessageBox({
-              type: 'error',
-              title: 'Update Failed',
-              message: `An error occurred while trying to update to version ${updateVersion}. See the developer console for more information.`,
-              buttons: ['OK'],
-            });
-          }
-        }
-      });
-    }
+    // Init update logic
+    new Updater(messageBox, configurationRegistry, statusBarRegistry, commandRegistry).init();
 
     commandRegistry.registerCommand('feedback', () => {
       apiSender.send('display-feedback', '');
@@ -738,8 +558,6 @@ export class PluginSystem {
     const welcomeInit = new WelcomeInit(configurationRegistry);
     welcomeInit.init();
 
-    const messageBox = new MessageBox(apiSender);
-
     const authentication = new AuthenticationImpl(apiSender);
 
     const cliToolRegistry = new CliToolRegistry(apiSender, exec, telemetry);
@@ -762,10 +580,6 @@ export class PluginSystem {
       contributionManager,
       webviewRegistry,
     );
-
-    // init kubernetes configuration
-    const kubernetesUtils = new KubernetesUtils(configurationRegistry);
-    kubernetesUtils.init();
 
     this.extensionLoader = new ExtensionLoader(
       commandRegistry,
@@ -2010,8 +1824,15 @@ export class PluginSystem {
 
     this.ipcHandle(
       'kubernetes-client:applyResourcesFromFile',
-      async (_listener, context: string, file: string): Promise<KubernetesObject[]> => {
-        return kubernetesClient.applyResourcesFromFile(context, file);
+      async (_listener, context: string, file: string, namespace?: string): Promise<KubernetesObject[]> => {
+        return kubernetesClient.applyResourcesFromFile(context, file, namespace);
+      },
+    );
+
+    this.ipcHandle(
+      'kubernetes-client:applyResourcesFromYAML',
+      async (_listener, context: string, yaml: string): Promise<KubernetesObject[]> => {
+        return kubernetesClient.applyResourcesFromYAML(context, yaml);
       },
     );
 
@@ -2082,9 +1903,20 @@ export class PluginSystem {
       return kubernetesClient.setContext(contextName);
     });
 
-    this.ipcHandle('kubernetes-client:getContextsState', async (): Promise<Map<string, ContextState>> => {
-      return kubernetesClient.getContextsState();
+    this.ipcHandle('kubernetes-client:getContextsGeneralState', async (): Promise<Map<string, ContextGeneralState>> => {
+      return kubernetesClient.getContextsGeneralState();
     });
+
+    this.ipcHandle('kubernetes-client:getCurrentContextGeneralState', async (): Promise<ContextGeneralState> => {
+      return kubernetesClient.getCurrentContextGeneralState();
+    });
+
+    this.ipcHandle(
+      'kubernetes-client:getCurrentContextResources',
+      async (_listener, resourceName: ResourceName): Promise<KubernetesObject[]> => {
+        return kubernetesClient.getCurrentContextResources(resourceName);
+      },
+    );
 
     this.ipcHandle('feedback:send', async (_listener, feedbackProperties: unknown): Promise<void> => {
       return telemetry.sendFeedback(feedbackProperties);
@@ -2327,16 +2159,16 @@ export class PluginSystem {
 
   getLogHandler(channel: string, loggerId: string): LoggerWithEnd {
     return {
-      log: (...data: unknown[]) => {
+      log: (...data: unknown[]): void => {
         this.getWebContentsSender().send(channel, loggerId, 'log', data);
       },
-      warn: (...data: unknown[]) => {
+      warn: (...data: unknown[]): void => {
         this.getWebContentsSender().send(channel, loggerId, 'warn', data);
       },
-      error: (...data: unknown[]) => {
+      error: (...data: unknown[]): void => {
         this.getWebContentsSender().send(channel, loggerId, 'error', data);
       },
-      onEnd: () => {
+      onEnd: (): void => {
         this.getWebContentsSender().send(channel, loggerId, 'finish');
       },
     };

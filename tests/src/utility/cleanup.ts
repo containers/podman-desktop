@@ -22,7 +22,7 @@ import { existsSync, rmSync } from 'node:fs';
  * Force remove recursively folder, if exists
  * @param path path to a folder to be force removed recursively
  */
-export async function removeFolderIfExists(path: string) {
+export async function removeFolderIfExists(path: string): Promise<void> {
   console.log(`Cleaning up folder: ${path}`);
 
   if (existsSync(path)) {

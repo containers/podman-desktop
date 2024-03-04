@@ -96,7 +96,7 @@ export function WindowsDownloads(): JSX.Element {
     airgapsetupArm64: '',
   });
 
-  const copyCliInstructions = async () => {
+  const copyCliInstructions = async (): Promise<void> => {
     await navigator.clipboard.writeText('winget install -e --id RedHat.Podman-Desktop');
   };
 

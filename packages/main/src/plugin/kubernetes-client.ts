@@ -68,7 +68,7 @@ import type { KubernetesInformerManager } from './kubernetes-informer-registry.j
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import type { IncomingMessage } from 'node:http';
 import { ContextsManager } from './kubernetes-context-state.js';
-import type { ContextState } from './kubernetes-context-state.js';
+import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
 
 interface KubernetesObjectWithKind extends KubernetesObject {
   kind: string;
@@ -116,6 +116,8 @@ function toPodInfo(pod: V1Pod, contextName?: string): PodInfo {
 const OPENSHIFT_PROJECT_API_GROUP = 'project.openshift.io';
 
 const DEFAULT_NAMESPACE = 'default';
+
+const FIELD_MANAGER = 'podman-desktop';
 
 /**
  * Handle calls to kubernetes API
@@ -240,7 +242,7 @@ export class KubernetesClient {
     return new Watch(this.kubeConfig);
   }
 
-  setupKubeWatcher() {
+  setupKubeWatcher(): void {
     this.kubeWatcher?.abort();
     const ns = this.currentNamespace;
     if (ns) {
@@ -268,7 +270,7 @@ export class KubernetesClient {
     }
   }
 
-  async fetchAPIGroups() {
+  async fetchAPIGroups(): Promise<void> {
     this.apiGroups = [];
     try {
       if (this.kubeConfig) {
@@ -385,7 +387,7 @@ export class KubernetesClient {
     this.apiSender.send('kubernetes-context-update');
   }
 
-  async saveKubeConfig(config: KubeConfig) {
+  async saveKubeConfig(config: KubeConfig): Promise<void> {
     const jsonString = config.exportConfig();
     const yamlString = jsYaml.dump(JSON.parse(jsonString));
     await fs.promises.writeFile(this.kubeconfigPath, yamlString);
@@ -433,7 +435,7 @@ export class KubernetesClient {
     return namespace;
   }
 
-  async refresh() {
+  async refresh(): Promise<void> {
     // check the file is empty
     const fileContent = await fs.promises.readFile(this.kubeconfigPath);
     if (fileContent.length === 0) {
@@ -992,7 +994,7 @@ export class KubernetesClient {
         const newTag = { ...tag };
         newTag.test = /^(0[0-7][0-7][0-7])$/;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        newTag.resolve = (str: any) => parseInt(str, 8);
+        newTag.resolve = (str: any): number => parseInt(str, 8);
         tags.unshift(newTag);
         break;
       }
@@ -1048,6 +1050,9 @@ export class KubernetesClient {
    */
   async createResourcesFromFile(context: string, filePath: string, namespace?: string): Promise<void> {
     const manifests = await this.loadManifestsFromFile(filePath);
+    if (manifests.filter(s => s?.kind).length === 0) {
+      throw new Error('No valid Kubernetes resources found in file');
+    }
     await this.syncResources(context, manifests, 'create', namespace);
   }
 
@@ -1074,7 +1079,33 @@ export class KubernetesClient {
    */
   async applyResourcesFromFile(context: string, filePath: string, namespace?: string): Promise<KubernetesObject[]> {
     const manifests = await this.loadManifestsFromFile(filePath);
+    if (manifests.filter(s => s?.kind).length === 0) {
+      throw new Error('No valid Kubernetes resources found in file');
+    }
     return this.syncResources(context, manifests, 'apply', namespace);
+  }
+
+  /**
+   * Load manifests from a YAML string.
+   * @param yaml the YAML string
+   * @return an array of Kubernetes resources
+   */
+  async loadManifestsFromYAML(yaml: string): Promise<KubernetesObject[]> {
+    const manifests = parseAllDocuments(yaml, { customTags: this.getTags });
+    // filter out any null manifests
+    return manifests.map(manifest => manifest.toJSON()).filter(manifest => !!manifest);
+  }
+
+  /**
+   * Similar to applyResourcesFromFile, but instead you can pass in a string that contains the YAML
+   *
+   * @param context a context
+   * @param yaml content consisting of a stringified YAML
+   * @return an array of resources created
+   */
+  async applyResourcesFromYAML(context: string, yaml: string): Promise<KubernetesObject[]> {
+    const manifests = await this.loadManifestsFromYAML(yaml);
+    return this.applyResources(context, manifests, 'apply');
   }
 
   /**
@@ -1152,7 +1183,12 @@ export class KubernetesClient {
           //
           // See: https://github.com/kubernetes/kubernetes/issues/97423
           if (action === 'apply') {
-            const response = await client.patch(spec);
+            const response = await client.patch(
+              spec,
+              undefined /* pretty */,
+              undefined /* dryRun */,
+              FIELD_MANAGER /* fieldManager */,
+            );
             created.push(response.body);
           }
         } catch (error) {
@@ -1314,7 +1350,7 @@ export class KubernetesClient {
     throw new Error('error when setting the informer');
   }
 
-  async refreshInformer(id: number) {
+  async refreshInformer(id: number): Promise<void> {
     const currentContext = this.kubeConfig.getContextObject(this.kubeConfig.currentContext);
     const informerInfo = this.informerManager.getInformerInfo(id);
     // if context changed after we started the informer, we recreate it with the new context
@@ -1324,7 +1360,15 @@ export class KubernetesClient {
     }
   }
 
-  public getContextsState(): Map<string, ContextState> {
-    return this.contextsState.getContextsState();
+  public getContextsGeneralState(): Map<string, ContextGeneralState> {
+    return this.contextsState.getContextsGeneralState();
+  }
+
+  public getCurrentContextGeneralState(): ContextGeneralState {
+    return this.contextsState.getCurrentContextGeneralState();
+  }
+
+  public getCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
+    return this.contextsState.getCurrentContextResources(resourceName);
   }
 }

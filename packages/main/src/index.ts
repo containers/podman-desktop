@@ -62,7 +62,7 @@ export function sanitizeProtocolForExtension(url: string): string {
   return url;
 }
 
-export const handleAdditionalProtocolLauncherArgs = (args: ReadonlyArray<string>) => {
+export const handleAdditionalProtocolLauncherArgs = (args: ReadonlyArray<string>): void => {
   // On Windows protocol handler will call the app with '<url>' args
   // on macOS it's done with 'open-url' event
   if (isWindows()) {
@@ -76,7 +76,7 @@ export const handleAdditionalProtocolLauncherArgs = (args: ReadonlyArray<string>
   }
 };
 
-export const handleOpenUrl = (url: string) => {
+export const handleOpenUrl = (url: string): void => {
   // if the url starts with podman-desktop:extension/<id>
   // we need to install the extension
 

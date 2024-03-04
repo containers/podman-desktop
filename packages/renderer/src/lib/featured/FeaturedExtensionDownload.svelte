@@ -70,7 +70,7 @@ async function installExtension() {
   <span class="ml-0.5"></span>
   <LoadingIcon
     icon="{faDownload}"
-    iconSize="16"
+    iconSize="1x"
     loadingWidthClass="w-7"
     loadingHeightClass="h-7"
     positionTopClass="top-[2px]"

@@ -28,7 +28,7 @@ import type { ApiSenderType } from './api.js';
 import { AuthenticationImpl } from './authentication.js';
 import { Emitter as EventEmitter } from './events/emitter.js';
 
-function randomNumber(n = 5) {
+function randomNumber(n = 5): number {
   return Math.round(Math.random() * 10 * n);
 }
 

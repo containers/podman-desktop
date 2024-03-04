@@ -29,7 +29,7 @@ import type {
   V1ConfigMapVolumeSource,
   V1PersistentVolumeClaimVolumeSource,
 } from '@kubernetes/client-node';
-import KubeDetailsSummary from './KubeDetailsSummary.svelte';
+import KubeDetailsSummary from './KubePodDetailsSummary.svelte';
 
 const fakePod: V1Pod = {
   apiVersion: 'v1',

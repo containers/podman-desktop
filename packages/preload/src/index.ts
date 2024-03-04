@@ -32,7 +32,7 @@ import type {
 import type { ContributionInfo } from '../../main/src/plugin/api/contribution-info';
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import type { VolumeInspectInfo, VolumeListInfo } from '../../main/src/plugin/api/volume-info';
-import type { PodInfo, PodInspectInfo } from '../../main/src/plugin/api/pod-info';
+import type { PodCreateOptions, PodInfo, PodInspectInfo } from '../../main/src/plugin/api/pod-info';
 import type { NetworkInspectInfo } from '../../main/src/plugin/api/network-info';
 import type { ImageInspectInfo } from '../../main/src/plugin/api/image-inspect-info';
 import type { HistoryInfo } from '../../main/src/plugin/api/history-info';
@@ -95,7 +95,7 @@ import type { KubernetesGeneratorInfo } from '../../main/src/plugin/api/Kubernet
 import type { NotificationCard, NotificationCardOptions } from '../../main/src/plugin/api/notification';
 import type { ApiSenderType } from '../../main/src/plugin/api';
 import type { IDisposable } from '../../main/src/plugin/types/disposable';
-import type { ContextState } from '../../main/src/plugin/kubernetes-context-state.js';
+import type { ContextGeneralState, ResourceName } from '../../main/src/plugin/kubernetes-context-state.js';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 export type OpenSaveDialogResultCallback = (result: string | string[] | undefined) => void;
@@ -123,13 +123,13 @@ export const buildApiSender = (): ApiSenderType => {
   const eventEmitter = new EventEmitter();
 
   return {
-    send: (channel: string, data: unknown) => {
+    send: (channel: string, data: unknown): void => {
       eventEmitter.emit(channel, data);
     },
     receive: (channel: string, func: (...args: unknown[]) => void): IDisposable => {
       eventEmitter.on(channel, func);
       return {
-        dispose: () => {
+        dispose: (): void => {
           eventEmitter.removeListener(channel, func);
         },
       };
@@ -148,7 +148,7 @@ export function initExposure(): void {
     extra: any;
   }
 
-  function decodeError(error: ErrorMessage) {
+  function decodeError(error: ErrorMessage): Error {
     const e = new Error(error.message);
     e.name = error.name;
     Object.assign(e, error.extra);
@@ -156,7 +156,7 @@ export function initExposure(): void {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async function ipcInvoke(channel: string, ...args: any) {
+  async function ipcInvoke(channel: string, ...args: any): Promise<any> {
     const { error, result } = await ipcRenderer.invoke(channel, ...args);
     if (error) {
       throw decodeError(error);
@@ -175,7 +175,7 @@ export function initExposure(): void {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const originalFunction = (originalConsole as any)[logType];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (console as any)[logType] = (...args: unknown[]) => {
+    (console as any)[logType] = (...args: unknown[]): void => {
       originalFunction(...args);
       memoryLogs.push({ logType: logType, date: new Date(), message: args.join(' ') });
     };
@@ -268,7 +268,7 @@ export function initExposure(): void {
   );
   contextBridge.exposeInMainWorld(
     'createPod',
-    async (podCreateOptions: containerDesktopAPI.PodCreateOptions): Promise<{ engineId: string; Id: string }> => {
+    async (podCreateOptions: PodCreateOptions): Promise<{ engineId: string; Id: string }> => {
       return ipcInvoke('container-provider-registry:createPod', podCreateOptions);
     },
   );
@@ -1290,23 +1290,6 @@ export function initExposure(): void {
     apiSender.send('dev-tools:open-webview', webviewId);
   });
 
-  // Handle callback on dialog file/folder by calling the callback once we get the answer
-  ipcRenderer.on(
-    'dialog:open-file-or-folder-response',
-    (_, dialogId: string, openDialogReturnValue: Electron.OpenDialogReturnValue) => {
-      // grab from stored map
-      const callback = dialogResponses.get(dialogId);
-      if (callback) {
-        callback(openDialogReturnValue);
-
-        // remove callback
-        dialogResponses.delete(dialogId);
-      } else {
-        console.error('Got response for an unknown dialog id', dialogId);
-      }
-    },
-  );
-
   // Handle callback on dialogs by calling the callback once we get the answer
   ipcRenderer.on('dialog:open-save-dialog-response', (_, dialogId: string, result: string | string[] | undefined) => {
     // grab from stored map
@@ -1370,84 +1353,6 @@ export function initExposure(): void {
       return handle.deferred.promise as Promise<string | undefined>;
     },
   );
-
-  let idDialog = 0;
-
-  const dialogResponses = new Map<string, DialogResultCallback>();
-
-  contextBridge.exposeInMainWorld('saveFileDialog', async (message: string, defaultPath: string) => {
-    // generate id
-    const dialogId = idDialog;
-    idDialog++;
-
-    // create defer object
-    const defer = new Deferred<Electron.SaveDialogReturnValue>();
-
-    // store the dialogID
-    dialogResponses.set(`${dialogId}`, (result: Electron.SaveDialogReturnValue) => {
-      defer.resolve(result);
-    });
-
-    // ask to open file dialog
-    ipcRenderer.send('dialog:saveFile', {
-      dialogId: `${dialogId}`,
-      message,
-      defaultPath,
-    });
-
-    // wait for response
-    return defer.promise;
-  });
-
-  contextBridge.exposeInMainWorld(
-    'openFileDialog',
-    async (message: string, filter?: { extensions: string[]; name: string }) => {
-      // generate id
-      const dialogId = idDialog;
-      idDialog++;
-
-      // create defer object
-      const defer = new Deferred<Electron.OpenDialogReturnValue>();
-
-      // store the dialogID
-      dialogResponses.set(`${dialogId}`, (result: Electron.OpenDialogReturnValue) => {
-        defer.resolve(result);
-      });
-
-      // ask to open file dialog
-      ipcRenderer.send('dialog:openFile', {
-        dialogId: `${dialogId}`,
-        message,
-        filter,
-      });
-
-      // wait for response
-      return defer.promise;
-    },
-  );
-
-  contextBridge.exposeInMainWorld('openFolderDialog', async (message: string) => {
-    // generate id
-    const dialogId = idDialog;
-    idDialog++;
-
-    // create defer object
-    const defer = new Deferred<Electron.OpenDialogReturnValue>();
-
-    // store the dialogID
-    dialogResponses.set(`${dialogId}`, (result: Electron.OpenDialogReturnValue) => {
-      defer.resolve(result);
-    });
-
-    // ask to open file dialog
-    ipcRenderer.send('dialog:openFolder', {
-      dialogId: `${dialogId}`,
-      message,
-    });
-
-    // wait for response
-    return defer.promise;
-  });
 
   contextBridge.exposeInMainWorld('getFreePort', async (port: number): Promise<number> => {
     return ipcInvoke('system:get-free-port', port);
@@ -1663,9 +1568,21 @@ export function initExposure(): void {
   contextBridge.exposeInMainWorld('kubernetesSetContext', async (contextName: string): Promise<void> => {
     return ipcInvoke('kubernetes-client:setContext', contextName);
   });
-  contextBridge.exposeInMainWorld('kubernetesGetContextsState', async (): Promise<Map<string, ContextState>> => {
-    return ipcInvoke('kubernetes-client:getContextsState');
+  contextBridge.exposeInMainWorld(
+    'kubernetesGetContextsGeneralState',
+    async (): Promise<Map<string, ContextGeneralState>> => {
+      return ipcInvoke('kubernetes-client:getContextsGeneralState');
+    },
+  );
+  contextBridge.exposeInMainWorld('kubernetesGetCurrentContextGeneralState', async (): Promise<ContextGeneralState> => {
+    return ipcInvoke('kubernetes-client:getCurrentContextGeneralState');
   });
+  contextBridge.exposeInMainWorld(
+    'kubernetesGetCurrentContextResources',
+    async (resourceName: ResourceName): Promise<KubernetesObject[]> => {
+      return ipcInvoke('kubernetes-client:getCurrentContextResources', resourceName);
+    },
+  );
 
   contextBridge.exposeInMainWorld('kubernetesGetClusters', async (): Promise<Cluster[]> => {
     return ipcInvoke('kubernetes-client:getClusters');
@@ -1829,8 +1746,15 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'kubernetesApplyResourcesFromFile',
-    async (context: string, file: string): Promise<KubernetesObject[]> => {
-      return ipcInvoke('kubernetes-client:applyResourcesFromFile', context, file);
+    async (context: string, file: string, namespace?: string): Promise<KubernetesObject[]> => {
+      return ipcInvoke('kubernetes-client:applyResourcesFromFile', context, file, namespace);
+    },
+  );
+
+  contextBridge.exposeInMainWorld(
+    'kubernetesApplyResourcesFromYAML',
+    async (context: string, yaml: string): Promise<KubernetesObject[]> => {
+      return ipcInvoke('kubernetes-client:applyResourcesFromYAML', context, yaml);
     },
   );
 

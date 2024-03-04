@@ -32,21 +32,21 @@ export class RegistriesPage extends SettingsPage {
     this.registriesTable = page.getByRole('table', { name: 'Registries' });
   }
 
-  async createRegistry(url: string, username: string, pswd: string) {
+  async createRegistry(url: string, username: string, pswd: string): Promise<void> {
     await this.addRegistryButton.click();
 
     const registryUrl = this.page.getByLabel('Register URL');
     const registryUsername = this.page.getByLabel('Username');
     const registryPswd = this.page.getByRole('textbox', { name: 'Password' });
-    await registryUrl.fill(url);
-    await registryUsername.fill(username);
-    await registryPswd.fill(pswd);
+    await registryUrl.pressSequentially(url, { delay: 100 });
+    await registryUsername.pressSequentially(username, { delay: 100 });
+    await registryPswd.pressSequentially(pswd, { delay: 100 });
 
     const loginButton = this.page.getByRole('button', { name: 'Login' });
     await this.loginButtonHandling(loginButton);
   }
 
-  async editRegistry(title: string, newUsername: string, newPswd: string) {
+  async editRegistry(title: string, newUsername: string, newPswd: string): Promise<void> {
     const registryBox = await this.getRegistryRowByName(title);
 
     const dropdownMenu = registryBox.getByRole('button', { name: 'kebab menu' });
@@ -57,14 +57,18 @@ export class RegistriesPage extends SettingsPage {
 
     const registryUsername = registryBox.getByLabel('Username');
     const registryPswd = registryBox.getByRole('textbox', { name: 'Password' });
-    await registryUsername.fill(newUsername);
-    await registryPswd.fill(newPswd);
+    await registryUsername.pressSequentially(newUsername, { delay: 100 });
+    await registryPswd.pressSequentially(newPswd, { delay: 100 });
 
     const loginButton = registryBox.getByRole('button', { name: 'Login' });
     await this.loginButtonHandling(loginButton);
   }
 
-  async removeRegistry(title: string) {
+  /*
+   * There are two types of registries, if it is custom, then it can be actually deleted
+   * If it is default registry, it will delete only the credentials and the record will be kept there.
+   */
+  async removeRegistry(title: string): Promise<void> {
     const registryBox = await this.getRegistryRowByName(title);
 
     const dropdownMenu = registryBox.getByRole('button', { name: 'kebab menu' });

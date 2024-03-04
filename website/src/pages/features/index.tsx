@@ -5,7 +5,7 @@ import TailWindThemeSelector from '@site/src/components/TailWindThemeSelector';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-function FeatureManageContainers() {
+function FeatureManageContainers(): JSX.Element {
   return (
     <div>
       <section className="text-gray-900 bg-zinc-200 dark:bg-charcoal-600 dark:text-gray-700 body-font">
@@ -35,7 +35,7 @@ function FeatureManageContainers() {
   );
 }
 
-function FeatureManageImages() {
+function FeatureManageImages(): JSX.Element {
   return (
     <section className="text-gray-900 bg-zinc-100 dark:text-gray-700 dark:bg-charcoal-800 body-font">
       <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
@@ -65,7 +65,7 @@ function FeatureManageImages() {
   );
 }
 
-function FeatureManagementFromTrayIcon() {
+function FeatureManagementFromTrayIcon(): JSX.Element {
   return (
     <div>
       <section className="text-gray-900 bg-zinc-200 dark:bg-charcoal-600 dark:text-gray-700 body-font">
@@ -101,7 +101,7 @@ function FeatureManagementFromTrayIcon() {
   );
 }
 
-function FeatureManageResources() {
+function FeatureManageResources(): JSX.Element {
   return (
     <div>
       <section className="text-gray-900 bg-zinc-100 dark:bg-charcoal-800 dark:text-gray-700 body-font">
@@ -132,7 +132,7 @@ function FeatureManageResources() {
   );
 }
 
-function FeatureManagePods() {
+function FeatureManagePods(): JSX.Element {
   return (
     <div>
       <section className="text-gray-900 bg-zinc-200 dark:bg-charcoal-600 dark:text-gray-700 body-font">
@@ -168,7 +168,7 @@ function FeatureManagePods() {
   );
 }
 
-function FeatureDDExtensions() {
+function FeatureDDExtensions(): JSX.Element {
   return (
     <section className="text-gray-900 bg-zinc-100 dark:bg-charcoal-800 dark:text-gray-700 body-font">
       <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">

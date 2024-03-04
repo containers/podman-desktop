@@ -147,15 +147,15 @@ const consoleErrorMock = vi.fn();
 vi.mock('@podman-desktop/api', async () => {
   return {
     configuration: {
-      getConfiguration: () => config,
-      onDidChangeConfiguration: () => {
+      getConfiguration: (): Configuration => config,
+      onDidChangeConfiguration: (): any => {
         return {
           dispose: vi.fn(),
         };
       },
     },
     proxy: {
-      isEnabled: () => false,
+      isEnabled: (): boolean => false,
     },
     window: {
       showErrorMessage: vi.fn(),
@@ -170,9 +170,9 @@ vi.mock('@podman-desktop/api', async () => {
     },
     env: {
       createTelemetryLogger: vi.fn(),
-      isWindows: () => vi.fn(),
-      isMac: () => vi.fn(),
-      isLinux: () => vi.fn(),
+      isWindows: (): (() => boolean) => vi.fn(),
+      isMac: (): (() => boolean) => vi.fn(),
+      isLinux: (): (() => boolean) => vi.fn(),
     },
     containerEngine: {
       info: vi.fn(),
@@ -1042,8 +1042,25 @@ test('provider is registered with edit capabilities on MacOS', async () => {
 });
 
 test('provider is registered without edit capabilities on Windows', async () => {
-  // Mock platform to be darwin
   vi.mocked(isMac).mockReturnValue(false);
+  extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
+  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
+  spyExecPromise.mockImplementation(() => {
+    return Promise.reject(new Error('wsl bootstrap script failed: exit status 0xffffffff'));
+  });
+  let registeredConnection: ContainerProviderConnection;
+  vi.mocked(provider.registerContainerProviderConnection).mockImplementation(connection => {
+    registeredConnection = connection;
+    return Disposable.from({ dispose: () => {} });
+  });
+  await extension.registerProviderFor(provider, machineInfo, undefined);
+  expect(registeredConnection).toBeDefined();
+  expect(registeredConnection.lifecycle).toBeDefined();
+  expect(registeredConnection.lifecycle.edit).toBeUndefined();
+});
+
+test('provider is registered without edit capabilities on Linux', async () => {
+  vi.mocked(isLinux).mockReturnValue(true);
   extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
   const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
   spyExecPromise.mockImplementation(() => {

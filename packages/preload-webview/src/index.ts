@@ -21,7 +21,7 @@ import { WebviewPreload } from './webview-preload';
 /**
  * @module preload
  */
-export const init = () => {
+export const init = (): void => {
   // parse the query string and grab the webviewId parameter
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);

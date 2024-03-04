@@ -94,7 +94,7 @@ If your registry has an insecure certificate, such as a self-signed certificate,
       - The configuration file is in the Podman machine: open a terminal in the Podman Machine.
 
         ```shell-session
-        $ podman machine ssh [optional-machine-name]
+        $ podman machine ssh --username root [optional-machine-name]
         ```
 
       </TabItem>
@@ -103,7 +103,7 @@ If your registry has an insecure certificate, such as a self-signed certificate,
       - The configuration file is in the Podman machine: open a terminal in the Podman Machine.
 
         ```shell-session
-        $ podman machine ssh [optional-machine-name]
+        $ podman machine ssh --username root [optional-machine-name]
         ```
 
       </TabItem>
@@ -121,7 +121,7 @@ If your registry has an insecure certificate, such as a self-signed certificate,
    1. Edit the registry optional configuration file.
 
       ```shell-session
-      # vim /etc/containers/registries.conf`
+      # vi /etc/containers/registries.conf`
       ```
 
       For each insecure registry, add a `[[registry]]` section that defines:

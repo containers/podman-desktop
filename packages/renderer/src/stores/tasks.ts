@@ -31,11 +31,11 @@ setInterval(() => {
 }, 1000);
 
 // remove element from the store
-export function removeTask(id: string) {
+export function removeTask(id: string): void {
   tasksInfo.update(tasks => tasks.filter(task => task.id !== id));
 }
 
-function updateTask(task: Task) {
+function updateTask(task: Task): void {
   tasksInfo.update(tasks => {
     tasks = tasks.filter(t => t.id !== task.id);
     tasks.push(task);
@@ -44,7 +44,7 @@ function updateTask(task: Task) {
 }
 
 // remove element from the store that are completed
-export function clearNotifications() {
+export function clearNotifications(): void {
   tasksInfo.update(tasks => tasks.filter(task => isStatefulTask(task) && task.state !== 'completed'));
 }
 

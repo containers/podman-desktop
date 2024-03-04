@@ -7,6 +7,7 @@ import type { MessageBoxOptions } from './messagebox-input';
 import Button from '../ui/Button.svelte';
 import type { ButtonType } from '../ui/Button';
 import { tabWithinParent } from './dialog-utils';
+import CloseButton from '/@/lib/ui/CloseButton.svelte';
 
 let currentId = 0;
 let title: string;
@@ -158,11 +159,7 @@ function getButtonType(b: boolean): ButtonType {
         {/if}
         <h1 class="grow text-lg font-bold capitalize">{title}</h1>
 
-        <button
-          class="p-2 hover:text-gray-300 hover:bg-charcoal-500 rounded-full cursor-pointer"
-          on:click="{() => clickButton(cancelId >= 0 ? cancelId : undefined)}">
-          <i class="fas fa-times" aria-hidden="true"></i>
-        </button>
+        <CloseButton on:click="{() => clickButton(cancelId >= 0 ? cancelId : undefined)}" />
       </div>
 
       <div class="max-h-80 overflow-auto">

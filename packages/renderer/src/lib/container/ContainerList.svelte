@@ -497,7 +497,7 @@ function setStoppedFilter() {
                 class:rounded-bl-lg="{!containerGroup.expanded}"
                 on:click="{() => toggleContainerGroup(containerGroup)}">
                 <Fa
-                  size="12"
+                  size="0.8x"
                   class="text-gray-700 cursor-pointer"
                   icon="{containerGroup.expanded ? faChevronDown : faChevronRight}" />
               </td>

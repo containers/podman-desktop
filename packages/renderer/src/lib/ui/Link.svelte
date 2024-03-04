@@ -19,7 +19,7 @@ onMount(() => {
   }
 });
 
-function click() {
+function click(): void {
   if (internalRef) {
     router.goto(internalRef);
   } else if (externalRef) {

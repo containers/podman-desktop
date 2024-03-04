@@ -45,7 +45,7 @@ export class CustomPickRegistry implements IDisposable {
     customPick?.confirmSelection(indexes);
   }
 
-  removeEntry(id: number) {
+  removeEntry(id: number): void {
     const entry = this.entries.get(id);
     if (entry) {
       entry.dispose();

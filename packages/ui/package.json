@@ -1,0 +1,59 @@
+{
+  "name": "@podman-desktop/ui-svelte",
+  "version": "0.0.1",
+  "type": "module",
+  "license": "Apache-2.0",
+  "scripts": {
+    "build": "svelte-package",
+    "watch": "svelte-package -w",
+    "test": "vitest run --coverage --passWithNoTests",
+    "test:watch": "vitest watch --coverage --passWithNoTests",
+    "svelte:check": "svelte-check --tsconfig ./tsconfig.json",
+    "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.spec.*"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js"
+    }
+  },
+  "peerDependencies": {
+    "svelte": "^4.0.0",
+    "svelte-fa": "^4.0.0"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.5.1",
+    "@fortawesome/free-brands-svg-icons": "^6.5.1",
+    "@fortawesome/free-regular-svg-icons": "^6.5.1",
+    "@fortawesome/free-solid-svg-icons": "^6.5.1",
+    "svelte-fa": "^4.0.2"
+  },
+  "devDependencies": {
+    "@sveltejs/package": "^2.2.6",
+    "@sveltejs/vite-plugin-svelte": "3.0.2",
+    "@testing-library/dom": "^9.3.4",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/svelte": "^4.1.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@tsconfig/svelte": "^5.0.2",
+    "@typescript-eslint/eslint-plugin": "7.0.0",
+    "autoprefixer": "^10.4.17",
+    "eslint-plugin-svelte": "^2.35.1",
+    "jsdom": "^24.0.0",
+    "postcss": "^8.4.35",
+    "postcss-load-config": "^5.0.3",
+    "svelte": "4.2.12",
+    "svelte-check": "^3.6.6",
+    "svelte-eslint-parser": "^0.33.1",
+    "svelte-preprocess": "^5.1.3",
+    "tailwindcss": "^3.4.1",
+    "tslib": "^2.6.2",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.4",
+    "vitest": "^1.3.1"
+  }
+}

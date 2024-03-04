@@ -46,9 +46,9 @@ test('Expect selection styling', async () => {
   const element = screen.getByLabelText(tooltip);
   expect(element).toBeInTheDocument();
   expect(element.firstChild).toBeInTheDocument();
-  expect(element.firstChild).toHaveClass('border-l-purple-500');
-  expect(element.firstChild).not.toHaveClass('hover:bg-charcoal-700');
-  expect(element.firstChild).not.toHaveClass('hover:border-charcoal-700');
+  expect(element.firstChild).toHaveClass('border-l-[var(--pd-global-nav-icon-selected-highlight)]');
+  expect(element.firstChild).not.toHaveClass('hover:bg-[var(--pd-global-nav-icon-hover-bg)]');
+  expect(element.firstChild).not.toHaveClass('hover:border-[var(--pd-global-nav-icon-hover-bg)]');
 });
 
 test('Expect selection styling for encoded URLs', async () => {
@@ -59,7 +59,7 @@ test('Expect selection styling for encoded URLs', async () => {
   const element = screen.getByLabelText(tooltip);
   expect(element).toBeInTheDocument();
   expect(element.firstChild).toBeInTheDocument();
-  expect(element.firstChild).toHaveClass('border-l-purple-500');
+  expect(element.firstChild).toHaveClass('border-l-[var(--pd-global-nav-icon-selected-highlight)]');
 });
 
 test('Expect selection styling for sub-pages', async () => {
@@ -70,7 +70,7 @@ test('Expect selection styling for sub-pages', async () => {
   const element = screen.getByLabelText(tooltip);
   expect(element).toBeInTheDocument();
   expect(element.firstChild).toBeInTheDocument();
-  expect(element.firstChild).toHaveClass('border-l-purple-500');
+  expect(element.firstChild).toHaveClass('border-l-[var(--pd-global-nav-icon-selected-highlight)]');
 });
 
 test('Expect not to have selection styling', async () => {
@@ -80,10 +80,10 @@ test('Expect not to have selection styling', async () => {
   const element = screen.getByLabelText(tooltip);
   expect(element).toBeInTheDocument();
   expect(element.firstChild).toBeInTheDocument();
-  expect(element.firstChild).toHaveClass('border-l-charcoal-800');
-  expect(element.firstChild).toHaveClass('hover:bg-charcoal-700');
-  expect(element.firstChild).toHaveClass('hover:border-charcoal-700');
-  expect(element.firstChild).not.toHaveClass('border-l-purple-500');
+  expect(element.firstChild).toHaveClass('border-l-[var(--pd-global-nav-bg)]');
+  expect(element.firstChild).toHaveClass('hover:bg-[var(--pd-global-nav-icon-hover-bg)]');
+  expect(element.firstChild).toHaveClass('hover:border-[var(--pd-global-nav-icon-hover-bg)]');
+  expect(element.firstChild).not.toHaveClass('border-l-[var(--pd-global-nav-icon-selected-highlight)]');
   expect(element.firstChild).not.toHaveClass('px-2');
 });
 
@@ -95,14 +95,16 @@ test('Expect in-section styling', async () => {
   expect(element).toBeInTheDocument();
   expect(element.firstChild).toBeInTheDocument();
   expect(element.firstChild).toHaveClass('px-2');
-  expect(element.firstChild).toHaveClass('hover:bg-charcoal-700');
-  expect(element.firstChild).not.toHaveClass('border-charcoal-600');
-  expect(element.firstChild).not.toHaveClass('border-l-purple-500');
-  expect(element.firstChild).not.toHaveClass('border-l-charcoal-800');
-  expect(element.firstChild).not.toHaveClass('hover:border-charcoal-700');
+  expect(element.firstChild).toHaveClass('hover:bg-[var(--pd-global-nav-icon-hover-bg)]');
+  expect(element.firstChild).not.toHaveClass('border-[var(--pd-global-nav-bg)]');
+  expect(element.firstChild).not.toHaveClass('border-l-[var(--pd-global-nav-bg)]');
+  expect(element.firstChild).not.toHaveClass('border-l-[var(--pd-global-nav-icon-selected-highlight)]');
+  expect(element.firstChild).not.toHaveClass('hover:border-[var(--pd-global-nav-icon-hover-bg)]');
 });
-// class:hover:bg-charcoal-700="{!selected || inSection}"
-// class:hover:border-charcoal-700="{!selected && !inSection}"
+
+// class:hover:text-[color:var(--pd-global-nav-icon-hover)]="{!selected || inSection}"
+// class:hover:bg-[var(--pd-global-nav-icon-hover-bg)]="{!selected || inSection}"
+// class:hover:border-[var(--pd-global-nav-icon-hover-bg)]="{!selected && !inSection}">
 test('Expect in-section selection styling', async () => {
   const tooltip = 'Dashboard';
   render(NavItemTest);
@@ -110,11 +112,12 @@ test('Expect in-section selection styling', async () => {
   const element = screen.getByLabelText(tooltip);
   expect(element).toBeInTheDocument();
   expect(element.firstChild).toBeInTheDocument();
-  expect(element.firstChild).toHaveClass('text-purple-500');
+  expect(element.firstChild).toHaveClass('text-[color:var(--pd-global-nav-icon-selected)]');
   expect(element.firstChild).toHaveClass('px-2');
-  expect(element.firstChild).toHaveClass('hover:bg-charcoal-700');
-  expect(element.firstChild).not.toHaveClass('border-l-purple-500');
-  expect(element.firstChild).not.toHaveClass('hover:border-charcoal-700');
+  expect(element.firstChild).toHaveClass('hover:text-[color:var(--pd-global-nav-icon-hover)]');
+  expect(element.firstChild).toHaveClass('hover:bg-[var(--pd-global-nav-icon-hover-bg)]');
+  expect(element.firstChild).not.toHaveClass('border-l-[var(--pd-global-nav-bg)]');
+  expect(element.firstChild).not.toHaveClass('hover:border-[var(--pd-global-nav-icon-hover-bg)]');
 });
 
 test('Expect that having an onClick handler overrides href and works', async () => {

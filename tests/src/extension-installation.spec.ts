@@ -44,7 +44,7 @@ let settingsTableLabel: string;
 
 let extensionBoxVisible: boolean;
 
-const _startup = async function () {
+const _startup = async function (): Promise<void> {
   console.log('running before all');
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
@@ -53,7 +53,7 @@ const _startup = async function () {
   await welcomePage.handleWelcomePage(true);
 };
 
-const _shutdown = async function () {
+const _shutdown = async function (): Promise<void> {
   console.log('running after all');
   await pdRunner.close();
 };
@@ -199,7 +199,7 @@ describe.each([
   });
 });
 
-function initializeLocators(extensionType: string) {
+function initializeLocators(extensionType: string): void {
   const dashboardPage = new DashboardPage(page);
   const settingsExtensionsPage = new SettingsExtensionsPage(page);
   switch (extensionType) {
@@ -230,14 +230,14 @@ function initializeLocators(extensionType: string) {
   }
 }
 
-async function goToDashboard() {
+async function goToDashboard(): Promise<void> {
   const navBar = page.getByRole('navigation', { name: 'AppNavigation' });
   const dashboardLink = navBar.getByRole('link', { name: 'Dashboard' });
   await playExpect(dashboardLink).toBeVisible();
   await dashboardLink.click();
 }
 
-async function goToSettings() {
+async function goToSettings(): Promise<void> {
   const navBar = page.getByRole('navigation', { name: 'AppNavigation' });
   const settingsLink = navBar.getByRole('link', { name: 'Settings' });
   await playExpect(settingsLink).toBeVisible();

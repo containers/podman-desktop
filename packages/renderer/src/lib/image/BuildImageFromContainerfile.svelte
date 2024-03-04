@@ -23,7 +23,7 @@ import type { Terminal } from 'xterm';
 import Button from '../ui/Button.svelte';
 import { faCube } from '@fortawesome/free-solid-svg-icons';
 import BuildImageFromContainerfileCards from './BuildImageFromContainerfileCards.svelte';
-import Input from '/@/lib/ui/Input.svelte';
+import { Input } from '@podman-desktop/ui-svelte';
 
 let buildFinished = false;
 let containerImageName = 'my-custom-image';
