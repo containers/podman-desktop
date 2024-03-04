@@ -374,13 +374,13 @@ export class ContextsManager {
         const contextName = ctx.name;
         await this.states.disposeSecondaryInformers(contextName);
       }
-    }
 
-    // Restart informers for secondary resources if watchers are subscribing for this resource
-    for (const resourceName of secondaryResources) {
-      if (this.secondaryWatchers.hasSubscribers(resourceName)) {
-        console.debug(`start watching ${resourceName} in context ${this.currentContext}`);
-        this.startResourceInformer(this.currentContext, resourceName);
+      // Restart informers for secondary resources if watchers are subscribing for this resource
+      for (const resourceName of secondaryResources) {
+        if (this.secondaryWatchers.hasSubscribers(resourceName)) {
+          console.debug(`start watching ${resourceName} in context ${this.currentContext}`);
+          this.startResourceInformer(this.currentContext, resourceName);
+        }
       }
     }
 
