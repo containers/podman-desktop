@@ -520,13 +520,13 @@ declare module '@podman-desktop/api' {
      * If no context is found it throws an error
      *
      * @param providerId the provider id
-     * @param providerConnectionInfo the connection to retrieve the lifecycle context for
+     * @param containerProviderConnection the connection to retrieve the lifecycle context for
      * @returns the lifecycle context
      * @throws if no provider with the id has been found or there is no context associate to it.
      */
     export function getProviderLifecycleContext(
       providerId: string,
-      providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+      containerProviderConnection: ContainerProviderConnection,
     ): LifecycleContext;
   }
 
@@ -2853,12 +2853,12 @@ declare module '@podman-desktop/api' {
     // name of the volume to create
     Name: string;
     // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
-    provider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection;
+    provider?: ContainerProviderConnection;
   }
 
   export interface VolumeDeleteOptions {
     // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
-    provider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection;
+    provider?: ContainerProviderConnection;
   }
 
   export interface VolumeCreateResponseInfo {
