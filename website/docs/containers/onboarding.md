@@ -29,11 +29,11 @@ Podman Desktop does not automatically set up container engine resources that you
 
    - Select a Podman execution environment:
 
-     | Host operating system | Native containers |        Podman Machine         |  Lima instance  |
-     | :-------------------- | :---------------: | :---------------------------: | :-------------: |
-     | Windows               |       ❌ no       |            ✅ yes             | ❌ experimental |
-     | macOS                 |       ❌ no       |            ✅ yes             |     ✅ yes      |
-     | Linux                 |      ✅ yes       | ❌ disabled in Podman Desktop |     ✅ yes      |
+     | Host operating system | Native containers | Podman Machine  |  Lima instance  |
+     | :-------------------- | :---------------: | :-------------: | :-------------: |
+     | Windows               |       ❌ no       |     ✅ yes      | ❌ experimental |
+     | macOS                 |       ❌ no       |     ✅ yes      |     ✅ yes      |
+     | Linux                 |      ✅ yes       | ❌ experimental |     ✅ yes      |
 
    - Select a Docker execution environment:
 

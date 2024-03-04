@@ -54,6 +54,38 @@ export interface SimpleContainerInfo extends Dockerode.ContainerInfo {
   engineType: 'podman' | 'docker';
 }
 
+type MountType = 'bind' | 'volume' | 'tmpfs';
+
+type MountConsistency = 'default' | 'consistent' | 'cached' | 'delegated';
+
+type MountPropagation = 'private' | 'rprivate' | 'shared' | 'rshared' | 'slave' | 'rslave';
+
+interface MountSettings {
+  Target: string;
+  Source: string;
+  Type: MountType;
+  ReadOnly?: boolean;
+  Consistency?: MountConsistency;
+  Mode?: string;
+  BindOptions?: {
+    Propagation: MountPropagation;
+  };
+  VolumeOptions?: {
+    NoCopy: boolean;
+    Labels: { [label: string]: string };
+    DriverConfig: {
+      Name: string;
+      Options: { [option: string]: string };
+    };
+  };
+  TmpfsOptions?: {
+    SizeBytes: number;
+    Mode: number;
+  };
+}
+
+type MountConfig = MountSettings[];
+
 export interface HostConfig {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   PortBindings?: any;
@@ -69,6 +101,7 @@ export interface HostConfig {
   Dns?: string[];
   ExtraHosts?: string[];
   NetworkMode?: string;
+  Mounts?: MountConfig;
 }
 
 export interface HealthConfig {
@@ -223,6 +256,7 @@ export interface ContainerCreateOptions {
   StopTimeout?: number;
   Shell?: string[];
   NetworkConfig?: NetworkingConfig;
+  pod?: string;
 }
 
 export interface NetworkCreateOptions {

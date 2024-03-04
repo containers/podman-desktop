@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
-import Input from '../../ui/Input.svelte';
+import { Input } from '@podman-desktop/ui-svelte';
 export let record: IConfigurationPropertyRecordedSchema;
 export let value: string | undefined;
 export let onChange = async (_id: string, _value: string) => {};

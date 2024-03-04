@@ -49,6 +49,9 @@ import type {
   PlayKubeInfo,
   ContainerCreateOptions as PodmanContainerCreateOptions,
   PodInfo as LibpodPodInfo,
+  ContainerCreateMountOption,
+  ContainerCreateNetNSOption,
+  ContainerCreatePortMappingOption,
 } from './dockerode/libpod-dockerode.js';
 import { LibpodDockerode } from './dockerode/libpod-dockerode.js';
 import type { ContainerStatsInfo } from './api/container-stats-info.js';
@@ -579,7 +582,7 @@ export class ContainerProviderRegistry {
     try {
       const provider = this.internalProviders.get(engineId);
       if (provider?.libpodApi) {
-        await this.getMatchingPodmanEngineLibPod(engineId).pruneAllImages(true);
+        await provider.libpodApi.pruneAllImages(true);
         return;
       }
 
@@ -1731,31 +1734,19 @@ export class ContainerProviderRegistry {
   async createContainer(engineId: string, options: ContainerCreateOptions): Promise<{ id: string }> {
     let telemetryOptions = {};
     try {
-      // need to find the container engine of the container
+      let container: Dockerode.Container;
+      if (options.pod) {
+        container = await this.createContainerLibPod(engineId, options);
+      } else {
+        container = await this.createContainerDockerode(engineId, options);
+      }
+
       const engine = this.internalProviders.get(engineId);
-      if (!engine) {
-        throw new Error('no engine matching this container');
-      }
-      if (!engine.api) {
-        throw new Error('no running provider for the matching container');
-      }
-
-      // handle EnvFile by adding to Env the other variables
-      if (options.EnvFiles) {
-        const envFiles = options.EnvFiles || [];
-        const envFileContent = await this.getEnvFileParser().parseEnvFiles(envFiles);
-
-        const env = options.Env || [];
-        env.push(...envFileContent);
-        options.Env = env;
-        // remove EnvFiles from options
-        delete options.EnvFiles;
-      }
-
-      const container = await engine.api.createContainer(options);
-      await this.attachToContainer(engine, container, options.Tty, options.OpenStdin);
-      if (options.start === true || options.start === undefined) {
-        await container.start();
+      if (engine) {
+        await this.attachToContainer(engine, container, options.Tty, options.OpenStdin);
+        if (options.start === true || options.start === undefined) {
+          await container.start();
+        }
       }
       return { id: container.id };
     } catch (error) {
@@ -1764,6 +1755,186 @@ export class ContainerProviderRegistry {
     } finally {
       this.telemetryService.track('createContainer', telemetryOptions);
     }
+  }
+
+  private async createContainerDockerode(
+    engineId: string,
+    options: ContainerCreateOptions,
+  ): Promise<Dockerode.Container> {
+    // need to find the container engine of the container
+    const engine = this.internalProviders.get(engineId);
+    if (!engine) {
+      throw new Error('no engine matching this container');
+    }
+    if (!engine.api) {
+      throw new Error('no running provider for the matching container');
+    }
+
+    // handle EnvFile by adding to Env the other variables
+    if (options.EnvFiles) {
+      const envFiles = options.EnvFiles || [];
+      const envFileContent = await this.getEnvFileParser().parseEnvFiles(envFiles);
+
+      const env = options.Env || [];
+      env.push(...envFileContent);
+      options.Env = env;
+      // remove EnvFiles from options
+      delete options.EnvFiles;
+    }
+
+    return await engine.api.createContainer(options);
+  }
+
+  private async createContainerLibPod(engineId: string, options: ContainerCreateOptions): Promise<Dockerode.Container> {
+    // will publish in the target engine
+    const engine = this.getMatchingPodmanEngine(engineId);
+    if (!engine.libpodApi || !engine.api) {
+      throw new Error('no podman engine matching this engine');
+    }
+
+    // convert env from array of string to an object with key being the env name
+    const updatedEnv = options.Env?.reduce((acc: { [key: string]: string }, env) => {
+      const [key, value] = env.split('=');
+      acc[key] = value;
+      return acc;
+    }, {});
+
+    let updatedMounts: Array<ContainerCreateMountOption> | undefined;
+    if (options.HostConfig?.Mounts || options.HostConfig?.Binds) {
+      updatedMounts = [];
+      for (const optionMount of options.HostConfig.Mounts ?? []) {
+        updatedMounts.push({
+          Destination: optionMount.Target,
+          Source: optionMount.Source,
+          Propagation: optionMount.BindOptions?.Propagation ?? '',
+          RW: !optionMount.ReadOnly,
+          Type: optionMount.Type,
+          Options: optionMount.Mode ? [optionMount.Mode] : [],
+        });
+      }
+      for (const bind of options.HostConfig?.Binds ?? []) {
+        const options = this.getContainerCreateMountOptionFromBind(bind);
+        if (options) {
+          updatedMounts.push(options);
+        }
+      }
+    }
+
+    let netns: ContainerCreateNetNSOption | undefined;
+    if (options.HostConfig?.NetworkMode) {
+      netns = {
+        nsmode: options.HostConfig?.NetworkMode,
+      };
+    }
+
+    let seccomp_policy: string | undefined;
+    let seccomp_profile_path: string | undefined;
+    for (const secOpt of options.HostConfig?.SecurityOpt ?? []) {
+      if (secOpt === 'empty' || secOpt === 'default' || secOpt === 'image') {
+        seccomp_policy = secOpt;
+      } else if (secOpt.startsWith('seccomp=')) {
+        seccomp_profile_path = secOpt.substring(8).trim();
+      }
+    }
+
+    let portmappings: Array<ContainerCreatePortMappingOption> | undefined;
+    if (options.HostConfig?.PortBindings) {
+      portmappings = [];
+      for (const [key, value] of Object.entries(options.HostConfig?.PortBindings)) {
+        const keyAsNumber = parseInt(key);
+        if (Array.isArray(value) && 'HostPort' in value[0] && !isNaN(keyAsNumber)) {
+          const valueAsNumber = parseInt(value[0].HostPort);
+          if (!isNaN(valueAsNumber)) {
+            portmappings.push({
+              container_port: keyAsNumber,
+              host_port: valueAsNumber,
+            });
+          }
+        }
+      }
+    }
+
+    let dns_server: Array<Array<number>> | undefined;
+    if (options.HostConfig?.ExtraHosts) {
+      dns_server = [];
+      for (const host of options.HostConfig?.ExtraHosts ?? []) {
+        const hostItems = host.split(':');
+        if (hostItems.length !== 2) {
+          continue;
+        }
+        dns_server.push(hostItems[1].split('.').map(v => parseInt(v)));
+      }
+    }
+
+    const podmanOptions: PodmanContainerCreateOptions = {
+      name: options.name,
+      command: options.Cmd,
+      entrypoint: options.Entrypoint,
+      env: updatedEnv,
+      pod: options.pod,
+      hostname: options.Hostname,
+      image: options.Image,
+      mounts: updatedMounts,
+      user: options.User,
+      labels: options.Labels,
+      work_dir: options.WorkingDir,
+      portmappings: portmappings,
+      stop_timeout: options.StopTimeout,
+      healthconfig: options.HealthCheck,
+      restart_policy: options.HostConfig?.RestartPolicy?.Name,
+      restart_tries: options.HostConfig?.RestartPolicy?.MaximumRetryCount,
+      remove: options.HostConfig?.AutoRemove,
+      seccomp_policy: seccomp_policy,
+      seccomp_profile_path: seccomp_profile_path,
+      cap_add: options.HostConfig?.CapAdd,
+      cap_drop: options.HostConfig?.CapDrop,
+      privileged: options.HostConfig?.Privileged,
+      netns: netns,
+      read_only_filesystem: options.HostConfig?.ReadonlyRootfs,
+      dns_server: dns_server,
+      hostadd: options.HostConfig?.ExtraHosts,
+      userns: options.HostConfig?.UsernsMode,
+    };
+
+    const container = await engine.libpodApi.createPodmanContainer(podmanOptions);
+    return engine.api?.getContainer(container.Id);
+  }
+
+  getContainerCreateMountOptionFromBind(bind: string): ContainerCreateMountOption | undefined {
+    const bindItems = bind.split(':');
+    if (bindItems.length < 2) {
+      return undefined;
+    }
+    const options = ['rbind'];
+    let propagation = 'rprivate';
+    if (bindItems.length === 3) {
+      const flags = bindItems[2].split(',');
+      for (const flag of flags) {
+        switch (flag) {
+          case 'Z':
+          case 'z':
+            options.push(flag);
+            break;
+          case 'private':
+          case 'rprivate':
+          case 'shared':
+          case 'rshared':
+          case 'slave':
+          case 'rslave':
+            propagation = flag;
+            break;
+        }
+      }
+    }
+
+    return {
+      Destination: bindItems[1],
+      Source: bindItems[0],
+      Propagation: propagation,
+      Type: 'bind',
+      RW: true,
+      Options: options,
+    };
   }
 
   async createVolume(

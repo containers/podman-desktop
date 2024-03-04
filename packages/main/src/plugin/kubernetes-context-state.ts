@@ -25,6 +25,8 @@ import type {
   V1DeploymentList,
   V1Pod,
   V1PodList,
+  V1Service,
+  V1ServiceList,
 } from '@kubernetes/client-node';
 import { AppsV1Api, CoreV1Api, KubeConfig, makeInformer } from '@kubernetes/client-node';
 import type { KubeContext } from './kubernetes-context.js';
@@ -39,10 +41,7 @@ import {
 import type { IncomingMessage } from 'node:http';
 
 // ContextInternalState stores informers for a kube context
-interface ContextInternalState {
-  podInformer?: Informer<V1Pod> & ObjectCache<V1Pod>;
-  deploymentInformer?: Informer<V1Deployment> & ObjectCache<V1Deployment>;
-}
+type ContextInternalState = Map<ResourceName, Informer<KubernetesObject> & ObjectCache<KubernetesObject>>;
 
 // ContextState stores information for the user about a kube context: is the cluster reachable, the number
 // of instances of different resources
@@ -52,12 +51,20 @@ interface ContextState {
   resources: ContextStateResources;
 }
 
-// All resources managed by podman desktop
-// This is where to add new resources when adding new informers
-export type ResourceName = 'pods' | 'deployments';
-
 // A selection of resources, to indicate the 'general' status of a context
-type SelectedResourceName = 'pods' | 'deployments';
+const selectedResources = ['pods', 'deployments'] as const;
+
+// resources managed by podman desktop, excepted the primary ones
+// This is where to add new resources when adding new informers
+const secondaryResources = ['services'] as const;
+
+export type SelectedResourceName = (typeof selectedResources)[number];
+export type SecondaryResourceName = (typeof secondaryResources)[number];
+export type ResourceName = SelectedResourceName | SecondaryResourceName;
+
+function isSecondaryResourceName(value: string): value is SecondaryResourceName {
+  return secondaryResources.includes(value as SecondaryResourceName);
+}
 
 export type ContextStateResources = {
   [resourceName in ResourceName]: KubernetesObject[];
@@ -104,6 +111,7 @@ type ResourcesDispatchOptions = {
 const dispatchAllResources: ResourcesDispatchOptions = {
   pods: true,
   deployments: true,
+  services: true,
   // add new resources here when adding new informers
 };
 
@@ -143,18 +151,35 @@ class Backoff {
   }
 }
 
-class ContextsStates {
+export class ContextsStates {
   private state = new Map<string, ContextState>();
   private informers = new Map<string, ContextInternalState>();
 
-  has(name: string): boolean {
+  hasContext(name: string): boolean {
     return this.informers.has(name);
+  }
+
+  hasInformer(context: string, resourceName: ResourceName): boolean {
+    const informers = this.informers.get(context);
+    return !!informers?.get(resourceName);
   }
 
   setInformers(name: string, informers: ContextInternalState | undefined): void {
     if (informers) {
       this.informers.set(name, informers);
     }
+  }
+
+  setResourceInformer(
+    contextName: string,
+    resourceName: ResourceName,
+    informer: Informer<KubernetesObject> & ObjectCache<KubernetesObject>,
+  ): void {
+    const informers = this.informers.get(contextName);
+    if (!informers) {
+      throw new Error(`watchers for context ${contextName} not found`);
+    }
+    informers.set(resourceName, informer);
   }
 
   getContextsNames(): Iterable<string> {
@@ -208,6 +233,10 @@ class ContextsStates {
     return [];
   }
 
+  isReachable(contextName: string): boolean {
+    return this.state.get(contextName)?.reachable ?? false;
+  }
+
   safeSetState(name: string, update: (previous: ContextState) => void): void {
     if (!this.state.has(name)) {
       this.state.set(name, {
@@ -216,6 +245,8 @@ class ContextsStates {
         resources: {
           pods: [],
           deployments: [],
+          services: [],
+          // add new resources here when adding new informers
         },
       });
     }
@@ -227,10 +258,27 @@ class ContextsStates {
   }
 
   async dispose(name: string): Promise<void> {
-    await this.informers.get(name)?.podInformer?.stop();
-    await this.informers.get(name)?.deploymentInformer?.stop();
+    const informers = this.informers.get(name);
+    if (informers) {
+      for (const informer of informers.values()) {
+        await informer.stop();
+      }
+    }
     this.informers.delete(name);
     this.state.delete(name);
+  }
+
+  async disposeSecondaryInformers(contextName: string): Promise<void> {
+    const informers = this.informers.get(contextName);
+    if (informers) {
+      for (const [resourceName, informer] of informers) {
+        if (isSecondaryResourceName(resourceName)) {
+          console.debug(`stop watching ${resourceName} in context ${contextName}`);
+          await informer?.stop();
+          informers.delete(resourceName);
+        }
+      }
+    }
   }
 }
 
@@ -255,12 +303,13 @@ export class ContextsManager {
     // Add informers for new contexts
     let added = false;
     for (const context of this.kubeConfig.contexts) {
-      if (!this.states.has(context.name)) {
+      if (!this.states.hasContext(context.name)) {
         const informers = this.createKubeContextInformers(context);
         this.states.setInformers(context.name, informers);
         added = true;
       }
     }
+
     // Delete informers for removed contexts
     let removed = false;
     for (const name of this.states.getContextsNames()) {
@@ -269,6 +318,16 @@ export class ContextsManager {
         removed = true;
       }
     }
+
+    // Delete secondary informers (others than pods/deployments) on non-current contexts
+    if (contextChanged) {
+      const nonCurrentContexts = this.kubeConfig.contexts.filter(ctx => ctx.name !== this.currentContext);
+      for (const ctx of nonCurrentContexts) {
+        const contextName = ctx.name;
+        await this.states.disposeSecondaryInformers(contextName);
+      }
+    }
+
     if (added || removed || contextChanged) {
       this.dispatch({
         contextsGeneralState: true,
@@ -296,10 +355,28 @@ export class ContextsManager {
     });
 
     const ns = context.namespace ?? 'default';
-    return {
-      podInformer: this.createPodInformer(kc, ns, context),
-      deploymentInformer: this.createDeploymentInformer(kc, ns, context),
-    };
+    const result = new Map<ResourceName, Informer<KubernetesObject> & ObjectCache<KubernetesObject>>();
+    result.set('pods', this.createPodInformer(kc, ns, context));
+    result.set('deployments', this.createDeploymentInformer(kc, ns, context));
+    return result;
+  }
+
+  startResourceInformer(contextName: string, resourceName: ResourceName): void {
+    const context = this.kubeConfig.contexts.find(c => c.name === contextName);
+    if (!context) {
+      throw new Error(`context ${contextName} not found`);
+    }
+    const ns = context.namespace ?? 'default';
+    let informer: Informer<KubernetesObject> & ObjectCache<KubernetesObject>;
+    switch (resourceName) {
+      case 'services':
+        informer = this.createServiceInformer(this.kubeConfig, ns, context);
+        break;
+      default:
+        console.debug(`unable to watch ${resourceName} in context ${contextName}, as this resource is not supported`);
+        return;
+    }
+    this.states.setResourceInformer(contextName, resourceName, informer);
   }
 
   private createPodInformer(kc: KubeConfig, ns: string, context: KubeContext): Informer<V1Pod> & ObjectCache<V1Pod> {
@@ -314,10 +391,10 @@ export class ContextsManager {
       backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
       connectionDelay: connectionDelay,
       onAdd: obj => {
-        this.setStateAndDispatch(context.name, { pods: true }, state => state.resources.pods.push(obj));
+        this.setStateAndDispatch(context.name, true, { pods: true }, state => state.resources.pods.push(obj));
       },
       onUpdate: obj => {
-        this.setStateAndDispatch(context.name, { pods: true }, state => {
+        this.setStateAndDispatch(context.name, true, { pods: true }, state => {
           state.resources.pods = state.resources.pods.filter(o => o.metadata?.uid !== obj.metadata?.uid);
           state.resources.pods.push(obj);
         });
@@ -325,18 +402,19 @@ export class ContextsManager {
       onDelete: obj => {
         this.setStateAndDispatch(
           context.name,
+          true,
           { pods: true },
           state => (state.resources.pods = state.resources.pods.filter(d => d.metadata?.uid !== obj.metadata?.uid)),
         );
       },
       onReachable: reachable => {
-        this.setStateAndDispatch(context.name, dispatchAllResources, state => {
+        this.setStateAndDispatch(context.name, true, dispatchAllResources, state => {
           state.reachable = reachable;
           state.error = reachable ? undefined : state.error; // if reachable we remove error
         });
       },
       onConnectionError: error => {
-        this.setStateAndDispatch(context.name, dispatchAllResources, state => (state.error = error));
+        this.setStateAndDispatch(context.name, true, dispatchAllResources, state => (state.error = error));
       },
     });
   }
@@ -360,10 +438,12 @@ export class ContextsManager {
       backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
       connectionDelay: connectionDelay,
       onAdd: obj => {
-        this.setStateAndDispatch(context.name, { deployments: true }, state => state.resources.deployments.push(obj));
+        this.setStateAndDispatch(context.name, true, { deployments: true }, state =>
+          state.resources.deployments.push(obj),
+        );
       },
       onUpdate: obj => {
-        this.setStateAndDispatch(context.name, { deployments: true }, state => {
+        this.setStateAndDispatch(context.name, true, { deployments: true }, state => {
           state.resources.deployments = state.resources.deployments.filter(o => o.metadata?.uid !== obj.metadata?.uid);
           state.resources.deployments.push(obj);
         });
@@ -371,11 +451,51 @@ export class ContextsManager {
       onDelete: obj => {
         this.setStateAndDispatch(
           context.name,
+          true,
           { deployments: true },
           state =>
             (state.resources.deployments = state.resources.deployments.filter(
               d => d.metadata?.uid !== obj.metadata?.uid,
             )),
+        );
+      },
+    });
+  }
+
+  public createServiceInformer(
+    kc: KubeConfig,
+    ns: string,
+    context: KubeContext,
+  ): Informer<V1Service> & ObjectCache<V1Service> {
+    const k8sApi = kc.makeApiClient(CoreV1Api);
+    const listFn = (): Promise<{
+      response: IncomingMessage;
+      body: V1ServiceList;
+    }> => k8sApi.listNamespacedService(ns);
+    const path = `/api/v1/namespaces/${ns}/services`;
+    let timer: NodeJS.Timeout | undefined;
+    let connectionDelay: NodeJS.Timeout | undefined;
+    return this.createInformer<V1Service>(kc, context, path, listFn, {
+      resource: 'services',
+      timer: timer,
+      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      connectionDelay: connectionDelay,
+      onAdd: obj => {
+        this.setStateAndDispatch(context.name, false, { services: true }, state => state.resources.services.push(obj));
+      },
+      onUpdate: obj => {
+        this.setStateAndDispatch(context.name, false, { services: true }, state => {
+          state.resources.services = state.resources.services.filter(o => o.metadata?.uid !== obj.metadata?.uid);
+          state.resources.services.push(obj);
+        });
+      },
+      onDelete: obj => {
+        this.setStateAndDispatch(
+          context.name,
+          false,
+          { services: true },
+          state =>
+            (state.resources.services = state.resources.services.filter(d => d.metadata?.uid !== obj.metadata?.uid)),
         );
       },
     });
@@ -490,13 +610,14 @@ export class ContextsManager {
 
   private setStateAndDispatch(
     name: string,
+    sendGeneral: boolean,
     options: ResourcesDispatchOptions,
     update: (previous: ContextState) => void,
   ): void {
     this.states.safeSetState(name, update);
     this.dispatch({
-      contextsGeneralState: true,
-      currentContextGeneralState: true,
+      contextsGeneralState: sendGeneral,
+      currentContextGeneralState: sendGeneral,
       resources: options,
     });
   }
@@ -547,6 +668,19 @@ export class ContextsManager {
   }
 
   public getCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
-    return this.states.getCurrentContextResources(this.kubeConfig.currentContext, resourceName);
+    if (!this.currentContext) {
+      return [];
+    }
+    if (this.states.hasInformer(this.currentContext, resourceName)) {
+      console.debug(`already watching ${resourceName} in context ${this.currentContext}`);
+      return this.states.getCurrentContextResources(this.kubeConfig.currentContext, resourceName);
+    }
+    if (!this.states.isReachable(this.currentContext)) {
+      console.debug(`skip watching ${resourceName} in context ${this.currentContext}, as the context is not reachable`);
+      return [];
+    }
+    console.debug(`start watching ${resourceName} in context ${this.currentContext}`);
+    this.startResourceInformer(this.currentContext, resourceName);
+    return [];
   }
 }

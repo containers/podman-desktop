@@ -12,7 +12,7 @@ import Button from '../ui/Button.svelte';
 import { faExternalLink, faRocket } from '@fortawesome/free-solid-svg-icons';
 import Link from '../ui/Link.svelte';
 import { router } from 'tinro';
-import Input from '/@/lib/ui/Input.svelte';
+import { Input } from '@podman-desktop/ui-svelte';
 import Checkbox from '/@/lib/ui/Checkbox.svelte';
 
 export let resourceId: string;

@@ -1,6 +1,6 @@
 <script lang="ts">
 import { createEventDispatcher, onMount } from 'svelte';
-import Input from './Input.svelte';
+import { Input } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
 

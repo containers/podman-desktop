@@ -132,7 +132,8 @@ const setupUiPackageWatcher = () => {
     spawnProcess = null;
   }
 
-  spawnProcess = spawn(join(__dirname, '../node_modules/.bin/svelte-package'), ['-w'], {
+  const exe = join(__dirname, '..', 'node_modules', '.bin', 'svelte-package').concat(process.platform === 'win32' ? '.cmd': '');
+  spawnProcess = spawn(exe, ['-w'], {
     cwd: './packages/ui/',
     env: { ...process.env },
   });
