@@ -789,7 +789,10 @@ export class ProviderRegistry {
 
   getMatchingConnectionLifecycleContext(
     internalId: string,
-    providerContainerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+    providerContainerConnectionInfo:
+      | ProviderContainerConnectionInfo
+      | ProviderKubernetesConnectionInfo
+      | ContainerProviderConnection,
   ): LifecycleContextImpl {
     const connection = this.getMatchingConnectionFromProvider(internalId, providerContainerConnectionInfo);
 
@@ -812,7 +815,10 @@ export class ProviderRegistry {
 
   getMatchingProviderLifecycleContextByProviderId(
     providerId: string,
-    providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+    providerConnectionInfo:
+      | ProviderContainerConnectionInfo
+      | ProviderKubernetesConnectionInfo
+      | ContainerProviderConnection,
   ): LifecycleContextImpl {
     const internalId = this.getMatchingProviderInternalId(providerId);
     return this.getMatchingConnectionLifecycleContext(internalId, providerConnectionInfo);
@@ -883,7 +889,7 @@ export class ProviderRegistry {
   // helper method
   protected getMatchingContainerConnectionFromProvider(
     internalProviderId: string,
-    providerContainerConnectionInfo: ProviderContainerConnectionInfo,
+    providerContainerConnectionInfo: ProviderContainerConnectionInfo | ContainerProviderConnection,
   ): ContainerProviderConnection {
     // grab the correct provider
     const provider = this.getMatchingProvider(internalProviderId);
@@ -921,7 +927,10 @@ export class ProviderRegistry {
 
   getMatchingConnectionFromProvider(
     internalProviderId: string,
-    providerContainerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+    providerContainerConnectionInfo:
+      | ProviderContainerConnectionInfo
+      | ProviderKubernetesConnectionInfo
+      | ContainerProviderConnection,
   ): ContainerProviderConnection | KubernetesProviderConnection {
     if (this.isProviderContainerConnection(providerContainerConnectionInfo)) {
       return this.getMatchingContainerConnectionFromProvider(internalProviderId, providerContainerConnectionInfo);
@@ -931,8 +940,8 @@ export class ProviderRegistry {
   }
 
   isProviderContainerConnection(
-    connection: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
-  ): connection is ProviderContainerConnectionInfo {
+    connection: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo | ContainerProviderConnection,
+  ): connection is ProviderContainerConnectionInfo | ContainerProviderConnection {
     return (connection as ProviderContainerConnectionInfo).endpoint.socketPath !== undefined;
   }
 
