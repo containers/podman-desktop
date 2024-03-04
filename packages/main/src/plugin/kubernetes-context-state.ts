@@ -273,9 +273,13 @@ export class ContextsStates {
     if (informers) {
       for (const [resourceName, informer] of informers) {
         if (isSecondaryResourceName(resourceName)) {
-          console.debug(`stop watching ${resourceName} in context ${contextName}`);
           await informer?.stop();
+          // We clear the informer and the local state
           informers.delete(resourceName);
+          const state = this.state.get(contextName);
+          if (state) {
+            state.resources[resourceName] = [];
+          }
         }
       }
     }
