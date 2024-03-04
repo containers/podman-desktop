@@ -20,17 +20,8 @@ import '@testing-library/jest-dom/vitest';
 import { test, vi, expect, beforeAll } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import IngressRouteDetailsSummary from './IngressRouteDetailsSummary.svelte';
-import type { IngressUI } from './IngressUI';
-import type { RouteUI } from './RouteUI';
 import type { V1Ingress } from '@kubernetes/client-node';
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
-
-const ingressUI: IngressUI = {
-  name: 'my-ingress',
-  namespace: 'default',
-  status: 'RUNNING',
-  selected: false,
-};
 
 const ingress: V1Ingress = {
   metadata: {
@@ -38,20 +29,6 @@ const ingress: V1Ingress = {
     namespace: 'default',
   },
   status: {},
-};
-
-const routeUI: RouteUI = {
-  name: 'my-route',
-  namespace: 'default',
-  status: 'RUNNING',
-  host: 'foo.bar.com',
-  port: '80',
-  to: {
-    kind: 'Service',
-    name: 'service',
-  },
-  selected: false,
-  tlsEnabled: false,
 };
 
 const route: V1Route = {
@@ -88,36 +65,36 @@ test('Expect basic ingress rendering', async () => {
   kubernetesGetCurrentNamespaceMock.mockResolvedValue('default');
   kubernetesReadNamespacedServiceMock.mockResolvedValue(ingress);
 
-  render(IngressRouteDetailsSummary, { ingressRouteUI: ingressUI, ingressRoute: ingress });
+  render(IngressRouteDetailsSummary, { ingressRoute: ingress });
 
-  expect(screen.getByText(ingressUI.name)).toBeInTheDocument();
+  expect(screen.getByText('my-ingress')).toBeInTheDocument();
 });
 
 test('Expect basic route rendering', async () => {
   kubernetesGetCurrentNamespaceMock.mockResolvedValue('default');
   kubernetesReadNamespacedServiceMock.mockResolvedValue(route);
 
-  render(IngressRouteDetailsSummary, { ingressRouteUI: routeUI, ingressRoute: route });
+  render(IngressRouteDetailsSummary, { ingressRoute: route });
 
-  expect(screen.getByText(routeUI.name)).toBeInTheDocument();
+  expect(screen.getByText('my-route')).toBeInTheDocument();
 });
 
 test('Check more ingress properties', async () => {
   kubernetesGetCurrentNamespaceMock.mockResolvedValue('default');
   kubernetesReadNamespacedServiceMock.mockResolvedValue(undefined);
 
-  render(IngressRouteDetailsSummary, { ingressRouteUI: ingressUI, ingressRoute: ingress });
+  render(IngressRouteDetailsSummary, { ingressRoute: ingress });
 
-  expect(screen.getByText(ingressUI.name)).toBeInTheDocument();
-  expect(screen.getByText(ingressUI.namespace)).toBeInTheDocument();
+  expect(screen.getByText('my-ingress')).toBeInTheDocument();
+  expect(screen.getByText('default')).toBeInTheDocument();
 });
 
 test('Check more route properties', async () => {
   kubernetesGetCurrentNamespaceMock.mockResolvedValue('default');
   kubernetesReadNamespacedServiceMock.mockResolvedValue(undefined);
 
-  render(IngressRouteDetailsSummary, { ingressRouteUI: routeUI, ingressRoute: route });
+  render(IngressRouteDetailsSummary, { ingressRoute: route });
 
-  expect(screen.getByText(routeUI.name)).toBeInTheDocument();
-  expect(screen.getByText(routeUI.namespace)).toBeInTheDocument();
+  expect(screen.getByText('my-route')).toBeInTheDocument();
+  expect(screen.getByText('default')).toBeInTheDocument();
 });

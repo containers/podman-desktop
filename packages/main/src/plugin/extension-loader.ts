@@ -59,7 +59,6 @@ import type { Directories } from './directories.js';
 import { getBase64Image, isLinux, isMac, isWindows } from '../util.js';
 import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 import type { Exec } from './util/exec.js';
-import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info.js';
 import type { ViewRegistry } from './view-registry.js';
 import type { Context } from './context/context.js';
 import type { OnboardingRegistry } from './onboarding-registry.js';
@@ -290,7 +289,7 @@ export class ExtensionLoader {
     }
   }
 
-  async start() {
+  async start(): Promise<void> {
     // Scan the plugins-scanning directory
     await this.setupScanningDirectory();
 
@@ -442,7 +441,7 @@ export class ExtensionLoader {
     allExtensions: AnalyzedExtension[],
     explored: Map<string, boolean>,
     sorted: AnalyzedExtension[],
-  ) {
+  ): void {
     // flasg the node as explored
     explored.set(analyzedExtension.id, true);
 
@@ -725,7 +724,7 @@ export class ExtensionLoader {
       },
       getProviderLifecycleContext(
         providerId: string,
-        providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+        providerConnectionInfo: containerDesktopAPI.ContainerProviderConnection,
       ): containerDesktopAPI.LifecycleContext {
         return providerRegistry.getMatchingProviderLifecycleContextByProviderId(providerId, providerConnectionInfo);
       },
@@ -1099,10 +1098,10 @@ export class ExtensionLoader {
       },
       get clipboard(): containerDesktopAPI.Clipboard {
         return {
-          readText: async () => {
+          readText: async (): Promise<string> => {
             return electronClipboard.readText();
           },
-          writeText: async value => {
+          writeText: async (value): Promise<void> => {
             return electronClipboard.writeText(value);
           },
         };

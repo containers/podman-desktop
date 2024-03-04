@@ -33,15 +33,15 @@ export class StartupInstall {
     }
   }
 
-  async enableStartupOnLogin() {
+  async enableStartupOnLogin(): Promise<void> {
     await this.osStartup?.enable();
   }
 
-  async disableStartupOnLogin() {
+  async disableStartupOnLogin(): Promise<void> {
     await this.osStartup?.disable();
   }
 
-  async configure() {
+  async configure(): Promise<void> {
     // development mode, do nothing
     if (!import.meta.env.PROD) {
       console.log('Development mode, skipping startup install');

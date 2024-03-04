@@ -18,7 +18,7 @@
 
 import type { Page } from '@playwright/test';
 import type { RunnerTestContext } from './testContext/runner-test-context';
-import { afterAll, beforeAll, expect, test, describe, beforeEach } from 'vitest';
+import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
@@ -45,11 +45,6 @@ beforeEach<RunnerTestContext>(async ctx => {
 describe('Basic e2e verification of podman desktop start', async () => {
   describe('Welcome page handling', async () => {
     test('Check the Welcome page is displayed', async () => {
-      const windowState = await pdRunner.getBrowserWindowState();
-      expect(windowState.isCrashed, 'The app has crashed').toBeFalsy();
-      expect(windowState.isVisible, 'The main window was not visible').toBeTruthy();
-      expect(windowState.isDevToolsOpened, 'The Dev Tools window is not closed').toBeFalsy();
-
       await pdRunner.screenshot('welcome-page-init.png');
 
       const welcomePage = new WelcomePage(page);

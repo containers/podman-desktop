@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2022 Red Hat, Inc.
+# Copyright (C) 2022-2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ jobs:
           ref: ${{ needs.tag.outputs.githubTag}}
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - uses: actions/setup-python@v5
         with:
@@ -182,7 +182,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
       - name: Set-up npmjs auth token
         run: printf "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}\n" >> ~/.npmrc
 
@@ -191,3 +191,9 @@ jobs:
           echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" packages/extension-api/package.json
           cd packages/extension-api && yarn publish --tag next --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
+
+      - name: Publish ui/svelte to npmjs
+        run: |
+          echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
+          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" packages/ui/package.json
+          cd packages/ui && yarn publish --tag next --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public

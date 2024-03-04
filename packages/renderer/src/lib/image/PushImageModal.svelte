@@ -10,6 +10,7 @@ import Button from '../ui/Button.svelte';
 import Link from '../ui/Link.svelte';
 import { faCheckCircle, faTriangleExclamation, faCircleArrowUp } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
+import CloseButton from '/@/lib/ui/CloseButton.svelte';
 
 export let closeCallback: () => void;
 export let imageInfoToPush: ImageInfoUI;
@@ -117,18 +118,16 @@ $: window.hasAuthconfigForImage(imageInfoToPush.name).then(result => (isAuthenti
     <div class="flex items-center justify-between px-6 py-5 space-x-2">
       <h1 class="grow text-lg font-bold">Push image</h1>
 
-      <button class="hover:text-gray-300 py-1" on:click="{() => closeCallback()}">
-        <i class="fas fa-times" aria-hidden="true"></i>
-      </button>
+      <CloseButton on:click="{() => closeCallback()}" />
     </div>
 
     <div class="flex flex-col px-6 py-4 pt-0 text-sm leading-5 space-y-5">
       <div class="pb-4">
         <label for="modalImageTag" class="block mb-2 text-sm font-medium text-gray-400">Image tag</label>
         {#if isAuthenticatedForThisImage}
-          <Fa class="absolute mt-3 ml-1.5 text-green-300" size="16" icon="{faCheckCircle}" />
+          <Fa class="absolute mt-3 ml-1.5 text-green-300" size="1x" icon="{faCheckCircle}" />
         {:else}
-          <Fa class="absolute mt-3 ml-1.5 text-amber-500" size="16" icon="{faTriangleExclamation}" />
+          <Fa class="absolute mt-3 ml-1.5 text-amber-500" size="1x" icon="{faTriangleExclamation}" />
         {/if}
 
         <select

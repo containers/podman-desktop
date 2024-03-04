@@ -2,7 +2,6 @@
 import { onMount } from 'svelte';
 
 import type { DeploymentUI } from './DeploymentUI';
-import { filtered, searchPattern } from '../../stores/deployments';
 import NavPage from '../ui/NavPage.svelte';
 import Table from '../table/Table.svelte';
 import { Column, Row } from '../table/table';
@@ -21,16 +20,21 @@ import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import SimpleColumn from '../table/SimpleColumn.svelte';
 import DurationColumn from '../table/DurationColumn.svelte';
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
+import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
+import {
+  deploymentSearchPattern,
+  kubernetesCurrentContextDeploymentsFiltered,
+} from '/@/stores/kubernetes-contexts-state';
 
 export let searchTerm = '';
-$: searchPattern.set(searchTerm);
+$: deploymentSearchPattern.set(searchTerm);
 
 let deployments: DeploymentUI[] = [];
 
 const deploymentUtils = new DeploymentUtils();
 
 onMount(() => {
-  return filtered.subscribe(value => {
+  return kubernetesCurrentContextDeploymentsFiltered.subscribe(value => {
     deployments = value.map(deployment => deploymentUtils.getDeploymentUI(deployment));
   });
 });
@@ -112,6 +116,10 @@ const row = new Row<DeploymentUI>({ selectable: _deployment => true });
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="deployments">
+  <svelte:fragment slot="additional-actions">
+    <KubeApplyYamlButton />
+  </svelte:fragment>
+
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
@@ -121,7 +129,7 @@ const row = new Row<DeploymentUI>({ selectable: _deployment => true });
         icon="{faTrash}" />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
-    <div class="flex min-w-full justify-end">
+    <div class="flex grow justify-end">
       <KubernetesCurrentContextConnectionBadge />
     </div>
   </svelte:fragment>
@@ -138,7 +146,7 @@ const row = new Row<DeploymentUI>({ selectable: _deployment => true });
       on:update="{() => (deployments = deployments)}">
     </Table>
 
-    {#if $filtered.length === 0}
+    {#if $kubernetesCurrentContextDeploymentsFiltered.length === 0}
       {#if searchTerm}
         <FilteredEmptyScreen
           icon="{DeploymentIcon}"

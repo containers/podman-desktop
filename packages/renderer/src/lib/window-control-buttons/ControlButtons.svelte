@@ -3,15 +3,15 @@ import WindowControlButton from './ControlButton.svelte';
 
 export let platform: string;
 
-function minimize() {
+function minimize(): void {
   window.windowMinimize();
 }
 
-function maximize() {
+function maximize(): void {
   window.windowMaximize();
 }
 
-function close() {
+function close(): void {
   window.windowClose();
 }
 </script>

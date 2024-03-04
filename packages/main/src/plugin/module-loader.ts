@@ -45,7 +45,7 @@ export class ModuleLoader {
     private _analyzedExtensions: Map<string, ExtensionModule>,
   ) {}
 
-  addOverride(lookup: Record<string, object | OverrideFunction>) {
+  addOverride(lookup: Record<string, object | OverrideFunction>): void {
     Object.keys(lookup).forEach(entry => {
       this._overrides.set(entry, lookup[entry]);
     });

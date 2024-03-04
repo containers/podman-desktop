@@ -60,7 +60,7 @@ onMount(() => {
       hideCloseButton="{true}" />
   {:else}
     <div aria-label="not supported warning" class="flex flex-row min-h-[500px] items-center justify-center">
-      <Fa size="18" class="flex text-amber-400 mr-3" icon="{faTriangleExclamation}" />
+      <Fa size="1.125x" class="flex text-amber-400 mr-3" icon="{faTriangleExclamation}" />
       <span>This extension does not provide a component of type "{component}"</span>
     </div>
   {/if}

@@ -277,7 +277,7 @@ declare module '@podman-desktop/api' {
     portmappings?: PodCreatePortOptions[];
     labels?: { [key: string]: string };
     // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
-    provider?: ProviderContainerConnectionInfo | ContainerProviderConnection;
+    provider?: ContainerProviderConnection;
   }
 
   export interface KubernetesProviderConnectionEndpoint {
@@ -520,13 +520,13 @@ declare module '@podman-desktop/api' {
      * If no context is found it throws an error
      *
      * @param providerId the provider id
-     * @param providerConnectionInfo the connection to retrieve the lifecycle context for
+     * @param containerProviderConnection the connection to retrieve the lifecycle context for
      * @returns the lifecycle context
      * @throws if no provider with the id has been found or there is no context associate to it.
      */
     export function getProviderLifecycleContext(
       providerId: string,
-      providerConnectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo,
+      containerProviderConnection: ContainerProviderConnection,
     ): LifecycleContext;
   }
 
@@ -827,7 +827,7 @@ declare module '@podman-desktop/api' {
     /**
      * A description of the field to be show (Markdown format)
      */
-    markdownDescription?;
+    markdownDescription?: string;
 
     /**
      * An optional string to show as placeholder in the input box to guide the user what to type.
@@ -1112,6 +1112,8 @@ declare module '@podman-desktop/api' {
      */
     dispose(): void;
   }
+
+  type NotificationType = 'info' | 'warn' | 'error';
 
   export interface NotificationOptions {
     /**
@@ -1913,6 +1915,13 @@ declare module '@podman-desktop/api' {
     IPv4Address: string;
     IPv6Address: string;
   }
+
+  interface IPAM {
+    Driver: string;
+    Config?: Array<{ [key: string]: string }>;
+    Options?: { [key: string]: string };
+  }
+
   export interface NetworkInspectInfo {
     engineId: string;
     engineName: string;
@@ -2050,6 +2059,7 @@ declare module '@podman-desktop/api' {
     Type: MountType;
     ReadOnly?: boolean;
     Consistency?: MountConsistency;
+    Mode?: string;
     BindOptions?: {
       Propagation: MountPropagation;
     };
@@ -2068,6 +2078,14 @@ declare module '@podman-desktop/api' {
   }
 
   type MountConfig = MountSettings[];
+
+  interface DeviceRequest {
+    Driver?: string;
+    Count?: number;
+    DeviceIDs?: string[];
+    Capabilities?: string[][];
+    Options?: { [key: string]: string };
+  }
 
   interface HostConfig {
     AutoRemove?: boolean;
@@ -2434,6 +2452,7 @@ declare module '@podman-desktop/api' {
       Mode: string;
       RW: boolean;
       Propagation: string;
+      Options?: string[];
     }>;
   }
 
@@ -2613,6 +2632,11 @@ declare module '@podman-desktop/api' {
     Shell?: string[];
 
     NetworkConfig?: NetworkingConfig;
+
+    /**
+     * Pod where to create the container in
+     */
+    pod?: string;
   }
 
   /**
@@ -2650,7 +2674,7 @@ declare module '@podman-desktop/api' {
     /**
      * Set the provider to use, if not we will try select the first one available (sorted in favor of Podman)
      */
-    provider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection;
+    provider?: ContainerProviderConnection;
 
     /**
      * The abort controller for running the build image operation
@@ -2829,12 +2853,12 @@ declare module '@podman-desktop/api' {
     // name of the volume to create
     Name: string;
     // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
-    provider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection;
+    provider?: ContainerProviderConnection;
   }
 
   export interface VolumeDeleteOptions {
     // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
-    provider?: ProviderContainerConnectionInfo | containerDesktopAPI.ContainerProviderConnection;
+    provider?: ContainerProviderConnection;
   }
 
   export interface VolumeCreateResponseInfo {
@@ -2927,7 +2951,7 @@ declare module '@podman-desktop/api' {
       context: string,
       eventCollect: (eventName: 'stream' | 'error' | 'finish', data: string) => void,
       options?: BuildImageOptions,
-    );
+    ): Promise<unknown>;
 
     /**
      * Save on disk a tarball containing the image and its metadata.

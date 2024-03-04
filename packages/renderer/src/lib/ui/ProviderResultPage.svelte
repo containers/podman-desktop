@@ -53,7 +53,13 @@ function getIcon(check: ImageCheck): IconDefinition {
   }
 }
 
-function getCountBySeverity(results: CheckUI[]) {
+function getCountBySeverity(results: CheckUI[]): {
+  critical: number;
+  high: number;
+  medium: number;
+  low: number;
+  success: number;
+} {
   return results.reduce(
     (acc, current) => {
       if (current.check.status === 'success') {
@@ -76,7 +82,7 @@ function getCountBySeverity(results: CheckUI[]) {
   );
 }
 
-function onProviderChecked(id: string, checked: boolean) {
+function onProviderChecked(id: string, checked: boolean): void {
   selectedProviders.set(id, checked);
   selectedProviders = selectedProviders;
 }
@@ -85,7 +91,7 @@ function getFilteredResultsByProvider(results: CheckUI[], checkedProviders: Map<
   return results.filter(r => checkedProviders.get(r.provider.id) === undefined || checkedProviders.get(r.provider.id));
 }
 
-function getFilteredResultsBySeverity(results: CheckUI[], selectedSeverities: any) {
+function getFilteredResultsBySeverity(results: CheckUI[], selectedSeverities: any): CheckUI[] {
   return results.filter(r => {
     if (r.check.status === 'success') {
       return selectedSeverities['success'];
@@ -97,7 +103,7 @@ function getFilteredResultsBySeverity(results: CheckUI[], selectedSeverities: an
   });
 }
 
-function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 'success', clicked: boolean) {
+function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 'success', clicked: boolean): void {
   selectedSeverities[severity] = clicked;
 }
 </script>
@@ -157,12 +163,12 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
             {/if}
             {#if provider.state === 'failed'}
               <span class="text-red-600 mt-1">
-                <Fa size="18" icon="{faExclamationTriangle}" />
+                <Fa size="1.1x" icon="{faExclamationTriangle}" />
               </span>
             {/if}
             {#if provider.state === 'canceled'}
               <span class="text-gray-500">
-                <Fa size="18" icon="{faCircleMinus}" />
+                <Fa size="1.1x" icon="{faCircleMinus}" />
               </span>
             {/if}
             {#if provider.state === 'success'}
@@ -197,7 +203,7 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
               class:text-gray-800="{result.check.severity === 'medium'}"
               class:text-gray-500="{result.check.severity === 'low'}"
               class:text-green-500="{result.check.status === 'success'}"
-              ><Fa size="18" class="mt-1" icon="{getIcon(result.check)}" />
+              ><Fa size="1.1x" class="mt-1" icon="{getIcon(result.check)}" />
             </span>
             <div class="font-bold">{result.check.name}</div>
             <div class="text-gray-900 text-sm grow text-right">Reported by {result.provider.label}</div>

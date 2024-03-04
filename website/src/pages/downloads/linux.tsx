@@ -41,7 +41,7 @@ export function LinuxDownloads(): JSX.Element {
     flatpak: '',
   });
 
-  const copyFlathubInstructions = async () => {
+  const copyFlathubInstructions = async (): Promise<void> => {
     await navigator.clipboard.writeText('flatpak install flathub io.podman_desktop.PodmanDesktop');
   };
 

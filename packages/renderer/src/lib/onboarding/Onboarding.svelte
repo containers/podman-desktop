@@ -334,7 +334,7 @@ function handleEscape({ key }: any) {
               class="flex flex-row text-xs items-center hover:underline"
               on:click="{() => setDisplayCancelSetup(true)}">
               <span class="mr-1">Skip this entire setup</span>
-              <Fa icon="{faForward}" size="12" />
+              <Fa icon="{faForward}" size="0.8x" />
             </button>
           </div>
         </div>
@@ -397,7 +397,6 @@ function handleEscape({ key }: any) {
                   <OnboardingItem
                     extension="{activeStep.onboarding.extension}"
                     item="{item}"
-                    getContext="{() => globalContext}"
                     inProgressCommandExecution="{inProgressCommandExecution}" />
                 {/each}
               </div>

@@ -15,7 +15,7 @@ import Button from '/@/lib/ui/Button.svelte';
 import VolumeIcon from '/@/lib/images/VolumeIcon.svelte';
 import { router } from 'tinro';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import Input from '../ui/Input.svelte';
+import { Input } from '@podman-desktop/ui-svelte';
 
 let providers: ProviderInfo[] = [];
 let providerConnections: ProviderContainerConnectionInfo[] = [];

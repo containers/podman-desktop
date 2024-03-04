@@ -21,7 +21,7 @@ $: enabled = !readonly && !disabled;
 const dispatch = createEventDispatcher();
 
 // clear the value if the parent doesn't override
-async function onClear() {
+async function onClear(): Promise<void> {
   if (dispatch('action', { cancelable: true })) {
     value = '';
     if (element) {
@@ -37,27 +37,27 @@ async function onClear() {
   <div
     class="flex flex-row w-full items-center px-1 py-1 group bg-transparent border-[1px] border-transparent {$$props.class ||
       ''}"
-    class:hover:bg-charcoal-900="{enabled}"
-    class:focus-within:bg-charcoal-900="{enabled}"
+    class:hover:bg-[var(--pd-input-field-hover-bg)]="{enabled}"
+    class:focus-within:bg-[var(--pd-input-field-focused-bg)]="{enabled}"
     class:hover:rounded-md="{enabled}"
     class:focus-within:rounded-md="{enabled}"
-    class:border-b-purple-500="{enabled && !error}"
-    class:border-b-red-500="{enabled && error}"
-    class:hover:border-purple-400="{enabled && !error}"
-    class:hover:border-red-400="{enabled && error}"
-    class:focus-within:border-purple-500="{enabled && !error}"
-    class:focus-within:border-red-500="{enabled && error}"
-    class:border-b-charcoal-100="{readonly || disabled}">
+    class:border-b-[var(--pd-input-field-stroke)]="{enabled && !error}"
+    class:border-b-[var(--pd-input-field-stroke-error)]="{enabled && error}"
+    class:hover:border-[var(--pd-input-field-stroke)]="{enabled && !error}"
+    class:hover:border-[var(--pd-input-field-stroke-error)]="{enabled && error}"
+    class:focus-within:border-[var(--pd-input-field-stroke)]="{enabled && !error}"
+    class:focus-within:border-[var(--pd-input-field-stroke-error)]="{enabled && error}"
+    class:border-b-[var(--pd-input-field-stroke-readonly)]="{readonly || disabled}">
     <slot name="left" />
     <input
       bind:this="{element}"
       on:input
-      class="grow px-1 outline-0 text-sm bg-transparent placeholder:text-gray-700 overflow-hidden"
-      class:text-white="{!disabled}"
-      class:text-gray-700="{disabled}"
-      class:group-hover:bg-charcoal-900="{enabled}"
-      class:group-focus-within:bg-charcoal-900="{enabled}"
-      class:group-hover-placeholder:text-gray-900="{enabled}"
+      class="grow px-1 outline-0 text-sm bg-transparent placeholder:text-[color:var(--pd-input-field-placeholder-text)] overflow-hidden"
+      class:text-[color:var(--pd-input-field-focused-text)]="{!disabled}"
+      class:text-[color:var(--pd-input-field-disabled-text)]="{disabled}"
+      class:group-hover:bg-[var(--pd-input-field-hover-bg)]="{enabled}"
+      class:group-focus-within:bg-[var(--pd-input-field-hover-bg)]="{enabled}"
+      class:group-hover-placeholder:text-[color:var(--pd-input-field-placeholder-text)]="{enabled}"
       name="{name}"
       type="text"
       disabled="{disabled}"
@@ -69,13 +69,13 @@ async function onClear() {
       aria-invalid="{$$props['aria-invalid']}"
       bind:value="{value}" />
     {#if error}
-      <span class="px-1 text-red-500" aria-label="error">
+      <span class="px-1 text-[color:var(--pd-input-field-error-text)]" aria-label="error">
         <Fa icon="{faCircleExclamation}" />
       </span>
     {/if}
     {#if clearable}
       <button
-        class="px-1 cursor-pointer text-gray-700 group-hover:text-gray-900 group-focus-within:text-gray-900"
+        class="px-1 cursor-pointer text-[color:var(--pd-input-field-icon)] group-hover:text-[color:var(--pd-input-field-hover-icon)] group-focus-within:text-[color:var(--pd-input-field-focused-icon)]"
         class:hidden="{!value || readonly || disabled}"
         aria-label="clear"
         on:click="{onClear}">
@@ -85,6 +85,6 @@ async function onClear() {
     <slot name="right" />
   </div>
   {#if error && error.length > 0}
-    <span class="text-sm text-red-500">{error}</span>
+    <span class="text-sm text-[color:var(--pd-input-field-error-text)]">{error}</span>
   {/if}
 </div>

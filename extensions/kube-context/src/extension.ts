@@ -118,7 +118,7 @@ function getKubeconfig(): string | undefined {
   return kubeconfigFile;
 }
 
-async function setContext(newContext: string) {
+async function setContext(newContext: string): Promise<void> {
   const file = getKubeconfig();
   if (!file) {
     await extensionApi.window.showErrorMessage('No kubeconfig file found');

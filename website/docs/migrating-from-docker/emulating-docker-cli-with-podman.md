@@ -18,6 +18,8 @@ Consider emulating Docker CLI with Podman to migrate transparently to Podman.
 
 - Podman
 
+### Linux / macOS
+
 #### Procedure
 
 1. Create a `/usr/local/bin/docker` script:
@@ -47,5 +49,29 @@ Consider emulating Docker CLI with Podman to migrate transparently to Podman.
   Example:
 
   ```shell-session
+  $ docker run -it docker.io/hello-world
+  ```
+
+### Windows
+
+#### Procedure
+
+1. Create a `C:\Program Files\docker\bin\docker.bat` script:
+
+   ```batch
+   @echo off
+   echo Emulate Docker CLI using podman. <- remove this line to avoid the  `Emulate Docker CLI using podman.` message when running the script.
+   podman %*
+   ```
+
+2. Add C:\Program Files\docker\bin to the SYSTEM/USER environment variable PATH
+3. Close all cmd and powershell instances.
+
+#### Verification
+
+- Use the `docker` script to run commands.
+  Example:
+
+  ```PowerShell
   $ docker run -it docker.io/hello-world
   ```

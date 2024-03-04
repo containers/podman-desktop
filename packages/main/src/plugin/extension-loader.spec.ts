@@ -77,11 +77,11 @@ class TestExtensionLoader extends ExtensionLoader {
     this.watchTimeout = timeout;
   }
 
-  getExtensionState() {
+  getExtensionState(): Map<string, string> {
     return this.extensionState;
   }
 
-  getExtensionStateErrors() {
+  getExtensionStateErrors(): Map<string, unknown> {
     return this.extensionStateErrors;
   }
 
@@ -921,7 +921,7 @@ describe('Navigation', async () => {
   test.each([
     {
       name: 'navigateToContainer valid',
-      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainer,
+      method: (api: typeof containerDesktopAPI.navigation): ((id: string) => Promise<void>) => api.navigateToContainer,
       expected: {
         page: NavigationPage.CONTAINER,
         parameters: {
@@ -931,7 +931,8 @@ describe('Navigation', async () => {
     },
     {
       name: 'navigateToContainerLogs valid',
-      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainerLogs,
+      method: (api: typeof containerDesktopAPI.navigation): ((id: string) => Promise<void>) =>
+        api.navigateToContainerLogs,
       expected: {
         page: NavigationPage.CONTAINER_LOGS,
         parameters: {
@@ -941,7 +942,8 @@ describe('Navigation', async () => {
     },
     {
       name: 'navigateToContainerInspect valid',
-      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainerInspect,
+      method: (api: typeof containerDesktopAPI.navigation): ((id: string) => Promise<void>) =>
+        api.navigateToContainerInspect,
       expected: {
         page: NavigationPage.CONTAINER_INSPECT,
         parameters: {
@@ -951,7 +953,8 @@ describe('Navigation', async () => {
     },
     {
       name: 'navigateToContainerTerminal valid',
-      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainerTerminal,
+      method: (api: typeof containerDesktopAPI.navigation): ((id: string) => Promise<void>) =>
+        api.navigateToContainerTerminal,
       expected: {
         page: NavigationPage.CONTAINER_TERMINAL,
         parameters: {
@@ -987,19 +990,22 @@ describe('Navigation', async () => {
   test.each([
     {
       name: 'navigateToContainer invalid',
-      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainer,
+      method: (api: typeof containerDesktopAPI.navigation): ((id: string) => Promise<void>) => api.navigateToContainer,
     },
     {
       name: 'navigateToContainerLogs invalid',
-      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainerLogs,
+      method: (api: typeof containerDesktopAPI.navigation): ((id: string) => Promise<void>) =>
+        api.navigateToContainerLogs,
     },
     {
       name: 'navigateToContainerInspect invalid',
-      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainerInspect,
+      method: (api: typeof containerDesktopAPI.navigation): ((id: string) => Promise<void>) =>
+        api.navigateToContainerInspect,
     },
     {
       name: 'navigateToContainerTerminal invalid',
-      method: (api: typeof containerDesktopAPI.navigation) => api.navigateToContainerTerminal,
+      method: (api: typeof containerDesktopAPI.navigation): ((id: string) => Promise<void>) =>
+        api.navigateToContainerTerminal,
     },
   ])('$name', async ({ method }) => {
     const api = extensionLoader.createApi('path', {

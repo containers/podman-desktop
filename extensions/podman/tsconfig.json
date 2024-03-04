@@ -11,12 +11,5 @@
     "allowSyntheticDefaultImports": true,
     "types": ["node"]
   },
-  "include": ["src"],
-  "ts-node": {
-    "compilerOptions": {
-      "module": "CommonJS",
-      "lib": ["ES2020", "DOM"],
-      "types": ["node"]
-    }
-  }
+  "include": ["src"]
 }

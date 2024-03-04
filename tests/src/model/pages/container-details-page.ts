@@ -45,7 +45,7 @@ export class ContainerDetailsPage extends BasePage {
     this.backToContainersLink = page.getByRole('link', { name: 'Go back to Containers' });
   }
 
-  async activateTab(tabName: string) {
+  async activateTab(tabName: string): Promise<void> {
     const tabItem = this.page.getByRole('link', { name: tabName, exact: true });
     await tabItem.waitFor({ state: 'visible', timeout: 2000 });
     await tabItem.click();
@@ -87,13 +87,12 @@ export class ContainerDetailsPage extends BasePage {
     return new ContainersPage(this.page);
   }
 
-  async checkMappedPort(port: string): Promise<boolean> {
+  async getContainerPort(): Promise<string> {
     await this.activateTab(ContainerDetailsPage.SUMMARY_TAB);
     const summaryTable = this.getPage().getByRole('table');
     const portsRow = summaryTable.locator('tr:has-text("Ports")');
     const portsCell = portsRow.getByRole('cell').nth(1);
     await portsCell.waitFor({ state: 'visible', timeout: 500 });
-    const portsText = await portsCell.innerText();
-    return portsText.includes(port);
+    return await portsCell.innerText({ timeout: 5000 });
   }
 }

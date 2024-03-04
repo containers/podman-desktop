@@ -1,11 +1,10 @@
 <script lang="ts">
 import type { V1Deployment } from '@kubernetes/client-node';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
-import DeploymentColumnConditions from './DeploymentColumnConditions.svelte';
-import type { DeploymentUI } from './DeploymentUI';
-import DeploymentColumnPods from './DeploymentColumnPods.svelte';
+import KubeObjectMetaArtifact from '../kube/details/KubeObjectMetaArtifact.svelte';
+import KubeDeploymentArtifact from '../kube/details/KubeDeploymentArtifact.svelte';
+import KubeDeploymentStatusArtifact from '../kube/details/KubeDeploymentStatusArtifact.svelte';
 
-export let deploymentUI: DeploymentUI;
 export let deployment: V1Deployment | undefined;
 export let kubeError: string | undefined = undefined;
 </script>
@@ -16,30 +15,13 @@ basic information -->
   <ErrorMessage error="{kubeError}" />
 {/if}
 
-<div class="flex px-5 py-4 flex-col h-full overflow-auto">
+<div class="flex px-5 py-4 flex-col items-start h-full overflow-auto">
   {#if deployment}
     <table class="w-full">
       <tbody>
-        <tr>
-          <td class="pr-2">Name</td>
-          <td>{deployment.metadata?.name}</td>
-        </tr>
-        <tr>
-          <td class="pr-2">Namespace</td>
-          <td>{deployment.metadata?.namespace}</td>
-        </tr>
-        <tr>
-          <td class="pr-2">Created</td>
-          <td>{deployment.metadata?.creationTimestamp}</td>
-        </tr>
-        <tr>
-          <td class="pr-2">Conditions</td>
-          <td><DeploymentColumnConditions object="{deploymentUI}" /></td>
-        </tr>
-        <tr>
-          <td class="pr-2">Pods</td>
-          <td><DeploymentColumnPods object="{deploymentUI}" /></td>
-        </tr>
+        <KubeObjectMetaArtifact artifact="{deployment.metadata}" />
+        <KubeDeploymentStatusArtifact artifact="{deployment.status}" />
+        <KubeDeploymentArtifact artifact="{deployment.spec}" />
       </tbody>
     </table>
   {:else}

@@ -54,7 +54,7 @@ let autoMachineStarted = false;
 let autoMachineName;
 
 // System default notifier
-let defaultMachineNotify = true;
+let defaultMachineNotify = !isLinux();
 let defaultMachineMonitor = true;
 
 // current status of machines
@@ -434,7 +434,7 @@ function getLinuxSocketPath(): string {
 }
 
 // on linux, socket is started by the system service on a path like /run/user/1000/podman/podman.sock
-async function initDefaultLinux(provider: extensionApi.Provider) {
+async function initDefaultLinux(provider: extensionApi.Provider): Promise<void> {
   const socketPath = getLinuxSocketPath();
   if (!fs.existsSync(socketPath)) {
     return;
@@ -482,7 +482,7 @@ async function isPodmanSocketAlive(socketPath: string): Promise<boolean> {
   });
 }
 
-async function monitorPodmanSocket(socketPath: string, machineName?: string) {
+async function monitorPodmanSocket(socketPath: string, machineName?: string): Promise<void> {
   // call us again
   if (!stopMonitoringPodmanSocket(machineName)) {
     try {
@@ -502,14 +502,14 @@ async function monitorPodmanSocket(socketPath: string, machineName?: string) {
   }
 }
 
-function stopMonitoringPodmanSocket(machineName?: string) {
+function stopMonitoringPodmanSocket(machineName?: string): boolean {
   if (machineName) {
     return stopLoop || !podmanMachinesStatuses.has(machineName);
   }
   return stopLoop;
 }
 
-function updateProviderStatus(status: extensionApi.ProviderConnectionStatus, machineName?: string) {
+function updateProviderStatus(status: extensionApi.ProviderConnectionStatus, machineName?: string): void {
   if (machineName) {
     podmanMachinesStatuses.set(machineName, status);
   } else {
@@ -523,7 +523,7 @@ async function timeout(time: number): Promise<void> {
   });
 }
 
-async function monitorMachines(provider: extensionApi.Provider) {
+async function monitorMachines(provider: extensionApi.Provider): Promise<void> {
   // call us again
   if (!stopLoop) {
     try {
@@ -538,7 +538,7 @@ async function monitorMachines(provider: extensionApi.Provider) {
   }
 }
 
-async function monitorProvider(provider: extensionApi.Provider) {
+async function monitorProvider(provider: extensionApi.Provider): Promise<void> {
   // call us again
   if (!stopLoop) {
     try {
@@ -598,7 +598,7 @@ export async function registerProviderFor(
   provider: extensionApi.Provider,
   machineInfo: MachineInfo,
   socketPath: string,
-) {
+): Promise<void> {
   const lifecycle: extensionApi.ProviderConnectionLifecycle = {
     start: async (context, logger): Promise<void> => {
       await startMachine(provider, machineInfo, context, logger, undefined, false);
@@ -807,7 +807,7 @@ export function initTelemetryLogger(): void {
   telemetryLogger = extensionApi.env.createTelemetryLogger();
 }
 
-export function initExtensionContext(extensionContext: extensionApi.ExtensionContext) {
+export function initExtensionContext(extensionContext: extensionApi.ExtensionContext): void {
   storedExtensionContext = extensionContext;
 }
 
@@ -991,50 +991,52 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // add update information asynchronously
   await registerUpdatesIfAny(provider, installedPodman, podmanInstall);
 
-  // register autostart if enabled
-  if (isMac() || isWindows()) {
-    try {
-      await updateMachines(provider);
-    } catch (error) {
-      // ignore the update of machines
-    }
-    provider.registerAutostart({
-      start: async (logger: extensionApi.Logger) => {
-        // do we have a running machine ?
-        const isRunningMachine = Array.from(podmanMachinesStatuses.values()).find(
-          connectionStatus => connectionStatus === 'started' || connectionStatus === 'starting',
-        );
-        if (isRunningMachine) {
-          console.log('Podman extension:', 'Do not start a machine as there is already one starting or started');
-          return;
-        }
-
-        // start the first machine if any
-        const machines = Array.from(podmanMachinesStatuses.entries());
-        if (machines.length > 0) {
-          const [machineName] = machines[0];
-          if (!podmanMachinesInfo.has(machineName)) {
-            console.error('Unable to retrieve machine infos to be autostarted', machineName);
-          } else {
-            console.log('Podman extension:', 'Autostarting machine', machineName);
-            const machineInfo = podmanMachinesInfo.get(machineName);
-            const containerProviderConnection = containerProviderConnections.get(machineName);
-            const context: extensionApi.LifecycleContext = extensionApi.provider.getProviderLifecycleContext(
-              provider.id,
-              containerProviderConnection,
-            );
-            await startMachine(provider, machineInfo, context, logger, undefined, true);
-            autoMachineStarted = true;
-            autoMachineName = machineName;
-          }
-        }
-      },
-    });
+  // If autostart has been enabled for the machine, try to start it.
+  try {
+    await updateMachines(provider);
+  } catch (error) {
+    // ignore the update of machines
   }
+  provider.registerAutostart({
+    start: async (logger: extensionApi.Logger) => {
+      // do we have a running machine ?
+      const isRunningMachine = Array.from(podmanMachinesStatuses.values()).find(
+        connectionStatus => connectionStatus === 'started' || connectionStatus === 'starting',
+      );
+      if (isRunningMachine) {
+        console.log('Podman extension:', 'Do not start a machine as there is already one starting or started');
+        return;
+      }
+
+      // start the first machine if any
+      const machines = Array.from(podmanMachinesStatuses.entries());
+      if (machines.length > 0) {
+        const [machineName] = machines[0];
+        if (!podmanMachinesInfo.has(machineName)) {
+          console.error('Unable to retrieve machine infos to be autostarted', machineName);
+        } else {
+          console.log('Podman extension:', 'Autostarting machine', machineName);
+          const machineInfo = podmanMachinesInfo.get(machineName);
+          const containerProviderConnection = containerProviderConnections.get(machineName);
+          const context: extensionApi.LifecycleContext = extensionApi.provider.getProviderLifecycleContext(
+            provider.id,
+            containerProviderConnection,
+          );
+          await startMachine(provider, machineInfo, context, logger, undefined, true);
+          autoMachineStarted = true;
+          autoMachineName = machineName;
+        }
+      }
+    },
+  });
 
   extensionContext.subscriptions.push(provider);
 
-  // allows to create machines
+  // We allow creating machines for both macOS and Windows
+  // but not Linux. The reasoning being is that podman for Linux is
+  // NOT packaged with qemu + kvm by default. So, we don't want to
+  // create machines on Linux via Podman Desktop, however we will still support
+  // the lifecycle management of one.
   if (isMac() || isWindows()) {
     provider.setContainerProviderConnectionFactory({
       initialize: () => createMachine({}, undefined),
@@ -1043,6 +1045,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     });
   }
 
+  // Linux has native container support (no need for Podman Machine), so we don't need to create machines.
+  // Below is Linux specific code:
+  // * Monitors the system service for an unlimited time
+  // * Uses the native system socket
   if (isLinux()) {
     // on Linux, need to run the system service for unlimited time
     let command = 'podman';
@@ -1084,11 +1090,14 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     initDefaultLinux(provider).catch((error: unknown) => {
       console.error('Error while initializing default linux', error);
     });
-  } else if (isWindows() || isMac()) {
-    monitorMachines(provider).catch((error: unknown) => {
-      console.error('Error while monitoring machines', error);
-    });
   }
+
+  // Podman Machine support is on macOS, Windows and Linux
+  // Despite Linux having native container support, Podman Machine is still supported on Linux
+  // so let's monitor for the machines
+  monitorMachines(provider).catch((error: unknown) => {
+    console.error('Error while monitoring machines', error);
+  });
 
   // monitor provider
   // like version, checks, warnings
@@ -1226,7 +1235,7 @@ export async function findRunningMachine(): Promise<string> {
   return runningMachine;
 }
 
-async function stopAutoStartedMachine() {
+async function stopAutoStartedMachine(): Promise<void> {
   if (!autoMachineStarted) {
     console.log('No machine to stop');
     return;
@@ -1265,27 +1274,27 @@ export async function deactivate(): Promise<void> {
 const PODMAN_MINIMUM_VERSION_FOR_NOW_FLAG_INIT = '4.0.0';
 
 // Checks if start now flag at machine init is supported.
-export function isStartNowAtMachineInitSupported(podmanVersion: string) {
+export function isStartNowAtMachineInitSupported(podmanVersion: string): boolean {
   return compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_NOW_FLAG_INIT) >= 0;
 }
 
 const PODMAN_MINIMUM_VERSION_FOR_ROOTFUL_MACHINE_INIT = '4.1.0';
 
 // Checks if rootful machine init is supported.
-export function isRootfulMachineInitSupported(podmanVersion: string) {
+export function isRootfulMachineInitSupported(podmanVersion: string): boolean {
   return compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_ROOTFUL_MACHINE_INIT) >= 0;
 }
 
 const PODMAN_MINIMUM_VERSION_FOR_NEW_SOCKET_LOCATION = '4.5.0';
 
-export function isPodmanSocketLocationMoved(podmanVersion: string) {
+export function isPodmanSocketLocationMoved(podmanVersion: string): boolean {
   return isLinux() && compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_NEW_SOCKET_LOCATION) >= 0;
 }
 
 const PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING = '4.6.0';
 
 // Checks if user mode networking is supported. Only Windows platform allows this parameter to be tuned
-export function isUserModeNetworkingSupported(podmanVersion: string) {
+export function isUserModeNetworkingSupported(podmanVersion: string): boolean {
   return isWindows() && compareVersions(podmanVersion, PODMAN_MINIMUM_VERSION_FOR_USER_MODE_NETWORKING) >= 0;
 }
 
@@ -1293,8 +1302,8 @@ function sendTelemetryRecords(
   eventName: string,
   telemetryRecords: Record<string, unknown>,
   includeMachineStats: boolean,
-) {
-  const sendJob = async () => {
+): void {
+  const sendJob = async (): Promise<void> => {
     // add CLI version
     const installedPodman = await getPodmanInstallation();
     if (installedPodman) {
@@ -1511,7 +1520,7 @@ function setupDisguisedPodmanSocketWatcher(
   }
 
   // only trigger if the watched file is the socket file
-  const updateSocket = async (uri: extensionApi.Uri) => {
+  const updateSocket = async (uri: extensionApi.Uri): Promise<void> => {
     if (uri.fsPath === socketFile) {
       await checkDisguisedPodmanSocket(provider);
     }
@@ -1532,7 +1541,7 @@ function setupDisguisedPodmanSocketWatcher(
   return socketWatcher;
 }
 
-export async function checkDisguisedPodmanSocket(provider: extensionApi.Provider) {
+export async function checkDisguisedPodmanSocket(provider: extensionApi.Provider): Promise<void> {
   // Check to see if the socket is disguised or not. If it is, we'll push a warning up
   // to the plugin library to the let the provider know that there is a warning
   const disguisedCheck = await isDisguisedPodman();

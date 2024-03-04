@@ -14,9 +14,8 @@ onMount(async () => {
 
 <header
   id="navbar"
-  class="text-gray-700 {platform === 'win32'
-    ? 'bg-[#202020]'
-    : 'bg-charcoal-900'} body-font shadow-titlebar z-[999] relative {platform === 'win32'
+  class="{platform === 'win32' ? 'bg-[#202020]' : 'bg-[var(--pd-titlebar-bg)]'} body-font z-[999] relative {platform ===
+  'win32'
     ? 'min-h-[32px]'
     : 'min-h-[38px]'}"
   style="-webkit-app-region: drag;">
@@ -27,7 +26,7 @@ onMount(async () => {
         <div class="absolute left-[10px] top-[10px]">
           <DesktopIcon size="18" />
         </div>
-        <div class="flex flex-1 justify-center text-base select-none text-gray-400">{title}</div>
+        <div class="flex flex-1 justify-center text-base select-none text-[color:var(--pd-titlebar-text)]">{title}</div>
         <WindowControlButtons platform="{platform}" />
       </div>
     {:else if platform === 'win32'}
@@ -35,7 +34,7 @@ onMount(async () => {
         <div class="absolute left-[7px] top-[7px]">
           <DesktopIcon size="18" />
         </div>
-        <div class="ml-[35px] text-left text-xs leading-3 text-gray-400">{title}</div>
+        <div class="ml-[35px] text-left text-xs leading-3 text-[color:var(--pd-titlebar-text)]">{title}</div>
         <WindowControlButtons platform="{platform}" />
       </div>
     {/if}

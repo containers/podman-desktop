@@ -22,7 +22,7 @@ import { AppearanceSettings } from './appearance-settings.js';
 export class AppearanceInit {
   constructor(private configurationRegistry: IConfigurationRegistry) {}
 
-  init() {
+  init(): void {
     const appearanceConfiguration: IConfigurationNode = {
       id: 'preferences.appearance',
       title: 'Appearance',

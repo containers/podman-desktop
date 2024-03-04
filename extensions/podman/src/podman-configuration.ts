@@ -30,7 +30,7 @@ import * as extensionApi from '@podman-desktop/api';
  * Manages access to the containers.conf configuration file used to configure Podman
  */
 export class PodmanConfiguration {
-  async init() {
+  async init(): Promise<void> {
     let httpProxy = undefined;
     let httpsProxy = undefined;
     let noProxy = undefined;

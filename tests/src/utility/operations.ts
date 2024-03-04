@@ -16,16 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Page } from '@playwright/test';
+import { type Page } from '@playwright/test';
 import { NavigationBar } from '../model/workbench/navigation';
-import { waitWhile } from './wait';
+import { waitUntil, waitWhile } from './wait';
+import { RegistriesPage } from '../model/pages/registries-page';
 
 /**
  * Stop and delete container defined by its name
  * @param page playwright's page object
  * @param name name of container to be removed
  */
-export async function deleteContainer(page: Page, name: string) {
+export async function deleteContainer(page: Page, name: string): Promise<void> {
   const navigationBar = new NavigationBar(page);
   const containers = await navigationBar.openContainers();
   const container = await containers.getContainerRowByName(name);
@@ -65,7 +66,7 @@ export async function deleteContainer(page: Page, name: string) {
  * @param page playwright's page object
  * @param name name of image to be removed
  */
-export async function deleteImage(page: Page, name: string) {
+export async function deleteImage(page: Page, name: string): Promise<void> {
   const navigationBar = new NavigationBar(page);
   const images = await navigationBar.openImages();
   const row = await images.getImageRowByName(name);
@@ -100,7 +101,23 @@ export async function deleteImage(page: Page, name: string) {
   }
 }
 
-export async function deletePod(page: Page, name: string) {
+export async function deleteRegistry(page: Page, name: string, failIfNotExist = false): Promise<void> {
+  const navigationBar = new NavigationBar(page);
+  const settingsBar = await navigationBar.openSettings();
+  const registryPage = await settingsBar.openTabPage(RegistriesPage);
+  const registryRecord = await registryPage.getRegistryRowByName(name);
+  await waitUntil(() => registryRecord.isVisible(), 3000, 500, failIfNotExist);
+  if (await registryRecord.isVisible()) {
+    // it might be that the record exist but there are no credentials -> it is default registry and it is empty
+    // or if there is a kebab memu available
+    const dropdownMenu = registryRecord.getByRole('button', { name: 'kebab menu' });
+    if (await dropdownMenu.isVisible()) {
+      await registryPage.removeRegistry(name);
+    }
+  }
+}
+
+export async function deletePod(page: Page, name: string): Promise<void> {
   const navigationBar = new NavigationBar(page);
   const pods = await navigationBar.openPods();
   const pod = await pods.getPodRowByName(name);
@@ -128,7 +145,11 @@ export async function deletePod(page: Page, name: string) {
 }
 
 // Handles dialog that has accessible name `dialogTitle` and either confirms or rejects it.
-export async function handleConfirmationDialog(page: Page, dialogTitle = 'Confirmation', confirm = true) {
+export async function handleConfirmationDialog(
+  page: Page,
+  dialogTitle = 'Confirmation',
+  confirm = true,
+): Promise<void> {
   // wait for dialog to appear using waitFor
   const dialog = page.getByRole('dialog', { name: dialogTitle, exact: true });
   await dialog.waitFor({ state: 'visible', timeout: 3000 });

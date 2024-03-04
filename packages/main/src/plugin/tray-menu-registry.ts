@@ -155,7 +155,7 @@ export class TrayMenuRegistry {
     this.trayMenu.addProviderItems(providerInfo);
   }
 
-  unregisterProvider(providerInfo: ProviderInfo) {
+  unregisterProvider(providerInfo: ProviderInfo): void {
     this.trayMenu.deleteProvider(providerInfo);
   }
 }

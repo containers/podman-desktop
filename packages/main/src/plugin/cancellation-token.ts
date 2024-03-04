@@ -24,7 +24,7 @@ import type { IDisposable } from './types/disposable.js';
 const shortcutEvent: extensionApi.Event<any> = Object.freeze(function (callback, context?): IDisposable {
   const handle = setTimeout(callback.bind(context), 0);
   return {
-    dispose() {
+    dispose(): void {
       clearTimeout(handle);
     },
   };
@@ -39,7 +39,7 @@ export class CancellationTokenImpl implements extensionApi.CancellationToken {
     this._isCancellationRequested = false;
   }
 
-  public cancel() {
+  public cancel(): void {
     if (!this._isCancellationRequested) {
       this._isCancellationRequested = true;
       if (this.emitter) {

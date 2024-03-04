@@ -16,26 +16,18 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IConfigurationNode, IConfigurationRegistry } from './configuration-registry.js';
+import sveltePreprocess from 'svelte-preprocess';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 
-export class KubernetesUtils {
-  constructor(private configurationRegistry: IConfigurationRegistry) {}
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
-  init() {
-    const kubernetesConfiguration: IConfigurationNode = {
-      id: 'preferences.kubernetes',
-      title: 'Kubernetes',
-      type: 'object',
-      properties: {
-        ['kubernetes.experimental']: {
-          description: 'Experimental extended Kubernetes support.',
-          type: 'boolean',
-          default: false,
-          hidden: false,
-        },
-      },
-    };
-
-    this.configurationRegistry.registerConfigurations([kubernetesConfiguration]);
-  }
-}
+export default {
+  // Consult https://github.com/sveltejs/svelte-preprocess
+  // for more information about preprocessors
+  preprocess: sveltePreprocess({
+    postcss: {
+      configFilePath: join(__dirname, 'postcss.config.cjs'),
+    },
+  }),
+};

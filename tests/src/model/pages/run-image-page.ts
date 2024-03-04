@@ -40,14 +40,14 @@ export class RunImagePage extends BasePage {
     this.startContainerButton = page.getByRole('button', { name: 'Start Container' });
   }
 
-  async activateTab(name: string) {
+  async activateTab(name: string): Promise<void> {
     const tabactive = this.page.getByRole('link', { name: name, exact: true }).and(this.page.getByText(name));
     await tabactive.click();
   }
 
   // If the container has a defined exposed port, the mapping offers only one part of the input box, host port
   // Example of the placeholder: 'Enter value for port 80/tcp' : settable value
-  async setHostPortToExposedContainerPort(exposedPort: string, port: string) {
+  async setHostPortToExposedContainerPort(exposedPort: string, port: string): Promise<void> {
     await this.activateTab('Basic');
     const portMapping = this.page
       .getByRole('textbox')

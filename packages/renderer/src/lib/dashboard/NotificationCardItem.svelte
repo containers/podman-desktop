@@ -15,7 +15,7 @@ async function removeNotification(id: number) {
   <div class="flex flex-row">
     <div class="mr-3">
       {#if notification.type === 'info'}
-        <Fa size="24" class="text-purple-400" icon="{faCircleInfo}" />
+        <Fa size="1.5x" class="text-purple-400" icon="{faCircleInfo}" />
       {/if}
     </div>
     <div class="flex flex-col text-sm space-y-2">
@@ -32,7 +32,7 @@ async function removeNotification(id: number) {
     <button
       on:click="{() => removeNotification(notification.id)}"
       aria-label="{`Delete notification ${notification.id}`}">
-      <Fa size="16" icon="{faXmark}" />
+      <Fa size="1x" icon="{faXmark}" />
     </button>
   </div>
 </div>

@@ -1,10 +1,10 @@
 <script lang="ts">
-import Fa from 'svelte-fa';
+import Fa, { type IconSize } from 'svelte-fa';
 import { onMount } from 'svelte';
 import { faMinus, faXmark, type IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { faSquare } from '@fortawesome/free-regular-svg-icons';
 
-const iconSize = '14';
+const iconSize: IconSize | undefined = '0.875x';
 
 export let name: string;
 export let action: () => void = () => {};

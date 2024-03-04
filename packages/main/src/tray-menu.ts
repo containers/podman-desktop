@@ -59,7 +59,7 @@ export class TrayMenu {
     ipcMain.on(
       'tray:add-provider-menu-item',
       (_, param: { providerId: string; menuItem: MenuItemConstructorOptions }) => {
-        param.menuItem.click = () => {
+        param.menuItem.click = (): void => {
           ipcMain.emit('tray:menu-item-click', '', param.menuItem.id);
         };
         // grab matching provider
@@ -101,14 +101,14 @@ export class TrayMenu {
     });
 
     ipcMain.on('tray:add-menu-item', (_, param: { menuItem: MenuItemConstructorOptions }) => {
-      param.menuItem.click = () => {
+      param.menuItem.click = (): void => {
         ipcMain.emit('tray:menu-item-click', '', param.menuItem.id, param.menuItem.label);
       };
 
       // add also the click on all submenu items
       if (Array.isArray(param.menuItem.submenu)) {
         param.menuItem.submenu.forEach(item => {
-          item.click = () => {
+          item.click = (): void => {
             ipcMain.emit('tray:menu-item-click', '', item.id, item.label);
           };
         });
@@ -261,7 +261,7 @@ export class TrayMenu {
     this.updateGlobalStatus();
   }
 
-  protected updateGlobalStatus() {
+  protected updateGlobalStatus(): void {
     // do we have any provider or any connection ?
     const hasOneProviderBeingStarted = Array.from(this.menuProviderItems.values()).find(
       item => item.status === 'started',

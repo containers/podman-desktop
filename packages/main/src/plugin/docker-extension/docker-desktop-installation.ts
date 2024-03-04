@@ -45,7 +45,7 @@ export class DockerDesktopInstallation {
     tmpFolderPath: string,
     finalFolderPath: string,
     reportLog: (message: string) => void,
-  ) {
+  ): Promise<void> {
     // ok now, we need to copy files that we're interested in by looking at the metadata.json file
     const metadataFile = await readFile(`${tmpFolderPath}/metadata.json`, 'utf8');
     const metadata = JSON.parse(metadataFile);

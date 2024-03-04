@@ -118,6 +118,39 @@ const setupMainPackageWatcher = ({ config: { server, extensions } }) => {
   });
 };
 
+const setupUiPackageWatcher = () => {
+  const logger = createLogger(LOG_LEVEL, {
+    prefix: '[ui]',
+  });
+
+  /** @type {ChildProcessWithoutNullStreams | null} */
+  let spawnProcess = null;
+
+  if (spawnProcess !== null) {
+    spawnProcess.off('exit', process.exit);
+    spawnProcess.kill('SIGINT');
+    spawnProcess = null;
+  }
+
+  const exe = join(__dirname, '..', 'node_modules', '.bin', 'svelte-package').concat(process.platform === 'win32' ? '.cmd': '');
+  spawnProcess = spawn(exe, ['-w'], {
+    cwd: './packages/ui/',
+    env: { ...process.env },
+  });
+
+  spawnProcess.stdout.on('data', d => d.toString().trim() && logger.warn(d.toString(), { timestamp: true }));
+  spawnProcess.stderr.on('data', d => {
+    const data = d.toString().trim();
+    if (!data) return;
+    const mayIgnore = stderrFilterPatterns.some(r => r.test(data));
+    if (mayIgnore) return;
+    logger.error(data, { timestamp: true });
+  });
+
+  // Stops the watch script when the application has been quit
+  spawnProcess.on('exit', process.exit);
+};
+
 /**
  * Start or restart App when source files are changed
  * @param {{ws: import('vite').WebSocketServer}} WebSocketServer
@@ -231,6 +264,7 @@ const setupExtensionApiWatcher = name => {
     await setupPreloadPackageWatcher(viteDevServer);
     await setupPreloadDockerExtensionPackageWatcher(viteDevServer);
     await setupPreloadWebviewPackageWatcher(viteDevServer);
+    await setupUiPackageWatcher();
     await setupMainPackageWatcher(viteDevServer);
   } catch (e) {
     console.error(e);

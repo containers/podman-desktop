@@ -16,10 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { BrowserWindowConstructorOptions, FileFilter } from 'electron';
-import { autoUpdater, Menu, BrowserWindow, ipcMain, app, dialog, screen, nativeTheme } from 'electron';
+import type { BrowserWindowConstructorOptions } from 'electron';
+import { autoUpdater, Menu, BrowserWindow, ipcMain, app, screen, nativeTheme } from 'electron';
 import contextMenu from 'electron-context-menu';
-import { aboutMenuItem } from 'electron-util';
+import { aboutMenuItem } from 'electron-util/main';
 import { join } from 'path';
 import { URL } from 'url';
 import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
@@ -98,55 +98,6 @@ async function createWindow(): Promise<BrowserWindow> {
     }
   });
 
-  // select a file using native widget
-  ipcMain.on('dialog:openFile', (_, param: { dialogId: string; message: string; filter: FileFilter }) => {
-    dialog
-      .showOpenDialog(browserWindow, {
-        properties: ['openFile'],
-        filters: [param.filter],
-        message: param.message,
-      })
-      .then(response => {
-        // send the response back
-        browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
-      })
-      .catch((err: unknown) => {
-        console.error('Error opening file', err);
-      });
-  });
-
-  // select a folder using native widget
-  ipcMain.on('dialog:openFolder', (_, param: { dialogId: string; message: string }) => {
-    dialog
-      .showOpenDialog(browserWindow, {
-        properties: ['openDirectory'],
-        message: param.message,
-      })
-      .then(response => {
-        // send the response back
-        browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
-      })
-      .catch((err: unknown) => {
-        console.error('Error opening folder', err);
-      });
-  });
-
-  ipcMain.on('dialog:saveFile', (_, param: { dialogId: string; message: string; defaultPath: string }) => {
-    dialog
-      .showSaveDialog(browserWindow, {
-        title: param.message,
-        defaultPath: param.defaultPath,
-      })
-      .then(response => {
-        if (!response.canceled && response.filePath) {
-          browserWindow.webContents.send('dialog:open-file-or-folder-response', param.dialogId, response);
-        }
-      })
-      .catch((err: unknown) => {
-        console.error('Error saving file', err);
-      });
-  });
-
   let configurationRegistry: ConfigurationRegistry;
   ipcMain.on('configuration-registry', (_, data) => {
     configurationRegistry = data;
@@ -219,7 +170,7 @@ async function createWindow(): Promise<BrowserWindow> {
               // make it visible when link contains contribs and we're inside the extension
               visible:
                 parameters.linkURL.includes('/contribs/') && parameters.pageURL.includes(`/contribs/${extensionId}`),
-              click: () => {
+              click: (): void => {
                 browserWindow.webContents.send('dev-tools:open-extension', extensionId.replaceAll('%20', '-'));
               },
             },
@@ -231,7 +182,7 @@ async function createWindow(): Promise<BrowserWindow> {
               label: `Open DevTools of the webview`,
               visible:
                 parameters.linkURL.includes('/webviews/') && parameters.pageURL.includes(`/webviews/${webviewId}`),
-              click: () => {
+              click: (): void => {
                 browserWindow.webContents.send('dev-tools:open-webview', webviewId);
               },
             },
@@ -294,7 +245,7 @@ export async function createNewWindow(): Promise<BrowserWindow> {
 }
 
 // Restore the window if it is minimized / not shown / there is already another instance running
-export async function restoreWindow() {
+export async function restoreWindow(): Promise<void> {
   const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 
   // Only restore the window if we were able to find it

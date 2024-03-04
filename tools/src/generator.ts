@@ -92,7 +92,7 @@ export class Generator {
   }`;
   }
 
-  async getMilestone() {
+  async getMilestone(): Promise<{ title: string }> {
     const query = this.getMilestoneQuery();
     const result = await this.client(query);
     if (this.isUser) {
@@ -104,7 +104,13 @@ export class Generator {
     }
   }
 
-  async getPullRequests(milestone: string, latestPr?: string) {
+  async getPullRequests(
+    milestone: string,
+    latestPr?: string,
+  ): Promise<{
+    pageInfo?: { endCursor?: string };
+    nodes?: { body: string; title: string; permalink: string; number: number }[];
+  }> {
     const query = this.getPullRequestsQuery(milestone, latestPr);
     const result = await this.client(query);
     if (this.isUser) {

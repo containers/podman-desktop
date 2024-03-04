@@ -116,18 +116,14 @@ const config = {
           {
             to: '/docs/podman/installing',
             from: [
-              '/docs/onboarding-for-containers/installing-podman',
-              '/docs/onboarding/containers/installing-podman',
-              '/docs/Installation/windows-install/installing-podman-with-podman-desktop',
-              '/docs/onboarding/containers/installing-podman-with-podman-desktop-on-windows',
-            ],
-          },
-          {
-            to: '/docs/podman/installing-podman-with-openshift-local-on-windows',
-            from: [
-              '/docs/onboarding-for-containers/installing-podman-with-openshift-local-on-windows',
               '/docs/Installation/windows-install/installing-podman-with-openshift-local',
+              '/docs/Installation/windows-install/installing-podman-with-podman-desktop',
+              '/docs/onboarding-for-containers/installing-podman-with-openshift-local-on-windows',
+              '/docs/onboarding-for-containers/installing-podman',
               '/docs/onboarding/containers/installing-podman-with-openshift-local-on-windows',
+              '/docs/onboarding/containers/installing-podman-with-podman-desktop-on-windows',
+              '/docs/onboarding/containers/installing-podman',
+              '/docs/podman/installing-podman-with-openshift-local-on-windows',
             ],
           },
           {

@@ -13,6 +13,7 @@ import { deployments } from '/@/stores/deployments';
 import type { V1Deployment } from '@kubernetes/client-node';
 import { stringify } from 'yaml';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
+import KubeEditYAML from '../kube/KubeEditYAML.svelte';
 
 export let name: string;
 export let namespace: string;
@@ -66,13 +67,13 @@ async function loadDetails() {
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
-        <DeploymentDetailsSummary deploymentUI="{deployment}" deployment="{kubeDeployment}" kubeError="{kubeError}" />
+        <DeploymentDetailsSummary deployment="{kubeDeployment}" kubeError="{kubeError}" />
       </Route>
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
         <MonacoEditor content="{JSON.stringify(kubeDeployment, undefined, 2)}" language="json" />
       </Route>
       <Route path="/kube" breadcrumb="Kube" navigationHint="tab">
-        <MonacoEditor content="{stringify(kubeDeployment)}" language="yaml" />
+        <KubeEditYAML content="{stringify(kubeDeployment)}" />
       </Route>
     </svelte:fragment>
   </DetailsPage>

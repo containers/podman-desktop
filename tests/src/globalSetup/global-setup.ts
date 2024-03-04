@@ -21,7 +21,7 @@ import { removeFolderIfExists } from '../utility/cleanup';
 let setupCalled = false;
 let teardownCalled = false;
 
-export async function setup() {
+export async function setup(): Promise<void> {
   if (!setupCalled) {
     // remove all previous testing output files
     // Junit reporter output file is created before we can clean up output folders
@@ -37,7 +37,7 @@ export async function setup() {
   }
 }
 
-export async function teardown() {
+export async function teardown(): Promise<void> {
   if (!teardownCalled) {
     // here comes teardown logic
     teardownCalled = true;

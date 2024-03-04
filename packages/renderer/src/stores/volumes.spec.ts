@@ -27,7 +27,7 @@ import { fetchVolumesWithData, volumeListInfos, volumesEventStore } from './volu
 // first, path window object
 const callbacks = new Map<string, any>();
 const eventEmitter = {
-  receive: (message: string, callback: any) => {
+  receive: (message: string, callback: any): void => {
     callbacks.set(message, callback);
   },
 };

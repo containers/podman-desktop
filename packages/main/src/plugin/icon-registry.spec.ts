@@ -28,7 +28,7 @@ const apiSenderSendMock = vi.fn();
 
 vi.mock('../util', async () => {
   return {
-    isWindows: () => false,
+    isWindows: (): boolean => false,
   };
 });
 

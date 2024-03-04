@@ -27,7 +27,7 @@ export class PlayKubeYamlPage extends BasePage {
 
   constructor(page: Page) {
     super(page);
-    this.heading = page.getByRole('heading', { name: 'Play Pods or Containers from a Kubernetes YAML File' });
+    this.heading = page.getByRole('heading', { name: 'Create pods from a Kubernetes YAML file' });
     this.yamlPathInput = page.getByPlaceholder('Select a .yaml file to play');
     this.playButton = page.getByRole('button', { name: 'Play' });
     this.doneButton = page.getByRole('button', { name: 'Done' });

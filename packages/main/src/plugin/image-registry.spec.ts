@@ -339,10 +339,10 @@ test('expect downloadAndExtractImage works', async () => {
   fs.writeFileSync(readmeMd, readmeMdContent);
   await nodeTar.create({ gzip: true, file: tmpTar2File, cwd: tmpTar2Folder }, ['README.MD']);
 
-  const readTarFile1 = () => {
+  const readTarFile1 = (): Buffer => {
     return fs.readFileSync(tmpTar1File);
   };
-  const readTarFile2 = () => {
+  const readTarFile2 = (): Buffer => {
     return fs.readFileSync(tmpTar2File);
   };
 
