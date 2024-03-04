@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[13100],{59819:s=>{s.exports=JSON.parse('{"label":"WebAssembly","permalink":"/blog/tags/web-assembly","allTagsPath":"/blog/tags","count":1,"unlisted":false}')}}]);
