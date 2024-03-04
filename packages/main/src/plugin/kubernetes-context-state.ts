@@ -220,7 +220,7 @@ export class ContextsStates {
     };
   }
 
-  getCurrentContextResources(current: string, resourceName: ResourceName): KubernetesObject[] {
+  getContextResources(current: string, resourceName: ResourceName): KubernetesObject[] {
     if (current) {
       const state = this.state.get(current);
       if (!state?.reachable) {
@@ -667,7 +667,7 @@ export class ContextsManager {
   private dispatchCurrentContextResource(resourceName: ResourceName): void {
     this.apiSender.send(
       `kubernetes-current-context-${resourceName}-update`,
-      this.states.getCurrentContextResources(this.kubeConfig.currentContext, resourceName),
+      this.states.getContextResources(this.kubeConfig.currentContext, resourceName),
     );
   }
 
@@ -677,7 +677,7 @@ export class ContextsManager {
     }
     if (this.states.hasInformer(this.currentContext, resourceName)) {
       console.debug(`already watching ${resourceName} in context ${this.currentContext}`);
-      return this.states.getCurrentContextResources(this.kubeConfig.currentContext, resourceName);
+      return this.states.getContextResources(this.kubeConfig.currentContext, resourceName);
     }
     if (!this.states.isReachable(this.currentContext)) {
       console.debug(`skip watching ${resourceName} in context ${this.currentContext}, as the context is not reachable`);
@@ -686,5 +686,10 @@ export class ContextsManager {
     console.debug(`start watching ${resourceName} in context ${this.currentContext}`);
     this.startResourceInformer(this.currentContext, resourceName);
     return [];
+  }
+
+  // for tests
+  public getContextResources(contextName: string, resourceName: ResourceName): KubernetesObject[] {
+    return this.states.getContextResources(contextName, resourceName);
   }
 }
