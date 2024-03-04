@@ -24,6 +24,7 @@ export class DashboardPage extends BasePage {
   readonly header: Locator;
   readonly content: Locator;
   readonly heading: Locator;
+  readonly notificationsBox: Locator;
   readonly featuredExtensions: Locator;
   readonly devSandboxProvider: Locator;
   readonly devSandboxBox: Locator;
@@ -40,8 +41,10 @@ export class DashboardPage extends BasePage {
     this.mainPage = page.getByRole('region', { name: 'Dashboard' });
     this.header = this.mainPage.getByRole('region', { name: 'header' });
     this.content = this.mainPage.getByRole('region', { name: 'content' });
-    this.featuredExtensions = page.getByLabel('FeaturedExtensions');
     this.heading = page.getByRole('heading', { name: 'Dashboard' });
+
+    this.notificationsBox = this.content.getByRole('region', { name: 'Notifications Box' });
+    this.featuredExtensions = page.getByLabel('FeaturedExtensions');
 
     this.devSandboxProvider = page.getByLabel('Developer Sandbox Provider');
     this.devSandboxBox = this.featuredExtensions.getByLabel('Developer Sandbox');
