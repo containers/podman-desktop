@@ -43,11 +43,14 @@ afterAll(async () => {
   await pdRunner.close();
 });
 
-describe(`Podman machine onboarding from Dashboard`, async () => {
-  test('Create Podman machine from Dashboard', async () => {
-    const dashboardPage = new DashboardPage(page);
-    await playExpect(dashboardPage.initilizeAndStartButton).toBeEnabled();
-    await dashboardPage.initilizeAndStartButton.click();
-    await playExpect(dashboardPage.podmanMachineConnectionStatus).toHaveText('RUNNING', { timeout: 300000 });
-  }, 320000);
-});
+describe.runIf(process.env.TEST_PODMAN_MACHINE !== undefined && process.env.TEST_PODMAN_MACHINE === 'true')(
+  `Podman machine onboarding from Dashboard`,
+  async () => {
+    test('Create Podman machine from Dashboard', async () => {
+      const dashboardPage = new DashboardPage(page);
+      await playExpect(dashboardPage.initilizeAndStartButton).toBeEnabled();
+      await dashboardPage.initilizeAndStartButton.click();
+      await playExpect(dashboardPage.podmanMachineConnectionStatus).toHaveText('RUNNING', { timeout: 300000 });
+    }, 320000);
+  },
+);
