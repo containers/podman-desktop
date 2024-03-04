@@ -1277,6 +1277,7 @@ test('changing context should start service informer on current context if watch
   kubeConfig.loadFromOptions(config);
   await client.update(kubeConfig);
   vi.advanceTimersToNextTimer();
+  vi.advanceTimersToNextTimer();
 
   makeInformerMock.mockClear();
 
@@ -1352,6 +1353,7 @@ test('changing context should not start service informer on current context if n
   };
   kubeConfig.loadFromOptions(config);
   await client.update(kubeConfig);
+  vi.advanceTimersToNextTimer();
   vi.advanceTimersToNextTimer();
 
   makeInformerMock.mockClear();
