@@ -7,8 +7,6 @@ import { containersInfos } from './stores/containers';
 import { imagesInfos } from './stores/images';
 import { volumeListInfos } from './stores/volumes';
 import { kubernetesContexts } from './stores/kubernetes-contexts';
-import { deployments } from './stores/deployments';
-import { services } from './stores/services';
 import { ImageUtils } from './lib/image/image-utils';
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import ContainerIcon from './lib/images/ContainerIcon.svelte';
@@ -25,12 +23,16 @@ import DashboardIcon from './lib/images/DashboardIcon.svelte';
 import NavSection from './lib/ui/NavSection.svelte';
 import ServiceIcon from './lib/images/ServiceIcon.svelte';
 import IngressRouteIcon from './lib/images/IngressRouteIcon.svelte';
-import { ingresses } from './stores/ingresses';
-import { routes } from './stores/routes';
 import Webviews from '/@/lib/webview/Webviews.svelte';
 import { webviews } from '/@/stores/webviews';
 import PuzzleIcon from './lib/images/PuzzleIcon.svelte';
 import KubeIcon from './lib/images/KubeIcon.svelte';
+import {
+  kubernetesCurrentContextDeployments,
+  kubernetesCurrentContextIngresses,
+  kubernetesCurrentContextRoutes,
+  kubernetesCurrentContextServices,
+} from './stores/kubernetes-contexts-state';
 
 let podInfoSubscribe: Unsubscriber;
 let containerInfoSubscribe: Unsubscriber;
@@ -89,25 +91,25 @@ onMount(async () => {
       volumeCount = '';
     }
   });
-  deploymentsSubscribe = deployments.subscribe(value => {
+  deploymentsSubscribe = kubernetesCurrentContextDeployments.subscribe(value => {
     if (value.length > 0) {
       deploymentCount = ' (' + value.length + ')';
     } else {
       deploymentCount = '';
     }
   });
-  servicesSubscribe = services.subscribe(value => {
+  servicesSubscribe = kubernetesCurrentContextServices.subscribe(value => {
     if (value.length > 0) {
       serviceCount = ' (' + value.length + ')';
     } else {
       serviceCount = '';
     }
   });
-  ingressesSubscribe = ingresses.subscribe(value => {
+  ingressesSubscribe = kubernetesCurrentContextIngresses.subscribe(value => {
     ingressesCount = value.length;
     updateIngressesRoutesCount(ingressesCount + routesCount);
   });
-  routesSubscribe = routes.subscribe(value => {
+  routesSubscribe = kubernetesCurrentContextRoutes.subscribe(value => {
     routesCount = value.length;
     updateIngressesRoutesCount(ingressesCount + routesCount);
   });
