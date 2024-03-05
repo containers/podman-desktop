@@ -22,10 +22,12 @@ import { SettingsPage } from './settings-page';
 export class ResourcesPage extends SettingsPage {
   readonly heading: Locator;
   readonly featuredProviderResources: Locator;
+  readonly podmanResources: Locator;
 
   constructor(page: Page) {
     super(page, 'Resources');
     this.heading = page.getByRole('heading', { name: 'Resources' });
     this.featuredProviderResources = page.getByRole('region', { name: 'Featured Provider Resources' });
+    this.podmanResources = this.featuredProviderResources.getByRole('region', { name: 'podman', exact: true });
   }
 }

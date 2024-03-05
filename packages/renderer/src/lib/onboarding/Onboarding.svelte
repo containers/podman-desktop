@@ -298,6 +298,8 @@ function handleEscape({ key }: any) {
   <div class="fixed bg-charcoal-500 right-0 top-0 h-[100px] w-[30px] z-10 mt-8"></div>
   <div
     id="stepBody"
+    role="region"
+    aria-label="Onboarding Body"
     class="flex flex-col bg-charcoal-500 h-full overflow-y-auto w-full overflow-x-hidden"
     class:bodyWithBar="{!activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}">
     <div class="flex flex-col h-full">
