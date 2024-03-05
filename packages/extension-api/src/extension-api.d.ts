@@ -2985,7 +2985,7 @@ declare module '@podman-desktop/api' {
      * @example
      * // Example 2: List container images for a specific provider.
      * const provider = provider.getContainerConnections().find(connection => connection.connection.status() === 'started');
-     * const images = await listImages({provider: provider });
+     * const images = await listImages({provider});
      * console.log(images);
      */
     export function listImages(options?: ListImagesOptions): Promise<ImageInfo[]>;
