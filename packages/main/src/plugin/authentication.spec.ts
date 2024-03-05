@@ -27,6 +27,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import type { ApiSenderType } from './api.js';
 import { AuthenticationImpl } from './authentication.js';
 import { Emitter as EventEmitter } from './events/emitter.js';
+import { afterEach } from 'node:test';
 
 function randomNumber(n = 5): number {
   return Math.round(Math.random() * 10 * n);
@@ -74,6 +75,10 @@ let authModule: AuthenticationImpl;
 
 beforeEach(function () {
   authModule = new AuthenticationImpl(apiSender);
+});
+
+afterEach(function () {
+  vi.resetAllMocks();
 });
 
 test('Registered authentication provider stored in authentication module', async () => {
@@ -226,4 +231,27 @@ test('getAuthenticationProvidersInfo', async () => {
   expect(provider2?.images).toBeDefined();
   expect(provider2?.images?.logo).toBeUndefined();
   expect(provider2?.images?.icon).toBeUndefined();
+});
+
+test('authentication provider send event to update settings page', async () => {
+  const authentication = new AuthenticationImpl(apiSender);
+
+  const providerMock = {
+    onDidChangeSessions: vi.fn().mockImplementation(() => {
+      return {
+        dispose: vi.fn(),
+      };
+    }),
+    getSessions: vi.fn().mockResolvedValue([]),
+    createSession: vi.fn(),
+    removeSession: vi.fn(),
+  };
+  const disposable = authentication.registerAuthenticationProvider('provider1.id', 'Provider1 Label', providerMock);
+  const providers = await authentication.getAuthenticationProvidersInfo();
+  const provider1 = providers.find(item => item.id === 'provider1.id');
+  expect(provider1).toBeDefined();
+
+  disposable.dispose();
+
+  expect(apiSender.send).lastCalledWith('authentication-provider-update', { id: 'provider1.id' });
 });

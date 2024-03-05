@@ -130,6 +130,7 @@ export class AuthenticationImpl {
       dispose: (): void => {
         onDidChangeSessionDisposable.dispose();
         this._authenticationProviders.delete(id);
+        this.apiSender.send('authentication-provider-update', { id });
       },
     };
   }
