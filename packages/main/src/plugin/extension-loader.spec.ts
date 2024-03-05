@@ -143,6 +143,7 @@ const containerProviderRegistry: ContainerProviderRegistry = {
   listPods: vi.fn(),
   stopPod: vi.fn(),
   removePod: vi.fn(),
+  listImages: vi.fn(),
 } as unknown as ContainerProviderRegistry;
 
 const inputQuickPickRegistry: InputQuickPickRegistry = {} as unknown as InputQuickPickRegistry;
@@ -1648,5 +1649,37 @@ describe('window', async () => {
 
     expect(dialogRegistry.saveDialog).toBeCalled();
     expect(uri?.fsPath).toContain('path-to-file1');
+  });
+});
+
+describe('containerEngine', async () => {
+  test('listImages without option ', async () => {
+    vi.mocked(containerProviderRegistry.listImages).mockResolvedValue([]);
+
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    const images = await api.containerEngine.listImages();
+    expect(images.length).toBe(0);
+    expect(containerProviderRegistry.listImages).toHaveBeenCalledWith(undefined);
+  });
+
+  test('listImages with provider option', async () => {
+    vi.mocked(containerProviderRegistry.listImages).mockResolvedValue([]);
+
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    const images = await api.containerEngine.listImages({
+      provider: {
+        name: 'dummyProvider',
+      } as unknown as containerDesktopAPI.ContainerProviderConnection,
+    });
+    expect(images.length).toBe(0);
+    expect(containerProviderRegistry.listImages).toHaveBeenCalledWith({
+      provider: {
+        name: 'dummyProvider',
+      },
+    });
   });
 });
