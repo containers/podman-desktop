@@ -86,6 +86,9 @@ export const kubernetesCurrentContextIngresses = readable<KubernetesObject[]>([]
   window.events?.receive('kubernetes-current-context-ingresses-update', (value: unknown) => {
     set(value as KubernetesObject[]);
   });
+  return () => {
+    window.kubernetesUnregisterGetCurrentContextResources('ingresses');
+  };
 });
 
 export const ingressSearchPattern = writable('');
@@ -104,6 +107,9 @@ export const kubernetesCurrentContextRoutes = readable<KubernetesObject[]>([], s
   window.events?.receive('kubernetes-current-context-routes-update', (value: unknown) => {
     set(value as KubernetesObject[]);
   });
+  return () => {
+    window.kubernetesUnregisterGetCurrentContextResources('routes');
+  };
 });
 
 export const routeSearchPattern = writable('');
