@@ -817,7 +817,7 @@ export class ContextsManager {
     );
   }
 
-  public getCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
+  public registerGetCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
     if (isSecondaryResourceName(resourceName)) {
       this.secondaryWatchers.subscribe(resourceName);
     }

@@ -1112,7 +1112,7 @@ describe.each(secondaryInformers)(`Secondary informer $resource`, ({ resource, i
     );
   });
 
-  test('calling getCurrentContextResources should start informer, the first time only', async () => {
+  test('calling registerGetCurrentContextResources should start informer, the first time only', async () => {
     vi.useFakeTimers();
     const makeInformerMock = vi.mocked(makeInformer);
     makeInformerMock.mockImplementation(
@@ -1153,12 +1153,12 @@ describe.each(secondaryInformers)(`Secondary informer $resource`, ({ resource, i
     vi.advanceTimersToNextTimer();
 
     makeInformerMock.mockClear();
-    client.getCurrentContextResources(resource as ResourceName);
+    client.registerGetCurrentContextResources(resource as ResourceName);
     expect(makeInformerMock).toHaveBeenCalledTimes(1);
     expect(makeInformerMock).toHaveBeenCalledWith(expect.any(KubeConfig), informerPath, expect.anything());
 
     makeInformerMock.mockClear();
-    client.getCurrentContextResources(resource as ResourceName);
+    client.registerGetCurrentContextResources(resource as ResourceName);
     expect(makeInformerMock).not.toHaveBeenCalled();
   });
 
@@ -1211,7 +1211,7 @@ describe.each(secondaryInformers)(`Secondary informer $resource`, ({ resource, i
     makeInformerMock.mockClear();
 
     // informer is started
-    client.getCurrentContextResources(resource as ResourceName);
+    client.registerGetCurrentContextResources(resource as ResourceName);
     expect(makeInformerMock).toHaveBeenCalledTimes(1);
     expect(makeInformerMock).toHaveBeenCalledWith(expect.any(KubeConfig), informerPath, expect.anything());
 
@@ -1282,7 +1282,7 @@ test('changing context should start service informer on current context if watch
   makeInformerMock.mockClear();
 
   // service informer is started
-  client.getCurrentContextResources('services');
+  client.registerGetCurrentContextResources('services');
   expect(makeInformerMock).toHaveBeenCalledTimes(1);
   expect(makeInformerMock).toHaveBeenCalledWith(
     expect.any(KubeConfig),
@@ -1359,7 +1359,7 @@ test('changing context should not start service informer on current context if n
   makeInformerMock.mockClear();
 
   // service informer is started
-  client.getCurrentContextResources('services');
+  client.registerGetCurrentContextResources('services');
   expect(makeInformerMock).toHaveBeenCalledTimes(1);
   expect(makeInformerMock).toHaveBeenCalledWith(
     expect.any(KubeConfig),

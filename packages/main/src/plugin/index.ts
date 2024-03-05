@@ -1912,9 +1912,9 @@ export class PluginSystem {
     });
 
     this.ipcHandle(
-      'kubernetes-client:getCurrentContextResources',
+      'kubernetes-client:registerGetCurrentContextResources',
       async (_listener, resourceName: ResourceName): Promise<KubernetesObject[]> => {
-        return kubernetesClient.getCurrentContextResources(resourceName);
+        return kubernetesClient.registerGetCurrentContextResources(resourceName);
       },
     );
 

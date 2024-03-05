@@ -26,10 +26,10 @@ import { get } from 'svelte/store';
 import type { V1Service } from '@kubernetes/client-node';
 import { kubernetesCurrentContextServices } from '/@/stores/kubernetes-contexts-state';
 
-const kubernetesGetCurrentContextResourcesMock = vi.fn();
+const kubernetesRegisterGetCurrentContextResourcesMock = vi.fn();
 
 beforeAll(() => {
-  (window as any).kubernetesGetCurrentContextResources = kubernetesGetCurrentContextResourcesMock;
+  (window as any).kubernetesRegisterGetCurrentContextResources = kubernetesRegisterGetCurrentContextResourcesMock;
 });
 
 beforeEach(() => {
@@ -49,7 +49,7 @@ async function waitRender(customProperties: object): Promise<void> {
 }
 
 test('Expect service empty screen', async () => {
-  kubernetesGetCurrentContextResourcesMock.mockResolvedValue([]);
+  kubernetesRegisterGetCurrentContextResourcesMock.mockResolvedValue([]);
   render(ServicesList);
   const noServices = screen.getByRole('heading', { name: 'No services' });
   expect(noServices).toBeInTheDocument();
@@ -68,7 +68,7 @@ test('Expect services list', async () => {
       externalName: 'serve',
     },
   };
-  kubernetesGetCurrentContextResourcesMock.mockResolvedValue([service]);
+  kubernetesRegisterGetCurrentContextResourcesMock.mockResolvedValue([service]);
 
   // wait while store is populated
   while (get(kubernetesCurrentContextServices).length === 0) {
@@ -94,7 +94,7 @@ test('Expect filter empty screen', async () => {
       externalName: 'serve',
     },
   };
-  kubernetesGetCurrentContextResourcesMock.mockResolvedValue([service]);
+  kubernetesRegisterGetCurrentContextResourcesMock.mockResolvedValue([service]);
 
   // wait while store is populated
   while (get(kubernetesCurrentContextServices).length === 0) {
