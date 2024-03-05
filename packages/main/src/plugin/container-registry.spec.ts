@@ -37,6 +37,7 @@ import { PassThrough } from 'node:stream';
 import type { EnvfileParser } from './env-file-parser.js';
 import type { ProviderRegistry } from './provider-registry.js';
 import type { ContainerCreateOptions } from './api/container-info.js';
+import type { ImageInfo } from '/@/plugin/api/image-info.js';
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 
 /* eslint-disable @typescript-eslint/no-empty-function */
@@ -3615,6 +3616,52 @@ describe('getContainerCreateMountOptionFromBind', () => {
       source: 'v1',
       mode: 'Z',
       propagation: 'rslave',
+    });
+  });
+});
+
+describe('listImages', () => {
+  test('list images without arguments', async () => {
+    const result = await containerRegistry.listImages();
+    expect(result.length).toBe(0);
+
+    expect(vi.spyOn(containerRegistry, 'getMatchingContainerProvider')).not.toHaveBeenCalled();
+  });
+
+  test('list images on a specific provider', async () => {
+    const getMatchingContainerProviderMock = vi.spyOn(containerRegistry, 'getMatchingContainerProvider');
+    const internalContainerProvider = {
+      name: 'dummyName',
+      id: 'dummyId',
+      api: {
+        listImages: vi.fn(),
+      },
+    } as unknown as InternalContainerProvider;
+    getMatchingContainerProviderMock.mockReturnValue(internalContainerProvider);
+
+    const api = internalContainerProvider.api;
+    if (api === undefined) throw new Error('api should not be undefined');
+    vi.spyOn(api, 'listImages').mockResolvedValue([
+      {
+        Id: 'dummyImageId',
+      } as unknown as ImageInfo,
+    ]);
+
+    // List images
+    const result = await containerRegistry.listImages({
+      provider: {
+        id: 'dummyProviderId',
+      } as unknown as podmanDesktopAPI.ContainerProviderConnection,
+    });
+
+    expect(getMatchingContainerProviderMock).toHaveBeenCalled();
+    expect(api.listImages).toHaveBeenCalled();
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      Id: 'dummyImageId',
+      engineId: 'dummyId',
+      engineName: 'dummyName',
     });
   });
 });

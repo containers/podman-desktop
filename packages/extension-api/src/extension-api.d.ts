@@ -2809,6 +2809,15 @@ declare module '@podman-desktop/api' {
     nocache?: boolean;
   }
 
+  export interface ListImagesOptions {
+    /**
+     * The provider we want to list the images. If not provided, will return all container images across all container engines.
+     *
+     * @defaultValue undefined
+     */
+    provider?: ContainerProviderConnection;
+  }
+
   export interface NetworkCreateOptions {
     Name: string;
   }
@@ -2963,11 +2972,23 @@ declare module '@podman-desktop/api' {
     export function saveImage(engineId: string, id: string, filename: string): Promise<void>;
 
     /**
-     * List the container images across all container engines. Only images from a final layer (no children) are returned.
+     * List the container images. Only images from a final layer (no children) are returned.
      *
-     * @return A promise resolving to an array of images information. This method returns a subset of the available information for images. To get the complete description of a specific image, you can use the {@link containerEngine.getImageInspect} method.
+     * @param options optional options for listing images
+     * @returns A promise resolving to an array of images information. This method returns a subset of the available information for images. To get the complete description of a specific image, you can use the {@link containerEngine.getImageInspect} method.
+     *
+     * @example
+     * // Example 1: List all container images when no specific provider is provided.
+     * const images = await listImages();
+     * console.log(images);
+     *
+     * @example
+     * // Example 2: List container images for a specific provider.
+     * const provider = provider.getContainerConnections().find(connection => connection.connection.status() === 'started');
+     * const images = await listImages({provider});
+     * console.log(images);
      */
-    export function listImages(): Promise<ImageInfo[]>;
+    export function listImages(options?: ListImagesOptions): Promise<ImageInfo[]>;
 
     /**
      * Tag an image so that it becomes part of a repository
