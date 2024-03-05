@@ -772,48 +772,59 @@ export class ContextsManager {
     });
   }
 
-  dispatchTimer: NodeJS.Timeout | undefined;
   private dispatch(options: DispatchOptions): void {
-    clearTimeout(this.dispatchTimer);
-    this.dispatchTimer = setTimeout(() => {
-      if (options.contextsGeneralState) {
-        this.dispatchContextsGeneralState();
+    if (options.contextsGeneralState) {
+      this.dispatchContextsGeneralState();
+    }
+    if (options.currentContextGeneralState) {
+      this.dispatchCurrentContextGeneralState();
+    }
+    Object.keys(options.resources).forEach(res => {
+      const resname = res as ResourceName;
+      if (options.resources[resname]) {
+        this.dispatchCurrentContextResource(resname);
       }
-      if (options.currentContextGeneralState) {
-        this.dispatchCurrentContextGeneralState();
-      }
-      Object.keys(options.resources).forEach(res => {
-        const resname = res as ResourceName;
-        if (options.resources[resname]) {
-          this.dispatchCurrentContextResource(resname);
-        }
-      });
-    }, dispatchTimeout);
+    });
   }
 
+  dispatchContextsGeneralStateTimer: NodeJS.Timeout | undefined;
   private dispatchContextsGeneralState(): void {
-    this.apiSender.send(`kubernetes-contexts-general-state-update`, this.states.getContextsGeneralState());
+    clearTimeout(this.dispatchContextsGeneralStateTimer);
+    this.dispatchContextsGeneralStateTimer = setTimeout(() => {
+      this.apiSender.send(`kubernetes-contexts-general-state-update`, this.states.getContextsGeneralState());
+    }, dispatchTimeout);
   }
 
   public getContextsGeneralState(): Map<string, ContextGeneralState> {
     return this.states.getContextsGeneralState();
   }
 
+  dispatchCurrentContextGeneralStateTimer: NodeJS.Timeout | undefined;
   private dispatchCurrentContextGeneralState(): void {
-    this.apiSender.send(
-      `kubernetes-current-context-general-state-update`,
-      this.states.getCurrentContextGeneralState(this.kubeConfig.currentContext),
-    );
+    clearTimeout(this.dispatchCurrentContextGeneralStateTimer);
+    this.dispatchCurrentContextGeneralStateTimer = setTimeout(() => {
+      this.apiSender.send(
+        `kubernetes-current-context-general-state-update`,
+        this.states.getCurrentContextGeneralState(this.kubeConfig.currentContext),
+      );
+    }, dispatchTimeout);
   }
 
   public getCurrentContextGeneralState(): ContextGeneralState {
     return this.states.getCurrentContextGeneralState(this.kubeConfig.currentContext);
   }
 
+  dispatchCurrentContextResourceTimers = new Map<string, NodeJS.Timeout>();
   private dispatchCurrentContextResource(resourceName: ResourceName): void {
-    this.apiSender.send(
-      `kubernetes-current-context-${resourceName}-update`,
-      this.states.getContextResources(this.kubeConfig.currentContext, resourceName),
+    clearTimeout(this.dispatchCurrentContextResourceTimers.get(resourceName));
+    this.dispatchCurrentContextResourceTimers.set(
+      resourceName,
+      setTimeout(() => {
+        this.apiSender.send(
+          `kubernetes-current-context-${resourceName}-update`,
+          this.states.getContextResources(this.kubeConfig.currentContext, resourceName),
+        );
+      }, dispatchTimeout),
     );
   }
 

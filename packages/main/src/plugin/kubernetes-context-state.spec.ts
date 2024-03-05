@@ -1383,6 +1383,94 @@ test('changing context should not start service informer on current context if n
   expect(makeInformerMock).not.toHaveBeenCalled();
 });
 
+test('should not ignore events sent a short time before', async () => {
+  vi.useFakeTimers();
+  vi.mocked(makeInformer).mockImplementation(
+    (
+      kubeconfig: kubeclient.KubeConfig,
+      path: string,
+      _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+    ) => {
+      const connectResult = undefined;
+      switch (path) {
+        case '/apis/networking.k8s.io/v1/namespaces/ns1/ingresses':
+          return new FakeInformer(
+            kubeconfig.currentContext,
+            path,
+            0,
+            connectResult,
+            [
+              {
+                delayMs: 1,
+                verb: 'add',
+                object: {},
+              },
+            ],
+            [],
+          );
+        case '/api/v1/namespaces/ns1/services':
+          return new FakeInformer(
+            kubeconfig.currentContext,
+            path,
+            0,
+            connectResult,
+            [
+              {
+                delayMs: 2,
+                verb: 'add',
+                object: {},
+              },
+            ],
+            [],
+          );
+      }
+      return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+    },
+  );
+  const client = new ContextsManager(apiSender);
+  const kubeConfig = new kubeclient.KubeConfig();
+  const config = {
+    clusters: [
+      {
+        name: 'cluster1',
+        server: 'server1',
+      },
+    ],
+    users: [
+      {
+        name: 'user1',
+      },
+    ],
+    contexts: [
+      {
+        name: 'context1',
+        cluster: 'cluster1',
+        user: 'user1',
+        namespace: 'ns1',
+      },
+      {
+        name: 'context2',
+        cluster: 'cluster1',
+        user: 'user1',
+        namespace: 'ns2',
+      },
+    ],
+    currentContext: 'context1',
+  };
+  kubeConfig.loadFromOptions(config);
+  client.registerGetCurrentContextResources('services');
+  client.registerGetCurrentContextResources('ingresses');
+  await client.update(kubeConfig);
+  vi.advanceTimersByTime(20);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expect.anything());
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', expect.anything());
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', []);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-deployments-update', []);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-services-update', [{}]);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-ingresses-update', [{}]);
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-routes-update', []);
+});
+
 describe('ContextsStates tests', () => {
   test('hasInformer should check if informer exists for context', () => {
     const client = new ContextsStates();
