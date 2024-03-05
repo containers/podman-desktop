@@ -8,6 +8,7 @@ import LoadingIconButton from '../ui/LoadingIconButton.svelte';
 
 import Markdown from '../markdown/Markdown.svelte';
 import type { ILoadingStatus } from './Util';
+import HorizontalCard from '../ui/HorizontalCard.svelte';
 
 export let cliTool: CliToolInfo;
 let showError = false;
@@ -47,51 +48,37 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
     onEnd: () => {},
   };
 }
+
+/*
+Changes:
+ aria-label="cli-logo" -> aria-label="logo"
+*/
 </script>
 
-<div role="row" class="bg-charcoal-600 mb-5 rounded-md p-3 flex flex-col">
-  <div class="divide-x divide-gray-900 flex flex-row">
-    <div>
-      <!-- left col - cli-tool icon/name + "create new" button -->
-      <div class="min-w-[170px] max-w-[200px] h-full flex flex-col justify-between">
-        <div class="flex flex-row">
-          {#if cliTool?.images?.icon || cliTool?.extensionInfo.icon}
-            {#if typeof cliTool.images?.icon === 'string'}
-              <img
-                src="{cliTool.images.icon}"
-                aria-label="cli-logo"
-                alt="{cliTool.name} logo"
-                class="max-w-[40px] max-h-[40px] h-full" />
-            {:else if typeof cliTool.extensionInfo.icon === 'string'}
-              <img
-                src="{cliTool.extensionInfo.icon}"
-                aria-label="cli-logo"
-                alt="{cliTool.name} logo"
-                class="max-w-[40px] max-h-[40px] h-full" />
-            {/if}
-          {/if}
-          <span id="{cliTool.id}" class="my-auto ml-3 break-words" aria-label="cli-name">{cliTool.name}</span>
-        </div>
-        {#if cliTool.version && cliToolStatus}
-          <div class="p-0.5 rounded-lg bg-charcoal-900 w-fit">
-            <LoadingIconButton
-              action="update"
-              clickAction="{() => {
-                if (cliTool.newVersion) {
-                  update(cliTool);
-                }
-              }}"
-              icon="{faCircleArrowUp}"
-              leftPosition="left-[0.4rem]"
-              state="{cliToolStatus}"
-              color="primary"
-              tooltip="{!cliTool.newVersion ? 'No updates' : `Update to v${cliTool.newVersion}`}" />
-          </div>
-        {/if}
+<HorizontalCard
+  label="{cliTool?.id}"
+  title="{cliTool.name}"
+  icon="{cliTool?.images?.icon || cliTool?.extensionInfo.icon}">
+  <svelte:fragment slot="actions">
+    {#if cliTool.version && cliToolStatus}
+      <div class="p-0.5 rounded-lg bg-charcoal-900 w-fit">
+        <LoadingIconButton
+          action="update"
+          clickAction="{() => {
+            if (cliTool.newVersion) {
+              update(cliTool);
+            }
+          }}"
+          icon="{faCircleArrowUp}"
+          leftPosition="left-[0.4rem]"
+          state="{cliToolStatus}"
+          color="primary"
+          tooltip="{!cliTool.newVersion ? 'No updates' : `Update to v${cliTool.newVersion}`}" />
       </div>
-    </div>
-    <!-- cli-tools columns -->
-    <div class="grow flex-column divide-gray-900 ml-2">
+    {/if}
+  </svelte:fragment>
+  <svelte:fragment slot="content">
+    <div class="grow flex-column">
       <span class="my-auto ml-3 break-words" aria-label="cli-display-name">{cliTool.displayName}</span>
       <div role="region" class="float-right text-gray-900 px-2 text-sm" aria-label="cli-registered-by">
         Registered by {cliTool.extensionInfo.label}
@@ -125,17 +112,19 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
         {/if}
       </div>
     </div>
-  </div>
-  {#if showError}
-    <div class="flex flex-row items-center text-xs text-red-400 ml-[200px] mt-2">
-      <Fa icon="{faCircleXmark}" class="mr-1 text-red-500" />
-      <span>Unable to update {cliTool.displayName} to version {cliTool.newVersion}. </span>
-      <Button
-        type="link"
-        padding="p-0"
-        class="ml-1 text-xs"
-        aria-label="{cliTool.displayName} failed"
-        on:click="{() => window.events?.send('toggle-task-manager', '')}">Check why it failed</Button>
-    </div>
-  {/if}
-</div>
+  </svelte:fragment>
+  <svelte:fragment slot="footer">
+    {#if showError}
+      <div class="flex flex-row items-center text-xs text-red-400 ml-[200px] mt-2">
+        <Fa icon="{faCircleXmark}" class="mr-1 text-red-500" />
+        <span>Unable to update {cliTool.displayName} to version {cliTool.newVersion}. </span>
+        <Button
+          type="link"
+          padding="p-0"
+          class="ml-1 text-xs"
+          aria-label="{cliTool.displayName} failed"
+          on:click="{() => window.events?.send('toggle-task-manager', '')}">Check why it failed</Button>
+      </div>
+    {/if}
+  </svelte:fragment>
+</HorizontalCard>

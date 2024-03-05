@@ -8,6 +8,7 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import { kubernetesContexts } from '../../stores/kubernetes-contexts';
 import { clearKubeUIContextErrors, setKubeUIContextError } from '../kube/KubeContextUI';
 import { kubernetesContextsState } from '/@/stores/kubernetes-contexts-state';
+import Card from '../ui/Card.svelte';
 
 $: currentContextName = $kubernetesContexts.find(c => c.currentContext)?.name;
 
@@ -56,46 +57,30 @@ async function handleDeleteContext(contextName: string) {
       hidden="{$kubernetesContexts.length > 0}" />
     {#each $kubernetesContexts as context}
       <!-- If current context, use lighter background -->
-      <div
-        role="row"
-        class="{context.currentContext ? 'bg-charcoal-600' : 'bg-charcoal-700'} mb-5 rounded-md p-3 flex-nowrap">
-        <div class="pb-2">
-          <div class="flex">
-            {#if context?.icon}
-              {#if typeof context.icon === 'string'}
-                <img
-                  src="{context.icon}"
-                  aria-label="context-logo"
-                  alt="{context.name} logo"
-                  class="max-w-[40px] h-full" />
-              {/if}
-            {/if}
-            <!-- Centered items div -->
-            <div class="pl-3 flex-grow flex flex-col justify-center">
-              <div class="flex flex-col items-left">
-                {#if context.currentContext}
-                  <span class="text-xs text-gray-600" aria-label="current-context">Current Context</span>
-                {/if}
-                <span class="text-md" aria-label="context-name">{context.name}</span>
-              </div>
-            </div>
-            <!-- Only show the set context button if it is not the current context -->
-            {#if !context.currentContext}
-              <ListItemButtonIcon
-                title="Set as Current Context"
-                icon="{faRightToBracket}"
-                onClick="{() => handleSetContext(context.name)}"></ListItemButtonIcon>
-            {/if}
+      <Card
+        highlighted="{context.currentContext}"
+        title="{context.name}"
+        subtitle="{context.currentContext ? 'Current Context' : undefined}"
+        icon="{context?.icon}">
+        <svelte:fragment slot="actions">
+          <!-- Only show the set context button if it is not the current context -->
+          {#if !context.currentContext}
             <ListItemButtonIcon
-              title="Delete Context"
-              icon="{faTrash}"
-              onClick="{() => handleDeleteContext(context.name)}"></ListItemButtonIcon>
-          </div>
+              title="Set as Current Context"
+              icon="{faRightToBracket}"
+              onClick="{() => handleSetContext(context.name)}"></ListItemButtonIcon>
+          {/if}
+          <ListItemButtonIcon
+            title="Delete Context"
+            icon="{faTrash}"
+            onClick="{() => handleDeleteContext(context.name)}"></ListItemButtonIcon>
+        </svelte:fragment>
+        <svelte:fragment slot="subheader">
           {#if context.error}
             <ErrorMessage class="text-sm" error="{context.error}" />
           {/if}
-        </div>
-        <div class="grow flex-column divide-gray-900 text-gray-400">
+        </svelte:fragment>
+        <svelte:fragment slot="content">
           <div class="flex flex-row">
             {#if $kubernetesContextsState.get(context.name)}
               <div class="flex-none w-36">
@@ -160,8 +145,8 @@ async function handleDeleteContext(contextName: string) {
               {/if}
             </div>
           </div>
-        </div>
-      </div>
+        </svelte:fragment>
+      </Card>
     {/each}
   </div>
 </SettingsPage>

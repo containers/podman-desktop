@@ -101,7 +101,7 @@ test('Test that context-name2 is the current context', async () => {
   // Get current-context by aria label
   // find "context-name" which is located within the same parent div as current-context
   // make sure the content is context-name2
-  const currentContext = await screen.findByLabelText('current-context');
+  const currentContext = await screen.findByLabelText('subtitle');
   expect(currentContext).toBeInTheDocument();
 
   // Make sure that the span with the text "context-name2" is within the same parent div as current-context (to make sure that it is the current context)
@@ -120,7 +120,7 @@ test('when deleting the current context, a popup should ask confirmation', async
   const currentContext = screen.getAllByRole('row')[1];
   expect(currentContext).toBeInTheDocument();
 
-  const label = within(currentContext).queryByLabelText('current-context');
+  const label = within(currentContext).queryByLabelText('subtitle');
   expect(label).toBeInTheDocument();
 
   const deleteBtn = within(currentContext).getByRole('button', { name: 'Delete Context' });

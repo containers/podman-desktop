@@ -82,7 +82,7 @@ suite('CLI Tool item', () => {
     render(PreferencesCliTool, {
       cliTool: cliToolInfoItem1,
     });
-    const nameElement = screen.getByLabelText('cli-name');
+    const nameElement = screen.getByLabelText('title');
     expect(nameElement).toBeDefined();
     expect(nameElement.textContent).equal(cliToolInfoItem1.name);
     const registeredByElement = screen.getByLabelText('cli-registered-by');
@@ -101,7 +101,7 @@ suite('CLI Tool item', () => {
     render(PreferencesCliTool, {
       cliTool: cliToolInfoItem2,
     });
-    const nameElement = screen.getByLabelText('cli-name');
+    const nameElement = screen.getByLabelText('title');
     expect(nameElement).toBeDefined();
     expect(nameElement.textContent).equal(cliToolInfoItem2.name);
     const registeredByElement = screen.getByLabelText('cli-registered-by');
@@ -122,7 +122,7 @@ suite('CLI Tool item', () => {
     render(PreferencesCliTool, {
       cliTool: cliToolInfoItem3,
     });
-    const nameElement = screen.getByLabelText('cli-name');
+    const nameElement = screen.getByLabelText('title');
     expect(nameElement).toBeDefined();
     expect(nameElement.textContent).equal(cliToolInfoItem3.name);
     const registeredByElement = screen.getByLabelText('cli-registered-by');
