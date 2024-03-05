@@ -23,11 +23,10 @@ import type {
   AuthenticationSessionAccountInformation,
   Event,
 } from '@podman-desktop/api';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, afterEach, expect, test, vi } from 'vitest';
 import type { ApiSenderType } from './api.js';
 import { AuthenticationImpl } from './authentication.js';
 import { Emitter as EventEmitter } from './events/emitter.js';
-import { afterEach } from 'node:test';
 
 function randomNumber(n = 5): number {
   return Math.round(Math.random() * 10 * n);
