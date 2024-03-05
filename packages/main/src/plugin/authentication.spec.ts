@@ -76,7 +76,7 @@ beforeEach(function () {
   authModule = new AuthenticationImpl(apiSender);
 });
 
-afterEach(function () {
+afterEach(() => {
   vi.resetAllMocks();
 });
 
