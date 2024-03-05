@@ -16,10 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { NavigationBar } from '../model/workbench/navigation';
 import { waitUntil, waitWhile } from './wait';
+import { ResourcesPage } from '../model/pages/resources-page';
 import { RegistriesPage } from '../model/pages/registries-page';
+import { expect as playExpect } from '@playwright/test';
+import { ResourcesPodmanConnections } from '../model/pages/resources-podman-connections-page';
 
 /**
  * Stop and delete container defined by its name
@@ -155,4 +158,43 @@ export async function handleConfirmationDialog(
   await dialog.waitFor({ state: 'visible', timeout: 3000 });
   const button = confirm ? dialog.getByRole('button', { name: 'Yes' }) : dialog.getByRole('button', { name: 'Cancel' });
   await button.click();
+}
+
+/**
+ * Async function that stops and deletes Podman Machine through Settings -> Resources page
+ * @param page playwright's page object
+ * @param machineVisibleName Name of the Podman Machine to delete
+ */
+export async function deletePodmanMachine(page: Page, machineVisibleName: string): Promise<void> {
+  const navigationBar = new NavigationBar(page);
+  const dashboardPage = await navigationBar.openDashboard();
+  await playExpect(dashboardPage.mainPage).toBeVisible({ timeout: 3000 });
+  const settingsBar = await navigationBar.openSettings();
+  const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
+  await playExpect(resourcesPage.podmanResources).toBeVisible({ timeout: 10_000 });
+  const resourcesPodmanConnections = new ResourcesPodmanConnections(page, machineVisibleName);
+  await playExpect(resourcesPodmanConnections.providerConnections).toBeVisible({ timeout: 10_000 });
+  await waitWhile(
+    async () => {
+      return (await resourcesPodmanConnections.podmanMachineElement.isVisible()) ? false : true;
+    },
+    10_000,
+    1000,
+    false,
+  );
+  if (await resourcesPodmanConnections.podmanMachineElement.isVisible()) {
+    await playExpect(resourcesPodmanConnections.machineConnectionActions).toBeVisible({ timeout: 3000 });
+    await playExpect(resourcesPodmanConnections.machineConnectionStatus).toBeVisible({ timeout: 3000 });
+    if ((await resourcesPodmanConnections.machineConnectionStatus.innerText()) === 'RUNNING') {
+      await playExpect(resourcesPodmanConnections.machineStopButton).toBeVisible({ timeout: 3000 });
+      await resourcesPodmanConnections.machineStopButton.click();
+      await playExpect(resourcesPodmanConnections.machineConnectionStatus).toHaveText('OFF', { timeout: 30_000 });
+    }
+    await playExpect(resourcesPodmanConnections.machineDeleteButton).toBeVisible({ timeout: 3000 });
+    await waitWhile(() => resourcesPodmanConnections.machineDeleteButton.isDisabled(), 10_000, 1000, true);
+    await resourcesPodmanConnections.machineDeleteButton.click();
+    await playExpect(resourcesPodmanConnections.podmanMachineElement).toBeHidden({ timeout: 30_000 });
+  } else {
+    console.log(`Podman machine [${machineVisibleName}] not present, skipping deletion.`);
+  }
 }

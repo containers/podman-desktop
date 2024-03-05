@@ -115,7 +115,7 @@
     "@commitlint/cli": "^19.0.3",
     "@commitlint/config-conventional": "^19.0.3",
     "@electron/fuses": "^1.7.0",
-    "@playwright/test": "1.42.0",
+    "@playwright/test": "1.42.1",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
@@ -184,7 +184,7 @@
     "sudo-prompt": "^9.2.1",
     "tar": "^6.2.0",
     "tar-fs": "^3.0.5",
-    "undici": "^6.6.2",
+    "undici": "^6.7.0",
     "win-ca": "^3.5.1",
     "yaml": "^2.4.0"
   },
