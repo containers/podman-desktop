@@ -59,9 +59,9 @@ export class OnboardingRegistry {
       ...onboarding,
       extension: extension.id,
       name: extension.name,
-      displayName: extension.manifest?.displayName || extension.name,
-      description: extension.manifest?.description || '',
-      icon: onboarding.media?.path || '',
+      displayName: extension.manifest?.displayName ?? extension.name,
+      description: extension.manifest?.description ?? '',
+      icon: onboarding.media?.path ?? '',
     };
   }
 

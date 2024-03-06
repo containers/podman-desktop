@@ -323,7 +323,7 @@ $: globalOnboarding = global;
     role="region"
     aria-label="Onboarding Body"
     class="flex flex-col {globalOnboarding
-      ? 'flex-auto fixed top-0 left-0 right-0 bottom-0 bg-zinc-700 bg-no-repeat z-[45] pt-9'
+      ? 'flex-auto fixed top-0 left-0 right-0 bottom-0 bg-zinc-700 bg-no-repeat z-[45] pt-9 overflow-y-auto'
       : 'bg-charcoal-500 h-full overflow-y-auto w-full overflow-x-hidden'}"
     class:bodyWithBar="{!activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}">
     <div class="flex flex-col h-full">
@@ -393,7 +393,7 @@ $: globalOnboarding = global;
                     class="mt-1 flex flex-row text-xs items-center hover:underline text-gray-400"
                     on:click="{() => skipCurrentOnboarding()}">
                     <span class="mr-1">Skip</span>
-                    <Fa icon="{faForward}" size="12" />
+                    <Fa icon="{faForward}" size="0.8x" />
                   </button>
                 {/if}
               </div>
