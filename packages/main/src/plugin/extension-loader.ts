@@ -1041,11 +1041,10 @@ export class ExtensionLoader {
         return containerProviderRegistry.startPod(engineId, podId);
       },
       async statsContainer(
-        engineId: string,
-        containerId: string,
+        options: { engineId: string; id: string },
         callback: (stats: containerDesktopAPI.ContainerStatsInfo) => void,
       ): Promise<Disposable> {
-        const identifier = await containerProviderRegistry.getContainerStats(engineId, containerId, callback);
+        const identifier = await containerProviderRegistry.getContainerStats(options.engineId, options.id, callback);
         return Disposable.create(() => {
           containerProviderRegistry.stopContainerStats(identifier).catch((err: unknown): void => {
             console.error('Something went wrong while trying to stop container stats', err);
