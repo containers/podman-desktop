@@ -2358,7 +2358,7 @@ export class ContainerProviderRegistry {
         try {
           return await this.info(provider.id);
         } catch (error) {
-          console.log('error getting info for engine', provider.name, error);
+          console.error('error getting info for engine', provider.name, error);
           return undefined;
         }
       }),
