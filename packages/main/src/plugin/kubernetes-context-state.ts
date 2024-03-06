@@ -339,10 +339,12 @@ export class ContextsManager {
 
   private dispatchContextsGeneralStateTimer: NodeJS.Timeout | undefined;
   private dispatchCurrentContextGeneralStateTimer: NodeJS.Timeout | undefined;
-  private dispatchCurrentContextResourceTimers = new Map<string, NodeJS.Timeout>();
+  private dispatchCurrentContextResourceTimers = new Map<string, NodeJS.Timeout | undefined>();
 
   private connectTimers = new Map<ResourceName, NodeJS.Timeout | undefined>();
   private connectionDelayTimers = new Map<string, NodeJS.Timeout | undefined>();
+
+  private disposed = false;
 
   constructor(private readonly apiSender: ApiSenderType) {}
 
@@ -707,6 +709,9 @@ export class ContextsManager {
 
       // Restart informer later
       clearTimeout(options.timer);
+      if (this.disposed) {
+        return;
+      }
       options.timer = setTimeout(() => {
         this.restartInformer<T>(informer, context, options);
       }, nextTimeout);
@@ -743,6 +748,9 @@ export class ContextsManager {
     delay: number,
   ): void {
     clearTimeout(options.connectionDelay);
+    if (this.disposed) {
+      return;
+    }
     options.connectionDelay = setTimeout(() => {
       options.onReachable?.(reachable);
       if (reachable) {
@@ -773,6 +781,9 @@ export class ContextsManager {
       this.setReachableNow(options, false);
       // Restart informer later
       clearTimeout(options.timer);
+      if (this.disposed) {
+        return;
+      }
       options.timer = setTimeout(() => {
         this.restartInformer<T>(informer, context, options);
       }, nextTimeout);
@@ -795,7 +806,7 @@ export class ContextsManager {
 
   private dispatch(options: DispatchOptions): void {
     if (options.contextsGeneralState) {
-      this.dispatchDebounce(
+      this.dispatchContextsGeneralStateTimer = this.dispatchDebounce(
         `kubernetes-contexts-general-state-update`,
         this.states.getContextsGeneralState(),
         this.dispatchContextsGeneralStateTimer,
@@ -831,8 +842,11 @@ export class ContextsManager {
     value: Map<string, ContextGeneralState> | ContextGeneralState | KubernetesObject[],
     timer: NodeJS.Timeout | undefined,
     timeout: number,
-  ): NodeJS.Timeout {
+  ): NodeJS.Timeout | undefined {
     clearTimeout(timer);
+    if (this.disposed) {
+      return undefined;
+    }
     return setTimeout(() => {
       this.apiSender.send(eventName, value);
     }, timeout);
@@ -879,6 +893,7 @@ export class ContextsManager {
   }
 
   public dispose(): void {
+    this.disposed = true;
     clearTimeout(this.dispatchContextsGeneralStateTimer);
     clearTimeout(this.dispatchCurrentContextGeneralStateTimer);
     for (const timer of this.dispatchCurrentContextResourceTimers.values()) {
