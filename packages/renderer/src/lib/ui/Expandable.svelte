@@ -1,5 +1,5 @@
 <script lang="ts">
-import { fadeSlide } from './ui/animations';
+import { fadeSlide } from './animations';
 
 export let title: string;
 export let expanded: boolean = true;

@@ -3,7 +3,7 @@ import { onMount } from 'svelte';
 import Carousel from '../carousel/Carousel.svelte';
 import GuideCard from './GuideCard.svelte';
 import type { Guide } from '../../../../main/src/plugin/learning-center/learning-center-api';
-import Expandable from '../Expandable.svelte';
+import Expandable from '../ui/Expandable.svelte';
 
 let guides: Guide[] = [];
 
