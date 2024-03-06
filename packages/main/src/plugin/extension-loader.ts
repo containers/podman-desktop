@@ -1407,6 +1407,7 @@ export class ExtensionLoader {
     await Promise.all(
       Array.from(this.activatedExtensions.keys()).map(extensionId => this.deactivateExtension(extensionId)),
     );
+    this.kubernetesClient.dispose();
   }
 
   async startExtension(extensionId: string): Promise<void> {

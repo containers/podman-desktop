@@ -337,7 +337,25 @@ export class ContextsManager {
   private currentContext: string | undefined;
   private secondaryWatchers = new SecondaryResourceWatchersRegistry();
 
+  private dispatchContextsGeneralStateTimer: NodeJS.Timeout | undefined;
+  private dispatchCurrentContextGeneralStateTimer: NodeJS.Timeout | undefined;
+  private dispatchCurrentContextResourceTimers = new Map<string, NodeJS.Timeout | undefined>();
+
+  private connectTimers = new Map<ResourceName, NodeJS.Timeout | undefined>();
+  private connectionDelayTimers = new Map<string, NodeJS.Timeout | undefined>();
+
+  private disposed = false;
+
   constructor(private readonly apiSender: ApiSenderType) {}
+
+  setConnectionTimers(
+    resourceName: ResourceName,
+    timer: NodeJS.Timeout | undefined,
+    connectionDelay: NodeJS.Timeout | undefined,
+  ): void {
+    this.connectTimers.set(resourceName, timer);
+    this.connectionDelayTimers.set(resourceName, connectionDelay);
+  }
 
   // update is the reconcile function, it gets as input the last known kube config
   // and starts/stops informers for different kube contexts, depending on these inputs
@@ -447,6 +465,7 @@ export class ContextsManager {
     const path = `/api/v1/namespaces/${ns}/pods`;
     let timer: NodeJS.Timeout | undefined;
     let connectionDelay: NodeJS.Timeout | undefined;
+    this.setConnectionTimers('pods', timer, connectionDelay);
     return this.createInformer<V1Pod>(kc, context, path, listFn, {
       resource: 'pods',
       timer: timer,
@@ -494,6 +513,7 @@ export class ContextsManager {
     const path = `/apis/apps/v1/namespaces/${ns}/deployments`;
     let timer: NodeJS.Timeout | undefined;
     let connectionDelay: NodeJS.Timeout | undefined;
+    this.setConnectionTimers('deployments', timer, connectionDelay);
     return this.createInformer<V1Deployment>(kc, context, path, listFn, {
       resource: 'deployments',
       timer: timer,
@@ -537,6 +557,7 @@ export class ContextsManager {
     const path = `/api/v1/namespaces/${ns}/services`;
     let timer: NodeJS.Timeout | undefined;
     let connectionDelay: NodeJS.Timeout | undefined;
+    this.setConnectionTimers('services', timer, connectionDelay);
     return this.createInformer<V1Service>(kc, context, path, listFn, {
       resource: 'services',
       timer: timer,
@@ -576,6 +597,7 @@ export class ContextsManager {
     const path = `/apis/networking.k8s.io/v1/namespaces/${ns}/ingresses`;
     let timer: NodeJS.Timeout | undefined;
     let connectionDelay: NodeJS.Timeout | undefined;
+    this.setConnectionTimers('ingresses', timer, connectionDelay);
     return this.createInformer<V1Ingress>(kc, context, path, listFn, {
       resource: 'ingresses',
       timer: timer,
@@ -621,6 +643,7 @@ export class ContextsManager {
     const path = `/apis/route.openshift.io/v1/namespaces/${ns}/routes`;
     let timer: NodeJS.Timeout | undefined;
     let connectionDelay: NodeJS.Timeout | undefined;
+    this.setConnectionTimers('routes', timer, connectionDelay);
     return this.createInformer<V1Route>(kc, context, path, listFn, {
       resource: 'routes',
       timer: timer,
@@ -686,6 +709,9 @@ export class ContextsManager {
 
       // Restart informer later
       clearTimeout(options.timer);
+      if (this.disposed) {
+        return;
+      }
       options.timer = setTimeout(() => {
         this.restartInformer<T>(informer, context, options);
       }, nextTimeout);
@@ -722,6 +748,9 @@ export class ContextsManager {
     delay: number,
   ): void {
     clearTimeout(options.connectionDelay);
+    if (this.disposed) {
+      return;
+    }
     options.connectionDelay = setTimeout(() => {
       options.onReachable?.(reachable);
       if (reachable) {
@@ -752,6 +781,9 @@ export class ContextsManager {
       this.setReachableNow(options, false);
       // Restart informer later
       clearTimeout(options.timer);
+      if (this.disposed) {
+        return;
+      }
       options.timer = setTimeout(() => {
         this.restartInformer<T>(informer, context, options);
       }, nextTimeout);
@@ -772,13 +804,9 @@ export class ContextsManager {
     });
   }
 
-  dispatchContextsGeneralStateTimer: NodeJS.Timeout | undefined;
-  dispatchCurrentContextGeneralStateTimer: NodeJS.Timeout | undefined;
-  dispatchCurrentContextResourceTimers = new Map<string, NodeJS.Timeout>();
-
   private dispatch(options: DispatchOptions): void {
     if (options.contextsGeneralState) {
-      this.dispatchDebounce(
+      this.dispatchContextsGeneralStateTimer = this.dispatchDebounce(
         `kubernetes-contexts-general-state-update`,
         this.states.getContextsGeneralState(),
         this.dispatchContextsGeneralStateTimer,
@@ -814,8 +842,11 @@ export class ContextsManager {
     value: Map<string, ContextGeneralState> | ContextGeneralState | KubernetesObject[],
     timer: NodeJS.Timeout | undefined,
     timeout: number,
-  ): NodeJS.Timeout {
+  ): NodeJS.Timeout | undefined {
     clearTimeout(timer);
+    if (this.disposed) {
+      return undefined;
+    }
     return setTimeout(() => {
       this.apiSender.send(eventName, value);
     }, timeout);
@@ -859,5 +890,20 @@ export class ContextsManager {
   // for tests
   public getContextResources(contextName: string, resourceName: ResourceName): KubernetesObject[] {
     return this.states.getContextResources(contextName, resourceName);
+  }
+
+  public dispose(): void {
+    this.disposed = true;
+    clearTimeout(this.dispatchContextsGeneralStateTimer);
+    clearTimeout(this.dispatchCurrentContextGeneralStateTimer);
+    for (const timer of this.dispatchCurrentContextResourceTimers.values()) {
+      clearTimeout(timer);
+    }
+    for (const timer of this.connectTimers.values()) {
+      clearTimeout(timer);
+    }
+    for (const timer of this.connectionDelayTimers.values()) {
+      clearTimeout(timer);
+    }
   }
 }
