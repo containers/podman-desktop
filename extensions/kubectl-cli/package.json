@@ -107,13 +107,13 @@
         },
         {
           "id": "installSystemWideSuccess",
-          "title": "kubectl Successfully Installed",
+          "title": "kubectl Installed",
           "when": "kubectl.isKubectlInstalledSystemWide",
           "state": "completed",
           "content": [
             [
               {
-                "value": "kubectl has been successfully installed system-wide!"
+                "value": "kubectl is installed system-wide!"
               }
             ],
             [
