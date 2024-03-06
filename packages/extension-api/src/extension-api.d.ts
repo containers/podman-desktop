@@ -2827,6 +2827,9 @@ declare module '@podman-desktop/api' {
   }
 
   interface ContainerEngineInfo {
+    engineId: string;
+    engineName: string;
+    engineType: 'podman' | 'docker';
     cpus?: number;
     cpuIdle?: number;
     memory?: number;

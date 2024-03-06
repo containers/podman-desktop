@@ -2324,6 +2324,9 @@ export class ContainerProviderRegistry {
     if (provider.libpodApi) {
       const podmanInfo = await provider.libpodApi.podmanInfo();
       return {
+        engineId: provider.id,
+        engineName: provider.name,
+        engineType: provider.connection.type,
         cpus: podmanInfo.host.cpus,
         cpuIdle: podmanInfo.host.cpuUtilization.idlePercent,
         memory: podmanInfo.host.memTotal,
@@ -2334,6 +2337,9 @@ export class ContainerProviderRegistry {
     } else {
       const dockerInfo = await provider.api.info();
       return {
+        engineId: provider.id,
+        engineName: provider.name,
+        engineType: provider.connection.type,
         cpus: dockerInfo.NCPU,
         memory: dockerInfo.MemTotal,
       };
