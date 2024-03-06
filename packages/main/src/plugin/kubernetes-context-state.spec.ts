@@ -1471,6 +1471,51 @@ test('should not ignore events sent a short time before', async () => {
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-routes-update', []);
 });
 
+test('dispose', async () => {
+  vi.useFakeTimers();
+  vi.mocked(makeInformer).mockImplementation(
+    (
+      kubeconfig: kubeclient.KubeConfig,
+      path: string,
+      _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+    ) => {
+      const connectResult = new Error('err');
+      return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+    },
+  );
+  const client = new ContextsManager(apiSender);
+  const kubeConfig = new kubeclient.KubeConfig();
+  const config = {
+    clusters: [
+      {
+        name: 'cluster1',
+        server: 'server1',
+      },
+    ],
+    users: [
+      {
+        name: 'user1',
+      },
+    ],
+    contexts: [
+      {
+        name: 'context1',
+        cluster: 'cluster1',
+        user: 'user1',
+        namespace: 'ns1',
+      },
+    ],
+    currentContext: 'context1',
+  };
+  kubeConfig.loadFromOptions(config);
+  await client.update(kubeConfig);
+  expect(vi.getTimerCount()).not.toBe(0);
+  client.dispose();
+  vi.advanceTimersByTime(20000);
+  expect(vi.getTimerCount()).toBe(0);
+  expect(apiSenderSendMock).not.toHaveBeenCalled();
+});
+
 describe('ContextsStates tests', () => {
   test('hasInformer should check if informer exists for context', () => {
     const client = new ContextsStates();
