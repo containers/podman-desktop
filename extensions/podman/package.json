@@ -275,9 +275,22 @@
         },
         {
           "id": "onboardingSuccess",
-          "title": "Podman successfully setup",
+          "title": "Podman Installed",
           "when": "!onboardingContext:podmanIsNotInstalled",
-          "state": "completed"
+          "state": "completed",
+          "content": [
+            [
+              {
+                "value": "Podman is installed!"
+              }
+            ],
+            [
+              {
+                "value": "#### How to use podman \nRun `podman help` in the terminal for a list of commands to interact with Podman. For example, try the 'Create' button within the Containers tab of Podman Desktop and view your containers with `podman`:\n\n`$ podman ps`",
+                "highlight": true
+              }
+            ]
+          ]
         }
       ],
       "enablement": "(isLinux && onboardingContext:podmanIsNotInstalled) || (!isLinux && !onboardingContext:podmanMachineExists)"
