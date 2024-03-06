@@ -2826,12 +2826,45 @@ declare module '@podman-desktop/api' {
     Id: string;
   }
 
+  /**
+   * Resources information about a container engine
+   */
   interface ContainerEngineInfo {
+    /**
+     * unique id identifying the container engine
+     */
+    engineId: string;
+    /**
+     * name of the container engine
+     */
+    engineName: string;
+    /**
+     * engine type, either 'podman' or 'docker'
+     */
+    engineType: 'podman' | 'docker';
+    /**
+     * number of CPUs available for the container engine
+     */
     cpus?: number;
+    /**
+     * Percentage of idle CPUs (for Podman engines only)
+     */
     cpuIdle?: number;
+    /**
+     * Quantity of memory available for the container engine
+     */
     memory?: number;
+    /**
+     * Quantity of memory used by the container engine (for Podman engines only)
+     */
     memoryUsed?: number;
+    /**
+     * Quantity of disk space available for the container engine (for Podman engines only)
+     */
     diskSize?: number;
+    /**
+     * Quantity of disk space used by the container engine (for Podman engines only)
+     */
     diskUsed?: number;
   }
 
@@ -2878,6 +2911,15 @@ declare module '@podman-desktop/api' {
     Status?: { [key: string]: string };
     Labels: { [label: string]: string };
     Scope: string;
+  }
+
+  export interface ListInfosOptions {
+    /**
+     * The provider we want to list the infos. If not provided, will return info for all engines.
+     *
+     * @defaultValue undefined
+     */
+    provider?: ContainerProviderConnection;
   }
 
   /**
@@ -2985,7 +3027,7 @@ declare module '@podman-desktop/api' {
      * @example
      * // Example 2: List container images for a specific provider.
      * const provider = provider.getContainerConnections().find(connection => connection.connection.status() === 'started');
-     * const images = await listImages({provider});
+     * const images = await listImages({ provider: provider.connection });
      * console.log(images);
      */
     export function listImages(options?: ListImagesOptions): Promise<ImageInfo[]>;
@@ -3048,6 +3090,25 @@ declare module '@podman-desktop/api' {
     export function getImageInspect(engineId: string, id: string): Promise<ImageInspectInfo>;
 
     export function info(engineId: string): Promise<ContainerEngineInfo>;
+
+    /**
+     * List the engines information.
+     *
+     * @param options optional options for listing information
+     * @returns A promise resolving to an array of engine information.
+     *
+     * @example
+     * // Example 1: List all engine information when no specific provider is provided.
+     * const infos = await listInfos();
+     * console.log(infos);
+     *
+     * @example
+     * // Example 2: List information for a specific provider.
+     * const provider = provider.getContainerConnections().find(connection => connection.connection.status() === 'started');
+     * const info = await listInfos({ provider: provider.connection });
+     * console.log(info);
+     */
+    export function listInfos(options?: ListInfosOptions): Promise<ContainerEngineInfo[]>;
     export const onEvent: Event<ContainerJSONEvent>;
 
     export function listNetworks(): Promise<NetworkInspectInfo[]>;

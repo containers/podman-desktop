@@ -2324,6 +2324,9 @@ export class ContainerProviderRegistry {
     if (provider.libpodApi) {
       const podmanInfo = await provider.libpodApi.podmanInfo();
       return {
+        engineId: provider.id,
+        engineName: provider.name,
+        engineType: provider.connection.type,
         cpus: podmanInfo.host.cpus,
         cpuIdle: podmanInfo.host.cpuUtilization.idlePercent,
         memory: podmanInfo.host.memTotal,
@@ -2334,10 +2337,33 @@ export class ContainerProviderRegistry {
     } else {
       const dockerInfo = await provider.api.info();
       return {
+        engineId: provider.id,
+        engineName: provider.name,
+        engineType: provider.connection.type,
         cpus: dockerInfo.NCPU,
         memory: dockerInfo.MemTotal,
       };
     }
+  }
+
+  async listInfos(options?: containerDesktopAPI.ListInfosOptions): Promise<containerDesktopAPI.ContainerEngineInfo[]> {
+    let providers: InternalContainerProvider[];
+    if (!options?.provider) {
+      providers = Array.from(this.internalProviders.values());
+    } else {
+      providers = [this.getMatchingContainerProvider(options?.provider)];
+    }
+    const infos = await Promise.all(
+      Array.from(providers).map(async provider => {
+        try {
+          return await this.info(provider.id);
+        } catch (error) {
+          console.error('error getting info for engine', provider.name, error);
+          return undefined;
+        }
+      }),
+    );
+    return infos.filter((item): item is containerDesktopAPI.ContainerEngineInfo => !!item);
   }
 
   async containerExist(id: string): Promise<boolean> {
