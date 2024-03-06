@@ -1375,4 +1375,8 @@ export class KubernetesClient {
   public unregisterGetCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
     return this.contextsState.unregisterGetCurrentContextResources(resourceName);
   }
+
+  public dispose(): void {
+    this.contextsState.dispose();
+  }
 }
