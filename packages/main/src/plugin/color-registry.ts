@@ -371,18 +371,21 @@ export class ColorRegistry {
   protected initInputBox(): void {
     const sNav = 'input-field-';
 
+    this.registerColor(`${sNav}bg`, {
+      dark: colorPalette.charcoal[800],
+      light: colorPalette.charcoal[800],
+    });
     this.registerColor(`${sNav}focused-bg`, {
       dark: colorPalette.charcoal[900],
       light: colorPalette.gray[100],
     });
-
     this.registerColor(`${sNav}disabled-bg`, {
       dark: colorPalette.charcoal[900],
       light: colorPalette.charcoal[900],
     });
     this.registerColor(`${sNav}hover-bg`, {
-      dark: colorPalette.charcoal[900],
-      light: colorPalette.gray[100],
+      dark: colorPalette.transparent,
+      light: colorPalette.transparent,
     });
     this.registerColor(`${sNav}focused-text`, {
       dark: colorPalette.white,
@@ -405,8 +408,8 @@ export class ColorRegistry {
       light: colorPalette.gray[900],
     });
     this.registerColor(`${sNav}stroke`, {
-      dark: colorPalette.purple[500],
-      light: colorPalette.purple[600],
+      dark: colorPalette.charcoal[400],
+      light: colorPalette.charcoal[400],
     });
     this.registerColor(`${sNav}hover-stroke`, {
       dark: colorPalette.purple[400],

@@ -35,9 +35,9 @@ async function onClear(): Promise<void> {
 
 <div class="flex flex-col grow">
   <div
-    class="flex flex-row grow items-center px-1 py-1 group bg-transparent border-[1px] border-transparent {$$props.class ||
+    class="flex flex-row grow items-center px-1 py-1 group bg-[var(--pd-input-field-bg)] border-[1px] border-transparent {$$props.class ||
       ''}"
-    class:hover:bg-[var(--pd-input-field-hover-bg)]="{enabled}"
+    class:not(focus-within):hover:bg-[var(--pd-input-field-hover-bg)]="{enabled}"
     class:focus-within:bg-[var(--pd-input-field-focused-bg)]="{enabled}"
     class:hover:rounded-md="{enabled}"
     class:focus-within:rounded-md="{enabled}"
@@ -52,7 +52,7 @@ async function onClear(): Promise<void> {
     <input
       bind:this="{element}"
       on:input
-      class="grow px-1 outline-0 text-sm bg-transparent placeholder:text-[color:var(--pd-input-field-placeholder-text)] overflow-hidden"
+      class="grow px-1 outline-0 text-sm bg-[var(--pd-input-field-bg)] placeholder:text-[color:var(--pd-input-field-placeholder-text)] overflow-hidden"
       class:text-[color:var(--pd-input-field-focused-text)]="{!disabled}"
       class:text-[color:var(--pd-input-field-disabled-text)]="{disabled}"
       class:group-hover:bg-[var(--pd-input-field-hover-bg)]="{enabled}"
