@@ -144,6 +144,7 @@ const containerProviderRegistry: ContainerProviderRegistry = {
   stopPod: vi.fn(),
   removePod: vi.fn(),
   listImages: vi.fn(),
+  listInfos: vi.fn(),
 } as unknown as ContainerProviderRegistry;
 
 const inputQuickPickRegistry: InputQuickPickRegistry = {} as unknown as InputQuickPickRegistry;
@@ -1677,6 +1678,36 @@ describe('containerEngine', async () => {
     });
     expect(images.length).toBe(0);
     expect(containerProviderRegistry.listImages).toHaveBeenCalledWith({
+      provider: {
+        name: 'dummyProvider',
+      },
+    });
+  });
+
+  test('listInfos without option', async () => {
+    vi.mocked(containerProviderRegistry.listInfos).mockResolvedValue([]);
+
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    const infos = await api.containerEngine.listInfos();
+    expect(infos.length).toBe(0);
+    expect(containerProviderRegistry.listInfos).toHaveBeenCalledWith(undefined);
+  });
+
+  test('listInfos with provider option', async () => {
+    vi.mocked(containerProviderRegistry.listInfos).mockResolvedValue([]);
+
+    const api = extensionLoader.createApi('/path', {});
+    expect(api).toBeDefined();
+
+    const infos = await api.containerEngine.listInfos({
+      provider: {
+        name: 'dummyProvider',
+      } as unknown as containerDesktopAPI.ContainerProviderConnection,
+    });
+    expect(infos.length).toBe(0);
+    expect(containerProviderRegistry.listInfos).toHaveBeenCalledWith({
       provider: {
         name: 'dummyProvider',
       },
