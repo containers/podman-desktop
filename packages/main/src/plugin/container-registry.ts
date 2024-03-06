@@ -2348,7 +2348,7 @@ export class ContainerProviderRegistry {
 
   async listInfos(options?: containerDesktopAPI.ListInfosOptions): Promise<containerDesktopAPI.ContainerEngineInfo[]> {
     let providers: InternalContainerProvider[];
-    if (options?.provider === undefined) {
+    if (!options?.provider) {
       providers = Array.from(this.internalProviders.values());
     } else {
       providers = [this.getMatchingContainerProvider(options?.provider)];
@@ -2359,11 +2359,11 @@ export class ContainerProviderRegistry {
           return await this.info(provider.id);
         } catch (error) {
           console.log('error getting info for engine', provider.name, error);
-          return [];
+          return undefined;
         }
       }),
     );
-    return infos.flat();
+    return infos.filter((item): item is containerDesktopAPI.ContainerEngineInfo => !!item);
   }
 
   async containerExist(id: string): Promise<boolean> {
