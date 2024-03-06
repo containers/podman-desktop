@@ -2883,6 +2883,15 @@ declare module '@podman-desktop/api' {
     Scope: string;
   }
 
+  export interface ListInfosOptions {
+    /**
+     * The provider we want to list the infos. If not provided, will return info for all engines.
+     *
+     * @defaultValue undefined
+     */
+    provider?: ContainerProviderConnection;
+  }
+
   /**
    *  Module providing operations to execute on all container providers
    */
@@ -3051,6 +3060,7 @@ declare module '@podman-desktop/api' {
     export function getImageInspect(engineId: string, id: string): Promise<ImageInspectInfo>;
 
     export function info(engineId: string): Promise<ContainerEngineInfo>;
+    export function listInfos(options?: ListInfosOptions): Promise<ContainerEngineInfo[]>;
     export const onEvent: Event<ContainerJSONEvent>;
 
     export function listNetworks(): Promise<NetworkInspectInfo[]>;

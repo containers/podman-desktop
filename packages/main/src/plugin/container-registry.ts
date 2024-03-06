@@ -2346,6 +2346,26 @@ export class ContainerProviderRegistry {
     }
   }
 
+  async listInfos(options?: containerDesktopAPI.ListInfosOptions): Promise<containerDesktopAPI.ContainerEngineInfo[]> {
+    let providers: InternalContainerProvider[];
+    if (options?.provider === undefined) {
+      providers = Array.from(this.internalProviders.values());
+    } else {
+      providers = [this.getMatchingContainerProvider(options?.provider)];
+    }
+    const infos = await Promise.all(
+      Array.from(providers).map(async provider => {
+        try {
+          return await this.info(provider.id);
+        } catch (error) {
+          console.log('error getting info for engine', provider.name, error);
+          return [];
+        }
+      }),
+    );
+    return infos.flat();
+  }
+
   async containerExist(id: string): Promise<boolean> {
     const containers = await this.listContainers();
     return containers.some(container => container.Id === id);

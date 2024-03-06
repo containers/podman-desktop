@@ -995,6 +995,9 @@ export class ExtensionLoader {
       info(engineId: string): Promise<containerDesktopAPI.ContainerEngineInfo> {
         return containerProviderRegistry.info(engineId);
       },
+      listInfos(options?: containerDesktopAPI.ListInfosOptions): Promise<containerDesktopAPI.ContainerEngineInfo[]> {
+        return containerProviderRegistry.listInfos(options);
+      },
       onEvent: (listener, thisArg, disposables) => {
         return containerProviderRegistry.onEvent(listener, thisArg, disposables);
       },
