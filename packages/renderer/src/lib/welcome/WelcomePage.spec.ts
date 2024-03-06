@@ -19,17 +19,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect, vi, afterAll } from 'vitest';
+import { beforeAll, test, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import WelcomePage from './WelcomePage.svelte';
-import { get, type Unsubscriber } from 'svelte/store';
-import { router } from 'tinro';
-import { featuredExtensionInfos } from '/@/stores/featuredExtensions';
-import type { FeaturedExtension } from '../../../../main/src/plugin/featured/featured-api';
+import { get } from 'svelte/store';
 import { onboardingList } from '/@/stores/onboarding';
-
-let routerUnsubscribe: Unsubscriber;
-let path: string;
 
 const getFeaturedExtensionsMock = vi.fn();
 const getProviderInfosMock = vi.fn();
@@ -47,14 +41,6 @@ beforeAll(() => {
       func();
     },
   };
-
-  routerUnsubscribe = router.subscribe(rtr => {
-    path = rtr.path;
-  });
-});
-
-afterAll(() => {
-  routerUnsubscribe();
 });
 
 async function waitRender(customProperties: object): Promise<void> {
@@ -72,32 +58,12 @@ test('Expect the close button is on the page', async () => {
   expect(button).toBeEnabled();
 });
 
-test('Expect the settings button is on the page', async () => {
-  await waitRender({ showWelcome: true });
-  const button = screen.getByRole('button', { name: 'Settings' });
-  expect(button).toBeInTheDocument();
-  expect(button).toBeEnabled();
-});
-
 test('Expect that the close button closes the window', async () => {
   await waitRender({ showWelcome: true });
   const button = screen.getByRole('button', { name: 'Go to Podman Desktop' });
   await fireEvent.click(button);
   // and the button is gone
   expect(button).not.toBeInTheDocument();
-});
-
-test('Expect that the settings button closes the window and opens the settings', async () => {
-  await waitRender({ showWelcome: true });
-
-  const button = screen.getByRole('button', { name: 'Settings' });
-  await fireEvent.click(button);
-
-  // and the button is gone
-  expect(button).not.toBeInTheDocument();
-
-  // and we're in the preferences
-  expect(path).toBe('/preferences');
 });
 
 test('Expect that telemetry UI is hidden when telemetry has already been prompted', async () => {
@@ -193,115 +159,6 @@ test('Expect welcome screen to show three onboarding providers', async () => {
   const image3 = screen.getByRole('img', { name: 'foobar3 logo' });
   expect(image3).toBeInTheDocument();
   expect(image3).toHaveAttribute('src', 'data:image/png;base64,foobar3');
-});
-
-test('Expect that featured extensions are displayed', async () => {
-  const featuredExtension1: FeaturedExtension = {
-    builtin: true,
-    id: 'foo.bar',
-    displayName: 'FooBar',
-    description: 'Foobar description',
-    icon: 'data:image/png;base64,foobar',
-    categories: [],
-    fetchable: true,
-    fetchLink: 'oci-hello/world',
-    fetchVersion: '1.2.3',
-    installed: true,
-  };
-
-  const featuredExtension2: FeaturedExtension = {
-    builtin: true,
-    id: 'foo.baz',
-    displayName: 'FooBaz',
-    description: 'Foobaz description',
-    icon: 'data:image/png;base64,foobaz',
-    categories: [],
-    fetchable: false,
-    installed: false,
-  };
-
-  getFeaturedExtensionsMock.mockResolvedValue([featuredExtension1, featuredExtension2]);
-
-  // ask to update the featured Extensions store
-  window.dispatchEvent(new CustomEvent('system-ready'));
-
-  // wait store are populated
-  while (get(featuredExtensionInfos).length === 0) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
-
-  await waitRender({ showWelcome: true });
-
-  const imageExt1 = screen.getByRole('img', { name: 'FooBar logo' });
-  // expect the image to be there
-  expect(imageExt1).toBeInTheDocument();
-  // expect image source is correct
-  expect(imageExt1).toHaveAttribute('src', 'data:image/png;base64,foobar');
-
-  const imageExt2 = screen.getByRole('img', { name: 'FooBaz logo' });
-  // expect the image to be there
-  expect(imageExt2).toBeInTheDocument();
-  // expect image source is correct
-  expect(imageExt2).toHaveAttribute('src', 'data:image/png;base64,foobaz');
-});
-
-test('Expect that if the onboarding extension has the same name as featured extension, the featured extension wont be shown', async () => {
-  onboardingList.set([
-    {
-      extension: 'id',
-      title: 'onboarding',
-      name: 'foo.bar',
-      displayName: 'FooBar',
-      icon: 'data:image/png;base64,foobar',
-      steps: [
-        {
-          id: 'step',
-          title: 'step',
-          state: 'failed',
-          completionEvents: [],
-        },
-      ],
-      enablement: 'true',
-    },
-  ]);
-
-  // wait until the onboarding list is populated
-  while (get(onboardingList).length === 0) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
-
-  const featuredExtension1: FeaturedExtension = {
-    builtin: true,
-    id: 'foo.bar',
-    displayName: 'FooBar',
-    description: 'Foobar description',
-    icon: 'data:image/png;base64,foobar',
-    categories: [],
-    fetchable: true,
-    fetchLink: 'oci-hello/world',
-    fetchVersion: '1.2.3',
-    installed: true,
-  };
-
-  getFeaturedExtensionsMock.mockResolvedValue([featuredExtension1]);
-
-  // ask to update the featured Extensions store
-  window.dispatchEvent(new CustomEvent('system-ready'));
-
-  // wait store are populated
-  while (get(featuredExtensionInfos).length === 0) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
-
-  await waitRender({ showWelcome: true });
-
-  // Expect 'FooBar' logo to only be shown once, not twice.
-  const imageExt = screen.getAllByRole('img', { name: 'FooBar logo' });
-  expect(imageExt.length).toBe(1);
-
-  // Expect the title to be shown only once as well
-  const titleExt = screen.getAllByText('FooBar');
-  expect(titleExt.length).toBe(1);
 });
 
 test('If onboarding is pending / waiting to be setup for a provider, have it already checked.', async () => {

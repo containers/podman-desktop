@@ -6,13 +6,12 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { onDestroy, onMount } from 'svelte';
 import { WelcomeUtils } from './welcome-utils';
 import { router } from 'tinro';
-import { featuredExtensionInfos } from '/@/stores/featuredExtensions';
 import { context } from '/@/stores/context';
 import Tooltip from '../ui/Tooltip.svelte';
 import Button from '../ui/Button.svelte';
 import { onboardingList } from '/@/stores/onboarding';
 import type { OnboardingInfo } from '../../../../main/src/plugin/api/onboarding';
-import { derived, type Unsubscriber } from 'svelte/store';
+import type { Unsubscriber } from 'svelte/store';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import type { ContextUI } from '../context/context';
 import { normalizeOnboardingWhenClause } from '../onboarding/onboarding-utils';
@@ -132,16 +131,6 @@ function doWeOnboard(onboardingProvider: OnboardingInfo): boolean {
   const isEnabled = whenDeserialized?.evaluate(globalContext);
   return isEnabled || false;
 }
-
-// Uses the derived feature to filter out the onboarding providers from the featuredExtensionInfos
-const filteredFeaturedExtensions = derived(
-  [featuredExtensionInfos, onboardingList],
-  ([$featuredExtensionInfos, $onboardingList]) => {
-    return $featuredExtensionInfos.filter(
-      extension => !$onboardingList.some(provider => provider.extension === extension.id),
-    );
-  },
-);
 </script>
 
 {#if showWelcome}
@@ -197,35 +186,8 @@ const filteredFeaturedExtensions = derived(
               {/each}
             </div>
           {/if}
-          <div class="flex justify-center text-sm text-gray-700 pb-2 mt-4">
-            <div>Podman Desktop supports many container engines and orchestrators, such as:</div>
-          </div>
-          <div class="grid grid-cols-3 gap-3 justify-center content-center">
-            {#each $filteredFeaturedExtensions as featuredExtension}
-              <div
-                class="rounded-md
-           bg-charcoal-700 flex flex-row justify-center border-charcoal-700 p-2">
-                <div class="place-items-top flex flex-col flex-1">
-                  <div class="flex flex-row place-items-center flex-1">
-                    <div>
-                      <img
-                        alt="{featuredExtension.displayName} logo"
-                        class="max-h-6 max-w-[24px] h-auto w-auto"
-                        src="{featuredExtension.icon}" />
-                    </div>
-                    <div class="flex flex-1 mx-2 cursor-help justify-center">
-                      <Tooltip tip="{featuredExtension.description}" top>
-                        {featuredExtension.displayName}
-                      </Tooltip>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            {/each}
-          </div>
         </div>
       </div>
-
       <div class="flex justify-center p-2 text-sm">
         Configure these and more under <button
           class="text-violet-400 pl-1"
