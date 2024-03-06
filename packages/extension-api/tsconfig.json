@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "strictNullChecks": true,
     "target": "esnext",
     "module": "node16",
     "baseUrl": ".",

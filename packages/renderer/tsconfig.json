@@ -1,6 +1,7 @@
 {
   "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
+    "strictNullChecks": true,
     "target": "esnext",
     "module": "esnext",
     "strict": true,
