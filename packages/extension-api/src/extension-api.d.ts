@@ -2655,6 +2655,130 @@ declare module '@podman-desktop/api' {
     title: string;
   }
 
+  export interface PidsStats {
+    current?: number;
+    limit?: number;
+  }
+
+  export interface BlkioStatEntry {
+    major: number;
+    minor: number;
+    op: string;
+    value: number;
+  }
+
+  export interface BlkioStats {
+    io_service_bytes_recursive: BlkioStatEntry[];
+    io_serviced_recursive: BlkioStatEntry[];
+    io_queue_recursive: BlkioStatEntry[];
+    io_service_time_recursive: BlkioStatEntry[];
+    io_wait_time_recursive: BlkioStatEntry[];
+    io_merged_recursive: BlkioStatEntry[];
+    io_time_recursive: BlkioStatEntry[];
+    sectors_recursive: BlkioStatEntry[];
+  }
+
+  export interface StorageStats {
+    read_count_normalized?: number;
+    read_size_bytes?: number;
+    write_count_normalized?: number;
+    write_size_bytes?: number;
+  }
+
+  export interface NetworkStats {
+    [name: string]: {
+      rx_bytes: number;
+      rx_dropped: number;
+      rx_errors: number;
+      rx_packets: number;
+      tx_bytes: number;
+      tx_dropped: number;
+      tx_errors: number;
+      tx_packets: number;
+      endpoint_id?: string; // not used on linux
+      instance_id?: string; // not used on linux
+    };
+  }
+
+  export interface MemoryStats {
+    // Linux Memory Stats
+    stats: {
+      total_pgmajfault: number;
+      cache: number;
+      mapped_file: number;
+      total_inactive_file: number;
+      pgpgout: number;
+      rss: number;
+      total_mapped_file: number;
+      writeback: number;
+      unevictable: number;
+      pgpgin: number;
+      total_unevictable: number;
+      pgmajfault: number;
+      total_rss: number;
+      total_rss_huge: number;
+      total_writeback: number;
+      total_inactive_anon: number;
+      rss_huge: number;
+      hierarchical_memory_limit: number;
+      total_pgfault: number;
+      total_active_file: number;
+      active_anon: number;
+      total_active_anon: number;
+      total_pgpgout: number;
+      total_cache: number;
+      inactive_anon: number;
+      active_file: number;
+      pgfault: number;
+      inactive_file: number;
+      total_pgpgin: number;
+    };
+    max_usage: number;
+    usage: number;
+    failcnt: number;
+    limit: number;
+
+    // Windows Memory Stats
+    commitbytes?: number;
+    commitpeakbytes?: number;
+    privateworkingset?: number;
+  }
+
+  export interface CPUUsage {
+    percpu_usage: number[];
+    usage_in_usermode: number;
+    total_usage: number;
+    usage_in_kernelmode: number;
+  }
+
+  export interface ThrottlingData {
+    periods: number;
+    throttled_periods: number;
+    throttled_time: number;
+  }
+
+  export interface CPUStats {
+    cpu_usage: CPUUsage;
+    system_cpu_usage: number;
+    online_cpus: number;
+    throttling_data: ThrottlingData;
+  }
+
+  export interface ContainerStatsInfo {
+    engineId: string;
+    engineName: string;
+    read: string;
+    preread: string;
+    pids_stats?: PidsStats;
+    blkio_stats?: BlkioStats;
+    num_procs: number;
+    storage_stats?: StorageStats;
+    networks: NetworkStats;
+    memory_stats: MemoryStats;
+    cpu_stats: CPUStats;
+    precpu_stats: CPUStats;
+  }
+
   export interface BuildImageOptions {
     /**
      * Specifies a Containerfile which contains instructions for building the image
@@ -2974,6 +3098,32 @@ declare module '@podman-desktop/api' {
       id: string,
       callback: (name: string, data: string) => void,
     ): Promise<void>;
+
+    /**
+     * Get the streamed stats of a running container.
+     *
+     * @param engineId the id of the engine managing the container, obtained from the result of {@link containerEngine.listContainers}
+     * @param id the id or name of the container on this engine, obtained from the result of {@link containerEngine.listContainers} or as the result of {@link containerEngine.createContainer}
+     * @param callback the function called when container stats info are emitted.
+     *
+     * @return A Promise resolving a {@link Disposable} that unregister the callback when called.
+     *
+     * @example
+     * Here is a usage example
+     * ```ts
+     * const disposable = await statsContainer('engineId', 'containerId', (stats: ContainerStatsInfo): void => {
+     *  console.log('CPU Usage', stats.cpu_stats.cpu_usage.total_usage);
+     * });
+     *
+     * // When no longer needed
+     * disposable.dispose();
+     * ```
+     */
+    export function statsContainer(
+      engineId: string,
+      id: string,
+      callback: (stats: ContainerStatsInfo) => void,
+    ): Promise<Disposable>;
 
     /**
      * Stop an existing container

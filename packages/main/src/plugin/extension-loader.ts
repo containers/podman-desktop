@@ -1043,6 +1043,18 @@ export class ExtensionLoader {
       startPod(engineId: string, podId: string): Promise<void> {
         return containerProviderRegistry.startPod(engineId, podId);
       },
+      async statsContainer(
+        engineId: string,
+        containerId: string,
+        callback: (stats: containerDesktopAPI.ContainerStatsInfo) => void,
+      ): Promise<Disposable> {
+        const identifier = await containerProviderRegistry.getContainerStats(engineId, containerId, callback);
+        return Disposable.create(() => {
+          containerProviderRegistry.stopContainerStats(identifier).catch((err: unknown): void => {
+            console.error('Something went wrong while trying to stop container stats', err);
+          });
+        });
+      },
     };
 
     const authenticationProviderRegistry = this.authenticationProviderRegistry;
