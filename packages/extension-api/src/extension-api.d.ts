@@ -2655,19 +2655,19 @@ declare module '@podman-desktop/api' {
     title: string;
   }
 
-  interface PidsStats {
+  export interface PidsStats {
     current?: number;
     limit?: number;
   }
 
-  interface BlkioStatEntry {
+  export interface BlkioStatEntry {
     major: number;
     minor: number;
     op: string;
     value: number;
   }
 
-  interface BlkioStats {
+  export interface BlkioStats {
     io_service_bytes_recursive: BlkioStatEntry[];
     io_serviced_recursive: BlkioStatEntry[];
     io_queue_recursive: BlkioStatEntry[];
@@ -2678,21 +2678,21 @@ declare module '@podman-desktop/api' {
     sectors_recursive: BlkioStatEntry[];
   }
 
-  interface StorageStats {
+  export interface StorageStats {
     read_count_normalized?: number;
     read_size_bytes?: number;
     write_count_normalized?: number;
     write_size_bytes?: number;
   }
 
-  interface StorageStats {
+  export interface StorageStats {
     read_count_normalized?: number;
     read_size_bytes?: number;
     write_count_normalized?: number;
     write_size_bytes?: number;
   }
 
-  interface NetworkStats {
+  export interface NetworkStats {
     [name: string]: {
       rx_bytes: number;
       rx_dropped: number;
@@ -2707,7 +2707,7 @@ declare module '@podman-desktop/api' {
     };
   }
 
-  interface MemoryStats {
+  export interface MemoryStats {
     // Linux Memory Stats
     stats: {
       total_pgmajfault: number;
@@ -2751,20 +2751,20 @@ declare module '@podman-desktop/api' {
     privateworkingset?: number;
   }
 
-  interface CPUUsage {
+  export interface CPUUsage {
     percpu_usage: number[];
     usage_in_usermode: number;
     total_usage: number;
     usage_in_kernelmode: number;
   }
 
-  interface ThrottlingData {
+  export interface ThrottlingData {
     periods: number;
     throttled_periods: number;
     throttled_time: number;
   }
 
-  interface CPUStats {
+  export interface CPUStats {
     cpu_usage: CPUUsage;
     system_cpu_usage: number;
     online_cpus: number;
