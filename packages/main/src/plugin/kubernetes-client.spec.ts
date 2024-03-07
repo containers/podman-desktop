@@ -39,6 +39,7 @@ import type { V1Route } from './api/openshift-types.js';
 import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import { IncomingMessage } from 'node:http';
 import { Socket } from 'node:net';
+import type { FileSystemWatcher } from '@podman-desktop/api';
 
 const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
 const informerManager: KubernetesInformerManager = new KubernetesInformerManager();
@@ -1443,4 +1444,58 @@ test('Expect applyResourcesFromYAML to correctly call applyResources after loadi
   const objects = await client.applyResourcesFromYAML('default', podAndDeploymentTestYAML);
   expect(objects).toEqual(expectedObjects);
   expect(applyResourcesSpy).toHaveBeenCalledWith('default', expectedObjects, 'apply');
+});
+
+test('setupWatcher sends kubernetes-context-update when kubeconfig file changes', async () => {
+  const client = createTestClient();
+  const fileSystemMonitoringSpy = vi.spyOn(fileSystemMonitoring, 'createFileSystemWatcher');
+  const onDidChangeMock = vi.fn();
+  vi.spyOn(client, 'refresh').mockResolvedValue(undefined);
+  fileSystemMonitoringSpy.mockReturnValue({
+    onDidChange: onDidChangeMock,
+    onDidCreate: vi.fn(),
+    onDidDelete: vi.fn(),
+  } as unknown as FileSystemWatcher);
+  onDidChangeMock.mockImplementation(f => {
+    f();
+  });
+  client.setupWatcher('/path/to/kube/config');
+  await new Promise(resolve => setTimeout(resolve, 0));
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-context-update');
+});
+
+test('setupWatcher sends kubernetes-context-update when kubeconfig file is created', async () => {
+  const client = createTestClient();
+  const fileSystemMonitoringSpy = vi.spyOn(fileSystemMonitoring, 'createFileSystemWatcher');
+  const onDidCreateMock = vi.fn();
+  vi.spyOn(client, 'refresh').mockResolvedValue(undefined);
+  fileSystemMonitoringSpy.mockReturnValue({
+    onDidChange: vi.fn(),
+    onDidCreate: onDidCreateMock,
+    onDidDelete: vi.fn(),
+  } as unknown as FileSystemWatcher);
+  onDidCreateMock.mockImplementation(f => {
+    f();
+  });
+  client.setupWatcher('/path/to/kube/config');
+  await new Promise(resolve => setTimeout(resolve, 0));
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-context-update');
+});
+
+test('setupWatcher sends kubernetes-context-update when kubeconfig file is deleted', async () => {
+  const client = createTestClient();
+  const fileSystemMonitoringSpy = vi.spyOn(fileSystemMonitoring, 'createFileSystemWatcher');
+  const onDidDeleteMock = vi.fn();
+  vi.spyOn(client, 'refresh').mockResolvedValue(undefined);
+  fileSystemMonitoringSpy.mockReturnValue({
+    onDidChange: vi.fn(),
+    onDidCreate: vi.fn(),
+    onDidDelete: onDidDeleteMock,
+  } as unknown as FileSystemWatcher);
+  onDidDeleteMock.mockImplementation(f => {
+    f();
+  });
+  client.setupWatcher('/path/to/kube/config');
+  await new Promise(resolve => setTimeout(resolve, 0));
+  expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-context-update');
 });
