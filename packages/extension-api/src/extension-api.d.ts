@@ -2379,7 +2379,7 @@ declare module '@podman-desktop/api' {
     Test?: string[];
 
     /**
-     * The time to wait between checks in nanoseconds.
+     * The time to wait between checks in nanoseconds. It should be 0 or at least 1000000 (1 ms). 0 means inherit.
      *
      * @example
      * // Set interval to 1 second
@@ -2388,7 +2388,7 @@ declare module '@podman-desktop/api' {
     Interval?: number;
 
     /**
-     * The time to wait before considering the check to have hung.
+     * The time to wait before considering the check to have hung. It should be 0 or at least 1000000 (1 ms). 0 means inherit.
      *
      * @example
      * // Set timeout to 5 seconds
@@ -2397,7 +2397,8 @@ declare module '@podman-desktop/api' {
     Timeout?: number;
 
     /**
-     * Start period for the container to initialize before starting health-retries countdown in nanoseconds.
+     * Start period for the container to initialize before starting health-retries countdown in nanoseconds. It should
+     * be 0 or at least 1000000 (1 ms). 0 means inherit.
      *
      * @example
      * // Set start period to 2 seconds
@@ -2406,7 +2407,7 @@ declare module '@podman-desktop/api' {
     StartPeriod?: number;
 
     /**
-     * The number of consecutive failures needed to consider a container as unhealthy.
+     * The number of consecutive failures needed to consider a container as unhealthy. 0 means inherit.
      *
      * @example
      * // Set retries to 3
