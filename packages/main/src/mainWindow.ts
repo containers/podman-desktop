@@ -25,6 +25,7 @@ import { URL } from 'url';
 import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
 import { isLinux, isMac, stoppedExtensions } from './util.js';
 import { OpenDevTools } from './open-dev-tools.js';
+import { WindowHandler } from './system/window/window-handler.js';
 
 const openDevTools = new OpenDevTools();
 
@@ -98,12 +99,17 @@ async function createWindow(): Promise<BrowserWindow> {
     }
   });
 
-  let configurationRegistry: ConfigurationRegistry;
+  let configurationRegistry: ConfigurationRegistry | undefined;
+  let windowHandler: WindowHandler | undefined;
   ipcMain.on('configuration-registry', (_, data) => {
     configurationRegistry = data;
 
     // open dev tools (if required)
     openDevTools.open(browserWindow, configurationRegistry);
+
+    windowHandler = new WindowHandler(browserWindow, data);
+    // try to restore the window position and size
+    windowHandler.restore();
   });
 
   // receive the message because an update is in progress and we need to quit the app
@@ -111,6 +117,14 @@ async function createWindow(): Promise<BrowserWindow> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   autoUpdater.on('before-quit-for-update', () => {
     quitAfterUpdate = true;
+  });
+
+  browserWindow.on('resize', () => {
+    windowHandler?.savePositionAndSize();
+  });
+
+  browserWindow.on('move', () => {
+    windowHandler?.savePositionAndSize();
   });
 
   browserWindow.on('close', e => {

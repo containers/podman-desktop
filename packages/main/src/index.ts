@@ -28,6 +28,7 @@ import { StartupInstall } from './system/startup-install.js';
 import type { ExtensionLoader } from './plugin/extension-loader.js';
 import dns from 'node:dns';
 import { Deferred } from './plugin/util/deferred.js';
+import { WindowInit } from './system/window/window-init.js';
 
 let extensionLoader: ExtensionLoader | undefined;
 
@@ -214,6 +215,11 @@ app.whenReady().then(
 
     // Get the configuration registry (saves all our settings)
     const configurationRegistry = extensionLoader.getConfigurationRegistry();
+
+    // Register the window configuration
+    // This is used to save/restore the window size and position
+    const windowInit = new WindowInit(configurationRegistry);
+    windowInit.init();
 
     // If we've manually set the tray icon color, update the tray icon. This can only be done
     // after configurationRegistry is loaded. Windows or Linux support only for icon color change.
