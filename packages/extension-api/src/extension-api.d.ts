@@ -2456,17 +2456,6 @@ declare module '@podman-desktop/api' {
     }>;
   }
 
-  export interface StatsContainerOptions {
-    /**
-     * The engine where the container is deployed
-     */
-    engineId: string;
-    /**
-     * The identifier of the container
-     */
-    id: string;
-  }
-
   export interface ContainerCreateOptions {
     /**
      * Assign the specified name to the container. Must match the regular expression`/?[a-zA-Z0-9][a-zA-Z0-9_.-]+`. If not speficied, the platform assigns a unique name to the container
@@ -3078,7 +3067,8 @@ declare module '@podman-desktop/api' {
     /**
      * Get the streamed stats of a running container.
      *
-     * @param options the options to use {@link StatsContainerOptions}
+     * @param engineId the id of the engine managing the container, obtained from the result of {@link containerEngine.listContainers}
+     * @param id the id or name of the container on this engine, obtained from the result of {@link containerEngine.listContainers} or as the result of {@link containerEngine.createContainer}
      * @param callback the function called when container stats info are emitted.
      *
      * @return A Promise resolving a {@link Disposable} that unregister the callback when called.
@@ -3086,10 +3076,7 @@ declare module '@podman-desktop/api' {
      * @example
      * Here is a usage example
      * ```ts
-     * const disposable = await statsContainer({
-     *  engineId: 'engineId',
-     *  id: 'containerId',
-     * }, (stats: ContainerStatsInfo): void => {
+     * const disposable = await statsContainer('engineId', 'containerId', (stats: ContainerStatsInfo): void => {
      *  console.log('CPU Usage', stats.cpu_stats.cpu_usage.total_usage);
      * });
      *
@@ -3098,7 +3085,8 @@ declare module '@podman-desktop/api' {
      * ```
      */
     export function statsContainer(
-      options: StatsContainerOptions,
+      engineId: string,
+      id: string,
       callback: (stats: ContainerStatsInfo) => void,
     ): Promise<Disposable>;
 

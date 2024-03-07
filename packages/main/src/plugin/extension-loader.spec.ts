@@ -1662,13 +1662,7 @@ describe('containerEngine', async () => {
     const api = extensionLoader.createApi('/path', {});
     expect(api).toBeDefined();
 
-    const disposable = await api.containerEngine.statsContainer(
-      {
-        engineId: 'dummyEngineId',
-        id: 'dummyContainerId',
-      },
-      () => {},
-    );
+    const disposable = await api.containerEngine.statsContainer('dummyEngineId', 'dummyContainerId', () => {});
     expect(disposable).toBeDefined();
     expect(disposable instanceof Disposable).toBeTruthy();
     expect(containerProviderRegistry.getContainerStats).toHaveBeenCalledWith(
