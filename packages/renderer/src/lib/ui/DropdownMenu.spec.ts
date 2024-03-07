@@ -28,6 +28,7 @@ test('Expect the onBeforeToggle function to be called when the menu is clicked',
   });
 
   const toggleMenuButton = screen.getByRole('button', { name: 'kebab menu' });
+  expect(toggleMenuButton).not.toHaveClass('mr-2');
   expect(toggleMenuButton).toBeInTheDocument();
   await fireEvent.click(toggleMenuButton);
 
