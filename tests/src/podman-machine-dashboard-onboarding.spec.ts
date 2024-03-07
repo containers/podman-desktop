@@ -22,8 +22,8 @@ import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
 import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
-import { DashboardPage } from './model/pages/dashboard-page';
 import { deletePodmanMachine } from './utility/operations';
+import { NavigationBar } from './model/workbench/navigation';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -56,7 +56,8 @@ describe.runIf(process.env.TEST_PODMAN_MACHINE !== undefined && process.env.TEST
   `Podman machine onboarding from Dashboard`,
   async () => {
     test('Create Podman machine from Dashboard', async () => {
-      const dashboardPage = new DashboardPage(page);
+      const navigationBar = new NavigationBar(page);
+      const dashboardPage = await navigationBar.openDashboard();
       await playExpect(dashboardPage.initilizeAndStartButton).toBeEnabled();
       await dashboardPage.initilizeAndStartButton.click();
       await playExpect(dashboardPage.podmanMachineConnectionStatus).toHaveText('RUNNING', { timeout: 300000 });
