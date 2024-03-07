@@ -119,11 +119,6 @@
           "content": [
             [
               {
-                "value": "Compose is installed system-wide!"
-              }
-            ],
-            [
-              {
                 "value": "#### How to use Compose\nRun `podman compose up` (podman CLI v4.7.0+) or `docker-compose` in a directory with a `compose.yaml`. Podman Desktop will automatically detect the Compose deployment and show it in the container list.'\n\n`$ podman compose up`",
                 "highlight": true
               }
