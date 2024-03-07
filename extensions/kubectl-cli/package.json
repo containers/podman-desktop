@@ -113,11 +113,6 @@
           "content": [
             [
               {
-                "value": "kubectl is installed system-wide!"
-              }
-            ],
-            [
-              {
                 "value": "#### How to use kubectl \nRun `kubectl help` in the terminal for a list of commands to interact with your Kubernetes cluster. For example, try the 'Deploy to Kubernetes' button within Podman Desktop and view your pods with `kubectl`:\n\n`$ kubectl get pods`",
                 "highlight": true
               }
