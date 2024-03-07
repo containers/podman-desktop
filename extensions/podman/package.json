@@ -249,7 +249,7 @@
         },
         {
           "id": "installationSuccessView",
-          "title": "${onboardingContext:installationSuccessViewTitle}",
+          "title": "Podman settings",
           "when": "!onboardingContext:podmanIsNotInstalled",
           "content": [
             [
