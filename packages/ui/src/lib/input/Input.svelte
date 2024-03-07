@@ -39,13 +39,12 @@ async function onClear(): Promise<void> {
       ''}"
     class:not(focus-within):hover:bg-[var(--pd-input-field-hover-bg)]="{enabled}"
     class:focus-within:bg-[var(--pd-input-field-focused-bg)]="{enabled}"
-    class:hover:rounded-md="{enabled}"
     class:focus-within:rounded-md="{enabled}"
     class:border-b-[var(--pd-input-field-stroke)]="{enabled && !error}"
     class:border-b-[var(--pd-input-field-stroke-error)]="{enabled && error}"
-    class:hover:border-[var(--pd-input-field-stroke)]="{enabled && !error}"
-    class:hover:border-[var(--pd-input-field-stroke-error)]="{enabled && error}"
-    class:focus-within:border-[var(--pd-input-field-stroke)]="{enabled && !error}"
+    class:hover:border-b-[var(--pd-input-field-hover-stroke)]="{enabled && !error}"
+    class:hover:border-b-[var(--pd-input-field-stroke-error)]="{enabled && error}"
+    class:focus-within:border-[var(--pd-input-field-hover-stroke)]="{enabled && !error}"
     class:focus-within:border-[var(--pd-input-field-stroke-error)]="{enabled && error}"
     class:border-b-[var(--pd-input-field-stroke-readonly)]="{readonly || disabled}">
     <slot name="left" />

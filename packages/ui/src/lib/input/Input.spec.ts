@@ -66,8 +66,7 @@ test('Expect basic styling', async () => {
   expect(element.parentElement).toHaveClass('border-transparent');
 
   expect(element.parentElement).toHaveClass('not(focus-within):hover:bg-[var(--pd-input-field-hover-bg)]');
-  expect(element.parentElement).toHaveClass('hover:rounded-md');
-  expect(element.parentElement).toHaveClass('hover:border-[var(--pd-input-field-stroke)]');
+  expect(element.parentElement).toHaveClass('hover:border-b-[var(--pd-input-field-hover-stroke)]');
 });
 
 test('Expect basic readonly styling', async () => {
