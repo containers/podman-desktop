@@ -2164,7 +2164,10 @@ declare module '@podman-desktop/api' {
    * HealthCheckResults describes the results/logs from a healthcheck
    */
   export interface HealthCheckResults {
-    Status: 'starting' | 'healthy' | 'unhealthy';
+    /**
+     * Status is starting, healthy or unhealthy
+     */
+    Status: string;
     /**
      * FailingStreak is the number of consecutive failed healthchecks
      */
