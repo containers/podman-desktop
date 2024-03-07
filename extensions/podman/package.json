@@ -279,6 +279,8 @@
           "when": "!onboardingContext:podmanIsNotInstalled",
           "state": "completed",
           "content": [
+            [],
+            [],
             [
               {
                 "value": "#### How to use podman \nRun `podman help` in the terminal for a list of commands to interact with Podman. For example, try the 'Create' button within the Containers tab of Podman Desktop and view your containers with `podman`:\n\n`$ podman ps`",
