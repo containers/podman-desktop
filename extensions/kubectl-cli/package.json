@@ -45,7 +45,7 @@
         {
           "id": "welcomeDownloadView",
           "label": "kubectl Download",
-          "title": "kubectl Download",
+          "title": "kubectl download",
           "when": "!kubectl.isKubectlInstalledSystemWide && onboardingContext:kubectlIsNotDownloaded",
           "content": [
             [
@@ -73,13 +73,13 @@
         },
         {
           "id": "downloadFailure",
-          "title": "Failed Downloading kubectl",
+          "title": "Failed downloading kubectl",
           "when": "!kubectl.isKubectlInstalledSystemWide && onboardingContext:kubectlIsNotDownloaded",
           "state": "failed"
         },
         {
           "id": "downloadSuccessfulView",
-          "title": "kubectl Successfully Downloaded",
+          "title": "kubectl successfully downloaded",
           "when": "!kubectl.isKubectlInstalledSystemWide && !onboardingContext:kubectlIsNotDownloaded",
           "content": [
             [
@@ -101,13 +101,13 @@
         },
         {
           "id": "installSystemWideFailure",
-          "title": "Failed Installing kubectl",
+          "title": "Failed installing kubectl",
           "when": "!kubectl.isKubectlInstalledSystemWide && !kubectl.isKubectlInstalledSystemWide",
           "state": "failed"
         },
         {
           "id": "installSystemWideSuccess",
-          "title": "kubectl Installed",
+          "title": "kubectl installed",
           "when": "kubectl.isKubectlInstalledSystemWide",
           "state": "completed",
           "content": [
