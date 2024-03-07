@@ -79,7 +79,6 @@ import type { IconInfo } from './api/icon-info.js';
 import type { ImageCheckerInfo } from './api/image-checker-info.js';
 import type { ImageInfo } from './api/image-info.js';
 import type { ImageInspectInfo } from './api/image-inspect-info.js';
-import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import type { NetworkInspectInfo } from './api/network-info.js';
 import type { NotificationCard, NotificationCardOptions } from './api/notification.js';
 import type { OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
@@ -136,7 +135,6 @@ import { ExtensionInstaller } from './install/extension-installer.js';
 import { KubernetesClient } from './kubernetes-client.js';
 import type { KubeContext } from './kubernetes-context.js';
 import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
-import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import { downloadGuideList } from './learning-center/learning-center.js';
 import type { MessageBoxOptions, MessageBoxReturnValue } from './message-box.js';
 import { MessageBox } from './message-box.js';
@@ -450,14 +448,7 @@ export class PluginSystem {
     const fileSystemMonitoring = new FilesystemMonitoring();
     const customPickRegistry = new CustomPickRegistry(apiSender);
     const onboardingRegistry = new OnboardingRegistry(configurationRegistry, context);
-    const kubernetesInformerRegistry = new KubernetesInformerManager();
-    const kubernetesClient = new KubernetesClient(
-      apiSender,
-      configurationRegistry,
-      fileSystemMonitoring,
-      kubernetesInformerRegistry,
-      telemetry,
-    );
+    const kubernetesClient = new KubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry);
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
     await closeBehaviorConfiguration.init();
@@ -1752,21 +1743,6 @@ export class PluginSystem {
 
     this.ipcHandle('kubernetes-client:listIngresses', async (): Promise<V1Ingress[]> => {
       return kubernetesClient.listIngresses();
-    });
-
-    this.ipcHandle(
-      'kubernetes-client:startInformer',
-      async (_listener, resourcesType: KubernetesInformerResourcesType): Promise<number> => {
-        return kubernetesClient.startInformer(resourcesType);
-      },
-    );
-
-    this.ipcHandle('kubernetes-client:refreshInformer', async (_listener, id: number): Promise<void> => {
-      return kubernetesClient.refreshInformer(id);
-    });
-
-    this.ipcHandle('kubernetes-informer-registry:stopInformer', async (_listener, id: number): Promise<void> => {
-      return kubernetesInformerRegistry.stopInformer(id);
     });
 
     this.ipcHandle('kubernetes-client:listRoutes', async (): Promise<V1Route[]> => {

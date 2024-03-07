@@ -23,7 +23,6 @@ import type { ApiSenderType } from './api.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import { FilesystemMonitoring } from './filesystem-monitoring.js';
 import { KubernetesClient } from './kubernetes-client.js';
-import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 
 // WARNING: Do not import anything from kubernetes-client.spec.ts
@@ -65,7 +64,6 @@ describe('context tests', () => {
   function createClient(): TestKubernetesClient {
     const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
     const fileSystemMonitoring: FilesystemMonitoring = new FilesystemMonitoring();
-    const informerManager = new KubernetesInformerManager();
     const telemetry: Telemetry = {
       track: vi.fn().mockImplementation(async () => {}),
     } as unknown as Telemetry;
@@ -74,13 +72,7 @@ describe('context tests', () => {
       receive: vi.fn(),
     };
 
-    const client = new TestKubernetesClient(
-      apiSender,
-      configurationRegistry,
-      fileSystemMonitoring,
-      informerManager,
-      telemetry,
-    );
+    const client = new TestKubernetesClient(apiSender, configurationRegistry, fileSystemMonitoring, telemetry);
 
     client.setUsers(originalUsers);
     client.setClusters(originalClusters);

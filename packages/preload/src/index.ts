@@ -58,7 +58,6 @@ import type { IconInfo } from '../../main/src/plugin/api/icon-info';
 import type { ImageCheckerInfo } from '../../main/src/plugin/api/image-checker-info';
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import type { ImageInspectInfo } from '../../main/src/plugin/api/image-inspect-info';
-import type { KubernetesInformerResourcesType } from '../../main/src/plugin/api/kubernetes-informer-info';
 import type { KubernetesGeneratorInfo } from '../../main/src/plugin/api/KubernetesGeneratorInfo';
 import type { NetworkInspectInfo } from '../../main/src/plugin/api/network-info';
 import type { NotificationCard, NotificationCardOptions } from '../../main/src/plugin/api/notification';
@@ -1689,21 +1688,6 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld('kubernetesListIngresses', async (): Promise<V1Ingress[]> => {
     return ipcInvoke('kubernetes-client:listIngresses');
-  });
-
-  contextBridge.exposeInMainWorld(
-    'kubernetesStartInformer',
-    async (resourcesType: KubernetesInformerResourcesType): Promise<number> => {
-      return ipcInvoke('kubernetes-client:startInformer', resourcesType);
-    },
-  );
-
-  contextBridge.exposeInMainWorld('kubernetesRefreshInformer', async (id: number): Promise<void> => {
-    return ipcInvoke('kubernetes-client:refreshInformer', id);
-  });
-
-  contextBridge.exposeInMainWorld('kubernetesStopInformer', async (id: number): Promise<void> => {
-    return ipcInvoke('kubernetes-informer-registry:stopInformer', id);
   });
 
   contextBridge.exposeInMainWorld('kubernetesListRoutes', async (): Promise<V1Route[]> => {
