@@ -2160,6 +2160,43 @@ declare module '@podman-desktop/api' {
     CpuRealtimeRuntime?: number;
   }
 
+  /**
+   * HealthCheckResults describes the results/logs from a healthcheck
+   */
+  export interface HealthCheckResults {
+    Status: 'starting' | 'healthy' | 'unhealthy';
+    /**
+     * FailingStreak is the number of consecutive failed healthchecks
+     */
+    FailingStreak: number;
+    /**
+     * Log describes healthcheck attempts and results
+     */
+    Log: HealthCheckLog[];
+  }
+
+  /**
+   * HealthCheckLog describes the results of a single healthcheck
+   */
+  export interface HealthCheckLog {
+    /**
+     * Start time as string
+     */
+    Start: string;
+    /**
+     * End time as a string
+     */
+    End: string;
+    /**
+     * Exitcode is 0 or 1
+     */
+    ExitCode: number;
+    /**
+     *  Output is the stdout/stderr from the healthcheck command
+     */
+    Output: string;
+  }
+
   export interface ContainerInspectInfo {
     engineId: string;
     engineName: string;
@@ -2179,16 +2216,7 @@ declare module '@podman-desktop/api' {
       Error: string;
       StartedAt: string;
       FinishedAt: string;
-      Health?: {
-        Status: string;
-        FailingStreak: number;
-        Log: Array<{
-          Start: string;
-          End: string;
-          ExitCode: number;
-          Output: string;
-        }>;
-      };
+      Health?: HealthCheckResults;
     };
     Image: string;
     ResolvConfPath: string;
@@ -2321,35 +2349,65 @@ declare module '@podman-desktop/api' {
     errorDetails?: { message?: string };
   }
 
+  /**
+   * Configuration options for defining a healthcheck for a container.
+   * To get health check result you can use {@link containerEngine.inspectContainer} and inside the obtained {@link ContainerInspectInfo} you can access the `Status.Health` property containing a {@link HealthCheckResults}.
+   */
   interface HealthConfig {
     /**
-     * The test to perform. Possible values are:
+     * The test to perform.
      *
-     * - `[]` inherit healthcheck from image or parent image
-     * - `["NONE"]` disable healthcheck
-     * - `["CMD", args...]` exec arguments directly
-     * - `["CMD-SHELL", command]` run command with system's default shell
+     * @example
+     * // Inherit healthcheck from image
+     * Test?: [];
+     *
+     * @example
+     * // Disable healthcheck
+     * Test?: ["NONE"];
+     *
+     * @example
+     * // Execute command in host system
+     * Test?: ["CMD", "curl", "http://localhost"];
+     *
+     * @example
+     * // Podman will execute the command inside the target container and wait for either a "0" or "failure  exit" code.
+     * Test?: ["CMD-SHELL", "curl http://localhost || exit 1"];
      */
     Test?: string[];
 
     /**
-     * The time to wait between checks in nanoseconds. It should be 0 or at least 1000000 (1 ms). 0 means inherit.
+     * The time to wait between checks in nanoseconds.
+     *
+     * @example
+     * // Set interval to 1 second
+     * Interval?: 1000000000;
      */
     Interval?: number;
 
     /**
-     * The time to wait before considering the check to have hung. It should be 0 or at least 1000000 (1 ms). 0 means inherit.
+     * The time to wait before considering the check to have hung.
+     *
+     * @example
+     * // Set timeout to 5 seconds
+     * Timeout?: 5000000000;
      */
     Timeout?: number;
 
     /**
-     * Start period for the container to initialize before starting health-retries countdown in nanoseconds. It should
-     * be 0 or at least 1000000 (1 ms). 0 means inherit.
+     * Start period for the container to initialize before starting health-retries countdown in nanoseconds.
+     *
+     * @example
+     * // Set start period to 2 seconds
+     * StartPeriod?: 2000000000;
      */
     StartPeriod?: number;
 
     /**
-     * The number of consecutive failures needed to consider a container as unhealthy. 0 means inherit.
+     * The number of consecutive failures needed to consider a container as unhealthy.
+     *
+     * @example
+     * // Set retries to 3
+     * Retries?: 3;
      */
     Retries?: number;
   }
@@ -2578,7 +2636,7 @@ declare module '@podman-desktop/api' {
     start?: boolean;
 
     /**
-     * A test to perform to check that the container is healthy.
+     * A test to perform to check that the container is healthy. See {@link HealthConfig} for usage details
      */
     HealthCheck?: HealthConfig;
 
