@@ -2685,13 +2685,6 @@ declare module '@podman-desktop/api' {
     write_size_bytes?: number;
   }
 
-  export interface StorageStats {
-    read_count_normalized?: number;
-    read_size_bytes?: number;
-    write_count_normalized?: number;
-    write_size_bytes?: number;
-  }
-
   export interface NetworkStats {
     [name: string]: {
       rx_bytes: number;
