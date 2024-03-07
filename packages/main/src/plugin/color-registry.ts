@@ -372,8 +372,8 @@ export class ColorRegistry {
     const sNav = 'input-field-';
 
     this.registerColor(`${sNav}bg`, {
-      dark: colorPalette.charcoal[800],
-      light: colorPalette.charcoal[800],
+      dark: colorPalette.transparent,
+      light: colorPalette.transparent,
     });
     this.registerColor(`${sNav}focused-bg`, {
       dark: colorPalette.charcoal[900],
