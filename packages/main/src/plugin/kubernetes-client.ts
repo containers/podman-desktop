@@ -18,7 +18,6 @@
 
 import * as fs from 'node:fs';
 import { existsSync } from 'node:fs';
-import type { IncomingMessage } from 'node:http';
 import { homedir } from 'node:os';
 import { resolve } from 'node:path';
 import { PassThrough } from 'node:stream';
@@ -26,9 +25,7 @@ import { PassThrough } from 'node:stream';
 import type {
   Cluster,
   Context,
-  KubernetesListObject,
   KubernetesObject,
-  ListPromise,
   V1APIGroup,
   V1APIResource,
   V1ConfigMap,
@@ -49,7 +46,6 @@ import {
   KubeConfig,
   KubernetesObjectApi,
   Log,
-  makeInformer,
   NetworkingV1Api,
   VersionApi,
   Watch,
@@ -61,7 +57,6 @@ import { parseAllDocuments } from 'yaml';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 
 import type { ApiSenderType } from './api.js';
-import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import type { V1Route } from './api/openshift-types.js';
 import type { PodInfo } from './api/pod-info.js';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
@@ -70,7 +65,6 @@ import type { FilesystemMonitoring } from './filesystem-monitoring.js';
 import type { KubeContext } from './kubernetes-context.js';
 import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
 import { ContextsManager } from './kubernetes-context-state.js';
-import type { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import { Uri } from './types/uri.js';
 
 interface KubernetesObjectWithKind extends KubernetesObject {
@@ -159,7 +153,6 @@ export class KubernetesClient {
     private readonly apiSender: ApiSenderType,
     private readonly configurationRegistry: ConfigurationRegistry,
     private readonly fileSystemMonitoring: FilesystemMonitoring,
-    private readonly informerManager: KubernetesInformerManager,
     private readonly telemetry: Telemetry,
   ) {
     this.kubeConfig = new KubeConfig();
@@ -1225,143 +1218,6 @@ export class KubernetesClient {
       throw error;
     } finally {
       this.telemetry.track('kubernetesSyncResources', telemetryOptions);
-    }
-  }
-
-  async createDeploymentsInformer(id?: number): Promise<number> {
-    const ns = this.getCurrentNamespace();
-    if (ns) {
-      const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
-      return this.makeKubernetesInformer<V1Deployment>(
-        'DEPLOYMENT',
-        '/apis/apps/v1/namespaces/' + ns + '/deployments',
-        () => k8sAppsApi.listNamespacedDeployment(ns),
-        id,
-      );
-    }
-    throw new Error('no active namespace');
-  }
-
-  async createIngressesInformer(id?: number): Promise<number> {
-    const ns = this.getCurrentNamespace();
-    if (ns) {
-      const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
-      return this.makeKubernetesInformer<V1Ingress>(
-        'INGRESS',
-        '/apis/networking.k8s.io/v1/namespaces/' + ns + '/ingresses',
-        () => k8sNetworkingApi.listNamespacedIngress(ns),
-        id,
-      );
-    }
-    throw new Error('no active namespace');
-  }
-
-  async createRoutesInformer(id?: number): Promise<number> {
-    const ns = this.getCurrentNamespace();
-    if (ns) {
-      const customObjectsApi = this.kubeConfig.makeApiClient(CustomObjectsApi);
-      return this.makeKubernetesInformer<V1Route>(
-        'ROUTE',
-        '/apis/route.openshift.io/v1/namespaces/' + ns + '/routes',
-        () =>
-          customObjectsApi.listNamespacedCustomObject('route.openshift.io', 'v1', ns, 'routes') as Promise<{
-            response: IncomingMessage;
-            body: KubernetesListObject<V1Route>;
-          }>,
-        id,
-      );
-    }
-    throw new Error('no active namespace');
-  }
-
-  async createServicesInformer(id?: number): Promise<number> {
-    const ns = this.getCurrentNamespace();
-    if (ns) {
-      const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
-      return this.makeKubernetesInformer<V1Service>(
-        'SERVICE',
-        '/api/v1/namespaces/' + ns + '/services',
-        () => k8sApi.listNamespacedService(ns),
-        id,
-      );
-    }
-    throw new Error('no active namespace');
-  }
-
-  async startInformer(resourcesType: KubernetesInformerResourcesType, id?: number): Promise<number> {
-    switch (resourcesType) {
-      case 'DEPLOYMENT': {
-        return this.createDeploymentsInformer(id);
-      }
-      case 'INGRESS': {
-        return this.createIngressesInformer(id);
-      }
-      case 'ROUTE': {
-        return this.createRoutesInformer(id);
-      }
-      case 'SERVICE': {
-        return this.createServicesInformer(id);
-      }
-    }
-  }
-
-  async makeKubernetesInformer<T extends KubernetesObject>(
-    resourcesType: KubernetesInformerResourcesType,
-    path: string,
-    listPromiseFn: ListPromise<T>,
-    id?: number,
-  ): Promise<number> {
-    const currentContext = this.kubeConfig.getContextObject(this.kubeConfig.currentContext);
-    if (currentContext) {
-      // set up the informer
-      try {
-        const informer = makeInformer<T>(this.kubeConfig, path, listPromiseFn);
-        informer.on('add', resource => {
-          this.apiSender.send(`kubernetes-${resourcesType.toLowerCase()}-add`, resource);
-        });
-        informer.on('update', resource => {
-          this.apiSender.send(`kubernetes-${resourcesType.toLowerCase()}-update`, resource);
-        });
-        informer.on('delete', resource => {
-          this.apiSender.send(`kubernetes-${resourcesType.toLowerCase()}-deleted`, resource);
-        });
-        informer.on('error', _resource => {
-          this.apiSender.send('kubernetes-error');
-          // Restart informer after 5sec
-          setTimeout(() => {
-            informer.start().catch((e: unknown) => console.error(e));
-          }, 5000);
-        });
-        informer.on('connect', _resource => {
-          this.apiSender.send('kubernetes-connect');
-        });
-        // if id is defined, we are refreshing an informer so we have to update its entry in the registry
-        if (id) {
-          this.apiSender.send('kubernetes-informer-refresh', id);
-          this.informerManager.updateInformer(id, informer, currentContext);
-        } else {
-          // else we are creating a new informer and add it to the registry
-          id = this.informerManager.addInformer(informer, currentContext, resourcesType);
-        }
-        // start informer
-        await informer.start();
-        // return its id
-        return id;
-      } catch (_) {
-        // do nothing
-      }
-    }
-
-    throw new Error('error when setting the informer');
-  }
-
-  async refreshInformer(id: number): Promise<void> {
-    const currentContext = this.kubeConfig.getContextObject(this.kubeConfig.currentContext);
-    const informerInfo = this.informerManager.getInformerInfo(id);
-    // if context changed after we started the informer, we recreate it with the new context
-    if (informerInfo && JSON.stringify(informerInfo.context) !== JSON.stringify(currentContext)) {
-      await informerInfo.informer.stop();
-      await this.startInformer(informerInfo.resourcesType, id);
     }
   }
 
