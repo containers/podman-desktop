@@ -95,13 +95,11 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
             aria-label="OCI Image Name"
             bind:value="{ociImage}"
             placeholder="Name of the Image"
-            class="w-1/2"
             required />
 
           <Button
             on:click="{() => installExtensionFromImage()}"
             disabled="{ociImage === undefined || ociImage.trim() === ''}"
-            class="w-full"
             inProgress="{installInProgress}"
             icon="{faArrowCircleDown}">
             Install extension from the OCI image
