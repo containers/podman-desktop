@@ -29,7 +29,9 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import type { ProviderInfo, ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
 import { operationConnectionsInfo } from '/@/stores/operation-connections';
 import { eventCollect } from '/@/lib/preferences/preferences-connection-rendering-task';
-import { get } from 'svelte/store';
+import { get, writable } from 'svelte/store';
+import * as contextStore from '/@/stores/context';
+import { ContextUI } from '../context/context';
 
 type LoggerEventName = 'log' | 'warn' | 'error' | 'finish';
 
@@ -53,6 +55,12 @@ const connectionInfo = {
 } as unknown as ProviderContainerConnectionInfo;
 const propertyScope = 'ContainerProviderConnectionFactory';
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 beforeAll(() => {
   (window as any).getConfigurationValue = vi.fn();
   (window as any).updateConfigurationValue = vi.fn();
@@ -72,6 +80,8 @@ beforeAll(() => {
       };
     },
   });
+
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 function mockCallback(

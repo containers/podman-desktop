@@ -20,8 +20,17 @@ import '@testing-library/jest-dom/vitest';
 import { beforeAll, test, expect, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
+import { ContextUI } from '../context/context';
 
 const executeCommand = vi.fn();
+
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
 
 beforeAll(() => {
   (window as any).executeCommand = executeCommand;
@@ -33,6 +42,7 @@ beforeAll(() => {
       func();
     },
   };
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 test('Expect no ListItemButtonIcon', async () => {

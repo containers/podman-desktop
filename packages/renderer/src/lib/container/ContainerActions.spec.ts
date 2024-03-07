@@ -21,12 +21,21 @@ import { test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import ContainerActions from './ContainerActions.svelte';
 import type { ContainerInfoUI } from './ContainerInfoUI';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
+import { ContextUI } from '../context/context';
 
 const container: ContainerInfoUI = {} as ContainerInfoUI;
 
 const getContributedMenusMock = vi.fn();
 const updateMock = vi.fn();
 const showMessageBoxMock = vi.fn();
+
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
 
 beforeEach(() => {
   (window as any).showMessageBox = showMessageBoxMock;
@@ -37,6 +46,7 @@ beforeEach(() => {
 
   (window as any).getContributedMenus = getContributedMenusMock;
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 afterEach(() => {

@@ -23,14 +23,22 @@ import { test, expect, vi, beforeEach, describe } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import ImagesList from './ImagesList.svelte';
 import { imagesInfos } from '../../stores/images';
-import { get } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import { providerInfos } from '../../stores/providers';
 import { viewsContributions } from '/@/stores/views';
 import { IMAGE_LIST_VIEW_BADGES, IMAGE_LIST_VIEW_ICONS, IMAGE_VIEW_BADGES, IMAGE_VIEW_ICONS } from '../view/views';
+import * as contextStore from '/@/stores/context';
+import { ContextUI } from '../context/context';
 
 const listImagesMock = vi.fn();
 const getProviderInfosMock = vi.fn();
 const listViewsContributionsMock = vi.fn();
+
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
 
 // fake the window.events object
 beforeEach(() => {
@@ -57,6 +65,7 @@ beforeEach(() => {
       func();
     },
   };
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 async function waitRender(customProperties: object): Promise<void> {

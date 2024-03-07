@@ -21,7 +21,7 @@ import { describe, test, expect, vi, afterEach, beforeEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 
 import ImageDetails from './ImageDetails.svelte';
-import { get } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import { imagesInfos } from '/@/stores/images';
 import type { ImageInfo } from '../../../../main/src/plugin/api/image-info';
 
@@ -39,6 +39,8 @@ import {
   IMAGE_VIEW_ICONS,
 } from '../view/views';
 import { viewsContributions } from '/@/stores/views';
+import * as contextStore from '/@/stores/context';
+import { ContextUI } from '../context/context';
 
 const listImagesMock = vi.fn();
 const getContributedMenusMock = vi.fn();
@@ -66,6 +68,12 @@ delete myNoneNameImage.RepoTags;
 const deleteImageMock = vi.fn();
 const hasAuthMock = vi.fn();
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 beforeEach(() => {
   (window as any).showMessageBox = showMessageBoxMock;
   imagesInfos.set([]);
@@ -77,6 +85,7 @@ beforeEach(() => {
 
   (window as any).getContributedMenus = getContributedMenusMock;
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 afterEach(() => {

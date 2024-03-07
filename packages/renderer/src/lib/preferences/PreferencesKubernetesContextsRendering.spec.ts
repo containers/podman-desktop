@@ -24,11 +24,19 @@ import { kubernetesContexts } from '/@/stores/kubernetes-contexts';
 import type { KubeContext } from '../../../../main/src/plugin/kubernetes-context';
 import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes-context-state';
 import * as kubernetesContextsState from '/@/stores/kubernetes-contexts-state';
-import { readable } from 'svelte/store';
+import { readable, writable } from 'svelte/store';
+import * as contextStore from '/@/stores/context';
+import { ContextUI } from '../context/context';
 
 vi.mock('/@/stores/kubernetes-contexts-state', async () => {
   return {
     kubernetesContextsState: vi.fn(),
+  };
+});
+
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
   };
 });
 
@@ -68,6 +76,7 @@ const mockContext3: KubeContext = {
 beforeEach(() => {
   kubernetesContexts.set([mockContext1, mockContext2, mockContext3]);
   (window as any).kubernetesGetContextsGeneralState = vi.fn().mockResolvedValue(new Map<string, ContextGeneralState>());
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 test('test that name, cluster and the server is displayed when rendering', async () => {

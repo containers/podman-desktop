@@ -16,14 +16,25 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
+import { test, expect, vi, beforeAll } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import OnboardingItem from './OnboardingItem.svelte';
 import type { OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
-import { context } from '/@/stores/context';
 import { configurationProperties } from '/@/stores/configurationProperties';
 import { CONFIGURATION_ONBOARDING_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import { ContextUI } from '../context/context';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
+
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
+beforeAll(() => {
+  vi.mocked(contextStore).context = writable(new ContextUI());
+});
 
 test('Expect button html when passing a button tag in markdown', async () => {
   const textComponent: OnboardingStepItem = {
@@ -59,7 +70,7 @@ test('Expect placeholders are replaced when passing a text component with placeh
   };
   const globalContext = new ContextUI();
   globalContext.setValue('extension.onboarding.text', 'placeholder content');
-  context.set(globalContext);
+  vi.mocked(contextStore).context.set(globalContext);
   render(OnboardingItem, {
     extension: 'extension',
     item: textComponent,
@@ -205,7 +216,7 @@ test('Expect value rendered is updated if context value is updated', async () =>
   };
   const globalContext = new ContextUI();
   globalContext.setValue('extension.onboarding.text', 'first value');
-  context.set(globalContext);
+  vi.mocked(contextStore).context.set(globalContext);
   render(OnboardingItem, {
     extension: 'extension',
     item: textComponent,
@@ -217,7 +228,7 @@ test('Expect value rendered is updated if context value is updated', async () =>
 
   // simulate the value in context is updated
   globalContext.setValue('extension.onboarding.text', 'second value');
-  context.set(globalContext);
+  vi.mocked(contextStore).context.set(globalContext);
 
   await new Promise(resolve => setTimeout(resolve, 100));
   const markdownSection2 = screen.getByLabelText('markdown-content');

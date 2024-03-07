@@ -22,14 +22,24 @@ import { fireEvent, render, screen } from '@testing-library/svelte';
 import type { IngressUI } from './IngressUI';
 import IngressRouteActions from './IngressRouteActions.svelte';
 import type { RouteUI } from './RouteUI';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
+import { ContextUI } from '../context/context';
 
 const updateMock = vi.fn();
 const deleteIngressMock = vi.fn();
 const deleteRoutesMock = vi.fn();
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 beforeEach(() => {
   (window as any).kubernetesDeleteIngress = deleteIngressMock;
   (window as any).kubernetesDeleteRoute = deleteRoutesMock;
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 afterEach(() => {

@@ -28,6 +28,9 @@ import { onboardingList } from '/@/stores/onboarding';
 import type { OnboardingInfo } from '../../../../main/src/plugin/api/onboarding';
 import { configurationProperties } from '/@/stores/configurationProperties';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
+import { ContextUI } from '../context/context';
 
 const providerInfo: ProviderInfo = {
   id: 'podman',
@@ -71,6 +74,12 @@ vi.mock('tinro', () => {
   };
 });
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 // getOsPlatformMock is needed when using PreferencesResourcesRenderingCopyButton
 const getOsPlatformMock = vi.fn().mockResolvedValue('linux');
 
@@ -83,6 +92,7 @@ beforeEach(() => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).telemetryPage = vi.fn().mockResolvedValue(undefined);
   (window as any).getOsPlatform = getOsPlatformMock;
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 test('Expect to see elements regarding default provider name', async () => {

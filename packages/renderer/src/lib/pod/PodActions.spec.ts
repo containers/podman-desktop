@@ -22,6 +22,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import PodActions from './PodActions.svelte';
 import type { PodInfoUI } from './PodInfoUI';
 import type { ContainerInfo, Port } from '@podman-desktop/api';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
+import { ContextUI } from '../context/context';
 
 const podmanPod: PodInfoUI = {
   id: 'pod',
@@ -45,6 +48,12 @@ const showMessageBoxMock = vi.fn();
 const kubernetesGetCurrentNamespaceMock = vi.fn();
 const kubernetesReadNamespacedPodMock = vi.fn();
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 beforeEach(() => {
   (window as any).showMessageBox = showMessageBoxMock;
   (window as any).kubernetesDeletePod = vi.fn();
@@ -65,6 +74,7 @@ beforeEach(() => {
 
   (window as any).getContributedMenus = getContributedMenusMock;
   getContributedMenusMock.mockResolvedValue([]);
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 afterEach(() => {

@@ -21,12 +21,14 @@ import { test, expect, vi, beforeAll } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 
 import ContainerDetails from './ContainerDetails.svelte';
-import { get } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import { containersInfos } from '/@/stores/containers';
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 
 import { router } from 'tinro';
 import { lastPage } from '/@/stores/breadcrumb';
+import * as contextStore from '/@/stores/context';
+import { ContextUI } from '../context/context';
 
 const listContainersMock = vi.fn();
 
@@ -59,6 +61,12 @@ vi.mock('xterm', () => {
   };
 });
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 beforeAll(() => {
   (window as any).showMessageBox = showMessageBoxMock;
   (window as any).listContainers = listContainersMock;
@@ -75,6 +83,7 @@ beforeAll(() => {
 
   (window as any).getContributedMenus = getContributedMenusMock;
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 test('Expect logs when tty is not enabled', async () => {

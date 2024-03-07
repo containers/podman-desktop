@@ -22,6 +22,9 @@ import OnboardingComponent from './OnboardingComponent.svelte';
 import { configurationProperties } from '/@/stores/configurationProperties';
 import { providerInfos } from '/@/stores/providers';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
+import { ContextUI } from '../context/context';
 
 const providerInfo: ProviderInfo = {
   id: 'podman',
@@ -64,6 +67,12 @@ async function waitRender(customProperties: any): Promise<void> {
   }
 }
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 beforeAll(() => {
   (window as any).getConfigurationValue = vi.fn();
   (window as any).updateConfigurationValue = vi.fn();
@@ -83,6 +92,8 @@ beforeAll(() => {
       };
     },
   });
+
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 test('Expect to find PreferencesConnectionCreationRendering component if step includes "create" component', async () => {

@@ -21,12 +21,14 @@ import { test, expect, vi, beforeAll } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 
 import PodDetails from './PodDetails.svelte';
-import { get } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import { podsInfos } from '/@/stores/pods';
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
 
 import { router, type TinroRoute } from 'tinro';
 import { lastPage } from '/@/stores/breadcrumb';
+import * as contextStore from '/@/stores/context';
+import { ContextUI } from '../context/context';
 
 const mocks = vi.hoisted(() => ({
   TerminalMock: vi.fn(),
@@ -60,6 +62,12 @@ const myPod: PodInfo = {
 const removePodMock = vi.fn();
 const getContributedMenusMock = vi.fn();
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 beforeAll(() => {
   (window as any).showMessageBox = showMessageBoxMock;
   (window as any).listPods = listPodsMock;
@@ -80,6 +88,7 @@ beforeAll(() => {
     unobserve: vi.fn(),
     disconnect: vi.fn(),
   });
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 test('Expect redirect to previous page if pod is deleted', async () => {

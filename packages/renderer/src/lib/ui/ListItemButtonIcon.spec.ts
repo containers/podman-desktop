@@ -17,19 +17,30 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
+import { test, expect, vi, beforeEach } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import ListItemButtonIcon from './ListItemButtonIcon.svelte';
 import { faCircleCheck, faRocket } from '@fortawesome/free-solid-svg-icons';
 import { ContextUI } from '../context/context';
-import { context } from '/@/stores/context';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
+
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
+beforeEach(() => {
+  vi.mocked(contextStore).context = writable(new ContextUI());
+});
 
 test('Expect the dropDownMenuItem to have classes that display a disabled object if the disabled when clause is evaluated to true', async () => {
   const title = 'title';
 
   const contextUI = new ContextUI();
   contextUI.setValue('values', ['test']);
-  context.set(contextUI);
+  vi.mocked(contextStore).context.set(contextUI);
 
   render(ListItemButtonIcon, {
     title,
@@ -64,7 +75,7 @@ test('Expect the dropDownMenuItem NOT to have classes that display a disabled ob
 
   const contextUI = new ContextUI();
   contextUI.setValue('values', ['test']);
-  context.set(contextUI);
+  vi.mocked(contextStore).context.set(contextUI);
 
   render(ListItemButtonIcon, {
     title,
@@ -118,7 +129,7 @@ test('When you click on the button with confirm=yes, it will pop up with the dia
 
   const contextUI = new ContextUI();
   contextUI.setValue('values', ['test']);
-  context.set(contextUI);
+  vi.mocked(contextStore).context.set(contextUI);
 
   render(ListItemButtonIcon, {
     title,
@@ -143,7 +154,7 @@ test('With confirmation=no, there will be no confirmation when clicking the butt
 
   const contextUI = new ContextUI();
   contextUI.setValue('values', ['test']);
-  context.set(contextUI);
+  vi.mocked(contextStore).context.set(contextUI);
 
   render(ListItemButtonIcon, {
     title,

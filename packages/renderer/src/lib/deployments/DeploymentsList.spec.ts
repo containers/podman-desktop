@@ -22,14 +22,23 @@ import '@testing-library/jest-dom/vitest';
 import { test, expect, vi, beforeEach, beforeAll } from 'vitest';
 import { render, screen, within } from '@testing-library/svelte';
 import DeploymentsList from './DeploymentsList.svelte';
-import { get } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import type { V1Deployment } from '@kubernetes/client-node';
 import { kubernetesCurrentContextDeployments } from '/@/stores/kubernetes-contexts-state';
+import * as contextStore from '/@/stores/context';
+import { ContextUI } from '../context/context';
 
 const kubernetesRegisterGetCurrentContextResourcesMock = vi.fn();
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 beforeAll(() => {
   (window as any).kubernetesRegisterGetCurrentContextResources = kubernetesRegisterGetCurrentContextResourcesMock;
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 beforeEach(() => {

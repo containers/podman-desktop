@@ -27,6 +27,8 @@ import IngressesRoutesList from './IngressesRoutesList.svelte';
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
 import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes-context-state';
+import * as contextStore from '/@/stores/context';
+import { ContextUI } from '../context/context';
 
 vi.mock('/@/stores/kubernetes-contexts-state', async () => {
   return {
@@ -44,11 +46,18 @@ vi.mock('/@/stores/kubernetes-contexts-state', async () => {
   };
 });
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 beforeEach(() => {
   vi.resetAllMocks();
   vi.clearAllMocks();
   (window as any).kubernetesGetContextsGeneralState = () => Promise.resolve(new Map());
   (window as any).kubernetesGetCurrentContextGeneralState = () => Promise.resolve({});
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 async function waitRender(customProperties: object): Promise<void> {

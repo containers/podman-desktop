@@ -21,12 +21,14 @@ import { test, expect, vi, beforeAll } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 
 import VolumeDetails from './VolumeDetails.svelte';
-import { get } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import { volumeListInfos } from '/@/stores/volumes';
 import type { VolumeListInfo } from '../../../../main/src/plugin/api/volume-info';
 
 import { router } from 'tinro';
 import { lastPage } from '/@/stores/breadcrumb';
+import * as contextStore from '/@/stores/context';
+import { ContextUI } from '../context/context';
 
 const listVolumesMock = vi.fn();
 const showMessageBoxMock = vi.fn();
@@ -53,10 +55,17 @@ const myVolume: VolumeListInfo = {
 
 const removeVolumeMock = vi.fn();
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 beforeAll(() => {
   (window as any).showMessageBox = showMessageBoxMock;
   (window as any).listVolumes = listVolumesMock;
   (window as any).removeVolume = removeVolumeMock;
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 test('Expect redirect to previous page if volume is deleted', async () => {

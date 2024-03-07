@@ -22,6 +22,9 @@ import { beforeAll, expect, test, vi } from 'vitest';
 import Loader from './Loader.svelte';
 import { render } from '@testing-library/svelte';
 import { router } from 'tinro';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
+import { ContextUI } from './lib/context/context';
 
 // first, patch window object
 const callbacks = new Map<string, any>();
@@ -43,6 +46,12 @@ vi.mock('tinro', () => {
   };
 });
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 Object.defineProperty(global, 'window', {
   value: {
     events: {
@@ -59,6 +68,7 @@ Object.defineProperty(global, 'window', {
 beforeAll(() => {
   vi.resetAllMocks();
   vi.clearAllMocks();
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 test('Loader should redirect to the installation page when receiving the event', async () => {

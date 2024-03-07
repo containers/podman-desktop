@@ -26,8 +26,9 @@ import { render, screen } from '@testing-library/svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import PreferencesRendering from './PreferencesRendering.svelte';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
 import { ContextUI } from '../context/context';
-import { context } from '/@/stores/context';
 
 async function waitRender(customProperties: any): Promise<void> {
   const result = render(PreferencesRendering, { ...customProperties });
@@ -37,9 +38,16 @@ async function waitRender(customProperties: any): Promise<void> {
   }
 }
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 beforeAll(() => {
   (window as any).getConfigurationValue = vi.fn().mockResolvedValue(true);
   (window as any).telemetryPage = vi.fn().mockResolvedValue(undefined);
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 const record: IConfigurationPropertyRecordedSchema = {
@@ -90,7 +98,7 @@ test('Expect extension title used a section name', async () => {
 
 test('Expect example when property to be missing if when statement is not satisfied from context', async () => {
   const contextConfig = new ContextUI();
-  context.set(contextConfig);
+  vi.mocked(contextStore).context.set(contextConfig);
   contextConfig.setValue('config.test', true);
   expect(contextConfig.getValue('config.test')).toBe(true);
 
@@ -114,7 +122,7 @@ test('Expect example when property to be missing if when statement is not satisf
 
 test('Expect example when property to show if when statement is satisfied from context', async () => {
   const contextConfig = new ContextUI();
-  context.set(contextConfig);
+  vi.mocked(contextStore).context.set(contextConfig);
   contextConfig.setValue('config.test', true);
   expect(contextConfig.getValue('config.test')).toBe(true);
 

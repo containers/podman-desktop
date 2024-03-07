@@ -22,15 +22,23 @@ import '@testing-library/jest-dom/vitest';
 import { beforeAll, test, expect, vi, beforeEach, describe } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import VolumesList from './VolumesList.svelte';
-import { get } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import { providerInfos } from '/@/stores/providers';
 import { volumeListInfos, volumesEventStore } from '/@/stores/volumes';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import userEvent from '@testing-library/user-event';
+import * as contextStore from '/@/stores/context';
+import { ContextUI } from '../context/context';
 
 const listVolumesMock = vi.fn();
 const getProviderInfosMock = vi.fn();
 const onDidUpdateProviderStatusMock = vi.fn();
+
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
 
 // fake the window.events object
 beforeAll(() => {
@@ -49,6 +57,7 @@ beforeAll(() => {
       func();
     },
   };
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 beforeEach(() => {

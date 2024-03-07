@@ -27,6 +27,8 @@ import { lastPage } from '/@/stores/breadcrumb';
 import type { V1Service, KubernetesObject } from '@kubernetes/client-node';
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
 import { writable } from 'svelte/store';
+import * as contextStore from '/@/stores/context';
+import { ContextUI } from '../context/context';
 
 const kubernetesDeleteServiceMock = vi.fn();
 
@@ -44,9 +46,16 @@ vi.mock('/@/stores/kubernetes-contexts-state', async () => {
   };
 });
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 beforeAll(() => {
   (window as any).kubernetesDeleteService = kubernetesDeleteServiceMock;
   (window as any).kubernetesReadNamespacedService = vi.fn();
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 test('Expect redirect to previous page if service is deleted', async () => {

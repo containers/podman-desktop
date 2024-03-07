@@ -23,9 +23,18 @@ import { render, screen } from '@testing-library/svelte';
 import type { PodInfoUI } from './PodInfoUI';
 import PodColumnActions from './PodColumnActions.svelte';
 import type { ContainerInfo, Port } from '@podman-desktop/api';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
+import { ContextUI } from '../context/context';
 
 const listContainersMock = vi.fn();
 const getContributedMenusMock = vi.fn();
+
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
 
 beforeEach(() => {
   (window as any).listContainers = listContainersMock;
@@ -35,6 +44,7 @@ beforeEach(() => {
 
   (window as any).getContributedMenus = getContributedMenusMock;
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 afterEach(() => {

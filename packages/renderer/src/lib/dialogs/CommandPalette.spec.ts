@@ -24,11 +24,19 @@ import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import CommandPalette from './CommandPalette.svelte';
 import { commandsInfos } from '/@/stores/commands';
-import { context } from '/@/stores/context';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
+import { ContextUI } from '../context/context';
 
 const receiveFunctionMock = vi.fn();
 
 const COMMAND_PALETTE_ARIA_LABEL = 'Command palette command input';
+
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
 
 const executeCommandMock = vi.fn();
 // mock some methods of the window object
@@ -41,6 +49,7 @@ beforeAll(() => {
   window.HTMLElement.prototype.scrollIntoView = vi.fn();
 
   (window as any).executeCommand = executeCommandMock;
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 beforeEach(() => {
@@ -348,7 +357,7 @@ describe('Command Palette', () => {
     ]);
 
     // set the context property
-    context.update(ctx => {
+    vi.mocked(contextStore).context.update(ctx => {
       ctx.setValue('myProperty', 'myValue');
       return ctx;
     });

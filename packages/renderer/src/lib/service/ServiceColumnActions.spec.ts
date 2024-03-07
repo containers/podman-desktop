@@ -17,11 +17,24 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
+import { test, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 
 import type { ServiceUI } from './ServiceUI';
 import ServiceColumnActions from './ServiceColumnActions.svelte';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
+import { ContextUI } from '../context/context';
+
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
+beforeEach(() => {
+  vi.mocked(contextStore).context = writable(new ContextUI());
+});
 
 test('Expect action buttons', async () => {
   const service: ServiceUI = {

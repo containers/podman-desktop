@@ -21,6 +21,9 @@ import { test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import DeploymentActions from './DeploymentActions.svelte';
 import type { DeploymentUI } from './DeploymentUI';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
+import { ContextUI } from '../context/context';
 
 const updateMock = vi.fn();
 const deleteMock = vi.fn();
@@ -35,8 +38,15 @@ const deployment: DeploymentUI = {
   conditions: [],
 };
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 beforeEach(() => {
   (window as any).kubernetesDeleteDeployment = deleteMock;
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 afterEach(() => {

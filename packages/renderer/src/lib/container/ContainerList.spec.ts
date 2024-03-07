@@ -23,9 +23,11 @@ import { beforeAll, test, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import ContainerList from './ContainerList.svelte';
 import { containersInfos } from '../../stores/containers';
-import { get } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import { providerInfos } from '../../stores/providers';
 import userEvent from '@testing-library/user-event';
+import * as contextStore from '/@/stores/context';
+import { ContextUI } from '../context/context';
 
 const listContainersMock = vi.fn();
 const getProviderInfosMock = vi.fn();
@@ -37,6 +39,12 @@ const removePodMock = vi.fn();
 const listPodsMock = vi.fn();
 
 const kubernetesListPodsMock = vi.fn();
+
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
 
 // fake the window.events object
 beforeAll(() => {
@@ -61,6 +69,7 @@ beforeAll(() => {
       func();
     },
   };
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 async function waitRender(customProperties: object): Promise<void> {

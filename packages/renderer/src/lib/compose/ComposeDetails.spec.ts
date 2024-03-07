@@ -6,7 +6,9 @@ import { mockBreadcrumb } from '../../stores/breadcrumb.spec';
 import type { ContainerInspectInfo } from '@podman-desktop/api';
 import { containersInfos } from '../../stores/containers';
 import { providerInfos } from '../../stores/providers';
-import { get } from 'svelte/store';
+import { get, writable } from 'svelte/store';
+import * as contextStore from '/@/stores/context';
+import { ContextUI } from '../context/context';
 
 const listContainersMock = vi.fn();
 const getProviderInfosMock = vi.fn();
@@ -15,6 +17,12 @@ const getContributedMenusMock = vi.fn();
 vi.mock('xterm', () => {
   return {
     Terminal: vi.fn().mockReturnValue({ loadAddon: vi.fn(), open: vi.fn(), write: vi.fn(), clear: vi.fn() }),
+  };
+});
+
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
   };
 });
 
@@ -45,6 +53,7 @@ beforeAll(() => {
   (window as any).getContributedMenus = getContributedMenusMock;
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
   mockBreadcrumb();
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 async function waitRender(name: string, engineId: string): Promise<void> {

@@ -17,12 +17,25 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
+import { test, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 
 import IngressRouteColumnActions from './IngressRouteColumnActions.svelte';
 import type { IngressUI } from './IngressUI';
 import type { RouteUI } from './RouteUI';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
+import { ContextUI } from '../context/context';
+
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
+beforeEach(() => {
+  vi.mocked(contextStore).context = writable(new ContextUI());
+});
 
 test('Expect action buttons with ingress object', async () => {
   const ingressUI: IngressUI = {

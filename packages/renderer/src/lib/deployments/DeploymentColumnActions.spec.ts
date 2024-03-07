@@ -17,11 +17,24 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
+import { test, expect, beforeAll, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 
 import type { DeploymentUI } from './DeploymentUI';
 import DeploymentColumnActions from './DeploymentColumnActions.svelte';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
+import { ContextUI } from '../context/context';
+
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
+beforeAll(() => {
+  vi.mocked(contextStore).context = writable(new ContextUI());
+});
 
 test('Expect action buttons', async () => {
   const deployment: DeploymentUI = {

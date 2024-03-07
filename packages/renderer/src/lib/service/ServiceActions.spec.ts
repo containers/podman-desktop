@@ -21,6 +21,9 @@ import { test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import ServiceActions from './ServiceActions.svelte';
 import type { ServiceUI } from './ServiceUI';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
+import { ContextUI } from '../context/context';
 
 const updateMock = vi.fn();
 const deleteMock = vi.fn();
@@ -36,9 +39,16 @@ const service: ServiceUI = {
   ports: '',
 };
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 beforeEach(() => {
   (window as any).showMessageBox = showMessageBoxMock;
   (window as any).kubernetesDeleteService = deleteMock;
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 afterEach(() => {

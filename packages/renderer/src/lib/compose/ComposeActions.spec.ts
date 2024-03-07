@@ -22,6 +22,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import ComposeActions from './ComposeActions.svelte';
 import type { ComposeInfoUI } from './ComposeInfoUI';
 import type { ContainerInfoUI } from '../container/ContainerInfoUI';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
+import { ContextUI } from '../context/context';
 
 const compose: ComposeInfoUI = {
   engineId: 'podman',
@@ -43,6 +46,12 @@ const getContributedMenusMock = vi.fn();
 const updateMock = vi.fn();
 const showMessageBoxMock = vi.fn();
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 beforeEach(() => {
   (window as any).showMessageBox = showMessageBoxMock;
   (window as any).startContainersByLabel = vi.fn();
@@ -52,6 +61,7 @@ beforeEach(() => {
 
   (window as any).getContributedMenus = getContributedMenusMock;
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 afterEach(() => {

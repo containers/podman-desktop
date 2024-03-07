@@ -21,13 +21,23 @@ import { test, expect, vi, beforeAll } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/svelte';
 import VolumeActions from './VolumeActions.svelte';
 import type { VolumeInfoUI } from './VolumeInfoUI';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
+import { ContextUI } from '../context/context';
 
 const showMessageBoxMock = vi.fn();
 const removeVolumeMock = vi.fn();
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 beforeAll(() => {
   (window as any).showMessageBox = showMessageBoxMock;
   (window as any).removeVolume = removeVolumeMock;
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 test('Expect prompt dialog and deletion', async () => {

@@ -21,6 +21,9 @@ import { test, expect, vi, beforeAll } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/svelte';
 import ImageActions from '/@/lib/image/ImageActions.svelte';
 import type { ImageInfoUI } from '/@/lib/image/ImageInfoUI';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
+import { ContextUI } from '../context/context';
 
 const showMessageBoxMock = vi.fn();
 const getContributedMenusMock = vi.fn();
@@ -33,12 +36,19 @@ vi.mock('./image-utils', () => {
   };
 });
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 beforeAll(() => {
   (window as any).showMessageBox = showMessageBoxMock;
 
   (window as any).getContributedMenus = getContributedMenusMock;
   (window as any).hasAuthconfigForImage = vi.fn();
   (window as any).hasAuthconfigForImage.mockImplementation(() => Promise.resolve(false));
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 const fakedImage: ImageInfoUI = {

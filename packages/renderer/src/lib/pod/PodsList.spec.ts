@@ -23,12 +23,14 @@ import { beforeAll, test, expect, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import PodsList from '/@/lib/pod/PodsList.svelte';
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import { get } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import { providerInfos } from '/@/stores/providers';
 import { filtered, podsInfos } from '/@/stores/pods';
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
 import { router } from 'tinro';
 import userEvent from '@testing-library/user-event';
+import * as contextStore from '/@/stores/context';
+import { ContextUI } from '../context/context';
 
 const getProvidersInfoMock = vi.fn();
 const listPodsMock = vi.fn();
@@ -260,6 +262,12 @@ const ocppod: PodInfo = {
   kind: 'kubernetes',
 };
 
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
 // fake the window.events object
 beforeAll(() => {
   (window as any).kubernetesGetContextsGeneralState = () => Promise.resolve(new Map());
@@ -278,6 +286,7 @@ beforeAll(() => {
 
   (window as any).getContributedMenus = getContributedMenusMock;
   getContributedMenusMock.mockImplementation(() => Promise.resolve([]));
+  vi.mocked(contextStore).context = writable(new ContextUI());
 });
 
 async function waitRender(customProperties: object): Promise<void> {

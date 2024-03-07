@@ -16,13 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
+import { test, expect, vi, beforeAll } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import Onboarding from './Onboarding.svelte';
 import { ContextUI } from '../context/context';
 import { onboardingList } from '/@/stores/onboarding';
-import { context } from '/@/stores/context';
 import userEvent from '@testing-library/user-event';
+import * as contextStore from '/@/stores/context';
+import { writable } from 'svelte/store';
 
 async function waitRender(customProperties: object): Promise<void> {
   const result = render(Onboarding, { ...customProperties });
@@ -36,6 +37,16 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
 }));
+
+vi.mock('/@/stores/context', async () => {
+  return {
+    context: vi.fn(),
+  };
+});
+
+beforeAll(() => {
+  vi.mocked(contextStore).context = writable(new ContextUI());
+});
 
 test('Expect to have the "Try again" and Cancel buttons if the step represent a failed state', async () => {
   (window as any).resetOnboarding = vi.fn();
@@ -56,7 +67,7 @@ test('Expect to have the "Try again" and Cancel buttons if the step represent a 
       enablement: 'true',
     },
   ]);
-  context.set(new ContextUI());
+  vi.mocked(contextStore).context.set(new ContextUI());
   await waitRender({
     extensionIds: ['id'],
   });
@@ -87,7 +98,7 @@ test('Expect not to have the "Try again" and "Cancel" buttons if the step repres
       enablement: 'true',
     },
   ]);
-  context.set(new ContextUI());
+  vi.mocked(contextStore).context.set(new ContextUI());
   await waitRender({
     extensionIds: ['id'],
   });
@@ -118,7 +129,7 @@ test('Expect to have the "Step Body" div if the step does not include a componen
       enablement: 'true',
     },
   ]);
-  context.set(new ContextUI());
+  vi.mocked(contextStore).context.set(new ContextUI());
   await waitRender({
     extensionIds: ['id'],
   });
@@ -148,7 +159,7 @@ test('Expect to have the embedded component if the step includes a component', a
       enablement: 'true',
     },
   ]);
-  context.set(new ContextUI());
+  vi.mocked(contextStore).context.set(new ContextUI());
   await waitRender({
     extensionIds: ['id'],
   });
@@ -186,7 +197,7 @@ test('Expect content to show / render when when clause is true', async () => {
       enablement: 'true',
     },
   ]);
-  context.set(new ContextUI());
+  vi.mocked(contextStore).context.set(new ContextUI());
   await waitRender({
     extensionIds: ['id'],
   });
@@ -222,7 +233,7 @@ test('Expect content to NOT show / render when when clause is false', async () =
       enablement: 'true',
     },
   ]);
-  context.set(new ContextUI());
+  vi.mocked(contextStore).context.set(new ContextUI());
   await waitRender({
     extensionIds: ['id'],
   });
@@ -235,7 +246,7 @@ test('Expect content with "when" to change dynamically when setting has been upd
   (window as any).updateStepState = vi.fn();
 
   const contextConfig = new ContextUI();
-  context.set(contextConfig);
+  vi.mocked(contextStore).context.set(contextConfig);
   contextConfig.setValue('config.test', false);
 
   onboardingList.set([
@@ -285,7 +296,7 @@ test('Expect Step Body to clean up if new step has no content to display.', asyn
   (window as any).updateStepState = vi.fn();
 
   const contextConfig = new ContextUI();
-  context.set(contextConfig);
+  vi.mocked(contextStore).context.set(contextConfig);
   contextConfig.setValue('config.test', false);
 
   onboardingList.set([
@@ -342,7 +353,7 @@ test('Expect that Esc closes', async () => {
   (window as any).updateStepState = vi.fn();
 
   const contextConfig = new ContextUI();
-  context.set(contextConfig);
+  vi.mocked(contextStore).context.set(contextConfig);
   contextConfig.setValue('config.test', false);
 
   onboardingList.set([
