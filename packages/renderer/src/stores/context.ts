@@ -20,20 +20,33 @@ import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 import { ContextUI } from '../lib/context/context';
 
-export const context: Writable<ContextUI> = writable(new ContextUI());
+async function getCurrentContext(): Promise<ContextUI> {
+  return Object.entries(await window.contextCollectAllValues()).reduce((result, [key, value]) => {
+    result.setValue(key, value);
+    return result;
+  }, new ContextUI());
+}
 
-window.events?.receive('context-value-updated', (value: unknown) => {
-  const typedValue = value as { key: string; value: string };
-  context.update(ctx => {
-    ctx.setValue(typedValue.key, typedValue.value);
-    return ctx;
+export const context: Writable<ContextUI> = writable(new ContextUI(), (set, update) => {
+  getCurrentContext()
+    .then(value => {
+      set(value);
+    })
+    .catch((err: unknown) => console.error('error getting context', err));
+
+  window.events?.receive('context-value-updated', (value: unknown) => {
+    const typedValue = value as { key: string; value: string };
+    update(ctx => {
+      ctx.setValue(typedValue.key, typedValue.value);
+      return ctx;
+    });
   });
-});
 
-window.events?.receive('context-key-removed', (value: unknown) => {
-  const typedValue = value as { key: string; value: string };
-  context.update(ctx => {
-    ctx.removeValue(typedValue.key);
-    return ctx;
+  window.events?.receive('context-key-removed', (value: unknown) => {
+    const typedValue = value as { key: string; value: string };
+    update(ctx => {
+      ctx.removeValue(typedValue.key);
+      return ctx;
+    });
   });
 });

@@ -1979,6 +1979,10 @@ export function initExposure(): void {
   contextBridge.exposeInMainWorld('listGuides', async (): Promise<Guide[]> => {
     return ipcInvoke('learning-center:listGuides');
   });
+
+  contextBridge.exposeInMainWorld('contextCollectAllValues', async (): Promise<Record<string, unknown>> => {
+    return ipcInvoke('context:collectAllValues');
+  });
 }
 
 // expose methods
