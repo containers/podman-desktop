@@ -28,7 +28,8 @@ $: selectedItemsNumber = row.info.selectable
 
 // do we need to unselect all checkboxes if we don't have all items being selected ?
 $: selectedAllCheckboxes = row.info.selectable
-  ? data.filter(object => row.info.selectable?.(object)).every(object => object.selected)
+  ? data.filter(object => row.info.selectable?.(object)).every(object => object.selected) &&
+    data.filter(object => row.info.selectable?.(object)).length > 0
   : false;
 
 function toggleAll(checked: boolean) {
@@ -130,10 +131,11 @@ function setGridColumns() {
       role="row">
       <div class="whitespace-nowrap justify-self-start" role="columnheader"></div>
       {#if row.info.selectable}
-        <div class="whitespace-nowrap place-self-center" role="columnheader">
+        <div class="whitespace-nowrap place-self-center text-base" role="columnheader">
           <Checkbox
             title="Toggle all"
             bind:checked="{selectedAllCheckboxes}"
+            disabled="{!row.info.selectable || data.filter(object => row.info.selectable?.(object)).length === 0}"
             indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
             on:click="{event => toggleAll(event.detail)}" />
         </div>

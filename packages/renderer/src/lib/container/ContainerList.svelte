@@ -472,7 +472,7 @@ function setStoppedFilter() {
       <thead class="sticky top-0 bg-charcoal-700 z-[2]">
         <tr class="h-7 uppercase text-xs text-gray-600">
           <th class="whitespace-nowrap w-5"></th>
-          <th class="px-2 w-5">
+          <th class="px-2 w-5 text-base">
             <Checkbox
               title="Toggle all"
               bind:checked="{selectedAllCheckboxes}"
