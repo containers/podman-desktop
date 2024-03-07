@@ -54,7 +54,7 @@ function onWindowClick(e: any) {
       bind:this="{outsideWindow}"
       class="text-gray-400 {shownAsMenuActionItem
         ? 'bg-charcoal-800 px-3'
-        : 'hover:bg-charcoal-800 mr-2'} hover:text-purple-400 font-medium rounded-md inline-flex items-center px-2 py-2 text-center">
+        : 'hover:bg-charcoal-800'} hover:text-purple-400 font-medium rounded-md inline-flex items-center px-2 py-2 text-center">
       <Fa class="h-4 w-4" icon="{icon}" />
     </button>
 
