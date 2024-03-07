@@ -1368,7 +1368,15 @@ export class KubernetesClient {
     return this.contextsState.getCurrentContextGeneralState();
   }
 
-  public getCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
-    return this.contextsState.getCurrentContextResources(resourceName);
+  public registerGetCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
+    return this.contextsState.registerGetCurrentContextResources(resourceName);
+  }
+
+  public unregisterGetCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
+    return this.contextsState.unregisterGetCurrentContextResources(resourceName);
+  }
+
+  public dispose(): void {
+    this.contextsState.dispose();
   }
 }

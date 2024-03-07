@@ -1088,3 +1088,29 @@ test('checkDisguisedPodmanSocket: runs updateWarnings when called not on Linux',
   await checkDisguisedPodmanSocket(provider);
   expect(updateWarningsMock).toBeCalled();
 });
+
+test('Even with getJSONMachineList erroring, do not show setup notification on Linux', async () => {
+  vi.mocked(isLinux).mockReturnValue(true);
+  vi.spyOn(extensionApi.process, 'exec').mockRejectedValue({
+    name: 'name',
+    message: 'description',
+    stderr: 'error',
+  });
+  await expect(extension.updateMachines(provider)).rejects.toThrow('description');
+  expect(extensionApi.window.showNotification).not.toBeCalled();
+});
+
+test('If machine list is empty, do not show setup notification on Linux', async () => {
+  vi.mocked(isLinux).mockReturnValue(true);
+  const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
+  spyExecPromise.mockResolvedValue({ stdout: '[]' } as extensionApi.RunResult);
+  await extension.updateMachines(provider);
+  expect(extensionApi.window.showNotification).not.toBeCalled();
+});
+
+test('if there are no machines, make sure checkDefaultMachine is not being ran inside updateMachines', async () => {
+  const spyCheckDefaultMachine = vi.spyOn(extension, 'checkDefaultMachine');
+  vi.spyOn(extensionApi.process, 'exec').mockResolvedValue({ stdout: '[]' } as extensionApi.RunResult);
+  await extension.updateMachines(provider);
+  expect(spyCheckDefaultMachine).not.toBeCalled();
+});

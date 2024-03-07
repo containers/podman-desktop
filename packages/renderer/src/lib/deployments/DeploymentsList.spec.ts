@@ -26,10 +26,10 @@ import { get } from 'svelte/store';
 import type { V1Deployment } from '@kubernetes/client-node';
 import { kubernetesCurrentContextDeployments } from '/@/stores/kubernetes-contexts-state';
 
-const kubernetesGetCurrentContextResourcesMock = vi.fn();
+const kubernetesRegisterGetCurrentContextResourcesMock = vi.fn();
 
 beforeAll(() => {
-  (window as any).kubernetesGetCurrentContextResources = kubernetesGetCurrentContextResourcesMock;
+  (window as any).kubernetesRegisterGetCurrentContextResources = kubernetesRegisterGetCurrentContextResourcesMock;
 });
 
 beforeEach(() => {
@@ -48,7 +48,7 @@ async function waitRender(customProperties: object): Promise<void> {
 }
 
 test('Expect deployment empty screen', async () => {
-  kubernetesGetCurrentContextResourcesMock.mockResolvedValue([]);
+  kubernetesRegisterGetCurrentContextResourcesMock.mockResolvedValue([]);
   render(DeploymentsList);
   const noDeployments = screen.getByRole('heading', { name: 'No deployments' });
   expect(noDeployments).toBeInTheDocument();
@@ -68,7 +68,7 @@ test('Expect deployments list', async () => {
       template: {},
     },
   };
-  kubernetesGetCurrentContextResourcesMock.mockResolvedValue([deployment]);
+  kubernetesRegisterGetCurrentContextResourcesMock.mockResolvedValue([deployment]);
 
   // wait while store is populated
   while (get(kubernetesCurrentContextDeployments).length === 0) {
@@ -97,7 +97,7 @@ test('Expect correct column overflow', async () => {
       template: {},
     },
   };
-  kubernetesGetCurrentContextResourcesMock.mockResolvedValue([deployment]);
+  kubernetesRegisterGetCurrentContextResourcesMock.mockResolvedValue([deployment]);
 
   // wait while store is populated
   while (get(kubernetesCurrentContextDeployments).length === 0) {
@@ -138,7 +138,7 @@ test('Expect filter empty screen', async () => {
     },
   };
 
-  kubernetesGetCurrentContextResourcesMock.mockResolvedValue([deployment]);
+  kubernetesRegisterGetCurrentContextResourcesMock.mockResolvedValue([deployment]);
 
   // wait while store is populated
   while (get(kubernetesCurrentContextDeployments).length === 0) {

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -659,6 +659,53 @@ test('getManifestFromUrl returns the expected manifest without mediaType but wit
   expect(manifest).toBeDefined();
   expect(manifest).toHaveProperty('endManifest', true);
   expect(spyGetBestManifest).toHaveBeenCalled();
+});
+
+test('getManifestFromUrl returns the expected manifest with docker manifest v2', async () => {
+  const fakeManifest = {
+    schemaVersion: 2,
+    mediaType: 'application/vnd.docker.distribution.manifest.list.v2+json',
+    manifests: [
+      {
+        name: 'docker-manifest',
+        mediaType: 'application/vnd.docker.distribution.manifest.v2+json',
+      },
+      {
+        name: 'unknown-manifest',
+        mediaType: 'unknown',
+      },
+    ],
+  };
+
+  // image index
+  nock('https://my-podman-desktop-fake-registry.io').get('/v2/foo/bar/manifests/latest').reply(200, fakeManifest);
+
+  // digest
+  nock('https://my-podman-desktop-fake-registry.io')
+    .get('/v2/foo/bar/manifests/1234')
+    .reply(200, JSON.stringify({ endManifest: true }));
+
+  // mock getBestManifest
+  const spyGetBestManifest = vi.spyOn(imageRegistry, 'getBestManifest');
+  spyGetBestManifest.mockReturnValue({
+    digest: 1234,
+  });
+
+  const manifest = await imageRegistry.getManifest(
+    {
+      name: 'foo/bar',
+      tag: 'latest',
+      registry: 'my-podman-desktop-fake-registry.io',
+      registryURL: 'https://my-podman-desktop-fake-registry.io/v2',
+    },
+    'dummyToken',
+  );
+
+  expect(manifest).toBeDefined();
+  expect(manifest).toHaveProperty('endManifest', true);
+  expect(spyGetBestManifest).toHaveBeenCalled();
+  // check first item of the call and first element of the array
+  expect(spyGetBestManifest.mock.calls[0][0][0]).contains({ name: 'docker-manifest' });
 });
 
 test('getAuthconfigForServer returns the expected authconfig', async () => {

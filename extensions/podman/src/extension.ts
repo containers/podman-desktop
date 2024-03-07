@@ -125,7 +125,9 @@ export async function updateMachines(provider: extensionApi.Provider): Promise<v
   try {
     machineListOutput = await getJSONMachineList();
   } catch (error) {
-    if (shouldNotifySetup) {
+    // Only on macOS and Windows should we show the setup notification
+    // if for some reason doing getJSONMachineList fails..
+    if (shouldNotifySetup && !isLinux()) {
       // push setup notification
       notificationDisposable = extensionApi.window.showNotification(setupPodmanNotification);
       shouldNotifySetup = false;
@@ -136,7 +138,10 @@ export async function updateMachines(provider: extensionApi.Provider): Promise<v
   // parse output
   const machines = JSON.parse(machineListOutput) as MachineJSON[];
   extensionApi.context.setValue('podmanMachineExists', machines.length > 0, 'onboarding');
-  if (shouldNotifySetup && machines.length === 0) {
+
+  // Only show the notification on macOS and Windows
+  // as Podman is already installed on Linux and machine is OPTIONAL.
+  if (shouldNotifySetup && machines.length === 0 && !isLinux()) {
     // push setup notification
     notificationDisposable = extensionApi.window.showNotification(setupPodmanNotification);
     shouldNotifySetup = false;
@@ -260,29 +265,35 @@ export async function updateMachines(provider: extensionApi.Provider): Promise<v
     }
   });
 
-  // no machine, it's installed
-  if (machines.length === 0) {
+  // If the machine length is zero and we are on macOS or Windows,
+  // we will update the provider as being 'installed', or ready / starting / configured if there is a machine
+  // if we are on Linux, ignore this as podman machine is OPTIONAL and the provider status in Linux is based upon
+  // the native podman installation / not machine.
+  if (!isLinux() && machines.length === 0) {
     if (provider.status !== 'configuring') {
       provider.updateStatus('installed');
-    }
-  } else {
-    const atLeastOneMachineRunning = machines.some(machine => machine.Running);
-    const atLeastOneMachineStarting = machines.some(machine => machine.Starting);
-    // if a machine is running it's started else it is ready
-    if (atLeastOneMachineRunning) {
-      provider.updateStatus('ready');
-    } else if (atLeastOneMachineStarting) {
-      // update to starting
-      provider.updateStatus('starting');
     } else {
-      // needs to start a machine
-      provider.updateStatus('configured');
+      const atLeastOneMachineRunning = machines.some(machine => machine.Running);
+      const atLeastOneMachineStarting = machines.some(machine => machine.Starting);
+      // if a machine is running it's started else it is ready
+      if (atLeastOneMachineRunning) {
+        provider.updateStatus('ready');
+      } else if (atLeastOneMachineStarting) {
+        // update to starting
+        provider.updateStatus('starting');
+      } else {
+        // needs to start a machine
+        provider.updateStatus('configured');
+      }
     }
   }
 
   // Finally, we check to see if the machine that is running is set by default or not on the CLI
   // this will create a dialog that will ask the user if they wish to set the running machine as default.
-  await checkDefaultMachine(machines);
+  // this should only run if we have multiple machines
+  if (machines.length > 1) {
+    await checkDefaultMachine(machines);
+  }
 }
 
 export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void> {

@@ -1578,9 +1578,15 @@ export function initExposure(): void {
     return ipcInvoke('kubernetes-client:getCurrentContextGeneralState');
   });
   contextBridge.exposeInMainWorld(
-    'kubernetesGetCurrentContextResources',
+    'kubernetesRegisterGetCurrentContextResources',
     async (resourceName: ResourceName): Promise<KubernetesObject[]> => {
-      return ipcInvoke('kubernetes-client:getCurrentContextResources', resourceName);
+      return ipcInvoke('kubernetes-client:registerGetCurrentContextResources', resourceName);
+    },
+  );
+  contextBridge.exposeInMainWorld(
+    'kubernetesUnregisterGetCurrentContextResources',
+    async (resourceName: ResourceName): Promise<KubernetesObject[]> => {
+      return ipcInvoke('kubernetes-client:unregisterGetCurrentContextResources', resourceName);
     },
   );
 
