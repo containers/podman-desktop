@@ -63,6 +63,7 @@ import { getBase64Image } from '../util.js';
 import { Disposable } from './types/disposable.js';
 import type { ColorRegistry } from './color-registry.js';
 import type { DialogRegistry } from './dialog-registry.js';
+import { readFile } from 'node:fs/promises';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {
@@ -394,6 +395,7 @@ test('Verify extension error leads to failed state', async () => {
       removable: false,
       manifest: {},
       subscriptions: [],
+      readme: '',
       dispose: vi.fn(),
     },
     {
@@ -425,6 +427,7 @@ test('Verify extension activate with a long timeout is flagged as error', async 
       removable: false,
       manifest: {},
       subscriptions: [],
+      readme: '',
       dispose: vi.fn(),
     },
     {
@@ -759,12 +762,22 @@ describe('check loadRuntime', async () => {
 });
 
 describe('analyze extension and main', async () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
   test('check for extension with main entry', async () => {
     vi.mock('node:fs');
+    vi.mock('node:fs/promises');
 
     // mock fs.existsSync
     const fsExistsSyncMock = vi.spyOn(fs, 'existsSync');
     fsExistsSyncMock.mockReturnValue(true);
+
+    const readmeContent = 'This is my custom README';
+
+    // mock readFile
+    vi.mocked(readFile).mockResolvedValue(readmeContent);
 
     const fakeManifest = {
       publisher: 'fooPublisher',
@@ -781,6 +794,7 @@ describe('analyze extension and main', async () => {
     expect(extension).toBeDefined();
     expect(extension?.error).toBeDefined();
     expect(extension?.mainPath).toBe(path.resolve('/', 'fake', 'path', 'main-entry.js'));
+    expect(extension.readme).toBe(readmeContent);
     expect(extension?.id).toBe('fooPublisher.fooName');
   });
 
@@ -790,6 +804,8 @@ describe('analyze extension and main', async () => {
     // mock fs.existsSync
     const fsExistsSyncMock = vi.spyOn(fs, 'existsSync');
     fsExistsSyncMock.mockReturnValue(true);
+
+    vi.mocked(readFile).mockResolvedValue('empty');
 
     const fakeManifest = {
       publisher: 'fooPublisher',
@@ -893,6 +909,7 @@ test('Verify extension uri', async () => {
       removable: false,
       manifest: {},
       subscriptions: [],
+      readme: '',
       dispose: vi.fn(),
     },
     { activate: activateMethod },

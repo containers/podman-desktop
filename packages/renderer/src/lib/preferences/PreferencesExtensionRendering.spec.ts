@@ -47,6 +47,7 @@ function setup(state: string): string {
     description: 'An extension for testing',
     path: '/test',
     publisher: 'podman-desktop',
+    readme: '',
     removable: true,
   };
 

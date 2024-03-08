@@ -35,6 +35,7 @@ test('Expect started icon', async () => {
     removable: false,
     version: '',
     state: 'started',
+    readme: '',
     path: '',
     icon: 'my-icon',
   };
@@ -54,6 +55,7 @@ test('Expect faded icon for other states', async () => {
     publisher: '',
     removable: false,
     version: '',
+    readme: '',
     state: 'stopped',
     path: '',
     icon: 'my-icon',
@@ -74,6 +76,7 @@ test('Expect puzzle for missing icon', async () => {
     publisher: '',
     removable: false,
     version: '',
+    readme: '',
     state: 'started',
     path: '',
     // no icon

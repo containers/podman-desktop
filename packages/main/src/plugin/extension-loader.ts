@@ -18,7 +18,7 @@
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import * as path from 'path';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import type { CommandRegistry } from './command-registry.js';
 import type { ExtensionError, ExtensionInfo, ExtensionUpdateInfo } from './api/extension-info.js';
 import AdmZip from 'adm-zip';
@@ -75,6 +75,7 @@ import type { ImageInspectInfo } from '/@/plugin/api/image-inspect-info.js';
 import type { PodInfo } from './api/pod-info.js';
 import type { ColorRegistry } from '/@/plugin/color-registry.js';
 import type { DialogRegistry } from './dialog-registry.js';
+import { readFile } from 'fs/promises';
 
 /**
  * Handle the loading of an extension
@@ -91,6 +92,8 @@ export interface AnalyzedExtension {
   mainPath?: string;
   api: typeof containerDesktopAPI;
   removable: boolean;
+
+  readme: string;
 
   update?: {
     version: string;
@@ -206,6 +209,7 @@ export class ExtensionLoader {
       path: extension.path,
       removable: extension.removable,
       update: extension.update,
+      readme: extension.readme,
       icon: extension.manifest.icon ? this.updateImage(extension.manifest.icon, extension.path) : undefined,
     }));
   }
@@ -351,6 +355,7 @@ export class ExtensionLoader {
         name: '<unknown>',
         path: extensionPath,
         manifest: undefined,
+        readme: '',
         api: <typeof containerDesktopAPI>{},
         removable,
         subscriptions: [],
@@ -371,12 +376,20 @@ export class ExtensionLoader {
     const api = this.createApi(extensionPath, manifest);
 
     const disposables: Disposable[] = [];
+
+    // is there a README.md file in the extension folder ?
+    let readme = '';
+    if (fs.existsSync(path.resolve(extensionPath, 'README.md'))) {
+      readme = await readFile(path.resolve(extensionPath, 'README.md'), 'utf8');
+    }
+
     const analyzedExtension: AnalyzedExtension = {
       id: `${manifest.publisher}.${manifest.name}`,
       name: manifest.name,
       manifest,
       path: extensionPath,
       mainPath: manifest.main ? path.resolve(extensionPath, manifest.main) : undefined,
+      readme,
       api,
       removable,
       subscriptions: disposables,
