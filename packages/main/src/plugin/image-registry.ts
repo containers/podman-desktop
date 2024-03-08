@@ -622,6 +622,7 @@ export class ImageRegistry {
     if (
       parsedManifest.schemaVersion === 2 &&
       (parsedManifest.mediaType === 'application/vnd.oci.image.index.v1+json' ||
+        parsedManifest.mediaType === 'application/vnd.docker.distribution.manifest.list.v2+json' ||
         Array.isArray(parsedManifest.manifests))
     ) {
       // need to grab correct manifest from the index corresponding to our platform
@@ -642,8 +643,12 @@ export class ImageRegistry {
       }
       // find the manifest corresponding to our platform
       const matchedManifest = this.getBestManifest(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        parsedManifest.manifests.filter((m: any) => m.mediaType === 'application/vnd.oci.image.manifest.v1+json'),
+        parsedManifest.manifests.filter(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (m: any) =>
+            m.mediaType === 'application/vnd.oci.image.manifest.v1+json' ||
+            m.mediaType === 'application/vnd.docker.distribution.manifest.v2+json',
+        ),
         platformArch,
         platformOs,
       );

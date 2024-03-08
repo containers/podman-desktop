@@ -45,7 +45,7 @@
         {
           "id": "welcomeDownloadView",
           "label": "kubectl Download",
-          "title": "kubectl Download",
+          "title": "kubectl download",
           "when": "!kubectl.isKubectlInstalledSystemWide && onboardingContext:kubectlIsNotDownloaded",
           "content": [
             [
@@ -73,13 +73,13 @@
         },
         {
           "id": "downloadFailure",
-          "title": "Failed Downloading kubectl",
+          "title": "Failed downloading kubectl",
           "when": "!kubectl.isKubectlInstalledSystemWide && onboardingContext:kubectlIsNotDownloaded",
           "state": "failed"
         },
         {
           "id": "downloadSuccessfulView",
-          "title": "kubectl Successfully Downloaded",
+          "title": "kubectl successfully downloaded",
           "when": "!kubectl.isKubectlInstalledSystemWide && !onboardingContext:kubectlIsNotDownloaded",
           "content": [
             [
@@ -101,21 +101,16 @@
         },
         {
           "id": "installSystemWideFailure",
-          "title": "Failed Installing kubectl",
+          "title": "Failed installing kubectl",
           "when": "!kubectl.isKubectlInstalledSystemWide && !kubectl.isKubectlInstalledSystemWide",
           "state": "failed"
         },
         {
           "id": "installSystemWideSuccess",
-          "title": "kubectl Successfully Installed",
+          "title": "kubectl installed",
           "when": "kubectl.isKubectlInstalledSystemWide",
           "state": "completed",
           "content": [
-            [
-              {
-                "value": "kubectl has been successfully installed system-wide!"
-              }
-            ],
             [
               {
                 "value": "#### How to use kubectl \nRun `kubectl help` in the terminal for a list of commands to interact with your Kubernetes cluster. For example, try the 'Deploy to Kubernetes' button within Podman Desktop and view your pods with `kubectl`:\n\n`$ kubectl get pods`",
@@ -159,7 +154,7 @@
     "byline": "^5.0.0",
     "copyfiles": "^2.4.1",
     "mkdirp": "^3.0.1",
-    "vite": "^5.1.4",
+    "vite": "^5.1.5",
     "vitest": "^1.3.1"
   }
 }

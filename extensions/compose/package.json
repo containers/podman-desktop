@@ -45,7 +45,7 @@
         {
           "id": "welcomeDownloadView",
           "label": "Compose Download",
-          "title": "Compose Download",
+          "title": "Compose download",
           "when": "!compose.isComposeInstalledSystemWide && onboardingContext:composeIsNotDownloaded",
           "content": [
             [
@@ -79,13 +79,13 @@
         },
         {
           "id": "downloadFailure",
-          "title": "Failed Downloading Compose",
+          "title": "Failed downloading Compose",
           "when": "!compose.isComposeInstalledSystemWide && onboardingContext:composeIsNotDownloaded",
           "state": "failed"
         },
         {
           "id": "downloadSuccessfulView",
-          "title": "Compose Successfully Downloaded",
+          "title": "Compose successfully Downloaded",
           "when": "!compose.isComposeInstalledSystemWide && !onboardingContext:composeIsNotDownloaded",
           "content": [
             [
@@ -107,21 +107,16 @@
         },
         {
           "id": "installSystemWideFailure",
-          "title": "Failed Installing Compose",
+          "title": "Failed installing Compose",
           "when": "!compose.isComposeInstalledSystemWide && !compose.isComposeInstalledSystemWide",
           "state": "failed"
         },
         {
           "id": "installSystemWideSuccess",
-          "title": "Compose Installed",
+          "title": "Compose installed",
           "when": "compose.isComposeInstalledSystemWide",
           "state": "completed",
           "content": [
-            [
-              {
-                "value": "Compose is installed system-wide!"
-              }
-            ],
             [
               {
                 "value": "#### How to use Compose\nRun `podman compose up` (podman CLI v4.7.0+) or `docker-compose` in a directory with a `compose.yaml`. Podman Desktop will automatically detect the Compose deployment and show it in the container list.'\n\n`$ podman compose up`",
@@ -163,7 +158,7 @@
     "adm-zip": "^0.5.10",
     "@podman-desktop/api": "^0.0.1",
     "mkdirp": "^3.0.1",
-    "vite": "^5.1.4",
+    "vite": "^5.1.5",
     "vitest": "^1.3.1"
   }
 }

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,15 @@ import { beforeAll, test, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import AppNavigation from './AppNavigation.svelte';
 import type { TinroRouteMeta } from 'tinro';
+import { readable } from 'svelte/store';
+import type { KubernetesObject } from '@kubernetes/client-node';
+import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
 
 const eventsMock = vi.fn();
+
+vi.mock('/@/stores/kubernetes-contexts-state', async () => {
+  return {};
+});
 
 // fake the window object
 beforeAll(() => {
@@ -33,6 +40,12 @@ test('Test rendering of the navigation bar with empty items', () => {
   const meta = {
     url: '/',
   } as unknown as TinroRouteMeta;
+
+  // mock no kubernetes resources
+  vi.mocked(kubeContextStore).kubernetesCurrentContextDeployments = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextServices = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextIngresses = readable<KubernetesObject[]>([]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextRoutes = readable<KubernetesObject[]>([]);
 
   render(AppNavigation, {
     meta,

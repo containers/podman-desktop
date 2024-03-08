@@ -24,8 +24,9 @@ import IngressRouteDetails from './IngressDetails.svelte';
 
 import { router } from 'tinro';
 import { lastPage } from '/@/stores/breadcrumb';
-import type { V1Ingress } from '@kubernetes/client-node';
-import { ingresses } from '/@/stores/ingresses';
+import type { V1Ingress, KubernetesObject } from '@kubernetes/client-node';
+import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
+import { writable } from 'svelte/store';
 
 const kubernetesDeleteIngressMock = vi.fn();
 
@@ -37,6 +38,12 @@ const ingress: V1Ingress = {
   status: {},
 };
 
+vi.mock('/@/stores/kubernetes-contexts-state', async () => {
+  return {
+    kubernetesCurrentContextIngresses: vi.fn(),
+  };
+});
+
 beforeAll(() => {
   (window as any).kubernetesDeleteIngress = kubernetesDeleteIngressMock;
   (window as any).kubernetesReadNamespacedIngress = vi.fn();
@@ -44,7 +51,10 @@ beforeAll(() => {
 
 test('Expect redirect to previous page if ingress is deleted', async () => {
   const routerGotoSpy = vi.spyOn(router, 'goto');
-  ingresses.set([ingress]);
+
+  // mock object store
+  const ingresses = writable<KubernetesObject[]>([ingress]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextIngresses = ingresses;
 
   // remove ingress from the store when we call delete
   kubernetesDeleteIngressMock.mockImplementation(() => {

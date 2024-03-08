@@ -160,6 +160,7 @@ import { DialogRegistry } from './dialog-registry.js';
 import type { Deferred } from './util/deferred.js';
 import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
 import { Updater } from '/@/plugin/updater.js';
+import { RecommendationsRegistry } from './recommendations/recommendations-registry.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -452,6 +453,9 @@ export class PluginSystem {
     await kubernetesClient.init();
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
     await closeBehaviorConfiguration.init();
+
+    const recommendationsRegistry = new RecommendationsRegistry(configurationRegistry);
+    recommendationsRegistry.init();
 
     const messageBox = new MessageBox(apiSender);
 
@@ -1912,9 +1916,16 @@ export class PluginSystem {
     });
 
     this.ipcHandle(
-      'kubernetes-client:getCurrentContextResources',
+      'kubernetes-client:registerGetCurrentContextResources',
       async (_listener, resourceName: ResourceName): Promise<KubernetesObject[]> => {
-        return kubernetesClient.getCurrentContextResources(resourceName);
+        return kubernetesClient.registerGetCurrentContextResources(resourceName);
+      },
+    );
+
+    this.ipcHandle(
+      'kubernetes-client:unregisterGetCurrentContextResources',
+      async (_listener, resourceName: ResourceName): Promise<KubernetesObject[]> => {
+        return kubernetesClient.unregisterGetCurrentContextResources(resourceName);
       },
     );
 

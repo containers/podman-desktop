@@ -230,11 +230,13 @@ export class KubernetesClient {
     this.kubeConfigWatcher.onDidCreate(async () => {
       this._onDidUpdateKubeconfig.fire({ type: 'CREATE', location });
       await this.refresh();
+      this.apiSender.send('kubernetes-context-update');
     });
 
     this.kubeConfigWatcher.onDidDelete(() => {
       this._onDidUpdateKubeconfig.fire({ type: 'DELETE', location });
       this.kubeConfig = new KubeConfig();
+      this.apiSender.send('kubernetes-context-update');
     });
   }
 
@@ -1368,7 +1370,15 @@ export class KubernetesClient {
     return this.contextsState.getCurrentContextGeneralState();
   }
 
-  public getCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
-    return this.contextsState.getCurrentContextResources(resourceName);
+  public registerGetCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
+    return this.contextsState.registerGetCurrentContextResources(resourceName);
+  }
+
+  public unregisterGetCurrentContextResources(resourceName: ResourceName): KubernetesObject[] {
+    return this.contextsState.unregisterGetCurrentContextResources(resourceName);
+  }
+
+  public dispose(): void {
+    this.contextsState.dispose();
   }
 }

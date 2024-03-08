@@ -109,5 +109,6 @@
     "800": "#1a4a72",
     "900": "#1b3f5f"
   },
-  "white": "#fff"
+  "white": "#fff",
+  "transparent": "transparent"
 }

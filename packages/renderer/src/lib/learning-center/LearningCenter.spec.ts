@@ -20,7 +20,7 @@
 
 import '@testing-library/jest-dom/vitest';
 import { test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import LearningCenter from './LearningCenter.svelte';
 import learningCenter from '../../../../main/src/plugin/learning-center/guides.json';
 
@@ -45,5 +45,21 @@ test('LearningCenter component shows carousel with guides', async () => {
   vi.waitFor(() => {
     const firstCard = screen.getByText(learningCenter.guides[0].title);
     expect(firstCard).toBeVisible();
+  });
+});
+
+test('Clicking on LearningCenter title hides carousel with guides', async () => {
+  render(LearningCenter);
+  vi.waitFor(() => {
+    const firstCard = screen.getByText(learningCenter.guides[0].title);
+    expect(firstCard).toBeVisible();
+  });
+
+  const button = screen.getByRole('button', { name: 'Learning Center' });
+  expect(button).toBeInTheDocument();
+  await fireEvent.click(button);
+  vi.waitFor(() => {
+    const firstCard = screen.queryByText(learningCenter.guides[0].title);
+    expect(firstCard).not.toBeInTheDocument();
   });
 });
