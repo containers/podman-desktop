@@ -31,6 +31,7 @@ import { deletePodmanMachine } from './utility/operations';
 import { PodmanOnboardingPage } from './model/pages/podman-onboarding-page';
 import { ResourcesPodmanConnections } from './model/pages/resources-podman-connections-page';
 import { PodmanMachineDetails } from './model/pages/podman-machine-details-page';
+import * as os from 'node:os';
 
 const PODMAN_MACHINE_STARTUP_TIMEOUT: number = 360_000;
 const PODMAN_MACHINE_NAME: string = 'Podman Machine';
@@ -71,7 +72,7 @@ beforeEach<RunnerTestContext>(async ctx => {
   ctx.pdRunner = pdRunner;
 });
 
-describe('Podman Machine verification', async () => {
+describe.skipIf(os.platform() === 'linux')('Podman Machine verification', async () => {
   describe('Podman Machine onboarding workflow', async () => {
     test('Setup Podman push notification is present', async () => {
       dashboardPage = await navigationBar.openDashboard();

@@ -24,6 +24,7 @@ import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
 import { WelcomePage } from './model/pages/welcome-page';
 import { deletePodmanMachine } from './utility/operations';
 import { NavigationBar } from './model/workbench/navigation';
+import * as os from 'node:os';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -52,22 +53,24 @@ afterAll(async () => {
   await pdRunner.close();
 });
 
-describe.runIf(process.env.TEST_PODMAN_MACHINE !== undefined && process.env.TEST_PODMAN_MACHINE === 'true')(
-  `Podman machine onboarding from Dashboard`,
-  async () => {
-    test('Create Podman machine from Dashboard', async () => {
-      const navigationBar = new NavigationBar(page);
-      const dashboardPage = await navigationBar.openDashboard();
-      await playExpect(dashboardPage.initilizeAndStartButton).toBeEnabled();
-      await dashboardPage.initilizeAndStartButton.click();
-      await playExpect(dashboardPage.podmanMachineConnectionStatus).toHaveText('RUNNING', { timeout: 300000 });
-    }, 320000);
+describe.skipIf(os.platform() === 'linux')(async () => {
+  describe.runIf(process.env.TEST_PODMAN_MACHINE !== undefined && process.env.TEST_PODMAN_MACHINE === 'true')(
+    `Podman machine onboarding from Dashboard`,
+    async () => {
+      test('Create Podman machine from Dashboard', async () => {
+        const navigationBar = new NavigationBar(page);
+        const dashboardPage = await navigationBar.openDashboard();
+        await playExpect(dashboardPage.initilizeAndStartButton).toBeEnabled();
+        await dashboardPage.initilizeAndStartButton.click();
+        await playExpect(dashboardPage.podmanMachineConnectionStatus).toHaveText('RUNNING', { timeout: 300000 });
+      }, 320000);
 
-    test.runIf(process.env.MACHINE_CLEANUP !== undefined && process.env.MACHINE_CLEANUP === 'true')(
-      'Clean Up Podman Machine',
-      async () => {
-        await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
-      },
-    );
-  },
-);
+      test.runIf(process.env.MACHINE_CLEANUP !== undefined && process.env.MACHINE_CLEANUP === 'true')(
+        'Clean Up Podman Machine',
+        async () => {
+          await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
+        },
+      );
+    },
+  );
+});
