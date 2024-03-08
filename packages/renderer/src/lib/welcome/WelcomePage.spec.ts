@@ -19,18 +19,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect, vi, afterAll } from 'vitest';
+import { beforeAll, test, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import WelcomePage from './WelcomePage.svelte';
-import { get, type Unsubscriber } from 'svelte/store';
-import { router } from 'tinro';
-import { featuredExtensionInfos } from '/@/stores/featuredExtensions';
-import type { FeaturedExtension } from '../../../../main/src/plugin/featured/featured-api';
-
-let routerUnsubscribe: Unsubscriber;
-let path: string;
+import { get } from 'svelte/store';
+import { onboardingList } from '/@/stores/onboarding';
 
 const getFeaturedExtensionsMock = vi.fn();
+const getProviderInfosMock = vi.fn();
 
 // fake the window.events object
 beforeAll(() => {
@@ -39,19 +35,12 @@ beforeAll(() => {
   (window as any).getPodmanDesktopVersion = vi.fn();
   (window as any).telemetryConfigure = vi.fn();
   (window as any).getFeaturedExtensions = getFeaturedExtensionsMock;
+  (window as any).getProviderInfos = getProviderInfosMock;
   (window.events as unknown) = {
     receive: (_channel: string, func: any) => {
       func();
     },
   };
-
-  routerUnsubscribe = router.subscribe(rtr => {
-    path = rtr.path;
-  });
-});
-
-afterAll(() => {
-  routerUnsubscribe();
 });
 
 async function waitRender(customProperties: object): Promise<void> {
@@ -69,32 +58,12 @@ test('Expect the close button is on the page', async () => {
   expect(button).toBeEnabled();
 });
 
-test('Expect the settings button is on the page', async () => {
-  await waitRender({ showWelcome: true });
-  const button = screen.getByRole('button', { name: 'Settings' });
-  expect(button).toBeInTheDocument();
-  expect(button).toBeEnabled();
-});
-
 test('Expect that the close button closes the window', async () => {
   await waitRender({ showWelcome: true });
   const button = screen.getByRole('button', { name: 'Go to Podman Desktop' });
   await fireEvent.click(button);
   // and the button is gone
   expect(button).not.toBeInTheDocument();
-});
-
-test('Expect that the settings button closes the window and opens the settings', async () => {
-  await waitRender({ showWelcome: true });
-
-  const button = screen.getByRole('button', { name: 'Settings' });
-  await fireEvent.click(button);
-
-  // and the button is gone
-  expect(button).not.toBeInTheDocument();
-
-  // and we're in the preferences
-  expect(path).toBe('/preferences');
 });
 
 test('Expect that telemetry UI is hidden when telemetry has already been prompted', async () => {
@@ -114,52 +83,93 @@ test('Expect that telemetry UI is visible when necessary', async () => {
   expect(checkbox).toBeInTheDocument();
 });
 
-test('Expect that featured extensions are displayed', async () => {
-  const featuredExtension1: FeaturedExtension = {
-    builtin: true,
-    id: 'foo.bar',
-    displayName: 'FooBar',
-    description: 'Foobar description',
-    icon: 'data:image/png;base64,foobar',
-    categories: [],
-    fetchable: true,
-    fetchLink: 'oci-hello/world',
-    fetchVersion: '1.2.3',
-    installed: true,
-  };
+test('Expect welcome screen to show three checked onboarding providers', async () => {
+  onboardingList.set([
+    {
+      extension: 'id',
+      title: 'onboarding',
+      name: 'foobar1',
+      displayName: 'FooBar1',
+      icon: 'data:image/png;base64,foobar1',
+      steps: [
+        {
+          id: 'step',
+          title: 'step',
+          state: 'failed',
+          completionEvents: [],
+        },
+      ],
+      enablement: 'true',
+    },
+    {
+      extension: 'id',
+      title: 'onboarding',
+      name: 'foobar2',
+      displayName: 'FooBar2',
+      icon: 'data:image/png;base64,foobar2',
+      steps: [
+        {
+          id: 'step',
+          title: 'step',
+          state: 'failed',
+          completionEvents: [],
+        },
+      ],
+      enablement: 'true',
+    },
+    {
+      extension: 'id',
+      title: 'onboarding',
+      name: 'foobar3',
+      displayName: 'FooBar3',
+      icon: 'data:image/png;base64,foobar3',
+      steps: [
+        {
+          id: 'step',
+          title: 'step',
+          state: 'failed',
+          completionEvents: [],
+        },
+      ],
+      enablement: 'true',
+    },
+  ]);
 
-  const featuredExtension2: FeaturedExtension = {
-    builtin: true,
-    id: 'foo.baz',
-    displayName: 'FooBaz',
-    description: 'Foobaz description',
-    icon: 'data:image/png;base64,foobaz',
-    categories: [],
-    fetchable: false,
-    installed: false,
-  };
-
-  getFeaturedExtensionsMock.mockResolvedValue([featuredExtension1, featuredExtension2]);
-
-  // ask to update the featured Extensions store
-  window.dispatchEvent(new CustomEvent('system-ready'));
-
-  // wait store are populated
-  while (get(featuredExtensionInfos).length === 0) {
-    await new Promise(resolve => setTimeout(resolve, 500));
+  // wait until the onboarding list is populated
+  while (get(onboardingList).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
   }
 
   await waitRender({ showWelcome: true });
 
-  const imageExt1 = screen.getByRole('img', { name: 'FooBar logo' });
-  // expect the image to be there
-  expect(imageExt1).toBeInTheDocument();
-  // expect image source is correct
-  expect(imageExt1).toHaveAttribute('src', 'data:image/png;base64,foobar');
+  // wait until aria-label 'providerList' is populated
+  while (screen.queryAllByLabelText('providerList').length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
 
-  const imageExt2 = screen.getByRole('img', { name: 'FooBaz logo' });
-  // expect the image to be there
-  expect(imageExt2).toBeInTheDocument();
-  // expect image source is correct
-  expect(imageExt2).toHaveAttribute('src', 'data:image/png;base64,foobaz');
+  // Check that the logos for foobar1, foobar2, and foobar3 are present
+  const image1 = screen.getByRole('img', { name: 'foobar1 logo' });
+  expect(image1).toBeInTheDocument();
+  expect(image1).toHaveAttribute('src', 'data:image/png;base64,foobar1');
+
+  const image2 = screen.getByRole('img', { name: 'foobar2 logo' });
+  expect(image2).toBeInTheDocument();
+  expect(image2).toHaveAttribute('src', 'data:image/png;base64,foobar2');
+
+  const image3 = screen.getByRole('img', { name: 'foobar3 logo' });
+  expect(image3).toBeInTheDocument();
+  expect(image3).toHaveAttribute('src', 'data:image/png;base64,foobar3');
+
+  // Check that all three are checked as well
+  const checkbox1 = screen.getByRole('checkbox', { name: 'FooBar1 checkbox' });
+  expect(checkbox1).toBeInTheDocument();
+  expect(checkbox1).toBeChecked();
+
+  const checkbox2 = screen.getByRole('checkbox', { name: 'FooBar2 checkbox' });
+  expect(checkbox2).toBeInTheDocument();
+  expect(checkbox2).toBeChecked();
+
+  const checkbox3 = screen.getByRole('checkbox', { name: 'FooBar3 checkbox' });
+  expect(checkbox3).toBeInTheDocument();
+  expect(checkbox3).toBeChecked();
 });
