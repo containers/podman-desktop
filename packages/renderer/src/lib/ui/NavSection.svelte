@@ -5,37 +5,14 @@ import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import Tooltip from './Tooltip.svelte';
 import Fa from 'svelte-fa';
 import { onMount, setContext } from 'svelte';
-import { cubicOut } from 'svelte/easing';
 import { writable, type Writable } from 'svelte/store';
+import { fadeSlide } from './animations';
 /* eslint-disable import/no-duplicates */
 
 export let expanded: boolean = true;
 export let tooltip: string;
 
 const count: Writable<number> = setContext('nav-items', writable(0));
-
-function fadeSlide(
-  node: any,
-  { delay = 0, duration = 400, easing = cubicOut },
-): { delay: number; duration: number; easing: (t: number) => number; css: (t: number) => string } {
-  const style = getComputedStyle(node);
-  const opacity = +style.opacity;
-  const height = parseFloat(style.height);
-  const paddingTop = parseFloat(style.paddingTop);
-  const paddingBottom = parseFloat(style.paddingBottom);
-
-  return {
-    delay,
-    duration,
-    easing,
-    css: (t: number) =>
-      `overflow: hidden;` +
-      `opacity: ${Math.min(t, 1) * opacity};` +
-      `height: ${t * height}px;` +
-      `padding-top: ${t * paddingTop}px;` +
-      `padding-bottom: ${t * paddingBottom}px;`,
-  };
-}
 
 onMount(() => {
   // collapse by default if > 3 items

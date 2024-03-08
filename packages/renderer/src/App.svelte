@@ -44,6 +44,7 @@ import ContextKey from './lib/context/ContextKey.svelte';
 import CreateVolume from './lib/volume/CreateVolume.svelte';
 import CommandPalette from './lib/dialogs/CommandPalette.svelte';
 import Appearance from './lib/appearance/Appearance.svelte';
+import Onboarding from './lib/onboarding/Onboarding.svelte';
 import type { NavigationRequest } from '../../main/src/plugin/navigation/navigation-request';
 import { handleNavigation } from '/@/navigation';
 import IngressesRoutesList from './lib/ingresses-routes/IngressesRoutesList.svelte';
@@ -200,6 +201,13 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         <Route path="/preferences/*" breadcrumb="Settings">
           <PreferencesPage />
         </Route>
+
+        <Route path="/global-onboarding" breadcrumb="Extension Onboarding" let:meta navigationHint="details">
+          <Onboarding
+            extensionIds="{meta.query.ids ? decodeURIComponent(meta.query.ids).split(',') : []}"
+            global="{true}" />
+        </Route>
+
         <Route path="/contribs/:name/*" breadcrumb="Extension" let:meta>
           <DockerExtension name="{decodeURI(meta.params.name)}" />
         </Route>

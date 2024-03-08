@@ -33,26 +33,25 @@ async function onClear(): Promise<void> {
 }
 </script>
 
-<div class="flex flex-col w-full">
+<div class="flex flex-col grow">
   <div
-    class="flex flex-row w-full items-center px-1 py-1 group bg-transparent border-[1px] border-transparent {$$props.class ||
+    class="flex flex-row grow items-center px-1 py-1 group bg-[var(--pd-input-field-bg)] border-[1px] border-transparent {$$props.class ||
       ''}"
-    class:hover:bg-[var(--pd-input-field-hover-bg)]="{enabled}"
+    class:not(focus-within):hover:bg-[var(--pd-input-field-hover-bg)]="{enabled}"
     class:focus-within:bg-[var(--pd-input-field-focused-bg)]="{enabled}"
-    class:hover:rounded-md="{enabled}"
     class:focus-within:rounded-md="{enabled}"
     class:border-b-[var(--pd-input-field-stroke)]="{enabled && !error}"
     class:border-b-[var(--pd-input-field-stroke-error)]="{enabled && error}"
-    class:hover:border-[var(--pd-input-field-stroke)]="{enabled && !error}"
-    class:hover:border-[var(--pd-input-field-stroke-error)]="{enabled && error}"
-    class:focus-within:border-[var(--pd-input-field-stroke)]="{enabled && !error}"
+    class:hover:border-b-[var(--pd-input-field-hover-stroke)]="{enabled && !error}"
+    class:hover:border-b-[var(--pd-input-field-stroke-error)]="{enabled && error}"
+    class:focus-within:border-[var(--pd-input-field-hover-stroke)]="{enabled && !error}"
     class:focus-within:border-[var(--pd-input-field-stroke-error)]="{enabled && error}"
     class:border-b-[var(--pd-input-field-stroke-readonly)]="{readonly || disabled}">
     <slot name="left" />
     <input
       bind:this="{element}"
       on:input
-      class="grow px-1 outline-0 text-sm bg-transparent placeholder:text-[color:var(--pd-input-field-placeholder-text)] overflow-hidden"
+      class="grow px-1 outline-0 text-sm bg-[var(--pd-input-field-bg)] placeholder:text-[color:var(--pd-input-field-placeholder-text)] overflow-hidden"
       class:text-[color:var(--pd-input-field-focused-text)]="{!disabled}"
       class:text-[color:var(--pd-input-field-disabled-text)]="{disabled}"
       class:group-hover:bg-[var(--pd-input-field-hover-bg)]="{enabled}"

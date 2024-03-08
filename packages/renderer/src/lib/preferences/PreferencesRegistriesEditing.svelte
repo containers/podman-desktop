@@ -314,7 +314,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
                 </div>
                 <!-- Password field end -->
               </div>
-              <div class="text-sm w-1/5 flex flex-row space-x-2" role="cell">
+              <div class="text-sm w-1/5 flex flex-row space-x-2 justify-end" role="cell">
                 <!-- Show/hide password start -->
                 {#if registry.username && registry.secret}
                   {#if showPasswordForServerUrls.some(r => r === registry.serverUrl)}
@@ -419,7 +419,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
                     )}" />
               {/if}
             </div>
-            <div class="text-sm w-1/5" role="cell">
+            <div class="text-sm w-1/5 flex space-x-2 justify-end" role="cell">
               {#if listedSuggestedRegistries[i]}
                 <Button
                   on:click="{() => loginToRegistry(newRegistryRequest)}"
@@ -469,7 +469,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
                 on:action="{() =>
                   setPasswordForRegistryVisible(newRegistryRequest, !showPasswordForServerUrls.some(r => r === ''))}" />
             </div>
-            <div class="text-sm w-1/5" role="cell">
+            <div class="text-sm w-1/5 flex space-x-2 justify-end" role="cell">
               <Button
                 on:click="{() => loginToRegistry(newRegistryRequest)}"
                 disabled="{!newRegistryRequest.serverUrl || !newRegistryRequest.username || !newRegistryRequest.secret}"

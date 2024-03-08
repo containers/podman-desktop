@@ -178,3 +178,12 @@ export interface BuildImageOptions {
    */
   nocache?: boolean;
 }
+
+export interface ListImagesOptions {
+  /**
+   * The provider we want to list the images. If not provided, will return all container images across all container engines.
+   *
+   * @defaultValue undefined
+   */
+  provider?: ContainerProviderConnection;
+}

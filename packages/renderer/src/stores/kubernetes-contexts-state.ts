@@ -43,7 +43,7 @@ export const kubernetesCurrentContextState = readable(
 );
 
 export const kubernetesCurrentContextDeployments = readable<KubernetesObject[]>([], set => {
-  window.kubernetesGetCurrentContextResources('deployments').then(value => set(value));
+  window.kubernetesRegisterGetCurrentContextResources('deployments').then(value => set(value));
   window.events?.receive('kubernetes-current-context-deployments-update', (value: unknown) => {
     set(value as KubernetesObject[]);
   });
@@ -61,10 +61,13 @@ export const kubernetesCurrentContextDeploymentsFiltered = derived(
 // Services
 
 export const kubernetesCurrentContextServices = readable<KubernetesObject[]>([], set => {
-  window.kubernetesGetCurrentContextResources('services').then(value => set(value));
+  window.kubernetesRegisterGetCurrentContextResources('services').then(value => set(value));
   window.events?.receive('kubernetes-current-context-services-update', (value: unknown) => {
     set(value as KubernetesObject[]);
   });
+  return () => {
+    window.kubernetesUnregisterGetCurrentContextResources('services');
+  };
 });
 
 export const serviceSearchPattern = writable('');
@@ -79,10 +82,13 @@ export const kubernetesCurrentContextServicesFiltered = derived(
 // Ingresses
 
 export const kubernetesCurrentContextIngresses = readable<KubernetesObject[]>([], set => {
-  window.kubernetesGetCurrentContextResources('ingresses').then(value => set(value));
+  window.kubernetesRegisterGetCurrentContextResources('ingresses').then(value => set(value));
   window.events?.receive('kubernetes-current-context-ingresses-update', (value: unknown) => {
     set(value as KubernetesObject[]);
   });
+  return () => {
+    window.kubernetesUnregisterGetCurrentContextResources('ingresses');
+  };
 });
 
 export const ingressSearchPattern = writable('');
@@ -97,10 +103,13 @@ export const kubernetesCurrentContextIngressesFiltered = derived(
 // Routes
 
 export const kubernetesCurrentContextRoutes = readable<KubernetesObject[]>([], set => {
-  window.kubernetesGetCurrentContextResources('routes').then(value => set(value));
+  window.kubernetesRegisterGetCurrentContextResources('routes').then(value => set(value));
   window.events?.receive('kubernetes-current-context-routes-update', (value: unknown) => {
     set(value as KubernetesObject[]);
   });
+  return () => {
+    window.kubernetesUnregisterGetCurrentContextResources('routes');
+  };
 });
 
 export const routeSearchPattern = writable('');

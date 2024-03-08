@@ -129,3 +129,22 @@ test('carousel left and right buttons enabled when all items does not fit into s
   expect(left).toBeDisabled();
   expect(right).toBeDisabled();
 });
+
+test('left and right buttons have hover class', async () => {
+  render(CarouselTest);
+  const card1 = screen.getByText('card 1');
+  console.log(window.innerWidth);
+  expect(card1).toBeVisible();
+
+  let cards = screen.queryAllByText('card 2');
+  expect(cards.length).toBe(0);
+
+  cards = screen.queryAllByText('card 3');
+  expect(cards.length).toBe(0);
+
+  const left = screen.getByRole('button', { name: 'Rotate left' });
+  const right = screen.getByRole('button', { name: 'Rotate right' });
+
+  expect(left).toHaveClass(/^hover:bg-/);
+  expect(right).toHaveClass(/^hover:bg-/);
+});

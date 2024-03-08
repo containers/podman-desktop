@@ -49,9 +49,10 @@ test('Expect basic styling', async () => {
 
   const element = screen.getByPlaceholderText(value);
   expect(element).toBeInTheDocument();
+  expect(element).toHaveClass('grow');
   expect(element).toHaveClass('px-1');
   expect(element).toHaveClass('outline-0');
-  expect(element).toHaveClass('bg-transparent');
+  expect(element).toHaveClass('bg-[var(--pd-input-field-bg)]');
   expect(element).toHaveClass('text-sm');
   expect(element).toHaveClass('text-[color:var(--pd-input-field-focused-text)]');
 
@@ -60,13 +61,12 @@ test('Expect basic styling', async () => {
   expect(element).toHaveClass('group-hover-placeholder:text-[color:var(--pd-input-field-placeholder-text)]');
 
   expect(element.parentElement).toBeInTheDocument();
-  expect(element.parentElement).toHaveClass('bg-transparent');
+  expect(element.parentElement).toHaveClass('bg-[var(--pd-input-field-bg)]');
   expect(element.parentElement).toHaveClass('border-[1px]');
   expect(element.parentElement).toHaveClass('border-transparent');
 
-  expect(element.parentElement).toHaveClass('hover:bg-[var(--pd-input-field-hover-bg)]');
-  expect(element.parentElement).toHaveClass('hover:rounded-md');
-  expect(element.parentElement).toHaveClass('hover:border-[var(--pd-input-field-stroke)]');
+  expect(element.parentElement).toHaveClass('not(focus-within):hover:bg-[var(--pd-input-field-hover-bg)]');
+  expect(element.parentElement).toHaveClass('hover:border-b-[var(--pd-input-field-hover-stroke)]');
 });
 
 test('Expect basic readonly styling', async () => {
@@ -75,9 +75,10 @@ test('Expect basic readonly styling', async () => {
 
   const element = screen.getByPlaceholderText(value);
   expect(element).toBeInTheDocument();
+  expect(element).toHaveClass('grow');
   expect(element).toHaveClass('px-1');
   expect(element).toHaveClass('outline-0');
-  expect(element).toHaveClass('bg-transparent');
+  expect(element).toHaveClass('bg-[var(--pd-input-field-bg)]');
   expect(element).toHaveClass('text-sm');
   expect(element).toHaveClass('text-[color:var(--pd-input-field-focused-text)]');
 
@@ -86,7 +87,7 @@ test('Expect basic readonly styling', async () => {
   expect(element).not.toHaveClass('group-hover-placeholder:text-[color:var(--pd-input-field-placeholder-text)]');
 
   expect(element.parentElement).toBeInTheDocument();
-  expect(element.parentElement).toHaveClass('bg-transparent');
+  expect(element.parentElement).toHaveClass('bg-[var(--pd-input-field-bg)]');
   expect(element.parentElement).toHaveClass('border-[1px]');
   expect(element.parentElement).toHaveClass('border-transparent');
   expect(element.parentElement).toHaveClass('border-b-[var(--pd-input-field-stroke-readonly)]');
@@ -102,9 +103,10 @@ test('Expect basic disabled styling', async () => {
 
   const element = screen.getByPlaceholderText(value);
   expect(element).toBeInTheDocument();
+  expect(element).toHaveClass('grow');
   expect(element).toHaveClass('px-1');
   expect(element).toHaveClass('outline-0');
-  expect(element).toHaveClass('bg-transparent');
+  expect(element).toHaveClass('bg-[var(--pd-input-field-bg)]');
   expect(element).toHaveClass('text-sm');
   expect(element).toHaveClass('text-[color:var(--pd-input-field-disabled-text)]');
 
@@ -113,7 +115,7 @@ test('Expect basic disabled styling', async () => {
   expect(element).not.toHaveClass('group-hover-placeholder:text-[color:var(--pd-input-field-placeholder-text)]');
 
   expect(element.parentElement).toBeInTheDocument();
-  expect(element.parentElement).toHaveClass('bg-transparent');
+  expect(element.parentElement).toHaveClass('bg-[var(--pd-input-field-bg)]');
   expect(element.parentElement).toHaveClass('border-[1px]');
   expect(element.parentElement).toHaveClass('border-transparent');
   expect(element.parentElement).toHaveClass('border-b-[var(--pd-input-field-stroke-readonly)]');

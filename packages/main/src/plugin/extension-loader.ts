@@ -962,8 +962,8 @@ export class ExtensionLoader {
       ) {
         return containerProviderRegistry.buildImage(context, eventCollect, options);
       },
-      listImages(): Promise<containerDesktopAPI.ImageInfo[]> {
-        return containerProviderRegistry.listImages();
+      listImages(options?: containerDesktopAPI.ListImagesOptions): Promise<containerDesktopAPI.ImageInfo[]> {
+        return containerProviderRegistry.listImages(options);
       },
       saveImage(engineId: string, id: string, filename: string) {
         return containerProviderRegistry.saveImage(engineId, id, filename);
@@ -994,6 +994,9 @@ export class ExtensionLoader {
       },
       info(engineId: string): Promise<containerDesktopAPI.ContainerEngineInfo> {
         return containerProviderRegistry.info(engineId);
+      },
+      listInfos(options?: containerDesktopAPI.ListInfosOptions): Promise<containerDesktopAPI.ContainerEngineInfo[]> {
+        return containerProviderRegistry.listInfos(options);
       },
       onEvent: (listener, thisArg, disposables) => {
         return containerProviderRegistry.onEvent(listener, thisArg, disposables);
@@ -1039,6 +1042,18 @@ export class ExtensionLoader {
       },
       startPod(engineId: string, podId: string): Promise<void> {
         return containerProviderRegistry.startPod(engineId, podId);
+      },
+      async statsContainer(
+        engineId: string,
+        containerId: string,
+        callback: (stats: containerDesktopAPI.ContainerStatsInfo) => void,
+      ): Promise<Disposable> {
+        const identifier = await containerProviderRegistry.getContainerStats(engineId, containerId, callback);
+        return Disposable.create(() => {
+          containerProviderRegistry.stopContainerStats(identifier).catch((err: unknown): void => {
+            console.error('Something went wrong while trying to stop container stats', err);
+          });
+        });
       },
     };
 
@@ -1407,6 +1422,7 @@ export class ExtensionLoader {
     await Promise.all(
       Array.from(this.activatedExtensions.keys()).map(extensionId => this.deactivateExtension(extensionId)),
     );
+    this.kubernetesClient.dispose();
   }
 
   async startExtension(extensionId: string): Promise<void> {

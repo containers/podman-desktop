@@ -78,7 +78,6 @@ module.exports = {
         'unknown': tailwindColors.gray[100],
 
       },
-      transparent: 'transparent',
       // The remaining colors below are not part of our palette and are only here
       // to maintain existing code. No new use.
       'zinc': {

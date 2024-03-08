@@ -37,6 +37,7 @@ import { PassThrough } from 'node:stream';
 import type { EnvfileParser } from './env-file-parser.js';
 import type { ProviderRegistry } from './provider-registry.js';
 import type { ContainerCreateOptions } from './api/container-info.js';
+import type { ImageInfo } from '/@/plugin/api/image-info.js';
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 
 /* eslint-disable @typescript-eslint/no-empty-function */
@@ -3617,4 +3618,134 @@ describe('getContainerCreateMountOptionFromBind', () => {
       propagation: 'rslave',
     });
   });
+});
+
+describe('listImages', () => {
+  test('list images without arguments', async () => {
+    const result = await containerRegistry.listImages();
+    expect(result.length).toBe(0);
+
+    expect(vi.spyOn(containerRegistry, 'getMatchingContainerProvider')).not.toHaveBeenCalled();
+  });
+
+  test('list images on a specific provider', async () => {
+    const getMatchingContainerProviderMock = vi.spyOn(containerRegistry, 'getMatchingContainerProvider');
+    const internalContainerProvider = {
+      name: 'dummyName',
+      id: 'dummyId',
+      api: {
+        listImages: vi.fn(),
+      },
+    } as unknown as InternalContainerProvider;
+    getMatchingContainerProviderMock.mockReturnValue(internalContainerProvider);
+
+    const api = internalContainerProvider.api;
+    if (api === undefined) throw new Error('api should not be undefined');
+    vi.spyOn(api, 'listImages').mockResolvedValue([
+      {
+        Id: 'dummyImageId',
+      } as unknown as ImageInfo,
+    ]);
+
+    // List images
+    const result = await containerRegistry.listImages({
+      provider: {
+        id: 'dummyProviderId',
+      } as unknown as podmanDesktopAPI.ContainerProviderConnection,
+    });
+
+    expect(getMatchingContainerProviderMock).toHaveBeenCalled();
+    expect(api.listImages).toHaveBeenCalled();
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      Id: 'dummyImageId',
+      engineId: 'dummyId',
+      engineName: 'dummyName',
+    });
+  });
+});
+
+test('listInfos without provider', async () => {
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  // set providers
+  containerRegistry.addInternalProvider('podman1', {
+    name: 'podman-1',
+    id: 'podman1',
+    api,
+    connection: {
+      type: 'podman',
+    },
+  } as unknown as InternalContainerProvider);
+  containerRegistry.addInternalProvider('podman2', {
+    name: 'podman-2',
+    id: 'podman2',
+    api,
+    connection: {
+      type: 'podman',
+    },
+  } as unknown as InternalContainerProvider);
+
+  vi.spyOn(containerRegistry, 'info').mockImplementation(
+    async (engineId: string) =>
+      ({
+        engineId,
+      }) as podmanDesktopAPI.ContainerEngineInfo,
+  );
+  const infos = await containerRegistry.listInfos();
+  expect(infos).toEqual([
+    {
+      engineId: 'podman1',
+    },
+    {
+      engineId: 'podman2',
+    },
+  ]);
+});
+
+test('listInfos with provider', async () => {
+  const getMatchingContainerProviderMock = vi.spyOn(containerRegistry, 'getMatchingContainerProvider');
+  const internalContainerProvider = {
+    name: 'podman-2',
+    id: 'podman2',
+  } as unknown as InternalContainerProvider;
+  getMatchingContainerProviderMock.mockReturnValue(internalContainerProvider);
+
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  // set providers
+  containerRegistry.addInternalProvider('podman1', {
+    name: 'podman-1',
+    id: 'podman1',
+    api,
+    connection: {
+      type: 'podman',
+    },
+  } as unknown as InternalContainerProvider);
+  containerRegistry.addInternalProvider('podman2', {
+    name: 'podman-2',
+    id: 'podman2',
+    api,
+    connection: {
+      type: 'podman',
+    },
+  } as unknown as InternalContainerProvider);
+
+  vi.spyOn(containerRegistry, 'info').mockImplementation(
+    async (engineId: string) =>
+      ({
+        engineId,
+      }) as podmanDesktopAPI.ContainerEngineInfo,
+  );
+  const infos = await containerRegistry.listInfos({
+    provider: {
+      id: 'podman2',
+    } as unknown as podmanDesktopAPI.ContainerProviderConnection,
+  });
+  expect(infos).toEqual([
+    {
+      engineId: 'podman2',
+    },
+  ]);
 });

@@ -269,6 +269,9 @@ test('Expect to redirect to onboarding page if setup button is clicked', async (
     steps: [],
     title: 'onboarding',
     enablement: 'true',
+    name: 'foobar',
+    displayName: 'FooBar',
+    icon: 'data:image/png;base64,foobar',
   };
   onboardingList.set([onboarding]);
   render(PreferencesResourcesRendering, {});
@@ -292,6 +295,9 @@ test('Expect setup button to appear even if provider status is set to unknown an
     steps: [],
     title: 'onboarding',
     enablement: 'true',
+    name: 'foobar',
+    displayName: 'FooBar',
+    icon: 'data:image/png;base64,foobar',
   };
   onboardingList.set([onboarding]);
   render(PreferencesResourcesRendering, {});
@@ -333,6 +339,9 @@ test('Expect to redirect to extension preferences page if onboarding is disabled
     steps: [],
     title: 'onboarding',
     enablement: 'false',
+    name: 'foobar',
+    displayName: 'FooBar',
+    icon: 'data:image/png;base64,foobar',
   };
   onboardingList.set([onboarding]);
   render(PreferencesResourcesRendering, {});
@@ -359,6 +368,9 @@ test('Expect to not have cog icon button if provider has no active onboarding no
     steps: [],
     title: 'onboarding',
     enablement: 'false',
+    name: 'foobar',
+    displayName: 'FooBar',
+    icon: 'data:image/png;base64,foobar',
   };
   onboardingList.set([onboarding]);
   render(PreferencesResourcesRendering, {});
@@ -398,6 +410,9 @@ test('Expect to redirect to extension onboarding page if onboarding is enabled a
     steps: [],
     title: 'onboarding',
     enablement: 'true',
+    name: 'foobar',
+    displayName: 'FooBar',
+    icon: 'data:image/png;base64,foobar',
   };
   onboardingList.set([onboarding]);
   render(PreferencesResourcesRendering, {});
