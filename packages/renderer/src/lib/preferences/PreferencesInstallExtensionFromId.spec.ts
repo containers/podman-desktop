@@ -91,6 +91,7 @@ test('Expect that the install button is there and can click on it to install', a
         removable: true,
         version: '1.0.0',
         state: 'installed',
+        readme: 'readme',
         path: 'foo-path',
       },
     ]);
@@ -147,6 +148,7 @@ test('Expect that the installed label is there if extension is already installed
       removable: true,
       version: '1.0.0',
       state: 'installed',
+      readme: 'readme',
       path: 'foo-path',
     },
   ]);
