@@ -3602,10 +3602,10 @@
     "@types/node" "*"
     "@types/ssh2" "*"
 
-"@types/dockerode@^3.3.24":
-  version "3.3.24"
-  resolved "https://registry.yarnpkg.com/@types/dockerode/-/dockerode-3.3.24.tgz#bea354a4fcd0824a80fd5ea5ede3e8cda71137a7"
-  integrity sha512-679y69OYusf7Fr2HtdjXPUF6hnHxSA9K4EsuagsMuPno/XpJHjXxCOy2I5YL8POnWbzjsQAi0pyKIYM9HSpQog==
+"@types/dockerode@^3.3.25":
+  version "3.3.25"
+  resolved "https://registry.yarnpkg.com/@types/dockerode/-/dockerode-3.3.25.tgz#421adc5a8a5566d52cf53e6dab3bd79c020118a5"
+  integrity sha512-AnC6M3AT7AnXCW0bSHpxA1HTa2CHAW4+zghLIuCykqD97AHZ67Q5GGU3shrD1WqifyGFlv7op9iwA8uqnv6rXQ==
   dependencies:
     "@types/docker-modem" "*"
     "@types/node" "*"
