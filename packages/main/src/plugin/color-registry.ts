@@ -202,6 +202,7 @@ export class ColorRegistry {
     this.initSecondaryNav();
     this.initTitlebar();
     this.initInvertContent();
+    this.initCardContent();
     this.initInputBox();
   }
 
@@ -315,6 +316,23 @@ export class ColorRegistry {
 
     this.registerColor(`${sNav}expander`, {
       dark: colorPalette.white,
+      light: colorPalette.charcoal[700],
+    });
+  }
+
+  protected initCardContent(): void {
+    this.registerColor(`card-bg`, {
+      dark: colorPalette.charcoal[800],
+      light: colorPalette.gray[300],
+    });
+
+    this.registerColor(`card-header-text`, {
+      dark: colorPalette.white,
+      light: colorPalette.charcoal[900],
+    });
+
+    this.registerColor(`card-text`, {
+      dark: colorPalette.gray[300],
       light: colorPalette.charcoal[700],
     });
   }
