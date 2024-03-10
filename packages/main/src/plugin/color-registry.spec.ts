@@ -28,6 +28,7 @@ import type { AnalyzedExtension } from '/@/plugin/extension-loader.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
 import type { RawThemeContribution } from '/@/plugin/api/theme-info.js';
 import { ColorRegistry } from './color-registry.js';
+import colorPalette from '../../../../tailwind-color-palette.json';
 
 class TestColorRegistry extends ColorRegistry {
   notifyUpdate(): void {
@@ -207,8 +208,8 @@ test('initCardContent', async () => {
 
   // check the first call
   expect(spyOnRegisterColor.mock.calls[0][0]).toStrictEqual('card-bg');
-  expect(spyOnRegisterColor.mock.calls[0][1].light).toBe('#e4e4e4');
-  expect(spyOnRegisterColor.mock.calls[0][1].dark).toBe('#18181b');
+  expect(spyOnRegisterColor.mock.calls[0][1].light).toBe(colorPalette.gray[300]);
+  expect(spyOnRegisterColor.mock.calls[0][1].dark).toBe(colorPalette.charcoal[800]);
 });
 
 describe('registerColor', () => {
