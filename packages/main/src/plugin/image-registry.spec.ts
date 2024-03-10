@@ -171,6 +171,36 @@ test('should map ecr', () => {
   expect(registryServer).toBe('12345.dkr.ecr.us-east-1.amazonaws.com');
 });
 
+describe('extract auth info', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  test('getAuthInfo with basic auth', async () => {
+    // reply a 401 Unauthorized error with a custom header having the www-authenticate field
+    nock('https://my-podman-desktop-fake-registry.io').get('/v2/').reply(401, '', {
+      'Www-Authenticate': 'Basic realm="Registry Realm"',
+    });
+
+    const value = await imageRegistry.getAuthInfo('https://my-podman-desktop-fake-registry.io');
+    expect(value).toBeDefined();
+    expect(value?.authUrl).toBe('https://my-podman-desktop-fake-registry.io/v2/');
+    expect(value?.scheme).toBe('basic');
+  });
+
+  test('getAuthInfo from docker.io with bearer', async () => {
+    // reply a 401 Unauthorized error with a custom header having the www-authenticate field
+    nock('https://my-podman-desktop-fake-registry.io').get('/v2/').reply(401, '', {
+      'www-authenticate': 'Bearer realm="https://auth.docker.io/token",service="registry.docker.io"',
+    });
+
+    const value = await imageRegistry.getAuthInfo('https://my-podman-desktop-fake-registry.io');
+    expect(value).toBeDefined();
+    expect(value?.authUrl).toBe('https://auth.docker.io/token?service=registry.docker.io');
+    expect(value?.scheme).toBe('bearer');
+  });
+});
+
 describe('extractImageDataFromImageName', () => {
   test('library image', () => {
     const nameAndTag = imageRegistry.extractImageDataFromImageName('httpd');
