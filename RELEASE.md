@@ -204,7 +204,7 @@ image: /blog/img/podman-desktop-release-1.X/X.png
 <!-- ADD IMPORT REACTPLAYER IF USING VIDEO -->
 <!-- import ReactPlayer from 'react-player' -->
 <!-- EXAMPLE -->
-<!-- <ReactPlayer playing controls url="https://user-images.githubusercontent.com/436777/241246481-305d215f-2a5c-46e8-9cc3-ecd90a6bd2bc.mp4" /> -->
+<!-- <ReactPlayer playing playsinline controls url="https://user-images.githubusercontent.com/436777/241246481-305d215f-2a5c-46e8-9cc3-ecd90a6bd2bc.mp4" /> -->
 
 Podman Desktop X.X Release! 🎉
 
