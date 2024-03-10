@@ -52,6 +52,10 @@ class TestColorRegistry extends ColorRegistry {
   initTitlebar(): void {
     super.initTitlebar();
   }
+
+  initCardContent(): void {
+    super.initCardContent();
+  }
 }
 
 const _onDidChangeConfiguration = new Emitter<IConfigurationChangeEvent>();
@@ -187,6 +191,24 @@ test('initTitlebar', async () => {
   expect(spyOnRegisterColor.mock.calls[0][0]).toStrictEqual('titlebar-bg');
   expect(spyOnRegisterColor.mock.calls[0][1].light).toBe('#f9fafb');
   expect(spyOnRegisterColor.mock.calls[0][1].dark).toBe('#0f0f11');
+});
+
+test('initCardContent', async () => {
+  // mock the registerColor
+  const spyOnRegisterColor = vi.spyOn(colorRegistry, 'registerColor');
+  spyOnRegisterColor.mockReturnValue(undefined);
+
+  colorRegistry.initCardContent();
+
+  expect(spyOnRegisterColor).toHaveBeenCalled();
+
+  // at least 3 times
+  expect(spyOnRegisterColor.mock.calls.length).toBeGreaterThanOrEqual(3);
+
+  // check the first call
+  expect(spyOnRegisterColor.mock.calls[0][0]).toStrictEqual('card-bg');
+  expect(spyOnRegisterColor.mock.calls[0][1].light).toBe('#e4e4e4');
+  expect(spyOnRegisterColor.mock.calls[0][1].dark).toBe('#18181b');
 });
 
 describe('registerColor', () => {
