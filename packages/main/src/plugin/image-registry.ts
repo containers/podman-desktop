@@ -735,12 +735,12 @@ export class ImageRegistry {
         if (wwwAuthenticate) {
           const authInfo = this.extractAuthData(wwwAuthenticate);
           if (authInfo) {
-            const url = new URL(authInfo.authUrl);
             scheme = authInfo.scheme?.toLowerCase();
             // in case of basic auth, we use directly the registry URL
             if (scheme === 'basic') {
               return { authUrl: registryUrl, scheme };
             }
+            const url = new URL(authInfo.authUrl);
             if (authInfo.service) {
               url.searchParams.set('service', authInfo.service);
             }
