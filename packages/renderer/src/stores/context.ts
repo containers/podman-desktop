@@ -20,6 +20,13 @@ import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 import { ContextUI } from '../lib/context/context';
 
+async function getCurrentContext(): Promise<ContextUI> {
+  return Object.entries(await window.contextCollectAllValues()).reduce((result, [key, value]) => {
+    result.setValue(key, value);
+    return result;
+  }, new ContextUI());
+}
+
 export const context: Writable<ContextUI> = writable(new ContextUI());
 
 window.events?.receive('context-value-updated', (value: unknown) => {
@@ -36,4 +43,10 @@ window.events?.receive('context-key-removed', (value: unknown) => {
     ctx.removeValue(typedValue.key);
     return ctx;
   });
+});
+
+window.addEventListener('extensions-already-started', () => {
+  getCurrentContext()
+    .then(values => context.set(values))
+    .catch((err: unknown) => console.error('error getting current context', err));
 });

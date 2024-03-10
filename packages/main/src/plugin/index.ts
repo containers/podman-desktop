@@ -2112,6 +2112,10 @@ export class PluginSystem {
         });
       },
     );
+    this.ipcHandle(
+      'context:collectAllValues',
+      async (): Promise<Record<string, unknown>> => context.collectAllValues(),
+    );
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,
