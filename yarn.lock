@@ -3268,10 +3268,10 @@
     p-map "^4.0.0"
     webpack-sources "^3.2.2"
 
-"@sveltejs/package@^2.2.6":
-  version "2.2.7"
-  resolved "https://registry.yarnpkg.com/@sveltejs/package/-/package-2.2.7.tgz#5c2c247d8807f6d683dcd9d51a609860f35cb31b"
-  integrity sha512-/vvmrQO2mMvROdM/iGRHtRn+ValnK9xzB50pqRcX0IvoeVoTq7uhYf+KifrZTluBA+km6AX/WXRXajrgrgbmvw==
+"@sveltejs/package@^2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@sveltejs/package/-/package-2.3.0.tgz#b65d00637611778ee8e8c812b93effe0178bd31c"
+  integrity sha512-wmtwEfi3gQnmtotAjygRHR6cmLfpblQl1dU764f3N2I5DPe34llFs44bHOYcuk91Bp2sSq6bWUmNwxGlYCchOA==
   dependencies:
     chokidar "^3.6.0"
     kleur "^4.1.5"
@@ -11895,9 +11895,9 @@ mz@^2.7.0:
     thenify-all "^1.0.0"
 
 nan@^2.16.0:
-  version "2.18.0"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.18.0.tgz#26a6faae7ffbeb293a39660e88a76b82e30b7554"
-  integrity sha512-W7tfG7vMOGtD30sHoZSSc/JVYiyDPEyQVso/Zz+/uQd0B0L46gtC+pHha5FFMRpil6fm/AoEcRWyOVi4+E/f8w==
+  version "2.19.0"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.19.0.tgz#bb58122ad55a6c5bc973303908d5b16cfdd5a8c0"
+  integrity sha512-nO1xXxfh/RWNxfd/XPfbIfFk5vgLsAxUR9y5O0cHMJu/AW9U95JLXqthYHjEp+8gQ5p96K9jUp8nbVOxCdRbtw==
 
 nan@^2.17.0:
   version "2.17.0"
