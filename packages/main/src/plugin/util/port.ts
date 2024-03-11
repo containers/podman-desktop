@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import * as net from 'node:net';
+import { type NetworkInterfaceInfoIPv4, networkInterfaces } from 'node:os';
 
 /**
  * Find a free port starting from the given port
@@ -66,5 +67,19 @@ function isFreeAddressPort(address: string, port: number): Promise<boolean> {
 }
 
 export async function isFreePort(port: number): Promise<boolean> {
-  return (await isFreeAddressPort('127.0.0.1', port)) && (await isFreeAddressPort('0.0.0.0', port));
+  const intfs = getIPv4Interfaces();
+  intfs.push('0.0.0.0');
+  const checkInterfaces = await Promise.all(intfs.map(intf => isFreeAddressPort(intf, port)));
+  return checkInterfaces.every(element => element === true);
+}
+
+function getIPv4Interfaces(): string[] {
+  const intfs = networkInterfaces();
+  if (!intfs) {
+    return [];
+  }
+  return Object.values(intfs)
+    .flat()
+    .filter((intf): intf is NetworkInterfaceInfoIPv4 => !!intf && intf.family === 'IPv4' && !!intf.address)
+    .map(intf => intf.address);
 }
