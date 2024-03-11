@@ -28,24 +28,7 @@ beforeEach(() => {
   vi.mock('tar');
 });
 
-type FileOptions = {
-  gid?: number;
-  isBlock?: boolean;
-  isChar?: boolean;
-  isDir?: boolean;
-  isExec?: boolean;
-  isFifo?: boolean;
-  isLink?: boolean;
-  isSGID?: boolean;
-  isSUID?: boolean;
-  linkTarget?: string;
-  modeString?: string;
-  size?: number;
-  typeChar?: string;
-  uid?: number;
-};
-
-function newFile(val: FileOptions): ImageLayerFile {
+function newFile(val: Partial<ImageLayerFile>): ImageLayerFile {
   return {
     isBlock: val.isBlock || false,
     isChar: val.isChar || false,
