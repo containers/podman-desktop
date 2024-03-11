@@ -16,13 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ContainerInfo } from './api/container-info.js';
 import type { IDisposable } from './types/disposable.js';
-
-export interface RemoteAPI {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  listContainers(options?: {}): Promise<ContainerInfo[]>;
-}
 
 export type ApiSenderType = {
   send: (channel: string, data?: unknown) => void;
