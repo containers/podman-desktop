@@ -55,12 +55,16 @@ export async function getFreePortRange(rangeSize: number): Promise<string> {
   return `${startPort}-${port - 1}`;
 }
 
-export function isFreePort(port: number): Promise<boolean> {
+function isFreeAddressPort(address: string, port: number): Promise<boolean> {
   const server = net.createServer();
   return new Promise((resolve, reject) =>
     server
       .on('error', (error: NodeJS.ErrnoException) => (error.code === 'EADDRINUSE' ? resolve(false) : reject(error)))
       .on('listening', () => server.close(() => resolve(true)))
-      .listen(port, '127.0.0.1'),
+      .listen(port, address),
   );
+}
+
+export async function isFreePort(port: number): Promise<boolean> {
+  return (await isFreeAddressPort('127.0.0.1', port)) && (await isFreeAddressPort('0.0.0.0', port));
 }
