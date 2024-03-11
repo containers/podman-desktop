@@ -465,8 +465,27 @@ declare module '@podman-desktop/api' {
   }
 
   export namespace commands {
+    /**
+     * Define a command, to be executed later, either by calling {@link commands.executeCommand} or by referencing its name in the `command` field of a {@link StatusBarItem}.
+     *
+     * @param command the name of the command. The name must unique over all extensions. It is recommended to prefix this name with the name of the extension, to avoid conflicts with commands from other extensions.
+     * @param callback the command to execute
+     * @param thisArg The value of `this` provided for the call to callback
+     * @returns A disposable that unregisters this command when being disposed
+     * @throws if a command with the same name is already registered.
+     */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     export function registerCommand(command: string, callback: (...args: any[]) => any, thisArg?: any): Disposable;
+    /**
+     * Execute a command, previously registered with {@link commands.registerCommand}
+     *
+     * @param command the name used for registering the command
+     * @param rest the parameters to pass to the command
+     * @param T the type of the value returned by the command
+     * @returns the value returned by the command
+     * @throws if the command is not registered
+     * @throws if the command throws an exception
+     */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     export function executeCommand<T = unknown>(command: string, ...rest: any[]): PromiseLike<T>;
   }
@@ -1194,7 +1213,7 @@ declare module '@podman-desktop/api' {
      */
     enabled: boolean;
     /**
-     * The identifier of a command to run on click.
+     * The identifier of a command, previously registered with {@link commands.registerCommand}, to run on click.
      */
     command?: string;
     /**
