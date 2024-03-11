@@ -89,6 +89,7 @@ const directories = {
   getPluginsDirectory: () => '/fake-plugins-directory',
   getPluginsScanDirectory: () => '/fake-plugins-scanning-directory',
   getExtensionsStorageDirectory: () => '/fake-extensions-storage-directory',
+  getContributionStorageDir: () => '/fake-contribution-storage-directory',
 } as unknown as Directories;
 
 const proxy = {
@@ -97,7 +98,7 @@ const proxy = {
 
 const exec = new Exec(proxy);
 
-beforeAll(() => {
+beforeEach(() => {
   contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry, exec);
 });
 
@@ -692,4 +693,73 @@ test('delete extension', async () => {
   expect(contributionManager.hasStartedContribution('contrib1')).toBeFalsy();
   expect(initCommand).toBeCalled();
   expect(execComposeCommand).toBeCalledWith('/path/to', ['-p', 'podman-desktop-ext-contrib1', 'down']);
+});
+
+test('init', async () => {
+  vi.mock('node:fs');
+
+  // mock existsSync as always returning true
+  vi.mocked(fs.existsSync).mockReturnValue(true);
+
+  vi.spyOn(contributionManager, 'loadMetadata').mockResolvedValueOnce({
+    name: 'contrib1',
+    version: '1.0.0',
+    publisher: 'aquasec',
+    description: 'Analyze image',
+    ui: {
+      'dashboard-tab': {
+        title: 'Trivy',
+        root: '/ui',
+        src: 'index.html',
+        backend: {
+          socket: 'plugin-trivy.sock',
+        },
+      },
+    },
+  });
+
+  vi.spyOn(contributionManager, 'loadMetadata').mockResolvedValueOnce({
+    name: 'contrib2',
+    ui: {
+      'dashboard-tab': {
+        title: 'OpenShift',
+        root: '/ui',
+        src: 'index.html',
+      },
+    },
+  });
+
+  vi.spyOn(contributionManager, 'startVMs').mockResolvedValue(undefined);
+
+  vi.spyOn(contributionManager, 'loadBase64Icon').mockResolvedValue('icon');
+
+  vi.mocked(fs.promises.readdir).mockResolvedValue([
+    { isDirectory: () => true, name: 'contrib1' } as fs.Dirent,
+    { isDirectory: () => true, name: 'contrib2' } as fs.Dirent,
+  ]);
+
+  // initialize the contribution manager
+  await contributionManager.init();
+
+  // now list contributions
+  const contributions = contributionManager.listContributions();
+
+  // should have 2
+  expect(contributions.length).toBe(2);
+
+  const openshiftExt = contributions.find(c => c.name === 'OpenShift');
+  expect(openshiftExt).toBeDefined();
+
+  const trivyExt = contributions.find(c => c.name === 'Trivy');
+  expect(trivyExt).toBeDefined();
+
+  expect(openshiftExt?.id).toBe('dashboard-tab');
+  expect(openshiftExt?.version).toBe('');
+  expect(openshiftExt?.publisher).toBe('');
+  expect(openshiftExt?.description).toBe('');
+
+  expect(trivyExt?.id).toBe('dashboard-tab');
+  expect(trivyExt?.version).toBe('1.0.0');
+  expect(trivyExt?.publisher).toBe('aquasec');
+  expect(trivyExt?.description).toBe('Analyze image');
 });
