@@ -68,7 +68,10 @@ function isFreeAddressPort(address: string, port: number): Promise<boolean> {
 
 export async function isFreePort(port: number): Promise<boolean> {
   const intfs = getIPv4Interfaces();
-  intfs.push('0.0.0.0');
+  // Test this special interface separately, or it will interfere with other tests done in parallel
+  if (!(await isFreeAddressPort('0.0.0.0', port))) {
+    return false;
+  }
   const checkInterfaces = await Promise.all(intfs.map(intf => isFreeAddressPort(intf, port)));
   return checkInterfaces.every(element => element === true);
 }
