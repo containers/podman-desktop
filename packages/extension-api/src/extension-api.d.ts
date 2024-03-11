@@ -468,7 +468,7 @@ declare module '@podman-desktop/api' {
     /**
      * Define a command, to be executed later, either by calling {@link commands.executeCommand} or by referencing its name in the `command` field of a {@link StatusBarItem}.
      *
-     * @param command the name of the command. The name must unique over all extensions. It is recommended to prefix this name with the name of the extension, to avoid conflicts with commands from other extensions.
+     * @param command the name of the command. The name must be unique over all extensions. It is recommended to prefix this name with the name of the extension, to avoid conflicts with commands from other extensions.
      * @param callback the command to execute
      * @param thisArg The value of `this` provided for the call to callback
      * @returns A disposable that unregisters this command when being disposed
