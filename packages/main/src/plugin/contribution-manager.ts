@@ -124,6 +124,10 @@ export class ContributionManager {
           const contribution: ContributionInfo = {
             id: key,
             extensionId,
+            description: metadata.description ?? '',
+            displayName: uiMetadata.title,
+            publisher: metadata.publisher ?? '',
+            version: metadata.version ?? '',
             name: uiMetadata.title,
             type: 'docker',
             uiUri,

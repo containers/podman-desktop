@@ -19,9 +19,14 @@
 export interface ContributionInfo {
   id: string;
   extensionId: string;
+  description: string;
+  displayName: string;
   name: string;
   type: string;
   uiUri: string;
+  version: string;
+  readme?: string;
+  publisher: string;
 
   // base64 encoded icon in format: 'data:image/svg+xml;base64,<content>'
   icon: string;
