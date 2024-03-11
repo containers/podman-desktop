@@ -126,7 +126,7 @@ export class ExtensionInstaller {
       return;
     }
 
-    const titleLabel = imageConfigLabels['org.opencontainers.image.title'] as string;
+    const titleLabel = imageConfigLabels['org.opencontainers.image.title'] as string | undefined;
     const descriptionLabel = imageConfigLabels['org.opencontainers.image.description'];
     const vendorLabel = imageConfigLabels['org.opencontainers.image.vendor'];
     const apiVersion = imageConfigLabels['io.podman-desktop.api.version'];
