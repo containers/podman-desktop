@@ -2134,6 +2134,8 @@ export class PluginSystem {
       imageRegistry,
       extensionsCatalog,
       telemetry,
+      directories,
+      contributionManager,
     );
     await extensionInstaller.init();
 
