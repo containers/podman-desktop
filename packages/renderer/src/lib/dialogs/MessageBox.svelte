@@ -1,5 +1,5 @@
 <script lang="ts">
-import { onDestroy, onMount, tick } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import Fa from 'svelte-fa';
 import { faCircleQuestion, faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faCircleExclamation, faInfo, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
@@ -21,7 +21,6 @@ let buttonOrder: number[];
 
 let display = false;
 
-let inputElement: HTMLInputElement | undefined = undefined;
 let messageBox: HTMLDivElement;
 
 const showMessageBoxCallback = (messageBoxParameter: unknown) => {
@@ -75,16 +74,6 @@ const showMessageBoxCallback = (messageBoxParameter: unknown) => {
   });
 
   display = true;
-
-  tick()
-    .then(() => {
-      if (display && inputElement) {
-        inputElement.focus();
-      }
-    })
-    .catch((error: unknown) => {
-      console.error('Unable to focus on input element', error);
-    });
 };
 
 onMount(() => {

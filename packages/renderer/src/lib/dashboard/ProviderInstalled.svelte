@@ -29,8 +29,6 @@ let initializeError: string | undefined = undefined;
 
 let preflightChecks: CheckStatus[] = [];
 
-let noErrors = true;
-
 let logsXtermDiv: HTMLDivElement;
 let logsTerminal: Terminal;
 
@@ -203,8 +201,6 @@ function onInstallationClick() {
       style="background-color: {getPanelDetailColor()}; width: 100%; text-align: left; display: {initializeError
         ? 'block'
         : 'none'}"
-      class:h-full="{noErrors === false}"
-      class:min-w-full="{noErrors === false}"
       bind:this="{logsXtermDiv}">
     </div>
 
