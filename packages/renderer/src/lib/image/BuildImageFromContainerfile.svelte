@@ -36,7 +36,6 @@ let cancellableTokenId: number | undefined = undefined;
 let providers: ProviderInfo[] = [];
 let providerConnections: ProviderContainerConnectionInfo[] = [];
 let selectedProvider: ProviderContainerConnectionInfo | undefined = undefined;
-let selectedProviderConnection: ProviderContainerConnectionInfo | undefined = undefined;
 let logsTerminal: Terminal;
 
 $: hasInvalidFields = !containerFilePath || !containerBuildContextDirectory;
@@ -210,9 +209,6 @@ async function abortBuild() {
                 {/each}
               </select>
             </label>
-          {/if}
-          {#if providerConnections.length === 1 && selectedProviderConnection}
-            <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection.name}" />
           {/if}
         </div>
 
