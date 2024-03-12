@@ -196,4 +196,4 @@ jobs:
         run: |
           echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" packages/ui/package.json
-          cd packages/ui && yarn publish --tag next --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
+          cd packages/ui && yarn build && yarn publish --tag next --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
