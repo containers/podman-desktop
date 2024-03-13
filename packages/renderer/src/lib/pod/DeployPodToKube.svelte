@@ -471,9 +471,11 @@ function updateKubeResult() {
       {#if openshiftRouteGroupSupported}
         <div class="pt-2 m-2">
           <label for="routes" class="block mb-1 text-sm font-medium text-gray-400">Create OpenShift routes:</label>
-          <Checkbox bind:checked="{deployUsingRoutes}" name="useRoutes" id="useRoutes" required />
-          <span class="text-gray-400 text-sm ml-1"
-            >Create OpenShift routes to get access to the exposed ports of this pod.</span>
+          <div class="flex flex-row">
+            <Checkbox bind:checked="{deployUsingRoutes}" name="useRoutes" id="useRoutes" required />
+            <span class="text-gray-400 text-sm ml-1"
+              >Create OpenShift routes to get access to the exposed ports of this pod.</span>
+          </div>
         </div>
       {/if}
 
