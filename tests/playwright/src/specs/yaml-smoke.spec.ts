@@ -17,13 +17,13 @@
  ***********************************************************************/
 
 import type { Page } from '@playwright/test';
-import type { RunnerTestContext } from './testContext/runner-test-context';
+import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
-import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
-import { WelcomePage } from './model/pages/welcome-page';
-import { NavigationBar } from './model/workbench/navigation';
-import { deleteImage, deletePod } from './utility/operations';
+import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import { WelcomePage } from '../model/pages/welcome-page';
+import { NavigationBar } from '../model/workbench/navigation';
+import { deleteImage, deletePod } from '../utility/operations';
 import path from 'path';
 
 let pdRunner: PodmanDesktopRunner;
@@ -66,7 +66,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       const playYamlPage = await podsPage.openPlayKubeYaml();
       await playExpect(playYamlPage.heading).toBeVisible();
 
-      const yamlFilePath = path.resolve(__dirname, '..', 'resources', `${podAppName}.yaml`);
+      const yamlFilePath = path.resolve(__dirname, '..', '..', 'resources', `${podAppName}.yaml`);
       podsPage = await playYamlPage.playYaml(yamlFilePath);
       await playExpect(podsPage.heading).toBeVisible();
     }, 75000);

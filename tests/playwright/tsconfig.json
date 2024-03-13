@@ -4,6 +4,8 @@
     "target": "esnext",
     "sourceMap": false,
     "moduleResolution": "Node",
+    "declaration": true,
+    "outDir": "dist",
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
@@ -14,8 +16,9 @@
 
     "baseUrl": ".",
     "paths": {
-      "/@/*": ["./src/*"]
+      "/@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*.ts", "../types/**/*.d.ts"]
+  "include": ["src/**/*.ts", "../types/**/*.d.ts"],
+  "exclude": ["node_modules", "src/*spec.ts"]
 }

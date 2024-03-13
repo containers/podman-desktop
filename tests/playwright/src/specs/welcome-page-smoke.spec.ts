@@ -17,13 +17,13 @@
  ***********************************************************************/
 
 import type { Page } from '@playwright/test';
-import type { RunnerTestContext } from './testContext/runner-test-context';
+import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
-import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
-import { WelcomePage } from './model/pages/welcome-page';
-import { DashboardPage } from './model/pages/dashboard-page';
-import { NavigationBar } from './model/workbench/navigation';
+import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import { WelcomePage } from '../model/pages/welcome-page';
+import { DashboardPage } from '../model/pages/dashboard-page';
+import { NavigationBar } from '../model/workbench/navigation';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;

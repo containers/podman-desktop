@@ -17,16 +17,16 @@
  ***********************************************************************/
 
 import type { Page } from '@playwright/test';
-import type { RunnerTestContext } from './testContext/runner-test-context';
+import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { afterAll, beforeAll, test, describe, beforeEach, expect } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
-import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
-import { WelcomePage } from './model/pages/welcome-page';
-import { NavigationBar } from './model/workbench/navigation';
-import { ImageDetailsPage } from './model/pages/image-details-page';
+import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import { WelcomePage } from '../model/pages/welcome-page';
+import { NavigationBar } from '../model/workbench/navigation';
+import { ImageDetailsPage } from '../model/pages/image-details-page';
 import path from 'path';
-import { handleConfirmationDialog } from './utility/operations';
-import type { ImagesPage } from './model/pages/images-page';
+import { handleConfirmationDialog } from '../utility/operations';
+import type { ImagesPage } from '../model/pages/images-page';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -108,8 +108,8 @@ describe('Image workflow verification', async () => {
 
     const buildImagePage = await imagesPage.openBuildImage();
     await playExpect(buildImagePage.heading).toBeVisible();
-    const dockerfilePath = path.resolve(__dirname, '..', 'resources', 'test-containerfile');
-    const contextDirectory = path.resolve(__dirname, '..', 'resources');
+    const dockerfilePath = path.resolve(__dirname, '..', '..', 'resources', 'test-containerfile');
+    const contextDirectory = path.resolve(__dirname, '..', '..', 'resources');
 
     imagesPage = await buildImagePage.buildImage('build-image-test', dockerfilePath, contextDirectory);
     expect(await imagesPage.waitForImageExists('docker.io/library/build-image-test')).toBeTruthy();

@@ -17,15 +17,15 @@
  ***********************************************************************/
 
 import type { Page } from 'playwright';
-import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
+import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
-import type { RunnerTestContext } from './testContext/runner-test-context';
-import { WelcomePage } from './model/pages/welcome-page';
-import { SettingsBar } from './model/pages/settings-bar';
-import { RegistriesPage } from './model/pages/registries-page';
-import { NavigationBar } from './model/workbench/navigation';
-import { canTestRegistry, setupRegistry } from './setupFiles/setup-registry';
+import type { RunnerTestContext } from '../testContext/runner-test-context';
+import { WelcomePage } from '../model/pages/welcome-page';
+import { SettingsBar } from '../model/pages/settings-bar';
+import { RegistriesPage } from '../model/pages/registries-page';
+import { NavigationBar } from '../model/workbench/navigation';
+import { canTestRegistry, setupRegistry } from '../setupFiles/setup-registry';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
