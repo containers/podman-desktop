@@ -23,6 +23,7 @@ import { contributions } from './contribs';
 import type { ExtensionInfo } from '../../../main/src/plugin/api/extension-info';
 
 export interface CombinedExtensionInfoUI extends ExtensionInfo {
+  // type is either 'pd' for Podman Desktop or 'dd' for 'Docker Desktop'
   type: 'dd' | 'pd';
 }
 
