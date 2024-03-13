@@ -89,3 +89,13 @@ test('Should display badge with dark color', async () => {
   // check color being there in the style
   expect(label).toHaveStyle('background-color: rgb(0, 255, 0)');
 });
+
+test('Should display badge with custom class', async () => {
+  render(Badge, { label: 'customLabel', class: 'text-right' });
+
+  // expect to see label inside the label
+  const label = screen.getByText('customLabel');
+  expect(label).toBeInTheDocument();
+
+  await vi.waitFor(() => expect(label).toHaveClass('text-right'));
+});
