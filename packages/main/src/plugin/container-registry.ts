@@ -60,6 +60,10 @@ import type { NetworkInspectInfo } from './api/network-info.js';
 import type { Event } from './events/emitter.js';
 import { Emitter } from './events/emitter.js';
 import fs from 'node:fs';
+import { mkdtemp, rm } from 'node:fs/promises';
+import os from 'node:os';
+import nodeTar from 'tar';
+import path from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import type { ApiSenderType } from './api.js';
 import { type Stream, Writable } from 'node:stream';
@@ -67,6 +71,7 @@ import datejs from 'date.js';
 import { isWindows } from '../util.js';
 import { EnvfileParser } from './env-file-parser.js';
 import type { ProviderRegistry } from '/@/plugin/provider-registry.js';
+import { getLayersFromImageArchive, type ImageLayer } from './image-layers.js';
 
 export interface InternalContainerProvider {
   name: string;
@@ -2064,6 +2069,20 @@ export class ContainerProviderRegistry {
       throw error;
     } finally {
       this.telemetryService.track('imageSave', telemetryOptions);
+    }
+  }
+
+  async getImageLayers(engineId: string, id: string): Promise<ImageLayer[]> {
+    const tmpdir = await mkdtemp(path.join(os.tmpdir(), 'podman-desktop'));
+    try {
+      const tarFile = path.join(tmpdir, id + '.tar');
+      await this.saveImage(engineId, id, tarFile);
+      await nodeTar.extract({ file: tarFile, cwd: tmpdir });
+      return await getLayersFromImageArchive(tmpdir);
+    } finally {
+      rm(tmpdir, { force: true, recursive: true }).catch((err: unknown) => {
+        console.error(`unable to delete directory ${tmpdir}: ${String(err)}`);
+      });
     }
   }
 

@@ -161,6 +161,7 @@ import type { Deferred } from './util/deferred.js';
 import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
 import { Updater } from '/@/plugin/updater.js';
 import { RecommendationsRegistry } from './recommendations/recommendations-registry.js';
+import type { ImageLayer } from './image-layers.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -648,6 +649,12 @@ export class PluginSystem {
     this.ipcHandle('container-provider-registry:listImages', async (): Promise<ImageInfo[]> => {
       return containerProviderRegistry.listImages();
     });
+    this.ipcHandle(
+      'container-provider-registry:getImageLayers',
+      async (_listener, engineId: string, id: string): Promise<ImageLayer[]> => {
+        return containerProviderRegistry.getImageLayers(engineId, id);
+      },
+    );
     this.ipcHandle('container-provider-registry:listPods', async (): Promise<PodInfo[]> => {
       return containerProviderRegistry.listPods();
     });
