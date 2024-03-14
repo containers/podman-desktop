@@ -31,6 +31,7 @@ export class Directories {
   private pluginsScanDirectory: string;
   private extensionsStorageDirectory: string;
   private contributionStorageDirectory: string;
+  private safeStorageDirectory: string;
   protected desktopAppHomeDir: string;
 
   constructor() {
@@ -47,6 +48,7 @@ export class Directories {
     this.pluginsScanDirectory = path.resolve(this.desktopAppHomeDir, 'plugins-scanning');
     this.extensionsStorageDirectory = path.resolve(this.desktopAppHomeDir, 'extensions-storage');
     this.contributionStorageDirectory = path.resolve(this.desktopAppHomeDir, 'contributions');
+    this.safeStorageDirectory = path.resolve(this.desktopAppHomeDir, 'safe-storage');
   }
 
   getConfigurationDirectory(): string {
@@ -67,5 +69,9 @@ export class Directories {
 
   public getContributionStorageDir(): string {
     return this.contributionStorageDirectory;
+  }
+
+  public getSafeStorageDirectory(): string {
+    return this.safeStorageDirectory;
   }
 }
