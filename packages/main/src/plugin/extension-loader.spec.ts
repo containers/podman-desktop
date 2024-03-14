@@ -61,6 +61,7 @@ import type { OnboardingRegistry } from './onboarding-registry.js';
 import type { ProgressImpl } from './progress-impl.js';
 import type { ProviderRegistry } from './provider-registry.js';
 import type { Proxy } from './proxy.js';
+import type { ExtensionSecretStorage, SafeStorageRegistry } from './safe-storage/safe-storage-registry.js';
 import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import type { TrayMenuRegistry } from './tray-menu-registry.js';
@@ -176,10 +177,15 @@ const cliToolRegistry: CliToolRegistry = {
   createCliTool: vi.fn(),
 } as unknown as CliToolRegistry;
 
+const safeStorageRegistry: SafeStorageRegistry = {
+  getExtensionStorage: vi.fn(),
+} as unknown as SafeStorageRegistry;
+
 const directories = {
   getPluginsDirectory: () => '/fake-plugins-directory',
   getPluginsScanDirectory: () => '/fake-plugins-scanning-directory',
   getExtensionsStorageDirectory: () => '/fake-extensions-storage-directory',
+  getSafeStorageDirectory: () => '/fake-safe-storage-directory',
 } as unknown as Directories;
 
 const exec = new Exec(proxy);
@@ -268,6 +274,7 @@ beforeAll(() => {
     webviewRegistry,
     colorRegistry,
     dialogRegistry,
+    safeStorageRegistry,
   );
 });
 
@@ -1757,5 +1764,59 @@ describe('containerEngine', async () => {
         name: 'dummyProvider',
       },
     });
+  });
+});
+
+describe('extensionContext', async () => {
+  test('secrets', async () => {
+    vi.mock('node:fs');
+
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+
+    const extension: AnalyzedExtension = {
+      subscriptions: [],
+      id: 'fooPublisher.fooName',
+      name: 'fooName',
+    } as unknown as AnalyzedExtension;
+
+    vi.mocked(configurationRegistry.getConfiguration).mockReturnValue({
+      get: vi.fn().mockReturnValue(5),
+    } as unknown as containerDesktopAPI.Configuration);
+
+    const getMock = vi.fn();
+    const storeMock = vi.fn();
+    const deleteMock = vi.fn();
+
+    vi.mocked(safeStorageRegistry.getExtensionStorage).mockReturnValue({
+      get: getMock,
+      store: storeMock,
+      delete: deleteMock,
+    } as unknown as ExtensionSecretStorage);
+
+    let extensionContext: containerDesktopAPI.ExtensionContext | undefined;
+
+    const activateMethod = (context: containerDesktopAPI.ExtensionContext): void => {
+      extensionContext = context;
+    };
+
+    const extensionMain = {
+      activate: activateMethod,
+    };
+
+    await extensionLoader.activateExtension(extension, extensionMain);
+
+    expect(extensionContext).toBeDefined();
+    expect(extensionContext?.secrets).toBeDefined();
+
+    expect(safeStorageRegistry.getExtensionStorage).toBeCalledWith('fooPublisher.fooName');
+
+    await extensionContext?.secrets.store('key', 'value');
+    expect(storeMock).toBeCalledWith('key', 'value');
+
+    await extensionContext?.secrets.get('key');
+    expect(getMock).toBeCalledWith('key');
+
+    await extensionContext?.secrets.delete('key');
+    expect(deleteMock).toBeCalledWith('key');
   });
 });

@@ -625,6 +625,7 @@ export class PluginSystem {
       webviewRegistry,
       colorRegistry,
       dialogRegistry,
+      safeStorageRegistry,
     );
     await this.extensionLoader.init();
 
