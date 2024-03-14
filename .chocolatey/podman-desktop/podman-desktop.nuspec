@@ -3,7 +3,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>podman-desktop</id>
-    <version>1.7.1</version>
+    <version>1.8.0</version>
     <title>Podman Desktop</title>
     <authors>Florent Benoit</authors>
     <owners>https://github.com/containers</owners>
@@ -32,7 +32,7 @@
 ### You can also bring new features with Podman Desktop plug-ins or Docker Desktop extensions
     </description>
     <summary>Manage Podman and other container engines from a single UI and tray.</summary>
-    <releaseNotes>https://github.com/containers/podman-desktop/releases/expanded_assets/v1.7.1</releaseNotes>
+    <releaseNotes>https://github.com/containers/podman-desktop/releases/expanded_assets/v1.8.0</releaseNotes>
     <copyright>2022 Red Hat, Inc</copyright>
     <tags>podman desktop podman-machine containers ui</tags>
     <packageSourceUrl>https://github.com/containers/podman-desktop/tree/main/.chocolatey</packageSourceUrl>
