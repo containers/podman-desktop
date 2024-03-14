@@ -150,7 +150,7 @@
     "shell-path": "^3.0.0"
   },
   "devDependencies": {
-    "adm-zip": "^0.5.10",
+    "adm-zip": "^0.5.12",
     "byline": "^5.0.0",
     "copyfiles": "^2.4.1",
     "mkdirp": "^3.0.1",
