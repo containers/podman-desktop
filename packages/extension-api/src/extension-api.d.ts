@@ -144,6 +144,11 @@ declare module '@podman-desktop/api' {
      * The uri of the directory containing the extension.
      */
     readonly extensionUri: Uri;
+
+    /**
+     * A storage utility for secrets. Secrets are persisted across reloads.
+     */
+    readonly secrets: SecretStorage;
   }
 
   /**
@@ -4152,5 +4157,47 @@ declare module '@podman-desktop/api' {
      * @see {@link window.createWebviewPanel createWebviewPanel} for creating a Webview
      */
     export function navigateToWebview(webviewId: string): Promise<void>;
+  }
+
+  /**
+   * The event data that is fired when a secret is added or removed.
+   */
+  export interface SecretStorageChangeEvent {
+    /**
+     * The key of the secret that has changed.
+     */
+    readonly key: string;
+  }
+
+  /**
+   * Represents a storage utility for secrets, information that is
+   * sensitive.
+   */
+  export interface SecretStorage {
+    /**
+     * Retrieve a secret that was stored with key. Returns undefined if there
+     * is no secret matching that key.
+     * @param key The key the secret was stored under.
+     * @returns The stored value or `undefined`.
+     */
+    get(key: string): Promise<string | undefined>;
+
+    /**
+     * Store a secret under a given key.
+     * @param key The key to store the secret under.
+     * @param value The secret.
+     */
+    store(key: string, value: string): Promise<void>;
+
+    /**
+     * Remove a secret from storage.
+     * @param key The key the secret was stored under.
+     */
+    delete(key: string): Promise<void>;
+
+    /**
+     * Fires when a secret is stored or deleted.
+     */
+    onDidChange: Event<SecretStorageChangeEvent>;
   }
 }
