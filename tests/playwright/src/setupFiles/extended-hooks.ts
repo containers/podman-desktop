@@ -30,8 +30,8 @@ import { afterEach } from 'vitest';
 export async function takeScreenshotHook(runner: PodmanDesktopRunner, taskName: string): Promise<void> {
   const normalizedFilePath = taskName
     .replace(/([/: ])/g, '_')
-    .replace(/[^_a-zA-Z0-9]/g, '')
-    .replace(/[_]{2,}/g, '_');
+    .replace(/\W/g, '')
+    .replace(/_{2,}/g, '_');
   let fileName = `${normalizedFilePath}_failure`;
   let counter = 0;
   while (fs.existsSync(path.resolve(runner.getTestOutput(), 'screenshots', `${fileName}.png`))) {

@@ -54,7 +54,7 @@ export async function deleteContainer(page: Page, name: string): Promise<void> {
       console.log('Waiting for container to get deleted ...');
       await waitWhile(async () => {
         const result = await containers.getContainerRowByName(name);
-        return result ? true : false;
+        return !!result;
       }, 5000);
     } catch (error) {
       if (!(error as Error).message.includes('Page is empty')) {
@@ -90,7 +90,7 @@ export async function deleteImage(page: Page, name: string): Promise<void> {
         async () => {
           const images = await new NavigationBar(page).openImages();
           const result = await images.getImageRowByName(name);
-          return result ? true : false;
+          return !!result;
         },
         10000,
         1000,
@@ -137,7 +137,7 @@ export async function deletePod(page: Page, name: string): Promise<void> {
     try {
       console.log('Waiting for pod to get deleted ...');
       await waitWhile(async () => {
-        return (await pods.getPodRowByName(name)) ? true : false;
+        return !!(await pods.getPodRowByName(name));
       }, 20000);
     } catch (error) {
       if (!(error as Error).message.includes('Page is empty')) {
@@ -176,7 +176,7 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
   await playExpect(resourcesPodmanConnections.providerConnections).toBeVisible({ timeout: 10_000 });
   await waitWhile(
     async () => {
-      return (await resourcesPodmanConnections.podmanMachineElement.isVisible()) ? false : true;
+      return await resourcesPodmanConnections.podmanMachineElement.isVisible();
     },
     10_000,
     1000,

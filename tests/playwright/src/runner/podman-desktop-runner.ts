@@ -233,7 +233,7 @@ export class PodmanDesktopRunner {
   }
 
   private setupPodmanDesktopCustomFolder(): object {
-    const env: { [key: string]: string } = Object.assign({}, process.env as { [key: string]: string });
+    const env: { [key: string]: string } = process.env as { [key: string]: string };
     const dir = path.join(this._customFolder);
     console.log(`podman desktop custom config will be written to: ${dir}`);
     env.PODMAN_DESKTOP_HOME_DIR = dir;

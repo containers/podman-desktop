@@ -97,7 +97,7 @@ export class ContainersPage extends MainPage {
   }
 
   async containerExists(name: string): Promise<boolean> {
-    return (await this.getContainerRowByName(name)) !== undefined ? true : false;
+    return (await this.getContainerRowByName(name)) !== undefined;
   }
 
   async openCreatePodPage(names: string[]): Promise<CreatePodsPage> {

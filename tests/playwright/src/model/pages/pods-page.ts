@@ -76,7 +76,7 @@ export class PodsPage extends BasePage {
   }
 
   async podExists(name: string): Promise<boolean> {
-    return (await this.getPodRowByName(name)) !== undefined ? true : false;
+    return (await this.getPodRowByName(name)) !== undefined;
   }
 
   async openPlayKubeYaml(): Promise<PlayKubeYamlPage> {

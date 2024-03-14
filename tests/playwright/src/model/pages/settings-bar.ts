@@ -74,7 +74,7 @@ export class SettingsBar {
 
     for (const link of allLinks) {
       const href = await link.getAttribute('href');
-      if (href && href.includes('/extension/')) extensions.push(link);
+      if (href?.includes('/extension/')) extensions.push(link);
     }
 
     return extensions;
