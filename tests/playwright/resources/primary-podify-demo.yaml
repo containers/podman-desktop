@@ -19,6 +19,11 @@ spec:
     - name: HOME
       value: /home/redis
     image: quay.io/podman-desktop-demo/podify-demo-backend:v1
+    resources:
+        limits:
+          cpu: 1
+          memory: 500Mi
+    automountServiceAccountToken: false
     name: backend-podified
     ports:
     - containerPort: 5007
@@ -33,6 +38,10 @@ spec:
     - name: HOSTNAME
       value: 4daf7345fc17
     image: quay.io/podman-desktop-demo/podify-demo-frontend:v1
+    resources:
+        limits:
+          cpu: 1
+          memory: 500Mi
     name: frontend-podified
     securityContext:
       runAsNonRoot: true
