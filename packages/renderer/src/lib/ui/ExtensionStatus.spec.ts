@@ -43,7 +43,7 @@ test('Expect green text and icon when connection is starting', async () => {
   expect(icon).toHaveClass('bg-green-500');
   expect(label).toBeInTheDocument();
   expect(label).toHaveClass('text-green-500');
-  expect(label).toHaveTextContent('ENABLING');
+  expect(label).toHaveTextContent('ACTIVATING');
 });
 
 test('Expect green text and icon when connection is stopped', async () => {
