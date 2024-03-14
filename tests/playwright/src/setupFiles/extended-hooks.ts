@@ -18,15 +18,17 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import type { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import type { RunnerTestContext } from '../testContext/runner-test-context';
+import { afterEach } from 'vitest';
 
 /**
  * Function to be used in afterEach runner test context
  * @param runner Podman Desktop Runner object
  * @param taskName Task name - taken from runner context
  */
-export async function takeScreenshotHook(runner: PodmanDesktopRunner, taskName: string) {
-    const normalizedFilePath = taskName
+export async function takeScreenshotHook(runner: PodmanDesktopRunner, taskName: string): Promise<void> {
+  const normalizedFilePath = taskName
     .replace(/([/: ])/g, '_')
     .replace(/[^_a-zA-Z0-9]/g, '')
     .replace(/[_]{2,}/g, '_');
@@ -40,3 +42,7 @@ export async function takeScreenshotHook(runner: PodmanDesktopRunner, taskName: 
   console.log(`Screenshot of the failed test will be saved to: ${fileName}`);
   await runner.screenshot(`${fileName}.png`);
 }
+
+afterEach(async (context: RunnerTestContext) => {
+  await takeScreenshotHook(context.pdRunner, context.task.name);
+});
