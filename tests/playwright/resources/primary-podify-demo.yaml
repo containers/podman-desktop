@@ -42,6 +42,7 @@ spec:
         limits:
           cpu: 1
           memory: 500Mi
+    automountServiceAccountToken: false
     name: frontend-podified
     securityContext:
       runAsNonRoot: true
