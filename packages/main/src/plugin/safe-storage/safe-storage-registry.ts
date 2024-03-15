@@ -39,14 +39,14 @@ export class SafeStorageRegistry {
     this.#directories = directories;
   }
 
-  protected getSafeStoragePath(): string {
+  protected getSafeStorageDataPath(): string {
     // create directory if it does not exist
     return path.resolve(this.#directories.getSafeStorageDirectory(), 'data.json');
   }
 
   // initialize the safe storage
   public async init(): Promise<void> {
-    const safeStoragePath = this.getSafeStoragePath();
+    const safeStoragePath = this.getSafeStorageDataPath();
 
     const parentDirectory = path.dirname(safeStoragePath);
     if (!existsSync(parentDirectory)) {
