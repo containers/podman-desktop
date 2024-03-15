@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as fs from 'fs';
-import * as path from 'path';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import type { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { afterEach } from 'vitest';
@@ -34,7 +34,7 @@ export async function takeScreenshotHook(runner: PodmanDesktopRunner, taskName: 
     .replace(/_{2,}/g, '_');
   let fileName = `${normalizedFilePath}_failure`;
   let counter = 0;
-  while (fs.existsSync(path.resolve(runner.getTestOutput(), 'screenshots', `${fileName}.png`))) {
+  while (existsSync(resolve(runner.getTestOutput(), 'screenshots', `${fileName}.png`))) {
     counter++;
     fileName = `${fileName}_${counter}`;
     if (counter > 10) break;

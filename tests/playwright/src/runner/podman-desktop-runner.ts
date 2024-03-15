@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,20 +55,9 @@ export class PodmanDesktopRunner {
     try {
       // start the app with given properties
       this._running = true;
-      console.log(`### STARTING PODMAN DESKTOP APP ###`);
-      console.log(`Electron app launch options: `);
-      Object.keys(this._options).forEach(key => {
-        console.log(`${key}: ${(this._options as { [k: string]: string })[key]}`);
-      });
       this._app = await electron.launch({
         ...this._options,
       });
-      // setup state
-      this._page = await this.getElectronApp().firstWindow();
-      const exe = this.getElectronApp().evaluate(async ({ app }) => {
-        return app.getPath('exe');
-      });
-      console.log(`The Executable Electron app. file: ${exe}`);
 
       // Evaluate that the main window is visible
       // at the same time, the function also makes sure that event 'ready-to-show' was triggered
