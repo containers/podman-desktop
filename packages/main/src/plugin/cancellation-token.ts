@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type * as extensionApi from '@podman-desktop/api';
+
 import { Emitter } from './events/emitter.js';
 import type { IDisposable } from './types/disposable.js';
 

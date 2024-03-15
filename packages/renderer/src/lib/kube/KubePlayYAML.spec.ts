@@ -17,14 +17,16 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
-import { providerInfos } from '../../stores/providers';
-import { render, screen } from '@testing-library/svelte';
-import KubePlayYAML from './KubePlayYAML.svelte';
+
 import type { ProviderStatus } from '@podman-desktop/api';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { beforeAll, expect, test, vi } from 'vitest';
+
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import type { PlayKubeInfo } from '../../../../main/src/plugin/dockerode/libpod-dockerode';
+import { providerInfos } from '../../stores/providers';
+import KubePlayYAML from './KubePlayYAML.svelte';
 
 const mockedErroredPlayKubeInfo: PlayKubeInfo = {
   Pods: [

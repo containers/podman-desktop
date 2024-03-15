@@ -17,8 +17,10 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect, vi } from 'vitest';
+
 import { fireEvent, render, screen } from '@testing-library/svelte';
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 
 const executeCommand = vi.fn();

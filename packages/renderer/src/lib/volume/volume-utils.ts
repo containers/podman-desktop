@@ -16,11 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import moment from 'moment';
+import { filesize } from 'filesize';
 import humanizeDuration from 'humanize-duration';
+import moment from 'moment';
+
 import type { VolumeInfo } from '../../../../main/src/plugin/api/volume-info';
 import type { VolumeInfoUI } from './VolumeInfoUI';
-import { filesize } from 'filesize';
 
 export class VolumeUtils {
   getShortName(volumeInfo: VolumeInfo): string {

@@ -17,8 +17,9 @@
  ***********************************************************************/
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import { OpenDevToolsInit } from './open-devtools-init.js';
+
 import type { ConfigurationRegistry } from './configuration-registry.js';
+import { OpenDevToolsInit } from './open-devtools-init.js';
 
 let openDevToolsInit: OpenDevToolsInit;
 

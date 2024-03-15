@@ -16,13 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, afterEach, expect, test, vi, describe } from 'vitest';
-import type { ResourceName, ContextGeneralState } from './kubernetes-context-state.js';
-import { ContextsManager, ContextsStates } from './kubernetes-context-state.js';
-import type { ApiSenderType } from './api.js';
-import * as kubeclient from '@kubernetes/client-node';
 import type { ErrorCallback, KubernetesObject, ObjectCallback } from '@kubernetes/client-node';
-import { makeInformer, KubeConfig } from '@kubernetes/client-node';
+import * as kubeclient from '@kubernetes/client-node';
+import { KubeConfig, makeInformer } from '@kubernetes/client-node';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+
+import type { ApiSenderType } from './api.js';
+import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
+import { ContextsManager, ContextsStates } from './kubernetes-context-state.js';
 
 interface InformerEvent {
   delayMs: number;

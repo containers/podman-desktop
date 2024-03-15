@@ -17,10 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, vi, expect, beforeAll } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import ServiceDetailsSummary from './ServiceDetailsSummary.svelte';
+
 import type { V1Service } from '@kubernetes/client-node';
+import { render, screen } from '@testing-library/svelte';
+import { beforeAll, expect, test, vi } from 'vitest';
+
+import ServiceDetailsSummary from './ServiceDetailsSummary.svelte';
 
 const service: V1Service = {
   metadata: {

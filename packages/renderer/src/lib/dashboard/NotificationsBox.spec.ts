@@ -16,11 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
 import { notificationQueue } from '/@/stores/notifications';
-import NotificationsBox from './NotificationsBox.svelte';
+
 import type { NotificationCard } from '../../../../main/src/plugin/api/notification';
+import NotificationsBox from './NotificationsBox.svelte';
 
 test('Expect notifications box to be hidden if there are no notifications in the queue', async () => {
   notificationQueue.set([]);

@@ -16,15 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Page } from '@playwright/test';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
-import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
-import { expect as playExpect } from '@playwright/test';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import { WelcomePage } from '../model/pages/welcome-page';
-import { deletePodmanMachine } from '../utility/operations';
-import { NavigationBar } from '../model/workbench/navigation';
 import * as os from 'node:os';
+
+import type { Page } from '@playwright/test';
+import { expect as playExpect } from '@playwright/test';
+import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
+
+import { WelcomePage } from '../model/pages/welcome-page';
+import { NavigationBar } from '../model/workbench/navigation';
+import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import type { RunnerTestContext } from '../testContext/runner-test-context';
+import { deletePodmanMachine } from '../utility/operations';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;

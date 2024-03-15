@@ -16,11 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import type { SpyInstance } from 'vitest';
-import { ModuleLoader } from './module-loader.js';
-import type { ExtensionModule } from './module-loader.js';
 import type * as PodmanDesktop from '@podman-desktop/api';
+import type { SpyInstance } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+
+import type { ExtensionModule } from './module-loader.js';
+import { ModuleLoader } from './module-loader.js';
 
 const fakeModule = {
   _load: vi.fn(),

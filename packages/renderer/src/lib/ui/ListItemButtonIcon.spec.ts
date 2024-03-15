@@ -17,12 +17,15 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/svelte';
-import ListItemButtonIcon from './ListItemButtonIcon.svelte';
+
 import { faCircleCheck, faRocket } from '@fortawesome/free-solid-svg-icons';
-import { ContextUI } from '../context/context';
+import { fireEvent, render, screen } from '@testing-library/svelte';
+import { expect, test, vi } from 'vitest';
+
 import { context } from '/@/stores/context';
+
+import { ContextUI } from '../context/context';
+import ListItemButtonIcon from './ListItemButtonIcon.svelte';
 
 test('Expect the dropDownMenuItem to have classes that display a disabled object if the disabled when clause is evaluated to true', async () => {
   const title = 'title';

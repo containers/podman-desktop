@@ -19,12 +19,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { afterEach, expect, suite, test, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import type { CliToolInfo } from '../../../../main/src/plugin/api/cli-tool-info';
-import userEvent from '@testing-library/user-event';
-import PreferencesCliTool from './PreferencesCliTool.svelte';
+
 import { beforeEach } from 'node:test';
+
+import { render, screen } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
+import { afterEach, expect, suite, test, vi } from 'vitest';
+
+import type { CliToolInfo } from '../../../../main/src/plugin/api/cli-tool-info';
+import PreferencesCliTool from './PreferencesCliTool.svelte';
 
 const cliToolInfoItem1: CliToolInfo = {
   id: 'ext-id.tool-name1',

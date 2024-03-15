@@ -17,10 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
-import SendFeedback from './SendFeedback.svelte';
+
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { beforeAll, expect, test } from 'vitest';
+
+import SendFeedback from './SendFeedback.svelte';
 
 // fake the window.events object
 beforeAll(() => {

@@ -18,6 +18,7 @@
 
 import { get } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
+
 import { combinedInstalledExtensions } from './all-installed-extensions';
 import { contributions } from './contribs';
 import { extensionInfos } from './extensions';

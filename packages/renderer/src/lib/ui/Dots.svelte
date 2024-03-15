@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { PodInfoContainerUI } from '../pod/PodInfoUI';
-import StatusDot from './StatusDot.svelte';
 import { organizeContainers } from './Dots';
+import StatusDot from './StatusDot.svelte';
 import { capitalize } from './Util';
 
 // All the possible statuses that will appear for both Pods and Kubernetes

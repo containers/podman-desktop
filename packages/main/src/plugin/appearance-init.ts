@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IConfigurationNode, IConfigurationRegistry } from './configuration-registry.js';
 import { AppearanceSettings } from './appearance-settings.js';
+import type { IConfigurationNode, IConfigurationRegistry } from './configuration-registry.js';
 
 export class AppearanceInit {
   constructor(private configurationRegistry: IConfigurationRegistry) {}

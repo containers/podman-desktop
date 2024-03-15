@@ -17,11 +17,12 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { BasePage } from './base-page';
-import { ContainersPage } from './containers-page';
+
+import { handleConfirmationDialog } from '../../utility/operations';
 import { waitUntil } from '../../utility/wait';
 import { ContainerState } from '../core/states';
-import { handleConfirmationDialog } from '../../utility/operations';
+import { BasePage } from './base-page';
+import { ContainersPage } from './containers-page';
 
 export class ContainerDetailsPage extends BasePage {
   readonly labelName: Locator;

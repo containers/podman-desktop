@@ -16,16 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Page } from 'playwright';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
-import { WelcomePage } from '../model/pages/welcome-page';
-import { SettingsBar } from '../model/pages/settings-bar';
+import type { Page } from 'playwright';
+import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
+
 import { RegistriesPage } from '../model/pages/registries-page';
+import { SettingsBar } from '../model/pages/settings-bar';
+import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
+import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import { canTestRegistry, setupRegistry } from '../setupFiles/setup-registry';
+import type { RunnerTestContext } from '../testContext/runner-test-context';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;

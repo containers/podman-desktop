@@ -1,8 +1,10 @@
 <script lang="ts">
 import { faRefresh } from '@fortawesome/free-solid-svg-icons';
+
+import type { EventStoreInfo } from '/@/stores/event-store';
+
 import Button from '../ui/Button.svelte';
 import TroubleshootingPageStoreDetails from './TroubleshootingPageStoreDetails.svelte';
-import type { EventStoreInfo } from '/@/stores/event-store';
 
 export let eventStoreInfo: EventStoreInfo;
 

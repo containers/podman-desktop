@@ -1,14 +1,15 @@
 <script lang="ts">
-import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
-import Markdown from '../markdown/Markdown.svelte';
-import { getNormalizedDefaultNumberValue } from './Util';
 import BooleanItem from '/@/lib/preferences/item-formats/BooleanItem.svelte';
-import SliderItem from '/@/lib/preferences/item-formats/SliderItem.svelte';
-import NumberItem from '/@/lib/preferences/item-formats/NumberItem.svelte';
-import FileItem from '/@/lib/preferences/item-formats/FileItem.svelte';
 import EnumItem from '/@/lib/preferences/item-formats/EnumItem.svelte';
+import FileItem from '/@/lib/preferences/item-formats/FileItem.svelte';
+import NumberItem from '/@/lib/preferences/item-formats/NumberItem.svelte';
+import SliderItem from '/@/lib/preferences/item-formats/SliderItem.svelte';
 import StringItem from '/@/lib/preferences/item-formats/StringItem.svelte';
+
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+import Markdown from '../markdown/Markdown.svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
+import { getNormalizedDefaultNumberValue } from './Util';
 
 let invalidText: string | undefined = undefined;
 export let invalidRecord = (_error: string) => {};

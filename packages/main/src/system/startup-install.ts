@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import * as os from 'node:os';
+
 import type { ConfigurationRegistry, IConfigurationNode } from '../plugin/configuration-registry.js';
 import { MacosStartup } from './macos-startup.js';
 import { WindowsStartup } from './windows-startup.js';

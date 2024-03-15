@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { expect, test } from 'vitest';
+
 import { normalizeWSLOutput } from './util';
 
 test('normalizeWSLOutput returns the same string if there is no need to normalize it', async () => {

@@ -1,20 +1,22 @@
 <script lang="ts">
+import { onDestroy, onMount } from 'svelte';
+import type { Unsubscriber } from 'svelte/store';
+
+import { containersInfos } from '/@/stores/containers';
+
 import Route from '../../Route.svelte';
+import { ContainerUtils } from '../container/container-utils';
+import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import ComposeIcon from '../images/PodIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
-import ComposeActions from './ComposeActions.svelte';
-import type { Unsubscriber } from 'svelte/store';
-import { onDestroy, onMount } from 'svelte';
-import { containersInfos } from '/@/stores/containers';
-import type { ComposeInfoUI } from './ComposeInfoUI';
-import { ContainerUtils } from '../container/container-utils';
-import ComposeDetailsLogs from './ComposeDetailsLogs.svelte';
-import ComposeDetailsKube from './ComposeDetailsKube.svelte';
-import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import Tab from '../ui/Tab.svelte';
-import ComposeDetailsSummary from './ComposeDetailsSummary.svelte';
+import ComposeActions from './ComposeActions.svelte';
 import ComposeDetailsInspect from './ComposeDetailsInspect.svelte';
+import ComposeDetailsKube from './ComposeDetailsKube.svelte';
+import ComposeDetailsLogs from './ComposeDetailsLogs.svelte';
+import ComposeDetailsSummary from './ComposeDetailsSummary.svelte';
+import type { ComposeInfoUI } from './ComposeInfoUI';
 
 export let composeName: string;
 export let engineId: string;

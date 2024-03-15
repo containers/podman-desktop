@@ -19,10 +19,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import LearningCenter from './LearningCenter.svelte';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+
 import learningCenter from '../../../../main/src/plugin/learning-center/guides.json';
+import LearningCenter from './LearningCenter.svelte';
 
 class ResizeObserver {
   observe = vi.fn();

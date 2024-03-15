@@ -18,9 +18,11 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { beforeAll, beforeEach, expect, type Mock, test, vi } from 'vitest';
-import * as podmanDesktopApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
+
+import * as podmanDesktopApi from '@podman-desktop/api';
+import { beforeAll, beforeEach, expect, type Mock, test, vi } from 'vitest';
+
 import { updateContext } from './extension';
 
 const item = {

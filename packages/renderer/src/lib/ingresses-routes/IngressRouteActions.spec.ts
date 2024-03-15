@@ -17,10 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import type { IngressUI } from './IngressUI';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+
 import IngressRouteActions from './IngressRouteActions.svelte';
+import type { IngressUI } from './IngressUI';
 import type { RouteUI } from './RouteUI';
 
 const updateMock = vi.fn();

@@ -17,8 +17,10 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
-import { render, screen, waitFor, fireEvent } from '@testing-library/svelte';
+
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import VolumeActions from './VolumeActions.svelte';
 import type { VolumeInfoUI } from './VolumeInfoUI';
 

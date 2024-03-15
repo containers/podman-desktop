@@ -16,28 +16,32 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { EventEmitter } from 'node:events';
+import { PassThrough } from 'node:stream';
+
+import type * as podmanDesktopAPI from '@podman-desktop/api';
+import Dockerode from 'dockerode';
+import moment from 'moment';
+import nock from 'nock';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+
+import type { ApiSenderType } from '/@/plugin/api.js';
+import type { ImageInfo } from '/@/plugin/api/image-info.js';
+import type { Certificates } from '/@/plugin/certificates.js';
 import type { InternalContainerProvider } from '/@/plugin/container-registry.js';
 import { ContainerProviderRegistry } from '/@/plugin/container-registry.js';
-import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
-import type { Certificates } from '/@/plugin/certificates.js';
-import type { Proxy } from '/@/plugin/proxy.js';
 import { ImageRegistry } from '/@/plugin/image-registry.js';
-import type { ApiSenderType } from '/@/plugin/api.js';
-import Dockerode from 'dockerode';
-import { EventEmitter } from 'node:events';
-import type * as podmanDesktopAPI from '@podman-desktop/api';
-import nock from 'nock';
-import type { LibPod, ContainerCreateOptions as PodmanContainerCreateOptions } from './dockerode/libpod-dockerode.js';
-import { LibpodDockerode } from './dockerode/libpod-dockerode.js';
-import moment from 'moment';
-import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
+import type { Proxy } from '/@/plugin/proxy.js';
+import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
+
 import * as util from '../util.js';
-import { PassThrough } from 'node:stream';
+import type { ContainerCreateOptions } from './api/container-info.js';
+import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
+import type { ContainerCreateOptions as PodmanContainerCreateOptions, LibPod } from './dockerode/libpod-dockerode.js';
+import { LibpodDockerode } from './dockerode/libpod-dockerode.js';
 import type { EnvfileParser } from './env-file-parser.js';
 import type { ProviderRegistry } from './provider-registry.js';
-import type { ContainerCreateOptions } from './api/container-info.js';
-import type { ImageInfo } from '/@/plugin/api/image-info.js';
+
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 
 /* eslint-disable @typescript-eslint/no-empty-function */

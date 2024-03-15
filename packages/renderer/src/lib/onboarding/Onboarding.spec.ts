@@ -16,13 +16,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
+
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import Onboarding from './Onboarding.svelte';
-import { ContextUI } from '../context/context';
-import { onboardingList } from '/@/stores/onboarding';
-import { context } from '/@/stores/context';
 import userEvent from '@testing-library/user-event';
+import { expect, test, vi } from 'vitest';
+
+import { context } from '/@/stores/context';
+import { onboardingList } from '/@/stores/onboarding';
+
+import { ContextUI } from '../context/context';
+import Onboarding from './Onboarding.svelte';
 
 async function waitRender(customProperties: object): Promise<void> {
   const result = render(Onboarding, { ...customProperties });

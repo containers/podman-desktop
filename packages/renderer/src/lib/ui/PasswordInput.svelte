@@ -1,8 +1,8 @@
 <script lang="ts">
-import { createEventDispatcher, onMount } from 'svelte';
-import { Input } from '@podman-desktop/ui-svelte';
-import Fa from 'svelte-fa';
 import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
+import { Input } from '@podman-desktop/ui-svelte';
+import { createEventDispatcher, onMount } from 'svelte';
+import Fa from 'svelte-fa';
 
 export let id: string;
 export let password: string | undefined = undefined;

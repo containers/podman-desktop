@@ -1,8 +1,9 @@
 <script lang="ts">
-import type { ComposeInfoUI } from './ComposeInfoUI';
 import { onMount } from 'svelte';
-import MonacoEditor from '../editor/MonacoEditor.svelte';
+
 import type { ContainerInspectInfo } from '../../../../main/src/plugin/api/container-inspect-info';
+import MonacoEditor from '../editor/MonacoEditor.svelte';
+import type { ComposeInfoUI } from './ComposeInfoUI';
 
 export let compose: ComposeInfoUI;
 

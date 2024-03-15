@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect, test } from 'vitest';
-import { fadeSlide } from './animations';
 import { cubicOut } from 'svelte/easing';
+import { expect, test } from 'vitest';
+
+import { fadeSlide } from './animations';
 
 test('fadeSlide', () => {
   const delay = 10;

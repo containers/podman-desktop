@@ -20,6 +20,7 @@
 
 import { get } from 'svelte/store';
 import { beforeAll, expect, test, vi } from 'vitest';
+
 import { containerTerminals, getExistingTerminal, registerTerminal } from './container-terminal-store';
 import { containersInfos } from './containers';
 

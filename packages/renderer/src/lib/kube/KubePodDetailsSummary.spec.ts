@@ -17,18 +17,20 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+
 import type {
-  V1Pod,
+  V1ConfigMapVolumeSource,
   V1Container,
+  V1PersistentVolumeClaimVolumeSource,
+  V1Pod,
   V1PodSpec,
   V1PodStatus,
-  V1Volume,
   V1SecretVolumeSource,
-  V1ConfigMapVolumeSource,
-  V1PersistentVolumeClaimVolumeSource,
+  V1Volume,
 } from '@kubernetes/client-node';
+import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
 import KubeDetailsSummary from './KubePodDetailsSummary.svelte';
 
 const fakePod: V1Pod = {

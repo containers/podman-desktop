@@ -17,13 +17,14 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
+import { expect as playExpect } from '@playwright/test';
+
+import { handleConfirmationDialog } from '../../utility/operations';
+import { waitUntil } from '../../utility/wait';
 import { BasePage } from './base-page';
-import { RunImagePage } from './run-image-page';
 import { ImageEditPage } from './image-edit-page';
 import { ImagesPage } from './images-page';
-import { waitUntil } from '../../utility/wait';
-import { handleConfirmationDialog } from '../../utility/operations';
-import { expect as playExpect } from '@playwright/test';
+import { RunImagePage } from './run-image-page';
 
 export class ImageDetailsPage extends BasePage {
   readonly name: Locator;

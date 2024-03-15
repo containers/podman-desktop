@@ -17,15 +17,17 @@
  ***********************************************************************/
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
-import type { TrayMenu } from '../tray-menu.js';
 import { EventEmitter } from 'node:events';
-import { PluginSystem } from './index.js';
+
 import type { BrowserWindow, WebContents } from 'electron';
-import { shell, clipboard } from 'electron';
-import type { MessageBox } from './message-box.js';
+import { clipboard, shell } from 'electron';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
+import type { TrayMenu } from '../tray-menu.js';
 import { CancellationTokenRegistry } from './cancellation-token-registry.js';
+import { PluginSystem } from './index.js';
+import type { MessageBox } from './message-box.js';
 import { Deferred } from './util/deferred.js';
 
 let pluginSystem: PluginSystem;

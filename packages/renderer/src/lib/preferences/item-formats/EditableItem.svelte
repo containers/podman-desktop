@@ -1,7 +1,8 @@
 <script lang="ts">
 import { faCheck, faPencil, faXmark } from '@fortawesome/free-solid-svg-icons';
-import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
 import Fa from 'svelte-fa';
+
+import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
 import Button from '../../ui/Button.svelte';
 import FloatNumberItem from './FloatNumberItem.svelte';
 

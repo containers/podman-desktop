@@ -1,26 +1,27 @@
 <script lang="ts">
-import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from './ContainerInfoUI';
+import 'xterm/css/xterm.css';
+
+import { onMount } from 'svelte';
+import { router } from 'tinro';
+
 import Route from '../../Route.svelte';
+import { containersInfos } from '../../stores/containers';
 import ContainerIcon from '../images/ContainerIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
-
-import 'xterm/css/xterm.css';
-import ContainerDetailsTerminal from './ContainerDetailsTerminal.svelte';
-import ContainerDetailsLogs from './ContainerDetailsLogs.svelte';
-import ContainerActions from './ContainerActions.svelte';
-import { onMount } from 'svelte';
-import { containersInfos } from '../../stores/containers';
+import DetailsPage from '../ui/DetailsPage.svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
+import StateChange from '../ui/StateChange.svelte';
+import Tab from '../ui/Tab.svelte';
 import { ContainerUtils } from './container-utils';
-import ContainerDetailsSummary from './ContainerDetailsSummary.svelte';
+import ContainerActions from './ContainerActions.svelte';
 import ContainerDetailsInspect from './ContainerDetailsInspect.svelte';
 import ContainerDetailsKube from './ContainerDetailsKube.svelte';
-import ContainerStatistics from './ContainerStatistics.svelte';
-import DetailsPage from '../ui/DetailsPage.svelte';
-import Tab from '../ui/Tab.svelte';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
+import ContainerDetailsLogs from './ContainerDetailsLogs.svelte';
+import ContainerDetailsSummary from './ContainerDetailsSummary.svelte';
+import ContainerDetailsTerminal from './ContainerDetailsTerminal.svelte';
 import ContainerDetailsTtyTerminal from './ContainerDetailsTtyTerminal.svelte';
-import { router } from 'tinro';
-import StateChange from '../ui/StateChange.svelte';
+import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from './ContainerInfoUI';
+import ContainerStatistics from './ContainerStatistics.svelte';
 
 export let containerID: string;
 

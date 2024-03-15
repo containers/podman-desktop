@@ -17,9 +17,10 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
+
+import { waitWhile } from '../../utility/wait';
 import { BasePage } from './base-page';
 import { PodsPage } from './pods-page';
-import { waitWhile } from '../../utility/wait';
 
 export class CreatePodsPage extends BasePage {
   readonly heading: Locator;

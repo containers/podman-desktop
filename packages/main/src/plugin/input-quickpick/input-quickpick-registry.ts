@@ -22,6 +22,7 @@ import type {
   InputBoxValidationMessage,
   QuickPickOptions,
 } from '@podman-desktop/api';
+
 import type { ApiSenderType } from '../api.js';
 import { Deferred } from '../util/deferred.js';
 

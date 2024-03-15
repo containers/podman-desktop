@@ -16,11 +16,23 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as crypto from 'node:crypto';
+import { EventEmitter } from 'node:events';
+import fs from 'node:fs';
+import { type Stream, Writable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
+
 import type * as containerDesktopAPI from '@podman-desktop/api';
-import { Disposable } from './types/disposable.js';
+import datejs from 'date.js';
 import type { ContainerAttachOptions, ImageBuildOptions } from 'dockerode';
 import Dockerode from 'dockerode';
+import moment from 'moment';
 import StreamValues from 'stream-json/streamers/StreamValues.js';
+
+import type { ProviderRegistry } from '/@/plugin/provider-registry.js';
+
+import { isWindows } from '../util.js';
+import type { ApiSenderType } from './api.js';
 import type {
   ContainerCreateOptions,
   ContainerInfo,
@@ -31,42 +43,34 @@ import type {
   VolumeCreateOptions,
   VolumeCreateResponseInfo,
 } from './api/container-info.js';
-import type { BuildImageOptions, ImageInfo, ListImagesOptions } from './api/image-info.js';
-import type { PodCreateOptions, PodInfo, PodInspectInfo } from './api/pod-info.js';
-import type { ImageInspectInfo } from './api/image-inspect-info.js';
-import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
-import type { ImageRegistry } from './image-registry.js';
-import type { PullEvent } from './api/pull-event.js';
-import type { Telemetry } from './telemetry/telemetry.js';
-import * as crypto from 'node:crypto';
-import moment from 'moment';
-const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
-import { EventEmitter } from 'node:events';
 import type { ContainerInspectInfo } from './api/container-inspect-info.js';
+import type { ContainerStatsInfo } from './api/container-stats-info.js';
 import type { HistoryInfo } from './api/history-info.js';
+import type { BuildImageOptions, ImageInfo, ListImagesOptions } from './api/image-info.js';
+import type { ImageInspectInfo } from './api/image-inspect-info.js';
+import type { NetworkInspectInfo } from './api/network-info.js';
+import type { PodCreateOptions, PodInfo, PodInspectInfo } from './api/pod-info.js';
+import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
+import type { PullEvent } from './api/pull-event.js';
+import type { VolumeInfo, VolumeInspectInfo, VolumeListInfo } from './api/volume-info.js';
 import type {
-  LibPod,
-  PlayKubeInfo,
-  ContainerCreateOptions as PodmanContainerCreateOptions,
-  PodInfo as LibpodPodInfo,
   ContainerCreateMountOption,
   ContainerCreateNetNSOption,
+  ContainerCreateOptions as PodmanContainerCreateOptions,
   ContainerCreatePortMappingOption,
+  LibPod,
+  PlayKubeInfo,
+  PodInfo as LibpodPodInfo,
 } from './dockerode/libpod-dockerode.js';
 import { LibpodDockerode } from './dockerode/libpod-dockerode.js';
-import type { ContainerStatsInfo } from './api/container-stats-info.js';
-import type { VolumeInfo, VolumeInspectInfo, VolumeListInfo } from './api/volume-info.js';
-import type { NetworkInspectInfo } from './api/network-info.js';
+import { EnvfileParser } from './env-file-parser.js';
 import type { Event } from './events/emitter.js';
 import { Emitter } from './events/emitter.js';
-import fs from 'node:fs';
-import { pipeline } from 'node:stream/promises';
-import type { ApiSenderType } from './api.js';
-import { type Stream, Writable } from 'node:stream';
-import datejs from 'date.js';
-import { isWindows } from '../util.js';
-import { EnvfileParser } from './env-file-parser.js';
-import type { ProviderRegistry } from '/@/plugin/provider-registry.js';
+import type { ImageRegistry } from './image-registry.js';
+import type { Telemetry } from './telemetry/telemetry.js';
+import { Disposable } from './types/disposable.js';
+
+const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 
 export interface InternalContainerProvider {
   name: string;

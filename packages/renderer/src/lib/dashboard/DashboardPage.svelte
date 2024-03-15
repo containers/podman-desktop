@@ -1,18 +1,19 @@
 <script lang="ts">
+import ProviderConfiguring from '/@/lib/dashboard/ProviderConfiguring.svelte';
+import FeaturedExtensions from '/@/lib/featured/FeaturedExtensions.svelte';
+
 import { providerInfos } from '../../stores/providers';
-import ProviderNotInstalled from './ProviderNotInstalled.svelte';
-import ProviderReady from './ProviderReady.svelte';
-import ProviderInstalled from './ProviderInstalled.svelte';
-import ProviderConfigured from './ProviderConfigured.svelte';
-import ProviderStopped from './ProviderStopped.svelte';
-import ProviderStarting from './ProviderStarting.svelte';
+import LearningCenter from '../learning-center/LearningCenter.svelte';
 import NavPage from '../ui/NavPage.svelte';
+import NotificationsBox from './NotificationsBox.svelte';
+import ProviderConfigured from './ProviderConfigured.svelte';
 import type { InitializationContext } from './ProviderInitUtils';
 import { DoNothingMode } from './ProviderInitUtils';
-import FeaturedExtensions from '/@/lib/featured/FeaturedExtensions.svelte';
-import ProviderConfiguring from '/@/lib/dashboard/ProviderConfiguring.svelte';
-import NotificationsBox from './NotificationsBox.svelte';
-import LearningCenter from '../learning-center/LearningCenter.svelte';
+import ProviderInstalled from './ProviderInstalled.svelte';
+import ProviderNotInstalled from './ProviderNotInstalled.svelte';
+import ProviderReady from './ProviderReady.svelte';
+import ProviderStarting from './ProviderStarting.svelte';
+import ProviderStopped from './ProviderStopped.svelte';
 
 const providerInitContexts = new Map<string, InitializationContext>();
 

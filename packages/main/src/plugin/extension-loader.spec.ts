@@ -18,52 +18,55 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import * as fs from 'node:fs';
+import { readFile } from 'node:fs/promises';
+import * as path from 'node:path';
+
+import type * as containerDesktopAPI from '@podman-desktop/api';
+import { app } from 'electron';
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+
+import type { ContributionInfo } from '/@/plugin/api/contribution-info.js';
+import type { ContributionManager } from '/@/plugin/contribution-manager.js';
+import type { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
+import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
+import { NavigationPage } from '/@/plugin/navigation/navigation-page.js';
+import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
+
+import { getBase64Image } from '../util.js';
+import type { ApiSenderType } from './api.js';
+import type { WebviewInfo } from './api/webview-info.js';
+import type { AuthenticationImpl } from './authentication.js';
+import type { CliToolRegistry } from './cli-tool-registry.js';
+import type { ColorRegistry } from './color-registry.js';
 import type { CommandRegistry } from './command-registry.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import type { ContainerProviderRegistry } from './container-registry.js';
+import { Context } from './context/context.js';
+import type { CustomPickRegistry } from './custompick/custompick-registry.js';
+import type { DialogRegistry } from './dialog-registry.js';
+import type { Directories } from './directories.js';
 import type { ActivatedExtension, AnalyzedExtension, RequireCacheDict } from './extension-loader.js';
 import { ExtensionLoader } from './extension-loader.js';
 import type { FilesystemMonitoring } from './filesystem-monitoring.js';
+import type { IconRegistry } from './icon-registry.js';
+import type { ImageCheckerImpl } from './image-checker.js';
 import type { ImageRegistry } from './image-registry.js';
 import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
 import type { KubernetesClient } from './kubernetes-client.js';
 import type { MenuRegistry } from './menu-registry.js';
+import type { MessageBox } from './message-box.js';
+import type { NotificationRegistry } from './notification-registry.js';
+import type { OnboardingRegistry } from './onboarding-registry.js';
 import type { ProgressImpl } from './progress-impl.js';
 import type { ProviderRegistry } from './provider-registry.js';
 import type { Proxy } from './proxy.js';
 import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
-import type { TrayMenuRegistry } from './tray-menu-registry.js';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import type { ApiSenderType } from './api.js';
-import type { AuthenticationImpl } from './authentication.js';
-import type { MessageBox } from './message-box.js';
 import type { Telemetry } from './telemetry/telemetry.js';
-import type * as containerDesktopAPI from '@podman-desktop/api';
-import type { IconRegistry } from './icon-registry.js';
-import type { Directories } from './directories.js';
-import type { CustomPickRegistry } from './custompick/custompick-registry.js';
-import type { ViewRegistry } from './view-registry.js';
-import { Context } from './context/context.js';
-import type { OnboardingRegistry } from './onboarding-registry.js';
-import { Exec } from './util/exec.js';
-import type { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
-import type { CliToolRegistry } from './cli-tool-registry.js';
-import type { NotificationRegistry } from './notification-registry.js';
-import type { ImageCheckerImpl } from './image-checker.js';
-import type { ContributionManager } from '/@/plugin/contribution-manager.js';
-import { NavigationPage } from '/@/plugin/navigation/navigation-page.js';
-import type { ContributionInfo } from '/@/plugin/api/contribution-info.js';
-import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
-import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
-import { app } from 'electron';
-import type { WebviewInfo } from './api/webview-info.js';
-import { getBase64Image } from '../util.js';
+import type { TrayMenuRegistry } from './tray-menu-registry.js';
 import { Disposable } from './types/disposable.js';
-import type { ColorRegistry } from './color-registry.js';
-import type { DialogRegistry } from './dialog-registry.js';
-import { readFile } from 'node:fs/promises';
+import { Exec } from './util/exec.js';
+import type { ViewRegistry } from './view-registry.js';
 
 class TestExtensionLoader extends ExtensionLoader {
   public async setupScanningDirectory(): Promise<void> {

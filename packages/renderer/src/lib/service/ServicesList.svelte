@@ -1,25 +1,27 @@
 <script lang="ts">
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import moment from 'moment';
 import { onMount } from 'svelte';
-import NavPage from '../ui/NavPage.svelte';
-import Table from '../table/Table.svelte';
+
+import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
+import { kubernetesCurrentContextServicesFiltered, serviceSearchPattern } from '/@/stores/kubernetes-contexts-state';
+
+import ServiceIcon from '../images/ServiceIcon.svelte';
+import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
+import DurationColumn from '../table/DurationColumn.svelte';
+import SimpleColumn from '../table/SimpleColumn.svelte';
 import { Column, Row } from '../table/table';
-import ServiceColumnStatus from './ServiceColumnStatus.svelte';
-import ServiceColumnName from './ServiceColumnName.svelte';
+import Table from '../table/Table.svelte';
+import Button from '../ui/Button.svelte';
+import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
+import NavPage from '../ui/NavPage.svelte';
 import { ServiceUtils } from './service-utils';
 import ServiceColumnActions from './ServiceColumnActions.svelte';
-import moment from 'moment';
-import Button from '../ui/Button.svelte';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import type { ServiceUI } from './ServiceUI';
-import ServiceIcon from '../images/ServiceIcon.svelte';
-import ServiceEmptyScreen from './ServiceEmptyScreen.svelte';
-import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
-import SimpleColumn from '../table/SimpleColumn.svelte';
-import DurationColumn from '../table/DurationColumn.svelte';
+import ServiceColumnName from './ServiceColumnName.svelte';
+import ServiceColumnStatus from './ServiceColumnStatus.svelte';
 import ServiceColumnType from './ServiceColumnType.svelte';
-import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
-import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
-import { kubernetesCurrentContextServicesFiltered, serviceSearchPattern } from '/@/stores/kubernetes-contexts-state';
+import ServiceEmptyScreen from './ServiceEmptyScreen.svelte';
+import type { ServiceUI } from './ServiceUI';
 
 export let searchTerm = '';
 $: serviceSearchPattern.set(searchTerm);

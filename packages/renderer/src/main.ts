@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import * as svelte from 'svelte';
+
 import Loader from './Loader.svelte';
 
 const target = document.getElementById('app');

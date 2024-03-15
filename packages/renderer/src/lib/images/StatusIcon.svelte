@@ -1,6 +1,6 @@
 <script lang="ts">
-import StarIcon from './StarIcon.svelte';
 import Spinner from '../ui/Spinner.svelte';
+import StarIcon from './StarIcon.svelte';
 
 // status: one of RUNNING, STARTING, USED, CREATED, DELETING, or DEGRADED
 // any other status will result in a standard outlined box

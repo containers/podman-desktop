@@ -21,15 +21,18 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll, describe } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
-import { router } from 'tinro';
-import PreferencesConnectionCreationOrEditRendering from './PreferencesConnectionCreationOrEditRendering.svelte';
-import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
-import type { ProviderInfo, ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
-import { operationConnectionsInfo } from '/@/stores/operation-connections';
-import { eventCollect } from '/@/lib/preferences/preferences-connection-rendering-task';
+
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { get } from 'svelte/store';
+import { router } from 'tinro';
+import { beforeAll, describe, expect, test, vi } from 'vitest';
+
+import { eventCollect } from '/@/lib/preferences/preferences-connection-rendering-task';
+import { operationConnectionsInfo } from '/@/stores/operation-connections';
+
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+import PreferencesConnectionCreationOrEditRendering from './PreferencesConnectionCreationOrEditRendering.svelte';
 
 type LoggerEventName = 'log' | 'warn' | 'error' | 'finish';
 

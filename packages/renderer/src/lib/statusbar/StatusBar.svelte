@@ -1,6 +1,7 @@
 <script lang="ts">
-import type { StatusBarEntry } from '../../../../main/src/plugin/statusbar/statusbar-registry';
 import { onMount } from 'svelte';
+
+import type { StatusBarEntry } from '../../../../main/src/plugin/statusbar/statusbar-registry';
 import { statusBarEntries } from '../../stores/statusbar';
 import StatusBarItem from './StatusBarItem.svelte';
 

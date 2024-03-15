@@ -19,12 +19,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect, vi } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
 import { get } from 'svelte/store';
-import FeaturedExtensions from './FeaturedExtensions.svelte';
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import { featuredExtensionInfos } from '/@/stores/featuredExtensions';
+
 import type { FeaturedExtension } from '../../../../main/src/plugin/featured/featured-api';
+import FeaturedExtensions from './FeaturedExtensions.svelte';
 
 const getFeaturedExtensionsMock = vi.fn();
 

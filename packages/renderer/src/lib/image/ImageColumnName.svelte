@@ -1,8 +1,9 @@
 <script lang="ts">
 import { router } from 'tinro';
-import type { ImageInfoUI } from './ImageInfoUI';
 
 import Badge from '../ui/Badge.svelte';
+import type { ImageInfoUI } from './ImageInfoUI';
+
 export let object: ImageInfoUI;
 
 function openDetailsImage(image: ImageInfoUI) {

@@ -1,5 +1,6 @@
 <script lang="ts">
 import { faLightbulb } from '@fortawesome/free-solid-svg-icons';
+
 import Button from './Button.svelte';
 </script>
 

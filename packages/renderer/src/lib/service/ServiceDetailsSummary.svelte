@@ -1,9 +1,10 @@
 <script lang="ts">
 import type { V1Service } from '@kubernetes/client-node';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
+
 import KubeObjectMetaArtifact from '../kube/details/KubeObjectMetaArtifact.svelte';
 import KubeServiceArtifact from '../kube/details/KubeServiceArtifact.svelte';
 import KubeServiceStatusArtifact from '../kube/details/KubeServiceStatusArtifact.svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 export let service: V1Service | undefined;
 export let kubeError: string | undefined = undefined;

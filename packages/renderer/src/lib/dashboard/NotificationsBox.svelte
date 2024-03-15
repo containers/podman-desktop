@@ -1,7 +1,9 @@
 <script lang="ts">
-import { onMount, onDestroy } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/motion';
+
 import { notificationQueue } from '/@/stores/notifications';
+
 import type { NotificationCard } from '../../../../main/src/plugin/api/notification';
 import NotificationCardItem from './NotificationCardItem.svelte';
 

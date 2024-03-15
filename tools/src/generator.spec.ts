@@ -15,9 +15,10 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import { test, expect, vi, beforeEach } from 'vitest';
-import type { Mock } from 'vitest';
 import { graphql } from '@octokit/graphql';
+import type { Mock } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
+
 import { Generator, RELEASE_NOTES_SECTION_TAG } from './generator';
 
 vi.mock('@octokit/graphql', async () => {

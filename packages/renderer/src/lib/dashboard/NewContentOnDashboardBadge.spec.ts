@@ -16,15 +16,18 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import NewContentOnDashboardBadge from './NewContentOnDashboardBadge.svelte';
-import { notificationQueue } from '/@/stores/notifications';
-import type { NotificationCard } from '../../../../main/src/plugin/api/notification';
+
 import type { ProviderStatus } from '@podman-desktop/api';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import { providerInfos } from '/@/stores/providers';
+import { render, screen } from '@testing-library/svelte';
 import { router } from 'tinro';
+import { expect, test } from 'vitest';
+
+import { notificationQueue } from '/@/stores/notifications';
+import { providerInfos } from '/@/stores/providers';
+
+import type { NotificationCard } from '../../../../main/src/plugin/api/notification';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import NewContentOnDashboardBadge from './NewContentOnDashboardBadge.svelte';
 
 async function waitRender(): Promise<void> {
   const result = render(NewContentOnDashboardBadge);

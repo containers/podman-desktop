@@ -17,10 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import KubeIngressArtifact from './KubeIngressArtifact.svelte';
+
 import type { V1IngressSpec } from '@kubernetes/client-node';
+import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
+import KubeIngressArtifact from './KubeIngressArtifact.svelte';
 
 const fakeIngress: V1IngressSpec = {
   rules: [

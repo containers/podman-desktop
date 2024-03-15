@@ -17,8 +17,9 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
 
 import VolumeColumnEnvironment from './VolumeColumnEnvironment.svelte';
 import type { VolumeInfoUI } from './VolumeInfoUI';

@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { afterEach, beforeEach, expect, test, vi, vitest } from 'vitest';
+
 import { OS } from './os';
 
 let os: OS;

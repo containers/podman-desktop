@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import React from 'react';
 import CopyButton from '@theme-original/CodeBlock/CopyButton';
+import React from 'react';
 
 // Update the CopyButton to remove the '$ ' or '# ' from the code
 export default function CopyButtonWrapper(props) {

@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { beforeEach, expect, test, vi } from 'vitest';
+
 import { findMatchInLeaves } from './search-util';
 
 beforeEach(() => {

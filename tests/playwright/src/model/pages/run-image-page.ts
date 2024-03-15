@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
+
 import { BasePage } from './base-page';
 import { ContainersPage } from './containers-page';
 

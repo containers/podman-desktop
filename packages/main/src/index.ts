@@ -16,18 +16,22 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import './security-restrictions';
+
+import dns from 'node:dns';
+
 import type { BrowserWindow } from 'electron';
 import { app, ipcMain, Tray } from 'electron';
-import './security-restrictions';
+
 import { createNewWindow, restoreWindow } from '/@/mainWindow.js';
+
+import type { ExtensionLoader } from './plugin/extension-loader.js';
+import { PluginSystem } from './plugin/index.js';
+import { Deferred } from './plugin/util/deferred.js';
+import { StartupInstall } from './system/startup-install.js';
+import { AnimatedTray } from './tray-animate-icon.js';
 import { TrayMenu } from './tray-menu.js';
 import { isMac, isWindows, stoppedExtensions } from './util.js';
-import { AnimatedTray } from './tray-animate-icon.js';
-import { PluginSystem } from './plugin/index.js';
-import { StartupInstall } from './system/startup-install.js';
-import type { ExtensionLoader } from './plugin/extension-loader.js';
-import dns from 'node:dns';
-import { Deferred } from './plugin/util/deferred.js';
 
 let extensionLoader: ExtensionLoader | undefined;
 

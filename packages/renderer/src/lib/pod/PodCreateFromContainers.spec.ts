@@ -17,13 +17,16 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/svelte';
-import { providerInfos } from '../../stores/providers';
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import { podCreationHolder, type PodCreation } from '/@/stores/creation-from-containers-store';
-import PodCreateFromContainers from './PodCreateFromContainers.svelte';
+
 import type { ContainerInspectInfo } from '@podman-desktop/api';
+import { fireEvent, render, screen } from '@testing-library/svelte';
+import { expect, test, vi } from 'vitest';
+
+import { type PodCreation, podCreationHolder } from '/@/stores/creation-from-containers-store';
+
+import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import { providerInfos } from '../../stores/providers';
+import PodCreateFromContainers from './PodCreateFromContainers.svelte';
 
 const providerInfo: ProviderInfo = {
   id: 'podman',

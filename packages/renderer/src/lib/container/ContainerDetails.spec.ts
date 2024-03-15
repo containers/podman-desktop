@@ -17,16 +17,17 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
+
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-
-import ContainerDetails from './ContainerDetails.svelte';
 import { get } from 'svelte/store';
-import { containersInfos } from '/@/stores/containers';
-import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
-
 import { router } from 'tinro';
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import { lastPage } from '/@/stores/breadcrumb';
+import { containersInfos } from '/@/stores/containers';
+
+import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
+import ContainerDetails from './ContainerDetails.svelte';
 
 const listContainersMock = vi.fn();
 

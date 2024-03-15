@@ -16,11 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ProxySettings, Event } from '@podman-desktop/api';
+import type { Event, ProxySettings } from '@podman-desktop/api';
+import { ProxyAgent } from 'undici';
+
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
 import { Emitter } from './events/emitter.js';
 import { getProxyUrl } from './proxy-resolver.js';
-import { ProxyAgent } from 'undici';
 
 export function ensureURL(urlstring: string | undefined): string | undefined {
   if (urlstring) {

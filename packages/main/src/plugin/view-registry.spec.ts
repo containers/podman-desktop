@@ -17,9 +17,10 @@
  ***********************************************************************/
 
 import { beforeEach, expect, expectTypeOf, test, vi } from 'vitest';
-import { ViewRegistry } from './view-registry.js';
-import type { Disposable } from './types/disposable.js';
+
 import type { ViewContributionIcon } from './api/view-info.js';
+import type { Disposable } from './types/disposable.js';
+import { ViewRegistry } from './view-registry.js';
 
 let viewRegistry: ViewRegistry;
 

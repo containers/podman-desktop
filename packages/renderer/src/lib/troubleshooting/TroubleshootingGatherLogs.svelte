@@ -1,7 +1,8 @@
 <script lang="ts">
 import { faFileLines, faScroll } from '@fortawesome/free-solid-svg-icons';
-import Button from '/@/lib/ui/Button.svelte';
 import Fa from 'svelte-fa';
+
+import Button from '/@/lib/ui/Button.svelte';
 
 let logs: string[] = [];
 

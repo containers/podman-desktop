@@ -17,8 +17,10 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, describe, beforeAll, vi } from 'vitest';
+
 import { fireEvent, render, screen } from '@testing-library/svelte';
+import { beforeAll, describe, expect, test, vi } from 'vitest';
+
 import Markdown from './Markdown.svelte';
 
 async function waitRender(customProperties: object): Promise<void> {

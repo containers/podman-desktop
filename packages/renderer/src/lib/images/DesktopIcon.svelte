@@ -1,5 +1,6 @@
 <script lang="ts">
 import logoImage from './logo.png';
+
 export let size = '104';
 </script>
 

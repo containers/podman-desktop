@@ -1,32 +1,33 @@
 <script lang="ts">
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
-
 import type { Unsubscriber } from 'svelte/store';
-import type { PodInfoUI } from './PodInfoUI';
-import { filtered, searchPattern, podsInfos } from '../../stores/pods';
-import { providerInfos } from '../../stores/providers';
-import NavPage from '../ui/NavPage.svelte';
-import { PodUtils } from './pod-utils';
+
+import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
+
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
+import { filtered, podsInfos, searchPattern } from '../../stores/pods';
+import { providerInfos } from '../../stores/providers';
+import type { EngineInfoUI } from '../engine/EngineInfoUI';
+import Prune from '../engine/Prune.svelte';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
-import PodEmptyScreen from './PodEmptyScreen.svelte';
-import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import PodIcon from '../images/PodIcon.svelte';
 import KubePlayButton from '../kube/KubePlayButton.svelte';
-import moment from 'moment';
-import Prune from '../engine/Prune.svelte';
-import type { EngineInfoUI } from '../engine/EngineInfoUI';
-import Button from '../ui/Button.svelte';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import Table from '../table/Table.svelte';
 import { Column, Row } from '../table/table';
-import PodColumnStatus from './PodColumnStatus.svelte';
-import PodColumnName from './PodColumnName.svelte';
-import PodColumnEnvironment from './PodColumnEnvironment.svelte';
-import PodColumnContainers from './PodColumnContainers.svelte';
-import PodColumnAge from './PodColumnAge.svelte';
+import Table from '../table/Table.svelte';
+import Button from '../ui/Button.svelte';
+import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
+import NavPage from '../ui/NavPage.svelte';
+import { PodUtils } from './pod-utils';
 import PodColumnActions from './PodColumnActions.svelte';
-import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
+import PodColumnAge from './PodColumnAge.svelte';
+import PodColumnContainers from './PodColumnContainers.svelte';
+import PodColumnEnvironment from './PodColumnEnvironment.svelte';
+import PodColumnName from './PodColumnName.svelte';
+import PodColumnStatus from './PodColumnStatus.svelte';
+import PodEmptyScreen from './PodEmptyScreen.svelte';
+import type { PodInfoUI } from './PodInfoUI';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);

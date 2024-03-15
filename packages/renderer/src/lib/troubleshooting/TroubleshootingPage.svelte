@@ -1,11 +1,12 @@
 <script>
+import Route from '/@/Route.svelte';
+
 import FormPage from '../ui/FormPage.svelte';
 import Tab from '../ui/Tab.svelte';
 import TroubleshootingDevToolsConsoleLogs from './TroubleshootingDevToolsConsoleLogs.svelte';
 import TroubleshootingGatherLogs from './TroubleshootingGatherLogs.svelte';
 import TroubleshootingPageProviders from './TroubleshootingPageProviders.svelte';
 import TroubleshootingPageStores from './TroubleshootingPageStores.svelte';
-import Route from '/@/Route.svelte';
 </script>
 
 <FormPage title="Troubleshooting" showBreadcrumb="{false}">

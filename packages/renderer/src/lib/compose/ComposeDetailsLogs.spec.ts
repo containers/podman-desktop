@@ -17,12 +17,14 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, expect, test, vi } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import { mockBreadcrumb } from '../../stores/breadcrumb.spec';
+import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from '../container/ContainerInfoUI';
 import ComposeDetailsLogs from './ComposeDetailsLogs.svelte';
 import type { ComposeInfoUI } from './ComposeInfoUI';
-import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from '../container/ContainerInfoUI';
 
 vi.mock('xterm', () => {
   return {

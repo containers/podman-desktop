@@ -17,9 +17,9 @@
  ***********************************************************************/
 
 import * as extensionApi from '@podman-desktop/api';
-
 import type { Mock } from 'vitest';
 import { expect, test, vi } from 'vitest';
+
 import { getDockerInstallation } from './docker-cli';
 
 // mock the API

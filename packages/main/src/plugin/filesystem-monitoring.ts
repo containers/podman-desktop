@@ -17,9 +17,10 @@
  ***********************************************************************/
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
+import * as chokidar from 'chokidar';
+
 import { Emitter } from './events/emitter.js';
 import { Disposable } from './types/disposable.js';
-import * as chokidar from 'chokidar';
 import { Uri } from './types/uri.js';
 
 export class FileSystemWatcherImpl implements containerDesktopAPI.FileSystemWatcher {

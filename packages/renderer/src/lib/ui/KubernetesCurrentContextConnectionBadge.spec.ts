@@ -19,9 +19,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeEach } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
+import { beforeEach, expect, test, vi } from 'vitest';
+
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
+
 import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes-context-state';
 
 const mocks = vi.hoisted(() => ({

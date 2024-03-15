@@ -17,12 +17,13 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { MainPage } from './main-page';
+import { expect as playExpect } from '@playwright/test';
+
+import { handleConfirmationDialog } from '../../utility/operations';
+import { ContainerState } from '../core/states';
 import { ContainerDetailsPage } from './container-details-page';
 import { CreatePodsPage } from './create-pod-page';
-import { expect as playExpect } from '@playwright/test';
-import { ContainerState } from '../core/states';
-import { handleConfirmationDialog } from '../../utility/operations';
+import { MainPage } from './main-page';
 
 export class ContainersPage extends MainPage {
   readonly pruneContainersButton: Locator;

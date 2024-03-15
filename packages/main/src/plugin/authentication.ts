@@ -17,18 +17,19 @@
  ***********************************************************************/
 
 import type {
-  AuthenticationProvider,
-  AuthenticationSession,
-  AuthenticationSessionsChangeEvent,
   AuthenticationGetSessionOptions,
-  Event,
-  AuthenticationSessionAccountInformation,
+  AuthenticationProvider,
   AuthenticationProviderOptions,
+  AuthenticationSession,
+  AuthenticationSessionAccountInformation,
+  AuthenticationSessionsChangeEvent,
   Disposable,
+  Event,
   ProviderImages,
 } from '@podman-desktop/api';
-import { Emitter } from './events/emitter.js';
+
 import type { ApiSenderType } from './api.js';
+import { Emitter } from './events/emitter.js';
 
 /**
  * Structure to save authentication provider information

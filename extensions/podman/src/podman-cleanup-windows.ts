@@ -16,11 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { homedir } from 'node:os';
+import { resolve as pathResolve } from 'node:path';
+
 import type { ProviderCleanupExecuteOptions } from '@podman-desktop/api';
 import { process } from '@podman-desktop/api';
 
-import { homedir } from 'node:os';
-import { resolve as pathResolve } from 'node:path';
 import { AbsPodmanCleanup } from './podman-cleanup-abstract';
 
 export class PodmanCleanupWindows extends AbsPodmanCleanup {

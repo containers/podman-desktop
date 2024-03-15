@@ -16,8 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
+
+import * as extensionApi from '@podman-desktop/api';
 import * as jsYaml from 'js-yaml';
 
 interface KubeContext {

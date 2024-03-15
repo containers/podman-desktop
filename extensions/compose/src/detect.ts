@@ -16,12 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { shellPath } from 'shell-path';
-import { resolve } from 'path';
-import * as http from 'node:http';
-import type { OS } from './os';
-import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
+import * as http from 'node:http';
+
+import * as extensionApi from '@podman-desktop/api';
+import { resolve } from 'path';
+import { shellPath } from 'shell-path';
+
+import type { OS } from './os';
 
 export class Detect {
   static readonly WINDOWS_SOCKET_PATH = '//./pipe/docker_engine';

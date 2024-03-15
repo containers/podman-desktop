@@ -1,8 +1,9 @@
 <script lang="ts">
-import Table from './Table.svelte';
-import { Column, Row } from './table';
-import SimpleColumn from './SimpleColumn.svelte';
 import { createEventDispatcher } from 'svelte';
+
+import SimpleColumn from './SimpleColumn.svelte';
+import { Column, Row } from './table';
+import Table from './Table.svelte';
 
 let table: Table;
 let selectedItemsNumber: number;

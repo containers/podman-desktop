@@ -1,20 +1,22 @@
 <script lang="ts">
-import Route from '../../Route.svelte';
-import { onMount } from 'svelte';
-import StatusIcon from '../images/StatusIcon.svelte';
-import DetailsPage from '../ui/DetailsPage.svelte';
-import Tab from '../ui/Tab.svelte';
-import StateChange from '../ui/StateChange.svelte';
 import type { V1Service } from '@kubernetes/client-node';
+import { onMount } from 'svelte';
 import { stringify } from 'yaml';
+
+import { kubernetesCurrentContextServices } from '/@/stores/kubernetes-contexts-state';
+
+import Route from '../../Route.svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
-import type { ServiceUI } from './ServiceUI';
+import ServiceIcon from '../images/ServiceIcon.svelte';
+import StatusIcon from '../images/StatusIcon.svelte';
+import KubeEditYAML from '../kube/KubeEditYAML.svelte';
+import DetailsPage from '../ui/DetailsPage.svelte';
+import StateChange from '../ui/StateChange.svelte';
+import Tab from '../ui/Tab.svelte';
 import { ServiceUtils } from './service-utils';
 import ServiceActions from './ServiceActions.svelte';
 import ServiceDetailsSummary from './ServiceDetailsSummary.svelte';
-import ServiceIcon from '../images/ServiceIcon.svelte';
-import KubeEditYAML from '../kube/KubeEditYAML.svelte';
-import { kubernetesCurrentContextServices } from '/@/stores/kubernetes-contexts-state';
+import type { ServiceUI } from './ServiceUI';
 
 export let name: string;
 export let namespace: string;

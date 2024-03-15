@@ -19,11 +19,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect, vi, describe } from 'vitest';
+
 import { render, screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import QuickPickInput from './QuickPickInput.svelte';
+import { beforeAll, describe, expect, test, vi } from 'vitest';
+
 import type { InputBoxOptions, QuickPickOptions } from './quickpick-input';
+import QuickPickInput from './QuickPickInput.svelte';
 
 const sendShowQuickPickValuesMock = vi.fn();
 const sendShowInputBoxValueMock = vi.fn();

@@ -16,21 +16,24 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as fs from 'node:fs';
+import { cp } from 'node:fs/promises';
+import * as os from 'node:os';
+import * as path from 'node:path';
+
 import type { IpcMainEvent } from 'electron';
 import { ipcMain } from 'electron';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import * as os from 'node:os';
-import { cp } from 'node:fs/promises';
 import * as tarFs from 'tar-fs';
-import type { AnalyzedExtension, ExtensionLoader } from '../extension-loader.js';
-import type { ApiSenderType } from '../api.js';
-import type { ImageRegistry } from '../image-registry.js';
-import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog.js';
-import type { Telemetry } from '../telemetry/telemetry.js';
+
 import type { Directories } from '/@/plugin/directories.js';
-import { DockerDesktopContribution, DockerDesktopInstaller } from '../docker-extension/docker-desktop-installer.js';
+
+import type { ApiSenderType } from '../api.js';
 import type { ContributionManager } from '../contribution-manager.js';
+import { DockerDesktopContribution, DockerDesktopInstaller } from '../docker-extension/docker-desktop-installer.js';
+import type { AnalyzedExtension, ExtensionLoader } from '../extension-loader.js';
+import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog.js';
+import type { ImageRegistry } from '../image-registry.js';
+import type { Telemetry } from '../telemetry/telemetry.js';
 
 export class ExtensionInstaller {
   #dockerDesktopInstaller: DockerDesktopInstaller;

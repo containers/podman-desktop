@@ -1,23 +1,25 @@
 <script lang="ts">
-import { runImageInfo } from '../../stores/run-image-store';
+import { faFolderOpen, faMinusCircle, faPlay, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
+import { router } from 'tinro';
+
+import { array2String } from '/@/lib/string/string.js';
+import Button from '/@/lib/ui/Button.svelte';
+
 import type { ContainerCreateOptions, HostConfig } from '../../../../main/src/plugin/api/container-info';
 import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
-import FormPage from '../ui/FormPage.svelte';
-import type { ImageInfoUI } from './ImageInfoUI';
-import { faFolderOpen, faMinusCircle, faPlay, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import { router } from 'tinro';
-import Route from '../../Route.svelte';
 import type { NetworkInspectInfo } from '../../../../main/src/plugin/api/network-info';
-import type { ContainerInfoUI } from '../container/ContainerInfoUI';
-import { ContainerUtils } from '../container/container-utils';
+import Route from '../../Route.svelte';
 import { containersInfos } from '../../stores/containers';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
+import { runImageInfo } from '../../stores/run-image-store';
+import { ContainerUtils } from '../container/container-utils';
+import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import { splitSpacesHandlingDoubleQuotes } from '../string/string';
-import { array2String } from '/@/lib/string/string.js';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
+import FormPage from '../ui/FormPage.svelte';
 import Tab from '../ui/Tab.svelte';
-import Button from '/@/lib/ui/Button.svelte';
-import { Input } from '@podman-desktop/ui-svelte';
+import type { ImageInfoUI } from './ImageInfoUI';
 
 interface PortInfo {
   port: string;

@@ -17,17 +17,18 @@
  ***********************************************************************/
 
 import type { Page } from '@playwright/test';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
-import { afterAll, beforeAll, test, describe, beforeEach, expect } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest';
+
+import { ContainerState } from '../model/core/states';
+import { ContainersPage } from '../model/pages/containers-page';
+import type { ImagesPage } from '../model/pages/images-page';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
-import { waitUntil, waitWhile } from '../utility/wait';
+import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { deleteContainer, deleteImage } from '../utility/operations';
-import { ContainerState } from '../model/core/states';
-import type { ImagesPage } from '../model/pages/images-page';
-import { ContainersPage } from '../model/pages/containers-page';
+import { waitUntil, waitWhile } from '../utility/wait';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;

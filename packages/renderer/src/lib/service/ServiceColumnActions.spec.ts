@@ -17,11 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
 
-import type { ServiceUI } from './ServiceUI';
+import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
 import ServiceColumnActions from './ServiceColumnActions.svelte';
+import type { ServiceUI } from './ServiceUI';
 
 test('Expect action buttons', async () => {
   const service: ServiceUI = {

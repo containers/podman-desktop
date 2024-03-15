@@ -17,19 +17,20 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { describe, test, expect, vi, afterEach, beforeEach } from 'vitest';
+
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-
-import ImageDetails from './ImageDetails.svelte';
 import { get } from 'svelte/store';
-import { imagesInfos } from '/@/stores/images';
-import type { ImageInfo } from '../../../../main/src/plugin/api/image-info';
-
 import { router } from 'tinro';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+
 import { lastPage } from '/@/stores/breadcrumb';
-import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import { containersInfos } from '/@/stores/containers';
 import { imageCheckerProviders } from '/@/stores/image-checker-providers';
+import { imagesInfos } from '/@/stores/images';
+import { viewsContributions } from '/@/stores/views';
+
+import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
+import type { ImageInfo } from '../../../../main/src/plugin/api/image-info';
 import {
   IMAGE_DETAILS_VIEW_BADGES,
   IMAGE_DETAILS_VIEW_ICONS,
@@ -38,7 +39,7 @@ import {
   IMAGE_VIEW_BADGES,
   IMAGE_VIEW_ICONS,
 } from '../view/views';
-import { viewsContributions } from '/@/stores/views';
+import ImageDetails from './ImageDetails.svelte';
 
 const listImagesMock = vi.fn();
 const getContributedMenusMock = vi.fn();

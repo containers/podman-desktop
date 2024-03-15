@@ -17,9 +17,10 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { SettingsPage } from './settings-page';
 import { expect as playExpect } from '@playwright/test';
+
 import { SettingsExtensionsPage } from './settings-extensions-page';
+import { SettingsPage } from './settings-page';
 
 export class ExtensionPage extends SettingsPage {
   readonly heading: Locator;

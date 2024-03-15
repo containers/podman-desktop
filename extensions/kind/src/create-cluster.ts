@@ -15,17 +15,19 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
-import * as path from 'node:path';
 import * as os from 'node:os';
-import { getKindPath, getMemTotalInfo } from './util';
+import * as path from 'node:path';
+
+import type { AuditRecord, AuditRequestItems, AuditResult, CancellationToken } from '@podman-desktop/api';
+import * as extensionApi from '@podman-desktop/api';
 import mustache from 'mustache';
 import { parseAllDocuments } from 'yaml';
 
-import createClusterConfTemplate from './templates/create-cluster-conf.mustache?raw';
-import type { AuditRecord, AuditResult, CancellationToken, AuditRequestItems } from '@podman-desktop/api';
 import ingressManifests from '/@/resources/contour.yaml?raw';
+
+import createClusterConfTemplate from './templates/create-cluster-conf.mustache?raw';
+import { getKindPath, getMemTotalInfo } from './util';
 
 export function getKindClusterConfig(
   clusterName: string,

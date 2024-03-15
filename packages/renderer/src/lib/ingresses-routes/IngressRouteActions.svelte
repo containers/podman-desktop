@@ -1,10 +1,11 @@
 <script lang="ts">
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { createEventDispatcher } from 'svelte';
+
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
+import { IngressRouteUtils } from './ingress-route-utils';
 import type { IngressUI } from './IngressUI';
 import type { RouteUI } from './RouteUI';
-import { IngressRouteUtils } from './ingress-route-utils';
-import { createEventDispatcher } from 'svelte';
 
 export let ingressRoute: IngressUI | RouteUI;
 export let detailed = false;

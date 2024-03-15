@@ -17,10 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import KubeDeploymentStatusArtifact from './KubeDeploymentStatusArtifact.svelte';
+
 import type { V1DeploymentStatus } from '@kubernetes/client-node';
+import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
+import KubeDeploymentStatusArtifact from './KubeDeploymentStatusArtifact.svelte';
 
 const fakeDeploymentStatus: V1DeploymentStatus = {
   replicas: 3,

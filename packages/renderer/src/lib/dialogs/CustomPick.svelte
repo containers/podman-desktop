@@ -1,11 +1,12 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-import type { CustomPickOptions } from './quickpick-input';
-import type { CustomPickItem } from '@podman-desktop/api';
-import Markdown from '../markdown/Markdown.svelte';
-import Fa from 'svelte-fa';
 import { faAngleDown, faAngleUp, faCircleCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+import type { CustomPickItem } from '@podman-desktop/api';
+import { onMount } from 'svelte';
+import Fa from 'svelte-fa';
+
+import Markdown from '../markdown/Markdown.svelte';
 import Button from '../ui/Button.svelte';
+import type { CustomPickOptions } from './quickpick-input';
 
 let id = -1;
 let title = '';

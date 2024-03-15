@@ -17,8 +17,9 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import type { SettingsPage } from './settings-page';
+
 import { waitUntil } from '../../utility/wait';
+import type { SettingsPage } from './settings-page';
 
 export class SettingsBar {
   readonly page: Page;

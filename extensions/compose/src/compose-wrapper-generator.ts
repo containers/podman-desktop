@@ -16,13 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { OS } from './os';
-import type * as extensionApi from '@podman-desktop/api';
 import { promises } from 'node:fs';
+
+import type * as extensionApi from '@podman-desktop/api';
 import mustache from 'mustache';
 
-import shMustacheTemplate from './templates/podman-compose.sh.mustache?raw';
+import type { OS } from './os';
 import batMustacheTemplate from './templates/podman-compose.bat.mustache?raw';
+import shMustacheTemplate from './templates/podman-compose.sh.mustache?raw';
 
 // Generate the script to run docker-compose by setting up all environment variables
 export class ComposeWrapperGenerator {

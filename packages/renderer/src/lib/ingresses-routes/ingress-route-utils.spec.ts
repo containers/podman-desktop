@@ -16,10 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, test, vi } from 'vitest';
-import { IngressRouteUtils } from './ingress-route-utils';
 import type { V1Ingress } from '@kubernetes/client-node';
+import { beforeEach, expect, test, vi } from 'vitest';
+
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
+import { IngressRouteUtils } from './ingress-route-utils';
 import type { IngressUI } from './IngressUI';
 import type { RouteUI } from './RouteUI';
 

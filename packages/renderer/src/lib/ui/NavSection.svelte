@@ -2,11 +2,12 @@
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
 import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
-import Tooltip from './Tooltip.svelte';
-import Fa from 'svelte-fa';
 import { onMount, setContext } from 'svelte';
-import { writable, type Writable } from 'svelte/store';
+import { type Writable, writable } from 'svelte/store';
+import Fa from 'svelte-fa';
+
 import { fadeSlide } from './animations';
+import Tooltip from './Tooltip.svelte';
 /* eslint-disable import/no-duplicates */
 
 export let expanded: boolean = true;

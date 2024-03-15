@@ -16,10 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { writable, type Writable } from 'svelte/store';
+import { type Writable, writable } from 'svelte/store';
+
 import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
-import { EventStore } from './event-store';
 import ContainerIcon from '../lib/images/ContainerIcon.svelte';
+import { EventStore } from './event-store';
 
 const windowEvents = [
   'extension-started',

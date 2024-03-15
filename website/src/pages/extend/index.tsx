@@ -1,9 +1,10 @@
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import Layout from '@theme/Layout';
-import React from 'react';
-import TailWindThemeSelector from '@site/src/components/TailWindThemeSelector';
-import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import TailWindThemeSelector from '@site/src/components/TailWindThemeSelector';
+import Layout from '@theme/Layout';
+import ThemedImage from '@theme/ThemedImage';
+import React from 'react';
+
 export default function Home(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
 

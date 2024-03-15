@@ -17,13 +17,14 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
 
-import type { IngressUI } from './IngressUI';
+import { render, screen } from '@testing-library/svelte';
+import { beforeEach, expect, test } from 'vitest';
+
 import { IngressRouteUtils } from './ingress-route-utils';
-import type { RouteUI } from './RouteUI';
 import IngressRouteColumnHostPath from './IngressRouteColumnHostPath.svelte';
+import type { IngressUI } from './IngressUI';
+import type { RouteUI } from './RouteUI';
 
 let ingressRouteUtils: IngressRouteUtils;
 

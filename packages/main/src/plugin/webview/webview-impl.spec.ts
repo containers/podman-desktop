@@ -17,9 +17,11 @@
  ***********************************************************************/
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import { WebviewImpl } from './webview-impl.js';
+
 import type { ApiSenderType } from '/@/plugin/api.js';
 import { Uri } from '/@/plugin/types/uri.js';
+
+import { WebviewImpl } from './webview-impl.js';
 
 let webviewImpl: WebviewImpl;
 

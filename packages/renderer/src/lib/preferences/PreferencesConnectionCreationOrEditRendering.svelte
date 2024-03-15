@@ -1,14 +1,33 @@
 <script lang="ts">
-import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+import { faCubes } from '@fortawesome/free-solid-svg-icons';
+import type { AuditRequestItems, AuditResult, ConfigurationScope } from '@podman-desktop/api';
+import { onDestroy, onMount } from 'svelte';
+/* eslint-disable import/no-duplicates */
+// https://github.com/import-js/eslint-plugin-import/issues/1479
+import { get, type Unsubscriber } from 'svelte/store';
+import { router } from 'tinro';
+import type { Terminal } from 'xterm';
+
+import type { ContextUI } from '/@/lib/context/context';
+import { context } from '/@/stores/context';
+/* eslint-enable import/no-duplicates */
+import { operationConnectionsInfo } from '/@/stores/operation-connections';
+
 import type {
-  ProviderInfo,
   ProviderContainerConnectionInfo,
+  ProviderInfo,
   ProviderKubernetesConnectionInfo,
 } from '../../../../main/src/plugin/api/provider-info';
-import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
-import TerminalWindow from '../ui/TerminalWindow.svelte';
-import { writeToTerminal, isPropertyValidInContext, getInitialValue } from './Util';
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+import Markdown from '../markdown/Markdown.svelte';
+import AuditMessageBox from '../ui/AuditMessageBox.svelte';
+import Button from '../ui/Button.svelte';
+import EmptyScreen from '../ui/EmptyScreen.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import LinearProgress from '../ui/LinearProgress.svelte';
+import Spinner from '../ui/Spinner.svelte';
+import TerminalWindow from '../ui/TerminalWindow.svelte';
+import EditableConnectionResourceItem from './item-formats/EditableConnectionResourceItem.svelte';
 import {
   clearCreateTask,
   type ConnectionCallback,
@@ -17,25 +36,8 @@ import {
   reconnectUI,
   startTask,
 } from './preferences-connection-rendering-task';
-/* eslint-disable import/no-duplicates */
-// https://github.com/import-js/eslint-plugin-import/issues/1479
-import { get, type Unsubscriber } from 'svelte/store';
-import { onDestroy, onMount } from 'svelte';
-/* eslint-enable import/no-duplicates */
-import { operationConnectionsInfo } from '/@/stores/operation-connections';
-import { router } from 'tinro';
-import LinearProgress from '../ui/LinearProgress.svelte';
-import Spinner from '../ui/Spinner.svelte';
-import Markdown from '../markdown/Markdown.svelte';
-import type { Terminal } from 'xterm';
-import type { AuditRequestItems, AuditResult, ConfigurationScope } from '@podman-desktop/api';
-import AuditMessageBox from '../ui/AuditMessageBox.svelte';
-import EmptyScreen from '../ui/EmptyScreen.svelte';
-import { faCubes } from '@fortawesome/free-solid-svg-icons';
-import Button from '../ui/Button.svelte';
-import type { ContextUI } from '/@/lib/context/context';
-import { context } from '/@/stores/context';
-import EditableConnectionResourceItem from './item-formats/EditableConnectionResourceItem.svelte';
+import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
+import { getInitialValue, isPropertyValidInContext, writeToTerminal } from './Util';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInfo: ProviderInfo;

@@ -19,16 +19,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import * as fs from 'node:fs';
-import { resolve } from 'node:path';
-import type { Mock } from 'vitest';
-import { afterEach, beforeEach, test, expect, vi, describe } from 'vitest';
-import { ComposeExtension } from './compose-extension';
-import type { Detect } from './detect';
-import type { ComposeGitHubReleases } from './compose-github-releases';
-import * as extensionApi from '@podman-desktop/api';
 import { promises } from 'node:fs';
-import type { ComposeWrapperGenerator } from './compose-wrapper-generator';
+import { resolve } from 'node:path';
+
+import * as extensionApi from '@podman-desktop/api';
 import * as path from 'path';
+import type { Mock } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+
+import { ComposeExtension } from './compose-extension';
+import type { ComposeGitHubReleases } from './compose-github-releases';
+import type { ComposeWrapperGenerator } from './compose-wrapper-generator';
+import type { Detect } from './detect';
 
 const extensionContext: extensionApi.ExtensionContext = {
   storagePath: '/fake/path',

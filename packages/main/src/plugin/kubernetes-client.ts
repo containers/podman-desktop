@@ -17,58 +17,61 @@
  ***********************************************************************/
 
 import * as fs from 'node:fs';
+import { existsSync } from 'node:fs';
+import type { IncomingMessage } from 'node:http';
+import { homedir } from 'node:os';
+import { resolve } from 'node:path';
+import { PassThrough } from 'node:stream';
+
 import type {
-  Context,
-  V1Pod,
-  V1ConfigMap,
-  V1PodList,
-  V1NamespaceList,
-  V1Service,
-  V1Ingress,
-  V1ContainerState,
-  V1APIResource,
-  V1APIGroup,
   Cluster,
-  V1Deployment,
+  Context,
+  KubernetesListObject,
   KubernetesObject,
   ListPromise,
-  KubernetesListObject,
+  V1APIGroup,
+  V1APIResource,
+  V1ConfigMap,
+  V1ContainerState,
+  V1Deployment,
+  V1Ingress,
+  V1NamespaceList,
+  V1Pod,
+  V1PodList,
+  V1Service,
 } from '@kubernetes/client-node';
 import {
   ApisApi,
-  NetworkingV1Api,
   AppsV1Api,
-  CustomObjectsApi,
   CoreV1Api,
-  KubeConfig,
-  Log,
-  Watch,
-  VersionApi,
-  makeInformer,
-  KubernetesObjectApi,
+  CustomObjectsApi,
   HttpError,
+  KubeConfig,
+  KubernetesObjectApi,
+  Log,
+  makeInformer,
+  NetworkingV1Api,
+  VersionApi,
+  Watch,
 } from '@kubernetes/client-node';
-import type { V1Route } from './api/openshift-types.js';
 import type * as containerDesktopAPI from '@podman-desktop/api';
-import { Emitter } from './events/emitter.js';
-import { Uri } from './types/uri.js';
-import { homedir } from 'node:os';
-import { resolve } from 'node:path';
-import { existsSync } from 'node:fs';
-import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
-import type { FilesystemMonitoring } from './filesystem-monitoring.js';
-import type { PodInfo } from './api/pod-info.js';
-import { PassThrough } from 'node:stream';
-import type { ApiSenderType } from './api.js';
-import { parseAllDocuments } from 'yaml';
-import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import * as jsYaml from 'js-yaml';
-import type { KubeContext } from './kubernetes-context.js';
-import type { KubernetesInformerManager } from './kubernetes-informer-registry.js';
+import { parseAllDocuments } from 'yaml';
+
+import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
+
+import type { ApiSenderType } from './api.js';
 import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
-import type { IncomingMessage } from 'node:http';
-import { ContextsManager } from './kubernetes-context-state.js';
+import type { V1Route } from './api/openshift-types.js';
+import type { PodInfo } from './api/pod-info.js';
+import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
+import { Emitter } from './events/emitter.js';
+import type { FilesystemMonitoring } from './filesystem-monitoring.js';
+import type { KubeContext } from './kubernetes-context.js';
 import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
+import { ContextsManager } from './kubernetes-context-state.js';
+import type { KubernetesInformerManager } from './kubernetes-informer-registry.js';
+import { Uri } from './types/uri.js';
 
 interface KubernetesObjectWithKind extends KubernetesObject {
   kind: string;

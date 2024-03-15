@@ -17,10 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import KubePodSpecArtifact from './KubePodSpecArtifact.svelte'; // Ensure this path matches your file structure
+
 import type { V1PodSpec } from '@kubernetes/client-node';
+import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
+import KubePodSpecArtifact from './KubePodSpecArtifact.svelte'; // Ensure this path matches your file structure
 
 const fakePodSpec: V1PodSpec = {
   nodeName: 'node-01',

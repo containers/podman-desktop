@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as path from 'node:path';
-import * as os from 'node:os';
 import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
 
 // handle the different directories for the different OSes for Podman Desktop
 export class Directories {

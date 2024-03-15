@@ -19,12 +19,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeEach, beforeAll } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import ServicesList from './ServicesList.svelte';
-import { get } from 'svelte/store';
+
 import type { V1Service } from '@kubernetes/client-node';
+import { render, screen } from '@testing-library/svelte';
+import { get } from 'svelte/store';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+
 import { kubernetesCurrentContextServices } from '/@/stores/kubernetes-contexts-state';
+
+import ServicesList from './ServicesList.svelte';
 
 const kubernetesRegisterGetCurrentContextResourcesMock = vi.fn();
 

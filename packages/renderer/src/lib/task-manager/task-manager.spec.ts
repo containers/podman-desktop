@@ -17,8 +17,11 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect, vi } from 'vitest';
+
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import { isNotificationTask, tasksInfo } from '/@/stores/tasks';
+
 import type { NotificationTask, StatefulTask } from '../../../../main/src/plugin/api/task';
 import { TaskManager } from './task-manager';
 

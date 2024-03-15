@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, test, vi } from 'vitest';
-import { ServiceUtils } from './service-utils';
 import type { V1Service } from '@kubernetes/client-node';
+import { beforeEach, expect, test, vi } from 'vitest';
+
+import { ServiceUtils } from './service-utils';
 
 let serviceUtils: ServiceUtils;
 

@@ -1,24 +1,26 @@
 <script lang="ts">
 import {
+  faArrowsRotate,
+  faExternalLinkSquareAlt,
   faFileCode,
   faPlay,
   faRocket,
   faStop,
-  faArrowsRotate,
   faTrash,
-  faExternalLinkSquareAlt,
 } from '@fortawesome/free-solid-svg-icons';
-import type { PodInfoUI } from './PodInfoUI';
-import { router } from 'tinro';
-import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
-import DropdownMenu from '../ui/DropdownMenu.svelte';
-import FlatMenu from '../ui/FlatMenu.svelte';
-import type { Menu } from '../../../../main/src/plugin/menu-registry';
-import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 import { createEventDispatcher, onMount } from 'svelte';
+import { router } from 'tinro';
+
+import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
+
+import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
+import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
 import { ContainerUtils } from '../container/container-utils';
-import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
+import DropdownMenu from '../ui/DropdownMenu.svelte';
+import FlatMenu from '../ui/FlatMenu.svelte';
+import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
+import type { PodInfoUI } from './PodInfoUI';
 
 export let pod: PodInfoUI;
 export let dropdownMenu = false;

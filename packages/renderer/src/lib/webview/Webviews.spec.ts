@@ -19,12 +19,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeEach } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
-import Webviews from './Webviews.svelte';
-import { webviews } from '/@/stores/webviews';
-import type { WebviewInfo } from '../../../../main/src/plugin/api/webview-info';
 import type { TinroRouteMeta } from 'tinro';
+import { beforeEach, expect, test, vi } from 'vitest';
+
+import { webviews } from '/@/stores/webviews';
+
+import type { WebviewInfo } from '../../../../main/src/plugin/api/webview-info';
+import Webviews from './Webviews.svelte';
 
 beforeEach(() => {
   vi.resetAllMocks();

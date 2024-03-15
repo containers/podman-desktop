@@ -19,10 +19,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect, vi } from 'vitest';
+
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import TroubleshootingPageStore from './TroubleshootingPageStore.svelte';
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import type { EventStoreInfo } from '/@/stores/event-store';
+
+import TroubleshootingPageStore from './TroubleshootingPageStore.svelte';
 
 beforeAll(() => {});
 

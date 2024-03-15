@@ -16,17 +16,18 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as path from 'path';
-import * as fs from 'fs';
 import type * as containerDesktopAPI from '@podman-desktop/api';
-import { ConfigurationImpl } from './configuration-impl.js';
-import type { Event } from './events/emitter.js';
-import { Emitter } from './events/emitter.js';
-import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants.js';
-import type { Directories } from './directories.js';
-import { Disposable } from './types/disposable.js';
+import * as fs from 'fs';
+import * as path from 'path';
+
 import type { ApiSenderType } from './api.js';
 import type { NotificationCardOptions } from './api/notification.js';
+import { ConfigurationImpl } from './configuration-impl.js';
+import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants.js';
+import type { Directories } from './directories.js';
+import type { Event } from './events/emitter.js';
+import { Emitter } from './events/emitter.js';
+import { Disposable } from './types/disposable.js';
 
 export type IConfigurationPropertySchemaType =
   | 'markdown'

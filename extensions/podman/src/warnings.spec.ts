@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect, test } from 'vitest';
-import { isDisguisedPodmanPath } from './warnings';
 import nock from 'nock';
+import { expect, test } from 'vitest';
+
+import { isDisguisedPodmanPath } from './warnings';
 
 test('isDisguisedPodman', async () => {
   nock('http://localhost').get('/libpod/_ping').reply(200, 'OK');

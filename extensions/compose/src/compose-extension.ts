@@ -15,15 +15,17 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import * as path from 'node:path';
 import { existsSync, promises } from 'node:fs';
-import { installBinaryToSystem } from './cli-run';
+import { arch, platform } from 'node:os';
+import * as path from 'node:path';
+
 import * as extensionApi from '@podman-desktop/api';
-import type { Detect } from './detect';
+
+import { installBinaryToSystem } from './cli-run';
 import type { ComposeGitHubReleases } from './compose-github-releases';
-import type { OS } from './os';
-import { platform, arch } from 'node:os';
 import type { ComposeWrapperGenerator } from './compose-wrapper-generator';
+import type { Detect } from './detect';
+import type { OS } from './os';
 
 export class ComposeExtension {
   public static readonly COMPOSE_INSTALL_COMMAND = 'compose.install';

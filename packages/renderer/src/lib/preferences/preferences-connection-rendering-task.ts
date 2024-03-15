@@ -16,11 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { operationConnectionsInfo } from '/@/stores/operation-connections';
+import type { Logger as LoggerType } from '@podman-desktop/api';
 import { router } from 'tinro';
 
-import type { Logger as LoggerType } from '@podman-desktop/api';
+import { operationConnectionsInfo } from '/@/stores/operation-connections';
 import { createTask, isStatefulTask, removeTask } from '/@/stores/tasks';
+
 import type { Task } from '../../../../main/src/plugin/api/task';
 
 export interface ConnectionCallback extends LoggerType {

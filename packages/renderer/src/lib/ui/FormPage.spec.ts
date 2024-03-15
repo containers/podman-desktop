@@ -17,13 +17,15 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeEach } from 'vitest';
+
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import FormPage from './FormPage.svelte';
-import { lastPage, currentPage } from '../../stores/breadcrumb';
+import userEvent from '@testing-library/user-event';
 import type { TinroBreadcrumb } from 'tinro';
 import { router } from 'tinro';
-import userEvent from '@testing-library/user-event';
+import { beforeEach, expect, test, vi } from 'vitest';
+
+import { currentPage, lastPage } from '../../stores/breadcrumb';
+import FormPage from './FormPage.svelte';
 
 // mock the router
 vi.mock('tinro', () => {

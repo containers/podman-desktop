@@ -1,48 +1,51 @@
 <script lang="ts">
 import { faArrowUpRightFromSquare, faGear } from '@fortawesome/free-solid-svg-icons';
+import type { ContainerProviderConnection } from '@podman-desktop/api';
+import { Buffer } from 'buffer';
+import { filesize } from 'filesize';
+import { onDestroy, onMount } from 'svelte';
+import type { Unsubscriber } from 'svelte/store';
 import Fa from 'svelte-fa';
-import { providerInfos } from '../../stores/providers';
+import { router } from 'tinro';
+
+import Donut from '/@/lib/donut/Donut.svelte';
+import { context } from '/@/stores/context';
+import { onboardingList } from '/@/stores/onboarding';
+
 import type {
   CheckStatus,
   ProviderContainerConnectionInfo,
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
 } from '../../../../main/src/plugin/api/provider-info';
-import { onDestroy, onMount } from 'svelte';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { configurationProperties } from '../../stores/configurationProperties';
-import type { ContainerProviderConnection } from '@podman-desktop/api';
-import type { Unsubscriber } from 'svelte/store';
-import Tooltip from '../ui/Tooltip.svelte';
-import { filesize } from 'filesize';
-import { router } from 'tinro';
-import SettingsPage from './SettingsPage.svelte';
-import ConnectionStatus from '../ui/ConnectionStatus.svelte';
-import { eventCollect } from './preferences-connection-rendering-task';
-import {
-  getProviderConnectionName,
-  isDefaultScope,
-  type IConnectionRestart,
-  type IConnectionStatus,
-  type IProviderConnectionConfigurationPropertyRecorded,
-  isPropertyValidInContext,
-} from './Util';
-import EngineIcon from '../ui/EngineIcon.svelte';
-import EmptyScreen from '../ui/EmptyScreen.svelte';
-import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
-import PreferencesConnectionsEmptyRendering from './PreferencesConnectionsEmptyRendering.svelte';
-import PreferencesProviderInstallationModal from './PreferencesProviderInstallationModal.svelte';
-import { Buffer } from 'buffer';
-import Button from '../ui/Button.svelte';
-import { onboardingList } from '/@/stores/onboarding';
-import { context } from '/@/stores/context';
+import { providerInfos } from '../../stores/providers';
 import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
 import { normalizeOnboardingWhenClause } from '../onboarding/onboarding-utils';
-import Donut from '/@/lib/donut/Donut.svelte';
-import { PeerProperties } from './PeerProperties';
+import Button from '../ui/Button.svelte';
 import ConnectionErrorInfoButton from '../ui/ConnectionErrorInfoButton.svelte';
+import ConnectionStatus from '../ui/ConnectionStatus.svelte';
+import EmptyScreen from '../ui/EmptyScreen.svelte';
+import EngineIcon from '../ui/EngineIcon.svelte';
+import Tooltip from '../ui/Tooltip.svelte';
+import { PeerProperties } from './PeerProperties';
+import { eventCollect } from './preferences-connection-rendering-task';
+import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
+import PreferencesConnectionsEmptyRendering from './PreferencesConnectionsEmptyRendering.svelte';
+import PreferencesProviderInstallationModal from './PreferencesProviderInstallationModal.svelte';
 import PreferencesResourcesRenderingCopyButton from './PreferencesResourcesRenderingCopyButton.svelte';
+import SettingsPage from './SettingsPage.svelte';
+import {
+  getProviderConnectionName,
+  type IConnectionRestart,
+  type IConnectionStatus,
+  type IProviderConnectionConfigurationPropertyRecorded,
+  isDefaultScope,
+  isPropertyValidInContext,
+} from './Util';
+
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 let providers: ProviderInfo[] = [];
 $: containerConnectionStatus = new Map<string, IConnectionStatus>();

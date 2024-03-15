@@ -16,22 +16,24 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Page } from 'playwright';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
-import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import { WelcomePage } from '../model/pages/welcome-page';
-import type { DashboardPage } from '../model/pages/dashboard-page';
+import * as os from 'node:os';
+
 import type { Locator } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
-import { NavigationBar } from '../model/workbench/navigation';
-import type { SettingsBar } from '../model/pages/settings-bar';
-import { ResourcesPage } from '../model/pages/resources-page';
-import { deletePodmanMachine } from '../utility/operations';
-import { PodmanOnboardingPage } from '../model/pages/podman-onboarding-page';
-import { ResourcesPodmanConnections } from '../model/pages/resources-podman-connections-page';
+import type { Page } from 'playwright';
+import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
+
+import type { DashboardPage } from '../model/pages/dashboard-page';
 import { PodmanMachineDetails } from '../model/pages/podman-machine-details-page';
-import * as os from 'node:os';
+import { PodmanOnboardingPage } from '../model/pages/podman-onboarding-page';
+import { ResourcesPage } from '../model/pages/resources-page';
+import { ResourcesPodmanConnections } from '../model/pages/resources-podman-connections-page';
+import type { SettingsBar } from '../model/pages/settings-bar';
+import { WelcomePage } from '../model/pages/welcome-page';
+import { NavigationBar } from '../model/workbench/navigation';
+import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import type { RunnerTestContext } from '../testContext/runner-test-context';
+import { deletePodmanMachine } from '../utility/operations';
 
 const PODMAN_MACHINE_STARTUP_TIMEOUT: number = 360_000;
 const PODMAN_MACHINE_NAME: string = 'Podman Machine';

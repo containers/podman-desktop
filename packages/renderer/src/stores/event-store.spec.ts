@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { get, type Writable, writable } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
+
 import { EventStore, type EventStoreInfo } from './event-store';
-import { get, writable, type Writable } from 'svelte/store';
 
 // first, path window object
 const callbacks = new Map<string, any>();

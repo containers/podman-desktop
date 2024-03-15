@@ -17,14 +17,15 @@
  ***********************************************************************/
 
 import type { Page } from '@playwright/test';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
-import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
 import { expect as playExpect } from '@playwright/test';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import path from 'path';
+import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
+
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
+import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { deleteImage, deletePod } from '../utility/operations';
-import path from 'path';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;

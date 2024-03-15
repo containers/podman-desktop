@@ -16,22 +16,24 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as fs from 'node:fs';
+import { cp, readFile } from 'node:fs/promises';
+import * as os from 'node:os';
+import * as path from 'node:path';
+
+import type { RequestConfig } from '@docker/extension-api-client-types/dist/v1';
+import type Dockerode from 'dockerode';
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import { ipcMain } from 'electron';
-import type { ContainerProviderRegistry } from '../container-registry.js';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import * as os from 'node:os';
-import { readFile, cp } from 'node:fs/promises';
-import * as tarFs from 'tar-fs';
-import type Dockerode from 'dockerode';
-import type { PullEvent } from '../api/pull-event.js';
-import type { ContributionManager } from '../contribution-manager.js';
-import type { ApiSenderType } from '../api.js';
-import type { Directories } from '../directories.js';
 import type { Method, OptionsOfTextResponseBody } from 'got';
 import got, { RequestError } from 'got';
-import type { RequestConfig } from '@docker/extension-api-client-types/dist/v1';
+import * as tarFs from 'tar-fs';
+
+import type { ApiSenderType } from '../api.js';
+import type { PullEvent } from '../api/pull-event.js';
+import type { ContainerProviderRegistry } from '../container-registry.js';
+import type { ContributionManager } from '../contribution-manager.js';
+import type { Directories } from '../directories.js';
 
 export class DockerDesktopInstallation {
   constructor(

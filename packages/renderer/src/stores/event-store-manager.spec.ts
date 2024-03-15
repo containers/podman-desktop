@@ -16,10 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, test, vi } from 'vitest';
 import { get } from 'svelte/store';
-import { addStore, allEventStoresInfo, getStore, updateStore } from './event-store-manager';
+import { beforeEach, expect, test, vi } from 'vitest';
+
 import type { EventStoreInfo } from './event-store';
+import { addStore, allEventStoresInfo, getStore, updateStore } from './event-store-manager';
 
 beforeEach(() => {
   vi.clearAllMocks();

@@ -1,6 +1,6 @@
 <script lang="ts">
-import EmptyScreen from '../ui/EmptyScreen.svelte';
 import ImageIcon from '../images/ImageIcon.svelte';
+import EmptyScreen from '../ui/EmptyScreen.svelte';
 </script>
 
 <EmptyScreen

@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import type * as extensionApi from '@podman-desktop/api';
+
+import type { TaskManager } from '/@/plugin/task-manager.js';
+
 import { findWindow } from '../util.js';
 import { CancellationTokenImpl } from './cancellation-token.js';
-import type { TaskManager } from '/@/plugin/task-manager.js';
 
 export enum ProgressLocation {
   /**

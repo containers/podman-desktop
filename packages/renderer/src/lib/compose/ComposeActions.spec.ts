@@ -17,11 +17,13 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+
+import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import ComposeActions from './ComposeActions.svelte';
 import type { ComposeInfoUI } from './ComposeInfoUI';
-import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 
 const compose: ComposeInfoUI = {
   engineId: 'podman',

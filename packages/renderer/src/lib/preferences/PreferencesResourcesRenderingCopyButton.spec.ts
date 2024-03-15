@@ -17,8 +17,10 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, vi, beforeEach, describe, expect } from 'vitest';
+
 import { render } from '@testing-library/svelte';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+
 import PreferencesResourcesRenderingCopyButton from './PreferencesResourcesRenderingCopyButton.svelte';
 
 const getOsPlatformMock = vi.fn();

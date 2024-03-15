@@ -45,13 +45,14 @@ UI guidelines -->
 </style>
 
 <script lang="ts">
-import { onDestroy, onMount } from 'svelte';
 import { micromark } from 'micromark';
 import { directive, directiveHtml } from 'micromark-extension-directive';
+import { onDestroy, onMount } from 'svelte';
+
 import { button } from './micromark-button-directive';
 import { link } from './micromark-link-directive';
-import { warnings } from './micromark-warnings-directive';
 import { createListener } from './micromark-listener-handler';
+import { warnings } from './micromark-warnings-directive';
 
 let text: string;
 let html: string;

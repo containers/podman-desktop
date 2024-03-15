@@ -17,11 +17,12 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { ImagesPage } from '../pages/images-page';
+
 import { ContainersPage } from '../pages/containers-page';
+import { DashboardPage } from '../pages/dashboard-page';
+import { ImagesPage } from '../pages/images-page';
 import { PodsPage } from '../pages/pods-page';
 import { SettingsBar } from '../pages/settings-bar';
-import { DashboardPage } from '../pages/dashboard-page';
 
 export class NavigationBar {
   readonly page: Page;

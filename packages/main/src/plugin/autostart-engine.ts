@@ -16,10 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { Disposable } from './types/disposable.js';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
-import type { ProviderRegistry } from './provider-registry.js';
 import { CONFIGURATION_DEFAULT_SCOPE, CONFIGURATION_ONBOARDING_SCOPE } from './configuration-registry-constants.js';
+import type { ProviderRegistry } from './provider-registry.js';
+import { Disposable } from './types/disposable.js';
 
 export class AutostartEngine {
   private providerExtension = new Map<string, string>();

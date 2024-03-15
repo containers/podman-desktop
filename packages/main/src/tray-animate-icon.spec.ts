@@ -16,10 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, test, vi } from 'vitest';
-import { AnimatedTray } from './tray-animate-icon.js';
-import * as path from 'path';
 import { app } from 'electron';
+import * as path from 'path';
+import { beforeEach, expect, test, vi } from 'vitest';
+
+import { AnimatedTray } from './tray-animate-icon.js';
 
 // to call protected methods
 class TestAnimatedTray extends AnimatedTray {

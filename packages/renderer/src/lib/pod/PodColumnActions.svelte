@@ -1,7 +1,7 @@
 <script lang="ts">
-import type { PodInfoUI } from './PodInfoUI';
-import PodActions from './PodActions.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import PodActions from './PodActions.svelte';
+import type { PodInfoUI } from './PodInfoUI';
 
 export let object: PodInfoUI;
 </script>

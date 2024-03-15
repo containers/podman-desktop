@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import type { Locator, Page } from '@playwright/test';
+import { expect as playExpect } from '@playwright/test';
+
 import { BasePage } from './base-page';
 import { ImagesPage } from './images-page';
-import { expect as playExpect } from '@playwright/test';
 
 export class BuildImagePage extends BasePage {
   readonly heading: Locator;

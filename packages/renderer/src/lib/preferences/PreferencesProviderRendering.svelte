@@ -1,25 +1,26 @@
 <script lang="ts">
-import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
-
-import { providerInfos } from '../../stores/providers';
+import { faHistory, faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
 import { onMount } from 'svelte';
+import { router } from 'tinro';
+import type { Terminal } from 'xterm';
+
+import { operationConnectionsInfo } from '/@/stores/operation-connections';
+
 import type {
-  ProviderInfo,
   ProviderContainerConnectionInfo,
+  ProviderInfo,
   ProviderKubernetesConnectionInfo,
 } from '../../../../main/src/plugin/api/provider-info';
-import { router } from 'tinro';
-import Modal from '../dialogs/Modal.svelte';
-import TerminalWindow from '../ui/TerminalWindow.svelte';
-import { writeToTerminal } from './Util';
-import PreferencesConnectionCreationRendering from './PreferencesConnectionCreationOrEditRendering.svelte';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import Route from '../../Route.svelte';
-import { faHistory, faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
-import type { Terminal } from 'xterm';
+import { providerInfos } from '../../stores/providers';
+import Modal from '../dialogs/Modal.svelte';
 import Button from '../ui/Button.svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 import FormPage from '../ui/FormPage.svelte';
-import { operationConnectionsInfo } from '/@/stores/operation-connections';
+import TerminalWindow from '../ui/TerminalWindow.svelte';
+import PreferencesConnectionCreationRendering from './PreferencesConnectionCreationOrEditRendering.svelte';
+import { writeToTerminal } from './Util';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string | undefined = undefined;

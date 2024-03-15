@@ -1,8 +1,10 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
+
 import { iconsInfos } from '/@/stores/icons';
-import type { IconInfo } from '../../../../main/src/plugin/api/icon-info';
+
 import type { FontDefinition } from '../../../../main/src/plugin/api/font-info';
+import type { IconInfo } from '../../../../main/src/plugin/api/icon-info';
 
 let style: HTMLStyleElement;
 

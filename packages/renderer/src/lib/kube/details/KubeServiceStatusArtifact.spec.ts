@@ -17,10 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import KubeServiceStatusArtifact from './KubeServiceStatusArtifact.svelte'; // Adjust the import path as necessary
+
 import type { V1ServiceStatus } from '@kubernetes/client-node';
+import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
+import KubeServiceStatusArtifact from './KubeServiceStatusArtifact.svelte'; // Adjust the import path as necessary
 
 const fakeServiceStatus: V1ServiceStatus = {
   loadBalancer: {

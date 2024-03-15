@@ -1,10 +1,11 @@
 <script lang="ts">
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
-import type { TinroRouteMeta } from 'tinro';
-import Tooltip from './Tooltip.svelte';
 import { getContext, onDestroy, onMount } from 'svelte';
 import type { Writable } from 'svelte/store';
+import type { TinroRouteMeta } from 'tinro';
+
+import Tooltip from './Tooltip.svelte';
 /* eslint-disable import/no-duplicates */
 
 export let href: string;

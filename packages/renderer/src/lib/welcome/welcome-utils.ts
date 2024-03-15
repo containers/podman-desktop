@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { WelcomeSettings } from '../../../../main/src/plugin/welcome/welcome-settings';
-import { TelemetrySettings } from '../../../../main/src/plugin/telemetry/telemetry-settings';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
+import { TelemetrySettings } from '../../../../main/src/plugin/telemetry/telemetry-settings';
+import { WelcomeSettings } from '../../../../main/src/plugin/welcome/welcome-settings';
 
 export class WelcomeUtils {
   async getVersion(): Promise<string | undefined> {

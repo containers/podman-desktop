@@ -19,6 +19,7 @@
 import type { Writable } from 'svelte/store';
 import { get, writable } from 'svelte/store';
 import type { Terminal } from 'xterm';
+
 import { containersInfos } from './containers';
 
 // keep data of a terminal bound to a container

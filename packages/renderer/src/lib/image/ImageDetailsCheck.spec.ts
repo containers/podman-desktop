@@ -17,11 +17,14 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
-import ImageDetailsCheck from './ImageDetailsCheck.svelte';
-import { fireEvent, render, screen } from '@testing-library/svelte';
+
 import type { ImageChecks } from '@podman-desktop/api';
+import { fireEvent, render, screen } from '@testing-library/svelte';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+
 import { imageCheckerProviders } from '/@/stores/image-checker-providers';
+
+import ImageDetailsCheck from './ImageDetailsCheck.svelte';
 
 const getCancellableTokenSourceMock = vi.fn();
 const imageCheckMock = vi.fn();

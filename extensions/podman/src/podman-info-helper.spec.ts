@@ -18,9 +18,9 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as extensionApi from '@podman-desktop/api';
-
 import type { Mock } from 'vitest';
 import { beforeEach, expect, test, vi } from 'vitest';
+
 import { PodmanInfoHelper } from './podman-info-helper';
 
 let podmanInfoHelper: PodmanInfoHelper;

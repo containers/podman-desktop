@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect, test } from 'vitest';
-import * as port from './port.js';
 import * as net from 'net';
+import { expect, test } from 'vitest';
+
+import * as port from './port.js';
 
 const host = '127.0.0.1';
 

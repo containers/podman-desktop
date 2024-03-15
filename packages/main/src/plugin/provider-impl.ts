@@ -16,33 +16,33 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { Disposable } from './types/disposable.js';
-import type { IDisposable } from './types/disposable.js';
-import type { ContainerProviderRegistry } from './container-registry.js';
-
 import type {
+  Auditor,
   ContainerProviderConnection,
-  KubernetesProviderConnection,
   ContainerProviderConnectionFactory,
+  Event,
+  KubernetesProviderConnection,
+  KubernetesProviderConnectionFactory,
   Provider,
+  ProviderAutostart,
+  ProviderCleanup,
+  ProviderConnectionStatus,
+  ProviderDetectionCheck,
+  ProviderImages,
+  ProviderInformation,
+  ProviderInstallation,
   ProviderLifecycle,
+  ProviderLinks,
   ProviderOptions,
   ProviderStatus,
-  ProviderConnectionStatus,
-  Event,
-  ProviderInstallation,
-  ProviderLinks,
-  ProviderImages,
-  ProviderDetectionCheck,
   ProviderUpdate,
-  ProviderAutostart,
-  KubernetesProviderConnectionFactory,
-  ProviderInformation,
-  Auditor,
-  ProviderCleanup,
 } from '@podman-desktop/api';
-import type { ProviderRegistry } from './provider-registry.js';
+
+import type { ContainerProviderRegistry } from './container-registry.js';
 import { Emitter } from './events/emitter.js';
+import type { ProviderRegistry } from './provider-registry.js';
+import type { IDisposable } from './types/disposable.js';
+import { Disposable } from './types/disposable.js';
 
 export class ProviderImpl implements Provider, IDisposable {
   private containerProviderConnections: Set<ContainerProviderConnection>;

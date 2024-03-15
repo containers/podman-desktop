@@ -1,9 +1,9 @@
 <script lang="ts">
 import { cliToolInfos } from '../../stores/cli-tools';
-import SettingsPage from './SettingsPage.svelte';
-import EngineIcon from '../ui/EngineIcon.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
+import EngineIcon from '../ui/EngineIcon.svelte';
 import PreferencesCliTool from './PreferencesCliTool.svelte';
+import SettingsPage from './SettingsPage.svelte';
 </script>
 
 <SettingsPage title="CLI Tools">

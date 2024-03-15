@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { promises } from 'fs';
+
 import { OS } from './os';
 
 export async function makeExecutable(filePath: string): Promise<void> {

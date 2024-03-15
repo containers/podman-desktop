@@ -16,30 +16,31 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as extensionApi from '@podman-desktop/api';
-import * as path from 'node:path';
-import * as os from 'node:os';
-import * as http from 'node:http';
-import * as fs from 'node:fs';
 import { spawn } from 'node:child_process';
-import { RegistrySetup } from './registry-setup';
+import * as fs from 'node:fs';
+import * as http from 'node:http';
+import * as os from 'node:os';
+import * as path from 'node:path';
 
-import { getAssetsFolder, isLinux, isMac, isWindows, appHomeDir, LoggerDelegator } from './util';
-import { PodmanInstall } from './podman-install';
+import type { ContainerEngineInfo, RunError } from '@podman-desktop/api';
+import * as extensionApi from '@podman-desktop/api';
+import { compareVersions } from 'compare-versions';
+
+import { getSocketCompatibility } from './compatibility-mode';
+import { getDetectionChecks } from './detection-checks';
+import { PodmanBinaryLocationHelper } from './podman-binary-location-helper';
+import { PodmanCleanupMacOS } from './podman-cleanup-macos';
+import { PodmanCleanupWindows } from './podman-cleanup-windows';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanCli, getPodmanInstallation } from './podman-cli';
 import { PodmanConfiguration } from './podman-configuration';
-import { getDetectionChecks } from './detection-checks';
-import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from './warnings';
-import { getSocketCompatibility } from './compatibility-mode';
-import type { ContainerEngineInfo, RunError } from '@podman-desktop/api';
-import { compareVersions } from 'compare-versions';
-import { WslHelper } from './wsl-helper';
-import { QemuHelper } from './qemu-helper';
-import { PodmanBinaryLocationHelper } from './podman-binary-location-helper';
 import { PodmanInfoHelper } from './podman-info-helper';
-import { PodmanCleanupMacOS } from './podman-cleanup-macos';
-import { PodmanCleanupWindows } from './podman-cleanup-windows';
+import { PodmanInstall } from './podman-install';
+import { QemuHelper } from './qemu-helper';
+import { RegistrySetup } from './registry-setup';
+import { appHomeDir, getAssetsFolder, isLinux, isMac, isWindows, LoggerDelegator } from './util';
+import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from './warnings';
+import { WslHelper } from './wsl-helper';
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
 

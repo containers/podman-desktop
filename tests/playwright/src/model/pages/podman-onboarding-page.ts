@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
+
 import { OnboardingPage } from './onboarding-page';
 
 export class PodmanOnboardingPage extends OnboardingPage {

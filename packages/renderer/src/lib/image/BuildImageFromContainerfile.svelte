@@ -1,14 +1,20 @@
 <script lang="ts">
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
-import { get } from 'svelte/store';
+import { faCube } from '@fortawesome/free-solid-svg-icons';
+import { Input } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
+import { get } from 'svelte/store';
+import type { Terminal } from 'xterm';
+
+import { type BuildImageInfo, buildImagesInfo } from '/@/stores/build-images';
+
 /* eslint-enable import/no-duplicates */
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-
 import { providerInfos } from '../../stores/providers';
+import Button from '../ui/Button.svelte';
 import FormPage from '../ui/FormPage.svelte';
-import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
+import TerminalWindow from '../ui/TerminalWindow.svelte';
 import {
   type BuildImageCallback,
   clearBuildTask,
@@ -17,13 +23,8 @@ import {
   reconnectUI,
   startBuild,
 } from './build-image-task';
-import { type BuildImageInfo, buildImagesInfo } from '/@/stores/build-images';
-import TerminalWindow from '../ui/TerminalWindow.svelte';
-import type { Terminal } from 'xterm';
-import Button from '../ui/Button.svelte';
-import { faCube } from '@fortawesome/free-solid-svg-icons';
 import BuildImageFromContainerfileCards from './BuildImageFromContainerfileCards.svelte';
-import { Input } from '@podman-desktop/ui-svelte';
+import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
 
 let buildFinished = false;
 let containerImageName = 'my-custom-image';

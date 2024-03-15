@@ -16,15 +16,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { MessageBox } from '/@/plugin/message-box.js';
-import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
-import { autoUpdater, type UpdateCheckResult, type UpdateInfo } from 'electron-updater';
-import { UPDATER_UPDATE_AVAILABLE_ICON } from '/@/plugin/index.js';
-import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
 import { app } from 'electron';
+import { autoUpdater, type UpdateCheckResult, type UpdateInfo } from 'electron-updater';
+
 import type { CommandRegistry } from '/@/plugin/command-registry.js';
-import { isLinux } from '/@/util.js';
+import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
+import { UPDATER_UPDATE_AVAILABLE_ICON } from '/@/plugin/index.js';
+import type { MessageBox } from '/@/plugin/message-box.js';
+import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
+import { isLinux } from '/@/util.js';
 
 /**
  * Represents an updater utility for Podman Desktop.

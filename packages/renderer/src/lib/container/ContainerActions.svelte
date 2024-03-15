@@ -1,25 +1,27 @@
 <script lang="ts">
 import {
   faAlignLeft,
+  faArrowsRotate,
+  faExternalLinkSquareAlt,
   faFileCode,
   faPlay,
   faRocket,
-  faTerminal,
   faStop,
-  faArrowsRotate,
+  faTerminal,
   faTrash,
-  faExternalLinkSquareAlt,
 } from '@fortawesome/free-solid-svg-icons';
-import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from './ContainerInfoUI';
-
+import { createEventDispatcher, onMount } from 'svelte';
 import { router } from 'tinro';
-import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
+
+import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
+
+import type { Menu } from '../../../../main/src/plugin/menu-registry';
+import { MenuContext } from '../../../../main/src/plugin/menu-registry';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
-import type { Menu } from '../../../../main/src/plugin/menu-registry';
-import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
-import { MenuContext } from '../../../../main/src/plugin/menu-registry';
-import { createEventDispatcher, onMount } from 'svelte';
+import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
+import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from './ContainerInfoUI';
+
 export let container: ContainerInfoUI;
 export let dropdownMenu = false;
 export let detailed = false;

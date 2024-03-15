@@ -1,7 +1,8 @@
 <script lang="ts">
-import type { ButtonType } from './Button';
 import { onMount } from 'svelte';
 import Fa from 'svelte-fa';
+
+import type { ButtonType } from './Button';
 import Spinner from './Spinner.svelte';
 
 export let title: string | undefined = undefined;

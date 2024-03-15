@@ -1,7 +1,7 @@
 <script lang="ts">
-import Tooltip from './Tooltip.svelte';
 import { ContainerGroupInfoTypeUI } from '../container/ContainerInfoUI';
 import { PodGroupInfoTypeUI } from '../pod/PodInfoUI';
+import Tooltip from './Tooltip.svelte';
 
 // Name of the provider (e.g. podman, docker, kubernetes)
 export let provider = '';

@@ -16,19 +16,20 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, describe, expect, test, vi } from 'vitest';
-import type { MessageBox } from '/@/plugin/message-box.js';
-import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
-import type { CommandRegistry } from '/@/plugin/command-registry.js';
-import { Disposable } from '/@/plugin/types/disposable.js';
-import { UPDATER_UPDATE_AVAILABLE_ICON } from '/@/plugin/index.js';
-import { Updater } from '/@/plugin/updater.js';
+import type { Configuration } from '@podman-desktop/api';
 import { app } from 'electron';
 import { type AppUpdater, autoUpdater, type UpdateCheckResult } from 'electron-updater';
-import * as util from '/@/util.js';
 import type { AppUpdaterEvents } from 'electron-updater/out/AppUpdater.js';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+
+import type { CommandRegistry } from '/@/plugin/command-registry.js';
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
-import type { Configuration } from '@podman-desktop/api';
+import { UPDATER_UPDATE_AVAILABLE_ICON } from '/@/plugin/index.js';
+import type { MessageBox } from '/@/plugin/message-box.js';
+import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
+import { Disposable } from '/@/plugin/types/disposable.js';
+import { Updater } from '/@/plugin/updater.js';
+import * as util from '/@/util.js';
 
 vi.mock('electron', () => ({
   app: {

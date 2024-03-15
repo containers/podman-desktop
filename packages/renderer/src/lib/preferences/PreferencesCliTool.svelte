@@ -1,12 +1,12 @@
 <script lang="ts">
 import { faCircleArrowUp, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
-import Button from '../ui/Button.svelte';
 import Fa from 'svelte-fa';
-import { startTask, type ConnectionCallback, eventCollect } from './preferences-connection-rendering-task';
-import type { CliToolInfo } from '../../../../main/src/plugin/api/cli-tool-info';
-import LoadingIconButton from '../ui/LoadingIconButton.svelte';
 
+import type { CliToolInfo } from '../../../../main/src/plugin/api/cli-tool-info';
 import Markdown from '../markdown/Markdown.svelte';
+import Button from '../ui/Button.svelte';
+import LoadingIconButton from '../ui/LoadingIconButton.svelte';
+import { type ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
 import type { ILoadingStatus } from './Util';
 
 export let cliTool: CliToolInfo;

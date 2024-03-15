@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { expect, test } from '@playwright/test';
+
 import { extractSitemapPathnames } from './utils';
 
 const sitemapPath = '../website/build/sitemap.xml';

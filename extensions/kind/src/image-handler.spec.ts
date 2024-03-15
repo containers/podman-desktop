@@ -16,11 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, test, vi } from 'vitest';
-import type { Mock } from 'vitest';
-import { ImageHandler } from './image-handler';
-import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
+
+import * as extensionApi from '@podman-desktop/api';
+import type { Mock } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
+
+import { ImageHandler } from './image-handler';
 import { getKindPath } from './util';
 
 let imageHandler: ImageHandler;

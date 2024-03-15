@@ -16,11 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Event, Webview, WebviewOptions } from '@podman-desktop/api';
-import { Emitter } from '/@/plugin/events/emitter.js';
-import type { ApiSenderType } from '/@/plugin/api.js';
-import { Uri } from '/@/plugin/types/uri.js';
 import { randomUUID } from 'node:crypto';
+
+import type { Event, Webview, WebviewOptions } from '@podman-desktop/api';
+
+import type { ApiSenderType } from '/@/plugin/api.js';
+import { Emitter } from '/@/plugin/events/emitter.js';
+import { Uri } from '/@/plugin/types/uri.js';
 
 export class WebviewImpl implements Webview {
   readonly #apiSender: ApiSenderType;

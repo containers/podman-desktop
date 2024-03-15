@@ -17,13 +17,14 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/svelte';
 
-import type { IngressUI } from './IngressUI';
-import IngressRouteColumnName from './IngressRouteColumnName.svelte';
-import type { RouteUI } from './RouteUI';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { router } from 'tinro';
+import { expect, test, vi } from 'vitest';
+
+import IngressRouteColumnName from './IngressRouteColumnName.svelte';
+import type { IngressUI } from './IngressUI';
+import type { RouteUI } from './RouteUI';
 
 const ingressUI: IngressUI = {
   name: 'my-ingress',

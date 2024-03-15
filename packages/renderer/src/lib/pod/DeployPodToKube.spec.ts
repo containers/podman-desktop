@@ -21,11 +21,13 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
-import DeployPodToKube from './DeployPodToKube.svelte';
+
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import * as jsYaml from 'js-yaml';
 import { router } from 'tinro';
+import { beforeEach, expect, test, vi } from 'vitest';
+
+import DeployPodToKube from './DeployPodToKube.svelte';
 
 const generatePodmanKubeMock = vi.fn();
 const kubernetesGetCurrentContextNameMock = vi.fn();

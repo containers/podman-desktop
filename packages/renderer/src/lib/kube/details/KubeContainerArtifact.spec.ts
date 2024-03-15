@@ -17,9 +17,11 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+
 import type { V1Container } from '@kubernetes/client-node';
+import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
 import KubeContainerArtifact from './KubeContainerArtifact.svelte'; // Adjust the import path as necessary
 
 const fakeContainer: V1Container = {

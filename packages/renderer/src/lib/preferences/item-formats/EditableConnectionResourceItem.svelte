@@ -1,7 +1,8 @@
 <script lang="ts">
+import { filesize } from 'filesize';
+
 import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
 import { getNormalizedDefaultNumberValue } from '../Util';
-import { filesize } from 'filesize';
 import EditableItem from './EditableItem.svelte';
 
 export let record: IConfigurationPropertyRecordedSchema;

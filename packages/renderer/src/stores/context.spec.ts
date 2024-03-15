@@ -16,10 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
-import { setup } from './context';
-import { ContextUI } from '../lib/context/context';
 import { get } from 'svelte/store';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+
+import { ContextUI } from '../lib/context/context';
+import { setup } from './context';
 
 const contextCollectAllValues = vi.fn();
 const receiveMock = vi.fn();

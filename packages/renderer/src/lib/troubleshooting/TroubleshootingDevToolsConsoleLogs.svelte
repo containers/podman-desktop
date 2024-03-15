@@ -1,10 +1,10 @@
 <script lang="ts">
-import { onMount, onDestroy } from 'svelte';
-
-import NoLogIcon from '../ui/NoLogIcon.svelte';
-import Fa from 'svelte-fa';
 import { faFileLines, faPaste } from '@fortawesome/free-regular-svg-icons';
+import { onDestroy, onMount } from 'svelte';
+import Fa from 'svelte-fa';
+
 import type { LogType } from '../../../../preload/src';
+import NoLogIcon from '../ui/NoLogIcon.svelte';
 
 let logs: {
   logType: LogType;

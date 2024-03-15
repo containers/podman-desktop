@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { Context, Informer, KubernetesObject } from '@kubernetes/client-node';
+
 import type { KubernetesInformerInfo, KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 
 export class KubernetesInformerManager {

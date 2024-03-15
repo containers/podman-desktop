@@ -17,8 +17,9 @@
  ***********************************************************************/
 
 import type { Locator, Page } from 'playwright';
-import { SettingsPage } from './settings-page';
+
 import { waitUntil } from '../../utility/wait';
+import { SettingsPage } from './settings-page';
 
 export class RegistriesPage extends SettingsPage {
   readonly heading: Locator;

@@ -1,15 +1,15 @@
 <script lang="ts">
-import type { CheckStatus, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
-import PreflightChecks from './PreflightChecks.svelte';
-import ProviderUpdateButton from './ProviderUpdateButton.svelte';
-import Steps from '../ui/Steps.svelte';
-
 import { onMount } from 'svelte';
-import { InitializeAndStartMode, InitializationSteps, type InitializationContext } from './ProviderInitUtils';
-import Spinner from '../ui/Spinner.svelte';
+
+import type { CheckStatus, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import Button from '../ui/Button.svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
+import Spinner from '../ui/Spinner.svelte';
+import Steps from '../ui/Steps.svelte';
+import PreflightChecks from './PreflightChecks.svelte';
 import ProviderCard from './ProviderCard.svelte';
+import { type InitializationContext, InitializationSteps, InitializeAndStartMode } from './ProviderInitUtils';
+import ProviderUpdateButton from './ProviderUpdateButton.svelte';
 
 export let provider: ProviderInfo;
 export let initializationContext: InitializationContext;

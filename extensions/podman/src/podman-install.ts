@@ -15,28 +15,29 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import * as extensionApi from '@podman-desktop/api';
-import { promisify } from 'node:util';
 import * as fs from 'node:fs';
-import * as path from 'node:path';
 import * as os from 'node:os';
+import * as path from 'node:path';
+import { promisify } from 'node:util';
+
+import * as extensionApi from '@podman-desktop/api';
 import { compare } from 'compare-versions';
 
+import { BaseCheck } from './base-check';
+import { getDetectionChecks } from './detection-checks';
+import {
+  isRootfulMachineInitSupported,
+  isStartNowAtMachineInitSupported,
+  isUserModeNetworkingSupported,
+  ROOTFUL_MACHINE_INIT_SUPPORTED_KEY,
+  START_NOW_MACHINE_INIT_SUPPORTED_KEY,
+  USER_MODE_NETWORKING_SUPPORTED_KEY,
+} from './extension';
+import { MacCPUCheck, MacMemoryCheck, MacPodmanInstallCheck, MacVersionCheck } from './macos-checks';
 import * as podmanTool from './podman.json';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanInstallation } from './podman-cli';
 import { getAssetsFolder, normalizeWSLOutput } from './util';
-import { getDetectionChecks } from './detection-checks';
-import { BaseCheck } from './base-check';
-import { MacCPUCheck, MacMemoryCheck, MacPodmanInstallCheck, MacVersionCheck } from './macos-checks';
-import {
-  isRootfulMachineInitSupported,
-  ROOTFUL_MACHINE_INIT_SUPPORTED_KEY,
-  isUserModeNetworkingSupported,
-  USER_MODE_NETWORKING_SUPPORTED_KEY,
-  START_NOW_MACHINE_INIT_SUPPORTED_KEY,
-  isStartNowAtMachineInitSupported,
-} from './extension';
 import { WslHelper } from './wsl-helper';
 
 const readFile = promisify(fs.readFile);
