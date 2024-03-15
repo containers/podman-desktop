@@ -1,16 +1,13 @@
 {
   "compilerOptions": {
-    "module": "esnext",
-    "target": "esnext",
-    "sourceMap": false,
-    "moduleResolution": "Node",
-    "declaration": true,
-    "outDir": "dist",
+    "module": "ESNext",
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "rootDir": "./src",
     "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
     "strict": true,
-    "isolatedModules": true,
+    "declaration": true,
+    "allowSyntheticDefaultImports": true,
 
     "types": ["node"],
 

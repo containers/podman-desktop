@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023-2024 Red Hat, Inc.
+ * Copyright (C) 2023 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import path, { join } from 'node:path';
-
-import type { ElectronApplication, JSHandle, Page } from '@playwright/test';
 import { _electron as electron } from '@playwright/test';
+import type { ElectronApplication, JSHandle, Page } from '@playwright/test';
+import { resolve, dirname, join } from 'node:path';
 import type { BrowserWindow } from 'electron';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 
 type WindowState = {
   isVisible: boolean;
@@ -56,10 +55,21 @@ export class PodmanDesktopRunner {
     try {
       // start the app with given properties
       this._running = true;
+      console.log(`### STARTING PODMAN DESKTOP APP ###`);
+      console.log(`Electron app launch options: `);
+      Object.keys(this._options).forEach(key => {
+        console.log(`${key}: ${(this._options as { [k: string]: string })[key]}`);
+      });
       this._app = await electron.launch({
         ...this._options,
       });
+      // setup state
       this._page = await this.getElectronApp().firstWindow();
+      const exe = this.getElectronApp().evaluate(async ({ app }) => {
+        return app.getPath('exe');
+      });
+      console.log(`The Executable Electron app. file: ${exe}`);
+
       // Evaluate that the main window is visible
       // at the same time, the function also makes sure that event 'ready-to-show' was triggered
       // keeping this call meeses up communication between playwright and electron app on linux
@@ -224,15 +234,15 @@ export class PodmanDesktopRunner {
 
   private setupPodmanDesktopCustomFolder(): object {
     const env: { [key: string]: string } = process.env as { [key: string]: string };
-    const dir = path.join(this._customFolder);
+    const dir = join(this._customFolder);
     console.log(`podman desktop custom config will be written to: ${dir}`);
     env.PODMAN_DESKTOP_HOME_DIR = dir;
 
     // add a custom config file by disabling OpenDevTools
-    const settingsFile = path.resolve(dir, 'configuration', 'settings.json');
+    const settingsFile = resolve(dir, 'configuration', 'settings.json');
 
     // create parent folder if missing
-    const parentDir = path.dirname(settingsFile);
+    const parentDir = dirname(settingsFile);
     if (!existsSync(parentDir)) {
       mkdirSync(parentDir, { recursive: true });
     }

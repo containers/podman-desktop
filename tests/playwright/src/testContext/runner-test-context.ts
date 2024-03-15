@@ -21,5 +21,7 @@ import type { TestContext } from 'vitest';
 import type { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 
 export interface RunnerTestContext extends TestContext {
+  // to avoid compilation failures -> error TS2339: Property 'task' does not exist on type 'TestContext'.
+  // task: any;
   pdRunner: PodmanDesktopRunner;
 }
