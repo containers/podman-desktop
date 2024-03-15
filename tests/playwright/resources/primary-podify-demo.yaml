@@ -1,0 +1,48 @@
+# Save the output of this file and use kubectl create -f to import
+# it into Kubernetes.
+#
+# Created with podman-4.8.1
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: "2023-12-12T12:45:23Z"
+  labels:
+    app: podify-demo-pod
+  name: podify-demo-pod
+spec:
+  containers:
+  - env:
+    - name: HOSTNAME
+      value: d6ee99a0905d
+    - name: TERM
+      value: xterm
+    - name: HOME
+      value: /home/redis
+    image: quay.io/podman-desktop-demo/podify-demo-backend:v1
+    resources:
+        limits:
+          cpu: 1
+          memory: 500Mi
+    automountServiceAccountToken: false
+    name: backend-podified
+    ports:
+    - containerPort: 5007
+      hostPort: 5007
+    securityContext:
+      runAsNonRoot: true
+  - env:
+    - name: TERM
+      value: xterm
+    - name: HOME
+      value: /home/frontend
+    - name: HOSTNAME
+      value: 4daf7345fc17
+    image: quay.io/podman-desktop-demo/podify-demo-frontend:v1
+    resources:
+        limits:
+          cpu: 1
+          memory: 500Mi
+    automountServiceAccountToken: false
+    name: frontend-podified
+    securityContext:
+      runAsNonRoot: true
