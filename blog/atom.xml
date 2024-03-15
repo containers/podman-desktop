@@ -2427,7 +2427,7 @@ Over time, this page will be expanded to help with initial setup and configurati
 <li><a href="https://podman-desktop.io/docs/installation/windows-install">Refresh Windows Installation</a></li>
 <li><a href="https://podman-desktop.io/docs/installation">Revamped installation introduction</a></li>
 <li><a href="https://podman-desktop.io/docs/installation/linux-install">Reorganized Linux installation</a></li>
-<li><a href="https://podman-desktop.io/docs/installation/windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment">Installing Podman Desktop on Windows in a restricted environment</a></li>
+<li>[Installing Podman Desktop on Windows in a restricted environment](/docs/proxy</li>
 <li><a href="https://podman-desktop.io/docs/migrating-from-docker/using-podman-mac-helper">Fixed documentation on <code>podman-mac-helper</code> setup</a></li>
 </ul>
 <hr>
