@@ -269,6 +269,62 @@ describe('listColors', () => {
   });
 });
 
+describe('isDarkTheme', () => {
+  beforeEach(() => {
+    const fakeExtension = {
+      id: 'foo.bar',
+    } as unknown as AnalyzedExtension;
+
+    // first, init default colors
+    colorRegistry.initColors();
+
+    // register two themes with only one color
+    colorRegistry.registerExtensionThemes(fakeExtension, [
+      {
+        id: 'dark-theme1',
+        name: 'Dark Theme 1',
+        parent: 'dark',
+        colors: {
+          titlebarBg: 'myCustomValueDark',
+        },
+      },
+      {
+        id: 'light-theme1',
+        name: 'Light Theme 1',
+        parent: 'light',
+        colors: {
+          titlebarBg: 'myCustomValueLight',
+        },
+      },
+    ]);
+  });
+
+  test('light', async () => {
+    const isDark = colorRegistry.isDarkTheme('light');
+    expect(isDark).toBeFalsy();
+  });
+
+  test('dark', async () => {
+    const isDark = colorRegistry.isDarkTheme('dark');
+    expect(isDark).toBeTruthy();
+  });
+
+  test('custom with parent being dark', async () => {
+    const isDark = colorRegistry.isDarkTheme('dark-theme1');
+    expect(isDark).toBeTruthy();
+  });
+
+  test('custom with parent being light', async () => {
+    const isDark = colorRegistry.isDarkTheme('light-theme1');
+    expect(isDark).toBeFalsy();
+  });
+
+  test('unknown theme should be dark', async () => {
+    const isDark = colorRegistry.isDarkTheme('unknown-theme');
+    expect(isDark).toBeTruthy();
+  });
+});
+
 describe('registerExtensionThemes', () => {
   const fakeExtension = {
     id: 'foo.bar',

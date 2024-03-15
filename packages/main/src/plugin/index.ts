@@ -1976,6 +1976,10 @@ export class PluginSystem {
       return colorRegistry.listColors(themeId);
     });
 
+    this.ipcHandle('colorRegistry:isDarkTheme', async (_listener, themeId: string): Promise<boolean> => {
+      return colorRegistry.isDarkTheme(themeId);
+    });
+
     this.ipcHandle('viewRegistry:listViewsContributions', async (_listener): Promise<ViewInfoUI[]> => {
       return viewRegistry.listViewsContributions();
     });

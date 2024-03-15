@@ -34,12 +34,14 @@ export class ColorRegistry {
   #definitions: Map<string, ColorDefinition>;
   #initDone = false;
   #themes: Map<string, Map<string, Color>>;
+  #parentThemes: Map<string, string>;
 
   constructor(apiSender: ApiSenderType, configurationRegistry: ConfigurationRegistry) {
     this.#apiSender = apiSender;
     this.#configurationRegistry = configurationRegistry;
     this.#definitions = new Map();
     this.#themes = new Map();
+    this.#parentThemes = new Map();
 
     // default themes
     this.#themes.set('light', new Map());
@@ -80,6 +82,8 @@ export class ColorRegistry {
       if (!this.#themes.has(parent)) {
         throw new Error(`Parent theme ${parent} does not exist. It is defined in extension ${extension.id}.`);
       }
+
+      this.#parentThemes.set(theme.id, parent);
 
       // get the parent theme assuming it's now existing
       const parentTheme = this.#themes.get(parent);
@@ -136,6 +140,27 @@ export class ColorRegistry {
     this.#themes.get('light')?.set(colorId, definition.light);
     this.#themes.get('dark')?.set(colorId, definition.dark);
     this.notifyUpdate();
+  }
+
+  // check if the given theme is dark
+  // if light or dark it's easy
+  // else we check the parent theme
+  isDarkTheme(themeId: string): boolean {
+    if (themeId === 'light') {
+      return false;
+    } else if (themeId === 'dark') {
+      return true;
+    } else {
+      // get the parent theme
+      const parent = this.#parentThemes.get(themeId);
+      if (parent) {
+        return this.isDarkTheme(parent);
+      } else {
+        console.error(`Theme ${themeId} does not exist.`);
+        // return dark by default
+        return true;
+      }
+    }
   }
 
   /**

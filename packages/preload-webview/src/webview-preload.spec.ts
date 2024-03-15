@@ -18,6 +18,8 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { afterEach } from 'node:test';
+
 import type { IpcRendererEvent } from 'electron';
 import { contextBridge, ipcRenderer } from 'electron';
 import type { MockInstance } from 'vitest';
@@ -53,6 +55,9 @@ class TestWebwiewPreload extends WebviewPreload {
   }
   async getColors(themeId: string): Promise<ColorInfo[]> {
     return super.getColors(themeId);
+  }
+  async isDarkTheme(theme: string): Promise<boolean> {
+    return super.isDarkTheme(theme);
   }
 }
 
@@ -160,51 +165,119 @@ describe('ipcInvoke', () => {
   });
 });
 
-test('check changeContent', async () => {
-  // spy document.write method
-  const spyDocumentWrite = vi.spyOn(document, 'write');
+describe('changeContent', () => {
+  const originalDocument = document;
+  beforeEach(() => {
+    // spy document.write method
+    document = originalDocument.implementation.createHTMLDocument('');
+  });
+  afterEach(() => {
+    document = originalDocument;
+  });
 
-  // spy getTheme method
-  const spyGetTheme = vi.spyOn(webviewPreload, 'getTheme');
-  spyGetTheme.mockResolvedValue('light');
+  test('check with light theme', async () => {
+    // spy document.write method
+    const spyDocumentWrite = vi.spyOn(document, 'write');
 
-  // spy getColors method
-  const spyGetColors = vi.spyOn(webviewPreload, 'getColors');
-  spyGetColors.mockResolvedValue([{ id: 'my-color', value: 'test', cssVar: '--pd-my-color' }]);
+    // spy getTheme method
+    const spyGetTheme = vi.spyOn(webviewPreload, 'getTheme');
+    spyGetTheme.mockResolvedValue('light');
 
-  // override window.addEventListener to keep the callback
-  const spyAddEventListener = vi.spyOn(window, 'addEventListener');
+    // spy getColors method
+    const spyGetColors = vi.spyOn(webviewPreload, 'getColors');
+    spyGetColors.mockResolvedValue([{ id: 'my-color', value: 'test', cssVar: '--pd-my-color' }]);
 
-  // call changeContent it should not do anything as we're missing all conditions
-  webviewPreload.changeContent();
+    // spy isDarkTheme method
+    const spyIsDarkTheme = vi.spyOn(webviewPreload, 'isDarkTheme');
+    spyIsDarkTheme.mockResolvedValue(false);
 
-  // check document.write method has not been called
-  expect(spyDocumentWrite).not.toHaveBeenCalled();
+    // override window.addEventListener to keep the callback
+    const spyAddEventListener = vi.spyOn(window, 'addEventListener');
 
-  // call init to set the webviewInfo
-  await webviewPreload.init();
+    // call changeContent it should not do anything as we're missing all conditions
+    webviewPreload.changeContent();
 
-  const callback: any = spyAddEventListener.mock.calls[0][1];
+    // check document.write method has not been called
+    expect(spyDocumentWrite).not.toHaveBeenCalled();
 
-  // call the callback that should call changeContent as we'll have two mandatory fields
-  callback();
+    // call init to set the webviewInfo
+    await webviewPreload.init();
 
-  // wait timeout execute
-  await new Promise(resolve => setTimeout(resolve, 100));
+    const callback: any = spyAddEventListener.mock.calls[0][1];
 
-  // check the document.write method has been called
-  expect(spyDocumentWrite).toHaveBeenCalledWith(`<!DOCTYPE html>
+    // call the callback that should call changeContent as we'll have two mandatory fields
+    callback();
+
+    // wait timeout execute
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // check the document.write method has been called
+    expect(spyDocumentWrite).toHaveBeenCalledWith(`<!DOCTYPE html>
 <html><head></head><body>hello world</body></html>`);
 
-  // check getTheme has been called
-  expect(spyGetTheme).toHaveBeenCalled();
+    // check getTheme has been called
+    expect(spyGetTheme).toHaveBeenCalled();
 
-  // check getColors has been called
-  expect(spyGetColors).toHaveBeenCalledWith('light');
+    // check getColors has been called
+    expect(spyGetColors).toHaveBeenCalledWith('light');
 
-  // check the createCssForColors method has been called and contains the expected css
-  expect(document.head.innerHTML).toContain('<style type="text/css"');
-  expect(document.head.textContent).toContain('--pd-my-color: test;');
+    // check the createCssForColors method has been called and contains the expected css
+    expect(document.head.innerHTML).toContain('<style type="text/css"');
+    expect(document.head.textContent).toContain('--pd-my-color: test;');
+    expect(document.head.textContent).toContain('color-scheme: light;');
+  });
+
+  test('check with dark theme', async () => {
+    // spy document.write method
+    const spyDocumentWrite = vi.spyOn(document, 'write');
+
+    // spy getTheme method
+    const spyGetTheme = vi.spyOn(webviewPreload, 'getTheme');
+    spyGetTheme.mockResolvedValue('dark');
+
+    // spy getColors method
+    const spyGetColors = vi.spyOn(webviewPreload, 'getColors');
+    spyGetColors.mockResolvedValue([{ id: 'my-color', value: 'test', cssVar: '--pd-my-color' }]);
+
+    // spy isDarkTheme method
+    const spyIsDarkTheme = vi.spyOn(webviewPreload, 'isDarkTheme');
+    spyIsDarkTheme.mockResolvedValue(true);
+
+    // override window.addEventListener to keep the callback
+    const spyAddEventListener = vi.spyOn(window, 'addEventListener');
+
+    // call changeContent it should not do anything as we're missing all conditions
+    webviewPreload.changeContent();
+
+    // check document.write method has not been called
+    expect(spyDocumentWrite).not.toHaveBeenCalled();
+
+    // call init to set the webviewInfo
+    await webviewPreload.init();
+
+    const callback: any = spyAddEventListener.mock.calls[0][1];
+
+    // call the callback that should call changeContent as we'll have two mandatory fields
+    callback();
+
+    // wait timeout execute
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // check the document.write method has been called
+    expect(spyDocumentWrite).toHaveBeenCalledWith(`<!DOCTYPE html>
+<html><head></head><body>hello world</body></html>`);
+
+    // check getTheme has been called
+    expect(spyGetTheme).toHaveBeenCalled();
+
+    // check getColors has been called
+    expect(spyGetColors).toHaveBeenCalledWith('dark');
+
+    // check the createCssForColors method has been called and contains the expected css
+    expect(document.head.innerHTML).toContain('<style type="text/css"');
+    expect(document.head.textContent).toContain('--pd-my-color: test;');
+    expect(document.head.textContent).toContain('color-scheme: dark;');
+  });
 });
 
 test('check buildApi', async () => {
