@@ -12,6 +12,6 @@ Podman is a daemonless, open source, container engine that makes it easy to buil
 
 #### Next steps
 
-1. [Installing Podman](/docs/podman/installing).
+1. [Installing Podman](/docs/installation).
 1. [Creating a Podman machine](/docs/podman/creating-a-podman-machine).
 1. [Setting Podman machine default connection](/docs/podman/setting-podman-machine-default-connection).
