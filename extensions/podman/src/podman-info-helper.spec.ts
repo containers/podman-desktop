@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**********************************************************************
  * Copyright (C) 2023 Red Hat, Inc.
  *
@@ -17,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as extensionApi from '@podman-desktop/api';
 
 import type { Mock } from 'vitest';
