@@ -345,5 +345,5 @@ Configure Podman.
 
 1. You can install extensions such as:
 
-   - [Installing Compose](/docs/compose/compose-spec)
+   - [Installing Compose](/docs/compose/setting-up-compose)
    - [Installing Kind](/docs/kind/installing).
