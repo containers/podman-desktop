@@ -66,7 +66,7 @@
       }
     }
   },
-  "plugins": ["@typescript-eslint", "sonarjs", "etc", "redundant-undefined", "no-null", "header"],
+  "plugins": ["@typescript-eslint", "sonarjs", "etc", "redundant-undefined", "no-null", "header", "simple-import-sort"],
   "ignorePatterns": [
     "packages/preload/exposedInMainWorld.d.ts",
     "packages/preload-docker-extension/exposedInDockerExtension.d.ts",
@@ -107,6 +107,8 @@
     "import/default": "off",
     "import/no-named-as-default-member": "off",
     "import/no-named-as-default": "off",
+    "import/first": "error",
+    "import/newline-after-import": "error",
     "sonarjs/cognitive-complexity": "off",
     "sonarjs/no-duplicate-string": "off",
     "sonarjs/no-empty-collection": "off",
@@ -115,6 +117,8 @@
     "etc/no-deprecated": "off",
     "redundant-undefined/redundant-undefined": "error",
     "import/no-extraneous-dependencies": "error",
-    "header/header": [2, "block", [{ "pattern": "SPDX-License-Identifier: Apache-2\\.0" }]]
+    "header/header": [2, "block", [{ "pattern": "SPDX-License-Identifier: Apache-2\\.0" }]],
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error"
   }
 }
