@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[38860],{37951:o=>{o.exports=JSON.parse('{"permalink":"/blog/tags/podman-desktop","page":1,"postsPerPage":21,"totalPages":1,"totalCount":21,"blogDescription":"Discover articles about Podman Desktop","blogTitle":"Podman Desktop blog!"}')}}]);
