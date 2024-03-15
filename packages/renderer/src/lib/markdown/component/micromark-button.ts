@@ -19,14 +19,15 @@
  * It allows to create a button which has a spinner and an error log expandable section which gets visible if the command execution fails
  */
 import type { CompileContext } from 'micromark-util-types';
+
 import type { Command, ExpandableSectionProps } from '../micromark-utils';
-import { createSpinner, disableSpinner, enableSpinner } from './micromark-spinner';
 import {
   createExpandableSection,
   hideExpandableToggleByRef,
   showExpandableToggleByRef,
   updateExpandableSectionHtmlContentByRef,
 } from './micromark-expandable-section';
+import { createSpinner, disableSpinner, enableSpinner } from './micromark-spinner';
 
 let buttonCount = 0;
 const buttons = new Map<string, ButtonElement>();

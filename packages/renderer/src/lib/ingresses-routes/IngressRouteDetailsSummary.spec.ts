@@ -17,11 +17,13 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, vi, expect, beforeAll } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import IngressRouteDetailsSummary from './IngressRouteDetailsSummary.svelte';
+
 import type { V1Ingress } from '@kubernetes/client-node';
+import { render, screen } from '@testing-library/svelte';
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
+import IngressRouteDetailsSummary from './IngressRouteDetailsSummary.svelte';
 
 const ingress: V1Ingress = {
   metadata: {

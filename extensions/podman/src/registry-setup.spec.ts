@@ -16,11 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as fs from 'node:fs';
+
 import type { MockedFunction } from 'vitest';
-import { afterEach, beforeEach, beforeAll, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
+
 import type { ContainersAuthConfigFile } from './registry-setup';
 import { RegistrySetup } from './registry-setup';
-import * as fs from 'node:fs';
 
 // allow us to test protected methods
 export class TestRegistrySetup extends RegistrySetup {

@@ -1,16 +1,18 @@
 <script lang="ts">
+import { faCheckCircle, faCircleArrowUp, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { onMount, tick } from 'svelte';
+import Fa from 'svelte-fa';
 import { router } from 'tinro';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
+
+import CloseButton from '/@/lib/ui/CloseButton.svelte';
+
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import Modal from '../dialogs/Modal.svelte';
-import type { ImageInfoUI } from './ImageInfoUI';
 import Button from '../ui/Button.svelte';
 import Link from '../ui/Link.svelte';
-import { faCheckCircle, faTriangleExclamation, faCircleArrowUp } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa';
-import CloseButton from '/@/lib/ui/CloseButton.svelte';
+import type { ImageInfoUI } from './ImageInfoUI';
 
 export let closeCallback: () => void;
 export let imageInfoToPush: ImageInfoUI;

@@ -1,30 +1,31 @@
 <script lang="ts">
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import moment from 'moment';
 import { onMount } from 'svelte';
 
-import type { DeploymentUI } from './DeploymentUI';
-import NavPage from '../ui/NavPage.svelte';
-import Table from '../table/Table.svelte';
-import { Column, Row } from '../table/table';
-import DeploymentColumnStatus from './DeploymentColumnStatus.svelte';
-import DeploymentColumnName from './DeploymentColumnName.svelte';
-import DeploymentColumnConditions from './DeploymentColumnConditions.svelte';
-import DeploymentColumnPods from './DeploymentColumnPods.svelte';
-import { DeploymentUtils } from './deployment-utils';
-import DeploymentColumnActions from './DeploymentColumnActions.svelte';
-import moment from 'moment';
-import Button from '../ui/Button.svelte';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import DeploymentIcon from '../images/DeploymentIcon.svelte';
-import DeploymentEmptyScreen from './DeploymentEmptyScreen.svelte';
-import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
-import SimpleColumn from '../table/SimpleColumn.svelte';
-import DurationColumn from '../table/DurationColumn.svelte';
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
-import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
 import {
   deploymentSearchPattern,
   kubernetesCurrentContextDeploymentsFiltered,
 } from '/@/stores/kubernetes-contexts-state';
+
+import DeploymentIcon from '../images/DeploymentIcon.svelte';
+import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
+import DurationColumn from '../table/DurationColumn.svelte';
+import SimpleColumn from '../table/SimpleColumn.svelte';
+import { Column, Row } from '../table/table';
+import Table from '../table/Table.svelte';
+import Button from '../ui/Button.svelte';
+import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
+import NavPage from '../ui/NavPage.svelte';
+import { DeploymentUtils } from './deployment-utils';
+import DeploymentColumnActions from './DeploymentColumnActions.svelte';
+import DeploymentColumnConditions from './DeploymentColumnConditions.svelte';
+import DeploymentColumnName from './DeploymentColumnName.svelte';
+import DeploymentColumnPods from './DeploymentColumnPods.svelte';
+import DeploymentColumnStatus from './DeploymentColumnStatus.svelte';
+import DeploymentEmptyScreen from './DeploymentEmptyScreen.svelte';
+import type { DeploymentUI } from './DeploymentUI';
 
 export let searchTerm = '';
 $: deploymentSearchPattern.set(searchTerm);

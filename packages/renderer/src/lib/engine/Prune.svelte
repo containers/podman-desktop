@@ -1,5 +1,6 @@
 <script lang="ts">
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+
 import Button from '../ui/Button.svelte';
 import type { EngineInfoUI } from './EngineInfoUI';
 

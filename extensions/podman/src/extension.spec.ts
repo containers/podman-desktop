@@ -17,19 +17,21 @@
  ***********************************************************************/
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import * as fs from 'node:fs';
+
+import type { Configuration, ContainerEngineInfo, ContainerProviderConnection } from '@podman-desktop/api';
+import * as extensionApi from '@podman-desktop/api';
+import { Disposable } from '@podman-desktop/api';
 import type { Mock } from 'vitest';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+
+import { DarwinSocketCompatibility } from './compatibility-mode';
 import { checkDisguisedPodmanSocket } from './extension';
 import * as extension from './extension';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanCli } from './podman-cli';
-import type { Configuration, ContainerEngineInfo, ContainerProviderConnection } from '@podman-desktop/api';
-import * as extensionApi from '@podman-desktop/api';
-import * as fs from 'node:fs';
-import { isLinux, isMac, LoggerDelegator } from './util';
-import { DarwinSocketCompatibility } from './compatibility-mode';
 import { PodmanInstall } from './podman-install';
-import { Disposable } from '@podman-desktop/api';
+import { isLinux, isMac, LoggerDelegator } from './util';
 
 const config: Configuration = {
   get: () => {

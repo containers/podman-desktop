@@ -38,8 +38,10 @@ These are the ones which will be shown (see the V1 Volume spec)
 */
 
 import type { V1Volume } from '@kubernetes/client-node';
+
 import Cell from './ui/Cell.svelte';
 import Subtitle from './ui/Title.svelte';
+
 export let artifact: V1Volume;
 </script>
 

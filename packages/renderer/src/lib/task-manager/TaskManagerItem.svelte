@@ -8,11 +8,13 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { onMount } from 'svelte';
 import Fa from 'svelte-fa';
-import { TaskManager, type StatefulTaskUI } from './task-manager';
-import { isNotificationTask, isStatefulTask, removeTask } from '/@/stores/tasks';
-import type { NotificationTask, Task } from '../../../../main/src/plugin/api/task';
+
 import ProgressBar from '/@/lib/task-manager/ProgressBar.svelte';
+import { isNotificationTask, isStatefulTask, removeTask } from '/@/stores/tasks';
+
+import type { NotificationTask, Task } from '../../../../main/src/plugin/api/task';
 import Markdown from '../markdown/Markdown.svelte';
+import { type StatefulTaskUI, TaskManager } from './task-manager';
 
 export let task: Task;
 

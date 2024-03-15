@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { CompileContext } from 'micromark-util-types';
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeEach } from 'vitest';
+
+import type { CompileContext } from 'micromark-util-types';
+import { beforeEach, expect, test, vi } from 'vitest';
+
 import type { ExpandableSectionProps } from '../micromark-utils';
 import { createExpandableSection } from './micromark-expandable-section';
 

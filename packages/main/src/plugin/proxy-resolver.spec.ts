@@ -20,13 +20,14 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import * as ProxyResolver from './proxy-resolver.js';
-import { beforeEach, expect, test, vi } from 'vitest';
-import type { Proxy } from './proxy.js';
-import { get } from 'http';
 import type { HttpsProxyAgentOptions } from 'hpagent';
 import { HttpsProxyAgent } from 'hpagent';
+import { get } from 'http';
 import * as nodeurl from 'url';
+import { beforeEach, expect, test, vi } from 'vitest';
+
+import type { Proxy } from './proxy.js';
+import * as ProxyResolver from './proxy-resolver.js';
 
 vi.mock('http', () => {
   return {

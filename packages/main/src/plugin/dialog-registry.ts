@@ -19,6 +19,7 @@
 import type { OpenDialogOptions, SaveDialogOptions } from '@podman-desktop/api';
 import type { BrowserWindow } from 'electron';
 import { dialog } from 'electron';
+
 import type { Deferred } from './util/deferred.js';
 
 /**

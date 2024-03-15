@@ -16,15 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { afterEach, expect, test, vi } from 'vitest';
-import type { KubectlGitHubReleases, KubectlGithubReleaseArtifactMetadata } from './kubectl-github-releases';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { KubectlDownload } from './download';
+import { beforeEach } from 'node:test';
+
 import * as extensionApi from '@podman-desktop/api';
+import { afterEach, expect, test, vi } from 'vitest';
+
+import { KubectlDownload } from './download';
+import type { KubectlGithubReleaseArtifactMetadata, KubectlGitHubReleases } from './kubectl-github-releases';
 import { OS } from './os';
 import * as utils from './utils';
-import { beforeEach } from 'node:test';
 
 // Create the OS class as well as fake extensionContext
 const os = new OS();

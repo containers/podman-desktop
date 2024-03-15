@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { beforeEach, expect, test, vi } from 'vitest';
+
 import { lines, parseJsonLines, parseJsonObject } from './exec-result-helper';
 
 beforeEach(() => {

@@ -17,12 +17,12 @@
  ***********************************************************************/
 
 import type { Writable } from 'svelte/store';
-import { writable, derived } from 'svelte/store';
-import type { VolumeListInfo } from '../../../main/src/plugin/api/volume-info';
+import { derived, writable } from 'svelte/store';
 
-import { findMatchInLeaves } from './search-util';
-import { EventStore } from './event-store';
+import type { VolumeListInfo } from '../../../main/src/plugin/api/volume-info';
 import VolumeIcon from '../lib/images/VolumeIcon.svelte';
+import { EventStore } from './event-store';
+import { findMatchInLeaves } from './search-util';
 
 const windowEvents = [
   'extension-started',

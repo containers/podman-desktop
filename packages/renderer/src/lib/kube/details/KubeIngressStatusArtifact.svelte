@@ -1,7 +1,9 @@
 <script lang="ts">
 import type { V1IngressStatus } from '@kubernetes/client-node';
+
 import Cell from './ui/Cell.svelte';
 import Title from './ui/Title.svelte';
+
 export let artifact: V1IngressStatus | undefined;
 </script>
 

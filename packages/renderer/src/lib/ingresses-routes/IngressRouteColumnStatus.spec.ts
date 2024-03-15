@@ -17,11 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
 
-import type { IngressUI } from './IngressUI';
+import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
 import IngressRouteColumnStatus from './IngressRouteColumnStatus.svelte';
+import type { IngressUI } from './IngressUI';
 import type { RouteUI } from './RouteUI';
 
 test('Expect simple column styling with Ingress', async () => {

@@ -1,17 +1,17 @@
 <script lang="ts">
+import { faArrowCircleDown, faCog } from '@fortawesome/free-solid-svg-icons';
 import { onMount, tick } from 'svelte';
 import { router } from 'tinro';
+import type { Terminal } from 'xterm';
+
 import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
 import type { PullEvent } from '../../../../main/src/plugin/api/pull-event';
-
 import { providerInfos } from '../../stores/providers';
-import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
-import FormPage from '../ui/FormPage.svelte';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
-import TerminalWindow from '../ui/TerminalWindow.svelte';
-import type { Terminal } from 'xterm';
 import Button from '../ui/Button.svelte';
-import { faArrowCircleDown, faCog } from '@fortawesome/free-solid-svg-icons';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
+import FormPage from '../ui/FormPage.svelte';
+import TerminalWindow from '../ui/TerminalWindow.svelte';
+import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
 
 let logsPull: Terminal;
 let pullError = '';

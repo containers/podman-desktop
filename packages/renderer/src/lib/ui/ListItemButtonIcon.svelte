@@ -1,12 +1,14 @@
 <script lang="ts">
 import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
-import DropdownMenuItem from './DropDownMenuItem.svelte';
-import Fa from 'svelte-fa';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/motion';
-import type { ContextUI } from '../context/context';
+import Fa from 'svelte-fa';
+
 import { context as storeContext } from '/@/stores/context';
+
+import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
+import DropdownMenuItem from './DropDownMenuItem.svelte';
 
 export let title: string;
 export let icon: IconDefinition | string;

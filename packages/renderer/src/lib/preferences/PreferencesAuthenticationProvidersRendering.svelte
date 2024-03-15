@@ -1,13 +1,15 @@
 <script lang="ts">
-import { authenticationProviders } from '../../stores/authenticationProviders';
-import { faCircle, faRightFromBracket, faArrowRightToBracket } from '@fortawesome/free-solid-svg-icons';
-import SettingsPage from './SettingsPage.svelte';
+import { faArrowRightToBracket, faCircle, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
+
+import Tooltip from '/@/lib/ui/Tooltip.svelte';
+
+import { authenticationProviders } from '../../stores/authenticationProviders';
 import KeyIcon from '../images/KeyIcon.svelte';
-import EmptyScreen from '../ui/EmptyScreen.svelte';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
 import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
-import Tooltip from '/@/lib/ui/Tooltip.svelte';
+import EmptyScreen from '../ui/EmptyScreen.svelte';
+import SettingsPage from './SettingsPage.svelte';
 </script>
 
 <SettingsPage title="Authentication">

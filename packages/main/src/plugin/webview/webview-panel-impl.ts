@@ -23,10 +23,12 @@ import type {
   WebviewPanel,
   WebviewPanelOnDidChangeViewStateEvent,
 } from '@podman-desktop/api';
-import type { WebviewRegistry } from './webview-registry.js';
-import { Emitter } from '/@/plugin/events/emitter.js';
+
 import type { ApiSenderType } from '/@/plugin/api.js';
+import { Emitter } from '/@/plugin/events/emitter.js';
+
 import type { WebviewImpl } from './webview-impl.js';
+import type { WebviewRegistry } from './webview-registry.js';
 
 type IconPath = Uri | { readonly light: Uri; readonly dark: Uri };
 

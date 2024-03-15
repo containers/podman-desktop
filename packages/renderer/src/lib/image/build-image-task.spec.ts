@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { beforeEach, expect, test, vi } from 'vitest';
+
 import type { BuildImageCallback } from './build-image-task';
 import { disconnectUI, eventCollect, reconnectUI, startBuild } from './build-image-task';
 

@@ -1,17 +1,19 @@
 <script lang="ts">
+import 'xterm/css/xterm.css';
+
 import { onDestroy, onMount } from 'svelte';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
-import 'xterm/css/xterm.css';
-import { getPanelDetailColor } from '../color/color';
-import EmptyScreen from '../ui/EmptyScreen.svelte';
-import NoLogIcon from '../ui/NoLogIcon.svelte';
-import { writeToTerminal } from './Util';
+
 import type {
   ProviderContainerConnectionInfo,
   ProviderKubernetesConnectionInfo,
 } from '../../../../main/src/plugin/api/provider-info';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
+import { getPanelDetailColor } from '../color/color';
+import EmptyScreen from '../ui/EmptyScreen.svelte';
+import NoLogIcon from '../ui/NoLogIcon.svelte';
+import { writeToTerminal } from './Util';
 
 export let providerInternalId: string | undefined = undefined;
 export let connectionInfo: ProviderContainerConnectionInfo | ProviderKubernetesConnectionInfo | undefined = undefined;

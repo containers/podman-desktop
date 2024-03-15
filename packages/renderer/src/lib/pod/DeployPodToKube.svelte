@@ -1,19 +1,21 @@
 <script lang="ts">
-import { onDestroy, onMount } from 'svelte';
-import MonacoEditor from '../editor/MonacoEditor.svelte';
-import FormPage from '../ui/FormPage.svelte';
-import * as jsYaml from 'js-yaml';
-import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
-import type { V1NamespaceList, V1Pod } from '@kubernetes/client-node/dist/api';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
-import WarningMessage from '../ui/WarningMessage.svelte';
-import { ensureRestrictedSecurityContext } from '/@/lib/pod/pod-utils';
-import Button from '../ui/Button.svelte';
 import { faExternalLink, faRocket } from '@fortawesome/free-solid-svg-icons';
-import Link from '../ui/Link.svelte';
-import { router } from 'tinro';
+import type { V1NamespaceList, V1Pod } from '@kubernetes/client-node/dist/api';
 import { Input } from '@podman-desktop/ui-svelte';
+import * as jsYaml from 'js-yaml';
+import { onDestroy, onMount } from 'svelte';
+import { router } from 'tinro';
+
+import { ensureRestrictedSecurityContext } from '/@/lib/pod/pod-utils';
 import Checkbox from '/@/lib/ui/Checkbox.svelte';
+
+import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
+import MonacoEditor from '../editor/MonacoEditor.svelte';
+import Button from '../ui/Button.svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
+import FormPage from '../ui/FormPage.svelte';
+import Link from '../ui/Link.svelte';
+import WarningMessage from '../ui/WarningMessage.svelte';
 
 export let resourceId: string;
 export let engineId: string;
@@ -471,9 +473,11 @@ function updateKubeResult() {
       {#if openshiftRouteGroupSupported}
         <div class="pt-2 m-2">
           <label for="routes" class="block mb-1 text-sm font-medium text-gray-400">Create OpenShift routes:</label>
-          <Checkbox bind:checked="{deployUsingRoutes}" name="useRoutes" id="useRoutes" required />
-          <span class="text-gray-400 text-sm ml-1"
-            >Create OpenShift routes to get access to the exposed ports of this pod.</span>
+          <div class="flex flex-row">
+            <Checkbox bind:checked="{deployUsingRoutes}" name="useRoutes" id="useRoutes" required />
+            <span class="text-gray-400 text-sm ml-1"
+              >Create OpenShift routes to get access to the exposed ports of this pod.</span>
+          </div>
         </div>
       {/if}
 

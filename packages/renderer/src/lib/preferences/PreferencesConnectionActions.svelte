@@ -1,5 +1,8 @@
 <script lang="ts">
 import { faEdit, faPlay, faRotateRight, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { Buffer } from 'buffer';
+import { router } from 'tinro';
+
 import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
@@ -8,8 +11,6 @@ import type {
 import LoadingIconButton from '../ui/LoadingIconButton.svelte';
 import { type ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
 import { type IConnectionRestart, type IConnectionStatus } from './Util';
-import { router } from 'tinro';
-import { Buffer } from 'buffer';
 
 export let connectionStatus: IConnectionStatus | undefined;
 export let provider: ProviderInfo;

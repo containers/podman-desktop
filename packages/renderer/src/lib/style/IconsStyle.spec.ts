@@ -19,12 +19,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect, vi } from 'vitest';
+
 import { render } from '@testing-library/svelte';
-import IconsStyle from './IconsStyle.svelte';
-import { iconsInfos } from '/@/stores/icons';
 import { get } from 'svelte/store';
+import { beforeAll, expect, test, vi } from 'vitest';
+
+import { iconsInfos } from '/@/stores/icons';
+
 import type { IconInfo } from '../../../../main/src/plugin/api/icon-info';
+import IconsStyle from './IconsStyle.svelte';
 
 const listIconsMock = vi.fn();
 

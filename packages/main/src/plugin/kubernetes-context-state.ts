@@ -16,32 +16,36 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { IncomingMessage } from 'node:http';
+
 import type {
   Informer,
+  KubernetesListObject,
   KubernetesObject,
   ListPromise,
   ObjectCache,
   V1Deployment,
   V1DeploymentList,
+  V1Ingress,
+  V1IngressList,
+  V1ObjectMeta,
   V1Pod,
   V1PodList,
   V1Service,
   V1ServiceList,
-  V1Ingress,
-  V1IngressList,
-  KubernetesListObject,
-  V1ObjectMeta,
 } from '@kubernetes/client-node';
 import {
   AppsV1Api,
   CoreV1Api,
-  NetworkingV1Api,
   CustomObjectsApi,
   KubeConfig,
   makeInformer,
+  NetworkingV1Api,
 } from '@kubernetes/client-node';
-import type { KubeContext } from './kubernetes-context.js';
+
 import type { ApiSenderType } from './api.js';
+import type { V1Route } from './api/openshift-types.js';
+import type { KubeContext } from './kubernetes-context.js';
 import {
   backoffInitialValue,
   backoffJitter,
@@ -49,8 +53,6 @@ import {
   connectTimeout,
   dispatchTimeout,
 } from './kubernetes-context-state-constants.js';
-import type { IncomingMessage } from 'node:http';
-import type { V1Route } from './api/openshift-types.js';
 
 // ContextInternalState stores informers for a kube context
 type ContextInternalState = Map<ResourceName, Informer<KubernetesObject> & ObjectCache<KubernetesObject>>;

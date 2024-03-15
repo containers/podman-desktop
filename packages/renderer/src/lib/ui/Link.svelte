@@ -1,5 +1,5 @@
 <script lang="ts">
-import { onMount, createEventDispatcher } from 'svelte';
+import { createEventDispatcher, onMount } from 'svelte';
 import Fa from 'svelte-fa';
 import { router } from 'tinro';
 

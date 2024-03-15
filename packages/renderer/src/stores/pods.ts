@@ -16,12 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { writable, derived, type Writable } from 'svelte/store';
-import type { PodInfo } from '../../../main/src/plugin/api/pod-info';
+import { derived, type Writable, writable } from 'svelte/store';
 
-import { findMatchInLeaves } from './search-util';
-import { EventStore } from './event-store';
+import type { PodInfo } from '../../../main/src/plugin/api/pod-info';
 import PodIcon from '../lib/images/PodIcon.svelte';
+import { EventStore } from './event-store';
+import { findMatchInLeaves } from './search-util';
 
 const windowEvents = [
   'extension-started',

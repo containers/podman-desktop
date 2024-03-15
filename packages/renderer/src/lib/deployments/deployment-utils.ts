@@ -16,8 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { DeploymentUI } from './DeploymentUI';
 import type { V1Deployment } from '@kubernetes/client-node';
+
+import type { DeploymentUI } from './DeploymentUI';
 
 export class DeploymentUtils {
   getDeploymentUI(deployment: V1Deployment): DeploymentUI {

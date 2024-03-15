@@ -17,8 +17,9 @@
  ***********************************************************************/
 
 import type { V1Ingress } from '@kubernetes/client-node';
-import type { IngressUI } from './IngressUI';
+
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
+import type { IngressUI } from './IngressUI';
 import type { RouteUI } from './RouteUI';
 
 export interface HostPathObject {

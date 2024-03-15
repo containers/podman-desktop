@@ -19,8 +19,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { AppearanceUtil } from './appearance-util';
+
 import { AppearanceSettings } from '../../../../main/src/plugin/appearance-settings';
+import { AppearanceUtil } from './appearance-util';
 
 const appearanceUtil: AppearanceUtil = new AppearanceUtil();
 

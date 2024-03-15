@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import { expect, test, vi } from 'vitest';
+
 import type { ApiSenderType } from '../api.js';
 import { CustomPickImpl } from './custompick-impl.js';
 import { CustomPickRegistry } from './custompick-registry.js';

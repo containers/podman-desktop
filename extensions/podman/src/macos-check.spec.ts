@@ -16,10 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as os from 'node:os';
+
 import type { Mock } from 'vitest';
 import { beforeEach, expect, test, vi } from 'vitest';
+
 import { MacVersionCheck } from './macos-checks';
-import * as os from 'node:os';
+
 let macVersionCheck;
 
 vi.mock('node:os', () => {

@@ -21,12 +21,15 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
+import { beforeAll, expect, test, vi } from 'vitest';
+
+import { getInitialValue } from '/@/lib/preferences/Util';
+
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
-import userEvent from '@testing-library/user-event';
-import { getInitialValue } from '/@/lib/preferences/Util';
 
 beforeAll(() => {
   (window as any).getConfigurationValue = vi.fn().mockResolvedValue(undefined);

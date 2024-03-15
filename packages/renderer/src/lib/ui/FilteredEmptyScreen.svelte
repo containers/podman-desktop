@@ -1,7 +1,9 @@
 <script lang="ts">
-import EmptyScreen from '../ui/EmptyScreen.svelte';
-import Button from '../ui/Button.svelte';
 import { createEventDispatcher } from 'svelte';
+
+import Button from '../ui/Button.svelte';
+import EmptyScreen from '../ui/EmptyScreen.svelte';
+
 export let icon: any;
 export let kind: string;
 export let searchTerm: string;

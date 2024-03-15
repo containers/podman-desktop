@@ -1,10 +1,10 @@
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import { faSimplybuilt } from '@fortawesome/free-brands-svg-icons';
+import { faBoltLightning, faBoxOpen, faChartLine } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import TailWindThemeSelector from '@site/src/components/TailWindThemeSelector';
 import Layout from '@theme/Layout';
 import React from 'react';
-import TailWindThemeSelector from '@site/src/components/TailWindThemeSelector';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBoltLightning, faBoxOpen, faChartLine } from '@fortawesome/free-solid-svg-icons';
-import { faSimplybuilt } from '@fortawesome/free-brands-svg-icons';
 
 function CoreValueHead(): JSX.Element {
   return (

@@ -16,14 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ProxySettings } from '@podman-desktop/api';
+import nock from 'nock';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
-import nock from 'nock';
-import { ExtensionsCatalog } from './extensions-catalog.js';
 import type { Certificates } from '../certificates.js';
-import type { Proxy } from '../proxy.js';
 import { Emitter } from '../events/emitter.js';
-import type { ProxySettings } from '@podman-desktop/api';
+import type { Proxy } from '../proxy.js';
+import { ExtensionsCatalog } from './extensions-catalog.js';
 
 let extensionsCatalog: ExtensionsCatalog;
 

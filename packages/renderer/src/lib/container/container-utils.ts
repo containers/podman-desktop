@@ -16,17 +16,18 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
-import type { ContainerGroupInfoUI, ContainerGroupPartInfoUI, ContainerInfoUI } from './ContainerInfoUI';
-import { ContainerGroupInfoTypeUI } from './ContainerInfoUI';
-import moment from 'moment';
-import humanizeDuration from 'humanize-duration';
-import { filesize } from 'filesize';
 import type { Port } from '@podman-desktop/api';
-import type { ContextUI } from '../context/context';
+import { filesize } from 'filesize';
+import humanizeDuration from 'humanize-duration';
+import moment from 'moment';
+
+import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import { isViewContributionIcon, type ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
+import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
 import ContainerIcon from '../images/ContainerIcon.svelte';
+import type { ContainerGroupInfoUI, ContainerGroupPartInfoUI, ContainerInfoUI } from './ContainerInfoUI';
+import { ContainerGroupInfoTypeUI } from './ContainerInfoUI';
 
 export class ContainerUtils {
   getName(containerInfo: ContainerInfo) {

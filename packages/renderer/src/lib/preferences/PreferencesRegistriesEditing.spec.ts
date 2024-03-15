@@ -21,13 +21,15 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, describe, afterEach, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import PreferencesRegistriesEditing from './PreferencesRegistriesEditing.svelte';
-import { registriesInfos } from '../../stores/registries';
+
 import type { Registry } from '@podman-desktop/api';
 import { fireEvent, waitFor } from '@testing-library/dom';
+import { render, screen } from '@testing-library/svelte';
 import { default as userEvent } from '@testing-library/user-event';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+
+import { registriesInfos } from '../../stores/registries';
+import PreferencesRegistriesEditing from './PreferencesRegistriesEditing.svelte';
 
 beforeEach(() => {
   (window as any).window.ddExtensionInstall = vi.fn().mockResolvedValue(undefined);

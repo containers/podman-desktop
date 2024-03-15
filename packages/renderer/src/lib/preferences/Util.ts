@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { ConfigurationScope } from '@podman-desktop/api';
+
 import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
@@ -24,8 +25,8 @@ import type {
 } from '../../../../main/src/plugin/api/provider-info';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
-import { ContextKeyExpr } from '../context/contextKey';
 import type { ContextUI } from '../context/context';
+import { ContextKeyExpr } from '../context/contextKey';
 
 export interface IProviderConnectionConfigurationPropertyRecorded extends IConfigurationPropertyRecordedSchema {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

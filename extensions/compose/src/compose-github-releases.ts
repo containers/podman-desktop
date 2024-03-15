@@ -16,10 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Octokit } from '@octokit/rest';
-import type { QuickPickItem } from '@podman-desktop/api';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+
+import type { Octokit } from '@octokit/rest';
+import type { QuickPickItem } from '@podman-desktop/api';
 
 export interface ComposeGithubReleaseArtifactMetadata extends QuickPickItem {
   tag: string;

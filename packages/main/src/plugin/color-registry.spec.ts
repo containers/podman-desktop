@@ -19,14 +19,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+
 import type { ApiSenderType } from '/@/plugin/api.js';
+import type { ColorDefinition } from '/@/plugin/api/color-info.js';
+import type { RawThemeContribution } from '/@/plugin/api/theme-info.js';
+import { AppearanceSettings } from '/@/plugin/appearance-settings.js';
 import type { ConfigurationRegistry, IConfigurationChangeEvent } from '/@/plugin/configuration-registry.js';
 import { Emitter } from '/@/plugin/events/emitter.js';
-import { AppearanceSettings } from '/@/plugin/appearance-settings.js';
-import type { ColorDefinition } from '/@/plugin/api/color-info.js';
 import type { AnalyzedExtension } from '/@/plugin/extension-loader.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
-import type { RawThemeContribution } from '/@/plugin/api/theme-info.js';
+
+import colorPalette from '../../../../tailwind-color-palette.json';
 import { ColorRegistry } from './color-registry.js';
 
 class TestColorRegistry extends ColorRegistry {
@@ -51,6 +54,10 @@ class TestColorRegistry extends ColorRegistry {
 
   initTitlebar(): void {
     super.initTitlebar();
+  }
+
+  initCardContent(): void {
+    super.initCardContent();
   }
 }
 
@@ -187,6 +194,24 @@ test('initTitlebar', async () => {
   expect(spyOnRegisterColor.mock.calls[0][0]).toStrictEqual('titlebar-bg');
   expect(spyOnRegisterColor.mock.calls[0][1].light).toBe('#f9fafb');
   expect(spyOnRegisterColor.mock.calls[0][1].dark).toBe('#0f0f11');
+});
+
+test('initCardContent', async () => {
+  // mock the registerColor
+  const spyOnRegisterColor = vi.spyOn(colorRegistry, 'registerColor');
+  spyOnRegisterColor.mockReturnValue(undefined);
+
+  colorRegistry.initCardContent();
+
+  expect(spyOnRegisterColor).toHaveBeenCalled();
+
+  // at least 3 times
+  expect(spyOnRegisterColor.mock.calls.length).toBeGreaterThanOrEqual(3);
+
+  // check the first call
+  expect(spyOnRegisterColor.mock.calls[0][0]).toStrictEqual('card-bg');
+  expect(spyOnRegisterColor.mock.calls[0][1].light).toBe(colorPalette.gray[300]);
+  expect(spyOnRegisterColor.mock.calls[0][1].dark).toBe(colorPalette.charcoal[800]);
 });
 
 describe('registerColor', () => {

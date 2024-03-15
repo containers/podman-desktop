@@ -1,11 +1,13 @@
 <script lang="ts">
 import { onDestroy, onMount, tick } from 'svelte';
-import { commandsInfos } from '/@/stores/commands';
-import type { CommandInfo } from '../../../../main/src/plugin/api/command-info';
-import { isPropertyValidInContext } from '../preferences/Util';
 import type { Unsubscriber } from 'svelte/store';
+
+import { commandsInfos } from '/@/stores/commands';
 import { context } from '/@/stores/context';
+
+import type { CommandInfo } from '../../../../main/src/plugin/api/command-info';
 import type { ContextUI } from '../context/context';
+import { isPropertyValidInContext } from '../preferences/Util';
 
 const ENTER_KEY = 'Enter';
 const ESCAPE_KEY = 'Escape';

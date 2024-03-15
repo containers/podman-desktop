@@ -17,12 +17,13 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
 
+import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
+import ImageIcon from '../images/ImageIcon.svelte';
 import ImageColumnAge from './ImageColumnAge.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
-import ImageIcon from '../images/ImageIcon.svelte';
 
 test('Expect simple column styling', async () => {
   const image: ImageInfoUI = {

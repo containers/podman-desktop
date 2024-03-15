@@ -17,13 +17,13 @@
  ***********************************************************************/
 
 import * as extensionApi from '@podman-desktop/api';
-import * as path from 'path';
-import * as os from 'os';
-import * as fs from 'fs';
-
 import { configuration, ProgressLocation } from '@podman-desktop/api';
-import { getLimactl } from './limactl';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+
 import { ImageHandler } from './image-handler';
+import { getLimactl } from './limactl';
 
 type limaProviderType = 'docker' | 'podman' | 'kubernetes';
 

@@ -15,8 +15,10 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import { beforeEach, expect, test, vi } from 'vitest';
 import * as fs from 'node:fs';
+
+import { beforeEach, expect, test, vi } from 'vitest';
+
 import { getBase64Image } from './util.js';
 
 beforeEach(() => {

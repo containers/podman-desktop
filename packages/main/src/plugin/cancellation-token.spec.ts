@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { beforeAll, beforeEach, expect, test, vi, vitest } from 'vitest';
+
 import { CancellationTokenImpl } from './cancellation-token.js';
 import { CancellationTokenRegistry } from './cancellation-token-registry.js';
 

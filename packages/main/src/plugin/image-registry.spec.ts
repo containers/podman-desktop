@@ -19,23 +19,24 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { beforeAll, beforeEach, describe, expect, expectTypeOf, test, vi, vitest } from 'vitest';
-import type { ApiSenderType } from './api.js';
-
-import { ImageRegistry } from './image-registry.js';
-import type { Proxy } from './proxy.js';
-import type { Telemetry, EventType } from './telemetry/telemetry.js';
-import type { Certificates } from './certificates.js';
-import nock from 'nock';
-import * as imageRegistryManifestMultiArchJson from '../../tests/resources/data/plugin/image-registry-manifest-multi-arch-index.json';
-import * as imageRegistryManifestJson from '../../tests/resources/data/plugin/image-registry-manifest-index.json';
-import * as imageRegistryConfigJson from '../../tests/resources/data/plugin/image-registry-config.json';
+import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import * as fs from 'node:fs';
-import * as nodeTar from 'tar';
-import type { Disposable } from './types/disposable.js';
+
 import type { Registry } from '@podman-desktop/api';
+import nock from 'nock';
+import * as nodeTar from 'tar';
+import { beforeAll, beforeEach, describe, expect, expectTypeOf, test, vi, vitest } from 'vitest';
+
+import * as imageRegistryConfigJson from '../../tests/resources/data/plugin/image-registry-config.json';
+import * as imageRegistryManifestJson from '../../tests/resources/data/plugin/image-registry-manifest-index.json';
+import * as imageRegistryManifestMultiArchJson from '../../tests/resources/data/plugin/image-registry-manifest-multi-arch-index.json';
+import type { ApiSenderType } from './api.js';
+import type { Certificates } from './certificates.js';
+import { ImageRegistry } from './image-registry.js';
+import type { Proxy } from './proxy.js';
+import type { EventType, Telemetry } from './telemetry/telemetry.js';
+import type { Disposable } from './types/disposable.js';
 
 let imageRegistry: ImageRegistry;
 
@@ -169,6 +170,36 @@ test('should map ecr', () => {
     '12345.dkr.ecr.us-east-1.amazonaws.com/podman-desktop',
   );
   expect(registryServer).toBe('12345.dkr.ecr.us-east-1.amazonaws.com');
+});
+
+describe('extract auth info', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  test('getAuthInfo with basic auth', async () => {
+    // reply a 401 Unauthorized error with a custom header having the www-authenticate field
+    nock('https://my-podman-desktop-fake-registry.io').get('/v2/').reply(401, '', {
+      'Www-Authenticate': 'Basic realm="Registry Realm"',
+    });
+
+    const value = await imageRegistry.getAuthInfo('https://my-podman-desktop-fake-registry.io');
+    expect(value).toBeDefined();
+    expect(value?.authUrl).toBe('https://my-podman-desktop-fake-registry.io/v2/');
+    expect(value?.scheme).toBe('basic');
+  });
+
+  test('getAuthInfo from docker.io with bearer', async () => {
+    // reply a 401 Unauthorized error with a custom header having the www-authenticate field
+    nock('https://my-podman-desktop-fake-registry.io').get('/v2/').reply(401, '', {
+      'www-authenticate': 'Bearer realm="https://auth.docker.io/token",service="registry.docker.io"',
+    });
+
+    const value = await imageRegistry.getAuthInfo('https://my-podman-desktop-fake-registry.io');
+    expect(value).toBeDefined();
+    expect(value?.authUrl).toBe('https://auth.docker.io/token?service=registry.docker.io');
+    expect(value?.scheme).toBe('bearer');
+  });
 });
 
 describe('extractImageDataFromImageName', () => {

@@ -16,10 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { test, expect, vi } from 'vitest';
+import { router } from 'tinro';
+import { expect, test, vi } from 'vitest';
+
 import { NavigationPage } from '../../main/src/plugin/navigation/navigation-page';
 import { handleNavigation } from './navigation';
-import { router } from 'tinro';
 
 // mock the router
 vi.mock('tinro', () => {

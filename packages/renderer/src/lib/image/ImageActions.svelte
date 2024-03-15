@@ -1,18 +1,20 @@
 <script lang="ts">
-import { faArrowUp, faLayerGroup, faPlay, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
-import type { ImageInfoUI } from './ImageInfoUI';
-import { router } from 'tinro';
-import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
-import { runImageInfo } from '../../stores/run-image-store';
-import type { Menu } from '../../../../main/src/plugin/menu-registry';
-import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
-import { ImageUtils } from './image-utils';
+import { faArrowUp, faEdit, faLayerGroup, faPlay, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { createEventDispatcher, onDestroy, onMount } from 'svelte';
-import { MenuContext } from '../../../../main/src/plugin/menu-registry';
-import ActionsWrapper from './ActionsMenu.svelte';
 import type { Unsubscriber } from 'svelte/motion';
-import { ContextUI } from '../context/context';
+import { router } from 'tinro';
+
+import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 import { context } from '/@/stores/context';
+
+import type { Menu } from '../../../../main/src/plugin/menu-registry';
+import { MenuContext } from '../../../../main/src/plugin/menu-registry';
+import { runImageInfo } from '../../stores/run-image-store';
+import { ContextUI } from '../context/context';
+import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
+import ActionsWrapper from './ActionsMenu.svelte';
+import { ImageUtils } from './image-utils';
+import type { ImageInfoUI } from './ImageInfoUI';
 
 export let onPushImage: (imageInfo: ImageInfoUI) => void;
 export let onRenameImage: (imageInfo: ImageInfoUI) => void;

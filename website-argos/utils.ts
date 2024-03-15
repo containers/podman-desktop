@@ -1,3 +1,21 @@
+/**********************************************************************
+ * Copyright (C) 2023-2024 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ***********************************************************************/
+
 import * as cheerio from 'cheerio';
 import * as fs from 'fs';
 
@@ -20,8 +38,8 @@ export function extractSitemapPathnames(sitemapPath: string): string[] {
     urls.push($(this).text());
   });
 
-  // filter out all /tags/ pages
-  urls = urls.filter(url => !url.includes('/tags/') && !url.endsWith('/tags'));
+  // filter out all /tags/ pages and /blog page
+  urls = urls.filter(url => !url.includes('/tags/') && !url.endsWith('/tags')).filter(url => !url.endsWith('/blog'));
 
   let pathnames = urls.map(url => new URL(url).pathname);
 

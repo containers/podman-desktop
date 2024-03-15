@@ -17,8 +17,10 @@
  ***********************************************************************/
 
 import { router } from 'tinro';
+
 import { type BuildImageInfo, buildImagesInfo } from '/@/stores/build-images';
 import { createTask, isStatefulTask, removeTask } from '/@/stores/tasks';
+
 import type { Task } from '../../../../main/src/plugin/api/task';
 
 export interface BuildImageCallback {

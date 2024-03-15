@@ -1,7 +1,8 @@
 <script lang="ts">
-import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
+
 import DropDownMenuItems from './DropDownMenuItems.svelte';
 
 export let onBeforeToggle = () => {};

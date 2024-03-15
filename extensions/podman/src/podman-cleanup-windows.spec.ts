@@ -16,8 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, test, vi } from 'vitest';
 import { process } from '@podman-desktop/api';
+import { beforeEach, expect, test, vi } from 'vitest';
+
 import { PodmanCleanupWindows } from './podman-cleanup-windows';
 
 let podmanCleanupWindows: PodmanCleanupWindows;

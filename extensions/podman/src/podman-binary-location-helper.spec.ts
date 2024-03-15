@@ -17,9 +17,9 @@
  ***********************************************************************/
 
 import * as extensionApi from '@podman-desktop/api';
-
 import type { Mock } from 'vitest';
 import { beforeEach, expect, test, vi } from 'vitest';
+
 import { PodmanBinaryLocationHelper } from './podman-binary-location-helper';
 
 let podmanBinaryLocationHelper: PodmanBinaryLocationHelper;

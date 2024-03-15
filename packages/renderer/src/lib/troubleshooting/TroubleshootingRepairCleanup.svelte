@@ -1,8 +1,9 @@
 <script lang="ts">
 import { faBroom, faWarning } from '@fortawesome/free-solid-svg-icons';
+import Fa from 'svelte-fa';
+
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import Button from '../ui/Button.svelte';
-import Fa from 'svelte-fa';
 
 export let providers: ProviderInfo[] = [];
 let providerIdsWithCleanup: string[] = [];

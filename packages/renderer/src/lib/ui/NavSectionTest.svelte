@@ -1,7 +1,8 @@
 <script lang="ts">
-import NavSection from './NavSection.svelte';
-import NavItem from './NavItem.svelte';
 import type { TinroRouteMeta } from 'tinro';
+
+import NavItem from './NavItem.svelte';
+import NavSection from './NavSection.svelte';
 
 let expanded: boolean;
 

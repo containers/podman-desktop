@@ -19,12 +19,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
-import ContainerList from './ContainerList.svelte';
-import { containersInfos } from '../../stores/containers';
+
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { get } from 'svelte/store';
+import { beforeAll, expect, test, vi } from 'vitest';
+
+import { containersInfos } from '../../stores/containers';
 import { providerInfos } from '../../stores/providers';
+import ContainerList from './ContainerList.svelte';
 
 const listContainersMock = vi.fn();
 const getProviderInfosMock = vi.fn();

@@ -18,6 +18,7 @@
 
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
+
 import type { OnboardingInfo } from '../../../main/src/plugin/api/onboarding';
 import { EventStore } from './event-store';
 

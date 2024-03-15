@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { IConfigurationNode, IConfigurationRegistry } from '/@/plugin/configuration-registry.js';
+
 import { RecommendationsSettings } from './recommendations-settings.js';
 
 export class RecommendationsRegistry {

@@ -16,8 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ServiceUI } from './ServiceUI';
 import type { V1Service } from '@kubernetes/client-node';
+
+import type { ServiceUI } from './ServiceUI';
 
 export class ServiceUtils {
   getServiceUI(service: V1Service): ServiceUI {

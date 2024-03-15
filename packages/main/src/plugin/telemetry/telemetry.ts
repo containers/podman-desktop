@@ -16,27 +16,29 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { Analytics, type UserTraits } from '@segment/analytics-node';
-import { app } from 'electron';
-import { Identity } from './identity.js';
 import * as os from 'node:os';
-import type { LinuxOs } from 'getos';
-import getos from 'getos';
-import * as osLocale from 'os-locale';
 import { promisify } from 'node:util';
-import type { ConfigurationRegistry, IConfigurationNode } from '../configuration-registry.js';
-import { TelemetrySettings } from './telemetry-settings.js';
-import type { Event } from '../events/emitter.js';
-import { Emitter } from '../events/emitter.js';
+
 import type {
   TelemetryLogger,
   TelemetryLoggerOptions,
   TelemetrySender,
   TelemetryTrustedValue,
 } from '@podman-desktop/api';
-import { TelemetryTrustedValue as TypeTelemetryTrustedValue } from '../types/telemetry.js';
+import { Analytics, type UserTraits } from '@segment/analytics-node';
+import { app } from 'electron';
+import type { LinuxOs } from 'getos';
+import getos from 'getos';
+import * as osLocale from 'os-locale';
+
 import { stoppedExtensions } from '../../util.js';
+import type { ConfigurationRegistry, IConfigurationNode } from '../configuration-registry.js';
+import type { Event } from '../events/emitter.js';
+import { Emitter } from '../events/emitter.js';
 import type { Proxy } from '../proxy.js';
+import { TelemetryTrustedValue as TypeTelemetryTrustedValue } from '../types/telemetry.js';
+import { Identity } from './identity.js';
+import { TelemetrySettings } from './telemetry-settings.js';
 
 export const TRACK_EVENT_TYPE = 'track';
 export const PAGE_EVENT_TYPE = 'page';

@@ -18,16 +18,18 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { Mock, SpyInstance } from 'vitest';
-import * as shellPath from 'shell-path';
 import { EventEmitter } from 'node:events';
+import * as fs from 'node:fs';
+import * as http from 'node:http';
+import * as path from 'node:path';
+
+import * as extensionApi from '@podman-desktop/api';
+import * as shellPath from 'shell-path';
+import type { Mock, SpyInstance } from 'vitest';
 import { afterEach, beforeEach, describe, expect, test, vi, vitest } from 'vitest';
+
 import { Detect } from './detect';
 import type { OS } from './os';
-import * as http from 'node:http';
-import * as extensionApi from '@podman-desktop/api';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 
 const osMock: OS = {
   isWindows: vi.fn(),

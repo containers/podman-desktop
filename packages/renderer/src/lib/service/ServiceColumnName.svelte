@@ -1,5 +1,6 @@
 <script lang="ts">
 import { router } from 'tinro';
+
 import type { ServiceUI } from './ServiceUI';
 
 export let object: ServiceUI;

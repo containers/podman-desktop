@@ -19,10 +19,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll, describe } from 'vitest';
+
 import { render, screen, waitForElementToBeRemoved } from '@testing-library/svelte';
-import PreferencesExtensionRendering from './PreferencesExtensionRendering.svelte';
+import { beforeAll, describe, expect, test, vi } from 'vitest';
+
 import { extensionInfos } from '../../stores/extensions';
+import PreferencesExtensionRendering from './PreferencesExtensionRendering.svelte';
 
 const getOnboardingMock = vi.fn();
 // fake the window.events object
@@ -47,6 +49,7 @@ function setup(state: string): string {
     description: 'An extension for testing',
     path: '/test',
     publisher: 'podman-desktop',
+    readme: '',
     removable: true,
   };
 

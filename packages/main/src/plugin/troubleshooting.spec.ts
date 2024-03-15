@@ -16,11 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, test, vi } from 'vitest';
-import { Troubleshooting } from './troubleshooting.js';
-import type { TroubleshootingFileMap, LogType } from './troubleshooting.js';
 import * as fs from 'node:fs';
+
+import { beforeEach, expect, test, vi } from 'vitest';
+
 import type { ApiSenderType } from './api.js';
+import type { LogType, TroubleshootingFileMap } from './troubleshooting.js';
+import { Troubleshooting } from './troubleshooting.js';
 
 const writeZipMock = vi.fn();
 const addFileMock = vi.fn();

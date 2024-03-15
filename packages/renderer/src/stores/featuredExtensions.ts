@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { writable, type Writable } from 'svelte/store';
+import { type Writable, writable } from 'svelte/store';
+
 import type { FeaturedExtension } from '../../../main/src/plugin/featured/featured-api';
 import { EventStore } from './event-store';
 

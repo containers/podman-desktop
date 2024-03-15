@@ -15,8 +15,8 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import { Disposable } from './types/disposable.js';
 import type { KubernetesGeneratorInfo } from './api/KubernetesGeneratorInfo.js';
+import { Disposable } from './types/disposable.js';
 
 export type KubernetesGeneratorType = 'Compose' | 'Pod' | 'Container';
 

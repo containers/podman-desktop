@@ -1,8 +1,10 @@
 <script lang="ts">
-import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
-import Tooltip from '/@/lib/ui/Tooltip.svelte';
-import { uncertainStringToNumber } from '../Util';
 import { onMount } from 'svelte';
+
+import Tooltip from '/@/lib/ui/Tooltip.svelte';
+
+import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
+import { uncertainStringToNumber } from '../Util';
 import { checkNumericValueValid } from './NumberItemUtils';
 
 export let record: IConfigurationPropertyRecordedSchema;

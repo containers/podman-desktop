@@ -1,12 +1,12 @@
 <script lang="ts">
+import { faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
+import { Input } from '@podman-desktop/ui-svelte';
 import { afterUpdate } from 'svelte';
 
 import { contributions } from '../../stores/contribs';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
 import SettingsPage from '../preferences/SettingsPage.svelte';
 import Button from '../ui/Button.svelte';
-import { faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
-import { Input } from '@podman-desktop/ui-svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 export let ociImage: string | undefined = undefined;
 

@@ -21,6 +21,7 @@
 import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
 import { beforeAll, expect, test, vi } from 'vitest';
+
 import type { OnboardingInfo } from '../../../main/src/plugin/api/onboarding';
 import { fetchOnboarding, onboardingEventStore, onboardingList } from './onboarding';
 

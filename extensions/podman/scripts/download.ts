@@ -22,7 +22,7 @@ import * as path from 'node:path';
 import * as https from 'node:https';
 import { Octokit } from 'octokit';
 import type { OctokitOptions } from '@octokit/core/dist-types/types';
-import * as hasha from 'hasha';
+import { hashFile } from 'hasha';
 import { fileURLToPath } from 'node:url';
 
 import * as tools from '../src/podman.json';
@@ -46,7 +46,7 @@ const octokit = new Octokit(octokitOptions);
 export {};
 
 async function checkFileSha(filePath: string, shaSum: string): Promise<boolean> {
-  const sha256sum: string = await hasha.fromFile(filePath, { algorithm: 'sha256' });
+  const sha256sum: string = await hashFile(filePath, { algorithm: 'sha256' });
   return sha256sum === shaSum;
 }
 

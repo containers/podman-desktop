@@ -17,7 +17,9 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
+
+import { expect, test } from 'vitest';
+
 import { capitalize } from './Util';
 
 test('test capitalize function', () => {

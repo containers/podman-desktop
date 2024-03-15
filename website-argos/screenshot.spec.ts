@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as fs from 'fs';
-import { test } from '@playwright/test';
 import { argosScreenshot } from '@argos-ci/playwright';
+import { test } from '@playwright/test';
+import * as fs from 'fs';
+
 import { extractSitemapPathnames, pathnameToArgosName } from './utils';
 
 // Constants

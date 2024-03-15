@@ -18,10 +18,12 @@
 
 /* eslint-disable no-null/no-null */
 import '@testing-library/jest-dom/vitest';
-import { test, vi, expect, beforeEach } from 'vitest';
+
 import { render } from '@testing-library/svelte';
-import IconImage from './IconImage.svelte';
+import { beforeEach, expect, test, vi } from 'vitest';
+
 import { AppearanceSettings } from '../../../../main/src/plugin/appearance-settings';
+import IconImage from './IconImage.svelte';
 
 const getConfigurationValueMock = vi.fn();
 

@@ -1,38 +1,40 @@
 <script lang="ts">
-import { contributions } from './stores/contribs';
 import { onDestroy, onMount } from 'svelte';
-import { CommandRegistry } from './lib/CommandRegistry';
-import { podsInfos } from './stores/pods';
-import { containersInfos } from './stores/containers';
-import { imagesInfos } from './stores/images';
-import { volumeListInfos } from './stores/volumes';
-import { kubernetesContexts } from './stores/kubernetes-contexts';
-import { ImageUtils } from './lib/image/image-utils';
-import type { ImageInfo } from '../../main/src/plugin/api/image-info';
-import ContainerIcon from './lib/images/ContainerIcon.svelte';
-import PodIcon from './lib/images/PodIcon.svelte';
-import ImageIcon from './lib/images/ImageIcon.svelte';
-import VolumeIcon from './lib/images/VolumeIcon.svelte';
-import DeploymentIcon from './lib/images/DeploymentIcon.svelte';
-import NavItem from './lib/ui/NavItem.svelte';
-import type { TinroRouteMeta } from 'tinro';
 import type { Unsubscriber } from 'svelte/store';
-import NewContentOnDashboardBadge from './lib/dashboard/NewContentOnDashboardBadge.svelte';
-import SettingsIcon from './lib/images/SettingsIcon.svelte';
-import DashboardIcon from './lib/images/DashboardIcon.svelte';
-import NavSection from './lib/ui/NavSection.svelte';
-import ServiceIcon from './lib/images/ServiceIcon.svelte';
-import IngressRouteIcon from './lib/images/IngressRouteIcon.svelte';
+import type { TinroRouteMeta } from 'tinro';
+
 import Webviews from '/@/lib/webview/Webviews.svelte';
 import { webviews } from '/@/stores/webviews';
-import PuzzleIcon from './lib/images/PuzzleIcon.svelte';
+
+import type { ImageInfo } from '../../main/src/plugin/api/image-info';
+import { CommandRegistry } from './lib/CommandRegistry';
+import NewContentOnDashboardBadge from './lib/dashboard/NewContentOnDashboardBadge.svelte';
+import { ImageUtils } from './lib/image/image-utils';
+import ContainerIcon from './lib/images/ContainerIcon.svelte';
+import DashboardIcon from './lib/images/DashboardIcon.svelte';
+import DeploymentIcon from './lib/images/DeploymentIcon.svelte';
+import ImageIcon from './lib/images/ImageIcon.svelte';
+import IngressRouteIcon from './lib/images/IngressRouteIcon.svelte';
 import KubeIcon from './lib/images/KubeIcon.svelte';
+import PodIcon from './lib/images/PodIcon.svelte';
+import PuzzleIcon from './lib/images/PuzzleIcon.svelte';
+import ServiceIcon from './lib/images/ServiceIcon.svelte';
+import SettingsIcon from './lib/images/SettingsIcon.svelte';
+import VolumeIcon from './lib/images/VolumeIcon.svelte';
+import NavItem from './lib/ui/NavItem.svelte';
+import NavSection from './lib/ui/NavSection.svelte';
+import { containersInfos } from './stores/containers';
+import { contributions } from './stores/contribs';
+import { imagesInfos } from './stores/images';
+import { kubernetesContexts } from './stores/kubernetes-contexts';
 import {
   kubernetesCurrentContextDeployments,
   kubernetesCurrentContextIngresses,
   kubernetesCurrentContextRoutes,
   kubernetesCurrentContextServices,
 } from './stores/kubernetes-contexts-state';
+import { podsInfos } from './stores/pods';
+import { volumeListInfos } from './stores/volumes';
 
 let podInfoSubscribe: Unsubscriber;
 let containerInfoSubscribe: Unsubscriber;

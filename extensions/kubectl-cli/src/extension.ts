@@ -16,17 +16,18 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as extensionApi from '@podman-desktop/api';
 import { Octokit } from '@octokit/rest';
-import * as handler from './handler';
+import type { CliTool } from '@podman-desktop/api';
+import * as extensionApi from '@podman-desktop/api';
+import * as path from 'path';
+
+import { installBinaryToSystem } from './cli-run';
 import { Detect } from './detect';
-import { OS } from './os';
+import { KubectlDownload } from './download';
+import * as handler from './handler';
 import type { KubectlGithubReleaseArtifactMetadata } from './kubectl-github-releases';
 import { KubectlGitHubReleases } from './kubectl-github-releases';
-import { KubectlDownload } from './download';
-import * as path from 'path';
-import type { CliTool } from '@podman-desktop/api';
-import { installBinaryToSystem } from './cli-run';
+import { OS } from './os';
 
 interface KubectlVersionOutput {
   clientVersion: {

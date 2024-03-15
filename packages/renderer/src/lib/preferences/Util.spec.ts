@@ -16,7 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { test, expect, vi, afterEach, describe } from 'vitest';
+import { afterEach, describe, expect, test, vi } from 'vitest';
+
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+import { ContextUI } from '../context/context';
 import {
   getNormalizedDefaultNumberValue,
   isPropertyValidInContext,
@@ -25,8 +28,6 @@ import {
   validateProxyAddress,
   writeToTerminal,
 } from './Util';
-import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
-import { ContextUI } from '../context/context';
 
 const xtermMock = {
   write: vi.fn(),

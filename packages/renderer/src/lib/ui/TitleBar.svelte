@@ -1,5 +1,6 @@
 <script lang="ts">
 import { onMount } from 'svelte';
+
 import DesktopIcon from '../images/DesktopIcon.svelte';
 import WindowControlButtons from '../window-control-buttons/ControlButtons.svelte';
 

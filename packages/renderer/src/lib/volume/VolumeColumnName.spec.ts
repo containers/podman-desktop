@@ -17,13 +17,14 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
+
+import { fireEvent } from '@testing-library/dom';
 import { render, screen } from '@testing-library/svelte';
+import { router } from 'tinro';
+import { expect, test, vi } from 'vitest';
 
 import VolumeColumnName from './VolumeColumnName.svelte';
 import type { VolumeInfoUI } from './VolumeInfoUI';
-import { router } from 'tinro';
-import { fireEvent } from '@testing-library/dom';
 
 const volume: VolumeInfoUI = {
   name: 'my-name',

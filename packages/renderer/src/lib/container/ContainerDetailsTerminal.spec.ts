@@ -17,12 +17,15 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
+
 import { render, waitFor } from '@testing-library/svelte';
+import { get } from 'svelte/store';
+import { beforeAll, expect, test, vi } from 'vitest';
+
+import { containerTerminals } from '/@/stores/container-terminal-store';
+
 import ContainerDetailsTerminal from './ContainerDetailsTerminal.svelte';
 import type { ContainerInfoUI } from './ContainerInfoUI';
-import { get } from 'svelte/store';
-import { containerTerminals } from '/@/stores/container-terminal-store';
 
 const getConfigurationValueMock = vi.fn();
 const shellInContainerMock = vi.fn();

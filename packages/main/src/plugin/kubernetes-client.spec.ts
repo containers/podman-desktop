@@ -16,30 +16,33 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
-import { KubernetesClient } from './kubernetes-client.js';
-import type { ApiSenderType } from './api.js';
-import type { ConfigurationRegistry } from './configuration-registry.js';
-import { FilesystemMonitoring } from './filesystem-monitoring.js';
-import {
-  type V1Ingress,
-  type Watch,
-  type V1Deployment,
-  type V1Service,
-  type Context,
-  type KubernetesObject,
-  type Informer,
-  type ObjectCache,
-  KubeConfig,
-} from '@kubernetes/client-node';
-import * as clientNode from '@kubernetes/client-node';
-import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import * as fs from 'node:fs';
-import type { V1Route } from './api/openshift-types.js';
-import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import { IncomingMessage } from 'node:http';
 import { Socket } from 'node:net';
+
+import {
+  type Context,
+  type Informer,
+  KubeConfig,
+  type KubernetesObject,
+  type ObjectCache,
+  type V1Deployment,
+  type V1Ingress,
+  type V1Service,
+  type Watch,
+} from '@kubernetes/client-node';
+import * as clientNode from '@kubernetes/client-node';
 import type { FileSystemWatcher } from '@podman-desktop/api';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+
+import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
+
+import type { ApiSenderType } from './api.js';
+import type { V1Route } from './api/openshift-types.js';
+import type { ConfigurationRegistry } from './configuration-registry.js';
+import { FilesystemMonitoring } from './filesystem-monitoring.js';
+import { KubernetesClient } from './kubernetes-client.js';
+import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 
 const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
 const informerManager: KubernetesInformerManager = new KubernetesInformerManager();

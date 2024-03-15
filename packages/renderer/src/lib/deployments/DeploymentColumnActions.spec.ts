@@ -17,11 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
 
-import type { DeploymentUI } from './DeploymentUI';
+import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
 import DeploymentColumnActions from './DeploymentColumnActions.svelte';
+import type { DeploymentUI } from './DeploymentUI';
 
 test('Expect action buttons', async () => {
   const deployment: DeploymentUI = {

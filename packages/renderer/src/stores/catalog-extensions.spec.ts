@@ -21,12 +21,13 @@
 import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
 import { beforeAll, expect, test, vi } from 'vitest';
+
+import type { CatalogExtension } from '../../../main/src/plugin/extensions-catalog/extensions-catalog-api';
 import {
   catalogExtensionEventStore,
   catalogExtensionEventStoreInfo,
   catalogExtensionInfos,
 } from './catalog-extensions';
-import type { CatalogExtension } from '../../../main/src/plugin/extensions-catalog/extensions-catalog-api';
 
 // first, patch window object
 const callbacks = new Map<string, any>();

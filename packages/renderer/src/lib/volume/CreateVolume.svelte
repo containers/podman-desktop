@@ -1,21 +1,20 @@
 <script lang="ts">
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
-import { get } from 'svelte/store';
-import { onDestroy, onMount } from 'svelte';
-/* eslint-enable import/no-duplicates */
-
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-
-import { providerInfos } from '/@/stores/providers';
-import FormPage from '/@/lib/ui/FormPage.svelte';
-import NoContainerEngineEmptyScreen from '/@/lib/image/NoContainerEngineEmptyScreen.svelte';
-
-import Button from '/@/lib/ui/Button.svelte';
-import VolumeIcon from '/@/lib/images/VolumeIcon.svelte';
-import { router } from 'tinro';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { Input } from '@podman-desktop/ui-svelte';
+import { onDestroy, onMount } from 'svelte';
+import { get } from 'svelte/store';
+import { router } from 'tinro';
+
+import NoContainerEngineEmptyScreen from '/@/lib/image/NoContainerEngineEmptyScreen.svelte';
+import VolumeIcon from '/@/lib/images/VolumeIcon.svelte';
+import Button from '/@/lib/ui/Button.svelte';
+import FormPage from '/@/lib/ui/FormPage.svelte';
+import { providerInfos } from '/@/stores/providers';
+
+/* eslint-enable import/no-duplicates */
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 
 let providers: ProviderInfo[] = [];
 let providerConnections: ProviderContainerConnectionInfo[] = [];

@@ -16,14 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as extensionApi from '@podman-desktop/api';
-import { detectKind, getKindPath } from './util';
-import { KindInstaller } from './kind-installer';
 import type { AuditRequestItems, CancellationToken, Logger } from '@podman-desktop/api';
+import * as extensionApi from '@podman-desktop/api';
 import { ProgressLocation, window } from '@podman-desktop/api';
+
+import { connectionAuditor, createCluster } from './create-cluster';
 import type { ImageInfo } from './image-handler';
 import { ImageHandler } from './image-handler';
-import { createCluster, connectionAuditor } from './create-cluster';
+import { KindInstaller } from './kind-installer';
+import { detectKind, getKindPath } from './util';
 
 const API_KIND_INTERNAL_API_PORT = 6443;
 

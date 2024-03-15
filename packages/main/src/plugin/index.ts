@@ -19,28 +19,49 @@
 /**
  * @module preload
  */
-import * as os from 'node:os';
-import * as path from 'path';
-import type * as containerDesktopAPI from '@podman-desktop/api';
-import { CommandRegistry } from './command-registry.js';
-import { ContainerProviderRegistry } from './container-registry.js';
-import { ExtensionLoader } from './extension-loader.js';
-import { TrayMenuRegistry } from './tray-menu-registry.js';
-import { ProviderRegistry } from './provider-registry.js';
-import type { IConfigurationPropertyRecordedSchema } from './configuration-registry.js';
-import { ConfigurationRegistry } from './configuration-registry.js';
-import { TerminalInit } from './terminal-init.js';
-import { ImageRegistry } from './image-registry.js';
 import { EventEmitter } from 'node:events';
+import * as os from 'node:os';
+
 import type {
-  PreflightCheckEvent,
-  PreflightChecksCallback,
-  ProviderContainerConnectionInfo,
-  ProviderInfo,
-  ProviderKubernetesConnectionInfo,
-} from './api/provider-info.js';
+  Cluster,
+  Context as KubernetesContext,
+  KubernetesObject,
+  V1ConfigMap,
+  V1Deployment,
+  V1Ingress,
+  V1NamespaceList,
+  V1Pod,
+  V1PodList,
+  V1Service,
+} from '@kubernetes/client-node';
+import type * as containerDesktopAPI from '@podman-desktop/api';
+import checkDiskSpacePkg from 'check-disk-space';
+import type Dockerode from 'dockerode';
 import type { WebContents } from 'electron';
-import { app, ipcMain, BrowserWindow, shell, clipboard } from 'electron';
+import { app, BrowserWindow, clipboard, ipcMain, shell } from 'electron';
+import type { IpcMainInvokeEvent } from 'electron/main';
+import * as path from 'path';
+
+import type { KubernetesGeneratorInfo } from '/@/plugin/api/KubernetesGeneratorInfo.js';
+import type {
+  GenerateKubeResult,
+  KubernetesGeneratorArgument,
+  KubernetesGeneratorSelector,
+} from '/@/plugin/kube-generator-registry.js';
+import { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
+import type { Menu } from '/@/plugin/menu-registry.js';
+import { MenuRegistry } from '/@/plugin/menu-registry.js';
+import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
+import { TaskManager } from '/@/plugin/task-manager.js';
+import { Updater } from '/@/plugin/updater.js';
+
+import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
+import type { TrayMenu } from '../tray-menu.js';
+import { isMac } from '../util.js';
+import type { ApiSenderType } from './api.js';
+import type { CliToolInfo } from './api/cli-tool-info.js';
+import type { ColorInfo } from './api/color-info.js';
+import type { CommandInfo } from './api/command-info.js';
 import type {
   ContainerCreateOptions,
   ContainerInfo,
@@ -48,119 +69,101 @@ import type {
   VolumeCreateOptions,
   VolumeCreateResponseInfo,
 } from './api/container-info.js';
-import type { ImageInfo } from './api/image-info.js';
-import type { PullEvent } from './api/pull-event.js';
-import type { ExtensionInfo } from './api/extension-info.js';
-import type { ImageInspectInfo } from './api/image-inspect-info.js';
-import type { TrayMenu } from '../tray-menu.js';
-import { getFreePort, getFreePortRange, isFreePort } from './util/port.js';
-import { isMac } from '../util.js';
-import type { MessageBoxOptions, MessageBoxReturnValue } from './message-box.js';
-import { MessageBox } from './message-box.js';
-import { ProgressImpl } from './progress-impl.js';
-import type { ContributionInfo } from './api/contribution-info.js';
-import { ContributionManager } from './contribution-manager.js';
-import { DockerDesktopInstallation } from './docker-extension/docker-desktop-installation.js';
-import { DockerPluginAdapter } from './docker-extension/docker-plugin-adapter.js';
-import { PAGE_EVENT_TYPE, Telemetry } from './telemetry/telemetry.js';
-import { StatusBarRegistry } from './statusbar/statusbar-registry.js';
-import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry.js';
-import type { IpcMainInvokeEvent } from 'electron/main';
 import type { ContainerInspectInfo } from './api/container-inspect-info.js';
-import type { HistoryInfo } from './api/history-info.js';
-import type { PodInfo, PodInspectInfo } from './api/pod-info.js';
-import type { VolumeInspectInfo, VolumeListInfo } from './api/volume-info.js';
 import type { ContainerStatsInfo } from './api/container-stats-info.js';
-import type {
-  PlayKubeInfo,
-  ContainerCreateOptions as PodmanContainerCreateOptions,
-} from './dockerode/libpod-dockerode.js';
-import type Dockerode from 'dockerode';
-import { AutostartEngine } from './autostart-engine.js';
-import { CloseBehavior } from './close-behavior.js';
-import { TrayIconColor } from './tray-icon-color.js';
-import { KubernetesClient } from './kubernetes-client.js';
-import type {
-  V1Pod,
-  V1ConfigMap,
-  V1NamespaceList,
-  V1PodList,
-  V1Service,
-  V1Ingress,
-  Context as KubernetesContext,
-  Cluster,
-  V1Deployment,
-  KubernetesObject,
-} from '@kubernetes/client-node';
-import type { V1Route } from './api/openshift-types.js';
+import type { ContributionInfo } from './api/contribution-info.js';
+import type { ExtensionInfo } from './api/extension-info.js';
+import type { HistoryInfo } from './api/history-info.js';
+import type { IconInfo } from './api/icon-info.js';
+import type { ImageCheckerInfo } from './api/image-checker-info.js';
+import type { ImageInfo } from './api/image-info.js';
+import type { ImageInspectInfo } from './api/image-inspect-info.js';
+import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
 import type { NetworkInspectInfo } from './api/network-info.js';
-import { FilesystemMonitoring } from './filesystem-monitoring.js';
-import { Certificates } from './certificates.js';
-import { Proxy } from './proxy.js';
-import { EditorInit } from './editor-init.js';
-import { WelcomeInit } from './welcome/welcome-init.js';
-import { ExtensionInstaller } from './install/extension-installer.js';
-import { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
-import type { Menu } from '/@/plugin/menu-registry.js';
-import { MenuRegistry } from '/@/plugin/menu-registry.js';
-import { CancellationTokenRegistry } from './cancellation-token-registry.js';
-import type { ApiSenderType } from './api.js';
+import type { NotificationCard, NotificationCardOptions } from './api/notification.js';
+import type { OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
+import type { V1Route } from './api/openshift-types.js';
+import type { PodInfo, PodInspectInfo } from './api/pod-info.js';
+import type {
+  PreflightCheckEvent,
+  PreflightChecksCallback,
+  ProviderContainerConnectionInfo,
+  ProviderInfo,
+  ProviderKubernetesConnectionInfo,
+} from './api/provider-info.js';
+import type { PullEvent } from './api/pull-event.js';
+import type { ViewInfoUI } from './api/view-info.js';
+import type { VolumeInspectInfo, VolumeListInfo } from './api/volume-info.js';
+import type { WebviewInfo } from './api/webview-info.js';
+import { AppearanceInit } from './appearance-init.js';
 import type { AuthenticationProviderInfo } from './authentication.js';
 import { AuthenticationImpl } from './authentication.js';
-import checkDiskSpacePkg from 'check-disk-space';
+import { AutostartEngine } from './autostart-engine.js';
+import { CancellationTokenRegistry } from './cancellation-token-registry.js';
+import { Certificates } from './certificates.js';
+import { CliToolRegistry } from './cli-tool-registry.js';
+import { CloseBehavior } from './close-behavior.js';
+import { ColorRegistry } from './color-registry.js';
+import { CommandRegistry } from './command-registry.js';
+import type { IConfigurationPropertyRecordedSchema } from './configuration-registry.js';
+import { ConfigurationRegistry } from './configuration-registry.js';
+import { ContainerProviderRegistry } from './container-registry.js';
+import { Context } from './context/context.js';
+import { ContributionManager } from './contribution-manager.js';
+import { CustomPickRegistry } from './custompick/custompick-registry.js';
+import { DialogRegistry } from './dialog-registry.js';
+import { Directories } from './directories.js';
+import { DockerDesktopInstallation } from './docker-extension/docker-desktop-installation.js';
+import { DockerPluginAdapter } from './docker-extension/docker-plugin-adapter.js';
+import type {
+  ContainerCreateOptions as PodmanContainerCreateOptions,
+  PlayKubeInfo,
+} from './dockerode/libpod-dockerode.js';
+import { EditorInit } from './editor-init.js';
+import { ExtensionLoader } from './extension-loader.js';
+import { ExtensionsCatalog } from './extensions-catalog/extensions-catalog.js';
+import type { CatalogExtension } from './extensions-catalog/extensions-catalog-api.js';
+import { ExtensionsUpdater } from './extensions-updater/extensions-updater.js';
+import { Featured } from './featured/featured.js';
+import type { FeaturedExtension } from './featured/featured-api.js';
+import { FilesystemMonitoring } from './filesystem-monitoring.js';
+import { IconRegistry } from './icon-registry.js';
+import { ImageCheckerImpl } from './image-checker.js';
+import { ImageRegistry } from './image-registry.js';
+import { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
+import { ExtensionInstaller } from './install/extension-installer.js';
+import { KubernetesClient } from './kubernetes-client.js';
+import type { KubeContext } from './kubernetes-context.js';
+import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
+import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
+import { downloadGuideList } from './learning-center/learning-center.js';
+import type { MessageBoxOptions, MessageBoxReturnValue } from './message-box.js';
+import { MessageBox } from './message-box.js';
+import { NotificationRegistry } from './notification-registry.js';
+import { OnboardingRegistry } from './onboarding-registry.js';
+import { OpenDevToolsInit } from './open-devtools-init.js';
+import { ProgressImpl } from './progress-impl.js';
+import { ProviderRegistry } from './provider-registry.js';
+import { Proxy } from './proxy.js';
+import { RecommendationsRegistry } from './recommendations/recommendations-registry.js';
+import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry.js';
+import { StatusBarRegistry } from './statusbar/statusbar-registry.js';
+import { PAGE_EVENT_TYPE, Telemetry } from './telemetry/telemetry.js';
+import { TerminalInit } from './terminal-init.js';
+import { TrayIconColor } from './tray-icon-color.js';
+import { TrayMenuRegistry } from './tray-menu-registry.js';
+import { Troubleshooting } from './troubleshooting.js';
+import type { IDisposable } from './types/disposable.js';
+import type { Deferred } from './util/deferred.js';
+import { Exec } from './util/exec.js';
+import { getFreePort, getFreePortRange, isFreePort } from './util/port.js';
+import { ViewRegistry } from './view-registry.js';
+import { WebviewRegistry } from './webview/webview-registry.js';
+import { WelcomeInit } from './welcome/welcome-init.js';
 // workaround for ESM
 const checkDiskSpace: (path: string) => Promise<{ free: number }> = checkDiskSpacePkg as unknown as (
   path: string,
 ) => Promise<{ free: number }>;
-import { TaskManager } from '/@/plugin/task-manager.js';
-import { Featured } from './featured/featured.js';
-import type { FeaturedExtension } from './featured/featured-api.js';
-import { ExtensionsCatalog } from './extensions-catalog/extensions-catalog.js';
-import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
-import { ExtensionsUpdater } from './extensions-updater/extensions-updater.js';
-import type { CatalogExtension } from './extensions-catalog/extensions-catalog-api.js';
-import { IconRegistry } from './icon-registry.js';
-import type { IconInfo } from './api/icon-info.js';
-import { Directories } from './directories.js';
-import { CustomPickRegistry } from './custompick/custompick-registry.js';
-import { ViewRegistry } from './view-registry.js';
-import type { ViewInfoUI } from './api/view-info.js';
-import type { WebviewInfo } from './api/webview-info.js';
-import { Context } from './context/context.js';
-import { OnboardingRegistry } from './onboarding-registry.js';
-import type { OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
-import { Exec } from './util/exec.js';
-import { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
-import type {
-  KubernetesGeneratorSelector,
-  GenerateKubeResult,
-  KubernetesGeneratorArgument,
-} from '/@/plugin/kube-generator-registry.js';
-import type { KubernetesGeneratorInfo } from '/@/plugin/api/KubernetesGeneratorInfo.js';
-import type { CommandInfo } from './api/command-info.js';
-import { CliToolRegistry } from './cli-tool-registry.js';
-import type { CliToolInfo } from './api/cli-tool-info.js';
-import type { NotificationCard, NotificationCardOptions } from './api/notification.js';
-import { NotificationRegistry } from './notification-registry.js';
-import { ImageCheckerImpl } from './image-checker.js';
-import type { ImageCheckerInfo } from './api/image-checker-info.js';
-import { AppearanceInit } from './appearance-init.js';
-import type { KubeContext } from './kubernetes-context.js';
-import { Troubleshooting } from './troubleshooting.js';
-import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
-import type { KubernetesInformerResourcesType } from './api/kubernetes-informer-info.js';
-import { OpenDevToolsInit } from './open-devtools-init.js';
-import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
-import { WebviewRegistry } from './webview/webview-registry.js';
-import type { IDisposable } from './types/disposable.js';
-import { downloadGuideList } from './learning-center/learning-center.js';
-import type { ColorInfo } from './api/color-info.js';
-import { ColorRegistry } from './color-registry.js';
-import { DialogRegistry } from './dialog-registry.js';
-import type { Deferred } from './util/deferred.js';
-import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
-import { Updater } from '/@/plugin/updater.js';
-import { RecommendationsRegistry } from './recommendations/recommendations-registry.js';
 
 type LogType = 'log' | 'warn' | 'trace' | 'debug' | 'error';
 
@@ -2112,6 +2115,10 @@ export class PluginSystem {
         });
       },
     );
+    this.ipcHandle(
+      'context:collectAllValues',
+      async (): Promise<Record<string, unknown>> => context.collectAllValues(),
+    );
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,
@@ -2130,6 +2137,8 @@ export class PluginSystem {
       imageRegistry,
       extensionsCatalog,
       telemetry,
+      directories,
+      contributionManager,
     );
     await extensionInstaller.init();
 

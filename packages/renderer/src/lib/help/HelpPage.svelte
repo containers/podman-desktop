@@ -1,7 +1,8 @@
 <script lang="ts">
-import FormPage from '../ui/FormPage.svelte';
-import { providerInfos } from '../../stores/providers';
 import type { ProviderLinks } from '@podman-desktop/api';
+
+import { providerInfos } from '../../stores/providers';
+import FormPage from '../ui/FormPage.svelte';
 
 $: contributedLinks = $providerInfos
   .filter(provider => provider.status === 'ready' || provider.status === 'started')

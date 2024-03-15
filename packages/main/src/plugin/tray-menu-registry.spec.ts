@@ -18,6 +18,7 @@
 
 import { ipcMain } from 'electron';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+
 import type { TrayMenu } from '../tray-menu.js';
 import type { ProviderInfo } from './api/provider-info.js';
 import type { CommandRegistry } from './command-registry.js';

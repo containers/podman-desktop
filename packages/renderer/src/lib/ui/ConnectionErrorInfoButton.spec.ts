@@ -19,8 +19,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
 import ConnectionErrorInfoButton from './ConnectionErrorInfoButton.svelte';
 
 test('Expect nothing if status is undefined', async () => {

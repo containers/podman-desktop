@@ -17,8 +17,9 @@
  ***********************************************************************/
 
 import type { Context } from '@kubernetes/client-node';
-import { kubernetesIconBase64 } from './KubeIcon';
+
 import type { KubeContext } from '../../../../main/src/plugin/kubernetes-context';
+import { kubernetesIconBase64 } from './KubeIcon';
 
 // Function that goes through KubeContext and adds kubernetesIconBase64 icon to each context
 // TODO: In the future we will analyze which icon to use based on the cluster name and cluster information

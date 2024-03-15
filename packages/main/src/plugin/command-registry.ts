@@ -16,10 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { Disposable } from './types/disposable.js';
-import type { Telemetry } from './telemetry/telemetry.js';
-import { type CommandInfo } from './api/command-info.js';
 import { type ApiSenderType } from './api.js';
+import { type CommandInfo } from './api/command-info.js';
+import type { Telemetry } from './telemetry/telemetry.js';
+import { Disposable } from './types/disposable.js';
 
 export interface RawCommand {
   command?: string;

@@ -16,11 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { featured as featuredJSONFile } from '../../../../../featured.json';
-import type { CatalogFetchableExtension } from '../extensions-catalog/extensions-catalog-api.js';
-import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog.js';
 import type { ExtensionLoader } from '/@/plugin/extension-loader.js';
 import type { FeaturedExtension } from '/@/plugin/featured/featured-api.js';
+
+import { featured as featuredJSONFile } from '../../../../../featured.json';
+import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog.js';
+import type { CatalogFetchableExtension } from '../extensions-catalog/extensions-catalog-api.js';
 
 /**
  * Manages the Featured extensions

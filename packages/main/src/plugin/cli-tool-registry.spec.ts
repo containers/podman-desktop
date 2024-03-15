@@ -16,16 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, test, expect, vi, suite } from 'vitest';
-import type { Exec } from './util/exec.js';
-import type { ApiSenderType } from './api.js';
-import { CliToolRegistry } from './cli-tool-registry.js';
-
-import type { Telemetry } from './telemetry/telemetry.js';
 import { afterEach } from 'node:test';
+
 import type { CliToolOptions, CliToolUpdate, Logger } from '@podman-desktop/api';
-import type { CliToolImpl } from './cli-tool-impl.js';
+import { beforeEach, expect, suite, test, vi } from 'vitest';
+
+import type { ApiSenderType } from './api.js';
 import type { CliToolExtensionInfo } from './api/cli-tool-info.js';
+import type { CliToolImpl } from './cli-tool-impl.js';
+import { CliToolRegistry } from './cli-tool-registry.js';
+import type { Telemetry } from './telemetry/telemetry.js';
+import type { Exec } from './util/exec.js';
 
 const apiSender: ApiSenderType = {
   send: vi.fn(),

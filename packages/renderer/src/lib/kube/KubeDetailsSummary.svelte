@@ -1,6 +1,8 @@
 <script lang="ts">
 import type { V1Pod } from '@kubernetes/client-node';
+
 import KubeVolumeArtifact from './details/KubeVolumeArtifact.svelte';
+
 export let pod: V1Pod | undefined;
 
 // https://github.com/kubernetes-client/javascript/issues/487

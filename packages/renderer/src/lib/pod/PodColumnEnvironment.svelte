@@ -1,6 +1,6 @@
 <script lang="ts">
-import type { PodInfoUI } from './PodInfoUI';
 import ProviderInfo from '../ui/ProviderInfo.svelte';
+import type { PodInfoUI } from './PodInfoUI';
 
 export let object: PodInfoUI;
 </script>

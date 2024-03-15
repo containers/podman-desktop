@@ -16,17 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as path from 'node:path';
 import * as fs from 'node:fs';
-import type { ContributionInfo } from './api/contribution-info.js';
-import type { ApiSenderType } from './api.js';
-import type { Directories } from './directories.js';
-import { getFreePort } from './util/port.js';
-import type { Exec } from './util/exec.js';
-import * as jsYaml from 'js-yaml';
+import * as path from 'node:path';
+
 import type { RunResult } from '@podman-desktop/api';
-import type { ContainerProviderRegistry } from './container-registry.js';
+import * as jsYaml from 'js-yaml';
+
 import { isLinux, isMac, isWindows } from '../util.js';
+import type { ApiSenderType } from './api.js';
+import type { ContributionInfo } from './api/contribution-info.js';
+import type { ContainerProviderRegistry } from './container-registry.js';
+import type { Directories } from './directories.js';
+import type { Exec } from './util/exec.js';
+import { getFreePort } from './util/port.js';
 
 export interface DockerExtensionMetadata {
   name: string;
@@ -124,6 +126,10 @@ export class ContributionManager {
           const contribution: ContributionInfo = {
             id: key,
             extensionId,
+            description: metadata.description ?? '',
+            displayName: uiMetadata.title,
+            publisher: metadata.publisher ?? '',
+            version: metadata.version ?? '',
             name: uiMetadata.title,
             type: 'docker',
             uiUri,

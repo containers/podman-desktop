@@ -18,10 +18,11 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { beforeEach, expect, test, vi } from 'vitest';
-import * as podmanDesktopApi from '@podman-desktop/api';
-import { createProvider, moveImage, refreshKindClustersOnProviderConnectionUpdate } from './extension';
 import type * as extensionApi from '@podman-desktop/api';
+import * as podmanDesktopApi from '@podman-desktop/api';
+import { beforeEach, expect, test, vi } from 'vitest';
+
+import { createProvider, moveImage, refreshKindClustersOnProviderConnectionUpdate } from './extension';
 
 vi.mock('./image-handler', async () => {
   return {

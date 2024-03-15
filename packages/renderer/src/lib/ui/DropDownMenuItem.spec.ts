@@ -17,11 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
+
+import { faCircleUp } from '@fortawesome/free-solid-svg-icons';
 import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
 
 import DropDownMenuItem from './DropDownMenuItem.svelte';
-import { faCircleUp } from '@fortawesome/free-solid-svg-icons';
 
 test('Expect custom font icon on the contributed action', async () => {
   render(DropDownMenuItem, {

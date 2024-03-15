@@ -1,6 +1,6 @@
 <script lang="ts">
-import type { PodInfoUI } from './PodInfoUI';
 import StateChange from '../ui/StateChange.svelte';
+import type { PodInfoUI } from './PodInfoUI';
 
 export let object: PodInfoUI;
 </script>

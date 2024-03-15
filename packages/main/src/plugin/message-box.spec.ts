@@ -17,8 +17,9 @@
  ***********************************************************************/
 
 import { expect, test, vi } from 'vitest';
-import { MessageBox } from './message-box.js';
+
 import type { ApiSenderType } from './api.js';
+import { MessageBox } from './message-box.js';
 
 test('Should return first item if button clicked is the first', async () => {
   const messageBox = new MessageBox({} as ApiSenderType);

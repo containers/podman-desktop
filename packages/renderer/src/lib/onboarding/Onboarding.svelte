@@ -26,34 +26,36 @@
 </style>
 
 <script lang="ts">
-import { onDestroy, onMount } from 'svelte';
-import type { OnboardingInfo, OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
 import { faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
 import { faForward } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa';
+import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
+import Fa from 'svelte-fa';
+import { router } from 'tinro';
+
+import { lastPage } from '/@/stores/breadcrumb';
+import { context } from '/@/stores/context';
 import { onboardingList } from '/@/stores/onboarding';
-import OnboardingItem from './OnboardingItem.svelte';
+
+import type { OnboardingInfo, OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
 import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
-import { router } from 'tinro';
-import { context } from '/@/stores/context';
+import Button from '../ui/Button.svelte';
+import Link from '../ui/Link.svelte';
+import Spinner from '../ui/Spinner.svelte';
 import {
+  type ActiveOnboardingStep,
+  cleanSetup,
+  isOnboardingsSetupCompleted,
+  isStepCompleted,
+  normalizeOnboardingWhenClause,
+  replaceContextKeyPlaceholders,
   STATUS_COMPLETED,
   STATUS_SKIPPED,
   updateOnboardingStepStatus,
-  type ActiveOnboardingStep,
-  isStepCompleted,
-  isOnboardingsSetupCompleted,
-  normalizeOnboardingWhenClause,
-  cleanSetup,
-  replaceContextKeyPlaceholders,
 } from './onboarding-utils';
-import { lastPage } from '/@/stores/breadcrumb';
-import Button from '../ui/Button.svelte';
-import Link from '../ui/Link.svelte';
 import OnboardingComponent from './OnboardingComponent.svelte';
-import Spinner from '../ui/Spinner.svelte';
+import OnboardingItem from './OnboardingItem.svelte';
 import { OnboardingTelemetrySession } from './telemetry';
 
 export let extensionIds: string[] = [];

@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { CompileContext } from 'micromark-util-types';
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
+
+import type { CompileContext } from 'micromark-util-types';
+import { expect, test, vi } from 'vitest';
+
 import { createUIButton } from './micromark-button';
 
 test('Expect createUIButton to return a button with a spinner and an error icon', async () => {

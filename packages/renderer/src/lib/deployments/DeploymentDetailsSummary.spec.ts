@@ -17,11 +17,13 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, vi, expect, beforeAll } from 'vitest';
+
+import type { V1Deployment } from '@kubernetes/client-node';
 import { render, screen } from '@testing-library/svelte';
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import DeploymentDetailsSummary from './DeploymentDetailsSummary.svelte';
 import type { DeploymentUI } from './DeploymentUI';
-import type { V1Deployment } from '@kubernetes/client-node';
 
 const deploymentUI: DeploymentUI = {
   name: 'my-deployment',

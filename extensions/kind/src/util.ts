@@ -16,11 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as http from 'node:http';
 import * as os from 'node:os';
 import * as path from 'node:path';
+
 import * as extensionApi from '@podman-desktop/api';
+
 import type { KindInstaller } from './kind-installer';
-import * as http from 'node:http';
 
 const windows = os.platform() === 'win32';
 export function isWindows(): boolean {

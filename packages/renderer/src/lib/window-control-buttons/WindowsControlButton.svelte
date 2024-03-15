@@ -1,9 +1,10 @@
 <script lang="ts">
 import { onMount } from 'svelte';
+
 import WindowsExitIcon from '/@/lib/images/WindowsExitIcon.svelte';
 import WindowsMaxIcon from '/@/lib/images/WindowsMaxIcon.svelte';
-import WindowsUnmaxIcon from '/@/lib/images/WindowsUnmaxIcon.svelte';
 import WindowsMinIcon from '/@/lib/images/WindowsMinIcon.svelte';
+import WindowsUnmaxIcon from '/@/lib/images/WindowsUnmaxIcon.svelte';
 
 const iconSize = '16';
 let icon: any;

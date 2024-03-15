@@ -1,13 +1,15 @@
 <script lang="ts">
-import SettingsPage from './SettingsPage.svelte';
-import EngineIcon from '../ui/EngineIcon.svelte';
-import EmptyScreen from '../ui/EmptyScreen.svelte';
-import { faTrash, faRightToBracket } from '@fortawesome/free-solid-svg-icons';
-import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
+import { faRightToBracket, faTrash } from '@fortawesome/free-solid-svg-icons';
+
+import { kubernetesContextsState } from '/@/stores/kubernetes-contexts-state';
+
 import { kubernetesContexts } from '../../stores/kubernetes-contexts';
 import { clearKubeUIContextErrors, setKubeUIContextError } from '../kube/KubeContextUI';
-import { kubernetesContextsState } from '/@/stores/kubernetes-contexts-state';
+import EmptyScreen from '../ui/EmptyScreen.svelte';
+import EngineIcon from '../ui/EngineIcon.svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
+import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
+import SettingsPage from './SettingsPage.svelte';
 
 $: currentContextName = $kubernetesContexts.find(c => c.currentContext)?.name;
 

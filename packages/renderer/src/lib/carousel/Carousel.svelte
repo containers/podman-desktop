@@ -1,7 +1,7 @@
 <script lang="ts">
-import { faChevronRight, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa';
+import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { onDestroy, onMount } from 'svelte';
+import Fa from 'svelte-fa';
 
 let resizeObserver: ResizeObserver;
 

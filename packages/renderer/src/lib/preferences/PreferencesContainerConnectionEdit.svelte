@@ -1,20 +1,21 @@
 <script lang="ts">
-import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
-
 import { Buffer } from 'buffer';
-import { providerInfos } from '../../stores/providers';
 import { onDestroy, onMount } from 'svelte';
+import type { Unsubscriber } from 'svelte/store';
+
+import PreferencesConnectionCreationRendering from '/@/lib/preferences/PreferencesConnectionCreationOrEditRendering.svelte';
+import DetailsPage from '/@/lib/ui/DetailsPage.svelte';
+import WarningMessage from '/@/lib/ui/WarningMessage.svelte';
+
 import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
 } from '../../../../main/src/plugin/api/provider-info';
-import { isContainerConnection } from './Util';
-import type { Unsubscriber } from 'svelte/store';
-import PreferencesConnectionCreationRendering from '/@/lib/preferences/PreferencesConnectionCreationOrEditRendering.svelte';
-import DetailsPage from '/@/lib/ui/DetailsPage.svelte';
-import WarningMessage from '/@/lib/ui/WarningMessage.svelte';
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+import { providerInfos } from '../../stores/providers';
 import IconImage from '../appearance/IconImage.svelte';
+import { isContainerConnection } from './Util';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string | undefined = undefined;

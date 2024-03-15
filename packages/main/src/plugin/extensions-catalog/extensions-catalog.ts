@@ -16,16 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
+import type * as podmanDesktopAPI from '@podman-desktop/api';
 import type { HttpsOptions, OptionsOfTextResponseBody } from 'got';
 import got from 'got';
+import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
+
 import type { Certificates } from '/@/plugin/certificates.js';
-import type { Proxy } from '/@/plugin/proxy.js';
-import type * as podmanDesktopAPI from '@podman-desktop/api';
 import type {
   CatalogExtension,
   CatalogFetchableExtension,
 } from '/@/plugin/extensions-catalog/extensions-catalog-api.js';
+import type { Proxy } from '/@/plugin/proxy.js';
 
 /**
  * Allow to grab content from the online extensions catalog.

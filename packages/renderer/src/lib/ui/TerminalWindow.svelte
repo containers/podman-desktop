@@ -1,8 +1,10 @@
 <script lang="ts">
+import 'xterm/css/xterm.css';
+
+import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
-import { onMount, onDestroy, createEventDispatcher } from 'svelte';
-import 'xterm/css/xterm.css';
+
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 
 export let terminal: Terminal;

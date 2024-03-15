@@ -16,10 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
-import NewContentBadge from './NewContentBadge.svelte';
 import { router } from 'tinro';
+import { expect, test } from 'vitest';
+
+import NewContentBadge from './NewContentBadge.svelte';
 
 test('Expect to do not display any dot if active page is same from pagePath', async () => {
   router.goto('/');

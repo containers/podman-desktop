@@ -18,11 +18,13 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { DialogRegistry } from './dialog-registry.js';
-import { dialog, type BrowserWindow } from 'electron';
-import { Deferred } from '/@/plugin/util/deferred.js';
 import type { Uri } from '@podman-desktop/api';
+import { type BrowserWindow, dialog } from 'electron';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+
+import { Deferred } from '/@/plugin/util/deferred.js';
+
+import { DialogRegistry } from './dialog-registry.js';
 
 let mainWindowDeferred: Deferred<BrowserWindow>;
 

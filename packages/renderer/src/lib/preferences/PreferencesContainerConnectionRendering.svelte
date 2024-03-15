@@ -1,27 +1,27 @@
 <script lang="ts">
-import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
-
 import { Buffer } from 'buffer';
-import { providerInfos } from '../../stores/providers';
 import { onDestroy, onMount } from 'svelte';
+import type { Unsubscriber } from 'svelte/store';
+
 import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
 } from '../../../../main/src/plugin/api/provider-info';
-import { getProviderConnectionName } from './Util';
-import type { IConnectionRestart, IConnectionStatus } from './Util';
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import Route from '../../Route.svelte';
+import { providerInfos } from '../../stores/providers';
+import IconImage from '../appearance/IconImage.svelte';
+import ConnectionErrorInfoButton from '../ui/ConnectionErrorInfoButton.svelte';
+import ConnectionStatus from '../ui/ConnectionStatus.svelte';
+import DetailsPage from '../ui/DetailsPage.svelte';
+import Tab from '../ui/Tab.svelte';
 import { eventCollect } from './preferences-connection-rendering-task';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
-import type { Unsubscriber } from 'svelte/store';
-import ConnectionStatus from '../ui/ConnectionStatus.svelte';
-import PreferencesContainerConnectionDetailsSummary from './PreferencesContainerConnectionDetailsSummary.svelte';
 import PreferencesConnectionDetailsLogs from './PreferencesConnectionDetailsLogs.svelte';
-import Tab from '../ui/Tab.svelte';
-import DetailsPage from '../ui/DetailsPage.svelte';
-import ConnectionErrorInfoButton from '../ui/ConnectionErrorInfoButton.svelte';
-import IconImage from '../appearance/IconImage.svelte';
+import PreferencesContainerConnectionDetailsSummary from './PreferencesContainerConnectionDetailsSummary.svelte';
+import type { IConnectionRestart, IConnectionStatus } from './Util';
+import { getProviderConnectionName } from './Util';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string | undefined = undefined;

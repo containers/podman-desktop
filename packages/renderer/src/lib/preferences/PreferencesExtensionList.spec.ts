@@ -19,8 +19,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, beforeAll, describe } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
+import { beforeAll, describe, expect, test } from 'vitest';
+
 import PreferencesExtensionList from './PreferencesExtensionList.svelte';
 
 // fake the window.events object

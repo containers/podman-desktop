@@ -1,15 +1,17 @@
 <script lang="ts">
+import 'xterm/css/xterm.css';
+
 import { onDestroy, onMount } from 'svelte';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
-import 'xterm/css/xterm.css';
+
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getPanelDetailColor } from '../color/color';
+import { ansi256Colours, colourizedANSIContainerName } from '../editor/editor-utils';
 import { isMultiplexedLog } from '../stream/stream-utils';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import NoLogIcon from '../ui/NoLogIcon.svelte';
 import type { ComposeInfoUI } from './ComposeInfoUI';
-import { ansi256Colours, colourizedANSIContainerName } from '../editor/editor-utils';
 
 export let compose: ComposeInfoUI;
 

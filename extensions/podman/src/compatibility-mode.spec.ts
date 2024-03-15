@@ -18,9 +18,10 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { afterEach, expect, test, vi } from 'vitest';
-import { getSocketCompatibility, DarwinSocketCompatibility, LinuxSocketCompatibility } from './compatibility-mode';
 import * as extensionApi from '@podman-desktop/api';
+import { afterEach, expect, test, vi } from 'vitest';
+
+import { DarwinSocketCompatibility, getSocketCompatibility, LinuxSocketCompatibility } from './compatibility-mode';
 import * as extension from './extension';
 
 vi.mock('@podman-desktop/api', () => {

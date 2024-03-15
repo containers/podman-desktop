@@ -16,12 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { RunError } from '@podman-desktop/api';
+import * as extensionApi from '@podman-desktop/api';
 import { tmpName } from 'tmp-promise';
 import { beforeEach, expect, test, vi } from 'vitest';
+
 import { KindInstaller } from './kind-installer';
-import * as extensionApi from '@podman-desktop/api';
 import { installBinaryToSystem } from './util';
-import type { RunError } from '@podman-desktop/api';
 
 let installer: KindInstaller;
 

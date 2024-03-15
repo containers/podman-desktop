@@ -17,13 +17,16 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import AppNavigation from './AppNavigation.svelte';
-import type { TinroRouteMeta } from 'tinro';
-import { readable } from 'svelte/store';
+
 import type { KubernetesObject } from '@kubernetes/client-node';
+import { render, screen } from '@testing-library/svelte';
+import { readable } from 'svelte/store';
+import type { TinroRouteMeta } from 'tinro';
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
+
+import AppNavigation from './AppNavigation.svelte';
 
 const eventsMock = vi.fn();
 

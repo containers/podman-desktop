@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { beforeEach, expect, test, vi } from 'vitest';
+
 import { urlValidator } from './FieldValidation';
 
 beforeEach(() => {

@@ -25,12 +25,13 @@
 /* eslint-disable sonarjs/no-nested-switch */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
+import type { Event } from '@podman-desktop/api';
+
+import type { ContextKeyValue, IContext } from '../../../../main/src/plugin/api/context-info.js';
+import type { IDisposable } from '../../../../main/src/plugin/types/disposable.js';
+import { CharCode } from '../../../../main/src/plugin/util/charCode.js';
 import type { LexingError, Token } from './scanner.js';
 import { Scanner, TokenType } from './scanner.js';
-import type { ContextKeyValue, IContext } from '../../../../main/src/plugin/api/context-info.js';
-import { CharCode } from '../../../../main/src/plugin/util/charCode.js';
-import type { IDisposable } from '../../../../main/src/plugin/types/disposable.js';
-import type { Event } from '@podman-desktop/api';
 
 const CONSTANT_VALUES = new Map<string, boolean>();
 CONSTANT_VALUES.set('false', false);

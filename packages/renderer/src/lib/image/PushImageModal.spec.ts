@@ -17,12 +17,14 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll, type Mock } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import PushImageModal from './PushImageModal.svelte';
-import type { ImageInfoUI } from './ImageInfoUI';
-import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
+
 import { fireEvent } from '@testing-library/dom';
+import { render, screen } from '@testing-library/svelte';
+import { beforeAll, expect, type Mock, test, vi } from 'vitest';
+
+import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
+import type { ImageInfoUI } from './ImageInfoUI';
+import PushImageModal from './PushImageModal.svelte';
 
 vi.mock('xterm', () => {
   return {

@@ -1,8 +1,8 @@
 <script lang="ts">
-import Fa from 'svelte-fa';
-import { createEventDispatcher } from 'svelte';
-import { faCheckSquare, faMinusSquare, faSquare } from '@fortawesome/free-solid-svg-icons';
 import { faSquare as faOutlineSquare } from '@fortawesome/free-regular-svg-icons';
+import { faCheckSquare, faMinusSquare, faSquare } from '@fortawesome/free-solid-svg-icons';
+import { createEventDispatcher } from 'svelte';
+import Fa from 'svelte-fa';
 
 export let checked = false;
 export let disabled = false;

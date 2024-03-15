@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { BrowserWindow } from 'electron';
+
 import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
 
 export class OpenDevTools {

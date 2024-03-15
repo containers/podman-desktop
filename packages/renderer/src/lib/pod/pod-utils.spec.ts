@@ -18,8 +18,10 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { test, expect } from 'vitest';
+import { expect, test } from 'vitest';
+
 import { ensureRestrictedSecurityContext, PodUtils } from '/@/lib/pod/pod-utils';
+
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
 
 function verifyPodSecurityContext(containers: any[], type = 'RuntimeDefault') {

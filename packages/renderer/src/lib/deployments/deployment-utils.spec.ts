@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, test, vi } from 'vitest';
-import { DeploymentUtils } from './deployment-utils';
 import type { V1Deployment } from '@kubernetes/client-node';
+import { beforeEach, expect, test, vi } from 'vitest';
+
+import { DeploymentUtils } from './deployment-utils';
 
 let deploymentUtils: DeploymentUtils;
 

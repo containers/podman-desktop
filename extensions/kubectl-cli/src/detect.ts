@@ -16,11 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { shellPath } from 'shell-path';
-import { resolve } from 'path';
-import type { OS } from './os';
-import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
+
+import * as extensionApi from '@podman-desktop/api';
+import { resolve } from 'path';
+import { shellPath } from 'shell-path';
+
+import type { OS } from './os';
 
 export class Detect {
   constructor(

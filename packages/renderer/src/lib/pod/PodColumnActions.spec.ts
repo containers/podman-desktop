@@ -17,12 +17,13 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
 
-import type { PodInfoUI } from './PodInfoUI';
-import PodColumnActions from './PodColumnActions.svelte';
 import type { ContainerInfo, Port } from '@podman-desktop/api';
+import { render, screen } from '@testing-library/svelte';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+
+import PodColumnActions from './PodColumnActions.svelte';
+import type { PodInfoUI } from './PodInfoUI';
 
 const listContainersMock = vi.fn();
 const getContributedMenusMock = vi.fn();

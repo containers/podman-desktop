@@ -1,6 +1,8 @@
 <script lang="ts">
 import type { V1Container } from '@kubernetes/client-node';
+
 import Cell from './ui/Cell.svelte';
+
 export let artifact: V1Container | undefined;
 </script>
 

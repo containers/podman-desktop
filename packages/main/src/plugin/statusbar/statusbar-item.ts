@@ -16,8 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { StatusBarAlignment, StatusBarItem } from '@podman-desktop/api';
 import crypto from 'node:crypto';
+
+import type { StatusBarAlignment, StatusBarItem } from '@podman-desktop/api';
+
 import type { StatusBarRegistry } from './statusbar-registry.js';
 
 export const StatusBarAlignLeft = 'LEFT';

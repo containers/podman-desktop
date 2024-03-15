@@ -1,5 +1,6 @@
 <script lang="ts">
 import { router } from 'tinro';
+
 import type { DeploymentUI } from './DeploymentUI';
 
 export let object: DeploymentUI;

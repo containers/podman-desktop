@@ -16,12 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import '@testing-library/jest-dom/vitest';
-import { test, expect, beforeAll, vi } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
-import OnboardingComponent from './OnboardingComponent.svelte';
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import { configurationProperties } from '/@/stores/configurationProperties';
 import { providerInfos } from '/@/stores/providers';
+
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import OnboardingComponent from './OnboardingComponent.svelte';
 
 const providerInfo: ProviderInfo = {
   id: 'podman',

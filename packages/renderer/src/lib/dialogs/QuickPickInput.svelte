@@ -1,10 +1,12 @@
 <script lang="ts">
 import { onDestroy, onMount, tick } from 'svelte';
-import type { InputBoxOptions, QuickPickOptions } from './quickpick-input';
+
 import Markdown from '/@/lib/markdown/Markdown.svelte';
-import { tabWithinParent } from './dialog-utils';
 import Button from '/@/lib/ui/Button.svelte';
 import Checkbox from '/@/lib/ui/Checkbox.svelte';
+
+import { tabWithinParent } from './dialog-utils';
+import type { InputBoxOptions, QuickPickOptions } from './quickpick-input';
 
 const ENTER = 'Enter';
 const ESCAPE = 'Escape';

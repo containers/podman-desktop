@@ -1,8 +1,9 @@
 <script lang="ts">
-import type { FeaturedExtension } from '../../../../main/src/plugin/featured/featured-api';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
-import LoadingIcon from '../ui/LoadingIcon.svelte';
+
+import type { FeaturedExtension } from '../../../../main/src/plugin/featured/featured-api';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import LoadingIcon from '../ui/LoadingIcon.svelte';
 
 export let featuredExtension: FeaturedExtension;
 

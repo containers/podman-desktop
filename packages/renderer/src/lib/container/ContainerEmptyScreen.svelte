@@ -1,6 +1,7 @@
 <script lang="ts">
-import EmptyScreen from '../ui/EmptyScreen.svelte';
 import ContainerIcon from '../images/ContainerIcon.svelte';
+import EmptyScreen from '../ui/EmptyScreen.svelte';
+
 export let runningOnly: boolean;
 export let stoppedOnly: boolean;
 

@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { test, expect } from 'vitest';
+import { expect, test } from 'vitest';
+
 import { removeNonSerializableProperties } from '/@/lib/actions/ActionUtils';
 
 test('Object with single non serializable property', async () => {

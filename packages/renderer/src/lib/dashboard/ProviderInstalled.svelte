@@ -1,13 +1,17 @@
 <script lang="ts">
-import type { CheckStatus, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import PreflightChecks from './PreflightChecks.svelte';
-import ProviderUpdateButton from './ProviderUpdateButton.svelte';
+import 'xterm/css/xterm.css';
+
 import { onDestroy, onMount } from 'svelte';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
-import 'xterm/css/xterm.css';
+
+import type { CheckStatus, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getPanelDetailColor } from '../color/color';
+import Spinner from '../ui/Spinner.svelte';
+import Steps from '../ui/Steps.svelte';
+import PreflightChecks from './PreflightChecks.svelte';
+import ProviderCard from './ProviderCard.svelte';
 import {
   type InitializationContext,
   type InitializationMode,
@@ -15,9 +19,7 @@ import {
   InitializeAndStartMode,
   InitializeOnlyMode,
 } from './ProviderInitUtils';
-import Steps from '../ui/Steps.svelte';
-import Spinner from '../ui/Spinner.svelte';
-import ProviderCard from './ProviderCard.svelte';
+import ProviderUpdateButton from './ProviderUpdateButton.svelte';
 
 export let provider: ProviderInfo;
 export let initializationContext: InitializationContext;
@@ -28,8 +30,6 @@ let initializeInProgress = false;
 let initializeError: string | undefined = undefined;
 
 let preflightChecks: CheckStatus[] = [];
-
-let noErrors = true;
 
 let logsXtermDiv: HTMLDivElement;
 let logsTerminal: Terminal;
@@ -203,8 +203,6 @@ function onInstallationClick() {
       style="background-color: {getPanelDetailColor()}; width: 100%; text-align: left; display: {initializeError
         ? 'block'
         : 'none'}"
-      class:h-full="{noErrors === false}"
-      class:min-w-full="{noErrors === false}"
       bind:this="{logsXtermDiv}">
     </div>
 

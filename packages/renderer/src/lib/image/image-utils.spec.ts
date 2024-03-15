@@ -16,12 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { describe, beforeEach, expect, test, vi } from 'vitest';
-import { ImageUtils } from './image-utils';
-import type { ImageInfo } from '../../../../main/src/plugin/api/image-info';
-import { ContextUI } from '../context/context';
-import type { ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
+import type { ImageInfo } from '../../../../main/src/plugin/api/image-info';
+import type { ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
+import { ContextUI } from '../context/context';
+import { ImageUtils } from './image-utils';
 
 let imageUtils: ImageUtils;
 

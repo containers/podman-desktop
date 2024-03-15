@@ -15,10 +15,12 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+import * as fs from 'node:fs';
+
 import * as extensionApi from '@podman-desktop/api';
 import { tmpName } from 'tmp-promise';
+
 import { getInstallationPath } from './limactl';
-import * as fs from 'node:fs';
 
 type ImageInfo = { engineId: string; name?: string; tag?: string };
 

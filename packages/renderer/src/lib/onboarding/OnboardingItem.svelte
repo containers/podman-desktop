@@ -1,16 +1,19 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-import type { OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
-import Markdown from '../markdown/Markdown.svelte';
-import type { ContextUI } from '../context/context';
-import { replaceContextKeyPlaceHoldersByRegex, replaceContextKeyPlaceholders } from './onboarding-utils';
-import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
-import { configurationProperties } from '/@/stores/configurationProperties';
-import PreferencesRenderingItem from '../preferences/PreferencesRenderingItem.svelte';
-import { CONFIGURATION_ONBOARDING_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
-import { isTargetScope } from '../preferences/Util';
-import { context } from '/@/stores/context';
 import type { Unsubscriber } from 'svelte/store';
+
+import { configurationProperties } from '/@/stores/configurationProperties';
+import { context } from '/@/stores/context';
+
+import type { OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+import { CONFIGURATION_ONBOARDING_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
+import type { ContextUI } from '../context/context';
+import Markdown from '../markdown/Markdown.svelte';
+import PreferencesRenderingItem from '../preferences/PreferencesRenderingItem.svelte';
+import { isTargetScope } from '../preferences/Util';
+import { replaceContextKeyPlaceholders, replaceContextKeyPlaceHoldersByRegex } from './onboarding-utils';
+
 export let extension: string;
 export let item: OnboardingStepItem;
 export let inProgressCommandExecution: (

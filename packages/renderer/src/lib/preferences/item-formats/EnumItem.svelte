@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
+
 export let record: IConfigurationPropertyRecordedSchema;
 export let value: string | undefined;
 export let onChange = async (_id: string, _value: string) => {};

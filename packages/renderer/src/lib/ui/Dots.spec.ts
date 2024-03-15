@@ -17,9 +17,11 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
-import { getStatusColor, organizeContainers } from './Dots';
+
+import { expect, test } from 'vitest';
+
 import type { PodInfoContainerUI } from '../pod/PodInfoUI';
+import { getStatusColor, organizeContainers } from './Dots';
 
 // Mock a PodInfoContainerUI object that contains containers of all the different statuses
 // running, terminated, waiting, stopped, paused, exited, dead, created, degraded

@@ -23,8 +23,9 @@
 /* eslint-disable no-useless-escape */
 
 import * as assert from 'assert';
-import { TokenType, type Token, Scanner } from './scanner';
 import { test } from 'vitest';
+
+import { Scanner, type Token, TokenType } from './scanner';
 
 function tokenTypeToStr(token: Token) {
   switch (token.type) {

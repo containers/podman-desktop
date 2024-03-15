@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { CompileContext } from 'micromark-util-types';
+
 import { createUIButton } from './component/micromark-button';
 import { createExpandableSection } from './component/micromark-expandable-section';
 import type { ExpandableSectionProps } from './micromark-utils';

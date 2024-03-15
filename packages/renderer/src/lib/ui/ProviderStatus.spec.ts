@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,62 +17,61 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import ExtensionStatus from './ExtensionStatus.svelte';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-empty-function */
+import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
+import ProviderStatus from './ProviderStatus.svelte';
 
 const connectionStatusLabel = 'Connection Status Label';
 const connectionStatusIcon = 'Connection Status Icon';
 
 test('Expect green text and icon when connection is running', async () => {
-  render(ExtensionStatus, { status: 'started' });
+  render(ProviderStatus, { status: 'started' });
   const icon = screen.getByLabelText(connectionStatusIcon);
   const label = screen.getByLabelText(connectionStatusLabel);
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveClass('bg-green-500');
   expect(label).toBeInTheDocument();
   expect(label).toHaveClass('text-green-500');
-  expect(label).toHaveTextContent('ENABLED');
+  expect(label).toHaveTextContent('RUNNING');
 });
 
 test('Expect green text and icon when connection is starting', async () => {
-  render(ExtensionStatus, { status: 'starting' });
+  render(ProviderStatus, { status: 'starting' });
   const icon = screen.getByLabelText(connectionStatusIcon);
   const label = screen.getByLabelText(connectionStatusLabel);
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveClass('bg-green-500');
   expect(label).toBeInTheDocument();
   expect(label).toHaveClass('text-green-500');
-  expect(label).toHaveTextContent('ENABLING');
+  expect(label).toHaveTextContent('STARTING');
 });
 
 test('Expect green text and icon when connection is stopped', async () => {
-  render(ExtensionStatus, { status: 'stopped' });
+  render(ProviderStatus, { status: 'stopped' });
   const icon = screen.getByLabelText(connectionStatusIcon);
   const label = screen.getByLabelText(connectionStatusLabel);
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveClass('bg-gray-900');
   expect(label).toBeInTheDocument();
   expect(label).toHaveClass('text-gray-900');
-  expect(label).toHaveTextContent('DISABLED');
+  expect(label).toHaveTextContent('STOPPED');
 });
 
 test('Expect green text and icon when connection is stopping', async () => {
-  render(ExtensionStatus, { status: 'stopping' });
+  render(ProviderStatus, { status: 'stopping' });
   const icon = screen.getByLabelText(connectionStatusIcon);
   const label = screen.getByLabelText(connectionStatusLabel);
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveClass('bg-red-500');
   expect(label).toBeInTheDocument();
   expect(label).toHaveClass('text-red-500');
-  expect(label).toHaveTextContent('DISABLING');
+  expect(label).toHaveTextContent('STOPPING');
 });
 
 test('Expect green text and icon when connection is unknown', async () => {
-  render(ExtensionStatus, { status: 'unknown' });
+  render(ProviderStatus, { status: 'unknown' });
   const icon = screen.getByLabelText(connectionStatusIcon);
   const label = screen.getByLabelText(connectionStatusLabel);
   expect(icon).toBeInTheDocument();

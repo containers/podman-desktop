@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { derived, readable, writable } from 'svelte/store';
-import type { ContextGeneralState } from '../../../main/src/plugin/kubernetes-context-state';
 import type { KubernetesObject } from '@kubernetes/client-node';
+import { derived, readable, writable } from 'svelte/store';
+
+import type { ContextGeneralState } from '../../../main/src/plugin/kubernetes-context-state';
 import { findMatchInLeaves } from './search-util';
 
 export const kubernetesContextsState = readable(new Map<string, ContextGeneralState>(), set => {

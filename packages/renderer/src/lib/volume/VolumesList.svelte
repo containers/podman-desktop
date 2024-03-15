@@ -1,29 +1,29 @@
 <script lang="ts">
+import { faPieChart, faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
+import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
-
-import { router } from 'tinro';
 import type { Unsubscriber } from 'svelte/store';
-import type { VolumeInfoUI } from './VolumeInfoUI';
-import { fetchVolumesWithData, filtered, searchPattern, volumeListInfos } from '../../stores/volumes';
+import { router } from 'tinro';
+
 import { providerInfos } from '../../stores/providers';
+import { fetchVolumesWithData, filtered, searchPattern, volumeListInfos } from '../../stores/volumes';
+import type { EngineInfoUI } from '../engine/EngineInfoUI';
+import Prune from '../engine/Prune.svelte';
+import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
+import VolumeIcon from '../images/VolumeIcon.svelte';
+import SimpleColumn from '../table/SimpleColumn.svelte';
+import { Column, Row } from '../table/table';
+import Table from '../table/Table.svelte';
+import Button from '../ui/Button.svelte';
+import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import NavPage from '../ui/NavPage.svelte';
 import { VolumeUtils } from './volume-utils';
-import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
-import VolumeEmptyScreen from './VolumeEmptyScreen.svelte';
-import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
-import VolumeIcon from '../images/VolumeIcon.svelte';
-import Prune from '../engine/Prune.svelte';
-import moment from 'moment';
-import type { EngineInfoUI } from '../engine/EngineInfoUI';
-import Button from '../ui/Button.svelte';
-import { faPieChart, faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
-import Table from '../table/Table.svelte';
-import { Column, Row } from '../table/table';
-import VolumeColumnStatus from './VolumeColumnStatus.svelte';
-import VolumeColumnName from './VolumeColumnName.svelte';
-import VolumeColumnEnvironment from './VolumeColumnEnvironment.svelte';
-import SimpleColumn from '../table/SimpleColumn.svelte';
 import VolumeColumnActions from './VolumeColumnActions.svelte';
+import VolumeColumnEnvironment from './VolumeColumnEnvironment.svelte';
+import VolumeColumnName from './VolumeColumnName.svelte';
+import VolumeColumnStatus from './VolumeColumnStatus.svelte';
+import VolumeEmptyScreen from './VolumeEmptyScreen.svelte';
+import type { VolumeInfoUI } from './VolumeInfoUI';
 
 export let searchTerm = '';
 $: searchPattern.set(searchTerm);

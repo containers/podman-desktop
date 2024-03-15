@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,13 +28,13 @@ const config = {
   test: {
     globals: true,
     environment: 'jsdom',
-    globalSetup: './tests/src/globalSetup/global-setup.ts',
-    setupFiles: './tests/src/setupFiles/extended-hooks.ts',
+    globalSetup: './tests/playwright/src/globalSetup/global-setup.ts',
+    setupFiles: './tests/playwright/src/setupFiles/extended-hooks.ts',
     /**
      * By default, vitest search test files in all packages.
      * For e2e tests have sense search only is project root tests folder
      */
-    include: ['**/tests/src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    include: ['**/tests/playwright/src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     exclude: [
       '**/builtin/**',
       '**/node_modules/**',
@@ -50,7 +50,7 @@ const config = {
     hookTimeout: 120_000,
     // test reporters - default for all and junit for CI
     reporters: process.env.CI ? ['default', 'junit'] : ['default'],
-    outputFile: process.env.CI ? { junit: 'tests/output/junit-results.xml' } : {},
+    outputFile: process.env.CI ? { junit: 'tests/playwright/output/junit-results.xml' } : {},
   },
   resolve: {
     alias: {

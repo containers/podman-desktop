@@ -19,11 +19,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect, vi, describe } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
-import type { CustomPickOptions } from './quickpick-input';
-import CustomPick from './CustomPick.svelte';
 import userEvent from '@testing-library/user-event';
+import { beforeAll, describe, expect, test, vi } from 'vitest';
+
+import CustomPick from './CustomPick.svelte';
+import type { CustomPickOptions } from './quickpick-input';
 
 const sendCustomPickItemsOnConfirmation = vi.fn();
 const closeCustomPick = vi.fn();

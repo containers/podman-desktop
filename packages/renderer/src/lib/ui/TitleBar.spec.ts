@@ -19,8 +19,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll, beforeEach, describe } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+
 import TitleBar from './TitleBar.svelte';
 
 const getOsPlatformMock = vi.fn();

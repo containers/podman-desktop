@@ -16,13 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as extensionApi from '@podman-desktop/api';
-import * as os from 'node:os';
 import * as http from 'node:http';
+import * as os from 'node:os';
 
-let stopLoop = false;
+import * as extensionApi from '@podman-desktop/api';
 
 import { getDockerInstallation } from './docker-cli';
+
+let stopLoop = false;
 let socketPath: string;
 let provider: extensionApi.Provider;
 let providerState: extensionApi.ProviderConnectionStatus = 'stopped';

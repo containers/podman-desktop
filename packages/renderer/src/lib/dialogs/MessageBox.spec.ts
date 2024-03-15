@@ -19,11 +19,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect, vi, describe } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
+
+import { fireEvent, render, screen } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
+import { beforeAll, describe, expect, test, vi } from 'vitest';
+
 import MessageBox from './MessageBox.svelte';
 import type { MessageBoxOptions } from './messagebox-input';
-import userEvent from '@testing-library/user-event';
 
 const sendShowMessageBoxValuesMock = vi.fn();
 const sendShowMessageBoxOnSelect = vi.fn();

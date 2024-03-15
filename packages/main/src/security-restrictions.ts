@@ -18,6 +18,7 @@
 
 import { app, shell } from 'electron';
 import { URL } from 'url';
+
 import { securityRestrictionCurrentHandler } from './security-restrictions-handler.js';
 
 /**

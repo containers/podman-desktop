@@ -18,10 +18,12 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { beforeEach, expect, test, vi } from 'vitest';
-import { spawnWithPromise } from './spawn-promise.js';
 import { spawn } from 'node:child_process';
 import type { Readable } from 'node:stream';
+
+import { beforeEach, expect, test, vi } from 'vitest';
+
+import { spawnWithPromise } from './spawn-promise.js';
 
 // mock spawn
 vi.mock('node:child_process', () => {

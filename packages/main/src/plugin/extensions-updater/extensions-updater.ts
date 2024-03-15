@@ -16,14 +16,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ConfigurationRegistry, IConfigurationNode } from '/@/plugin/configuration-registry.js';
-import { ExtensionsUpdaterSettings } from './extensions-updater-settings.js';
-import type { ExtensionsCatalog } from '/@/plugin/extensions-catalog/extensions-catalog.js';
-import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
-import type { ExtensionLoader } from '/@/plugin/extension-loader.js';
 import { compareVersions } from 'compare-versions';
+
 import type { ExtensionUpdateInfo } from '/@/plugin/api/extension-info.js';
+import type { ConfigurationRegistry, IConfigurationNode } from '/@/plugin/configuration-registry.js';
+import type { ExtensionLoader } from '/@/plugin/extension-loader.js';
+import type { ExtensionsCatalog } from '/@/plugin/extensions-catalog/extensions-catalog.js';
 import type { ExtensionInstaller } from '/@/plugin/install/extension-installer.js';
+import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
+
+import { ExtensionsUpdaterSettings } from './extensions-updater-settings.js';
 
 export class ExtensionsUpdater {
   static readonly CHECK_FOR_UPDATES_INTERVAL = 1000 * 60 * 60 * 12; // 12 hours

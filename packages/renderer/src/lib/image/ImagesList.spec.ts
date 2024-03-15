@@ -19,14 +19,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeEach, describe } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
-import ImagesList from './ImagesList.svelte';
-import { imagesInfos } from '../../stores/images';
 import { get } from 'svelte/store';
-import { providerInfos } from '../../stores/providers';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+
 import { viewsContributions } from '/@/stores/views';
+
+import { imagesInfos } from '../../stores/images';
+import { providerInfos } from '../../stores/providers';
 import { IMAGE_LIST_VIEW_BADGES, IMAGE_LIST_VIEW_ICONS, IMAGE_VIEW_BADGES, IMAGE_VIEW_ICONS } from '../view/views';
+import ImagesList from './ImagesList.svelte';
 
 const listImagesMock = vi.fn();
 const getProviderInfosMock = vi.fn();

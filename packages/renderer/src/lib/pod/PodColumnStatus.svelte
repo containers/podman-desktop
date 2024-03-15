@@ -1,7 +1,7 @@
 <script lang="ts">
-import type { PodInfoUI } from './PodInfoUI';
-import StatusIcon from '../images/StatusIcon.svelte';
 import PodIcon from '../images/PodIcon.svelte';
+import StatusIcon from '../images/StatusIcon.svelte';
+import type { PodInfoUI } from './PodInfoUI';
 
 export let object: PodInfoUI;
 </script>

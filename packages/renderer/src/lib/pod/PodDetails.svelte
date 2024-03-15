@@ -1,21 +1,22 @@
 <script lang="ts">
-import Route from '../../Route.svelte';
 import { onMount } from 'svelte';
-import type { PodInfoUI } from './PodInfoUI';
-import { PodUtils } from './pod-utils';
+import { router } from 'tinro';
+
+import Route from '../../Route.svelte';
 import { podsInfos } from '../../stores/pods';
 import PodIcon from '../images/PodIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
+import DetailsPage from '../ui/DetailsPage.svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
+import StateChange from '../ui/StateChange.svelte';
+import Tab from '../ui/Tab.svelte';
+import { PodUtils } from './pod-utils';
 import PodActions from './PodActions.svelte';
-import PodDetailsSummary from './PodDetailsSummary.svelte';
 import PodDetailsInspect from './PodDetailsInspect.svelte';
 import PodDetailsKube from './PodDetailsKube.svelte';
 import PodDetailsLogs from './PodDetailsLogs.svelte';
-import DetailsPage from '../ui/DetailsPage.svelte';
-import Tab from '../ui/Tab.svelte';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
-import StateChange from '../ui/StateChange.svelte';
-import { router } from 'tinro';
+import PodDetailsSummary from './PodDetailsSummary.svelte';
+import type { PodInfoUI } from './PodInfoUI';
 
 export let podName: string;
 export let engineId: string;

@@ -1,19 +1,21 @@
 <script lang="ts">
-import Route from '../../Route.svelte';
+import type { V1Deployment } from '@kubernetes/client-node';
 import { onMount } from 'svelte';
-import type { DeploymentUI } from './DeploymentUI';
-import { DeploymentUtils } from './deployment-utils';
+import { stringify } from 'yaml';
+
+import { kubernetesCurrentContextDeployments } from '/@/stores/kubernetes-contexts-state';
+
+import Route from '../../Route.svelte';
+import MonacoEditor from '../editor/MonacoEditor.svelte';
+import DeploymentIcon from '../images/DeploymentIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
+import KubeEditYAML from '../kube/KubeEditYAML.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import Tab from '../ui/Tab.svelte';
-import DeploymentIcon from '../images/DeploymentIcon.svelte';
+import { DeploymentUtils } from './deployment-utils';
 import DeploymentActions from './DeploymentActions.svelte';
 import DeploymentDetailsSummary from './DeploymentDetailsSummary.svelte';
-import type { V1Deployment } from '@kubernetes/client-node';
-import { stringify } from 'yaml';
-import MonacoEditor from '../editor/MonacoEditor.svelte';
-import KubeEditYAML from '../kube/KubeEditYAML.svelte';
-import { kubernetesCurrentContextDeployments } from '/@/stores/kubernetes-contexts-state';
+import type { DeploymentUI } from './DeploymentUI';
 
 export let name: string;
 export let namespace: string;

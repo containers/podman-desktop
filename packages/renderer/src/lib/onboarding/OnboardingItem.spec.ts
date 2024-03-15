@@ -16,14 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
-import OnboardingItem from './OnboardingItem.svelte';
-import type { OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
-import { context } from '/@/stores/context';
+import { expect, test, vi } from 'vitest';
+
 import { configurationProperties } from '/@/stores/configurationProperties';
+import { context } from '/@/stores/context';
+
+import type { OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
 import { CONFIGURATION_ONBOARDING_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import { ContextUI } from '../context/context';
+import OnboardingItem from './OnboardingItem.svelte';
 
 test('Expect button html when passing a button tag in markdown', async () => {
   const textComponent: OnboardingStepItem = {

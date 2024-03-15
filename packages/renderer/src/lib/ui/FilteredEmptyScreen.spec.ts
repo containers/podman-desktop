@@ -17,10 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
+
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import FilteredEmptyScreen from './FilteredEmptyScreen.svelte';
+import { expect, test, vi } from 'vitest';
+
 import DesktopIcon from '../images/DesktopIcon.svelte';
+import FilteredEmptyScreen from './FilteredEmptyScreen.svelte';
 
 test('Expect basic styling', async () => {
   render(FilteredEmptyScreen, { icon: DesktopIcon, kind: 'object', searchTerm: 'test' });

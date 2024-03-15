@@ -1,8 +1,9 @@
 <script lang="ts">
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import type { VolumeInfoUI } from './VolumeInfoUI';
-import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import { createEventDispatcher } from 'svelte';
+
+import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
+import type { VolumeInfoUI } from './VolumeInfoUI';
 
 export let volume: VolumeInfoUI;
 export let detailed = false;

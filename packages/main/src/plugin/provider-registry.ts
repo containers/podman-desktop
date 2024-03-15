@@ -17,42 +17,45 @@
  ***********************************************************************/
 
 import type {
+  AuditRequestItems,
+  AuditResult,
+  CancellationToken,
   ContainerProviderConnection,
+  KubernetesProviderConnection,
+  Logger,
   Provider,
   ProviderAutostart,
+  ProviderCleanup,
+  ProviderCleanupAction,
+  ProviderCleanupExecuteOptions,
+  ProviderConnectionStatus,
+  ProviderContainerConnection,
   ProviderDetectionCheck,
+  ProviderEvent,
+  ProviderInformation,
   ProviderInstallation,
   ProviderLifecycle,
   ProviderOptions,
   ProviderStatus,
   ProviderUpdate,
-  ProviderEvent,
-  UnregisterContainerConnectionEvent,
   RegisterContainerConnectionEvent,
-  KubernetesProviderConnection,
-  UnregisterKubernetesConnectionEvent,
   RegisterKubernetesConnectionEvent,
-  Logger,
-  ProviderInformation,
-  ProviderContainerConnection,
-  CancellationToken,
+  UnregisterContainerConnectionEvent,
+  UnregisterKubernetesConnectionEvent,
   UpdateContainerConnectionEvent,
   UpdateKubernetesConnectionEvent,
-  ProviderConnectionStatus,
-  AuditResult,
-  AuditRequestItems,
-  ProviderCleanup,
-  ProviderCleanupAction,
-  ProviderCleanupExecuteOptions,
 } from '@podman-desktop/api';
+
+import type { ApiSenderType } from './api.js';
 import type {
-  ProviderContainerConnectionInfo,
-  ProviderInfo,
-  ProviderKubernetesConnectionInfo,
   LifecycleMethod,
   PreflightChecksCallback,
   ProviderCleanupActionInfo,
+  ProviderContainerConnectionInfo,
+  ProviderInfo,
+  ProviderKubernetesConnectionInfo,
 } from './api/provider-info.js';
+import type { AutostartEngine } from './autostart-engine.js';
 import type { ContainerProviderRegistry } from './container-registry.js';
 import type { Event } from './events/emitter.js';
 import { Emitter } from './events/emitter.js';
@@ -60,8 +63,6 @@ import { LifecycleContextImpl, LoggerImpl } from './lifecycle-context.js';
 import { ProviderImpl } from './provider-impl.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import { Disposable } from './types/disposable.js';
-import type { ApiSenderType } from './api.js';
-import type { AutostartEngine } from './autostart-engine.js';
 
 export type ProviderEventListener = (name: string, providerInfo: ProviderInfo) => void;
 export type ProviderLifecycleListener = (

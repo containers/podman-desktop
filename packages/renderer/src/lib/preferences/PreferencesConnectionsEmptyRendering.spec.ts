@@ -20,8 +20,10 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, afterEach } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
+import { afterEach, expect, test, vi } from 'vitest';
+
 import PreferencesConnectionsEmptyRendering from './PreferencesConnectionsEmptyRendering.svelte';
 
 afterEach(() => {

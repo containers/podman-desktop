@@ -17,7 +17,9 @@
  ***********************************************************************/
 
 import { beforeEach, expect, test, vi } from 'vitest';
+
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
+
 import { RecommendationsRegistry } from './recommendations-registry.js';
 
 let recommendationsRegistry: RecommendationsRegistry;

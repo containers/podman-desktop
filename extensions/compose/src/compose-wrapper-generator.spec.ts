@@ -18,9 +18,10 @@
 
 import { promises } from 'node:fs';
 
-import { afterEach, expect, beforeEach, test, vi, vitest } from 'vitest';
-import { ComposeWrapperGenerator } from './compose-wrapper-generator';
 import * as extensionApi from '@podman-desktop/api';
+import { afterEach, beforeEach, expect, test, vi, vitest } from 'vitest';
+
+import { ComposeWrapperGenerator } from './compose-wrapper-generator';
 
 // expose methods publicly for testing
 class TestComposeWrapperGenerator extends ComposeWrapperGenerator {

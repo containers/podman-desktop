@@ -19,20 +19,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import * as fs from 'node:fs';
+
+import type { RunResult } from '@podman-desktop/api';
+import * as jsYaml from 'js-yaml';
+import { EventEmitter } from 'stream-json/Assembler.js';
 import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+
+import * as util from '../util.js';
 import type { ApiSenderType } from './api.js';
+import type { ContributionInfo } from './api/contribution-info.js';
+import type { ContainerProviderRegistry } from './container-registry.js';
 import type { DockerExtensionMetadata } from './contribution-manager.js';
 import { ContributionManager } from './contribution-manager.js';
 import type { Directories } from './directories.js';
-import * as jsYaml from 'js-yaml';
-import type { ContainerProviderRegistry } from './container-registry.js';
-import * as util from '../util.js';
-import { Exec } from './util/exec.js';
-import type { RunResult } from '@podman-desktop/api';
-import { EventEmitter } from 'stream-json/Assembler.js';
-import type { ContributionInfo } from './api/contribution-info.js';
 import type { Proxy } from './proxy.js';
 import type { IDisposable } from './types/disposable.js';
+import { Exec } from './util/exec.js';
+
 let contributionManager: TestContributionManager;
 
 let composeFileExample: any;
@@ -89,6 +92,7 @@ const directories = {
   getPluginsDirectory: () => '/fake-plugins-directory',
   getPluginsScanDirectory: () => '/fake-plugins-scanning-directory',
   getExtensionsStorageDirectory: () => '/fake-extensions-storage-directory',
+  getContributionStorageDir: () => '/fake-contribution-storage-directory',
 } as unknown as Directories;
 
 const proxy = {
@@ -97,7 +101,7 @@ const proxy = {
 
 const exec = new Exec(proxy);
 
-beforeAll(() => {
+beforeEach(() => {
   contributionManager = new TestContributionManager(apiSender, directories, containerProviderRegistry, exec);
 });
 
@@ -692,4 +696,73 @@ test('delete extension', async () => {
   expect(contributionManager.hasStartedContribution('contrib1')).toBeFalsy();
   expect(initCommand).toBeCalled();
   expect(execComposeCommand).toBeCalledWith('/path/to', ['-p', 'podman-desktop-ext-contrib1', 'down']);
+});
+
+test('init', async () => {
+  vi.mock('node:fs');
+
+  // mock existsSync as always returning true
+  vi.mocked(fs.existsSync).mockReturnValue(true);
+
+  vi.spyOn(contributionManager, 'loadMetadata').mockResolvedValueOnce({
+    name: 'contrib1',
+    version: '1.0.0',
+    publisher: 'aquasec',
+    description: 'Analyze image',
+    ui: {
+      'dashboard-tab': {
+        title: 'Trivy',
+        root: '/ui',
+        src: 'index.html',
+        backend: {
+          socket: 'plugin-trivy.sock',
+        },
+      },
+    },
+  });
+
+  vi.spyOn(contributionManager, 'loadMetadata').mockResolvedValueOnce({
+    name: 'contrib2',
+    ui: {
+      'dashboard-tab': {
+        title: 'OpenShift',
+        root: '/ui',
+        src: 'index.html',
+      },
+    },
+  });
+
+  vi.spyOn(contributionManager, 'startVMs').mockResolvedValue(undefined);
+
+  vi.spyOn(contributionManager, 'loadBase64Icon').mockResolvedValue('icon');
+
+  vi.mocked(fs.promises.readdir).mockResolvedValue([
+    { isDirectory: () => true, name: 'contrib1' } as fs.Dirent,
+    { isDirectory: () => true, name: 'contrib2' } as fs.Dirent,
+  ]);
+
+  // initialize the contribution manager
+  await contributionManager.init();
+
+  // now list contributions
+  const contributions = contributionManager.listContributions();
+
+  // should have 2
+  expect(contributions.length).toBe(2);
+
+  const openshiftExt = contributions.find(c => c.name === 'OpenShift');
+  expect(openshiftExt).toBeDefined();
+
+  const trivyExt = contributions.find(c => c.name === 'Trivy');
+  expect(trivyExt).toBeDefined();
+
+  expect(openshiftExt?.id).toBe('dashboard-tab');
+  expect(openshiftExt?.version).toBe('');
+  expect(openshiftExt?.publisher).toBe('');
+  expect(openshiftExt?.description).toBe('');
+
+  expect(trivyExt?.id).toBe('dashboard-tab');
+  expect(trivyExt?.version).toBe('1.0.0');
+  expect(trivyExt?.publisher).toBe('aquasec');
+  expect(trivyExt?.description).toBe('Analyze image');
 });

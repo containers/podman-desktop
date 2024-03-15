@@ -16,21 +16,54 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type * as containerDesktopAPI from '@podman-desktop/api';
-import * as path from 'path';
-import * as fs from 'fs';
-import type { CommandRegistry } from './command-registry.js';
-import type { ExtensionError, ExtensionInfo, ExtensionUpdateInfo } from './api/extension-info.js';
-import AdmZip from 'adm-zip';
+import * as fs from 'node:fs';
 
-import type { TrayMenuRegistry } from './tray-menu-registry.js';
-import { Disposable } from './types/disposable.js';
-import type { ProviderRegistry } from './provider-registry.js';
+import type * as containerDesktopAPI from '@podman-desktop/api';
+import AdmZip from 'adm-zip';
+import { app, clipboard as electronClipboard } from 'electron';
+import { readFile } from 'fs/promises';
+import * as path from 'path';
+
+import type { ImageInspectInfo } from '/@/plugin/api/image-inspect-info.js';
+import type { ColorRegistry } from '/@/plugin/color-registry.js';
+import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plugin/kube-generator-registry.js';
+import type { MenuRegistry } from '/@/plugin/menu-registry.js';
+import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
+import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
+
+import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
+import { getBase64Image, isLinux, isMac, isWindows } from '../util.js';
+import type { ApiSenderType } from './api.js';
+import type { ExtensionError, ExtensionInfo, ExtensionUpdateInfo } from './api/extension-info.js';
+import type { PodInfo } from './api/pod-info.js';
+import type { AuthenticationImpl } from './authentication.js';
+import { CancellationTokenSource } from './cancellation-token.js';
+import type { CliToolRegistry } from './cli-tool-registry.js';
+import type { CommandRegistry } from './command-registry.js';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
+import type { ContainerProviderRegistry } from './container-registry.js';
+import type { Context } from './context/context.js';
+import type { CustomPickRegistry } from './custompick/custompick-registry.js';
+import type { DialogRegistry } from './dialog-registry.js';
+import type { Directories } from './directories.js';
+import { Emitter } from './events/emitter.js';
+import { ExtensionLoaderSettings } from './extension-loader-settings.js';
+import type { FilesystemMonitoring } from './filesystem-monitoring.js';
+import type { IconRegistry } from './icon-registry.js';
+import type { ImageCheckerImpl } from './image-checker.js';
 import type { ImageRegistry } from './image-registry.js';
+import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
+import { InputBoxValidationSeverity, QuickPickItemKind } from './input-quickpick/input-quickpick-registry.js';
+import type { KubernetesClient } from './kubernetes-client.js';
 import type { MessageBox } from './message-box.js';
+import { ModuleLoader } from './module-loader.js';
+import type { NotificationRegistry } from './notification-registry.js';
+import type { OnboardingRegistry } from './onboarding-registry.js';
 import type { ProgressImpl } from './progress-impl.js';
 import { ProgressLocation } from './progress-impl.js';
+import type { ProviderRegistry } from './provider-registry.js';
+import type { Proxy } from './proxy.js';
+import { createHttpPatchedModules } from './proxy-resolver.js';
 import {
   StatusBarAlignLeft,
   StatusBarAlignRight,
@@ -38,43 +71,13 @@ import {
   StatusBarItemImpl,
 } from './statusbar/statusbar-item.js';
 import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
-import type { FilesystemMonitoring } from './filesystem-monitoring.js';
-import { Uri } from './types/uri.js';
-import type { KubernetesClient } from './kubernetes-client.js';
-import type { Proxy } from './proxy.js';
-import type { ContainerProviderRegistry } from './container-registry.js';
-import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
-import { InputBoxValidationSeverity, QuickPickItemKind } from './input-quickpick/input-quickpick-registry.js';
-import type { MenuRegistry } from '/@/plugin/menu-registry.js';
-import { Emitter } from './events/emitter.js';
-import { CancellationTokenSource } from './cancellation-token.js';
-import type { ApiSenderType } from './api.js';
-import type { AuthenticationImpl } from './authentication.js';
 import type { Telemetry } from './telemetry/telemetry.js';
+import type { TrayMenuRegistry } from './tray-menu-registry.js';
+import { Disposable } from './types/disposable.js';
 import { TelemetryTrustedValue } from './types/telemetry.js';
-import { app, clipboard as electronClipboard } from 'electron';
-import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
-import type { IconRegistry } from './icon-registry.js';
-import type { Directories } from './directories.js';
-import { getBase64Image, isLinux, isMac, isWindows } from '../util.js';
-import type { CustomPickRegistry } from './custompick/custompick-registry.js';
+import { Uri } from './types/uri.js';
 import type { Exec } from './util/exec.js';
 import type { ViewRegistry } from './view-registry.js';
-import type { Context } from './context/context.js';
-import type { OnboardingRegistry } from './onboarding-registry.js';
-import { createHttpPatchedModules } from './proxy-resolver.js';
-import { ModuleLoader } from './module-loader.js';
-import { ExtensionLoaderSettings } from './extension-loader-settings.js';
-import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plugin/kube-generator-registry.js';
-import type { CliToolRegistry } from './cli-tool-registry.js';
-import type { NotificationRegistry } from './notification-registry.js';
-import type { ImageCheckerImpl } from './image-checker.js';
-import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
-import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
-import type { ImageInspectInfo } from '/@/plugin/api/image-inspect-info.js';
-import type { PodInfo } from './api/pod-info.js';
-import type { ColorRegistry } from '/@/plugin/color-registry.js';
-import type { DialogRegistry } from './dialog-registry.js';
 
 /**
  * Handle the loading of an extension
@@ -91,6 +94,8 @@ export interface AnalyzedExtension {
   mainPath?: string;
   api: typeof containerDesktopAPI;
   removable: boolean;
+
+  readme: string;
 
   update?: {
     version: string;
@@ -206,6 +211,7 @@ export class ExtensionLoader {
       path: extension.path,
       removable: extension.removable,
       update: extension.update,
+      readme: extension.readme,
       icon: extension.manifest.icon ? this.updateImage(extension.manifest.icon, extension.path) : undefined,
     }));
   }
@@ -351,6 +357,7 @@ export class ExtensionLoader {
         name: '<unknown>',
         path: extensionPath,
         manifest: undefined,
+        readme: '',
         api: <typeof containerDesktopAPI>{},
         removable,
         subscriptions: [],
@@ -371,12 +378,20 @@ export class ExtensionLoader {
     const api = this.createApi(extensionPath, manifest);
 
     const disposables: Disposable[] = [];
+
+    // is there a README.md file in the extension folder ?
+    let readme = '';
+    if (fs.existsSync(path.resolve(extensionPath, 'README.md'))) {
+      readme = await readFile(path.resolve(extensionPath, 'README.md'), 'utf8');
+    }
+
     const analyzedExtension: AnalyzedExtension = {
       id: `${manifest.publisher}.${manifest.name}`,
       name: manifest.name,
       manifest,
       path: extensionPath,
       mainPath: manifest.main ? path.resolve(extensionPath, manifest.main) : undefined,
+      readme,
       api,
       removable,
       subscriptions: disposables,

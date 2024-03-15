@@ -1,9 +1,10 @@
 <script lang="ts">
 import type { V1Deployment } from '@kubernetes/client-node';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
-import KubeObjectMetaArtifact from '../kube/details/KubeObjectMetaArtifact.svelte';
+
 import KubeDeploymentArtifact from '../kube/details/KubeDeploymentArtifact.svelte';
 import KubeDeploymentStatusArtifact from '../kube/details/KubeDeploymentStatusArtifact.svelte';
+import KubeObjectMetaArtifact from '../kube/details/KubeObjectMetaArtifact.svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 export let deployment: V1Deployment | undefined;
 export let kubeError: string | undefined = undefined;

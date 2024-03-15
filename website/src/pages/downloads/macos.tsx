@@ -1,12 +1,12 @@
+import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import { faApple } from '@fortawesome/free-brands-svg-icons';
+import { faBeer, faDownload, faPaste, faTerminal } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import TailWindThemeSelector from '@site/src/components/TailWindThemeSelector';
 import Layout from '@theme/Layout';
 import type { SetStateAction } from 'react';
 import React, { useEffect, useState } from 'react';
-import TailWindThemeSelector from '@site/src/components/TailWindThemeSelector';
-import Link from '@docusaurus/Link';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faApple } from '@fortawesome/free-brands-svg-icons';
-import { faBeer, faDownload, faPaste, faTerminal } from '@fortawesome/free-solid-svg-icons';
 
 async function grabfilenameforMac(
   setDownloadData: React.Dispatch<SetStateAction<{ version: string; x64: string; arm64: string }>>,

@@ -16,10 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { TinroBreadcrumb } from 'tinro';
-import { lastPage, currentPage, history } from './breadcrumb';
-import { test, expect } from 'vitest';
 import { get } from 'svelte/store';
+import type { TinroBreadcrumb } from 'tinro';
+import { expect, test } from 'vitest';
+
+import { currentPage, history, lastPage } from './breadcrumb';
 
 export function mockBreadcrumb() {
   history.set([{ name: 'List', path: '/list' } as TinroBreadcrumb]);

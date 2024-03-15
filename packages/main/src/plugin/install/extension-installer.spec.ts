@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,22 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
-
-import { ExtensionInstaller } from './extension-installer.js';
-import type { ApiSenderType } from '../api.js';
-import type { AnalyzedExtension, ExtensionLoader } from '../extension-loader.js';
-import type { ImageRegistry } from '../image-registry.js';
+import { rmSync } from 'node:fs';
 import * as path from 'node:path';
+
 import type { IpcMain, IpcMainEvent } from 'electron';
 import { ipcMain } from 'electron';
+import { beforeEach, expect, test, vi } from 'vitest';
+
+import type { ApiSenderType } from '../api.js';
+import type { ContributionManager } from '../contribution-manager.js';
+import type { Directories } from '../directories.js';
+import type { AnalyzedExtension, ExtensionLoader } from '../extension-loader.js';
 import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog.js';
 import type { CatalogFetchableExtension } from '../extensions-catalog/extensions-catalog-api.js';
+import type { ImageRegistry } from '../image-registry.js';
 import type { Telemetry } from '../telemetry/telemetry.js';
+import { ExtensionInstaller } from './extension-installer.js';
 
 let extensionInstaller: ExtensionInstaller;
 
@@ -74,18 +78,43 @@ const telemetryMock = {
   track: vi.fn(),
 } as unknown as Telemetry;
 
-beforeAll(async () => {
+const directories = {
+  getPluginsDirectory: vi.fn(),
+  getContributionStorageDir: vi.fn(),
+} as unknown as Directories;
+
+const contributionManager = {} as unknown as ContributionManager;
+
+vi.mock('node:fs');
+
+vi.mock('./../docker-extension/docker-desktop-installer', async () => {
+  const ddInstallerReal = await vi.importActual('../docker-extension/docker-desktop-installer');
+
+  return {
+    DockerDesktopInstaller: vi.fn().mockImplementation(() => {
+      return {
+        extractExtensionFiles: vi.fn(),
+        setupContribution: vi.fn(),
+      };
+    }),
+    DockerDesktopContribution: ddInstallerReal.DockerDesktopContribution,
+  };
+});
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  vi.mocked(rmSync).mockReturnValue(undefined);
+  vi.mocked(directories.getPluginsDirectory).mockReturnValue('/fake/plugins/directory');
+  vi.mocked(directories.getContributionStorageDir).mockReturnValue('/fake/dd/directory');
   extensionInstaller = new ExtensionInstaller(
     apiSender,
     extensionLoader,
     imageRegistry,
     extensionsCatalog,
     telemetryMock,
+    directories,
+    contributionManager,
   );
-});
-
-beforeEach(() => {
-  vi.clearAllMocks();
 });
 
 test('should install an image if labels are correct', async () => {
@@ -121,6 +150,31 @@ test('should install an image if labels are correct', async () => {
 
   // extension started
   expect(apiSenderSendMock).toHaveBeenCalledWith('extension-started', {});
+});
+
+test('should install an image (dd extensions) if labels are correct', async () => {
+  const sendLog = vi.fn();
+  const sendError = vi.fn();
+  const sendEnd = vi.fn();
+
+  const imageToPull = 'fake.io/fake-image:fake-tag';
+
+  vi.mocked(imageRegistry.getImageConfigLabels).mockResolvedValueOnce({
+    'org.opencontainers.image.title': 'fake-title',
+    'org.opencontainers.image.description': 'fake-description',
+    'org.opencontainers.image.vendor': 'fake-vendor',
+    'com.docker.desktop.extension.api.version': '1.0.0',
+  });
+
+  const spyExtractExtensionFiles = vi.spyOn(extensionInstaller, 'extractExtensionFiles');
+
+  await extensionInstaller.installFromImage(sendLog, sendError, sendEnd, imageToPull);
+
+  expect(sendLog).toHaveBeenCalledWith(`Analyzing image ${imageToPull}...`);
+  // expect no error
+  expect(sendError).not.toHaveBeenCalled();
+
+  expect(spyExtractExtensionFiles).not.toHaveBeenCalled();
 });
 
 test('should fail if extension is already installed', async () => {
