@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as path from 'node:path';
+
 import type { Tray } from 'electron';
 import { app, nativeTheme } from 'electron';
-import * as path from 'path';
 
 import { isLinux, isMac } from './util.js';
 

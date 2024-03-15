@@ -16,11 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as http from 'node:http';
+import * as https from 'node:https';
+import * as nodeurl from 'node:url';
+
 import type { HttpProxyAgentOptions, HttpsProxyAgentOptions } from 'hpagent';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
-import * as http from 'http';
-import * as https from 'https';
-import * as nodeurl from 'url';
 
 import type { Proxy } from './proxy.js';
 

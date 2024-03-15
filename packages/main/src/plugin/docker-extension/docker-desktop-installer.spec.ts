@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { cp, readFile } from 'fs/promises';
+import { cp, readFile } from 'node:fs/promises';
+
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { ContributionManager } from '../contribution-manager.js';

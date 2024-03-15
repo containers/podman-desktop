@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import path from 'node:path';
+
 import type { Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
-import path from 'path';
 import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 
 import { WelcomePage } from '../model/pages/welcome-page';

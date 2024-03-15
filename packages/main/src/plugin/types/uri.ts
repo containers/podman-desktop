@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import path, { join } from 'path';
+import path, { join } from 'node:path';
 
 import { isWindows } from '/@/util.js';
 

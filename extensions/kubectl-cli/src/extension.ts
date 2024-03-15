@@ -16,10 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as path from 'node:path';
+
 import { Octokit } from '@octokit/rest';
 import type { CliTool } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
-import * as path from 'path';
 
 import { installBinaryToSystem } from './cli-run';
 import { Detect } from './detect';

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { promises } from 'fs';
+import { promises } from 'node:fs';
 
 import { OS } from './os';
 

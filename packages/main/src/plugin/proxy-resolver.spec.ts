@@ -20,10 +20,11 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { get } from 'node:http';
+import * as nodeurl from 'node:url';
+
 import type { HttpsProxyAgentOptions } from 'hpagent';
 import { HttpsProxyAgent } from 'hpagent';
-import { get } from 'http';
-import * as nodeurl from 'url';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import type { Proxy } from './proxy.js';
