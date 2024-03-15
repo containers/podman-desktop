@@ -58,7 +58,7 @@ export class PodmanDesktopRunner {
       this._app = await electron.launch({
         ...this._options,
       });
-
+      this._page = await this.getElectronApp().firstWindow();
       // Evaluate that the main window is visible
       // at the same time, the function also makes sure that event 'ready-to-show' was triggered
       // keeping this call meeses up communication between playwright and electron app on linux
