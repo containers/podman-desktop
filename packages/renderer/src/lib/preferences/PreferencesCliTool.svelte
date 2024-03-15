@@ -49,7 +49,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
 }
 </script>
 
-<div role="row" class="bg-charcoal-600 mb-5 rounded-md p-3 flex flex-col">
+<div role="row" class="bg-charcoal-600 mb-5 rounded-md p-3 flex flex-col" aria-label="{cliTool.displayName}">
   <div class="divide-x divide-gray-900 flex flex-row">
     <div>
       <!-- left col - cli-tool icon/name + "create new" button -->
