@@ -17,10 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
+
 import { render, waitFor } from '@testing-library/svelte';
-import type { ContainerInfoUI } from './ContainerInfoUI';
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import ContainerDetailsTtyTerminal from './ContainerDetailsTtyTerminal.svelte';
+import type { ContainerInfoUI } from './ContainerInfoUI';
 
 const getConfigurationValueMock = vi.fn();
 const attachContainerMock = vi.fn();

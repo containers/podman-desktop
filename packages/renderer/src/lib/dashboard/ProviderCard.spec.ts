@@ -19,12 +19,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { expect, test } from 'vitest';
-import ProviderCard from './ProviderCard.svelte';
-import { screen, render } from '@testing-library/svelte';
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+
 import type { ProviderImages } from '@podman-desktop/api';
+import { render, screen } from '@testing-library/svelte';
 import { tick } from 'svelte';
+import { expect, test } from 'vitest';
+
+import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import ProviderCard from './ProviderCard.svelte';
 
 test('Expect provider region', async () => {
   const provider: ProviderInfo = {

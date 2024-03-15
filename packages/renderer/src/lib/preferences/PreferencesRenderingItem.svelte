@@ -1,10 +1,11 @@
 <script lang="ts">
 import { afterUpdate } from 'svelte';
 
-import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
-import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
-import Markdown from '../markdown/Markdown.svelte';
 import { getInitialValue } from '/@/lib/preferences/Util';
+
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+import Markdown from '../markdown/Markdown.svelte';
+import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
 
 export let record: IConfigurationPropertyRecordedSchema;
 

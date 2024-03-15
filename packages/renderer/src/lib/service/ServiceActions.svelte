@@ -1,8 +1,9 @@
 <script lang="ts">
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import type { ServiceUI } from './ServiceUI';
-import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import { createEventDispatcher } from 'svelte';
+
+import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
+import type { ServiceUI } from './ServiceUI';
 
 export let service: ServiceUI;
 export let detailed = false;

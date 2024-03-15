@@ -1,12 +1,13 @@
 <script lang="ts">
 import { faCheck, faChevronDown, faCircle } from '@fortawesome/free-solid-svg-icons';
+import Fa from 'svelte-fa';
+
 import { clearNotifications, isStatefulTask, tasksInfo } from '/@/stores/tasks';
 
-import Fa from 'svelte-fa';
 import TaskIcon from '../images/TaskIcon.svelte';
+import Button from '../ui/Button.svelte';
 import TaskManagerEmptyScreen from './TaskManagerEmptyScreen.svelte';
 import TaskManagerGroup from './TaskManagerGroup.svelte';
-import Button from '../ui/Button.svelte';
 
 // display or not the tasks manager (defaut is false)
 export let showTaskManager = false;

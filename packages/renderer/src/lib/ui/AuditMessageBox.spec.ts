@@ -17,10 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import AuditMessageBox from './AuditMessageBox.svelte';
+
 import type { AuditRecord, AuditResult } from '@podman-desktop/api';
+import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
+import AuditMessageBox from './AuditMessageBox.svelte';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-empty-function */

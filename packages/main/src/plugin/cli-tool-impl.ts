@@ -26,11 +26,12 @@ import type {
   Event,
   ProviderImages,
 } from '@podman-desktop/api';
-import type { CliToolExtensionInfo } from './api/cli-tool-info.js';
+
 import type { ApiSenderType } from './api.js';
-import type { Exec } from './util/exec.js';
-import { Emitter } from './events/emitter.js';
+import type { CliToolExtensionInfo } from './api/cli-tool-info.js';
 import type { CliToolRegistry } from './cli-tool-registry.js';
+import { Emitter } from './events/emitter.js';
+import type { Exec } from './util/exec.js';
 
 export class CliToolImpl implements CliTool, Disposable {
   readonly id: string;

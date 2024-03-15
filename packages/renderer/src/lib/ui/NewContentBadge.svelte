@@ -1,7 +1,7 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-import { router } from 'tinro';
 import type { Unsubscriber } from 'svelte/motion';
+import { router } from 'tinro';
 
 export let pagePath: string;
 export let show: boolean = false;

@@ -1,6 +1,6 @@
 <script lang="ts">
-import type { ImageInfoUI } from './ImageInfoUI';
 import StatusIcon from '../images/StatusIcon.svelte';
+import type { ImageInfoUI } from './ImageInfoUI';
 
 export let object: ImageInfoUI;
 </script>

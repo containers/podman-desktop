@@ -17,10 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import LoadingIcon from './LoadingIcon.svelte';
+
 import { faPlayCircle } from '@fortawesome/free-solid-svg-icons';
+import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
+import LoadingIcon from './LoadingIcon.svelte';
 
 test('Expect default size', async () => {
   const icon = faPlayCircle;

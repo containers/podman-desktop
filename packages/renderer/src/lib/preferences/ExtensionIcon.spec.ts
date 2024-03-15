@@ -17,10 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
-import ExtensionIcon from './ExtensionIcon.svelte';
+import { expect, test } from 'vitest';
+
 import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
+import ExtensionIcon from './ExtensionIcon.svelte';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-empty-function */

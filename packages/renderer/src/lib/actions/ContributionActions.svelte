@@ -1,15 +1,17 @@
 <script lang="ts">
-import type { Menu } from '../../../../main/src/plugin/menu-registry';
-import { faPlug } from '@fortawesome/free-solid-svg-icons';
 import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
-import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
+import { faPlug } from '@fortawesome/free-solid-svg-icons';
+import { onDestroy } from 'svelte';
+import type { Unsubscriber } from 'svelte/store';
+
 import { removeNonSerializableProperties } from '/@/lib/actions/ActionUtils';
 import type { ContextUI } from '/@/lib/context/context';
-import { onDestroy } from 'svelte';
-import { context as storeContext } from '/@/stores/context';
-import type { Unsubscriber } from 'svelte/store';
 import { ContextKeyExpr } from '/@/lib/context/contextKey';
 import { transformObjectToContext } from '/@/lib/context/ContextUtils';
+import { context as storeContext } from '/@/stores/context';
+
+import type { Menu } from '../../../../main/src/plugin/menu-registry';
+import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 
 export let args: unknown[];
 

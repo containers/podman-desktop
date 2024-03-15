@@ -1,7 +1,8 @@
 <script lang="ts">
-import { kubernetesCurrentContextState } from '/@/stores/kubernetes-contexts-state';
-import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes-context-state';
 import Tooltip from '/@/lib/ui/Tooltip.svelte';
+import { kubernetesCurrentContextState } from '/@/stores/kubernetes-contexts-state';
+
+import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes-context-state';
 
 function getText(state?: ContextGeneralState): string {
   if (state?.reachable) return 'Connected';

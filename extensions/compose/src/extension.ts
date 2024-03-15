@@ -18,14 +18,15 @@
 
 import { Octokit } from '@octokit/rest';
 import * as extensionApi from '@podman-desktop/api';
-import { Detect } from './detect';
+import * as path from 'path';
+
+import { installBinaryToSystem } from './cli-run';
 import type { ComposeGithubReleaseArtifactMetadata } from './compose-github-releases';
 import { ComposeGitHubReleases } from './compose-github-releases';
-import { OS } from './os';
-import * as handler from './handler';
+import { Detect } from './detect';
 import { ComposeDownload } from './download';
-import * as path from 'path';
-import { installBinaryToSystem } from './cli-run';
+import * as handler from './handler';
+import { OS } from './os';
 
 let composeVersionMetadata: ComposeGithubReleaseArtifactMetadata | undefined;
 let composeCliTool: extensionApi.CliTool | undefined;

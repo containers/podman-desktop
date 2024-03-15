@@ -1,12 +1,14 @@
 <script lang="ts">
-import type { ProxySettings } from '@podman-desktop/api';
-import { onMount } from 'svelte';
-import SettingsPage from './SettingsPage.svelte';
-import Button from '../ui/Button.svelte';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
-import { validateProxyAddress } from './Util';
-import ErrorMessage from '/@/lib/ui/ErrorMessage.svelte';
+import type { ProxySettings } from '@podman-desktop/api';
 import { Input } from '@podman-desktop/ui-svelte';
+import { onMount } from 'svelte';
+
+import ErrorMessage from '/@/lib/ui/ErrorMessage.svelte';
+
+import Button from '../ui/Button.svelte';
+import SettingsPage from './SettingsPage.svelte';
+import { validateProxyAddress } from './Util';
 
 let proxySettings: ProxySettings;
 let proxyState: boolean;

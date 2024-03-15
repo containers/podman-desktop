@@ -1,8 +1,8 @@
 <script lang="ts">
+import type { V1Route } from '../../../../../main/src/plugin/api/openshift-types';
+import Link from '../../ui/Link.svelte';
 import Cell from './ui/Cell.svelte';
 import Title from './ui/Title.svelte';
-import Link from '../../ui/Link.svelte';
-import type { V1Route } from '../../../../../main/src/plugin/api/openshift-types';
 
 // Assuming V1Route type is imported or defined elsewhere
 export let artifact: V1Route | undefined;

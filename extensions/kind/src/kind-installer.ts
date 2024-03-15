@@ -15,14 +15,16 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
+
+import type { components } from '@octokit/openapi-types';
+import { Octokit } from '@octokit/rest';
 import * as extensionApi from '@podman-desktop/api';
 import { ProgressLocation } from '@podman-desktop/api';
-import * as os from 'node:os';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { Octokit } from '@octokit/rest';
-import { isWindows, installBinaryToSystem } from './util';
-import type { components } from '@octokit/openapi-types';
+
+import { installBinaryToSystem, isWindows } from './util';
 
 const githubOrganization = 'kubernetes-sigs';
 const githubRepo = 'kind';

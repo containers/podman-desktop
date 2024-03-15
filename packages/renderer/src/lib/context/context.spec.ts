@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { expect, test } from 'vitest';
+
 import { ContextUI } from './context';
 
 test('check that a false value is correctly returned', async () => {

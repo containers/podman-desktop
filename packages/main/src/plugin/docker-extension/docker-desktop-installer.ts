@@ -16,8 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { cp, readFile } from 'node:fs/promises';
 import * as path from 'node:path';
-import { readFile, cp } from 'node:fs/promises';
+
 import type { ContributionManager } from '/@/plugin/contribution-manager.js';
 
 export class DockerDesktopContribution {

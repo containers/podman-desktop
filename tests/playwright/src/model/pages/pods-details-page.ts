@@ -17,13 +17,14 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { BasePage } from './base-page';
-import { PodsPage } from './pods-page';
+import { expect as playExpect } from '@playwright/test';
+
+import { handleConfirmationDialog } from '../../utility/operations';
 import { waitUntil, waitWhile } from '../../utility/wait';
 import { PodState } from '../core/states';
-import { handleConfirmationDialog } from '../../utility/operations';
-import { expect as playExpect } from '@playwright/test';
 import { NavigationBar } from '../workbench/navigation';
+import { BasePage } from './base-page';
+import { PodsPage } from './pods-page';
 
 export class PodDetailsPage extends BasePage {
   readonly labelName: Locator;

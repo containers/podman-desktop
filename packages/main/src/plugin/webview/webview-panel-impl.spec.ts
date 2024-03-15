@@ -19,12 +19,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import type { WebviewImpl } from './webview-impl.js';
+
 import type { ApiSenderType } from '/@/plugin/api.js';
 
+import { Uri } from '../types/uri.js';
+import type { WebviewImpl } from './webview-impl.js';
 import { WebviewPanelImpl } from './webview-panel-impl.js';
 import type { WebviewRegistry } from './webview-registry.js';
-import { Uri } from '../types/uri.js';
 
 let webviewPanelImpl: WebviewPanelImpl;
 

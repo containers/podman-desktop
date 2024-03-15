@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from 'playwright';
+
 import { SettingsPage } from './settings-page';
 
 export class ResourcesPage extends SettingsPage {

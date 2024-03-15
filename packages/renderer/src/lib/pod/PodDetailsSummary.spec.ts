@@ -17,18 +17,20 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, vi, expect, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/svelte';
+
 import type {
-  V1Pod,
+  V1ConfigMapVolumeSource,
   V1Container,
+  V1PersistentVolumeClaimVolumeSource,
+  V1Pod,
   V1PodSpec,
   V1PodStatus,
-  V1Volume,
   V1SecretVolumeSource,
-  V1ConfigMapVolumeSource,
-  V1PersistentVolumeClaimVolumeSource,
+  V1Volume,
 } from '@kubernetes/client-node';
+import { render, screen, waitFor } from '@testing-library/svelte';
+import { beforeEach, expect, test, vi } from 'vitest';
+
 import PodDetailsSummary from './PodDetailsSummary.svelte';
 import type { PodInfoUI } from './PodInfoUI';
 

@@ -1,9 +1,10 @@
 <script lang="ts">
 import { onMount } from 'svelte';
-import Carousel from '../carousel/Carousel.svelte';
-import GuideCard from './GuideCard.svelte';
+
 import type { Guide } from '../../../../main/src/plugin/learning-center/learning-center-api';
+import Carousel from '../carousel/Carousel.svelte';
 import { fadeSlide } from '../ui/animations';
+import GuideCard from './GuideCard.svelte';
 
 let guides: Guide[] = [];
 let expanded: boolean = true;

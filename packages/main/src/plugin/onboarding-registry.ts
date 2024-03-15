@@ -18,11 +18,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import * as path from 'path';
-import type { Onboarding, OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
-import type { AnalyzedExtension } from './extension-loader.js';
-import type { ConfigurationRegistry } from './configuration-registry.js';
+
 import { getBase64Image } from '../util.js';
+import type { Onboarding, OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
+import type { ConfigurationRegistry } from './configuration-registry.js';
 import type { Context } from './context/context.js';
+import type { AnalyzedExtension } from './extension-loader.js';
 import { Disposable } from './types/disposable.js';
 
 export class OnboardingRegistry {

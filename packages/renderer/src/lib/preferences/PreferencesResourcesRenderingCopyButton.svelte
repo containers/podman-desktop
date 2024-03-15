@@ -1,5 +1,6 @@
 <script lang="ts">
 import { onMount } from 'svelte';
+
 import CopyToClipboard from '../ui/CopyToClipboard.svelte';
 
 let url: string | undefined;

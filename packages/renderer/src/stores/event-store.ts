@@ -16,14 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-// eslint-disable-next-line import/no-duplicates
-import type { Writable } from 'svelte/store';
+import humanizeDuration from 'humanize-duration';
 // eslint-disable-next-line import/no-duplicates
 import type { ComponentType } from 'svelte';
+// eslint-disable-next-line import/no-duplicates
+import type { Writable } from 'svelte/store';
 
-import { addStore, updateStore } from './event-store-manager';
-import humanizeDuration from 'humanize-duration';
 import DesktopIcon from '../lib/images/DesktopIcon.svelte';
+import { addStore, updateStore } from './event-store-manager';
 
 // 1.5 SECOND for DEBOUNCE and 5s for THROTTLE
 const SECOND = 1000;

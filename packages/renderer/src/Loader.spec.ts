@@ -18,10 +18,11 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { beforeAll, expect, test, vi } from 'vitest';
-import Loader from './Loader.svelte';
 import { render } from '@testing-library/svelte';
 import { router } from 'tinro';
+import { beforeAll, expect, test, vi } from 'vitest';
+
+import Loader from './Loader.svelte';
 
 // first, patch window object
 const callbacks = new Map<string, any>();

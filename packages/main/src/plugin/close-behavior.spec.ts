@@ -15,12 +15,14 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import { beforeEach, test, expect, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
+
+import type { ApiSenderType } from '/@/plugin/api.js';
+
+import * as util from '../util.js';
 import { CloseBehavior } from './close-behavior.js';
 import { ConfigurationRegistry } from './configuration-registry.js';
-import * as util from '../util.js';
 import type { Directories } from './directories.js';
-import type { ApiSenderType } from '/@/plugin/api.js';
 
 vi.mock('./util', () => {
   return {

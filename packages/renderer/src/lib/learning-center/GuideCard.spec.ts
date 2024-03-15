@@ -19,8 +19,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { suite, test, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import { fireEvent, render, screen } from '@testing-library/svelte';
+import { afterEach, beforeEach, expect, suite, test, vi } from 'vitest';
+
 import GuideCard from './GuideCard.svelte';
 
 suite('Guide card', () => {

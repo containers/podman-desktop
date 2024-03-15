@@ -1,7 +1,8 @@
 <script lang="ts">
-import Fa from 'svelte-fa';
-import Tooltip from './Tooltip.svelte';
 import { faPaste } from '@fortawesome/free-solid-svg-icons';
+import Fa from 'svelte-fa';
+
+import Tooltip from './Tooltip.svelte';
 
 export let clipboardData: string;
 export let title: string;

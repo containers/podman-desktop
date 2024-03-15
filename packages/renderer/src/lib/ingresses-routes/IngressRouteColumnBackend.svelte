@@ -1,7 +1,7 @@
 <script lang="ts">
+import { IngressRouteUtils } from './ingress-route-utils';
 import type { IngressUI } from './IngressUI';
 import type { RouteUI } from './RouteUI';
-import { IngressRouteUtils } from './ingress-route-utils';
 
 export let object: IngressUI | RouteUI;
 

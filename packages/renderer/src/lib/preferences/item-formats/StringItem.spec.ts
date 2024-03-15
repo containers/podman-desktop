@@ -17,8 +17,10 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
 import StringItem from './StringItem.svelte';
 

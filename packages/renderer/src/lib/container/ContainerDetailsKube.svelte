@@ -1,7 +1,8 @@
 <script lang="ts">
-import type { ContainerInfoUI } from './ContainerInfoUI';
 import { onMount } from 'svelte';
+
 import MonacoEditor from '../editor/MonacoEditor.svelte';
+import type { ContainerInfoUI } from './ContainerInfoUI';
 
 export let container: ContainerInfoUI;
 

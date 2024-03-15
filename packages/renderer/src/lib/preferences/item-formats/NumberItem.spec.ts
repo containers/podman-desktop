@@ -17,11 +17,13 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
+import { expect, test } from 'vitest';
+
 import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
 import NumberItem from './NumberItem.svelte';
-import userEvent from '@testing-library/user-event';
 
 test('Expect tooltip if value input is NaN', async () => {
   const record: IConfigurationPropertyRecordedSchema = {

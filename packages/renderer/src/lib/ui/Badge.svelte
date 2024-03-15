@@ -1,5 +1,6 @@
 <script lang="ts">
 import { onMount } from 'svelte';
+
 import { AppearanceUtil } from '/@/lib/appearance/appearance-util';
 
 export let color: string | { light: string; dark: string } = 'bg-gray-500';

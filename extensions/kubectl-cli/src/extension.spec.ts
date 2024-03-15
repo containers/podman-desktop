@@ -17,12 +17,14 @@
  ***********************************************************************/
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { test, expect, vi, beforeEach } from 'vitest';
-import * as extensionApi from '@podman-desktop/api';
-import * as KubectlExtension from './extension';
-import { afterEach } from 'node:test';
-import type { Configuration } from '@podman-desktop/api';
 import * as path from 'node:path';
+import { afterEach } from 'node:test';
+
+import type { Configuration } from '@podman-desktop/api';
+import * as extensionApi from '@podman-desktop/api';
+import { beforeEach, expect, test, vi } from 'vitest';
+
+import * as KubectlExtension from './extension';
 
 const extensionContext = {
   subscriptions: [],

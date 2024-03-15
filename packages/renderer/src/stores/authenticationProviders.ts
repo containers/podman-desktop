@@ -16,11 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { writable, type Writable } from 'svelte/store';
-import type { AuthenticationProviderInfo } from '../../../main/src/plugin/authentication';
-import { EventStore } from './event-store';
+import { type Writable, writable } from 'svelte/store';
 
+import type { AuthenticationProviderInfo } from '../../../main/src/plugin/authentication';
 import KeyIcon from '../lib/images/KeyIcon.svelte';
+import { EventStore } from './event-store';
 
 const windowEvents = ['authentication-provider-update'];
 const windowListeners = ['extensions-already-started'];

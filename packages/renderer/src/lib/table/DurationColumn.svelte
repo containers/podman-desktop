@@ -1,6 +1,6 @@
 <script lang="ts">
-import moment from 'moment';
 import humanizeDuration from 'humanize-duration';
+import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 
 export let object: Date | undefined;

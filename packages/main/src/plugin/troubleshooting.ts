@@ -16,10 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+
 import AdmZip from 'adm-zip';
 import moment from 'moment';
-import * as os from 'node:os';
-import * as fs from 'node:fs';
+
 import type { ApiSenderType } from './api.js';
 
 const SYSTEM_FILENAME = 'system';

@@ -16,12 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as path from 'node:path';
 import { existsSync, promises } from 'node:fs';
+import { arch, platform } from 'node:os';
+import * as path from 'node:path';
+
 import * as extensionApi from '@podman-desktop/api';
-import type { KubectlGitHubReleases, KubectlGithubReleaseArtifactMetadata } from './kubectl-github-releases';
+
+import type { KubectlGithubReleaseArtifactMetadata, KubectlGitHubReleases } from './kubectl-github-releases';
 import type { OS } from './os';
-import { platform, arch } from 'node:os';
 import { makeExecutable } from './utils';
 
 export class KubectlDownload {

@@ -19,10 +19,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
+
 import { render, screen, within } from '@testing-library/svelte';
-import NavSection from './NavSection.svelte';
 import userEvent from '@testing-library/user-event';
+import { expect, test } from 'vitest';
+
+import NavSection from './NavSection.svelte';
 import NavSectionTest from './NavSectionTest.svelte';
 
 test('Expect correct button and tooltip', async () => {

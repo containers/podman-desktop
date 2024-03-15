@@ -1,7 +1,8 @@
 <script lang="ts">
 import { afterUpdate, onMount } from 'svelte';
-import { contributions } from '../../stores/contribs';
+
 import Route from '../../Route.svelte';
+import { contributions } from '../../stores/contribs';
 
 export let name: string;
 let source: string | undefined;

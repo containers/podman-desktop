@@ -21,8 +21,9 @@
 import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
 import { beforeAll, expect, test, vi } from 'vitest';
-import { fetchViews, viewsEventStore, viewsContributions } from './views';
+
 import type { ViewInfoUI } from '../../../main/src/plugin/api/view-info';
+import { fetchViews, viewsContributions, viewsEventStore } from './views';
 
 // first, path window object
 const callbacks = new Map<string, any>();

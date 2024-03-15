@@ -1,11 +1,13 @@
 <script lang="ts">
-import type { IProviderConnectionConfigurationPropertyRecorded } from './Util';
-import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
-import { filesize } from 'filesize';
-import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import type { ContainerProviderConnection } from '@podman-desktop/api';
+import { filesize } from 'filesize';
+
 import Donut from '/@/lib/donut/Donut.svelte';
+
+import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { PeerProperties } from './PeerProperties';
+import type { IProviderConnectionConfigurationPropertyRecorded } from './Util';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInternalId: string | undefined = undefined;

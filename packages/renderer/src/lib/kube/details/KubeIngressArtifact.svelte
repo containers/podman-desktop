@@ -1,8 +1,9 @@
 <script lang="ts">
 import type { V1IngressSpec } from '@kubernetes/client-node';
+
+import Link from '../../ui/Link.svelte';
 import Cell from './ui/Cell.svelte';
 import Title from './ui/Title.svelte';
-import Link from '../../ui/Link.svelte';
 
 // Props for Ingress artifact and Status
 export let artifact: V1IngressSpec | undefined;

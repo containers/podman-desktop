@@ -19,14 +19,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect, vi, beforeEach, describe } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
-import VolumesList from './VolumesList.svelte';
+import userEvent from '@testing-library/user-event';
 import { get } from 'svelte/store';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+
 import { providerInfos } from '/@/stores/providers';
 import { volumeListInfos, volumesEventStore } from '/@/stores/volumes';
+
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import userEvent from '@testing-library/user-event';
+import VolumesList from './VolumesList.svelte';
 
 const listVolumesMock = vi.fn();
 const getProviderInfosMock = vi.fn();

@@ -1,10 +1,10 @@
 <script lang="ts">
-import { onDestroy, onMount, createEventDispatcher } from 'svelte';
+import type monaco from 'monaco-editor';
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
-import { EditorSettings } from '../../../../main/src/plugin/editor-settings';
+import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 
-import type monaco from 'monaco-editor';
+import { EditorSettings } from '../../../../main/src/plugin/editor-settings';
 import { getPanelDetailColor } from '../color/color';
 
 let divEl: HTMLDivElement;

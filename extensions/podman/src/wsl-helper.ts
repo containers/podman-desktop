@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import * as extensionApi from '@podman-desktop/api';
+
 import { normalizeWSLOutput } from './util';
 
 export interface WSLVersionInfo {

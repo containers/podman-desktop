@@ -17,9 +17,9 @@
  ***********************************************************************/
 
 import * as extensionApi from '@podman-desktop/api';
-
 import type { Mock } from 'vitest';
 import { beforeEach, expect, test, vi } from 'vitest';
+
 import { QemuHelper } from './qemu-helper';
 
 let qemuHelper: TestQemuHelper;

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { onMount, onDestroy } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 
 import { AppearanceSettings } from '../../../../main/src/plugin/appearance-settings';
 import { onDidChangeConfiguration } from '../../stores/configurationProperties';

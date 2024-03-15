@@ -16,14 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as os from 'node:os';
+
+import { spawn } from 'child_process';
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import { ipcMain } from 'electron';
 
-import * as os from 'node:os';
-import { spawn } from 'child_process';
-import type { ContributionManager } from '../contribution-manager.js';
-import type { ContainerProviderRegistry } from '../container-registry.js';
 import type { SimpleContainerInfo } from '../api/container-info.js';
+import type { ContainerProviderRegistry } from '../container-registry.js';
+import type { ContributionManager } from '../contribution-manager.js';
 
 export interface RawExecResult {
   cmd?: string;

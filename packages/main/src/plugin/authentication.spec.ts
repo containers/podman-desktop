@@ -23,7 +23,8 @@ import type {
   AuthenticationSessionAccountInformation,
   Event,
 } from '@podman-desktop/api';
-import { beforeEach, afterEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+
 import type { ApiSenderType } from './api.js';
 import { AuthenticationImpl } from './authentication.js';
 import { Emitter as EventEmitter } from './events/emitter.js';

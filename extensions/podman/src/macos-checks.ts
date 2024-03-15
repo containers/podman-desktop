@@ -16,10 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { BaseCheck } from './base-check';
-import * as extensionApi from '@podman-desktop/api';
 import * as os from 'node:os';
+
+import * as extensionApi from '@podman-desktop/api';
 import { compare } from 'compare-versions';
+
+import { BaseCheck } from './base-check';
 
 export class MacCPUCheck extends BaseCheck {
   title = 'CPU';

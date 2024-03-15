@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
 import ExecutionEnvironment from '@docusaurus/ExecutionEnvironment';
+import React, { useEffect } from 'react';
 
 function TailWindThemeSelector(): JSX.Element {
   function updadeTailwindDarkTheme(): void {

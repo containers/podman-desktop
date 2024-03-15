@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { app } from 'electron';
 import fs from 'node:fs';
 import path from 'node:path';
+
+import { app } from 'electron';
+
 import type { ConfigurationRegistry } from '../plugin/configuration-registry.js';
 
 /**

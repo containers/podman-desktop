@@ -16,9 +16,10 @@
  ***********************************************************************/
 
 import * as extensionApi from '@podman-desktop/api';
+
 import dockerIoImage from './images/docker.io.png';
-import ghcrIoImage from './images/ghcr.io.png';
 import gcrIoImage from './images/gcr.io.png';
+import ghcrIoImage from './images/ghcr.io.png';
 import quayIoImage from './images/quay.io.png';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

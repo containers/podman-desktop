@@ -17,16 +17,17 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
+
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-
-import PodDetails from './PodDetails.svelte';
 import { get } from 'svelte/store';
-import { podsInfos } from '/@/stores/pods';
-import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
-
 import { router, type TinroRoute } from 'tinro';
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import { lastPage } from '/@/stores/breadcrumb';
+import { podsInfos } from '/@/stores/pods';
+
+import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
+import PodDetails from './PodDetails.svelte';
 
 const mocks = vi.hoisted(() => ({
   TerminalMock: vi.fn(),

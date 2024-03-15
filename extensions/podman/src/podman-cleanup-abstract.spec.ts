@@ -16,10 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { AbsPodmanCleanup } from './podman-cleanup-abstract';
 import { existsSync, promises } from 'node:fs';
 import * as path from 'node:path';
+
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+
+import { AbsPodmanCleanup } from './podman-cleanup-abstract';
 
 const containersConfPath = '/fake/containers.conf';
 class TestAbsPodmanCleanup extends AbsPodmanCleanup {

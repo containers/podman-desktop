@@ -21,8 +21,9 @@
 import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
 import { beforeEach, expect, test, vi } from 'vitest';
-import { colorsEventStore, colorsInfos } from './colors';
+
 import type { ColorInfo } from '../../../main/src/plugin/api/color-info';
+import { colorsEventStore, colorsInfos } from './colors';
 
 const callbacks = new Map<string, any>();
 const eventEmitter = {

@@ -17,14 +17,17 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { beforeEach, expect, test, vi } from 'vitest';
+
 import { fireEvent, render, screen, within } from '@testing-library/svelte';
-import PreferencesKubernetesContextsRendering from './PreferencesKubernetesContextsRendering.svelte';
+import { readable } from 'svelte/store';
+import { beforeEach, expect, test, vi } from 'vitest';
+
 import { kubernetesContexts } from '/@/stores/kubernetes-contexts';
+import * as kubernetesContextsState from '/@/stores/kubernetes-contexts-state';
+
 import type { KubeContext } from '../../../../main/src/plugin/kubernetes-context';
 import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes-context-state';
-import * as kubernetesContextsState from '/@/stores/kubernetes-contexts-state';
-import { readable } from 'svelte/store';
+import PreferencesKubernetesContextsRendering from './PreferencesKubernetesContextsRendering.svelte';
 
 vi.mock('/@/stores/kubernetes-contexts-state', async () => {
   return {

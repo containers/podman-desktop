@@ -18,6 +18,7 @@
 
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
+
 import type { IconInfo } from '../../../main/src/plugin/api/icon-info';
 import { EventStore } from './event-store';
 

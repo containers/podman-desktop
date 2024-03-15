@@ -1,14 +1,16 @@
 <script lang="ts">
-import { faFileCode, faTrash, faPlay, faStop, faArrowsRotate, faRocket } from '@fortawesome/free-solid-svg-icons';
-import type { ComposeInfoUI } from './ComposeInfoUI';
+import { faArrowsRotate, faFileCode, faPlay, faRocket, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { createEventDispatcher, onMount } from 'svelte';
 import { router } from 'tinro';
-import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
+
+import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
+
+import type { Menu } from '../../../../main/src/plugin/menu-registry';
+import { MenuContext } from '../../../../main/src/plugin/menu-registry';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
-import type { Menu } from '../../../../main/src/plugin/menu-registry';
-import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
-import { createEventDispatcher, onMount } from 'svelte';
-import { MenuContext } from '../../../../main/src/plugin/menu-registry';
+import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
+import type { ComposeInfoUI } from './ComposeInfoUI';
 
 export let compose: ComposeInfoUI;
 export let dropdownMenu = false;

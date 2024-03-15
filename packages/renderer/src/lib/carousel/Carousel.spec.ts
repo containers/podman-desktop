@@ -19,8 +19,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+
 import CarouselTest from './CarouselTest.svelte';
 
 let callback: any;

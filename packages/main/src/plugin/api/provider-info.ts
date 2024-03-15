@@ -17,14 +17,14 @@
  ***********************************************************************/
 
 import type {
+  Link,
+  ProviderCleanupAction,
   ProviderConnectionStatus,
   ProviderDetectionCheck,
   ProviderImages,
+  ProviderInformation,
   ProviderLinks,
   ProviderStatus,
-  Link,
-  ProviderInformation,
-  ProviderCleanupAction,
 } from '@podman-desktop/api';
 
 export type LifecycleMethod = 'start' | 'stop' | 'delete' | 'edit';

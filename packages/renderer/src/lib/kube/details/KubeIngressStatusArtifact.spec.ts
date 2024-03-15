@@ -17,10 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { describe, test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import KubeIngressStatusArtifact from './KubeIngressStatusArtifact.svelte';
+
 import type { V1IngressStatus } from '@kubernetes/client-node';
+import { render, screen } from '@testing-library/svelte';
+import { describe, expect, test } from 'vitest';
+
+import KubeIngressStatusArtifact from './KubeIngressStatusArtifact.svelte';
 
 const validIngressStatus: V1IngressStatus = {
   loadBalancer: {

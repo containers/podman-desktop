@@ -16,13 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ImageInfo } from '../../../../main/src/plugin/api/image-info';
-import type { ImageInfoUI } from './ImageInfoUI';
-import moment from 'moment';
-import humanizeDuration from 'humanize-duration';
-import { filesize } from 'filesize';
 import { Buffer } from 'buffer';
+import { filesize } from 'filesize';
+import humanizeDuration from 'humanize-duration';
+import moment from 'moment';
+
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
+import type { ImageInfo } from '../../../../main/src/plugin/api/image-info';
 import {
   isViewContributionBadge,
   isViewContributionIcon,
@@ -32,6 +32,7 @@ import {
 import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
 import ImageIcon from '../images/ImageIcon.svelte';
+import type { ImageInfoUI } from './ImageInfoUI';
 
 export class ImageUtils {
   // extract SHA256 from image id and take the first 12 digits

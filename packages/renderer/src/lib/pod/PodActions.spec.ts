@@ -17,11 +17,13 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeEach, afterEach } from 'vitest';
+
+import type { ContainerInfo, Port } from '@podman-desktop/api';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+
 import PodActions from './PodActions.svelte';
 import type { PodInfoUI } from './PodInfoUI';
-import type { ContainerInfo, Port } from '@podman-desktop/api';
 
 const podmanPod: PodInfoUI = {
   id: 'pod',

@@ -21,14 +21,17 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
-import { providerInfos } from '../../stores/providers';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import userEvent from '@testing-library/user-event';
 import { router } from 'tinro';
-import PreferencesKubernetesConnectionRendering from './PreferencesKubernetesConnectionRendering.svelte';
+import { expect, test, vi } from 'vitest';
+
 import { lastPage } from '/@/stores/breadcrumb';
+
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import { providerInfos } from '../../stores/providers';
+import PreferencesKubernetesConnectionRendering from './PreferencesKubernetesConnectionRendering.svelte';
 
 test('Expect that removing the connection is going back to the previous page', async () => {
   const kindCluster1 = 'kind cluster 1';

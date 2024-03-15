@@ -17,17 +17,18 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import { WelcomePage } from '../model/pages/welcome-page';
 import { expect as playExpect } from '@playwright/test';
-import { SettingsBar } from '../model/pages/settings-bar';
-import { SettingsExtensionsPage } from '../model/pages/settings-extensions-page';
+import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
+
 import { DashboardPage } from '../model/pages/dashboard-page';
 import { OpenshiftLocalExtensionPage } from '../model/pages/openshift-local-extension-page';
-import { SandboxExtensionPage } from '../model/pages/sandbox-extension-page';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { ResourcesPage } from '../model/pages/resources-page';
+import { SandboxExtensionPage } from '../model/pages/sandbox-extension-page';
+import { SettingsBar } from '../model/pages/settings-bar';
+import { SettingsExtensionsPage } from '../model/pages/settings-extensions-page';
+import { WelcomePage } from '../model/pages/welcome-page';
+import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import type { RunnerTestContext } from '../testContext/runner-test-context';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;

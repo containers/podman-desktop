@@ -1,16 +1,17 @@
 <script lang="ts">
-import type { VolumeInfoUI } from './VolumeInfoUI';
-import Route from '../../Route.svelte';
 import { onMount } from 'svelte';
+
+import Route from '../../Route.svelte';
 import { volumeListInfos } from '../../stores/volumes';
-import VolumeIcon from '../images/VolumeIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
-import VolumeActions from './VolumeActions.svelte';
-import { VolumeUtils } from './volume-utils';
-import VolumeDetailsSummary from '././VolumeDetailsSummary.svelte';
-import VolumeDetailsInspect from './VolumeDetailsInspect.svelte';
+import VolumeIcon from '../images/VolumeIcon.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import Tab from '../ui/Tab.svelte';
+import VolumeDetailsSummary from '././VolumeDetailsSummary.svelte';
+import { VolumeUtils } from './volume-utils';
+import VolumeActions from './VolumeActions.svelte';
+import VolumeDetailsInspect from './VolumeDetailsInspect.svelte';
+import type { VolumeInfoUI } from './VolumeInfoUI';
 
 export let volumeName: string;
 export let engineId: string;

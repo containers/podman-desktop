@@ -1,8 +1,10 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-import { colorsInfos } from '/@/stores/colors';
-import type { ColorInfo } from '../../../../main/src/plugin/api/color-info';
 import type { Unsubscriber } from 'svelte/store';
+
+import { colorsInfos } from '/@/stores/colors';
+
+import type { ColorInfo } from '../../../../main/src/plugin/api/color-info';
 
 let style: HTMLStyleElement;
 

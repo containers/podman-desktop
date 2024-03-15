@@ -17,10 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
+
 import { fireEvent, render, screen, within } from '@testing-library/svelte';
 import { describe, expect, test } from 'vitest';
-import ProviderResultPage from './ProviderResultPage.svelte';
+
 import type { CheckUI, ProviderUI } from './ProviderResultPage';
+import ProviderResultPage from './ProviderResultPage.svelte';
 
 function checkResultDisplayed(result: CheckUI) {
   const res = screen.getByRole('row', { name: result.check.name + ' Reported by ' + result.provider.label });

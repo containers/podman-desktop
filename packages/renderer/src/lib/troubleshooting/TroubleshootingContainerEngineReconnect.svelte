@@ -1,5 +1,6 @@
 <script lang="ts">
 import { faPlug } from '@fortawesome/free-solid-svg-icons';
+
 import Button from '../ui/Button.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 

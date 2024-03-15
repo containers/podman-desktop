@@ -1,16 +1,17 @@
 <script lang="ts">
-import Fa from 'svelte-fa';
-import { faTrash, faPlay, faStop, faArrowCircleDown } from '@fortawesome/free-solid-svg-icons';
-import { afterUpdate } from 'svelte';
-import { extensionInfos } from '../../stores/extensions';
-import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
-import SettingsPage from '../preferences/SettingsPage.svelte';
-import ConnectionStatus from '../ui/ConnectionStatus.svelte';
-import FeaturedExtensions from '../featured/FeaturedExtensions.svelte';
-import Button from '../ui/Button.svelte';
-import ExtensionIcon from './ExtensionIcon.svelte';
+import { faArrowCircleDown, faPlay, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Input } from '@podman-desktop/ui-svelte';
+import { afterUpdate } from 'svelte';
+import Fa from 'svelte-fa';
+
+import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
+import { extensionInfos } from '../../stores/extensions';
+import FeaturedExtensions from '../featured/FeaturedExtensions.svelte';
+import SettingsPage from '../preferences/SettingsPage.svelte';
+import Button from '../ui/Button.svelte';
+import ConnectionStatus from '../ui/ConnectionStatus.svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
+import ExtensionIcon from './ExtensionIcon.svelte';
 
 export let ociImage: string | undefined = undefined;
 

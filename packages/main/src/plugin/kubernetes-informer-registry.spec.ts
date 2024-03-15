@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect, test, vi } from 'vitest';
-import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 import type { Context, Informer, KubernetesObject } from '@kubernetes/client-node';
+import { expect, test, vi } from 'vitest';
+
+import { KubernetesInformerManager } from './kubernetes-informer-registry.js';
 
 const informerManager = new KubernetesInformerManager();
 const context: Context = {

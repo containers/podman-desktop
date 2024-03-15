@@ -17,12 +17,13 @@
  ***********************************************************************/
 
 import type { CliTool, CliToolOptions, CliToolUpdate, Logger } from '@podman-desktop/api';
-import { Disposable } from './types/disposable.js';
-import type { CliToolExtensionInfo, CliToolInfo } from './api/cli-tool-info.js';
+
 import type { ApiSenderType } from './api.js';
-import type { Telemetry } from './telemetry/telemetry.js';
-import type { Exec } from './util/exec.js';
+import type { CliToolExtensionInfo, CliToolInfo } from './api/cli-tool-info.js';
 import { CliToolImpl } from './cli-tool-impl.js';
+import type { Telemetry } from './telemetry/telemetry.js';
+import { Disposable } from './types/disposable.js';
+import type { Exec } from './util/exec.js';
 
 export class CliToolRegistry {
   constructor(

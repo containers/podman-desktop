@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { test, expect } from 'vitest';
+import { expect, test } from 'vitest';
+
 import { transformObjectToContext } from '/@/lib/context/ContextUtils';
 
 test('Object with single property', async () => {

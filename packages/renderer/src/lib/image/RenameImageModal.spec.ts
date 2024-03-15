@@ -17,10 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, describe } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
-import RenameImageModal from './RenameImageModal.svelte';
 import userEvent from '@testing-library/user-event';
+import { describe, expect, test } from 'vitest';
+
+import RenameImageModal from './RenameImageModal.svelte';
 
 const imageInfo = {
   id: 'sha256:5cdc39fa62556cfcf51e079654a95a6c45574905bce69f49ffc8ea72848612e9',

@@ -19,9 +19,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-useless-escape */
 
-import { test, expect, describe, vi, beforeAll } from 'vitest';
-
 import { promises } from 'node:fs';
+
+import { beforeAll, describe, expect, test, vi } from 'vitest';
+
 import { EnvfileParser } from './env-file-parser.js';
 
 let envfileParser: TestEnvfileParser;

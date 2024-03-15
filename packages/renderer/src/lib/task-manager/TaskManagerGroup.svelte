@@ -1,9 +1,9 @@
 <script lang="ts">
+import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
-import TaskManagerItem from './TaskManagerItem.svelte';
 
 import type { Task } from '../../../../main/src/plugin/api/task';
-import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import TaskManagerItem from './TaskManagerItem.svelte';
 
 export let icon: IconDefinition;
 export let tasks: Task[];

@@ -17,9 +17,11 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+
 import type { V1Volume } from '@kubernetes/client-node';
+import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
 import Volume from './KubeVolumeArtifact.svelte';
 
 // Create a fakeVolume from V1Volume including 'name' from ALL possible V1Volume types

@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { get, writable, type Writable } from 'svelte/store';
+import { get, type Writable, writable } from 'svelte/store';
+
 import type { EventStoreInfo } from './event-store';
 
 // This class manages access to different event stores

@@ -18,15 +18,18 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { MockInstance } from 'vitest';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import type { ApiSenderType } from '/@/plugin/api.js';
-import type { Router } from 'express';
-import type express from 'express';
-import { WebviewRegistry } from './webview-registry.js';
-import type { WebviewPanelImpl } from './webview-panel-impl.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+
+import type { Router } from 'express';
+import type express from 'express';
+import type { MockInstance } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+
+import type { ApiSenderType } from '/@/plugin/api.js';
+
+import type { WebviewPanelImpl } from './webview-panel-impl.js';
+import { WebviewRegistry } from './webview-registry.js';
 
 // mock node:fs
 vi.mock('node:fs');

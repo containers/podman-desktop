@@ -17,8 +17,10 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
+import { beforeAll, expect, test } from 'vitest';
+
 import PreferencesNavigation from './PreferencesNavigation.svelte';
 
 // fake the window.events object

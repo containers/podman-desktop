@@ -1,10 +1,11 @@
 <script lang="ts">
-import { faChevronCircleDown, faChevronRight, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 import { faLinux } from '@fortawesome/free-brands-svg-icons';
-import Fa from 'svelte-fa';
-import BuildImageFromContainerfileCard from './BuildImageFromContainerfileCard.svelte';
-import WebAssemblyIcon from '../images/WebAssemblyIcon.svelte';
+import { faChevronCircleDown, faChevronRight, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 import { onMount } from 'svelte';
+import Fa from 'svelte-fa';
+
+import WebAssemblyIcon from '../images/WebAssemblyIcon.svelte';
+import BuildImageFromContainerfileCard from './BuildImageFromContainerfileCard.svelte';
 
 export let platforms: string = '';
 let platformsArray: string[] = [];

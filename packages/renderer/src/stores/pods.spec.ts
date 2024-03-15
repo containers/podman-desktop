@@ -21,8 +21,9 @@
 import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
 import { beforeAll, expect, test, vi } from 'vitest';
-import { podsEventStore, podsInfos } from './pods';
+
 import type { PodInfo } from '../../../main/src/plugin/api/pod-info';
+import { podsEventStore, podsInfos } from './pods';
 
 // first, path window object
 const callbacks = new Map<string, any>();

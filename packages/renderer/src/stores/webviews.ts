@@ -18,6 +18,7 @@
 
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
+
 import type { WebviewInfo } from '../../../main/src/plugin/api/webview-info';
 import { EventStore } from './event-store';
 

@@ -17,16 +17,17 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
+
+import type { KubernetesObject, V1Service } from '@kubernetes/client-node';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import { writable } from 'svelte/store';
+import { router } from 'tinro';
+import { beforeAll, expect, test, vi } from 'vitest';
+
+import { lastPage } from '/@/stores/breadcrumb';
+import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
 
 import ServiceDetails from './ServiceDetails.svelte';
-
-import { router } from 'tinro';
-import { lastPage } from '/@/stores/breadcrumb';
-import type { V1Service, KubernetesObject } from '@kubernetes/client-node';
-import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
-import { writable } from 'svelte/store';
 
 const kubernetesDeleteServiceMock = vi.fn();
 

@@ -21,8 +21,9 @@
 import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
 import { beforeAll, expect, test, vi } from 'vitest';
-import { imagesInfos, imagesEventStore } from './images';
+
 import type { ImageInfo } from '../../../main/src/plugin/api/image-info';
+import { imagesEventStore, imagesInfos } from './images';
 
 // first, path window object
 const callbacks = new Map<string, any>();

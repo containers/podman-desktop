@@ -1,12 +1,13 @@
 <script lang="ts">
+import { faPlay, faPuzzlePiece, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
+
+import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
 import Route from '../../Route.svelte';
 import { extensionInfos } from '../../stores/extensions';
-import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
-import SettingsPage from './SettingsPage.svelte';
-import ExtensionStatus from '../ui/ExtensionStatus.svelte';
 import Button from '../ui/Button.svelte';
-import { faPlay, faPuzzlePiece, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
+import ExtensionStatus from '../ui/ExtensionStatus.svelte';
+import SettingsPage from './SettingsPage.svelte';
 
 export let extensionId: string | undefined = undefined;
 

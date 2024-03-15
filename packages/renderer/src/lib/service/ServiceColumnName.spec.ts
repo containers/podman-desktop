@@ -17,13 +17,14 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
+
+import { fireEvent } from '@testing-library/dom';
 import { render, screen } from '@testing-library/svelte';
+import { router } from 'tinro';
+import { expect, test, vi } from 'vitest';
 
 import ServiceColumnName from './ServiceColumnName.svelte';
 import type { ServiceUI } from './ServiceUI';
-import { router } from 'tinro';
-import { fireEvent } from '@testing-library/dom';
 
 const service: ServiceUI = {
   name: 'my-service',

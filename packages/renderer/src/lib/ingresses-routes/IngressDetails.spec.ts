@@ -17,16 +17,17 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
+
+import type { KubernetesObject, V1Ingress } from '@kubernetes/client-node';
 import { fireEvent, render, screen } from '@testing-library/svelte';
+import { writable } from 'svelte/store';
+import { router } from 'tinro';
+import { beforeAll, expect, test, vi } from 'vitest';
+
+import { lastPage } from '/@/stores/breadcrumb';
+import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
 
 import IngressRouteDetails from './IngressDetails.svelte';
-
-import { router } from 'tinro';
-import { lastPage } from '/@/stores/breadcrumb';
-import type { V1Ingress, KubernetesObject } from '@kubernetes/client-node';
-import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
-import { writable } from 'svelte/store';
 
 const kubernetesDeleteIngressMock = vi.fn();
 

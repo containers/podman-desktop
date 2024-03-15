@@ -16,10 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { writable, type Writable } from 'svelte/store';
-import { EventStore } from './event-store';
+import { type Writable, writable } from 'svelte/store';
+
 import type { StatusBarEntryDescriptor } from '../../../main/src/plugin/statusbar/statusbar-registry';
 import { STATUS_BAR_UPDATED_EVENT_NAME } from '../../../main/src/plugin/statusbar/statusbar-registry';
+import { EventStore } from './event-store';
 
 const windowEvents = [STATUS_BAR_UPDATED_EVENT_NAME];
 const windowListeners = ['system-ready'];

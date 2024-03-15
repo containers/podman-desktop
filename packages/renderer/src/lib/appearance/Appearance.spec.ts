@@ -18,10 +18,12 @@
 
 /* eslint-disable no-null/no-null */
 import '@testing-library/jest-dom/vitest';
-import { test, vi, expect, beforeEach } from 'vitest';
+
 import { render, type RenderResult } from '@testing-library/svelte';
-import Appearance from './Appearance.svelte';
+import { beforeEach, expect, test, vi } from 'vitest';
+
 import { AppearanceSettings } from '../../../../main/src/plugin/appearance-settings';
+import Appearance from './Appearance.svelte';
 
 const getConfigurationValueMock = vi.fn();
 const addEventListenerMock = vi.fn();

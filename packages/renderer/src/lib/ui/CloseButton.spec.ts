@@ -19,10 +19,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
+
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import CloseButton from '/@/lib/ui/CloseButton.svelte';
 import { router } from 'tinro';
+import { expect, test, vi } from 'vitest';
+
+import CloseButton from '/@/lib/ui/CloseButton.svelte';
 
 // mock the router
 vi.mock('tinro', () => {

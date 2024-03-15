@@ -1,20 +1,22 @@
 <script lang="ts">
 import { onMount } from 'svelte';
-import StatusIcon from '../images/StatusIcon.svelte';
-import DetailsPage from '../ui/DetailsPage.svelte';
-import Tab from '../ui/Tab.svelte';
-import StateChange from '../ui/StateChange.svelte';
-import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import { stringify } from 'yaml';
+
+import { kubernetesCurrentContextRoutes } from '/@/stores/kubernetes-contexts-state';
+
+import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
+import Route from '../../Route.svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
-import type { RouteUI } from './RouteUI';
+import ServiceIcon from '../images/ServiceIcon.svelte';
+import StatusIcon from '../images/StatusIcon.svelte';
+import KubeEditYAML from '../kube/KubeEditYAML.svelte';
+import DetailsPage from '../ui/DetailsPage.svelte';
+import StateChange from '../ui/StateChange.svelte';
+import Tab from '../ui/Tab.svelte';
 import { IngressRouteUtils } from './ingress-route-utils';
 import IngressRouteActions from './IngressRouteActions.svelte';
 import ServiceDetailsSummary from './IngressRouteDetailsSummary.svelte';
-import ServiceIcon from '../images/ServiceIcon.svelte';
-import Route from '../../Route.svelte';
-import KubeEditYAML from '../kube/KubeEditYAML.svelte';
-import { kubernetesCurrentContextRoutes } from '/@/stores/kubernetes-contexts-state';
+import type { RouteUI } from './RouteUI';
 
 export let name: string;
 export let namespace: string;

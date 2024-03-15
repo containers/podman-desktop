@@ -16,10 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { test, expect } from 'vitest';
+import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
 import type { StatusBarEntry } from '../../../../main/src/plugin/statusbar/statusbar-registry';
 import { iconClass } from './StatusBarItem';
-import { render, screen } from '@testing-library/svelte';
 import StatusBarItem from './StatusBarItem.svelte';
 
 test('check iconClass with font awesome icons', () => {

@@ -17,11 +17,12 @@
  ***********************************************************************/
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import { ContainerUtils } from './container-utils';
+
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
-import { ContainerGroupInfoTypeUI } from './ContainerInfoUI';
-import { ContextUI } from '../context/context';
 import type { ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
+import { ContextUI } from '../context/context';
+import { ContainerUtils } from './container-utils';
+import { ContainerGroupInfoTypeUI } from './ContainerInfoUI';
 
 let containerUtils: ContainerUtils;
 

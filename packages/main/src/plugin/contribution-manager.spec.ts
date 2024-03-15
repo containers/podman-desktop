@@ -19,20 +19,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import * as fs from 'node:fs';
+
+import type { RunResult } from '@podman-desktop/api';
+import * as jsYaml from 'js-yaml';
+import { EventEmitter } from 'stream-json/Assembler.js';
 import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+
+import * as util from '../util.js';
 import type { ApiSenderType } from './api.js';
+import type { ContributionInfo } from './api/contribution-info.js';
+import type { ContainerProviderRegistry } from './container-registry.js';
 import type { DockerExtensionMetadata } from './contribution-manager.js';
 import { ContributionManager } from './contribution-manager.js';
 import type { Directories } from './directories.js';
-import * as jsYaml from 'js-yaml';
-import type { ContainerProviderRegistry } from './container-registry.js';
-import * as util from '../util.js';
-import { Exec } from './util/exec.js';
-import type { RunResult } from '@podman-desktop/api';
-import { EventEmitter } from 'stream-json/Assembler.js';
-import type { ContributionInfo } from './api/contribution-info.js';
 import type { Proxy } from './proxy.js';
 import type { IDisposable } from './types/disposable.js';
+import { Exec } from './util/exec.js';
+
 let contributionManager: TestContributionManager;
 
 let composeFileExample: any;

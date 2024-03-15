@@ -18,9 +18,11 @@
 
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
+
+import { afterEach } from 'vitest';
+
 import type { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
-import { afterEach } from 'vitest';
 
 /**
  * Function to be used in afterEach runner test context

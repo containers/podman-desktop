@@ -16,14 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { BrowserWindow } from 'electron';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+
 import {
   handleAdditionalProtocolLauncherArgs,
   handleOpenUrl,
   mainWindowDeferred,
   sanitizeProtocolForExtension,
 } from './index.js';
-import type { BrowserWindow } from 'electron';
 import { Deferred } from './plugin/util/deferred.js';
 import * as util from './util.js';
 

@@ -1,7 +1,7 @@
 <!-- StatusDot.svelte -->
 <script lang="ts">
-import Tooltip from './Tooltip.svelte';
 import { getStatusColor } from './Dots';
+import Tooltip from './Tooltip.svelte';
 import { capitalize } from './Util';
 
 export let status: string;

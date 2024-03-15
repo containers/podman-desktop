@@ -19,10 +19,12 @@
 /* eslint-disable no-null/no-null */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { beforeAll, expect, test } from 'vitest';
-import { type LibPod, LibpodDockerode } from '/@/plugin/dockerode/libpod-dockerode.js';
 import Dockerode from 'dockerode';
 import nock from 'nock';
+import { beforeAll, expect, test } from 'vitest';
+
+import { type LibPod, LibpodDockerode } from '/@/plugin/dockerode/libpod-dockerode.js';
+
 import podmanInfo from '../../../tests/resources/data/plugin/podman-info.json';
 
 beforeAll(() => {

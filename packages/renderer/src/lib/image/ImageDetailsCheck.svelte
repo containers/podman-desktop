@@ -1,14 +1,16 @@
 <script lang="ts">
-import type { ImageCheckerInfo } from '../../../../main/src/plugin/api/image-checker-info';
-import Fa from 'svelte-fa';
 import { faStethoscope } from '@fortawesome/free-solid-svg-icons';
-import Button from '../ui/Button.svelte';
-import type { Unsubscriber } from 'svelte/store';
-import { onDestroy, onMount } from 'svelte';
-import { imageCheckerProviders } from '/@/stores/image-checker-providers';
-import ProviderResultPage from '../ui/ProviderResultPage.svelte';
-import { type CheckUI, type ProviderUI } from '../ui/ProviderResultPage';
 import type { ImageInfo } from '@podman-desktop/api';
+import { onDestroy, onMount } from 'svelte';
+import type { Unsubscriber } from 'svelte/store';
+import Fa from 'svelte-fa';
+
+import { imageCheckerProviders } from '/@/stores/image-checker-providers';
+
+import type { ImageCheckerInfo } from '../../../../main/src/plugin/api/image-checker-info';
+import Button from '../ui/Button.svelte';
+import { type CheckUI, type ProviderUI } from '../ui/ProviderResultPage';
+import ProviderResultPage from '../ui/ProviderResultPage.svelte';
 
 const orderStatus = ['failed', 'success'];
 const orderSeverity = ['critical', 'high', 'medium', 'low', undefined];

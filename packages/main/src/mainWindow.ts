@@ -17,14 +17,15 @@
  ***********************************************************************/
 
 import type { BrowserWindowConstructorOptions } from 'electron';
-import { autoUpdater, Menu, BrowserWindow, ipcMain, app, screen, nativeTheme } from 'electron';
+import { app, autoUpdater, BrowserWindow, ipcMain, Menu, nativeTheme, screen } from 'electron';
 import contextMenu from 'electron-context-menu';
 import { aboutMenuItem } from 'electron-util/main';
 import { join } from 'path';
 import { URL } from 'url';
+
+import { OpenDevTools } from './open-dev-tools.js';
 import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
 import { isLinux, isMac, stoppedExtensions } from './util.js';
-import { OpenDevTools } from './open-dev-tools.js';
 
 const openDevTools = new OpenDevTools();
 

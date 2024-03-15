@@ -19,23 +19,24 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { beforeAll, beforeEach, describe, expect, expectTypeOf, test, vi, vitest } from 'vitest';
-import type { ApiSenderType } from './api.js';
-
-import { ImageRegistry } from './image-registry.js';
-import type { Proxy } from './proxy.js';
-import type { Telemetry, EventType } from './telemetry/telemetry.js';
-import type { Certificates } from './certificates.js';
-import nock from 'nock';
-import * as imageRegistryManifestMultiArchJson from '../../tests/resources/data/plugin/image-registry-manifest-multi-arch-index.json';
-import * as imageRegistryManifestJson from '../../tests/resources/data/plugin/image-registry-manifest-index.json';
-import * as imageRegistryConfigJson from '../../tests/resources/data/plugin/image-registry-config.json';
+import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import * as fs from 'node:fs';
-import * as nodeTar from 'tar';
-import type { Disposable } from './types/disposable.js';
+
 import type { Registry } from '@podman-desktop/api';
+import nock from 'nock';
+import * as nodeTar from 'tar';
+import { beforeAll, beforeEach, describe, expect, expectTypeOf, test, vi, vitest } from 'vitest';
+
+import * as imageRegistryConfigJson from '../../tests/resources/data/plugin/image-registry-config.json';
+import * as imageRegistryManifestJson from '../../tests/resources/data/plugin/image-registry-manifest-index.json';
+import * as imageRegistryManifestMultiArchJson from '../../tests/resources/data/plugin/image-registry-manifest-multi-arch-index.json';
+import type { ApiSenderType } from './api.js';
+import type { Certificates } from './certificates.js';
+import { ImageRegistry } from './image-registry.js';
+import type { Proxy } from './proxy.js';
+import type { EventType, Telemetry } from './telemetry/telemetry.js';
+import type { Disposable } from './types/disposable.js';
 
 let imageRegistry: ImageRegistry;
 

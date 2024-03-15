@@ -25,7 +25,7 @@
 import assert from 'assert';
 import { suite, test, vi } from 'vitest';
 
-import { ContextKeyExpr, implies, type ContextKeyExpression, initContextKeysPlatform } from './contextKey.js';
+import { ContextKeyExpr, type ContextKeyExpression, implies, initContextKeysPlatform } from './contextKey.js';
 
 function createContext(ctx: any) {
   return {

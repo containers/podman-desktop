@@ -1,8 +1,9 @@
 <script lang="ts">
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import type { DeploymentUI } from './DeploymentUI';
-import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import { createEventDispatcher } from 'svelte';
+
+import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
+import type { DeploymentUI } from './DeploymentUI';
 
 export let deployment: DeploymentUI;
 export let detailed = false;

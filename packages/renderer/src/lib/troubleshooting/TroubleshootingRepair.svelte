@@ -1,7 +1,8 @@
 <script lang="ts">
 import { faWrench } from '@fortawesome/free-solid-svg-icons';
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import Fa from 'svelte-fa';
+
+import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import TroubleshootingRepairCleanup from './TroubleshootingRepairCleanup.svelte';
 
 export let providers: ProviderInfo[] = [];

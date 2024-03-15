@@ -16,17 +16,18 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Page } from 'playwright';
-import type { RunnerTestContext } from '../testContext/runner-test-context';
-import { afterAll, beforeAll, test, describe, beforeEach } from 'vitest';
-import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
-import { WelcomePage } from '../model/pages/welcome-page';
-import type { DashboardPage } from '../model/pages/dashboard-page';
 import { expect as playExpect } from '@playwright/test';
-import { NavigationBar } from '../model/workbench/navigation';
+import type { Page } from 'playwright';
+import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
+
+import type { DashboardPage } from '../model/pages/dashboard-page';
+import { ExtensionPage } from '../model/pages/extension-page';
 import type { SettingsBar } from '../model/pages/settings-bar';
 import { SettingsExtensionsPage } from '../model/pages/settings-extensions-page';
-import { ExtensionPage } from '../model/pages/extension-page';
+import { WelcomePage } from '../model/pages/welcome-page';
+import { NavigationBar } from '../model/workbench/navigation';
+import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import type { RunnerTestContext } from '../testContext/runner-test-context';
 
 const SETTINGS_EXTENSIONS_TABLE_PODMAN_TITLE: string = 'podman';
 const SETTINGS_EXTENSIONS_TABLE_EXTENSION_STATUS_LABEL: string = 'Connection Status Label';

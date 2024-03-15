@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Guide } from './learning-center-api.js';
 import { default as guidesJson } from './guides.json';
+import type { Guide } from './learning-center-api.js';
 
 export function downloadGuideList(): Guide[] {
   return guidesJson.guides;

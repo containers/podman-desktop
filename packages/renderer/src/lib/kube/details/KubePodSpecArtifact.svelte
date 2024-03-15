@@ -1,10 +1,12 @@
 <script lang="ts">
 import type { V1PodSpec } from '@kubernetes/client-node';
+
 import Container from './KubeContainerArtifact.svelte';
 import Volume from './KubeVolumeArtifact.svelte';
 import Cell from './ui/Cell.svelte';
-import Title from './ui/Title.svelte';
 import Subtitle from './ui/Subtitle.svelte';
+import Title from './ui/Title.svelte';
+
 export let artifact: V1PodSpec | undefined;
 </script>
 

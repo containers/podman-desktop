@@ -20,53 +20,6 @@
  * @module preload
  */
 
-import type * as containerDesktopAPI from '@podman-desktop/api';
-import { contextBridge, ipcRenderer } from 'electron';
-import EventEmitter from 'events';
-import type {
-  ContainerCreateOptions,
-  ContainerInfo,
-  SimpleContainerInfo,
-  VolumeCreateOptions,
-} from '../../main/src/plugin/api/container-info';
-import type { ContributionInfo } from '../../main/src/plugin/api/contribution-info';
-import type { ImageInfo } from '../../main/src/plugin/api/image-info';
-import type { VolumeInspectInfo, VolumeListInfo } from '../../main/src/plugin/api/volume-info';
-import type { PodCreateOptions, PodInfo, PodInspectInfo } from '../../main/src/plugin/api/pod-info';
-import type { NetworkInspectInfo } from '../../main/src/plugin/api/network-info';
-import type { ImageInspectInfo } from '../../main/src/plugin/api/image-inspect-info';
-import type { HistoryInfo } from '../../main/src/plugin/api/history-info';
-import type { ContainerInspectInfo } from '../../main/src/plugin/api/container-inspect-info';
-import type { ContainerStatsInfo } from '../../main/src/plugin/api/container-stats-info';
-import type { IconInfo } from '../../main/src/plugin/api/icon-info';
-import type { ColorInfo } from '../../main/src/plugin/api/color-info';
-import type { WebviewInfo } from '../../main/src/plugin/api/webview-info';
-import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
-import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-api';
-import type { CatalogExtension } from '../../main/src/plugin/extensions-catalog/extensions-catalog-api';
-import type { CommandInfo } from '../../main/src/plugin/api/command-info';
-import type { KubernetesInformerResourcesType } from '../../main/src/plugin/api/kubernetes-informer-info';
-import type { Guide } from '../../main/src/plugin/learning-center/learning-center-api';
-
-import type { V1Route } from '../../main/src/plugin/api/openshift-types';
-import type { AuthenticationProviderInfo } from '../../main/src/plugin/authentication';
-import type {
-  PreflightCheckEvent,
-  PreflightChecksCallback,
-  ProviderContainerConnectionInfo,
-  ProviderInfo,
-  ProviderKubernetesConnectionInfo,
-} from '../../main/src/plugin/api/provider-info';
-import type { CliToolInfo } from '../../main/src/plugin/api/cli-tool-info';
-import type { ImageCheckerInfo } from '../../main/src/plugin/api/image-checker-info';
-import type { IConfigurationPropertyRecordedSchema } from '../../main/src/plugin/configuration-registry';
-import type { PullEvent } from '../../main/src/plugin/api/pull-event';
-import { Deferred } from './util/deferred';
-import type { StatusBarEntryDescriptor } from '../../main/src/plugin/statusbar/statusbar-registry';
-import type {
-  PlayKubeInfo,
-  ContainerCreateOptions as PodmanContainerCreateOptions,
-} from '../../main/src/plugin/dockerode/libpod-dockerode';
 import type {
   Cluster,
   Context,
@@ -79,23 +32,69 @@ import type {
   V1PodList,
   V1Service,
 } from '@kubernetes/client-node';
-import type { Menu } from '../../main/src/plugin/menu-registry';
-import type { MessageBoxOptions, MessageBoxReturnValue } from '../../main/src/plugin/message-box';
-import type { ViewInfoUI } from '../../main/src/plugin/api/view-info';
-import type { ContextInfo } from '../../main/src/plugin/api/context-info';
-import type { OnboardingInfo, OnboardingStatus } from '../../main/src/plugin/api/onboarding';
+import type * as containerDesktopAPI from '@podman-desktop/api';
+import { contextBridge, ipcRenderer } from 'electron';
+import EventEmitter from 'events';
+
+import type { ApiSenderType } from '../../main/src/plugin/api';
+import type { CliToolInfo } from '../../main/src/plugin/api/cli-tool-info';
+import type { ColorInfo } from '../../main/src/plugin/api/color-info';
+import type { CommandInfo } from '../../main/src/plugin/api/command-info';
 import type {
-  KubernetesGeneratorSelector,
+  ContainerCreateOptions,
+  ContainerInfo,
+  SimpleContainerInfo,
+  VolumeCreateOptions,
+} from '../../main/src/plugin/api/container-info';
+import type { ContainerInspectInfo } from '../../main/src/plugin/api/container-inspect-info';
+import type { ContainerStatsInfo } from '../../main/src/plugin/api/container-stats-info';
+import type { ContextInfo } from '../../main/src/plugin/api/context-info';
+import type { ContributionInfo } from '../../main/src/plugin/api/contribution-info';
+import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
+import type { HistoryInfo } from '../../main/src/plugin/api/history-info';
+import type { IconInfo } from '../../main/src/plugin/api/icon-info';
+import type { ImageCheckerInfo } from '../../main/src/plugin/api/image-checker-info';
+import type { ImageInfo } from '../../main/src/plugin/api/image-info';
+import type { ImageInspectInfo } from '../../main/src/plugin/api/image-inspect-info';
+import type { KubernetesInformerResourcesType } from '../../main/src/plugin/api/kubernetes-informer-info';
+import type { KubernetesGeneratorInfo } from '../../main/src/plugin/api/KubernetesGeneratorInfo';
+import type { NetworkInspectInfo } from '../../main/src/plugin/api/network-info';
+import type { NotificationCard, NotificationCardOptions } from '../../main/src/plugin/api/notification';
+import type { OnboardingInfo, OnboardingStatus } from '../../main/src/plugin/api/onboarding';
+import type { V1Route } from '../../main/src/plugin/api/openshift-types';
+import type { PodCreateOptions, PodInfo, PodInspectInfo } from '../../main/src/plugin/api/pod-info';
+import type {
+  PreflightCheckEvent,
+  PreflightChecksCallback,
+  ProviderContainerConnectionInfo,
+  ProviderInfo,
+  ProviderKubernetesConnectionInfo,
+} from '../../main/src/plugin/api/provider-info';
+import type { PullEvent } from '../../main/src/plugin/api/pull-event';
+import type { ViewInfoUI } from '../../main/src/plugin/api/view-info';
+import type { VolumeInspectInfo, VolumeListInfo } from '../../main/src/plugin/api/volume-info';
+import type { WebviewInfo } from '../../main/src/plugin/api/webview-info';
+import type { AuthenticationProviderInfo } from '../../main/src/plugin/authentication';
+import type { IConfigurationPropertyRecordedSchema } from '../../main/src/plugin/configuration-registry';
+import type {
+  ContainerCreateOptions as PodmanContainerCreateOptions,
+  PlayKubeInfo,
+} from '../../main/src/plugin/dockerode/libpod-dockerode';
+import type { CatalogExtension } from '../../main/src/plugin/extensions-catalog/extensions-catalog-api';
+import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-api';
+import type {
   GenerateKubeResult,
   KubernetesGeneratorArgument,
+  KubernetesGeneratorSelector,
 } from '../../main/src/plugin/kube-generator-registry';
 import type { KubeContext } from '../../main/src/plugin/kubernetes-context';
-
-import type { KubernetesGeneratorInfo } from '../../main/src/plugin/api/KubernetesGeneratorInfo';
-import type { NotificationCard, NotificationCardOptions } from '../../main/src/plugin/api/notification';
-import type { ApiSenderType } from '../../main/src/plugin/api';
-import type { IDisposable } from '../../main/src/plugin/types/disposable';
 import type { ContextGeneralState, ResourceName } from '../../main/src/plugin/kubernetes-context-state.js';
+import type { Guide } from '../../main/src/plugin/learning-center/learning-center-api';
+import type { Menu } from '../../main/src/plugin/menu-registry';
+import type { MessageBoxOptions, MessageBoxReturnValue } from '../../main/src/plugin/message-box';
+import type { StatusBarEntryDescriptor } from '../../main/src/plugin/statusbar/statusbar-registry';
+import type { IDisposable } from '../../main/src/plugin/types/disposable';
+import { Deferred } from './util/deferred';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
 export type OpenSaveDialogResultCallback = (result: string | string[] | undefined) => void;

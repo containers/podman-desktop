@@ -19,11 +19,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
-import WelcomePage from './WelcomePage.svelte';
+
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { get } from 'svelte/store';
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import { onboardingList } from '/@/stores/onboarding';
+
+import WelcomePage from './WelcomePage.svelte';
 
 const getFeaturedExtensionsMock = vi.fn();
 const getProviderInfosMock = vi.fn();

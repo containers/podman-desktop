@@ -16,15 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Mock } from 'vitest';
-import { expect, describe, test, vi, beforeEach, afterEach } from 'vitest';
-import { getInstallationPath, macosExtraPath, Exec } from './exec.js';
-import * as util from '../../util.js';
+import type { Readable } from 'node:stream';
+
 import type { ChildProcessWithoutNullStreams } from 'child_process';
 import { spawn } from 'child_process';
-import type { Readable } from 'node:stream';
-import type { Proxy } from '../proxy.js';
 import * as sudo from 'sudo-prompt';
+import type { Mock } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+
+import * as util from '../../util.js';
+import type { Proxy } from '../proxy.js';
+import { Exec, getInstallationPath, macosExtraPath } from './exec.js';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 

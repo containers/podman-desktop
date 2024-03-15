@@ -19,8 +19,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import { WelcomeUtils } from './welcome-utils';
+
 import { WelcomeSettings } from '../../../../main/src/plugin/welcome/welcome-settings';
+import { WelcomeUtils } from './welcome-utils';
 
 let welcomeUtils: WelcomeUtils;
 

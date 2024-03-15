@@ -24,6 +24,7 @@ import type {
   ImageChecks,
   ImageInfo,
 } from '@podman-desktop/api';
+
 import type { ApiSenderType } from './api.js';
 import type { ImageCheckerExtensionInfo, ImageCheckerInfo } from './api/image-checker-info.js';
 

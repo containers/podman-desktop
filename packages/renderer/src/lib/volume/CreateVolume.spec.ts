@@ -19,11 +19,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
-import { providerInfos } from '../../stores/providers';
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import userEvent from '@testing-library/user-event';
+import { beforeAll, expect, test, vi } from 'vitest';
+
+import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import { providerInfos } from '../../stores/providers';
 import CreateVolume from './CreateVolume.svelte';
 
 const createVolumeMock = vi.fn();

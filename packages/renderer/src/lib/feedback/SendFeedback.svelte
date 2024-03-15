@@ -1,12 +1,15 @@
 <script lang="ts">
 import { faFrown, faGrinStars, faMeh, faSmile } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
-import Modal from '../dialogs/Modal.svelte';
-import type { FeedbackProperties } from '../../../../preload/src/index';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
-import Button from '../ui/Button.svelte';
-import WarningMessage from '../ui/WarningMessage.svelte';
+
 import CloseButton from '/@/lib/ui/CloseButton.svelte';
+
+import type { FeedbackProperties } from '../../../../preload/src/index';
+import Modal from '../dialogs/Modal.svelte';
+import Button from '../ui/Button.svelte';
+import ErrorMessage from '../ui/ErrorMessage.svelte';
+import WarningMessage from '../ui/WarningMessage.svelte';
+
 let displayModal = false;
 
 // feedback of the user

@@ -1,12 +1,13 @@
 <script lang="ts">
-import Modal from '../dialogs/Modal.svelte';
+import { faRefresh, faTrash } from '@fortawesome/free-solid-svg-icons';
+import humanizeDuration from 'humanize-duration';
+import moment from 'moment';
+
+import CloseButton from '/@/lib/ui/CloseButton.svelte';
 import type { EventStoreInfo } from '/@/stores/event-store';
 
-import moment from 'moment';
-import humanizeDuration from 'humanize-duration';
+import Modal from '../dialogs/Modal.svelte';
 import Button from '../ui/Button.svelte';
-import { faRefresh, faTrash } from '@fortawesome/free-solid-svg-icons';
-import CloseButton from '/@/lib/ui/CloseButton.svelte';
 
 export let closeCallback: () => void;
 

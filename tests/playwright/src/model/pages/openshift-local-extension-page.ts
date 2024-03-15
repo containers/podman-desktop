@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { Page } from '@playwright/test';
+
 import { ExtensionPage } from './extension-page';
 
 export class OpenshiftLocalExtensionPage extends ExtensionPage {

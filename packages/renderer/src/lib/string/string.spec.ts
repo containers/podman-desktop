@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { test, expect } from 'vitest';
+import { expect, test } from 'vitest';
+
 import { splitSpacesHandlingDoubleQuotes } from './string';
 
 test('Expect single argument without quotes returns a single element array ', async () => {

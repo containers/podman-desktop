@@ -16,10 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, test, vi } from 'vitest';
-import { PodmanCleanupMacOS } from './podman-cleanup-macos';
 import { process } from '@podman-desktop/api';
 import psList from 'ps-list';
+import { beforeEach, expect, test, vi } from 'vitest';
+
+import { PodmanCleanupMacOS } from './podman-cleanup-macos';
 
 let podmanCleanupMacOS: PodmanCleanupMacOS;
 

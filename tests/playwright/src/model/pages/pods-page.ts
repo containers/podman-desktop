@@ -17,10 +17,11 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { BasePage } from './base-page';
-import { PodDetailsPage } from './pods-details-page';
-import { PlayKubeYamlPage } from './play-kube-yaml-page';
+
 import { handleConfirmationDialog } from '../../utility/operations';
+import { BasePage } from './base-page';
+import { PlayKubeYamlPage } from './play-kube-yaml-page';
+import { PodDetailsPage } from './pods-details-page';
 
 export class PodsPage extends BasePage {
   readonly heading: Locator;

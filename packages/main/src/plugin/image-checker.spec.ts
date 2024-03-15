@@ -16,12 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, test, expect, vi, suite } from 'vitest';
-import type { ApiSenderType } from './api.js';
 import { afterEach } from 'node:test';
+
 import type { CancellationToken, ImageChecks, ImageInfo, ProviderResult } from '@podman-desktop/api';
-import { ImageCheckerImpl } from './image-checker.js';
+import { beforeEach, expect, suite, test, vi } from 'vitest';
+
+import type { ApiSenderType } from './api.js';
 import type { ImageCheckerExtensionInfo } from './api/image-checker-info.js';
+import { ImageCheckerImpl } from './image-checker.js';
 
 const apiSender: ApiSenderType = {
   send: vi.fn(),

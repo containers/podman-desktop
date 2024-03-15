@@ -18,19 +18,20 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+import type { RequestConfig } from '@docker/extension-api-client-types/dist/v1/http-service.js';
+import type Dockerode from 'dockerode';
+import type { IpcMainEvent } from 'electron';
 import * as fs from 'fs';
 import type { Method } from 'got';
-import type { ContributionManager } from '../contribution-manager.js';
-import type { ContainerProviderRegistry } from '../container-registry.js';
+import nock from 'nock';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+
 import type { ApiSenderType } from '../api.js';
+import type { ProviderContainerConnectionInfo } from '../api/provider-info.js';
+import type { ContainerProviderRegistry } from '../container-registry.js';
+import type { ContributionManager } from '../contribution-manager.js';
 import type { Directories } from '../directories.js';
 import { DockerDesktopInstallation } from './docker-desktop-installation.js';
-import type { RequestConfig } from '@docker/extension-api-client-types/dist/v1/http-service.js';
-import nock from 'nock';
-import type { IpcMainEvent } from 'electron';
-import type Dockerode from 'dockerode';
-import type { ProviderContainerConnectionInfo } from '../api/provider-info.js';
 
 let dockerDesktopInstallation: TestDockerDesktopInstallation;
 

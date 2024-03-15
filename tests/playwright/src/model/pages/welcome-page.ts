@@ -17,8 +17,9 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { BasePage } from './base-page';
 import { expect } from '@playwright/test';
+
+import { BasePage } from './base-page';
 
 export class WelcomePage extends BasePage {
   readonly welcomeMessage: Locator;

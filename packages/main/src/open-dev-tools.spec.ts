@@ -16,10 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, test, vi } from 'vitest';
 import type { BrowserWindow } from 'electron';
-import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
+import { beforeEach, expect, test, vi } from 'vitest';
+
 import { OpenDevTools } from './open-dev-tools.js';
+import type { ConfigurationRegistry } from './plugin/configuration-registry.js';
 
 let openDevTools: OpenDevTools;
 

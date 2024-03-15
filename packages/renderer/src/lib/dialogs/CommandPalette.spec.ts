@@ -19,12 +19,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, beforeEach, test, expect, vi, describe } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import CommandPalette from './CommandPalette.svelte';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+
 import { commandsInfos } from '/@/stores/commands';
 import { context } from '/@/stores/context';
+
+import CommandPalette from './CommandPalette.svelte';
 
 const receiveFunctionMock = vi.fn();
 

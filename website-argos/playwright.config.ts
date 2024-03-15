@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { devices } from '@playwright/test';
 import type { PlaywrightTestConfig } from '@playwright/test';
+import { devices } from '@playwright/test';
 
 const config: PlaywrightTestConfig = {
   webServer: {

@@ -1,7 +1,7 @@
 <script lang="ts">
-import Fa from 'svelte-fa';
-import { faTriangleExclamation, faCircleInfo, faXmarkCircle } from '@fortawesome/free-solid-svg-icons';
+import { faCircleInfo, faTriangleExclamation, faXmarkCircle } from '@fortawesome/free-solid-svg-icons';
 import type { AuditRecord, AuditResult } from '@podman-desktop/api';
+import Fa from 'svelte-fa';
 
 export let auditResult: AuditResult;
 

@@ -17,9 +17,10 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
+
+import { waitUntil } from '../../utility/wait';
 import { BasePage } from './base-page';
 import { ImagesPage } from './images-page';
-import { waitUntil } from '../../utility/wait';
 
 export class ImageEditPage extends BasePage {
   readonly name: string;

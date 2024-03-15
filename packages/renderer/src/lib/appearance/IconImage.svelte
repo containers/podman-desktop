@@ -1,5 +1,6 @@
 <script lang="ts">
 import { onMount } from 'svelte';
+
 import { AppearanceUtil } from './appearance-util';
 
 export let image: string | { light: string; dark: string } | undefined = undefined;

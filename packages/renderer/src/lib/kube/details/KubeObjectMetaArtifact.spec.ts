@@ -17,10 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import KubeObjectMetaArtifact from './KubeObjectMetaArtifact.svelte';
+
 import type { V1ObjectMeta } from '@kubernetes/client-node';
+import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
+import KubeObjectMetaArtifact from './KubeObjectMetaArtifact.svelte';
 
 const fakeObjectMeta: V1ObjectMeta = {
   name: 'test-name',

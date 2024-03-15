@@ -18,15 +18,17 @@
 
 import { get } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
+
+import { tasksInfo } from '/@/stores/tasks';
+
 import type { ConnectionCallback } from './preferences-connection-rendering-task';
 import {
-  startTask,
+  clearCreateTask,
   disconnectUI,
   eventCollect,
   reconnectUI,
-  clearCreateTask,
+  startTask,
 } from './preferences-connection-rendering-task';
-import { tasksInfo } from '/@/stores/tasks';
 
 const dummyCallback: ConnectionCallback = {
   log: vi.fn(),

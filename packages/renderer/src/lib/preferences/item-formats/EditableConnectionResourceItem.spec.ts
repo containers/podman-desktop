@@ -17,10 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
-import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
 import userEvent from '@testing-library/user-event';
+import { expect, test, vi } from 'vitest';
+
+import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
 import EditableConnectionResourceItem from './EditableConnectionResourceItem.svelte';
 
 const onSave = vi.fn();

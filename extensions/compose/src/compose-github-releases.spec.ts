@@ -16,11 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import type { Octokit } from '@octokit/rest';
-import { ComposeGitHubReleases } from './compose-github-releases';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+
+import type { Octokit } from '@octokit/rest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+
+import { ComposeGitHubReleases } from './compose-github-releases';
 
 let composeGitHubReleases: ComposeGitHubReleases;
 

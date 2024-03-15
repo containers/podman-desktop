@@ -1,7 +1,8 @@
 <script lang="ts">
-import type { ImageInfoUI } from './ImageInfoUI';
 import { onMount } from 'svelte';
+
 import MonacoEditor from '../editor/MonacoEditor.svelte';
+import type { ImageInfoUI } from './ImageInfoUI';
 
 export let image: ImageInfoUI;
 

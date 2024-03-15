@@ -1,13 +1,15 @@
 <script lang="ts">
+import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { onMount } from 'svelte';
+import Fa from 'svelte-fa';
+
 import { configurationProperties } from '/@/stores/configurationProperties';
 import { providerInfos } from '/@/stores/providers';
-import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import PreferencesConnectionCreationOrEditRendering from '../preferences/PreferencesConnectionCreationOrEditRendering.svelte';
+
 import type { OnboardingEmbeddedComponentType } from '../../../../main/src/plugin/api/onboarding';
-import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import Fa from 'svelte-fa';
+import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+import PreferencesConnectionCreationOrEditRendering from '../preferences/PreferencesConnectionCreationOrEditRendering.svelte';
 
 export let component: OnboardingEmbeddedComponentType;
 export let extensionId: string;

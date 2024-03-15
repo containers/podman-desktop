@@ -19,14 +19,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeEach } from 'vitest';
+
+import type { KubernetesObject, V1Ingress } from '@kubernetes/client-node';
 import { render, screen } from '@testing-library/svelte';
 import { readable, writable } from 'svelte/store';
-import type { V1Ingress, KubernetesObject } from '@kubernetes/client-node';
-import IngressesRoutesList from './IngressesRoutesList.svelte';
-import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
+import { beforeEach, expect, test, vi } from 'vitest';
+
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
+
+import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes-context-state';
+import IngressesRoutesList from './IngressesRoutesList.svelte';
 
 vi.mock('/@/stores/kubernetes-contexts-state', async () => {
   return {

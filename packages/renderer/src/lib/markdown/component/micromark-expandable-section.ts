@@ -19,7 +19,8 @@
  * It allows to create an expandable section which consists of a toggle and a section which can be visible/hidden based on the toggle state
  */
 import type { CompileContext } from 'micromark-util-types';
-import type { ExpandableSectionProps, ExpandableSection } from '../micromark-utils';
+
+import type { ExpandableSection, ExpandableSectionProps } from '../micromark-utils';
 
 let expandableCount = 0;
 const expandables = new Map<string, ExpandableSection>();

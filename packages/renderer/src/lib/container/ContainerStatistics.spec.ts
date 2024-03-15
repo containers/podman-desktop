@@ -17,12 +17,13 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
 
-import ContainerStatistics from './ContainerStatistics.svelte';
+import { render, screen } from '@testing-library/svelte';
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import type { ContainerStatsInfo } from '../../../../main/src/plugin/api/container-stats-info';
 import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from './ContainerInfoUI';
+import ContainerStatistics from './ContainerStatistics.svelte';
 
 const myContainer: ContainerInfoUI = {
   id: 'foobar',

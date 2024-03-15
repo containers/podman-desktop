@@ -17,17 +17,18 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/svelte';
 
-import RouteDetails from './RouteDetails.svelte';
-
-import { router } from 'tinro';
-import { lastPage } from '/@/stores/breadcrumb';
-import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import type { KubernetesObject } from '@kubernetes/client-node';
-import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
+import { router } from 'tinro';
+import { beforeAll, expect, test, vi } from 'vitest';
+
+import { lastPage } from '/@/stores/breadcrumb';
+import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
+
+import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
+import RouteDetails from './RouteDetails.svelte';
 
 const kubernetesDeleteRouteMock = vi.fn();
 

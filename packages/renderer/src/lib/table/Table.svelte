@@ -8,9 +8,10 @@
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
 import { afterUpdate, onMount, tick } from 'svelte';
+import { flip } from 'svelte/animate';
+
 import Checkbox from '../ui/Checkbox.svelte';
 import type { Column, Row } from './table';
-import { flip } from 'svelte/animate';
 /* eslint-enable import/no-duplicates */
 
 export let kind: string;

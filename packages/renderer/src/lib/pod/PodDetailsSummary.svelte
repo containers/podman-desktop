@@ -1,9 +1,10 @@
 <script lang="ts">
-import { router } from 'tinro';
-import type { PodInfoUI } from './PodInfoUI';
 import type { V1Pod } from '@kubernetes/client-node';
 import { onMount } from 'svelte';
+import { router } from 'tinro';
+
 import KubePodDetailsSummary from '../kube/KubePodDetailsSummary.svelte';
+import type { PodInfoUI } from './PodInfoUI';
 
 export let pod: PodInfoUI;
 let kubePod: V1Pod | undefined;

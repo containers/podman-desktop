@@ -16,21 +16,23 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { existsSync } from 'node:fs';
+import type * as http from 'node:http';
+import { resolve } from 'node:path';
+
 import type * as podmanDesktopAPI from '@podman-desktop/api';
-import { WebviewPanelImpl } from './webview-panel-impl.js';
-import type { ApiSenderType } from '/@/plugin/api.js';
-import { Uri } from '/@/plugin/types/uri.js';
-import { WebviewImpl } from './webview-impl.js';
-import type { WebviewInfo, WebviewSimpleInfo } from '/@/plugin/api/webview-info.js';
-
-type IconPath = Uri | { readonly light: Uri; readonly dark: Uri };
-
 import type { Application } from 'express';
 import express from 'express';
-import type * as http from 'node:http';
+
+import type { ApiSenderType } from '/@/plugin/api.js';
+import type { WebviewInfo, WebviewSimpleInfo } from '/@/plugin/api/webview-info.js';
+import { Uri } from '/@/plugin/types/uri.js';
+
 import { getFreePort } from '../util/port.js';
-import { resolve } from 'node:path';
-import { existsSync } from 'node:fs';
+import { WebviewImpl } from './webview-impl.js';
+import { WebviewPanelImpl } from './webview-panel-impl.js';
+
+type IconPath = Uri | { readonly light: Uri; readonly dark: Uri };
 
 export class HttpServer {
   #app: Application;

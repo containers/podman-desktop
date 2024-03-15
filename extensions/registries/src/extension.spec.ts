@@ -18,9 +18,10 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
-import { activate, stripImagePrefix } from './extension';
 import * as extensionApi from '@podman-desktop/api';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+
+import { activate, stripImagePrefix } from './extension';
 
 vi.mock('@podman-desktop/api', async () => {
   return {

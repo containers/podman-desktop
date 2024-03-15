@@ -9,18 +9,19 @@
 </style>
 
 <script lang="ts">
-import type { CatalogExtension } from '../../../../main/src/plugin/extensions-catalog/extensions-catalog-api';
-import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
+import { faArrowCircleDown, faPuzzlePiece } from '@fortawesome/free-solid-svg-icons';
+import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 
-import { onDestroy, onMount } from 'svelte';
-import SettingsPage from '/@/lib/preferences/SettingsPage.svelte';
-import { catalogExtensionInfos } from '/@/stores/catalog-extensions';
-import EmptyScreen from '/@/lib/ui/EmptyScreen.svelte';
-import { faArrowCircleDown, faPuzzlePiece } from '@fortawesome/free-solid-svg-icons';
 import Markdown from '/@/lib/markdown/Markdown.svelte';
-import { extensionInfos } from '/@/stores/extensions';
+import SettingsPage from '/@/lib/preferences/SettingsPage.svelte';
+import EmptyScreen from '/@/lib/ui/EmptyScreen.svelte';
 import ErrorMessage from '/@/lib/ui/ErrorMessage.svelte';
+import { catalogExtensionInfos } from '/@/stores/catalog-extensions';
+import { extensionInfos } from '/@/stores/extensions';
+
+import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
+import type { CatalogExtension } from '../../../../main/src/plugin/extensions-catalog/extensions-catalog-api';
 import Button from '../ui/Button.svelte';
 
 export let extensionId: string | undefined = undefined;

@@ -16,11 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, test, vi } from 'vitest';
-import { installBinaryToSystem } from './cli-run';
-import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
+
+import * as extensionApi from '@podman-desktop/api';
 import * as path from 'path';
+import { beforeEach, expect, test, vi } from 'vitest';
+
+import { installBinaryToSystem } from './cli-run';
 
 vi.mock('@podman-desktop/api', async () => {
   return {

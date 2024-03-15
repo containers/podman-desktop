@@ -18,9 +18,10 @@
 
 // Combine PD and DD extensions being installed
 import { derived, type Readable } from 'svelte/store';
-import { extensionInfos } from './extensions';
-import { contributions } from './contribs';
+
 import type { ExtensionInfo } from '../../../main/src/plugin/api/extension-info';
+import { contributions } from './contribs';
+import { extensionInfos } from './extensions';
 
 export interface CombinedExtensionInfoUI extends ExtensionInfo {
   // type is either 'pd' for Podman Desktop or 'dd' for 'Docker Desktop'

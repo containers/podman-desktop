@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { assertType, beforeAll, expect, test } from 'vitest';
+
 import { CancellationTokenSource } from './cancellation-token.js';
 import { CancellationTokenRegistry } from './cancellation-token-registry.js';
 

@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
+
 import { ResourcesPage } from './resources-page';
 
 export class ResourcesPodmanConnections extends ResourcesPage {

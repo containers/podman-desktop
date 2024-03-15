@@ -15,11 +15,13 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type { KindCluster } from './extension';
+import * as fs from 'node:fs';
+
 import * as extensionApi from '@podman-desktop/api';
 import { tmpName } from 'tmp-promise';
+
+import type { KindCluster } from './extension';
 import { getKindPath } from './util';
-import * as fs from 'node:fs';
 
 export type ImageInfo = { engineId: string; name?: string; tag?: string };
 

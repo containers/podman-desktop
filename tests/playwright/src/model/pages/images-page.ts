@@ -17,14 +17,15 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { MainPage } from './main-page';
-import { ImageDetailsPage } from './image-details-page';
-import { PullImagePage } from './pull-image-page';
+import { expect as playExpect } from '@playwright/test';
+
+import { handleConfirmationDialog } from '../../utility/operations';
 import { waitUntil, waitWhile } from '../../utility/wait';
 import { BuildImagePage } from './build-image-page';
-import { expect as playExpect } from '@playwright/test';
 import type { ContainersPage } from './containers-page';
-import { handleConfirmationDialog } from '../../utility/operations';
+import { ImageDetailsPage } from './image-details-page';
+import { MainPage } from './main-page';
+import { PullImagePage } from './pull-image-page';
 
 export class ImagesPage extends MainPage {
   readonly pullImageButton: Locator;

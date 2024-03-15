@@ -1,8 +1,10 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-import { providerInfos } from '/@/stores/providers';
-import { notificationQueue } from '/@/stores/notifications';
 import type { Unsubscriber } from 'svelte/motion';
+
+import { notificationQueue } from '/@/stores/notifications';
+import { providerInfos } from '/@/stores/providers';
+
 import NewContentBadge from '../ui/NewContentBadge.svelte';
 
 let providersId: string[] = [];

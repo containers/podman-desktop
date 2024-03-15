@@ -1,7 +1,8 @@
 <script lang="ts">
-import Button from '../ui/Button.svelte';
 import type { KubernetesObject } from '@kubernetes/client-node';
+
 import SolidKubeIcon from '../images/SolidKubeIcon.svelte';
+import Button from '../ui/Button.svelte';
 
 let inProgress = false;
 

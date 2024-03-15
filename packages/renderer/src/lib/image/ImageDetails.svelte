@@ -1,34 +1,36 @@
 <script lang="ts">
-import type { ImageInfoUI } from './ImageInfoUI';
-import Route from '../../Route.svelte';
+import type { ImageInfo } from '@podman-desktop/api';
 import { onDestroy, onMount } from 'svelte';
+import type { Unsubscriber } from 'svelte/motion';
+
+import { containersInfos } from '/@/stores/containers';
+import { context } from '/@/stores/context';
+import { imageCheckerProviders } from '/@/stores/image-checker-providers';
+import { viewsContributions } from '/@/stores/views';
+
+import type { ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
+import Route from '../../Route.svelte';
 import { imagesInfos } from '../../stores/images';
+import type { ContextUI } from '../context/context';
 import StatusIcon from '../images/StatusIcon.svelte';
-import ImageActions from './ImageActions.svelte';
-import { ImageUtils } from './image-utils';
-import ImageDetailsInspect from './ImageDetailsInspect.svelte';
-import ImageDetailsHistory from './ImageDetailsHistory.svelte';
-import ImageDetailsSummary from './ImageDetailsSummary.svelte';
-import PushImageModal from './PushImageModal.svelte';
-import RenameImageModal from './RenameImageModal.svelte';
+import Badge from '../ui/Badge.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import Tab from '../ui/Tab.svelte';
-import { containersInfos } from '/@/stores/containers';
-import ImageDetailsCheck from './ImageDetailsCheck.svelte';
-import { imageCheckerProviders } from '/@/stores/image-checker-providers';
-import type { Unsubscriber } from 'svelte/motion';
-import type { ImageInfo } from '@podman-desktop/api';
-import { viewsContributions } from '/@/stores/views';
-import type { ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
 import {
   IMAGE_DETAILS_VIEW_BADGES,
   IMAGE_DETAILS_VIEW_ICONS,
   IMAGE_VIEW_BADGES,
   IMAGE_VIEW_ICONS,
 } from '../view/views';
-import { context } from '/@/stores/context';
-import type { ContextUI } from '../context/context';
-import Badge from '../ui/Badge.svelte';
+import { ImageUtils } from './image-utils';
+import ImageActions from './ImageActions.svelte';
+import ImageDetailsCheck from './ImageDetailsCheck.svelte';
+import ImageDetailsHistory from './ImageDetailsHistory.svelte';
+import ImageDetailsInspect from './ImageDetailsInspect.svelte';
+import ImageDetailsSummary from './ImageDetailsSummary.svelte';
+import type { ImageInfoUI } from './ImageInfoUI';
+import PushImageModal from './PushImageModal.svelte';
+import RenameImageModal from './RenameImageModal.svelte';
 
 export let imageID: string;
 export let engineId: string;

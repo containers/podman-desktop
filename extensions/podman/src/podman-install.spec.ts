@@ -16,11 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { WinInstaller } from './podman-install';
-import { beforeEach, expect, test, vi, afterEach } from 'vitest';
-import * as extensionApi from '@podman-desktop/api';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
+
+import * as extensionApi from '@podman-desktop/api';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+
+import { WinInstaller } from './podman-install';
 
 const originalConsoleError = console.error;
 const consoleErrorMock = vi.fn();

@@ -21,6 +21,7 @@
 import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
 import { beforeAll, expect, test, vi } from 'vitest';
+
 import type { CommandInfo } from '../../../main/src/plugin/api/command-info';
 import { commandsEventStore, commandsEventStoreInfo, commandsInfos } from './commands';
 

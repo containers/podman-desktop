@@ -19,11 +19,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/svelte';
-import Link from './Link.svelte';
+
 import { faRocket } from '@fortawesome/free-solid-svg-icons';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { router } from 'tinro';
+import { expect, test, vi } from 'vitest';
+
+import Link from './Link.svelte';
 
 // mock the router
 vi.mock('tinro', () => {

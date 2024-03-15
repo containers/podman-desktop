@@ -15,8 +15,9 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import { isMac, isWindows } from './util';
 import * as extensionApi from '@podman-desktop/api';
+
+import { isMac, isWindows } from './util';
 
 const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
 

@@ -1,15 +1,16 @@
 <script lang="ts">
-import type { ContainerInfoUI } from './ContainerInfoUI';
+import 'xterm/css/xterm.css';
+
 import { onDestroy, onMount } from 'svelte';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
-import 'xterm/css/xterm.css';
+
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getPanelDetailColor } from '../color/color';
-
 import { isMultiplexedLog } from '../stream/stream-utils';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import NoLogIcon from '../ui/NoLogIcon.svelte';
+import type { ContainerInfoUI } from './ContainerInfoUI';
 
 export let container: ContainerInfoUI;
 

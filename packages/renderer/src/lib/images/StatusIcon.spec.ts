@@ -17,8 +17,10 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
 import StatusIcon from './StatusIcon.svelte';
 
 test('Expect starting styling', async () => {

@@ -17,13 +17,14 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
+
+import { fireEvent } from '@testing-library/dom';
 import { render, screen } from '@testing-library/svelte';
+import { router } from 'tinro';
+import { expect, test, vi } from 'vitest';
 
 import PodColumnContainers from './PodColumnContainers.svelte';
 import type { PodInfoUI } from './PodInfoUI';
-import { fireEvent } from '@testing-library/dom';
-import { router } from 'tinro';
 
 const pod: PodInfoUI = {
   id: 'pod-id',

@@ -1,10 +1,11 @@
 <script lang="ts">
-import { createRouteObject } from 'tinro/dist/tinro_lib';
-import type { TinroBreadcrumb, TinroRouteMeta } from 'tinro';
-import { TelemetryService } from './TelemetryService';
-import { lastPage, currentPage, history } from './stores/breadcrumb';
-import type { NavigationHint } from './navigation';
 import { onDestroy } from 'svelte';
+import type { TinroBreadcrumb, TinroRouteMeta } from 'tinro';
+import { createRouteObject } from 'tinro/dist/tinro_lib';
+
+import type { NavigationHint } from './navigation';
+import { currentPage, history, lastPage } from './stores/breadcrumb';
+import { TelemetryService } from './TelemetryService';
 
 export let path = '/*';
 export let fallback = false;

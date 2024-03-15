@@ -17,12 +17,13 @@
  ***********************************************************************/
 
 import type { Page } from '@playwright/test';
+import { expect as playExpect } from '@playwright/test';
+
+import { RegistriesPage } from '../model/pages/registries-page';
+import { ResourcesPage } from '../model/pages/resources-page';
+import { ResourcesPodmanConnections } from '../model/pages/resources-podman-connections-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { waitUntil, waitWhile } from './wait';
-import { ResourcesPage } from '../model/pages/resources-page';
-import { RegistriesPage } from '../model/pages/registries-page';
-import { expect as playExpect } from '@playwright/test';
-import { ResourcesPodmanConnections } from '../model/pages/resources-podman-connections-page';
 
 /**
  * Stop and delete container defined by its name

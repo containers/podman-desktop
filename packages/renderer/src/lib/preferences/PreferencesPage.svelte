@@ -1,25 +1,27 @@
 <script lang="ts">
-import { configurationProperties } from '../../stores/configurationProperties';
 import { onMount } from 'svelte';
-import Route from '../../Route.svelte';
-import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
-import PreferencesRendering from './PreferencesRendering.svelte';
-import PreferencesContainerConnectionRendering from './PreferencesContainerConnectionRendering.svelte';
-import PreferencesKubernetesConnectionRendering from './PreferencesKubernetesConnectionRendering.svelte';
-import PreferencesProviderRendering from './PreferencesProviderRendering.svelte';
-import PreferencesExtensionRendering from './PreferencesExtensionRendering.svelte';
-import PreferencesRegistriesEditing from './PreferencesRegistriesEditing.svelte';
-import PreferencesPageDockerExtensions from '../docker-extension/PreferencesPageDockerExtensions.svelte';
-import PreferencesProxiesRendering from './PreferencesProxiesRendering.svelte';
-import PreferencesExtensionList from './PreferencesExtensionList.svelte';
-import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
-import PreferencesAuthenticationProvidersRendering from './PreferencesAuthenticationProvidersRendering.svelte';
-import PreferencesInstallExtensionFromId from './PreferencesInstallExtensionFromId.svelte';
-import PreferencesCliToolsRendering from './PreferencesCliToolsRendering.svelte';
-import PreferencesKubernetesContextsRendering from './PreferencesKubernetesContextsRendering.svelte';
-import Onboarding from '../onboarding/Onboarding.svelte';
-import { isDefaultScope } from './Util';
+
 import PreferencesContainerConnectionEdit from '/@/lib/preferences/PreferencesContainerConnectionEdit.svelte';
+
+import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
+import Route from '../../Route.svelte';
+import { configurationProperties } from '../../stores/configurationProperties';
+import PreferencesPageDockerExtensions from '../docker-extension/PreferencesPageDockerExtensions.svelte';
+import Onboarding from '../onboarding/Onboarding.svelte';
+import PreferencesAuthenticationProvidersRendering from './PreferencesAuthenticationProvidersRendering.svelte';
+import PreferencesCliToolsRendering from './PreferencesCliToolsRendering.svelte';
+import PreferencesContainerConnectionRendering from './PreferencesContainerConnectionRendering.svelte';
+import PreferencesExtensionList from './PreferencesExtensionList.svelte';
+import PreferencesExtensionRendering from './PreferencesExtensionRendering.svelte';
+import PreferencesInstallExtensionFromId from './PreferencesInstallExtensionFromId.svelte';
+import PreferencesKubernetesConnectionRendering from './PreferencesKubernetesConnectionRendering.svelte';
+import PreferencesKubernetesContextsRendering from './PreferencesKubernetesContextsRendering.svelte';
+import PreferencesProviderRendering from './PreferencesProviderRendering.svelte';
+import PreferencesProxiesRendering from './PreferencesProxiesRendering.svelte';
+import PreferencesRegistriesEditing from './PreferencesRegistriesEditing.svelte';
+import PreferencesRendering from './PreferencesRendering.svelte';
+import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
+import { isDefaultScope } from './Util';
 
 let properties: IConfigurationPropertyRecordedSchema[];
 let defaultPrefPageId: string;

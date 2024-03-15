@@ -19,12 +19,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect, vi } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
-import ProviderInstalled from '/@/lib/dashboard/ProviderInstalled.svelte';
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import { InitializeAndStartMode, type InitializationContext } from '/@/lib/dashboard/ProviderInitUtils';
 import userEvent from '@testing-library/user-event';
+import { beforeAll, expect, test, vi } from 'vitest';
+
+import { type InitializationContext, InitializeAndStartMode } from '/@/lib/dashboard/ProviderInitUtils';
+import ProviderInstalled from '/@/lib/dashboard/ProviderInstalled.svelte';
+
+import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { verifyStatus } from './ProviderStatusTestHelper.spec';
 
 vi.mock('xterm', () => {

@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
-import TroubleshootingContainerEnginePing from './TroubleshootingContainerEnginePing.svelte';
 import TroubleshootingContainerEngineGrabContainers from './TroubleshootingContainerEngineGrabContainers.svelte';
+import TroubleshootingContainerEnginePing from './TroubleshootingContainerEnginePing.svelte';
 
 export let containerEngineRunning: ProviderContainerConnectionInfo;
 </script>

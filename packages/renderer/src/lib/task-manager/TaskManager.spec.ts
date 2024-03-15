@@ -17,12 +17,15 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect, vi } from 'vitest';
+
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import TaskManager from './TaskManager.svelte';
 import userEvent from '@testing-library/user-event';
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import { tasksInfo } from '/@/stores/tasks';
+
 import type { NotificationTask, StatefulTask } from '../../../../main/src/plugin/api/task';
+import TaskManager from './TaskManager.svelte';
 
 // fake the window.events object
 beforeAll(() => {

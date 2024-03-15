@@ -17,8 +17,9 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
+
 import { fireEvent, render, screen, within } from '@testing-library/svelte';
+import { expect, test, vi } from 'vitest';
 
 import TestTable from './TestTable.svelte';
 

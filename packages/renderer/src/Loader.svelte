@@ -1,6 +1,7 @@
 <script lang="ts">
 import { onDestroy, onMount, tick } from 'svelte';
 import { router } from 'tinro';
+
 import App from './App.svelte';
 import SealRocket from './lib/images/SealRocket.svelte';
 

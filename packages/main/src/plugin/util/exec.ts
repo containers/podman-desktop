@@ -16,12 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { RunError, RunOptions, RunResult } from '@podman-desktop/api';
 import type { ChildProcessWithoutNullStreams } from 'child_process';
 import { spawn } from 'child_process';
-import type { RunError, RunOptions, RunResult } from '@podman-desktop/api';
+import * as sudo from 'sudo-prompt';
+
 import { isLinux, isMac, isWindows } from '../../util.js';
 import type { Proxy } from '../proxy.js';
-import * as sudo from 'sudo-prompt';
 
 export const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
 

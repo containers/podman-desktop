@@ -19,13 +19,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll, beforeEach, describe } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
-import PullImage from './PullImage.svelte';
-import { providerInfos } from '../../stores/providers';
+
 import type { ProviderStatus } from '@podman-desktop/api';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import { providerInfos } from '../../stores/providers';
+import PullImage from './PullImage.svelte';
 
 const pullImageMock = vi.fn();
 

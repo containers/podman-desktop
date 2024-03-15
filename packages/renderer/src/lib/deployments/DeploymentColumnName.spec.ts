@@ -17,12 +17,13 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
+
 import { fireEvent, render, screen } from '@testing-library/svelte';
+import { router } from 'tinro';
+import { expect, test, vi } from 'vitest';
 
 import DeploymentColumnName from './DeploymentColumnName.svelte';
 import type { DeploymentUI } from './DeploymentUI';
-import { router } from 'tinro';
 
 const deployment: DeploymentUI = {
   name: 'my-deployment',

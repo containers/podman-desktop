@@ -16,8 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
+
 import { fireEvent, render, screen } from '@testing-library/svelte';
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import type { NotificationCard } from '../../../../main/src/plugin/api/notification';
 import NotificationCardItem from './NotificationCardItem.svelte';
 

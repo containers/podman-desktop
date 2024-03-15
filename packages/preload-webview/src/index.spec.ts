@@ -19,6 +19,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { beforeEach, expect, test, vi } from 'vitest';
+
 import { init } from '.';
 import * as webviewPreload from './webview-preload';
 

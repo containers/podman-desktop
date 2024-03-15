@@ -18,13 +18,14 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import type { IpcRendererEvent } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron';
 import type { MockInstance } from 'vitest';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { WebviewPreload } from './webview-preload';
-import type { WebviewInfo } from '../../main/src/plugin/api/webview-info';
-import type { IpcRendererEvent } from 'electron';
-import { ipcRenderer, contextBridge } from 'electron';
+
 import type { ColorInfo } from '../../main/src/plugin/api/color-info';
+import type { WebviewInfo } from '../../main/src/plugin/api/webview-info';
+import { WebviewPreload } from './webview-preload';
 
 let webviewPreload: TestWebwiewPreload;
 

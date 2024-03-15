@@ -17,14 +17,14 @@
  ***********************************************************************/
 
 import * as fs from 'node:fs';
-import * as path from 'node:path';
 import * as os from 'node:os';
-import { isLinux, isMac, isWindows } from './util';
+import * as path from 'node:path';
 
 import * as toml from '@ltd/j-toml';
 import type { ProxySettings } from '@podman-desktop/api';
-
 import * as extensionApi from '@podman-desktop/api';
+
+import { isLinux, isMac, isWindows } from './util';
 
 /**
  * Manages access to the containers.conf configuration file used to configure Podman

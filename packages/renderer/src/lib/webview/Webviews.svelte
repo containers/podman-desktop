@@ -1,10 +1,11 @@
 <script lang="ts">
-import Fa from 'svelte-fa';
 import { faPuzzlePiece } from '@fortawesome/free-solid-svg-icons';
-import { webviews } from '/@/stores/webviews';
+import Fa from 'svelte-fa';
+import type { TinroRouteMeta } from 'tinro';
+
 import IconImage from '/@/lib/appearance/IconImage.svelte';
 import NavItem from '/@/lib/ui/NavItem.svelte';
-import type { TinroRouteMeta } from 'tinro';
+import { webviews } from '/@/stores/webviews';
 
 export let meta: TinroRouteMeta;
 </script>

@@ -19,14 +19,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, vi, type Mock, beforeAll, describe, expect, beforeEach, afterEach } from 'vitest';
+
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import { runImageInfo } from '../../stores/run-image-store';
-import RunImage from '/@/lib/image/RunImage.svelte';
-import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
-import { mockBreadcrumb } from '../../stores/breadcrumb.spec';
 import userEvent from '@testing-library/user-event';
 import { router } from 'tinro';
+import { afterEach, beforeAll, beforeEach, describe, expect, type Mock, test, vi } from 'vitest';
+
+import RunImage from '/@/lib/image/RunImage.svelte';
+
+import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
+import { mockBreadcrumb } from '../../stores/breadcrumb.spec';
+import { runImageInfo } from '../../stores/run-image-store';
 import ImageIcon from '../images/ImageIcon.svelte';
 
 const originalConsoleDebug = console.debug;

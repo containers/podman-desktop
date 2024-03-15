@@ -1,9 +1,9 @@
 <script lang="ts">
+import { faList } from '@fortawesome/free-solid-svg-icons';
 import type { ProviderDetectionCheck } from '@podman-desktop/api';
 
 import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import Button from '../ui/Button.svelte';
-import { faList } from '@fortawesome/free-solid-svg-icons';
 
 export let provider: ProviderInfo;
 export let onDetectionChecks = (_detectionChecks: ProviderDetectionCheck[]) => {};

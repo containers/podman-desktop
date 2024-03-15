@@ -1,24 +1,25 @@
-import React from 'react';
-import Layout from '@theme/Layout';
-import Link from '@docusaurus/Link';
 import BrowserOnly from '@docusaurus/BrowserOnly';
-import TailWindThemeSelector from '../components/TailWindThemeSelector';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from '@docusaurus/Link';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
 import {
   faCertificate,
   faCloudArrowDown,
   faCogs,
+  faDiagramProject,
   faGaugeHigh,
+  faGears,
   faPlug,
   faRocket,
-  faGears,
   faRotateRight,
-  faDiagramProject,
 } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Layout from '@theme/Layout';
 import ThemedImage from '@theme/ThemedImage';
-import useBaseUrl from '@docusaurus/useBaseUrl';
+import React from 'react';
+
+import TailWindThemeSelector from '../components/TailWindThemeSelector';
 
 function DownloadClientLinks(): JSX.Element {
   let operatingSystem = '';

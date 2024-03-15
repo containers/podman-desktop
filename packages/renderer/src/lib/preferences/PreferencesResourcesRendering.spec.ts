@@ -17,17 +17,20 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeEach } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
-import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
-import { providerInfos } from '../../stores/providers';
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import userEvent from '@testing-library/user-event';
 import { router } from 'tinro';
-import { onboardingList } from '/@/stores/onboarding';
-import type { OnboardingInfo } from '../../../../main/src/plugin/api/onboarding';
+import { beforeEach, expect, test, vi } from 'vitest';
+
 import { configurationProperties } from '/@/stores/configurationProperties';
+import { onboardingList } from '/@/stores/onboarding';
+
+import type { OnboardingInfo } from '../../../../main/src/plugin/api/onboarding';
+import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
+import { providerInfos } from '../../stores/providers';
+import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';
 
 const providerInfo: ProviderInfo = {
   id: 'podman',

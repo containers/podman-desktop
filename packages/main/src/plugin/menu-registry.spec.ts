@@ -17,11 +17,13 @@
  ***********************************************************************/
 
 import { beforeEach, expect, expectTypeOf, test, vi } from 'vitest';
-import { MenuRegistry } from './menu-registry.js';
-import { CommandRegistry } from './command-registry.js';
+
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
-import type { Disposable } from './types/disposable.js';
+
 import type { ApiSenderType } from './api.js';
+import { CommandRegistry } from './command-registry.js';
+import { MenuRegistry } from './menu-registry.js';
+import type { Disposable } from './types/disposable.js';
 
 let menuRegistry: MenuRegistry;
 let commandRegistry: CommandRegistry;

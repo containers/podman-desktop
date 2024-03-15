@@ -1,13 +1,15 @@
 <script lang="ts">
+import { faCircle, faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
+import { faCircleExclamation, faInfo, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { onDestroy, onMount } from 'svelte';
 import Fa from 'svelte-fa';
-import { faCircleQuestion, faCircle } from '@fortawesome/free-regular-svg-icons';
-import { faCircleExclamation, faInfo, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import type { MessageBoxOptions } from './messagebox-input';
-import Button from '../ui/Button.svelte';
-import type { ButtonType } from '../ui/Button';
-import { tabWithinParent } from './dialog-utils';
+
 import CloseButton from '/@/lib/ui/CloseButton.svelte';
+
+import type { ButtonType } from '../ui/Button';
+import Button from '../ui/Button.svelte';
+import { tabWithinParent } from './dialog-utils';
+import type { MessageBoxOptions } from './messagebox-input';
 
 let currentId = 0;
 let title: string;

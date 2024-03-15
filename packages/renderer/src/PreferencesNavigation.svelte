@@ -1,10 +1,11 @@
 <script lang="ts">
 import { onMount } from 'svelte';
-import { extensionInfos } from './stores/extensions';
-import { configurationProperties } from './stores/configurationProperties';
+import type { TinroRouteMeta } from 'tinro';
+
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../main/src/plugin/configuration-registry-constants';
 import SettingsNavItem from './lib/preferences/SettingsNavItem.svelte';
-import type { TinroRouteMeta } from 'tinro';
+import { configurationProperties } from './stores/configurationProperties';
+import { extensionInfos } from './stores/extensions';
 
 export let meta: TinroRouteMeta;
 

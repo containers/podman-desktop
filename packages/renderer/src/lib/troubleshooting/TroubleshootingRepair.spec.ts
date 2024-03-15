@@ -19,8 +19,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { beforeAll, test, expect } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
+import { beforeAll, expect, test } from 'vitest';
+
 import TroubleshootingRepair from './TroubleshootingRepair.svelte';
 
 beforeAll(() => {});

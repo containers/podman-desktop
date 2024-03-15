@@ -17,10 +17,12 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, beforeEach, vi } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
-import Badge from './Badge.svelte';
+import { beforeEach, expect, test, vi } from 'vitest';
+
 import { AppearanceSettings } from '../../../../main/src/plugin/appearance-settings';
+import Badge from './Badge.svelte';
 
 // mock window.getConfigurationValue
 const getConfigurationValueMock = vi.fn();

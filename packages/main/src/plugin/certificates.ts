@@ -16,13 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as fs from 'node:fs';
+import * as https from 'node:https';
+import * as path from 'node:path';
+import * as tls from 'node:tls';
+
+import wincaAPI from 'win-ca/api';
+
 import { isLinux, isMac, isWindows } from '../util.js';
 import { spawnWithPromise } from './util/spawn-promise.js';
-import * as https from 'node:https';
-import * as tls from 'node:tls';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import wincaAPI from 'win-ca/api';
 
 /**
  * Provides access to the certificates of the underlying platform.

@@ -16,14 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import * as fs from 'node:fs';
+
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+
+import type { ApiSenderType } from '/@/plugin/api.js';
+
 import type { IConfigurationNode } from './configuration-registry.js';
 import { ConfigurationRegistry } from './configuration-registry.js';
 import type { Directories } from './directories.js';
-import type { Disposable } from './types/disposable.js';
-import type { ApiSenderType } from '/@/plugin/api.js';
 import type { NotificationRegistry } from './notification-registry.js';
+import type { Disposable } from './types/disposable.js';
 
 let configurationRegistry: ConfigurationRegistry;
 

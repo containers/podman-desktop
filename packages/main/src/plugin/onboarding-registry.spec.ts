@@ -16,15 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { afterEach, beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest';
-import { OnboardingRegistry } from './onboarding-registry.js';
-import type { ConfigurationRegistry } from './configuration-registry.js';
-import type { AnalyzedExtension } from './extension-loader.js';
 import * as fs from 'node:fs';
-import { Context } from './context/context.js';
+
+import { afterEach, beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest';
+
 import type { ApiSenderType } from './api.js';
-import type { Disposable } from './types/disposable.js';
 import type { OnboardingState } from './api/onboarding.js';
+import type { ConfigurationRegistry } from './configuration-registry.js';
+import { Context } from './context/context.js';
+import type { AnalyzedExtension } from './extension-loader.js';
+import { OnboardingRegistry } from './onboarding-registry.js';
+import type { Disposable } from './types/disposable.js';
 
 let onboardingRegistry: OnboardingRegistry;
 const extensionId = 'myextension.id';

@@ -21,13 +21,16 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
+import { beforeAll, expect, test, vi } from 'vitest';
+
+import { context } from '/@/stores/context';
+
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
-import PreferencesRendering from './PreferencesRendering.svelte';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import { ContextUI } from '../context/context';
-import { context } from '/@/stores/context';
+import PreferencesRendering from './PreferencesRendering.svelte';
 
 async function waitRender(customProperties: any): Promise<void> {
   const result = render(PreferencesRendering, { ...customProperties });

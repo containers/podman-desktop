@@ -17,16 +17,17 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
+
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-
-import VolumeDetails from './VolumeDetails.svelte';
 import { get } from 'svelte/store';
-import { volumeListInfos } from '/@/stores/volumes';
-import type { VolumeListInfo } from '../../../../main/src/plugin/api/volume-info';
-
 import { router } from 'tinro';
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import { lastPage } from '/@/stores/breadcrumb';
+import { volumeListInfos } from '/@/stores/volumes';
+
+import type { VolumeListInfo } from '../../../../main/src/plugin/api/volume-info';
+import VolumeDetails from './VolumeDetails.svelte';
 
 const listVolumesMock = vi.fn();
 const showMessageBoxMock = vi.fn();

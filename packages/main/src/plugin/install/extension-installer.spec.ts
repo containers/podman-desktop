@@ -16,21 +16,22 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, test, vi } from 'vitest';
-
-import { ExtensionInstaller } from './extension-installer.js';
-import type { ApiSenderType } from '../api.js';
-import type { AnalyzedExtension, ExtensionLoader } from '../extension-loader.js';
-import type { ImageRegistry } from '../image-registry.js';
+import { rmSync } from 'node:fs';
 import * as path from 'node:path';
+
 import type { IpcMain, IpcMainEvent } from 'electron';
 import { ipcMain } from 'electron';
+import { beforeEach, expect, test, vi } from 'vitest';
+
+import type { ApiSenderType } from '../api.js';
+import type { ContributionManager } from '../contribution-manager.js';
+import type { Directories } from '../directories.js';
+import type { AnalyzedExtension, ExtensionLoader } from '../extension-loader.js';
 import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog.js';
 import type { CatalogFetchableExtension } from '../extensions-catalog/extensions-catalog-api.js';
+import type { ImageRegistry } from '../image-registry.js';
 import type { Telemetry } from '../telemetry/telemetry.js';
-import type { Directories } from '../directories.js';
-import type { ContributionManager } from '../contribution-manager.js';
-import { rmSync } from 'node:fs';
+import { ExtensionInstaller } from './extension-installer.js';
 
 let extensionInstaller: ExtensionInstaller;
 

@@ -18,6 +18,7 @@
 
 import * as os from 'node:os';
 import * as path from 'node:path';
+
 import type { LifecycleContext, Logger } from '@podman-desktop/api';
 
 const windows = os.platform() === 'win32';

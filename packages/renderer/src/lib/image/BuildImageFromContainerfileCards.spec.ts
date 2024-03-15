@@ -19,8 +19,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, beforeAll, vi } from 'vitest';
+
 import { render } from '@testing-library/svelte';
+import { beforeAll, expect, test, vi } from 'vitest';
+
 import BuildImageFromContainerfileCards from './BuildImageFromContainerfileCards.svelte';
 
 // fake the window.events object

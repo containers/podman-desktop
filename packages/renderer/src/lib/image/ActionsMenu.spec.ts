@@ -19,8 +19,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect } from 'vitest';
+
 import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
+
 import ActionsMenu from './ActionsMenu.svelte';
 
 test('Expect the dropdownmenu button is displayed if the dropdown variable is true', async () => {

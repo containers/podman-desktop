@@ -16,8 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ProviderCleanup, ProviderCleanupAction, ProviderCleanupExecuteOptions } from '@podman-desktop/api';
 import { existsSync, promises } from 'node:fs';
+
+import type { ProviderCleanup, ProviderCleanupAction, ProviderCleanupExecuteOptions } from '@podman-desktop/api';
 
 export abstract class AbsPodmanCleanup implements ProviderCleanup {
   abstract getFoldersToDelete(): string[];

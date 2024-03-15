@@ -19,8 +19,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, describe } from 'vitest';
+
 import { fireEvent, render, screen } from '@testing-library/svelte';
+import { describe, expect, test, vi } from 'vitest';
+
 import ControlButtons from './ControlButtons.svelte';
 
 describe.each([{ platform: 'linux' }, { platform: 'win32' }])('Platform($platform)', ({ platform }) => {

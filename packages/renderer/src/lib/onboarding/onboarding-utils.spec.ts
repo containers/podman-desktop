@@ -16,21 +16,23 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi, beforeAll } from 'vitest';
+
+import { beforeAll, expect, test, vi } from 'vitest';
+
+import type { OnboardingInfo, OnboardingStep } from '../../../../main/src/plugin/api/onboarding';
 import { ContextUI } from '../context/context';
+import { ContextKeyExpr, type ContextKeyExpression } from '../context/contextKey';
 import {
+  type ActiveOnboardingStep,
   cleanSetup,
   isOnboardingCompleted,
   isOnboardingsSetupCompleted,
-  normalizeOnboardingWhenClause,
-  type ActiveOnboardingStep,
   isStepCompleted,
-  updateOnboardingStepStatus,
+  normalizeOnboardingWhenClause,
   replaceContextKeyPlaceholders,
   replaceContextKeyPlaceHoldersByRegex,
+  updateOnboardingStepStatus,
 } from './onboarding-utils';
-import type { OnboardingInfo, OnboardingStep } from '../../../../main/src/plugin/api/onboarding';
-import { ContextKeyExpr, type ContextKeyExpression } from '../context/contextKey';
 
 const deserialize = vi.fn();
 

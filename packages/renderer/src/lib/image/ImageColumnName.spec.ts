@@ -17,15 +17,16 @@
  ***********************************************************************/
 
 import '@testing-library/jest-dom/vitest';
-import { test, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
 
+import { fireEvent } from '@testing-library/dom';
+import { render, screen } from '@testing-library/svelte';
+import { router } from 'tinro';
+import { expect, test, vi } from 'vitest';
+
+import { AppearanceSettings } from '../../../../main/src/plugin/appearance-settings';
+import ImageIcon from '../images/ImageIcon.svelte';
 import ImageColumnName from './ImageColumnName.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
-import { router } from 'tinro';
-import { fireEvent } from '@testing-library/dom';
-import ImageIcon from '../images/ImageIcon.svelte';
-import { AppearanceSettings } from '../../../../main/src/plugin/appearance-settings';
 
 const image: ImageInfoUI = {
   id: 'my-image',
