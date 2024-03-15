@@ -1,4 +1,4 @@
-# Podman Desktop Test Framework
+# Podman Desktop Playwright Tests
 
 Testing Framework dedicated to a Podman Desktop and its extensions.
 
@@ -12,16 +12,17 @@ Testing Framework dedicated to a Podman Desktop and its extensions.
 
 ## Usage
 
-1. Add necessary dependencies, ie. devDependencies: "podman-desktop-test-framework": "0.0.1"
+1. Add necessary dependencies, ie. devDependencies: "podman-desktop-tests-playwright": "0.0.1"
 2. Additional dependencies like vitest or playwright
 
 ### Test Runner Context and Hook extending
 
 Extending afterEach Hook using custom TestContext
 In your project, you need to define the TestContext interface to be passed into extended hook
+
 ```runner-test-context.ts
 import type { TestContext } from 'vitest';
-import { PodmanDesktopRunner } from 'podman-desktop-tester';
+import { PodmanDesktopRunner } from 'podman-desktop-tests-playwright';
 
 export interface RunnerTestContext extends TestContext {
   pdRunner: PodmanDesktopRunner;
@@ -31,7 +32,7 @@ export interface RunnerTestContext extends TestContext {
 ```extended-hook.ts
 import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { afterEach } from 'vitest';
-import { takeScreenshotHook } from 'podman-desktop-tester';
+import { takeScreenshotHook } from 'podman-desktop-tests-playwright';
 
 afterEach(async (context: RunnerTestContext) => {
   context.onTestFailed(async () => await takeScreenshotHook(context.pdRunner, context.task.name));
@@ -39,9 +40,11 @@ afterEach(async (context: RunnerTestContext) => {
 ```
 
 ### Global Setup file configuraiton
+
 Adding Global Setup/teardown module
+
 ```global-setup.ts
-import { removeFolderIfExists } from 'podman-desktop-tester';
+import { removeFolderIfExists } from 'podman-desktop-tests-playwright';
 
 let setupCalled = false;
 let teardownCalled = false;
@@ -108,22 +111,26 @@ export default config;
 ```
 
 ### Setting and Running the E2E tests
+
 Since you have your tests and testing frameworked at place, you can now run your tests from the repository.
 
 You will to checkout podman-desktop repository and build it first.
+
 1. `git clone https://github.com/containers/podman-desktop`
 2. `cd podman-desktop`
 3. `yarn install`
 4. `yarn test:e2e:build` -> this step is essential
 
-Then you need to prepare your tests to be run from your repository
-0. Add dependency for `podman-desktop-tester` in `devDependencies`
+Then you need to prepare your tests to be run from your repository 0. Add dependency for `podman-desktop-tests-playwright` in `devDependencies`
+
 1. add npm script target to run E2E tests:
+
 ```package.json
   "scripts": {
     "test:e2e": "PODMAN_DESKTOP_ARGS='/path/to/podman-desktop' vitest run tests/src/ --pool=threads --poolOptions.threads.singleThread --poolOptions.threads.isolate --no-file-parallelism",
   }
 ```
+
 2. Implement your E2E tests in `tests` folder
 3. Run `npm test:e2e`
 4. Artifacts logs are available under `./tests/output`
