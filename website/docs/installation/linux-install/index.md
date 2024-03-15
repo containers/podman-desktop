@@ -16,7 +16,7 @@ Consider installing the Podman Desktop from Flathub to have:
 Alternatively, you can install Podman Desktop from:
 
 - [A Flatpak bundle](/docs/installation/linux-install/installing-podman-desktop-from-a-flatpak-bundle)
-- [A compressed tar file](/docs/installation/linux-install/installing-podman-desktop-from-a-compressed-tar-file)
+- [A compressed tar file](/docs/proxy
 
 #### Prerequisites
 

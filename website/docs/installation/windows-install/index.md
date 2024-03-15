@@ -14,7 +14,7 @@ Consider using this installation method if you don't require another method such
 - [Installing with Chocolatey](/docs/installation/windows-install/installing-podman-desktop-with-chocolatey)
 - [Installing with Scoop](/docs/installation/windows-install/installing-podman-desktop-with-scoop)
 - [Installing with Winget](/docs/installation/windows-install/installing-podman-desktop-with-winget)
-- [Installing Podman Desktop and Podman in a restricted environment](/docs/installation/windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment)
+- [Installing Podman Desktop and Podman in a restricted environment](/docs/proxy
 
 #### Procedure
 

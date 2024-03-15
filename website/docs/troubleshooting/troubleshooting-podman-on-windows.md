@@ -61,7 +61,7 @@ When the host is behind a VPN, Podman might fail to access network resources, an
 
 ### Solution
 
-See [Accessing resources behind a VPN with Podman on Windows](/docs/proxy/using-a-vpn-on-windows).
+See [Accessing resources behind a VPN with Podman on Windows](/docs/proxy).
 
 ## Older WSL versions might lead to networking issues
 
