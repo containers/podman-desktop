@@ -146,6 +146,7 @@ import { ProgressImpl } from './progress-impl.js';
 import { ProviderRegistry } from './provider-registry.js';
 import { Proxy } from './proxy.js';
 import { RecommendationsRegistry } from './recommendations/recommendations-registry.js';
+import { SafeStorageRegistry } from './safe-storage/safe-storage-registry.js';
 import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry.js';
 import { StatusBarRegistry } from './statusbar/statusbar-registry.js';
 import { PAGE_EVENT_TYPE, Telemetry } from './telemetry/telemetry.js';
@@ -410,6 +411,9 @@ export class PluginSystem {
     const iconRegistry = new IconRegistry(apiSender);
     const directories = new Directories();
     const statusBarRegistry = new StatusBarRegistry(apiSender);
+
+    const safeStorageRegistry = new SafeStorageRegistry(directories);
+    await safeStorageRegistry.init();
 
     const configurationRegistry = new ConfigurationRegistry(apiSender, directories);
     notifications.push(...configurationRegistry.init());
