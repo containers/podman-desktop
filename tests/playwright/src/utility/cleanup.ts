@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as fs from 'node:fs';
+import { existsSync, rmSync } from 'node:fs';
 
 /**
  * Force remove recursively folder, if exists
@@ -25,8 +25,8 @@ import * as fs from 'node:fs';
 export async function removeFolderIfExists(path: string): Promise<void> {
   console.log(`Cleaning up folder: ${path}`);
 
-  if (fs.existsSync(path)) {
+  if (existsSync(path)) {
     console.log(`Folder found, removing...`);
-    fs.rmSync(path, { recursive: true, force: true, maxRetries: 5 });
+    rmSync(path, { recursive: true, force: true, maxRetries: 5 });
   }
 }
