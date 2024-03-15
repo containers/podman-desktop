@@ -17,12 +17,12 @@
  ***********************************************************************/
 
 import * as fs from 'node:fs';
+import { readFile } from 'node:fs/promises';
+import * as path from 'node:path';
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import AdmZip from 'adm-zip';
 import { app, clipboard as electronClipboard } from 'electron';
-import { readFile } from 'fs/promises';
-import * as path from 'path';
 
 import type { ImageInspectInfo } from '/@/plugin/api/image-inspect-info.js';
 import type { ColorRegistry } from '/@/plugin/color-registry.js';
@@ -183,7 +183,7 @@ export class ExtensionLoader {
     this.pluginsDirectory = directories.getPluginsDirectory();
     this.pluginsScanDirectory = directories.getPluginsScanDirectory();
     this.extensionsStorageDirectory = directories.getExtensionsStorageDirectory();
-    this.moduleLoader = new ModuleLoader(require('module'), this.analyzedExtensions);
+    this.moduleLoader = new ModuleLoader(require('node:module'), this.analyzedExtensions);
   }
 
   mapError(err: unknown): ExtensionError | undefined {

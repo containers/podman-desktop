@@ -17,7 +17,7 @@
  ***********************************************************************/
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import * as path from 'path';
+import * as path from 'node:path';
 
 import { getBase64Image } from '../util.js';
 import type { Onboarding, OnboardingInfo, OnboardingStatus } from './api/onboarding.js';

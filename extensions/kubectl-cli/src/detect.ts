@@ -17,9 +17,9 @@
  ***********************************************************************/
 
 import * as fs from 'node:fs';
+import { resolve } from 'node:path';
 
 import * as extensionApi from '@podman-desktop/api';
-import { resolve } from 'path';
 import { shellPath } from 'shell-path';
 
 import type { OS } from './os';

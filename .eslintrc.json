@@ -48,7 +48,8 @@
     {
       "files": ["*.svelte", "*.tsx"],
       "rules": {
-        "header/header": "off"
+        "header/header": "off",
+        "unicorn/prefer-node-protocol": "off"
       }
     }
   ],
@@ -66,7 +67,16 @@
       }
     }
   },
-  "plugins": ["@typescript-eslint", "sonarjs", "etc", "redundant-undefined", "no-null", "header", "simple-import-sort"],
+  "plugins": [
+    "@typescript-eslint",
+    "sonarjs",
+    "etc",
+    "redundant-undefined",
+    "no-null",
+    "header",
+    "simple-import-sort",
+    "unicorn"
+  ],
   "ignorePatterns": [
     "packages/preload/exposedInMainWorld.d.ts",
     "packages/preload-docker-extension/exposedInDockerExtension.d.ts",
@@ -119,6 +129,7 @@
     "import/no-extraneous-dependencies": "error",
     "header/header": [2, "block", [{ "pattern": "SPDX-License-Identifier: Apache-2\\.0" }]],
     "simple-import-sort/imports": "error",
-    "simple-import-sort/exports": "error"
+    "simple-import-sort/exports": "error",
+    "unicorn/prefer-node-protocol": "error"
   }
 }

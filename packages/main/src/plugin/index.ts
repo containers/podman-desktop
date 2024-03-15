@@ -21,6 +21,7 @@
  */
 import { EventEmitter } from 'node:events';
 import * as os from 'node:os';
+import * as path from 'node:path';
 
 import type {
   Cluster,
@@ -40,7 +41,6 @@ import type Dockerode from 'dockerode';
 import type { WebContents } from 'electron';
 import { app, BrowserWindow, clipboard, ipcMain, shell } from 'electron';
 import type { IpcMainInvokeEvent } from 'electron/main';
-import * as path from 'path';
 
 import type { KubernetesGeneratorInfo } from '/@/plugin/api/KubernetesGeneratorInfo.js';
 import type {

@@ -16,10 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ChildProcessWithoutNullStreams } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import type { Readable } from 'node:stream';
 
-import type { ChildProcessWithoutNullStreams } from 'child_process';
-import { spawn } from 'child_process';
 import * as sudo from 'sudo-prompt';
 import type { Mock } from 'vitest';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';

@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { promises } from 'fs';
+import { promises } from 'node:fs';
+
 import { describe, expect, test, vi, vitest } from 'vitest';
 
 import { makeExecutable } from './utils';

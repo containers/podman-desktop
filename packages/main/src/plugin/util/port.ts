@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as net from 'net';
+import * as net from 'node:net';
 
 /**
  * Find a free port starting from the given port

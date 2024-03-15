@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+
 import type * as containerDesktopAPI from '@podman-desktop/api';
-import * as fs from 'fs';
-import * as path from 'path';
 
 import type { ApiSenderType } from './api.js';
 import type { NotificationCardOptions } from './api/notification.js';

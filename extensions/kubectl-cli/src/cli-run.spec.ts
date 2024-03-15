@@ -17,9 +17,9 @@
  ***********************************************************************/
 
 import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 import * as extensionApi from '@podman-desktop/api';
-import * as path from 'path';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import { installBinaryToSystem } from './cli-run';

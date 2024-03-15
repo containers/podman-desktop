@@ -20,6 +20,8 @@
  * @module preload
  */
 
+import EventEmitter from 'node:events';
+
 import type {
   Cluster,
   Context,
@@ -34,7 +36,6 @@ import type {
 } from '@kubernetes/client-node';
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import { contextBridge, ipcRenderer } from 'electron';
-import EventEmitter from 'events';
 
 import type { ApiSenderType } from '../../main/src/plugin/api';
 import type { CliToolInfo } from '../../main/src/plugin/api/cli-tool-info';

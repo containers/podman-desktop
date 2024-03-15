@@ -16,8 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as path from 'node:path';
+
 import type * as api from '@podman-desktop/api';
-import * as path from 'path';
 
 export interface ExtensionModule {
   path: string;

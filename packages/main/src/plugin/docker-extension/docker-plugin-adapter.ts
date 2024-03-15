@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { spawn } from 'node:child_process';
 import * as os from 'node:os';
 
-import { spawn } from 'child_process';
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import { ipcMain } from 'electron';
 

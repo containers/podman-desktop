@@ -18,10 +18,11 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import * as fs from 'node:fs';
+
 import type { RequestConfig } from '@docker/extension-api-client-types/dist/v1/http-service.js';
 import type Dockerode from 'dockerode';
 import type { IpcMainEvent } from 'electron';
-import * as fs from 'fs';
 import type { Method } from 'got';
 import nock from 'nock';
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';

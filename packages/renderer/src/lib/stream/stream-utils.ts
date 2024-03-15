@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+// eslint-disable-next-line unicorn/prefer-node-protocol
 import { Buffer } from 'buffer';
 
 // if multiplexed, we have:

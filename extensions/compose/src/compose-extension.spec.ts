@@ -21,9 +21,9 @@
 import * as fs from 'node:fs';
 import { promises } from 'node:fs';
 import { resolve } from 'node:path';
+import * as path from 'node:path';
 
 import * as extensionApi from '@podman-desktop/api';
-import * as path from 'path';
 import type { Mock } from 'vitest';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
