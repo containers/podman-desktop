@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,6 @@ import { test, expect } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import ExtensionStatus from './ExtensionStatus.svelte';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-empty-function */
-
 const connectionStatusLabel = 'Connection Status Label';
 const connectionStatusIcon = 'Connection Status Icon';
 
@@ -35,7 +32,7 @@ test('Expect green text and icon when connection is running', async () => {
   expect(icon).toHaveClass('bg-green-500');
   expect(label).toBeInTheDocument();
   expect(label).toHaveClass('text-green-500');
-  expect(label).toHaveTextContent('ENABLED');
+  expect(label).toHaveTextContent('ACTIVE');
 });
 
 test('Expect green text and icon when connection is starting', async () => {
@@ -46,7 +43,7 @@ test('Expect green text and icon when connection is starting', async () => {
   expect(icon).toHaveClass('bg-green-500');
   expect(label).toBeInTheDocument();
   expect(label).toHaveClass('text-green-500');
-  expect(label).toHaveTextContent('ENABLING');
+  expect(label).toHaveTextContent('ACTIVATING');
 });
 
 test('Expect green text and icon when connection is stopped', async () => {

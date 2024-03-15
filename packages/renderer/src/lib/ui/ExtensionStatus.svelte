@@ -15,7 +15,7 @@ const statusesStyle = new Map<string, connectionStatusStyle>([
     {
       bgColor: 'bg-green-500',
       txtColor: 'text-green-500',
-      label: 'ENABLED',
+      label: 'ACTIVE',
     },
   ],
   [
@@ -23,7 +23,7 @@ const statusesStyle = new Map<string, connectionStatusStyle>([
     {
       bgColor: 'bg-green-500',
       txtColor: 'text-green-500',
-      label: 'ENABLING',
+      label: 'ACTIVATING',
     },
   ],
   [

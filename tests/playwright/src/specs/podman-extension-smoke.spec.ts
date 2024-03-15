@@ -35,7 +35,7 @@ const PODMAN_EXTENSION_STATUS_OFF: string = 'OFF';
 const SETTINGS_NAVBAR_PREFERENCES_PODMAN_EXTENSION: string = 'Extension: Podman';
 const SETTINGS_NAVBAR_EXTENSIONS_PODMAN: string = 'Podman';
 const PODMAN_EXTENSION_PAGE_HEADING: string = 'Podman Extension';
-const PODMAN_EXTENSION_PAGE_STATUS_ENABLED: string = 'ENABLED';
+const PODMAN_EXTENSION_PAGE_STATUS_ACTIVE: string = 'ACTIVE';
 const PODMAN_EXTENSION_PAGE_STATUS_DISABLED: string = 'DISABLED';
 
 let pdRunner: PodmanDesktopRunner;
@@ -117,7 +117,7 @@ async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
   if (enabled) {
     await playExpect(podmanExtensionPage.enableButton).toBeDisabled({ timeout: 10000 });
     await playExpect(podmanExtensionPage.disableButton).toBeEnabled({ timeout: 10000 });
-    await playExpect(podmanExtensionPage.status.getByText(PODMAN_EXTENSION_PAGE_STATUS_ENABLED)).toBeVisible();
+    await playExpect(podmanExtensionPage.status.getByText(PODMAN_EXTENSION_PAGE_STATUS_ACTIVE)).toBeVisible();
   } else {
     await playExpect(podmanExtensionPage.enableButton).toBeEnabled({ timeout: 10000 });
     await playExpect(podmanExtensionPage.disableButton).toBeDisabled({ timeout: 10000 });
