@@ -95,11 +95,20 @@ export class WebviewPreload {
 
     if (userTheme === AppearanceSettings.SystemEnumValue) {
       userTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      // for now it's dark for system
+      userTheme = 'dark';
     }
+
+    const isDarkTheme = await this.isDarkTheme(userTheme);
+    const colorSchemeValue = isDarkTheme ? 'dark' : 'light';
 
     // grab colors from the main process
     const colors = await this.getColors(userTheme);
     const styles: string[] = [];
+
+    // add color-scheme
+    styles.push(`color-scheme: ${colorSchemeValue};`);
+
     colors.forEach((color: ColorInfo) => {
       const cssVar = color.cssVar;
       const colorValue = color.value;
@@ -160,6 +169,10 @@ export class WebviewPreload {
 
   protected getColors(themeId: string): Promise<ColorInfo[]> {
     return this.ipcInvoke('colorRegistry:listColors', themeId) as Promise<ColorInfo[]>;
+  }
+
+  protected isDarkTheme(themeId: string): Promise<boolean> {
+    return this.ipcInvoke('colorRegistry:isDarkTheme', themeId) as Promise<boolean>;
   }
 
   protected getWebviews(): Promise<WebviewInfo[]> {
