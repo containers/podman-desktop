@@ -12033,6 +12033,14 @@ nock@^13.5.0:
     json-stringify-safe "^5.0.1"
     propagate "^2.0.0"
 
+nock@^14.0.0-beta.5:
+  version "14.0.0-beta.5"
+  resolved "https://registry.yarnpkg.com/nock/-/nock-14.0.0-beta.5.tgz#df390c660cb3f57e075cb38cf77e0064bd0c5f00"
+  integrity sha512-u255tf4DYvyErTlPZA9uTfXghiZZy+NflUOFONPVKZ5tP0yaHwKig28zyFOLhu8y5YcCRC+V5vDk4HHileh2iw==
+  dependencies:
+    json-stringify-safe "^5.0.1"
+    propagate "^2.0.0"
+
 node-abi@^3.3.0:
   version "3.51.0"
   resolved "https://registry.yarnpkg.com/node-abi/-/node-abi-3.51.0.tgz#970bf595ef5a26a271307f8a4befa02823d4e87d"
