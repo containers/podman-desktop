@@ -30,6 +30,7 @@ export interface StatefulTask extends Task {
   status: TaskStatus;
   progress?: number;
   gotoTask?: () => void;
+  openFolder?: () => void;
   error?: string;
 }
 

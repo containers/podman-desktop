@@ -40,6 +40,7 @@ export class TaskManager {
         status: task.status,
         hasGotoTask: false,
         age: `${humanizeDuration(new Date().getTime() - task.started, { round: true, largest: 1 })} ago`,
+        openFolder: task.openFolder,
         error: task.error,
       };
 
