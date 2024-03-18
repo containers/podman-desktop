@@ -18,7 +18,7 @@
 
 import * as crypto from 'node:crypto';
 import { EventEmitter } from 'node:events';
-import fs from 'node:fs';
+import * as fs from 'node:fs';
 import path from 'node:path';
 import { type Stream, Writable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
@@ -73,7 +73,6 @@ import type { Telemetry } from './telemetry/telemetry.js';
 import { Disposable } from './types/disposable.js';
 
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
-
 
 export interface InternalContainerProvider {
   name: string;
