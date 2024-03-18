@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ChildProcessWithoutNullStreams } from 'node:child_process';
+import { spawn } from 'node:child_process';
+
 import type { RunError, RunOptions, RunResult } from '@podman-desktop/api';
-import type { ChildProcessWithoutNullStreams } from 'child_process';
-import { spawn } from 'child_process';
 import * as sudo from 'sudo-prompt';
 
 import { isLinux, isMac, isWindows } from '../../util.js';

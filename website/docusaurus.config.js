@@ -85,10 +85,6 @@ const config = {
             ],
           },
           {
-            to: '/docs/installation/windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment',
-            from: '/docs/Installation/windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment',
-          },
-          {
             to: '/docs/installation/macos-install',
             from: '/docs/Installation/macos-install',
           },
@@ -101,8 +97,18 @@ const config = {
             from: '/docs/Installation/linux-install/installing-podman-desktop-from-a-flatpak-bundle',
           },
           {
-            to: '/docs/installation/linux-install/installing-podman-desktop-from-a-compressed-tar-file',
-            from: '/docs/Installation/linux-install/installing-podman-desktop-from-a-compressed-tar-file',
+            to: '/docs/proxy',
+            from: [
+              '/docs/installation/windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment',
+              '/docs/Installation/windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment',
+              '/docs/installation/linux-install/installing-podman-desktop-from-a-compressed-tar-file',
+              '/docs/Installation/linux-install/installing-podman-desktop-from-a-compressed-tar-file',
+              '/docs/proxy/using-a-proxy-in-your-containers',
+              '/docs/proxy/using-a-proxy-on-linux',
+              '/docs/proxy/using-a-proxy-requiring-a-custom-ca',
+              '/docs/proxy/using-a-proxy',
+              '/docs/proxy/using-a-vpn-on-windows',
+            ],
           },
           {
             to: '/docs/compose',

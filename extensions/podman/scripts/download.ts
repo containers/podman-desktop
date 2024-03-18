@@ -25,7 +25,7 @@ import type { OctokitOptions } from '@octokit/core/dist-types/types';
 import { hashFile } from 'hasha';
 import { fileURLToPath } from 'node:url';
 
-import * as tools from '../src/podman.json';
+import * as tools from '../src/podman4.json';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

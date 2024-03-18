@@ -22,7 +22,8 @@
 // based on https://github.com/microsoft/vscode/blob/76415ef0b1f60e0479bdfee173c1a4f97e785b52/src/vs/platform/contextkey/test/common/scanner.test.ts
 /* eslint-disable no-useless-escape */
 
-import * as assert from 'assert';
+import * as assert from 'node:assert';
+
 import { test } from 'vitest';
 
 import { Scanner, type Token, TokenType } from './scanner';

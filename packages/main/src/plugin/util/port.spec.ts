@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as net from 'net';
+import * as net from 'node:net';
+
 import { expect, test } from 'vitest';
 
 import * as port from './port.js';

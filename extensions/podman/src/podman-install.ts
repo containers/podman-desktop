@@ -34,9 +34,9 @@ import {
   USER_MODE_NETWORKING_SUPPORTED_KEY,
 } from './extension';
 import { MacCPUCheck, MacMemoryCheck, MacPodmanInstallCheck, MacVersionCheck } from './macos-checks';
-import * as podmanTool from './podman.json';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanInstallation } from './podman-cli';
+import * as podman4Tool from './podman4.json';
 import { getAssetsFolder, normalizeWSLOutput } from './util';
 import { WslHelper } from './wsl-helper';
 
@@ -44,7 +44,7 @@ const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 
 export function getBundledPodmanVersion(): string {
-  return podmanTool.version;
+  return podman4Tool.version;
 }
 
 export interface PodmanInfo {
@@ -285,6 +285,10 @@ abstract class BaseInstaller implements Installer {
   requireUpdate(installedVersion: string): boolean {
     return compare(installedVersion, getBundledPodmanVersion(), '<');
   }
+
+  getInstallablePodmanVersion(): string {
+    return podman4Tool.version;
+  }
 }
 
 export class WinInstaller extends BaseInstaller {
@@ -310,10 +314,11 @@ export class WinInstaller extends BaseInstaller {
   update(): Promise<boolean> {
     return this.install();
   }
+
   install(): Promise<boolean> {
     return extensionApi.window.withProgress({ location: extensionApi.ProgressLocation.APP_ICON }, async progress => {
       progress.report({ increment: 5 });
-      const setupPath = path.resolve(getAssetsFolder(), `podman-${podmanTool.version}-setup.exe`);
+      const setupPath = path.resolve(getAssetsFolder(), `podman-${this.getInstallablePodmanVersion()}-setup.exe`);
       try {
         if (fs.existsSync(setupPath)) {
           try {
@@ -348,7 +353,10 @@ class MacOSInstaller extends BaseInstaller {
       progress.report({ increment: 5 });
       const pkgArch = process.arch === 'arm64' ? 'aarch64' : 'amd64';
 
-      const pkgPath = path.resolve(getAssetsFolder(), `podman-installer-macos-${pkgArch}-v${podmanTool.version}.pkg`);
+      const pkgPath = path.resolve(
+        getAssetsFolder(),
+        `podman-installer-macos-${pkgArch}-v${this.getInstallablePodmanVersion()}.pkg`,
+      );
       try {
         if (fs.existsSync(pkgPath)) {
           try {

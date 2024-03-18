@@ -16,11 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
+
 import * as extensionApi from '@podman-desktop/api';
 import { configuration, ProgressLocation } from '@podman-desktop/api';
-import * as fs from 'fs';
-import * as os from 'os';
-import * as path from 'path';
 
 import { ImageHandler } from './image-handler';
 import { getLimactl } from './limactl';
