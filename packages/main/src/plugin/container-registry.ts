@@ -19,6 +19,7 @@
 import * as crypto from 'node:crypto';
 import { EventEmitter } from 'node:events';
 import fs from 'node:fs';
+import path from 'node:path';
 import { type Stream, Writable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 
@@ -35,6 +36,7 @@ import { isWindows } from '../util.js';
 import type { ApiSenderType } from './api.js';
 import type {
   ContainerCreateOptions,
+  ContainerExportOptions,
   ContainerInfo,
   ContainerPortInfo,
   NetworkCreateOptions,
@@ -71,6 +73,7 @@ import type { Telemetry } from './telemetry/telemetry.js';
 import { Disposable } from './types/disposable.js';
 
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
+
 
 export interface InternalContainerProvider {
   name: string;
@@ -2391,5 +2394,51 @@ export class ContainerProviderRegistry {
     return pods.some(
       podInPods => podInPods.Name === name && podInPods.engineId === engineId && kind === podInPods.kind,
     );
+  }
+
+  async exportContainer(engineId: string, options: ContainerExportOptions): Promise<void> {
+    // need to find the container engine of the container
+    const engine = this.internalProviders.get(engineId);
+    if (!engine) {
+      throw new Error('no engine matching this container');
+    }
+    if (!engine.api) {
+      throw new Error('no running provider for the matching container');
+    }
+
+    // generate the name of the exported file
+    // if there are other entries with the same name, let's append (number of occurences)
+    let containerFile = options.name;
+    const regexFile = new RegExp(`${containerFile}\\s+\\(+\\d+\\)$`);
+    const entries = await fs.promises.readdir(options.outputDirectory, { withFileTypes: true });
+    const similarContainers = entries
+      .filter(entry => entry.isFile())
+      .filter(file => file.name === containerFile || regexFile.test(file.name));
+
+    if (similarContainers.length > 0) {
+      containerFile += ` (${similarContainers.length})`;
+    }
+
+    // retrieve the container and export it by copying the content to the final destination
+    const containerObject = engine.api.getContainer(options.id);
+    const exportResult = await containerObject.export();
+    const fileWriteStream = fs.createWriteStream(path.join(options.outputDirectory, containerFile), {
+      flags: 'w',
+    });
+
+    return new Promise<void>((resolve, reject) => {
+      exportResult.on('close', () => {
+        fileWriteStream.close();
+        resolve();
+      });
+
+      exportResult.on('data', chunk => {
+        fileWriteStream.write(chunk);
+      });
+
+      exportResult.on('error', error => {
+        reject(error);
+      });
+    });
   }
 }

@@ -43,6 +43,7 @@ import type { ColorInfo } from '../../main/src/plugin/api/color-info';
 import type { CommandInfo } from '../../main/src/plugin/api/command-info';
 import type {
   ContainerCreateOptions,
+  ContainerExportOptions,
   ContainerInfo,
   SimpleContainerInfo,
   VolumeCreateOptions,
@@ -440,6 +441,13 @@ export function initExposure(): void {
   contextBridge.exposeInMainWorld('deleteContainer', async (engine: string, containerId: string): Promise<void> => {
     return ipcInvoke('container-provider-registry:deleteContainer', engine, containerId);
   });
+
+  contextBridge.exposeInMainWorld(
+    'exportContainer',
+    async (engine: string, options: ContainerExportOptions): Promise<void> => {
+      return ipcInvoke('container-provider-registry:exportContainer', engine, options);
+    },
+  );
 
   let onDataCallbacksLogsContainerId = 0;
   const onDataCallbacksLogsContainer = new Map<number, (name: string, data: string) => void>();

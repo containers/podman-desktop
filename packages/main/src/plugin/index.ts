@@ -64,6 +64,7 @@ import type { ColorInfo } from './api/color-info.js';
 import type { CommandInfo } from './api/command-info.js';
 import type {
   ContainerCreateOptions,
+  ContainerExportOptions,
   ContainerInfo,
   SimpleContainerInfo,
   VolumeCreateOptions,
@@ -1084,6 +1085,13 @@ export class PluginSystem {
             abortController,
           },
         );
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:exportContainer',
+      async (_listener, engine: string, options: ContainerExportOptions): Promise<void> => {
+        return containerProviderRegistry.exportContainer(engine, options);
       },
     );
 
