@@ -27,7 +27,7 @@ import SettingsPage from './SettingsPage.svelte';
       message="Install an authentication provider extension to add an authentication provider here."
       hidden="{$authenticationProviders.length > 0}" />
     {#each $authenticationProviders as provider}
-      {@const sessionRequests = provider.sessionRequests || []}
+      {@const sessionRequests = provider.sessionRequests ?? []}
       <!-- Registered Authentication Provider row start -->
       <div class="flex flex-col w-full mb-5">
         <div
