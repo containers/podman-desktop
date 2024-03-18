@@ -107,23 +107,10 @@ import SettingsPage from './SettingsPage.svelte';
             {/if}
           </div>
 
-          <!-- Authentication Provider Auth Requests DropDown start -->
           <div class="ml-4 flex items-center">
-            {#if sessionRequests.length > 1}
-              <DropdownMenu>
-                {#each sessionRequests as request}
-                  <DropdownMenuItem
-                    title="Sign in to use {request.extensionLabel}"
-                    onClick="{() => window.requestAuthenticationProviderSignIn(request.id)}"
-                    icon="{faArrowRightToBracket}" />
-                {/each}
-              </DropdownMenu>
-            {/if}
-            <!-- Authentication Provider Auth Requests DropDown end -->
-
-            <!-- Authentication Provider Auth Request Sign In button start -->
             {#if sessionRequests.length === 1}
               {@const request = sessionRequests[0]}
+              <!-- Authentication Provider Auth Request Sign In button start -->
               <Tooltip tip="Sign in to use {request.extensionLabel}" bottomLeft>
                 <Button
                   aria-label="Sign in"
@@ -134,8 +121,19 @@ import SettingsPage from './SettingsPage.svelte';
                   </div>
                 </Button>
               </Tooltip>
+              <!-- Authentication Provider Auth Request Sign In button end -->
+            {:else if sessionRequests.length > 1}
+              <!-- Authentication Provider Auth Requests DropDown start -->
+              <DropdownMenu>
+                {#each sessionRequests as request}
+                  <DropdownMenuItem
+                    title="Sign in to use {request.extensionLabel}"
+                    onClick="{() => window.requestAuthenticationProviderSignIn(request.id)}"
+                    icon="{faArrowRightToBracket}" />
+                {/each}
+              </DropdownMenu>
+              <!-- Authentication Provider Auth Requests DropDown end -->
             {/if}
-            <!-- Authentication Provider Auth Request Sign In button end -->
           </div>
         </div>
       </div>
