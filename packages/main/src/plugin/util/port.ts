@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import * as net from 'node:net';
+import { type NetworkInterfaceInfoIPv4, networkInterfaces } from 'node:os';
 
 /**
  * Find a free port starting from the given port
@@ -55,12 +56,33 @@ export async function getFreePortRange(rangeSize: number): Promise<string> {
   return `${startPort}-${port - 1}`;
 }
 
-export function isFreePort(port: number): Promise<boolean> {
+function isFreeAddressPort(address: string, port: number): Promise<boolean> {
   const server = net.createServer();
   return new Promise((resolve, reject) =>
     server
       .on('error', (error: NodeJS.ErrnoException) => (error.code === 'EADDRINUSE' ? resolve(false) : reject(error)))
       .on('listening', () => server.close(() => resolve(true)))
-      .listen(port, '127.0.0.1'),
+      .listen(port, address),
   );
+}
+
+export async function isFreePort(port: number): Promise<boolean> {
+  const intfs = getIPv4Interfaces();
+  // Test this special interface separately, or it will interfere with other tests done in parallel
+  if (!(await isFreeAddressPort('0.0.0.0', port))) {
+    return false;
+  }
+  const checkInterfaces = await Promise.all(intfs.map(intf => isFreeAddressPort(intf, port)));
+  return checkInterfaces.every(element => element === true);
+}
+
+function getIPv4Interfaces(): string[] {
+  const intfs = networkInterfaces();
+  if (!intfs) {
+    return [];
+  }
+  return Object.values(intfs)
+    .flat()
+    .filter((intf): intf is NetworkInterfaceInfoIPv4 => !!intf && intf.family === 'IPv4' && !!intf.address)
+    .map(intf => intf.address);
 }
