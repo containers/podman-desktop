@@ -1991,6 +1991,10 @@ export function initExposure(): void {
   contextBridge.exposeInMainWorld('contextCollectAllValues', async (): Promise<Record<string, unknown>> => {
     return ipcInvoke('context:collectAllValues');
   });
+
+  contextBridge.exposeInMainWorld('uriFile', async (path: string): Promise<containerDesktopAPI.Uri> => {
+    return ipcInvoke('uri:parseFile', path);
+  });
 }
 
 // expose methods

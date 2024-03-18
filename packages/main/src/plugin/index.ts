@@ -156,6 +156,7 @@ import { TrayIconColor } from './tray-icon-color.js';
 import { TrayMenuRegistry } from './tray-menu-registry.js';
 import { Troubleshooting } from './troubleshooting.js';
 import type { IDisposable } from './types/disposable.js';
+import { Uri } from './types/uri.js';
 import type { Deferred } from './util/deferred.js';
 import { Exec } from './util/exec.js';
 import { getFreePort, getFreePortRange, isFreePort } from './util/port.js';
@@ -2131,6 +2132,9 @@ export class PluginSystem {
       'context:collectAllValues',
       async (): Promise<Record<string, unknown>> => context.collectAllValues(),
     );
+    this.ipcHandle('uri:parseFile', async (_listener, path: string): Promise<containerDesktopAPI.Uri> => {
+      return Uri.file(path);
+    });
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,
