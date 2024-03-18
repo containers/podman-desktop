@@ -81,6 +81,7 @@
     "packages/preload/exposedInMainWorld.d.ts",
     "packages/preload-docker-extension/exposedInDockerExtension.d.ts",
     "packages/preload-webview/exposedInWebview.d.ts",
+    "tests/playwright/src/setupFiles/extended-hooks.ts",
     "node_modules/**",
     "**/dist/**"
   ],
