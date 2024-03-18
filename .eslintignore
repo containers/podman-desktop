@@ -8,3 +8,4 @@ extensions/*/scripts/**
 extensions/*.ts
 __mocks__
 coverage
+tests/playwright/src/setupFiles/extended-hook.ts

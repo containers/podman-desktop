@@ -8,9 +8,9 @@ Testing Framework dedicated to a Podman Desktop and its extensions.
 1. Install Node 20 (ideal is to use `nvm`)
 2. checkout to `tests/playwright`
 3. Install local dependencies: `yarn install`
-4. Build: `yarn run build`
+4. Build: `yarn build`
 5. Create Local package `npm run package`
-6. In YOUR repository, update package.json file
+6. In YOUR repository, update `package.json` file
 7. Create a devDependencies on `@podman-desktop/tests-playwright`
 8. Write your E2E tests
 
@@ -22,30 +22,31 @@ Testing Framework dedicated to a Podman Desktop and its extensions.
 ### Test Runner Context and Hook extending
 
 Extending afterEach Hook using custom TestContext
-In your project, you need to define the TestContext interface to be passed into extended hook
+In your project, you can define custom CustomTestContext interface to be passed into extended hook or use existing from the library
 
-```runner-test-context.ts
+```my-test-context.ts
 import type { TestContext } from 'vitest';
 import { PodmanDesktopRunner } from '@podman-desktop/tests-playwright';
 
-export interface RunnerTestContext extends TestContext {
+export interface MyTestContext extends TestContext {
   pdRunner: PodmanDesktopRunner;
 }
 ```
 
-```extended-hook.ts
-import type { RunnerTestContext } from '../testContext/runner-test-context';
+```custom-extended-hook.ts
+import type { MyTestContext } from '../testContext/my-test-context';
+// or use one provided in @podman-desktop/tests-playwright
 import { afterEach } from 'vitest';
 import { takeScreenshotHook } from '@podman-desktop/tests-playwright';
 
-afterEach(async (context: RunnerTestContext) => {
+afterEach(async (context: MyTestContext) => {
   context.onTestFailed(async () => await takeScreenshotHook(context.pdRunner, context.task.name));
 });
 ```
 
 ### Global Setup file configuraiton
 
-Adding Global Setup/teardown module
+Adding Global Setup/teardown module, class available in @podman-desktop/tests-playwright
 
 ```global-setup.ts
 import { removeFolderIfExists } from '@podman-desktop/tests-playwright';
@@ -85,11 +86,10 @@ Example of the vitest test configuration file.
 const config = {
   test: {
     globals: true,
-    globalSetup: './path/to/globalSetup/global-setup.ts',
-    setupFiles: './path/to/hooks/extended-hooks.ts',
     // or use one shipped with `@podman-desktop/tests-playwright`
     // globalSetup: './node_modules/@podman-desktop/tests/playwright/globalSetup/global-setup.ts',
-    // setupFiles: './node_modules/@podman-desktop/tests/playwright/hooks/extended-hooks.ts',
+    globalSetup: './path/to/globalSetup/global-setup.ts',
+    setupFiles: './path/to/hooks/custom-extended-hooks.ts',
     /**
      * By default, vitest search test files in all packages.
      * For e2e tests have sense search only is project root tests folder
@@ -128,7 +128,7 @@ You will to checkout podman-desktop repository and build it first.
 3. `yarn install`
 4. `yarn test:e2e:build` -> this step is essential
 
-Then you need to prepare your tests to be run from your repository 0. Add dependency for `podman-desktop-tests-playwright` in `devDependencies`
+Then you need to prepare your tests to be run from your repository 0. Add dependency for `@podman-desktop/tests-playwright` in `devDependencies`
 
 1. add npm script target to run E2E tests:
 
@@ -138,6 +138,6 @@ Then you need to prepare your tests to be run from your repository 0. Add depend
   }
 ```
 
-2. Implement your E2E tests in `tests` folder
+2. Implement your E2E tests in `tests` folder of YOUR repo
 3. Run `npm test:e2e`
 4. Artifacts logs are available under `./tests/output`

@@ -6,14 +6,12 @@
     "access": "public"
   },
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "files": [
-    "./dist",
-    "./src"
+    "dist"
   ],
   "license": "Apache-2.0",
   "scripts": {
-    "build": "rimraf dist/ && tsc",
+    "build": "rimraf dist/ && vite build",
     "package": "npm run build && npm link && npm pack",
     "test": "echo \"Error: no test specified\" && exit 1",
     "publish:next": "yarn publish --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
