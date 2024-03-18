@@ -2,17 +2,21 @@
 
 Testing Framework dedicated to a Podman Desktop and its extensions.
 
-## How to build locally
+## How to build locally from podman-desktop repo
 
-1. Node 20 (ideal is to use `nvm`)
-2. Install local dependencies: `npm install`
-3. Build: `npm run build`
-4. Create Local package `npm run package`
-5. Connect to the repository where you want to write your tests
+0. git clone podman-desktop
+1. Install Node 20 (ideal is to use `nvm`)
+2. checkout to `tests/playwright`
+3. Install local dependencies: `yarn install`
+4. Build: `yarn run build`
+5. Create Local package `npm run package`
+6. In YOUR repository, update package.json file
+7. Create a devDependencies on `@podman-desktop/tests-playwright`
+8. Write your E2E tests
 
 ## Usage
 
-1. Add necessary dependencies, ie. devDependencies: "podman-desktop-tests-playwright": "0.0.1"
+1. Add necessary dependencies, ie. devDependencies: "@podman-desktop/tests-playwright": "^1.8.0"
 2. Additional dependencies like vitest or playwright
 
 ### Test Runner Context and Hook extending
@@ -22,7 +26,7 @@ In your project, you need to define the TestContext interface to be passed into 
 
 ```runner-test-context.ts
 import type { TestContext } from 'vitest';
-import { PodmanDesktopRunner } from 'podman-desktop-tests-playwright';
+import { PodmanDesktopRunner } from '@podman-desktop/tests-playwright';
 
 export interface RunnerTestContext extends TestContext {
   pdRunner: PodmanDesktopRunner;
@@ -32,7 +36,7 @@ export interface RunnerTestContext extends TestContext {
 ```extended-hook.ts
 import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { afterEach } from 'vitest';
-import { takeScreenshotHook } from 'podman-desktop-tests-playwright';
+import { takeScreenshotHook } from '@podman-desktop/tests-playwright';
 
 afterEach(async (context: RunnerTestContext) => {
   context.onTestFailed(async () => await takeScreenshotHook(context.pdRunner, context.task.name));
@@ -44,7 +48,7 @@ afterEach(async (context: RunnerTestContext) => {
 Adding Global Setup/teardown module
 
 ```global-setup.ts
-import { removeFolderIfExists } from 'podman-desktop-tests-playwright';
+import { removeFolderIfExists } from '@podman-desktop/tests-playwright';
 
 let setupCalled = false;
 let teardownCalled = false;
@@ -83,6 +87,9 @@ const config = {
     globals: true,
     globalSetup: './path/to/globalSetup/global-setup.ts',
     setupFiles: './path/to/hooks/extended-hooks.ts',
+    // or use one shipped with `@podman-desktop/tests-playwright`
+    // globalSetup: './node_modules/@podman-desktop/tests/playwright/globalSetup/global-setup.ts',
+    // setupFiles: './node_modules/@podman-desktop/tests/playwright/hooks/extended-hooks.ts',
     /**
      * By default, vitest search test files in all packages.
      * For e2e tests have sense search only is project root tests folder
@@ -112,7 +119,7 @@ export default config;
 
 ### Setting and Running the E2E tests
 
-Since you have your tests and testing frameworked at place, you can now run your tests from the repository.
+Since you have your tests and testing framework at place, you can now run your tests from the repository.
 
 You will to checkout podman-desktop repository and build it first.
 
