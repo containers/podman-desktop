@@ -124,7 +124,7 @@ function openFolder(taskUI: StatefulTaskUI) {
               on:click="{() => {
                 if (isStatefulTask(taskUI)) openFolder(taskUI);
               }}"
-              aria-label="open folder">Open folder ></button>
+              aria-label="open folder">Open folder &gt;</button>
           {/if}
         </div>
       </div>
