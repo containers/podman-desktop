@@ -24,11 +24,12 @@
     "src/playwright/globalSetup/*.ts",
     "src/playwright/model/**/*.ts",
     "src/playwright/runner/*.ts",
-    "src/playwright/setupFiles/*.ts",
+    "src/playwright/setupFiles/setupFiles.ts",
+    "src/playwright/setupFiles/extended-hooks-utils.ts",
     "src/playwright/testContext/*.ts",
     "src/playwright/utility/*.ts",
     "src/*.ts",
     "../types/**/*.d.ts"
   ],
-  "exclude": ["node_modules", "src/setupFiles/extended-hooks.ts"]
+  "exclude": ["node_modules"]
 }

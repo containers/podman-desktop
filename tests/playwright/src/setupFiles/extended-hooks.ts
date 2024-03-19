@@ -17,7 +17,8 @@
  ***********************************************************************/
 
 import { afterEach } from 'vitest';
-import { RunnerTestContext } from '../testContext/runner-test-context';
+
+import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { takeScreenshotHook } from './extended-hooks-utils';
 
 afterEach(async (context: RunnerTestContext) => {
