@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { OpenDialogOptions, SaveDialogOptions } from '@podman-desktop/api';
+import type { OpenDialogOptions, SaveDialogOptions, Uri as APIUri } from '@podman-desktop/api';
 import type { BrowserWindow } from 'electron';
 import { dialog } from 'electron';
 
@@ -89,7 +89,7 @@ export class DialogRegistry {
     }
   }
 
-  async saveDialog(options?: SaveDialogOptions, dialogId?: string): Promise<Uri | undefined> {
+  async saveDialog(options?: SaveDialogOptions, dialogId?: string): Promise<APIUri | undefined> {
     if (!this.#browserWindow) {
       throw new Error('Browser window is not available');
     }
