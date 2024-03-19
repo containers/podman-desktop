@@ -17,6 +17,8 @@
  ***********************************************************************/
 
 import { EventEmitter } from 'node:events';
+import * as fs from 'node:fs';
+import path from 'node:path';
 import { PassThrough } from 'node:stream';
 
 import type * as podmanDesktopAPI from '@podman-desktop/api';
@@ -274,6 +276,15 @@ const apiSender: ApiSenderType = {
   send: vi.fn(),
   receive: vi.fn(),
 };
+
+vi.mock('node:fs', async () => {
+  return {
+    promises: {
+      readdir: vi.fn(),
+    },
+    createWriteStream: vi.fn(),
+  };
+});
 
 beforeEach(() => {
   nock.cleanAll();
@@ -3752,4 +3763,99 @@ test('listInfos with provider', async () => {
       engineId: 'podman2',
     },
   ]);
+});
+
+describe('exportContainer', () => {
+  function setExportContainerTestEnv(): void {
+    const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+    const exportMock = vi.fn().mockResolvedValue({
+      on: vi.fn().mockImplementationOnce((event: string, cb: (arg0: string) => string) => {
+        if (event === 'close') {
+          cb('');
+        }
+      }),
+    } as unknown as NodeJS.ReadableStream);
+    const dockerodeContainer = {
+      export: exportMock,
+    } as unknown as Dockerode.Container;
+
+    vi.spyOn(api, 'getContainer').mockReturnValue(dockerodeContainer);
+
+    // set providers
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman-1',
+      id: 'podman1',
+      api,
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+  }
+  test('throw if no engine matching the container', async () => {
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman-1',
+      id: 'podman1',
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+    await expect(
+      containerRegistry.exportContainer('engine', {
+        id: 'id',
+        name: 'name',
+        outputDirectory: 'dir',
+      }),
+    ).rejects.toThrowError('no engine matching this container');
+  });
+  test('throw if no provider matching the container', async () => {
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman-1',
+      id: 'podman1',
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+    await expect(
+      containerRegistry.exportContainer('podman1', {
+        id: 'id',
+        name: 'name',
+        outputDirectory: 'dir',
+      }),
+    ).rejects.toThrowError('no running provider for the matching container');
+  });
+  test('should export container to given location', async () => {
+    setExportContainerTestEnv();
+    vi.spyOn(fs.promises, 'readdir').mockResolvedValue([]);
+
+    const createWriteStreamMock = vi.spyOn(fs, 'createWriteStream').mockReturnValue({
+      write: vi.fn(),
+      close: vi.fn(),
+    } as unknown as fs.WriteStream);
+    await containerRegistry.exportContainer('podman1', {
+      id: 'id',
+      name: 'name',
+      outputDirectory: 'dir',
+    });
+    expect(createWriteStreamMock).toBeCalledWith(path.join('dir', 'name'), {
+      flags: 'w',
+    });
+  });
+  test('should export container to customized location if given path already exists', async () => {
+    setExportContainerTestEnv();
+    vi.spyOn(fs.promises, 'readdir').mockResolvedValue([{ isFile: () => true, name: 'name' } as fs.Dirent]);
+
+    const createWriteStreamMock = vi.spyOn(fs, 'createWriteStream').mockReturnValue({
+      write: vi.fn(),
+      close: vi.fn(),
+    } as unknown as fs.WriteStream);
+    await containerRegistry.exportContainer('podman1', {
+      id: 'id',
+      name: 'name',
+      outputDirectory: 'dir',
+    });
+    expect(createWriteStreamMock).toBeCalledWith(path.join('dir', 'name (1)'), {
+      flags: 'w',
+    });
+  });
 });
