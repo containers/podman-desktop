@@ -20,6 +20,15 @@
       "/@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*.ts", "../types/**/*.d.ts"],
-  "exclude": ["node_modules", "src/specs/*", "src/setupFiles/extended-hooks.ts"]
+  "include": [
+    "src/playwright/globalSetup/*.ts",
+    "src/playwright/model/**/*.ts",
+    "src/playwright/runner/*.ts",
+    "src/playwright/setupFiles/*.ts",
+    "src/playwright/testContext/*.ts",
+    "src/playwright/utility/*.ts",
+    "src/*.ts",
+    "../types/**/*.d.ts"
+  ],
+  "exclude": ["node_modules", "src/setupFiles/extended-hooks.ts"]
 }

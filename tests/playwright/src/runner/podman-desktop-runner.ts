@@ -16,11 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { _electron as electron } from '@playwright/test';
-import type { ElectronApplication, JSHandle, Page } from '@playwright/test';
-import { resolve, dirname, join } from 'node:path';
-import type { BrowserWindow } from 'electron';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+
+import type { ElectronApplication, JSHandle, Page } from '@playwright/test';
+import { _electron as electron } from '@playwright/test';
+import type { BrowserWindow } from 'electron';
 
 type WindowState = {
   isVisible: boolean;
