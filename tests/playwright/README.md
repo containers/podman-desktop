@@ -5,7 +5,7 @@ Testing Framework dedicated to a Podman Desktop and its extensions.
 ## How to build locally from podman-desktop repo
 
 0. git clone podman-desktop
-1. Install Node 20 (ideal is to use `nvm`)
+1. Install Node.js 20 (ideal is to use `nvm`)
 2. checkout to `tests/playwright`
 3. Install local dependencies: `yarn install`
 4. Build: `yarn build`
