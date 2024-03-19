@@ -128,8 +128,9 @@ You will to checkout podman-desktop repository and build it first.
 3. `yarn install`
 4. `yarn test:e2e:build` -> this step is essential
 
-Then you need to prepare your tests to be run from your repository 0. Add dependency for `@podman-desktop/tests-playwright` in `devDependencies`
+Then you need to prepare your tests to be run from your repository
 
+0. Add dependency for `@podman-desktop/tests-playwright` in `devDependencies`
 1. add npm script target to run E2E tests:
 
 ```package.json
