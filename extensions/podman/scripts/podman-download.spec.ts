@@ -22,7 +22,6 @@ import { PodmanDownload, PodmanDownloadFcosImage, PodmanDownloadFedoraImage, Sha
 import * as podman4JSON from '../src/podman4.json';
 import nock from 'nock';
 import { appendFileSync, existsSync, mkdirSync } from 'node:fs';
-import { s } from 'vitest/dist/reporters-MmQN-57K';
 
 const mockedPodman4 = {
   version: '4.5.0',
@@ -69,6 +68,8 @@ class TestPodmanDownload extends PodmanDownload {
 describe('macOS platform', () => {
   let currentPlatform: string;
   beforeEach(() => {
+    vi.mock('node:fs');
+
     currentPlatform = process.platform;
     // define using setProperty
     Object.defineProperty(process, 'platform', {
@@ -237,8 +238,6 @@ describe('windows platform', () => {
 });
 
 test('downloadAndCheckSha', async () => {
-  vi.mock('node:fs');
-
   vi.mocked(existsSync).mockReturnValue(false);
   vi.mocked(mkdirSync).mockReturnValue('');
 

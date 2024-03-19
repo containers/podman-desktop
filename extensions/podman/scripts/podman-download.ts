@@ -108,8 +108,20 @@ export class PodmanDownload {
     }
     this.#shaCheck = new ShaCheck();
     this.#httpsDownloader = new HttpsDownloader();
-    this.#podmanDownloadFcosImage = new PodmanDownloadFcosImage(this.#httpsDownloader, this.#shaCheck);
-    this.#podmanDownloadFedoraImage = new PodmanDownloadFedoraImage(this.#octokit, this.#httpsDownloader);
+    this.#podmanDownloadFcosImage = new PodmanDownloadFcosImage(
+      this.#httpsDownloader,
+      this.#shaCheck,
+      this.#assetsFolder,
+    );
+    this.#podmanDownloadFedoraImage = new PodmanDownloadFedoraImage(
+      this.#octokit,
+      this.#httpsDownloader,
+      this.#assetsFolder,
+    );
+
+    if (!fs.existsSync(this.#assetsFolder)) {
+      fs.mkdirSync(this.#assetsFolder);
+    }
   }
 
   protected getPodmanDownloadFcosImage(): PodmanDownloadFcosImage {
@@ -174,9 +186,6 @@ export class PodmanDownload {
       process.exit(1);
     }
 
-    if (!fs.existsSync(this.#assetsFolder)) {
-      fs.mkdirSync(this.#assetsFolder);
-    }
     const destFile = path.resolve(this.#assetsFolder, fileName);
     if (!fs.existsSync(destFile)) {
       console.log(`Downloading Podman package from ${artifactRelease.browser_download_url}`);
@@ -303,14 +312,20 @@ export class HttpsDownloader {
 
 export class PodmanDownloadFcosImage {
   #downloadAttempt = 0;
+  #httpsDownloader: HttpsDownloader;
   #shaCheck: ShaCheck;
+  #asssetsFolder: string;
+
   readonly MAX_DOWNLOAD_ATTEMPT = 3;
 
   constructor(
-    private readonly httpsDownloader: HttpsDownloader,
+    readonly httpsDownloader: HttpsDownloader,
     readonly shaCheck: ShaCheck,
+    readonly assetsFolder: string,
   ) {
+    this.#httpsDownloader = httpsDownloader;
     this.#shaCheck = shaCheck;
+    this.#asssetsFolder = assetsFolder;
   }
 
   // For macOS, grab the qemu image from Fedora CoreOS
@@ -321,7 +336,7 @@ export class PodmanDownloadFcosImage {
     }
 
     // download the JSON of testing Fedora CoreOS images at https://builds.coreos.fedoraproject.org/streams/testing.json
-    const data = await this.httpsDownloader.downloadJson(
+    const data = await this.#httpsDownloader.downloadJson(
       'https://builds.coreos.fedoraproject.org/streams/testing.json',
     );
 
@@ -338,14 +353,8 @@ export class PodmanDownloadFcosImage {
     // get the sha2556
     const sha256 = disk.sha256;
 
-    // download the file and check the sha256
-    const destDir = path.resolve(__dirname, '..', 'assets');
-    if (!fs.existsSync(destDir)) {
-      fs.mkdirSync(destDir);
-    }
-
     const filename = `podman-image-${arch}.qcow2.xz`;
-    const destFile = path.resolve(destDir, filename);
+    const destFile = path.resolve(this.#asssetsFolder, filename);
     if (!fs.existsSync(destFile)) {
       // download the file from diskLocation
       console.log(`Downloading Podman package from ${diskLocation}`);
@@ -371,15 +380,18 @@ export class PodmanDownloadFedoraImage {
   readonly MAX_DOWNLOAD_ATTEMPT = 3;
   #downloadAttempt = 0;
   #octokit: Octokit;
+  #asssetsFolder: string;
 
   #httpsDownloader: HttpsDownloader;
 
   constructor(
     readonly octokit: Octokit,
     readonly httpsDownloader: HttpsDownloader,
+    readonly assetsFolder: string,
   ) {
     this.#octokit = octokit;
     this.#httpsDownloader = httpsDownloader;
+    this.#asssetsFolder = assetsFolder;
   }
 
   // For Windows binaries, grab the latest release from GitHub repository
@@ -389,14 +401,7 @@ export class PodmanDownloadFedoraImage {
       process.exit(1);
     }
 
-    // download the file and check the sha256
-    const destDir = path.resolve(__dirname, '..', 'assets');
-    if (!fs.existsSync(destDir)) {
-      fs.mkdirSync(destDir);
-    }
-
     // now, grab the files
-
     const release = await this.#octokit.request('GET /repos/{owner}/{repo}/releases/latest', {
       owner: 'containers',
       repo,
@@ -409,7 +414,7 @@ export class PodmanDownloadFedoraImage {
     }
 
     const filename = `podman-image-${arch}.tar.xz`;
-    const destFile = path.resolve(destDir, filename);
+    const destFile = path.resolve(this.#asssetsFolder, filename);
     if (!fs.existsSync(destFile)) {
       // download the file from diskLocation
       console.log(`Downloading Podman package from ${artifactRelease.browser_download_url}`);
