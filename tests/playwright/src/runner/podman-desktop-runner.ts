@@ -56,8 +56,8 @@ export class PodmanDesktopRunner {
     try {
       // start the app with given properties
       this._running = true;
-      console.log(`### STARTING PODMAN DESKTOP APP ###`);
-      console.log(`Electron app launch options: `);
+      console.log('### STARTING PODMAN DESKTOP APP ###');
+      console.log('Electron app launch options: ');
       Object.keys(this._options).forEach(key => {
         console.log(`${key}: ${(this._options as { [k: string]: string })[key]}`);
       });
