@@ -25,6 +25,6 @@ import * as podman5JSON from '../src/podman5.json';
 const podman4Download = new PodmanDownload(podman4JSON, true);
 podman4Download.downloadBinaries();
 
-// do not fetch for aigap mode now
+// do not fetch for airgap mode now
 const podman5Download = new PodmanDownload(podman5JSON, false);
 podman5Download.downloadBinaries();
