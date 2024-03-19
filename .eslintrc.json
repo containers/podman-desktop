@@ -27,7 +27,6 @@
       "./website-argos/tsconfig.json",
       "./extensions/*/tsconfig.json",
       "./tests/playwright/tsconfig.json",
-      "./tests/playwright/tsconfig.eslint.json",
       "./tools/tsconfig.json"
     ]
   },
