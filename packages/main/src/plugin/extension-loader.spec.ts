@@ -65,6 +65,7 @@ import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import type { TrayMenuRegistry } from './tray-menu-registry.js';
 import { Disposable } from './types/disposable.js';
+import { Uri } from './types/uri.js';
 import { Exec } from './util/exec.js';
 import type { ViewRegistry } from './view-registry.js';
 
@@ -1666,7 +1667,7 @@ describe('window', async () => {
     expect(api).toBeDefined();
 
     const filePath = '/path-to-file1';
-    vi.mocked(dialogRegistry.saveDialog).mockResolvedValue(filePath);
+    vi.mocked(dialogRegistry.saveDialog).mockResolvedValue(Uri.file(filePath));
 
     const uri = await api.window.showSaveDialog();
 

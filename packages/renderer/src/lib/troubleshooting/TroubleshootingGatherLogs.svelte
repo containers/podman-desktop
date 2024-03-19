@@ -4,6 +4,8 @@ import Fa from 'svelte-fa';
 
 import Button from '/@/lib/ui/Button.svelte';
 
+import { Uri } from '../uri/Uri';
+
 let logs: string[] = [];
 
 // Save files as a zip file (we first ask the user for the dialog, and then save the files to the filepath)
@@ -11,7 +13,8 @@ async function saveLogsAsZip() {
   const defaultUri = await window.troubleshootingGenerateLogFileUri('podman-desktop', 'zip');
   const filePath = await window.saveDialog({ title: 'Save Logs as .zip', defaultUri });
   if (filePath) {
-    logs = await window.troubleshootingSaveLogs(filePath);
+    const filePathUri = Uri.revive(filePath);
+    logs = await window.troubleshootingSaveLogs(filePathUri.fsPath);
   }
 }
 </script>
