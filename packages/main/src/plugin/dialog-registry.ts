@@ -16,10 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { OpenDialogOptions, SaveDialogOptions } from '@podman-desktop/api';
+import type { OpenDialogOptions, SaveDialogOptions, Uri as APIUri } from '@podman-desktop/api';
 import type { BrowserWindow } from 'electron';
 import { dialog } from 'electron';
 
+import { Uri } from './types/uri.js';
 import type { Deferred } from './util/deferred.js';
 
 /**
@@ -88,7 +89,7 @@ export class DialogRegistry {
     }
   }
 
-  async saveDialog(options?: SaveDialogOptions, dialogId?: string): Promise<string | undefined> {
+  async saveDialog(options?: SaveDialogOptions, dialogId?: string): Promise<APIUri | undefined> {
     if (!this.#browserWindow) {
       throw new Error('Browser window is not available');
     }
@@ -115,11 +116,12 @@ export class DialogRegistry {
     if (response.filePath && !response.canceled) {
       filePath = response.filePath;
     }
+    const fileUri = filePath ? Uri.file(filePath) : undefined;
     // send the response to the renderer part if dialogId is provided
     if (dialogId) {
-      this.#browserWindow.webContents.send('dialog:open-save-dialog-response', dialogId, filePath);
+      this.#browserWindow.webContents.send('dialog:open-save-dialog-response', dialogId, fileUri);
     } else {
-      return filePath;
+      return fileUri;
     }
   }
 }

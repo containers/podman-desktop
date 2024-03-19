@@ -912,10 +912,7 @@ export class ExtensionLoader {
       showSaveDialog: async (
         options?: containerDesktopAPI.SaveDialogOptions,
       ): Promise<containerDesktopAPI.Uri | undefined> => {
-        const result = await dialogRegistry.saveDialog(options);
-        if (result) {
-          return Uri.file(result);
-        }
+        return dialogRegistry.saveDialog(options);
       },
     };
 

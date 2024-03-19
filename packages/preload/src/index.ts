@@ -1316,16 +1316,19 @@ export function initExposure(): void {
 
   const openSaveDialogResponses = new Map<string, OpenSaveDialogResultCallback>();
 
-  const deferedHandleDialog = (): { id: string; deferred: Deferred<string | string[] | undefined> } => {
+  const deferedHandleDialog = (): {
+    id: string;
+    deferred: Deferred<containerDesktopAPI.Uri | string | string[] | undefined>;
+  } => {
     // generate id
     const dialogId = idOpenSaveDialog;
     idOpenSaveDialog++;
 
     // create defer object
-    const deferred = new Deferred<string | string[] | undefined>();
+    const deferred = new Deferred<containerDesktopAPI.Uri | string | string[] | undefined>();
 
     // store the dialogID
-    openSaveDialogResponses.set(`${dialogId}`, (result: string | string[] | undefined) => {
+    openSaveDialogResponses.set(`${dialogId}`, (result: containerDesktopAPI.Uri | string | string[] | undefined) => {
       deferred.resolve(result);
     });
 
@@ -1349,7 +1352,7 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'saveDialog',
-    async (options?: containerDesktopAPI.SaveDialogOptions): Promise<string | undefined> => {
+    async (options?: containerDesktopAPI.SaveDialogOptions): Promise<containerDesktopAPI.Uri | undefined> => {
       const handle = deferedHandleDialog();
 
       // ask to open file dialog
@@ -1358,7 +1361,7 @@ export function initExposure(): void {
       });
 
       // wait for response
-      return handle.deferred.promise as Promise<string | undefined>;
+      return handle.deferred.promise as Promise<containerDesktopAPI.Uri | undefined>;
     },
   );
 

@@ -18,13 +18,13 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { Uri } from '@podman-desktop/api';
 import { type BrowserWindow, dialog } from 'electron';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { Deferred } from '/@/plugin/util/deferred.js';
 
 import { DialogRegistry } from './dialog-registry.js';
+import { Uri } from './types/uri.js';
 
 let mainWindowDeferred: Deferred<BrowserWindow>;
 
@@ -170,7 +170,7 @@ describe('showSaveDialog', () => {
 
   test('check with no options', async () => {
     const result = await dialogRegistry.saveDialog();
-    expect(result).toStrictEqual('/tmp/my/path');
+    expect(result).toStrictEqual(Uri.file('/tmp/my/path'));
 
     expect(dialog.showSaveDialog).toHaveBeenCalledWith(fakeBrowserWindow, expect.anything());
 
@@ -186,7 +186,7 @@ describe('showSaveDialog', () => {
     expect(fakeBrowserWindow.webContents.send).toHaveBeenCalledWith(
       'dialog:open-save-dialog-response',
       'my-dialog-id',
-      '/tmp/my/path',
+      Uri.file('/tmp/my/path'),
     );
 
     expect(dialog.showSaveDialog).toHaveBeenCalledWith(fakeBrowserWindow, expect.anything());
@@ -200,7 +200,7 @@ describe('showSaveDialog', () => {
       saveLabel: 'my save label',
     });
 
-    expect(result).toStrictEqual('/tmp/my/path');
+    expect(result).toStrictEqual(Uri.file('/tmp/my/path'));
 
     expect(dialog.showSaveDialog).toHaveBeenCalledWith(
       fakeBrowserWindow,

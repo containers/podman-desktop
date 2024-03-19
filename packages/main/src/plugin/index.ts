@@ -2122,10 +2122,12 @@ export class PluginSystem {
     );
     this.ipcHandle(
       'dialog:saveDialog',
-      async (_listener, dialogId: string, options: containerDesktopAPI.SaveDialogOptions): Promise<void> => {
-        dialogRegistry.saveDialog(options, dialogId).catch((error: unknown) => {
-          console.error('Error opening dialog', error);
-        });
+      async (
+        _listener,
+        dialogId: string,
+        options: containerDesktopAPI.SaveDialogOptions,
+      ): Promise<containerDesktopAPI.Uri | undefined> => {
+        return dialogRegistry.saveDialog(options, dialogId);
       },
     );
     this.ipcHandle(
