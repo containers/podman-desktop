@@ -31,7 +31,10 @@ const IN_PROGRESS_TASK: StatefulTask = {
   state: 'running',
   started,
   status: 'in-progress',
-  openFolder: () => {},
+  action: {
+    name: 'action',
+    execute: () => {},
+  },
 };
 
 const IN_PROGRESS_TASK_2: StatefulTask = {
@@ -42,20 +45,21 @@ const IN_PROGRESS_TASK_2: StatefulTask = {
   status: 'in-progress',
 };
 
-test('Expect that the open folder button is visible', async () => {
+test('Expect that the action button is visible', async () => {
   render(TaskManagerItem, {
     task: IN_PROGRESS_TASK,
   });
   // expect the tasks manager is not visible by default
-  const openFolderBtn = screen.getByRole('button', { name: 'open folder' });
-  expect(openFolderBtn).toBeInTheDocument();
+  const actionBtn = screen.getByRole('button', { name: 'action button' });
+  expect(actionBtn).toBeInTheDocument();
+  expect(actionBtn.textContent).equal('action');
 });
 
-test('Expect that the open folder button is hidden', async () => {
+test('Expect that the action button is hidden', async () => {
   render(TaskManagerItem, {
     task: IN_PROGRESS_TASK_2,
   });
   // expect the tasks manager is not visible by default
-  const openFolderBtn = screen.queryByRole('button', { name: 'open folder' });
-  expect(openFolderBtn).not.toBeInTheDocument();
+  const actionBtn = screen.queryByRole('button', { name: 'action button' });
+  expect(actionBtn).not.toBeInTheDocument();
 });

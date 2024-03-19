@@ -55,8 +55,8 @@ function gotoTask(taskUI: StatefulTaskUI) {
   taskUI?.gotoTask?.();
 }
 
-function openFolder(taskUI: StatefulTaskUI) {
-  taskUI?.openFolder?.();
+function doExecuteAction(taskUI: StatefulTaskUI) {
+  taskUI?.action?.execute();
 }
 </script>
 
@@ -118,13 +118,13 @@ function openFolder(taskUI: StatefulTaskUI) {
     {#if isStatefulTask(taskUI) && taskUI.status !== 'failure'}
       <div class="flex flex-row w-full">
         <div class="flex flex-1 flex-col w-full items-end text-purple-500 text-xs">
-          {#if taskUI.openFolder}
+          {#if taskUI.action}
             <button
               class="text-purple-500 cursor-pointer"
               on:click="{() => {
-                if (isStatefulTask(taskUI)) openFolder(taskUI);
+                if (isStatefulTask(taskUI)) doExecuteAction(taskUI);
               }}"
-              aria-label="open folder">Open folder &gt;</button>
+              aria-label="action button">{taskUI.action.name}</button>
           {/if}
         </div>
       </div>

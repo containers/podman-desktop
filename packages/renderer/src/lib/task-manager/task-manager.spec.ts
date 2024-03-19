@@ -54,7 +54,10 @@ const OPEN_FOLDER_TASK: StatefulTask = {
   state: 'running',
   started,
   status: 'in-progress',
-  openFolder: () => {},
+  action: {
+    name: 'action',
+    execute: () => {},
+  },
 };
 
 test('Expect totaskUI returns original NotificationTask', async () => {
@@ -70,9 +73,9 @@ test('Expect toTaskUI returns StatefulTaskUi for StatefulTask', async () => {
   expect('age' in task).toBeTruthy();
 });
 
-test('Expect totaskUI returns StatefulTaskUi with openFolder prop', async () => {
+test('Expect totaskUI returns StatefulTaskUi with action prop', async () => {
   const taskManager = new TaskManager();
   const task = taskManager.toTaskUi(OPEN_FOLDER_TASK);
   expect(task.id).equal(OPEN_FOLDER_TASK.id);
-  expect('openFolder' in task).not.toBeUndefined();
+  expect('action' in task).not.toBeUndefined();
 });
