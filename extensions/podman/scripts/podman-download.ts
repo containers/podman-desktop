@@ -314,7 +314,7 @@ export class PodmanDownloadFcosImage {
   #downloadAttempt = 0;
   #httpsDownloader: HttpsDownloader;
   #shaCheck: ShaCheck;
-  #asssetsFolder: string;
+  #assetsFolder: string;
 
   readonly MAX_DOWNLOAD_ATTEMPT = 3;
 
@@ -325,7 +325,7 @@ export class PodmanDownloadFcosImage {
   ) {
     this.#httpsDownloader = httpsDownloader;
     this.#shaCheck = shaCheck;
-    this.#asssetsFolder = assetsFolder;
+    this.#assetsFolder = assetsFolder;
   }
 
   // For macOS, grab the qemu image from Fedora CoreOS
@@ -354,7 +354,7 @@ export class PodmanDownloadFcosImage {
     const sha256 = disk.sha256;
 
     const filename = `podman-image-${arch}.qcow2.xz`;
-    const destFile = path.resolve(this.#asssetsFolder, filename);
+    const destFile = path.resolve(this.#assetsFolder, filename);
     if (!fs.existsSync(destFile)) {
       // download the file from diskLocation
       console.log(`Downloading Podman package from ${diskLocation}`);
@@ -380,7 +380,7 @@ export class PodmanDownloadFedoraImage {
   readonly MAX_DOWNLOAD_ATTEMPT = 3;
   #downloadAttempt = 0;
   #octokit: Octokit;
-  #asssetsFolder: string;
+  #assetsFolder: string;
 
   #httpsDownloader: HttpsDownloader;
 
@@ -391,7 +391,7 @@ export class PodmanDownloadFedoraImage {
   ) {
     this.#octokit = octokit;
     this.#httpsDownloader = httpsDownloader;
-    this.#asssetsFolder = assetsFolder;
+    this.#assetsFolder = assetsFolder;
   }
 
   // For Windows binaries, grab the latest release from GitHub repository
@@ -414,7 +414,7 @@ export class PodmanDownloadFedoraImage {
     }
 
     const filename = `podman-image-${arch}.tar.xz`;
-    const destFile = path.resolve(this.#asssetsFolder, filename);
+    const destFile = path.resolve(this.#assetsFolder, filename);
     if (!fs.existsSync(destFile)) {
       // download the file from diskLocation
       console.log(`Downloading Podman package from ${artifactRelease.browser_download_url}`);
