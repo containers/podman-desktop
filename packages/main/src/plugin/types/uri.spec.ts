@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Uri as APIUri } from '@podman-desktop/api';
 import { afterEach, expect, test, vi } from 'vitest';
 
 import { Uri } from './uri.js';
@@ -94,4 +95,22 @@ test('Uri.with and same change', () => {
   const updatedUri = uri.with({ scheme: 'https', authority: 'podman-desktop.io', path: '/', query: '', fragment: '' });
 
   expect(updatedUri).toBe(uri);
+});
+
+test('Expect revive to return revived Uri object', () => {
+  const uriSerialized = {
+    _scheme: 'scheme',
+    _authority: 'authority',
+    _path: 'path',
+    _query: 'query',
+    _fragment: 'fragment',
+  } as unknown as APIUri;
+
+  const revived = Uri.revive(uriSerialized);
+  expect(revived.authority).equals('authority');
+  expect(revived.scheme).equals('scheme');
+  expect(revived.path).equals('path');
+  expect(revived.fsPath).equals('path');
+  expect(revived.query).equals('query');
+  expect(revived.fragment).equals('fragment');
 });
