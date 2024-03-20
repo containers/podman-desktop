@@ -19,7 +19,6 @@
 import * as crypto from 'node:crypto';
 import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs';
-import path from 'node:path';
 import { type Stream, Writable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 
@@ -2405,23 +2404,10 @@ export class ContainerProviderRegistry {
       throw new Error('no running provider for the matching container');
     }
 
-    // generate the name of the exported file
-    // if there are other entries with the same name, let's append (number of occurences)
-    let containerFile = options.name;
-    const regexFile = new RegExp(`${containerFile}\\s+\\(+\\d+\\)$`);
-    const entries = await fs.promises.readdir(options.outputDirectory, { withFileTypes: true });
-    const similarContainers = entries
-      .filter(entry => entry.isFile())
-      .filter(file => file.name === containerFile || regexFile.test(file.name));
-
-    if (similarContainers.length > 0) {
-      containerFile += ` (${similarContainers.length})`;
-    }
-
     // retrieve the container and export it by copying the content to the final destination
     const containerObject = engine.api.getContainer(options.id);
     const exportResult = await containerObject.export();
-    const fileWriteStream = fs.createWriteStream(path.join(options.outputDirectory, containerFile), {
+    const fileWriteStream = fs.createWriteStream(options.outputTarget, {
       flags: 'w',
     });
 

@@ -18,7 +18,6 @@
 
 import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs';
-import path from 'node:path';
 import { PassThrough } from 'node:stream';
 
 import type * as podmanDesktopAPI from '@podman-desktop/api';
@@ -3803,8 +3802,7 @@ describe('exportContainer', () => {
     await expect(
       containerRegistry.exportContainer('engine', {
         id: 'id',
-        name: 'name',
-        outputDirectory: 'dir',
+        outputTarget: 'dir/name',
       }),
     ).rejects.toThrowError('no engine matching this container');
   });
@@ -3819,8 +3817,7 @@ describe('exportContainer', () => {
     await expect(
       containerRegistry.exportContainer('podman1', {
         id: 'id',
-        name: 'name',
-        outputDirectory: 'dir',
+        outputTarget: 'dir/name',
       }),
     ).rejects.toThrowError('no running provider for the matching container');
   });
@@ -3834,27 +3831,9 @@ describe('exportContainer', () => {
     } as unknown as fs.WriteStream);
     await containerRegistry.exportContainer('podman1', {
       id: 'id',
-      name: 'name',
-      outputDirectory: 'dir',
+      outputTarget: 'dir/name',
     });
-    expect(createWriteStreamMock).toBeCalledWith(path.join('dir', 'name'), {
-      flags: 'w',
-    });
-  });
-  test('should export container to customized location if given path already exists', async () => {
-    setExportContainerTestEnv();
-    vi.spyOn(fs.promises, 'readdir').mockResolvedValue([{ isFile: () => true, name: 'name' } as fs.Dirent]);
-
-    const createWriteStreamMock = vi.spyOn(fs, 'createWriteStream').mockReturnValue({
-      write: vi.fn(),
-      close: vi.fn(),
-    } as unknown as fs.WriteStream);
-    await containerRegistry.exportContainer('podman1', {
-      id: 'id',
-      name: 'name',
-      outputDirectory: 'dir',
-    });
-    expect(createWriteStreamMock).toBeCalledWith(path.join('dir', 'name (1)'), {
+    expect(createWriteStreamMock).toBeCalledWith('dir/name', {
       flags: 'w',
     });
   });
