@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 
 import * as extensionApi from '@podman-desktop/api';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { WinInstaller } from './podman-install';
+import { getBundledPodmanVersion, WinInstaller } from './podman-install';
 
 const originalConsoleError = console.error;
 const consoleErrorMock = vi.fn();
@@ -63,6 +63,9 @@ vi.mock('@podman-desktop/api', async () => {
     process: {
       exec: vi.fn(),
     },
+    configuration: {
+      getConfiguration: vi.fn(),
+    },
   };
 });
 
@@ -86,6 +89,11 @@ beforeEach(() => {
   // reset array of subscriptions
   extensionContext.subscriptions.length = 0;
   console.error = consoleErrorMock;
+  vi.mocked(extensionApi.configuration.getConfiguration).mockReturnValue({
+    get: () => false,
+    has: vi.fn(),
+    update: vi.fn(),
+  });
 });
 
 afterEach(() => {
@@ -644,4 +652,32 @@ test('expect winWSL2 command to be registered as disposable', async () => {
   // should contain a subscription with a disposable function
   expect(extensionContext.subscriptions[0]).toBeDefined();
   expect(extensionContext.subscriptions[0].dispose).toBeDefined();
+});
+
+describe('getBundledPodmanVersion', () => {
+  test('should return the podman 4 version if flag is not enabled', async () => {
+    const version = getBundledPodmanVersion();
+    expect(version.startsWith('4')).toBeTruthy();
+    expect(version.startsWith('5')).toBeFalsy();
+  });
+
+  test('should return the podman 5 version if experimental podman 5 flag is enabled', async () => {
+    vi.mocked(extensionApi.configuration.getConfiguration).mockReset();
+    const getMock = vi.fn();
+    getMock.mockReturnValue(true);
+
+    vi.mocked(extensionApi.configuration.getConfiguration).mockReturnValue({
+      get: getMock,
+      has: vi.fn(),
+      update: vi.fn(),
+    });
+    const version = getBundledPodmanVersion();
+    expect(version.startsWith('4')).toBeFalsy();
+    expect(version.startsWith('5')).toBeTruthy();
+
+    // check first argument of the call to getMock
+    expect(getMock).toHaveBeenCalled();
+    // should have called the get with the property for experimental install
+    expect(getMock).toHaveBeenCalledWith('experimental.install.v5');
+  });
 });
