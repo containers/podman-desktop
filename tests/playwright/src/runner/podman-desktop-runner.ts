@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import path, { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 
 import type { ElectronApplication, JSHandle, Page } from '@playwright/test';
 import { _electron as electron } from '@playwright/test';
@@ -56,10 +56,21 @@ export class PodmanDesktopRunner {
     try {
       // start the app with given properties
       this._running = true;
+      console.log('Starting Podman Desktop');
+      console.log('Electron app launch options: ');
+      Object.keys(this._options).forEach(key => {
+        console.log(`${key}: ${(this._options as { [k: string]: string })[key]}`);
+      });
       this._app = await electron.launch({
         ...this._options,
       });
+      // setup state
       this._page = await this.getElectronApp().firstWindow();
+      const exe = this.getElectronApp().evaluate(async ({ app }) => {
+        return app.getPath('exe');
+      });
+      console.log(`The Executable Electron app. file: ${exe}`);
+
       // Evaluate that the main window is visible
       // at the same time, the function also makes sure that event 'ready-to-show' was triggered
       // keeping this call meeses up communication between playwright and electron app on linux
@@ -224,15 +235,15 @@ export class PodmanDesktopRunner {
 
   private setupPodmanDesktopCustomFolder(): object {
     const env: { [key: string]: string } = process.env as { [key: string]: string };
-    const dir = path.join(this._customFolder);
+    const dir = join(this._customFolder);
     console.log(`podman desktop custom config will be written to: ${dir}`);
     env.PODMAN_DESKTOP_HOME_DIR = dir;
 
     // add a custom config file by disabling OpenDevTools
-    const settingsFile = path.resolve(dir, 'configuration', 'settings.json');
+    const settingsFile = resolve(dir, 'configuration', 'settings.json');
 
     // create parent folder if missing
-    const parentDir = path.dirname(settingsFile);
+    const parentDir = dirname(settingsFile);
     if (!existsSync(parentDir)) {
       mkdirSync(parentDir, { recursive: true });
     }

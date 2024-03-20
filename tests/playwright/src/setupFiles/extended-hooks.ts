@@ -16,34 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { existsSync } from 'node:fs';
-import { resolve } from 'node:path';
-
 import { afterEach } from 'vitest';
 
-import type { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
-
-/**
- * Function to be used in afterEach runner test context
- * @param runner Podman Desktop Runner object
- * @param taskName Task name - taken from runner context
- */
-export async function takeScreenshotHook(runner: PodmanDesktopRunner, taskName: string): Promise<void> {
-  const normalizedFilePath = taskName
-    .replace(/([/: ])/g, '_')
-    .replace(/\W/g, '')
-    .replace(/_{2,}/g, '_');
-  let fileName = `${normalizedFilePath}_failure`;
-  let counter = 0;
-  while (existsSync(resolve(runner.getTestOutput(), 'screenshots', `${fileName}.png`))) {
-    counter++;
-    fileName = `${fileName}_${counter}`;
-    if (counter > 10) break;
-  }
-  console.log(`Screenshot of the failed test will be saved to: ${fileName}`);
-  await runner.screenshot(`${fileName}.png`);
-}
+import { takeScreenshotHook } from './extended-hooks-utils';
 
 afterEach(async (context: RunnerTestContext) => {
   await takeScreenshotHook(context.pdRunner, context.task.name);
