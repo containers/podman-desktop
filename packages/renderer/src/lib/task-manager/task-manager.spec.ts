@@ -48,6 +48,17 @@ const NOTIFICATION_TASK: NotificationTask = {
   description: ' description',
   started,
 };
+const OPEN_FOLDER_TASK: StatefulTask = {
+  id: '1',
+  name: 'Running Task 1',
+  state: 'running',
+  started,
+  status: 'in-progress',
+  action: {
+    name: 'action',
+    execute: () => {},
+  },
+};
 
 test('Expect totaskUI returns original NotificationTask', async () => {
   const taskManager = new TaskManager();
@@ -60,4 +71,11 @@ test('Expect toTaskUI returns StatefulTaskUi for StatefulTask', async () => {
   const taskManager = new TaskManager();
   const task = taskManager.toTaskUi(IN_PROGRESS_TASK);
   expect('age' in task).toBeTruthy();
+});
+
+test('Expect totaskUI returns StatefulTaskUi with action prop', async () => {
+  const taskManager = new TaskManager();
+  const task = taskManager.toTaskUi(OPEN_FOLDER_TASK);
+  expect(task.id).equal(OPEN_FOLDER_TASK.id);
+  expect('action' in task).not.toBeUndefined();
 });
