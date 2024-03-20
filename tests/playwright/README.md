@@ -2,7 +2,7 @@
 
 Testing Framework dedicated to a Podman Desktop and its extensions.
 
-## How to developer using locally built @podman-desktop/tests-playwright
+## How to develop using locally built @podman-desktop/tests-playwright
 
 0. git clone podman-desktop
 1. Install Node.js 20 (ideal is to use `nvm`)
