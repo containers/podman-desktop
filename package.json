@@ -17,7 +17,8 @@
       "extensions/*",
       "website",
       "website-argos",
-      "tools"
+      "tools",
+      "tests/*"
     ]
   },
   "scripts": {
