@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2023 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -234,16 +234,24 @@ export class ProviderRegistry {
   registerInstallation(providerImpl: ProviderImpl, installation: ProviderInstallation): Disposable {
     this.providerInstallations.set(providerImpl.internalId, installation);
 
+    this.apiSender.send('provider-change', {});
     return Disposable.create(() => {
       this.providerInstallations.delete(providerImpl.internalId);
+      // need to refresh the provider
+      this.apiSender.send('provider-change', {});
     });
   }
 
   registerUpdate(providerImpl: ProviderImpl, update: ProviderUpdate): Disposable {
     this.providerUpdates.set(providerImpl.internalId, update);
 
+    // need to refresh the provider
+    this.apiSender.send('provider-change', {});
+
     return Disposable.create(() => {
       this.providerUpdates.delete(providerImpl.internalId);
+      // need to refresh the provider
+      this.apiSender.send('provider-change', {});
     });
   }
 
