@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,13 @@
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 
-import type { ContainerProviderConnection, KubernetesProviderConnection, ProviderCleanup } from '@podman-desktop/api';
+import type {
+  ContainerProviderConnection,
+  KubernetesProviderConnection,
+  ProviderCleanup,
+  ProviderInstallation,
+  ProviderUpdate,
+} from '@podman-desktop/api';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import type { ApiSenderType } from './api.js';
@@ -94,7 +100,7 @@ test('should send version event if update', async () => {
   let providerInternalId: any;
 
   apiSenderSendMock.mockImplementation((message, data) => {
-    expect(['provider-create', 'provider:update-version']).toContain(message);
+    expect(['provider-create', 'provider:update-version', 'provider-change']).toContain(message);
     if (message === 'provider-create') {
       providerInternalId = data;
     }
@@ -124,7 +130,7 @@ test('should send version event if update', async () => {
   });
 
   expect(updateCalled).toBe(true);
-  expect(apiSenderSendMock).toBeCalledTimes(2);
+  expect(apiSenderSendMock).toBeCalledTimes(3);
 });
 
 test('should initialize provider if there is container connection provider', async () => {
@@ -722,4 +728,58 @@ test('should execute actions with error', async () => {
 
   // check telemetry should have an error and success false
   expect(telemetryTrackMock).toBeCalledWith('executeCleanupActions', { success: false, error: ['Error: fake error'] });
+});
+
+test('registerInstallation should notify when an installation is registered or unregistered', async () => {
+  const provider = providerRegistry.createProvider('id', 'name', {
+    id: 'internal',
+    name: 'internal',
+    status: 'installed',
+  });
+
+  // clear the calls
+  apiSenderSendMock.mockClear();
+  const disposable = providerRegistry.registerInstallation(
+    provider as unknown as ProviderImpl,
+    {} as unknown as ProviderInstallation,
+  );
+
+  // check we have been notified
+  expect(apiSenderSendMock).toBeCalledWith('provider-change', {});
+
+  // clear the calls
+  apiSenderSendMock.mockClear();
+
+  // now dispose the installation
+  disposable.dispose();
+
+  // check we have been notified
+  expect(apiSenderSendMock).toBeCalledWith('provider-change', {});
+});
+
+test('registerUpdate should notify when an update is registered or unregistered', async () => {
+  const provider = providerRegistry.createProvider('id', 'name', {
+    id: 'internal',
+    name: 'internal',
+    status: 'installed',
+  });
+
+  // clear the calls
+  apiSenderSendMock.mockClear();
+  const disposable = providerRegistry.registerUpdate(
+    provider as unknown as ProviderImpl,
+    {} as unknown as ProviderUpdate,
+  );
+
+  // check we have been notified
+  expect(apiSenderSendMock).toBeCalledWith('provider-change', {});
+
+  // clear the calls
+  apiSenderSendMock.mockClear();
+
+  // now dispose the installation
+  disposable.dispose();
+
+  // check we have been notified
+  expect(apiSenderSendMock).toBeCalledWith('provider-change', {});
 });
