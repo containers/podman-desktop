@@ -2,22 +2,24 @@
 
 Testing Framework dedicated to a Podman Desktop and its extensions.
 
-## How to build locally from podman-desktop repo
+## How to developer using locally built @podman-desktop/tests-playwright
 
 0. git clone podman-desktop
 1. Install Node.js 20 (ideal is to use `nvm`)
 2. checkout to `tests/playwright`
 3. Install local dependencies: `yarn install`
-4. Build: `yarn build`
-5. Create Local package `npm run package`
-6. In YOUR repository, update `package.json` file
-7. Create a devDependencies on `@podman-desktop/tests-playwright`
-8. Write your E2E tests
+4. Implement changes to the e2e tests library
+5. Build: `yarn build`
+6. Create local package `npm run package`, this will produce an archive
+7. In YOUR repository, update `package.json` file
+8. Use dependecy on `@podman-desktop/tests-playwright`, using `file:../podman-desktop/tests/playwright/podman-desktop-tests-playwright-1.9.0.tgz`
+9. `yarn install` -> this should extract the content of locally built archive into `node_modules` in your repo
+10. Write your E2E tests with use of your changes to `@podman-desktop/tests-playwright`
 
-## Usage
+## Usage of @podman-desktop/tests-playwright in your repository
 
-1. Add necessary dependencies, ie. devDependencies: "@podman-desktop/tests-playwright": "^1.8.0"
-2. Additional dependencies like vitest or playwright
+1. Add necessary dependencies, ie. `devDependencies`: `"@podman-desktop/tests-playwright": "^1.8.0"`
+2. Add additional dependencies like `vitest` and `playwright`
 
 ### Test Runner Context and Hook extending
 
@@ -117,11 +119,11 @@ const config = {
 export default config;
 ```
 
-### Setting and Running the E2E tests
+### Setting and Running the E2E tests with @podman-desktop/tests-playwright npm package
 
 Since you have your tests and testing framework at place, you can now run your tests from the repository.
 
-You will to checkout podman-desktop repository and build it first.
+You will have to checkout podman-desktop repository and build it first.
 
 1. `git clone https://github.com/containers/podman-desktop`
 2. `cd podman-desktop`
