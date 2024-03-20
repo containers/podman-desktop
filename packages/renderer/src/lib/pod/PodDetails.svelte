@@ -10,6 +10,7 @@ import DetailsPage from '../ui/DetailsPage.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import StateChange from '../ui/StateChange.svelte';
 import Tab from '../ui/Tab.svelte';
+import KubernetesTerminalBrowser from './KubernetesTerminalBrowser.svelte';
 import { PodUtils } from './pod-utils';
 import PodActions from './PodActions.svelte';
 import PodDetailsInspect from './PodDetailsInspect.svelte';
@@ -79,6 +80,9 @@ onMount(() => {
       <Tab title="Logs" url="logs" />
       <Tab title="Inspect" url="inspect" />
       <Tab title="Kube" url="kube" />
+      {#if pod.kind === 'kubernetes'}
+        <Tab title="Terminal" url="k8s-terminal" />
+      {/if}
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
@@ -92,6 +96,9 @@ onMount(() => {
       </Route>
       <Route path="/kube" breadcrumb="Kube" navigationHint="tab">
         <PodDetailsKube pod="{pod}" />
+      </Route>
+      <Route path="/k8s-terminal" breadcrumb="Terminal" navigationHint="tab">
+        <KubernetesTerminalBrowser pod="{pod}" />
       </Route>
     </svelte:fragment>
   </DetailsPage>

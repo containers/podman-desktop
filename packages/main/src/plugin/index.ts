@@ -1921,6 +1921,53 @@ export class PluginSystem {
       },
     );
 
+    const kubernetesExecCallbackMap = new Map<
+      number,
+      { onStdIn: (data: string) => void; onResize: (columns: number, rows: number) => void }
+    >();
+    this.ipcHandle(
+      'kubernetes-client:execIntoContainer',
+      async (_listener, podName: string, containerName: string, onDataId: number): Promise<number> => {
+        const execInvocation = await kubernetesClient.execIntoContainer(
+          podName,
+          containerName,
+          (stdOut: Buffer) => {
+            this.getWebContentsSender().send('kubernetes-client:execIntoContainer-onData', onDataId, stdOut);
+          },
+          (stdErr: Buffer) => {
+            this.getWebContentsSender().send('kubernetes-client:execIntoContainer-onError', onDataId, stdErr);
+          },
+          () => {
+            this.getWebContentsSender().send('kubernetes-client:execIntoContainer-onClose', onDataId);
+            kubernetesExecCallbackMap.delete(onDataId);
+          },
+        );
+        kubernetesExecCallbackMap.set(onDataId, execInvocation);
+
+        return onDataId;
+      },
+    );
+
+    this.ipcHandle(
+      'kubernetes-client:execIntoContainerSend',
+      async (_listener, onDataId: number, content: string): Promise<void> => {
+        const callback = kubernetesExecCallbackMap.get(onDataId);
+        if (callback) {
+          callback.onStdIn(content);
+        }
+      },
+    );
+
+    this.ipcHandle(
+      'kubernetes-client:execIntoContainerResize',
+      async (_listener, onDataId: number, width: number, height: number): Promise<void> => {
+        const callback = kubernetesExecCallbackMap.get(onDataId);
+        if (callback) {
+          callback.onResize(width, height);
+        }
+      },
+    );
+
     this.ipcHandle('feedback:send', async (_listener, feedbackProperties: unknown): Promise<void> => {
       return telemetry.sendFeedback(feedbackProperties);
     });
