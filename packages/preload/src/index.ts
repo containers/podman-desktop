@@ -1745,6 +1745,55 @@ export function initExposure(): void {
     },
   );
 
+  // callbacks for shellInContainer
+  let kubernetesCallbackId = 0;
+  const kubernetesCallbackMap = new Map<
+    number,
+    { onStdOut: (data: Buffer) => void; onStdErr: (data: Buffer) => void; onClose: () => void }
+  >();
+  contextBridge.exposeInMainWorld(
+    'kubernetesExec',
+    async (
+      podName: string,
+      containerName: string,
+      onStdOut: (data: Buffer) => void,
+      onStdErr: (data: Buffer) => void,
+      onClose: () => void,
+    ): Promise<number> => {
+      kubernetesCallbackId++;
+      kubernetesCallbackMap.set(kubernetesCallbackId, { onStdOut, onStdErr, onClose });
+      return ipcInvoke('kubernetes-client:execIntoContainer', podName, containerName, kubernetesCallbackId);
+    },
+  );
+
+  contextBridge.exposeInMainWorld('kubernetesExecSend', async (dataId: number, content: string): Promise<void> => {
+    return ipcInvoke('kubernetes-client:execIntoContainerSend', dataId, content);
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesExecResize', async (dataId: number, width: number, height: number) => {
+    return ipcInvoke('kubernetes-client:execIntoContainerResize', dataId, width, height);
+  });
+
+  ipcRenderer.on('kubernetes-client:execIntoContainer-onData', (_, kubernetesCallbackId: number, data: Buffer) => {
+    const callback = kubernetesCallbackMap.get(kubernetesCallbackId);
+    if (callback) {
+      callback.onStdOut(data);
+    }
+  });
+  ipcRenderer.on('kubernetes-client:execIntoContainer-onError', (_, kubernetesCallbackId: number, data: Buffer) => {
+    const callback = kubernetesCallbackMap.get(kubernetesCallbackId);
+    if (callback) {
+      callback.onStdErr(data);
+    }
+  });
+  ipcRenderer.on('kubernetes-client:execIntoContainer-onClose', (_, kubernetesCallbackId: number) => {
+    const callback = kubernetesCallbackMap.get(kubernetesCallbackId);
+    if (callback) {
+      callback.onClose();
+      onDataCallbacksShellInContainer.delete(kubernetesCallbackId);
+    }
+  });
+
   contextBridge.exposeInMainWorld(
     'kubernetesApplyResourcesFromFile',
     async (context: string, file: string, namespace?: string): Promise<KubernetesObject[]> => {

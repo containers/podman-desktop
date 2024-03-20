@@ -19,19 +19,23 @@
 import * as fs from 'node:fs';
 import { IncomingMessage } from 'node:http';
 import { Socket } from 'node:net';
+import type { Readable, Writable } from 'node:stream';
 
 import {
+  Exec,
   KubeConfig,
   type KubernetesObject,
   type V1Deployment,
   type V1Ingress,
   type V1Service,
+  type V1Status,
   type Watch,
 } from '@kubernetes/client-node';
 import * as clientNode from '@kubernetes/client-node';
 import type { FileSystemWatcher } from '@podman-desktop/api';
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
+import { ResizableTerminalWriter } from '/@/plugin/kubernetes-exec-transmitter.js';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 
 import type { ApiSenderType } from './api.js';
@@ -101,6 +105,7 @@ const apiSender: ApiSenderType = {
   receive: vi.fn(),
 };
 
+const execMock = vi.fn();
 beforeAll(() => {
   vi.mock('@kubernetes/client-node', async () => {
     return {
@@ -119,6 +124,7 @@ beforeAll(() => {
           this.statusCode = statusCode;
         }
       },
+      Exec: vi.fn(),
     };
   });
 });
@@ -129,6 +135,7 @@ beforeEach(() => {
   KubeConfig.prototype.makeApiClient = makeApiClientMock;
   KubeConfig.prototype.getContextObject = getContextObjectMock;
   KubeConfig.prototype.currentContext = 'context';
+  Exec.prototype.exec = execMock;
 });
 
 test('Create Kubernetes resources with empty should return ok', async () => {
@@ -1189,4 +1196,108 @@ test('setupWatcher sends kubernetes-context-update when kubeconfig file is delet
   client.setupWatcher('/path/to/kube/config');
   await new Promise(resolve => setTimeout(resolve, 0));
   expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-context-update');
+});
+
+test('Test should exec into container ', async () => {
+  const client = createTestClient('default');
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+  });
+
+  let stdout = '';
+  const onStdOutFn = (data: Buffer): void => {
+    stdout += data.toString();
+  };
+
+  let stderr = '';
+  const onStdErrFn = (data: Buffer): void => {
+    stderr += data.toString();
+  };
+
+  const onCloseFn = vi.fn();
+
+  execMock.mockImplementation(
+    (
+      namespace: string,
+      podName: string,
+      containerName: string,
+      command: string | string[],
+      stdout: Writable | null,
+      stderr: Writable | null,
+      stdin: Readable | null,
+      tty: boolean,
+      _?: (status: V1Status) => void,
+    ) => {
+      expect(namespace).toBe('default');
+      expect(podName).toBe('test-pod');
+      expect(containerName).toBe('test-container');
+      expect(tty).toBeTruthy();
+      expect(command).toEqual(['/bin/sh', '-c', 'if command -v bash >/dev/null 2>&1; then bash; else sh; fi']);
+
+      if (stdout) {
+        stdout.write('stdOut output');
+
+        stdout.on('resize', () => {
+          expect(stdout).instanceOf(ResizableTerminalWriter);
+          const { width, height } = (stdout as ResizableTerminalWriter).getDimension();
+          expect(width).toBe(1);
+          expect(height).toBe(1);
+        });
+      }
+      if (stderr) {
+        stderr.write('stdErr output');
+      }
+
+      if (stdin) {
+        stdin.on('data', chunk => expect(chunk.toString()).toEqual('stdIn input'));
+      }
+
+      return { on: vi.fn() };
+    },
+  );
+
+  const execResp = await client.execIntoContainer('test-pod', 'test-container', onStdOutFn, onStdErrFn, onCloseFn);
+
+  expect(stdout).toBe('stdOut output');
+  expect(stderr).toBe('stdErr output');
+
+  execResp.onStdIn('stdIn input');
+  execResp.onResize(1, 1);
+});
+
+test('Test should throw an exception during exec command if resize parameters are wrong', async () => {
+  const client = createTestClient('default');
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+  });
+
+  const execResp = await client.execIntoContainer(
+    'test-pod',
+    'test-container',
+    () => {},
+    () => {},
+    () => {},
+  );
+
+  expect(() => execResp.onResize(-1, -1)).toThrow('resizing must be done using positive cols and rows');
+  expect(() => execResp.onResize(0, 0)).toThrow('resizing must be done using positive cols and rows');
+  expect(() => execResp.onResize(Number.NaN, Number.NaN)).toThrow('resizing must be done using positive cols and rows');
+  expect(() => execResp.onResize(Infinity, Infinity)).toThrow('resizing must be done using positive cols and rows');
+});
+
+test('Test should throw an exception during exec command if internal kube method fails', async () => {
+  const client = createTestClient('default');
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.reject(new Error('K8sError')),
+  });
+
+  await expect(
+    client.execIntoContainer(
+      'test-pod',
+      'test-container',
+      () => {},
+      () => {},
+      () => {},
+    ),
+  ).rejects.toThrowError('not active connection');
 });

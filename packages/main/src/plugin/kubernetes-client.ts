@@ -36,12 +36,14 @@ import type {
   V1Pod,
   V1PodList,
   V1Service,
+  V1Status,
 } from '@kubernetes/client-node';
 import {
   ApisApi,
   AppsV1Api,
   CoreV1Api,
   CustomObjectsApi,
+  Exec,
   HttpError,
   KubeConfig,
   KubernetesObjectApi,
@@ -65,6 +67,7 @@ import type { FilesystemMonitoring } from './filesystem-monitoring.js';
 import type { KubeContext } from './kubernetes-context.js';
 import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
 import { ContextsManager } from './kubernetes-context-state.js';
+import { BufferedStreamWriter, ResizableTerminalWriter, StringLineReader } from './kubernetes-exec-transmitter.js';
 import { Uri } from './types/uri.js';
 
 interface KubernetesObjectWithKind extends KubernetesObject {
@@ -1239,5 +1242,71 @@ export class KubernetesClient {
 
   public dispose(): void {
     this.contextsState.dispose();
+  }
+
+  async execIntoContainer(
+    podName: string,
+    containerName: string,
+    onStdOut: (data: Buffer) => void,
+    onStdErr: (data: Buffer) => void,
+    onClose: () => void,
+  ): Promise<{ onStdIn: (data: string) => void; onResize: (columns: number, rows: number) => void }> {
+    let telemetryOptions = {};
+    try {
+      const ns = this.getCurrentNamespace();
+      const connected = await this.checkConnection();
+      if (!ns) {
+        throw new Error('no active namespace');
+      }
+      if (!connected) {
+        throw new Error('not active connection');
+      }
+
+      const stdout = new ResizableTerminalWriter(new BufferedStreamWriter(onStdOut));
+      const stderr = new ResizableTerminalWriter(new BufferedStreamWriter(onStdErr));
+      const stdin = new StringLineReader();
+
+      const exec = new Exec(this.kubeConfig);
+      const conn = await exec.exec(
+        ns,
+        podName,
+        containerName,
+        ['/bin/sh', '-c', 'if command -v bash >/dev/null 2>&1; then bash; else sh; fi'],
+        stdout,
+        stderr,
+        stdin,
+        true,
+        (_: V1Status) => {
+          // need to think, maybe it would be better to pass exit code to the client, but on the other hand
+          // if connection is idle for 15 minutes, websocket connection closes automatically and this handler
+          // does not call. also need to separate SIGTERM signal (143) and normally exit signals to be able to
+          // proper reconnect client terminal. at this moment we ignore status and rely on websocket close event
+        },
+      );
+
+      //need to handle websocket idling, which causes the connection close which is not passed to the execution status
+      //approx time for idling before closing socket is 15 minutes. code and reason are always undefined here.
+      conn.on('close', () => {
+        onClose();
+      });
+
+      return {
+        onStdIn: (data: string): void => {
+          stdin.readLine(data);
+        },
+        onResize: (columns: number, rows: number): void => {
+          if (columns <= 0 || rows <= 0 || isNaN(columns) || isNaN(rows) || columns === Infinity || rows === Infinity) {
+            throw new Error('resizing must be done using positive cols and rows');
+          }
+
+          (stdout as ResizableTerminalWriter).resize({ width: columns, height: rows });
+        },
+      };
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw this.wrapK8sClientError(error);
+    } finally {
+      this.telemetry.track('kubernetesExecIntoContainer', telemetryOptions);
+    }
   }
 }
