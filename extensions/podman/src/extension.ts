@@ -35,7 +35,7 @@ import type { InstalledPodman } from './podman-cli';
 import { getPodmanCli, getPodmanInstallation } from './podman-cli';
 import { PodmanConfiguration } from './podman-configuration';
 import { PodmanInfoHelper } from './podman-info-helper';
-import { PodmanInstall } from './podman-install';
+import { PODMAN5_EXPERIMENTAL_MODE_CONFIG_FULLKEY, PodmanInstall } from './podman-install';
 import { QemuHelper } from './qemu-helper';
 import { RegistrySetup } from './registry-setup';
 import { appHomeDir, getAssetsFolder, isLinux, isMac, isWindows, LoggerDelegator } from './util';
@@ -796,10 +796,10 @@ export async function registerUpdatesIfAny(
   provider: extensionApi.Provider,
   installedPodman: InstalledPodman,
   podmanInstall: PodmanInstall,
-): Promise<void> {
+): Promise<extensionApi.Disposable | undefined> {
   const updateInfo = await podmanInstall.checkForUpdate(installedPodman);
   if (updateInfo.hasUpdate) {
-    provider.registerUpdate({
+    return provider.registerUpdate({
       version: updateInfo.bundledVersion,
       update: () => {
         // disable notification before the update to prevent the notification to be shown and re-enabled when update is done
@@ -821,6 +821,35 @@ export function initTelemetryLogger(): void {
 
 export function initExtensionContext(extensionContext: extensionApi.ExtensionContext): void {
   storedExtensionContext = extensionContext;
+}
+
+const currentUpdatesDisposables: extensionApi.Disposable[] = [];
+export async function initCheckAndRegisterUpdate(
+  provider: extensionApi.Provider,
+  installedPodman: InstalledPodman,
+  podmanInstall: PodmanInstall,
+): Promise<void> {
+  // provide an installation path ?
+  // add update information asynchronously
+  const checkForUpdate = async (): Promise<void> => {
+    // remove previous updates
+    for (const disposable of currentUpdatesDisposables) {
+      disposable.dispose();
+    }
+    currentUpdatesDisposables.length = 0;
+    const disposable = await registerUpdatesIfAny(provider, installedPodman, podmanInstall);
+    if (disposable) {
+      currentUpdatesDisposables.push(disposable);
+    }
+  };
+  await checkForUpdate();
+
+  // if configuration key change, check for update again
+  extensionApi.configuration.onDidChangeConfiguration(async e => {
+    if (e.affectsConfiguration(PODMAN5_EXPERIMENTAL_MODE_CONFIG_FULLKEY)) {
+      await checkForUpdate();
+    }
+  });
 }
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
@@ -999,9 +1028,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     provider.registerCleanup(new PodmanCleanupWindows());
   }
 
-  // provide an installation path ?
-  // add update information asynchronously
-  await registerUpdatesIfAny(provider, installedPodman, podmanInstall);
+  await initCheckAndRegisterUpdate(provider, installedPodman, podmanInstall);
 
   // If autostart has been enabled for the machine, try to start it.
   try {

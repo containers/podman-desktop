@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,15 +36,27 @@ import {
 import { MacCPUCheck, MacMemoryCheck, MacPodmanInstallCheck, MacVersionCheck } from './macos-checks';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanInstallation } from './podman-cli';
-import * as podman4Tool from './podman4.json';
+import * as podman4JSON from './podman4.json';
+import * as podman5JSON from './podman5.json';
 import { getAssetsFolder, normalizeWSLOutput } from './util';
 import { WslHelper } from './wsl-helper';
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 
+const PODMAN5_EXPERIMENTAL_MODE_CONFIG_KEY = 'experimental.install.v5';
+export const PODMAN5_EXPERIMENTAL_MODE_CONFIG_FULLKEY = `podman.${PODMAN5_EXPERIMENTAL_MODE_CONFIG_KEY}`;
+
 export function getBundledPodmanVersion(): string {
-  return podman4Tool.version;
+  const podman5ExperimentalModeEnabled = extensionApi.configuration
+    .getConfiguration('podman')
+    .get<boolean>(PODMAN5_EXPERIMENTAL_MODE_CONFIG_KEY);
+
+  if (podman5ExperimentalModeEnabled) {
+    return podman5JSON.version;
+  }
+
+  return podman4JSON.version;
 }
 
 export interface PodmanInfo {
@@ -285,10 +297,6 @@ abstract class BaseInstaller implements Installer {
   requireUpdate(installedVersion: string): boolean {
     return compare(installedVersion, getBundledPodmanVersion(), '<');
   }
-
-  getInstallablePodmanVersion(): string {
-    return podman4Tool.version;
-  }
 }
 
 export class WinInstaller extends BaseInstaller {
@@ -318,7 +326,7 @@ export class WinInstaller extends BaseInstaller {
   install(): Promise<boolean> {
     return extensionApi.window.withProgress({ location: extensionApi.ProgressLocation.APP_ICON }, async progress => {
       progress.report({ increment: 5 });
-      const setupPath = path.resolve(getAssetsFolder(), `podman-${this.getInstallablePodmanVersion()}-setup.exe`);
+      const setupPath = path.resolve(getAssetsFolder(), `podman-${getBundledPodmanVersion()}-setup.exe`);
       try {
         if (fs.existsSync(setupPath)) {
           try {
@@ -355,7 +363,7 @@ class MacOSInstaller extends BaseInstaller {
 
       const pkgPath = path.resolve(
         getAssetsFolder(),
-        `podman-installer-macos-${pkgArch}-v${this.getInstallablePodmanVersion()}.pkg`,
+        `podman-installer-macos-${pkgArch}-v${getBundledPodmanVersion()}.pkg`,
       );
       try {
         if (fs.existsSync(pkgPath)) {

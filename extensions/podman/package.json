@@ -39,6 +39,11 @@
           "default": "",
           "description": "Custom path to Podman binary (Default is blank)"
         },
+        "podman.experimental.install.v5": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable podman v5 installation support (experimental)"
+        },
         "podman.machine.cpus": {
           "type": "number",
           "format": "cpu",

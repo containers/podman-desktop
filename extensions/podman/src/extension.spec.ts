@@ -23,10 +23,10 @@ import type { Configuration, ContainerEngineInfo, ContainerProviderConnection } 
 import * as extensionApi from '@podman-desktop/api';
 import { Disposable } from '@podman-desktop/api';
 import type { Mock } from 'vitest';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { DarwinSocketCompatibility } from './compatibility-mode';
-import { checkDisguisedPodmanSocket } from './extension';
+import { checkDisguisedPodmanSocket, initCheckAndRegisterUpdate } from './extension';
 import * as extension from './extension';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanCli } from './podman-cli';
@@ -1115,4 +1115,96 @@ test('if there are no machines, make sure checkDefaultMachine is not being ran i
   vi.spyOn(extensionApi.process, 'exec').mockResolvedValue({ stdout: '[]' } as extensionApi.RunResult);
   await extension.updateMachines(provider);
   expect(spyCheckDefaultMachine).not.toBeCalled();
+});
+
+describe('initCheckAndRegisterUpdate', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  test('check there is an update', async () => {
+    const podmanInstall = {
+      checkForUpdate: vi.fn(),
+    } as unknown as PodmanInstall;
+
+    // disposable
+    const disposeMock = vi.fn();
+    registerUpdateMock.mockReturnValue({
+      dispose: disposeMock,
+    });
+
+    // First call, installed is 4 and we can bump to v5
+    vi.mocked(podmanInstall.checkForUpdate).mockResolvedValueOnce({
+      hasUpdate: true,
+      installedVersion: '4.0',
+      bundledVersion: '5.0',
+    });
+
+    await initCheckAndRegisterUpdate(
+      provider,
+      {
+        version: '1.1',
+      },
+      podmanInstall,
+    );
+
+    // check that we call registerUpdate on the provider
+    expect(registerUpdateMock).toBeCalledWith({
+      preflightChecks: expect.any(Function),
+      update: expect.any(Function),
+      version: '5.0',
+    });
+
+    // check not disposed
+    expect(disposeMock).not.toBeCalled();
+
+    // clear mock
+    registerUpdateMock.mockClear();
+
+    // ok now we mock the same bundled version (no update)
+    vi.mocked(podmanInstall.checkForUpdate).mockResolvedValueOnce({
+      hasUpdate: false,
+      installedVersion: '5.0',
+      bundledVersion: '5.0',
+    });
+
+    // check again the update
+    await initCheckAndRegisterUpdate(
+      provider,
+      {
+        version: '5.0',
+      },
+      podmanInstall,
+    );
+
+    // check that registerUpdateMock is not called as there is no update available from 5.0 to 5.0
+    expect(registerUpdateMock).not.toBeCalled();
+
+    // and the previous disposable should have been disposed
+    expect(disposeMock).toBeCalled();
+  });
+
+  test('check there is no update', async () => {
+    const podmanInstall = {
+      checkForUpdate: vi.fn(),
+    } as unknown as PodmanInstall;
+
+    // First call, installed is 4 and we can bump to v5
+    vi.mocked(podmanInstall.checkForUpdate).mockResolvedValueOnce({
+      hasUpdate: false,
+      installedVersion: '4.0',
+      bundledVersion: '5.0',
+    });
+
+    await initCheckAndRegisterUpdate(
+      provider,
+      {
+        version: '1.1',
+      },
+      podmanInstall,
+    );
+
+    // check that we call registerUpdate on the provider
+    expect(registerUpdateMock).not.toBeCalled();
+  });
 });
