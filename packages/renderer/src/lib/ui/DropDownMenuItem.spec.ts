@@ -49,3 +49,15 @@ test('Expect Font Awesome icon on the contributed action', async () => {
   // check it is a svelte-fa class
   expect(svgElement).toHaveClass('svelte-fa');
 });
+
+test('Expect tooltip is used if not empty', async () => {
+  render(DropDownMenuItem, {
+    title: 'dummy-title',
+    tooltip: 'tooltip',
+    icon: faCircleUp,
+  });
+
+  // grab the svg element
+  const span = screen.getByTitle('tooltip');
+  expect(span).toBeInTheDocument();
+});

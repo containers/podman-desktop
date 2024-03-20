@@ -21,6 +21,7 @@ export let menu = false;
 export let detailed = false;
 export let inProgress = false;
 export let iconOffset = '';
+export let tooltip: string = '';
 
 // Pop up with a dialog before executing the action
 export let confirm = false;
@@ -114,7 +115,13 @@ $: styleClass = detailed
 <!-- If menu = true, use the menu, otherwise implement the button -->
 {#if menu}
   <!-- enabled menu -->
-  <DropdownMenuItem title="{title}" icon="{icon}" enabled="{enabled}" hidden="{hidden}" onClick="{handleClick}" />
+  <DropdownMenuItem
+    title="{title}"
+    tooltip="{tooltip}"
+    icon="{icon}"
+    enabled="{enabled}"
+    hidden="{hidden}"
+    onClick="{handleClick}" />
 {:else}
   <!-- enabled button -->
   <button

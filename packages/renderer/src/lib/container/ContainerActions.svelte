@@ -211,6 +211,7 @@ if (dropdownMenu) {
     icon="{faArrowsRotate}" />
   <ListItemButtonIcon
     title="Export Container"
+    tooltip="Exports container's filesystem contents as a tar archive and saves it on the local machine"
     onClick="{() => exportContainer()}"
     menu="{dropdownMenu}"
     detailed="{detailed}"
