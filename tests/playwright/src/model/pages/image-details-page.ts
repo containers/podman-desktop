@@ -77,33 +77,37 @@ export class ImageDetailsPage extends BasePage {
   }
 
   async buildDiskImage(type: string, architecture: string, pathToStore: string): Promise<boolean> {
-    await this.actionsButton.click();
-    await playExpect(this.buildDiskImageButton).toBeEnabled();
-    await this.buildDiskImageButton.click();
+    let result = false;
 
-    const typeButtonLocator = this.page.getByRole('button', { name: type });
-    await playExpect(typeButtonLocator).toBeEnabled();
-    await typeButtonLocator.click();
+    try {
+      await this.actionsButton.click();
+      await playExpect(this.buildDiskImageButton).toBeEnabled();
+      await this.buildDiskImageButton.click();
 
-    const architectureButtonLocator = this.page.getByRole('button', { name: architecture });
-    await playExpect(architectureButtonLocator).toBeEnabled();
-    await architectureButtonLocator.click();
+      const typeButtonLocator = this.page.getByRole('button', { name: type });
+      await playExpect(typeButtonLocator).toBeEnabled();
+      await typeButtonLocator.click();
 
-    const pathInputLocator = this.page.locator(`input[type='text']`);
-    await playExpect(pathInputLocator).toBeVisible();
-    await pathInputLocator.clear();
-    await pathInputLocator.fill(pathToStore);
-    await pathInputLocator.press('Enter');
+      const architectureButtonLocator = this.page.getByRole('button', { name: architecture });
+      await playExpect(architectureButtonLocator).toBeEnabled();
+      await architectureButtonLocator.click();
 
-    const dialogLocator = this.page.getByRole('dialog', { name: 'Bootable Container', exact: true });
-    await playExpect.poll(async () => (await dialogLocator.count()) > 0, { timeout: 300000 }).toBeTruthy();
+      const pathInputLocator = this.page.locator(`input[type='text']`);
+      await playExpect(pathInputLocator).toBeVisible();
+      await pathInputLocator.clear();
+      await pathInputLocator.fill(pathToStore);
+      await pathInputLocator.press('Enter');
 
-    const dialogMessageLocator = this.page.getByLabel('Dialog Message');
-    const result = (await dialogMessageLocator.innerText()).includes('Success!');
+      const dialogLocator = this.page.getByRole('dialog', { name: 'Bootable Container', exact: true });
+      await playExpect.poll(async () => (await dialogLocator.count()) > 0, { timeout: 300000 }).toBeTruthy();
 
-    const okButtonLocator = this.page.getByRole('button', { name: 'OK' });
-    await playExpect(okButtonLocator).toBeEnabled();
-    await okButtonLocator.click();
+      const dialogMessageLocator = this.page.getByLabel('Dialog Message');
+      result = (await dialogMessageLocator.innerText()).includes('Success!');
+    } finally {
+      const okButtonLocator = this.page.getByRole('button', { name: 'OK' });
+      await playExpect(okButtonLocator).toBeEnabled();
+      await okButtonLocator.click();
+    }
 
     return result;
   }
