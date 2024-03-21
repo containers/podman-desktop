@@ -16268,10 +16268,10 @@ vite-node@1.4.0:
     picocolors "^1.0.0"
     vite "^5.0.0"
 
-vite@^5.0.0, vite@^5.2.0:
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-5.2.0.tgz#a3f899b2fbfb7849f9ffdc3fb2ccd00b1acdef05"
-  integrity sha512-xMSLJNEjNk/3DJRgWlPADDwaU9AgYRodDH2t6oENhJnIlmU9Hx1Q6VpjyXua/JdMw1WJRbnAgHJ9xgET9gnIAg==
+vite@^5.0.0, vite@^5.2.2:
+  version "5.2.2"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-5.2.2.tgz#b98f8de352d22e21d99508274ddd053ef82bf238"
+  integrity sha512-FWZbz0oSdLq5snUI0b6sULbz58iXFXdvkZfZWR/F0ZJuKTSPO7v72QPXt6KqYeMFb0yytNp6kZosxJ96Nr/wDQ==
   dependencies:
     esbuild "^0.20.1"
     postcss "^8.4.36"
