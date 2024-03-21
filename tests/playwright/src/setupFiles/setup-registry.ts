@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 export function setupRegistry(): string[] {
-  const urlDefault = process.env.CI ? 'ghcr.io' : '';
+  const urlDefault = 'ghcr.io';
   const registryUrl = process.env.REGISTRY_URL ? process.env.REGISTRY_URL : urlDefault;
   const ciDefault = process.env.CI ? 'podmandesktop-ci' : '';
   const registryUsername = process.env.REGISTRY_USERNAME ? process.env.REGISTRY_USERNAME : ciDefault;
