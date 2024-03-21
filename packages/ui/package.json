@@ -44,7 +44,7 @@
     "autoprefixer": "^10.4.18",
     "eslint-plugin-svelte": "^2.35.1",
     "jsdom": "^24.0.0",
-    "postcss": "^8.4.37",
+    "postcss": "^8.4.38",
     "postcss-load-config": "^5.0.3",
     "svelte": "4.2.12",
     "svelte-check": "^3.6.8",
