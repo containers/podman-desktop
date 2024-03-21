@@ -157,6 +157,10 @@ function gotoPullImage(): void {
   router.goto('/images/pull');
 }
 
+function importImage(): void {
+  router.goto('/images/import');
+}
+
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
 async function deleteSelectedImages() {
@@ -276,6 +280,9 @@ const row = new Row<ImageInfoUI>({
     {#if $imagesInfos.length > 0}
       <Prune type="images" engines="{enginesList}" />
     {/if}
+    <Button on:click="{() => importImage()}" title="Import Image From Filesystem" icon="{faArrowCircleDown}">
+      Import
+    </Button>
     <Button on:click="{() => gotoPullImage()}" title="Pull Image From a Registry" icon="{faArrowCircleDown}">
       Pull
     </Button>

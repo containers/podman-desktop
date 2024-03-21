@@ -44,6 +44,7 @@ import type { CommandInfo } from '../../main/src/plugin/api/command-info';
 import type {
   ContainerCreateOptions,
   ContainerExportOptions,
+  ContainerImportOptions,
   ContainerInfo,
   ImagesSaveOptions,
   SimpleContainerInfo,
@@ -448,6 +449,10 @@ export function initExposure(): void {
       return ipcInvoke('container-provider-registry:exportContainer', engine, options);
     },
   );
+
+  contextBridge.exposeInMainWorld('importContainer', async (options: ContainerImportOptions): Promise<void> => {
+    return ipcInvoke('container-provider-registry:importContainer', options);
+  });
 
   contextBridge.exposeInMainWorld('saveImages', async (options: ImagesSaveOptions): Promise<void> => {
     return ipcInvoke('container-provider-registry:saveImages', options);

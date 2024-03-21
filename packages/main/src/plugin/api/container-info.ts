@@ -18,6 +18,8 @@
 
 import type Dockerode from 'dockerode';
 
+import type { ProviderContainerConnectionInfo } from './provider-info.js';
+
 export interface ContainerPortInfo {
   IP: string;
   PrivatePort: number;
@@ -276,6 +278,12 @@ export interface VolumeCreateResponseInfo extends Dockerode.VolumeCreateResponse
 export interface ContainerExportOptions {
   id: string;
   outputTarget: string;
+}
+
+export interface ContainerImportOptions {
+  provider: ProviderContainerConnectionInfo;
+  archivePath: string;
+  imageTag: string;
 }
 
 export interface ImagesSaveOptions {

@@ -65,6 +65,7 @@ import type { CommandInfo } from './api/command-info.js';
 import type {
   ContainerCreateOptions,
   ContainerExportOptions,
+  ContainerImportOptions,
   ContainerInfo,
   ImagesSaveOptions,
   SimpleContainerInfo,
@@ -1085,6 +1086,13 @@ export class PluginSystem {
       'container-provider-registry:exportContainer',
       async (_listener, engine: string, options: ContainerExportOptions): Promise<void> => {
         return containerProviderRegistry.exportContainer(engine, options);
+      },
+    );
+
+    this.ipcHandle(
+    'container-provider-registry:importContainer',
+      async (_listener, options: ContainerImportOptions): Promise<void> => {
+        return containerProviderRegistry.importContainer(options);
       },
     );
 

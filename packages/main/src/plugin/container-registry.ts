@@ -37,6 +37,7 @@ import type { ApiSenderType } from './api.js';
 import type {
   ContainerCreateOptions,
   ContainerExportOptions,
+  ContainerImportOptions,
   ContainerInfo,
   ContainerPortInfo,
   ImagesSaveOptions,
@@ -2426,6 +2427,19 @@ export class ContainerProviderRegistry {
       exportResult.on('error', error => {
         reject(error);
       });
+    });
+  }
+
+  async importContainer(options: ContainerImportOptions): Promise<void> {
+    const matchingEngine = this.getMatchingEngineFromConnection(options.provider);
+    if (!matchingEngine) {
+      throw new Error('no running engine for the matching provider');
+    }
+
+    const repoTag = options.imageTag.split(':');
+    await matchingEngine.importImage(options.archivePath, {
+      repo: repoTag[0],
+      tag: repoTag[1] ?? 'latest',
     });
   }
 
