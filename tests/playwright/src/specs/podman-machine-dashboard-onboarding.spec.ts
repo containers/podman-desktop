@@ -62,9 +62,9 @@ describe.skipIf(os.platform() === 'linux')(async () => {
       test('Create Podman machine from Dashboard', async () => {
         const navigationBar = new NavigationBar(page);
         const dashboardPage = await navigationBar.openDashboard();
-        await playExpect(dashboardPage.initilizeAndStartButton).toBeEnabled();
-        await dashboardPage.initilizeAndStartButton.click();
-        await playExpect(dashboardPage.podmanMachineConnectionStatus).toHaveText('RUNNING', { timeout: 300000 });
+        await playExpect(dashboardPage.podmanInitilizeAndStartButton).toBeEnabled();
+        await dashboardPage.podmanInitilizeAndStartButton.click();
+        await playExpect(dashboardPage.podmanStatusLabel).toHaveText('RUNNING', { timeout: 300000 });
       }, 320000);
 
       test.runIf(process.env.MACHINE_CLEANUP !== undefined && process.env.MACHINE_CLEANUP === 'true')(

@@ -30,6 +30,11 @@ import { WelcomePage } from '../model/pages/welcome-page';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
 
+const DISABLED = 'DISABLED';
+const ACTIVE = 'ACTIVE';
+const RUNNING = 'RUNNING';
+const NOT_INSTALLED = 'NOT-INSTALLED';
+
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
 
@@ -46,7 +51,6 @@ let settingsTableLabel: string;
 let extensionBoxVisible: boolean;
 
 const _startup = async function (): Promise<void> {
-  console.log('running before all');
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
 
@@ -55,12 +59,10 @@ const _startup = async function (): Promise<void> {
 };
 
 const _shutdown = async function (): Promise<void> {
-  console.log('running after all');
   await pdRunner.close();
 };
 
 beforeEach<RunnerTestContext>(async ctx => {
-  console.log('running before each');
   ctx.pdRunner = pdRunner;
 });
 
@@ -116,7 +118,7 @@ describe.each([
     await installButton.click();
 
     const installedExtensionRow = settingsPage.getExtensionRowFromTable(settingsTableLabel);
-    const extensionRunningLabel = installedExtensionRow.getByText('RUNNING');
+    const extensionRunningLabel = installedExtensionRow.getByText(RUNNING);
     await playExpect(extensionRunningLabel).toBeVisible({ timeout: 180000 });
   }, 200000);
 
@@ -127,7 +129,7 @@ describe.each([
 
       const extensionPage = await settingsBar.openTabPage(extensionPageType);
       await playExpect(extensionPage.heading).toBeVisible();
-      await playExpect(extensionPage.status).toHaveText('ENABLED');
+      await playExpect(extensionPage.status).toHaveText(ACTIVE);
     });
 
     describe('Toggle and verify extension status', async () => {
@@ -135,7 +137,7 @@ describe.each([
         const extensionPage = new extensionPageType(page);
 
         await extensionPage.disableButton.click();
-        await playExpect(extensionPage.status).toHaveText('DISABLED');
+        await playExpect(extensionPage.status).toHaveText(DISABLED);
 
         await goToDashboard();
         await playExpect(extensionDashboardProvider).toBeHidden();
@@ -156,11 +158,16 @@ describe.each([
         const extensionPage = await settingsBar.openTabPage(extensionPageType);
 
         await extensionPage.enableButton.click();
-        await playExpect(extensionPage.status).toHaveText('ENABLED', { timeout: 10000 });
+        await playExpect(extensionPage.status).toHaveText(ACTIVE, { timeout: 10000 });
 
         await goToDashboard();
         await playExpect(extensionDashboardProvider).toBeVisible();
         await playExpect(extensionDashboardStatus).toBeVisible();
+        if (extensionType === 'Developer Sandbox') {
+          await playExpect(extensionDashboardStatus).toHaveText(RUNNING);
+        } else {
+          await playExpect(extensionDashboardStatus).toHaveText(NOT_INSTALLED);
+        }
 
         await goToSettings();
         const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
@@ -205,7 +212,7 @@ function initializeLocators(extensionType: string): void {
   const settingsExtensionsPage = new SettingsExtensionsPage(page);
   switch (extensionType) {
     case 'Developer Sandbox': {
-      extensionDashboardStatus = dashboardPage.devSandboxEnabledStatus;
+      extensionDashboardStatus = dashboardPage.devSandboxStatusLabel;
       extensionDashboardBox = dashboardPage.devSandboxBox;
       extensionDashboardProvider = dashboardPage.devSandboxProvider;
       extensionSettingsBox = settingsExtensionsPage.devSandboxBox;
@@ -217,7 +224,7 @@ function initializeLocators(extensionType: string): void {
       break;
     }
     case 'Openshift Local': {
-      extensionDashboardStatus = dashboardPage.openshiftLocalEnabledStatus;
+      extensionDashboardStatus = dashboardPage.openshiftLocalStatusLabel;
       extensionDashboardBox = dashboardPage.openshiftLocalBox;
       extensionDashboardProvider = dashboardPage.openshiftLocalProvider;
       extensionSettingsBox = settingsExtensionsPage.openshiftLocalBox;

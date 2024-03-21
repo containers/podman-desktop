@@ -27,15 +27,24 @@ export class DashboardPage extends BasePage {
   readonly heading: Locator;
   readonly notificationsBox: Locator;
   readonly featuredExtensions: Locator;
+  // dev sandbox
   readonly devSandboxProvider: Locator;
   readonly devSandboxBox: Locator;
-  readonly devSandboxEnabledStatus: Locator;
+  readonly devSandboxStatusLabel: Locator;
+  // openshift local
   readonly openshiftLocalProvider: Locator;
   readonly openshiftLocalBox: Locator;
-  readonly openshiftLocalEnabledStatus: Locator;
-  readonly initilizeAndStartButton: Locator;
+  readonly openshiftLocalStatusLabel: Locator;
   readonly transitioningState: Locator;
-  readonly podmanMachineConnectionStatus: Locator;
+
+  // podman/machine
+  readonly podmanProvider: Locator;
+  readonly podmanStatusLabel: Locator;
+  readonly podmanInitilizeAndStartButton: Locator;
+
+  // contants
+  readonly ACTUAL_STATE = 'Actual State';
+  readonly CONNECTION_STATUS_LABEL = 'Connection Status Label';
 
   constructor(page: Page) {
     super(page);
@@ -45,18 +54,23 @@ export class DashboardPage extends BasePage {
     this.heading = page.getByRole('heading', { name: 'Dashboard' });
 
     this.notificationsBox = this.content.getByRole('region', { name: 'Notifications Box' });
-    this.featuredExtensions = page.getByLabel('FeaturedExtensions');
+    this.featuredExtensions = page.getByRole('region', { name: 'FeaturedExtensions' });
 
-    this.devSandboxProvider = page.getByLabel('Developer Sandbox Provider');
+    // Dev Sandbox locators
+    this.devSandboxProvider = page.getByRole('region', { name: 'Developer Sandbox Provider' });
     this.devSandboxBox = this.featuredExtensions.getByLabel('Developer Sandbox');
-    this.devSandboxEnabledStatus = this.devSandboxProvider.getByText('RUNNING');
+    this.devSandboxStatusLabel = this.devSandboxProvider.getByLabel(this.CONNECTION_STATUS_LABEL);
 
-    this.openshiftLocalProvider = page.getByLabel('OpenShift Local Provider');
+    // OpenShift Local locators
+    this.openshiftLocalProvider = page.getByRole('region', { name: 'OpenShift Local Provider' });
     this.openshiftLocalBox = this.featuredExtensions.getByLabel('OpenShift Local');
-    this.openshiftLocalEnabledStatus = this.openshiftLocalProvider.getByText('NOT-INSTALLED');
-    this.initilizeAndStartButton = page.getByRole('button', { name: 'Initialize and start ' });
-    this.transitioningState = page.getByLabel('Transitioning State');
-    this.podmanMachineConnectionStatus = page.getByLabel('Connection Status Label');
+    this.openshiftLocalStatusLabel = this.openshiftLocalProvider.getByLabel(this.CONNECTION_STATUS_LABEL);
+
+    // Podman/Machine Provider locators
+    this.podmanProvider = page.getByRole('region', { name: 'Podman Provider' });
+    this.podmanInitilizeAndStartButton = this.podmanProvider.getByRole('button', { name: 'Initialize and start ' });
+    this.transitioningState = this.podmanProvider.getByLabel('Transitioning State');
+    this.podmanStatusLabel = this.podmanProvider.getByLabel(this.CONNECTION_STATUS_LABEL);
   }
 
   public getPodmanStatusLocator(): Locator {
