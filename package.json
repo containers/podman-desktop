@@ -155,7 +155,7 @@
     "js-yaml": "^4.1.0",
     "lint-staged": "^15.2.2",
     "nock": "^14.0.0-beta.5",
-    "postcss-import": "^16.0.1",
+    "postcss-import": "^16.1.0",
     "prettier": "^3.2.5",
     "prettier-plugin-svelte": "^3.2.2",
     "proxy": "^2.1.1",
