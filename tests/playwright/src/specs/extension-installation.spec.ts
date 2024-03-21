@@ -33,7 +33,7 @@ import type { RunnerTestContext } from '../testContext/runner-test-context';
 const DISABLED = 'DISABLED';
 const ACTIVE = 'ACTIVE';
 const RUNNING = 'RUNNING';
-const INSTALLED_NOT_READY = 'INSTALLED BUT NOT READY';
+const NOT_INSTALLED = 'NOT-INSTALLED';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -166,7 +166,7 @@ describe.each([
         if (extensionType === 'Developer Sandbox') {
           await playExpect(extensionDashboardStatus).toHaveText(RUNNING);
         } else {
-          await playExpect(extensionDashboardStatus).toHaveText(INSTALLED_NOT_READY);
+          await playExpect(extensionDashboardStatus).toHaveText(NOT_INSTALLED);
         }
 
         await goToSettings();
