@@ -30,18 +30,15 @@ export class DashboardPage extends BasePage {
   // dev sandbox
   readonly devSandboxProvider: Locator;
   readonly devSandboxBox: Locator;
-  readonly devSandboxActualState: Locator;
   readonly devSandboxStatusLabel: Locator;
   // openshift local
   readonly openshiftLocalProvider: Locator;
   readonly openshiftLocalBox: Locator;
-  readonly openshiftLocalActualState: Locator;
   readonly openshiftLocalStatusLabel: Locator;
   readonly transitioningState: Locator;
 
   // podman/machine
   readonly podmanProvider: Locator;
-  readonly podmanActualState: Locator;
   readonly podmanStatusLabel: Locator;
   readonly podmanInitilizeAndStartButton: Locator;
 
@@ -62,21 +59,18 @@ export class DashboardPage extends BasePage {
     // Dev Sandbox locators
     this.devSandboxProvider = page.getByRole('region', { name: 'Developer Sandbox Provider' });
     this.devSandboxBox = this.featuredExtensions.getByLabel('Developer Sandbox');
-    this.devSandboxActualState = this.devSandboxProvider.getByLabel(this.ACTUAL_STATE);
-    this.devSandboxStatusLabel = this.devSandboxActualState.getByLabel(this.CONNECTION_STATUS_LABEL);
+    this.devSandboxStatusLabel = this.devSandboxProvider.getByLabel(this.CONNECTION_STATUS_LABEL);
 
     // OpenShift Local locators
     this.openshiftLocalProvider = page.getByRole('region', { name: 'OpenShift Local Provider' });
     this.openshiftLocalBox = this.featuredExtensions.getByLabel('OpenShift Local');
-    this.openshiftLocalActualState = this.openshiftLocalProvider.getByLabel(this.ACTUAL_STATE);
     this.openshiftLocalStatusLabel = this.openshiftLocalProvider.getByLabel(this.CONNECTION_STATUS_LABEL);
 
     // Podman/Machine Provider locators
     this.podmanProvider = page.getByRole('region', { name: 'Podman Provider' });
     this.podmanInitilizeAndStartButton = this.podmanProvider.getByRole('button', { name: 'Initialize and start ' });
     this.transitioningState = this.podmanProvider.getByLabel('Transitioning State');
-    this.podmanActualState = this.podmanProvider.getByLabel(this.ACTUAL_STATE);
-    this.podmanStatusLabel = this.podmanActualState.getByLabel(this.CONNECTION_STATUS_LABEL);
+    this.podmanStatusLabel = this.podmanProvider.getByLabel(this.CONNECTION_STATUS_LABEL);
   }
 
   public getPodmanStatusLocator(): Locator {
