@@ -280,7 +280,11 @@ const row = new Row<ImageInfoUI>({
     {#if $imagesInfos.length > 0}
       <Prune type="images" engines="{enginesList}" />
     {/if}
-    <Button on:click="{() => importImage()}" title="Import Image From Filesystem" icon="{faArrowCircleDown}">
+    <Button
+      on:click="{() => importImage()}"
+      title="Import Image From Filesystem"
+      icon="{faArrowCircleDown}"
+      aria-label="Import Image">
       Import
     </Button>
     <Button on:click="{() => gotoPullImage()}" title="Pull Image From a Registry" icon="{faArrowCircleDown}">

@@ -123,7 +123,7 @@ async function importContainers() {
         </label>
       {/if}
 
-      <label for="modalContainerName" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
+      <label for="modalContainersImport" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
         >Containers to import:</label>
       <Button on:click="{addContainersToImport}" icon="{faPlusCircle}" type="link">Add images to import</Button>
       <!-- Display the list of existing containersToImport -->
@@ -152,10 +152,11 @@ async function importContainers() {
         inProgress="{inProgress}"
         class="w-full"
         icon="{faPlay}"
+        aria-label="Import containers"
         bind:disabled="{importDisabled}">
         Import Containers
       </Button>
-      <div aria-label="createError">
+      <div aria-label="importError">
         {#if importError !== ''}
           <ErrorMessage class="py-2 text-sm" error="{importError}" />
         {/if}
