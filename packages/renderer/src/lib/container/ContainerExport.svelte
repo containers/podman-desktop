@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faDownload, faFolderOpen } from '@fortawesome/free-solid-svg-icons';
+import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import { Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
@@ -20,6 +20,7 @@ let invalidFolder = true;
 let outputTarget = '';
 let outputUri: Uri;
 let exportedError = '';
+let inProgress = false;
 $: invalidFields = invalidName || invalidFolder;
 
 onMount(async () => {
@@ -34,6 +35,11 @@ onMount(async () => {
 async function selectFolderPath() {
   const result = await window.saveDialog({
     title: 'Select the directory where to export the container content',
+    defaultUri: {
+      fsPath: `${container.name}.tar`,
+      path: `${container.name}.tar`,
+      scheme: 'file',
+    } as Uri,
   });
   if (!result) {
     if (!outputTarget) {
@@ -49,6 +55,7 @@ async function selectFolderPath() {
 
 async function exportContainer() {
   exportedError = '';
+  inProgress = true;
   const task = createTask(`Export container ${container.name}`);
   task.action = {
     name: 'Open folder >',
@@ -72,6 +79,7 @@ async function exportContainer() {
     exportedError = String(error);
   } finally {
     task.state = 'completed';
+    inProgress = false;
   }
 }
 </script>
@@ -96,15 +104,14 @@ async function exportContainer() {
               aria-invalid="{invalidFolder}" />
             <Button
               on:click="{() => selectFolderPath()}"
-              icon="{faFolderOpen}"
               title="Open dialog to select the output file"
               aria-label="Select output file">Browse ...</Button>
           </div>
-          <div class="pt-5 border-zinc-600 border-t-2"></div>
           <Button
             on:click="{() => exportContainer()}"
-            class="w-full"
+            class="w-full mt-5"
             icon="{faDownload}"
+            inProgress="{inProgress}"
             bind:disabled="{invalidFields}"
             aria-label="Export container">
             Export Container
