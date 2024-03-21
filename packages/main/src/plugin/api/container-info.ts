@@ -275,6 +275,5 @@ export interface VolumeCreateResponseInfo extends Dockerode.VolumeCreateResponse
 
 export interface ContainerExportOptions {
   id: string;
-  name: string;
-  outputDirectory: string;
+  outputTarget: string;
 }

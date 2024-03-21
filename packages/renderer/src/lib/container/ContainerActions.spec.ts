@@ -19,7 +19,10 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import { router } from 'tinro';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+
+import { exportContainerInfo } from '/@/stores/export-container-store';
 
 import ContainerActions from './ContainerActions.svelte';
 import type { ContainerInfoUI } from './ContainerInfoUI';
@@ -101,4 +104,16 @@ test('Expect no error and status deleting container', async () => {
   expect(container.state).toEqual('DELETING');
   expect(container.actionError).toEqual('');
   expect(updateMock).toHaveBeenCalled();
+});
+
+test('Expect exportContainerInfo is filled and user redirected to export container page', async () => {
+  const goToMock = vi.spyOn(router, 'goto');
+  const storeSetMock = vi.spyOn(exportContainerInfo, 'set');
+
+  render(ContainerActions, { container });
+  const exportButton = screen.getByRole('button', { name: 'Export Container' });
+  await fireEvent.click(exportButton);
+
+  expect(goToMock).toBeCalledWith('/containers/export');
+  expect(storeSetMock).toBeCalledWith(container);
 });

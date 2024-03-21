@@ -2,6 +2,7 @@
 import {
   faAlignLeft,
   faArrowsRotate,
+  faDownload,
   faExternalLinkSquareAlt,
   faFileCode,
   faPlay,
@@ -14,6 +15,7 @@ import { createEventDispatcher, onMount } from 'svelte';
 import { router } from 'tinro';
 
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
+import { exportContainerInfo } from '/@/stores/export-container-store';
 
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
@@ -104,6 +106,11 @@ async function deleteContainer(): Promise<void> {
   } finally {
     inProgress(false);
   }
+}
+
+async function exportContainer() {
+  exportContainerInfo.set(container);
+  router.goto('/containers/export');
 }
 
 function openTerminalContainer(): void {
@@ -202,6 +209,13 @@ if (dropdownMenu) {
     menu="{dropdownMenu}"
     detailed="{detailed}"
     icon="{faArrowsRotate}" />
+  <ListItemButtonIcon
+    title="Export Container"
+    tooltip="Exports container's filesystem contents as a tar archive and saves it on the local machine"
+    onClick="{() => exportContainer()}"
+    menu="{dropdownMenu}"
+    detailed="{detailed}"
+    icon="{faDownload}" />
   <ContributionActions
     args="{[container]}"
     contextPrefix="containerItem"

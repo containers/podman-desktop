@@ -11,6 +11,7 @@ import AppNavigation from './AppNavigation.svelte';
 import Appearance from './lib/appearance/Appearance.svelte';
 import ComposeDetails from './lib/compose/ComposeDetails.svelte';
 import ContainerDetails from './lib/container/ContainerDetails.svelte';
+import ContainerExport from './lib/container/ContainerExport.svelte';
 import ContainerList from './lib/container/ContainerList.svelte';
 import ContextKey from './lib/context/ContextKey.svelte';
 import DashboardPage from './lib/dashboard/DashboardPage.svelte';
@@ -106,6 +107,9 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         </Route>
         <Route path="/containers/:id/*" breadcrumb="Container Details" let:meta navigationHint="details">
           <ContainerDetails containerID="{meta.params.id}" />
+        </Route>
+        <Route path="/containers/export/*" breadcrumb="Export Container">
+          <ContainerExport />
         </Route>
 
         <Route path="/kube/play" breadcrumb="Play Kubernetes YAML">
