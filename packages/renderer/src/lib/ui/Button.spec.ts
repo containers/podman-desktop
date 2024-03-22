@@ -24,6 +24,8 @@ import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
 import Button from './Button.svelte';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 test('Check primary button styling', async () => {
   render(Button, { type: 'primary' });
@@ -160,4 +162,20 @@ test('Check hidden button', async () => {
   expect(button).toBeInTheDocument();
   expect(button).toHaveAttribute('hidden');
   expect(button).not.toBeVisible();
+});
+
+test('Check icon button with fas prefix is visible', async () => {
+  render(Button, { icon: faTrash });
+
+  // check for a few elements of the styling
+  const img = screen.getByRole('img', { hidden: true });
+  expect(img).toBeInTheDocument();
+});
+
+test('Check icon button with fab prefix is visible', async () => {
+  render(Button, { icon: faGithub });
+
+  // check for a few elements of the styling
+  const img = screen.getByRole('img', { hidden: true });
+  expect(img).toBeInTheDocument();
 });

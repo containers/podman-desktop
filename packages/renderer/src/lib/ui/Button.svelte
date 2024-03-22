@@ -22,7 +22,7 @@ export let padding: string =
 let iconType: string | undefined = undefined;
 
 onMount(() => {
-  if (icon?.prefix === 'fas') {
+  if (['fas', 'fab'].includes(icon?.prefix)) {
     iconType = 'fa';
   } else {
     iconType = 'unknown';
