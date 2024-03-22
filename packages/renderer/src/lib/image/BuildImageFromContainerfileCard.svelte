@@ -5,6 +5,7 @@ import Fa from 'svelte-fa';
 
 import Checkbox from '../ui/Checkbox.svelte';
 import Tooltip from '../ui/Tooltip.svelte';
+import { isIconDefinition } from '/@/lib/ui/IconUtils';
 
 export let title: string = '';
 export let badge: string = '';
@@ -57,7 +58,7 @@ function handleClick() {
 }
 
 onMount(() => {
-  if (icon?.prefix?.startsWith('fa')) {
+  if (isIconDefinition(icon)) {
     iconType = 'fontAwesome';
   } else {
     iconType = 'unknown';

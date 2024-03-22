@@ -4,6 +4,7 @@ import Fa from 'svelte-fa';
 
 import type { ButtonType } from './Button';
 import Spinner from './Spinner.svelte';
+import { isIconDefinition } from '/src/lib/ui/IconUtils';
 
 export let title: string | undefined = undefined;
 export let inProgress = false;
@@ -22,7 +23,7 @@ export let padding: string =
 let iconType: string | undefined = undefined;
 
 onMount(() => {
-  if (['fas', 'fab'].includes(icon?.prefix)) {
+  if (isIconDefinition(icon)) {
     iconType = 'fa';
   } else {
     iconType = 'unknown';
