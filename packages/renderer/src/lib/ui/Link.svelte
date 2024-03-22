@@ -3,6 +3,8 @@ import { createEventDispatcher, onMount } from 'svelte';
 import Fa from 'svelte-fa';
 import { router } from 'tinro';
 
+import { isFontAwesomeIcon } from '/@/lib/ui/icon-utils';
+
 export let internalRef: string | undefined = undefined;
 export let externalRef: string | undefined = undefined;
 export let icon: any = undefined;
@@ -12,7 +14,7 @@ let iconType: string | undefined = undefined;
 const dispatch = createEventDispatcher<{ click: undefined }>();
 
 onMount(() => {
-  if (icon?.prefix === 'fas') {
+  if (isFontAwesomeIcon(icon)) {
     iconType = 'fa';
   } else {
     iconType = 'unknown';

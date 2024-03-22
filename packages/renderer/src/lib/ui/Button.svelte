@@ -2,6 +2,8 @@
 import { onMount } from 'svelte';
 import Fa from 'svelte-fa';
 
+import { isFontAwesomeIcon } from '/@/lib/ui/icon-utils';
+
 import type { ButtonType } from './Button';
 import Spinner from './Spinner.svelte';
 
@@ -22,7 +24,7 @@ export let padding: string =
 let iconType: string | undefined = undefined;
 
 onMount(() => {
-  if (icon?.prefix === 'fas') {
+  if (isFontAwesomeIcon(icon)) {
     iconType = 'fa';
   } else {
     iconType = 'unknown';

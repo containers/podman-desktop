@@ -4,6 +4,7 @@ import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/motion';
 import Fa from 'svelte-fa';
 
+import { isFontAwesomeIcon } from '/@/lib/ui/icon-utils';
 import { context as storeContext } from '/@/stores/context';
 
 import type { ContextUI } from '../context/context';
@@ -62,8 +63,8 @@ function computeEnabled() {
 }
 
 onMount(() => {
-  if ((icon as IconDefinition)?.prefix?.startsWith('fa')) {
-    fontAwesomeIcon = icon as IconDefinition;
+  if (isFontAwesomeIcon(icon)) {
+    fontAwesomeIcon = icon;
   }
 });
 
