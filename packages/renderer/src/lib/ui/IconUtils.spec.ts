@@ -19,12 +19,12 @@
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { test, expect } from 'vitest';
-import { isIconDefinition } from '/@/lib/ui/IconUtils';
+import { isFontAwesomeIcon } from '/@/lib/ui/iconUtils';
 
 test('ensure fas prefix is recognized', () => {
-  expect(isIconDefinition(faTrash)).toBeTruthy();
+  expect(isFontAwesomeIcon(faTrash)).toBeTruthy();
 });
 
 test('ensure fab prefix is recognized', () => {
-  expect(isIconDefinition(faGithub)).toBeTruthy();
+  expect(isFontAwesomeIcon(faGithub)).toBeTruthy();
 });

@@ -3,7 +3,7 @@ import { faPaste } from '@fortawesome/free-solid-svg-icons';
 import { onMount } from 'svelte';
 import Fa from 'svelte-fa';
 
-import { isIconDefinition } from '/@/lib/ui/IconUtils';
+import { isFontAwesomeIcon } from '/@/lib/ui/iconUtils';
 
 export let icon: any;
 export let title = 'No title';
@@ -16,7 +16,7 @@ let fontAwesomeIcon = false;
 let processed = false;
 
 onMount(() => {
-  if (isIconDefinition(icon)) {
+  if (isFontAwesomeIcon(icon)) {
     fontAwesomeIcon = true;
   }
   processed = true;

@@ -5,7 +5,7 @@ import Fa from 'svelte-fa';
 
 import Checkbox from '../ui/Checkbox.svelte';
 import Tooltip from '../ui/Tooltip.svelte';
-import { isIconDefinition } from '/@/lib/ui/IconUtils';
+import { isFontAwesomeIcon } from '/@/lib/ui/iconUtils';
 
 export let title: string = '';
 export let badge: string = '';
@@ -58,7 +58,7 @@ function handleClick() {
 }
 
 onMount(() => {
-  if (isIconDefinition(icon)) {
+  if (isFontAwesomeIcon(icon)) {
     iconType = 'fontAwesome';
   } else {
     iconType = 'unknown';

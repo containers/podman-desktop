@@ -18,7 +18,7 @@
 
 import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
 
-export const isIconDefinition = (icon: unknown): icon is IconDefinition => {
+export const isFontAwesomeIcon = (icon: unknown): icon is IconDefinition => {
   return (
     !!icon &&
     typeof icon === 'object' &&
