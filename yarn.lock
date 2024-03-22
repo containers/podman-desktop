@@ -7254,10 +7254,10 @@ docusaurus-plugin-goatcounter@^3.0.0:
   resolved "https://registry.yarnpkg.com/docusaurus-plugin-goatcounter/-/docusaurus-plugin-goatcounter-3.0.0.tgz#da55f2fae91a70ccf0af09ee3f53d000c61a2642"
   integrity sha512-nlB8VOj+kzL9rAY0zICsktbaJoy2M8CBcRAOaltGAo5RrvDj7pMCgV067FiFF0dBrgn2k6+aC4/g/T50XvvJJw==
 
-docusaurus-plugin-typedoc@1.0.0-next.27:
-  version "1.0.0-next.27"
-  resolved "https://registry.yarnpkg.com/docusaurus-plugin-typedoc/-/docusaurus-plugin-typedoc-1.0.0-next.27.tgz#a8617163b63cde9604da0f45451bb2053d2218a2"
-  integrity sha512-X0A0SSczmPXiyOS86ydQWhyfpZkPgBLP7lZ83m3+98W7kQSefzS7OcrjMBJA6ojLiXjF7VxrEi+0C3P+DnyF0A==
+docusaurus-plugin-typedoc@1.0.0-next.28:
+  version "1.0.0-next.28"
+  resolved "https://registry.yarnpkg.com/docusaurus-plugin-typedoc/-/docusaurus-plugin-typedoc-1.0.0-next.28.tgz#8021ad98cf912cfb9aec6bdac17e25fd702f27a0"
+  integrity sha512-deuTv+FFhx5xMB/BIM409vDx+15LQrsHHpx4xtkJiQFsbKd3xkOKMaULNGHob+kSBSZvAffrEc251xbMw3JzEQ==
 
 dom-accessibility-api@^0.5.9:
   version "0.5.16"
