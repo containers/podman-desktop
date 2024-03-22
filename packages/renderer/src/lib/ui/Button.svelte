@@ -4,7 +4,7 @@ import Fa from 'svelte-fa';
 
 import type { ButtonType } from './Button';
 import Spinner from './Spinner.svelte';
-import { isFontAwesomeIcon } from '/@/lib/ui/iconUtils';
+import { isFontAwesomeIcon } from '/@/lib/ui/icon-utils';
 
 export let title: string | undefined = undefined;
 export let inProgress = false;

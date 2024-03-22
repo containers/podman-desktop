@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { test, expect } from 'vitest';
-import { isFontAwesomeIcon } from '/@/lib/ui/iconUtils';
+import { isFontAwesomeIcon } from '/@/lib/ui/icon-utils';
 
 test('ensure fas prefix is recognized', () => {
   expect(isFontAwesomeIcon(faTrash)).toBeTruthy();

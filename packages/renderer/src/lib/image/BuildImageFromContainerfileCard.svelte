@@ -5,7 +5,7 @@ import Fa from 'svelte-fa';
 
 import Checkbox from '../ui/Checkbox.svelte';
 import Tooltip from '../ui/Tooltip.svelte';
-import { isFontAwesomeIcon } from '/@/lib/ui/iconUtils';
+import { isFontAwesomeIcon } from '/@/lib/ui/icon-utils';
 
 export let title: string = '';
 export let badge: string = '';
