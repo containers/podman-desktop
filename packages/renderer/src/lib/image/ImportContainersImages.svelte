@@ -1,15 +1,19 @@
 <script lang="ts">
+/* eslint-disable import/no-duplicates */
+// https://github.com/import-js/eslint-plugin-import/issues/1479
 import { faMinusCircle, faPlay, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { Input } from '@podman-desktop/ui-svelte';
-import { get, onMount } from 'svelte';
+import { onMount } from 'svelte';
+import { get } from 'svelte/store';
 import { router } from 'tinro';
 
+import Button from '/@/lib/ui//Button.svelte';
+import ErrorMessage from '/@/lib/ui//ErrorMessage.svelte';
+import FormPage from '/@/lib/ui//FormPage.svelte';
 import { providerInfos } from '/@/stores/providers';
+import { createTask } from '/@/stores/tasks';
 
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import Button from '../ui/Button.svelte';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
-import FormPage from '../ui/FormPage.svelte';
 
 let containersToImport: { imagePath: string; nameWhenImporting: string }[] = [];
 let importError: string = '';
@@ -20,7 +24,6 @@ let selectedProvider: ProviderContainerConnectionInfo | undefined = undefined;
 let inProgress = false;
 
 $: importDisabled = !selectedProvider || containersToImport.length === 0;
-let separator = '/';
 
 onMount(async () => {
   providers = get(providerInfos);
@@ -31,11 +34,6 @@ onMount(async () => {
 
   const selectedProviderConnection = providerConnections.length > 0 ? providerConnections[0] : undefined;
   selectedProvider = !selectedProvider && selectedProviderConnection ? selectedProviderConnection : selectedProvider;
-
-  const platform = await window.getOsPlatform();
-  if (platform === 'win32') {
-    separator = '\\';
-  }
 });
 
 async function addContainersToImport() {
@@ -50,7 +48,8 @@ async function addContainersToImport() {
 
   const imagesInfo: { imagePath: string; nameWhenImporting: string }[] = [];
   images.forEach(imgPath => {
-    let lastSlashPos = imgPath.lastIndexOf(separator) + 1;
+    imgPath = imgPath.replace(/\\/g, '/');
+    let lastSlashPos = imgPath.lastIndexOf('/') + 1;
     let lastDot: number | undefined = imgPath.lastIndexOf('.');
     if (lastDot === -1 || lastDot < lastSlashPos) {
       lastDot = undefined;
@@ -83,6 +82,8 @@ async function importContainers() {
 
   inProgress = true;
 
+  const task = createTask('Import containers');
+
   for (const containerImage of containersToImport) {
     try {
       await window.importContainer({
@@ -97,7 +98,13 @@ async function importContainers() {
 
   inProgress = false;
   if (importError === '') {
+    task.status = 'success';
+    task.state = 'completed';
     router.goto('/images');
+  } else {
+    task.status = 'failure';
+    task.error = importError;
+    task.state = 'completed';
   }
 }
 </script>

@@ -65,7 +65,6 @@ const providerInfo = {
 beforeAll(() => {
   (window as any).openDialog = openDialogMock;
   (window as any).importContainer = importContainerMock;
-  (window as any).getOsPlatform = vi.fn().mockResolvedValue('linux');
 });
 
 beforeEach(() => {
