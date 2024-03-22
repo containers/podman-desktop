@@ -20,12 +20,12 @@
 
 import '@testing-library/jest-dom/vitest';
 
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
 import Button from './Button.svelte';
-import { faGithub } from '@fortawesome/free-brands-svg-icons';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 test('Check primary button styling', async () => {
   render(Button, { type: 'primary' });

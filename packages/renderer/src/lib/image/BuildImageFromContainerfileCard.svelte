@@ -3,9 +3,10 @@ import { faCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { createEventDispatcher, onMount, tick } from 'svelte';
 import Fa from 'svelte-fa';
 
+import { isFontAwesomeIcon } from '/@/lib/ui/icon-utils';
+
 import Checkbox from '../ui/Checkbox.svelte';
 import Tooltip from '../ui/Tooltip.svelte';
-import { isFontAwesomeIcon } from '/@/lib/ui/icon-utils';
 
 export let title: string = '';
 export let badge: string = '';
