@@ -852,6 +852,20 @@ export async function initCheckAndRegisterUpdate(
   });
 }
 
+export function registerOnboardingMachineExistsCommand(): extensionApi.Disposable {
+  return extensionApi.commands.registerCommand('podman.onboarding.checkPodmanMachineExistsCommand', async () => {
+    let machineLength;
+    try {
+      const machineListOutput = await getJSONMachineList();
+      const machines = JSON.parse(machineListOutput) as MachineJSON[];
+      machineLength = machines.length;
+    } catch (error) {
+      machineLength = 0;
+    }
+    extensionApi.context.setValue('podmanMachineExists', machineLength > 0, 'onboarding');
+  });
+}
+
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   initExtensionContext(extensionContext);
 
@@ -1157,6 +1171,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     },
   );
 
+  const onboardingCheckPodmanMachineExistsCommand = registerOnboardingMachineExistsCommand();
+
   const onboardingCheckReqsCommand = extensionApi.commands.registerCommand(
     'podman.onboarding.checkRequirementsCommand',
     async () => {
@@ -1239,6 +1255,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   extensionContext.subscriptions.push(
     onboardingCheckInstallationCommand,
+    onboardingCheckPodmanMachineExistsCommand,
     onboardingCheckReqsCommand,
     onboardingInstallPodmanCommand,
   );

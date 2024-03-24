@@ -26,6 +26,10 @@
         "title": "Podman: Check system requirements to install podman"
       },
       {
+        "command": "podman.onboarding.checkPodmanMachineExistsCommand",
+        "title": "Podman: Check if a podman machine exists"
+      },
+      {
         "command": "podman.onboarding.installPodman",
         "title": "Podman: Install podman"
       }
@@ -263,6 +267,15 @@
                 "value": "${configuration:preferences.podman-desktop.podman.engine.autostart}"
               }
             ]
+          ]
+        },
+        {
+          "id": "checkPodmanMachineExistsCommand",
+          "title": "Checking if a Podman machine exists",
+          "when": "!isLinux",
+          "command": "podman.onboarding.checkPodmanMachineExistsCommand",
+          "completionEvents": [
+            "onCommand:podman.onboarding.checkPodmanMachineExistsCommand"
           ]
         },
         {

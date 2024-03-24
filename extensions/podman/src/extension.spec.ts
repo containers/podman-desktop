@@ -26,7 +26,11 @@ import type { Mock } from 'vitest';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { DarwinSocketCompatibility } from './compatibility-mode';
-import { checkDisguisedPodmanSocket, initCheckAndRegisterUpdate } from './extension';
+import {
+  checkDisguisedPodmanSocket,
+  initCheckAndRegisterUpdate,
+  registerOnboardingMachineExistsCommand,
+} from './extension';
 import * as extension from './extension';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanCli } from './podman-cli';
@@ -148,6 +152,9 @@ const consoleErrorMock = vi.fn();
 
 vi.mock('@podman-desktop/api', async () => {
   return {
+    commands: {
+      registerCommand: vi.fn(),
+    },
     configuration: {
       getConfiguration: (): Configuration => config,
       onDidChangeConfiguration: (): any => {
@@ -1206,5 +1213,84 @@ describe('initCheckAndRegisterUpdate', () => {
 
     // check that we call registerUpdate on the provider
     expect(registerUpdateMock).not.toBeCalled();
+  });
+});
+
+describe('registerOnboardingMachineExistsCommand', () => {
+  test('check with error when calling podman machine ls command', async () => {
+    vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
+
+    vi.mocked(extensionApi.process.exec).mockRejectedValue(new Error('error'));
+
+    // perform the call
+    const disposable = registerOnboardingMachineExistsCommand();
+
+    // checks
+    expect(disposable).toBeDefined();
+
+    // check command is called
+    expect(extensionApi.commands.registerCommand).toBeCalledWith(
+      'podman.onboarding.checkPodmanMachineExistsCommand',
+      expect.any(Function),
+    );
+
+    const func = vi.mocked(extensionApi.commands.registerCommand).mock.calls[0][1];
+    // call the function
+    await func();
+
+    // check called with podman machine exists being false
+    expect(extensionApi.context.setValue).toBeCalledWith('podmanMachineExists', false, 'onboarding');
+  });
+
+  test('check with 2 machines', async () => {
+    vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
+
+    // return 2 empty machines
+    vi.mocked(extensionApi.process.exec).mockResolvedValue({ stdout: '[{}, {}]' } as unknown as extensionApi.RunResult);
+
+    // perform the call
+    const disposable = registerOnboardingMachineExistsCommand();
+
+    // checks
+    expect(disposable).toBeDefined();
+
+    // check command is called
+    expect(extensionApi.commands.registerCommand).toBeCalledWith(
+      'podman.onboarding.checkPodmanMachineExistsCommand',
+      expect.any(Function),
+    );
+
+    const func = vi.mocked(extensionApi.commands.registerCommand).mock.calls[0][1];
+    // call the function
+    await func();
+
+    // check called with podman machine exists being true as there are 2 machines
+    expect(extensionApi.context.setValue).toBeCalledWith('podmanMachineExists', true, 'onboarding');
+  });
+
+  test('check with 0 machine', async () => {
+    vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
+
+    // return empty machine array
+    vi.mocked(extensionApi.process.exec).mockResolvedValue({ stdout: '[]' } as unknown as extensionApi.RunResult);
+
+    // perform the call
+    const disposable = registerOnboardingMachineExistsCommand();
+
+    // checks
+    expect(disposable).toBeDefined();
+
+    // check command is called
+    expect(extensionApi.commands.registerCommand).toBeCalledWith(
+      'podman.onboarding.checkPodmanMachineExistsCommand',
+      expect.any(Function),
+    );
+
+    const func = vi.mocked(extensionApi.commands.registerCommand).mock.calls[0][1];
+    // call the function
+    await func();
+
+    // check called with podman machine exists being false as there is no machine
+    expect(extensionApi.context.setValue).toBeCalledWith('podmanMachineExists', false, 'onboarding');
   });
 });
