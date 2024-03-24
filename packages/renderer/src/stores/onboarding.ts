@@ -22,7 +22,7 @@ import { writable } from 'svelte/store';
 import type { OnboardingInfo } from '../../../main/src/plugin/api/onboarding';
 import { EventStore } from './event-store';
 
-const windowEvents = ['extension-stopped', 'extensions-started'];
+const windowEvents = ['extension-stopped', 'extension-started', 'extensions-started'];
 const windowListeners = ['extensions-already-started'];
 
 let readyToUpdate = false;
