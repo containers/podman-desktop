@@ -90,3 +90,44 @@ test('onboarding should be updated in case of an extension is stopped', async ()
   const onboardingList2 = get(onboardingList);
   expect(onboardingList2.length).toBe(0);
 });
+
+test('onboarding should be updated in case of an extension is started', async () => {
+  // mock the listOnboarding function to return an empty list
+  listOnboardingMock.mockResolvedValue([]);
+
+  onboardingEventStore.setup();
+
+  const callback = callbacks.get('extensions-already-started');
+  // send 'extensions-already-started' event
+  expect(callback).toBeDefined();
+  await callback();
+
+  // now ready to fetch volumes
+  await fetchOnboarding();
+
+  // now get list
+  const onboardingList1 = get(onboardingList);
+  expect(onboardingList1.length).toBe(0);
+
+  // now add a new thing
+  listOnboardingMock.mockResolvedValue([
+    {
+      extension: 'extension',
+      title: 'title',
+      decription: 'description',
+      steps: [],
+    } as unknown as OnboardingInfo,
+  ]);
+
+  // call 'extension-started' event
+  const extensionStartedCallback = callbacks.get('extension-started');
+  expect(extensionStartedCallback).toBeDefined();
+  await extensionStartedCallback();
+
+  // wait that the onboarding is updated
+  await vi.waitFor(() => {
+    // check if the onboardings are updated
+    const onboardingList2 = get(onboardingList);
+    expect(onboardingList2.length).toBe(1);
+  });
+});
