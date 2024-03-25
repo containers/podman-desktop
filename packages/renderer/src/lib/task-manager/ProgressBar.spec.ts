@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,14 @@ test('Expect that the progress bar is indeterminate', async () => {
   // expect the progress bar to have the indeterminate class
   const progressBar = screen.getByRole('progressbar');
   expect(progressBar).toHaveClass('progress-bar-indeterminate');
+  expect(progressBar.classList.contains('progress-bar-incremental')).toBe(false);
 });
 
-test('Expect that the progress bar is not indeterminate', async () => {
+test('Expect that the progress bar is incremental', async () => {
   render(ProgressBar, { progress: 5 });
 
   // expect the progress bar to not have the indeterminate class
   const progressBar = screen.getByRole('progressbar');
+  expect(progressBar).toHaveClass('progress-bar-incremental');
   expect(progressBar.classList.contains('progress-bar-indeterminate')).toBe(false);
 });
