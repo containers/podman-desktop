@@ -38,14 +38,16 @@ export class PodmanDesktopRunner {
   private readonly _customFolder;
   private readonly _testOutput: string;
   private _videoAndTraceName: string | undefined;
+  private _autoupdate: boolean;
 
-  constructor(profile = '', customFolder = 'podman-desktop') {
+  constructor(profile = '', customFolder = 'podman-desktop', autoupdate = true) {
     this._running = false;
     this._profile = profile;
     this._testOutput = join('tests', 'output', this._profile);
     this._customFolder = join(this._testOutput, customFolder);
     this._options = this.defaultOptions();
     this._videoAndTraceName = undefined;
+    this._autoupdate = autoupdate;
   }
 
   public async start(): Promise<Page> {
@@ -250,6 +252,7 @@ export class PodmanDesktopRunner {
 
     const settingsContent = JSON.stringify({
       'preferences.OpenDevTools': 'none',
+      'extensions.autoCheckUpdates': this._autoupdate,
     });
 
     // write the file
