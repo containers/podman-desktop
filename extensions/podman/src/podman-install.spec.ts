@@ -22,7 +22,7 @@ import * as os from 'node:os';
 import * as extensionApi from '@podman-desktop/api';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { getBundledPodmanVersion, WinInstaller } from './podman-install';
+import { getBundledPodmanVersion, PodmanInstall, WinInstaller } from './podman-install';
 
 const originalConsoleError = console.error;
 const consoleErrorMock = vi.fn();
@@ -54,10 +54,14 @@ vi.mock('@podman-desktop/api', async () => {
     commands: {
       registerCommand: vi.fn(),
     },
+    env: {
+      isMac: true,
+    },
     window: {
       withProgress: vi.fn(),
       showNotification: vi.fn(),
       showErrorMessage: vi.fn(),
+      showInformationMessage: vi.fn(),
     },
     ProgressLocation: {},
     process: {
@@ -76,6 +80,8 @@ vi.mock('./util', async () => {
     appHomeDir: vi.fn().mockReturnValue(''),
     normalizeWSLOutput: vi.fn().mockImplementation((s: string) => s),
     isLinux: vi.fn(),
+    isWindows: vi.fn(),
+    isMac: vi.fn(),
   };
 });
 
@@ -679,5 +685,62 @@ describe('getBundledPodmanVersion', () => {
     expect(getMock).toHaveBeenCalled();
     // should have called the get with the property for experimental install
     expect(getMock).toHaveBeenCalledWith('experimental.install.v5');
+  });
+});
+class TestPodmanInstall extends PodmanInstall {
+  async stopPodmanMachinesIfAnyBeforeUpdating(): Promise<boolean> {
+    return super.stopPodmanMachinesIfAnyBeforeUpdating();
+  }
+}
+
+describe('update checks', () => {
+  test('stopPodmanMachinesIfAnyBeforeUpdating with an error', async () => {
+    const podmanInstall = new TestPodmanInstall(extensionContext);
+
+    // return empty machine list
+    vi.mocked(extensionApi.process.exec).mockRejectedValue('invalid');
+
+    await podmanInstall.stopPodmanMachinesIfAnyBeforeUpdating();
+
+    // expect user is not prompted
+    expect(extensionApi.window.showInformationMessage).not.toHaveBeenCalled();
+  });
+
+  test('stopPodmanMachinesIfAnyBeforeUpdating with no machine running', async () => {
+    const podmanInstall = new TestPodmanInstall(extensionContext);
+
+    // return empty machine list
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: '[]',
+    } as unknown as extensionApi.RunResult);
+
+    await podmanInstall.stopPodmanMachinesIfAnyBeforeUpdating();
+
+    // expect user is not prompted as it is not running
+    expect(extensionApi.window.showInformationMessage).not.toHaveBeenCalled();
+  });
+
+  test('stopPodmanMachinesIfAnyBeforeUpdating with one machine running', async () => {
+    const podmanInstall = new TestPodmanInstall(extensionContext);
+
+    // return empty machine list
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: JSON.stringify([{ Name: 'test', Running: true }]),
+    } as unknown as extensionApi.RunResult);
+
+    // mock user response
+    vi.spyOn(extensionApi.window, 'showInformationMessage').mockResolvedValue('Yes');
+
+    await podmanInstall.stopPodmanMachinesIfAnyBeforeUpdating();
+
+    // expect user is not prompted as it is not running
+    expect(extensionApi.window.showInformationMessage).toHaveBeenCalled();
+
+    // check we called the stop command
+    expect(extensionApi.process.exec).toHaveBeenCalledWith(expect.stringContaining('podman'), [
+      'machine',
+      'stop',
+      'test',
+    ]);
   });
 });

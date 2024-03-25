@@ -1307,7 +1307,7 @@ async function stopAutoStartedMachine(): Promise<void> {
   await extensionApi.process.exec(getPodmanCli(), ['machine', 'stop', autoMachineName]);
 }
 
-async function getJSONMachineList(): Promise<string> {
+export async function getJSONMachineList(): Promise<string> {
   const { stdout } = await extensionApi.process.exec(getPodmanCli(), ['machine', 'list', '--format', 'json']);
   return stdout;
 }
