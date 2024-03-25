@@ -25,7 +25,9 @@ import { compare } from 'compare-versions';
 
 import { BaseCheck } from './base-check';
 import { getDetectionChecks } from './detection-checks';
+import type { MachineJSON } from './extension';
 import {
+  getJSONMachineList,
   isRootfulMachineInitSupported,
   isStartNowAtMachineInitSupported,
   isUserModeNetworkingSupported,
@@ -35,7 +37,7 @@ import {
 } from './extension';
 import { MacCPUCheck, MacMemoryCheck, MacPodmanInstallCheck, MacVersionCheck } from './macos-checks';
 import type { InstalledPodman } from './podman-cli';
-import { getPodmanInstallation } from './podman-cli';
+import { getPodmanCli, getPodmanInstallation } from './podman-cli';
 import * as podman4JSON from './podman4.json';
 import * as podman5JSON from './podman5.json';
 import { getAssetsFolder, normalizeWSLOutput } from './util';
@@ -195,12 +197,58 @@ export class PodmanInstall {
     return { installedVersion, hasUpdate: false, bundledVersion };
   }
 
-  public async performUpdate(
-    provider: extensionApi.Provider,
-    installedPodman: InstalledPodman | undefined,
-  ): Promise<void> {
+  protected async stopPodmanMachinesIfAnyBeforeUpdating(): Promise<boolean> {
+    // check if machines, and if machines are running, stop them by prompting first the user
+    const machinesRunning: MachineJSON[] = [];
+    try {
+      const machineListOutput = await getJSONMachineList();
+      const machines = JSON.parse(machineListOutput) as MachineJSON[];
+
+      machinesRunning.push(...machines.filter(machine => machine.Running || machine.Starting));
+    } catch (error) {
+      console.debug('Unable to query machines before updating', error);
+    }
+
+    if (machinesRunning.length > 0) {
+      let text;
+      if (machinesRunning.length === 1) {
+        const machineName = machinesRunning[0].Name;
+        let subText = '';
+        if (machineName === 'podman-machine-default') {
+          subText = 'Podman machine';
+        } else {
+          subText = `Podman machine named "${machineName}"`;
+        }
+        text = `You have a ${subText} running. This machine needs to be stopped before proceeding with the update. Would you like to stop it now?`;
+      } else {
+        text = `You have ${machinesRunning.length} Podman machines running. These machines need to be stopped before proceeding with the update. Would you like to stop them now?`;
+      }
+      const answer = await extensionApi.window.showInformationMessage(text, 'Yes', 'No');
+      if (answer === 'Yes') {
+        for (const machine of machinesRunning) {
+          try {
+            await extensionApi.process.exec(getPodmanCli(), ['machine', 'stop', machine.Name]);
+          } catch (error) {
+            console.error('Error while stopping machine', error);
+          }
+          return true;
+        }
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public async performUpdate(provider: extensionApi.Provider, installedPodman: InstalledPodman): Promise<void> {
     const updateInfo = await this.checkForUpdate(installedPodman);
     if (updateInfo.hasUpdate) {
+      // before updating, podman machines need to be stopped if some of them are running
+      const noRunningMachine = await this.stopPodmanMachinesIfAnyBeforeUpdating();
+      if (!noRunningMachine) {
+        await extensionApi.window.showWarningMessage('Podman update has been canceled.', 'OK');
+        return;
+      }
       const answer = await extensionApi.window.showInformationMessage(
         `You have Podman ${updateInfo.installedVersion}.\nDo you want to update to ${updateInfo.bundledVersion}?`,
         'Yes',
