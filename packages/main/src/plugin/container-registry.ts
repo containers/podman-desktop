@@ -2459,7 +2459,6 @@ export class ContainerProviderRegistry {
           }
           await pipeline(imagesStream, fs.createWriteStream(targetPath));
         } catch (e) {
-          console.log(String(e));
           errors += `Unable to save images ${imageGroup[1].join(', ')}. Error: ${String(e)}\n`;
         }
       }
