@@ -1,6 +1,5 @@
 <style>
 .progress-bar-indeterminate {
-  background-color: rgb(109 72 191);
   animation: indeterminateAnimation 1s infinite linear;
   transform-origin: 0% 50%;
 }
@@ -15,21 +14,39 @@
     transform: translateX(100%) scaleX(0.5);
   }
 }
+.progress-bar-incremental {
+  animation: incrementalAnimation 1s infinite linear;
+}
+@keyframes incrementalAnimation {
+  20%,
+  80% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
 </style>
 
 <script lang="ts">
 export let progress: number | undefined;
+export let width: string = 'w-36';
+export let height: string = 'h-4';
 </script>
 
-<div class="w-32">
-  <div class="w-full h-4 mb-4 rounded-full bg-gray-900 progress-bar overflow-hidden">
+<div class="flex flex-row">
+  <div class="{width} {height} rounded-full bg-gray-900 progress-bar overflow-hidden">
     {#if progress !== undefined}
-      <div class="h-4 bg-purple-500 rounded-full" role="progressbar" style="width {progress}%"></div>
+      <div
+        class="{width} {height} bg-purple-600 rounded-full progress-bar-incremental"
+        role="progressbar"
+        style="width:{progress}%">
+      </div>
     {:else}
-      <div class="h-4 bg-purple-500 rounded-full progress-bar-indeterminate" role="progressbar"></div>
+      <div class="{width} {height} bg-purple-600 rounded-full progress-bar-indeterminate" role="progressbar"></div>
     {/if}
   </div>
+  {#if progress !== undefined}
+    <div class="ml-2 text-xs">{progress}%</div>
+  {/if}
 </div>
-{#if progress !== undefined}
-  <div class="ml-2 text-xs">{progress}%</div>
-{/if}
