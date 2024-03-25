@@ -19,6 +19,7 @@
 import * as crypto from 'node:crypto';
 import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs';
+import path from 'node:path';
 import { type Stream, Writable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 
@@ -38,6 +39,7 @@ import type {
   ContainerExportOptions,
   ContainerInfo,
   ContainerPortInfo,
+  ImagesSaveOptions,
   NetworkCreateOptions,
   NetworkCreateResult,
   SimpleContainerInfo,
@@ -2425,5 +2427,88 @@ export class ContainerProviderRegistry {
         reject(error);
       });
     });
+  }
+
+  async saveImages(options: ImagesSaveOptions): Promise<void> {
+    // group the images by engineId
+    const mapImages: Map<string, string[]> = options.images.reduce((map, img) => {
+      const imgIds = map.get(img.engineId) ?? [];
+      imgIds.push(img.id);
+      map.set(img.engineId, imgIds);
+      return map;
+    }, new Map<string, string[]>());
+
+    const isMultiProvider = mapImages.size > 1;
+    let errors = '';
+
+    for (const imageGroup of mapImages.entries()) {
+      const engine = this.internalProviders.get(imageGroup[0]);
+      if (!engine?.api) {
+        errors += `Unable to save images ${imageGroup[1].join(', ')}. Error: No running provider for the matching images\n`;
+        continue;
+      }
+      if ('getImages' in engine.api) {
+        this.setGetImagesFunction(engine.api);
+        if (typeof engine.api.getImages === 'function') {
+          const imagesStream: NodeJS.ReadableStream = await engine.api.getImages({
+            names: imageGroup[1],
+          });
+
+          try {
+            let targetPath = options.outputTarget;
+            if (isMultiProvider) {
+              targetPath = path.join(options.outputTarget, `${imageGroup[0]}-images.tar`);
+            }
+            await pipeline(imagesStream, fs.createWriteStream(targetPath));
+          } catch (e) {
+            console.log(String(e));
+            errors += `Unable to save images ${imageGroup[1].join(', ')}. Error: ${String(e)}\n`;
+          }
+        }
+      }
+    }
+
+    if (errors !== '') {
+      return Promise.reject(errors);
+    }
+  }
+
+  setGetImagesFunction(api: Dockerode): void {
+    if ('getImages' in api) {
+      api.getImages = function (
+        options: {
+          names: string[];
+        },
+        _callback: unknown,
+      ): Promise<unknown> {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const self = this;
+
+        // let's create the query using the names list.
+        // N.B: last ? will be cut by the modem dial call
+        const query = `names=${options.names.join('&names=')}?`;
+
+        const optsf = {
+          path: `/images/get?${query}`,
+          method: 'GET',
+          options: {},
+          abortSignal: undefined,
+          isStream: true,
+          statusCodes: {
+            200: true,
+            400: 'bad parameter',
+            500: 'server error',
+          },
+        };
+        return new this.modem.Promise(function (resolve, reject) {
+          self.modem.dial(optsf, function (err, data) {
+            if (err) {
+              return reject(err);
+            }
+            resolve(data);
+          });
+        });
+      };
+    }
   }
 }

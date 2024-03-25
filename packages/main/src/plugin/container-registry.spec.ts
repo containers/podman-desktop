@@ -19,6 +19,7 @@
 import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs';
 import { PassThrough } from 'node:stream';
+import * as streamPromises from 'node:stream/promises';
 
 import type * as podmanDesktopAPI from '@podman-desktop/api';
 import Dockerode from 'dockerode';
@@ -282,6 +283,12 @@ vi.mock('node:fs', async () => {
       readdir: vi.fn(),
     },
     createWriteStream: vi.fn(),
+  };
+});
+
+vi.mock('node:stream/promises', async () => {
+  return {
+    pipeline: vi.fn(),
   };
 });
 
@@ -3836,5 +3843,170 @@ describe('exportContainer', () => {
     expect(createWriteStreamMock).toBeCalledWith('dir/name', {
       flags: 'w',
     });
+  });
+});
+
+describe('saveImages', () => {
+  test('reject if it is unable to retrieve images as provider is not running', async () => {
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman-1',
+      id: 'podman1',
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+    await expect(() =>
+      containerRegistry.saveImages({
+        outputTarget: 'path',
+        images: [
+          {
+            id: 'id',
+            engineId: 'podman1',
+          },
+          {
+            id: 'id2',
+            engineId: 'podman1',
+          },
+        ],
+      }),
+    ).rejects.toThrow('Unable to save images id, id2. Error: No running provider for the matching images');
+  });
+  test('expect to call getImages once if we are saving images from one engine', async () => {
+    const dockerode = new Dockerode({ protocol: 'http', host: 'localhost' });
+    const stream = new PassThrough();
+    const getImagesMock = vi.fn().mockResolvedValue(stream);
+
+    const api = {
+      ...dockerode,
+      getImages: getImagesMock,
+    };
+
+    vi.spyOn(containerRegistry, 'setGetImagesFunction').mockImplementation(() => {});
+    const pipelineMock = vi
+      .spyOn(streamPromises, 'pipeline')
+      .mockImplementation((_source: NodeJS.ReadableStream, _destination: NodeJS.WritableStream) => {
+        return Promise.resolve();
+      });
+
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman-1',
+      id: 'podman1',
+      connection: {
+        type: 'podman',
+      },
+      api,
+    } as unknown as InternalContainerProvider);
+    await containerRegistry.saveImages({
+      outputTarget: 'path',
+      images: [
+        {
+          id: 'id',
+          engineId: 'podman1',
+        },
+        {
+          id: 'id2',
+          engineId: 'podman1',
+        },
+      ],
+    });
+
+    expect(getImagesMock).toBeCalledWith({
+      names: ['id', 'id2'],
+    });
+    expect(pipelineMock).toBeCalledTimes(1);
+  });
+  test('expect to call getImages twice if we are saving images from two engines', async () => {
+    const dockerode = new Dockerode({ protocol: 'http', host: 'localhost' });
+    const stream = new PassThrough();
+    const getImagesMock = vi.fn().mockResolvedValue(stream);
+
+    const api = {
+      ...dockerode,
+      getImages: getImagesMock,
+    };
+
+    vi.spyOn(containerRegistry, 'setGetImagesFunction').mockImplementation(() => {});
+    const pipelineMock = vi
+      .spyOn(streamPromises, 'pipeline')
+      .mockImplementation((_source: NodeJS.ReadableStream, _destination: NodeJS.WritableStream) => {
+        return Promise.resolve();
+      });
+
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman-1',
+      id: 'podman1',
+      connection: {
+        type: 'podman',
+      },
+      api,
+    } as unknown as InternalContainerProvider);
+    containerRegistry.addInternalProvider('podman2', {
+      name: 'podman-2',
+      id: 'podman2',
+      connection: {
+        type: 'podman',
+      },
+      api,
+    } as unknown as InternalContainerProvider);
+    await containerRegistry.saveImages({
+      outputTarget: 'path',
+      images: [
+        {
+          id: 'id',
+          engineId: 'podman1',
+        },
+        {
+          id: 'id2',
+          engineId: 'podman2',
+        },
+      ],
+    });
+
+    expect(getImagesMock).toBeCalledWith({
+      names: ['id'],
+    });
+    expect(getImagesMock).toBeCalledWith({
+      names: ['id2'],
+    });
+    expect(getImagesMock).toBeCalledTimes(2);
+    expect(pipelineMock).toBeCalledTimes(2);
+  });
+
+  test('reject if it fails at saving the images', async () => {
+    const dockerode = new Dockerode({ protocol: 'http', host: 'localhost' });
+    const stream = new PassThrough();
+    const getImagesMock = vi.fn().mockResolvedValue(stream);
+
+    const api = {
+      ...dockerode,
+      getImages: getImagesMock,
+    };
+
+    vi.spyOn(containerRegistry, 'setGetImagesFunction').mockImplementation(() => {});
+    vi.spyOn(streamPromises, 'pipeline').mockRejectedValue('error when saving on filesystem');
+
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman-1',
+      id: 'podman1',
+      connection: {
+        type: 'podman',
+      },
+      api,
+    } as unknown as InternalContainerProvider);
+    await expect(() =>
+      containerRegistry.saveImages({
+        outputTarget: 'path',
+        images: [
+          {
+            id: 'id',
+            engineId: 'podman1',
+          },
+          {
+            id: 'id2',
+            engineId: 'podman1',
+          },
+        ],
+      }),
+    ).rejects.toThrow('Unable to save images id, id2. Error: error when saving on filesystem');
   });
 });
