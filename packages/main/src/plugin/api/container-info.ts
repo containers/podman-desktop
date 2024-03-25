@@ -277,3 +277,11 @@ export interface ContainerExportOptions {
   id: string;
   outputTarget: string;
 }
+
+export interface ImagesSaveOptions {
+  outputTarget: string;
+  images: {
+    id: string;
+    engineId: string;
+  }[];
+}

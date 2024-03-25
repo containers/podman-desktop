@@ -45,6 +45,7 @@ import type {
   ContainerCreateOptions,
   ContainerExportOptions,
   ContainerInfo,
+  ImagesSaveOptions,
   SimpleContainerInfo,
   VolumeCreateOptions,
 } from '../../main/src/plugin/api/container-info';
@@ -447,6 +448,10 @@ export function initExposure(): void {
       return ipcInvoke('container-provider-registry:exportContainer', engine, options);
     },
   );
+
+  contextBridge.exposeInMainWorld('saveImages', async (options: ImagesSaveOptions): Promise<void> => {
+    return ipcInvoke('container-provider-registry:saveImages', options);
+  });
 
   let onDataCallbacksLogsContainerId = 0;
   const onDataCallbacksLogsContainer = new Map<number, (name: string, data: string) => void>();
