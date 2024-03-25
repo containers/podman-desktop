@@ -1,11 +1,12 @@
 <script lang="ts">
-import { faArrowUp, faEdit, faLayerGroup, faPlay, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUp, faDownload, faEdit, faLayerGroup, faPlay, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/motion';
 import { router } from 'tinro';
 
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 import { context } from '/@/stores/context';
+import { saveImagesInfo } from '/@/stores/save-images-store';
 
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
@@ -90,6 +91,11 @@ function onError(error: string): void {
     type: 'error',
   });
 }
+
+async function saveImage() {
+  saveImagesInfo.set([image]);
+  router.goto('/images/save');
+}
 </script>
 
 <ListItemButtonIcon title="Run Image" onClick="{() => runImage(image)}" detailed="{detailed}" icon="{faPlay}" />
@@ -130,6 +136,13 @@ function onError(error: string): void {
       detailed="{detailed}"
       icon="{faLayerGroup}" />
   {/if}
+  <ListItemButtonIcon
+    title="Save Image"
+    tooltip="Save image to a local directory"
+    onClick="{() => saveImage()}"
+    menu="{dropdownMenu}"
+    detailed="{detailed}"
+    icon="{faDownload}" />
 
   <ActionsWrapper dropdownMenu="{groupingContributions}" dropdownMenuAsMenuActionItem="{groupingContributions}">
     <ContributionActions

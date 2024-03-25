@@ -363,3 +363,73 @@ test('Expect importImage button redirects to image import page', async () => {
   await userEvent.click(btnImportImage);
   expect(goToMock).toBeCalledWith('/images/import');
 });
+
+test('expect redirect to saveImage page when atleast one image is selected and the multiple save button is clicked', async () => {
+  getProviderInfosMock.mockResolvedValue([
+    {
+      name: 'podman',
+      status: 'started',
+      internalId: 'podman-internal-id',
+      containerConnections: [
+        {
+          name: 'podman-machine-default',
+          status: 'started',
+        },
+      ],
+    },
+  ]);
+
+  listImagesMock.mockResolvedValue([
+    {
+      Id: 'sha256:1234567890123',
+      RepoTags: ['fedora:old'],
+      Created: 1644009612,
+      Size: 123,
+      Status: 'Running',
+      engineId: 'podman',
+      engineName: 'podman',
+    },
+    {
+      Id: 'sha256:456456456456456',
+      RepoTags: ['veryold:image'],
+      Created: 1,
+      Size: 1234,
+      Status: 'Running',
+      engineId: 'podman',
+      engineName: 'podman',
+    },
+    {
+      Id: 'sha256:7897891234567890123',
+      RepoTags: ['fedora:recent'],
+      Created: 1644109612,
+      Size: 123,
+      Status: 'Running',
+      engineId: 'podman',
+      engineName: 'podman',
+    },
+  ]);
+
+  const goToMock = vi.spyOn(router, 'goto');
+
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('image-build'));
+
+  // wait store are populated
+  while (get(imagesInfos).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  while (get(providerInfos).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  await waitRender({});
+
+  const toggleAll = screen.getByTitle('Toggle all');
+  await userEvent.click(toggleAll);
+
+  const saveImages = screen.getByRole('button', { name: 'Save images' });
+  await userEvent.click(saveImages);
+
+  expect(goToMock).toBeCalledWith('/images/save');
+});

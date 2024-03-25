@@ -1,0 +1,187 @@
+<script lang="ts">
+/* eslint-disable import/no-duplicates */
+// https://github.com/import-js/eslint-plugin-import/issues/1479
+import { faMinusCircle, faPlay } from '@fortawesome/free-solid-svg-icons';
+import { Input } from '@podman-desktop/ui-svelte';
+import { onMount } from 'svelte';
+import { router } from 'tinro';
+
+import Button from '/@/lib/ui//Button.svelte';
+import ErrorMessage from '/@/lib/ui//ErrorMessage.svelte';
+import FormPage from '/@/lib/ui//FormPage.svelte';
+import { saveImagesInfo } from '/@/stores/save-images-store';
+import { createTask } from '/@/stores/tasks';
+
+import { Uri } from '../uri/Uri';
+import type { ImageInfoUI } from './ImageInfoUI';
+
+let imagesToSave: ImageInfoUI[];
+let saveError: string = '';
+
+let outputPath: string | undefined = undefined;
+let singleItemMode = false;
+let invalidOutputPath = true;
+let inProgress = false;
+
+$: saveDisabled = !outputPath || imagesToSave.length === 0;
+
+onMount(async () => {
+  imagesToSave = $saveImagesInfo;
+  if (imagesToSave.length === 0) {
+    // go back to images list
+    router.goto('/images/');
+  }
+  singleItemMode = imagesToSave.length === 1;
+});
+
+async function selectOutputPath() {
+  const engines = imagesToSave.map(img => img.engineId);
+  const filtered = imagesToSave.filter((img, index) => !engines.includes(img.engineId, index + 1));
+  if (filtered.length === 1) {
+    await selectTargetFilePath();
+  } else {
+    await selectOutputDirectoryPath();
+  }
+}
+
+async function selectTargetFilePath() {
+  let targetFile = 'images.tar';
+  if (singleItemMode) {
+    let lastSlashPos = imagesToSave[0].name.lastIndexOf('/') + 1;
+    let lastColon: number | undefined = imagesToSave[0].name.lastIndexOf(':');
+    if (lastColon === -1 || lastColon < lastSlashPos) {
+      lastColon = undefined;
+    }
+    targetFile = `${imagesToSave[0].name.substring(lastSlashPos, lastColon)}.tar`;
+  }
+  const result = await window.saveDialog({
+    title: 'Select the directory where to export the container content',
+    defaultUri: {
+      fsPath: targetFile,
+      path: targetFile,
+      scheme: 'file',
+    } as Uri,
+  });
+  if (!result) {
+    if (!outputPath) {
+      invalidOutputPath = true;
+    }
+    return;
+  }
+  const uriAPI = Uri.revive(result);
+  outputPath = uriAPI.fsPath;
+  invalidOutputPath = false;
+}
+
+async function selectOutputDirectoryPath() {
+  const result = await window.openDialog({
+    title: `Select the directory where to save the ${singleItemMode ? 'image' : 'images'}`,
+    selectors: ['openDirectory'],
+  });
+  if (!result?.[0]) {
+    if (!outputPath) {
+      invalidOutputPath = true;
+    }
+    return;
+  }
+
+  outputPath = result?.[0];
+  invalidOutputPath = false;
+}
+
+function deleteImageToSave(index: number) {
+  imagesToSave = imagesToSave.filter((_, i) => i !== index);
+}
+
+async function saveImages() {
+  saveError = '';
+  inProgress = true;
+
+  if (!outputPath) {
+    throw new Error('Unable to save images. Output directory not specified');
+  }
+
+  const task = createTask('Save images');
+
+  try {
+    await window.saveImages({
+      images: imagesToSave.map(img => {
+        return {
+          id: img.shortId,
+          engineId: img.engineId,
+        };
+      }),
+      outputTarget: outputPath,
+    });
+    task.status = 'success';
+    // go back to images list
+    router.goto('/images/');
+  } catch (error) {
+    task.status = 'failure';
+    task.error = String(error);
+    saveError = String(error);
+  } finally {
+    task.state = 'completed';
+    inProgress = false;
+  }
+}
+</script>
+
+{#if imagesToSave}
+  <FormPage title="{singleItemMode ? `Save Image ${imagesToSave[0].name}` : 'Save Images'}">
+    <svelte:fragment slot="icon">
+      <i class="fas fa-play fa-2x" aria-hidden="true"></i>
+    </svelte:fragment>
+    <div slot="content" class="p-5 min-w-full h-fit">
+      <div class="bg-charcoal-600 px-6 py-4 space-y-2 lg:px-8 sm:pb-6 xl:pb-8">
+        <label for="modalSelectTarget" class="block mb-2 text-sm font-medium text-gray-400">Export to:</label>
+        <div class="flex w-full">
+          <Input
+            class="grow mr-2"
+            readonly
+            value="{outputPath}"
+            id="input-output-directory"
+            aria-invalid="{invalidOutputPath}" />
+          <Button
+            on:click="{() => selectOutputPath()}"
+            title="Open dialog to select the output folder"
+            aria-label="Select output folder">Browse ...</Button>
+        </div>
+
+        {#if !singleItemMode && imagesToSave.length > 0}
+          <!-- Display the list of images to save -->
+          <div class="flex flex-row justify-center w-full pt-5 text-sm font-medium text-gray-400">
+            <div class="flex flex-col grow">Images to save</div>
+          </div>
+          {#each imagesToSave as imageToSave, index}
+            <div class="flex flex-row justify-center w-full py-1">
+              <Input bind:value="{imageToSave.name}" aria-label="container image path" readonly="{true}" />
+              <Button
+                type="link"
+                aria-label="Delete image"
+                on:click="{() => deleteImageToSave(index)}"
+                icon="{faMinusCircle}" />
+            </div>
+          {/each}
+        {/if}
+
+        <div class="pt-5 w-full">
+          <Button
+            on:click="{() => saveImages()}"
+            inProgress="{inProgress}"
+            class="w-full"
+            icon="{faPlay}"
+            aria-label="Save images"
+            bind:disabled="{saveDisabled}">
+            Save Images
+          </Button>
+          <div aria-label="saveError">
+            {#if saveError !== ''}
+              <ErrorMessage class="py-2 text-sm" error="{saveError}" />
+            {/if}
+          </div>
+        </div>
+      </div>
+    </div>
+  </FormPage>
+{/if}
