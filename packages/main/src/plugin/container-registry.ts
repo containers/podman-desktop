@@ -2447,68 +2447,26 @@ export class ContainerProviderRegistry {
         errors += `Unable to save images ${imageGroup[1].join(', ')}. Error: No running provider for the matching images\n`;
         continue;
       }
-      if ('getImages' in engine.api) {
-        this.setGetImagesFunction(engine.api);
-        if (typeof engine.api.getImages === 'function') {
-          const imagesStream: NodeJS.ReadableStream = await engine.api.getImages({
-            names: imageGroup[1],
-          });
+      if ('getImages' in engine.api && typeof engine.api.getImages === 'function') {
+        const imagesStream: NodeJS.ReadableStream = await engine.api.getImages({
+          names: imageGroup[1],
+        });
 
-          try {
-            let targetPath = options.outputTarget;
-            if (isMultiProvider) {
-              targetPath = path.join(options.outputTarget, `${imageGroup[0]}-images.tar`);
-            }
-            await pipeline(imagesStream, fs.createWriteStream(targetPath));
-          } catch (e) {
-            console.log(String(e));
-            errors += `Unable to save images ${imageGroup[1].join(', ')}. Error: ${String(e)}\n`;
+        try {
+          let targetPath = options.outputTarget;
+          if (isMultiProvider) {
+            targetPath = path.join(options.outputTarget, `${imageGroup[0]}-images.tar`);
           }
+          await pipeline(imagesStream, fs.createWriteStream(targetPath));
+        } catch (e) {
+          console.log(String(e));
+          errors += `Unable to save images ${imageGroup[1].join(', ')}. Error: ${String(e)}\n`;
         }
       }
     }
 
     if (errors !== '') {
       return Promise.reject(errors);
-    }
-  }
-
-  setGetImagesFunction(api: Dockerode): void {
-    if ('getImages' in api) {
-      api.getImages = function (
-        options: {
-          names: string[];
-        },
-        _callback: unknown,
-      ): Promise<unknown> {
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        const self = this;
-
-        // let's create the query using the names list.
-        // N.B: last ? will be cut by the modem dial call
-        const query = `names=${options.names.join('&names=')}?`;
-
-        const optsf = {
-          path: `/images/get?${query}`,
-          method: 'GET',
-          options: {},
-          abortSignal: undefined,
-          isStream: true,
-          statusCodes: {
-            200: true,
-            400: 'bad parameter',
-            500: 'server error',
-          },
-        };
-        return new this.modem.Promise(function (resolve, reject) {
-          self.modem.dial(optsf, function (err, data) {
-            if (err) {
-              return reject(err);
-            }
-            resolve(data);
-          });
-        });
-      };
     }
   }
 }

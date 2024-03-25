@@ -3881,7 +3881,6 @@ describe('saveImages', () => {
       getImages: getImagesMock,
     };
 
-    vi.spyOn(containerRegistry, 'setGetImagesFunction').mockImplementation(() => {});
     const pipelineMock = vi
       .spyOn(streamPromises, 'pipeline')
       .mockImplementation((_source: NodeJS.ReadableStream, _destination: NodeJS.WritableStream) => {
@@ -3925,7 +3924,6 @@ describe('saveImages', () => {
       getImages: getImagesMock,
     };
 
-    vi.spyOn(containerRegistry, 'setGetImagesFunction').mockImplementation(() => {});
     const pipelineMock = vi
       .spyOn(streamPromises, 'pipeline')
       .mockImplementation((_source: NodeJS.ReadableStream, _destination: NodeJS.WritableStream) => {
@@ -3982,7 +3980,6 @@ describe('saveImages', () => {
       getImages: getImagesMock,
     };
 
-    vi.spyOn(containerRegistry, 'setGetImagesFunction').mockImplementation(() => {});
     vi.spyOn(streamPromises, 'pipeline').mockRejectedValue('error when saving on filesystem');
 
     containerRegistry.addInternalProvider('podman1', {

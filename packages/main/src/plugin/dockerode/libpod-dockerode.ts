@@ -325,6 +325,10 @@ export interface Version {
   Os: string;
 }
 
+export interface GetImagesOptions {
+  names: string[];
+}
+
 // API of libpod that we want to expose on our side
 export interface LibPod {
   createPod(podOptions: PodCreateOptions): Promise<{ Id: string }>;
@@ -342,6 +346,7 @@ export interface LibPod {
   playKube(yamlContentFilePath: string): Promise<PlayKubeInfo>;
   pruneAllImages(dangling: boolean): Promise<void>;
   podmanInfo(): Promise<Info>;
+  getImages(options: GetImagesOptions): Promise<NodeJS.ReadableStream>;
 }
 
 // tweak Dockerode by adding the support of libpod API
@@ -737,6 +742,34 @@ export class LibpodDockerode {
 
       return new Promise((resolve, reject) => {
         this.modem.dial(optsf, (err: unknown, data: unknown) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(data);
+        });
+      });
+    };
+
+    // info
+    prototypeOfDockerode.getImages = function (options: GetImagesOptions): Promise<NodeJS.ReadableStream> {
+      // let's create the query using the names list.
+      // N.B: last ? will be cut by the modem dial call
+      const query = `names=${options.names.join('&names=')}?`;
+
+      const optsf = {
+        path: `/images/get?${query}`,
+        method: 'GET',
+        options: {},
+        abortSignal: undefined,
+        isStream: true,
+        statusCodes: {
+          200: true,
+          400: 'bad parameter',
+          500: 'server error',
+        },
+      };
+      return new Promise((resolve, reject) => {
+        this.modem.dial(optsf, (err: unknown, data: NodeJS.ReadableStream) => {
           if (err) {
             return reject(err);
           }
