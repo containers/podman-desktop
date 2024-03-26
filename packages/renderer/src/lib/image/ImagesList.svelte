@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faArrowCircleDown, faCube, faDownload, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faArrowCircleDown, faCube, faDownload, faTrash, faUpload } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
@@ -162,6 +162,10 @@ function importImage(): void {
   router.goto('/images/import');
 }
 
+function loadImages(): void {
+  router.goto('/images/load');
+}
+
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
 async function deleteSelectedImages() {
@@ -292,6 +296,13 @@ const row = new Row<ImageInfoUI>({
     {#if $imagesInfos.length > 0}
       <Prune type="images" engines="{enginesList}" />
     {/if}
+    <Button
+      on:click="{() => loadImages()}"
+      title="Load image(s) from tar archive(s)"
+      icon="{faUpload}"
+      aria-label="Load Images">
+      Load
+    </Button>
     <Button
       on:click="{() => importImage()}"
       title="Import Image From Filesystem"
