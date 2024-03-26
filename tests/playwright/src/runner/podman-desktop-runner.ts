@@ -38,19 +38,22 @@ export class PodmanDesktopRunner {
   private readonly _customFolder;
   private readonly _testOutput: string;
   private _videoAndTraceName: string | undefined;
-  private _autoupdate: boolean;
+  private _autoUpdate: boolean;
+  private _autoCheckUpdate: boolean;
 
   constructor({
     profile = '',
     customFolder = 'podman-desktop',
-    autoupdate = true,
-  }: { profile?: string; customFolder?: string; autoupdate?: boolean } = {}) {
+    autoUpdate = true,
+    autoCheckUpdate = true,
+  }: { profile?: string; customFolder?: string; autoUpdate?: boolean; autoCheckUpdate?: boolean } = {}) {
     this._running = false;
     this._profile = profile;
     this._testOutput = join('tests', 'output', this._profile);
     this._customFolder = join(this._testOutput, customFolder);
     this._videoAndTraceName = undefined;
-    this._autoupdate = autoupdate;
+    this._autoUpdate = autoUpdate;
+    this._autoCheckUpdate = autoCheckUpdate;
 
     // Options setting always needs to be last action in constructor in order to apply settings correctly
     this._options = this.defaultOptions();
@@ -258,7 +261,8 @@ export class PodmanDesktopRunner {
 
     const settingsContent = JSON.stringify({
       'preferences.OpenDevTools': 'none',
-      'extensions.autoCheckUpdates': this._autoupdate,
+      'extensions.autoCheckUpdates': this._autoCheckUpdate,
+      'extensions.autoUpdate': this._autoUpdate,
     });
 
     // write the file
