@@ -27,6 +27,7 @@ import HelpPage from './lib/help/HelpPage.svelte';
 import BuildImageFromContainerfile from './lib/image/BuildImageFromContainerfile.svelte';
 import ImageDetails from './lib/image/ImageDetails.svelte';
 import ImagesList from './lib/image/ImagesList.svelte';
+import ImportContainersImages from './lib/image/ImportContainersImages.svelte';
 import PullImage from './lib/image/PullImage.svelte';
 import RunImage from './lib/image/RunImage.svelte';
 import IngressDetails from './lib/ingresses-routes/IngressDetails.svelte';
@@ -137,6 +138,9 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         </Route>
         <Route path="/images/pull" breadcrumb="Pull an Image">
           <PullImage />
+        </Route>
+        <Route path="/images/import" breadcrumb="Import Containers">
+          <ImportContainersImages />
         </Route>
         <Route path="/pods" breadcrumb="Pods" navigationHint="root">
           <PodsList />

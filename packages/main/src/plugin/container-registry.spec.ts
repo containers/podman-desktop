@@ -3771,6 +3771,87 @@ test('listInfos with provider', async () => {
   ]);
 });
 
+describe('importContainer', () => {
+  test('throw if there is no matching engine', async () => {
+    await expect(
+      containerRegistry.importContainer({
+        archivePath: 'archive',
+        imageTag: 'image',
+        provider: {
+          name: 'engine',
+          endpoint: {
+            socketPath: '/endpoint1.sock',
+          },
+        } as ProviderContainerConnectionInfo,
+      }),
+    ).rejects.toThrowError('no running provider for the matching container');
+  });
+  test('expect importImage to be called with imageTag added by user', async () => {
+    const importImageMock = vi.fn();
+    const fakeDockerode = {
+      importImage: importImageMock,
+    } as unknown as Dockerode;
+    containerRegistry.addInternalProvider('podman', {
+      name: 'podman',
+      id: 'podman',
+      connection: {
+        name: 'podman',
+        type: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+      },
+      api: fakeDockerode,
+    } as InternalContainerProvider);
+    await containerRegistry.importContainer({
+      archivePath: 'archive.tar',
+      imageTag: 'image:v1',
+      provider: {
+        name: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+      } as ProviderContainerConnectionInfo,
+    });
+    expect(importImageMock).toBeCalledWith('archive.tar', {
+      repo: 'image',
+      tag: 'v1',
+    });
+  });
+  test('expect importImage to be called with latest tag if it is not specified by user', async () => {
+    const importImageMock = vi.fn();
+    const fakeDockerode = {
+      importImage: importImageMock,
+    } as unknown as Dockerode;
+    containerRegistry.addInternalProvider('podman', {
+      name: 'podman',
+      id: 'podman',
+      connection: {
+        name: 'podman',
+        type: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+      },
+      api: fakeDockerode,
+    } as InternalContainerProvider);
+    await containerRegistry.importContainer({
+      archivePath: 'archive.tar',
+      imageTag: 'image',
+      provider: {
+        name: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+      } as ProviderContainerConnectionInfo,
+    });
+    expect(importImageMock).toBeCalledWith('archive.tar', {
+      repo: 'image',
+      tag: 'latest',
+    });
+  });
+});
+
 describe('exportContainer', () => {
   function setExportContainerTestEnv(): void {
     const api = new Dockerode({ protocol: 'http', host: 'localhost' });

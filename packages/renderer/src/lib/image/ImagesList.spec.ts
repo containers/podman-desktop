@@ -21,7 +21,9 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
 import { get } from 'svelte/store';
+import { router } from 'tinro';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { viewsContributions } from '/@/stores/views';
@@ -350,4 +352,14 @@ describe('Contributions', () => {
       expect(fedoraOld.innerHTML).contain('background-color: #ff00ff');
     },
   );
+});
+
+test('Expect importImage button redirects to image import page', async () => {
+  const goToMock = vi.spyOn(router, 'goto');
+  render(ImagesList);
+  const btnImportImage = screen.getByRole('button', { name: 'Import Image' });
+  expect(btnImportImage).toBeInTheDocument();
+
+  await userEvent.click(btnImportImage);
+  expect(goToMock).toBeCalledWith('/images/import');
 });
