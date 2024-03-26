@@ -109,13 +109,11 @@ async function loadImages() {
         </label>
       {/if}
 
-      <label for="modalImagesLoad" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
-        >Images archive to load:</label>
       <Button on:click="{addArchivesToLoad}" icon="{faPlusCircle}" type="link">Add archive</Button>
       <!-- Display the list of existing imagesToLoad -->
       {#if archivesToLoad.length > 0}
         <div class="flex flex-row justify-center w-full py-1 text-sm font-medium text-gray-400">
-          <div class="flex flex-col grow pl-2">Archive</div>
+          <div class="flex flex-col grow pl-2">Image Archives</div>
         </div>
       {/if}
       {#each archivesToLoad as archiveToLoad, index}
@@ -125,20 +123,21 @@ async function loadImages() {
         </div>
       {/each}
 
-      <div class="pt-5 border-zinc-600 border-t-2"></div>
-      <Button
-        on:click="{() => loadImages()}"
-        inProgress="{inProgress}"
-        class="w-full"
-        icon="{faPlay}"
-        aria-label="Load images"
-        bind:disabled="{loadDisabled}">
-        Load Images
-      </Button>
-      <div aria-label="loadError">
-        {#if loadError !== ''}
-          <ErrorMessage class="py-2 text-sm" error="{loadError}" />
-        {/if}
+      <div class="pt-5">
+        <Button
+          on:click="{() => loadImages()}"
+          inProgress="{inProgress}"
+          class="w-full"
+          icon="{faPlay}"
+          aria-label="Load images"
+          bind:disabled="{loadDisabled}">
+          Load Images
+        </Button>
+        <div aria-label="loadError">
+          {#if loadError !== ''}
+            <ErrorMessage class="py-2 text-sm" error="{loadError}" />
+          {/if}
+        </div>
       </div>
     </div>
   </div>

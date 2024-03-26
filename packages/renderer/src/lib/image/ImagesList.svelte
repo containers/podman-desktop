@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faArrowCircleDown, faCube, faDownload, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faArrowCircleDown, faCube, faDownload, faTrash, faUpload } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
@@ -299,7 +299,7 @@ const row = new Row<ImageInfoUI>({
     <Button
       on:click="{() => loadImages()}"
       title="Load image(s) from tar archive(s)"
-      icon="{faArrowCircleDown}"
+      icon="{faUpload}"
       aria-label="Load Images">
       Load
     </Button>
