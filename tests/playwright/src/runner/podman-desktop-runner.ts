@@ -40,14 +40,20 @@ export class PodmanDesktopRunner {
   private _videoAndTraceName: string | undefined;
   private _autoupdate: boolean;
 
-  constructor(profile = '', customFolder = 'podman-desktop', autoupdate = true) {
+  constructor({
+    profile = '',
+    customFolder = 'podman-desktop',
+    autoupdate = true,
+  }: { profile?: string; customFolder?: string; autoupdate?: boolean } = {}) {
     this._running = false;
     this._profile = profile;
     this._testOutput = join('tests', 'output', this._profile);
     this._customFolder = join(this._testOutput, customFolder);
-    this._options = this.defaultOptions();
     this._videoAndTraceName = undefined;
     this._autoupdate = autoupdate;
+
+    // Options setting always needs to be last action in constructor in order to apply settings correctly
+    this._options = this.defaultOptions();
   }
 
   public async start(): Promise<Page> {
