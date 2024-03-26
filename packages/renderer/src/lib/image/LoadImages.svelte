@@ -23,7 +23,7 @@ let providerConnections: ProviderContainerConnectionInfo[] = [];
 let selectedProvider: ProviderContainerConnectionInfo | undefined = undefined;
 let inProgress = false;
 
-$: importDisabled = !selectedProvider || archivesToLoad.length === 0;
+$: loadDisabled = !selectedProvider || archivesToLoad.length === 0;
 
 onMount(async () => {
   providers = get(providerInfos);
@@ -57,7 +57,7 @@ async function loadImages() {
   loadError = '';
 
   if (!selectedProvider) {
-    throw new Error('Select a provider to import');
+    throw new Error('Select a provider to load');
   }
 
   inProgress = true;
@@ -109,10 +109,10 @@ async function loadImages() {
         </label>
       {/if}
 
-      <label for="modalContainersImport" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
+      <label for="modalImagesLoad" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
         >Images archive to load:</label>
       <Button on:click="{addArchivesToLoad}" icon="{faPlusCircle}" type="link">Add archive</Button>
-      <!-- Display the list of existing containersToImport -->
+      <!-- Display the list of existing imagesToLoad -->
       {#if archivesToLoad.length > 0}
         <div class="flex flex-row justify-center w-full py-1 text-sm font-medium text-gray-400">
           <div class="flex flex-col grow pl-2">Archive</div>
@@ -131,11 +131,11 @@ async function loadImages() {
         inProgress="{inProgress}"
         class="w-full"
         icon="{faPlay}"
-        aria-label="Import containers"
-        bind:disabled="{importDisabled}">
+        aria-label="Load images"
+        bind:disabled="{loadDisabled}">
         Load Images
       </Button>
-      <div aria-label="importError">
+      <div aria-label="loadError">
         {#if loadError !== ''}
           <ErrorMessage class="py-2 text-sm" error="{loadError}" />
         {/if}

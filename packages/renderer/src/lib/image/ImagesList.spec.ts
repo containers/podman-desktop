@@ -433,3 +433,13 @@ test('expect redirect to saveImage page when atleast one image is selected and t
 
   expect(goToMock).toBeCalledWith('/images/save');
 });
+
+test('Expect load images button redirects to images load page', async () => {
+  const goToMock = vi.spyOn(router, 'goto');
+  render(ImagesList);
+  const btnLoadImages = screen.getByRole('button', { name: 'Load Images' });
+  expect(btnLoadImages).toBeInTheDocument();
+
+  await userEvent.click(btnLoadImages);
+  expect(goToMock).toBeCalledWith('/images/load');
+});
