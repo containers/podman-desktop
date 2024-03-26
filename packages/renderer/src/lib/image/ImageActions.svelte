@@ -92,7 +92,7 @@ function onError(error: string): void {
   });
 }
 
-async function saveImage() {
+function saveImage() {
   saveImagesInfo.set([image]);
   router.goto('/images/save');
 }

@@ -1,6 +1,4 @@
 <script lang="ts">
-/* eslint-disable import/no-duplicates */
-// https://github.com/import-js/eslint-plugin-import/issues/1479
 import { faMinusCircle, faPlay } from '@fortawesome/free-solid-svg-icons';
 import { Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
