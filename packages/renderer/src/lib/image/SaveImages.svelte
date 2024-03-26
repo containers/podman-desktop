@@ -53,7 +53,7 @@ async function selectTargetFilePath() {
     targetFile = `${imagesToSave[0].name.substring(lastSlashPos, lastColon)}.tar`;
   }
   const result = await window.saveDialog({
-    title: 'Select the directory where to export the container content',
+    title: 'Select the directory to export the container content',
     defaultUri: {
       fsPath: targetFile,
       path: targetFile,
@@ -73,7 +73,7 @@ async function selectTargetFilePath() {
 
 async function selectOutputDirectoryPath() {
   const result = await window.openDialog({
-    title: `Select the directory where to save the ${singleItemMode ? 'image' : 'images'}`,
+    title: `Select the directory to save the ${singleItemMode ? 'image' : 'images'}`,
     selectors: ['openDirectory'],
   });
   if (!result?.[0]) {

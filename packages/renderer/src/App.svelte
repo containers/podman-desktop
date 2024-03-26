@@ -143,7 +143,7 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         <Route path="/images/import" breadcrumb="Import Containers">
           <ImportContainersImages />
         </Route>
-        <Route path="/images/save/*" breadcrumb="Save Images">
+        <Route path="/images/save" breadcrumb="Save Images">
           <SaveImages />
         </Route>
         <Route path="/pods" breadcrumb="Pods" navigationHint="root">
