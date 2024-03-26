@@ -46,6 +46,7 @@ import type {
   ContainerExportOptions,
   ContainerImportOptions,
   ContainerInfo,
+  ImageLoadOptions,
   ImagesSaveOptions,
   SimpleContainerInfo,
   VolumeCreateOptions,
@@ -456,6 +457,10 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld('saveImages', async (options: ImagesSaveOptions): Promise<void> => {
     return ipcInvoke('container-provider-registry:saveImages', options);
+  });
+
+  contextBridge.exposeInMainWorld('loadImages', async (options: ImageLoadOptions): Promise<void> => {
+    return ipcInvoke('container-provider-registry:loadImages', options);
   });
 
   let onDataCallbacksLogsContainerId = 0;

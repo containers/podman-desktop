@@ -293,3 +293,8 @@ export interface ImagesSaveOptions {
     engineId: string;
   }[];
 }
+
+export interface ImageLoadOptions {
+  provider: ProviderContainerConnectionInfo;
+  archives: string[];
+}

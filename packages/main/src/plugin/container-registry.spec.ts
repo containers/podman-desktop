@@ -4088,3 +4088,107 @@ describe('saveImages', () => {
     ).rejects.toThrow('Unable to save images id, id2. Error: error when saving on filesystem');
   });
 });
+
+describe('loadImages', () => {
+  test('throw if there is no matching engine', async () => {
+    await expect(
+      containerRegistry.loadImages({
+        provider: {
+          name: 'engine',
+          endpoint: {
+            socketPath: '/endpoint1.sock',
+          },
+        } as ProviderContainerConnectionInfo,
+        archives: ['archive.tar'],
+      }),
+    ).rejects.toThrowError('no running provider for the matching container');
+  });
+  test('expect loadImage to be called with archive selected by user', async () => {
+    const loadImageMock = vi.fn();
+    const fakeDockerode = {
+      loadImage: loadImageMock,
+    } as unknown as Dockerode;
+    containerRegistry.addInternalProvider('podman', {
+      name: 'podman',
+      id: 'podman',
+      connection: {
+        name: 'podman',
+        type: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+      },
+      api: fakeDockerode,
+    } as InternalContainerProvider);
+    await containerRegistry.loadImages({
+      provider: {
+        name: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+      } as ProviderContainerConnectionInfo,
+      archives: ['archive.tar'],
+    });
+    expect(loadImageMock).toBeCalledWith('archive.tar');
+  });
+  test('expect rejects if loadImage fails', async () => {
+    const loadImageMock = vi.fn().mockRejectedValue('loading error');
+    const fakeDockerode = {
+      loadImage: loadImageMock,
+    } as unknown as Dockerode;
+    containerRegistry.addInternalProvider('podman', {
+      name: 'podman',
+      id: 'podman',
+      connection: {
+        name: 'podman',
+        type: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+      },
+      api: fakeDockerode,
+    } as InternalContainerProvider);
+    await expect(() =>
+      containerRegistry.loadImages({
+        provider: {
+          name: 'podman',
+          endpoint: {
+            socketPath: '/endpoint1.sock',
+          },
+        } as ProviderContainerConnectionInfo,
+        archives: ['archive.tar'],
+      }),
+    ).rejects.toThrow('Unable to load archive.tar. Error: loading error\n');
+  });
+  test('expect rejects if loadImage fails multiple times', async () => {
+    const loadImageMock = vi.fn().mockRejectedValue('loading error');
+    const fakeDockerode = {
+      loadImage: loadImageMock,
+    } as unknown as Dockerode;
+    containerRegistry.addInternalProvider('podman', {
+      name: 'podman',
+      id: 'podman',
+      connection: {
+        name: 'podman',
+        type: 'podman',
+        endpoint: {
+          socketPath: '/endpoint1.sock',
+        },
+      },
+      api: fakeDockerode,
+    } as InternalContainerProvider);
+    await expect(() =>
+      containerRegistry.loadImages({
+        provider: {
+          name: 'podman',
+          endpoint: {
+            socketPath: '/endpoint1.sock',
+          },
+        } as ProviderContainerConnectionInfo,
+        archives: ['archive.tar', 'archive2.tar'],
+      }),
+    ).rejects.toThrow(
+      'Unable to load archive.tar. Error: loading error\nUnable to load archive2.tar. Error: loading error\n',
+    );
+  });
+});

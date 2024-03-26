@@ -67,6 +67,7 @@ import type {
   ContainerExportOptions,
   ContainerImportOptions,
   ContainerInfo,
+  ImageLoadOptions,
   ImagesSaveOptions,
   SimpleContainerInfo,
   VolumeCreateOptions,
@@ -1100,6 +1101,13 @@ export class PluginSystem {
       'container-provider-registry:saveImages',
       async (_listener, options: ImagesSaveOptions): Promise<void> => {
         return containerProviderRegistry.saveImages(options);
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:loadImages',
+      async (_listener, options: ImageLoadOptions): Promise<void> => {
+        return containerProviderRegistry.loadImages(options);
       },
     );
 
