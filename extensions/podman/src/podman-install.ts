@@ -263,7 +263,7 @@ export class PodmanInstall {
     ) {
       // prompt if user wants to wipe all data
       const answer = await extensionApi.window.showInformationMessage(
-        `You are updating from Podman ${installedPodman.version} to ${updateInfo.bundledVersion}. It is recommended to delete all data (including containers, volumes, networks, podman machines, etc) for this update. DATA WILL BE DESTROYED. Do you want to proceed ?`,
+        `You are updating from Podman ${installedPodman.version} to ${updateInfo.bundledVersion}. It is recommended to delete all data (including containers, volumes, networks, podman machines, etc) for this update. DATA WILL BE DELETED PERMANENTLY. Do you want to proceed ?`,
         'Cancel',
         'Yes',
         'Skip',
@@ -316,7 +316,7 @@ export class PodmanInstall {
       const wipeAllDataCompleted = await this.wipeAllDataBeforeUpdatingToV5(installedPodman, updateInfo);
       if (!wipeAllDataCompleted) {
         await extensionApi.window.showWarningMessage(
-          'Podman update has been canceled. You can do some backups before restarting the update',
+          'Podman update has been canceled. It is recommended to backup OCI images or containers before resuming the update procedure',
           'OK',
         );
         return;
