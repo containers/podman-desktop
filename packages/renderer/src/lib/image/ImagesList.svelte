@@ -162,6 +162,10 @@ function importImage(): void {
   router.goto('/images/import');
 }
 
+function loadImages(): void {
+  router.goto('/images/load');
+}
+
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
 async function deleteSelectedImages() {
@@ -292,6 +296,13 @@ const row = new Row<ImageInfoUI>({
     {#if $imagesInfos.length > 0}
       <Prune type="images" engines="{enginesList}" />
     {/if}
+    <Button
+      on:click="{() => loadImages()}"
+      title="Load image(s) from tar archive(s)"
+      icon="{faArrowCircleDown}"
+      aria-label="Load Images">
+      Load
+    </Button>
     <Button
       on:click="{() => importImage()}"
       title="Import Image From Filesystem"

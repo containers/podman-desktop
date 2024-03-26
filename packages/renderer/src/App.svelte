@@ -28,6 +28,7 @@ import BuildImageFromContainerfile from './lib/image/BuildImageFromContainerfile
 import ImageDetails from './lib/image/ImageDetails.svelte';
 import ImagesList from './lib/image/ImagesList.svelte';
 import ImportContainersImages from './lib/image/ImportContainersImages.svelte';
+import LoadImages from './lib/image/LoadImages.svelte';
 import PullImage from './lib/image/PullImage.svelte';
 import RunImage from './lib/image/RunImage.svelte';
 import SaveImages from './lib/image/SaveImages.svelte';
@@ -145,6 +146,9 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         </Route>
         <Route path="/images/save" breadcrumb="Save Images">
           <SaveImages />
+        </Route>
+        <Route path="/images/load" breadcrumb="Load Images">
+          <LoadImages />
         </Route>
         <Route path="/pods" breadcrumb="Pods" navigationHint="root">
           <PodsList />
