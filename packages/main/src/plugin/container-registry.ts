@@ -40,6 +40,7 @@ import type {
   ContainerImportOptions,
   ContainerInfo,
   ContainerPortInfo,
+  ImageLoadOptions,
   ImagesSaveOptions,
   NetworkCreateOptions,
   NetworkCreateResult,
@@ -2475,6 +2476,27 @@ export class ContainerProviderRegistry {
         } catch (e) {
           errors += `Unable to save images ${imageGroup[1].join(', ')}. Error: ${String(e)}\n`;
         }
+      }
+    }
+
+    if (errors !== '') {
+      return Promise.reject(errors);
+    }
+  }
+
+  async loadImages(options: ImageLoadOptions): Promise<void> {
+    const matchingEngine = this.getMatchingEngineFromConnection(options.provider);
+    if (!matchingEngine) {
+      throw new Error('no running engine for the matching provider');
+    }
+
+    let errors = '';
+
+    for (const archive of options.archives) {
+      try {
+        await matchingEngine.loadImage(archive);
+      } catch (e) {
+        errors += `Unable to load ${archive}. Error: ${String(e)}\n`;
       }
     }
 
