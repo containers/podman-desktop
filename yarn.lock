@@ -2296,10 +2296,10 @@
     url-loader "^4.1.1"
     webpack "^5.88.1"
 
-"@electron/fuses@^1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@electron/fuses/-/fuses-1.7.0.tgz#0800d5404fffe5683705297990fea089d49811a2"
-  integrity sha512-mfhLoZGQdqrSU/SeOFBs6r+D7g1tYiVs2C/hh7t3NFQ0chcXGoWrrad17rCQL1ImNJuCXs4cu23YBj5CAnj5SA==
+"@electron/fuses@^1.8.0":
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/@electron/fuses/-/fuses-1.8.0.tgz#ad34d3cc4703b1258b83f6989917052cfc1490a0"
+  integrity sha512-zx0EIq78WlY/lBb1uXlziZmDZI4ubcCXIMJ4uGjXzZW0nS19TjSPeXPAjzzTmKQlJUZm0SbmZhPKP7tuQ1SsEw==
   dependencies:
     chalk "^4.1.1"
     fs-extra "^9.0.1"
