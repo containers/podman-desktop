@@ -2470,7 +2470,10 @@ export class ContainerProviderRegistry {
         try {
           let targetPath = options.outputTarget;
           if (isMultiProvider) {
-            targetPath = path.join(options.outputTarget, `${imageGroup[0]}-images.tar`);
+            targetPath = path.join(
+              options.outputTarget,
+              `${imageGroup[0]}-images-${moment().format('YYYYMMDDHHmmss')}.tar`,
+            );
           }
           await pipeline(imagesStream, fs.createWriteStream(targetPath));
         } catch (e) {

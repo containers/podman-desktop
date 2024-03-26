@@ -19,6 +19,8 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
+import { router } from 'tinro';
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import ImageActions from '/@/lib/image/ImageActions.svelte';
@@ -175,4 +177,26 @@ test('Expect Push image to be there', async () => {
 
   const button = screen.getByTitle('Push Image');
   expect(button).toBeDefined();
+});
+
+test('Expect Save image to be there', async () => {
+  const goToMock = vi.spyOn(router, 'goto');
+
+  const image: ImageInfoUI = {
+    name: 'dummy',
+    status: 'UNUSED',
+  } as ImageInfoUI;
+
+  render(ImageActions, {
+    onPushImage: vi.fn(),
+    onRenameImage: vi.fn(),
+    image,
+  });
+
+  const button = screen.getByTitle('Save Image');
+  expect(button).toBeDefined();
+
+  await userEvent.click(button);
+
+  expect(goToMock).toBeCalledWith('/images/save');
 });

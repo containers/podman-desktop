@@ -1,10 +1,11 @@
 <script lang="ts">
-import { faArrowCircleDown, faCube, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faArrowCircleDown, faCube, faDownload, faTrash } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 import { router } from 'tinro';
 
+import { saveImagesInfo } from '/@/stores/save-images-store';
 import { viewsContributions } from '/@/stores/views';
 
 import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
@@ -182,6 +183,17 @@ async function deleteSelectedImages() {
   bulkDeleteInProgress = false;
 }
 
+// save the items selected in the list
+async function saveSelectedImages() {
+  const selectedImages = images.filter(image => image.selected);
+  if (selectedImages.length === 0) {
+    return;
+  }
+
+  saveImagesInfo.set(selectedImages);
+  router.goto('/images/save');
+}
+
 let refreshTimeouts: NodeJS.Timeout[] = [];
 const SECOND = 1000;
 function refreshAge() {
@@ -300,6 +312,11 @@ const row = new Row<ImageInfoUI>({
         title="Delete {selectedItemsNumber} selected items"
         bind:inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />
+      <Button
+        on:click="{() => saveSelectedImages()}"
+        title="Save {selectedItemsNumber} selected items"
+        aria-label="Save images"
+        icon="{faDownload}" />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
   </svelte:fragment>
