@@ -32,7 +32,7 @@ export class ImageEditPage extends BasePage {
     super(page);
     this.imageName = page.getByLabel('imageName');
     this.cancelButton = page.getByRole('button', { name: 'Cancel' });
-    this.saveButton = page.getByRole('button', { name: 'Save' });
+    this.saveButton = page.getByRole('button', { name: 'Save', exact: true });
     this.name = name;
     this.imageTag = page.getByLabel('imageTag');
   }
