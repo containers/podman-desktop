@@ -30,7 +30,7 @@ let pdRunner: PodmanDesktopRunner;
 let page: Page;
 
 beforeAll(async () => {
-  pdRunner = new PodmanDesktopRunner('', 'welcome-podman-desktop');
+  pdRunner = new PodmanDesktopRunner({ customFolder: 'welcome-podman-desktop' });
   page = await pdRunner.start();
   pdRunner.setVideoAndTraceName('welcome-page-e2e');
 });
