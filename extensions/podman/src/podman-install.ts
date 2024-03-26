@@ -36,6 +36,8 @@ import {
   USER_MODE_NETWORKING_SUPPORTED_KEY,
 } from './extension';
 import { MacCPUCheck, MacMemoryCheck, MacPodmanInstallCheck, MacVersionCheck } from './macos-checks';
+import { PodmanCleanupMacOS } from './podman-cleanup-macos';
+import { PodmanCleanupWindows } from './podman-cleanup-windows';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanCli, getPodmanInstallation } from './podman-cli';
 import * as podman4JSON from './podman4.json';
@@ -127,7 +129,7 @@ interface Installer {
   requireUpdate(installedVersion: string): boolean;
   update(): Promise<boolean>;
 }
-interface UpdateCheck {
+export interface UpdateCheck {
   hasUpdate: boolean;
   installedVersion: string;
   bundledVersion: string;
@@ -140,10 +142,17 @@ export class PodmanInstall {
 
   private readonly storagePath: string;
 
+  protected providerCleanup: extensionApi.ProviderCleanup | undefined;
+
   constructor(readonly extensionContext: extensionApi.ExtensionContext) {
     this.storagePath = extensionContext.storagePath;
     this.installers.set('win32', new WinInstaller(extensionContext));
     this.installers.set('darwin', new MacOSInstaller());
+    if (extensionApi.env.isMac) {
+      this.providerCleanup = new PodmanCleanupMacOS();
+    } else if (extensionApi.env.isWindows) {
+      this.providerCleanup = new PodmanCleanupWindows();
+    }
   }
 
   public async doInstallPodman(provider: extensionApi.Provider): Promise<void> {
@@ -240,6 +249,59 @@ export class PodmanInstall {
     return true;
   }
 
+  // return true if data have been cleaned or if user skip it
+  // return false if user cancel
+  protected async wipeAllDataBeforeUpdatingToV5(
+    installedPodman: InstalledPodman,
+    updateInfo: UpdateCheck,
+  ): Promise<boolean> {
+    // if (v4 --> v5)
+    if (
+      installedPodman.version.startsWith('4.') &&
+      updateInfo.bundledVersion.startsWith('5.') &&
+      this.providerCleanup
+    ) {
+      // prompt if user wants to wipe all data
+      const answer = await extensionApi.window.showInformationMessage(
+        `You are updating from Podman ${installedPodman.version} to ${updateInfo.bundledVersion}. It is recommended to delete all data (including containers, volumes, networks, podman machines, etc) for this update. DATA WILL BE DESTROYED. Do you want to proceed ?`,
+        'Cancel',
+        'Yes',
+        'Skip',
+      );
+
+      if (answer === 'Yes') {
+        // prompt confirmation
+        const confirmation = await extensionApi.window.showInformationMessage(
+          `Are you sure you want to delete all data? This operation is irreversible.`,
+          'Yes',
+          'No',
+        );
+        if (confirmation === 'No') {
+          return false;
+        }
+
+        const actions = await this.providerCleanup.getActions();
+        for (const action of actions) {
+          await action.execute.apply(this.providerCleanup, [
+            {
+              logger: {
+                log: (...msg: unknown[]) => console.log(msg),
+                error: (...msg: unknown[]) => console.error(msg),
+                warn: (...msg: unknown[]) => console.warn(msg),
+              },
+            },
+          ]);
+        }
+        return true;
+      } else if (answer === 'Skip') {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
+
   public async performUpdate(provider: extensionApi.Provider, installedPodman: InstalledPodman): Promise<void> {
     const updateInfo = await this.checkForUpdate(installedPodman);
     if (updateInfo.hasUpdate) {
@@ -249,6 +311,17 @@ export class PodmanInstall {
         await extensionApi.window.showWarningMessage('Podman update has been canceled.', 'OK');
         return;
       }
+
+      // podman v4 -> v5 migration: ask to wipe all data before doing the update
+      const wipeAllDataCompleted = await this.wipeAllDataBeforeUpdatingToV5(installedPodman, updateInfo);
+      if (!wipeAllDataCompleted) {
+        await extensionApi.window.showWarningMessage(
+          'Podman update has been canceled. You can do some backups before restarting the update',
+          'OK',
+        );
+        return;
+      }
+
       const answer = await extensionApi.window.showInformationMessage(
         `You have Podman ${updateInfo.installedVersion}.\nDo you want to update to ${updateInfo.bundledVersion}?`,
         'Yes',
