@@ -1090,7 +1090,7 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
-    'container-provider-registry:importContainer',
+      'container-provider-registry:importContainer',
       async (_listener, options: ContainerImportOptions): Promise<void> => {
         return containerProviderRegistry.importContainer(options);
       },
