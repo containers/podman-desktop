@@ -56,7 +56,15 @@ export function getBundledPodmanVersion(): string {
     .getConfiguration('podman')
     .get<boolean>(PODMAN5_EXPERIMENTAL_MODE_CONFIG_KEY);
 
-  if (podman5ExperimentalModeEnabled) {
+  // also check if the user has never installed podman (for example there is no configuration folder for Podman)
+  // no ~/.config/containers/podman and ~/.local/share/containers/podman folders on Windows or macOS
+  let noPreviousPodmanInstallation = false;
+  if (extensionApi.env.isWindows || extensionApi.env.isMac) {
+    noPreviousPodmanInstallation =
+      !fs.existsSync(path.resolve(os.homedir(), '.config/containers/podman')) &&
+      !fs.existsSync(path.resolve(os.homedir(), '.local/share/containers/podman'));
+  }
+  if (podman5ExperimentalModeEnabled || noPreviousPodmanInstallation) {
     return podman5JSON.version;
   }
 

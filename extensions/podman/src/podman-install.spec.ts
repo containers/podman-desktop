@@ -688,6 +688,33 @@ describe('getBundledPodmanVersion', () => {
     // should have called the get with the property for experimental install
     expect(getMock).toHaveBeenCalledWith('experimental.install.v5');
   });
+
+  test('should return the podman 5 version if experimental podman 5 flag is not enabled but first install', async () => {
+    vi.mocked(extensionApi.configuration.getConfiguration).mockReset();
+    const getMock = vi.fn();
+    getMock.mockReturnValue(false);
+
+    // exist sync is false
+    vi.mock('node:fs');
+    vi.mocked(fs.existsSync).mockReturnValue(false);
+
+    vi.mocked(extensionApi.configuration.getConfiguration).mockReturnValue({
+      get: getMock,
+      has: vi.fn(),
+      update: vi.fn(),
+    });
+    const version = getBundledPodmanVersion();
+    expect(version.startsWith('4')).toBeFalsy();
+    expect(version.startsWith('5')).toBeTruthy();
+
+    // check existSync has been called
+    expect(vi.mocked(fs.existsSync)).toHaveBeenCalled();
+
+    // check first argument of the call to getMock
+    expect(getMock).toHaveBeenCalled();
+    // should have called the get with the property for experimental install
+    expect(getMock).toHaveBeenCalledWith('experimental.install.v5');
+  });
 });
 
 class TestPodmanInstall extends PodmanInstall {
