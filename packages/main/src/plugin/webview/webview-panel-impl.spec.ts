@@ -243,7 +243,7 @@ test('check reveal with true', async () => {
   webviewPanelImpl.reveal(true);
 
   // check apiSender called
-  expect(apiSender.send).toHaveBeenCalledWith('webview-panel-reveal', { id: 'internalId0', preserveFocus: true });
+  expect(apiSender.send).toHaveBeenCalledWith('navigate', { page: 'webview', parameters: { id: 'internalId0' } });
 });
 
 test('check dispose', async () => {
