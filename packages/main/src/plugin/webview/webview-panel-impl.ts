@@ -27,6 +27,8 @@ import type {
 import type { ApiSenderType } from '/@/plugin/api.js';
 import { Emitter } from '/@/plugin/events/emitter.js';
 
+import { NavigationPage } from '../navigation/navigation-page.js';
+import type { NavigationRequest } from '../navigation/navigation-request.js';
 import type { WebviewImpl } from './webview-impl.js';
 import type { WebviewRegistry } from './webview-registry.js';
 
@@ -146,11 +148,17 @@ export class WebviewPanelImpl implements WebviewPanel {
     }
   }
 
-  reveal(preserveFocus?: boolean): void {
+  reveal(_preserveFocus?: boolean): void {
     this.assertNotDisposed();
 
     // notify the renderer to reveal the webview
-    this.#apiSender.send('webview-panel-reveal', { id: this.#internalId, preserveFocus });
+    const navigationRequest: NavigationRequest = {
+      page: NavigationPage.WEBVIEW,
+      parameters: {
+        id: this.#internalId,
+      },
+    };
+    this.#apiSender.send('navigate', navigationRequest);
   }
 
   dispose(): void {
