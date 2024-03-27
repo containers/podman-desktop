@@ -152,12 +152,13 @@ export class WebviewPanelImpl implements WebviewPanel {
     this.assertNotDisposed();
 
     // notify the renderer to reveal the webview
-    this.#apiSender.send('navigate', {
+    const navigationRequest: NavigationRequest = {
       page: NavigationPage.WEBVIEW,
       parameters: {
         id: this.#internalId,
       },
-    } as NavigationRequest);
+    };
+    this.#apiSender.send('navigate', navigationRequest);
   }
 
   dispose(): void {
