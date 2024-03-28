@@ -850,6 +850,24 @@ export async function initCheckAndRegisterUpdate(
       await checkForUpdate();
     }
   });
+
+  extensionApi.provider.onDidRegisterContainerConnection(event => {
+    if (event.providerId === provider.id) {
+      // check for update
+      checkForUpdate().catch((error: unknown) => {
+        console.error('Error checking for update', error);
+      });
+    }
+  });
+
+  extensionApi.provider.onDidUnregisterContainerConnection(event => {
+    if (event.providerId === provider.id) {
+      // check for update
+      checkForUpdate().catch((error: unknown) => {
+        console.error('Error checking for update', error);
+      });
+    }
+  });
 }
 
 export function registerOnboardingMachineExistsCommand(): extensionApi.Disposable {
