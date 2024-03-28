@@ -120,9 +120,14 @@ export type MachineInfo = {
   memoryUsage: number;
 };
 
+export type MachineListOutput = {
+  stdout: string;
+  stderr: string;
+};
+
 export async function updateMachines(provider: extensionApi.Provider): Promise<void> {
   // init machines available
-  let machineListOutput: string;
+  let machineListOutput: MachineListOutput;
   try {
     machineListOutput = await getJSONMachineList();
   } catch (error) {
@@ -137,7 +142,7 @@ export async function updateMachines(provider: extensionApi.Provider): Promise<v
   }
 
   // parse output
-  const machines = JSON.parse(machineListOutput) as MachineJSON[];
+  const machines = JSON.parse(machineListOutput.stdout) as MachineJSON[];
   extensionApi.context.setValue('podmanMachineExists', machines.length > 0, 'onboarding');
 
   // Only show the notification on macOS and Windows
@@ -875,7 +880,7 @@ export function registerOnboardingMachineExistsCommand(): extensionApi.Disposabl
     let machineLength;
     try {
       const machineListOutput = await getJSONMachineList();
-      const machines = JSON.parse(machineListOutput) as MachineJSON[];
+      const machines = JSON.parse(machineListOutput.stdout) as MachineJSON[];
       machineLength = machines.length;
     } catch (error) {
       machineLength = 0;
@@ -1292,7 +1297,7 @@ export async function findRunningMachine(): Promise<string> {
 
   // Find the machines
   const machineListOutput = await getJSONMachineList();
-  const machines = JSON.parse(machineListOutput) as MachineJSON[];
+  const machines = JSON.parse(machineListOutput.stdout) as MachineJSON[];
 
   // Find the machine that is running
   const found: MachineJSON = machines.find(machine => machine?.Running);
@@ -1311,7 +1316,7 @@ async function stopAutoStartedMachine(): Promise<void> {
   }
   const machineListOutput = await getJSONMachineList();
 
-  const machines = JSON.parse(machineListOutput) as MachineJSON[];
+  const machines = JSON.parse(machineListOutput.stdout) as MachineJSON[];
 
   // Find the autostarted machine and check its status
   const currentMachine: MachineJSON = machines.find(machine => machine?.Name === autoMachineName);
@@ -1325,9 +1330,9 @@ async function stopAutoStartedMachine(): Promise<void> {
   await extensionApi.process.exec(getPodmanCli(), ['machine', 'stop', autoMachineName]);
 }
 
-export async function getJSONMachineList(): Promise<string> {
-  const { stdout } = await extensionApi.process.exec(getPodmanCli(), ['machine', 'list', '--format', 'json']);
-  return stdout;
+export async function getJSONMachineList(): Promise<MachineListOutput> {
+  const { stdout, stderr } = await extensionApi.process.exec(getPodmanCli(), ['machine', 'list', '--format', 'json']);
+  return { stdout, stderr };
 }
 
 export async function deactivate(): Promise<void> {
