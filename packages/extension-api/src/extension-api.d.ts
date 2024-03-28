@@ -778,7 +778,7 @@ declare module '@podman-desktop/api' {
     onCancellationRequested: Event<any>;
   }
 
-  export interface CancellationTokenSource {
+  export class CancellationTokenSource {
     /**
      * The cancellation token of this source.
      */
