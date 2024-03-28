@@ -23,7 +23,7 @@ onMount(async () => {
         {:else}
           <i class="fas fa-chevron-right"></i>
         {/if}
-        <span>Learning Center</span>
+        <p class="text-lg text-gray-100">Learning Center</p>
       </div>
     </button>
   </div>
