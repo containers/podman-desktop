@@ -163,6 +163,10 @@ vi.mock('@podman-desktop/api', async () => {
         };
       },
     },
+    provider: {
+      onDidRegisterContainerConnection: vi.fn(),
+      onDidUnregisterContainerConnection: vi.fn(),
+    },
     proxy: {
       isEnabled: (): boolean => false,
     },
@@ -1213,6 +1217,75 @@ describe('initCheckAndRegisterUpdate', () => {
 
     // check that we call registerUpdate on the provider
     expect(registerUpdateMock).not.toBeCalled();
+  });
+
+  test('check update disappear after creating a podman machine', async () => {
+    const podmanInstall = {
+      checkForUpdate: vi.fn(),
+    } as unknown as PodmanInstall;
+
+    // disposable
+    const disposeMock = vi.fn();
+    registerUpdateMock.mockReturnValue({
+      dispose: disposeMock,
+    });
+
+    // First call, installed is 4 and we can bump to v5
+    vi.mocked(podmanInstall.checkForUpdate).mockResolvedValueOnce({
+      hasUpdate: true,
+      installedVersion: '4.0',
+      bundledVersion: '5.0',
+    });
+
+    // mock the event
+    let listener: (event: extensionApi.RegisterContainerConnectionEvent) => void;
+
+    vi.mocked(extensionApi.provider.onDidRegisterContainerConnection).mockImplementation(func => {
+      listener = func;
+      return { dispose: (): void => {} };
+    });
+
+    await initCheckAndRegisterUpdate(
+      provider,
+      {
+        version: '1.1',
+      },
+      podmanInstall,
+    );
+
+    // check that we call registerUpdate on the provider
+    expect(registerUpdateMock).toBeCalledWith({
+      preflightChecks: expect.any(Function),
+      update: expect.any(Function),
+      version: '5.0',
+    });
+
+    // check not disposed
+    expect(disposeMock).not.toBeCalled();
+
+    // clear mock
+    registerUpdateMock.mockClear();
+
+    const event: extensionApi.RegisterContainerConnectionEvent = {
+      providerId: provider.id,
+    } as unknown as extensionApi.RegisterContainerConnectionEvent;
+
+    // ok now we mock v4 as there is no machine
+    vi.mocked(podmanInstall.checkForUpdate).mockResolvedValueOnce({
+      hasUpdate: false,
+      installedVersion: '4.0',
+      bundledVersion: '4.0',
+    });
+
+    expect(listener).toBeDefined();
+    // call listener
+    listener(event);
+
+    // check that registerUpdateMock is not called as there is no update available from 4.0 to 5.0 as there is a machine
+    expect(registerUpdateMock).not.toBeCalled();
+
+    // and the previous disposable should have been disposed
+    expect(disposeMock).toBeCalled();
   });
 });
 
