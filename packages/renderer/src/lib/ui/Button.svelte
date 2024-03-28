@@ -58,7 +58,7 @@ $: {
   }
 
   if (type !== 'tab') {
-    classes += ' rounded-[4px] text-[13px]';
+    classes += ' rounded-[4px] text-bt';
   }
 }
 </script>

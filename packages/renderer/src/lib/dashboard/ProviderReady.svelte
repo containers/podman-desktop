@@ -13,7 +13,7 @@ let preflightChecks: CheckStatus[] = [];
 <ProviderCard provider="{provider}">
   <svelte:fragment slot="content">
     {#if provider.containerConnections.length > 0}
-      <div class="flex flex-row text-xs text-gray-900 mt-4">
+      <div class="flex flex-row text-sm text-gray-900 mt-4">
         <p>
           {provider.containerConnections.map(c => c.name).join(', ')}
         </p>
