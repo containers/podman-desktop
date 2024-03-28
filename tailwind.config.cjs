@@ -33,7 +33,7 @@ module.exports = {
         fontWeight: 'regular'
       }], 
       sm: ['14px',{
-        fontWeight: 'regular'
+        fontWeight: '400'
       }],
       base: ['16px', {
         fontWeight: '600'
