@@ -219,7 +219,7 @@ export class PodmanInstall {
     const machinesRunning: MachineJSON[] = [];
     try {
       const machineListOutput = await getJSONMachineList();
-      const machines = JSON.parse(machineListOutput) as MachineJSON[];
+      const machines = JSON.parse(machineListOutput.stdout) as MachineJSON[];
 
       machinesRunning.push(...machines.filter(machine => machine.Running || machine.Starting));
     } catch (error) {
