@@ -14,6 +14,7 @@ import ContainerIcon from '../images/ContainerIcon.svelte';
 import SolidPodIcon from '../images/SolidPodIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
 import Button from '../ui/Button.svelte';
+import Dropdown from '../ui/Dropdown.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import FormPage from '../ui/FormPage.svelte';
 
@@ -288,14 +289,11 @@ function updatePortExposure(port: number, checked: boolean) {
               for="providerConnectionName"
               class="p-2 block mb-2 text-sm font-medium rounded bg-zinc-700 text-gray-300"
               >Container Engine
-              <select
-                class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-400 placeholder-gray-400"
-                name="providerChoice"
-                bind:value="{selectedProvider}">
+              <Dropdown name="providerChoice" bind:value="{selectedProvider}">
                 {#each providerConnections as providerConnection}
                   <option value="{providerConnection}">{providerConnection.name}</option>
                 {/each}
-              </select>
+              </Dropdown>
             </label>
           {/if}
           {#if providerConnections.length === 1 && selectedProviderConnection?.name}

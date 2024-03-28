@@ -12,6 +12,7 @@ import Checkbox from '/@/lib/ui/Checkbox.svelte';
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import Button from '../ui/Button.svelte';
+import Dropdown from '../ui/Dropdown.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import FormPage from '../ui/FormPage.svelte';
 import Link from '../ui/Link.svelte';
@@ -452,17 +453,12 @@ function updateKubeResult() {
       {#if createIngress && containerPortArray.length > 1}
         <div class="pt-2 pb-4">
           <label for="ingress" class="block mb-1 text-sm font-medium text-gray-300">Ingress Host Port:</label>
-          <select
-            bind:value="{ingressPort}"
-            name="serviceName"
-            id="serviceName"
-            class=" cursor-default w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-400 placeholder-gray-400"
-            required>
+          <Dropdown bind:value="{ingressPort}" name="serviceName" id="serviceName" required>
             <option value="" disabled selected>Select a port</option>
             {#each containerPortArray as port}
               <option value="{port}">{port}</option>
             {/each}
-          </select>
+          </Dropdown>
           <span class="text-gray-300 text-sm ml-1"
             >There are multiple exposed ports available. Select the one you want to expose to '/' with the Ingress.
           </span>
@@ -497,16 +493,13 @@ function updateKubeResult() {
       {#if allNamespaces}
         <div class="pt-2">
           <label for="namespaceToUse" class="block mb-1 text-sm font-medium text-gray-400">Kubernetes Namespace:</label>
-          <select
-            class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
-            name="namespaceChoice"
-            bind:value="{currentNamespace}">
+          <Dropdown name="namespaceChoice" bind:value="{currentNamespace}">
             {#each allNamespaces.items as namespace}
               <option value="{namespace.metadata?.name}">
                 {namespace.metadata?.name}
               </option>
             {/each}
-          </select>
+          </Dropdown>
         </div>
       {/if}
 

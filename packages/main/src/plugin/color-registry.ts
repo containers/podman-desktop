@@ -230,6 +230,7 @@ export class ColorRegistry {
     this.initInvertContent();
     this.initCardContent();
     this.initInputBox();
+    this.initDropdown();
   }
 
   protected initGlobalNav(): void {
@@ -482,6 +483,44 @@ export class ColorRegistry {
     this.registerColor(`${sNav}hover-icon`, {
       dark: colorPalette.gray[500],
       light: colorPalette.gray[500],
+    });
+  }
+
+  // dropdown boxes
+  protected initDropdown(): void {
+    const sNav = 'dropdown-';
+
+    this.registerColor(`${sNav}bg`, {
+      dark: colorPalette.transparent,
+      light: colorPalette.transparent,
+    });
+    this.registerColor(`${sNav}hover-bg`, {
+      dark: colorPalette.transparent,
+      light: colorPalette.transparent,
+    });
+    this.registerColor(`${sNav}focused-text`, {
+      dark: colorPalette.white,
+      light: colorPalette.gray[900],
+    });
+    this.registerColor(`${sNav}disabled-text`, {
+      dark: colorPalette.gray[900],
+      light: colorPalette.gray[900],
+    });
+    this.registerColor(`${sNav}stroke`, {
+      dark: colorPalette.charcoal[400],
+      light: colorPalette.charcoal[400],
+    });
+    this.registerColor(`${sNav}hover-stroke`, {
+      dark: colorPalette.purple[400],
+      light: colorPalette.purple[400],
+    });
+    this.registerColor(`${sNav}stroke-error`, {
+      dark: colorPalette.red[500],
+      light: colorPalette.red[500],
+    });
+    this.registerColor(`${sNav}stroke-readonly`, {
+      dark: colorPalette.charcoal[100],
+      light: colorPalette.charcoal[100],
     });
   }
 }
