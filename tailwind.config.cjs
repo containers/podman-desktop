@@ -28,6 +28,23 @@ module.exports = {
   ],
   darkMode: 'class',
   theme: {
+    fontSize: {
+      bt: ['14px', {
+        fontWeight: 'regular'
+      }], 
+      sm: ['14px',{
+        fontWeight: 'regular'
+      }],
+      base: ['16px', {
+        fontWeight: '600'
+      }],
+      lg: ['18px', {
+        fontWeight: '600'
+      }],
+      xl: ['20px', {
+        fontWeight: '600'
+      }],
+    },
     extend: {
       boxShadow: {
         "titlebar": 'inset 0px -1px 0px 0 rgb(54 54 61 / 0.6)', // highlight for bottom of titlebar
