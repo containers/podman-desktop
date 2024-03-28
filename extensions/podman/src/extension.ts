@@ -38,7 +38,7 @@ import { PodmanInfoHelper } from './podman-info-helper';
 import { PODMAN5_EXPERIMENTAL_MODE_CONFIG_FULLKEY, PodmanInstall } from './podman-install';
 import { QemuHelper } from './qemu-helper';
 import { RegistrySetup } from './registry-setup';
-import { appHomeDir, getAssetsFolder, isLinux, isMac, isWindows, LoggerDelegator } from './util';
+import { appConfigDir, appHomeDir, getAssetsFolder, isLinux, isMac, isWindows, LoggerDelegator } from './util';
 import { getDisguisedPodmanInformation, getSocketPath, isDisguisedPodman } from './warnings';
 import { WslHelper } from './wsl-helper';
 
@@ -555,6 +555,20 @@ async function monitorMachines(provider: extensionApi.Provider): Promise<void> {
   }
 }
 
+async function shouldNotifyQemuMachinesWithV5(installedPodman: InstalledPodman): Promise<boolean> {
+  // if on macOS we have some files from qemu it needs to be removed/cleaned
+  // check if the qemu files are present in  ~/.config/containers/podman/machine/qemu or ~/.local/share/containers/podman/machine/qemu
+  // get current podman version
+  if (extensionApi.env.isMac && installedPodman.version.startsWith('5.')) {
+    const qemuSharePath = path.resolve(os.homedir(), appHomeDir(), 'machine', 'qemu');
+    const qemuConfigPath = path.resolve(os.homedir(), appConfigDir(), 'machine', 'qemu');
+    if (fs.existsSync(qemuSharePath) || fs.existsSync(qemuConfigPath)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 async function monitorProvider(provider: extensionApi.Provider): Promise<void> {
   // call us again
   if (!stopLoop) {
@@ -580,6 +594,10 @@ async function monitorProvider(provider: extensionApi.Provider): Promise<void> {
         if (provider.status === 'not-installed') {
           provider.updateStatus('installed');
         }
+
+        const shouldCleanMachine = await shouldNotifyQemuMachinesWithV5(installedPodman);
+        extensionApi.context.setValue(CLEANUP_REQUIRED_MACHINE_KEY, shouldCleanMachine);
+
         extensionApi.context.setValue('podmanIsNotInstalled', false, 'onboarding');
         // if podman has been installed, we reset the notification flag so if podman is uninstalled in future we can show the notification again
         if (isLinux()) {
@@ -819,6 +837,7 @@ export async function registerUpdatesIfAny(
 export const ROOTFUL_MACHINE_INIT_SUPPORTED_KEY = 'podman.isRootfulMachineInitSupported';
 export const USER_MODE_NETWORKING_SUPPORTED_KEY = 'podman.isUserModeNetworkingSupported';
 export const START_NOW_MACHINE_INIT_SUPPORTED_KEY = 'podman.isStartNowAtMachineInitSupported';
+export const CLEANUP_REQUIRED_MACHINE_KEY = 'podman.needPodmanMachineCleanup';
 
 export function initTelemetryLogger(): void {
   telemetryLogger = extensionApi.env.createTelemetryLogger();
@@ -886,6 +905,58 @@ export function registerOnboardingMachineExistsCommand(): extensionApi.Disposabl
       machineLength = 0;
     }
     extensionApi.context.setValue('podmanMachineExists', machineLength > 0, 'onboarding');
+  });
+}
+
+export function registerOnboardingUnsupportedPodmanMachineCommand(): extensionApi.Disposable {
+  return extensionApi.commands.registerCommand('podman.onboarding.checkUnsupportedPodmanMachine', async () => {
+    let isUnsupported = false;
+    const installedPodman = await getPodmanInstallation();
+    if (installedPodman) {
+      isUnsupported = await shouldNotifyQemuMachinesWithV5(installedPodman);
+    }
+
+    extensionApi.context.setValue('unsupportedPodmanMachine', isUnsupported, 'onboarding');
+  });
+}
+
+export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionApi.Disposable {
+  return extensionApi.commands.registerCommand('podman.onboarding.removeUnsupportedMachines', async () => {
+    // only on macOS
+    // do not check if version is v5 as it is being checked by the command that triggers this one
+    if (extensionApi.env.isMac) {
+      // remove the qemu machines folder
+      const qemuSharePath = path.resolve(os.homedir(), appHomeDir(), 'machine', 'qemu');
+      const qemuConfigPath = path.resolve(os.homedir(), appConfigDir(), 'machine', 'qemu');
+
+      // remove folders if exists
+      const foldersToRemove = [];
+      if (fs.existsSync(qemuSharePath)) {
+        foldersToRemove.push(qemuSharePath);
+      }
+      if (fs.existsSync(qemuConfigPath)) {
+        foldersToRemove.push(qemuConfigPath);
+      }
+
+      // prompt the user to confirm
+      const result = await extensionApi.window.showWarningMessage(
+        'Confirm removal of the unsupported qemu podman machines',
+        'Yes',
+        'No',
+      );
+      if (result === 'No') {
+        return;
+      }
+
+      for (const folder of foldersToRemove) {
+        try {
+          await fs.promises.rm(folder, { recursive: true, retryDelay: 1000, maxRetries: 3 });
+        } catch (error) {
+          console.error('Error removing folder', folder, error);
+        }
+      }
+    }
+    extensionApi.context.setValue('unsupportedMachineRemoved', 'ok', 'onboarding');
   });
 }
 
@@ -1193,6 +1264,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       });
     },
   );
+  const onboardingUnsupportedPodmanMachineCommand = registerOnboardingUnsupportedPodmanMachineCommand();
+  const onboardingRemoveUnsupportedMachinesCommand = registerOnboardingRemoveUnsupportedMachinesCommand();
 
   const onboardingCheckPodmanMachineExistsCommand = registerOnboardingMachineExistsCommand();
 
@@ -1281,6 +1354,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     onboardingCheckPodmanMachineExistsCommand,
     onboardingCheckReqsCommand,
     onboardingInstallPodmanCommand,
+    onboardingUnsupportedPodmanMachineCommand,
+    onboardingRemoveUnsupportedMachinesCommand,
   );
 
   // register the registries

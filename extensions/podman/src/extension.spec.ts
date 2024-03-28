@@ -30,6 +30,7 @@ import {
   checkDisguisedPodmanSocket,
   initCheckAndRegisterUpdate,
   registerOnboardingMachineExistsCommand,
+  registerOnboardingUnsupportedPodmanMachineCommand,
 } from './extension';
 import * as extension from './extension';
 import type { InstalledPodman } from './podman-cli';
@@ -173,6 +174,7 @@ vi.mock('@podman-desktop/api', async () => {
     window: {
       showErrorMessage: vi.fn(),
       showInformationMessage: vi.fn(),
+      showWarningMessage: vi.fn(),
       showNotification: vi.fn(),
     },
     context: {
@@ -1365,5 +1367,136 @@ describe('registerOnboardingMachineExistsCommand', () => {
 
     // check called with podman machine exists being false as there is no machine
     expect(extensionApi.context.setValue).toBeCalledWith('podmanMachineExists', false, 'onboarding');
+  });
+});
+
+describe('registerOnboardingUnsupportedPodmanMachineCommand', () => {
+  test('check with v5 and previous qemu folders', async () => {
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+
+    vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
+
+    vi.mocked(extensionApi.process.exec).mockResolvedValue({
+      stdout: 'podman version 5.0.0',
+    } as unknown as extensionApi.RunResult);
+
+    // perform the call
+    const disposable = registerOnboardingUnsupportedPodmanMachineCommand();
+
+    // checks
+    expect(disposable).toBeDefined();
+
+    // check command is called
+    expect(extensionApi.commands.registerCommand).toBeCalledWith(
+      'podman.onboarding.checkUnsupportedPodmanMachine',
+      expect.any(Function),
+    );
+
+    const func = vi.mocked(extensionApi.commands.registerCommand).mock.calls[0][1];
+    // call the function
+    await func();
+
+    // check called with true as there are qemu folders
+    expect(extensionApi.context.setValue).toBeCalledWith('unsupportedPodmanMachine', true, 'onboarding');
+  });
+
+  test('check with v5 and no previous qemu folders', async () => {
+    // no qemu folders
+    vi.mocked(fs.existsSync).mockReturnValue(false);
+
+    vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
+
+    vi.mocked(extensionApi.process.exec).mockResolvedValue({
+      stdout: 'podman version 5.0.0',
+    } as unknown as extensionApi.RunResult);
+
+    // perform the call
+    const disposable = registerOnboardingUnsupportedPodmanMachineCommand();
+
+    // checks
+    expect(disposable).toBeDefined();
+
+    // check command is called
+    expect(extensionApi.commands.registerCommand).toBeCalledWith(
+      'podman.onboarding.checkUnsupportedPodmanMachine',
+      expect.any(Function),
+    );
+
+    const func = vi.mocked(extensionApi.commands.registerCommand).mock.calls[0][1];
+    // call the function
+    await func();
+
+    // check it is false as there are no qemu folders
+    expect(extensionApi.context.setValue).toBeCalledWith('unsupportedPodmanMachine', false, 'onboarding');
+  });
+
+  test('check with v4 and qemu folders', async () => {
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+
+    vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
+
+    vi.mocked(extensionApi.process.exec).mockResolvedValue({
+      stdout: 'podman version 4.9.3',
+    } as unknown as extensionApi.RunResult);
+
+    // perform the call
+    const disposable = registerOnboardingUnsupportedPodmanMachineCommand();
+
+    // checks
+    expect(disposable).toBeDefined();
+
+    // check command is called
+    expect(extensionApi.commands.registerCommand).toBeCalledWith(
+      'podman.onboarding.checkUnsupportedPodmanMachine',
+      expect.any(Function),
+    );
+
+    const func = vi.mocked(extensionApi.commands.registerCommand).mock.calls[0][1];
+    // call the function
+    await func();
+
+    // check called with false as there are qemu folders but we're with podman v4
+    expect(extensionApi.context.setValue).toBeCalledWith('unsupportedPodmanMachine', false, 'onboarding');
+  });
+});
+
+describe('registerOnboardingRemoveUnsupportedMachinesCommand', () => {
+  test('check with previous qemu folders', async () => {
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+
+    // mock confirmation window message to true
+    vi.mocked(extensionApi.window.showWarningMessage).mockResolvedValue('Yes');
+
+    vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
+
+    vi.mocked(extensionApi.process.exec).mockResolvedValue({
+      stdout: 'podman version 5.0.0',
+    } as unknown as extensionApi.RunResult);
+
+    // perform the call
+    const disposable = extension.registerOnboardingRemoveUnsupportedMachinesCommand();
+
+    // checks
+    expect(disposable).toBeDefined();
+
+    // check command is called
+    expect(extensionApi.commands.registerCommand).toBeCalledWith(
+      'podman.onboarding.removeUnsupportedMachines',
+      expect.any(Function),
+    );
+
+    const func = vi.mocked(extensionApi.commands.registerCommand).mock.calls[0][1];
+    // call the function
+    await func();
+
+    // expect rm to be called
+    expect(fs.promises.rm).toBeCalledWith(expect.stringContaining('qemu'), {
+      recursive: true,
+      maxRetries: 3,
+      retryDelay: 1000,
+    });
+
+    // check called with true as there are qemu folders
+    expect(extensionApi.context.setValue).toBeCalledWith('unsupportedMachineRemoved', 'ok', 'onboarding');
   });
 });

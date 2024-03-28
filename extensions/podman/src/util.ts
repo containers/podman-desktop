@@ -38,6 +38,11 @@ export function appHomeDir(): string {
   return xdgDataDirectory + '/podman';
 }
 
+const configDirectory = '.config/containers';
+export function appConfigDir(): string {
+  return `${configDirectory}/podman`;
+}
+
 /**
  * @returns true if app running in dev mode
  */
