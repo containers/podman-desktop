@@ -259,7 +259,7 @@ vi.mock('./util', async () => {
 });
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
   console.error = consoleErrorMock;
 });
 
@@ -1136,11 +1136,19 @@ test('if there are no machines, make sure checkDefaultMachine is not being ran i
   expect(spyCheckDefaultMachine).not.toBeCalled();
 });
 
-describe('initCheckAndRegisterUpdate', () => {
-  beforeEach(() => {
-    vi.resetAllMocks();
+test('Should notify clean machine if getJSONMachineList is erroring due to an invalid format on mac', async () => {
+  vi.mocked(isMac).mockReturnValue(true);
+  vi.spyOn(extensionApi.process, 'exec').mockRejectedValue({
+    name: 'name',
+    message: 'description',
+    stderr: 'cannot unmarshal string',
   });
+  await expect(extension.updateMachines(provider)).rejects.toThrow('description');
+  expect(extensionApi.window.showNotification).toBeCalled();
+  expect(extensionApi.context.setValue).toBeCalledWith(extension.CLEANUP_REQUIRED_MACHINE_KEY, true);
+});
 
+describe('initCheckAndRegisterUpdate', () => {
   test('check there is an update', async () => {
     const podmanInstall = {
       checkForUpdate: vi.fn(),
@@ -1479,6 +1487,42 @@ describe('registerOnboardingUnsupportedPodmanMachineCommand', () => {
 
     // check called with false as there are qemu folders but we're with podman v4
     expect(extensionApi.context.setValue).toBeCalledWith('unsupportedPodmanMachine', false, 'onboarding');
+  });
+
+  test('check with v5 and error in JSON of machines', async () => {
+    // no qemu folders
+    vi.mocked(fs.existsSync).mockReturnValue(false);
+
+    vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
+
+    // first call to get the podman version
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: 'podman version 5.0.0',
+    } as unknown as extensionApi.RunResult);
+
+    // second call to get the machine list
+    vi.mocked(extensionApi.process.exec).mockRejectedValue({
+      stderr: 'incompatible machine config',
+    } as unknown as extensionApi.RunResult);
+
+    // perform the call
+    const disposable = registerOnboardingUnsupportedPodmanMachineCommand();
+
+    // checks
+    expect(disposable).toBeDefined();
+
+    // check command is called
+    expect(extensionApi.commands.registerCommand).toBeCalledWith(
+      'podman.onboarding.checkUnsupportedPodmanMachine',
+      expect.any(Function),
+    );
+
+    const func = vi.mocked(extensionApi.commands.registerCommand).mock.calls[0][1];
+    // call the function
+    await func();
+
+    // check it is false as there are no qemu folders
+    expect(extensionApi.context.setValue).toBeCalledWith('unsupportedPodmanMachine', true, 'onboarding');
   });
 });
 

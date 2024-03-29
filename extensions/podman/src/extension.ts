@@ -145,9 +145,16 @@ export async function updateMachines(provider: extensionApi.Provider): Promise<v
   try {
     machineListOutput = await getJSONMachineList();
   } catch (error) {
+    let shouldCleanMachine = false;
+    // check if field stderr is present in the error object
+    if (error.stderr) {
+      shouldCleanMachine = isIncompatibleMachineOutput(error.stderr);
+    }
+    extensionApi.context.setValue(CLEANUP_REQUIRED_MACHINE_KEY, shouldCleanMachine);
+
     // Only on macOS and Windows should we show the setup notification
     // if for some reason doing getJSONMachineList fails..
-    if (shouldNotifySetup && !isLinux()) {
+    if ((shouldNotifySetup || shouldCleanMachine) && !isLinux()) {
       // push setup notification
       notificationDisposable = extensionApi.window.showNotification(setupPodmanNotification);
       shouldNotifySetup = false;
@@ -947,8 +954,15 @@ export function registerOnboardingUnsupportedPodmanMachineCommand(): extensionAp
 
     // check if the machine needs to be cleaned for v4 --> v5 format
     if (!isUnsupported) {
-      const machineListOutput = await getJSONMachineList();
-      isUnsupported = isIncompatibleMachineOutput(machineListOutput.stderr);
+      try {
+        const machineListOutput = await getJSONMachineList();
+        isUnsupported = isIncompatibleMachineOutput(machineListOutput.stderr);
+      } catch (error) {
+        // check if stderr in the error object
+        if (error.stderr) {
+          isUnsupported = isIncompatibleMachineOutput(error.stderr);
+        }
+      }
     }
 
     extensionApi.context.setValue('unsupportedPodmanMachine', isUnsupported, 'onboarding');
@@ -1007,7 +1021,7 @@ export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionA
       // check for JSON files in the folder
       const files = await fs.promises.readdir(machineFolderToCheck);
       const machineFilesToAnalyze = files.filter(file => file.endsWith('.json'));
-      let machineConfigJson: { Version?: string } = {};
+      let machineConfigJson: { GvProxy?: string } = {};
       const allMachines = await Promise.all(
         machineFilesToAnalyze.map(async file => {
           // read content of the file
@@ -1029,8 +1043,8 @@ export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionA
       );
 
       const invalidMachines = allMachines.filter(machine => {
-        // check if the machine has Version field, if it doesn't, it's an invalid machine
-        return !machine.json.Version;
+        // check if the machine has GvProxy field, if it doesn't, it's an invalid machine
+        return !machine.json.GvProxy;
       });
 
       // prompt to remove these invalid machines
