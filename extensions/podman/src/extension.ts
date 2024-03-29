@@ -949,14 +949,20 @@ export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionA
         return;
       }
 
+      const errors: string[] = [];
       for (const folder of foldersToRemove) {
         try {
           await fs.promises.rm(folder, { recursive: true, retryDelay: 1000, maxRetries: 3 });
         } catch (error) {
           console.error('Error removing folder', folder, error);
+          errors.push(`Unable to remove the folder ${folder}: ${String(error)}`);
         }
       }
+      if (errors.length > 0) {
+        await extensionApi.window.showErrorMessage(`Error removing unsupported Podman machines. ${errors.join('\n')}`);
+      }
     }
+
     extensionApi.context.setValue('unsupportedMachineRemoved', 'ok', 'onboarding');
   });
 }
