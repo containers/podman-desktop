@@ -905,6 +905,8 @@ test('ensure started machine reports default configuration', async () => {
           resolve({
             stdout: JSON.stringify([{ Name: fakeMachineJSON[0].Name, Default: true }]),
           } as extensionApi.RunResult);
+        } else if (args[0] === '--version') {
+          resolve({ stdout: 'podman version 4.9.0' } as extensionApi.RunResult);
         }
       }),
   );
@@ -931,6 +933,8 @@ test('ensure started machine reports configuration', async () => {
           resolve({
             stdout: JSON.stringify([{ Name: fakeMachineJSON[0].Name, Default: true }]),
           } as extensionApi.RunResult);
+        } else if (args[0] === '--version') {
+          resolve({ stdout: 'podman version 4.9.0' } as extensionApi.RunResult);
         }
       }),
   );
@@ -966,6 +970,8 @@ test('ensure stopped machine reports configuration', async () => {
           resolve({
             stdout: JSON.stringify([{ Name: fakeMachineJSON[1].Name, Default: true }]),
           } as extensionApi.RunResult);
+        } else if (args[0] === '--version') {
+          resolve({ stdout: 'podman version 4.9.0' } as extensionApi.RunResult);
         }
       }),
   );

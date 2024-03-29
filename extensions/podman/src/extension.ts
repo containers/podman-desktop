@@ -145,6 +145,10 @@ export async function updateMachines(provider: extensionApi.Provider): Promise<v
   const machines = JSON.parse(machineListOutput.stdout) as MachineJSON[];
   extensionApi.context.setValue('podmanMachineExists', machines.length > 0, 'onboarding');
 
+  const installedPodman = await getPodmanInstallation();
+  const shouldCleanMachine = shouldNotifyQemuMachinesWithV5(installedPodman);
+  extensionApi.context.setValue(CLEANUP_REQUIRED_MACHINE_KEY, shouldCleanMachine);
+
   // Only show the notification on macOS and Windows
   // as Podman is already installed on Linux and machine is OPTIONAL.
   if (shouldNotifySetup && machines.length === 0 && !isLinux()) {
@@ -555,7 +559,7 @@ async function monitorMachines(provider: extensionApi.Provider): Promise<void> {
   }
 }
 
-async function shouldNotifyQemuMachinesWithV5(installedPodman: InstalledPodman): Promise<boolean> {
+function shouldNotifyQemuMachinesWithV5(installedPodman: InstalledPodman): boolean {
   // if on macOS we have some files from qemu it needs to be removed/cleaned
   // check if the qemu files are present in  ~/.config/containers/podman/machine/qemu or ~/.local/share/containers/podman/machine/qemu
   // get current podman version
@@ -594,9 +598,6 @@ async function monitorProvider(provider: extensionApi.Provider): Promise<void> {
         if (provider.status === 'not-installed') {
           provider.updateStatus('installed');
         }
-
-        const shouldCleanMachine = await shouldNotifyQemuMachinesWithV5(installedPodman);
-        extensionApi.context.setValue(CLEANUP_REQUIRED_MACHINE_KEY, shouldCleanMachine);
 
         extensionApi.context.setValue('podmanIsNotInstalled', false, 'onboarding');
         // if podman has been installed, we reset the notification flag so if podman is uninstalled in future we can show the notification again
@@ -913,7 +914,7 @@ export function registerOnboardingUnsupportedPodmanMachineCommand(): extensionAp
     let isUnsupported = false;
     const installedPodman = await getPodmanInstallation();
     if (installedPodman) {
-      isUnsupported = await shouldNotifyQemuMachinesWithV5(installedPodman);
+      isUnsupported = shouldNotifyQemuMachinesWithV5(installedPodman);
     }
 
     extensionApi.context.setValue('unsupportedPodmanMachine', isUnsupported, 'onboarding');
