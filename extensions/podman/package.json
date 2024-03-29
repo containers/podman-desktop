@@ -32,6 +32,14 @@
       {
         "command": "podman.onboarding.installPodman",
         "title": "Podman: Install podman"
+      },
+      {
+        "command": "podman.onboarding.checkUnsupportedPodmanMachine",
+        "title": "Podman: Check if an old unsupported podman machine exists"
+      },
+      {
+        "command": "podman.onboarding.removeUnsupportedMachines",
+        "title": "Podman: Remove unsupported podman machines"
       }
     ],
     "configuration": {
@@ -260,7 +268,7 @@
         {
           "id": "installationSuccessView",
           "title": "Podman settings",
-          "when": "!onboardingContext:podmanIsNotInstalled",
+          "when": "!onboardingContext:podmanIsNotInstalled && !podman.needPodmanMachineCleanup",
           "content": [
             [
               {
@@ -268,6 +276,41 @@
               }
             ]
           ]
+        },
+        {
+          "id": "checkUnsupportedPodmanMachineCommand",
+          "title": "Checking if an old unsupported Podman machine exists",
+          "when": "!isLinux",
+          "command": "podman.onboarding.checkUnsupportedPodmanMachine",
+          "completionEvents": [
+            "onCommand:podman.onboarding.checkUnsupportedPodmanMachine"
+          ]
+        },
+        {
+          "id": "welcomeFixUnsupportedPodmanMachineView",
+          "title": "Unsupported Podman machine detected",
+          "description": "Podman Desktop will remove the unsupported machines",
+          "completionEvents": [
+            "onboardingContext:unsupportedMachineRemoved == ok"
+          ],
+          "content": [
+            [
+              {
+                "value": "Podman Machines created with podman v4 are no longer supported by podman v5"
+              }
+            ],
+            [
+              {
+                "value": ":button[Remove unsupported Podman machine(s)]{command=podman.onboarding.removeUnsupportedMachines}"
+              }
+            ],
+            [
+              {
+                "value": "Interrupt the process by clicking on `skip` or `skip the entire setup`"
+              }
+            ]
+          ],
+          "when": "onboardingContext:unsupportedPodmanMachine && !isLinux"
         },
         {
           "id": "checkPodmanMachineExistsCommand",
@@ -309,7 +352,7 @@
           ]
         }
       ],
-      "enablement": "(isLinux && onboardingContext:podmanIsNotInstalled) || (!isLinux && !onboardingContext:podmanMachineExists)"
+      "enablement": "(isLinux && onboardingContext:podmanIsNotInstalled) || (!isLinux && !onboardingContext:podmanMachineExists) || podman.needPodmanMachineCleanup"
     }
   },
   "scripts": {
