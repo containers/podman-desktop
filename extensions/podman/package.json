@@ -296,7 +296,7 @@
           "content": [
             [
               {
-                "value": "Podman Machines created with podman v4 are no longer supported by podman v5"
+                "value": "Podman Machines created by Podman v4 are no longer supported by v5"
               }
             ],
             [

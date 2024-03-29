@@ -125,6 +125,20 @@ export type MachineListOutput = {
   stderr: string;
 };
 
+export function isIncompatibleMachineOutput(output: string | undefined): boolean {
+  // apple HV v4 to v5 machine config error
+  const APPLE_HV_V4_V5_ERROR = 'incompatible machine config';
+
+  // wsl v4 to v5 machine config error
+  const WSL_V4_V5_ERROR = 'cannot unmarshal string';
+
+  if (output) {
+    return output.includes(APPLE_HV_V4_V5_ERROR) || output.includes(WSL_V4_V5_ERROR);
+  } else {
+    return false;
+  }
+}
+
 export async function updateMachines(provider: extensionApi.Provider): Promise<void> {
   // init machines available
   let machineListOutput: MachineListOutput;
@@ -150,6 +164,17 @@ export async function updateMachines(provider: extensionApi.Provider): Promise<v
   if (installedPodman) {
     shouldCleanMachine = shouldNotifyQemuMachinesWithV5(installedPodman);
   }
+  // check if the machine needs to be cleaned for v4 --> v5 format
+  if (!shouldCleanMachine) {
+    shouldCleanMachine = isIncompatibleMachineOutput(machineListOutput.stderr);
+  }
+
+  // invalid machines is not making the provider working properly so always notify
+  if (shouldCleanMachine && !isLinux()) {
+    // push setup notification
+    notificationDisposable = extensionApi.window.showNotification(setupPodmanNotification);
+  }
+
   extensionApi.context.setValue(CLEANUP_REQUIRED_MACHINE_KEY, shouldCleanMachine);
 
   // Only show the notification on macOS and Windows
@@ -920,40 +945,113 @@ export function registerOnboardingUnsupportedPodmanMachineCommand(): extensionAp
       isUnsupported = shouldNotifyQemuMachinesWithV5(installedPodman);
     }
 
+    // check if the machine needs to be cleaned for v4 --> v5 format
+    if (!isUnsupported) {
+      const machineListOutput = await getJSONMachineList();
+      isUnsupported = isIncompatibleMachineOutput(machineListOutput.stderr);
+    }
+
     extensionApi.context.setValue('unsupportedPodmanMachine', isUnsupported, 'onboarding');
   });
 }
 
 export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionApi.Disposable {
   return extensionApi.commands.registerCommand('podman.onboarding.removeUnsupportedMachines', async () => {
-    // only on macOS
-    // do not check if version is v5 as it is being checked by the command that triggers this one
-    if (extensionApi.env.isMac) {
+    const fileAndFoldersToRemove = [];
+    const installedPodman = await getPodmanInstallation();
+
+    if (extensionApi.env.isMac && installedPodman?.version.startsWith('5.')) {
       // remove the qemu machines folder
       const qemuSharePath = path.resolve(os.homedir(), appHomeDir(), 'machine', 'qemu');
       const qemuConfigPath = path.resolve(os.homedir(), appConfigDir(), 'machine', 'qemu');
 
       // remove folders if exists
-      const foldersToRemove = [];
       if (fs.existsSync(qemuSharePath)) {
-        foldersToRemove.push(qemuSharePath);
+        fileAndFoldersToRemove.push(qemuSharePath);
       }
       if (fs.existsSync(qemuConfigPath)) {
-        foldersToRemove.push(qemuConfigPath);
+        fileAndFoldersToRemove.push(qemuConfigPath);
       }
 
       // prompt the user to confirm
-      const result = await extensionApi.window.showWarningMessage(
-        'Removing old unsupported Podman machines will delete all of their data. Confirm approval?',
-        'Yes',
-        'No',
-      );
-      if (result === 'No') {
-        return;
+      if (fileAndFoldersToRemove.length > 0) {
+        const result = await extensionApi.window.showWarningMessage(
+          'Removing old unsupported provider Podman machines will delete all of their data. Confirm approval?',
+          'Yes',
+          'No',
+        );
+        if (result === 'No') {
+          return;
+        }
       }
+    }
 
+    // check if unmarshalling errors
+    const machineListOutput = await getJSONMachineList();
+
+    let machineFolderToCheck: string | undefined;
+    // check invalid config files only with v5
+    if (installedPodman?.version.startsWith('5.')) {
+      if (isMac) {
+        machineFolderToCheck = path.resolve(os.homedir(), appConfigDir(), 'machine', 'applehv');
+      } else if (isWindows) {
+        machineFolderToCheck = path.resolve(os.homedir(), appConfigDir(), 'machine', 'wsl');
+      }
+    }
+
+    if (
+      machineFolderToCheck &&
+      isIncompatibleMachineOutput(machineListOutput.stderr) &&
+      fs.existsSync(machineFolderToCheck)
+    ) {
+      // check for JSON files in the folder
+      const files = await fs.promises.readdir(machineFolderToCheck);
+      const machineFilesToAnalyze = files.filter(file => file.endsWith('.json'));
+      let machineConfigJson: { Version?: string } = {};
+      const allMachines = await Promise.all(
+        machineFilesToAnalyze.map(async file => {
+          // read content of the file
+          const absoluteFile = path.join(machineFolderToCheck, file);
+          try {
+            const machineConfigJsonRaw = await fs.promises.readFile(absoluteFile, 'utf-8');
+            machineConfigJson = JSON.parse(machineConfigJsonRaw);
+          } catch (error: unknown) {
+            console.error('Error reading machine file', file, error);
+          }
+          const machineName = file.replace('.json', '');
+          return {
+            file,
+            machineName,
+            machineFile: absoluteFile,
+            json: machineConfigJson,
+          };
+        }),
+      );
+
+      const invalidMachines = allMachines.filter(machine => {
+        // check if the machine has Version field, if it doesn't, it's an invalid machine
+        return !machine.json.Version;
+      });
+
+      // prompt to remove these invalid machines
+      if (invalidMachines.length > 0) {
+        const result = await extensionApi.window.showWarningMessage(
+          `Removing old unsupported Podman machines "${invalidMachines.map(m => m.machineName).join(', ')}" will delete all of their data. Confirm approval?`,
+          'Yes',
+          'No',
+        );
+        if (result === 'No') {
+          return;
+        }
+        for (const machine of invalidMachines) {
+          fileAndFoldersToRemove.push(machine.machineFile);
+        }
+      }
+    }
+
+    if (fileAndFoldersToRemove.length > 0) {
       const errors: string[] = [];
-      for (const folder of foldersToRemove) {
+      for (const folder of fileAndFoldersToRemove) {
         try {
           await fs.promises.rm(folder, { recursive: true, retryDelay: 1000, maxRetries: 3 });
         } catch (error) {
@@ -961,6 +1059,10 @@ export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionA
           errors.push(`Unable to remove the folder ${folder}: ${String(error)}`);
         }
       }
+      shouldNotifySetup = true;
+      // notification is no more required
+      notificationDisposable?.dispose();
+
       if (errors.length > 0) {
         await extensionApi.window.showErrorMessage(`Error removing unsupported Podman machines. ${errors.join('\n')}`);
       }
