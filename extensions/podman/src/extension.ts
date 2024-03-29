@@ -940,7 +940,7 @@ export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionA
 
       // prompt the user to confirm
       const result = await extensionApi.window.showWarningMessage(
-        'Confirm removal of the unsupported qemu podman machines',
+        'Removing old unsupported Podman machines will delete all of their data. Confirm approval?',
         'Yes',
         'No',
       );

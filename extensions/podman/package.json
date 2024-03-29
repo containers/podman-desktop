@@ -288,7 +288,7 @@
         },
         {
           "id": "welcomeFixUnsupportedPodmanMachineView",
-          "title": "Unsupported podman machines detected",
+          "title": "Unsupported Podman machine detected",
           "description": "Podman Desktop will remove the unsupported machines",
           "completionEvents": [
             "onboardingContext:unsupportedMachineRemoved == ok"
@@ -296,12 +296,12 @@
           "content": [
             [
               {
-                "value": "Machines created with podman v4 are no longer supported by podman v5"
+                "value": "Podman Machines created with podman v4 are no longer supported by podman v5"
               }
             ],
             [
               {
-                "value": ":button[Remove unsupported podman machines]{command=podman.onboarding.removeUnsupportedMachines}"
+                "value": ":button[Remove unsupported Podman machine(s)]{command=podman.onboarding.removeUnsupportedMachines}"
               }
             ],
             [
