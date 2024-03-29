@@ -146,7 +146,10 @@ export async function updateMachines(provider: extensionApi.Provider): Promise<v
   extensionApi.context.setValue('podmanMachineExists', machines.length > 0, 'onboarding');
 
   const installedPodman = await getPodmanInstallation();
-  const shouldCleanMachine = shouldNotifyQemuMachinesWithV5(installedPodman);
+  let shouldCleanMachine = false;
+  if (installedPodman) {
+    shouldCleanMachine = shouldNotifyQemuMachinesWithV5(installedPodman);
+  }
   extensionApi.context.setValue(CLEANUP_REQUIRED_MACHINE_KEY, shouldCleanMachine);
 
   // Only show the notification on macOS and Windows
