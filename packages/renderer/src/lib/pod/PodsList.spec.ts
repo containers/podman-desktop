@@ -605,3 +605,21 @@ test('Expect Stopped tab to show stopped (not running) pods only', async () => {
 
   expect(get(filtered)).toEqual(expect.arrayContaining([expect.objectContaining({ Status: 'Stopped' })]));
 });
+
+test('Expect tab filtering to not duplicate filter condition in the search bar', async () => {
+  getProvidersInfoMock.mockResolvedValue([provider]);
+  listPodsMock.mockResolvedValue([stoppedPod, runningPod]);
+  kubernetesListPodsMock.mockResolvedValue([]);
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+
+  render(PodsList);
+
+  const runningTab = screen.getByRole('button', { name: 'Running' });
+  await userEvent.click(runningTab);
+  await userEvent.click(runningTab);
+  await userEvent.click(runningTab);
+
+  const searchInput = screen.getByPlaceholderText('Search pods...') as HTMLInputElement;
+  expect(searchInput.value).toBe('is:running');
+});
