@@ -252,7 +252,7 @@ const row = new Row<PodInfoUI>({ selectable: _pod => true });
         let temp = searchTerm
           .trim()
           .split(' ')
-          .filter(term => term !== 'is:stopped')
+          .filter(term => term !== 'is:stopped' && term !== 'is:running')
           .join(' ')
           .trim();
         searchTerm = temp ? `${temp} is:running` : 'is:running';
@@ -264,7 +264,7 @@ const row = new Row<PodInfoUI>({ selectable: _pod => true });
         let temp = searchTerm
           .trim()
           .split(' ')
-          .filter(term => term !== 'is:running')
+          .filter(term => term !== 'is:stopped' && term !== 'is:running')
           .join(' ')
           .trim();
         searchTerm = temp ? `${temp} is:stopped` : 'is:stopped';
