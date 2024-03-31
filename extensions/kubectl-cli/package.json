@@ -14,19 +14,19 @@
     "commands": [
       {
         "command": "kubectl.install",
-        "title": "kubectl: Install..."
+        "title": "Kubectl: Install..."
       },
       {
         "command": "kubectl.checks",
-        "title": "kubectl: Checks..."
+        "title": "Kubectl: Checks..."
       },
       {
         "command": "kubectl.onboarding.checkDownloadedCommand",
-        "title": "kubectl: Check kubectl Downloaded"
+        "title": "Kubectl: Check kubectl Downloaded"
       },
       {
         "command": "kubectl.onboarding.downloadCommand",
-        "title": "kubectl: Download kubectl"
+        "title": "Kubectl: Download kubectl"
       }
     ],
     "onboarding": {
