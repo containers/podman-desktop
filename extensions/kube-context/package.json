@@ -14,11 +14,11 @@
     "commands": [
       {
         "command": "kubecontext.switch",
-        "title": "Kube Context: switch context"
+        "title": "Kube Context: Switch context"
       },
       {
         "command": "kubecontext.quickpick",
-        "title": "Kube Context: select a context"
+        "title": "Kube Context: Select a context"
       }
     ],
     "icons": {
