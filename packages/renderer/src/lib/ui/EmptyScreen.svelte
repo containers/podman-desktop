@@ -48,7 +48,7 @@ let copyTextDivElement: HTMLDivElement;
       {/if}
     </div>
     <h1 class="text-xl">{title}</h1>
-    <span class="text-gray-700">{message}</span>
+    <span class="text-gray-700 max-w-[800px] text-pretty mx-2">{message}</span>
     {#if detail}
       <span class="text-gray-700">{detail}</span>
     {/if}
