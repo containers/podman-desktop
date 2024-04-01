@@ -89,6 +89,11 @@ test('Expect import button to be enabled when atleast one container image is sel
   const btnImportContainer = screen.getByRole('button', { name: 'Import containers' });
   expect(btnImportContainer).toBeInTheDocument();
   expect(btnImportContainer).toBeEnabled();
+
+  expect(openDialogMock).toBeCalledWith({
+    selectors: ['multiSelections', 'openFile'],
+    title: 'Select Containers Images to import',
+  });
 });
 
 test('Expect import button to be enabled when atleast one container image is selected but there is no provider', async () => {

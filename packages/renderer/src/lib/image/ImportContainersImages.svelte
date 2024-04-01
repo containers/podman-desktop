@@ -39,7 +39,7 @@ onMount(async () => {
 async function addContainersToImport() {
   const images = await window.openDialog({
     title: 'Select Containers Images to import',
-    selectors: ['multiSelections'],
+    selectors: ['multiSelections', 'openFile'],
   });
 
   if (!images) {
