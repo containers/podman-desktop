@@ -39,7 +39,7 @@ onMount(async () => {
 async function addArchivesToLoad() {
   const archives = await window.openDialog({
     title: 'Select Tar Archive(s) containing Image(s) to load',
-    selectors: ['multiSelections'],
+    selectors: ['multiSelections', 'openFile'],
   });
 
   if (!archives) {

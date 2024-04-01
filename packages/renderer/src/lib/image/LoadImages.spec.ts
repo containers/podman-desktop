@@ -89,6 +89,11 @@ test('Expect loadImage button to be enabled when atleast one archive is selected
   const btnLoadImages = screen.getByRole('button', { name: 'Load images' });
   expect(btnLoadImages).toBeInTheDocument();
   expect(btnLoadImages).toBeEnabled();
+
+  expect(openDialogMock).toBeCalledWith({
+    selectors: ['multiSelections', 'openFile'],
+    title: 'Select Tar Archive(s) containing Image(s) to load',
+  });
 });
 
 test('Expect loadImage button to be disabled when atleast one archive is selected but there is no provider', async () => {
