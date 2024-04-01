@@ -152,11 +152,13 @@ async function saveImages() {
             <div class="flex flex-col grow">Images to save</div>
           </div>
           {#each imagesToSave as imageToSave, index}
+            {@const imageAndTag = `${imageToSave.name}:${imageToSave.tag}`}
+            {@const imageDisplayName = `${imageToSave.name === '<none>' ? imageToSave.shortId : imageAndTag}`}
             <div class="flex flex-row justify-center w-full py-1">
-              <Input bind:value="{imageToSave.name}" aria-label="container image path" readonly="{true}" />
+              <Input value="{imageDisplayName}" aria-label="image {imageDisplayName}" readonly="{true}" />
               <Button
                 type="link"
-                aria-label="Delete image"
+                aria-label="Delete image {imageDisplayName}"
                 on:click="{() => deleteImageToSave(index)}"
                 icon="{faMinusCircle}" />
             </div>
