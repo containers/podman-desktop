@@ -2235,10 +2235,10 @@
     fs-extra "^11.1.1"
     tslib "^2.6.0"
 
-"@docusaurus/tsconfig@^3.1.1":
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/@docusaurus/tsconfig/-/tsconfig-3.1.1.tgz#ee2297ea94f4059b69f4b9bff238c212eede65e9"
-  integrity sha512-FTBuY3KvaHfMVBgvlPmDQ+KS9Q/bYtVftq2ugou3PgBDJoQmw2aUZ4Sg15HKqLGbfIkxoy9t6cqE4Yw1Ta8Q1A==
+"@docusaurus/tsconfig@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@docusaurus/tsconfig/-/tsconfig-3.2.0.tgz#19160b8beda905bcf26a56d786608cc9dc3900e8"
+  integrity sha512-gWGa/72TYRxSRRxGFU2G6Au0yif6zmbkAgzW3+SeXAxoq1a7OLytMLGEwaHjMoIRXl7WbThnpx4gZVwo0xRRAg==
 
 "@docusaurus/types@3.1.1":
   version "3.1.1"
