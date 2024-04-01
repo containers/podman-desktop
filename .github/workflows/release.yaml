@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2022 Red Hat, Inc.
+# Copyright (C) 2022-2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -241,6 +241,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
+
+      - uses: actions/cache@v4
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Execute yarn
+        run: yarn --frozen-lockfile --network-timeout 180000
+
       - name: Set-up npmjs auth token
         run: printf "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}\n" >> ~/.npmrc
 
@@ -249,3 +265,15 @@ jobs:
           echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" packages/extension-api/package.json
           cd packages/extension-api && yarn publish --tag latest --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
+
+      - name: Publish ui/svelte to npmjs
+        run: |
+          echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
+          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" packages/ui/package.json
+          cd packages/ui && yarn build && yarn publish --tag next --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
+
+      - name: Publish tests-playwright to npmjs
+        run: |
+          echo "Using version ${{ needs.tag.outputs.desktopVersion }}"
+          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ needs.tag.outputs.desktopVersion }}\",#g" tests/playwright/package.json
+          cd tests/playwright && yarn build && yarn publish --tag next --no-git-tag-version --new-version "${{ needs.tag.outputs.desktopVersion }}" --access public
