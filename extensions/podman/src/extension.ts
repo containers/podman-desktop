@@ -973,6 +973,7 @@ export function registerOnboardingUnsupportedPodmanMachineCommand(): extensionAp
 export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionApi.Disposable {
   return extensionApi.commands.registerCommand('podman.onboarding.removeUnsupportedMachines', async () => {
     const fileAndFoldersToRemove = [];
+
     const installedPodman = await getPodmanInstallation();
 
     if (extensionApi.env.isMac && installedPodman?.version.startsWith('5.')) {
@@ -1002,7 +1003,13 @@ export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionA
     }
 
     // check if unmarshalling errors
-    const machineListOutput = await getJSONMachineList();
+    let machineListError = '';
+    try {
+      const machineListOutput = await getJSONMachineList();
+      machineListError = machineListOutput.stderr;
+    } catch (error) {
+      machineListError = error.stderr;
+    }
 
     let machineFolderToCheck: string | undefined;
     // check invalid config files only with v5
@@ -1014,11 +1021,7 @@ export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionA
       }
     }
 
-    if (
-      machineFolderToCheck &&
-      isIncompatibleMachineOutput(machineListOutput.stderr) &&
-      fs.existsSync(machineFolderToCheck)
-    ) {
+    if (machineFolderToCheck && isIncompatibleMachineOutput(machineListError) && fs.existsSync(machineFolderToCheck)) {
       // check for JSON files in the folder
       const files = await fs.promises.readdir(machineFolderToCheck);
       const machineFilesToAnalyze = files.filter(file => file.endsWith('.json'));
