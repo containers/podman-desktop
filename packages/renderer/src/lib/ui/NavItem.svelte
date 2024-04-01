@@ -2,6 +2,7 @@
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
 import { getContext, onDestroy, onMount } from 'svelte';
+import type { MouseEventHandler } from 'svelte/elements';
 import type { Writable } from 'svelte/store';
 import type { TinroRouteMeta } from 'tinro';
 
@@ -12,7 +13,7 @@ export let href: string;
 export let tooltip: string;
 export let ariaLabel: string | undefined = undefined;
 export let meta: TinroRouteMeta;
-export let onClick: any = undefined;
+export let onClick: MouseEventHandler<HTMLAnchorElement> | undefined;
 
 let inSection: boolean = false;
 let uri = encodeURI(href);
