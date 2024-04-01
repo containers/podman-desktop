@@ -298,14 +298,14 @@ const row = new Row<ImageInfoUI>({
     {/if}
     <Button
       on:click="{() => loadImages()}"
-      title="Load image(s) from tar archive(s)"
+      title="Load Images From Tar Archives"
       icon="{faUpload}"
       aria-label="Load Images">
       Load
     </Button>
     <Button
       on:click="{() => importImage()}"
-      title="Import Image From Filesystem"
+      title="Import Containers From Filesystem"
       icon="{faArrowCircleDown}"
       aria-label="Import Image">
       Import
@@ -313,7 +313,7 @@ const row = new Row<ImageInfoUI>({
     <Button on:click="{() => gotoPullImage()}" title="Pull Image From a Registry" icon="{faArrowCircleDown}">
       Pull
     </Button>
-    <Button on:click="{() => gotoBuildImage()}" title="Build Image from Containerfile" icon="{faCube}">Build</Button>
+    <Button on:click="{() => gotoBuildImage()}" title="Build Image From Containerfile" icon="{faCube}">Build</Button>
   </svelte:fragment>
 
   <svelte:fragment slot="bottom-additional-actions">
