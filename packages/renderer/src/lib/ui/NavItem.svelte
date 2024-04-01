@@ -13,7 +13,7 @@ export let href: string;
 export let tooltip: string;
 export let ariaLabel: string | undefined = undefined;
 export let meta: TinroRouteMeta;
-export let onClick: MouseEventHandler<HTMLAnchorElement> | undefined;
+export let onClick: MouseEventHandler<HTMLAnchorElement> | undefined = undefined;
 
 let inSection: boolean = false;
 let uri = encodeURI(href);
