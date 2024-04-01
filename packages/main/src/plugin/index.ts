@@ -1464,9 +1464,13 @@ export class PluginSystem {
     this.ipcHandle(
       'authentication-provider-registry:requestAuthenticationProviderSignIn',
       async (_listener, requestId: string): Promise<void> => {
-        return authentication.executeSessionRequest(requestId);
+        await authentication.executeSessionRequest(requestId);
       },
     );
+
+    this.ipcHandle('authentication:showAccountsMenu', async (_listener, x: number, y: number): Promise<void> => {
+      return authentication.showAccountsMenu(x, y);
+    });
 
     this.ipcHandle(
       'configuration-registry:getConfigurationProperties',

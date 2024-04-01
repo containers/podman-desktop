@@ -1,6 +1,8 @@
 <script lang="ts">
+import { faCircleUser } from '@fortawesome/free-regular-svg-icons';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
+import Fa from 'svelte-fa';
 import type { TinroRouteMeta } from 'tinro';
 
 import Webviews from '/@/lib/webview/Webviews.svelte';
@@ -222,6 +224,17 @@ export let meta: TinroRouteMeta;
   {/if}
 
   <div class="grow"></div>
+
+  <NavItem
+    href="/accounts"
+    tooltip="Accounts"
+    bind:meta="{meta}"
+    onClick="{event => {
+      console.log(event.currentTarget);
+      window.showAccountsMenu(event.x, event.y);
+    }}">
+    <Fa class="ml-[-3px] h-8 w-8 fa-light" icon="{faCircleUser}" size="lg" style="fa-light" />
+  </NavItem>
 
   <NavItem
     href="/preferences"

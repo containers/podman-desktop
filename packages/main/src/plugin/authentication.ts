@@ -27,6 +27,9 @@ import type {
   Event,
   ProviderImages,
 } from '@podman-desktop/api';
+import type { MenuItemConstructorOptions } from 'electron';
+import { BrowserWindow, Menu } from 'electron';
+import type { MenuItem } from 'electron/main';
 
 import type { ApiSenderType } from './api.js';
 import { Emitter } from './events/emitter.js';
@@ -63,7 +66,7 @@ export interface AllowedExtension {
 }
 
 export interface SessionRequest {
-  [scopes: string]: string[]; // maps sting with scopes to provider ids
+  [scopes: string]: string[]; // maps string with scopes to extension id's
 }
 
 export interface SessionRequestInfo {
@@ -75,6 +78,64 @@ export interface SessionRequestInfo {
 }
 
 export class AuthenticationImpl {
+  async showAccountsMenu(x: number, y: number): Promise<void> {
+    const template: (MenuItemConstructorOptions | MenuItem)[] = [
+      {
+        label: 'Manage authentication',
+        click: (): void => {
+          this.apiSender.send('navigate', {
+            page: 'authentication-providers',
+          });
+        },
+      },
+      {
+        type: 'separator',
+      } as MenuItem,
+    ];
+
+    this.getSessionRequests().forEach(request => {
+      const provider = this._authenticationProviders.get(request.providerId);
+      if (!provider) return;
+      const providerLabel = provider.label ? provider.label : provider.id;
+      template.push({
+        label: `Sign in with ${providerLabel} to use ${request.extensionLabel}`,
+        click: () => {
+          void this.executeSessionRequest(request.id);
+        },
+      });
+    });
+
+    const providers = Array.from(this._authenticationProviders.values());
+
+    const menuItemPromises = providers.map(meta =>
+      meta.provider.getSessions().then(sessions => {
+        sessions.forEach(session => {
+          template.push({
+            label: `${session.account.label} (${meta.label})`,
+            submenu: [
+              {
+                label: 'Sign out',
+                click: (): void => {
+                  void this.signOut(meta.id, session.id);
+                },
+              },
+            ],
+          });
+        });
+      }),
+    );
+
+    await Promise.all(menuItemPromises);
+
+    const menu = Menu.buildFromTemplate(template);
+    const zf = BrowserWindow.getFocusedWindow()?.webContents.getZoomFactor();
+    const zoomFactor = zf ? zf : 1;
+    menu.popup({
+      x: Math.round(x * zoomFactor),
+      y: Math.round(y * zoomFactor),
+    });
+  }
+
   private _authenticationProviders: Map<string, ProviderWithMetadata> = new Map<string, ProviderWithMetadata>();
   // map of scopes to extension ids
   private _signInRequests: Map<string, SessionRequest> = new Map();
@@ -258,7 +319,11 @@ export class AuthenticationImpl {
       throw new Error(`Requested authentication provider '${data.providerId}' is not installed.`);
     }
 
-    await provider.createSession(data.scopes);
+    const session = await provider.createSession(data.scopes);
+    if (session) {
+      this._signInRequestsData.delete(id);
+      this._signInRequests.delete(data.providerId);
+    }
   }
 
   async removeSession(providerId: string, sessionId: string): Promise<void> {
