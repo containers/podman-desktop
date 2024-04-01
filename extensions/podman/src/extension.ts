@@ -973,6 +973,7 @@ export function registerOnboardingUnsupportedPodmanMachineCommand(): extensionAp
 export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionApi.Disposable {
   return extensionApi.commands.registerCommand('podman.onboarding.removeUnsupportedMachines', async () => {
     const fileAndFoldersToRemove = [];
+    const wslMachinesToUnregister = [];
 
     const installedPodman = await getPodmanInstallation();
 
@@ -1014,9 +1015,9 @@ export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionA
     let machineFolderToCheck: string | undefined;
     // check invalid config files only with v5
     if (installedPodman?.version.startsWith('5.')) {
-      if (isMac) {
+      if (isMac()) {
         machineFolderToCheck = path.resolve(os.homedir(), appConfigDir(), 'machine', 'applehv');
-      } else if (isWindows) {
+      } else if (isWindows()) {
         machineFolderToCheck = path.resolve(os.homedir(), appConfigDir(), 'machine', 'wsl');
       }
     }
@@ -1063,12 +1064,16 @@ export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionA
         }
         for (const machine of invalidMachines) {
           fileAndFoldersToRemove.push(machine.machineFile);
+          if (machine.machineFile.includes('wsl') && isWindows()) {
+            wslMachinesToUnregister.push(machine.machineName);
+          }
         }
       }
     }
 
+    const errors: string[] = [];
+
     if (fileAndFoldersToRemove.length > 0) {
-      const errors: string[] = [];
       for (const folder of fileAndFoldersToRemove) {
         try {
           await fs.promises.rm(folder, { recursive: true, retryDelay: 1000, maxRetries: 3 });
@@ -1077,13 +1082,22 @@ export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionA
           errors.push(`Unable to remove the folder ${folder}: ${String(error)}`);
         }
       }
+
       shouldNotifySetup = true;
       // notification is no more required
       notificationDisposable?.dispose();
+    }
 
-      if (errors.length > 0) {
-        await extensionApi.window.showErrorMessage(`Error removing unsupported Podman machines. ${errors.join('\n')}`);
+    for (const wslMachineName of wslMachinesToUnregister) {
+      try {
+        await extensionApi.process.exec('wsl', ['--unregister', wslMachineName]);
+      } catch (error) {
+        console.error('Error removing WSL machine', wslMachineName, error);
+        errors.push(`Unable to remove the WSL machine ${wslMachineName}: ${String(error)}`);
       }
+    }
+    if (errors.length > 0) {
+      await extensionApi.window.showErrorMessage(`Error removing unsupported Podman machines. ${errors.join('\n')}`);
     }
 
     extensionApi.context.setValue('unsupportedMachineRemoved', 'ok', 'onboarding');

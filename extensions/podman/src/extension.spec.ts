@@ -1308,6 +1308,7 @@ describe('initCheckAndRegisterUpdate', () => {
 
 describe('registerOnboardingMachineExistsCommand', () => {
   test('check with error when calling podman machine ls command', async () => {
+    vi.mocked(isMac).mockReturnValue(true);
     vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
 
     vi.mocked(extensionApi.process.exec).mockRejectedValue(new Error('error'));
@@ -1333,6 +1334,8 @@ describe('registerOnboardingMachineExistsCommand', () => {
   });
 
   test('check with 2 machines', async () => {
+    vi.mocked(isMac).mockReturnValue(true);
+
     vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
 
     // return 2 empty machines
@@ -1359,6 +1362,8 @@ describe('registerOnboardingMachineExistsCommand', () => {
   });
 
   test('check with 0 machine', async () => {
+    vi.mocked(isMac).mockReturnValue(true);
+
     vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
 
     // return empty machine array
@@ -1387,6 +1392,8 @@ describe('registerOnboardingMachineExistsCommand', () => {
 
 describe('registerOnboardingUnsupportedPodmanMachineCommand', () => {
   test('check with v5 and previous qemu folders', async () => {
+    vi.mocked(isMac).mockReturnValue(true);
+
     vi.mocked(fs.existsSync).mockReturnValue(true);
 
     vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
@@ -1421,6 +1428,8 @@ describe('registerOnboardingUnsupportedPodmanMachineCommand', () => {
   });
 
   test('check with v5 and no previous qemu folders', async () => {
+    vi.mocked(isMac).mockReturnValue(true);
+
     // no qemu folders
     vi.mocked(fs.existsSync).mockReturnValue(false);
 
@@ -1457,6 +1466,8 @@ describe('registerOnboardingUnsupportedPodmanMachineCommand', () => {
   });
 
   test('check with v4 and qemu folders', async () => {
+    vi.mocked(isMac).mockReturnValue(true);
+
     vi.mocked(fs.existsSync).mockReturnValue(true);
 
     vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
@@ -1491,6 +1502,8 @@ describe('registerOnboardingUnsupportedPodmanMachineCommand', () => {
   });
 
   test('check with v5 and error in JSON of machines', async () => {
+    vi.mocked(isMac).mockReturnValue(true);
+
     // no qemu folders
     vi.mocked(fs.existsSync).mockReturnValue(false);
 
@@ -1529,6 +1542,8 @@ describe('registerOnboardingUnsupportedPodmanMachineCommand', () => {
 
 describe('registerOnboardingRemoveUnsupportedMachinesCommand', () => {
   test('check with previous qemu folders', async () => {
+    vi.mocked(isMac).mockReturnValue(true);
+
     vi.mocked(fs.existsSync).mockReturnValue(true);
 
     // mock confirmation window message to true
@@ -1572,6 +1587,8 @@ describe('registerOnboardingRemoveUnsupportedMachinesCommand', () => {
   });
 
   test('check with previous podman v4 config files', async () => {
+    vi.mocked(isMac).mockReturnValue(true);
+
     // mock confirmation window message to true
     vi.mocked(extensionApi.window.showWarningMessage).mockResolvedValue('Yes');
 
