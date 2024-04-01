@@ -34,14 +34,16 @@ import SaveImages from './SaveImages.svelte';
 const imageInfo: ImageInfoUI = {
   id: 'id',
   shortId: 'id',
-  name: 'image 1',
+  name: '<none>',
+  tag: '',
   engineId: 'engine',
 } as ImageInfoUI;
 
 const imageInfo2: ImageInfoUI = {
   id: 'id2',
   shortId: 'id2',
-  name: 'image 2',
+  name: '<none>',
+  tag: '',
   engineId: 'engine',
 } as ImageInfoUI;
 
@@ -86,17 +88,18 @@ test('Expect deleteImage is not visible if page has been opened with one item', 
 test('Expect deleteImage is visible if page has been opened with multiple item', async () => {
   saveImagesInfo.set([imageInfo, imageInfo2]);
   await waitRender();
+  const itemBeforeDelete1 = screen.getByRole('textbox', { name: 'image id' });
+  expect(itemBeforeDelete1).toBeInTheDocument();
+  const itemBeforeDelete2 = screen.getByRole('textbox', { name: 'image id2' });
+  expect(itemBeforeDelete2).toBeInTheDocument();
 
-  const itemBeforeDelete = screen.getAllByLabelText('container image path');
-  expect(itemBeforeDelete.length).equal(2);
+  const deleteButtonImage1 = screen.getByRole('button', { name: 'Delete image id' });
 
-  const deleteButtons = screen.getAllByLabelText('Delete image');
-
-  await userEvent.click(deleteButtons[0]);
-
-  const itemAfterDelete = screen.getAllByLabelText('container image path');
-  expect(itemAfterDelete.length).equal(1);
-  expect(itemAfterDelete.length).toBeLessThan(itemBeforeDelete.length);
+  await userEvent.click(deleteButtonImage1);
+  const afterDeletionImage1 = screen.queryByRole('textbox', { name: 'image id' });
+  expect(afterDeletionImage1).not.toBeInTheDocument();
+  const afterDeletionImage2 = screen.getByRole('textbox', { name: 'image id2' });
+  expect(afterDeletionImage2).toBeInTheDocument();
 });
 
 test('Expect save button to be enabled if output target is selected and saveImages function called', async () => {
@@ -167,4 +170,40 @@ test('Expect error message dispayed if saveImages fails', async () => {
   expect(goToMock).not.toBeCalled();
   expect(errorDiv).toBeInTheDocument();
   expect((errorDiv as HTMLDivElement).innerHTML).toContain('error while saving');
+});
+
+test('Expect display correctly images to save', async () => {
+  saveImagesInfo.set([
+    {
+      id: 'id1',
+      shortId: 'id1',
+      name: '<none>',
+      tag: '',
+      engineId: 'engine',
+    },
+    {
+      id: 'httpdid2',
+      shortId: 'httpdid2',
+      name: 'httpd',
+      tag: 'latest',
+      engineId: 'engine',
+    },
+    {
+      id: 'httpdid3',
+      shortId: 'httpdid3',
+      name: 'httpd',
+      tag: '1.2.3',
+      engineId: 'engine',
+    },
+  ] as ImageInfoUI[]);
+  await waitRender();
+
+  // now expect to see the images with the correct names
+  // grap all input fields
+  const noImageName = screen.getByRole('textbox', { name: 'image id1' });
+  expect(noImageName).toBeInTheDocument();
+  const inputHttpdWithCustomTag = screen.getByRole('textbox', { name: 'image httpd:1.2.3' });
+  expect(inputHttpdWithCustomTag).toBeInTheDocument();
+  const inputHttpdWithDefaultTag = screen.getByRole('textbox', { name: 'image httpd:latest' });
+  expect(inputHttpdWithDefaultTag).toBeInTheDocument();
 });
