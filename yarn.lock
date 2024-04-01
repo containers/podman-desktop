@@ -7428,10 +7428,10 @@ ejs@^3.1.7:
   dependencies:
     jake "^10.8.5"
 
-electron-builder-notarize@^1.5.1:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/electron-builder-notarize/-/electron-builder-notarize-1.5.1.tgz#e00b868a67ef20a77f00017606626f24fdbdc445"
-  integrity sha512-xS7s9gE+1AcJIuJ4DU/LqCrmRypE1zOR/6b66egKzgP/UVh9YSa7rINos34gF/KcueNDQU39HcXcCEKiEI5wPQ==
+electron-builder-notarize@^1.5.2:
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/electron-builder-notarize/-/electron-builder-notarize-1.5.2.tgz#540185b57a336fc6eec01bfe092a3b4764459255"
+  integrity sha512-vo6RGgIFYxMk2yp59N4NsvmAYfB7ncYi6gV9Fcq2TVKxEn2tPXrSjIKB2e/pu+5iXIY6BHNZNXa75F3DHgOOLA==
   dependencies:
     dotenv "^8.2.0"
     electron-notarize "^1.1.1"
