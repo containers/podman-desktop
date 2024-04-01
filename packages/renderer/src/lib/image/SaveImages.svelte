@@ -104,8 +104,13 @@ async function saveImages() {
   try {
     await window.saveImages({
       images: imagesToSave.map(img => {
+        // do we have a valid name for the image?
+        let imageId = `${img.name}:${img.tag}`;
+        if (imageId.startsWith('<none>')) {
+          imageId = img.shortId;
+        }
         return {
-          id: img.shortId,
+          id: imageId,
           engineId: img.engineId,
         };
       }),

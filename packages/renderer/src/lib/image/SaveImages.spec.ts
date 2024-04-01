@@ -137,6 +137,71 @@ test('Expect save button to be enabled if output target is selected and saveImag
   expect(goToMock).toBeCalledWith('/images/');
 });
 
+test('Expect saveImages function called with tagged images', async () => {
+  saveDialogMock.mockResolvedValue({ scheme: 'file', path: '/tmp/my/path' } as Uri);
+  saveImagesMock.mockResolvedValue('');
+  const goToMock = vi.spyOn(router, 'goto');
+
+  // default tag (latest)
+  const imageInfo1: ImageInfoUI = {
+    id: 'id1',
+    shortId: 'id1',
+    tag: 'latest',
+    name: 'quay.io/podman/hello',
+    engineId: 'engine',
+  } as ImageInfoUI;
+
+  // no tag
+  const imageInfo2: ImageInfoUI = {
+    id: 'id2',
+    shortId: 'id2',
+    tag: 'latest',
+    name: '<none>',
+    engineId: 'engine',
+  } as ImageInfoUI;
+  // custom tag (not latest)
+  const imageInfo3: ImageInfoUI = {
+    id: 'id1',
+    shortId: 'id1',
+    tag: '123',
+    name: 'quay.io/podman/hello',
+    engineId: 'engine',
+  } as ImageInfoUI;
+
+  saveImagesInfo.set([imageInfo1, imageInfo2, imageInfo3]);
+  await waitRender();
+
+  const selectOutputPathButton = screen.getByRole('button', { name: 'Select output folder' });
+  expect(selectOutputPathButton).toBeInTheDocument();
+
+  await userEvent.click(selectOutputPathButton);
+
+  const saveButton = screen.getByRole('button', { name: 'Save images' });
+  expect(saveButton).toBeInTheDocument();
+  expect(saveButton).toBeEnabled();
+
+  await userEvent.click(saveButton);
+
+  expect(saveImagesMock).toBeCalledWith({
+    images: [
+      {
+        id: 'quay.io/podman/hello:latest',
+        engineId: 'engine',
+      },
+      {
+        id: 'id2',
+        engineId: 'engine',
+      },
+      {
+        id: 'quay.io/podman/hello:123',
+        engineId: 'engine',
+      },
+    ],
+    outputTarget: '/tmp/my/path',
+  });
+  expect(goToMock).toBeCalledWith('/images/');
+});
+
 test('Expect error message dispayed if saveImages fails', async () => {
   saveDialogMock.mockResolvedValue({ scheme: 'file', path: '/tmp/my/path' } as Uri);
   saveImagesMock.mockRejectedValue('error while saving');
