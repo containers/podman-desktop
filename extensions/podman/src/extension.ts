@@ -154,7 +154,7 @@ export async function updateMachines(provider: extensionApi.Provider): Promise<v
 
     // Only on macOS and Windows should we show the setup notification
     // if for some reason doing getJSONMachineList fails..
-    if ((shouldNotifySetup || shouldCleanMachine) && !isLinux()) {
+    if (shouldNotifySetup && !isLinux()) {
       // push setup notification
       notificationDisposable = extensionApi.window.showNotification(setupPodmanNotification);
       shouldNotifySetup = false;
@@ -177,9 +177,10 @@ export async function updateMachines(provider: extensionApi.Provider): Promise<v
   }
 
   // invalid machines is not making the provider working properly so always notify
-  if (shouldCleanMachine && !isLinux()) {
+  if (shouldCleanMachine && shouldNotifySetup && !isLinux()) {
     // push setup notification
     notificationDisposable = extensionApi.window.showNotification(setupPodmanNotification);
+    shouldCleanMachine = false;
   }
 
   extensionApi.context.setValue(CLEANUP_REQUIRED_MACHINE_KEY, shouldCleanMachine);
@@ -1770,6 +1771,10 @@ export async function createMachine(
   shouldNotifySetup = true;
   // notification is no more required
   notificationDisposable?.dispose();
+}
+
+export function resetShouldNotifySetup(): void {
+  shouldNotifySetup = true;
 }
 
 function setupDisguisedPodmanSocketWatcher(

@@ -142,7 +142,8 @@ beforeEach(() => {
       VMType: 'wsl',
     },
   };
-
+  vi.resetAllMocks();
+  extension.resetShouldNotifySetup();
   (extensionApi.env.createTelemetryLogger as Mock).mockReturnValue(telemetryLogger);
 
   extension.initTelemetryLogger();
@@ -1527,10 +1528,6 @@ describe('registerOnboardingUnsupportedPodmanMachineCommand', () => {
 });
 
 describe('registerOnboardingRemoveUnsupportedMachinesCommand', () => {
-  beforeEach(() => {
-    vi.resetAllMocks();
-  });
-
   test('check with previous qemu folders', async () => {
     vi.mocked(fs.existsSync).mockReturnValue(true);
 
