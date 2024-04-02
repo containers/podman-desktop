@@ -921,6 +921,35 @@ test('ensure started machine reports default configuration', async () => {
   expect(config.update).toBeCalledWith('machine.diskSizeUsage', 0);
 });
 
+test('ensure stopped machine reports stopped provider', async () => {
+  extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
+  vi.mocked(isLinux).mockReturnValue(false);
+  vi.mocked(isMac).mockReturnValue(true);
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+    (_command, args) =>
+      new Promise<extensionApi.RunResult>(resolve => {
+        if (args[0] === 'machine' && args[1] === 'list') {
+          const fakeStoppedMachine = JSON.parse(JSON.stringify(fakeMachineJSON[0]));
+          fakeStoppedMachine.Running = false;
+
+          resolve({ stdout: JSON.stringify([fakeStoppedMachine]) } as extensionApi.RunResult);
+        } else if (args[0] === 'machine' && args[1] === 'inspect') {
+          resolve({} as extensionApi.RunResult);
+        } else if (args[0] === 'system' && args[1] === 'connection' && args[2] === 'list') {
+          resolve({
+            stdout: JSON.stringify([{ Name: fakeMachineJSON[0].Name, Default: true }]),
+          } as extensionApi.RunResult);
+        } else if (args[0] === '--version') {
+          resolve({ stdout: 'podman version 4.9.0' } as extensionApi.RunResult);
+        }
+      }),
+  );
+
+  await extension.updateMachines(provider);
+
+  expect(provider.updateStatus).toBeCalledWith('configured');
+});
+
 test('ensure started machine reports configuration', async () => {
   extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(

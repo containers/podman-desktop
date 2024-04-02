@@ -315,9 +315,11 @@ export async function updateMachines(provider: extensionApi.Provider): Promise<v
   // we will update the provider as being 'installed', or ready / starting / configured if there is a machine
   // if we are on Linux, ignore this as podman machine is OPTIONAL and the provider status in Linux is based upon
   // the native podman installation / not machine.
-  if (!isLinux() && machines.length === 0) {
-    if (provider.status !== 'configuring') {
-      provider.updateStatus('installed');
+  if (!isLinux()) {
+    if (machines.length === 0) {
+      if (provider.status !== 'configuring') {
+        provider.updateStatus('installed');
+      }
     } else {
       const atLeastOneMachineRunning = machines.some(machine => machine.Running);
       const atLeastOneMachineStarting = machines.some(machine => machine.Starting);
@@ -332,13 +334,13 @@ export async function updateMachines(provider: extensionApi.Provider): Promise<v
         provider.updateStatus('configured');
       }
     }
-  }
 
-  // Finally, we check to see if the machine that is running is set by default or not on the CLI
-  // this will create a dialog that will ask the user if they wish to set the running machine as default.
-  // this should only run if we have multiple machines
-  if (machines.length > 1) {
-    await checkDefaultMachine(machines);
+    // Finally, we check to see if the machine that is running is set by default or not on the CLI
+    // this will create a dialog that will ask the user if they wish to set the running machine as default.
+    // this should only run if we have multiple machines
+    if (machines.length > 1) {
+      await checkDefaultMachine(machines);
+    }
   }
 }
 
