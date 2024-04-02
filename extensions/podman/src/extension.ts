@@ -1053,7 +1053,6 @@ export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionA
         return !machine.json.GvProxy;
       });
 
-      console.log('invalid machines are', invalidMachines);
       // prompt to remove these invalid machines
       if (invalidMachines.length > 0) {
         const result = await extensionApi.window.showWarningMessage(
