@@ -36,7 +36,7 @@ import * as extension from './extension';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanCli } from './podman-cli';
 import { PodmanInstall } from './podman-install';
-import { isLinux, isMac, LoggerDelegator } from './util';
+import { isLinux, isMac, isWindows, LoggerDelegator } from './util';
 
 const config: Configuration = {
   get: () => {
@@ -1666,6 +1666,54 @@ describe('registerOnboardingRemoveUnsupportedMachinesCommand', () => {
     });
 
     // check called with true as there are qemu folders
+    expect(extensionApi.context.setValue).toBeCalledWith('unsupportedMachineRemoved', 'ok', 'onboarding');
+  });
+
+  test('check with previous podman v4 config files on Windows', async () => {
+    vi.mocked(isWindows).mockReturnValue(true);
+    vi.mocked(isMac).mockReturnValue(false);
+
+    // mock confirmation window message to true
+    vi.mocked(extensionApi.window.showWarningMessage).mockResolvedValue('Yes');
+
+    vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
+
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: 'podman version 5.0.0',
+    } as unknown as extensionApi.RunResult);
+    // two times false (no qemu folders)
+    vi.mocked(fs.existsSync).mockReturnValueOnce(false);
+    vi.mocked(fs.existsSync).mockReturnValueOnce(false);
+
+    // return an error when trying to list output
+    vi.mocked(fs.existsSync).mockReturnValueOnce(true);
+    vi.mocked(extensionApi.process.exec).mockRejectedValueOnce({
+      stdout: '[]',
+      stderr: 'cannot unmarshal string',
+    } as unknown as extensionApi.RunResult);
+
+    vi.mocked(fs.promises.readdir).mockResolvedValue([
+      'foo.json',
+      'podman-machine-default.json',
+    ] as unknown as fs.Dirent[]);
+
+    // mock readfile
+    vi.mocked(fs.promises.readFile).mockResolvedValueOnce('{"Driver": "podman"}');
+
+    // perform the call
+    extension.registerOnboardingRemoveUnsupportedMachinesCommand();
+
+    const func = vi.mocked(extensionApi.commands.registerCommand).mock.calls[0][1];
+    // call the function
+    await func();
+
+    // check that we called wsl --terminate and wsl --unregister
+    expect(extensionApi.process.exec).toBeCalledWith('wsl', ['--terminate', 'podman-foo']);
+    expect(extensionApi.process.exec).toBeCalledWith('wsl', ['--unregister', 'podman-foo']);
+    expect(extensionApi.process.exec).toBeCalledWith('wsl', ['--terminate', 'podman-machine-default']);
+    expect(extensionApi.process.exec).toBeCalledWith('wsl', ['--unregister', 'podman-machine-default']);
+
+    // check called with true
     expect(extensionApi.context.setValue).toBeCalledWith('unsupportedMachineRemoved', 'ok', 'onboarding');
   });
 });
