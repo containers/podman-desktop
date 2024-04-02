@@ -142,7 +142,8 @@ beforeEach(() => {
       VMType: 'wsl',
     },
   };
-
+  vi.resetAllMocks();
+  extension.resetShouldNotifySetup();
   (extensionApi.env.createTelemetryLogger as Mock).mockReturnValue(telemetryLogger);
 
   extension.initTelemetryLogger();
@@ -259,7 +260,7 @@ vi.mock('./util', async () => {
 });
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
   console.error = consoleErrorMock;
 });
 
@@ -1136,11 +1137,19 @@ test('if there are no machines, make sure checkDefaultMachine is not being ran i
   expect(spyCheckDefaultMachine).not.toBeCalled();
 });
 
-describe('initCheckAndRegisterUpdate', () => {
-  beforeEach(() => {
-    vi.resetAllMocks();
+test('Should notify clean machine if getJSONMachineList is erroring due to an invalid format on mac', async () => {
+  vi.mocked(isMac).mockReturnValue(true);
+  vi.spyOn(extensionApi.process, 'exec').mockRejectedValue({
+    name: 'name',
+    message: 'description',
+    stderr: 'cannot unmarshal string',
   });
+  await expect(extension.updateMachines(provider)).rejects.toThrow('description');
+  expect(extensionApi.window.showNotification).toBeCalled();
+  expect(extensionApi.context.setValue).toBeCalledWith(extension.CLEANUP_REQUIRED_MACHINE_KEY, true);
+});
 
+describe('initCheckAndRegisterUpdate', () => {
   test('check there is an update', async () => {
     const podmanInstall = {
       checkForUpdate: vi.fn(),
@@ -1299,6 +1308,7 @@ describe('initCheckAndRegisterUpdate', () => {
 
 describe('registerOnboardingMachineExistsCommand', () => {
   test('check with error when calling podman machine ls command', async () => {
+    vi.mocked(isMac).mockReturnValue(true);
     vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
 
     vi.mocked(extensionApi.process.exec).mockRejectedValue(new Error('error'));
@@ -1324,6 +1334,8 @@ describe('registerOnboardingMachineExistsCommand', () => {
   });
 
   test('check with 2 machines', async () => {
+    vi.mocked(isMac).mockReturnValue(true);
+
     vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
 
     // return 2 empty machines
@@ -1350,6 +1362,8 @@ describe('registerOnboardingMachineExistsCommand', () => {
   });
 
   test('check with 0 machine', async () => {
+    vi.mocked(isMac).mockReturnValue(true);
+
     vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
 
     // return empty machine array
@@ -1378,12 +1392,19 @@ describe('registerOnboardingMachineExistsCommand', () => {
 
 describe('registerOnboardingUnsupportedPodmanMachineCommand', () => {
   test('check with v5 and previous qemu folders', async () => {
+    vi.mocked(isMac).mockReturnValue(true);
+
     vi.mocked(fs.existsSync).mockReturnValue(true);
 
     vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
 
-    vi.mocked(extensionApi.process.exec).mockResolvedValue({
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
       stdout: 'podman version 5.0.0',
+    } as unknown as extensionApi.RunResult);
+
+    // second call to get the machine list
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: '[]',
     } as unknown as extensionApi.RunResult);
 
     // perform the call
@@ -1407,13 +1428,21 @@ describe('registerOnboardingUnsupportedPodmanMachineCommand', () => {
   });
 
   test('check with v5 and no previous qemu folders', async () => {
+    vi.mocked(isMac).mockReturnValue(true);
+
     // no qemu folders
     vi.mocked(fs.existsSync).mockReturnValue(false);
 
     vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
 
-    vi.mocked(extensionApi.process.exec).mockResolvedValue({
+    // first call to get the podman version
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
       stdout: 'podman version 5.0.0',
+    } as unknown as extensionApi.RunResult);
+
+    // second call to get the machine list
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: '[]',
     } as unknown as extensionApi.RunResult);
 
     // perform the call
@@ -1437,12 +1466,19 @@ describe('registerOnboardingUnsupportedPodmanMachineCommand', () => {
   });
 
   test('check with v4 and qemu folders', async () => {
+    vi.mocked(isMac).mockReturnValue(true);
+
     vi.mocked(fs.existsSync).mockReturnValue(true);
 
     vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
 
-    vi.mocked(extensionApi.process.exec).mockResolvedValue({
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
       stdout: 'podman version 4.9.3',
+    } as unknown as extensionApi.RunResult);
+
+    // second call to get the machine list
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: '[]',
     } as unknown as extensionApi.RunResult);
 
     // perform the call
@@ -1464,10 +1500,50 @@ describe('registerOnboardingUnsupportedPodmanMachineCommand', () => {
     // check called with false as there are qemu folders but we're with podman v4
     expect(extensionApi.context.setValue).toBeCalledWith('unsupportedPodmanMachine', false, 'onboarding');
   });
+
+  test('check with v5 and error in JSON of machines', async () => {
+    vi.mocked(isMac).mockReturnValue(true);
+
+    // no qemu folders
+    vi.mocked(fs.existsSync).mockReturnValue(false);
+
+    vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
+
+    // first call to get the podman version
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: 'podman version 5.0.0',
+    } as unknown as extensionApi.RunResult);
+
+    // second call to get the machine list
+    vi.mocked(extensionApi.process.exec).mockRejectedValue({
+      stderr: 'incompatible machine config',
+    } as unknown as extensionApi.RunResult);
+
+    // perform the call
+    const disposable = registerOnboardingUnsupportedPodmanMachineCommand();
+
+    // checks
+    expect(disposable).toBeDefined();
+
+    // check command is called
+    expect(extensionApi.commands.registerCommand).toBeCalledWith(
+      'podman.onboarding.checkUnsupportedPodmanMachine',
+      expect.any(Function),
+    );
+
+    const func = vi.mocked(extensionApi.commands.registerCommand).mock.calls[0][1];
+    // call the function
+    await func();
+
+    // check it is false as there are no qemu folders
+    expect(extensionApi.context.setValue).toBeCalledWith('unsupportedPodmanMachine', true, 'onboarding');
+  });
 });
 
 describe('registerOnboardingRemoveUnsupportedMachinesCommand', () => {
   test('check with previous qemu folders', async () => {
+    vi.mocked(isMac).mockReturnValue(true);
+
     vi.mocked(fs.existsSync).mockReturnValue(true);
 
     // mock confirmation window message to true
@@ -1475,8 +1551,12 @@ describe('registerOnboardingRemoveUnsupportedMachinesCommand', () => {
 
     vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
 
-    vi.mocked(extensionApi.process.exec).mockResolvedValue({
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
       stdout: 'podman version 5.0.0',
+    } as unknown as extensionApi.RunResult);
+
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: '[]',
     } as unknown as extensionApi.RunResult);
 
     // perform the call
@@ -1505,4 +1585,72 @@ describe('registerOnboardingRemoveUnsupportedMachinesCommand', () => {
     // check called with true as there are qemu folders
     expect(extensionApi.context.setValue).toBeCalledWith('unsupportedMachineRemoved', 'ok', 'onboarding');
   });
+
+  test('check with previous podman v4 config files', async () => {
+    vi.mocked(isMac).mockReturnValue(true);
+
+    // mock confirmation window message to true
+    vi.mocked(extensionApi.window.showWarningMessage).mockResolvedValue('Yes');
+
+    vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
+
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: 'podman version 5.0.0',
+    } as unknown as extensionApi.RunResult);
+    // two times false (no qemu folders)
+    vi.mocked(fs.existsSync).mockReturnValueOnce(false);
+    vi.mocked(fs.existsSync).mockReturnValueOnce(false);
+
+    // return an error when trying to list output
+    vi.mocked(fs.existsSync).mockReturnValueOnce(true);
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: '[]',
+      stderr: 'incompatible machine config',
+    } as unknown as extensionApi.RunResult);
+
+    vi.mocked(fs.promises.readdir).mockResolvedValue(['foo.json'] as unknown as fs.Dirent[]);
+
+    // mock readfile
+    vi.mocked(fs.promises.readFile).mockResolvedValueOnce('{"Driver": "podman"}');
+
+    // perform the call
+    const disposable = extension.registerOnboardingRemoveUnsupportedMachinesCommand();
+
+    // checks
+    expect(disposable).toBeDefined();
+
+    // check command is called
+    expect(extensionApi.commands.registerCommand).toBeCalledWith(
+      'podman.onboarding.removeUnsupportedMachines',
+      expect.any(Function),
+    );
+
+    const func = vi.mocked(extensionApi.commands.registerCommand).mock.calls[0][1];
+    // call the function
+    await func();
+
+    // expect rm to be called
+    expect(fs.promises.rm).toBeCalledWith(expect.stringContaining('foo.json'), {
+      recursive: true,
+      maxRetries: 3,
+      retryDelay: 1000,
+    });
+
+    // check called with true as there are qemu folders
+    expect(extensionApi.context.setValue).toBeCalledWith('unsupportedMachineRemoved', 'ok', 'onboarding');
+  });
+});
+
+test('isIncompatibleMachineOutput', () => {
+  const emptyResponse = extension.isIncompatibleMachineOutput(undefined);
+  expect(emptyResponse).toBeFalsy();
+
+  const unknownErrorResponse = extension.isIncompatibleMachineOutput('unknown error');
+  expect(unknownErrorResponse).toBeFalsy();
+
+  const wslErrorResponse = extension.isIncompatibleMachineOutput('cannot unmarshal string');
+  expect(wslErrorResponse).toBeTruthy();
+
+  const applehvErrorResponse = extension.isIncompatibleMachineOutput('incompatible machine config');
+  expect(applehvErrorResponse).toBeTruthy();
 });
