@@ -889,7 +889,6 @@ export function initExtensionContext(extensionContext: extensionApi.ExtensionCon
 const currentUpdatesDisposables: extensionApi.Disposable[] = [];
 export async function initCheckAndRegisterUpdate(
   provider: extensionApi.Provider,
-  installedPodman: InstalledPodman,
   podmanInstall: PodmanInstall,
 ): Promise<void> {
   // provide an installation path ?
@@ -900,7 +899,8 @@ export async function initCheckAndRegisterUpdate(
       disposable.dispose();
     }
     currentUpdatesDisposables.length = 0;
-    const disposable = await registerUpdatesIfAny(provider, installedPodman, podmanInstall);
+    const podmanInstalledValue = await getPodmanInstallation();
+    const disposable = await registerUpdatesIfAny(provider, podmanInstalledValue, podmanInstall);
     if (disposable) {
       currentUpdatesDisposables.push(disposable);
     }
@@ -912,6 +912,11 @@ export async function initCheckAndRegisterUpdate(
     if (e.affectsConfiguration(PODMAN5_EXPERIMENTAL_MODE_CONFIG_FULLKEY)) {
       await checkForUpdate();
     }
+  });
+
+  // register onDidUpdateVersion
+  provider.onDidUpdateVersion(async () => {
+    await checkForUpdate();
   });
 
   extensionApi.provider.onDidRegisterContainerConnection(event => {
@@ -1288,7 +1293,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     provider.registerCleanup(new PodmanCleanupWindows());
   }
 
-  await initCheckAndRegisterUpdate(provider, installedPodman, podmanInstall);
+  await initCheckAndRegisterUpdate(provider, podmanInstall);
 
   // If autostart has been enabled for the machine, try to start it.
   try {
