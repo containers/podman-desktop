@@ -286,8 +286,7 @@ const columns: Column<ImageInfoUI>[] = [
 ];
 
 const row = new Row<ImageInfoUI>({
-  selectable: image => image.status === 'UNUSED',
-  disabledText: 'Image is used by a container',
+  selectable: () => true,
 });
 </script>
 
