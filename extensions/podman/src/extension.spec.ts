@@ -1692,7 +1692,10 @@ describe('registerOnboardingRemoveUnsupportedMachinesCommand', () => {
       stderr: 'cannot unmarshal string',
     } as unknown as extensionApi.RunResult);
 
-    vi.mocked(fs.promises.readdir).mockResolvedValue(['foo.json'] as unknown as fs.Dirent[]);
+    vi.mocked(fs.promises.readdir).mockResolvedValue([
+      'foo.json',
+      'podman-machine-default.json',
+    ] as unknown as fs.Dirent[]);
 
     // mock readfile
     vi.mocked(fs.promises.readFile).mockResolvedValueOnce('{"Driver": "podman"}');
@@ -1705,8 +1708,10 @@ describe('registerOnboardingRemoveUnsupportedMachinesCommand', () => {
     await func();
 
     // check that we called wsl --terminate and wsl --unregister
-    expect(extensionApi.process.exec).toBeCalledWith('wsl', ['--terminate', 'foo']);
-    expect(extensionApi.process.exec).toBeCalledWith('wsl', ['--unregister', 'foo']);
+    expect(extensionApi.process.exec).toBeCalledWith('wsl', ['--terminate', 'podman-foo']);
+    expect(extensionApi.process.exec).toBeCalledWith('wsl', ['--unregister', 'podman-foo']);
+    expect(extensionApi.process.exec).toBeCalledWith('wsl', ['--terminate', 'podman-machine-default']);
+    expect(extensionApi.process.exec).toBeCalledWith('wsl', ['--unregister', 'podman-machine-default']);
 
     // check called with true
     expect(extensionApi.context.setValue).toBeCalledWith('unsupportedMachineRemoved', 'ok', 'onboarding');

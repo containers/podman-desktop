@@ -1038,7 +1038,11 @@ export function registerOnboardingRemoveUnsupportedMachinesCommand(): extensionA
           } catch (error: unknown) {
             console.error('Error reading machine file', file, error);
           }
-          const machineName = file.replace('.json', '');
+          let machineName = file.replace('.json', '');
+          if (machineName !== 'podman-machine-default') {
+            machineName = `podman-${machineName}`;
+          }
+
           return {
             file,
             machineName,
