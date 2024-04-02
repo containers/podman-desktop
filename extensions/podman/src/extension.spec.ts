@@ -66,7 +66,7 @@ const provider: extensionApi.Provider = {
   onDidUpdateStatus: undefined,
   version: '',
   updateVersion: vi.fn(),
-  onDidUpdateVersion: undefined,
+  onDidUpdateVersion: vi.fn(),
   images: undefined,
   links: [],
   detectionChecks: [],
@@ -1197,13 +1197,11 @@ describe('initCheckAndRegisterUpdate', () => {
       bundledVersion: '5.0',
     });
 
-    await initCheckAndRegisterUpdate(
-      provider,
-      {
-        version: '1.1',
-      },
-      podmanInstall,
-    );
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: 'podman version 1.0.0',
+    } as unknown as extensionApi.RunResult);
+
+    await initCheckAndRegisterUpdate(provider, podmanInstall);
 
     // check that we call registerUpdate on the provider
     expect(registerUpdateMock).toBeCalledWith({
@@ -1225,14 +1223,12 @@ describe('initCheckAndRegisterUpdate', () => {
       bundledVersion: '5.0',
     });
 
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: 'podman version 5.0.0',
+    } as unknown as extensionApi.RunResult);
+
     // check again the update
-    await initCheckAndRegisterUpdate(
-      provider,
-      {
-        version: '5.0',
-      },
-      podmanInstall,
-    );
+    await initCheckAndRegisterUpdate(provider, podmanInstall);
 
     // check that registerUpdateMock is not called as there is no update available from 5.0 to 5.0
     expect(registerUpdateMock).not.toBeCalled();
@@ -1253,13 +1249,11 @@ describe('initCheckAndRegisterUpdate', () => {
       bundledVersion: '5.0',
     });
 
-    await initCheckAndRegisterUpdate(
-      provider,
-      {
-        version: '1.1',
-      },
-      podmanInstall,
-    );
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: 'podman version 1.1',
+    } as unknown as extensionApi.RunResult);
+
+    await initCheckAndRegisterUpdate(provider, podmanInstall);
 
     // check that we call registerUpdate on the provider
     expect(registerUpdateMock).not.toBeCalled();
@@ -1291,13 +1285,11 @@ describe('initCheckAndRegisterUpdate', () => {
       return { dispose: (): void => {} };
     });
 
-    await initCheckAndRegisterUpdate(
-      provider,
-      {
-        version: '1.1',
-      },
-      podmanInstall,
-    );
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: 'podman version 1.1',
+    } as unknown as extensionApi.RunResult);
+
+    await initCheckAndRegisterUpdate(provider, podmanInstall);
 
     // check that we call registerUpdate on the provider
     expect(registerUpdateMock).toBeCalledWith({
@@ -1332,6 +1324,61 @@ describe('initCheckAndRegisterUpdate', () => {
 
     // and the previous disposable should have been disposed
     expect(disposeMock).toBeCalled();
+  });
+
+  test('check update appear after updating the version', async () => {
+    const podmanInstall = {
+      checkForUpdate: vi.fn(),
+    } as unknown as PodmanInstall;
+
+    // disposable
+    const disposeMock = vi.fn();
+    registerUpdateMock.mockReturnValue({
+      dispose: disposeMock,
+    });
+
+    // First call, no version being installed
+    vi.mocked(podmanInstall.checkForUpdate).mockResolvedValueOnce({
+      hasUpdate: false,
+      installedVersion: undefined,
+      bundledVersion: undefined,
+    });
+
+    let func: any;
+    vi.mocked(provider.onDidUpdateVersion).mockImplementation((f: any) => {
+      func = f;
+      return { dispose: (): void => {} };
+    });
+
+    // fake missing
+    vi.mocked(extensionApi.process.exec).mockRejectedValueOnce('');
+
+    await initCheckAndRegisterUpdate(provider, podmanInstall);
+
+    // check that registerUpdateMock is not called as there is no update available from 4.0 to 5.0 as there is a machine
+    expect(registerUpdateMock).not.toBeCalled();
+
+    // installed is 4 and we can bump to v5
+    vi.mocked(podmanInstall.checkForUpdate).mockResolvedValueOnce({
+      hasUpdate: true,
+      installedVersion: '4.0',
+      bundledVersion: '5.0',
+    });
+
+    // fake external installation of v1.1
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: 'podman version 4.0',
+    } as unknown as extensionApi.RunResult);
+
+    // call the updateVersion
+    await func();
+
+    // check that we call registerUpdate on the provider
+    expect(registerUpdateMock).toBeCalledWith({
+      preflightChecks: expect.any(Function),
+      update: expect.any(Function),
+      version: '5.0',
+    });
   });
 });
 
