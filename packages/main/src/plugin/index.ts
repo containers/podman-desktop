@@ -93,7 +93,7 @@ import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
-} from './api/provider-info.js';
+} from '/@api/provider-info.js';
 import type { PullEvent } from './api/pull-event.js';
 import type { ViewInfoUI } from './api/view-info.js';
 import type { VolumeInspectInfo, VolumeListInfo } from './api/volume-info.js';

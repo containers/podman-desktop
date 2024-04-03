@@ -74,7 +74,7 @@ import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
-} from '../../main/src/plugin/api/provider-info';
+} from '/@api/provider-info';
 import type { PullEvent } from '../../main/src/plugin/api/pull-event';
 import type { ViewInfoUI } from '../../main/src/plugin/api/view-info';
 import type { VolumeInspectInfo, VolumeListInfo } from '../../main/src/plugin/api/volume-info';

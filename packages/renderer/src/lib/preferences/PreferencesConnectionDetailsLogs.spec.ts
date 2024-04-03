@@ -26,7 +26,7 @@ import { render, screen } from '@testing-library/svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 import { Terminal } from 'xterm';
 
-import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderContainerConnectionInfo } from '/@api/provider-info';
 import PreferencesConnectionDetailsLogs from './PreferencesConnectionDetailsLogs.svelte';
 
 global.ResizeObserver = vi.fn().mockImplementation(() => ({

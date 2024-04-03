@@ -20,7 +20,7 @@ import { ipcMain } from 'electron';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import type { TrayMenu } from '../tray-menu.js';
-import type { ProviderInfo } from './api/provider-info.js';
+import type { ProviderInfo } from '/@api/provider-info.js';
 import type { CommandRegistry } from './command-registry.js';
 import type { ProviderRegistry } from './provider-registry.js';
 import type { Telemetry } from './telemetry/telemetry.js';

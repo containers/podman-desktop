@@ -4,7 +4,7 @@ import { type Unsubscriber } from 'svelte/store';
 
 import { providerInfos } from '/@/stores/providers';
 
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderInfo } from '/@api/provider-info';
 import TroubleshootingContainerEngines from './TroubleshootingContainerEngines.svelte';
 import TroubleshootingRepair from './TroubleshootingRepair.svelte';
 

@@ -4,7 +4,7 @@ import { onMount, tick } from 'svelte';
 import { router } from 'tinro';
 import type { Terminal } from 'xterm';
 
-import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderContainerConnectionInfo } from '/@api/provider-info';
 import type { PullEvent } from '../../../../main/src/plugin/api/pull-event';
 import { providerInfos } from '../../stores/providers';
 import Button from '../ui/Button.svelte';

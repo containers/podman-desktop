@@ -21,7 +21,7 @@ import { ipcMain, Menu, nativeImage } from 'electron';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import statusStopped from './assets/status-stopped.png';
-import type { ProviderInfo } from './plugin/api/provider-info.js';
+import type { ProviderInfo } from '/@api/provider-info.js';
 import type { AnimatedTray } from './tray-animate-icon.js';
 import { TrayMenu } from './tray-menu.js';
 

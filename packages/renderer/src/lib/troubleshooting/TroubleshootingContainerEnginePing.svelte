@@ -2,7 +2,7 @@
 import { faSignal } from '@fortawesome/free-solid-svg-icons';
 import { Buffer } from 'buffer';
 
-import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderContainerConnectionInfo } from '/@api/provider-info';
 import Button from '../ui/Button.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 

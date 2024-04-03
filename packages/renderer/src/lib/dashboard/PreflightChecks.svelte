@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { CheckStatus } from '../../../../main/src/plugin/api/provider-info';
+import type { CheckStatus } from '/@api/provider-info';
 import Spinner from '../ui/Spinner.svelte';
 
 export let preflightChecks: CheckStatus[] = [];

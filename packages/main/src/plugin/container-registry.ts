@@ -55,7 +55,7 @@ import type { BuildImageOptions, ImageInfo, ListImagesOptions } from './api/imag
 import type { ImageInspectInfo } from './api/image-inspect-info.js';
 import type { NetworkInspectInfo } from './api/network-info.js';
 import type { PodCreateOptions, PodInfo, PodInspectInfo } from './api/pod-info.js';
-import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
+import type { ProviderContainerConnectionInfo } from '/@api/provider-info.js';
 import type { PullEvent } from './api/pull-event.js';
 import type { VolumeInfo, VolumeInspectInfo, VolumeListInfo } from './api/volume-info.js';
 import type {

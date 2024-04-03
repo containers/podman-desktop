@@ -27,7 +27,7 @@ import { configurationProperties } from '/@/stores/configurationProperties';
 import { onboardingList } from '/@/stores/onboarding';
 
 import type { OnboardingInfo } from '../../../../main/src/plugin/api/onboarding';
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderInfo } from '/@api/provider-info';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../../../main/src/plugin/configuration-registry-constants';
 import { providerInfos } from '../../stores/providers';
 import PreferencesResourcesRendering from './PreferencesResourcesRendering.svelte';

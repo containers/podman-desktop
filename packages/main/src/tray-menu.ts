@@ -24,7 +24,7 @@ import statusBusy from './assets/status-busy.png';
 import statusStarted from './assets/status-started.png';
 import statusStopped from './assets/status-stopped.png';
 import statusUnknown from './assets/status-unknown.png';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from './plugin/api/provider-info.js';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info.js';
 import type { AnimatedTray, TrayIconStatus } from './tray-animate-icon.js';
 import { findWindow, isMac } from './util.js';
 

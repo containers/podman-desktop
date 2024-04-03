@@ -2,7 +2,7 @@
 import { faBroom, faWarning } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderInfo } from '/@api/provider-info';
 import Button from '../ui/Button.svelte';
 
 export let providers: ProviderInfo[] = [];

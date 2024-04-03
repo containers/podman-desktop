@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderInfo } from '/@api/provider-info';
 import IconImage from '../appearance/IconImage.svelte';
 import ProviderStatus from '../ui/ProviderStatus.svelte';
 import ProviderLinks from './ProviderLinks.svelte';

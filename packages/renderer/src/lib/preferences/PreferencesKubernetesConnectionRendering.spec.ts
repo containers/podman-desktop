@@ -29,7 +29,7 @@ import { expect, test, vi } from 'vitest';
 
 import { lastPage } from '/@/stores/breadcrumb';
 
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 import { providerInfos } from '../../stores/providers';
 import PreferencesKubernetesConnectionRendering from './PreferencesKubernetesConnectionRendering.svelte';
 

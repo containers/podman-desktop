@@ -31,7 +31,7 @@ import { filtered, podsInfos } from '/@/stores/pods';
 import { providerInfos } from '/@/stores/providers';
 
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderInfo } from '/@api/provider-info';
 
 const getProvidersInfoMock = vi.fn();
 const listPodsMock = vi.fn();

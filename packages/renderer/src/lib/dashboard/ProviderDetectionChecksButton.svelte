@@ -2,7 +2,7 @@
 import { faList } from '@fortawesome/free-solid-svg-icons';
 import type { ProviderDetectionCheck } from '@podman-desktop/api';
 
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderInfo } from '/@api/provider-info';
 import Button from '../ui/Button.svelte';
 
 export let provider: ProviderInfo;

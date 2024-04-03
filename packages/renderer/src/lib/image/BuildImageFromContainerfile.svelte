@@ -10,7 +10,7 @@ import type { Terminal } from 'xterm';
 import { type BuildImageInfo, buildImagesInfo } from '/@/stores/build-images';
 
 /* eslint-enable import/no-duplicates */
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 import { providerInfos } from '../../stores/providers';
 import Button from '../ui/Button.svelte';
 import FormPage from '../ui/FormPage.svelte';

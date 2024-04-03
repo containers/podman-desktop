@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderInfo } from '/@api/provider-info';
 import { providerInfos } from '../../stores/providers';
 
 export let provider: ProviderInfo;

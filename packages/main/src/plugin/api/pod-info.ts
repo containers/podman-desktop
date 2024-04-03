@@ -22,7 +22,7 @@ import type {
   PodInfo as LibPodPodInfo,
   PodInspectInfo as LibPodPodInspectInfo,
 } from '../dockerode/libpod-dockerode.js';
-import type { ProviderContainerConnectionInfo } from './provider-info.js';
+import type { ProviderContainerConnectionInfo } from '/@api/provider-info.js';
 
 export interface PodInfo extends LibPodPodInfo {
   engineId: string;

@@ -28,7 +28,7 @@ import { beforeAll, expect, test, vi } from 'vitest';
 import BuildImageFromContainerfile from '/@/lib/image/BuildImageFromContainerfile.svelte';
 import { buildImagesInfo } from '/@/stores/build-images';
 
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 import { providerInfos } from '../../stores/providers';
 
 // fake the window.events object

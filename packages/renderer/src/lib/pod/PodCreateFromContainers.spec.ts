@@ -24,7 +24,7 @@ import { expect, test, vi } from 'vitest';
 
 import { type PodCreation, podCreationHolder } from '/@/stores/creation-from-containers-store';
 
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderInfo } from '/@api/provider-info';
 import { providerInfos } from '../../stores/providers';
 import PodCreateFromContainers from './PodCreateFromContainers.svelte';
 

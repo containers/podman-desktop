@@ -1,7 +1,7 @@
 <script lang="ts">
 import { faBoxOpen } from '@fortawesome/free-solid-svg-icons';
 
-import type { CheckStatus, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { CheckStatus, ProviderInfo } from '/@api/provider-info';
 import Button from '../ui/Button.svelte';
 
 export let provider: ProviderInfo;
