@@ -64,7 +64,7 @@ import type { ContainerStatsInfo } from '/@api/container-stats-info';
 import type { ContextInfo } from '../../main/src/plugin/api/context-info';
 import type { ContributionInfo } from '/@api/contribution-info';
 import type { ExtensionInfo } from '/@api/extension-info';
-import type { HistoryInfo } from '../../main/src/plugin/api/history-info';
+import type { HistoryInfo } from '/@api/history-info';
 import type { IconInfo } from '../../main/src/plugin/api/icon-info';
 import type { ImageCheckerInfo } from '../../main/src/plugin/api/image-checker-info';
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';

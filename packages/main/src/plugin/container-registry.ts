@@ -51,7 +51,7 @@ import { isWindows } from '../util.js';
 import type { ApiSenderType } from './api.js';
 import type { ContainerInspectInfo } from '/@api/container-inspect-info.js';
 import type { ContainerStatsInfo } from '/@api/container-stats-info.js';
-import type { HistoryInfo } from './api/history-info.js';
+import type { HistoryInfo } from '/@api/history-info.js';
 import type { BuildImageOptions, ImageInfo, ListImagesOptions } from './api/image-info.js';
 import type { ImageInspectInfo } from './api/image-inspect-info.js';
 import type { NetworkInspectInfo } from './api/network-info.js';

@@ -84,7 +84,7 @@ import type { ContainerInspectInfo } from '/@api/container-inspect-info.js';
 import type { ContainerStatsInfo } from '/@api/container-stats-info.js';
 import type { ContributionInfo } from '/@api/contribution-info.js';
 import type { ExtensionInfo } from '/@api/extension-info.js';
-import type { HistoryInfo } from './api/history-info.js';
+import type { HistoryInfo } from '/@api/history-info.js';
 import type { IconInfo } from './api/icon-info.js';
 import type { ImageCheckerInfo } from './api/image-checker-info.js';
 import type { ImageInfo } from './api/image-info.js';
