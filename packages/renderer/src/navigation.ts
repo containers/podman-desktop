@@ -79,5 +79,8 @@ export const handleNavigation = (page: NavigationPage, parameters?: { [key: stri
     case NavigationPage.WEBVIEW:
       router.goto(`/webviews/${parameters?.['id']}`);
       break;
+    case NavigationPage.AUTHENTICATION:
+      router.goto('/preferences/authentication-providers');
+      break;
   }
 };

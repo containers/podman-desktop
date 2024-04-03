@@ -32,4 +32,5 @@ export enum NavigationPage {
   TROUBLESHOOTING = 'troubleshooting',
   HELP = 'help',
   WEBVIEW = 'webview',
+  AUTHENTICATION = 'authentication',
 }

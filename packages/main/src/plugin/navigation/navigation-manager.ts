@@ -207,4 +207,10 @@ export class NavigationManager {
       },
     });
   }
+
+  async navigateToAuthentication(): Promise<void> {
+    this.navigateTo({
+      page: NavigationPage.AUTHENTICATION,
+    });
+  }
 }
