@@ -59,7 +59,7 @@ export interface ContainerInfoUI {
   ports: Port[];
   portsAsString: string;
   displayPort: string;
-  command?: string;
+  command?: readonly string[];
   hasPublicPort: boolean;
   openingUrl?: string;
   groupInfo: ContainerGroupPartInfoUI;

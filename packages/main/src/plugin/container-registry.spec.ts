@@ -826,7 +826,7 @@ describe('listContainers', () => {
     expect(container.StartedAt).toBe('2023-08-10T13:37:44.000Z');
     expect(container.pod).toBeUndefined();
     expect(container.Id).toBe('31a4b282691420be2611817f203765402d8da7e13cd530f80a6ddd1bb4aa63b4');
-    expect(container.Command).toBe('httpd-foreground');
+    expect(container.Command).toStrictEqual(['httpd-foreground']);
     expect(container.Names).toStrictEqual(['/admiring_wing']);
     expect(container.Image).toBe('docker.io/library/httpd:latest');
     expect(container.ImageID).toBe('sha256:911d72fc5020723f0c003a134a8d2f062b4aea884474a11d1db7dcd28ce61d6a');
@@ -936,7 +936,7 @@ describe('listContainers', () => {
     expect(container.pod).toBeUndefined();
 
     expect(container.Id).toBe('31a4b282691420be2611817f203765402d8da7e13cd530f80a6ddd1bb4aa63b4');
-    expect(container.Command).toBe('httpd-foreground');
+    expect(container.Command).toStrictEqual(['httpd-foreground']);
     expect(container.Names).toStrictEqual(['/admiring_wing']);
     expect(container.Image).toBe('docker.io/library/httpd:latest');
     expect(container.ImageID).toBe('sha256:911d72fc5020723f0c003a134a8d2f062b4aea884474a11d1db7dcd28ce61d6a');
@@ -1031,7 +1031,7 @@ describe('listContainers', () => {
     expect(container.StartedAt).toBe('2023-08-10T13:37:44.000Z');
     expect(container.pod).toBeUndefined();
     expect(container.Id).toBe('31a4b282691420be2611817f203765402d8da7e13cd530f80a6ddd1bb4aa63b4');
-    expect(container.Command).toBe(undefined);
+    expect(container.Command).toBe(null);
     expect(container.Names).toStrictEqual(['/admiring_wing']);
     expect(container.Image).toBe('docker.io/library/httpd:latest');
     expect(container.ImageID).toBe('sha256:911d72fc5020723f0c003a134a8d2f062b4aea884474a11d1db7dcd28ce61d6a');

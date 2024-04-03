@@ -425,7 +425,7 @@ export class ContainerProviderRegistry {
             Names: string[];
             Image: string;
             ImageID: string;
-            Command?: string;
+            Command?: string[] | string;
             Created: number;
             Ports: ContainerPortInfo[];
             Labels: { [label: string]: string };
@@ -435,7 +435,6 @@ export class ContainerProviderRegistry {
           }
 
           // if we have a libpod API, grab containers using Podman API
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           let containers: CompatContainerInfo[] = [];
           if (provider.libpodApi) {
             const podmanContainers = await provider.libpodApi.listPodmanContainers({ all: true });
@@ -476,7 +475,7 @@ export class ContainerProviderRegistry {
                 Created: moment(podmanContainer.Created).unix(),
                 State: podmanContainer.State,
                 StartedAt,
-                Command: podmanContainer.Command?.length > 0 ? podmanContainer.Command[0] : undefined,
+                Command: podmanContainer.Command,
                 Labels,
                 Ports,
               };
@@ -533,6 +532,7 @@ export class ContainerProviderRegistry {
                 engineType: provider.connection.type,
                 StartedAt: container.StartedAt || '',
                 Status: container.Status,
+                Command: typeof container.Command === 'string' ? [container.Command] : container.Command,
               };
               return containerInfo;
             }),
