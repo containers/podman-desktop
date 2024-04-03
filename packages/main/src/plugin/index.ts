@@ -1470,7 +1470,7 @@ export class PluginSystem {
     );
 
     this.ipcHandle('authentication:showAccountsMenu', async (_listener, x: number, y: number): Promise<void> => {
-      return showAccountsMenu(x, y, authentication, apiSender);
+      return showAccountsMenu(x, y, authentication, navigationManager);
     });
 
     this.ipcHandle(
