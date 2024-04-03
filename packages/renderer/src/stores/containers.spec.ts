@@ -22,7 +22,8 @@ import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
 import { beforeAll, expect, test, vi } from 'vitest';
 
-import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
+import type { ContainerInfo } from '/@api/container-info';
+
 import { containersEventStore, containersInfos } from './containers';
 
 // first, path window object

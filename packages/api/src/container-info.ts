@@ -18,7 +18,7 @@
 
 import type Dockerode from 'dockerode';
 
-import type { ProviderContainerConnectionInfo } from '/@api/provider-info.js';
+import type { ProviderContainerConnectionInfo } from '/@/provider-info.js';
 
 export interface ContainerPortInfo {
   IP: string;

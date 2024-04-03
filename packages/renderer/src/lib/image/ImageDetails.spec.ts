@@ -28,8 +28,8 @@ import { containersInfos } from '/@/stores/containers';
 import { imageCheckerProviders } from '/@/stores/image-checker-providers';
 import { imagesInfos } from '/@/stores/images';
 import { viewsContributions } from '/@/stores/views';
+import type { ContainerInfo } from '/@api/container-info';
 
-import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import type { ImageInfo } from '../../../../main/src/plugin/api/image-info';
 import {
   IMAGE_DETAILS_VIEW_BADGES,

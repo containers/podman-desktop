@@ -18,7 +18,8 @@
 
 import { type Writable, writable } from 'svelte/store';
 
-import type { ContainerInfo } from '../../../main/src/plugin/api/container-info';
+import type { ContainerInfo } from '/@api/container-info';
+
 import ContainerIcon from '../lib/images/ContainerIcon.svelte';
 import { EventStore } from './event-store';
 

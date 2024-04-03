@@ -22,7 +22,8 @@ import { filesize } from 'filesize';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
 
-import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
+import type { ContainerInfo } from '/@api/container-info';
+
 import type { ImageInfo } from '../../../../main/src/plugin/api/image-info';
 import {
   isViewContributionBadge,

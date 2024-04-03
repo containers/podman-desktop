@@ -39,8 +39,6 @@ import { contextBridge, ipcRenderer } from 'electron';
 
 import type { CliToolInfo } from '/@api/cli-tool-info';
 import type { ColorInfo } from '/@api/color-info';
-
-import type { ApiSenderType } from '../../main/src/plugin/api';
 import type { CommandInfo } from '/@api/command-info';
 import type {
   ContainerCreateOptions,
@@ -51,7 +49,16 @@ import type {
   ImagesSaveOptions,
   SimpleContainerInfo,
   VolumeCreateOptions,
-} from '../../main/src/plugin/api/container-info';
+} from '/@api/container-info';
+import type {
+  PreflightCheckEvent,
+  PreflightChecksCallback,
+  ProviderContainerConnectionInfo,
+  ProviderInfo,
+  ProviderKubernetesConnectionInfo,
+} from '/@api/provider-info';
+
+import type { ApiSenderType } from '../../main/src/plugin/api';
 import type { ContainerInspectInfo } from '../../main/src/plugin/api/container-inspect-info';
 import type { ContainerStatsInfo } from '../../main/src/plugin/api/container-stats-info';
 import type { ContextInfo } from '../../main/src/plugin/api/context-info';
@@ -68,13 +75,6 @@ import type { NotificationCard, NotificationCardOptions } from '../../main/src/p
 import type { OnboardingInfo, OnboardingStatus } from '../../main/src/plugin/api/onboarding';
 import type { V1Route } from '../../main/src/plugin/api/openshift-types';
 import type { PodCreateOptions, PodInfo, PodInspectInfo } from '../../main/src/plugin/api/pod-info';
-import type {
-  PreflightCheckEvent,
-  PreflightChecksCallback,
-  ProviderContainerConnectionInfo,
-  ProviderInfo,
-  ProviderKubernetesConnectionInfo,
-} from '/@api/provider-info';
 import type { PullEvent } from '../../main/src/plugin/api/pull-event';
 import type { ViewInfoUI } from '../../main/src/plugin/api/view-info';
 import type { VolumeInspectInfo, VolumeListInfo } from '../../main/src/plugin/api/volume-info';

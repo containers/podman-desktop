@@ -7,8 +7,8 @@ import { router } from 'tinro';
 
 import { saveImagesInfo } from '/@/stores/save-images-store';
 import { viewsContributions } from '/@/stores/views';
+import type { ContainerInfo } from '/@api/container-info';
 
-import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import type { ImageInfo } from '../../../../main/src/plugin/api/image-info';
 import type { ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
 import { containersInfos } from '../../stores/containers';

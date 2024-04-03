@@ -6,8 +6,8 @@ import { router } from 'tinro';
 
 import { array2String } from '/@/lib/string/string.js';
 import Button from '/@/lib/ui/Button.svelte';
+import type { ContainerCreateOptions, HostConfig } from '/@api/container-info';
 
-import type { ContainerCreateOptions, HostConfig } from '../../../../main/src/plugin/api/container-info';
 import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
 import type { NetworkInspectInfo } from '../../../../main/src/plugin/api/network-info';
 import Route from '../../Route.svelte';

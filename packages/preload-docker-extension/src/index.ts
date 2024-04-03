@@ -26,7 +26,8 @@ import type { ExecStreamOptions, NavigationIntents, RequestConfig } from '@docke
 import type { Dialog, OpenDialogResult } from '@docker/extension-api-client-types/dist/v1/dialog';
 import { contextBridge, ipcRenderer } from 'electron';
 
-import type { SimpleContainerInfo } from '../../main/src/plugin/api/container-info';
+import type { SimpleContainerInfo } from '/@api/container-info';
+
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import { lines, parseJsonLines, parseJsonObject } from './exec-result-helper';
 

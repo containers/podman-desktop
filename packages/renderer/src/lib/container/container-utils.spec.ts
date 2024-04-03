@@ -18,7 +18,8 @@
 
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
+import type { ContainerInfo } from '/@api/container-info';
+
 import type { ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
 import { ContextUI } from '../context/context';
 import { ContainerUtils } from './container-utils';
