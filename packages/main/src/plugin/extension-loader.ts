@@ -34,7 +34,7 @@ import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import { getBase64Image, isLinux, isMac, isWindows } from '../util.js';
 import type { ApiSenderType } from './api.js';
-import type { ExtensionError, ExtensionInfo, ExtensionUpdateInfo } from './api/extension-info.js';
+import type { ExtensionError, ExtensionInfo, ExtensionUpdateInfo } from '/@api/extension-info.js';
 import type { PodInfo } from './api/pod-info.js';
 import type { AuthenticationImpl } from './authentication.js';
 import { CancellationTokenSource } from './cancellation-token.js';

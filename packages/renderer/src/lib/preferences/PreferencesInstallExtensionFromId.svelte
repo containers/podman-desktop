@@ -20,7 +20,7 @@ import ErrorMessage from '/@/lib/ui/ErrorMessage.svelte';
 import { catalogExtensionInfos } from '/@/stores/catalog-extensions';
 import { extensionInfos } from '/@/stores/extensions';
 
-import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
+import type { ExtensionInfo } from '/@api/extension-info';
 import type { CatalogExtension } from '../../../../main/src/plugin/extensions-catalog/extensions-catalog-api';
 import Button from '../ui/Button.svelte';
 

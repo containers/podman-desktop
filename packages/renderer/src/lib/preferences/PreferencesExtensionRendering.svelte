@@ -1,7 +1,7 @@
 <script lang="ts">
 import { faPlay, faPuzzlePiece, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
 
-import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
+import type { ExtensionInfo } from '/@api/extension-info';
 import Route from '../../Route.svelte';
 import { extensionInfos } from '../../stores/extensions';
 import Button from '../ui/Button.svelte';

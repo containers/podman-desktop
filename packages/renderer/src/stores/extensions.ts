@@ -18,7 +18,7 @@
 
 import { type Writable, writable } from 'svelte/store';
 
-import type { ExtensionInfo } from '../../../main/src/plugin/api/extension-info';
+import type { ExtensionInfo } from '/@api/extension-info';
 import { EventStore } from './event-store';
 
 const windowEvents = [

@@ -4,7 +4,7 @@ import { Input } from '@podman-desktop/ui-svelte';
 import { afterUpdate } from 'svelte';
 import Fa from 'svelte-fa';
 
-import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
+import type { ExtensionInfo } from '/@api/extension-info';
 import { extensionInfos } from '../../stores/extensions';
 import FeaturedExtensions from '../featured/FeaturedExtensions.svelte';
 import SettingsPage from '../preferences/SettingsPage.svelte';

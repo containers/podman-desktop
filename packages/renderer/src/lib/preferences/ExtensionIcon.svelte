@@ -2,7 +2,7 @@
 import { faPuzzlePiece } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 
-import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
+import type { ExtensionInfo } from '/@api/extension-info';
 
 export let extension: ExtensionInfo;
 

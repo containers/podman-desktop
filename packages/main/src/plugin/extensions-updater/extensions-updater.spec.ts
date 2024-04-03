@@ -18,7 +18,7 @@
 
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
-import type { ExtensionInfo } from '../api/extension-info.js';
+import type { ExtensionInfo } from '/@api/extension-info.js';
 import type { ConfigurationRegistry } from '../configuration-registry.js';
 import type { ExtensionLoader } from '../extension-loader.js';
 import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog.js';
