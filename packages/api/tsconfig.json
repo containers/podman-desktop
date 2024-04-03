@@ -16,5 +16,5 @@
       "/@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts", "exposedInDockerExtension.d.ts", "../../types/**/*.d.ts", "../api/src/**/*.ts"]
+  "include": ["src/**/*.ts", "../../types/**/*.d.ts"]
 }

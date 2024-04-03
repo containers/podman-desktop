@@ -35,6 +35,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '/@/': join(PACKAGE_ROOT, 'src') + '/',
+      '/@api/': join(PACKAGE_ROOT, '../api/src') + '/',
     },
   },
   plugins: [svelte({ hot: !process.env.VITEST })],
@@ -50,11 +51,9 @@ export default defineConfig({
       { find: /^svelte$/, replacement: 'svelte/internal' },
     ],
     deps: {
-      inline: [
-        'moment',
-      ],
+      inline: ['moment'],
     },
-      ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
+    ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
   },
   base: '',
   server: {
