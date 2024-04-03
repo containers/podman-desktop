@@ -27,9 +27,6 @@ import type {
   Event,
   ProviderImages,
 } from '@podman-desktop/api';
-import type { MenuItemConstructorOptions } from 'electron';
-import { BrowserWindow, Menu } from 'electron';
-import type { MenuItem } from 'electron/main';
 
 import type { ApiSenderType } from './api.js';
 import { Emitter } from './events/emitter.js';
@@ -77,63 +74,45 @@ export interface SessionRequestInfo {
   extensionLabel: string;
 }
 
+export type MenuInfo = AuthenticationRequestMenuInfo | AuthenticationSessionMenuInfo;
+
+export interface AuthenticationRequestMenuInfo {
+  label: string;
+  requestId: string;
+}
+
+export interface AuthenticationSessionMenuInfo {
+  label: string;
+  providerId: string;
+  sessionId: string;
+}
+
 export class AuthenticationImpl {
-  async showAccountsMenu(x: number, y: number): Promise<void> {
-    const template: (MenuItemConstructorOptions | MenuItem)[] = [
-      {
-        label: 'Manage authentication',
-        click: (): void => {
-          this.apiSender.send('navigate', {
-            page: 'authentication-providers',
-          });
-        },
-      },
-      {
-        type: 'separator',
-      } as MenuItem,
-    ];
-
-    this.getSessionRequests().forEach(request => {
-      const provider = this._authenticationProviders.get(request.providerId);
-      if (!provider) return;
-      const providerLabel = provider.label ? provider.label : provider.id;
-      template.push({
-        label: `Sign in with ${providerLabel} to use ${request.extensionLabel}`,
-        click: () => {
-          void this.executeSessionRequest(request.id);
-        },
-      });
-    });
-
-    const providers = Array.from(this._authenticationProviders.values());
-
-    const menuItemPromises = providers.map(meta =>
-      meta.provider.getSessions().then(sessions => {
-        sessions.forEach(session => {
-          template.push({
-            label: `${session.account.label} (${meta.label})`,
-            submenu: [
-              {
-                label: 'Sign out',
-                click: (): void => {
-                  void this.signOut(meta.id, session.id);
-                },
-              },
-            ],
-          });
+  async getAccountsMenuInfo(): Promise<MenuInfo[]> {
+    const requestsMenuInfo: MenuInfo[] = this.getSessionRequests().reduce((prev: MenuInfo[], current) => {
+      const provider = this._authenticationProviders.get(current.providerId);
+      if (provider) {
+        prev.push({
+          label: `Sign in with ${provider.label} to use ${current.extensionLabel}`,
+          requestId: current.id,
         });
-      }),
-    );
+      }
+      return prev;
+    }, []);
 
-    await Promise.all(menuItemPromises);
+    const providersInfo = await this.getAuthenticationProvidersInfo();
+    const sessionMenuInfo: MenuInfo[] = providersInfo.reduce((prev: MenuInfo[], current) => {
+      current.accounts.forEach(account => {
+        prev.push({
+          label: `${account.label} (${current.displayName})`,
+          providerId: current.id,
+          sessionId: account.id,
+        });
+      });
+      return prev;
+    }, []);
 
-    const menu = Menu.buildFromTemplate(template);
-    const zf = BrowserWindow.getFocusedWindow()?.webContents.getZoomFactor();
-    const zoomFactor = zf ? zf : 1;
-    menu.popup({
-      x: Math.round(x * zoomFactor),
-      y: Math.round(y * zoomFactor),
-    });
+    return [...sessionMenuInfo, ...requestsMenuInfo];
   }
 
   private _authenticationProviders: Map<string, ProviderWithMetadata> = new Map<string, ProviderWithMetadata>();
