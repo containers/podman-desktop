@@ -21,7 +21,7 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
-import type { ContainerStatsInfo } from '../../../../main/src/plugin/api/container-stats-info';
+import type { ContainerStatsInfo } from '/@api/container-stats-info';
 import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from './ContainerInfoUI';
 import ContainerStatistics from './ContainerStatistics.svelte';
 
