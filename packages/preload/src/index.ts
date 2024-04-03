@@ -59,7 +59,7 @@ import type {
 } from '/@api/provider-info';
 
 import type { ApiSenderType } from '../../main/src/plugin/api';
-import type { ContainerInspectInfo } from '../../main/src/plugin/api/container-inspect-info';
+import type { ContainerInspectInfo } from '/@api/container-inspect-info';
 import type { ContainerStatsInfo } from '../../main/src/plugin/api/container-stats-info';
 import type { ContextInfo } from '../../main/src/plugin/api/context-info';
 import type { ContributionInfo } from '../../main/src/plugin/api/contribution-info';

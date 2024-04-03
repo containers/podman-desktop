@@ -1,7 +1,7 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 
-import type { ContainerInspectInfo } from '../../../../main/src/plugin/api/container-inspect-info';
+import type { ContainerInspectInfo } from '/@api/container-inspect-info';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import type { ContainerInfoUI } from './ContainerInfoUI';
 
