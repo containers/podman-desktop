@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { FontDefinition } from './font-info.js';
+import type { FontDefinition } from '/@api/font-info.js';
 
 export interface IconDefinition {
   description?: string;

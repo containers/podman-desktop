@@ -20,7 +20,7 @@ import { join } from 'node:path';
 
 import { isWindows } from '../util.js';
 import type { ApiSenderType } from './api.js';
-import type { FontDefinition } from './api/font-info.js';
+import type { FontDefinition } from '/@api/font-info.js';
 import type { IconDefinition, IconInfo } from './api/icon-info.js';
 import type { AnalyzedExtension } from './extension-loader.js';
 
