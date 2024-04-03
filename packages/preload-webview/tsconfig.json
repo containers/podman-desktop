@@ -13,8 +13,9 @@
 
     "baseUrl": ".",
     "paths": {
-      "/@/*": ["./src/*"]
+      "/@/*": ["./src/*"],
+      "/@api/*": ["../api/src"]
     }
   },
-  "include": ["src/**/*.ts", "exposedInWebview.d.ts", "../../types/**/*.d.ts"]
+  "include": ["src/**/*.ts", "exposedInWebview.d.ts", "../../types/**/*.d.ts", "../api/src/**/*.ts"]
 }

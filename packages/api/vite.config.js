@@ -22,7 +22,7 @@ import { builtinModules } from 'module';
 import { coverageConfig } from '../../vitest-shared-extensions.config';
 
 const PACKAGE_ROOT = __dirname;
-const PACKAGE_NAME = 'preload-docker-extension';
+const PACKAGE_NAME = 'api';
 
 /**
  * @type {import('vite').UserConfig}
@@ -35,17 +35,8 @@ const config = {
   resolve: {
     alias: {
       '/@/': join(PACKAGE_ROOT, 'src') + '/',
-      '/@api/': join(PACKAGE_ROOT, '../api/src') + '/',
     },
   },
-  /*plugins: [
-     commonjs({
-       dynamicRequireTargets: [
-         // include using a glob pattern (either a string or an array of strings)
-         'node_modules/ssh2/lib/protocol/crypto/poly1305.js',
-       ]
-       }),
-   ],*/
   build: {
     sourcemap: 'inline',
     target: `chrome${chrome}`,
