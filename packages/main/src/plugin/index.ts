@@ -68,6 +68,19 @@ import type {
   VolumeCreateOptions,
   VolumeCreateResponseInfo,
 } from '/@api/container-info.js';
+import type { ContainerInspectInfo } from '/@api/container-inspect-info.js';
+import type { ContainerStatsInfo } from '/@api/container-stats-info.js';
+import type { ContributionInfo } from '/@api/contribution-info.js';
+import type { ExtensionInfo } from '/@api/extension-info.js';
+import type { HistoryInfo } from '/@api/history-info.js';
+import type { IconInfo } from '/@api/icon-info.js';
+import type { ImageCheckerInfo } from '/@api/image-checker-info.js';
+import type { ImageInfo } from '/@api/image-info.js';
+import type { ImageInspectInfo } from '/@api/image-inspect-info.js';
+import type { NetworkInspectInfo } from '/@api/network-info.js';
+import type { NotificationCard, NotificationCardOptions } from '/@api/notification.js';
+import type { OnboardingInfo, OnboardingStatus } from '/@api/onboarding.js';
+import type { V1Route } from '/@api/openshift-types.js';
 import type {
   PreflightCheckEvent,
   PreflightChecksCallback,
@@ -75,29 +88,16 @@ import type {
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
 } from '/@api/provider-info.js';
+import type { PullEvent } from '/@api/pull-event.js';
+import type { ViewInfoUI } from '/@api/view-info.js';
+import type { VolumeInspectInfo, VolumeListInfo } from '/@api/volume-info.js';
+import type { WebviewInfo } from '/@api/webview-info.js';
 
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import type { TrayMenu } from '../tray-menu.js';
 import { isMac } from '../util.js';
 import type { ApiSenderType } from './api.js';
-import type { ContainerInspectInfo } from '/@api/container-inspect-info.js';
-import type { ContainerStatsInfo } from '/@api/container-stats-info.js';
-import type { ContributionInfo } from '/@api/contribution-info.js';
-import type { ExtensionInfo } from '/@api/extension-info.js';
-import type { HistoryInfo } from '/@api/history-info.js';
-import type { IconInfo } from './api/icon-info.js';
-import type { ImageCheckerInfo } from './api/image-checker-info.js';
-import type { ImageInfo } from './api/image-info.js';
-import type { ImageInspectInfo } from './api/image-inspect-info.js';
-import type { NetworkInspectInfo } from './api/network-info.js';
-import type { NotificationCard, NotificationCardOptions } from './api/notification.js';
-import type { OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
-import type { V1Route } from './api/openshift-types.js';
 import type { PodInfo, PodInspectInfo } from './api/pod-info.js';
-import type { PullEvent } from './api/pull-event.js';
-import type { ViewInfoUI } from './api/view-info.js';
-import type { VolumeInspectInfo, VolumeListInfo } from './api/volume-info.js';
-import type { WebviewInfo } from '/@api/webview-info.js';
 import { AppearanceInit } from './appearance-init.js';
 import type { AuthenticationProviderInfo } from './authentication.js';
 import { AuthenticationImpl } from './authentication.js';

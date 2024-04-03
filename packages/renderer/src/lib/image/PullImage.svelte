@@ -5,7 +5,8 @@ import { router } from 'tinro';
 import type { Terminal } from 'xterm';
 
 import type { ProviderContainerConnectionInfo } from '/@api/provider-info';
-import type { PullEvent } from '../../../../main/src/plugin/api/pull-event';
+import type { PullEvent } from '/@api/pull-event';
+
 import { providerInfos } from '../../stores/providers';
 import Button from '../ui/Button.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';

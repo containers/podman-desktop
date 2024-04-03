@@ -7,9 +7,9 @@ import Fa from 'svelte-fa';
 import { router } from 'tinro';
 
 import type { ContainerInfo } from '/@api/container-info';
+import type { ViewInfoUI } from '/@api/view-info';
 
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
-import type { ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
 import { containerGroupsInfo } from '../../stores/containerGroups';
 import { containersInfos } from '../../stores/containers';
 import { context } from '../../stores/context';

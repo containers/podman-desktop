@@ -19,9 +19,9 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { ContainerInfo } from '/@api/container-info';
+import type { ImageInfo } from '/@api/image-info';
+import type { ViewInfoUI } from '/@api/view-info';
 
-import type { ImageInfo } from '../../../../main/src/plugin/api/image-info';
-import type { ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
 import { ContextUI } from '../context/context';
 import { ImageUtils } from './image-utils';
 

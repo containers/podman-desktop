@@ -10,8 +10,8 @@ import {
   kubernetesCurrentContextRoutesFiltered,
   routeSearchPattern,
 } from '/@/stores/kubernetes-contexts-state';
+import type { V1Route } from '/@api/openshift-types';
 
-import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import IngressRouteIcon from '../images/IngressRouteIcon.svelte';
 import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
 import SimpleColumn from '../table/SimpleColumn.svelte';

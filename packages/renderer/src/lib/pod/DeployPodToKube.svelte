@@ -8,8 +8,8 @@ import { router } from 'tinro';
 
 import { ensureRestrictedSecurityContext } from '/@/lib/pod/pod-utils';
 import Checkbox from '/@/lib/ui/Checkbox.svelte';
+import type { V1Route } from '/@api/openshift-types';
 
-import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import Button from '../ui/Button.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';

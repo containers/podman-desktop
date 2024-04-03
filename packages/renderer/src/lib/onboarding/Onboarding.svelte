@@ -36,8 +36,8 @@ import { router } from 'tinro';
 import { lastPage } from '/@/stores/breadcrumb';
 import { context } from '/@/stores/context';
 import { onboardingList } from '/@/stores/onboarding';
+import type { OnboardingInfo, OnboardingStepItem } from '/@api/onboarding';
 
-import type { OnboardingInfo, OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
 import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
 import Button from '../ui/Button.svelte';

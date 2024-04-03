@@ -6,8 +6,8 @@ import type { Unsubscriber } from 'svelte/store';
 import Fa from 'svelte-fa';
 
 import { imageCheckerProviders } from '/@/stores/image-checker-providers';
+import type { ImageCheckerInfo } from '/@api/image-checker-info';
 
-import type { ImageCheckerInfo } from '../../../../main/src/plugin/api/image-checker-info';
 import Button from '../ui/Button.svelte';
 import { type CheckUI, type ProviderUI } from '../ui/ProviderResultPage';
 import ProviderResultPage from '../ui/ProviderResultPage.svelte';

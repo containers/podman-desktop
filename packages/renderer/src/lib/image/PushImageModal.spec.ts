@@ -22,7 +22,8 @@ import { fireEvent } from '@testing-library/dom';
 import { render, screen } from '@testing-library/svelte';
 import { beforeAll, expect, type Mock, test, vi } from 'vitest';
 
-import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
+import type { ImageInspectInfo } from '/@api/image-inspect-info';
+
 import type { ImageInfoUI } from './ImageInfoUI';
 import PushImageModal from './PushImageModal.svelte';
 

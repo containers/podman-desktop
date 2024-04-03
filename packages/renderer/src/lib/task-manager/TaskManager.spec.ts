@@ -23,8 +23,8 @@ import userEvent from '@testing-library/user-event';
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import { tasksInfo } from '/@/stores/tasks';
+import type { NotificationTask, StatefulTask } from '/@api/task';
 
-import type { NotificationTask, StatefulTask } from '../../../../main/src/plugin/api/task';
 import TaskManager from './TaskManager.svelte';
 
 // fake the window.events object

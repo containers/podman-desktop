@@ -5,8 +5,8 @@ import type { TinroRouteMeta } from 'tinro';
 
 import Webviews from '/@/lib/webview/Webviews.svelte';
 import { webviews } from '/@/stores/webviews';
+import type { ImageInfo } from '/@api/image-info';
 
-import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import { CommandRegistry } from './lib/CommandRegistry';
 import NewContentOnDashboardBadge from './lib/dashboard/NewContentOnDashboardBadge.svelte';
 import { ImageUtils } from './lib/image/image-utils';

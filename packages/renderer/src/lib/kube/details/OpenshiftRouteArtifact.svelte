@@ -1,5 +1,6 @@
 <script lang="ts">
-import type { V1Route } from '../../../../../main/src/plugin/api/openshift-types';
+import type { V1Route } from '/@api/openshift-types';
+
 import Link from '../../ui/Link.svelte';
 import Cell from './ui/Cell.svelte';
 import Title from './ui/Title.svelte';

@@ -26,8 +26,8 @@ import { readable, writable } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
+import type { V1Route } from '/@api/openshift-types';
 
-import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes-context-state';
 import IngressesRoutesList from './IngressesRoutesList.svelte';
 

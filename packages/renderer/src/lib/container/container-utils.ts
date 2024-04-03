@@ -22,8 +22,8 @@ import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
 
 import type { ContainerInfo } from '/@api/container-info';
+import { isViewContributionIcon, type ViewInfoUI } from '/@api/view-info';
 
-import { isViewContributionIcon, type ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
 import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
 import ContainerIcon from '../images/ContainerIcon.svelte';

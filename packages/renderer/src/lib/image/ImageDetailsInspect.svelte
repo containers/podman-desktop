@@ -1,7 +1,8 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 
-import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';
+import type { ImageInspectInfo } from '/@api/image-inspect-info';
+
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 

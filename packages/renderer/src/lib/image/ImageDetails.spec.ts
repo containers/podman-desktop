@@ -29,8 +29,8 @@ import { imageCheckerProviders } from '/@/stores/image-checker-providers';
 import { imagesInfos } from '/@/stores/images';
 import { viewsContributions } from '/@/stores/views';
 import type { ContainerInfo } from '/@api/container-info';
+import type { ImageInfo } from '/@api/image-info';
 
-import type { ImageInfo } from '../../../../main/src/plugin/api/image-info';
 import {
   IMAGE_DETAILS_VIEW_BADGES,
   IMAGE_DETAILS_VIEW_ICONS,

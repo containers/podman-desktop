@@ -2,7 +2,8 @@
 import { faCircleInfo, faXmark } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 
-import type { NotificationCard } from '../../../../main/src/plugin/api/notification';
+import type { NotificationCard } from '/@api/notification';
+
 import Markdown from '../markdown/Markdown.svelte';
 
 export let notification: NotificationCard;

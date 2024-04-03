@@ -27,8 +27,8 @@ import type { Dialog, OpenDialogResult } from '@docker/extension-api-client-type
 import { contextBridge, ipcRenderer } from 'electron';
 
 import type { SimpleContainerInfo } from '/@api/container-info';
+import type { ImageInfo } from '/@api/image-info';
 
-import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import { lines, parseJsonLines, parseJsonObject } from './exec-result-helper';
 
 interface ErrorMessage {

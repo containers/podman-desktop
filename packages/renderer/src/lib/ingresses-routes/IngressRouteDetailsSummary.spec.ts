@@ -22,7 +22,8 @@ import type { V1Ingress } from '@kubernetes/client-node';
 import { render, screen } from '@testing-library/svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
-import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
+import type { V1Route } from '/@api/openshift-types';
+
 import IngressRouteDetailsSummary from './IngressRouteDetailsSummary.svelte';
 
 const ingress: V1Ingress = {

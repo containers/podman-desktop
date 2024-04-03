@@ -6,8 +6,8 @@ import Fa from 'svelte-fa';
 import { router } from 'tinro';
 
 import { onboardingList } from '/@/stores/onboarding';
+import type { OnboardingInfo } from '/@api/onboarding';
 
-import type { OnboardingInfo } from '../../../../main/src/plugin/api/onboarding';
 import DesktopIcon from '../images/DesktopIcon.svelte';
 import Button from '../ui/Button.svelte';
 import Tooltip from '../ui/Tooltip.svelte';

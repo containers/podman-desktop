@@ -19,9 +19,10 @@
 import type { ProviderConnectionStatus, ProviderStatus } from '@podman-desktop/api';
 import { dialog, ipcMain } from 'electron';
 
-import type { TrayMenu } from '../tray-menu.js';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info.js';
-import type { MenuItem } from './api/tray-menu-info.js';
+import type { MenuItem } from '/@api/tray-menu-info.js';
+
+import type { TrayMenu } from '../tray-menu.js';
 import type { CommandRegistry } from './command-registry.js';
 import type { ProviderRegistry } from './provider-registry.js';
 import type { Telemetry } from './telemetry/telemetry.js';

@@ -12,8 +12,8 @@ import { createEventDispatcher, onMount } from 'svelte';
 import { router } from 'tinro';
 
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
+import type { V1Route } from '/@api/openshift-types';
 
-import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
 import { ContainerUtils } from '../container/container-utils';
