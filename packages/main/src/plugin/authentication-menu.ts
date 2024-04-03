@@ -19,22 +19,20 @@
 import type { MenuItem, MenuItemConstructorOptions } from 'electron';
 import { BrowserWindow, Menu } from 'electron';
 
-import type { ApiSenderType } from './api.js';
 import type { AuthenticationImpl } from './authentication.js';
+import type { NavigationManager } from './navigation/navigation-manager.js';
 
 export async function showAccountsMenu(
   x: number,
   y: number,
   auth: AuthenticationImpl,
-  apiSender: ApiSenderType,
+  navigation: NavigationManager,
 ): Promise<void> {
   const template: (MenuItemConstructorOptions | MenuItem)[] = [
     {
       label: 'Manage authentication',
       click: (): void => {
-        apiSender.send('navigate', {
-          page: 'authentication-providers',
-        });
+        navigation.navigateToAuthentication().catch(console.error);
       },
     },
     {

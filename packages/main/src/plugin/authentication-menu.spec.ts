@@ -24,6 +24,7 @@ import type { ApiSenderType } from './api.js';
 import { AuthenticationImpl } from './authentication.js';
 import { AuthenticationProviderSingleAccount } from './authentication.spec.js';
 import { showAccountsMenu } from './authentication-menu.js';
+import type { NavigationManager } from './navigation/navigation-manager.js';
 
 const menu = {
   popup: vi.fn(),
@@ -42,6 +43,10 @@ vi.mock('electron', () => ({
       }) as unknown as BrowserWindow,
   },
 }));
+
+const navigationManager = {
+  navigateToAuthentication: vi.fn(),
+} as unknown as NavigationManager;
 
 let authModule: AuthenticationImpl;
 
@@ -92,7 +97,7 @@ test('showAccountsMenu creates menu with authentication requests and current ses
 
   const buildFromTemplateSpy = vi.spyOn(Menu, 'buildFromTemplate');
 
-  await showAccountsMenu(10, 10, authModule, apiSender);
+  await showAccountsMenu(10, 10, authModule, navigationManager);
 
   expect(menu.popup).toBeCalledWith({ x: 13, y: 13 });
   expect(buildFromTemplateSpy).toBeCalledWith(
