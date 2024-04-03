@@ -5,7 +5,7 @@ import type { Unsubscriber } from 'svelte/store';
 import { commandsInfos } from '/@/stores/commands';
 import { context } from '/@/stores/context';
 
-import type { CommandInfo } from '../../../../main/src/plugin/api/command-info';
+import type { CommandInfo } from '/@api/command-info';
 import type { ContextUI } from '../context/context';
 import { isPropertyValidInContext } from '../preferences/Util';
 

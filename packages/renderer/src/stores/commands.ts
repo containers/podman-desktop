@@ -18,7 +18,7 @@
 
 import { type Writable, writable } from 'svelte/store';
 
-import type { CommandInfo } from '../../../main/src/plugin/api/command-info';
+import type { CommandInfo } from '/@api/command-info';
 import { EventStore } from './event-store';
 
 const windowEvents: string[] = ['commands-added', 'commands-removed'];

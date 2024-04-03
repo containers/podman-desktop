@@ -41,7 +41,7 @@ import type { CliToolInfo } from '/@api/cli-tool-info';
 import type { ColorInfo } from '/@api/color-info';
 
 import type { ApiSenderType } from '../../main/src/plugin/api';
-import type { CommandInfo } from '../../main/src/plugin/api/command-info';
+import type { CommandInfo } from '/@api/command-info';
 import type {
   ContainerCreateOptions,
   ContainerExportOptions,

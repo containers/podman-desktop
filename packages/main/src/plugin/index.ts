@@ -61,7 +61,7 @@ import { securityRestrictionCurrentHandler } from '../security-restrictions-hand
 import type { TrayMenu } from '../tray-menu.js';
 import { isMac } from '../util.js';
 import type { ApiSenderType } from './api.js';
-import type { CommandInfo } from './api/command-info.js';
+import type { CommandInfo } from '/@api/command-info.js';
 import type {
   ContainerCreateOptions,
   ContainerExportOptions,
