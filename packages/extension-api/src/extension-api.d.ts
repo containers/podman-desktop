@@ -4157,6 +4157,11 @@ declare module '@podman-desktop/api' {
      * @see {@link window.createWebviewPanel createWebviewPanel} for creating a Webview
      */
     export function navigateToWebview(webviewId: string): Promise<void>;
+
+    /**
+     * Navigate to Authentication settings page
+     */
+    export function navigateToAuthentication(): Promise<void>;
   }
 
   /**
