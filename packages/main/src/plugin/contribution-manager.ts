@@ -24,7 +24,7 @@ import * as jsYaml from 'js-yaml';
 
 import { isLinux, isMac, isWindows } from '../util.js';
 import type { ApiSenderType } from './api.js';
-import type { ContributionInfo } from './api/contribution-info.js';
+import type { ContributionInfo } from '/@api/contribution-info.js';
 import type { ContainerProviderRegistry } from './container-registry.js';
 import type { Directories } from './directories.js';
 import type { Exec } from './util/exec.js';

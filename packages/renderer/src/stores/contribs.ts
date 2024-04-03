@@ -18,7 +18,7 @@
 
 import { type Writable, writable } from 'svelte/store';
 
-import type { ContributionInfo } from '../../../main/src/plugin/api/contribution-info';
+import type { ContributionInfo } from '/@api/contribution-info';
 import { EventStore } from './event-store';
 
 const windowEvents = ['contribution-register', 'contribution-unregister'];
