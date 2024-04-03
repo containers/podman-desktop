@@ -59,7 +59,7 @@ import { securityRestrictionCurrentHandler } from '../security-restrictions-hand
 import type { TrayMenu } from '../tray-menu.js';
 import { isMac } from '../util.js';
 import type { ApiSenderType } from './api.js';
-import type { CliToolInfo } from './api/cli-tool-info.js';
+import type { CliToolInfo } from '/@api/cli-tool-info.js';
 import type { ColorInfo } from './api/color-info.js';
 import type { CommandInfo } from './api/command-info.js';
 import type {

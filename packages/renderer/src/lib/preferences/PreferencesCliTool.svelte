@@ -2,7 +2,7 @@
 import { faCircleArrowUp, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 
-import type { CliToolInfo } from '../../../../main/src/plugin/api/cli-tool-info';
+import type { CliToolInfo } from '/@api/cli-tool-info';
 import Markdown from '../markdown/Markdown.svelte';
 import Button from '../ui/Button.svelte';
 import LoadingIconButton from '../ui/LoadingIconButton.svelte';
