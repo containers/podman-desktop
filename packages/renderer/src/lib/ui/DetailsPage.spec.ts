@@ -105,3 +105,14 @@ test('Expect Escape key closes', async () => {
 
   expect(router.goto).toHaveBeenCalledWith('/back');
 });
+
+test('Expect subtitle to be rendered as a link if subtitleHref is passed as a prop', async () => {
+  render(DetailsPage, {
+    title: 'No Title',
+    subtitle: 'Test',
+    subtitleHref: '/test',
+  });
+
+  const subTitleElement = screen.getByRole('link', { name: 'Test' });
+  expect(subTitleElement).toBeInTheDocument();
+});

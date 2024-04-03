@@ -435,7 +435,6 @@ export class ContainerProviderRegistry {
           }
 
           // if we have a libpod API, grab containers using Podman API
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           let containers: CompatContainerInfo[] = [];
           if (provider.libpodApi) {
             const podmanContainers = await provider.libpodApi.listPodmanContainers({ all: true });
@@ -533,6 +532,7 @@ export class ContainerProviderRegistry {
                 engineType: provider.connection.type,
                 StartedAt: container.StartedAt || '',
                 Status: container.Status,
+                ImageBase64RepoTag: Buffer.from(container.Image, 'binary').toString('base64'),
               };
               return containerInfo;
             }),

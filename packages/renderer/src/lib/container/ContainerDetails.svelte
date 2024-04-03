@@ -61,8 +61,7 @@ onMount(() => {
           }
         }
 
-        const base64RepoTag = containerUtils.encodeContainerImage(container.image);
-        containerImageHref = `/images/${inspect.Image}/${container.engineId}/${base64RepoTag}/summary`;
+        containerImageHref = `/images/${inspect.Image}/${container.engineId}/${container.imageBase64RepoTag}/summary`;
       });
     } else if (detailsPage) {
       // the container has been deleted

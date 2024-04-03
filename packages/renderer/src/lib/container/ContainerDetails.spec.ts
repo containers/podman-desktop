@@ -49,6 +49,7 @@ const myContainer: ContainerInfo = {
   Created: 0,
   Ports: [],
   State: '',
+  ImageBase64RepoTag: '',
 };
 
 const deleteContainerMock = vi.fn();

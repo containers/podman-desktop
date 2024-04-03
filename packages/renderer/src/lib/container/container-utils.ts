@@ -156,6 +156,7 @@ export class ContainerUtils {
       created: containerInfo.Created,
       labels: containerInfo.Labels,
       icon: this.iconClass(containerInfo, context, viewContributions) || ContainerIcon,
+      imageBase64RepoTag: containerInfo.ImageBase64RepoTag,
     };
   }
 
@@ -329,11 +330,5 @@ export class ContainerUtils {
       .split(' ')
       .filter(part => !part.startsWith('is:'))
       .join(' ');
-  }
-
-  encodeContainerImage(imageName: string): string {
-    const encoder = new TextEncoder();
-    const uint8Array = encoder.encode(imageName);
-    return window.btoa(String.fromCharCode(...uint8Array));
   }
 }
