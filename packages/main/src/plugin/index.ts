@@ -97,7 +97,7 @@ import type { PodInfo, PodInspectInfo } from './api/pod-info.js';
 import type { PullEvent } from './api/pull-event.js';
 import type { ViewInfoUI } from './api/view-info.js';
 import type { VolumeInspectInfo, VolumeListInfo } from './api/volume-info.js';
-import type { WebviewInfo } from './api/webview-info.js';
+import type { WebviewInfo } from '/@api/webview-info.js';
 import { AppearanceInit } from './appearance-init.js';
 import type { AuthenticationProviderInfo } from './authentication.js';
 import { AuthenticationImpl } from './authentication.js';

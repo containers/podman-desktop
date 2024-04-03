@@ -27,7 +27,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { ColorInfo } from '/@api/color-info';
 
-import type { WebviewInfo } from '../../main/src/plugin/api/webview-info';
+import type { WebviewInfo } from '/@api/webview-info';
 import { WebviewPreload } from './webview-preload';
 
 let webviewPreload: TestWebwiewPreload;

@@ -35,7 +35,7 @@ import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 
 import { getBase64Image } from '../util.js';
 import type { ApiSenderType } from './api.js';
-import type { WebviewInfo } from './api/webview-info.js';
+import type { WebviewInfo } from '/@api/webview-info.js';
 import type { AuthenticationImpl } from './authentication.js';
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { ColorRegistry } from './color-registry.js';

@@ -4,7 +4,7 @@ import { get, type Unsubscriber } from 'svelte/store';
 
 import { webviews } from '/@/stores/webviews';
 
-import type { WebviewInfo } from '../../../../main/src/plugin/api/webview-info';
+import type { WebviewInfo } from '/@api/webview-info';
 import Route from '../../Route.svelte';
 
 // webview id

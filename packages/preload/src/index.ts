@@ -78,7 +78,7 @@ import type { PodCreateOptions, PodInfo, PodInspectInfo } from '../../main/src/p
 import type { PullEvent } from '../../main/src/plugin/api/pull-event';
 import type { ViewInfoUI } from '../../main/src/plugin/api/view-info';
 import type { VolumeInspectInfo, VolumeListInfo } from '../../main/src/plugin/api/volume-info';
-import type { WebviewInfo } from '../../main/src/plugin/api/webview-info';
+import type { WebviewInfo } from '/@api/webview-info';
 import type { AuthenticationProviderInfo } from '../../main/src/plugin/authentication';
 import type { IConfigurationPropertyRecordedSchema } from '../../main/src/plugin/configuration-registry';
 import type {

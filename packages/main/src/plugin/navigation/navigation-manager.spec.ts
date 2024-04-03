@@ -19,7 +19,7 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import type { ApiSenderType } from '../api.js';
-import type { WebviewInfo } from '../api/webview-info.js';
+import type { WebviewInfo } from '/@api/webview-info.js';
 import type { ContainerProviderRegistry } from '../container-registry.js';
 import type { ContributionManager } from '../contribution-manager.js';
 import type { WebviewRegistry } from '../webview/webview-registry.js';

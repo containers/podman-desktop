@@ -25,7 +25,7 @@ import type { Application } from 'express';
 import express from 'express';
 
 import type { ApiSenderType } from '/@/plugin/api.js';
-import type { WebviewInfo, WebviewSimpleInfo } from '/@/plugin/api/webview-info.js';
+import type { WebviewInfo, WebviewSimpleInfo } from '/@api/webview-info.js';
 import { Uri } from '/@/plugin/types/uri.js';
 
 import { getFreePort } from '../util/port.js';
