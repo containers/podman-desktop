@@ -30,6 +30,7 @@ let container: ContainerInfoUI;
 let detailsPage: DetailsPage;
 
 let displayTty = false;
+let containerImageHref: string | undefined;
 
 // update current route scheme
 let currentRouterPath: string;
@@ -44,12 +45,13 @@ onMount(() => {
   // loading container info
   return containersInfos.subscribe(containers => {
     const matchingContainer = containers.find(c => c.Id === containerID);
+
     if (matchingContainer) {
       container = containerUtils.getContainerInfoUI(matchingContainer);
-
       // look if tty is supported by this container
       window.getContainerInspect(container.engineId, container.id).then(inspect => {
         displayTty = (inspect.Config.Tty || false) && (inspect.Config.OpenStdin || false);
+
         // if we comes with a / redirect to /logs or to /tty if tty is supported
         if (currentRouterPath.endsWith('/')) {
           if (displayTty) {
@@ -58,6 +60,9 @@ onMount(() => {
             router.goto(`${currentRouterPath}logs`);
           }
         }
+
+        const base64RepoTag = containerUtils.encodeContainerImage(container.image);
+        containerImageHref = `/images/${inspect.Image}/${container.engineId}/${base64RepoTag}/summary`;
       });
     } else if (detailsPage) {
       // the container has been deleted
@@ -68,7 +73,11 @@ onMount(() => {
 </script>
 
 {#if container}
-  <DetailsPage title="{container.name}" subtitle="{container.shortImage}" bind:this="{detailsPage}">
+  <DetailsPage
+    title="{container.name}"
+    subtitle="{container.shortImage}"
+    subtitleHref="{containerImageHref}"
+    bind:this="{detailsPage}">
     <StatusIcon slot="icon" icon="{ContainerIcon}" size="{24}" status="{container.state}" />
     <svelte:fragment slot="actions">
       <div class="flex items-center w-5">
