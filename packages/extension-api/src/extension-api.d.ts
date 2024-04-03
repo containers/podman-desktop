@@ -4159,7 +4159,7 @@ declare module '@podman-desktop/api' {
     export function navigateToWebview(webviewId: string): Promise<void>;
 
     /**
-     * Navigate ot Authentication settings page
+     * Navigate to Authentication settings page
      */
     export function navigateToAuthentication(): Promise<void>;
   }
