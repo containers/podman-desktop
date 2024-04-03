@@ -54,13 +54,13 @@ import { MenuRegistry } from '/@/plugin/menu-registry.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import { TaskManager } from '/@/plugin/task-manager.js';
 import { Updater } from '/@/plugin/updater.js';
+import type { CliToolInfo } from '/@api/cli-tool-info.js';
+import type { ColorInfo } from '/@api/color-info.js';
 
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import type { TrayMenu } from '../tray-menu.js';
 import { isMac } from '../util.js';
 import type { ApiSenderType } from './api.js';
-import type { CliToolInfo } from '/@api/cli-tool-info.js';
-import type { ColorInfo } from './api/color-info.js';
 import type { CommandInfo } from './api/command-info.js';
 import type {
   ContainerCreateOptions,

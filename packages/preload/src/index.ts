@@ -37,9 +37,10 @@ import type {
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import { contextBridge, ipcRenderer } from 'electron';
 
-import type { ApiSenderType } from '../../main/src/plugin/api';
 import type { CliToolInfo } from '/@api/cli-tool-info';
-import type { ColorInfo } from '../../main/src/plugin/api/color-info';
+import type { ColorInfo } from '/@api/color-info';
+
+import type { ApiSenderType } from '../../main/src/plugin/api';
 import type { CommandInfo } from '../../main/src/plugin/api/command-info';
 import type {
   ContainerCreateOptions,

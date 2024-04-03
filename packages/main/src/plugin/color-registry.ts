@@ -23,10 +23,10 @@ import { AppearanceSettings } from '/@/plugin/appearance-settings.js';
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
 import type { AnalyzedExtension } from '/@/plugin/extension-loader.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
+import type { Color, ColorDefinition, ColorInfo } from '/@api/color-info.js';
 
 import colorPalette from '../../../../tailwind-color-palette.json';
 import type { ApiSenderType } from './api.js';
-import type { Color, ColorDefinition, ColorInfo } from './api/color-info.js';
 
 export class ColorRegistry {
   #apiSender: ApiSenderType;

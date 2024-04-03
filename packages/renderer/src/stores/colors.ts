@@ -21,8 +21,7 @@ import { writable } from 'svelte/store';
 
 import { AppearanceUtil } from '/@/lib/appearance/appearance-util';
 import { EventStore } from '/@/stores/event-store';
-
-import type { ColorInfo } from '../../../main/src/plugin/api/color-info';
+import type { ColorInfo } from '/@api/color-info';
 
 const windowEvents = ['color-updated', 'extension-stopped', 'extensions-started'];
 const windowListeners = ['appearance-changed', 'extensions-already-started', 'system-ready'];
