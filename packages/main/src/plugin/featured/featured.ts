@@ -96,7 +96,7 @@ export class Featured {
     featuredExtensions.sort(() => Math.random() - 0.5);
 
     // take only a portion of them
-    if (limit > 0 && featuredExtensions.length > limit) {
+    if (limit >= 0 && featuredExtensions.length > limit) {
       featuredExtensions.splice(limit);
     }
 
