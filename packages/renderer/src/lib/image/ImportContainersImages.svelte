@@ -153,20 +153,21 @@ async function importContainers() {
         </div>
       {/each}
 
-      <div class="pt-5 border-zinc-600 border-t-2"></div>
-      <Button
-        on:click="{() => importContainers()}"
-        inProgress="{inProgress}"
-        class="w-full"
-        icon="{faPlay}"
-        aria-label="Import containers"
-        bind:disabled="{importDisabled}">
-        Import Containers
-      </Button>
-      <div aria-label="importError">
-        {#if importError !== ''}
-          <ErrorMessage class="py-2 text-sm" error="{importError}" />
-        {/if}
+      <div class="pt-5">
+        <Button
+          on:click="{() => importContainers()}"
+          inProgress="{inProgress}"
+          class="w-full"
+          icon="{faPlay}"
+          aria-label="Import containers"
+          bind:disabled="{importDisabled}">
+          Import Containers
+        </Button>
+        <div aria-label="importError">
+          {#if importError !== ''}
+            <ErrorMessage class="py-2 text-sm" error="{importError}" />
+          {/if}
+        </div>
       </div>
     </div>
   </div>
