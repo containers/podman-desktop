@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<component type="desktop">
+<component type="desktop-application">
   <id>io.podman_desktop.PodmanDesktop</id>
   <name>Podman Desktop</name>
   <project_license>Apache-2.0</project_license>
-  <developer_name>Red Hat, Inc.</developer_name>
+  <developer id="com.redhat">
+    <name>Red Hat, Inc.</name>
+  </developer>
   <summary>Manage Podman and other container engines from a single UI and tray</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <url type="homepage">https://podman-desktop.io/</url>
   <url type="bugtracker">https://github.com/containers/podman-desktop/issues</url>
   <url type="help">https://podman-desktop.io/docs/intro</url>
   <description>
-    <p>Containers and Kubernetes for application developers</p>
+    <p>Podman Desktop is an open source graphical tool enabling you to seamlessly work with containers and Kubernetes from your local environment.</p>
     <p>Build, run and manage containers:</p>
     <ul>
       <li>Build images from Containerfile or Dockerfile.</li>
@@ -30,16 +32,14 @@
     </ul>
     <p>You can also bring new features with Podman Desktop plug-ins or Docker Desktop extensions.</p>
   </description>
+  <launchable type="desktop-id">io.podman_desktop.PodmanDesktop.desktop</launchable>
   <screenshots>
-    <screenshot>
+    <screenshot type="default">
       <caption>Podman Desktop UI</caption>
       <image type="source">https://raw.githubusercontent.com/containers/podman-desktop/media/screenshot.png</image>
     </screenshot>
   </screenshots>
   <content_rating type="oars-1.1" />
-  <provides>
-    <id>io.podman_desktop.PodmanDesktop</id>
-  </provides>
   <update_contact>fbenoit_at_redhat_com</update_contact>
   <releases>
     <release version="1.9.0" date="2024-04-03"/>
