@@ -9,7 +9,6 @@ import Link from './Link.svelte';
 export let title: string;
 export let titleDetail: string | undefined = undefined;
 export let subtitle: string | undefined = undefined;
-export let subtitleHref: string | undefined = undefined;
 
 export function close(): void {
   router.goto($lastPage.path);
@@ -45,11 +44,7 @@ function handleKeydown(e: KeyboardEvent) {
             <div class="text-violet-400 ml-2 leading-normal" class:hidden="{!titleDetail}">{titleDetail}</div>
           </div>
           <div>
-            {#if subtitleHref}
-              <Link internalRef="{subtitleHref}">{subtitle}</Link>
-            {:else}
-              <span class="text-sm leading-none text-gray-900" class:hidden="{!subtitle}">{subtitle}</span>
-            {/if}
+            <span class="text-sm leading-none text-gray-900" class:hidden="{!subtitle}">{subtitle}</span>
             <slot name="subtitle" />
           </div>
         </div>
