@@ -64,7 +64,20 @@ export function getBundledPodmanVersion(): string {
       !fs.existsSync(path.resolve(os.homedir(), '.config/containers/podman')) &&
       !fs.existsSync(path.resolve(os.homedir(), '.local/share/containers/podman'));
   }
-  if (podman5ExperimentalModeEnabled || noPreviousPodmanInstallation) {
+
+  // air gapped mode check.
+  const assetImagePath = path.resolve(getAssetsFolder());
+  let airGappedMode = false;
+  // check if we have some podman-image files
+  if (fs.existsSync(assetImagePath)) {
+    const podmanImageFiles = fs.readdirSync(assetImagePath).filter(file => file.startsWith('podman-image'));
+    if (podmanImageFiles.length > 0) {
+      airGappedMode = true;
+    }
+  }
+
+  // default to v5 if experimental mode is enabled or if there is no previous installation (and not using airgapped mode)
+  if (podman5ExperimentalModeEnabled || (noPreviousPodmanInstallation && !airGappedMode)) {
     return podman5JSON.version;
   }
 
