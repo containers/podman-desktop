@@ -53,6 +53,7 @@ import type { ContainerStatsInfo } from './api/container-stats-info.js';
 import type { HistoryInfo } from './api/history-info.js';
 import type { BuildImageOptions, ImageInfo, ListImagesOptions } from './api/image-info.js';
 import type { ImageInspectInfo } from './api/image-inspect-info.js';
+import type { ManifestCreateOptions } from './api/manifest-info.js';
 import type { NetworkInspectInfo } from './api/network-info.js';
 import type { PodCreateOptions, PodInfo, PodInspectInfo } from './api/pod-info.js';
 import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
@@ -1221,6 +1222,33 @@ export class ContainerProviderRegistry {
       throw error;
     } finally {
       this.telemetryService.track('restartPod', telemetryOptions);
+    }
+  }
+
+  async createManifest(manifestOptions: ManifestCreateOptions): Promise<{ Id: string }> {
+    let telemetryOptions = {};
+    try {
+      let internalContainerProvider: InternalContainerProvider;
+      if (manifestOptions.provider) {
+        // grab connection
+        internalContainerProvider = this.getMatchingContainerProvider(manifestOptions.provider);
+      } else {
+        // Get the first running podman connection
+        internalContainerProvider = this.getFirstRunningPodmanContainerProvider();
+      }
+
+      // Check if the found provider does not support the libpod API
+      if (!internalContainerProvider?.libpodApi) {
+        throw new Error('The matching provider does not support the Podman API');
+      }
+
+      const result = await internalContainerProvider.libpodApi.podmanCreateManifest(manifestOptions);
+      return { Id: result.Id };
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService.track('createManifest', telemetryOptions);
     }
   }
 

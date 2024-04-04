@@ -82,6 +82,7 @@ import type { IconInfo } from './api/icon-info.js';
 import type { ImageCheckerInfo } from './api/image-checker-info.js';
 import type { ImageInfo } from './api/image-info.js';
 import type { ImageInspectInfo } from './api/image-inspect-info.js';
+import type { ManifestCreateOptions } from './api/manifest-info.js';
 import type { NetworkInspectInfo } from './api/network-info.js';
 import type { NotificationCard, NotificationCardOptions } from './api/notification.js';
 import type { OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
@@ -750,6 +751,15 @@ export class PluginSystem {
         return containerProviderRegistry.removePod(engine, podId);
       },
     );
+
+    // manifest
+    this.ipcHandle(
+      'container-provider-registry:createManifest',
+      async (_listener, manifestOptions: ManifestCreateOptions): Promise<{ Id: string }> => {
+        return containerProviderRegistry.createManifest(manifestOptions);
+      },
+    );
+
     this.ipcHandle(
       'container-provider-registry:generatePodmanKube',
       async (_listener, engine: string, names: string[]): Promise<string> => {

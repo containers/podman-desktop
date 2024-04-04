@@ -285,6 +285,16 @@ declare module '@podman-desktop/api' {
     provider?: ContainerProviderConnection;
   }
 
+  export interface ManifestCreateOptions {
+    images: string[];
+    name: string;
+    amend?: boolean;
+    all?: boolean;
+
+    // Provider to use for the manifest creation, if not, we will try to select the first one available (similar to podCreate)
+    provider?: ContainerProviderConnection;
+  }
+
   export interface KubernetesProviderConnectionEndpoint {
     apiURL: string;
   }
@@ -3367,6 +3377,9 @@ declare module '@podman-desktop/api' {
     export function listPods(): Promise<PodInfo[]>;
     export function stopPod(engineId: string, podId: string): Promise<void>;
     export function removePod(engineId: string, podId: string): Promise<void>;
+
+    // Manifest related methods
+    export function createManifest(options: ManifestCreateOptions): Promise<{ Id: string }>;
   }
 
   /**

@@ -1047,6 +1047,9 @@ export class ExtensionLoader {
       removePod(engineId: string, podId: string): Promise<void> {
         return containerProviderRegistry.removePod(engineId, podId);
       },
+      createManifest(manifestOptions: containerDesktopAPI.ManifestCreateOptions): Promise<{ Id: string }> {
+        return containerProviderRegistry.createManifest(manifestOptions);
+      },
       replicatePodmanContainer(
         source: { engineId: string; id: string },
         target: { engineId: string },

@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ManifestCreateOptions } from '@podman-desktop/api';
 import Dockerode from 'dockerode';
 
 export interface PodContainerInfo {
@@ -347,6 +348,7 @@ export interface LibPod {
   pruneAllImages(dangling: boolean): Promise<void>;
   podmanInfo(): Promise<Info>;
   getImages(options: GetImagesOptions): Promise<NodeJS.ReadableStream>;
+  podmanCreateManifest(manifestOptions: ManifestCreateOptions): Promise<{ Id: string }>;
 }
 
 // tweak Dockerode by adding the support of libpod API
@@ -770,6 +772,33 @@ export class LibpodDockerode {
       };
       return new Promise((resolve, reject) => {
         this.modem.dial(optsf, (err: unknown, data: NodeJS.ReadableStream) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(data);
+        });
+      });
+    };
+
+    // add createManifest
+    prototypeOfDockerode.podmanCreateManifest = function (manifestOptions: ManifestCreateOptions): Promise<unknown> {
+      // make sure encodeURI component for the name ex. domain.com/foo/bar:latest
+      const encodedManifestName = encodeURIComponent(manifestOptions.name);
+
+      const optsf = {
+        path: `/v4.2.0/libpod/manifests/${encodedManifestName}`,
+        method: 'POST',
+        options: manifestOptions,
+        statusCodes: {
+          201: true,
+          400: 'bad parameter in request',
+          404: 'no such image',
+          500: 'server error',
+        },
+      };
+
+      return new Promise((resolve, reject) => {
+        this.modem.dial(optsf, (err: unknown, data: unknown) => {
           if (err) {
             return reject(err);
           }
