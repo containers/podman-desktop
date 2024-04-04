@@ -20,8 +20,9 @@ import '@testing-library/jest-dom/vitest';
 
 import type { ContainerInfo, Port } from '@podman-desktop/api';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
+import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import PodActions from './PodActions.svelte';
 import type { PodInfoUI } from './PodInfoUI';
 
@@ -57,6 +58,11 @@ beforeEach(() => {
   (window as any).removePod = vi.fn();
   (window as any).kubernetesGetCurrentNamespace = kubernetesGetCurrentNamespaceMock;
   (window as any).kubernetesReadNamespacedPod = kubernetesReadNamespacedPodMock;
+  (window as any).kubernetesListRoutes = vi.fn();
+
+  vi.resetAllMocks();
+
+  vi.mocked(window.kubernetesListRoutes).mockResolvedValue([]);
 
   listContainersMock.mockResolvedValue([
     { Id: 'pod', Ports: [{ PublicPort: 8080 } as Port] as Port[] } as ContainerInfo,
@@ -67,11 +73,6 @@ beforeEach(() => {
 
   (window as any).getContributedMenus = getContributedMenusMock;
   getContributedMenusMock.mockResolvedValue([]);
-});
-
-afterEach(() => {
-  vi.resetAllMocks();
-  vi.clearAllMocks();
 });
 
 test('Expect no error and status starting pod', async () => {
@@ -147,9 +148,9 @@ test('Expect kubernetes route to be displayed', async () => {
   const routeHost = 'host.local';
   const openExternalSpy = vi.fn();
 
-  (window as any).kubernetesListRoutes = function () {
-    return { items: [{ metadata: { labels: { app: 'foo' }, name: routeName }, spec: { host: routeHost } }] };
-  };
+  vi.mocked(window.kubernetesListRoutes).mockResolvedValue([
+    { metadata: { labels: { app: 'foo' }, name: routeName }, spec: { host: routeHost } } as unknown as V1Route,
+  ]);
   (window as any).openExternal = openExternalSpy;
 
   render(PodActions, { pod: kubernetesPod });
@@ -163,10 +164,6 @@ test('Expect kubernetes route to be displayed', async () => {
 });
 
 test('Expect kubernetes route to be displayed but disabled', async () => {
-  (window as any).kubernetesListRoutes = function () {
-    return { items: [] };
-  };
-
   render(PodActions, { pod: kubernetesPod });
 
   const openRouteButton = await screen.findByRole('button', { name: `Open Browser` });
@@ -175,14 +172,10 @@ test('Expect kubernetes route to be displayed but disabled', async () => {
 });
 
 test('Expect kubernetes routes kebab menu to be displayed', async () => {
-  (window as any).kubernetesListRoutes = function () {
-    return {
-      items: [
-        { metadata: { labels: { app: 'foo' }, name: 'route1.name' }, spec: { host: 'host1.local' } },
-        { metadata: { labels: { app: 'foo' }, name: 'route2.name' }, spec: { host: 'host2.local' } },
-      ],
-    };
-  };
+  vi.mocked(window.kubernetesListRoutes).mockResolvedValue([
+    { metadata: { labels: { app: 'foo' }, name: 'route1.name' }, spec: { host: 'host1.local' } } as unknown as V1Route,
+    { metadata: { labels: { app: 'foo' }, name: 'route2.name' }, spec: { host: 'host2.local' } } as unknown as V1Route,
+  ]);
 
   render(PodActions, { pod: kubernetesPod });
 
