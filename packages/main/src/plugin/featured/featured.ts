@@ -46,8 +46,9 @@ export class Featured {
   /**
    * Return the list of featured extensions
    * and check if they are installed/available/etc
+   * @param limit the maximum number of feature extension returned. Default 6, use -1 for no limit
    */
-  async getFeaturedExtensions(): Promise<FeaturedExtension[]> {
+  async getFeaturedExtensions(limit: number = 6): Promise<FeaturedExtension[]> {
     const extensionsToCheck = this.readFeaturedJson();
 
     // get the list of all the installed extensions
@@ -94,9 +95,9 @@ export class Featured {
     // shuffle the list of featured extensions
     featuredExtensions.sort(() => Math.random() - 0.5);
 
-    // take only 6 of them
-    if (featuredExtensions.length > 6) {
-      featuredExtensions.splice(6);
+    // take only a portion of them
+    if (limit > 0 && featuredExtensions.length > limit) {
+      featuredExtensions.splice(limit);
     }
 
     // and then by non installed first
