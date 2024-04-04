@@ -36,7 +36,7 @@ import * as extension from './extension';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanCli } from './podman-cli';
 import { PodmanInstall } from './podman-install';
-import { isLinux, isMac, isWindows, LoggerDelegator } from './util';
+import { getAssetsFolder, isLinux, isMac, isWindows, LoggerDelegator } from './util';
 
 const config: Configuration = {
   get: () => {
@@ -256,6 +256,7 @@ vi.mock('./util', async () => {
     isMac: vi.fn(),
     isWindows: vi.fn(),
     isLinux: vi.fn(),
+    getAssetsFolder: vi.fn(),
   };
 });
 
@@ -401,6 +402,76 @@ test('verify error contains name, message and stderr if creation fails', async (
       undefined,
     ),
   ).rejects.toThrowError('name\ndescription\nerror\n');
+});
+
+test('verify create command called with embedded image if using podman v4', async () => {
+  vi.mocked(isMac).mockReturnValue(true);
+  vi.mocked(getAssetsFolder).mockReturnValue('fake');
+  vi.mocked(fs.existsSync).mockReturnValue(true);
+  vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+    stdout: 'podman version 4.0.0',
+  } as extensionApi.RunResult);
+
+  await extension.createMachine(
+    {
+      'podman.factory.machine.cpus': '2',
+      'podman.factory.machine.memory': '1048000000',
+      'podman.factory.machine.diskSize': '250000000000',
+      'podman.factory.machine.now': true,
+    },
+    undefined,
+    undefined,
+  );
+
+  // check telemetry is called with telemetryRecords.imagePath
+  await vi.waitFor(() => {
+    expect(telemetryLogger.logUsage).toBeCalledWith(
+      'podman.machine.init',
+      expect.objectContaining({ imagePath: 'embedded' }),
+    );
+  });
+
+  expect(vi.mocked(extensionApi.process.exec)).toHaveBeenNthCalledWith(
+    2,
+    getPodmanCli(),
+    expect.arrayContaining([expect.stringContaining('.qcow2.xz')]),
+    expect.anything(),
+  );
+});
+
+test('verify create command not called with embedded image if using podman v4', async () => {
+  vi.mocked(isMac).mockReturnValue(true);
+  vi.mocked(getAssetsFolder).mockReturnValue('fake');
+  vi.mocked(fs.existsSync).mockReturnValue(true);
+  vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+    stdout: 'podman version 5.0.0',
+  } as extensionApi.RunResult);
+
+  await extension.createMachine(
+    {
+      'podman.factory.machine.cpus': '2',
+      'podman.factory.machine.memory': '1048000000',
+      'podman.factory.machine.diskSize': '250000000000',
+      'podman.factory.machine.now': true,
+    },
+    undefined,
+    undefined,
+  );
+
+  // check telemetry is called with telemetryRecords.imagePath
+  await vi.waitFor(() => {
+    expect(telemetryLogger.logUsage).toBeCalledWith(
+      'podman.machine.init',
+      expect.not.objectContaining({ imagePath: 'embedded' }),
+    );
+  });
+
+  expect(vi.mocked(extensionApi.process.exec)).toHaveBeenNthCalledWith(
+    2,
+    getPodmanCli(),
+    expect.not.arrayContaining([expect.stringContaining('.qcow2.xz')]),
+    expect.anything(),
+  );
 });
 
 test('test checkDefaultMachine, if the machine running is not default, the function will prompt', async () => {

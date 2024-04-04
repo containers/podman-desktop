@@ -658,7 +658,7 @@ test('should return route list if connection to cluster is ok', async () => {
     getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
     listNamespacedCustomObject: () =>
       Promise.resolve({
-        body: [v1Route],
+        body: { items: [v1Route] },
       }),
   });
 

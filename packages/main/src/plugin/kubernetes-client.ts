@@ -25,6 +25,7 @@ import { PassThrough } from 'node:stream';
 import type {
   Cluster,
   Context,
+  KubernetesListObject,
   KubernetesObject,
   V1APIGroup,
   V1APIResource,
@@ -625,7 +626,8 @@ export class KubernetesClient {
         // Get the routes via the kubernetes api
         const customObjectsApi = this.kubeConfig.makeApiClient(CustomObjectsApi);
         const routes = await customObjectsApi.listNamespacedCustomObject('route.openshift.io', 'v1', ns, 'routes');
-        return routes.body as V1Route[];
+        const body = routes.body as KubernetesListObject<V1Route>;
+        return body.items;
       } catch (_) {
         // catch 404 error
         // do nothing
