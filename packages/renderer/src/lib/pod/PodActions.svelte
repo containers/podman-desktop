@@ -13,7 +13,6 @@ import { router } from 'tinro';
 
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 
-import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
 import { ContainerUtils } from '../container/container-utils';
@@ -62,10 +61,8 @@ onMount(async () => {
       if (kubepod?.metadata?.labels?.app) {
         const appName = kubepod.metadata.labels.app;
         const routes = await window.kubernetesListRoutes();
-        const appRoutes: V1Route[] = (routes as any).items.filter(
-          (r: V1Route) => r.metadata.labels && r.metadata.labels['app'] === appName,
-        );
-        appRoutes.forEach((route: V1Route) => {
+        const appRoutes = routes.filter(r => r.metadata.labels && r.metadata.labels['app'] === appName);
+        appRoutes.forEach(route => {
           openingKubernetesUrls = openingKubernetesUrls.set(
             route.metadata.name,
             route.spec.tls ? `https://${route.spec.host}` : `http://${route.spec.host}`,
