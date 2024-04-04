@@ -1730,8 +1730,11 @@ export async function createMachine(
       suffix = `-${process.arch}.qcow2.xz`;
     }
     const assetImagePath = path.resolve(getAssetsFolder(), `podman-image${suffix}`);
+
+    const podmanInstallation = await getPodmanInstallation();
+
     // check if the file exists and if it does, use it
-    if (fs.existsSync(assetImagePath)) {
+    if (fs.existsSync(assetImagePath) && podmanInstallation.version.startsWith('4.')) {
       parameters.push('--image-path');
       parameters.push(assetImagePath);
       telemetryRecords.imagePath = 'embedded';
