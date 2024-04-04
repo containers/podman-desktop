@@ -135,6 +135,7 @@ You can generate "draft" release notes by using the [release notes workflow](htt
 
 1. Use an [example template](#release-notes-template) for the release notes.
 1. Create a PR to the blog folder of the website using the file format: `website/blog/2023-07-12-release-0.13.md`
+1. Example of request when using `gh` cli tool for 1.9.0 milestone: `gh pr list --limit 300 --repo "containers/podman-desktop" --search "state:closed milestone:1.9.0" --json title,number,url --template '{{range .}}- {{.title}} [#{{.number}}]({{.url}}){{"\n"}}{{end}}'`
 1. Add any images to the `website/img/podman-desktop-release-0.13` folder.
 1. Ping the respective docs maintainers for a review before merging.
 
