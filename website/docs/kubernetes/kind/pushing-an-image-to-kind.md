@@ -34,7 +34,6 @@ podman exec -it $(podman ps --filter "label=io.x-k8s.kind.role=control-plane" --
 
 See the [Kind Quickstart](https://kind.sigs.k8s.io/docs/user/quick-start/#loading-an-image-into-your-cluster) for details.
 
-Older versions of Kind do not allow you to list loaded images.  
 Therefore, create a Pod that uses the loaded image.
 
 1. Create a `verify_my_image.yaml` Kubernetes YAML file on your workstation.
