@@ -233,6 +233,12 @@ if (dropdownMenu) {
         {/each}
       </DropdownMenu>
     {/if}
+    <ListItemButtonIcon
+      title="Restart Pod"
+      onClick="{() => restartPod()}"
+      menu="{dropdownMenu}"
+      detailed="{detailed}"
+      icon="{faArrowsRotate}" />
   {/if}
   {#if pod.kind === 'kubernetes'}
     {#if openingKubernetesUrls.size === 0}
@@ -271,12 +277,6 @@ if (dropdownMenu) {
       </DropdownMenu>
     {/if}
   {/if}
-  <ListItemButtonIcon
-    title="Restart Pod"
-    onClick="{() => restartPod()}"
-    menu="{dropdownMenu}"
-    detailed="{detailed}"
-    icon="{faArrowsRotate}" />
   <ContributionActions
     args="{[pod]}"
     contextPrefix="podItem"
