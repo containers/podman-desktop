@@ -102,7 +102,7 @@
     "watch": "vite build -w"
   },
   "dependencies": {
-    "@octokit/rest": "^20.0.2",
+    "@octokit/rest": "^20.1.0",
     "@podman-desktop/api": "^0.0.1",
     "mustache": "^4.2.0",
     "yaml": "^2.4.1"
