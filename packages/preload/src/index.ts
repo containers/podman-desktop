@@ -59,7 +59,7 @@ import type { ExtensionInfo } from '../../main/src/plugin/api/extension-info';
 import type { HistoryInfo } from '../../main/src/plugin/api/history-info';
 import type { IconInfo } from '../../main/src/plugin/api/icon-info';
 import type { ImageCheckerInfo } from '../../main/src/plugin/api/image-checker-info';
-import type { ImageInfo } from '../../main/src/plugin/api/image-info';
+import type { ImageInfo, PodmanListImagesOptions } from '../../main/src/plugin/api/image-info';
 import type { ImageInspectInfo } from '../../main/src/plugin/api/image-inspect-info';
 import type { KubernetesGeneratorInfo } from '../../main/src/plugin/api/KubernetesGeneratorInfo';
 import type { NetworkInspectInfo } from '../../main/src/plugin/api/network-info';
@@ -233,6 +233,12 @@ export function initExposure(): void {
   contextBridge.exposeInMainWorld('listImages', async (): Promise<ImageInfo[]> => {
     return ipcInvoke('container-provider-registry:listImages');
   });
+  contextBridge.exposeInMainWorld(
+    'podmanListImages',
+    async (options?: PodmanListImagesOptions): Promise<ImageInfo[]> => {
+      return ipcInvoke('container-provider-registry:podmanListImages', options);
+    },
+  );
 
   contextBridge.exposeInMainWorld('listVolumes', async (fetchUsage = true): Promise<VolumeListInfo[]> => {
     return ipcInvoke('container-provider-registry:listVolumes', fetchUsage);

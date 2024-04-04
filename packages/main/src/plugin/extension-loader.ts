@@ -979,6 +979,11 @@ export class ExtensionLoader {
       listImages(options?: containerDesktopAPI.ListImagesOptions): Promise<containerDesktopAPI.ImageInfo[]> {
         return containerProviderRegistry.listImages(options);
       },
+      podmanListImages(
+        options?: containerDesktopAPI.PodmanListImagesOptions,
+      ): Promise<containerDesktopAPI.ImageInfo[]> {
+        return containerProviderRegistry.podmanListImages(options);
+      },
       saveImage(engineId: string, id: string, filename: string) {
         return containerProviderRegistry.saveImage(engineId, id, filename);
       },

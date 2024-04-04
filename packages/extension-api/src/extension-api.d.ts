@@ -1844,6 +1844,33 @@ declare module '@podman-desktop/api' {
     generate(kubernetesGeneratorArguments: KubernetesGeneratorArgument[]): Promise<GenerateKubeResult>;
   }
 
+  export interface PodmanListImagesOptions {
+    /**
+     * Show all images. By default all images from a final layer (no children) are shown.
+     * @defaultValue false
+     */
+    all?: boolean;
+
+    /**
+     * A JSON encoded value of the filters (a map[string][]string) to process on the images list. Available filters:
+     * - before=(<image-name>[:<tag>], <image id> or <image@digest>)
+     * - dangling=true
+     * - label=key or label="key=value" of an image label
+     * - reference=(<image-name>[:<tag>])
+     * - since=(<image-name>[:<tag>], <image id> or <image@digest>)
+     *
+     * @defaultValue undefined
+     */
+    filters?: string;
+
+    /**
+     * The provider we want to list the images. If not provided, will return all container images across all container engines.
+     *
+     * @defaultValue undefined
+     */
+    provider?: ContainerProviderConnection;
+  }
+
   export interface ImageInfo {
     engineId: string;
     engineName: string;
@@ -3267,6 +3294,30 @@ declare module '@podman-desktop/api' {
      * console.log(images);
      */
     export function listImages(options?: ListImagesOptions): Promise<ImageInfo[]>;
+
+    /**
+     * List podman container images from the Podman engine. This is a podman specific method that uses the libpod API and matches the API call
+     * including parameters and return values.
+     *
+     * @param options optional options for listing images
+     * @returns A promise resolving to an array of images information. This method returns a subset of the available information for images. To get the complete description of a specific image, you can use the {@link containerEngine.getImageInspect} method.
+     *
+     * @example
+     * // Example 1: List all podman container images
+     * const images = await podmanListImages();
+     * console.log(images);
+     *
+     * @example
+     * // Example 2: List podman container images using filters
+     * const images = await podmanListImages({ filters: { dangling: ['true'] } });
+     * console.log(images);
+     *
+     * @example
+     * // Example 3: List all images including children images
+     * const images = await podmanListImages({ all: true });
+     * console.log(images);
+     */
+    export function podmanListImages(options?: PodmanListImagesOptions): Promise<ImageInfo[]>;
 
     /**
      * Tag an image so that it becomes part of a repository

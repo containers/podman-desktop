@@ -51,7 +51,7 @@ import type {
 import type { ContainerInspectInfo } from './api/container-inspect-info.js';
 import type { ContainerStatsInfo } from './api/container-stats-info.js';
 import type { HistoryInfo } from './api/history-info.js';
-import type { BuildImageOptions, ImageInfo, ListImagesOptions } from './api/image-info.js';
+import type { BuildImageOptions, ImageInfo, ListImagesOptions, PodmanListImagesOptions } from './api/image-info.js';
 import type { ImageInspectInfo } from './api/image-inspect-info.js';
 import type { NetworkInspectInfo } from './api/network-info.js';
 import type { PodCreateOptions, PodInfo, PodInspectInfo } from './api/pod-info.js';
@@ -585,6 +585,48 @@ export class ContainerProviderRegistry {
     this.telemetryService.track('listImages', Object.assign({ total: flatttenedImages.length }, telemetryOptions));
 
     return flatttenedImages;
+  }
+
+  async podmanListImages(options?: PodmanListImagesOptions): Promise<ImageInfo[]> {
+    let telemetryOptions = {};
+
+    // This gets all the available providers if no provider has been specified
+    let providers: InternalContainerProvider[];
+    if (options?.provider === undefined) {
+      providers = Array.from(this.internalProviders.values());
+    } else {
+      providers = [this.getMatchingContainerProvider(options?.provider)];
+    }
+
+    const images = await Promise.all(
+      Array.from(providers).map(async provider => {
+        try {
+          // This is important and very similar to the 'listImages' function with the difference
+          // is that we are using the libpod API to list images, so we only retrieve the images
+          // from providers that have implemented libpod API.
+          if (!provider.libpodApi) {
+            return [];
+          }
+
+          // List the images
+          const images = await provider.libpodApi.podmanListImages(options);
+
+          // Add the additional information such as engineName and engineId to the ImageInfo
+          return images.map(image => {
+            const imageInfo: ImageInfo = { ...image, engineName: provider.name, engineId: provider.id };
+            return imageInfo;
+          });
+        } catch (error) {
+          console.log('error in engine', provider.name, error);
+          telemetryOptions = { error: error };
+          return [];
+        }
+      }),
+    );
+    const flattenedImages = images.flat();
+    this.telemetryService.track('podmanListImages', Object.assign({ total: flattenedImages.length }, telemetryOptions));
+
+    return flattenedImages;
   }
 
   async pruneImages(engineId: string): Promise<void> {

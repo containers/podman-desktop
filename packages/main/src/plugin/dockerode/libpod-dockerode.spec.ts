@@ -26,6 +26,7 @@ import { beforeAll, expect, test } from 'vitest';
 import { type LibPod, LibpodDockerode } from '/@/plugin/dockerode/libpod-dockerode.js';
 
 import podmanInfo from '../../../tests/resources/data/plugin/podman-info.json';
+import type { PodmanListImagesOptions } from '../api/image-info.js';
 
 beforeAll(() => {
   const libpod = new LibpodDockerode();
@@ -48,6 +49,30 @@ test('Check force is given with remove pod options', async () => {
     .reply(200);
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
   await (api as unknown as LibPod).removePod('dummy', { force: true });
+});
+
+test('Check list of images using Podman API', async () => {
+  const jsonImages = [
+    {
+      Id: 'sha256:1234567890',
+      ParentId: 'sha256:0987654321',
+      RepoTags: ['docker.io/library/httpd:latest'],
+      RepoDigests: [],
+      Created: 1691582587,
+      Size: 0,
+      VirtualSize: 0,
+      SharedSize: 0,
+      Labels: null,
+      Containers: 0,
+    },
+  ];
+
+  nock('http://localhost').get('/v4.2.0/libpod/images/json').reply(200, jsonImages);
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+  const listOfImages = await (api as unknown as LibPod).podmanListImages({} as PodmanListImagesOptions);
+  expect(listOfImages.length).toBe(1);
+  const firstImage = listOfImages[0];
+  expect(firstImage.Id).toBe('sha256:1234567890');
 });
 
 test('Check list of containers using Podman API', async () => {
