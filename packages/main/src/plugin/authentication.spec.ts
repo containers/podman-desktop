@@ -33,7 +33,7 @@ function randomNumber(n = 5): number {
   return Math.round(Math.random() * 10 * n);
 }
 
-class RandomAuthenticationSession implements AuthenticationSession {
+export class RandomAuthenticationSession implements AuthenticationSession {
   id: string;
   accessToken: string;
   account: AuthenticationSessionAccountInformation;
@@ -47,10 +47,11 @@ class RandomAuthenticationSession implements AuthenticationSession {
   }
 }
 
-class AuthenticationProviderSingleAccount implements AuthenticationProvider {
+export class AuthenticationProviderSingleAccount implements AuthenticationProvider {
   private _onDidChangeSession = new EventEmitter<AuthenticationProviderAuthenticationSessionsChangeEvent>();
   private session: AuthenticationSession | undefined;
   onDidChangeSessions: Event<AuthenticationProviderAuthenticationSessionsChangeEvent> = this._onDidChangeSession.event;
+  constructor() {}
   async getSessions(scopes?: string[]): Promise<readonly AuthenticationSession[]> {
     if (scopes) {
       return this.session ? [this.session] : [];
