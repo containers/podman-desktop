@@ -146,7 +146,7 @@
   },
   "dependencies": {
     "@podman-desktop/api": "^0.0.1",
-    "@octokit/rest": "^20.0.2",
+    "@octokit/rest": "^20.1.0",
     "shell-path": "^3.0.0"
   },
   "devDependencies": {
