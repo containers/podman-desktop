@@ -122,6 +122,7 @@ test('expect update on windows to show notification in case of 0 exit code', asy
 
   vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+  vi.mocked(fs.readdirSync).mockReturnValue([]);
 
   const installer = new WinInstaller(extensionContext);
   const result = await installer.update();
@@ -143,6 +144,7 @@ test('expect update on windows not to show notification in case of 1602 exit cod
 
   vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+  vi.mocked(fs.readdirSync).mockReturnValue([]);
 
   const installer = new WinInstaller(extensionContext);
   const result = await installer.update();
@@ -165,6 +167,7 @@ test('expect update on windows to throw error if non zero exit code', async () =
 
   vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+  vi.mocked(fs.readdirSync).mockReturnValue([]);
 
   const installer = new WinInstaller(extensionContext);
   const result = await installer.update();
@@ -706,6 +709,38 @@ describe('getBundledPodmanVersion', () => {
     const version = getBundledPodmanVersion();
     expect(version.startsWith('4')).toBeFalsy();
     expect(version.startsWith('5')).toBeTruthy();
+
+    // check existSync has been called
+    expect(vi.mocked(fs.existsSync)).toHaveBeenCalled();
+
+    // check first argument of the call to getMock
+    expect(getMock).toHaveBeenCalled();
+    // should have called the get with the property for experimental install
+    expect(getMock).toHaveBeenCalledWith('experimental.install.v5');
+  });
+
+  test('should return the podman 4 version if there is some airgapped images (fresh install)', async () => {
+    vi.mocked(extensionApi.configuration.getConfiguration).mockReset();
+    const getMock = vi.fn();
+    getMock.mockReturnValue(false);
+
+    // exist sync is false
+    vi.mock('node:fs');
+    // no qemu folders
+    vi.mocked(fs.existsSync).mockReturnValueOnce(false);
+    vi.mocked(fs.existsSync).mockReturnValueOnce(false);
+    // but we have some images
+    vi.mocked(fs.existsSync).mockReturnValueOnce(true);
+    vi.mocked(fs.readdirSync).mockReturnValue(['podman-image-foo.tar.gz'] as unknown as fs.Dirent[]);
+
+    vi.mocked(extensionApi.configuration.getConfiguration).mockReturnValue({
+      get: getMock,
+      has: vi.fn(),
+      update: vi.fn(),
+    });
+    const version = getBundledPodmanVersion();
+    expect(version.startsWith('4')).toBeTruthy();
+    expect(version.startsWith('5')).toBeFalsy();
 
     // check existSync has been called
     expect(vi.mocked(fs.existsSync)).toHaveBeenCalled();
