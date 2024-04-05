@@ -831,6 +831,7 @@ describe('listContainers', () => {
     expect(container.Image).toBe('docker.io/library/httpd:latest');
     expect(container.ImageID).toBe('sha256:911d72fc5020723f0c003a134a8d2f062b4aea884474a11d1db7dcd28ce61d6a');
     expect(container.Created).toBe(1691674664);
+    expect(container.ImageBase64RepoTag).toBe('ZG9ja2VyLmlvL2xpYnJhcnkvaHR0cGQ6bGF0ZXN0');
     expect(container.Ports).toStrictEqual([
       {
         IP: '',
@@ -3129,6 +3130,71 @@ test('check volume mounted is replicated when executing replicatePodmanContainer
     image: fakeContainerInspectInfo.Config.Image,
     mounts: fakeContainerInspectInfo.Mounts,
   });
+});
+
+test('check that createManifest returns an Id value after running podmanCreateManifest', async () => {
+  const createManifestMock = vi.fn().mockResolvedValue({
+    Id: 'testid1',
+  });
+
+  const fakeLibPod = {
+    podmanCreateManifest: createManifestMock,
+  } as unknown as LibPod;
+
+  containerRegistry.addInternalProvider('podman1', {
+    name: 'podman',
+    id: 'podman1',
+    libpodApi: fakeLibPod,
+    connection: {
+      type: 'podman',
+    },
+  } as unknown as InternalContainerProvider);
+
+  const result = await containerRegistry.createManifest({
+    name: 'manifest',
+    images: ['image1', 'image2'],
+  });
+
+  expect(result.Id).toBe('testid1');
+});
+
+test('check that createManifest errors with The matching provider does not support the Podman API if the provider has no libpodApi', async () => {
+  const fakeDockerode = {
+    createManifest: vi.fn(),
+  } as unknown as LibPod;
+
+  const internalProvider = {
+    name: 'podman1',
+    id: 'podman1',
+    connection: {
+      name: 'podman1',
+      type: 'podman',
+      endpoint: {
+        socketPath: 'podman.sock',
+      },
+    },
+    // Purposely NOT have libpodApi, but just have normal api
+    api: fakeDockerode,
+  } as unknown as InternalContainerProvider;
+
+  containerRegistry.addInternalProvider('podman1', internalProvider);
+
+  const containerProviderConnection: podmanDesktopAPI.ContainerProviderConnection = {
+    name: 'podman1',
+    endpoint: {
+      socketPath: 'podman.sock',
+    },
+    status: vi.fn(),
+    type: 'podman',
+  };
+
+  await expect(
+    containerRegistry.createManifest({
+      name: 'manifest',
+      images: ['image1', 'image2'],
+      provider: containerProviderConnection,
+    }),
+  ).rejects.toThrowError('The matching provider does not support the Podman API');
 });
 
 test('check createPod uses running podman connection if no selectedProvider is provided', async () => {

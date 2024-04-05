@@ -208,6 +208,26 @@ test('Authentication provider creates session when session request is executed',
   expect(createSessionSpy).toBeCalledTimes(1);
 });
 
+test('Authentication removes session request when session requested programmatically', async () => {
+  const authProvidrer1 = new AuthenticationProviderSingleAccount();
+  const createSessionSpy = vi.spyOn(authProvidrer1, 'createSession');
+
+  authModule.registerAuthenticationProvider('company.auth-provider', 'Provider 1', authProvidrer1);
+  await authModule.getSession({ id: 'ext1', label: 'Ext 1' }, 'company.auth-provider', ['scope1', 'scope2'], {
+    silent: false,
+  });
+
+  expect(authModule.getSessionRequests()).length(1);
+
+  await authModule.getSession({ id: 'ext1', label: 'Ext 1' }, 'company.auth-provider', ['scope1', 'scope2'], {
+    createIfNone: true,
+    silent: false,
+  });
+
+  expect(createSessionSpy).toBeCalledTimes(1);
+  expect(authModule.getSessionRequests()).length(0);
+});
+
 test('getAuthenticationProvidersInfo', async () => {
   const authentication = new AuthenticationImpl(apiSender);
 

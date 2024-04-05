@@ -183,3 +183,13 @@ test('Check labels are passed to the api when creating a pod', async () => {
     },
   });
 });
+
+test('Check using libpod/manifests/ endpoint', async () => {
+  nock('http://localhost').post('/v4.2.0/libpod/manifests/name1').reply(201, { Id: 'testId1' });
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+  const manifest = await (api as unknown as LibPod).podmanCreateManifest({
+    name: 'name1',
+    images: ['image1', 'image2'],
+  });
+  expect(manifest.Id).toBe('testId1');
+});

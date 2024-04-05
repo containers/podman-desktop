@@ -121,7 +121,7 @@ test('getFeaturedExtensions should check installable extensions', async () => {
   expect(crcExtension?.fetchLink).toBe(ociLink);
 });
 
-test('getFeaturedExtensions should shuffle and limit to 6 extensions', async () => {
+test('getFeaturedExtensions should shuffle and limit to 6 extensions by default', async () => {
   // mock the set of featured JSON extensions
   const spyReadJson = vi.spyOn(featured, 'readFeaturedJson');
 
@@ -157,4 +157,58 @@ test('getFeaturedExtensions should shuffle and limit to 6 extensions', async () 
 
   // check that the 2 lists are not the same
   expect(idsList1).not.toStrictEqual(idsList2);
+});
+
+test('getFeaturedExtensions have no limit when calling with -1', async () => {
+  // mock the set of featured JSON extensions
+  const spyReadJson = vi.spyOn(featured, 'readFeaturedJson');
+
+  const jsonValues = [];
+  for (let i = 1; i <= 10; i++) {
+    jsonValues.push({
+      extensionId: `podman-desktop.${i}`,
+      displayName: `Podman${i}`,
+      shortDescription: `test${i}`,
+      categories: ['Container Engine'],
+      builtIn: true,
+      icon: `data:image/png;base64,${i}`,
+    });
+  }
+  spyReadJson.mockReturnValue(jsonValues);
+
+  // init fetchable extensions
+  await featured.init();
+  const featuredExtensions1 = await featured.getFeaturedExtensions(-1);
+
+  expect(featuredExtensions1).toBeDefined();
+
+  // should not be limited
+  expect(featuredExtensions1.length).toBe(10);
+});
+
+test('getFeaturedExtensions should limit the number of item returned with the provided value', async () => {
+  // mock the set of featured JSON extensions
+  const spyReadJson = vi.spyOn(featured, 'readFeaturedJson');
+
+  const jsonValues = [];
+  for (let i = 1; i <= 10; i++) {
+    jsonValues.push({
+      extensionId: `podman-desktop.${i}`,
+      displayName: `Podman${i}`,
+      shortDescription: `test${i}`,
+      categories: ['Container Engine'],
+      builtIn: true,
+      icon: `data:image/png;base64,${i}`,
+    });
+  }
+  spyReadJson.mockReturnValue(jsonValues);
+
+  // init fetchable extensions
+  await featured.init();
+  const featuredExtensions1 = await featured.getFeaturedExtensions(3);
+
+  expect(featuredExtensions1).toBeDefined();
+
+  // should be limited to 3
+  expect(featuredExtensions1.length).toBe(3);
 });

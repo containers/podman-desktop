@@ -156,6 +156,8 @@ export class ContainerUtils {
       created: containerInfo.Created,
       labels: containerInfo.Labels,
       icon: this.iconClass(containerInfo, context, viewContributions) || ContainerIcon,
+      imageBase64RepoTag: containerInfo.ImageBase64RepoTag,
+      imageHref: `/images/${containerInfo.ImageID}/${containerInfo.engineId}/${containerInfo.ImageBase64RepoTag}/summary`,
     };
   }
 

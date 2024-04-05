@@ -26,32 +26,10 @@ With Podman Desktop, you can push an image to your local Kind-powered Kubernetes
 
 #### Verification
 
-Kind does not enable you to list loaded images.
-Therefore, create a Pod that uses the loaded image.
+With recent versions of Kind, the `crictl` command can be used - e.g., `podman exec -it kind-cluster-control-plane crictl images`. The name of the control plane container may vary, so you can use a filter to query for the container:
 
-1. Create a `verify_my_image.yaml` Kubernetes YAML file on your workstation.
-   Replace the placeholders:
+```
+podman exec -it $(podman ps --filter "label=io.x-k8s.kind.role=control-plane" --format {{.Names}}) crictl images
+```
 
-   - Pod `name` and container `name` value must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character.
-   - Container `image` value is the image you pushed.
-
-   ```yaml
-   apiVersion: v1
-   kind: Pod
-   metadata:
-     name: <verify-my-image>
-   spec:
-     containers:
-       - name: <my-image>
-         image: <my_image>:<my_tag>
-         imagePullPolicy: Never
-   ```
-
-1. Open **<Icon icon="fa-solid fa-cubes" size="lg" /> Pods > Play Kubernetes YAML**.
-   1. **Kubernetes YAML file**: select your `verify_my_image.yaml` file.
-   1. **Select Runtime**: **Using a Kubernetes cluster**.
-   1. Click **Play**.
-   1. Click **Done**
-1. Open **<Icon icon="fa-solid fa-cubes" size="lg" /> Pods**.
-1. **<Icon icon="fa-solid fa-search" size="lg" /> Search pods**: `<verify-my-image>`.
-1. The pod **Status** is **Running**.
+See the [Kind Quickstart](https://kind.sigs.k8s.io/docs/user/quick-start/#loading-an-image-into-your-cluster) for details.
