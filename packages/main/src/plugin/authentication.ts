@@ -249,7 +249,15 @@ export class AuthenticationImpl {
 
     if (options.createIfNone) {
       if (providerData) {
-        return providerData.provider.createSession(sortedScopes);
+        const newSession = await providerData.provider.createSession(sortedScopes);
+        const request = Array.from(this._signInRequestsData.values()).find(request => {
+          return request.extensionId === requestingExtension.id;
+        });
+        if (request) {
+          this._signInRequestsData.delete(request.id);
+          this._signInRequests.delete(providerId);
+        }
+        return newSession;
       } else {
         throw new Error(`Requested authentication provider ${providerId} is not installed.`);
       }
