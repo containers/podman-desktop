@@ -9,7 +9,7 @@ export let provider: ProviderInfo;
   <div class="mt-2 flex flex-row justify-around">
     {#each provider.links as link}
       {#if link.group === undefined}
-        <Link class="text-sm" externalRef="{link.url}">
+        <Link class="text-base" externalRef="{link.url}">
           {link.title}
         </Link>
       {/if}

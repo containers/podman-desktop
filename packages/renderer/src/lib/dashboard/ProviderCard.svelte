@@ -11,11 +11,11 @@ export let provider: ProviderInfo;
   <div class="flex flex-row">
     <div class="flex flex-row">
       <IconImage image="{provider?.images?.icon}" class="mx-auto max-h-12" alt="{provider.name}"></IconImage>
-      <div class="flex flex-col text-gray-400 ml-3 whitespace-nowrap" aria-label="context-name">
+      <div class="flex flex-col text-gray-400 text-lg font-bold ml-3 whitespace-nowrap" aria-label="context-name">
         <div class="flex flex-row items-center">
           {provider.name}
           {#if provider.version}
-            <div class="text-gray-800 text-sm pl-1" aria-label="Provider Version">
+            <div class="text-gray-800 text-base font-light pl-1" aria-label="Provider Version">
               v{provider.version}
             </div>
           {/if}
