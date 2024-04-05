@@ -49,6 +49,7 @@ const myContainer: ContainerInfoUI = {
   selected: false,
   created: 0,
   labels: {},
+  imageBase64RepoTag: '',
 };
 
 const stats: ContainerStatsInfo = {

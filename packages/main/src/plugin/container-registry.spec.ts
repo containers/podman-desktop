@@ -831,6 +831,7 @@ describe('listContainers', () => {
     expect(container.Image).toBe('docker.io/library/httpd:latest');
     expect(container.ImageID).toBe('sha256:911d72fc5020723f0c003a134a8d2f062b4aea884474a11d1db7dcd28ce61d6a');
     expect(container.Created).toBe(1691674664);
+    expect(container.ImageBase64RepoTag).toBe('ZG9ja2VyLmlvL2xpYnJhcnkvaHR0cGQ6bGF0ZXN0');
     expect(container.Ports).toStrictEqual([
       {
         IP: '',

@@ -10,6 +10,7 @@ import ContainerIcon from '../images/ContainerIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import Link from '../ui/Link.svelte';
 import StateChange from '../ui/StateChange.svelte';
 import Tab from '../ui/Tab.svelte';
 import { ContainerUtils } from './container-utils';
@@ -30,7 +31,6 @@ let container: ContainerInfoUI;
 let detailsPage: DetailsPage;
 
 let displayTty = false;
-
 // update current route scheme
 let currentRouterPath: string;
 
@@ -46,7 +46,6 @@ onMount(() => {
     const matchingContainer = containers.find(c => c.Id === containerID);
     if (matchingContainer) {
       container = containerUtils.getContainerInfoUI(matchingContainer);
-
       // look if tty is supported by this container
       window.getContainerInspect(container.engineId, container.id).then(inspect => {
         displayTty = (inspect.Config.Tty || false) && (inspect.Config.OpenStdin || false);
@@ -68,8 +67,11 @@ onMount(() => {
 </script>
 
 {#if container}
-  <DetailsPage title="{container.name}" subtitle="{container.shortImage}" bind:this="{detailsPage}">
+  <DetailsPage title="{container.name}" bind:this="{detailsPage}">
     <StatusIcon slot="icon" icon="{ContainerIcon}" size="{24}" status="{container.state}" />
+    <svelte:fragment slot="subtitle">
+      <Link internalRef="{container.imageHref}">{container.shortImage}</Link>
+    </svelte:fragment>
     <svelte:fragment slot="actions">
       <div class="flex items-center w-5">
         {#if container.actionError}
