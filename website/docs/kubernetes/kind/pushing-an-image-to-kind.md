@@ -26,7 +26,7 @@ With Podman Desktop, you can push an image to your local Kind-powered Kubernetes
 
 #### Verification
 
-With recent versions of Kind, the `crictl` command can be used - e.g., `podman exec -it kind-cluster-control-plane crictl images`.  The name of the control plane container may vary, so you can use a filter to query for the container:
+With recent versions of Kind, the `crictl` command can be used - e.g., `podman exec -it kind-cluster-control-plane crictl images`. The name of the control plane container may vary, so you can use a filter to query for the container:
 
 ```
 podman exec -it $(podman ps --filter "label=io.x-k8s.kind.role=control-plane" --format {{.Names}}) crictl images
