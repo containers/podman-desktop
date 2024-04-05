@@ -63,7 +63,7 @@ export interface AllowedExtension {
 }
 
 export interface SessionRequest {
-  [scopes: string]: string[]; // maps sting with scopes to provider ids
+  [scopes: string]: string[]; // maps string with scopes to extension id's
 }
 
 export interface SessionRequestInfo {
@@ -74,7 +74,47 @@ export interface SessionRequestInfo {
   extensionLabel: string;
 }
 
+export type MenuInfo = AuthenticationRequestMenuInfo | AuthenticationSessionMenuInfo;
+
+export interface AuthenticationRequestMenuInfo {
+  label: string;
+  requestId: string;
+}
+
+export interface AuthenticationSessionMenuInfo {
+  label: string;
+  providerId: string;
+  sessionId: string;
+}
+
 export class AuthenticationImpl {
+  async getAccountsMenuInfo(): Promise<MenuInfo[]> {
+    const requestsMenuInfo: MenuInfo[] = this.getSessionRequests().reduce((prev: MenuInfo[], current) => {
+      const provider = this._authenticationProviders.get(current.providerId);
+      if (provider) {
+        prev.push({
+          label: `Sign in with ${provider.label} to use ${current.extensionLabel}`,
+          requestId: current.id,
+        });
+      }
+      return prev;
+    }, []);
+
+    const providersInfo = await this.getAuthenticationProvidersInfo();
+    const sessionMenuInfo: MenuInfo[] = providersInfo.reduce((prev: MenuInfo[], current) => {
+      current.accounts.forEach(account => {
+        prev.push({
+          label: `${account.label} (${current.displayName})`,
+          providerId: current.id,
+          sessionId: account.id,
+        });
+      });
+      return prev;
+    }, []);
+
+    return [...sessionMenuInfo, ...requestsMenuInfo];
+  }
+
   private _authenticationProviders: Map<string, ProviderWithMetadata> = new Map<string, ProviderWithMetadata>();
   // map of scopes to extension ids
   private _signInRequests: Map<string, SessionRequest> = new Map();
@@ -258,7 +298,11 @@ export class AuthenticationImpl {
       throw new Error(`Requested authentication provider '${data.providerId}' is not installed.`);
     }
 
-    await provider.createSession(data.scopes);
+    const session = await provider.createSession(data.scopes);
+    if (session) {
+      this._signInRequestsData.delete(id);
+      this._signInRequests.delete(data.providerId);
+    }
   }
 
   async removeSession(providerId: string, sessionId: string): Promise<void> {
