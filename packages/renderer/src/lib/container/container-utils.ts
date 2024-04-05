@@ -65,6 +65,11 @@ export class ContainerUtils {
     return humanizeDuration(uptimeInMs, { round: true, largest: 1 });
   }
 
+  formatContainerCommand(command: readonly string[]): string {
+    const commandArrayString = command.map(commandPiece => `"` + commandPiece + `"`).join(', ');
+    return `[${commandArrayString}]`;
+  }
+
   refreshUptime(containerInfoUI: ContainerInfoUI): string {
     if (containerInfoUI.state !== 'RUNNING' || !containerInfoUI.startedAt) {
       return '';

@@ -56,7 +56,7 @@ const containerInfoUIMock: ContainerInfoUI = {
   ports: [],
   portsAsString: 'foobar',
   displayPort: 'foobar',
-  command: 'foobar',
+  command: ['foobar'],
   hasPublicPort: false,
   groupInfo: {
     name: 'foobar',

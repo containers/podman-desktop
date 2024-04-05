@@ -45,7 +45,7 @@ const myContainer: ContainerInfo = {
   Names: ['name0'],
   Image: '',
   ImageID: '',
-  Command: '',
+  Command: [''],
   Created: 0,
   Ports: [],
   State: '',

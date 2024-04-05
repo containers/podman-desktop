@@ -42,7 +42,7 @@ export interface ContainerInfo {
   Names: string[];
   Image: string;
   ImageID: string;
-  Command?: string;
+  Command?: readonly string[];
   Created: number;
   Ports: ContainerPortInfo[];
   Labels: { [label: string]: string };
