@@ -606,6 +606,7 @@ export class ContainerProviderRegistry {
           // is that we are using the libpod API to list images, so we only retrieve the images
           // from providers that have implemented libpod API.
           if (!provider.libpodApi) {
+            console.log('podman engine is missing libpod API, cannot list images, check your provider configuration');
             return [];
           }
 

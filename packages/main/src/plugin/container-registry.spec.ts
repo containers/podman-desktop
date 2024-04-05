@@ -3753,6 +3753,66 @@ describe('listImages', () => {
   });
 });
 
+test('list images with podmanListImages correctly', async () => {
+  const imagesList = [
+    {
+      Id: 'dummyImageId',
+    },
+  ];
+
+  nock('http://localhost').get('/v4.2.0/libpod/images/json').reply(200, imagesList);
+
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  // set provider
+  containerRegistry.addInternalProvider('podman', {
+    name: 'podman',
+    id: 'podman1',
+    api,
+    libpodApi: api,
+    connection: {
+      type: 'podman',
+    },
+  } as unknown as InternalContainerProvider);
+
+  const images = await containerRegistry.podmanListImages();
+  // ensure the field are correct
+  expect(images).toBeDefined();
+  expect(images).toHaveLength(1);
+  const image = images[0];
+  expect(image.engineId).toBe('podman1');
+  expect(image.engineName).toBe('podman');
+  expect(image.Id).toBe('dummyImageId');
+});
+
+test('expect to get no images returned if podman provider does not have libpodApi', async () => {
+  const imagesList = [
+    {
+      Id: 'dummyImageId',
+    },
+  ];
+
+  nock('http://localhost').get('/v4.2.0/libpod/images/json').reply(200, imagesList);
+
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  // set provider
+  containerRegistry.addInternalProvider('podman', {
+    name: 'podman',
+    id: 'podman1',
+    api,
+    connection: {
+      type: 'podman',
+    },
+    // purposely NOT have libpodApi
+  } as unknown as InternalContainerProvider);
+
+  const images = await containerRegistry.podmanListImages();
+  // ensure the field are correct
+  expect(images).toBeDefined();
+  expect(images).toHaveLength(0);
+});
+
 test('listInfos without provider', async () => {
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
 
