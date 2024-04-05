@@ -16,12 +16,56 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IConfigurationNode, IConfigurationRegistry } from '/@/plugin/configuration-registry.js';
+import type { ConfigurationRegistry, IConfigurationNode } from '/@/plugin/configuration-registry.js';
+import type { Featured } from '/@/plugin/featured/featured.js';
+import type { FeaturedExtension } from '/@/plugin/featured/featured-api.js';
+import type { ExtensionBanner } from '/@/plugin/recommendations/recommendations-api.js';
 
+import { default as recommendations } from '../../../../../recommendations.json';
 import { RecommendationsSettings } from './recommendations-settings.js';
 
 export class RecommendationsRegistry {
-  constructor(private configurationRegistry: IConfigurationRegistry) {}
+  constructor(
+    private configurationRegistry: ConfigurationRegistry,
+    private featured: Featured,
+  ) {}
+
+  isRecommendationDisabled(): boolean {
+    return this.configurationRegistry
+      .getConfiguration(RecommendationsSettings.SectionName)
+      .get<boolean>(RecommendationsSettings.IgnoreRecommendations, false);
+  }
+
+  /**
+   * Return the recommended extension banners which are not installed.
+   * @param limit the maximum number of extension banners returned. Default 1, use -1 for no limit
+   */
+  async getExtensionBanners(limit = 1): Promise<ExtensionBanner[]> {
+    // Do not recommend any extension when user selected the ignore preference
+    if (this.isRecommendationDisabled()) return [];
+
+    const featuredExtensions: Record<string, FeaturedExtension> = Object.fromEntries(
+      (await this.featured.getFeaturedExtensions(-1)).map(featured => [featured.id, featured]),
+    );
+
+    // Filter and shuffle the extensions
+    const extensionBanners: ExtensionBanner[] = recommendations.extensions
+      .filter(
+        extension =>
+          extension.extensionId in featuredExtensions && !featuredExtensions[extension.extensionId].installed,
+      )
+      .map(extension => ({
+        ...extension,
+        featured: featuredExtensions[extension.extensionId],
+      }))
+      .sort(() => Math.random() - 0.5);
+
+    // Limit the number of
+    if (limit >= 0 && extensionBanners.length > limit) {
+      return extensionBanners.toSpliced(limit);
+    }
+    return extensionBanners;
+  }
 
   init(): void {
     const recommendationConfiguration: IConfigurationNode = {

@@ -16,23 +16,49 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
+import type { Featured } from '/@/plugin/featured/featured.js';
+import type { FeaturedExtension } from '/@/plugin/featured/featured-api.js';
 
 import { RecommendationsRegistry } from './recommendations-registry.js';
 
 let recommendationsRegistry: RecommendationsRegistry;
 
-const registerConfigurationsMock = vi.fn();
+const mocks = vi.hoisted(() => ({
+  registerConfigurationsMock: vi.fn(),
+  getRecommendationIgnored: vi.fn(),
+}));
+
+vi.mock('./recommendations.json', () => ({
+  default: {
+    extensions: Array.from({ length: 10 }, (_, i) => ({
+      extensionId: `dummy.id-${i}`,
+      title: 'dummy title',
+      description: 'dummy description',
+      icon: 'data:image/png;base64-icon',
+      thumbnail: 'data:image/png;base64-thumbnail',
+    })),
+  },
+}));
 
 const configurationRegistryMock = {
-  registerConfigurations: registerConfigurationsMock,
+  registerConfigurations: mocks.registerConfigurationsMock,
+  getConfiguration: () => ({
+    get: mocks.getRecommendationIgnored,
+  }),
 } as unknown as ConfigurationRegistry;
 
+const featuredMock = {
+  getFeaturedExtensions: vi.fn(),
+} as unknown as Featured;
+
 beforeEach(() => {
-  recommendationsRegistry = new RecommendationsRegistry(configurationRegistryMock);
+  vi.resetAllMocks();
+  recommendationsRegistry = new RecommendationsRegistry(configurationRegistryMock, featuredMock);
 });
+
 test('should register a configuration', async () => {
   // register configuration
   recommendationsRegistry.init();
@@ -52,4 +78,104 @@ test('should register a configuration', async () => {
   );
   expect(configurationNode.properties?.['extensions.ignoreRecommendations'].type).toBe('boolean');
   expect(configurationNode.properties?.['extensions.ignoreRecommendations'].default).toBeFalsy();
+});
+
+describe('getExtensionBanners', () => {
+  test('recommendation disabled', async () => {
+    mocks.getRecommendationIgnored.mockReturnValue(true);
+
+    const extensions = await recommendationsRegistry.getExtensionBanners();
+    expect(extensions.length).toBe(0);
+
+    expect(featuredMock.getFeaturedExtensions).not.toHaveBeenCalled();
+  });
+
+  test('installed extension from featured', async () => {
+    mocks.getRecommendationIgnored.mockReturnValue(false);
+    vi.mocked(featuredMock.getFeaturedExtensions).mockResolvedValue([
+      {
+        id: 'dummy.id',
+        builtin: false,
+        description: '',
+        categories: [],
+        displayName: '',
+        fetchable: false,
+        icon: '',
+        installed: true, // installed extension are ignored
+      },
+    ]);
+
+    const extensions = await recommendationsRegistry.getExtensionBanners();
+    expect(extensions.length).toBe(0);
+
+    expect(featuredMock.getFeaturedExtensions).toHaveBeenCalled();
+  });
+
+  test('not-installed extension from featured', async () => {
+    mocks.getRecommendationIgnored.mockReturnValue(false);
+    const featured: FeaturedExtension = {
+      id: 'dummy.id-0',
+      builtin: false,
+      description: '',
+      categories: [],
+      displayName: '',
+      fetchable: false,
+      icon: '',
+      installed: false,
+    };
+    vi.mocked(featuredMock.getFeaturedExtensions).mockResolvedValue([featured]);
+
+    const extensions = await recommendationsRegistry.getExtensionBanners();
+    expect(extensions.length).toBe(1);
+    expect(extensions[0].featured).toStrictEqual(featured);
+    expect(extensions[0].extensionId).toBe('dummy.id-0');
+    expect(extensions[0].title).toBe('dummy title');
+    expect(extensions[0].description).toBe('dummy description');
+    expect(extensions[0].icon).toBe('data:image/png;base64-icon');
+    expect(extensions[0].thumbnail).toBe('data:image/png;base64-thumbnail');
+
+    expect(featuredMock.getFeaturedExtensions).toHaveBeenCalled();
+  });
+
+  test('default should limit to 1 item', async () => {
+    mocks.getRecommendationIgnored.mockReturnValue(false);
+    vi.mocked(featuredMock.getFeaturedExtensions).mockResolvedValue(
+      Array.from({ length: 10 }, (_, i) => ({
+        id: `dummy.id-${i}`,
+        builtin: false,
+        description: '',
+        categories: [],
+        displayName: '',
+        fetchable: false,
+        icon: '',
+        installed: false,
+      })),
+    );
+
+    const extensions = await recommendationsRegistry.getExtensionBanners();
+    expect(extensions.length).toBe(1);
+
+    expect(featuredMock.getFeaturedExtensions).toHaveBeenCalled();
+  });
+
+  test('no limit to the maximum number returned', async () => {
+    mocks.getRecommendationIgnored.mockReturnValue(false);
+    vi.mocked(featuredMock.getFeaturedExtensions).mockResolvedValue(
+      Array.from({ length: 10 }, (_, i) => ({
+        id: `dummy.id-${i}`,
+        builtin: false,
+        description: '',
+        categories: [],
+        displayName: '',
+        fetchable: false,
+        icon: '',
+        installed: false,
+      })),
+    );
+
+    const extensions = await recommendationsRegistry.getExtensionBanners(-1);
+    expect(extensions.length).toBe(10);
+
+    expect(featuredMock.getFeaturedExtensions).toHaveBeenCalled();
+  });
 });
