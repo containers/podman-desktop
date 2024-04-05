@@ -554,6 +554,46 @@ export class ContainerProviderRegistry {
     return flattenedContainers;
   }
 
+  // Assuming ImageInfo, ListImagesOptions, and PodmanListImagesOptions types are defined elsewhere
+  async unifiedListImages(options?: ListImagesOptions & PodmanListImagesOptions): Promise<ImageInfo[]> {
+    let telemetryOptions = {};
+
+    // This gets all the available providers if no provider has been specified
+    let providers: InternalContainerProvider[];
+    if (options?.provider === undefined) {
+      providers = Array.from(this.internalProviders.values());
+    } else {
+      providers = [this.getMatchingContainerProvider(options.provider)];
+    }
+
+    const images = await Promise.all(
+      providers.map(async provider => {
+        try {
+          if (provider.libpodApi) {
+            console.log(`Using libpodApi for provider ${provider.name}`);
+            return await this.podmanListImages({ provider: provider.connection });
+          } else if (provider.api) {
+            console.log(`Using standard container API for provider ${provider.name}`);
+            return await this.listImages({ provider: provider.connection });
+          } else {
+            // This case should not happen due to the earlier check, but added for completeness
+            console.log('Provider does not have either standard container API or libpod API, returning empty array');
+            return [];
+          }
+        } catch (error) {
+          console.log('error in engine', provider.name, error);
+          telemetryOptions = { ...telemetryOptions, error: error };
+          return [];
+        }
+      }),
+    );
+
+    // Flatten the images in case we happen to have duplicates
+    const flattenedImages = images.flat();
+    this.telemetryService.track('unifiedListImages', { total: flattenedImages.length, ...telemetryOptions });
+    return flattenedImages;
+  }
+
   async listImages(options?: ListImagesOptions): Promise<ImageInfo[]> {
     let telemetryOptions = {};
 
