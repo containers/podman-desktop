@@ -1225,7 +1225,7 @@ export class ContainerProviderRegistry {
     }
   }
 
-  async createManifest(manifestOptions: ManifestCreateOptions): Promise<{ Id: string }> {
+  async createManifest(manifestOptions: ManifestCreateOptions): Promise<{ engineId: string; Id: string }> {
     let telemetryOptions = {};
     try {
       let internalContainerProvider: InternalContainerProvider;
@@ -1243,7 +1243,7 @@ export class ContainerProviderRegistry {
       }
 
       const result = await internalContainerProvider.libpodApi.podmanCreateManifest(manifestOptions);
-      return { Id: result.Id };
+      return { engineId: internalContainerProvider.id, Id: result.Id };
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;

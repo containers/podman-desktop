@@ -348,7 +348,7 @@ export interface LibPod {
   pruneAllImages(dangling: boolean): Promise<void>;
   podmanInfo(): Promise<Info>;
   getImages(options: GetImagesOptions): Promise<NodeJS.ReadableStream>;
-  podmanCreateManifest(manifestOptions: ManifestCreateOptions): Promise<{ Id: string }>;
+  podmanCreateManifest(manifestOptions: ManifestCreateOptions): Promise<{ engineId: string; Id: string }>;
 }
 
 // tweak Dockerode by adding the support of libpod API

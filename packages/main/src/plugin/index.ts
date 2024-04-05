@@ -755,7 +755,7 @@ export class PluginSystem {
     // manifest
     this.ipcHandle(
       'container-provider-registry:createManifest',
-      async (_listener, manifestOptions: ManifestCreateOptions): Promise<{ Id: string }> => {
+      async (_listener, manifestOptions: ManifestCreateOptions): Promise<{ engineId: string; Id: string }> => {
         return containerProviderRegistry.createManifest(manifestOptions);
       },
     );

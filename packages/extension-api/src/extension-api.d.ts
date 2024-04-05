@@ -3379,7 +3379,7 @@ declare module '@podman-desktop/api' {
     export function removePod(engineId: string, podId: string): Promise<void>;
 
     // Manifest related methods
-    export function createManifest(options: ManifestCreateOptions): Promise<{ Id: string }>;
+    export function createManifest(options: ManifestCreateOptions): Promise<{ engineId: string; Id: string }>;
   }
 
   /**

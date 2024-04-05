@@ -286,7 +286,7 @@ export function initExposure(): void {
   // Manifest
   contextBridge.exposeInMainWorld(
     'createManifest',
-    async (createOptions: ManifestCreateOptions): Promise<{ Id: string }> => {
+    async (createOptions: ManifestCreateOptions): Promise<{ engineId: string; Id: string }> => {
       return ipcInvoke('container-provider-registry:createManifest', createOptions);
     },
   );
