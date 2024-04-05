@@ -18,10 +18,17 @@
 
 import { afterEach } from 'node:test';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { PodmanDownload, PodmanDownloadFcosImage, PodmanDownloadFedoraImage, ShaCheck } from './podman-download';
+import {
+  DownloadAndCheck,
+  PodmanDownload,
+  PodmanDownloadFcosImage,
+  PodmanDownloadFedoraImage,
+  ShaCheck,
+} from './podman-download';
 import * as podman4JSON from '../src/podman4.json';
 import nock from 'nock';
 import { appendFileSync, existsSync, mkdirSync } from 'node:fs';
+import { Octokit } from 'octokit';
 
 const mockedPodman4 = {
   version: '4.5.0',
@@ -48,10 +55,6 @@ const mockedPodman4 = {
 };
 
 class TestPodmanDownload extends PodmanDownload {
-  async downloadAndCheckSha(tagVersion: string, fileName: string, artifactName: string): Promise<void> {
-    return super.downloadAndCheckSha(tagVersion, fileName, artifactName);
-  }
-
   public getPodmanDownloadFcosImage(): PodmanDownloadFcosImage {
     return super.getPodmanDownloadFcosImage();
   }
@@ -62,6 +65,10 @@ class TestPodmanDownload extends PodmanDownload {
 
   public getShaCheck(): ShaCheck {
     return super.getShaCheck();
+  }
+
+  public getDownloadAndCheck(): DownloadAndCheck {
+    return super.getDownloadAndCheck();
   }
 }
 
@@ -90,7 +97,8 @@ describe('macOS platform', () => {
     const podmanDownload = new TestPodmanDownload(podman4JSON, true);
 
     // mock downloadAndCheckSha
-    const downloadAndCheckShaSpy = vi.spyOn(podmanDownload, 'downloadAndCheckSha');
+    const downloadCheck = podmanDownload.getDownloadAndCheck();
+    const downloadAndCheckShaSpy = vi.spyOn(downloadCheck, 'downloadAndCheckSha');
     downloadAndCheckShaSpy.mockResolvedValue();
 
     // mock podmanDownloadFcosImage
@@ -128,7 +136,8 @@ describe('macOS platform', () => {
     const podmanDownload = new TestPodmanDownload(mockedPodman4, false);
 
     // mock downloadAndCheckSha
-    const downloadAndCheckShaSpy = vi.spyOn(podmanDownload, 'downloadAndCheckSha');
+    const downloadCheck = podmanDownload.getDownloadAndCheck();
+    const downloadAndCheckShaSpy = vi.spyOn(downloadCheck, 'downloadAndCheckSha');
     downloadAndCheckShaSpy.mockResolvedValue();
 
     await podmanDownload.downloadBinaries();
@@ -180,7 +189,8 @@ describe('windows platform', () => {
     const podmanDownload = new TestPodmanDownload(podman4JSON, true);
 
     // mock downloadAndCheckSha
-    const downloadAndCheckShaSpy = vi.spyOn(podmanDownload, 'downloadAndCheckSha');
+    const downloadCheck = podmanDownload.getDownloadAndCheck();
+    const downloadAndCheckShaSpy = vi.spyOn(downloadCheck, 'downloadAndCheckSha');
     downloadAndCheckShaSpy.mockResolvedValue();
 
     // add env file
@@ -213,7 +223,8 @@ describe('windows platform', () => {
     const podmanDownload = new TestPodmanDownload(mockedPodman4, false);
 
     // mock downloadAndCheckSha
-    const downloadAndCheckShaSpy = vi.spyOn(podmanDownload, 'downloadAndCheckSha');
+    const downloadCheck = podmanDownload.getDownloadAndCheck();
+    const downloadAndCheckShaSpy = vi.spyOn(downloadCheck, 'downloadAndCheckSha');
     downloadAndCheckShaSpy.mockResolvedValue();
 
     const podmanDownloadFedoraImage = podmanDownload.getPodmanDownloadFedoraImage();
@@ -236,11 +247,13 @@ describe('windows platform', () => {
     expect(podmanDownloadFedoraImageSpy).not.toHaveBeenCalled();
   });
 });
-
 test('downloadAndCheckSha', async () => {
   vi.mocked(existsSync).mockReturnValue(false);
   vi.mocked(mkdirSync).mockReturnValue('');
 
+  const shaCheck = {
+    checkFile: vi.fn(),
+  } as unknown as ShaCheck;
   // mock GitHub requests
 
   const response = {
@@ -284,10 +297,9 @@ test('downloadAndCheckSha', async () => {
       'content-disposition': 'attachment; filename=binary.zip',
     });
 
-  const podmanDownload = new TestPodmanDownload(mockedPodman4, false);
-  const shaCheck = podmanDownload.getShaCheck();
-  const shaCheckSpy = vi.spyOn(shaCheck, 'checkFile');
-  shaCheckSpy.mockResolvedValue(true);
+  const octokit = new Octokit();
+
+  const podmanDownload = new DownloadAndCheck(octokit, shaCheck, 'fake-directory');
 
   await podmanDownload.downloadAndCheckSha('vFakeVersion', 'podman-fake-binary', 'podman-fake-binary');
 
@@ -298,5 +310,5 @@ test('downloadAndCheckSha', async () => {
   );
 
   // check the sha
-  expect(shaCheckSpy).toHaveBeenCalledWith(expect.stringContaining('podman-fake-binary'), 'fake-sha');
+  expect(shaCheck.checkFile).toHaveBeenCalledWith(expect.stringContaining('podman-fake-binary'), 'fake-sha');
 });
