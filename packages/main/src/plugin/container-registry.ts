@@ -384,13 +384,13 @@ export class ContainerProviderRegistry {
         }
       }),
     );
-    const flatttenedContainers = containers.flat();
+    const flattenedContainers = containers.flat();
     this.telemetryService.track(
       'listSimpleContainers',
-      Object.assign({ total: flatttenedContainers.length }, telemetryOptions),
+      Object.assign({ total: flattenedContainers.length }, telemetryOptions),
     );
 
-    return flatttenedContainers;
+    return flattenedContainers;
   }
 
   // listSimpleContainers by matching label and key
@@ -544,13 +544,13 @@ export class ContainerProviderRegistry {
         }
       }),
     );
-    const flatttenedContainers = containers.flat();
+    const flattenedContainers = containers.flat();
     this.telemetryService.track(
       'listContainers',
-      Object.assign({ total: flatttenedContainers.length }, telemetryOptions),
+      Object.assign({ total: flattenedContainers.length }, telemetryOptions),
     );
 
-    return flatttenedContainers;
+    return flattenedContainers;
   }
 
   async listImages(options?: ListImagesOptions): Promise<ImageInfo[]> {
@@ -581,10 +581,10 @@ export class ContainerProviderRegistry {
         }
       }),
     );
-    const flatttenedImages = images.flat();
-    this.telemetryService.track('listImages', Object.assign({ total: flatttenedImages.length }, telemetryOptions));
+    const flattenedImages = images.flat();
+    this.telemetryService.track('listImages', Object.assign({ total: flattenedImages.length }, telemetryOptions));
 
-    return flatttenedImages;
+    return flattenedImages;
   }
 
   async pruneImages(engineId: string): Promise<void> {
@@ -634,10 +634,10 @@ export class ContainerProviderRegistry {
         }
       }),
     );
-    const flatttenedPods = pods.flat();
-    this.telemetryService.track('listPods', Object.assign({ total: flatttenedPods.length }, telemetryOptions));
+    const flattenedPods = pods.flat();
+    this.telemetryService.track('listPods', Object.assign({ total: flattenedPods.length }, telemetryOptions));
 
-    return flatttenedPods;
+    return flattenedPods;
   }
 
   async listNetworks(): Promise<NetworkInspectInfo[]> {
@@ -665,10 +665,10 @@ export class ContainerProviderRegistry {
         }
       }),
     );
-    const flatttenedNetworks = networks.flat();
-    this.telemetryService.track('listNetworks', Object.assign({ total: flatttenedNetworks.length }, telemetryOptions));
+    const flattenedNetworks = networks.flat();
+    this.telemetryService.track('listNetworks', Object.assign({ total: flattenedNetworks.length }, telemetryOptions));
 
-    return flatttenedNetworks;
+    return flattenedNetworks;
   }
 
   async createNetwork(
@@ -757,10 +757,10 @@ export class ContainerProviderRegistry {
         }
       }),
     );
-    const flatttenedVolumes: VolumeListInfo[] = volumes.flat();
-    this.telemetryService.track('listVolumes', Object.assign({ total: flatttenedVolumes.length }, telemetryOptions));
+    const flattenedVolumes: VolumeListInfo[] = volumes.flat();
+    this.telemetryService.track('listVolumes', Object.assign({ total: flattenedVolumes.length }, telemetryOptions));
 
-    return flatttenedVolumes;
+    return flattenedVolumes;
   }
 
   async getVolumeInspect(engineId: string, volumeName: string): Promise<VolumeInspectInfo> {
