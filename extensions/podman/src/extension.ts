@@ -28,6 +28,7 @@ import { compareVersions } from 'compare-versions';
 
 import { getSocketCompatibility } from './compatibility-mode';
 import { getDetectionChecks } from './detection-checks';
+import { Monitor } from './monitor';
 import { PodmanBinaryLocationHelper } from './podman-binary-location-helper';
 import { PodmanCleanupMacOS } from './podman-cleanup-macos';
 import { PodmanCleanupWindows } from './podman-cleanup-windows';
@@ -507,10 +508,11 @@ async function initDefaultLinux(provider: extensionApi.Provider): Promise<void> 
       socketPath,
     },
   };
-
-  monitorPodmanSocket(socketPath).catch((error: unknown) => {
-    console.error('Error monitoring podman socket', error);
+  const podmanSocketMonitor = new Monitor(() => monitorPodmanSocket(socketPath), {
+    stopMonitorPredicate: stopMonitoringPodmanSocket,
+    name: 'podman socket',
   });
+  podmanSocketMonitor.start();
 
   const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
   currentConnections.set('podman', disposable);
@@ -542,22 +544,11 @@ async function isPodmanSocketAlive(socketPath: string): Promise<boolean> {
 }
 
 async function monitorPodmanSocket(socketPath: string, machineName?: string): Promise<void> {
-  // call us again
-  if (!stopMonitoringPodmanSocket(machineName)) {
-    try {
-      const alive = await isPodmanSocketAlive(socketPath);
-      if (!alive) {
-        updateProviderStatus('stopped', machineName);
-      } else {
-        updateProviderStatus('started', machineName);
-      }
-    } catch (error) {
-      // ignore the update of machines
-    }
-    await timeout(5000);
-    monitorPodmanSocket(socketPath, machineName).catch((error: unknown) => {
-      console.error('Error monitoring podman socket', error);
-    });
+  const alive = await isPodmanSocketAlive(socketPath);
+  if (!alive) {
+    updateProviderStatus('stopped', machineName);
+  } else {
+    updateProviderStatus('started', machineName);
   }
 }
 
@@ -582,21 +573,6 @@ async function timeout(time: number): Promise<void> {
   });
 }
 
-async function monitorMachines(provider: extensionApi.Provider): Promise<void> {
-  // call us again
-  if (!stopLoop) {
-    try {
-      await updateMachines(provider);
-    } catch (error) {
-      // ignore the update of machines
-    }
-    await timeout(5000);
-    monitorMachines(provider).catch((error: unknown) => {
-      console.error('Error monitoring podman machines', error);
-    });
-  }
-}
-
 function shouldNotifyQemuMachinesWithV5(installedPodman: InstalledPodman): boolean {
   // if on macOS we have some files from qemu it needs to be removed/cleaned
   // check if the qemu files are present in  ~/.config/containers/podman/machine/qemu or ~/.local/share/containers/podman/machine/qemu
@@ -612,47 +588,40 @@ function shouldNotifyQemuMachinesWithV5(installedPodman: InstalledPodman): boole
 }
 
 async function monitorProvider(provider: extensionApi.Provider): Promise<void> {
-  // call us again
-  if (!stopLoop) {
-    try {
-      const installedPodman = await getPodmanInstallation();
-      provider.updateDetectionChecks(getDetectionChecks(installedPodman));
+  try {
+    const installedPodman = await getPodmanInstallation();
+    provider.updateDetectionChecks(getDetectionChecks(installedPodman));
 
-      // update version
-      if (!installedPodman) {
-        provider.updateStatus('not-installed');
-        extensionApi.context.setValue('podmanIsNotInstalled', true, 'onboarding');
-        // if podman is not installed and the OS is linux we show the podman onboarding notification (if it has not been shown earlier)
-        // this should be limited to Linux as in other OSes the onboarding workflow is enabled based on the podman machine existance
-        // and the notification is handled by checking the machine
-        if (isLinux() && shouldNotifySetup) {
-          // push setup notification
-          notificationDisposable = extensionApi.window.showNotification(setupPodmanNotification);
-          shouldNotifySetup = false;
-        }
-      } else if (installedPodman.version) {
-        provider.updateVersion(installedPodman.version);
-        // update provider status if someone has installed podman externally
-        if (provider.status === 'not-installed') {
-          provider.updateStatus('installed');
-        }
-
-        extensionApi.context.setValue('podmanIsNotInstalled', false, 'onboarding');
-        // if podman has been installed, we reset the notification flag so if podman is uninstalled in future we can show the notification again
-        if (isLinux()) {
-          shouldNotifySetup = true;
-          // notification is no more required
-          notificationDisposable?.dispose();
-        }
+    // update version
+    if (!installedPodman) {
+      provider.updateStatus('not-installed');
+      extensionApi.context.setValue('podmanIsNotInstalled', true, 'onboarding');
+      // if podman is not installed and the OS is linux we show the podman onboarding notification (if it has not been shown earlier)
+      // this should be limited to Linux as in other OSes the onboarding workflow is enabled based on the podman machine existance
+      // and the notification is handled by checking the machine
+      if (isLinux() && shouldNotifySetup) {
+        // push setup notification
+        notificationDisposable = extensionApi.window.showNotification(setupPodmanNotification);
+        shouldNotifySetup = false;
       }
-    } catch (error) {
-      // ignore the update
+    } else if (installedPodman.version) {
+      provider.updateVersion(installedPodman.version);
+      // update provider status if someone has installed podman externally
+      if (provider.status === 'not-installed') {
+        provider.updateStatus('installed');
+      }
+
+      extensionApi.context.setValue('podmanIsNotInstalled', false, 'onboarding');
+      // if podman has been installed, we reset the notification flag so if podman is uninstalled in future we can show the notification again
+      if (isLinux()) {
+        shouldNotifySetup = true;
+        // notification is no more required
+        notificationDisposable?.dispose();
+      }
     }
+  } catch (error) {
+    // ignore the update
   }
-  await timeout(8000);
-  monitorProvider(provider).catch((error: unknown) => {
-    console.error('Error monitoring podman provider', error);
-  });
 }
 
 function prettyMachineName(machineName: string): string {
@@ -887,6 +856,7 @@ export function initExtensionContext(extensionContext: extensionApi.ExtensionCon
 }
 
 const currentUpdatesDisposables: extensionApi.Disposable[] = [];
+
 export async function initCheckAndRegisterUpdate(
   provider: extensionApi.Provider,
   podmanInstall: PodmanInstall,
@@ -1399,15 +1369,25 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // Podman Machine support is on macOS, Windows and Linux
   // Despite Linux having native container support, Podman Machine is still supported on Linux
   // so let's monitor for the machines
-  monitorMachines(provider).catch((error: unknown) => {
-    console.error('Error while monitoring machines', error);
-  });
+  const machineMonitor = new Monitor(
+    async () => {
+      await updateMachines(provider);
+    },
+    {
+      name: 'podman machine',
+      stopMonitorPredicate: () => stopLoop,
+    },
+  );
+  machineMonitor.start();
 
   // monitor provider
   // like version, checks, warnings
-  monitorProvider(provider).catch((error: unknown) => {
-    console.error('Error while monitoring provider', error);
+  const providerMonitor = new Monitor(() => monitorProvider(provider), {
+    name: 'providers',
+    intervalMs: 8000,
+    stopMonitorPredicate: () => stopLoop,
   });
+  providerMonitor.start();
 
   const onboardingCheckInstallationCommand = extensionApi.commands.registerCommand(
     'podman.onboarding.checkInstalledCommand',

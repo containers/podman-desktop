@@ -30,11 +30,6 @@ let providerState: extensionApi.ProviderConnectionStatus = 'stopped';
 let containerProviderConnection: extensionApi.ContainerProviderConnection;
 let containerProviderConnectionDisposable: extensionApi.Disposable;
 
-async function timeout(time: number): Promise<void> {
-  return new Promise<void>(resolve => {
-    setTimeout(resolve, time);
-  });
-}
 async function isDockerDaemonAlive(socketPath: string): Promise<boolean> {
   const pingUrl = {
     path: '/_ping',
@@ -89,24 +84,28 @@ async function isDisguisedPodman(socketPath: string): Promise<boolean> {
   });
 }
 
-async function monitorDaemon(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  // call us again
-  if (!stopLoop) {
-    try {
-      await updateProvider(extensionContext);
-    } catch (error) {
-      // ignore the update of machines
-    }
-    await timeout(5000);
-    monitorDaemon(extensionContext).catch((err: unknown) => {
-      console.error('Error while monitoring docker daemon', err);
-      if (err instanceof Error) {
-        extensionApi.env.createTelemetryLogger().logError(err);
-      } else {
-        extensionApi.env.createTelemetryLogger().logError(err.toString());
+function monitorDaemon(extensionContext: extensionApi.ExtensionContext): void {
+  const loop = (): NodeJS.Timeout =>
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    setTimeout(async () => {
+      if (stopLoop) {
+        return;
       }
-    });
-  }
+
+      try {
+        await updateProvider(extensionContext);
+      } catch (err) {
+        console.error('Error while monitoring docker daemon', err);
+        if (err instanceof Error) {
+          extensionApi.env.createTelemetryLogger().logError(err);
+        } else {
+          extensionApi.env.createTelemetryLogger().logError(err.toString());
+        }
+      }
+
+      setTimeout(() => loop(), 5000);
+    }, 5000);
+  loop();
 }
 
 async function updateProvider(extensionContext: extensionApi.ExtensionContext): Promise<void> {
@@ -168,14 +167,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   }
 
   // monitor daemon
-  monitorDaemon(extensionContext).catch((err: unknown) => {
-    console.error('Error while monitoring docker daemon', err);
-    if (err instanceof Error) {
-      extensionApi.env.createTelemetryLogger().logError(err);
-    } else {
-      extensionApi.env.createTelemetryLogger().logError(err.toString());
-    }
-  });
+  void monitorDaemon(extensionContext);
 }
 
 function initProvider(extensionContext: extensionApi.ExtensionContext): void {
