@@ -20,6 +20,7 @@ import { afterEach } from 'node:test';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   DownloadAndCheck,
+  Podman5DownloadMachineOS,
   PodmanDownload,
   PodmanDownloadFcosImage,
   PodmanDownloadFedoraImage,
@@ -27,8 +28,13 @@ import {
 } from './podman-download';
 import * as podman4JSON from '../src/podman4.json';
 import nock from 'nock';
-import { appendFileSync, existsSync, mkdirSync } from 'node:fs';
+import { WriteStream, appendFileSync, createWriteStream, existsSync, mkdirSync } from 'node:fs';
 import { Octokit } from 'octokit';
+import { PassThrough, Readable, Writable } from 'node:stream';
+import { WritableStream, WritableStreamDefaultWriter } from 'stream/web';
+import path from 'node:path';
+import { tmpdir } from 'node:os';
+import exp from 'node:constants';
 
 const mockedPodman4 = {
   version: '4.5.0',
@@ -256,6 +262,8 @@ test('downloadAndCheckSha', async () => {
   } as unknown as ShaCheck;
   // mock GitHub requests
 
+  vi.mocked(shaCheck.checkFile).mockResolvedValue(true);
+
   const response = {
     name: 'vFakeVersion',
     assets: [
@@ -311,4 +319,231 @@ test('downloadAndCheckSha', async () => {
 
   // check the sha
   expect(shaCheck.checkFile).toHaveBeenCalledWith(expect.stringContaining('podman-fake-binary'), 'fake-sha');
+});
+
+describe('Podman5DownloadMachineOS', () => {
+  const shaCheck = {
+    checkFile: vi.fn(),
+  } as unknown as ShaCheck;
+
+  beforeEach(() => {
+    vi.resetAllMocks();
+    vi.mocked(shaCheck.checkFile).mockResolvedValue(true);
+  });
+
+  class TestPodman5DownloadMachineOS extends Podman5DownloadMachineOS {
+    public pipe(
+      title: string,
+      total: number,
+      stream: ReadableStream<Uint8Array>,
+      writableStream: globalThis.WritableStream<Uint8Array>,
+    ): Promise<void> {
+      return super.pipe(title, total, stream, writableStream);
+    }
+  }
+
+  test('download all the files and perform checks', async () => {
+    // spy Writable.toWeb
+    vi.spyOn(Writable, 'toWeb').mockResolvedValue({} as unknown as WritableStream);
+
+    // mock manifests
+    const rootManifest = {
+      schemaVersion: 2,
+      mediaType: 'application/vnd.oci.image.index.v1+json',
+      manifests: [
+        {
+          mediaType: 'application/vnd.oci.image.manifest.v1+json',
+          digest: 'sha256:123amd64',
+          size: 481,
+          annotations: {
+            disktype: 'applehv',
+          },
+          platform: {
+            architecture: 'x86_64',
+            os: 'linux',
+          },
+        },
+        {
+          mediaType: 'application/vnd.oci.image.manifest.v1+json',
+          digest: 'sha256:456arm64',
+          size: 482,
+          annotations: {
+            disktype: 'applehv',
+          },
+          platform: {
+            architecture: 'aarch64',
+            os: 'linux',
+          },
+        },
+        {
+          mediaType: 'application/vnd.oci.image.manifest.v1+json',
+          digest: 'sha256:ee45494db66e33525f50835af65c4099db4db7a066b1da9a85fba7e88f95f594',
+          size: 481,
+          annotations: {
+            disktype: 'hyperv',
+          },
+          platform: {
+            architecture: 'x86_64',
+            os: 'linux',
+          },
+        },
+        {
+          mediaType: 'application/vnd.oci.image.manifest.v1+json',
+          digest: 'sha256:56bbdde7b2dc8714a0397f37ae1c8ac1353ed3e4de1b09c1db791d6fa5bc56fa',
+          size: 482,
+          annotations: {
+            disktype: 'hyperv',
+          },
+          platform: {
+            architecture: 'aarch64',
+            os: 'linux',
+          },
+        },
+        {
+          mediaType: 'application/vnd.oci.image.manifest.v1+json',
+          digest: 'sha256:c25ce5ba618f870f88c418c7aa0f176af4a7b32ed39aa328a8e27eae5a497e11',
+          size: 480,
+          annotations: {
+            disktype: 'qemu',
+          },
+          platform: {
+            architecture: 'x86_64',
+            os: 'linux',
+          },
+        },
+        {
+          mediaType: 'application/vnd.oci.image.manifest.v1+json',
+          digest: 'sha256:9a9285bd1a01e5b4c5b27467025cc5da281e250913432a9f92cf8fe1668fec19',
+          size: 481,
+          annotations: {
+            disktype: 'qemu',
+          },
+          platform: {
+            architecture: 'aarch64',
+            os: 'linux',
+          },
+        },
+        {
+          mediaType: 'application/vnd.oci.image.manifest.v1+json',
+          digest: 'sha256:34f21a8b9b8b9ff13fc348f8eba72fa92e74e52caa9984a78b68a7f5822641c7',
+          size: 11003,
+          platform: {
+            architecture: 'aarch64',
+            os: 'linux',
+          },
+        },
+        {
+          mediaType: 'application/vnd.oci.image.manifest.v1+json',
+          digest: 'sha256:c7bbce32d96c44b0db6e05a3f78fa4cb11f578c7d18cec49d23a7d6b40843a05',
+          size: 11009,
+          platform: {
+            architecture: 'x86_644',
+            os: 'linux',
+          },
+        },
+      ],
+    };
+
+    nock('https://quay.io').get('/v2/podman/machine-os/manifests/1.0-fake').reply(200, rootManifest);
+
+    // fake digest for amd64
+    nock('https://quay.io')
+      .get('/v2/podman/machine-os/manifests/sha256:123amd64')
+      .reply(200, {
+        schemaVersion: 2,
+        mediaType: 'application/vnd.oci.image.manifest.v1+json',
+        config: {
+          mediaType: 'application/vnd.oci.empty.v1+json',
+          digest: 'sha256:1234',
+          size: 2,
+          data: 'e30=',
+        },
+        layers: [
+          {
+            mediaType: 'application/zstd',
+            digest: 'sha256:zstfakeamd64digest',
+            size: 1233263850,
+            annotations: {
+              'org.opencontainers.image.title': 'podman-machine-daily.amd64.applehv.raw.zst',
+            },
+          },
+        ],
+      });
+
+    // fake digest for arm64
+    nock('https://quay.io')
+      .get('/v2/podman/machine-os/manifests/sha256:456arm64')
+      .reply(200, {
+        schemaVersion: 2,
+        mediaType: 'application/vnd.oci.image.manifest.v1+json',
+        config: {
+          mediaType: 'application/vnd.oci.empty.v1+json',
+          digest: 'sha256:1234',
+          size: 2,
+          data: 'e30=',
+        },
+        layers: [
+          {
+            mediaType: 'application/zstd',
+            digest: 'sha256:zstfakearm64digest',
+            size: 1233263850,
+            annotations: {
+              'org.opencontainers.image.title': 'podman-machine-daily.aarch64.applehv.raw.zst',
+            },
+          },
+        ],
+      });
+
+    // now do the digests for blobs
+    nock('https://quay.io')
+      .get('/v2/podman/machine-os/blobs/sha256:zstfakeamd64digest')
+      .reply(200, 'fake-amd64-content');
+
+    const zstdArchiveFakeContent = 'blablabla-ARM64\n';
+    nock('https://quay.io')
+      .get('/v2/podman/machine-os/blobs/sha256:zstfakearm64digest')
+      .reply(200, zstdArchiveFakeContent, {
+        'content-type': 'application/octet-stream',
+        'content-length': `${zstdArchiveFakeContent.length}`,
+        'content-disposition': 'attachment; filename=binary.zip',
+      });
+
+    const fakeContent = 'blablabla-ARM64\n';
+
+    const processArm64File = (): Buffer => {
+      return Buffer.from(fakeContent);
+    };
+
+    nock('https://quay.io')
+      .get('/v2/podman/machine-os/blobs/sha256:zstfakearm64digest')
+      .reply(200, processArm64File(), {
+        'content-type': 'application/octet-stream',
+        'content-length': `${fakeContent.length}`,
+        'content-disposition': 'attachment; filename=foo.raw.std',
+      });
+
+    const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS('1.0-fake', shaCheck, '/fake-directory');
+
+    vi.spyOn(podman5DownloadMachineOS, 'pipe').mockResolvedValue();
+
+    await podman5DownloadMachineOS.download();
+  });
+
+  test('check pipe method', async () => {
+    const podman5DownloadMachineOS = new TestPodman5DownloadMachineOS('1.0-fake', shaCheck, '/fake-directory');
+
+    const myStream = Readable.from('Hello, World!');
+
+    const readableStream = Readable.toWeb(myStream) as ReadableStream<Uint8Array>;
+
+    const writeMock = vi.fn();
+    const writableStream = new WritableStream({
+      write: writeMock,
+    });
+
+    await podman5DownloadMachineOS.pipe('fake-title', 100, readableStream, writableStream);
+
+    // check we wrote the content
+    expect(writeMock).toHaveBeenCalledWith('Hello, World!', expect.anything());
+  });
 });
