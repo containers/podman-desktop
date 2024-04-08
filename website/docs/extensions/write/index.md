@@ -31,7 +31,8 @@ Write the Podman Desktop extension Node.js package metadata.
    ```json lines
     "devDependencies": {
       "@podman-desktop/api": "latest",
-      "typescript": "latest"
+      "typescript": "latest",
+      "vite": "latest"
     },
    ```
 
@@ -83,7 +84,8 @@ Write the Podman Desktop extension Node.js package metadata.
   {
     "devDependencies": {
       "@podman-desktop/api": "latest",
-      "typescript": "latest"
+      "typescript": "latest",
+      "vite": "latest"
     },
     "name": "my-extension",
     "displayName": "My Hello World extension",
@@ -93,6 +95,12 @@ Write the Podman Desktop extension Node.js package metadata.
     "publisher": "benoitf",
     "engines": {
       "podman-desktop": "latest"
+    },
+    "scripts": {
+        "build": "vite build",
+        "test": "vitest run --coverage",
+        "test:watch": "vitest watch --coverage",
+        "watch": "vite build --watch"
     },
     "main": "./dist/extension.js",
     "contributes": {
@@ -116,7 +124,7 @@ Write the extension features.
 
 #### Procedure
 
-1. Create and edit a `dist/extension.js` file.
+1. Create and edit a `src/extension.ts` file.
 
 1. Import the Podman Desktop API
 
@@ -191,6 +199,101 @@ Write the extension features.
      export async function deactivate(): Promise<void>;
      ```
 
+#### Build dependencies
+
+This examples uses TypeScript and Vite to build and the following files should be in the root of your extension.
+
+Create a file named `tsconfig.json` with the following content:
+
+```json
+{
+    "compilerOptions": {
+        "module": "esnext",
+        "lib": [
+            "ES2017"
+        ],
+        "sourceMap": true,
+        "rootDir": "src",
+        "outDir": "dist",
+        "target": "esnext",
+        "moduleResolution": "Node",
+        "allowSyntheticDefaultImports": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "types": [
+            "node"
+        ]
+    },
+    "include": [
+        "src",
+        "types/*.d.ts"
+    ]
+}
+```
+
+Create a file named `vite.config.js` with the following content:
+
+```javascript
+/**********************************************************************
+ * Copyright (C) 2023 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ***********************************************************************/
+
+import { join } from 'path';
+import { builtinModules } from 'module';
+
+const PACKAGE_ROOT = __dirname;
+
+/**
+ * @type {import('vite').UserConfig}
+ * @see https://vitejs.dev/config/
+ */
+const config = {
+    mode: process.env.MODE,
+    root: PACKAGE_ROOT,
+    envDir: process.cwd(),
+    resolve: {
+        alias: {
+            '/@/': join(PACKAGE_ROOT, 'src') + '/',
+        },
+    },
+    build: {
+        sourcemap: 'inline',
+        target: 'esnext',
+        outDir: 'dist',
+        assetsDir: '.',
+        minify: process.env.MODE === 'production' ? 'esbuild' : false,
+        lib: {
+            entry: 'src/extension.ts',
+            formats: ['cjs'],
+        },
+        rollupOptions: {
+            external: ['@podman-desktop/api', ...builtinModules.flatMap(p => [p, `node:${p}`])],
+            output: {
+                entryFileNames: '[name].js',
+            },
+        },
+        emptyOutDir: true,
+        reportCompressedSize: false,
+    },
+};
+
+export default config;
+```
+
 #### Verification
 
 - The extension compiles and produces the output in the `dist` folder.
@@ -202,11 +305,11 @@ Write the extension features.
 #### Prerequisites
 
 - JavaScript or TypeScript
-- A clone of the Podman Desktop repository
+- A clone of the [Podman Desktop](https://github.com/containers/podman-desktop) repository
 
 #### Procedure
 
-1. To start Podman Desktop with your extension loaded, run:
+1. To start Podman Desktop with your extension loaded, run the following from your clone of the Podman Desktop repo:
 
 ```
 yarn watch --extension-folder /path/to/your/extension
