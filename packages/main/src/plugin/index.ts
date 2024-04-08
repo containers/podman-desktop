@@ -52,6 +52,7 @@ import { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
 import type { Menu } from '/@/plugin/menu-registry.js';
 import { MenuRegistry } from '/@/plugin/menu-registry.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
+import type { ExtensionBanner } from '/@/plugin/recommendations/recommendations-api.js';
 import { TaskManager } from '/@/plugin/task-manager.js';
 import { Updater } from '/@/plugin/updater.js';
 
@@ -458,9 +459,6 @@ export class PluginSystem {
     const closeBehaviorConfiguration = new CloseBehavior(configurationRegistry);
     await closeBehaviorConfiguration.init();
 
-    const recommendationsRegistry = new RecommendationsRegistry(configurationRegistry);
-    recommendationsRegistry.init();
-
     const messageBox = new MessageBox(apiSender);
 
     // Don't show the tray icon options on Mac
@@ -628,6 +626,10 @@ export class PluginSystem {
 
     const extensionsCatalog = new ExtensionsCatalog(certificates, proxy);
     const featured = new Featured(this.extensionLoader, extensionsCatalog);
+
+    const recommendationsRegistry = new RecommendationsRegistry(configurationRegistry, featured);
+    recommendationsRegistry.init();
+
     // do not wait
     featured.init().catch((e: unknown) => {
       console.error('Unable to initialized the featured extensions', e);
@@ -1526,6 +1528,10 @@ export class PluginSystem {
 
     this.ipcHandle('featured:getFeaturedExtensions', async (): Promise<FeaturedExtension[]> => {
       return featured.getFeaturedExtensions();
+    });
+
+    this.ipcHandle('recommended:getExtensionBanners', async (): Promise<ExtensionBanner[]> => {
+      return recommendationsRegistry.getExtensionBanners();
     });
 
     this.ipcHandle('catalog:getExtensions', async (): Promise<CatalogExtension[]> => {
