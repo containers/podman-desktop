@@ -3821,6 +3821,22 @@ test('expect to fall back to compat api images if podman provider does not have 
   expect(images[0].Id).toBe('dummyImageId2');
 });
 
+test('expect a blank array if there is no api or libpodapi when doing podmanListImages', async () => {
+  containerRegistry.addInternalProvider('podman', {
+    name: 'podman',
+    id: 'podman1',
+    connection: {
+      type: 'podman',
+    },
+    // purposely NOT have api or libpodApi
+  } as unknown as InternalContainerProvider);
+
+  const images = await containerRegistry.podmanListImages();
+  // ensure the field are correct
+  expect(images).toBeDefined();
+  expect(images).toHaveLength(0);
+});
+
 test('expect to get get zero images if podman provider has neither libpodApi nor compat api', async () => {
   containerRegistry.addInternalProvider('podman', {
     name: 'podman',

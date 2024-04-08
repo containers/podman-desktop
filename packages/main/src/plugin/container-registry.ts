@@ -617,7 +617,8 @@ export class ContainerProviderRegistry {
         } else if (provider.api) {
           fetchedImages = await provider.api.listImages({ all: false });
         } else {
-          console.log('Engine does not have an API or a libpod API', provider.name);
+          console.log('Engine does not have an API or a libpod API, returning empty array', provider.name);
+          return fetchedImages;
         }
 
         // Transform fetched images to include engine name and ID
