@@ -97,10 +97,10 @@ Write the Podman Desktop extension Node.js package metadata.
       "podman-desktop": "latest"
     },
     "scripts": {
-        "build": "vite build",
-        "test": "vitest run --coverage",
-        "test:watch": "vitest watch --coverage",
-        "watch": "vite build --watch"
+      "build": "vite build",
+      "test": "vitest run --coverage",
+      "test:watch": "vitest watch --coverage",
+      "watch": "vite build --watch"
     },
     "main": "./dist/extension.js",
     "contributes": {
@@ -207,27 +207,20 @@ Create a file named `tsconfig.json` with the following content:
 
 ```json
 {
-    "compilerOptions": {
-        "module": "esnext",
-        "lib": [
-            "ES2017"
-        ],
-        "sourceMap": true,
-        "rootDir": "src",
-        "outDir": "dist",
-        "target": "esnext",
-        "moduleResolution": "Node",
-        "allowSyntheticDefaultImports": true,
-        "resolveJsonModule": true,
-        "skipLibCheck": true,
-        "types": [
-            "node"
-        ]
-    },
-    "include": [
-        "src",
-        "types/*.d.ts"
-    ]
+  "compilerOptions": {
+    "module": "esnext",
+    "lib": ["ES2017"],
+    "sourceMap": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "target": "esnext",
+    "moduleResolution": "Node",
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": ["src", "types/*.d.ts"]
 }
 ```
 
@@ -262,33 +255,33 @@ const PACKAGE_ROOT = __dirname;
  * @see https://vitejs.dev/config/
  */
 const config = {
-    mode: process.env.MODE,
-    root: PACKAGE_ROOT,
-    envDir: process.cwd(),
-    resolve: {
-        alias: {
-            '/@/': join(PACKAGE_ROOT, 'src') + '/',
-        },
+  mode: process.env.MODE,
+  root: PACKAGE_ROOT,
+  envDir: process.cwd(),
+  resolve: {
+    alias: {
+      '/@/': join(PACKAGE_ROOT, 'src') + '/',
     },
-    build: {
-        sourcemap: 'inline',
-        target: 'esnext',
-        outDir: 'dist',
-        assetsDir: '.',
-        minify: process.env.MODE === 'production' ? 'esbuild' : false,
-        lib: {
-            entry: 'src/extension.ts',
-            formats: ['cjs'],
-        },
-        rollupOptions: {
-            external: ['@podman-desktop/api', ...builtinModules.flatMap(p => [p, `node:${p}`])],
-            output: {
-                entryFileNames: '[name].js',
-            },
-        },
-        emptyOutDir: true,
-        reportCompressedSize: false,
+  },
+  build: {
+    sourcemap: 'inline',
+    target: 'esnext',
+    outDir: 'dist',
+    assetsDir: '.',
+    minify: process.env.MODE === 'production' ? 'esbuild' : false,
+    lib: {
+      entry: 'src/extension.ts',
+      formats: ['cjs'],
     },
+    rollupOptions: {
+      external: ['@podman-desktop/api', ...builtinModules.flatMap(p => [p, `node:${p}`])],
+      output: {
+        entryFileNames: '[name].js',
+      },
+    },
+    emptyOutDir: true,
+    reportCompressedSize: false,
+  },
 };
 
 export default config;
