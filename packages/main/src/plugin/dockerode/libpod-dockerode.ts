@@ -19,6 +19,8 @@
 import type { ManifestCreateOptions } from '@podman-desktop/api';
 import Dockerode from 'dockerode';
 
+import type { ImageInfo, PodmanListImagesOptions } from '../api/image-info.js';
+
 export interface PodContainerInfo {
   Id: string;
   Names: string;
@@ -348,6 +350,7 @@ export interface LibPod {
   pruneAllImages(dangling: boolean): Promise<void>;
   podmanInfo(): Promise<Info>;
   getImages(options: GetImagesOptions): Promise<NodeJS.ReadableStream>;
+  podmanListImages(options?: PodmanListImagesOptions): Promise<ImageInfo[]>;
   podmanCreateManifest(manifestOptions: ManifestCreateOptions): Promise<{ engineId: string; Id: string }>;
 }
 
@@ -398,6 +401,27 @@ export class LibpodDockerode {
         },
       };
 
+      return new Promise((resolve, reject) => {
+        this.modem.dial(optsf, (err: unknown, data: unknown) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(data);
+        });
+      });
+    };
+
+    // add listImages
+    prototypeOfDockerode.podmanListImages = function (options?: PodmanListImagesOptions): Promise<unknown> {
+      const optsf = {
+        path: '/v4.2.0/libpod/images/json',
+        method: 'GET',
+        options: options,
+        statusCodes: {
+          200: true,
+          500: 'server error',
+        },
+      };
       return new Promise((resolve, reject) => {
         this.modem.dial(optsf, (err: unknown, data: unknown) => {
           if (err) {

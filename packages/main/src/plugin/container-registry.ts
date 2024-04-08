@@ -51,7 +51,7 @@ import type {
 import type { ContainerInspectInfo } from './api/container-inspect-info.js';
 import type { ContainerStatsInfo } from './api/container-stats-info.js';
 import type { HistoryInfo } from './api/history-info.js';
-import type { BuildImageOptions, ImageInfo, ListImagesOptions } from './api/image-info.js';
+import type { BuildImageOptions, ImageInfo, ListImagesOptions, PodmanListImagesOptions } from './api/image-info.js';
 import type { ImageInspectInfo } from './api/image-inspect-info.js';
 import type { ManifestCreateOptions } from './api/manifest-info.js';
 import type { NetworkInspectInfo } from './api/network-info.js';
@@ -584,6 +584,54 @@ export class ContainerProviderRegistry {
     );
     const flattenedImages = images.flat();
     this.telemetryService.track('listImages', Object.assign({ total: flattenedImages.length }, telemetryOptions));
+
+    return flattenedImages;
+  }
+
+  // Podman list images will prefer to use libpodApi of the provider
+  // before falling back to using the regular API
+  async podmanListImages(options?: PodmanListImagesOptions): Promise<ImageInfo[]> {
+    const telemetryOptions = {};
+
+    // This gets all the available providers if no provider has been specified
+    let providers: InternalContainerProvider[];
+    if (options?.provider === undefined) {
+      providers = Array.from(this.internalProviders.values());
+    } else {
+      providers = [this.getMatchingContainerProvider(options?.provider)];
+    }
+
+    const images = await Promise.all(
+      providers.map(async provider => {
+        // Initialize an empty array for the case where neither API is available
+        // ignore any warning as we are adding engineId and engineName to the image
+        // and as one of the API uses Dockerode, the other ImageInfo
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let fetchedImages: any[] = [];
+
+        if (provider.libpodApi) {
+          fetchedImages = await provider.libpodApi.podmanListImages({
+            all: options?.all,
+            filters: options?.filters,
+          });
+        } else if (provider.api) {
+          fetchedImages = await provider.api.listImages({ all: false });
+        } else {
+          console.log('Engine does not have an API or a libpod API, returning empty array', provider.name);
+          return fetchedImages;
+        }
+
+        // Transform fetched images to include engine name and ID
+        return fetchedImages.map(image => ({
+          ...image,
+          engineName: provider.name,
+          engineId: provider.id,
+        }));
+      }),
+    );
+
+    const flattenedImages = images.flat();
+    this.telemetryService.track('podmanListImages', Object.assign({ total: flattenedImages.length }, telemetryOptions));
 
     return flattenedImages;
   }
