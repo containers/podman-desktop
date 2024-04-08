@@ -40,7 +40,6 @@ import { PodmanCleanupMacOS } from './podman-cleanup-macos';
 import { PodmanCleanupWindows } from './podman-cleanup-windows';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanCli, getPodmanInstallation } from './podman-cli';
-import * as podman4JSON from './podman4.json';
 import * as podman5JSON from './podman5.json';
 import { getAssetsFolder, normalizeWSLOutput } from './util';
 import { WslHelper } from './wsl-helper';
@@ -48,40 +47,8 @@ import { WslHelper } from './wsl-helper';
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 
-const PODMAN5_EXPERIMENTAL_MODE_CONFIG_KEY = 'experimental.install.v5';
-export const PODMAN5_EXPERIMENTAL_MODE_CONFIG_FULLKEY = `podman.${PODMAN5_EXPERIMENTAL_MODE_CONFIG_KEY}`;
-
 export function getBundledPodmanVersion(): string {
-  const podman5ExperimentalModeEnabled = extensionApi.configuration
-    .getConfiguration('podman')
-    .get<boolean>(PODMAN5_EXPERIMENTAL_MODE_CONFIG_KEY);
-
-  // also check if the user has never installed podman (for example there is no configuration folder for Podman)
-  // no ~/.config/containers/podman and ~/.local/share/containers/podman folders on Windows or macOS
-  let noPreviousPodmanInstallation = false;
-  if (extensionApi.env.isWindows || extensionApi.env.isMac) {
-    noPreviousPodmanInstallation =
-      !fs.existsSync(path.resolve(os.homedir(), '.config/containers/podman')) &&
-      !fs.existsSync(path.resolve(os.homedir(), '.local/share/containers/podman'));
-  }
-
-  // air gapped mode check.
-  const assetImagePath = path.resolve(getAssetsFolder());
-  let airGappedMode = false;
-  // check if we have some podman-image files
-  if (fs.existsSync(assetImagePath)) {
-    const podmanImageFiles = fs.readdirSync(assetImagePath).filter(file => file.startsWith('podman-image'));
-    if (podmanImageFiles.length > 0) {
-      airGappedMode = true;
-    }
-  }
-
-  // default to v5 if experimental mode is enabled or if there is no previous installation (and not using airgapped mode)
-  if (podman5ExperimentalModeEnabled || (noPreviousPodmanInstallation && !airGappedMode)) {
-    return podman5JSON.version;
-  }
-
-  return podman4JSON.version;
+  return podman5JSON.version;
 }
 
 export interface PodmanInfo {

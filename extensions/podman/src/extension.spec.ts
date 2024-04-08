@@ -404,12 +404,12 @@ test('verify error contains name, message and stderr if creation fails', async (
   ).rejects.toThrowError('name\ndescription\nerror\n');
 });
 
-test('verify create command called with embedded image if using podman v4', async () => {
+test('verify create command called with embedded image if using podman v5', async () => {
   vi.mocked(isMac).mockReturnValue(true);
   vi.mocked(getAssetsFolder).mockReturnValue('fake');
   vi.mocked(fs.existsSync).mockReturnValue(true);
   vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
-    stdout: 'podman version 4.0.0',
+    stdout: 'podman version 5.0.0',
   } as extensionApi.RunResult);
 
   await extension.createMachine(
@@ -434,42 +434,7 @@ test('verify create command called with embedded image if using podman v4', asyn
   expect(vi.mocked(extensionApi.process.exec)).toHaveBeenNthCalledWith(
     2,
     getPodmanCli(),
-    expect.arrayContaining([expect.stringContaining('.qcow2.xz')]),
-    expect.anything(),
-  );
-});
-
-test('verify create command not called with embedded image if using podman v4', async () => {
-  vi.mocked(isMac).mockReturnValue(true);
-  vi.mocked(getAssetsFolder).mockReturnValue('fake');
-  vi.mocked(fs.existsSync).mockReturnValue(true);
-  vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
-    stdout: 'podman version 5.0.0',
-  } as extensionApi.RunResult);
-
-  await extension.createMachine(
-    {
-      'podman.factory.machine.cpus': '2',
-      'podman.factory.machine.memory': '1048000000',
-      'podman.factory.machine.diskSize': '250000000000',
-      'podman.factory.machine.now': true,
-    },
-    undefined,
-    undefined,
-  );
-
-  // check telemetry is called with telemetryRecords.imagePath
-  await vi.waitFor(() => {
-    expect(telemetryLogger.logUsage).toBeCalledWith(
-      'podman.machine.init',
-      expect.not.objectContaining({ imagePath: 'embedded' }),
-    );
-  });
-
-  expect(vi.mocked(extensionApi.process.exec)).toHaveBeenNthCalledWith(
-    2,
-    getPodmanCli(),
-    expect.not.arrayContaining([expect.stringContaining('.qcow2.xz')]),
+    expect.arrayContaining([expect.stringContaining('.zst')]),
     expect.anything(),
   );
 });

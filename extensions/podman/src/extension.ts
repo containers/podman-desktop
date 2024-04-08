@@ -35,7 +35,7 @@ import type { InstalledPodman } from './podman-cli';
 import { getPodmanCli, getPodmanInstallation } from './podman-cli';
 import { PodmanConfiguration } from './podman-configuration';
 import { PodmanInfoHelper } from './podman-info-helper';
-import { PODMAN5_EXPERIMENTAL_MODE_CONFIG_FULLKEY, PodmanInstall } from './podman-install';
+import { PodmanInstall } from './podman-install';
 import { QemuHelper } from './qemu-helper';
 import { RegistrySetup } from './registry-setup';
 import { appConfigDir, appHomeDir, getAssetsFolder, isLinux, isMac, isWindows, LoggerDelegator } from './util';
@@ -907,13 +907,6 @@ export async function initCheckAndRegisterUpdate(
   };
   await checkForUpdate();
 
-  // if configuration key change, check for update again
-  extensionApi.configuration.onDidChangeConfiguration(async e => {
-    if (e.affectsConfiguration(PODMAN5_EXPERIMENTAL_MODE_CONFIG_FULLKEY)) {
-      await checkForUpdate();
-    }
-  });
-
   // register onDidUpdateVersion
   provider.onDidUpdateVersion(async () => {
     await checkForUpdate();
@@ -1727,14 +1720,16 @@ export async function createMachine(
     if (isWindows()) {
       suffix = `-${process.arch}.tar.xz`;
     } else if (isMac()) {
-      suffix = `-${process.arch}.qcow2.xz`;
+      suffix = `-${process.arch}.zst`;
     }
+
     const assetImagePath = path.resolve(getAssetsFolder(), `podman-image${suffix}`);
 
     const podmanInstallation = await getPodmanInstallation();
 
-    // check if the file exists and if it does, use it
-    if (fs.existsSync(assetImagePath) && podmanInstallation.version.startsWith('4.')) {
+    // Use embedded image only for Podman 5 and onwards
+    if (fs.existsSync(assetImagePath) && podmanInstallation.version.startsWith('5.')) {
+      console.log('using embedded image path');
       parameters.push('--image-path');
       parameters.push(assetImagePath);
       telemetryRecords.imagePath = 'embedded';

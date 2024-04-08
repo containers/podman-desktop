@@ -101,10 +101,10 @@ const config = {
       context.packager.config.extraResources.push('extensions/podman/assets/podman-*.exe');
     }
     if (context.arch === Arch.x64 && context.electronPlatformName === 'win32') {
-      context.packager.config.extraResources.push('extensions/podman/assets/podman-image-x64.tar.xz');
+      context.packager.config.extraResources.push('extensions/podman/assets/podman-image-x64.tar.zst');
     }
     if (context.arch === Arch.arm64 && context.electronPlatformName === 'win32') {
-      context.packager.config.extraResources.push('extensions/podman/assets/podman-image-arm64.tar.xz');
+      context.packager.config.extraResources.push('extensions/podman/assets/podman-image-arm64.tar.zst');
     }
   },
   afterPack: async context => {
