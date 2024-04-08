@@ -20,10 +20,10 @@ async function openGuide(guide: Guide): Promise<void> {
     <div class="px-4">
       <img src="{`data:image/png;base64,${guide.icon}`}" class="h-[48px]" alt="{guide.id}" />
     </div>
-    <div class="px-4 pt-4 text-nowrap text-sm text-gray-400">
+    <div class="px-4 pt-4 text-nowrap text-base text-gray-100 font-semibold">
       {guide.title}
     </div>
-    <p class="line-clamp-4 px-4 pt-4 text-sm text-gray-700">{guide.description}</p>
+    <p class="line-clamp-4 px-4 pt-4 text-sm text-gray-400">{guide.description}</p>
   </div>
   <div class="flex justify-center items-end flex-1 pt-4">
     <Button class="justify-self-center self-end" on:click="{() => openGuide(guide)}" title="Get started"
