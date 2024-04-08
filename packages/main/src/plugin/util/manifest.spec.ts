@@ -34,7 +34,7 @@ describe('guessIsManifest function', () => {
       RepoDigests: ['manifestDigest'],
       Created: 0,
       Size: 0,
-      VirtualSize: 500000, // 500KB, less than the 1MB threshold
+      VirtualSize: 40 * 1024, // 40KB (less than 50KB threshold)
       SharedSize: 0,
       Containers: 0,
     };
