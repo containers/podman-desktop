@@ -43,9 +43,29 @@ a ssh connection.
 
 ## Installation
 
-Podman Desktop can be installed on macOS, Windows and Linux systems, with x64 or arm64 architectures.
+Podman Desktop can be installed on macOS, Windows and Linux systems, with x64 or arm64 architectures. New versions are released regularly and binaries
+for these releases can be found in [the GitHub repository of the project](https://github.com/containers/podman-desktop). More detailed [instructions for the installation](https://podman-desktop.io/docs/installation) are available.
 
-## Air-gapped environment
+The installation procedure consists of installing a binary and its dependent files in your system. Once done, you are ready to start Podman Desktop.
+
+If you have Docker and/or Podman installed and running (including some podman machine running), Podman Desktop should be able to detect them, and you should be able to start working with containers.
+
+If you don't have Podman installed and no Podman machine running, Podman Desktop will guide you through their installation.
+
+<figure>
+![Podman and Docker already installed on Fedora 39](discover/img/docker-podman-dashboard.png)
+<figcaption>Podman and Docker already installed on Fedora 39</figcaption>
+</figure>
+
+<figure>
+![Podman not installed on macOS](discover/img/no-podman-mac.png)
+<figcaption>Podman not installed on macOS</figcaption>
+</figure>
+
+<figure>
+![Podman machine running on macOS](discover/img/podman-machine-mac.png)
+<figcaption>Podman machine running on macOS</figcaption>
+</figure>
 
 ## Onboarding
 
