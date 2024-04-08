@@ -20,40 +20,36 @@ import { afterEach } from 'node:test';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   DownloadAndCheck,
+  Podman5DownloadFedoraImage,
   Podman5DownloadMachineOS,
   PodmanDownload,
-  PodmanDownloadFcosImage,
-  PodmanDownloadFedoraImage,
   ShaCheck,
 } from './podman-download';
-import * as podman4JSON from '../src/podman4.json';
+import * as podman5JSON from '../src/podman5.json';
 import nock from 'nock';
-import { WriteStream, appendFileSync, createWriteStream, existsSync, mkdirSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync } from 'node:fs';
 import { Octokit } from 'octokit';
-import { PassThrough, Readable, Writable } from 'node:stream';
-import { WritableStream, WritableStreamDefaultWriter } from 'stream/web';
-import path from 'node:path';
-import { tmpdir } from 'node:os';
-import exp from 'node:constants';
+import { Readable, Writable } from 'node:stream';
+import { WritableStream } from 'stream/web';
 
-const mockedPodman4 = {
-  version: '4.5.0',
+const mockedPodman5 = {
+  version: '5.0.0',
   platform: {
     win32: {
-      version: 'v4.5.0',
-      fileName: 'podman-4.5.0-setup.exe',
+      version: 'v5.0.0',
+      fileName: 'podman-5.0.0-setup.exe',
     },
     darwin: {
-      version: 'v4.5.0',
+      version: 'v5.0.0',
       arch: {
         x64: {
-          fileName: 'podman-installer-macos-amd64-v4.5.0.pkg',
+          fileName: 'podman-installer-macos-amd64-v5.0.0.pkg',
         },
         arm64: {
-          fileName: 'podman-installer-macos-aarch64-v4.5.0.pkg',
+          fileName: 'podman-installer-macos-aarch64-v5.0.0.pkg',
         },
         universal: {
-          fileName: 'podman-installer-macos-universal-v4.5.0.pkg',
+          fileName: 'podman-installer-macos-universal-v5.0.0.pkg',
         },
       },
     },
@@ -61,12 +57,12 @@ const mockedPodman4 = {
 };
 
 class TestPodmanDownload extends PodmanDownload {
-  public getPodmanDownloadFcosImage(): PodmanDownloadFcosImage {
-    return super.getPodmanDownloadFcosImage();
+  public getPodman5DownloadFedoraImage(): Podman5DownloadFedoraImage {
+    return super.getPodman5DownloadFedoraImage();
   }
 
-  public getPodmanDownloadFedoraImage(): PodmanDownloadFedoraImage {
-    return super.getPodmanDownloadFedoraImage();
+  public getPodman5DownloadMachineOS(): Podman5DownloadMachineOS {
+    return super.getPodman5DownloadMachineOS();
   }
 
   public getShaCheck(): ShaCheck {
@@ -100,17 +96,17 @@ describe('macOS platform', () => {
   });
 
   test('PodmanDownload with real json', async () => {
-    const podmanDownload = new TestPodmanDownload(podman4JSON, true);
+    const podmanDownload = new TestPodmanDownload(podman5JSON, true);
 
     // mock downloadAndCheckSha
     const downloadCheck = podmanDownload.getDownloadAndCheck();
     const downloadAndCheckShaSpy = vi.spyOn(downloadCheck, 'downloadAndCheckSha');
     downloadAndCheckShaSpy.mockResolvedValue();
 
-    // mock podmanDownloadFcosImage
-    const podmanDownloadFcosImage = podmanDownload.getPodmanDownloadFcosImage();
-    const podmanDownloadFcosImageSpy = vi.spyOn(podmanDownloadFcosImage, 'download');
-    podmanDownloadFcosImageSpy.mockResolvedValue();
+    // mock podman5DownloadMachineOS
+    const podman5DownloadMachineOS = podmanDownload.getPodman5DownloadMachineOS();
+    const podman5DownloadMachineOSSpy = vi.spyOn(podman5DownloadMachineOS, 'download');
+    podman5DownloadMachineOSSpy.mockResolvedValue();
 
     // add env file
     process.env.AIRGAP_DOWNLOAD = 'yes';
@@ -118,28 +114,26 @@ describe('macOS platform', () => {
     await podmanDownload.downloadBinaries();
 
     // check called 2 times
-    expect(downloadAndCheckShaSpy).toHaveBeenCalledTimes(2);
+    expect(downloadAndCheckShaSpy).toHaveBeenCalledTimes(3);
 
     // check called with the correct parameters
     expect(downloadAndCheckShaSpy).toHaveBeenCalledWith(
-      expect.stringContaining('v4.'),
+      expect.stringContaining('v5.'),
       expect.stringContaining('podman-installer-macos-amd64'),
       'podman-installer-macos-amd64.pkg',
     );
     expect(downloadAndCheckShaSpy).toHaveBeenCalledWith(
-      expect.stringContaining('v4.'),
+      expect.stringContaining('v5.'),
       expect.stringContaining('podman-installer-macos-aarch64'),
       'podman-installer-macos-arm64.pkg',
     );
 
     // check airgap download
-    expect(podmanDownloadFcosImageSpy).toHaveBeenCalled();
-    expect(podmanDownloadFcosImageSpy).toHaveBeenCalledWith('arm64');
-    expect(podmanDownloadFcosImageSpy).toHaveBeenCalledWith('x64');
+    expect(podman5DownloadMachineOSSpy).toHaveBeenCalled();
   });
 
   test('PodmanDownload with mocked json', async () => {
-    const podmanDownload = new TestPodmanDownload(mockedPodman4, false);
+    const podmanDownload = new TestPodmanDownload(mockedPodman5, false);
 
     // mock downloadAndCheckSha
     const downloadCheck = podmanDownload.getDownloadAndCheck();
@@ -154,20 +148,20 @@ describe('macOS platform', () => {
     // check called with the correct parameters
     expect(downloadAndCheckShaSpy).toHaveBeenNthCalledWith(
       1,
-      'v4.5.0',
-      'podman-installer-macos-amd64-v4.5.0.pkg',
+      'v5.0.0',
+      'podman-installer-macos-amd64-v5.0.0.pkg',
       'podman-installer-macos-amd64.pkg',
     );
     expect(downloadAndCheckShaSpy).toHaveBeenNthCalledWith(
       2,
-      'v4.5.0',
-      'podman-installer-macos-aarch64-v4.5.0.pkg',
+      'v5.0.0',
+      'podman-installer-macos-aarch64-v5.0.0.pkg',
       'podman-installer-macos-arm64.pkg',
     );
     expect(downloadAndCheckShaSpy).toHaveBeenNthCalledWith(
       3,
-      'v4.5.0',
-      'podman-installer-macos-universal-v4.5.0.pkg',
+      'v5.0.0',
+      'podman-installer-macos-universal-v5.0.0.pkg',
       'podman-installer-macos-universal.pkg',
     );
   });
@@ -192,7 +186,7 @@ describe('windows platform', () => {
   });
 
   test('PodmanDownload with real data', async () => {
-    const podmanDownload = new TestPodmanDownload(podman4JSON, true);
+    const podmanDownload = new TestPodmanDownload(podman5JSON, true);
 
     // mock downloadAndCheckSha
     const downloadCheck = podmanDownload.getDownloadAndCheck();
@@ -203,9 +197,9 @@ describe('windows platform', () => {
     process.env.AIRGAP_DOWNLOAD = 'yes';
 
     // mock podmanDownloadFedoraImage
-    const podmanDownloadFedoraImage = podmanDownload.getPodmanDownloadFedoraImage();
-    const podmanDownloadFedoraImageSpy = vi.spyOn(podmanDownloadFedoraImage, 'download');
-    podmanDownloadFedoraImageSpy.mockResolvedValue();
+    const podman5DownloadFedoraImage = podmanDownload.getPodman5DownloadFedoraImage();
+    const podman5DownloadFedoraImageSpy = vi.spyOn(podman5DownloadFedoraImage, 'download');
+    podman5DownloadFedoraImageSpy.mockResolvedValue();
 
     await podmanDownload.downloadBinaries();
 
@@ -214,27 +208,27 @@ describe('windows platform', () => {
 
     // check called with the correct parameters
     expect(downloadAndCheckShaSpy).toHaveBeenCalledWith(
-      expect.stringContaining('v4.'),
+      expect.stringContaining('v5.'),
       expect.stringContaining('-setup.exe'),
       expect.stringContaining('-setup.exe'),
     );
 
     // check airgap download
-    expect(podmanDownloadFedoraImageSpy).toHaveBeenCalled();
-    expect(podmanDownloadFedoraImageSpy).toHaveBeenCalledWith('podman-wsl-fedora', 'x64');
-    expect(podmanDownloadFedoraImageSpy).toHaveBeenCalledWith('podman-wsl-fedora-arm', 'arm64');
+    expect(podman5DownloadFedoraImageSpy).toHaveBeenCalled();
+    expect(podman5DownloadFedoraImageSpy).toHaveBeenCalledWith('x64');
+    expect(podman5DownloadFedoraImageSpy).toHaveBeenCalledWith('arm64');
   });
 
   test('PodmanDownload with mocked json', async () => {
-    const podmanDownload = new TestPodmanDownload(mockedPodman4, false);
+    const podmanDownload = new TestPodmanDownload(mockedPodman5, false);
 
     // mock downloadAndCheckSha
     const downloadCheck = podmanDownload.getDownloadAndCheck();
     const downloadAndCheckShaSpy = vi.spyOn(downloadCheck, 'downloadAndCheckSha');
     downloadAndCheckShaSpy.mockResolvedValue();
 
-    const podmanDownloadFedoraImage = podmanDownload.getPodmanDownloadFedoraImage();
-    const podmanDownloadFedoraImageSpy = vi.spyOn(podmanDownloadFedoraImage, 'download');
+    const podman5DownloadFedoraImage = podmanDownload.getPodman5DownloadFedoraImage();
+    const podmanDownloadFedoraImageSpy = vi.spyOn(podman5DownloadFedoraImage, 'download');
 
     await podmanDownload.downloadBinaries();
 
@@ -244,9 +238,9 @@ describe('windows platform', () => {
     // check called with the correct parameters
     expect(downloadAndCheckShaSpy).toHaveBeenNthCalledWith(
       1,
-      'v4.5.0',
-      'podman-4.5.0-setup.exe',
-      'podman-4.5.0-setup.exe',
+      'v5.0.0',
+      'podman-5.0.0-setup.exe',
+      'podman-5.0.0-setup.exe',
     );
 
     // check no airgap download
