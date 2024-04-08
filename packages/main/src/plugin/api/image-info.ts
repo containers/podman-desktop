@@ -24,6 +24,7 @@ import type { ProviderContainerConnectionInfo } from './provider-info.js';
 export interface ImageInfo extends Dockerode.ImageInfo {
   engineId: string;
   engineName: string;
+  History?: string[];
 }
 
 export interface BuildImageOptions {
