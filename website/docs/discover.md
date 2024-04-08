@@ -138,6 +138,35 @@ If the repository is private, you will have to check that the credentials have b
 
 ## Containers
 
+Now you have at least one image stored locally in a container engine, it's time to start a container using this image in this same container engine.
+For this, you can press the `Run Image` button in the Actions of the desired image in the Images List.
+
+This will open a form with all the possible parameters for creating the container (the same parameters you may pass to the `podman run` command).
+
+Once you press the `Start Container` button, the container creation is initiated and as soon as it is created, you are redirected to the Details page
+for the container. You can go back to this details page at any time by clicking the container's name in the _Containers List_ page.
+
+This Details page offers you many information about the container, from dedicated tabs: the logs of the container streamed in real-time,
+the detailed information (the output of the `podman inspect` command),
+a Kubernetes representation of a Pod embedding this container (we will see later in the Kubernetes section how this can be useful),
+and a view of the TTY attached to the container.
+
+It is also possible to access an interactive shell within the container (if the container provides an `sh` or `bash` shell), by accessing the _Terminal_ tab
+of the Details page.
+
+A toolbar provides the standard operations on containers: stop, delete, restart, and you can open in one click in your browser the port declared as exposed
+by the container, to check that the application running in the container works as expected.
+
+<figure>
+![Starting a Container](discover/img/start-image.png)
+<figcaption>Starting a Container</figcaption>
+</figure>
+
+<figure>
+![Details of a Container, and interactive shell session](discover/img/container-details.png)
+<figcaption>Details of a Container, and interactive shell session</figcaption>
+</figure>
+
 ## Pods
 
 ## Compose
