@@ -19,7 +19,7 @@
 import type { ImageInfo } from '../api/image-info.js';
 
 const KB = 1024;
-const GUESSED_MANIFEST_SIZE = 50 * KB; // 50 KB
+const GUESSED_MANIFEST_SIZE = 50 * KB;
 
 // Function to safely "guess" if the image is actually a manifest
 // IMPORTANT NOTE:
