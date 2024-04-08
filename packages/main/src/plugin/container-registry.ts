@@ -75,6 +75,7 @@ import { Emitter } from './events/emitter.js';
 import type { ImageRegistry } from './image-registry.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import { Disposable } from './types/disposable.js';
+import { guessIsManifest } from './util/manifest.js';
 
 const tar: { pack: (dir: string) => NodeJS.ReadableStream } = require('tar-fs');
 
@@ -626,6 +627,10 @@ export class ContainerProviderRegistry {
           ...image,
           engineName: provider.name,
           engineId: provider.id,
+          // Using guessIsManifest, determine if the image is a manifest and set isManifest accordingly
+          // NOTE: This is a workaround until we have a better way to determine if an image is a manifest
+          // and may result in false positives until issue: https://github.com/containers/podman/issues/22184 is resolved
+          isManifest: guessIsManifest(image),
         }));
       }),
     );

@@ -4391,3 +4391,73 @@ describe('loadImages', () => {
     );
   });
 });
+
+test('manifest is listed as true with podmanListImages correctly', async () => {
+  const manifestImage: ImageInfo = {
+    Id: 'manifestImage',
+    Labels: {},
+    engineId: 'engine1',
+    engineName: 'podman',
+    ParentId: '',
+    RepoTags: ['manifestTag'],
+    RepoDigests: ['manifestDigest'],
+    Created: 0,
+    Size: 0,
+    VirtualSize: 40 * 1024, // 40KB (less than 50KB threshold)
+    SharedSize: 0,
+    Containers: 0,
+  };
+
+  const regularImage: ImageInfo = {
+    Id: 'ee301c921b8aadc002973b2e0c3da17d701dcd994b606769a7e6eaa100b81d44',
+    Labels: {},
+    engineId: 'engine5', // Assuming 'engineId' and 'engineName' are part of your ImageInfo but not relevant here
+    engineName: 'podman',
+    ParentId: '',
+    RepoTags: ['testdomain.io/library/hello:latest'],
+    RepoDigests: [
+      'testdomain.io/library/hello@sha256:2d4e459f4ecb5329407ae3e47cbc107a2fbace221354ca75960af4c047b3cb13',
+      'testdomain.io/library/hello@sha256:53641cd209a4fecfc68e21a99871ce8c6920b2e7502df0a20671c6fccc73a7c6',
+    ],
+    Created: 1683046167,
+    Size: 23301,
+    VirtualSize: 23301, // Directly matches Size in this case
+    SharedSize: 0,
+    Containers: 0,
+    History: ['testdomain.io/library/hello:latest'],
+  };
+
+  const imagesList = [manifestImage, regularImage];
+  nock('http://localhost').get('/v4.2.0/libpod/images/json').reply(200, imagesList);
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  // set provider
+  containerRegistry.addInternalProvider('podman', {
+    name: 'podman',
+    id: 'podman1',
+    api,
+    libpodApi: api,
+    connection: {
+      type: 'podman',
+    },
+  } as unknown as InternalContainerProvider);
+
+  const images = await containerRegistry.podmanListImages();
+  // ensure the field are correct
+  expect(images).toBeDefined();
+  expect(images).toHaveLength(2);
+
+  // Check the first image
+  const image = images[0];
+  expect(image.engineId).toBe('podman1');
+  expect(image.engineName).toBe('podman');
+  expect(image.Id).toBe('manifestImage');
+  expect(image.isManifest).toBe(true);
+
+  // Check the second image
+  const image2 = images[1];
+  expect(image2.engineId).toBe('podman1');
+  expect(image2.engineName).toBe('podman');
+  expect(image2.Id).toBe('ee301c921b8aadc002973b2e0c3da17d701dcd994b606769a7e6eaa100b81d44');
+  expect(image2.isManifest).toBe(false);
+});
