@@ -22,7 +22,7 @@ import type { ImageInfo } from '../api/image-info.js';
 const GUESSED_MANIFEST_SIZE = 51200;
 
 // Function to safely "guess" if the image is actually a manifest
-// IMPORTANT NOTE: 
+// IMPORTANT NOTE:
 // This is because there is no clear way to now what a manifest
 // is in the Dockerode API / Podman API (yet). This is a workaround
 // until we have a better way to determine if an image is a manifest
@@ -45,7 +45,7 @@ export function guessIsManifest(image: ImageInfo): boolean {
       image.RepoTags.length > 0 &&
       image.RepoDigests.length > 0 &&
       (!image.Labels || Object.keys(image.Labels).length === 0) &&
-      (!image.History || image.History.length === 0) && 
+      (!image.History || image.History.length === 0) &&
       image.engineName === 'podman' &&
       image.VirtualSize < GUESSED_MANIFEST_SIZE,
   );

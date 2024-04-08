@@ -117,4 +117,28 @@ describe('guessIsManifest function', () => {
 
     expect(guessIsManifest(noDigestImage)).toBe(false);
   });
+
+  test('return false for a typical helloworld image example, that may be small enough to trigger guessIsManifest as true', () => {
+    const helloWorldImage: ImageInfo = {
+      Id: 'ee301c921b8aadc002973b2e0c3da17d701dcd994b606769a7e6eaa100b81d44',
+      Labels: {},
+      engineId: 'engine5', // Assuming 'engineId' and 'engineName' are part of your ImageInfo but not relevant here
+      engineName: 'podman',
+      ParentId: '',
+      RepoTags: ['testdomain.io/library/hello:latest'],
+      RepoDigests: [
+        'testdomain.io/library/hello@sha256:2d4e459f4ecb5329407ae3e47cbc107a2fbace221354ca75960af4c047b3cb13',
+        'testdomain.io/library/hello@sha256:53641cd209a4fecfc68e21a99871ce8c6920b2e7502df0a20671c6fccc73a7c6',
+      ],
+      Created: 1683046167,
+      Size: 23301,
+      VirtualSize: 23301, // Directly matches Size in this case
+      SharedSize: 0,
+      Containers: 0,
+      History: ['testdomain.io/library/hello:latest'],
+    };
+
+    // Should be false
+    expect(guessIsManifest(helloWorldImage)).toBe(false);
+  });
 });
