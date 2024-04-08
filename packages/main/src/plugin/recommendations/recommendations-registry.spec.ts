@@ -31,7 +31,7 @@ const mocks = vi.hoisted(() => ({
   getRecommendationIgnored: vi.fn(),
 }));
 
-vi.mock('./recommendations.json', () => ({
+vi.mock('../../../../../recommendations.json', () => ({
   default: {
     extensions: Array.from({ length: 10 }, (_, i) => ({
       extensionId: `dummy.id-${i}`,
