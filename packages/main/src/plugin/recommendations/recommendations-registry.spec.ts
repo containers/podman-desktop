@@ -78,6 +78,20 @@ test('should register a configuration', async () => {
   expect(configurationNode.properties?.['extensions.ignoreRecommendations'].default).toBeFalsy();
 });
 
+describe('isRecommendationEnabled', () => {
+  test('recommendation ignore true', async () => {
+    getRecommendationIgnored.mockReturnValue(true);
+
+    expect(recommendationsRegistry.isRecommendationEnabled()).toBe(false);
+  });
+
+  test('recommendation ignore false', async () => {
+    getRecommendationIgnored.mockReturnValue(false);
+
+    expect(recommendationsRegistry.isRecommendationEnabled()).toBe(true);
+  });
+});
+
 describe('getExtensionBanners', () => {
   test('recommendation disabled', async () => {
     getRecommendationIgnored.mockReturnValue(true);

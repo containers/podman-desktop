@@ -30,8 +30,8 @@ export class RecommendationsRegistry {
     private featured: Featured,
   ) {}
 
-  isRecommendationDisabled(): boolean {
-    return this.configurationRegistry
+  isRecommendationEnabled(): boolean {
+    return !this.configurationRegistry
       .getConfiguration(RecommendationsSettings.SectionName)
       .get<boolean>(RecommendationsSettings.IgnoreRecommendations, false);
   }
@@ -42,7 +42,7 @@ export class RecommendationsRegistry {
    */
   async getExtensionBanners(limit = 1): Promise<ExtensionBanner[]> {
     // Do not recommend any extension when user selected the ignore preference
-    if (this.isRecommendationDisabled()) return [];
+    if (!this.isRecommendationEnabled()) return [];
 
     const featuredExtensions: Record<string, FeaturedExtension> = Object.fromEntries(
       (await this.featured.getFeaturedExtensions(-1)).map(featured => [featured.id, featured]),
