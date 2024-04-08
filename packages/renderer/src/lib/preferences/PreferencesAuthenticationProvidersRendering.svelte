@@ -19,7 +19,7 @@ import SettingsPage from './SettingsPage.svelte';
 </script>
 
 <SettingsPage title="Authentication">
-  <div class="container h-full">
+  <div class="container h-full" role="list">
     <!-- Authentication Providers table start -->
     <EmptyScreen
       icon="{KeyIcon}"
@@ -29,12 +29,12 @@ import SettingsPage from './SettingsPage.svelte';
     {#each $authenticationProviders as provider}
       {@const sessionRequests = provider.sessionRequests ?? []}
       <!-- Registered Authentication Provider row start -->
-      <div class="flex flex-col w-full mb-5">
+      <div class="flex flex-col w-full mb-5" role="listitem" aria-label="{provider.displayName}">
         <div
           class="flex rounded-md border-0 justify-between"
           style="background-color: rgb(39 39 42 / var(--tw-bg-opacity))">
           <!-- Icon + status -->
-          <div class="ml-4 flex items-center">
+          <div class="ml-4 flex items-center" aria-label="Provider Information">
             <!-- Icon -->
             <div class="flex">
               {#if provider?.images?.icon}
@@ -63,7 +63,7 @@ import SettingsPage from './SettingsPage.svelte';
             <!-- Authentication Provider name and status item start -->
             <div class="px-5 py-2 text-sm m-auto">
               <div class="flex flex-col">
-                <div class="flex items-center text-lg w-full h-full">
+                <div class="flex items-center text-lg w-full h-full" aria-label="Provider Name">
                   {provider.displayName}
                 </div>
                 <div class="flex flex-row items-center w-full h-full">
@@ -72,7 +72,9 @@ import SettingsPage from './SettingsPage.svelte';
                       class="h-3 w-3 text-md mr-2 text-{provider.accounts.length > 0 ? 'green' : 'gray'}-500"
                       icon="{faCircle}" />
                   </dif>
-                  <div class="uppercase text-xs text-{provider.accounts.length > 0 ? 'green' : 'gray'}-500">
+                  <div
+                    class="uppercase text-xs text-{provider.accounts.length > 0 ? 'green' : 'gray'}-500"
+                    aria-label="Provider Status">
                     <span>
                       {provider.accounts.length > 0 ? 'Logged in' : 'Logged out'}
                     </span>
@@ -88,7 +90,9 @@ import SettingsPage from './SettingsPage.svelte';
                   <div class="flex flex-row">
                     <div class="flex items-center w-full">
                       <div class="flex flex-row text-xs bg-charcoal-800 p-2 rounded-lg mt-1">
-                        <span class="my-auto font-bold col-span-1 text-ellipsis overflow-hidden max-w-64">
+                        <span
+                          class="my-auto font-bold col-span-1 text-ellipsis overflow-hidden max-w-64"
+                          aria-label="Logged In Username">
                           {account.label}
                         </span>
                         <Tooltip tip="Sign out of {account.label}" bottomRight>
@@ -107,7 +111,7 @@ import SettingsPage from './SettingsPage.svelte';
             {/if}
           </div>
 
-          <div class="ml-4 flex items-center">
+          <div class="ml-4 flex items-center" aria-label="Provider Actions">
             {#if sessionRequests.length === 1}
               {@const request = sessionRequests[0]}
               <!-- Authentication Provider Auth Request Sign In button start -->
