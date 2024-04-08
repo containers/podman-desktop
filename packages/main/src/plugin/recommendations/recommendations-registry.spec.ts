@@ -26,10 +26,8 @@ import { RecommendationsRegistry } from './recommendations-registry.js';
 
 let recommendationsRegistry: RecommendationsRegistry;
 
-const mocks = vi.hoisted(() => ({
-  registerConfigurationsMock: vi.fn(),
-  getRecommendationIgnored: vi.fn(),
-}));
+const registerConfigurationsMock = vi.fn();
+const getRecommendationIgnored = vi.fn();
 
 vi.mock('../../../../../recommendations.json', () => ({
   default: {
@@ -44,9 +42,9 @@ vi.mock('../../../../../recommendations.json', () => ({
 }));
 
 const configurationRegistryMock = {
-  registerConfigurations: mocks.registerConfigurationsMock,
+  registerConfigurations: registerConfigurationsMock,
   getConfiguration: () => ({
-    get: mocks.getRecommendationIgnored,
+    get: getRecommendationIgnored,
   }),
 } as unknown as ConfigurationRegistry;
 
@@ -82,7 +80,7 @@ test('should register a configuration', async () => {
 
 describe('getExtensionBanners', () => {
   test('recommendation disabled', async () => {
-    mocks.getRecommendationIgnored.mockReturnValue(true);
+    getRecommendationIgnored.mockReturnValue(true);
 
     const extensions = await recommendationsRegistry.getExtensionBanners();
     expect(extensions.length).toBe(0);
@@ -91,7 +89,7 @@ describe('getExtensionBanners', () => {
   });
 
   test('installed extension from featured', async () => {
-    mocks.getRecommendationIgnored.mockReturnValue(false);
+    getRecommendationIgnored.mockReturnValue(false);
     vi.mocked(featuredMock.getFeaturedExtensions).mockResolvedValue([
       {
         id: 'dummy.id',
@@ -112,7 +110,7 @@ describe('getExtensionBanners', () => {
   });
 
   test('not-installed extension from featured', async () => {
-    mocks.getRecommendationIgnored.mockReturnValue(false);
+    getRecommendationIgnored.mockReturnValue(false);
     const featured: FeaturedExtension = {
       id: 'dummy.id-0',
       builtin: false,
@@ -138,7 +136,7 @@ describe('getExtensionBanners', () => {
   });
 
   test('default should limit to 1 item', async () => {
-    mocks.getRecommendationIgnored.mockReturnValue(false);
+    getRecommendationIgnored.mockReturnValue(false);
     vi.mocked(featuredMock.getFeaturedExtensions).mockResolvedValue(
       Array.from({ length: 10 }, (_, i) => ({
         id: `dummy.id-${i}`,
@@ -159,7 +157,7 @@ describe('getExtensionBanners', () => {
   });
 
   test('no limit to the maximum number returned', async () => {
-    mocks.getRecommendationIgnored.mockReturnValue(false);
+    getRecommendationIgnored.mockReturnValue(false);
     vi.mocked(featuredMock.getFeaturedExtensions).mockResolvedValue(
       Array.from({ length: 10 }, (_, i) => ({
         id: `dummy.id-${i}`,
