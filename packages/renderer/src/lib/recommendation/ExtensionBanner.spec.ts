@@ -1,0 +1,116 @@
+/**********************************************************************
+ * Copyright (C) 2024 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ***********************************************************************/
+
+import { render, screen } from '@testing-library/svelte';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+
+import ExtensionBanner from '/@/lib/recommendation/ExtensionBanner.svelte';
+
+import type { ExtensionBanner as IExtensionBanner } from '../../../../main/src/plugin/recommendations/recommendations-api';
+
+const baseBanner: IExtensionBanner = {
+  extensionId: 'extension.banner',
+  featured: {
+    description: 'featured.description',
+    installed: false,
+    icon: '',
+    fetchable: true,
+    id: 'extension.banner',
+    displayName: 'featured.displayName',
+    builtin: false,
+    categories: [],
+  },
+  thumbnail: 'data:image/png;base64-thumbnail',
+  title: 'title',
+  description: 'description',
+  icon: 'data:image/png;base64-icon',
+};
+
+const gradientBackground: IExtensionBanner = {
+  ...baseBanner,
+  background: {
+    gradient: {
+      start: '#fff',
+      end: '#000',
+    },
+  },
+};
+
+const imageBackground: IExtensionBanner = {
+  ...baseBanner,
+  background: {
+    image: 'data:image/png;base64-image',
+  },
+};
+
+beforeEach(() => {
+  vi.resetAllMocks();
+});
+
+test('banner icon should be visible', () => {
+  render(ExtensionBanner, {
+    banner: baseBanner,
+  });
+
+  const img = screen.getByAltText('banner icon');
+  expect(img).toBeDefined();
+  expect(img.attributes.getNamedItem('src')?.value).toBe('data:image/png;base64-icon');
+});
+
+test('thumbnail should be visible', () => {
+  render(ExtensionBanner, {
+    banner: baseBanner,
+  });
+
+  const img = screen.getByAltText('banner thumbnail');
+  expect(img).toBeDefined();
+  expect(img.attributes.getNamedItem('src')?.value).toBe('data:image/png;base64-thumbnail');
+});
+
+describe('backgrounds', () => {
+  test('expect default gradient background', () => {
+    render(ExtensionBanner, {
+      banner: baseBanner,
+    });
+
+    const card = screen.getByLabelText('Recommended extension');
+    expect(card).toBeDefined();
+    expect(card.classList).toContain('bg-charcoal-800');
+    expect(card.attributes.getNamedItem('style')?.value).toBeUndefined();
+  });
+
+  test('expect linear gradient background', () => {
+    render(ExtensionBanner, {
+      banner: gradientBackground,
+    });
+
+    const card = screen.getByLabelText('Recommended extension');
+    expect(card).toBeDefined();
+    expect(card.attributes.getNamedItem('style')?.value).toBe('background: linear-gradient(#fff, #000);');
+  });
+
+  test('expect image background', () => {
+    render(ExtensionBanner, {
+      banner: imageBackground,
+    });
+
+    const card = screen.getByLabelText('Recommended extension');
+    expect(card).toBeDefined();
+    expect(card.attributes.getNamedItem('style')?.value).toBe('background-image: url("data:image/png;base64-image");');
+  });
+});
