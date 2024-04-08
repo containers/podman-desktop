@@ -1263,7 +1263,7 @@ export function initExposure(): void {
   });
 
   contextBridge.exposeInMainWorld('getExtensionBanners', async (): Promise<ExtensionBanner[]> => {
-    return ipcInvoke('featured:getExtensionBanners');
+    return ipcInvoke('recommended:getExtensionBanners');
   });
 
   contextBridge.exposeInMainWorld('getCatalogExtensions', async (): Promise<CatalogExtension[]> => {

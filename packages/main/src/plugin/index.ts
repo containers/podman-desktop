@@ -1520,7 +1520,7 @@ export class PluginSystem {
       return featured.getFeaturedExtensions();
     });
 
-    this.ipcHandle('featured:getExtensionBanners', async (): Promise<ExtensionBanner[]> => {
+    this.ipcHandle('recommended:getExtensionBanners', async (): Promise<ExtensionBanner[]> => {
       return recommendationsRegistry.getExtensionBanners();
     });
 
