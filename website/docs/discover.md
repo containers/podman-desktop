@@ -48,28 +48,93 @@ for these releases can be found in [the GitHub repository of the project](https:
 
 The installation procedure consists of installing a binary and its dependent files in your system. Once done, you are ready to start Podman Desktop.
 
-If you have Docker and/or Podman installed and running (including some podman machine running), Podman Desktop should be able to detect them, and you should be able to start working with containers.
-
-If you don't have Podman installed and no Podman machine running, Podman Desktop will guide you through their installation.
-
-<figure>
-![Podman and Docker already installed on Fedora 39](discover/img/docker-podman-dashboard.png)
-<figcaption>Podman and Docker already installed on Fedora 39</figcaption>
-</figure>
-
-<figure>
-![Podman not installed on macOS](discover/img/no-podman-mac.png)
-<figcaption>Podman not installed on macOS</figcaption>
-</figure>
-
-<figure>
-![Podman machine running on macOS](discover/img/podman-machine-mac.png)
-<figcaption>Podman machine running on macOS</figcaption>
-</figure>
-
 ## Onboarding
 
+When started for the first time, Podman Desktop starts an _Onboarding_ session. This session
+will guide you through installing resources and tools helpful when working with Podman Desktop.
+
+Podman Desktop checks for the following CLIs to be accessible on your system: `docker-compose`, `kubectl` and `podman`.
+If any of these CLIs are not accessible, you are proposed to choose which ones you want to install, and to start the Onboarding.
+
+The onboarding consists of a series of steps for each tool to install. For the `docker-compose` and `kubectl` CLIs,
+the binaries are downloaded and placed in a system-wide directory (`/usr/local/bin` on Linux and macOS).
+
+For `podman`, on Linux, a step will help you install podman using the package manager of your system.
+On macOS and Windows, the steps will first install the latest available version of podman, then help you create a Podman Machine.
+
+At any time, you will be able to manage these resources installed during initial onboarding. You can check if new versions
+are released for the CLIs and download them (`Settings > CLI Tools`), and you can manage Podman Machines (`Settings > Resources > Podman`).
+
+<figure>
+![Onboarding session](discover/img/onboarding.png)
+<figcaption>Onboarding session</figcaption>
+</figure>
+
+<figure>
+![Onboarding done on macOS](discover/img/after-onboarding.png)
+<figcaption>Onboarding done on macOS/Windows</figcaption>
+</figure>
+
+<figure>
+![Onboarding done on Linux Fedora 39](discover/img/docker-podman-dashboard.png)
+<figcaption>Onboarding done on Linux Fedora 39</figcaption>
+</figure>
+
 ## Images
+
+To run containers, you first need Images stored locally in your container engine. To have such local images, you can either build them
+from a `Containerfile`, or pull them, either from a public or a private container registry. You may also want to push images built locally into a distant registry.
+
+All these operations are available from the _Images List page_, visible in the screenshot below.
+
+<figure>
+![Images List page](discover/img/images-start.png)
+<figcaption>Images List page, accessible from the Images menu</figcaption>
+</figure>
+
+### Building an Image
+
+In the screenshot below, you can see how to build an Image, based on Containerfile, and store the resulting image on a Container Engine
+(here, Podman container engine is selected - the choice may be not visible if only one container engine is detected by Podman Desktop).
+You also have the choice to build a single-platform or a multi-platform Image, by choosing for which platform(s) you want to build the image.
+
+<figure>
+![Builing an image](discover/img/image-build.png)
+<figcaption>Builing an image</figcaption>
+</figure>
+
+### Pulling an Image from a registry
+
+You can pull an image from a public registry by giving the URI of the image to pull, and the container engine on which to store it locally.
+
+If the image you want to pull happens to be private and you need to use credentials to access it, you can register these credentials
+from the `Settings > Registries` page, or by client the `Manage registries` from the _Pull image_ page. The credentials will be saved for any future use from Podman Desktop.
+
+<figure>
+![Pulling an image](discover/img/pull-image.png)
+<figcaption>Pulling an image</figcaption>
+</figure>
+
+<figure>
+![Registering Registries Credentials](discover/img/settings-registries.png)
+<figcaption>Registering Registries Credentials</figcaption>
+</figure>
+
+### Pushing an Image to a registry
+
+Once you have an image locally, stored in any container engine, you can push it to a registry. You first need to be sure
+that the image name is the URI of the distant repository. If it has not been done during the image build, you can edit
+the image and change its Image Name. Then, you can push the image to the registry by using the dedicated command.
+
+Both `Edit Image` and `Push Image` commands are available from the Actions menu of the image, in the _Images List_ page, or
+from the _Image Details_ page, accessible by clicking the image name in the Images List.
+
+If the repository is private, you will have to check that the credentials have been registered, as described in the previous section.
+
+<figure>
+![Puhsing an Image](discover/img/push-image.png)
+<figcaption>Puhsing an Image</figcaption>
+</figure>
 
 ## Containers
 
