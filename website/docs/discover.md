@@ -25,12 +25,13 @@ The daemon receives commands from the clients, and executes them to build contai
 Podman, on the other hand, is daemonless. This means that the clients (including the podman cli) access directly
 the system resources (containers, filesystem, etc), using a Podman library, to do these operations.
 
-Podman can also run on a Docker-compatibility mode. When doing this, you cannot run Docker and Podman simultaneously anymore.
-To run in this mode, a socket is created and a podman service is running, listening on this socket. This way, podman resources
-can be accessed in two ways. The first way is by connecting to the Podman socket (for CLIs which have been originally designed to work with Docker only)
+Podman can also run on a Docker-compatibility mode.
+To run in this mode, a communication channel is created (a socket `/var/run/docker.sock` on macOS/Linux, a named pipe on Windows) and a podman service is running, listening on this channel. This way, podman resources
+can be accessed in two ways. The first way is by connecting to the Podman channel (for CLIs which have been originally designed to work with Docker only)
 the exact same way the Docker socket is accessed. The second way is to use the podman cli (or the podman library), which accesses the resources directly.
+Podman and Docker can still cohabit on the same system, by exposing different communication channels.
 
-Podman desktop accesses the Docker daemon through the socket to work with Docker resources,
+Podman desktop accesses the Docker daemon through the communication channel to work with Docker resources,
 and uses the podman cli to work with Podman resources.
 
 ### Containers on non-Linux systems
