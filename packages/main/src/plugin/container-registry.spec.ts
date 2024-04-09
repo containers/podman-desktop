@@ -4393,11 +4393,9 @@ describe('loadImages', () => {
 });
 
 test('manifest is listed as true with podmanListImages correctly', async () => {
-  const manifestImage: ImageInfo = {
+  const manifestImage = {
     Id: 'manifestImage',
     Labels: {},
-    engineId: 'engine1',
-    engineName: 'podman',
     ParentId: '',
     RepoTags: ['manifestTag'],
     RepoDigests: ['manifestDigest'],
@@ -4408,11 +4406,9 @@ test('manifest is listed as true with podmanListImages correctly', async () => {
     Containers: 0,
   };
 
-  const regularImage: ImageInfo = {
+  const regularImage = {
     Id: 'ee301c921b8aadc002973b2e0c3da17d701dcd994b606769a7e6eaa100b81d44',
     Labels: {},
-    engineId: 'engine5', // Assuming 'engineId' and 'engineName' are part of your ImageInfo but not relevant here
-    engineName: 'podman',
     ParentId: '',
     RepoTags: ['testdomain.io/library/hello:latest'],
     RepoDigests: [

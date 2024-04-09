@@ -630,7 +630,7 @@ export class ContainerProviderRegistry {
           // Using guessIsManifest, determine if the image is a manifest and set isManifest accordingly
           // NOTE: This is a workaround until we have a better way to determine if an image is a manifest
           // and may result in false positives until issue: https://github.com/containers/podman/issues/22184 is resolved
-          isManifest: guessIsManifest(image),
+          isManifest: guessIsManifest(image, provider.connection.type),
         }));
       }),
     );

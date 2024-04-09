@@ -38,7 +38,7 @@ describe('guessIsManifest function', () => {
       Containers: 0,
     };
 
-    expect(guessIsManifest(manifestImage)).toBe(true);
+    expect(guessIsManifest(manifestImage, 'podman')).toBe(true);
   });
 
   test('returns false if VirtualSize is over 1MB', () => {
@@ -57,7 +57,7 @@ describe('guessIsManifest function', () => {
       Containers: 0,
     };
 
-    expect(guessIsManifest(largeImage)).toBe(false);
+    expect(guessIsManifest(largeImage, 'podman')).toBe(false);
   });
 
   test('returns false if Labels is not empty', () => {
@@ -76,7 +76,7 @@ describe('guessIsManifest function', () => {
       Containers: 0,
     };
 
-    expect(guessIsManifest(labeledImage)).toBe(false);
+    expect(guessIsManifest(labeledImage, 'podman')).toBe(false);
   });
 
   test('returns false if RepoTags is undefined or empty', () => {
@@ -95,7 +95,7 @@ describe('guessIsManifest function', () => {
       Containers: 0,
     };
 
-    expect(guessIsManifest(noTagImage)).toBe(false);
+    expect(guessIsManifest(noTagImage, 'podman')).toBe(false);
   });
 
   test('returns false if RepoDigests is undefined or empty', () => {
@@ -114,7 +114,7 @@ describe('guessIsManifest function', () => {
       Containers: 0,
     };
 
-    expect(guessIsManifest(noDigestImage)).toBe(false);
+    expect(guessIsManifest(noDigestImage, 'podman')).toBe(false);
   });
 
   test('return false for a typical helloworld image example, that may be small enough to trigger guessIsManifest as true', () => {
@@ -138,6 +138,25 @@ describe('guessIsManifest function', () => {
     };
 
     // Should be false
-    expect(guessIsManifest(helloWorldImage)).toBe(false);
+    expect(guessIsManifest(helloWorldImage, 'podman')).toBe(false);
   });
+});
+
+test('expect to fail even if engine name does not equal podman', () => {
+  const manifestImage: ImageInfo = {
+    Id: 'manifestImage',
+    Labels: {},
+    engineId: 'engine1',
+    engineName: 'podman',
+    ParentId: '',
+    RepoTags: ['manifestTag'],
+    RepoDigests: ['manifestDigest'],
+    Created: 0,
+    Size: 0,
+    VirtualSize: 40 * 1024, // 40KB (less than 50KB threshold)
+    SharedSize: 0,
+    Containers: 0,
+  };
+
+  expect(guessIsManifest(manifestImage, 'foobar')).toBe(false);
 });

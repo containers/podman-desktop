@@ -15,7 +15,6 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-
 import type { ImageInfo } from '../api/image-info.js';
 
 const KB = 1024;
@@ -33,20 +32,21 @@ const GUESSED_MANIFEST_SIZE = 50 * KB;
 // - Labels is null or empty, as the manifest usually doesn't have any labels
 // - RepoTags always exists, as the manifest has a tag associated
 // - RepoDigests always exists as well, as the manifest has a digest associated
+// - Connection type is "podman"
 // - History is null or empty
 // - Engine type is "podman"
 // all of these conditions must be met to (safely) determine if the image is a manifest
 //
 // We will check this within ImageInfo
-export function guessIsManifest(image: ImageInfo): boolean {
+export function guessIsManifest(image: ImageInfo, connectionType: string): boolean {
   return Boolean(
     image.RepoTags &&
       image.RepoDigests &&
       image.RepoTags.length > 0 &&
       image.RepoDigests.length > 0 &&
       (!image.Labels || Object.keys(image.Labels).length === 0) &&
-      (!image.History || image.History.length === 0) &&
-      image.engineName === 'podman' &&
+      (!image.History || Object.keys(image.History).length === 0) &&
+      connectionType === 'podman' &&
       image.VirtualSize < GUESSED_MANIFEST_SIZE,
   );
 }
