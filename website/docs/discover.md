@@ -307,4 +307,13 @@ within the containers of the pod (for containers providing an `sh` or `bash` she
 In the Deployments, Services and Ingresses & Routes pages, you will see the corresponding resources existing in the
 current Kubernetes context.
 
-## Extensions
+## Conclusion
+
+Podman Desktop is extensible. In fact, most of the features we have seen in this presentation are provided by extensions.
+
+An API is provided to write extensions in Javascript or Typescript. Extensions can register as a specific provider
+(authentication, registry, kubernetes, containers, cli tool, etc), can register to specific events (on images, containers, pods, etc),
+can add entries to menus (tray menu, status bar, contextual menus), and can contribute a complete UI through a webview provided by the API.
+
+Many extensions already exist, and many more are expected to come, which will make Podman Desktop a central place of choice for developers
+working with containers.
