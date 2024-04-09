@@ -1867,6 +1867,10 @@ declare module '@podman-desktop/api' {
     SharedSize: number;
     Labels: { [label: string]: string };
     Containers: number;
+    History?: string[];
+
+    // isManifest will be returned and set to true if the image is identified to be a manifest list
+    isManifest?: boolean;
   }
 
   export interface ImageInspectInfo {

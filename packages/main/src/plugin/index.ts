@@ -142,6 +142,7 @@ import { KubernetesClient } from './kubernetes-client.js';
 import type { KubeContext } from './kubernetes-context.js';
 import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
 import { downloadGuideList } from './learning-center/learning-center.js';
+import { LibpodapiInit } from './libpodapi-enable/libpodapi-init.js';
 import type { MessageBoxOptions, MessageBoxReturnValue } from './message-box.js';
 import { MessageBox } from './message-box.js';
 import { NotificationRegistry } from './notification-registry.js';
@@ -166,6 +167,7 @@ import { getFreePort, getFreePortRange, isFreePort } from './util/port.js';
 import { ViewRegistry } from './view-registry.js';
 import { WebviewRegistry } from './webview/webview-registry.js';
 import { WelcomeInit } from './welcome/welcome-init.js';
+
 // workaround for ESM
 const checkDiskSpace: (path: string) => Promise<{ free: number }> = checkDiskSpacePkg as unknown as (
   path: string,
@@ -446,7 +448,12 @@ export class PluginSystem {
     const imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
     const viewRegistry = new ViewRegistry();
     const context = new Context(apiSender);
-    const containerProviderRegistry = new ContainerProviderRegistry(apiSender, imageRegistry, telemetry);
+    const containerProviderRegistry = new ContainerProviderRegistry(
+      apiSender,
+      configurationRegistry,
+      imageRegistry,
+      telemetry,
+    );
     const cancellationTokenRegistry = new CancellationTokenRegistry();
     const providerRegistry = new ProviderRegistry(apiSender, containerProviderRegistry, telemetry);
     const trayMenuRegistry = new TrayMenuRegistry(this.trayMenu, commandRegistry, providerRegistry, telemetry);
@@ -564,6 +571,10 @@ export class PluginSystem {
     const welcomeInit = new WelcomeInit(configurationRegistry);
     welcomeInit.init();
 
+    // init libpodapi configuration
+    const libpodapiInit = new LibpodapiInit(configurationRegistry);
+    libpodapiInit.init();
+
     const authentication = new AuthenticationImpl(apiSender);
 
     const cliToolRegistry = new CliToolRegistry(apiSender, exec, telemetry);
@@ -654,7 +665,7 @@ export class PluginSystem {
       return containerProviderRegistry.listSimpleContainers();
     });
     this.ipcHandle('container-provider-registry:listImages', async (): Promise<ImageInfo[]> => {
-      return containerProviderRegistry.listImages();
+      return containerProviderRegistry.podmanListImages();
     });
     this.ipcHandle('container-provider-registry:listPods', async (): Promise<PodInfo[]> => {
       return containerProviderRegistry.listPods();

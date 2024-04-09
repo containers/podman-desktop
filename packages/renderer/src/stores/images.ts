@@ -72,5 +72,9 @@ imagesEventStore.setupWithDebounce();
 export const searchPattern = writable('');
 
 export const filtered = derived([searchPattern, imagesInfos], ([$searchPattern, $imagesInfos]) =>
-  $imagesInfos.filter(imageInfo => findMatchInLeaves(imageInfo, $searchPattern.toLowerCase())),
+  // We ignore any images that are manifest images as we do not support this yet in the UI.
+  // see epic issue: https://github.com/containers/podman-desktop/issues/6529
+  $imagesInfos.filter(
+    imageInfo => !imageInfo?.isManifest && findMatchInLeaves(imageInfo, $searchPattern.toLowerCase()),
+  ),
 );

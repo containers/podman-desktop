@@ -59,6 +59,7 @@ import type { PodCreateOptions, PodInfo, PodInspectInfo } from './api/pod-info.j
 import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
 import type { PullEvent } from './api/pull-event.js';
 import type { VolumeInfo, VolumeInspectInfo, VolumeListInfo } from './api/volume-info.js';
+import type { ConfigurationRegistry } from './configuration-registry.js';
 import type {
   ContainerCreateMountOption,
   ContainerCreateNetNSOption,
@@ -73,6 +74,7 @@ import { EnvfileParser } from './env-file-parser.js';
 import type { Event } from './events/emitter.js';
 import { Emitter } from './events/emitter.js';
 import type { ImageRegistry } from './image-registry.js';
+import { LibpodapiSettings } from './libpodapi-enable/libpodapi-settings.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import { Disposable } from './types/disposable.js';
 import { guessIsManifest } from './util/manifest.js';
@@ -111,6 +113,7 @@ export class ContainerProviderRegistry {
 
   constructor(
     private apiSender: ApiSenderType,
+    private configurationRegistry: ConfigurationRegistry,
     private imageRegistry: ImageRegistry,
     private telemetryService: Telemetry,
   ) {
@@ -127,6 +130,12 @@ export class ContainerProviderRegistry {
   // map of streams per container id
   protected streamsPerContainerId: Map<string, NodeJS.ReadWriteStream> = new Map();
   protected streamsOutputPerContainerId: Map<string, Buffer[]> = new Map();
+
+  isUseLibpodApiEnabled(): boolean {
+    return this.configurationRegistry
+      .getConfiguration(LibpodapiSettings.SectionName)
+      .get<boolean>(LibpodapiSettings.Enable, false);
+  }
 
   handleEvents(api: Dockerode, errorCallback: (error: Error) => void): void {
     let nbEvents = 0;
@@ -610,7 +619,8 @@ export class ContainerProviderRegistry {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let fetchedImages: any[] = [];
 
-        if (provider.libpodApi) {
+        // If libpodApi is available AND the configuration is set to use libpodApi, use podmanListImages API call.
+        if (provider.libpodApi && this.isUseLibpodApiEnabled()) {
           fetchedImages = await provider.libpodApi.podmanListImages({
             all: options?.all,
             filters: options?.filters,
