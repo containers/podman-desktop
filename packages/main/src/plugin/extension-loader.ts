@@ -1224,6 +1224,14 @@ export class ExtensionLoader {
       navigateToAuthentication: async (): Promise<void> => {
         await this.navigationManager.navigateToAuthentication();
       },
+      navigateToResources: async (): Promise<void> => {
+        await this.navigationManager.navigateToResources();
+      },
+      navigateToEditProviderContainerConnection: async (
+        connection: containerDesktopAPI.ProviderContainerConnection,
+      ): Promise<void> => {
+        await this.navigationManager.navigateToEditProviderContainerConnection(connection);
+      },
     };
 
     const version = app.getVersion();

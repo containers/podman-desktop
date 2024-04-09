@@ -16,12 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ProviderContainerConnection } from '@podman-desktop/api';
+
 import type { ApiSenderType } from '/@/plugin/api.js';
 import type { ContainerProviderRegistry } from '/@/plugin/container-registry.js';
 import type { ContributionManager } from '/@/plugin/contribution-manager.js';
 import { NavigationPage } from '/@/plugin/navigation/navigation-page.js';
 import type { NavigationRequest } from '/@/plugin/navigation/navigation-request.js';
 
+import type { ProviderRegistry } from '../provider-registry.js';
 import type { WebviewRegistry } from '../webview/webview-registry.js';
 
 export class NavigationManager {
@@ -29,6 +32,7 @@ export class NavigationManager {
     private apiSender: ApiSenderType,
     private containerRegistry: ContainerProviderRegistry,
     private contributionManager: ContributionManager,
+    private providerRegistry: ProviderRegistry,
     private webviewRegistry: WebviewRegistry,
   ) {}
 
@@ -211,6 +215,23 @@ export class NavigationManager {
   async navigateToAuthentication(): Promise<void> {
     this.navigateTo({
       page: NavigationPage.AUTHENTICATION,
+    });
+  }
+
+  async navigateToResources(): Promise<void> {
+    this.navigateTo({
+      page: NavigationPage.RESOURCES,
+    });
+  }
+
+  async navigateToEditProviderContainerConnection(connection: ProviderContainerConnection): Promise<void> {
+    const internalId = this.providerRegistry.getMatchingProviderInternalId(connection.providerId);
+    this.navigateTo({
+      page: NavigationPage.EDIT_CONTAINER_CONNECTION,
+      parameters: {
+        provider: internalId,
+        name: Buffer.from(connection.connection.name).toString('base64'),
+      },
     });
   }
 }

@@ -16,12 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ProviderContainerConnection } from '@podman-desktop/api';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import type { ApiSenderType } from '../api.js';
 import type { WebviewInfo } from '../api/webview-info.js';
 import type { ContainerProviderRegistry } from '../container-registry.js';
 import type { ContributionManager } from '../contribution-manager.js';
+import type { ProviderRegistry } from '../provider-registry.js';
 import type { WebviewRegistry } from '../webview/webview-registry.js';
 import { NavigationManager } from './navigation-manager.js';
 import { NavigationPage } from './navigation-page.js';
@@ -48,13 +50,23 @@ const contributionManager = {
   listContributions: vi.fn(),
 } as unknown as ContributionManager;
 
+const providerRegistry = {
+  getMatchingProviderInternalId: vi.fn(),
+} as unknown as ProviderRegistry;
+
 const webviewRegistry = {
   listWebviews: vi.fn(),
 } as unknown as WebviewRegistry;
 
 beforeEach(() => {
   vi.resetAllMocks();
-  navigationManager = new TestNavigationManager(apiSender, containerRegistry, contributionManager, webviewRegistry);
+  navigationManager = new TestNavigationManager(
+    apiSender,
+    containerRegistry,
+    contributionManager,
+    providerRegistry,
+    webviewRegistry,
+  );
 });
 
 test('check contribution does not exist', async () => {
@@ -86,6 +98,38 @@ test('check navigateToWebview', async () => {
     page: NavigationPage.WEBVIEW,
     parameters: {
       id: 'validId',
+    },
+  });
+});
+
+test('check navigateToResources', async () => {
+  await navigationManager.navigateToResources();
+
+  expect(apiSender.send).toHaveBeenCalledWith('navigate', {
+    page: NavigationPage.RESOURCES,
+  });
+});
+
+test('check navigateToEditProviderContainerConnection', async () => {
+  vi.mocked(providerRegistry.getMatchingProviderInternalId).mockReturnValue('id');
+  const connection: ProviderContainerConnection = {
+    providerId: 'internal',
+    connection: {
+      name: 'connection',
+      type: 'docker',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      status: () => 'stopped',
+    },
+  };
+  await navigationManager.navigateToEditProviderContainerConnection(connection);
+
+  expect(apiSender.send).toHaveBeenCalledWith('navigate', {
+    page: NavigationPage.EDIT_CONTAINER_CONNECTION,
+    parameters: {
+      provider: 'id',
+      name: Buffer.from(connection.connection.name).toString('base64'),
     },
   });
 });

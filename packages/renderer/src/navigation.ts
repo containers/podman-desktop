@@ -82,5 +82,11 @@ export const handleNavigation = (page: NavigationPage, parameters?: { [key: stri
     case NavigationPage.AUTHENTICATION:
       router.goto('/preferences/authentication-providers');
       break;
+    case NavigationPage.RESOURCES:
+      router.goto('/preferences/resources');
+      break;
+    case NavigationPage.EDIT_CONTAINER_CONNECTION:
+      router.goto(`/preferences/container-connection/edit/${parameters?.['provider']}/${parameters?.['name']}`);
+      break;
   }
 };
