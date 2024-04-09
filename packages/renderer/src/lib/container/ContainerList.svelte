@@ -650,7 +650,7 @@ function setStoppedFilter() {
                         <div>&nbsp;</div>
                       {/if}
                     </div>
-                    <div class="text-right w-full">
+                    <div class="text-right w-full mr-[5px]">
                       <ContainerActions
                         container="{container}"
                         dropdownMenu="{true}"
