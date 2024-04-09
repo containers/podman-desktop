@@ -43,7 +43,7 @@ onMount(() => {
 
   <!-- feature extension actions -->
   <div class="flex flex-col">
-    <FeaturedExtension featuredExtension="{banner.featured}" />
+    <FeaturedExtension variant="secondary" featuredExtension="{banner.featured}" />
     <span class="text-base w-full text-end">{banner.featured.description}</span>
   </div>
 </div>
