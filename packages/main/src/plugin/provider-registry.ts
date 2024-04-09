@@ -1217,6 +1217,19 @@ export class ProviderRegistry {
     return connections;
   }
 
+  getContainerConnectionInfo(connection: ProviderContainerConnection): ProviderContainerConnectionInfo | undefined {
+    for (const providerInfo of this.getProviderInfos()) {
+      if (providerInfo.id === connection.providerId) {
+        for (const containerConnection of providerInfo.containerConnections) {
+          if (containerConnection.endpoint.socketPath === connection.connection.endpoint.socketPath) {
+            return containerConnection;
+          }
+        }
+      }
+    }
+    return undefined;
+  }
+
   registerKubernetesConnection(
     provider: Provider,
     kubernetesProviderConnection: KubernetesProviderConnection,

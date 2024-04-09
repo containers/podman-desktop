@@ -22,21 +22,27 @@ import type {
   ContainerProviderConnection,
   KubernetesProviderConnection,
   ProviderCleanup,
+  ProviderContainerConnection,
   ProviderInstallation,
   ProviderUpdate,
 } from '@podman-desktop/api';
 import { beforeEach, expect, test, vi } from 'vitest';
 
+import type { Proxy } from '/@/plugin/proxy.js';
+
 import type { ApiSenderType } from './api.js';
 import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info.js';
 import type { AutostartEngine } from './autostart-engine.js';
-import type { ContainerProviderRegistry } from './container-registry.js';
+import type { Certificates } from './certificates.js';
+import { ContainerProviderRegistry } from './container-registry.js';
+import { ImageRegistry } from './image-registry.js';
 import { LifecycleContextImpl } from './lifecycle-context.js';
 import type { ProviderImpl } from './provider-impl.js';
 import { ProviderRegistry } from './provider-registry.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 
 let providerRegistry: ProviderRegistry;
+
 let autostartEngine: AutostartEngine;
 
 const telemetryTrackMock = vi.fn();
@@ -50,10 +56,19 @@ beforeEach(() => {
   } as unknown as Telemetry;
   const apiSender = {
     send: apiSenderSendMock,
+    receive: vi.fn(),
   } as unknown as ApiSenderType;
-  const containerRegistry: ContainerProviderRegistry = {
-    registerContainerConnection: vi.fn(),
-  } as unknown as ContainerProviderRegistry;
+  const certificates: Certificates = {
+    init: vi.fn(),
+    getAllCertificates: vi.fn(),
+  } as unknown as Certificates;
+  const proxy: Proxy = {
+    onDidStateChange: vi.fn(),
+    onDidUpdateProxy: vi.fn(),
+    isEnabled: vi.fn(),
+  } as unknown as Proxy;
+  const imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
+  const containerRegistry = new ContainerProviderRegistry(apiSender, imageRegistry, telemetry);
   providerRegistry = new ProviderRegistry(apiSender, containerRegistry, telemetry);
   autostartEngine = {
     registerProvider: vi.fn(),
@@ -65,8 +80,10 @@ test('should initialize provider if there is kubernetes connection provider', as
   let providerInternalId: any;
 
   apiSenderSendMock.mockImplementation((message, data) => {
-    expect(message).toBe('provider-create');
-    providerInternalId = data;
+    expect(['provider-create', 'provider:update-version', 'provider-change']).toContain(message);
+    if (message === 'provider-create') {
+      providerInternalId = data;
+    }
   });
 
   const provider = providerRegistry.createProvider('id', 'name', {
@@ -138,8 +155,10 @@ test('should initialize provider if there is container connection provider', asy
   let providerInternalId: any;
 
   apiSenderSendMock.mockImplementation((message, data) => {
-    expect(message).toBe('provider-create');
-    providerInternalId = data;
+    expect(['provider-create', 'provider:update-version', 'provider-change']).toContain(message);
+    if (message === 'provider-create') {
+      providerInternalId = data;
+    }
   });
 
   const provider = providerRegistry.createProvider('id', 'name', {
@@ -173,8 +192,10 @@ test('should reset state if initialization fails', async () => {
   let providerInternalId: any;
 
   apiSenderSendMock.mockImplementation((message, data) => {
-    expect(message).toBe('provider-create');
-    providerInternalId = data;
+    expect(['provider-create', 'provider:update-version', 'provider-change']).toContain(message);
+    if (message === 'provider-create') {
+      providerInternalId = data;
+    }
   });
 
   const provider = providerRegistry.createProvider('id', 'name', {
@@ -290,7 +311,6 @@ test('should send events when starting a container connection', async () => {
     },
     status: 'started',
   };
-
   const startMock = vi.fn();
   const stopMock = vi.fn();
   provider.registerContainerProviderConnection({
@@ -353,7 +373,6 @@ test('should send events when stopping a container connection', async () => {
     },
     status: 'stopped',
   };
-
   const startMock = vi.fn();
   const stopMock = vi.fn();
   provider.registerContainerProviderConnection({
@@ -782,4 +801,54 @@ test('registerUpdate should notify when an update is registered or unregistered'
 
   // check we have been notified
   expect(apiSenderSendMock).toBeCalledWith('provider-change', {});
+});
+
+test('should return connectionInfo for connection', async () => {
+  const provider = providerRegistry.createProvider('id', 'name', {
+    id: 'internal',
+    name: 'internal',
+    status: 'installed',
+  });
+
+  const startMock = vi.fn();
+  const stopMock = vi.fn();
+  provider.registerContainerProviderConnection({
+    name: 'connection',
+    type: 'docker',
+    lifecycle: {
+      start: startMock,
+      stop: stopMock,
+    },
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+    status() {
+      return 'stopped';
+    },
+  });
+
+  const connection: ProviderContainerConnection = {
+    providerId: 'internal',
+    connection: {
+      name: 'connection',
+      type: 'docker',
+      endpoint: {
+        socketPath: '/endpoint1.sock',
+      },
+      status: () => 'stopped',
+    },
+  };
+
+  const expectedConnectioInfo: ProviderContainerConnectionInfo = {
+    name: 'connection',
+    status: 'stopped',
+    endpoint: {
+      socketPath: '/endpoint1.sock',
+    },
+    lifecycleMethods: ['start', 'stop'],
+    type: 'docker',
+  };
+
+  const connectionInfo = providerRegistry.getContainerConnectionInfo(connection);
+  expect(connectionInfo).toStrictEqual(expectedConnectioInfo);
 });

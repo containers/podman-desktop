@@ -739,6 +739,9 @@ export class ExtensionLoader {
       getContainerConnections: () => {
         return providerRegistry.getContainerConnections();
       },
+      getContainerConnectionInfo: (connection: containerDesktopAPI.ProviderContainerConnection) => {
+        return providerRegistry.getContainerConnectionInfo(connection);
+      },
       getProviderLifecycleContext(
         providerId: string,
         providerConnectionInfo: containerDesktopAPI.ContainerProviderConnection,

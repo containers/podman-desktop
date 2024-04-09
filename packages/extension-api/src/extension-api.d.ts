@@ -531,6 +531,18 @@ declare module '@podman-desktop/api' {
     connection: ContainerProviderConnection;
   }
 
+  export type LifecycleMethod = 'start' | 'stop' | 'delete' | 'edit';
+
+  export interface ProviderContainerConnectionInfo {
+    name: string;
+    status: ProviderConnectionStatus;
+    endpoint: {
+      socketPath: string;
+    };
+    lifecycleMethods?: LifecycleMethod[];
+    type: 'docker' | 'podman';
+  }
+
   export namespace provider {
     export function createProvider(provider: ProviderOptions): Provider;
     export const onDidUpdateProvider: Event<ProviderEvent>;
@@ -539,6 +551,9 @@ declare module '@podman-desktop/api' {
     export const onDidUnregisterContainerConnection: Event<UnregisterContainerConnectionEvent>;
     export const onDidRegisterContainerConnection: Event<RegisterContainerConnectionEvent>;
     export function getContainerConnections(): ProviderContainerConnection[];
+    export function getContainerConnectionInfo(
+      connection: ProviderContainerConnection,
+    ): ProviderContainerConnectionInfo | undefined;
     /**
      * It returns the lifecycle context for the provider connection.
      * If no context is found it throws an error
