@@ -107,6 +107,27 @@ describe('variants', () => {
   });
 });
 
+describe('title', () => {
+  test('title should not be visible by default', async () => {
+    render(FeaturedExtension, {
+      featuredExtension: fetchableFeaturedExtension,
+    });
+
+    const title = screen.queryByText('EXTENSION');
+    expect(title).toBeNull();
+  });
+
+  test('title should not be visible by default', async () => {
+    render(FeaturedExtension, {
+      featuredExtension: fetchableFeaturedExtension,
+      displayTitle: true,
+    });
+
+    const title = screen.getByText('EXTENSION');
+    expect(title).toBeDefined();
+  });
+});
+
 test('Expect featured extension to show install button', () => {
   render(FeaturedExtension, {
     featuredExtension: fetchableFeaturedExtension,
