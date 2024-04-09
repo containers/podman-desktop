@@ -99,8 +99,8 @@ function getInitializationContext(id: string): InitializationContext {
           {/each}
         {/if}
         <LearningCenter />
-        <FeaturedExtensions />
         <ExtensionBanners />
+        <FeaturedExtensions />
       </div>
     </div>
   </div>
