@@ -51,11 +51,11 @@ The installation procedure consists of installing a binary and its dependent fil
 
 ## Onboarding
 
-When started for the first time, Podman Desktop starts an _Onboarding_ session. This session
+When started for the first time, Podman Desktop starts an _onboarding_ session. This session
 will guide you through installing resources and tools helpful when working with Podman Desktop.
 
 Podman Desktop checks for the following CLIs to be accessible on your system: `docker-compose`, `kubectl` and `podman`.
-If any of these CLIs are not accessible, you are proposed to choose which ones you want to install, and to start the Onboarding.
+If any of these CLIs are not accessible, you are proposed to choose which ones you want to install, and to start the onboarding.
 
 The onboarding consists of a series of steps for each tool to install. For the `docker-compose` and `kubectl` CLIs,
 the binaries are downloaded and placed in a system-wide directory (`/usr/local/bin` on Linux and macOS).
@@ -83,8 +83,8 @@ are released for the CLIs and download them (`Settings > CLI Tools`), and you ca
 
 ## Images
 
-To run containers, you first need Images stored locally in your container engine. To have such local images, you can either build them
-from a `Containerfile`, or pull them, either from a public or a private container registry. You may also want to push images built locally into a distant registry.
+To run containers, you first need images stored locally in your container engine. To have such local images, you can either build them
+from a `Containerfile` or `Dockerfile`, or pull them, either from a public or a private container registry. You may also want to push images built locally into a distant registry.
 
 All these operations are available from the _Images List page_, visible in the screenshot below.
 
@@ -93,23 +93,23 @@ All these operations are available from the _Images List page_, visible in the s
 <figcaption>Images List page, accessible from the Images menu</figcaption>
 </figure>
 
-### Building an Image
+### Building an image
 
-In the screenshot below, you can see how to build an Image, based on Containerfile, and store the resulting image on a Container Engine
+In the screenshot below, you can see how to build an image, based on Containerfile, and store the resulting image on a Container Engine
 (here, Podman container engine is selected - the choice may be not visible if only one container engine is detected by Podman Desktop).
-You also have the choice to build a single-platform or a multi-platform Image, by choosing for which platform(s) you want to build the image.
+You also have the choice to build a single-platform or a multi-platform image, by choosing for which platform(s) you want to build the image.
 
 <figure>
 ![Builing an image](discover/img/image-build.png)
 <figcaption>Builing an image</figcaption>
 </figure>
 
-### Pulling an Image from a registry
+### Pulling an image from a registry
 
 You can pull an image from a public registry by giving the URI of the image to pull, and the container engine on which to store it locally.
 
 If the image you want to pull happens to be private and you need to use credentials to access it, you can register these credentials
-from the `Settings > Registries` page, or by client the `Manage registries` from the _Pull image_ page. The credentials will be saved for any future use from Podman Desktop.
+from the `Settings > Registries` page, or by clicking the `Manage registries` button from the _Pull image_ page. The credentials will be saved for any future use from Podman Desktop.
 
 <figure>
 ![Pulling an image](discover/img/pull-image.png)
@@ -121,11 +121,11 @@ from the `Settings > Registries` page, or by client the `Manage registries` from
 <figcaption>Registering Registries Credentials</figcaption>
 </figure>
 
-### Pushing an Image to a registry
+### Pushing an image to a registry
 
 Once you have an image locally, stored in any container engine, you can push it to a registry. You first need to be sure
-that the image name is the URI of the distant repository. If it has not been done during the image build, you can edit
-the image and change its Image Name. Then, you can push the image to the registry by using the dedicated command.
+that the image name contains the URI of the distant repository. If it has not been done during the image build, you can edit
+the image and change its image name. Then, you can push the image to the registry by using the dedicated command.
 
 Both `Edit Image` and `Push Image` commands are available from the Actions menu of the image, in the _Images List_ page, or
 from the _Image Details_ page, accessible by clicking the image name in the Images List.
