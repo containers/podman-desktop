@@ -4177,11 +4177,11 @@ declare module '@podman-desktop/api' {
     export function navigateToAuthentication(): Promise<void>;
 
     /**
-     * Navigate to Preferences page
+     * Navigate to Resources page
      */
     export function navigateToResources(): Promise<void>;
     /**
-     * Navigate to Preferences page
+     * Navigate to the Edit Provider Container Connection page
      */
     export function navigateToEditProviderContainerConnection(connection: ProviderContainerConnection): Promise<void>;
   }
