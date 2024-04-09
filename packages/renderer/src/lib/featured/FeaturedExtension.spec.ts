@@ -19,7 +19,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 
 import FeaturedExtension from '/@/lib/featured/FeaturedExtension.svelte';
 
@@ -59,6 +59,53 @@ const notFetchableFeaturedExtension: IFeaturedExtension = {
   fetchable: false,
   installed: false,
 };
+
+function assertPrimary(component: HTMLElement) {
+  expect(component).toBeDefined();
+  expect(component).toHaveClass('bg-[var(--pd-card-bg)]');
+  expect(component).toHaveClass('border-[var(--pd-card-bg)]');
+  expect(component).not.toHaveClass('bg-[var(--pd-invert-content-card-bg)]');
+  expect(component).not.toHaveClass('border-[var(--pd-invert-content-card-bg)]');
+}
+
+function assertSecondary(component: HTMLElement) {
+  expect(component).toBeDefined();
+  expect(component).not.toHaveClass('bg-[var(--pd-card-bg)]');
+  expect(component).not.toHaveClass('border-[var(--pd-card-bg)]');
+  expect(component).toHaveClass('bg-[var(--pd-invert-content-card-bg)]');
+  expect(component).toHaveClass('border-[var(--pd-invert-content-card-bg)]');
+}
+
+describe('variants', () => {
+  test('default should be primary', () => {
+    render(FeaturedExtension, {
+      featuredExtension: fetchableFeaturedExtension,
+    });
+
+    const card = screen.getByLabelText(fetchableFeaturedExtension.displayName);
+    assertPrimary(card);
+  });
+
+  test('primary should have proper classes', () => {
+    render(FeaturedExtension, {
+      featuredExtension: fetchableFeaturedExtension,
+      variant: 'primary',
+    });
+
+    const card = screen.getByLabelText(fetchableFeaturedExtension.displayName);
+    assertPrimary(card);
+  });
+
+  test('secondary should have proper classes', () => {
+    render(FeaturedExtension, {
+      featuredExtension: fetchableFeaturedExtension,
+      variant: 'secondary',
+    });
+
+    const card = screen.getByLabelText(fetchableFeaturedExtension.displayName);
+    assertSecondary(card);
+  });
+});
 
 test('Expect featured extension to show install button', () => {
   render(FeaturedExtension, {

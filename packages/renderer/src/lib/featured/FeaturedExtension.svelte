@@ -6,12 +6,16 @@ import type { FeaturedExtension } from '../../../../main/src/plugin/featured/fea
 import FeaturedExtensionDownload from './FeaturedExtensionDownload.svelte';
 
 export let featuredExtension: FeaturedExtension;
+export let variant: 'primary' | 'secondary' = 'primary';
 </script>
 
 <div
   title="{featuredExtension.description}"
-  class="rounded-md
-               bg-charcoal-800 flex flex-row justify-center p-4 h-20 border-2 border-charcoal-800 hover:border-dustypurple-500"
+  class:bg-[var(--pd-card-bg)]="{variant === 'primary'}"
+  class:border-[var(--pd-card-bg)]="{variant === 'primary'}"
+  class:bg-[var(--pd-invert-content-card-bg)]="{variant === 'secondary'}"
+  class:border-[var(--pd-invert-content-card-bg)]="{variant === 'secondary'}"
+  class="rounded-md flex flex-row justify-center p-4 h-20 border-2 hover:border-dustypurple-500"
   aria-label="{featuredExtension.displayName}">
   <div class=" flex flex-col flex-1">
     <div class="flex flex-row place-items-center flex-1">
