@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Locator, Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 import { ContainersPage } from '../pages/containers-page';
 import { DashboardPage } from '../pages/dashboard-page';
@@ -72,7 +72,7 @@ export class NavigationBar {
   async openSettings(): Promise<SettingsBar> {
     const settingsBar = new SettingsBar(this.page);
     if (!(await settingsBar.settingsNavBar.isVisible())) {
-      await this.settingsLink.waitFor({ state: 'visible', timeout: 3000 });
+      await expect(this.settingsLink).toBeVisible();
       await this.settingsLink.click({ timeout: 5000 });
     }
     return settingsBar;
