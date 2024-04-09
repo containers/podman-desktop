@@ -584,6 +584,7 @@ export class PluginSystem {
       apiSender,
       containerProviderRegistry,
       contributionManager,
+      providerRegistry,
       webviewRegistry,
     );
 

@@ -33,4 +33,6 @@ export enum NavigationPage {
   HELP = 'help',
   WEBVIEW = 'webview',
   AUTHENTICATION = 'authentication',
+  RESOURCES = 'resources',
+  EDIT_CONTAINER_CONNECTION = 'edit-container-connection',
 }

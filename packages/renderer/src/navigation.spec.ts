@@ -42,3 +42,15 @@ test('Test navigationHandle to a specific webview', () => {
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/webviews/123');
 });
+
+test('Test navigationHandle to resources page', () => {
+  handleNavigation(NavigationPage.RESOURCES);
+
+  expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/preferences/resources');
+});
+
+test('Test navigationHandle to a specific edit page', () => {
+  handleNavigation(NavigationPage.EDIT_CONTAINER_CONNECTION, { provider: '123', name: 'test' });
+
+  expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/preferences/container-connection/edit/123/test');
+});

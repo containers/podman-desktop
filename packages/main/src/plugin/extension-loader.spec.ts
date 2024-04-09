@@ -212,6 +212,7 @@ const navigationManager: NavigationManager = new NavigationManager(
   apiSender,
   containerProviderRegistry,
   contributionManager,
+  providerRegistry,
   webviewRegistry,
 );
 

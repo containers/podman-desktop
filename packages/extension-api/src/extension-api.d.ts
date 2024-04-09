@@ -4175,6 +4175,15 @@ declare module '@podman-desktop/api' {
      * Navigate to Authentication settings page
      */
     export function navigateToAuthentication(): Promise<void>;
+
+    /**
+     * Navigate to Resources page
+     */
+    export function navigateToResources(): Promise<void>;
+    /**
+     * Navigate to the Edit Provider Container Connection page
+     */
+    export function navigateToEditProviderContainerConnection(connection: ProviderContainerConnection): Promise<void>;
   }
 
   /**
