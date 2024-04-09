@@ -70,8 +70,11 @@ export class NavigationBar {
   }
 
   async openSettings(): Promise<SettingsBar> {
-    await this.settingsLink.waitFor({ state: 'visible', timeout: 3000 });
-    await this.settingsLink.click({ timeout: 5000 });
-    return new SettingsBar(this.page);
+    const settingsBar = new SettingsBar(this.page);
+    if (!(await settingsBar.settingsNavBar.isVisible())) {
+      await this.settingsLink.waitFor({ state: 'visible', timeout: 3000 });
+      await this.settingsLink.click({ timeout: 5000 });
+    }
+    return settingsBar;
   }
 }
