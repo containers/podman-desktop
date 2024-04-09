@@ -169,7 +169,48 @@ by the container, to check that the application running in the container works a
 
 ## Pods
 
+Podman, like Kubernetes, can manage pods. If you are not familiar with the Kubernetes concepts, a pod is a group of containers sharing resources.
+For example, containers within a pod can communicate on localhost, and can share files on a same volume.
+
+With Podman Desktop, from the Containers List page, you can select one or several containers and click on the `Create Pod` button
+to create a new pod with a copy of these containers. Once done, the previous containers have been stopped,
+and a pod is created containing copies of the selected containers (plus an `infra` container, which is a technical container needed
+to run a pod).
+
+At any time, from the Pods List page, you can stop, delete and restart the pod, and from the Pod Details page of a specific pod,
+you can see the logs of the containers streamed in real-time, the detailed information of the pod (the output of the `podman pod inspect` command),
+a Kubernetes representation of the Pod.
+
+A toolbar provides the standard operations on pods: stop, delete, restart, and you can open in one click in your browser the port declared as exposed
+by the pod, to check that the application running in the pod works as expected.
+
+<figure>
+![Creating a Pod with two containers](discover/img/pod-create.png)
+<figcaption>Creating a Pod with two containers</figcaption>
+</figure>
+
+<figure>
+![Pod is running](discover/img/pod-created.png)
+<figcaption>Pod is running</figcaption>
+</figure>
+
 ## Compose
+
+If you use `compose` to run multi-container applications, Podman Desktop can help you manage these groups of containers.
+
+In the Containers List page, all containers started by a same instance of `compose` are grouped together, so they can be
+managed as an application, by stopping, deleting or restarting the application.
+
+By clicking the name of the group (the name followed by `(compose)` in the first line of the group), you can access the Details page for the application,
+where you can see the logs of the containers streamed in real-time, the detailed information of the containers
+(the output of the `podman inspect` command on each container), and a Kubernetes representation of a pod containing the containers.
+
+In the screenshot below, you can see that two applications have been started with two instances of `compose` (one `nginx-golang-postgres` and one `flask-redis`).
+
+<figure>
+![Two apps started with Compose](discover/img/compose-two-apps.png)
+<figcaption>Two apps started with Compose</figcaption>
+</figure>
 
 ## Kubernetes
 
