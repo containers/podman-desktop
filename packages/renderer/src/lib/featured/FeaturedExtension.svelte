@@ -7,6 +7,7 @@ import FeaturedExtensionDownload from './FeaturedExtensionDownload.svelte';
 
 export let featuredExtension: FeaturedExtension;
 export let variant: 'primary' | 'secondary' = 'primary';
+export let title: string | undefined = undefined;
 </script>
 
 <div
@@ -15,9 +16,12 @@ export let variant: 'primary' | 'secondary' = 'primary';
   class:border-[var(--pd-card-bg)]="{variant === 'primary'}"
   class:bg-[var(--pd-invert-content-card-bg)]="{variant === 'secondary'}"
   class:border-[var(--pd-invert-content-card-bg)]="{variant === 'secondary'}"
-  class="rounded-md flex flex-row justify-center p-4 h-20 border-2 hover:border-dustypurple-500"
+  class="rounded-md flex flex-row justify-center p-4 border-2 hover:border-dustypurple-500"
   aria-label="{featuredExtension.displayName}">
-  <div class=" flex flex-col flex-1">
+  <div class="flex flex-col flex-1">
+    {#if title}
+      <span class="text-xs font-bold mb-1.5">{title}</span>
+    {/if}
     <div class="flex flex-row place-items-center flex-1">
       <div>
         <img

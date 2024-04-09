@@ -107,6 +107,16 @@ describe('variants', () => {
   });
 });
 
+test('title should be visible when provided', () => {
+  render(FeaturedExtension, {
+    featuredExtension: fetchableFeaturedExtension,
+    title: 'dummy title',
+  });
+
+  const title = screen.getByText('dummy title');
+  expect(title).toBeDefined();
+});
+
 test('Expect featured extension to show install button', () => {
   render(FeaturedExtension, {
     featuredExtension: fetchableFeaturedExtension,
