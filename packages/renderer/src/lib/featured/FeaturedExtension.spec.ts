@@ -107,14 +107,25 @@ describe('variants', () => {
   });
 });
 
-test('title should be visible when provided', () => {
-  render(FeaturedExtension, {
-    featuredExtension: fetchableFeaturedExtension,
-    title: 'dummy title',
+describe('title', () => {
+  test('title should not be visible by default', async () => {
+    render(FeaturedExtension, {
+      featuredExtension: fetchableFeaturedExtension,
+    });
+
+    const title = screen.queryByText('EXTENSION');
+    expect(title).toBeNull();
   });
 
-  const title = screen.getByText('dummy title');
-  expect(title).toBeDefined();
+  test('title should not be visible by default', async () => {
+    render(FeaturedExtension, {
+      featuredExtension: fetchableFeaturedExtension,
+      displayTitle: true,
+    });
+
+    const title = screen.getByText('EXTENSION');
+    expect(title).toBeDefined();
+  });
 });
 
 test('Expect featured extension to show install button', () => {

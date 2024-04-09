@@ -7,7 +7,7 @@ import FeaturedExtensionDownload from './FeaturedExtensionDownload.svelte';
 
 export let featuredExtension: FeaturedExtension;
 export let variant: 'primary' | 'secondary' = 'primary';
-export let title: string | undefined = undefined;
+export let displayTitle: boolean = false;
 </script>
 
 <div
@@ -19,8 +19,8 @@ export let title: string | undefined = undefined;
   class="rounded-md flex flex-row justify-center p-4 border-2 hover:border-dustypurple-500"
   aria-label="{featuredExtension.displayName}">
   <div class="flex flex-col flex-1">
-    {#if title}
-      <span class="text-xs font-bold mb-1.5">{title}</span>
+    {#if displayTitle}
+      <span class="text-xs font-bold mb-1.5">EXTENSION</span>
     {/if}
     <div class="flex flex-row place-items-center flex-1">
       <div>
