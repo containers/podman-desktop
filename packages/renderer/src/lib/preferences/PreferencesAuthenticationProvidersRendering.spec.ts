@@ -46,10 +46,16 @@ test('Expect that page shows registered authentication providers without account
     },
   ]);
   render(PreferencesAuthenticationProvidersRendering, {});
-  const providerText = screen.getByText('Test Authentication Provider');
-  expect(providerText).toBeInTheDocument();
-  const loggedOut = screen.getByText('Logged out');
-  expect(loggedOut).toBeInTheDocument();
+  const listOfProviders = screen.getByRole('list');
+  expect(listOfProviders).toBeInTheDocument();
+  const providerItem = screen.getByRole('listitem', { name: 'Test Authentication Provider' });
+  expect(providerItem).toBeInTheDocument();
+  const providerInfo = screen.getByLabelText('Provider Information');
+  expect(providerInfo).toBeInTheDocument();
+  const providerName = screen.getByLabelText('Provider Name');
+  expect(providerName).toHaveTextContent('Test Authentication Provider');
+  const providerStatus = screen.getByLabelText('Provider Status');
+  expect(providerStatus).toHaveTextContent('Logged out');
 });
 
 const testProvidersInfo = [
@@ -69,10 +75,13 @@ const testProvidersInfo = [
 test('Expect that page shows registered authentication providers with account as logged in', () => {
   authenticationProviders.set(testProvidersInfo);
   render(PreferencesAuthenticationProvidersRendering, {});
-  const providerText = screen.getByText('Test Authentication Provider');
-  expect(providerText).toBeInTheDocument();
-  const loggedOut = screen.getByText('Logged in');
-  expect(loggedOut).toBeInTheDocument();
+  const providerName = screen.getByLabelText('Provider Name');
+  expect(providerName).toHaveTextContent('Test Authentication Provider');
+  const providerStatus = screen.getByLabelText('Provider Status');
+  expect(providerStatus).toBeInTheDocument();
+  expect(providerStatus).toHaveTextContent('Logged in');
+  const providerStatusLabel = screen.getByLabelText('Logged In Username');
+  expect(providerStatusLabel).toHaveTextContent('Test Account');
   const signoutButton = screen.getByRole('button', { name: `Sign out of ${testProvidersInfo[0].accounts[0].label}` });
   expect(signoutButton).toBeInTheDocument();
   expect(signoutButton).toBeEnabled();
