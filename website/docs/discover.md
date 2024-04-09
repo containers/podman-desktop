@@ -214,4 +214,97 @@ In the screenshot below, you can see that two applications have been started wit
 
 ## Kubernetes
 
+Podman Desktop provides extensions to install Kubernetes clusters locally, and to access remote clusters.
+
+### Local Kubernetes clusters
+
+The `kind` extension is installed by default. This extension gives you the possibility to run local Kubernetes
+clusters on containers, using the `kind` command.
+
+If you don't already have the `kind` CLI installed on your system, a `⚠ Kind` button appears in the statusbar,
+which guides you through its download and installation.
+
+When this is done, you can go to the `Settings > Resources` page. A `Kind` section should be present,
+from where you can create new clusters, and manage the clusters you have created.
+
+Once created, the Kind clusters will appear, as containers, in the Containers List page, with a dedicated Kind icon.
+
+The `minikube` extension offers the same experience, using the `minikube` CLI.
+
+<figure>
+![Two Kubernetes clusters created with kind](discover/img/kind-settings.png)
+<figcaption>Two Kubernetes clusters created with kind</figcaption>
+</figure>
+
+### Kubeconfig file
+
+Podman Desktop detects your Kubeconfig file (you can configure its location if you want to use a file different
+from the default `~/.kube/config` one, in `Settings > Preferences > Kubernetes`).
+
+When such a file is detected, Kubernetes-related icons are added to the menu: Deployments, Services and Ingresses & Routes,
+and you can select a context from this kubeconfig file, either from the statusbar selector.
+
+The Kubernetes Contexts page (accessible via `Settings > Kubernetes`) displays the list of contexts defined in the kubeconfig file,
+and you can also switch the context from this page.
+
+For each context, it is displayed if the cluster is accessible, and, if so, how many pods and deployments are present in the context.
+This should help you make some cleanup from time to time in your kubeconfig file, as these files tend to grow over time.
+
+<figure>
+![Kubernetes Contexts](discover/img/kube-contexts.png)
+<figcaption>Kubernetes Contexts</figcaption>
+</figure>
+
+### Moving from non-orchestrated containers to Kubernetes
+
+Podman Desktop provides tools to help you move your usage of containers to Kubernetes.
+
+#### Pushing local images to cluster's node
+
+The first very helpful tool is to upload images stored in the local container engines to Kubernetes nodes.
+
+It is interesting to know that, when you deploy a Pod into a Kubernetes node, the images of the pod's containers will be either
+pulled from the corresponding registries, or, if an image is stored (cached) in the node's container engine, it will be used instead.
+
+In addition to saving bandwidth, this feature is particularly helpful for images built locally: you don't have to push them
+to a specific registry (and, if you don't want to rely on a third-party registry, you don't to have to manage your own registry), you just
+need to have it stored in the container engine of the node of the Kubernetes cluster.
+
+You will be able to do this from the Images List page, in the Actions menu for an image. In this menu, an entry for each kind of cluster
+should be present, to push the image to a cluster of this kind.
+
+<figure>
+![Pushing a local image to a cluster](discover/img/move-image-to-node.png)
+<figcaption>Pushing a local image to a cluster</figcaption>
+</figure>
+
+#### Deploying a local container to a Kubernetes context
+
+Another very helpful tool is to "copy" a container running in a local container engine to a Kubernetes cluster, by creating
+a pod running this container in the cluster.
+
+To do this, you can choose a container in the Containers List page, and select the `Deploy to Kubernetes` action. This
+will show you the Kubernetes manifest that has been generated and which will be used to create the pod in the cluster,
+and will let you select a few options.
+
+After clicking the `Deploy` button, the Kubernetes manifest will be "applied" to the cluster,
+and you should be able to see the created pod in the Pods List page.
+
+<figure>
+![Deploying a container to a Kubernetes cluster](discover/img/deploy-container-to-kube.png)
+<figcaption>Deploying a container to a Kubernetes cluster</figcaption>
+</figure>
+
+#### Managing Kubernetes resources
+
+In the Pods List page, you will see both the pods managed by podman and the pods running in the current Kubernetes context,
+the Environment column displaying where each pod is running.
+
+By clicking the name of a Kubernetes pod, you will access the details of the pod, including the logs of the pod's containers
+streamed in real-time, a summary of the pod specification and status, and the possibility to access an interactive shell
+within the containers of the pod (for containers providing an `sh` or `bash` shell).
+
+In the Deployments, Services and Ingresses & Routes pages, you will see the corresponding resources existing in the
+current Kubernetes context.
+
 ## Extensions
