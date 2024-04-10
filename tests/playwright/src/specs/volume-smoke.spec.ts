@@ -19,12 +19,13 @@
 import type { Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest';
-import { WelcomePage } from './model/pages/welcome-page';
-import { NavigationBar } from './model/workbench/navigation';
-import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
-import type { RunnerTestContext } from './testContext/runner-test-context';
-import { waitWhile } from './utility/wait';
-import { handleConfirmationDialog } from './utility/operations';
+
+import { WelcomePage } from '../model/pages/welcome-page';
+import { NavigationBar } from '../model/workbench/navigation';
+import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import type { RunnerTestContext } from '../testContext/runner-test-context';
+import { handleConfirmationDialog } from '../utility/operations';
+import { waitWhile } from '../utility/wait';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
