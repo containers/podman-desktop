@@ -137,3 +137,13 @@ test('Expect filter empty screen if no match', async () => {
   const filterButton = screen.getByRole('button', { name: 'Clear filter' });
   expect(filterButton).toBeInTheDocument();
 });
+
+test('Expect status column name to be clickable / sortable', async () => {
+  await waitRender({});
+
+  const statusColumn = screen.getByRole('columnheader', { name: 'Status' });
+  expect(statusColumn).toBeInTheDocument();
+
+  // Expect it to have the 'cursor-pointer' class which means it's clickable / sortable
+  expect(statusColumn).toHaveClass('cursor-pointer');
+});
