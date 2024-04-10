@@ -28,8 +28,8 @@ export class LibpodapiInit {
       title: 'Libpodapi',
       type: 'object',
       properties: {
-        [`${LibpodapiSettings.SectionName}.${LibpodapiSettings.Enable}`]: {
-          description: 'Enable using libpodapi for API calls instead of compat API.',
+        [`${LibpodapiSettings.SectionName}.${LibpodapiSettings.ForImageList}`]: {
+          description: 'Enable using libpodapi for image listing instead of compatibility api',
           type: 'boolean',
           default: true,
           hidden: true,

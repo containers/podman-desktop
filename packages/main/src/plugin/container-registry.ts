@@ -131,10 +131,10 @@ export class ContainerProviderRegistry {
   protected streamsPerContainerId: Map<string, NodeJS.ReadWriteStream> = new Map();
   protected streamsOutputPerContainerId: Map<string, Buffer[]> = new Map();
 
-  isUseLibpodApiEnabled(): boolean {
+  useLibpodApiForImageList(): boolean {
     return this.configurationRegistry
       .getConfiguration(LibpodapiSettings.SectionName)
-      .get<boolean>(LibpodapiSettings.Enable, false);
+      .get<boolean>(LibpodapiSettings.ForImageList, false);
   }
 
   handleEvents(api: Dockerode, errorCallback: (error: Error) => void): void {
@@ -620,7 +620,7 @@ export class ContainerProviderRegistry {
         let fetchedImages: any[] = [];
 
         // If libpodApi is available AND the configuration is set to use libpodApi, use podmanListImages API call.
-        if (provider.libpodApi && this.isUseLibpodApiEnabled()) {
+        if (provider.libpodApi && this.useLibpodApiForImageList()) {
           fetchedImages = await provider.libpodApi.podmanListImages({
             all: options?.all,
             filters: options?.filters,

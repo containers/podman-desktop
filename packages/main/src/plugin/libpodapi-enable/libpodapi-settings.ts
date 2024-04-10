@@ -18,5 +18,5 @@
 
 export enum LibpodapiSettings {
   SectionName = 'libpodapi',
-  Enable = 'enable',
+  ForImageList = 'forImageList',
 }

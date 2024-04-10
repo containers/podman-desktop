@@ -20,10 +20,10 @@
 
 import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
-import { beforeAll, expect, test, vi } from 'vitest';
+import { beforeAll, describe, expect, test, vi } from 'vitest';
 
 import type { ImageInfo } from '../../../main/src/plugin/api/image-info';
-import { imagesEventStore, imagesInfos } from './images';
+import { filtered, imagesEventStore, imagesInfos } from './images';
 
 // first, path window object
 const callbacks = new Map<string, any>();
@@ -45,6 +45,12 @@ Object.defineProperty(global, 'window', {
   },
   writable: true,
 });
+
+// We always mock findMatchInLeaves to return true so we can test image.ts without having to render
+// the component, as we are not testing the $searchPattern store / functionality.
+vi.mock('./search-util', () => ({
+  findMatchInLeaves: vi.fn(() => true), // Assume it always finds a match unless specified otherwise
+}));
 
 beforeAll(() => {
   vi.clearAllMocks();
@@ -86,4 +92,85 @@ test('images should be updated in case of a image is loaded from an archive', as
   // check if the images have been updated
   const images2 = get(imagesInfos);
   expect(images2.length).toBe(0);
+});
+
+describe('filtered images tests', () => {
+  test('images with isManifest field missing should be included', async () => {
+    // No isManifest field
+    listImagesMock.mockResolvedValue([
+      { Id: 2 } as unknown as ImageInfo, // Simulate isManifest field missing
+    ]);
+
+    // Setup, callback and fetch the images
+    const storeInfo = imagesEventStore.setup();
+    const callback = callbacks.get('extensions-already-started');
+    await callback();
+    await storeInfo.fetch();
+
+    const images = get(filtered);
+    expect(images.length).toBe(1);
+    expect(images[0].Id).toBe(2);
+  });
+
+  test('images with isManifest false should be included', async () => {
+    // isManifest but set to false
+    listImagesMock.mockResolvedValue([{ Id: 3, isManifest: false } as unknown as ImageInfo]);
+
+    // Setup, callback and fetch the images
+    const storeInfo = imagesEventStore.setup();
+    const callback = callbacks.get('extensions-already-started');
+    await callback();
+    await storeInfo.fetch();
+
+    // Check the filtered images
+    const images = get(filtered);
+    expect(images.length).toBe(1);
+    expect(images[0].Id).toBe(3);
+    expect(images[0].isManifest).toBe(false);
+  });
+
+  test('images with isManifest true should be excluded', async () => {
+    // isManifest but set to true
+    listImagesMock.mockResolvedValue([{ Id: 4, isManifest: true } as unknown as ImageInfo]);
+
+    // Setup, callback and fetch the images
+    const storeInfo = imagesEventStore.setup();
+    const callback = callbacks.get('extensions-already-started');
+    await callback();
+    await storeInfo.fetch();
+
+    // Check the filtered images, make sure that we do NOT have any images
+    // as we do not want filtered to show images with isManifest set to true
+    const images = get(filtered);
+    expect(images.length).toBe(0);
+  });
+
+  test('check against 3 images with different isManifest values', async () => {
+    // 3 images with different isManifest values
+    listImagesMock.mockResolvedValue([
+      { Id: 5, isManifest: false } as unknown as ImageInfo,
+      { Id: 6, isManifest: true } as unknown as ImageInfo,
+      { Id: 7 } as unknown as ImageInfo, // Simulate isManifest field missing
+    ]);
+
+    // Setup, callback and fetch the images
+    const storeInfo = imagesEventStore.setup();
+    const callback = callbacks.get('extensions-already-started');
+    await callback();
+    await storeInfo.fetch();
+
+    // Check the filtered images
+    const images = get(filtered);
+
+    // Expect to have 2 images, one with isManifest set to false and one with isManifest field missing
+    expect(images.length).toBe(2);
+
+    // Check the first image
+    expect(images[0].Id).toBe(5);
+    expect(images[0].isManifest).toBe(false);
+
+    // Check the second image
+    expect(images[1].Id).toBe(7);
+    expect(images[1].isManifest).toBeUndefined();
+  });
 });
