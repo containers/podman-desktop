@@ -151,3 +151,13 @@ test('Expect Abort button to being visible when image build is in progress', asy
   expect(abortButton).toBeInTheDocument();
   expect(abortButton).toBeEnabled();
 });
+
+test('Expect no value for containerImageName input field (no my-custom-image value), just show the placeholder.', async () => {
+  setup();
+  render(BuildImageFromContainerfile);
+
+  const containerImageName = screen.getByRole('textbox', { name: 'Image Name' });
+  expect(containerImageName).toBeInTheDocument();
+  expect(containerImageName).toHaveValue('');
+  expect(containerImageName).toHaveAttribute('placeholder', 'Image name (e.g. quay.io/namespace/my-custom-image)');
+});
