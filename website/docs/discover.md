@@ -312,9 +312,8 @@ current Kubernetes context.
 
 Podman Desktop is extensible. In fact, most of the features we have seen in this presentation are provided by extensions.
 
-An API is provided to write extensions in Javascript or Typescript. Extensions can register as a specific provider
-(authentication, registry, kubernetes, containers, cli tool, etc), can register to specific events (on images, containers, pods, etc),
-can add entries to menus (tray menu, status bar, contextual menus), and can contribute a complete UI through a webview provided by the API.
+An API is provided to write extensions in Javascript or Typescript. Extensions can register providers (authentication, registry, kubernetes, containers, cli tool, etc), listen to events (on images, containers, pods, etc),
+contribute entries to menus (tray menu, status bar, contextual menus), and render a complete UI through a webview provided by the API.
 
 Many extensions already exist, and many more are expected to come, which will make Podman Desktop a central place of choice for developers
 working with containers.
