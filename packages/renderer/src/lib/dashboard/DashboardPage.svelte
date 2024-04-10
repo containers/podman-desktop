@@ -1,6 +1,7 @@
 <script lang="ts">
 import ProviderConfiguring from '/@/lib/dashboard/ProviderConfiguring.svelte';
 import FeaturedExtensions from '/@/lib/featured/FeaturedExtensions.svelte';
+import ExtensionBanners from '/@/lib/recommendation/ExtensionBanners.svelte';
 
 import { providerInfos } from '../../stores/providers';
 import LearningCenter from '../learning-center/LearningCenter.svelte';
@@ -99,6 +100,7 @@ function getInitializationContext(id: string): InitializationContext {
         {/if}
         <LearningCenter />
         <FeaturedExtensions />
+        <ExtensionBanners />
       </div>
     </div>
   </div>
