@@ -27,7 +27,7 @@ import BuildImageFromContainerfileCards from './BuildImageFromContainerfileCards
 import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
 
 let buildFinished = false;
-let containerImageName = 'my-custom-image';
+let containerImageName: string;
 let containerFilePath: string;
 let containerBuildContextDirectory: string;
 let containerBuildPlatform: string;
@@ -194,7 +194,7 @@ async function abortBuild() {
             bind:value="{containerImageName}"
             name="containerImageName"
             id="containerImageName"
-            placeholder="image name (e.g. quay.io/namespace/my-custom-image)"
+            placeholder="Image name (e.g. quay.io/namespace/my-custom-image)"
             class="w-full"
             required />
           {#if providerConnections.length > 1}
