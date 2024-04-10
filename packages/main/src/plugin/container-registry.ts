@@ -475,7 +475,7 @@ export class ContainerProviderRegistry {
                 Created: moment(podmanContainer.Created).unix(),
                 State: podmanContainer.State,
                 StartedAt,
-                Command: podmanContainer.Command,
+                Command: podmanContainer.Command ?? undefined,
                 Labels,
                 Ports,
               };
