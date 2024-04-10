@@ -17,19 +17,19 @@
  ***********************************************************************/
 
 import type { IConfigurationNode, IConfigurationRegistry } from '../configuration-registry.js';
-import { LibpodapiSettings } from './libpodapi-settings.js';
+import { LibpodApiSettings } from './libpod-api-settings.js';
 
-export class LibpodapiInit {
+export class LibpodApiInit {
   constructor(private configurationRegistry: IConfigurationRegistry) {}
 
   init(): void {
-    const libpodapiPlatformConfiguration: IConfigurationNode = {
-      id: `preferences.${LibpodapiSettings.SectionName}`,
-      title: 'Libpodapi',
+    const libpodApiPlatformConfiguration: IConfigurationNode = {
+      id: `preferences.${LibpodApiSettings.SectionName}`,
+      title: 'LibpodApi',
       type: 'object',
       properties: {
-        [`${LibpodapiSettings.SectionName}.${LibpodapiSettings.ForImageList}`]: {
-          description: 'Enable using libpodapi for image listing instead of compatibility api',
+        [`${LibpodApiSettings.SectionName}.${LibpodApiSettings.ForImageList}`]: {
+          description: 'Enable using libpod API for image listing instead of compatibility api',
           type: 'boolean',
           default: true,
           hidden: true,
@@ -37,6 +37,6 @@ export class LibpodapiInit {
       },
     };
 
-    this.configurationRegistry.registerConfigurations([libpodapiPlatformConfiguration]);
+    this.configurationRegistry.registerConfigurations([libpodApiPlatformConfiguration]);
   }
 }

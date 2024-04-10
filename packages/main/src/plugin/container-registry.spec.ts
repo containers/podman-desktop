@@ -279,7 +279,7 @@ const apiSender: ApiSenderType = {
 };
 
 // Mock that the return value is true
-// since we check libpodapi setting enabled to be true or not
+// since we check libpod API setting enabled to be true or not
 const getConfigMock = vi.fn().mockReturnValue(true);
 const getConfigurationMock = vi.fn();
 getConfigurationMock.mockReturnValue({
@@ -3866,7 +3866,7 @@ test('expect to fall back to compat api images if podman provider does not have 
   expect(images[0].Id).toBe('dummyImageId2');
 });
 
-test('expect a blank array if there is no api or libpodapi when doing podmanListImages', async () => {
+test('expect a blank array if there is no api or libpod API when doing podmanListImages', async () => {
   containerRegistry.addInternalProvider('podman', {
     name: 'podman',
     id: 'podman1',
@@ -3882,14 +3882,14 @@ test('expect a blank array if there is no api or libpodapi when doing podmanList
   expect(images).toHaveLength(0);
 });
 
-test('expect to get get zero images if podman provider has neither libpodApi nor compat api', async () => {
+test('expect to get get zero images if podman provider has neither libpod API nor compat api', async () => {
   containerRegistry.addInternalProvider('podman', {
     name: 'podman',
     id: 'podman1',
     connection: {
       type: 'podman',
     },
-    // purposely NOT have libpodApi or compat api
+    // purposely NOT have libpod API or compat api
   } as unknown as InternalContainerProvider);
 
   const images = await containerRegistry.podmanListImages();
@@ -4470,7 +4470,7 @@ test('manifest is listed as true with podmanListImages correctly', async () => {
   expect(image2.isManifest).toBe(false);
 });
 
-test('if configuration setting is disabled for using libpodapi, it should fall back to compat api', async () => {
+test('if configuration setting is disabled for using libpodApi, it should fall back to compat api', async () => {
   // Mock that the configuration value returns FALSE
   // so that the test will instead use the /images/json endpoint NOT /libpod/images/json
   getConfigMock.mockReturnValue(false);

@@ -74,7 +74,7 @@ import { EnvfileParser } from './env-file-parser.js';
 import type { Event } from './events/emitter.js';
 import { Emitter } from './events/emitter.js';
 import type { ImageRegistry } from './image-registry.js';
-import { LibpodapiSettings } from './libpodapi-enable/libpodapi-settings.js';
+import { LibpodApiSettings } from './libpodapi-enable/libpod-api-settings.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import { Disposable } from './types/disposable.js';
 import { guessIsManifest } from './util/manifest.js';
@@ -133,8 +133,8 @@ export class ContainerProviderRegistry {
 
   useLibpodApiForImageList(): boolean {
     return this.configurationRegistry
-      .getConfiguration(LibpodapiSettings.SectionName)
-      .get<boolean>(LibpodapiSettings.ForImageList, false);
+      .getConfiguration(LibpodApiSettings.SectionName)
+      .get<boolean>(LibpodApiSettings.ForImageList, false);
   }
 
   handleEvents(api: Dockerode, errorCallback: (error: Error) => void): void {
@@ -598,7 +598,7 @@ export class ContainerProviderRegistry {
     return flattenedImages;
   }
 
-  // Podman list images will prefer to use libpodApi of the provider
+  // Podman list images will prefer to use libpod API of the provider
   // before falling back to using the regular API
   async podmanListImages(options?: PodmanListImagesOptions): Promise<ImageInfo[]> {
     const telemetryOptions = {};
@@ -619,7 +619,7 @@ export class ContainerProviderRegistry {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let fetchedImages: any[] = [];
 
-        // If libpodApi is available AND the configuration is set to use libpodApi, use podmanListImages API call.
+        // If libpod API is available AND the configuration is set to use libpodApi, use podmanListImages API call.
         if (provider.libpodApi && this.useLibpodApiForImageList()) {
           fetchedImages = await provider.libpodApi.podmanListImages({
             all: options?.all,

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export enum LibpodapiSettings {
-  SectionName = 'libpodapi',
+export enum LibpodApiSettings {
+  SectionName = 'libpodApi',
   ForImageList = 'forImageList',
 }
