@@ -25,7 +25,7 @@ onMount(() => {
   style="{style}"
   aria-label="Recommended extension"
   class:bg-charcoal-800="{!hasBackground}"
-  class="bg-charcoal-800 max-h-[180px] px-5 pt-5 rounded-lg grid grid-cols-[20px_8fr_7fr] gap-4 overflow-hidden">
+  class="bg-charcoal-800 max-h-[180px] px-5 py-5 rounded-lg grid grid-cols-[20px_8fr_7fr] gap-4 overflow-hidden">
   <!-- icon column -->
   <div>
     <img class="w-4 h-4' object-contain mt-1" alt="banner icon" src="{banner.icon}" />
@@ -43,7 +43,7 @@ onMount(() => {
 
   <!-- feature extension actions -->
   <div class="flex flex-col">
-    <FeaturedExtension variant="secondary" featuredExtension="{banner.featured}" />
+    <FeaturedExtension displayTitle="{true}" variant="secondary" featuredExtension="{banner.featured}" />
     <span class="text-base w-full text-end">{banner.featured.description}</span>
   </div>
 </div>
