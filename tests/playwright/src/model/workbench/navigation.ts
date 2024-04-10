@@ -23,6 +23,7 @@ import { DashboardPage } from '../pages/dashboard-page';
 import { ImagesPage } from '../pages/images-page';
 import { PodsPage } from '../pages/pods-page';
 import { SettingsBar } from '../pages/settings-bar';
+import { VolumesPage } from '../pages/volumes-page';
 
 export class NavigationBar {
   readonly page: Page;
@@ -76,5 +77,11 @@ export class NavigationBar {
       await this.settingsLink.click({ timeout: 5000 });
     }
     return settingsBar;
+  }
+
+  async openVolumes(): Promise<VolumesPage> {
+    await this.volumesLink.waitFor({ state: 'visible', timeout: 3000 });
+    await this.volumesLink.click({ timeout: 5000 });
+    return new VolumesPage(this.page);
   }
 }
