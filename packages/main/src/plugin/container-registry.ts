@@ -74,7 +74,7 @@ import { EnvfileParser } from './env-file-parser.js';
 import type { Event } from './events/emitter.js';
 import { Emitter } from './events/emitter.js';
 import type { ImageRegistry } from './image-registry.js';
-import { LibpodApiSettings } from './libpodapi-enable/libpod-api-settings.js';
+import { LibpodApiSettings } from './libpod-api-enable/libpod-api-settings.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import { Disposable } from './types/disposable.js';
 import { guessIsManifest } from './util/manifest.js';

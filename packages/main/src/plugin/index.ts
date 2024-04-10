@@ -142,7 +142,7 @@ import { KubernetesClient } from './kubernetes-client.js';
 import type { KubeContext } from './kubernetes-context.js';
 import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
 import { downloadGuideList } from './learning-center/learning-center.js';
-import { LibpodApiInit } from './libpodapi-enable/libpod-api-init.js';
+import { LibpodApiInit } from './libpod-api-enable/libpod-api-init.js';
 import type { MessageBoxOptions, MessageBoxReturnValue } from './message-box.js';
 import { MessageBox } from './message-box.js';
 import { NotificationRegistry } from './notification-registry.js';
