@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,22 +23,24 @@ import { SettingsPage } from './settings-page';
 
 export class SettingsExtensionsPage extends SettingsPage {
   readonly heading: Locator;
+  readonly header: Locator;
+  readonly content: Locator;
   readonly featuredExtensions: Locator;
   readonly devSandboxBox: Locator;
   readonly openshiftLocalBox: Locator;
-  readonly extensionsTable: Locator;
   readonly imageInstallBox: Locator;
   readonly installedExtensions: Locator;
 
   constructor(page: Page) {
     super(page, 'Extensions');
-    this.heading = page.getByLabel('Title').getByText('Extensions');
-    this.featuredExtensions = page.getByLabel('FeaturedExtensions');
+    this.header = page.getByRole('region', { name: 'Header' });
+    this.content = page.getByRole('region', { name: 'Content' });
+    this.heading = this.header.getByLabel('Title').getByText('Extensions');
+    this.featuredExtensions = this.content.getByLabel('FeaturedExtensions');
     this.devSandboxBox = this.featuredExtensions.getByLabel('Developer Sandbox');
     this.openshiftLocalBox = this.featuredExtensions.getByLabel('OpenShift Local');
-    this.extensionsTable = page.getByRole('table');
-    this.imageInstallBox = page.getByRole('region', { name: 'OCI image installation box' });
-    this.installedExtensions = page.getByLabel('Installed Extensions');
+    this.imageInstallBox = this.content.getByRole('region', { name: 'OCI image installation box' });
+    this.installedExtensions = this.content.getByRole('table', { name: 'Installed Extensions' });
   }
 
   public async installExtensionFromOCIImage(extension: string): Promise<SettingsExtensionsPage> {
@@ -54,7 +56,7 @@ export class SettingsExtensionsPage extends SettingsPage {
   }
 
   public getExtensionRowFromTable(extensionName: string): Locator {
-    return this.extensionsTable.getByRole('row', { name: extensionName });
+    return this.installedExtensions.getByRole('row', { name: extensionName });
   }
 
   public getExtensionStopButton(extensionRow: Locator): Locator {
