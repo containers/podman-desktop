@@ -18,14 +18,12 @@
 
 import type { Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
-import { handleConfirmationDialog } from '../utility/operations';
-import { waitWhile } from '../utility/wait';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -53,35 +51,25 @@ const volumeName = 'e2eVolume';
 
 describe('Volume workflow verification', async () => {
   test('Create new Volume', async () => {
-    const volumesPage = await navBar.openVolumes();
+    let volumesPage = await navBar.openVolumes();
     await playExpect(volumesPage.heading).toBeVisible();
 
     const createVolumePage = await volumesPage.openCreateVolumePage(volumeName);
+    volumesPage = await createVolumePage.createVolume(volumeName);
 
-    await createVolumePage.volumeNameBox.fill(volumeName);
-    await createVolumePage.createVolumeButton.click();
-
-    await waitWhile(async () => await createVolumePage.createVolumeButton.isVisible(), 20000, 700);
-    await createVolumePage.doneButton.click();
-
-    const exists = await volumesPage.waitForVolumeExists(volumeName);
-    expect(exists).toBeTruthy();
+    await playExpect.poll(async () => await volumesPage.waitForVolumeExists(volumeName)).toBeTruthy();
   });
 
-  test('Delete volume trough details page', async () => {
-    const volumesPage = await navBar.openVolumes();
+  test('Delete volume through details page', async () => {
+    let volumesPage = await navBar.openVolumes();
     await playExpect(volumesPage.heading).toBeVisible();
 
     const volumeRow = await volumesPage.getVolumeRowByName(volumeName);
-    expect(volumeRow).not.toBeUndefined();
+    playExpect(volumeRow).not.toBeUndefined();
 
     const volumeDetails = await volumesPage.openVolumeDetails(volumeName);
-    await volumeDetails.deleteButton.click();
-    await handleConfirmationDialog(page);
+    volumesPage = await volumeDetails.deleteVolume();
 
-    await waitWhile(async () => await volumeDetails.heading.isVisible(), 20000, 700);
-
-    const deleted = await volumesPage.waitForVolumeDelete(volumeName);
-    expect(deleted).toBeTruthy();
+    await playExpect.poll(async () => await volumesPage.waitForVolumeDelete(volumeName)).toBeTruthy();
   });
 });

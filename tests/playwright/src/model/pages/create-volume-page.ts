@@ -17,7 +17,10 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
+import { expect as playExpect } from '@playwright/test';
+
 import { BasePage } from './base-page';
+import { VolumesPage } from './volumes-page';
 
 export class CreateVolumePage extends BasePage {
   readonly heading: Locator;
@@ -35,5 +38,14 @@ export class CreateVolumePage extends BasePage {
     this.doneButton = this.page.getByRole('button', { name: 'Done' });
     this.closeButton = this.page.getByRole('button', { name: 'Close' });
     this.createVolumeButton = this.page.getByRole('button', { name: 'Create' });
+  }
+
+  async createVolume(name: string): Promise<VolumesPage> {
+    await this.volumeNameBox.fill(name);
+    await playExpect(this.createVolumeButton).toBeEnabled();
+    await this.createVolumeButton.click();
+    await playExpect(this.doneButton).toBeEnabled({ timeout: 30000 });
+    await this.doneButton.click();
+    return new VolumesPage(this.page);
   }
 }

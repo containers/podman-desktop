@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
+import { expect as playExpect } from '@playwright/test';
 
 import { waitUntil, waitWhile } from '../../utility/wait';
 import { CreateVolumePage } from './create-volume-page';
@@ -40,6 +41,8 @@ export class VolumesPage extends MainPage {
     if (row !== undefined) {
       throw Error('Volume is already created');
     }
+
+    await playExpect(this.createVolumeButton).toBeEnabled();
     await this.createVolumeButton.click();
     return new CreateVolumePage(this.page);
   }

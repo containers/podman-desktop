@@ -17,7 +17,11 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
+import { expect as playExpect } from '@playwright/test';
+
+import { handleConfirmationDialog } from '../../utility/operations';
 import { BasePage } from './base-page';
+import { VolumesPage } from './volumes-page';
 
 export class VolumeDetailsPage extends BasePage {
   readonly labelName: Locator;
@@ -39,10 +43,11 @@ export class VolumeDetailsPage extends BasePage {
     this.deleteButton = page.getByRole('button', { name: 'Delete Volume' });
   }
 
-  async activateTab(tabName: string) {
+  async activateTab(tabName: string): Promise<this> {
     const tabItem = this.page.getByRole('link', { name: tabName, exact: true });
     await tabItem.waitFor({ state: 'visible', timeout: 2000 });
     await tabItem.click();
+    return this;
   }
 
   async getStateLocator(): Promise<Locator> {
@@ -52,5 +57,12 @@ export class VolumeDetailsPage extends BasePage {
     const stateCell = stateRow.getByRole('cell').nth(1);
     await stateCell.waitFor({ state: 'visible', timeout: 500 });
     return stateCell;
+  }
+
+  async deleteVolume(): Promise<VolumesPage> {
+    await playExpect(this.deleteButton).toBeEnabled();
+    await this.deleteButton.click();
+    await handleConfirmationDialog(this.page);
+    return new VolumesPage(this.page);
   }
 }
