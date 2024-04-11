@@ -120,6 +120,8 @@ export class TrayMenu {
       this.updateMenu();
     });
 
+    tray.on('double-click', this.showMainWindow.bind(this));
+
     // create menu first time
     this.updateMenu();
   }

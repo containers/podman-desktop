@@ -47,6 +47,7 @@ vi.mock('electron', async () => {
 beforeAll(() => {
   tray = {
     setContextMenu: vi.fn(),
+    on: vi.fn(),
   } as unknown as Tray;
   animatedTray = {
     setStatus: vi.fn(),
