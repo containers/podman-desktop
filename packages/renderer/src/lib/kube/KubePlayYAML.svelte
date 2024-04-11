@@ -334,7 +334,7 @@ async function getKubernetesfileLocation() {
         {/if}
 
         {#if runFinished}
-          <Button on:click="{() => goBackToHistory()}" class="pt-4 w-full">Done</Button>
+          <Button on:click="{() => goBackToHistory()}" class="w-full">Done</Button>
         {/if}
       </div>
     </div>
