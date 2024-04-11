@@ -37,7 +37,7 @@ import {
   startTask,
 } from './preferences-connection-rendering-task';
 import PreferencesRenderingItemFormat from './PreferencesRenderingItemFormat.svelte';
-import { getInitialValue, isPropertyValidInContext, writeToTerminal } from './Util';
+import { calcHalfCpuCores, getInitialValue, isPropertyValidInContext, writeToTerminal } from './Util';
 
 export let properties: IConfigurationPropertyRecordedSchema[] = [];
 export let providerInfo: ProviderInfo;
@@ -134,6 +134,17 @@ onMount(async () => {
     .filter(property => property.id?.startsWith(providerInfo.id))
     .filter(property => isPropertyValidInContext(property.when, globalContext))
     .map(property => {
+      switch (property.default) {
+        case 'HOST_HALF_CPU_CORES': {
+          if (osCpu) {
+            property.default = calcHalfCpuCores(osCpu);
+          }
+          break;
+        }
+        default: {
+          break;
+        }
+      }
       switch (property.maximum) {
         case 'HOST_TOTAL_DISKSIZE': {
           if (osFreeDisk) {

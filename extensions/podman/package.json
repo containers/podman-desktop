@@ -55,7 +55,7 @@
           "type": "number",
           "format": "cpu",
           "minimum": 1,
-          "default": 2,
+          "default": "HOST_HALF_CPU_CORES",
           "maximum": "HOST_TOTAL_CPU",
           "scope": "ContainerConnection",
           "description": "CPU(s)"
@@ -109,7 +109,7 @@
         "podman.factory.machine.cpus": {
           "type": "number",
           "format": "cpu",
-          "default": 2,
+          "default": "HOST_HALF_CPU_CORES",
           "minimum": 1,
           "maximum": "HOST_TOTAL_CPU",
           "scope": "ContainerProviderConnectionFactory",

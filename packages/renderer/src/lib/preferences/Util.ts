@@ -168,3 +168,13 @@ export function isContainerConnection(
 ): connection is ProviderContainerConnectionInfo {
   return (connection as ProviderContainerConnectionInfo).endpoint.socketPath !== undefined;
 }
+
+export function calcHalfCpuCores(osCpu: string): number {
+  const cores = parseInt(osCpu, 10);
+  if (isNaN(cores) || cores <= 0) {
+    return 1;
+  }
+
+  const hCores = Math.floor(cores / 2);
+  return hCores === 0 ? 1 : hCores;
+}

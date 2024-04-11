@@ -21,6 +21,7 @@ import { afterEach, describe, expect, test, vi } from 'vitest';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { ContextUI } from '../context/context';
 import {
+  calcHalfCpuCores,
   getNormalizedDefaultNumberValue,
   isPropertyValidInContext,
   isTargetScope,
@@ -229,5 +230,28 @@ describe.each([
 ])('Test rejected proxy addresses', address => {
   test(`Test address ${address}`, () => {
     expect(validateProxyAddress(address)).toBeDefined();
+  });
+});
+
+describe('calcHalfCpuCores', () => {
+  test('should return half of the provided CPU cores as a number', () => {
+    expect(calcHalfCpuCores('4')).toBe(2);
+    expect(calcHalfCpuCores('10')).toBe(5);
+  });
+
+  test('should return 1 if provided CPU cores are 0', () => {
+    expect(calcHalfCpuCores('0')).toBe(1);
+  });
+
+  test('should handle same integer value if CPU has one core', () => {
+    expect(calcHalfCpuCores('1')).toBe(1);
+  });
+
+  test('should return 1 for non-numeric strings', () => {
+    expect(calcHalfCpuCores('not-a-number')).toBe(1);
+  });
+
+  test('should return 1 for negative numbers', () => {
+    expect(calcHalfCpuCores('-4')).toBe(1);
   });
 });
