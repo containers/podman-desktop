@@ -14,8 +14,8 @@ install various CLIs, and more.
 ## Architecture
 
 The containers technology is a Linux kernel's technology. On a Linux system, you will be able to run Docker and/or Podman
-directly on your system. On other systems like Windows and macOS, you will need to run a Linux instance inside a virtual machine
-and run Docker or podman on this Linux instance, then access them from your system.
+directly. On other systems like Windows and macOS, you will need to run a Linux instance inside a virtual machine
+and run Docker or Podman on this Linux instance, then access them from your system.
 
 ### Containers on Linux systems
 
@@ -26,8 +26,8 @@ Podman, on the other hand, is daemonless. This means that the clients (including
 the system resources (containers, filesystem, etc), using a Podman library, to do these operations.
 
 Podman can also run on a Docker-compatibility mode.
-To run in this mode, a communication channel is created (a socket `/var/run/docker.sock` on macOS/Linux, a named pipe on Windows) and a podman service is running, listening on this channel. This way, podman resources
-can be accessed in two ways. The first way is by connecting to the Podman channel (for CLIs which have been originally designed to work with Docker only)
+To run in this mode, a communication channel is created (a socket `/var/run/docker.sock` on macOS/Linux, a named pipe on Windows) and a Podman service runs, listening on this channel. This setup allows podman resources
+to be accessed in two ways. The first way is by connecting to the Podman channel (for CLIs which have been originally designed to work with Docker only)
 the exact same way the Docker socket is accessed. The second way is to use the podman cli (or the podman library), which accesses the resources directly.
 Podman and Docker can still cohabit on the same system, by exposing different communication channels.
 
@@ -37,10 +37,10 @@ and uses the podman cli to work with Podman resources.
 ### Containers on non-Linux systems
 
 On Windows and macOS systems, a Linux system instance needs to be started inside a virtual machine and, on this Linux system, Podman
-needs to be started as a service, so it can be accessed from outside the virtual machine (you local system), through ssh.
+needs to be started as a service, so it can be accessed from outside the virtual machine (you local system), through SSH.
 
-On these systems, Podman desktop uses the _remote_ version of the podman cli, which communicates with the serice inside the virtual machine through
-a ssh connection.
+On these systems, Podman Desktop uses the _remote_ version of the podman cli, which communicates with the service inside the virtual machine through
+an SSH connection.
 
 ## Installation
 
@@ -124,7 +124,7 @@ from the `Settings > Registries` page, or by clicking the `Manage registries` bu
 ### Pushing an image to a registry
 
 Once you have an image locally, stored in any container engine, you can push it to a registry. You first need to be sure
-that the image name contains the URI of the distant repository. If it has not been done during the image build, you can edit
+that the image name contains the URI of the remote repository. If it has not been done during the image build, you can edit
 the image and change its image name. Then, you can push the image to the registry by using the dedicated command.
 
 Both `Edit Image` and `Push Image` commands are available from the Actions menu of the image, in the _Images List_ page, or
@@ -140,22 +140,22 @@ If the repository is private, you will have to check that the credentials have b
 ## Containers
 
 Now you have at least one image stored locally in a container engine, it's time to start a container using this image in this same container engine.
-For this, you can press the `Run Image` button in the Actions of the desired image in the Images List.
+For this, you can press the `Run Image` button in the Actions menu of the desired image in the Images List.
 
 This will open a form with all the possible parameters for creating the container (the same parameters you may pass to the `podman run` command).
 
-Once you press the `Start Container` button, the container creation is initiated and as soon as it is created, you are redirected to the Details page
+Once you press the `Start Container` button, the container creation is initiated. Upon completion, you are redirected to the Details page
 for the container. You can go back to this details page at any time by clicking the container's name in the _Containers List_ page.
 
-This Details page offers you many information about the container, from dedicated tabs: the logs of the container streamed in real-time,
-the detailed information (the output of the `podman inspect` command),
+This Details page offers you many information about the container through dedicated tabs. These include real-time logs of the container,
+detailed information (equivalent to the output of the `podman inspect` command),
 a Kubernetes representation of a Pod embedding this container (we will see later in the Kubernetes section how this can be useful),
 and a view of the TTY attached to the container.
 
 It is also possible to access an interactive shell within the container (if the container provides an `sh` or `bash` shell), by accessing the _Terminal_ tab
 of the Details page.
 
-A toolbar provides the standard operations on containers: stop, delete, restart, and you can open in one click in your browser the port declared as exposed
+A toolbar provides the standard operations on containers: stop, delete, restart. Additionally, you can open, in one click, your browser to the port declared as exposed
 by the container, to check that the application running in the container works as expected.
 
 <figure>
@@ -174,16 +174,15 @@ Podman, like Kubernetes, can manage pods. If you are not familiar with the Kuber
 For example, containers within a pod can communicate on localhost, and can share files on a same volume.
 
 With Podman Desktop, from the Containers List page, you can select one or several containers and click on the `Create Pod` button
-to create a new pod with a copy of these containers. Once done, the previous containers have been stopped,
+to create a new pod with a copy of these containers. Once done, the previous containers are stopped,
 and a pod is created containing copies of the selected containers (plus an `infra` container, which is a technical container needed
 to run a pod).
 
-At any time, from the Pods List page, you can stop, delete and restart the pod, and from the Pod Details page of a specific pod,
-you can see the logs of the containers streamed in real-time, the detailed information of the pod (the output of the `podman pod inspect` command),
-a Kubernetes representation of the Pod.
+At any time, from the Pods List page, you can stop, delete and restart the pod. Additionally, from the Pod Details page of a specific pod,
+you can see the logs of the containers streamed in real-time, detailed information about the pod (equivalent to the output of the `podman pod inspect` command),
+and a Kubernetes representation of the Pod.
 
-A toolbar provides the standard operations on pods: stop, delete, restart, and you can open in one click in your browser the port declared as exposed
-by the pod, to check that the application running in the pod works as expected.
+A toolbar provides standard operations on pods such as stop, delete and restart. Moreover, you can open the exposed port of the pod in your browser with a single click to verify that the application running in the pod functions as expected.
 
 <figure>
 ![Creating a Pod with two containers](discover/img/pod-create.png)
@@ -199,8 +198,8 @@ by the pod, to check that the application running in the pod works as expected.
 
 If you use `compose` to run multi-container applications, Podman Desktop can help you manage these groups of containers.
 
-In the Containers List page, all containers started by a same instance of `compose` are grouped together, so they can be
-managed as an application, by stopping, deleting or restarting the application.
+In the Containers List page, all containers started by the same instance of `compose` are grouped together. This grouping allows you to
+manage them as an application, by stopping, deleting or restarting the application.
 
 By clicking the name of the group (the name followed by `(compose)` in the first line of the group), you can access the Details page for the application,
 where you can see the logs of the containers streamed in real-time, the detailed information of the containers
