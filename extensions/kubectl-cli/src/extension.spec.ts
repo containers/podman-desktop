@@ -41,6 +41,14 @@ vi.mock('./kubectl-github-releases', () => ({
   KubectlGitHubReleases: vi.fn(),
 }));
 
+vi.mock('node:fs', () => ({
+  promises: {
+    chmod: vi.fn(),
+    mkdir: vi.fn(),
+  },
+  existsSync: vi.fn(),
+}));
+
 vi.mock('@podman-desktop/api', () => {
   return {
     cli: {
