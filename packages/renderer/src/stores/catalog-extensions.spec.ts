@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,12 +70,16 @@ test('catalog extension should be updated in case of a container is removed', as
       displayName: 'test1',
       publisherName: 'Foo publisher',
       extensionName: 'extension',
+      shortDescription: 'short description',
+      publisherDisplayName: 'Foo publisher display name',
+      categories: [],
       versions: [
         {
           version: '1.0.0',
           ociUri: 'oci://test1',
           preview: false,
           files: [],
+          lastUpdated: new Date(),
         },
       ],
     },
@@ -84,12 +88,16 @@ test('catalog extension should be updated in case of a container is removed', as
       displayName: 'test2',
       publisherName: 'Foo publisher',
       extensionName: 'extension2',
+      shortDescription: 'short description',
+      publisherDisplayName: 'Foo publisher display name',
+      categories: [],
       versions: [
         {
           version: '2.0.0',
           ociUri: 'oci://test2',
           preview: false,
           files: [],
+          lastUpdated: new Date(),
         },
       ],
     },
