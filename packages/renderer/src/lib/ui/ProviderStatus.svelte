@@ -12,7 +12,7 @@ interface connectionStatusStyle {
   | 'configured'
   | 'unknown';*/
 const roundIconStyle = 'my-auto w-3 h-3 rounded-full';
-const labelStyle = 'my-auto ml-1 text-base font-medium';
+const labelStyle = 'my-auto ml-1 text-sm';
 const statusesStyle = new Map<string, connectionStatusStyle>([
   [
     'ready',
