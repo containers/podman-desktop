@@ -22,6 +22,8 @@ import CustomPick from './lib/dialogs/CustomPick.svelte';
 import MessageBox from './lib/dialogs/MessageBox.svelte';
 import QuickPickInput from './lib/dialogs/QuickPickInput.svelte';
 import DockerExtension from './lib/docker-extension/DockerExtension.svelte';
+import ExtensionDetails from './lib/extensions/ExtensionDetails.svelte';
+import ExtensionList from './lib/extensions/ExtensionList.svelte';
 import SendFeedback from './lib/feedback/SendFeedback.svelte';
 import HelpPage from './lib/help/HelpPage.svelte';
 import BuildImageFromContainerfile from './lib/image/BuildImageFromContainerfile.svelte';
@@ -237,6 +239,12 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         </Route>
         <Route path="/troubleshooting/*" breadcrumb="Troubleshooting">
           <TroubleshootingPage />
+        </Route>
+        <Route path="/extensions" breadcrumb="Extensions" navigationHint="root">
+          <ExtensionList />
+        </Route>
+        <Route path="/extensions/details/:id/*" breadcrumb="Extension Details" let:meta navigationHint="details">
+          <ExtensionDetails extensionId="{meta.params.id}" />
         </Route>
       </div>
     </div>
