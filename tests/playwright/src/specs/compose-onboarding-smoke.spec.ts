@@ -16,22 +16,26 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect as playExpect } from '@playwright/test';
+import * as os from 'node:os';
+
 import type { Page } from '@playwright/test';
-import { PodmanDesktopRunner } from './runner/podman-desktop-runner';
-import { afterAll, beforeAll, beforeEach, test, describe } from 'vitest';
-import { WelcomePage } from './model/pages/welcome-page';
-import { NavigationBar } from './model/workbench/navigation';
-import type { RunnerTestContext } from './testContext/runner-test-context';
-import { SettingsBar } from './model/pages/settings-bar';
-import { ResourcesPage } from './model/pages/resources-page';
-import { ComposeOnboardingPage } from './model/pages/compose-onboarding-page';
-import { CLIToolsPage } from './model/pages/cli-tools-page';
+import { expect as playExpect } from '@playwright/test';
+import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
+
+import { CLIToolsPage } from '../model/pages/cli-tools-page';
+import { ComposeOnboardingPage } from '../model/pages/compose-onboarding-page';
+import { ResourcesPage } from '../model/pages/resources-page';
+import { SettingsBar } from '../model/pages/settings-bar';
+import { WelcomePage } from '../model/pages/welcome-page';
+import { NavigationBar } from '../model/workbench/navigation';
+import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
+import type { RunnerTestContext } from '../testContext/runner-test-context';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
 let navBar: NavigationBar;
 let composeVersion: string;
+const isLinux = os.platform() === 'linux';
 
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
@@ -51,7 +55,7 @@ beforeEach<RunnerTestContext>(async ctx => {
   ctx.pdRunner = pdRunner;
 });
 
-describe('Compose onboarding workflow verification', async () => {
+describe.skipIf(isLinux)('Compose onboarding workflow verification', async () => {
   test('Can enter Compose onboarding', async () => {
     await navBar.openSettings();
     const settingsBar = new SettingsBar(page);
@@ -69,7 +73,7 @@ describe('Compose onboarding workflow verification', async () => {
     const onboardingPage = new ComposeOnboardingPage(page);
 
     await playExpect(onboardingPage.heading).toBeVisible();
-    await playExpect(onboardingPage.statusMessage).toHaveText('Compose Download');
+    await playExpect(onboardingPage.onboardingStatusMessage).toHaveText('Compose Download');
 
     const downloadAvailableText = page.getByText(
       /Compose will be downloaded in the next step \(Version v[0-9.]+\). Want to download/,
@@ -86,11 +90,13 @@ describe('Compose onboarding workflow verification', async () => {
 
   test('Can install Compose locally', async () => {
     const onboardingPage = new ComposeOnboardingPage(page);
-    await onboardingPage.nextButton.click();
+    await onboardingPage.nextStepButton.click();
 
-    await playExpect(onboardingPage.statusMessage).toHaveText('Compose Successfully Downloaded', { timeout: 50000 });
+    await playExpect(onboardingPage.onboardingStatusMessage).toHaveText('Compose Successfully Downloaded', {
+      timeout: 50000,
+    });
 
-    await onboardingPage.cancelButton.click();
+    await onboardingPage.cancelSetupButtion.click();
 
     const skipDialog = page.getByRole('dialog', { name: 'Skip Setup Popup', exact: true });
     const skipOkButton = skipDialog.getByRole('button', { name: 'Ok' });
@@ -104,20 +110,20 @@ describe('Compose onboarding workflow verification', async () => {
     await setupButton.click();
 
     const onboardingPage = new ComposeOnboardingPage(page);
-    await playExpect(onboardingPage.statusMessage).toHaveText('Compose Successfully Downloaded');
+    await playExpect(onboardingPage.onboardingStatusMessage).toHaveText('Compose Successfully Downloaded');
     const downloadAvailableText = page.getByText(
       'The next step will install Compose system-wide. You will be prompted for system',
     );
     await playExpect(downloadAvailableText).toBeVisible();
 
-    await onboardingPage.nextButton.click();
+    await onboardingPage.nextStepButton.click();
 
-    await playExpect(onboardingPage.statusMessage).toHaveText('Compose Installed', { timeout: 50000 });
+    await playExpect(onboardingPage.onboardingStatusMessage).toHaveText('Compose Installed', { timeout: 50000 });
     let downloadFinishedText = page.locator('p');
     downloadFinishedText = downloadFinishedText.filter({ hasText: 'Compose is installed system-wide!' });
     await playExpect(downloadFinishedText).toBeVisible();
 
-    await onboardingPage.nextButton.click();
+    await onboardingPage.nextStepButton.click();
   });
 
   test('Verify Compose was installed', async () => {

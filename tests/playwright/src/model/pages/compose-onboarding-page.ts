@@ -17,19 +17,14 @@
  ***********************************************************************/
 
 import type { Locator, Page } from 'playwright';
-import { SettingsPage } from './settings-page';
 
-export class ComposeOnboardingPage extends SettingsPage {
+import { OnboardingPage } from './onboarding-page';
+
+export class ComposeOnboardingPage extends OnboardingPage {
   readonly heading: Locator;
-  readonly statusMessage: Locator;
-  readonly cancelButton: Locator;
-  readonly nextButton: Locator;
 
   constructor(page: Page) {
-    super(page, 'Compose Setup');
-    this.heading = page.getByRole('heading', { name: 'Compose Setup Header' });
-    this.statusMessage = page.getByLabel('Onboarding Status Message');
-    this.cancelButton = page.getByRole('button', { name: 'Cancel Setup' });
-    this.nextButton = page.getByRole('button', { name: 'Next Step' });
+    super(page);
+    this.heading = this.header.getByRole('heading', { name: 'Compose Setup Header' });
   }
 }

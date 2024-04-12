@@ -17,15 +17,22 @@
  ***********************************************************************/
 
 import type { Locator, Page } from 'playwright';
+
 import { SettingsPage } from './settings-page';
 
 export class CLIToolsPage extends SettingsPage {
+  readonly main: Locator;
+  readonly header: Locator;
+  readonly content: Locator;
   readonly heading: Locator;
   readonly toolsTable: Locator;
 
   constructor(page: Page) {
     super(page, 'CLI Tools');
-    this.heading = page.getByRole('heading', { name: 'CLI Tools' });
-    this.toolsTable = page.getByRole('table', { name: 'cli-tools' });
+    this.main = page.getByRole('region', { name: 'CLI Tools' }); //check name
+    this.header = this.main.getByRole('region', { name: 'Header' });
+    this.heading = this.header.getByRole('heading', { name: 'CLI Tools', exact: true });
+    this.content = this.main.getByRole('region', { name: 'Content' });
+    this.toolsTable = this.content.getByRole('table', { name: 'cli-tools' });
   }
 }
