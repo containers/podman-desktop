@@ -62,12 +62,16 @@ test('Expect that the install button is there and can click on it to install', a
       extensionName: 'FOOName',
       displayName: 'foo.bar Extension',
       publisherName: 'Foo',
+      publisherDisplayName: 'Foo Publisher',
+      shortDescription: 'foo.bar Extension',
+      categories: ['Kubernetes'],
       versions: [
         {
           version: '1.0.0',
           preview: false,
           ociUri: 'oci://foo/bar:1.0.0',
           files: [],
+          lastUpdated: new Date(),
         },
       ],
     },
@@ -128,12 +132,16 @@ test('Expect that the installed label is there if extension is already installed
       extensionName: 'FOOName',
       displayName: 'foo.bar Extension',
       publisherName: 'Foo',
+      publisherDisplayName: 'Foo Publisher',
+      shortDescription: 'foo.bar Extension',
+      categories: ['Kubernetes'],
       versions: [
         {
           version: '1.0.0',
           preview: false,
           ociUri: 'oci://foo/bar:1.0.0',
           files: [],
+          lastUpdated: new Date(),
         },
       ],
     },

@@ -31,8 +31,11 @@ export interface CatalogFetchableExtension {
 export interface CatalogExtension {
   id: string;
   publisherName: string;
+  shortDescription: string;
+  publisherDisplayName: string;
   extensionName: string;
   displayName: string;
+  categories: string[];
   versions: CatalogExtensionVersion[];
 }
 
@@ -40,6 +43,7 @@ interface CatalogExtensionVersion {
   version: string;
   ociUri: string;
   preview: boolean;
+  lastUpdated: Date;
   files: CatalogExtensionVersionFile[];
 }
 

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ const fakePublishedExtension1 = {
   displayName: 'Foo extension display name',
   shortDescription: 'Foo extension short description',
   license: 'Apache-2.0',
+  categories: ['Kubernetes'],
   versions: [
     {
       version: '1.0.0',
@@ -161,9 +162,13 @@ test('should get all extensions', async () => {
   expect(extension.id).toBe('foo.fooName');
   expect(extension.publisherName).toBe('foo');
   expect(extension.displayName).toBe(fakePublishedExtension1.displayName);
-  expect(extension.versions.length).toBe(1);
+  expect(extension.categories).toStrictEqual(['Kubernetes']);
+  expect(extension.publisherDisplayName).toBe('Foo publisher display name');
+  expect(extension.shortDescription).toBe('Foo extension short description');
+
   expect(extension.versions[0]).toStrictEqual({
     ociUri: 'oci-registry.foo/foo/bar',
+    lastUpdated: expect.any(Date),
     preview: false,
     version: '1.0.0',
     files: [fooAssetIcon],
