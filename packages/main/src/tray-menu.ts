@@ -26,7 +26,7 @@ import statusStopped from './assets/status-stopped.png';
 import statusUnknown from './assets/status-unknown.png';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from './plugin/api/provider-info.js';
 import type { AnimatedTray, TrayIconStatus } from './tray-animate-icon.js';
-import { findWindow, isMac } from './util.js';
+import { findWindow, isMac, isWindows } from './util.js';
 
 // extends type from the plugin
 interface ProviderMenuItem extends ProviderInfo {
@@ -120,7 +120,9 @@ export class TrayMenu {
       this.updateMenu();
     });
 
-    tray.on('double-click', this.showMainWindow.bind(this));
+    if (isWindows()) {
+      tray.on('click', this.showMainWindow.bind(this));
+    }
 
     // create menu first time
     this.updateMenu();
