@@ -24,6 +24,7 @@ import statusStopped from './assets/status-stopped.png';
 import type { ProviderInfo } from './plugin/api/provider-info.js';
 import type { AnimatedTray } from './tray-animate-icon.js';
 import { TrayMenu } from './tray-menu.js';
+import * as util from './util.js';
 
 let trayMenu: TrayMenu;
 let tray: Tray;
@@ -147,4 +148,17 @@ test('Tray provider start enabled when configured state', () => {
   );
   expect(startItem).to.be.not.undefined;
   expect(startItem?.enabled).to.be.true;
+});
+
+test('Tray click trigger is only added on Windows devices', () => {
+  const onSpy = vi.spyOn(tray, 'on');
+
+  vi.spyOn(util, 'isWindows').mockReturnValue(true);
+  trayMenu = new TrayMenu(tray, animatedTray);
+  expect(onSpy).toHaveBeenCalledWith('click', expect.any(Function));
+  onSpy.mockClear();
+
+  vi.spyOn(util, 'isWindows').mockReturnValue(false);
+  trayMenu = new TrayMenu(tray, animatedTray);
+  expect(onSpy).not.toHaveBeenCalledWith('click', expect.any(Function));
 });
