@@ -1,11 +1,16 @@
 <script lang="ts">
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 
-import type { FeaturedExtension } from '../../../../main/src/plugin/featured/featured-api';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import LoadingIcon from '../ui/LoadingIcon.svelte';
 
-export let featuredExtension: FeaturedExtension;
+export let extension: {
+  id: string;
+  fetchLink?: string;
+  fetchVersion?: string;
+  displayName: string;
+  fetchable: boolean;
+};
 
 let installInProgress = false;
 
@@ -16,13 +21,13 @@ let percentage = '0%';
 
 async function installExtension() {
   errorInstall = '';
-  console.log('User asked to install the extension with the following properties', featuredExtension);
+  console.log('User asked to install the extension with the following properties', extension);
   logs = [];
 
   installInProgress = true;
 
   // do a trim on the image name
-  const ociImage = featuredExtension?.fetchLink?.trim();
+  const ociImage = extension?.fetchLink?.trim();
 
   if (!ociImage) {
     console.log('No image to install');
@@ -47,7 +52,7 @@ async function installExtension() {
         }
       },
       (error: string) => {
-        console.log(`got an error when installing ${featuredExtension.id}`, error);
+        console.log(`got an error when installing ${extension.id}`, error);
         installInProgress = false;
         errorInstall = error;
       },
@@ -62,10 +67,10 @@ async function installExtension() {
 </script>
 
 <button
-  aria-label="Install {featuredExtension.id} Extension"
+  aria-label="Install {extension.id} Extension"
   on:click="{() => installExtension()}"
-  hidden="{!featuredExtension.fetchable}"
-  title="Install {featuredExtension.displayName} v{featuredExtension.fetchVersion} Extension"
+  hidden="{!extension.fetchable}"
+  title="Install {extension.displayName} v{extension.fetchVersion} Extension"
   class="border-2 relative rounded border-dustypurple-700 text-dustypurple-700 hover:bg-charcoal-800 hover:text-dustypurple-600 w-10 p-2 text-center cursor-pointer flex flex-row">
   <!--<Fa  class="ml-1.5" size="16" icon={faDownload} />-->
   <span class="ml-0.5"></span>
