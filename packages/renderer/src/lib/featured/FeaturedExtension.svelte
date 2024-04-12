@@ -39,7 +39,7 @@ export let displayTitle: boolean = false;
             <div class="uppercase font-bold text-xs cursor-default">installed</div>
           </div>
         {:else if featuredExtension.fetchable}
-          <FeaturedExtensionDownload featuredExtension="{featuredExtension}" />
+          <FeaturedExtensionDownload extension="{featuredExtension}" />
         {:else}
           <div class="text-charcoal-300 p-1 text-center flex flex-row place-items-center">
             <Fa class="ml-1.5 mr-1" size="1.1x" icon="{faCircleXmark}" />
