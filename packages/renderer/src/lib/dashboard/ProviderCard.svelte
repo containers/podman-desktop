@@ -7,28 +7,30 @@ import ProviderLinks from './ProviderLinks.svelte';
 export let provider: ProviderInfo;
 </script>
 
-<div class="bg-charcoal-800 mb-5 rounded-md p-3 flex-nowrap" role="region" aria-label="{provider.name} Provider">
-  <div class="flex flex-row">
-    <div class="flex flex-row">
-      <IconImage image="{provider?.images?.icon}" class="mx-auto max-h-12" alt="{provider.name}"></IconImage>
-      <div class="flex flex-col text-gray-400 text-lg font-bold ml-3 whitespace-nowrap" aria-label="context-name">
-        <div class="flex flex-row items-center">
+<div
+  class="flex bg-charcoal-800 rounded-md p-5 gap-3 flex-col flex-nowrap"
+  role="region"
+  aria-label="{provider.name} Provider">
+  <div class="flex flex-row gap-10">
+    <div class="flex gap-3 flex-row justify-start items-center">
+      <IconImage image="{provider?.images?.icon}" class="mx-0 max-h-12" alt="{provider.name}"></IconImage>
+      <div class="flex flex-col gap-0 text-gray-400 text-lg whitespace-nowrap" aria-label="context-name">
+        <div class="flex flex-row gap-1 items-center">
           {provider.name}
           {#if provider.version}
-            <div class="text-gray-800 text-base font-light pl-1" aria-label="Provider Version">
+            <div class="text-gray-800 text-base" aria-label="Provider Version">
               v{provider.version}
             </div>
           {/if}
         </div>
-        <div class="flex flex-row pt-1" aria-label="Actual State">
+        <div class="flex flex-row" aria-label="Actual State">
           <ProviderStatus status="{provider.status}" />
         </div>
       </div>
     </div>
-    <div class="flex flex-col items-center text-center flex-grow">
+    <div class="flex items-center flex-row space-x-10 grow flex-nowrap">
       <slot name="content" />
     </div>
   </div>
-
   <ProviderLinks provider="{provider}" />
 </div>
