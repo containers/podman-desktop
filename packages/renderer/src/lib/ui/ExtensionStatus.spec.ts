@@ -79,3 +79,14 @@ test('Expect green text and icon when extension is unknown', async () => {
   expect(label).toHaveClass('text-gray-900');
   expect(label).toHaveTextContent('UNKNOWN');
 });
+
+test('Expect purple text and icon when extension is downloadable', async () => {
+  render(ExtensionStatus, { status: 'downloadable' });
+  const icon = screen.getByLabelText(extensionStatusIcon);
+  const label = screen.getByLabelText(extensionStatusLabel);
+  expect(icon).toBeInTheDocument();
+  expect(icon).toHaveClass('bg-purple-600');
+  expect(label).toBeInTheDocument();
+  expect(label).toHaveClass('text-gray-700');
+  expect(label).toHaveTextContent('DOWNLOADABLE');
+});
