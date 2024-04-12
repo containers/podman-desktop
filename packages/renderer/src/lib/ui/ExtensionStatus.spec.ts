@@ -23,13 +23,13 @@ import { expect, test } from 'vitest';
 
 import ExtensionStatus from './ExtensionStatus.svelte';
 
-const connectionStatusLabel = 'Connection Status Label';
-const connectionStatusIcon = 'Connection Status Icon';
+const extensionStatusLabel = 'Extension Status Label';
+const extensionStatusIcon = 'Extension Status Icon';
 
-test('Expect green text and icon when connection is running', async () => {
+test('Expect green text and icon when extension is running', async () => {
   render(ExtensionStatus, { status: 'started' });
-  const icon = screen.getByLabelText(connectionStatusIcon);
-  const label = screen.getByLabelText(connectionStatusLabel);
+  const icon = screen.getByLabelText(extensionStatusIcon);
+  const label = screen.getByLabelText(extensionStatusLabel);
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveClass('bg-green-500');
   expect(label).toBeInTheDocument();
@@ -37,10 +37,10 @@ test('Expect green text and icon when connection is running', async () => {
   expect(label).toHaveTextContent('ACTIVE');
 });
 
-test('Expect green text and icon when connection is starting', async () => {
+test('Expect green text and icon when extension is starting', async () => {
   render(ExtensionStatus, { status: 'starting' });
-  const icon = screen.getByLabelText(connectionStatusIcon);
-  const label = screen.getByLabelText(connectionStatusLabel);
+  const icon = screen.getByLabelText(extensionStatusIcon);
+  const label = screen.getByLabelText(extensionStatusLabel);
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveClass('bg-green-500');
   expect(label).toBeInTheDocument();
@@ -48,10 +48,10 @@ test('Expect green text and icon when connection is starting', async () => {
   expect(label).toHaveTextContent('ACTIVATING');
 });
 
-test('Expect green text and icon when connection is stopped', async () => {
+test('Expect green text and icon when extension is stopped', async () => {
   render(ExtensionStatus, { status: 'stopped' });
-  const icon = screen.getByLabelText(connectionStatusIcon);
-  const label = screen.getByLabelText(connectionStatusLabel);
+  const icon = screen.getByLabelText(extensionStatusIcon);
+  const label = screen.getByLabelText(extensionStatusLabel);
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveClass('bg-gray-900');
   expect(label).toBeInTheDocument();
@@ -59,21 +59,20 @@ test('Expect green text and icon when connection is stopped', async () => {
   expect(label).toHaveTextContent('DISABLED');
 });
 
-test('Expect green text and icon when connection is stopping', async () => {
+test('Expect green text and icon when extension is stopping', async () => {
   render(ExtensionStatus, { status: 'stopping' });
-  const icon = screen.getByLabelText(connectionStatusIcon);
-  const label = screen.getByLabelText(connectionStatusLabel);
+  const icon = screen.getByLabelText(extensionStatusIcon);
+  const label = screen.getByLabelText(extensionStatusLabel);
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveClass('bg-red-500');
   expect(label).toBeInTheDocument();
   expect(label).toHaveClass('text-red-500');
   expect(label).toHaveTextContent('DISABLING');
 });
-
-test('Expect green text and icon when connection is unknown', async () => {
+test('Expect green text and icon when extension is unknown', async () => {
   render(ExtensionStatus, { status: 'unknown' });
-  const icon = screen.getByLabelText(connectionStatusIcon);
-  const label = screen.getByLabelText(connectionStatusLabel);
+  const icon = screen.getByLabelText(extensionStatusIcon);
+  const label = screen.getByLabelText(extensionStatusLabel);
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveClass('bg-gray-900');
   expect(label).toBeInTheDocument();

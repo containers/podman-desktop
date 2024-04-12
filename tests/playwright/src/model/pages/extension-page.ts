@@ -35,7 +35,7 @@ export class ExtensionPage extends SettingsPage {
     this.enableButton = page.getByRole('button', { name: 'Enable' });
     this.disableButton = page.getByRole('button', { name: 'Disable' });
     this.removeExtensionButton = page.getByRole('button', { name: 'Remove' });
-    this.status = page.getByLabel('Connection Status Label');
+    this.status = page.getByLabel('Extension Status Label');
   }
 
   async disableExtension(): Promise<this> {
