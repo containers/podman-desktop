@@ -39,7 +39,7 @@ onMount(() => {
     <Tooltip class="flex flex-col justify-center items-center pb-1" tip="{tooltip}" right>
       <div class="flex flex-col justify-center items-center" class:text-charcoal-50="{expanded && $count < 2}">
         {#if !expanded}
-          <div class="py-3" transition:fadeSlide="{{ duration: 500 }}">
+          <div class="py-1.5" transition:fadeSlide="{{ duration: 500 }}">
             <slot name="icon" />
           </div>
         {/if}

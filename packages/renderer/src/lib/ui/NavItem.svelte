@@ -37,7 +37,7 @@ onDestroy(() => {
   aria-label="{ariaLabel ? ariaLabel : tooltip}"
   on:click|preventDefault="{onClick}">
   <div
-    class="flex py-3 justify-center items-center cursor-pointer"
+    class="flex py-1.5 justify-center items-center cursor-pointer min-h-9"
     class:border-x-[4px]="{!inSection}"
     class:px-2="{inSection}"
     class:border-[var(--pd-global-nav-bg)]="{!inSection}"
