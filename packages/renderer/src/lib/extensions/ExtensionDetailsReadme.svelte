@@ -7,13 +7,12 @@ import EmptyScreen from '../ui/EmptyScreen.svelte';
 
 export let readme: { content?: string; uri?: string };
 
-let readmeContent: string = '';
+let readmeContent: string | undefined = undefined;
 
 onMount(async () => {
   if (readme.uri) {
     // fetch the readme file content
     const response = await fetch(readme.uri);
-
     if (response.ok) {
       const text = await response.text();
       readmeContent = text;
@@ -39,6 +38,6 @@ onMount(async () => {
   <EmptyScreen
     class="w-full h-full"
     icon="{faFileText}"
-    title="No readme"
+    title="No Readme"
     message="No readme file is available for this extension" />
 {/if}

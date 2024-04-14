@@ -13,11 +13,14 @@ import { featuredExtensionInfos } from '/@/stores/featuredExtensions';
 
 import type { CatalogExtensionInfoUI } from './catalog-extension-info-ui';
 import CatalogExtensionList from './CatalogExtensionList.svelte';
+import { ExtensionUtils } from './extension-utils';
 import InstallManuallyExtensionModal from './InstallManuallyExtensionModal.svelte';
 
 export let searchTerm = '';
 const combinedInstalledExtensionSearchPattern = writable('');
 $: combinedInstalledExtensionSearchPattern.set(searchTerm);
+
+const extensionUtils = new ExtensionUtils();
 
 let filteredItems: number = 0;
 $: filteredItems = $combinedInstalledExtensions.length - $filteredInstalledExtensions.length;
@@ -36,50 +39,11 @@ const filteredInstalledExtensions: Readable<CombinedExtensionInfoUI[]> = derived
 const enhancedCatalogExtensions: Readable<CatalogExtensionInfoUI[]> = derived(
   [catalogExtensionInfos, featuredExtensionInfos, combinedInstalledExtensions],
   ([$catalogExtensionInfos, $featuredExtensionInfos, $combinedInstalledExtensions]) => {
-    const values: CatalogExtensionInfoUI[] = $catalogExtensionInfos.map(catalogExtension => {
-      // grab latest version
-      const nonPreviewVersions = catalogExtension.versions.filter(v => !v.preview);
-      const latestVersion = nonPreviewVersions[0];
-      const fetchLink = latestVersion.ociUri;
-      const fetchVersion = latestVersion.version;
-      const publisherDisplayName = catalogExtension.publisherDisplayName;
-
-      // grab icon
-      const icon = latestVersion.files.find(f => f.assetType === 'icon');
-      const isInstalled = $combinedInstalledExtensions.some(
-        installedExtension => installedExtension.id === catalogExtension.id,
-      );
-      const isFeatured = $featuredExtensionInfos.some(
-        featuredExtension => featuredExtension.id === catalogExtension.id,
-      );
-
-      const shortDescription = catalogExtension.shortDescription;
-
-      return {
-        id: catalogExtension.id,
-        displayName: catalogExtension.displayName,
-        isFeatured,
-        fetchLink,
-        fetchVersion,
-        fetchable: fetchLink !== '',
-        iconHref: icon?.data,
-        publisherDisplayName,
-        isInstalled,
-        shortDescription,
-      };
-    });
-
-    // sort by isFeatured and then by name
-    values.sort((a, b) => {
-      if (a.isFeatured && !b.isFeatured) {
-        return -1;
-      }
-      if (!a.isFeatured && b.isFeatured) {
-        return 1;
-      }
-      return a.displayName.localeCompare(b.displayName);
-    });
-    return values;
+    return extensionUtils.extractCatalogExtensions(
+      $catalogExtensionInfos,
+      $featuredExtensionInfos,
+      $combinedInstalledExtensions,
+    );
   },
 );
 

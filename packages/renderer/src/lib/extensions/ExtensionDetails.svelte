@@ -10,6 +10,7 @@ import FeaturedExtensionDownload from '../featured/FeaturedExtensionDownload.sve
 import DetailsPage from '../ui/DetailsPage.svelte';
 import ExtensionStatus from '../ui/ExtensionStatus.svelte';
 import type { ExtensionDetailsUI } from './extension-details-ui';
+import { ExtensionUtils } from './extension-utils';
 import ExtensionBadge from './ExtensionBadge.svelte';
 import ExtensionDetailsReadme from './ExtensionDetailsReadme.svelte';
 import ExtensionDetailsSummaryCard from './ExtensionDetailsSummaryCard.svelte';
@@ -20,123 +21,12 @@ export let extensionId: string;
 let extension: ExtensionDetailsUI;
 
 let detailsPage: DetailsPage;
+const extensionUtils = new ExtensionUtils();
 
 const extensionDetailStore: Readable<ExtensionDetailsUI | undefined> = derived(
   [catalogExtensionInfos, combinedInstalledExtensions],
   ([$catalogExtensionInfos, $combinedInstalledExtensions]) => {
-    const matchingInstalledExtension = $combinedInstalledExtensions.find(c => c.id === extensionId);
-    // is it in the catalog
-    const matchingCatalogExtension = $catalogExtensionInfos.find(c => c.id === extensionId);
-
-    // not installed and not in the catalog, return undefined as it is not matching
-    if (!matchingCatalogExtension && !matchingInstalledExtension) {
-      return undefined;
-    }
-
-    let displayName: string;
-
-    let description: string;
-
-    let type: 'dd' | 'pd';
-
-    let removable: boolean;
-    let state: string;
-    let icon: undefined | string | { light: string; dark: string };
-    let iconRef: undefined | string;
-    let name: string;
-    let readme: { content?: string; uri?: string } = {};
-
-    const nonPreviewVersions = matchingCatalogExtension?.versions.filter(v => v.preview === false) ?? [];
-    const latestVersion = nonPreviewVersions.length > 0 ? nonPreviewVersions[0] : undefined;
-    const latestVersionNumber = latestVersion ? `v${latestVersion.version}` : '';
-    const latestVersionOciLink = latestVersion ? latestVersion.ociUri : undefined;
-    const latestVersionIcon = latestVersion ? latestVersion.files.find(f => f.assetType === 'icon')?.data : undefined;
-    const latestVersionReadme = latestVersion
-      ? latestVersion.files.find(f => f.assetType.toLowerCase() === 'readme')?.data
-      : undefined;
-    const lastUpdated = latestVersion?.lastUpdated;
-
-    // grab first from installed extension
-    if (matchingInstalledExtension) {
-      displayName = matchingInstalledExtension.displayName;
-      description = matchingInstalledExtension.description;
-      type = matchingInstalledExtension.type;
-      removable = matchingInstalledExtension.removable;
-      state = matchingInstalledExtension.state;
-      icon = matchingInstalledExtension.icon;
-      name = matchingInstalledExtension.name;
-      readme.content = matchingInstalledExtension.readme;
-    } else if (matchingCatalogExtension) {
-      displayName = matchingCatalogExtension.displayName;
-      description = matchingCatalogExtension.shortDescription;
-      // catalog only includes Podman Desktop extensions
-      type = 'pd';
-      removable = true;
-      state = 'downloadable';
-      name = matchingCatalogExtension.extensionName;
-
-      if (latestVersionReadme) {
-        readme = { uri: latestVersionReadme };
-      }
-
-      if (latestVersionIcon) {
-        iconRef = latestVersionIcon;
-      }
-    } else {
-      displayName = 'Unknown';
-      description = '';
-      type = 'pd';
-      removable = false;
-      state = 'unknown';
-      name = 'unknown';
-    }
-
-    let releaseDate: string = 'N/A';
-    if (lastUpdated) {
-      releaseDate = lastUpdated.toISOString().split('T')[0];
-    }
-
-    let publisherDisplayName = matchingCatalogExtension?.publisherDisplayName ?? 'N/A';
-
-    if (matchingInstalledExtension && !matchingInstalledExtension.removable) {
-      publisherDisplayName = 'Podman Desktop (built-in)';
-    }
-
-    let categories: string[] = matchingCatalogExtension?.categories ?? [];
-    const matchingInstalledExtensionVersion = matchingInstalledExtension?.version
-      ? `v${matchingInstalledExtension.version}`
-      : undefined;
-    let version = matchingInstalledExtensionVersion ?? latestVersionNumber ?? 'N/A';
-
-    const installedExtension = matchingInstalledExtension;
-
-    const fetchLink = latestVersionOciLink ?? '';
-    const fetchVersion = latestVersion?.version ?? '';
-
-    const fetchable = fetchLink.length > 0;
-
-    const matchingExtension: ExtensionDetailsUI = {
-      id: extensionId,
-      displayName,
-      description,
-      type,
-      removable,
-      state,
-      icon,
-      iconRef,
-      name,
-      readme,
-      releaseDate,
-      categories,
-      publisherDisplayName,
-      version,
-      installedExtension,
-      fetchable,
-      fetchLink,
-      fetchVersion,
-    };
-
-    return matchingExtension;
+    return extensionUtils.extractExtensionDetail($catalogExtensionInfos, $combinedInstalledExtensions, extensionId);
   },
 );
 
