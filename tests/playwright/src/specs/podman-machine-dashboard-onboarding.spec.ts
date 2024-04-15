@@ -53,6 +53,8 @@ beforeEach<RunnerTestContext>(async ctx => {
 });
 
 afterAll(async () => {
+  console.log(`Platform used: ${os.platform}`);
+  console.log(`TEST_PODMAN_MACHINE value is: ${process.env.TEST_PODMAN_MACHINE}`);
   await pdRunner.close();
 });
 
@@ -61,6 +63,7 @@ describe.skipIf(os.platform() === 'linux')(async () => {
     `Podman machine onboarding from Dashboard`,
     async () => {
       test('Create Podman machine from Dashboard', async () => {
+        console.log('Starting PD dashboard test');
         const navigationBar = new NavigationBar(page);
         const dashboardPage = await navigationBar.openDashboard();
         await playExpect(dashboardPage.podmanInitilizeAndStartButton).toBeEnabled();
@@ -72,6 +75,7 @@ describe.skipIf(os.platform() === 'linux')(async () => {
         'Clean Up Podman Machine',
         async () => {
           await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
+          console.log('System cleaned up finished');
         },
       );
     },
