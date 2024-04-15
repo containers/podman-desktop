@@ -104,7 +104,7 @@ test('Test that context-name2 is the current context', async () => {
   // Get current-context by aria label
   // find "context-name" which is located within the same parent div as current-context
   // make sure the content is context-name2
-  const currentContext = await screen.findByLabelText('current-context');
+  const currentContext = await screen.findByLabelText('Current Context');
   expect(currentContext).toBeInTheDocument();
 
   // Make sure that the span with the text "context-name2" is within the same parent div as current-context (to make sure that it is the current context)
@@ -123,7 +123,7 @@ test('when deleting the current context, a popup should ask confirmation', async
   const currentContext = screen.getAllByRole('row')[1];
   expect(currentContext).toBeInTheDocument();
 
-  const label = within(currentContext).queryByLabelText('current-context');
+  const label = within(currentContext).queryByLabelText('Current Context');
   expect(label).toBeInTheDocument();
 
   const deleteBtn = within(currentContext).getByRole('button', { name: 'Delete Context' });
@@ -142,7 +142,7 @@ test('when deleting the non current context, no popup should ask confirmation', 
   const currentContext = screen.getAllByRole('row')[0];
   expect(currentContext).toBeInTheDocument();
 
-  const label = within(currentContext).queryByLabelText('current-context');
+  const label = within(currentContext).queryByLabelText('Current Context');
   expect(label).not.toBeInTheDocument();
 
   const deleteBtn = within(currentContext).getByRole('button', { name: 'Delete Context' });
@@ -180,15 +180,15 @@ test('state and resources counts are displayed in contexts', () => {
     expect(countEl).toBeInTheDocument();
     expect(within(countEl).queryByText(count));
   };
-  checkCount(context1, 'context-pods-count', 1);
-  checkCount(context1, 'context-deployments-count', 2);
+  checkCount(context1, 'Context Pods Count', 1);
+  checkCount(context1, 'Context Deployments Count', 2);
 
   expect(within(context2).queryByText('UNREACHABLE')).toBeInTheDocument();
   expect(within(context2).queryByText('PODS')).not.toBeInTheDocument();
   expect(within(context2).queryByText('DEPLOYMENTS')).not.toBeInTheDocument();
 
-  const podsCountContext2 = within(context2).queryByLabelText('context-pods-count');
+  const podsCountContext2 = within(context2).queryByLabelText('Context Pods Count');
   expect(podsCountContext2).not.toBeInTheDocument();
-  const deploymentsCountContext2 = within(context2).queryByLabelText('context-deployments-count');
+  const deploymentsCountContext2 = within(context2).queryByLabelText('Context Deployments Count');
   expect(deploymentsCountContext2).not.toBeInTheDocument();
 });
