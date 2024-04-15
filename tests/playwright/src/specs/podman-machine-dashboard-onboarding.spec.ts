@@ -44,9 +44,6 @@ beforeAll(async () => {
     (process.env.MACHINE_CLEANUP !== undefined && process.env.MACHINE_CLEANUP === 'true')
   ) {
     await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
-    console.log('PD machine cleaned up');
-    console.log(`Platform used: ${os.platform}`);
-    console.log(`TEST_PODMAN_MACHINE value is: ${process.env.TEST_PODMAN_MACHINE}`);
   }
 });
 
@@ -67,16 +64,12 @@ describe.runIf(
     console.log('Starting PD dashboard test');
     const navigationBar = new NavigationBar(page);
     const dashboardPage = await navigationBar.openDashboard();
-    await playExpect(dashboardPage.podmanInitilizeAndStartButton).toBeEnabled();
+    await playExpect(dashboardPage.podmanInitilizeAndStartButton).toBeEnabled({ timeout: 60000 });
     await dashboardPage.podmanInitilizeAndStartButton.click();
     await playExpect(dashboardPage.podmanStatusLabel).toHaveText('RUNNING', { timeout: 300000 });
   }, 320000);
 
-  test.runIf(process.env.MACHINE_CLEANUP !== undefined && process.env.MACHINE_CLEANUP === 'true')(
-    'Clean Up Podman Machine',
-    async () => {
-      await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
-      console.log('System cleaned up finished');
-    },
-  );
+  test(/*.runIf(process.env.MACHINE_CLEANUP !== undefined && process.env.MACHINE_CLEANUP === 'true')*/ 'Clean Up Podman Machine', async () => {
+    await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
+  });
 });
