@@ -60,6 +60,7 @@ async function handleDeleteContext(contextName: string) {
       <!-- If current context, use lighter background -->
       <div
         role="row"
+        aria-label="{context.name}"
         class="{context.currentContext ? 'bg-charcoal-600' : 'bg-charcoal-700'} mb-5 rounded-md p-3 flex-nowrap">
         <div class="pb-2">
           <div class="flex">
@@ -123,7 +124,9 @@ async function handleDeleteContext(contextName: string) {
                 {:else}
                   <div class="flex flex-row pt-2">
                     <div class="w-3 h-3 rounded-full bg-gray-900"></div>
-                    <div class="ml-1 font-bold text-[9px] text-gray-900">UNREACHABLE</div>
+                    <div class="ml-1 font-bold text-[9px] text-gray-900" aria-label="context-unreachable">
+                      UNREACHABLE
+                    </div>
                   </div>
                 {/if}
               </div>
@@ -139,8 +142,10 @@ async function handleDeleteContext(contextName: string) {
               {#if context.clusterInfo !== undefined}
                 <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1 grid grid-cols-6">
                   <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">SERVER</span>
-                  <span class="my-auto col-span-5 text-left ml-3 overflow-hidden text-ellipsis">
-                    {context.clusterInfo.server}
+                  <span
+                    class="my-auto col-span-5 text-left ml-3 overflow-hidden text-ellipsis"
+                    aria-label="context-server"
+                    >{context.clusterInfo.server}
                   </span>
                 </div>
               {/if}
