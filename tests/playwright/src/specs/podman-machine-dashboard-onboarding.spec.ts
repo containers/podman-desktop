@@ -69,7 +69,10 @@ describe.runIf(
     await playExpect(dashboardPage.podmanStatusLabel).toHaveText('RUNNING', { timeout: 300000 });
   }, 320000);
 
-  test(/*.runIf(process.env.MACHINE_CLEANUP !== undefined && process.env.MACHINE_CLEANUP === 'true')*/ 'Clean Up Podman Machine', async () => {
-    await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
-  });
+  test.runIf(process.env.MACHINE_CLEANUP !== undefined && process.env.MACHINE_CLEANUP === 'true')(
+    'Clean Up Podman Machine',
+    async () => {
+      await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
+    },
+  );
 });
