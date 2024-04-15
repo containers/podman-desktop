@@ -166,10 +166,10 @@
     "@jridgewell/gen-mapping" "^0.3.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
-"@argos-ci/browser@2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@argos-ci/browser/-/browser-2.0.0.tgz#832832bff469031f404c6d535a01e7b49bbd17d6"
-  integrity sha512-KlNMy2E5mIKAra6X2kZisVB0eBorZaOguhcuFqCG08wbZbinYuild2R56JLfBg/TpvtA2bMeBlABKWqE7hyrGg==
+"@argos-ci/browser@2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@argos-ci/browser/-/browser-2.1.0.tgz#a627c2bfade082b3400356d3b2180d8c79e3d5c3"
+  integrity sha512-pOWyyp39g1Jhags7Z7Qb+rgNjUtvMxh21lgF1Ts9epobE2ZQLkRxlUheSDlC6VbvauhO+8WS3mo3Q8dgEn7UtA==
 
 "@argos-ci/cli@^2.0.1":
   version "2.0.1"
@@ -180,19 +180,6 @@
     commander "^12.0.0"
     ora "^8.0.1"
     update-notifier "^7.0.0"
-
-"@argos-ci/core@2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@argos-ci/core/-/core-2.0.0.tgz#25730397893d63f8091740a930b4674946c67659"
-  integrity sha512-5q29k2H5ZpCnvk9nrfE/iR4Cn65xELOwMj1a5jMenKbMKC+s3mlNva7ubQQns21XPSIJNUrG0MZEzK0iRvEwHw==
-  dependencies:
-    "@argos-ci/util" "2.0.0"
-    axios "^1.6.8"
-    convict "^6.2.4"
-    debug "^4.3.4"
-    fast-glob "^3.3.2"
-    sharp "^0.33.3"
-    tmp "^0.2.3"
 
 "@argos-ci/core@2.1.0":
   version "2.1.0"
@@ -207,13 +194,13 @@
     sharp "^0.33.3"
     tmp "^0.2.3"
 
-"@argos-ci/playwright@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-3.0.0.tgz#5d96e5d9f338379ec260d3478f94d0de6a8d9493"
-  integrity sha512-eVkmut6jW5nn/Q8WdWsFhKDLNQdZlgTSIk8WLm8k8v/LhNF/ezR6pQEVQzUIpvfUKSPUfc8nEwQ5Vf2g4TkqsQ==
+"@argos-ci/playwright@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-3.0.1.tgz#ef95a14da2a28707c8ee26cec5e28231bcceb211"
+  integrity sha512-abnuBqjsPj0t6ClZGbWa1iK+FtHQ92/8b0hBNB431ox3kDRzlToFW3VItvx0xptc1FmTRHZSWgAUUZyJjZm12g==
   dependencies:
-    "@argos-ci/browser" "2.0.0"
-    "@argos-ci/core" "2.0.0"
+    "@argos-ci/browser" "2.1.0"
+    "@argos-ci/core" "2.1.0"
     "@argos-ci/util" "2.0.0"
     chalk "^5.3.0"
     debug "^4.3.4"
