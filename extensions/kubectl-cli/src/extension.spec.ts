@@ -20,16 +20,34 @@
 import * as path from 'node:path';
 import { afterEach } from 'node:test';
 
-import type { Configuration } from '@podman-desktop/api';
+import type { CliToolUpdate, Configuration, Logger } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
+import { installBinaryToSystem } from './cli-run';
 import * as KubectlExtension from './extension';
+import { KubectlGitHubReleases } from './kubectl-github-releases';
 
 const extensionContext = {
   subscriptions: [],
   storagePath: '/tmp/kubectl-cli',
 } as extensionApi.ExtensionContext;
+
+vi.mock('./cli-run', () => ({
+  installBinaryToSystem: vi.fn(),
+}));
+
+vi.mock('./kubectl-github-releases', () => ({
+  KubectlGitHubReleases: vi.fn(),
+}));
+
+vi.mock('node:fs', () => ({
+  promises: {
+    chmod: vi.fn(),
+    mkdir: vi.fn(),
+  },
+  existsSync: vi.fn(),
+}));
 
 vi.mock('@podman-desktop/api', () => {
   return {
@@ -61,11 +79,25 @@ vi.mock('@podman-desktop/api', () => {
   };
 });
 
+const downloadReleaseAssetMock = vi.fn();
+
 beforeEach(() => {
   vi.mocked(extensionApi.configuration.getConfiguration).mockReturnValue({
     update: vi.fn(),
   } as unknown as Configuration);
   vi.mocked(extensionApi.process.exec).mockClear();
+
+  vi.mocked(KubectlGitHubReleases).mockReturnValue({
+    grabLatestsReleasesMetadata: vi.fn().mockResolvedValue([
+      {
+        label: 'dummy label',
+        tag: 'dummy tag',
+        id: 'dummy id',
+      },
+    ]),
+    getReleaseAssetURL: vi.fn().mockResolvedValue('dummy download url'),
+    downloadReleaseAsset: downloadReleaseAssetMock,
+  } as unknown as KubectlGitHubReleases);
 });
 
 afterEach(() => {
@@ -327,4 +359,76 @@ test('findKubeCtl not global kubectl but in storage installed on macOS', async (
 
   // expect no call with which
   expect(extensionApi.process.exec).not.toBeCalledWith('which', expect.anything());
+});
+
+describe('postActivate', () => {
+  test('postActivate should registerUpdate', async () => {
+    const deferredCliUpdate: Promise<CliToolUpdate> = new Promise<CliToolUpdate>(resolve => {
+      vi.mocked(extensionApi.cli.createCliTool).mockImplementation(() => {
+        return {
+          registerUpdate: listener => {
+            resolve(listener);
+            return {
+              dispose: vi.fn(),
+            };
+          },
+          updateVersion: vi.fn(),
+        } as unknown as extensionApi.CliTool;
+      });
+    });
+
+    await KubectlExtension.activate(extensionContext);
+
+    return deferredCliUpdate;
+  });
+
+  test('onUpdate should dispose itself', async () => {
+    const disposeMock = vi.fn();
+    const deferredCliUpdate: Promise<CliToolUpdate> = new Promise<CliToolUpdate>(resolve => {
+      vi.mocked(extensionApi.cli.createCliTool).mockImplementation(() => {
+        return {
+          registerUpdate: listener => {
+            resolve(listener);
+            return {
+              dispose: disposeMock,
+            };
+          },
+          updateVersion: vi.fn(),
+        } as unknown as extensionApi.CliTool;
+      });
+    });
+
+    await KubectlExtension.activate(extensionContext);
+
+    const cliUpdate = await deferredCliUpdate;
+    await cliUpdate.doUpdate({} as unknown as Logger);
+    expect(disposeMock).toHaveBeenCalled();
+  });
+
+  test('onUpdate should download and install binary', async () => {
+    const deferredCliUpdate: Promise<CliToolUpdate> = new Promise<CliToolUpdate>(resolve => {
+      vi.mocked(extensionApi.cli.createCliTool).mockImplementation(() => {
+        return {
+          registerUpdate: listener => {
+            resolve(listener);
+            return {
+              dispose: vi.fn(),
+            };
+          },
+          updateVersion: vi.fn(),
+        } as unknown as extensionApi.CliTool;
+      });
+    });
+
+    await KubectlExtension.activate(extensionContext);
+
+    const cliUpdate = await deferredCliUpdate;
+    await cliUpdate.doUpdate({} as unknown as Logger);
+
+    expect(downloadReleaseAssetMock).toHaveBeenCalledWith('dummy download url', expect.anything());
+    expect(installBinaryToSystem).toHaveBeenCalledWith(expect.anything(), 'kubectl');
+    expect(vi.mocked(installBinaryToSystem).mock.calls[0][0]).toContain(
+      path.resolve(extensionContext.storagePath, 'bin', 'kubectl'),
+    );
+  });
 });

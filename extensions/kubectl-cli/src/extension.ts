@@ -332,8 +332,8 @@ async function postActivate(
       version: lastReleaseVersion,
       doUpdate: async _logger => {
         // download, install system wide and update cli version
-        await kubectlDownload.download(lastReleaseMetadata);
-        await installBinaryToSystem(path, 'kubectl');
+        const binaryPath = await kubectlDownload.download(lastReleaseMetadata);
+        await installBinaryToSystem(binaryPath, 'kubectl');
         kubectlCliTool.updateVersion({
           version: lastReleaseVersion,
         });
