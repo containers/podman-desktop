@@ -44,6 +44,7 @@ beforeAll(async () => {
     (process.env.MACHINE_CLEANUP !== undefined && process.env.MACHINE_CLEANUP === 'true')
   ) {
     await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
+    console.log('PD machine cleaned up');
   }
 });
 
