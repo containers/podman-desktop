@@ -46,6 +46,7 @@ onMount(() => {
     }
 
     const matchingOnBoarding = $onboardingList.findLast(o => o.extension === extension.id && o.enablement);
+
     if (!matchingOnBoarding) {
       return false;
     } else {

@@ -149,34 +149,39 @@ export class ExtensionsUtils {
     featuredExtensions: FeaturedExtension[],
     installedExtensions: CombinedExtensionInfoUI[],
   ): CatalogExtensionInfoUI[] {
-    const values: CatalogExtensionInfoUI[] = catalogExtensions.map(catalogExtension => {
-      // grab latest version
-      const nonPreviewVersions = catalogExtension.versions.filter(v => !v.preview);
-      const latestVersion = nonPreviewVersions[0];
-      const fetchLink = latestVersion?.ociUri;
-      const fetchVersion = latestVersion?.version;
-      const publisherDisplayName = catalogExtension.publisherDisplayName;
+    // filter out unlisted extensions
+    const values: CatalogExtensionInfoUI[] = catalogExtensions
+      .filter(e => !e.unlisted)
+      .map(catalogExtension => {
+        // grab latest version
+        const nonPreviewVersions = catalogExtension.versions.filter(v => !v.preview);
+        const latestVersion = nonPreviewVersions[0];
+        const fetchLink = latestVersion?.ociUri;
+        const fetchVersion = latestVersion?.version;
+        const publisherDisplayName = catalogExtension.publisherDisplayName;
 
-      // grab icon
-      const icon = latestVersion?.files.find(f => f.assetType === 'icon');
-      const isInstalled = installedExtensions.some(installedExtension => installedExtension.id === catalogExtension.id);
-      const isFeatured = featuredExtensions.some(featuredExtension => featuredExtension.id === catalogExtension.id);
+        // grab icon
+        const icon = latestVersion?.files.find(f => f.assetType === 'icon');
+        const isInstalled = installedExtensions.some(
+          installedExtension => installedExtension.id === catalogExtension.id,
+        );
+        const isFeatured = featuredExtensions.some(featuredExtension => featuredExtension.id === catalogExtension.id);
 
-      const shortDescription = catalogExtension.shortDescription;
+        const shortDescription = catalogExtension.shortDescription;
 
-      return {
-        id: catalogExtension.id,
-        displayName: catalogExtension.displayName,
-        isFeatured,
-        fetchLink,
-        fetchVersion,
-        fetchable: fetchLink !== '',
-        iconHref: icon?.data,
-        publisherDisplayName,
-        isInstalled,
-        shortDescription,
-      };
-    });
+        return {
+          id: catalogExtension.id,
+          displayName: catalogExtension.displayName,
+          isFeatured,
+          fetchLink,
+          fetchVersion,
+          fetchable: fetchLink !== '',
+          iconHref: icon?.data,
+          publisherDisplayName,
+          isInstalled,
+          shortDescription,
+        };
+      });
 
     // sort by isFeatured and then by name
     values.sort((a, b) => {

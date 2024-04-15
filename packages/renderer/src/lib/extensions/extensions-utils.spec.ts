@@ -34,6 +34,7 @@ export const aFakeExtension: CatalogExtension = {
   extensionName: 'a-extension',
   displayName: 'A Extension',
   categories: [],
+  unlisted: false,
   versions: [
     {
       version: '1.0.0A',
@@ -58,6 +59,7 @@ export const bFakeExtension: CatalogExtension = {
   extensionName: 'b-extension',
   displayName: 'B Extension',
   categories: [],
+  unlisted: false,
   versions: [
     {
       version: '1.0.0B',
@@ -74,6 +76,32 @@ export const bFakeExtension: CatalogExtension = {
   ],
 };
 
+export const unlistedFakeCatalogExtension: CatalogExtension = {
+  id: 'idUnlisted',
+  publisherName: 'FooPublisher',
+  shortDescription: 'this is short Unlisted',
+  publisherDisplayName: 'Foo Publisher',
+  extensionName: 'unlisted-extension',
+  displayName: 'Unlisted Extension',
+  categories: [],
+  unlisted: true,
+
+  versions: [
+    {
+      version: '1.0.0Unlisted',
+      preview: false,
+      files: [
+        {
+          assetType: 'icon',
+          data: 'iconUnlisted',
+        },
+      ],
+      ociUri: 'linkUnlisted',
+      lastUpdated: new Date(),
+    },
+  ],
+};
+
 export const yFakeCatalogExtension: CatalogExtension = {
   id: 'idYInstalled',
   publisherName: 'FooPublisher',
@@ -82,6 +110,8 @@ export const yFakeCatalogExtension: CatalogExtension = {
   extensionName: 'y-extension',
   displayName: 'Y Extension',
   categories: [],
+  unlisted: false,
+
   versions: [
     {
       version: '1.0.0Y',
@@ -106,6 +136,7 @@ export const zFakeCatalogExtension: CatalogExtension = {
   extensionName: 'z-extension',
   displayName: 'Z Extension',
   categories: [],
+  unlisted: false,
   versions: [
     {
       version: '1.0.0Z',
@@ -125,6 +156,7 @@ export const zFakeCatalogExtension: CatalogExtension = {
 const catalogExtensions: CatalogExtension[] = [
   aFakeExtension,
   bFakeExtension,
+  unlistedFakeCatalogExtension,
   yFakeCatalogExtension,
   zFakeCatalogExtension,
 ];
