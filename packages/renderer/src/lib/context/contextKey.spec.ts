@@ -172,6 +172,8 @@ suite('ContextKeyExpr', () => {
     const getOsPlatformMock = vi.fn();
     (window as any).getOsPlatform = getOsPlatformMock;
     getOsPlatformMock.mockResolvedValue('darwin');
+    (window as any).isWSL = vi.fn().mockResolvedValue(false);
+    (window as any).isHyperV = vi.fn().mockResolvedValue(false);
     await initContextKeysPlatform();
 
     function testNormalize(expr: string, expected: string): void {
@@ -189,6 +191,8 @@ suite('ContextKeyExpr', () => {
     testNormalize('isMac', 'true');
     testNormalize('isLinux', 'false');
     testNormalize('isWindows', 'false');
+    testNormalize('isWSL', 'false');
+    testNormalize('isHyperV', 'false');
   });
 
   test('issue #101015: distribute OR', () => {
