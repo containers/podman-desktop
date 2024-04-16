@@ -49,7 +49,7 @@ export class ExtensionPage extends SettingsPage {
   async enableExtension(): Promise<this> {
     if ((await this.status.innerText()) === 'ACTIVE') return this;
 
-    await this.disableButton.click();
+    await this.enableButton.click();
     await playExpect(this.status).toHaveText('ACTIVE');
     return this;
   }
