@@ -235,6 +235,7 @@ test('Compose details inspect is clickable and loadable', async () => {
       Labels: {
         'com.docker.compose.project': 'foobar',
       },
+      ImageID: 'sha256:dummy-image-id',
     },
     {
       Id: 'sha256:1234567890123',
@@ -246,6 +247,7 @@ test('Compose details inspect is clickable and loadable', async () => {
       Labels: {
         'com.docker.compose.project': 'foobar',
       },
+      ImageID: 'sha256:dummy-image-id',
     },
   ];
 
@@ -273,6 +275,8 @@ test('Compose details inspect is clickable and loadable', async () => {
 });
 
 test('Test that compose kube tab is clickable and loadable', async () => {
+  listContainersMock.mockResolvedValue([]);
+
   render(ComposeDetails, { composeName: 'foobar', engineId: 'engine' });
   const kubeHref = screen.getByRole('link', { name: 'Kube' });
   await fireEvent.click(kubeHref);
