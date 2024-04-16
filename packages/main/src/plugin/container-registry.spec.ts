@@ -3830,6 +3830,39 @@ test('expect images with podmanListImages to also include History as well as eng
   expect(image.History).toStrictEqual(['history1', 'history2']);
 });
 
+test('expect images with podmanListImages to also include Digest as engineId and engineName', async () => {
+  const imagesList = [
+    {
+      Id: 'dummyImageId',
+      Digest: 'dummyDigest',
+    },
+  ];
+
+  nock('http://localhost').get('/v4.2.0/libpod/images/json').reply(200, imagesList);
+
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  // set provider
+  containerRegistry.addInternalProvider('podman', {
+    name: 'podman',
+    id: 'podman1',
+    api,
+    libpodApi: api,
+    connection: {
+      type: 'podman',
+    },
+  } as unknown as InternalContainerProvider);
+
+  const images = await containerRegistry.podmanListImages();
+  // ensure the field are correct
+  expect(images).toBeDefined();
+  expect(images).toHaveLength(1);
+  const image = images[0];
+  expect(image.engineId).toBe('podman1');
+  expect(image.engineName).toBe('podman');
+  expect(image.Digest).toBe('dummyDigest');
+});
+
 test('expect to fall back to compat api images if podman provider does not have libpodApi', async () => {
   const imagesList = [
     {

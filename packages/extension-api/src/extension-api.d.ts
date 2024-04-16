@@ -1868,6 +1868,7 @@ declare module '@podman-desktop/api' {
     Labels: { [label: string]: string };
     Containers: number;
     History?: string[];
+    Digest?: string;
 
     // isManifest will be returned and set to true if the image is identified to be a manifest list
     isManifest?: boolean;
