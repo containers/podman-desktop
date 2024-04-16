@@ -32,7 +32,7 @@ import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
-import { getBase64Image, isLinux, isMac, isWindows } from '../util.js';
+import { getBase64Image, isHyperV, isLinux, isMac, isWindows, isWSL } from '../util.js';
 import type { ApiSenderType } from './api.js';
 import type { ExtensionError, ExtensionInfo, ExtensionUpdateInfo } from './api/extension-info.js';
 import type { PodInfo } from './api/pod-info.js';
@@ -1139,6 +1139,12 @@ export class ExtensionLoader {
             return electronClipboard.writeText(value);
           },
         };
+      },
+      isWSL: async (): Promise<boolean> => {
+        return isWSL();
+      },
+      isHyperV: async (): Promise<boolean> => {
+        return isHyperV();
       },
     };
 

@@ -58,7 +58,7 @@ import { Updater } from '/@/plugin/updater.js';
 
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import type { TrayMenu } from '../tray-menu.js';
-import { isMac } from '../util.js';
+import { isHyperV, isMac, isWSL } from '../util.js';
 import type { ApiSenderType } from './api.js';
 import type { CliToolInfo } from './api/cli-tool-info.js';
 import type { ColorInfo } from './api/color-info.js';
@@ -1607,6 +1607,12 @@ export class PluginSystem {
     });
     this.ipcHandle('os:getHostCpu', async (): Promise<number> => {
       return os.cpus().length;
+    });
+    this.ipcHandle('os:isWSL', async (): Promise<boolean> => {
+      return isWSL();
+    });
+    this.ipcHandle('os:isHyperV', async (): Promise<boolean> => {
+      return isHyperV();
     });
 
     this.ipcHandle(

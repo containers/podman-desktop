@@ -18,12 +18,42 @@
 
 import * as fs from 'node:fs';
 import * as os from 'node:os';
+import path from 'node:path';
 
 import { BrowserWindow } from 'electron';
 
-const windows = os.platform() === 'win32';
 export function isWindows(): boolean {
-  return windows;
+  return os.platform() === 'win32';
+}
+export async function isWSL(): Promise<boolean> {
+  const hyperv = await isHyperV();
+  return isWindows() && !hyperv;
+}
+export async function isHyperV(): Promise<boolean> {
+  if (!isWindows()) {
+    return false;
+  }
+  // check if the env variable is set with hyperv
+  if (process.env.CONTAINERS_MACHINE_PROVIDER === 'hyperv') {
+    return true;
+  }
+
+  // as a final step we check if the containers.conf file set the provider to hyperv
+  const providerRegex = /provider\s*=\s*"hyperv"/;
+  return isValueInContainersConfig(providerRegex);
+}
+export async function isValueInContainersConfig(regex: RegExp): Promise<boolean> {
+  const containersConfPath = getContainersConfPath();
+  try {
+    const containerConf = await fs.promises.readFile(containersConfPath, 'utf-8');
+    return regex.test(containerConf);
+  } catch (e) {
+    console.log(String(e));
+  }
+  return false;
+}
+export function getContainersConfPath(): string {
+  return path.resolve(os.homedir(), '.config/containers/containers.conf');
 }
 const mac = os.platform() === 'darwin';
 export function isMac(): boolean {

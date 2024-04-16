@@ -3715,6 +3715,16 @@ declare module '@podman-desktop/api' {
      * The system clipboard.
      */
     export const clipboard: Clipboard;
+
+    /**
+     * Indicates if the user is using WSL to run podman machines
+     */
+    export function isWSL(): Promise<boolean>;
+
+    /**
+     * Indicates if the user is using HyperV to run podman machines
+     */
+    export function isHyperV(): Promise<boolean>;
   }
 
   /**

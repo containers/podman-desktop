@@ -1877,6 +1877,14 @@ export function initExposure(): void {
     return ipcInvoke('os:getHostname');
   });
 
+  contextBridge.exposeInMainWorld('isWSL', async (): Promise<boolean> => {
+    return ipcInvoke('os:isWSL');
+  });
+
+  contextBridge.exposeInMainWorld('isHyperV', async (): Promise<boolean> => {
+    return ipcInvoke('os:isHyperV');
+  });
+
   contextBridge.exposeInMainWorld('getCancellableTokenSource', async (): Promise<number> => {
     return ipcInvoke('cancellableTokenSource:create');
   });

@@ -39,9 +39,13 @@ CONSTANT_VALUES.set('true', true);
 
 export async function initContextKeysPlatform(): Promise<void> {
   const platform = await window.getOsPlatform();
+  const isWSL = await window.isWSL();
+  const isHyperV = await window.isHyperV();
   CONSTANT_VALUES.set('isMac', platform === 'darwin');
   CONSTANT_VALUES.set('isLinux', platform === 'linux');
   CONSTANT_VALUES.set('isWindows', platform === 'win32');
+  CONSTANT_VALUES.set('isWSL', isWSL);
+  CONSTANT_VALUES.set('isHyperV', isHyperV);
 }
 
 /** allow register constant context keys that are known only after startup; requires running `substituteConstants` on the context key - https://github.com/microsoft/vscode/issues/174218#issuecomment-1437972127 */
