@@ -22,5 +22,5 @@ import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { takeScreenshotHook } from './extended-hooks-utils';
 
 afterEach(async (context: RunnerTestContext) => {
-  await takeScreenshotHook(context.pdRunner, context.task.name);
+  context.onTestFailed(async () => await takeScreenshotHook(context.pdRunner, context.task.name));
 });
