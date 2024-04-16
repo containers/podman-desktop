@@ -27,3 +27,24 @@ export interface ManifestCreateOptions {
   // Provider to use for the manifest creation, if not, we will try to select the first one available (similar to podCreate)
   provider?: ContainerProviderConnection;
 }
+
+export interface ManifestInspectInfo {
+  engineId: string;
+  engineName: string;
+  manifests: {
+    digest: string;
+    mediaType: string;
+    platform: {
+      architecture: string;
+      features: string[];
+      os: string;
+      osFeatures: string[];
+      osVersion: string;
+      variant: string;
+    };
+    size: number;
+    urls: string[];
+  }[];
+  mediaType: string;
+  schemaVersion: number;
+}

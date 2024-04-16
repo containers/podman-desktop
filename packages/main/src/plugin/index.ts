@@ -83,7 +83,7 @@ import type { IconInfo } from './api/icon-info.js';
 import type { ImageCheckerInfo } from './api/image-checker-info.js';
 import type { ImageInfo } from './api/image-info.js';
 import type { ImageInspectInfo } from './api/image-inspect-info.js';
-import type { ManifestCreateOptions } from './api/manifest-info.js';
+import type { ManifestCreateOptions, ManifestInspectInfo } from './api/manifest-info.js';
 import type { NetworkInspectInfo } from './api/network-info.js';
 import type { NotificationCard, NotificationCardOptions } from './api/notification.js';
 import type { OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
@@ -772,6 +772,13 @@ export class PluginSystem {
       'container-provider-registry:createManifest',
       async (_listener, manifestOptions: ManifestCreateOptions): Promise<{ engineId: string; Id: string }> => {
         return containerProviderRegistry.createManifest(manifestOptions);
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:inspectManifest',
+      async (_listener, engine: string, manifestId: string): Promise<ManifestInspectInfo> => {
+        return containerProviderRegistry.inspectManifest(engine, manifestId);
       },
     );
 
