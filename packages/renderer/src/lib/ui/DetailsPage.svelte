@@ -44,7 +44,7 @@ function handleKeydown(e: KeyboardEvent) {
             <div class="text-violet-400 ml-2 leading-normal" class:hidden="{!titleDetail}">{titleDetail}</div>
           </div>
           <div>
-            <span class="text-sm leading-none text-gray-900" class:hidden="{!subtitle}">{subtitle}</span>
+            <span class="text-sm leading-none text-gray-900 line-clamp-1" class:hidden="{!subtitle}">{subtitle}</span>
             <slot name="subtitle" />
           </div>
         </div>

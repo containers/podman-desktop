@@ -105,3 +105,18 @@ test('Expect Escape key closes', async () => {
 
   expect(router.goto).toHaveBeenCalledWith('/back');
 });
+
+test('Expect subtitle is defined and cut', async () => {
+  const subtitle = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit';
+  render(DetailsPage, {
+    title: '',
+    subtitle,
+  });
+
+  // get the element having the 'Lorem ipsum' text
+  const subtitleElement = screen.getByText(subtitle);
+  expect(subtitleElement).toBeInTheDocument();
+
+  // expect class has the clamp
+  expect(subtitleElement).toHaveClass('line-clamp-1');
+});
