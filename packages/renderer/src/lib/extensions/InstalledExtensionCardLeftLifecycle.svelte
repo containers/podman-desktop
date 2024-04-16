@@ -8,7 +8,7 @@ import InstalledExtensionCardLeftLifecycleStop from './InstalledExtensionCardLef
 export let extension: CombinedExtensionInfoUI;
 </script>
 
-<div class="flex bg-charcoal-900 w-fit rounded-lg m-auto" role="group" aria-label="Extension Actions">
+<div class="flex bg-charcoal-900 w-fit rounded-lg" role="group" aria-label="Extension Actions">
   <InstalledExtensionCardLeftLifecycleStart extension="{extension}" />
   <InstalledExtensionCardLeftLifecycleStop extension="{extension}" />
   <InstalledExtensionCardLeftLifecycleDelete extension="{extension}" />

@@ -31,7 +31,7 @@ onMount(async () => {
 </script>
 
 {#if readmeContent}
-  <div class="overflow-y-scroll leading-6">
+  <div class="w-full min-h-full overflow-y-visible leading-6">
     <Markdown markdown="{readmeContent}" />
   </div>
 {:else}

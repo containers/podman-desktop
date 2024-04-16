@@ -5,7 +5,7 @@ import CatalogExtension from './CatalogExtension.svelte';
 export let catalogExtensions: CatalogExtensionInfoUI[];
 </script>
 
-<div class="grow p-4">
+<div class="flex flex-col grow p-4">
   <div class="pb-4">Available extensions</div>
 
   <div class="flex flex-col w-full">

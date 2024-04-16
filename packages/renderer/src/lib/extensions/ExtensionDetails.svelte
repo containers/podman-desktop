@@ -45,14 +45,16 @@ onMount(() => {
 
 {#if extension}
   <DetailsPage title="{extension.displayName} extension" subtitle="{extension.description}" bind:this="{detailsPage}">
-    <div class="flex flex-col w-14 min-h-14 items-baseline" slot="icon">
-      <!-- Display icon being installed using base64 -->
-      {#if extension.icon}
-        <ExtensionIcon extension="{extension}" />
-      {:else if extension.iconRef}
-        <img src="{extension.iconRef}" alt="{extension.displayName} icon" class="max-w-10 max-h-10" />
-      {/if}
-      <div class="flex flex-row mt-2">
+    <div class="flex flex-col mt-1 items-baseline w-8" slot="icon">
+      <div class="w-8 min-h-8">
+        <!-- Display icon being installed using base64 -->
+        {#if extension.icon}
+          <ExtensionIcon extension="{extension}" />
+        {:else if extension.iconRef}
+          <img src="{extension.iconRef}" alt="{extension.displayName} icon" class="max-w-8 max-h-8" />
+        {/if}
+      </div>
+      <div class="flex flex-row mt-3">
         <ExtensionStatus status="{extension.type === 'dd' ? 'started' : extension.state}" />
       </div>
     </div>
@@ -72,11 +74,10 @@ onMount(() => {
     <div slot="detail" class="flex">
       <ExtensionBadge class="mt-2" extension="{extension}" />
     </div>
-
     <svelte:fragment slot="content">
-      <div class="flex flex-row w-full h-full p-4">
-        <ExtensionDetailsReadme readme="{extension.readme}" />
+      <div class="flex w-full h-full overflow-y-auto p-4 flex-col lg:flex-row">
         <ExtensionDetailsSummaryCard extensionDetails="{extension}" />
+        <ExtensionDetailsReadme readme="{extension.readme}" />
       </div>
     </svelte:fragment>
   </DetailsPage>
