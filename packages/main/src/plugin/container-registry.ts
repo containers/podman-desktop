@@ -582,7 +582,7 @@ export class ContainerProviderRegistry {
           }
           const images = await provider.api.listImages({ all: false });
           return images.map(image => {
-            const imageInfo: ImageInfo = { ...image, engineName: provider.name, engineId: provider.id };
+            const imageInfo: ImageInfo = { ...image, engineName: provider.name, engineId: provider.id, Digest: `sha256:${image.Id}` };
             return imageInfo;
           });
         } catch (error) {

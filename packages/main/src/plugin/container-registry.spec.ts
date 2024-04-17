@@ -3761,6 +3761,7 @@ describe('listImages', () => {
       Id: 'dummyImageId',
       engineId: 'dummyId',
       engineName: 'dummyName',
+      Digest: 'sha256:dummyImageId',
     });
   });
 });
