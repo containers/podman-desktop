@@ -65,6 +65,7 @@ test('Expect that the install button is there and can click on it to install', a
       publisherDisplayName: 'Foo Publisher',
       shortDescription: 'foo.bar Extension',
       categories: ['Kubernetes'],
+      unlisted: false,
       versions: [
         {
           version: '1.0.0',
@@ -135,6 +136,7 @@ test('Expect that the installed label is there if extension is already installed
       publisherDisplayName: 'Foo Publisher',
       shortDescription: 'foo.bar Extension',
       categories: ['Kubernetes'],
+      unlisted: false,
       versions: [
         {
           version: '1.0.0',
