@@ -1086,7 +1086,6 @@ export class PluginSystem {
           cancellationTokenRegistry,
           cancellableTokenId,
         );
-
         return containerProviderRegistry.buildImage(
           containerBuildContextDirectory,
           (eventName: string, data: string) => {
