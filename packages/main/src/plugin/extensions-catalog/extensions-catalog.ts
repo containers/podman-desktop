@@ -100,6 +100,7 @@ export class ExtensionsCatalog {
           publisherName: extension.publisher.publisherName,
           publisherDisplayName: extension.publisher.displayName,
           categories: extension.categories,
+          unlisted: extension.unlisted ?? false,
           extensionName: extension.extensionName,
           shortDescription: extension.shortDescription,
           displayName: extension.displayName,
@@ -217,6 +218,7 @@ interface InternalCatalogExtensionJSON {
   extensionName: string;
   displayName: string;
   categories: string[];
+  unlisted?: boolean;
   shortDescription: string;
   versions: InternalCatalogExtensionVersionJSON[];
 }

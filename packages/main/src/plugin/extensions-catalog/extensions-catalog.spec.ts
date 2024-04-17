@@ -32,6 +32,7 @@ const fooAssetIcon = {
   data: 'fooIcon',
 };
 
+// unlisted field is not present (assuming it should be listed then)
 const fakePublishedExtension1 = {
   publisher: {
     publisherName: 'foo',
@@ -41,6 +42,52 @@ const fakePublishedExtension1 = {
   displayName: 'Foo extension display name',
   shortDescription: 'Foo extension short description',
   license: 'Apache-2.0',
+  categories: ['Kubernetes'],
+  versions: [
+    {
+      version: '1.0.0',
+      preview: false,
+      lastUpdated: '2021-01-01T00:00:00.000Z',
+      ociUri: 'oci-registry.foo/foo/bar',
+      files: [fooAssetIcon],
+    },
+  ],
+};
+
+// this one is unlisted with field unlisted being true
+const fakePublishedExtension2 = {
+  publisher: {
+    publisherName: 'foo2',
+    displayName: 'Foo publisher display name',
+  },
+  extensionName: 'fooName2',
+  displayName: 'Foo2 extension display name',
+  shortDescription: 'Foo2 extension short description',
+  license: 'Apache-2.0',
+  unlisted: true,
+  categories: ['Kubernetes'],
+  versions: [
+    {
+      version: '1.0.0',
+      preview: false,
+      lastUpdated: '2021-01-01T00:00:00.000Z',
+      ociUri: 'oci-registry.foo/foo/bar',
+      files: [fooAssetIcon],
+    },
+  ],
+};
+
+// this one is unlisted with field unlisted being false
+const fakePublishedExtension3 = {
+  publisher: {
+    publisherName: 'foo3',
+    displayName: 'Foo publisher display name',
+  },
+  extensionName: 'fooName3',
+  displayName: 'Foo3 extension display name',
+  shortDescription: 'Foo3 extension short description',
+  license: 'Apache-2.0',
+  unlisted: false,
   categories: ['Kubernetes'],
   versions: [
     {
@@ -173,6 +220,37 @@ test('should get all extensions', async () => {
     version: '1.0.0',
     files: [fooAssetIcon],
   });
+  // no error
+  expect(console.error).not.toBeCalled();
+});
+
+test('should get proper unlisted fields', async () => {
+  const url = new URL(ExtensionsCatalog.ALL_EXTENSIONS_URL);
+  const host = url.origin;
+  const pathname = url.pathname;
+  nock(host)
+    .get(pathname)
+    .reply(200, {
+      extensions: [fakePublishedExtension1, fakePublishedExtension2, fakePublishedExtension3],
+    });
+
+  const allExtensions = await extensionsCatalog.getExtensions();
+  expect(allExtensions).toBeDefined();
+  expect(allExtensions.length).toBe(3);
+
+  // check data
+  const missingUnlistedExtension = allExtensions.find(e => e.id === 'foo.fooName');
+  expect(missingUnlistedExtension).toBeDefined();
+  expect(missingUnlistedExtension?.unlisted).toBeFalsy();
+
+  const unlistedTrueExtension = allExtensions.find(e => e.id === 'foo2.fooName2');
+  expect(unlistedTrueExtension).toBeDefined();
+  expect(unlistedTrueExtension?.unlisted).toBeTruthy();
+
+  const unlistedFalseExtension = allExtensions.find(e => e.id === 'foo3.fooName3');
+  expect(unlistedFalseExtension).toBeDefined();
+  expect(unlistedFalseExtension?.unlisted).toBeFalsy();
+
   // no error
   expect(console.error).not.toBeCalled();
 });
