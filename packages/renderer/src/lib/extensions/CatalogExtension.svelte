@@ -62,7 +62,7 @@ function openExtensionDetails() {
       </div>
       <div class="flex flex-1 justify-end items-center">
         <Fa icon="{faArrowUpRightFromSquare}" />
-        <button class="mx-2" on:click="{() => openExtensionDetails()}">More details</button>
+        <button class="ml-2" on:click="{() => openExtensionDetails()}">More details</button>
       </div>
     </div>
   </div>
