@@ -62,6 +62,8 @@ let ingressesRoutesCount = '';
 const imageUtils = new ImageUtils();
 export let exitSettingsCallback: () => void;
 
+const iconSize = '22';
+
 onMount(async () => {
   const commandRegistry = new CommandRegistry();
   commandRegistry.init();
@@ -174,48 +176,48 @@ export let meta: TinroRouteMeta;
   <NavItem href="/" tooltip="Dashboard" bind:meta="{meta}">
     <div class="relative w-full">
       <div class="flex items-center w-full h-full">
-        <DashboardIcon size="24" />
+        <DashboardIcon size="{iconSize}" />
       </div>
       <NewContentOnDashboardBadge />
     </div>
   </NavItem>
   <NavItem href="/containers" tooltip="Containers{containerCount}" ariaLabel="Containers" bind:meta="{meta}">
-    <ContainerIcon size="24" />
+    <ContainerIcon size="{iconSize}" />
   </NavItem>
   <NavItem href="/pods" tooltip="Pods{podCount}" ariaLabel="Pods" bind:meta="{meta}">
-    <PodIcon size="24" />
+    <PodIcon size="{iconSize}" />
   </NavItem>
   <NavItem href="/images" tooltip="Images{imageCount}" ariaLabel="Images" bind:meta="{meta}">
-    <ImageIcon size="24" />
+    <ImageIcon size="{iconSize}" />
   </NavItem>
   <NavItem href="/volumes" tooltip="Volumes{volumeCount}" ariaLabel="Volumes" bind:meta="{meta}">
-    <VolumeIcon size="24" />
+    <VolumeIcon size="{iconSize}" />
   </NavItem>
   {#if contextCount > 0}
     <NavSection tooltip="Kubernetes">
-      <KubeIcon size="24" slot="icon" />
+      <KubeIcon size="{iconSize}" slot="icon" />
       <NavItem href="/deployments" tooltip="Deployments{deploymentCount}" ariaLabel="Deployments" bind:meta="{meta}">
-        <DeploymentIcon size="24" />
+        <DeploymentIcon size="{iconSize}" />
       </NavItem>
       <NavItem href="/services" tooltip="Services{serviceCount}" ariaLabel="Services" bind:meta="{meta}">
-        <ServiceIcon size="24" />
+        <ServiceIcon size="{iconSize}" />
       </NavItem>
       <NavItem
         href="/ingressesRoutes"
         tooltip="Ingresses & Routes{ingressesRoutesCount}"
         ariaLabel="Ingresses & Routes"
         bind:meta="{meta}">
-        <IngressRouteIcon size="24" />
+        <IngressRouteIcon size="{iconSize}" />
       </NavItem>
     </NavSection>
   {/if}
 
   {#if $contributions.length + $webviews.length > 0}
     <NavSection tooltip="Extensions">
-      <PuzzleIcon size="24" slot="icon" />
+      <PuzzleIcon size="{iconSize}" slot="icon" />
       {#each $contributions as contribution}
         <NavItem href="/contribs/{contribution.name}" tooltip="{contribution.name}" bind:meta="{meta}">
-          <img src="{contribution.icon}" width="24" height="24" alt="{contribution.name}" />
+          <img src="{contribution.icon}" width="{iconSize}" height="{iconSize}" alt="{contribution.name}" />
         </NavItem>
       {/each}
 
@@ -230,7 +232,7 @@ export let meta: TinroRouteMeta;
     tooltip="Accounts"
     bind:meta="{meta}"
     onClick="{event => window.showAccountsMenu(event.x, event.y)}">
-    <Fa class="ml-[-3px] h-8 w-8 fa-light" icon="{faCircleUser}" size="lg" style="fa-light" />
+    <Fa class="ml-[-3px] h-6 w-6 fa-light" icon="{faCircleUser}" size="lg" style="fa-light" />
   </NavItem>
 
   <NavItem
@@ -238,6 +240,6 @@ export let meta: TinroRouteMeta;
     tooltip="Settings"
     bind:meta="{meta}"
     onClick="{() => clickSettings(meta.url.startsWith('/preferences'))}">
-    <SettingsIcon size="24" />
+    <SettingsIcon size="{iconSize}" />
   </NavItem>
 </nav>
