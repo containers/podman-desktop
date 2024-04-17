@@ -87,7 +87,7 @@ onMount(() => {
   <div class="flex flex-row">
     <div class="flex flex-col">
       {#if !additionalItem}
-        <Checkbox bind:checked="{checked}" on:click="{() => handleClick()}" />
+        <Checkbox bind:checked="{checked}" title="{title}" on:click="{() => handleClick()}" />
       {:else}
         <Fa class="text-dustypurple-700 cursor-pointer" icon="{faPlusCircle}" size="1.5x" />
       {/if}
