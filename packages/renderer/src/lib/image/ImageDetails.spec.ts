@@ -57,6 +57,7 @@ const myImage: ImageInfo = {
   VirtualSize: 0,
   SharedSize: 0,
   Containers: 0,
+  Digest: 'sha256:myImage',
 };
 
 const myNoneNameImage: ImageInfo = {

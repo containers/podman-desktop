@@ -3761,6 +3761,7 @@ describe('listImages', () => {
       Id: 'dummyImageId',
       engineId: 'dummyId',
       engineName: 'dummyName',
+      Digest: 'sha256:dummyImageId',
     });
   });
 });
@@ -3828,6 +3829,74 @@ test('expect images with podmanListImages to also include History as well as eng
   expect(image.engineId).toBe('podman1');
   expect(image.engineName).toBe('podman');
   expect(image.History).toStrictEqual(['history1', 'history2']);
+});
+
+test('expect images with podmanListImages to also include Digest as engineId and engineName', async () => {
+  const imagesList = [
+    {
+      Id: 'dummyImageId',
+      Digest: 'dummyDigest',
+    },
+  ];
+
+  nock('http://localhost').get('/v4.2.0/libpod/images/json').reply(200, imagesList);
+
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  // set provider
+  containerRegistry.addInternalProvider('podman', {
+    name: 'podman',
+    id: 'podman1',
+    api,
+    libpodApi: api,
+    connection: {
+      type: 'podman',
+    },
+  } as unknown as InternalContainerProvider);
+
+  const images = await containerRegistry.podmanListImages();
+  // ensure the field are correct
+  expect(images).toBeDefined();
+  expect(images).toHaveLength(1);
+  const image = images[0];
+  expect(image.engineId).toBe('podman1');
+  expect(image.engineName).toBe('podman');
+  expect(image.Digest).toBe('dummyDigest');
+});
+
+test('If image does not have Digest in list images, expect the Digest to be sha256:ID', async () => {
+  // Purposely be missing Digest, it should return Digest as sha256:ID
+  // this is because the compat API does not provide Digest return.
+  const imagesList = [
+    {
+      Id: 'c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2',
+    },
+  ];
+
+  nock('http://localhost').get('/v4.2.0/libpod/images/json').reply(200, imagesList);
+
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  // set provider
+  containerRegistry.addInternalProvider('podman', {
+    name: 'podman',
+    id: 'podman1',
+    api,
+    libpodApi: api,
+    connection: {
+      type: 'podman',
+    },
+  } as unknown as InternalContainerProvider);
+
+  const images = await containerRegistry.podmanListImages();
+
+  // ensure the field are correct
+  expect(images).toBeDefined();
+  expect(images).toHaveLength(1);
+  const image = images[0];
+  expect(image.engineId).toBe('podman1');
+  expect(image.engineName).toBe('podman');
+  expect(image.Digest).toBe('sha256:c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2');
 });
 
 test('expect to fall back to compat api images if podman provider does not have libpodApi', async () => {
