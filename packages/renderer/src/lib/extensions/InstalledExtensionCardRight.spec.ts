@@ -52,7 +52,7 @@ test('Expect to have description and version', async () => {
   expect(region).toHaveTextContent('v1.2.3');
 
   // not removable
-  expect(region).not.toHaveTextContent('Podman Desktop default extension');
+  expect(region).not.toHaveTextContent('Podman Desktop built-in extension');
 });
 
 test('Expect to have podman desktop extension info (removable = false)', async () => {
@@ -76,5 +76,5 @@ test('Expect to have podman desktop extension info (removable = false)', async (
   expect(region).toBeInTheDocument();
 
   // region contains the details
-  expect(region).toHaveTextContent('Podman Desktop default extension');
+  expect(region).toHaveTextContent('Podman Desktop built-in extension');
 });
