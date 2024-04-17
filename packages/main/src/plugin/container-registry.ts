@@ -641,6 +641,10 @@ export class ContainerProviderRegistry {
           // NOTE: This is a workaround until we have a better way to determine if an image is a manifest
           // and may result in false positives until issue: https://github.com/containers/podman/issues/22184 is resolved
           isManifest: guessIsManifest(image, provider.connection.type),
+
+          // Compat API provider does not add the Digest field.
+          // if it is missing, add it as 'sha256:image.Id'
+          Digest: image.Digest || `sha256:${image.Id}`,
         }));
       }),
     );
