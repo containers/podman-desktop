@@ -238,11 +238,8 @@ const row = new Row<VolumeInfoUI>({
         aria-label="Collect usage data">Collect usage data</Button>
     {/if}
     {#if providerConnections.length > 0}
-      <Button
-        on:click="{() => gotoCreateVolume()}"
-        icon="{faPlusCircle}"
-        title="Create a volume"
-        aria-label="Create volume">Create</Button>
+      <Button on:click="{() => gotoCreateVolume()}" icon="{faPlusCircle}" title="Create a volume" aria-label="Create"
+        >Create</Button>
     {/if}
   </svelte:fragment>
 
