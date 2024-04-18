@@ -315,7 +315,7 @@ test('Expect single podman pod being displayed', async () => {
 
   // Expect to have three "tooltips" which are the "dots".
   const pod1Row = screen.getByRole('row', {
-    name: 'Toggle pod pod1 beab2512 podman tooltip tooltip tooltip 0 seconds spinner spinner spinner',
+    name: `${pod1.Name}`,
   });
   expect(pod1Row).toBeInTheDocument();
 });
@@ -333,11 +333,11 @@ test('Expect 2 podman pods being displayed', async () => {
   const pod1Details = screen.getByRole('cell', { name: 'pod1 beab2512' });
   expect(pod1Details).toBeInTheDocument();
   const pod1Row = screen.getByRole('row', {
-    name: 'Toggle pod pod1 beab2512 podman tooltip tooltip tooltip 0 seconds spinner spinner spinner',
+    name: `${pod1.Name}`,
   });
   expect(pod1Row).toBeInTheDocument();
   const pod2Row = screen.getByRole('row', {
-    name: 'Toggle pod pod2 e8129c57 podman tooltip 0 seconds spinner spinner spinner',
+    name: `${pod2.Name}`,
   });
   expect(pod2Row).toBeInTheDocument();
 });
@@ -353,7 +353,7 @@ test('Expect single kubernetes pod being displayed', async () => {
 
   render(PodsList);
   const pod1Details = screen.getByRole('row', {
-    name: 'Toggle pod kubepod1 beab2512 kubernetes tooltip 0 seconds spinner',
+    name: `${kubepod1.Name}`,
   });
   expect(pod1Details).toBeInTheDocument();
 });
@@ -369,11 +369,11 @@ test('Expect 2 kubernetes pods being displayed', async () => {
 
   render(PodsList);
   const pod1Details = screen.getByRole('row', {
-    name: 'Toggle pod kubepod1 beab2512 kubernetes tooltip 0 seconds spinner',
+    name: `${kubepod1.Name}`,
   });
   expect(pod1Details).toBeInTheDocument();
   const pod2Details = screen.getByRole('row', {
-    name: 'Toggle pod kubepod2 e8129c57 kubernetes tooltip 0 seconds spinner',
+    name: `${kubepod2.Name}`,
   });
   expect(pod2Details).toBeInTheDocument();
 });
@@ -413,7 +413,7 @@ test('Expect the route to a pod details page is correctly encoded with an engine
   expect(podDetails).toBeInTheDocument();
 
   const podRow = screen.getByRole('row', {
-    name: 'Toggle pod ocppod e8129c57 kubernetes tooltip 0 seconds spinner',
+    name: `${ocppod.Name}`,
   });
   expect(podRow).toBeInTheDocument();
 

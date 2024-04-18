@@ -583,7 +583,7 @@ function setStoppedFilter() {
           <!-- Display each container of this group -->
           {#if containerGroup.expanded}
             {#each containerGroup.containers as container, index}
-              <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700">
+              <tr class="group h-12 bg-charcoal-800 hover:bg-zinc-700" aria-label="{container.name}">
                 <td
                   class="{containerGroup.type === ContainerGroupInfoTypeUI.STANDALONE ? 'rounded-tl-lg' : ''} {index ===
                   containerGroup.containers.length - 1
