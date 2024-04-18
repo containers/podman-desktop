@@ -58,8 +58,8 @@ function closeModals() {
 }
 
 let imageInfo: ImageInfo | undefined;
-let image: ImageInfoUI;
-let detailsPage: DetailsPage;
+let image: ImageInfoUI | undefined;
+let detailsPage: DetailsPage | undefined;
 
 let showCheckTab: boolean = false;
 let providersUnsubscribe: Unsubscriber;
@@ -79,7 +79,7 @@ function updateImage() {
     image = tempImage;
   } else {
     // the image has been deleted
-    detailsPage.close();
+    detailsPage?.close();
   }
 }
 
@@ -164,20 +164,20 @@ onDestroy(() => {
       </Route>
     </svelte:fragment>
   </DetailsPage>
-{/if}
 
-{#if pushImageModal}
-  <PushImageModal
-    imageInfoToPush="{image}"
-    closeCallback="{() => {
-      closeModals();
-    }}" />
-{/if}
-{#if renameImageModal}
-  <RenameImageModal
-    imageInfoToRename="{image}"
-    detailed="{true}"
-    closeCallback="{() => {
-      closeModals();
-    }}" />
+  {#if pushImageModal}
+    <PushImageModal
+      imageInfoToPush="{image}"
+      closeCallback="{() => {
+        closeModals();
+      }}" />
+  {/if}
+  {#if renameImageModal}
+    <RenameImageModal
+      imageInfoToRename="{image}"
+      detailed="{true}"
+      closeCallback="{() => {
+        closeModals();
+      }}" />
+  {/if}
 {/if}

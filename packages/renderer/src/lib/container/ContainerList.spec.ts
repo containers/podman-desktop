@@ -224,6 +224,7 @@ test('Try to delete a pod that has containers', async () => {
     Status: 'Running',
     engineId: 'podman',
     engineName: 'podman',
+    ImageID: 'dummy-image-id',
   };
 
   // one single container and two containers part of a pod
@@ -242,6 +243,7 @@ test('Try to delete a pod that has containers', async () => {
       },
       engineId: 'podman',
       engineName: 'podman',
+      ImageID: 'dummy-image-id',
     },
     {
       Id: 'sha256:7897891234567890123',
@@ -255,6 +257,7 @@ test('Try to delete a pod that has containers', async () => {
       },
       engineId: 'podman',
       engineName: 'podman',
+      ImageID: 'dummy-image-id',
     },
   ];
 
@@ -322,6 +325,7 @@ test('Try to delete a container without deleting pods', async () => {
     Status: 'Running',
     engineId: 'podman',
     engineName: 'podman',
+    ImageID: 'dummy-image-id',
   };
 
   // one single container and a container as part of a pod
@@ -339,6 +343,7 @@ test('Try to delete a container without deleting pods', async () => {
       },
       engineId: 'podman',
       engineName: 'podman',
+      ImageID: 'dummy-image-id',
     },
   ];
 
@@ -403,6 +408,7 @@ test('Try to delete a pod without deleting container', async () => {
     Status: 'Running',
     engineId: 'podman',
     engineName: 'podman',
+    ImageID: 'dummy-image-id',
   };
 
   // one single container and a container as part of a pod
@@ -420,6 +426,7 @@ test('Try to delete a pod without deleting container', async () => {
       },
       engineId: 'podman',
       engineName: 'podman',
+      ImageID: 'dummy-image-id',
     },
   ];
 
@@ -481,6 +488,7 @@ test('Expect filter empty screen', async () => {
     Status: 'Running',
     engineId: 'podman',
     engineName: 'podman',
+    ImageID: 'dummy-image-id',
   };
 
   // one single container
@@ -528,6 +536,7 @@ test('Expect clear filter in empty screen to clear serach term, except is:...', 
     Status: 'Running',
     engineId: 'podman',
     engineName: 'podman',
+    ImageID: 'dummy-image-id',
   };
 
   // one single container
@@ -605,6 +614,7 @@ test('Expect to display running / stopped containers depending on tab', async ()
       },
       engineId: 'podman',
       engineName: 'podman',
+      ImageID: 'dummy-image-id',
     },
     {
       Id: 'sha256:7897891234567890123',
@@ -618,6 +628,7 @@ test('Expect to display running / stopped containers depending on tab', async ()
       },
       engineId: 'podman',
       engineName: 'podman',
+      ImageID: 'dummy-image-id',
     },
 
     // 1 / 2 containers are running on this pod
@@ -634,6 +645,7 @@ test('Expect to display running / stopped containers depending on tab', async ()
       },
       engineId: 'podman',
       engineName: 'podman',
+      ImageID: 'dummy-image-id',
     },
     {
       Id: 'sha256:834752375490',
@@ -647,6 +659,7 @@ test('Expect to display running / stopped containers depending on tab', async ()
       },
       engineId: 'podman',
       engineName: 'podman',
+      ImageID: 'dummy-image-id',
     },
 
     // 0 / 2 containers are running on this pod
@@ -663,6 +676,7 @@ test('Expect to display running / stopped containers depending on tab', async ()
       },
       engineId: 'podman',
       engineName: 'podman',
+      ImageID: 'dummy-image-id',
     },
     {
       Id: 'sha256:834752375490',
@@ -676,6 +690,7 @@ test('Expect to display running / stopped containers depending on tab', async ()
       },
       engineId: 'podman',
       engineName: 'podman',
+      ImageID: 'dummy-image-id',
     },
   ];
 
