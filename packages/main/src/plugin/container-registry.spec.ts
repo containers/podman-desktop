@@ -4574,3 +4574,70 @@ test('if configuration setting is disabled for using libpodApi, it should fall b
   expect(image.engineId).toBe('podman1');
   expect(image.engineName).toBe('podman');
 });
+
+test('check that inspectManifest returns information from libPod.podmanInspectManifest', async () => {
+  const inspectManifestMock = vi.fn().mockResolvedValue({
+    engineId: 'podman1',
+    engineName: 'podman',
+    manifests: [
+      {
+        digest: 'digest',
+        mediaType: 'mediaType',
+        platform: {
+          architecture: 'architecture',
+          features: [],
+          os: 'os',
+          variant: 'variant',
+        },
+        size: 100,
+        urls: ['url1', 'url2'],
+      },
+    ],
+    mediaType: 'mediaType',
+    schemaVersion: 1,
+  });
+
+  const fakeLibPod = {
+    podmanInspectManifest: inspectManifestMock,
+  } as unknown as LibPod;
+
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  containerRegistry.addInternalProvider('podman1', {
+    name: 'podman',
+    id: 'podman1',
+    api,
+    libpodApi: fakeLibPod,
+    connection: {
+      type: 'podman',
+    },
+  } as unknown as InternalContainerProvider);
+
+  const result = await containerRegistry.inspectManifest('podman1', 'manifestId');
+
+  // Expect that inspectManifest was called with manifestId
+  expect(inspectManifestMock).toBeCalledWith('manifestId');
+
+  // Check the results are as expected
+  expect(result).toBeDefined();
+  expect(result.engineId).toBe('podman1');
+  expect(result.engineName).toBe('podman');
+  expect(result.manifests).toBeDefined();
+});
+
+test('inspectManifest should fail if libpod is missing from the provider', async () => {
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  containerRegistry.addInternalProvider('podman1', {
+    name: 'podman',
+    id: 'podman1',
+    api,
+    connection: {
+      type: 'podman',
+    },
+  } as unknown as InternalContainerProvider);
+
+  await expect(() => containerRegistry.inspectManifest('podman1', 'manifestId')).rejects.toThrowError(
+    'LibPod is not supported by this engine',
+  );
+});
