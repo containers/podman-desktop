@@ -135,7 +135,7 @@ function onInstallationClick() {
 
 <ProviderCard provider="{provider}">
   <svelte:fragment slot="content">
-    <p class="text-sm text-gray-700" aria-label="Suggested Actions">
+    <p class="text-sm text-gray-700 flex-grow" aria-label="Suggested Actions">
       To start working with containers, {provider.name} needs to be initialized.
     </p>
 

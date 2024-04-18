@@ -48,7 +48,7 @@ onMount(() => {
 
 <ProviderCard provider="{provider}">
   <svelte:fragment slot="content">
-    <p class="text-sm text-gray-700">
+    <p class="text-sm text-gray-700 flex-grow">
       To start working with containers, {provider.name}
       {#if provider.version}
         v{provider.version}
