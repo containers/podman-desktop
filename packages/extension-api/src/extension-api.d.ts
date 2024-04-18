@@ -302,14 +302,12 @@ declare module '@podman-desktop/api' {
       mediaType: string;
       platform: {
         architecture: string;
-        features: string[];
+        features?: string[];
         os: string;
-        osFeatures: string[];
-        osVersion: string;
-        variant: string;
+        variant?: string;
       };
       size: number;
-      urls: string[];
+      urls?: string[];
     }[];
     mediaType: string;
     schemaVersion: number;

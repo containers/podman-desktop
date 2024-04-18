@@ -4587,8 +4587,6 @@ test('check that inspectManifest returns information from libPod.podmanInspectMa
           architecture: 'architecture',
           features: [],
           os: 'os',
-          osFeatures: [],
-          osVersion: 'osVersion',
           variant: 'variant',
         },
         size: 100,
