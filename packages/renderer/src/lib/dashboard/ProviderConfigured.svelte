@@ -67,7 +67,7 @@ onMount(() => {
         {#if initializationContext.mode === InitializeAndStartMode}
           <Steps steps="{InitializationSteps}" current="{1}" />
         {/if}
-        <div class="flex flex-col text-gray-700" aria-label="Transitioning State">
+        <div class="flex flex-col text-gray-700 items-center justify-center" aria-label="Transitioning State">
           <div>Starting</div>
           <div class="my-2">
             <Spinner />
