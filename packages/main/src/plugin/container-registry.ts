@@ -53,7 +53,7 @@ import type { ContainerStatsInfo } from './api/container-stats-info.js';
 import type { HistoryInfo } from './api/history-info.js';
 import type { BuildImageOptions, ImageInfo, ListImagesOptions, PodmanListImagesOptions } from './api/image-info.js';
 import type { ImageInspectInfo } from './api/image-inspect-info.js';
-import type { ManifestCreateOptions } from './api/manifest-info.js';
+import type { ManifestCreateOptions, ManifestInspectInfo } from './api/manifest-info.js';
 import type { NetworkInspectInfo } from './api/network-info.js';
 import type { PodCreateOptions, PodInfo, PodInspectInfo } from './api/pod-info.js';
 import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
@@ -582,7 +582,12 @@ export class ContainerProviderRegistry {
           }
           const images = await provider.api.listImages({ all: false });
           return images.map(image => {
-            const imageInfo: ImageInfo = { ...image, engineName: provider.name, engineId: provider.id };
+            const imageInfo: ImageInfo = {
+              ...image,
+              engineName: provider.name,
+              engineId: provider.id,
+              Digest: `sha256:${image.Id}`,
+            };
             return imageInfo;
           });
         } catch (error) {
@@ -641,6 +646,10 @@ export class ContainerProviderRegistry {
           // NOTE: This is a workaround until we have a better way to determine if an image is a manifest
           // and may result in false positives until issue: https://github.com/containers/podman/issues/22184 is resolved
           isManifest: guessIsManifest(image, provider.connection.type),
+
+          // Compat API provider does not add the Digest field.
+          // if it is missing, add it as 'sha256:image.Id'
+          Digest: image.Digest || `sha256:${image.Id}`,
         }));
       }),
     );
@@ -1312,6 +1321,22 @@ export class ContainerProviderRegistry {
       throw error;
     } finally {
       this.telemetryService.track('createManifest', telemetryOptions);
+    }
+  }
+
+  async inspectManifest(engineId: string, manifestId: string): Promise<ManifestInspectInfo> {
+    let telemetryOptions = {};
+    try {
+      const libPod = this.getMatchingPodmanEngineLibPod(engineId);
+      if (!libPod) {
+        throw new Error('No podman provider with a running engine');
+      }
+      return await libPod.podmanInspectManifest(manifestId);
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService.track('inspectManifest', telemetryOptions);
     }
   }
 

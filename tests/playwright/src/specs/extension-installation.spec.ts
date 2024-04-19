@@ -118,7 +118,7 @@ describe.each([
     await installButton.click();
 
     const installedExtensionRow = settingsPage.getExtensionRowFromTable(settingsTableLabel);
-    const extensionRunningLabel = installedExtensionRow.getByText(RUNNING);
+    const extensionRunningLabel = installedExtensionRow.getByText(ACTIVE);
     await playExpect(extensionRunningLabel).toBeVisible({ timeout: 180000 });
   }, 200000);
 

@@ -38,8 +38,19 @@ let providers: ProviderInfo[] = [];
 let providerConnections: ProviderContainerConnectionInfo[] = [];
 let selectedProvider: ProviderContainerConnectionInfo | undefined = undefined;
 let logsTerminal: Terminal;
+let buildIDs = [];
 
+$: platforms = containerBuildPlatform ? containerBuildPlatform.split(',') : [];
 $: hasInvalidFields = !containerFilePath || !containerBuildContextDirectory;
+
+interface BuildOutputItem {
+  stream?: string;
+  aux?: {
+    ID: string;
+  };
+}
+
+type BuildOutput = BuildOutputItem[];
 
 function getTerminalCallback(): BuildImageCallback {
   return {
@@ -50,24 +61,39 @@ function getTerminalCallback(): BuildImageCallback {
       logsTerminal.write(`Error:${error}\r`);
     },
     onEnd: function (): void {
-      buildFinished = true;
       window.dispatchEvent(new CustomEvent('image-build', { detail: { name: containerImageName } }));
     },
   };
 }
 
 async function buildContainerImage(): Promise<void> {
+  // Pick if we are building a singular platform (which will just create the image)
+  // or multiple platforms (which will create the image and then create a manifest)
+  if (platforms.length === 1) {
+    await buildSinglePlatformImage(); // Single platform build
+  } else if (platforms.length > 1) {
+    await buildMultiplePlatformImagesAndCreateManifest(); // Multiple platforms build
+  } else {
+    console.error('No platforms specified for the build.');
+  }
+}
+
+// Function to handle the building of a container image for a single platform
+async function buildSinglePlatformImage(): Promise<void> {
   buildFinished = false;
 
   if (containerFilePath && selectedProvider) {
-    // extract the relative path from the containerFilePath and containerBuildContextDirectory
+    // Extract the relative path from the containerFilePath and containerBuildContextDirectory
     const relativeContainerfilePath = containerFilePath.substring(containerBuildContextDirectory.length + 1);
-
     buildImageInfo = startBuild(containerImageName, getTerminalCallback());
-    // store the key
+
+    // Store the key
     buildImagesInfo.set(buildImageInfo);
+
     try {
       cancellableTokenId = await window.getCancellableTokenSource();
+
+      // Build the singular image
       await window.buildImage(
         containerBuildContextDirectory,
         relativeContainerfilePath,
@@ -79,12 +105,85 @@ async function buildContainerImage(): Promise<void> {
         cancellableTokenId,
       );
     } catch (error) {
-      logsTerminal.write('Error:' + error + '\r');
+      logsTerminal.write(`Error:${error}\r`);
     } finally {
       cancellableTokenId = undefined;
       buildImageInfo.buildRunning = false;
       buildFinished = true;
     }
+  }
+}
+
+// Function to handle the building of container images for multiple platforms and creating a manifest
+// afterwards
+async function buildMultiplePlatformImagesAndCreateManifest(): Promise<void> {
+  buildFinished = false;
+
+  // Collection of build IDs, this is needed for being able to create the manifest
+  // as we need to know either the IDs or the names of the images that were built
+  buildIDs = [];
+
+  if (containerFilePath && selectedProvider) {
+    // Extract the relative path from the containerFilePath and containerBuildContextDirectory
+    const relativeContainerfilePath = containerFilePath.substring(containerBuildContextDirectory.length + 1);
+
+    // We'll iterate over each platform and build the image
+    for (const platform of platforms) {
+      // We'll be using the same terminal for all builds (getTerminalCallback)
+      // similar to how Podman CLI does it.
+      buildImageInfo = startBuild(containerImageName, getTerminalCallback());
+
+      // Store the key
+      buildImagesInfo.set(buildImageInfo);
+
+      try {
+        cancellableTokenId = await window.getCancellableTokenSource();
+
+        // Build the image for the current platform
+        // NOTE: We purporsely pass in '' as the container name so that the built image is
+        // <none> in the image list similar to the Podman CLI.
+        const buildOutput: BuildOutput = (await window.buildImage(
+          containerBuildContextDirectory,
+          relativeContainerfilePath,
+          '', // Omitting the image name for multi-platform builds, as we'll be creating a singular manifest.
+          platform,
+          selectedProvider,
+          buildImageInfo.buildImageKey,
+          eventCollect,
+          cancellableTokenId,
+        )) as BuildOutput;
+
+        // Extract and store the build ID as this is required for creating the manifest, only if it is available.
+
+        if (buildOutput) {
+          const buildIdItem = buildOutput.find(o => o.aux);
+          const buildId = buildIdItem ? buildIdItem?.aux?.ID : undefined;
+          if (buildId) {
+            buildIDs.push(buildId.replace('sha256:', 'containers-storage:'));
+          }
+        }
+      } catch (error) {
+        logsTerminal.write(`Error:${error}\r`);
+      } finally {
+        cancellableTokenId = undefined;
+        buildImageInfo.buildRunning = false;
+      }
+    }
+
+    // Create the manifest after all builds are complete
+    // we will log to the terminal if there is an error.
+    try {
+      await window.createManifest({
+        images: buildIDs,
+        name: containerImageName,
+      });
+    } catch (error) {
+      console.error('Error creating manifest: ', error);
+      logsTerminal.write(`Error:${error}\r`);
+    }
+
+    // Finally mark the build as finished
+    buildFinished = true;
   }
 }
 
@@ -215,6 +314,9 @@ async function abortBuild() {
 
         <div hidden="{buildImageInfo?.buildRunning}">
           <label for="containerBuildPlatform" class="block mb-2 text-sm font-bold text-gray-400">Platform</label>
+          {#if platforms.length > 1}
+            <p class="text-sm text-gray-600 mb-2">Multiple platforms selected, a manifest will be created</p>
+          {/if}
           <BuildImageFromContainerfileCards bind:platforms="{containerBuildPlatform}" />
         </div>
 

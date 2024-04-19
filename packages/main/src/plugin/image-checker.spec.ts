@@ -147,6 +147,7 @@ suite('image checker module', () => {
         SharedSize: 1,
         Labels: {},
         Containers: 1,
+        Digest: 'sha256:id',
       };
       const result = await imageChecker.check(providers[0].id, imageInfo);
       expect(result).toBeDefined();
@@ -168,6 +169,7 @@ suite('image checker module', () => {
         SharedSize: 1,
         Labels: {},
         Containers: 1,
+        Digest: 'sha256:id',
       };
       await expect(() => imageChecker.check('unknown-id', imageInfo)).rejects.toThrow(
         'provider not found with id unknown-id',

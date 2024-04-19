@@ -27,6 +27,6 @@
     "electron": "29.1.4",
     "@types/node": "^20",
     "typescript": "^5.4.5",
-    "vitest": "^1.4.0"
+    "vitest": "^1.5.0"
   }
 }

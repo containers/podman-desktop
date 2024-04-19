@@ -59,7 +59,8 @@ export class KubectlDownload {
 
   // Download kubectl from the artifact metadata: KubectlGithubReleaseArtifactMetadata
   // this will download it to the storage bin folder as well as make it executable
-  async download(release: KubectlGithubReleaseArtifactMetadata): Promise<void> {
+  // return the path where the file has been downloaded
+  async download(release: KubectlGithubReleaseArtifactMetadata): Promise<string> {
     // Get asset id
     const url = await this.kubectlGitHubReleases.getReleaseAssetURL(release.tag, platform(), arch());
 
@@ -80,5 +81,7 @@ export class KubectlDownload {
     // Download the asset and make it executable
     await this.kubectlGitHubReleases.downloadReleaseAsset(url, kubectlDownloadLocation);
     await makeExecutable(kubectlDownloadLocation);
+
+    return kubectlDownloadLocation;
   }
 }

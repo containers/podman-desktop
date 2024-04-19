@@ -83,7 +83,7 @@ import type { IconInfo } from './api/icon-info.js';
 import type { ImageCheckerInfo } from './api/image-checker-info.js';
 import type { ImageInfo } from './api/image-info.js';
 import type { ImageInspectInfo } from './api/image-inspect-info.js';
-import type { ManifestCreateOptions } from './api/manifest-info.js';
+import type { ManifestCreateOptions, ManifestInspectInfo } from './api/manifest-info.js';
 import type { NetworkInspectInfo } from './api/network-info.js';
 import type { NotificationCard, NotificationCardOptions } from './api/notification.js';
 import type { OnboardingInfo, OnboardingStatus } from './api/onboarding.js';
@@ -776,6 +776,13 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
+      'container-provider-registry:inspectManifest',
+      async (_listener, engine: string, manifestId: string): Promise<ManifestInspectInfo> => {
+        return containerProviderRegistry.inspectManifest(engine, manifestId);
+      },
+    );
+
+    this.ipcHandle(
       'container-provider-registry:generatePodmanKube',
       async (_listener, engine: string, names: string[]): Promise<string> => {
         const kubeGenerator = kubeGeneratorRegistry.getKubeGenerator();
@@ -1086,7 +1093,6 @@ export class PluginSystem {
           cancellationTokenRegistry,
           cancellableTokenId,
         );
-
         return containerProviderRegistry.buildImage(
           containerBuildContextDirectory,
           (eventName: string, data: string) => {

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,7 +98,11 @@ export class ExtensionsCatalog {
         return {
           id: `${extension.publisher.publisherName}.${extension.extensionName}`,
           publisherName: extension.publisher.publisherName,
+          publisherDisplayName: extension.publisher.displayName,
+          categories: extension.categories,
+          unlisted: extension.unlisted ?? false,
           extensionName: extension.extensionName,
+          shortDescription: extension.shortDescription,
           displayName: extension.displayName,
           versions: extension.versions.map(version => {
             return {
@@ -106,6 +110,7 @@ export class ExtensionsCatalog {
               preview: version.preview,
               ociUri: version.ociUri,
               files: version.files,
+              lastUpdated: new Date(version.lastUpdated),
             };
           }),
         };
@@ -212,6 +217,9 @@ interface InternalCatalogExtensionJSON {
   publisher: InternalCatalogExtensionPublisherJSON;
   extensionName: string;
   displayName: string;
+  categories: string[];
+  unlisted?: boolean;
+  shortDescription: string;
   versions: InternalCatalogExtensionVersionJSON[];
 }
 
@@ -219,6 +227,7 @@ interface InternalCatalogExtensionVersionJSON {
   version: string;
   ociUri: string;
   preview: boolean;
+  lastUpdated: string;
   files: InternalCatalogExtensionVersionFileJSON[];
 }
 

@@ -168,7 +168,8 @@ function setGridColumns() {
       <div
         class="grid grid-table gap-x-0.5 mx-5 min-h-[48px] h-fit bg-charcoal-800 hover:bg-zinc-700 rounded-lg mb-2"
         animate:flip="{{ duration: 300 }}"
-        role="row">
+        role="row"
+        aria-label="{object.name}">
         <div class="whitespace-nowrap justify-self-start" role="cell"></div>
         {#if row.info.selectable}
           <div class="whitespace-nowrap place-self-center" role="cell">

@@ -140,7 +140,7 @@ function onInstallationClick() {
     </p>
 
     <div class="mt-5" class:hidden="{!initializationButtonVisible}">
-      <div class="bg-gray-300 text-white">
+      <div class="bg-gray-300 text-white flex">
         <button
           class="float-left bg-purple-600 hover:bg-purple-500 pt-2 pr-3 pl-3 pb-2 text-[13px] text-white mr-px w-[180px]"
           on:click="{onInstallationClick}">

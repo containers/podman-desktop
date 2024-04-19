@@ -77,7 +77,7 @@ export class RecommendationsRegistry {
           description: 'When enabled, the notifications for extension recommendations will not be shown.',
           type: 'boolean',
           default: false,
-          hidden: true,
+          hidden: false,
         },
       },
     };

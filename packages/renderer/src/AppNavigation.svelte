@@ -213,7 +213,7 @@ export let meta: TinroRouteMeta;
   {#if $contributions.length + $webviews.length > 0}
     <NavSection tooltip="Extensions">
       <PuzzleIcon size="24" slot="icon" />
-      {#each $contributions as contribution}
+      {#each $contributions as contribution (contribution.id)}
         <NavItem href="/contribs/{contribution.name}" tooltip="{contribution.name}" bind:meta="{meta}">
           <img src="{contribution.icon}" width="24" height="24" alt="{contribution.name}" />
         </NavItem>

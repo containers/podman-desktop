@@ -36,6 +36,7 @@ describe('guessIsManifest function', () => {
       VirtualSize: 40 * 1024, // 40KB (less than 50KB threshold)
       SharedSize: 0,
       Containers: 0,
+      Digest: 'sha256:manifestImage',
     };
 
     expect(guessIsManifest(manifestImage, 'podman')).toBe(true);
@@ -55,6 +56,7 @@ describe('guessIsManifest function', () => {
       VirtualSize: 2000000, // 2MB
       SharedSize: 0,
       Containers: 0,
+      Digest: 'sha256:largeImage',
     };
 
     expect(guessIsManifest(largeImage, 'podman')).toBe(false);
@@ -74,6 +76,7 @@ describe('guessIsManifest function', () => {
       VirtualSize: 500000, // 500KB
       SharedSize: 0,
       Containers: 0,
+      Digest: 'sha256:labeledImage',
     };
 
     expect(guessIsManifest(labeledImage, 'podman')).toBe(false);
@@ -93,6 +96,7 @@ describe('guessIsManifest function', () => {
       VirtualSize: 500000, // 500KB
       SharedSize: 0,
       Containers: 0,
+      Digest: 'sha256:noTagImage',
     };
 
     expect(guessIsManifest(noTagImage, 'podman')).toBe(false);
@@ -112,6 +116,7 @@ describe('guessIsManifest function', () => {
       VirtualSize: 500000, // 500KB
       SharedSize: 0,
       Containers: 0,
+      Digest: 'sha256:noDigestImage',
     };
 
     expect(guessIsManifest(noDigestImage, 'podman')).toBe(false);
@@ -135,6 +140,7 @@ describe('guessIsManifest function', () => {
       SharedSize: 0,
       Containers: 0,
       History: ['testdomain.io/library/hello:latest'],
+      Digest: 'sha256:ee301c921b8aadc002973b2e0c3da17d701dcd994b606769a7e6eaa100b81d44',
     };
 
     // Should be false
@@ -156,6 +162,7 @@ test('expect to fail even if engine name does not equal podman', () => {
     VirtualSize: 40 * 1024, // 40KB (less than 50KB threshold)
     SharedSize: 0,
     Containers: 0,
+    Digest: 'sha256:manifestImage',
   };
 
   expect(guessIsManifest(manifestImage, 'foobar')).toBe(false);

@@ -9,8 +9,8 @@ import { extensionInfos } from '../../stores/extensions';
 import FeaturedExtensions from '../featured/FeaturedExtensions.svelte';
 import SettingsPage from '../preferences/SettingsPage.svelte';
 import Button from '../ui/Button.svelte';
-import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
+import ExtensionStatus from '../ui/ExtensionStatus.svelte';
 import ExtensionIcon from './ExtensionIcon.svelte';
 
 export let ociImage: string | undefined = undefined;
@@ -154,7 +154,7 @@ async function updateExtension(extension: ExtensionInfo, ociUri: string) {
                       </div>
                     </div>
                     <div class="flex">
-                      <ConnectionStatus status="{extension.state}" />
+                      <ExtensionStatus status="{extension.state}" />
                     </div>
                   </div>
                 </div>

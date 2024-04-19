@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,12 +34,17 @@ const catalogExtension1: CatalogExtension = {
   publisherName: 'foo',
   extensionName: 'extension1',
   displayName: 'My Extension 1',
+  publisherDisplayName: 'Foo publisher display name',
+  shortDescription: 'Foo extension short description',
+  categories: ['Kubernetes'],
+  unlisted: false,
   versions: [
     {
       version: '2.0.0',
       preview: false,
       ociUri: 'oci-registry.foo/foo/bar1',
       files: [],
+      lastUpdated: new Date(),
     },
   ],
 };
@@ -49,12 +54,17 @@ const catalogExtension2: CatalogExtension = {
   publisherName: 'foo',
   extensionName: 'extension2',
   displayName: 'My Extension 2',
+  publisherDisplayName: 'Foo publisher display name',
+  shortDescription: 'Foo extension short description',
+  categories: [],
+  unlisted: false,
   versions: [
     {
       version: '4.0.0',
       preview: false,
       ociUri: 'oci-registry.foo/foo/bar2',
       files: [],
+      lastUpdated: new Date(),
     },
   ],
 };

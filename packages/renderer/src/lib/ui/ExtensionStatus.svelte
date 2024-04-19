@@ -6,7 +6,6 @@ interface connectionStatusStyle {
   txtColor: string;
   label: string;
 }
-
 const roundIconStyle = 'my-auto w-3 h-3 rounded-full';
 const labelStyle = 'my-auto ml-1 font-bold text-[9px]';
 const statusesStyle = new Map<string, connectionStatusStyle>([
@@ -50,6 +49,14 @@ const statusesStyle = new Map<string, connectionStatusStyle>([
       label: 'FAILED',
     },
   ],
+  [
+    'downloadable',
+    {
+      bgColor: 'bg-purple-600',
+      txtColor: 'text-gray-700',
+      label: 'DOWNLOADABLE',
+    },
+  ],
 ]);
 $: statusStyle = statusesStyle.get(status) || {
   bgColor: 'bg-gray-900',
@@ -58,5 +65,5 @@ $: statusStyle = statusesStyle.get(status) || {
 };
 </script>
 
-<div aria-label="Connection Status Icon" class="{roundIconStyle} {statusStyle.bgColor}"></div>
-<span aria-label="Connection Status Label" class="{labelStyle} {statusStyle.txtColor}">{statusStyle.label}</span>
+<div aria-label="Extension Status Icon" class="bg-{roundIconStyle} {statusStyle.bgColor}"></div>
+<span aria-label="Extension Status Label" class="{labelStyle} {statusStyle.txtColor}">{statusStyle.label}</span>

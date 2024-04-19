@@ -175,11 +175,11 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
   await playExpect(resourcesPage.podmanResources).toBeVisible({ timeout: 10_000 });
   const resourcesPodmanConnections = new ResourcesPodmanConnections(page, machineVisibleName);
   await playExpect(resourcesPodmanConnections.providerConnections).toBeVisible({ timeout: 10_000 });
-  await waitWhile(
+  await waitUntil(
     async () => {
       return await resourcesPodmanConnections.podmanMachineElement.isVisible();
     },
-    10_000,
+    15_000,
     1000,
     false,
   );

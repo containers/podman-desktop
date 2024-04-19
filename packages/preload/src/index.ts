@@ -62,7 +62,7 @@ import type { ImageCheckerInfo } from '../../main/src/plugin/api/image-checker-i
 import type { ImageInfo } from '../../main/src/plugin/api/image-info';
 import type { ImageInspectInfo } from '../../main/src/plugin/api/image-inspect-info';
 import type { KubernetesGeneratorInfo } from '../../main/src/plugin/api/KubernetesGeneratorInfo';
-import type { ManifestCreateOptions } from '../../main/src/plugin/api/manifest-info';
+import type { ManifestCreateOptions, ManifestInspectInfo } from '../../main/src/plugin/api/manifest-info';
 import type { NetworkInspectInfo } from '../../main/src/plugin/api/network-info';
 import type { NotificationCard, NotificationCardOptions } from '../../main/src/plugin/api/notification';
 import type { OnboardingInfo, OnboardingStatus } from '../../main/src/plugin/api/onboarding';
@@ -289,6 +289,12 @@ export function initExposure(): void {
     'createManifest',
     async (createOptions: ManifestCreateOptions): Promise<{ engineId: string; Id: string }> => {
       return ipcInvoke('container-provider-registry:createManifest', createOptions);
+    },
+  );
+  contextBridge.exposeInMainWorld(
+    'inspectManifest',
+    async (engine: string, manifestId: string): Promise<ManifestInspectInfo> => {
+      return ipcInvoke('container-provider-registry:inspectManifest', engine, manifestId);
     },
   );
 

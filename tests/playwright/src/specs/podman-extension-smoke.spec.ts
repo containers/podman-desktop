@@ -30,14 +30,12 @@ import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
 
 const SETTINGS_EXTENSIONS_TABLE_PODMAN_TITLE: string = 'podman';
-const SETTINGS_EXTENSIONS_TABLE_EXTENSION_STATUS_LABEL: string = 'Connection Status Label';
-const PODMAN_EXTENSION_STATUS_RUNNING: string = 'RUNNING';
-const PODMAN_EXTENSION_STATUS_OFF: string = 'OFF';
+const SETTINGS_EXTENSIONS_TABLE_EXTENSION_STATUS_LABEL: string = 'Extension Status Label';
+const PODMAN_EXTENSION_STATUS_ACTIVE: string = 'ACTIVE';
+const PODMAN_EXTENSION_STATUS_DISABLED: string = 'DISABLED';
 const SETTINGS_NAVBAR_PREFERENCES_PODMAN_EXTENSION: string = 'Extension: Podman';
 const SETTINGS_NAVBAR_EXTENSIONS_PODMAN: string = 'Podman';
 const PODMAN_EXTENSION_PAGE_HEADING: string = 'Podman Extension';
-const PODMAN_EXTENSION_PAGE_STATUS_ACTIVE: string = 'ACTIVE';
-const PODMAN_EXTENSION_PAGE_STATUS_DISABLED: string = 'DISABLED';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -101,15 +99,15 @@ async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
       ? settingsExtensionsPage.getExtensionStopButton(podmanExtensionRowLocator)
       : settingsExtensionsPage.getExtensionStartButton(podmanExtensionRowLocator),
   ).toBeVisible();
-  const connectionStatusLabel = podmanExtensionRowLocator.getByLabel(SETTINGS_EXTENSIONS_TABLE_EXTENSION_STATUS_LABEL);
-  await playExpect(connectionStatusLabel).toBeVisible();
-  await connectionStatusLabel.scrollIntoViewIfNeeded();
-  const connectionStatusLocatorText = await connectionStatusLabel.innerText({ timeout: 3000 });
+  const extensionStatusLabel = podmanExtensionRowLocator.getByLabel(SETTINGS_EXTENSIONS_TABLE_EXTENSION_STATUS_LABEL);
+  await playExpect(extensionStatusLabel).toBeVisible();
+  await extensionStatusLabel.scrollIntoViewIfNeeded();
+  const extensionStatusLocatorText = await extensionStatusLabel.innerText({ timeout: 3000 });
   // --------------------------
   playExpect(
     enabled
-      ? connectionStatusLocatorText === PODMAN_EXTENSION_STATUS_RUNNING
-      : connectionStatusLocatorText === PODMAN_EXTENSION_STATUS_OFF,
+      ? extensionStatusLocatorText === PODMAN_EXTENSION_STATUS_ACTIVE
+      : extensionStatusLocatorText === PODMAN_EXTENSION_STATUS_DISABLED,
   ).toBeTruthy();
   // always present and visible
   const podmanExtensionPage = await openSettingsExtensionsPodmanPage();
@@ -118,11 +116,11 @@ async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
   if (enabled) {
     await playExpect(podmanExtensionPage.enableButton).toBeDisabled({ timeout: 10000 });
     await playExpect(podmanExtensionPage.disableButton).toBeEnabled({ timeout: 10000 });
-    await playExpect(podmanExtensionPage.status.getByText(PODMAN_EXTENSION_PAGE_STATUS_ACTIVE)).toBeVisible();
+    await playExpect(podmanExtensionPage.status.getByText(PODMAN_EXTENSION_STATUS_ACTIVE)).toBeVisible();
   } else {
     await playExpect(podmanExtensionPage.enableButton).toBeEnabled({ timeout: 10000 });
     await playExpect(podmanExtensionPage.disableButton).toBeDisabled({ timeout: 10000 });
-    await playExpect(podmanExtensionPage.status.getByText(PODMAN_EXTENSION_PAGE_STATUS_DISABLED)).toBeVisible();
+    await playExpect(podmanExtensionPage.status.getByText(PODMAN_EXTENSION_STATUS_DISABLED)).toBeVisible();
   }
   // expand Settings -> Preferences menu
   await settingsBar.preferencesTab.click();

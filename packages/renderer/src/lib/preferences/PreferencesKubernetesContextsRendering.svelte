@@ -48,10 +48,10 @@ async function handleDeleteContext(contextName: string) {
 </script>
 
 <SettingsPage title="Kubernetes Contexts">
-  <div class="h-full" role="table" aria-label="contexts">
+  <div class="h-full" role="table" aria-label="Contexts">
     <!-- Use KubernetesIcon in the future / not EngineIcon -->
     <EmptyScreen
-      aria-label="no-resource-panel"
+      aria-label="No Resource Panel"
       icon="{EngineIcon}"
       title="No Kubernetes contexts found"
       message="Check that $HOME/.kube/config exists or KUBECONFIG environment variable has been set correctly."
@@ -60,6 +60,7 @@ async function handleDeleteContext(contextName: string) {
       <!-- If current context, use lighter background -->
       <div
         role="row"
+        aria-label="{context.name}"
         class="{context.currentContext ? 'bg-charcoal-600' : 'bg-charcoal-700'} mb-5 rounded-md p-3 flex-nowrap">
         <div class="pb-2">
           <div class="flex">
@@ -67,7 +68,7 @@ async function handleDeleteContext(contextName: string) {
               {#if typeof context.icon === 'string'}
                 <img
                   src="{context.icon}"
-                  aria-label="context-logo"
+                  aria-label="Context Logo"
                   alt="{context.name} logo"
                   class="max-w-[40px] h-full" />
               {/if}
@@ -76,9 +77,9 @@ async function handleDeleteContext(contextName: string) {
             <div class="pl-3 flex-grow flex flex-col justify-center">
               <div class="flex flex-col items-left">
                 {#if context.currentContext}
-                  <span class="text-xs text-gray-600" aria-label="current-context">Current Context</span>
+                  <span class="text-xs text-gray-600" aria-label="Current Context">Current Context</span>
                 {/if}
-                <span class="text-md" aria-label="context-name">{context.name}</span>
+                <span class="text-md" aria-label="Context Name">{context.name}</span>
               </div>
             </div>
             <!-- Only show the set context button if it is not the current context -->
@@ -94,7 +95,7 @@ async function handleDeleteContext(contextName: string) {
               onClick="{() => handleDeleteContext(context.name)}"></ListItemButtonIcon>
           </div>
           {#if context.error}
-            <ErrorMessage class="text-sm" error="{context.error}" />
+            <ErrorMessage class="text-sm" aria-label="Context Error" error="{context.error}" />
           {/if}
         </div>
         <div class="grow flex-column divide-gray-900 text-gray-400">
@@ -104,18 +105,18 @@ async function handleDeleteContext(contextName: string) {
                 {#if $kubernetesContextsState.get(context.name)?.reachable}
                   <div class="flex flex-row pt-2">
                     <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                    <div class="ml-1 font-bold text-[9px] text-green-500" aria-label="context-reachable">REACHABLE</div>
+                    <div class="ml-1 font-bold text-[9px] text-green-500" aria-label="Context Reachable">REACHABLE</div>
                   </div>
                   <div class="flex flex-row gap-4 mt-4">
                     <div class="text-center">
                       <div class="font-bold text-[9px] text-gray-800">PODS</div>
-                      <div class="text-[16px] text-white" aria-label="context-pods-count">
+                      <div class="text-[16px] text-white" aria-label="Context Pods Count">
                         {$kubernetesContextsState.get(context.name)?.resources.pods}
                       </div>
                     </div>
                     <div class="text-center">
                       <div class="font-bold text-[9px] text-gray-800">DEPLOYMENTS</div>
-                      <div class="text-[16px] text-white" aria-label="context-deployments-count">
+                      <div class="text-[16px] text-white" aria-label="Context Deployments Count">
                         {$kubernetesContextsState.get(context.name)?.resources.deployments}
                       </div>
                     </div>
@@ -123,7 +124,9 @@ async function handleDeleteContext(contextName: string) {
                 {:else}
                   <div class="flex flex-row pt-2">
                     <div class="w-3 h-3 rounded-full bg-gray-900"></div>
-                    <div class="ml-1 font-bold text-[9px] text-gray-900">UNREACHABLE</div>
+                    <div class="ml-1 font-bold text-[9px] text-gray-900" aria-label="Context Unreachable">
+                      UNREACHABLE
+                    </div>
                   </div>
                 {/if}
               </div>
@@ -133,14 +136,16 @@ async function handleDeleteContext(contextName: string) {
                 <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">CLUSTER</span>
                 <span
                   class="my-auto col-span-5 text-left pl-0.5 ml-3 overflow-hidden text-ellipsis"
-                  aria-label="context-cluster">{context.cluster}</span>
+                  aria-label="Context Cluster">{context.cluster}</span>
               </div>
 
               {#if context.clusterInfo !== undefined}
                 <div class="text-xs bg-charcoal-800 p-2 rounded-lg mt-1 grid grid-cols-6">
                   <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">SERVER</span>
-                  <span class="my-auto col-span-5 text-left ml-3 overflow-hidden text-ellipsis">
-                    {context.clusterInfo.server}
+                  <span
+                    class="my-auto col-span-5 text-left ml-3 overflow-hidden text-ellipsis"
+                    aria-label="Context Server"
+                    >{context.clusterInfo.server}
                   </span>
                 </div>
               {/if}
@@ -149,7 +154,7 @@ async function handleDeleteContext(contextName: string) {
                 <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">USER</span>
                 <span
                   class="my-auto col-span-5 text-left pl-0.5 ml-3 overflow-hidden text-ellipsis"
-                  aria-label="context-user">{context.user}</span>
+                  aria-label="Context User">{context.user}</span>
               </div>
 
               {#if context.namespace}
@@ -157,7 +162,7 @@ async function handleDeleteContext(contextName: string) {
                   <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">NAMESPACE</span>
                   <span
                     class="my-auto col-span-5 text-left pl-0.5 ml-3 overflow-hidden text-ellipsis"
-                    aria-label="context-namespace">{context.namespace}</span>
+                    aria-label="Context Namespace">{context.namespace}</span>
                 </div>
               {/if}
             </div>
