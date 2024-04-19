@@ -65,6 +65,7 @@ function markRegistryAsModified(registry: containerDesktopAPI.Registry) {
     serverUrl: registry.serverUrl,
     username: registry.username,
     secret: registry.secret,
+    alias: registry.alias,
   } as containerDesktopAPI.Registry;
 
   originRegistries = [...originRegistries, originRegistry];
@@ -282,7 +283,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
               {:else if !registry.username && !registry.secret}
                 <Button on:click="{() => markRegistryAsModified(registry)}">Login now</Button>
               {:else}
-                {registry.username}
+                {registry.alias ?? registry.username}
               {/if}
             </div>
 

@@ -623,6 +623,7 @@ declare module '@podman-desktop/api' {
     username: string;
     secret: string;
     insecure?: boolean;
+    alias?: string;
   }
 
   export interface RegistryProvider {
