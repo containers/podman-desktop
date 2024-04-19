@@ -10,7 +10,7 @@ import { webviews } from '/@/stores/webviews';
 export let meta: TinroRouteMeta;
 </script>
 
-{#each $webviews as webview}
+{#each $webviews as webview (webview.id)}
   <NavItem href="/webviews/{webview.id}" bind:meta="{meta}" tooltip="{webview.name}">
     {#if !webview.icon}
       <Fa icon="{faPuzzlePiece}" size="1.5x" />
