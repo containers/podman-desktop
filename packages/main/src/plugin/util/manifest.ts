@@ -39,13 +39,48 @@ const GUESSED_MANIFEST_SIZE = 50 * KB;
 //
 // We will check this within ImageInfo
 export function guessIsManifest(image: ImageInfo, connectionType: string): boolean {
+  // There is an odd case that if the image has been renamed, we may not be able to safely detect
+  // if it is a manifest or not.
+  // ex. podman image tag testmanifest testmanifest123
+
+  // This is a "hacky" way to do it, but we can check to see if the image has been renamed by anaylzing the digests
+  // as they will be pointed
+
+  // Create a map to count occurrences of each digest
+  const digestMap = new Map<string, Set<string>>();
+
+  // Populate the map with digests and corresponding tags
+  if (image.RepoDigests) {
+    for (const digest of image.RepoDigests) {
+      const [repo, hash] = digest.split('@');
+      const tagSet = digestMap.get(hash) || new Set<string>();
+      image?.RepoTags?.forEach(tag => {
+        if (tag.includes(repo)) {
+          // Ensuring only relevant tags are counted
+          tagSet.add(tag);
+        }
+      });
+      digestMap.set(hash, tagSet);
+    }
+  }
+
+  // Check if any digest has more than one unique tag
+  let renamed = false;
+  for (const tags of digestMap.values()) {
+    if (tags.size > 1) {
+      renamed = true;
+      break;
+    }
+  }
+
   return Boolean(
     image.RepoTags &&
       image.RepoDigests &&
       image.RepoTags.length > 0 &&
       image.RepoDigests.length > 0 &&
       (!image.Labels || Object.keys(image.Labels).length === 0) &&
-      (!image.History || Object.keys(image.History).length === 0) &&
+      // There will either be no history, OR it was renamed
+      (!image.History || image.History.length === 0 || renamed) &&
       connectionType === 'podman' &&
       image.VirtualSize < GUESSED_MANIFEST_SIZE,
   );

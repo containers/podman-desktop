@@ -146,6 +146,35 @@ describe('guessIsManifest function', () => {
     // Should be false
     expect(guessIsManifest(helloWorldImage, 'podman')).toBe(false);
   });
+
+  test('return true for this example output which reflects a manifest being renamed to a different image', () => {
+    // Below is an example output from when a `podman image tag testmanifest foobar123` command was run on a manifest image
+    // to rename it.
+    const renamedManifestImage: ImageInfo = {
+      Id: '0b4f2606b1ac40f4aca2e5ec467b1f5a943bd3f8aa0f618830716c20e9783629',
+      ParentId: '',
+      RepoTags: ['localhost/foobar123:latest', 'localhost/testm123:latest'],
+      RepoDigests: [
+        'localhost/foobar123@sha256:1675dad79a8d4c09974d4818d51073653ff47828e27e17bfe62a0d08e2776021',
+        'localhost/foobar123@sha256:20b959ad5960230b65a77b746bdbf5d991ade4d7a129c2554e167acdcc990531',
+        'localhost/testm123@sha256:1675dad79a8d4c09974d4818d51073653ff47828e27e17bfe62a0d08e2776021',
+        'localhost/testm123@sha256:20b959ad5960230b65a77b746bdbf5d991ade4d7a129c2554e167acdcc990531',
+      ],
+      Created: 1713187011,
+      Size: 1115,
+      SharedSize: 0,
+      VirtualSize: 1115,
+      Labels: {},
+      Containers: 0,
+      History: ['localhost/testm123:latest', 'localhost/foobar123:latest'],
+      engineId: 'engine1',
+      engineName: 'podman',
+      Digest: 'sha256:0b4f2606b1ac40f4aca2e5ec467b1f5a943bd3f8aa0f618830716c20e9783629',
+    };
+
+    // Should be true
+    expect(guessIsManifest(renamedManifestImage, 'podman')).toBe(true);
+  });
 });
 
 test('expect to fail even if engine name does not equal podman', () => {
