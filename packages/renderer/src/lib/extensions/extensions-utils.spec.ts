@@ -22,9 +22,9 @@ import type { CombinedExtensionInfoUI } from '/@/stores/all-installed-extensions
 
 import type { CatalogExtension } from '../../../../main/src/plugin/extensions-catalog/extensions-catalog-api';
 import type { FeaturedExtension } from '../../../../main/src/plugin/featured/featured-api';
-import { ExtensionUtils } from './extension-utils';
+import { ExtensionsUtils } from './extensions-utils';
 
-let extensionUtils: ExtensionUtils;
+let extensionsUtils: ExtensionsUtils;
 
 export const aFakeExtension: CatalogExtension = {
   id: 'idAInstalled',
@@ -155,13 +155,13 @@ const installedExtensions: CombinedExtensionInfoUI[] = [
 
 beforeEach(() => {
   vi.resetAllMocks();
-  extensionUtils = new ExtensionUtils();
+  extensionsUtils = new ExtensionsUtils();
 });
 
 describe('extractCatalogExtensions', () => {
   test('Expect first one should be featured even having a name starting with Y letter then Z extension, then A extension and then B extension', async () => {
     // get UI objects
-    const catalogExtensionsUI = extensionUtils.extractCatalogExtensions(
+    const catalogExtensionsUI = extensionsUtils.extractCatalogExtensions(
       catalogExtensions,
       featuredExtensions,
       installedExtensions,
@@ -227,7 +227,7 @@ describe('extractCatalogExtensions', () => {
 
 describe('extractExtensionDetail', () => {
   test('Check with extension M not being installed or in the catalog', async () => {
-    const extensionDetail = extensionUtils.extractExtensionDetail(
+    const extensionDetail = extensionsUtils.extractExtensionDetail(
       catalogExtensions,
       installedExtensions,
       'idCNotKnown',
@@ -236,7 +236,7 @@ describe('extractExtensionDetail', () => {
   });
 
   test('Check with extension A being installed (not featured)', async () => {
-    const extensionDetail = extensionUtils.extractExtensionDetail(
+    const extensionDetail = extensionsUtils.extractExtensionDetail(
       catalogExtensions,
       installedExtensions,
       'idAInstalled',
@@ -249,7 +249,7 @@ describe('extractExtensionDetail', () => {
   });
 
   test('Check with extension Z not being installed (but featured)', async () => {
-    const extensionDetail = extensionUtils.extractExtensionDetail(
+    const extensionDetail = extensionsUtils.extractExtensionDetail(
       catalogExtensions,
       installedExtensions,
       'idZNotInstalled',

@@ -10,10 +10,10 @@ import FeaturedExtensionDownload from '../featured/FeaturedExtensionDownload.sve
 import DetailsPage from '../ui/DetailsPage.svelte';
 import ExtensionStatus from '../ui/ExtensionStatus.svelte';
 import type { ExtensionDetailsUI } from './extension-details-ui';
-import { ExtensionUtils } from './extension-utils';
 import ExtensionBadge from './ExtensionBadge.svelte';
 import ExtensionDetailsReadme from './ExtensionDetailsReadme.svelte';
 import ExtensionDetailsSummaryCard from './ExtensionDetailsSummaryCard.svelte';
+import { ExtensionsUtils } from './extensions-utils';
 import InstalledExtensionActions from './InstalledExtensionActions.svelte';
 
 export let extensionId: string;
@@ -21,12 +21,12 @@ export let extensionId: string;
 let extension: ExtensionDetailsUI;
 
 let detailsPage: DetailsPage;
-const extensionUtils = new ExtensionUtils();
+const extensionsUtils = new ExtensionsUtils();
 
 const extensionDetailStore: Readable<ExtensionDetailsUI | undefined> = derived(
   [catalogExtensionInfos, combinedInstalledExtensions],
   ([$catalogExtensionInfos, $combinedInstalledExtensions]) => {
-    return extensionUtils.extractExtensionDetail($catalogExtensionInfos, $combinedInstalledExtensions, extensionId);
+    return extensionsUtils.extractExtensionDetail($catalogExtensionInfos, $combinedInstalledExtensions, extensionId);
   },
 );
 

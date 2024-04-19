@@ -23,7 +23,7 @@ import type { FeaturedExtension } from '../../../../main/src/plugin/featured/fea
 import type { CatalogExtensionInfoUI } from './catalog-extension-info-ui';
 import type { ExtensionDetailsUI } from './extension-details-ui';
 
-export class ExtensionUtils {
+export class ExtensionsUtils {
   extractExtensionDetail(
     catalogExtensions: CatalogExtension[],
     installedExtensions: CombinedExtensionInfoUI[],

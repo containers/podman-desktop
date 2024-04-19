@@ -13,14 +13,14 @@ import { featuredExtensionInfos } from '/@/stores/featuredExtensions';
 
 import type { CatalogExtensionInfoUI } from './catalog-extension-info-ui';
 import CatalogExtensionList from './CatalogExtensionList.svelte';
-import { ExtensionUtils } from './extension-utils';
+import { ExtensionsUtils } from './extensions-utils';
 import InstallManuallyExtensionModal from './InstallManuallyExtensionModal.svelte';
 
 export let searchTerm = '';
 const combinedInstalledExtensionSearchPattern = writable('');
 $: combinedInstalledExtensionSearchPattern.set(searchTerm);
 
-const extensionUtils = new ExtensionUtils();
+const extensionsUtils = new ExtensionsUtils();
 
 let filteredItems: number = 0;
 $: filteredItems = $combinedInstalledExtensions.length - $filteredInstalledExtensions.length;
@@ -39,7 +39,7 @@ const filteredInstalledExtensions: Readable<CombinedExtensionInfoUI[]> = derived
 const enhancedCatalogExtensions: Readable<CatalogExtensionInfoUI[]> = derived(
   [catalogExtensionInfos, featuredExtensionInfos, combinedInstalledExtensions],
   ([$catalogExtensionInfos, $featuredExtensionInfos, $combinedInstalledExtensions]) => {
-    return extensionUtils.extractCatalogExtensions(
+    return extensionsUtils.extractCatalogExtensions(
       $catalogExtensionInfos,
       $featuredExtensionInfos,
       $combinedInstalledExtensions,
