@@ -6,7 +6,9 @@ export let catalogExtensions: CatalogExtensionInfoUI[];
 </script>
 
 <div class="flex flex-col grow p-4">
-  <div class="pb-4">Available extensions</div>
+  {#if catalogExtensions.length > 0}
+    <div class="pb-4">Available extensions</div>
+  {/if}
 
   <div class="flex flex-col w-full">
     <div

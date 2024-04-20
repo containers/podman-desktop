@@ -20,10 +20,13 @@ export let searchTerm = '';
 const combinedInstalledExtensionSearchPattern = writable('');
 $: combinedInstalledExtensionSearchPattern.set(searchTerm);
 
+const catalogExtensionSearchPattern = writable('');
+$: catalogExtensionSearchPattern.set(searchTerm);
+
 const extensionsUtils = new ExtensionsUtils();
 
-let filteredItems: number = 0;
-$: filteredItems = $combinedInstalledExtensions.length - $filteredInstalledExtensions.length;
+let filteredInstalledItems: number = 0;
+$: filteredInstalledItems = $combinedInstalledExtensions.length - $filteredInstalledExtensions.length;
 const filteredInstalledExtensions: Readable<CombinedExtensionInfoUI[]> = derived(
   [combinedInstalledExtensions, combinedInstalledExtensionSearchPattern],
   ([$combinedInstalledExtensions, $combinedInstalledExtensionSearchPattern]) => {
@@ -44,6 +47,16 @@ const enhancedCatalogExtensions: Readable<CatalogExtensionInfoUI[]> = derived(
       $featuredExtensionInfos,
       $combinedInstalledExtensions,
     );
+  },
+);
+let filteredCatalogItems: number = 0;
+$: filteredCatalogItems = $enhancedCatalogExtensions.length - $filteredCatalogExtensions.length;
+const filteredCatalogExtensions: Readable<CatalogExtensionInfoUI[]> = derived(
+  [enhancedCatalogExtensions, catalogExtensionSearchPattern],
+  ([$enhancedCatalogExtensions, $catalogExtensionSearchPattern]) => {
+    return $enhancedCatalogExtensions.filter(extension => {
+      return extension.displayName.toLowerCase().includes($catalogExtensionSearchPattern.toLowerCase());
+    });
   },
 );
 
@@ -68,9 +81,13 @@ let installManualImageModal: boolean = false;
 
   <svelte:fragment slot="bottom-additional-actions">
     <!-- display filter out items-->
-    {#if filteredItems > 0 && screen === 'installed'}
+    {#if filteredInstalledItems > 0 && screen === 'installed'}
       <div class="text-sm text-gray-400">
-        Filtered out {filteredItems} items of {$combinedInstalledExtensions.length}
+        Filtered out {filteredInstalledItems} items of {$combinedInstalledExtensions.length}
+      </div>
+    {:else if filteredCatalogItems > 0 && screen === 'catalog'}
+      <div class="text-sm text-gray-400">
+        Filtered out {filteredCatalogItems} items of {$enhancedCatalogExtensions.length}
       </div>
     {/if}
   </svelte:fragment>
@@ -91,7 +108,7 @@ let installManualImageModal: boolean = false;
   </svelte:fragment>
 
   <div class="flex min-w-full h-full" slot="content">
-    {#if searchTerm && $filteredInstalledExtensions.length === 0}
+    {#if searchTerm && $filteredInstalledExtensions.length === 0 && $filteredCatalogExtensions.length === 0}
       <FilteredEmptyScreen
         icon="{ExtensionIcon}"
         kind="extensions"
@@ -102,7 +119,7 @@ let installManualImageModal: boolean = false;
     {#if screen === 'installed'}
       <InstalledExtensionList extensionInfos="{$filteredInstalledExtensions}" />
     {:else}
-      <CatalogExtensionList catalogExtensions="{$enhancedCatalogExtensions}" />
+      <CatalogExtensionList catalogExtensions="{$filteredCatalogExtensions}" />
     {/if}
   </div>
 </NavPage>
