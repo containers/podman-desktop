@@ -218,3 +218,44 @@ test('Check using libpod/manifests/ endpoint', async () => {
   });
   expect(manifest.Id).toBe('testId1');
 });
+
+test('Check using libpod/manifests/{name}/json endpoint', async () => {
+  // Below is the example return output from
+  // https://docs.podman.io/en/latest/_static/api.html?version=v4.2#tag/manifests/operation/ManifestInspectLibpod
+  const mockJsonManifest = {
+    manifests: [
+      {
+        digest: 'sha256:1234567890',
+        mediaType: 'application/vnd.docker.distribution.manifest.v2+json',
+        platform: {
+          architecture: 'amd64',
+          features: [],
+          os: 'linux',
+          'os.features': [],
+          'os.version': '',
+          variant: '',
+        },
+        size: 0,
+        urls: [],
+      },
+    ],
+    mediaType: 'application/vnd.docker.distribution.manifest.v2+json',
+    schemaVersion: 2,
+  };
+
+  nock('http://localhost').get('/v4.2.0/libpod/manifests/name1/json').reply(200, mockJsonManifest);
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+  const manifest = await (api as unknown as LibPod).podmanInspectManifest('name1');
+
+  // Check manifest information returned
+  expect(manifest.mediaType).toBe('application/vnd.docker.distribution.manifest.v2+json');
+  expect(manifest.schemaVersion).toBe(2);
+  expect(manifest.manifests.length).toBe(1);
+
+  // Check manifest.manifests
+  expect(manifest.manifests[0].mediaType).toBe('application/vnd.docker.distribution.manifest.v2+json');
+  expect(manifest.manifests[0].platform.architecture).toBe('amd64');
+  expect(manifest.manifests[0].platform.os).toBe('linux');
+  expect(manifest.manifests[0].size).toBe(0);
+  expect(manifest.manifests[0].urls).toEqual([]);
+});

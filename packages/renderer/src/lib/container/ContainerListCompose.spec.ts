@@ -107,6 +107,7 @@ test('Delete a group of compose containers succesfully', async () => {
       State: 'RUNNING',
       engineId: 'podman',
       engineType: 'podman',
+      ImageID: 'dummy-image-id',
     },
     {
       Id: 'container2',
@@ -116,6 +117,7 @@ test('Delete a group of compose containers succesfully', async () => {
       State: 'RUNNING',
       engineId: 'podman',
       engineType: 'podman',
+      ImageID: 'dummy-image-id',
     },
   ];
   listContainersMock.mockResolvedValue(mockedContainers);

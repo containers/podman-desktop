@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ManifestCreateOptions } from '@podman-desktop/api';
+import type { ManifestCreateOptions, ManifestInspectInfo } from '@podman-desktop/api';
 import Dockerode from 'dockerode';
 
 import type { ImageInfo, PodmanListImagesOptions } from '../api/image-info.js';
@@ -352,6 +352,7 @@ export interface LibPod {
   getImages(options: GetImagesOptions): Promise<NodeJS.ReadableStream>;
   podmanListImages(options?: PodmanListImagesOptions): Promise<ImageInfo[]>;
   podmanCreateManifest(manifestOptions: ManifestCreateOptions): Promise<{ engineId: string; Id: string }>;
+  podmanInspectManifest(manifestName: string): Promise<ManifestInspectInfo>;
 }
 
 // tweak Dockerode by adding the support of libpod API
@@ -819,6 +820,34 @@ export class LibpodDockerode {
           404: 'no such image',
           500: 'server error',
         },
+      };
+
+      return new Promise((resolve, reject) => {
+        this.modem.dial(optsf, (err: unknown, data: unknown) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(data);
+        });
+      });
+    };
+
+    // add inspectManifest
+    prototypeOfDockerode.podmanInspectManifest = function (manifestName: string): Promise<unknown> {
+      // make sure encodeURI component for the name ex. domain.com/foo/bar:latest
+      const encodedManifestName = encodeURIComponent(manifestName);
+
+      const optsf = {
+        path: `/v4.2.0/libpod/manifests/${encodedManifestName}/json`,
+        method: 'GET',
+
+        // Match the status codes from https://docs.podman.io/en/latest/_static/api.html#tag/manifests/operation/ManifestInspectLibpod
+        statusCodes: {
+          200: true,
+          404: 'no such manifest',
+          500: 'server error',
+        },
+        options: {},
       };
 
       return new Promise((resolve, reject) => {

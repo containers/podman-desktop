@@ -157,7 +157,7 @@ export class ContainerUtils {
       labels: containerInfo.Labels,
       icon: this.iconClass(containerInfo, context, viewContributions) || ContainerIcon,
       imageBase64RepoTag: containerInfo.ImageBase64RepoTag,
-      imageHref: `/images/${containerInfo.ImageID}/${containerInfo.engineId}/${containerInfo.ImageBase64RepoTag}/summary`,
+      imageHref: `/images/${containerInfo.ImageID.startsWith('sha256:') ? containerInfo.ImageID.slice(7) : containerInfo.ImageID}/${containerInfo.engineId}/${containerInfo.ImageBase64RepoTag}/summary`,
     };
   }
 

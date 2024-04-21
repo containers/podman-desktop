@@ -1,21 +1,21 @@
 {
-  "version": "5.0.1",
+  "version": "5.0.2",
   "platform": {
     "win32": {
-      "version": "v5.0.1",
-      "fileName": "podman-5.0.1-setup.exe"
+      "version": "v5.0.2",
+      "fileName": "podman-5.0.2-setup.exe"
     },
     "darwin": {
-      "version": "v5.0.1",
+      "version": "v5.0.2",
       "arch": {
         "x64": {
-          "fileName": "podman-installer-macos-amd64-v5.0.1.pkg"
+          "fileName": "podman-installer-macos-amd64-v5.0.2.pkg"
         },
         "arm64": {
-          "fileName": "podman-installer-macos-aarch64-v5.0.1.pkg"
+          "fileName": "podman-installer-macos-aarch64-v5.0.2.pkg"
         },
         "universal": {
-          "fileName": "podman-installer-macos-universal-v5.0.1.pkg"
+          "fileName": "podman-installer-macos-universal-v5.0.2.pkg"
         }
       }
     }

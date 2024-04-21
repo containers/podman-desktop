@@ -33,7 +33,7 @@ let connectionStatus: IConnectionStatus;
 let noLog = true;
 let connectionInfo: ProviderKubernetesConnectionInfo | undefined;
 let providerInfo: ProviderInfo | undefined;
-let loggerHandlerKey: symbol;
+let loggerHandlerKey: symbol | undefined;
 let configurationKeys: IConfigurationPropertyRecordedSchema[];
 $: configurationKeys = properties
   .filter(property => property.scope === 'KubernetesConnection')
@@ -68,6 +68,7 @@ onMount(async () => {
           status: connectionInfo.status,
         };
         startConnectionProvider(providerInfo, connectionInfo, loggerHandlerKey);
+        loggerHandlerKey = undefined;
       } else {
         connectionStatus = {
           inProgress: false,

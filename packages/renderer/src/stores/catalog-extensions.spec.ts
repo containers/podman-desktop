@@ -72,6 +72,7 @@ test('catalog extension should be updated in case of a container is removed', as
       extensionName: 'extension',
       shortDescription: 'short description',
       publisherDisplayName: 'Foo publisher display name',
+      unlisted: false,
       categories: [],
       versions: [
         {
@@ -91,6 +92,7 @@ test('catalog extension should be updated in case of a container is removed', as
       shortDescription: 'short description',
       publisherDisplayName: 'Foo publisher display name',
       categories: [],
+      unlisted: true,
       versions: [
         {
           version: '2.0.0',
@@ -117,4 +119,14 @@ test('catalog extension should be updated in case of a container is removed', as
   // check if the catalog has been updated
   const afterCatalogExtensions = get(catalogExtensionInfos);
   expect(afterCatalogExtensions.length).toBe(2);
+
+  // get first extension
+  const firstExtension = afterCatalogExtensions.find(ext => ext.id === 'first.extension1');
+  expect(firstExtension).toBeDefined();
+  expect(firstExtension?.unlisted).toBeFalsy();
+
+  // get second extension
+  const secondExtension = afterCatalogExtensions.find(ext => ext.id === 'second.extension2');
+  expect(secondExtension).toBeDefined();
+  expect(secondExtension?.unlisted).toBeTruthy();
 });

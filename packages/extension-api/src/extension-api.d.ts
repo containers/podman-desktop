@@ -294,6 +294,24 @@ declare module '@podman-desktop/api' {
     // Provider to use for the manifest creation, if not, we will try to select the first one available (similar to podCreate)
     provider?: ContainerProviderConnection;
   }
+  export interface ManifestInspectInfo {
+    engineId: string;
+    engineName: string;
+    manifests: {
+      digest: string;
+      mediaType: string;
+      platform: {
+        architecture: string;
+        features?: string[];
+        os: string;
+        variant?: string;
+      };
+      size: number;
+      urls?: string[];
+    }[];
+    mediaType: string;
+    schemaVersion: number;
+  }
 
   export interface KubernetesProviderConnectionEndpoint {
     apiURL: string;
@@ -1868,6 +1886,7 @@ declare module '@podman-desktop/api' {
     Labels: { [label: string]: string };
     Containers: number;
     History?: string[];
+    Digest: string;
 
     // isManifest will be returned and set to true if the image is identified to be a manifest list
     isManifest?: boolean;
@@ -3384,6 +3403,7 @@ declare module '@podman-desktop/api' {
 
     // Manifest related methods
     export function createManifest(options: ManifestCreateOptions): Promise<{ engineId: string; Id: string }>;
+    export function inspectManifest(engineId: string, id: string): Promise<ManifestInspectInfo>;
   }
 
   /**
