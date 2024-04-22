@@ -19,23 +19,31 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 
-import { SettingsExtensionsPage } from './settings-extensions-page';
-import { SettingsPage } from './settings-page';
+import { BasePage } from './base-page';
+import { ExtensionsPage } from './extensions-page';
 
-export class ExtensionPage extends SettingsPage {
-  readonly heading: Locator;
+export class ExtensionDetailsPage extends BasePage {
   readonly enableButton: Locator;
   readonly disableButton: Locator;
   readonly removeExtensionButton: Locator;
   readonly status: Locator;
 
-  constructor(page: Page, extensionTitle: string, heading: string) {
-    super(page, extensionTitle);
-    this.heading = page.getByText(heading);
-    this.enableButton = page.getByRole('button', { name: 'Enable' });
-    this.disableButton = page.getByRole('button', { name: 'Disable' });
-    this.removeExtensionButton = page.getByRole('button', { name: 'Remove' });
+  constructor(
+    page: Page,
+    public readonly extensionName: string,
+  ) {
+    super(page);
+    this.enableButton = page.getByRole('button', { name: 'Start' });
+    this.disableButton = page.getByRole('button', { name: 'Stop' });
+    this.removeExtensionButton = page.getByRole('button', { name: 'Delete' });
     this.status = page.getByLabel('Extension Status Label');
+    console.log(
+      'ExtensionDetailsPage constructor',
+      this.enableButton,
+      this.disableButton,
+      this.removeExtensionButton,
+      this.status,
+    );
   }
 
   async disableExtension(): Promise<this> {
@@ -54,9 +62,13 @@ export class ExtensionPage extends SettingsPage {
     return this;
   }
 
-  async removeExtension(): Promise<SettingsExtensionsPage> {
+  async removeExtension(): Promise<ExtensionsPage> {
     await this.disableExtension();
     await this.removeExtensionButton.click();
-    return new SettingsExtensionsPage(this.page);
+    return new ExtensionsPage(this.page);
+  }
+
+  getOpenExtensionDetailsLink(): Locator {
+    return this.page.getByRole('button', { name: `${this.extensionName} extension details`, exact: true });
   }
 }
