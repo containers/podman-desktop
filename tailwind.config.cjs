@@ -38,11 +38,11 @@ module.exports = {
         width: 'width',
       },
       width: {
-        'leftnavbar': '54px',
+        'leftnavbar': '48px',
         'leftsidebar': '225px',
       },
       minWidth: {
-        'leftnavbar': '54px',
+        'leftnavbar': '48px',
         'leftsidebar': '225px',
       },
     },
