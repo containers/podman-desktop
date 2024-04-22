@@ -35,7 +35,7 @@ export const init = (): void => {
   webviewPreload.init().catch((error: unknown) => console.error('Error while initializing the exposure', error));
 };
 
-// do not call init methd in case of testing
-if (!process.env.VITEST) {
+// do not call init method in case of testing
+if (import.meta.env.MODE !== 'test') {
   init();
 }
