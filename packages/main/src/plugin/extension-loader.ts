@@ -634,7 +634,7 @@ export class ExtensionLoader {
     this.extensionState.delete(extension.id);
     this.extensionStateErrors.delete(extension.id);
 
-    const telemetryOptions = { extensionId: extension.id };
+    const telemetryOptions = { extensionId: extension.id, extensionVersion: extension.manifest?.version };
 
     if (extension.missingDependencies && extension.missingDependencies.length > 0) {
       this.extensionState.set(extension.id, 'failed');
@@ -1368,7 +1368,7 @@ export class ExtensionLoader {
       deactivateFunction = extensionMain['deactivate'];
     }
 
-    const telemetryOptions = { extensionId: extension.id };
+    const telemetryOptions = { extensionId: extension.id, extensionVersion: extension.manifest?.version };
     try {
       if (typeof extensionMain?.['activate'] === 'function') {
         // maximum time to wait for the extension to activate by reading from configuration
