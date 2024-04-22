@@ -26,7 +26,9 @@ import { beforeAll, expect, test, vi } from 'vitest';
 
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
 
+import type { ContributionInfo } from '../../main/src/plugin/api/contribution-info';
 import AppNavigation from './AppNavigation.svelte';
+import { contributions } from './stores/contribs';
 
 const eventsMock = vi.fn();
 
@@ -75,4 +77,28 @@ test('Test rendering of the navigation bar with empty items', () => {
   expect(deployments).not.toBeInTheDocument();
   const services = screen.queryByRole('link', { name: 'Services' });
   expect(services).not.toBeInTheDocument();
+});
+
+test('Test contributions', () => {
+  const meta = {
+    url: '/',
+  } as unknown as TinroRouteMeta;
+
+  contributions.set([
+    {
+      id: 'dashboard-tab',
+      name: 'foo1',
+      extensionId: 'my.extension1',
+    } as unknown as ContributionInfo,
+    {
+      id: 'dashboard-tab',
+      name: 'foo2',
+      extensionId: 'my.extension2',
+    } as unknown as ContributionInfo,
+  ]);
+
+  render(AppNavigation, {
+    meta,
+    exitSettingsCallback: () => {},
+  });
 });
