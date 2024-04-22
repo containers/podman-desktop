@@ -96,3 +96,16 @@ test('Expect to have details page', async () => {
   const extensionBadge = screen.getByRole('region', { name: 'Extension Badge' });
   expect(extensionBadge).toBeInTheDocument();
 });
+
+test('Expect empty screen', async () => {
+  const extensionId = 'idUnknown';
+
+  catalogExtensionInfos.set([aFakeExtension]);
+  extensionInfos.set(combined);
+
+  await waitRender({ extensionId });
+
+  // should have the text "Extension not found"
+  const extensionNotFound = screen.getByText('Extension not found');
+  expect(extensionNotFound).toBeInTheDocument();
+});
