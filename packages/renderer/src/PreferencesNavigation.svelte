@@ -5,7 +5,6 @@ import type { TinroRouteMeta } from 'tinro';
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../main/src/plugin/configuration-registry-constants';
 import SettingsNavItem from './lib/preferences/SettingsNavItem.svelte';
 import { configurationProperties } from './stores/configurationProperties';
-import { extensionInfos } from './stores/extensions';
 
 export let meta: TinroRouteMeta;
 
@@ -61,24 +60,6 @@ onMount(async () => {
     <SettingsNavItem title="CLI Tools" href="/preferences/cli-tools" bind:meta="{meta}" />
 
     <SettingsNavItem title="Kubernetes" href="/preferences/kubernetes-contexts" bind:meta="{meta}" />
-
-    <SettingsNavItem
-      title="Extensions"
-      href="/preferences/extensions"
-      section="{true}"
-      bind:meta="{meta}"
-      bind:expanded="{sectionExpanded['extensionsCatalog']}" />
-    {#if sectionExpanded['extensionsCatalog']}
-      {#each $extensionInfos as extension}
-        <SettingsNavItem
-          title="{extension.displayName}"
-          href="/preferences/extension/{extension.id}"
-          child="{true}"
-          bind:meta="{meta}" />
-      {/each}
-    {/if}
-
-    <SettingsNavItem title="Desktop Extensions" href="/preferences/ddExtensions" bind:meta="{meta}" />
 
     <!-- Default configuration properties start -->
     {#each Object.entries(configProperties) as [configSection, configItems]}

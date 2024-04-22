@@ -51,9 +51,5 @@ test('Test rendering of the preferences navigation bar and its items', () => {
   expect(registries).toBeVisible();
   const authentication = screen.getByRole('link', { name: 'Authentication' });
   expect(authentication).toBeVisible();
-  const extensions = screen.getByRole('link', { name: 'Extensions' });
-  expect(extensions).toBeVisible();
-  const desktop = screen.getByRole('link', { name: 'Desktop Extensions' });
-  expect(desktop).toBeVisible();
   // ToDo: adding configuration section/items mocks for preferences, issue #2966
 });
