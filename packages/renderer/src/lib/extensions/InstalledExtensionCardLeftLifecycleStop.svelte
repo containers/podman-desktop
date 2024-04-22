@@ -16,11 +16,11 @@ async function stopExtension(): Promise<void> {
 }
 </script>
 
-{#if extension.state === 'started' && extension.type !== 'dd'}
+{#if extension.state === 'started'}
   <LoadingIconButton
     clickAction="{() => stopExtension()}"
     action="stop"
     icon="{faStop}"
-    state="{{ status: extension.state, inProgress }}"
+    state="{{ status: extension.type === 'dd' ? 'no-stop' : extension.state, inProgress }}"
     leftPosition="" />
 {/if}
