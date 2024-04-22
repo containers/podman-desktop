@@ -77,7 +77,7 @@ export class PodmanDesktopRunner {
       });
       // setup state
       this._page = await this.getElectronApp().firstWindow();
-      const exe = await this.getElectronApp().evaluate(async ({ app }) => {
+      const exe = this.getElectronApp().evaluate(async ({ app }) => {
         return app.getPath('exe');
       });
       console.log(`The Executable Electron app. file: ${exe}`);
@@ -247,11 +247,8 @@ export class PodmanDesktopRunner {
   private setupPodmanDesktopCustomFolder(): object {
     const env: { [key: string]: string } = process.env as { [key: string]: string };
     const dir = join(this._customFolder);
-    console.log(`Podman Desktop custom config will be written to: ${dir}`);
+    console.log(`podman desktop custom config will be written to: ${dir}`);
     env.PODMAN_DESKTOP_HOME_DIR = dir;
-
-    console.log('Setting PLAYWRIGHT_E2E env. variable - used in dev. mode');
-    env.PLAYWRIGHT_E2E = 'true';
 
     // add a custom config file by disabling OpenDevTools
     const settingsFile = resolve(dir, 'configuration', 'settings.json');
