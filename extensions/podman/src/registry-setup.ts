@@ -27,7 +27,7 @@ import { isLinux, isMac, isWindows } from './util';
 export type ContainerAuthConfigEntry = {
   [key: string]: {
     auth: string;
-    'podman_desktop.alias': string | undefined;
+    podmanDesktopAlias: string | undefined;
   };
 };
 
@@ -71,7 +71,7 @@ export class RegistrySetup {
           serverUrl,
           username,
           secret,
-          alias: value['podman_desktop.alias'],
+          alias: value['podmanDesktopAlias'],
         };
         inFileRegistries.push(registry);
       }
@@ -119,7 +119,7 @@ export class RegistrySetup {
         }
         authFile.auths[registry.serverUrl] = {
           auth: Buffer.from(`${registry.username}:${registry.secret}`).toString('base64'),
-          'podman_desktop.alias': registry.alias,
+          podmanDesktopAlias: registry.alias,
         };
 
         await this.writeAuthFile(JSON.stringify(authFile, undefined, 8));
@@ -152,7 +152,7 @@ export class RegistrySetup {
         }
         authFile.auths[registry.serverUrl] = {
           auth: Buffer.from(`${registry.username}:${registry.secret}`).toString('base64'),
-          'podman_desktop.alias': registry.alias,
+          podmanDesktopAlias: registry.alias,
         };
 
         await this.writeAuthFile(JSON.stringify(authFile, undefined, 8));

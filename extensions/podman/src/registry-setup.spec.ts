@@ -123,7 +123,7 @@ test('should work with JSON auth file', async () => {
   // expect the file to have a single entry
   expect(authFile.auths['myregistry.io']).toBeDefined();
   expect(authFile.auths['myregistry.io'].auth).toBe(auth);
-  expect(authFile.auths['myregistry.io']['podman_desktop.alias']).not.toBeDefined();
+  expect(authFile.auths['myregistry.io']['podmanDesktopAlias']).not.toBeDefined();
 
   // expect read with the correct file
   expect(readFileSpy).toHaveBeenCalledWith(authJsonLocation, 'utf-8', expect.anything());
@@ -142,10 +142,7 @@ test('should work with JSON auth file and alias', async () => {
     (_path: string, _encoding: string, callback: (err: Error | null, data: string) => void) => {
       // mock the error
 
-      callback(
-        undefined,
-        JSON.stringify({ auths: { 'myregistry.io': { auth: auth, 'podman_desktop.alias': 'alias' } } }),
-      );
+      callback(undefined, JSON.stringify({ auths: { 'myregistry.io': { auth: auth, podmanDesktopAlias: 'alias' } } }));
     },
   );
 
@@ -160,7 +157,7 @@ test('should work with JSON auth file and alias', async () => {
   // expect the file to have a single entry
   expect(authFile.auths['myregistry.io']).toBeDefined();
   expect(authFile.auths['myregistry.io'].auth).toBe(auth);
-  expect(authFile.auths['myregistry.io']['podman_desktop.alias']).toBe('alias');
+  expect(authFile.auths['myregistry.io']['podmanDesktopAlias']).toBe('alias');
 
   // expect read with the correct file
   expect(readFileSpy).toHaveBeenCalledWith(authJsonLocation, 'utf-8', expect.anything());
