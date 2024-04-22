@@ -56,16 +56,16 @@ afterEach(() => {
   console.error = originalConsoleError;
 });
 
+type ReadFileType = (
+  path: string,
+  options: string,
+  callback: (err: NodeJS.ErrnoException | undefined, data: string | Buffer) => void,
+) => void;
+
 test('should work with invalid JSON auth file', async () => {
   // mock the existSync
   const existSyncSpy = vi.spyOn(fs, 'existsSync');
   existSyncSpy.mockReturnValue(true);
-
-  type ReadFileType = (
-    path: string,
-    options: string,
-    callback: (err: NodeJS.ErrnoException | undefined, data: string | Buffer) => void,
-  ) => void;
 
   // mock the readFile
   const readFileSpy = vi.spyOn(fs, 'readFile') as unknown as MockedFunction<ReadFileType>;
@@ -93,4 +93,72 @@ test('should work with invalid JSON auth file', async () => {
 
   // expect error was logged
   expect(consoleErroMock).toHaveBeenCalledWith('Error parsing auth file', expect.anything());
+});
+
+test('should work with JSON auth file', async () => {
+  // mock the existSync
+  const existSyncSpy = vi.spyOn(fs, 'existsSync');
+  existSyncSpy.mockReturnValue(true);
+
+  // mock the readFile
+  const readFileSpy = vi.spyOn(fs, 'readFile') as unknown as MockedFunction<ReadFileType>;
+  const auth = Buffer.from('user:password').toString('base64');
+
+  readFileSpy.mockImplementation(
+    (_path: string, _encoding: string, callback: (err: Error | null, data: string) => void) => {
+      // mock the error
+
+      callback(undefined, JSON.stringify({ auths: { 'myregistry.io': { auth: auth } } }));
+    },
+  );
+
+  // mock the location
+  const authJsonLocation = '/tmp/containers/auth.json';
+  const mockGetAuthFileLocation = vi.spyOn(registrySetup, 'getAuthFileLocation');
+  mockGetAuthFileLocation.mockReturnValue(authJsonLocation);
+
+  // expect an error
+  const authFile = await registrySetup.publicReadAuthFile();
+
+  // expect the file to have a single entry
+  expect(authFile.auths['myregistry.io']).toBeDefined();
+  expect(authFile.auths['myregistry.io'].auth).toBe(auth);
+  expect(authFile.auths['myregistry.io']['podmanDesktopAlias']).not.toBeDefined();
+
+  // expect read with the correct file
+  expect(readFileSpy).toHaveBeenCalledWith(authJsonLocation, 'utf-8', expect.anything());
+});
+
+test('should work with JSON auth file and alias', async () => {
+  // mock the existSync
+  const existSyncSpy = vi.spyOn(fs, 'existsSync');
+  existSyncSpy.mockReturnValue(true);
+
+  // mock the readFile
+  const readFileSpy = vi.spyOn(fs, 'readFile') as unknown as MockedFunction<ReadFileType>;
+  const auth = Buffer.from('user:password').toString('base64');
+
+  readFileSpy.mockImplementation(
+    (_path: string, _encoding: string, callback: (err: Error | null, data: string) => void) => {
+      // mock the error
+
+      callback(undefined, JSON.stringify({ auths: { 'myregistry.io': { auth: auth, podmanDesktopAlias: 'alias' } } }));
+    },
+  );
+
+  // mock the location
+  const authJsonLocation = '/tmp/containers/auth.json';
+  const mockGetAuthFileLocation = vi.spyOn(registrySetup, 'getAuthFileLocation');
+  mockGetAuthFileLocation.mockReturnValue(authJsonLocation);
+
+  // expect an error
+  const authFile = await registrySetup.publicReadAuthFile();
+
+  // expect the file to have a single entry
+  expect(authFile.auths['myregistry.io']).toBeDefined();
+  expect(authFile.auths['myregistry.io'].auth).toBe(auth);
+  expect(authFile.auths['myregistry.io']['podmanDesktopAlias']).toBe('alias');
+
+  // expect read with the correct file
+  expect(readFileSpy).toHaveBeenCalledWith(authJsonLocation, 'utf-8', expect.anything());
 });
