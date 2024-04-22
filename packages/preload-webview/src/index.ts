@@ -23,7 +23,6 @@ import { WebviewPreload } from './webview-preload';
  */
 export const init = (): void => {
   // parse the query string and grab the webviewId parameter
-  console.log(`VITEST: ${process.env.VITEST}, PLAYWRIGHT_E2E: ${process.env.PLAYWRIGHT_E2E}`);
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const webviewId = urlParams.get('webviewId') ?? undefined;
