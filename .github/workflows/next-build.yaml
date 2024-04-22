@@ -51,8 +51,9 @@ jobs:
         run: |
           git config --local user.name ${{ github.actor }}
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.desktopVersion }}\",#g" package.json
+          find extensions/* -maxdepth 2 -name "package.json" | xargs -I {} sed -i "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.desktopVersion }}\",#g" {}
           cat package.json
-          git add package.json
+          git add package.json extensions/*/package.json
           git commit -m "chore: tag ${{ steps.TAG_UTIL.outputs.githubTag }}"
           echo "Tagging with ${{ steps.TAG_UTIL.outputs.githubTag }}"
           git tag ${{ steps.TAG_UTIL.outputs.githubTag }}
