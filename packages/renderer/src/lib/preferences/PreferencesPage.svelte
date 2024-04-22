@@ -13,7 +13,6 @@ import PreferencesCliToolsRendering from './PreferencesCliToolsRendering.svelte'
 import PreferencesContainerConnectionRendering from './PreferencesContainerConnectionRendering.svelte';
 import PreferencesExtensionList from './PreferencesExtensionList.svelte';
 import PreferencesExtensionRendering from './PreferencesExtensionRendering.svelte';
-import PreferencesInstallExtensionFromId from './PreferencesInstallExtensionFromId.svelte';
 import PreferencesKubernetesConnectionRendering from './PreferencesKubernetesConnectionRendering.svelte';
 import PreferencesKubernetesContextsRendering from './PreferencesKubernetesContextsRendering.svelte';
 import PreferencesProviderRendering from './PreferencesProviderRendering.svelte';
@@ -88,10 +87,6 @@ onMount(async () => {
   </Route>
   <Route path="/extensions" breadcrumb="Extensions">
     <PreferencesExtensionList />
-  </Route>
-
-  <Route path="/extensions/install-from-id/:extensionId" breadcrumb="Install Extension from id" let:meta>
-    <PreferencesInstallExtensionFromId extensionId="{meta.params.extensionId}" />
   </Route>
 
   <Route path="/onboarding/:extensionId" breadcrumb="Extension Onboarding" let:meta navigationHint="details">
