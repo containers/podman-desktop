@@ -20,6 +20,7 @@ import { expect, type Locator, type Page } from '@playwright/test';
 
 import { ContainersPage } from '../pages/containers-page';
 import { DashboardPage } from '../pages/dashboard-page';
+import { ExtensionsPage } from '../pages/extensions-page';
 import { ImagesPage } from '../pages/images-page';
 import { PodsPage } from '../pages/pods-page';
 import { SettingsBar } from '../pages/settings-bar';
@@ -34,6 +35,7 @@ export class NavigationBar {
   readonly podsLink: Locator;
   readonly dashboardLink: Locator;
   readonly settingsLink: Locator;
+  readonly extensionsLink: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -44,6 +46,7 @@ export class NavigationBar {
     this.volumesLink = this.page.getByRole('link', { name: 'Volumes' });
     this.dashboardLink = this.page.getByRole('link', { name: 'Dashboard' });
     this.settingsLink = this.page.getByRole('link', { name: 'Settings' });
+    this.extensionsLink = this.navigationLocator.getByRole('link', { name: 'Extensions', exact: true });
   }
 
   async openDashboard(): Promise<DashboardPage> {
@@ -83,5 +86,11 @@ export class NavigationBar {
     await this.volumesLink.waitFor({ state: 'visible', timeout: 3000 });
     await this.volumesLink.click({ timeout: 5000 });
     return new VolumesPage(this.page);
+  }
+
+  async openExtensions(): Promise<ExtensionsPage> {
+    await this.extensionsLink.waitFor({ state: 'visible', timeout: 3000 });
+    await this.extensionsLink.click({ timeout: 5000 });
+    return new ExtensionsPage(this.page);
   }
 }
