@@ -23,6 +23,7 @@ import { WebviewPreload } from './webview-preload';
  */
 export const init = (): void => {
   // parse the query string and grab the webviewId parameter
+  console.log(`VITEST: ${process.env.VITEST}, PLAYWRIGHT_E2E: ${process.env.PLAYWRIGHT_E2E}`);
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const webviewId = urlParams.get('webviewId') ?? undefined;
@@ -35,7 +36,7 @@ export const init = (): void => {
   webviewPreload.init().catch((error: unknown) => console.error('Error while initializing the exposure', error));
 };
 
-// do not call init methd in case of testing
-if (!process.env.VITEST) {
+// do not call init methd in case of testing, but call when running E2E tests, see #6740
+if (!process.env.VITEST || process.env.PLAYWRIGHT_E2E) {
   init();
 }
