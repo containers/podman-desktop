@@ -60,7 +60,6 @@ export class ExtensionsUtils {
       ? latestVersion.files.find(f => f.assetType.toLowerCase() === 'readme')?.data
       : undefined;
     const lastUpdated = latestVersion?.lastUpdated;
-
     // grab first from installed extension
     if (matchingInstalledExtension) {
       displayName = matchingInstalledExtension.displayName;
@@ -140,7 +139,6 @@ export class ExtensionsUtils {
       fetchLink,
       fetchVersion,
     };
-
     return matchingExtension;
   }
 

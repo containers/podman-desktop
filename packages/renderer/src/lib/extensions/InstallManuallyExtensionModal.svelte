@@ -11,7 +11,7 @@ export let closeCallback: () => void;
 let imageName = '';
 
 let installInProgress = false;
-let inputfieldError: string | undefined = undefined;
+let inputfieldError: string | undefined = '';
 let progressPercent = 0;
 let logs: string[] = [];
 
@@ -40,7 +40,7 @@ function validateImageName(event: Event): void {
 }
 
 async function installExtension() {
-  inputfieldError = '';
+  inputfieldError = undefined;
   logs = [];
 
   installInProgress = true;
@@ -139,8 +139,11 @@ function handleKeydown(e: KeyboardEvent) {
               closeCallback();
             }}">Cancel</Button>
           {#if progressPercent !== 100}
-            <Button icon="{faCloudDownload}" on:click="{() => installExtension()}" inProgress="{installInProgress}"
-              >Install</Button>
+            <Button
+              icon="{faCloudDownload}"
+              disabled="{inputfieldError !== undefined}"
+              on:click="{() => installExtension()}"
+              inProgress="{installInProgress}">Install</Button>
           {/if}
           {#if progressPercent === 100}
             <Button on:click="{() => closeCallback()}">Done</Button>

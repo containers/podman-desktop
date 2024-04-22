@@ -15,6 +15,7 @@ function openExtensionDetails() {
 
 <div
   class="rounded-lg border border-[var(--pd-card-bg)] flex flex-col bg-[var(--pd-card-bg)] hover:border-dustypurple-500 min-h-32 max-h-32"
+  role="group"
   aria-label="{catalogExtensionUI.displayName}">
   <!-- if featured need to display a top banner -->
 

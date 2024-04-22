@@ -19,7 +19,6 @@ import InstalledExtensionActions from './InstalledExtensionActions.svelte';
 export let extensionId: string;
 
 let extension: ExtensionDetailsUI;
-
 let detailsPage: DetailsPage;
 const extensionsUtils = new ExtensionsUtils();
 
