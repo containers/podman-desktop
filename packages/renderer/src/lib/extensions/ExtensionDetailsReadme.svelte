@@ -9,7 +9,10 @@ export let readme: { content?: string; uri?: string };
 
 let readmeContent: string | undefined = undefined;
 
-onMount(async () => {
+$: readme && refreshReadme();
+
+async function refreshReadme(): Promise<void> {
+  readmeContent = undefined;
   if (readme.uri) {
     // fetch the readme file content
     const response = await fetch(readme.uri);
@@ -27,6 +30,10 @@ onMount(async () => {
   if (!readmeContent) {
     readmeContent = '';
   }
+}
+
+onMount(async () => {
+  await refreshReadme();
 });
 </script>
 
