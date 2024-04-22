@@ -15,6 +15,7 @@ import { ImageUtils } from './lib/image/image-utils';
 import ContainerIcon from './lib/images/ContainerIcon.svelte';
 import DashboardIcon from './lib/images/DashboardIcon.svelte';
 import DeploymentIcon from './lib/images/DeploymentIcon.svelte';
+import ExtensionIcon from './lib/images/ExtensionIcon.svelte';
 import ImageIcon from './lib/images/ImageIcon.svelte';
 import IngressRouteIcon from './lib/images/IngressRouteIcon.svelte';
 import KubeIcon from './lib/images/KubeIcon.svelte';
@@ -25,6 +26,7 @@ import SettingsIcon from './lib/images/SettingsIcon.svelte';
 import VolumeIcon from './lib/images/VolumeIcon.svelte';
 import NavItem from './lib/ui/NavItem.svelte';
 import NavSection from './lib/ui/NavSection.svelte';
+import { combinedInstalledExtensions } from './stores/all-installed-extensions';
 import { containersInfos } from './stores/containers';
 import { contributions } from './stores/contribs';
 import { imagesInfos } from './stores/images';
@@ -47,6 +49,7 @@ let deploymentsSubscribe: Unsubscriber;
 let servicesSubscribe: Unsubscriber;
 let ingressesSubscribe: Unsubscriber;
 let routesSubscribe: Unsubscriber;
+let combinedInstalledExtensionsSubscribe: Unsubscriber;
 
 let podCount = '';
 let containerCount = '';
@@ -58,6 +61,7 @@ let serviceCount = '';
 let ingressesCount = 0;
 let routesCount = 0;
 let ingressesRoutesCount = '';
+let extensionCount = '';
 
 const imageUtils = new ImageUtils();
 export let exitSettingsCallback: () => void;
@@ -122,6 +126,13 @@ onMount(async () => {
   contextsSubscribe = kubernetesContexts.subscribe(value => {
     contextCount = value.length;
   });
+  combinedInstalledExtensionsSubscribe = combinedInstalledExtensions.subscribe(value => {
+    if (value.length > 0) {
+      extensionCount = ` (${value.length})`;
+    } else {
+      extensionCount = '';
+    }
+  });
 });
 
 onDestroy(() => {
@@ -148,6 +159,7 @@ onDestroy(() => {
   }
   ingressesSubscribe?.();
   routesSubscribe?.();
+  combinedInstalledExtensionsSubscribe?.();
 });
 
 function updateIngressesRoutesCount(count: number) {
@@ -192,6 +204,9 @@ export let meta: TinroRouteMeta;
   </NavItem>
   <NavItem href="/volumes" tooltip="Volumes{volumeCount}" ariaLabel="Volumes" bind:meta="{meta}">
     <VolumeIcon size="{iconSize}" />
+  </NavItem>
+  <NavItem href="/extensions" tooltip="Extensions{extensionCount}" ariaLabel="Extensions" bind:meta="{meta}">
+    <ExtensionIcon size="24" />
   </NavItem>
   {#if contextCount > 0}
     <NavSection tooltip="Kubernetes">
