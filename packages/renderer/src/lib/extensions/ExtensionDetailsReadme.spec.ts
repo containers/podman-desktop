@@ -36,8 +36,8 @@ beforeEach(() => {
 
 test('Expect to have readme with URI', async () => {
   const spyFetch = vi.spyOn(window, 'fetch');
-  const response = new Response('# This is my README');
-  spyFetch.mockResolvedValue(response);
+  spyFetch.mockResolvedValueOnce(new Response('#'));
+  spyFetch.mockResolvedValueOnce(new Response('# This is my README'));
 
   await waitRender({ readme: { uri: 'http://my-fake-registry/readme-content' } });
 
