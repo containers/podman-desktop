@@ -84,7 +84,7 @@ test('Loader should redirect to the installation page when receiving the event',
   await callback();
 
   // check that we have been redirected
-  expect(router.goto).toHaveBeenCalledWith(`/preferences/extensions/install-from-id/${dummyExtensionId}`);
+  expect(router.goto).toHaveBeenCalledWith(`/extensions/details/${dummyExtensionId}`);
 });
 
 test('Loader should send the event if extensions take time to start', async () => {
