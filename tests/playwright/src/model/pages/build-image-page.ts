@@ -28,6 +28,7 @@ export class BuildImagePage extends BasePage {
   readonly imageNameInput: Locator;
   readonly buildButton: Locator;
   readonly doneButton: Locator;
+  readonly cancelButton: Locator;
   readonly containerFilePathButton: Locator;
 
   constructor(page: Page) {
@@ -38,6 +39,7 @@ export class BuildImagePage extends BasePage {
     this.imageNameInput = page.getByPlaceholder('my-custom-image');
     this.buildButton = page.getByRole('button', { name: 'Build' });
     this.doneButton = page.getByRole('button', { name: 'Done' });
+    this.cancelButton = page.getByRole('button', { name: 'Cancel' });
     this.containerFilePathButton = page.getByRole('button', { name: 'Browse...' }).first();
   }
 
