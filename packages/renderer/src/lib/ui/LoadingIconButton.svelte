@@ -16,6 +16,7 @@ export let clickAction: () => Promise<void> | void;
 
 $: disable =
   state?.inProgress ||
+  state?.status === 'unsupported' ||
   (action === 'start' && state?.status !== 'stopped') ||
   (action === 'restart' && state?.status !== 'started') ||
   (action === 'stop' && state?.status !== 'started') ||
@@ -29,7 +30,8 @@ function getStyleByState(state: ILoadingStatus | undefined, action: string): str
     (action === 'start' && (state?.inProgress || state?.status !== 'stopped')) ||
     ((action === 'stop' || action === 'restart') && (state?.inProgress || state?.status !== 'started')) ||
     (action === 'delete' && (state?.inProgress || (state?.status !== 'stopped' && state?.status !== 'unknown'))) ||
-    (action === 'update' && (state?.inProgress || state?.status === 'unknown'))
+    (action === 'update' && (state?.inProgress || state?.status === 'unknown')) ||
+    state?.status === 'unsupported'
   ) {
     return 'text-gray-900 cursor-not-allowed';
   } else {
