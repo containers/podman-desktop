@@ -40,7 +40,7 @@ test('should return true if regex is satisfied', async () => {
 provider = "hyperv"
 memory = 4096
     `);
-  const found = await podmanConfiguration.isValueInContainersConfig(/provider\s*=\s*"hyperv"/);
+  const found = await podmanConfiguration.matchRegexpInContainersConfig(/provider\s*=\s*"hyperv"/);
   expect(found).toBeTruthy();
 });
 
@@ -50,6 +50,6 @@ test('should return false if regex is not satisfied', async () => {
 provider = "wsl"
 memory = 4096
     `);
-  const found = await podmanConfiguration.isValueInContainersConfig(/provider\s*=\s*"hyperv"/);
+  const found = await podmanConfiguration.matchRegexpInContainersConfig(/provider\s*=\s*"hyperv"/);
   expect(found).toBeFalsy();
 });

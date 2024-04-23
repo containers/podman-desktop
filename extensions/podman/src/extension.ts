@@ -1518,7 +1518,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   if (isWindows()) {
     const isPodmanHyperv_Env = process.env.CONTAINERS_MACHINE_PROVIDER === 'hyperv';
-    const isPodmanHyperv_Config = await podmanConfiguration.isValueInContainersConfig(/provider\s*=\s*"hyperv"/);
+    const isPodmanHyperv_Config = await podmanConfiguration.matchRegexpInContainersConfig(/provider\s*=\s*"hyperv"/);
     extensionApi.context.setValue(PODMAN_WSL_KEY, !(isPodmanHyperv_Env || isPodmanHyperv_Config));
   }
 }

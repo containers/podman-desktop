@@ -203,12 +203,12 @@ export class PodmanConfiguration {
     }
   }
 
-  async isValueInContainersConfig(regex: RegExp): Promise<boolean> {
+  async matchRegexpInContainersConfig(regex: RegExp): Promise<boolean> {
     try {
       const containerConf = await this.readContainersConfigFile();
       return regex.test(containerConf);
     } catch (e) {
-      console.log(String(e));
+      console.warn(`Unable to run regex on containers.conf file. Reason: ${String(e)}`);
     }
     return false;
   }
