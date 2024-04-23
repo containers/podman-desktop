@@ -46,6 +46,10 @@ const ALLOWED_ORIGINS_AND_PERMISSIONS = new Map<
     | 'window-management'
     | 'window-placement'
     | 'idle-detection'
+    | 'speaker-selection'
+    | 'storage-access'
+    | 'top-level-storage-access'
+    | 'fileSystem'
     | 'unknown'
   >
 >(
