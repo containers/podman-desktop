@@ -33,3 +33,26 @@ export interface ExtensionBanner {
     };
   };
 }
+
+export interface RecommendedRegistryExtensionDetails {
+  id: string;
+  fetchLink?: string;
+  fetchVersion?: string;
+  displayName: string;
+  fetchable: boolean;
+}
+export interface RecommendedRegistry {
+  // FQN like vendor.my-extension
+  extensionId: string;
+  // name of the extension
+  name: string;
+  // The unique id of the registry like foo.my-domain.com
+  id: string;
+  // errors to match like ['unauthorized']
+  errors: string[];
+
+  // extension is installed or not ?
+  isInstalled: boolean;
+
+  extensionDetails: RecommendedRegistryExtensionDetails;
+}

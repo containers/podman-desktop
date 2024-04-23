@@ -59,7 +59,7 @@ export class ExtensionsCatalog {
   // internal method, not exposed
   protected async getCatalogJson(): Promise<InternalCatalogJSON | undefined> {
     // return the cache version if cache is not reached and we have a cached version
-    if (this.lastFetchTime + ExtensionsCatalog.CACHE_TIMEOUT < Date.now() && this.cachedCatalog) {
+    if (this.lastFetchTime + ExtensionsCatalog.CACHE_TIMEOUT > Date.now() && this.cachedCatalog) {
       return this.cachedCatalog;
     }
 

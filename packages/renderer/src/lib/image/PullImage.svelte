@@ -12,11 +12,13 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import FormPage from '../ui/FormPage.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
+import RecommendedRegistry from './RecommendedRegistry.svelte';
 
 let logsPull: Terminal;
 let pullError = '';
 let pullInProgress = false;
 let pullFinished = false;
+
 export let imageToPull: string | undefined = undefined;
 
 $: providerConnections = $providerInfos
@@ -207,6 +209,7 @@ function requestFocus(element: HTMLInputElement) {
             {#if pullError}
               <ErrorMessage error="{pullError}" />
             {/if}
+            <RecommendedRegistry bind:imageError="{pullError}" imageName="{imageToPull}" />
           </div>
         </footer>
         <TerminalWindow bind:terminal="{logsPull}" />

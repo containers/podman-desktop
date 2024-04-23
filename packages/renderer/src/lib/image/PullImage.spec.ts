@@ -25,8 +25,10 @@ import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
+import { providerInfos } from '/@/stores/providers';
+import { recommendedRegistries } from '/@/stores/recommendedRegistries';
+
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import { providerInfos } from '../../stores/providers';
 import PullImage from './PullImage.svelte';
 
 const pullImageMock = vi.fn();
@@ -218,5 +220,43 @@ describe('PullImage', () => {
 
     // expect that the error message is not displayed
     expect(errorMesssage).not.toBeInTheDocument();
+  });
+
+  test('Expect that pull image is suggesting an extension in case of matching error', async () => {
+    setup();
+
+    // add registries as recommended
+    recommendedRegistries.set([
+      {
+        id: 'my.registry.com',
+        name: 'Hello',
+        errors: ['Image does not exists'],
+        extensionId: 'myExtension.id',
+        isInstalled: false,
+        extensionDetails: {
+          id: 'myExtension.id',
+          fetchable: true,
+          displayName: 'My Custom Extension',
+          fetchLink: 'myCustomLinkToDownloadExtension',
+          fetchVersion: '1.0.0',
+        },
+      },
+    ]);
+
+    render(PullImage, { imageToPull: 'my.registry.com/image-to-pull' });
+
+    // first call to pull image throw an error
+    pullImageMock.mockRejectedValueOnce(new Error('Image does not exists'));
+
+    // next one are ok
+    pullImageMock.mockResolvedValueOnce({});
+
+    const pullImagebutton = screen.getByRole('button', { name: 'Pull image' });
+    await userEvent.click(pullImagebutton);
+
+    // check to see the proposal to install the extension
+    const proposal = screen.getByRole('button', { name: 'Install myExtension.id Extension' });
+    expect(proposal).toBeInTheDocument();
+    expect(proposal).toBeEnabled();
   });
 });
