@@ -19,10 +19,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { render } from '@testing-library/svelte';
+import { get } from 'svelte/store';
 import { router } from 'tinro';
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import Loader from './Loader.svelte';
+import { lastPage } from './stores/breadcrumb';
 
 // first, patch window object
 const callbacks = new Map<string, any>();
@@ -85,6 +87,12 @@ test('Loader should redirect to the installation page when receiving the event',
 
   // check that we have been redirected
   expect(router.goto).toHaveBeenCalledWith(`/extensions/details/${dummyExtensionId}`);
+
+  // check that breadcrumb is correct
+  expect(get(lastPage)).toStrictEqual({
+    name: 'Extensions',
+    path: '/extensions',
+  });
 });
 
 test('Loader should send the event if extensions take time to start', async () => {
