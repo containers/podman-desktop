@@ -21,6 +21,6 @@ async function stopExtension(): Promise<void> {
     clickAction="{() => stopExtension()}"
     action="stop"
     icon="{faStop}"
-    state="{{ status: extension.type === 'dd' ? 'unknown' : extension.state, inProgress }}"
+    state="{{ status: extension.type === 'dd' ? 'unsupported' : extension.state, inProgress }}"
     leftPosition="" />
 {/if}
