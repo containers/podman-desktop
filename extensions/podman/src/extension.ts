@@ -877,6 +877,7 @@ export const ROOTFUL_MACHINE_INIT_SUPPORTED_KEY = 'podman.isRootfulMachineInitSu
 export const USER_MODE_NETWORKING_SUPPORTED_KEY = 'podman.isUserModeNetworkingSupported';
 export const START_NOW_MACHINE_INIT_SUPPORTED_KEY = 'podman.isStartNowAtMachineInitSupported';
 export const CLEANUP_REQUIRED_MACHINE_KEY = 'podman.needPodmanMachineCleanup';
+export const PODMAN_WSL_KEY = 'podman.isWSL';
 
 export function initTelemetryLogger(): void {
   telemetryLogger = extensionApi.env.createTelemetryLogger();
@@ -1514,6 +1515,12 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   const podmanConfiguration = new PodmanConfiguration();
   await podmanConfiguration.init();
+
+  if (isWindows()) {
+    const isPodmanHyperv_Env = process.env.CONTAINERS_MACHINE_PROVIDER === 'hyperv';
+    const isPodmanHyperv_Config = await podmanConfiguration.isValueInContainersConfig(/provider\s*=\s*"hyperv"/);
+    extensionApi.context.setValue(PODMAN_WSL_KEY, !(isPodmanHyperv_Env || isPodmanHyperv_Config));
+  }
 }
 
 // Function that checks to see if the default machine is running and return a string

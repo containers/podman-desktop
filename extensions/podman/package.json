@@ -113,7 +113,8 @@
           "minimum": 1,
           "maximum": "HOST_TOTAL_CPU",
           "scope": "ContainerProviderConnectionFactory",
-          "description": "CPU(s)"
+          "description": "CPU(s)",
+          "when": "!isWindows || !podman.isWSL"
         },
         "podman.factory.machine.memory": {
           "type": "number",
@@ -123,7 +124,8 @@
           "maximum": "HOST_TOTAL_MEMORY",
           "scope": "ContainerProviderConnectionFactory",
           "step": 500000000,
-          "description": "Memory"
+          "description": "Memory",
+          "when": "!isWindows || !podman.isWSL"
         },
         "podman.factory.machine.diskSize": {
           "type": "number",
@@ -133,7 +135,8 @@
           "maximum": "HOST_TOTAL_DISKSIZE",
           "step": 500000000,
           "scope": "ContainerProviderConnectionFactory",
-          "description": "Disk size"
+          "description": "Disk size",
+          "when": "!isWindows || !podman.isWSL"
         },
         "podman.factory.machine.image-path": {
           "type": "string",

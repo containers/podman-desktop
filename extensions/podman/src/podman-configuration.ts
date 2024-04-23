@@ -203,6 +203,16 @@ export class PodmanConfiguration {
     }
   }
 
+  async isValueInContainersConfig(regex: RegExp): Promise<boolean> {
+    try {
+      const containerConf = await this.readContainersConfigFile();
+      return regex.test(containerConf);
+    } catch (e) {
+      console.log(String(e));
+    }
+    return false;
+  }
+
   protected getContainersFileLocation(): string {
     let podmanConfigContainersPath;
 
