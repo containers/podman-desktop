@@ -30,7 +30,7 @@ beforeEach(() => {
   (window as any).removeExtension = vi.fn();
 });
 
-test('Expect to see start and delete on stopped pd Extension', async () => {
+test('Expect to see start and delete on stopped pd extension', async () => {
   const extension: CombinedExtensionInfoUI = {
     type: 'pd',
     id: '',
@@ -53,12 +53,49 @@ test('Expect to see start and delete on stopped pd Extension', async () => {
   // should have start button and delete button
   const start = screen.getByRole('button', { name: 'Start' });
   expect(start).toBeInTheDocument();
+  expect(start).toBeEnabled();
 
   const deleteButton = screen.getByRole('button', { name: 'Delete' });
   expect(deleteButton).toBeInTheDocument();
+  expect(deleteButton).toBeEnabled();
+
+  // should not have stop button
+  const stop = screen.queryByRole('button', { name: 'Stop' });
+  expect(stop).not.toBeInTheDocument();
 });
 
-test('Expect to see stop on started pd Extension', async () => {
+test('Expect to see disabled start and delete on starting pd extension', async () => {
+  const extension: CombinedExtensionInfoUI = {
+    type: 'pd',
+    id: '',
+    name: 'foo',
+    description: 'my description',
+    displayName: '',
+    publisher: '',
+    removable: true,
+    version: 'v1.2.3',
+    state: 'starting',
+    path: '',
+    readme: '',
+  };
+  render(InstalledExtensionCardLeftLifecycle, { extension });
+
+  // should not have stop button
+  const stop = screen.queryByRole('button', { name: 'Stop' });
+  expect(stop).not.toBeInTheDocument();
+
+  // should have disabled start button
+  const start = screen.getByRole('button', { name: 'Start' });
+  expect(start).toBeInTheDocument();
+  expect(start).toBeDisabled();
+
+  // should have disabled delete button
+  const deleteButton = screen.getByRole('button', { name: 'Delete' });
+  expect(deleteButton).toBeInTheDocument();
+  expect(deleteButton).toBeDisabled();
+});
+
+test('Expect to see stop and disabled delete on started pd extension', async () => {
   const extension: CombinedExtensionInfoUI = {
     type: 'pd',
     id: '',
@@ -81,4 +118,75 @@ test('Expect to see stop on started pd Extension', async () => {
   // should have stop button
   const stop = screen.getByRole('button', { name: 'Stop' });
   expect(stop).toBeInTheDocument();
+  expect(stop).toBeEnabled();
+
+  // should not have start button
+  const start = screen.queryByRole('button', { name: 'Start' });
+  expect(start).not.toBeInTheDocument();
+
+  const deleteButton = screen.getByRole('button', { name: 'Delete' });
+  expect(deleteButton).toBeInTheDocument();
+  expect(deleteButton).not.toBeEnabled();
+});
+
+test('Expect to see disabled start and delete on stopping pd extension', async () => {
+  const extension: CombinedExtensionInfoUI = {
+    type: 'pd',
+    id: '',
+    name: 'foo',
+    description: 'my description',
+    displayName: '',
+    publisher: '',
+    removable: true,
+    version: 'v1.2.3',
+    state: 'stopping',
+    path: '',
+    readme: '',
+  };
+  render(InstalledExtensionCardLeftLifecycle, { extension });
+
+  // should not have stop button
+  const stop = screen.queryByRole('button', { name: 'Stop' });
+  expect(stop).not.toBeInTheDocument();
+
+  // should have disabled start button
+  const start = screen.getByRole('button', { name: 'Start' });
+  expect(start).toBeInTheDocument();
+  expect(start).toBeDisabled();
+
+  // should have disabled delete button
+  const deleteButton = screen.getByRole('button', { name: 'Delete' });
+  expect(deleteButton).toBeInTheDocument();
+  expect(deleteButton).toBeDisabled();
+});
+
+test('Expect to see disabled start and enabled delete on unknown state pd extension', async () => {
+  const extension: CombinedExtensionInfoUI = {
+    type: 'pd',
+    id: '',
+    name: 'foo',
+    description: 'my description',
+    displayName: '',
+    publisher: '',
+    removable: true,
+    version: 'v1.2.3',
+    state: 'unknown',
+    path: '',
+    readme: '',
+  };
+  render(InstalledExtensionCardLeftLifecycle, { extension });
+
+  // should not have stop button
+  const stop = screen.queryByRole('button', { name: 'Stop' });
+  expect(stop).not.toBeInTheDocument();
+
+  // should have disabled start button
+  const start = screen.getByRole('button', { name: 'Start' });
+  expect(start).toBeInTheDocument();
+  expect(start).toBeDisabled();
+
+  // should have delete button
+  const deleteButton = screen.getByRole('button', { name: 'Delete' });
+  expect(deleteButton).toBeInTheDocument();
+  expect(deleteButton).toBeEnabled();
 });
