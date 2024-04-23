@@ -2114,7 +2114,7 @@
     "@docusaurus/theme-search-algolia" "3.2.1"
     "@docusaurus/types" "3.2.1"
 
-"@docusaurus/react-loadable@5.5.2":
+"@docusaurus/react-loadable@5.5.2", "react-loadable@npm:@docusaurus/react-loadable@5.5.2":
   version "5.5.2"
   resolved "https://registry.yarnpkg.com/@docusaurus/react-loadable/-/react-loadable-5.5.2.tgz#81aae0db81ecafbdaee3651f12804580868fa6ce"
   integrity sha512-A3dYjdBGuy0IGT+wyLIGIKLRE+sAk1iNk0f1HjNDysO7u8lhL4N3VEm+FAubmJbAztn94F7MxBTPmnixbiyFdQ==
@@ -7412,10 +7412,10 @@ docusaurus-plugin-goatcounter@^3.0.0:
   resolved "https://registry.yarnpkg.com/docusaurus-plugin-goatcounter/-/docusaurus-plugin-goatcounter-3.0.0.tgz#da55f2fae91a70ccf0af09ee3f53d000c61a2642"
   integrity sha512-nlB8VOj+kzL9rAY0zICsktbaJoy2M8CBcRAOaltGAo5RrvDj7pMCgV067FiFF0dBrgn2k6+aC4/g/T50XvvJJw==
 
-docusaurus-plugin-typedoc@1.0.0-next.28:
-  version "1.0.0-next.28"
-  resolved "https://registry.yarnpkg.com/docusaurus-plugin-typedoc/-/docusaurus-plugin-typedoc-1.0.0-next.28.tgz#8021ad98cf912cfb9aec6bdac17e25fd702f27a0"
-  integrity sha512-deuTv+FFhx5xMB/BIM409vDx+15LQrsHHpx4xtkJiQFsbKd3xkOKMaULNGHob+kSBSZvAffrEc251xbMw3JzEQ==
+docusaurus-plugin-typedoc@1.0.0-next.30:
+  version "1.0.0-next.30"
+  resolved "https://registry.yarnpkg.com/docusaurus-plugin-typedoc/-/docusaurus-plugin-typedoc-1.0.0-next.30.tgz#c6e185dfa892bcb2553af4fb17b43d1986e82432"
+  integrity sha512-p7u3ksPTXnfKlAPmUwjUswPYwL15YEDvvmMemp7RweGMhB+iUd+nVUrdEqk0N2Cf1ldfYhZVnfttjqhfpadEIg==
 
 dom-accessibility-api@^0.5.9:
   version "0.5.16"
@@ -13847,14 +13847,6 @@ react-loadable-ssr-addon-v5-slorber@^1.0.1:
   dependencies:
     "@babel/runtime" "^7.10.3"
 
-"react-loadable@npm:@docusaurus/react-loadable@5.5.2":
-  version "5.5.2"
-  resolved "https://registry.yarnpkg.com/@docusaurus/react-loadable/-/react-loadable-5.5.2.tgz#81aae0db81ecafbdaee3651f12804580868fa6ce"
-  integrity sha512-A3dYjdBGuy0IGT+wyLIGIKLRE+sAk1iNk0f1HjNDysO7u8lhL4N3VEm+FAubmJbAztn94F7MxBTPmnixbiyFdQ==
-  dependencies:
-    "@types/react" "*"
-    prop-types "^15.6.2"
-
 react-player@^2.16.0:
   version "2.16.0"
   resolved "https://registry.yarnpkg.com/react-player/-/react-player-2.16.0.tgz#89070700b03f5a5ded9f0b3165d4717390796481"
@@ -16063,10 +16055,10 @@ typedarray-to-buffer@^3.1.5:
   dependencies:
     is-typedarray "^1.0.0"
 
-typedoc-plugin-markdown@4.0.0-next.55:
-  version "4.0.0-next.55"
-  resolved "https://registry.yarnpkg.com/typedoc-plugin-markdown/-/typedoc-plugin-markdown-4.0.0-next.55.tgz#624ea848b7b73b093fbb3905b28effb885805dea"
-  integrity sha512-bwEEBkAP0kHnjE10QzPBXAri5yHYmgb+vZP+xn9GirBLCk3lt7SMUiUx0fj7lEtTmbgIH0rv20f3xP+JWxCPHg==
+typedoc-plugin-markdown@4.0.0-next.58:
+  version "4.0.0-next.58"
+  resolved "https://registry.yarnpkg.com/typedoc-plugin-markdown/-/typedoc-plugin-markdown-4.0.0-next.58.tgz#b26d4c3ec5e121530209963c71cdf1044014a2c6"
+  integrity sha512-qIpinPrmz75gkKcveXNcCIxtKeNM+u/LGx+L9Cp2qOv0vCR3Vi5ONWVFq3P5XIAkoRFnLZXx6NaLcey+GuQuUA==
 
 typedoc@^0.25.13:
   version "0.25.13"
