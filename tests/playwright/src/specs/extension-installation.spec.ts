@@ -21,6 +21,7 @@ import { expect as playExpect } from '@playwright/test';
 import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 
 import { DashboardPage } from '../model/pages/dashboard-page';
+import { ExtensionCardPage } from '../model/pages/extension-card-page';
 import { ExtensionsPage } from '../model/pages/extensions-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import { SettingsBar } from '../model/pages/settings-bar';
@@ -33,6 +34,7 @@ const DISABLED = 'DISABLED';
 const ACTIVE = 'ACTIVE';
 const RUNNING = 'RUNNING';
 const NOT_INSTALLED = 'NOT-INSTALLED';
+const DOWNLOADABLE = 'DOWNLOADABLE';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -40,9 +42,10 @@ let page: Page;
 let extensionDashboardStatus: Locator;
 let extensionDashboardBox: Locator;
 let extensionDashboardProvider: Locator;
-let extensionSettingsBox: Locator;
+let extensionCard: ExtensionCardPage;
 let installButtonLabel: string;
 let extensionName: string;
+let extensionLabel: string;
 let resourceLabel: string;
 let imageLink: string;
 
@@ -81,6 +84,7 @@ describe.each([
 
   test('Initialize extension type', async () => {
     initializeLocators(extensionType);
+    extensionCard = new ExtensionCardPage(page, extensionLabel, extensionName);
     extensionBoxVisible = await extensionDashboardBox.isVisible();
   });
 
@@ -94,8 +98,9 @@ describe.each([
       await navBar.openExtensions();
     });
 
+    // requires to be rewritten, as extension are not shuffled anymore, but are part of extensions catalog
     test.runIf(extensionBoxVisible)('Check Settings extension component for installation availability', async () => {
-      const installButton = extensionSettingsBox.getByRole('button', { name: installButtonLabel });
+      const installButton = extensionCard.card.getByRole('button', { name: installButtonLabel });
       await playExpect(installButton).toBeVisible();
     });
   });
@@ -104,7 +109,7 @@ describe.each([
     const extensionsPage = new ExtensionsPage(page);
 
     await extensionsPage.installExtensionFromOCIImage(imageLink);
-    const extensionDetailsPage = await extensionsPage.openExtensionDetails(extensionName);
+    const extensionDetailsPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel);
 
     const extensionStatusLabel = extensionDetailsPage.status;
     await playExpect(extensionStatusLabel).toBeVisible({ timeout: 180000 });
@@ -113,16 +118,16 @@ describe.each([
   describe('Verify UI components after installation', async () => {
     test('Verify Settings components', async () => {
       const extensionsPage = await navBar.openExtensions();
-      const extensionPage = await extensionsPage.openExtensionDetails(extensionName);
+      const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel);
       await playExpect(extensionPage.status).toHaveText(ACTIVE);
     });
 
     describe('Toggle and verify extension status', async () => {
       test('Disable extension and verify Dashboard and Resources components', async () => {
         const extensionsPage = await navBar.openExtensions();
-        const extensionPage = await extensionsPage.openExtensionDetails(extensionName);
+        const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel);
 
-        await extensionPage.disableButton.click();
+        await extensionPage.disableExtension();
         await playExpect(extensionPage.status).toHaveText(DISABLED);
 
         await goToDashboard();
@@ -139,9 +144,9 @@ describe.each([
 
       test('Enable extension and verify Dashboard and Resources components', async () => {
         const extensionsPage = await navBar.openExtensions();
-        const extensionPage = await extensionsPage.openExtensionDetails(extensionName);
+        const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel);
 
-        await extensionPage.enableButton.click();
+        await extensionPage.enableExtension();
         await playExpect(extensionPage.status).toHaveText(ACTIVE, { timeout: 10000 });
 
         await goToDashboard();
@@ -165,17 +170,20 @@ describe.each([
 
   describe('Remove extension and verify UI', async () => {
     test('Remove extension and verify components', async () => {
-      const extensionsPage = await navBar.openExtensions();
+      let extensionsPage = await navBar.openExtensions();
 
-      const extensionPage = await extensionsPage.openExtensionDetails(extensionName);
+      const extensionDetails = await extensionsPage.openExtensionDetails(extensionName, extensionLabel);
 
-      await extensionPage.disableButton.click();
-      await extensionPage.removeExtensionButton.click();
+      await extensionDetails.disableExtension();
+      await extensionDetails.removeExtension();
 
-      const settingsBar = await goToSettings();
-      const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
-      const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', { name: resourceLabel });
-      await playExpect(extensionResourceBox).toBeHidden();
+      // now if deleted from extension details, the page details still there, just different
+      await playExpect(extensionDetails.status).toHaveText(DOWNLOADABLE);
+      await playExpect(extensionDetails.page.getByRole('button', { name: installButtonLabel })).toBeVisible();
+
+      await goToDashboard();
+      extensionsPage = await navBar.openExtensions();
+      playExpect(await extensionsPage.extensionIsInstalled(extensionLabel)).toBeFalsy();
     });
 
     test.runIf(extensionBoxVisible)('Verify Dashboard components', async () => {
@@ -195,6 +203,7 @@ function initializeLocators(extensionType: string): void {
       extensionDashboardProvider = dashboardPage.devSandboxProvider;
       installButtonLabel = 'Install redhat.redhat-sandbox Extension';
       extensionName = 'redhat-sandbox';
+      extensionLabel = 'redhat.redhat-sandbox';
       resourceLabel = 'redhat.sandbox';
       imageLink = 'ghcr.io/redhat-developer/podman-desktop-sandbox-ext:0.0.2';
       break;
@@ -205,6 +214,7 @@ function initializeLocators(extensionType: string): void {
       extensionDashboardProvider = dashboardPage.openshiftLocalProvider;
       installButtonLabel = 'Install redhat.openshift-local Extension';
       extensionName = 'openshift-local';
+      extensionLabel = 'redhat.openshift-local';
       resourceLabel = 'crc';
       imageLink = 'quay.io/redhat-developer/openshift-local-extension:v1.3.0';
       break;
