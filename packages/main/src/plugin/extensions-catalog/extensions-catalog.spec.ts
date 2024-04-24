@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ProxySettings } from '@podman-desktop/api';
+import type { Configuration, ProxySettings } from '@podman-desktop/api';
 import nock from 'nock';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+
+import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
 
 import type { Certificates } from '../certificates.js';
 import { Emitter } from '../events/emitter.js';
@@ -113,11 +115,18 @@ const proxy: Proxy = {
   isEnabled: isEnabledProxyMock,
 } as unknown as Proxy;
 
+const configurationRegistry: ConfigurationRegistry = {
+  getConfiguration: vi.fn(),
+} as unknown as ConfigurationRegistry;
+
 const originalConsoleError = console.error;
 beforeEach(() => {
-  extensionsCatalog = new ExtensionsCatalog(certificates, proxy);
-  vi.clearAllMocks();
+  extensionsCatalog = new ExtensionsCatalog(certificates, proxy, configurationRegistry);
+  vi.resetAllMocks();
   console.error = vi.fn();
+  vi.mocked(configurationRegistry.getConfiguration).mockReturnValue({
+    get: vi.fn().mockReturnValue(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL),
+  } as unknown as Configuration);
 });
 
 afterEach(() => {
@@ -125,7 +134,7 @@ afterEach(() => {
 });
 
 test('should fetch fetchable extensions', async () => {
-  const url = new URL(ExtensionsCatalog.ALL_EXTENSIONS_URL);
+  const url = new URL(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL);
   const host = url.origin;
   const pathname = url.pathname;
   nock(host)
@@ -147,7 +156,7 @@ test('should fetch fetchable extensions', async () => {
 });
 
 test('should not fetch fetchable extensions if internet connection is taking too much time', async () => {
-  const url = new URL(ExtensionsCatalog.ALL_EXTENSIONS_URL);
+  const url = new URL(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL);
   const host = url.origin;
   const pathname = url.pathname;
   nock(host)
@@ -172,7 +181,7 @@ test('check getHttpOptions with Proxy', async () => {
   getAllCertificatesMock.mockReturnValue(['1', '2', '3']);
 
   isEnabledProxyMock.mockReturnValue(true);
-  extensionsCatalog = new ExtensionsCatalog(certificates, proxy);
+  extensionsCatalog = new ExtensionsCatalog(certificates, proxy, configurationRegistry);
   onDidUpdateProxyEmitter.fire({
     httpProxy: 'http://proxy:8080',
     httpsProxy: 'http://proxy:8080',
@@ -191,7 +200,7 @@ test('check getHttpOptions with Proxy', async () => {
 });
 
 test('should get all extensions', async () => {
-  const url = new URL(ExtensionsCatalog.ALL_EXTENSIONS_URL);
+  const url = new URL(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL);
   const host = url.origin;
   const pathname = url.pathname;
   nock(host)
@@ -225,7 +234,7 @@ test('should get all extensions', async () => {
 });
 
 test('should get proper unlisted fields', async () => {
-  const url = new URL(ExtensionsCatalog.ALL_EXTENSIONS_URL);
+  const url = new URL(ExtensionsCatalog.DEFAULT_EXTENSIONS_URL);
   const host = url.origin;
   const pathname = url.pathname;
   nock(host)
@@ -251,6 +260,35 @@ test('should get proper unlisted fields', async () => {
   expect(unlistedFalseExtension).toBeDefined();
   expect(unlistedFalseExtension?.unlisted).toBeFalsy();
 
+  // no error
+  expect(console.error).not.toBeCalled();
+});
+
+test('should fetch alternate link', async () => {
+  const customPathToCatalog = 'https://my-dummy-podman-desktop.com/catalog.json';
+  const url = new URL(customPathToCatalog);
+  const host = url.origin;
+  const pathname = url.pathname;
+  nock(host)
+    .get(pathname)
+    .reply(200, {
+      extensions: [fakePublishedExtension1],
+    });
+
+  // change the configuration reply to be our custom path
+  vi.mocked(configurationRegistry.getConfiguration).mockClear();
+  vi.mocked(configurationRegistry.getConfiguration).mockReturnValue({
+    get: vi.fn().mockReturnValue(customPathToCatalog),
+  } as unknown as Configuration);
+
+  const fetchableExtensions = await extensionsCatalog.getFetchableExtensions();
+  expect(fetchableExtensions).toBeDefined();
+  expect(fetchableExtensions.length).toBe(1);
+
+  // check data
+  const extension = fetchableExtensions[0];
+  expect(extension.extensionId).toBe('foo.fooName');
+  expect(extension.link).toBe('oci-registry.foo/foo/bar');
   // no error
   expect(console.error).not.toBeCalled();
 });
