@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
 import type { Featured } from '/@/plugin/featured/featured.js';
@@ -37,6 +37,7 @@ vi.mock('../../../../../recommendations.json', () => ({
       description: 'dummy description',
       icon: 'data:image/png;base64-icon',
       thumbnail: 'data:image/png;base64-thumbnail',
+      published: '2021-01-01',
     })),
   },
 }));
@@ -52,9 +53,19 @@ const featuredMock = {
   getFeaturedExtensions: vi.fn(),
 } as unknown as Featured;
 
+const fakeNow = new Date(2020, 1, 1);
+
 beforeEach(() => {
   vi.resetAllMocks();
+  vi.useFakeTimers();
+
+  vi.setSystemTime(fakeNow);
+
   recommendationsRegistry = new RecommendationsRegistry(configurationRegistryMock, featuredMock);
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 test('should register a configuration', async () => {
@@ -187,6 +198,28 @@ describe('getExtensionBanners', () => {
 
     const extensions = await recommendationsRegistry.getExtensionBanners(-1);
     expect(extensions.length).toBe(10);
+
+    expect(featuredMock.getFeaturedExtensions).toHaveBeenCalled();
+  });
+
+  test('published value anterior', async () => {
+    vi.setSystemTime(new Date(2022, 1, 1));
+
+    getRecommendationIgnored.mockReturnValue(false);
+    const featured: FeaturedExtension = {
+      id: 'dummy.id-0',
+      builtin: false,
+      description: '',
+      categories: [],
+      displayName: '',
+      fetchable: false,
+      icon: '',
+      installed: false,
+    };
+    vi.mocked(featuredMock.getFeaturedExtensions).mockResolvedValue([featured]);
+
+    const extensions = await recommendationsRegistry.getExtensionBanners();
+    expect(extensions.length).toBe(0);
 
     expect(featuredMock.getFeaturedExtensions).toHaveBeenCalled();
   });
