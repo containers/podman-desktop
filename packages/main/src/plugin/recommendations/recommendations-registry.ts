@@ -45,7 +45,7 @@ export class RecommendationsRegistry {
     if (!this.isRecommendationEnabled()) return [];
 
     const featuredExtensions: Record<string, FeaturedExtension> = Object.fromEntries(
-      (await this.featured.getFeaturedExtensions(-1)).map(featured => [featured.id, featured]),
+      (await this.featured.getFeaturedExtensions()).map(featured => [featured.id, featured]),
     );
 
     // Filter and shuffle the extensions
