@@ -37,7 +37,7 @@ vi.mock('../../../../../recommendations.json', () => ({
       description: 'dummy description',
       icon: 'data:image/png;base64-icon',
       thumbnail: 'data:image/png;base64-thumbnail',
-      published: '2021-01-01',
+      published: '2020-01-01',
     })),
   },
 }));
@@ -203,7 +203,7 @@ describe('getExtensionBanners', () => {
   });
 
   test('published value anterior', async () => {
-    vi.setSystemTime(new Date(2022, 1, 1));
+    vi.setSystemTime(new Date(2019, 1, 1));
 
     getRecommendationIgnored.mockReturnValue(false);
     const featured: FeaturedExtension = {
