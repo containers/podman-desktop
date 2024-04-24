@@ -203,6 +203,16 @@ export class PodmanConfiguration {
     }
   }
 
+  async matchRegexpInContainersConfig(regex: RegExp): Promise<boolean> {
+    try {
+      const containerConf = await this.readContainersConfigFile();
+      return regex.test(containerConf);
+    } catch (e) {
+      console.warn(`Unable to run regex on containers.conf file. Reason: ${String(e)}`);
+    }
+    return false;
+  }
+
   protected getContainersFileLocation(): string {
     let podmanConfigContainersPath;
 
