@@ -336,7 +336,7 @@ class SecondaryResourceWatchersRegistry {
 export class ContextsManager {
   private kubeConfig = new KubeConfig();
   private states = new ContextsStates();
-  private currentContext: string | undefined;
+  private currentContext: KubeContext | undefined;
   private secondaryWatchers = new SecondaryResourceWatchersRegistry();
 
   private dispatchContextsGeneralStateTimer: NodeJS.Timeout | undefined;
@@ -359,15 +359,79 @@ export class ContextsManager {
     this.connectionDelayTimers.set(resourceName, connectionDelay);
   }
 
+  isContextInKubeconfig(context: KubeContext): boolean {
+    // if there is no cluster on the kubeconfig with the value of context.cluster -> false
+    const cluster = this.kubeConfig.getCluster(context.cluster);
+    if (!cluster || cluster.server !== context.clusterInfo?.server) {
+      return false;
+    }
+
+    // if there is no user on the kubeconfig with the value of context.user -> false
+    const user = this.kubeConfig.getUser(context.user);
+    if (!user) {
+      return false;
+    }
+
+    // if there is no context on the kubeconfig with the value of context.context -> false
+    const contextObj = this.kubeConfig.getContextObject(context.name);
+    /* eslint-disable-next-line no-null/no-null */
+    return contextObj !== null && contextObj.cluster === context.cluster && contextObj.user === context.user;
+  }
+
+  isContextChanged(kubeconfig: KubeConfig): boolean {
+    // if the current context name in the kubeconfig is different from the latest context we saved -> true
+    if (kubeconfig.currentContext !== this.currentContext?.name) {
+      return true;
+    }
+
+    // if the current context name in the kubeconfig is undefined ->  true
+    if (!kubeconfig.currentContext) {
+      return true;
+    }
+
+    // by retrieving the context from the kubeconfig, if the user is different from the latest context we saved -> true
+    const user = kubeconfig.getCurrentUser();
+    if (user?.name !== this.currentContext.user) {
+      return true;
+    }
+
+    // by retrieving the cluster from the kubeconfig, if the name or server url are different from the latest context we saved -> true
+    const cluster = kubeconfig.getCurrentCluster();
+    return cluster?.name !== this.currentContext.cluster || cluster?.server !== this.currentContext.clusterInfo?.server;
+  }
+
   // update is the reconcile function, it gets as input the last known kube config
   // and starts/stops informers for different kube contexts, depending on these inputs
   async update(kubeconfig: KubeConfig): Promise<void> {
     this.kubeConfig = kubeconfig;
     let contextChanged = false;
-    if (kubeconfig.currentContext !== this.currentContext) {
+    if (this.isContextChanged(kubeconfig)) {
       contextChanged = true;
-      this.currentContext = kubeconfig.currentContext;
+      const currentCluster = kubeconfig.getCurrentCluster();
+      this.currentContext = {
+        name: kubeconfig.currentContext,
+        user: kubeconfig.getCurrentUser()?.name ?? '',
+        cluster: currentCluster?.name ?? '',
+        clusterInfo: {
+          name: currentCluster?.name ?? '',
+          server: currentCluster?.server ?? '',
+        },
+      };
     }
+
+    // Delete informers for removed contexts
+    // We also remove the state of the current context is it has changed. It may happen that the name of the context is the same but it is pointing to a different cluster
+    let removed = false;
+    for (const name of this.states.getContextsNames()) {
+      if (
+        !this.kubeConfig.contexts.find(c => c.name === name) ||
+        (contextChanged && name === this.currentContext?.name)
+      ) {
+        await this.states.dispose(name);
+        removed = true;
+      }
+    }
+
     // Add informers for new contexts
     let added = false;
     for (const context of this.kubeConfig.contexts) {
@@ -378,28 +442,21 @@ export class ContextsManager {
       }
     }
 
-    // Delete informers for removed contexts
-    let removed = false;
-    for (const name of this.states.getContextsNames()) {
-      if (!this.kubeConfig.contexts.find(c => c.name === name)) {
-        await this.states.dispose(name);
-        removed = true;
-      }
-    }
-
     // Delete secondary informers (others than pods/deployments) on non-current contexts
     if (contextChanged) {
-      const nonCurrentContexts = this.kubeConfig.contexts.filter(ctx => ctx.name !== this.currentContext);
+      const nonCurrentContexts = this.kubeConfig.contexts.filter(ctx => ctx.name !== this.currentContext?.name);
       for (const ctx of nonCurrentContexts) {
         const contextName = ctx.name;
         await this.states.disposeSecondaryInformers(contextName);
       }
 
       // Restart informers for secondary resources if watchers are subscribing for this resource
-      for (const resourceName of secondaryResources) {
-        if (this.secondaryWatchers.hasSubscribers(resourceName)) {
-          console.debug(`start watching ${resourceName} in context ${this.currentContext}`);
-          this.startResourceInformer(this.currentContext, resourceName);
+      if (this.currentContext?.name) {
+        for (const resourceName of secondaryResources) {
+          if (this.secondaryWatchers.hasSubscribers(resourceName)) {
+            console.debug(`start watching ${resourceName} in context ${this.currentContext}`);
+            this.startResourceInformer(this.currentContext.name, resourceName);
+          }
         }
       }
     }
@@ -787,7 +844,15 @@ export class ContextsManager {
         return;
       }
       options.timer = setTimeout(() => {
-        this.restartInformer<T>(informer, context, options);
+        // before restarting the failed informer we should check if the context is still present in the kubeconfig.
+        // It is possible that if we start an informer on an old cluster it will keep failing without any chance to be stopped.
+        // That happens bc, in the library, when executing the listFn
+        // it throws here (as the cluster is not reachable) https://github.com/kubernetes-client/javascript/blob/b8b0ec522bf42086f7c2e1b8648b478b3f584fa8/src/cache.ts#L161
+        // so the watch request is not initialized -> https://github.com/kubernetes-client/javascript/blob/b8b0ec522bf42086f7c2e1b8648b478b3f584fa8/src/cache.ts#L181
+        // and then the stop action cannot be executed -> https://github.com/kubernetes-client/javascript/blob/b8b0ec522bf42086f7c2e1b8648b478b3f584fa8/src/cache.ts#L134
+        if (this.isContextInKubeconfig(context)) {
+          this.restartInformer<T>(informer, context, options);
+        }
       }, nextTimeout);
     });
   }
@@ -869,16 +934,16 @@ export class ContextsManager {
     if (!this.currentContext) {
       return [];
     }
-    if (this.states.hasInformer(this.currentContext, resourceName)) {
+    if (this.states.hasInformer(this.currentContext.name, resourceName)) {
       console.debug(`already watching ${resourceName} in context ${this.currentContext}`);
       return this.states.getContextResources(this.kubeConfig.currentContext, resourceName);
     }
-    if (!this.states.isReachable(this.currentContext)) {
+    if (!this.states.isReachable(this.currentContext.name)) {
       console.debug(`skip watching ${resourceName} in context ${this.currentContext}, as the context is not reachable`);
       return [];
     }
     console.debug(`start watching ${resourceName} in context ${this.currentContext}`);
-    this.startResourceInformer(this.currentContext, resourceName);
+    this.startResourceInformer(this.currentContext.name, resourceName);
     return [];
   }
 
