@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { ManifestCreateOptions, ManifestInspectInfo } from '@podman-desktop/api';
+import type { VolumeCreateOptions, VolumeCreateResponse } from 'dockerode';
 import Dockerode from 'dockerode';
 
 import type { ImageInfo, PodmanListImagesOptions } from '../api/image-info.js';
@@ -517,6 +518,31 @@ export class LibpodDockerode {
             return reject(err);
           }
           resolve(data);
+        });
+      });
+    };
+
+    // replace createVolume call by not wrapping the result into an object named Volume
+    // we need the raw data
+    prototypeOfDockerode.createVolume = function (opts: VolumeCreateOptions): Promise<VolumeCreateResponse> {
+      const optsf = {
+        path: '/volumes/create?',
+        method: 'POST',
+        allowEmpty: true,
+        options: opts,
+        abortSignal: opts.abortSignal,
+        statusCodes: {
+          200: true, // unofficial, but proxies may return it
+          201: true,
+          500: 'server error',
+        },
+      };
+      return new Promise((resolve, reject) => {
+        this.modem.dial(optsf, (err: unknown, data: unknown) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(data as VolumeCreateResponse);
         });
       });
     };

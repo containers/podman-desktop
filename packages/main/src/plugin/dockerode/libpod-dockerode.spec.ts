@@ -259,3 +259,17 @@ test('Check using libpod/manifests/{name}/json endpoint', async () => {
   expect(manifest.manifests[0].size).toBe(0);
   expect(manifest.manifests[0].urls).toEqual([]);
 });
+
+test('Check create volume', async () => {
+  nock('http://localhost')
+    .post(`/volumes/create?Name=foo`)
+    .reply(200, { Name: 'foo', Driver: 'local', Scope: 'local' });
+
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  const response = await api.createVolume({ Name: 'foo' });
+  expect(response).toBeDefined();
+  expect(response.Driver).toBe('local');
+  expect(response.Name).toBe('foo');
+  expect(response.Scope).toBe('local');
+});
