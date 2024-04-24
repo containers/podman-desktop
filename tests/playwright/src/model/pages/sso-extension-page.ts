@@ -18,10 +18,10 @@
 
 import type { Page } from '@playwright/test';
 
-import { ExtensionPage } from './extension-page';
+import { ExtensionDetailsPage } from './extension-details-page';
 
-export class SSOExtensionPage extends ExtensionPage {
+export class SSOExtensionPage extends ExtensionDetailsPage {
   constructor(page: Page) {
-    super(page, 'Red Hat Authentication', 'Red Hat Authentication Extension');
+    super(page, 'Red Hat Authentication Extension');
   }
 }

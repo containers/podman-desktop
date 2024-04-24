@@ -19,86 +19,81 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 
-import { ExtensionDetailsPage } from './extension-details-page';
+import { ExtensionCardPage } from './extension-card-page';
+import type { ExtensionDetailsPage } from './extension-details-page';
 import { MainPage } from './main-page';
 
 export class ExtensionsPage extends MainPage {
   readonly heading: Locator;
   readonly header: Locator;
   readonly content: Locator;
-  readonly imageInstallBox: Locator;
+  readonly additionalActions: Locator;
+  readonly installedTab: Locator;
+  readonly catalogTab: Locator;
 
   constructor(page: Page) {
     super(page, 'extensions');
     this.header = page.getByRole('region', { name: 'Header' });
     this.content = page.getByRole('region', { name: 'Content' });
     this.heading = this.header.getByLabel('Title').getByText('Extensions');
-    this.imageInstallBox = this.content.getByRole('region', { name: 'Install Extension from OCI image' });
+    this.additionalActions = this.header.getByRole('group', { name: 'additionalActions' });
+    this.installedTab = this.page.getByRole('button', { name: 'Installed' });
+    this.catalogTab = this.page.getByRole('button', { name: 'Catalog' });
   }
 
   public async installExtensionFromOCIImage(extension: string): Promise<ExtensionsPage> {
-    console.log('installing extension from OCI image', extension);
     // open button to install extension from OCI image
     const instalButton = this.getInstallManuallyButton();
-    console.log('instalButto', instalButton);
     await playExpect(instalButton).toBeEnabled();
-    console.log('button is there, clicking on it');
     await instalButton.click();
 
-    const imageInput = this.page.getByRole('textbox', { name: 'Image name to install custom extension' });
+    const dialog = this.page.getByRole('dialog', { name: 'Install Extension from OCI image' });
+    await playExpect(dialog).toBeVisible();
+    const imageInput = dialog.getByRole('textbox', { name: 'Image name to install custom extension' });
     // check visibility of the input
-    console.log('imageInput is', imageInput);
     await playExpect(imageInput).toBeVisible();
-    console.log('input is there, filling it with', extension);
 
     await imageInput.fill(extension);
 
-    const installButton = this.page.getByRole('button', { name: 'Install', exact: true });
-    console.log('Install button is', installButton);
+    const installButton = dialog.getByRole('button', { name: 'Install', exact: true });
     await playExpect(installButton).toBeEnabled();
-    console.log('Install button is visible');
 
     await installButton.click();
 
-    const doneButton = this.page.getByRole('button', { name: 'Done', exact: true });
-    console.log('doneButton button is', installButton);
+    const doneButton = dialog.getByRole('button', { name: 'Done', exact: true });
     await playExpect(doneButton).toBeEnabled({ timeout: 30000 });
-    console.log('done button is visible');
     await doneButton.click();
 
     return this;
   }
 
-  public async openExtensionPage<T extends ExtensionDetailsPage>(type: new (page: Page) => T): Promise<T> {
-    const desiredPage = new type(this.page);
-    await desiredPage.getOpenExtensionDetailsLink().click();
-    return desiredPage;
+  public async openInstalledTab(): Promise<void> {
+    await this.installedTab.click();
   }
 
-  getOpenExtensionDetailsLink(extensionName: string): Locator {
-    return this.page.getByRole('button', { name: `${extensionName} extension details`, exact: true }).first();
+  public async openCatalogTab(): Promise<void> {
+    await this.catalogTab.click();
   }
 
-  getInstallManuallyButton(): Locator {
-    return this.page.getByRole('button', { name: 'Install custom...', exact: true });
+  public getInstallManuallyButton(): Locator {
+    return this.additionalActions.getByRole('button', { name: 'Install custom...', exact: true });
   }
 
-  async openExtensionDetails(extensionName: string): Promise<ExtensionDetailsPage> {
-    console.log('get openExtensionDetails link for', extensionName);
-    const openLink = this.getOpenExtensionDetailsLink(extensionName);
-    console.log('openLink', openLink);
-    if (openLink === undefined) {
-      throw Error(`Extension '${extensionName}' does not exist`);
-    }
+  public async openExtensionDetails(name: string, label: string): Promise<ExtensionDetailsPage> {
+    const extensionCard = await this.getInstalledExtension(name, label);
+    return await extensionCard.openExtensionDetails();
+  }
 
-    // wait the link to be there
-    console.log('waiting for the link to be visible');
-    await playExpect(openLink).toBeVisible();
-    console.log('link is visible');
+  public async getInstalledExtension(name: string, label: string): Promise<ExtensionCardPage> {
+    await this.openInstalledTab();
+    const extensionCard = new ExtensionCardPage(this.page, name, label);
+    await playExpect(extensionCard.card).toBeVisible();
+    return extensionCard;
+  }
 
-    console.log('got openlink', openLink);
-    await openLink.click();
-    console.log('after clicking on the link....');
-    return new ExtensionDetailsPage(this.page, extensionName);
+  public async extensionIsInstalled(label: string): Promise<boolean> {
+    await this.openInstalledTab();
+    const extension = this.content.getByRole('region', { name: label });
+    return (await extension.count()) > 0 ? true : false;
   }
 }

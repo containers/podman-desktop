@@ -18,10 +18,10 @@
 
 import type { Page } from '@playwright/test';
 
-import { ExtensionPage } from './extension-page';
+import { ExtensionDetailsPage } from './extension-details-page';
 
-export class BootcExtensionPage extends ExtensionPage {
+export class BootcExtensionPage extends ExtensionDetailsPage {
   constructor(page: Page) {
-    super(page, 'Bootable Container', 'Bootable Container Extension');
+    super(page, 'Bootable Container Extension');
   }
 }

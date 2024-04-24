@@ -27,12 +27,14 @@ export class ExtensionDetailsPage extends BasePage {
   readonly disableButton: Locator;
   readonly removeExtensionButton: Locator;
   readonly status: Locator;
+  readonly heading: Locator;
 
   constructor(
     page: Page,
     public readonly extensionName: string,
   ) {
     super(page);
+    this.heading = page.getByRole('heading', { name: extensionName });
     this.enableButton = page.getByRole('button', { name: 'Start' });
     this.disableButton = page.getByRole('button', { name: 'Stop' });
     this.removeExtensionButton = page.getByRole('button', { name: 'Delete' });
@@ -66,9 +68,5 @@ export class ExtensionDetailsPage extends BasePage {
     await this.disableExtension();
     await this.removeExtensionButton.click();
     return new ExtensionsPage(this.page);
-  }
-
-  getOpenExtensionDetailsLink(): Locator {
-    return this.page.getByRole('button', { name: `${this.extensionName} extension details`, exact: true });
   }
 }
