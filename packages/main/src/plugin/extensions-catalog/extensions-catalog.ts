@@ -177,10 +177,10 @@ export class ExtensionsCatalog {
       retry: { limit: 0 },
       // specify short timeout
       timeout: {
-        lookup: 1000,
+        lookup: 2000,
         connect: 2000,
-        secureConnect: 500,
-        socket: 1000,
+        secureConnect: 2000,
+        socket: 2000,
         send: 10000,
         response: 1000,
       },
