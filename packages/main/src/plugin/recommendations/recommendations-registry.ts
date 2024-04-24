@@ -56,7 +56,7 @@ export class RecommendationsRegistry {
           return prev;
         }
 
-        // Check for published property
+        // Check for publishDate property
         if ('publishDate' in extension && typeof extension.publishDate === 'string') {
           const publishDate = new Date(extension.publishDate).getTime();
           if (isNaN(publishDate) || publishDate > Date.now()) {
