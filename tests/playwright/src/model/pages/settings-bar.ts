@@ -18,7 +18,6 @@
 
 import type { Locator, Page } from '@playwright/test';
 
-import { waitUntil } from '../../utility/wait';
 import type { SettingsPage } from './settings-page';
 
 export class SettingsBar {
@@ -28,8 +27,6 @@ export class SettingsBar {
   readonly proxyTab: Locator;
   readonly registriesTab: Locator;
   readonly authenticationTab: Locator;
-  readonly extensionsTab: Locator;
-  readonly desktopExtensionsTab: Locator;
   readonly preferencesTab: Locator;
 
   constructor(page: Page) {
@@ -39,8 +36,6 @@ export class SettingsBar {
     this.proxyTab = this.settingsNavBar.getByRole('link', { name: 'Proxy' });
     this.registriesTab = this.settingsNavBar.getByRole('link', { name: 'Registries' });
     this.authenticationTab = this.settingsNavBar.getByRole('link', { name: 'Authentication' });
-    this.extensionsTab = this.settingsNavBar.getByRole('link', { name: 'Extensions', exact: true });
-    this.desktopExtensionsTab = this.settingsNavBar.getByRole('link', { name: 'DesktopExtensions' });
     this.preferencesTab = this.settingsNavBar.getByRole('link', { name: 'preferences' });
   }
 
@@ -52,32 +47,5 @@ export class SettingsBar {
 
   public getSettingsNavBarTabLocator(name: string): Locator {
     return this.settingsNavBar.getByLabel(name);
-  }
-
-  public async expandExtensionDropdown(): Promise<SettingsBar> {
-    await this.extensionsTab.click();
-    await waitUntil(async () => (await this.getExtensions()).length > 0, 5000, 500);
-    return this;
-  }
-
-  public async getCurrentExtensions(): Promise<Locator[]> {
-    const extensions = await this.getExtensions();
-
-    if (extensions.length > 0) return extensions;
-
-    await this.expandExtensionDropdown();
-    return await this.getExtensions();
-  }
-
-  private async getExtensions(): Promise<Locator[]> {
-    const allLinks = await this.settingsNavBar.getByRole('link').all();
-    const extensions: Locator[] = [];
-
-    for (const link of allLinks) {
-      const href = await link.getAttribute('href');
-      if (href?.includes('/extension/')) extensions.push(link);
-    }
-
-    return extensions;
   }
 }

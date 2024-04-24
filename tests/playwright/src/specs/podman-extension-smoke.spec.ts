@@ -28,7 +28,8 @@ import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
 
-const EXTENSION_PODMAN_TITLE: string = 'podman';
+const extensionLabel = 'podman-desktop.podman';
+const exntesionLabelName = 'podman';
 const PODMAN_EXTENSION_STATUS_ACTIVE: string = 'ACTIVE';
 const PODMAN_EXTENSION_STATUS_DISABLED: string = 'DISABLED';
 const SETTINGS_NAVBAR_PREFERENCES_PODMAN_EXTENSION: string = 'Extension: Podman';
@@ -82,7 +83,7 @@ async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
   // always present and visible
   // go to the details of the extension
   const extensionsPage = await navigationBar.openExtensions();
-  const extensionDetailsPage = await extensionsPage.openExtensionDetails(EXTENSION_PODMAN_TITLE);
+  const extensionDetailsPage = await extensionsPage.openExtensionDetails(exntesionLabelName, extensionLabel);
 
   const extensionStatusLabel = extensionDetailsPage.status;
 
@@ -98,7 +99,7 @@ async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
   ).toBeTruthy();
   // always present and visible
   const extensionsPageAfter = await navigationBar.openExtensions();
-  const podmanExtensionPage = await extensionsPageAfter.openExtensionDetails(EXTENSION_PODMAN_TITLE);
+  const podmanExtensionPage = await extensionsPageAfter.openExtensionDetails(exntesionLabelName, extensionLabel);
 
   // --------------------------
   if (enabled) {
@@ -127,5 +128,5 @@ async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
 
 async function openExtensionsPodmanPage(): Promise<ExtensionDetailsPage> {
   const extensionsPage = await navigationBar.openExtensions();
-  return extensionsPage.openExtensionDetails(EXTENSION_PODMAN_TITLE);
+  return extensionsPage.openExtensionDetails(exntesionLabelName, extensionLabel);
 }
