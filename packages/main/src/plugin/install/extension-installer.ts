@@ -242,7 +242,7 @@ export class ExtensionInstaller {
       // need to analyze extensions that are in dependency minus the one installed or already analyzed
       const extensionsToAnalyze = dependencyExtensionIds.filter(
         dependency =>
-          !alreadyInstalledExtensionIds.includes(dependency) ||
+          !alreadyInstalledExtensionIds.includes(dependency) &&
           !analyzedExtensions.find(extension => extension.id === dependency),
       );
 

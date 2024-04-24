@@ -24,6 +24,7 @@ import { ipcMain } from 'electron';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import type { ApiSenderType } from '../api.js';
+import type { ExtensionInfo } from '../api/extension-info.js';
 import type { ContributionManager } from '../contribution-manager.js';
 import type { Directories } from '../directories.js';
 import type { AnalyzedExtension, ExtensionLoader } from '../extension-loader.js';
@@ -421,4 +422,90 @@ test('should install an image with transitive dependencies', async () => {
   // should have been called to load two extensions (current + extension pack)
   // expect to have 2 arguments in array
   expect(loadExtensionsMock).toHaveBeenCalledWith(expect.arrayContaining([extensionA, extensionB, extensionC]));
+});
+
+test('should install an image with extension pack with an existing dependency already installed', async () => {
+  const sendLog = vi.fn();
+  const sendError = vi.fn();
+  const sendEnd = vi.fn();
+
+  const imageToPull = 'fake.io/fake-image:fake-tag';
+  const analyzeFromImageSpy = vi.spyOn(extensionInstaller, 'analyzeFromImage');
+
+  const extensionWithPack = {
+    manifest: {
+      name: 'extension-with-pack',
+      extensionPack: ['my.another-extension', 'my.other-extension'],
+    },
+  } as AnalyzedExtension;
+
+  const extensionOther = {
+    manifest: {
+      name: 'other-extension',
+    },
+  } as AnalyzedExtension;
+
+  const extensionAnother = {
+    manifest: {
+      name: 'another-extension',
+    },
+  } as AnalyzedExtension;
+
+  analyzeFromImageSpy.mockImplementation(
+    (_sendLog: (message: string) => void, _sendError: (message: string) => void, imageName: string) => {
+      if (imageName === 'fake.io/fake-image:fake-tag') {
+        return Promise.resolve(extensionWithPack);
+      } else if (imageName === 'my-other-extension-link') {
+        return Promise.resolve(extensionOther);
+      } else {
+        return Promise.resolve(extensionAnother);
+      }
+    },
+  );
+
+  // my.another-extension is already installed
+  const extensionInfo = {
+    id: 'my.another-extension',
+  } as unknown as ExtensionInfo;
+  listExtensionsMock.mockResolvedValue([extensionInfo]);
+
+  const fetchableExtension1: CatalogFetchableExtension = {
+    extensionId: 'my.other-extension',
+    link: 'my-other-extension-link',
+    version: 'latest',
+  };
+  const fetchableExtension2: CatalogFetchableExtension = {
+    extensionId: 'my.another-extension',
+    link: 'my-another-extension-link',
+    version: 'latest',
+  };
+
+  getFetchableExtensionsMock.mockResolvedValue([fetchableExtension1, fetchableExtension2]);
+
+  await extensionInstaller.installFromImage(sendLog, sendError, sendEnd, imageToPull);
+
+  // expect no error
+  expect(sendError).not.toHaveBeenCalled();
+
+  expect(sendEnd).toHaveBeenCalledWith('Extension Successfully installed.');
+
+  // extension started
+  expect(apiSenderSendMock).toHaveBeenCalledWith('extension-started', {});
+
+  // should have been called to load two extensions (current + extension pack)
+  // expect to have 2 arguments in array
+  expect(loadExtensionsMock).toHaveBeenCalledWith(expect.arrayContaining([extensionWithPack, extensionOther]));
+
+  expect(analyzeFromImageSpy).toHaveBeenCalledWith(
+    expect.any(Function),
+    expect.any(Function),
+    'my-other-extension-link',
+  );
+
+  // this extension is already installed, so we should not analyze it
+  expect(analyzeFromImageSpy).not.toHaveBeenCalledWith(
+    expect.any(Function),
+    expect.any(Function),
+    'my-another-extension-link',
+  );
 });
