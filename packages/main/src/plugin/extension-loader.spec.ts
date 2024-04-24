@@ -458,6 +458,30 @@ test('Verify extension activate with a long timeout is flagged as error', async 
   expect(extensionLoader.getExtensionState().get(id)).toBe('failed');
 });
 
+test('Verify extension load', async () => {
+  const id = 'extension.foo';
+
+  await extensionLoader.loadExtension({
+    id: id,
+    name: 'id',
+    path: 'dummy',
+    api: {} as typeof containerDesktopAPI,
+    mainPath: '',
+    removable: false,
+    manifest: {
+      version: '1.1',
+    },
+    subscriptions: [],
+    readme: '',
+    dispose: vi.fn(),
+  });
+
+  expect(telemetry.track).toBeCalledWith(
+    'loadExtension',
+    expect.objectContaining({ extensionId: id, extensionVersion: '1.1' }),
+  );
+});
+
 test('Verify setExtensionsUpdates', async () => {
   // set the private field analyzedExtensions of extensionLoader
   const analyzedExtensions = new Map<string, AnalyzedExtension>();
@@ -1780,6 +1804,9 @@ describe('extensionContext', async () => {
       subscriptions: [],
       id: 'fooPublisher.fooName',
       name: 'fooName',
+      manifest: {
+        version: '1.0',
+      },
     } as unknown as AnalyzedExtension;
 
     vi.mocked(configurationRegistry.getConfiguration).mockReturnValue({
@@ -1810,6 +1837,10 @@ describe('extensionContext', async () => {
 
     expect(extensionContext).toBeDefined();
     expect(extensionContext?.secrets).toBeDefined();
+    expect(telemetry.track).toBeCalledWith('activateExtension', {
+      extensionId: 'fooPublisher.fooName',
+      extensionVersion: '1.0',
+    });
 
     expect(safeStorageRegistry.getExtensionStorage).toBeCalledWith('fooPublisher.fooName');
 

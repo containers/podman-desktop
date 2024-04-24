@@ -6,14 +6,10 @@ import PreferencesContainerConnectionEdit from '/@/lib/preferences/PreferencesCo
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import Route from '../../Route.svelte';
 import { configurationProperties } from '../../stores/configurationProperties';
-import PreferencesPageDockerExtensions from '../docker-extension/PreferencesPageDockerExtensions.svelte';
 import Onboarding from '../onboarding/Onboarding.svelte';
 import PreferencesAuthenticationProvidersRendering from './PreferencesAuthenticationProvidersRendering.svelte';
 import PreferencesCliToolsRendering from './PreferencesCliToolsRendering.svelte';
 import PreferencesContainerConnectionRendering from './PreferencesContainerConnectionRendering.svelte';
-import PreferencesExtensionList from './PreferencesExtensionList.svelte';
-import PreferencesExtensionRendering from './PreferencesExtensionRendering.svelte';
-import PreferencesInstallExtensionFromId from './PreferencesInstallExtensionFromId.svelte';
 import PreferencesKubernetesConnectionRendering from './PreferencesKubernetesConnectionRendering.svelte';
 import PreferencesKubernetesContextsRendering from './PreferencesKubernetesContextsRendering.svelte';
 import PreferencesProviderRendering from './PreferencesProviderRendering.svelte';
@@ -53,12 +49,6 @@ onMount(async () => {
   <Route path="/default/:key/*" breadcrumb="Preferences" let:meta>
     <PreferencesRendering key="{meta.params.key}" properties="{properties}" />
   </Route>
-  <Route path="/ddExtensions" breadcrumb="Docker Desktop Extensions">
-    <PreferencesPageDockerExtensions />
-  </Route>
-  <Route path="/extension/:extensionId/*" breadcrumb="Extensions" let:meta>
-    <PreferencesExtensionRendering extensionId="{meta.params.extensionId}" />
-  </Route>
   <Route path="/provider/:providerInternalId/*" breadcrumb="Resources" let:meta navigationHint="details">
     <PreferencesProviderRendering providerInternalId="{meta.params.providerInternalId}" properties="{properties}" />
   </Route>
@@ -85,13 +75,6 @@ onMount(async () => {
   </Route>
   <Route path="/proxies" breadcrumb="Proxy">
     <PreferencesProxiesRendering />
-  </Route>
-  <Route path="/extensions" breadcrumb="Extensions">
-    <PreferencesExtensionList />
-  </Route>
-
-  <Route path="/extensions/install-from-id/:extensionId" breadcrumb="Install Extension from id" let:meta>
-    <PreferencesInstallExtensionFromId extensionId="{meta.params.extensionId}" />
   </Route>
 
   <Route path="/onboarding/:extensionId" breadcrumb="Extension Onboarding" let:meta navigationHint="details">

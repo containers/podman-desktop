@@ -4,6 +4,7 @@ import { router } from 'tinro';
 
 import App from './App.svelte';
 import SealRocket from './lib/images/SealRocket.svelte';
+import { lastPage } from './stores/breadcrumb';
 
 let systemReady = false;
 
@@ -56,10 +57,12 @@ onDestroy(() => {
 // receive events from main process to install a new extension
 window.events?.receive('install-extension:from-id', (extensionId: any) => {
   const action = async () => {
-    const redirectPage = `/preferences/extensions/install-from-id/${extensionId}`;
+    const redirectPage = `/extensions/details/${extensionId}`;
     // need to open the extension page
     await tick();
     router.goto(redirectPage);
+    // make sure the last page is set to the extensions page so breadcrumb will be correct
+    lastPage.set({ name: 'Extensions', path: '/extensions' });
   };
 
   if (!systemReady) {

@@ -21,12 +21,11 @@ import { expect as playExpect } from '@playwright/test';
 import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 
 import { DashboardPage } from '../model/pages/dashboard-page';
-import { OpenshiftLocalExtensionPage } from '../model/pages/openshift-local-extension-page';
+import { ExtensionsPage } from '../model/pages/extensions-page';
 import { ResourcesPage } from '../model/pages/resources-page';
-import { SandboxExtensionPage } from '../model/pages/sandbox-extension-page';
 import { SettingsBar } from '../model/pages/settings-bar';
-import { SettingsExtensionsPage } from '../model/pages/settings-extensions-page';
 import { WelcomePage } from '../model/pages/welcome-page';
+import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
 
@@ -43,12 +42,13 @@ let extensionDashboardBox: Locator;
 let extensionDashboardProvider: Locator;
 let extensionSettingsBox: Locator;
 let installButtonLabel: string;
-let settingsLink: string;
+let extensionName: string;
 let resourceLabel: string;
 let imageLink: string;
-let settingsTableLabel: string;
 
 let extensionBoxVisible: boolean;
+
+let navBar: NavigationBar;
 
 const _startup = async function (): Promise<void> {
   pdRunner = new PodmanDesktopRunner();
@@ -56,6 +56,8 @@ const _startup = async function (): Promise<void> {
 
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
+
+  navBar = new NavigationBar(page);
 };
 
 const _shutdown = async function (): Promise<void> {
@@ -69,13 +71,11 @@ beforeEach<RunnerTestContext>(async ctx => {
 describe.each([
   {
     extensionType: 'Developer Sandbox',
-    extensionPageType: SandboxExtensionPage,
   },
   {
     extensionType: 'Openshift Local',
-    extensionPageType: OpenshiftLocalExtensionPage,
   },
-])('$extensionType installation verification', async ({ extensionType, extensionPageType }) => {
+])('$extensionType installation verification', async ({ extensionType }) => {
   beforeAll(_startup);
   afterAll(_shutdown);
 
@@ -90,10 +90,8 @@ describe.each([
       await playExpect(installButton).toBeVisible();
     });
 
-    test('Go to settings', async () => {
-      await goToSettings();
-      const settingsBar = new SettingsBar(page);
-      await settingsBar.openTabPage(SettingsExtensionsPage);
+    test('Go to extensions', async () => {
+      await navBar.openExtensions();
     });
 
     test.runIf(extensionBoxVisible)('Check Settings extension component for installation availability', async () => {
@@ -102,39 +100,27 @@ describe.each([
     });
   });
 
-  test('Install extension through Settings', async () => {
-    const settingsPage = new SettingsExtensionsPage(page);
-    let installButton = extensionSettingsBox.getByRole('button', { name: installButtonLabel });
+  test('Install extension through Extensions page', async () => {
+    const extensionsPage = new ExtensionsPage(page);
 
-    if (!extensionBoxVisible) {
-      const imageInstallBox = settingsPage.imageInstallBox;
-      const imageInput = imageInstallBox.getByLabel('OCI Image Name');
-      await imageInput.fill(imageLink);
+    await extensionsPage.installExtensionFromOCIImage(imageLink);
+    const extensionDetailsPage = await extensionsPage.openExtensionDetails(extensionName);
 
-      installButton = imageInstallBox.getByRole('button', { name: 'Install extension from the OCI image' });
-      await installButton.isEnabled();
-    }
-
-    await installButton.click();
-
-    const installedExtensionRow = settingsPage.getExtensionRowFromTable(settingsTableLabel);
-    const extensionRunningLabel = installedExtensionRow.getByText(ACTIVE);
-    await playExpect(extensionRunningLabel).toBeVisible({ timeout: 180000 });
+    const extensionStatusLabel = extensionDetailsPage.status;
+    await playExpect(extensionStatusLabel).toBeVisible({ timeout: 180000 });
   }, 200000);
 
   describe('Verify UI components after installation', async () => {
     test('Verify Settings components', async () => {
-      const settingsBar = new SettingsBar(page);
-      await playExpect(settingsBar.settingsNavBar.getByRole('link', { name: settingsLink })).toBeVisible();
-
-      const extensionPage = await settingsBar.openTabPage(extensionPageType);
-      await playExpect(extensionPage.heading).toBeVisible();
+      const extensionsPage = await navBar.openExtensions();
+      const extensionPage = await extensionsPage.openExtensionDetails(extensionName);
       await playExpect(extensionPage.status).toHaveText(ACTIVE);
     });
 
     describe('Toggle and verify extension status', async () => {
       test('Disable extension and verify Dashboard and Resources components', async () => {
-        const extensionPage = new extensionPageType(page);
+        const extensionsPage = await navBar.openExtensions();
+        const extensionPage = await extensionsPage.openExtensionDetails(extensionName);
 
         await extensionPage.disableButton.click();
         await playExpect(extensionPage.status).toHaveText(DISABLED);
@@ -143,8 +129,7 @@ describe.each([
         await playExpect(extensionDashboardProvider).toBeHidden();
         await playExpect(extensionDashboardStatus).toBeHidden();
 
-        await goToSettings();
-        const settingsBar = new SettingsBar(page);
+        const settingsBar = await goToSettings();
         const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
         const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
           name: resourceLabel,
@@ -153,9 +138,8 @@ describe.each([
       });
 
       test('Enable extension and verify Dashboard and Resources components', async () => {
-        const settingsBar = new SettingsBar(page);
-        await settingsBar.openTabPage(SettingsExtensionsPage);
-        const extensionPage = await settingsBar.openTabPage(extensionPageType);
+        const extensionsPage = await navBar.openExtensions();
+        const extensionPage = await extensionsPage.openExtensionDetails(extensionName);
 
         await extensionPage.enableButton.click();
         await playExpect(extensionPage.status).toHaveText(ACTIVE, { timeout: 10000 });
@@ -169,7 +153,7 @@ describe.each([
           await playExpect(extensionDashboardStatus).toHaveText(NOT_INSTALLED);
         }
 
-        await goToSettings();
+        const settingsBar = await goToSettings();
         const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
         const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
           name: resourceLabel,
@@ -180,20 +164,15 @@ describe.each([
   });
 
   describe('Remove extension and verify UI', async () => {
-    test('Remove extension and verify Settings components', async () => {
-      const settingsBar = new SettingsBar(page);
-      await settingsBar.openTabPage(SettingsExtensionsPage);
-      const extensionPage = await settingsBar.openTabPage(extensionPageType);
+    test('Remove extension and verify components', async () => {
+      const extensionsPage = await navBar.openExtensions();
+
+      const extensionPage = await extensionsPage.openExtensionDetails(extensionName);
 
       await extensionPage.disableButton.click();
       await extensionPage.removeExtensionButton.click();
 
-      await playExpect(settingsBar.settingsNavBar.getByRole('link', { name: settingsLink })).toBeHidden();
-
-      const settingsPage = new SettingsExtensionsPage(page);
-      const installedExtensionRow = settingsPage.getExtensionRowFromTable(settingsTableLabel);
-      await playExpect(installedExtensionRow).toBeHidden();
-
+      const settingsBar = await goToSettings();
       const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
       const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', { name: resourceLabel });
       await playExpect(extensionResourceBox).toBeHidden();
@@ -209,30 +188,25 @@ describe.each([
 
 function initializeLocators(extensionType: string): void {
   const dashboardPage = new DashboardPage(page);
-  const settingsExtensionsPage = new SettingsExtensionsPage(page);
   switch (extensionType) {
     case 'Developer Sandbox': {
       extensionDashboardStatus = dashboardPage.devSandboxStatusLabel;
       extensionDashboardBox = dashboardPage.devSandboxBox;
       extensionDashboardProvider = dashboardPage.devSandboxProvider;
-      extensionSettingsBox = settingsExtensionsPage.devSandboxBox;
       installButtonLabel = 'Install redhat.redhat-sandbox Extension';
-      settingsLink = 'Red Hat OpenShift Sandbox';
+      extensionName = 'redhat-sandbox';
       resourceLabel = 'redhat.sandbox';
       imageLink = 'ghcr.io/redhat-developer/podman-desktop-sandbox-ext:0.0.2';
-      settingsTableLabel = 'redhat-sandbox';
       break;
     }
     case 'Openshift Local': {
       extensionDashboardStatus = dashboardPage.openshiftLocalStatusLabel;
       extensionDashboardBox = dashboardPage.openshiftLocalBox;
       extensionDashboardProvider = dashboardPage.openshiftLocalProvider;
-      extensionSettingsBox = settingsExtensionsPage.openshiftLocalBox;
       installButtonLabel = 'Install redhat.openshift-local Extension';
-      settingsLink = 'Red Hat OpenShift Local';
+      extensionName = 'openshift-local';
       resourceLabel = 'crc';
       imageLink = 'quay.io/redhat-developer/openshift-local-extension:v1.3.0';
-      settingsTableLabel = 'openshift-local';
       break;
     }
   }
@@ -245,9 +219,10 @@ async function goToDashboard(): Promise<void> {
   await dashboardLink.click();
 }
 
-async function goToSettings(): Promise<void> {
+async function goToSettings(): Promise<SettingsBar> {
   const navBar = page.getByRole('navigation', { name: 'AppNavigation' });
   const settingsLink = navBar.getByRole('link', { name: 'Settings' });
   await playExpect(settingsLink).toBeVisible();
   await settingsLink.click();
+  return new SettingsBar(page);
 }

@@ -47,7 +47,8 @@ test('Expect unable to stop dd Extension if started', async () => {
 
   // get button with label 'Stop'
   const button = screen.queryByRole('button', { name: 'Stop' });
-  expect(button).not.toBeInTheDocument();
+  expect(button).toBeInTheDocument();
+  expect(button).toBeDisabled();
 });
 
 test('Expect to stop pd Extension if started', async () => {

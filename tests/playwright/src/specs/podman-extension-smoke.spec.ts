@@ -21,21 +21,17 @@ import type { Page } from 'playwright';
 import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 
 import type { DashboardPage } from '../model/pages/dashboard-page';
-import { ExtensionPage } from '../model/pages/extension-page';
+import type { ExtensionDetailsPage } from '../model/pages/extension-details-page';
 import type { SettingsBar } from '../model/pages/settings-bar';
-import { SettingsExtensionsPage } from '../model/pages/settings-extensions-page';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
 
-const SETTINGS_EXTENSIONS_TABLE_PODMAN_TITLE: string = 'podman';
-const SETTINGS_EXTENSIONS_TABLE_EXTENSION_STATUS_LABEL: string = 'Extension Status Label';
+const EXTENSION_PODMAN_TITLE: string = 'podman';
 const PODMAN_EXTENSION_STATUS_ACTIVE: string = 'ACTIVE';
 const PODMAN_EXTENSION_STATUS_DISABLED: string = 'DISABLED';
 const SETTINGS_NAVBAR_PREFERENCES_PODMAN_EXTENSION: string = 'Extension: Podman';
-const SETTINGS_NAVBAR_EXTENSIONS_PODMAN: string = 'Podman';
-const PODMAN_EXTENSION_PAGE_HEADING: string = 'Podman Extension';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -66,17 +62,13 @@ describe('Verification of Podman extension', async () => {
     await verifyPodmanExtensionStatus(true);
   });
   test('Podman extension can be disabled from Podman Extension Page', async () => {
-    await openSettingsExtensionsPage();
-    const podmanExtensionPage = await openSettingsExtensionsPodmanPage();
+    const podmanExtensionPage = await openExtensionsPodmanPage();
     await podmanExtensionPage.disableButton.click();
     await verifyPodmanExtensionStatus(false);
   });
-  test('Podman extension can be re-enabled from Settings Extension Page', async () => {
-    const settingsExtensionsPage = await openSettingsExtensionsPage();
-    const podmanExtensionRowLocator = settingsExtensionsPage.getExtensionRowFromTable(
-      SETTINGS_EXTENSIONS_TABLE_PODMAN_TITLE,
-    );
-    await settingsExtensionsPage.getExtensionStartButton(podmanExtensionRowLocator).click();
+  test('Podman extension can be re-enabled from Extension Page', async () => {
+    const podmanExtensionPage = await openExtensionsPodmanPage(); // enable the extension
+    await podmanExtensionPage.enableExtension();
     await verifyPodmanExtensionStatus(true);
   });
 });
@@ -88,20 +80,15 @@ async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
     ? await playExpect(podmanProviderLocator).toBeVisible()
     : await playExpect(podmanProviderLocator).not.toBeVisible();
   // always present and visible
-  const settingsExtensionsPage = await openSettingsExtensionsPage();
-  const podmanExtensionRowLocator = settingsExtensionsPage.getExtensionRowFromTable(
-    SETTINGS_EXTENSIONS_TABLE_PODMAN_TITLE,
-  );
-  await playExpect(podmanExtensionRowLocator).toBeVisible();
-  // -> await for the stop button to be visible to prevent state when the extension status is STARTING
-  await playExpect(
-    enabled
-      ? settingsExtensionsPage.getExtensionStopButton(podmanExtensionRowLocator)
-      : settingsExtensionsPage.getExtensionStartButton(podmanExtensionRowLocator),
-  ).toBeVisible();
-  const extensionStatusLabel = podmanExtensionRowLocator.getByLabel(SETTINGS_EXTENSIONS_TABLE_EXTENSION_STATUS_LABEL);
+  // go to the details of the extension
+  const extensionsPage = await navigationBar.openExtensions();
+  const extensionDetailsPage = await extensionsPage.openExtensionDetails(EXTENSION_PODMAN_TITLE);
+
+  const extensionStatusLabel = extensionDetailsPage.status;
+
   await playExpect(extensionStatusLabel).toBeVisible();
   await extensionStatusLabel.scrollIntoViewIfNeeded();
+
   const extensionStatusLocatorText = await extensionStatusLabel.innerText({ timeout: 3000 });
   // --------------------------
   playExpect(
@@ -110,19 +97,22 @@ async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
       : extensionStatusLocatorText === PODMAN_EXTENSION_STATUS_DISABLED,
   ).toBeTruthy();
   // always present and visible
-  const podmanExtensionPage = await openSettingsExtensionsPodmanPage();
-  await playExpect(podmanExtensionPage.heading).toBeVisible();
+  const extensionsPageAfter = await navigationBar.openExtensions();
+  const podmanExtensionPage = await extensionsPageAfter.openExtensionDetails(EXTENSION_PODMAN_TITLE);
+
   // --------------------------
   if (enabled) {
-    await playExpect(podmanExtensionPage.enableButton).toBeDisabled({ timeout: 10000 });
-    await playExpect(podmanExtensionPage.disableButton).toBeEnabled({ timeout: 10000 });
+    await playExpect(podmanExtensionPage.enableButton).toBeVisible({ visible: false, timeout: 10000 });
+    await playExpect(podmanExtensionPage.disableButton).toBeVisible({ visible: true, timeout: 10000 });
     await playExpect(podmanExtensionPage.status.getByText(PODMAN_EXTENSION_STATUS_ACTIVE)).toBeVisible();
   } else {
-    await playExpect(podmanExtensionPage.enableButton).toBeEnabled({ timeout: 10000 });
-    await playExpect(podmanExtensionPage.disableButton).toBeDisabled({ timeout: 10000 });
+    await playExpect(podmanExtensionPage.enableButton).toBeVisible({ visible: true, timeout: 10000 });
+    await playExpect(podmanExtensionPage.disableButton).toBeVisible({ visible: false, timeout: 10000 });
     await playExpect(podmanExtensionPage.status.getByText(PODMAN_EXTENSION_STATUS_DISABLED)).toBeVisible();
   }
+
   // expand Settings -> Preferences menu
+  settingsBar = await navigationBar.openSettings();
   await settingsBar.preferencesTab.click();
   enabled
     ? await playExpect(
@@ -135,14 +125,7 @@ async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
   await settingsBar.preferencesTab.click();
 }
 
-async function openSettingsExtensionsPage(): Promise<SettingsExtensionsPage> {
-  await navigationBar.openDashboard();
-  settingsBar = await navigationBar.openSettings();
-  return settingsBar.openTabPage(SettingsExtensionsPage);
-}
-
-async function openSettingsExtensionsPodmanPage(): Promise<ExtensionPage> {
-  const podmanExtensionNavBarLocator = settingsBar.getSettingsNavBarTabLocator(SETTINGS_NAVBAR_EXTENSIONS_PODMAN);
-  await podmanExtensionNavBarLocator.click();
-  return new ExtensionPage(page, SETTINGS_NAVBAR_EXTENSIONS_PODMAN, PODMAN_EXTENSION_PAGE_HEADING);
+async function openExtensionsPodmanPage(): Promise<ExtensionDetailsPage> {
+  const extensionsPage = await navigationBar.openExtensions();
+  return extensionsPage.openExtensionDetails(EXTENSION_PODMAN_TITLE);
 }
