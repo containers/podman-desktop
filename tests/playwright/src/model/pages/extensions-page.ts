@@ -87,7 +87,7 @@ export class ExtensionsPage extends MainPage {
     console.log('get openExtensionDetails link for', extensionName);
     const openLink = this.getOpenExtensionDetailsLink(extensionName);
     console.log('openLink', openLink);
-    if (openLink === undefined) {
+    if ((await openLink.count()) === 0) {
       throw Error(`Extension '${extensionName}' does not exist`);
     }
 
@@ -100,5 +100,9 @@ export class ExtensionsPage extends MainPage {
     await openLink.click();
     console.log('after clicking on the link....');
     return new ExtensionDetailsPage(this.page, extensionName);
+  }
+
+  public async doesExtensionExist(extensionName: string): Promise<boolean> {
+    return (await this.getOpenExtensionDetailsLink(extensionName).count()) > 0;
   }
 }

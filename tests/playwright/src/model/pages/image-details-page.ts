@@ -94,7 +94,7 @@ export class ImageDetailsPage extends BasePage {
     await mainPage.evaluate(() => {
       const element = document.querySelector('webview');
       if (element) {
-        element.focus();
+        (element as HTMLElement).focus();
       } else {
         console.log(`element is null`);
       }
