@@ -24,6 +24,7 @@ export interface ExtensionBanner {
   description: string;
   icon: string;
   thumbnail: string;
+  publishDate?: string;
   background?: {
     image?: string;
     gradient?: {

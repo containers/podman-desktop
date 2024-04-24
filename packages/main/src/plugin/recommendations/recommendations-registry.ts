@@ -50,15 +50,28 @@ export class RecommendationsRegistry {
 
     // Filter and shuffle the extensions
     const extensionBanners: ExtensionBanner[] = recommendations.extensions
-      .filter(
-        extension =>
-          extension.extensionId in featuredExtensions && !featuredExtensions[extension.extensionId].installed,
-      )
-      .map(extension => ({
-        ...extension,
-        featured: featuredExtensions[extension.extensionId],
-      }))
-      .sort(() => Math.random() - 0.5);
+      .reduce((prev, extension) => {
+        // ensure the extension is in the featured extensions and is not install
+        if (!(extension.extensionId in featuredExtensions) || featuredExtensions[extension.extensionId].installed) {
+          return prev;
+        }
+
+        // Check for publishDate property
+        if ('publishDate' in extension && typeof extension.publishDate === 'string') {
+          const publishDate = new Date(extension.publishDate).getTime();
+          if (isNaN(publishDate) || publishDate > Date.now()) {
+            return prev;
+          }
+        }
+
+        prev.push({
+          ...extension,
+          featured: featuredExtensions[extension.extensionId],
+        });
+
+        return prev;
+      }, [] as ExtensionBanner[])
+      .toSorted(() => Math.random() - 0.5);
 
     // Limit the number of
     if (limit >= 0 && extensionBanners.length > limit) {
