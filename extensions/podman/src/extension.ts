@@ -877,7 +877,9 @@ export const ROOTFUL_MACHINE_INIT_SUPPORTED_KEY = 'podman.isRootfulMachineInitSu
 export const USER_MODE_NETWORKING_SUPPORTED_KEY = 'podman.isUserModeNetworkingSupported';
 export const START_NOW_MACHINE_INIT_SUPPORTED_KEY = 'podman.isStartNowAtMachineInitSupported';
 export const CLEANUP_REQUIRED_MACHINE_KEY = 'podman.needPodmanMachineCleanup';
-export const PODMAN_WSL_KEY = 'podman.isWSL';
+export const PODMAN_MACHINE_CPU_SUPPORTED_KEY = 'podman.podmanMachineCpuSupported';
+export const PODMAN_MACHINE_MEMORY_SUPPORTED_KEY = 'podman.podmanMachineMemorySupported';
+export const PODMAN_MACHINE_DISK_SUPPORTED_KEY = 'podman.podmanMachineDiskSupported';
 
 export function initTelemetryLogger(): void {
   telemetryLogger = extensionApi.env.createTelemetryLogger();
@@ -1516,11 +1518,25 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const podmanConfiguration = new PodmanConfiguration();
   await podmanConfiguration.init();
 
+  await calcPodmanMachineSetting(podmanConfiguration);
+}
+
+export async function calcPodmanMachineSetting(podmanConfiguration: PodmanConfiguration): Promise<void> {
+  let cpuSupported = true;
+  let memorySupported = true;
+  let diskSupported = true;
+
   if (isWindows()) {
     const isPodmanHyperv_Env = process.env.CONTAINERS_MACHINE_PROVIDER === 'hyperv';
     const isPodmanHyperv_Config = await podmanConfiguration.matchRegexpInContainersConfig(/provider\s*=\s*"hyperv"/);
-    extensionApi.context.setValue(PODMAN_WSL_KEY, !(isPodmanHyperv_Env || isPodmanHyperv_Config));
+    cpuSupported = isPodmanHyperv_Env || isPodmanHyperv_Config;
+    memorySupported = isPodmanHyperv_Env || isPodmanHyperv_Config;
+    diskSupported = isPodmanHyperv_Env || isPodmanHyperv_Config;
   }
+
+  extensionApi.context.setValue(PODMAN_MACHINE_CPU_SUPPORTED_KEY, cpuSupported);
+  extensionApi.context.setValue(PODMAN_MACHINE_MEMORY_SUPPORTED_KEY, memorySupported);
+  extensionApi.context.setValue(PODMAN_MACHINE_DISK_SUPPORTED_KEY, diskSupported);
 }
 
 // Function that checks to see if the default machine is running and return a string

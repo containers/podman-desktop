@@ -35,6 +35,7 @@ import {
 import * as extension from './extension';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanCli } from './podman-cli';
+import { PodmanConfiguration } from './podman-configuration';
 import { PodmanInstall } from './podman-install';
 import { getAssetsFolder, isLinux, isMac, isWindows, LoggerDelegator } from './util';
 
@@ -1813,4 +1814,42 @@ test('isIncompatibleMachineOutput', () => {
 
   const applehvErrorResponse = extension.isIncompatibleMachineOutput('incompatible machine config');
   expect(applehvErrorResponse).toBeTruthy();
+});
+
+describe('calcPodmanMachineSetting', () => {
+  const podmanConfiguration = new PodmanConfiguration();
+  test('setValue to true if OS is MacOS', async () => {
+    vi.mocked(isWindows).mockReturnValue(false);
+    await extension.calcPodmanMachineSetting(podmanConfiguration);
+    expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_CPU_SUPPORTED_KEY, true);
+    expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_MEMORY_SUPPORTED_KEY, true);
+    expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_DISK_SUPPORTED_KEY, true);
+  });
+  test('setValue to true if OS is Windows and uses HyperV - set env variable', async () => {
+    vi.mocked(isWindows).mockReturnValue(true);
+    process.env.CONTAINERS_MACHINE_PROVIDER = 'hyperv';
+    await extension.calcPodmanMachineSetting(podmanConfiguration);
+    expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_CPU_SUPPORTED_KEY, true);
+    expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_MEMORY_SUPPORTED_KEY, true);
+    expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_DISK_SUPPORTED_KEY, true);
+    delete process.env.CONTAINERS_MACHINE_PROVIDER;
+  });
+  test('setValue to true if OS is Windows and uses HyperV - set by config file', async () => {
+    vi.mocked(isWindows).mockReturnValue(true);
+    vi.spyOn(podmanConfiguration, 'matchRegexpInContainersConfig').mockResolvedValue(true);
+    await extension.calcPodmanMachineSetting(podmanConfiguration);
+    expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_CPU_SUPPORTED_KEY, true);
+    expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_MEMORY_SUPPORTED_KEY, true);
+    expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_DISK_SUPPORTED_KEY, true);
+  });
+  test('setValue to true if OS is Windows and uses WSL', async () => {
+    vi.mocked(isWindows).mockReturnValue(true);
+    process.env.CONTAINERS_MACHINE_PROVIDER = 'wsl';
+    vi.spyOn(podmanConfiguration, 'matchRegexpInContainersConfig').mockResolvedValue(false);
+    await extension.calcPodmanMachineSetting(podmanConfiguration);
+    expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_CPU_SUPPORTED_KEY, false);
+    expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_MEMORY_SUPPORTED_KEY, false);
+    expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_DISK_SUPPORTED_KEY, false);
+    delete process.env.CONTAINERS_MACHINE_PROVIDER;
+  });
 });
