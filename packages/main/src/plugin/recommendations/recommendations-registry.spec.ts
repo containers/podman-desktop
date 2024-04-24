@@ -37,7 +37,7 @@ vi.mock('../../../../../recommendations.json', () => ({
       description: 'dummy description',
       icon: 'data:image/png;base64-icon',
       thumbnail: 'data:image/png;base64-thumbnail',
-      published: '2020-01-01',
+      publishDate: '2020-01-01',
     })),
   },
 }));
@@ -202,7 +202,7 @@ describe('getExtensionBanners', () => {
     expect(featuredMock.getFeaturedExtensions).toHaveBeenCalled();
   });
 
-  test('published value anterior', async () => {
+  test('publishDate value anterior', async () => {
     vi.setSystemTime(new Date(2019, 1, 1));
 
     getRecommendationIgnored.mockReturnValue(false);
