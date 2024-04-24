@@ -28,11 +28,14 @@ import type {
 } from '/@/plugin/extensions-catalog/extensions-catalog-api.js';
 import type { Proxy } from '/@/plugin/proxy.js';
 
+import type { ConfigurationRegistry, IConfigurationNode } from '../configuration-registry.js';
+import { ExtensionsCatalogSettings } from './extensions-catalog-settings.js';
+
 /**
  * Allow to grab content from the online extensions catalog.
  */
 export class ExtensionsCatalog {
-  public static readonly ALL_EXTENSIONS_URL = 'https://registry.podman-desktop.io/api/extensions.json';
+  public static readonly DEFAULT_EXTENSIONS_URL = 'https://registry.podman-desktop.io/api/extensions.json';
 
   private proxySettings: podmanDesktopAPI.ProxySettings | undefined;
   private proxyEnabled: boolean;
@@ -44,6 +47,7 @@ export class ExtensionsCatalog {
   constructor(
     private certificates: Certificates,
     private proxy: Proxy,
+    private configurationRegistry: ConfigurationRegistry,
   ) {
     this.proxy.onDidUpdateProxy(settings => {
       this.proxySettings = settings;
@@ -56,6 +60,25 @@ export class ExtensionsCatalog {
     this.proxyEnabled = this.proxy.isEnabled();
   }
 
+  init(): void {
+    // register a configuration
+    const recommendationConfiguration: IConfigurationNode = {
+      id: 'preferences.extensions',
+      title: 'Extensions',
+      type: 'object',
+      properties: {
+        [ExtensionsCatalogSettings.SectionName + '.' + ExtensionsCatalogSettings.registryUrl]: {
+          description: 'URL to the extensions catalog',
+          type: 'string',
+          default: ExtensionsCatalog.DEFAULT_EXTENSIONS_URL,
+          hidden: true,
+        },
+      },
+    };
+
+    this.configurationRegistry.registerConfigurations([recommendationConfiguration]);
+  }
+
   // internal method, not exposed
   protected async getCatalogJson(): Promise<InternalCatalogJSON | undefined> {
     // return the cache version if cache is not reached and we have a cached version
@@ -63,15 +86,20 @@ export class ExtensionsCatalog {
       return this.cachedCatalog;
     }
 
+    // get the URL from the configuration
+    const catalogUrl = this.configurationRegistry
+      .getConfiguration(ExtensionsCatalogSettings.SectionName)
+      .get<string>(ExtensionsCatalogSettings.registryUrl, ExtensionsCatalog.DEFAULT_EXTENSIONS_URL);
+
     // try to fetch a file online
     // use also the proxy if defined
     // current time
     const startTime = performance.now();
     try {
-      const response = await got.get(ExtensionsCatalog.ALL_EXTENSIONS_URL, this.getHttpOptions());
+      const response = await got.get(catalogUrl, this.getHttpOptions());
       this.cachedCatalog = JSON.parse(response.body) as InternalCatalogJSON;
       const endTime = performance.now();
-      console.log(`Fetched ${ExtensionsCatalog.ALL_EXTENSIONS_URL} in ${endTime - startTime}ms`);
+      console.log(`Fetched ${catalogUrl} in ${endTime - startTime}ms`);
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (requestErr: any) {
