@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -192,7 +192,7 @@ function initProvider(extensionContext: extensionApi.ExtensionContext): void {
   containerProviderConnection = {
     name: 'Docker',
     type: 'docker',
-    status: () => providerState,
+    status: (): extensionApi.ProviderConnectionStatus => providerState,
     endpoint: {
       socketPath,
     },

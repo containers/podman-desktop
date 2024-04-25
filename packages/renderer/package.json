@@ -12,8 +12,8 @@
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^6.5.2",
     "@fortawesome/free-brands-svg-icons": "^6.5.2",
-    "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@fortawesome/free-regular-svg-icons": "^6.5.2",
+    "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@sveltejs/vite-plugin-svelte": "3.1.0",
     "@testing-library/dom": "^10.0.0",
     "@testing-library/jest-dom": "^6.4.2",
@@ -22,7 +22,7 @@
     "@tsconfig/svelte": "^5.0.4",
     "@types/js-yaml": "^4.0.9",
     "@types/validator": "^13.11.9",
-    "@typescript-eslint/eslint-plugin": "7.0.0",
+    "@typescript-eslint/eslint-plugin": "7.7.1",
     "autoprefixer": "^10.4.19",
     "eslint-plugin-svelte": "^2.38.0",
     "filesize": "^10.1.1",
@@ -50,9 +50,9 @@
     "yaml": "^2.4.1"
   },
   "dependencies": {
+    "@podman-desktop/ui-svelte": "^0.0.1",
     "@zerodevx/svelte-toast": "^0.9.5",
     "electron-context-menu": "^3.6.1",
-    "tinro": "^0.6.12",
-    "@podman-desktop/ui-svelte": "^0.0.1"
+    "tinro": "^0.6.12"
   }
 }
