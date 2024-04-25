@@ -11,7 +11,7 @@ export let extension: CombinedExtensionInfoUI;
 export let displayIcon: boolean = true;
 
 function openDetailsExtension() {
-  router.goto(`/extensions/details/${extension.id}/`);
+  router.goto(`/extensions/details/${encodeURIComponent(extension.id)}/`);
 }
 </script>
 
