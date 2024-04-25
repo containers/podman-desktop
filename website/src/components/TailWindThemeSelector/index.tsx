@@ -47,7 +47,7 @@ function TailWindThemeSelector(): JSX.Element {
       childList: false,
       subtree: false,
     });
-    return () => {
+    return (): void => {
       mutationObserver.disconnect();
     };
   }, [ExecutionEnvironment.canUseDOM]);

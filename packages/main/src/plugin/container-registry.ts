@@ -2499,7 +2499,7 @@ export class ContainerProviderRegistry {
   async imageExist(id: string, engineId: string, tag: string): Promise<boolean> {
     const images = await this.listImages();
     const imageInfo = images.find(c => c.Id === id && c.engineId === engineId);
-    return imageInfo?.RepoTags !== undefined && imageInfo.RepoTags.some(repoTag => repoTag === tag);
+    return imageInfo?.RepoTags?.some(repoTag => repoTag === tag) ?? false;
   }
 
   async volumeExist(name: string, engineId: string): Promise<boolean> {

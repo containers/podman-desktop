@@ -273,9 +273,9 @@ export class PodmanInstall {
           await action.execute.apply(this.providerCleanup, [
             {
               logger: {
-                log: (...msg: unknown[]) => console.log(msg),
-                error: (...msg: unknown[]) => console.error(msg),
-                warn: (...msg: unknown[]) => console.warn(msg),
+                log: (...msg: unknown[]): void => console.log(msg),
+                error: (...msg: unknown[]): void => console.error(msg),
+                warn: (...msg: unknown[]): void => console.warn(msg),
               },
             },
           ]);
