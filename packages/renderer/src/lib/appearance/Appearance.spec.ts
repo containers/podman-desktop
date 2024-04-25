@@ -41,8 +41,10 @@ beforeEach(() => {
 function getRootElement(container: HTMLElement): HTMLElement {
   // get root html element
   let rootElement: HTMLElement | null = container;
-  while (rootElement?.parentElement) {
+  let loop = 0;
+  while (rootElement?.parentElement && loop < 10) {
     rootElement = container.parentElement;
+    loop++;
   }
   return rootElement as HTMLElement;
 }
@@ -71,9 +73,9 @@ test('Expect dark mode using system when OS is set to light', async () => {
 
   getConfigurationValueMock.mockResolvedValue(AppearanceSettings.SystemEnumValue);
 
-  const { container } = await awaitRender();
+  const { baseElement } = await awaitRender();
 
-  const val = getRootElementClassesValue(container);
+  const val = getRootElementClassesValue(baseElement);
 
   // expect to have class being "dark" as for now we force dark mode in system mode
   expect(val).toBe('dark');
@@ -88,33 +90,33 @@ test('Expect dark mode using system when OS is set to dark', async () => {
 
   getConfigurationValueMock.mockResolvedValue(AppearanceSettings.SystemEnumValue);
 
-  const { container } = await awaitRender();
+  const { baseElement } = await awaitRender();
   // expect to have class being "dark" as OS is using dark
-  expect(getRootElementClassesValue(container)).toBe('dark');
+  expect(getRootElementClassesValue(baseElement)).toBe('dark');
 });
 
 test('Expect light mode using light configuration', async () => {
   getConfigurationValueMock.mockResolvedValue(AppearanceSettings.LightEnumValue);
 
-  const { container } = await awaitRender();
+  const { baseElement } = await awaitRender();
 
   // expect to have class being ""  as we should be in light mode
-  expect(getRootElementClassesValue(container)).toBe('');
+  expect(getRootElementClassesValue(baseElement)).toBe('');
 
   // expect to have color-scheme: light
-  expect(getRootElement(container)).toHaveStyle('color-scheme: light');
+  expect(getRootElement(baseElement)).toHaveStyle('color-scheme: light');
 });
 
 test('Expect dark mode using dark configuration', async () => {
   getConfigurationValueMock.mockResolvedValue(AppearanceSettings.DarkEnumValue);
 
-  const { container } = await awaitRender();
+  const { baseElement } = await awaitRender();
 
   // expect to have class being "dark" as we should be in light mode
-  expect(getRootElementClassesValue(container)).toBe('dark');
+  expect(getRootElementClassesValue(baseElement)).toBe('dark');
 
   // expect to have color-scheme: dark
-  expect(getRootElement(container)).toHaveStyle('color-scheme: dark');
+  expect(getRootElement(baseElement)).toHaveStyle('color-scheme: dark');
 });
 
 test('Expect event being changed when changing the default appearance on the operating system', async () => {
