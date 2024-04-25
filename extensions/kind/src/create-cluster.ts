@@ -138,7 +138,7 @@ export async function createCluster(
   let ingressController = false;
 
   if (params['kind.cluster.creation.ingress']) {
-    ingressController = params['kind.cluster.creation.ingress'] === 'on';
+    ingressController = params['kind.cluster.creation.ingress'];
   }
 
   // grab custom kind node image if defined
