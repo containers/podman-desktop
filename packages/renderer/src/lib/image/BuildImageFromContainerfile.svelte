@@ -25,6 +25,7 @@ import {
 } from './build-image-task';
 import BuildImageFromContainerfileCards from './BuildImageFromContainerfileCards.svelte';
 import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
+import RecommendedRegistry from './RecommendedRegistry.svelte';
 
 let buildFinished = false;
 let containerImageName: string;
@@ -43,6 +44,9 @@ let buildIDs = [];
 $: platforms = containerBuildPlatform ? containerBuildPlatform.split(',') : [];
 $: hasInvalidFields = !containerFilePath || !containerBuildContextDirectory;
 
+let buildParentImageName: string | undefined = undefined;
+let buildError: string | undefined = undefined;
+
 interface BuildOutputItem {
   stream?: string;
   aux?: {
@@ -58,6 +62,16 @@ function getTerminalCallback(): BuildImageCallback {
       logsTerminal.write(`${data}\r`);
     },
     onError: function (error: string): void {
+      buildError = error;
+
+      // need to extract image from there
+      // it should match the pattern 'initializing source docker://registry.redhat.io/rhel9/postgresql-13:latest' and keep the value 'registry.redhat.io/rhel9/postgresql-13:latest'
+      const imageRegexp = buildError.match(/docker:\/\/(?<imageName>.*?):\s/);
+      // if we found the image name, we should store it
+      const findingImageName = imageRegexp?.groups?.imageName;
+      if (findingImageName) {
+        buildParentImageName = findingImageName;
+      }
       logsTerminal.write(`Error:${error}\r`);
     },
     onEnd: function (): void {
@@ -67,6 +81,9 @@ function getTerminalCallback(): BuildImageCallback {
 }
 
 async function buildContainerImage(): Promise<void> {
+  buildParentImageName = undefined;
+  buildError = undefined;
+
   // Pick if we are building a singular platform (which will just create the image)
   // or multiple platforms (which will create the image and then create a manifest)
   if (platforms.length === 1) {
@@ -335,6 +352,8 @@ async function abortBuild() {
             <Button on:click="{() => cleanupBuild()}" class="w-full">Done</Button>
           {/if}
         </div>
+
+        <RecommendedRegistry bind:imageError="{buildError}" imageName="{buildParentImageName}" />
 
         <TerminalWindow bind:terminal="{logsTerminal}" />
         <div class="w-full">

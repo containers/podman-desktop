@@ -52,7 +52,7 @@ import { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
 import type { Menu } from '/@/plugin/menu-registry.js';
 import { MenuRegistry } from '/@/plugin/menu-registry.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
-import type { ExtensionBanner } from '/@/plugin/recommendations/recommendations-api.js';
+import type { ExtensionBanner, RecommendedRegistry } from '/@/plugin/recommendations/recommendations-api.js';
 import { TaskManager } from '/@/plugin/task-manager.js';
 import { Updater } from '/@/plugin/updater.js';
 
@@ -640,7 +640,12 @@ export class PluginSystem {
     extensionsCatalog.init();
     const featured = new Featured(this.extensionLoader, extensionsCatalog);
 
-    const recommendationsRegistry = new RecommendationsRegistry(configurationRegistry, featured);
+    const recommendationsRegistry = new RecommendationsRegistry(
+      configurationRegistry,
+      featured,
+      this.extensionLoader,
+      extensionsCatalog,
+    );
     recommendationsRegistry.init();
 
     // do not wait
@@ -1551,6 +1556,10 @@ export class PluginSystem {
 
     this.ipcHandle('recommended:getExtensionBanners', async (): Promise<ExtensionBanner[]> => {
       return recommendationsRegistry.getExtensionBanners();
+    });
+
+    this.ipcHandle('recommended:getRegistries', async (): Promise<RecommendedRegistry[]> => {
+      return recommendationsRegistry.getRegistries();
     });
 
     this.ipcHandle('catalog:getExtensions', async (): Promise<CatalogExtension[]> => {

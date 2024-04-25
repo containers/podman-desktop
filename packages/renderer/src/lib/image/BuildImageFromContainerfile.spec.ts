@@ -29,9 +29,10 @@ import { beforeAll, expect, test, vi } from 'vitest';
 
 import BuildImageFromContainerfile from '/@/lib/image/BuildImageFromContainerfile.svelte';
 import { buildImagesInfo } from '/@/stores/build-images';
+import { providerInfos } from '/@/stores/providers';
+import { recommendedRegistries } from '/@/stores/recommendedRegistries';
 
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import { providerInfos } from '../../stores/providers';
 
 // xterm is used in the UI, but not tested, added in order to avoid the multiple warnings being shown during the test.
 vi.mock('xterm', () => {
@@ -307,4 +308,51 @@ test('Expect no value for containerImageName input field (no my-custom-image val
   expect(containerImageName).toBeInTheDocument();
   expect(containerImageName).toHaveValue('');
   expect(containerImageName).toHaveAttribute('placeholder', 'Image name (e.g. quay.io/namespace/my-custom-image)');
+});
+
+test('Expect recommended extension in case of build error', async () => {
+  setup();
+
+  // add registries as recommended
+  recommendedRegistries.set([
+    {
+      id: 'my.registry.com',
+      name: 'Hello',
+      errors: ['Image does not exists'],
+      extensionId: 'myExtension.id',
+      isInstalled: false,
+      extensionDetails: {
+        id: 'myExtension.id',
+        fetchable: true,
+        displayName: 'My Custom Extension',
+        fetchLink: 'myCustomLinkToDownloadExtension',
+        fetchVersion: '1.0.0',
+      },
+    },
+  ]);
+
+  vi.mocked(window.buildImage).mockImplementation(
+    async (_ignore1, _ignore2, _ignore3, _ignore4, _ignore5, key, collect) => {
+      collect(key, 'error', 'initializing source docker://my.registry.com/foo-image:latest: Image does not exists');
+    },
+  );
+
+  render(BuildImageFromContainerfile, {});
+
+  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile Path' });
+  expect(containerFilePath).toBeInTheDocument();
+  await userEvent.type(containerFilePath, '/somepath/containerfile');
+
+  const buildFolder = screen.getByRole('textbox', { name: 'Build Context Directory' });
+  expect(buildFolder).toBeInTheDocument();
+  await userEvent.type(buildFolder, '/somepath');
+
+  const buildButton = screen.getByRole('button', { name: 'Build' });
+  expect(buildButton).toBeInTheDocument();
+  expect(buildButton).toBeEnabled();
+  await userEvent.click(buildButton);
+
+  // expect to find the widget to install extension
+  const proposal = screen.getByRole('button', { name: 'Install myExtension.id Extension' });
+  expect(proposal).toBeInTheDocument();
 });

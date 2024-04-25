@@ -22,6 +22,10 @@ import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js'
 import type { Featured } from '/@/plugin/featured/featured.js';
 import type { FeaturedExtension } from '/@/plugin/featured/featured-api.js';
 
+import type { ExtensionInfo } from '../api/extension-info.js';
+import type { ExtensionLoader } from '../extension-loader.js';
+import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog.js';
+import type { CatalogFetchableExtension } from '../extensions-catalog/extensions-catalog-api.js';
 import { RecommendationsRegistry } from './recommendations-registry.js';
 
 let recommendationsRegistry: RecommendationsRegistry;
@@ -39,6 +43,14 @@ vi.mock('../../../../../recommendations.json', () => ({
       thumbnail: 'data:image/png;base64-thumbnail',
       publishDate: '2020-01-01',
     })),
+    registries: [
+      {
+        id: 'my.registry.com',
+        name: 'My Extension',
+        extensionId: 'my.extensionId',
+        errors: ['is denied'],
+      },
+    ],
   },
 }));
 
@@ -53,6 +65,14 @@ const featuredMock = {
   getFeaturedExtensions: vi.fn(),
 } as unknown as Featured;
 
+const extensionLoaderMock = {
+  listExtensions: vi.fn(),
+} as unknown as ExtensionLoader;
+
+const extensionsCatalogMock = {
+  getFetchableExtensions: vi.fn(),
+} as unknown as ExtensionsCatalog;
+
 const fakeNow = new Date(2020, 1, 1);
 
 beforeEach(() => {
@@ -61,7 +81,12 @@ beforeEach(() => {
 
   vi.setSystemTime(fakeNow);
 
-  recommendationsRegistry = new RecommendationsRegistry(configurationRegistryMock, featuredMock);
+  recommendationsRegistry = new RecommendationsRegistry(
+    configurationRegistryMock,
+    featuredMock,
+    extensionLoaderMock,
+    extensionsCatalogMock,
+  );
 });
 
 afterEach(() => {
@@ -222,5 +247,42 @@ describe('getExtensionBanners', () => {
     expect(extensions.length).toBe(0);
 
     expect(featuredMock.getFeaturedExtensions).toHaveBeenCalled();
+  });
+});
+
+describe('getRegistries', () => {
+  test('recommendation disabled', async () => {
+    getRecommendationIgnored.mockReturnValue(true);
+
+    const registries = await recommendationsRegistry.getRegistries();
+    expect(registries.length).toBe(0);
+
+    expect(vi.mocked(extensionLoaderMock).listExtensions).not.toHaveBeenCalled();
+    expect(vi.mocked(extensionsCatalogMock).getFetchableExtensions).not.toHaveBeenCalled();
+  });
+
+  test('matching registry', async () => {
+    getRecommendationIgnored.mockReturnValue(false);
+    vi.mocked(extensionLoaderMock.listExtensions).mockResolvedValue([
+      {
+        id: 'my.extensionId',
+      } as unknown as ExtensionInfo,
+    ]);
+
+    vi.mocked(extensionsCatalogMock.getFetchableExtensions).mockResolvedValue([
+      {
+        extensionId: 'my.extensionId',
+        link: 'my-link',
+        version: '1.0.0',
+      } as unknown as CatalogFetchableExtension,
+    ]);
+
+    const registries = await recommendationsRegistry.getRegistries();
+    expect(registries.length).toBe(1);
+
+    expect(registries[0].extensionId).toBe('my.extensionId');
+
+    expect(vi.mocked(extensionLoaderMock).listExtensions).toHaveBeenCalled();
+    expect(vi.mocked(extensionsCatalogMock).getFetchableExtensions).toHaveBeenCalled();
   });
 });
