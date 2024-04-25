@@ -179,6 +179,10 @@ const installedExtensions: CombinedExtensionInfoUI[] = [
     id: 'idAInstalled',
     displayName: 'A installed Extension',
     removable: true,
+    error: {
+      message: 'An error occurred',
+      stack: 'line1\nline2',
+    },
   },
   {
     id: 'idYInstalled',
@@ -291,5 +295,16 @@ describe('extractExtensionDetail', () => {
     expect(extensionDetail?.displayName).toBe('Z Extension');
     expect(extensionDetail?.publisherDisplayName).toBe('Foo Publisher');
     expect(extensionDetail?.version).toBe('v1.0.0Z');
+  });
+
+  test('Check error is kept', async () => {
+    const extensionDetail = extensionsUtils.extractExtensionDetail(
+      catalogExtensions,
+      installedExtensions,
+      'idAInstalled',
+    );
+    expect(extensionDetail).toBeDefined();
+    expect(extensionDetail?.error?.message).toBe('An error occurred');
+    expect(extensionDetail?.error?.stack).toBe('line1\nline2');
   });
 });

@@ -113,6 +113,7 @@ export class ExtensionsUtils {
     const version = matchingInstalledExtensionVersion ?? latestVersionNumber ?? 'N/A';
 
     const installedExtension = matchingInstalledExtension;
+    const error = matchingInstalledExtension?.error;
 
     const fetchLink = latestVersionOciLink ?? '';
     const fetchVersion = latestVersion?.version ?? '';
@@ -138,6 +139,7 @@ export class ExtensionsUtils {
       fetchable,
       fetchLink,
       fetchVersion,
+      error,
     };
     return matchingExtension;
   }

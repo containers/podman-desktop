@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import { type CombinedExtensionInfoUI } from '/@/stores/all-installed-extensions';
@@ -79,6 +79,20 @@ const combined: CombinedExtensionInfoUI[] = [
   },
 ] as unknown[] as CombinedExtensionInfoUI[];
 
+const combinedWithError: CombinedExtensionInfoUI[] = [
+  {
+    id: 'idAInstalled',
+    displayName: 'A failed installed Extension',
+    name: 'A extension',
+    removable: true,
+    state: 'failed',
+    error: {
+      message: 'custom error',
+      stack: 'custom stack',
+    },
+  },
+] as unknown[] as CombinedExtensionInfoUI[];
+
 test('Expect to have details page', async () => {
   const extensionId = 'idAInstalled';
 
@@ -95,6 +109,37 @@ test('Expect to have details page', async () => {
 
   const extensionBadge = screen.getByRole('region', { name: 'Extension Badge' });
   expect(extensionBadge).toBeInTheDocument();
+
+  // no tabs as not failing state
+  const readmeTab = screen.queryByRole('button', { name: 'Readme' });
+  expect(readmeTab).not.toBeInTheDocument();
+  const errorTab = screen.queryByRole('button', { name: 'Error' });
+  expect(errorTab).not.toBeInTheDocument();
+});
+
+test('Expect to have details page with error tab with failed state', async () => {
+  const extensionId = 'idAInstalled';
+
+  catalogExtensionInfos.set([aFakeExtension]);
+  extensionInfos.set(combinedWithError);
+
+  await waitRender({ extensionId });
+
+  // check that we have two tabs
+  const readmeTab = screen.getByRole('button', { name: 'Readme' });
+  expect(readmeTab).toBeInTheDocument();
+
+  // check that we have two tabs
+  const errorTab = screen.getByRole('button', { name: 'Error' });
+  expect(errorTab).toBeInTheDocument();
+
+  // click on the error tab
+  await fireEvent.click(errorTab);
+
+  // now check that the error is on the page
+  // should contain the error
+  const error = screen.getByText('Error: custom error');
+  expect(error).toBeInTheDocument();
 });
 
 test('Expect empty screen', async () => {
