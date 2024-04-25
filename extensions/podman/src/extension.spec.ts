@@ -272,9 +272,13 @@ afterEach(() => {
 
 test('verify create command called with correct values', async () => {
   const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
-  spyExecPromise.mockImplementation(() => {
+  spyExecPromise.mockImplementationOnce(() => {
     return Promise.resolve({} as extensionApi.RunResult);
   });
+  vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
+    stdout: 'podman version 5.0.0',
+  } as extensionApi.RunResult);
+
   await extension.createMachine(
     {
       'podman.factory.machine.cpus': '2',
@@ -286,7 +290,7 @@ test('verify create command called with correct values', async () => {
   );
   expect(spyExecPromise).toBeCalledWith(
     getPodmanCli(),
-    ['machine', 'init', '--cpus', '2', '--memory', '999', '--disk-size', '232', '--image-path', 'path'],
+    ['machine', 'init', '--cpus', '2', '--memory', '999', '--disk-size', '232', '--image-path', 'path', '--rootful'],
     {
       logger: undefined,
       token: undefined,
@@ -306,9 +310,13 @@ test('verify create command called with correct values', async () => {
 
 test('verify create command called with correct values with user mode networking', async () => {
   const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
-  spyExecPromise.mockImplementation(() => {
+  spyExecPromise.mockImplementationOnce(() => {
     return Promise.resolve({} as extensionApi.RunResult);
   });
+  vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
+    stdout: 'podman version 5.0.0',
+  } as extensionApi.RunResult);
+
   await extension.createMachine(
     {
       'podman.factory.machine.cpus': '2',
@@ -331,6 +339,7 @@ test('verify create command called with correct values with user mode networking
     '232',
     '--image-path',
     'path',
+    '--rootful',
     '--user-mode-networking',
   ];
   expect(spyExecPromise).toBeCalledWith(getPodmanCli(), parameters, {
@@ -351,9 +360,13 @@ test('verify create command called with correct values with user mode networking
 
 test('verify create command called with now flag if start machine after creation is enabled', async () => {
   const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
-  spyExecPromise.mockImplementation(() => {
+  spyExecPromise.mockImplementationOnce(() => {
     return Promise.resolve({} as extensionApi.RunResult);
   });
+  vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
+    stdout: 'podman version 5.0.0',
+  } as extensionApi.RunResult);
+
   await extension.createMachine(
     {
       'podman.factory.machine.cpus': '2',
@@ -376,6 +389,7 @@ test('verify create command called with now flag if start machine after creation
     '232',
     '--image-path',
     'path',
+    '--rootful',
     '--now',
   ];
   expect(spyExecPromise).toBeCalledWith(getPodmanCli(), parameters, {
@@ -385,11 +399,14 @@ test('verify create command called with now flag if start machine after creation
 });
 
 test('verify error contains name, message and stderr if creation fails', async () => {
-  vi.spyOn(extensionApi.process, 'exec').mockRejectedValue({
+  vi.spyOn(extensionApi.process, 'exec').mockRejectedValueOnce({
     name: 'name',
     message: 'description',
     stderr: 'error',
   });
+  vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
+    stdout: 'podman version 5.0.0',
+  } as extensionApi.RunResult);
   await expect(
     extension.createMachine(
       {
@@ -409,6 +426,9 @@ test('verify create command called with embedded image if using podman v5', asyn
   vi.mocked(isMac).mockReturnValue(true);
   vi.mocked(getAssetsFolder).mockReturnValue('fake');
   vi.mocked(fs.existsSync).mockReturnValue(true);
+  vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+    stdout: 'podman version 5.0.0',
+  } as extensionApi.RunResult);
   vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
     stdout: 'podman version 5.0.0',
   } as extensionApi.RunResult);
@@ -433,7 +453,7 @@ test('verify create command called with embedded image if using podman v5', asyn
   });
 
   expect(vi.mocked(extensionApi.process.exec)).toHaveBeenNthCalledWith(
-    2,
+    3,
     getPodmanCli(),
     expect.arrayContaining([expect.stringContaining('.zst')]),
     expect.anything(),
