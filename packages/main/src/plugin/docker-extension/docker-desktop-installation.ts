@@ -161,6 +161,30 @@ export class DockerDesktopInstallation {
       });
     });
   }
+  // encode the error to be sent over IPC
+  // this is needed because on the client it will display
+  // a generic error message 'Error invoking remote method' and
+  // it's not useful for end user
+  encodeIpcError(e: unknown): { name?: string; message: unknown; extra?: Record<string, unknown> } {
+    let builtError;
+    if (e instanceof Error) {
+      builtError = { name: e.name, message: e.message, extra: { ...e } };
+    } else {
+      builtError = { message: e };
+    }
+    return builtError;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ipcHandle(channel: string, listener: (event: IpcMainInvokeEvent, ...args: any[]) => Promise<void> | any): any {
+    ipcMain.handle(channel, async (...args) => {
+      try {
+        return { result: await Promise.resolve(listener(...args)) };
+      } catch (e) {
+        return { error: this.encodeIpcError(e) };
+      }
+    });
+  }
 
   async init(): Promise<void> {
     ipcMain.handle('docker-desktop-plugin:get-preload-script', async (): Promise<string> => {
@@ -177,10 +201,10 @@ export class DockerDesktopInstallation {
       },
     );
 
-    ipcMain.handle(
+    this.ipcHandle(
       'docker-desktop-plugin:delete',
-      async (event: IpcMainInvokeEvent, extensionName: string): Promise<void> => {
-        return this.contributionManager.deleteExtension(extensionName);
+      async (event: IpcMainInvokeEvent, extensionId: string): Promise<void> => {
+        return this.contributionManager.deleteExtension(extensionId);
       },
     );
 
