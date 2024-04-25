@@ -49,33 +49,35 @@ export class RecommendationsRegistry {
     );
 
     // Filter and shuffle the extensions
-    const extensionBanners: ExtensionBanner[] = recommendations.extensions
-      .reduce((prev, extension) => {
-        // ensure the extension is in the featured extensions and is not install
-        if (!(extension.extensionId in featuredExtensions) || featuredExtensions[extension.extensionId].installed) {
+    const extensionBanners: ExtensionBanner[] = recommendations.extensions.reduce((prev, extension) => {
+      // ensure the extension is in the featured extensions and is not install
+      if (!(extension.extensionId in featuredExtensions) || featuredExtensions[extension.extensionId].installed) {
+        return prev;
+      }
+
+      // Check for publishDate property
+      if ('publishDate' in extension && typeof extension.publishDate === 'string') {
+        const publishDate = new Date(extension.publishDate).getTime();
+        if (isNaN(publishDate) || publishDate > Date.now()) {
           return prev;
         }
+      }
 
-        // Check for publishDate property
-        if ('publishDate' in extension && typeof extension.publishDate === 'string') {
-          const publishDate = new Date(extension.publishDate).getTime();
-          if (isNaN(publishDate) || publishDate > Date.now()) {
-            return prev;
-          }
-        }
+      prev.push({
+        ...extension,
+        featured: featuredExtensions[extension.extensionId],
+      });
 
-        prev.push({
-          ...extension,
-          featured: featuredExtensions[extension.extensionId],
-        });
-
-        return prev;
-      }, [] as ExtensionBanner[])
-      .toSorted(() => Math.random() - 0.5);
+      return prev;
+    }, [] as ExtensionBanner[]);
 
     // Limit the number of
     if (limit >= 0 && extensionBanners.length > limit) {
-      return extensionBanners.toSpliced(limit);
+      // instead of using random generator we ensure deterministic results for a period of time (here by the hours)
+      const startingIndex = new Date().getHours() % extensionBanners.length;
+
+      // Let's return the subset of banners starting at the chosen index
+      return Array.from({ length: limit }, (_, i) => extensionBanners[(startingIndex + i) % extensionBanners.length]);
     }
     return extensionBanners;
   }

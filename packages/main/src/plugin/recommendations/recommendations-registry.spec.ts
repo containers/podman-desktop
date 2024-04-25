@@ -223,4 +223,83 @@ describe('getExtensionBanners', () => {
 
     expect(featuredMock.getFeaturedExtensions).toHaveBeenCalled();
   });
+
+  test('same time should return same arrays', async () => {
+    getRecommendationIgnored.mockReturnValue(false);
+    vi.mocked(featuredMock.getFeaturedExtensions).mockResolvedValue(
+      Array.from({ length: 10 }, (_, i) => ({
+        id: `dummy.id-${i}`,
+        builtin: false,
+        description: '',
+        categories: [],
+        displayName: '',
+        fetchable: false,
+        icon: '',
+        installed: false,
+      })),
+    );
+
+    vi.setSystemTime(new Date(2050, 1, 1, 1));
+    const base = await recommendationsRegistry.getExtensionBanners(5);
+
+    for (let i = 0; i < 10; i++) {
+      expect(base).toStrictEqual(await recommendationsRegistry.getExtensionBanners(5));
+    }
+  });
+
+  test('different hours should return different arrays', async () => {
+    getRecommendationIgnored.mockReturnValue(false);
+    vi.mocked(featuredMock.getFeaturedExtensions).mockResolvedValue(
+      Array.from({ length: 10 }, (_, i) => ({
+        id: `dummy.id-${i}`,
+        builtin: false,
+        description: '',
+        categories: [],
+        displayName: '',
+        fetchable: false,
+        icon: '',
+        installed: false,
+      })),
+    );
+
+    vi.setSystemTime(new Date(2050, 1, 1, 1));
+    const resultA = await recommendationsRegistry.getExtensionBanners(5);
+    expect(resultA.length).toBe(5);
+
+    vi.setSystemTime(new Date(2050, 1, 1, 2));
+    const resultB = await recommendationsRegistry.getExtensionBanners(5);
+    expect(resultB.length).toBe(5);
+
+    expect(resultA).not.toStrictEqual(resultB);
+  });
+
+  test('all elements should have been shown in one day', async () => {
+    getRecommendationIgnored.mockReturnValue(false);
+    const featured = Array.from({ length: 10 }, (_, i) => ({
+      id: `dummy.id-${i}`,
+      builtin: false,
+      description: '',
+      categories: [],
+      displayName: '',
+      fetchable: false,
+      icon: '',
+      installed: false,
+    }));
+    vi.mocked(featuredMock.getFeaturedExtensions).mockResolvedValue(featured);
+
+    const expectedIds: Set<string> = new Set(featured.map(item => item.id));
+
+    const actualsIds: Set<string> = new Set();
+
+    for (let h = 0; h < 24; h++) {
+      vi.setSystemTime(new Date(2050, 1, 1, h));
+
+      const banners = await recommendationsRegistry.getExtensionBanners(1);
+      expect(banners.length).toBe(1);
+
+      actualsIds.add(banners[0].extensionId);
+    }
+
+    expect(expectedIds).toStrictEqual(actualsIds);
+  });
 });
