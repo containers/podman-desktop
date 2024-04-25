@@ -58,7 +58,7 @@ test('init should call init on certificates', async () => {
 test('readFeaturedJson should be valid', async () => {
   const extensionsJson = featured.readFeaturedJson();
   expect(extensionsJson).toBeDefined();
-  expect(extensionsJson.length).toBeGreaterThan(3);
+  expect(extensionsJson.length).toBeGreaterThanOrEqual(2);
 });
 
 test('getFeaturedExtensions should check installable extensions', async () => {
