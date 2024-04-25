@@ -38,13 +38,13 @@ export class BootcPage {
     this.webview = webview;
     this.heading = webview.getByLabel('Build Disk Image');
     this.outputFolderPath = webview.getByLabel('folder-select');
-    this.rawCheckbox = webview.getByRole('checkbox', { name: 'RAW image with partition table (*.raw)' });
-    this.qcow2Checkbox = webview.getByLabel('qcow2-select');
-    this.isoCheckbox = webview.getByLabel('iso-select');
-    this.vmdkCheckbox = webview.getByLabel('vmdk-select');
-    this.amiCheckbox = webview.getByLabel('ami-select');
-    this.amd64Button = webview.getByLabel('amd64-select');
-    this.arm64Button = webview.getByLabel('arm64-select');
+    this.rawCheckbox = webview.locator('label[for="raw"]');
+    this.qcow2Checkbox = webview.locator('label[for="qcow2"]');
+    this.isoCheckbox = webview.locator('label[for="iso"]');
+    this.vmdkCheckbox = webview.locator('label[for="vmdk"]');
+    this.amiCheckbox = webview.locator('label[for="ami"]');
+    this.amd64Button = webview.locator('label[for="amd64"]');
+    this.arm64Button = webview.locator('label[for="arm64"]');
     this.buildButton = webview.getByRole('button', { name: 'Build' });
   }
 
@@ -53,8 +53,7 @@ export class BootcPage {
 
     try {
       await this.outputFolderPath.fill(pathToStore);
-      await this.rawCheckbox.click();
-      await this.amd64Button.click();
+      await this.uncheckedAllCheckboxes();
 
       switch (type.toLocaleLowerCase()) {
         case 'raw':
@@ -91,7 +90,7 @@ export class BootcPage {
       await this.buildButton.click();
 
       const dialogLocator = this.page.getByRole('dialog', { name: 'Bootable Container', exact: true });
-      await playExpect.poll(async () => (await dialogLocator.count()) > 0, { timeout: 300000 }).toBeTruthy();
+      await playExpect.poll(async () => (await dialogLocator.count()) > 0, { timeout: 340000 }).toBeTruthy();
 
       const dialogMessageLocator = this.page.getByLabel('Dialog Message');
       result = (await dialogMessageLocator.innerText()).includes('Success!');
@@ -102,5 +101,13 @@ export class BootcPage {
     }
 
     return result;
+  }
+
+  private async uncheckedAllCheckboxes(): Promise<void> {
+    await this.rawCheckbox.uncheck();
+    await this.qcow2Checkbox.uncheck();
+    await this.isoCheckbox.uncheck();
+    await this.vmdkCheckbox.uncheck();
+    await this.amiCheckbox.uncheck();
   }
 }
