@@ -1762,7 +1762,16 @@ export async function createMachine(
     telemetryRecords.imagePath = 'default';
   }
 
-  // rootful
+  if (params['podman.factory.machine.rootful'] === undefined) {
+    // should be rootful mode if version supports this mode and only if rootful is not provided (false or true)
+    const installedPodman = await getPodmanInstallation();
+    const version: string | undefined = installedPodman?.version;
+    const isRootfulSupported = isRootfulMachineInitSupported(version);
+    if (isRootfulSupported) {
+      params['podman.factory.machine.rootful'] = true;
+    }
+  }
+
   if (params['podman.factory.machine.rootful']) {
     parameters.push('--rootful');
     telemetryRecords.rootless = false;
