@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
-import spinnerSourcecode from '@podman-desktop/ui-svelte/Spinner.svelte?raw';
+import spinnerSourcecode from '@podman-desktop/ui-svelte/Spinner?raw';
 
 let spinnerHtmlCode: string | undefined = undefined;
 
