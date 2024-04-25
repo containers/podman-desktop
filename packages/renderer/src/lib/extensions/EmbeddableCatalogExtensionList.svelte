@@ -43,7 +43,5 @@ const catalogExtensions: Readable<CatalogExtensionInfoUI[]> = derived(
 </script>
 
 <div class="flex bg-charcoal-700 text-left">
-  {#if $catalogExtensions.length > 0}
-    <CatalogExtensionList catalogExtensions="{$catalogExtensions}" />
-  {/if}
+  <CatalogExtensionList catalogExtensions="{$catalogExtensions}" />
 </div>
