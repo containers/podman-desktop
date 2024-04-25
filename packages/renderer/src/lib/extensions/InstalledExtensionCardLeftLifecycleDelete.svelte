@@ -12,7 +12,7 @@ let inProgress = false;
 async function deleteExtension(): Promise<void> {
   inProgress = true;
   if (extension.type === 'dd') {
-    await window.ddExtensionDelete(extension.name);
+    await window.ddExtensionDelete(extension.id);
   } else {
     await window.removeExtension(extension.id);
   }

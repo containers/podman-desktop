@@ -37,7 +37,7 @@ test('combined extensions from DD', async () => {
   // now, add some contributions
   contributions.set([
     {
-      id: 'first.extension1',
+      id: 'extension1',
       extensionId: 'first.extension1',
       description: 'test1',
       type: 'hello',
@@ -51,7 +51,7 @@ test('combined extensions from DD', async () => {
       version: '1.0.0',
     },
     {
-      id: 'second.extension2',
+      id: 'extension2',
       extensionId: 'second.extension2',
       description: 'test2',
       type: 'hello',
@@ -75,6 +75,7 @@ test('combined extensions from DD', async () => {
 
   expect(extension1?.type).toBe('dd');
   expect(extension1?.displayName).toBe('test1');
+  expect(extension1?.id).toBe('first.extension1');
 });
 
 test('combined extensions from PD', async () => {
