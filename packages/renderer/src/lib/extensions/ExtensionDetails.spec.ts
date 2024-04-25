@@ -65,6 +65,31 @@ export const aFakeExtension: CatalogExtension = {
   ],
 };
 
+export const withSpacesFakeExtension: CatalogExtension = {
+  id: 'id A Installed',
+  publisherName: 'FooPublisher',
+  shortDescription: 'this is short A',
+  publisherDisplayName: 'Foo Publisher',
+  extensionName: 'a-extension',
+  displayName: 'A Extension',
+  categories: [],
+  unlisted: false,
+  versions: [
+    {
+      version: '1.0.0A',
+      preview: false,
+      files: [
+        {
+          assetType: 'icon',
+          data: 'iconA',
+        },
+      ],
+      ociUri: 'linkA',
+      lastUpdated: new Date(),
+    },
+  ],
+};
+
 const combined: CombinedExtensionInfoUI[] = [
   {
     id: 'idAInstalled',
@@ -108,4 +133,16 @@ test('Expect empty screen', async () => {
   // should have the text "Extension not found"
   const extensionNotFound = screen.getByText('Extension not found');
   expect(extensionNotFound).toBeInTheDocument();
+});
+
+test('Expect to have details page with id with spaces', async () => {
+  const extensionId = 'id A Installed';
+
+  catalogExtensionInfos.set([withSpacesFakeExtension]);
+  extensionInfos.set(combined);
+
+  await waitRender({ extensionId });
+
+  const heading = screen.getByRole('heading', { name: 'A Extension extension' });
+  expect(heading).toBeInTheDocument();
 });

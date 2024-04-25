@@ -27,7 +27,11 @@ let extension: Readable<ExtensionDetailsUI | undefined>;
 $: extension = derived(
   [catalogExtensionInfos, combinedInstalledExtensions],
   ([$catalogExtensionInfos, $combinedInstalledExtensions]) => {
-    return extensionsUtils.extractExtensionDetail($catalogExtensionInfos, $combinedInstalledExtensions, extensionId);
+    return extensionsUtils.extractExtensionDetail(
+      $catalogExtensionInfos,
+      $combinedInstalledExtensions,
+      decodeURIComponent(extensionId),
+    );
   },
 );
 </script>

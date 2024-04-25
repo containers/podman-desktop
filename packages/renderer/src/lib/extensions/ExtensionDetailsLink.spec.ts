@@ -69,3 +69,31 @@ test('Expect to have link with displayIcon', async () => {
   // expect the router to be called
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/extensions/details/myId/');
 });
+
+test('Expect to have link with spaces', async () => {
+  const extension: CombinedExtensionInfoUI = {
+    type: 'pd',
+    id: 'my Id with spaces',
+    name: 'foo',
+    description: 'my description',
+    displayName: 'This is the display name',
+    publisher: '',
+    removable: false,
+    version: 'v1.2.3',
+    state: 'started',
+    path: '',
+    readme: '',
+    icon: 'iconOfMyExtension.png',
+  };
+
+  render(ExtensionDetailsLink, { extension });
+
+  const detailsButton = screen.getByRole('button', { name: 'foo extension details' });
+  expect(detailsButton).toBeInTheDocument();
+
+  // click the button
+  await fireEvent.click(detailsButton);
+
+  // expect the router to be called
+  expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/extensions/details/my%20Id%20with%20spaces/');
+});
