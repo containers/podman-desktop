@@ -77,9 +77,11 @@ export class BootcPage {
 
       switch (architecture.toLocaleLowerCase()) {
         case 'amd64':
+          await playExpect(this.amd64Button).toBeEnabled();
           await this.amd64Button.click();
           break;
         case 'arm64':
+          await playExpect(this.arm64Button).toBeEnabled();
           await this.arm64Button.click();
           break;
         default:
