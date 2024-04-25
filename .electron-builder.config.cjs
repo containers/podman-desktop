@@ -32,8 +32,8 @@ let macosArches = ['x64', 'arm64', 'universal'];
 let artifactNameSuffix = '';
 if (process.env.AIRGAP_DOWNLOAD) {
   artifactNameSuffix = '-airgap';
-  // Create only one universal build for airgap mode
-  macosArches = ['universal'];
+  // Create dedicated but not universal builds for airgap as it's > 2GB for macOS
+  macosArches = ['x64', 'arm64'];
 }
 
 async function addElectronFuses(context) {
@@ -85,10 +85,12 @@ const config = {
 
     if(context.arch === Arch.arm64 && context.electronPlatformName === 'darwin'){
       context.packager.config.extraResources.push('extensions/podman/assets/podman-installer-macos-aarch64-*.pkg');
+      context.packager.config.extraResources.push('extensions/podman/assets/podman-image-arm64.zst');
     }
 
     if(context.arch === Arch.x64 && context.electronPlatformName === 'darwin'){
       context.packager.config.extraResources.push('extensions/podman/assets/podman-installer-macos-amd64-*.pkg');
+      context.packager.config.extraResources.push('extensions/podman/assets/podman-image-x64.zst');
     }
 
     if (context.electronPlatformName === 'win32') {
