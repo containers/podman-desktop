@@ -16,7 +16,7 @@ async function startExtension(): Promise<void> {
 }
 </script>
 
-{#if extension.state === 'stopped'}
+{#if extension.state !== 'started'}
   <LoadingIconButton
     clickAction="{() => startExtension()}"
     action="start"
