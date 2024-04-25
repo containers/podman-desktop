@@ -47,7 +47,7 @@ const openExternalMock = vi.fn();
 
 // replace Monaco Editor by a Spinner so we don't need to load tons of stuff
 vi.mock('../editor/MonacoEditor.svelte', actual => {
-  return vi.importActual('../ui/Spinner.svelte');
+  return vi.importActual('@podman-desktop/ui-svelte/Spinner');
 });
 
 // mock the router
