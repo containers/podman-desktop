@@ -18,6 +18,8 @@
 
 import type { CombinedExtensionInfoUI } from '/@/stores/all-installed-extensions';
 
+import type { ExtensionError } from '../../../../main/src/plugin/api/extension-info';
+
 export interface ExtensionDetailsUI {
   displayName: string;
   description: string;
@@ -37,4 +39,5 @@ export interface ExtensionDetailsUI {
   fetchable: boolean;
   fetchLink: string;
   fetchVersion: string;
+  error?: ExtensionError;
 }

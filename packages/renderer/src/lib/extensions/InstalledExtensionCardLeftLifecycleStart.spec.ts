@@ -104,3 +104,30 @@ test('Expect unable to start if already started', async () => {
   const button = screen.queryByRole('button', { name: 'Start' });
   expect(button).not.toBeInTheDocument();
 });
+
+test('Expect to start Extension if failed', async () => {
+  const extension: CombinedExtensionInfoUI = {
+    type: 'pd',
+    id: 'idExtension',
+    name: 'fooName',
+    description: 'my description',
+    displayName: '',
+    publisher: '',
+    removable: true,
+    version: 'v1.2.3',
+    state: 'failed',
+    path: '',
+    readme: '',
+  };
+  render(InstalledExtensionCardLeftLifecycleStart, { extension });
+
+  // get button with label 'Start'
+  const button = screen.getByRole('button', { name: 'Start' });
+  expect(button).toBeInTheDocument();
+
+  // click the button
+  await fireEvent.click(button);
+
+  // expect the start function to be called
+  expect(vi.mocked(window.startExtension)).toHaveBeenCalledWith('idExtension');
+});
