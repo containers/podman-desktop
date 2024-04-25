@@ -17,7 +17,7 @@ export let clickAction: () => Promise<void> | void;
 $: disable =
   state?.inProgress ||
   state?.status === 'unsupported' ||
-  (action === 'start' && state?.status !== 'stopped') ||
+  (action === 'start' && state?.status !== 'stopped' && state?.status !== 'failed') ||
   (action === 'restart' && state?.status !== 'started') ||
   (action === 'stop' && state?.status !== 'started') ||
   (action === 'delete' && state?.status !== 'stopped' && state?.status !== 'unknown') ||
@@ -27,7 +27,7 @@ $: loading = state?.inProgress && action === state?.action;
 
 function getStyleByState(state: ILoadingStatus | undefined, action: string): string {
   if (
-    (action === 'start' && (state?.inProgress || state?.status !== 'stopped')) ||
+    (action === 'start' && (state?.inProgress || (state?.status !== 'stopped' && state?.status !== 'failed'))) ||
     ((action === 'stop' || action === 'restart') && (state?.inProgress || state?.status !== 'started')) ||
     (action === 'delete' && (state?.inProgress || (state?.status !== 'stopped' && state?.status !== 'unknown'))) ||
     (action === 'update' && (state?.inProgress || state?.status === 'unknown')) ||
