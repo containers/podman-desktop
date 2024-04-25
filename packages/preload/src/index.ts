@@ -1584,8 +1584,8 @@ export function initExposure(): void {
     }
   });
 
-  contextBridge.exposeInMainWorld('ddExtensionDelete', async (extensionName: string): Promise<void> => {
-    return ipcInvoke('docker-desktop-plugin:delete', extensionName);
+  contextBridge.exposeInMainWorld('ddExtensionDelete', async (extensionId: string): Promise<void> => {
+    return ipcInvoke('docker-desktop-plugin:delete', extensionId);
   });
 
   contextBridge.exposeInMainWorld('getWebviewPreloadPath', async (): Promise<string> => {
