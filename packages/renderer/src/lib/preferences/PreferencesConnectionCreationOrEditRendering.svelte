@@ -111,7 +111,7 @@ onMount(async () => {
   // check if we have an existing action
   const operationConnectionInfoMap = get(operationConnectionsInfo);
 
-  if (taskId && operationConnectionInfoMap && operationConnectionInfoMap.has(taskId)) {
+  if (taskId && operationConnectionInfoMap?.has(taskId)) {
     const value = operationConnectionInfoMap.get(taskId);
     if (value) {
       loggerHandlerKey = value.operationKey;

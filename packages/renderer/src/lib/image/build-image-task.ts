@@ -145,7 +145,7 @@ export function reconnectUI(key: symbol, buildImageCallback: BuildImageCallback)
   buildOnHolds.delete(key);
 
   // check if it was ended in the replay
-  if (!ended && replay && replay.end) {
+  if (!ended && replay?.end) {
     buildImageCallback.onEnd();
   }
 }
