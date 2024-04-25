@@ -2114,7 +2114,7 @@
     "@docusaurus/theme-search-algolia" "3.2.1"
     "@docusaurus/types" "3.2.1"
 
-"@docusaurus/react-loadable@5.5.2", "react-loadable@npm:@docusaurus/react-loadable@5.5.2":
+"@docusaurus/react-loadable@5.5.2":
   version "5.5.2"
   resolved "https://registry.yarnpkg.com/@docusaurus/react-loadable/-/react-loadable-5.5.2.tgz#81aae0db81ecafbdaee3651f12804580868fa6ce"
   integrity sha512-A3dYjdBGuy0IGT+wyLIGIKLRE+sAk1iNk0f1HjNDysO7u8lhL4N3VEm+FAubmJbAztn94F7MxBTPmnixbiyFdQ==
@@ -3441,10 +3441,10 @@
   resolved "https://registry.yarnpkg.com/@rollup/rollup-win32-x64-msvc/-/rollup-win32-x64-msvc-4.13.0.tgz#6abd79db7ff8d01a58865ba20a63cfd23d9e2a10"
   integrity sha512-UKXUQNbO3DOhzLRwHSpa0HnhhCgNODvfoPWv2FCXme8N/ANFfhIPMGuOT+QuKd16+B5yxZ0HdpNlqPvTMS1qfw==
 
-"@segment/analytics-core@1.5.0":
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-core/-/analytics-core-1.5.0.tgz#c1dcd73267b7928b695403c111333343674943a4"
-  integrity sha512-xFM9sS4ltRWDnNE6bD/bwLAGGBI1Doidf35J6ePyuOfecZ7c0sADtk9xR1QD98CDDFVaQcrfV/O1l4rBZvCm4A==
+"@segment/analytics-core@1.5.1":
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-core/-/analytics-core-1.5.1.tgz#01fc622ee2b2b6c7768991e97bf0c55ae374bc05"
+  integrity sha512-fQTtxO1TyTb/j09a7Hyi080N0MxCC+7uA3rGF2033xrFglxgUb6a75Lc9MAEpZLUcwgSw/VyECf0ewmxtRNiOw==
   dependencies:
     "@lukeed/uuid" "^2.0.0"
     "@segment/analytics-generic-utils" "1.2.0"
@@ -3458,13 +3458,13 @@
   dependencies:
     tslib "^2.4.1"
 
-"@segment/analytics-node@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-node/-/analytics-node-2.1.0.tgz#6b4f8c3ea3893dc3515bd8a4efdac99deedeb7f5"
-  integrity sha512-o50FA7CjfqnaSCPZ93DI15hOrqdu4fEYJFBlYkh7kbrARGTSGi3T5CRp3uM/un9oz0cJFoP/0+a2urXlAGE9aw==
+"@segment/analytics-node@^2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-node/-/analytics-node-2.1.1.tgz#597d03c476b588d1341bfc80a08e0cb36df4dafe"
+  integrity sha512-CYdnTOObhS3RcPxdB+uGKh1M+zkIfQbO/XAo/xjPUKFrzK10P5wS3OxjX0BNzVQDTvofGCXdDZhUlKTmwx3haw==
   dependencies:
     "@lukeed/uuid" "^2.0.0"
-    "@segment/analytics-core" "1.5.0"
+    "@segment/analytics-core" "1.5.1"
     "@segment/analytics-generic-utils" "1.2.0"
     buffer "^6.0.3"
     jose "^5.1.0"
@@ -13846,6 +13846,14 @@ react-loadable-ssr-addon-v5-slorber@^1.0.1:
   integrity sha512-lq3Lyw1lGku8zUEJPDxsNm1AfYHBrO9Y1+olAYwpUJ2IGFBskM0DMKok97A6LWUpHm+o7IvQBOWu9MLenp9Z+A==
   dependencies:
     "@babel/runtime" "^7.10.3"
+
+"react-loadable@npm:@docusaurus/react-loadable@5.5.2":
+  version "5.5.2"
+  resolved "https://registry.yarnpkg.com/@docusaurus/react-loadable/-/react-loadable-5.5.2.tgz#81aae0db81ecafbdaee3651f12804580868fa6ce"
+  integrity sha512-A3dYjdBGuy0IGT+wyLIGIKLRE+sAk1iNk0f1HjNDysO7u8lhL4N3VEm+FAubmJbAztn94F7MxBTPmnixbiyFdQ==
+  dependencies:
+    "@types/react" "*"
+    prop-types "^15.6.2"
 
 react-player@^2.16.0:
   version "2.16.0"
