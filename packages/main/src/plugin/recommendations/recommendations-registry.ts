@@ -17,9 +17,15 @@
  ***********************************************************************/
 
 import type { ConfigurationRegistry, IConfigurationNode } from '/@/plugin/configuration-registry.js';
+import type { ExtensionLoader } from '/@/plugin/extension-loader.js';
+import type { ExtensionsCatalog } from '/@/plugin/extensions-catalog/extensions-catalog.js';
 import type { Featured } from '/@/plugin/featured/featured.js';
 import type { FeaturedExtension } from '/@/plugin/featured/featured-api.js';
-import type { ExtensionBanner } from '/@/plugin/recommendations/recommendations-api.js';
+import type {
+  ExtensionBanner,
+  RecommendedRegistry,
+  RecommendedRegistryExtensionDetails,
+} from '/@/plugin/recommendations/recommendations-api.js';
 
 import { default as recommendations } from '../../../../../recommendations.json';
 import { RecommendationsSettings } from './recommendations-settings.js';
@@ -28,12 +34,50 @@ export class RecommendationsRegistry {
   constructor(
     private configurationRegistry: ConfigurationRegistry,
     private featured: Featured,
+    private extensionLoader: ExtensionLoader,
+    private extensionsCatalog: ExtensionsCatalog,
   ) {}
 
   isRecommendationEnabled(): boolean {
     return !this.configurationRegistry
       .getConfiguration(RecommendationsSettings.SectionName)
       .get<boolean>(RecommendationsSettings.IgnoreRecommendations, false);
+  }
+
+  async getRegistries(): Promise<RecommendedRegistry[]> {
+    // Do not recommend any registry when user selected the ignore preference
+    if (!this.isRecommendationEnabled()) {
+      return [];
+    }
+    const installedExtensions = await this.extensionLoader.listExtensions();
+
+    const fetchableExtensions = await this.extensionsCatalog.getFetchableExtensions();
+
+    return recommendations.registries
+      .map(registry => {
+        const matchingExtension = fetchableExtensions.find(e => e.extensionId === registry.extensionId);
+        let extensionDetails: RecommendedRegistryExtensionDetails | undefined;
+
+        if (matchingExtension) {
+          extensionDetails = {
+            id: matchingExtension.extensionId,
+            displayName: registry.extensionId,
+            fetchable: true,
+            fetchLink: matchingExtension.link,
+            fetchVersion: matchingExtension.version,
+          };
+        }
+
+        return {
+          extensionId: registry.extensionId,
+          id: registry.id,
+          name: registry.name,
+          errors: registry.errors,
+          isInstalled: installedExtensions.some(e => e.id === registry.extensionId),
+          extensionDetails,
+        };
+      })
+      .filter(registry => registry.extensionDetails !== undefined) as RecommendedRegistry[];
   }
 
   /**
