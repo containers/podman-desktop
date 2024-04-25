@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -335,4 +335,67 @@ describe.each([
     const showLogsButton = screen.getByRole('button', { name: 'Show Logs' });
     expect(showLogsButton).toBeInTheDocument();
   });
+});
+
+test(`Expect create with unchecked and checked checkboxes`, async () => {
+  let providedKeyLogger: ((key: symbol, eventName: LoggerEventName, args: string[]) => void) | undefined;
+  const taskId = 4;
+  const callback = mockCallback(async keyLogger => {
+    providedKeyLogger = keyLogger;
+  });
+
+  const booleanProperties: IConfigurationPropertyRecordedSchema[] = [
+    {
+      title: 'unchecked checkbox',
+      parentId: '',
+      scope: 'ContainerProviderConnectionFactory',
+      id: 'test.unchecked',
+      type: 'boolean',
+      description: 'should be unchecked / false',
+    },
+    {
+      title: 'checked checkbox',
+      parentId: '',
+      scope: 'ContainerProviderConnectionFactory',
+      id: 'test.checked',
+      type: 'boolean',
+      default: true,
+      description: 'should be checked / true',
+    },
+    {
+      title: 'FactoryProperty',
+      parentId: '',
+      scope: 'ContainerProviderConnectionFactory',
+      id: 'test.factoryProperty',
+      type: 'number',
+      description: 'test.factoryProperty',
+    },
+  ];
+
+  // eslint-disable-next-line @typescript-eslint/await-thenable
+  render(PreferencesConnectionCreationOrEditRendering, {
+    properties: booleanProperties,
+    providerInfo,
+    connectionInfo: undefined,
+    propertyScope,
+    callback,
+    pageIsLoading: false,
+    taskId,
+  });
+  await vi.waitUntil(() => screen.queryByRole('textbox', { name: 'test.factoryProperty' }));
+  await vi.waitUntil(() => screen.getByRole('checkbox', { name: 'should be unchecked / false' }));
+  await vi.waitUntil(() => screen.getByRole('checkbox', { name: 'should be checked / true' }));
+
+  const createButton = screen.getByRole('button', { name: 'Create' });
+  expect(createButton).toBeInTheDocument();
+  // click on the button
+  await fireEvent.click(createButton);
+
+  expect(callback).toBeCalledWith(
+    'test',
+    { 'test.factoryProperty': '0', 'test.checked': true, 'test.unchecked': false },
+    expect.anything(),
+    eventCollect,
+    undefined,
+  );
 });

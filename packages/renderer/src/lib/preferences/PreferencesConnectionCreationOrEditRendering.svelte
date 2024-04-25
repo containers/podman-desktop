@@ -331,11 +331,28 @@ async function handleOnSubmit(e: any) {
   errorMessage = undefined;
   const formData = new FormData(e.target);
 
-  const data: { [key: string]: FormDataEntryValue } = {};
+  const data: { [key: string]: unknown } = {};
+
+  // handle checkboxes that are not submitted in case of unchecked
+  // get all configuration keys
+  configurationKeys.forEach(key => {
+    // do we have the value in the form
+    if (key.id && !formData.has(key.id) && key.type === 'boolean') {
+      data[key.id] = false;
+    }
+  });
+
   for (let field of formData) {
     const [key, value] = field;
+    let updatedValue: unknown = value;
+    const configurationDef = configurationKeys.find(configKey => configKey.id === key);
     if (!connectionInfo || configurationValues.get(key)?.modified) {
-      data[key] = value;
+      // definition of the key
+      // update the value to be true and not on
+      if (configurationDef?.type === 'boolean' && value === 'on') {
+        updatedValue = true;
+      }
+      data[key] = updatedValue;
     }
   }
 
