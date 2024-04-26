@@ -420,7 +420,7 @@ export class ContextsManager {
     }
 
     // Delete informers for removed contexts
-    // We also remove the state of the current context is it has changed. It may happen that the name of the context is the same but it is pointing to a different cluster
+    // We also remove the state of the current context if it has changed. It may happen that the name of the context is the same but it is pointing to a different cluster
     let removed = false;
     for (const name of this.states.getContextsNames()) {
       if (
