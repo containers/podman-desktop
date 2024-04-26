@@ -22,7 +22,8 @@ import { expect as playExpect } from '@playwright/test';
 import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 
 import { CreateMachinePage } from '../model/pages/create-machine-page';
-import { ResourceConnectionCardPage } from '../model/pages/resource-connection-card-page';
+import { ResourcesPage } from '../model/pages/resources-page';
+import { ResourcesPodmanConnections } from '../model/pages/resources-podman-connections-page';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
@@ -32,14 +33,12 @@ import { deletePodmanMachine } from '../utility/operations';
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
 let navBar: NavigationBar;
-const PODMAN_MACHINE_NAME: string = 'podman-machine-rootless';
-const MACHINE_VISIBLE_NAME: string = 'Podman Machine rootless';
+const PODMAN_MACHINE_NAME: string = 'Podman Machine Rootless';
 
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
   pdRunner.setVideoAndTraceName('podman-rootless-machine-e2e');
-  process.env.KEEP_TRACES_ON_PASS = 'true';
 
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
@@ -47,7 +46,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await deletePodmanMachine(page, MACHINE_VISIBLE_NAME);
+  await deletePodmanMachine(page, PODMAN_MACHINE_NAME);
   await pdRunner.close();
 });
 
@@ -58,16 +57,18 @@ beforeEach<RunnerTestContext>(async ctx => {
 describe.skipIf(os.platform() === 'linux')('Rootless Podman machine Verification', async () => {
   test('Create a rootless machine', async () => {
     await navBar.openSettings();
-    const podmanResources = new ResourceConnectionCardPage(page, 'podman');
+    const resourcesPage = new ResourcesPage(page);
 
-    await podmanResources.createButton.click();
+    const createMachineButton = resourcesPage.podmanResources.getByRole('button', {
+      name: 'Create new Podman machine',
+    });
+    await createMachineButton.click();
 
     const createMachinePage = new CreateMachinePage(page);
-    await createMachinePage.createMachine(PODMAN_MACHINE_NAME, false, false, true, false);
-    await createMachinePage.handleConnectionDialog(PODMAN_MACHINE_NAME, false);
+    await createMachinePage.createMachine(PODMAN_MACHINE_NAME, false);
 
-    const machineBox = new ResourceConnectionCardPage(page, 'podman', MACHINE_VISIBLE_NAME);
-    const connectionStatusLabel = await machineBox.resourceElementConnectionStatus.textContent();
-    playExpect(connectionStatusLabel === 'RUNNING').toBeTruthy();
-  }, 150_000);
+    const machineBox = new ResourcesPodmanConnections(page, PODMAN_MACHINE_NAME);
+    const connectionStatus = await machineBox.machineConnectionStatus.allTextContents();
+    playExpect(connectionStatus[0] === 'RUNNING').toBeTruthy();
+  });
 });
