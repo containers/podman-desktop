@@ -31,6 +31,26 @@ export function createListener(
     const command = e.target.dataset.command;
     const expandable = e.target.dataset.expandable;
 
+    // if the user click on a a href link containing data-pd-jump-in-page attribute
+    if (e.target instanceof HTMLAnchorElement) {
+      // get a matching attribute ?
+      const hrefId = e.target.getAttribute('data-pd-jump-in-page');
+
+      // get a linked ID
+      if (hrefId) {
+        const matchingElement = document.getElementById(hrefId);
+        if (matchingElement) {
+          matchingElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+            inline: 'nearest',
+          });
+
+          return;
+        }
+      }
+    }
+
     // if the user clicked on the toggle of an expandable section
     if (expandable) {
       executeExpandableToggle(expandable);
