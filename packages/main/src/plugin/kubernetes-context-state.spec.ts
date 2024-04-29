@@ -306,7 +306,6 @@ describe('update', async () => {
     });
 
     apiSenderSendMock.mockReset();
-    console.log('DA QUI');
     await client.update(kubeConfig);
 
     vi.advanceTimersToNextTimer();
