@@ -647,6 +647,9 @@ export class ContainerProviderRegistry {
           // and may result in false positives until issue: https://github.com/containers/podman/issues/22184 is resolved
           isManifest: guessIsManifest(image, provider.connection.type),
 
+          // Podman Id does not include the sha256 prefix, so we add it here (it's the Digest using Podman API)
+          Id: image.Digest ? `sha256:${image.Id}` : image.Id,
+
           // Compat API provider does not add the Digest field.
           // if it is missing, add it as 'sha256:image.Id'
           Digest: image.Digest || `sha256:${image.Id}`,
