@@ -361,7 +361,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
 <SettingsPage title="Resources">
   <span slot="subtitle" class:hidden="{providers.length === 0}">
     Additional provider information is available under <a
-      href="/preferences/extensions"
+      href="/extensions"
       class="text-gray-700 underline underline-offset-2">Extensions</a>
   </span>
   <div class="h-full" role="region" aria-label="Featured Provider Resources">
