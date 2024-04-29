@@ -29,7 +29,7 @@ describe('parent attributes should be propagate', () => {
       style: 'color: green;',
     });
 
-    const spinner = screen.getByLabelText('spinner');
+    const spinner = screen.getByRole('progressbar', { name: 'Loading', busy: true });
     expect(spinner).toBeDefined();
 
     expect(spinner.getAttribute('style')).toBe('color: green;');
@@ -40,7 +40,7 @@ describe('parent attributes should be propagate', () => {
       class: 'dummy-class',
     });
 
-    const spinner = screen.getByLabelText('spinner');
+    const spinner = screen.getByRole('progressbar', { name: 'Loading', busy: true });
     expect(spinner).toBeDefined();
 
     expect(spinner.classList).toContain('dummy-class');
