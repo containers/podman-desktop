@@ -3770,6 +3770,7 @@ test('list images with podmanListImages correctly', async () => {
   const imagesList = [
     {
       Id: 'dummyImageId',
+      Digest: 'fooDigest',
     },
   ];
 
@@ -3795,7 +3796,7 @@ test('list images with podmanListImages correctly', async () => {
   const image = images[0];
   expect(image.engineId).toBe('podman1');
   expect(image.engineName).toBe('podman');
-  expect(image.Id).toBe('dummyImageId');
+  expect(image.Id).toBe('sha256:dummyImageId');
 });
 
 test('expect images with podmanListImages to also include History as well as engineId and engineName', async () => {
