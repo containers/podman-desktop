@@ -45,7 +45,7 @@ test('Expect to have readme with URI', async () => {
   const markdownContent = screen.queryByRole('region', { name: 'markdown-content' });
   expect(markdownContent).toBeInTheDocument();
 
-  expect(markdownContent).toContainHTML('<h1>This is my README</h1>');
+  expect(markdownContent).toContainHTML('<h1 id="this-is-my-readme">This is my README</h1>');
 });
 
 test('Expect to have readme with content', async () => {
@@ -59,7 +59,7 @@ test('Expect to have readme with content', async () => {
   // expect Markdown
   const markdownContent = screen.getByRole('region', { name: 'markdown-content' });
   expect(markdownContent).toBeInTheDocument();
-  expect(markdownContent).toContainHTML('<h1>my README</h1>');
+  expect(markdownContent).toContainHTML('<h1 id="my-readme">my README</h1>');
 });
 
 test('Expect empty screen if no content', async () => {
