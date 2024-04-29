@@ -113,6 +113,7 @@ const proxy: Proxy = {
   onDidStateChange: vi.fn(),
   onDidUpdateProxy: onDidUpdateProxyEmitter.event,
   isEnabled: isEnabledProxyMock,
+  proxy: vi.fn(),
 } as unknown as Proxy;
 
 const configurationRegistry: ConfigurationRegistry = {
@@ -181,18 +182,28 @@ test('check getHttpOptions with Proxy', async () => {
   getAllCertificatesMock.mockReturnValue(['1', '2', '3']);
 
   isEnabledProxyMock.mockReturnValue(true);
-  extensionsCatalog = new ExtensionsCatalog(certificates, proxy, configurationRegistry);
-  onDidUpdateProxyEmitter.fire({
-    httpProxy: 'http://proxy:8080',
-    httpsProxy: 'http://proxy:8080',
+  const proxy: Proxy = {
+    onDidStateChange: vi.fn(),
+    onDidUpdateProxy: vi.fn(),
+    isEnabled: isEnabledProxyMock,
+    proxy: vi.fn(),
+  } as unknown as Proxy;
+  vi.spyOn(proxy, 'proxy', 'get').mockReturnValue({
+    httpProxy: 'http://localhost',
+    httpsProxy: 'http://localhost',
     noProxy: 'localhost',
   });
+  extensionsCatalog = new ExtensionsCatalog(certificates, proxy, configurationRegistry);
 
   const options = extensionsCatalog.getHttpOptions();
   expect(options).toBeDefined();
   // expect the two agents being defined
   expect(options.agent?.http).toBeDefined();
   expect(options.agent?.https).toBeDefined();
+  // @ts-expect-error proxy property exists on http object
+  expect(options.agent?.http?.proxy.href).toBe('http://localhost/');
+  // @ts-expect-error proxy property exists on https object
+  expect(options.agent?.https?.proxy.href).toBe('http://localhost/');
 
   // certificates should be 1, 2, 3
   expect(options.https?.certificateAuthority).toBeDefined();
@@ -291,4 +302,30 @@ test('should fetch alternate link', async () => {
   expect(extension.link).toBe('oci-registry.foo/foo/bar');
   // no error
   expect(console.error).not.toBeCalled();
+});
+
+test('Should use proxy object if proxySettings is undefined', () => {
+  isEnabledProxyMock.mockReturnValue(true);
+  const proxy: Proxy = {
+    onDidStateChange: vi.fn(),
+    onDidUpdateProxy: vi.fn(),
+    isEnabled: isEnabledProxyMock,
+    proxy: vi.fn(),
+  } as unknown as Proxy;
+  vi.spyOn(proxy, 'proxy', 'get').mockReturnValue({
+    httpProxy: 'http://localhost',
+    httpsProxy: 'https://localhost',
+    noProxy: 'localhost',
+  });
+  extensionsCatalog = new ExtensionsCatalog(certificates, proxy, configurationRegistry);
+  const options = extensionsCatalog.getHttpOptions();
+
+  expect(options).toBeDefined();
+  // expect the two agents being defined
+  expect(options.agent?.http).toBeDefined();
+  expect(options.agent?.https).toBeDefined();
+  // @ts-expect-error proxy property exists on http object
+  expect(options.agent?.http?.proxy.href).toBe('http://localhost/');
+  // @ts-expect-error proxy property exists on https object
+  expect(options.agent?.https?.proxy.href).toBe('https://localhost/');
 });

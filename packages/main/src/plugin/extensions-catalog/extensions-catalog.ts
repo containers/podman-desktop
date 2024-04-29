@@ -16,7 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type * as podmanDesktopAPI from '@podman-desktop/api';
 import type { HttpsOptions, OptionsOfTextResponseBody } from 'got';
 import got from 'got';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
@@ -37,9 +36,6 @@ import { ExtensionsCatalogSettings } from './extensions-catalog-settings.js';
 export class ExtensionsCatalog {
   public static readonly DEFAULT_EXTENSIONS_URL = 'https://registry.podman-desktop.io/api/extensions.json';
 
-  private proxySettings: podmanDesktopAPI.ProxySettings | undefined;
-  private proxyEnabled: boolean;
-
   private lastFetchTime = 0;
   private cachedCatalog: InternalCatalogJSON | undefined;
   static readonly CACHE_TIMEOUT = 1000 * 60 * 60 * 4; // 4 hours
@@ -48,17 +44,7 @@ export class ExtensionsCatalog {
     private certificates: Certificates,
     private proxy: Proxy,
     private configurationRegistry: ConfigurationRegistry,
-  ) {
-    this.proxy.onDidUpdateProxy(settings => {
-      this.proxySettings = settings;
-    });
-
-    this.proxy.onDidStateChange(state => {
-      this.proxyEnabled = state;
-    });
-
-    this.proxyEnabled = this.proxy.isEnabled();
-  }
+  ) {}
 
   init(): void {
     // register a configuration
@@ -190,9 +176,9 @@ export class ExtensionsCatalog {
       options.https.certificateAuthority = this.certificates.getAllCertificates();
     }
 
-    if (this.proxyEnabled) {
+    if (this.proxy.isEnabled()) {
       // use proxy when performing got request
-      const proxy = this.proxySettings;
+      const proxy = this.proxy.proxy;
       const httpProxyUrl = proxy?.httpProxy;
       const httpsProxyUrl = proxy?.httpsProxy;
 
