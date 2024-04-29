@@ -15,7 +15,7 @@
     "@fortawesome/free-regular-svg-icons": "^6.5.2",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@sveltejs/vite-plugin-svelte": "3.1.0",
-    "@testing-library/dom": "^10.0.0",
+    "@testing-library/dom": "^10.1.0",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/svelte": "^5.1.0",
     "@testing-library/user-event": "^14.5.2",
