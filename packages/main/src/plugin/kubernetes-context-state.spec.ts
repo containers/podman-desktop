@@ -332,7 +332,6 @@ describe('update', async () => {
     });
 
     apiSenderSendMock.mockReset();
-    console.log('DA QUI 2');
     await client.update(kubeConfig);
     expectedMap = new Map<string, ContextGeneralState>();
     expectedMap.set('context1', {
