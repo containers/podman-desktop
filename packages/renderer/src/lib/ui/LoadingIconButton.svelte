@@ -14,38 +14,42 @@ export let color: 'primary' | 'secondary' = 'secondary';
 export let tooltip: string = capitalize(action);
 export let clickAction: () => Promise<void> | void;
 
-$: disable =
-  state?.inProgress ||
-  state?.status === 'unsupported' ||
-  (action === 'start' && state?.status !== 'stopped' && state?.status !== 'failed') ||
-  (action === 'restart' && state?.status !== 'started') ||
-  (action === 'stop' && state?.status !== 'started') ||
-  (action === 'delete' && state?.status !== 'stopped' && state?.status !== 'unknown') ||
-  (action === 'update' && state?.status === 'unknown');
+let disable: boolean;
+$: {
+  if (state?.inProgress || state?.status === 'unsupported') {
+    disable = true;
+  } else {
+    switch (action) {
+      case 'start':
+        disable = state?.status !== 'stopped' && state?.status !== 'failed';
+        break;
+      case 'restart':
+        disable = state?.status !== 'started';
+        break;
+      case 'stop':
+        disable = state?.status !== 'started';
+        break;
+      case 'delete':
+        disable = state?.status !== 'failed' && state?.status !== 'stopped' && state?.status !== 'unknown';
+        break;
+      case 'update':
+        disable = state?.status === 'unknown';
+        break;
+    }
+  }
+}
 
 $: loading = state?.inProgress && action === state?.action;
 
-function getStyleByState(state: ILoadingStatus | undefined, action: string): string {
-  if (
-    (action === 'start' && (state?.inProgress || (state?.status !== 'stopped' && state?.status !== 'failed'))) ||
-    ((action === 'stop' || action === 'restart') && (state?.inProgress || state?.status !== 'started')) ||
-    (action === 'delete' && (state?.inProgress || (state?.status !== 'stopped' && state?.status !== 'unknown'))) ||
-    (action === 'update' && (state?.inProgress || state?.status === 'unknown')) ||
-    state?.status === 'unsupported'
-  ) {
-    return 'text-gray-900 cursor-not-allowed';
-  } else {
-    return color === 'secondary' ? 'text-white hover:text-gray-700' : 'text-purple-600 hover:text-purple-500';
-  }
-}
+$: style = disable
+  ? 'text-gray-900 cursor-not-allowed'
+  : color === 'secondary'
+    ? 'text-white hover:text-gray-700'
+    : 'text-purple-600 hover:text-purple-500';
 </script>
 
 <Tooltip tip="{tooltip}" bottom>
-  <button
-    aria-label="{capitalize(action)}"
-    class="mx-2.5 my-2 {getStyleByState(state, action)}"
-    on:click="{clickAction}"
-    disabled="{disable}">
+  <button aria-label="{capitalize(action)}" class="mx-2.5 my-2 {style}" on:click="{clickAction}" disabled="{disable}">
     <LoadingIcon
       icon="{icon}"
       loadingWidthClass="w-6"
