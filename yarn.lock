@@ -2114,7 +2114,7 @@
     "@docusaurus/theme-search-algolia" "3.2.1"
     "@docusaurus/types" "3.2.1"
 
-"@docusaurus/react-loadable@5.5.2", "react-loadable@npm:@docusaurus/react-loadable@5.5.2":
+"@docusaurus/react-loadable@5.5.2":
   version "5.5.2"
   resolved "https://registry.yarnpkg.com/@docusaurus/react-loadable/-/react-loadable-5.5.2.tgz#81aae0db81ecafbdaee3651f12804580868fa6ce"
   integrity sha512-A3dYjdBGuy0IGT+wyLIGIKLRE+sAk1iNk0f1HjNDysO7u8lhL4N3VEm+FAubmJbAztn94F7MxBTPmnixbiyFdQ==
@@ -13867,6 +13867,14 @@ react-loadable-ssr-addon-v5-slorber@^1.0.1:
   dependencies:
     "@babel/runtime" "^7.10.3"
 
+"react-loadable@npm:@docusaurus/react-loadable@5.5.2":
+  version "5.5.2"
+  resolved "https://registry.yarnpkg.com/@docusaurus/react-loadable/-/react-loadable-5.5.2.tgz#81aae0db81ecafbdaee3651f12804580868fa6ce"
+  integrity sha512-A3dYjdBGuy0IGT+wyLIGIKLRE+sAk1iNk0f1HjNDysO7u8lhL4N3VEm+FAubmJbAztn94F7MxBTPmnixbiyFdQ==
+  dependencies:
+    "@types/react" "*"
+    prop-types "^15.6.2"
+
 react-player@^2.16.0:
   version "2.16.0"
   resolved "https://registry.yarnpkg.com/react-player/-/react-player-2.16.0.tgz#89070700b03f5a5ded9f0b3165d4717390796481"
@@ -16080,10 +16088,10 @@ typedarray-to-buffer@^3.1.5:
   dependencies:
     is-typedarray "^1.0.0"
 
-typedoc-plugin-markdown@4.0.0-next.58:
-  version "4.0.0-next.58"
-  resolved "https://registry.yarnpkg.com/typedoc-plugin-markdown/-/typedoc-plugin-markdown-4.0.0-next.58.tgz#b26d4c3ec5e121530209963c71cdf1044014a2c6"
-  integrity sha512-qIpinPrmz75gkKcveXNcCIxtKeNM+u/LGx+L9Cp2qOv0vCR3Vi5ONWVFq3P5XIAkoRFnLZXx6NaLcey+GuQuUA==
+typedoc-plugin-markdown@4.0.0-next.59:
+  version "4.0.0-next.59"
+  resolved "https://registry.yarnpkg.com/typedoc-plugin-markdown/-/typedoc-plugin-markdown-4.0.0-next.59.tgz#332fc2ae46b38b340e57e89c3c2023ae84126a5e"
+  integrity sha512-UXnC5xnsGAd4ZIG7LsEh3RESWMy0ve9eDC+51Ql1B0D5byVp++aPonUzqSNGZylim+ee+OgSdrqx0mfnsXBLIQ==
 
 typedoc@^0.25.13:
   version "0.25.13"
