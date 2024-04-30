@@ -157,17 +157,19 @@ export class ExtensionsUtils {
         const nonPreviewVersions = catalogExtension.versions.filter(v => !v.preview);
         const latestVersion = nonPreviewVersions[0];
         const fetchLink = latestVersion?.ociUri;
-        const fetchVersion = latestVersion?.version;
+        let fetchVersion = latestVersion?.version;
         const publisherDisplayName = catalogExtension.publisherDisplayName;
 
         // grab icon
         const icon = latestVersion?.files.find(f => f.assetType === 'icon');
-        const isInstalled = installedExtensions.some(
-          installedExtension => installedExtension.id === catalogExtension.id,
-        );
+        const installed = installedExtensions.find(installedExtension => installedExtension.id === catalogExtension.id);
+        const isInstalled = !!installed;
         const isFeatured = featuredExtensions.some(featuredExtension => featuredExtension.id === catalogExtension.id);
 
         const shortDescription = catalogExtension.shortDescription;
+        if (installed?.version) {
+          fetchVersion = installed.version;
+        }
 
         return {
           id: catalogExtension.id,

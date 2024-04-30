@@ -186,6 +186,7 @@ const installedExtensions: CombinedExtensionInfoUI[] = [
   },
   {
     id: 'idYInstalled',
+    version: '2.0.0Y',
   },
 ] as unknown[] as CombinedExtensionInfoUI[];
 
@@ -216,7 +217,7 @@ describe('extractCatalogExtensions', () => {
     expect(yExtensionUI.displayName).toBe('Y Extension');
     expect(yExtensionUI.isFeatured).toBe(true);
     expect(yExtensionUI.fetchLink).toBe('linkY');
-    expect(yExtensionUI.fetchVersion).toBe('1.0.0Y');
+    expect(yExtensionUI.fetchVersion).toBe('2.0.0Y');
     expect(yExtensionUI.fetchable).toBe(true);
     expect(yExtensionUI.iconHref).toBe('iconY');
     expect(yExtensionUI.publisherDisplayName).toBe('Foo Publisher');
