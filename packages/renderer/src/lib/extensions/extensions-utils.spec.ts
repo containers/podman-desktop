@@ -186,6 +186,7 @@ const installedExtensions: CombinedExtensionInfoUI[] = [
   },
   {
     id: 'idYInstalled',
+    version: '2.0.0Y',
   },
 ] as unknown[] as CombinedExtensionInfoUI[];
 
@@ -221,6 +222,7 @@ describe('extractCatalogExtensions', () => {
     expect(yExtensionUI.iconHref).toBe('iconY');
     expect(yExtensionUI.publisherDisplayName).toBe('Foo Publisher');
     expect(yExtensionUI.isInstalled).toBe(true);
+    expect(yExtensionUI.installedVersion).toBe('2.0.0Y');
     expect(yExtensionUI.shortDescription).toBe('this is short Y');
 
     // check attributes of a featured extension not being installed
