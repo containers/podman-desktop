@@ -26,5 +26,6 @@ export interface CatalogExtensionInfoUI {
   iconHref?: string;
   publisherDisplayName: string;
   isInstalled: boolean;
+  installedVersion?: string;
   shortDescription: string;
 }

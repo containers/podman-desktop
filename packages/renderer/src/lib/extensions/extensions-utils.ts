@@ -162,12 +162,12 @@ export class ExtensionsUtils {
 
         // grab icon
         const icon = latestVersion?.files.find(f => f.assetType === 'icon');
-        const isInstalled = installedExtensions.some(
-          installedExtension => installedExtension.id === catalogExtension.id,
-        );
+        const installed = installedExtensions.find(installedExtension => installedExtension.id === catalogExtension.id);
+        const isInstalled = !!installed;
         const isFeatured = featuredExtensions.some(featuredExtension => featuredExtension.id === catalogExtension.id);
 
         const shortDescription = catalogExtension.shortDescription;
+        const installedVersion = installed?.version;
 
         return {
           id: catalogExtension.id,
@@ -179,6 +179,7 @@ export class ExtensionsUtils {
           iconHref: icon?.data,
           publisherDisplayName,
           isInstalled,
+          installedVersion,
           shortDescription,
         };
       });
