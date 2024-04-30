@@ -60,6 +60,9 @@ function openExtensionDetails() {
     <div class="text-gray-200 items-end flex flex-1">
       <div class="text-gray-700 text-xs">
         v{catalogExtensionUI.fetchVersion}
+        {#if catalogExtensionUI.installedVersion && catalogExtensionUI.installedVersion !== catalogExtensionUI.fetchVersion}
+          <span class="text-xs text-gray-500">(installed: v{catalogExtensionUI.installedVersion})</span>
+        {/if}
       </div>
       <div class="flex flex-1 justify-end items-center">
         <Fa icon="{faArrowUpRightFromSquare}" />
