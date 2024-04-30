@@ -543,7 +543,6 @@ export class KubernetesClient {
   }
 
   async listNamespacedPod(namespace: string, fieldSelector?: string, labelSelector?: string): Promise<V1PodList> {
-    let telemetryOptions = {};
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.listNamespacedPod(
@@ -562,10 +561,7 @@ export class KubernetesClient {
         };
       }
     } catch (error) {
-      telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
-    } finally {
-      this.telemetry.track('kubernetesListNamespacePod', telemetryOptions);
     }
   }
 
@@ -849,7 +845,6 @@ export class KubernetesClient {
   }
 
   async listNamespaces(): Promise<V1NamespaceList> {
-    let telemetryOptions = {};
     try {
       const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
       const res = await k8sApi.listNamespace();
@@ -861,10 +856,7 @@ export class KubernetesClient {
         };
       }
     } catch (error) {
-      telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
-    } finally {
-      this.telemetry.track('kubernetesListNamespaces', telemetryOptions);
     }
   }
 
