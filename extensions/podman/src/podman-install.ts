@@ -666,6 +666,11 @@ class WSL2Check extends BaseCheck {
         return this.createFailureResult({
           description:
             'WSL2 seems to be installed but the system needs to be restarted so the changes can take effect.',
+          docLinksDescription: `If already restarted, call 'wsl --install --no-distribution' in a terminal.`,
+          docLinks: {
+            url: 'https://learn.microsoft.com/en-us/windows/wsl/install',
+            title: 'WSL2 Manual Installation Steps',
+          },
         });
       }
     } catch (err) {
