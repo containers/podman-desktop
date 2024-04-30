@@ -162,6 +162,15 @@ test.each([
     },
     expected: EXPECT_DISABLE,
   },
+  {
+    name: 'delete action in failed status should be enable',
+    action: 'delete',
+    state: {
+      status: 'failed',
+      inProgress: false,
+    },
+    expected: EXPECT_ENABLE,
+  },
   // Update action
   {
     name: 'update action in unknown status should be disabled',
