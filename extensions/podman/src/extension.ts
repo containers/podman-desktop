@@ -378,44 +378,34 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
       'Cancel',
     );
     if (result === 'Yes') {
+      // check if machine is rootless or rootful
+      let machineIsRootful = false;
+      // grab result of the command 'podman machine inspect <machine-name> and check if attribute is Rootful
       try {
+        const { stdout: machineInspectJson } = await extensionApi.process.exec(getPodmanCli(), [
+          'machine',
+          'inspect',
+          runningMachine.Name,
+        ]);
+        const machinesInspect = JSON.parse(machineInspectJson);
+        // find the machine machine in the array
+        const machineInspect = machinesInspect.find(machine => machine.Name === runningMachine.Name);
+        if (machineInspect) {
+          machineIsRootful = machineInspect?.Rootful ?? false;
+        }
+      } catch (error) {
+        console.error('Error when checking rootful machine: ', error);
+      }
+
+      try {
+        const connectionName = machineIsRootful ? `${runningMachine.Name}${ROOTFUL_SUFFIX}` : runningMachine.Name;
         // make it the default to run the info command
-        await extensionApi.process.exec(getPodmanCli(), ['system', 'connection', 'default', runningMachine.Name]);
+        await extensionApi.process.exec(getPodmanCli(), ['system', 'connection', 'default', connectionName]);
       } catch (error) {
         // eslint-disable-next-line quotes
         console.error("Error running 'podman system connection default': ", error);
         await extensionApi.window.showErrorMessage(`Error running 'podman system connection default': ${error}`);
         return;
-      }
-
-      try {
-        // after updating the default connection using the rootless connection, we verify if the machine has been
-        // created as rootful. If so, the default connection must be set to the rootful connection
-        const { stdout: machineInfoJson } = await extensionApi.process.exec(getPodmanCli(), [
-          'machine',
-          'info',
-          '--format',
-          'json',
-        ]);
-        const machineInfo = JSON.parse(machineInfoJson);
-        const filepath = path.join(machineInfo.Host.MachineConfigDir, `${runningMachine.Name}.json`);
-        if (fs.existsSync(filepath)) {
-          const machineConfigJson = await fs.promises.readFile(filepath, 'utf8');
-          if (machineConfigJson && machineConfigJson.length > 0) {
-            const machineConfig = JSON.parse(machineConfigJson);
-            // if it's rootful let's update the connection to the rootful one
-            if (machineConfig.Rootful) {
-              await extensionApi.process.exec(getPodmanCli(), [
-                'system',
-                'connection',
-                'default',
-                `${runningMachine.Name}${ROOTFUL_SUFFIX}`,
-              ]);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error when checking rootful machine: ', error);
       }
       await extensionApi.window.showInformationMessage(
         `Podman Machine '${runningMachine.Name}' is now the default machine on the CLI.`,
