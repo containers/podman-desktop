@@ -762,7 +762,7 @@ test('test checkDefaultMachine - if user wants to change machine, check that it 
     },
   ];
 
-  // return as inspect result a rootful machine
+  // return as inspect result a rootless machine
   const inspectCall = vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
     stdout: JSON.stringify(fakeInspectJSON),
   } as extensionApi.RunResult);
@@ -799,7 +799,7 @@ test('test checkDefaultMachine - if user wants to change machine, check that it 
     },
   ];
 
-  // return as inspect result a rootful machine
+  // return as inspect result a rootless machine
   const inspectCall = vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
     stdout: JSON.stringify(fakeInspectJSON),
   } as extensionApi.RunResult);

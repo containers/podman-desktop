@@ -388,7 +388,7 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
           runningMachine.Name,
         ]);
         const machinesInspect = JSON.parse(machineInspectJson);
-        // find the machine machine in the array
+        // find the machine name in the array
         const machineInspect = machinesInspect.find(machine => machine.Name === runningMachine.Name);
         if (machineInspect) {
           machineIsRootful = machineInspect?.Rootful ?? false;
