@@ -139,7 +139,7 @@ function onInstallationClick() {
       To start working with containers, {provider.name} needs to be initialized.
     </p>
 
-    <div class="mt-5" class:hidden="{!initializationButtonVisible}">
+    <div class="mt-5 relative" class:hidden="{!initializationButtonVisible}">
       <div class="bg-gray-300 text-white flex">
         <button
           class="float-left bg-purple-600 hover:bg-purple-500 pt-2 pr-3 pl-3 pb-2 text-[13px] text-white mr-px w-[180px]"
@@ -153,7 +153,7 @@ function onInstallationClick() {
         </button>
       </div>
       <div
-        class="-z-1 min-w-[130px] m-auto bg-primary text-[13px] text-white"
+        class="z-10 min-w-[130px] m-auto bg-primary text-[13px] text-white absolute w-full"
         class:hidden="{!installationOptionsMenuVisible}">
         <ul class="w-full outline-none bg-charcoal-800 rounded-sm placeholder-gray-700">
           <li>
