@@ -3446,10 +3446,10 @@
   resolved "https://registry.yarnpkg.com/@rollup/rollup-win32-x64-msvc/-/rollup-win32-x64-msvc-4.13.0.tgz#6abd79db7ff8d01a58865ba20a63cfd23d9e2a10"
   integrity sha512-UKXUQNbO3DOhzLRwHSpa0HnhhCgNODvfoPWv2FCXme8N/ANFfhIPMGuOT+QuKd16+B5yxZ0HdpNlqPvTMS1qfw==
 
-"@segment/analytics-core@1.5.1":
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-core/-/analytics-core-1.5.1.tgz#01fc622ee2b2b6c7768991e97bf0c55ae374bc05"
-  integrity sha512-fQTtxO1TyTb/j09a7Hyi080N0MxCC+7uA3rGF2033xrFglxgUb6a75Lc9MAEpZLUcwgSw/VyECf0ewmxtRNiOw==
+"@segment/analytics-core@1.6.0":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-core/-/analytics-core-1.6.0.tgz#f59cdc45a4408a09fdae77910f5a0b43833e8af8"
+  integrity sha512-bn9X++IScUfpT7aJGjKU/yJAu/Ko2sYD6HsKA70Z2560E89x30pqgqboVKY8kootvQnT4UKCJiUr5NDMgjmWdQ==
   dependencies:
     "@lukeed/uuid" "^2.0.0"
     "@segment/analytics-generic-utils" "1.2.0"
@@ -3463,13 +3463,13 @@
   dependencies:
     tslib "^2.4.1"
 
-"@segment/analytics-node@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-node/-/analytics-node-2.1.1.tgz#597d03c476b588d1341bfc80a08e0cb36df4dafe"
-  integrity sha512-CYdnTOObhS3RcPxdB+uGKh1M+zkIfQbO/XAo/xjPUKFrzK10P5wS3OxjX0BNzVQDTvofGCXdDZhUlKTmwx3haw==
+"@segment/analytics-node@^2.1.2":
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-node/-/analytics-node-2.1.2.tgz#ff1b913f23f6fbb9654a01154f33af56af6095fe"
+  integrity sha512-CIqWH5G0pB/LAFAZEZtntAxujiYIpdk0F+YGhfM6N/qt4/VLWjFcd4VZXVLW7xqaxig64UKWGQhe8bszXDRXXw==
   dependencies:
     "@lukeed/uuid" "^2.0.0"
-    "@segment/analytics-core" "1.5.1"
+    "@segment/analytics-core" "1.6.0"
     "@segment/analytics-generic-utils" "1.2.0"
     buffer "^6.0.3"
     jose "^5.1.0"
