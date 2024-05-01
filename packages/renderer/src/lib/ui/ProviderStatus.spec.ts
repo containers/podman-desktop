@@ -34,6 +34,7 @@ test('Expect green text and icon when connection is running', async () => {
   expect(icon).toHaveClass('bg-green-500');
   expect(label).toBeInTheDocument();
   expect(label).toHaveClass('text-green-500');
+  expect(label).toHaveClass('text-xs');
   expect(label).toHaveTextContent('RUNNING');
 });
 
@@ -45,6 +46,7 @@ test('Expect green text and icon when connection is starting', async () => {
   expect(icon).toHaveClass('bg-green-500');
   expect(label).toBeInTheDocument();
   expect(label).toHaveClass('text-green-500');
+  expect(label).toHaveClass('text-xs');
   expect(label).toHaveTextContent('STARTING');
 });
 
@@ -56,6 +58,7 @@ test('Expect green text and icon when connection is stopped', async () => {
   expect(icon).toHaveClass('bg-gray-900');
   expect(label).toBeInTheDocument();
   expect(label).toHaveClass('text-gray-900');
+  expect(label).toHaveClass('text-xs');
   expect(label).toHaveTextContent('STOPPED');
 });
 
@@ -67,6 +70,7 @@ test('Expect green text and icon when connection is stopping', async () => {
   expect(icon).toHaveClass('bg-red-500');
   expect(label).toBeInTheDocument();
   expect(label).toHaveClass('text-red-500');
+  expect(label).toHaveClass('text-xs');
   expect(label).toHaveTextContent('STOPPING');
 });
 
@@ -78,5 +82,6 @@ test('Expect green text and icon when connection is unknown', async () => {
   expect(icon).toHaveClass('bg-gray-900');
   expect(label).toBeInTheDocument();
   expect(label).toHaveClass('text-gray-900');
+  expect(label).toHaveClass('text-xs');
   expect(label).toHaveTextContent('UNKNOWN');
 });
