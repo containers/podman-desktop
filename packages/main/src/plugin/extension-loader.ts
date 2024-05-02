@@ -266,7 +266,49 @@ export class ExtensionLoader {
       },
     };
 
-    this.configurationRegistry.registerConfigurations([maxActivationTimeConfiguration]);
+    const disabledExtensionConfiguration: IConfigurationNode = {
+      id: 'preferences.extensions',
+      title: 'Extensions',
+      type: 'object',
+      properties: {
+        [ExtensionLoaderSettings.SectionName + '.' + ExtensionLoaderSettings.Disabled]: {
+          description: 'Disabled extensions',
+          type: 'array',
+          hidden: true,
+        },
+      },
+    };
+
+    this.configurationRegistry.registerConfigurations([maxActivationTimeConfiguration, disabledExtensionConfiguration]);
+  }
+
+  getDisabledExtensionIds(): string[] {
+    return (
+      (this.configurationRegistry
+        .getConfiguration(ExtensionLoaderSettings.SectionName)
+        .get(ExtensionLoaderSettings.Disabled) as string[]) || []
+    );
+  }
+
+  setDisabledExtensionIds(disabledExtensionIds: string[]): void {
+    this.configurationRegistry
+      .updateConfigurationValue(
+        ExtensionLoaderSettings.SectionName + '.' + ExtensionLoaderSettings.Disabled,
+        disabledExtensionIds,
+      )
+      .catch((error: unknown) => console.error('error while saving list of disabled extensions', error));
+  }
+
+  ensureExtensionIsEnabled(extensionId: string): void {
+    // the extension is getting intentionally started or uninstalled.
+    // if it is on the list of disabled extensions remove it
+    const disabledExtensionIds = this.getDisabledExtensionIds();
+    const index = disabledExtensionIds.indexOf(extensionId);
+    if (index > -1) {
+      disabledExtensionIds.splice(index, 1);
+
+      this.setDisabledExtensionIds(disabledExtensionIds);
+    }
   }
 
   protected async setupScanningDirectory(): Promise<void> {
@@ -664,14 +706,17 @@ export class ExtensionLoader {
         });
         this.watcherExtensions.set(extension.id, extensionWatcher);
       }
+      if (!this.getDisabledExtensionIds().includes(extension.id)) {
+        const beforeLoadingRuntime = performance.now();
+        const runtime = this.loadRuntime(extension);
+        const afterLoadingRuntime = performance.now();
 
-      const beforeLoadingRuntime = performance.now();
-      const runtime = this.loadRuntime(extension);
-      const afterLoadingRuntime = performance.now();
+        telemetryOptions['loadingRuntimeDuration'] = afterLoadingRuntime - beforeLoadingRuntime;
 
-      telemetryOptions['loadingRuntimeDuration'] = afterLoadingRuntime - beforeLoadingRuntime;
-
-      await this.activateExtension(extension, runtime);
+        await this.activateExtension(extension, runtime);
+      } else {
+        console.log('Not activating disabled extension (' + extension.id + ')');
+      }
     } catch (err) {
       this.extensionState.set(extension.id, 'failed');
       this.extensionStateErrors.set(extension.id, err);
@@ -1430,6 +1475,17 @@ export class ExtensionLoader {
     }
   }
 
+  async stopExtension(extensionId: string): Promise<void> {
+    // the user explicitly stopped (disabled) this extension, so save the configuration
+    const disabledExtensions = this.getDisabledExtensionIds();
+    if (!disabledExtensions.includes(extensionId)) {
+      disabledExtensions.push(extensionId);
+      this.setDisabledExtensionIds(disabledExtensions);
+    }
+
+    await this.deactivateExtension(extensionId);
+  }
+
   async deactivateExtension(extensionId: string): Promise<void> {
     const extension = this.activatedExtensions.get(extensionId);
     if (!extension) {
@@ -1471,6 +1527,8 @@ export class ExtensionLoader {
   }
 
   async startExtension(extensionId: string): Promise<void> {
+    this.ensureExtensionIsEnabled(extensionId);
+
     const extension = this.analyzedExtensions.get(extensionId);
     if (extension) {
       const analyzedExtension = await this.analyzeExtension(extension.path, extension.removable);
@@ -1490,6 +1548,8 @@ export class ExtensionLoader {
     };
     try {
       await this.removeExtension(extensionId);
+
+      this.ensureExtensionIsEnabled(extensionId);
     } catch (error) {
       telemetryData.error = error;
       throw error;
