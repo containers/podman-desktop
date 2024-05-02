@@ -20,7 +20,7 @@ import * as crypto from 'node:crypto';
 import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs';
 import path from 'node:path';
-import { type Stream, Writable } from 'node:stream';
+import { Writable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
@@ -1132,7 +1132,7 @@ export class ContainerProviderRegistry {
     try {
       const authconfig = this.imageRegistry.getAuthconfigForImage(imageName);
       const matchingEngine = this.getMatchingEngineFromConnection(providerContainerConnectionInfo);
-      const pullStream = await matchingEngine.pull(imageName, {
+      const pullStream: NodeJS.ReadableStream = await matchingEngine.pull(imageName, {
         authconfig,
         abortSignal: abortController?.signal,
       });
@@ -2344,7 +2344,7 @@ export class ContainerProviderRegistry {
         options.containerFile = options.containerFile.replace(/\\/g, '/');
       }
 
-      let streamingPromise: Stream;
+      let streamingPromise: NodeJS.ReadableStream;
       try {
         const buildOptions: ImageBuildOptions = {
           registryconfig,
@@ -2384,10 +2384,7 @@ export class ContainerProviderRegistry {
         if (options?.pull) {
           buildOptions.pull = options.pull;
         }
-        streamingPromise = (await matchingContainerProviderApi.buildImage(
-          tarStream,
-          buildOptions,
-        )) as unknown as Stream;
+        streamingPromise = await matchingContainerProviderApi.buildImage(tarStream, buildOptions);
       } catch (error: unknown) {
         console.log('error in buildImage', error);
         const errorMessage = error instanceof Error ? error.message : '' + error;

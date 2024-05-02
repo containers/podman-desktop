@@ -123,7 +123,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.6",
     "@types/adm-zip": "^0.5.5",
-    "@types/dockerode": "^3.3.28",
+    "@types/dockerode": "^3.3.29",
     "@types/express": "^4.17.21",
     "@types/getos": "^3.0.4",
     "@types/js-yaml": "^4.0.9",
@@ -196,6 +196,7 @@
   "resolutions": {
     "trim": "0.0.3",
     "ssh2": "1.11.0",
-    "@types/node": "^20"
+    "@types/node": "^20",
+    "@types/docker-modem": "3.0.6"
   }
 }
