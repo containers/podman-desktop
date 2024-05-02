@@ -21,4 +21,5 @@ export const DEFAULT_TIMEOUT = 20;
 export enum ExtensionLoaderSettings {
   SectionName = 'extensions',
   MaxActivationTime = 'maxActivationTime',
+  Disabled = 'disabled',
 }
