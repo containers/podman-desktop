@@ -47,7 +47,7 @@ import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 import type { DialogRegistry } from './dialog-registry.js';
 import type { Directories } from './directories.js';
 import { Emitter } from './events/emitter.js';
-import { ExtensionLoaderSettings } from './extension-loader-settings.js';
+import { DEFAULT_TIMEOUT, ExtensionLoaderSettings } from './extension-loader-settings.js';
 import type { FilesystemMonitoring } from './filesystem-monitoring.js';
 import type { IconRegistry } from './icon-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
@@ -259,7 +259,7 @@ export class ExtensionLoader {
         [ExtensionLoaderSettings.SectionName + '.' + ExtensionLoaderSettings.MaxActivationTime]: {
           description: 'Maximum activation time for an extension, in seconds.',
           type: 'number',
-          default: 10,
+          default: DEFAULT_TIMEOUT,
           minimum: 1,
           maximum: 100,
         },
@@ -1372,10 +1372,9 @@ export class ExtensionLoader {
     try {
       if (typeof extensionMain?.['activate'] === 'function') {
         // maximum time to wait for the extension to activate by reading from configuration
-        const delayInSeconds: number =
-          this.configurationRegistry
-            .getConfiguration(ExtensionLoaderSettings.SectionName)
-            .get(ExtensionLoaderSettings.MaxActivationTime) || 5;
+        const delayInSeconds: number = this.configurationRegistry
+          .getConfiguration(ExtensionLoaderSettings.SectionName)
+          .get(ExtensionLoaderSettings.MaxActivationTime, DEFAULT_TIMEOUT);
         const delayInMilliseconds = delayInSeconds * 1000;
 
         // reject a promise after this delay
