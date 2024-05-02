@@ -1368,7 +1368,10 @@ export class ExtensionLoader {
       deactivateFunction = extensionMain['deactivate'];
     }
 
-    const telemetryOptions = { extensionId: extension.id, extensionVersion: extension.manifest?.version };
+    const telemetryOptions: Record<string, unknown> = {
+      extensionId: extension.id,
+      extensionVersion: extension.manifest?.version,
+    };
     try {
       if (typeof extensionMain?.['activate'] === 'function') {
         // maximum time to wait for the extension to activate by reading from configuration
@@ -1395,11 +1398,12 @@ export class ExtensionLoader {
         // if extension reach the timeout, do not wait for it to finish and flag as error
         await Promise.race([activatePromise, timeoutPromise]);
         const afterActivateTime = performance.now();
-        console.log(
-          `Activating extension (${extension.id}) ended in ${Math.round(
-            afterActivateTime - beforeActivateTime,
-          )} milliseconds`,
-        );
+
+        // Computing activation duration
+        const duration = afterActivateTime - beforeActivateTime;
+        telemetryOptions['duration'] = duration;
+
+        console.log(`Activating extension (${extension.id}) ended in ${Math.round(duration)} milliseconds`);
       }
       const id = extension.id;
       const activatedExtension: ActivatedExtension = {
@@ -1414,8 +1418,8 @@ export class ExtensionLoader {
       console.log(`Activating extension ${extension.id} failed error:${err}`);
       this.extensionState.set(extension.id, 'failed');
       this.extensionStateErrors.set(extension.id, err);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (telemetryOptions as any).error = err;
+      // Storing error in the telemetry options
+      telemetryOptions['error'] = err;
     } finally {
       this.telemetry.track('activateExtension', telemetryOptions);
     }
