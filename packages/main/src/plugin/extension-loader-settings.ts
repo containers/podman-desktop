@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+export const DEFAULT_TIMEOUT = 20;
+
 export enum ExtensionLoaderSettings {
   SectionName = 'extensions',
   MaxActivationTime = 'maxActivationTime',
