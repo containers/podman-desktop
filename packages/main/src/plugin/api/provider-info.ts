@@ -112,6 +112,7 @@ export interface CheckStatus {
   name: string;
   successful?: boolean;
   description?: string;
+  docLinksDescription?: string;
   docLinks?: Link[];
 }
 
