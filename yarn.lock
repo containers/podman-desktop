@@ -3857,7 +3857,7 @@
   dependencies:
     "@types/ms" "*"
 
-"@types/docker-modem@*", "@types/docker-modem@3.0.6":
+"@types/docker-modem@*":
   version "3.0.6"
   resolved "https://registry.yarnpkg.com/@types/docker-modem/-/docker-modem-3.0.6.tgz#1f9262fcf85425b158ca725699a03eb23cddbf87"
   integrity sha512-yKpAGEuKRSS8wwx0joknWxsmLha78wNMe9R2S3UNsVOkZded8UqOrV8KoeDXoXsjndxwyF3eIhyClGbO1SEhEg==
