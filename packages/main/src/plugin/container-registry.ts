@@ -1132,7 +1132,7 @@ export class ContainerProviderRegistry {
     try {
       const authconfig = this.imageRegistry.getAuthconfigForImage(imageName);
       const matchingEngine = this.getMatchingEngineFromConnection(providerContainerConnectionInfo);
-      const pullStream: NodeJS.ReadableStream = await matchingEngine.pull(imageName, {
+      const pullStream = await matchingEngine.pull(imageName, {
         authconfig,
         abortSignal: abortController?.signal,
       });
