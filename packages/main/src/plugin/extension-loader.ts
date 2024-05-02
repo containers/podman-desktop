@@ -259,7 +259,7 @@ export class ExtensionLoader {
         [ExtensionLoaderSettings.SectionName + '.' + ExtensionLoaderSettings.MaxActivationTime]: {
           description: 'Maximum activation time for an extension, in seconds.',
           type: 'number',
-          default: 10,
+          default: 20,
           minimum: 1,
           maximum: 100,
         },
@@ -1372,10 +1372,9 @@ export class ExtensionLoader {
     try {
       if (typeof extensionMain?.['activate'] === 'function') {
         // maximum time to wait for the extension to activate by reading from configuration
-        const delayInSeconds: number =
-          this.configurationRegistry
-            .getConfiguration(ExtensionLoaderSettings.SectionName)
-            .get(ExtensionLoaderSettings.MaxActivationTime) || 5;
+        const delayInSeconds: number = this.configurationRegistry
+          .getConfiguration(ExtensionLoaderSettings.SectionName)
+          .get(ExtensionLoaderSettings.MaxActivationTime, 20);
         const delayInMilliseconds = delayInSeconds * 1000;
 
         // reject a promise after this delay
