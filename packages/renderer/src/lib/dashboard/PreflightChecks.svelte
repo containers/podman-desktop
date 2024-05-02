@@ -27,6 +27,11 @@ function openLink(e: MouseEvent, url: string): void {
         </div>
         {#if preCheck.description}
           Details: <p class="text-gray-400 w-full break-all">{preCheck.description}</p>
+          {#if preCheck.docLinksDescription}
+            <p class="text-gray-400 w-full">
+              {preCheck.docLinksDescription}
+            </p>
+          {/if}
           {#if preCheck.docLinks}
             See:
             {#each preCheck.docLinks as link}
