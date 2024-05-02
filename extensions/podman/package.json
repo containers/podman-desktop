@@ -2,7 +2,7 @@
   "name": "podman",
   "displayName": "Podman",
   "description": "Integration for Podman and Podman Machines",
-  "version": "0.0.1",
+  "version": "1.10.2",
   "icon": "icon.png",
   "type": "module",
   "publisher": "podman-desktop",
