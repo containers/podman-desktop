@@ -1298,7 +1298,7 @@ export function initExposure(): void {
   });
 
   contextBridge.exposeInMainWorld('stopExtension', async (extensionId: string): Promise<void> => {
-    return ipcInvoke('extension-loader:deactivateExtension', extensionId);
+    return ipcInvoke('extension-loader:stopExtension', extensionId);
   });
 
   contextBridge.exposeInMainWorld('startExtension', async (extensionId: string): Promise<void> => {

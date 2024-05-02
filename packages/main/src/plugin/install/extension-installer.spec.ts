@@ -48,12 +48,14 @@ const listExtensionsMock = vi.fn();
 const loadExtensionMock = vi.fn();
 const analyzeExtensionMock = vi.fn();
 const loadExtensionsMock = vi.fn();
+const ensureExtensionsMock = vi.fn();
 const extensionLoader: ExtensionLoader = {
   getPluginsDirectory: getPluginsDirectoryMock,
   listExtensions: listExtensionsMock,
   loadExtension: loadExtensionMock,
   loadExtensions: loadExtensionsMock,
   analyzeExtension: analyzeExtensionMock,
+  ensureExtensionIsEnabled: ensureExtensionsMock,
 } as unknown as ExtensionLoader;
 
 const getImageConfigLabelsMock = vi.fn();
@@ -142,6 +144,8 @@ test('should install an image if labels are correct', async () => {
   } as AnalyzedExtension);
 
   await extensionInstaller.installFromImage(sendLog, sendError, sendEnd, imageToPull);
+
+  expect(ensureExtensionsMock).toHaveBeenCalled();
 
   expect(sendLog).toHaveBeenCalledWith(`Analyzing image ${imageToPull}...`);
   // expect no error
