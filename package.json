@@ -196,7 +196,6 @@
   "resolutions": {
     "trim": "0.0.3",
     "ssh2": "1.11.0",
-    "@types/node": "^20",
-    "@types/docker-modem": "3.0.6"
+    "@types/node": "^20"
   }
 }
