@@ -432,6 +432,7 @@ export class ProviderRegistry {
           name: check.title,
           successful: checkResult.successful,
           description: checkResult.description,
+          docLinksDescription: checkResult.docLinksDescription,
           docLinks: checkResult.docLinks,
         });
 
