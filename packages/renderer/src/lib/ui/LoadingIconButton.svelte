@@ -35,6 +35,9 @@ $: {
       case 'update':
         disable = state?.status === 'unknown';
         break;
+      case 'edit':
+        disable = state?.status !== 'started' && state?.status !== 'stopped';
+        break;
     }
   }
 }

@@ -181,6 +181,43 @@ test.each([
     },
     expected: EXPECT_DISABLE,
   },
+  // edit action
+  {
+    name: 'edit action in started status should be enabled',
+    action: 'edit',
+    state: {
+      status: 'started',
+      inProgress: false,
+    },
+    expected: EXPECT_ENABLE,
+  },
+  {
+    name: 'edit action in unknown status should be disabled',
+    action: 'edit',
+    state: {
+      status: 'unknown',
+      inProgress: false,
+    },
+    expected: EXPECT_DISABLE,
+  },
+  {
+    name: 'edit action in starting status should be disabled',
+    action: 'edit',
+    state: {
+      status: 'starting',
+      inProgress: false,
+    },
+    expected: EXPECT_DISABLE,
+  },
+  {
+    name: 'edit action if in progress should be disabled',
+    action: 'edit',
+    state: {
+      status: 'started',
+      inProgress: true,
+    },
+    expected: EXPECT_DISABLE,
+  },
 ] as TestScenario[])('$name', ({ action, color, state, expected }) => {
   render(LoadingIconButton, {
     action: action,
