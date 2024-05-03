@@ -1,10 +1,9 @@
 <script lang="ts">
 import { faCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import { isFontAwesomeIcon } from '@podman-desktop/ui-svelte';
+import { Checkbox, isFontAwesomeIcon } from '@podman-desktop/ui-svelte';
 import { createEventDispatcher, onMount, tick } from 'svelte';
 import Fa from 'svelte-fa';
 
-import Checkbox from '../ui/Checkbox.svelte';
 import Tooltip from '../ui/Tooltip.svelte';
 
 export let title: string = '';

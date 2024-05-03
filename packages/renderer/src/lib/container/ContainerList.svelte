@@ -1,5 +1,6 @@
 <script lang="ts">
 import { faChevronDown, faChevronRight, faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { Checkbox } from '@podman-desktop/ui-svelte';
 import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import { get, type Unsubscriber } from 'svelte/store';
@@ -30,7 +31,6 @@ import StatusIcon from '../images/StatusIcon.svelte';
 import { PodUtils } from '../pod/pod-utils';
 import PodActions from '../pod/PodActions.svelte';
 import Button from '../ui/Button.svelte';
-import Checkbox from '../ui/Checkbox.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import NavPage from '../ui/NavPage.svelte';

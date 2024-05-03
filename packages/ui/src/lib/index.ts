@@ -15,8 +15,10 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+
+import Checkbox from './checkbox/Checkbox.svelte';
 import Input from './input/Input.svelte';
 import Spinner from './spinner/Spinner.svelte';
 import { isFontAwesomeIcon } from './utils/icon-utils';
 
-export { Input, isFontAwesomeIcon, Spinner };
+export { Checkbox, Input, isFontAwesomeIcon, Spinner };
