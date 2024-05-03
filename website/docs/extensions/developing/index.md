@@ -1,12 +1,12 @@
 ---
-sidebar_position: 1
-title: Writing
-description: Writing a Podman Desktop extension
+sidebar_position: 2
+title: Developing
+description: Developing a Podman Desktop extension
 tags: [podman-desktop, extension, writing]
 keywords: [podman desktop, extension, writing]
 ---
 
-# Writing a Podman Desktop extension
+# Developing a Podman Desktop extension
 
 To write a Podman Desktop extension, start a Node.js or TypeScript project calling the Podman Desktop API, and ensure all runtime dependencies are inside the final binary.
 
