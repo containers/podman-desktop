@@ -23,19 +23,22 @@ function openLink(e: MouseEvent, url: string): void {
           {:else}
             {preCheck.successful ? '✅' : '❌'}
           {/if}
-          <div class="ml-2">{preCheck.name}</div>
+          <div aria-label="precheck-title" class="ml-2">{preCheck.name}</div>
         </div>
         {#if preCheck.description}
-          Details: <p class="text-gray-400 w-full break-all">{preCheck.description}</p>
+          Details: <p aria-label="precheck-description" class="text-gray-400 w-full break-all">
+            {preCheck.description}
+          </p>
           {#if preCheck.docLinksDescription}
-            <p class="text-gray-400 w-full">
+            <p aria-label="precheck-docLinksDescription" class="text-gray-400 w-full">
               {preCheck.docLinksDescription}
             </p>
           {/if}
           {#if preCheck.docLinks}
             See:
             {#each preCheck.docLinks as link}
-              <a href="{link.url}" target="_blank" on:click="{e => openLink(e, link.url)}">{link.title}</a>
+              <a aria-label="precheck-link" href="{link.url}" target="_blank" on:click="{e => openLink(e, link.url)}"
+                >{link.title}</a>
             {/each}
           {/if}
         {/if}
