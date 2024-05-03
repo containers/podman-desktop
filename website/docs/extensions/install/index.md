@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 1
 title: Installing
 description: Install Podman Desktop extension
 tags: [podman-desktop, extension, publishing]
