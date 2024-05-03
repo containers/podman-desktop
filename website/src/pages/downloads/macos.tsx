@@ -67,9 +67,6 @@ async function grabfilenameforMac(
 
   const airgapsetupArm64 = macosArm64AirgapSetupAssets?.[0]?.browser_download_url;
 
-  console.log('airgapsetupX64', airgapsetupX64);
-  console.log('airgapsetupArm64', airgapsetupArm64);
-
   const data = {
     version: jsonContent.name,
     universal: unifiedMacLink.browser_download_url,
