@@ -87,11 +87,11 @@ onDestroy(() => {
 
 <ProviderCard provider="{provider}">
   <svelte:fragment slot="content">
-    <div>
+    <div class="flex flex-col w-full lg:w-2/3 justify-center items-center">
       {#if initializationContext.mode === InitializeAndStartMode}
         <Steps steps="{InitializationSteps}" />
       {/if}
-      <div class="flex flex-col text-gray-700 items-center justify-center" aria-label="Transitioning State">
+      <div class="flex flex-col text-gray-700 items-center" aria-label="Transitioning State">
         <div>Initializing</div>
         <div class="my-2">
           <Spinner />

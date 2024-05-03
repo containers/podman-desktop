@@ -48,26 +48,25 @@ onMount(() => {
 
 <ProviderCard provider="{provider}">
   <svelte:fragment slot="content">
-    <p class="text-sm text-gray-700 flex-grow">
-      To start working with containers, {provider.name}
-      {#if provider.version}
-        v{provider.version}
-      {/if} needs to be started.
-    </p>
-
     {#if !runAtStart && !runInProgress}
-      <div class="mt-5">
+      <p class="text-sm text-gray-700 text-center w-2/3">
+        To start working with containers, {provider.name}
+        {#if provider.version}
+          v{provider.version}
+        {/if} needs to be started.
+      </p>
+      <div class="w-1/3 flex justify-center">
         <Button on:click="{() => runProvider()}">
           Run {provider.name}
         </Button>
       </div>
     {/if}
     {#if runAtStart || runInProgress}
-      <div class="mt-5">
+      <div class="flex flex-col w-full lg:w-2/3 justify-center items-center">
         {#if initializationContext.mode === InitializeAndStartMode}
           <Steps steps="{InitializationSteps}" current="{1}" />
         {/if}
-        <div class="flex flex-col text-gray-700 items-center justify-center" aria-label="Transitioning State">
+        <div class="flex flex-col text-gray-700 items-center" aria-label="Transitioning State">
           <div>Starting</div>
           <div class="my-2">
             <Spinner />

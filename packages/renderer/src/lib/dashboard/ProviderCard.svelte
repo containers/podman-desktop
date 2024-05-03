@@ -11,8 +11,8 @@ export let provider: ProviderInfo;
   class="flex bg-charcoal-800 rounded-md p-5 gap-3 flex-col flex-nowrap"
   role="region"
   aria-label="{provider.name} Provider">
-  <div class="lg:flex lg:flex-row gap-x-4">
-    <div class="grid grid-cols-[3rem_1fr] w-min gap-2">
+  <div class="flex flex-col lg:flex-row gap-x-4">
+    <div class="grid grid-cols-[3rem_1fr] w-1/4 gap-2">
       <IconImage image="{provider?.images?.icon}" class="mx-0 max-h-12" alt="{provider.name}"></IconImage>
       <div class="flex flex-col gap-0 text-gray-400 text-lg whitespace-nowrap" aria-label="context-name">
         <div class="flex flex-row gap-1 items-center">
@@ -28,7 +28,7 @@ export let provider: ProviderInfo;
         </div>
       </div>
     </div>
-    <div class="flex items-center flex-row space-x-10 grow flex-nowrap">
+    <div class="flex items-center flex-row space-x-10 mt-5 w-full lg:mt-0 lg:w-3/4 flex-nowrap">
       <slot name="content" />
     </div>
   </div>

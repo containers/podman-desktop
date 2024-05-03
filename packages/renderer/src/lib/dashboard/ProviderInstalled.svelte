@@ -135,58 +135,60 @@ function onInstallationClick() {
 
 <ProviderCard provider="{provider}">
   <svelte:fragment slot="content">
-    <p class="text-sm text-gray-700 flex-grow" aria-label="Suggested Actions">
+    <p class="text-sm text-gray-700 w-2/3 text-center" aria-label="Suggested Actions">
       To start working with containers, {provider.name} needs to be initialized.
     </p>
 
-    <div class="mt-5 relative" class:hidden="{!initializationButtonVisible}">
-      <div class="bg-gray-300 text-white flex">
-        <button
-          class="float-left bg-purple-600 hover:bg-purple-500 pt-2 pr-3 pl-3 pb-2 text-[13px] text-white mr-px w-[180px]"
-          on:click="{onInstallationClick}">
-          {installationOptionSelected}
-        </button>
-        <button
-          class="inline-block bg-purple-600 hover:bg-purple-500 text-[13px] text-white pt-2 pr-3 pl-3 pb-2 w-[32px]"
-          on:click="{() => updateOptionsMenu(!installationOptionsMenuVisible)}">
-          <i class="fas fa-caret-down"></i>
-        </button>
-      </div>
-      <div
-        class="z-10 min-w-[130px] m-auto bg-primary text-[13px] text-white absolute w-full"
-        class:hidden="{!installationOptionsMenuVisible}">
-        <ul class="w-full outline-none bg-charcoal-800 rounded-sm placeholder-gray-700">
-          <li>
-            <button
-              class="w-full p-2 {installationOptionSelected === InitializeOnlyMode
-                ? 'bg-purple-600 text-white'
-                : 'bg-purple-700 text-gray-700'} hover:bg-purple-500 cursor-pointer"
-              on:click="{() => {
-                installationOptionSelected = InitializeOnlyMode;
-                installationOptionsMenuVisible = false;
-              }}">
-              {InitializeOnlyMode}
-              {provider.name}
-            </button>
-          </li>
-          <li>
-            <button
-              class="w-full p-2 {installationOptionSelected === InitializeAndStartMode
-                ? 'bg-purple-600 text-white'
-                : 'bg-purple-700 text-gray-700'} hover:bg-purple-500 cursor-pointer"
-              on:click="{() => {
-                installationOptionSelected = InitializeAndStartMode;
-                installationOptionsMenuVisible = false;
-              }}">
-              {InitializeAndStartMode}
-              {provider.name}
-            </button>
-          </li>
-        </ul>
+    <div class="min-w-[230px] w-1/3 flex justify-center" class:hidden="{!initializationButtonVisible}">
+      <div class="w-[212px] relative">
+        <div class="bg-gray-300 text-white flex w-[212px]">
+          <button
+            class="float-left bg-purple-600 hover:bg-purple-500 pt-2 pr-3 pl-3 pb-2 text-[13px] text-white mr-px w-[180px]"
+            on:click="{onInstallationClick}">
+            {installationOptionSelected}
+          </button>
+          <button
+            class="inline-block bg-purple-600 hover:bg-purple-500 text-[13px] text-white pt-2 pr-3 pl-3 pb-2 w-[32px]"
+            on:click="{() => updateOptionsMenu(!installationOptionsMenuVisible)}">
+            <i class="fas fa-caret-down"></i>
+          </button>
+        </div>
+        <div
+          class="z-10 min-w-[130px] m-auto bg-primary text-[13px] text-white absolute w-full"
+          class:hidden="{!installationOptionsMenuVisible}">
+          <ul class="w-full outline-none bg-charcoal-800 rounded-sm placeholder-gray-700">
+            <li>
+              <button
+                class="w-full p-2 {installationOptionSelected === InitializeOnlyMode
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-purple-700 text-gray-700'} hover:bg-purple-500 cursor-pointer"
+                on:click="{() => {
+                  installationOptionSelected = InitializeOnlyMode;
+                  installationOptionsMenuVisible = false;
+                }}">
+                {InitializeOnlyMode}
+                {provider.name}
+              </button>
+            </li>
+            <li>
+              <button
+                class="w-full p-2 {installationOptionSelected === InitializeAndStartMode
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-purple-700 text-gray-700'} hover:bg-purple-500 cursor-pointer"
+                on:click="{() => {
+                  installationOptionSelected = InitializeAndStartMode;
+                  installationOptionsMenuVisible = false;
+                }}">
+                {InitializeAndStartMode}
+                {provider.name}
+              </button>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
 
-    <div class="mt-5" class:hidden="{!initializeInProgress}">
+    <div class="flex flex-col w-full lg:w-2/3 justify-center items-center" class:hidden="{!initializeInProgress}">
       {#if installationOptionSelected === InitializeAndStartMode}
         <Steps steps="{InitializationSteps}" />
       {/if}
