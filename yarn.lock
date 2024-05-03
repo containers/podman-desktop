@@ -2217,10 +2217,10 @@
     fs-extra "^11.1.1"
     tslib "^2.6.0"
 
-"@docusaurus/tsconfig@^3.2.1":
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/@docusaurus/tsconfig/-/tsconfig-3.2.1.tgz#6bdc0cb46414d09c7334d632b6d5e5472e6eb5a7"
-  integrity sha512-+biUwtsYW3oChLxYezzA+NIgS3Q9KDRl7add/YT54RXs9Q4rKInebxdHdG6JFs5BaTg45gyjDu0rvNVcGeHODg==
+"@docusaurus/tsconfig@^3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@docusaurus/tsconfig/-/tsconfig-3.3.0.tgz#75a5cde99f9df3597392c34bf24f5e574d318a21"
+  integrity sha512-Nw2usD0xLb/em0u9DzZFhmE0AJ3avyW8t9ZrX5HBq4PEDJavJD4+27wFu+YKm5imFbq6kW2zOZU33y//hjkaLA==
 
 "@docusaurus/types@3.2.1":
   version "3.2.1"
@@ -6363,12 +6363,12 @@ cosmiconfig@^9.0.0:
     parse-json "^5.2.0"
 
 cpu-features@~0.0.4:
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/cpu-features/-/cpu-features-0.0.9.tgz#5226b92f0f1c63122b0a3eb84cb8335a4de499fc"
-  integrity sha512-AKjgn2rP2yJyfbepsmLfiYcmtNn/2eUvocUyM/09yB0YDiz39HteK/5/T4Onf0pmdYDMgkBoGvRLvEguzyL7wQ==
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/cpu-features/-/cpu-features-0.0.10.tgz#9aae536db2710c7254d7ed67cb3cbc7d29ad79c5"
+  integrity sha512-9IkYqtX3YHPCzoVg1Py+o9057a3i0fp7S530UWokCSaFVTc7CwXPRiOjRjBQQ18ZCNafx78YfnG+HALxtVmOGA==
   dependencies:
     buildcheck "~0.0.6"
-    nan "^2.17.0"
+    nan "^2.19.0"
 
 crc@^3.8.0:
   version "3.8.0"
@@ -12203,15 +12203,10 @@ mz@^2.7.0:
     object-assign "^4.0.1"
     thenify-all "^1.0.0"
 
-nan@^2.16.0:
+nan@^2.16.0, nan@^2.19.0:
   version "2.19.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.19.0.tgz#bb58122ad55a6c5bc973303908d5b16cfdd5a8c0"
   integrity sha512-nO1xXxfh/RWNxfd/XPfbIfFk5vgLsAxUR9y5O0cHMJu/AW9U95JLXqthYHjEp+8gQ5p96K9jUp8nbVOxCdRbtw==
-
-nan@^2.17.0:
-  version "2.17.0"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.17.0.tgz#c0150a2368a182f033e9aa5195ec76ea41a199cb"
-  integrity sha512-2ZTgtl0nJsO0KQCjEpxcIr5D+Yv90plTitZt9JBfQvVJDS5seMl3FOvsh3+9CoYWXf/1l5OaZzzF6nDm4cagaQ==
 
 nanoid@^3.3.7:
   version "3.3.7"
