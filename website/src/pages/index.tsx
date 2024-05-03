@@ -20,6 +20,7 @@ import ThemedImage from '@theme/ThemedImage';
 import React from 'react';
 
 import TailWindThemeSelector from '../components/TailWindThemeSelector';
+import PodmanAILabBanner from '../components/PodmanAILabBanner';
 
 function DownloadClientLinks(): JSX.Element {
   let operatingSystem = '';
@@ -650,6 +651,7 @@ export default function Home(): JSX.Element {
       title="Podman Desktop - Containers and Kubernetes"
       description="Podman Desktop - An open source graphical tool for developing on containers and Kubernetes">
       <TailWindThemeSelector />
+      <PodmanAILabBanner />
       <Hero />
       <RunAnywhere />
       <MainFeatures />
