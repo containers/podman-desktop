@@ -10,6 +10,10 @@ All documentation is located within [/website/docs](/website/docs).
 
 The website is built using [docusaurus](https://docusaurus.io/) and published to [podman-desktop.io](https://podman-desktop.io) on each commit.
 
+### Tips
+
+* When referring to a clickable button in the interface, **bold** the name. For example: Click on the **Extensions** button.
+
 ## Previewing the website
 
 The website can be previewed by running the following command:
