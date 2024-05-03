@@ -17,6 +17,7 @@ that we follow.
 - [Communication](#communication)
 - [Code Architecture](#code-architecture)
 - [Maintainer Tasks](#maintainer-tasks)
+- [Website Contributions](#website-contributions)
 
 ## Reporting Issues
 
@@ -375,3 +376,7 @@ Your responsibilities include:
 - Evaluating the severity of new issues. If an issue is classified as "critical" or "high priority" and requires immediate attention, tag a maintainer in the issue and notify them via the public community channel.
 - Identifying issues that are simple to resolve and marking them as "good first issue," thereby encouraging newcomers to contribute to the project.
 - Evaluating any stale / lingering pull requests and pinging the respective contributors. If the pull request has been opened for an extensive amount of time, ping someone to contact the contributor / push any changes required to get it merged in. If there is no communication / the pull request is stale, close them.
+
+## Website Contributions
+
+See our [WEBSITE_CONTRIBUTING](/WEBSITE_CONTRIBUTING.md) documentation for more details on how to contribute to the website.
