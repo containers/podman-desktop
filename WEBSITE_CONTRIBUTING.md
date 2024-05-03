@@ -62,15 +62,17 @@ Ideally your screenshot should be:
 This matches the ratio of Podman Desktop's default size of 1050x700 as well as gives a few pixels spacing for a border.
 
 Tips:
-* Use a **red** circle to emphasize points of interest / draw the users eyes towards.
-* If you are unable to put the entire example in the screenshot, **zoom out** Podman Desktop (View -> Zoom Out) and re-take the screenshot.
+
+- Use a **red** circle to emphasize points of interest / draw the users eyes towards.
+- If you are unable to put the entire example in the screenshot, **zoom out** Podman Desktop (View -> Zoom Out) and re-take the screenshot.
 
 ### Video & gifs
 
 Gifs and video are acceptable granted they are:
-* Small in size (under 3mb)
-* Less than 10 seconds long
-* Uses compression. For gifs, use software such as [gifski](https://gif.ski/) with CLI commands such as `--fps 10 --quality 70`.
+
+- Small in size (under 3mb)
+- Less than 10 seconds long
+- Uses compression. For gifs, use software such as [gifski](https://gif.ski/) with CLI commands such as `--fps 10 --quality 70`.
 
 ## Templates
 
@@ -90,6 +92,32 @@ sidebar_position: 1 # Weight depending on the position you want
 keywords: [multiple, keywords, as-needed]
 tags: [category]
 ---
+```
+
+### Standard template
+
+The most common template that requires a prerequisites section and "tutorial" / procedural section in order to teach the user something.
+
+```markdown
+# <Title of the section>
+
+<Brief description of what this will teach the user>
+
+#### Prerequisites <optional>
+
+<Bullet point list of prerequisites>
+
+#### Procedure
+
+<Typically a numbered list of steps, although not an enforced standard>
+
+#### Verification <optional>
+
+<Steps to verify that the procedure worked as intended>
+
+#### Additional resources <optional>
+
+Links to further information (could be podman desktop documentation, or outside links)
 ```
 
 ### Troubleshooting
