@@ -47,7 +47,7 @@ import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 import type { DialogRegistry } from './dialog-registry.js';
 import type { Directories } from './directories.js';
 import { Emitter } from './events/emitter.js';
-import { ExtensionLoaderSettings } from './extension-loader-settings.js';
+import { DEFAULT_TIMEOUT, ExtensionLoaderSettings } from './extension-loader-settings.js';
 import type { FilesystemMonitoring } from './filesystem-monitoring.js';
 import type { IconRegistry } from './icon-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
@@ -259,7 +259,7 @@ export class ExtensionLoader {
         [ExtensionLoaderSettings.SectionName + '.' + ExtensionLoaderSettings.MaxActivationTime]: {
           description: 'Maximum activation time for an extension, in seconds.',
           type: 'number',
-          default: 10,
+          default: DEFAULT_TIMEOUT,
           minimum: 1,
           maximum: 100,
         },
@@ -1368,14 +1368,16 @@ export class ExtensionLoader {
       deactivateFunction = extensionMain['deactivate'];
     }
 
-    const telemetryOptions = { extensionId: extension.id, extensionVersion: extension.manifest?.version };
+    const telemetryOptions: Record<string, unknown> = {
+      extensionId: extension.id,
+      extensionVersion: extension.manifest?.version,
+    };
     try {
       if (typeof extensionMain?.['activate'] === 'function') {
         // maximum time to wait for the extension to activate by reading from configuration
-        const delayInSeconds: number =
-          this.configurationRegistry
-            .getConfiguration(ExtensionLoaderSettings.SectionName)
-            .get(ExtensionLoaderSettings.MaxActivationTime) || 5;
+        const delayInSeconds: number = this.configurationRegistry
+          .getConfiguration(ExtensionLoaderSettings.SectionName)
+          .get(ExtensionLoaderSettings.MaxActivationTime, DEFAULT_TIMEOUT);
         const delayInMilliseconds = delayInSeconds * 1000;
 
         // reject a promise after this delay
@@ -1395,11 +1397,12 @@ export class ExtensionLoader {
         // if extension reach the timeout, do not wait for it to finish and flag as error
         await Promise.race([activatePromise, timeoutPromise]);
         const afterActivateTime = performance.now();
-        console.log(
-          `Activating extension (${extension.id}) ended in ${Math.round(
-            afterActivateTime - beforeActivateTime,
-          )} milliseconds`,
-        );
+
+        // Computing activation duration
+        const duration = afterActivateTime - beforeActivateTime;
+        telemetryOptions['duration'] = duration;
+
+        console.log(`Activating extension (${extension.id}) ended in ${Math.round(duration)} milliseconds`);
       }
       const id = extension.id;
       const activatedExtension: ActivatedExtension = {
@@ -1414,8 +1417,8 @@ export class ExtensionLoader {
       console.log(`Activating extension ${extension.id} failed error:${err}`);
       this.extensionState.set(extension.id, 'failed');
       this.extensionStateErrors.set(extension.id, err);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (telemetryOptions as any).error = err;
+      // Storing error in the telemetry options
+      telemetryOptions['error'] = err;
     } finally {
       this.telemetry.track('activateExtension', telemetryOptions);
     }

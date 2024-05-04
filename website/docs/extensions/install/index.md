@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 1
 title: Installing
 description: Install Podman Desktop extension
 tags: [podman-desktop, extension, publishing]
@@ -8,24 +8,24 @@ keywords: [podman desktop, extension, publishing]
 
 # Installing a Podman Desktop extension
 
-Consider installing Podman Desktop extensions to enrich the default capabilities of Podman Desktop.
-
-#### Prerequisites
-
-- The extension Open Container Initiative (OCI) image name, such as: `quay.io/fbenoit/my-first-extension`.
-
-  See [Publishing a Podman Desktop extension](/docs/extensions/publish).
+Installing an extension is a great way to expand the capability of Podman Desktop.
 
 #### Procedure
 
-1. Go to the **<Icon icon="fa-solid fa-cog" size="lg" /> Settings > Extensions**.
+1. Click on the **Extensions** button.
 
-1. In the **Name of the Image** field, write the extension OCI image name.
+![](../img/extensions-icon.png)
 
-1. Click the **Install extension from the OCI image** button.
+2. Browse the **Catalog** and install the extension.
+
+![](../img/browse-catalog.png)
+
+3. Alternatively, you can also press **Install custom...** to install an extension from a container image.
+
+![](../img/install-custom.png)
 
 #### Verification
 
-- If Podman Desktop satisfies the minimum required version of the extension, the extension activates.
+- The extension can be verified by checking the **Installed** section of the Extensions page.
 
-- Depending on the extension, items can appear in the status bar, tray menu, or other contributions.
+- Depending on the extension, items can appear in the status bar, tray menu, or other areas of Podman Desktop.

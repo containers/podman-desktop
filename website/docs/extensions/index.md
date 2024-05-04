@@ -1,7 +1,7 @@
 ---
 sidebar_position: 110
-title: Writing extensions
-description: Writing or deploying extensions.
+title: Extensions
+description: Installing, developing or publishing extensions.
 keywords: [podman desktop, podman, extension]
 tags: [migrating-to-kubernetes]
 ---
@@ -17,6 +17,6 @@ Podman Desktop extensions contribute to:
 
 #### Next steps
 
-- [Writing a Podman Desktop extension entry point](/docs/extensions/write)
+- [Writing a Podman Desktop extension entry point](/docs/extensions/developing)
 - [Publishing a Podman Desktop extension](/docs/extensions/publish)
 - [Installing a Podman Desktop extension](/docs/extensions/install)

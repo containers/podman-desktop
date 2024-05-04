@@ -1840,6 +1840,7 @@ describe('extensionContext', async () => {
     expect(telemetry.track).toBeCalledWith('activateExtension', {
       extensionId: 'fooPublisher.fooName',
       extensionVersion: '1.0',
+      duration: expect.any(Number),
     });
 
     expect(safeStorageRegistry.getExtensionStorage).toBeCalledWith('fooPublisher.fooName');
