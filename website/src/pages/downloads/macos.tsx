@@ -14,13 +14,17 @@ async function grabfilenameforMac(
   const result = await fetch('https://api.github.com/repos/containers/podman-desktop/releases/latest');
   const jsonContent = await result.json();
   const assets = jsonContent.assets;
-  const armMacDmg = assets.filter(asset => (asset.name as string).endsWith('-arm64.dmg'));
+  const armMacDmg = assets.filter(
+    asset => (asset.name as string).endsWith('-arm64.dmg') && !asset.name.includes('airgap'),
+  );
   if (armMacDmg.length !== 1) {
     throw new Error('Unable to grab arm64 dmg');
   }
   const armLink = armMacDmg[0];
 
-  const intelMacDmg = assets.filter(asset => (asset.name as string).endsWith('-x64.dmg'));
+  const intelMacDmg = assets.filter(
+    asset => (asset.name as string).endsWith('-x64.dmg') && !asset.name.includes('airgap'),
+  );
   if (intelMacDmg.length !== 1) {
     throw new Error('Unable to grab x64 dmg');
   }
@@ -48,13 +52,29 @@ async function grabfilenameforMac(
   if (universalMacDmgResults.length !== 1) {
     throw new Error('Unable to grab unified dmg');
   }
-  const unifiedMacLinj = universalMacDmgResults[0];
+  const unifiedMacLink = universalMacDmgResults[0];
+
+  /* Find macOS installer for restricted environment */
+  const macosX64AirgapSetupAssets = assets.filter(
+    asset => (asset.name as string).endsWith('-x64.dmg') && asset.name.includes('airgap'),
+  );
+
+  const airgapsetupX64 = macosX64AirgapSetupAssets?.[0]?.browser_download_url;
+
+  const macosArm64AirgapSetupAssets = assets.filter(
+    asset => (asset.name as string).endsWith('-arm64.dmg') && asset.name.includes('airgap'),
+  );
+
+  const airgapsetupArm64 = macosArm64AirgapSetupAssets?.[0]?.browser_download_url;
+
   const data = {
     version: jsonContent.name,
-    universal: unifiedMacLinj.browser_download_url,
+    universal: unifiedMacLink.browser_download_url,
     x64: intelLink.browser_download_url,
     arm64: armLink.browser_download_url,
     airgapsetup: universalMacAirgapDmgAsset?.browser_download_url,
+    airgapsetupX64,
+    airgapsetupArm64,
   };
   setDownloadData(data);
 }
@@ -65,7 +85,8 @@ export function MacOSDownloads(): JSX.Element {
     universal: '',
     x64: '',
     arm64: '',
-    airgapsetup: '',
+    airgapsetupX64: '',
+    airgapsetupArm64: '',
   });
 
   const copyBrewInstructions = async (): Promise<void> => {
@@ -109,13 +130,25 @@ export function MacOSDownloads(): JSX.Element {
               <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
               Arm
             </Link>
-            <Link
-              className="underline inline-flex dark:text-white text-purple-500 hover:text-purple-200 py-2 px-6 text-md font-semibold"
-              to={downloadData.airgapsetup}>
-              <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
-              Disk Image for restricted environments
-            </Link>
           </div>
+          <div className="pt-2 pb-4 flex flex-col">
+            <div className="">Installer for restricted environments:</div>
+            <div className="flex flex-row justify-center">
+              <Link
+                className="underline inline-flex dark:text-white text-purple-500 hover:text-purple-200 py-2 px-6 font-semibold text-md"
+                to={downloadData.airgapsetupX64}>
+                <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
+                x64
+              </Link>
+              <Link
+                className="underline inline-flex dark:text-white text-purple-500 hover:text-purple-200 py-2 px-6 font-semibold text-md"
+                to={downloadData.airgapsetupArm64}>
+                <FontAwesomeIcon size="1x" icon={faDownload} className="mr-2" />
+                arm64
+              </Link>
+            </div>
+          </div>
+
           <div className="flex flex-col align-middle items-center">
             <div className="items-center text-center pt-6">
               <p className="text-lg">
