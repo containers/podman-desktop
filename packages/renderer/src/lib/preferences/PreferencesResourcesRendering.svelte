@@ -374,7 +374,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
 
     {#each providers as provider}
       <div
-        class="bg-charcoal-600 mb-5 rounded-md p-3 divide-x divide-gray-900 flex"
+        class="bg-[var(--pd-invert-content-card-bg)] mb-5 rounded-md p-3 divide-x divide-gray-900 flex"
         role="region"
         aria-label="{provider.id}">
         <div role="region" aria-label="Provider Setup">
@@ -389,7 +389,8 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                   <img src="{provider.images.icon.dark}" alt="{provider.name}" class="max-w-[40px]" />
                 {/if}
               {/if}
-              <span class="my-auto text-gray-400 ml-3 break-words">{provider.name}</span>
+              <span class="my-auto text-[var(--pd-invert-content-card-header-text)] ml-3 break-words"
+                >{provider.name}</span>
             </div>
             <div class="text-center mt-10">
               <!-- Some providers have a status of 'unknown' so that they do not appear in the dashboard, this allows onboarding to still show. -->
@@ -445,7 +446,10 @@ function hasAnyConfiguration(provider: ProviderInfo) {
           </div>
         </div>
         <!-- providers columns -->
-        <div class="grow flex flex-wrap divide-gray-900 ml-2" role="region" aria-label="Provider Connections">
+        <div
+          class="grow flex flex-wrap divide-gray-900 ml-2 text-[var(--pd-invert-content-card-text)]"
+          role="region"
+          aria-label="Provider Connections">
           <PreferencesConnectionsEmptyRendering
             message="{provider.emptyConnectionMarkdownDescription}"
             hidden="{provider.containerConnections.length > 0 || provider.kubernetesConnections.length > 0}" />
