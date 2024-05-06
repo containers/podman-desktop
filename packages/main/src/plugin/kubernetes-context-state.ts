@@ -384,20 +384,17 @@ export class ContextsManager {
       return true;
     }
 
-    // if the current context name in the kubeconfig is undefined ->  true
-    if (!kubeconfig.currentContext) {
-      return true;
-    }
-
     // by retrieving the context from the kubeconfig, if the user is different from the latest context we saved -> true
     const user = kubeconfig.getCurrentUser();
-    if (user?.name !== this.currentContext.user) {
+    if (user?.name !== this.currentContext?.user) {
       return true;
     }
 
     // by retrieving the cluster from the kubeconfig, if the name or server url are different from the latest context we saved -> true
     const cluster = kubeconfig.getCurrentCluster();
-    return cluster?.name !== this.currentContext.cluster || cluster?.server !== this.currentContext.clusterInfo?.server;
+    return (
+      cluster?.name !== this.currentContext?.cluster || cluster?.server !== this.currentContext?.clusterInfo?.server
+    );
   }
 
   // update is the reconcile function, it gets as input the last known kube config
@@ -931,7 +928,7 @@ export class ContextsManager {
     if (isSecondaryResourceName(resourceName)) {
       this.secondaryWatchers.subscribe(resourceName);
     }
-    if (!this.currentContext) {
+    if (!this.currentContext?.name) {
       return [];
     }
     if (this.states.hasInformer(this.currentContext.name, resourceName)) {
