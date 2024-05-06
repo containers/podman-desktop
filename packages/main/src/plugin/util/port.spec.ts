@@ -81,9 +81,10 @@ test.each(hosts)(
 );
 
 test('return first empty port, no port is used', async () => {
-  const freePort = await port.getFreePort(20000);
+  const start = 21000 + Math.floor(Math.random() * 100);
+  const freePort = await port.getFreePort(start);
 
-  expect(freePort).toBe(20000);
+  expect(freePort).toBe(start);
   expect(await port.isFreePort(freePort)).toBe(true);
 });
 
