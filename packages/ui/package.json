@@ -19,6 +19,14 @@
     ".": {
       "types": "./dist/index.d.ts",
       "svelte": "./dist/index.js"
+    },
+    "./Input": {
+      "types": "./dist/input/input.svelte.d.ts",
+      "svelte": "./dist/input/input.svelte"
+    },
+    "./Spinner": {
+      "types": "./dist/spinner/Spinner.svelte.d.ts",
+      "svelte": "./dist/spinner/Spinner.svelte"
     }
   },
   "peerDependencies": {
