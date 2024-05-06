@@ -100,6 +100,7 @@ import type { MessageBoxOptions, MessageBoxReturnValue } from '../../main/src/pl
 import type { ExtensionBanner, RecommendedRegistry } from '../../main/src/plugin/recommendations/recommendations-api';
 import type { StatusBarEntryDescriptor } from '../../main/src/plugin/statusbar/statusbar-registry';
 import type { IDisposable } from '../../main/src/plugin/types/disposable';
+import type { PortStatus } from '../../main/src/plugin/util/port';
 import { Deferred } from './util/deferred';
 
 export type DialogResultCallback = (openDialogReturnValue: Electron.OpenDialogReturnValue) => void;
@@ -1416,7 +1417,7 @@ export function initExposure(): void {
     return ipcInvoke('system:get-free-port-range', rangeSize);
   });
 
-  contextBridge.exposeInMainWorld('isFreePort', async (port: number): Promise<boolean> => {
+  contextBridge.exposeInMainWorld('isFreePort', async (port: number): Promise<PortStatus> => {
     return ipcInvoke('system:is-port-free', port);
   });
 

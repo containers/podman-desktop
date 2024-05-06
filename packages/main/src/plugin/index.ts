@@ -163,7 +163,7 @@ import { Troubleshooting } from './troubleshooting.js';
 import type { IDisposable } from './types/disposable.js';
 import type { Deferred } from './util/deferred.js';
 import { Exec } from './util/exec.js';
-import { getFreePort, getFreePortRange, isFreePort } from './util/port.js';
+import { getFreePort, getFreePortRange, isFreePort, type PortStatus } from './util/port.js';
 import { ViewRegistry } from './view-registry.js';
 import { WebviewRegistry } from './webview/webview-registry.js';
 import { WelcomeInit } from './welcome/welcome-init.js';
@@ -1325,7 +1325,7 @@ export class PluginSystem {
       return getFreePortRange(rangeSize);
     });
 
-    this.ipcHandle('system:is-port-free', async (_, port: number): Promise<boolean> => {
+    this.ipcHandle('system:is-port-free', async (_, port: number): Promise<PortStatus> => {
       return isFreePort(port);
     });
 

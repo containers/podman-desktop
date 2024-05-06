@@ -598,31 +598,12 @@ function onPortInput(event: Event, portInfo: PortInfo, updateUI: () => void) {
   const target = event.currentTarget as HTMLInputElement;
   // convert string to number
   const _value: number = Number(target.value);
-  // if number is not valid (NaN or outside the value range), set the error
-  if (isNaN(_value) || _value < 0 || _value > 65535) {
-    portInfo.error = 'port should be >= 0 and < 65536';
-    updateUI();
-    return;
-  }
   onPortInputTimeout = setTimeout(() => {
-    isPortFree(_value).then(isFree => {
-      portInfo.error = isFree;
+    window.isFreePort(_value).then(portStatus => {
+      portInfo.error = !portStatus.available ? portStatus.message! : '';
       updateUI();
     });
   }, 500);
-}
-
-function isPortFree(port: number): Promise<string> {
-  return window
-    .isFreePort(port)
-    .then(isFree => {
-      if (!isFree) {
-        return `Port ${port} is already in use`;
-      } else {
-        return '';
-      }
-    })
-    .catch((_: unknown) => `Port ${port} is already in use`);
 }
 
 async function assertAllPortAreValid(): Promise<void> {
