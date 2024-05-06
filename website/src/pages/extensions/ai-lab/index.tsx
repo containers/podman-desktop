@@ -57,6 +57,58 @@ export default function Home(): JSX.Element {
               </video>
             </div>
           </div>
+          <div className="lg:w-2/3 w-full">
+            <div className="space-y-8">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <video controls>
+                    <source src="https://github.com/containers/podman-desktop-media/raw/ai-lab/videos/homepage/ai-1.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+                <div>
+                  <div className="font-bold">Recipes Catalog</div>
+                  <div className="text-sm">Collection of pre-built solutions for various AI use cases and problem domains. Each recipe includes detailed explanations and sample applications that can be run using different large language models (LLMs). Get inspired by use cases and learn how to integrate AI in an optimal way. Recipes are kubernetes ready.</div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-right">
+                  <div className="font-bold">Models Catalog</div>
+                  <div className="text-sm">Curated list of open source large language models available out of the box. Check license and required resources. Import your own models.</div>
+                </div>
+                <div>
+                  <video controls>
+                    <source src="https://github.com/containers/podman-desktop-media/raw/ai-lab/videos/homepage/ai-2.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <video controls>
+                    <source src="https://github.com/containers/podman-desktop-media/raw/ai-lab/videos/homepage/ai-3.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+                <div>
+                  <div className="font-bold">Model Serving</div>
+                  <div className="text-sm">Run models locally with an inference server. Get OpenAI compatible endpoints, use code snippets and start integrating AI in your application.</div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-right">
+                  <div className="font-bold">Playground Environments</div>
+                  <div className="text-sm">Experiment with large language models with a dedicated UI. Configure the models settings, system prompts to test and validate your prompt workflows. Compare behavior of different models.</div>
+                </div>
+                <div>
+                  <video controls>
+                    <source src="https://github.com/containers/podman-desktop-media/raw/ai-lab/videos/homepage/ai-4.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </Layout>
