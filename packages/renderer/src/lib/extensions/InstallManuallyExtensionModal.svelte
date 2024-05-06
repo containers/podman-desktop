@@ -145,7 +145,7 @@ function handleKeydown(e: KeyboardEvent) {
               on:click="{() => installExtension()}"
               inProgress="{installInProgress}">Install</Button>
           {/if}
-          {#if progressPercent === 100 && !installInProgress}
+          {#if !installInProgress && progressPercent === 100}
             <Button on:click="{() => closeCallback()}">Done</Button>
           {/if}
         </div>
