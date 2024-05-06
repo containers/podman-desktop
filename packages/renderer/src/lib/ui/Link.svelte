@@ -1,9 +1,8 @@
 <script lang="ts">
+import { isFontAwesomeIcon } from '@podman-desktop/ui-svelte';
 import { createEventDispatcher, onMount } from 'svelte';
 import Fa from 'svelte-fa';
 import { router } from 'tinro';
-
-import { isFontAwesomeIcon } from '/@/lib/ui/icon-utils';
 
 export let internalRef: string | undefined = undefined;
 export let externalRef: string | undefined = undefined;

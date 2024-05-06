@@ -1,10 +1,10 @@
 <script lang="ts">
 import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
+import { isFontAwesomeIcon } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/motion';
 import Fa from 'svelte-fa';
 
-import { isFontAwesomeIcon } from '/@/lib/ui/icon-utils';
 import { context as storeContext } from '/@/stores/context';
 
 import type { ContextUI } from '../context/context';

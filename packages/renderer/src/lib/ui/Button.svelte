@@ -1,9 +1,7 @@
 <script lang="ts">
-import { Spinner } from '@podman-desktop/ui-svelte';
+import { isFontAwesomeIcon, Spinner } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import Fa from 'svelte-fa';
-
-import { isFontAwesomeIcon } from '/@/lib/ui/icon-utils';
 
 import type { ButtonType } from './Button';
 

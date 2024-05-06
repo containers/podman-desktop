@@ -17,5 +17,6 @@
  ***********************************************************************/
 import Input from './input/Input.svelte';
 import Spinner from './spinner/Spinner.svelte';
+import { isFontAwesomeIcon } from './utils/icon-utils';
 
-export { Input, Spinner };
+export { Input, isFontAwesomeIcon, Spinner };
