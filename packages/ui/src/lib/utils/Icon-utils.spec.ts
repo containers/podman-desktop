@@ -18,9 +18,8 @@
 
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { isFontAwesomeIcon } from '@podman-desktop/ui-svelte';
 import { expect, test } from 'vitest';
-
-import { isFontAwesomeIcon } from '/@/lib/ui/icon-utils';
 
 test('ensure fas prefix is recognized', () => {
   expect(isFontAwesomeIcon(faTrash)).toBeTruthy();
