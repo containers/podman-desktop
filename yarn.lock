@@ -2791,10 +2791,10 @@
     fs-extra "^11.1.1"
     tslib "^2.6.0"
 
-"@docusaurus/tsconfig@^3.3.0":
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/@docusaurus/tsconfig/-/tsconfig-3.3.0.tgz#75a5cde99f9df3597392c34bf24f5e574d318a21"
-  integrity sha512-Nw2usD0xLb/em0u9DzZFhmE0AJ3avyW8t9ZrX5HBq4PEDJavJD4+27wFu+YKm5imFbq6kW2zOZU33y//hjkaLA==
+"@docusaurus/tsconfig@^3.3.2":
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/@docusaurus/tsconfig/-/tsconfig-3.3.2.tgz#55c0cbe92930c6b8a071e657077a612f4265e637"
+  integrity sha512-2MQXkLoWqgOSiqFojNEq8iPtFBHGQqd1b/SQMoe+v3GgHmk/L6YTTO/hMcHhWb1hTFmbkei++IajSfD3RlZKvw==
 
 "@docusaurus/types@3.3.0":
   version "3.3.0"
