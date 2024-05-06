@@ -23,10 +23,10 @@
     "lint:clean": "rimraf .eslintcache"
   },
   "dependencies": {
-    "@docusaurus/core": "^3.3.0",
-    "@docusaurus/plugin-client-redirects": "^3.3.0",
-    "@docusaurus/preset-classic": "^3.3.0",
-    "@docusaurus/theme-mermaid": "^3.3.0",
+    "@docusaurus/core": "^3.3.2",
+    "@docusaurus/plugin-client-redirects": "^3.3.2",
+    "@docusaurus/preset-classic": "^3.3.2",
+    "@docusaurus/theme-mermaid": "^3.3.2",
     "@fortawesome/fontawesome-svg-core": "^6.5.2",
     "@fortawesome/free-brands-svg-icons": "^6.5.2",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
@@ -41,8 +41,8 @@
     "react-player": "^2.16.0"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "^3.3.0",
-    "@docusaurus/tsconfig": "^3.3.0",
+    "@docusaurus/module-type-aliases": "^3.3.2",
+    "@docusaurus/tsconfig": "^3.3.2",
     "autoprefixer": "^10.4.19",
     "markdownlint": "^0.34.0",
     "markdownlint-cli2": "^0.13.0",
