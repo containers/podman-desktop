@@ -31,6 +31,10 @@
     "./Spinner": {
       "types": "./dist/spinner/Spinner.svelte.d.ts",
       "svelte": "./dist/spinner/Spinner.svelte"
+    },
+    "./Button": {
+      "types": "./dist/button/Button.svelte.d.ts",
+      "svelte": "./dist/button/Button.svelte"
     }
   },
   "peerDependencies": {

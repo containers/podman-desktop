@@ -2,9 +2,8 @@
 import { onMount } from 'svelte';
 import Fa from 'svelte-fa';
 
-import Spinner from '/@/lib/spinner/Spinner.svelte';
-import { isFontAwesomeIcon } from '/@/lib/utils/icon-utils';
-
+import Spinner from '../spinner/Spinner.svelte';
+import { isFontAwesomeIcon } from '../utils/icon-utils';
 import type { ButtonType } from './Button';
 
 export let title: string | undefined = undefined;
