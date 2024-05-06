@@ -5,6 +5,7 @@ import {
   faRightFromBracket,
   faRightToBracket,
 } from '@fortawesome/free-solid-svg-icons';
+import { Button } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
 import EmbeddableCatalogExtensionList from '/@/lib/extensions/EmbeddableCatalogExtensionList.svelte';
@@ -12,7 +13,6 @@ import Tooltip from '/@/lib/ui/Tooltip.svelte';
 
 import { authenticationProviders } from '../../stores/authenticationProviders';
 import KeyIcon from '../images/KeyIcon.svelte';
-import Button from '../ui/Button.svelte';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
 import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';

@@ -1,7 +1,9 @@
 <script lang="ts">
-import { isFontAwesomeIcon, Spinner } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import Fa from 'svelte-fa';
+
+import Spinner from '/@/lib/spinner/Spinner.svelte';
+import { isFontAwesomeIcon } from '/@/lib/utils/icon-utils';
 
 import type { ButtonType } from './Button';
 
@@ -9,7 +11,7 @@ export let title: string | undefined = undefined;
 export let inProgress = false;
 export let disabled = false;
 export let type: ButtonType = 'primary';
-export let icon: any = undefined;
+export let icon: unknown = undefined;
 export let selected: boolean | undefined = undefined;
 
 $: if (selected !== undefined && type !== 'tab') {

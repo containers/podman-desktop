@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Button } from '@podman-desktop/ui-svelte';
 import { derived, type Readable } from 'svelte/store';
 
 import extensionIcon from '/@/lib/images/ExtensionIcon.svelte';
@@ -7,7 +8,6 @@ import { combinedInstalledExtensions } from '/@/stores/all-installed-extensions'
 import { catalogExtensionInfos } from '/@/stores/catalog-extensions';
 
 import FeaturedExtensionDownload from '../featured/FeaturedExtensionDownload.svelte';
-import Button from '../ui/Button.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import ExtensionStatus from '../ui/ExtensionStatus.svelte';

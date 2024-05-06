@@ -1,5 +1,6 @@
 <script lang="ts">
 import { faCheckCircle, faCircleArrowUp, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { Button } from '@podman-desktop/ui-svelte';
 import { onMount, tick } from 'svelte';
 import Fa from 'svelte-fa';
 import { router } from 'tinro';
@@ -10,7 +11,6 @@ import CloseButton from '/@/lib/ui/CloseButton.svelte';
 
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import Modal from '../dialogs/Modal.svelte';
-import Button from '../ui/Button.svelte';
 import Link from '../ui/Link.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 

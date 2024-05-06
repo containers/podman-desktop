@@ -1,8 +1,7 @@
 <script lang="ts">
 import { faFileLines, faScroll } from '@fortawesome/free-solid-svg-icons';
+import { Button } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
-
-import Button from '/@/lib/ui/Button.svelte';
 
 import { Uri } from '../uri/Uri';
 
