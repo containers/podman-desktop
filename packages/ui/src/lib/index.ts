@@ -15,5 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+import Input from './input/Input.svelte';
+import Spinner from './spinner/Spinner.svelte';
 
-export { default as Input } from './input/Input.svelte';
+export { Input, Spinner };

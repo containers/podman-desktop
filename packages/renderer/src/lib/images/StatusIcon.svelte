@@ -1,5 +1,6 @@
 <script lang="ts">
-import Spinner from '../ui/Spinner.svelte';
+import { Spinner } from '@podman-desktop/ui-svelte';
+
 import StarIcon from './StarIcon.svelte';
 
 // status: one of RUNNING, STARTING, USED, CREATED, DELETING, or DEGRADED
