@@ -634,7 +634,10 @@ export class ExtensionLoader {
     this.extensionState.delete(extension.id);
     this.extensionStateErrors.delete(extension.id);
 
-    const telemetryOptions = { extensionId: extension.id, extensionVersion: extension.manifest?.version };
+    const telemetryOptions: Record<string, unknown> = {
+      extensionId: extension.id,
+      extensionVersion: extension.manifest?.version,
+    };
 
     if (extension.missingDependencies && extension.missingDependencies.length > 0) {
       this.extensionState.set(extension.id, 'failed');
@@ -662,14 +665,17 @@ export class ExtensionLoader {
         this.watcherExtensions.set(extension.id, extensionWatcher);
       }
 
+      const beforeLoadingRuntime = performance.now();
       const runtime = this.loadRuntime(extension);
+      const afterLoadingRuntime = performance.now();
+
+      telemetryOptions['loadingRuntimeDuration'] = afterLoadingRuntime - beforeLoadingRuntime;
 
       await this.activateExtension(extension, runtime);
     } catch (err) {
       this.extensionState.set(extension.id, 'failed');
       this.extensionStateErrors.set(extension.id, err);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (telemetryOptions as any).error = err;
+      telemetryOptions['error'] = err;
     } finally {
       this.telemetry.track('loadExtension', telemetryOptions);
     }
