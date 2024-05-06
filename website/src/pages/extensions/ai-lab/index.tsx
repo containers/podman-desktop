@@ -46,13 +46,15 @@ export default function Home(): JSX.Element {
               </Link>
             </div>
 
-            {/* Application image */}
-            <div className="my-12 from-purple-500 bg-gradient-to-r to-fuschia-500 rounded-xl">
-              <img
-                className="p-8"
-                src={useBaseUrl('img/extensions/ai-lab/model-service-details.png')}
-                alt={'AI-Lab Model service page'}
-              />
+            {/* Application video */}
+            <div className="my-12 rounded-xl border-black border-8">
+              <video controls>
+                <source src="https://github.com/containers/podman-desktop-media/raw/ai-lab/videos/homepage/ai-lab-hero.mp4" type="video/mp4" />
+                <img
+                  src={useBaseUrl('img/extensions/ai-lab/model-service-details.png')}
+                  alt={'AI-Lab Model service page'}
+                />
+              </video>
             </div>
           </div>
         </div>
