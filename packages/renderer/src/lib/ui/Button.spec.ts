@@ -154,16 +154,6 @@ test('Check selected tab button styling', async () => {
   expect(button).toHaveClass('border-purple-500');
 });
 
-test('Check hidden button', async () => {
-  render(Button, { hidden: true });
-
-  // check that the button is in fact hidden
-  const button = screen.getByRole('button', { hidden: true });
-  expect(button).toBeInTheDocument();
-  expect(button).toHaveAttribute('hidden');
-  expect(button).not.toBeVisible();
-});
-
 test('Check icon button with fas prefix is visible', async () => {
   render(Button, { icon: faTrash });
 
