@@ -8,7 +8,12 @@ import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Steps from '../ui/Steps.svelte';
 import PreflightChecks from './PreflightChecks.svelte';
 import ProviderCard from './ProviderCard.svelte';
-import { type InitializationContext, InitializationSteps, InitializeAndStartMode } from './ProviderInitUtils';
+import {
+  type InitializationContext,
+  InitializationSteps,
+  InitializeAndStartMode,
+  InitializeOnlyMode,
+} from './ProviderInitUtils';
 import ProviderUpdateButton from './ProviderUpdateButton.svelte';
 
 export let provider: ProviderInfo;
@@ -24,7 +29,6 @@ let preflightChecks: CheckStatus[] = [];
 async function runProvider() {
   runError = undefined;
   runInProgress = true;
-  runAtStart = false;
   try {
     await window.startProvider(provider.internalId);
     await new Promise<void>(resolve => {
@@ -41,6 +45,9 @@ async function runProvider() {
 
 onMount(() => {
   if (runAtStart) {
+    // we reset the mode bc the provider has to be started only after the initialization.
+    // Otherwise if the user stops the provider, this component will mount again and will start the provider everytime
+    initializationContext.mode = InitializeOnlyMode;
     runProvider();
   }
 });
