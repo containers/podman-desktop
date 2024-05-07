@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
+import Dropdown from '../../ui/Dropdown.svelte';
 
 export let record: IConfigurationPropertyRecordedSchema;
 export let value: string | undefined;
@@ -15,8 +16,7 @@ function onInput(event: Event) {
 }
 </script>
 
-<select
-  class="border-b block w-full p-1 bg-zinc-700 border-violet-500 text-white text-sm checked:bg-violet-50"
+<Dropdown
   name="{record.id}"
   id="input-standard-{record.id}"
   on:input="{onInput}"
@@ -28,4 +28,4 @@ function onInput(event: Event) {
       <option value="{recordEnum}">{recordEnum}</option>
     {/each}
   {/if}
-</select>
+</Dropdown>
