@@ -431,7 +431,7 @@ export class ColorRegistry {
 
     this.registerColor(`${ct}header-icon`, {
       dark: colorPalette.gray[600],
-      light: colorPalette.gray[300],
+      light: colorPalette.purple[700],
     });
 
     this.registerColor(`${ct}card-header-text`, {
