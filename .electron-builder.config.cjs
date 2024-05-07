@@ -52,11 +52,16 @@ async function addElectronFuses(context) {
 
   const electronBinaryPath = path.join(context.appOutDir, `${executableName}${ext}`);
 
+  let electronEnableInspect = false;
+  if (process.env.ELECTRON_ENABLE_INSPECT === 'true') {
+    electronEnableInspect = true;
+  }
+
   await flipFuses(electronBinaryPath, {
     version: FuseVersion.V1,
     [FuseV1Options.RunAsNode]: false,
     [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
-    [FuseV1Options.EnableNodeCliInspectArguments]: false,
+    [FuseV1Options.EnableNodeCliInspectArguments]: electronEnableInspect,
   });
 }
 
