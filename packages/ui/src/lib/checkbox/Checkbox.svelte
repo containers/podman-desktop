@@ -15,7 +15,12 @@ export let required = false;
 
 const dispatch = createEventDispatcher<{ click: boolean }>();
 
-function onClick(checked: boolean) {
+function onClick(
+  event: MouseEvent & {
+    currentTarget: EventTarget & HTMLInputElement;
+  },
+): void {
+  const checked = event.currentTarget.checked;
   dispatch('click', checked);
 }
 </script>
@@ -30,7 +35,7 @@ function onClick(checked: boolean) {
     disabled="{disabled}"
     required="{required}"
     class="sr-only"
-    on:click="{event => onClick(event.currentTarget.checked)}" />
+    on:click="{onClick}" />
   <div
     class="grid place-content-center"
     title="{disabled ? disabledTooltip : title}"

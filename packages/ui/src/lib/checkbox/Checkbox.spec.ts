@@ -25,7 +25,7 @@ import { expect, test } from 'vitest';
 
 import Checkbox from './Checkbox.svelte';
 
-function getPeer(checkbox: HTMLElement) {
+function getPeer(checkbox: HTMLElement): Element | undefined {
   return checkbox.parentElement?.children[1];
 }
 
