@@ -284,9 +284,9 @@ export class ExtensionLoader {
 
   getDisabledExtensionIds(): string[] {
     return (
-      (this.configurationRegistry
+      this.configurationRegistry
         .getConfiguration(ExtensionLoaderSettings.SectionName)
-        .get(ExtensionLoaderSettings.Disabled) as string[]) || []
+        .get<string[]>(ExtensionLoaderSettings.Disabled, [])
     );
   }
 
@@ -715,7 +715,7 @@ export class ExtensionLoader {
 
         await this.activateExtension(extension, runtime);
       } else {
-        console.log('Not activating disabled extension (' + extension.id + ')');
+        console.log(`Extension (${extension.id}) not activated because it is disabled`);
       }
     } catch (err) {
       this.extensionState.set(extension.id, 'failed');
