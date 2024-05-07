@@ -10,7 +10,8 @@ tags: [ai, llm, generative ai]
 
 #### Procedure
 
-- If you have Podman Desktop already installed, open the URL `podman-desktop:extension/redhat.ai-lab` to launch the installation of Podman AI Lab in Podman Desktop.
+- If you have Podman Desktop already installed, click <a href="podman-desktop:extension/redhat.ai-lab">here</a>
+  to launch the installation of Podman AI Lab in Podman Desktop.
 
 #### Verification
 
