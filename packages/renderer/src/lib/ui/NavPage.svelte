@@ -10,7 +10,7 @@ export let searchEnabled = true;
   <div class="flex flex-col w-full h-full pt-4" role="region" aria-label="{title}">
     <div class="flex pb-2" role="region" aria-label="header">
       <div class="px-5">
-        <h1 class="text-xl first-letter:uppercase">{title}</h1>
+        <h1 class="text-xl first-letter:uppercase text-[var(--pd-content-header)]">{title}</h1>
       </div>
       <div class="flex flex-1 justify-end">
         <div class="px-5" role="group" aria-label="additionalActions">

@@ -43,7 +43,9 @@ function handleKeydown(e: KeyboardEvent) {
             <slot name="icon" />
           </div>
         {/if}
-        <h1 aria-label="{title}" class="grow text-xl first-letter:uppercase">{title}</h1>
+        <h1 aria-label="{title}" class="grow text-xl first-letter:uppercase text-[var(--pd-content-header)]">
+          {title}
+        </h1>
         <div class="flex items-center space-x-3">
           {#if $$slots.actions}
             <div class="flex flex-nowrap justify-self-end pl-3 space-x-2">
