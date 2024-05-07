@@ -463,6 +463,11 @@ export class ColorRegistry {
       dark: colorPalette.gray[400],
       light: colorPalette.purple[900],
     });
+
+    this.registerColor(`${ct}divider`, {
+      dark: colorPalette.charcoal[400],
+      light: colorPalette.gray[700],
+    });
   }
 
   // input boxes
