@@ -1,7 +1,7 @@
 <script lang="ts">
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { Button } from '@podman-desktop/ui-svelte';
 
-import Button from '../ui/Button.svelte';
 import type { EngineInfoUI } from './EngineInfoUI';
 
 // Imported type for prune (containers, images, pods, volumes)

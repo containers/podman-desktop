@@ -1,13 +1,12 @@
 <script lang="ts">
 import { faPlusCircle, faTrash, faUser, faUserPen } from '@fortawesome/free-solid-svg-icons';
 import type * as containerDesktopAPI from '@podman-desktop/api';
-import { Input } from '@podman-desktop/ui-svelte';
+import { Button, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
 import PasswordInput from '/@/lib/ui/PasswordInput.svelte';
 
 import { registriesInfos, registriesSuggestedInfos } from '../../stores/registries';
-import Button from '../ui/Button.svelte';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
 import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
 import SettingsPage from './SettingsPage.svelte';

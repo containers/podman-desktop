@@ -1,5 +1,6 @@
 <script lang="ts">
 import { faPieChart, faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { Button } from '@podman-desktop/ui-svelte';
 import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
@@ -14,7 +15,6 @@ import VolumeIcon from '../images/VolumeIcon.svelte';
 import SimpleColumn from '../table/SimpleColumn.svelte';
 import { Column, Row } from '../table/table';
 import Table from '../table/Table.svelte';
-import Button from '../ui/Button.svelte';
 import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import NavPage from '../ui/NavPage.svelte';
 import { VolumeUtils } from './volume-utils';

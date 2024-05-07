@@ -1,14 +1,17 @@
 <script lang="ts">
-import { isFontAwesomeIcon, Spinner } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import Fa from 'svelte-fa';
 
+import Spinner from '../spinner/Spinner.svelte';
+import { isFontAwesomeIcon } from '../utils/icon-utils';
 import type { ButtonType } from './Button';
 
 export let title: string | undefined = undefined;
 export let inProgress = false;
 export let disabled = false;
 export let type: ButtonType = 'primary';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let icon: any = undefined;
 export let selected: boolean | undefined = undefined;
 
@@ -76,7 +79,7 @@ $: {
       class:py-[3px]="{!$$slots.default}">
       {#if inProgress}
         <Spinner size="1em" />
-      {:else if iconType === 'fa'}
+      {:else if isFontAwesomeIcon(icon)}
         <Fa icon="{icon}" />
       {:else if iconType === 'unknown'}
         <svelte:component this="{icon}" />

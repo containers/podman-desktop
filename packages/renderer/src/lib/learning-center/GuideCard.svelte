@@ -1,6 +1,7 @@
 <script lang="ts">
+import { Button } from '@podman-desktop/ui-svelte';
+
 import type { Guide } from '../../../../main/src/plugin/learning-center/learning-center-api';
-import Button from '../ui/Button.svelte';
 
 export let guide: Guide;
 export let width = 300;

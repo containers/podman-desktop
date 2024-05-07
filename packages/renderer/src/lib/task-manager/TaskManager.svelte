@@ -1,11 +1,11 @@
 <script lang="ts">
 import { faCheck, faChevronDown, faCircle } from '@fortawesome/free-solid-svg-icons';
+import { Button } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
 import { clearNotifications, isStatefulTask, tasksInfo } from '/@/stores/tasks';
 
 import TaskIcon from '../images/TaskIcon.svelte';
-import Button from '../ui/Button.svelte';
 import TaskManagerEmptyScreen from './TaskManagerEmptyScreen.svelte';
 import TaskManagerGroup from './TaskManagerGroup.svelte';
 

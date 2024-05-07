@@ -2,7 +2,7 @@
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
 import { faCube } from '@fortawesome/free-solid-svg-icons';
-import { Input } from '@podman-desktop/ui-svelte';
+import { Button, Input } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import { get } from 'svelte/store';
 import type { Terminal } from 'xterm';
@@ -12,7 +12,6 @@ import { type BuildImageInfo, buildImagesInfo } from '/@/stores/build-images';
 /* eslint-enable import/no-duplicates */
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { providerInfos } from '../../stores/providers';
-import Button from '../ui/Button.svelte';
 import FormPage from '../ui/FormPage.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import {

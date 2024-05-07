@@ -1,9 +1,8 @@
 <script lang="ts">
-import { Checkbox } from '@podman-desktop/ui-svelte';
+import { Button, Checkbox } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount, tick } from 'svelte';
 
 import Markdown from '/@/lib/markdown/Markdown.svelte';
-import Button from '/@/lib/ui/Button.svelte';
 
 import { tabWithinParent } from './dialog-utils';
 import type { InputBoxOptions, QuickPickOptions } from './quickpick-input';

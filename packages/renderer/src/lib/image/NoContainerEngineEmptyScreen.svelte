@@ -1,8 +1,8 @@
 <script lang="ts">
 import { faLayerGroup } from '@fortawesome/free-solid-svg-icons';
+import { Button } from '@podman-desktop/ui-svelte';
 import { router } from 'tinro';
 
-import Button from '../ui/Button.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 
 function gotoResourcesPage() {
