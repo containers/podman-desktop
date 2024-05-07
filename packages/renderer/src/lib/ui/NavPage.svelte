@@ -36,7 +36,7 @@ export let searchEnabled = true;
     {/if}
 
     {#if $$slots.tabs}
-      <div class="flex flex-row px-2 mb-2 border-b border-charcoal-400">
+      <div class="flex flex-row px-2 mb-2 border-b border-[var(--pd-content-divider)]">
         <slot name="tabs" />
       </div>
     {/if}
