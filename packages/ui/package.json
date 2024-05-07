@@ -20,6 +20,10 @@
       "types": "./dist/index.d.ts",
       "svelte": "./dist/index.js"
     },
+    "./Checkbox": {
+      "types": "./dist/checkbox/Checkbox.svelte.d.ts",
+      "svelte": "./dist/checkbox/Checkbox.svelte"
+    },
     "./Input": {
       "types": "./dist/input/input.svelte.d.ts",
       "svelte": "./dist/input/input.svelte"
