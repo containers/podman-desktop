@@ -10,7 +10,9 @@ export let title: string | undefined = undefined;
 export let inProgress = false;
 export let disabled = false;
 export let type: ButtonType = 'primary';
-export let icon: unknown = undefined;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export let icon: any = undefined;
 export let selected: boolean | undefined = undefined;
 
 $: if (selected !== undefined && type !== 'tab') {
@@ -77,7 +79,7 @@ $: {
       class:py-[3px]="{!$$slots.default}">
       {#if inProgress}
         <Spinner size="1em" />
-      {:else if iconType === 'fa'}
+      {:else if isFontAwesomeIcon(icon)}
         <Fa icon="{icon}" />
       {:else if iconType === 'unknown'}
         <svelte:component this="{icon}" />
