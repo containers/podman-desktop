@@ -23,5 +23,5 @@ import Spinner from './spinner/Spinner.svelte';
 import { isFontAwesomeIcon } from './utils/icon-utils';
 
 export type { ButtonType };
-export { Button,Checkbox, Input, Spinner };
+export { Button, Checkbox, Input, Spinner };
 export { isFontAwesomeIcon };
