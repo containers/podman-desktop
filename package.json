@@ -117,7 +117,7 @@
     "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^19.2.2",
     "@electron/fuses": "^1.8.0",
-    "@playwright/test": "1.43.1",
+    "@playwright/test": "1.44.0",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
