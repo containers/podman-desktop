@@ -19,8 +19,8 @@ import Layout from '@theme/Layout';
 import ThemedImage from '@theme/ThemedImage';
 import React from 'react';
 
-import TailWindThemeSelector from '../components/TailWindThemeSelector';
 import PodmanAILabBanner from '../components/PodmanAILabBanner';
+import TailWindThemeSelector from '../components/TailWindThemeSelector';
 
 function DownloadClientLinks(): JSX.Element {
   let operatingSystem = '';

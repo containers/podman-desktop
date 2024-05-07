@@ -1,12 +1,12 @@
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import Layout from '@theme/Layout';
-import React from 'react';
-import TailWindThemeSelector from '@site/src/components/TailWindThemeSelector';
-import { GradientText } from '@site/src/components/GradientText';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRocket, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import { faArrowRight, faRocket } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { GradientText } from '@site/src/components/GradientText';
+import TailWindThemeSelector from '@site/src/components/TailWindThemeSelector';
+import Layout from '@theme/Layout';
+import React from 'react';
 
 export default function Home(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
@@ -25,9 +25,9 @@ export default function Home(): JSX.Element {
               locally with Podman AI Lab
             </h1>
             <p>
-              Podman AI Lab is the easiest way to work with Large Language Models (LLMs) on your local developer workstation. Find a
-              catalog of recipes, leverage a curated list of open source models, experiment and compare the models. Get
-              ahead of the curve and take your development to new heights wth Podman AI Lab!
+              Podman AI Lab is the easiest way to work with Large Language Models (LLMs) on your local developer
+              workstation. Find a catalog of recipes, leverage a curated list of open source models, experiment and
+              compare the models. Get ahead of the curve and take your development to new heights wth Podman AI Lab!
             </p>
             {/* buttons section */}
             <div className="mt-4 flex justify-center items-center gap-x-4">
@@ -49,7 +49,10 @@ export default function Home(): JSX.Element {
             {/* Application video */}
             <div className="my-12 rounded-xl border-black border-8">
               <video controls>
-                <source src="https://github.com/containers/podman-desktop-media/raw/ai-lab/videos/homepage/ai-lab-hero.mp4" type="video/mp4" />
+                <source
+                  src="https://github.com/containers/podman-desktop-media/raw/ai-lab/videos/homepage/ai-lab-hero.mp4"
+                  type="video/mp4"
+                />
                 <img
                   src={useBaseUrl('img/extensions/ai-lab/model-service-details.png')}
                   alt={'AI-Lab Model service page'}
@@ -62,23 +65,37 @@ export default function Home(): JSX.Element {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <video controls>
-                    <source src="https://github.com/containers/podman-desktop-media/raw/ai-lab/videos/homepage/ai-1.mp4" type="video/mp4" />
+                    <source
+                      src="https://github.com/containers/podman-desktop-media/raw/ai-lab/videos/homepage/ai-1.mp4"
+                      type="video/mp4"
+                    />
                     Your browser does not support the video tag.
                   </video>
                 </div>
                 <div>
                   <div className="font-bold">Recipes Catalog</div>
-                  <div className="text-sm">Collection of pre-built solutions for various AI use cases and problem domains. Each recipe includes detailed explanations and sample applications that can be run using different large language models (LLMs). Get inspired by use cases and learn how to integrate AI in an optimal way. Recipes are kubernetes ready.</div>
+                  <div className="text-sm">
+                    Collection of pre-built solutions for various AI use cases and problem domains. Each recipe includes
+                    detailed explanations and sample applications that can be run using different large language models
+                    (LLMs). Get inspired by use cases and learn how to integrate AI in an optimal way. Recipes are
+                    kubernetes ready.
+                  </div>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-right">
                   <div className="font-bold">Models Catalog</div>
-                  <div className="text-sm">Curated list of open source large language models available out of the box. Check license and required resources. Import your own models.</div>
+                  <div className="text-sm">
+                    Curated list of open source large language models available out of the box. Check license and
+                    required resources. Import your own models.
+                  </div>
                 </div>
                 <div>
                   <video controls>
-                    <source src="https://github.com/containers/podman-desktop-media/raw/ai-lab/videos/homepage/ai-2.mp4" type="video/mp4" />
+                    <source
+                      src="https://github.com/containers/podman-desktop-media/raw/ai-lab/videos/homepage/ai-2.mp4"
+                      type="video/mp4"
+                    />
                     Your browser does not support the video tag.
                   </video>
                 </div>
@@ -86,23 +103,35 @@ export default function Home(): JSX.Element {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <video controls>
-                    <source src="https://github.com/containers/podman-desktop-media/raw/ai-lab/videos/homepage/ai-3.mp4" type="video/mp4" />
+                    <source
+                      src="https://github.com/containers/podman-desktop-media/raw/ai-lab/videos/homepage/ai-3.mp4"
+                      type="video/mp4"
+                    />
                     Your browser does not support the video tag.
                   </video>
                 </div>
                 <div>
                   <div className="font-bold">Model Serving</div>
-                  <div className="text-sm">Run models locally with an inference server. Get OpenAI compatible endpoints, use code snippets and start integrating AI in your application.</div>
+                  <div className="text-sm">
+                    Run models locally with an inference server. Get OpenAI compatible endpoints, use code snippets and
+                    start integrating AI in your application.
+                  </div>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-right">
                   <div className="font-bold">Playground Environments</div>
-                  <div className="text-sm">Experiment with large language models with a dedicated UI. Configure the models settings, system prompts to test and validate your prompt workflows. Compare behavior of different models.</div>
+                  <div className="text-sm">
+                    Experiment with large language models with a dedicated UI. Configure the models settings, system
+                    prompts to test and validate your prompt workflows. Compare behavior of different models.
+                  </div>
                 </div>
                 <div>
                   <video controls>
-                    <source src="https://github.com/containers/podman-desktop-media/raw/ai-lab/videos/homepage/ai-4.mp4" type="video/mp4" />
+                    <source
+                      src="https://github.com/containers/podman-desktop-media/raw/ai-lab/videos/homepage/ai-4.mp4"
+                      type="video/mp4"
+                    />
                     Your browser does not support the video tag.
                   </video>
                 </div>
