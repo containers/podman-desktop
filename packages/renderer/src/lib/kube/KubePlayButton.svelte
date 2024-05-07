@@ -1,7 +1,7 @@
 <script lang="ts">
+import { Button } from '@podman-desktop/ui-svelte';
 import { router } from 'tinro';
 
-import Button from '../ui/Button.svelte';
 import KubePlayIcon from './KubePlayIcon.svelte';
 
 function runContainerYaml(): void {

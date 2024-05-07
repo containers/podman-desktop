@@ -1,11 +1,11 @@
 <script lang="ts">
 import { faFilePen, faGear } from '@fortawesome/free-solid-svg-icons';
+import { Button } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import { derived, get, type Readable, type Unsubscriber } from 'svelte/store';
 import Fa from 'svelte-fa';
 import { router } from 'tinro';
 
-import Button from '/@/lib/ui/Button.svelte';
 import type { CombinedExtensionInfoUI } from '/@/stores/all-installed-extensions';
 import { configurationProperties } from '/@/stores/configurationProperties';
 import { context } from '/@/stores/context';

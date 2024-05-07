@@ -1,9 +1,8 @@
 <script lang="ts">
-import { Spinner } from '@podman-desktop/ui-svelte';
+import { Button, Spinner } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
 import type { CheckStatus, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
-import Button from '../ui/Button.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Steps from '../ui/Steps.svelte';
 import PreflightChecks from './PreflightChecks.svelte';

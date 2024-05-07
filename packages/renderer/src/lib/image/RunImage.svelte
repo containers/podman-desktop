@@ -1,11 +1,10 @@
 <script lang="ts">
 import { faFolderOpen, faMinusCircle, faPlay, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import { Input } from '@podman-desktop/ui-svelte';
+import { Button, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 
 import { array2String } from '/@/lib/string/string.js';
-import Button from '/@/lib/ui/Button.svelte';
 
 import type { ContainerCreateOptions, HostConfig } from '../../../../main/src/plugin/api/container-info';
 import type { ImageInspectInfo } from '../../../../main/src/plugin/api/image-inspect-info';

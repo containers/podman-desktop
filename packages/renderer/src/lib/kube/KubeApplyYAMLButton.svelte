@@ -1,8 +1,8 @@
 <script lang="ts">
 import type { KubernetesObject } from '@kubernetes/client-node';
+import { Button } from '@podman-desktop/ui-svelte';
 
 import SolidKubeIcon from '../images/SolidKubeIcon.svelte';
-import Button from '../ui/Button.svelte';
 
 let inProgress = false;
 

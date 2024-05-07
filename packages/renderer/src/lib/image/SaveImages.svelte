@@ -1,10 +1,9 @@
 <script lang="ts">
 import { faMinusCircle, faPlay } from '@fortawesome/free-solid-svg-icons';
-import { Input } from '@podman-desktop/ui-svelte';
+import { Button, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 
-import Button from '/@/lib/ui//Button.svelte';
 import ErrorMessage from '/@/lib/ui//ErrorMessage.svelte';
 import FormPage from '/@/lib/ui//FormPage.svelte';
 import { saveImagesInfo } from '/@/stores/save-images-store';

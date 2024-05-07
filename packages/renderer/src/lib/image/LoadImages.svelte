@@ -2,12 +2,11 @@
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
 import { faMinusCircle, faPlay, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import { Input } from '@podman-desktop/ui-svelte';
+import { Button, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { get } from 'svelte/store';
 import { router } from 'tinro';
 
-import Button from '/@/lib/ui//Button.svelte';
 import ErrorMessage from '/@/lib/ui//ErrorMessage.svelte';
 import FormPage from '/@/lib/ui//FormPage.svelte';
 import { providerInfos } from '/@/stores/providers';

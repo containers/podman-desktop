@@ -1,9 +1,9 @@
 <script lang="ts">
 import { faRefresh } from '@fortawesome/free-solid-svg-icons';
+import { Button } from '@podman-desktop/ui-svelte';
 
 import type { EventStoreInfo } from '/@/stores/event-store';
 
-import Button from '../ui/Button.svelte';
 import TroubleshootingPageStoreDetails from './TroubleshootingPageStoreDetails.svelte';
 
 export let eventStoreInfo: EventStoreInfo;

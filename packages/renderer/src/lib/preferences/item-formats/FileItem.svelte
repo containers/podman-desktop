@@ -1,8 +1,7 @@
 <script lang="ts">
-import { Input } from '@podman-desktop/ui-svelte';
+import { Button, Input } from '@podman-desktop/ui-svelte';
 
 import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
-import Button from '../../ui/Button.svelte';
 
 export let record: IConfigurationPropertyRecordedSchema;
 export let value: string;

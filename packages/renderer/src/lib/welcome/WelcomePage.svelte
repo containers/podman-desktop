@@ -1,5 +1,6 @@
 <script lang="ts">
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import { Button } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 import Fa from 'svelte-fa';
@@ -9,7 +10,6 @@ import { onboardingList } from '/@/stores/onboarding';
 
 import type { OnboardingInfo } from '../../../../main/src/plugin/api/onboarding';
 import DesktopIcon from '../images/DesktopIcon.svelte';
-import Button from '../ui/Button.svelte';
 import Tooltip from '../ui/Tooltip.svelte';
 import bgImage from './background.png';
 import { WelcomeUtils } from './welcome-utils';

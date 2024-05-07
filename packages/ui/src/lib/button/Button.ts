@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-import '@testing-library/jest-dom/vitest';
-
-import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
-
-import ButtonSpec from './ButtonSpec.svelte';
-
-test('Check button text', async () => {
-  render(ButtonSpec);
-
-  // check text matches
-  const button = screen.getByRole('button');
-  expect(button).toBeInTheDocument();
-  expect(button).toHaveTextContent('Click me');
-});
-
-test('Check icon', async () => {
-  render(ButtonSpec);
-
-  // check icon exists
-  const icon = screen.getByRole('img', { hidden: true });
-  expect(icon).toBeInTheDocument();
-});
+/**
+ * Type of button:
+ *  primary   - a main action (the default)
+ *  secondary - a secondary action
+ *  danger    - a danger action
+ *  link      - close, cancel, or other non-default button
+ *  tab       - displayed as tab
+ */
+export type ButtonType = 'primary' | 'secondary' | 'danger' | 'link' | 'tab';

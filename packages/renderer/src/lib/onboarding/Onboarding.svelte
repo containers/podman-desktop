@@ -28,7 +28,7 @@
 <script lang="ts">
 import { faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
 import { faForward } from '@fortawesome/free-solid-svg-icons';
-import { Spinner } from '@podman-desktop/ui-svelte';
+import { Button, Spinner } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 import Fa from 'svelte-fa';
@@ -41,7 +41,6 @@ import { onboardingList } from '/@/stores/onboarding';
 import type { OnboardingInfo, OnboardingStepItem } from '../../../../main/src/plugin/api/onboarding';
 import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
-import Button from '../ui/Button.svelte';
 import Link from '../ui/Link.svelte';
 import {
   type ActiveOnboardingStep,
