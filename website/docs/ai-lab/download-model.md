@@ -26,4 +26,4 @@ Podman AI Lab provides a curated list of open source AI models and LLMs. Once do
 #### Verification
 
 1. Once the model is downloaded, the curated models list is updated and the icon next to the model is green and new actions are available on the left.
-![model downloaded](img/model-downloaded.png)
+   ![model downloaded](img/model-downloaded.png)

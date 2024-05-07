@@ -23,7 +23,7 @@ The integrated Playground environments allow for experimenting with available mo
 1. Click the **New Playground** button on the top right.
 1. Select the model you want to start an inference server for in the **Model** list and click the **Create playground** button.
 1. The playground for the model is being started and after a while, a chat interface is displayed.
-![playground](img/playground.png)
+   ![playground](img/playground.png)
 
 #### Verification
 
