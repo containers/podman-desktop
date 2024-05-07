@@ -283,11 +283,9 @@ export class ExtensionLoader {
   }
 
   getDisabledExtensionIds(): string[] {
-    return (
-      this.configurationRegistry
-        .getConfiguration(ExtensionLoaderSettings.SectionName)
-        .get<string[]>(ExtensionLoaderSettings.Disabled, [])
-    );
+    return this.configurationRegistry
+      .getConfiguration(ExtensionLoaderSettings.SectionName)
+      .get<string[]>(ExtensionLoaderSettings.Disabled, []);
   }
 
   setDisabledExtensionIds(disabledExtensionIds: string[]): void {
