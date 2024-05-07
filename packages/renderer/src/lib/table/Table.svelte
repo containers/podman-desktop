@@ -7,10 +7,10 @@
 <script lang="ts">
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
+import { Checkbox } from '@podman-desktop/ui-svelte';
 import { afterUpdate, onMount, tick } from 'svelte';
 import { flip } from 'svelte/animate';
 
-import Checkbox from '../ui/Checkbox.svelte';
 import type { Column, Row } from './table';
 /* eslint-enable import/no-duplicates */
 
