@@ -33,7 +33,7 @@ export default function Home(): JSX.Element {
             <div className="mt-4 flex justify-center items-center gap-x-4">
               <Link
                 className="items-center mt-auto no-underline hover:no-underline inline-flex text-white hover:text-white bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-500 rounded-xl text-md font-semibold"
-                to={'#'}>
+                to={'/docs/ai-lab/installing'}>
                 <FontAwesomeIcon size="1x" icon={faRocket} className="mr-2" />
                 Get started
               </Link>
