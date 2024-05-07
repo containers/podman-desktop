@@ -235,10 +235,13 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
     </Button>
   </div>
 
-  <div class="container bg-charcoal-600 rounded-md p-3">
+  <div class="container bg-[var(--pd-invert-content-card-bg)] rounded-md p-3">
     <!-- Registries table start -->
     <div class="w-full border-t border-b border-gray-900" role="table" aria-label="Registries">
-      <div class="flex w-full space-x-2" role="rowgroup" aria-label="header">
+      <div
+        class="flex w-full space-x-2 text-[var(--pd-invert-content-card-header-text)]"
+        role="rowgroup"
+        aria-label="header">
         <div class="text-left py-4 text-sm font-bold w-2/5 pl-5" role="columnheader">Registry Location</div>
         <div class="text-left py-4 text-sm font-bold w-1/5" role="columnheader">Username</div>
         <div class="text-left py-4 text-sm font-bold w-1/5" role="columnheader">Password</div>
@@ -248,7 +251,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
       {#each $registriesInfos as registry}
         <!-- containerDesktopAPI.Registry row start -->
         <div
-          class="flex flex-col w-full border-t border-gray-900"
+          class="flex flex-col w-full border-t border-gray-900 text-[var(--pd-invert-content-card-text)]"
           role="row"
           aria-label="{registry.name ? registry.name : registry.serverUrl}">
           <div class="flex flex-row items-center pt-4 pb-3 space-x-2">
@@ -380,7 +383,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
       {#each $registriesSuggestedInfos as registry, i (registry)}
         <!-- Add new registry form start -->
         <div
-          class="flex flex-col w-full border-t border-gray-900"
+          class="flex flex-col w-full border-t border-gray-900 text-[var(--pd-invert-content-card-text)]"
           role="row"
           aria-label="{registry.name ? registry.name : registry.url}">
           <div class="flex flex-row items-center pt-4 pb-3 space-x-2">
@@ -395,7 +398,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
                       height="24" />
                   {/if}
                   <!-- By default, just show the name, but if we go to add it, show the full URL including https -->
-                  <span class="ml-2 text-gray-700">
+                  <span class="ml-2">
                     {#if listedSuggestedRegistries[i]}
                       https://{registry.url}
                     {:else}
@@ -454,7 +457,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
 
       {#if showNewRegistryForm}
         <!-- Add new registry form start -->
-        <div class="flex flex-col w-full border-t border-gray-900">
+        <div class="flex flex-col w-full border-t border-gray-900 text-[var(--pd-invert-content-card-text)]">
           <div class="flex flex-row items-center pt-4 pb-3 space-x-2">
             <div class="pl-5 text-sm w-2/5">
               <Input
