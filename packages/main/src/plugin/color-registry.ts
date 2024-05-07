@@ -227,6 +227,7 @@ export class ColorRegistry {
     this.initGlobalNav();
     this.initSecondaryNav();
     this.initTitlebar();
+    this.initContent();
     this.initInvertContent();
     this.initCardContent();
     this.initInputBox();
@@ -408,6 +409,59 @@ export class ColorRegistry {
     this.registerColor(`${invCt}info-icon`, {
       dark: colorPalette.purple[500],
       light: colorPalette.purple[600],
+    });
+  }
+
+  protected initContent(): void {
+    const ct = 'content-';
+    this.registerColor(`${ct}breadcrumb`, {
+      dark: colorPalette.gray[600],
+      light: colorPalette.purple[900],
+    });
+
+    this.registerColor(`${ct}breadcrumb-2`, {
+      dark: colorPalette.purple[400],
+      light: colorPalette.purple[600],
+    });
+
+    this.registerColor(`${ct}header`, {
+      dark: colorPalette.white,
+      light: colorPalette.charcoal[900],
+    });
+
+    this.registerColor(`${ct}header-icon`, {
+      dark: colorPalette.gray[600],
+      light: colorPalette.gray[300],
+    });
+
+    this.registerColor(`${ct}card-header-text`, {
+      dark: colorPalette.gray[100],
+      light: colorPalette.charcoal[900],
+    });
+
+    this.registerColor(`${ct}card-bg`, {
+      dark: colorPalette.charcoal[800],
+      light: colorPalette.gray[50],
+    });
+
+    this.registerColor(`${ct}card-text`, {
+      dark: colorPalette.gray[400],
+      light: colorPalette.purple[900],
+    });
+
+    this.registerColor(`${ct}card-inset-bg`, {
+      dark: colorPalette.charcoal[900],
+      light: colorPalette.dustypurple[200],
+    });
+
+    this.registerColor(`${ct}bg`, {
+      dark: colorPalette.charcoal[700],
+      light: colorPalette.gray[300],
+    });
+
+    this.registerColor(`${ct}card-icon`, {
+      dark: colorPalette.gray[400],
+      light: colorPalette.purple[900],
     });
   }
 
