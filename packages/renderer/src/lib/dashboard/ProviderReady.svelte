@@ -20,13 +20,13 @@ let preflightChecks: CheckStatus[] = [];
       </div>
     {/if}
 
-    {#if provider.updateInfo?.version && provider.version !== provider.updateInfo?.version}
-      <div class="w-full flex justify-around w-full lg:w-1/3">
-        <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
-      </div>
-    {/if}
     <PreflightChecks preflightChecks="{preflightChecks}" />
 
     <ProviderWarnings provider="{provider}" />
+  </svelte:fragment>
+  <svelte:fragment slot="update">
+    {#if provider.updateInfo?.version && provider.version !== provider.updateInfo?.version}
+      <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
+    {/if}
   </svelte:fragment>
 </ProviderCard>

@@ -55,6 +55,7 @@ async function performUpdate(provider: ProviderInfo) {
     inProgress="{updateInProgress}"
     disabled="{preflightChecksFailed}"
     icon="{faBoxOpen}"
+    padding="px-3 py-0.5"
     on:click="{() => performUpdate(provider)}">
     Update to {provider.updateInfo.version}
   </Button>

@@ -79,11 +79,11 @@ onMount(() => {
       <ErrorMessage class="flex flex-col mt-2 my-2 text-sm" error="{runError}" />
     {/if}
 
-    {#if provider.updateInfo?.version && provider.version !== provider.updateInfo?.version}
-      <div class="mt-5 mb-1 w-full flex justify-around">
-        <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
-      </div>
-    {/if}
     <PreflightChecks preflightChecks="{preflightChecks}" />
+  </svelte:fragment>
+  <svelte:fragment slot="update">
+    {#if provider.updateInfo?.version && provider.version !== provider.updateInfo?.version}
+      <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
+    {/if}
   </svelte:fragment>
 </ProviderCard>

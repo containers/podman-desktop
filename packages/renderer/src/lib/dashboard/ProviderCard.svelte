@@ -26,11 +26,15 @@ export let provider: ProviderInfo;
         <div class="flex flex-row" aria-label="Actual State">
           <ProviderStatus status="{provider.status}" />
         </div>
+        <div class="my-3 empty:my-0 w-full">
+          <slot name="update" />
+        </div>
       </div>
     </div>
     <div class="flex items-center flex-row space-x-10 mt-5 w-full lg:mt-0 lg:w-3/4 flex-nowrap">
       <slot name="content" />
     </div>
   </div>
+
   <ProviderLinks provider="{provider}" />
 </div>
