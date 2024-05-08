@@ -1,5 +1,6 @@
 <script lang="ts">
-import Tooltip from '../ui/Tooltip.svelte';
+import { Tooltip } from '@podman-desktop/ui-svelte';
+
 import type { DeploymentUI } from './DeploymentUI';
 
 export let object: DeploymentUI;

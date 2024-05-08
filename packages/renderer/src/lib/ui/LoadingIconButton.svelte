@@ -1,9 +1,9 @@
 <script lang="ts">
 import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { Tooltip } from '@podman-desktop/ui-svelte';
 
 import type { ILoadingStatus } from '../preferences/Util';
 import LoadingIcon from './LoadingIcon.svelte';
-import Tooltip from './Tooltip.svelte';
 import { capitalize } from './Util';
 
 export let action: string;

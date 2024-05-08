@@ -35,7 +35,7 @@ test('Expect basic styling', async () => {
   expect(element).toHaveClass('text-white');
 });
 
-function createTest(props: Record<string, boolean>, locationName: string, expectedStyle = locationName) {
+function createTest(props: Record<string, boolean>, locationName: string, expectedStyle = locationName): void {
   test(`Expect property ${locationName} to add ${expectedStyle} class to parent element`, () => {
     render(Tooltip, { tip, ...props });
     const element = screen.getByLabelText('tooltip');

@@ -1,5 +1,5 @@
 <script lang="ts">
-import Tooltip from '../ui/Tooltip.svelte';
+import { Tooltip } from '@podman-desktop/ui-svelte';
 
 export let percent = 0;
 export let size = 64;
