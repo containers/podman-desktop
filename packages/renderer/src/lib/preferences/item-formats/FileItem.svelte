@@ -11,7 +11,10 @@ let invalidEntry = false;
 
 async function selectFilePath() {
   invalidEntry = false;
-  const filePaths = await window.openDialog({ title: `Select ${record.description}` });
+  const filePaths = await window.openDialog({
+    title: `Select ${record.description}`,
+    selectors: record.format === 'folder' ? ['openDirectory'] : ['openFile'],
+  });
   if (record.id && filePaths && filePaths.length === 1) {
     onChange(record.id, filePaths[0]).catch((_: unknown) => (invalidEntry = true));
   }
