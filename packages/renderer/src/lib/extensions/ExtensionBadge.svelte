@@ -1,6 +1,7 @@
 <script lang="ts">
+import { Tooltip } from '@podman-desktop/ui-svelte';
+
 import Badge from '/@/lib/ui/Badge.svelte';
-import Tooltip from '/@/lib/ui/Tooltip.svelte';
 
 export let extension: { type: 'dd' | 'pd'; removable: boolean };
 </script>
