@@ -54,7 +54,7 @@ test('Expect basic styling', async () => {
   const element = screen.getByPlaceholderText(value);
   expect(element).toBeInTheDocument();
   expect(element).toHaveClass('grow');
-  expect(element).toHaveClass('px-1');
+  expect(element).toHaveClass('px-0.5');
   expect(element).toHaveClass('outline-0');
   expect(element).toHaveClass('bg-[var(--pd-input-field-bg)]');
   expect(element).toHaveClass('text-sm');
@@ -80,7 +80,7 @@ test('Expect basic readonly styling', async () => {
   const element = screen.getByPlaceholderText(value);
   expect(element).toBeInTheDocument();
   expect(element).toHaveClass('grow');
-  expect(element).toHaveClass('px-1');
+  expect(element).toHaveClass('px-0.5');
   expect(element).toHaveClass('outline-0');
   expect(element).toHaveClass('bg-[var(--pd-input-field-bg)]');
   expect(element).toHaveClass('text-sm');
@@ -108,7 +108,7 @@ test('Expect basic disabled styling', async () => {
   const element = screen.getByPlaceholderText(value);
   expect(element).toBeInTheDocument();
   expect(element).toHaveClass('grow');
-  expect(element).toHaveClass('px-1');
+  expect(element).toHaveClass('px-0.5');
   expect(element).toHaveClass('outline-0');
   expect(element).toHaveClass('bg-[var(--pd-input-field-bg)]');
   expect(element).toHaveClass('text-sm');
@@ -160,7 +160,7 @@ test('Expect basic error styling', async () => {
 test('Expect inputClass styling', async () => {
   const value = 'test';
   const thisClass = 'this-class';
-  renderInput(value, value, false, false, true, undefined, thisClass);
+  renderInput(value, value, false, false, true, undefined, undefined, thisClass);
 
   const element = screen.getByRole('textbox');
   expect(element).toBeInTheDocument();
