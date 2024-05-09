@@ -112,7 +112,7 @@ describe('Verification of container creation workflow', async () => {
       .toContain(ContainerState.Running);
 
     images = await navigationBar.openImages();
-    playExpect(await images.getCurrentStatusOfImage(imageToPull)).toBe('UNUSED');
+    playExpect(await images.getCurrentStatusOfImage(imageToPull)).toBe('USED');
   });
 
   test('Open a container details', async () => {

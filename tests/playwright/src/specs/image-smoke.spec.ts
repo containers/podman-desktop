@@ -72,7 +72,7 @@ describe('Image workflow verification', async () => {
 
     const exists = await updatedImages.waitForImageExists(helloContainer);
     playExpect(exists, `${helloContainer} image not present in the list of images`).toBeTruthy();
-    playExpect(await updatedImages.getCurrentStatusOfImage(helloContainer)).toBe('USED');
+    playExpect(await updatedImages.getCurrentStatusOfImage(helloContainer)).toBe('UNUSED');
   });
 
   test('Check image details', async () => {
