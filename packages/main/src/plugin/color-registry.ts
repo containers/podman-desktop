@@ -232,6 +232,7 @@ export class ColorRegistry {
     this.initCardContent();
     this.initInputBox();
     this.initCheckbox();
+    this.initToggle();
   }
 
   protected initGlobalNav(): void {
@@ -545,7 +546,7 @@ export class ColorRegistry {
     });
   }
 
-  // chexkboxes
+  // checkboxes
   protected initCheckbox(): void {
     const sNav = 'input-checkbox-';
 
@@ -576,6 +577,56 @@ export class ColorRegistry {
     this.registerColor(`${sNav}focused-unchecked`, {
       dark: colorPalette.purple[400],
       light: colorPalette.purple[700],
+    });
+  }
+
+  // toggles
+  protected initToggle(): void {
+    const sNav = 'input-toggle-';
+
+    this.registerColor(`${sNav}off-bg`, {
+      dark: colorPalette.gray[900],
+      light: colorPalette.gray[900],
+    });
+    this.registerColor(`${sNav}off-focused-bg`, {
+      dark: colorPalette.purple[700],
+      light: colorPalette.purple[700],
+    });
+    this.registerColor(`${sNav}on-bg`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[500],
+    });
+    this.registerColor(`${sNav}on-focused-bg`, {
+      dark: colorPalette.purple[400],
+      light: colorPalette.purple[600],
+    });
+    this.registerColor(`${sNav}switch`, {
+      dark: colorPalette.white,
+      light: colorPalette.black,
+    });
+    this.registerColor(`${sNav}focused-switch`, {
+      dark: colorPalette.white,
+      light: colorPalette.black,
+    });
+    this.registerColor(`${sNav}on-text`, {
+      dark: colorPalette.white,
+      light: colorPalette.black,
+    });
+    this.registerColor(`${sNav}off-text`, {
+      dark: colorPalette.gray[700],
+      light: colorPalette.gray[900],
+    });
+    this.registerColor(`${sNav}off-disabled-bg`, {
+      dark: colorPalette.charcoal[900],
+      light: colorPalette.gray[900],
+    });
+    this.registerColor(`${sNav}on-disabled-bg`, {
+      dark: colorPalette.charcoal[900],
+      light: colorPalette.gray[900],
+    });
+    this.registerColor(`${sNav}disabled-switch`, {
+      dark: colorPalette.gray[900],
+      light: colorPalette.charcoal[900],
     });
   }
 }

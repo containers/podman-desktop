@@ -175,6 +175,7 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
             {/if}
             {#if provider.state === 'success'}
               <SlideToggle
+                id="{provider.info.id}"
                 on:checked="{event => onProviderChecked(provider.info.id, event.detail)}"
                 checked="{selectedProviders.get(provider.info.id) ?? true}" />
             {/if}
