@@ -332,7 +332,7 @@ describe('RunImage', () => {
   });
 
   test('Expect to see an error if the container/host ranges have different size', async () => {
-    (window.isFreePort as Mock).mockResolvedValue({ available: true });
+    (window.isFreePort as Mock).mockResolvedValue(true);
     router.goto('/basic');
 
     await createRunImage(undefined, ['command1', 'command2']);
@@ -469,7 +469,7 @@ describe('RunImage', () => {
   });
 
   test('Expect "start container" button to be disabled when port is not free', async () => {
-    (window.isFreePort as Mock).mockResolvedValue({ available: false, message: 'Error message' });
+    (window.isFreePort as Mock).mockRejectedValue(new Error('Error Message'));
     router.goto('/basic');
 
     await createRunImage(undefined, ['command1', 'command2']);

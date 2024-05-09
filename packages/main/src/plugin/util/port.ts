@@ -19,11 +19,6 @@
 import * as net from 'node:net';
 import { type NetworkInterfaceInfoIPv4, networkInterfaces } from 'node:os';
 
-export interface PortStatus {
-  available: boolean;
-  message?: string;
-}
-
 /**
  * Find a free port starting from the given port
  */
@@ -33,8 +28,10 @@ export async function getFreePort(port = 0): Promise<number> {
   }
   let isFree = false;
   while (!isFree) {
-    isFree = (await isFreePort(port)).available;
-    if (!isFree) {
+    try {
+      await isFreePort(port);
+      isFree = true;
+    } catch (e) {
       port++;
     }
   }
@@ -50,10 +47,10 @@ export async function getFreePortRange(rangeSize: number): Promise<string> {
   let startPort = port;
 
   do {
-    const portStatus = await isFreePort(port);
-    if (portStatus.available) {
+    try {
+      await isFreePort(port);
       ++port;
-    } else {
+    } catch (e) {
       ++port;
       startPort = port;
     }
@@ -62,62 +59,37 @@ export async function getFreePortRange(rangeSize: number): Promise<string> {
   return `${startPort}-${port - 1}`;
 }
 
-function isFreeAddressPort(address: string, port: number): Promise<PortStatus> {
+function isFreeAddressPort(address: string, port: number): Promise<boolean> {
   const server = net.createServer();
-  return new Promise(resolve =>
+  return new Promise((resolve, reject) =>
     server
       .on('error', (error: NodeJS.ErrnoException) => {
         if (error.code === 'EADDRINUSE') {
-          resolve({
-            available: false,
-            message: `Port ${port} is already in use.`,
-          });
+          reject(new Error(`Port ${port} is already in use.`));
         } else if (error.code === 'EACCES') {
-          resolve({
-            available: false,
-            message: 'Operation require administrative privileges.',
-          });
+          reject(new Error('Operation require administrative privileges.'));
         } else {
-          resolve({
-            available: false,
-            message: `Failed to check port status: ${error}`,
-          });
+          reject(new Error(`Failed to check port status: ${error}`));
         }
       })
-      .on('listening', () => server.close(() => resolve({ available: true })))
+      .on('listening', () => server.close(() => resolve(true)))
       .listen(port, address),
   );
 }
 
-export async function isFreePort(port: number): Promise<PortStatus> {
+export async function isFreePort(port: number): Promise<boolean> {
   if (isNaN(port) || port > 65535) {
-    return {
-      available: false,
-      message: 'The port must have an integer value within the range from 1025 to 65535.',
-    };
+    throw new Error('The port must have an integer value within the range from 1025 to 65535.');
   } else if (port < 1024) {
-    return {
-      available: false,
-      message: 'The port must be greater than 1024.',
-    };
+    throw new Error('The port must be greater than 1024.');
   }
 
   const intfs = getIPv4Interfaces();
-  // Test this special interface separately, or it will interfere with other tests done in parallel
-  const portCheckStatus = await isFreeAddressPort('0.0.0.0', port);
-  if (!portCheckStatus.available) {
-    return portCheckStatus;
-  }
-  const checkInterfaces = await Promise.all(intfs.map(intf => isFreeAddressPort(intf, port)));
-  const combinedPortChecks = checkInterfaces.filter(check => !check.available);
-  if (combinedPortChecks && combinedPortChecks.length > 0) {
-    // Means, that some check was not successful and port is not available
-    return {
-      available: false,
-      message: combinedPortChecks.map(check => check.message).join('\n'),
-    };
-  }
-  return { available: true };
+
+  await isFreeAddressPort('0.0.0.0', port);
+  await Promise.all(intfs.map(intf => isFreeAddressPort(intf, port)));
+
+  return true;
 }
 
 function getIPv4Interfaces(): string[] {

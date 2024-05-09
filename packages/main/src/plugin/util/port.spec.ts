@@ -37,8 +37,8 @@ test('return valid port range', async () => {
   expect(isNaN(endRange)).toBe(false);
 
   expect(endRange + 1 - startRange).toBe(3);
-  expect(await port.isFreePort(startRange)).toStrictEqual({ available: true });
-  expect(await port.isFreePort(endRange)).toStrictEqual({ available: true });
+  expect(await port.isFreePort(startRange)).toBe(true);
+  expect(await port.isFreePort(endRange)).toBe(true);
 });
 
 test.each(hosts)(
@@ -75,8 +75,8 @@ test.each(hosts)(
 
     expect(startNewRange > endRange).toBe(true);
     expect(endNewRange + 1 - startNewRange).toBe(3);
-    expect(await port.isFreePort(startNewRange)).toStrictEqual({ available: true });
-    expect(await port.isFreePort(endNewRange)).toStrictEqual({ available: true });
+    expect(await port.isFreePort(startNewRange)).toBe(true);
+    expect(await port.isFreePort(endNewRange)).toBe(true);
   },
 );
 
@@ -85,7 +85,7 @@ test('return first empty port, no port is used', async () => {
   const freePort = await port.getFreePort(start);
 
   expect(freePort).toBe(start);
-  expect(await port.isFreePort(freePort)).toStrictEqual({ available: true });
+  expect(await port.isFreePort(freePort)).toBe(true);
 });
 
 test.each(hosts)(
@@ -104,7 +104,7 @@ test.each(hosts)(
     server.close();
 
     expect(freePort).toBe(port20001);
-    expect(await port.isFreePort(freePort)).toStrictEqual({ available: true });
+    expect(await port.isFreePort(freePort)).toBe(true);
   },
 );
 
@@ -129,27 +129,20 @@ test.each(hosts)(
     server2.close();
 
     expect(freePort).toBe(port20002);
-    expect(await port.isFreePort(freePort)).toStrictEqual({ available: true });
+    expect(await port.isFreePort(freePort)).toBe(true);
   },
 );
 
 test('fails with range error if value is over upper range', async () => {
-  expect(await port.isFreePort(200000)).toStrictEqual({
-    available: false,
-    message: 'The port must have an integer value within the range from 1025 to 65535.',
-  });
+  await expect(port.isFreePort(200000)).rejects.toThrowError(
+    /The port must have an integer value within the range from 1025 to 65535./,
+  );
 });
 
 test('fails with range error if value is less lower range', async () => {
-  expect(await port.isFreePort(-1)).toStrictEqual({
-    available: false,
-    message: 'The port must be greater than 1024.',
-  });
+  await expect(port.isFreePort(-1)).rejects.toThrowError(/The port must be greater than 1024./);
 });
 
 test('should return message that user is trying to check unprivileged port', async () => {
-  expect(await port.isFreePort(1)).toStrictEqual({
-    available: false,
-    message: 'The port must be greater than 1024.',
-  });
+  await expect(port.isFreePort(1)).rejects.toThrowError(/The port must be greater than 1024./);
 });

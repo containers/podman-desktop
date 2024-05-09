@@ -599,10 +599,18 @@ function onPortInput(event: Event, portInfo: PortInfo, updateUI: () => void) {
   // convert string to number
   const _value: number = Number(target.value);
   onPortInputTimeout = setTimeout(() => {
-    window.isFreePort(_value).then(portStatus => {
-      portInfo.error = !portStatus.available ? portStatus.message! : '';
-      updateUI();
-    });
+    window
+      .isFreePort(_value)
+      .then(_ => {
+        portInfo.error = '';
+        updateUI();
+      })
+      .catch((error: unknown) => {
+        if (error && typeof error === 'object' && 'message' in error) {
+          portInfo.error = (error as { message: string }).message;
+        }
+        updateUI();
+      });
   }, 500);
 }
 
