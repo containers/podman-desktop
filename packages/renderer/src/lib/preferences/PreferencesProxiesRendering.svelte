@@ -4,6 +4,7 @@ import type { ProxySettings } from '@podman-desktop/api';
 import { Button, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
+import SlideToggle from '../ui/SlideToggle.svelte';
 import SettingsPage from './SettingsPage.svelte';
 import { validateProxyAddress } from './Util';
 
@@ -42,8 +43,8 @@ async function updateProxySettings() {
   });
 }
 
-async function updateProxyState() {
-  await window.setProxyState(proxyState);
+async function updateProxyState(state: boolean) {
+  await window.setProxyState(state);
 }
 
 function validate(event: any) {
@@ -62,19 +63,8 @@ function validate(event: any) {
   <div class="flex flex-col bg-[var(--pd-invert-content-card-bg)] rounded-md p-3 space-y-2">
     <!-- if proxy is not enabled, display a toggle -->
 
-    <label for="toggle-proxy" class="inline-flex relative items-center mt-1 mb-4 cursor-pointer">
-      <input
-        type="checkbox"
-        bind:checked="{proxyState}"
-        on:change="{() => updateProxyState()}"
-        id="toggle-proxy"
-        class="sr-only peer" />
-      <div
-        class="w-9 h-5 rounded-full peer bg-zinc-400 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-400 after:border after:rounded-full after:h-4 after:w-4 after:transition-all border-gray-900 peer-checked:bg-violet-600">
-      </div>
-      <span class="ml-3 text-sm font-medium text-[var(--pd-invert-content-card-header-text)]"
-        >Proxy configuration {proxyState ? 'enabled' : 'disabled'}</span>
-    </label>
+    <SlideToggle id="toggle-proxy" bind:checked="{proxyState}" on:checked="{event => updateProxyState(event.detail)}"
+      >Proxy configuration {proxyState ? 'enabled' : 'disabled'}</SlideToggle>
 
     {#if proxySettings}
       <div class="space-y-2">
