@@ -13,20 +13,20 @@ export let showError: boolean = true;
 let minimumEnabled: boolean;
 let maximumEnabled: boolean;
 
-$: if (value) {
+$: if (value !== undefined || disabled) {
   validateNumber();
 }
 
 function validateNumber() {
-  if (maximum && value > maximum) {
+  if (maximum !== undefined && value > maximum) {
     error = `The value cannot be greater than ${maximum}`;
-  } else if (minimum && value < minimum) {
+  } else if (minimum !== undefined && value < minimum) {
     error = `The value cannot be less than ${minimum}`;
   } else {
     error = undefined;
   }
-  minimumEnabled = !disabled && (!minimum || minimum < value);
-  maximumEnabled = !disabled && (!maximum || maximum > value);
+  minimumEnabled = !disabled && (minimum === undefined || minimum < value);
+  maximumEnabled = !disabled && (maximum === undefined || maximum > value);
 }
 
 function onKeyPress(event: any) {

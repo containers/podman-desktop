@@ -851,7 +851,7 @@ async function assertAllPortAreValid(): Promise<void> {
                   <NumberInput
                     minimum="{0}"
                     bind:value="{restartPolicyMaxRetryCount}"
-                    class="w-full p-2"
+                    class="w-24 p-2"
                     disabled="{restartPolicyName !== 'on-failure'}" />
                 </div>
               </div>
