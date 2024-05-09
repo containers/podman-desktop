@@ -166,6 +166,25 @@ test('Expect an input button with Browse as placeholder when record is type stri
   expect(input.textContent).toBe('Browse ...');
 });
 
+test('Expect an input button with Browse as placeholder when record is type string and format folder', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    title: 'record',
+    parentId: 'parent.record',
+    placeholder: 'Example: text',
+    description: 'record-description',
+    type: 'string',
+    format: 'folder',
+  };
+  await awaitRender(record, {});
+  const readOnlyInput = screen.getByLabelText('record-description');
+  expect(readOnlyInput).toBeInTheDocument();
+  expect(readOnlyInput instanceof HTMLInputElement).toBe(true);
+  expect((readOnlyInput as HTMLInputElement).placeholder).toBe(record.placeholder);
+  const input = screen.getByLabelText('button-record-description');
+  expect(input).toBeInTheDocument();
+  expect(input.textContent).toBe('Browse ...');
+});
+
 test('Expect a select when record is type string and has enum values', async () => {
   const record: IConfigurationPropertyRecordedSchema = {
     id: 'record',
