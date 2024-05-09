@@ -1,5 +1,6 @@
 <script lang="ts">
 import { Tooltip } from '@podman-desktop/ui-svelte';
+
 import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
 import NumberInput from '../../ui/NumberInput.svelte';
 
