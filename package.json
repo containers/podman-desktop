@@ -160,7 +160,7 @@
     "prettier-plugin-svelte": "^3.2.3",
     "proxy": "^2.1.1",
     "typescript": "5.4.5",
-    "validator": "^13.11.0",
+    "validator": "^13.12.0",
     "vite": "^5.2.11",
     "vitest": "^1.6.0",
     "xvfb-maybe": "^0.2.1"
