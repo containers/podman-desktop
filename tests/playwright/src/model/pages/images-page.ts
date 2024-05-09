@@ -126,4 +126,14 @@ export class ImagesPage extends MainPage {
     await waitWhile(async () => await this.imageExists(name), timeout, 500);
     return true;
   }
+
+  async getCurrentStatusOfImage(name: string): Promise<string> {
+    let status = '';
+    const row = await this.getImageRowByName(name);
+
+    if (row === undefined) throw new Error(`Image: '${name}' does not exist`);
+
+    status = status + (await row.getByRole('status').getAttribute('title'));
+    return status;
+  }
 }
