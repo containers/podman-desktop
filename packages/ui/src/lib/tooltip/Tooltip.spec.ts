@@ -35,6 +35,14 @@ test('Expect basic styling', async () => {
   expect(element).toHaveClass('text-white');
 });
 
+test('Expect custom tip styling', async () => {
+  render(Tooltip, { tip, tipClass: 'text-pretty w-64' });
+
+  const element = screen.getByLabelText('tooltip');
+  expect(element).toBeInTheDocument();
+  expect(element.parentElement).toHaveClass('text-pretty w-64');
+});
+
 function createTest(props: Record<string, boolean>, locationName: string, expectedStyle = locationName): void {
   test(`Expect property ${locationName} to add ${expectedStyle} class to parent element`, () => {
     render(Tooltip, { tip, ...props });
