@@ -1,7 +1,7 @@
 <script lang="ts">
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
+import { ErrorMessage } from '@podman-desktop/ui-svelte';
 
-import ErrorMessage from '../ui/ErrorMessage.svelte';
 import LoadingIcon from '../ui/LoadingIcon.svelte';
 
 export let extension: {

@@ -1,5 +1,6 @@
 <script lang="ts">
-import ErrorMessage from '../ui/ErrorMessage.svelte';
+import { ErrorMessage } from '@podman-desktop/ui-svelte';
+
 import PodActions from './PodActions.svelte';
 import type { PodInfoUI } from './PodInfoUI';
 
