@@ -32,13 +32,22 @@ function onClick(
     class:cursor-pointer="{!disabled}"
     class:cursor-not-allowed="{disabled}">
     {#if disabled}
-      <Fa size="1.1x" icon="{faSquare}" class="text-charcoal-300" />
+      <Fa size="1.1x" icon="{faSquare}" class="text-[var(--pd-input-checkbox-disabled)]" />
     {:else if indeterminate}
-      <Fa size="1.1x" icon="{faMinusSquare}" class="text-dustypurple-500" />
+      <Fa
+        size="1.1x"
+        icon="{faMinusSquare}"
+        class="text-[var(--pd-input-checkbox-indeterminate)] hover:text-[var(--pd-input-checkbox-focused-indeterminate)]" />
     {:else if checked}
-      <Fa size="1.1x" icon="{faCheckSquare}" class="text-purple-500" />
+      <Fa
+        size="1.1x"
+        icon="{faCheckSquare}"
+        class="text-[var(--pd-input-checkbox-checked)] hover:text-[var(--pd-input-checkbox-focused-checked)]" />
     {:else}
-      <Fa size="1.1x" icon="{faOutlineSquare}" class="text-gray-400" />
+      <Fa
+        size="1.1x"
+        icon="{faOutlineSquare}"
+        class="text-[var(--pd-input-checkbox-unchecked)] hover:text-[var(--pd-input-checkbox-focused-unchecked)]" />
     {/if}
   </div>
   <input
