@@ -36,6 +36,51 @@ test('Basic check', async () => {
   const checkbox = screen.getByRole('checkbox');
   expect(checkbox).toBeInTheDocument();
   expect(checkbox).toBeEnabled();
+
+  const peer = getPeer(checkbox);
+  expect(peer).toBeInTheDocument();
+  expect(peer).toHaveClass('cursor-pointer');
+
+  const icon = peer?.children[0];
+  expect(icon).toBeInTheDocument();
+  expect(icon).toHaveClass('text-[var(--pd-input-checkbox-unchecked)]');
+  expect(icon).toHaveClass('hover:text-[var(--pd-input-checkbox-focused-unchecked)]');
+});
+
+test('Check checked state', async () => {
+  render(Checkbox, { checked: true });
+
+  // check element exists and is enabled
+  const checkbox = screen.getByRole('checkbox');
+  expect(checkbox).toBeInTheDocument();
+  expect(checkbox).toBeEnabled();
+
+  const peer = getPeer(checkbox);
+  expect(peer).toBeInTheDocument();
+  expect(peer).toHaveClass('cursor-pointer');
+
+  const icon = peer?.children[0];
+  expect(icon).toBeInTheDocument();
+  expect(icon).toHaveClass('text-[var(--pd-input-checkbox-checked)]');
+  expect(icon).toHaveClass('hover:text-[var(--pd-input-checkbox-focused-checked)]');
+});
+
+test('Check indeterminate state', async () => {
+  render(Checkbox, { indeterminate: true });
+
+  // check element exists and is enabled
+  const checkbox = screen.getByRole('checkbox');
+  expect(checkbox).toBeInTheDocument();
+  expect(checkbox).toBeEnabled();
+
+  const peer = getPeer(checkbox);
+  expect(peer).toBeInTheDocument();
+  expect(peer).toHaveClass('cursor-pointer');
+
+  const icon = peer?.children[0];
+  expect(icon).toBeInTheDocument();
+  expect(icon).toHaveClass('text-[var(--pd-input-checkbox-indeterminate)]');
+  expect(icon).toHaveClass('hover:text-[var(--pd-input-checkbox-focused-indeterminate)]');
 });
 
 test('Check disabled state', async () => {
@@ -50,6 +95,10 @@ test('Check disabled state', async () => {
   const peer = getPeer(checkbox);
   expect(peer).toBeInTheDocument();
   expect(peer).toHaveClass('cursor-not-allowed');
+
+  const icon = peer?.children[0];
+  expect(icon).toBeInTheDocument();
+  expect(icon).toHaveClass('text-[var(--pd-input-checkbox-disabled)]');
 });
 
 test('Check tooltips', async () => {

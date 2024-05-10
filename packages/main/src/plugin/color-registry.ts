@@ -231,6 +231,7 @@ export class ColorRegistry {
     this.initInvertContent();
     this.initCardContent();
     this.initInputBox();
+    this.initCheckbox();
   }
 
   protected initGlobalNav(): void {
@@ -541,6 +542,40 @@ export class ColorRegistry {
     this.registerColor(`${sNav}hover-icon`, {
       dark: colorPalette.gray[500],
       light: colorPalette.gray[500],
+    });
+  }
+
+  // chexkboxes
+  protected initCheckbox(): void {
+    const sNav = 'input-checkbox-';
+
+    this.registerColor(`${sNav}disabled`, {
+      dark: colorPalette.charcoal[300],
+      light: colorPalette.charcoal[300],
+    });
+    this.registerColor(`${sNav}indeterminate`, {
+      dark: colorPalette.dustypurple[500],
+      light: colorPalette.dustypurple[500],
+    });
+    this.registerColor(`${sNav}focused-indeterminate`, {
+      dark: colorPalette.dustypurple[400],
+      light: colorPalette.dustypurple[600],
+    });
+    this.registerColor(`${sNav}checked`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[500],
+    });
+    this.registerColor(`${sNav}focused-checked`, {
+      dark: colorPalette.purple[400],
+      light: colorPalette.purple[600],
+    });
+    this.registerColor(`${sNav}unchecked`, {
+      dark: colorPalette.gray[400],
+      light: colorPalette.charcoal[700],
+    });
+    this.registerColor(`${sNav}focused-unchecked`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[500],
     });
   }
 }
