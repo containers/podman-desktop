@@ -9,17 +9,19 @@ export let provider: ProviderInfo;
 </script>
 
 <div
-  class="flex bg-charcoal-800 rounded-md p-5 gap-3 flex-col flex-nowrap"
+  class="flex bg-[var(--pd-content-card-bg)] rounded-md p-5 gap-3 flex-col flex-nowrap"
   role="region"
   aria-label="{provider.name} Provider">
   <div class="flex flex-col lg:flex-row gap-x-4">
     <div class="grid grid-cols-[3rem_1fr] w-1/4 gap-2">
       <IconImage image="{provider?.images?.icon}" class="mx-0 max-h-12" alt="{provider.name}"></IconImage>
-      <div class="flex flex-col gap-0 text-gray-400 text-lg whitespace-nowrap" aria-label="context-name">
+      <div
+        class="flex flex-col gap-0 text-[var(--pd-content-card-title)] text-lg whitespace-nowrap"
+        aria-label="context-name">
         <div class="flex flex-row gap-1 items-center">
           {provider.name}
           {#if provider.version}
-            <div class="text-gray-800 text-base" aria-label="Provider Version">
+            <div class="text-[var(--pd-content-card-light-title)] text-base" aria-label="Provider Version">
               v{provider.version}
             </div>
           {/if}
