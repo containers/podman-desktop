@@ -118,7 +118,7 @@ test('install button should always be disable when extensionInstallFromImage is 
 
   logCallback('Downloading sha256:random-sha256.tar - 100% - (55132/521578)');
 
-  const progressBar = screen.getByRole('progressbar');
+  const progressBar = screen.getByRole('progressbar', { name: 'Installation progress' });
   await vi.waitFor(() => {
     expect(progressBar.getAttribute('style')).toBe('width: 100%;');
   });
@@ -171,7 +171,7 @@ test('progressbar should match latest log', async () => {
 
   await userEvent.click(installButton);
 
-  const progressBar = screen.getByRole('progressbar');
+  const progressBar = screen.getByRole('progressbar', { name: 'Installation progress' });
   for (let i = 0; i < 64; i += 8) {
     logCallback(`Downloading sha256:random-sha256.tar - ${i}% - (${i}/64)`);
 
@@ -201,7 +201,7 @@ test('install button should be enable while extensionInstallFromImage is resolve
 
   // log 100%
   logCallback('Downloading sha256:random-sha256.tar - 100% - (521578/521578)');
-  const progressBar = screen.getByRole('progressbar');
+  const progressBar = screen.getByRole('progressbar', { name: 'Installation progress' });
   await vi.waitFor(() => {
     expect(progressBar.getAttribute('style')).toBe('width: 100%;');
   });

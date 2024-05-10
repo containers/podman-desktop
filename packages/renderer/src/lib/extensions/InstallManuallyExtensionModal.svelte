@@ -125,7 +125,12 @@ function handleKeydown(e: KeyboardEvent) {
           {#if installInProgress}
             <div class="flex grow">
               <div class="w-full h-4 mb-4 rounded-md bg-gray-600 progress-bar overflow-hidden">
-                <div class="h-4 bg-purple-500 rounded-md" role="progressbar" style="width: {progressPercent}%"></div>
+                <div
+                  class="h-4 bg-purple-500 rounded-md"
+                  role="progressbar"
+                  aria-label="Installation progress"
+                  style="width: {progressPercent}%">
+                </div>
               </div>
               <div class="ml-2 w-3 text-xs text-purple-500">{progressPercent}%</div>
             </div>
