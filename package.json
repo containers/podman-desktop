@@ -150,7 +150,7 @@
     "eslint-plugin-redundant-undefined": "^1.0.0",
     "eslint-plugin-simple-import-sort": "^12.1.0",
     "eslint-plugin-sonarjs": "^0.25.1",
-    "eslint-plugin-unicorn": "^52.0.0",
+    "eslint-plugin-unicorn": "^53.0.0",
     "husky": "^9.0.11",
     "js-yaml": "^4.1.0",
     "lint-staged": "^15.2.2",
