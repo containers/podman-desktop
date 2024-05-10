@@ -105,7 +105,7 @@ function handleKeydown(e: KeyboardEvent) {
       <div>
         <label for="imageName" class="block text-sm pb-2 text-gray-400">OCI Image:</label>
         <div class="min-h-14">
-          {#if progressPercent < 100}
+          {#if installInProgress || progressPercent !== 100}
             <Input
               bind:value="{imageName}"
               name="imageName"
@@ -137,14 +137,14 @@ function handleKeydown(e: KeyboardEvent) {
             on:click="{() => {
               closeCallback();
             }}">Cancel</Button>
-          {#if progressPercent !== 100}
+          {#if installInProgress || progressPercent !== 100}
             <Button
               icon="{faCloudDownload}"
               disabled="{inputfieldError !== undefined}"
               on:click="{() => installExtension()}"
               inProgress="{installInProgress}">Install</Button>
           {/if}
-          {#if progressPercent === 100}
+          {#if !installInProgress && progressPercent === 100}
             <Button on:click="{() => closeCallback()}">Done</Button>
           {/if}
         </div>
