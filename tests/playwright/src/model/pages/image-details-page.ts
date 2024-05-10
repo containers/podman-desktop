@@ -23,7 +23,6 @@ import type { PodmanDesktopRunner } from '../../runner/podman-desktop-runner';
 import { handleConfirmationDialog } from '../../utility/operations';
 import { waitUntil } from '../../utility/wait';
 import { BasePage } from './base-page';
-import { BootcPage } from './bootc-page';
 import { ImageEditPage } from './image-edit-page';
 import { ImagesPage } from './images-page';
 import { RunImagePage } from './run-image-page';
@@ -78,12 +77,7 @@ export class ImageDetailsPage extends BasePage {
     return new ImagesPage(this.page);
   }
 
-  async buildDiskImage(
-    pdRunner: PodmanDesktopRunner,
-    type: string,
-    architecture: string,
-    pathToStore: string,
-  ): Promise<boolean> {
+  async buildDiskImage(pdRunner: PodmanDesktopRunner): Promise<[Page, Page]> {
     await this.actionsButton.click();
     await playExpect(this.buildDiskImageButton).toBeEnabled();
     await this.buildDiskImageButton.click();
@@ -100,6 +94,7 @@ export class ImageDetailsPage extends BasePage {
         console.log(`element is null`);
       }
     });
-    return await new BootcPage(mainPage, webViewPage).buildDiskImage(pathToStore, type, architecture);
+
+    return [mainPage, webViewPage];
   }
 }
