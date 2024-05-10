@@ -19,7 +19,6 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 
-import type { PodmanDesktopRunner } from '../../runner/podman-desktop-runner';
 import { handleConfirmationDialog } from '../../utility/operations';
 import { waitUntil } from '../../utility/wait';
 import { BasePage } from './base-page';
@@ -77,24 +76,39 @@ export class ImageDetailsPage extends BasePage {
     return new ImagesPage(this.page);
   }
 
-  async buildDiskImage(pdRunner: PodmanDesktopRunner): Promise<[Page, Page]> {
-    await this.actionsButton.click();
-    await playExpect(this.buildDiskImageButton).toBeEnabled();
-    await this.buildDiskImageButton.click();
+  async buildDiskImage(type: string, architecture: string, pathToStore: string): Promise<boolean> {
+    let result = false;
 
-    const webView = this.page.getByRole('document', { name: 'Bootable Containers' });
-    await playExpect(webView).toBeVisible();
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    const [mainPage, webViewPage] = pdRunner.getElectronApp().windows();
-    await mainPage.evaluate(() => {
-      const element = document.querySelector('webview');
-      if (element) {
-        (element as HTMLElement).focus();
-      } else {
-        console.log(`element is null`);
-      }
-    });
+    try {
+      await this.actionsButton.click();
+      await playExpect(this.buildDiskImageButton).toBeEnabled();
+      await this.buildDiskImageButton.click();
 
-    return [mainPage, webViewPage];
+      const typeButtonLocator = this.page.getByRole('button', { name: type });
+      await playExpect(typeButtonLocator).toBeEnabled();
+      await typeButtonLocator.click();
+
+      const architectureButtonLocator = this.page.getByRole('button', { name: architecture });
+      await playExpect(architectureButtonLocator).toBeEnabled();
+      await architectureButtonLocator.click();
+
+      const pathInputLocator = this.page.locator(`input[type='text']`);
+      await playExpect(pathInputLocator).toBeVisible();
+      await pathInputLocator.clear();
+      await pathInputLocator.fill(pathToStore);
+      await pathInputLocator.press('Enter');
+
+      const dialogLocator = this.page.getByRole('dialog', { name: 'Bootable Container', exact: true });
+      await playExpect.poll(async () => (await dialogLocator.count()) > 0, { timeout: 300000 }).toBeTruthy();
+
+      const dialogMessageLocator = this.page.getByLabel('Dialog Message');
+      result = (await dialogMessageLocator.innerText()).includes('Success!');
+    } finally {
+      const okButtonLocator = this.page.getByRole('button', { name: 'OK' });
+      await playExpect(okButtonLocator).toBeEnabled();
+      await okButtonLocator.click();
+    }
+
+    return result;
   }
 }

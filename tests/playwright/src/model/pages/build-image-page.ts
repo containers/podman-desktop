@@ -29,8 +29,6 @@ export class BuildImagePage extends BasePage {
   readonly buildButton: Locator;
   readonly doneButton: Locator;
   readonly containerFilePathButton: Locator;
-  readonly arm64Button: Locator;
-  readonly amd64Button: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -41,8 +39,6 @@ export class BuildImagePage extends BasePage {
     this.buildButton = page.getByRole('button', { name: 'Build' });
     this.doneButton = page.getByRole('button', { name: 'Done' });
     this.containerFilePathButton = page.getByRole('button', { name: 'Browse...' }).first();
-    this.arm64Button = page.getByLabel('linux/arm64');
-    this.amd64Button = page.getByLabel('linux/amd64');
   }
 
   async buildImage(imageName: string, containerFilePath: string, contextDirectory: string): Promise<ImagesPage> {
@@ -55,7 +51,7 @@ export class BuildImagePage extends BasePage {
     if (contextDirectory) await this.buildContextDirectoryInput.fill(contextDirectory);
     if (imageName) {
       await this.imageNameInput.clear();
-      await this.imageNameInput.pressSequentially(imageName, { delay: 50 });
+      await this.imageNameInput.fill(imageName);
     }
 
     await playExpect(this.buildButton).toBeEnabled();
