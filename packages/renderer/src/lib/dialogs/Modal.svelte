@@ -1,28 +1,3 @@
-<style>
-.modal-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-}
-
-.modal {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: calc(200vw - 4em);
-  max-width: 42em;
-  max-height: calc(100vh - 4em);
-  overflow: auto;
-  transform: translate(-50%, -50%);
-  padding: 1em;
-  border-radius: 0.2em;
-  z-index: 50;
-}
-</style>
-
 <script lang="ts">
 import { createEventDispatcher, onDestroy } from 'svelte';
 
@@ -56,8 +31,14 @@ if (previously_focused) {
 
 <svelte:window on:keydown="{handle_keydown}" />
 
-<button class="modal-background" on:click="{close}"></button>
+<button class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-60 bg-blend-multiply z-40" on:click="{close}"
+></button>
 
-<div class="modal" role="dialog" aria-label="{name}" aria-modal="true" bind:this="{modal}">
+<div
+  class="absolute top-1/2 left-1/2 z-50 rounded translate-x-[-50%] translate-y-[-50%] overflow-auto w-[calc(200vw-4em)] max-w-[42em] max-h-[calc(100vh-4em)]"
+  role="dialog"
+  aria-label="{name}"
+  aria-modal="true"
+  bind:this="{modal}">
   <slot />
 </div>
