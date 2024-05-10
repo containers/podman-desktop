@@ -1,8 +1,7 @@
 <script lang="ts">
-import { Input } from '@podman-desktop/ui-svelte';
+import { Button, Input } from '@podman-desktop/ui-svelte';
 
 import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
-import Button from '../../ui/Button.svelte';
 
 export let record: IConfigurationPropertyRecordedSchema;
 export let value: string;
@@ -12,7 +11,10 @@ let invalidEntry = false;
 
 async function selectFilePath() {
   invalidEntry = false;
-  const filePaths = await window.openDialog({ title: `Select ${record.description}` });
+  const filePaths = await window.openDialog({
+    title: `Select ${record.description}`,
+    selectors: record.format === 'folder' ? ['openDirectory'] : ['openFile'],
+  });
   if (record.id && filePaths && filePaths.length === 1) {
     onChange(record.id, filePaths[0]).catch((_: unknown) => (invalidEntry = true));
   }

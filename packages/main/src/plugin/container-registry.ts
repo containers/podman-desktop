@@ -20,7 +20,7 @@ import * as crypto from 'node:crypto';
 import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs';
 import path from 'node:path';
-import { type Stream, Writable } from 'node:stream';
+import { Writable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
@@ -646,6 +646,9 @@ export class ContainerProviderRegistry {
           // NOTE: This is a workaround until we have a better way to determine if an image is a manifest
           // and may result in false positives until issue: https://github.com/containers/podman/issues/22184 is resolved
           isManifest: guessIsManifest(image, provider.connection.type),
+
+          // Podman Id does not include the sha256 prefix, so we add it here (it's the Digest using Podman API)
+          Id: image.Digest ? `sha256:${image.Id}` : image.Id,
 
           // Compat API provider does not add the Digest field.
           // if it is missing, add it as 'sha256:image.Id'
@@ -2341,7 +2344,7 @@ export class ContainerProviderRegistry {
         options.containerFile = options.containerFile.replace(/\\/g, '/');
       }
 
-      let streamingPromise: Stream;
+      let streamingPromise: NodeJS.ReadableStream;
       try {
         const buildOptions: ImageBuildOptions = {
           registryconfig,
@@ -2381,10 +2384,7 @@ export class ContainerProviderRegistry {
         if (options?.pull) {
           buildOptions.pull = options.pull;
         }
-        streamingPromise = (await matchingContainerProviderApi.buildImage(
-          tarStream,
-          buildOptions,
-        )) as unknown as Stream;
+        streamingPromise = await matchingContainerProviderApi.buildImage(tarStream, buildOptions);
       } catch (error: unknown) {
         console.log('error in buildImage', error);
         const errorMessage = error instanceof Error ? error.message : '' + error;
@@ -2499,7 +2499,7 @@ export class ContainerProviderRegistry {
   async imageExist(id: string, engineId: string, tag: string): Promise<boolean> {
     const images = await this.listImages();
     const imageInfo = images.find(c => c.Id === id && c.engineId === engineId);
-    return imageInfo?.RepoTags !== undefined && imageInfo.RepoTags.some(repoTag => repoTag === tag);
+    return imageInfo?.RepoTags?.some(repoTag => repoTag === tag) ?? false;
   }
 
   async volumeExist(name: string, engineId: string): Promise<boolean> {

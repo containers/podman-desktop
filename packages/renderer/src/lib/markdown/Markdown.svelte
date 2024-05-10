@@ -1,4 +1,4 @@
-<!-- The markdown rendered has it's own style that you'll have to customize / check against podman desktop 
+<!-- The markdown rendered has it's own style that you'll have to customize / check against podman desktop
 UI guidelines -->
 <style lang="postcss">
 .markdown > :global(p) {
@@ -91,6 +91,41 @@ onMount(() => {
     extensions: [directive()],
     htmlExtensions: [directiveHtml({ button, link, warnings })],
   });
+
+  // remove href values in each anchor using # for links
+  // and set the attribute data-pd-jump-in-page
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const links = doc.querySelectorAll('a');
+  links.forEach(link => {
+    const currentHref = link.getAttribute('href');
+    // remove and replace href attribute if matching
+    if (currentHref?.startsWith('#')) {
+      // get current value of href
+      link.removeAttribute('href');
+
+      // remove from current href the #
+      const withoutHashHRef = currentHref.substring(1);
+
+      // add an attribute to handle onclick
+      link.setAttribute('data-pd-jump-in-page', withoutHashHRef);
+
+      // add a class for cursor
+      link.classList.add('cursor-pointer');
+    }
+  });
+
+  // for all h1/h2/h3/h4/h5/h6, add an id attribute being the name of the attibute all in lowercase without spaces (replaced by -)
+  const headers = doc.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  headers.forEach(header => {
+    const headerText = header.textContent;
+    const headerId = headerText?.toLowerCase().replace(/\s/g, '-');
+    if (headerId) {
+      header.setAttribute('id', headerId);
+    }
+  });
+
+  html = doc.body.innerHTML;
 
   // We create a click listener in order to execute any internal micromark commands
   // We add the clickListener here since we're unable to add it in the directive typescript file.

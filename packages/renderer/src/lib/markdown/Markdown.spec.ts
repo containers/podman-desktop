@@ -204,3 +204,49 @@ describe('Custom warnings', () => {
     expect(buttonFailedStatus).toBeDefined();
   });
 });
+
+describe('jump to TOC section', () => {
+  test('Expect TOC to be clickable', async () => {
+    await waitRender({
+      markdown:
+        '### Title\n#### Topics\n- [Technology](#technology)\n    - [Extension features](#extension-features)\n\n\n\n\n## Technology\nhello world',
+    });
+
+    const markdownContent = screen.getByRole('region', { name: 'markdown-content' });
+    expect(markdownContent).toBeInTheDocument();
+
+    // get all the <li> elements
+    const allLi = screen.getAllByRole('listitem');
+    // get the first <li> element
+    const li = allLi[0];
+    // get the first <a> element
+    const technologyLink = li.querySelector('a');
+    // check if the <a> element is defined
+
+    expect(technologyLink).toBeDefined();
+
+    // check the title
+    expect(technologyLink).toHaveTextContent('Technology');
+
+    // grab the h2 element
+    const h2 = screen.getByRole('heading', { name: 'Technology' });
+    // check if the h2 element is defined
+    expect(h2).toBeDefined();
+    // check the title
+    expect(h2).toHaveTextContent('Technology');
+
+    // add the scrollIntoView function to the window object
+    h2.scrollIntoView = vi.fn();
+
+    if (technologyLink) {
+      await fireEvent.click(technologyLink);
+    }
+
+    // check we scrolled to the right section
+    expect(h2.scrollIntoView).toHaveBeenCalledWith({
+      behavior: 'smooth',
+      block: 'start',
+      inline: 'nearest',
+    });
+  });
+});

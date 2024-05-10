@@ -1,6 +1,7 @@
 <script lang="ts">
 import { faArrowUpRightFromSquare, faGear } from '@fortawesome/free-solid-svg-icons';
 import type { ContainerProviderConnection } from '@podman-desktop/api';
+import { Button, Tooltip } from '@podman-desktop/ui-svelte';
 import { Buffer } from 'buffer';
 import { filesize } from 'filesize';
 import { onDestroy, onMount } from 'svelte';
@@ -24,12 +25,10 @@ import { providerInfos } from '../../stores/providers';
 import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
 import { normalizeOnboardingWhenClause } from '../onboarding/onboarding-utils';
-import Button from '../ui/Button.svelte';
 import ConnectionErrorInfoButton from '../ui/ConnectionErrorInfoButton.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 import EngineIcon from '../ui/EngineIcon.svelte';
-import Tooltip from '../ui/Tooltip.svelte';
 import { PeerProperties } from './PeerProperties';
 import { eventCollect } from './preferences-connection-rendering-task';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
@@ -361,7 +360,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
 <SettingsPage title="Resources">
   <span slot="subtitle" class:hidden="{providers.length === 0}">
     Additional provider information is available under <a
-      href="/preferences/extensions"
+      href="/extensions"
       class="text-gray-700 underline underline-offset-2">Extensions</a>
   </span>
   <div class="h-full" role="region" aria-label="Featured Provider Resources">
@@ -374,7 +373,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
 
     {#each providers as provider}
       <div
-        class="bg-charcoal-600 mb-5 rounded-md p-3 divide-x divide-gray-900 flex"
+        class="bg-[var(--pd-invert-content-card-bg)] mb-5 rounded-md p-3 divide-x divide-gray-900 flex"
         role="region"
         aria-label="{provider.id}">
         <div role="region" aria-label="Provider Setup">
@@ -389,7 +388,8 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                   <img src="{provider.images.icon.dark}" alt="{provider.name}" class="max-w-[40px]" />
                 {/if}
               {/if}
-              <span class="my-auto text-gray-400 ml-3 break-words">{provider.name}</span>
+              <span class="my-auto text-[var(--pd-invert-content-card-header-text)] ml-3 break-words"
+                >{provider.name}</span>
             </div>
             <div class="text-center mt-10">
               <!-- Some providers have a status of 'unknown' so that they do not appear in the dashboard, this allows onboarding to still show. -->
@@ -445,7 +445,10 @@ function hasAnyConfiguration(provider: ProviderInfo) {
           </div>
         </div>
         <!-- providers columns -->
-        <div class="grow flex flex-wrap divide-gray-900 ml-2" role="region" aria-label="Provider Connections">
+        <div
+          class="grow flex flex-wrap divide-gray-900 ml-2 text-[var(--pd-invert-content-card-text)]"
+          role="region"
+          aria-label="Provider Connections">
           <PreferencesConnectionsEmptyRendering
             message="{provider.emptyConnectionMarkdownDescription}"
             hidden="{provider.containerConnections.length > 0 || provider.kubernetesConnections.length > 0}" />

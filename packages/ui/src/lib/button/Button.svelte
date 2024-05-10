@@ -2,16 +2,16 @@
 import { onMount } from 'svelte';
 import Fa from 'svelte-fa';
 
-import { isFontAwesomeIcon } from '/@/lib/ui/icon-utils';
-
+import Spinner from '../spinner/Spinner.svelte';
+import { isFontAwesomeIcon } from '../utils/icon-utils';
 import type { ButtonType } from './Button';
-import Spinner from './Spinner.svelte';
 
 export let title: string | undefined = undefined;
 export let inProgress = false;
 export let disabled = false;
-export let hidden = false;
 export let type: ButtonType = 'primary';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let icon: any = undefined;
 export let selected: boolean | undefined = undefined;
 
@@ -72,15 +72,14 @@ $: {
   title="{title}"
   aria-label="{$$props['aria-label']}"
   on:click
-  disabled="{disabled || inProgress}"
-  hidden="{hidden}">
+  disabled="{disabled || inProgress}">
   {#if icon}
     <div
       class="flex flex-row p-0 m-0 bg-transparent justify-center items-center space-x-[4px]"
       class:py-[3px]="{!$$slots.default}">
       {#if inProgress}
         <Spinner size="1em" />
-      {:else if iconType === 'fa'}
+      {:else if isFontAwesomeIcon(icon)}
         <Fa icon="{icon}" />
       {:else if iconType === 'unknown'}
         <svelte:component this="{icon}" />

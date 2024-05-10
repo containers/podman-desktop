@@ -2,7 +2,7 @@
   "name": "kind",
   "displayName": "Kind",
   "description": "Integration for Kind: run local Kubernetes clusters using container “nodes”",
-  "version": "0.0.1",
+  "version": "1.11.0-next",
   "icon": "icon.png",
   "publisher": "podman-desktop",
   "license": "Apache-2.0",
@@ -102,17 +102,17 @@
     "watch": "vite build -w"
   },
   "dependencies": {
-    "@octokit/rest": "^20.1.0",
+    "@octokit/rest": "^20.1.1",
     "@podman-desktop/api": "^0.0.1",
     "mustache": "^4.2.0",
-    "yaml": "^2.4.1"
+    "yaml": "^2.4.2"
   },
   "devDependencies": {
     "adm-zip": "^0.5.12",
     "mkdirp": "^3.0.1",
     "tmp-promise": "^3.0.3",
-    "tsx": "^4.7.2",
-    "vite": "^5.2.10",
-    "vitest": "^1.5.0"
+    "tsx": "^4.9.3",
+    "vite": "^5.2.11",
+    "vitest": "^1.6.0"
   }
 }

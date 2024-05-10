@@ -33,7 +33,7 @@ beforeEach(() => {
 test('Expect to delete dd Extension', async () => {
   const extension: CombinedExtensionInfoUI = {
     type: 'dd',
-    id: '',
+    id: 'my.ExtensionId',
     name: 'foo',
     description: 'my description',
     displayName: '',
@@ -54,7 +54,7 @@ test('Expect to delete dd Extension', async () => {
   await fireEvent.click(button);
 
   // expect the delete function to be called
-  expect(vi.mocked(window.ddExtensionDelete)).toHaveBeenCalledWith('foo');
+  expect(vi.mocked(window.ddExtensionDelete)).toHaveBeenCalledWith('my.ExtensionId');
   expect(vi.mocked(window.removeExtension)).not.toHaveBeenCalled();
 });
 

@@ -19,16 +19,23 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
 import type {
+  CheckResult,
   ContainerProviderConnection,
+  InstallCheck,
   KubernetesProviderConnection,
   ProviderCleanup,
   ProviderInstallation,
   ProviderUpdate,
 } from '@podman-desktop/api';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { ApiSenderType } from './api.js';
-import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from './api/provider-info.js';
+import type {
+  CheckStatus,
+  PreflightChecksCallback,
+  ProviderContainerConnectionInfo,
+  ProviderKubernetesConnectionInfo,
+} from './api/provider-info.js';
 import type { AutostartEngine } from './autostart-engine.js';
 import type { ContainerProviderRegistry } from './container-registry.js';
 import { LifecycleContextImpl } from './lifecycle-context.js';
@@ -782,4 +789,209 @@ test('registerUpdate should notify when an update is registered or unregistered'
 
   // check we have been notified
   expect(apiSenderSendMock).toBeCalledWith('provider-change', {});
+});
+
+describe('runPreflightChecks', () => {
+  test('throw error if there is no installation for the provider', async () => {
+    await expect(() =>
+      providerRegistry.runPreflightChecks('id', {} as unknown as PreflightChecksCallback, true),
+    ).rejects.toThrowError('No matching installation for provider id');
+  });
+  test('return true if there are no preflightChecks', async () => {
+    providerRegistry.registerUpdate(
+      {
+        internalId: 'id',
+      } as unknown as ProviderImpl,
+      {
+        version: 'next',
+        preflightChecks: undefined,
+        update: async () => {},
+      },
+    );
+    const run = await providerRegistry.runPreflightChecks('id', {} as unknown as PreflightChecksCallback, true);
+    expect(run).toBeTruthy();
+  });
+  test('callback called with checkResult having/not having docLinksDescription and return true if successful', async () => {
+    providerRegistry.registerUpdate(
+      {
+        internalId: 'id',
+      } as unknown as ProviderImpl,
+      {
+        version: 'next',
+        preflightChecks: (): InstallCheck[] =>
+          [
+            {
+              title: 'check-1',
+              execute: (): CheckResult => {
+                return {
+                  title: 'title-1',
+                  successful: true,
+                  description: 'description-1',
+                } as CheckResult;
+              },
+            },
+            {
+              title: 'check-2',
+              execute: (): CheckResult => {
+                return {
+                  title: 'title-2',
+                  successful: true,
+                  description: 'description-2',
+                  docLinksDescription: 'doc-description-2',
+                  docLinks: [
+                    {
+                      title: 'link-2',
+                      url: 'url-2',
+                    },
+                  ],
+                } as CheckResult;
+              },
+            },
+          ] as unknown as InstallCheck[],
+        update: async () => {},
+      },
+    );
+    const callback: PreflightChecksCallback = {
+      startCheck: (_status: CheckStatus) => {},
+      endCheck: (_status: CheckStatus) => {},
+    };
+    const startCheckMock = vi.spyOn(callback, 'startCheck');
+    const endCheckMock = vi.spyOn(callback, 'endCheck');
+    const run = await providerRegistry.runPreflightChecks('id', callback, true);
+
+    expect(startCheckMock).toHaveBeenNthCalledWith(1, {
+      name: 'check-1',
+    });
+    expect(endCheckMock).toHaveBeenNthCalledWith(1, {
+      name: 'check-1',
+      successful: true,
+      description: 'description-1',
+    });
+    expect(startCheckMock).toHaveBeenNthCalledWith(2, {
+      name: 'check-2',
+    });
+    expect(endCheckMock).toHaveBeenNthCalledWith(2, {
+      name: 'check-2',
+      successful: true,
+      description: 'description-2',
+      docLinksDescription: 'doc-description-2',
+      docLinks: [
+        {
+          title: 'link-2',
+          url: 'url-2',
+        },
+      ],
+    });
+    expect(run).toBeTruthy();
+  });
+  test('callback called with checkResult having/not having docLinksDescription and return false if not successful', async () => {
+    providerRegistry.registerUpdate(
+      {
+        internalId: 'id',
+      } as unknown as ProviderImpl,
+      {
+        version: 'next',
+        preflightChecks: (): InstallCheck[] =>
+          [
+            {
+              title: 'check-1',
+              execute: (): CheckResult => {
+                return {
+                  title: 'title-1',
+                  successful: true,
+                  description: 'description-1',
+                } as CheckResult;
+              },
+            },
+            {
+              title: 'check-2',
+              execute: (): CheckResult => {
+                return {
+                  title: 'title-2',
+                  successful: false,
+                  description: 'description-2',
+                  docLinksDescription: 'doc-description-2',
+                  docLinks: [
+                    {
+                      title: 'link-2',
+                      url: 'url-2',
+                    },
+                  ],
+                } as CheckResult;
+              },
+            },
+          ] as unknown as InstallCheck[],
+        update: async () => {},
+      },
+    );
+    const callback: PreflightChecksCallback = {
+      startCheck: (_status: CheckStatus) => {},
+      endCheck: (_status: CheckStatus) => {},
+    };
+    const startCheckMock = vi.spyOn(callback, 'startCheck');
+    const endCheckMock = vi.spyOn(callback, 'endCheck');
+    const run = await providerRegistry.runPreflightChecks('id', callback, true);
+
+    expect(startCheckMock).toHaveBeenNthCalledWith(1, {
+      name: 'check-1',
+    });
+    expect(endCheckMock).toHaveBeenNthCalledWith(1, {
+      name: 'check-1',
+      successful: true,
+      description: 'description-1',
+    });
+    expect(startCheckMock).toHaveBeenNthCalledWith(2, {
+      name: 'check-2',
+    });
+    expect(endCheckMock).toHaveBeenNthCalledWith(2, {
+      name: 'check-2',
+      successful: false,
+      description: 'description-2',
+      docLinksDescription: 'doc-description-2',
+      docLinks: [
+        {
+          title: 'link-2',
+          url: 'url-2',
+        },
+      ],
+    });
+    expect(run).toBeFalsy();
+  });
+  test('callback called with error checkResult if execution fails and return false', async () => {
+    providerRegistry.registerUpdate(
+      {
+        internalId: 'id',
+      } as unknown as ProviderImpl,
+      {
+        version: 'next',
+        preflightChecks: (): InstallCheck[] =>
+          [
+            {
+              title: 'check-1',
+              execute: (): CheckResult => {
+                throw new Error('error');
+              },
+            },
+          ] as unknown as InstallCheck[],
+        update: async () => {},
+      },
+    );
+    const callback: PreflightChecksCallback = {
+      startCheck: (_status: CheckStatus) => {},
+      endCheck: (_status: CheckStatus) => {},
+    };
+    const startCheckMock = vi.spyOn(callback, 'startCheck');
+    const endCheckMock = vi.spyOn(callback, 'endCheck');
+    const run = await providerRegistry.runPreflightChecks('id', callback, true);
+
+    expect(startCheckMock).toHaveBeenNthCalledWith(1, {
+      name: 'check-1',
+    });
+    expect(endCheckMock).toHaveBeenNthCalledWith(1, {
+      name: 'check-1',
+      successful: false,
+      description: 'error',
+    });
+    expect(run).toBeFalsy();
+  });
 });

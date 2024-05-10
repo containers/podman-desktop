@@ -1,7 +1,7 @@
 ---
 sidebar_position: 5
 title: Linux
-description: You can install Podman Desktop on Linux from Flathub, a Flatpak bundle, or a ZIP archive.
+description: You can install Podman Desktop on Linux from Flathub, a Flatpak bundle, or a compressed tar file.
 tags: [podman-desktop, installing, linux, flathub, flatpak]
 keywords: [podman desktop, podman, containers, installing, installation, linux, flathub, flatpak]
 ---
@@ -16,7 +16,7 @@ Consider installing the Podman Desktop from Flathub to have:
 Alternatively, you can install Podman Desktop from:
 
 - [A Flatpak bundle](/docs/installation/linux-install/installing-podman-desktop-from-a-flatpak-bundle)
-- [A compressed tar file](/docs/proxy
+- [A compressed tar file](/docs/proxy)
 
 #### Prerequisites
 

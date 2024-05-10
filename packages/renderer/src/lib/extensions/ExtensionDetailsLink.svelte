@@ -1,9 +1,9 @@
 <script lang="ts">
 import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
+import { Tooltip } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 import { router } from 'tinro';
 
-import Tooltip from '/@/lib/ui/Tooltip.svelte';
 import type { CombinedExtensionInfoUI } from '/@/stores/all-installed-extensions';
 
 export let extension: CombinedExtensionInfoUI;
@@ -11,7 +11,7 @@ export let extension: CombinedExtensionInfoUI;
 export let displayIcon: boolean = true;
 
 function openDetailsExtension() {
-  router.goto(`/extensions/details/${extension.id}/`);
+  router.goto(`/extensions/details/${encodeURIComponent(extension.id)}/`);
 }
 </script>
 

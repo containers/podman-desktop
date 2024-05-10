@@ -98,3 +98,30 @@ test('Expect unable to stop if already stopped', async () => {
   const button = screen.queryByRole('button', { name: 'Stop' });
   expect(button).not.toBeInTheDocument();
 });
+
+test('Expect to stop pd Extension if starting', async () => {
+  const extension: CombinedExtensionInfoUI = {
+    type: 'pd',
+    id: 'idExtension',
+    name: 'fooName',
+    description: 'my description',
+    displayName: '',
+    publisher: '',
+    removable: true,
+    version: 'v1.2.3',
+    state: 'starting',
+    path: '',
+    readme: '',
+  };
+  render(InstalledExtensionCardLeftLifecycleStop, { extension });
+
+  // get button with label 'Stop'
+  const button = screen.getByRole('button', { name: 'Stop' });
+  expect(button).toBeInTheDocument();
+
+  // click the button
+  await fireEvent.click(button);
+
+  // expect the delete function to be called
+  expect(vi.mocked(window.stopExtension)).toHaveBeenCalledWith('idExtension');
+});

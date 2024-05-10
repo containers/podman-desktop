@@ -97,23 +97,22 @@ describe('Verification of container creation workflow', async () => {
 
   test(`Start a container '${containerToRun}'`, async () => {
     const navigationBar = new NavigationBar(page);
-    const images = await navigationBar.openImages();
+    let images = await navigationBar.openImages();
     const imageDetails = await images.openImageDetails(imageToPull);
     const runImage = await imageDetails.openRunImage();
     await pdRunner.screenshot('containers-run-image.png');
     const containers = await runImage.startContainer(containerToRun);
-    await waitUntil(
-      async () => await containers.containerExists(containerToRun),
-      10000,
-      1000,
-      true,
-      'Failed to start a container',
-    );
+    await playExpect
+      .poll(async () => await containers.containerExists(containerToRun), { timeout: 10000 })
+      .toBeTruthy();
     await pdRunner.screenshot('containers-container-exists.png');
     const containerDetails = await containers.openContainersDetails(containerToRun);
-    await waitUntil(async () => {
-      return (await containerDetails.getState()) === ContainerState.Running;
-    }, 5000);
+    await playExpect
+      .poll(async () => await containerDetails.getState(), { timeout: 10000 })
+      .toContain(ContainerState.Running);
+
+    images = await navigationBar.openImages();
+    playExpect(await images.getCurrentStatusOfImage(imageToPull)).toBe('USED');
   });
 
   test('Open a container details', async () => {

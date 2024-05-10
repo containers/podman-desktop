@@ -1,17 +1,15 @@
 <script lang="ts">
 import { faExternalLink, faRocket } from '@fortawesome/free-solid-svg-icons';
 import type { V1NamespaceList, V1Pod } from '@kubernetes/client-node/dist/api';
-import { Input } from '@podman-desktop/ui-svelte';
+import { Button, Checkbox, Input } from '@podman-desktop/ui-svelte';
 import * as jsYaml from 'js-yaml';
 import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
 
 import { ensureRestrictedSecurityContext } from '/@/lib/pod/pod-utils';
-import Checkbox from '/@/lib/ui/Checkbox.svelte';
 
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
-import Button from '../ui/Button.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import FormPage from '../ui/FormPage.svelte';
 import Link from '../ui/Link.svelte';

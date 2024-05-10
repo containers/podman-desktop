@@ -1,5 +1,6 @@
 <script lang="ts">
-import Tooltip from '/@/lib/ui/Tooltip.svelte';
+import { Tooltip } from '@podman-desktop/ui-svelte';
+
 import { kubernetesCurrentContextState } from '/@/stores/kubernetes-contexts-state';
 
 import type { ContextGeneralState } from '../../../../main/src/plugin/kubernetes-context-state';

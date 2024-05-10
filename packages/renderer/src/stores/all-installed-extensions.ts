@@ -44,6 +44,7 @@ export const combinedInstalledExtensions: Readable<CombinedExtensionInfoUI[]> = 
       }
       return {
         ...ext,
+        id: ext.extensionId,
         displayName,
         type: 'dd',
         state: 'started',

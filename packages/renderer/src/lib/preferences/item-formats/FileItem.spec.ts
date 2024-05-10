@@ -48,7 +48,7 @@ test('Ensure HTMLInputElement', async () => {
   expect(input instanceof HTMLInputElement).toBe(true);
 });
 
-test('Ensure clicking on Browser invoke openDialog', async () => {
+test('Ensure clicking on Browser invoke openDialog with default selector', async () => {
   openDialogMock.mockResolvedValue([]);
   const record: IConfigurationPropertyRecordedSchema = {
     id: 'record',
@@ -64,5 +64,30 @@ test('Ensure clicking on Browser invoke openDialog', async () => {
   expect(input).toBeInTheDocument();
   await userEvent.click(input);
 
-  expect(openDialogMock).toBeCalled();
+  expect(openDialogMock).toBeCalledWith({
+    title: 'Select record-description',
+    selectors: ['openFile'],
+  });
+});
+
+test('Ensure clicking on Browser invoke openDialog with corresponding directory selector', async () => {
+  openDialogMock.mockResolvedValue([]);
+  const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'record-description',
+    type: 'string',
+    format: 'folder',
+  };
+
+  render(FileItem, { record, value: '' });
+  const input = screen.getByRole('button', { name: `button-${record.description}` });
+  expect(input).toBeInTheDocument();
+  await userEvent.click(input);
+
+  expect(openDialogMock).toBeCalledWith({
+    title: 'Select record-description',
+    selectors: ['openDirectory'],
+  });
 });

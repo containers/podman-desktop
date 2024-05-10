@@ -1,8 +1,7 @@
 <script lang="ts">
 import { faPaste } from '@fortawesome/free-solid-svg-icons';
+import { Tooltip } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
-
-import Tooltip from './Tooltip.svelte';
 
 export let clipboardData: string;
 export let title: string;

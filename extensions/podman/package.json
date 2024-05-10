@@ -2,7 +2,7 @@
   "name": "podman",
   "displayName": "Podman",
   "description": "Integration for Podman and Podman Machines",
-  "version": "0.0.1",
+  "version": "1.11.0-next",
   "icon": "icon.png",
   "type": "module",
   "publisher": "podman-desktop",
@@ -370,9 +370,9 @@
     "hasha": "^6.0.0",
     "mkdirp": "^3.0.1",
     "nock": "^14.0.0-beta.6",
-    "octokit": "^3.2.0",
-    "tsx": "^4.7.2",
-    "vite": "^5.2.10",
-    "vitest": "^1.5.0"
+    "octokit": "^4.0.2",
+    "tsx": "^4.9.3",
+    "vite": "^5.2.11",
+    "vitest": "^1.6.0"
   }
 }

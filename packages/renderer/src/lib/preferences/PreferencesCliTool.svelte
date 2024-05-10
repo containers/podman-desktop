@@ -1,10 +1,10 @@
 <script lang="ts">
 import { faCircleArrowUp, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
+import { Button } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
 import type { CliToolInfo } from '../../../../main/src/plugin/api/cli-tool-info';
 import Markdown from '../markdown/Markdown.svelte';
-import Button from '../ui/Button.svelte';
 import LoadingIconButton from '../ui/LoadingIconButton.svelte';
 import { type ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';
 import type { ILoadingStatus } from './Util';
@@ -49,7 +49,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
 }
 </script>
 
-<div role="row" class="bg-charcoal-600 mb-5 rounded-md p-3 flex flex-col">
+<div role="row" class="bg-charcoal-600 mb-5 rounded-md p-3 flex flex-col" aria-label="{cliTool.displayName}">
   <div class="divide-x divide-gray-900 flex flex-row">
     <div>
       <!-- left col - cli-tool icon/name + "create new" button -->

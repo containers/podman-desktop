@@ -1,7 +1,7 @@
 <script lang="ts">
+import { Button, Tooltip } from '@podman-desktop/ui-svelte';
+
 import MonacoEditor from '../editor/MonacoEditor.svelte';
-import Button from '../ui/Button.svelte';
-import Tooltip from '../ui/Tooltip.svelte';
 
 // Make sure that when using the MonacoEditor, the content is "stringified" before
 // being passed into this component. ex. stringify(kubeDeploymentYAML)

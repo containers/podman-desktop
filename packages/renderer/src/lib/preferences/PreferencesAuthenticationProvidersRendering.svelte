@@ -5,13 +5,13 @@ import {
   faRightFromBracket,
   faRightToBracket,
 } from '@fortawesome/free-solid-svg-icons';
+import { Button, Tooltip } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
-import Tooltip from '/@/lib/ui/Tooltip.svelte';
+import EmbeddableCatalogExtensionList from '/@/lib/extensions/EmbeddableCatalogExtensionList.svelte';
 
 import { authenticationProviders } from '../../stores/authenticationProviders';
 import KeyIcon from '../images/KeyIcon.svelte';
-import Button from '../ui/Button.svelte';
 import DropdownMenu from '../ui/DropdownMenu.svelte';
 import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
@@ -25,7 +25,11 @@ import SettingsPage from './SettingsPage.svelte';
       icon="{KeyIcon}"
       title="No authentication providers"
       message="Install an authentication provider extension to add an authentication provider here."
-      hidden="{$authenticationProviders.length > 0}" />
+      hidden="{$authenticationProviders.length > 0}">
+      <div class="flex gap-2 justify-center">
+        <EmbeddableCatalogExtensionList category="Authentication" showInstalled="{false}" />
+      </div>
+    </EmptyScreen>
     {#each $authenticationProviders as provider}
       {@const sessionRequests = provider.sessionRequests ?? []}
       <!-- Registered Authentication Provider row start -->

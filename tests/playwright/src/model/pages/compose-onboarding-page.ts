@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-/**
- * Type of button:
- *  primary   - a main action (the default)
- *  secondary - a secondary action
- *  danger    - a danger action
- *  link      - close, cancel, or other non-default button
- *  tab       - displayed as tab
- */
-export type ButtonType = 'primary' | 'secondary' | 'danger' | 'link' | 'tab';
+import type { Locator, Page } from 'playwright';
+
+import { OnboardingPage } from './onboarding-page';
+
+export class ComposeOnboardingPage extends OnboardingPage {
+  readonly heading: Locator;
+
+  constructor(page: Page) {
+    super(page);
+    this.heading = this.header.getByRole('heading', { name: 'Compose Setup Header' });
+  }
+}

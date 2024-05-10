@@ -80,7 +80,7 @@ beforeEach(() => {
   vi.resetAllMocks();
 
   // Simulate PROD env
-  vi.stubEnv('PROD', 'true');
+  vi.stubEnv('PROD', true);
 
   vi.mocked(app.getVersion).mockReturnValue('@debug');
   // eslint-disable-next-line no-null/no-null

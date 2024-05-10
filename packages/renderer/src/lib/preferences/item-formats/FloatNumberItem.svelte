@@ -1,7 +1,6 @@
 <script lang="ts">
+import { Tooltip } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
-
-import Tooltip from '/@/lib/ui/Tooltip.svelte';
 
 import type { IConfigurationPropertyRecordedSchema } from '../../../../../main/src/plugin/configuration-registry';
 import { uncertainStringToNumber } from '../Util';

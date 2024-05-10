@@ -1,8 +1,8 @@
 <script lang="ts">
 import { faLayerGroup } from '@fortawesome/free-solid-svg-icons';
+import { Button } from '@podman-desktop/ui-svelte';
 import { router } from 'tinro';
 
-import Button from '../ui/Button.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 
 function gotoResourcesPage() {
@@ -10,13 +10,13 @@ function gotoResourcesPage() {
 }
 
 function gotoExtensionsPage() {
-  router.goto('/preferences/extensions/');
+  router.goto('/extensions/');
 }
 </script>
 
 <EmptyScreen
   title="No Container Engine"
-  message="Ensure that you have at least one container engine configured and operational. Please go to the resources and follow to the provided guidelines for setting up a container engine."
+  message="Ensure that you have at least one container engine configured and operational. Please go to Resources and follow the provided guidelines for setting up a container engine."
   icon="{faLayerGroup}">
   <div class="flex gap-2 justify-center">
     <Button type="link" on:click="{() => gotoResourcesPage()}">Resources</Button>

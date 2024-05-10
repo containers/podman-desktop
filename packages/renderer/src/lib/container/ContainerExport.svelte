@@ -1,13 +1,12 @@
 <script lang="ts">
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
-import { Input } from '@podman-desktop/ui-svelte';
+import { Button, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 
 import { exportContainerInfo } from '/@/stores/export-container-store';
 import { createTask } from '/@/stores/tasks';
 
-import Button from '../ui/Button.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import FormPage from '../ui/FormPage.svelte';
 import { Uri } from '../uri/Uri';

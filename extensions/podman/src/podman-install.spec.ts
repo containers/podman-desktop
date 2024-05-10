@@ -503,6 +503,10 @@ test('expect winWSL2 preflight check return failure result if the machine has WS
   expect(result.description).equal(
     'WSL2 seems to be installed but the system needs to be restarted so the changes can take effect.',
   );
+  expect(result.docLinksDescription).equal(
+    `If already restarted, call 'wsl --install --no-distribution' in a terminal.`,
+  );
+  expect(result.docLinks[0].url).equal('https://learn.microsoft.com/en-us/windows/wsl/install');
 });
 
 test('expect winWSL2 preflight check return successful result if the machine has WSL2 installed and the reboot check fails with a code different from WSL_E_WSL_OPTIONAL_COMPONENT_REQUIRED', async () => {

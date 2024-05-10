@@ -1,7 +1,7 @@
 <script lang="ts">
+import { Button } from '@podman-desktop/ui-svelte';
 import { createEventDispatcher } from 'svelte';
 
-import Button from '../ui/Button.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
 
 export let icon: any;

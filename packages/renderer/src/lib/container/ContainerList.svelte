@@ -1,5 +1,6 @@
 <script lang="ts">
 import { faChevronDown, faChevronRight, faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { Button, Checkbox } from '@podman-desktop/ui-svelte';
 import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import { get, type Unsubscriber } from 'svelte/store';
@@ -29,8 +30,6 @@ import SolidPodIcon from '../images/SolidPodIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
 import { PodUtils } from '../pod/pod-utils';
 import PodActions from '../pod/PodActions.svelte';
-import Button from '../ui/Button.svelte';
-import Checkbox from '../ui/Checkbox.svelte';
 import ErrorMessage from '../ui/ErrorMessage.svelte';
 import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import NavPage from '../ui/NavPage.svelte';
@@ -472,7 +471,7 @@ function setStoppedFilter() {
       <thead class="sticky top-0 bg-charcoal-700 z-[2]">
         <tr class="h-7 uppercase text-xs text-gray-600">
           <th class="whitespace-nowrap w-5"></th>
-          <th class="px-2 w-5">
+          <th class="px-2 w-5 text-base">
             <Checkbox
               title="Toggle all"
               bind:checked="{selectedAllCheckboxes}"

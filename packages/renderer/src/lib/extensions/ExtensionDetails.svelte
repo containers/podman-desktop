@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Button } from '@podman-desktop/ui-svelte';
 import { derived, type Readable } from 'svelte/store';
 
 import extensionIcon from '/@/lib/images/ExtensionIcon.svelte';
@@ -12,6 +13,7 @@ import EmptyScreen from '../ui/EmptyScreen.svelte';
 import ExtensionStatus from '../ui/ExtensionStatus.svelte';
 import type { ExtensionDetailsUI } from './extension-details-ui';
 import ExtensionBadge from './ExtensionBadge.svelte';
+import ExtensionDetailsError from './ExtensionDetailsError.svelte';
 import ExtensionDetailsReadme from './ExtensionDetailsReadme.svelte';
 import ExtensionDetailsSummaryCard from './ExtensionDetailsSummaryCard.svelte';
 import { ExtensionsUtils } from './extensions-utils';
@@ -19,6 +21,7 @@ import InstalledExtensionActions from './InstalledExtensionActions.svelte';
 
 export let extensionId: string;
 
+let screen: 'README' | 'ERROR' = 'README';
 let detailsPage: DetailsPage;
 const extensionsUtils = new ExtensionsUtils();
 
@@ -27,7 +30,11 @@ let extension: Readable<ExtensionDetailsUI | undefined>;
 $: extension = derived(
   [catalogExtensionInfos, combinedInstalledExtensions],
   ([$catalogExtensionInfos, $combinedInstalledExtensions]) => {
-    return extensionsUtils.extractExtensionDetail($catalogExtensionInfos, $combinedInstalledExtensions, extensionId);
+    return extensionsUtils.extractExtensionDetail(
+      $catalogExtensionInfos,
+      $combinedInstalledExtensions,
+      decodeURIComponent(extensionId),
+    );
   },
 );
 </script>
@@ -63,10 +70,32 @@ $: extension = derived(
     <div slot="detail" class="flex">
       <ExtensionBadge class="mt-2" extension="{$extension}" />
     </div>
+    <!-- Display tabs only if extension is in error state -->
+    <svelte:fragment slot="tabs">
+      {#if $extension.state === 'failed'}
+        <Button
+          type="tab"
+          on:click="{() => {
+            screen = 'README';
+          }}"
+          selected="{screen === 'README'}">Readme</Button>
+        <Button
+          type="tab"
+          on:click="{() => {
+            screen = 'ERROR';
+          }}"
+          selected="{screen === 'ERROR'}">Error</Button>
+      {/if}
+    </svelte:fragment>
+
     <svelte:fragment slot="content">
       <div class="flex w-full h-full overflow-y-auto p-4 flex-col lg:flex-row">
-        <ExtensionDetailsSummaryCard extensionDetails="{$extension}" />
-        <ExtensionDetailsReadme readme="{$extension.readme}" />
+        {#if screen === 'README'}
+          <ExtensionDetailsSummaryCard extensionDetails="{$extension}" />
+          <ExtensionDetailsReadme readme="{$extension.readme}" />
+        {:else if screen === 'ERROR'}
+          <ExtensionDetailsError extension="{$extension}" />
+        {/if}
       </div>
     </svelte:fragment>
   </DetailsPage>

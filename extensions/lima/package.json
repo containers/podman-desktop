@@ -2,7 +2,7 @@
   "name": "lima",
   "displayName": "Lima",
   "description": "Integration for Lima: Linux Machines (typically macOS)",
-  "version": "0.0.1",
+  "version": "1.11.0-next",
   "icon": "icon.png",
   "publisher": "podman-desktop",
   "license": "Apache-2.0",
@@ -69,8 +69,8 @@
   "devDependencies": {
     "adm-zip": "^0.5.12",
     "mkdirp": "^3.0.1",
-    "vite": "^5.2.10",
-    "vitest": "^1.5.0",
+    "vite": "^5.2.11",
+    "vitest": "^1.6.0",
     "tmp-promise": "^3.0.3"
   }
 }

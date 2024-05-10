@@ -119,8 +119,10 @@ const kubernetesGeneratorRegistry: KubeGeneratorRegistry = {} as unknown as Kube
 const providerRegistry: ProviderRegistry = {} as unknown as ProviderRegistry;
 
 const configurationRegistryGetConfigurationMock = vi.fn();
+const configurationRegistryUpdateConfigurationMock = vi.fn();
 const configurationRegistry: ConfigurationRegistry = {
   getConfiguration: configurationRegistryGetConfigurationMock,
+  updateConfigurationValue: configurationRegistryUpdateConfigurationMock,
 } as unknown as ConfigurationRegistry;
 
 const imageRegistry: ImageRegistry = {} as unknown as ImageRegistry;
@@ -480,6 +482,50 @@ test('Verify extension load', async () => {
     'loadExtension',
     expect.objectContaining({ extensionId: id, extensionVersion: '1.1' }),
   );
+});
+
+test('Verify disable extension updates configuration', async () => {
+  const ids = ['extension.foo'];
+
+  configurationRegistryUpdateConfigurationMock.mockResolvedValue(Promise.resolve);
+  extensionLoader.setDisabledExtensionIds(ids);
+
+  expect(configurationRegistryUpdateConfigurationMock).toHaveBeenCalledWith('extensions.disabled', ids);
+});
+
+test('Verify enable extension updates configuration', async () => {
+  const id = 'extension.no.foo';
+  const before = ['a', id, 'b'];
+  const after = ['a', 'b'];
+
+  configurationRegistryGetConfigurationMock.mockReturnValue({
+    get: () => before,
+  });
+  configurationRegistryUpdateConfigurationMock.mockResolvedValue(Promise.resolve);
+  extensionLoader.ensureExtensionIsEnabled(id);
+
+  expect(configurationRegistryUpdateConfigurationMock).toHaveBeenCalledWith('extensions.disabled', after);
+});
+
+test('Verify stopping extension disables it', async () => {
+  const id = 'extension.no.foo';
+  configurationRegistryGetConfigurationMock.mockReturnValue({
+    get: () => [],
+  });
+  await extensionLoader.stopExtension(id);
+
+  expect(configurationRegistryUpdateConfigurationMock).toHaveBeenCalledWith('extensions.disabled', [id]);
+});
+
+test('Verify starting extension enables it', async () => {
+  const id = 'extension.no.foo';
+
+  configurationRegistryGetConfigurationMock.mockReturnValue({
+    get: () => ['extension.no.foo'],
+  });
+  await extensionLoader.startExtension(id);
+
+  expect(configurationRegistryUpdateConfigurationMock).toHaveBeenCalledWith('extensions.disabled', []);
 });
 
 test('Verify setExtensionsUpdates', async () => {
@@ -894,6 +940,9 @@ describe('setContextValue', async () => {
 describe('Removing extension by user', async () => {
   const ExtID = 'company.ext-id';
   test('sends telemetry w/o error when whens succeeds', async () => {
+    configurationRegistryGetConfigurationMock.mockReturnValue({
+      get: () => [],
+    });
     extensionLoader.removeExtension = vi.fn();
     await extensionLoader.removeExtensionPerUserRequest(ExtID);
     expect(extensionLoader.removeExtension).toBeCalledWith(ExtID);
@@ -1840,6 +1889,7 @@ describe('extensionContext', async () => {
     expect(telemetry.track).toBeCalledWith('activateExtension', {
       extensionId: 'fooPublisher.fooName',
       extensionVersion: '1.0',
+      duration: expect.any(Number),
     });
 
     expect(safeStorageRegistry.getExtensionStorage).toBeCalledWith('fooPublisher.fooName');

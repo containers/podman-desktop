@@ -47,7 +47,7 @@ import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 import type { DialogRegistry } from './dialog-registry.js';
 import type { Directories } from './directories.js';
 import { Emitter } from './events/emitter.js';
-import { ExtensionLoaderSettings } from './extension-loader-settings.js';
+import { DEFAULT_TIMEOUT, ExtensionLoaderSettings } from './extension-loader-settings.js';
 import type { FilesystemMonitoring } from './filesystem-monitoring.js';
 import type { IconRegistry } from './icon-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
@@ -259,14 +259,54 @@ export class ExtensionLoader {
         [ExtensionLoaderSettings.SectionName + '.' + ExtensionLoaderSettings.MaxActivationTime]: {
           description: 'Maximum activation time for an extension, in seconds.',
           type: 'number',
-          default: 10,
+          default: DEFAULT_TIMEOUT,
           minimum: 1,
           maximum: 100,
         },
       },
     };
 
-    this.configurationRegistry.registerConfigurations([maxActivationTimeConfiguration]);
+    const disabledExtensionConfiguration: IConfigurationNode = {
+      id: 'preferences.extensions',
+      title: 'Extensions',
+      type: 'object',
+      properties: {
+        [ExtensionLoaderSettings.SectionName + '.' + ExtensionLoaderSettings.Disabled]: {
+          description: 'Disabled extensions',
+          type: 'array',
+          hidden: true,
+        },
+      },
+    };
+
+    this.configurationRegistry.registerConfigurations([maxActivationTimeConfiguration, disabledExtensionConfiguration]);
+  }
+
+  getDisabledExtensionIds(): string[] {
+    return this.configurationRegistry
+      .getConfiguration(ExtensionLoaderSettings.SectionName)
+      .get<string[]>(ExtensionLoaderSettings.Disabled, []);
+  }
+
+  setDisabledExtensionIds(disabledExtensionIds: string[]): void {
+    this.configurationRegistry
+      .updateConfigurationValue(
+        ExtensionLoaderSettings.SectionName + '.' + ExtensionLoaderSettings.Disabled,
+        disabledExtensionIds,
+      )
+      .catch((error: unknown) => console.error('error while saving list of disabled extensions', error));
+  }
+
+  ensureExtensionIsEnabled(extensionId: string): void {
+    // the extension is getting intentionally started or uninstalled.
+    // if it is on the list of disabled extensions remove it
+    const disabledExtensionIds = this.getDisabledExtensionIds();
+    const index = disabledExtensionIds.indexOf(extensionId);
+    if (index > -1) {
+      disabledExtensionIds.splice(index, 1);
+
+      this.setDisabledExtensionIds(disabledExtensionIds);
+    }
   }
 
   protected async setupScanningDirectory(): Promise<void> {
@@ -634,7 +674,10 @@ export class ExtensionLoader {
     this.extensionState.delete(extension.id);
     this.extensionStateErrors.delete(extension.id);
 
-    const telemetryOptions = { extensionId: extension.id, extensionVersion: extension.manifest?.version };
+    const telemetryOptions: Record<string, unknown> = {
+      extensionId: extension.id,
+      extensionVersion: extension.manifest?.version,
+    };
 
     if (extension.missingDependencies && extension.missingDependencies.length > 0) {
       this.extensionState.set(extension.id, 'failed');
@@ -661,15 +704,21 @@ export class ExtensionLoader {
         });
         this.watcherExtensions.set(extension.id, extensionWatcher);
       }
+      if (!this.getDisabledExtensionIds().includes(extension.id)) {
+        const beforeLoadingRuntime = performance.now();
+        const runtime = this.loadRuntime(extension);
+        const afterLoadingRuntime = performance.now();
 
-      const runtime = this.loadRuntime(extension);
+        telemetryOptions['loadingRuntimeDuration'] = afterLoadingRuntime - beforeLoadingRuntime;
 
-      await this.activateExtension(extension, runtime);
+        await this.activateExtension(extension, runtime);
+      } else {
+        console.log(`Extension (${extension.id}) not activated because it is disabled`);
+      }
     } catch (err) {
       this.extensionState.set(extension.id, 'failed');
       this.extensionStateErrors.set(extension.id, err);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (telemetryOptions as any).error = err;
+      telemetryOptions['error'] = err;
     } finally {
       this.telemetry.track('loadExtension', telemetryOptions);
     }
@@ -1368,14 +1417,16 @@ export class ExtensionLoader {
       deactivateFunction = extensionMain['deactivate'];
     }
 
-    const telemetryOptions = { extensionId: extension.id, extensionVersion: extension.manifest?.version };
+    const telemetryOptions: Record<string, unknown> = {
+      extensionId: extension.id,
+      extensionVersion: extension.manifest?.version,
+    };
     try {
       if (typeof extensionMain?.['activate'] === 'function') {
         // maximum time to wait for the extension to activate by reading from configuration
-        const delayInSeconds: number =
-          this.configurationRegistry
-            .getConfiguration(ExtensionLoaderSettings.SectionName)
-            .get(ExtensionLoaderSettings.MaxActivationTime) || 5;
+        const delayInSeconds: number = this.configurationRegistry
+          .getConfiguration(ExtensionLoaderSettings.SectionName)
+          .get(ExtensionLoaderSettings.MaxActivationTime, DEFAULT_TIMEOUT);
         const delayInMilliseconds = delayInSeconds * 1000;
 
         // reject a promise after this delay
@@ -1395,11 +1446,12 @@ export class ExtensionLoader {
         // if extension reach the timeout, do not wait for it to finish and flag as error
         await Promise.race([activatePromise, timeoutPromise]);
         const afterActivateTime = performance.now();
-        console.log(
-          `Activating extension (${extension.id}) ended in ${Math.round(
-            afterActivateTime - beforeActivateTime,
-          )} milliseconds`,
-        );
+
+        // Computing activation duration
+        const duration = afterActivateTime - beforeActivateTime;
+        telemetryOptions['duration'] = duration;
+
+        console.log(`Activating extension (${extension.id}) ended in ${Math.round(duration)} milliseconds`);
       }
       const id = extension.id;
       const activatedExtension: ActivatedExtension = {
@@ -1414,11 +1466,22 @@ export class ExtensionLoader {
       console.log(`Activating extension ${extension.id} failed error:${err}`);
       this.extensionState.set(extension.id, 'failed');
       this.extensionStateErrors.set(extension.id, err);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (telemetryOptions as any).error = err;
+      // Storing error in the telemetry options
+      telemetryOptions['error'] = err;
     } finally {
       this.telemetry.track('activateExtension', telemetryOptions);
     }
+  }
+
+  async stopExtension(extensionId: string): Promise<void> {
+    // the user explicitly stopped (disabled) this extension, so save the configuration
+    const disabledExtensions = this.getDisabledExtensionIds();
+    if (!disabledExtensions.includes(extensionId)) {
+      disabledExtensions.push(extensionId);
+      this.setDisabledExtensionIds(disabledExtensions);
+    }
+
+    await this.deactivateExtension(extensionId);
   }
 
   async deactivateExtension(extensionId: string): Promise<void> {
@@ -1462,6 +1525,8 @@ export class ExtensionLoader {
   }
 
   async startExtension(extensionId: string): Promise<void> {
+    this.ensureExtensionIsEnabled(extensionId);
+
     const extension = this.analyzedExtensions.get(extensionId);
     if (extension) {
       const analyzedExtension = await this.analyzeExtension(extension.path, extension.removable);
@@ -1481,6 +1546,8 @@ export class ExtensionLoader {
     };
     try {
       await this.removeExtension(extensionId);
+
+      this.ensureExtensionIsEnabled(extensionId);
     } catch (error) {
       telemetryData.error = error;
       throw error;

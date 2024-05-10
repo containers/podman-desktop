@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,33 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 
-import ButtonSpec from './ButtonSpec.svelte';
+import Spinner from './Spinner.svelte';
 
-test('Check button text', async () => {
-  render(ButtonSpec);
+describe('parent attributes should be propagate', () => {
+  test('style attribute should be propagated', () => {
+    render(Spinner, {
+      style: 'color: green;',
+    });
 
-  // check text matches
-  const button = screen.getByRole('button');
-  expect(button).toBeInTheDocument();
-  expect(button).toHaveTextContent('Click me');
-});
+    const spinner = screen.getByRole('progressbar', { name: 'Loading', busy: true });
+    expect(spinner).toBeDefined();
 
-test('Check icon', async () => {
-  render(ButtonSpec);
+    expect(spinner.getAttribute('style')).toBe('color: green;');
+  });
 
-  // check icon exists
-  const icon = screen.getByRole('img', { hidden: true });
-  expect(icon).toBeInTheDocument();
+  test('class attribute should be propagated', () => {
+    render(Spinner, {
+      class: 'dummy-class',
+    });
+
+    const spinner = screen.getByRole('progressbar', { name: 'Loading', busy: true });
+    expect(spinner).toBeDefined();
+
+    expect(spinner.classList).toContain('dummy-class');
+  });
 });

@@ -97,7 +97,7 @@ import type { ContextGeneralState, ResourceName } from '../../main/src/plugin/ku
 import type { Guide } from '../../main/src/plugin/learning-center/learning-center-api';
 import type { Menu } from '../../main/src/plugin/menu-registry';
 import type { MessageBoxOptions, MessageBoxReturnValue } from '../../main/src/plugin/message-box';
-import type { ExtensionBanner } from '../../main/src/plugin/recommendations/recommendations-api';
+import type { ExtensionBanner, RecommendedRegistry } from '../../main/src/plugin/recommendations/recommendations-api';
 import type { StatusBarEntryDescriptor } from '../../main/src/plugin/statusbar/statusbar-registry';
 import type { IDisposable } from '../../main/src/plugin/types/disposable';
 import { Deferred } from './util/deferred';
@@ -1281,6 +1281,10 @@ export function initExposure(): void {
     return ipcInvoke('recommended:getExtensionBanners');
   });
 
+  contextBridge.exposeInMainWorld('getRecommendedRegistries', async (): Promise<RecommendedRegistry[]> => {
+    return ipcInvoke('recommended:getRegistries');
+  });
+
   contextBridge.exposeInMainWorld('getCatalogExtensions', async (): Promise<CatalogExtension[]> => {
     return ipcInvoke('catalog:getExtensions');
   });
@@ -1294,7 +1298,7 @@ export function initExposure(): void {
   });
 
   contextBridge.exposeInMainWorld('stopExtension', async (extensionId: string): Promise<void> => {
-    return ipcInvoke('extension-loader:deactivateExtension', extensionId);
+    return ipcInvoke('extension-loader:stopExtension', extensionId);
   });
 
   contextBridge.exposeInMainWorld('startExtension', async (extensionId: string): Promise<void> => {
@@ -1580,8 +1584,8 @@ export function initExposure(): void {
     }
   });
 
-  contextBridge.exposeInMainWorld('ddExtensionDelete', async (extensionName: string): Promise<void> => {
-    return ipcInvoke('docker-desktop-plugin:delete', extensionName);
+  contextBridge.exposeInMainWorld('ddExtensionDelete', async (extensionId: string): Promise<void> => {
+    return ipcInvoke('docker-desktop-plugin:delete', extensionId);
   });
 
   contextBridge.exposeInMainWorld('getWebviewPreloadPath', async (): Promise<string> => {
