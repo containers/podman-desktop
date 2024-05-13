@@ -3,6 +3,8 @@ import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 
+import SimpleColumn from './SimpleColumn.svelte';
+
 export let object: Date | undefined;
 let duration: string = '';
 let refreshTimeouts: number[] = [];
@@ -61,6 +63,4 @@ onDestroy(() => {
 });
 </script>
 
-<div class="text-sm text-gray-700">
-  {duration}
-</div>
+<SimpleColumn object="{duration}" />

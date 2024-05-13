@@ -147,7 +147,7 @@ function setGridColumns(): void {
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <!-- svelte-ignore a11y-interactive-supports-focus -->
         <div
-          class="whitespace-nowrap {column.info.align === 'right'
+          class="max-w-full overflow-hidden flex flex-row items-center whitespace-nowrap {column.info.align === 'right'
             ? 'justify-self-end'
             : column.info.align === 'center'
               ? 'justify-self-center'
@@ -155,7 +155,10 @@ function setGridColumns(): void {
           class:cursor-pointer="{column.info.comparator}"
           on:click="{sort.bind(undefined, column)}"
           role="columnheader">
-          {column.title}{#if column.info.comparator}<i
+          <div class="overflow-hidden text-ellipsis">
+            {column.title}
+          </div>
+          {#if column.info.comparator}<i
               class="fas pl-0.5"
               class:fa-sort="{sortCol !== column}"
               class:fa-sort-up="{sortCol === column && sortAscending}"

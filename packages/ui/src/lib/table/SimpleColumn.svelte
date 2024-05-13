@@ -2,6 +2,6 @@
 export let object: string;
 </script>
 
-<div class="text-sm text-gray-700">
+<div class="text-sm text-gray-700 max-w-full overflow-hidden text-ellipsis">
   {object}
 </div>
