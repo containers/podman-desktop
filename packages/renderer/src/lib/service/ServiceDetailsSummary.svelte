@@ -1,16 +1,16 @@
 <script lang="ts">
 import type { V1Service } from '@kubernetes/client-node';
+import { ErrorMessage } from '@podman-desktop/ui-svelte';
 
 import KubeObjectMetaArtifact from '../kube/details/KubeObjectMetaArtifact.svelte';
 import KubeServiceArtifact from '../kube/details/KubeServiceArtifact.svelte';
 import KubeServiceStatusArtifact from '../kube/details/KubeServiceStatusArtifact.svelte';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 export let service: V1Service | undefined;
 export let kubeError: string | undefined = undefined;
 </script>
 
-<!-- Show the kube error if we're unable to retrieve the data correctly, but we still want to show the 
+<!-- Show the kube error if we're unable to retrieve the data correctly, but we still want to show the
 basic information -->
 {#if kubeError}
   <ErrorMessage error="{kubeError}" />

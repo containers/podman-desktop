@@ -39,6 +39,10 @@
     "./Tooltip": {
       "types": "./dist/tooltip/Tooltip.svelte.d.ts",
       "svelte": "./dist/tooltip/Tooltip.svelte"
+    },
+    "./ErrorMessage": {
+      "types": "./dist/alert/ErrorMessage.svelte.d.ts",
+      "svelte": "./dist/alert/ErrorMessage.svelte"
     }
   },
   "peerDependencies": {

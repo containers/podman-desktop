@@ -1,6 +1,7 @@
 <script lang="ts">
 import 'xterm/css/xterm.css';
 
+import { ErrorMessage } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 
@@ -9,7 +10,6 @@ import { containersInfos } from '../../stores/containers';
 import ContainerIcon from '../images/ContainerIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
 import Link from '../ui/Link.svelte';
 import StateChange from '../ui/StateChange.svelte';
 import Tab from '../ui/Tab.svelte';
