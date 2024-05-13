@@ -49,8 +49,17 @@ onDestroy(() => {
     class:hover:text-[color:var(--pd-global-nav-icon-hover)]="{!selected || inSection}"
     class:hover:bg-[var(--pd-global-nav-icon-hover-bg)]="{!selected || inSection}"
     class:hover:border-[var(--pd-global-nav-icon-hover-bg)]="{!selected && !inSection}">
-    <Tooltip tip="{tooltip}" right>
-      <slot />
+    <Tooltip right>
+      <svelte:fragment slot="content">
+        <slot />
+      </svelte:fragment>
+      <svelte:fragment slot="tip">
+        {#if tooltip}
+          <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
+            {tooltip}
+          </div>
+        {/if}
+      </svelte:fragment>
     </Tooltip>
   </div>
 </a>

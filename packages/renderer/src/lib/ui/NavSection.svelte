@@ -36,15 +36,24 @@ onMount(() => {
     class="inline-block flex flex-col justify-center items-center"
     on:click="{() => (expanded = !expanded)}"
     disabled="{expanded && $count < 2}">
-    <Tooltip class="flex flex-col justify-center items-center pb-1" tip="{tooltip}" right>
-      <div class="flex flex-col justify-center items-center" class:text-charcoal-50="{expanded && $count < 2}">
-        {#if !expanded}
-          <div class="py-2" transition:fadeSlide="{{ duration: 500 }}">
-            <slot name="icon" />
+    <Tooltip class="flex flex-col justify-center items-center pb-1" right>
+      <svelte:fragment slot="content">
+        <div class="flex flex-col justify-center items-center" class:text-charcoal-50="{expanded && $count < 2}">
+          {#if !expanded}
+            <div class="py-2" transition:fadeSlide="{{ duration: 500 }}">
+              <slot name="icon" />
+            </div>
+          {/if}
+          <Fa size="0.8x" icon="{expanded ? faChevronUp : faChevronDown}" />
+        </div>
+      </svelte:fragment>
+      <svelte:fragment slot="tip">
+        {#if tooltip}
+          <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
+            {tooltip}
           </div>
         {/if}
-        <Fa size="0.8x" icon="{expanded ? faChevronUp : faChevronDown}" />
-      </div>
+      </svelte:fragment>
     </Tooltip>
   </button>
 </div>

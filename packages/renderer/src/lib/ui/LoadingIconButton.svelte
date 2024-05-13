@@ -51,14 +51,23 @@ $: style = disable
     : 'text-purple-600 hover:text-purple-500';
 </script>
 
-<Tooltip tip="{tooltip}" bottom>
-  <button aria-label="{capitalize(action)}" class="mx-2.5 my-2 {style}" on:click="{clickAction}" disabled="{disable}">
-    <LoadingIcon
-      icon="{icon}"
-      loadingWidthClass="w-6"
-      loadingHeightClass="h-6"
-      positionTopClass="top-1"
-      positionLeftClass="{leftPosition}"
-      loading="{loading}" />
-  </button>
+<Tooltip bottom>
+  <svelte:fragment slot="content">
+    <button aria-label="{capitalize(action)}" class="mx-2.5 my-2 {style}" on:click="{clickAction}" disabled="{disable}">
+      <LoadingIcon
+        icon="{icon}"
+        loadingWidthClass="w-6"
+        loadingHeightClass="h-6"
+        positionTopClass="top-1"
+        positionLeftClass="{leftPosition}"
+        loading="{loading}" />
+    </button>
+  </svelte:fragment>
+  <svelte:fragment slot="tip">
+    {#if tooltip}
+      <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
+        {tooltip}
+      </div>
+    {/if}
+  </svelte:fragment>
 </Tooltip>

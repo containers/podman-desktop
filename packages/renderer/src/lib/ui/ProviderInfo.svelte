@@ -34,7 +34,17 @@ function getProviderColour(providerName: string): string {
   <span class="text-xs capitalize">
     <!-- If Kubernetes, show the context via the tooltip / hover, else just provider the name.-->
     {#if provider === 'Kubernetes'}
-      <Tooltip tip="{context}" top>{provider}</Tooltip>
+      <Tooltip top>
+        <svelte:fragment slot="content">
+          {provider}
+        </svelte:fragment>
+        <svelte:fragment slot="tip">
+          {#if context}
+            <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
+              {context}
+            </div>
+          {/if}
+        </svelte:fragment></Tooltip>
     {:else}
       {provider}
     {/if}
