@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faArrowCircleDown, faCube, faDownload, faTrash, faUpload } from '@fortawesome/free-solid-svg-icons';
-import { Button, Table, TableColumn, TableRow } from '@podman-desktop/ui-svelte';
+import { Button, Table, TableColumn, TableRow, TableSimpleColumn } from '@podman-desktop/ui-svelte';
 import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
@@ -25,10 +25,8 @@ import NavPage from '../ui/NavPage.svelte';
 import { IMAGE_LIST_VIEW_BADGES, IMAGE_LIST_VIEW_ICONS, IMAGE_VIEW_BADGES, IMAGE_VIEW_ICONS } from '../view/views';
 import { ImageUtils } from './image-utils';
 import ImageColumnActions from './ImageColumnActions.svelte';
-import ImageColumnAge from './ImageColumnAge.svelte';
 import ImageColumnEnvironment from './ImageColumnEnvironment.svelte';
 import ImageColumnName from './ImageColumnName.svelte';
-import ImageColumnSize from './ImageColumnSize.svelte';
 import ImageColumnStatus from './ImageColumnStatus.svelte';
 import ImageEmptyScreen from './ImageEmptyScreen.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
@@ -263,18 +261,20 @@ let envColumn = new TableColumn<ImageInfoUI>('Environment', {
   comparator: (a, b) => a.engineName.localeCompare(b.engineName),
 });
 
-let ageColumn = new TableColumn<ImageInfoUI>('Age', {
-  renderer: ImageColumnAge,
+let ageColumn = new TableColumn<ImageInfoUI, string>('Age', {
+  renderMapping: image => image.age,
+  renderer: TableSimpleColumn,
   comparator: (a, b) => moment().diff(moment.unix(a.createdAt)) - moment().diff(moment.unix(b.createdAt)),
 });
 
-let sizeColumn = new TableColumn<ImageInfoUI>('Size', {
+let sizeColumn = new TableColumn<ImageInfoUI, string>('Size', {
   align: 'right',
-  renderer: ImageColumnSize,
+  renderMapping: image => image.humanSize,
+  renderer: TableSimpleColumn,
   comparator: (a, b) => b.size - a.size,
 });
 
-const columns: TableColumn<ImageInfoUI>[] = [
+const columns: TableColumn<ImageInfoUI, ImageInfoUI | string>[] = [
   statusColumn,
   nameColumn,
   envColumn,
