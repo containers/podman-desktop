@@ -87,11 +87,11 @@ onDestroy(() => {
 
 <ProviderCard provider="{provider}">
   <svelte:fragment slot="content">
-    <div>
+    <div class="flex flex-col w-full lg:w-2/3 justify-center items-center">
       {#if initializationContext.mode === InitializeAndStartMode}
         <Steps steps="{InitializationSteps}" />
       {/if}
-      <div class="flex flex-col text-gray-700 items-center justify-center" aria-label="Transitioning State">
+      <div class="flex flex-col text-gray-700 items-center" aria-label="Transitioning State">
         <div>Initializing</div>
         <div class="my-2">
           <Spinner />
@@ -107,11 +107,11 @@ onDestroy(() => {
       bind:this="{logsXtermDiv}">
     </div>
 
-    {#if provider.updateInfo}
-      <div class="mt-5 mb-1 w-full flex justify-around">
-        <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
-      </div>
-    {/if}
     <PreflightChecks preflightChecks="{preflightChecks}" />
+  </svelte:fragment>
+  <svelte:fragment slot="update">
+    {#if provider.updateInfo?.version && provider.version !== provider.updateInfo?.version}
+      <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
+    {/if}
   </svelte:fragment>
 </ProviderCard>

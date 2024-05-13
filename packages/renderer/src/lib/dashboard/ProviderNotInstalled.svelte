@@ -17,10 +17,10 @@ let preflightChecks: CheckStatus[] = [];
   <svelte:fragment slot="content">
     <div class="flex flex-col grow">
       <div class="flex flex-row items-center flex-row space-x-10 grow flex-nowrap">
-        <p class="text-sm text-gray-700 flex-grow" aria-label="Suggested Actions">
+        <p class="text-sm text-gray-700 grow text-center" aria-label="Suggested Actions">
           Could not find an installation. To start working with containers, {provider.name} needs to be detected/installed.
         </p>
-        <div class="mt-5 mb-1 flex space-x-2">
+        <div class="flex space-x-2 w-full lg:w-1/3 justify-center">
           <ProviderDetectionChecksButton
             onDetectionChecks="{checks => (detectionChecks = checks)}"
             provider="{provider}" />
