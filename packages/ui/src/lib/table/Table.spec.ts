@@ -53,12 +53,31 @@ test('Expect basic column headers', async () => {
   expect(headers.length).toBe(6);
   expect(headers[2].textContent).toContain('Id');
   expect(headers[2]).toHaveClass('select-none');
+  expect(headers[2]).toHaveClass('max-w-full');
+  expect(headers[2]).toHaveClass('overflow-hidden');
+  expect(headers[2].children[0]).toHaveClass('overflow-hidden');
+  expect(headers[2].children[0]).toHaveClass('text-ellipsis');
+
   expect(headers[3].textContent).toContain('Name');
   expect(headers[3]).toHaveClass('select-none');
+  expect(headers[3]).toHaveClass('max-w-full');
+  expect(headers[3]).toHaveClass('overflow-hidden');
+  expect(headers[3].children[0]).toHaveClass('overflow-hidden');
+  expect(headers[3].children[0]).toHaveClass('text-ellipsis');
+
   expect(headers[4].textContent).toContain('Age');
   expect(headers[4]).toHaveClass('select-none');
+  expect(headers[4]).toHaveClass('max-w-full');
+  expect(headers[4]).toHaveClass('overflow-hidden');
+  expect(headers[4].children[0]).toHaveClass('overflow-hidden');
+  expect(headers[4].children[0]).toHaveClass('text-ellipsis');
+
   expect(headers[5].textContent).toContain('Hobby');
   expect(headers[5]).toHaveClass('select-none');
+  expect(headers[5]).toHaveClass('max-w-full');
+  expect(headers[5]).toHaveClass('overflow-hidden');
+  expect(headers[5].children[0]).toHaveClass('overflow-hidden');
+  expect(headers[5].children[0]).toHaveClass('text-ellipsis');
 });
 
 test('Expect column sort indicators', async () => {
