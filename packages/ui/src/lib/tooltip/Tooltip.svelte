@@ -50,7 +50,6 @@
 </style>
 
 <script>
-export let tip = '';
 export let top = false;
 export let topLeft = false;
 export let topRight = false;
@@ -59,15 +58,14 @@ export let bottom = false;
 export let bottomLeft = false;
 export let bottomRight = false;
 export let left = false;
-export let tipClass = '';
 </script>
 
 <div class="relative inline-block">
   <span class="group tooltip-slot {$$props.class}">
-    <slot />
+    <slot name="item" />
   </span>
   <div
-    class="whitespace-nowrap absolute tooltip opacity-0 inline-block transition-opacity duration-150 ease-in-out pointer-events-none z-[10] {tipClass}"
+    class="whitespace-nowrap absolute tooltip opacity-0 inline-block transition-opacity duration-150 ease-in-out pointer-events-none z-[10]"
     class:left="{left}"
     class:right="{right}"
     class:bottom="{bottom}"
@@ -76,8 +74,6 @@ export let tipClass = '';
     class:top-right="{topRight}"
     class:bottom-left="{bottomLeft}"
     class:bottom-right="{bottomRight}">
-    {#if tip}
-      <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">{tip}</div>
-    {/if}
+    <slot name="tip" />
   </div>
 </div>

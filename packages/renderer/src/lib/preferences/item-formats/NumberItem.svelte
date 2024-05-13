@@ -36,15 +36,22 @@ $: if (error) {
 }
 </script>
 
-<Tooltip topLeft tip="{error}">
-  <NumberInput
-    class="w-24"
-    name="{record.id}"
-    bind:value="{recordValue}"
-    bind:error="{error}"
-    aria-label="{record.description}"
-    minimum="{record.minimum}"
-    maximum="{record.maximum && typeof record.maximum === 'number' ? record.maximum : undefined}"
-    showError="{false}">
-  </NumberInput>
+<Tooltip topLeft>
+  <svelte:fragment slot="item">
+    <NumberInput
+      class="w-24"
+      name="{record.id}"
+      bind:value="{recordValue}"
+      bind:error="{error}"
+      aria-label="{record.description}"
+      minimum="{record.minimum}"
+      maximum="{record.maximum && typeof record.maximum === 'number' ? record.maximum : undefined}"
+      showError="{false}">
+    </NumberInput>
+  </svelte:fragment>
+  <svelte:fragment slot="tip">
+    <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
+      {error}
+    </div>
+  </svelte:fragment>
 </Tooltip>

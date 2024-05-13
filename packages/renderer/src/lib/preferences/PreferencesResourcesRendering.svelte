@@ -416,13 +416,22 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                           ? provider.kubernetesProviderConnectionCreationButtonTitle
                           : undefined) || 'Create new'}
                     <!-- create new provider button -->
-                    <Tooltip tip="Create new {providerDisplayName}" bottom>
-                      <Button
-                        aria-label="Create new {providerDisplayName}"
-                        inProgress="{providerInstallationInProgress.get(provider.name)}"
-                        on:click="{() => doCreateNew(provider, providerDisplayName)}">
-                        {buttonTitle} ...
-                      </Button>
+                    <Tooltip bottom>
+                      <svelte:fragment slot="item">
+                        <Button
+                          aria-label="Create new {providerDisplayName}"
+                          inProgress="{providerInstallationInProgress.get(provider.name)}"
+                          on:click="{() => doCreateNew(provider, providerDisplayName)}">
+                          {buttonTitle} ...
+                        </Button>
+                      </svelte:fragment>
+                      <svelte:fragment slot="tip">
+                        <div
+                          class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white"
+                          aria-label="tooltip">
+                          Create new {providerDisplayName}
+                        </div>
+                      </svelte:fragment>
                     </Tooltip>
                   {/if}
                   {#if isOnboardingEnabled(provider, globalContext) || hasAnyConfiguration(provider)}
@@ -456,18 +465,29 @@ function hasAnyConfiguration(provider: ProviderInfo) {
             {@const peerProperties = new PeerProperties()}
             <div class="px-5 py-2 w-[240px]" role="region" aria-label="{container.name}">
               <div class="float-right">
-                <Tooltip tip="{provider.name} details" bottom>
-                  <button
-                    aria-label="{provider.name} details"
-                    type="button"
-                    on:click="{() =>
-                      router.goto(
-                        `/preferences/container-connection/view/${provider.internalId}/${Buffer.from(
-                          container.name,
-                        ).toString('base64')}/${Buffer.from(container.endpoint.socketPath).toString('base64')}/summary`,
-                      )}">
-                    <Fa icon="{faArrowUpRightFromSquare}" />
-                  </button>
+                <Tooltip bottom>
+                  <svelte:fragment slot="item">
+                    <button
+                      aria-label="{provider.name} details"
+                      type="button"
+                      on:click="{() =>
+                        router.goto(
+                          `/preferences/container-connection/view/${provider.internalId}/${Buffer.from(
+                            container.name,
+                          ).toString(
+                            'base64',
+                          )}/${Buffer.from(container.endpoint.socketPath).toString('base64')}/summary`,
+                        )}">
+                      <Fa icon="{faArrowUpRightFromSquare}" />
+                    </button>
+                  </svelte:fragment>
+                  <svelte:fragment slot="tip">
+                    <div
+                      class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white"
+                      aria-label="tooltip">
+                      {provider.name} details
+                    </div>
+                  </svelte:fragment>
                 </Tooltip>
               </div>
               <div class="{container.status !== 'started' ? 'text-gray-900' : ''} text-sm">
@@ -539,18 +559,27 @@ function hasAnyConfiguration(provider: ProviderInfo) {
           {#each provider.kubernetesConnections as kubeConnection}
             <div class="px-5 py-2 w-[240px]" role="region" aria-label="{kubeConnection.name}">
               <div class="float-right">
-                <Tooltip tip="{provider.name} details" bottom>
-                  <button
-                    aria-label="{provider.name} details"
-                    type="button"
-                    on:click="{() =>
-                      router.goto(
-                        `/preferences/kubernetes-connection/${provider.internalId}/${Buffer.from(
-                          kubeConnection.endpoint.apiURL,
-                        ).toString('base64')}/summary`,
-                      )}">
-                    <Fa icon="{faArrowUpRightFromSquare}" />
-                  </button>
+                <Tooltip bottom>
+                  <svelte:fragment slot="item">
+                    <button
+                      aria-label="{provider.name} details"
+                      type="button"
+                      on:click="{() =>
+                        router.goto(
+                          `/preferences/kubernetes-connection/${provider.internalId}/${Buffer.from(
+                            kubeConnection.endpoint.apiURL,
+                          ).toString('base64')}/summary`,
+                        )}">
+                      <Fa icon="{faArrowUpRightFromSquare}" />
+                    </button>
+                  </svelte:fragment>
+                  <svelte:fragment slot="tip">
+                    <div
+                      class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white"
+                      aria-label="tooltip">
+                      {provider.name} details
+                    </div>
+                  </svelte:fragment>
                 </Tooltip>
               </div>
               <div class="text-sm">

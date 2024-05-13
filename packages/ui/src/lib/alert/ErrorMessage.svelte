@@ -10,8 +10,15 @@ export let icon = false;
 
 {#if icon}
   {#if error !== undefined && error !== ''}
-    <Tooltip tip="{error}" top>
-      <Fa size="1.1x" class="cursor-pointer text-red-500 {$$props.class}" icon="{faExclamationCircle}" />
+    <Tooltip top>
+      <svelte:fragment slot="item">
+        <Fa size="1.1x" class="cursor-pointer text-red-500 {$$props.class}" icon="{faExclamationCircle}" />
+      </svelte:fragment>
+      <svelte:fragment slot="tip">
+        <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
+          {error}
+        </div>
+      </svelte:fragment>
     </Tooltip>
   {/if}
 {:else}

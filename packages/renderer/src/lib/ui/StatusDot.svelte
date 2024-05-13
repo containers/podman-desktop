@@ -23,16 +23,24 @@ let dotClass = getStatusColor(status);
 // If dotClass contains "outline", then we will use 'outline-1 outline-offset-[-2px]
 </script>
 
-<Tooltip tip="{tooltip}" top>
-  <div
-    class="w-2.5 h-2.5 mr-0.5 rounded-full text-center {dotClass.includes('outline')
-      ? 'outline-2 outline-offset-[-2px] outline'
-      : ''} {getStatusColor(status)} {number ? 'mt-3' : ''}"
-    data-testid="status-dot"
-    title="{tooltip}">
-  </div>
-  <!-- If text -->
-  {#if number}
-    <div class="text-xs text-bold text-gray-600 mr-0.5">{number}</div>
-  {/if}
+<Tooltip top>
+  <svelte:fragment slot="item">
+    <div
+      class="w-2.5 h-2.5 mr-0.5 rounded-full text-center {dotClass.includes('outline')
+        ? 'outline-2 outline-offset-[-2px] outline'
+        : ''} {getStatusColor(status)} {number ? 'mt-3' : ''}"
+      data-testid="status-dot"
+      title="{tooltip}">
+    </div>
+    <!-- If text -->
+    {#if number}
+      <div class="text-xs text-bold text-gray-600 mr-0.5">{number}</div>
+    {/if}
+  </svelte:fragment>
+
+  <svelte:fragment slot="tip">
+    <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
+      {tooltip}
+    </div>
+  </svelte:fragment>
 </Tooltip>
