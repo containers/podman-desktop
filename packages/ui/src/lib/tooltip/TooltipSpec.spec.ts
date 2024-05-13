@@ -23,12 +23,12 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
-import Tooltip from './Tooltip.svelte';
+import TooltipSpec from './TooltipSpec.svelte';
 
 const tip = 'test';
 
 test('Expect basic styling', async () => {
-  render(Tooltip, { tip });
+  render(TooltipSpec, { tip });
 
   const element = screen.getByLabelText('tooltip');
   expect(element).toBeInTheDocument();
@@ -37,7 +37,7 @@ test('Expect basic styling', async () => {
 
 function createTest(props: Record<string, boolean>, locationName: string, expectedStyle = locationName): void {
   test(`Expect property ${locationName} to add ${expectedStyle} class to parent element`, () => {
-    render(Tooltip, { tip, ...props });
+    render(TooltipSpec, { tip, ...props });
     const element = screen.getByLabelText('tooltip');
     expect(element).toBeInTheDocument();
     expect(element.parentElement).toHaveClass(expectedStyle);

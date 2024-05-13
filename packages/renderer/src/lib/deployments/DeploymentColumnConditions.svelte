@@ -26,11 +26,20 @@ function getConditionColour(type: string): string {
 
 <div class="flex flex-row gap-1">
   {#each object.conditions as condition}
-    <Tooltip tip="{condition.message}" bottom>
-      <div class="flex flex-row bg-charcoal-500 items-center p-1 rounded-md text-xs text-gray-500">
-        <div class="w-2 h-2 {getConditionColour(condition.type)} rounded-full mr-1"></div>
-        {condition.type}
-      </div>
+    <Tooltip bottom>
+      <svelte:fragment slot="content">
+        <div class="flex flex-row bg-charcoal-500 items-center p-1 rounded-md text-xs text-gray-500">
+          <div class="w-2 h-2 {getConditionColour(condition.type)} rounded-full mr-1"></div>
+          {condition.type}
+        </div>
+      </svelte:fragment>
+      <svelte:fragment slot="tip">
+        {#if condition.message}
+          <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
+            {condition.message}
+          </div>
+        {/if}
+      </svelte:fragment>
     </Tooltip>
   {/each}
 </div>

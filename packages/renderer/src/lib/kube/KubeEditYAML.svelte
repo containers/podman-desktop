@@ -79,21 +79,35 @@ async function applyToCluster() {
   class="flex flex-row-reverse p-6 bg-transparent fixed bottom-0 right-0 mb-5 pr-10 max-h-20 bg-opacity-90 z-50"
   role="group"
   aria-label="Edit Buttons">
-  <Tooltip tip="Apply the changes to the cluster, similar to 'kubectl apply'" topLeft="{true}">
-    <Button
-      type="primary"
-      aria-label="Apply changes to cluster"
-      on:click="{applyToCluster}"
-      disabled="{!changesDetected}"
-      inProgress="{inProgress}">Apply changes to cluster</Button>
+  <Tooltip topLeft>
+    <svelte:fragment slot="content">
+      <Button
+        type="primary"
+        aria-label="Apply changes to cluster"
+        on:click="{applyToCluster}"
+        disabled="{!changesDetected}"
+        inProgress="{inProgress}">Apply changes to cluster</Button>
+    </svelte:fragment>
+    <svelte:fragment slot="tip">
+      <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
+        Apply the changes to the cluster, similar to 'kubectl apply'
+      </div>
+    </svelte:fragment>
   </Tooltip>
-  <Tooltip tip="Revert the changes to the original content" topLeft="{true}">
-    <Button
-      type="secondary"
-      aria-label="Revert changes"
-      class="mr-2 opacity-100"
-      on:click="{revertChanges}"
-      disabled="{!changesDetected}">Revert changes</Button>
+  <Tooltip topLeft>
+    <svelte:fragment slot="content">
+      <Button
+        type="secondary"
+        aria-label="Revert changes"
+        class="mr-2 opacity-100"
+        on:click="{revertChanges}"
+        disabled="{!changesDetected}">Revert changes</Button>
+    </svelte:fragment>
+    <svelte:fragment slot="tip">
+      <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
+        Revert the changes to the original content
+      </div>
+    </svelte:fragment>
   </Tooltip>
 </div>
 
