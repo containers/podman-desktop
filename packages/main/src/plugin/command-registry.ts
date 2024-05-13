@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { InputQuickPickRegistry } from '/@/plugin/input-quickpick/input-quickpick-registry.js';
 import { type CommandInfo } from '/@api/command-info.js';
 
 import { type ApiSenderType } from './api.js';
@@ -43,6 +44,7 @@ export class CommandRegistry {
   constructor(
     private apiSender: ApiSenderType,
     private readonly telemetry: Telemetry,
+    private inputQuickPickRegistry: InputQuickPickRegistry,
   ) {
     // init empty array
     this.commandPaletteCommands.set(CommandRegistry.GLOBAL, []);
@@ -52,6 +54,23 @@ export class CommandRegistry {
 
   static readonly GLOBAL = 'GLOBAL';
   private commandPaletteCommands = new Map<string, RawCommand[]>();
+
+  showCommandPalette(): void {
+    this.inputQuickPickRegistry
+      .showQuickPick(Array.from(this.commands.keys()), {
+        title: 'Command palette',
+        canPickMany: false,
+        placeHolder: 'Select a command',
+      })
+      .then(command => {
+        if (typeof command !== 'string') return;
+
+        return this.executeCommand(command);
+      })
+      .catch((err: unknown) => {
+        console.error('Something went wrong while trying to show command palette.', err);
+      });
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   registerCommand(command: string, callback: (...args: any[]) => any, thisArg?: any): Disposable {

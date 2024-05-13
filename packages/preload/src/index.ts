@@ -1153,6 +1153,10 @@ export function initExposure(): void {
     return ipcInvoke('command-registry:executeCommand', command, ...args);
   });
 
+  contextBridge.exposeInMainWorld('showCommandPalette', async (): Promise<unknown> => {
+    return ipcInvoke('command-registry:showCommandPalette');
+  });
+
   contextBridge.exposeInMainWorld(
     'clipboardWriteText',
     async (text: string, type?: 'selection' | 'clipboard'): Promise<void> => {
