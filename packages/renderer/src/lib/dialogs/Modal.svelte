@@ -37,7 +37,7 @@ if (previously_focused) {
   on:click="{close}"></button>
 
 <div
-  class="absolute bg-charcoal-800 top-1/2 left-1/2 z-50 rounded translate-x-[-50%] translate-y-[-50%] overflow-auto w-[calc(200vw-4em)] max-w-[42em] max-h-[calc(100vh-4em)]"
+  class="absolute bg-charcoal-800 top-1/2 left-1/2 z-50 rounded-xl translate-x-[-50%] translate-y-[-50%] overflow-auto w-[calc(200vw-4em)] max-w-[42em] max-h-[calc(100vh-4em)]"
   role="dialog"
   aria-label="{name}"
   aria-modal="true"

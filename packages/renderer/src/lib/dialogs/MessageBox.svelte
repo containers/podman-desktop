@@ -8,7 +8,6 @@ import Fa from 'svelte-fa';
 import Modal from '/@/lib/dialogs/Modal.svelte';
 import CloseButton from '/@/lib/ui/CloseButton.svelte';
 
-import { tabWithinParent } from './dialog-utils';
 import type { MessageBoxOptions } from './messagebox-input';
 
 let currentId = 0;
@@ -22,8 +21,6 @@ let defaultId: number;
 let buttonOrder: number[];
 
 let display = false;
-
-let messageBox: HTMLDivElement;
 
 const showMessageBoxCallback = (messageBoxParameter: unknown) => {
   const options: MessageBoxOptions | undefined = messageBoxParameter as MessageBoxOptions;
@@ -98,21 +95,9 @@ function clickButton(index?: number) {
   cleanup();
 }
 
-function handleKeydown(e: KeyboardEvent) {
-  if (!display) {
-    return;
-  }
-
-  if (e.key === 'Escape') {
-    // if there is a cancel button use its id, otherwise undefined
-    window.sendShowMessageBoxOnSelect(currentId, cancelId >= 0 ? cancelId : undefined);
-    cleanup();
-    e.preventDefault();
-  }
-
-  if (e.key === 'Tab') {
-    tabWithinParent(e, messageBox);
-  }
+function onClose() {
+  window.sendShowMessageBoxOnSelect(currentId, cancelId >= 0 ? cancelId : undefined);
+  cleanup();
 }
 
 function getButtonType(b: boolean): ButtonType {
@@ -124,10 +109,8 @@ function getButtonType(b: boolean): ButtonType {
 }
 </script>
 
-<svelte:window on:keydown="{handleKeydown}" />
-
 {#if display}
-  <Modal>
+  <Modal name="{title}" on:close="{onClose}">
     <div class="flex items-center justify-between pl-4 pr-3 py-3 space-x-2 text-gray-400">
       {#if type === 'error'}
         <Fa class="h-4 w-4 text-red-500" icon="{faCircleExclamation}" />
