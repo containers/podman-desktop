@@ -37,7 +37,7 @@ onMount(() => {
     on:click="{() => (expanded = !expanded)}"
     disabled="{expanded && $count < 2}">
     <Tooltip class="flex flex-col justify-center items-center pb-1" right>
-      <svelte:fragment slot="item">
+      <svelte:fragment slot="content">
         <div class="flex flex-col justify-center items-center" class:text-charcoal-50="{expanded && $count < 2}">
           {#if !expanded}
             <div class="py-2" transition:fadeSlide="{{ duration: 500 }}">

@@ -50,7 +50,7 @@ onDestroy(() => {
     class:hover:bg-[var(--pd-global-nav-icon-hover-bg)]="{!selected || inSection}"
     class:hover:border-[var(--pd-global-nav-icon-hover-bg)]="{!selected && !inSection}">
     <Tooltip right>
-      <svelte:fragment slot="item">
+      <svelte:fragment slot="content">
         <slot />
       </svelte:fragment>
       <svelte:fragment slot="tip">

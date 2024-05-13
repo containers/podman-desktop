@@ -27,7 +27,7 @@ $: tooltip = percent ? percent.toFixed(0) + '% ' + title + ' usage' : '';
 </script>
 
 <Tooltip bottom>
-  <svelte:fragment slot="item">
+  <svelte:fragment slot="content">
     <svg viewBox="-4 -4 {size + 8} {size + 8}" height="{size}" width="{size}">
       <circle fill="none" class="stroke-charcoal-300" stroke-width="1" r="{size / 2}" cx="{size / 2}" cy="{size / 2}"
       ></circle>

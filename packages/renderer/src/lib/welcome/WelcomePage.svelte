@@ -129,7 +129,7 @@ function startOnboardingQueue() {
                       <div
                         class="flex flex-1 mx-2 underline decoration-2 decoration-dotted underline-offset-2 cursor-default justify-left text-capitalize">
                         <Tooltip top>
-                          <svelte:fragment slot="item">
+                          <svelte:fragment slot="content">
                             {onboarding.displayName}
                           </svelte:fragment>
                           <svelte:fragment slot="tip">

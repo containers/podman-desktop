@@ -417,7 +417,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                           : undefined) || 'Create new'}
                     <!-- create new provider button -->
                     <Tooltip bottom>
-                      <svelte:fragment slot="item">
+                      <svelte:fragment slot="content">
                         <Button
                           aria-label="Create new {providerDisplayName}"
                           inProgress="{providerInstallationInProgress.get(provider.name)}"
@@ -466,7 +466,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
             <div class="px-5 py-2 w-[240px]" role="region" aria-label="{container.name}">
               <div class="float-right">
                 <Tooltip bottom>
-                  <svelte:fragment slot="item">
+                  <svelte:fragment slot="content">
                     <button
                       aria-label="{provider.name} details"
                       type="button"
@@ -560,7 +560,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
             <div class="px-5 py-2 w-[240px]" role="region" aria-label="{kubeConnection.name}">
               <div class="float-right">
                 <Tooltip bottom>
-                  <svelte:fragment slot="item">
+                  <svelte:fragment slot="content">
                     <button
                       aria-label="{provider.name} details"
                       type="button"

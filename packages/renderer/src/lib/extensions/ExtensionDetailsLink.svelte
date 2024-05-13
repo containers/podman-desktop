@@ -16,7 +16,7 @@ function openDetailsExtension() {
 </script>
 
 <Tooltip top>
-  <svelte:fragment slot="item">
+  <svelte:fragment slot="content">
     <button aria-label="{extension.name} extension details" type="button" on:click="{() => openDetailsExtension()}">
       <div class="flex flex-row items-center">
         {#if displayIcon}

@@ -13,7 +13,7 @@ function copyTextToClipboard() {
 
 <div class="float-right">
   <Tooltip bottom>
-    <svelte:fragment slot="item">
+    <svelte:fragment slot="content">
       <button
         title="Copy To Clipboard"
         class="ml-5 {$$props.class || ''}"

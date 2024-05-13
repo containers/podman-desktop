@@ -24,7 +24,7 @@ $: text = getText($kubernetesCurrentContextState);
     <span class="text-xs capitalize mr-1">
       {#if $kubernetesCurrentContextState.error !== undefined}
         <Tooltip left>
-          <svelte:fragment slot="item">
+          <svelte:fragment slot="content">
             {text}
           </svelte:fragment>
           <svelte:fragment slot="tip">

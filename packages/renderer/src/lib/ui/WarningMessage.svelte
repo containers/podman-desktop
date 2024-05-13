@@ -10,7 +10,7 @@ export let icon = false;
 {#if icon}
   {#if error !== undefined && error !== ''}
     <Tooltip top>
-      <svelte:fragment slot="item">
+      <svelte:fragment slot="content">
         <Fa size="1.125x" class="cursor-pointer text-amber-500" icon="{faTriangleExclamation}" />
       </svelte:fragment>
       <svelte:fragment slot="tip">

@@ -37,7 +37,7 @@ $: if (error) {
 </script>
 
 <Tooltip topLeft>
-  <svelte:fragment slot="item">
+  <svelte:fragment slot="content">
     <NumberInput
       class="w-24"
       name="{record.id}"

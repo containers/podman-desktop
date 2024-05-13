@@ -35,7 +35,7 @@ function getProviderColour(providerName: string): string {
     <!-- If Kubernetes, show the context via the tooltip / hover, else just provider the name.-->
     {#if provider === 'Kubernetes'}
       <Tooltip top>
-        <svelte:fragment slot="item">
+        <svelte:fragment slot="content">
           {provider}
         </svelte:fragment>
         <svelte:fragment slot="tip">

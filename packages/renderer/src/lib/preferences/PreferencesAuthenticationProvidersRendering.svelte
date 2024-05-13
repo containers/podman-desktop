@@ -100,7 +100,7 @@ import SettingsPage from './SettingsPage.svelte';
                           {account.label}
                         </span>
                         <Tooltip bottomRight>
-                          <svelte:fragment slot="item">
+                          <svelte:fragment slot="content">
                             <button
                               aria-label="Sign out of {account.label}"
                               class="pl-2 hover:cursor-pointer hover:text-white text-white"
@@ -129,7 +129,7 @@ import SettingsPage from './SettingsPage.svelte';
               {@const request = sessionRequests[0]}
               <!-- Authentication Provider Auth Request Sign In button start -->
               <Tooltip bottomLeft>
-                <svelte:fragment slot="item">
+                <svelte:fragment slot="content">
                   <Button
                     aria-label="Sign in"
                     class="pl-2 mr-4 hover:cursor-pointer hover:text-white text-white"

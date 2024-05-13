@@ -62,7 +62,7 @@ export let left = false;
 
 <div class="relative inline-block">
   <span class="group tooltip-slot {$$props.class}">
-    <slot name="item" />
+    <slot name="content" />
   </span>
   <div
     class="whitespace-nowrap absolute tooltip opacity-0 inline-block transition-opacity duration-150 ease-in-out pointer-events-none z-[10]"

@@ -52,7 +52,7 @@ $: style = disable
 </script>
 
 <Tooltip bottom>
-  <svelte:fragment slot="item">
+  <svelte:fragment slot="content">
     <button aria-label="{capitalize(action)}" class="mx-2.5 my-2 {style}" on:click="{clickAction}" disabled="{disable}">
       <LoadingIcon
         icon="{icon}"

@@ -72,7 +72,7 @@ function assertNumericValueIsValid(value: number): boolean {
   class:border-violet-500="{!numberInputInvalid}"
   class:border-red-500="{numberInputInvalid}">
   <Tooltip topRight>
-    <svelte:fragment slot="item">
+    <svelte:fragment slot="content">
       <input
         type="text"
         class="w-full px-2 outline-none focus:outline-none text-white text-sm py-0.5"

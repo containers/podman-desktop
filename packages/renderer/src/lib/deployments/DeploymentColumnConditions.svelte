@@ -27,7 +27,7 @@ function getConditionColour(type: string): string {
 <div class="flex flex-row gap-1">
   {#each object.conditions as condition}
     <Tooltip bottom>
-      <svelte:fragment slot="item">
+      <svelte:fragment slot="content">
         <div class="flex flex-row bg-charcoal-500 items-center p-1 rounded-md text-xs text-gray-500">
           <div class="w-2 h-2 {getConditionColour(condition.type)} rounded-full mr-1"></div>
           {condition.type}

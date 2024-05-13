@@ -11,7 +11,7 @@ export let icon = false;
 {#if icon}
   {#if error !== undefined && error !== ''}
     <Tooltip top>
-      <svelte:fragment slot="item">
+      <svelte:fragment slot="content">
         <Fa size="1.1x" class="cursor-pointer text-red-500 {$$props.class}" icon="{faExclamationCircle}" />
       </svelte:fragment>
       <svelte:fragment slot="tip">

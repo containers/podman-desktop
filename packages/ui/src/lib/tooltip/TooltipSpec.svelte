@@ -21,7 +21,7 @@ export let left = false;
   bottomLeft="{bottomLeft}"
   bottomRight="{bottomRight}"
   left="{left}">
-  <svelte:fragment slot="item">
+  <svelte:fragment slot="content">
     <slot />
   </svelte:fragment>
   <svelte:fragment slot="tip">

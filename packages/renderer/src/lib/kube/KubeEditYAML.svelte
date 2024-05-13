@@ -79,8 +79,8 @@ async function applyToCluster() {
   class="flex flex-row-reverse p-6 bg-transparent fixed bottom-0 right-0 mb-5 pr-10 max-h-20 bg-opacity-90 z-50"
   role="group"
   aria-label="Edit Buttons">
-  <Tooltip topLeft="{true}">
-    <svelte:fragment slot="item">
+  <Tooltip topLeft>
+    <svelte:fragment slot="content">
       <Button
         type="primary"
         aria-label="Apply changes to cluster"
@@ -94,8 +94,8 @@ async function applyToCluster() {
       </div>
     </svelte:fragment>
   </Tooltip>
-  <Tooltip topLeft="{true}">
-    <svelte:fragment slot="item">
+  <Tooltip topLeft>
+    <svelte:fragment slot="content">
       <Button
         type="secondary"
         aria-label="Revert changes"

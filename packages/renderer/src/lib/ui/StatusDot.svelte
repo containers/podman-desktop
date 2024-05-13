@@ -24,7 +24,7 @@ let dotClass = getStatusColor(status);
 </script>
 
 <Tooltip top>
-  <svelte:fragment slot="item">
+  <svelte:fragment slot="content">
     <div
       class="w-2.5 h-2.5 mr-0.5 rounded-full text-center {dotClass.includes('outline')
         ? 'outline-2 outline-offset-[-2px] outline'

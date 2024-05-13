@@ -91,7 +91,7 @@ onMount(() => {
     <div class="ml-2 text-sm text-left break-normal w-36">{title}</div>
     {#if isDefault}
       <Tooltip>
-        <svelte:fragment slot="item">
+        <svelte:fragment slot="content">
           <Fa size="0.5x" class="text-dustypurple-700 cursor-pointer" icon="{faCircle}" />
         </svelte:fragment>
         <svelte:fragment slot="tip">
