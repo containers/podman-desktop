@@ -1,8 +1,6 @@
 <script lang="ts">
 import { faPlug } from '@fortawesome/free-solid-svg-icons';
-import { Button } from '@podman-desktop/ui-svelte';
-
-import ErrorMessage from '../ui/ErrorMessage.svelte';
+import { Button, ErrorMessage } from '@podman-desktop/ui-svelte';
 
 let reconnectInProgress = false;
 let reconnectError = '';

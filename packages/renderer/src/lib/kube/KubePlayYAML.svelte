@@ -8,14 +8,13 @@ let providerUnsubscribe: Unsubscriber;
 
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
-import { Button, Input } from '@podman-desktop/ui-svelte';
+import { Button, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
 import { providerInfos } from '../../stores/providers';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
 import KubePlayIcon from '../kube/KubePlayIcon.svelte';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
 import FormPage from '../ui/FormPage.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
 

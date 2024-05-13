@@ -1,12 +1,12 @@
 <script lang="ts">
 import type { V1Ingress } from '@kubernetes/client-node';
+import { ErrorMessage } from '@podman-desktop/ui-svelte';
 
 import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import KubeIngressArtifact from '../kube/details/KubeIngressArtifact.svelte';
 import KubeIngressStatusArtifact from '../kube/details/KubeIngressStatusArtifact.svelte';
 import KubeObjectMetaArtifact from '../kube/details/KubeObjectMetaArtifact.svelte';
 import OpenshiftRouteArtifact from '../kube/details/OpenshiftRouteArtifact.svelte';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
 
 export let ingressRoute: V1Ingress | V1Route | undefined;
 export let kubeError: string | undefined = undefined;
@@ -17,7 +17,7 @@ function isIngress(ingressRoute: V1Ingress | V1Route): ingressRoute is V1Ingress
 }
 </script>
 
-<!-- Show the kube error if we're unable to retrieve the data correctly, but we still want to show the 
+<!-- Show the kube error if we're unable to retrieve the data correctly, but we still want to show the
 basic information -->
 {#if kubeError}
   <ErrorMessage error="{kubeError}" />

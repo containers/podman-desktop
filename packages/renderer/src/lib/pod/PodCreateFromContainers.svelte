@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { Button, Input } from '@podman-desktop/ui-svelte';
+import { Button, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 import Fa from 'svelte-fa';
@@ -13,7 +13,6 @@ import { providerInfos } from '../../stores/providers';
 import ContainerIcon from '../images/ContainerIcon.svelte';
 import SolidPodIcon from '../images/SolidPodIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
-import ErrorMessage from '../ui/ErrorMessage.svelte';
 import FormPage from '../ui/FormPage.svelte';
 
 let podCreation: PodCreation;

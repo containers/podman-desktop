@@ -15,6 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+import ErrorMessage from './alert/ErrorMessage.svelte';
 import type { ButtonType } from './button/Button';
 import Button from './button/Button.svelte';
 import Checkbox from './checkbox/Checkbox.svelte';
@@ -24,5 +25,5 @@ import Tooltip from './tooltip/Tooltip.svelte';
 import { isFontAwesomeIcon } from './utils/icon-utils';
 
 export type { ButtonType };
-export { Button, Checkbox, Input, Spinner, Tooltip };
+export { Button, Checkbox, ErrorMessage, Input, Spinner, Tooltip };
 export { isFontAwesomeIcon };
