@@ -124,6 +124,18 @@ onMount(() => {
   window.events?.receive('showQuickPick:add', showQuickPickCallback);
 });
 
+const onClose = () => {
+  if (validationError) {
+    return;
+  }
+  if (mode === 'QuickPick') {
+    window.sendShowQuickPickValues(currentId, []);
+  } else if (mode === 'InputBox') {
+    window.sendShowInputBoxValue(currentId, undefined, undefined);
+  }
+  cleanup();
+};
+
 async function onInputChange(event: any) {
   // in case of quick pick, filter the items
   if (mode === 'QuickPick') {
@@ -278,7 +290,7 @@ function handleMousedown(e: MouseEvent) {
 <svelte:window on:keydown="{handleKeydown}" on:mousedown="{handleMousedown}" />
 
 {#if display}
-  <Modal name="{title}" top>
+  <Modal on:close="{onClose}" name="{title}" top>
     <div class="flex justify-center items-center mt-1">
       <div
         bind:this="{outerDiv}"
