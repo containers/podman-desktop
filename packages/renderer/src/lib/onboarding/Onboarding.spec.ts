@@ -735,5 +735,5 @@ test('Expect onboarding to be reset when starting completed onboarding', async (
     extensionIds: ['id'],
   });
   const helloDoesntExist = screen.queryAllByText('helloworld');
-  expect(helloDoesntExist).toBeGreaterThan(0);
+  expect(helloDoesntExist.length).toBeGreaterThan(0);
 });
