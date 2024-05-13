@@ -83,9 +83,11 @@ function assertNumericValueIsValid(value: number): boolean {
         aria-label="{record.description}" />
     </svelte:fragment>
     <svelte:fragment slot="tip">
-      <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
-        {numberInputErrorMessage}
-      </div>
+      {#if numberInputErrorMessage}
+        <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
+          {numberInputErrorMessage}
+        </div>
+      {/if}
     </svelte:fragment>
   </Tooltip>
 </div>

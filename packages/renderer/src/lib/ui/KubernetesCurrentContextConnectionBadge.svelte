@@ -28,9 +28,11 @@ $: text = getText($kubernetesCurrentContextState);
             {text}
           </svelte:fragment>
           <svelte:fragment slot="tip">
-            <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
-              {$kubernetesCurrentContextState.error}
-            </div>
+            {#if $kubernetesCurrentContextState.error}
+              <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
+                {$kubernetesCurrentContextState.error}
+              </div>
+            {/if}
           </svelte:fragment>
         </Tooltip>
       {:else}

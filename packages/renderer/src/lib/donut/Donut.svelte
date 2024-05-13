@@ -48,8 +48,10 @@ $: tooltip = percent ? percent.toFixed(0) + '% ' + title + ' usage' : '';
     </svg>
   </svelte:fragment>
   <svelte:fragment slot="tip">
-    <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
-      {tooltip}
-    </div>
+    {#if tooltip}
+      <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
+        {tooltip}
+      </div>
+    {/if}
   </svelte:fragment>
 </Tooltip>

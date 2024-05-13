@@ -15,9 +15,11 @@ export let icon = false;
         <Fa size="1.1x" class="cursor-pointer text-red-500 {$$props.class}" icon="{faExclamationCircle}" />
       </svelte:fragment>
       <svelte:fragment slot="tip">
-        <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
-          {error}
-        </div>
+        {#if error}
+          <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
+            {error}
+          </div>
+        {/if}
       </svelte:fragment>
     </Tooltip>
   {/if}

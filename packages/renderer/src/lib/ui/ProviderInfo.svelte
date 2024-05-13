@@ -39,9 +39,11 @@ function getProviderColour(providerName: string): string {
           {provider}
         </svelte:fragment>
         <svelte:fragment slot="tip">
-          <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
-            {context}
-          </div>
+          {#if context}
+            <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
+              {context}
+            </div>
+          {/if}
         </svelte:fragment></Tooltip>
     {:else}
       {provider}
