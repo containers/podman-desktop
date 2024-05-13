@@ -550,32 +550,32 @@ export class ColorRegistry {
     const sNav = 'input-checkbox-';
 
     this.registerColor(`${sNav}disabled`, {
-      dark: colorPalette.charcoal[300],
-      light: colorPalette.charcoal[300],
+      dark: colorPalette.gray[700],
+      light: colorPalette.charcoal[200],
     });
     this.registerColor(`${sNav}indeterminate`, {
-      dark: colorPalette.dustypurple[500],
-      light: colorPalette.dustypurple[500],
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[900],
     });
     this.registerColor(`${sNav}focused-indeterminate`, {
-      dark: colorPalette.dustypurple[400],
-      light: colorPalette.dustypurple[600],
+      dark: colorPalette.purple[400],
+      light: colorPalette.purple[700],
     });
     this.registerColor(`${sNav}checked`, {
       dark: colorPalette.purple[500],
-      light: colorPalette.purple[500],
+      light: colorPalette.purple[900],
     });
     this.registerColor(`${sNav}focused-checked`, {
       dark: colorPalette.purple[400],
-      light: colorPalette.purple[600],
+      light: colorPalette.purple[700],
     });
     this.registerColor(`${sNav}unchecked`, {
       dark: colorPalette.gray[400],
-      light: colorPalette.charcoal[700],
+      light: colorPalette.purple[900],
     });
     this.registerColor(`${sNav}focused-unchecked`, {
-      dark: colorPalette.purple[500],
-      light: colorPalette.purple[500],
+      dark: colorPalette.purple[400],
+      light: colorPalette.purple[700],
     });
   }
 }
