@@ -1,6 +1,7 @@
 <script lang="ts">
 import { faChevronDown, faChevronRight, faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Button, Checkbox, ErrorMessage, Modal } from '@podman-desktop/ui-svelte';
+import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
 import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import { get, type Unsubscriber } from 'svelte/store';
@@ -24,7 +25,6 @@ import type { ContextUI } from '../context/context';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import Prune from '../engine/Prune.svelte';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
-import ContainerIcon from '../images/ContainerIcon.svelte';
 import PodIcon from '../images/PodIcon.svelte';
 import SolidPodIcon from '../images/SolidPodIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
