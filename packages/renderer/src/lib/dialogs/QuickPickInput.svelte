@@ -2,9 +2,9 @@
 import { Button, Checkbox } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount, tick } from 'svelte';
 
+import Modal from '/@/lib/dialogs/Modal.svelte';
 import Markdown from '/@/lib/markdown/Markdown.svelte';
 
-import { tabWithinParent } from './dialog-utils';
 import type { InputBoxOptions, QuickPickOptions } from './quickpick-input';
 
 const ENTER = 'Enter';
@@ -124,6 +124,18 @@ onMount(() => {
   window.events?.receive('showQuickPick:add', showQuickPickCallback);
 });
 
+const onClose = () => {
+  if (validationError) {
+    return;
+  }
+  if (mode === 'QuickPick') {
+    window.sendShowQuickPickValues(currentId, []);
+  } else if (mode === 'InputBox') {
+    window.sendShowInputBoxValue(currentId, undefined, undefined);
+  }
+  cleanup();
+};
+
 async function onInputChange(event: any) {
   // in case of quick pick, filter the items
   if (mode === 'QuickPick') {
@@ -213,21 +225,7 @@ function handleKeydown(e: KeyboardEvent) {
     return;
   }
 
-  if (e.key === 'Escape') {
-    // In case of validating error, do not proceed
-    if (validationError) {
-      e.preventDefault();
-      return;
-    }
-    if (mode === 'QuickPick') {
-      window.sendShowQuickPickValues(currentId, []);
-    } else if (mode === 'InputBox') {
-      window.sendShowInputBoxValue(currentId, undefined, undefined);
-    }
-    cleanup();
-    e.preventDefault();
-    return;
-  } else if (e.key === 'Enter') {
+  if (e.key === 'Enter') {
     if (mode === 'InputBox') {
       // In case of validating error, do not proceed
       if (validationError) {
@@ -279,10 +277,6 @@ function handleKeydown(e: KeyboardEvent) {
       return;
     }
   }
-
-  if (e.key === 'Tab' && outerDiv) {
-    tabWithinParent(e, outerDiv);
-  }
 }
 
 function handleMousedown(e: MouseEvent) {
@@ -296,10 +290,7 @@ function handleMousedown(e: MouseEvent) {
 <svelte:window on:keydown="{handleKeydown}" on:mousedown="{handleMousedown}" />
 
 {#if display}
-  <!-- Create overlay-->
-  <div class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 h-full z-40"></div>
-
-  <div class="absolute m-auto left-0 right-0 z-50">
+  <Modal on:close="{onClose}" name="{title}" top>
     <div class="flex justify-center items-center mt-1">
       <div
         bind:this="{outerDiv}"
@@ -383,5 +374,5 @@ function handleMousedown(e: MouseEvent) {
         {/if}
       </div>
     </div>
-  </div>
+  </Modal>
 {/if}
