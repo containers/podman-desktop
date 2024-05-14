@@ -22,7 +22,8 @@ import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
 import { beforeAll, expect, test, vi } from 'vitest';
 
-import type { ViewInfoUI } from '../../../main/src/plugin/api/view-info';
+import type { ViewInfoUI } from '/@api/view-info';
+
 import { fetchViews, viewsContributions, viewsEventStore } from './views';
 
 // first, path window object

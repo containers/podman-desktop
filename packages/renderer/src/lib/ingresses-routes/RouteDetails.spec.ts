@@ -26,8 +26,8 @@ import { beforeAll, expect, test, vi } from 'vitest';
 
 import { lastPage } from '/@/stores/breadcrumb';
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
+import type { V1Route } from '/@api/openshift-types';
 
-import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import RouteDetails from './RouteDetails.svelte';
 
 const kubernetesDeleteRouteMock = vi.fn();

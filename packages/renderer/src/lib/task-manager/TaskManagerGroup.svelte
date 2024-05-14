@@ -2,7 +2,8 @@
 import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 
-import type { Task } from '../../../../main/src/plugin/api/task';
+import type { Task } from '/@api/task';
+
 import TaskManagerItem from './TaskManagerItem.svelte';
 
 export let icon: IconDefinition;

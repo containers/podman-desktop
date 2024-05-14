@@ -5,10 +5,8 @@ import { onDestroy, onMount } from 'svelte';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 
-import type {
-  ProviderContainerConnectionInfo,
-  ProviderKubernetesConnectionInfo,
-} from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from '/@api/provider-info';
+
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getPanelDetailColor } from '../color/color';
 import EmptyScreen from '../ui/EmptyScreen.svelte';

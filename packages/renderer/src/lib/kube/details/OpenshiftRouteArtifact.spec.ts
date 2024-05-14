@@ -21,7 +21,8 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
-import type { V1Route } from '../../../../../main/src/plugin/api/openshift-types';
+import type { V1Route } from '/@api/openshift-types';
+
 import OpenshiftRouteArtifact from './OpenshiftRouteArtifact.svelte';
 
 const fakeRoute: V1Route = {

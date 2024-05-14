@@ -3,8 +3,8 @@ import { onMount } from 'svelte';
 import { stringify } from 'yaml';
 
 import { kubernetesCurrentContextRoutes } from '/@/stores/kubernetes-contexts-state';
+import type { V1Route } from '/@api/openshift-types';
 
-import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import Route from '../../Route.svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import ServiceIcon from '../images/ServiceIcon.svelte';

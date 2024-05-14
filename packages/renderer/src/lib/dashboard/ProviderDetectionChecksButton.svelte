@@ -3,7 +3,7 @@ import { faList } from '@fortawesome/free-solid-svg-icons';
 import type { ProviderDetectionCheck } from '@podman-desktop/api';
 import { Button } from '@podman-desktop/ui-svelte';
 
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderInfo } from '/@api/provider-info';
 
 export let provider: ProviderInfo;
 export let onDetectionChecks = (_detectionChecks: ProviderDetectionCheck[]) => {};

@@ -10,7 +10,8 @@ import type { ImageCheck } from '@podman-desktop/api';
 import { Spinner } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
-import type { ImageCheckerInfo } from '../../../../main/src/plugin/api/image-checker-info';
+import type { ImageCheckerInfo } from '/@api/image-checker-info';
+
 import type { ProviderUI } from './ProviderResultPage';
 import SlideToggle from './SlideToggle.svelte';
 import ToggleButton from './ToggleButton.svelte';

@@ -2,7 +2,8 @@
 import type { V1Ingress } from '@kubernetes/client-node';
 import { ErrorMessage } from '@podman-desktop/ui-svelte';
 
-import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
+import type { V1Route } from '/@api/openshift-types';
+
 import KubeIngressArtifact from '../kube/details/KubeIngressArtifact.svelte';
 import KubeIngressStatusArtifact from '../kube/details/KubeIngressStatusArtifact.svelte';
 import KubeObjectMetaArtifact from '../kube/details/KubeObjectMetaArtifact.svelte';

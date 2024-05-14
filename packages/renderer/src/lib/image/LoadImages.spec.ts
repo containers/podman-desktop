@@ -27,8 +27,8 @@ import { router } from 'tinro';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import { providerInfos } from '/@/stores/providers';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import LoadImages from './LoadImages.svelte';
 
 const openDialogMock = vi.fn();

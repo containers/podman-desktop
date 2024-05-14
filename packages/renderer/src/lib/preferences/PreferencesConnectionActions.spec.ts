@@ -25,7 +25,8 @@ import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
-} from '../../../../main/src/plugin/api/provider-info';
+} from '/@api/provider-info';
+
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
 import type { IConnectionStatus } from './Util';
 

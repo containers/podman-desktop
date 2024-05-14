@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { NotificationInfo } from '/@api/notification.js';
+import type { NotificationTask, StatefulTask, Task } from '/@api/task.js';
+
 import type { ApiSenderType } from './api.js';
-import type { NotificationInfo } from './api/notification.js';
-import type { NotificationTask, StatefulTask, Task } from './api/task.js';
 import type { CommandRegistry } from './command-registry.js';
 import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
 

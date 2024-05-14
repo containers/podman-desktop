@@ -25,7 +25,8 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
-import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderContainerConnectionInfo } from '/@api/provider-info';
+
 import PreferencesContainerConnectionDetailsSummary from './PreferencesContainerConnectionDetailsSummary.svelte';
 
 const podmanContainerConnection: ProviderContainerConnectionInfo = {

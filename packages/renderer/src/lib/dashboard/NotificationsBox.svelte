@@ -3,8 +3,8 @@ import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/motion';
 
 import { notificationQueue } from '/@/stores/notifications';
+import type { NotificationCard } from '/@api/notification';
 
-import type { NotificationCard } from '../../../../main/src/plugin/api/notification';
 import NotificationCardItem from './NotificationCardItem.svelte';
 
 let notificationsUnsubscribe: Unsubscriber;

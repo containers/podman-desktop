@@ -24,8 +24,8 @@ import { render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import { webviews } from '/@/stores/webviews';
+import type { WebviewInfo } from '/@api/webview-info';
 
-import type { WebviewInfo } from '../../../../main/src/plugin/api/webview-info';
 import Webview from './Webview.svelte';
 
 const makeDefaultWebviewVisibleMock = vi.fn();

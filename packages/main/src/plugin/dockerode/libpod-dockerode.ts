@@ -20,7 +20,7 @@ import type { ManifestCreateOptions, ManifestInspectInfo } from '@podman-desktop
 import type { VolumeCreateOptions, VolumeCreateResponse } from 'dockerode';
 import Dockerode from 'dockerode';
 
-import type { ImageInfo, PodmanListImagesOptions } from '../api/image-info.js';
+import type { ImageInfo, PodmanListImagesOptions } from '/@api/image-info.js';
 
 export interface PodContainerInfo {
   Id: string;

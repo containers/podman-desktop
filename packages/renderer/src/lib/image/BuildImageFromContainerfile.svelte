@@ -8,9 +8,9 @@ import { get } from 'svelte/store';
 import type { Terminal } from 'xterm';
 
 import { type BuildImageInfo, buildImagesInfo } from '/@/stores/build-images';
-
 /* eslint-enable import/no-duplicates */
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
+
 import { providerInfos } from '../../stores/providers';
 import FormPage from '../ui/FormPage.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';

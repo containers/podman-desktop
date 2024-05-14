@@ -25,8 +25,8 @@ import { beforeAll, expect, test, vi } from 'vitest';
 
 import { lastPage } from '/@/stores/breadcrumb';
 import { volumeListInfos } from '/@/stores/volumes';
+import type { VolumeListInfo } from '/@api/volume-info';
 
-import type { VolumeListInfo } from '../../../../main/src/plugin/api/volume-info';
 import VolumeDetails from './VolumeDetails.svelte';
 
 const listVolumesMock = vi.fn();

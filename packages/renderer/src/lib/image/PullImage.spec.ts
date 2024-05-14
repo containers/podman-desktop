@@ -27,8 +27,8 @@ import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { providerInfos } from '/@/stores/providers';
 import { recommendedRegistries } from '/@/stores/recommendedRegistries';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import PullImage from './PullImage.svelte';
 
 const pullImageMock = vi.fn();

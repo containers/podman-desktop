@@ -18,12 +18,12 @@
 
 import { compareVersions } from 'compare-versions';
 
-import type { ExtensionUpdateInfo } from '/@/plugin/api/extension-info.js';
 import type { ConfigurationRegistry, IConfigurationNode } from '/@/plugin/configuration-registry.js';
 import type { ExtensionLoader } from '/@/plugin/extension-loader.js';
 import type { ExtensionsCatalog } from '/@/plugin/extensions-catalog/extensions-catalog.js';
 import type { ExtensionInstaller } from '/@/plugin/install/extension-installer.js';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
+import type { ExtensionUpdateInfo } from '/@api/extension-info.js';
 
 import { ExtensionsUpdaterSettings } from './extensions-updater-settings.js';
 

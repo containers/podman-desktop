@@ -22,14 +22,15 @@ import { filesize } from 'filesize';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
 
-import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
-import type { ImageInfo } from '../../../../main/src/plugin/api/image-info';
+import type { ContainerInfo } from '/@api/container-info';
+import type { ImageInfo } from '/@api/image-info';
 import {
   isViewContributionBadge,
   isViewContributionIcon,
   type ViewContributionBadgeValue,
   type ViewInfoUI,
-} from '../../../../main/src/plugin/api/view-info';
+} from '/@api/view-info';
+
 import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
 import ImageIcon from '../images/ImageIcon.svelte';

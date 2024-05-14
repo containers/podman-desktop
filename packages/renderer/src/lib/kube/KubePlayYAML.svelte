@@ -2,7 +2,7 @@
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 
 let providerUnsubscribe: Unsubscriber;
 

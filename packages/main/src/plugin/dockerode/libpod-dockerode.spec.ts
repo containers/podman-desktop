@@ -24,9 +24,9 @@ import nock from 'nock';
 import { beforeAll, expect, test } from 'vitest';
 
 import { type LibPod, LibpodDockerode } from '/@/plugin/dockerode/libpod-dockerode.js';
+import type { PodmanListImagesOptions } from '/@api/image-info.js';
 
 import podmanInfo from '../../../tests/resources/data/plugin/podman-info.json';
-import type { PodmanListImagesOptions } from '../api/image-info.js';
 
 beforeAll(() => {
   const libpod = new LibpodDockerode();

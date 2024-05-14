@@ -23,7 +23,8 @@ import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { beforeAll, expect, test, vi } from 'vitest';
 
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
+
 import type { PlayKubeInfo } from '../../../../main/src/plugin/dockerode/libpod-dockerode';
 import { providerInfos } from '../../stores/providers';
 import KubePlayYAML from './KubePlayYAML.svelte';

@@ -22,7 +22,8 @@ import * as os from 'node:os';
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import { ipcMain } from 'electron';
 
-import type { SimpleContainerInfo } from '../api/container-info.js';
+import type { SimpleContainerInfo } from '/@api/container-info.js';
+
 import type { ContainerProviderRegistry } from '../container-registry.js';
 import type { ContributionManager } from '../contribution-manager.js';
 

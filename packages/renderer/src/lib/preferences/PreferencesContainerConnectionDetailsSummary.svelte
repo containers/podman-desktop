@@ -3,8 +3,8 @@ import type { ContainerProviderConnection } from '@podman-desktop/api';
 import { filesize } from 'filesize';
 
 import Donut from '/@/lib/donut/Donut.svelte';
+import type { ProviderContainerConnectionInfo } from '/@api/provider-info';
 
-import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { PeerProperties } from './PeerProperties';
 import type { IProviderConnectionConfigurationPropertyRecorded } from './Util';
