@@ -26,8 +26,8 @@ import type { ConfigurationRegistry, IConfigurationChangeEvent } from '/@/plugin
 import { Emitter } from '/@/plugin/events/emitter.js';
 import type { AnalyzedExtension } from '/@/plugin/extension-loader.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
-import type { ColorDefinition } from '/packages/api/src/color-info.js';
-import type { RawThemeContribution } from '/packages/api/src/theme-info.js';
+import type { ColorDefinition } from '/@api/color-info.js';
+import type { RawThemeContribution } from '/@api/theme-info.js';
 
 import colorPalette from '../../../../tailwind-color-palette.json';
 import { ColorRegistry } from './color-registry.js';

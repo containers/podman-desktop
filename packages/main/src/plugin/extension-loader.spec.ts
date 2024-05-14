@@ -31,8 +31,8 @@ import type { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import { NavigationPage } from '/@/plugin/navigation/navigation-page.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
+import type { ContributionInfo } from '/@api/contribution-info.js';
 import type { WebviewInfo } from '/@api/webview-info.js';
-import type { ContributionInfo } from '/packages/api/src/contribution-info.js';
 
 import { getBase64Image } from '../util.js';
 import type { ApiSenderType } from './api.js';

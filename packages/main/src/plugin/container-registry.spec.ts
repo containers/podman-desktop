@@ -35,8 +35,8 @@ import { ImageRegistry } from '/@/plugin/image-registry.js';
 import type { Proxy } from '/@/plugin/proxy.js';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
 import type { ContainerCreateOptions } from '/@api/container-info.js';
+import type { ImageInfo } from '/@api/image-info.js';
 import type { ProviderContainerConnectionInfo } from '/@api/provider-info.js';
-import type { ImageInfo } from '/packages/api/src/image-info.js';
 
 import * as util from '../util.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';

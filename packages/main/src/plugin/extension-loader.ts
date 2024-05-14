@@ -30,7 +30,7 @@ import type { MenuRegistry } from '/@/plugin/menu-registry.js';
 import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 import type { ExtensionError, ExtensionInfo, ExtensionUpdateInfo } from '/@api/extension-info.js';
-import type { ImageInspectInfo } from '/packages/api/src/image-inspect-info.js';
+import type { ImageInspectInfo } from '/@api/image-inspect-info.js';
 
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import { getBase64Image, isLinux, isMac, isWindows } from '../util.js';
