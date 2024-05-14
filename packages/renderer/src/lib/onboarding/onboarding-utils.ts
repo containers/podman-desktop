@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { OnboardingInfo, OnboardingStatus, OnboardingStep } from '../../../../main/src/plugin/api/onboarding';
+import type { OnboardingInfo, OnboardingStatus, OnboardingStep } from '/@api/onboarding';
+
 import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
 

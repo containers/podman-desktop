@@ -19,8 +19,9 @@
 import type { IpcRendererEvent } from 'electron';
 import { contextBridge, ipcRenderer } from 'electron';
 
-import type { ColorInfo } from '../../main/src/plugin/api/color-info';
-import type { WebviewInfo } from '../../main/src/plugin/api/webview-info';
+import type { ColorInfo } from '/@api/color-info';
+import type { WebviewInfo } from '/@api/webview-info';
+
 import { AppearanceSettings } from '../../main/src/plugin/appearance-settings';
 
 interface ErrorMessage {

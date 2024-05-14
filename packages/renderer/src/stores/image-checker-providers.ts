@@ -18,7 +18,8 @@
 
 import { type Writable, writable } from 'svelte/store';
 
-import type { ImageCheckerInfo } from '../../../main/src/plugin/api/image-checker-info';
+import type { ImageCheckerInfo } from '/@api/image-checker-info';
+
 import { EventStore } from './event-store';
 
 const windowEvents = ['image-checker-provider-update', 'image-checker-provider-remove'];

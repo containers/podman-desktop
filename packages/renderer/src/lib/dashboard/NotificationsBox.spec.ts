@@ -21,8 +21,8 @@ import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
 import { notificationQueue } from '/@/stores/notifications';
+import type { NotificationCard } from '/@api/notification';
 
-import type { NotificationCard } from '../../../../main/src/plugin/api/notification';
 import NotificationsBox from './NotificationsBox.svelte';
 
 test('Expect notifications box to be hidden if there are no notifications in the queue', async () => {

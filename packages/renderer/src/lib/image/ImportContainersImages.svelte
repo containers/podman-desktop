@@ -10,8 +10,7 @@ import { router } from 'tinro';
 import FormPage from '/@/lib/ui//FormPage.svelte';
 import { providerInfos } from '/@/stores/providers';
 import { createTask } from '/@/stores/tasks';
-
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 
 let containersToImport: { imagePath: string; nameWhenImporting: string }[] = [];
 let importError: string = '';

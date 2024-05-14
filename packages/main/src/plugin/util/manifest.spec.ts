@@ -18,7 +18,8 @@
 
 import { describe, expect, test } from 'vitest';
 
-import type { ImageInfo } from '../api/image-info.js';
+import type { ImageInfo } from '/@api/image-info.js';
+
 import { guessIsManifest } from './manifest.js';
 
 describe('guessIsManifest function', () => {

@@ -26,7 +26,8 @@ import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { afterEach, expect, suite, test, vi } from 'vitest';
 
-import type { CliToolInfo } from '../../../../main/src/plugin/api/cli-tool-info';
+import type { CliToolInfo } from '/@api/cli-tool-info';
+
 import PreferencesCliTool from './PreferencesCliTool.svelte';
 
 const cliToolInfoItem1: CliToolInfo = {

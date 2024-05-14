@@ -25,7 +25,8 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
-import type { ProviderKubernetesConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderKubernetesConnectionInfo } from '/@api/provider-info';
+
 import PreferencesKubernetesConnectionDetailsSummary from './PreferencesKubernetesConnectionDetailsSummary.svelte';
 
 const kubernetesConnection: ProviderKubernetesConnectionInfo = {

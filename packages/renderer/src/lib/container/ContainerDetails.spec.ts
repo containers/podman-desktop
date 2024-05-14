@@ -25,8 +25,8 @@ import { beforeAll, expect, test, vi } from 'vitest';
 
 import { lastPage } from '/@/stores/breadcrumb';
 import { containersInfos } from '/@/stores/containers';
+import type { ContainerInfo } from '/@api/container-info';
 
-import type { ContainerInfo } from '../../../../main/src/plugin/api/container-info';
 import ContainerDetails from './ContainerDetails.svelte';
 
 const listContainersMock = vi.fn();

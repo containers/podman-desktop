@@ -11,9 +11,8 @@ import NoContainerEngineEmptyScreen from '/@/lib/image/NoContainerEngineEmptyScr
 import VolumeIcon from '/@/lib/images/VolumeIcon.svelte';
 import FormPage from '/@/lib/ui/FormPage.svelte';
 import { providerInfos } from '/@/stores/providers';
-
 /* eslint-enable import/no-duplicates */
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 
 let providers: ProviderInfo[] = [];
 let providerConnections: ProviderContainerConnectionInfo[] = [];

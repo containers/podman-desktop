@@ -12,13 +12,13 @@ import { router } from 'tinro';
 import Donut from '/@/lib/donut/Donut.svelte';
 import { context } from '/@/stores/context';
 import { onboardingList } from '/@/stores/onboarding';
-
 import type {
   CheckStatus,
   ProviderContainerConnectionInfo,
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
-} from '../../../../main/src/plugin/api/provider-info';
+} from '/@api/provider-info';
+
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { configurationProperties } from '../../stores/configurationProperties';
 import { providerInfos } from '../../stores/providers';

@@ -2,7 +2,8 @@
 import { Button, ErrorMessage, Spinner } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
-import type { CheckStatus, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { CheckStatus, ProviderInfo } from '/@api/provider-info';
+
 import Steps from '../ui/Steps.svelte';
 import PreflightChecks from './PreflightChecks.svelte';
 import ProviderCard from './ProviderCard.svelte';

@@ -21,7 +21,8 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
-import type { ExtensionInfo } from '../../../../main/src/plugin/api/extension-info';
+import type { ExtensionInfo } from '/@api/extension-info';
+
 import ExtensionIcon from './ExtensionIcon.svelte';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

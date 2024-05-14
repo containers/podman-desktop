@@ -29,9 +29,9 @@ import { beforeAll, expect, test, vi } from 'vitest';
 import PodsList from '/@/lib/pod/PodsList.svelte';
 import { filtered, podsInfos } from '/@/stores/pods';
 import { providerInfos } from '/@/stores/providers';
+import type { ProviderInfo } from '/@api/provider-info';
 
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 
 const getProvidersInfoMock = vi.fn();
 const listPodsMock = vi.fn();

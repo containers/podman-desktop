@@ -21,8 +21,9 @@ import * as path from 'node:path';
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
 
+import type { NotificationCardOptions } from '/@api/notification.js';
+
 import type { ApiSenderType } from './api.js';
-import type { NotificationCardOptions } from './api/notification.js';
 import { ConfigurationImpl } from './configuration-impl.js';
 import { CONFIGURATION_DEFAULT_SCOPE } from './configuration-registry-constants.js';
 import type { Directories } from './directories.js';

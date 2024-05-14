@@ -19,7 +19,8 @@
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 
-import type { ViewInfoUI } from '../../../main/src/plugin/api/view-info';
+import type { ViewInfoUI } from '/@api/view-info';
+
 import { EventStore } from './event-store';
 
 const windowEvents = ['extension-stopped', 'extensions-started', 'extension-started'];

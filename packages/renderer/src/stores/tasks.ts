@@ -19,7 +19,7 @@
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 
-import type { NotificationTask, StatefulTask, Task } from '../../../main/src/plugin/api/task';
+import type { NotificationTask, StatefulTask, Task } from '/@api/task';
 
 /**
  * Defines the store used to define the tasks.

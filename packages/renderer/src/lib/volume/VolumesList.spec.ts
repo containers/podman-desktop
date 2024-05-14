@@ -27,8 +27,8 @@ import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { providerInfos } from '/@/stores/providers';
 import { volumeListInfos, volumesEventStore } from '/@/stores/volumes';
+import type { ProviderInfo } from '/@api/provider-info';
 
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import VolumesList from './VolumesList.svelte';
 
 const listVolumesMock = vi.fn();

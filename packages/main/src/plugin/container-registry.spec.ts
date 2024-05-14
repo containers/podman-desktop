@@ -28,17 +28,17 @@ import nock from 'nock';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { ApiSenderType } from '/@/plugin/api.js';
-import type { ImageInfo } from '/@/plugin/api/image-info.js';
 import type { Certificates } from '/@/plugin/certificates.js';
 import type { InternalContainerProvider } from '/@/plugin/container-registry.js';
 import { ContainerProviderRegistry } from '/@/plugin/container-registry.js';
 import { ImageRegistry } from '/@/plugin/image-registry.js';
 import type { Proxy } from '/@/plugin/proxy.js';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
+import type { ContainerCreateOptions } from '/@api/container-info.js';
+import type { ImageInfo } from '/@api/image-info.js';
+import type { ProviderContainerConnectionInfo } from '/@api/provider-info.js';
 
 import * as util from '../util.js';
-import type { ContainerCreateOptions } from './api/container-info.js';
-import type { ProviderContainerConnectionInfo } from './api/provider-info.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import type { ContainerCreateOptions as PodmanContainerCreateOptions, LibPod } from './dockerode/libpod-dockerode.js';
 import { LibpodDockerode } from './dockerode/libpod-dockerode.js';

@@ -19,8 +19,9 @@
 import type { CliToolOptions } from '@podman-desktop/api';
 import { expect, test, vi } from 'vitest';
 
+import type { CliToolExtensionInfo } from '/@api/cli-tool-info.js';
+
 import type { ApiSenderType } from './api.js';
-import type { CliToolExtensionInfo } from './api/cli-tool-info.js';
 import { CliToolImpl } from './cli-tool-impl.js';
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { Exec } from './util/exec.js';

@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type { ImageInfo } from '../api/image-info.js';
+import type { ImageInfo } from '/@api/image-info.js';
 
 const KB = 1024;
 const GUESSED_MANIFEST_SIZE = 50 * KB;

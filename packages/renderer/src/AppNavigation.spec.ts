@@ -25,8 +25,8 @@ import type { TinroRouteMeta } from 'tinro';
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
+import type { ContributionInfo } from '/@api/contribution-info';
 
-import type { ContributionInfo } from '../../main/src/plugin/api/contribution-info';
 import AppNavigation from './AppNavigation.svelte';
 import { contributions } from './stores/contribs';
 

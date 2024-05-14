@@ -25,9 +25,10 @@ import * as jsYaml from 'js-yaml';
 import { EventEmitter } from 'stream-json/Assembler.js';
 import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
+import type { ContributionInfo } from '/@api/contribution-info.js';
+
 import * as util from '../util.js';
 import type { ApiSenderType } from './api.js';
-import type { ContributionInfo } from './api/contribution-info.js';
 import type { ContainerProviderRegistry } from './container-registry.js';
 import type { DockerExtensionMetadata } from './contribution-manager.js';
 import { ContributionManager } from './contribution-manager.js';

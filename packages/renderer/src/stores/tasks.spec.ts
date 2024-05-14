@@ -21,7 +21,8 @@
 import { get } from 'svelte/store';
 import { expect, test } from 'vitest';
 
-import type { NotificationTask, StatefulTask } from '../../../main/src/plugin/api/task';
+import type { NotificationTask, StatefulTask } from '/@api/task';
+
 import { clearNotifications, isNotificationTask, isStatefulTask, tasksInfo } from './tasks';
 
 const started = new Date().getTime();

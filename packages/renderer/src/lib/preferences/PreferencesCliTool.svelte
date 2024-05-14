@@ -3,7 +3,8 @@ import { faCircleArrowUp, faCircleXmark } from '@fortawesome/free-solid-svg-icon
 import { Button } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
-import type { CliToolInfo } from '../../../../main/src/plugin/api/cli-tool-info';
+import type { CliToolInfo } from '/@api/cli-tool-info';
+
 import Markdown from '../markdown/Markdown.svelte';
 import LoadingIconButton from '../ui/LoadingIconButton.svelte';
 import { type ConnectionCallback, eventCollect, startTask } from './preferences-connection-rendering-task';

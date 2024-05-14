@@ -23,7 +23,8 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
-import type { ProviderContainerConnectionInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderContainerConnectionInfo } from '/@api/provider-info';
+
 import TroubleshootingContainerEngine from './TroubleshootingContainerEngine.svelte';
 
 const listContainersFromEngineMock = vi.fn();

@@ -19,8 +19,7 @@
 import humanizeDuration from 'humanize-duration';
 
 import { isStatefulTask } from '/@/stores/tasks';
-
-import type { NotificationTask, StatefulTask, Task } from '../../../../main/src/plugin/api/task';
+import type { NotificationTask, StatefulTask, Task } from '/@api/task';
 
 export interface StatefulTaskUI extends StatefulTask {
   age: string;
