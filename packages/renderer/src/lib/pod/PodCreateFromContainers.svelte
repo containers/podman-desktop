@@ -199,7 +199,7 @@ function updatePortExposure(port: number, checked: boolean) {
   <SolidPodIcon slot="icon" size="40" />
 
   <div class="min-w-full h-fit" slot="content">
-    <div class="m-5 p-6 bg-charcoal-800 rounded-sm text-gray-700">
+    <div class="mx-5 mb-5 p-6 bg-charcoal-800 rounded-sm text-gray-700">
       <div>
         {#if podCreation}
           {#if containersPorts.length > 0}

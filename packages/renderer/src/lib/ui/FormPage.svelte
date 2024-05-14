@@ -29,7 +29,7 @@ function handleKeydown(e: KeyboardEvent) {
   <div class="flex flex-row w-full h-fit px-5 pt-4" class:pb-3.5="{inProgress}" class:pb-4="{!inProgress}">
     <div class="flex flex-col w-full h-fit">
       {#if showBreadcrumb}
-        <div class="flex flew-row items-center text-sm text-gray-700">
+        <div class="flex flew-row items-center text-sm text-[var(--pd-content-breadcrumb)]">
           <Link aria-label="back" internalRef="{$lastPage.path}" title="Go back to {$lastPage.name}"
             >{$lastPage.name}</Link>
           <div class="mx-2">&gt;</div>
@@ -39,11 +39,13 @@ function handleKeydown(e: KeyboardEvent) {
       {/if}
       <div class="flex flex-row items-center pt-1">
         {#if $$slots.icon}
-          <div class="pr-3 text-gray-700">
+          <div class="pr-3 text-[var(--pd-content-header-icon)]">
             <slot name="icon" />
           </div>
         {/if}
-        <h1 aria-label="{title}" class="grow text-xl first-letter:uppercase">{title}</h1>
+        <h1 aria-label="{title}" class="grow text-xl first-letter:uppercase text-[var(--pd-content-header)]">
+          {title}
+        </h1>
         <div class="flex items-center space-x-3">
           {#if $$slots.actions}
             <div class="flex flex-nowrap justify-self-end pl-3 space-x-2">
@@ -61,11 +63,11 @@ function handleKeydown(e: KeyboardEvent) {
     <LinearProgress />
   {/if}
   {#if $$slots.tabs}
-    <div class="flex flex-row px-2 border-b border-charcoal-400">
+    <div class="flex flex-row px-2 border-b border-[var(--pd-content-divider)]">
       <slot name="tabs" />
     </div>
   {/if}
-  <div class="flex w-full h-full bg-zinc-700 overflow-auto">
+  <div class="flex w-full h-full bg-[var(--pd-content-bg)] overflow-auto">
     <slot name="content" />
   </div>
 </div>
