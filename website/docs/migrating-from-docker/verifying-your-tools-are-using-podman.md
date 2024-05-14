@@ -62,14 +62,14 @@ When you have configured your host to use Podman rather then Docker, consider ve
      <TabItem value="mac" label="macOS">
 
    ```shell-session
-   $ CONTAINER_HOST=/var/run/docker.sock podman ps
+   $ CONTAINER_HOST=unix:///var/run/docker.sock podman ps
    ```
 
      </TabItem>
      <TabItem value="linux" label="Linux">
 
    ```shell-session
-   $ CONTAINER_HOST=/var/run/docker.sock podman ps
+   $ CONTAINER_HOST=unix:///var/run/docker.sock podman ps
    ```
 
      </TabItem>
