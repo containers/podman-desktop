@@ -26,8 +26,8 @@ import { beforeAll, expect, test, vi } from 'vitest';
 
 import { type InitializationContext, InitializeAndStartMode } from '/@/lib/dashboard/ProviderInitUtils';
 import ProviderInstalled from '/@/lib/dashboard/ProviderInstalled.svelte';
+import type { ProviderInfo } from '/@api/provider-info';
 
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { verifyStatus } from './ProviderStatusTestHelper.spec';
 
 vi.mock('xterm', () => {

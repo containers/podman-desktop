@@ -25,8 +25,8 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import type { CombinedExtensionInfoUI } from '/@/stores/all-installed-extensions';
 import { configurationProperties } from '/@/stores/configurationProperties';
 import { onboardingList } from '/@/stores/onboarding';
+import type { OnboardingInfo } from '/@api/onboarding';
 
-import type { OnboardingInfo } from '../../../../main/src/plugin/api/onboarding';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import InstalledExtensionCardLeftOnboardingAndProperties from './InstalledExtensionCardLeftOnboardingAndProperties.svelte';
 

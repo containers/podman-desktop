@@ -2,7 +2,7 @@
 import { faBoxOpen } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@podman-desktop/ui-svelte';
 
-import type { CheckStatus, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { CheckStatus, ProviderInfo } from '/@api/provider-info';
 
 export let provider: ProviderInfo;
 let updateInProgress = false;

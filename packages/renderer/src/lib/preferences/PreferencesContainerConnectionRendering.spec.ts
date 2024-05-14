@@ -28,8 +28,8 @@ import { router } from 'tinro';
 import { expect, test, vi } from 'vitest';
 
 import { lastPage } from '/@/stores/breadcrumb';
+import type { ProviderInfo } from '/@api/provider-info';
 
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import { providerInfos } from '../../stores/providers';
 import PreferencesContainerConnectionRendering from './PreferencesContainerConnectionRendering.svelte';
 

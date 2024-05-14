@@ -21,8 +21,8 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
 import type { Featured } from '/@/plugin/featured/featured.js';
 import type { FeaturedExtension } from '/@/plugin/featured/featured-api.js';
+import type { ExtensionInfo } from '/@api/extension-info.js';
 
-import type { ExtensionInfo } from '../api/extension-info.js';
 import type { ExtensionLoader } from '../extension-loader.js';
 import type { ExtensionsCatalog } from '../extensions-catalog/extensions-catalog.js';
 import type { CatalogFetchableExtension } from '../extensions-catalog/extensions-catalog-api.js';

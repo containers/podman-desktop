@@ -4,8 +4,8 @@ import { Button } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
 import CloseButton from '/@/lib/ui/CloseButton.svelte';
+import type { CheckStatus, ProviderInfo } from '/@api/provider-info';
 
-import type { CheckStatus, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import ProviderLogo from '../dashboard/ProviderLogo.svelte';
 import Modal from '../dialogs/Modal.svelte';
 

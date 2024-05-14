@@ -26,16 +26,16 @@ import type * as containerDesktopAPI from '@podman-desktop/api';
 import { app } from 'electron';
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
-import type { ContributionInfo } from '/@/plugin/api/contribution-info.js';
 import type { ContributionManager } from '/@/plugin/contribution-manager.js';
 import type { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import { NavigationPage } from '/@/plugin/navigation/navigation-page.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
+import type { WebviewInfo } from '/@api/webview-info.js';
+import type { ContributionInfo } from '/packages/api/src/contribution-info.js';
 
 import { getBase64Image } from '../util.js';
 import type { ApiSenderType } from './api.js';
-import type { WebviewInfo } from './api/webview-info.js';
 import type { AuthenticationImpl } from './authentication.js';
 import type { CliToolRegistry } from './cli-tool-registry.js';
 import type { ColorRegistry } from './color-registry.js';

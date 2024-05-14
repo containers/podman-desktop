@@ -19,7 +19,8 @@
 import type { IpcMainEvent } from 'electron';
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
-import type { SimpleContainerInfo } from '../api/container-info.js';
+import type { SimpleContainerInfo } from '/@api/container-info.js';
+
 import type { ContainerProviderRegistry } from '../container-registry.js';
 import type { ContributionManager } from '../contribution-manager.js';
 import { DockerPluginAdapter } from './docker-plugin-adapter.js';

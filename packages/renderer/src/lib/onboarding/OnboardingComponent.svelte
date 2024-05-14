@@ -5,9 +5,9 @@ import Fa from 'svelte-fa';
 
 import { configurationProperties } from '/@/stores/configurationProperties';
 import { providerInfos } from '/@/stores/providers';
+import type { OnboardingEmbeddedComponentType } from '/@api/onboarding';
+import type { ProviderInfo } from '/@api/provider-info';
 
-import type { OnboardingEmbeddedComponentType } from '../../../../main/src/plugin/api/onboarding';
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import PreferencesConnectionCreationOrEditRendering from '../preferences/PreferencesConnectionCreationOrEditRendering.svelte';
 

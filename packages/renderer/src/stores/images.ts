@@ -19,7 +19,8 @@
 import type { Writable } from 'svelte/store';
 import { derived, writable } from 'svelte/store';
 
-import type { ImageInfo } from '../../../main/src/plugin/api/image-info';
+import type { ImageInfo } from '/@api/image-info';
+
 import ImageIcon from '../lib/images/ImageIcon.svelte';
 import { EventStore } from './event-store';
 import { findMatchInLeaves } from './search-util';

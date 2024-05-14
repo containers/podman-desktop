@@ -21,8 +21,7 @@ import { router } from 'tinro';
 
 import { operationConnectionsInfo } from '/@/stores/operation-connections';
 import { createTask, isStatefulTask, removeTask } from '/@/stores/tasks';
-
-import type { Task } from '../../../../main/src/plugin/api/task';
+import type { Task } from '/@api/task';
 
 export interface ConnectionCallback extends LoggerType {
   // when build is finished, this function is called

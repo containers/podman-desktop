@@ -21,13 +21,13 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { ApiSenderType } from '/@/plugin/api.js';
-import type { ColorDefinition } from '/@/plugin/api/color-info.js';
-import type { RawThemeContribution } from '/@/plugin/api/theme-info.js';
 import { AppearanceSettings } from '/@/plugin/appearance-settings.js';
 import type { ConfigurationRegistry, IConfigurationChangeEvent } from '/@/plugin/configuration-registry.js';
 import { Emitter } from '/@/plugin/events/emitter.js';
 import type { AnalyzedExtension } from '/@/plugin/extension-loader.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
+import type { ColorDefinition } from '/packages/api/src/color-info.js';
+import type { RawThemeContribution } from '/packages/api/src/theme-info.js';
 
 import colorPalette from '../../../../tailwind-color-palette.json';
 import { ColorRegistry } from './color-registry.js';

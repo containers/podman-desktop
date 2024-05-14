@@ -22,7 +22,8 @@ import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
 import { beforeAll, describe, expect, test, vi } from 'vitest';
 
-import type { ImageInfo } from '../../../main/src/plugin/api/image-info';
+import type { ImageInfo } from '/@api/image-info';
+
 import { filtered, imagesEventStore, imagesInfos } from './images';
 
 // first, path window object

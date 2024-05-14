@@ -24,17 +24,17 @@ import type * as containerDesktopAPI from '@podman-desktop/api';
 import AdmZip from 'adm-zip';
 import { app, clipboard as electronClipboard } from 'electron';
 
-import type { ImageInspectInfo } from '/@/plugin/api/image-inspect-info.js';
 import type { ColorRegistry } from '/@/plugin/color-registry.js';
 import type { KubeGeneratorRegistry, KubernetesGeneratorProvider } from '/@/plugin/kube-generator-registry.js';
 import type { MenuRegistry } from '/@/plugin/menu-registry.js';
 import type { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
+import type { ExtensionError, ExtensionInfo, ExtensionUpdateInfo } from '/@api/extension-info.js';
+import type { ImageInspectInfo } from '/packages/api/src/image-inspect-info.js';
 
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import { getBase64Image, isLinux, isMac, isWindows } from '../util.js';
 import type { ApiSenderType } from './api.js';
-import type { ExtensionError, ExtensionInfo, ExtensionUpdateInfo } from './api/extension-info.js';
 import type { PodInfo } from './api/pod-info.js';
 import type { AuthenticationImpl } from './authentication.js';
 import { CancellationTokenSource } from './cancellation-token.js';

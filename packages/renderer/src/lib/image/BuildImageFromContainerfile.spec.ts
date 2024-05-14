@@ -31,8 +31,7 @@ import BuildImageFromContainerfile from '/@/lib/image/BuildImageFromContainerfil
 import { buildImagesInfo } from '/@/stores/build-images';
 import { providerInfos } from '/@/stores/providers';
 import { recommendedRegistries } from '/@/stores/recommendedRegistries';
-
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 
 // xterm is used in the UI, but not tested, added in order to avoid the multiple warnings being shown during the test.
 vi.mock('xterm', () => {

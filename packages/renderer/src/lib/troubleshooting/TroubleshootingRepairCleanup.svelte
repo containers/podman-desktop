@@ -3,7 +3,7 @@ import { faBroom, faWarning } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderInfo } from '/@api/provider-info';
 
 export let providers: ProviderInfo[] = [];
 let providerIdsWithCleanup: string[] = [];

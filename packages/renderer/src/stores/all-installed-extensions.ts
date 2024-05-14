@@ -19,7 +19,8 @@
 // Combine PD and DD extensions being installed
 import { derived, type Readable } from 'svelte/store';
 
-import type { ExtensionInfo } from '../../../main/src/plugin/api/extension-info';
+import type { ExtensionInfo } from '/@api/extension-info';
+
 import { contributions } from './contribs';
 import { extensionInfos } from './extensions';
 

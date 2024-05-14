@@ -19,7 +19,8 @@
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 
-import type { NotificationCard } from '../../../main/src/plugin/api/notification';
+import type { NotificationCard } from '/@api/notification';
+
 import { EventStore } from './event-store';
 
 const windowEvents = ['notifications-updated'];

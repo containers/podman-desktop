@@ -18,7 +18,8 @@
 
 import { type Writable, writable } from 'svelte/store';
 
-import type { CliToolInfo } from '../../../main/src/plugin/api/cli-tool-info';
+import type { CliToolInfo } from '/@api/cli-tool-info';
+
 import { EventStore } from './event-store';
 
 const windowEvents: string[] = ['extensions-started', 'cli-tool-create', 'cli-tool-remove', 'cli-tool-change'];

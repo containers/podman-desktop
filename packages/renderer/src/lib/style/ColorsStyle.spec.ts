@@ -24,8 +24,8 @@ import { render } from '@testing-library/svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import { colorsInfos } from '/@/stores/colors';
+import type { ColorInfo } from '/@api/color-info';
 
-import type { ColorInfo } from '../../../../main/src/plugin/api/color-info';
 import ColorsStyle from './ColorsStyle.svelte';
 
 const listColorsMock = vi.fn();

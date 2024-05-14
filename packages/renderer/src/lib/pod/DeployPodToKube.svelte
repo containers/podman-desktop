@@ -7,8 +7,8 @@ import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
 
 import { ensureRestrictedSecurityContext } from '/@/lib/pod/pod-utils';
+import type { V1Route } from '/@api/openshift-types';
 
-import type { V1Route } from '../../../../main/src/plugin/api/openshift-types';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import FormPage from '../ui/FormPage.svelte';
 import Link from '../ui/Link.svelte';

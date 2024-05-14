@@ -15,7 +15,8 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type { ViewContribution, ViewInfoUI } from './api/view-info.js';
+import type { ViewContribution, ViewInfoUI } from '/@api/view-info.js';
+
 import { Disposable } from './types/disposable.js';
 
 export class ViewRegistry {

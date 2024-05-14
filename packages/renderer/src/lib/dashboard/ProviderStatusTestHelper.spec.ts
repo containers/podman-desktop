@@ -24,8 +24,7 @@ import type { ComponentProps, SvelteComponent } from 'svelte';
 import { expect, test } from 'vitest';
 
 import { InitializeAndStartMode } from '/@/lib/dashboard/ProviderInitUtils';
-
-import type { ProviderInfo } from '../../../../main/src/plugin/api/provider-info';
+import type { ProviderInfo } from '/@api/provider-info';
 
 type Constructor<T> = new (...args: any[]) => T;
 

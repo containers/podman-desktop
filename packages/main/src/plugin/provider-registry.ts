@@ -46,7 +46,6 @@ import type {
   UpdateKubernetesConnectionEvent,
 } from '@podman-desktop/api';
 
-import type { ApiSenderType } from './api.js';
 import type {
   LifecycleMethod,
   PreflightChecksCallback,
@@ -54,7 +53,9 @@ import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
-} from './api/provider-info.js';
+} from '/@api/provider-info.js';
+
+import type { ApiSenderType } from './api.js';
 import type { AutostartEngine } from './autostart-engine.js';
 import type { ContainerProviderRegistry } from './container-registry.js';
 import type { Event } from './events/emitter.js';

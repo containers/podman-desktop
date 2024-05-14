@@ -20,7 +20,8 @@ import { filesize } from 'filesize';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
 
-import type { VolumeInfo } from '../../../../main/src/plugin/api/volume-info';
+import type { VolumeInfo } from '/@api/volume-info';
+
 import type { VolumeInfoUI } from './VolumeInfoUI';
 
 export class VolumeUtils {

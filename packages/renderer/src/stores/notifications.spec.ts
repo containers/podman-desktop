@@ -22,7 +22,8 @@ import { get } from 'svelte/store';
 import type { Mock } from 'vitest';
 import { beforeAll, expect, test, vi } from 'vitest';
 
-import type { NotificationCard } from '../../../main/src/plugin/api/notification';
+import type { NotificationCard } from '/@api/notification';
+
 import { fetchNotifications, notificationEventStore, notificationQueue } from './notifications';
 
 // first, patch window object

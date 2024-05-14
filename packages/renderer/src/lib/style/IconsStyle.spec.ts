@@ -25,8 +25,8 @@ import { get } from 'svelte/store';
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import { iconsInfos } from '/@/stores/icons';
+import type { IconInfo } from '/@api/icon-info';
 
-import type { IconInfo } from '../../../../main/src/plugin/api/icon-info';
 import IconsStyle from './IconsStyle.svelte';
 
 const listIconsMock = vi.fn();

@@ -7,8 +7,8 @@ import { containersInfos } from '/@/stores/containers';
 import { context } from '/@/stores/context';
 import { imageCheckerProviders } from '/@/stores/image-checker-providers';
 import { viewsContributions } from '/@/stores/views';
+import type { ViewInfoUI } from '/@api/view-info';
 
-import type { ViewInfoUI } from '../../../../main/src/plugin/api/view-info';
 import Route from '../../Route.svelte';
 import { imagesInfos } from '../../stores/images';
 import type { ContextUI } from '../context/context';

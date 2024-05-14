@@ -25,8 +25,8 @@ import { render, screen } from '@testing-library/svelte';
 import { afterEach, beforeAll, expect, suite, test, vi } from 'vitest';
 
 import { cliToolInfos } from '/@/stores/cli-tools';
+import type { CliToolInfo } from '/@api/cli-tool-info';
 
-import type { CliToolInfo } from '../../../../main/src/plugin/api/cli-tool-info';
 import PreferencesCliToolsRendering from './PreferencesCliToolsRendering.svelte';
 
 afterEach(() => {

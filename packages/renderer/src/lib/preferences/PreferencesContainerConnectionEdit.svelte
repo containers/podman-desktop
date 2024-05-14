@@ -6,12 +6,12 @@ import type { Unsubscriber } from 'svelte/store';
 import PreferencesConnectionCreationRendering from '/@/lib/preferences/PreferencesConnectionCreationOrEditRendering.svelte';
 import DetailsPage from '/@/lib/ui/DetailsPage.svelte';
 import WarningMessage from '/@/lib/ui/WarningMessage.svelte';
-
 import type {
   ProviderContainerConnectionInfo,
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
-} from '../../../../main/src/plugin/api/provider-info';
+} from '/@api/provider-info';
+
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import { providerInfos } from '../../stores/providers';
 import IconImage from '../appearance/IconImage.svelte';

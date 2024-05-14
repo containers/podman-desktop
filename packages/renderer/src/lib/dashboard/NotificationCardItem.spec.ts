@@ -20,7 +20,8 @@ import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
-import type { NotificationCard } from '../../../../main/src/plugin/api/notification';
+import type { NotificationCard } from '/@api/notification';
+
 import NotificationCardItem from './NotificationCardItem.svelte';
 
 const removeNotificationMock = vi.fn();
