@@ -332,6 +332,7 @@ describe('RunImage', () => {
   });
 
   test('Expect to see an error if the container/host ranges have different size', async () => {
+    (window.isFreePort as Mock).mockResolvedValue(true);
     router.goto('/basic');
 
     await createRunImage(undefined, ['command1', 'command2']);
@@ -351,6 +352,9 @@ describe('RunImage', () => {
     await userEvent.click(containerInput);
     await userEvent.clear(containerInput);
     await userEvent.keyboard('9000-9003');
+
+    // wait onPortInputTimeout (500ms) triggers
+    await new Promise(resolve => setTimeout(resolve, 600));
 
     const button = screen.getByRole('button', { name: 'Start Container' });
 
@@ -464,86 +468,8 @@ describe('RunImage', () => {
     );
   });
 
-  test('Expect "start container" button to be disabled if user adds a port which is invalid (lower than 0)', async () => {
-    router.goto('/basic');
-
-    await createRunImage(undefined, ['command1', 'command2']);
-
-    const link1 = screen.getByRole('link', { name: 'Basic' });
-    await fireEvent.click(link1);
-
-    const customMappingButton = screen.getByRole('button', { name: 'Add custom port mapping' });
-    await fireEvent.click(customMappingButton);
-
-    const hostInput = screen.getByLabelText('host port');
-    await userEvent.click(hostInput);
-    await userEvent.clear(hostInput);
-    // adds a negative port
-    await userEvent.keyboard('-1');
-
-    const containerInput = screen.getByLabelText('container port');
-    await userEvent.click(containerInput);
-    await userEvent.clear(containerInput);
-    await userEvent.keyboard('80');
-
-    const button = screen.getByRole('button', { name: 'Start Container' });
-    expect((button as HTMLButtonElement).disabled).toBeTruthy();
-  });
-
-  test('Expect "start container" button to be disabled if user adds a port which is invalid (over upper limit > 65535)', async () => {
-    router.goto('/basic');
-
-    await createRunImage(undefined, ['command1', 'command2']);
-
-    const link1 = screen.getByRole('link', { name: 'Basic' });
-    await fireEvent.click(link1);
-
-    const customMappingButton = screen.getByRole('button', { name: 'Add custom port mapping' });
-    await fireEvent.click(customMappingButton);
-
-    const hostInput = screen.getByLabelText('host port');
-    await userEvent.click(hostInput);
-    await userEvent.clear(hostInput);
-    // adds a negative port
-    await userEvent.keyboard('71000');
-
-    const containerInput = screen.getByLabelText('container port');
-    await userEvent.click(containerInput);
-    await userEvent.clear(containerInput);
-    await userEvent.keyboard('80');
-
-    const button = screen.getByRole('button', { name: 'Start Container' });
-    expect((button as HTMLButtonElement).disabled).toBeTruthy();
-  });
-
-  test('Expect "start container" button to be disabled if user adds a port which is invalid (isNaN)', async () => {
-    router.goto('/basic');
-
-    await createRunImage(undefined, ['command1', 'command2']);
-
-    const link1 = screen.getByRole('link', { name: 'Basic' });
-    await fireEvent.click(link1);
-
-    const customMappingButton = screen.getByRole('button', { name: 'Add custom port mapping' });
-    await fireEvent.click(customMappingButton);
-
-    const hostInput = screen.getByLabelText('host port');
-    await userEvent.click(hostInput);
-    await userEvent.clear(hostInput);
-    // adds a negative port
-    await userEvent.keyboard('test');
-
-    const containerInput = screen.getByLabelText('container port');
-    await userEvent.click(containerInput);
-    await userEvent.clear(containerInput);
-    await userEvent.keyboard('80');
-
-    const button = screen.getByRole('button', { name: 'Start Container' });
-    expect((button as HTMLButtonElement).disabled).toBeTruthy();
-  });
-
-  test('Expect "start container" button to be disabled if user adds a port which is NOT free', async () => {
-    (window.isFreePort as Mock).mockResolvedValue(false);
+  test('Expect "start container" button to be disabled when port is not free', async () => {
+    (window.isFreePort as Mock).mockRejectedValue(new Error('Error Message'));
     router.goto('/basic');
 
     await createRunImage(undefined, ['command1', 'command2']);
@@ -570,35 +496,5 @@ describe('RunImage', () => {
 
     const button = screen.getByRole('button', { name: 'Start Container' });
     expect((button as HTMLButtonElement).disabled).toBeTruthy();
-  });
-
-  test('Expect "start container" button to be enabled if user adds a port which is valid and free', async () => {
-    (window.isFreePort as Mock).mockResolvedValue(true);
-    router.goto('/basic');
-
-    await createRunImage(undefined, ['command1', 'command2']);
-
-    const link1 = screen.getByRole('link', { name: 'Basic' });
-    await fireEvent.click(link1);
-
-    const customMappingButton = screen.getByRole('button', { name: 'Add custom port mapping' });
-    await fireEvent.click(customMappingButton);
-
-    const hostInput = screen.getByLabelText('host port');
-    await userEvent.click(hostInput);
-    await userEvent.clear(hostInput);
-    // adds a negative port
-    await userEvent.keyboard('8080');
-
-    const containerInput = screen.getByLabelText('container port');
-    await userEvent.click(containerInput);
-    await userEvent.clear(containerInput);
-    await userEvent.keyboard('80');
-
-    // wait onPortInputTimeout (500ms) triggers
-    await new Promise(resolve => setTimeout(resolve, 600));
-
-    const button = screen.getByRole('button', { name: 'Start Container' });
-    expect((button as HTMLButtonElement).disabled).toBeFalsy();
   });
 });

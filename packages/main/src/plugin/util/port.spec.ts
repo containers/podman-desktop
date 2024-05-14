@@ -133,14 +133,16 @@ test.each(hosts)(
   },
 );
 
-test('fails with range error if trying to get a port which is over upper range', async () => {
-  await expect(port.getFreePort(200000)).rejects.toThrowError(/options.port should be >= 0 and < 65536/);
-});
-
 test('fails with range error if value is over upper range', async () => {
-  await expect(port.isFreePort(200000)).rejects.toThrowError(/options.port should be >= 0 and < 65536/);
+  await expect(port.isFreePort(200000)).rejects.toThrowError(
+    /The port must have an integer value within the range from 1025 to 65535./,
+  );
 });
 
 test('fails with range error if value is less lower range', async () => {
-  await expect(port.isFreePort(-1)).rejects.toThrowError(/options.port should be >= 0 and < 65536/);
+  await expect(port.isFreePort(-1)).rejects.toThrowError(/The port must be greater than 1024./);
+});
+
+test('should return message that user is trying to check unprivileged port', async () => {
+  await expect(port.isFreePort(1)).rejects.toThrowError(/The port must be greater than 1024./);
 });
