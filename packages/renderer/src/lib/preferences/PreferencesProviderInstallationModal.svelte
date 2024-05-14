@@ -1,13 +1,12 @@
 <script lang="ts">
 import { faCircleXmark } from '@fortawesome/free-solid-svg-icons';
-import { Button } from '@podman-desktop/ui-svelte';
+import { Button, Modal } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
 import CloseButton from '/@/lib/ui/CloseButton.svelte';
 import type { CheckStatus, ProviderInfo } from '/@api/provider-info';
 
 import ProviderLogo from '../dashboard/ProviderLogo.svelte';
-import Modal from '../dialogs/Modal.svelte';
 
 export let providerToBeInstalled: { provider: ProviderInfo; displayName: string };
 export let preflightChecks: CheckStatus[];

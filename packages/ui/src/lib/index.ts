@@ -20,10 +20,11 @@ import type { ButtonType } from './button/Button';
 import Button from './button/Button.svelte';
 import Checkbox from './checkbox/Checkbox.svelte';
 import Input from './input/Input.svelte';
+import Modal from './modal/Modal.svelte';
 import Spinner from './spinner/Spinner.svelte';
 import Tooltip from './tooltip/Tooltip.svelte';
 import { isFontAwesomeIcon } from './utils/icon-utils';
 
 export type { ButtonType };
-export { Button, Checkbox, ErrorMessage, Input, Spinner, Tooltip };
+export { Button, Checkbox, ErrorMessage, Input, Modal, Spinner, Tooltip };
 export { isFontAwesomeIcon };
