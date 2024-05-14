@@ -15,12 +15,10 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+import type { KubernetesGeneratorSelector } from '@podman-desktop/api';
+
 import type { KubernetesGeneratorInfo } from './api/KubernetesGeneratorInfo.js';
 import { Disposable } from './types/disposable.js';
-
-export type KubernetesGeneratorType = 'Compose' | 'Pod' | 'Container';
-
-export type KubernetesGeneratorSelector = KubernetesGeneratorType | ReadonlyArray<KubernetesGeneratorType>;
 
 export interface GenerateKubeResult {
   yaml: string;

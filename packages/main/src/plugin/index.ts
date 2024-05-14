@@ -43,11 +43,7 @@ import { app, BrowserWindow, clipboard, ipcMain, shell } from 'electron';
 import type { IpcMainInvokeEvent } from 'electron/main';
 
 import type { KubernetesGeneratorInfo } from '/@/plugin/api/KubernetesGeneratorInfo.js';
-import type {
-  GenerateKubeResult,
-  KubernetesGeneratorArgument,
-  KubernetesGeneratorSelector,
-} from '/@/plugin/kube-generator-registry.js';
+import type { GenerateKubeResult, KubernetesGeneratorArgument } from '/@/plugin/kube-generator-registry.js';
 import { KubeGeneratorRegistry } from '/@/plugin/kube-generator-registry.js';
 import type { Menu } from '/@/plugin/menu-registry.js';
 import { MenuRegistry } from '/@/plugin/menu-registry.js';
@@ -1223,7 +1219,7 @@ export class PluginSystem {
 
     this.ipcHandle(
       'kube-generator-registry:getKubeGeneratorsInfos',
-      async (_, selector?: KubernetesGeneratorSelector): Promise<KubernetesGeneratorInfo[]> => {
+      async (_, selector?: containerDesktopAPI.KubernetesGeneratorSelector): Promise<KubernetesGeneratorInfo[]> => {
         return kubeGeneratorRegistry.getKubeGeneratorsInfos(selector);
       },
     );

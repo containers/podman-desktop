@@ -88,11 +88,7 @@ import type {
 } from '../../main/src/plugin/dockerode/libpod-dockerode';
 import type { CatalogExtension } from '../../main/src/plugin/extensions-catalog/extensions-catalog-api';
 import type { FeaturedExtension } from '../../main/src/plugin/featured/featured-api';
-import type {
-  GenerateKubeResult,
-  KubernetesGeneratorArgument,
-  KubernetesGeneratorSelector,
-} from '../../main/src/plugin/kube-generator-registry';
+import type { GenerateKubeResult, KubernetesGeneratorArgument } from '../../main/src/plugin/kube-generator-registry';
 import type { KubeContext } from '../../main/src/plugin/kubernetes-context';
 import type { ContextGeneralState, ResourceName } from '../../main/src/plugin/kubernetes-context-state.js';
 import type { Guide } from '../../main/src/plugin/learning-center/learning-center-api';
@@ -1139,7 +1135,7 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'getKubeGeneratorsInfos',
-    async (selector?: KubernetesGeneratorSelector): Promise<KubernetesGeneratorInfo[]> => {
+    async (selector?: containerDesktopAPI.KubernetesGeneratorSelector): Promise<KubernetesGeneratorInfo[]> => {
       return ipcInvoke('kube-generator-registry:getKubeGeneratorsInfos', selector);
     },
   );
