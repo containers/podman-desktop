@@ -28,8 +28,10 @@ export async function getFreePort(port = 0): Promise<number> {
   }
   let isFree = false;
   while (!isFree) {
-    isFree = await isFreePort(port);
-    if (!isFree) {
+    try {
+      await isFreePort(port);
+      isFree = true;
+    } catch (e) {
       port++;
     }
   }
@@ -45,9 +47,10 @@ export async function getFreePortRange(rangeSize: number): Promise<string> {
   let startPort = port;
 
   do {
-    if (await isFreePort(port)) {
+    try {
+      await isFreePort(port);
       ++port;
-    } else {
+    } catch (e) {
       ++port;
       startPort = port;
     }
@@ -60,20 +63,33 @@ function isFreeAddressPort(address: string, port: number): Promise<boolean> {
   const server = net.createServer();
   return new Promise((resolve, reject) =>
     server
-      .on('error', (error: NodeJS.ErrnoException) => (error.code === 'EADDRINUSE' ? resolve(false) : reject(error)))
+      .on('error', (error: NodeJS.ErrnoException) => {
+        if (error.code === 'EADDRINUSE') {
+          reject(new Error(`Port ${port} is already in use.`));
+        } else if (error.code === 'EACCES') {
+          reject(new Error('Operation require administrative privileges.'));
+        } else {
+          reject(new Error(`Failed to check port status: ${error}`));
+        }
+      })
       .on('listening', () => server.close(() => resolve(true)))
       .listen(port, address),
   );
 }
 
 export async function isFreePort(port: number): Promise<boolean> {
-  const intfs = getIPv4Interfaces();
-  // Test this special interface separately, or it will interfere with other tests done in parallel
-  if (!(await isFreeAddressPort('0.0.0.0', port))) {
-    return false;
+  if (isNaN(port) || port > 65535) {
+    throw new Error('The port must have an integer value within the range from 1025 to 65535.');
+  } else if (port < 1024) {
+    throw new Error('The port must be greater than 1024.');
   }
-  const checkInterfaces = await Promise.all(intfs.map(intf => isFreeAddressPort(intf, port)));
-  return checkInterfaces.every(element => element === true);
+
+  const intfs = getIPv4Interfaces();
+
+  await isFreeAddressPort('0.0.0.0', port);
+  await Promise.all(intfs.map(intf => isFreeAddressPort(intf, port)));
+
+  return true;
 }
 
 function getIPv4Interfaces(): string[] {
