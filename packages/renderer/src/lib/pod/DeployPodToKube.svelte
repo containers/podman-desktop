@@ -383,7 +383,7 @@ function updateKubeResult() {
 <FormPage title="Deploy generated pod to Kubernetes" inProgress="{deployStarted && !deployFinished}">
   <i class="fas fa-rocket fa-2x" slot="icon" aria-hidden="true"></i>
 
-  <div slot="content" class="p-5 min-w-full h-fit">
+  <div slot="content" class="px-5 pb-5 min-w-full h-fit">
     <div class="bg-charcoal-600 p-5">
       {#if kubeDetails}
         <p>Generated Kubernetes YAML:</p>

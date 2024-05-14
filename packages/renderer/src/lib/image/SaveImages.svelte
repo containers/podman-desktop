@@ -134,7 +134,7 @@ async function saveImages() {
     <svelte:fragment slot="icon">
       <i class="fas fa-play fa-2x" aria-hidden="true"></i>
     </svelte:fragment>
-    <div slot="content" class="p-5 min-w-full h-fit">
+    <div slot="content" class="px-5 pb-5 min-w-full h-fit">
       <div class="bg-charcoal-600 px-6 py-4 space-y-2 lg:px-8 sm:pb-6 xl:pb-8">
         <label for="modalSelectTarget" class="block mb-2 text-sm font-medium text-gray-400">Export to:</label>
         <div class="flex w-full">
