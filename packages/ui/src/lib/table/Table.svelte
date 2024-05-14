@@ -7,16 +7,19 @@
 <script lang="ts">
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
-import { Checkbox } from '@podman-desktop/ui-svelte';
 import { afterUpdate, onMount, tick } from 'svelte';
 import { flip } from 'svelte/animate';
 
-import type { Column, Row } from './table';
+import Checkbox from '../checkbox/Checkbox.svelte';
 /* eslint-enable import/no-duplicates */
+import type { Column, Row } from './table';
 
 export let kind: string;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let data: any[];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let columns: Column<any>[];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let row: Row<any>;
 export let defaultSortColumn: string | undefined = undefined;
 
@@ -32,21 +35,21 @@ $: selectedAllCheckboxes = row.info.selectable
     data.filter(object => row.info.selectable?.(object)).length > 0
   : false;
 
-function toggleAll(checked: boolean) {
+function toggleAll(checked: boolean): void {
   if (!row.info.selectable) {
     return;
   }
   data.filter(object => row.info.selectable?.(object)).forEach(object => (object.selected = checked));
 }
 
-let sortCol: Column<any>;
+let sortCol: Column<unknown>;
 let sortAscending: boolean;
 
 if (data) {
   sortImpl();
 }
 
-function sort(column: Column<any>) {
+function sort(column: Column<unknown>): void {
   if (!column) {
     return;
   }
@@ -66,7 +69,7 @@ function sort(column: Column<any>) {
   sortImpl();
 }
 
-function sortImpl() {
+function sortImpl(): void {
   // confirm we're sorting
   if (!sortCol) {
     return;
@@ -81,7 +84,7 @@ function sortImpl() {
   if (!sortAscending) {
     // we're already sorted, switch to reverse order
     let comparatorTemp = comparator;
-    comparator = (a, b) => -comparatorTemp(a, b);
+    comparator = (a, b): number => -comparatorTemp(a, b);
   }
 
   // eslint-disable-next-line etc/no-assign-mutated-array
@@ -89,7 +92,7 @@ function sortImpl() {
 }
 
 onMount(async () => {
-  const column: Column<any> | undefined = columns.find(column => column.title === defaultSortColumn);
+  const column: Column<unknown> | undefined = columns.find(column => column.title === defaultSortColumn);
   if (column?.info.comparator) {
     sortCol = column;
     sortAscending = column.info.initialOrder ? column.info.initialOrder !== 'descending' : true;
@@ -101,7 +104,7 @@ afterUpdate(async () => {
   setGridColumns();
 });
 
-function setGridColumns() {
+function setGridColumns(): void {
   // section and checkbox columns
   let columnWidths: string[] = ['20px'];
 
@@ -121,6 +124,10 @@ function setGridColumns() {
     (element as HTMLElement).style.setProperty('grid-template-columns', wid);
   }
 }
+
+function toggleFromEvent(e: CustomEvent<boolean>): void {
+  toggleAll(e.detail);
+}
 </script>
 
 <div class="w-full" class:hidden="{data.length === 0}" role="table">
@@ -137,7 +144,7 @@ function setGridColumns() {
             bind:checked="{selectedAllCheckboxes}"
             disabled="{!row.info.selectable || data.filter(object => row.info.selectable?.(object)).length === 0}"
             indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
-            on:click="{event => toggleAll(event.detail)}" />
+            on:click="{toggleFromEvent}" />
         </div>
       {/if}
       {#each columns as column}
@@ -150,7 +157,7 @@ function setGridColumns() {
               ? 'justify-self-center'
               : 'justify-self-start'} self-center select-none"
           class:cursor-pointer="{column.info.comparator}"
-          on:click="{() => sort(column)}"
+          on:click="{sort.bind(undefined, column)}"
           role="columnheader">
           {column.title}{#if column.info.comparator}<i
               class="fas pl-0.5"
