@@ -698,3 +698,42 @@ test('Expect onboarding to handle two extension ids and global onboarding set to
   const onboarding = screen.queryByLabelText('Onboarding');
   expect(onboarding).not.toBeInTheDocument();
 });
+
+test('Expect onboarding to be reset when starting completed onboarding', async () => {
+  (window as any).resetOnboarding = vi.fn();
+  (window as any).updateStepState = vi.fn();
+
+  onboardingList.set([
+    {
+      extension: 'id',
+      title: 'onboarding',
+      name: 'foobar',
+      displayName: 'FooBar',
+      icon: 'data:image/png;base64,foobar',
+      steps: [
+        {
+          id: 'step',
+          title: 'step',
+          state: 'completed',
+          status: 'completed',
+          completionEvents: [],
+          content: [
+            [
+              {
+                value: 'helloworld',
+              },
+            ],
+          ],
+        },
+      ],
+      enablement: 'true',
+      status: 'completed',
+    },
+  ]);
+  context.set(new ContextUI());
+  await waitRender({
+    extensionIds: ['id'],
+  });
+  const helloDoesntExist = screen.queryAllByText('helloworld');
+  expect(helloDoesntExist.length).toBeGreaterThan(0);
+});

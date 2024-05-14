@@ -45,7 +45,6 @@ import Link from '../ui/Link.svelte';
 import {
   type ActiveOnboardingStep,
   cleanSetup,
-  isOnboardingsSetupCompleted,
   isStepCompleted,
   normalizeOnboardingWhenClause,
   replaceContextKeyPlaceholders,
@@ -114,10 +113,8 @@ onMount(async () => {
 async function startOnboarding(): Promise<void> {
   if (!started && globalContext && onboardings.length > 0) {
     started = true;
-    if (!isOnboardingsSetupCompleted(onboardings)) {
-      telemetrySession.restart();
-      await restartSetup();
-    }
+    telemetrySession.restart();
+    await restartSetup();
   }
 }
 
