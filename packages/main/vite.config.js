@@ -34,6 +34,7 @@ const config = {
   resolve: {
     alias: {
       '/@/': join(PACKAGE_ROOT, 'src') + '/',
+      '/@api/': join(PACKAGE_ROOT, '../api/src') + '/',
     },
   },
   build: {
