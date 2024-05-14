@@ -23,7 +23,7 @@ $: contributedLinks = $providerInfos
     <i class="fas fa-question-circle fa-2x" aria-hidden="true"></i>
   </svelte:fragment>
   <div slot="content" class="flex flex-col min-w-full h-fit">
-    <div class="min-w-full flex-1 pt-5 px-5 pb-5 space-y-5">
+    <div class="min-w-full flex-1 px-5 pb-5 space-y-5">
       <!-- Getting Started -->
       <div class="bg-charcoal-600 px-3 pt-3 pb-3 rounded-lg">
         <div class="text-lg">Getting Started</div>

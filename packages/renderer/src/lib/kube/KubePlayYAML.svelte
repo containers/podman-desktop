@@ -170,7 +170,7 @@ async function getKubernetesfileLocation() {
   <FormPage title="Create pods from a Kubernetes YAML file" inProgress="{runStarted && !runFinished}">
     <KubePlayIcon slot="icon" size="30px" />
 
-    <div slot="content" class="p-5 min-w-full h-fit">
+    <div slot="content" class="px-5 pb-5 min-w-full h-fit">
       <div class="bg-charcoal-800 px-6 py-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 rounded-lg">
         <div class="text-xl font-medium">Select file:</div>
         <div hidden="{runStarted}">

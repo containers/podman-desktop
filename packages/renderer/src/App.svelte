@@ -99,8 +99,8 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
 
       <div
         class="flex flex-col w-full h-full overflow-hidden"
-        class:bg-charcoal-700="{!meta.url.startsWith('/preferences')}"
-        class:bg-charcoal-800="{meta.url.startsWith('/preferences')}">
+        class:bg-[var(--pd-content-bg)]="{!meta.url.startsWith('/preferences')}"
+        class:bg-[var(--pd-invert-content-bg)]="{meta.url.startsWith('/preferences')}">
         <TaskManager />
         <SendFeedback />
         <ToastHandler />

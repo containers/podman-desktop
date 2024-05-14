@@ -144,7 +144,7 @@ function requestFocus(element: HTMLInputElement) {
     <Button on:click="{() => gotoManageRegistries()}" icon="{faCog}">Manage registries</Button>
   </svelte:fragment>
 
-  <div slot="content" class="p-5 min-w-full h-full">
+  <div slot="content" class="px-5 pb-5 min-w-full h-full">
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else}
