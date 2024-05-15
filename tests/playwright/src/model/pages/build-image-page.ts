@@ -18,6 +18,7 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 
+import { ArchitectureType } from '../core/states';
 import { BasePage } from './base-page';
 import { ImagesPage } from './images-page';
 
@@ -31,6 +32,8 @@ export class BuildImagePage extends BasePage {
   readonly containerFilePathButton: Locator;
   readonly arm64Button: Locator;
   readonly amd64Button: Locator;
+  readonly arm64checkbox: Locator;
+  readonly amd64checkbox: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -43,9 +46,16 @@ export class BuildImagePage extends BasePage {
     this.containerFilePathButton = page.getByRole('button', { name: 'Browse...' }).first();
     this.arm64Button = page.getByLabel('linux/arm64');
     this.amd64Button = page.getByLabel('linux/amd64');
+    this.arm64checkbox = page.getByLabel('ARM® aarch64 systems');
+    this.amd64checkbox = page.getByLabel('Intel and AMD x86_64 systems');
   }
 
-  async buildImage(imageName: string, containerFilePath: string, contextDirectory: string): Promise<ImagesPage> {
+  async buildImage(
+    imageName: string,
+    containerFilePath: string,
+    contextDirectory: string,
+    archType = ArchitectureType.Default,
+  ): Promise<ImagesPage> {
     if (!containerFilePath) {
       throw Error(`Path to containerfile is incorrect or not provided!`);
     }
@@ -58,10 +68,32 @@ export class BuildImagePage extends BasePage {
       await this.imageNameInput.pressSequentially(imageName, { delay: 50 });
     }
 
+    if (archType !== ArchitectureType.Default) {
+      await this.uncheckedAllCheckboxes();
+      if (archType === ArchitectureType.ARM64) {
+        await this.arm64Button.click();
+        await playExpect(this.arm64checkbox).toBeChecked();
+      } else if (archType === ArchitectureType.AMD64) {
+        await this.amd64Button.click();
+        await playExpect(this.amd64checkbox).toBeChecked();
+      }
+    }
+
     await playExpect(this.buildButton).toBeEnabled();
     await this.buildButton.click();
     await playExpect(this.doneButton).toBeEnabled({ timeout: 120000 });
     await this.doneButton.click();
     return new ImagesPage(this.page);
+  }
+
+  async uncheckedAllCheckboxes(): Promise<void> {
+    if (await this.arm64checkbox.isChecked()) {
+      await this.arm64Button.click();
+      await playExpect(this.arm64checkbox).not.toBeChecked();
+    }
+    if (await this.amd64checkbox.isChecked()) {
+      await this.amd64Button.click();
+      await playExpect(this.amd64checkbox).not.toBeChecked();
+    }
   }
 }

@@ -42,3 +42,9 @@ export enum PodState {
   Paused = 'PAUSED',
   Unknown = 'UNKNOWN',
 }
+
+export enum ArchitectureType {
+  Default = 'default',
+  AMD64 = 'amd64',
+  ARM64 = 'arm64',
+}
