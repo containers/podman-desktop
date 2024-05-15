@@ -448,8 +448,8 @@ export class ColorRegistry {
     });
 
     this.registerColor(`${ct}card-hover-bg`, {
-      dark: colorPalette.charcoal[500], // was zinc[700]
-      light: colorPalette.charcoal[500], // TODO
+      dark: colorPalette.charcoal[500],
+      light: colorPalette.purple[200],
     });
 
     this.registerColor(`${ct}card-text`, {
@@ -641,33 +641,33 @@ export class ColorRegistry {
     // color of columns names
     this.registerColor(`${tab}header-text`, {
       dark: colorPalette.gray[600],
-      light: colorPalette.gray[600], // TODO
+      light: colorPalette.charcoal[200],
     });
     // color of up/down arrows when column is not the ordered one
     this.registerColor(`${tab}header-unsorted`, {
       dark: colorPalette.charcoal[200],
-      light: colorPalette.charcoal[200], // TODO
+      light: colorPalette.charcoal[300],
     });
 
     // color for most text in tables
     this.registerColor(`${tab}body-text`, {
       dark: colorPalette.gray[700],
-      light: colorPalette.gray[700], // TODO
+      light: colorPalette.charcoal[300],
     });
     // color for the text in the main column of the table (generally Name)
     this.registerColor(`${tab}body-text-highlight`, {
       dark: colorPalette.gray[300],
-      light: colorPalette.gray[300], // TODO
+      light: colorPalette.charcoal[300],
     });
     // color for the text in second line of main column, in secondary color (generally IDs)
     this.registerColor(`${tab}body-text-sub-secondary`, {
-      dark: colorPalette.purple[400], // was violet[400]
-      light: colorPalette.purple[400], // TODO
+      dark: colorPalette.purple[400],
+      light: colorPalette.purple[700],
     });
     // color for highlighted text in second line of main column
     this.registerColor(`${tab}body-text-sub-highlight`, {
       dark: colorPalette.gray[400],
-      light: colorPalette.gray[400], // TODO
+      light: colorPalette.charcoal[200],
     });
   }
 }
