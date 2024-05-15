@@ -16,11 +16,10 @@ import type { Column, Row } from './table';
 
 export let kind: string;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export let data: any[];
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let columns: Column<any>[];
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let row: Row<any>;
+export let data: { selected?: boolean; name?: string }[];
 export let defaultSortColumn: string | undefined = undefined;
 
 // number of selected items in the list
@@ -35,7 +34,8 @@ $: selectedAllCheckboxes = row.info.selectable
     data.filter(object => row.info.selectable?.(object)).length > 0
   : false;
 
-function toggleAll(checked: boolean): void {
+function toggleAll(e: CustomEvent<boolean>): void {
+  const checked = e.detail;
   if (!row.info.selectable) {
     return;
   }
@@ -124,10 +124,6 @@ function setGridColumns(): void {
     (element as HTMLElement).style.setProperty('grid-template-columns', wid);
   }
 }
-
-function toggleFromEvent(e: CustomEvent<boolean>): void {
-  toggleAll(e.detail);
-}
 </script>
 
 <div class="w-full" class:hidden="{data.length === 0}" role="table">
@@ -144,7 +140,7 @@ function toggleFromEvent(e: CustomEvent<boolean>): void {
             bind:checked="{selectedAllCheckboxes}"
             disabled="{!row.info.selectable || data.filter(object => row.info.selectable?.(object)).length === 0}"
             indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
-            on:click="{toggleFromEvent}" />
+            on:click="{toggleAll}" />
         </div>
       {/if}
       {#each columns as column}
