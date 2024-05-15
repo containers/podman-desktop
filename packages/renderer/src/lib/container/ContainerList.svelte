@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faChevronDown, faChevronRight, faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Button, Checkbox, ErrorMessage } from '@podman-desktop/ui-svelte';
+import { Button, Checkbox, ErrorMessage, Modal } from '@podman-desktop/ui-svelte';
 import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import { get, type Unsubscriber } from 'svelte/store';
@@ -21,7 +21,6 @@ import { findMatchInLeaves } from '../../stores/search-util';
 import { viewsContributions } from '../../stores/views';
 import ComposeActions from '../compose/ComposeActions.svelte';
 import type { ContextUI } from '../context/context';
-import Modal from '../dialogs/Modal.svelte';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import Prune from '../engine/Prune.svelte';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';

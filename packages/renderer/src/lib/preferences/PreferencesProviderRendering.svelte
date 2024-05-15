@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faHistory, faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
-import { Button, ErrorMessage } from '@podman-desktop/ui-svelte';
+import { Button, ErrorMessage, Modal } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 import type { Terminal } from 'xterm';
@@ -15,7 +15,6 @@ import type {
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import Route from '../../Route.svelte';
 import { providerInfos } from '../../stores/providers';
-import Modal from '../dialogs/Modal.svelte';
 import FormPage from '../ui/FormPage.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import PreferencesConnectionCreationRendering from './PreferencesConnectionCreationOrEditRendering.svelte';
