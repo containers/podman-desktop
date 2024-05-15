@@ -17,13 +17,13 @@ onMount(async () => {
 <div class="flex flex-1 flex-col bg-[var(--pd-content-card-bg)] p-5 rounded-lg">
   <div>
     <button on:click="{() => (expanded = !expanded)}" class="">
-      <div class="flex flex-row space-x-2 items-center">
+      <div class="flex flex-row space-x-2 items-center text-[var(--pd-content-card-header-text)]">
         {#if expanded}
           <i class="fas fa-chevron-down"></i>
         {:else}
           <i class="fas fa-chevron-right"></i>
         {/if}
-        <p class="text-lg text-[var(--pd-content-card-header-text)] font-semibold">Learning Center</p>
+        <p class="text-lg font-semibold">Learning Center</p>
       </div>
     </button>
   </div>
