@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Button } from '@podman-desktop/ui-svelte';
+import { Button, Table, TableColumn, TableRow, TableSimpleColumn } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 
@@ -15,9 +15,6 @@ import type { V1Route } from '/@api/openshift-types';
 
 import IngressRouteIcon from '../images/IngressRouteIcon.svelte';
 import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
-import SimpleColumn from '../table/SimpleColumn.svelte';
-import { Column, Row } from '../table/table';
-import Table from '../table/Table.svelte';
 import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import NavPage from '../ui/NavPage.svelte';
 import { IngressRouteUtils } from './ingress-route-utils';
@@ -96,26 +93,26 @@ async function deleteSelectedIngressesRoutes() {
 let selectedItemsNumber: number;
 let table: Table;
 
-let statusColumn = new Column<IngressUI>('Status', {
+let statusColumn = new TableColumn<IngressUI>('Status', {
   align: 'center',
   width: '70px',
   renderer: IngressRouteColumnStatus,
   comparator: (a, b) => a.status.localeCompare(b.status),
 });
 
-let nameColumn = new Column<IngressUI | RouteUI>('Name', {
+let nameColumn = new TableColumn<IngressUI | RouteUI>('Name', {
   width: '2fr',
   renderer: IngressRouteColumnName,
   comparator: (a, b) => a.name.localeCompare(b.name),
 });
 
-let namespaceColumn = new Column<IngressUI | RouteUI, string>('Namespace', {
+let namespaceColumn = new TableColumn<IngressUI | RouteUI, string>('Namespace', {
   renderMapping: ingressRoute => ingressRoute.namespace,
-  renderer: SimpleColumn,
+  renderer: TableSimpleColumn,
   comparator: (a, b) => a.namespace.localeCompare(b.namespace),
 });
 
-let pathColumn = new Column<IngressUI | RouteUI, string>('Host/Path', {
+let pathColumn = new TableColumn<IngressUI | RouteUI, string>('Host/Path', {
   renderer: IngressRouteColumnHostPath,
   comparator: (a, b) => compareHostPath(a, b),
 });
@@ -126,7 +123,7 @@ function compareHostPath(object1: IngressUI | RouteUI, object2: IngressUI | Rout
   return hostPathObject1.label.localeCompare(hostPathObject2.label);
 }
 
-let backendColumn = new Column<IngressUI | RouteUI, string>('Backend', {
+let backendColumn = new TableColumn<IngressUI | RouteUI, string>('Backend', {
   renderer: IngressRouteColumnBackend,
   comparator: (a, b) => compareBackend(a, b),
 });
@@ -137,16 +134,16 @@ function compareBackend(object1: IngressUI | RouteUI, object2: IngressUI | Route
   return backendObject1.localeCompare(backendObject2);
 }
 
-const columns: Column<IngressUI | RouteUI, IngressUI | RouteUI | string>[] = [
+const columns: TableColumn<IngressUI | RouteUI, IngressUI | RouteUI | string>[] = [
   statusColumn,
   nameColumn,
   namespaceColumn,
   pathColumn,
   backendColumn,
-  new Column<IngressUI | RouteUI>('Actions', { align: 'right', renderer: IngressRouteColumnActions }),
+  new TableColumn<IngressUI | RouteUI>('Actions', { align: 'right', renderer: IngressRouteColumnActions }),
 ];
 
-const row = new Row<IngressUI | RouteUI>({ selectable: _ingressRoute => true });
+const row = new TableRow<IngressUI | RouteUI>({ selectable: _ingressRoute => true });
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="Ingresses & Routes">

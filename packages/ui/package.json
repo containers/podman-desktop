@@ -36,6 +36,18 @@
       "types": "./dist/button/Button.svelte.d.ts",
       "svelte": "./dist/button/Button.svelte"
     },
+    "./Table": {
+      "types": "./dist/table/Table.svelte.d.ts",
+      "svelte": "./dist/table/Table.svelte"
+    },
+    "./TableDurationColumn": {
+      "types": "./dist/table/DurationColumn.svelte.d.ts",
+      "svelte": "./dist/table/DurationColumn.svelte"
+    },
+    "./TableSimpleColumn": {
+      "types": "./dist/table/SimpleColumn.svelte.d.ts",
+      "svelte": "./dist/table/SimpleColumn.svelte"
+    },
     "./Tooltip": {
       "types": "./dist/tooltip/Tooltip.svelte.d.ts",
       "svelte": "./dist/tooltip/Tooltip.svelte"
@@ -54,6 +66,8 @@
     "@fortawesome/free-brands-svg-icons": "^6.5.2",
     "@fortawesome/free-regular-svg-icons": "^6.5.2",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
+    "moment": "^2.30.1",
+    "humanize-duration": "^3.32.0",
     "svelte-fa": "^4.0.2"
   },
   "devDependencies": {
