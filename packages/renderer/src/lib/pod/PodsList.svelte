@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Button } from '@podman-desktop/ui-svelte';
+import { Button, Table, TableColumn, TableRow } from '@podman-desktop/ui-svelte';
 import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
@@ -15,8 +15,6 @@ import Prune from '../engine/Prune.svelte';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
 import PodIcon from '../images/PodIcon.svelte';
 import KubePlayButton from '../kube/KubePlayButton.svelte';
-import { Column, Row } from '../table/table';
-import Table from '../table/Table.svelte';
 import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import NavPage from '../ui/NavPage.svelte';
 import { PodUtils } from './pod-utils';
@@ -170,46 +168,46 @@ function computeInterval(): number {
 let selectedItemsNumber: number;
 let table: Table;
 
-let statusColumn = new Column<PodInfoUI>('Status', {
+let statusColumn = new TableColumn<PodInfoUI>('Status', {
   align: 'center',
   width: '70px',
   renderer: PodColumnStatus,
   comparator: (a, b) => b.status.localeCompare(a.status),
 });
 
-let nameColumn = new Column<PodInfoUI>('Name', {
+let nameColumn = new TableColumn<PodInfoUI>('Name', {
   width: '2fr',
   renderer: PodColumnName,
   comparator: (a, b) => a.name.localeCompare(b.name),
 });
 
-let envColumn = new Column<PodInfoUI>('Environment', {
+let envColumn = new TableColumn<PodInfoUI>('Environment', {
   renderer: PodColumnEnvironment,
   comparator: (a, b) => a.kind.localeCompare(b.kind),
 });
 
-let containersColumn = new Column<PodInfoUI>('Containers', {
+let containersColumn = new TableColumn<PodInfoUI>('Containers', {
   renderer: PodColumnContainers,
   comparator: (a, b) => a.containers.length - b.containers.length,
   initialOrder: 'descending',
   overflow: true,
 });
 
-let ageColumn = new Column<PodInfoUI>('Age', {
+let ageColumn = new TableColumn<PodInfoUI>('Age', {
   renderer: PodColumnAge,
   comparator: (a, b) => moment().diff(a.created) - moment().diff(b.created),
 });
 
-const columns: Column<PodInfoUI>[] = [
+const columns: TableColumn<PodInfoUI>[] = [
   statusColumn,
   nameColumn,
   envColumn,
   containersColumn,
   ageColumn,
-  new Column<PodInfoUI>('Actions', { align: 'right', width: '150px', renderer: PodColumnActions, overflow: true }),
+  new TableColumn<PodInfoUI>('Actions', { align: 'right', width: '150px', renderer: PodColumnActions, overflow: true }),
 ];
 
-const row = new Row<PodInfoUI>({ selectable: _pod => true });
+const row = new TableRow<PodInfoUI>({ selectable: _pod => true });
 </script>
 
 <NavPage bind:searchTerm="{searchTerm}" title="pods">

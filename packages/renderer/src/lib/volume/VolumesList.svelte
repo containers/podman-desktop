@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faPieChart, faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Button } from '@podman-desktop/ui-svelte';
+import { Button, Table, TableColumn, TableRow, TableSimpleColumn } from '@podman-desktop/ui-svelte';
 import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
@@ -12,9 +12,6 @@ import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import Prune from '../engine/Prune.svelte';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
 import VolumeIcon from '../images/VolumeIcon.svelte';
-import SimpleColumn from '../table/SimpleColumn.svelte';
-import { Column, Row } from '../table/table';
-import Table from '../table/Table.svelte';
 import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import NavPage from '../ui/NavPage.svelte';
 import { VolumeUtils } from './volume-utils';
@@ -178,48 +175,48 @@ function gotoCreateVolume(): void {
 let selectedItemsNumber: number;
 let table: Table;
 
-let statusColumn = new Column<VolumeInfoUI>('Status', {
+let statusColumn = new TableColumn<VolumeInfoUI>('Status', {
   align: 'center',
   width: '70px',
   renderer: VolumeColumnStatus,
   comparator: (a, b) => b.status.localeCompare(a.status),
 });
 
-let nameColumn = new Column<VolumeInfoUI>('Name', {
+let nameColumn = new TableColumn<VolumeInfoUI>('Name', {
   width: '3fr',
   renderer: VolumeColumnName,
   comparator: (a, b) => a.shortName.localeCompare(b.shortName),
 });
 
-let envColumn = new Column<VolumeInfoUI>('Environment', {
+let envColumn = new TableColumn<VolumeInfoUI>('Environment', {
   renderer: VolumeColumnEnvironment,
   comparator: (a, b) => a.engineName.localeCompare(b.engineName),
 });
 
-let ageColumn = new Column<VolumeInfoUI, string>('Age', {
+let ageColumn = new TableColumn<VolumeInfoUI, string>('Age', {
   renderMapping: object => object.age,
-  renderer: SimpleColumn,
+  renderer: TableSimpleColumn,
   comparator: (a, b) => moment().diff(a.created) - moment().diff(b.created),
 });
 
-let sizeColumn = new Column<VolumeInfoUI, string>('Size', {
+let sizeColumn = new TableColumn<VolumeInfoUI, string>('Size', {
   align: 'right',
   renderMapping: object => object.humanSize,
-  renderer: SimpleColumn,
+  renderer: TableSimpleColumn,
   comparator: (a, b) => a.size - b.size,
   initialOrder: 'descending',
 });
 
-const columns: Column<VolumeInfoUI, VolumeInfoUI | string>[] = [
+const columns: TableColumn<VolumeInfoUI, VolumeInfoUI | string>[] = [
   statusColumn,
   nameColumn,
   envColumn,
   ageColumn,
   sizeColumn,
-  new Column<VolumeInfoUI>('Actions', { align: 'right', renderer: VolumeColumnActions, overflow: true }),
+  new TableColumn<VolumeInfoUI>('Actions', { align: 'right', renderer: VolumeColumnActions, overflow: true }),
 ];
 
-const row = new Row<VolumeInfoUI>({
+const row = new TableRow<VolumeInfoUI>({
   selectable: volume => volume.status === 'UNUSED',
   disabledText: 'Volume is used by a container',
 });

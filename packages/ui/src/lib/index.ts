@@ -22,9 +22,26 @@ import Checkbox from './checkbox/Checkbox.svelte';
 import Input from './input/Input.svelte';
 import Modal from './modal/Modal.svelte';
 import Spinner from './spinner/Spinner.svelte';
+import TableDurationColumn from './table/DurationColumn.svelte';
+import TableSimpleColumn from './table/SimpleColumn.svelte';
+import { Column as TableColumn, Row as TableRow } from './table/table';
+import Table from './table/Table.svelte';
 import Tooltip from './tooltip/Tooltip.svelte';
 import { isFontAwesomeIcon } from './utils/icon-utils';
 
 export type { ButtonType };
-export { Button, Checkbox, ErrorMessage, Input, Modal, Spinner, Tooltip };
+export {
+  Button,
+  Checkbox,
+  ErrorMessage,
+  Input,
+  Modal,
+  Spinner,
+  Table,
+  TableColumn,
+  TableDurationColumn,
+  TableRow,
+  TableSimpleColumn,
+  Tooltip,
+};
 export { isFontAwesomeIcon };
