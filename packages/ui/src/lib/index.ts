@@ -21,6 +21,7 @@ import Button from './button/Button.svelte';
 import Checkbox from './checkbox/Checkbox.svelte';
 import Input from './input/Input.svelte';
 import Modal from './modal/Modal.svelte';
+import SearchInput from './searchInput/SearchInput.svelte';
 import Spinner from './spinner/Spinner.svelte';
 import Tab from './tab/Tab.svelte';
 import TableDurationColumn from './table/DurationColumn.svelte';
@@ -37,6 +38,7 @@ export {
   ErrorMessage,
   Input,
   Modal,
+  SearchInput,
   Spinner,
   Tab,
   Table,
