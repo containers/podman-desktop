@@ -233,6 +233,7 @@ export class ColorRegistry {
     this.initInputBox();
     this.initCheckbox();
     this.initToggle();
+    this.initTable();
   }
 
   protected initGlobalNav(): void {
@@ -446,6 +447,11 @@ export class ColorRegistry {
       light: colorPalette.gray[50],
     });
 
+    this.registerColor(`${ct}card-hover-bg`, {
+      dark: colorPalette.charcoal[500], // was zinc[700]
+      light: colorPalette.charcoal[500], // TODO
+    });
+
     this.registerColor(`${ct}card-text`, {
       dark: colorPalette.gray[400],
       light: colorPalette.purple[900],
@@ -627,6 +633,41 @@ export class ColorRegistry {
     this.registerColor(`${sNav}disabled-switch`, {
       dark: colorPalette.gray[900],
       light: colorPalette.charcoal[900],
+    });
+  }
+
+  protected initTable(): void {
+    const tab = 'table-';
+    // color of columns names
+    this.registerColor(`${tab}header-text`, {
+      dark: colorPalette.gray[600],
+      light: colorPalette.gray[600], // TODO
+    });
+    // color of up/down arrows when column is not the ordered one
+    this.registerColor(`${tab}header-unsorted`, {
+      dark: colorPalette.charcoal[200],
+      light: colorPalette.charcoal[200], // TODO
+    });
+
+    // color for most text in tables
+    this.registerColor(`${tab}body-text`, {
+      dark: colorPalette.gray[700],
+      light: colorPalette.gray[700], // TODO
+    });
+    // color for the text in the main column of the table (generally Name)
+    this.registerColor(`${tab}body-text-highlight`, {
+      dark: colorPalette.gray[300],
+      light: colorPalette.gray[300], // TODO
+    });
+    // color for the text in second line of main column, in secondary color (generally IDs)
+    this.registerColor(`${tab}body-text-sub-secondary`, {
+      dark: colorPalette.purple[400], // was violet[400]
+      light: colorPalette.purple[400], // TODO
+    });
+    // color for highlighted text in second line of main column
+    this.registerColor(`${tab}body-text-sub-highlight`, {
+      dark: colorPalette.gray[400],
+      light: colorPalette.gray[400], // TODO
     });
   }
 }
