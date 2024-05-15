@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Tab } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
 import Route from '../../Route.svelte';
@@ -6,7 +7,6 @@ import { volumeListInfos } from '../../stores/volumes';
 import StatusIcon from '../images/StatusIcon.svelte';
 import VolumeIcon from '../images/VolumeIcon.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
-import Tab from '../ui/Tab.svelte';
 import VolumeDetailsSummary from '././VolumeDetailsSummary.svelte';
 import { VolumeUtils } from './volume-utils';
 import VolumeActions from './VolumeActions.svelte';

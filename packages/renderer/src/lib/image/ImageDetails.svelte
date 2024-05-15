@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { ImageInfo } from '@podman-desktop/api';
+import { Tab } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/motion';
 
@@ -15,7 +16,6 @@ import type { ContextUI } from '../context/context';
 import StatusIcon from '../images/StatusIcon.svelte';
 import Badge from '../ui/Badge.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
-import Tab from '../ui/Tab.svelte';
 import {
   IMAGE_DETAILS_VIEW_BADGES,
   IMAGE_DETAILS_VIEW_ICONS,

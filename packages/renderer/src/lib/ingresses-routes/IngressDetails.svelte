@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { V1Ingress } from '@kubernetes/client-node';
+import { Tab } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { stringify } from 'yaml';
 
@@ -12,7 +13,6 @@ import StatusIcon from '../images/StatusIcon.svelte';
 import KubeEditYAML from '../kube/KubeEditYAML.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import StateChange from '../ui/StateChange.svelte';
-import Tab from '../ui/Tab.svelte';
 import { IngressRouteUtils } from './ingress-route-utils';
 import IngressRouteActions from './IngressRouteActions.svelte';
 import ServiceDetailsSummary from './IngressRouteDetailsSummary.svelte';
