@@ -2,10 +2,10 @@
 import { faCircle, faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
 import { faCircleExclamation, faInfo, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { Button, type ButtonType } from '@podman-desktop/ui-svelte';
+import { Modal } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import Fa from 'svelte-fa';
 
-import Modal from '/@/lib/dialogs/Modal.svelte';
 import CloseButton from '/@/lib/ui/CloseButton.svelte';
 
 import type { MessageBoxOptions } from './messagebox-input';

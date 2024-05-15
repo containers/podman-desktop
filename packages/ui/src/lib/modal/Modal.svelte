@@ -1,16 +1,16 @@
 <script lang="ts">
 import { createEventDispatcher, onDestroy } from 'svelte';
 
-import { tabWithinParent } from './dialog-utils';
+import { tabWithinParent } from '../utils/dialog-utils';
 
 const dispatch = createEventDispatcher();
-const close = () => dispatch('close');
+const close = (): boolean => dispatch('close');
 
 let modal: HTMLDivElement;
 export let name = '';
 export let top: boolean = false;
 
-const handle_keydown = (e: any) => {
+const handle_keydown = (e: KeyboardEvent): void => {
   if (e.key === 'Escape') {
     close();
     return;
