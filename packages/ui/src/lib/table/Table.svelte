@@ -130,7 +130,7 @@ function setGridColumns(): void {
   <!-- Table header -->
   <div role="rowgroup">
     <div
-      class="grid grid-table gap-x-0.5 mx-5 h-7 sticky top-0 bg-charcoal-700 text-xs text-gray-600 font-bold uppercase z-[2]"
+      class="grid grid-table gap-x-0.5 mx-5 h-7 sticky top-0 bg-[var(--pd-content-bg)] text-xs text-[var(--pd-table-header-text)] font-bold uppercase z-[2]"
       role="row">
       <div class="whitespace-nowrap justify-self-start" role="columnheader"></div>
       {#if row.info.selectable}
@@ -163,7 +163,7 @@ function setGridColumns(): void {
               class:fa-sort="{sortCol !== column}"
               class:fa-sort-up="{sortCol === column && sortAscending}"
               class:fa-sort-down="{sortCol === column && !sortAscending}"
-              class:text-charcoal-200="{sortCol !== column}"
+              class:text-[var(--pd-table-header-unsorted)]="{sortCol !== column}"
               aria-hidden="true"></i
             >{/if}
         </div>
@@ -174,7 +174,7 @@ function setGridColumns(): void {
   <div role="rowgroup">
     {#each data as object (object)}
       <div
-        class="grid grid-table gap-x-0.5 mx-5 min-h-[48px] h-fit bg-charcoal-800 hover:bg-zinc-700 rounded-lg mb-2"
+        class="grid grid-table gap-x-0.5 mx-5 min-h-[48px] h-fit bg-[var(--pd-content-card-bg)] hover:bg-[var(--pd-content-card-hover-bg)] rounded-lg mb-2"
         animate:flip="{{ duration: 300 }}"
         role="row"
         aria-label="{object.name}">

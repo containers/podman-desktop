@@ -49,7 +49,7 @@ test('Expect simple column styling', async () => {
   const text = screen.getByText(volume.shortName);
   expect(text).toBeInTheDocument();
   expect(text).toHaveClass('text-sm');
-  expect(text).toHaveClass('text-gray-300');
+  expect(text).toHaveClass('text-[var(--pd-table-body-text-highlight)]');
 });
 
 test('Expect clicking works', async () => {

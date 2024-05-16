@@ -52,15 +52,15 @@ test('Expect simple column styling', async () => {
   const text = screen.getByText(image.name);
   expect(text).toBeInTheDocument();
   expect(text).toHaveClass('text-sm');
-  expect(text).toHaveClass('text-gray-300');
+  expect(text).toHaveClass('text-[var(--pd-table-body-text-highlight)]');
 
   const id = screen.getByText(image.shortId);
   expect(id).toBeInTheDocument();
-  expect(id).toHaveClass('text-violet-400');
+  expect(id).toHaveClass('text-[var(--pd-table-body-text-sub-secondary)]');
 
   const tag = screen.getByText(image.tag);
   expect(tag).toBeInTheDocument();
-  expect(tag).toHaveClass('text-gray-400');
+  expect(tag).toHaveClass('text-[var(--pd-table-body-text-sub-highlight)]');
   expect(tag).toHaveClass('font-extra-light');
 });
 
