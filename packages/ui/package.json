@@ -29,8 +29,8 @@
       "svelte": "./dist/inputs/input.svelte"
     },
     "./Spinner": {
-      "types": "./dist/spinner/Spinner.svelte.d.ts",
-      "svelte": "./dist/spinner/Spinner.svelte"
+      "types": "./dist/progress/Spinner.svelte.d.ts",
+      "svelte": "./dist/progress/Spinner.svelte"
     },
     "./Button": {
       "types": "./dist/button/Button.svelte.d.ts",
@@ -71,6 +71,10 @@
     "./SearchInput": {
       "types": "./dist/inputs/SearchInput.svelte.d.ts",
       "svelte": "./dist/inputs/SearchInput.svelte"
+    },
+    "./LinearProgress": {
+      "types": "./dist/progress/LinearProgress.d.ts",
+      "svelte": "./dist/progress/LinearProgress.svelte"
     }
   },
   "peerDependencies": {
