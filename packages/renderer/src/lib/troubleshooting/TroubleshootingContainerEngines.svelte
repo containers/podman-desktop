@@ -1,5 +1,6 @@
 <script lang="ts">
-import ContainerIcon from '/@/lib/images/ContainerIcon.svelte';
+import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
+
 import type { ProviderInfo } from '/@api/provider-info';
 
 import TroubleshootingContainerEngine from './TroubleshootingContainerEngine.svelte';

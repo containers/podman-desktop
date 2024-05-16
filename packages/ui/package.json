@@ -55,6 +55,14 @@
     "./ErrorMessage": {
       "types": "./dist/alert/ErrorMessage.svelte.d.ts",
       "svelte": "./dist/alert/ErrorMessage.svelte"
+    },
+    "./icons": {
+      "types": "./dist/icons/index.d.ts",
+      "svelte": "./dist/icons/index.js"
+    },
+    "./icons/ContainerIcon": {
+      "types": "./dist/icons/ContainerIcon.d.ts",
+      "svelte": "./dist/icons/ContainerIcon.svelte"
     }
   },
   "peerDependencies": {
