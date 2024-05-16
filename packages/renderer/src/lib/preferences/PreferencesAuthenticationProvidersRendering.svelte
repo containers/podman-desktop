@@ -5,15 +5,13 @@ import {
   faRightFromBracket,
   faRightToBracket,
 } from '@fortawesome/free-solid-svg-icons';
-import { Button, EmptyScreen, Tooltip } from '@podman-desktop/ui-svelte';
+import { Button, Dropdown, EmptyScreen, Tooltip } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
 import EmbeddableCatalogExtensionList from '/@/lib/extensions/EmbeddableCatalogExtensionList.svelte';
 
 import { authenticationProviders } from '../../stores/authenticationProviders';
 import KeyIcon from '../images/KeyIcon.svelte';
-import DropdownMenu from '../ui/DropdownMenu.svelte';
-import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
 import SettingsPage from './SettingsPage.svelte';
 </script>
 
@@ -149,14 +147,14 @@ import SettingsPage from './SettingsPage.svelte';
               <!-- Authentication Provider Auth Request Sign In button end -->
             {:else if sessionRequests.length > 1}
               <!-- Authentication Provider Auth Requests DropDown start -->
-              <DropdownMenu>
+              <Dropdown>
                 {#each sessionRequests as request}
-                  <DropdownMenuItem
+                  <Dropdown.Item
                     title="Sign in to use {request.extensionLabel}"
                     onClick="{() => window.requestAuthenticationProviderSignIn(request.id)}"
                     icon="{faArrowRightToBracket}" />
                 {/each}
-              </DropdownMenu>
+              </Dropdown>
               <!-- Authentication Provider Auth Requests DropDown end -->
             {/if}
           </div>

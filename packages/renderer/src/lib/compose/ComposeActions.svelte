@@ -1,5 +1,6 @@
 <script lang="ts">
 import { faArrowsRotate, faFileCode, faPlay, faRocket, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { Dropdown } from '@podman-desktop/ui-svelte';
 import { createEventDispatcher, onMount } from 'svelte';
 import { router } from 'tinro';
 
@@ -7,7 +8,6 @@ import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
-import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import type { ComposeInfoUI } from './ComposeInfoUI';
@@ -108,9 +108,9 @@ function openGenerateKube(): void {
 
 // If dropdownMenu = true, we'll change style to the imported dropdownMenu style
 // otherwise, leave blank.
-let actionsStyle: typeof DropdownMenu | typeof FlatMenu;
+let actionsStyle: typeof Dropdown | typeof FlatMenu;
 if (dropdownMenu) {
-  actionsStyle = DropdownMenu;
+  actionsStyle = Dropdown;
 } else {
   actionsStyle = FlatMenu;
 }

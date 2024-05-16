@@ -8,6 +8,7 @@ import {
   faStop,
   faTrash,
 } from '@fortawesome/free-solid-svg-icons';
+import { Dropdown } from '@podman-desktop/ui-svelte';
 import { createEventDispatcher, onMount } from 'svelte';
 import { router } from 'tinro';
 
@@ -16,7 +17,6 @@ import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
 import { ContainerUtils } from '../container/container-utils';
-import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import type { PodInfoUI } from './PodInfoUI';
@@ -149,9 +149,9 @@ function deployToKubernetes(): void {
 }
 // If dropdownMenu = true, we'll change style to the imported dropdownMenu style
 // otherwise, leave blank.
-let actionsStyle: typeof DropdownMenu | typeof FlatMenu;
+let actionsStyle: typeof Dropdown | typeof FlatMenu;
 if (dropdownMenu) {
-  actionsStyle = DropdownMenu;
+  actionsStyle = Dropdown;
 } else {
   actionsStyle = FlatMenu;
 }
@@ -217,7 +217,7 @@ if (dropdownMenu) {
         detailed="{detailed}"
         icon="{faExternalLinkSquareAlt}" />
     {:else if openingUrls.length > 1}
-      <DropdownMenu icon="{faExternalLinkSquareAlt}" hidden="{dropdownMenu}" shownAsMenuActionItem="{true}">
+      <Dropdown icon="{faExternalLinkSquareAlt}" hidden="{dropdownMenu}" shownAsMenuActionItem="{true}">
         {#each openingUrls as url}
           <ListItemButtonIcon
             title="Open {extractPort(url)}"
@@ -228,7 +228,7 @@ if (dropdownMenu) {
             detailed="{detailed}"
             icon="{faExternalLinkSquareAlt}" />
         {/each}
-      </DropdownMenu>
+      </Dropdown>
     {/if}
     <ListItemButtonIcon
       title="Restart Pod"
@@ -256,7 +256,7 @@ if (dropdownMenu) {
         detailed="{detailed}"
         icon="{faExternalLinkSquareAlt}" />
     {:else if openingKubernetesUrls.size > 1}
-      <DropdownMenu
+      <Dropdown
         title="Open Kubernetes Routes"
         icon="{faExternalLinkSquareAlt}"
         hidden="{dropdownMenu}"
@@ -271,7 +271,7 @@ if (dropdownMenu) {
             detailed="{detailed}"
             icon="{faExternalLinkSquareAlt}" />
         {/each}
-      </DropdownMenu>
+      </Dropdown>
     {/if}
   {/if}
   <ContributionActions
