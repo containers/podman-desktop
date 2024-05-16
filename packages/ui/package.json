@@ -73,8 +73,8 @@
       "svelte": "./dist/inputs/SearchInput.svelte"
     },
     "./LinearProgress": {
-      "types": "./dist/spinner/LinearProgress.d.ts",
-      "svelte": "./dist/spinner/LinearProgress.svelte"
+      "types": "./dist/progress/LinearProgress.d.ts",
+      "svelte": "./dist/progress/LinearProgress.svelte"
     }
   },
   "peerDependencies": {
