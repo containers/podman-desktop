@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { V1Deployment } from '@kubernetes/client-node';
+import { Tab } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { stringify } from 'yaml';
 
@@ -11,7 +12,6 @@ import DeploymentIcon from '../images/DeploymentIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
 import KubeEditYAML from '../kube/KubeEditYAML.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
-import Tab from '../ui/Tab.svelte';
 import { DeploymentUtils } from './deployment-utils';
 import DeploymentActions from './DeploymentActions.svelte';
 import DeploymentDetailsSummary from './DeploymentDetailsSummary.svelte';
