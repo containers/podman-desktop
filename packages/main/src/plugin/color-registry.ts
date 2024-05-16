@@ -451,6 +451,16 @@ export class ColorRegistry {
       light: colorPalette.purple[900],
     });
 
+    this.registerColor(`${ct}card-title`, {
+      dark: colorPalette.gray[400],
+      light: colorPalette.charcoal[900],
+    });
+
+    this.registerColor(`${ct}card-light-title`, {
+      dark: colorPalette.gray[800],
+      light: colorPalette.purple[900],
+    });
+
     this.registerColor(`${ct}card-inset-bg`, {
       dark: colorPalette.charcoal[900],
       light: colorPalette.dustypurple[200],
@@ -469,6 +479,41 @@ export class ColorRegistry {
     this.registerColor(`${ct}divider`, {
       dark: colorPalette.charcoal[400],
       light: colorPalette.gray[700],
+    });
+
+    this.registerColor(`${ct}card-carousel-card-bg`, {
+      dark: colorPalette.charcoal[600],
+      light: colorPalette.gray[300],
+    });
+
+    this.registerColor(`${ct}card-carousel-card-hover-bg`, {
+      dark: colorPalette.charcoal[500],
+      light: colorPalette.gray[200],
+    });
+
+    this.registerColor(`${ct}card-carousel-card-header-text`, {
+      dark: colorPalette.gray[100],
+      light: colorPalette.charcoal[900],
+    });
+
+    this.registerColor(`${ct}card-carousel-card-text`, {
+      dark: colorPalette.gray[400],
+      light: colorPalette.purple[900],
+    });
+
+    this.registerColor(`${ct}card-carousel-nav`, {
+      dark: colorPalette.gray[800],
+      light: colorPalette.gray[400],
+    });
+
+    this.registerColor(`${ct}card-carousel-hover-nav`, {
+      dark: colorPalette.gray[600],
+      light: colorPalette.gray[600],
+    });
+
+    this.registerColor(`${ct}card-carousel-disabled-nav`, {
+      dark: colorPalette.charcoal[700],
+      light: colorPalette.gray[200],
     });
   }
 
