@@ -13,7 +13,7 @@ function openDetailsImage(image: ImageInfoUI) {
 
 <button class="flex flex-col" on:click="{() => openDetailsImage(object)}">
   <div class="flex flex-row text-xs gap-1 items-center">
-    <div class="text-sm text-gray-300">{object.name}</div>
+    <div class="text-sm text-[var(--pd-table-body-text-highlight)]">{object.name}</div>
     {#if object.badges.length}
       {#each object.badges as badge}
         <Badge color="{badge.color}" label="{badge.label}" />
@@ -21,7 +21,7 @@ function openDetailsImage(image: ImageInfoUI) {
     {/if}
   </div>
   <div class="flex flex-row text-xs gap-1">
-    <div class="text-violet-400">{object.shortId}</div>
-    <div class="font-extra-light text-gray-400">{object.tag}</div>
+    <div class="text-[var(--pd-table-body-text-sub-secondary)]">{object.shortId}</div>
+    <div class="font-extra-light text-[var(--pd-table-body-text-sub-highlight)]">{object.tag}</div>
   </div>
 </button>
