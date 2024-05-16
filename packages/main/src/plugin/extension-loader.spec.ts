@@ -422,6 +422,38 @@ test('Verify extension error leads to failed state', async () => {
   expect(extensionLoader.getExtensionState().get(id)).toBe('failed');
 });
 
+test('Verify extension subscriptions are disposed when failed state reached', async () => {
+  const id = 'extension.id';
+  const disposableMock: containerDesktopAPI.Disposable = {
+    dispose: vi.fn(),
+  };
+  configurationRegistryGetConfigurationMock.mockReturnValue({
+    get: vi.fn().mockReturnValue(5000),
+  });
+  await extensionLoader.activateExtension(
+    {
+      id: id,
+      name: 'id',
+      path: 'dummy',
+      api: {} as typeof containerDesktopAPI,
+      mainPath: '',
+      removable: false,
+      manifest: {},
+      subscriptions: [],
+      readme: '',
+      dispose: vi.fn(),
+    },
+    {
+      activate: (extensionContext: containerDesktopAPI.ExtensionContext) => {
+        extensionContext.subscriptions.push(disposableMock);
+        throw Error('Failed');
+      },
+    },
+  );
+  expect(extensionLoader.getExtensionState().get(id)).toBe('failed');
+  expect(disposableMock.dispose).toHaveBeenCalledOnce();
+});
+
 test('Verify extension activate with a long timeout is flagged as error', async () => {
   const id = 'extension.id';
 
