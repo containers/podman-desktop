@@ -70,12 +70,16 @@ export class BuildImagePage extends BasePage {
 
     if (archType !== ArchitectureType.Default) {
       await this.uncheckedAllCheckboxes();
-      if (archType === ArchitectureType.ARM64) {
-        await this.arm64Button.click();
-        await playExpect(this.arm64checkbox).toBeChecked();
-      } else if (archType === ArchitectureType.AMD64) {
-        await this.amd64Button.click();
-        await playExpect(this.amd64checkbox).toBeChecked();
+
+      switch (archType) {
+        case ArchitectureType.ARM64:
+          await this.arm64Button.click();
+          await playExpect(this.arm64checkbox).toBeChecked();
+          break;
+        case ArchitectureType.AMD64:
+          await this.amd64Button.click();
+          await playExpect(this.amd64checkbox).toBeChecked();
+          break;
       }
     }
 
