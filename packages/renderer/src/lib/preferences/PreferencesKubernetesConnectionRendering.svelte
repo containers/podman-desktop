@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Tab } from '@podman-desktop/ui-svelte';
 import { Buffer } from 'buffer';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
@@ -16,7 +17,6 @@ import IconImage from '../appearance/IconImage.svelte';
 import ConnectionErrorInfoButton from '../ui/ConnectionErrorInfoButton.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
-import Tab from '../ui/Tab.svelte';
 import { eventCollect } from './preferences-connection-rendering-task';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
 import PreferencesConnectionDetailsLogs from './PreferencesConnectionDetailsLogs.svelte';
