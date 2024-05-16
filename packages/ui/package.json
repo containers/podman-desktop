@@ -69,8 +69,8 @@
       "svelte": "./dist/tab/Tab.svelte"
     },
     "./SearchInput": {
-      "types": "./dist/searchInput/SearchInput.svelte.d.ts",
-      "svelte": "./dist/searchInput/SearchInput.svelte"
+      "types": "./dist/input/SearchInput.svelte.d.ts",
+      "svelte": "./dist/input/SearchInput.svelte"
     }
   },
   "peerDependencies": {
