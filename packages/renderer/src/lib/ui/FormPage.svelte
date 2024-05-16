@@ -1,10 +1,10 @@
 <script lang="ts">
+import { LinearProgress } from '@podman-desktop/ui-svelte';
 import { router } from 'tinro';
 
 import CloseButton from '/@/lib/ui/CloseButton.svelte';
 
 import { currentPage, lastPage } from '../../stores/breadcrumb';
-import LinearProgress from './LinearProgress.svelte';
 import Link from './Link.svelte';
 
 export let title: string;

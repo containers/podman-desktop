@@ -22,7 +22,8 @@ import Checkbox from './checkbox/Checkbox.svelte';
 import Input from './inputs/Input.svelte';
 import SearchInput from './inputs/SearchInput.svelte';
 import Modal from './modal/Modal.svelte';
-import Spinner from './spinner/Spinner.svelte';
+import LinearProgress from './progress/LinearProgress.svelte';
+import Spinner from './progress/Spinner.svelte';
 import Tab from './tab/Tab.svelte';
 import TableDurationColumn from './table/DurationColumn.svelte';
 import TableSimpleColumn from './table/SimpleColumn.svelte';
@@ -37,6 +38,7 @@ export {
   Checkbox,
   ErrorMessage,
   Input,
+  LinearProgress,
   Modal,
   SearchInput,
   Spinner,
