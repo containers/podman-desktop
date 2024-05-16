@@ -25,8 +25,8 @@
       "svelte": "./dist/checkbox/Checkbox.svelte"
     },
     "./Input": {
-      "types": "./dist/input/input.svelte.d.ts",
-      "svelte": "./dist/input/input.svelte"
+      "types": "./dist/inputs/input.svelte.d.ts",
+      "svelte": "./dist/inputs/input.svelte"
     },
     "./Spinner": {
       "types": "./dist/spinner/Spinner.svelte.d.ts",
@@ -67,6 +67,10 @@
     "./Tab": {
       "types": "./dist/tab/Tab.svelte.d.ts",
       "svelte": "./dist/tab/Tab.svelte"
+    },
+    "./SearchInput": {
+      "types": "./dist/inputs/SearchInput.svelte.d.ts",
+      "svelte": "./dist/inputs/SearchInput.svelte"
     }
   },
   "peerDependencies": {
