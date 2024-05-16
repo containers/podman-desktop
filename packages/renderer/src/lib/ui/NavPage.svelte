@@ -1,5 +1,5 @@
 <script lang="ts">
-import SearchInput from './SearchInput.svelte';
+import { SearchInput } from '@podman-desktop/ui-svelte';
 
 export let title: string;
 export let searchTerm = '';
