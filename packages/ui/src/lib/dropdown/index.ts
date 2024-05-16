@@ -15,9 +15,8 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import DropDownMenuItem from '/@/lib/dropdown/DropDownMenuItem.svelte';
-
 import DropdownMenu from './Dropdown.svelte';
+import DropDownMenuItem from './DropDownMenuItem.svelte';
 
 export default Object.assign(DropdownMenu, {
   MenuItem: DropDownMenuItem,
