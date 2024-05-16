@@ -1,7 +1,7 @@
 <script lang="ts">
 import { faCubes } from '@fortawesome/free-solid-svg-icons';
 import type { AuditRequestItems, AuditResult, ConfigurationScope } from '@podman-desktop/api';
-import { Button, ErrorMessage, Spinner } from '@podman-desktop/ui-svelte';
+import { Button, ErrorMessage, LinearProgress, Spinner } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
@@ -23,7 +23,6 @@ import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/
 import Markdown from '../markdown/Markdown.svelte';
 import AuditMessageBox from '../ui/AuditMessageBox.svelte';
 import EmptyScreen from '../ui/EmptyScreen.svelte';
-import LinearProgress from '../ui/LinearProgress.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import EditableConnectionResourceItem from './item-formats/EditableConnectionResourceItem.svelte';
 import {
