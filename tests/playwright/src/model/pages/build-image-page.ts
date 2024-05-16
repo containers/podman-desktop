@@ -30,6 +30,7 @@ export class BuildImagePage extends BasePage {
   readonly buildButton: Locator;
   readonly doneButton: Locator;
   readonly containerFilePathButton: Locator;
+  readonly platformRegion: Locator;
   readonly arm64Button: Locator;
   readonly amd64Button: Locator;
   readonly arm64checkbox: Locator;
@@ -44,10 +45,11 @@ export class BuildImagePage extends BasePage {
     this.buildButton = page.getByRole('button', { name: 'Build' });
     this.doneButton = page.getByRole('button', { name: 'Done' });
     this.containerFilePathButton = page.getByRole('button', { name: 'Browse...' }).first();
-    this.arm64Button = page.getByLabel('linux/arm64');
-    this.amd64Button = page.getByLabel('linux/amd64');
-    this.arm64checkbox = page.getByLabel('ARM® aarch64 systems');
-    this.amd64checkbox = page.getByLabel('Intel and AMD x86_64 systems');
+    this.platformRegion = page.getByRole('region', { name: 'Build Platform Options' });
+    this.arm64Button = this.platformRegion.getByLabel('linux/arm64');
+    this.amd64Button = this.platformRegion.getByLabel('linux/amd64');
+    this.arm64checkbox = this.platformRegion.getByLabel('ARM® aarch64 systems');
+    this.amd64checkbox = this.platformRegion.getByLabel('Intel and AMD x86_64 systems');
   }
 
   async buildImage(
