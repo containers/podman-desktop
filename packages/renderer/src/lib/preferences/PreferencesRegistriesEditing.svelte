@@ -348,17 +348,20 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
                 <!-- Show/hide password end -->
                 <!-- containerDesktopAPI.Registry menu start -->
                 <Dropdown>
-                  <Dropdown.Item
+                  <Dropdown.MenuItem
                     title="Login"
                     onClick="{() => markRegistryAsModified(registry)}"
                     hidden="{!!registry.username && !!registry.secret}"
                     icon="{faUser}" />
-                  <Dropdown.Item
+                  <Dropdown.MenuItem
                     title="Edit password"
                     onClick="{() => markRegistryAsModified(registry)}"
                     hidden="{!registry.username && !registry.secret}"
                     icon="{faUserPen}" />
-                  <Dropdown.Item title="Remove" onClick="{() => removeExistingRegistry(registry)}" icon="{faTrash}" />
+                  <Dropdown.MenuItem
+                    title="Remove"
+                    onClick="{() => removeExistingRegistry(registry)}"
+                    icon="{faTrash}" />
                 </Dropdown>
               </div>
             {/if}

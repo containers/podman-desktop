@@ -115,7 +115,7 @@ $: styleClass = detailed
 <!-- If menu = true, use the menu, otherwise implement the button -->
 {#if menu}
   <!-- enabled menu -->
-  <Dropdown.Item
+  <Dropdown.MenuItem
     title="{title}"
     tooltip="{tooltip}"
     icon="{icon}"

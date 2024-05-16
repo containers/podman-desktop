@@ -149,7 +149,7 @@ import SettingsPage from './SettingsPage.svelte';
               <!-- Authentication Provider Auth Requests DropDown start -->
               <Dropdown>
                 {#each sessionRequests as request}
-                  <Dropdown.Item
+                  <Dropdown.MenuItem
                     title="Sign in to use {request.extensionLabel}"
                     onClick="{() => window.requestAuthenticationProviderSignIn(request.id)}"
                     icon="{faArrowRightToBracket}" />
