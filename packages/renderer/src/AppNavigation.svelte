@@ -1,5 +1,6 @@
 <script lang="ts">
 import { faCircleUser } from '@fortawesome/free-regular-svg-icons';
+import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 import Fa from 'svelte-fa';
@@ -12,7 +13,6 @@ import type { ImageInfo } from '/@api/image-info';
 import { CommandRegistry } from './lib/CommandRegistry';
 import NewContentOnDashboardBadge from './lib/dashboard/NewContentOnDashboardBadge.svelte';
 import { ImageUtils } from './lib/image/image-utils';
-import ContainerIcon from './lib/images/ContainerIcon.svelte';
 import DashboardIcon from './lib/images/DashboardIcon.svelte';
 import DeploymentIcon from './lib/images/DeploymentIcon.svelte';
 import ExtensionIcon from './lib/images/ExtensionIcon.svelte';

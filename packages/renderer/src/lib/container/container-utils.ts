@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { Port } from '@podman-desktop/api';
+import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
 import { filesize } from 'filesize';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
@@ -26,7 +27,6 @@ import { isViewContributionIcon, type ViewInfoUI } from '/@api/view-info';
 
 import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
-import ContainerIcon from '../images/ContainerIcon.svelte';
 import type { ContainerGroupInfoUI, ContainerGroupPartInfoUI, ContainerInfoUI } from './ContainerInfoUI';
 import { ContainerGroupInfoTypeUI } from './ContainerInfoUI';
 

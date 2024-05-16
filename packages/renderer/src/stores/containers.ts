@@ -16,11 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
 import { type Writable, writable } from 'svelte/store';
 
 import type { ContainerInfo } from '/@api/container-info';
 
-import ContainerIcon from '../lib/images/ContainerIcon.svelte';
 import { EventStore } from './event-store';
 
 const windowEvents = [
