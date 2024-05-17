@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ test('Expect simple column styling', async () => {
   const text = screen.getByText('1 hour');
   expect(text).toBeInTheDocument();
   expect(text).toHaveClass('text-sm');
-  expect(text).toHaveClass('text-gray-700');
+  expect(text).toHaveClass('text-[var(--pd-table-body-text)]');
 });
 
 test('Expect 2s refresh on values less than a minute', async () => {

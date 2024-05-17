@@ -1464,6 +1464,16 @@ export class ExtensionLoader {
       this.apiSender.send('extension-started');
     } catch (err) {
       console.log(`Activating extension ${extension.id} failed error:${err}`);
+
+      // dispose resources
+      for (const subscription of extensionContext.subscriptions) {
+        try {
+          subscription.dispose();
+        } catch (err: unknown) {
+          console.error('Something went wrong while trying to dispose extension subscription', err);
+        }
+      }
+
       this.extensionState.set(extension.id, 'failed');
       this.extensionStateErrors.set(extension.id, err);
       // Storing error in the telemetry options

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import '@testing-library/jest-dom/vitest';
+import ContainerIcon from './ContainerIcon.svelte';
 
-import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
-
-import SimpleColumn from './SimpleColumn.svelte';
-
-test('Expect simple column styling', async () => {
-  const obj = 'Test';
-  render(SimpleColumn, { object: obj });
-
-  const text = screen.getByText(obj);
-  expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('text-sm');
-  expect(text).toHaveClass('text-gray-700');
-});
+export { ContainerIcon };

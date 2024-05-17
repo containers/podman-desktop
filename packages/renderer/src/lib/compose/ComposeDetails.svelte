@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Tab } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 
@@ -10,7 +11,6 @@ import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import ComposeIcon from '../images/PodIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
-import Tab from '../ui/Tab.svelte';
 import ComposeActions from './ComposeActions.svelte';
 import ComposeDetailsInspect from './ComposeDetailsInspect.svelte';
 import ComposeDetailsKube from './ComposeDetailsKube.svelte';

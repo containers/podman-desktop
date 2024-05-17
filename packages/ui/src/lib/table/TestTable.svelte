@@ -41,7 +41,7 @@ const ageCol: Column<Person, string> = new Column('Age', {
   align: 'right',
   renderMapping: obj => obj.age.toString(),
   renderer: SimpleColumn,
-  comparator: (a, b) => {
+  comparator: (a, b): number => {
     dispatch('update', 'sorting');
     return a.age - b.age;
   },
@@ -55,9 +55,9 @@ const hobbyCol: Column<Person, string> = new Column('Hobby', {
 });
 
 const columns: Column<Person, string>[] = [idCol, nameCol, ageCol, hobbyCol];
-
+const selectable = (person: Person): boolean => person.age < 50;
 const row = new Row<Person>({
-  selectable: person => person.age < 50,
+  selectable,
   disabledText: 'People over 50 cannot be deleted',
 });
 </script>

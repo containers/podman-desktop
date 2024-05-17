@@ -49,7 +49,7 @@ function rotateRight() {
     id="left"
     on:click="{rotateLeft}"
     aria-label="Rotate left"
-    class="h-8 w-8 mr-3 bg-gray-800 hover:bg-gray-600 rounded-full disabled:bg-charcoal-700"
+    class="h-8 w-8 mr-3 bg-[var(--pd-content-card-carousel-nav)] hover:bg-[var(--pd-content-card-carousel-hover-nav)] rounded-full disabled:bg-[var(--pd-content-card-carousel-disabled-nav)]"
     disabled="{visibleCards.length === cards.length}">
     <Fa class="w-8 h-8" icon="{faChevronLeft}" color="black" />
   </button>
@@ -64,7 +64,7 @@ function rotateRight() {
     id="right"
     on:click="{rotateRight}"
     aria-label="Rotate right"
-    class="h-8 w-8 ml-3 bg-gray-800 hover:bg-gray-600 rounded-full disabled:bg-charcoal-700"
+    class="h-8 w-8 ml-3 bg-[var(--pd-content-card-carousel-nav)] hover:bg-[var(--pd-content-card-carousel-hover-nav)] rounded-full disabled:bg-[var(--pd-content-card-carousel-disabled-nav)]"
     disabled="{visibleCards.length === cards.length}">
     <Fa class="h-8 w-8" icon="{faChevronRight}" color="black" />
   </button>

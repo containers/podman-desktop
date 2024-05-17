@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023-2024 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,34 +19,17 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
+import { router } from 'tinro';
 import { expect, test } from 'vitest';
 
-import ImageIcon from '../images/ImageIcon.svelte';
-import ImageColumnSize from './ImageColumnSize.svelte';
-import type { ImageInfoUI } from './ImageInfoUI';
+import Tab from './Tab.svelte';
 
-test('Expect simple column styling', async () => {
-  const image: ImageInfoUI = {
-    id: 'my-image',
-    shortId: '',
-    name: '',
-    engineId: '',
-    engineName: '',
-    tag: '',
-    createdAt: 0,
-    age: '',
-    size: 0,
-    humanSize: '3.2Mb',
-    base64RepoTag: '',
-    selected: false,
-    status: 'UNUSED',
-    icon: ImageIcon,
-    badges: [],
-  };
-  render(ImageColumnSize, { object: image });
+test('check link element is created by using url and title', async () => {
+  router.goto('/');
+  render(Tab, { url: 'url', title: 'title' });
 
-  const text = screen.getByText(image.humanSize);
-  expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('text-sm');
-  expect(text).toHaveClass('text-gray-700');
+  const item = screen.getByText('title');
+  expect(item).toBeDefined();
+  expect((item as HTMLAnchorElement).href.endsWith('/url')).toBeTruthy();
+  expect(item.textContent).equals('title');
 });

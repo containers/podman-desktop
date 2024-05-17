@@ -21,32 +21,17 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
-import ImageIcon from '../images/ImageIcon.svelte';
-import ImageColumnAge from './ImageColumnAge.svelte';
-import type { ImageInfoUI } from './ImageInfoUI';
+import SimpleColumn from './SimpleColumn.svelte';
 
 test('Expect simple column styling', async () => {
-  const image: ImageInfoUI = {
-    id: 'my-image',
-    shortId: '',
-    name: '',
-    engineId: '',
-    engineName: '',
-    tag: '',
-    createdAt: 0,
-    age: '4 days',
-    size: 0,
-    humanSize: '',
-    base64RepoTag: '',
-    selected: false,
-    status: 'UNUSED',
-    icon: ImageIcon,
-    badges: [],
-  };
-  render(ImageColumnAge, { object: image });
+  const obj = 'Test';
+  render(SimpleColumn, { object: obj });
 
-  const text = screen.getByText(image.age);
+  const text = screen.getByText(obj);
   expect(text).toBeInTheDocument();
   expect(text).toHaveClass('text-sm');
-  expect(text).toHaveClass('text-gray-700');
+  expect(text).toHaveClass('text-[var(--pd-table-body-text)]');
+  expect(text).toHaveClass('max-w-full');
+  expect(text).toHaveClass('overflow-hidden');
+  expect(text).toHaveClass('text-ellipsis');
 });

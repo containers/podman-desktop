@@ -2,7 +2,7 @@
 import { onMount } from 'svelte';
 import Fa from 'svelte-fa';
 
-import Spinner from '../spinner/Spinner.svelte';
+import Spinner from '../progress/Spinner.svelte';
 import { isFontAwesomeIcon } from '../utils/icon-utils';
 import type { ButtonType } from './Button';
 

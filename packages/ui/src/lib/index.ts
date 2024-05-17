@@ -19,12 +19,35 @@ import ErrorMessage from './alert/ErrorMessage.svelte';
 import type { ButtonType } from './button/Button';
 import Button from './button/Button.svelte';
 import Checkbox from './checkbox/Checkbox.svelte';
-import Input from './input/Input.svelte';
+import Input from './inputs/Input.svelte';
+import SearchInput from './inputs/SearchInput.svelte';
 import Modal from './modal/Modal.svelte';
-import Spinner from './spinner/Spinner.svelte';
+import LinearProgress from './progress/LinearProgress.svelte';
+import Spinner from './progress/Spinner.svelte';
+import Tab from './tab/Tab.svelte';
+import TableDurationColumn from './table/DurationColumn.svelte';
+import TableSimpleColumn from './table/SimpleColumn.svelte';
+import { Column as TableColumn, Row as TableRow } from './table/table';
+import Table from './table/Table.svelte';
 import Tooltip from './tooltip/Tooltip.svelte';
 import { isFontAwesomeIcon } from './utils/icon-utils';
 
 export type { ButtonType };
-export { Button, Checkbox, ErrorMessage, Input, Modal, Spinner, Tooltip };
+export {
+  Button,
+  Checkbox,
+  ErrorMessage,
+  Input,
+  LinearProgress,
+  Modal,
+  SearchInput,
+  Spinner,
+  Tab,
+  Table,
+  TableColumn,
+  TableDurationColumn,
+  TableRow,
+  TableSimpleColumn,
+  Tooltip,
+};
 export { isFontAwesomeIcon };

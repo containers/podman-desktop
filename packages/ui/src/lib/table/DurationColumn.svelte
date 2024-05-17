@@ -3,9 +3,11 @@ import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 
+import SimpleColumn from './SimpleColumn.svelte';
+
 export let object: Date | undefined;
 let duration: string = '';
-let refreshTimeouts: NodeJS.Timeout[] = [];
+let refreshTimeouts: number[] = [];
 
 export function computeInterval(uptimeInMs: number): number {
   const SECOND = 1000;
@@ -32,7 +34,7 @@ export function computeInterval(uptimeInMs: number): number {
   return Math.ceil((uptimeInMs + 1) / DAY) * DAY - uptimeInMs;
 }
 
-function refreshDuration() {
+function refreshDuration(): void {
   if (!object) {
     duration = '';
     return;
@@ -45,9 +47,9 @@ function refreshDuration() {
 
   // compute next refresh
   const interval = computeInterval(uptimeInMs);
-  refreshTimeouts.forEach(timeout => clearTimeout(timeout));
+  refreshTimeouts.forEach(timeout => window.clearTimeout(timeout));
   refreshTimeouts.length = 0;
-  refreshTimeouts.push(setTimeout(refreshDuration, interval));
+  refreshTimeouts.push(window.setTimeout(refreshDuration, interval));
 }
 
 onMount(async () => {
@@ -56,11 +58,9 @@ onMount(async () => {
 
 onDestroy(() => {
   // kill timers
-  refreshTimeouts.forEach(timeout => clearTimeout(timeout));
+  refreshTimeouts.forEach(timeout => window.clearTimeout(timeout));
   refreshTimeouts.length = 0;
 });
 </script>
 
-<div class="text-sm text-gray-700">
-  {duration}
-</div>
+<SimpleColumn object="{duration}" />

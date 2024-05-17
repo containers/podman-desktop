@@ -10,6 +10,8 @@ function openDetailsVolume(volume: VolumeInfoUI): void {
 }
 </script>
 
-<button class="hover:cursor-pointer flex text-sm text-gray-300" on:click="{() => openDetailsVolume(object)}">
+<button
+  class="hover:cursor-pointer flex text-sm text-[var(--pd-table-body-text-highlight)]"
+  on:click="{() => openDetailsVolume(object)}">
   {object.shortName}
 </button>

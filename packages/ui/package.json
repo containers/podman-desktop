@@ -25,16 +25,28 @@
       "svelte": "./dist/checkbox/Checkbox.svelte"
     },
     "./Input": {
-      "types": "./dist/input/input.svelte.d.ts",
-      "svelte": "./dist/input/input.svelte"
+      "types": "./dist/inputs/input.svelte.d.ts",
+      "svelte": "./dist/inputs/input.svelte"
     },
     "./Spinner": {
-      "types": "./dist/spinner/Spinner.svelte.d.ts",
-      "svelte": "./dist/spinner/Spinner.svelte"
+      "types": "./dist/progress/Spinner.svelte.d.ts",
+      "svelte": "./dist/progress/Spinner.svelte"
     },
     "./Button": {
       "types": "./dist/button/Button.svelte.d.ts",
       "svelte": "./dist/button/Button.svelte"
+    },
+    "./Table": {
+      "types": "./dist/table/Table.svelte.d.ts",
+      "svelte": "./dist/table/Table.svelte"
+    },
+    "./TableDurationColumn": {
+      "types": "./dist/table/DurationColumn.svelte.d.ts",
+      "svelte": "./dist/table/DurationColumn.svelte"
+    },
+    "./TableSimpleColumn": {
+      "types": "./dist/table/SimpleColumn.svelte.d.ts",
+      "svelte": "./dist/table/SimpleColumn.svelte"
     },
     "./Tooltip": {
       "types": "./dist/tooltip/Tooltip.svelte.d.ts",
@@ -43,6 +55,26 @@
     "./ErrorMessage": {
       "types": "./dist/alert/ErrorMessage.svelte.d.ts",
       "svelte": "./dist/alert/ErrorMessage.svelte"
+    },
+    "./icons": {
+      "types": "./dist/icons/index.d.ts",
+      "svelte": "./dist/icons/index.js"
+    },
+    "./icons/ContainerIcon": {
+      "types": "./dist/icons/ContainerIcon.d.ts",
+      "svelte": "./dist/icons/ContainerIcon.svelte"
+    },
+    "./Tab": {
+      "types": "./dist/tab/Tab.svelte.d.ts",
+      "svelte": "./dist/tab/Tab.svelte"
+    },
+    "./SearchInput": {
+      "types": "./dist/inputs/SearchInput.svelte.d.ts",
+      "svelte": "./dist/inputs/SearchInput.svelte"
+    },
+    "./LinearProgress": {
+      "types": "./dist/progress/LinearProgress.d.ts",
+      "svelte": "./dist/progress/LinearProgress.svelte"
     }
   },
   "peerDependencies": {
@@ -54,7 +86,10 @@
     "@fortawesome/free-brands-svg-icons": "^6.5.2",
     "@fortawesome/free-regular-svg-icons": "^6.5.2",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
-    "svelte-fa": "^4.0.2"
+    "moment": "^2.30.1",
+    "humanize-duration": "^3.32.0",
+    "svelte-fa": "^4.0.2",
+    "tinro": "^0.6.12"
   },
   "devDependencies": {
     "@sveltejs/package": "^2.3.1",

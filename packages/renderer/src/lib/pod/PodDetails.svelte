@@ -1,5 +1,5 @@
 <script lang="ts">
-import { ErrorMessage } from '@podman-desktop/ui-svelte';
+import { ErrorMessage, Tab } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 
@@ -9,7 +9,6 @@ import PodIcon from '../images/PodIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import StateChange from '../ui/StateChange.svelte';
-import Tab from '../ui/Tab.svelte';
 import KubernetesTerminalBrowser from './KubernetesTerminalBrowser.svelte';
 import { PodUtils } from './pod-utils';
 import PodActions from './PodActions.svelte';

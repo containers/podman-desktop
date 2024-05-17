@@ -1,6 +1,7 @@
 <script lang="ts">
+import { Tab } from '@podman-desktop/ui-svelte';
+
 import FormPage from './FormPage.svelte';
-import Tab from './Tab.svelte';
 </script>
 
 <FormPage title="Test component" showBreadcrumb="{false}">
