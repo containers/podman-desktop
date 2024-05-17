@@ -21,10 +21,12 @@ async function openDialog() {
 
 <div class="flex flex-row grow space-x-1.5">
   <Input
-    name="{name}"
     id="{id}"
+    name="{name}"
     class="{$$props.class || ''}"
     bind:value="{value}"
+    on:input
+    on:keypress
     placeholder="{placeholder}"
     readonly="{readonly}"
     required="{required}"
