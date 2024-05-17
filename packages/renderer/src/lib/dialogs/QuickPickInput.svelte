@@ -293,9 +293,7 @@ function handleMousedown(e: MouseEvent) {
     <div class="flex justify-center items-center mt-1">
       <div
         bind:this="{outerDiv}"
-        class="bg-charcoal-800 w-[700px] {mode === 'InputBox'
-          ? 'h-fit'
-          : ''} shadow-sm p-2 rounded shadow-zinc-700 text-sm">
+        class="w-[700px] {mode === 'InputBox' ? 'h-fit' : ''} shadow-sm p-2 rounded shadow-zinc-700 text-sm">
         {#if title}
           <div
             aria-label="title"

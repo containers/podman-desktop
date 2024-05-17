@@ -94,7 +94,7 @@ function handleKeydown(e: KeyboardEvent) {
   on:close="{() => {
     closeCallback();
   }}">
-  <div class="modal flex flex-col place-self-center bg-charcoal-800 shadow-xl shadow-black">
+  <div class="modal flex flex-col place-self-center">
     <div class="flex items-center justify-between px-6 py-5 space-x-2">
       <h1 class="grow text-lg font-bold capitalize">Install custom extension</h1>
 
