@@ -27,6 +27,7 @@ export * from './utility/operations';
 export * from './utility/wait';
 
 // exports Podman Desktop Page Object Module
+export * from './model/core/platforms';
 export * from './model/core/states';
 export * from './model/pages/authentication-page';
 export * from './model/pages/base-page';
