@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faArrowCircleDown, faCube, faDownload, faTrash, faUpload } from '@fortawesome/free-solid-svg-icons';
-import { Button, Table, TableColumn, TableRow, TableSimpleColumn } from '@podman-desktop/ui-svelte';
+import { Button, NavPage, Table, TableColumn, TableRow, TableSimpleColumn } from '@podman-desktop/ui-svelte';
 import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
@@ -21,7 +21,6 @@ import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import Prune from '../engine/Prune.svelte';
 import ImageIcon from '../images/ImageIcon.svelte';
 import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
-import NavPage from '../ui/NavPage.svelte';
 import { IMAGE_LIST_VIEW_BADGES, IMAGE_LIST_VIEW_ICONS, IMAGE_VIEW_BADGES, IMAGE_VIEW_ICONS } from '../view/views';
 import { ImageUtils } from './image-utils';
 import ImageColumnActions from './ImageColumnActions.svelte';

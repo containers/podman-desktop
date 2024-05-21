@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Button, Table, TableColumn, TableRow, TableSimpleColumn } from '@podman-desktop/ui-svelte';
+import { Button, NavPage, Table, TableColumn, TableRow, TableSimpleColumn } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 
@@ -16,7 +16,6 @@ import type { V1Route } from '/@api/openshift-types';
 import IngressRouteIcon from '../images/IngressRouteIcon.svelte';
 import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
 import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
-import NavPage from '../ui/NavPage.svelte';
 import { IngressRouteUtils } from './ingress-route-utils';
 import IngressRouteColumnActions from './IngressRouteColumnActions.svelte';
 import IngressRouteColumnBackend from './IngressRouteColumnBackend.svelte';
