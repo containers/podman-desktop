@@ -191,6 +191,7 @@ export class ImageUtils {
           badges,
           icon,
           labels: imageInfo.Labels,
+          isManifest: imageInfo.isManifest,
         },
       ];
     } else {
@@ -212,6 +213,7 @@ export class ImageUtils {
           badges,
           icon,
           labels: imageInfo.Labels,
+          isManifest: imageInfo.isManifest,
         };
       });
     }

@@ -11,9 +11,14 @@ function openDetailsImage(image: ImageInfoUI) {
 }
 </script>
 
-<button class="flex flex-col" on:click="{() => openDetailsImage(object)}">
+<button
+  class="flex flex-col {object.isManifest ? 'cursor-default' : ''}"
+  on:click="{object.isManifest ? undefined : () => openDetailsImage(object)}">
   <div class="flex flex-row text-xs gap-1 items-center">
-    <div class="text-sm text-[var(--pd-table-body-text-highlight)]">{object.name}</div>
+    <div class="text-sm text-[var(--pd-table-body-text-highlight)]">
+      {object.name}
+      {object.isManifest ? ' (manifest)' : ''}
+    </div>
     {#if object.badges.length}
       {#each object.badges as badge}
         <Badge color="{badge.color}" label="{badge.label}" />

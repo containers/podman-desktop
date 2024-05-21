@@ -295,7 +295,8 @@ const columns: TableColumn<ImageInfoUI, ImageInfoUI | string>[] = [
 ];
 
 const row = new TableRow<ImageInfoUI>({
-  selectable: image => image.status === 'UNUSED',
+  // If it is a manifest, it is not selectable (no delete functionality yet)
+  selectable: image => image.status === 'UNUSED' && !image.isManifest,
   disabledText: 'Image is used by a container',
 });
 </script>
