@@ -7,8 +7,9 @@
 <script lang="ts">
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
+import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { afterUpdate, onMount, tick } from 'svelte';
-import { flip } from 'svelte/animate';
+import Fa from 'svelte-fa';
 
 import Checkbox from '../checkbox/Checkbox.svelte';
 /* eslint-enable import/no-duplicates */
@@ -19,8 +20,12 @@ export let kind: string;
 export let columns: Column<any>[];
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let row: Row<any>;
-export let data: { selected?: boolean; name?: string }[];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export let data: { selected?: boolean; name?: string; id?: any }[];
 export let defaultSortColumn: string | undefined = undefined;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export let expanded: any[] = [];
 
 // number of selected items in the list
 export let selectedItemsNumber: number = 0;
@@ -124,6 +129,29 @@ function setGridColumns(): void {
     (element as HTMLElement).style.setProperty('grid-template-columns', wid);
   }
 }
+
+function objectChecked(event: (Event & { detail?: boolean }) | undefined, object: unknown): void {
+  // check for children and set them to the same state
+  if (row.info.children) {
+    const children = row.info.children(object);
+    if (children) {
+      children.forEach(child => (child.selected = event?.detail));
+    }
+  }
+}
+
+function toggleChildren(object: unknown): void {
+  if (expanded.includes(object)) {
+    const index = expanded.indexOf(object, 0);
+    if (index > -1) {
+      expanded.splice(index, 1);
+    }
+  } else {
+    expanded.push(object);
+  }
+  // trigger Svelte update
+  expanded = expanded;
+}
 </script>
 
 <div class="w-full" class:hidden="{data.length === 0}" role="table">
@@ -173,37 +201,85 @@ function setGridColumns(): void {
   <!-- Table body -->
   <div role="rowgroup">
     {#each data as object (object)}
-      <div
-        class="grid grid-table gap-x-0.5 mx-5 min-h-[48px] h-fit bg-[var(--pd-content-card-bg)] hover:bg-[var(--pd-content-card-hover-bg)] rounded-lg mb-2"
-        animate:flip="{{ duration: 300 }}"
-        role="row"
-        aria-label="{object.name}">
-        <div class="whitespace-nowrap justify-self-start" role="cell"></div>
-        {#if row.info.selectable}
+      <div class="mx-5 min-h-[48px] h-fit bg-[var(--pd-content-card-bg)] rounded-lg mb-2 overflow-hidden" role="row">
+        <div
+          class="grid grid-table gap-x-0.5 min-h-[48px] hover:bg-[var(--pd-content-card-hover-bg)]"
+          aria-label="{object.name}">
           <div class="whitespace-nowrap place-self-center" role="cell">
-            <Checkbox
-              title="Toggle {kind}"
-              bind:checked="{object.selected}"
-              disabled="{!row.info.selectable(object)}"
-              disabledTooltip="{row.info.disabledText}" />
-          </div>
-        {/if}
-        {#each columns as column}
-          <div
-            class="whitespace-nowrap {column.info.align === 'right'
-              ? 'justify-self-end'
-              : column.info.align === 'center'
-                ? 'justify-self-center'
-                : 'justify-self-start'} self-center {column.info.overflow === true ? '' : 'overflow-hidden'} max-w-full"
-            role="cell">
-            {#if column.info.renderer}
-              <svelte:component
-                this="{column.info.renderer}"
-                object="{column.info.renderMapping?.(object) ?? object}"
-                on:update />
+            {#if row.info.children && row.info.children(object).length > 0}
+              <button on:click="{toggleChildren.bind(undefined, object.id)}">
+                <Fa
+                  size="0.8x"
+                  class="text-[var(--pd-table-body-text)] cursor-pointer"
+                  icon="{expanded.includes(object.id) ? faChevronDown : faChevronRight}" />
+              </button>
             {/if}
           </div>
-        {/each}
+          {#if row.info.selectable}
+            <div class="whitespace-nowrap place-self-center" role="cell">
+              <Checkbox
+                title="Toggle {kind}"
+                bind:checked="{object.selected}"
+                disabled="{!row.info.selectable(object)}"
+                disabledTooltip="{row.info.disabledText}"
+                on:click="{objectChecked.bind(undefined, event, object)}" />
+            </div>
+          {/if}
+          {#each columns as column}
+            <div
+              class="whitespace-nowrap {column.info.align === 'right'
+                ? 'justify-self-end'
+                : column.info.align === 'center'
+                  ? 'justify-self-center'
+                  : 'justify-self-start'} self-center {column.info.overflow === true
+                ? ''
+                : 'overflow-hidden'} max-w-full py-1.5"
+              role="cell">
+              {#if column.info.renderer}
+                <svelte:component
+                  this="{column.info.renderer}"
+                  object="{column.info.renderMapping?.(object) ?? object}"
+                  on:update />
+              {/if}
+            </div>
+          {/each}
+        </div>
+
+        <!-- Child objects -->
+        {#if expanded.includes(object.id) && row.info.children}
+          {#each row.info.children(object) as child (child)}
+            <div class="grid grid-table gap-x-0.5 hover:bg-[var(--pd-content-card-hover-bg)]" aria-label="{child.name}">
+              <div class="whitespace-nowrap justify-self-start" role="cell"></div>
+              {#if row.info.selectable}
+                <div class="whitespace-nowrap place-self-center" role="cell">
+                  <Checkbox
+                    title="Toggle {kind}"
+                    bind:checked="{child.selected}"
+                    disabled="{!row.info.selectable(child)}"
+                    disabledTooltip="{row.info.disabledText}" />
+                </div>
+              {/if}
+              {#each columns as column}
+                <div
+                  class="whitespace-nowrap {column.info.align === 'right'
+                    ? 'justify-self-end'
+                    : column.info.align === 'center'
+                      ? 'justify-self-center'
+                      : 'justify-self-start'} self-center {column.info.overflow === true
+                    ? ''
+                    : 'overflow-hidden'} max-w-full py-1.5"
+                  role="cell">
+                  {#if column.info.renderer}
+                    <svelte:component
+                      this="{column.info.renderer}"
+                      object="{column.info.renderMapping?.(child) ?? child}"
+                      on:update />
+                  {/if}
+                </div>
+              {/each}
+            </div>
+          {/each}
+        {/if}
       </div>
     {/each}
   </div>
