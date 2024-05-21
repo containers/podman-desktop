@@ -27,7 +27,7 @@ function handleKeydown(e: KeyboardEvent) {
 <div class="flex flex-col w-full h-full shadow-pageheader">
   <div class="flex flex-row w-full h-fit px-5 pt-4 pb-2">
     <div class="flex flex-col w-full h-fit">
-      <div class="flex flew-row items-center text-sm text-gray-700">
+      <div class="flex flew-row items-center text-sm text-[var(--pd-content-breadcrumb)]">
         <Link class="text-sm" aria-label="back" internalRef="{$lastPage.path}" title="Go back to {$lastPage.name}"
           >{$lastPage.name}</Link>
         <div class="mx-2">&gt;</div>
@@ -40,11 +40,17 @@ function handleKeydown(e: KeyboardEvent) {
         </div>
         <div class="flex flex-col grow pr-2">
           <div class="flex flex-row items-baseline">
-            <h1 aria-label="{title}" class="text-xl leading-tight">{title}</h1>
-            <div class="text-violet-400 ml-2 leading-normal" class:hidden="{!titleDetail}">{titleDetail}</div>
+            <h1 aria-label="{title}" class="text-xl leading-tight text-[var(--pd-content-header)]">{title}</h1>
+            <div
+              class="text-[var(--pd-table-body-text-sub-secondary)] ml-2 leading-normal"
+              class:hidden="{!titleDetail}">
+              {titleDetail}
+            </div>
           </div>
           <div>
-            <span class="text-sm leading-none text-gray-900 line-clamp-1" class:hidden="{!subtitle}">{subtitle}</span>
+            <span
+              class="text-sm leading-none text-[var(--pd-content-sub-header)] line-clamp-1"
+              class:hidden="{!subtitle}">{subtitle}</span>
             <slot name="subtitle" />
           </div>
         </div>
@@ -61,10 +67,10 @@ function handleKeydown(e: KeyboardEvent) {
       </div>
     </div>
   </div>
-  <div class="flex flex-row px-2 border-b border-charcoal-400">
+  <div class="flex flex-row px-2 border-b border-[var(--pd-content-divider)]">
     <slot name="tabs" />
   </div>
-  <div class="h-full bg-charcoal-900 min-h-0">
+  <div class="h-full bg-[var(--pd-details-bg)] min-h-0">
     <slot name="content" />
   </div>
 </div>
