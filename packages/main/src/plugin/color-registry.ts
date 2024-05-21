@@ -235,6 +235,7 @@ export class ColorRegistry {
     this.initToggle();
     this.initTable();
     this.initDetails();
+    this.initTab();
   }
 
   protected initGlobalNav(): void {
@@ -724,22 +725,6 @@ export class ColorRegistry {
 
   protected initDetails(): void {
     const details = 'details-';
-    this.registerColor(`${details}tab-text`, {
-      dark: colorPalette.gray[600],
-      light: colorPalette.charcoal[200],
-    });
-    this.registerColor(`${details}tab-text-highlight`, {
-      dark: colorPalette.white,
-      light: colorPalette.charcoal[900],
-    });
-    this.registerColor(`${details}tab-highlight`, {
-      dark: colorPalette.purple[500],
-      light: colorPalette.purple[600],
-    });
-    this.registerColor(`${details}tab-hover`, {
-      dark: colorPalette.charcoal[100],
-      light: colorPalette.charcoal[100],
-    });
     this.registerColor(`${details}body-text`, {
       dark: colorPalette.gray[200],
       light: colorPalette.charcoal[500],
@@ -767,6 +752,26 @@ export class ColorRegistry {
     this.registerColor(`${details}bg`, {
       dark: colorPalette.charcoal[900],
       light: colorPalette.gray[50],
+    });
+  }
+
+  protected initTab(): void {
+    const tab = 'tab-';
+    this.registerColor(`${tab}text`, {
+      dark: colorPalette.gray[600],
+      light: colorPalette.charcoal[200],
+    });
+    this.registerColor(`${tab}text-highlight`, {
+      dark: colorPalette.white,
+      light: colorPalette.charcoal[300],
+    });
+    this.registerColor(`${tab}highlight`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[600],
+    });
+    this.registerColor(`${tab}hover`, {
+      dark: colorPalette.purple[400],
+      light: colorPalette.purple[500],
     });
   }
 }
