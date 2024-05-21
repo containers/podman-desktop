@@ -71,8 +71,10 @@ jobs:
 
       - name: Execute yarn
         run: |
-          rpm -q crun
-          env | grep XDG
+          rpm -q crun || true
+          env | grep XDG || true
+          printenv DBUS_SESSION_BUS_ADDRESS || true
+          systemctl --user status dbus-broker.service || true
           yarn --frozen-lockfile
 
       - name: Run All E2E tests
