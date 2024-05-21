@@ -234,6 +234,7 @@ export class ColorRegistry {
     this.initCheckbox();
     this.initToggle();
     this.initTable();
+    this.initDetails();
   }
 
   protected initGlobalNav(): void {
@@ -430,6 +431,11 @@ export class ColorRegistry {
     this.registerColor(`${ct}header`, {
       dark: colorPalette.white,
       light: colorPalette.charcoal[900],
+    });
+
+    this.registerColor(`${ct}sub-header`, {
+      dark: colorPalette.gray[900],
+      light: colorPalette.purple[900],
     });
 
     this.registerColor(`${ct}header-icon`, {
@@ -713,6 +719,46 @@ export class ColorRegistry {
     this.registerColor(`${tab}body-text-sub-highlight`, {
       dark: colorPalette.gray[400],
       light: colorPalette.charcoal[200],
+    });
+  }
+
+  protected initDetails(): void {
+    const details = 'details-';
+    this.registerColor(`${details}tab-text`, {
+      dark: colorPalette.gray[600],
+      light: colorPalette.charcoal[200],
+    });
+    this.registerColor(`${details}tab-text-highlight`, {
+      dark: colorPalette.white,
+      light: colorPalette.charcoal[900],
+    });
+    this.registerColor(`${details}tab-highlight`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[600],
+    });
+    this.registerColor(`${details}tab-hover`, {
+      dark: colorPalette.charcoal[100],
+      light: colorPalette.charcoal[100],
+    });
+    this.registerColor(`${details}body-text`, {
+      dark: colorPalette.gray[200],
+      light: colorPalette.charcoal[500],
+    });
+    this.registerColor(`${details}empty-icon`, {
+      dark: colorPalette.gray[600],
+      light: colorPalette.charcoal[200],
+    });
+    this.registerColor(`${details}empty-header`, {
+      dark: colorPalette.gray[200],
+      light: colorPalette.charcoal[500],
+    });
+    this.registerColor(`${details}empty-sub-header`, {
+      dark: colorPalette.gray[600],
+      light: colorPalette.charcoal[500],
+    });
+    this.registerColor(`${details}bg`, {
+      dark: colorPalette.charcoal[900],
+      light: colorPalette.gray[50],
     });
   }
 }
