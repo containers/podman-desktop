@@ -756,6 +756,14 @@ export class ColorRegistry {
       dark: colorPalette.gray[600],
       light: colorPalette.charcoal[500],
     });
+    this.registerColor(`${details}empty-cmdline-bg`, {
+      dark: colorPalette.charcoal[900],
+      light: colorPalette.gray[200],
+    });
+    this.registerColor(`${details}empty-cmdline-text`, {
+      dark: colorPalette.gray[400],
+      light: colorPalette.charcoal[700],
+    });
     this.registerColor(`${details}bg`, {
       dark: colorPalette.charcoal[900],
       light: colorPalette.gray[50],

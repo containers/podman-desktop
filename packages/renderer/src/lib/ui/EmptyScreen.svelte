@@ -37,7 +37,7 @@ let copyTextDivElement: HTMLDivElement;
   style="{$$props.style}"
   aria-label="{$$props['aria-label']}">
   <div class="flex flex-col h-full justify-center text-center space-y-3">
-    <div class="flex justify-center text-gray-700 py-2">
+    <div class="flex justify-center text-[var(--pd-details-empty-icon)] py-2">
       {#if processed}
         {#if fontAwesomeIcon}
           <Fa icon="{icon}" size="4x" />
@@ -46,14 +46,18 @@ let copyTextDivElement: HTMLDivElement;
         {/if}
       {/if}
     </div>
-    <h1 class="text-xl">{title}</h1>
-    <span class="text-gray-700 max-w-[800px] text-pretty mx-2">{message}</span>
+    <h1 class="text-xl text-[var(--pd-details-empty-header)]">{title}</h1>
+    <span class="text-[var(--pd-details-empty-sub-header)] max-w-[800px] text-pretty mx-2">{message}</span>
     {#if detail}
-      <span class="text-gray-700">{detail}</span>
+      <span class="text-[var(--pd-details-empty-sub-header)]">{detail}</span>
     {/if}
     {#if commandline}
-      <div class="flex flex-row bg-charcoal-900 items-center justify-between rounded-sm p-3 mt-4">
-        <div class="font-mono text-gray-400" bind:this="{copyTextDivElement}" data-testid="copyTextDivElement">
+      <div
+        class="flex flex-row bg-[var(--pd-details-empty-cmdline-bg)] items-center justify-between rounded-sm p-3 mt-4">
+        <div
+          class="font-mono text-[var(--pd-details-empty-cmdline-text)]"
+          bind:this="{copyTextDivElement}"
+          data-testid="copyTextDivElement">
           {commandline}
         </div>
         <button title="Copy To Clipboard" class="ml-5" on:click="{() => copyRunInstructionToClipboard()}"
