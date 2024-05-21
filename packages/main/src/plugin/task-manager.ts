@@ -39,6 +39,15 @@ export class TaskManager {
 
   public init(): void {
     // The TaskManager is responsible for creating the entry he will be using
+    this.setStatusBarEntry(false);
+
+    this.commandRegistry.registerCommand('show-task-manager', () => {
+      this.apiSender.send('toggle-task-manager', '');
+      this.setStatusBarEntry(false);
+    });
+  }
+
+  private setStatusBarEntry(highlight: boolean): void {
     this.statusBarRegistry.setEntry(
       'tasks',
       false,
@@ -49,11 +58,8 @@ export class TaskManager {
       true,
       'show-task-manager',
       undefined,
+      highlight,
     );
-
-    this.commandRegistry.registerCommand('show-task-manager', () => {
-      this.apiSender.send('toggle-task-manager', '');
-    });
   }
 
   public createTask(title: string | undefined): StatefulTask {
@@ -67,6 +73,7 @@ export class TaskManager {
     };
     this.tasks.set(task.id, task);
     this.apiSender.send('task-created', task);
+    this.setStatusBarEntry(true);
     return task;
   }
 
@@ -81,6 +88,7 @@ export class TaskManager {
     };
     this.tasks.set(task.id, task);
     this.apiSender.send('task-created', task);
+    this.setStatusBarEntry(true);
     return task;
   }
 

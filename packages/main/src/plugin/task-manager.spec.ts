@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 import type { CommandRegistry } from '/@/plugin/command-registry.js';
 import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
@@ -42,6 +42,10 @@ const statusBarRegistry: StatusBarRegistry = {
 const commandRegistry: CommandRegistry = {
   registerCommand: mocks.registerCommandMock,
 } as unknown as CommandRegistry;
+
+beforeEach(() => {
+  vi.resetAllMocks();
+});
 
 test('create stateful task with title', async () => {
   const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
@@ -193,4 +197,23 @@ test('Ensure init setup command and statusbar registry', async () => {
 
   expect(mocks.registerCommandMock).toHaveBeenCalledOnce();
   expect(mocks.setEntryMock).toHaveBeenCalledOnce();
+});
+
+test('Ensure statusbar registry', async () => {
+  const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
+
+  taskManager.createTask('Dummy Task');
+
+  expect(statusBarRegistry.setEntry).toHaveBeenCalledWith(
+    'tasks',
+    false,
+    0,
+    undefined,
+    'Tasks',
+    'fa fa-bell',
+    true,
+    'show-task-manager',
+    undefined,
+    true,
+  );
 });
