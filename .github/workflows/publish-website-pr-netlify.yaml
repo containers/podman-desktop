@@ -38,12 +38,6 @@ jobs:
           name: website-content
           path: content
 
-      - name: Set PR_NUMBER and PR_SHA variables
-        id: vars
-        run: |
-          echo "PR_NUMBER=$(<content/PR_NUMBER)" >> $GITHUB_OUTPUT
-          echo "PR_SHA=$(<content/PR_SHA)" >> $GITHUB_OUTPUT
-
       - name: Publish preview netlify
         uses: netlify/actions/cli@master
         id: netlify-publish
@@ -59,5 +53,14 @@ jobs:
           script: |
             const { repo: { owner, repo } } = context;
             const netlifyUrl = '${{ steps.netlify-publish.outputs.NETLIFY_URL }}';
-            const sha = '${{ steps.vars.outputs.PR_SHA }}';
+            const fs = require('node:fs');
+            let sha = await fs.promises.readFile('content/PR_SHA', 'utf8');
+            sha = sha?.trim();
+            if (sha && sha.length !== 40) {
+              throw new Error('Invalid PR_SHA');
+            }
+            // ensure it's a valid sha and contains only hex characters (no space, dot, etc) else exit
+            if (sha && !sha.match(/^[0-9a-fA-F]+$/)) {
+              throw new Error('Invalid PR_SHA');
+            }
             await github.rest.repos.createCommitStatus({ owner, repo, sha, state: "success", target_url: netlifyUrl, description: "See pull request website online", context: "netlify"})
