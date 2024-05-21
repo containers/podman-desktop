@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -361,9 +361,9 @@ test('Try to delete a container without deleting pods', async () => {
   await waitRender({});
 
   // select the standalone container checkbox
-  const containerCheckbox = screen.getAllByRole('checkbox', { name: 'Toggle container' });
-  expect(containerCheckbox[0]).toBeInTheDocument();
-  await fireEvent.click(containerCheckbox[0]);
+  const checkboxes = screen.getAllByRole('checkbox', { name: 'Toggle container' });
+  expect(checkboxes[0]).toBeInTheDocument();
+  await fireEvent.click(checkboxes[0]);
 
   // click on the delete button
   const deleteButton = screen.getByRole('button', { name: 'Delete selected containers and pods' });
@@ -444,9 +444,9 @@ test('Try to delete a pod without deleting container', async () => {
   await waitRender({});
 
   // select the pod checkbox
-  const podCheckbox = screen.getByRole('checkbox', { name: 'Toggle pod' });
-  expect(podCheckbox).toBeInTheDocument();
-  await fireEvent.click(podCheckbox);
+  const checkboxes = screen.getAllByRole('checkbox', { name: 'Toggle container' });
+  expect(checkboxes[1]).toBeInTheDocument();
+  await fireEvent.click(checkboxes[1]);
 
   // click on the delete button
   const deleteButton = screen.getByRole('button', { name: 'Delete selected containers and pods' });
@@ -578,6 +578,19 @@ test('Expect clear filter in empty screen to clear serach term, except is:...', 
 });
 
 test('Expect to display running / stopped containers depending on tab', async () => {
+  removePodMock.mockClear();
+  deleteContainerMock.mockClear();
+  listContainersMock.mockResolvedValue([]);
+
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('tray:update-provider'));
+
+  // wait for the store to be cleared
+  while (get(containersInfos).length !== 0) {
+    await new Promise(resolve => setTimeout(resolve, 250));
+  }
+
   getProviderInfosMock.mockResolvedValue([
     {
       name: 'podman',
@@ -596,16 +609,13 @@ test('Expect to display running / stopped containers depending on tab', async ()
   const pod2Id = 'pod2-id';
   const pod3Id = 'pod3-id';
 
-  const firstId = 'sha256:68347658374683476';
-
-  // one single container and two containers part of a pod
+  // 3 pods with 2 containers each
   const mockedContainers = [
     // 2 / 2 containers are running on this pod
     {
-      Id: firstId,
+      Id: 'sha256:68347658374683476',
       Image: 'sha256:234',
       Names: ['container1-pod1'],
-      RepoTags: ['veryold:image'],
       State: 'Running',
       pod: {
         name: 'pod1',
@@ -636,7 +646,6 @@ test('Expect to display running / stopped containers depending on tab', async ()
       Id: 'sha256:876532948235',
       Image: 'sha256:876',
       Names: ['container1-pod2'],
-      RepoTags: ['veryold:image'],
       State: 'Running',
       pod: {
         name: 'pod2',
@@ -667,7 +676,6 @@ test('Expect to display running / stopped containers depending on tab', async ()
       Id: 'sha256:56283769268',
       Image: 'sha256:562',
       Names: ['container1-pod3'],
-      RepoTags: ['veryold:image'],
       State: 'Stopped',
       pod: {
         name: 'pod3',
@@ -700,8 +708,8 @@ test('Expect to display running / stopped containers depending on tab', async ()
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   window.dispatchEvent(new CustomEvent('tray:update-provider'));
 
-  // wait store are populated
-  while (get(containersInfos).length === 0 || get(containersInfos)[0].Id !== firstId) {
+  // wait until store is populated
+  while (get(containersInfos).length === 0) {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 
@@ -756,11 +764,11 @@ test('Expect to display running / stopped containers depending on tab', async ()
       await fireEvent.click(tab);
     }
     for (const presentCell of tt.presentCells) {
-      const cell = screen.getByRole('cell', { name: presentCell });
+      const cell = screen.getByRole('button', { name: presentCell });
       expect(cell).toBeInTheDocument();
     }
     for (const absentCell of tt.absentLabels) {
-      const cell = screen.queryByRole('cell', { name: absentCell });
+      const cell = screen.queryByText(absentCell);
       expect(cell).not.toBeInTheDocument();
     }
   }
