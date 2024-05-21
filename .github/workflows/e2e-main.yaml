@@ -70,7 +70,10 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Execute yarn
-        run: yarn --frozen-lockfile
+        run: |
+          rpm -q crun
+          env | grep XDG
+          yarn --frozen-lockfile
 
       - name: Run All E2E tests
         env:
