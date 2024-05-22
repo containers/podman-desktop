@@ -1,6 +1,7 @@
 <script lang="ts">
 import 'xterm/css/xterm.css';
 
+import { EmptyScreen } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
 import { Terminal } from 'xterm';
@@ -10,7 +11,6 @@ import { getExistingTerminal, registerTerminal } from '/@/stores/container-termi
 
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import { getPanelDetailColor } from '../color/color';
-import EmptyScreen from '../ui/EmptyScreen.svelte';
 import NoLogIcon from '../ui/NoLogIcon.svelte';
 import type { ContainerInfoUI } from './ContainerInfoUI';
 

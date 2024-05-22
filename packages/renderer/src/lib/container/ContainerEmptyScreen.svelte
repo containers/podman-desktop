@@ -1,7 +1,6 @@
 <script lang="ts">
+import { EmptyScreen } from '@podman-desktop/ui-svelte';
 import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
-
-import EmptyScreen from '../ui/EmptyScreen.svelte';
 
 export let runningOnly: boolean;
 export let stoppedOnly: boolean;

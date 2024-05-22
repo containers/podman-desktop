@@ -1,6 +1,7 @@
 <script lang="ts">
+import { EmptyScreen } from '@podman-desktop/ui-svelte';
+
 import PodIcon from '../images/PodIcon.svelte';
-import EmptyScreen from '../ui/EmptyScreen.svelte';
 </script>
 
 <EmptyScreen

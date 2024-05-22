@@ -1,11 +1,10 @@
 <script lang="ts">
 import { faCloudDownload } from '@fortawesome/free-solid-svg-icons';
-import { Button, NavPage } from '@podman-desktop/ui-svelte';
+import { Button, FilteredEmptyScreen, NavPage } from '@podman-desktop/ui-svelte';
 import { derived, type Readable, writable } from 'svelte/store';
 
 import InstalledExtensionList from '/@/lib/extensions/InstalledExtensionList.svelte';
 import ExtensionIcon from '/@/lib/images/ExtensionIcon.svelte';
-import FilteredEmptyScreen from '/@/lib/ui/FilteredEmptyScreen.svelte';
 import { type CombinedExtensionInfoUI, combinedInstalledExtensions } from '/@/stores/all-installed-extensions';
 import { catalogExtensionInfos } from '/@/stores/catalog-extensions';
 import { featuredExtensionInfos } from '/@/stores/featuredExtensions';
