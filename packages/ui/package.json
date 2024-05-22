@@ -75,6 +75,10 @@
     "./LinearProgress": {
       "types": "./dist/progress/LinearProgress.d.ts",
       "svelte": "./dist/progress/LinearProgress.svelte"
+    },
+    "./NavPage": {
+      "types": "./dist/layouts/NavPage.d.ts",
+      "svelte": "./dist/layouts/NavPage.svelte"
     }
   },
   "peerDependencies": {

@@ -1,10 +1,11 @@
 <script lang="ts">
+import { NavPage } from '@podman-desktop/ui-svelte';
+
 import ProviderConfiguring from '/@/lib/dashboard/ProviderConfiguring.svelte';
 import ExtensionBanners from '/@/lib/recommendation/ExtensionBanners.svelte';
 
 import { providerInfos } from '../../stores/providers';
 import LearningCenter from '../learning-center/LearningCenter.svelte';
-import NavPage from '../ui/NavPage.svelte';
 import NotificationsBox from './NotificationsBox.svelte';
 import ProviderConfigured from './ProviderConfigured.svelte';
 import type { InitializationContext } from './ProviderInitUtils';
