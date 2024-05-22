@@ -199,7 +199,7 @@ if (dropdownMenu) {
       title="Open Terminal"
       onClick="{() => openTerminalContainer()}"
       menu="{dropdownMenu}"
-      hidden="{!(container.state === 'RUNNING')}"
+      hidden="{container.state !== 'RUNNING'}"
       detailed="{false}"
       icon="{faTerminal}" />
   {/if}

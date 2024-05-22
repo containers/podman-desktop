@@ -102,7 +102,7 @@ onDestroy(() => {});
 <div class="h-full" bind:this="{terminalXtermDiv}" class:hidden="{container.state !== 'RUNNING'}"></div>
 
 <EmptyScreen
-  hidden="{!closed && !(container.state === 'RUNNING')}"
+  hidden="{!closed && container.state !== 'RUNNING'}"
   icon="{NoLogIcon}"
   title="No TTY"
   message="Tty has stopped" />
