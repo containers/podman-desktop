@@ -155,7 +155,7 @@ if (dropdownMenu) {
     title="Deploy to Kubernetes"
     onClick="{() => deployToKubernetes()}"
     menu="{dropdownMenu}"
-    hidden="{!(compose.engineType === 'podman')}"
+    hidden="{compose.engineType !== 'podman'}"
     detailed="{detailed}"
     icon="{faRocket}" />
   <ListItemButtonIcon

@@ -12,7 +12,7 @@
     "plugin:import/recommended",
     "plugin:import/typescript",
     "plugin:etc/recommended",
-    "plugin:sonarjs/recommended",
+    "plugin:sonarjs/recommended-legacy",
     "plugin:svelte/recommended"
   ],
   "parser": "@typescript-eslint/parser",
