@@ -19,7 +19,11 @@
 import type { Locator, Page } from '@playwright/test';
 
 import { BasePage } from './base-page';
-import { ContainersPage } from './containers-page';
+
+export interface ContainerInteractiveParams {
+  interactive?: boolean;
+  attachTerminal?: boolean;
+}
 
 export class RunImagePage extends BasePage {
   readonly name: Locator;
@@ -57,7 +61,7 @@ export class RunImagePage extends BasePage {
     await portMapping.fill(port);
   }
 
-  async startContainer(customName = '', interactive?: boolean): Promise<ContainersPage> {
+  async startContainer(customName = '', optionalParams?: ContainerInteractiveParams): Promise<void> {
     if (customName !== '') {
       await this.activateTab('Basic');
       // ToDo: improve UI side with aria-labels
@@ -65,13 +69,21 @@ export class RunImagePage extends BasePage {
       await textbox.fill(customName);
     }
 
-    if (!interactive) {
+    if (optionalParams?.attachTerminal !== undefined) {
       // disable the checkbox in advanced tab
       await this.activateTab('Advanced');
       const checkbox = this.page.getByRole('checkbox', { name: 'Attach a pseudo terminal' });
-      await checkbox.uncheck();
+      optionalParams.attachTerminal ? await checkbox.check() : await checkbox.uncheck();
     }
 
+    if (optionalParams?.interactive !== undefined) {
+      // disable the checkbox in advanced tab
+      await this.activateTab('Advanced');
+      const checkbox = this.page.getByRole('checkbox', { name: 'Interactive: Keep STDIN' });
+      optionalParams.interactive ? await checkbox.check() : await checkbox.uncheck();
+    }
+
+    await this.activateTab('Basic');
     await this.startContainerButton.waitFor({ state: 'visible', timeout: 1000 });
     // If the start button is not enabled, we can expect an error in the form to be visible
     if (!(await this.startContainerButton.isEnabled())) {
@@ -81,7 +93,15 @@ export class RunImagePage extends BasePage {
       throw Error(`Start Button not enabled: ${errMessage}`);
     }
     await this.startContainerButton.click();
-    return new ContainersPage(this.page);
+    // After clicking on the button there seems to be for possible outcomes
+    // 1. Opening particular container's details page with tty tab opened
+    // 2. Opening Containers page with new container on it
+    // 3. staying on the run image page with an error
+    // 4. Starting a container without entrpoint or command creates a container, but it stays on Run Image Page without error
+    if ((await this.errorAlert.count()) > 0 && (await this.name.isVisible())) {
+      // button is still on the screen, we did not move out of Run Image page
+      throw Error(`Starting the container threw an error: ${await this.errorAlert.innerText({ timeout: 2000 })}`);
+    }
   }
 
   async setCustomPortMapping(customPortMapping: string): Promise<void> {

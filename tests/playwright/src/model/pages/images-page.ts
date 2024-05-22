@@ -22,10 +22,10 @@ import { expect as playExpect } from '@playwright/test';
 import { handleConfirmationDialog } from '../../utility/operations';
 import { waitUntil, waitWhile } from '../../utility/wait';
 import { BuildImagePage } from './build-image-page';
-import type { ContainersPage } from './containers-page';
 import { ImageDetailsPage } from './image-details-page';
 import { MainPage } from './main-page';
 import { PullImagePage } from './pull-image-page';
+import type { ContainerInteractiveParams } from './run-image-page';
 
 export class ImagesPage extends MainPage {
   readonly pullImageButton: Locator;
@@ -66,10 +66,14 @@ export class ImagesPage extends MainPage {
     return await editImagePage.renameImage(newname);
   }
 
-  async startContainerWithImage(image: string, containerName: string): Promise<ContainersPage> {
+  async startContainerWithImage(
+    image: string,
+    containerName: string,
+    containersParams?: ContainerInteractiveParams,
+  ): Promise<void> {
     const imageDetails = await this.openImageDetails(image);
     const runImage = await imageDetails.openRunImage();
-    return await runImage.startContainer(containerName);
+    await runImage.startContainer(containerName, containersParams);
   }
 
   async openImageDetails(name: string): Promise<ImageDetailsPage> {
