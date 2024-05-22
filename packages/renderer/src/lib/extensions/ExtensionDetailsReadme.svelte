@@ -38,7 +38,7 @@ onMount(async () => {
 </script>
 
 {#if readmeContent}
-  <div class="w-full min-h-full overflow-y-visible leading-6">
+  <div class="w-full min-h-full overflow-y-visible leading-6 text-[var(--pd-details-body-text)]">
     <Markdown markdown="{readmeContent}" />
   </div>
 {:else}
