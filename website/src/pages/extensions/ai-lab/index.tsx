@@ -125,17 +125,19 @@ export default function Home(): JSX.Element {
               Experiment with free{' '}
               <GradientText gradientAngle={90} colorFrom="#7D2D79" colorTo="#6d48bf" content="Open Source" /> recipes
             </h2>
-            <div className="w-full my-6 grid grid-cols-2 gap-2 lg:grid-cols-4">
+            <div className="w-full my-6 grid grid-cols-2 gap-2 lg:grid-cols-2">
               {RECIPES.map(recipe => (
                 <div
-                  className="px-8 py-4 rounded-xl from-purple-500 from-70% bg-gradient-to-t to-white flex flex-col items-center text-black text-center"
+                  className="px-8 py-4 rounded-xl from-purple-500 from-70% bg-gradient-to-t to-white flex flex-col grow items-center text-black text-center"
                   style={{
                     background: getGradient(recipe.colorFrom, recipe.colorTo),
                     border: `1px solid ${recipe.colorFrom}`,
                   }}
                   key={recipe.id}>
-                  <FontAwesomeIcon className="mb-2" color={recipe.iconColor} size="lg" icon={recipe.icon} />
-                  <div className="text-xl font-black text-black w-[8rem] py-2">{recipe.name}</div>
+                  <div className="flex flex-row mb-2 items-center">
+                    <FontAwesomeIcon className="mr-4" color={recipe.iconColor} size="lg" icon={recipe.icon} />
+                    <div className="text-xl font-black text-black py-2">{recipe.name}</div>
+                  </div>
                   <div className="text-xs font-semibold text-charcoal-100 mb-2">{recipe.content}</div>
                 </div>
               ))}
