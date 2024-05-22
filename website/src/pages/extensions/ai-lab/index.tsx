@@ -120,12 +120,12 @@ export default function Home(): JSX.Element {
             </div>
           </div>
           {/* Recipes sections */}
-          <div className="space-y-3 mb-5 lg:w-2/3 w-full items-center justify-center flex flex-col">
+          <div className="space-y-3 lg:w-2/3 mb-6 w-full items-center justify-center flex flex-col">
             <h2 className="sm:text-2xl text-3xl lg:text-4xl font-bold text-charcoal-500 dark:text-white text-center">
               Experiment with free{' '}
               <GradientText gradientAngle={90} colorFrom="#7D2D79" colorTo="#6d48bf" content="Open Source" /> recipes
             </h2>
-            <div className="w-full grid grid-cols-2 gap-2 lg:grid-cols-4">
+            <div className="w-full my-6 grid grid-cols-2 gap-2 lg:grid-cols-4">
               {RECIPES.map(recipe => (
                 <div
                   className="px-8 py-4 rounded-xl from-purple-500 from-70% bg-gradient-to-t to-white flex flex-col items-center text-black text-center"
@@ -135,12 +135,12 @@ export default function Home(): JSX.Element {
                   }}
                   key={recipe.id}>
                   <FontAwesomeIcon className="mb-2" color={recipe.iconColor} size="lg" icon={recipe.icon} />
-                  <div className="text-xl font-black text-black">{recipe.name}</div>
+                  <div className="text-xl font-black text-black w-[8rem] py-2">{recipe.name}</div>
                   <div className="text-xs font-semibold text-charcoal-100 mb-2">{recipe.content}</div>
                 </div>
               ))}
             </div>
-            <h2 className="sm:text-1xl text-2xl lg:text-3xl mb-4 font-bold text-charcoal-500 dark:text-white text-center w-full">
+            <h2 className="sm:text-1xl text-2xl lg:text-3xl font-bold text-charcoal-500 dark:text-white text-center w-full">
               All built to run <span className="text-bold">locally</span> on your laptop
             </h2>
           </div>
