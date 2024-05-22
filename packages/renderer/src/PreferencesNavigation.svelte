@@ -49,17 +49,9 @@ onMount(async () => {
     </div>
   </div>
   <div class="h-full overflow-hidden hover:overflow-y-auto" style="margin-bottom:auto">
-    <SettingsNavItem title="Resources" href="/preferences/resources" bind:meta="{meta}" />
-
-    <SettingsNavItem title="Proxy" href="/preferences/proxies" bind:meta="{meta}" />
-
-    <SettingsNavItem title="Registries" href="/preferences/registries" bind:meta="{meta}" />
-
-    <SettingsNavItem title="Authentication" href="/preferences/authentication-providers" bind:meta="{meta}" />
-
-    <SettingsNavItem title="CLI Tools" href="/preferences/cli-tools" bind:meta="{meta}" />
-
-    <SettingsNavItem title="Kubernetes" href="/preferences/kubernetes-contexts" bind:meta="{meta}" />
+    {#each [{ title: 'Resources', href: '/preferences/resources' }, { title: 'Proxy', href: '/preferences/proxies' }, { title: 'Registries', href: '/preferences/registries' }, { title: 'Authentication', href: '/preferences/authentication-providers' }, { title: 'CLI Tools', href: '/preferences/cli-tools' }, { title: 'Kubernetes', href: '/preferences/kubernetes-contexts' }] as navItem}
+      <SettingsNavItem title="{navItem.title}" href="{navItem.href}" selected="{meta.url === navItem.href}" />
+    {/each}
 
     <!-- Default configuration properties start -->
     {#each Object.entries(configProperties) as [configSection, configItems]}
@@ -67,7 +59,7 @@ onMount(async () => {
         title="{configSection}"
         href="/preferences/default/{configSection}"
         section="{configItems.length > 0}"
-        bind:meta="{meta}"
+        selected="{meta.url === `/preferences/default/${configSection}`}"
         bind:expanded="{sectionExpanded[configSection]}" />
       {#if sectionExpanded[configSection]}
         {#each sortItems(configItems) as configItem}
@@ -75,7 +67,7 @@ onMount(async () => {
             title="{configItem.title}"
             href="/preferences/default/{configItem.id}"
             child="{true}"
-            bind:meta="{meta}" />
+            selected="{meta.url === `/preferences/default/${configItem.id}`}" />
         {/each}
       {/if}
     {/each}

@@ -1,15 +1,10 @@
 <script lang="ts">
-import type { TinroRouteMeta } from 'tinro';
-
 export let title: string;
 export let href: string;
-export let meta: TinroRouteMeta;
 export let section = false;
 export let expanded = false;
 export let child = false;
-
-let selected: boolean;
-$: selected = meta.url === href;
+export let selected: boolean = false;
 
 function rotate(node: unknown, { clockwise = true }) {
   return {
