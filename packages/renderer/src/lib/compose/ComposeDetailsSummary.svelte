@@ -10,7 +10,7 @@ function openContainer(containerID: string) {
 }
 </script>
 
-<div class="flex px-5 py-4 flex-col h-full overflow-auto">
+<div class="flex px-5 py-4 flex-col h-full overflow-auto text-[var(--pd-details-body-text)]">
   <div class="w-full">
     <table>
       <tbody>
