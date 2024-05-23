@@ -236,6 +236,7 @@ export class ColorRegistry {
     this.initTable();
     this.initDetails();
     this.initTab();
+    this.initModal();
   }
 
   protected initGlobalNav(): void {
@@ -772,6 +773,24 @@ export class ColorRegistry {
     this.registerColor(`${tab}hover`, {
       dark: colorPalette.purple[400],
       light: colorPalette.purple[500],
+    });
+  }
+
+  // modal dialog
+  protected initModal(): void {
+    const modal = 'modal-';
+
+    this.registerColor(`${modal}fade`, {
+      dark: colorPalette.black,
+      light: colorPalette.white,
+    });
+    this.registerColor(`${modal}bg`, {
+      dark: colorPalette.charcoal[800],
+      light: colorPalette.gray[300],
+    });
+    this.registerColor(`${modal}border`, {
+      dark: colorPalette.charcoal[500],
+      light: colorPalette.gray[200],
     });
   }
 }
