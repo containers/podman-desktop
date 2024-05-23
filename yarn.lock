@@ -16298,10 +16298,10 @@ tsutils@^3.0.0, tsutils@^3.17.1, tsutils@^3.21.0:
   dependencies:
     tslib "^1.8.1"
 
-tsx@^4.10.5:
-  version "4.10.5"
-  resolved "https://registry.yarnpkg.com/tsx/-/tsx-4.10.5.tgz#157139bd2472dd64ff4118385f3eccd27868bb36"
-  integrity sha512-twDSbf7Gtea4I2copqovUiNTEDrT8XNFXsuHpfGbdpW/z9ZW4fTghzzhAG0WfrCuJmJiOEY1nLIjq4u3oujRWQ==
+tsx@^4.11.0:
+  version "4.11.0"
+  resolved "https://registry.yarnpkg.com/tsx/-/tsx-4.11.0.tgz#fdd8ce7ccaa0a84aed64c11e2fc5da314e1d8d14"
+  integrity sha512-vzGGELOgAupsNVssAmZjbUDfdm/pWP4R+Kg8TVdsonxbXk0bEpE1qh0yV6/QxUVXaVlNemgcPajGdJJ82n3stg==
   dependencies:
     esbuild "~0.20.2"
     get-tsconfig "^4.7.5"
