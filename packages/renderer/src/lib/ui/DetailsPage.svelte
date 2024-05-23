@@ -1,10 +1,10 @@
 <script lang="ts">
+import { Link } from '@podman-desktop/ui-svelte';
 import { router } from 'tinro';
 
 import CloseButton from '/@/lib/ui/CloseButton.svelte';
 
 import { currentPage, lastPage } from '../../stores/breadcrumb';
-import Link from './Link.svelte';
 
 export let title: string;
 export let titleDetail: string | undefined = undefined;
@@ -28,8 +28,11 @@ function handleKeydown(e: KeyboardEvent) {
   <div class="flex flex-row w-full h-fit px-5 pt-4 pb-2">
     <div class="flex flex-col w-full h-fit">
       <div class="flex flew-row items-center text-sm text-[var(--pd-content-breadcrumb)]">
-        <Link class="text-sm" aria-label="back" internalRef="{$lastPage.path}" title="Go back to {$lastPage.name}"
-          >{$lastPage.name}</Link>
+        <Link
+          class="text-sm"
+          aria-label="back"
+          on:click="{() => router.goto($lastPage.path)}"
+          title="Go back to {$lastPage.name}">{$lastPage.name}</Link>
         <div class="mx-2">&gt;</div>
         <div class="grow font-extralight" aria-label="name">{$currentPage.name}</div>
         <CloseButton href="{$lastPage.path}" class="justify-self-end" />

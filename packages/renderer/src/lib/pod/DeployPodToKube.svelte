@@ -1,7 +1,7 @@
 <script lang="ts">
 import { faExternalLink, faRocket } from '@fortawesome/free-solid-svg-icons';
 import type { V1NamespaceList, V1Pod } from '@kubernetes/client-node/dist/api';
-import { Button, Checkbox, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
+import { Button, Checkbox, ErrorMessage, Input, Link } from '@podman-desktop/ui-svelte';
 import * as jsYaml from 'js-yaml';
 import { onDestroy, onMount } from 'svelte';
 import { router } from 'tinro';
@@ -11,7 +11,6 @@ import type { V1Route } from '/@api/openshift-types';
 
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import FormPage from '../ui/FormPage.svelte';
-import Link from '../ui/Link.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
 
 export let resourceId: string;
@@ -420,7 +419,8 @@ function updateKubeResult() {
             required />
           <span class="text-gray-400 text-sm ml-1">
             Update Kubernetes manifest to respect the Pod security <Link
-              externalRef="https://kubernetes.io/docs/concepts/security/pod-security-standards#restricted"
+              on:click="{() =>
+                window.openExternal('https://kubernetes.io/docs/concepts/security/pod-security-standards#restricted')}"
               >restricted profile</Link
             >.</span>
         </div>

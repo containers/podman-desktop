@@ -1,7 +1,7 @@
 <script lang="ts">
 import 'xterm/css/xterm.css';
 
-import { ErrorMessage, Tab } from '@podman-desktop/ui-svelte';
+import { ErrorMessage, Link, Tab } from '@podman-desktop/ui-svelte';
 import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
@@ -10,7 +10,6 @@ import Route from '../../Route.svelte';
 import { containersInfos } from '../../stores/containers';
 import StatusIcon from '../images/StatusIcon.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
-import Link from '../ui/Link.svelte';
 import StateChange from '../ui/StateChange.svelte';
 import { ContainerUtils } from './container-utils';
 import ContainerActions from './ContainerActions.svelte';
@@ -69,7 +68,12 @@ onMount(() => {
   <DetailsPage title="{container.name}" bind:this="{detailsPage}">
     <StatusIcon slot="icon" icon="{ContainerIcon}" size="{24}" status="{container.state}" />
     <svelte:fragment slot="subtitle">
-      <Link internalRef="{container.imageHref}">{container.shortImage}</Link>
+      <Link
+        on:click="{() => {
+          if (container.imageHref) {
+            router.goto(container.imageHref);
+          }
+        }}">{container.shortImage}</Link>
     </svelte:fragment>
     <svelte:fragment slot="actions">
       <div class="flex items-center w-5">
