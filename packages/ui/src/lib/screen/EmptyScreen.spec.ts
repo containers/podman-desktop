@@ -34,5 +34,5 @@ test('Expect copy in clipboard', async () => {
   expect(button).toBeInTheDocument();
   expect(button).toBeEnabled();
   await fireEvent.click(button);
-  expect(mock).toBeCalled();
+  expect(mock).toBeCalledWith(expect.objectContaining({ detail: 'podman run hello:world' }));
 });

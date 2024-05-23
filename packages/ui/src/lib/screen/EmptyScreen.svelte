@@ -17,7 +17,7 @@ export let hidden = false;
 let fontAwesomeIcon = false;
 let processed = false;
 
-const dispatch = createEventDispatcher<{ click: undefined }>();
+const dispatch = createEventDispatcher<{ click: string }>();
 
 onMount(() => {
   if (isFontAwesomeIcon(icon)) {
@@ -26,10 +26,10 @@ onMount(() => {
   processed = true;
 });
 
-function copyRunInstructionToClipboard(): void {
+function handleClick(): void {
   const text = copyTextDivElement?.textContent;
   if (text) {
-    dispatch('click');
+    dispatch('click', text);
   }
 }
 
@@ -65,7 +65,7 @@ let copyTextDivElement: HTMLDivElement;
           data-testid="copyTextDivElement">
           {commandline}
         </div>
-        <Button title="Copy To Clipboard" class="ml-5" on:click="{copyRunInstructionToClipboard}" type="link"
+        <Button title="Copy To Clipboard" class="ml-5" on:click="{handleClick}" type="link"
           ><Fa class="h-5 w-5 cursor-pointer text-xl text-purple-500 hover:text-purple-600" icon="{faPaste}" /></Button>
       </div>
     {/if}
