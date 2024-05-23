@@ -23,7 +23,7 @@
     "electron": "29.1.4"
   },
   "devDependencies": {
-    "@playwright/test": "1.44.0",
+    "@playwright/test": "1.44.1",
     "@types/node": "^20",
     "electron": "30.0.6",
     "typescript": "^5.4.5",
