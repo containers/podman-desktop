@@ -3,6 +3,7 @@ import { faPaste } from '@fortawesome/free-solid-svg-icons';
 import { onMount } from 'svelte';
 import Fa from 'svelte-fa';
 
+import Button from '../button/Button.svelte';
 import { isFontAwesomeIcon } from '../utils/icon-utils';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,8 +63,8 @@ let copyTextDivElement: HTMLDivElement;
           data-testid="copyTextDivElement">
           {commandline}
         </div>
-        <button title="Copy To Clipboard" class="ml-5" on:click="{copyRunInstructionToClipboard}"
-          ><Fa class="h-5 w-5 cursor-pointer text-xl text-purple-500 hover:text-purple-600" icon="{faPaste}" /></button>
+        <Button title="Copy To Clipboard" class="ml-5" on:click="{copyRunInstructionToClipboard}" type="link"
+          ><Fa class="h-5 w-5 cursor-pointer text-xl text-purple-500 hover:text-purple-600" icon="{faPaste}" /></Button>
       </div>
     {/if}
     {#if $$slots}
