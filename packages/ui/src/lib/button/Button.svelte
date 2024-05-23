@@ -35,25 +35,30 @@ let classes = '';
 $: {
   if (disabled || inProgress) {
     if (type === 'primary') {
-      classes = 'bg-charcoal-50';
+      classes = 'bg-[var(--pd-button-disabled)]';
     } else if (type === 'secondary') {
-      classes = 'border-[1px] border-charcoal-50 bg-charcoal-50';
+      classes = 'border-[1px] border-[var(--pd-button-disabled)] bg-[var(--pd-button-disabled)]';
     } else if (type === 'danger') {
-      classes = 'border-2 border-gray-700 bg-charcoal-800';
+      classes =
+        'border-2 border-[var(--pd-button-danger-border-disabled)] text-[var(--pd-button-danger-text)] bg-[var(--pd-button-danger-bg-disabled)]';
     } else {
-      classes = 'text-charcoal-50 no-underline';
+      // link and tab
+      classes = 'text-[var(--pd-button-disabled-text)]';
     }
   } else {
     if (type === 'primary') {
-      classes = 'bg-purple-600 border-none hover:bg-purple-500';
+      classes = 'bg-[var(--pd-button-primary-bg)] border-none hover:bg-[var(--pd-button-primary-hover-bg)]';
     } else if (type === 'secondary') {
-      classes = 'border-[1px] border-gray-200 hover:border-purple-500 hover:text-purple-500';
+      classes =
+        'border-[1px] border-[var(--pd-button-secondary)] text-[var(--pd-button-secondary)] hover:border-[var(--pd-button-secondary-hover)] hover:text-[var(--pd-button-secondary-hover)]';
     } else if (type === 'danger') {
-      classes = 'border-2 border-red-600 bg-charcoal-700 hover:bg-charcoal-400';
+      classes =
+        'border-2 border-[var(--pd-button-danger-border)] bg-[var(--pd-button-danger-bg)] text-[var(--pd-button-danger-text)] hover:bg-[var(--pd-button-danger-hover-bg)] hover:text-[var(--pd-button-danger-hover-text)]';
     } else if (type === 'tab') {
-      classes = 'border-b-[3px] border-charcoal-700 hover:cursor-pointer text-gray-600 no-underline';
+      classes = 'border-b-[3px] border-[var(--pd-button-tab-border)] text-[var(--pd-button-tab-text)]';
     } else {
-      classes = 'border-none text-purple-400 hover:bg-white hover:bg-opacity-10';
+      // link
+      classes = 'border-none text-[var(--pd-button-link-text)] hover:bg-[var(--pd-button-link-hover-bg)]';
     }
   }
 
@@ -66,9 +71,9 @@ $: {
 <button
   type="button"
   class="relative {padding} box-border whitespace-nowrap select-none transition-all {classes} {$$props.class || ''}"
-  class:border-purple-500="{type === 'tab' && selected}"
-  class:hover:border-charcoal-100="{type === 'tab' && !selected}"
-  class:text-white="{(type === 'tab' && selected) || type === 'primary' || type === 'secondary' || type === 'danger'}"
+  class:border-[var(--pd-button-tab-border-selected)]="{type === 'tab' && selected}"
+  class:hover:border-[var(--pd-button-tab-hover-border)]="{type === 'tab' && !selected}"
+  class:text-[var(--pd-button-text)]="{(type === 'tab' && selected) || type === 'primary'}"
   title="{title}"
   aria-label="{$$props['aria-label']}"
   on:click
