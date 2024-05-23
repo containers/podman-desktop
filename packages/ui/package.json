@@ -79,6 +79,10 @@
     "./NavPage": {
       "types": "./dist/layouts/NavPage.d.ts",
       "svelte": "./dist/layouts/NavPage.svelte"
+    },
+    "./Link": {
+      "types": "./dist/link/Link.d.ts",
+      "svelte": "./dist/link/Link.svelte"
     }
   },
   "peerDependencies": {
