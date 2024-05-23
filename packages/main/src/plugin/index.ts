@@ -536,7 +536,7 @@ export class PluginSystem {
     );
 
     // Init update logic
-    new Updater(messageBox, configurationRegistry, statusBarRegistry, commandRegistry).init();
+    new Updater(messageBox, configurationRegistry, statusBarRegistry, commandRegistry, taskManager).init();
 
     commandRegistry.registerCommand('feedback', () => {
       apiSender.send('display-feedback', '');
