@@ -2,6 +2,7 @@
 import { Tab } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
+import { router } from 'tinro';
 
 import { containersInfos } from '/@/stores/containers';
 
@@ -11,6 +12,7 @@ import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import ComposeIcon from '../images/PodIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
+import { getTabUrl, isTabSelected } from '../ui/Util';
 import ComposeActions from './ComposeActions.svelte';
 import ComposeDetailsInspect from './ComposeDetailsInspect.svelte';
 import ComposeDetailsKube from './ComposeDetailsKube.svelte';
@@ -96,10 +98,16 @@ onDestroy(() => {
       <ComposeActions compose="{compose}" detailed="{true}" on:update="{() => (compose = compose)}" />
     </svelte:fragment>
     <svelte:fragment slot="tabs">
-      <Tab title="Summary" url="summary" />
-      <Tab title="Logs" url="logs" />
-      <Tab title="Inspect" url="inspect" />
-      <Tab title="Kube" url="kube" />
+      <Tab
+        title="Summary"
+        selected="{isTabSelected($router.path, 'summary')}"
+        url="{getTabUrl($router.path, 'summary')}" />
+      <Tab title="Logs" selected="{isTabSelected($router.path, 'logs')}" url="{getTabUrl($router.path, 'logs')}" />
+      <Tab
+        title="Inspect"
+        selected="{isTabSelected($router.path, 'inspect')}"
+        url="{getTabUrl($router.path, 'inspect')}" />
+      <Tab title="Kube" selected="{isTabSelected($router.path, 'kube')}" url="{getTabUrl($router.path, 'kube')}" />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">

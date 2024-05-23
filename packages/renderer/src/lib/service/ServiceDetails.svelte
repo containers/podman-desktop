@@ -2,6 +2,7 @@
 import type { V1Service } from '@kubernetes/client-node';
 import { Tab } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
+import { router } from 'tinro';
 import { stringify } from 'yaml';
 
 import { kubernetesCurrentContextServices } from '/@/stores/kubernetes-contexts-state';
@@ -13,6 +14,7 @@ import StatusIcon from '../images/StatusIcon.svelte';
 import KubeEditYAML from '../kube/KubeEditYAML.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import StateChange from '../ui/StateChange.svelte';
+import { getTabUrl, isTabSelected } from '../ui/Util';
 import { ServiceUtils } from './service-utils';
 import ServiceActions from './ServiceActions.svelte';
 import ServiceDetailsSummary from './ServiceDetailsSummary.svelte';
@@ -65,9 +67,15 @@ async function loadDetails() {
       <StateChange state="{service.status}" />
     </div>
     <svelte:fragment slot="tabs">
-      <Tab title="Summary" url="summary" />
-      <Tab title="Inspect" url="inspect" />
-      <Tab title="Kube" url="kube" />
+      <Tab
+        title="Summary"
+        selected="{isTabSelected($router.path, 'summary')}"
+        url="{getTabUrl($router.path, 'summary')}" />
+      <Tab
+        title="Inspect"
+        selected="{isTabSelected($router.path, 'inspect')}"
+        url="{getTabUrl($router.path, 'inspect')}" />
+      <Tab title="Kube" selected="{isTabSelected($router.path, 'kube')}" url="{getTabUrl($router.path, 'kube')}" />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
