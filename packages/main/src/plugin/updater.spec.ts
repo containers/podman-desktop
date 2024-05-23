@@ -18,7 +18,7 @@
 
 import type { Configuration } from '@podman-desktop/api';
 import { app } from 'electron';
-import { type AppUpdater, autoUpdater, type UpdateCheckResult } from 'electron-updater';
+import { type AppUpdater, autoUpdater, type UpdateCheckResult, type UpdateDownloadedEvent } from 'electron-updater';
 import type { AppUpdaterEvents } from 'electron-updater/out/AppUpdater.js';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -30,6 +30,9 @@ import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.j
 import { Disposable } from '/@/plugin/types/disposable.js';
 import { Updater } from '/@/plugin/updater.js';
 import * as util from '/@/util.js';
+import type { StatefulTask } from '/@api/task.js';
+
+import type { TaskManager } from './task-manager.js';
 
 vi.mock('electron', () => ({
   app: {
@@ -75,6 +78,11 @@ const commandRegistryMock = {
   executeCommand: vi.fn(),
 } as unknown as CommandRegistry;
 
+const taskManagerMock = {
+  createTask: vi.fn(),
+  updateTask: vi.fn(),
+} as unknown as TaskManager;
+
 beforeEach(() => {
   vi.useFakeTimers();
   vi.resetAllMocks();
@@ -92,6 +100,10 @@ beforeEach(() => {
   vi.mocked(configurationMock.get).mockReturnValue('never');
   vi.mocked(configurationMock.update).mockResolvedValue(undefined);
   vi.mocked(configurationRegistryMock.getConfiguration).mockReturnValue(configurationMock);
+
+  vi.mocked(taskManagerMock.createTask).mockResolvedValue({
+    progress: 0,
+  } as unknown as StatefulTask);
 });
 
 test('expect env PROD to be truthy', () => {
@@ -99,19 +111,37 @@ test('expect env PROD to be truthy', () => {
 });
 
 test('expect init to provide a disposable', () => {
-  const updater = new Updater(messageBoxMock, configurationRegistryMock, statusBarRegistryMock, commandRegistryMock);
+  const updater = new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+  );
   const disposable: unknown = updater.init();
   expect(disposable).toBeDefined();
   expect(disposable instanceof Disposable).toBeTruthy();
 });
 
 test('expect init to register commands', () => {
-  new Updater(messageBoxMock, configurationRegistryMock, statusBarRegistryMock, commandRegistryMock).init();
+  new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+  ).init();
   expect(commandRegistryMock.registerCommand).toHaveBeenCalled();
 });
 
 test('expect init to register configuration', () => {
-  new Updater(messageBoxMock, configurationRegistryMock, statusBarRegistryMock, commandRegistryMock).init();
+  new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+  ).init();
   expect(configurationRegistryMock.registerConfigurations).toHaveBeenCalled();
 });
 
@@ -135,7 +165,13 @@ test('expect update available entry to be displayed when expected', () => {
     return {} as unknown as AppUpdater;
   });
 
-  new Updater(messageBoxMock, configurationRegistryMock, statusBarRegistryMock, commandRegistryMock).init();
+  new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+  ).init();
 
   // listener should exist
   expect(mListener).toBeDefined();
@@ -166,7 +202,13 @@ test('expect default status entry to be displayed when no update available', () 
     return {} as unknown as AppUpdater;
   });
 
-  new Updater(messageBoxMock, configurationRegistryMock, statusBarRegistryMock, commandRegistryMock).init();
+  new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+  ).init();
 
   // listener should exist
   expect(mListener).toBeDefined();
@@ -197,7 +239,13 @@ test('expect default status entry when error No published versions on GitHub', (
     return {} as unknown as AppUpdater;
   });
 
-  new Updater(messageBoxMock, configurationRegistryMock, statusBarRegistryMock, commandRegistryMock).init();
+  new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+  ).init();
 
   // listener should exist
   expect(mListener).toBeDefined();
@@ -217,7 +265,13 @@ test('expect command update to be called when configuration value on startup', (
 
   vi.mocked(configurationMock.get).mockReturnValue('startup');
 
-  new Updater(messageBoxMock, configurationRegistryMock, statusBarRegistryMock, commandRegistryMock).init();
+  new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+  ).init();
 
   // call the listener (which should be the private updateAvailableEntry method)
   mListener?.();
@@ -235,7 +289,13 @@ test('expect command update not to be called when configuration value on never',
 
   vi.mocked(configurationMock.get).mockReturnValue('never');
 
-  new Updater(messageBoxMock, configurationRegistryMock, statusBarRegistryMock, commandRegistryMock).init();
+  new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+  ).init();
 
   // call the listener (which should be the private updateAvailableEntry method)
   mListener?.();
@@ -257,7 +317,13 @@ test('clicking on "Update Never" should set the configuration value to never', a
     },
   );
 
-  new Updater(messageBoxMock, configurationRegistryMock, statusBarRegistryMock, commandRegistryMock).init();
+  new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+  ).init();
   expect(mListener).toBeDefined();
 
   await mListener?.();
@@ -286,7 +352,13 @@ describe('expect update command to depends on context', async () => {
       },
     );
 
-    const updater = new Updater(messageBoxMock, configurationRegistryMock, statusBarRegistryMock, commandRegistryMock);
+    const updater = new Updater(
+      messageBoxMock,
+      configurationRegistryMock,
+      statusBarRegistryMock,
+      commandRegistryMock,
+      taskManagerMock,
+    );
     updater.init();
 
     if (mListener === undefined) throw new Error('mListener undefined');
@@ -335,5 +407,165 @@ describe('expect update command to depends on context', async () => {
       title: 'Update Available now',
       type: 'info',
     });
+  });
+});
+
+describe('download task and progress', async () => {
+  test('success', async () => {
+    type UpdateCommandCallback = (context: 'startup' | 'status-bar-entry') => Promise<void>;
+
+    vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+      updateInfo: {
+        version: '0.5.0',
+      },
+    } as unknown as UpdateCheckResult);
+
+    // catch the update command listener
+    let updateCommandCallback: UpdateCommandCallback | undefined;
+    vi.mocked(commandRegistryMock.registerCommand).mockImplementation(
+      (channel: string, callback: () => Promise<void>) => {
+        if (channel === 'update') {
+          updateCommandCallback = callback;
+        }
+        return Disposable.noop();
+      },
+    );
+
+    let onUpdateDownloadedCallback: ((updatedDownloadedEvent: UpdateDownloadedEvent) => void) | undefined;
+    let downloadProgressCallback: ((info: { percent: number }) => void) | undefined;
+    vi.spyOn(autoUpdater, 'on').mockImplementation((channel: keyof AppUpdaterEvents, listener: unknown): AppUpdater => {
+      if (channel === 'update-downloaded') {
+        onUpdateDownloadedCallback = listener as () => void;
+      } else if (channel === 'download-progress') {
+        downloadProgressCallback = listener as (info: { percent: number }) => void;
+      }
+      return {} as unknown as AppUpdater;
+    });
+
+    new Updater(
+      messageBoxMock,
+      configurationRegistryMock,
+      statusBarRegistryMock,
+      commandRegistryMock,
+      taskManagerMock,
+    ).init();
+
+    // callbacks should exist
+    expect(updateCommandCallback).toBeDefined();
+    expect(onUpdateDownloadedCallback).toBeDefined();
+    expect(downloadProgressCallback).toBeDefined();
+
+    // call the update command callback
+    vi.mocked(messageBoxMock.showMessageBox).mockResolvedValueOnce({
+      response: 0,
+    });
+
+    await updateCommandCallback?.('status-bar-entry');
+
+    // expect a task has been created (and updated)
+    expect(taskManagerMock.createTask).toHaveBeenCalled();
+    expect(taskManagerMock.updateTask).toHaveBeenCalled();
+
+    // first call is with progress being 0
+    expect(taskManagerMock.updateTask).toHaveBeenCalledWith(expect.objectContaining({ progress: 0 }));
+
+    expect(autoUpdater.downloadUpdate).toHaveBeenCalled();
+
+    // now call the progress with 50%
+    downloadProgressCallback?.({ percent: 50 });
+    // and check we're updating the task
+    expect(taskManagerMock.updateTask).toHaveBeenCalledWith(expect.objectContaining({ progress: 50 }));
+
+    // now call the onUpdateDownloadedCallback
+    const updatedDownloadedEvent = {
+      downloadedFile: 'foo',
+      version: 'FooVersion',
+    } as unknown as UpdateDownloadedEvent;
+
+    // user click on restart
+    vi.mocked(messageBoxMock.showMessageBox).mockResolvedValueOnce({
+      response: 0,
+    });
+
+    onUpdateDownloadedCallback?.(updatedDownloadedEvent);
+    // and check we're updating the task
+    expect(taskManagerMock.updateTask).toHaveBeenCalledWith(expect.objectContaining({ progress: 100 }));
+    // check task is completed
+    expect(taskManagerMock.updateTask).toHaveBeenCalledWith(
+      expect.objectContaining({
+        state: 'completed',
+        progress: 100,
+        status: 'success',
+        name: 'Update vFooVersion downloaded',
+      }),
+    );
+  });
+
+  test('failure', async () => {
+    type UpdateCommandCallback = (context: 'startup' | 'status-bar-entry') => Promise<void>;
+
+    vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+      updateInfo: {
+        version: '0.5.0',
+      },
+    } as unknown as UpdateCheckResult);
+
+    // catch the update command listener
+    let updateCommandCallback: UpdateCommandCallback | undefined;
+    vi.mocked(commandRegistryMock.registerCommand).mockImplementation(
+      (channel: string, callback: () => Promise<void>) => {
+        if (channel === 'update') {
+          updateCommandCallback = callback;
+        }
+        return Disposable.noop();
+      },
+    );
+
+    let downloadProgressCallback: ((info: { percent: number }) => void) | undefined;
+    vi.spyOn(autoUpdater, 'on').mockImplementation((channel: keyof AppUpdaterEvents, listener: unknown): AppUpdater => {
+      if (channel === 'download-progress') {
+        downloadProgressCallback = listener as (info: { percent: number }) => void;
+      }
+      return {} as unknown as AppUpdater;
+    });
+
+    new Updater(
+      messageBoxMock,
+      configurationRegistryMock,
+      statusBarRegistryMock,
+      commandRegistryMock,
+      taskManagerMock,
+    ).init();
+
+    // call the update command callback
+    vi.mocked(messageBoxMock.showMessageBox).mockResolvedValueOnce({
+      response: 0,
+    });
+
+    // simulate download failure
+    vi.mocked(autoUpdater.downloadUpdate).mockRejectedValueOnce(new Error('Download failed'));
+
+    await updateCommandCallback?.('status-bar-entry');
+
+    // expect a task has been created (and updated)
+    expect(taskManagerMock.createTask).toHaveBeenCalled();
+    expect(taskManagerMock.updateTask).toHaveBeenCalled();
+
+    // first call is with progress being 0
+    expect(taskManagerMock.updateTask).toHaveBeenCalledWith(expect.objectContaining({ progress: 0 }));
+
+    expect(autoUpdater.downloadUpdate).toHaveBeenCalled();
+
+    // now call the progress with 50%
+    downloadProgressCallback?.({ percent: 50 });
+    // and check we're updating the task
+    expect(taskManagerMock.updateTask).toHaveBeenCalledWith(
+      expect.objectContaining({
+        progress: 50,
+        status: 'failure',
+        state: 'completed',
+        error: 'Unable to download  update: Error: Download failed',
+      }),
+    );
   });
 });

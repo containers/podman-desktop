@@ -17,7 +17,13 @@
  ***********************************************************************/
 
 import { app } from 'electron';
-import { autoUpdater, type UpdateCheckResult, type UpdateInfo } from 'electron-updater';
+import {
+  autoUpdater,
+  type ProgressInfo,
+  type UpdateCheckResult,
+  type UpdateDownloadedEvent,
+  type UpdateInfo,
+} from 'electron-updater';
 
 import type { CommandRegistry } from '/@/plugin/command-registry.js';
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
@@ -26,6 +32,9 @@ import type { MessageBox } from '/@/plugin/message-box.js';
 import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
 import { isLinux } from '/@/util.js';
+import type { StatefulTask } from '/@api/task.js';
+
+import type { TaskManager } from './task-manager.js';
 
 /**
  * Represents an updater utility for Podman Desktop.
@@ -38,11 +47,14 @@ export class Updater {
   #updateAlreadyDownloaded: boolean;
   #updateCheckResult: UpdateCheckResult | undefined;
 
+  #downloadTask: StatefulTask | undefined;
+
   constructor(
     private messageBox: MessageBox,
     private configurationRegistry: ConfigurationRegistry,
     private statusBarRegistry: StatusBarRegistry,
     private commandRegistry: CommandRegistry,
+    private taskManager: TaskManager,
   ) {
     this.#currentVersion = `v${app.getVersion()}`;
     this.#updateInProgress = false;
@@ -158,10 +170,19 @@ export class Updater {
         this.#updateAlreadyDownloaded = false;
 
         // Download update and try / catch it and create a dialog if it fails
+        // create a task
+        this.#downloadTask = this.taskManager.createTask(`Downloading ${updateVersion} update`);
+        this.#downloadTask.progress = 0;
+        this.taskManager.updateTask(this.#downloadTask);
+
         try {
           await autoUpdater.downloadUpdate();
         } catch (error: unknown) {
           console.error('Update error: ', error);
+          this.#downloadTask.status = 'failure';
+          this.#downloadTask.state = 'completed';
+          this.#downloadTask.error = `Unable to download ${updateVersion} update: ${String(error)}`;
+          this.taskManager.updateTask(this.#downloadTask);
           await this.messageBox.showMessageBox({
             type: 'error',
             title: 'Update Failed',
@@ -249,14 +270,24 @@ export class Updater {
   /**
    * Handler for update downloaded event.
    */
-  private onUpdateDownloaded(): void {
+  private onUpdateDownloaded(updatedDownloadedEvent: UpdateDownloadedEvent): void {
+    console.debug(`The update file has been downloaded to ${updatedDownloadedEvent.downloadedFile}`);
     this.#updateInProgress = false;
     this.#updateAlreadyDownloaded = true;
+
+    // progress is 100% when the file is downloaded
+    if (this.#downloadTask) {
+      this.#downloadTask.progress = 100;
+      this.#downloadTask.name = `Update v${updatedDownloadedEvent.version} downloaded`;
+      this.#downloadTask.status = 'success';
+      this.#downloadTask.state = 'completed';
+      this.taskManager.updateTask(this.#downloadTask);
+    }
 
     this.messageBox
       .showMessageBox({
         title: 'Update Downloaded',
-        message: 'Update downloaded, Do you want to restart Podman Desktop ?',
+        message: `v${updatedDownloadedEvent.version} update downloaded, Do you want to restart Podman Desktop ?`,
         cancelId: 1,
         type: 'info',
         buttons: ['Restart', 'Cancel'],
@@ -284,6 +315,17 @@ export class Updater {
       return;
     }
     console.error('unable to check for updates', error);
+  }
+
+  /**
+   * Handler for the download progress.
+   */
+  private onUpdateDownloadProgress(progressInfo: ProgressInfo): void {
+    // update download task
+    if (this.#downloadTask) {
+      this.#downloadTask.progress = Math.round(progressInfo.percent);
+      this.taskManager.updateTask(this.#downloadTask);
+    }
   }
 
   /**
@@ -323,6 +365,7 @@ export class Updater {
     autoUpdater.on('update-not-available', this.onUpdateNotAvailable.bind(this));
     autoUpdater.on('update-downloaded', this.onUpdateDownloaded.bind(this));
     autoUpdater.on('error', this.onUpdateError.bind(this));
+    autoUpdater.on('download-progress', this.onUpdateDownloadProgress.bind(this));
 
     try {
       this.checkForUpdates();
