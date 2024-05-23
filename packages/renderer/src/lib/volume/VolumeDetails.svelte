@@ -1,6 +1,7 @@
 <script lang="ts">
 import { Tab } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
+import { router } from 'tinro';
 
 import Route from '../../Route.svelte';
 import { volumeListInfos } from '../../stores/volumes';
@@ -44,8 +45,8 @@ onMount(() => {
     <StatusIcon slot="icon" icon="{VolumeIcon}" size="{24}" status="{volume.status}" />
     <VolumeActions slot="actions" volume="{volume}" detailed="{true}" on:update="{() => (volume = volume)}" />
     <svelte:fragment slot="tabs">
-      <Tab title="Summary" url="summary" />
-      <Tab title="Inspect" url="inspect" />
+      <Tab title="Summary" routerPath="{$router.path}" url="summary" />
+      <Tab title="Inspect" routerPath="{$router.path}" url="inspect" />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">

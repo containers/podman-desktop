@@ -86,16 +86,16 @@ onMount(() => {
       <ContainerStatistics container="{container}" />
     </div>
     <svelte:fragment slot="tabs">
-      <Tab title="Summary" url="summary" />
-      <Tab title="Logs" url="logs" />
-      <Tab title="Inspect" url="inspect" />
+      <Tab title="Summary" routerPath="{$router.path}" url="summary" />
+      <Tab title="Logs" routerPath="{$router.path}" url="logs" />
+      <Tab title="Inspect" routerPath="{$router.path}" url="inspect" />
 
       {#if container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE}
-        <Tab title="Kube" url="kube" />
+        <Tab title="Kube" routerPath="{$router.path}" url="kube" />
       {/if}
-      <Tab title="Terminal" url="terminal" />
+      <Tab title="Terminal" routerPath="{$router.path}" url="terminal" />
       {#if displayTty}
-        <Tab title="Tty" url="tty" />
+        <Tab title="Tty" routerPath="{$router.path}" url="tty" />
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="content">

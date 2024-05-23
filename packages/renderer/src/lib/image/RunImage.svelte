@@ -629,10 +629,10 @@ async function assertAllPortAreValid(): Promise<void> {
       <div slot="content" class="px-5 pb-5 min-w-full h-fit">
         <div class="bg-charcoal-600 px-6 py-4 space-y-2 lg:px-8 sm:pb-6 xl:pb-8">
           <div class="flex flex-row px-2 border-b border-charcoal-400">
-            <Tab title="Basic" url="basic" />
-            <Tab title="Advanced" url="advanced" />
-            <Tab title="Networking" url="networking" />
-            <Tab title="Security" url="security" />
+            <Tab title="Basic" routerPath="{$router.path}" url="basic" />
+            <Tab title="Advanced" routerPath="{$router.path}" url="advanced" />
+            <Tab title="Networking" routerPath="{$router.path}" url="networking" />
+            <Tab title="Security" routerPath="{$router.path}" url="security" />
           </div>
           <div>
             <Route path="/basic" breadcrumb="Basic" navigationHint="tab">

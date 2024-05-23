@@ -1,6 +1,7 @@
 <script lang="ts">
 import { Tab } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
+import { router } from 'tinro';
 import { stringify } from 'yaml';
 
 import { kubernetesCurrentContextRoutes } from '/@/stores/kubernetes-contexts-state';
@@ -65,9 +66,9 @@ async function loadRouteDetails() {
       <StateChange state="{routeUI.status}" />
     </div>
     <svelte:fragment slot="tabs">
-      <Tab title="Summary" url="summary" />
-      <Tab title="Inspect" url="inspect" />
-      <Tab title="Kube" url="kube" />
+      <Tab title="Summary" routerPath="{$router.path}" url="summary" />
+      <Tab title="Inspect" routerPath="{$router.path}" url="inspect" />
+      <Tab title="Kube" routerPath="{$router.path}" url="kube" />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">

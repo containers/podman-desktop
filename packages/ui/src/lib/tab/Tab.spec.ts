@@ -19,14 +19,12 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
-import { router } from 'tinro';
 import { expect, test } from 'vitest';
 
 import Tab from './Tab.svelte';
 
 test('check link element is created by using url and title', async () => {
-  router.goto('/');
-  render(Tab, { url: 'url', title: 'title' });
+  render(Tab, { routerPath: '/', url: 'url', title: 'title' });
 
   const item = screen.getByText('title');
   expect(item).toBeDefined();

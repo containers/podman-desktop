@@ -75,12 +75,12 @@ onMount(() => {
       <StateChange state="{pod.status}" />
     </div>
     <svelte:fragment slot="tabs">
-      <Tab title="Summary" url="summary" />
-      <Tab title="Logs" url="logs" />
-      <Tab title="Inspect" url="inspect" />
-      <Tab title="Kube" url="kube" />
+      <Tab title="Summary" routerPath="{$router.path}" url="summary" />
+      <Tab title="Logs" routerPath="{$router.path}" url="logs" />
+      <Tab title="Inspect" routerPath="{$router.path}" url="inspect" />
+      <Tab title="Kube" routerPath="{$router.path}" url="kube" />
       {#if pod.kind === 'kubernetes'}
-        <Tab title="Terminal" url="k8s-terminal" />
+        <Tab title="Terminal" routerPath="{$router.path}" url="k8s-terminal" />
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="content">

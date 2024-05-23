@@ -2,6 +2,7 @@
 import { Tab } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
+import { router } from 'tinro';
 
 import { containersInfos } from '/@/stores/containers';
 
@@ -96,10 +97,10 @@ onDestroy(() => {
       <ComposeActions compose="{compose}" detailed="{true}" on:update="{() => (compose = compose)}" />
     </svelte:fragment>
     <svelte:fragment slot="tabs">
-      <Tab title="Summary" url="summary" />
-      <Tab title="Logs" url="logs" />
-      <Tab title="Inspect" url="inspect" />
-      <Tab title="Kube" url="kube" />
+      <Tab title="Summary" routerPath="{$router.path}" url="summary" />
+      <Tab title="Logs" routerPath="{$router.path}" url="logs" />
+      <Tab title="Inspect" routerPath="{$router.path}" url="inspect" />
+      <Tab title="Kube" routerPath="{$router.path}" url="kube" />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">

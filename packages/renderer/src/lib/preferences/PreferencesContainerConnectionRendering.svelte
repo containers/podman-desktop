@@ -3,6 +3,7 @@ import { Tab } from '@podman-desktop/ui-svelte';
 import { Buffer } from 'buffer';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
+import { router } from 'tinro';
 
 import type {
   ProviderContainerConnectionInfo,
@@ -156,9 +157,9 @@ function setNoLogs() {
       </svelte:fragment>
       <IconImage slot="icon" image="{providerInfo?.images?.icon}" alt="{providerInfo?.name}" class="max-h-10" />
       <svelte:fragment slot="tabs">
-        <Tab title="Summary" url="summary" />
+        <Tab title="Summary" routerPath="{$router.path}" url="summary" />
         {#if connectionInfo.lifecycleMethods && connectionInfo.lifecycleMethods.length > 0}
-          <Tab title="Logs" url="logs" />
+          <Tab title="Logs" routerPath="{$router.path}" url="logs" />
         {/if}
       </svelte:fragment>
       <svelte:fragment slot="content">

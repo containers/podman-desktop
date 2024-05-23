@@ -3,6 +3,7 @@ import type { ImageInfo } from '@podman-desktop/api';
 import { Tab } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/motion';
+import { router } from 'tinro';
 
 import { containersInfos } from '/@/stores/containers';
 import { context } from '/@/stores/context';
@@ -142,11 +143,11 @@ onDestroy(() => {
       groupContributions="{true}"
       on:update="{() => (image = image)}" />
     <svelte:fragment slot="tabs">
-      <Tab title="Summary" url="summary" />
-      <Tab title="History" url="history" />
-      <Tab title="Inspect" url="inspect" />
+      <Tab title="Summary" routerPath="{$router.path}" url="summary" />
+      <Tab title="History" routerPath="{$router.path}" url="history" />
+      <Tab title="Inspect" routerPath="{$router.path}" url="inspect" />
       {#if showCheckTab}
-        <Tab title="Check" url="check" />
+        <Tab title="Check" routerPath="{$router.path}" url="check" />
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="content">
