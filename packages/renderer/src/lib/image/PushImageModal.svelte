@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faCheckCircle, faCircleArrowUp, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { Button, Modal } from '@podman-desktop/ui-svelte';
+import { Button, Link, Modal } from '@podman-desktop/ui-svelte';
 import { onMount, tick } from 'svelte';
 import Fa from 'svelte-fa';
 import { router } from 'tinro';
@@ -10,7 +10,6 @@ import { FitAddon } from 'xterm-addon-fit';
 import CloseButton from '/@/lib/ui/CloseButton.svelte';
 
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
-import Link from '../ui/Link.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 
 export let closeCallback: () => void;
@@ -145,7 +144,7 @@ $: window.hasAuthconfigForImage(imageInfoToPush.name).then(result => (isAuthenti
         and to click to go to the registries page -->
         {#if !isAuthenticatedForThisImage}
           <p class="text-amber-500 pt-1">
-            No registry with push permissions found. <Link internalRef="/preferences/registries"
+            No registry with push permissions found. <Link on:click="{() => router.goto('/preferences/registries')}"
               >Add a registry now.</Link>
           </p>{/if}
       </div>
