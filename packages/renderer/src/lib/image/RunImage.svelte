@@ -17,6 +17,7 @@ import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import { splitSpacesHandlingDoubleQuotes } from '../string/string';
 import FormPage from '../ui/FormPage.svelte';
 import NumberInput from '../ui/NumberInput.svelte';
+import { getTabUrl, isTabSelected } from '../ui/Util';
 import type { ImageInfoUI } from './ImageInfoUI';
 
 interface PortInfo {
@@ -629,10 +630,22 @@ async function assertAllPortAreValid(): Promise<void> {
       <div slot="content" class="px-5 pb-5 min-w-full h-fit">
         <div class="bg-charcoal-600 px-6 py-4 space-y-2 lg:px-8 sm:pb-6 xl:pb-8">
           <div class="flex flex-row px-2 border-b border-charcoal-400">
-            <Tab title="Basic" routerPath="{$router.path}" url="basic" />
-            <Tab title="Advanced" routerPath="{$router.path}" url="advanced" />
-            <Tab title="Networking" routerPath="{$router.path}" url="networking" />
-            <Tab title="Security" routerPath="{$router.path}" url="security" />
+            <Tab
+              title="Basic"
+              selected="{isTabSelected($router.path, 'summary')}"
+              url="{getTabUrl($router.path, 'summary')}" />
+            <Tab
+              title="Advanced"
+              selected="{isTabSelected($router.path, 'advanced')}"
+              url="{getTabUrl($router.path, 'advanced')}" />
+            <Tab
+              title="Networking"
+              selected="{isTabSelected($router.path, 'networking')}"
+              url="{getTabUrl($router.path, 'networking')}" />
+            <Tab
+              title="Security"
+              selected="{isTabSelected($router.path, 'security')}"
+              url="{getTabUrl($router.path, 'security')}" />
           </div>
           <div>
             <Route path="/basic" breadcrumb="Basic" navigationHint="tab">

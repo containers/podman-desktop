@@ -13,6 +13,7 @@ import DeploymentIcon from '../images/DeploymentIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
 import KubeEditYAML from '../kube/KubeEditYAML.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
+import { getTabUrl, isTabSelected } from '../ui/Util';
 import { DeploymentUtils } from './deployment-utils';
 import DeploymentActions from './DeploymentActions.svelte';
 import DeploymentDetailsSummary from './DeploymentDetailsSummary.svelte';
@@ -64,9 +65,15 @@ async function loadDetails() {
       <DeploymentActions deployment="{deployment}" detailed="{true}" on:update="{() => (deployment = deployment)}" />
     </svelte:fragment>
     <svelte:fragment slot="tabs">
-      <Tab title="Summary" routerPath="{$router.path}" url="summary" />
-      <Tab title="Inspect" routerPath="{$router.path}" url="inspect" />
-      <Tab title="Kube" routerPath="{$router.path}" url="kube" />
+      <Tab
+        title="Summary"
+        selected="{isTabSelected($router.path, 'summary')}"
+        url="{getTabUrl($router.path, 'summary')}" />
+      <Tab
+        title="Inspect"
+        selected="{isTabSelected($router.path, 'inspect')}"
+        url="{getTabUrl($router.path, 'inspect')}" />
+      <Tab title="Kube" selected="{isTabSelected($router.path, 'kube')}" url="{getTabUrl($router.path, 'kube')}" />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">

@@ -18,6 +18,7 @@ import IconImage from '../appearance/IconImage.svelte';
 import ConnectionErrorInfoButton from '../ui/ConnectionErrorInfoButton.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
+import { getTabUrl, isTabSelected } from '../ui/Util';
 import { eventCollect } from './preferences-connection-rendering-task';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
 import PreferencesConnectionDetailsLogs from './PreferencesConnectionDetailsLogs.svelte';
@@ -157,9 +158,12 @@ function setNoLogs() {
       </svelte:fragment>
       <IconImage slot="icon" image="{providerInfo?.images?.icon}" alt="{providerInfo?.name}" class="max-h-10" />
       <svelte:fragment slot="tabs">
-        <Tab title="Summary" routerPath="{$router.path}" url="summary" />
+        <Tab
+          title="Summary"
+          selected="{isTabSelected($router.path, 'summary')}"
+          url="{getTabUrl($router.path, 'summary')}" />
         {#if connectionInfo.lifecycleMethods && connectionInfo.lifecycleMethods.length > 0}
-          <Tab title="Logs" routerPath="{$router.path}" url="logs" />
+          <Tab title="Logs" selected="{isTabSelected($router.path, 'logs')}" url="{getTabUrl($router.path, 'logs')}" />
         {/if}
       </svelte:fragment>
       <svelte:fragment slot="content">

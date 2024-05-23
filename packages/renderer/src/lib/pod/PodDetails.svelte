@@ -9,6 +9,7 @@ import PodIcon from '../images/PodIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import StateChange from '../ui/StateChange.svelte';
+import { getTabUrl, isTabSelected } from '../ui/Util';
 import KubernetesTerminalBrowser from './KubernetesTerminalBrowser.svelte';
 import { PodUtils } from './pod-utils';
 import PodActions from './PodActions.svelte';
@@ -75,12 +76,21 @@ onMount(() => {
       <StateChange state="{pod.status}" />
     </div>
     <svelte:fragment slot="tabs">
-      <Tab title="Summary" routerPath="{$router.path}" url="summary" />
-      <Tab title="Logs" routerPath="{$router.path}" url="logs" />
-      <Tab title="Inspect" routerPath="{$router.path}" url="inspect" />
-      <Tab title="Kube" routerPath="{$router.path}" url="kube" />
+      <Tab
+        title="Summary"
+        selected="{isTabSelected($router.path, 'summary')}"
+        url="{getTabUrl($router.path, 'summary')}" />
+      <Tab title="Logs" selected="{isTabSelected($router.path, 'logs')}" url="{getTabUrl($router.path, 'logs')}" />
+      <Tab
+        title="Inspect"
+        selected="{isTabSelected($router.path, 'inspect')}"
+        url="{getTabUrl($router.path, 'inspect')}" />
+      <Tab title="Kube" selected="{isTabSelected($router.path, 'kube')}" url="{getTabUrl($router.path, 'kube')}" />
       {#if pod.kind === 'kubernetes'}
-        <Tab title="Terminal" routerPath="{$router.path}" url="k8s-terminal" />
+        <Tab
+          title="Terminal"
+          selected="{isTabSelected($router.path, 'k8s-terminal')}"
+          url="{getTabUrl($router.path, 'k8s-terminal')}" />
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="content">

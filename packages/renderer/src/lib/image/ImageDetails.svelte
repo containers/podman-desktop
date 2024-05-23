@@ -17,6 +17,7 @@ import type { ContextUI } from '../context/context';
 import StatusIcon from '../images/StatusIcon.svelte';
 import Badge from '../ui/Badge.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
+import { getTabUrl, isTabSelected } from '../ui/Util';
 import {
   IMAGE_DETAILS_VIEW_BADGES,
   IMAGE_DETAILS_VIEW_ICONS,
@@ -143,11 +144,20 @@ onDestroy(() => {
       groupContributions="{true}"
       on:update="{() => (image = image)}" />
     <svelte:fragment slot="tabs">
-      <Tab title="Summary" routerPath="{$router.path}" url="summary" />
-      <Tab title="History" routerPath="{$router.path}" url="history" />
-      <Tab title="Inspect" routerPath="{$router.path}" url="inspect" />
+      <Tab
+        title="Summary"
+        selected="{isTabSelected($router.path, 'summary')}"
+        url="{getTabUrl($router.path, 'summary')}" />
+      <Tab
+        title="History"
+        selected="{isTabSelected($router.path, 'history')}"
+        url="{getTabUrl($router.path, 'history')}" />
+      <Tab
+        title="Inspect"
+        selected="{isTabSelected($router.path, 'inspect')}"
+        url="{getTabUrl($router.path, 'inspect')}" />
       {#if showCheckTab}
-        <Tab title="Check" routerPath="{$router.path}" url="check" />
+        <Tab title="Check" selected="{isTabSelected($router.path, 'check')}" url="{getTabUrl($router.path, 'check')}" />
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="content">

@@ -14,6 +14,7 @@ import StatusIcon from '../images/StatusIcon.svelte';
 import KubeEditYAML from '../kube/KubeEditYAML.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import StateChange from '../ui/StateChange.svelte';
+import { getTabUrl, isTabSelected } from '../ui/Util';
 import { IngressRouteUtils } from './ingress-route-utils';
 import IngressRouteActions from './IngressRouteActions.svelte';
 import ServiceDetailsSummary from './IngressRouteDetailsSummary.svelte';
@@ -66,9 +67,15 @@ async function loadIngressDetails() {
       <StateChange state="{ingressUI.status}" />
     </div>
     <svelte:fragment slot="tabs">
-      <Tab title="Summary" routerPath="{$router.path}" url="summary" />
-      <Tab title="Inspect" routerPath="{$router.path}" url="inspect" />
-      <Tab title="Kube" routerPath="{$router.path}" url="kube" />
+      <Tab
+        title="Summary"
+        selected="{isTabSelected($router.path, 'summary')}"
+        url="{getTabUrl($router.path, 'summary')}" />
+      <Tab
+        title="Inspect"
+        selected="{isTabSelected($router.path, 'inspect')}"
+        url="{getTabUrl($router.path, 'inspect')}" />
+      <Tab title="Kube" selected="{isTabSelected($router.path, 'kube')}" url="{getTabUrl($router.path, 'kube')}" />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">

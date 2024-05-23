@@ -23,11 +23,22 @@ import { expect, test } from 'vitest';
 
 import Tab from './Tab.svelte';
 
-test('check link element is created by using url and title', async () => {
-  render(Tab, { routerPath: '/', url: 'url', title: 'title' });
+test('check link element is created by using url and title and correct class when selected', async () => {
+  render(Tab, { selected: true, url: '/url', title: 'title' });
 
   const item = screen.getByText('title');
   expect(item).toBeDefined();
   expect((item as HTMLAnchorElement).href.endsWith('/url')).toBeTruthy();
   expect(item.textContent).equals('title');
+  expect(item.parentElement).not.toHaveClass('border-transparent');
+});
+
+test('check link element is created by using url and title and correct class when not selected', async () => {
+  render(Tab, { selected: false, url: '/url', title: 'title' });
+
+  const item = screen.getByText('title');
+  expect(item).toBeDefined();
+  expect((item as HTMLAnchorElement).href.endsWith('/url')).toBeTruthy();
+  expect(item.textContent).equals('title');
+  expect(item.parentElement).toHaveClass('border-transparent');
 });
