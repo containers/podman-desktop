@@ -40,7 +40,7 @@ export class BuildImagePage extends BasePage {
     super(page);
     this.heading = page.getByRole('heading', { name: 'Build Image from Containerfile' });
     this.containerFilePathInput = page.getByPlaceholder('Containerfile to build');
-    this.buildContextDirectoryInput = page.getByPlaceholder('Folder to build in');
+    this.buildContextDirectoryInput = page.getByPlaceholder('Directory to build in');
     this.imageNameInput = page.getByPlaceholder('my-custom-image');
     this.buildButton = page.getByRole('button', { name: 'Build' });
     this.doneButton = page.getByRole('button', { name: 'Done' });
