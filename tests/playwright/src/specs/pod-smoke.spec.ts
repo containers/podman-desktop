@@ -23,9 +23,8 @@ import { expect as playExpect } from '@playwright/test';
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest';
 
 import { ContainerState, PodState } from '../model/core/states';
-import { ContainersPage } from '../model/pages/containers-page';
+import type { ContainerInteractiveParams } from '../model/core/types';
 import { PodsPage } from '../model/pages/pods-page';
-import type { ContainerInteractiveParams } from '../model/pages/run-image-page';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
@@ -119,8 +118,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       let runImage = await imageDetails.openRunImage();
       await pdRunner.screenshot('pods-run-backend-image.png');
       await runImage.setCustomPortMapping('6379:6379');
-      await runImage.startContainer(backendContainer, containerStartParams);
-      let containers = new ContainersPage(page);
+      let containers = await runImage.startContainer(backendContainer, containerStartParams);
       await playExpect(containers.header).toBeVisible();
       await waitUntil(async () => containers.containerExists(backendContainer), 10000, 1000);
       await pdRunner.screenshot('pods-backend-container-exists.png');
@@ -141,8 +139,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       }
       await pdRunner.screenshot('pods-run-frontend-image.png');
       await pdRunner.screenshot('pods-run-frontend-image.png');
-      await runImage.startContainer(frontendContainer, containerStartParams);
-      containers = new ContainersPage(page);
+      containers = await runImage.startContainer(frontendContainer, containerStartParams);
       await playExpect(containers.header).toBeVisible();
       await waitUntil(async () => containers.containerExists(frontendContainer), 10000, 1000);
       await pdRunner.screenshot('pods-frontend-container-exists.png');
@@ -355,8 +352,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
         const runImagePage = await imageDetailsPage.openRunImage();
         await playExpect(runImagePage.heading).toContainText(backendImage);
         await runImagePage.setCustomPortMapping(`${portsList[i]}:${portsList[i]}`);
-        await runImagePage.startContainer(containerNames[i], containerStartParams);
-        const containersPage = new ContainersPage(page);
+        const containersPage = await runImagePage.startContainer(containerNames[i], containerStartParams);
         await playExpect(containersPage.heading).toBeVisible();
         await playExpect
           .poll(async () => containersPage.containerExists(containerNames[i]), { timeout: 15000 })

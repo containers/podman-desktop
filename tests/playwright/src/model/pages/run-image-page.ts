@@ -16,15 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Locator, Page } from '@playwright/test';
+import { expect as playExpect, type Locator, type Page } from '@playwright/test';
 
 import { waitWhile } from '../../utility/wait';
+import type { ContainerInteractiveParams } from '../core/types';
 import { BasePage } from './base-page';
-
-export interface ContainerInteractiveParams {
-  interactive?: boolean;
-  attachTerminal?: boolean;
-}
+import { ContainerDetailsPage } from './container-details-page';
+import { ContainersPage } from './containers-page';
 
 export class RunImagePage extends BasePage {
   readonly name: Locator;
@@ -62,7 +60,17 @@ export class RunImagePage extends BasePage {
     await portMapping.fill(port);
   }
 
-  async startContainer(customName = '', optionalParams?: ContainerInteractiveParams): Promise<void> {
+  async startInteractiveContainer(customName = ''): Promise<ContainerDetailsPage> {
+    await this.startContainer(customName, { attachTerminal: true, interactive: true } as ContainerInteractiveParams);
+    const detailsPageLocator = this.page.getByLabel('name').and(this.page.getByText('Container Details'));
+    await playExpect(detailsPageLocator).toBeVisible(); // we are sure to get into details page
+    const heading = this.page.getByRole('heading');
+    const containerName = customName ? customName : await heading.innerText();
+    console.log(`Heading and container name: ${await heading.innerText()}`);
+    return new ContainerDetailsPage(this.page, containerName);
+  }
+
+  async startContainer(customName = '', optionalParams?: ContainerInteractiveParams): Promise<ContainersPage> {
     if (customName !== '') {
       await this.activateTab('Basic');
       // ToDo: improve UI side with aria-labels
@@ -75,6 +83,7 @@ export class RunImagePage extends BasePage {
       await this.activateTab('Advanced');
       const checkbox = this.page.getByRole('checkbox', { name: 'Attach a pseudo terminal' });
       optionalParams.attachTerminal ? await checkbox.check() : await checkbox.uncheck();
+      await playExpect(checkbox).toBeChecked({ checked: optionalParams.attachTerminal });
     }
 
     if (optionalParams?.interactive !== undefined) {
@@ -82,6 +91,7 @@ export class RunImagePage extends BasePage {
       await this.activateTab('Advanced');
       const checkbox = this.page.getByRole('checkbox', { name: 'Interactive: Keep STDIN' });
       optionalParams.interactive ? await checkbox.check() : await checkbox.uncheck();
+      await playExpect(checkbox).toBeChecked({ checked: optionalParams.interactive });
     }
 
     await this.activateTab('Basic');
@@ -113,6 +123,7 @@ export class RunImagePage extends BasePage {
       const message = runImagePageActive ? 'threw an ' : 'redirected to another page with an ';
       throw Error(`Starting the container ${message}error: ${await this.errorAlert.innerText({ timeout: 2000 })}`);
     }
+    return new ContainersPage(this.page);
   }
 
   async setCustomPortMapping(customPortMapping: string): Promise<void> {
