@@ -632,8 +632,8 @@ async function assertAllPortAreValid(): Promise<void> {
           <div class="flex flex-row px-2 border-b border-charcoal-400">
             <Tab
               title="Basic"
-              selected="{isTabSelected($router.path, 'summary')}"
-              url="{getTabUrl($router.path, 'summary')}" />
+              selected="{isTabSelected($router.path, 'basic')}"
+              url="{getTabUrl($router.path, 'basic')}" />
             <Tab
               title="Advanced"
               selected="{isTabSelected($router.path, 'advanced')}"
