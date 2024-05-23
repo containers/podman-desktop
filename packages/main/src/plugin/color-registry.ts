@@ -237,7 +237,7 @@ export class ColorRegistry {
     this.initDetails();
     this.initTab();
     this.initModal();
-    this.initLink();
+    this.initButton();
   }
 
   protected initGlobalNav(): void {
@@ -832,6 +832,92 @@ export class ColorRegistry {
       light: colorPalette.purple[700],
     });
     this.registerColor(`${link}-hover-bg`, {
+      dark: colorPalette.white + '2',
+      light: colorPalette.black + '2',
+    });
+  }
+
+  // button
+  protected initButton(): void {
+    const button = 'button-';
+
+    this.registerColor(`${button}primary-bg`, {
+      dark: colorPalette.purple[600],
+      light: colorPalette.purple[600],
+    });
+    this.registerColor(`${button}primary-hover-bg`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[500],
+    });
+    this.registerColor(`${button}secondary`, {
+      dark: colorPalette.gray[200],
+      light: colorPalette.purple[600],
+    });
+    this.registerColor(`${button}secondary-hover`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[500],
+    });
+    this.registerColor(`${button}text`, {
+      dark: colorPalette.white,
+      light: colorPalette.white,
+    });
+    this.registerColor(`${button}disabled`, {
+      dark: colorPalette.charcoal[50],
+      light: colorPalette.gray[900],
+    });
+    this.registerColor(`${button}disabled-text`, {
+      dark: colorPalette.charcoal[50],
+      light: colorPalette.gray[900],
+    });
+    this.registerColor(`${button}danger-border`, {
+      dark: colorPalette.red[500],
+      light: colorPalette.red[700],
+    });
+    this.registerColor(`${button}danger-bg`, {
+      dark: colorPalette.transparent,
+      light: colorPalette.transparent,
+    });
+    this.registerColor(`${button}danger-text`, {
+      dark: colorPalette.red[500],
+      light: colorPalette.red[700],
+    });
+    this.registerColor(`${button}danger-hover-text`, {
+      dark: colorPalette.white,
+      light: colorPalette.white,
+    });
+    this.registerColor(`${button}danger-hover-bg`, {
+      dark: colorPalette.red[600],
+      light: colorPalette.red[600],
+    });
+    this.registerColor(`${button}danger-border-disabled`, {
+      dark: colorPalette.charcoal[50],
+      light: colorPalette.gray[900],
+    });
+    this.registerColor(`${button}danger-bg-disabled`, {
+      dark: colorPalette.transparent,
+      light: colorPalette.transparent,
+    });
+    this.registerColor(`${button}tab-border`, {
+      dark: colorPalette.charcoal[700],
+      light: colorPalette.gray[400],
+    });
+    this.registerColor(`${button}tab-border-selected`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[600],
+    });
+    this.registerColor(`${button}tab-hover-border`, {
+      dark: colorPalette.charcoal[100],
+      light: colorPalette.black,
+    });
+    this.registerColor(`${button}tab-text`, {
+      dark: colorPalette.gray[600],
+      light: colorPalette.charcoal[200],
+    });
+    this.registerColor(`${button}link-text`, {
+      dark: colorPalette.purple[400],
+      light: colorPalette.purple[700],
+    });
+    this.registerColor(`${button}link-hover-bg`, {
       dark: colorPalette.white + '2',
       light: colorPalette.black + '2',
     });

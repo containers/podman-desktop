@@ -33,11 +33,12 @@ test('Check primary button styling', async () => {
   // check for a few elements of the styling
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
-  expect(button).toHaveClass('bg-purple-600');
+  expect(button).toHaveClass('bg-[var(--pd-button-primary-bg)]');
+  expect(button).toHaveClass('hover:bg-[var(--pd-button-primary-hover-bg)]');
   expect(button).toHaveClass('border-none');
   expect(button).toHaveClass('py-[5px]');
   expect(button).toHaveClass('text-[13px]');
-  expect(button).toHaveClass('text-white');
+  expect(button).toHaveClass('text-[var(--pd-button-text)]');
 });
 
 test('Check disabled/in-progress primary button styling', async () => {
@@ -46,7 +47,7 @@ test('Check disabled/in-progress primary button styling', async () => {
   // check for a few elements of the styling
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
-  expect(button).toHaveClass('bg-charcoal-50');
+  expect(button).toHaveClass('bg-[var(--pd-button-disabled)]');
   expect(button).toHaveClass('py-[5px]');
   expect(button).toHaveClass('text-[13px]');
 });
@@ -57,8 +58,8 @@ test('Check primary button is the default', async () => {
   // check for a few elements of the styling
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
-  expect(button).toHaveClass('bg-purple-600');
-  expect(button).toHaveClass('text-white');
+  expect(button).toHaveClass('bg-[var(--pd-button-primary-bg)]');
+  expect(button).toHaveClass('text-[var(--pd-button-text)]');
 });
 
 test('Check secondary button styling', async () => {
@@ -67,11 +68,11 @@ test('Check secondary button styling', async () => {
   // check for a few elements of the styling
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
-  expect(button).toHaveClass('border-gray-200');
+  expect(button).toHaveClass('border-[var(--pd-button-secondary)]');
   expect(button).toHaveClass('border-[1px]');
   expect(button).toHaveClass('py-[4px]');
   expect(button).toHaveClass('text-[13px]');
-  expect(button).toHaveClass('text-white');
+  expect(button).toHaveClass('text-[var(--pd-button-secondary)]');
 });
 
 test('Check danger button styling', async () => {
@@ -80,13 +81,14 @@ test('Check danger button styling', async () => {
   // check for a few elements of the styling
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
-  expect(button).toHaveClass('border-red-600');
+  expect(button).toHaveClass('border-[var(--pd-button-danger-border)]');
   expect(button).toHaveClass('border-2');
   expect(button).toHaveClass('px-4');
   expect(button).toHaveClass('py-[3px]');
-  expect(button).toHaveClass('bg-charcoal-700');
+  expect(button).toHaveClass('bg-[var(--pd-button-danger-bg)]');
+  expect(button).toHaveClass('hover:bg-[var(--pd-button-danger-hover-bg)]');
   expect(button).toHaveClass('text-[13px]');
-  expect(button).toHaveClass('text-white');
+  expect(button).toHaveClass('text-[var(--pd-button-danger-text)]');
 });
 
 test('Check disabled/in-progress secondary button styling', async () => {
@@ -95,11 +97,11 @@ test('Check disabled/in-progress secondary button styling', async () => {
   // check for a few elements of the styling
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
-  expect(button).toHaveClass('border-charcoal-50');
+  expect(button).toHaveClass('border-[var(--pd-button-disabled)]');
   expect(button).toHaveClass('border-[1px]');
   expect(button).toHaveClass('px-4');
   expect(button).toHaveClass('py-[4px]');
-  expect(button).toHaveClass('bg-charcoal-50');
+  expect(button).toHaveClass('bg-[var(--pd-button-disabled)]');
   expect(button).toHaveClass('text-[13px]');
 });
 
@@ -112,10 +114,9 @@ test('Check link button styling', async () => {
   expect(button).toHaveClass('border-none');
   expect(button).toHaveClass('px-4');
   expect(button).toHaveClass('py-[5px]');
-  expect(button).toHaveClass('hover:bg-white');
-  expect(button).toHaveClass('hover:bg-opacity-10');
+  expect(button).toHaveClass('hover:bg-[var(--pd-button-link-hover-bg)]');
   expect(button).toHaveClass('text-[13px]');
-  expect(button).toHaveClass('text-purple-400');
+  expect(button).toHaveClass('text-[var(--pd-button-link-text)]');
 });
 
 test('Check disabled/in-progress link button styling', async () => {
@@ -126,7 +127,7 @@ test('Check disabled/in-progress link button styling', async () => {
   expect(button).toBeInTheDocument();
   expect(button).toHaveClass('px-4');
   expect(button).toHaveClass('py-[5px]');
-  expect(button).toHaveClass('text-charcoal-50');
+  expect(button).toHaveClass('text-[var(--pd-button-disabled-text)]');
   expect(button).toHaveClass('text-[13px]');
 });
 
@@ -137,10 +138,9 @@ test('Check tab button styling', async () => {
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
   expect(button).toHaveClass('border-b-[3px]');
-  expect(button).toHaveClass('border-charcoal-700');
+  expect(button).toHaveClass('border-[var(--pd-button-tab-border)]');
   expect(button).toHaveClass('pb-1');
-  expect(button).toHaveClass('text-gray-600');
-  expect(button).toHaveClass('hover:cursor-pointer');
+  expect(button).toHaveClass('text-[var(--pd-button-tab-text)]');
   expect(button).not.toHaveClass('text-[13px]');
 });
 
@@ -150,8 +150,8 @@ test('Check selected tab button styling', async () => {
   // check for a few elements of the styling
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
-  expect(button).toHaveClass('text-white');
-  expect(button).toHaveClass('border-purple-500');
+  expect(button).toHaveClass('text-[var(--pd-button-text)]');
+  expect(button).toHaveClass('border-[var(--pd-button-tab-border-selected)]');
 });
 
 test('Check icon button with fas prefix is visible', async () => {
