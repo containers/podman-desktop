@@ -2,6 +2,7 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import {
   Button,
+  FilteredEmptyScreen,
   NavPage,
   Table,
   TableColumn,
@@ -17,7 +18,6 @@ import { kubernetesCurrentContextServicesFiltered, serviceSearchPattern } from '
 
 import ServiceIcon from '../images/ServiceIcon.svelte';
 import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
-import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import { ServiceUtils } from './service-utils';
 import ServiceColumnActions from './ServiceColumnActions.svelte';
 import ServiceColumnName from './ServiceColumnName.svelte';

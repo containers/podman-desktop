@@ -1,12 +1,11 @@
 <script lang="ts">
 import { faRightToBracket, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { ErrorMessage } from '@podman-desktop/ui-svelte';
+import { EmptyScreen, ErrorMessage } from '@podman-desktop/ui-svelte';
 
 import { kubernetesContextsState } from '/@/stores/kubernetes-contexts-state';
 
 import { kubernetesContexts } from '../../stores/kubernetes-contexts';
 import { clearKubeUIContextErrors, setKubeUIContextError } from '../kube/KubeContextUI';
-import EmptyScreen from '../ui/EmptyScreen.svelte';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import SettingsPage from './SettingsPage.svelte';

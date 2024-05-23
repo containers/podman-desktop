@@ -28,11 +28,11 @@ import EmptyScreen from './EmptyScreen.svelte';
 
 test('Expect copy in clipboard', async () => {
   const mock = vi.fn().mockImplementation(() => {});
-  (window as any).clipboardWriteText = mock;
-  render(EmptyScreen, { icon: '', commandline: 'podman run hello:world' });
+  const comp = render(EmptyScreen, { icon: '', commandline: 'podman run hello:world' });
+  comp.component.$on('click', mock);
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
   expect(button).toBeEnabled();
   await fireEvent.click(button);
-  expect(mock).toBeCalledWith('podman run hello:world');
+  expect(mock).toBeCalledWith(expect.objectContaining({ detail: 'podman run hello:world' }));
 });
