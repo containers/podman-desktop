@@ -1,6 +1,7 @@
 <script lang="ts">
 import 'xterm/css/xterm.css';
 
+import { EmptyScreen } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
@@ -9,7 +10,6 @@ import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings'
 import { getPanelDetailColor } from '../color/color';
 import { ansi256Colours, colourizedANSIContainerName } from '../editor/editor-utils';
 import { isMultiplexedLog } from '../stream/stream-utils';
-import EmptyScreen from '../ui/EmptyScreen.svelte';
 import NoLogIcon from '../ui/NoLogIcon.svelte';
 import type { ComposeInfoUI } from './ComposeInfoUI';
 

@@ -1,9 +1,12 @@
 <script lang="ts">
 import { faPaste } from '@fortawesome/free-solid-svg-icons';
-import { isFontAwesomeIcon } from '@podman-desktop/ui-svelte';
-import { onMount } from 'svelte';
+import { createEventDispatcher, onMount } from 'svelte';
 import Fa from 'svelte-fa';
 
+import Button from '../button/Button.svelte';
+import { isFontAwesomeIcon } from '../utils/icon-utils';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let icon: any;
 export let title = 'No title';
 export let message = 'Message';
@@ -14,6 +17,8 @@ export let hidden = false;
 let fontAwesomeIcon = false;
 let processed = false;
 
+const dispatch = createEventDispatcher<{ click: string }>();
+
 onMount(() => {
   if (isFontAwesomeIcon(icon)) {
     fontAwesomeIcon = true;
@@ -21,10 +26,10 @@ onMount(() => {
   processed = true;
 });
 
-function copyRunInstructionToClipboard() {
+function handleClick(): void {
   const text = copyTextDivElement?.textContent;
   if (text) {
-    window.clipboardWriteText(text);
+    dispatch('click', text);
   }
 }
 
@@ -60,8 +65,8 @@ let copyTextDivElement: HTMLDivElement;
           data-testid="copyTextDivElement">
           {commandline}
         </div>
-        <button title="Copy To Clipboard" class="ml-5" on:click="{() => copyRunInstructionToClipboard()}"
-          ><Fa class="h-5 w-5 cursor-pointer text-xl text-purple-500 hover:text-purple-600" icon="{faPaste}" /></button>
+        <Button title="Copy To Clipboard" class="ml-5" on:click="{handleClick}" type="link"
+          ><Fa class="h-5 w-5 cursor-pointer text-xl text-purple-500 hover:text-purple-600" icon="{faPaste}" /></Button>
       </div>
     {/if}
     {#if $$slots}

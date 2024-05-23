@@ -1,6 +1,7 @@
 <script lang="ts">
+import { EmptyScreen } from '@podman-desktop/ui-svelte';
+
 import IngressRouteIcon from '../images/IngressRouteIcon.svelte';
-import EmptyScreen from '../ui/EmptyScreen.svelte';
 </script>
 
 <EmptyScreen

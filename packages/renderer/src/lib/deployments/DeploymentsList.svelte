@@ -2,6 +2,7 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import {
   Button,
+  FilteredEmptyScreen,
   NavPage,
   Table,
   TableColumn,
@@ -20,7 +21,6 @@ import {
 
 import DeploymentIcon from '../images/DeploymentIcon.svelte';
 import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
-import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
 import { DeploymentUtils } from './deployment-utils';
 import DeploymentColumnActions from './DeploymentColumnActions.svelte';
 import DeploymentColumnConditions from './DeploymentColumnConditions.svelte';

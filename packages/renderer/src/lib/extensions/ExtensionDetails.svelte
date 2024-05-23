@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Button } from '@podman-desktop/ui-svelte';
+import { Button, EmptyScreen } from '@podman-desktop/ui-svelte';
 import { derived, type Readable } from 'svelte/store';
 
 import extensionIcon from '/@/lib/images/ExtensionIcon.svelte';
@@ -9,7 +9,6 @@ import { catalogExtensionInfos } from '/@/stores/catalog-extensions';
 
 import FeaturedExtensionDownload from '../featured/FeaturedExtensionDownload.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
-import EmptyScreen from '../ui/EmptyScreen.svelte';
 import ExtensionStatus from '../ui/ExtensionStatus.svelte';
 import type { ExtensionDetailsUI } from './extension-details-ui';
 import ExtensionBadge from './ExtensionBadge.svelte';

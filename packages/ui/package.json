@@ -83,6 +83,14 @@
     "./Link": {
       "types": "./dist/link/Link.d.ts",
       "svelte": "./dist/link/Link.svelte"
+    },
+    "./EmptyScreen": {
+      "types": "./dist/screen/EmptyScreen.d.ts",
+      "svelte": "./dist/screen/EmptyScreen.svelte"
+    },
+    "./FilteredEmptyScreen": {
+      "types": "./dist/screen/FilteredEmptyScreen.d.ts",
+      "svelte": "./dist/screen/FilteredEmptyScreen.svelte"
     }
   },
   "peerDependencies": {
