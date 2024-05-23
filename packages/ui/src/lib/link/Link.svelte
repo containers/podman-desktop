@@ -29,7 +29,7 @@ function click(): void {
 <!-- svelte-ignore a11y-no-redundant-roles -->
 <!-- svelte-ignore a11y-interactive-supports-focus -->
 <a
-  class="text-purple-400 hover:bg-white hover:bg-opacity-10 transition-all rounded-[4px] p-0.5 no-underline cursor-pointer {$$props.class ||
+  class="text-[var(--pd-link)] hover:bg-[var(--pd-link-hover-bg)] transition-all rounded-[4px] p-0.5 no-underline cursor-pointer {$$props.class ||
     ''}"
   on:click="{click}"
   role="link"
