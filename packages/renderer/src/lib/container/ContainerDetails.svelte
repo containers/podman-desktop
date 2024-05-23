@@ -11,6 +11,7 @@ import { containersInfos } from '../../stores/containers';
 import StatusIcon from '../images/StatusIcon.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import StateChange from '../ui/StateChange.svelte';
+import { getTabUrl, isTabSelected } from '../ui/Util';
 import { ContainerUtils } from './container-utils';
 import ContainerActions from './ContainerActions.svelte';
 import ContainerDetailsInspect from './ContainerDetailsInspect.svelte';
@@ -90,16 +91,25 @@ onMount(() => {
       <ContainerStatistics container="{container}" />
     </div>
     <svelte:fragment slot="tabs">
-      <Tab title="Summary" url="summary" />
-      <Tab title="Logs" url="logs" />
-      <Tab title="Inspect" url="inspect" />
+      <Tab
+        title="Summary"
+        selected="{isTabSelected($router.path, 'summary')}"
+        url="{getTabUrl($router.path, 'summary')}" />
+      <Tab title="Logs" selected="{isTabSelected($router.path, 'logs')}" url="{getTabUrl($router.path, 'logs')}" />
+      <Tab
+        title="Inspect"
+        selected="{isTabSelected($router.path, 'inspect')}"
+        url="{getTabUrl($router.path, 'inspect')}" />
 
       {#if container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE}
-        <Tab title="Kube" url="kube" />
+        <Tab title="Kube" selected="{isTabSelected($router.path, 'kube')}" url="{getTabUrl($router.path, 'kube')}" />
       {/if}
-      <Tab title="Terminal" url="terminal" />
+      <Tab
+        title="Terminal"
+        selected="{isTabSelected($router.path, 'terminal')}"
+        url="{getTabUrl($router.path, 'terminal')}" />
       {#if displayTty}
-        <Tab title="Tty" url="tty" />
+        <Tab title="Tty" selected="{isTabSelected($router.path, 'tty')}" url="{getTabUrl($router.path, 'tty')}" />
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="content">
