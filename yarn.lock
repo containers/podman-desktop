@@ -8169,10 +8169,10 @@ electron-util@^0.18.1:
     electron-is-dev "^3.0.1"
     new-github-issue-url "^1.0.0"
 
-electron@30.0.6:
-  version "30.0.6"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-30.0.6.tgz#9ddea5f68396ecca88ad7c2c466a30fc9c16144b"
-  integrity sha512-PkhEPFdpYcTzjAO3gMHZ+map7g2+xCrMDedo/L1i0ir2BRXvAB93IkTJX497U6Srb/09r2cFt+k20VPNVCdw3Q==
+electron@30.0.7:
+  version "30.0.7"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-30.0.7.tgz#305e1c2e79ca2cba34b9ced08f7efcd48487e09e"
+  integrity sha512-9ypQLaIvLj9W8o6fIiZpUabXJAW3a+K6vT78Vk9UJVImKVAoFIe1Umwd2FleyMqhnFBPF58Iawu/pSV0s+wRnA==
   dependencies:
     "@electron/get" "^2.0.0"
     "@types/node" "^20.9.0"
