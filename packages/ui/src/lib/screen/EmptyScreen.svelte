@@ -27,7 +27,8 @@ onMount(() => {
 function copyRunInstructionToClipboard(): void {
   const text = copyTextDivElement?.textContent;
   if (text) {
-    window.clipboardWriteText(text);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).clipboardWriteText(text);
   }
 }
 
