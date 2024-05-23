@@ -18,6 +18,7 @@
 
 import type { Locator, Page } from '@playwright/test';
 
+import { waitWhile } from '../../utility/wait';
 import { BasePage } from './base-page';
 
 export interface ContainerInteractiveParams {
@@ -93,14 +94,24 @@ export class RunImagePage extends BasePage {
       throw Error(`Start Button not enabled: ${errMessage}`);
     }
     await this.startContainerButton.click();
-    // After clicking on the button there seems to be for possible outcomes
+    // After clicking on the button there seems to be four possible outcomes
     // 1. Opening particular container's details page with tty tab opened
     // 2. Opening Containers page with new container on it
     // 3. staying on the run image page with an error
-    // 4. Starting a container without entrpoint or command creates a container, but it stays on Run Image Page without error
-    if ((await this.errorAlert.count()) > 0 && (await this.name.isVisible())) {
-      // button is still on the screen, we did not move out of Run Image page
-      throw Error(`Starting the container threw an error: ${await this.errorAlert.innerText({ timeout: 2000 })}`);
+    // 4. Starting a container without entrypoint or command creates a container, but it stays on Run Image Page without error
+    await waitWhile(
+      async () => {
+        return await this.name.isVisible();
+      },
+      3000,
+      900,
+      false,
+    );
+    const errorCount = await this.errorAlert.count();
+    if (errorCount > 0) {
+      const runImagePageActive = await this.name.isVisible();
+      const message = runImagePageActive ? 'threw an ' : 'redirected to another page with an ';
+      throw Error(`Starting the container ${message}error: ${await this.errorAlert.innerText({ timeout: 2000 })}`);
     }
   }
 
