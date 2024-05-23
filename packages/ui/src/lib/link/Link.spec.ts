@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023,2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,9 +32,8 @@ test('Check link styling', async () => {
   // check for one element of the styling
   const link = screen.getByRole('link');
   expect(link).toBeInTheDocument();
-  expect(link).toHaveClass('text-purple-400');
-  expect(link).toHaveClass('hover:bg-white');
-  expect(link).toHaveClass('hover:bg-opacity-10');
+  expect(link).toHaveClass('text-[var(--pd-link)]');
+  expect(link).toHaveClass('hover:bg-[var(--pd-link-hover-bg)]');
   expect(link).toHaveClass('cursor-pointer');
 });
 
