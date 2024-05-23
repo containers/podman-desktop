@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faPaste } from '@fortawesome/free-solid-svg-icons';
-import { onMount } from 'svelte';
+import { createEventDispatcher, onMount } from 'svelte';
 import Fa from 'svelte-fa';
 
 import Button from '../button/Button.svelte';
@@ -17,6 +17,8 @@ export let hidden = false;
 let fontAwesomeIcon = false;
 let processed = false;
 
+const dispatch = createEventDispatcher<{ click: undefined }>();
+
 onMount(() => {
   if (isFontAwesomeIcon(icon)) {
     fontAwesomeIcon = true;
@@ -27,8 +29,7 @@ onMount(() => {
 function copyRunInstructionToClipboard(): void {
   const text = copyTextDivElement?.textContent;
   if (text) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).clipboardWriteText(text);
+    dispatch('click');
   }
 }
 
