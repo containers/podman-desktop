@@ -363,15 +363,15 @@ test('Expect build to include build arguments', async () => {
   setup();
   render(BuildImageFromContainerfile);
 
-  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile Path' });
+  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile path' });
   expect(containerFilePath).toBeInTheDocument();
   await userEvent.type(containerFilePath, '/somepath/containerfile');
 
-  const buildFolder = screen.getByRole('textbox', { name: 'Build Context Directory' });
+  const buildFolder = screen.getByRole('textbox', { name: 'Build context directory' });
   expect(buildFolder).toBeInTheDocument();
   await userEvent.type(buildFolder, '/somepath');
 
-  const containerImageName = screen.getByRole('textbox', { name: 'Image Name' });
+  const containerImageName = screen.getByRole('textbox', { name: 'Image name' });
   expect(containerImageName).toBeInTheDocument();
   await userEvent.type(containerImageName, 'foobar');
 
