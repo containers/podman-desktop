@@ -1094,6 +1094,7 @@ export class PluginSystem {
         selectedProvider: ProviderContainerConnectionInfo,
         onDataCallbacksBuildImageId: number,
         cancellableTokenId?: number,
+        buildargs?: { [key: string]: string },
       ): Promise<unknown> => {
         const abortController = this.createAbortControllerOnCancellationToken(
           cancellationTokenRegistry,
@@ -1115,6 +1116,7 @@ export class PluginSystem {
             platform,
             provider: selectedProvider,
             abortController,
+            buildargs,
           },
         );
       },
