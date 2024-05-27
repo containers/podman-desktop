@@ -8,7 +8,7 @@ import {
   faStop,
   faTrash,
 } from '@fortawesome/free-solid-svg-icons';
-import { Dropdown } from '@podman-desktop/ui-svelte';
+import { DropdownMenu } from '@podman-desktop/ui-svelte';
 import { createEventDispatcher, onMount } from 'svelte';
 import { router } from 'tinro';
 
@@ -149,9 +149,9 @@ function deployToKubernetes(): void {
 }
 // If dropdownMenu = true, we'll change style to the imported dropdownMenu style
 // otherwise, leave blank.
-let actionsStyle: typeof Dropdown | typeof FlatMenu;
+let actionsStyle: typeof DropdownMenu | typeof FlatMenu;
 if (dropdownMenu) {
-  actionsStyle = Dropdown;
+  actionsStyle = DropdownMenu;
 } else {
   actionsStyle = FlatMenu;
 }
@@ -217,7 +217,7 @@ if (dropdownMenu) {
         detailed="{detailed}"
         icon="{faExternalLinkSquareAlt}" />
     {:else if openingUrls.length > 1}
-      <Dropdown icon="{faExternalLinkSquareAlt}" hidden="{dropdownMenu}" shownAsMenuActionItem="{true}">
+      <DropdownMenu icon="{faExternalLinkSquareAlt}" hidden="{dropdownMenu}" shownAsMenuActionItem="{true}">
         {#each openingUrls as url}
           <ListItemButtonIcon
             title="Open {extractPort(url)}"
@@ -228,7 +228,7 @@ if (dropdownMenu) {
             detailed="{detailed}"
             icon="{faExternalLinkSquareAlt}" />
         {/each}
-      </Dropdown>
+      </DropdownMenu>
     {/if}
     <ListItemButtonIcon
       title="Restart Pod"
@@ -256,7 +256,7 @@ if (dropdownMenu) {
         detailed="{detailed}"
         icon="{faExternalLinkSquareAlt}" />
     {:else if openingKubernetesUrls.size > 1}
-      <Dropdown
+      <DropdownMenu
         title="Open Kubernetes Routes"
         icon="{faExternalLinkSquareAlt}"
         hidden="{dropdownMenu}"
@@ -271,7 +271,7 @@ if (dropdownMenu) {
             detailed="{detailed}"
             icon="{faExternalLinkSquareAlt}" />
         {/each}
-      </Dropdown>
+      </DropdownMenu>
     {/if}
   {/if}
   <ContributionActions

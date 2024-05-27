@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Dropdown } from '@podman-desktop/ui-svelte';
+import { DropdownMenu } from '@podman-desktop/ui-svelte';
 
 import FlatMenu from '../ui/FlatMenu.svelte';
 
@@ -9,7 +9,8 @@ export let onBeforeToggle = () => {};
 </script>
 
 {#if dropdownMenu}
-  <Dropdown shownAsMenuActionItem="{dropdownMenuAsMenuActionItem}" onBeforeToggle="{onBeforeToggle}"><slot /></Dropdown>
+  <DropdownMenu shownAsMenuActionItem="{dropdownMenuAsMenuActionItem}" onBeforeToggle="{onBeforeToggle}"
+    ><slot /></DropdownMenu>
 {:else}
   <FlatMenu><slot /></FlatMenu>
 {/if}

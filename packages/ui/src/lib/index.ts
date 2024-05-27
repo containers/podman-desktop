@@ -19,7 +19,7 @@ import ErrorMessage from './alert/ErrorMessage.svelte';
 import type { ButtonType } from './button/Button';
 import Button from './button/Button.svelte';
 import Checkbox from './checkbox/Checkbox.svelte';
-import Dropdown from './dropdown';
+import DropdownMenu from './dropdownMenu';
 import Input from './inputs/Input.svelte';
 import SearchInput from './inputs/SearchInput.svelte';
 import NavPage from './layouts/NavPage.svelte';
@@ -41,8 +41,8 @@ export type { ButtonType };
 export {
   Button,
   Checkbox,
+  DropdownMenu,
   EmptyScreen,
-  Dropdown,
   ErrorMessage,
   FilteredEmptyScreen,
   Input,

@@ -1,7 +1,7 @@
 <script lang="ts">
 import { faPlusCircle, faTrash, faUser, faUserPen } from '@fortawesome/free-solid-svg-icons';
 import type * as containerDesktopAPI from '@podman-desktop/api';
-import { Button, Dropdown, Input } from '@podman-desktop/ui-svelte';
+import { Button, DropdownMenu, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
 import PasswordInput from '/@/lib/ui/PasswordInput.svelte';
@@ -347,22 +347,22 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
 
                 <!-- Show/hide password end -->
                 <!-- containerDesktopAPI.Registry menu start -->
-                <Dropdown>
-                  <Dropdown.MenuItem
+                <DropdownMenu>
+                  <DropdownMenu.Item
                     title="Login"
                     onClick="{() => markRegistryAsModified(registry)}"
                     hidden="{!!registry.username && !!registry.secret}"
                     icon="{faUser}" />
-                  <Dropdown.MenuItem
+                  <DropdownMenu.Item
                     title="Edit password"
                     onClick="{() => markRegistryAsModified(registry)}"
                     hidden="{!registry.username && !registry.secret}"
                     icon="{faUserPen}" />
-                  <Dropdown.MenuItem
+                  <DropdownMenu.Item
                     title="Remove"
                     onClick="{() => removeExistingRegistry(registry)}"
                     icon="{faTrash}" />
-                </Dropdown>
+                </DropdownMenu>
               </div>
             {/if}
           </div>
