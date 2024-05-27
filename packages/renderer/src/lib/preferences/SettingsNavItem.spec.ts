@@ -20,6 +20,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
+import { faBookOpen } from '@fortawesome/free-solid-svg-icons';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
@@ -102,4 +103,15 @@ test('Expect sections expand', async () => {
   // since it is animated, we'll test that the down angle has appeared (and
   // not wait for right angle to disappear)
   expect(element.firstChild?.childNodes[2]).toContainHTML('fa-angle-down');
+});
+
+test('icon should be visible', () => {
+  render(SettingsNavItem, {
+    title: 'DummyTitle',
+    href: '/dummy/path',
+    selected: false,
+    icon: faBookOpen,
+  });
+  const svg = screen.getByRole('img', { hidden: true });
+  expect(svg).toBeInTheDocument();
 });
