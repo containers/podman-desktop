@@ -360,7 +360,7 @@ If you're unsure where to add code (renderer, UI, extensions, plugins) see the b
 
 Podman Desktop is modularized into extensions for each 'Provider'. You can also create and add your own extension.
 
-See our [EXTENSIONS.md](/EXTENSIONS.md) document for more details.
+See our [extensions documentation](https://podman-desktop.io/docs/extensions) on our website for more information.
 
 ## Maintainer tasks
 
