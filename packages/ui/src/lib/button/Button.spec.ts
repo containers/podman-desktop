@@ -169,3 +169,19 @@ test('Check icon button with fab prefix is visible', async () => {
   const img = screen.getByRole('img', { hidden: true });
   expect(img).toBeInTheDocument();
 });
+
+test('Button inProgress must have a spinner', async () => {
+  // render the component
+  render(Button, { inProgress: true });
+
+  const svg = screen.getByRole('img');
+  expect(svg).toBeDefined();
+});
+
+test('Button no progress no icon do not have spinner', async () => {
+  // render the component
+  render(Button, { inProgress: false });
+
+  const svg = screen.queryByRole('img');
+  expect(svg).toBeNull();
+});
