@@ -120,12 +120,12 @@ export default function Home(): JSX.Element {
             </div>
           </div>
           {/* Recipes sections */}
-          <div className="space-y-3 lg:w-2/3 mb-6 w-full items-center justify-center flex flex-col">
+          <div className="space-y-6 lg:w-2/3 mb-6 w-full items-center justify-center flex flex-col">
             <h2 className="sm:text-2xl text-3xl lg:text-4xl font-bold text-charcoal-500 dark:text-white text-center">
               Experiment with free{' '}
               <GradientText gradientAngle={90} colorFrom="#7D2D79" colorTo="#6d48bf" content="Open Source" /> recipes
             </h2>
-            <div className="w-full my-6 grid grid-cols-2 gap-2 lg:grid-cols-2">
+            <div className="w-full grid grid-cols-2 gap-2 lg:grid-cols-2">
               {RECIPES.map(recipe => (
                 <div
                   className="px-8 py-4 rounded-xl from-purple-500 from-70% bg-gradient-to-t to-white flex flex-col grow items-center text-black text-center"
