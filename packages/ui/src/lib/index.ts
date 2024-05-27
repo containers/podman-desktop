@@ -15,6 +15,8 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+import SettingsNavItem from '/@/lib/settingsNavItem/SettingsNavItem.svelte';
+
 import ErrorMessage from './alert/ErrorMessage.svelte';
 import type { ButtonType } from './button/Button';
 import Button from './button/Button.svelte';
@@ -49,6 +51,7 @@ export {
   Modal,
   NavPage,
   SearchInput,
+  SettingsNavItem,
   Spinner,
   Tab,
   Table,
