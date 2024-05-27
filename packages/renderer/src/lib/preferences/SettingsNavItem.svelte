@@ -1,10 +1,14 @@
 <script lang="ts">
+import type { IconDefinition } from '@fortawesome/free-regular-svg-icons';
+import Fa from 'svelte-fa';
+
 export let title: string;
 export let href: string;
 export let section = false;
 export let expanded = false;
 export let child = false;
 export let selected: boolean = false;
+export let icon: IconDefinition | undefined = undefined;
 
 function rotate(node: unknown, { clockwise = true }) {
   return {
@@ -37,7 +41,12 @@ function rotate(node: unknown, { clockwise = true }) {
     class:hover:[color:var(--pd-secondary-nav-text-hover)]="{!selected}"
     class:hover:bg-[var(--pd-secondary-nav-text-hover-bg)]="{!selected}"
     class:hover:border-[var(--pd-secondary-nav-text-hover-bg)]="{!selected}">
-    <span class="block group-hover:block" class:capitalize="{!child}">{title}</span>
+    <span class="group-hover:block flex flex-row items-center" class:capitalize="{!child}">
+      {#if icon}
+        <Fa class="mr-4" icon="{icon}" />
+      {/if}
+      {title}
+    </span>
     {#if section}
       <div class="px-2 relative w-4 h-4 [color:var(--pd-secondary-nav-expander)]">
         {#if expanded}
