@@ -166,10 +166,10 @@
     "@jridgewell/gen-mapping" "^0.3.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
-"@argos-ci/browser@2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@argos-ci/browser/-/browser-2.1.0.tgz#a627c2bfade082b3400356d3b2180d8c79e3d5c3"
-  integrity sha512-pOWyyp39g1Jhags7Z7Qb+rgNjUtvMxh21lgF1Ts9epobE2ZQLkRxlUheSDlC6VbvauhO+8WS3mo3Q8dgEn7UtA==
+"@argos-ci/browser@2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@argos-ci/browser/-/browser-2.1.1.tgz#13e5c48770b2a3702ddde4021850b64a8edcb3aa"
+  integrity sha512-cG7NlM4NFqyCKeDujAwAiao5+fjt0ZI9dN0WMXBMNEoKeGCYMapjaEQpEUzH8XTfI79DYuHl1zsuCyvH2/UYKA==
 
 "@argos-ci/cli@^2.1.0":
   version "2.1.0"
@@ -194,12 +194,12 @@
     sharp "^0.33.3"
     tmp "^0.2.3"
 
-"@argos-ci/playwright@^3.0.2":
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-3.0.2.tgz#8b8c2d946dbed84dbdbf45fa59cb1be102b78b95"
-  integrity sha512-fvrocGEVC6S3IatprSBmikzDKJcHH4i7ekHSG9xU5fXQHaIFoQJDti/sCCJ7QbKY2w30Ry9yaEALnsPVprD80w==
+"@argos-ci/playwright@^3.0.3":
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-3.0.3.tgz#0e9879a09d9005f4a840ad2e4fd6d7e81f4e7654"
+  integrity sha512-InHCRA4yf6Q03iCFs26b2ypn1mWSMVwBSOwZPMMsGLrwEL0XqssPJT6Q/23DQUjIxoXMz0gaoisYFpD1DfFlZg==
   dependencies:
-    "@argos-ci/browser" "2.1.0"
+    "@argos-ci/browser" "2.1.1"
     "@argos-ci/core" "2.2.0"
     "@argos-ci/util" "2.0.0"
     chalk "^5.3.0"
