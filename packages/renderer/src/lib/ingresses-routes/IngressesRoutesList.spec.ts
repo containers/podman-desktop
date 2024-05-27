@@ -147,3 +147,10 @@ test('Expect status column name to be clickable / sortable', async () => {
   // Expect it to have the 'cursor-pointer' class which means it's clickable / sortable
   expect(statusColumn).toHaveClass('cursor-pointer');
 });
+
+test('Expect there to be an age column', async () => {
+  await waitRender({});
+
+  const ageColumn = screen.getByRole('columnheader', { name: 'Age' });
+  expect(ageColumn).toBeInTheDocument();
+});

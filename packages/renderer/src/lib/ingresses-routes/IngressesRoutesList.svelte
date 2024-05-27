@@ -6,9 +6,11 @@ import {
   NavPage,
   Table,
   TableColumn,
+  TableDurationColumn,
   TableRow,
   TableSimpleColumn,
 } from '@podman-desktop/ui-svelte';
+import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 
@@ -123,6 +125,12 @@ let pathColumn = new TableColumn<IngressUI | RouteUI, string>('Host/Path', {
   comparator: (a, b) => compareHostPath(a, b),
 });
 
+let ageColumn = new TableColumn<IngressUI | RouteUI, Date | undefined>('Age', {
+  renderMapping: ingressRoute => ingressRoute.created,
+  renderer: TableDurationColumn,
+  comparator: (a, b) => moment(b.created).diff(moment(a.created)),
+});
+
 function compareHostPath(object1: IngressUI | RouteUI, object2: IngressUI | RouteUI): number {
   const hostPathObject1 = ingressRouteUtils.getHostPaths(object1)[0] ?? '';
   const hostPathObject2 = ingressRouteUtils.getHostPaths(object2)[0] ?? '';
@@ -140,12 +148,13 @@ function compareBackend(object1: IngressUI | RouteUI, object2: IngressUI | Route
   return backendObject1.localeCompare(backendObject2);
 }
 
-const columns: TableColumn<IngressUI | RouteUI, IngressUI | RouteUI | string>[] = [
+const columns: TableColumn<IngressUI | RouteUI, IngressUI | RouteUI | string | Date | undefined>[] = [
   statusColumn,
   nameColumn,
   namespaceColumn,
   pathColumn,
   backendColumn,
+  ageColumn,
   new TableColumn<IngressUI | RouteUI>('Actions', { align: 'right', renderer: IngressRouteColumnActions }),
 ];
 

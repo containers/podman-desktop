@@ -348,3 +348,36 @@ test('expect no tls on route', async () => {
   const routeUI = ingressRouteUtils.getRouteUI(route);
   expect(routeUI.tlsEnabled).toBeFalsy();
 });
+
+test('expect created date on ingress', async () => {
+  const ingress = {
+    metadata: {
+      name: 'my-ingress',
+      namespace: 'test-namespace',
+      creationTimestamp: new Date(),
+    },
+    spec: {
+      rules: [
+        {
+          host: 'foo.bar.com',
+          http: {
+            paths: [
+              {
+                path: '/foo',
+                pathType: 'Prefix',
+                backend: {
+                  resource: {
+                    name: 'bucket',
+                    kind: 'StorageBucket',
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    },
+  } as V1Ingress;
+  const ingressUI = ingressRouteUtils.getIngressUI(ingress);
+  expect(ingressUI.created).toBeDefined();
+});

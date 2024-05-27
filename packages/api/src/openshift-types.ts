@@ -24,6 +24,7 @@ export type V1Route = {
     namespace: string;
     annotations?: { [key: string]: string };
     labels?: { [key: string]: string };
+    creationTimestamp?: Date;
   };
   spec: {
     host: string;
