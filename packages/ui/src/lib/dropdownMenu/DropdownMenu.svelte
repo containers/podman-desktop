@@ -5,7 +5,7 @@ import Fa from 'svelte-fa';
 
 import DropDownMenuItems from './DropDownMenuItems.svelte';
 
-export let onBeforeToggle = () => {};
+export let onBeforeToggle = (): void => {};
 export let icon: IconDefinition = faEllipsisVertical;
 export let shownAsMenuActionItem = false;
 export let hidden = false;
@@ -18,7 +18,7 @@ let showMenu = false;
 let outsideWindow: HTMLButtonElement;
 
 // If we hit ESC while the menu is open, close it
-function handleEscape({ key }: any) {
+function handleEscape({ key }: KeyboardEvent): void {
   if (key === 'Escape') {
     showMenu = false;
   }
@@ -26,14 +26,21 @@ function handleEscape({ key }: any) {
 
 let clientY: number;
 
-function toggleMenu() {
+function toggleMenu(): void {
   onBeforeToggle();
   showMenu = !showMenu;
 }
 
 // If we click outside the menu, close the menu
-function onWindowClick(e: any) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function onWindowClick(e: any): void {
   if (!hidden) showMenu = outsideWindow.contains(e.target);
+}
+
+function onButtonClick(e: MouseEvent): void {
+  // keep track of the cursor position
+  clientY = e.clientY;
+  toggleMenu();
 }
 </script>
 
@@ -46,11 +53,7 @@ function onWindowClick(e: any) {
     <!-- Button for the dropdown menu -->
     <button
       aria-label="{title.length > 0 ? title : 'kebab menu'}"
-      on:click="{e => {
-        // keep track of the cursor position
-        clientY = e.clientY;
-        toggleMenu();
-      }}"
+      on:click="{onButtonClick}"
       title="{title}"
       bind:this="{outsideWindow}"
       class="text-gray-400 {shownAsMenuActionItem
