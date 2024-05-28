@@ -337,7 +337,10 @@ export async function updateMachines(provider: extensionApi.Provider): Promise<v
 
     // Finally, we check to see if the machine that is running is set by default or not on the CLI
     // this will create a dialog that will ask the user if they wish to set the running machine as default.
-    await checkDefaultMachine(machines);
+    // this should only run if we at least one machine
+    if (machines.length > 0) {
+      await checkDefaultMachine(machines);
+    }
   }
 }
 
