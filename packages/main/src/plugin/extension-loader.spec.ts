@@ -1936,3 +1936,65 @@ describe('extensionContext', async () => {
     expect(deleteMock).toBeCalledWith('key');
   });
 });
+
+test('load extensions sequentially', async () => {
+  // Check if missing dependencies are found
+  const extensionId1 = 'foo.extension1';
+  const extensionId2 = 'foo.extension2';
+  const extensionId3 = 'foo.extension3';
+  const unknownExtensionId = 'foo.unknown';
+
+  // extension1 has no dependencies
+  const analyzedExtension1: AnalyzedExtension = {
+    id: extensionId1,
+    manifest: {
+      name: 'hello',
+    },
+  } as AnalyzedExtension;
+
+  // extension2 depends on extension 1
+  const analyzedExtension2: AnalyzedExtension = {
+    id: extensionId2,
+    manifest: {
+      extensionDependencies: [extensionId1],
+      name: 'hello',
+    },
+  } as AnalyzedExtension;
+
+  // extension3 depends on unknown extension unknown
+  const analyzedExtension3: AnalyzedExtension = {
+    id: extensionId3,
+    manifest: {
+      extensionDependencies: [unknownExtensionId],
+      name: 'hello',
+    },
+  } as AnalyzedExtension;
+
+  // mock loadExtension
+  const loadExtensionMock = vi.spyOn(extensionLoader, 'loadExtension');
+  loadExtensionMock.mockImplementation(extension => {
+    if (extension.id === extensionId1) {
+      // extension 1 takes 1s to load
+      return new Promise(resolve => setTimeout(resolve, 1000));
+    } else if (extension.id === extensionId2) {
+      return new Promise(resolve => setTimeout(resolve, 100));
+    } else if (extension.id === extensionId3) {
+      return new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    return Promise.resolve();
+  });
+
+  const start = performance.now();
+  await extensionLoader.loadExtensions([analyzedExtension1, analyzedExtension2, analyzedExtension3]);
+  const end = performance.now();
+
+  const delta = end - start;
+  // delta should be greater than 2s as it's sequential (so 1s + 1s + 100ms) > 2s
+  expect(delta).toBeGreaterThan(2000);
+
+  // check if loadExtension is called in order
+  expect(loadExtensionMock).toBeCalledTimes(3);
+  expect(loadExtensionMock.mock.calls[0][0]).toBe(analyzedExtension1);
+  expect(loadExtensionMock.mock.calls[1][0]).toBe(analyzedExtension2);
+  expect(loadExtensionMock.mock.calls[2][0]).toBe(analyzedExtension3);
+});

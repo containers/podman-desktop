@@ -471,7 +471,10 @@ export class ExtensionLoader {
     const sortedExtensions = this.sortExtensionsByDependencies(analyzedExtensions);
 
     // now, load all extensions
-    await Promise.all(sortedExtensions.map(extension => this.loadExtension(extension)));
+
+    for (const extension of sortedExtensions) {
+      await this.loadExtension(extension);
+    }
   }
 
   // do we have circular dependencies?
