@@ -107,7 +107,6 @@ let statusColumn = new TableColumn<IngressUI>('Status', {
 });
 
 let nameColumn = new TableColumn<IngressUI | RouteUI>('Name', {
-  width: '2fr',
   renderer: IngressRouteColumnName,
   comparator: (a, b) => a.name.localeCompare(b.name),
 });
