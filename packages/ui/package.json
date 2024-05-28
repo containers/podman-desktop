@@ -64,6 +64,10 @@
       "types": "./dist/icons/ContainerIcon.d.ts",
       "svelte": "./dist/icons/ContainerIcon.svelte"
     },
+    "./icons/StarIcon": {
+      "types": "./dist/icons/StarIcon.d.ts",
+      "svelte": "./dist/icons/StarIcon.svelte"
+    },
     "./Tab": {
       "types": "./dist/tab/Tab.svelte.d.ts",
       "svelte": "./dist/tab/Tab.svelte"

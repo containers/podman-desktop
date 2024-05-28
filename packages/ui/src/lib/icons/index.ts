@@ -17,5 +17,6 @@
  ***********************************************************************/
 
 import ContainerIcon from './ContainerIcon.svelte';
+import StarIcon from './StarIcon.svelte';
 
-export { ContainerIcon };
+export { ContainerIcon, StarIcon };
