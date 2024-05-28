@@ -6,4 +6,4 @@ tags: [podman-desktop, extension, api]
 keywords: [podman desktop, extension, api]
 ---
 
-The API reference is located [here](https://podman-desktop.io/api).
+The API reference is located [here](/api).
