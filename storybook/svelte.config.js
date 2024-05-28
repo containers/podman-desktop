@@ -16,7 +16,18 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import ContainerIcon from './ContainerIcon.svelte';
-import StarIcon from './StarIcon.svelte';
+import sveltePreprocess from 'svelte-preprocess';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 
-export { ContainerIcon, StarIcon };
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+export default {
+  // Consult https://github.com/sveltejs/svelte-preprocess
+  // for more information about preprocessors
+  preprocess: sveltePreprocess({
+    postcss: {
+      configFilePath: join(__dirname, 'postcss.config.cjs'),
+    },
+  }),
+};

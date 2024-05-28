@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,49 +16,57 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { chrome } from '../../.electron-vendors.cache.json';
+/* eslint-env node */
 import { join } from 'path';
-import { builtinModules } from 'module';
-import { coverageConfig } from '../../vitest-shared-extensions.config';
+import * as path from 'path';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
+import { defineConfig } from 'vite';
+import { fileURLToPath } from 'url';
+import { coverageConfig } from '../vitest-shared-extensions.config';
 
-const PACKAGE_ROOT = __dirname;
-const PACKAGE_NAME = 'api';
+let filename = fileURLToPath(import.meta.url);
+const PACKAGE_ROOT = path.dirname(filename);
+const PACKAGE_NAME = 'storybook';
 
-/**
- * @type {import('vite').UserConfig}
- * @see https://vitejs.dev/config/
- */
-const config = {
+// https://vitejs.dev/config/
+export default defineConfig({
   mode: process.env.MODE,
   root: PACKAGE_ROOT,
-  envDir: process.cwd(),
   resolve: {
     alias: {
       '/@/': join(PACKAGE_ROOT, 'src') + '/',
     },
   },
+  plugins: [svelte({ hot: !process.env.VITEST })],
+  test: {
+    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    globals: true,
+    environment: 'jsdom',
+    alias: [
+      // https://github.com/vitest-dev/vitest/issues/2834
+      { find: /^svelte$/, replacement: 'svelte/internal' },
+    ],
+    deps: {
+      inline: ['moment'],
+    },
+    ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
+  },
+  base: '',
+  server: {
+    fs: {
+      strict: true,
+    },
+  },
   build: {
-    sourcemap: 'inline',
-    target: `chrome${chrome}`,
+    sourcemap: true,
     outDir: 'dist',
     assetsDir: '.',
-    minify: process.env.MODE !== 'development',
     lib: {
-      entry: 'src/index.ts',
-      formats: ['cjs'],
+      entry: 'src/lib/index.ts',
+      formats: ['es'],
     },
-    rollupOptions: {
-      external: ['electron', ...builtinModules.flatMap(p => [p, `node:${p}`])],
-      output: {
-        entryFileNames: '[name].cjs',
-      },
-    },
+
     emptyOutDir: true,
     reportCompressedSize: false,
   },
-  test: {
-    ...coverageConfig(PACKAGE_ROOT, PACKAGE_NAME),
-  },
-};
-
-export default config;
+});
