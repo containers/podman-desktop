@@ -24,4 +24,5 @@ export interface IngressUI {
   status: string;
   rules?: Array<V1IngressRule>;
   selected: boolean;
+  created?: Date;
 }
