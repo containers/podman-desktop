@@ -15,8 +15,9 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+import DropdownMenu from './DropdownMenu.svelte';
+import DropDownMenuItem from './DropDownMenuItem.svelte';
 
-import ContainerIcon from './ContainerIcon.svelte';
-import StarIcon from './StarIcon.svelte';
-
-export { ContainerIcon, StarIcon };
+export default Object.assign(DropdownMenu, {
+  Item: DropDownMenuItem,
+});

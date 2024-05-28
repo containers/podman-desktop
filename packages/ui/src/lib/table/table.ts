@@ -98,7 +98,7 @@ export class Column<Type, RenderType = Type> {
  */
 export interface RowInformation<Type> {
   /**
-   * Returns true if a row can be selested, and false otherwise.
+   * Returns true if a row can be selected, and false otherwise.
    */
   readonly selectable?: (object: Type) => boolean;
 
@@ -106,6 +106,11 @@ export interface RowInformation<Type> {
    * Tooltip text to show when row selection is disabled.
    */
   readonly disabledText?: string;
+
+  /**
+   * Returns an array of child objects of a given row.
+   */
+  readonly children?: (object: Type) => Type[];
 }
 
 /**

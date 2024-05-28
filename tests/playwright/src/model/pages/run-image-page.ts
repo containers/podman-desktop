@@ -16,9 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Locator, Page } from '@playwright/test';
+import { expect as playExpect, type Locator, type Page } from '@playwright/test';
 
+import { waitWhile } from '../../utility/wait';
+import type { ContainerInteractiveParams } from '../core/types';
 import { BasePage } from './base-page';
+import { ContainerDetailsPage } from './container-details-page';
 import { ContainersPage } from './containers-page';
 
 export class RunImagePage extends BasePage {
@@ -57,7 +60,17 @@ export class RunImagePage extends BasePage {
     await portMapping.fill(port);
   }
 
-  async startContainer(customName = '', interactive?: boolean): Promise<ContainersPage> {
+  async startInteractiveContainer(customName = ''): Promise<ContainerDetailsPage> {
+    await this.startContainer(customName, { attachTerminal: true, interactive: true } as ContainerInteractiveParams);
+    const detailsPageLocator = this.page.getByLabel('name').and(this.page.getByText('Container Details'));
+    await playExpect(detailsPageLocator).toBeVisible(); // we are sure to get into details page
+    const heading = this.page.getByRole('heading');
+    const containerName = customName ? customName : await heading.innerText();
+    console.log(`Heading and container name: ${await heading.innerText()}`);
+    return new ContainerDetailsPage(this.page, containerName);
+  }
+
+  async startContainer(customName = '', optionalParams?: ContainerInteractiveParams): Promise<ContainersPage> {
     if (customName !== '') {
       await this.activateTab('Basic');
       // ToDo: improve UI side with aria-labels
@@ -65,13 +78,23 @@ export class RunImagePage extends BasePage {
       await textbox.fill(customName);
     }
 
-    if (!interactive) {
+    if (optionalParams?.attachTerminal !== undefined) {
       // disable the checkbox in advanced tab
       await this.activateTab('Advanced');
       const checkbox = this.page.getByRole('checkbox', { name: 'Attach a pseudo terminal' });
-      await checkbox.uncheck();
+      optionalParams.attachTerminal ? await checkbox.check() : await checkbox.uncheck();
+      await playExpect(checkbox).toBeChecked({ checked: optionalParams.attachTerminal });
     }
 
+    if (optionalParams?.interactive !== undefined) {
+      // disable the checkbox in advanced tab
+      await this.activateTab('Advanced');
+      const checkbox = this.page.getByRole('checkbox', { name: 'Interactive: Keep STDIN' });
+      optionalParams.interactive ? await checkbox.check() : await checkbox.uncheck();
+      await playExpect(checkbox).toBeChecked({ checked: optionalParams.interactive });
+    }
+
+    await this.activateTab('Basic');
     await this.startContainerButton.waitFor({ state: 'visible', timeout: 1000 });
     // If the start button is not enabled, we can expect an error in the form to be visible
     if (!(await this.startContainerButton.isEnabled())) {
@@ -81,6 +104,25 @@ export class RunImagePage extends BasePage {
       throw Error(`Start Button not enabled: ${errMessage}`);
     }
     await this.startContainerButton.click();
+    // After clicking on the button there seems to be four possible outcomes
+    // 1. Opening particular container's details page with tty tab opened
+    // 2. Opening Containers page with new container on it
+    // 3. staying on the run image page with an error
+    // 4. Starting a container without entrypoint or command creates a container, but it stays on Run Image Page without error
+    await waitWhile(
+      async () => {
+        return await this.name.isVisible();
+      },
+      3000,
+      900,
+      false,
+    );
+    const errorCount = await this.errorAlert.count();
+    if (errorCount > 0) {
+      const runImagePageActive = await this.name.isVisible();
+      const message = runImagePageActive ? 'threw an ' : 'redirected to another page with an ';
+      throw Error(`Starting the container ${message}error: ${await this.errorAlert.innerText({ timeout: 2000 })}`);
+    }
     return new ContainersPage(this.page);
   }
 

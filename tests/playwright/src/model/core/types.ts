@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import ContainerIcon from './ContainerIcon.svelte';
-import StarIcon from './StarIcon.svelte';
-
-export { ContainerIcon, StarIcon };
+export interface ContainerInteractiveParams {
+  interactive?: boolean;
+  attachTerminal?: boolean;
+}

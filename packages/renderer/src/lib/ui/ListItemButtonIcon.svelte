@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
-import { isFontAwesomeIcon } from '@podman-desktop/ui-svelte';
+import { DropdownMenu, isFontAwesomeIcon } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/motion';
 import Fa from 'svelte-fa';
@@ -9,7 +9,6 @@ import { context as storeContext } from '/@/stores/context';
 
 import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
-import DropdownMenuItem from './DropDownMenuItem.svelte';
 
 export let title: string;
 export let icon: IconDefinition | string;
@@ -116,7 +115,7 @@ $: styleClass = detailed
 <!-- If menu = true, use the menu, otherwise implement the button -->
 {#if menu}
   <!-- enabled menu -->
-  <DropdownMenuItem
+  <DropdownMenu.Item
     title="{title}"
     tooltip="{tooltip}"
     icon="{icon}"

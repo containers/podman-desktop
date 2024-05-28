@@ -6,9 +6,11 @@ import {
   NavPage,
   Table,
   TableColumn,
+  TableDurationColumn,
   TableRow,
   TableSimpleColumn,
 } from '@podman-desktop/ui-svelte';
+import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 
@@ -107,7 +109,6 @@ let statusColumn = new TableColumn<IngressUI>('Status', {
 });
 
 let nameColumn = new TableColumn<IngressUI | RouteUI>('Name', {
-  width: '2fr',
   renderer: IngressRouteColumnName,
   comparator: (a, b) => a.name.localeCompare(b.name),
 });
@@ -119,8 +120,15 @@ let namespaceColumn = new TableColumn<IngressUI | RouteUI, string>('Namespace', 
 });
 
 let pathColumn = new TableColumn<IngressUI | RouteUI, string>('Host/Path', {
+  width: '1.5fr',
   renderer: IngressRouteColumnHostPath,
   comparator: (a, b) => compareHostPath(a, b),
+});
+
+let ageColumn = new TableColumn<IngressUI | RouteUI, Date | undefined>('Age', {
+  renderMapping: ingressRoute => ingressRoute.created,
+  renderer: TableDurationColumn,
+  comparator: (a, b) => moment(b.created).diff(moment(a.created)),
 });
 
 function compareHostPath(object1: IngressUI | RouteUI, object2: IngressUI | RouteUI): number {
@@ -130,6 +138,7 @@ function compareHostPath(object1: IngressUI | RouteUI, object2: IngressUI | Rout
 }
 
 let backendColumn = new TableColumn<IngressUI | RouteUI, string>('Backend', {
+  width: '1.5fr',
   renderer: IngressRouteColumnBackend,
   comparator: (a, b) => compareBackend(a, b),
 });
@@ -140,12 +149,13 @@ function compareBackend(object1: IngressUI | RouteUI, object2: IngressUI | Route
   return backendObject1.localeCompare(backendObject2);
 }
 
-const columns: TableColumn<IngressUI | RouteUI, IngressUI | RouteUI | string>[] = [
+const columns: TableColumn<IngressUI | RouteUI, IngressUI | RouteUI | string | Date | undefined>[] = [
   statusColumn,
   nameColumn,
   namespaceColumn,
   pathColumn,
   backendColumn,
+  ageColumn,
   new TableColumn<IngressUI | RouteUI>('Actions', { align: 'right', renderer: IngressRouteColumnActions }),
 ];
 

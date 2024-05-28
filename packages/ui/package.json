@@ -56,6 +56,10 @@
       "types": "./dist/alert/ErrorMessage.svelte.d.ts",
       "svelte": "./dist/alert/ErrorMessage.svelte"
     },
+    "./DropdownMenu": {
+      "types": "./dist/dropdownMenu/index.d.ts",
+      "svelte": "./dist/dropdownMenu/index.js"
+    },
     "./icons": {
       "types": "./dist/icons/index.d.ts",
       "svelte": "./dist/icons/index.js"
@@ -63,6 +67,10 @@
     "./icons/ContainerIcon": {
       "types": "./dist/icons/ContainerIcon.d.ts",
       "svelte": "./dist/icons/ContainerIcon.svelte"
+    },
+    "./icons/StarIcon": {
+      "types": "./dist/icons/StarIcon.d.ts",
+      "svelte": "./dist/icons/StarIcon.svelte"
     },
     "./Tab": {
       "types": "./dist/tab/Tab.svelte.d.ts",
@@ -91,6 +99,10 @@
     "./FilteredEmptyScreen": {
       "types": "./dist/screen/FilteredEmptyScreen.d.ts",
       "svelte": "./dist/screen/FilteredEmptyScreen.svelte"
+    },
+    "./SettingsNavItem": {
+      "types": "./dist/settingsNavItem/SettingsNavItem.d.ts",
+      "svelte": "./dist/settingsNavItem/SettingsNavItem.svelte"
     }
   },
   "peerDependencies": {
@@ -114,7 +126,7 @@
     "@testing-library/svelte": "^5.1.0",
     "@testing-library/user-event": "^14.5.2",
     "@tsconfig/svelte": "^5.0.4",
-    "@typescript-eslint/eslint-plugin": "7.10.0",
+    "@typescript-eslint/eslint-plugin": "7.11.0",
     "autoprefixer": "^10.4.19",
     "eslint-plugin-svelte": "^2.39.0",
     "jsdom": "^24.1.0",

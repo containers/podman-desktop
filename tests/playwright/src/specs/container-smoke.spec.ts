@@ -21,6 +21,7 @@ import { expect as playExpect } from '@playwright/test';
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest';
 
 import { ContainerState } from '../model/core/states';
+import type { ContainerInteractiveParams } from '../model/core/types';
 import { ContainersPage } from '../model/pages/containers-page';
 import type { ImagesPage } from '../model/pages/images-page';
 import { WelcomePage } from '../model/pages/welcome-page';
@@ -36,6 +37,7 @@ const imageToPull = 'ghcr.io/linuxcontainers/alpine';
 const imageTag = 'latest';
 const containerToRun = 'alpine-container';
 const containerList = ['first', 'second', 'third'];
+const containerStartParams: ContainerInteractiveParams = { attachTerminal: false };
 
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
@@ -101,7 +103,8 @@ describe('Verification of container creation workflow', async () => {
     const imageDetails = await images.openImageDetails(imageToPull);
     const runImage = await imageDetails.openRunImage();
     await pdRunner.screenshot('containers-run-image.png');
-    const containers = await runImage.startContainer(containerToRun);
+    const containers = await runImage.startContainer(containerToRun, containerStartParams);
+    await playExpect(containers.header).toBeVisible();
     await playExpect
       .poll(async () => await containers.containerExists(containerToRun), { timeout: 10000 })
       .toBeTruthy();
@@ -173,7 +176,7 @@ describe('Verification of container creation workflow', async () => {
 
     for (const container of containerList) {
       const images = await navigationBar.openImages();
-      const containersPage = await images.startContainerWithImage(imageToPull, container);
+      const containersPage = await images.startContainerWithImage(imageToPull, container, containerStartParams);
       await playExpect(containersPage.heading).toBeVisible();
       await playExpect
         .poll(async () => await containersPage.containerExists(container), { timeout: 15000 })
