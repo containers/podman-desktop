@@ -79,7 +79,6 @@ let statusColumn = new TableColumn<DeploymentUI>('Status', {
 });
 
 let nameColumn = new TableColumn<DeploymentUI>('Name', {
-  width: '2fr',
   renderer: DeploymentColumnName,
   comparator: (a, b) => a.name.localeCompare(b.name),
 });
