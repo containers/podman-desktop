@@ -690,7 +690,7 @@ function setStoppedFilter() {
     }}">
     <div
       role="presentation"
-      class="inline-block w-full overflow-hidden text-left transition-all transform z-50 rounded-xl"
+      class="inline-block w-full overflow-hidden text-left transition-all"
       on:keydown="{keydownChoice}">
       <div
         class="flex items-center justify-between text-[var(--pd-modal-header-text)] bg-[var(--pd-modal-header-bg)] px-5 py-4 border-b-2 border-[var(--pd-modal-header-divider)]">
