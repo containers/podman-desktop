@@ -91,6 +91,10 @@
     "./FilteredEmptyScreen": {
       "types": "./dist/screen/FilteredEmptyScreen.d.ts",
       "svelte": "./dist/screen/FilteredEmptyScreen.svelte"
+    },
+    "./SettingsNavItem": {
+      "types": "./dist/settingsNavItem/SettingsNavItem.d.ts",
+      "svelte": "./dist/settingsNavItem/SettingsNavItem.svelte"
     }
   },
   "peerDependencies": {
