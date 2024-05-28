@@ -16,6 +16,25 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+/**
+ * The Podman Desktop API provides a way to interact with Podman Desktop.
+ *
+ * This file `extension-api.d.ts` is automatically generated from typedoc comments
+ * in the source code and provided [on our website](https://podman-desktop.io/api).
+ *
+ * For more information, see the main
+ * [Podman Desktop developing extensions documentation](https://podman-desktop.io/docs/extensions/developing).
+ *
+ * @example
+ * ```typescript
+ * import * as api from '@podman-desktop/api';
+ *
+ * console.log(api.version);
+ * ```
+ *
+ * @module @podman-desktop/api
+ **/
+
 declare module '@podman-desktop/api' {
   /**
    * The version of Podman Desktop.
