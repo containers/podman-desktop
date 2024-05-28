@@ -35,10 +35,10 @@ export class ImagesPage extends MainPage {
 
   constructor(page: Page) {
     super(page, 'images');
-    this.pullImageButton = this.additionalActions.getByRole('button', { name: 'Pull' });
-    this.pruneImagesButton = this.additionalActions.getByRole('button', { name: 'Prune' });
-    this.buildImageButton = this.additionalActions.getByRole('button', { name: 'Build' });
-    this.pruneConfirmationButton = this.page.getByRole('button', { name: 'Yes' });
+    this.pullImageButton = this.additionalActions.getByRole('button', { name: 'Pull', exact: true });
+    this.pruneImagesButton = this.additionalActions.getByRole('button', { name: 'Prune', exact: true });
+    this.buildImageButton = this.additionalActions.getByRole('button', { name: 'Build', exact: true });
+    this.pruneConfirmationButton = this.page.getByRole('button', { name: 'Yes', exact: true });
   }
 
   async openPullImage(): Promise<PullImagePage> {
