@@ -149,6 +149,7 @@ const row = new TableRow<ServiceUI>({ selectable: _service => true });
       data="{services}"
       columns="{columns}"
       row="{row}"
+      defaultSortColumn="Name"
       on:update="{() => (services = services)}">
     </Table>
 
