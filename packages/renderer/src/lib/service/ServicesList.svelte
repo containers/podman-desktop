@@ -75,7 +75,6 @@ let statusColumn = new TableColumn<ServiceUI>('Status', {
 });
 
 let nameColumn = new TableColumn<ServiceUI>('Name', {
-  width: '1fr',
   renderer: ServiceColumnName,
   comparator: (a, b) => a.name.localeCompare(b.name),
 });
