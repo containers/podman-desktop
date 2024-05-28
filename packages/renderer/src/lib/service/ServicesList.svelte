@@ -75,7 +75,6 @@ let statusColumn = new TableColumn<ServiceUI>('Status', {
 });
 
 let nameColumn = new TableColumn<ServiceUI>('Name', {
-  width: '1fr',
   renderer: ServiceColumnName,
   comparator: (a, b) => a.name.localeCompare(b.name),
 });
@@ -150,6 +149,7 @@ const row = new TableRow<ServiceUI>({ selectable: _service => true });
       data="{services}"
       columns="{columns}"
       row="{row}"
+      defaultSortColumn="Name"
       on:update="{() => (services = services)}">
     </Table>
 
