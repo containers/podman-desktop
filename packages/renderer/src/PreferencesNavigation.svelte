@@ -1,9 +1,9 @@
 <script lang="ts">
+import { SettingsNavItem } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import type { TinroRouteMeta } from 'tinro';
 
 import { CONFIGURATION_DEFAULT_SCOPE } from '../../main/src/plugin/configuration-registry-constants';
-import SettingsNavItem from './lib/preferences/SettingsNavItem.svelte';
 import { configurationProperties } from './stores/configurationProperties';
 
 export let meta: TinroRouteMeta;
