@@ -67,15 +67,16 @@ async function renameImage(imageName: string, imageTag: string) {
   on:close="{() => {
     closeCallback();
   }}">
-  <div class="modal flex flex-col place-self-center bg-charcoal-800 shadow-xl shadow-black">
-    <div class="flex items-center justify-between px-6 py-5 space-x-2">
+  <div class="modal flex flex-col place-self-center">
+    <div
+      class="flex items-center justify-between px-6 py-5 space-x-2 text-[var(--pd-modal-header-text)] bg-[var(--pd-modal-header-bg)]">
       <h1 class="grow text-lg font-bold capitalize">Edit Image</h1>
 
       <CloseButton on:click="{() => closeCallback()}" />
     </div>
     <div class="flex flex-col px-10 py-4 text-sm leading-5 space-y-5">
       <div>
-        <label for="imageName" class="block my-2 text-sm font-bold text-gray-400">Image Name</label>
+        <label for="imageName" class="block my-2 text-sm font-bold text-[var(--pd-modal-text)]">Image Name</label>
         <Input
           bind:value="{imageName}"
           name="imageName"
@@ -89,7 +90,7 @@ async function renameImage(imageName: string, imageTag: string) {
           <ErrorMessage error="{imageNameErrorMessage}" />
         {/if}
 
-        <label for="imageTag" class="block my-2 text-sm font-bold text-gray-400">Image Tag</label>
+        <label for="imageTag" class="block my-2 text-sm font-bold text-[var(--pd-modal-text)]">Image Tag</label>
         <Input
           bind:value="{imageTag}"
           name="imageTag"

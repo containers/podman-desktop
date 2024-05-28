@@ -94,15 +94,16 @@ function handleKeydown(e: KeyboardEvent) {
   on:close="{() => {
     closeCallback();
   }}">
-  <div class="modal flex flex-col place-self-center bg-charcoal-800 shadow-xl shadow-black">
-    <div class="flex items-center justify-between px-6 py-5 space-x-2">
+  <div class="modal flex flex-col place-self-center">
+    <div
+      class="flex items-center justify-between px-6 py-5 space-x-2 text-[var(--pd-modal-header-text)] bg-[var(--pd-modal-header-bg)]">
       <h1 class="grow text-lg font-bold capitalize">Install custom extension</h1>
 
       <CloseButton on:click="{() => closeCallback()}" />
     </div>
     <div class="flex flex-col px-10 py-4 text-sm leading-5 space-y-5">
       <div>
-        <label for="imageName" class="block text-sm pb-2 text-gray-400">OCI Image:</label>
+        <label for="imageName" class="block text-sm pb-2 text-[var(--pd-modal-text)]">OCI Image:</label>
         <div class="min-h-14">
           {#if installInProgress || progressPercent !== 100}
             <Input
@@ -117,7 +118,7 @@ function handleKeydown(e: KeyboardEvent) {
               aria-label="{inputAriaLabel}"
               required />
           {:else}
-            <div class="text-gray-400">{imageName} successfully installed.</div>
+            <div class="text-[var(--pd-modal-text)]">{imageName} successfully installed.</div>
           {/if}
         </div>
         <div class="w-full min-h-9 h-9 py-2">

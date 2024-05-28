@@ -785,13 +785,41 @@ export class ColorRegistry {
       dark: colorPalette.black,
       light: colorPalette.white,
     });
+    this.registerColor(`${modal}text`, {
+      dark: colorPalette.gray[500],
+      light: colorPalette.charcoal[300],
+    });
+    this.registerColor(`${modal}text-hover`, {
+      dark: colorPalette.gray[300],
+      light: colorPalette.purple[800],
+    });
     this.registerColor(`${modal}bg`, {
       dark: colorPalette.charcoal[800],
-      light: colorPalette.gray[300],
+      light: colorPalette.gray[50],
     });
     this.registerColor(`${modal}border`, {
       dark: colorPalette.charcoal[500],
-      light: colorPalette.gray[200],
+      light: colorPalette.gray[500],
+    });
+    this.registerColor(`${modal}header-bg`, {
+      dark: colorPalette.black,
+      light: colorPalette.gray[100],
+    });
+    this.registerColor(`${modal}header-text`, {
+      dark: colorPalette.gray[400],
+      light: colorPalette.purple[500],
+    });
+    this.registerColor(`${modal}header-divider`, {
+      dark: colorPalette.purple[700],
+      light: colorPalette.purple[300],
+    });
+    this.registerColor(`${modal}error-text`, {
+      dark: colorPalette.red[500],
+      light: colorPalette.red[500],
+    });
+    this.registerColor(`${modal}warning-text`, {
+      dark: colorPalette.amber[400],
+      light: colorPalette.amber[400],
     });
   }
 
