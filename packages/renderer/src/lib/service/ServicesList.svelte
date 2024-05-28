@@ -2,6 +2,8 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import {
   Button,
+  FilteredEmptyScreen,
+  NavPage,
   Table,
   TableColumn,
   TableDurationColumn,
@@ -16,8 +18,6 @@ import { kubernetesCurrentContextServicesFiltered, serviceSearchPattern } from '
 
 import ServiceIcon from '../images/ServiceIcon.svelte';
 import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
-import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
-import NavPage from '../ui/NavPage.svelte';
 import { ServiceUtils } from './service-utils';
 import ServiceColumnActions from './ServiceColumnActions.svelte';
 import ServiceColumnName from './ServiceColumnName.svelte';
@@ -75,7 +75,6 @@ let statusColumn = new TableColumn<ServiceUI>('Status', {
 });
 
 let nameColumn = new TableColumn<ServiceUI>('Name', {
-  width: '1fr',
   renderer: ServiceColumnName,
   comparator: (a, b) => a.name.localeCompare(b.name),
 });
@@ -150,6 +149,7 @@ const row = new TableRow<ServiceUI>({ selectable: _service => true });
       data="{services}"
       columns="{columns}"
       row="{row}"
+      defaultSortColumn="Name"
       on:update="{() => (services = services)}">
     </Table>
 

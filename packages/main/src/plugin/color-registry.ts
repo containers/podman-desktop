@@ -234,6 +234,10 @@ export class ColorRegistry {
     this.initCheckbox();
     this.initToggle();
     this.initTable();
+    this.initDetails();
+    this.initTab();
+    this.initModal();
+    this.initLink();
   }
 
   protected initGlobalNav(): void {
@@ -430,6 +434,11 @@ export class ColorRegistry {
     this.registerColor(`${ct}header`, {
       dark: colorPalette.white,
       light: colorPalette.charcoal[900],
+    });
+
+    this.registerColor(`${ct}sub-header`, {
+      dark: colorPalette.gray[900],
+      light: colorPalette.purple[900],
     });
 
     this.registerColor(`${ct}header-icon`, {
@@ -713,6 +722,90 @@ export class ColorRegistry {
     this.registerColor(`${tab}body-text-sub-highlight`, {
       dark: colorPalette.gray[400],
       light: colorPalette.charcoal[200],
+    });
+  }
+
+  protected initDetails(): void {
+    const details = 'details-';
+    this.registerColor(`${details}body-text`, {
+      dark: colorPalette.gray[200],
+      light: colorPalette.charcoal[500],
+    });
+    this.registerColor(`${details}empty-icon`, {
+      dark: colorPalette.gray[600],
+      light: colorPalette.charcoal[200],
+    });
+    this.registerColor(`${details}empty-header`, {
+      dark: colorPalette.gray[200],
+      light: colorPalette.charcoal[500],
+    });
+    this.registerColor(`${details}empty-sub-header`, {
+      dark: colorPalette.gray[600],
+      light: colorPalette.charcoal[500],
+    });
+    this.registerColor(`${details}empty-cmdline-bg`, {
+      dark: colorPalette.charcoal[900],
+      light: colorPalette.gray[200],
+    });
+    this.registerColor(`${details}empty-cmdline-text`, {
+      dark: colorPalette.gray[400],
+      light: colorPalette.charcoal[700],
+    });
+    this.registerColor(`${details}bg`, {
+      dark: colorPalette.charcoal[900],
+      light: colorPalette.gray[50],
+    });
+  }
+
+  protected initTab(): void {
+    const tab = 'tab-';
+    this.registerColor(`${tab}text`, {
+      dark: colorPalette.gray[600],
+      light: colorPalette.charcoal[200],
+    });
+    this.registerColor(`${tab}text-highlight`, {
+      dark: colorPalette.white,
+      light: colorPalette.charcoal[300],
+    });
+    this.registerColor(`${tab}highlight`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[600],
+    });
+    this.registerColor(`${tab}hover`, {
+      dark: colorPalette.purple[400],
+      light: colorPalette.purple[500],
+    });
+  }
+
+  // modal dialog
+  protected initModal(): void {
+    const modal = 'modal-';
+
+    this.registerColor(`${modal}fade`, {
+      dark: colorPalette.black,
+      light: colorPalette.white,
+    });
+    this.registerColor(`${modal}bg`, {
+      dark: colorPalette.charcoal[800],
+      light: colorPalette.gray[300],
+    });
+    this.registerColor(`${modal}border`, {
+      dark: colorPalette.charcoal[500],
+      light: colorPalette.gray[200],
+    });
+  }
+
+  // links
+  protected initLink(): void {
+    const link = 'link';
+
+    this.registerColor(`${link}`, {
+      dark: colorPalette.purple[400],
+      light: colorPalette.purple[700],
+    });
+    this.registerColor(`${link}-hover-bg`, {
+      dark: colorPalette.white + '2',
+      light: colorPalette.black + '2',
     });
   }
 }

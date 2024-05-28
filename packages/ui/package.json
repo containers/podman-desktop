@@ -56,6 +56,10 @@
       "types": "./dist/alert/ErrorMessage.svelte.d.ts",
       "svelte": "./dist/alert/ErrorMessage.svelte"
     },
+    "./DropdownMenu": {
+      "types": "./dist/dropdownMenu/index.d.ts",
+      "svelte": "./dist/dropdownMenu/index.js"
+    },
     "./icons": {
       "types": "./dist/icons/index.d.ts",
       "svelte": "./dist/icons/index.js"
@@ -63,6 +67,10 @@
     "./icons/ContainerIcon": {
       "types": "./dist/icons/ContainerIcon.d.ts",
       "svelte": "./dist/icons/ContainerIcon.svelte"
+    },
+    "./icons/StarIcon": {
+      "types": "./dist/icons/StarIcon.d.ts",
+      "svelte": "./dist/icons/StarIcon.svelte"
     },
     "./Tab": {
       "types": "./dist/tab/Tab.svelte.d.ts",
@@ -75,6 +83,26 @@
     "./LinearProgress": {
       "types": "./dist/progress/LinearProgress.d.ts",
       "svelte": "./dist/progress/LinearProgress.svelte"
+    },
+    "./NavPage": {
+      "types": "./dist/layouts/NavPage.d.ts",
+      "svelte": "./dist/layouts/NavPage.svelte"
+    },
+    "./Link": {
+      "types": "./dist/link/Link.d.ts",
+      "svelte": "./dist/link/Link.svelte"
+    },
+    "./EmptyScreen": {
+      "types": "./dist/screen/EmptyScreen.d.ts",
+      "svelte": "./dist/screen/EmptyScreen.svelte"
+    },
+    "./FilteredEmptyScreen": {
+      "types": "./dist/screen/FilteredEmptyScreen.d.ts",
+      "svelte": "./dist/screen/FilteredEmptyScreen.svelte"
+    },
+    "./SettingsNavItem": {
+      "types": "./dist/settingsNavItem/SettingsNavItem.d.ts",
+      "svelte": "./dist/settingsNavItem/SettingsNavItem.svelte"
     }
   },
   "peerDependencies": {
@@ -87,9 +115,8 @@
     "@fortawesome/free-regular-svg-icons": "^6.5.2",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "moment": "^2.30.1",
-    "humanize-duration": "^3.32.0",
-    "svelte-fa": "^4.0.2",
-    "tinro": "^0.6.12"
+    "humanize-duration": "^3.32.1",
+    "svelte-fa": "^4.0.2"
   },
   "devDependencies": {
     "@sveltejs/package": "^2.3.1",
@@ -99,10 +126,10 @@
     "@testing-library/svelte": "^5.1.0",
     "@testing-library/user-event": "^14.5.2",
     "@tsconfig/svelte": "^5.0.4",
-    "@typescript-eslint/eslint-plugin": "7.10.0",
+    "@typescript-eslint/eslint-plugin": "7.11.0",
     "autoprefixer": "^10.4.19",
     "eslint-plugin-svelte": "^2.39.0",
-    "jsdom": "^24.0.0",
+    "jsdom": "^24.1.0",
     "postcss": "^8.4.38",
     "postcss-load-config": "^5.1.0",
     "svelte": "4.2.17",

@@ -1,6 +1,16 @@
 <script lang="ts">
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Button, Table, TableColumn, TableRow, TableSimpleColumn } from '@podman-desktop/ui-svelte';
+import {
+  Button,
+  FilteredEmptyScreen,
+  NavPage,
+  Table,
+  TableColumn,
+  TableDurationColumn,
+  TableRow,
+  TableSimpleColumn,
+} from '@podman-desktop/ui-svelte';
+import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 
@@ -15,8 +25,6 @@ import type { V1Route } from '/@api/openshift-types';
 
 import IngressRouteIcon from '../images/IngressRouteIcon.svelte';
 import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
-import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
-import NavPage from '../ui/NavPage.svelte';
 import { IngressRouteUtils } from './ingress-route-utils';
 import IngressRouteColumnActions from './IngressRouteColumnActions.svelte';
 import IngressRouteColumnBackend from './IngressRouteColumnBackend.svelte';
@@ -101,7 +109,6 @@ let statusColumn = new TableColumn<IngressUI>('Status', {
 });
 
 let nameColumn = new TableColumn<IngressUI | RouteUI>('Name', {
-  width: '2fr',
   renderer: IngressRouteColumnName,
   comparator: (a, b) => a.name.localeCompare(b.name),
 });
@@ -113,8 +120,15 @@ let namespaceColumn = new TableColumn<IngressUI | RouteUI, string>('Namespace', 
 });
 
 let pathColumn = new TableColumn<IngressUI | RouteUI, string>('Host/Path', {
+  width: '1.5fr',
   renderer: IngressRouteColumnHostPath,
   comparator: (a, b) => compareHostPath(a, b),
+});
+
+let ageColumn = new TableColumn<IngressUI | RouteUI, Date | undefined>('Age', {
+  renderMapping: ingressRoute => ingressRoute.created,
+  renderer: TableDurationColumn,
+  comparator: (a, b) => moment(b.created).diff(moment(a.created)),
 });
 
 function compareHostPath(object1: IngressUI | RouteUI, object2: IngressUI | RouteUI): number {
@@ -124,6 +138,7 @@ function compareHostPath(object1: IngressUI | RouteUI, object2: IngressUI | Rout
 }
 
 let backendColumn = new TableColumn<IngressUI | RouteUI, string>('Backend', {
+  width: '1.5fr',
   renderer: IngressRouteColumnBackend,
   comparator: (a, b) => compareBackend(a, b),
 });
@@ -134,12 +149,13 @@ function compareBackend(object1: IngressUI | RouteUI, object2: IngressUI | Route
   return backendObject1.localeCompare(backendObject2);
 }
 
-const columns: TableColumn<IngressUI | RouteUI, IngressUI | RouteUI | string>[] = [
+const columns: TableColumn<IngressUI | RouteUI, IngressUI | RouteUI | string | Date | undefined>[] = [
   statusColumn,
   nameColumn,
   namespaceColumn,
   pathColumn,
   backendColumn,
+  ageColumn,
   new TableColumn<IngressUI | RouteUI>('Actions', { align: 'right', renderer: IngressRouteColumnActions }),
 ];
 

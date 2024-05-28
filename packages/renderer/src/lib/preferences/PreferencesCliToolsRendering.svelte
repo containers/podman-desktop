@@ -1,6 +1,7 @@
 <script lang="ts">
+import { EmptyScreen } from '@podman-desktop/ui-svelte';
+
 import { cliToolInfos } from '../../stores/cli-tools';
-import EmptyScreen from '../ui/EmptyScreen.svelte';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import PreferencesCliTool from './PreferencesCliTool.svelte';
 import SettingsPage from './SettingsPage.svelte';

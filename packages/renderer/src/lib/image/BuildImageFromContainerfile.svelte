@@ -1,7 +1,7 @@
 <script lang="ts">
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
-import { faCube } from '@fortawesome/free-solid-svg-icons';
+import { faCube, faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { Button, Input } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import { get } from 'svelte/store';
@@ -55,6 +55,24 @@ interface BuildOutputItem {
 
 type BuildOutput = BuildOutputItem[];
 
+let buildArgs: { key: string; value: string }[] = [{ key: '', value: '' }];
+let formattedBuildArgs: Record<string, string> = {};
+
+function addBuildArg() {
+  buildArgs = [...buildArgs, { key: '', value: '' }];
+}
+
+function deleteBuildArg(index: number) {
+  // Only one item in the list, clear the content
+  if (buildArgs.length === 1) {
+    buildArgs[index].key = '';
+    buildArgs[index].value = '';
+  } else {
+    // Remove the item from the array
+    buildArgs = buildArgs.filter((_, i) => i !== index);
+  }
+}
+
 function getTerminalCallback(): BuildImageCallback {
   return {
     onStream: function (data: string): void {
@@ -82,6 +100,14 @@ function getTerminalCallback(): BuildImageCallback {
 async function buildContainerImage(): Promise<void> {
   buildParentImageName = undefined;
   buildError = undefined;
+
+  // Create the formatted build arguments that will be used when passing to buildImage
+  formattedBuildArgs = buildArgs.reduce<Record<string, string>>((acc, { key, value }) => {
+    if (key && value) {
+      acc[key] = value;
+    }
+    return acc;
+  }, {});
 
   // Pick if we are building a singular platform (which will just create the image)
   // or multiple platforms (which will create the image and then create a manifest)
@@ -119,6 +145,7 @@ async function buildSinglePlatformImage(): Promise<void> {
         buildImageInfo.buildImageKey,
         eventCollect,
         cancellableTokenId,
+        formattedBuildArgs,
       );
     } catch (error) {
       logsTerminal.write(`Error:${error}\r`);
@@ -167,6 +194,7 @@ async function buildMultiplePlatformImagesAndCreateManifest(): Promise<void> {
           buildImageInfo.buildImageKey,
           eventCollect,
           cancellableTokenId,
+          formattedBuildArgs,
         )) as BuildOutput;
 
         // Extract and store the build ID as this is required for creating the manifest, only if it is available.
@@ -275,7 +303,7 @@ async function abortBuild() {
     {:else}
       <div class="bg-charcoal-900 pt-5 space-y-6 px-8 sm:pb-6 xl:pb-8 rounded-lg">
         <div hidden="{buildImageInfo?.buildRunning}">
-          <label for="containerFilePath" class="block mb-2 text-sm font-bold text-gray-400">Containerfile Path</label>
+          <label for="containerFilePath" class="block mb-2 text-sm font-bold text-gray-400">Containerfile path</label>
           <div class="flex flex-row space-x-3">
             <Input
               name="containerFilePath"
@@ -290,13 +318,13 @@ async function abortBuild() {
 
         <div hidden="{buildImageInfo?.buildRunning}">
           <label for="containerBuildContextDirectory" class="block mb-2 text-sm font-bold text-gray-400"
-            >Build Context Directory</label>
+            >Build context directory</label>
           <div class="flex flex-row space-x-3">
             <Input
               name="containerBuildContextDirectory"
               id="containerBuildContextDirectory"
               bind:value="{containerBuildContextDirectory}"
-              placeholder="Folder to build in"
+              placeholder="Directory to build in"
               class="w-full"
               required />
             <Button on:click="{() => getContainerBuildContextDirectory()}">Browse...</Button>
@@ -304,7 +332,7 @@ async function abortBuild() {
         </div>
 
         <div hidden="{buildImageInfo?.buildRunning}">
-          <label for="containerImageName" class="block mb-2 text-sm font-bold text-gray-400">Image Name</label>
+          <label for="containerImageName" class="block mb-2 text-sm font-bold text-gray-400">Image name</label>
           <Input
             bind:value="{containerImageName}"
             name="containerImageName"
@@ -326,6 +354,21 @@ async function abortBuild() {
               </select>
             </label>
           {/if}
+        </div>
+        <div hidden="{buildImageInfo?.buildRunning}">
+          <label for="inputKey" class="block mb-2 text-sm font-bold text-gray-400">Build arguments</label>
+          {#each buildArgs as buildArg, index}
+            <div class="flex flex-row items-center space-x-2 mb-2">
+              <Input bind:value="{buildArg.key}" name="inputKey" placeholder="Key" class="flex-grow" required />
+              <Input bind:value="{buildArg.value}" placeholder="Value" class="flex-grow" required />
+              <Button
+                on:click="{() => deleteBuildArg(index)}"
+                icon="{faMinusCircle}"
+                disabled="{buildArgs.length === 1 && buildArg.key === '' && buildArg.value === ''}"
+                aria-label="Delete build argument" />
+              <Button on:click="{addBuildArg}" icon="{faPlusCircle}" title="Add build argument" />
+            </div>
+          {/each}
         </div>
 
         <div hidden="{buildImageInfo?.buildRunning}">

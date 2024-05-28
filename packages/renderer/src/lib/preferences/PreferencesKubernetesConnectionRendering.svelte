@@ -3,6 +3,7 @@ import { Tab } from '@podman-desktop/ui-svelte';
 import { Buffer } from 'buffer';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
+import { router } from 'tinro';
 
 import type {
   ProviderContainerConnectionInfo,
@@ -17,6 +18,7 @@ import IconImage from '../appearance/IconImage.svelte';
 import ConnectionErrorInfoButton from '../ui/ConnectionErrorInfoButton.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
+import { getTabUrl, isTabSelected } from '../ui/Util';
 import { eventCollect } from './preferences-connection-rendering-task';
 import PreferencesConnectionActions from './PreferencesConnectionActions.svelte';
 import PreferencesConnectionDetailsLogs from './PreferencesConnectionDetailsLogs.svelte';
@@ -154,9 +156,12 @@ function setNoLogs() {
         <IconImage image="{providerInfo?.images?.icon}" alt="{providerInfo?.name}" class="max-h-10" />
       </svelte:fragment>
       <svelte:fragment slot="tabs">
-        <Tab title="Summary" url="summary" />
+        <Tab
+          title="Summary"
+          selected="{isTabSelected($router.path, 'summary')}"
+          url="{getTabUrl($router.path, 'summary')}" />
         {#if connectionInfo.lifecycleMethods && connectionInfo.lifecycleMethods.length > 0}
-          <Tab title="Logs" url="logs" />
+          <Tab title="Logs" selected="{isTabSelected($router.path, 'logs')}" url="{getTabUrl($router.path, 'logs')}" />
         {/if}
       </svelte:fragment>
       <svelte:fragment slot="content">

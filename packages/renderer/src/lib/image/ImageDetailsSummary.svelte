@@ -4,7 +4,7 @@ import type { ImageInfoUI } from './ImageInfoUI';
 export let image: ImageInfoUI;
 </script>
 
-<div class="flex px-5 py-4 flex-col h-full overflow-auto">
+<div class="flex px-5 py-4 flex-col h-full overflow-auto text-[var(--pd-details-body-text)]">
   <table>
     <tbody>
       <tr>

@@ -1,11 +1,10 @@
 <script lang="ts">
-import { isFontAwesomeIcon } from '@podman-desktop/ui-svelte';
 import { createEventDispatcher, onMount } from 'svelte';
 import Fa from 'svelte-fa';
-import { router } from 'tinro';
 
-export let internalRef: string | undefined = undefined;
-export let externalRef: string | undefined = undefined;
+import { isFontAwesomeIcon } from '../utils/icon-utils';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let icon: any = undefined;
 
 let iconType: string | undefined = undefined;
@@ -21,13 +20,7 @@ onMount(() => {
 });
 
 function click(): void {
-  if (internalRef) {
-    router.goto(internalRef);
-  } else if (externalRef) {
-    window.openExternal(externalRef);
-  } else {
-    dispatch('click');
-  }
+  dispatch('click');
 }
 </script>
 
@@ -36,9 +29,9 @@ function click(): void {
 <!-- svelte-ignore a11y-no-redundant-roles -->
 <!-- svelte-ignore a11y-interactive-supports-focus -->
 <a
-  class="text-purple-400 hover:bg-white hover:bg-opacity-10 transition-all rounded-[4px] p-0.5 no-underline cursor-pointer {$$props.class ||
+  class="text-[var(--pd-link)] hover:bg-[var(--pd-link-hover-bg)] transition-all rounded-[4px] p-0.5 no-underline cursor-pointer {$$props.class ||
     ''}"
-  on:click="{() => click()}"
+  on:click="{click}"
   role="link"
   aria-label="{$$props['aria-label']}">
   {#if icon}

@@ -124,11 +124,11 @@ test('Expect Build button is enabled', async () => {
   setup();
   render(BuildImageFromContainerfile, {});
 
-  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile Path' });
+  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile path' });
   expect(containerFilePath).toBeInTheDocument();
   await userEvent.type(containerFilePath, '/somepath/containerfile');
 
-  const buildFolder = screen.getByRole('textbox', { name: 'Build Context Directory' });
+  const buildFolder = screen.getByRole('textbox', { name: 'Build context directory' });
   expect(buildFolder).toBeInTheDocument();
   await userEvent.type(buildFolder, '/somepath');
 
@@ -141,11 +141,11 @@ test('Expect Done button is enabled once build is done', async () => {
   setup();
   render(BuildImageFromContainerfile, {});
 
-  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile Path' });
+  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile path' });
   expect(containerFilePath).toBeInTheDocument();
   await userEvent.type(containerFilePath, '/somepath/containerfile');
 
-  const buildFolder = screen.getByRole('textbox', { name: 'Build Context Directory' });
+  const buildFolder = screen.getByRole('textbox', { name: 'Build context directory' });
   expect(buildFolder).toBeInTheDocument();
   await userEvent.type(buildFolder, '/somepath');
 
@@ -165,16 +165,16 @@ test('Select multiple platforms and expect pressing Build will do two buildImage
   setup();
   await waitRender();
 
-  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile Path' });
+  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile path' });
   expect(containerFilePath).toBeInTheDocument();
   await userEvent.type(containerFilePath, '/somepath/containerfile');
 
-  const buildFolder = screen.getByRole('textbox', { name: 'Build Context Directory' });
+  const buildFolder = screen.getByRole('textbox', { name: 'Build context directory' });
   expect(buildFolder).toBeInTheDocument();
   await userEvent.type(buildFolder, '/somepath');
 
   // Type in the image name a test value 'foobar'
-  const containerImageName = screen.getByRole('textbox', { name: 'Image Name' });
+  const containerImageName = screen.getByRole('textbox', { name: 'Image name' });
   expect(containerImageName).toBeInTheDocument();
   await userEvent.type(containerImageName, 'foobar');
 
@@ -226,6 +226,7 @@ test('Select multiple platforms and expect pressing Build will do two buildImage
     expect.anything(),
     expect.anything(),
     expect.anything(),
+    expect.anything(),
   );
 
   expect(window.buildImage).toHaveBeenCalledWith(
@@ -233,6 +234,7 @@ test('Select multiple platforms and expect pressing Build will do two buildImage
     'containerfile',
     '',
     'linux/arm64',
+    expect.anything(),
     expect.anything(),
     expect.anything(),
     expect.anything(),
@@ -246,15 +248,15 @@ test('Selecting one platform only calls buildImage once with the selected platfo
   setup();
   await waitRender();
 
-  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile Path' });
+  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile path' });
   expect(containerFilePath).toBeInTheDocument();
   await userEvent.type(containerFilePath, '/somepath/containerfile');
 
-  const buildFolder = screen.getByRole('textbox', { name: 'Build Context Directory' });
+  const buildFolder = screen.getByRole('textbox', { name: 'Build context directory' });
   expect(buildFolder).toBeInTheDocument();
   await userEvent.type(buildFolder, '/somepath');
 
-  const imageName = screen.getByRole('textbox', { name: 'Image Name' });
+  const imageName = screen.getByRole('textbox', { name: 'Image name' });
   expect(imageName).toBeInTheDocument();
   await userEvent.type(imageName, 'foobar');
 
@@ -271,6 +273,7 @@ test('Selecting one platform only calls buildImage once with the selected platfo
     'containerfile',
     'foobar',
     'linux/amd64',
+    expect.anything(),
     expect.anything(),
     expect.anything(),
     expect.anything(),
@@ -303,7 +306,7 @@ test('Expect no value for containerImageName input field (no my-custom-image val
   setup();
   render(BuildImageFromContainerfile);
 
-  const containerImageName = screen.getByRole('textbox', { name: 'Image Name' });
+  const containerImageName = screen.getByRole('textbox', { name: 'Image name' });
   expect(containerImageName).toBeInTheDocument();
   expect(containerImageName).toHaveValue('');
   expect(containerImageName).toHaveAttribute('placeholder', 'Image name (e.g. quay.io/namespace/my-custom-image)');
@@ -338,11 +341,11 @@ test('Expect recommended extension in case of build error', async () => {
 
   render(BuildImageFromContainerfile, {});
 
-  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile Path' });
+  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile path' });
   expect(containerFilePath).toBeInTheDocument();
   await userEvent.type(containerFilePath, '/somepath/containerfile');
 
-  const buildFolder = screen.getByRole('textbox', { name: 'Build Context Directory' });
+  const buildFolder = screen.getByRole('textbox', { name: 'Build context directory' });
   expect(buildFolder).toBeInTheDocument();
   await userEvent.type(buildFolder, '/somepath');
 
@@ -354,4 +357,39 @@ test('Expect recommended extension in case of build error', async () => {
   // expect to find the widget to install extension
   const proposal = screen.getByRole('button', { name: 'Install myExtension.id Extension' });
   expect(proposal).toBeInTheDocument();
+});
+
+test('Expect build to include build arguments', async () => {
+  setup();
+  render(BuildImageFromContainerfile);
+
+  const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile path' });
+  expect(containerFilePath).toBeInTheDocument();
+  await userEvent.type(containerFilePath, '/somepath/containerfile');
+
+  const buildFolder = screen.getByRole('textbox', { name: 'Build context directory' });
+  expect(buildFolder).toBeInTheDocument();
+  await userEvent.type(buildFolder, '/somepath');
+
+  const containerImageName = screen.getByRole('textbox', { name: 'Image name' });
+  expect(containerImageName).toBeInTheDocument();
+  await userEvent.type(containerImageName, 'foobar');
+
+  const addArgButton = screen.getByRole('button', { name: 'Add build argument' });
+  expect(addArgButton).toBeInTheDocument();
+  await userEvent.click(addArgButton);
+
+  // Expect "Key" input to exist
+  const keyInputs = screen.getAllByPlaceholderText('Key');
+  await userEvent.type(keyInputs[1], 'ARG_KEY');
+
+  // Expect "Value" input to exist
+  const valueInputs = screen.getAllByPlaceholderText('Value');
+  await userEvent.type(valueInputs[1], 'ARG_VALUE');
+
+  // Expect to be able to build fine with the build arguments / no errors.
+  const buildButton = screen.getByRole('button', { name: 'Build' });
+  expect(buildButton).toBeInTheDocument();
+  expect(buildButton).toBeEnabled();
+  await userEvent.click(buildButton);
 });

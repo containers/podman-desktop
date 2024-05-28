@@ -1,5 +1,6 @@
 <script lang="ts">
 import { faArrowsRotate, faFileCode, faPlay, faRocket, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { DropdownMenu } from '@podman-desktop/ui-svelte';
 import { createEventDispatcher, onMount } from 'svelte';
 import { router } from 'tinro';
 
@@ -7,7 +8,6 @@ import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
-import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import type { ComposeInfoUI } from './ComposeInfoUI';
@@ -155,7 +155,7 @@ if (dropdownMenu) {
     title="Deploy to Kubernetes"
     onClick="{() => deployToKubernetes()}"
     menu="{dropdownMenu}"
-    hidden="{!(compose.engineType === 'podman')}"
+    hidden="{compose.engineType !== 'podman'}"
     detailed="{detailed}"
     icon="{faRocket}" />
   <ListItemButtonIcon

@@ -1,7 +1,7 @@
 <script lang="ts">
+import { EmptyScreen } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
-import EmptyScreen from '/@/lib/ui/EmptyScreen.svelte';
 import NoLogIcon from '/@/lib/ui/NoLogIcon.svelte';
 import { podsInfos } from '/@/stores/pods';
 

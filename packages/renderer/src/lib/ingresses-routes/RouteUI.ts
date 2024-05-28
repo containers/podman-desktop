@@ -31,4 +31,5 @@ export interface RouteUI {
   to: RouteToReference;
   selected: boolean;
   tlsEnabled: boolean;
+  created?: Date;
 }

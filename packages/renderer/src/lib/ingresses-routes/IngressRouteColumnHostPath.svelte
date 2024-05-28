@@ -1,5 +1,6 @@
 <script lang="ts">
-import Link from '../ui/Link.svelte';
+import { Link } from '@podman-desktop/ui-svelte';
+
 import { IngressRouteUtils } from './ingress-route-utils';
 import type { IngressUI } from './IngressUI';
 import type { RouteUI } from './RouteUI';
@@ -12,7 +13,13 @@ const ingressRouteUtils = new IngressRouteUtils();
 {#each ingressRouteUtils.getHostPaths(object) as hostPath}
   <div class="text-sm text-gray-500 overflow-hidden text-ellipsis">
     {#if hostPath.url}
-      <Link aria-label="{hostPath.label}" externalRef="{hostPath.url}">
+      <Link
+        aria-label="{hostPath.label}"
+        on:click="{() => {
+          if (hostPath.url) {
+            window.openExternal(hostPath.url);
+          }
+        }}">
         {hostPath.label}
       </Link>
     {:else}

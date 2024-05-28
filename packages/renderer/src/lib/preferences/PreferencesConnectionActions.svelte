@@ -63,17 +63,17 @@ async function restartConnectionProvider(
       '/preferences/resources',
       getLoggerHandler(provider, providerConnectionInfo),
     );
-    addConnectionToRestartingQueue({
-      container: providerConnectionInfo.name,
-      provider: provider.internalId,
-      loggerHandlerKey,
-    });
     await window.stopProviderConnectionLifecycle(
       provider.internalId,
       providerConnectionInfo,
       loggerHandlerKey,
       eventCollect,
     );
+    addConnectionToRestartingQueue({
+      container: providerConnectionInfo.name,
+      provider: provider.internalId,
+      loggerHandlerKey,
+    });
   }
 }
 

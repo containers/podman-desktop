@@ -1,7 +1,7 @@
 <script lang="ts">
 import { faArrowUpRightFromSquare, faGear } from '@fortawesome/free-solid-svg-icons';
 import type { ContainerProviderConnection } from '@podman-desktop/api';
-import { Button, Tooltip } from '@podman-desktop/ui-svelte';
+import { Button, EmptyScreen, Tooltip } from '@podman-desktop/ui-svelte';
 import { Buffer } from 'buffer';
 import { filesize } from 'filesize';
 import { onDestroy, onMount } from 'svelte';
@@ -27,7 +27,6 @@ import { ContextKeyExpr } from '../context/contextKey';
 import { normalizeOnboardingWhenClause } from '../onboarding/onboarding-utils';
 import ConnectionErrorInfoButton from '../ui/ConnectionErrorInfoButton.svelte';
 import ConnectionStatus from '../ui/ConnectionStatus.svelte';
-import EmptyScreen from '../ui/EmptyScreen.svelte';
 import EngineIcon from '../ui/EngineIcon.svelte';
 import { PeerProperties } from './PeerProperties';
 import { eventCollect } from './preferences-connection-rendering-task';

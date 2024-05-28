@@ -11,6 +11,7 @@ import {
   faTerminal,
   faTrash,
 } from '@fortawesome/free-solid-svg-icons';
+import { DropdownMenu } from '@podman-desktop/ui-svelte';
 import { createEventDispatcher, onMount } from 'svelte';
 import { router } from 'tinro';
 
@@ -19,7 +20,6 @@ import { exportContainerInfo } from '/@/stores/export-container-store';
 
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
-import DropdownMenu from '../ui/DropdownMenu.svelte';
 import FlatMenu from '../ui/FlatMenu.svelte';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from './ContainerInfoUI';
@@ -199,7 +199,7 @@ if (dropdownMenu) {
       title="Open Terminal"
       onClick="{() => openTerminalContainer()}"
       menu="{dropdownMenu}"
-      hidden="{!(container.state === 'RUNNING')}"
+      hidden="{container.state !== 'RUNNING'}"
       detailed="{false}"
       icon="{faTerminal}" />
   {/if}

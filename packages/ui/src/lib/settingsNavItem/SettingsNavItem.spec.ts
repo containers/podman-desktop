@@ -20,19 +20,20 @@
 
 import '@testing-library/jest-dom/vitest';
 
+import { faBookOpen } from '@fortawesome/free-solid-svg-icons';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
 import SettingsNavItem from './SettingsNavItem.svelte';
 
-function renderIt(title: string, href: string, meta: any, section?: boolean, child?: boolean): void {
-  render(SettingsNavItem, { title: title, href: href, meta: meta, section: section, child: child });
+function renderIt(title: string, href: string, selected?: boolean, section?: boolean, child?: boolean): void {
+  render(SettingsNavItem, { title: title, href: href, selected: selected, section: section, child: child });
 }
 
 test('Expect correct role and href', async () => {
   const title = 'Resources';
   const href = '/test';
-  renderIt(title, href, { url: href });
+  renderIt(title, href, true);
 
   const element = screen.getByLabelText(title);
   expect(element).toBeInTheDocument();
@@ -42,7 +43,7 @@ test('Expect correct role and href', async () => {
 test('Expect selection styling', async () => {
   const title = 'Resources';
   const href = '/test';
-  renderIt(title, href, { url: href });
+  renderIt(title, href, true);
 
   const element = screen.getByLabelText(title);
   expect(element).toBeInTheDocument();
@@ -52,7 +53,7 @@ test('Expect selection styling', async () => {
 
 test('Expect not to have selection styling', async () => {
   const title = 'Resources';
-  renderIt(title, '/test', { url: '/elsewhere' });
+  renderIt(title, '/test', false);
 
   const element = screen.getByLabelText(title);
   expect(element).toBeInTheDocument();
@@ -64,7 +65,7 @@ test('Expect not to have selection styling', async () => {
 test('Expect child styling', async () => {
   const title = 'Resources';
   const href = '/test';
-  renderIt(title, href, { url: href }, false, true);
+  renderIt(title, href, true, false, true);
 
   const element = screen.getByLabelText(title);
   expect(element).toBeInTheDocument();
@@ -75,7 +76,7 @@ test('Expect child styling', async () => {
 test('Expect section styling', async () => {
   const title = 'Extensions';
   const href = '/test';
-  renderIt(title, href, { url: href }, true, false);
+  renderIt(title, href, true, true, false);
 
   const element = screen.getByLabelText(title);
   expect(element).toBeInTheDocument();
@@ -88,7 +89,7 @@ test('Expect section styling', async () => {
 test('Expect sections expand', async () => {
   const title = 'Extensions';
   const href = '/test';
-  renderIt(title, href, { url: href }, true, false);
+  renderIt(title, href, true, true, false);
 
   const element = screen.getByLabelText(title);
   expect(element).toBeInTheDocument();
@@ -102,4 +103,15 @@ test('Expect sections expand', async () => {
   // since it is animated, we'll test that the down angle has appeared (and
   // not wait for right angle to disappear)
   expect(element.firstChild?.childNodes[2]).toContainHTML('fa-angle-down');
+});
+
+test('icon should be visible', () => {
+  render(SettingsNavItem, {
+    title: 'DummyTitle',
+    href: '/dummy/path',
+    selected: false,
+    icon: faBookOpen,
+  });
+  const svg = screen.getByRole('img', { hidden: true });
+  expect(svg).toBeInTheDocument();
 });

@@ -48,6 +48,9 @@ export const kubernetesCurrentContextDeployments = readable<KubernetesObject[]>(
   window.events?.receive('kubernetes-current-context-deployments-update', (value: unknown) => {
     set(value as KubernetesObject[]);
   });
+  return () => {
+    window.kubernetesUnregisterGetCurrentContextResources('deployments');
+  };
 });
 
 export const deploymentSearchPattern = writable('');

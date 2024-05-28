@@ -1,9 +1,9 @@
 <script lang="ts">
 import { faFileText } from '@fortawesome/free-solid-svg-icons';
+import { EmptyScreen } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
 import Markdown from '../markdown/Markdown.svelte';
-import EmptyScreen from '../ui/EmptyScreen.svelte';
 
 export let readme: { content?: string; uri?: string };
 
@@ -38,7 +38,7 @@ onMount(async () => {
 </script>
 
 {#if readmeContent}
-  <div class="w-full min-h-full overflow-y-visible leading-6">
+  <div class="w-full min-h-full overflow-y-visible leading-6 text-[var(--pd-details-body-text)]">
     <Markdown markdown="{readmeContent}" />
   </div>
 {:else}

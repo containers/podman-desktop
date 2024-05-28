@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Button, Table, TableColumn, TableRow } from '@podman-desktop/ui-svelte';
+import { Button, FilteredEmptyScreen, NavPage, Table, TableColumn, TableRow } from '@podman-desktop/ui-svelte';
 import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
@@ -15,8 +15,6 @@ import Prune from '../engine/Prune.svelte';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
 import PodIcon from '../images/PodIcon.svelte';
 import KubePlayButton from '../kube/KubePlayButton.svelte';
-import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
-import NavPage from '../ui/NavPage.svelte';
 import { PodUtils } from './pod-utils';
 import PodColumnActions from './PodColumnActions.svelte';
 import PodColumnAge from './PodColumnAge.svelte';

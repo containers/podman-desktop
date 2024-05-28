@@ -1,20 +1,25 @@
 <script lang="ts">
-import type { TinroRouteMeta } from 'tinro';
+import type { IconDefinition } from '@fortawesome/free-regular-svg-icons';
+import Fa from 'svelte-fa';
 
 export let title: string;
 export let href: string;
-export let meta: TinroRouteMeta;
 export let section = false;
 export let expanded = false;
 export let child = false;
+export let selected: boolean = false;
+export let icon: IconDefinition | undefined = undefined;
 
-let selected: boolean;
-$: selected = meta.url === href;
-
-function rotate(node: unknown, { clockwise = true }) {
+function rotate(
+  node: unknown,
+  { clockwise = true },
+): {
+  duration: number;
+  css: (t: unknown, u: number) => string;
+} {
   return {
     duration: 200,
-    css: (t: unknown, u: number) => {
+    css: (t: unknown, u: number): string => {
       if (!clockwise) u = -u;
       return `
         transform: rotate(${u * 90}deg);
@@ -22,9 +27,13 @@ function rotate(node: unknown, { clockwise = true }) {
     },
   };
 }
+
+function click(): void {
+  expanded = !expanded;
+}
 </script>
 
-<a class="no-underline" href="{href}" aria-label="{title}" on:click="{() => (expanded = !expanded)}">
+<a class="no-underline" href="{href}" aria-label="{title}" on:click="{click}">
   <div
     class="flex w-full pr-1 py-2 justify-between items-center cursor-pointer border-l-[4px]"
     class:text-white="{selected}"
@@ -42,7 +51,12 @@ function rotate(node: unknown, { clockwise = true }) {
     class:hover:[color:var(--pd-secondary-nav-text-hover)]="{!selected}"
     class:hover:bg-[var(--pd-secondary-nav-text-hover-bg)]="{!selected}"
     class:hover:border-[var(--pd-secondary-nav-text-hover-bg)]="{!selected}">
-    <span class="block group-hover:block" class:capitalize="{!child}">{title}</span>
+    <span class="group-hover:block flex flex-row items-center" class:capitalize="{!child}">
+      {#if icon}
+        <Fa class="mr-4" icon="{icon}" />
+      {/if}
+      {title}
+    </span>
     {#if section}
       <div class="px-2 relative w-4 h-4 [color:var(--pd-secondary-nav-expander)]">
         {#if expanded}

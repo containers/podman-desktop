@@ -509,7 +509,7 @@ export class PluginSystem {
       }
     });
 
-    statusBarRegistry.setEntry('help', false, 0, undefined, 'Help', 'fa fa-question-circle', true, 'help', undefined);
+    statusBarRegistry.setEntry('help', false, -1, undefined, 'Help', 'fa fa-question-circle', true, 'help', undefined);
 
     statusBarRegistry.setEntry(
       'troubleshooting',
@@ -536,7 +536,7 @@ export class PluginSystem {
     );
 
     // Init update logic
-    new Updater(messageBox, configurationRegistry, statusBarRegistry, commandRegistry).init();
+    new Updater(messageBox, configurationRegistry, statusBarRegistry, commandRegistry, taskManager).init();
 
     commandRegistry.registerCommand('feedback', () => {
       apiSender.send('display-feedback', '');
@@ -1094,6 +1094,7 @@ export class PluginSystem {
         selectedProvider: ProviderContainerConnectionInfo,
         onDataCallbacksBuildImageId: number,
         cancellableTokenId?: number,
+        buildargs?: { [key: string]: string },
       ): Promise<unknown> => {
         const abortController = this.createAbortControllerOnCancellationToken(
           cancellationTokenRegistry,
@@ -1115,6 +1116,7 @@ export class PluginSystem {
             platform,
             provider: selectedProvider,
             abortController,
+            buildargs,
           },
         );
       },

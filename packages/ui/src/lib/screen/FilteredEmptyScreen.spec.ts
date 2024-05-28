@@ -21,11 +21,10 @@ import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { expect, test, vi } from 'vitest';
 
-import DesktopIcon from '../images/DesktopIcon.svelte';
 import FilteredEmptyScreen from './FilteredEmptyScreen.svelte';
 
 test('Expect basic styling', async () => {
-  render(FilteredEmptyScreen, { icon: DesktopIcon, kind: 'object', searchTerm: 'test' });
+  render(FilteredEmptyScreen, { icon: '', kind: 'object', searchTerm: 'test' });
   // eslint-disable-next-line quotes
   const title = screen.getByText("No object matching 'test' found");
   expect(title).toBeInTheDocument();
@@ -34,7 +33,7 @@ test('Expect basic styling', async () => {
 
 test('Expect long search term to not display', async () => {
   render(FilteredEmptyScreen, {
-    icon: DesktopIcon,
+    icon: '',
     kind: 'object',
     searchTerm: 'a really long search term that will not fit in the UI',
   });
@@ -44,7 +43,7 @@ test('Expect long search term to not display', async () => {
 });
 
 test('Expect button to fire event and clear search term', async () => {
-  const config = { icon: DesktopIcon, kind: 'object', searchTerm: 'test' };
+  const config = { icon: '', kind: 'object', searchTerm: 'test' };
   const result = render(FilteredEmptyScreen, config);
 
   const resetMock = vi.fn();
@@ -63,7 +62,7 @@ test('Expect button to fire event and clear search term', async () => {
 });
 
 test('Expect button to fire event and respect event listener', async () => {
-  const config = { icon: DesktopIcon, kind: 'object', searchTerm: 'test' };
+  const config = { icon: '', kind: 'object', searchTerm: 'test' };
   const result = render(FilteredEmptyScreen, config);
 
   // setup mock event listener that just prevents default action

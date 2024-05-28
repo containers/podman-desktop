@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023,2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,19 +22,9 @@ import '@testing-library/jest-dom/vitest';
 
 import { faRocket } from '@fortawesome/free-solid-svg-icons';
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import { router } from 'tinro';
 import { expect, test, vi } from 'vitest';
 
 import Link from './Link.svelte';
-
-// mock the router
-vi.mock('tinro', () => {
-  return {
-    router: {
-      goto: vi.fn(),
-    },
-  };
-});
 
 test('Check link styling', async () => {
   render(Link);
@@ -42,9 +32,8 @@ test('Check link styling', async () => {
   // check for one element of the styling
   const link = screen.getByRole('link');
   expect(link).toBeInTheDocument();
-  expect(link).toHaveClass('text-purple-400');
-  expect(link).toHaveClass('hover:bg-white');
-  expect(link).toHaveClass('hover:bg-opacity-10');
+  expect(link).toHaveClass('text-[var(--pd-link)]');
+  expect(link).toHaveClass('hover:bg-[var(--pd-link-hover-bg)]');
   expect(link).toHaveClass('cursor-pointer');
 });
 
@@ -59,37 +48,6 @@ test('Check icon styling', async () => {
   expect(link.firstChild?.firstChild).toHaveClass('svelte-fa');
 });
 
-test('Check href action', async () => {
-  const urlMock = vi.fn();
-  (window as any).openExternal = urlMock;
-  render(Link, { externalRef: 'http://test.com' });
-
-  // check href link
-  const link = screen.getByRole('link');
-  expect(link).toBeInTheDocument();
-  expect(urlMock).not.toHaveBeenCalled();
-
-  fireEvent.click(link);
-
-  expect(urlMock).toBeCalledTimes(1);
-  expect(router.goto).not.toHaveBeenCalled();
-});
-
-test('Check local href action', async () => {
-  const urlMock = vi.fn();
-  (window as any).openExternal = urlMock;
-  render(Link, { internalRef: '/Pods' });
-
-  // check href link
-  const link = screen.getByRole('link');
-  expect(link).toBeInTheDocument();
-
-  fireEvent.click(link);
-
-  expect(router.goto).toBeCalledTimes(1);
-  expect(urlMock).not.toHaveBeenCalled();
-});
-
 test('Check on:click action', async () => {
   const comp = render(Link);
 
@@ -101,7 +59,7 @@ test('Check on:click action', async () => {
   expect(link).toBeInTheDocument();
   expect(clickMock).not.toHaveBeenCalled();
 
-  fireEvent.click(link);
+  await fireEvent.click(link);
 
   expect(clickMock).toBeCalledTimes(1);
 });

@@ -255,7 +255,7 @@ export class Parser {
       }
       return expr;
     } catch (e) {
-      if (!(e === Parser._parseError)) {
+      if (e !== Parser._parseError) {
         throw e;
       }
       return undefined;

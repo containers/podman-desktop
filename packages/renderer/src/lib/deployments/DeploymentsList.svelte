@@ -2,6 +2,8 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import {
   Button,
+  FilteredEmptyScreen,
+  NavPage,
   Table,
   TableColumn,
   TableDurationColumn,
@@ -19,8 +21,6 @@ import {
 
 import DeploymentIcon from '../images/DeploymentIcon.svelte';
 import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
-import FilteredEmptyScreen from '../ui/FilteredEmptyScreen.svelte';
-import NavPage from '../ui/NavPage.svelte';
 import { DeploymentUtils } from './deployment-utils';
 import DeploymentColumnActions from './DeploymentColumnActions.svelte';
 import DeploymentColumnConditions from './DeploymentColumnConditions.svelte';
@@ -79,7 +79,6 @@ let statusColumn = new TableColumn<DeploymentUI>('Status', {
 });
 
 let nameColumn = new TableColumn<DeploymentUI>('Name', {
-  width: '2fr',
   renderer: DeploymentColumnName,
   comparator: (a, b) => a.name.localeCompare(b.name),
 });

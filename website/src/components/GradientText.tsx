@@ -7,11 +7,15 @@ export type GradientTextProps = {
   gradientAngle?: number;
 };
 
+export function getGradient(colorFrom: string, colorTo: string, gradientAngle?: number): string {
+  return `linear-gradient(${gradientAngle ?? 0}deg, ${colorFrom}, ${colorTo})`;
+}
+
 export const GradientText = (props: GradientTextProps): JSX.Element => {
   return (
     <span
       style={{
-        background: `linear-gradient(${props.gradientAngle ?? 0}deg, ${props.colorFrom}, ${props.colorTo})`,
+        background: getGradient(props.colorFrom, props.colorTo, props.gradientAngle),
         backgroundClip: 'text',
         boxDecorationBreak: 'clone',
       }}
