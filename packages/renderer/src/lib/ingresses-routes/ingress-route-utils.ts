@@ -36,6 +36,7 @@ export class IngressRouteUtils {
       status: 'RUNNING',
       rules: ingress.spec?.rules,
       selected: false,
+      created: ingress.metadata?.creationTimestamp ? new Date(ingress.metadata.creationTimestamp) : undefined,
     };
   }
   getRouteUI(route: V1Route): RouteUI {
@@ -53,6 +54,7 @@ export class IngressRouteUtils {
       selected: false,
       // true if tls part is defined
       tlsEnabled: !!route.spec.tls,
+      created: route.metadata?.creationTimestamp ? new Date(route.metadata.creationTimestamp) : undefined,
     };
   }
   isIngress(object: IngressUI | RouteUI): object is IngressUI {
