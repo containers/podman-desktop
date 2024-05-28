@@ -1,5 +1,6 @@
 <script lang="ts">
-import DropdownMenu from '../ui/DropdownMenu.svelte';
+import { DropdownMenu } from '@podman-desktop/ui-svelte';
+
 import FlatMenu from '../ui/FlatMenu.svelte';
 
 export let dropdownMenu = false;

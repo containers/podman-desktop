@@ -1,14 +1,12 @@
 <script lang="ts">
 import { faPlusCircle, faTrash, faUser, faUserPen } from '@fortawesome/free-solid-svg-icons';
 import type * as containerDesktopAPI from '@podman-desktop/api';
-import { Button, Input } from '@podman-desktop/ui-svelte';
+import { Button, DropdownMenu, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
 import PasswordInput from '/@/lib/ui/PasswordInput.svelte';
 
 import { registriesInfos, registriesSuggestedInfos } from '../../stores/registries';
-import DropdownMenu from '../ui/DropdownMenu.svelte';
-import DropdownMenuItem from '../ui/DropDownMenuItem.svelte';
 import SettingsPage from './SettingsPage.svelte';
 
 // contains the original instances of registries when user clicks on `Edit password` menu item
@@ -350,17 +348,17 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
                 <!-- Show/hide password end -->
                 <!-- containerDesktopAPI.Registry menu start -->
                 <DropdownMenu>
-                  <DropdownMenuItem
+                  <DropdownMenu.Item
                     title="Login"
                     onClick="{() => markRegistryAsModified(registry)}"
                     hidden="{!!registry.username && !!registry.secret}"
                     icon="{faUser}" />
-                  <DropdownMenuItem
+                  <DropdownMenu.Item
                     title="Edit password"
                     onClick="{() => markRegistryAsModified(registry)}"
                     hidden="{!registry.username && !registry.secret}"
                     icon="{faUserPen}" />
-                  <DropdownMenuItem
+                  <DropdownMenu.Item
                     title="Remove"
                     onClick="{() => removeExistingRegistry(registry)}"
                     icon="{faTrash}" />
