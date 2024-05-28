@@ -42,6 +42,10 @@ const config = {
       {
         redirects: [
           {
+            to: '/api',
+            from: '/docs/extensions/api',
+          },
+          {
             to: '/downloads/windows',
             from: '/downloads/Windows',
           },
