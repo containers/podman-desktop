@@ -118,6 +118,7 @@ let namespaceColumn = new TableColumn<IngressUI | RouteUI, string>('Namespace', 
 });
 
 let pathColumn = new TableColumn<IngressUI | RouteUI, string>('Host/Path', {
+  width: '1.5fr',
   renderer: IngressRouteColumnHostPath,
   comparator: (a, b) => compareHostPath(a, b),
 });
@@ -129,6 +130,7 @@ function compareHostPath(object1: IngressUI | RouteUI, object2: IngressUI | Rout
 }
 
 let backendColumn = new TableColumn<IngressUI | RouteUI, string>('Backend', {
+  width: '1.5fr',
   renderer: IngressRouteColumnBackend,
   comparator: (a, b) => compareBackend(a, b),
 });
