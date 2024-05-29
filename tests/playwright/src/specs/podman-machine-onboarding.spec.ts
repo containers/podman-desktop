@@ -117,13 +117,17 @@ describe.skipIf(os.platform() === 'linux')('Podman Machine verification', async 
       await playExpect(podmanOnboardingPage.createMachinePageTitle).toHaveText(`Create a Podman machine`);
       await playExpect(podmanOnboardingPage.podmanMachineConfiguration).toBeVisible();
       await playExpect(podmanOnboardingPage.podmanMachineName).toHaveValue('podman-machine-default');
-      await playExpect(podmanOnboardingPage.podmanMachineCPUs).toBeVisible();
-      await playExpect(podmanOnboardingPage.podmanMachineMemory).toBeVisible();
-      await playExpect(podmanOnboardingPage.podmanMachineDiskSize).toBeVisible();
       await playExpect(podmanOnboardingPage.podmanMachineImage).toHaveValue('');
       await playExpect(podmanOnboardingPage.podmanMachineRootfulCheckbox).toBeChecked();
-      await playExpect(podmanOnboardingPage.podmanMachineUserModeNetworkingCheckbox).not.toBeChecked();
       await playExpect(podmanOnboardingPage.podmanMachineStartAfterCreationCheckbox).toBeChecked();
+
+      if (os.platform() === 'win32') {
+        await playExpect(podmanOnboardingPage.podmanMachineUserModeNetworkingCheckbox).not.toBeChecked();
+      } else {
+        await playExpect(podmanOnboardingPage.podmanMachineCPUs).toBeVisible();
+        await playExpect(podmanOnboardingPage.podmanMachineMemory).toBeVisible();
+        await playExpect(podmanOnboardingPage.podmanMachineDiskSize).toBeVisible();
+      }
     });
   });
   describe.runIf(process.env.TEST_PODMAN_MACHINE !== undefined && process.env.TEST_PODMAN_MACHINE === 'true')(
