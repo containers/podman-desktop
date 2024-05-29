@@ -73,9 +73,9 @@ test('Check secondary button styling', async () => {
   expect(button).toHaveClass('py-[4px]');
   expect(button).toHaveClass('text-[13px]');
   expect(button).toHaveClass('text-[var(--pd-button-secondary)]');
-  expect(button).toHaveClass('hover:bg-[var(--pd-button-secondary-hover-bg)]');
+  expect(button).toHaveClass('hover:bg-[var(--pd-button-secondary-hover)]');
   expect(button).toHaveClass('hover:border-[var(--pd-button-secondary-hover)]');
-  expect(button).toHaveClass('hover:text-[var(--pd-button-secondary-hover)]');
+  expect(button).toHaveClass('hover:text-[var(--pd-button-text)]');
 });
 
 test('Check danger button styling', async () => {

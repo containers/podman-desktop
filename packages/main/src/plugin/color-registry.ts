@@ -857,10 +857,6 @@ export class ColorRegistry {
       dark: colorPalette.purple[500],
       light: colorPalette.purple[500],
     });
-    this.registerColor(`${button}secondary-hover-bg`, {
-      dark: colorPalette.white + '2',
-      light: colorPalette.black + '2',
-    });
     this.registerColor(`${button}text`, {
       dark: colorPalette.white,
       light: colorPalette.white,
