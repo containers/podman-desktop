@@ -136,7 +136,7 @@ describe.skipIf(os.platform() === 'linux')('Podman Machine verification', async 
         await playExpect(podmanOnboardingPage.onboardingStatusMessage).toBeVisible({
           timeout: PODMAN_MACHINE_STARTUP_TIMEOUT,
         });
-        await playExpect(podmanOnboardingPage.onboardingStatusMessage).toHaveText('Podman successfully setup');
+        await playExpect(podmanOnboardingPage.onboardingStatusMessage).toHaveText('Podman installed');
         await podmanOnboardingPage.nextStepButton.click();
       });
       describe('Podman machine operations', async () => {
