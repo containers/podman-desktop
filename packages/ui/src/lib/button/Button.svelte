@@ -40,7 +40,7 @@ $: {
       classes = 'border-[1px] border-[var(--pd-button-disabled)] bg-[var(--pd-button-disabled)]';
     } else if (type === 'danger') {
       classes =
-        'border-2 border-[var(--pd-button-danger-border-disabled)] text-[var(--pd-button-danger-text)] bg-[var(--pd-button-danger-bg-disabled)]';
+        'border-2 border-[var(--pd-button-danger-disabled-border)] text-[var(--pd-button-danger-disabled-text)] bg-[var(--pd-button-danger-disabled-bg)]';
     } else {
       // link and tab
       classes = 'text-[var(--pd-button-disabled-text)]';
@@ -50,7 +50,7 @@ $: {
       classes = 'bg-[var(--pd-button-primary-bg)] border-none hover:bg-[var(--pd-button-primary-hover-bg)]';
     } else if (type === 'secondary') {
       classes =
-        'border-[1px] border-[var(--pd-button-secondary)] text-[var(--pd-button-secondary)] hover:border-[var(--pd-button-secondary-hover)] hover:text-[var(--pd-button-secondary-hover)]';
+        'border-[1px] border-[var(--pd-button-secondary)] text-[var(--pd-button-secondary)] hover:bg-[var(--pd-button-secondary-hover-bg)] hover:border-[var(--pd-button-secondary-hover)] hover:text-[var(--pd-button-secondary-hover)]';
     } else if (type === 'danger') {
       classes =
         'border-2 border-[var(--pd-button-danger-border)] bg-[var(--pd-button-danger-bg)] text-[var(--pd-button-danger-text)] hover:bg-[var(--pd-button-danger-hover-bg)] hover:text-[var(--pd-button-danger-hover-text)]';
