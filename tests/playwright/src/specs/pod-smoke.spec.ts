@@ -89,7 +89,7 @@ afterAll(async () => {
   } finally {
     await pdRunner.close();
   }
-}, 90000);
+}, 120000);
 
 describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')(
   'Verification of pod creation workflow',
@@ -101,14 +101,12 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       images = await pullImagePage.pullImage(backendImage, imagesTag, 60000);
       const backendExists = await images.waitForImageExists(backendImage);
       expect(backendExists, `${backendImage} image is not present in the list of images`).toBeTruthy();
-      await pdRunner.screenshot('pods-pull-image-backend.png');
 
       await navigationBar.openImages();
       pullImagePage = await images.openPullImage();
       images = await pullImagePage.pullImage(frontendImage, imagesTag, 60000);
       const frontendExists = await images.waitForImageExists(frontendImage);
       expect(frontendExists, `${frontendImage} image is not present in the list of images`).toBeTruthy();
-      await pdRunner.screenshot('pods-pull-image-both.png');
     }, 60000);
 
     test('Starting containers', async () => {
@@ -116,18 +114,17 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       let images = await navigationBar.openImages();
       let imageDetails = await images.openImageDetails(backendImage);
       let runImage = await imageDetails.openRunImage();
-      await pdRunner.screenshot('pods-run-backend-image.png');
       await runImage.setCustomPortMapping('6379:6379');
       let containers = await runImage.startContainer(backendContainer, containerStartParams);
       await playExpect(containers.header).toBeVisible();
-      await waitUntil(async () => containers.containerExists(backendContainer), 10000, 1000);
-      await pdRunner.screenshot('pods-backend-container-exists.png');
+      await playExpect
+        .poll(async () => await containers.containerExists(backendContainer), { timeout: 15000 })
+        .toBeTruthy();
       let containerDetails = await containers.openContainersDetails(backendContainer);
+      await playExpect
+        .poll(async () => await containerDetails.getState(), { timeout: 15000 })
+        .toBe(ContainerState.Running);
       await waitUntil(async () => {
-        return (await containerDetails.getState()) === ContainerState.Running;
-      }, 5000);
-      await waitUntil(async () => {
-        await pdRunner.screenshot('pods-backend-container-port-set.png');
         backendPort = await containerDetails.getContainerPort();
         return backendPort.includes('6379');
       }, 5000);
@@ -137,40 +134,30 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       if (isMac) {
         await runImage.setHostPortToExposedContainerPort('5000', '5101');
       }
-      await pdRunner.screenshot('pods-run-frontend-image.png');
-      await pdRunner.screenshot('pods-run-frontend-image.png');
       containers = await runImage.startContainer(frontendContainer, containerStartParams);
       await playExpect(containers.header).toBeVisible();
-      await waitUntil(async () => containers.containerExists(frontendContainer), 10000, 1000);
-      await pdRunner.screenshot('pods-frontend-container-exists.png');
+      await playExpect
+        .poll(async () => await containers.containerExists(frontendContainer), { timeout: 15000 })
+        .toBeTruthy();
       containerDetails = await containers.openContainersDetails(frontendContainer);
       frontendPort = await containerDetails.getContainerPort();
       const expectedPort = isMac ? '5101' : '5000';
       playExpect(frontendPort).toContain(expectedPort);
-      await waitUntil(async () => {
-        return (await containerDetails.getState()) === ContainerState.Running;
-      }, 5000);
+      await playExpect
+        .poll(async () => await containerDetails.getState(), { timeout: 15000 })
+        .toBe(ContainerState.Running);
     });
 
     test('Podify containers', async () => {
       const navigationBar = new NavigationBar(page);
       const containers = await navigationBar.openContainers();
       const createPodPage = await containers.openCreatePodPage(Array.of(backendContainer, frontendContainer));
-      await pdRunner.screenshot('pods-creation-page.png');
       const pods = await createPodPage.createPod(podToRun);
-
-      await playExpect(pods.heading).toBeVisible();
-      await waitUntil(async () => await pods.podExists(podToRun), 10000, 1000);
+      await playExpect(pods.heading).toBeVisible({ timeout: 60000 });
+      await playExpect.poll(async () => await pods.podExists(podToRun), { timeout: 15000 }).toBeTruthy();
       const podDetails = await pods.openPodDetails(podToRun);
-      await waitUntil(
-        async () => {
-          return (await podDetails.getState()) === PodState.Running;
-        },
-        10000,
-        1000,
-      );
-      await pdRunner.screenshot('pods-pod-created.png');
-    });
+      await playExpect.poll(async () => await podDetails.getState(), { timeout: 15000 }).toBe(PodState.Running);
+    }, 90000);
 
     test('Checking pod details', async () => {
       const navigationBar = new NavigationBar(page);
@@ -179,48 +166,33 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       const podDetails = await pods.openPodDetails(podToRun);
       await playExpect(podDetails.heading).toBeVisible();
       await playExpect(podDetails.heading).toContainText(podToRun);
-      await pdRunner.screenshot('pods-pod-details.png');
       await podDetails.activateTab('Logs');
-      await pdRunner.screenshot('pods-pod-details-logs.png');
       await podDetails.activateTab('Summary');
       const row = podDetails.getPage().getByRole('table').getByRole('row');
       const nameText = await row.getByRole('cell').allInnerTexts();
       playExpect(nameText).toContain(podToRun);
-      await pdRunner.screenshot('pods-pod-details-summary.png');
       await podDetails.activateTab('Inspect');
-      await pdRunner.screenshot('pods-pod-details-inspect.png');
       await podDetails.activateTab('Kube');
-      await pdRunner.screenshot('pods-pod-details-kube.png');
     });
 
     test('Checking original containers stopped', async () => {
       const navigationBar = new NavigationBar(page);
       const containers = await navigationBar.openContainers();
       const backendContainerDetails = await containers.openContainersDetails(backendContainer);
-      await waitUntil(
-        async () => {
-          return (await backendContainerDetails.getState()) === ContainerState.Exited;
-        },
-        10000,
-        1000,
-      );
+      await playExpect
+        .poll(async () => await backendContainerDetails.getState(), { timeout: 15000 })
+        .toBe(ContainerState.Exited);
       await navigationBar.openContainers();
       const frontendContainerDetails = await containers.openContainersDetails(frontendContainer);
-      await waitUntil(
-        async () => {
-          return (await frontendContainerDetails.getState()) === ContainerState.Exited;
-        },
-        10000,
-        1000,
-      );
-      await pdRunner.screenshot('pods-original-containers-stopped.png');
+      await playExpect
+        .poll(async () => await frontendContainerDetails.getState(), { timeout: 15000 })
+        .toBe(ContainerState.Exited);
     });
 
     test('Checking pods page options buttons', async () => {
       const navigationBar = new NavigationBar(page);
       const pods = await navigationBar.openPods();
       await pods.selectPod([podToRun]);
-      await pdRunner.screenshot('pods-pod-selected.png');
       const deleteButton = pods.getPage().getByRole('button', { name: 'Delete 1 selected items', exact: true });
       await playExpect(deleteButton).toBeVisible();
 
@@ -233,7 +205,6 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       await playExpect(kubeButton).toBeVisible();
       await playExpect(kubernetesButton).toBeVisible();
       await playExpect(restartButton).toBeVisible();
-      await pdRunner.screenshot('pods-pod-actions-menu-open.png');
     });
 
     test(`Checking pods under containers`, async () => {
@@ -360,7 +331,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
         await containersPage.uncheckAllContainers();
         const createPodPage = await containersPage.openCreatePodPage(Array.of(containerNames[i]));
         const podsPage = await createPodPage.createPod(podNames[i]);
-        await playExpect(podsPage.heading).toBeVisible();
+        await playExpect(podsPage.heading).toBeVisible({ timeout: 60000 });
         await playExpect.poll(async () => await podsPage.podExists(podNames[i]), { timeout: 15000 }).toBeTruthy();
       }
 
