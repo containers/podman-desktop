@@ -90,6 +90,12 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
 
       await playExpect.poll(async () => await imagesPage.waitForImageExists(backendImage)).toBeTruthy();
       await playExpect.poll(async () => await imagesPage.waitForImageExists(frontendImage)).toBeTruthy();
+      await playExpect
+        .poll(async () => await imagesPage.getCurrentStatusOfImage(backendImage), { timeout: 15000 })
+        .toBe('UNUSED');
+      await playExpect
+        .poll(async () => await imagesPage.getCurrentStatusOfImage(frontendImage), { timeout: 15000 })
+        .toBe('UNUSED');
 
       let imageDetailsPage = await imagesPage.openImageDetails(backendImage);
       await playExpect(imageDetailsPage.heading).toContainText(backendImage);
