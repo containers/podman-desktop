@@ -857,6 +857,10 @@ export class ColorRegistry {
       dark: colorPalette.purple[500],
       light: colorPalette.purple[500],
     });
+    this.registerColor(`${button}secondary-hover-bg`, {
+      dark: colorPalette.white + '2',
+      light: colorPalette.black + '2',
+    });
     this.registerColor(`${button}text`, {
       dark: colorPalette.white,
       light: colorPalette.white,
@@ -889,11 +893,15 @@ export class ColorRegistry {
       dark: colorPalette.red[600],
       light: colorPalette.red[600],
     });
-    this.registerColor(`${button}danger-border-disabled`, {
+    this.registerColor(`${button}danger-disabled-border`, {
       dark: colorPalette.charcoal[50],
       light: colorPalette.gray[900],
     });
-    this.registerColor(`${button}danger-bg-disabled`, {
+    this.registerColor(`${button}danger-disabled-text`, {
+      dark: colorPalette.charcoal[50],
+      light: colorPalette.gray[900],
+    });
+    this.registerColor(`${button}danger-disabled-bg`, {
       dark: colorPalette.transparent,
       light: colorPalette.transparent,
     });
