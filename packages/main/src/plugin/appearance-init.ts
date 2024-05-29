@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023, 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,15 +25,14 @@ export class AppearanceInit {
   init(): void {
     const appearanceConfiguration: IConfigurationNode = {
       id: 'preferences.appearance',
-      title: 'Appearance',
+      title: 'Experimental Appearance',
       type: 'object',
       properties: {
         [AppearanceSettings.SectionName + '.' + AppearanceSettings.Appearance]: {
-          description: 'Appearance',
+          description: 'Experimental setting to test support for light mode',
           type: 'string',
           enum: ['system', 'dark', 'light'],
           default: 'system',
-          hidden: true,
         },
       },
     };
