@@ -21,7 +21,6 @@ import { expect as playExpect } from '@playwright/test';
 
 import type { PodmanDesktopRunner } from '../../runner/podman-desktop-runner';
 import { handleConfirmationDialog } from '../../utility/operations';
-import { waitUntil } from '../../utility/wait';
 import { BasePage } from './base-page';
 import { ImageEditPage } from './image-edit-page';
 import { ImagesPage } from './images-page';
@@ -60,18 +59,19 @@ export class ImageDetailsPage extends BasePage {
   }
 
   async openRunImage(): Promise<RunImagePage> {
-    await waitUntil(async () => await this.runImageButton.isEnabled(), 5000, 500);
+    await playExpect(this.runImageButton).toBeEnabled({ timeout: 30000 });
     await this.runImageButton.click();
     return new RunImagePage(this.page, this.imageName);
   }
 
   async openEditImage(): Promise<ImageEditPage> {
+    await playExpect(this.editButton).toBeEnabled({ timeout: 30000 });
     await this.editButton.click();
     return new ImageEditPage(this.page, this.imageName);
   }
 
   async deleteImage(): Promise<ImagesPage> {
-    await waitUntil(async () => await this.deleteButton.isEnabled(), 15000, 500);
+    await playExpect(this.deleteButton).toBeEnabled({ timeout: 30000 });
     await this.deleteButton.click();
     await handleConfirmationDialog(this.page);
     return new ImagesPage(this.page);
