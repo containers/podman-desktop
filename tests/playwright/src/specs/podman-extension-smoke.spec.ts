@@ -64,7 +64,7 @@ describe('Verification of Podman extension', async () => {
   });
   test('Podman extension can be disabled from Podman Extension Page', async () => {
     const podmanExtensionPage = await openExtensionsPodmanPage();
-    await podmanExtensionPage.disableButton.click();
+    await podmanExtensionPage.disableExtension();
     await verifyPodmanExtensionStatus(false);
   });
   test('Podman extension can be re-enabled from Extension Page', async () => {

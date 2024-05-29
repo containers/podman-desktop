@@ -18,7 +18,6 @@
 
 import type { Locator, Page } from '@playwright/test';
 
-import { waitWhile } from '../../utility/wait';
 import { BasePage } from './base-page';
 import { PodsPage } from './pods-page';
 
@@ -41,14 +40,6 @@ export class CreatePodsPage extends BasePage {
   async createPod(podName: string): Promise<PodsPage> {
     await this.podNameBox.fill(podName);
     await this.createPodButton.click();
-    try {
-      await waitWhile(async () => await this.createPodButton.isVisible(), 20000, 700);
-    } catch (err) {
-      const errLocator = this.page.getByRole('alert', { name: 'Error Message Content' });
-      await errLocator.waitFor({ state: 'visible', timeout: 5000 });
-      const errMessage = await errLocator.innerText({ timeout: 1000 });
-      throw new Error(`Error creating pod: ${errMessage}`);
-    }
     return new PodsPage(this.page);
   }
 }
