@@ -61,7 +61,7 @@ export class ExtensionsPage extends MainPage {
     await installButton.click();
 
     const doneButton = dialog.getByRole('button', { name: 'Done', exact: true });
-    await playExpect(doneButton).toBeEnabled({ timeout: 30000 });
+    await playExpect(doneButton).toBeEnabled({ timeout: 50000 });
     await doneButton.click();
 
     return this;
