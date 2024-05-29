@@ -4,8 +4,8 @@
   "type": "module",
   "license": "Apache-2.0",
   "scripts": {
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "dev": "storybook dev -p 6006",
+    "build": "storybook build"
   },
   "peerDependencies": {
     "svelte": "^4.0.0",
