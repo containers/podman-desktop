@@ -2,6 +2,8 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { createEventDispatcher } from 'svelte';
 
+import { withConfirmation } from '/@/lib/dialogs/MessageBoxUtils';
+
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import type { DeploymentUI } from './DeploymentUI';
 
@@ -20,7 +22,6 @@ async function deleteDeployment(): Promise<void> {
 
 <ListItemButtonIcon
   title="Delete Deployment"
-  confirm="{true}"
-  onClick="{() => deleteDeployment()}"
+  onClick="{() => withConfirmation(deleteDeployment, 'Delete Deployment')}"
   detailed="{detailed}"
   icon="{faTrash}" />

@@ -5,6 +5,7 @@ import type { Unsubscriber } from 'svelte/motion';
 import { router } from 'tinro';
 
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
+import { withConfirmation } from '/@/lib/dialogs/MessageBoxUtils';
 import { context } from '/@/stores/context';
 import { saveImagesInfo } from '/@/stores/save-images-store';
 
@@ -102,8 +103,7 @@ function saveImage() {
 
 <ListItemButtonIcon
   title="Delete Image"
-  confirm="{true}"
-  onClick="{() => deleteImage()}"
+  onClick="{() => withConfirmation(deleteImage, 'Delete Image')}"
   detailed="{detailed}"
   icon="{faTrash}"
   enabled="{image.status === 'UNUSED'}" />
