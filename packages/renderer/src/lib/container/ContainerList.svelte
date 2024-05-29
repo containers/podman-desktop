@@ -690,16 +690,17 @@ function setStoppedFilter() {
     }}">
     <div
       role="presentation"
-      class="inline-block w-full overflow-hidden text-left transition-all transform bg-charcoal-600 z-50 rounded-xl shadow-xl shadow-charcoal-900"
+      class="inline-block w-full overflow-hidden text-left transition-all"
       on:keydown="{keydownChoice}">
-      <div class="flex items-center justify-between bg-black px-5 py-4 border-b-2 border-violet-700">
+      <div
+        class="flex items-center justify-between text-[var(--pd-modal-header-text)] bg-[var(--pd-modal-header-bg)] px-5 py-4 border-b-2 border-[var(--pd-modal-header-divider)]">
         <h1 class="text-xl font-bold">Create a new container</h1>
 
-        <button class="hover:text-gray-300 px-2 py-1" on:click="{() => toggleCreateContainer()}">
+        <button class="hover:text-[var(--pd-modal-text-hover)] px-2 py-1" on:click="{() => toggleCreateContainer()}">
           <i class="fas fa-times" aria-hidden="true"></i>
         </button>
       </div>
-      <div class="bg-charcoal-600 p-5 h-full flex flex-col justify-items-center">
+      <div class="p-5 h-full flex flex-col justify-items-center text-[var(--pd-modal-text)]">
         <span class="pb-3">Choose the following:</span>
         <ul class="list-disc ml-8 space-y-2">
           <li>Create a container from a Containerfile</li>

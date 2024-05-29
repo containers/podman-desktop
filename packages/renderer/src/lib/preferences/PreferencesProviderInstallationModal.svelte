@@ -22,14 +22,13 @@ function openLink(e: MouseEvent, url: string): void {
 
 {#if providerToBeInstalled}
   <Modal on:close="{() => closeCallback()}">
-    <div
-      class="inline-block w-full overflow-hidden text-left transition-all transform bg-charcoal-600 z-50 rounded-xl shadow-xl shadow-charcoal-900"
-      aria-label="install provider">
-      <div class="flex items-center justify-between px-5 py-4 mb-4">
+    <div class="inline-block w-full overflow-hidden text-left transition-all" aria-label="install provider">
+      <div
+        class="flex items-center justify-between px-5 py-4 mb-4 text-[var(--pd-modal-header-text)] bg-[var(--pd-modal-header-bg)]">
         <h1 class="text-md font-semibold">Create a new {providerToBeInstalled.displayName}</h1>
         <CloseButton class="px-2 py-1" on:click="{() => closeCallback()}" />
       </div>
-      <div class="overflow-y-auto px-4 pb-4">
+      <div class="overflow-y-auto px-4 pb-4 text-[var(--pd-modal-text)]">
         <div class="flex flex-col rounded-lg">
           <div class="mx-auto max-w-[250px] mb-5">
             <ProviderLogo provider="{providerToBeInstalled.provider}" />

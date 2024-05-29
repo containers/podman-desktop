@@ -111,11 +111,11 @@ function getButtonType(b: boolean): ButtonType {
 
 {#if display}
   <Modal name="{title}" on:close="{onClose}">
-    <div class="flex items-center justify-between pl-4 pr-3 py-3 space-x-2 text-gray-400">
+    <div class="flex items-center justify-between pl-4 pr-3 py-3 space-x-2 text-[var(--pd-modal-header-text)]">
       {#if type === 'error'}
-        <Fa class="h-4 w-4 text-red-500" icon="{faCircleExclamation}" />
+        <Fa class="h-4 w-4 text-[var(--pd-modal-error-text)]" icon="{faCircleExclamation}" />
       {:else if type === 'warning'}
-        <Fa class="h-4 w-4 text-amber-400" icon="{faTriangleExclamation}" />
+        <Fa class="h-4 w-4 text-[var(--pd-modal-warning-text)]" icon="{faTriangleExclamation}" />
       {:else if type === 'info'}
         <div class="flex">
           <Fa class="h-4 w-4 place-content-center" icon="{faCircle}" />
@@ -129,11 +129,11 @@ function getButtonType(b: boolean): ButtonType {
       <CloseButton on:click="{() => clickButton(cancelId >= 0 ? cancelId : undefined)}" />
     </div>
 
-    <div class="max-h-80 overflow-auto">
-      <div class="px-10 py-4 text-sm text-gray-500 leading-5" aria-label="Dialog Message">{message}</div>
+    <div class="max-h-80 overflow-auto text-[var(--pd-modal-text)]">
+      <div class="px-10 py-4 text-sm leading-5" aria-label="Dialog Message">{message}</div>
 
       {#if detail}
-        <div class="px-10 pb-4 text-sm text-gray-500 leading-5" aria-label="Dialog Details">{detail}</div>
+        <div class="px-10 pb-4 text-sm leading-5" aria-label="Dialog Details">{detail}</div>
       {/if}
     </div>
 
