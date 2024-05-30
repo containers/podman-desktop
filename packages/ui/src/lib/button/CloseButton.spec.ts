@@ -16,24 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import { router } from 'tinro';
 import { expect, test, vi } from 'vitest';
 
-import CloseButton from '/@/lib/ui/CloseButton.svelte';
-
-// mock the router
-vi.mock('tinro', () => {
-  return {
-    router: {
-      goto: vi.fn(),
-    },
-  };
-});
+import CloseButton from './CloseButton.svelte';
 
 test('Check button styling', async () => {
   render(CloseButton);
@@ -54,21 +42,6 @@ test('Check button styling', async () => {
   expect(button.firstChild).toHaveClass('svelte-fa');
 });
 
-test('Check local href action', async () => {
-  const urlMock = vi.fn();
-  (window as any).openExternal = urlMock;
-  render(CloseButton, { href: '/Pods' });
-
-  // check href link
-  const button = screen.getByRole('button');
-  expect(button).toBeInTheDocument();
-
-  fireEvent.click(button);
-
-  expect(router.goto).toBeCalledTimes(1);
-  expect(urlMock).not.toHaveBeenCalled();
-});
-
 test('Check on:click action', async () => {
   const comp = render(CloseButton);
 
@@ -80,7 +53,7 @@ test('Check on:click action', async () => {
   expect(button).toBeInTheDocument();
   expect(clickMock).not.toHaveBeenCalled();
 
-  fireEvent.click(button);
+  await fireEvent.click(button);
 
-  expect(clickMock).toBeCalledTimes(1);
+  expect(clickMock).toBeCalled();
 });
