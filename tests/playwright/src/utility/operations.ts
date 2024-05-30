@@ -39,13 +39,9 @@ export async function deleteContainer(page: Page, name: string): Promise<void> {
     console.log(`container '${name}' does not exist, skipping...`);
   } else {
     // stop container first, might not be running
-    try {
-      const stopButton = container.getByRole('button').and(container.getByLabel('Stop Container'));
-      await stopButton.waitFor({ state: 'visible', timeout: 2000 });
-      await stopButton.click();
-    } catch (error) {
-      // omit the exception
-    }
+    const stopButton = container.getByRole('button').and(container.getByLabel('Stop Container'));
+    if ((await stopButton.count()) > 0) await stopButton.click();
+
     // delete the container
     const deleteButton = container.getByRole('button').and(container.getByLabel('Delete Container'));
     await deleteButton.click();
@@ -53,10 +49,7 @@ export async function deleteContainer(page: Page, name: string): Promise<void> {
     // wait for container to disappear
     try {
       console.log('Waiting for container to get deleted ...');
-      await waitWhile(async () => {
-        const result = await containers.getContainerRowByName(name);
-        return !!result;
-      }, 5000);
+      await playExpect.poll(async () => await containers.getContainerRowByName(name), { timeout: 10000 }).toBeFalsy();
     } catch (error) {
       if (!(error as Error).message.includes('Page is empty')) {
         throw Error(`Error waiting for container '${name}' to get removed, ${error}`);
