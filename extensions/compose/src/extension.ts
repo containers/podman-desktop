@@ -95,7 +95,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       }
 
       // Log if it's downloaded and what version is being selected for download (can be either latest, or chosen by user)
-      telemetryLogger.logUsage('compose.onboarding.checkDownloadedCommand', {
+      telemetryLogger?.logUsage('compose.onboarding.checkDownloadedCommand', {
         downloaded: isDownloaded === '' ? false : true,
         version: composeVersionMetadata?.tag,
       });
@@ -113,7 +113,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         composeVersionMetadata = await composeDownload.getLatestVersionAsset();
       }
 
-      let downloaded: boolean;
+      let downloaded: boolean = false;
       try {
         // Download
         await composeDownload.download(composeVersionMetadata);
@@ -124,7 +124,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       } finally {
         // Make sure we log the telemetry even if we encounter an error
         // If we have downloaded the binary, we can log it as being succcessfully downloaded
-        telemetryLogger.logUsage('compose.onboarding.downloadCommand', {
+        telemetryLogger?.logUsage('compose.onboarding.downloadCommand', {
           successful: downloaded,
           version: composeVersionMetadata?.tag,
         });
@@ -147,7 +147,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       }
 
       // Log the telemetry that the user picked a version
-      telemetryLogger.logUsage('compose.onboarding.promptUserForVersion', {
+      telemetryLogger?.logUsage('compose.onboarding.promptUserForVersion', {
         version: composeRelease?.tag,
       });
 
@@ -165,12 +165,15 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     async () => {
       // This is TEMPORARY until we re-add the "Installing compose system wide" toggle again
       // We will just call the handler function directly
-      let installed: boolean;
+      let installed: boolean = false;
       try {
         await handler.installComposeBinary(detect, extensionContext);
         // update the cli version
-        const versionInstalled = composeVersionMetadata.tag.replace('v', '');
-        composeCliTool.updateVersion({
+        const versionInstalled = composeVersionMetadata?.tag.replace('v', '');
+        if (!versionInstalled) {
+          return;
+        }
+        composeCliTool?.updateVersion({
           version: versionInstalled,
         });
         // if installed version is the newest, dispose the updater
@@ -180,7 +183,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         }
         installed = true;
       } finally {
-        telemetryLogger.logUsage('compose.onboarding.installSystemWideCommand', {
+        telemetryLogger?.logUsage('compose.onboarding.installSystemWideCommand', {
           successful: installed,
         });
       }
@@ -263,10 +266,10 @@ async function postActivate(
         // download, install system wide and update cli version
         await composeDownload.download(lastReleaseMetadata);
         await installBinaryToSystem(binaryPath, 'docker-compose');
-        composeCliTool.updateVersion({
+        composeCliTool?.updateVersion({
           version: lastReleaseVersion,
         });
-        composeCliToolUpdaterDisposable.dispose();
+        composeCliToolUpdaterDisposable?.dispose();
       },
     });
   }

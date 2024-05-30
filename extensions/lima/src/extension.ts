@@ -97,8 +97,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const socketName: string = configuration.getConfiguration('lima').get('socket') || engineType + '.sock';
 
   const limaHome = 'LIMA_HOME' in process.env ? process.env['LIMA_HOME'] : os.homedir() + '/.lima';
-  const socketPath = path.resolve(limaHome, instanceName + '/sock/' + socketName);
-  const configPath = path.resolve(limaHome, instanceName + '/copied-from-guest/kubeconfig.yaml');
+  const socketPath = path.resolve(limaHome ?? '', instanceName + '/sock/' + socketName);
+  const configPath = path.resolve(limaHome ?? '', instanceName + '/copied-from-guest/kubeconfig.yaml');
 
   let provider;
   if (fs.existsSync(socketPath) || fs.existsSync(configPath)) {

@@ -132,7 +132,9 @@ async function setContext(newContext: string): Promise<void> {
   const kubeConfig = jsYaml.load(kubeConfigRawContent);
 
   // update the context
-  kubeConfig['current-context'] = newContext;
+  if (kubeConfig) {
+    kubeConfig['current-context'] = newContext;
+  }
 
   // write again the file using promises fs
   await fs.promises.writeFile(

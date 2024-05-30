@@ -31,7 +31,7 @@ import { KubectlGitHubReleases } from './kubectl-github-releases';
 const extensionContext = {
   subscriptions: [],
   storagePath: '/tmp/kubectl-cli',
-} as extensionApi.ExtensionContext;
+} as unknown as extensionApi.ExtensionContext;
 
 vi.mock('./cli-run', () => ({
   installBinaryToSystem: vi.fn(),
