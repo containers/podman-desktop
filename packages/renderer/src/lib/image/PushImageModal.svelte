@@ -1,13 +1,11 @@
 <script lang="ts">
 import { faCheckCircle, faCircleArrowUp, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { Button, Link, Modal } from '@podman-desktop/ui-svelte';
+import { Button, CloseButton, Link, Modal } from '@podman-desktop/ui-svelte';
 import { onMount, tick } from 'svelte';
 import Fa from 'svelte-fa';
 import { router } from 'tinro';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
-
-import CloseButton from '/@/lib/ui/CloseButton.svelte';
 
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
 import type { ImageInfoUI } from './ImageInfoUI';

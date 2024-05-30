@@ -1,10 +1,9 @@
 <script lang="ts">
 import { faRefresh, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Button, Modal } from '@podman-desktop/ui-svelte';
+import { Button, CloseButton, Modal } from '@podman-desktop/ui-svelte';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
 
-import CloseButton from '/@/lib/ui/CloseButton.svelte';
 import type { EventStoreInfo } from '/@/stores/event-store';
 
 export let closeCallback: () => void;
