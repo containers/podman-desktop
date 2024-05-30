@@ -282,19 +282,12 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       const pods = await navigationBar.openPods();
       const podDetailsPage = await pods.openPodDetails(podToRun);
       await podDetailsPage.stopPod(podToRun, true);
-      await pdRunner.screenshot('pods-pod-stopped-sr.png');
+      await playExpect.poll(async () => await podDetailsPage.getState(), { timeout: 30000 }).toBe(PodState.Exited);
 
       await podDetailsPage.startPod(true);
-      await waitUntil(
-        async () => {
-          return (await podDetailsPage.getState()) === PodState.Running;
-        },
-        21000,
-        1500,
-      );
+      await playExpect.poll(async () => await podDetailsPage.getState(), { timeout: 30000 }).toBe(PodState.Running);
       const startButton = podDetailsPage.getPage().getByRole('button', { name: 'Stop Pod', exact: true });
       await playExpect(startButton).toBeVisible();
-      await pdRunner.screenshot('pods-pod-started-again.png');
     });
 
     test('Stopping and deleting pod', async () => {
@@ -302,13 +295,12 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       const pods = await navigationBar.openPods();
       const podDetailsPage = await pods.openPodDetails(podToRun);
       await podDetailsPage.stopPod(podToRun, true);
-      await pdRunner.screenshot('pods-pod-stopped-sd.png');
+      await playExpect.poll(async () => await podDetailsPage.getState(), { timeout: 30000 }).toBe(PodState.Exited);
 
       await playExpect(podDetailsPage.heading).toContainText(podToRun);
-      const podsPage = await podDetailsPage.deletePod(10000);
-      playExpect(podsPage).toBeDefined();
-      playExpect(await podsPage.podExists(podToRun)).toBeFalsy();
-      await pdRunner.screenshot('pods-pod-deleted.png');
+      const podsPage = await podDetailsPage.deletePod();
+      await playExpect(podsPage.heading).toBeVisible();
+      await playExpect.poll(async () => await podsPage.podExists(podToRun), { timeout: 20000 }).toBeFalsy();
     });
 
     test('Pruning pods', async () => {
@@ -338,6 +330,8 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       for (const pod of podNames) {
         const podDetailsPage = await new PodsPage(page).openPodDetails(pod);
         await podDetailsPage.stopPod(pod, true);
+        await playExpect.poll(async () => await podDetailsPage.getState(), { timeout: 30000 }).toBe(PodState.Exited);
+
         const podsPage = await navigationBar.openPods();
         await playExpect(podsPage.heading).toBeVisible();
         await podsPage.prunePods();
