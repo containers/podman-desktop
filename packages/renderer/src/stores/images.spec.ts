@@ -130,7 +130,7 @@ describe('filtered images tests', () => {
     expect(images[0].isManifest).toBe(false);
   });
 
-  test('images with isManifest true should be excluded', async () => {
+  test('images with isManifest true should be included', async () => {
     // isManifest but set to true
     listImagesMock.mockResolvedValue([{ Id: 4, isManifest: true } as unknown as ImageInfo]);
 
@@ -143,7 +143,7 @@ describe('filtered images tests', () => {
     // Check the filtered images, make sure that we do NOT have any images
     // as we do not want filtered to show images with isManifest set to true
     const images = get(filtered);
-    expect(images.length).toBe(0);
+    expect(images.length).toBe(1);
   });
 
   test('check against 3 images with different isManifest values', async () => {
@@ -163,15 +163,15 @@ describe('filtered images tests', () => {
     // Check the filtered images
     const images = get(filtered);
 
-    // Expect to have 2 images, one with isManifest set to false and one with isManifest field missing
-    expect(images.length).toBe(2);
+    // Expect to have 3 images now
+    expect(images.length).toBe(3);
 
     // Check the first image
     expect(images[0].Id).toBe(5);
     expect(images[0].isManifest).toBe(false);
 
     // Check the second image
-    expect(images[1].Id).toBe(7);
-    expect(images[1].isManifest).toBeUndefined();
+    expect(images[1].Id).toBe(6);
+    expect(images[1].isManifest).toBeDefined();
   });
 });

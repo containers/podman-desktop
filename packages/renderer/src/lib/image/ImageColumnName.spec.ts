@@ -163,3 +163,20 @@ test('Expect badge with light color', async () => {
   // check background color
   expect(badge).toHaveStyle('background-color: #00ff00');
 });
+
+test('Expect if image is a manifest, the on:click IS there', async () => {
+  const manifestImage: ImageInfoUI = {
+    ...image,
+    isManifest: true,
+  };
+  render(ImageColumnName, { object: manifestImage });
+
+  // Make sure text shows image name then (manifest)
+  const text = screen.getByText(`${image.name} (manifest)`);
+  expect(text).toBeInTheDocument();
+
+  // test click
+  const routerGotoSpy = vi.spyOn(router, 'goto');
+  fireEvent.click(text);
+  expect(routerGotoSpy).toBeCalled();
+});

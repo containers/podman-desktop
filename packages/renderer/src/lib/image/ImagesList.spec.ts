@@ -20,7 +20,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { render, screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { get } from 'svelte/store';
 import { router } from 'tinro';
@@ -442,4 +442,81 @@ test('Expect load images button redirects to images load page', async () => {
 
   await userEvent.click(btnLoadImages);
   expect(goToMock).toBeCalledWith('/images/load');
+});
+
+test('Manifest images display without actions', async () => {
+  getProviderInfosMock.mockResolvedValue([
+    {
+      name: 'podman',
+      status: 'started',
+      internalId: 'podman-internal-id',
+      containerConnections: [
+        {
+          name: 'podman-machine-default',
+          status: 'started',
+        },
+      ],
+    },
+  ]);
+
+  // Set up the image list with one normal image and one manifest image
+  listImagesMock.mockResolvedValue([
+    {
+      Id: 'sha256:1234567890123',
+      RepoTags: ['normalimage:latest'],
+      Created: 1644009612,
+      Size: 123,
+      Status: 'Running',
+      engineId: 'podman',
+      engineName: 'podman',
+    },
+    {
+      Id: 'sha256:7897891234567890123',
+      RepoTags: ['manifestimage:latest'],
+      Created: 1644109612,
+      Size: 123,
+      Status: 'Running',
+      engineId: 'podman',
+      engineName: 'podman',
+      isManifest: true,
+    },
+  ]);
+
+  // dispatch events
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('image-build'));
+
+  // wait store are populated
+  while (get(imagesInfos).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  while (get(providerInfos).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  await waitRender({});
+
+  const manifestImageRow = screen.getByRole('row', { name: 'manifestimage' });
+  expect(manifestImageRow).toBeInTheDocument();
+  // Check that the manifest image is displayed with no:
+  // Push Image
+  // Edit Image
+  // Delete Image
+  // Save Image
+  // or Show History buttons
+  const pushImageButton = within(manifestImageRow).queryByRole('button', { name: 'Push Image' });
+  expect(pushImageButton).not.toBeInTheDocument();
+  const editImageButton = within(manifestImageRow).queryByRole('button', { name: 'Edit Image' });
+  expect(editImageButton).not.toBeInTheDocument();
+  const deleteImageButton = within(manifestImageRow).queryByRole('button', { name: 'Delete Image' });
+  expect(deleteImageButton).not.toBeInTheDocument();
+  const saveImageButton = within(manifestImageRow).queryByRole('button', { name: 'Save Image' });
+  expect(saveImageButton).not.toBeInTheDocument();
+  const showHistoryButton = within(manifestImageRow).queryByRole('button', { name: 'Show History' });
+  expect(showHistoryButton).not.toBeInTheDocument();
+
+  // Verify normal image is shown still.
+  const normalImageRow = screen.getByRole('row', { name: 'normalimage' });
+  expect(normalImageRow).toBeInTheDocument();
 });

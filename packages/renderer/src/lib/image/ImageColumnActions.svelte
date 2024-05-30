@@ -26,24 +26,28 @@ function closeModals() {
 }
 </script>
 
-<ImageActions
-  image="{object}"
-  onPushImage="{handlePushImageModal}"
-  onRenameImage="{handleRenameImageModal}"
-  dropdownMenu="{true}"
-  on:update />
+<!-- There is no support for interacting with manifests yet, so do not show any manifest-related-image-actions. -->
 
-{#if pushImageModal && pushImageModalImageInfo}
-  <PushImageModal
-    imageInfoToPush="{pushImageModalImageInfo}"
-    closeCallback="{() => {
-      closeModals();
-    }}" />
-{/if}
-{#if renameImageModal && renameImageModalImageInfo}
-  <RenameImageModal
-    imageInfoToRename="{renameImageModalImageInfo}"
-    closeCallback="{() => {
-      closeModals();
-    }}" />
+{#if !object.isManifest}
+  <ImageActions
+    image="{object}"
+    onPushImage="{handlePushImageModal}"
+    onRenameImage="{handleRenameImageModal}"
+    dropdownMenu="{true}"
+    on:update />
+
+  {#if pushImageModal && pushImageModalImageInfo}
+    <PushImageModal
+      imageInfoToPush="{pushImageModalImageInfo}"
+      closeCallback="{() => {
+        closeModals();
+      }}" />
+  {/if}
+  {#if renameImageModal && renameImageModalImageInfo}
+    <RenameImageModal
+      imageInfoToRename="{renameImageModalImageInfo}"
+      closeCallback="{() => {
+        closeModals();
+      }}" />
+  {/if}
 {/if}
