@@ -86,8 +86,11 @@ export class BuildImagePage extends BasePage {
     }
 
     await playExpect(this.buildButton).toBeEnabled();
+    await this.buildButton.scrollIntoViewIfNeeded();
     await this.buildButton.click();
+
     await playExpect(this.doneButton).toBeEnabled({ timeout: 120000 });
+    await this.doneButton.scrollIntoViewIfNeeded();
     await this.doneButton.click();
     return new ImagesPage(this.page);
   }
