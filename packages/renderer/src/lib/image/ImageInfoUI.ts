@@ -37,4 +37,5 @@ export interface ImageInfoUI {
   icon: any;
   labels?: { [label: string]: string };
   badges: ViewContributionBadgeValue[];
+  isManifest?: boolean;
 }

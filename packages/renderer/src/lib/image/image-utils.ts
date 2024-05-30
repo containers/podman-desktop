@@ -34,6 +34,7 @@ import {
 import type { ContextUI } from '../context/context';
 import { ContextKeyExpr } from '../context/contextKey';
 import ImageIcon from '../images/ImageIcon.svelte';
+import ManifestIcon from '../images/ManifestIcon.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 
 export class ImageUtils {
@@ -169,8 +170,13 @@ export class ImageUtils {
     context?: ContextUI,
     viewContributions?: ViewInfoUI[],
   ): ImageInfoUI[] {
-    const icon = this.iconClass(imageInfo, context, viewContributions) || ImageIcon;
+    let icon = this.iconClass(imageInfo, context, viewContributions) || ImageIcon;
     const badges = this.computeBagdes(imageInfo, context, viewContributions);
+
+    // Use the manifest icon if it's a manifest
+    if (imageInfo.isManifest) {
+      icon = ManifestIcon;
+    }
 
     if (!imageInfo.RepoTags) {
       return [
@@ -191,6 +197,7 @@ export class ImageUtils {
           badges,
           icon,
           labels: imageInfo.Labels,
+          isManifest: imageInfo.isManifest,
         },
       ];
     } else {
@@ -212,6 +219,7 @@ export class ImageUtils {
           badges,
           icon,
           labels: imageInfo.Labels,
+          isManifest: imageInfo.isManifest,
         };
       });
     }
