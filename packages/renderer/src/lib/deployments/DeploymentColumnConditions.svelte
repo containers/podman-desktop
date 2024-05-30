@@ -1,25 +1,27 @@
 <script lang="ts">
+import { faCheckCircle, faExclamationTriangle, faQuestionCircle, faSync } from '@fortawesome/free-solid-svg-icons';
 import { Tooltip } from '@podman-desktop/ui-svelte';
+import Fa from 'svelte-fa';
 
 import type { DeploymentUI } from './DeploymentUI';
 
 export let object: DeploymentUI;
 
-// Each condition has a colour associated to it within tailwind, this is a map of those colours.
-// bg-green-600 = Available
-// bg-sky-400 = Progressing
-// bg-amber-600 = ReplicaFailure
-// bg-gray-900 = unknown
-function getConditionColour(type: string): string {
+// Determine both the icon and color based on the deployment condition
+function getConditionAttributes(type: string) {
   switch (type) {
     case 'Available':
-      return 'bg-green-600';
+      // faCheckCircle: Indicates a successful state, typically used to denote availability and operational readiness
+      return { color: 'text-green-600', icon: faCheckCircle };
     case 'Progressing':
-      return 'bg-sky-400';
+      // faSync: Often used to represent ongoing processes or operations, fitting for a "Progressing" state
+      return { color: 'text-sky-400', icon: faSync };
     case 'ReplicaFailure':
-      return 'bg-amber-600';
+      // faExclamationTriangle: Alerts and warnings
+      return { color: 'text-amber-600', icon: faExclamationTriangle };
     default:
-      return 'bg-gray-900';
+      // faQuestionCircle: Uncertain / unknown
+      return { color: 'text-gray-900', icon: faQuestionCircle };
   }
 }
 </script>
@@ -29,7 +31,10 @@ function getConditionColour(type: string): string {
     <Tooltip bottom>
       <svelte:fragment slot="content">
         <div class="flex flex-row bg-charcoal-500 items-center p-1 rounded-md text-xs text-gray-500">
-          <div class="w-2 h-2 {getConditionColour(condition.type)} rounded-full mr-1"></div>
+          <Fa
+            size="1x"
+            icon="{getConditionAttributes(condition.type).icon}"
+            class="{getConditionAttributes(condition.type).color} mr-1" />
           {condition.type}
         </div>
       </svelte:fragment>
