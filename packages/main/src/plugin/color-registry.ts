@@ -237,6 +237,7 @@ export class ColorRegistry {
     this.initDetails();
     this.initTab();
     this.initModal();
+    this.initLink();
     this.initButton();
   }
 
