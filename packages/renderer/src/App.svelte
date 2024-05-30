@@ -38,6 +38,7 @@ import IngressDetails from './lib/ingresses-routes/IngressDetails.svelte';
 import IngressesRoutesList from './lib/ingresses-routes/IngressesRoutesList.svelte';
 import RouteDetails from './lib/ingresses-routes/RouteDetails.svelte';
 import KubePlayYAML from './lib/kube/KubePlayYAML.svelte';
+import ManifestDetails from './lib/manifest/ManifestDetails.svelte';
 import Onboarding from './lib/onboarding/Onboarding.svelte';
 import DeployPodToKube from './lib/pod/DeployPodToKube.svelte';
 import PodCreateFromContainers from './lib/pod/PodCreateFromContainers.svelte';
@@ -123,6 +124,16 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
 
         <Route path="/images" breadcrumb="Images" navigationHint="root">
           <ImagesList />
+        </Route>
+        <Route
+          path="/manifests/:id/:engineId/:base64RepoTag/*"
+          breadcrumb="Manifest Details"
+          let:meta
+          navigationHint="details">
+          <ManifestDetails
+            imageID="{meta.params.id}"
+            engineId="{decodeURI(meta.params.engineId)}"
+            base64RepoTag="{meta.params.base64RepoTag}" />
         </Route>
         <Route
           path="/images/:id/:engineId/:base64RepoTag/*"

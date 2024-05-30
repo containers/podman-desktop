@@ -6,14 +6,16 @@ import type { ImageInfoUI } from './ImageInfoUI';
 
 export let object: ImageInfoUI;
 
-function openDetailsImage(image: ImageInfoUI) {
-  router.goto(`/images/${image.id}/${image.engineId}/${image.base64RepoTag}/summary`);
+function openDetails(image: ImageInfoUI) {
+  if (image.isManifest) {
+    router.goto(`/manifests/${image.id}/${image.engineId}/${image.base64RepoTag}/summary`);
+  } else {
+    router.goto(`/images/${image.id}/${image.engineId}/${image.base64RepoTag}/summary`);
+  }
 }
 </script>
 
-<button
-  class="flex flex-col {object.isManifest ? 'cursor-default' : ''}"
-  on:click="{object.isManifest ? undefined : () => openDetailsImage(object)}">
+<button class="flex flex-col" on:click="{() => openDetails(object)}">
   <div class="flex flex-row text-xs gap-1 items-center">
     <div class="text-sm text-[var(--pd-table-body-text-highlight)]">
       {object.name}
