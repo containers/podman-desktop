@@ -1,28 +1,31 @@
 <script lang="ts">
+import { faBalanceScale, faNetworkWired, faPlug, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import { Fa } from 'svelte-fa';
+
 import type { ServiceUI } from './ServiceUI';
 
 export let object: ServiceUI;
 
-// Each type has a colour associated to it within tailwind, this is a map of those colours.
-// bg-sky-500 = ClusterIP
-// bg-purple-500 = LoadBalancer
-// bg-fuschia-600 = NodePort
-// bg-gray-900 = unknown
-function getTypeColour(type: string): string {
+// Determine both the icon and color based on the service type
+function getTypeAttributes(type: string) {
   switch (type) {
     case 'ClusterIP':
-      return 'bg-sky-500';
+      // faNetworkWired: Represents internal network connections, suitable for ClusterIP
+      return { color: 'text-sky-500', icon: faNetworkWired };
     case 'LoadBalancer':
-      return 'bg-purple-500';
+      // faBalanceScale: Symbolizes distribution, fitting for LoadBalancer that distributes traffic
+      return { color: 'text-purple-500', icon: faBalanceScale };
     case 'NodePort':
-      return 'bg-fuschia-600';
+      // faPlug: Indicates a connection point, appropriate for NodePort which exposes services on each Node's IP
+      return { color: 'text-fuschia-600', icon: faPlug };
     default:
-      return 'bg-gray-600';
+      // faQuestionCircle: Used for unknown or unspecified types
+      return { color: 'text-gray-600', icon: faQuestionCircle };
   }
 }
 </script>
 
 <div class="flex flex-row bg-charcoal-500 items-center p-1 rounded-md text-xs text-gray-500">
-  <div class="w-2 h-2 {getTypeColour(object.type)} rounded-full mr-1"></div>
+  <Fa size="1x" icon="{getTypeAttributes(object.type).icon}" class="{getTypeAttributes(object.type).color} mr-1" />
   {object.type}
 </div>
