@@ -18,6 +18,7 @@
 import ErrorMessage from './alert/ErrorMessage.svelte';
 import type { ButtonType } from './button/Button';
 import Button from './button/Button.svelte';
+import CloseButton from './button/CloseButton.svelte';
 import Checkbox from './checkbox/Checkbox.svelte';
 import DropdownMenu from './dropdownMenu';
 import Input from './inputs/Input.svelte';
@@ -42,6 +43,7 @@ export type { ButtonType };
 export {
   Button,
   Checkbox,
+  CloseButton,
   DropdownMenu,
   EmptyScreen,
   ErrorMessage,

@@ -1,8 +1,6 @@
 <script lang="ts">
-import { LinearProgress, Link } from '@podman-desktop/ui-svelte';
+import { CloseButton, LinearProgress, Link } from '@podman-desktop/ui-svelte';
 import { router } from 'tinro';
-
-import CloseButton from '/@/lib/ui/CloseButton.svelte';
 
 import { currentPage, lastPage } from '../../stores/breadcrumb';
 
@@ -33,7 +31,7 @@ function handleKeydown(e: KeyboardEvent) {
             >{$lastPage.name}</Link>
           <div class="mx-2">&gt;</div>
           <div class="grow font-extralight" aria-label="name">{$currentPage.name}</div>
-          <CloseButton href="{$lastPage.path}" class="justify-self-end" />
+          <CloseButton class="justify-self-end" on:click="{() => router.goto($lastPage.path)}" />
         </div>
       {/if}
       <div class="flex flex-row items-center pt-1">
@@ -52,7 +50,7 @@ function handleKeydown(e: KeyboardEvent) {
             </div>
           {/if}
           {#if !showBreadcrumb}
-            <CloseButton href="{$lastPage.path}" />
+            <CloseButton class="justify-self-end" on:click="{() => router.goto($lastPage.path)}" />
           {/if}
         </div>
       </div>
