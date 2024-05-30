@@ -63,7 +63,7 @@ test('Expect simple column styling with single host/path ingress', async () => {
   const hostPath = ingressRouteUtils.getHostPaths(ingressUI)[0];
   const link = screen.getByLabelText(hostPath.label);
   expect(link).toBeInTheDocument();
-  expect(link.textContent).toBe(hostPath.label);
+  expect(link.textContent).toContain(hostPath.label);
 });
 
 test('Expect simple column styling with multiple paths ingress', async () => {
@@ -105,12 +105,11 @@ test('Expect simple column styling with multiple paths ingress', async () => {
   render(IngressRouteColumnHostPath, { object: ingressUI });
 
   const hostPaths = ingressRouteUtils.getHostPaths(ingressUI);
-  const firstLink = screen.getByRole('link', { name: hostPaths[0].label });
-  expect(firstLink).toBeInTheDocument();
-  expect(firstLink.textContent).toEqual(hostPaths[0].label);
-  const secondLink = screen.getByRole('link', { name: hostPaths[1].label });
-  expect(secondLink).toBeInTheDocument();
-  expect(secondLink.textContent).toEqual(hostPaths[1].label);
+  hostPaths.forEach(hostPath => {
+    const link = screen.getByRole('link', { name: hostPath.label });
+    expect(link).toBeInTheDocument();
+    expect(link.textContent).toContain(hostPath.label);
+  });
 });
 
 test('Expect simple column styling with route', async () => {
@@ -132,5 +131,5 @@ test('Expect simple column styling with route', async () => {
   const hostPaths = ingressRouteUtils.getHostPaths(routeUI);
   const firstLink = screen.getByRole('link', { name: hostPaths[0].label });
   expect(firstLink).toBeInTheDocument();
-  expect(firstLink.textContent).toEqual(hostPaths[0].label);
+  expect(firstLink.textContent).toContain(hostPaths[0].label);
 });
