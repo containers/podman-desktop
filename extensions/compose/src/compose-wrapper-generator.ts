@@ -19,7 +19,8 @@
 import { promises } from 'node:fs';
 
 import type * as extensionApi from '@podman-desktop/api';
-import { render } from 'mustache';
+// @ts-expect-error ignore type error https://github.com/janl/mustache.js/issues/797
+import mustache from 'mustache';
 
 import type { OS } from './os';
 import batMustacheTemplate from './templates/podman-compose.bat.mustache?raw';
@@ -44,7 +45,7 @@ export class ComposeWrapperGenerator {
     }
 
     // render the template
-    return render(template, { socketPath, binFolder: this.binFolder });
+    return mustache.render(template, { socketPath, binFolder: this.binFolder });
   }
 
   async generate(connection: extensionApi.ProviderContainerConnection, path: string): Promise<void> {
