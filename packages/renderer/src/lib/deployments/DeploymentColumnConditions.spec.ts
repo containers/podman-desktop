@@ -47,7 +47,7 @@ test('Expect column styling available', async () => {
 
   const dot = text.parentElement?.children[0].children[0];
   expect(dot).toBeInTheDocument();
-  expect(dot).toHaveClass('bg-green-600');
+  expect(dot).toHaveClass('text-green-600');
 });
 
 test('Expect column styling failure', async () => {
@@ -59,7 +59,7 @@ test('Expect column styling failure', async () => {
 
   const dot = text.parentElement?.children[0].children[0];
   expect(dot).toBeInTheDocument();
-  expect(dot).toHaveClass('bg-amber-600');
+  expect(dot).toHaveClass('text-amber-600');
 });
 
 test('Expect column styling progressing', async () => {
@@ -71,5 +71,5 @@ test('Expect column styling progressing', async () => {
 
   const dot = text.parentElement?.children[0].children[0];
   expect(dot).toBeInTheDocument();
-  expect(dot).toHaveClass('bg-sky-400');
+  expect(dot).toHaveClass('text-sky-400');
 });
