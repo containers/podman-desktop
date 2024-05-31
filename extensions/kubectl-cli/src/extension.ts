@@ -113,7 +113,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       }
 
       // Log if it's downloaded and what version is being selected for download (can be either latest, or chosen by user)
-      telemetryLogger.logUsage('kubectl.onboarding.checkDownloadedCommand', {
+      telemetryLogger?.logUsage('kubectl.onboarding.checkDownloadedCommand', {
         downloaded: isDownloaded !== '',
         version: kubectlVersionMetadata?.tag,
       });
@@ -131,14 +131,14 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         kubectlVersionMetadata = await kubectlDownload.getLatestVersionAsset();
       }
 
-      let downloaded: boolean;
+      let downloaded: boolean = false;
       try {
         // Download
         await kubectlDownload.download(kubectlVersionMetadata);
 
         // We are all done, so we can set the context value to false / downloaded to true
         extensionApi.context.setValue('kubectlIsNotDownloaded', false, 'onboarding');
-        kubectlCliTool.updateVersion({
+        kubectlCliTool?.updateVersion({
           version: kubectlVersionMetadata.tag.slice(1),
         });
         // if installed version is the newest, dispose the updater
@@ -150,7 +150,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       } finally {
         // Make sure we log the telemetry even if we encounter an error
         // If we have downloaded the binary, we can log it as being succcessfully downloaded
-        telemetryLogger.logUsage('kubectl.onboarding.downloadCommand', {
+        telemetryLogger?.logUsage('kubectl.onboarding.downloadCommand', {
           successful: downloaded,
           version: kubectlVersionMetadata?.tag,
         });
@@ -173,7 +173,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       }
 
       // Log the telemetry that the user picked a version
-      telemetryLogger.logUsage('kubectl.onboarding.promptUserForVersion', {
+      telemetryLogger?.logUsage('kubectl.onboarding.promptUserForVersion', {
         version: kubectlRelease?.tag,
       });
 
@@ -191,12 +191,12 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     async () => {
       // This is TEMPORARY until we re-add the "Installing kubectl system wide" toggle again
       // We will just call the handler function directly
-      let installed: boolean;
+      let installed: boolean = false;
       try {
         await handler.installKubectlBinary(detect, extensionContext);
         installed = true;
       } finally {
-        telemetryLogger.logUsage('kubectl.onboarding.installSystemWideCommand', {
+        telemetryLogger?.logUsage('kubectl.onboarding.installSystemWideCommand', {
           successful: installed,
         });
       }
@@ -334,10 +334,10 @@ async function postActivate(
         // download, install system wide and update cli version
         const binaryPath = await kubectlDownload.download(lastReleaseMetadata);
         await installBinaryToSystem(binaryPath, 'kubectl');
-        kubectlCliTool.updateVersion({
+        kubectlCliTool?.updateVersion({
           version: lastReleaseVersion,
         });
-        kubectlCliToolUpdaterDisposable.dispose();
+        kubectlCliToolUpdaterDisposable?.dispose();
       },
     });
   }

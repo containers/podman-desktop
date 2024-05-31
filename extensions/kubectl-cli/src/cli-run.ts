@@ -46,8 +46,8 @@ export async function installBinaryToSystem(binaryPath: string, binaryName: stri
   // Create the appropriate destination path (Windows uses AppData/Local, Linux and Mac use /usr/local/bin)
   // and the appropriate command to move the binary to the destination path
   let destinationPath: string;
-  let args: string[];
-  let command: string;
+  let args: string[] = [];
+  let command: string | undefined;
   if (system === 'win32') {
     destinationPath = path.join(os.homedir(), 'AppData', 'Local', 'Microsoft', 'WindowsApps', `${binaryName}.exe`);
     command = 'copy';
@@ -75,6 +75,9 @@ export async function installBinaryToSystem(binaryPath: string, binaryName: stri
 
   try {
     // Use admin prileges / ask for password for copying to /usr/local/bin
+    if (!command) {
+      throw new Error('No command defined');
+    }
     await extensionApi.process.exec(command, args, { isAdmin: true });
     console.log(`Successfully installed '${binaryName}' binary.`);
   } catch (error) {

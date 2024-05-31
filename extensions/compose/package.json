@@ -155,8 +155,9 @@
     "shell-path": "^3.0.0"
   },
   "devDependencies": {
-    "adm-zip": "^0.5.12",
     "@podman-desktop/api": "^0.0.1",
+    "@types/mustache": "^4.2.5",
+    "adm-zip": "^0.5.12",
     "mkdirp": "^3.0.1",
     "vite": "^5.2.12",
     "vitest": "^1.6.0"
