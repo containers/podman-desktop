@@ -94,7 +94,9 @@ export async function installComposeBinary(
 }
 
 function getComposeBinarySetting(): boolean {
-  return extensionApi.configuration.getConfiguration('compose.binary').get<boolean>('installComposeSystemWide');
+  return (
+    extensionApi.configuration.getConfiguration('compose.binary').get<boolean>('installComposeSystemWide') ?? false
+  );
 }
 
 // Update both the configuration as well as context values

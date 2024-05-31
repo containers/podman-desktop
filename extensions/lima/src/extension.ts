@@ -97,8 +97,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const socketName: string = configuration.getConfiguration('lima').get('socket') || engineType + '.sock';
 
   const limaHome = 'LIMA_HOME' in process.env ? process.env['LIMA_HOME'] : os.homedir() + '/.lima';
-  const socketPath = path.resolve(limaHome, instanceName + '/sock/' + socketName);
-  const configPath = path.resolve(limaHome, instanceName + '/copied-from-guest/kubeconfig.yaml');
+  const socketPath = path.resolve(limaHome ?? '', instanceName + '/sock/' + socketName);
+  const configPath = path.resolve(limaHome ?? '', instanceName + '/copied-from-guest/kubeconfig.yaml');
 
   let provider;
   if (fs.existsSync(socketPath) || fs.existsSync(configPath)) {
@@ -120,7 +120,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // container provider
   if (socketName !== 'kubernetes.sock') {
     const providerType = engineType === 'kubernetes' ? 'docker' : (engineType as limaProviderType);
-    if (fs.existsSync(socketPath)) {
+    if (fs.existsSync(socketPath) && provider) {
       registerProvider(extensionContext, provider, providerType, socketPath, instanceName);
     } else {
       console.debug(`Could not find socket at ${socketPath}`);
@@ -129,7 +129,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // kubernetes provider
   if (engineType === 'kubernetes') {
     const providerType = engineType as limaProviderType;
-    if (fs.existsSync(configPath)) {
+    if (fs.existsSync(configPath) && provider) {
       registerProvider(extensionContext, provider, providerType, configPath, instanceName);
     } else {
       console.debug(`Could not find config at ${configPath}`);

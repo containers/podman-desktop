@@ -36,15 +36,15 @@ export class ImageHandler {
     // Only proceed if instance was given
     if (instanceName) {
       let name = image.name;
-      let filename: string;
-      const env = Object.assign({}, process.env);
+      let filename: string | undefined;
+      const env = Object.assign({}, process.env) as { [key: string]: string };
 
       // Create a name:tag string for the image
       if (image.tag) {
         name = name + ':' + image.tag;
       }
 
-      env.PATH = getInstallationPath();
+      env.PATH = getInstallationPath() ?? '';
       try {
         // Create a temporary file to store the image
         filename = await tmpName();

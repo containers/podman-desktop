@@ -56,13 +56,15 @@ const fsActual = await vi.importActual<typeof import('node:fs')>('node:fs');
 const resultREST = JSON.parse(
   fsActual.readFileSync(path.resolve(__dirname, '../tests/resources/kubectl-github-release-all.json'), 'utf8'),
 );
-const releases: KubectlGithubReleaseArtifactMetadata[] = resultREST.map(release => {
-  return {
-    label: release.name || release.tag_name,
-    tag: release.tag_name,
-    id: release.id,
-  };
-});
+const releases: KubectlGithubReleaseArtifactMetadata[] = resultREST.map(
+  (release: { name: string; tag_name: string; id: number }) => {
+    return {
+      label: release.name || release.tag_name,
+      tag: release.tag_name,
+      id: release.id,
+    };
+  },
+);
 
 beforeEach(() => {
   vi.resetAllMocks();

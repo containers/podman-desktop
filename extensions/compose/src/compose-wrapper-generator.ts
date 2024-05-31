@@ -19,6 +19,7 @@
 import { promises } from 'node:fs';
 
 import type * as extensionApi from '@podman-desktop/api';
+// @ts-expect-error ignore type error https://github.com/janl/mustache.js/issues/797
 import mustache from 'mustache';
 
 import type { OS } from './os';

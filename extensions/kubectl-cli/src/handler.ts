@@ -87,7 +87,9 @@ export async function installKubectlBinary(
 }
 
 function getKubectlBinarySetting(): boolean {
-  return extensionApi.configuration.getConfiguration('kubectl.binary').get<boolean>('installKubectlSystemWide');
+  return (
+    extensionApi.configuration.getConfiguration('kubectl.binary').get<boolean>('installKubectlSystemWide') ?? false
+  );
 }
 
 // Update both the configuration as well as context values

@@ -29,7 +29,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     // remove the image prefix from vite base64 object
     const registryEntry = {
       ...registry,
-      icon: stripImagePrefix(registry.icon),
+      icon: stripImagePrefix(registry.icon ?? ''),
     };
 
     // Suggest it to the registry and add to subscriptions

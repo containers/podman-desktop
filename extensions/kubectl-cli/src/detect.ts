@@ -46,7 +46,9 @@ export class Detect {
     // so let's set the env PATH to the system path before running the command
     // to avoid the storage/bin folder to be appended to the PATH
     try {
-      await extensionApi.process.exec('kubectl', ['version', '--client', 'true'], { env: { PATH: process.env.PATH } });
+      await extensionApi.process.exec('kubectl', ['version', '--client', 'true'], {
+        env: { PATH: process.env.PATH ?? '' },
+      });
       return true;
     } catch (e) {
       return false;
