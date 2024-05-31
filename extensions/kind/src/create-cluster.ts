@@ -21,6 +21,7 @@ import * as path from 'node:path';
 
 import type { AuditRecord, AuditRequestItems, AuditResult, CancellationToken } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
+// @ts-expect-error ignore type error https://github.com/janl/mustache.js/issues/797
 import mustache from 'mustache';
 import { parseAllDocuments } from 'yaml';
 
