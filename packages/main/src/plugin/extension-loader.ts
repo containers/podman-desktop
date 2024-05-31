@@ -1522,7 +1522,6 @@ export class ExtensionLoader {
       this.apiSender.send('extension-started');
     } catch (err) {
       console.log(`Activating extension ${extension.id} failed error:${err}`);
-      this._onDidChange.fire();
 
       // dispose resources
       for (const subscription of extensionContext.subscriptions) {
