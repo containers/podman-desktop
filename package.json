@@ -71,6 +71,8 @@
     "test:ui": "vitest run -r packages/ui --passWithNoTests --coverage",
     "test:tools": "vitest run tools --passWithNoTests --coverage",
     "test:watch": "vitest watch",
+    "test:watch:renderer": "npm run build:ui && vitest -c packages/renderer/vite.config.js watch packages/renderer --passWithNoTests",
+    "test:watch:main": "vitest watch -r packages/main --passWithNoTests",
     "watch": "node scripts/watch.mjs",
     "format:check": "prettier --cache --check \"{extensions,packages,tests,types,tools,website-argos}/**/*.{ts,svelte}\" \"extensions/*/scripts/*.{ts,js}\" \"website/**/*.{md,js}\" \"website/src/**/*.{css,tsx}\"",
     "format:fix": "prettier --cache --write \"{extensions,packages,tests,types,tools,website-argos}/**/*.{ts,svelte}\" \"extensions/*/scripts/*.{ts,js}\" \"website/**/*.{md,js}\" \"website/src/**/*.{css,tsx}\"",
