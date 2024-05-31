@@ -366,7 +366,7 @@ describe('postActivate', () => {
     const deferredCliUpdate: Promise<CliToolUpdate> = new Promise<CliToolUpdate>(resolve => {
       vi.mocked(extensionApi.cli.createCliTool).mockImplementation(() => {
         return {
-          registerUpdate: listener => {
+          registerUpdate: (listener: CliToolUpdate) => {
             resolve(listener);
             return {
               dispose: vi.fn(),
@@ -387,7 +387,7 @@ describe('postActivate', () => {
     const deferredCliUpdate: Promise<CliToolUpdate> = new Promise<CliToolUpdate>(resolve => {
       vi.mocked(extensionApi.cli.createCliTool).mockImplementation(() => {
         return {
-          registerUpdate: listener => {
+          registerUpdate: (listener: CliToolUpdate) => {
             resolve(listener);
             return {
               dispose: disposeMock,
@@ -409,7 +409,7 @@ describe('postActivate', () => {
     const deferredCliUpdate: Promise<CliToolUpdate> = new Promise<CliToolUpdate>(resolve => {
       vi.mocked(extensionApi.cli.createCliTool).mockImplementation(() => {
         return {
-          registerUpdate: listener => {
+          registerUpdate: (listener: CliToolUpdate) => {
             resolve(listener);
             return {
               dispose: vi.fn(),

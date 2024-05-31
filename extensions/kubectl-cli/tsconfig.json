@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "strictNullChecks": true,
+    "strict": true,
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "Node",
@@ -13,5 +13,5 @@
     "allowSyntheticDefaultImports": true,
     "types": ["node"]
   },
-  "include": ["src"]
+  "include": ["src", "types/*.d.ts"]
 }
