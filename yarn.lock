@@ -12815,10 +12815,10 @@ no-case@^3.0.4:
     lower-case "^2.0.2"
     tslib "^2.0.3"
 
-nock@^14.0.0-beta.6:
-  version "14.0.0-beta.6"
-  resolved "https://registry.yarnpkg.com/nock/-/nock-14.0.0-beta.6.tgz#beefba44893b89596bc9a526db50f8f0567403a9"
-  integrity sha512-b7lc7qvj1dQzxtbU7TqyTMnKbNKwGQd585xsRtcCZOv3I/yOK9Vwv4nOgnLFxFtX9m1yjhQDRbgqFCqNh9HuEw==
+nock@^14.0.0-beta.7:
+  version "14.0.0-beta.7"
+  resolved "https://registry.yarnpkg.com/nock/-/nock-14.0.0-beta.7.tgz#bdb3f3cfa2276659c87412f6dff2aea9ee69a7fc"
+  integrity sha512-+EQMm5W9K8YnBE2Ceg4hnJynaCZmvK8ZlFXQ2fxGwtkOkBUq8GpQLTks2m1jpvse9XDxMDDOHgOWpiznFuh0bA==
   dependencies:
     json-stringify-safe "^5.0.1"
     propagate "^2.0.0"
