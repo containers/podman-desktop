@@ -153,6 +153,7 @@
     "js-yaml": "^4.1.0",
     "lint-staged": "^15.2.5",
     "nock": "^14.0.0-beta.6",
+    "node-fetch": "^3.3.2",
     "postcss-import": "^16.1.0",
     "prettier": "^3.2.5",
     "prettier-plugin-svelte": "^3.2.3",
