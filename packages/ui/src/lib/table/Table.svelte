@@ -201,9 +201,11 @@ function toggleChildren(object: unknown): void {
   <!-- Table body -->
   <div role="rowgroup">
     {#each data as object (object)}
-      <div class="mx-5 min-h-[48px] h-fit bg-[var(--pd-content-card-bg)] rounded-lg mb-2 overflow-hidden" role="row">
+      <div class="mx-5 min-h-[48px] h-fit bg-[var(--pd-content-card-bg)] rounded-lg mb-2" role="row">
         <div
           class="grid grid-table gap-x-0.5 min-h-[48px] hover:bg-[var(--pd-content-card-hover-bg)]"
+          class:rounded-t-lg="{expanded.includes(object.id)}"
+          class:rounded-lg="{!expanded.includes(object.id)}"
           aria-label="{object.name}">
           <div class="whitespace-nowrap place-self-center" role="cell">
             {#if row.info.children && row.info.children(object).length > 0}
@@ -247,8 +249,11 @@ function toggleChildren(object: unknown): void {
 
         <!-- Child objects -->
         {#if expanded.includes(object.id) && row.info.children}
-          {#each row.info.children(object) as child (child)}
-            <div class="grid grid-table gap-x-0.5 hover:bg-[var(--pd-content-card-hover-bg)]" aria-label="{child.name}">
+          {#each row.info.children(object) as child, i (child)}
+            <div
+              class="grid grid-table gap-x-0.5 hover:bg-[var(--pd-content-card-hover-bg)]"
+              class:rounded-b-lg="{i === row.info.children.length - 1}"
+              aria-label="{child.name}">
               <div class="whitespace-nowrap justify-self-start" role="cell"></div>
               {#if row.info.selectable}
                 <div class="whitespace-nowrap place-self-center" role="cell">
