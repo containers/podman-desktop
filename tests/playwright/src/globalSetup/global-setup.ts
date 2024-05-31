@@ -26,7 +26,7 @@ export async function setup(): Promise<void> {
     // remove all previous testing output files
     // Junit reporter output file is created before we can clean up output folders
     // It is not possible to remove junit output file because it is opened by the process already, at least on windows
-    if (!process.env.CI) {
+    if (!process.env.CI || !process.env.PODMAN_TEST_DEBUG) {
       await removeFolderIfExists('tests/output');
     } else {
       console.log(
