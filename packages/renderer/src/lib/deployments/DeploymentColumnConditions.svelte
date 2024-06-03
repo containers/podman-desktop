@@ -1,8 +1,8 @@
 <script lang="ts">
 import { faCheckCircle, faExclamationTriangle, faQuestionCircle, faSync } from '@fortawesome/free-solid-svg-icons';
-import { Tooltip } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
+import Label from '../ui/Label.svelte';
 import type { DeploymentCondition, DeploymentUI } from './DeploymentUI';
 
 export let object: DeploymentUI;
@@ -34,14 +34,8 @@ function getConditionAttributes(condition: DeploymentCondition) {
 
 <div class="flex flex-row gap-1">
   {#each object.conditions as condition}
-    <Tooltip bottom tip="{condition.message}">
-      <div class="flex flex-row bg-charcoal-500 items-center p-1 rounded-md text-xs text-gray-500">
-        <Fa
-          size="1x"
-          icon="{getConditionAttributes(condition).icon}"
-          class="{getConditionAttributes(condition).color} mr-1" />
-        {getConditionAttributes(condition).name}
-      </div>
-    </Tooltip>
+    <Label tip="{condition.message}" name="{getConditionAttributes(condition).name}">
+      <Fa size="1x" icon="{getConditionAttributes(condition).icon}" class="{getConditionAttributes(condition).color}" />
+    </Label>
   {/each}
 </div>

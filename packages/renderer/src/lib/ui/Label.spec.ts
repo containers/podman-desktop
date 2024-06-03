@@ -21,31 +21,31 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
-import NodeColumnRoles from './NodeColumnRoles.svelte';
-import type { NodeUI } from './NodeUI';
+import LabelSpec from './LabelSpec.svelte';
 
-const nodeControlPlane: NodeUI = {
-  name: 'main-node',
-  status: 'active',
-  role: 'control-plane',
-} as NodeUI;
-
-const nodeWorker: NodeUI = {
-  name: 'second-node',
-  status: 'active',
-  role: 'node',
-} as NodeUI;
-
-test('Expect role display for control plane', async () => {
-  render(NodeColumnRoles, { object: nodeControlPlane });
-
-  const text = screen.getByText('Control Plane');
-  expect(text).toBeInTheDocument();
+test('Expect basic styling', async () => {
+  const text = 'A label';
+  render(LabelSpec, {
+    name: text,
+    slot: 'slot',
+  });
+  const label = screen.getByText(text);
+  expect(label).toBeInTheDocument();
+  expect(label.parentElement).toHaveClass('bg-[var(--pd-label-bg)]');
+  expect(label.parentElement).toHaveClass('text-[var(--pd-label-text)]');
+  expect(label.parentElement).toHaveClass('text-xs');
+  expect(label.parentElement).toHaveClass('rounded-md');
+  expect(label.parentElement).toHaveClass('p-1');
+  expect(label.parentElement).toHaveClass('gap-x-1');
 });
 
-test('Expect role display for node', async () => {
-  render(NodeColumnRoles, { object: nodeWorker });
-
-  const text = screen.getByText('Node');
-  expect(text).toBeInTheDocument();
+test('Expect tooltip', async () => {
+  const tip = 'a tooltip';
+  render(LabelSpec, {
+    name: 'label',
+    tip: tip,
+  });
+  const label = screen.getByText(tip);
+  expect(label).toBeInTheDocument();
+  expect(label.parentElement?.firstChild).toBeInTheDocument();
 });
