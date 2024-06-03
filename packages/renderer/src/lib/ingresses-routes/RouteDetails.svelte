@@ -9,7 +9,7 @@ import type { V1Route } from '/@api/openshift-types';
 
 import Route from '../../Route.svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
-import ServiceIcon from '../images/ServiceIcon.svelte';
+import IngressRouteIcon from '../images/IngressRouteIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
 import KubeEditYAML from '../kube/KubeEditYAML.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
@@ -59,7 +59,7 @@ async function loadRouteDetails() {
 
 {#if routeUI}
   <DetailsPage title="{routeUI.name}" subtitle="{routeUI.namespace}" bind:this="{detailsPage}">
-    <StatusIcon slot="icon" icon="{ServiceIcon}" size="{24}" status="{routeUI.status}" />
+    <StatusIcon slot="icon" icon="{IngressRouteIcon}" size="{24}" status="{routeUI.status}" />
     <svelte:fragment slot="actions">
       <IngressRouteActions ingressRoute="{routeUI}" detailed="{true}" on:update="{() => (routeUI = routeUI)}" />
     </svelte:fragment>
