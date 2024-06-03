@@ -1,7 +1,8 @@
-<script>
+<script lang="ts">
 import Tooltip from './Tooltip.svelte';
 
-export let tip;
+export let tipProp: string | undefined = undefined;
+export let tipSlot: string | undefined = undefined;
 export let top = false;
 export let topLeft = false;
 export let topRight = false;
@@ -13,6 +14,7 @@ export let left = false;
 </script>
 
 <Tooltip
+  tip="{tipProp}"
   top="{top}"
   topLeft="{topLeft}"
   topRight="{topRight}"
@@ -21,12 +23,10 @@ export let left = false;
   bottomLeft="{bottomLeft}"
   bottomRight="{bottomRight}"
   left="{left}">
-  <svelte:fragment slot="content">
-    <slot />
-  </svelte:fragment>
+  <slot />
   <svelte:fragment slot="tip">
-    {#if tip}
-      <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">{tip}</div>
+    {#if tipSlot}
+      {tipSlot}
     {/if}
   </svelte:fragment>
 </Tooltip>
