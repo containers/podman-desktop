@@ -55,7 +55,7 @@ vi.mock('sudo-prompt', () => {
             | { name?: string; icns?: string; env?: { [key: string]: string } },
           callback?: (error?: Error, stdout?: string | Buffer, stderr?: string | Buffer) => void,
         ) => {
-          callback(undefined);
+          callback?.(undefined);
         },
       ),
   };
@@ -124,7 +124,7 @@ test('expect showNotification to be called', async () => {
     report: (): void => {},
   };
   vi.spyOn(extensionApi.window, 'withProgress').mockImplementation((options, task) => {
-    return task(progress, undefined);
+    return task(progress, {} as extensionApi.CancellationToken);
   });
   vi.spyOn(installer, 'getAssetInfo').mockReturnValue(Promise.resolve({ id: 0, name: 'kind' }));
   // eslint-disable-next-line @typescript-eslint/no-empty-function

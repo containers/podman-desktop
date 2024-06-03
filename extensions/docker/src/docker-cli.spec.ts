@@ -54,5 +54,5 @@ test('should return docker version', async () => {
   const installedDocker = await getDockerInstallation();
 
   expect(installedDocker).toBeDefined();
-  expect(installedDocker.version).toBe('25.0.2');
+  expect(installedDocker?.version).toBe('25.0.2');
 });

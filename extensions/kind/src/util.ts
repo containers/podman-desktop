@@ -50,7 +50,7 @@ export interface RunOptions {
 
 const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
 
-export function getKindPath(): string {
+export function getKindPath(): string | undefined {
   const env = process.env;
   if (isMac()) {
     if (!env.PATH) {
@@ -64,9 +64,10 @@ export function getKindPath(): string {
 }
 
 // search if kind is available in the path
-export async function detectKind(pathAddition: string, installer: KindInstaller): Promise<string> {
+export async function detectKind(pathAddition: string, installer: KindInstaller): Promise<string | undefined> {
+  const kindPath = getKindPath() ?? '';
   try {
-    await extensionApi.process.exec('kind', ['--version'], { env: { PATH: getKindPath() } });
+    await extensionApi.process.exec('kind', ['--version'], { env: { PATH: kindPath } });
     return 'kind';
   } catch (e) {
     // ignore and try another way
@@ -76,7 +77,7 @@ export async function detectKind(pathAddition: string, installer: KindInstaller)
   if (assetInfo) {
     try {
       await extensionApi.process.exec(assetInfo.name, ['--version'], {
-        env: { PATH: getKindPath().concat(path.delimiter).concat(pathAddition) },
+        env: { PATH: kindPath.concat(path.delimiter).concat(pathAddition) },
       });
       return pathAddition.concat(path.sep).concat(isWindows() ? assetInfo.name + '.exe' : assetInfo.name);
     } catch (e) {
@@ -137,12 +138,12 @@ export async function getMemTotalInfo(socketPath: string): Promise<number> {
 
   return new Promise<number>((resolve, reject) => {
     const req = http.get(versionUrl, res => {
-      const body = [];
+      const body: Buffer[] = [];
       res.on('data', chunk => {
         body.push(chunk);
       });
 
-      res.on('end', err => {
+      res.on('end', (err: unknown) => {
         if (res.statusCode === 200) {
           try {
             resolve((JSON.parse(Buffer.concat(body).toString()) as Info).MemTotal);
@@ -150,7 +151,11 @@ export async function getMemTotalInfo(socketPath: string): Promise<number> {
             reject(e);
           }
         } else {
-          reject(new Error(err.message));
+          if (err && typeof err === 'object' && 'message' in err && typeof err.message === 'string') {
+            reject(new Error(err.message));
+          } else {
+            reject(new Error(String(err)));
+          }
         }
       });
     });

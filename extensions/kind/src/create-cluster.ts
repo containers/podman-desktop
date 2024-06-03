@@ -102,9 +102,9 @@ export async function connectionAuditor(provider: string, items: AuditRequestIte
 export async function createCluster(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: { [key: string]: any },
-  logger: extensionApi.Logger,
   kindCli: string,
   telemetryLogger: extensionApi.TelemetryLogger,
+  logger?: extensionApi.Logger,
   token?: CancellationToken,
 ): Promise<void> {
   let clusterName = 'kind';
@@ -118,7 +118,7 @@ export async function createCluster(
     provider = params['kind.cluster.creation.provider'];
   }
 
-  const env = Object.assign({}, process.env);
+  const env = Object.assign({}, process.env) as { [key: string]: string };
   // add KIND_EXPERIMENTAL_PROVIDER env variable if needed
   if (provider === 'podman') {
     env['KIND_EXPERIMENTAL_PROVIDER'] = 'podman';
@@ -158,7 +158,7 @@ export async function createCluster(
   await fs.promises.writeFile(tmpFilePath, kindClusterConfig, 'utf8');
 
   // update PATH to include kind
-  env.PATH = getKindPath();
+  env.PATH = getKindPath() ?? '';
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const telemetryOptions: Record<string, any> = {
@@ -173,15 +173,15 @@ export async function createCluster(
   try {
     await extensionApi.process.exec(kindCli, ['create', 'cluster', '--config', tmpFilePath], { env, logger, token });
     if (ingressController) {
-      logger.log('Creating ingress controller resources');
+      logger?.log('Creating ingress controller resources');
       await setupIngressController(clusterName);
     }
   } catch (error) {
     telemetryOptions.error = error;
-    let errorMessage: string;
+    let errorMessage: string = '';
 
-    if (typeof error === 'object' && 'message' in error) {
-      errorMessage = error.message.toString();
+    if (error && typeof error === 'object' && 'message' in error) {
+      errorMessage = String(error.message);
     } else if (typeof error === 'string') {
       errorMessage = error;
     }
