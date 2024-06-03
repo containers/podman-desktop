@@ -15,6 +15,7 @@
     "packages": [
       "packages/*",
       "extensions/*",
+      "storybook",
       "website",
       "website-argos",
       "tools",
@@ -101,6 +102,8 @@
     "website:prod": "cd website && yarn run docusaurus build && yarn serve",
     "website:dev": "cd website && yarn run docusaurus start",
     "website:screenshots": "cd website-argos && yarn run screenshot",
+    "storybook:dev": "cd storybook && yarn run dev",
+    "storybook:build": "cd storybook && yarn run build",
     "prepare": "husky install",
     "postinstall": "playwright install"
   },
