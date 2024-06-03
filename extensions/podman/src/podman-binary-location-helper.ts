@@ -26,8 +26,8 @@ export interface PodmanBinaryLocationResult {
 export class PodmanBinaryLocationHelper {
   async getPodmanLocationMac(): Promise<PodmanBinaryLocationResult> {
     let source: string;
-    let foundPath: string;
-    let error: Error;
+    let foundPath: string | undefined;
+    let error: Error | undefined;
     // execute which podman command to see from where it is coming
     try {
       const { stdout } = await extensionApi.process.exec('which', ['podman']);
@@ -40,7 +40,7 @@ export class PodmanBinaryLocationHelper {
         source = 'unknown';
       }
     } catch (err) {
-      error = err;
+      error = err as Error;
       source = 'unknown';
       console.trace('unable to check from which path podman is coming', error);
     }

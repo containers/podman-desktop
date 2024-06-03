@@ -47,9 +47,10 @@ export function appConfigDir(): string {
  * @returns true if app running in dev mode
  */
 export function isDev(): boolean {
-  const isEnvSet = 'ELECTRON_IS_DEV' in process.env;
-  const envSet = Number.parseInt(process.env.ELECTRON_IS_DEV, 10) === 1;
-  return isEnvSet ? envSet : false;
+  if (process.env.ELECTRON_IS_DEV) {
+    return Number.parseInt(process.env.ELECTRON_IS_DEV, 10) === 1;
+  }
+  return false;
 }
 
 export interface RunOptions {
@@ -85,7 +86,7 @@ export function getAssetsFolder(): string {
 export class LoggerDelegator implements Logger {
   private loggers: Logger[] = [];
 
-  constructor(...loggersOrContexts: (Logger | LifecycleContext)[]) {
+  constructor(...loggersOrContexts: (Logger | LifecycleContext | undefined)[]) {
     loggersOrContexts.forEach(loggerOrContext => {
       if (loggerOrContext === undefined) {
         return;

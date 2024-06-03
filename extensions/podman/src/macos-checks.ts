@@ -54,13 +54,14 @@ export class MacMemoryCheck extends BaseCheck {
   }
 }
 
+export const MINIMUM_VERSION = '19.0.0'; // first macOS Catalina kernel version
+
 export class MacVersionCheck extends BaseCheck {
   title = 'macOS Version';
-  private readonly MINIMUM_VERSION = '19.0.0'; // first macOS Catalina kernel version
 
   async execute(): Promise<extensionApi.CheckResult> {
     const darwinVersion = os.release();
-    if (compare(darwinVersion, this.MINIMUM_VERSION, '>=')) {
+    if (compare(darwinVersion, MINIMUM_VERSION, '>=')) {
       return this.createSuccessfulResult();
     }
     return this.createFailureResult({

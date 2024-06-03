@@ -36,7 +36,7 @@ test('normalizeWSLOutput returns a normalized output', async () => {
 });
 
 // create a string with invalid chars
-function strEncodeUTF16(str): Uint16Array {
+function strEncodeUTF16(str: string): Uint16Array {
   const buf = new ArrayBuffer(str.length * 4);
   const bufView = new Uint16Array(buf);
   for (let i = 0; i < str.length; i++) {
