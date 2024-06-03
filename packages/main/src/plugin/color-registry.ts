@@ -240,6 +240,7 @@ export class ColorRegistry {
     this.initLink();
     this.initButton();
     this.initActionButton();
+    this.initTooltip();
   }
 
   protected initGlobalNav(): void {
@@ -979,6 +980,24 @@ export class ColorRegistry {
     this.registerColor(`${ab}spinner`, {
       dark: colorPalette.purple[500],
       light: colorPalette.purple[500],
+    });
+  }
+
+  // tooltip
+  protected initTooltip(): void {
+    const tooltip = 'tooltip-';
+
+    this.registerColor(`${tooltip}bg`, {
+      dark: colorPalette.charcoal[800],
+      light: colorPalette.gray[50],
+    });
+    this.registerColor(`${tooltip}text`, {
+      dark: colorPalette.white,
+      light: colorPalette.black,
+    });
+    this.registerColor(`${tooltip}border`, {
+      dark: colorPalette.charcoal[500],
+      light: colorPalette.gray[500],
     });
   }
 }
