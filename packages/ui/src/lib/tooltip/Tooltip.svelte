@@ -76,12 +76,16 @@ export let left = false;
     class:bottom-left="{bottomLeft}"
     class:bottom-right="{bottomRight}">
     {#if tip}
-      <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
+      <div
+        class="inline-block py-2 px-4 rounded-md bg-[var(--pd-tooltip-bg)] text-xs text-[var(--pd-tooltip-text)] border-[1px] border-[var(--pd-tooltip-border)]"
+        aria-label="tooltip">
         {tip}
       </div>
     {/if}
     {#if $$slots.tip && !tip}
-      <div class="inline-block rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
+      <div
+        class="inline-block rounded-md bg-[var(--pd-tooltip-bg)] text-xs text-[var(--pd-tooltip-text)] border-[1px] border-[var(--pd-tooltip-border)]"
+        aria-label="tooltip">
         <slot name="tip" />
       </div>
     {/if}

@@ -32,8 +32,10 @@ test('Expect basic slot styling', async () => {
 
   const element = screen.getByLabelText('tooltip');
   expect(element).toBeInTheDocument();
-  expect(element).toHaveClass('bg-charcoal-800');
-  expect(element).toHaveClass('text-white');
+  expect(element).toHaveClass('bg-[var(--pd-tooltip-bg)]');
+  expect(element).toHaveClass('text-[var(--pd-tooltip-text)]');
+  expect(element).toHaveClass('border-[var(--pd-tooltip-border)]');
+  expect(element).toHaveClass('border-[1px]');
 });
 
 test('Expect basic prop styling', async () => {
@@ -41,8 +43,10 @@ test('Expect basic prop styling', async () => {
 
   const element = screen.getByLabelText('tooltip');
   expect(element).toBeInTheDocument();
-  expect(element).toHaveClass('bg-charcoal-800');
-  expect(element).toHaveClass('text-white');
+  expect(element).toHaveClass('bg-[var(--pd-tooltip-bg)]');
+  expect(element).toHaveClass('text-[var(--pd-tooltip-text)]');
+  expect(element).toHaveClass('border-[var(--pd-tooltip-border)]');
+  expect(element).toHaveClass('border-[1px]');
 });
 
 function createTest(props: Record<string, boolean>, locationName: string, expectedStyle = locationName): void {
