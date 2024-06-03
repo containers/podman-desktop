@@ -34,23 +34,14 @@ function getConditionAttributes(condition: DeploymentCondition) {
 
 <div class="flex flex-row gap-1">
   {#each object.conditions as condition}
-    <Tooltip bottom>
-      <svelte:fragment slot="content">
-        <div class="flex flex-row bg-charcoal-500 items-center p-1 rounded-md text-xs text-gray-500">
-          <Fa
-            size="1x"
-            icon="{getConditionAttributes(condition).icon}"
-            class="{getConditionAttributes(condition).color} mr-1" />
-          {getConditionAttributes(condition).name}
-        </div>
-      </svelte:fragment>
-      <svelte:fragment slot="tip">
-        {#if condition.message}
-          <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
-            {condition.message}
-          </div>
-        {/if}
-      </svelte:fragment>
+    <Tooltip bottom tip="{condition.message}">
+      <div class="flex flex-row bg-charcoal-500 items-center p-1 rounded-md text-xs text-gray-500">
+        <Fa
+          size="1x"
+          icon="{getConditionAttributes(condition).icon}"
+          class="{getConditionAttributes(condition).color} mr-1" />
+        {getConditionAttributes(condition).name}
+      </div>
     </Tooltip>
   {/each}
 </div>

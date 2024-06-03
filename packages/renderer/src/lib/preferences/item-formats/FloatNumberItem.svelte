@@ -71,23 +71,14 @@ function assertNumericValueIsValid(value: number): boolean {
   class="flex flex-row rounded-sm bg-zinc-700 text-sm divide-x divide-charcoal-800 w-24 border-b"
   class:border-violet-500="{!numberInputInvalid}"
   class:border-red-500="{numberInputInvalid}">
-  <Tooltip topRight>
-    <svelte:fragment slot="content">
-      <input
-        type="text"
-        class="w-full px-2 outline-none focus:outline-none text-white text-sm py-0.5"
-        name="{record.id}"
-        bind:value="{recordValue}"
-        on:keypress="{event => onNumberInputKeyPress(event)}"
-        on:input="{onInput}"
-        aria-label="{record.description}" />
-    </svelte:fragment>
-    <svelte:fragment slot="tip">
-      {#if numberInputErrorMessage}
-        <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
-          {numberInputErrorMessage}
-        </div>
-      {/if}
-    </svelte:fragment>
+  <Tooltip topRight tip="{numberInputErrorMessage}">
+    <input
+      type="text"
+      class="w-full px-2 outline-none focus:outline-none text-white text-sm py-0.5"
+      name="{record.id}"
+      bind:value="{recordValue}"
+      on:keypress="{event => onNumberInputKeyPress(event)}"
+      on:input="{onInput}"
+      aria-label="{record.description}" />
   </Tooltip>
 </div>

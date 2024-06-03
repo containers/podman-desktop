@@ -23,17 +23,8 @@ $: text = getText($kubernetesCurrentContextState);
     <div class="w-2 h-2 {getClassColor($kubernetesCurrentContextState)} rounded-full mx-1"></div>
     <span class="text-xs capitalize mr-1">
       {#if $kubernetesCurrentContextState.error !== undefined}
-        <Tooltip left>
-          <svelte:fragment slot="content">
-            {text}
-          </svelte:fragment>
-          <svelte:fragment slot="tip">
-            {#if $kubernetesCurrentContextState.error}
-              <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
-                {$kubernetesCurrentContextState.error}
-              </div>
-            {/if}
-          </svelte:fragment>
+        <Tooltip left tip="{$kubernetesCurrentContextState.error}">
+          {text}
         </Tooltip>
       {:else}
         {text}
