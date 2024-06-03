@@ -2,6 +2,7 @@
 import { faMicrochip, faSatelliteDish } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 
+import Label from '../ui/Label.svelte';
 import type { NodeUI } from './NodeUI';
 
 export let object: NodeUI;
@@ -25,9 +26,6 @@ function getConditionColour(role: 'control-plane' | 'node'): string {
 }
 </script>
 
-<div class="flex flex-row gap-1">
-  <div class="flex flex-row bg-charcoal-500 items-center p-1 rounded-md text-xs text-gray-500">
-    <Fa size="1x" icon="{roleIcon}" class="{getConditionColour(object.role)} mr-1" />
-    {roleName}
-  </div>
-</div>
+<Label name="{roleName}">
+  <Fa size="1x" icon="{roleIcon}" class="{getConditionColour(object.role)}" />
+</Label>
