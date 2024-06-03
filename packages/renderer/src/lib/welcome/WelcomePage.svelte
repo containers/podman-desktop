@@ -128,19 +128,8 @@ function startOnboardingQueue() {
                       </div>
                       <div
                         class="flex flex-1 mx-2 underline decoration-2 decoration-dotted underline-offset-2 cursor-default justify-left text-capitalize">
-                        <Tooltip top>
-                          <svelte:fragment slot="content">
-                            {onboarding.displayName}
-                          </svelte:fragment>
-                          <svelte:fragment slot="tip">
-                            {#if onboarding.description}
-                              <div
-                                class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white"
-                                aria-label="tooltip">
-                                {onboarding.description}
-                              </div>
-                            {/if}
-                          </svelte:fragment>
+                        <Tooltip top tip="{onboarding.description}">
+                          {onboarding.displayName}
                         </Tooltip>
                       </div>
                     </div>
