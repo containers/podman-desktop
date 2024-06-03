@@ -27,7 +27,8 @@
       "./website-argos/tsconfig.json",
       "./extensions/*/tsconfig.json",
       "./tests/playwright/tsconfig.json",
-      "./tools/tsconfig.json"
+      "./tools/tsconfig.json",
+      "./storybook/tsconfig.json"
     ]
   },
   "overrides": [
