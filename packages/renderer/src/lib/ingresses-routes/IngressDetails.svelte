@@ -9,7 +9,7 @@ import { kubernetesCurrentContextIngresses } from '/@/stores/kubernetes-contexts
 
 import Route from '../../Route.svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
-import ServiceIcon from '../images/ServiceIcon.svelte';
+import IngressRouteIcon from '../images/IngressRouteIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
 import KubeEditYAML from '../kube/KubeEditYAML.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
@@ -59,7 +59,7 @@ async function loadIngressDetails() {
 
 {#if ingressUI}
   <DetailsPage title="{ingressUI.name}" subtitle="{ingressUI.namespace}" bind:this="{detailsPage}">
-    <StatusIcon slot="icon" icon="{ServiceIcon}" size="{24}" status="{ingressUI.status}" />
+    <StatusIcon slot="icon" icon="{IngressRouteIcon}" size="{24}" status="{ingressUI.status}" />
     <svelte:fragment slot="actions">
       <IngressRouteActions ingressRoute="{ingressUI}" detailed="{true}" on:update="{() => (ingressUI = ingressUI)}" />
     </svelte:fragment>
