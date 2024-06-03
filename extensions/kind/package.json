@@ -108,7 +108,7 @@
     "yaml": "^2.4.2"
   },
   "devDependencies": {
-    "adm-zip": "^0.5.12",
+    "adm-zip": "^0.5.13",
     "mkdirp": "^3.0.1",
     "tmp-promise": "^3.0.3",
     "tsx": "^4.11.0",
