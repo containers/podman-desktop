@@ -366,7 +366,7 @@
     "ps-list": "^8.1.1"
   },
   "devDependencies": {
-    "adm-zip": "^0.5.12",
+    "adm-zip": "^0.5.13",
     "hasha": "^6.0.0",
     "mkdirp": "^3.0.1",
     "nock": "^14.0.0-beta.7",
