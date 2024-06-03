@@ -63,7 +63,8 @@ export class PodmanCleanupMacOS extends AbsPodmanCleanup {
 
     // ok, now split each line and check if it matches one of the process name
     const matchingProcessLines = processes.filter(
-      process => process.cmd.includes('podman') && processNames.some(processName => process.cmd.includes(processName)),
+      process =>
+        process.cmd?.includes('podman') && processNames.some(processName => process.cmd?.includes(processName)),
     );
 
     // now we have the list of processes, let's find the pid and kill it

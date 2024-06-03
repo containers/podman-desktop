@@ -119,7 +119,7 @@ test('check getActions', async () => {
 
   // execute all 3 actions
   for (const action of actions) {
-    await action.execute.apply(absPodmanCleanup, { logger: { log: vi.fn(), error: vi.fn(), warn: vi.fn() } });
+    await action.execute.apply(absPodmanCleanup, [{ logger: { log: vi.fn(), error: vi.fn(), warn: vi.fn() } }]);
   }
 
   // expect calls
