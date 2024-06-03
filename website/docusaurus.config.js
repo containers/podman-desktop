@@ -324,17 +324,20 @@ const config = {
         sidebarPath: resolve('./sidebars-api.js'),
       },
     ],
+    // Storybook integration
     [
-      'docusaurus-plugin-typedoc',
+      require.resolve('./storybook.js'),
       {
-        id: 'api',
-        plugin: ['typedoc-plugin-markdown'],
-        entryPoints: [resolve('../packages/extension-api/src/extension-api.d.ts')],
-        out: 'api',
-        hideBreadcrumbs: true,
-        readme: 'none',
-        tsconfig: resolve('../packages/extension-api/tsconfig.json'),
-        hideGenerator: true,
+        path: 'storybook',
+      },
+    ],
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'storybook',
+        path: 'storybook',
+        routeBasePath: 'storybook',
+        sidebarPath: resolve('./sidebars-storybook.js'),
       },
     ],
   ],
