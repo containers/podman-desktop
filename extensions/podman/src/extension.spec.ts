@@ -64,17 +64,17 @@ const provider: extensionApi.Provider = {
   id: '',
   status: 'started',
   updateStatus: vi.fn(),
-  onDidUpdateStatus: undefined,
+  onDidUpdateStatus: vi.fn(),
   version: '',
   updateVersion: vi.fn(),
   onDidUpdateVersion: vi.fn(),
-  images: undefined,
+  images: {},
   links: [],
   detectionChecks: [],
   updateDetectionChecks: vi.fn(),
   warnings: [],
   updateWarnings: updateWarningsMock,
-  onDidUpdateDetectionChecks: undefined,
+  onDidUpdateDetectionChecks: vi.fn(),
 };
 
 const machineInfo: extension.MachineInfo = {
@@ -919,52 +919,53 @@ test('handlecompatibilitymodesetting: disable compatibility called when configur
 });
 
 test('ensure started machine reports default configuration', async () => {
-  extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
+  vi.mocked(isLinux).mockReturnValue(true);
+  extension.initExtensionContext({ subscriptions: [] } as unknown as extensionApi.ExtensionContext);
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(
     (_command, args) =>
       new Promise<extensionApi.RunResult>(resolve => {
-        if (args[0] === 'machine' && args[1] === 'list') {
+        if (args?.[0] === 'machine' && args?.[1] === 'list') {
           resolve({ stdout: JSON.stringify([fakeMachineJSON[0]]) } as extensionApi.RunResult);
-        } else if (args[0] === 'machine' && args[1] === 'inspect') {
+        } else if (args?.[0] === 'machine' && args?.[1] === 'inspect') {
           resolve({} as extensionApi.RunResult);
-        } else if (args[0] === 'system' && args[1] === 'connection' && args[2] === 'list') {
+        } else if (args?.[0] === 'system' && args?.[1] === 'connection' && args?.[2] === 'list') {
           resolve({
             stdout: JSON.stringify([{ Name: fakeMachineJSON[0].Name, Default: true }]),
           } as extensionApi.RunResult);
-        } else if (args[0] === '--version') {
+        } else if (args?.[0] === '--version') {
           resolve({ stdout: 'podman version 4.9.0' } as extensionApi.RunResult);
         }
       }),
   );
 
   await extension.updateMachines(provider);
-  expect(config.update).toBeCalledWith('machine.cpus', fakeMachineJSON[0].CPUs);
-  expect(config.update).toBeCalledWith('machine.memory', Number(fakeMachineJSON[0].Memory));
-  expect(config.update).toBeCalledWith('machine.diskSize', Number(fakeMachineJSON[0].DiskSize));
-  expect(config.update).toBeCalledWith('machine.cpusUsage', 0);
-  expect(config.update).toBeCalledWith('machine.memoryUsage', 0);
-  expect(config.update).toBeCalledWith('machine.diskSizeUsage', 0);
+  expect(config.update).toHaveBeenNthCalledWith(1, 'machine.cpus', fakeMachineJSON[0].CPUs);
+  expect(config.update).toHaveBeenNthCalledWith(2, 'machine.memory', Number(fakeMachineJSON[0].Memory));
+  expect(config.update).toHaveBeenNthCalledWith(3, 'machine.diskSize', Number(fakeMachineJSON[0].DiskSize));
+  expect(config.update).toHaveBeenNthCalledWith(4, 'machine.cpusUsage', 0);
+  expect(config.update).toHaveBeenNthCalledWith(5, 'machine.memoryUsage', 0);
+  expect(config.update).toHaveBeenNthCalledWith(6, 'machine.diskSizeUsage', 0);
 });
 
 test('ensure stopped machine reports stopped provider', async () => {
-  extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
+  extension.initExtensionContext({ subscriptions: [] } as unknown as extensionApi.ExtensionContext);
   vi.mocked(isLinux).mockReturnValue(false);
   vi.mocked(isMac).mockReturnValue(true);
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(
     (_command, args) =>
       new Promise<extensionApi.RunResult>(resolve => {
-        if (args[0] === 'machine' && args[1] === 'list') {
+        if (args?.[0] === 'machine' && args?.[1] === 'list') {
           const fakeStoppedMachine = JSON.parse(JSON.stringify(fakeMachineJSON[0]));
           fakeStoppedMachine.Running = false;
 
           resolve({ stdout: JSON.stringify([fakeStoppedMachine]) } as extensionApi.RunResult);
-        } else if (args[0] === 'machine' && args[1] === 'inspect') {
+        } else if (args?.[0] === 'machine' && args?.[1] === 'inspect') {
           resolve({} as extensionApi.RunResult);
-        } else if (args[0] === 'system' && args[1] === 'connection' && args[2] === 'list') {
+        } else if (args?.[0] === 'system' && args?.[1] === 'connection' && args?.[2] === 'list') {
           resolve({
             stdout: JSON.stringify([{ Name: fakeMachineJSON[0].Name, Default: true }]),
           } as extensionApi.RunResult);
-        } else if (args[0] === '--version') {
+        } else if (args?.[0] === '--version') {
           resolve({ stdout: 'podman version 4.9.0' } as extensionApi.RunResult);
         }
       }),
@@ -976,19 +977,19 @@ test('ensure stopped machine reports stopped provider', async () => {
 });
 
 test('ensure started machine reports configuration', async () => {
-  extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
+  extension.initExtensionContext({ subscriptions: [] } as unknown as extensionApi.ExtensionContext);
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(
     (_command, args) =>
       new Promise<extensionApi.RunResult>(resolve => {
-        if (args[0] === 'machine' && args[1] === 'list') {
+        if (args?.[0] === 'machine' && args?.[1] === 'list') {
           resolve({ stdout: JSON.stringify([fakeMachineJSON[0]]) } as extensionApi.RunResult);
-        } else if (args[0] === 'machine' && args[1] === 'inspect') {
+        } else if (args?.[0] === 'machine' && args?.[1] === 'inspect') {
           resolve({} as extensionApi.RunResult);
-        } else if (args[0] === 'system' && args[1] === 'connection' && args[2] === 'list') {
+        } else if (args?.[0] === 'system' && args?.[1] === 'connection' && args?.[2] === 'list') {
           resolve({
             stdout: JSON.stringify([{ Name: fakeMachineJSON[0].Name, Default: true }]),
           } as extensionApi.RunResult);
-        } else if (args[0] === '--version') {
+        } else if (args?.[0] === '--version') {
           resolve({ stdout: 'podman version 4.9.0' } as extensionApi.RunResult);
         }
       }),
@@ -1013,19 +1014,20 @@ test('ensure started machine reports configuration', async () => {
 });
 
 test('ensure stopped machine reports configuration', async () => {
-  extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
+  extension.initExtensionContext({ subscriptions: [] } as unknown as extensionApi.ExtensionContext);
+  vi.mocked(isLinux).mockReturnValue(true);
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(
     (_command, args) =>
       new Promise<extensionApi.RunResult>(resolve => {
-        if (args[0] === 'machine' && args[1] === 'list') {
+        if (args?.[0] === 'machine' && args?.[1] === 'list') {
           resolve({ stdout: JSON.stringify([fakeMachineJSON[1]]) } as extensionApi.RunResult);
-        } else if (args[0] === 'machine' && args[1] === 'inspect') {
+        } else if (args?.[0] === 'machine' && args?.[1] === 'inspect') {
           resolve({} as extensionApi.RunResult);
-        } else if (args[0] === 'system' && args[1] === 'connection' && args[2] === 'list') {
+        } else if (args?.[0] === 'system' && args?.[1] === 'connection' && args?.[2] === 'list') {
           resolve({
             stdout: JSON.stringify([{ Name: fakeMachineJSON[1].Name, Default: true }]),
           } as extensionApi.RunResult);
-        } else if (args[0] === '--version') {
+        } else if (args?.[0] === '--version') {
           resolve({ stdout: 'podman version 4.9.0' } as extensionApi.RunResult);
         }
       }),
@@ -1042,19 +1044,19 @@ test('ensure stopped machine reports configuration', async () => {
 
 test('ensure showNotification is not called during update', async () => {
   const showNotificationMock = vi.spyOn(extensionApi.window, 'showNotification');
-  extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
+  extension.initExtensionContext({ subscriptions: [] } as unknown as extensionApi.ExtensionContext);
   vi.spyOn(extensionApi.process, 'exec').mockImplementation(
     (_command, args) =>
       new Promise<extensionApi.RunResult>((resolve, reject) => {
-        if (args[0] === 'machine' && args[1] === 'list') {
+        if (args?.[0] === 'machine' && args?.[1] === 'list') {
           reject(new Error('error'));
         }
       }),
   );
 
-  const extensionContext = { subscriptions: [], storagePath: '' } as extensionApi.ExtensionContext;
+  const extensionContext = { subscriptions: [], storagePath: '' } as unknown as extensionApi.ExtensionContext;
   const podmanInstall: PodmanInstall = new PodmanInstall(extensionContext);
-  vi.spyOn(podmanInstall, 'checkForUpdate').mockImplementation((_installedPodman: InstalledPodman) => {
+  vi.spyOn(podmanInstall, 'checkForUpdate').mockImplementation((_installedPodman: InstalledPodman | undefined) => {
     return Promise.resolve({
       hasUpdate: true,
       bundledVersion: 'v1.2',
@@ -1067,7 +1069,7 @@ test('ensure showNotification is not called during update', async () => {
     },
   );
 
-  let updater: extensionApi.ProviderUpdate;
+  let updater: extensionApi.ProviderUpdate | undefined;
   registerUpdateMock.mockImplementation((update: extensionApi.ProviderUpdate) => {
     updater = update;
   });
@@ -1081,11 +1083,11 @@ test('ensure showNotification is not called during update', async () => {
 
   // check updater is registered
   expect(updater).toBeDefined();
-  expect(updater.version).equal('v1.2');
+  expect(updater?.version).equal('v1.2');
 
   // run the updater (it will sleep for 500ms before returning and resetting the shouldNotifySetup flag
   // run the updateMachine which should not call the showNotification func because shouldNotifySetup is false
-  updater.update(undefined).catch(() => {});
+  updater?.update({} as extensionApi.Logger).catch(() => {});
   await expect(extension.updateMachines(provider)).rejects.toThrow('error');
 
   expect(showNotificationMock).not.toBeCalled();
@@ -1101,56 +1103,56 @@ test('ensure showNotification is not called during update', async () => {
 test('provider is registered with edit capabilities on MacOS', async () => {
   // Mock platform to be darwin
   vi.mocked(isMac).mockReturnValue(true);
-  extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
+  extension.initExtensionContext({ subscriptions: [] } as unknown as extensionApi.ExtensionContext);
   const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
   spyExecPromise.mockImplementation(() => {
     return Promise.reject(new Error('wsl bootstrap script failed: exit status 0xffffffff'));
   });
-  let registeredConnection: ContainerProviderConnection;
+  let registeredConnection: ContainerProviderConnection | undefined;
   vi.mocked(provider.registerContainerProviderConnection).mockImplementation(connection => {
     registeredConnection = connection;
     return Disposable.from({ dispose: () => {} });
   });
-  await extension.registerProviderFor(provider, machineInfo, undefined);
+  await extension.registerProviderFor(provider, machineInfo, 'socket');
   expect(registeredConnection).toBeDefined();
-  expect(registeredConnection.lifecycle).toBeDefined();
-  expect(registeredConnection.lifecycle.edit).toBeDefined();
+  expect(registeredConnection?.lifecycle).toBeDefined();
+  expect(registeredConnection?.lifecycle?.edit).toBeDefined();
 });
 
 test('provider is registered without edit capabilities on Windows', async () => {
   vi.mocked(isMac).mockReturnValue(false);
-  extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
+  extension.initExtensionContext({ subscriptions: [] } as unknown as extensionApi.ExtensionContext);
   const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
   spyExecPromise.mockImplementation(() => {
     return Promise.reject(new Error('wsl bootstrap script failed: exit status 0xffffffff'));
   });
-  let registeredConnection: ContainerProviderConnection;
+  let registeredConnection: ContainerProviderConnection | undefined;
   vi.mocked(provider.registerContainerProviderConnection).mockImplementation(connection => {
     registeredConnection = connection;
     return Disposable.from({ dispose: () => {} });
   });
-  await extension.registerProviderFor(provider, machineInfo, undefined);
+  await extension.registerProviderFor(provider, machineInfo, 'socket');
   expect(registeredConnection).toBeDefined();
-  expect(registeredConnection.lifecycle).toBeDefined();
-  expect(registeredConnection.lifecycle.edit).toBeUndefined();
+  expect(registeredConnection?.lifecycle).toBeDefined();
+  expect(registeredConnection?.lifecycle?.edit).toBeUndefined();
 });
 
 test('provider is registered without edit capabilities on Linux', async () => {
   vi.mocked(isLinux).mockReturnValue(true);
-  extension.initExtensionContext({ subscriptions: [] } as extensionApi.ExtensionContext);
+  extension.initExtensionContext({ subscriptions: [] } as unknown as extensionApi.ExtensionContext);
   const spyExecPromise = vi.spyOn(extensionApi.process, 'exec');
   spyExecPromise.mockImplementation(() => {
     return Promise.reject(new Error('wsl bootstrap script failed: exit status 0xffffffff'));
   });
-  let registeredConnection: ContainerProviderConnection;
+  let registeredConnection: ContainerProviderConnection | undefined;
   vi.mocked(provider.registerContainerProviderConnection).mockImplementation(connection => {
     registeredConnection = connection;
     return Disposable.from({ dispose: () => {} });
   });
-  await extension.registerProviderFor(provider, machineInfo, undefined);
+  await extension.registerProviderFor(provider, machineInfo, 'socket');
   expect(registeredConnection).toBeDefined();
-  expect(registeredConnection.lifecycle).toBeDefined();
-  expect(registeredConnection.lifecycle.edit).toBeUndefined();
+  expect(registeredConnection?.lifecycle).toBeDefined();
+  expect(registeredConnection?.lifecycle?.edit).toBeUndefined();
 });
 
 test('checkDisguisedPodmanSocket: does not run updateWarnings when called with Linux', async () => {
@@ -1303,7 +1305,7 @@ describe('initCheckAndRegisterUpdate', () => {
     });
 
     // mock the event
-    let listener: (event: extensionApi.RegisterContainerConnectionEvent) => void;
+    let listener: ((event: extensionApi.RegisterContainerConnectionEvent) => void) | undefined;
 
     vi.mocked(extensionApi.provider.onDidRegisterContainerConnection).mockImplementation(func => {
       listener = func;
@@ -1342,7 +1344,7 @@ describe('initCheckAndRegisterUpdate', () => {
 
     expect(listener).toBeDefined();
     // call listener
-    listener(event);
+    listener?.(event);
 
     // check that registerUpdateMock is not called as there is no update available from 4.0 to 5.0 as there is a machine
     expect(registerUpdateMock).not.toBeCalled();
@@ -1360,13 +1362,6 @@ describe('initCheckAndRegisterUpdate', () => {
     const disposeMock = vi.fn();
     registerUpdateMock.mockReturnValue({
       dispose: disposeMock,
-    });
-
-    // First call, no version being installed
-    vi.mocked(podmanInstall.checkForUpdate).mockResolvedValueOnce({
-      hasUpdate: false,
-      installedVersion: undefined,
-      bundledVersion: undefined,
     });
 
     let func: any;
@@ -1394,7 +1389,6 @@ describe('initCheckAndRegisterUpdate', () => {
     vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
       stdout: 'podman version 4.0',
     } as unknown as extensionApi.RunResult);
-
     // call the updateVersion
     await func();
 

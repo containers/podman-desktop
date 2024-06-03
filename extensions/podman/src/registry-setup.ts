@@ -38,12 +38,12 @@ export class RegistrySetup {
   private localRegistries: Map<string, extensionApi.Registry> = new Map();
 
   protected getAuthFileLocation(): string {
-    let podmanConfigContainersPath;
+    let podmanConfigContainersPath = '';
 
     if (isMac() || isWindows()) {
       podmanConfigContainersPath = path.resolve(os.homedir(), '.config/containers');
     } else if (isLinux()) {
-      const xdgRuntimeDirectory = process.env['XDG_RUNTIME_DIR'];
+      const xdgRuntimeDirectory = process.env['XDG_RUNTIME_DIR'] ?? '';
       podmanConfigContainersPath = path.resolve(xdgRuntimeDirectory, 'containers');
     }
 
@@ -190,6 +190,7 @@ export class RegistrySetup {
             console.error('Error parsing auth file', error);
             // return empty auth file
             resolve({});
+            return;
           }
           resolve(authFile);
         }

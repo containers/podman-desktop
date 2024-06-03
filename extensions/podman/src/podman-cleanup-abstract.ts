@@ -27,24 +27,26 @@ export abstract class AbsPodmanCleanup implements ProviderCleanup {
 
   // actions that need to be performed
   async getActions(): Promise<ProviderCleanupAction[]> {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const instance = this;
     const stopAction: ProviderCleanupAction = {
       name: 'stop podman processes',
       async execute(options) {
-        await this.stopPodmanProcesses(options);
+        await instance.stopPodmanProcesses(options);
       },
     };
 
     const removeSshKeysAction: ProviderCleanupAction = {
       name: 'Remove podman ssh keys',
       async execute(options) {
-        await this.removeSshKeys(options);
+        await instance.removeSshKeys(options);
       },
     };
 
     const removeFoldersAction: ProviderCleanupAction = {
       name: 'Remove Podman folders',
       async execute() {
-        await this.removePodmanFolders();
+        await instance.removePodmanFolders();
       },
     };
 
@@ -74,7 +76,7 @@ export abstract class AbsPodmanCleanup implements ProviderCleanup {
 
       // find all identity = ".../.ssh/podman-machine-default" in tomlContent
       const identityRegex = /identity\s*=\s*"(?<identityPath>.*)"/g;
-      const sshFiles = [...tomlContent.matchAll(identityRegex)].map(match => match.groups.identityPath);
+      const sshFiles = [...tomlContent.matchAll(identityRegex)].map(match => match.groups?.identityPath);
 
       // remove duplicates from the list
       const uniqueSshFiles = [...new Set(sshFiles)];
@@ -86,7 +88,7 @@ export abstract class AbsPodmanCleanup implements ProviderCleanup {
       // delete each file (if any)
       for (const sshFile of allSshFiles) {
         try {
-          if (existsSync(sshFile)) {
+          if (sshFile && existsSync(sshFile)) {
             await promises.rm(sshFile);
           }
         } catch (err) {

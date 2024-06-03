@@ -46,7 +46,7 @@ export class PodmanInfoHelper {
       records.podmanMachineOsArch = podmanInfo.version?.OsArch;
     } catch (error) {
       records.errorPodmanMachineInfo = true;
-      records.errorPodmanMachineInfoMessage = error?.message;
+      records.errorPodmanMachineInfoMessage = (error as extensionApi.RunError)?.message;
     }
   }
 }

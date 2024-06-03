@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "strict": true,
     "lib": ["ES2017"],
     "sourceMap": true,
     "rootDir": "src",

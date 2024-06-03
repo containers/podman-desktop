@@ -21,7 +21,7 @@ import { isMac, isWindows } from './util';
 
 const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
 
-export function getInstallationPath(): string {
+export function getInstallationPath(): string | undefined {
   const env = process.env;
   if (isWindows()) {
     return `c:\\Program Files\\RedHat\\Podman;${env.PATH}`;

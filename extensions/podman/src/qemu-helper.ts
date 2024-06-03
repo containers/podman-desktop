@@ -23,12 +23,12 @@ export class QemuHelper {
     return process.arch;
   }
 
-  async getQemuVersion(qemuPath?: string): Promise<string> {
+  async getQemuVersion(qemuPath?: string): Promise<string | undefined> {
     // qemu binary name depends on the arch
     // qemu-system-aarch64 for arm64
     // qemu-system-x86_64 for amd64
 
-    let qemuBinaryName: string;
+    let qemuBinaryName: string | undefined;
     // check depends on arch
     if (this.getArch() === 'arm64') {
       qemuBinaryName = 'qemu-system-aarch64';

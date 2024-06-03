@@ -128,14 +128,26 @@ export class DarwinSocketCompatibility extends SocketCompatibility {
     await this.runCommand('install', 'enabled');
 
     // Prompt the user to restart the podman machine if it's running
-    return findRunningMachine().then(isRunning => this.promptRestart(isRunning));
+    return findRunningMachine().then(isRunning => {
+      if (isRunning) {
+        this.promptRestart(isRunning).catch((e: unknown) =>
+          console.error(`Failed at restarting podman machine ${isRunning}. Error: ${String(e)}`),
+        );
+      }
+    });
   }
 
   async disable(): Promise<void> {
     await this.runCommand('uninstall', 'disabled');
 
     // Prompt the user to restart the podman machine if it's running
-    return findRunningMachine().then(isRunning => this.promptRestart(isRunning));
+    return findRunningMachine().then(isRunning => {
+      if (isRunning) {
+        this.promptRestart(isRunning).catch((e: unknown) =>
+          console.error(`Failed at restarting podman machine ${isRunning}. Error: ${String(e)}`),
+        );
+      }
+    });
   }
 }
 
