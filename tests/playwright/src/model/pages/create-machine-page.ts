@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,7 @@ import { ResourcesPage } from './resources-page';
 export class CreateMachinePage extends BasePage {
   readonly heading: Locator;
   readonly machineNameBox: Locator;
-  readonly cpuSlider: Locator;
-  readonly memorySlider: Locator;
-  readonly diskSlider: Locator;
+  readonly podmanMachineConfiguration: Locator;
   readonly imagePathBox: Locator;
   readonly browseImagesButton: Locator;
   readonly rootPriviledgesCheckbox: Locator;
@@ -39,35 +37,39 @@ export class CreateMachinePage extends BasePage {
   constructor(page: Page) {
     super(page);
     this.heading = this.page.getByRole('heading', { name: 'Create Podman Machine' });
-    this.machineNameBox = this.page.getByRole('textbox', { name: 'Name' });
-    this.cpuSlider = this.page.getByRole('slider', { name: 'CPU(s)' });
-    this.memorySlider = this.page.getByRole('slider', { name: 'Memory' });
-    this.diskSlider = this.page.getByRole('slider', { name: 'Disk size' });
+    this.podmanMachineConfiguration = this.page.getByRole('form', { name: 'Properties Information' });
+
+    this.machineNameBox = this.podmanMachineConfiguration.getByRole('textbox', { name: 'Name' });
     this.imagePathBox = this.page.getByRole('textbox', { name: 'Image Path (Optional) ' });
     this.browseImagesButton = this.page.getByRole('button', { name: 'button-Image Path (Optional)' });
-    this.rootPriviledgesCheckbox = this.page.getByRole('checkbox', { name: 'Machine with root priviledges' });
+    this.rootPriviledgesCheckbox = this.podmanMachineConfiguration
+      .getByRole('checkbox', { name: 'Machine with root privileges' })
+      .locator('..');
     this.userModeNetworkingCheckbox = this.page.getByRole('checkbox', {
       name: 'User mode networking (traffic relayed by a user process). See [documentation](https://docs.podman.io/en/latest/markdown/podman-machine-init.1.html#user-mode-networking).',
     });
     this.startNowCheckbox = this.page.getByRole('checkbox', { name: 'Start the machine now' });
-    this.closeButton = this.page.getByRole('button', { name: 'Close page' });
-    this.createMachineButton = this.page.getByRole('button', { name: 'Create Pod' });
+    this.closeButton = this.page.getByRole('button', { name: 'Close' });
+    this.createMachineButton = this.page.getByRole('button', { name: 'Create' });
   }
 
   async createMachine(machineName: string, isRootless: boolean): Promise<ResourcesPage> {
-    //can be extended
+    await playExpect(this.podmanMachineConfiguration).toBeVisible();
     await this.machineNameBox.fill(machineName);
+
     if (!isRootless) {
-      await this.rootPriviledgesCheckbox.uncheck();
-      playExpect(this.rootPriviledgesCheckbox.isChecked()).toBeFalsy();
+      await playExpect(this.rootPriviledgesCheckbox).toBeVisible();
+      const upperElement = this.rootPriviledgesCheckbox.locator('..');
+      const clickableCheckbox = upperElement.getByText('Enable');
+      await clickableCheckbox.click();
     }
 
     await this.createMachineButton.click();
 
-    const successfulCreationMessage = this.page.getByLabel('Successful operation');
+    const successfulCreationMessage = this.page.getByText('Successful operation');
     const goBackToResourcesButton = this.page.getByRole('button', { name: 'Go back to resources' });
 
-    await playExpect(successfulCreationMessage).toBeVisible({ timeout: 50000 });
+    await playExpect(successfulCreationMessage).toBeVisible({ timeout: 100000 });
     await playExpect(goBackToResourcesButton).toBeVisible();
     await goBackToResourcesButton.click();
 
