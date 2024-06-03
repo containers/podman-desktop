@@ -21,9 +21,9 @@ import * as extensionApi from '@podman-desktop/api';
 import { normalizeWSLOutput } from './util';
 
 export interface WSLVersionInfo {
-  wslVersion: string;
-  kernelVersion: string;
-  windowsVersion: string;
+  wslVersion?: string;
+  kernelVersion?: string;
+  windowsVersion?: string;
 }
 
 export class WslHelper {
@@ -68,7 +68,7 @@ export class WslHelper {
  * @param value the tool/system to find the version for
  * @returns the content after the colon if the line belongs to the tool/system we are searching info for
  */
-function getVersionFromWSLOutput(line: string, value: string): string {
+function getVersionFromWSLOutput(line: string, value: string): string | undefined {
   if (!line) {
     return undefined;
   }

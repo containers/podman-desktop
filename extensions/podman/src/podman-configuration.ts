@@ -96,18 +96,19 @@ export class PodmanConfiguration {
   }
 
   async updateProxySettings(proxySettings: ProxySettings | undefined): Promise<void> {
+    // create empty config file
+    const containersConfContent = {
+      containers: toml.Section({}),
+      engine: toml.Section({
+        env: [] as string[],
+      }),
+      machine: toml.Section({}),
+      network: toml.Section({}),
+      secrets: toml.Section({}),
+      configmaps: toml.Section({}),
+    };
+
     if (!fs.existsSync(this.getContainersFileLocation())) {
-      // file does not exist, needs to create an empty one
-      const containersConfContent = {
-        containers: toml.Section({}),
-        engine: toml.Section({
-          env: [],
-        }),
-        machine: toml.Section({}),
-        network: toml.Section({}),
-        secrets: toml.Section({}),
-        configmaps: toml.Section({}),
-      };
       if (proxySettings?.httpProxy && proxySettings?.httpProxy !== '') {
         containersConfContent['engine'].env.push(`http_proxy=${proxySettings.httpProxy}`);
       }
@@ -124,21 +125,32 @@ export class PodmanConfiguration {
     } else {
       // read the content of the file
       const containersConfigFile = await this.readContainersConfigFile();
-      let tomlConfigFile = toml.parse(containersConfigFile);
-      if (!tomlConfigFile) {
-        tomlConfigFile = {};
+      const tomlConfigFile = toml.parse(containersConfigFile);
+
+      // we need to create a ReadonlyTable so that we can write it later, so we copy the content of tomlConfigFile inside containersConfContent
+      if (tomlConfigFile.containers && typeof tomlConfigFile.containers === 'object') {
+        containersConfContent['containers'] = tomlConfigFile.containers;
+      }
+      if (tomlConfigFile.machine && typeof tomlConfigFile.machine === 'object') {
+        containersConfContent['machine'] = tomlConfigFile.machine;
+      }
+      if (tomlConfigFile.network && typeof tomlConfigFile.network === 'object') {
+        containersConfContent['network'] = tomlConfigFile.network;
+      }
+      if (tomlConfigFile.secrets && typeof tomlConfigFile.secrets === 'object') {
+        containersConfContent['secrets'] = tomlConfigFile.secrets;
+      }
+      if (tomlConfigFile.configmaps && typeof tomlConfigFile.configmaps === 'object') {
+        containersConfContent['configmaps'] = tomlConfigFile.configmaps;
       }
 
-      if (!tomlConfigFile.engine) {
-        tomlConfigFile.engine = {};
-      }
-
-      let engineEnv: string[];
-      if (!tomlConfigFile.engine['env']) {
-        engineEnv = [];
-        tomlConfigFile.engine['env'] = engineEnv;
-      } else {
-        engineEnv = tomlConfigFile.engine['env'];
+      let engineEnv: string[] = [];
+      if (tomlConfigFile.engine && typeof tomlConfigFile.engine === 'object' && 'env' in tomlConfigFile.engine) {
+        if (!tomlConfigFile.engine['env']) {
+          engineEnv = [];
+        } else {
+          engineEnv = tomlConfigFile.engine['env'] as string[];
+        }
       }
 
       // now update values
@@ -197,8 +209,9 @@ export class PodmanConfiguration {
         }
       }
 
+      containersConfContent['engine'].env = engineEnv;
       // write the file
-      const content = toml.stringify(tomlConfigFile, { newline: '\n' });
+      const content = toml.stringify(containersConfContent, { newline: '\n' });
       await fs.promises.writeFile(this.getContainersFileLocation(), content);
     }
   }
@@ -214,14 +227,14 @@ export class PodmanConfiguration {
   }
 
   protected getContainersFileLocation(): string {
-    let podmanConfigContainersPath;
+    let podmanConfigContainersPath = '';
 
     if (isMac()) {
       podmanConfigContainersPath = path.resolve(os.homedir(), '.config', 'containers');
     } else if (isWindows()) {
       podmanConfigContainersPath = path.resolve(os.homedir(), 'AppData', 'Roaming', 'containers');
     } else if (isLinux()) {
-      const xdgRuntimeDirectory = process.env['XDG_RUNTIME_DIR'];
+      const xdgRuntimeDirectory = process.env['XDG_RUNTIME_DIR'] ?? '';
       podmanConfigContainersPath = path.resolve(xdgRuntimeDirectory, 'containers');
     }
 

@@ -1,8 +1,6 @@
 <script lang="ts">
-import { Link } from '@podman-desktop/ui-svelte';
+import { CloseButton, Link } from '@podman-desktop/ui-svelte';
 import { router } from 'tinro';
-
-import CloseButton from '/@/lib/ui/CloseButton.svelte';
 
 import { currentPage, lastPage } from '../../stores/breadcrumb';
 
@@ -35,7 +33,7 @@ function handleKeydown(e: KeyboardEvent) {
           title="Go back to {$lastPage.name}">{$lastPage.name}</Link>
         <div class="mx-2">&gt;</div>
         <div class="grow font-extralight" aria-label="name">{$currentPage.name}</div>
-        <CloseButton href="{$lastPage.path}" class="justify-self-end" />
+        <CloseButton class="justify-self-end" on:click="{() => router.goto($lastPage.path)}" />
       </div>
       <div class="flex flex-row items-start pt-1">
         <div class="pr-3">

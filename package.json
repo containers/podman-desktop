@@ -15,6 +15,7 @@
     "packages": [
       "packages/*",
       "extensions/*",
+      "storybook",
       "website",
       "website-argos",
       "tools",
@@ -101,6 +102,8 @@
     "website:prod": "cd website && yarn run docusaurus build && yarn serve",
     "website:dev": "cd website && yarn run docusaurus start",
     "website:screenshots": "cd website-argos && yarn run screenshot",
+    "storybook:dev": "cd storybook && yarn run dev",
+    "storybook:build": "cd storybook && yarn run build",
     "prepare": "husky install",
     "postinstall": "playwright install"
   },
@@ -154,7 +157,7 @@
     "lint-staged": "^15.2.5",
     "nock": "^14.0.0-beta.7",
     "postcss-import": "^16.1.0",
-    "prettier": "^3.2.5",
+    "prettier": "^3.3.0",
     "prettier-plugin-svelte": "^3.2.3",
     "proxy": "^2.1.1",
     "typescript": "5.4.5",
@@ -168,7 +171,7 @@
     "@kubernetes/client-node": "^0.21.0",
     "@segment/analytics-node": "^2.1.2",
     "@types/stream-json": "^1.7.7",
-    "adm-zip": "^0.5.12",
+    "adm-zip": "^0.5.13",
     "check-disk-space": "^3.4.0",
     "chokidar": "^3.6.0",
     "compare-versions": "^6.1.0",
@@ -189,7 +192,7 @@
     "tar-fs": "^3.0.6",
     "undici": "^6.18.2",
     "win-ca": "^3.5.1",
-    "yaml": "^2.4.2"
+    "yaml": "^2.4.3"
   },
   "resolutions": {
     "trim": "0.0.3",

@@ -21,9 +21,9 @@ import * as os from 'node:os';
 import type { Mock } from 'vitest';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import { MacVersionCheck } from './macos-checks';
+import { MacVersionCheck, MINIMUM_VERSION } from './macos-checks';
 
-let macVersionCheck;
+let macVersionCheck: MacVersionCheck;
 
 vi.mock('node:os', () => {
   return {
@@ -48,7 +48,7 @@ test('expect error on versions of macOS too old', async () => {
 
 test('expect success on versions of macOS matching the minimum version', async () => {
   // pickup minimum version
-  (os.release as Mock).mockReturnValue(macVersionCheck.MINIMUM_VERSION);
+  (os.release as Mock).mockReturnValue(MINIMUM_VERSION);
   const result = await macVersionCheck.execute();
   expect(result).toBeDefined();
   // minimum version should match

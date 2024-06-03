@@ -22,7 +22,8 @@ import type * as extensionApi from '@podman-desktop/api';
 import * as podmanDesktopApi from '@podman-desktop/api';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import { createProvider, moveImage, refreshKindClustersOnProviderConnectionUpdate } from './extension';
+import { activate, moveImage, refreshKindClustersOnProviderConnectionUpdate } from './extension';
+import * as util from './util';
 
 vi.mock('./image-handler', async () => {
   return {
@@ -58,6 +59,11 @@ vi.mock('@podman-desktop/api', async () => {
     },
     context: {
       setValue: vi.fn(),
+    },
+    env: {
+      createTelemetryLogger: vi.fn().mockReturnValue({
+        logUsage: vi.fn(),
+      } as unknown as extensionApi.TelemetryLogger),
     },
   };
 });
@@ -113,15 +119,14 @@ test('Ensuring a progress task is created when calling kind.image.move command',
   const contextSetValueMock = vi.fn();
   (podmanDesktopApi.context as any).setValue = contextSetValueMock;
 
-  await createProvider(
+  vi.spyOn(util, 'detectKind').mockResolvedValue('kind');
+
+  await activate(
     vi.mocked<extensionApi.ExtensionContext>({
       subscriptions: {
         push: vi.fn(),
       },
     } as unknown as extensionApi.ExtensionContext),
-    vi.mocked<extensionApi.TelemetryLogger>({
-      logUsage: vi.fn(),
-    } as unknown as extensionApi.TelemetryLogger),
   );
 
   // ensure the command has been registered

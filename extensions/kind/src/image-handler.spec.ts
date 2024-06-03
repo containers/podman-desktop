@@ -54,19 +54,19 @@ beforeEach(() => {
 
 test('expect error to be raised if no image is given', async () => {
   try {
-    await imageHandler.moveImage({ engineId: 'dummy' }, [], undefined);
+    await imageHandler.moveImage({ engineId: 'dummy' }, [], 'kind');
   } catch (err) {
     expect(err).to.be.a('Error');
-    expect(err.message).equal('Image selection not supported yet');
+    expect((err as Error).message).equal('Image selection not supported yet');
   }
 });
 
 test('expect error to be raised if no clusters are given', async () => {
   try {
-    await imageHandler.moveImage({ engineId: 'dummy', name: 'myimage' }, [], undefined);
+    await imageHandler.moveImage({ engineId: 'dummy', name: 'myimage' }, [], 'kind');
   } catch (err) {
     expect(err).to.be.a('Error');
-    expect(err.message).equal('No Kind clusters to push to');
+    expect((err as Error).message).equal('No Kind clusters to push to');
   }
 });
 
@@ -78,7 +78,7 @@ test('expect image name to be given', async () => {
   await imageHandler.moveImage(
     { engineId: 'dummy', name: 'myimage' },
     [{ name: 'c1', engineType: 'podman', status: 'started', apiPort: 9443 }],
-    undefined,
+    'kind',
   );
   expect(extensionApi.containerEngine.saveImage).toBeCalledWith('dummy', 'myimage', expect.anything());
 });
@@ -91,7 +91,7 @@ test('expect getting showInformationMessage when image is pushed', async () => {
   await imageHandler.moveImage(
     { engineId: 'dummy', name: 'myimage' },
     [{ name: 'c1', engineType: 'podman', status: 'started', apiPort: 9443 }],
-    undefined,
+    'kind',
   );
   expect(extensionApi.window.showInformationMessage).toBeCalledWith('Image myimage pushed to Kind cluster: c1');
 });
@@ -104,7 +104,7 @@ test('expect image name and tag to be given', async () => {
   await imageHandler.moveImage(
     { engineId: 'dummy', name: 'myimage', tag: '1.0' },
     [{ name: 'c1', engineType: 'podman', status: 'started', apiPort: 9443 }],
-    undefined,
+    'kind',
   );
   expect(extensionApi.containerEngine.saveImage).toBeCalledWith('dummy', 'myimage:1.0', expect.anything());
 });
@@ -119,7 +119,7 @@ test('expect cli is called with right PATH', async () => {
   await imageHandler.moveImage(
     { engineId: 'dummy', name: 'myimage' },
     [{ name: 'c1', engineType: 'podman', status: 'started', apiPort: 9443 }],
-    undefined,
+    'kind',
   );
   expect(getKindPath).toBeCalled();
 

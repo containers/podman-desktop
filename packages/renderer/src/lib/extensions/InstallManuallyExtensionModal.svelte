@@ -1,9 +1,7 @@
 <script lang="ts">
 import { faCloudDownload } from '@fortawesome/free-solid-svg-icons';
-import { Button, Input, Modal } from '@podman-desktop/ui-svelte';
+import { Button, CloseButton, Input, Modal } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
-
-import CloseButton from '/@/lib/ui/CloseButton.svelte';
 
 export let closeCallback: () => void;
 let imageName = '';

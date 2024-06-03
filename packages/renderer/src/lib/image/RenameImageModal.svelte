@@ -1,9 +1,7 @@
 <script lang="ts">
-import { Button, ErrorMessage, Input, Modal } from '@podman-desktop/ui-svelte';
+import { Button, CloseButton, ErrorMessage, Input, Modal } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
-
-import CloseButton from '/@/lib/ui/CloseButton.svelte';
 
 import type { ImageInfoUI } from './ImageInfoUI';
 

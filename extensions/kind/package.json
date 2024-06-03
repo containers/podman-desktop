@@ -105,13 +105,13 @@
     "@octokit/rest": "^20.1.1",
     "@podman-desktop/api": "^0.0.1",
     "mustache": "^4.2.0",
-    "yaml": "^2.4.2"
+    "yaml": "^2.4.3"
   },
   "devDependencies": {
-    "adm-zip": "^0.5.12",
+    "adm-zip": "^0.5.13",
     "mkdirp": "^3.0.1",
     "tmp-promise": "^3.0.3",
-    "tsx": "^4.11.0",
+    "tsx": "^4.11.2",
     "vite": "^5.2.12",
     "vitest": "^1.6.0"
   }
