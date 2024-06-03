@@ -59,7 +59,7 @@ const MACOS_ARM64_ASSET_NAME = 'kind-darwin-arm64';
 export class KindInstaller {
   private assetNames = new Map<string, string>();
 
-  private assetPromise: Promise<AssetInfo>;
+  private assetPromise: Promise<AssetInfo | undefined> | undefined;
 
   constructor(
     private readonly storagePath: string,
@@ -72,7 +72,7 @@ export class KindInstaller {
     this.assetNames.set(MACOS_ARM64_PLATFORM, MACOS_ARM64_ASSET_NAME);
   }
 
-  findAssetInfo(data: GitHubRelease[], assetName: string): AssetInfo {
+  findAssetInfo(data: GitHubRelease[], assetName: string): AssetInfo | undefined {
     for (const release of data) {
       for (const asset of release.assets) {
         if (asset.name === assetName) {
@@ -86,9 +86,12 @@ export class KindInstaller {
     return undefined;
   }
 
-  async getAssetInfo(): Promise<AssetInfo> {
+  async getAssetInfo(): Promise<AssetInfo | undefined> {
     if (!(await this.assetPromise)) {
       const assetName = this.assetNames.get(os.platform().concat('-').concat(os.arch()));
+      if (assetName === undefined) {
+        return undefined;
+      }
       const octokit = new Octokit();
       this.assetPromise = octokit.repos
         .listReleases({ owner: githubOrganization, repo: githubRepo })
@@ -169,6 +172,7 @@ export class KindInstaller {
           } finally {
             progress.report({ increment: -1 });
           }
+          return false;
         },
       );
     } else {

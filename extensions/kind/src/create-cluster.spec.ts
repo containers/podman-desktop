@@ -63,10 +63,10 @@ test('expect error is cli returns non zero exit code', async () => {
   const error = { exitCode: -1, message: 'error' } as extensionApi.RunError;
   try {
     (extensionApi.process.exec as Mock).mockRejectedValue(error);
-    await createCluster({}, undefined, '', telemetryLoggerMock, undefined);
+    await createCluster({}, '', telemetryLoggerMock, undefined, undefined);
   } catch (err) {
     expect(err).to.be.a('Error');
-    expect(err.message).equal('Failed to create kind cluster. error');
+    expect((err as Error).message).equal('Failed to create kind cluster. error');
     expect(telemetryLogUsageMock).toBeCalledWith('createCluster', expect.objectContaining({ error: error }));
     expect(telemetryLogErrorMock).not.toBeCalled();
   }
@@ -74,7 +74,7 @@ test('expect error is cli returns non zero exit code', async () => {
 
 test('expect cluster to be created', async () => {
   (extensionApi.process.exec as Mock).mockReturnValue({} as extensionApi.RunResult);
-  await createCluster({}, undefined, '', telemetryLoggerMock, undefined);
+  await createCluster({}, '', telemetryLoggerMock, undefined, undefined);
   expect(telemetryLogUsageMock).toHaveBeenNthCalledWith(
     1,
     'createCluster',
@@ -91,7 +91,7 @@ test('expect cluster to be created with ingress', async () => {
     error: vi.fn(),
     warn: vi.fn(),
   };
-  await createCluster({ 'kind.cluster.creation.ingress': 'on' }, logger, '', telemetryLoggerMock, undefined);
+  await createCluster({ 'kind.cluster.creation.ingress': 'on' }, '', telemetryLoggerMock, logger, undefined);
   expect(telemetryLogUsageMock).toHaveBeenNthCalledWith(
     1,
     'createCluster',
@@ -110,11 +110,11 @@ test('expect error if Kubernetes reports error', async () => {
       warn: vi.fn(),
     };
     (extensionApi.kubernetes.createResources as Mock).mockRejectedValue(error);
-    await createCluster({ 'kind.cluster.creation.ingress': 'on' }, logger, '', telemetryLoggerMock, undefined);
+    await createCluster({ 'kind.cluster.creation.ingress': 'on' }, '', telemetryLoggerMock, logger, undefined);
   } catch (err) {
     expect(extensionApi.kubernetes.createResources).toBeCalled();
     expect(err).to.be.a('Error');
-    expect(err.message).equal('Failed to create kind cluster. Kubernetes error');
+    expect((err as Error).message).equal('Failed to create kind cluster. Kubernetes error');
     expect(telemetryLogErrorMock).not.toBeCalled();
     expect(telemetryLogUsageMock).toBeCalledWith('createCluster', expect.objectContaining(error));
   }
@@ -129,12 +129,12 @@ test('check cluster configuration generation', async () => {
 });
 
 test('check cluster configuration empty string image', async () => {
-  const conf = getKindClusterConfig(undefined, undefined, undefined, '');
+  const conf = getKindClusterConfig('cluster', 80, 80, '');
   expect(conf).to.not.contains('image:');
 });
 
 test('check cluster configuration null string image', async () => {
-  const conf = getKindClusterConfig(undefined, undefined, undefined, undefined);
+  const conf = getKindClusterConfig('cluster', 80, 80, undefined);
   expect(conf).to.not.contains('image:');
 });
 

@@ -103,7 +103,7 @@ async function monitorDaemon(extensionContext: extensionApi.ExtensionContext): P
       if (err instanceof Error) {
         extensionApi.env.createTelemetryLogger().logError(err);
       } else {
-        extensionApi.env.createTelemetryLogger().logError(err.toString());
+        extensionApi.env.createTelemetryLogger().logError(String(err));
       }
     });
   }
@@ -173,7 +173,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     if (err instanceof Error) {
       extensionApi.env.createTelemetryLogger().logError(err);
     } else {
-      extensionApi.env.createTelemetryLogger().logError(err.toString());
+      extensionApi.env.createTelemetryLogger().logError(String(err));
     }
   });
 }

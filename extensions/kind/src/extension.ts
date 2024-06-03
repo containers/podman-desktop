@@ -58,8 +58,12 @@ async function registerProvider(
   const disposable = provider.setKubernetesProviderConnectionFactory(
     {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      create: (params: { [key: string]: any }, logger?: Logger, token?: CancellationToken) =>
-        createCluster(params, logger, kindCli, telemetryLogger, token),
+      create: (params: { [key: string]: any }, logger?: Logger, token?: CancellationToken) => {
+        if (kindCli) {
+          return createCluster(params, kindCli, telemetryLogger, logger, token);
+        }
+        return Promise.reject(new Error('Unable to create kind cluster. No kind cli detected'));
+      },
       creationDisplayName: 'Kind cluster',
     },
     {
@@ -160,12 +164,14 @@ async function updateClusters(
           await extensionApi.containerEngine.stopContainer(cluster.engineId, cluster.id);
         },
         delete: async (logger): Promise<void> => {
-          const env = Object.assign({}, process.env);
+          const env = Object.assign({}, process.env) as { [key: string]: string };
           if (cluster.engineType === 'podman') {
             env['KIND_EXPERIMENTAL_PROVIDER'] = 'podman';
           }
-          env.PATH = getKindPath();
-          await extensionApi.process.exec(kindCli, ['delete', 'cluster', '--name', cluster.name], { env, logger });
+          env.PATH = getKindPath() ?? '';
+          if (kindCli) {
+            await extensionApi.process.exec(kindCli, ['delete', 'cluster', '--name', cluster.name], { env, logger });
+          }
         },
       };
       // create a new connection
@@ -296,7 +302,7 @@ export async function moveImage(
   image: unknown,
 ): Promise<void> {
   // as the command receive an "any" value we check that it contains an id and an engineId as they are mandatory
-  if (!(typeof image === 'object' && 'id' in image && 'engineId' in image)) {
+  if (!(kindCli && image && typeof image === 'object' && 'id' in image && 'engineId' in image)) {
     throw new Error('Image selection not supported yet');
   }
 
