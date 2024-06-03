@@ -85,9 +85,16 @@ export interface PodCreatePortOptions {
 }
 
 export interface PodCreateOptions {
-  name: string;
+  name?: string;
   portmappings?: PodCreatePortOptions[];
   labels?: { [key: string]: string };
+  Networks?: {
+    [key: string]: {
+      aliases?: string[];
+      interface_name?: string;
+    };
+  };
+  exit_policy?: string;
 }
 
 export interface ContainerCreateMountOption {
