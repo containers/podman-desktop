@@ -2,6 +2,7 @@
 import { faBalanceScale, faNetworkWired, faPlug, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import { Fa } from 'svelte-fa';
 
+import Label from '../ui/Label.svelte';
 import type { ServiceUI } from './ServiceUI';
 
 export let object: ServiceUI;
@@ -25,7 +26,6 @@ function getTypeAttributes(type: string) {
 }
 </script>
 
-<div class="flex flex-row bg-charcoal-500 items-center p-1 rounded-md text-xs text-gray-500">
-  <Fa size="1x" icon="{getTypeAttributes(object.type).icon}" class="{getTypeAttributes(object.type).color} mr-1" />
-  {object.type}
-</div>
+<Label name="{object.type}">
+  <Fa size="1x" icon="{getTypeAttributes(object.type).icon}" class="{getTypeAttributes(object.type).color}" />
+</Label>

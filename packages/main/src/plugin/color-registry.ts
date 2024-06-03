@@ -242,6 +242,7 @@ export class ColorRegistry {
     this.initActionButton();
     this.initTooltip();
     this.initDropdown();
+    this.initLabel();
   }
 
   protected initGlobalNav(): void {
@@ -1042,6 +1043,20 @@ export class ColorRegistry {
     this.registerColor(`${dropdown}disabled-item-bg`, {
       dark: colorPalette.charcoal[800],
       light: colorPalette.gray[200],
+    });
+  }
+
+  // labels
+  protected initLabel(): void {
+    const label = 'label-';
+
+    this.registerColor(`${label}bg`, {
+      dark: colorPalette.charcoal[500],
+      light: colorPalette.purple[200],
+    });
+    this.registerColor(`${label}text`, {
+      dark: colorPalette.gray[500],
+      light: colorPalette.charcoal[300],
     });
   }
 }
