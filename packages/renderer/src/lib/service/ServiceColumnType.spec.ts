@@ -84,3 +84,20 @@ test('Expect column styling NodePort', async () => {
   expect(dot).toBeInTheDocument();
   expect(dot).toHaveClass('text-fuschia-600');
 });
+
+test('Expect tooltip to say loadBalancerIPs if it exists in service object', async () => {
+  service.type = 'LoadBalancer';
+  service.loadBalancerIPs = '10.0.0.1';
+  render(ServiceColumnType, { object: service });
+
+  const text = screen.getByText(service.type);
+  expect(text).toBeInTheDocument();
+  expect(text).toHaveClass('text-gray-500');
+
+  const dot = text.parentElement?.children[0].children[0];
+  expect(dot).toBeInTheDocument();
+  expect(dot).toHaveClass('text-purple-500');
+
+  const tooltip = screen.getByText(service.loadBalancerIPs);
+  expect(tooltip).toBeInTheDocument();
+});

@@ -30,6 +30,7 @@ export class ServiceUtils {
       selected: false,
       type: service.spec?.type ?? '',
       clusterIP: service.spec?.clusterIP ?? '',
+      loadBalancerIPs: service.status?.loadBalancer?.ingress?.map(ingress => ingress.ip).join(', '),
       ports: (service.spec?.ports ?? []).map(port => port.port + '/' + port.protocol).join(', '),
     };
   }

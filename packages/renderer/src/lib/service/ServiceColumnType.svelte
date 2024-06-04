@@ -1,5 +1,6 @@
 <script lang="ts">
 import { faBalanceScale, faNetworkWired, faPlug, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import { Tooltip } from '@podman-desktop/ui-svelte';
 import { Fa } from 'svelte-fa';
 
 import type { ServiceUI } from './ServiceUI';
@@ -25,7 +26,23 @@ function getTypeAttributes(type: string) {
 }
 </script>
 
-<div class="flex flex-row bg-charcoal-500 items-center p-1 rounded-md text-xs text-gray-500">
-  <Fa size="1x" icon="{getTypeAttributes(object.type).icon}" class="{getTypeAttributes(object.type).color} mr-1" />
-  {object.type}
+<div class="flex flex-row gap-1">
+  <Tooltip bottom>
+    <svelte:fragment slot="content">
+      <div class="flex flex-row bg-charcoal-500 items-center p-1 rounded-md text-xs text-gray-500">
+        <Fa
+          size="1x"
+          icon="{getTypeAttributes(object.type).icon}"
+          class="{getTypeAttributes(object.type).color} mr-1" />
+        {object.type}
+      </div>
+    </svelte:fragment>
+    <svelte:fragment slot="tip">
+      {#if object.loadBalancerIPs}
+        <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
+          {object.loadBalancerIPs}
+        </div>
+      {/if}
+    </svelte:fragment>
+  </Tooltip>
 </div>
