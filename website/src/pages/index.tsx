@@ -134,7 +134,7 @@ function Hero(): JSX.Element {
   );
 }
 
-function SectionTitle(props): JSX.Element {
+function SectionTitle(props: { name: string }): JSX.Element {
   return (
     <div>
       <p className="inline-block px-3 py-px mb-4 text-xs font-semibold tracking-wider text-purple-800 uppercase rounded-full dark:bg-purple-400 bg-purple-400">
