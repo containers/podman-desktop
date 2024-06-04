@@ -370,7 +370,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
         <div class="flex flex-row-reverse w-full pb-3 -mt-2">
           <span class="w-2/3 pl-4 text-sm font-bold">
             {#if originRegistries.some(r => r.serverUrl === registry.serverUrl)}
-              {errorResponses.find(o => o.serverUrl === registry.serverUrl)?.error || ''}
+              {errorResponses.find(o => o.serverUrl === registry.serverUrl)?.error ?? ''}
             {/if}
           </span>
         </div>
@@ -444,7 +444,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
           <div class="flex flex-row w-full pb-3 -mt-2 pl-10">
             {#if listedSuggestedRegistries[i]}
               <span class="text-sm font-bold whitespace-pre-line">
-                {errorResponses.find(o => o.serverUrl === newRegistryRequest.serverUrl)?.error || ''}
+                {errorResponses.find(o => o.serverUrl === newRegistryRequest.serverUrl)?.error ?? ''}
               </span>
             {/if}
           </div>
@@ -484,7 +484,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
           </div>
           <div class="flex flex-row w-full pb-3 -mt-2 pl-10">
             <span class="text-sm font-bold whitespace-pre-line">
-              {errorResponses.find(o => o.serverUrl === newRegistryRequest.serverUrl)?.error || ''}
+              {errorResponses.find(o => o.serverUrl === newRegistryRequest.serverUrl)?.error ?? ''}
             </span>
           </div>
         </div>

@@ -85,7 +85,7 @@ export function isStepCompleted(
       }
 
       return false;
-    }) || false
+    }) ?? false
   );
 }
 

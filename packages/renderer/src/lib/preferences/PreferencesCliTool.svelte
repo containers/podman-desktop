@@ -56,7 +56,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
       <!-- left col - cli-tool icon/name + "create new" button -->
       <div class="min-w-[170px] max-w-[200px] h-full flex flex-col justify-between">
         <div class="flex flex-row">
-          {#if cliTool?.images?.icon || cliTool?.extensionInfo.icon}
+          {#if cliTool?.images?.icon ?? cliTool?.extensionInfo.icon}
             {#if typeof cliTool.images?.icon === 'string'}
               <img
                 src="{cliTool.images.icon}"

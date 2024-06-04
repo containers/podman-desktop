@@ -11,11 +11,11 @@ export let invalidRecord = (_error: string) => {};
 
 let valueUpdateTimeout: NodeJS.Timeout;
 
-let recordValue: number = value || 0;
+let recordValue: number = value ?? 0;
 let lastValue: number;
 let error: string | undefined = undefined;
 
-$: recordValue = value || 0;
+$: recordValue = value ?? 0;
 
 $: if (recordValue) {
   const newValue = Number(recordValue);

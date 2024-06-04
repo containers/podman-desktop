@@ -21,8 +21,8 @@ $: Promise.all(
             kubernetesConnectionInfo as unknown as KubernetesProviderConnection,
           )
         : undefined,
-      connection: kubernetesConnectionInfo?.name || '',
-      providerId: providerInternalId || '',
+      connection: kubernetesConnectionInfo?.name ?? '',
+      providerId: providerInternalId ?? '',
     };
   }),
 ).then(value => (tmpProviderContainerConfiguration = value.flat()));

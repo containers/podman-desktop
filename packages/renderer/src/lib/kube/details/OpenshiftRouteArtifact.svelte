@@ -26,7 +26,7 @@ export let artifact: V1Route | undefined;
     <tr>
       <Cell>Path</Cell>
       <Cell>
-        {artifact.spec.path || 'N/A'}
+        {artifact.spec.path ?? 'N/A'}
       </Cell>
     </tr>
   {/if}
@@ -67,7 +67,7 @@ export let artifact: V1Route | undefined;
     <tr>
       <Cell>Link</Cell>
       <Cell>
-        {@const link = `${artifact.spec.tls ? 'https' : 'http'}://${artifact.spec.host}${artifact.spec.path || ''}`}
+        {@const link = `${artifact.spec.tls ? 'https' : 'http'}://${artifact.spec.host}${artifact.spec.path ?? ''}`}
         <Link on:click="{() => window.openExternal(link)}">
           {link}
         </Link>

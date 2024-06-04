@@ -5,7 +5,7 @@ import { iconClass } from './StatusBarItem';
 export let entry: StatusBarEntry;
 
 function tooltipText(entry: StatusBarEntry): string {
-  return entry.tooltip !== undefined ? entry.tooltip : '';
+  return entry.tooltip ?? '';
 }
 
 function opacity(entry: StatusBarEntry): string {

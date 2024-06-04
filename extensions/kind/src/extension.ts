@@ -114,7 +114,7 @@ async function updateClusters(
     return {
       name: clusterName,
       status,
-      apiPort: listeningPort?.PublicPort || 0,
+      apiPort: listeningPort?.PublicPort ?? 0,
       engineType: container.engineType,
       engineId: container.engineId,
       id: container.Id,

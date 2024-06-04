@@ -24,6 +24,6 @@ function onChecked(state: boolean) {
   readonly="{!!record.readonly}"
   disabled="{!!record.readonly}"
   aria-invalid="{invalidEntry}"
-  aria-label="{record.description || record.markdownDescription}">
+  aria-label="{record.description ?? record.markdownDescription}">
   <span class="text-xs">{checked ? 'Enabled' : 'Disabled'}</span>
 </SlideToggle>

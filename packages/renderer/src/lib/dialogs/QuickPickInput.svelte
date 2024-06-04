@@ -40,16 +40,16 @@ const showInputCallback = (inputCallpackParameter: unknown) => {
   inputValue = options?.value;
   placeHolder = options?.placeHolder;
   title = options?.title;
-  currentId = options?.id || 0;
+  currentId = options?.id ?? 0;
   if (options?.prompt) {
     prompt = `${options.prompt} (${DEFAULT_PROMPT})`;
   } else {
     prompt = DEFAULT_PROMPT;
   }
   markdownDescription = options?.markdownDescription;
-  multiline = options?.multiline || false;
+  multiline = options?.multiline ?? false;
 
-  validationEnabled = options?.validate || false;
+  validationEnabled = options?.validate ?? false;
   display = true;
   tick()
     .then(() => {
@@ -70,19 +70,19 @@ const showQuickPickCallback = (quickpickParameter: unknown) => {
   mode = 'QuickPick';
   placeHolder = options?.placeHolder;
   title = options?.title;
-  currentId = options?.id || 0;
+  currentId = options?.id ?? 0;
   if (options?.prompt) {
     prompt = options.prompt;
   }
-  quickPickItems = (options?.items || []).map(item => {
+  quickPickItems = (options?.items ?? []).map(item => {
     if (typeof item === 'string') {
       return { value: item, description: '', detail: '', checkbox: false };
     } else {
       // if type is QuickPickItem use label field for the display
       return {
-        value: item.label || '',
-        description: item.description || '',
-        detail: item.detail || '',
+        value: item.label ?? '',
+        description: item.description ?? '',
+        detail: item.detail ?? '',
         checkbox: false,
       };
     }

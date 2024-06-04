@@ -83,7 +83,7 @@ export class TaskManager {
       id: `main-${this.taskId}`,
       name: notificationInfo.title,
       started: new Date().getTime(),
-      description: notificationInfo.body || '',
+      description: notificationInfo.body ?? '',
       markdownActions: notificationInfo.markdownActions,
     };
     this.tasks.set(task.id, task);

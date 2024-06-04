@@ -123,7 +123,7 @@ export function createHttpPatch(originals: typeof http | typeof https, proxy: Pr
           options = { ...options };
         }
 
-        const host = options.hostname || options.host;
+        const host = options.hostname ?? options.host;
         const isLocalhost = !host || host === 'localhost' || host === '127.0.0.1';
         if (!isLocalhost) {
           options = Object.assign({}, options, getOptions(proxy, options.protocol === 'https:'));

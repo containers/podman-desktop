@@ -101,7 +101,7 @@ export let artifact: V1Volume;
     <tr>
       <Cell>Empty Directory</Cell>
       <Cell
-        >Medium: {artifact.emptyDir.medium || 'Default'}
+        >Medium: {artifact.emptyDir.medium ?? 'Default'}
         {#if artifact.emptyDir.sizeLimit}
           • Size Limit: {artifact.emptyDir.sizeLimit}
         {/if}

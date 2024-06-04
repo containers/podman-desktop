@@ -31,8 +31,8 @@ export interface HostPathObject {
 export class IngressRouteUtils {
   getIngressUI(ingress: V1Ingress): IngressUI {
     return {
-      name: ingress.metadata?.name || '',
-      namespace: ingress.metadata?.namespace || '',
+      name: ingress.metadata?.name ?? '',
+      namespace: ingress.metadata?.namespace ?? '',
       status: 'RUNNING',
       rules: ingress.spec?.rules,
       selected: false,
@@ -41,8 +41,8 @@ export class IngressRouteUtils {
   }
   getRouteUI(route: V1Route): RouteUI {
     return {
-      name: route.metadata?.name || '',
-      namespace: route.metadata?.namespace || '',
+      name: route.metadata?.name ?? '',
+      namespace: route.metadata?.namespace ?? '',
       status: 'RUNNING',
       host: route.spec.host,
       port: route.spec.port?.targetPort,

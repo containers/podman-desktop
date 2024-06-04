@@ -92,22 +92,22 @@ function toPodInfo(pod: V1Pod, contextName?: string): PodInfo {
   const containers =
     pod.status?.containerStatuses?.map(status => {
       return {
-        Id: status.containerID || '',
+        Id: status.containerID ?? '',
         Names: status.name,
         Status: toContainerStatus(status.state),
       };
-    }) || [];
+    }) ?? [];
   return {
     Cgroup: '',
     Containers: containers,
-    Created: (pod.metadata?.creationTimestamp || '').toString(),
-    Id: pod.metadata?.uid || '',
+    Created: (pod.metadata?.creationTimestamp ?? '').toString(),
+    Id: pod.metadata?.uid ?? '',
     InfraId: '',
-    Labels: pod.metadata?.labels || {},
-    Name: pod.metadata?.name || '',
-    Namespace: pod.metadata?.namespace || '',
+    Labels: pod.metadata?.labels ?? {},
+    Name: pod.metadata?.name ?? '',
+    Namespace: pod.metadata?.namespace ?? '',
     Networks: [],
-    Status: pod.metadata?.deletionTimestamp ? 'DELETING' : pod.status?.phase || '',
+    Status: pod.metadata?.deletionTimestamp ? 'DELETING' : pod.status?.phase ?? '',
     engineId: contextName ?? 'kubernetes',
     engineName: 'Kubernetes',
     kind: 'kubernetes',
@@ -918,47 +918,47 @@ export class KubernetesClient {
     if (manifest.kind === 'Namespace') {
       return client.createNamespace(manifest);
     } else if (manifest.kind === 'Pod') {
-      return client.createNamespacedPod(optionalNamespace || manifest.metadata.namespace, manifest);
+      return client.createNamespacedPod(optionalNamespace ?? manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'Service') {
-      return client.createNamespacedService(optionalNamespace || manifest.metadata.namespace, manifest);
+      return client.createNamespacedService(optionalNamespace ?? manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'Binding') {
-      return client.createNamespacedBinding(optionalNamespace || manifest.metadata.namespace, manifest);
+      return client.createNamespacedBinding(optionalNamespace ?? manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'Event') {
-      return client.createNamespacedEvent(optionalNamespace || manifest.metadata.namespace, manifest);
+      return client.createNamespacedEvent(optionalNamespace ?? manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'Endpoints') {
-      return client.createNamespacedEndpoints(optionalNamespace || manifest.metadata.namespace, manifest);
+      return client.createNamespacedEndpoints(optionalNamespace ?? manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'ConfigMap') {
-      return client.createNamespacedConfigMap(optionalNamespace || manifest.metadata.namespace, manifest);
+      return client.createNamespacedConfigMap(optionalNamespace ?? manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'LimitRange') {
-      return client.createNamespacedLimitRange(optionalNamespace || manifest.metadata.namespace, manifest);
+      return client.createNamespacedLimitRange(optionalNamespace ?? manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'PersistentVolumeClaim') {
-      return client.createNamespacedPersistentVolumeClaim(optionalNamespace || manifest.metadata.namespace, manifest);
+      return client.createNamespacedPersistentVolumeClaim(optionalNamespace ?? manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'PodBinding') {
       return client.createNamespacedPodBinding(
         manifest.metadata.name,
-        optionalNamespace || manifest.metadata.namespace,
+        optionalNamespace ?? manifest.metadata.namespace,
         manifest,
       );
     } else if (manifest.kind === 'PodEviction') {
       return client.createNamespacedPodEviction(
         manifest.metadata.name,
-        optionalNamespace || manifest.metadata.namespace,
+        optionalNamespace ?? manifest.metadata.namespace,
         manifest,
       );
     } else if (manifest.kind === 'PodTemplate') {
-      return client.createNamespacedPodTemplate(optionalNamespace || manifest.metadata.namespace, manifest);
+      return client.createNamespacedPodTemplate(optionalNamespace ?? manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'ReplicationController') {
-      return client.createNamespacedReplicationController(optionalNamespace || manifest.metadata.namespace, manifest);
+      return client.createNamespacedReplicationController(optionalNamespace ?? manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'ResourceQuota') {
-      return client.createNamespacedResourceQuota(optionalNamespace || manifest.metadata.namespace, manifest);
+      return client.createNamespacedResourceQuota(optionalNamespace ?? manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'Secret') {
-      return client.createNamespacedSecret(optionalNamespace || manifest.metadata.namespace, manifest);
+      return client.createNamespacedSecret(optionalNamespace ?? manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'ServiceAccount') {
-      return client.createNamespacedServiceAccount(optionalNamespace || manifest.metadata.namespace, manifest);
+      return client.createNamespacedServiceAccount(optionalNamespace ?? manifest.metadata.namespace, manifest);
     } else if (manifest.kind === 'ServiceAccountToken') {
       return client.createNamespacedServiceAccountToken(
         manifest.metadata.name,
-        optionalNamespace || manifest.metadata.namespace,
+        optionalNamespace ?? manifest.metadata.namespace,
         manifest,
       );
     }
@@ -1164,7 +1164,7 @@ export class KubernetesClient {
         spec.metadata.annotations['kubectl.kubernetes.io/last-applied-configuration'] = JSON.stringify(spec);
 
         if (!spec.metadata.namespace) {
-          spec.metadata.namespace = namespace || DEFAULT_NAMESPACE;
+          spec.metadata.namespace = namespace ?? DEFAULT_NAMESPACE;
         }
         try {
           // try to get the resource, if it does not exist an error will be thrown and we will

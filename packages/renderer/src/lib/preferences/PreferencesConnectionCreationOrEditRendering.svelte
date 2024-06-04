@@ -62,10 +62,10 @@ let tokenId: number | undefined;
 
 const providerDisplayName =
   (providerInfo.containerProviderConnectionCreation
-    ? providerInfo.containerProviderConnectionCreationDisplayName || undefined
+    ? providerInfo.containerProviderConnectionCreationDisplayName ?? undefined
     : providerInfo.kubernetesProviderConnectionCreation
       ? providerInfo.kubernetesProviderConnectionCreationDisplayName
-      : undefined) || providerInfo.name;
+      : undefined) ?? providerInfo.name;
 
 let osMemory: string;
 let osCpu: string;
@@ -315,7 +315,7 @@ function updateStore() {
         operationInProgress: inProgress,
         operationSuccessful: operationSuccessful,
         operationStarted: operationStarted,
-        errorMessage: errorMessage || '',
+        errorMessage: errorMessage ?? '',
         tokenId,
       });
     }
@@ -484,7 +484,7 @@ function getConnectionResourceConfigurationValue(
         {/if}
 
         <div class="p-3 mt-2 w-4/5 h-fit {inProgress ? 'opacity-40 pointer-events-none' : ''}">
-          {#if connectionAuditResult && (connectionAuditResult.records?.length || 0) > 0}
+          {#if connectionAuditResult && (connectionAuditResult.records?.length ?? 0) > 0}
             <AuditMessageBox auditResult="{connectionAuditResult}" />
           {/if}
           <form

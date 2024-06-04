@@ -34,14 +34,14 @@ export class DeploymentUtils {
       }
     }
     return {
-      name: deployment.metadata?.name || '',
+      name: deployment.metadata?.name ?? '',
       status: status,
-      namespace: deployment.metadata?.namespace || '',
+      namespace: deployment.metadata?.namespace ?? '',
       created: deployment.metadata?.creationTimestamp,
       // number of replicas
-      replicas: deployment.status?.replicas || 0,
+      replicas: deployment.status?.replicas ?? 0,
       // ready pods
-      ready: deployment.status?.readyReplicas || 0,
+      ready: deployment.status?.readyReplicas ?? 0,
       selected: false,
       conditions: conditions,
     };
