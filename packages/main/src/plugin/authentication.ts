@@ -27,6 +27,7 @@ import type {
   Event,
   ProviderImages,
 } from '@podman-desktop/api';
+import { window } from '@podman-desktop/api';
 
 import type { ApiSenderType } from './api.js';
 import { Emitter } from './events/emitter.js';
@@ -249,6 +250,14 @@ export class AuthenticationImpl {
 
     if (options.createIfNone) {
       if (providerData) {
+        const allowRsp = await window.showInformationMessage(
+          `The extension '${requestingExtension.label}' wants to sign in using ${providerData.label}`,
+          'Cancel',
+          'Allow',
+        );
+        if (allowRsp !== 'Allow') {
+          return;
+        }
         const newSession = await providerData.provider.createSession(sortedScopes);
         const request = Array.from(this._signInRequestsData.values()).find(request => {
           return request.extensionId === requestingExtension.id;
