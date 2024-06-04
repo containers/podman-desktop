@@ -1867,7 +1867,7 @@ export class ContainerProviderRegistry {
     }
   }
 
-  async createContainer(engineId: string, options: ContainerCreateOptions): Promise<{ id: string }> {
+  async createContainer(engineId: string, options: ContainerCreateOptions): Promise<{ id: string; engineId: string }> {
     let telemetryOptions = {};
     try {
       let container: Dockerode.Container;
@@ -1884,7 +1884,7 @@ export class ContainerProviderRegistry {
           await container.start();
         }
       }
-      return { id: container.id };
+      return { id: container.id, engineId };
     } catch (error) {
       telemetryOptions = { error: error };
       throw error;
