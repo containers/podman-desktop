@@ -91,6 +91,10 @@ async function refreshTerminal() {
   if (existingTerminal) {
     sendCallbackId = existingTerminal.callbackId;
     shellTerminal = existingTerminal.terminal;
+    shellTerminal.options = {
+      fontSize,
+      lineHeight,
+    };
   } else {
     shellTerminal = new Terminal({
       fontSize,
