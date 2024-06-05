@@ -105,7 +105,7 @@ import type { WebviewInfo } from '/@api/webview-info.js';
 
 import { securityRestrictionCurrentHandler } from '../security-restrictions-handler.js';
 import type { TrayMenu } from '../tray-menu.js';
-import { isLinux, isMac } from '../util.js';
+import { isMac } from '../util.js';
 import type { ApiSenderType } from './api.js';
 import type { PodInfo, PodInspectInfo } from './api/pod-info.js';
 import { AppearanceInit } from './appearance-init.js';
@@ -157,7 +157,7 @@ import { NavigationItemsInit } from './navigation-items-init.js';
 import { OnboardingRegistry } from './onboarding-registry.js';
 import { OpenDevToolsInit } from './open-devtools-init.js';
 import { ProviderRegistry } from './provider-registry.js';
-import { Proxy } from './proxy.js';
+import { Proxy, type ProxyState } from './proxy.js';
 import { RecommendationsRegistry } from './recommendations/recommendations-registry.js';
 import { SafeStorageRegistry } from './safe-storage/safe-storage-registry.js';
 import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry.js';

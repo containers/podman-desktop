@@ -16,16 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect, test, vi, describe } from 'vitest';
-import { ensureURL, Proxy, PROXY_DISABLED, PROXY_MANUAL } from '/@/plugin/proxy.js';
-import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
-import * as http from 'http';
+import * as http from 'node:http';
+import type { AddressInfo } from 'node:net';
+
 import { createProxy, type ProxyServer } from 'proxy';
 import { describe, expect, test, vi } from 'vitest';
 
 import type { Certificates } from '/@/plugin/certificates.js';
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
-import { ensureURL, Proxy } from '/@/plugin/proxy.js';
+import { ensureURL, Proxy, PROXY_DISABLED, PROXY_MANUAL } from '/@/plugin/proxy.js';
 
 const URL = 'https://podman-desktop.io';
 

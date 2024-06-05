@@ -16,14 +16,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { describe, vi, test, expect } from 'vitest';
-import * as util from '../util.js';
+import type { RunResult } from '@podman-desktop/api';
+import { describe, expect, test, vi } from 'vitest';
+
+import type { Proxy } from '/@/plugin/proxy.js';
 import { getProxySettingsFromSystem } from '/@/plugin/proxy-system.js';
 import { Exec } from '/@/plugin/util/exec.js';
-import type { RunResult } from '@podman-desktop/api';
-import type { Proxy } from '/@/plugin/proxy.js';
 
-function setupPlatform(windows: boolean, macos: boolean, linux: boolean) {
+import * as util from '../util.js';
+
+function setupPlatform(windows: boolean, macos: boolean, linux: boolean): void {
   vi.spyOn(util, 'isWindows').mockReturnValue(windows);
   vi.spyOn(util, 'isMac').mockReturnValue(macos);
   vi.spyOn(util, 'isLinux').mockReturnValue(linux);
