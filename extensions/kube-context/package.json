@@ -42,7 +42,7 @@
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
-    "adm-zip": "^0.5.13",
+    "adm-zip": "^0.5.14",
     "@types/js-yaml": "^4.0.9",
     "mkdirp": "^3.0.1",
     "vite": "^5.2.12",
