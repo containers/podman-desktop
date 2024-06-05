@@ -4,7 +4,6 @@ import type { ProxySettings } from '@podman-desktop/api';
 import { Button, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
-import SlideToggle from '../ui/SlideToggle.svelte';
 import SettingsPage from './SettingsPage.svelte';
 import { validateProxyAddress } from './Util';
 
@@ -44,10 +43,6 @@ async function updateProxySettings() {
   });
 }
 
-async function updateProxyState(state: boolean) {
-  await window.setProxyState(state);
-}
-
 function validate(event: any) {
   if (event.target.id === 'httpProxy' || event.target.id === 'httpsProxy') {
     const error = validateProxyAddress(event.target.value);
@@ -80,8 +75,9 @@ function validate(event: any) {
       <div class="space-y-2">
         <label
           for="httpProxy"
-          class="mb-2 font-medium {proxyState === 1 ? 'text-[var(--pd-invert-content-card-text)]' : 'text-gray-900'}"
-          >Web Proxy (HTTP):</label>
+          class="mb-2 font-medium {proxyState === 1
+            ? 'text-[var(--pd-invert-content-card-text)]'
+            : 'text-gray-900'}">Web Proxy (HTTP):</label>
         <Input
           name="httpProxy"
           id="httpProxy"
