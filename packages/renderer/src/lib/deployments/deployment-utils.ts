@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,15 @@ import type { DeploymentUI } from './DeploymentUI';
 
 export class DeploymentUtils {
   getDeploymentUI(deployment: V1Deployment): DeploymentUI {
+    // Conditions (retrieving and sorting)
     const conditions = (deployment.status?.conditions ?? []).map(c => {
-      return { type: c.type, message: c.message };
+      return { type: c.type, message: c.message, reason: c.reason };
     });
+
+    // Sort the conditions by type so that they are always in the same order
+    conditions.sort((a, b) => a.type.localeCompare(b.type));
+
+    // Status
     let status = 'STOPPED';
     if (deployment.status?.readyReplicas && deployment.status?.readyReplicas > 0) {
       if (deployment.status?.replicas === deployment.status?.readyReplicas) {
@@ -33,15 +39,16 @@ export class DeploymentUtils {
         status = 'DEGRADED';
       }
     }
+
     return {
-      name: deployment.metadata?.name || '',
+      name: deployment.metadata?.name ?? '',
       status: status,
-      namespace: deployment.metadata?.namespace || '',
+      namespace: deployment.metadata?.namespace ?? '',
       created: deployment.metadata?.creationTimestamp,
       // number of replicas
-      replicas: deployment.status?.replicas || 0,
+      replicas: deployment.status?.replicas ?? 0,
       // ready pods
-      ready: deployment.status?.readyReplicas || 0,
+      ready: deployment.status?.readyReplicas ?? 0,
       selected: false,
       conditions: conditions,
     };

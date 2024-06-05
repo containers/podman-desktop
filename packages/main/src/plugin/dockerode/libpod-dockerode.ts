@@ -690,7 +690,7 @@ export class LibpodDockerode {
           404: 'no such pod',
           500: 'server error',
         },
-        options: options || {},
+        options: options ?? {},
       };
 
       return new Promise((resolve, reject) => {

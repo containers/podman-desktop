@@ -70,10 +70,10 @@ $: {
 
 <button
   type="button"
-  class="relative {padding} box-border whitespace-nowrap select-none transition-all {classes} {$$props.class || ''}"
+  class="relative {padding} box-border whitespace-nowrap select-none transition-all {classes} {$$props.class ?? ''}"
   class:border-[var(--pd-button-tab-border-selected)]="{type === 'tab' && selected}"
   class:hover:border-[var(--pd-button-tab-hover-border)]="{type === 'tab' && !selected}"
-  class:text-[var(--pd-button-text)]="{(type === 'tab' && selected) || type === 'primary'}"
+  class:text-[var(--pd-button-text)]="{(type === 'tab' && !!selected) || type === 'primary'}"
   title="{title}"
   aria-label="{$$props['aria-label']}"
   on:click

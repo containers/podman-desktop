@@ -32,12 +32,12 @@ onMount(() => {
 
 function showCustomPickCallback(customQuickPickParameter: unknown) {
   const options: CustomPickOptions | undefined = customQuickPickParameter as CustomPickOptions;
-  id = options?.id || 0;
-  title = options?.title || '';
-  description = options?.description || '';
-  icon = options?.icon || '';
-  items = options?.items || [];
-  canSelectMany = options?.canSelectMany || false;
+  id = options?.id ?? 0;
+  title = options?.title ?? '';
+  description = options?.description ?? '';
+  icon = options?.icon ?? '';
+  items = options?.items ?? [];
+  canSelectMany = options?.canSelectMany ?? false;
 
   if (items.length > 2 && items.length % 3 !== 1) {
     colsPerRow = 3;
@@ -46,7 +46,7 @@ function showCustomPickCallback(customQuickPickParameter: unknown) {
   usePopperForDetails = items.length > 3;
 
   hideItemSections = usePopperForDetails || options?.hideItemSections || false;
-  minHeight = options?.minHeight || '';
+  minHeight = options?.minHeight ?? '';
 
   items.forEach((_value, index) => {
     itemSectionHiddenStatus.set(index, hideItemSections);

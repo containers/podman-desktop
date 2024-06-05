@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,26 +22,25 @@ import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
 import DeploymentColumnConditions from './DeploymentColumnConditions.svelte';
-import type { DeploymentUI } from './DeploymentUI';
+import type { DeploymentCondition } from './DeploymentUI';
 
-const deployment: DeploymentUI = {
-  name: 'my-deployment',
-  status: '',
-  namespace: '',
-  replicas: 0,
-  ready: 0,
-  selected: false,
-  conditions: [
-    { type: 'Available', message: 'Running fine' },
-    { type: 'ReplicaFailure', message: 'It failed!' },
-    { type: 'Progressing', message: 'Working on it' },
-  ],
-};
+function createDeploymentUI(conditions: DeploymentCondition[]) {
+  return {
+    name: 'my-deployment',
+    status: '',
+    namespace: '',
+    replicas: 0,
+    ready: 0,
+    selected: false,
+    conditions: conditions,
+  };
+}
 
 test('Expect column styling available', async () => {
+  const deployment = createDeploymentUI([{ type: 'Available', message: 'Running fine' }]);
   render(DeploymentColumnConditions, { object: deployment });
 
-  const text = screen.getByText(deployment.conditions[0].type);
+  const text = screen.getByText('Available');
   expect(text).toBeInTheDocument();
   expect(text).toHaveClass('text-gray-500');
 
@@ -51,9 +50,10 @@ test('Expect column styling available', async () => {
 });
 
 test('Expect column styling failure', async () => {
+  const deployment = createDeploymentUI([{ type: 'ReplicaFailure', message: 'It failed!' }]);
   render(DeploymentColumnConditions, { object: deployment });
 
-  const text = screen.getByText(deployment.conditions[1].type);
+  const text = screen.getByText('ReplicaFailure');
   expect(text).toBeInTheDocument();
   expect(text).toHaveClass('text-gray-500');
 
@@ -63,9 +63,25 @@ test('Expect column styling failure', async () => {
 });
 
 test('Expect column styling progressing', async () => {
+  const deployment = createDeploymentUI([{ type: 'Progressing', message: 'Working on it', reason: '' }]);
   render(DeploymentColumnConditions, { object: deployment });
 
-  const text = screen.getByText(deployment.conditions[2].type);
+  const text = screen.getByText('Progressing');
+  expect(text).toBeInTheDocument();
+  expect(text).toHaveClass('text-gray-500');
+
+  const dot = text.parentElement?.children[0].children[0];
+  expect(dot).toBeInTheDocument();
+  expect(dot).toHaveClass('text-sky-400');
+});
+
+test('Expect column styling progressed', async () => {
+  const deployment = createDeploymentUI([
+    { type: 'Progressing', message: 'Successfully progressed', reason: 'NewReplicaSetAvailable' },
+  ]);
+  render(DeploymentColumnConditions, { object: deployment });
+
+  const text = screen.getByText('Progressed');
   expect(text).toBeInTheDocument();
   expect(text).toHaveClass('text-gray-500');
 

@@ -37,7 +37,7 @@ export class Directories {
   constructor() {
     // read ENV VAR to override the Desktop App Home Dir
     this.desktopAppHomeDir =
-      process.env[Directories.PODMAN_DESKTOP_HOME_DIR] || path.resolve(os.homedir(), Directories.XDG_DATA_DIRECTORY);
+      process.env[Directories.PODMAN_DESKTOP_HOME_DIR] ?? path.resolve(os.homedir(), Directories.XDG_DATA_DIRECTORY);
 
     // create the Desktop App Home Dir if it does not exist
     if (!fs.existsSync(this.desktopAppHomeDir)) {

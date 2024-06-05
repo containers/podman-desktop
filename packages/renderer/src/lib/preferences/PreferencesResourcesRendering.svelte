@@ -191,7 +191,7 @@ onDestroy(() => {
 
 $: configurationKeys = properties
   .filter(property => property.scope === 'ContainerConnection')
-  .sort((a, b) => (a?.id || '').localeCompare(b?.id || ''));
+  .sort((a, b) => (a?.id ?? '').localeCompare(b?.id ?? ''));
 
 let tmpProviderContainerConfiguration: IProviderConnectionConfigurationPropertyRecorded[] = [];
 $: Promise.all(
@@ -222,7 +222,7 @@ $: Promise.all(
 $: providerContainerConfiguration = tmpProviderContainerConfiguration
   .filter(configurationKey => configurationKey.value !== undefined)
   .reduce((map, value) => {
-    const innerProviderContainerConfigurations = map.get(value.providerId) || [];
+    const innerProviderContainerConfigurations = map.get(value.providerId) ?? [];
     innerProviderContainerConfigurations.push(value);
     map.set(value.providerId, innerProviderContainerConfigurations);
     return map;
@@ -247,7 +247,7 @@ function updateContainerStatus(
     }
   } else if (action) {
     containerConnectionStatus.set(containerConnectionName, {
-      inProgress: inProgress === undefined ? true : inProgress,
+      inProgress: inProgress ?? true,
       action: action,
       status: containerConnectionInfo.status,
     });
@@ -339,7 +339,7 @@ function isOnboardingEnabled(provider: ProviderInfo, globalContext: ContextUI): 
   whenEnablement = normalizeOnboardingWhenClause(whenEnablement, provider.extensionId);
   const whenDeserialized = ContextKeyExpr.deserialize(whenEnablement);
   const isEnabled = whenDeserialized?.evaluate(globalContext);
-  return isEnabled || false;
+  return !!isEnabled;
 }
 
 function hasAnyConfiguration(provider: ProviderInfo) {
@@ -404,16 +404,16 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                   {#if provider.containerProviderConnectionCreation || provider.kubernetesProviderConnectionCreation}
                     {@const providerDisplayName =
                       (provider.containerProviderConnectionCreation
-                        ? provider.containerProviderConnectionCreationDisplayName || undefined
+                        ? provider.containerProviderConnectionCreationDisplayName ?? undefined
                         : provider.kubernetesProviderConnectionCreation
                           ? provider.kubernetesProviderConnectionCreationDisplayName
-                          : undefined) || provider.name}
+                          : undefined) ?? provider.name}
                     {@const buttonTitle =
                       (provider.containerProviderConnectionCreation
-                        ? provider.containerProviderConnectionCreationButtonTitle || undefined
+                        ? provider.containerProviderConnectionCreationButtonTitle ?? undefined
                         : provider.kubernetesProviderConnectionCreation
                           ? provider.kubernetesProviderConnectionCreationButtonTitle
-                          : undefined) || 'Create new'}
+                          : undefined) ?? 'Create new'}
                     <!-- create new provider button -->
                     <Tooltip bottom>
                       <svelte:fragment slot="content">
@@ -506,7 +506,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                 class="{container.status !== 'started' ? 'text-gray-900' : ''}"
                 path="{container.endpoint.socketPath}" />
               {#if providerContainerConfiguration.has(provider.internalId)}
-                {@const providerConfiguration = providerContainerConfiguration.get(provider.internalId) || []}
+                {@const providerConfiguration = providerContainerConfiguration.get(provider.internalId) ?? []}
                 <div
                   class="flex mt-3 {container.status !== 'started' ? 'text-gray-900' : ''}"
                   role="group"

@@ -207,7 +207,7 @@ export class ExtensionLoader {
       description: extension.manifest.description,
       version: extension.manifest.version,
       publisher: extension.manifest.publisher,
-      state: this.extensionState.get(extension.id) || 'stopped',
+      state: this.extensionState.get(extension.id) ?? 'stopped',
       error: this.mapError(this.extensionStateErrors.get(extension.id)),
       id: extension.id,
       path: extension.path,
@@ -915,8 +915,8 @@ export class ExtensionLoader {
         return this.notificationRegistry.addNotification({
           ...notificationInfo,
           extensionId: extensionInfo.id,
-          type: notificationInfo.type || 'info',
-          title: notificationInfo.title || extensionInfo.name,
+          type: notificationInfo.type ?? 'info',
+          title: notificationInfo.title ?? extensionInfo.name,
         });
       },
 
@@ -1167,7 +1167,7 @@ export class ExtensionLoader {
         const url = uri.toString();
         try {
           const result = await securityRestrictionCurrentHandler.handler?.(url);
-          return result || false;
+          return !!result;
         } catch (error) {
           console.error(`Unable to open external link  ${uri.toString()} from extension ${extensionInfo.id}`, error);
           return false;
@@ -1346,7 +1346,7 @@ export class ExtensionLoader {
       }
 
       // remove children that are part of the plug-in
-      let i = mod?.children?.length || 0;
+      let i = mod?.children?.length ?? 0;
       while (i--) {
         const childMod: NodeJS.Module | undefined = mod?.children[i];
         // ensure the child module is not null, is in the plug-in folder, and is not a native module (see above)
@@ -1364,7 +1364,7 @@ export class ExtensionLoader {
       if (key.startsWith(extension.path)) {
         // delete the entry
         delete require.cache[key];
-        const ix = mod?.parent?.children.indexOf(mod) || 0;
+        const ix = mod?.parent?.children.indexOf(mod) ?? 0;
         if (ix >= 0) {
           mod?.parent?.children.splice(ix, 1);
         }

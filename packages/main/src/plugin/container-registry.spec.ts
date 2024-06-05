@@ -2380,6 +2380,7 @@ describe('createContainer', () => {
     const container = await containerRegistry.createContainer('podman1', { start: true });
 
     expect(container.id).toBe(createdId);
+    expect(container.engineId).toBe('podman1');
     expect(createContainerMock).toHaveBeenCalled();
     expect(startMock).toHaveBeenCalled();
   });

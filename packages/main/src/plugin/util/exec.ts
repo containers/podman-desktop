@@ -93,7 +93,7 @@ export class Exec {
             name: 'Admin usage',
             env: sudoEnv,
           };
-          const sudoCommand = `${command} ${args || [].join(' ')}`;
+          const sudoCommand = `${command} ${(args ?? []).join(' ')}`;
 
           const callback = (error?: Error, stdout?: string | Buffer, stderr?: string | Buffer): void => {
             if (error) {
@@ -103,8 +103,8 @@ export class Exec {
                 `Failed to execute command: ${error.message}`,
                 1,
                 sudoCommand,
-                stdout?.toString() || '',
-                stderr?.toString() || '',
+                stdout?.toString() ?? '',
+                stderr?.toString() ?? '',
                 false,
                 false,
               );
@@ -113,8 +113,8 @@ export class Exec {
             }
             const result: RunResult = {
               command,
-              stdout: stdout?.toString() || '',
-              stderr: stderr?.toString() || '',
+              stdout: stdout?.toString() ?? '',
+              stderr: stderr?.toString() ?? '',
             };
             // in case of success
             resolve(result);
@@ -125,19 +125,19 @@ export class Exec {
       } else if (isMac()) {
         args = [
           '-e',
-          `do shell script "${command} ${(args || []).join(
+          `do shell script "${command} ${(args ?? []).join(
             ' ',
           )}" with prompt "Podman Desktop requires admin privileges " with administrator privileges`,
         ];
         command = 'osascript';
       } else if (isLinux()) {
-        args = [command, ...(args || [])];
+        args = [command, ...(args ?? [])];
         command = 'pkexec';
       }
     }
 
     if (env.FLATPAK_ID) {
-      args = ['--host', command, ...(args || [])];
+      args = ['--host', command, ...(args ?? [])];
       command = 'flatpak-spawn';
     }
 
@@ -223,7 +223,7 @@ export class Exec {
           const errResult: RunError = new RunErrorImpl(
             `Command execution failed with exit code ${exitCode}`,
             `Command execution failed with exit code ${exitCode}`,
-            exitCode || 1,
+            exitCode ?? 1,
             command,
             stdout.trim(),
             stderr.trim(),
@@ -251,6 +251,6 @@ export function getInstallationPath(envPATH?: string): string {
       return envPATH.concat(':').concat(macosExtraPath);
     }
   } else {
-    return envPATH || '';
+    return envPATH ?? '';
   }
 }

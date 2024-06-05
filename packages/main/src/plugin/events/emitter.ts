@@ -42,7 +42,7 @@ class CallbackList implements Iterable<Callback> {
   private _contexts: any[] | undefined;
 
   get length(): number {
-    return this._callbacks?.length || 0;
+    return this._callbacks?.length ?? 0;
   }
 
   public add(callback: Function, context: any = undefined, bucket?: IDisposable[]): void {
@@ -243,7 +243,7 @@ export class Emitter<T = any> {
     }
     const stack = new Error().stack?.split('\n').slice(3).join('\n');
     if (stack) {
-      const count = this._leakingStacks.get(stack) || 0;
+      const count = this._leakingStacks.get(stack) ?? 0;
       this._leakingStacks.set(stack, count + 1);
       return () => this.popLeakingStack(stack);
     }
@@ -254,7 +254,7 @@ export class Emitter<T = any> {
     if (!this._leakingStacks) {
       return;
     }
-    const count = this._leakingStacks.get(stack) || 0;
+    const count = this._leakingStacks.get(stack) ?? 0;
     this._leakingStacks.set(stack, count - 1);
   }
 

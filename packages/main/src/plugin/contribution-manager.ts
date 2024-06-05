@@ -585,7 +585,7 @@ export class ContributionManager {
       const service = services[serviceKey];
 
       // add custom labels
-      service.labels = service.labels || {};
+      service.labels = service.labels ?? {};
       service.labels['io.podman_desktop.PodmanDesktop.extension'] = 'true';
       service.labels['io.podman_desktop.PodmanDesktop.extensionName'] = extensionName;
 
@@ -601,15 +601,15 @@ export class ContributionManager {
       }
 
       // apply restart policy if not specified
-      service.deploy = service.deploy || {};
-      service.deploy.restart_policy = service.deploy.restart_policy || {};
+      service.deploy = service.deploy ?? {};
+      service.deploy.restart_policy = service.deploy.restart_policy ?? {};
       if (!service.deploy.restart_policy.condition) {
         service.deploy.restart_policy.condition = 'always';
       }
 
       // add the volume from the podman-desktop-socket (only if not inside the service itself)
       if (serviceKey !== PODMAN_DESKTOP_SOCKET_SERVICE) {
-        service.volumes_from = service.volumes_from || [];
+        service.volumes_from = service.volumes_from ?? [];
         service.volumes_from.push(PODMAN_DESKTOP_SOCKET_SERVICE);
       }
     }

@@ -50,7 +50,7 @@ export class KubectlGitHubReleases {
       .filter(release => !release.prerelease)
       .map(release => {
         return {
-          label: release.name || release.tag_name,
+          label: release.name ?? release.tag_name,
           tag: release.tag_name,
           id: release.id,
         };

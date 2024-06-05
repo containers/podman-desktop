@@ -9,18 +9,18 @@ import type { SetStateAction } from 'react';
 import React, { useEffect, useState } from 'react';
 
 async function grabfilenameforMac(
-  setDownloadData: React.Dispatch<SetStateAction<{ version: string; binary: string }>>,
+  setDownloadData: React.Dispatch<SetStateAction<{ version: string; binary: string; flatpak: string }>>,
 ): Promise<void> {
   const result = await fetch('https://api.github.com/repos/containers/podman-desktop/releases/latest');
   const jsonContent = await result.json();
   const assets = jsonContent.assets;
-  const linuxAssets = assets.filter(asset => (asset.name as string).endsWith('.tar.gz'));
+  const linuxAssets = assets.filter((asset: { name: string }) => (asset.name as string).endsWith('.tar.gz'));
   if (linuxAssets.length !== 1) {
     throw new Error('Unable to grab .tar.gz');
   }
   const linuxAsset = linuxAssets[0];
 
-  const flatpakAssets = assets.filter(asset => (asset.name as string).endsWith('.flatpak'));
+  const flatpakAssets = assets.filter((asset: { name: string }) => (asset.name as string).endsWith('.flatpak'));
   if (flatpakAssets.length !== 1) {
     throw new Error('Unable to grab .flatpak');
   }

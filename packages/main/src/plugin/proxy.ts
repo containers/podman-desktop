@@ -115,7 +115,7 @@ export class Proxy {
     const httpProxy = proxyConfiguration.get<string>('http');
     const httpsProxy = proxyConfiguration.get<string>('https');
     const noProxy = proxyConfiguration.get<string>('no');
-    const isEnabled = proxyConfiguration.get<boolean>('enabled') || false;
+    const isEnabled = proxyConfiguration.get<boolean>('enabled') ?? false;
 
     this.proxySettings = {
       httpProxy: ensureURL(httpProxy),
