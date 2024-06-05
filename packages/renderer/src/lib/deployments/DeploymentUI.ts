@@ -29,5 +29,6 @@ export interface DeploymentUI {
 
 export interface DeploymentCondition {
   type: string;
+  reason?: string;
   message?: string;
 }
