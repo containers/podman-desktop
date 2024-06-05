@@ -149,3 +149,57 @@ Authentication access:
 
 Delete the `~/.docker/config` to clear any errors. <example solution>
 ```
+
+### Schema / `package.json` explanations
+
+A template for describing a new feature being added for `package.json`. For example: `commands` or `icon`.
+
+```markdown
+# <Title of the section>
+
+## Configuration details
+
+<Main description of the new feature being added>
+
+### `package.json` Example
+
+<Brief explanation of the example>
+
+\`\`\`json
+{
+  "<key>": {
+    "<property>": "<value>",
+    "<additional settings>": {
+      "<setting>": "<setting value>"
+    }
+  }
+}
+\`\`\`
+
+### Advanced Configuration
+
+<Further details, tips, or troubleshooting steps>
+
+### JSON Schema
+
+<More granular details or step-by-step breakdown>
+
+\`\`\`json
+{
+  "<key>": "<example configuration>"
+}
+\`\`\`
+
+<Explanation of what the JSON configuration achieves>
+
+### Verification <optional>
+
+<Steps to verify the process or solution worked as intended>
+
+### Additional Resources <optional>
+
+<Bullet points of further resources>
+
+- [External Link Description](URL)
+- Further reading or related documentation
+```
