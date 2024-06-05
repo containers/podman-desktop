@@ -32,7 +32,7 @@ if (previously_focused) {
 
 <svelte:window on:keydown="{handle_keydown}" />
 
-<div class:items-center="{!top}" class="fixed top-0 left-0 right-0 bottom-0 w-full h-full flex justify-center z-50">
+<div class:items-center="{!top}" class="fixed w-full h-full flex justify-center z-50">
   <button
     aria-label="close"
     class="fixed top-0 left-0 w-full h-full bg-[var(--pd-modal-fade)] bg-blend-multiply opacity-60 z-40 cursor-default"
