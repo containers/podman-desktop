@@ -2785,6 +2785,10 @@ declare module '@podman-desktop/api' {
      * a string uniquely identifying the created container, which can be used to execute other methods on the container ({@link containerEngine.deleteContainer}, {@link containerEngine.inspectContainer}, {@link containerEngine.startContainer}, {@link containerEngine.stopContainer}, {@link containerEngine.logsContainer})
      */
     id: string;
+    /**
+     * the engineId where the container is running
+     */
+    engineId: string;
   }
 
   export interface WebviewInfo {
