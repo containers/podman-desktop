@@ -9,13 +9,22 @@ import type { SetStateAction } from 'react';
 import React, { useEffect, useState } from 'react';
 
 async function grabfilenameforMac(
-  setDownloadData: React.Dispatch<SetStateAction<{ version: string; x64: string; arm64: string }>>,
+  setDownloadData: React.Dispatch<
+    SetStateAction<{
+      version: string;
+      universal: string;
+      x64: string;
+      arm64: string;
+      airgapsetupX64: string;
+      airgapsetupArm64: string;
+    }>
+  >,
 ): Promise<void> {
   const result = await fetch('https://api.github.com/repos/containers/podman-desktop/releases/latest');
   const jsonContent = await result.json();
   const assets = jsonContent.assets;
   const armMacDmg = assets.filter(
-    asset => (asset.name as string).endsWith('-arm64.dmg') && !asset.name.includes('airgap'),
+    (asset: { name: string }) => (asset.name as string).endsWith('-arm64.dmg') && !asset.name.includes('airgap'),
   );
   if (armMacDmg.length !== 1) {
     throw new Error('Unable to grab arm64 dmg');
@@ -23,7 +32,7 @@ async function grabfilenameforMac(
   const armLink = armMacDmg[0];
 
   const intelMacDmg = assets.filter(
-    asset => (asset.name as string).endsWith('-x64.dmg') && !asset.name.includes('airgap'),
+    (asset: { name: string }) => (asset.name as string).endsWith('-x64.dmg') && !asset.name.includes('airgap'),
   );
   if (intelMacDmg.length !== 1) {
     throw new Error('Unable to grab x64 dmg');
@@ -32,7 +41,7 @@ async function grabfilenameforMac(
 
   /* Find macOS universal Disk Image for restricted environments */
   const universalMacAirgapDmgAssets = assets.filter(
-    asset => (asset.name as string).endsWith('universal.dmg') && asset.name.includes('airgap'),
+    (asset: { name: string }) => (asset.name as string).endsWith('universal.dmg') && asset.name.includes('airgap'),
   );
   // temporary fix to restore regular Mac downloads even if airgap is not available
   let universalMacAirgapDmgAsset;
@@ -43,7 +52,7 @@ async function grabfilenameforMac(
   }
 
   const universalMacDmgResults = assets.filter(
-    asset =>
+    (asset: { name: string }) =>
       (asset.name as string).endsWith('.dmg') &&
       !asset.name.includes('airgap') &&
       asset.name !== armLink.name &&
@@ -56,13 +65,13 @@ async function grabfilenameforMac(
 
   /* Find macOS installer for restricted environment */
   const macosX64AirgapSetupAssets = assets.filter(
-    asset => (asset.name as string).endsWith('-x64.dmg') && asset.name.includes('airgap'),
+    (asset: { name: string }) => (asset.name as string).endsWith('-x64.dmg') && asset.name.includes('airgap'),
   );
 
   const airgapsetupX64 = macosX64AirgapSetupAssets?.[0]?.browser_download_url;
 
   const macosArm64AirgapSetupAssets = assets.filter(
-    asset => (asset.name as string).endsWith('-arm64.dmg') && asset.name.includes('airgap'),
+    (asset: { name: string }) => (asset.name as string).endsWith('-arm64.dmg') && asset.name.includes('airgap'),
   );
 
   const airgapsetupArm64 = macosArm64AirgapSetupAssets?.[0]?.browser_download_url;
