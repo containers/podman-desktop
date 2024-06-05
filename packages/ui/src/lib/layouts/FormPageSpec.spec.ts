@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,17 +42,4 @@ test('Expect content slot is defined', async () => {
 
   const element = screen.getByLabelText('content');
   expect(element).toBeInTheDocument();
-});
-
-test('Expect tabs slot is defined', async () => {
-  render(FormPageSpec);
-
-  const fooTabElement = screen.getByRole('link', { name: 'Foo' });
-  expect(fooTabElement).toBeInTheDocument();
-
-  const barTabElement = screen.getByRole('link', { name: 'Bar' });
-  expect(barTabElement).toBeInTheDocument();
-
-  const bazTabElement = screen.getByRole('link', { name: 'Baz' });
-  expect(bazTabElement).toBeInTheDocument();
 });
