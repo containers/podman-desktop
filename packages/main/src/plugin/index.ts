@@ -575,7 +575,7 @@ export class PluginSystem {
     const libpodApiInit = new LibpodApiInit(configurationRegistry);
     libpodApiInit.init();
 
-    const authentication = new AuthenticationImpl(apiSender);
+    const authentication = new AuthenticationImpl(apiSender, messageBox);
 
     const cliToolRegistry = new CliToolRegistry(apiSender, exec, telemetry);
 
