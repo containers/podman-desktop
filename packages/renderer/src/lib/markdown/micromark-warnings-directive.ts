@@ -40,7 +40,7 @@ export function decode(value: string) {
    * @returns {string}
    */
   function replace(value: string) {
-    return characterReferences.get(value) || '';
+    return characterReferences.get(value) ?? '';
   }
 }
 
@@ -76,7 +76,7 @@ export function warnings(this: CompileContext, d: any) {
   // Add the div tag which depicts the wrapper list containing all items
   this.tag('<div class="flex flex-col space-y-3">');
 
-  const items = JSON.parse(decode(d.label) || '');
+  const items = JSON.parse(decode(d.label) ?? '');
   for (const item of items) {
     // start the div representing one row
     this.tag('<div class="flex flex-row space-x-3 bg-charcoal-600 p-4 rounded-md items-start">');

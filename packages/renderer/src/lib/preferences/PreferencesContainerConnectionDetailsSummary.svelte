@@ -24,8 +24,8 @@ $: Promise.all(
             containerConnectionInfo as unknown as ContainerProviderConnection,
           )
         : undefined,
-      connection: containerConnectionInfo?.name || '',
-      providerId: providerInternalId || '',
+      connection: containerConnectionInfo?.name ?? '',
+      providerId: providerInternalId ?? '',
     };
   }),
 ).then(value => (tmpProviderContainerConfiguration = value.flat()));

@@ -29,7 +29,7 @@ let providersUnsubscribe: Unsubscriber;
 onMount(async () => {
   providersUnsubscribe = providerInfos.subscribe(providerInfosValue => {
     const providers = providerInfosValue;
-    const connectionName = Buffer.from(name || '', 'base64').toString();
+    const connectionName = Buffer.from(name ?? '', 'base64').toString();
     providerInfo = providers.filter(provider => provider.internalId === providerInternalId)[0];
     connectionInfo = providerInfo.containerConnections.filter(connection => connection.name === connectionName)[0];
   });

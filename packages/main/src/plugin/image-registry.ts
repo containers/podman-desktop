@@ -513,7 +513,7 @@ export class ImageRegistry {
     logger: (message: string) => void,
   ): Promise<void> {
     const options = this.getOptions();
-    options.headers = options.headers || {};
+    options.headers = options.headers ?? {};
 
     // add the Bearer token
     options.headers.Authorization = `Bearer ${token}`;
@@ -548,7 +548,7 @@ export class ImageRegistry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected async fetchOciImageConfig(imageData: ImageRegistryNameTag, digest: string, token: string): Promise<any> {
     const options = this.getOptions();
-    options.headers = options.headers || {};
+    options.headers = options.headers ?? {};
     // add the Bearer token
     options.headers.Authorization = `Bearer ${token}`;
 
@@ -579,7 +579,7 @@ export class ImageRegistry {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
     const options = this.getOptions();
-    options.headers = options.headers || {};
+    options.headers = options.headers ?? {};
 
     // add the Bearer token
     options.headers.Authorization = `Bearer ${token}`;
@@ -801,7 +801,7 @@ export class ImageRegistry {
     // if we have auth for this registry, add basic auth to the headers
     const authServer = this.getAuthconfigForServer(imageData.registry);
     if (authServer) {
-      options.headers = options.headers || {};
+      options.headers = options.headers ?? {};
       const loginAndPassWord = `${authServer.username}:${authServer.password}`;
       options.headers.Authorization = `Basic ${Buffer.from(loginAndPassWord).toString('base64')}`;
     }

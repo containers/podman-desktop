@@ -18,7 +18,7 @@ $: currentContainerStatus =
     ?.Containers.reduce((acc, c) => {
       acc.set(c.Names, c.Status);
       return acc;
-    }, new Map<string, string>()) || new Map<string, string>();
+    }, new Map<string, string>()) ?? new Map<string, string>();
 
 let currentContainerName = '';
 

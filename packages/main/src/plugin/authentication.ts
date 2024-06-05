@@ -271,7 +271,7 @@ export class AuthenticationImpl {
         // request was added already by this extension
         return;
       }
-      const requestId = `${providerId}:${requestingExtension.id}:signIn${Object.keys(providerRequests || []).length}`;
+      const requestId = `${providerId}:${requestingExtension.id}:signIn${Object.keys(providerRequests ?? []).length}`;
       this._signInRequestsData.set(requestId, {
         id: requestId,
         providerId,

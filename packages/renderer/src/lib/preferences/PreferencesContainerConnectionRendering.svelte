@@ -33,8 +33,8 @@ export let name: string | undefined = undefined;
 
 let detailsPage: DetailsPage;
 
-const connectionName = Buffer.from(name || '', 'base64').toString();
-const socketPath: string = Buffer.from(connection || '', 'base64').toString();
+const connectionName = Buffer.from(name ?? '', 'base64').toString();
+const socketPath: string = Buffer.from(connection ?? '', 'base64').toString();
 let connectionStatus: IConnectionStatus;
 let noLog = true;
 let connectionInfo: ProviderContainerConnectionInfo | undefined;
@@ -43,7 +43,7 @@ let loggerHandlerKey: symbol | undefined;
 let configurationKeys: IConfigurationPropertyRecordedSchema[];
 $: configurationKeys = properties
   .filter(property => property.scope === 'ContainerConnection')
-  .sort((a, b) => (a.id || '').localeCompare(b.id || ''));
+  .sort((a, b) => (a.id ?? '').localeCompare(b.id ?? ''));
 
 let providersUnsubscribe: Unsubscriber;
 onMount(async () => {

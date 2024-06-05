@@ -27,8 +27,8 @@ export class ViewRegistry {
   }
 
   registerView(extensionId: string, viewId: string, contribution: ViewContribution): void {
-    const view = this.extViewContribution.get(extensionId) || new Map();
-    const contributions = view.get(viewId) || [];
+    const view = this.extViewContribution.get(extensionId) ?? new Map();
+    const contributions = view.get(viewId) ?? [];
     contributions.push(contribution);
     view.set(viewId, contributions);
     this.extViewContribution.set(extensionId, view);

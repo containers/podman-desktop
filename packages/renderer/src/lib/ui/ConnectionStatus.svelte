@@ -51,7 +51,7 @@ const statusesStyle = new Map<string, connectionStatusStyle>([
     },
   ],
 ]);
-$: statusStyle = statusesStyle.get(status) || {
+$: statusStyle = statusesStyle.get(status) ?? {
   bgColor: 'bg-gray-900',
   txtColor: 'text-gray-900',
   label: status.toUpperCase(),

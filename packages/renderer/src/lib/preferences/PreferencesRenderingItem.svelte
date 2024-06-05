@@ -30,10 +30,10 @@ function startCase(str: string): string {
 function update() {
   const id = record.id;
   // take string after the last dot
-  const key = id?.substring(id?.lastIndexOf('.') + 1) || '';
+  const key = id?.substring(id?.lastIndexOf('.') + 1) ?? '';
 
   // define bread crumb as first part before the last dot
-  const breadCrumb = id?.substring(0, id?.lastIndexOf('.')) || '';
+  const breadCrumb = id?.substring(0, id?.lastIndexOf('.')) ?? '';
   // and replace dot by > in breadcrumb
   const breadCrumbUI = breadCrumb.replace(/\./g, ' > ').concat(':');
 

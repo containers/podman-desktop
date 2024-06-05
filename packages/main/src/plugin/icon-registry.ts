@@ -77,7 +77,7 @@ export class IconRegistry {
       }
 
       // get file extension of the font path
-      const format = defaultAttributes.fontPath.split('.').pop() || '';
+      const format = defaultAttributes.fontPath.split('.').pop() ?? '';
       if (format !== 'woff2') {
         console.warn(
           `Expected contributes.icons.default.fontPath to have file extension 'woff2' but found '${format}'."`,

@@ -170,7 +170,7 @@ export class ImageUtils {
     context?: ContextUI,
     viewContributions?: ViewInfoUI[],
   ): ImageInfoUI[] {
-    let icon = this.iconClass(imageInfo, context, viewContributions) || ImageIcon;
+    let icon = this.iconClass(imageInfo, context, viewContributions) ?? ImageIcon;
     const badges = this.computeBagdes(imageInfo, context, viewContributions);
 
     // Use the manifest icon if it's a manifest

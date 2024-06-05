@@ -47,7 +47,7 @@ export class ContainerUtils {
   }
 
   getState(containerInfo: ContainerInfo): string {
-    return (containerInfo.State || '').toUpperCase();
+    return (containerInfo.State ?? '').toUpperCase();
   }
 
   getUptime(containerInfo: ContainerInfo): string {
@@ -156,7 +156,7 @@ export class ContainerUtils {
       selected: false,
       created: containerInfo.Created,
       labels: containerInfo.Labels,
-      icon: this.iconClass(containerInfo, context, viewContributions) || ContainerIcon,
+      icon: this.iconClass(containerInfo, context, viewContributions) ?? ContainerIcon,
       imageBase64RepoTag: containerInfo.ImageBase64RepoTag,
       imageHref: `/images/${containerInfo.ImageID.startsWith('sha256:') ? containerInfo.ImageID.slice(7) : containerInfo.ImageID}/${containerInfo.engineId}/${containerInfo.ImageBase64RepoTag}/summary`,
     };
@@ -181,7 +181,7 @@ export class ContainerUtils {
         name: podInfo.name,
         type: ContainerGroupInfoTypeUI.POD,
         id: podInfo.id,
-        status: (podInfo.status || '').toUpperCase(),
+        status: (podInfo.status ?? '').toUpperCase(),
         engineId: containerInfo.engineId,
         engineType: containerInfo.engineType,
       };
@@ -191,7 +191,7 @@ export class ContainerUtils {
     return {
       name: this.getName(containerInfo),
       type: ContainerGroupInfoTypeUI.STANDALONE,
-      status: (containerInfo.Status || '').toUpperCase(),
+      status: (containerInfo.Status ?? '').toUpperCase(),
       engineType: containerInfo.engineType,
     };
   }

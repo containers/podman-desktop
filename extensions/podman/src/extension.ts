@@ -1412,7 +1412,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       extensionApi.context.setValue('podmanIsNotInstalled', !installed, 'onboarding');
       telemetryLogger?.logUsage('podman.onboarding.checkInstalledCommand', {
         status: installed,
-        version: installation?.version || '',
+        version: installation?.version ?? '',
       });
     },
   );
@@ -1424,7 +1424,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const onboardingCheckReqsCommand = extensionApi.commands.registerCommand(
     'podman.onboarding.checkRequirementsCommand',
     async () => {
-      const checks = podmanInstall.getInstallChecks() || [];
+      const checks = podmanInstall.getInstallChecks() ?? [];
       const result = [];
       let successful = true;
       for (const check of checks) {
@@ -1494,7 +1494,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         extensionApi.context.setValue('podmanIsNotInstalled', true, 'onboarding');
         telemetryOptions.error = e;
       } finally {
-        telemetryOptions.version = installation?.version || '';
+        telemetryOptions.version = installation?.version ?? '';
         telemetryOptions.installed = installed;
         telemetryLogger?.logUsage('podman.onboarding.installPodman', telemetryOptions);
       }

@@ -53,10 +53,10 @@ $: providerInfo = providers.filter(provider => provider.internalId === providerI
 let providerDisplayName: string;
 $: providerDisplayName =
   (providerInfo?.containerProviderConnectionCreation
-    ? providerInfo?.containerProviderConnectionCreationDisplayName || undefined
+    ? providerInfo?.containerProviderConnectionCreationDisplayName ?? undefined
     : providerInfo?.kubernetesProviderConnectionCreation
       ? providerInfo?.kubernetesProviderConnectionCreationDisplayName
-      : undefined) || providerInfo?.name;
+      : undefined) ?? providerInfo?.name;
 
 let title: string;
 $: title = connectionInfo ? `Update ${providerDisplayName} ${connectionInfo.name}` : `Create ${providerDisplayName}`;

@@ -134,7 +134,7 @@ async function onChange(recordId: string, value: boolean | string | number): Pro
     {/if}
   {:else if record.type === 'string' && (typeof recordValue === 'string' || recordValue === undefined)}
     {#if record.format === 'file' || record.format === 'folder'}
-      <FileItem record="{record}" value="{recordValue || ''}" onChange="{onChange}" />
+      <FileItem record="{record}" value="{recordValue ?? ''}" onChange="{onChange}" />
     {:else if record.enum && record.enum.length > 0}
       <EnumItem record="{record}" value="{recordValue}" onChange="{onChange}" />
     {:else}
