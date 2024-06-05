@@ -56,16 +56,22 @@ export const registriesSuggestedInfos: Writable<readonly containerDesktopAPI.Reg
 export const searchPattern = writable('');
 
 // need to refresh when new registry are updated/deleted
-window.events?.receive('registry-register', async () => {
-  await fetchRegistries();
+window.events?.receive('registry-register', () => {
+  fetchRegistries().catch((error: unknown) => {
+    console.error('Failed to fetch registries entries', error);
+  });
 });
 
-window.events?.receive('registry-unregister', async () => {
-  await fetchRegistries();
+window.events?.receive('registry-unregister', () => {
+  fetchRegistries().catch((error: unknown) => {
+    console.error('Failed to fetch registries entries', error);
+  });
 });
 
-window.events?.receive('registry-update', async () => {
-  await fetchRegistries();
+window.events?.receive('registry-update', () => {
+  fetchRegistries().catch((error: unknown) => {
+    console.error('Failed to fetch registries entries', error);
+  });
 });
 
 window.addEventListener('system-ready', () => {
@@ -74,6 +80,8 @@ window.addEventListener('system-ready', () => {
   });
 });
 
-window.events?.receive('extensions-started', async () => {
-  await fetchRegistries();
+window.events?.receive('extensions-started', () => {
+  fetchRegistries().catch((error: unknown) => {
+    console.error('Failed to fetch registries entries', error);
+  });
 });

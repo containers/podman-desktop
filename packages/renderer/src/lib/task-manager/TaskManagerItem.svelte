@@ -100,7 +100,7 @@ function doExecuteAction(taskUI: StatefulTaskUI) {
     <!-- if in-progress task, display a link to resume-->
     {#if isStatefulTask(taskUI) && taskUI.status === 'in-progress'}
       <div class="flex flex-row w-full">
-        {#if (taskUI.progress || 0) >= 0}
+        {#if (taskUI.progress ?? 0) >= 0}
           <ProgressBar progress="{taskUI.progress}" />
         {/if}
         <div class="flex flex-1 flex-col w-full items-end text-purple-500 text-xs">

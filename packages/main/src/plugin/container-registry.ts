@@ -541,7 +541,7 @@ export class ContainerProviderRegistry {
                 engineName: provider.name,
                 engineId: provider.id,
                 engineType: provider.connection.type,
-                StartedAt: container.StartedAt || '',
+                StartedAt: container.StartedAt ?? '',
                 Status: container.Status,
                 ImageBase64RepoTag: Buffer.from(container.Image, 'binary').toString('base64'),
               };
@@ -1094,7 +1094,7 @@ export class ContainerProviderRegistry {
     try {
       const engine = this.getMatchingEngine(engineId);
       const image = engine.getImage(imageTag);
-      const authconfig = authInfo || this.imageRegistry.getAuthconfigForImage(imageTag);
+      const authconfig = authInfo ?? this.imageRegistry.getAuthconfigForImage(imageTag);
       const pushStream = await image.push({
         authconfig,
         abortSignal: abortController?.signal,
@@ -1911,7 +1911,7 @@ export class ContainerProviderRegistry {
       const envFiles = options.EnvFiles || [];
       const envFileContent = await this.getEnvFileParser().parseEnvFiles(envFiles);
 
-      const env = options.Env || [];
+      const env = options.Env ?? [];
       env.push(...envFileContent);
       options.Env = env;
       // remove EnvFiles from options

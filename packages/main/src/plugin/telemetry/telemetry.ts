@@ -170,7 +170,7 @@ export class Telemetry {
       },
       // report using the id of the extension suffixed by error
       sendErrorData(error: Error, data?: Record<string, unknown>): void {
-        data = data || {};
+        data = data ?? {};
         data.sourceError = error.message;
         thisArg.track.apply(thisArg, [`${extensionInfo.id}.error`, data]);
       },
@@ -418,7 +418,7 @@ export class TelemetryLoggerImpl implements TelemetryLogger {
   }
 
   setupData(data?: RecordInfo): RecordInfo {
-    data = data || {};
+    data = data ?? {};
 
     if (this.options?.additionalCommonProperties) {
       data = { ...this.options.additionalCommonProperties, ...data };

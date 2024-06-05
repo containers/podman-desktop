@@ -98,6 +98,7 @@
     "@typescript-eslint/no-misused-promises": "error",
     "@typescript-eslint/prefer-optional-chain": "error",
     "no-null/no-null": "error",
+    "@typescript-eslint/prefer-nullish-coalescing": ["error", { "ignoreConditionalTests": true }],
 
     /**
      * Having a semicolon helps the optimizer interpret your code correctly.

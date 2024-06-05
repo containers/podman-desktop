@@ -40,7 +40,7 @@ let loggerHandlerKey: symbol | undefined;
 let configurationKeys: IConfigurationPropertyRecordedSchema[];
 $: configurationKeys = properties
   .filter(property => property.scope === 'KubernetesConnection')
-  .sort((a, b) => (a?.id || '').localeCompare(b?.id || ''));
+  .sort((a, b) => (a?.id ?? '').localeCompare(b?.id ?? ''));
 let detailsPage: DetailsPage;
 
 let providersUnsubscribe: Unsubscriber;

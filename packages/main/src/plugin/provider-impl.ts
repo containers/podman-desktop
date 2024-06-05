@@ -88,10 +88,10 @@ export class ProviderImpl implements Provider, IDisposable {
     this._status = providerOptions.status;
     this._version = providerOptions.version;
 
-    this._links = providerOptions.links || [];
-    this._detectionChecks = providerOptions.detectionChecks || [];
-    this._images = providerOptions.images || {};
-    this._warnings = providerOptions.warnings || [];
+    this._links = providerOptions.links ?? [];
+    this._detectionChecks = providerOptions.detectionChecks ?? [];
+    this._images = providerOptions.images ?? {};
+    this._warnings = providerOptions.warnings ?? [];
 
     // monitor connection statuses
     setInterval(() => {

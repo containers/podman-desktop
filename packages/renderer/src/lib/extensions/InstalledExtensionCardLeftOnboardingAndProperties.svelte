@@ -53,7 +53,7 @@ onMount(() => {
       const enablement = normalizeOnboardingWhenClause(matchingOnBoarding.enablement, extension.id);
       const whenDeserialized = ContextKeyExpr.deserialize(enablement);
       const isEnabled = whenDeserialized?.evaluate($context);
-      return isEnabled || false;
+      return !!isEnabled;
     }
   });
 

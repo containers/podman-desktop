@@ -31,8 +31,8 @@ $: matchingRecords = properties
     property =>
       !searchValue ||
       matchValue(property.title, searchValue) ||
-      (property.description && matchValue(property.description, searchValue)) ||
-      (property.markdownDescription && matchValue(property.markdownDescription, searchValue)),
+      (!!property.description && matchValue(property.description, searchValue)) ||
+      (!!property.markdownDescription && matchValue(property.markdownDescription, searchValue)),
   )
   .reduce((map, property) => {
     if (!map.has(property.parentId)) {

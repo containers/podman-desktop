@@ -12,7 +12,7 @@ export let onChange = (_id: string, _value: number) => {};
 export let invalidRecord = (_error: string) => {};
 
 let recordValue: string;
-$: recordValue = value?.toString() || '0';
+$: recordValue = value?.toString() ?? '0';
 
 let numberInputErrorMessage = '';
 let numberInputInvalid = false;
@@ -62,7 +62,7 @@ function onNumberInputKeyPress(event: any) {
 function assertNumericValueIsValid(value: number): boolean {
   const numericValue = checkNumericValueValid(record, value);
   numberInputInvalid = !numericValue.valid;
-  numberInputErrorMessage = numericValue.error || '';
+  numberInputErrorMessage = numericValue.error ?? '';
   return numericValue.valid;
 }
 </script>

@@ -156,7 +156,7 @@ export class DockerExtensionPreload {
   getExec(launcher: string | undefined): dockerDesktopAPI.Exec {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
-    const nameParam = urlParams.get('extensionName') || '';
+    const nameParam = urlParams.get('extensionName') ?? '';
 
     const execFunction: dockerDesktopAPI.Exec = (
       cmd: string,
@@ -282,9 +282,9 @@ export class DockerExtensionPreload {
     const desktopUI: dockerDesktopAPI.DesktopUI = { toast, dialog, navigate };
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
-    const arch = urlParams.get('arch') || '';
-    const hostname = urlParams.get('hostname') || '';
-    const platform = urlParams.get('platform') || '';
+    const arch = urlParams.get('arch') ?? '';
+    const hostname = urlParams.get('hostname') ?? '';
+    const platform = urlParams.get('platform') ?? '';
     const host: dockerDesktopAPI.Host = {
       openExternal: (link: string) => {
         ipcInvoke('shell:openExternal', link).catch((err: unknown) => {
@@ -296,7 +296,7 @@ export class DockerExtensionPreload {
       hostname,
     };
 
-    const vmServicePort = urlParams.get('vmServicePort') || undefined;
+    const vmServicePort = urlParams.get('vmServicePort') ?? undefined;
 
     // do we have a service being exposed ?
     const doRequest = async (config: RequestConfig): Promise<unknown> => {

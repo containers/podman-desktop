@@ -57,7 +57,7 @@ function computeEnabled() {
   // Deserialize the `when` property
   const whenDeserialized = ContextKeyExpr.deserialize(disabledWhen);
   // if there is some error when evaluating the when expression, we use the default value enabled = true
-  const disabled = whenDeserialized?.evaluate(globalContext) || false;
+  const disabled = whenDeserialized?.evaluate(globalContext) ?? false;
   enabled = !disabled;
 }
 

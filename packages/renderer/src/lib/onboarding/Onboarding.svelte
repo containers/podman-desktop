@@ -95,7 +95,7 @@ onMount(async () => {
         return row.filter(item => {
           return evaluateWhen(item.when, activeStep.onboarding.extension);
         });
-      }) || [];
+      }) ?? [];
 
     // when the context is updated it checks if the onboarding already started
     if (started) {
@@ -154,7 +154,7 @@ async function setActiveStep() {
                 return row.filter(item => {
                   return evaluateWhen(item.when, onboarding.extension);
                 });
-              }) || [];
+              }) ?? [];
             if (step.command) {
               try {
                 await doExecuteCommand(step.command);

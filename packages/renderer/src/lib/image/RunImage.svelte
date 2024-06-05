@@ -113,9 +113,9 @@ onMount(async () => {
   containerPortMapping = [];
 
   imageInspectInfo = await window.getImageInspect(image.engineId, image.id);
-  exposedPorts = Array.from(Object.keys(imageInspectInfo?.Config?.ExposedPorts || {}));
+  exposedPorts = Array.from(Object.keys(imageInspectInfo?.Config?.ExposedPorts ?? {}));
 
-  command = array2String(imageInspectInfo.Config?.Cmd || []);
+  command = array2String(imageInspectInfo.Config?.Cmd ?? []);
 
   if (imageInspectInfo.Config?.Entrypoint) {
     if (typeof imageInspectInfo.Config.Entrypoint === 'string') {
@@ -286,7 +286,7 @@ async function startContainer() {
     // filter variables withouts keys
     .filter(env => env.key)
     // no value, use empty string
-    .map(env => `${env.key}=${env.value || ''}`);
+    .map(env => `${env.key}=${env.value ?? ''}`);
 
   // filter empty files
   const EnvFiles = environmentFiles.filter(env => env);
@@ -616,7 +616,7 @@ function onPortInput(event: Event, portInfo: PortInfo, updateUI: () => void) {
 
 async function assertAllPortAreValid(): Promise<void> {
   const invalidHostPorts = hostContainerPortMappings.filter(pair => pair.hostPort.error);
-  const invalidContainerPortMapping = containerPortMapping?.filter(port => port.error) || [];
+  const invalidContainerPortMapping = containerPortMapping?.filter(port => port.error) ?? [];
   invalidPorts = invalidHostPorts.length > 0 || invalidContainerPortMapping.length > 0;
 }
 </script>
@@ -1027,7 +1027,7 @@ async function assertAllPortAreValid(): Promise<void> {
                       bind:value="{networkingModeUserNetwork}">
                       {#each engineNetworks as network}
                         <option value="{network.Id}"
-                          >{network.Name} (used by {Object.keys(network.Containers || {}).length} containers)</option>
+                          >{network.Name} (used by {Object.keys(network.Containers ?? {}).length} containers)</option>
                       {/each}
                     </select>
                   </div>

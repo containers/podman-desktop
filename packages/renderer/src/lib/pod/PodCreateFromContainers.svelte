@@ -137,7 +137,7 @@ onMount(() => {
           exposed: true,
           container: container.name,
         });
-        mapPortPrivate.set(port.PrivatePort, [...(mapPortPrivate.get(port.PrivatePort) || []), container.name]);
+        mapPortPrivate.set(port.PrivatePort, [...(mapPortPrivate.get(port.PrivatePort) ?? []), container.name]);
       });
     });
     mapPortPrivate.forEach((value, key) => {

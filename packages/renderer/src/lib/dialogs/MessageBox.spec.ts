@@ -64,11 +64,11 @@ describe('MessageBox', () => {
     expect(title).toBeInTheDocument();
     const message = await screen.findByText(messageBoxOptions.message);
     expect(message).toBeInTheDocument();
-    const detail = await screen.findByText(messageBoxOptions.detail || '');
+    const detail = await screen.findByText(messageBoxOptions.detail ?? '');
     expect(detail).toBeInTheDocument();
-    const button1 = await screen.findByText(messageBoxOptions.buttons?.[0] || '');
+    const button1 = await screen.findByText(messageBoxOptions.buttons?.[0] ?? '');
     expect(button1).toBeInTheDocument();
-    const button2 = await screen.findByText(messageBoxOptions.buttons?.[1] || '');
+    const button2 = await screen.findByText(messageBoxOptions.buttons?.[1] ?? '');
     expect(button2).toBeInTheDocument();
   });
 
