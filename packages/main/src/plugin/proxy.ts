@@ -22,7 +22,6 @@ import { ProxyAgent } from 'undici';
 import type { ConfigurationRegistry, IConfigurationNode } from './configuration-registry.js';
 import { Emitter } from './events/emitter.js';
 import { getProxyUrl } from './proxy-resolver.js';
-import { ProxyAgent } from 'undici';
 import { getProxySettingsFromSystem } from './proxy-system.js';
 
 export const PROXY_SYSTEM = 0;

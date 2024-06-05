@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import { type ProxySettings } from '@podman-desktop/api';
+
 import { isLinux, isMac, isWindows } from '../util.js';
-import { Exec } from './util/exec.js';
 import type { Proxy } from './proxy.js';
+import { Exec } from './util/exec.js';
 
 export async function getProxySettingsFromSystem(proxy: Proxy): Promise<ProxySettings> {
   if (isWindows()) {
