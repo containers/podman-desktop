@@ -241,6 +241,7 @@ export class ColorRegistry {
     this.initButton();
     this.initActionButton();
     this.initTooltip();
+    this.initDropdown();
   }
 
   protected initGlobalNav(): void {
@@ -998,6 +999,49 @@ export class ColorRegistry {
     this.registerColor(`${tooltip}border`, {
       dark: colorPalette.charcoal[500],
       light: colorPalette.gray[500],
+    });
+  }
+
+  protected initDropdown(): void {
+    const dropdown = 'dropdown-';
+
+    this.registerColor(`${dropdown}bg`, {
+      dark: colorPalette.charcoal[600],
+      light: colorPalette.gray[100],
+    });
+    this.registerColor(`${dropdown}ring`, {
+      dark: colorPalette.purple[900],
+      light: colorPalette.gray[500],
+    });
+    this.registerColor(`${dropdown}hover-ring`, {
+      dark: colorPalette.purple[700],
+      light: colorPalette.purple[300],
+    });
+    this.registerColor(`${dropdown}divider`, {
+      dark: colorPalette.charcoal[600],
+      light: colorPalette.gray[100],
+    });
+
+    this.registerColor(`${dropdown}item-text`, {
+      dark: colorPalette.gray[400],
+      light: colorPalette.charcoal[600],
+    });
+    this.registerColor(`${dropdown}item-hover-bg`, {
+      dark: colorPalette.black,
+      light: colorPalette.gray[300],
+    });
+    this.registerColor(`${dropdown}item-hover-text`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[500],
+    });
+
+    this.registerColor(`${dropdown}disabled-item-text`, {
+      dark: colorPalette.gray[900],
+      light: colorPalette.charcoal[100],
+    });
+    this.registerColor(`${dropdown}disabled-item-bg`, {
+      dark: colorPalette.charcoal[800],
+      light: colorPalette.gray[200],
     });
   }
 }
