@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { expect as playExpect, Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
+import { expect as playExpect } from '@playwright/test';
 
 import { NavigationBar } from '../model/workbench/navigation';
 
