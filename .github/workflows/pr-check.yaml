@@ -281,6 +281,7 @@ jobs:
   e2e-tests:
     name: e2e tests
     runs-on: ubuntu-22.04
+    needs: smoke-e2e-tests
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
