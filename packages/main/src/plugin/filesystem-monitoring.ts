@@ -24,23 +24,25 @@ import { Disposable } from './types/disposable.js';
 import { Uri } from './types/uri.js';
 
 export class FileSystemWatcherImpl implements containerDesktopAPI.FileSystemWatcher {
+  watcher: chokidar.FSWatcher;
+
   constructor(path: string) {
     // needs to call chokidar
-    const watcher = chokidar.watch(path, {
+    this.watcher = chokidar.watch(path, {
       persistent: true,
     });
 
-    watcher.on('add', (addedPath: string) => {
+    this.watcher.on('add', (addedPath: string) => {
       const uri: containerDesktopAPI.Uri = Uri.file(addedPath);
       this._onDidCreate.fire(uri);
     });
 
-    watcher.on('change', (addedPath: string) => {
+    this.watcher.on('change', (addedPath: string) => {
       const uri: containerDesktopAPI.Uri = Uri.file(addedPath);
       this._onDidChange.fire(uri);
     });
 
-    watcher.on('unlink', (addedPath: string) => {
+    this.watcher.on('unlink', (addedPath: string) => {
       const uri: containerDesktopAPI.Uri = Uri.file(addedPath);
       this._onDidDelete.fire(uri);
     });
@@ -58,6 +60,11 @@ export class FileSystemWatcherImpl implements containerDesktopAPI.FileSystemWatc
   readonly onDidDelete: containerDesktopAPI.Event<containerDesktopAPI.Uri> = this._onDidDelete.event;
 
   dispose(): void {
+    if (this.watcher) {
+      this.watcher.close().catch((err: unknown) => {
+        console.error('unable to close watcher', err);
+      });
+    }
     this._disposable.dispose();
   }
 }
