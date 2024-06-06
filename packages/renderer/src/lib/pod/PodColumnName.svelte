@@ -15,7 +15,7 @@ function openDetailsPod(pod: PodInfoUI) {
 }
 </script>
 
-<button class="hover:cursor-pointer flex flex-col" on:click="{() => openDetailsPod(object)}">
-  <div class="text-sm text-gray-300">{object.name}</div>
+<button class="hover:cursor-pointer flex flex-col max-w-full" on:click="{() => openDetailsPod(object)}">
+  <div class="text-sm text-gray-300 max-w-full overflow-hidden text-ellipsis">{object.name}</div>
   <div class="text-xs text-violet-400">{object.shortId}</div>
 </button>

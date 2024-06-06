@@ -15,9 +15,9 @@ function openDetails(image: ImageInfoUI) {
 }
 </script>
 
-<button class="flex flex-col" on:click="{() => openDetails(object)}">
-  <div class="flex flex-row text-xs gap-1 items-center">
-    <div class="text-sm text-[var(--pd-table-body-text-highlight)]">
+<button class="flex flex-col max-w-full" on:click="{() => openDetails(object)}">
+  <div class="flex flex-row text-xs gap-1 items-center max-w-full">
+    <div class="text-sm text-[var(--pd-table-body-text-highlight)] overflow-hidden text-ellipsis">
       {object.name}
       {object.isManifest ? ' (manifest)' : ''}
     </div>
