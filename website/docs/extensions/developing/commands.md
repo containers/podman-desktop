@@ -1,6 +1,6 @@
 ---
 title: Commands
-description: Podman Desktop onboarding command reference
+description: Podman Desktop command reference
 tags: [podman-desktop, extension]
 keywords: [podman desktop, extension]
 ---
@@ -54,7 +54,9 @@ const anotherCommand = extensionApi.commands.registerCommand('extension.anotherC
     "commands": [
       {
         "command": "string",
-        "title": "string"
+        "title": "string",
+        "category": "string (optional cateogry for prefix title)",
+        "enablement": "myProperty === myValue"
       }
     ]
   }
