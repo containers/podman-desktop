@@ -31,6 +31,7 @@ import type {
   V1Deployment,
   V1Ingress,
   V1NamespaceList,
+  V1Node,
   V1Pod,
   V1PodList,
   V1Service,
@@ -1863,6 +1864,10 @@ export class PluginSystem {
         return kubernetesClient.readNamespacedDeployment(name, namespace);
       },
     );
+
+    this.ipcHandle('kubernetes-client:readNode', async (_listener, name: string): Promise<V1Node | undefined> => {
+      return kubernetesClient.readNode(name);
+    });
 
     this.ipcHandle(
       'kubernetes-client:readNamespacedIngress',

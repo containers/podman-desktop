@@ -39,6 +39,8 @@ import IngressesRoutesList from './lib/ingresses-routes/IngressesRoutesList.svel
 import RouteDetails from './lib/ingresses-routes/RouteDetails.svelte';
 import KubePlayYAML from './lib/kube/KubePlayYAML.svelte';
 import ManifestDetails from './lib/manifest/ManifestDetails.svelte';
+import NodeDetails from './lib/node/NodeDetails.svelte';
+import NodesList from './lib/node/NodesList.svelte';
 import Onboarding from './lib/onboarding/Onboarding.svelte';
 import DeployPodToKube from './lib/pod/DeployPodToKube.svelte';
 import PodCreateFromContainers from './lib/pod/PodCreateFromContainers.svelte';
@@ -199,6 +201,12 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         </Route>
         <Route path="/volumes/:name/:engineId/*" breadcrumb="Volume Details" let:meta navigationHint="details">
           <VolumeDetails volumeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
+        </Route>
+        <Route path="/nodes" breadcrumb="Nodes" navigationHint="root">
+          <NodesList />
+        </Route>
+        <Route path="/nodes/:name/*" breadcrumb="Node Details" let:meta navigationHint="details">
+          <NodeDetails name="{decodeURI(meta.params.name)}" />
         </Route>
         <Route path="/deployments" breadcrumb="Deployments" navigationHint="root">
           <DeploymentsList />
