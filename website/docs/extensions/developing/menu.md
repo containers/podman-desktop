@@ -50,6 +50,13 @@ This example shows how to integrate a menu into the Podman Desktop extension thr
 }
 ```
 
+#### MenuContext available
+
+- 'dashboard/image': Item menu on image actions
+- 'dashboard/container': item menu on container actions
+- 'dashboard/pod': item menu on pod actions
+- 'dashboard/compose': item menu on compose actions
+
 ### Verification
 
 To verify that your menus are functioning correctly:
