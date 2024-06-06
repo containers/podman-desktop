@@ -34,6 +34,7 @@ import type {
   V1Deployment,
   V1Ingress,
   V1NamespaceList,
+  V1Node,
   V1Pod,
   V1PodList,
   V1Service,
@@ -782,6 +783,21 @@ export class KubernetesClient {
       this.telemetry.track('kubernetesReadNamespacedDeployment', telemetryOptions);
     }
   }
+
+  async readNode(name: string): Promise<V1Node | undefined> {
+    let telemetryOptions = {};
+    const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
+    try {
+      const res = await k8sApi.readNode(name);
+      return res?.body;
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw this.wrapK8sClientError(error);
+    } finally {
+      this.telemetry.track('kubernetesReadNode', telemetryOptions);
+    }
+  }
+
   async readNamespacedIngress(name: string, namespace: string): Promise<V1Ingress | undefined> {
     let telemetryOptions = {};
     const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);

@@ -90,15 +90,8 @@ onMount(() => {
     </div>
     <div class="ml-2 text-sm text-left break-normal w-36">{title}</div>
     {#if isDefault}
-      <Tooltip>
-        <svelte:fragment slot="content">
-          <Fa size="0.5x" class="text-dustypurple-700 cursor-pointer" icon="{faCircle}" />
-        </svelte:fragment>
-        <svelte:fragment slot="tip">
-          <div class="inline-block py-2 px-4 rounded-md bg-charcoal-800 text-xs text-white" aria-label="tooltip">
-            Default platform of your computer
-          </div>
-        </svelte:fragment>
+      <Tooltip tip="Default platform of your computer">
+        <Fa size="0.5x" class="text-dustypurple-700 cursor-pointer" icon="{faCircle}" />
       </Tooltip>
     {/if}
   </div>

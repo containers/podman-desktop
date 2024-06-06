@@ -28,6 +28,8 @@ import type {
   V1DeploymentList,
   V1Ingress,
   V1IngressList,
+  V1Node,
+  V1NodeList,
   V1ObjectMeta,
   V1Pod,
   V1PodList,
@@ -71,7 +73,7 @@ const selectedResources = ['pods', 'deployments'] as const;
 
 // resources managed by podman desktop, excepted the primary ones
 // This is where to add new resources when adding new informers
-const secondaryResources = ['services', 'ingresses', 'routes'] as const;
+const secondaryResources = ['services', 'ingresses', 'routes', 'nodes'] as const;
 
 export type SelectedResourceName = (typeof selectedResources)[number];
 export type SecondaryResourceName = (typeof secondaryResources)[number];
@@ -127,6 +129,7 @@ const dispatchAllResources: ResourcesDispatchOptions = {
   pods: true,
   deployments: true,
   services: true,
+  nodes: true,
   ingresses: true,
   routes: true,
   // add new resources here when adding new informers
@@ -262,6 +265,7 @@ export class ContextsStates {
         resources: {
           pods: [],
           deployments: [],
+          nodes: [],
           services: [],
           ingresses: [],
           routes: [],
@@ -361,7 +365,8 @@ export class ContextsManager {
   }
 
   isContextInKubeconfig(context: KubeContext): boolean {
-    // if there is no cluster on the kubeconfig with the value of context.cluster -> false
+    // if there is no cluster on the kubeconfig with
+    // the value of context.cluster -> false
     const cluster = this.kubeConfig.getCluster(context.cluster);
     if (!cluster || cluster.server !== context.clusterInfo?.server) {
       return false;
@@ -503,6 +508,9 @@ export class ContextsManager {
       case 'services':
         informer = this.createServiceInformer(this.kubeConfig, ns, context);
         break;
+      case 'nodes':
+        informer = this.createNodeInformer(this.kubeConfig, ns, context);
+        break;
       case 'ingresses':
         informer = this.createIngressInformer(this.kubeConfig, ns, context);
         break;
@@ -596,6 +604,38 @@ export class ContextsManager {
             (state.resources.deployments = state.resources.deployments.filter(
               d => d.metadata?.uid !== obj.metadata?.uid,
             )),
+        );
+      },
+    });
+  }
+
+  public createNodeInformer(kc: KubeConfig, ns: string, context: KubeContext): Informer<V1Node> & ObjectCache<V1Node> {
+    const k8sApi = kc.makeApiClient(CoreV1Api);
+    const listFn = (): Promise<{ response: IncomingMessage; body: V1NodeList }> => k8sApi.listNode();
+    const path = '/api/v1/nodes';
+    let timer: NodeJS.Timeout | undefined;
+    let connectionDelay: NodeJS.Timeout | undefined;
+    this.setConnectionTimers('nodes', timer, connectionDelay);
+    return this.createInformer<V1Node>(kc, context, path, listFn, {
+      resource: 'nodes',
+      timer: timer,
+      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      connectionDelay: connectionDelay,
+      onAdd: obj => {
+        this.setStateAndDispatch(context.name, false, { nodes: true }, state => state.resources.nodes.push(obj));
+      },
+      onUpdate: obj => {
+        this.setStateAndDispatch(context.name, false, { nodes: true }, state => {
+          state.resources.nodes = state.resources.nodes.filter(o => o.metadata?.uid !== obj.metadata?.uid);
+          state.resources.nodes.push(obj);
+        });
+      },
+      onDelete: obj => {
+        this.setStateAndDispatch(
+          context.name,
+          false,
+          { nodes: true },
+          state => (state.resources.nodes = state.resources.nodes.filter(d => d.metadata?.uid !== obj.metadata?.uid)),
         );
       },
     });

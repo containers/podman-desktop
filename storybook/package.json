@@ -21,13 +21,13 @@
     "svelte-fa": "^4.0.2"
   },
   "devDependencies": {
-    "@storybook/addon-essentials": "^8.1.4",
-    "@storybook/addon-interactions": "^8.1.4",
-    "@storybook/addon-links": "^8.1.4",
+    "@storybook/addon-essentials": "^8.1.6",
+    "@storybook/addon-interactions": "^8.1.6",
+    "@storybook/addon-links": "^8.1.6",
     "@storybook/addon-svelte-csf": "^4.1.1",
-    "@storybook/blocks": "^8.1.4",
+    "@storybook/blocks": "^8.1.6",
     "@storybook/svelte": "^8.1.4",
-    "@storybook/svelte-vite": "^8.1.4",
+    "@storybook/svelte-vite": "^8.1.6",
     "@storybook/test": "^8.1.4",
     "@sveltejs/package": "^2.2.6",
     "@sveltejs/vite-plugin-svelte": "3.1.1",
@@ -44,7 +44,7 @@
     "svelte": "4.2.17",
     "svelte-check": "^3.6.6",
     "svelte-preprocess": "^5.1.3",
-    "tailwindcss": "^3.4.1",
+    "tailwindcss": "^3.4.4",
     "typescript": "^5.3.3",
     "vite": "^5.2.11",
     "vitest": "^1.6.0"

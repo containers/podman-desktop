@@ -3,5 +3,14 @@
     "browser": true,
     "node": false
   },
-  "extends": ["../../.eslintrc.json"]
+  "extends": ["../../.eslintrc.json"],
+  "rules": {
+    "no-restricted-imports": [
+      "error",
+      {
+        "name": "@podman-desktop/ui-svelte",
+        "message": "Please use relative imports as the code is part of @podman-desktop/ui"
+      }
+    ]
+  }
 }

@@ -87,6 +87,7 @@ let namespaceColumn = new TableColumn<ServiceUI, string>('Namespace', {
 
 let typeColumn = new TableColumn<ServiceUI>('Type', {
   renderer: ServiceColumnType,
+  overflow: true,
   comparator: (a, b) => a.type.localeCompare(b.type),
 });
 

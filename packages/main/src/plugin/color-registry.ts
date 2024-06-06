@@ -926,5 +926,9 @@ export class ColorRegistry {
       dark: colorPalette.white + '2',
       light: colorPalette.black + '2',
     });
+    this.registerColor(`${button}help-link-text`, {
+      dark: colorPalette.gray[100],
+      light: colorPalette.charcoal[900],
+    });
   }
 }
