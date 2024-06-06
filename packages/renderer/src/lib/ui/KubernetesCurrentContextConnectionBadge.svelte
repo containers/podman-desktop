@@ -11,8 +11,8 @@ function getText(state?: ContextGeneralState): string {
 }
 
 function getClassColor(state?: ContextGeneralState): string {
-  if (state?.reachable) return 'bg-green-600';
-  return 'bg-gray-900';
+  if (state?.reachable) return 'bg-status-connected';
+  return 'bg-status-disconnected';
 }
 
 $: text = getText($kubernetesCurrentContextState);
