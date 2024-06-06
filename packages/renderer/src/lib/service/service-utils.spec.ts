@@ -40,3 +40,39 @@ test('expect basic UI conversion', async () => {
   expect(serviceUI.name).toEqual('my-service');
   expect(serviceUI.namespace).toEqual('test-namespace');
 });
+
+test('expect no loadBalancerIPs when it is not set in V1Service ingress', async () => {
+  const service = {
+    metadata: {
+      name: 'my-service',
+      namespace: 'test-namespace',
+    },
+    status: {
+      loadBalancer: {
+        ingress: [],
+      },
+    },
+  } as V1Service;
+  const serviceUI = serviceUtils.getServiceUI(service);
+  expect(serviceUI.loadBalancerIPs).toEqual('');
+});
+
+test('expect a loadBalancerIPs if set in service', async () => {
+  const service = {
+    metadata: {
+      name: 'my-service',
+      namespace: 'test-namespace',
+    },
+    status: {
+      loadBalancer: {
+        ingress: [
+          {
+            ip: '10.0.0.1',
+          },
+        ],
+      },
+    },
+  } as V1Service;
+  const serviceUI = serviceUtils.getServiceUI(service);
+  expect(serviceUI.loadBalancerIPs).toEqual('10.0.0.1');
+});
