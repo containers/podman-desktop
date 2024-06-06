@@ -61,6 +61,10 @@ const anotherCommand = extensionApi.commands.registerCommand('extension.anotherC
 }
 ```
 
+### Additional Resources
+
+When you add the command, it will be listed on the command palette. See the [command palette](/docs/extensions/developing/command-palette) for more information.
+
 ### Verification
 
 To verify that your commands are working as expected:
