@@ -37,7 +37,7 @@ This example shows how to integrate a menu into the Podman Desktop extension thr
 {
   "contributes": {
     "menus": {
-      "dashboard/<section>": [
+      "<MenuContext>": [
         {
           "command": "string",
           "title": "string",
