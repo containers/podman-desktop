@@ -22,32 +22,32 @@ import { fireEvent, render, screen } from '@testing-library/svelte';
 import { router } from 'tinro';
 import { expect, test, vi } from 'vitest';
 
-import DeploymentColumnName from './DeploymentColumnName.svelte';
-import type { DeploymentUI } from './DeploymentUI';
+import NodeColumnName from './NodeColumnName.svelte';
+import type { NodeUI } from './NodeUI';
 
-const deployment: DeploymentUI = {
-  name: 'my-deployment',
+const node: NodeUI = {
+  name: 'my-node',
   status: '',
-  namespace: 'default',
-  replicas: 0,
-  ready: 0,
-  selected: false,
-  conditions: [],
+  role: 'control-plane',
+  version: '',
+  osImage: '',
+  kernelVersion: '',
+  containerRuntime: '',
 };
 
 test('Expect simple column styling', async () => {
-  render(DeploymentColumnName, { object: deployment });
+  render(NodeColumnName, { object: node });
 
-  const text = screen.getByText(deployment.name);
+  const text = screen.getByText(node.name);
   expect(text).toBeInTheDocument();
   expect(text).toHaveClass('text-sm');
   expect(text).toHaveClass('text-gray-300');
 });
 
 test('Expect clicking works', async () => {
-  render(DeploymentColumnName, { object: deployment });
+  render(NodeColumnName, { object: node });
 
-  const text = screen.getByText(deployment.name);
+  const text = screen.getByText(node.name);
   expect(text).toBeInTheDocument();
 
   // test click
@@ -55,5 +55,5 @@ test('Expect clicking works', async () => {
 
   fireEvent.click(text);
 
-  expect(routerGotoSpy).toBeCalledWith('/deployments/my-deployment/default/summary');
+  expect(routerGotoSpy).toBeCalledWith('/nodes/my-node/summary');
 });
