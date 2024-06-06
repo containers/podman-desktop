@@ -16,13 +16,21 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+/**
+ * Frequency of collection:
+ *  dailyPerInstance - log the first time the event happens after startup.
+ *
+ * Enum to allow for future expansion, e.g. 'daily' or 'weekly'.
+ */
+export type Frequency = 'dailyPerInstance';
+
 export interface TelemetryRule {
-  // start of telemetry event id
+  // regex matching telemetry event
   event: string;
   // ratio to send events, e.g. 0.5
   ratio?: number;
   // disable this event entirely
   disabled?: boolean;
-  // limit sending to 'dailyPerInstance'
-  frequency?: string;
+  // control the frequency of sending events
+  frequency?: Frequency;
 }

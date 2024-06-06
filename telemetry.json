@@ -1,7 +1,7 @@
 {
   "rules": [
     {
-      "event": "list",
+      "event": "list.*",
       "frequency": "dailyPerInstance"
     }
   ]
