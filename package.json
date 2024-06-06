@@ -103,7 +103,7 @@
     "website:dev": "cd website && yarn run docusaurus start",
     "website:screenshots": "cd website-argos && yarn run screenshot",
     "storybook:dev": "cd storybook && yarn run dev",
-    "storybook:build": "cd storybook && yarn run build",
+    "storybook:build": "npm run build:ui && cd storybook && yarn run build",
     "prepare": "husky install",
     "postinstall": "playwright install"
   },

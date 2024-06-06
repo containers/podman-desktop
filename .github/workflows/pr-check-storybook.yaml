@@ -23,6 +23,7 @@ on:
       - 'package.json'
       - 'yarn.lock'
       - 'storybook/**'
+      - 'packages/ui/src/**'
 
 jobs:
   storybook-build:
