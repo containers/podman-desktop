@@ -760,6 +760,9 @@ export class PluginSystem {
         return containerProviderRegistry.restartPod(engine, podId);
       },
     );
+    this.ipcHandle('kubernetes-client:restartPod', async (_listener, name: string): Promise<void> => {
+      return kubernetesClient.restartPod(name);
+    });
     this.ipcHandle(
       'container-provider-registry:stopPod',
       async (_listener, engine: string, podId: string): Promise<void> => {

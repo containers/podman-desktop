@@ -34,6 +34,8 @@ import type {
   V1Deployment,
   V1Ingress,
   V1NamespaceList,
+  V1ObjectMeta,
+  V1OwnerReference,
   V1Pod,
   V1PodList,
   V1Service,
@@ -42,6 +44,7 @@ import type {
 import {
   ApisApi,
   AppsV1Api,
+  BatchV1Api,
   CoreV1Api,
   CustomObjectsApi,
   Exec,
@@ -119,6 +122,18 @@ const OPENSHIFT_PROJECT_API_GROUP = 'project.openshift.io';
 const DEFAULT_NAMESPACE = 'default';
 
 const FIELD_MANAGER = 'podman-desktop';
+
+const SCALABLE_CONTROLLER_TYPES = ['Deployment', 'ReplicaSet', 'StatefulSet'];
+export type ScalableControllerType = (typeof SCALABLE_CONTROLLER_TYPES)[number];
+export type ControllerType = ScalableControllerType | 'Job' | 'DaemonSet' | 'CronJob' | undefined;
+function isScalableControllerType(string: unknown): string is ScalableControllerType {
+  return typeof string === 'string' && SCALABLE_CONTROLLER_TYPES.includes(string);
+}
+
+export interface PodCreationSource {
+  isManuallyCreated: boolean;
+  controllerType: ControllerType;
+}
 
 /**
  * Handle calls to kubernetes API
@@ -1302,5 +1317,284 @@ export class KubernetesClient {
     } finally {
       this.telemetry.track('kubernetesExecIntoContainer', telemetryOptions);
     }
+  }
+
+  async restartPod(name: string): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      const ns = this.currentNamespace;
+      const connected = await this.checkConnection();
+      if (!ns) {
+        throw new Error('no active namespace');
+      }
+      if (!connected) {
+        throw new Error('not active connection');
+      }
+
+      const pod = await this.readNamespacedPod(name, ns);
+      if (!pod?.metadata) {
+        throw new Error('no metadata found');
+      }
+
+      const creationSource = this.checkPodCreationSource(pod.metadata);
+      if (creationSource.isManuallyCreated) {
+        await this.restartManuallyCreatedPod(name, ns, pod);
+      } else {
+        if (!creationSource.controllerType) {
+          throw new Error('unable to restart controlled pod');
+        }
+
+        const controller = this.getPodController(pod.metadata);
+        const controllerName = controller!.name;
+
+        if (isScalableControllerType(creationSource.controllerType)) {
+          await this.scaleControllerToRestartPods(ns, controllerName, creationSource.controllerType);
+        } else if (creationSource.controllerType === 'Job') {
+          await this.restartJob(controllerName, ns);
+        }
+      }
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw this.wrapK8sClientError(error);
+    } finally {
+      this.telemetry.track('kubernetesRestartPod', telemetryOptions);
+    }
+  }
+
+  protected async restartManuallyCreatedPod(name: string, namespace: string, pod: V1Pod): Promise<void> {
+    const coreApi = this.kubeConfig.makeApiClient(CoreV1Api);
+    await coreApi.deleteNamespacedPod(name, namespace);
+
+    const isDeleted = await this.waitForPodDeletion(coreApi, name, namespace);
+    if (!isDeleted) {
+      throw new Error(`pod "${name}" in namespace "${namespace}" was not deleted within the expected timeframe`);
+    }
+
+    delete pod.metadata?.resourceVersion;
+    delete pod.metadata?.uid;
+    delete pod.metadata?.selfLink;
+    delete pod.metadata?.creationTimestamp;
+    delete pod.status;
+
+    const newPod: V1Pod = { ...pod };
+    await coreApi.createNamespacedPod(namespace, newPod);
+  }
+
+  protected async waitForPodDeletion(
+    coreApi: CoreV1Api,
+    name: string,
+    namespace: string,
+    timeout: number = 60000,
+  ): Promise<boolean> {
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < timeout) {
+      try {
+        await coreApi.readNamespacedPodStatus(name, namespace);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (e) {
+        const error = e ?? {};
+        if (typeof error === 'object' && 'response' in error) {
+          const axiosError = error as { response: { statusCode: number } };
+          if (axiosError.response.statusCode === 404) {
+            return true;
+          }
+        }
+        throw e;
+      }
+    }
+
+    return false;
+  }
+
+  protected async scaleControllerToRestartPods(
+    namespace: string,
+    controllerName: string,
+    controllerType: ScalableControllerType,
+    timeout: number = 10000,
+  ): Promise<void> {
+    const appsApi = this.kubeConfig.makeApiClient(AppsV1Api);
+
+    let currentReplicas = 0;
+    if (controllerType === 'Deployment') {
+      const { body: currentDeployment } = await appsApi.readNamespacedDeployment(controllerName, namespace);
+      currentReplicas = currentDeployment.spec?.replicas || 1;
+    } else if (controllerType === 'ReplicaSet') {
+      const { body: currentReplicaSet } = await appsApi.readNamespacedReplicaSet(controllerName, namespace);
+      currentReplicas = currentReplicaSet.spec?.replicas || 1;
+    } else if (controllerType === 'StatefulSet') {
+      const { body: currentStatefulSet } = await appsApi.readNamespacedStatefulSet(controllerName, namespace);
+      currentReplicas = currentStatefulSet.spec?.replicas || 1;
+    }
+
+    await this.scaleController(appsApi, namespace, controllerName, controllerType, 0);
+
+    await new Promise(resolve => setTimeout(resolve, timeout));
+
+    await this.scaleController(appsApi, namespace, controllerName, controllerType, currentReplicas);
+  }
+
+  protected async scaleController(
+    appsApi: AppsV1Api,
+    namespace: string,
+    controllerName: string,
+    controllerType: ScalableControllerType,
+    replicas: number,
+  ): Promise<void> {
+    if (controllerType === 'Deployment') {
+      await appsApi.patchNamespacedDeploymentScale(
+        controllerName,
+        namespace,
+        { spec: { replicas } },
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+      );
+    } else if (controllerType === 'ReplicaSet') {
+      await appsApi.patchNamespacedReplicaSetScale(
+        controllerName,
+        namespace,
+        { spec: { replicas } },
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+      );
+    } else if (controllerType === 'StatefulSet') {
+      await appsApi.patchNamespacedStatefulSetScale(
+        controllerName,
+        namespace,
+        { spec: { replicas } },
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } },
+      );
+    }
+  }
+
+  protected async restartJob(name: string, namespace: string): Promise<void> {
+    const batchApi = this.kubeConfig.makeApiClient(BatchV1Api);
+    const coreApi = this.kubeConfig.makeApiClient(CoreV1Api);
+
+    const { body: existingJob } = await batchApi.readNamespacedJob(name, namespace);
+    await batchApi.deleteNamespacedJob(name, namespace, 'true', undefined, undefined, undefined, 'Background');
+
+    const isJobDeleted = await this.waitForJobDeletion(batchApi, name, namespace);
+    if (!isJobDeleted) {
+      throw new Error(`job "${name}" in namespace "${namespace}" was not deleted within the expected timeframe`);
+    }
+
+    const labelSelector = `job-name=${name}`;
+    const isPodsDeleted = await this.waitForPodsDeletion(coreApi, namespace, labelSelector);
+    if (!isPodsDeleted) {
+      throw new Error(
+        `not all pods with selector "${labelSelector}" in namespace "${namespace}" were deleted within the expected timeframe`,
+      );
+    }
+
+    delete existingJob.metadata!.creationTimestamp;
+    delete existingJob.metadata!.resourceVersion;
+    delete existingJob.metadata!.selfLink;
+    delete existingJob.metadata!.uid;
+    delete existingJob.metadata!.ownerReferences;
+    delete existingJob.status;
+    delete existingJob.spec!.selector;
+    if (existingJob.spec!.template.metadata!.labels) {
+      delete existingJob.spec!.template.metadata!.labels['controller-uid'];
+      delete existingJob.spec!.template.metadata!.labels['batch.kubernetes.io/controller-uid'];
+      delete existingJob.spec!.template.metadata!.labels['batch.kubernetes.io/job-name'];
+      delete existingJob.spec!.template.metadata!.labels['job-name'];
+    }
+    if (existingJob.metadata?.labels) {
+      delete existingJob.metadata.labels['controller-uid'];
+      delete existingJob.metadata.labels['batch.kubernetes.io/controller-uid'];
+      delete existingJob.metadata.labels['batch.kubernetes.io/job-name'];
+      delete existingJob.metadata.labels['job-name'];
+    }
+
+    await batchApi.createNamespacedJob(namespace, existingJob);
+  }
+
+  protected async waitForJobDeletion(
+    batchApi: BatchV1Api,
+    name: string,
+    namespace: string,
+    timeout: number = 60000,
+  ): Promise<boolean> {
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < timeout) {
+      try {
+        await batchApi.readNamespacedJobStatus(name, namespace);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (e) {
+        const error = e ?? {};
+        if (typeof error === 'object' && 'response' in error) {
+          const axiosError = error as { response: { statusCode: number } };
+          if (axiosError.response.statusCode === 404) {
+            return true;
+          }
+        }
+        throw e;
+      }
+    }
+
+    return false;
+  }
+
+  protected async waitForPodsDeletion(
+    coreApi: CoreV1Api,
+    namespace: string,
+    selector: string,
+    timeout: number = 60000,
+  ): Promise<boolean> {
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < timeout) {
+      const { body: podList } = await coreApi.listNamespacedPod(
+        namespace,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        selector,
+      );
+      if (podList.items.length === 0) {
+        return true;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    return false;
+  }
+
+  protected checkPodCreationSource(podMetadata: V1ObjectMeta): PodCreationSource {
+    const controller = this.getPodController(podMetadata);
+    if (controller) {
+      return {
+        isManuallyCreated: false,
+        controllerType: controller.kind,
+      };
+    }
+
+    return {
+      isManuallyCreated: true,
+      controllerType: undefined,
+    };
+  }
+
+  protected getPodController(podMetadata: V1ObjectMeta): V1OwnerReference | undefined {
+    // possible check is also in pod-template-hash label:
+    // pod.metadata?.labels && 'pod-template-hash' in pod.metadata.labels
+    return podMetadata.ownerReferences?.find((ref: V1OwnerReference) => ref.controller === true);
   }
 }

@@ -1841,6 +1841,10 @@ export function initExposure(): void {
     }
   });
 
+  contextBridge.exposeInMainWorld('restartKubernetesPod', async (name: string): Promise<void> => {
+    return ipcInvoke('kubernetes-client:restartPod', name);
+  });
+
   contextBridge.exposeInMainWorld(
     'kubernetesApplyResourcesFromFile',
     async (context: string, file: string, namespace?: string): Promise<KubernetesObject[]> => {
