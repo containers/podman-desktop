@@ -49,5 +49,5 @@ jobs:
       - name: Execute yarn
         run: yarn --frozen-lockfile
 
-      - name: Run website
+      - name: Run storybook
         run: yarn storybook:build
