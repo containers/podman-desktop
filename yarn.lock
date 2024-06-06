@@ -5356,20 +5356,20 @@
     process "^0.11.10"
     util "^0.12.4"
 
-"@storybook/builder-vite@8.1.5":
-  version "8.1.5"
-  resolved "https://registry.yarnpkg.com/@storybook/builder-vite/-/builder-vite-8.1.5.tgz#c91ace589bdbd9f6206e7f23a9ace5679e86b35a"
-  integrity sha512-4RblE2npnlRs8bj071g4xkCF8n/FYNdu/Ft5eH8YQIMEpgijtxWnuPXjyOWwnN6MG5e9q0cbZ4y1o3CZIGBIoQ==
+"@storybook/builder-vite@8.1.6":
+  version "8.1.6"
+  resolved "https://registry.yarnpkg.com/@storybook/builder-vite/-/builder-vite-8.1.6.tgz#b498ebf515b6322545c7b9af0aaf018b467cb788"
+  integrity sha512-xbGxI7aVMNuLcAB41Z+Vjr+M1Kznvw/jJ8HP9cfmUl1cO7ysF8R9opVG1C+kMIXUIQAVeND+DUZgmUg2zGzH6A==
   dependencies:
-    "@storybook/channels" "8.1.5"
-    "@storybook/client-logger" "8.1.5"
-    "@storybook/core-common" "8.1.5"
-    "@storybook/core-events" "8.1.5"
-    "@storybook/csf-plugin" "8.1.5"
-    "@storybook/node-logger" "8.1.5"
-    "@storybook/preview" "8.1.5"
-    "@storybook/preview-api" "8.1.5"
-    "@storybook/types" "8.1.5"
+    "@storybook/channels" "8.1.6"
+    "@storybook/client-logger" "8.1.6"
+    "@storybook/core-common" "8.1.6"
+    "@storybook/core-events" "8.1.6"
+    "@storybook/csf-plugin" "8.1.6"
+    "@storybook/node-logger" "8.1.6"
+    "@storybook/preview" "8.1.6"
+    "@storybook/preview-api" "8.1.6"
+    "@storybook/types" "8.1.6"
     "@types/find-cache-dir" "^3.2.1"
     browser-assert "^1.2.1"
     es-module-lexer "^1.5.0"
@@ -5648,14 +5648,6 @@
     watchpack "^2.2.0"
     ws "^8.2.3"
 
-"@storybook/csf-plugin@8.1.5":
-  version "8.1.5"
-  resolved "https://registry.yarnpkg.com/@storybook/csf-plugin/-/csf-plugin-8.1.5.tgz#38a2a04c8010bde0eede907b1bf323e23c16f2c8"
-  integrity sha512-p6imdhlcm2iEeCU+3BDDR1fuw+u9sOQDlQQbTLYhBDvjy3lydp3W0erWo5aUANhQRU2uobZf4wZ52MLrENt+dQ==
-  dependencies:
-    "@storybook/csf-tools" "8.1.5"
-    unplugin "^1.3.1"
-
 "@storybook/csf-plugin@8.1.6":
   version "8.1.6"
   resolved "https://registry.yarnpkg.com/@storybook/csf-plugin/-/csf-plugin-8.1.6.tgz#28fbf25fea36e755c3c59a6a8309774a5676fb87"
@@ -5854,10 +5846,10 @@
     ts-dedent "^2.0.0"
     util-deprecate "^1.0.2"
 
-"@storybook/preview@8.1.5":
-  version "8.1.5"
-  resolved "https://registry.yarnpkg.com/@storybook/preview/-/preview-8.1.5.tgz#3d1e91d3596b0e0736da80ba6f8a5ffb323f7d18"
-  integrity sha512-8qNzK/5fCjfWcup5w3UxJXMAUp4+iOdh+vO+vDIJWSbPXRPtuarSM/tv/12N7hz/zvCpGLGBql0BE+oyC0bmhw==
+"@storybook/preview@8.1.6":
+  version "8.1.6"
+  resolved "https://registry.yarnpkg.com/@storybook/preview/-/preview-8.1.6.tgz#2905f36dc9b28c510f406db8cd3af284c4d95999"
+  integrity sha512-o9OgOmO10GyX1ZC7WiapYqGdst4TOCPLqWSu3H2nL4ZT7BQLUQfCy30kyoMO7KyxCgc5K5rcqG7qZ/N0tfUgRg==
 
 "@storybook/react-dom-shim@8.1.6":
   version "8.1.6"
@@ -5882,31 +5874,31 @@
     memoizerific "^1.11.3"
     qs "^6.10.0"
 
-"@storybook/svelte-vite@^8.1.4":
-  version "8.1.5"
-  resolved "https://registry.yarnpkg.com/@storybook/svelte-vite/-/svelte-vite-8.1.5.tgz#314c8e2efd07f49e1643ad3e7adb0cdc11082545"
-  integrity sha512-04OxKPunsd4k0pGrlXnIPX+OeJPcYpMzIfUFp4kCu9bx+72EFvLBEpk/wnrxp2gZJEew9EeyShjYDMWuOwFPEA==
+"@storybook/svelte-vite@^8.1.6":
+  version "8.1.6"
+  resolved "https://registry.yarnpkg.com/@storybook/svelte-vite/-/svelte-vite-8.1.6.tgz#81855adabba4cc7bfb5e92d11b8b1eccb1426b88"
+  integrity sha512-/fSextyqaBr43D0h8le+nnG9hHlSvIkoltQ4TDgZES6LIgj71rCm5pwXaolwjttHqFoF5vzp4H9LGDfW2DCcCg==
   dependencies:
-    "@storybook/builder-vite" "8.1.5"
-    "@storybook/node-logger" "8.1.5"
-    "@storybook/svelte" "8.1.5"
-    "@storybook/types" "8.1.5"
+    "@storybook/builder-vite" "8.1.6"
+    "@storybook/node-logger" "8.1.6"
+    "@storybook/svelte" "8.1.6"
+    "@storybook/types" "8.1.6"
     magic-string "^0.30.0"
     svelte-preprocess "^5.1.1"
     sveltedoc-parser "^4.2.1"
     ts-dedent "^2.2.0"
 
-"@storybook/svelte@8.1.5", "@storybook/svelte@^8.1.4":
-  version "8.1.5"
-  resolved "https://registry.yarnpkg.com/@storybook/svelte/-/svelte-8.1.5.tgz#688bf97d9d6ff63687e0ed036b652b62cc9874e4"
-  integrity sha512-rMbD/f///duTnMx2HjN6K2qoFgqj6ROZcb4lQpTPnd7n3xHycuyBvmHn82PcdQW6W4kzARHQ7UwJ5SiCYktUKQ==
+"@storybook/svelte@8.1.6", "@storybook/svelte@^8.1.4":
+  version "8.1.6"
+  resolved "https://registry.yarnpkg.com/@storybook/svelte/-/svelte-8.1.6.tgz#ab9b391a0ec191f5ffecbd4d874c17c446c3ca92"
+  integrity sha512-ITYhTt0srUlX1loz6RQu2U5PNxkSB0DMwyfVCzUiowpAvvkJmnuweHE5teOxzr9dxSc1quETe4v7AU+HhJrP8A==
   dependencies:
-    "@storybook/client-logger" "8.1.5"
-    "@storybook/core-events" "8.1.5"
-    "@storybook/docs-tools" "8.1.5"
+    "@storybook/client-logger" "8.1.6"
+    "@storybook/core-events" "8.1.6"
+    "@storybook/docs-tools" "8.1.6"
     "@storybook/global" "^5.0.0"
-    "@storybook/preview-api" "8.1.5"
-    "@storybook/types" "8.1.5"
+    "@storybook/preview-api" "8.1.6"
+    "@storybook/types" "8.1.6"
     sveltedoc-parser "^4.2.1"
     ts-dedent "^2.0.0"
     type-fest "~2.19"
