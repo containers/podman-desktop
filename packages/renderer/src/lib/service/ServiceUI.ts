@@ -24,5 +24,6 @@ export interface ServiceUI {
   selected: boolean;
   type: string;
   clusterIP: string;
+  loadBalancerIPs?: string;
   ports: string;
 }

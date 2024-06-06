@@ -58,3 +58,14 @@ test('Expect clicking works', async () => {
 
   expect(routerGotoSpy).toBeCalledWith('/services/my-service/default/summary');
 });
+
+test('If loadBalancerIPs is set, expect it to be displayed', async () => {
+  service.loadBalancerIPs = '10.0.0.1';
+  render(ServiceColumnName, { object: service });
+
+  const text = screen.getByText(service.name);
+  expect(text).toBeInTheDocument();
+
+  const loadBalancerIPs = screen.getByText(service.loadBalancerIPs);
+  expect(loadBalancerIPs).toBeInTheDocument();
+});
