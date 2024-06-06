@@ -27,6 +27,7 @@ import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { deleteImage, deletePod } from '../utility/operations';
+import { waitForPodmanMachineStartup } from '../utility/wait';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -41,6 +42,7 @@ beforeAll(async () => {
   pdRunner.setVideoAndTraceName('play-yaml-e2e');
 
   await new WelcomePage(page).handleWelcomePage(true);
+  await waitForPodmanMachineStartup(page);
 });
 
 beforeEach<RunnerTestContext>(async ctx => {

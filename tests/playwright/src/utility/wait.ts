@@ -16,6 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { expect as playExpect, Page } from '@playwright/test';
+
+import { NavigationBar } from '../model/workbench/navigation';
+
 export async function wait(
   waitFunction: () => Promise<boolean>,
   until: boolean,
@@ -110,4 +114,11 @@ export async function executeWithTimeout(
     clearTimeout(cancelTimeout);
     return result;
   });
+}
+
+export async function waitForPodmanMachineStartup(page: Page, timeoutOut = 10000): Promise<void> {
+  const dashboardPage = await new NavigationBar(page).openDashboard();
+  await playExpect(dashboardPage.heading).toBeVisible();
+  await playExpect(dashboardPage.podmanStatusLabel).toBeVisible({ timeout: timeoutOut });
+  await playExpect(dashboardPage.podmanStatusLabel).toHaveText('RUNNING', { timeout: timeoutOut });
 }
