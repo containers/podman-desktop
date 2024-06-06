@@ -299,7 +299,8 @@ export class Telemetry {
 
     let dropIt = false;
     telem.forEach(entry => {
-      if (eventName.startsWith(entry.event)) {
+      const regex = RegExp(entry.event);
+      if (regex.test(eventName)) {
         if (entry.disabled) {
           // telemetry is entirely disabled for this event
           dropIt = true;
@@ -308,7 +309,7 @@ export class Telemetry {
           // if a ratio is specified, we randomly drop
           dropIt = true;
         }
-        if (entry?.frequency === 'dailyPerInstance') {
+        if (entry.frequency === 'dailyPerInstance') {
           // only send this event once per day, per running instance (not saved to disk)
           const previousTime = this.lastTimeEvents.get(eventName);
           // it was not there, so we can send it
@@ -329,7 +330,6 @@ export class Telemetry {
       }
     });
 
-    console.log('telem: ' + eventName + ' ' + dropIt + ' ' + telem.length);
     return dropIt;
   }
 
