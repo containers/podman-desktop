@@ -83,6 +83,26 @@ export const kubernetesCurrentContextServicesFiltered = derived(
     $services.filter(service => findMatchInLeaves(service, $searchPattern.toLowerCase())),
 );
 
+// Nodes
+
+export const kubernetesCurrentContextNodes = readable<KubernetesObject[]>([], set => {
+  window.kubernetesRegisterGetCurrentContextResources('nodes').then(value => set(value));
+  window.events?.receive('kubernetes-current-context-nodes-update', (value: unknown) => {
+    set(value as KubernetesObject[]);
+  });
+  return () => {
+    window.kubernetesUnregisterGetCurrentContextResources('nodes');
+  };
+});
+
+export const nodeSearchPattern = writable('');
+
+// The nodes in the current context, filtered with `nodeSearchPattern`
+export const kubernetesCurrentContextNodesFiltered = derived(
+  [nodeSearchPattern, kubernetesCurrentContextNodes],
+  ([$searchPattern, $nodes]) => $nodes.filter(node => findMatchInLeaves(node, $searchPattern.toLowerCase())),
+);
+
 // Ingresses
 
 export const kubernetesCurrentContextIngresses = readable<KubernetesObject[]>([], set => {

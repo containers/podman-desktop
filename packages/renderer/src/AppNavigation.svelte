@@ -19,6 +19,7 @@ import ExtensionIcon from './lib/images/ExtensionIcon.svelte';
 import ImageIcon from './lib/images/ImageIcon.svelte';
 import IngressRouteIcon from './lib/images/IngressRouteIcon.svelte';
 import KubeIcon from './lib/images/KubeIcon.svelte';
+import NodeIcon from './lib/images/NodeIcon.svelte';
 import PodIcon from './lib/images/PodIcon.svelte';
 import PuzzleIcon from './lib/images/PuzzleIcon.svelte';
 import ServiceIcon from './lib/images/ServiceIcon.svelte';
@@ -34,6 +35,7 @@ import { kubernetesContexts } from './stores/kubernetes-contexts';
 import {
   kubernetesCurrentContextDeployments,
   kubernetesCurrentContextIngresses,
+  kubernetesCurrentContextNodes,
   kubernetesCurrentContextRoutes,
   kubernetesCurrentContextServices,
 } from './stores/kubernetes-contexts-state';
@@ -45,6 +47,7 @@ let containerInfoSubscribe: Unsubscriber;
 let imageInfoSubscribe: Unsubscriber;
 let volumeInfoSubscribe: Unsubscriber;
 let contextsSubscribe: Unsubscriber;
+let nodesSubscribe: Unsubscriber;
 let deploymentsSubscribe: Unsubscriber;
 let servicesSubscribe: Unsubscriber;
 let ingressesSubscribe: Unsubscriber;
@@ -57,6 +60,7 @@ let imageCount = '';
 let volumeCount = '';
 let contextCount = 0;
 let deploymentCount = '';
+let nodeCount = '';
 let serviceCount = '';
 let ingressesCount = 0;
 let routesCount = 0;
@@ -108,6 +112,13 @@ onMount(async () => {
       deploymentCount = '';
     }
   });
+  nodesSubscribe = kubernetesCurrentContextNodes.subscribe(value => {
+    if (value.length > 0) {
+      nodeCount = ' (' + value.length + ')';
+    } else {
+      nodeCount = '';
+    }
+  });
   servicesSubscribe = kubernetesCurrentContextServices.subscribe(value => {
     if (value.length > 0) {
       serviceCount = ' (' + value.length + ')';
@@ -150,6 +161,9 @@ onDestroy(() => {
   }
   if (contextsSubscribe) {
     contextsSubscribe();
+  }
+  if (nodesSubscribe) {
+    nodesSubscribe();
   }
   if (deploymentsSubscribe) {
     deploymentsSubscribe();
@@ -211,6 +225,9 @@ export let meta: TinroRouteMeta;
   {#if contextCount > 0}
     <NavSection tooltip="Kubernetes">
       <KubeIcon size="{iconSize}" slot="icon" />
+      <NavItem href="/nodes" tooltip="Nodes{nodeCount}" ariaLabel="Nodes" bind:meta="{meta}">
+        <NodeIcon size="{iconSize}" />
+      </NavItem>
       <NavItem href="/deployments" tooltip="Deployments{deploymentCount}" ariaLabel="Deployments" bind:meta="{meta}">
         <DeploymentIcon size="{iconSize}" />
       </NavItem>

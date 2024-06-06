@@ -52,10 +52,12 @@ if (artifact?.annotations) {
     <Cell>Name</Cell>
     <Cell>{artifact?.name}</Cell>
   </tr>
-  <tr>
-    <Cell>Namespace</Cell>
-    <Cell>{artifact?.namespace}</Cell>
-  </tr>
+  {#if artifact?.namespace}
+    <tr>
+      <Cell>Namespace</Cell>
+      <Cell>{artifact?.namespace}</Cell>
+    </tr>
+  {/if}
   <tr>
     <Cell>Created</Cell>
     <Cell>{artifact?.creationTimestamp}</Cell>

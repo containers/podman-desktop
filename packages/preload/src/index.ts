@@ -30,6 +30,7 @@ import type {
   V1Deployment,
   V1Ingress,
   V1NamespaceList,
+  V1Node,
   V1Pod,
   V1PodList,
   V1Service,
@@ -1675,6 +1676,10 @@ export function initExposure(): void {
       return ipcInvoke('kubernetes-client:readNamespacedDeployment', name, namespace);
     },
   );
+
+  contextBridge.exposeInMainWorld('kubernetesReadNode', async (name: string): Promise<V1Node | undefined> => {
+    return ipcInvoke('kubernetes-client:readNode', name);
+  });
 
   contextBridge.exposeInMainWorld(
     'kubernetesReadNamespacedIngress',
