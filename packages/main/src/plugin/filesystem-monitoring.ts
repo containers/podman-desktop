@@ -32,6 +32,10 @@ export class FileSystemWatcherImpl implements containerDesktopAPI.FileSystemWatc
       persistent: true,
     });
 
+    this.watcher.on('ready', () => {
+      this._onReady.fire();
+    });
+
     this.watcher.on('add', (addedPath: string) => {
       const uri: containerDesktopAPI.Uri = Uri.file(addedPath);
       this._onDidCreate.fire(uri);
@@ -47,14 +51,16 @@ export class FileSystemWatcherImpl implements containerDesktopAPI.FileSystemWatc
       this._onDidDelete.fire(uri);
     });
 
-    this._disposable = Disposable.from(this._onDidCreate, this._onDidChange, this._onDidDelete);
+    this._disposable = Disposable.from(this._onReady, this._onDidCreate, this._onDidChange, this._onDidDelete);
   }
 
   private _disposable: containerDesktopAPI.Disposable;
+  private readonly _onReady = new Emitter<void>();
   private readonly _onDidChange = new Emitter<containerDesktopAPI.Uri>();
   private readonly _onDidCreate = new Emitter<containerDesktopAPI.Uri>();
   private readonly _onDidDelete = new Emitter<containerDesktopAPI.Uri>();
 
+  readonly onReady: containerDesktopAPI.Event<void> = this._onReady.event;
   readonly onDidChange: containerDesktopAPI.Event<containerDesktopAPI.Uri> = this._onDidChange.event;
   readonly onDidCreate: containerDesktopAPI.Event<containerDesktopAPI.Uri> = this._onDidCreate.event;
   readonly onDidDelete: containerDesktopAPI.Event<containerDesktopAPI.Uri> = this._onDidDelete.event;

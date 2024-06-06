@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { closeSync, mkdirSync, openSync, promises, rmSync, writeFileSync } from 'node:fs';
+import { promises } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -43,11 +43,12 @@ afterEach(async () => {
 });
 
 test('should send event into onDid when a file is watched into an existing directory', async () => {
-  const watchedFile = path.join(rootdir, '/path/to/watch/file.txt');
-  const parentDir = path.dirname(watchedFile);
-
-  mkdirSync(parentDir, { recursive: true });
+  const watchedFile = path.join(rootdir, 'file.txt');
   watcher = new FileSystemWatcherImpl(watchedFile);
+
+  const readyListener = vi.fn();
+  watcher.onReady(readyListener);
+
   const createListener = vi.fn();
   watcher.onDidCreate(createListener);
   const changeListener = vi.fn();
@@ -55,21 +56,25 @@ test('should send event into onDid when a file is watched into an existing direc
   const unlinkListener = vi.fn();
   watcher.onDidDelete(unlinkListener);
 
+  await vi.waitFor(async () => {
+    expect(readyListener).toHaveBeenCalled();
+  });
+
   expect(createListener).not.toHaveBeenCalled();
-  const h = openSync(watchedFile, 'a');
-  closeSync(h);
+  const h = await promises.open(watchedFile, 'a');
+  await h.close();
   await vi.waitFor(async () => {
     expect(createListener).toHaveBeenCalledWith(Uri.file(watchedFile));
   });
 
   expect(changeListener).not.toHaveBeenCalled();
-  writeFileSync(watchedFile, 'new content');
+  await promises.writeFile(watchedFile, 'new content');
   await vi.waitFor(async () => {
     expect(changeListener).toHaveBeenCalledWith(Uri.file(watchedFile));
   });
 
   expect(unlinkListener).not.toHaveBeenCalled();
-  rmSync(watchedFile);
+  await promises.rm(watchedFile);
   await vi.waitFor(async () => {
     expect(unlinkListener).toHaveBeenCalledWith(Uri.file(watchedFile));
   });
