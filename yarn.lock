@@ -5580,7 +5580,7 @@
     ts-dedent "^2.0.0"
     util "^0.12.4"
 
-"@storybook/core-events@8.1.5", "@storybook/core-events@^8.0.0":
+"@storybook/core-events@8.1.5":
   version "8.1.5"
   resolved "https://registry.yarnpkg.com/@storybook/core-events/-/core-events-8.1.5.tgz#d921984e12b27aaaa623499a7ac0c3eea5e96264"
   integrity sha512-fgwbrHoLtSX6kfmamTGJqD+KfuEgun8cc4mWKZK094ByaqbSjhnOyeYO1sfVk8qst7QTFlOfhLAUe4cz1z149A==
@@ -5588,7 +5588,7 @@
     "@storybook/csf" "^0.1.7"
     ts-dedent "^2.0.0"
 
-"@storybook/core-events@8.1.6":
+"@storybook/core-events@8.1.6", "@storybook/core-events@^8.0.0":
   version "8.1.6"
   resolved "https://registry.yarnpkg.com/@storybook/core-events/-/core-events-8.1.6.tgz#b4819279b1277196e62b1b3f1b113a304c9f675b"
   integrity sha512-DaIVe4TUp/7uQdSJYGmJv9S/S364tSgZ3S3dZ1vsf1rgoUbCp5kTBtcd/fcqgukMPREgCgO9oDhmemI3SLAqzw==
@@ -5896,7 +5896,7 @@
     sveltedoc-parser "^4.2.1"
     ts-dedent "^2.2.0"
 
-"@storybook/svelte@8.1.5", "@storybook/svelte@^8.1.4":
+"@storybook/svelte@8.1.5":
   version "8.1.5"
   resolved "https://registry.yarnpkg.com/@storybook/svelte/-/svelte-8.1.5.tgz#688bf97d9d6ff63687e0ed036b652b62cc9874e4"
   integrity sha512-rMbD/f///duTnMx2HjN6K2qoFgqj6ROZcb4lQpTPnd7n3xHycuyBvmHn82PcdQW6W4kzARHQ7UwJ5SiCYktUKQ==
@@ -5907,6 +5907,21 @@
     "@storybook/global" "^5.0.0"
     "@storybook/preview-api" "8.1.5"
     "@storybook/types" "8.1.5"
+    sveltedoc-parser "^4.2.1"
+    ts-dedent "^2.0.0"
+    type-fest "~2.19"
+
+"@storybook/svelte@^8.1.6":
+  version "8.1.6"
+  resolved "https://registry.yarnpkg.com/@storybook/svelte/-/svelte-8.1.6.tgz#ab9b391a0ec191f5ffecbd4d874c17c446c3ca92"
+  integrity sha512-ITYhTt0srUlX1loz6RQu2U5PNxkSB0DMwyfVCzUiowpAvvkJmnuweHE5teOxzr9dxSc1quETe4v7AU+HhJrP8A==
+  dependencies:
+    "@storybook/client-logger" "8.1.6"
+    "@storybook/core-events" "8.1.6"
+    "@storybook/docs-tools" "8.1.6"
+    "@storybook/global" "^5.0.0"
+    "@storybook/preview-api" "8.1.6"
+    "@storybook/types" "8.1.6"
     sveltedoc-parser "^4.2.1"
     ts-dedent "^2.0.0"
     type-fest "~2.19"
@@ -19507,15 +19522,10 @@ type-fest@^1.0.1:
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-1.4.0.tgz#e9fb813fe3bf1744ec359d55d1affefa76f14be1"
   integrity sha512-yGSza74xk0UG8k+pLh5oeoYirvIiWo5t0/o3zHHAO2tRDiZcxWP7fywNlXhqb6/r6sWvwi+RsyQMWhVLe4BVuA==
 
-type-fest@^2.12.2, type-fest@^2.13.0, type-fest@^2.19.0, type-fest@~2.19:
+type-fest@^2.12.2, type-fest@^2.13.0, type-fest@^2.19.0, type-fest@^2.5.0, type-fest@~2.19:
   version "2.19.0"
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-2.19.0.tgz#88068015bb33036a598b952e55e9311a60fd3a9b"
   integrity sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==
-
-type-fest@^2.5.0:
-  version "2.12.2"
-  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-2.12.2.tgz#80a53614e6b9b475eb9077472fb7498dc7aa51d0"
-  integrity sha512-qt6ylCGpLjZ7AaODxbpyBZSs9fCI9SkL3Z9q2oxMBQhs/uyY+VD8jHA8ULCGmWQJlBgqvO3EJeAngOHD8zQCrQ==
 
 type-fest@^3.0.0:
   version "3.13.1"
