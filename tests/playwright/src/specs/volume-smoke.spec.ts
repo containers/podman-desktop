@@ -24,6 +24,7 @@ import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
+import { waitForPodmanMachineStartup } from '../utility/wait';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -36,6 +37,7 @@ beforeAll(async () => {
 
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
+  await waitForPodmanMachineStartup(page);
   navBar = new NavigationBar(page);
 });
 

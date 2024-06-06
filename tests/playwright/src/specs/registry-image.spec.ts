@@ -28,6 +28,7 @@ import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import { canTestRegistry, setupRegistry } from '../setupFiles/setup-registry';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { deleteImage, deleteRegistry } from '../utility/operations';
+import { waitForPodmanMachineStartup } from '../utility/wait';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -51,6 +52,7 @@ beforeAll(async () => {
 
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
+  await waitForPodmanMachineStartup(page);
   navBar = new NavigationBar(page);
 });
 

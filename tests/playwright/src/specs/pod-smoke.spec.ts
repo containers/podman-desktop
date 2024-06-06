@@ -30,7 +30,7 @@ import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { deleteContainer, deleteImage, deletePod } from '../utility/operations';
-import { waitUntil, waitWhile } from '../utility/wait';
+import { waitForPodmanMachineStartup, waitUntil, waitWhile } from '../utility/wait';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -54,6 +54,7 @@ beforeAll(async () => {
   pdRunner.setVideoAndTraceName('pods-e2e');
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
+  await waitForPodmanMachineStartup(page);
   // wait giving a time to podman desktop to load up
   const images = await new NavigationBar(page).openImages();
   await waitWhile(
