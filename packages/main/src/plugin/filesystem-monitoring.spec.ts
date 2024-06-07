@@ -30,6 +30,8 @@ let watcher: FileSystemWatcherImpl | undefined;
 
 beforeEach(async () => {
   rootdir = await promises.mkdtemp(path.join(os.tmpdir(), 'pd-tests-'));
+  // chokidar can fail with symlinks in some circumstances, let's resolve them
+  rootdir = await promises.realpath(rootdir);
 });
 
 afterEach(async () => {
