@@ -239,6 +239,7 @@ export class ColorRegistry {
     this.initModal();
     this.initLink();
     this.initButton();
+    this.initActionButton();
   }
 
   protected initGlobalNav(): void {
@@ -929,6 +930,55 @@ export class ColorRegistry {
     this.registerColor(`${button}help-link-text`, {
       dark: colorPalette.gray[100],
       light: colorPalette.charcoal[900],
+    });
+  }
+
+  protected initActionButton(): void {
+    const ab = 'action-button-';
+
+    this.registerColor(`${ab}text`, {
+      dark: colorPalette.gray[400],
+      light: colorPalette.charcoal[900],
+    });
+    this.registerColor(`${ab}hover-bg`, {
+      dark: colorPalette.charcoal[600],
+      light: colorPalette.gray[50],
+    });
+    this.registerColor(`${ab}hover-text`, {
+      dark: colorPalette.purple[600],
+      light: colorPalette.purple[500],
+    });
+
+    this.registerColor(`${ab}disabled-text`, {
+      dark: colorPalette.gray[900],
+      light: colorPalette.gray[900],
+    });
+
+    this.registerColor(`${ab}details-text`, {
+      dark: colorPalette.gray[400],
+      light: colorPalette.charcoal[900],
+    });
+    this.registerColor(`${ab}details-bg`, {
+      dark: colorPalette.charcoal[800],
+      light: colorPalette.gray[50],
+    });
+    this.registerColor(`${ab}details-hover-text`, {
+      dark: colorPalette.purple[600],
+      light: colorPalette.purple[500],
+    });
+
+    this.registerColor(`${ab}details-disabled-text`, {
+      dark: colorPalette.gray[900],
+      light: colorPalette.gray[900],
+    });
+    this.registerColor(`${ab}details-disabled-bg`, {
+      dark: colorPalette.charcoal[800],
+      light: colorPalette.gray[50],
+    });
+
+    this.registerColor(`${ab}spinner`, {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[500],
     });
   }
 }

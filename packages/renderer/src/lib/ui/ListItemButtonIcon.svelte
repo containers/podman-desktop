@@ -75,13 +75,13 @@ onDestroy(() => {
 });
 
 const buttonDetailedClass =
-  'text-gray-400 bg-charcoal-800 hover:text-violet-600 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2 text-center';
+  'text-[var(--pd-action-button-details-text)] bg-[var(--pd-action-button-details-bg)] hover:text-[var(--pd-action-button-details-hover-text)] font-medium rounded-lg text-sm inline-flex items-center px-3 py-2 text-center';
 const buttonDetailedDisabledClass =
-  'text-gray-900 bg-charcoal-800 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2 text-center';
+  'text-[var(--pd-action-button-details-disabled-text)] bg-[var(--pd-action-button-details-disabled-bg)] font-medium rounded-lg text-sm inline-flex items-center px-3 py-2 text-center';
 const buttonClass =
-  'm-0.5 text-gray-400 hover:bg-charcoal-600 hover:text-violet-600 font-medium rounded-full inline-flex items-center px-2 py-2 text-center';
+  'm-0.5 text-[var(--pd-action-button-text)] hover:bg-[var(--pd-action-button-hover-bg)] hover:text-[var(--pd-action-button-hover-text)] font-medium rounded-full inline-flex items-center px-2 py-2 text-center';
 const buttonDisabledClass =
-  'm-0.5 text-gray-900 font-medium rounded-full inline-flex items-center px-2 py-2 text-center';
+  'm-0.5 text-[var(--pd-action-button-disabled-text)] font-medium rounded-full inline-flex items-center px-2 py-2 text-center';
 
 // $: handleClick = enabled && !inProgress ? onClick : () => {};
 $: handleClick = () => {
@@ -138,7 +138,7 @@ $: styleClass = detailed
 
     <div
       aria-label="spinner"
-      class="w-6 h-6 rounded-full animate-spin border border-solid border-violet-500 border-t-transparent absolute {positionTopClass} {positionLeftClass}"
+      class="w-6 h-6 rounded-full animate-spin border border-solid border-[var(--pd-action-button-spinner)] border-t-transparent absolute {positionTopClass} {positionLeftClass}"
       class:hidden="{!inProgress}">
     </div>
   </button>
