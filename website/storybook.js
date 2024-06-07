@@ -3,13 +3,6 @@ const path = require('node:path');
 
 const storybookStatic = path.join(__dirname, '../storybook/storybook-static');
 
-function generateMDS(id) {
-  return (
-`
-<iframe src='/storybook-iframe?id=${id}' height="100%" width='100%'></iframe>
-`)
-}
-
 function populate(folder) {
   const index = require(path.join(storybookStatic, 'index.json'));
 
@@ -23,11 +16,7 @@ function populate(folder) {
       "id":`${key}`,
       "label":`${key}`
     });
-    fs.writeFileSync(path.join(folder, `${key}.mdx`), generateMDS(key));
   }
-
-  // creating index
-  fs.writeFileSync(path.join(folder, `index.md`), "Hello world");
 
   fs.writeFileSync(path.join(folder, 'sidebar.cjs'), `module.exports = ${JSON.stringify(items)};`);
 }
@@ -36,13 +25,10 @@ function populate(folder) {
 // https://docusaurus.io/docs/advanced/plugins
 // https://docusaurus.io/docs/api/plugin-methods
 export default async function storybookIntegration(context, opts) {
-  const target = opts['path'] ?? 'storybook';
+  const target = opts['path'] ?? undefined;
+  if(target === undefined) throw new Error('path option must be defined.');
 
   if(!fs.existsSync(storybookStatic)) throw new Error('storybook need to be built.');
-
-  fs.mkdirSync(target, { recursive: true });
-  fs.writeFileSync(path.join(target, 'sidebar.cjs'), '')
-
   populate(target);
 
   return {

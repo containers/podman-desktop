@@ -328,16 +328,7 @@ const config = {
     [
       require.resolve('./storybook.js'),
       {
-        path: 'storybook',
-      },
-    ],
-    [
-      '@docusaurus/plugin-content-docs',
-      {
-        id: 'storybook',
-        path: 'storybook',
-        routeBasePath: 'storybook',
-        sidebarPath: resolve('./sidebars-storybook.js'),
+        path: 'src/pages/storybook',
       },
     ],
   ],
