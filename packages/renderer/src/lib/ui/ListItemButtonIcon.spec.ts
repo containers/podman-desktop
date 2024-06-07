@@ -44,7 +44,11 @@ test('Expect the dropDownMenuItem to have classes that display a disabled object
 
   const listItemSpan = screen.getByTitle(title);
   expect(listItemSpan).toBeInTheDocument();
-  expect(listItemSpan.parentElement!.outerHTML.indexOf('text-gray-900 bg-charcoal-800') > 0).toBeTruthy();
+  expect(
+    listItemSpan.parentElement!.outerHTML.indexOf(
+      'text-[var(--pd-dropdown-disabled-item-text)] bg-[var(--pd-dropdown-disabled-item-bg)]',
+    ) > 0,
+  ).toBeTruthy();
 });
 
 test('Expect the dropDownMenuItem to have classes that display a disabled object if the disabled when clause is true', async () => {
@@ -59,7 +63,11 @@ test('Expect the dropDownMenuItem to have classes that display a disabled object
 
   const listItemSpan = screen.getByTitle(title);
   expect(listItemSpan).toBeInTheDocument();
-  expect(listItemSpan.parentElement!.outerHTML.indexOf('text-gray-900 bg-charcoal-800') > 0).toBeTruthy();
+  expect(
+    listItemSpan.parentElement!.outerHTML.indexOf(
+      'text-[var(--pd-dropdown-disabled-item-text)] bg-[var(--pd-dropdown-disabled-item-bg)]',
+    ) > 0,
+  ).toBeTruthy();
 });
 
 test('Expect the dropDownMenuItem NOT to have classes that display a disabled object if the disabled when clause is evaluated to false', async () => {
