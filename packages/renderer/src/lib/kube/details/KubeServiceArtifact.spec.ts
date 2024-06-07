@@ -30,6 +30,7 @@ const fakeServiceSpec = {
   sessionAffinity: 'None',
   ports: [
     { name: 'http', port: 80, protocol: 'TCP' },
+    { name: 'http2', port: 80, nodePort: 12345, protocol: 'TCP' },
     { port: 443, protocol: 'TCP' },
   ],
   selector: {
@@ -55,6 +56,7 @@ test('Renders service spec correctly', () => {
   // Verify ports are displayed correctly
   expect(screen.getByText('Ports')).toBeInTheDocument();
   expect(screen.getByText('http:80/TCP')).toBeInTheDocument();
+  expect(screen.getByText('http2:80:12345/TCP')).toBeInTheDocument();
   expect(screen.getByText('443/TCP')).toBeInTheDocument();
 
   // Verify selectors are displayed correctly
