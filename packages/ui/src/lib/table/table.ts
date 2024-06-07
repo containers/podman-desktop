@@ -96,7 +96,7 @@ export class Column<Type, RenderType = Type> {
 /**
  * Options to be used when creating a Row.
  */
-export interface RowInformation<Type> {
+export interface RowInformation<Type, ChildType> {
   /**
    * Returns true if a row can be selected, and false otherwise.
    */
@@ -110,12 +110,12 @@ export interface RowInformation<Type> {
   /**
    * Returns an array of child objects of a given row.
    */
-  readonly children?: (object: Type) => Type[];
+  readonly children?: (object: Type) => ChildType[];
 }
 
 /**
  * A table row.
  */
-export class Row<Type> {
-  constructor(readonly info: RowInformation<Type>) {}
+export class Row<Type, ChildType = Type> {
+  constructor(readonly info: RowInformation<Type, ChildType>) {}
 }
