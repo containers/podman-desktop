@@ -98,6 +98,7 @@ let clusterIPColumn = new TableColumn<ServiceUI, string>('Cluster IP', {
 });
 
 let portsColumn = new TableColumn<ServiceUI, string>('Ports', {
+  width: '2fr',
   renderMapping: service => service.ports,
   renderer: TableSimpleColumn,
   comparator: (a, b) => a.ports.localeCompare(b.ports),

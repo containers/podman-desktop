@@ -31,7 +31,9 @@ export class ServiceUtils {
       type: service.spec?.type ?? '',
       clusterIP: service.spec?.clusterIP ?? '',
       loadBalancerIPs: service.status?.loadBalancer?.ingress?.map(ingress => ingress.ip).join(', '),
-      ports: (service.spec?.ports ?? []).map(port => port.port + '/' + port.protocol).join(', '),
+      ports: (service.spec?.ports ?? [])
+        .map(port => port.port + (port.nodePort ? ':' + port.nodePort : '') + '/' + port.protocol)
+        .join(', '),
     };
   }
 }

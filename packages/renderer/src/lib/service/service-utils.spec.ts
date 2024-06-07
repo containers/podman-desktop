@@ -76,3 +76,32 @@ test('expect a loadBalancerIPs if set in service', async () => {
   const serviceUI = serviceUtils.getServiceUI(service);
   expect(serviceUI.loadBalancerIPs).toEqual('10.0.0.1');
 });
+
+test('if a nodeport is also set, expect it to appear as <port>:<nodePort>/protocol', async () => {
+  const service = {
+    metadata: {
+      name: 'my-service',
+      namespace: 'test-namespace',
+    },
+    spec: {
+      ports: [
+        {
+          port: 80,
+          nodePort: 30080,
+          protocol: 'TCP',
+        },
+      ],
+    },
+    status: {
+      loadBalancer: {
+        ingress: [
+          {
+            ip: '10.0.0.1',
+          },
+        ],
+      },
+    },
+  } as V1Service;
+  const serviceUI = serviceUtils.getServiceUI(service);
+  expect(serviceUI.ports).toEqual('80:30080/TCP');
+});
