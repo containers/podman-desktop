@@ -20,7 +20,7 @@ import * as os from 'node:os';
 
 import type { Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 
 import { ContainerState, PodState } from '../model/core/states';
 import type { ContainerInteractiveParams } from '../model/core/types';
@@ -101,13 +101,13 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       let pullImagePage = await images.openPullImage();
       images = await pullImagePage.pullImage(backendImage, imagesTag, 60000);
       const backendExists = await images.waitForImageExists(backendImage);
-      expect(backendExists, `${backendImage} image is not present in the list of images`).toBeTruthy();
+      playExpect(backendExists, `${backendImage} image is not present in the list of images`).toBeTruthy();
 
       await navigationBar.openImages();
       pullImagePage = await images.openPullImage();
       images = await pullImagePage.pullImage(frontendImage, imagesTag, 60000);
       const frontendExists = await images.waitForImageExists(frontendImage);
-      expect(frontendExists, `${frontendImage} image is not present in the list of images`).toBeTruthy();
+      playExpect(frontendExists, `${frontendImage} image is not present in the list of images`).toBeTruthy();
     }, 60000);
 
     test('Starting containers', async () => {
@@ -211,10 +211,15 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
     test(`Checking pods under containers`, async () => {
       const navigationBar = new NavigationBar(page);
       const containers = await navigationBar.openContainers();
-      expect(await containers.containerExists(`${podToRun} (pod)`)).toBeTruthy();
-      expect(await containers.containerExists(`${backendContainer}-podified`)).toBeTruthy();
-      expect(await containers.containerExists(`${frontendContainer}-podified`)).toBeTruthy();
-      await pdRunner.screenshot('pods-pod-containers-exist.png');
+      await playExpect
+        .poll(async () => containers.containerExists(`${podToRun} (pod)`), { timeout: 10000 })
+        .toBeTruthy();
+      await playExpect
+        .poll(async () => containers.containerExists(`${backendContainer}-podified`), { timeout: 10000 })
+        .toBeTruthy();
+      await playExpect
+        .poll(async () => containers.containerExists(`${frontendContainer}-podified`), { timeout: 10000 })
+        .toBeTruthy();
     });
 
     test('Checking deployed application', async () => {
@@ -242,13 +247,13 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
         const response: Response = await fetch(address);
         const blob: Blob = await response.blob();
         const text: string = await blob.text();
-        expect(text).toContain('Hello World!');
+        playExpect(text).toContain('Hello World!');
         // regex for div with number of visits
         const regex = /<div[^>]*>(\d+)<\/div>/i;
         const matches = RegExp(regex).exec(text);
-        expect(matches![1]).toEqual(i.toString());
-        expect(matches).toBeDefined();
-        expect(text).toContain('time(s)');
+        playExpect(matches![1]).toEqual(i.toString());
+        playExpect(matches).toBeDefined();
+        playExpect(text).toContain('time(s)');
       }
     });
 
@@ -259,23 +264,9 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       await playExpect(podDetails.heading).toBeVisible();
       await playExpect(podDetails.heading).toContainText(podToRun);
       await podDetails.restartPod();
-      await waitUntil(
-        async () => {
-          return (await podDetails.getState()) === PodState.Restarting;
-        },
-        15000,
-        1000,
-      );
-      await waitUntil(
-        async () => {
-          return (await podDetails.getState()) === PodState.Running;
-        },
-        30000,
-        2000,
-      );
-      const stopButton = podDetails.getPage().getByRole('button', { name: 'Stop Pod', exact: true });
-      await playExpect(stopButton).toBeVisible();
-      await pdRunner.screenshot('pods-pod-restarted.png');
+      await playExpect.poll(async () => await podDetails.getState(), { timeout: 15000 }).toBe(PodState.Restarting);
+      await playExpect.poll(async () => await podDetails.getState(), { timeout: 30000 }).toBe(PodState.Running);
+      await playExpect(podDetails.stopButton).toBeVisible();
     });
 
     test('Stopping and starting pod', async () => {
@@ -287,8 +278,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
 
       await podDetailsPage.startPod(true);
       await playExpect.poll(async () => await podDetailsPage.getState(), { timeout: 30000 }).toBe(PodState.Running);
-      const startButton = podDetailsPage.getPage().getByRole('button', { name: 'Stop Pod', exact: true });
-      await playExpect(startButton).toBeVisible();
+      await playExpect(podDetailsPage.stopButton).toBeVisible();
     });
 
     test('Stopping and deleting pod', async () => {
