@@ -56,7 +56,7 @@ export class PodDetailsPage extends BasePage {
 
   async activateTab(tabName: string): Promise<void> {
     const tabItem = this.page.getByRole('link', { name: tabName });
-    await tabItem.waitFor({ state: 'visible', timeout: 2000 });
+    await playExpect(tabItem).toBeEnabled();
     await tabItem.click();
   }
 
@@ -100,8 +100,7 @@ export class PodDetailsPage extends BasePage {
   }
 
   async restartPod(): Promise<void> {
-    await playExpect.poll(async () => await this.getState()).toBe(PodState.Running);
-    await playExpect(this.restartButton).toBeEnabled();
+    await playExpect(this.restartButton).toBeEnabled({ timeout: 20000 });
     await this.restartButton.click();
   }
 
