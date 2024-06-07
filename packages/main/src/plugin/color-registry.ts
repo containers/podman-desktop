@@ -948,12 +948,25 @@ export class ColorRegistry {
       dark: colorPalette.gray[400],
       light: colorPalette.charcoal[900],
     });
+    this.registerColor(`${ab}bg`, {
+      dark: colorPalette.charcoal[900],
+      light: colorPalette.gray[400],
+    });
     this.registerColor(`${ab}hover-bg`, {
       dark: colorPalette.charcoal[600],
       light: colorPalette.gray[50],
     });
     this.registerColor(`${ab}hover-text`, {
       dark: colorPalette.purple[600],
+      light: colorPalette.purple[500],
+    });
+
+    this.registerColor(`${ab}primary-text`, {
+      dark: colorPalette.purple[600],
+      light: colorPalette.purple[600],
+    });
+    this.registerColor(`${ab}primary-hover-text`, {
+      dark: colorPalette.purple[500],
       light: colorPalette.purple[500],
     });
 
