@@ -52,6 +52,7 @@ let nameColumn = new TableColumn<NodeUI>('Name', {
 
 let rolesColumn = new TableColumn<NodeUI>('Roles', {
   renderer: NodeColumnRoles,
+  comparator: (a, b) => a.role.localeCompare(b.role),
 });
 
 let ageColumn = new TableColumn<NodeUI, Date | undefined>('Age', {
