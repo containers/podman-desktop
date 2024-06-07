@@ -101,6 +101,8 @@ onMount(async () => {
   if (column?.info.comparator) {
     sortCol = column;
     sortAscending = column.info.initialOrder ? column.info.initialOrder !== 'descending' : true;
+    await tick(); // Ensure all initializations are complete.
+    sortImpl(); // Explicitly call sortImpl to sort the data initially.
   }
 });
 

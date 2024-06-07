@@ -265,3 +265,24 @@ test('Expect update callback', async () => {
 
   expect(callback).toHaveBeenCalled();
 });
+
+test('Expect table to be sorted by Id on load', async () => {
+  render(TestTable, {});
+
+  // Wait for the table to load and fetch all rows
+  const rows = await screen.findAllByRole('row');
+  expect(rows).toBeDefined();
+  expect(rows.length).toBe(4);
+
+  const headers = await screen.findAllByRole('columnheader');
+  expect(headers).toBeDefined();
+  expect(headers.length).toBe(6);
+  expect(headers[2].textContent).toContain('Id');
+
+  // Check that Id column is sorted in ascending order
+  // since Id is by 1,2,3 in TestTable, just using a for loop and converting
+  // to string is enough to check the order
+  for (let i = 1; i < 4; i++) {
+    expect(rows[i].textContent).toContain(i.toString());
+  }
+});
