@@ -17,7 +17,7 @@ type Person = {
   hobby: string;
 };
 
-const people: Person[] = [
+export let people: Person[] = [
   { id: 1, name: 'John', age: 57, hobby: 'Skydiving' },
   { id: 2, name: 'Henry', age: 27, hobby: 'Cooking' },
   { id: 3, name: 'Charlie', age: 43, hobby: 'Biking' },
