@@ -44,3 +44,27 @@ test('Renders pod status correctly with hardcoded values', () => {
   expect(screen.getByText('Host IP')).toBeInTheDocument();
   expect(screen.getByText('192.168.1.2')).toBeInTheDocument();
 });
+
+test('show container statuses when present', () => {
+  const fakePodStatusWithContainers: V1PodStatus = {
+    phase: 'Running',
+    containerStatuses: [
+      {
+        name: 'container1',
+        state: {
+          waiting: {
+            reason: 'CrashLoopBackOff',
+            message: 'Back-off restarting failed container',
+          },
+        },
+      },
+    ],
+  } as V1PodStatus;
+
+  render(KubePodStatusArtifact, { artifact: fakePodStatusWithContainers });
+
+  expect(screen.getByText('Container Status')).toBeInTheDocument();
+  expect(screen.getByText('container1')).toBeInTheDocument();
+  expect(screen.getByText('CrashLoopBackOff')).toBeInTheDocument();
+  expect(screen.getByText('Back-off restarting failed container')).toBeInTheDocument();
+});
