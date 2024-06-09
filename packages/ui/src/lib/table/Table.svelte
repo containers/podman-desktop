@@ -50,7 +50,7 @@ function toggleAll(e: CustomEvent<boolean>): void {
 let sortCol: Column<unknown>;
 let sortAscending: boolean;
 
-if (data) {
+$: if (data && sortCol) {
   sortImpl();
 }
 

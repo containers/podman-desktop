@@ -19,6 +19,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen, within } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import { expect, test, vi } from 'vitest';
 
 import TestTable from './TestTable.svelte';
@@ -285,4 +286,55 @@ test('Expect table to be sorted by Id on load', async () => {
   for (let i = 1; i < 4; i++) {
     expect(rows[i].textContent).toContain(i.toString());
   }
+});
+
+test('Expect table to be sorted by Name on load, if something has changed in the store afterwards, it should not affect the order', async () => {
+  const result = render(TestTable, {});
+
+  const nameCol = screen.getByText('Name');
+  expect(nameCol).toBeInTheDocument();
+
+  let rows = await screen.findAllByRole('row');
+  expect(rows).toBeDefined();
+  expect(rows.length).toBe(4);
+  expect(rows[1].textContent).toContain('John');
+  expect(rows[2].textContent).toContain('Henry');
+  expect(rows[3].textContent).toContain('Charlie');
+
+  await fireEvent.click(nameCol);
+
+  rows = await screen.findAllByRole('row');
+  expect(rows[1].textContent).toContain('Charlie');
+  expect(rows[2].textContent).toContain('Henry');
+  expect(rows[3].textContent).toContain('John');
+
+  // Change the store, this is similar to what is already in TestTable, but updates the hobbies of all the rows.
+  // The original is:
+  //
+  //  { id: 1, name: 'John', age: 57, hobby: 'Skydiving' },
+  //  { id: 2, name: 'Henry', age: 27, hobby: 'Cooking' },
+  //  { id: 3, name: 'Charlie', age: 43, hobby: 'Biking' },
+  //
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const people: any[] = [
+    { id: 1, name: 'John', age: 57, hobby: 'Walking' },
+    { id: 2, name: 'Henry', age: 27, hobby: 'Swimming' },
+    { id: 3, name: 'Charlie', age: 43, hobby: 'Karting' },
+  ];
+  result.component.$set({ people });
+
+  // Wait for the table to update
+  await tick();
+
+  // Check that the order is still the same even though hobbies had changed above.
+  const newRows = await screen.findAllByRole('row');
+  expect(newRows).toBeDefined();
+  expect(newRows.length).toBe(4);
+  expect(newRows[1].textContent).toContain('Charlie');
+  expect(newRows[1].textContent).toContain('Karting');
+  expect(newRows[2].textContent).toContain('Henry');
+  expect(newRows[2].textContent).toContain('Swimming');
+  expect(newRows[3].textContent).toContain('John');
+  expect(newRows[3].textContent).toContain('Walking');
 });
