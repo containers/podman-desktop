@@ -85,56 +85,54 @@ async function loadImages() {
 }
 </script>
 
-<FormPage title="Load Images">
+<FormPage title="Load Images" contentLayout="engine">
   <svelte:fragment slot="icon">
     <i class="fas fa-play fa-2x" aria-hidden="true"></i>
   </svelte:fragment>
-  <div slot="content" class="px-5 pb-5 min-w-full h-fit">
-    <div class="bg-charcoal-600 px-6 py-4 space-y-2 lg:px-8 sm:pb-6 xl:pb-8">
-      {#if providerConnections.length > 1}
-        <label for="providerChoice" class="pt-6 block text-sm font-bold text-gray-400"
-          >Container Engine
-          <select
-            class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
-            name="providerChoice"
-            id="providerChoice"
-            bind:value="{selectedProvider}">
-            {#each providerConnections as providerConnection}
-              <option value="{providerConnection}">{providerConnection.name}</option>
-            {/each}
-          </select>
-        </label>
-      {/if}
+  <div slot="content" class="space-y-2">
+    {#if providerConnections.length > 1}
+      <label for="providerChoice" class="pt-6 block text-sm font-bold text-gray-400"
+        >Container Engine
+        <select
+          class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+          name="providerChoice"
+          id="providerChoice"
+          bind:value="{selectedProvider}">
+          {#each providerConnections as providerConnection}
+            <option value="{providerConnection}">{providerConnection.name}</option>
+          {/each}
+        </select>
+      </label>
+    {/if}
 
-      <Button on:click="{addArchivesToLoad}" icon="{faPlusCircle}" type="link">Add archive</Button>
-      <!-- Display the list of existing imagesToLoad -->
-      {#if archivesToLoad.length > 0}
-        <div class="flex flex-row justify-center w-full py-1 text-sm font-medium text-gray-400">
-          <div class="flex flex-col grow pl-2">Image Archives</div>
-        </div>
-      {/if}
-      {#each archivesToLoad as archiveToLoad, index}
-        <div class="flex flex-row justify-center w-full py-1">
-          <Input bind:value="{archiveToLoad}" aria-label="archive path" readonly="{true}" />
-          <Button type="link" on:click="{() => deleteImagesTarArchiveToLoad(index)}" icon="{faMinusCircle}" />
-        </div>
-      {/each}
+    <Button on:click="{addArchivesToLoad}" icon="{faPlusCircle}" type="link">Add archive</Button>
+    <!-- Display the list of existing imagesToLoad -->
+    {#if archivesToLoad.length > 0}
+      <div class="flex flex-row justify-center w-full py-1 text-sm font-medium text-gray-400">
+        <div class="flex flex-col grow pl-2">Image Archives</div>
+      </div>
+    {/if}
+    {#each archivesToLoad as archiveToLoad, index}
+      <div class="flex flex-row justify-center w-full py-1">
+        <Input bind:value="{archiveToLoad}" aria-label="archive path" readonly="{true}" />
+        <Button type="link" on:click="{() => deleteImagesTarArchiveToLoad(index)}" icon="{faMinusCircle}" />
+      </div>
+    {/each}
 
-      <div class="pt-5">
-        <Button
-          on:click="{() => loadImages()}"
-          inProgress="{inProgress}"
-          class="w-full"
-          icon="{faPlay}"
-          aria-label="Load images"
-          bind:disabled="{loadDisabled}">
-          Load Images
-        </Button>
-        <div aria-label="loadError">
-          {#if loadError !== ''}
-            <ErrorMessage class="py-2 text-sm" error="{loadError}" />
-          {/if}
-        </div>
+    <div class="pt-5">
+      <Button
+        on:click="{() => loadImages()}"
+        inProgress="{inProgress}"
+        class="w-full"
+        icon="{faPlay}"
+        aria-label="Load images"
+        bind:disabled="{loadDisabled}">
+        Load Images
+      </Button>
+      <div aria-label="loadError">
+        {#if loadError !== ''}
+          <ErrorMessage class="py-2 text-sm" error="{loadError}" />
+        {/if}
       </div>
     </div>
   </div>

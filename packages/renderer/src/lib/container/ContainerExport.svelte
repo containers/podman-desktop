@@ -83,43 +83,42 @@ async function exportContainer() {
 </script>
 
 {#if container}
-  <FormPage title="Export container {container.name}">
+  <FormPage title="Export container {container.name}" contentLayout="engine">
     <svelte:fragment slot="icon">
       <i class="fas fa-download fa-2x" aria-hidden="true"></i>
     </svelte:fragment>
 
-    <div slot="content" class="flex flex-col min-w-full h-fit px-5 pb-5">
-      <div class="bg-charcoal-600 px-6 py-4 space-y-2 lg:px-8 sm:pb-6 xl:pb-8">
-        <div>
-          <label for="modalSelectTarget" class="block mb-2 text-sm font-medium text-gray-400">Export to:</label>
-          <div class="flex w-full">
-            <Input
-              class="grow mr-2"
-              name="{container.id}"
-              readonly
-              value="{outputTarget}"
-              id="input-export-container-name"
-              aria-invalid="{invalidFolder}" />
-            <Button
-              on:click="{() => selectFolderPath()}"
-              title="Open dialog to select the output file"
-              aria-label="Select output file">Browse ...</Button>
-          </div>
+    <div slot="content" class="space-y-2">
+      <div>
+        <label for="modalSelectTarget" class="block mb-2 text-sm font-medium text-gray-400">Export to:</label>
+        <div class="flex w-full">
+          <Input
+            class="grow mr-2"
+            name="{container.id}"
+            readonly
+            value="{outputTarget}"
+            id="input-export-container-name"
+            aria-invalid="{invalidFolder}" />
           <Button
-            on:click="{() => exportContainer()}"
-            class="w-full mt-5"
-            icon="{faDownload}"
-            inProgress="{inProgress}"
-            bind:disabled="{invalidFields}"
-            aria-label="Export container">
-            Export Container
-          </Button>
-          <div aria-label="createError">
-            {#if exportedError}
-              <ErrorMessage class="py-2 text-sm" error="{exportedError}" />
-            {/if}
-          </div>
+            on:click="{() => selectFolderPath()}"
+            title="Open dialog to select the output file"
+            aria-label="Select output file">Browse ...</Button>
+        </div>
+        <Button
+          on:click="{() => exportContainer()}"
+          class="w-full mt-5"
+          icon="{faDownload}"
+          inProgress="{inProgress}"
+          bind:disabled="{invalidFields}"
+          aria-label="Export container">
+          Export Container
+        </Button>
+        <div aria-label="createError">
+          {#if exportedError}
+            <ErrorMessage class="py-2 text-sm" error="{exportedError}" />
+          {/if}
         </div>
       </div>
-    </div></FormPage>
+    </div>
+  </FormPage>
 {/if}

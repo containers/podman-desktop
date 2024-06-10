@@ -11,7 +11,6 @@ import type { PullEvent } from '/@api/pull-event';
 import { providerInfos } from '../../stores/providers';
 import FormPage from '../ui/FormPage.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
-import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
 import RecommendedRegistry from './RecommendedRegistry.svelte';
 
 let logsPull: Terminal;
@@ -135,7 +134,11 @@ function requestFocus(element: HTMLInputElement) {
 }
 </script>
 
-<FormPage title="Pull image from a registry" inProgress="{pullInProgress}">
+<FormPage
+  title="Pull image from a registry"
+  inProgress="{pullInProgress}"
+  contentLayout="engine"
+  showEmptyScreen="{providerConnections.length === 0}">
   <svelte:fragment slot="icon">
     <i class="fas fa-arrow-circle-down fa-2x" aria-hidden="true"></i>
   </svelte:fragment>
@@ -144,76 +147,70 @@ function requestFocus(element: HTMLInputElement) {
     <Button on:click="{() => gotoManageRegistries()}" icon="{faCog}">Manage registries</Button>
   </svelte:fragment>
 
-  <div slot="content" class="px-5 pb-5 min-w-full h-full">
-    {#if providerConnections.length === 0}
-      <NoContainerEngineEmptyScreen />
-    {:else}
-      <div class="bg-charcoal-900 pt-5 space-y-6 px-8 sm:pb-6 xl:pb-8 rounded-lg">
-        <div class="w-full">
-          <label for="imageName" class="block mb-2 text-sm font-bold text-gray-400">Image to Pull</label>
-          <input
-            id="imageName"
-            class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
-            type="text"
-            name="imageName"
-            disabled="{pullFinished || pullInProgress}"
-            on:input="{event => validateImageName(event)}"
-            on:keypress="{event => {
-              if (event.key === 'Enter') {
-                pullImage();
-              }
-            }}"
-            bind:value="{imageToPull}"
-            aria-invalid="{imageNameInvalid !== ''}"
-            placeholder="Image name"
-            aria-label="imageName"
-            required
-            use:requestFocus />
-          {#if imageNameInvalid}
-            <ErrorMessage error="{imageNameInvalid}" />
-          {/if}
+  <div slot="content" class="space-y-6">
+    <div class="w-full">
+      <label for="imageName" class="block mb-2 text-sm font-bold text-gray-400">Image to Pull</label>
+      <input
+        id="imageName"
+        class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+        type="text"
+        name="imageName"
+        disabled="{pullFinished || pullInProgress}"
+        on:input="{event => validateImageName(event)}"
+        on:keypress="{event => {
+          if (event.key === 'Enter') {
+            pullImage();
+          }
+        }}"
+        bind:value="{imageToPull}"
+        aria-invalid="{imageNameInvalid !== ''}"
+        placeholder="Image name"
+        aria-label="imageName"
+        required
+        use:requestFocus />
+      {#if imageNameInvalid}
+        <ErrorMessage error="{imageNameInvalid}" />
+      {/if}
 
-          {#if providerConnections.length > 1}
-            <div class="pt-4">
-              <div class="block mb-2 text-sm font-bold text-gray-400">
-                <label for="providerChoice">Container Engine:</label>
-                <select
-                  id="providerChoice"
-                  class="w-auto border text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-gray-900 border-gray-900 placeholder-gray-700 text-white"
-                  name="providerChoice"
-                  bind:value="{selectedProviderConnection}">
-                  {#each providerConnections as providerConnection}
-                    <option value="{providerConnection}">{providerConnection.name}</option>
-                  {/each}
-                </select>
-              </div>
-            </div>
-          {/if}
-          {#if providerConnections.length === 1}
-            <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection}" />
-          {/if}
-        </div>
-        <footer>
-          <div class="w-full flex flex-col justify-end">
-            {#if !pullFinished}
-              <Button
-                icon="{faArrowCircleDown}"
-                bind:disabled="{imageNameIsInvalid}"
-                on:click="{() => pullImage()}"
-                bind:inProgress="{pullInProgress}">
-                Pull image
-              </Button>
-            {:else}
-              <Button on:click="{() => pullImageFinished()}">Done</Button>
-            {/if}
-            {#if pullError}
-              <ErrorMessage error="{pullError}" />
-            {/if}
-            <RecommendedRegistry bind:imageError="{pullError}" imageName="{imageToPull}" />
+      {#if providerConnections.length > 1}
+        <div class="pt-4">
+          <div class="block mb-2 text-sm font-bold text-gray-400">
+            <label for="providerChoice">Container Engine:</label>
+            <select
+              id="providerChoice"
+              class="w-auto border text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-gray-900 border-gray-900 placeholder-gray-700 text-white"
+              name="providerChoice"
+              bind:value="{selectedProviderConnection}">
+              {#each providerConnections as providerConnection}
+                <option value="{providerConnection}">{providerConnection.name}</option>
+              {/each}
+            </select>
           </div>
-        </footer>
-        <TerminalWindow bind:terminal="{logsPull}" />
+        </div>
+      {/if}
+      {#if providerConnections.length === 1}
+        <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection}" />
+      {/if}
+    </div>
+    <footer>
+      <div class="w-full flex flex-col justify-end">
+        {#if !pullFinished}
+          <Button
+            icon="{faArrowCircleDown}"
+            bind:disabled="{imageNameIsInvalid}"
+            on:click="{() => pullImage()}"
+            bind:inProgress="{pullInProgress}">
+            Pull image
+          </Button>
+        {:else}
+          <Button on:click="{() => pullImageFinished()}">Done</Button>
+        {/if}
+        {#if pullError}
+          <ErrorMessage error="{pullError}" />
+        {/if}
+        <RecommendedRegistry bind:imageError="{pullError}" imageName="{imageToPull}" />
       </div>
-    {/if}
+    </footer>
+    <TerminalWindow bind:terminal="{logsPull}" />
   </div>
 </FormPage>

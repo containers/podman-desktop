@@ -195,133 +195,131 @@ function updatePortExposure(port: number, checked: boolean) {
 }
 </script>
 
-<FormPage title="Copy containers to a pod" inProgress="{createInProgress}">
+<FormPage title="Copy containers to a pod" inProgress="{createInProgress}" contentLayout="engine">
   <SolidPodIcon slot="icon" size="40" />
 
-  <div class="min-w-full h-fit" slot="content">
-    <div class="mx-5 mb-5 p-6 bg-charcoal-800 rounded-sm text-gray-700">
-      <div>
-        {#if podCreation}
-          {#if containersPorts.length > 0}
-            <div class="bg-charcoal-600 border-t-2 border-amber-500 p-4 mb-2" role="alert" aria-label="warning">
-              <div class="flex flex-row">
-                <div class="mr-3">
-                  <Fa size="1.125x" class="text-amber-400" icon="{faTriangleExclamation}" />
-                </div>
-                <div class="flex flex-col">
-                  <div class="text-sm text-amber-400">Possible runtime error</div>
-                  {#each containersPorts as { containers, ports }}
-                    <div class="mt-1 text-sm text-white">
-                      Containers
-                      {#each containers as container, index}
-                        <span class="font-bold">{container}</span>
-                        {#if index === containers.length - 2}
-                          and
-                        {:else if index < containers.length - 1}
-                          ,
-                        {/if}
-                        {' '}
-                      {/each}
-                      use same <span class="font-bold">{ports.length > 1 ? 'ports' : 'port'} {ports.join(', ')}</span>.
-                    </div>
-                  {/each}
-                </div>
+  <div slot="content">
+    <div>
+      {#if podCreation}
+        {#if containersPorts.length > 0}
+          <div class="bg-charcoal-600 border-t-2 border-amber-500 p-4 mb-2" role="alert" aria-label="warning">
+            <div class="flex flex-row">
+              <div class="mr-3">
+                <Fa size="1.125x" class="text-amber-400" icon="{faTriangleExclamation}" />
+              </div>
+              <div class="flex flex-col">
+                <div class="text-sm text-amber-400">Possible runtime error</div>
+                {#each containersPorts as { containers, ports }}
+                  <div class="mt-1 text-sm text-white">
+                    Containers
+                    {#each containers as container, index}
+                      <span class="font-bold">{container}</span>
+                      {#if index === containers.length - 2}
+                        and
+                      {:else if index < containers.length - 1}
+                        ,
+                      {/if}
+                      {' '}
+                    {/each}
+                    use same <span class="font-bold">{ports.length > 1 ? 'ports' : 'port'} {ports.join(', ')}</span>.
+                  </div>
+                {/each}
               </div>
             </div>
-          {/if}
-          <div class="mb-2">
-            <span class="block text-sm font-semibold rounded text-gray-400">Name of the pod:</span>
           </div>
-          <div class="mb-4">
-            <Input
-              name="podName"
-              id="podName"
-              bind:value="{podCreation.name}"
-              placeholder="Select name of the pod..."
-              aria-label="Pod name"
-              class="w-full mt-1"
-              required />
-          </div>
+        {/if}
+        <div class="mb-2">
+          <span class="block text-sm font-semibold rounded text-gray-400">Name of the pod:</span>
+        </div>
+        <div class="mb-4">
+          <Input
+            name="podName"
+            id="podName"
+            bind:value="{podCreation.name}"
+            placeholder="Select name of the pod..."
+            aria-label="Pod name"
+            class="w-full mt-1"
+            required />
+        </div>
 
+        <div class="mb-2">
+          <span class="block text-sm font-semibold rounded text-gray-400" aria-label="Containers"
+            >Containers to replicate to the pod:</span>
+        </div>
+        <div class="w-full bg-charcoal-800 mb-4 max-h-40 overflow-y-auto">
+          {#each podCreation.containers as container, index}
+            <div class="p-2 flex flex-row items-center text-gray-700">
+              <div class="w-10"><StatusIcon icon="{ContainerIcon}" status="STOPPED" /></div>
+              <div class="w-16 pl-3">{index + 1}.</div>
+              <div class="grow">{container.name}</div>
+              <div class="w-28">({container.id.substring(0, 7)})</div>
+            </div>
+          {/each}
+        </div>
+
+        {#if mapPortExposed.size > 0}
           <div class="mb-2">
-            <span class="block text-sm font-semibold rounded text-gray-400" aria-label="Containers"
-              >Containers to replicate to the pod:</span>
+            <span class="block text-sm font-semibold rounded text-gray-400" aria-label="Exposed ports"
+              >All selected ports will be exposed:</span>
           </div>
-          <div class="w-full bg-charcoal-900 mb-4 max-h-40 overflow-y-auto">
-            {#each podCreation.containers as container, index}
-              <div class="p-2 flex flex-row items-center text-gray-700">
-                <div class="w-10"><StatusIcon icon="{ContainerIcon}" status="STOPPED" /></div>
-                <div class="w-16 pl-3">{index + 1}.</div>
-                <div class="grow">{container.name}</div>
-                <div class="w-28">({container.id.substring(0, 7)})</div>
+          <div class="bg-charcoal-800 mb-4 max-h-40 overflow-y-auto">
+            {#each [...mapPortExposed] as [port, value]}
+              <div class="p-2 flex flex-row align-items text-gray-700">
+                <input
+                  type="checkbox"
+                  class="mr-5"
+                  checked="{value.exposed}"
+                  on:click="{event => updatePortExposure(port, event.currentTarget.checked)}" />
+                <div class="w-28 mr-5">
+                  <span class="text-sm">Port {port.toString()}</span>
+                </div>
+                <span class="text-sm">{value.container}</span>
               </div>
             {/each}
           </div>
-
-          {#if mapPortExposed.size > 0}
-            <div class="mb-2">
-              <span class="block text-sm font-semibold rounded text-gray-400" aria-label="Exposed ports"
-                >All selected ports will be exposed:</span>
-            </div>
-            <div class="bg-charcoal-900 mb-4 max-h-40 overflow-y-auto">
-              {#each [...mapPortExposed] as [port, value]}
-                <div class="p-2 flex flex-row align-items text-gray-700">
-                  <input
-                    type="checkbox"
-                    class="mr-5"
-                    checked="{value.exposed}"
-                    on:click="{event => updatePortExposure(port, event.currentTarget.checked)}" />
-                  <div class="w-28 mr-5">
-                    <span class="text-sm">Port {port.toString()}</span>
-                  </div>
-                  <span class="text-sm">{value.container}</span>
-                </div>
-              {/each}
-            </div>
-          {/if}
         {/if}
+      {/if}
 
-        <div>
-          {#if providerConnections.length > 1}
-            <label
-              for="providerConnectionName"
-              class="p-2 block mb-2 text-sm font-medium rounded bg-zinc-700 text-gray-300"
-              >Container Engine
-              <select
-                class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-400 placeholder-gray-400"
-                name="providerChoice"
-                bind:value="{selectedProvider}">
-                {#each providerConnections as providerConnection}
-                  <option value="{providerConnection}">{providerConnection.name}</option>
-                {/each}
-              </select>
-            </label>
-          {/if}
-          {#if providerConnections.length === 1 && selectedProviderConnection?.name}
-            <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection.name}" />
-          {/if}
-        </div>
-
-        <div class="w-full grid justify-items-end">
-          <div>
-            <Button type="link" on:click="{() => router.goto('/containers')}">Close</Button>
-            <Button
-              icon="{SolidPodIcon}"
-              bind:disabled="{createInProgress}"
-              on:click="{() => {
-                createPodFromContainers();
-              }}"
-              bind:inProgress="{createInProgress}"
-              aria-label="Create pod">
-              Create Pod
-            </Button>
-          </div>
-        </div>
-
-        {#if createError}
-          <ErrorMessage class="pt-2 text-sm" error="{createError}" />
+      <div>
+        {#if providerConnections.length > 1}
+          <label
+            for="providerConnectionName"
+            class="p-2 block mb-2 text-sm font-medium rounded bg-zinc-700 text-gray-300"
+            >Container Engine
+            <select
+              class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-400 placeholder-gray-400"
+              name="providerChoice"
+              bind:value="{selectedProvider}">
+              {#each providerConnections as providerConnection}
+                <option value="{providerConnection}">{providerConnection.name}</option>
+              {/each}
+            </select>
+          </label>
+        {/if}
+        {#if providerConnections.length === 1 && selectedProviderConnection?.name}
+          <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection.name}" />
         {/if}
       </div>
+
+      <div class="w-full grid justify-items-end">
+        <div>
+          <Button type="link" on:click="{() => router.goto('/containers')}">Close</Button>
+          <Button
+            icon="{SolidPodIcon}"
+            bind:disabled="{createInProgress}"
+            on:click="{() => {
+              createPodFromContainers();
+            }}"
+            bind:inProgress="{createInProgress}"
+            aria-label="Create pod">
+            Create Pod
+          </Button>
+        </div>
+      </div>
+
+      {#if createError}
+        <ErrorMessage class="pt-2 text-sm" error="{createError}" />
+      {/if}
     </div>
   </div>
 </FormPage>
