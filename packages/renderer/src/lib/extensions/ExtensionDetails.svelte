@@ -59,7 +59,9 @@ $: extension = derived(
           <InstalledExtensionActions class="w-48" extension="{$extension.installedExtension}" />
         {:else if $extension.fetchable}
           <div class="flex flex-1 justify-items-end w-18 flex-col items-end place-content-center">
-            <div class="italic text-xs text-gray-700 pb-3">Install this extension with a single click</div>
+            <div class="italic text-xs text-[var(--pd-content-text)] pb-3">
+              Install this extension with a single click
+            </div>
             <FeaturedExtensionDownload extension="{$extension}" />
           </div>
         {/if}

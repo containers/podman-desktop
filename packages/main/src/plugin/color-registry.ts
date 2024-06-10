@@ -446,6 +446,11 @@ export class ColorRegistry {
       light: colorPalette.charcoal[900],
     });
 
+    this.registerColor(`${ct}text`, {
+      dark: colorPalette.gray[700],
+      light: colorPalette.gray[900],
+    });
+
     this.registerColor(`${ct}sub-header`, {
       dark: colorPalette.gray[900],
       light: colorPalette.purple[900],
@@ -765,6 +770,18 @@ export class ColorRegistry {
       dark: colorPalette.charcoal[900],
       light: colorPalette.gray[50],
     });
+    this.registerColor(`${details}card-bg`, {
+      dark: colorPalette.charcoal[600],
+      light: colorPalette.gray[300],
+    });
+    this.registerColor(`${details}card-header`, {
+      dark: colorPalette.gray[700],
+      light: colorPalette.charcoal[300],
+    });
+    this.registerColor(`${details}card-text`, {
+      dark: colorPalette.white,
+      light: colorPalette.charcoal[900],
+    });
   }
 
   protected initTab(): void {
@@ -844,6 +861,10 @@ export class ColorRegistry {
     this.registerColor(`${link}-hover-bg`, {
       dark: colorPalette.white + '2',
       light: colorPalette.black + '2',
+    });
+    this.registerColor(`${link}-light`, {
+      dark: colorPalette.gray[200],
+      light: colorPalette.charcoal[900],
     });
   }
 
