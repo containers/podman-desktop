@@ -23,6 +23,7 @@ import Checkbox from './checkbox/Checkbox.svelte';
 import DropdownMenu from './dropdownMenu';
 import Input from './inputs/Input.svelte';
 import SearchInput from './inputs/SearchInput.svelte';
+import FormPage from './layouts/FormPage.svelte';
 import NavPage from './layouts/NavPage.svelte';
 import Link from './link/Link.svelte';
 import Modal from './modal/Modal.svelte';
@@ -48,6 +49,7 @@ export {
   EmptyScreen,
   ErrorMessage,
   FilteredEmptyScreen,
+  FormPage,
   Input,
   LinearProgress,
   Link,
