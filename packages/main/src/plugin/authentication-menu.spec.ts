@@ -24,6 +24,7 @@ import type { ApiSenderType } from './api.js';
 import { AuthenticationImpl } from './authentication.js';
 import { AuthenticationProviderSingleAccount } from './authentication.spec.js';
 import { showAccountsMenu } from './authentication-menu.js';
+import type { MessageBox } from './message-box.js';
 import type { NavigationManager } from './navigation/navigation-manager.js';
 
 const menu = {
@@ -55,8 +56,12 @@ const apiSender: ApiSenderType = {
   receive: vi.fn(),
 };
 
+const messageBox: MessageBox = {
+  showMessageBox: () => Promise.resolve({ response: 1 }),
+} as unknown as MessageBox;
+
 beforeEach(function () {
-  authModule = new AuthenticationImpl(apiSender);
+  authModule = new AuthenticationImpl(apiSender, messageBox);
 });
 
 afterEach(() => {
