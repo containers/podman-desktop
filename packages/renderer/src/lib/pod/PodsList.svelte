@@ -276,6 +276,7 @@ const row = new TableRow<PodInfoUI>({ selectable: _pod => true });
       data="{pods}"
       columns="{columns}"
       row="{row}"
+      defaultSortColumn="Name"
       on:update="{() => (pods = pods)}">
     </Table>
 
