@@ -907,8 +907,8 @@ export class ColorRegistry {
       light: colorPalette.transparent,
     });
     this.registerColor(`${button}tab-border`, {
-      dark: colorPalette.charcoal[700],
-      light: colorPalette.gray[400],
+      dark: colorPalette.transparent,
+      light: colorPalette.transparent,
     });
     this.registerColor(`${button}tab-border-selected`, {
       dark: colorPalette.purple[500],
@@ -916,11 +916,15 @@ export class ColorRegistry {
     });
     this.registerColor(`${button}tab-hover-border`, {
       dark: colorPalette.charcoal[100],
-      light: colorPalette.black,
+      light: colorPalette.gray[600],
     });
     this.registerColor(`${button}tab-text`, {
       dark: colorPalette.gray[600],
       light: colorPalette.charcoal[200],
+    });
+    this.registerColor(`${button}tab-text-selected`, {
+      dark: colorPalette.white,
+      light: colorPalette.black,
     });
     this.registerColor(`${button}link-text`, {
       dark: colorPalette.purple[400],
