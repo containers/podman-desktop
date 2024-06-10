@@ -171,6 +171,82 @@ declare module '@podman-desktop/api' {
   }
 
   /**
+   * Represents an extension.
+   *
+   * To get an instance of an `Extension` use {@link extensions.getExtension getExtension}.
+   */
+  export interface Extension<T> {
+    /**
+     * The canonical extension identifier in the form of: `publisher.name`.
+     */
+    readonly id: string;
+
+    /**
+     * The uri of the directory containing the extension.
+     */
+    readonly extensionUri: Uri;
+
+    /**
+     * The absolute file path of the directory containing this extension. Shorthand
+     * notation for {@link Extension.extensionUri Extension.extensionUri.fsPath} (independent of the uri scheme).
+     */
+    readonly extensionPath: string;
+
+    /**
+     * The parsed contents of the extension's package.json.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    readonly packageJSON: any;
+
+    /**
+     * The public API exported by this extension (return value of `activate`).
+     * It is an invalid action to access this field before this extension has been activated.
+     */
+    readonly exports: T;
+  }
+
+  /**
+   * Namespace for dealing with installed extensions. Extensions are represented
+   * by an {@link Extension}-interface which enables reflection on them.
+   *
+   * Extension writers can provide APIs to other extensions by returning their API public
+   * surface from the `activate`-call.
+   *
+   * When depending on the API of another extension add an `extensionDependencies`-entry
+   * to `package.json`, and use the {@link extensions.getExtension getExtension}-function
+   * and the {@link Extension.exports exports}-property, like below:
+   *
+   * ```typescript
+   * const podmanExtension = extensions.getExtension('podman-desktop.podman');
+   * const podmanExtensionAPI = podmanExtension.exports;
+   *
+   * podmanExtensionAPI....
+   * ```
+   */
+  export namespace extensions {
+    /**
+     * Get an extension by its full identifier in the form of: `publisher.name`.
+     *
+     * @param extensionId An extension identifier.
+     * @returns An extension or `undefined`.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    export function getExtension<T = any>(extensionId: string): Extension<T> | undefined;
+
+    /**
+     * All extensions currently known to the system.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    export const all: readonly Extension<any>[];
+
+    /**
+     * An event which fires when `extensions.all` changes. This can happen when extensions are
+     * installed, uninstalled, enabled or disabled.
+     */
+    export const onDidChange: Event<void>;
+  }
+
+  /**
    * A provider result represents the values a provider, like the {@linkcode ImageCheckerProvider},
    * may return. For once this is the actual result type `T`, like `ImageChecks`, or a Promise that resolves
    * to that type `T`. In addition, `null` and `undefined` can be returned - either directly or from a

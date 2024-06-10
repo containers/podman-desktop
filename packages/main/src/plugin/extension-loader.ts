@@ -46,6 +46,7 @@ import type { Context } from './context/context.js';
 import type { CustomPickRegistry } from './custompick/custompick-registry.js';
 import type { DialogRegistry } from './dialog-registry.js';
 import type { Directories } from './directories.js';
+import type { Event } from './events/emitter.js';
 import { Emitter } from './events/emitter.js';
 import { DEFAULT_TIMEOUT, ExtensionLoaderSettings } from './extension-loader-settings.js';
 import type { FilesystemMonitoring } from './filesystem-monitoring.js';
@@ -117,7 +118,10 @@ export interface ActivatedExtension {
   id: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   deactivateFunction: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  exports: any;
   extensionContext: containerDesktopAPI.ExtensionContext;
+  packageJSON: unknown;
 }
 
 const EXTENSION_OPTION = '--extension-folder';
@@ -139,6 +143,9 @@ export class ExtensionLoader {
   protected extensionStateErrors = new Map<string, unknown>();
 
   protected watchTimeout = 1000;
+
+  private readonly _onDidChange = new Emitter<void>();
+  readonly onDidChange: Event<void> = this._onDidChange.event;
 
   // Plugins directory location
   private pluginsDirectory;
@@ -218,6 +225,35 @@ export class ExtensionLoader {
     }));
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  transformActivatedExtensionToExposedExtension<T = any>(
+    activatedExtension: ActivatedExtension,
+  ): containerDesktopAPI.Extension<T> {
+    return {
+      id: activatedExtension.id,
+      exports: activatedExtension.exports,
+      extensionUri: activatedExtension.extensionContext.extensionUri,
+      extensionPath: activatedExtension.extensionContext.extensionUri.fsPath,
+      packageJSON: activatedExtension.packageJSON,
+    };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getExposedExtension<T = any>(extensionId: string): containerDesktopAPI.Extension<T> | undefined {
+    // do we have a matching extension?
+    const activatedExtension = this.activatedExtensions.get(extensionId);
+    if (activatedExtension) {
+      return this.transformActivatedExtensionToExposedExtension(activatedExtension);
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getAllExposedExtensions(): containerDesktopAPI.Extension<any>[] {
+    return Array.from(this.activatedExtensions.values()).map(activatedExtension =>
+      this.transformActivatedExtensionToExposedExtension(activatedExtension),
+    );
+  }
+
   async loadPackagedFile(filePath: string): Promise<void> {
     // need to unpack the file before load it
     const filename = path.basename(filePath);
@@ -233,6 +269,7 @@ export class ExtensionLoader {
     if (!extension.error) {
       await this.loadExtension(extension);
       this.apiSender.send('extension-started', {});
+      this._onDidChange.fire();
     }
   }
 
@@ -1152,6 +1189,19 @@ export class ExtensionLoader {
       },
     };
 
+    const extensions: typeof containerDesktopAPI.extensions = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      getExtension<T = any>(extensionId: string): containerDesktopAPI.Extension<T> | undefined {
+        return instance.getExposedExtension(extensionId);
+      },
+      get all() {
+        return instance.getAllExposedExtensions();
+      },
+      onDidChange: (listener, thisArg, disposables) => {
+        return instance.onDidChange(listener, thisArg, disposables);
+      },
+    };
+
     const telemetry = this.telemetry;
     const env: typeof containerDesktopAPI.env = {
       get isMac() {
@@ -1303,6 +1353,7 @@ export class ExtensionLoader {
       env,
       process,
       registry,
+      extensions,
       provider,
       fs,
       configuration,
@@ -1424,6 +1475,7 @@ export class ExtensionLoader {
       extensionId: extension.id,
       extensionVersion: extension.manifest?.version,
     };
+    let exports: unknown;
     try {
       if (typeof extensionMain?.['activate'] === 'function') {
         // maximum time to wait for the extension to activate by reading from configuration
@@ -1447,7 +1499,7 @@ export class ExtensionLoader {
         const activatePromise = extensionMain['activate'].apply(undefined, [extensionContext]);
 
         // if extension reach the timeout, do not wait for it to finish and flag as error
-        await Promise.race([activatePromise, timeoutPromise]);
+        exports = await Promise.race([activatePromise, timeoutPromise]);
         const afterActivateTime = performance.now();
 
         // Computing activation duration
@@ -1457,10 +1509,13 @@ export class ExtensionLoader {
         console.log(`Activating extension (${extension.id}) ended in ${Math.round(duration)} milliseconds`);
       }
       const id = extension.id;
+      const packageJSON = extension.manifest;
       const activatedExtension: ActivatedExtension = {
         id,
+        packageJSON,
         deactivateFunction,
         extensionContext,
+        exports,
       };
       this.activatedExtensions.set(extension.id, activatedExtension);
       this.extensionState.set(extension.id, 'started');
@@ -1527,6 +1582,7 @@ export class ExtensionLoader {
     this.activatedExtensions.delete(extensionId);
     this.extensionState.set(extension.id, 'stopped');
     this.apiSender.send('extension-stopped');
+    this._onDidChange.fire();
     this.telemetry.track('deactivateExtension', telemetryOptions);
   }
 
@@ -1581,6 +1637,7 @@ export class ExtensionLoader {
       }
       this.analyzedExtensions.delete(extensionId);
       this.apiSender.send('extension-removed');
+      this._onDidChange.fire();
     }
   }
 
