@@ -1,6 +1,9 @@
 <script lang="ts">
-import { CloseButton, LinearProgress, Link } from '@podman-desktop/ui-svelte';
 import { createEventDispatcher } from 'svelte';
+
+import CloseButton from '../button/CloseButton.svelte';
+import Link from '../link/Link.svelte';
+import LinearProgress from '../progress/LinearProgress.svelte';
 
 export let title: string;
 export let showBreadcrumb = true;
