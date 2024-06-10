@@ -23,4 +23,3 @@ export const isMac = os.platform() === 'darwin';
 export const isWindows = os.platform() === 'win32';
 
 export const isCI = process.env.CI ? process.env.CI : false;
-export const isGHA = process.env.GITHUB_ACTIONS ? process.env.GITHUB_ACTIONS : false;

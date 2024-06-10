@@ -30,7 +30,7 @@ import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
-import { isGHA } from '../utility/platform';
+import { isCI, isLinux } from '../utility/platform';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -57,7 +57,7 @@ beforeEach<RunnerTestContext>(async ctx => {
   ctx.pdRunner = pdRunner;
 });
 
-describe.skipIf(isGHA)('Compose onboarding workflow verification', async () => {
+describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', async () => {
   afterEach(async () => {
     await navBar.openDashboard();
   });
