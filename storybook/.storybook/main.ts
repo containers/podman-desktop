@@ -57,20 +57,6 @@ const config: StorybookConfig = {
       },
     },
   },
-  async viteFinal(config, { configType }) {
-    const { mergeConfig } = await import('vite');
-
-    if (configType === 'DEVELOPMENT') {
-      // Your development configuration goes here
-    }
-    if (configType === 'PRODUCTION') {
-      // Your production configuration goes here.
-    }
-    return mergeConfig(config, {
-      // Your environment configuration here
-      base: '/storybook/',
-    });
-  },
 };
 
 export default config;
