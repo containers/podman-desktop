@@ -102,8 +102,11 @@
     "website:prod": "cd website && yarn run docusaurus build && yarn serve",
     "website:dev": "cd website && yarn run docusaurus start",
     "website:screenshots": "cd website-argos && yarn run screenshot",
-    "storybook:dev": "cd storybook && yarn run dev",
-    "storybook:build": "npm run build:ui && cd storybook && yarn run build",
+    "storybook:dark-css": "tsx ./scripts/generate-stylesheet.ts --output storybook/.storybook/dark.css --theme dark",
+    "storybook:light-css": "tsx ./scripts/generate-stylesheet.ts --output storybook/.storybook/light.css --theme light",
+    "storybook:css": "npm run storybook:dark-css && npm run storybook:light-css",
+    "storybook:dev": "npm run storybook:css && cd storybook && yarn run dev",
+    "storybook:build": "npm run build:ui && npm run storybook:css && cd storybook && yarn run build",
     "prepare": "husky install",
     "postinstall": "playwright install"
   },
