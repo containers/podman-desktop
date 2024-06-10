@@ -30,6 +30,7 @@ import type {
 
 import type { ApiSenderType } from './api.js';
 import { Emitter } from './events/emitter.js';
+import type { MessageBox } from './message-box.js';
 
 /**
  * Structure to save authentication provider information
@@ -121,7 +122,10 @@ export class AuthenticationImpl {
   // map id to getSession call
   private _signInRequestsData: Map<string, SessionRequestInfo> = new Map();
 
-  constructor(private apiSender: ApiSenderType) {}
+  constructor(
+    private apiSender: ApiSenderType,
+    private messageBox: MessageBox,
+  ) {}
 
   public async getAuthenticationProvidersInfo(): Promise<AuthenticationProviderInfo[]> {
     const values = Array.from(this._authenticationProviders.values());
@@ -249,6 +253,15 @@ export class AuthenticationImpl {
 
     if (options.createIfNone) {
       if (providerData) {
+        const allowRsp = await this.messageBox.showMessageBox({
+          title: 'Sign In Request',
+          message: `The extension '${requestingExtension.label}' wants to sign in using ${providerData.label}.`,
+          buttons: ['Cancel', 'Allow'],
+          type: 'info',
+        });
+        if (!allowRsp.response) {
+          return;
+        }
         const newSession = await providerData.provider.createSession(sortedScopes);
         const request = Array.from(this._signInRequestsData.values()).find(request => {
           return request.extensionId === requestingExtension.id;
