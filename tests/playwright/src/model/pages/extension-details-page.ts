@@ -39,13 +39,6 @@ export class ExtensionDetailsPage extends BasePage {
     this.disableButton = page.getByRole('button', { name: 'Stop' });
     this.removeExtensionButton = page.getByRole('button', { name: 'Delete' });
     this.status = page.getByLabel('Extension Status Label');
-    console.log(
-      'ExtensionDetailsPage constructor',
-      this.enableButton,
-      this.disableButton,
-      this.removeExtensionButton,
-      this.status,
-    );
   }
 
   async disableExtension(): Promise<this> {
