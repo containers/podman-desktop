@@ -2,7 +2,7 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { createEventDispatcher } from 'svelte';
 
-import { withConfirmation } from '/@/lib/dialogs/MessageBoxUtils';
+import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
 
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import type { VolumeInfoUI } from './VolumeInfoUI';

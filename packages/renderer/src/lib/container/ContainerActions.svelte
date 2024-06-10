@@ -16,7 +16,7 @@ import { createEventDispatcher, onMount } from 'svelte';
 import { router } from 'tinro';
 
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
-import { withConfirmation } from '/@/lib/dialogs/MessageBoxUtils';
+import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
 import { exportContainerInfo } from '/@/stores/export-container-store';
 
 import type { Menu } from '../../../../main/src/plugin/menu-registry';

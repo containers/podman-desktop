@@ -16,7 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export function withConfirmation(func: () => unknown, action: string): void {
+/**
+ * Utility method to create a confirmation dialog for a given action.
+ * This method follow the common error-first callback style, therefore you
+ * can use {@link node:util:promisify} to use it as a promise.
+ *
+ * @param func the function to call on confirmation or error
+ * @param action the action label to use
+ */
+export function withConfirmation(func: (err?: unknown) => unknown, action: string): void {
   window
     .showMessageBox({
       title: 'Confirmation',
@@ -27,5 +35,6 @@ export function withConfirmation(func: () => unknown, action: string): void {
       if (result && result.response === 0) {
         func();
       }
-    });
+    })
+    .catch(func);
 }

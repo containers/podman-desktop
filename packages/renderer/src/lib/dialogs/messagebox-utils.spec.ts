@@ -18,7 +18,7 @@
 
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import { withConfirmation } from '/@/lib/dialogs/MessageBoxUtils';
+import { withConfirmation } from './messagebox-utils';
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -38,7 +38,7 @@ test('expect withConfirmation call callback if result OK', async () => {
   });
 });
 
-test('expect withConfirmation not to call callback if result not OK', () => {
+test('expect withConfirmation not to call callback if result not OK', async () => {
   const showMessageBoxMock = vi.fn();
   (window as any).showMessageBox = showMessageBoxMock;
   showMessageBoxMock.mockResolvedValue({ response: 1 });
@@ -46,6 +46,23 @@ test('expect withConfirmation not to call callback if result not OK', () => {
   const callback = vi.fn();
   withConfirmation(callback, 'Destroy world');
 
-  expect(showMessageBoxMock).toHaveBeenCalledOnce();
-  expect(callback).not.toHaveBeenCalled();
+  await vi.waitFor(() => {
+    expect(showMessageBoxMock).toHaveBeenCalledOnce();
+    expect(callback).not.toHaveBeenCalled();
+  });
+});
+
+test('expect withConfirmation to propagate error', async () => {
+  const showMessageBoxMock = vi.fn();
+  (window as any).showMessageBox = showMessageBoxMock;
+  const error = new Error('Dummy error');
+  showMessageBoxMock.mockRejectedValue(error);
+
+  const callback = vi.fn();
+  withConfirmation(callback, 'Destroy world');
+
+  await vi.waitFor(() => {
+    expect(showMessageBoxMock).toHaveBeenCalledOnce();
+    expect(callback).toHaveBeenCalledWith(error);
+  });
 });
