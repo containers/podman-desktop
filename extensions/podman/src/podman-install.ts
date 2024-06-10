@@ -297,14 +297,17 @@ export class PodmanInstall {
     return true;
   }
 
-  public async performUpdate(provider: extensionApi.Provider, installedPodman: InstalledPodman): Promise<void> {
+  public async performUpdate(
+    provider: extensionApi.Provider,
+    installedPodman: InstalledPodman | undefined,
+  ): Promise<void> {
     if (!this.podmanInfo) {
       console.error('The podman extension has not been successfully initialized');
       throw new Error('The podman extension has not been successfully initialized');
     }
 
     const updateInfo = await this.checkForUpdate(installedPodman);
-    if (updateInfo.hasUpdate) {
+    if (updateInfo.hasUpdate && updateInfo.installedVersion) {
       // before updating, podman machines need to be stopped if some of them are running
       const noRunningMachine = await this.stopPodmanMachinesIfAnyBeforeUpdating();
       if (!noRunningMachine) {
@@ -313,7 +316,10 @@ export class PodmanInstall {
       }
 
       // podman v4 -> v5 migration: ask to wipe all data before doing the update
-      const wipeAllDataCompleted = await this.wipeAllDataBeforeUpdatingToV5(installedPodman, updateInfo);
+      const wipeAllDataCompleted = await this.wipeAllDataBeforeUpdatingToV5(
+        { version: updateInfo.installedVersion },
+        updateInfo,
+      );
       if (!wipeAllDataCompleted) {
         await extensionApi.window.showWarningMessage(
           'Podman update has been canceled. It is recommended to backup OCI images or containers before resuming the update procedure',
