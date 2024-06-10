@@ -196,7 +196,7 @@ let ageColumn = new TableColumn<PodInfoUI>('Age', {
   comparator: (a, b) => moment().diff(a.created) - moment().diff(b.created),
 });
 
-const columns: TableColumn<PodInfoUI>[] = [
+const columns = [
   statusColumn,
   nameColumn,
   envColumn,

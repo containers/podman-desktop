@@ -80,15 +80,7 @@ let kernelVersionColumn = new TableColumn<NodeUI, string>('Kernel', {
   comparator: (a, b) => a.kernelVersion.localeCompare(b.kernelVersion),
 });
 
-const columns: TableColumn<NodeUI, NodeUI | string | Date | undefined>[] = [
-  statusColumn,
-  nameColumn,
-  rolesColumn,
-  versionColumn,
-  osImageColumn,
-  kernelVersionColumn,
-  ageColumn,
-];
+const columns = [statusColumn, nameColumn, rolesColumn, versionColumn, osImageColumn, kernelVersionColumn, ageColumn];
 
 const row = new TableRow<NodeUI>({});
 </script>
