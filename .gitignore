@@ -10,5 +10,4 @@ dist
 **/coverage
 # kind
 kind.exe
-/storybook/.storybook/light.css
-/storybook/.storybook/dark.css
+/storybook/.storybook/themes.css

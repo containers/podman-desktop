@@ -29,14 +29,14 @@ import type { AnalyzedExtension } from './extension-loader.js';
 import { Disposable } from './types/disposable.js';
 
 export class ColorRegistry {
-  #apiSender: ApiSenderType;
-  #configurationRegistry: ConfigurationRegistry;
+  #apiSender: ApiSenderType | undefined;
+  #configurationRegistry: ConfigurationRegistry | undefined;
   #definitions: Map<string, ColorDefinition>;
   #initDone = false;
   #themes: Map<string, Map<string, Color>>;
   #parentThemes: Map<string, string>;
 
-  constructor(apiSender: ApiSenderType, configurationRegistry: ConfigurationRegistry) {
+  constructor(apiSender?: ApiSenderType, configurationRegistry?: ConfigurationRegistry) {
     this.#apiSender = apiSender;
     this.#configurationRegistry = configurationRegistry;
     this.#definitions = new Map();
@@ -109,7 +109,7 @@ export class ColorRegistry {
     const themeIds = themes.map(t => t.id);
 
     // update configuration
-    const disposeConfiguration = this.#configurationRegistry.addConfigurationEnum(
+    const disposeConfiguration = this.#configurationRegistry?.addConfigurationEnum(
       AppearanceSettings.SectionName + '.' + AppearanceSettings.Appearance,
       themeIds,
       AppearanceSettings.SystemEnumValue,
@@ -122,9 +122,13 @@ export class ColorRegistry {
           this.#themes.delete(themeId);
         }
         // remove from configuration
-        disposeConfiguration.dispose();
+        disposeConfiguration?.dispose();
       },
     };
+  }
+
+  public listThemes(): string[] {
+    return Array.from(this.#themes.keys());
   }
 
   protected registerColor(colorId: string, definition: ColorDefinition): void {
@@ -195,13 +199,13 @@ export class ColorRegistry {
   protected notifyUpdate(): void {
     // notify only if ended the initialization
     if (this.#initDone) {
-      this.#apiSender.send('color-updated');
+      this.#apiSender?.send('color-updated');
     }
   }
 
   protected trackChanges(): void {
     // add listener on the configuration change for the theme
-    this.#configurationRegistry.onDidChangeConfiguration(async e => {
+    this.#configurationRegistry?.onDidChangeConfiguration(async e => {
       if (e.key === `${AppearanceSettings.SectionName}.${AppearanceSettings.Appearance}`) {
         // refresh the colors
         this.notifyUpdate();
