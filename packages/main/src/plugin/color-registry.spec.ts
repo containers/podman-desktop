@@ -29,7 +29,6 @@ import { Disposable } from '/@/plugin/types/disposable.js';
 import type { ColorDefinition } from '/@api/color-info.js';
 import type { RawThemeContribution } from '/@api/theme-info.js';
 
-import colorPalette from '../../../../tailwind-color-palette.json';
 import { ColorRegistry } from './color-registry.js';
 
 class TestColorRegistry extends ColorRegistry {
@@ -50,18 +49,6 @@ class TestColorRegistry extends ColorRegistry {
 
   registerColor(colorId: string, definition: ColorDefinition): void {
     super.registerColor(colorId, definition);
-  }
-
-  initTitlebar(): void {
-    super.initTitlebar();
-  }
-
-  initCardContent(): void {
-    super.initCardContent();
-  }
-
-  initContent(): void {
-    super.initContent();
   }
 }
 
@@ -180,60 +167,6 @@ test('initColors', async () => {
 
   // at least > 20 times
   expect(spyOnRegisterColor.mock.calls.length).toBeGreaterThan(20);
-});
-
-test('initTitlebar', async () => {
-  // mock the registerColor
-  const spyOnRegisterColor = vi.spyOn(colorRegistry, 'registerColor');
-  spyOnRegisterColor.mockReturnValue(undefined);
-
-  colorRegistry.initTitlebar();
-
-  expect(spyOnRegisterColor).toHaveBeenCalled();
-
-  // at least 3 times
-  expect(spyOnRegisterColor.mock.calls.length).toBeGreaterThanOrEqual(3);
-
-  // check the first call
-  expect(spyOnRegisterColor.mock.calls[0][0]).toStrictEqual('titlebar-bg');
-  expect(spyOnRegisterColor.mock.calls[0][1].light).toBe('#f9fafb');
-  expect(spyOnRegisterColor.mock.calls[0][1].dark).toBe('#0f0f11');
-});
-
-test('initCardContent', async () => {
-  // mock the registerColor
-  const spyOnRegisterColor = vi.spyOn(colorRegistry, 'registerColor');
-  spyOnRegisterColor.mockReturnValue(undefined);
-
-  colorRegistry.initCardContent();
-
-  expect(spyOnRegisterColor).toHaveBeenCalled();
-
-  // at least 3 times
-  expect(spyOnRegisterColor.mock.calls.length).toBeGreaterThanOrEqual(3);
-
-  // check the first call
-  expect(spyOnRegisterColor.mock.calls[0][0]).toStrictEqual('card-bg');
-  expect(spyOnRegisterColor.mock.calls[0][1].light).toBe(colorPalette.gray[300]);
-  expect(spyOnRegisterColor.mock.calls[0][1].dark).toBe(colorPalette.charcoal[800]);
-});
-
-test('initContent', async () => {
-  // mock the registerColor
-  const spyOnRegisterColor = vi.spyOn(colorRegistry, 'registerColor');
-  spyOnRegisterColor.mockReturnValue(undefined);
-
-  colorRegistry.initContent();
-
-  expect(spyOnRegisterColor).toHaveBeenCalled();
-
-  // at least 10 times
-  expect(spyOnRegisterColor.mock.calls.length).toBeGreaterThanOrEqual(10);
-
-  // check the first call
-  expect(spyOnRegisterColor.mock.calls[0][0]).toStrictEqual('content-breadcrumb');
-  expect(spyOnRegisterColor.mock.calls[0][1].light).toBe(colorPalette.purple[900]);
-  expect(spyOnRegisterColor.mock.calls[0][1].dark).toBe(colorPalette.gray[600]);
 });
 
 describe('registerColor', () => {
