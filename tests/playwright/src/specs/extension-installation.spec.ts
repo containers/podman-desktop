@@ -84,6 +84,7 @@ describe.each([
 
   test('Initialize extension type', async () => {
     initializeLocators(extensionType);
+    pdRunner.setVideoAndTraceName(`${extensionName}-installation-e2e`);
     extensionCard = new ExtensionCardPage(page, extensionLabel, extensionName);
     extensionBoxVisible = await extensionDashboardBox.isVisible();
   });
