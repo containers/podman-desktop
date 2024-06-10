@@ -86,6 +86,9 @@ class TestExtensionLoader extends ExtensionLoader {
   getExtensionState(): Map<string, string> {
     return this.extensionState;
   }
+  getActivatedExtensions(): Map<string, ActivatedExtension> {
+    return this.activatedExtensions;
+  }
 
   getExtensionStateErrors(): Map<string, unknown> {
     return this.extensionStateErrors;
@@ -1039,6 +1042,57 @@ test('Verify extension uri', async () => {
   const grabUri: containerDesktopAPI.Uri = activateMethod.mock.calls[0][0].extensionUri;
   expect(grabUri).toBeDefined();
   expect(grabUri.fsPath).toBe('dummy');
+});
+
+test('Verify exports and packageJSON', async () => {
+  const id = 'extension.id';
+  const activateMethod = vi.fn();
+  activateMethod.mockResolvedValue({
+    hello: () => 'world',
+  });
+
+  configurationRegistryGetConfigurationMock.mockReturnValue({ get: vi.fn().mockReturnValue(1) });
+
+  await extensionLoader.activateExtension(
+    {
+      id: id,
+      name: 'id',
+      path: 'dummy',
+      api: {} as typeof containerDesktopAPI,
+      mainPath: '',
+      removable: false,
+      manifest: {
+        foo: 'bar',
+      },
+      subscriptions: [],
+      readme: '',
+      dispose: vi.fn(),
+    },
+    { activate: activateMethod },
+  );
+
+  expect(activateMethod).toBeCalled();
+
+  const myActivatedExtension = extensionLoader.getActivatedExtensions().get(id);
+  expect(myActivatedExtension).toBeDefined();
+
+  expect(myActivatedExtension?.exports).toBeDefined();
+  expect(myActivatedExtension?.exports.hello()).toBe('world');
+
+  expect(myActivatedExtension?.packageJSON).toBeDefined();
+  expect((myActivatedExtension?.packageJSON as any)?.foo).toBe('bar');
+
+  const exposed = extensionLoader.getExposedExtension(id);
+  expect(exposed).toBeDefined();
+  expect(exposed?.exports.hello()).toBe('world');
+  expect((exposed as any).packageJSON.foo).toBe('bar');
+
+  const allExtensions = extensionLoader.getAllExposedExtensions();
+  expect(allExtensions).toBeDefined();
+  // 1 item
+  expect(allExtensions.length).toBe(1);
+  expect(allExtensions[0].exports.hello()).toBe('world');
+  expect((allExtensions[0] as any).packageJSON.foo).toBe('bar');
 });
 
 describe('Navigation', async () => {
