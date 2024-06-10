@@ -50,6 +50,7 @@ test('Check disabled/in-progress primary button styling', async () => {
   expect(button).toHaveClass('bg-[var(--pd-button-disabled)]');
   expect(button).toHaveClass('py-[5px]');
   expect(button).toHaveClass('text-[13px]');
+  expect(button).toHaveClass('text-[var(--pd-button-disabled-text)]');
 });
 
 test('Check primary button is the default', async () => {
@@ -107,6 +108,7 @@ test('Check disabled/in-progress secondary button styling', async () => {
   expect(button).toHaveClass('py-[4px]');
   expect(button).toHaveClass('bg-[var(--pd-button-disabled)]');
   expect(button).toHaveClass('text-[13px]');
+  expect(button).toHaveClass('text-[var(--pd-button-disabled-text)]');
 });
 
 test('Check link button styling', async () => {
@@ -154,7 +156,7 @@ test('Check selected tab button styling', async () => {
   // check for a few elements of the styling
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
-  expect(button).toHaveClass('text-[var(--pd-button-text)]');
+  expect(button).toHaveClass('text-[var(--pd-button-tab-text-selected)]');
   expect(button).toHaveClass('border-[var(--pd-button-tab-border-selected)]');
 });
 
