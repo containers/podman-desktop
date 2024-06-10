@@ -1355,7 +1355,9 @@ describe('initCheckAndRegisterUpdate', () => {
 
   test('check update appear after updating the version', async () => {
     const podmanInstall = {
-      checkForUpdate: vi.fn(),
+      checkForUpdate: vi
+        .fn()
+        .mockResolvedValue({ installedVersion: undefined, hasUpdate: false, bundledVersion: undefined }),
     } as unknown as PodmanInstall;
 
     // disposable
