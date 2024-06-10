@@ -17,8 +17,8 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
+import { expect as playExpect } from '@playwright/test';
 
-import { waitUntil } from '../../utility/wait';
 import { BasePage } from './base-page';
 import { ImagesPage } from './images-page';
 
@@ -28,13 +28,16 @@ export class ImageEditPage extends BasePage {
   readonly saveButton: Locator;
   readonly imageName: Locator;
   readonly imageTag: Locator;
+  readonly editDialog: Locator;
+
   constructor(page: Page, name: string) {
     super(page);
-    this.imageName = page.getByLabel('imageName');
-    this.cancelButton = page.getByRole('button', { name: 'Cancel' });
-    this.saveButton = page.getByRole('button', { name: 'Save', exact: true });
+    this.editDialog = page.getByRole('dialog', { name: 'Edit Image' });
+    this.imageName = this.editDialog.getByLabel('imageName');
+    this.cancelButton = this.editDialog.getByRole('button', { name: 'Cancel', exact: true });
+    this.saveButton = this.editDialog.getByRole('button', { name: 'Save', exact: true });
     this.name = name;
-    this.imageTag = page.getByLabel('imageTag');
+    this.imageTag = this.editDialog.getByLabel('imageTag');
   }
 
   async renameImage(name: string): Promise<ImagesPage> {
@@ -42,11 +45,11 @@ export class ImageEditPage extends BasePage {
       throw Error(`Provide name is invalid!`);
     }
 
-    await this.saveButton.waitFor({ state: 'visible' });
+    await playExpect(this.saveButton).toBeVisible();
     await this.imageName.clear();
     await this.imageName.fill(name);
 
-    await waitUntil(async () => await this.saveButton.isEnabled(), 5000, 500);
+    await playExpect(this.saveButton).toBeEnabled();
     await this.saveButton.click();
     return new ImagesPage(this.page);
   }
