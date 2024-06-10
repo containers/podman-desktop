@@ -45,6 +45,14 @@ function toggleAll(e: CustomEvent<boolean>): void {
     return;
   }
   data.filter(object => row.info.selectable?.(object)).forEach(object => (object.selected = checked));
+
+  // toggle children
+  data.forEach(object => {
+    const children = row.info.children?.(object);
+    if (children) {
+      children.filter(child => row.info.selectable?.(child)).forEach(child => (child.selected = checked));
+    }
+  });
 }
 
 let sortCol: Column<unknown>;
@@ -132,12 +140,13 @@ function setGridColumns(): void {
   }
 }
 
-function objectChecked(event: (Event & { detail?: boolean }) | undefined, object: unknown): void {
+function objectChecked(object: { selected?: boolean }): void {
   // check for children and set them to the same state
   if (row.info.children) {
     const children = row.info.children(object);
     if (children) {
-      children.forEach(child => (child.selected = event?.detail));
+      // event fires before parent changes so use '!'
+      children.forEach(child => (child.selected = !object.selected));
     }
   }
 }
@@ -226,7 +235,7 @@ function toggleChildren(object: unknown): void {
                 bind:checked="{object.selected}"
                 disabled="{!row.info.selectable(object)}"
                 disabledTooltip="{row.info.disabledText}"
-                on:click="{objectChecked.bind(undefined, event, object)}" />
+                on:click="{objectChecked.bind(undefined, object)}" />
             </div>
           {/if}
           {#each columns as column}
