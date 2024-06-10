@@ -9,8 +9,9 @@ export let enabled = true;
 export let hidden = false;
 export let onClick: () => void = () => {};
 
-const enabledClasses = 'hover:bg-black hover:text-purple-500 hover:rounded-md text-gray-400 hover:cursor-pointer';
-const disabledClasses = 'text-gray-900 bg-charcoal-800';
+const enabledClasses =
+  'hover:bg-[var(--pd-dropdown-item-hover-bg)] hover:text-[var(--pd-dropdown-item-hover-text)] hover:rounded-md text-[var(--pd-dropdown-item-text)] hover:cursor-pointer';
+const disabledClasses = 'text-[var(--pd-dropdown-disabled-item-text)] bg-[var(--pd-dropdown-disabled-item-bg)]';
 </script>
 
 {#if !hidden}
