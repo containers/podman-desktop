@@ -56,9 +56,9 @@ function onButtonClick(e: MouseEvent): void {
       on:click="{onButtonClick}"
       title="{title}"
       bind:this="{outsideWindow}"
-      class="text-gray-400 {shownAsMenuActionItem
-        ? 'bg-charcoal-800 px-3'
-        : 'hover:bg-charcoal-800'} hover:text-purple-400 font-medium rounded-md inline-flex items-center px-2 py-2 text-center">
+      class="text-[var(--pd-action-button-text)] {shownAsMenuActionItem
+        ? 'bg-[var(--pd-action-button-details-bg)] px-3'
+        : 'hover:bg-[var(--pd-action-button-details-bg)]'} hover:text-[var(--pd-action-button-hover-text)] font-medium rounded-md inline-flex items-center px-2 py-2 text-center">
       <Fa class="h-4 w-4" icon="{icon}" />
     </button>
 
