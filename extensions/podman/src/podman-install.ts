@@ -113,7 +113,7 @@ export class PodmanInfoImpl implements PodmanInfo {
   }
 }
 
-interface Installer {
+export interface Installer {
   getPreflightChecks(): extensionApi.InstallCheck[] | undefined;
   getUpdatePreflightChecks(): extensionApi.InstallCheck[] | undefined;
   install(): Promise<boolean>;
@@ -194,7 +194,6 @@ export class PodmanInstall {
     }
     const installer = this.getInstaller();
     const bundledVersion = getBundledPodmanVersion();
-
     if (
       installedVersion &&
       installer?.requireUpdate(installedVersion) &&
@@ -385,7 +384,7 @@ export class PodmanInstall {
     return this.installers.has(os.platform());
   }
 
-  private getInstaller(): Installer | undefined {
+  protected getInstaller(): Installer | undefined {
     return this.installers.get(os.platform());
   }
 
