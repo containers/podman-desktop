@@ -53,7 +53,7 @@ test('Expect simple column styling with Ingress', async () => {
   const text = screen.getByText(ingressUI.name);
   expect(text).toBeInTheDocument();
   expect(text).toHaveClass('text-sm');
-  expect(text).toHaveClass('text-gray-300');
+  expect(text).toHaveClass('text-[var(--pd-table-body-text-highlight)]');
 });
 
 test('Expect clicking on Ingress works', async () => {
@@ -76,7 +76,7 @@ test('Expect simple column styling with Route', async () => {
   const text = screen.getByText(routeUI.name);
   expect(text).toBeInTheDocument();
   expect(text).toHaveClass('text-sm');
-  expect(text).toHaveClass('text-gray-300');
+  expect(text).toHaveClass('text-[var(--pd-table-body-text-highlight)]');
 });
 
 test('Expect clicking on Route works', async () => {
