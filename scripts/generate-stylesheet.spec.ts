@@ -17,8 +17,8 @@
  ***********************************************************************/
 import { beforeEach, afterAll, test, expect, vi } from 'vitest';
 import minimist from 'minimist';
-import { generateStylesheet, getOutput, getStylesheet } from '../generate-stylesheet';
-import { ColorRegistry } from '../../packages/main/src/plugin/color-registry';
+import { generateStylesheet, getOutput, getStylesheet } from './generate-stylesheet';
+import { ColorRegistry } from '../packages/main/src/plugin/color-registry';
 import fs from 'node:fs';
 
 // save the original argv
