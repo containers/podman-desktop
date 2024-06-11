@@ -15,7 +15,7 @@ import { providerInfos } from '../../stores/providers';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
 import KubePlayIcon from '../kube/KubePlayIcon.svelte';
-import FormPage from '../ui/FormPage.svelte';
+import EngineFormPage from '../ui/EngineFormPage.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
 
 let runStarted = false;
@@ -167,10 +167,7 @@ async function getKubernetesfileLocation() {
 {/if}
 
 {#if providerConnections.length > 0}
-  <FormPage
-    title="Create pods from a Kubernetes YAML file"
-    inProgress="{runStarted && !runFinished}"
-    contentLayout="engine">
+  <EngineFormPage title="Create pods from a Kubernetes YAML file" inProgress="{runStarted && !runFinished}">
     <KubePlayIcon slot="icon" size="30px" />
 
     <div slot="content" class="space-y-6">
@@ -332,5 +329,5 @@ async function getKubernetesfileLocation() {
         <Button on:click="{() => goBackToHistory()}" class="w-full">Done</Button>
       {/if}
     </div>
-  </FormPage>
+  </EngineFormPage>
 {/if}

@@ -9,7 +9,7 @@ import type { ProviderContainerConnectionInfo } from '/@api/provider-info';
 import type { PullEvent } from '/@api/pull-event';
 
 import { providerInfos } from '../../stores/providers';
-import FormPage from '../ui/FormPage.svelte';
+import EngineFormPage from '../ui/EngineFormPage.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import RecommendedRegistry from './RecommendedRegistry.svelte';
 
@@ -134,10 +134,9 @@ function requestFocus(element: HTMLInputElement) {
 }
 </script>
 
-<FormPage
+<EngineFormPage
   title="Pull image from a registry"
   inProgress="{pullInProgress}"
-  contentLayout="engine"
   showEmptyScreen="{providerConnections.length === 0}">
   <svelte:fragment slot="icon">
     <i class="fas fa-arrow-circle-down fa-2x" aria-hidden="true"></i>
@@ -213,4 +212,4 @@ function requestFocus(element: HTMLInputElement) {
     </footer>
     <TerminalWindow bind:terminal="{logsPull}" />
   </div>
-</FormPage>
+</EngineFormPage>

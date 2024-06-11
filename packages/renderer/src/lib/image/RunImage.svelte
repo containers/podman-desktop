@@ -15,7 +15,7 @@ import { runImageInfo } from '../../stores/run-image-store';
 import { ContainerUtils } from '../container/container-utils';
 import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import { splitSpacesHandlingDoubleQuotes } from '../string/string';
-import FormPage from '../ui/FormPage.svelte';
+import EngineFormPage from '../ui/EngineFormPage.svelte';
 import NumberInput from '../ui/NumberInput.svelte';
 import { getTabUrl, isTabSelected } from '../ui/Util';
 import type { ImageInfoUI } from './ImageInfoUI';
@@ -623,7 +623,7 @@ async function assertAllPortAreValid(): Promise<void> {
 
 <Route path="/*">
   {#if dataReady}
-    <FormPage title="Create a container from image {imageDisplayName}:{image.tag}">
+    <EngineFormPage title="Create a container from image {imageDisplayName}:{image.tag}">
       <svelte:fragment slot="icon">
         <i class="fas fa-play fa-2x" aria-hidden="true"></i>
       </svelte:fragment>
@@ -1048,6 +1048,6 @@ async function assertAllPortAreValid(): Promise<void> {
           {/if}
         </div>
       </div>
-    </FormPage>
+    </EngineFormPage>
   {/if}
 </Route>

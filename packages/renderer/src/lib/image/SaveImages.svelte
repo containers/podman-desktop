@@ -4,7 +4,7 @@ import { Button, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 
-import FormPage from '/@/lib/ui//FormPage.svelte';
+import EngineFormPage from '/@/lib/ui//EngineFormPage.svelte';
 import { saveImagesInfo } from '/@/stores/save-images-store';
 import { createTask } from '/@/stores/tasks';
 
@@ -129,7 +129,7 @@ async function saveImages() {
 </script>
 
 {#if imagesToSave}
-  <FormPage title="{singleItemMode ? `Save Image ${imagesToSave[0].name}` : 'Save Images'}" contentLayout="engine">
+  <EngineFormPage title="{singleItemMode ? `Save Image ${imagesToSave[0].name}` : 'Save Images'}">
     <svelte:fragment slot="icon">
       <i class="fas fa-play fa-2x" aria-hidden="true"></i>
     </svelte:fragment>
@@ -184,5 +184,5 @@ async function saveImages() {
         </div>
       </div>
     </div>
-  </FormPage>
+  </EngineFormPage>
 {/if}

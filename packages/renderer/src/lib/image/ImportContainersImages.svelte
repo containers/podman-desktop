@@ -7,10 +7,11 @@ import { onMount } from 'svelte';
 import { get } from 'svelte/store';
 import { router } from 'tinro';
 
-import FormPage from '/@/lib/ui//FormPage.svelte';
 import { providerInfos } from '/@/stores/providers';
 import { createTask } from '/@/stores/tasks';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
+
+import EngineFormPage from '../ui/EngineFormPage.svelte';
 
 let containersToImport: { imagePath: string; nameWhenImporting: string }[] = [];
 let importError: string = '';
@@ -106,7 +107,7 @@ async function importContainers() {
 }
 </script>
 
-<FormPage title="Import Containers" contentLayout="engine">
+<EngineFormPage title="Import Containers">
   <svelte:fragment slot="icon">
     <i class="fas fa-play fa-2x" aria-hidden="true"></i>
   </svelte:fragment>
@@ -166,4 +167,4 @@ async function importContainers() {
       </div>
     </div>
   </div>
-</FormPage>
+</EngineFormPage>

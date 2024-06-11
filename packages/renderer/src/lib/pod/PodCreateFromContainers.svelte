@@ -14,7 +14,7 @@ import { type PodCreation, podCreationHolder } from '../../stores/creation-from-
 import { providerInfos } from '../../stores/providers';
 import SolidPodIcon from '../images/SolidPodIcon.svelte';
 import StatusIcon from '../images/StatusIcon.svelte';
-import FormPage from '../ui/FormPage.svelte';
+import EngineFormPage from '../ui/EngineFormPage.svelte';
 
 let podCreation: PodCreation;
 let createInProgress = false;
@@ -195,7 +195,7 @@ function updatePortExposure(port: number, checked: boolean) {
 }
 </script>
 
-<FormPage title="Copy containers to a pod" inProgress="{createInProgress}" contentLayout="engine">
+<EngineFormPage title="Copy containers to a pod" inProgress="{createInProgress}">
   <SolidPodIcon slot="icon" size="40" />
 
   <div slot="content">
@@ -322,4 +322,4 @@ function updatePortExposure(port: number, checked: boolean) {
       {/if}
     </div>
   </div>
-</FormPage>
+</EngineFormPage>

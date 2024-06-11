@@ -7,10 +7,11 @@ import { onMount } from 'svelte';
 import { get } from 'svelte/store';
 import { router } from 'tinro';
 
-import FormPage from '/@/lib/ui//FormPage.svelte';
 import { providerInfos } from '/@/stores/providers';
 import { createTask } from '/@/stores/tasks';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
+
+import EngineFormPage from '../ui/EngineFormPage.svelte';
 
 let archivesToLoad: string[] = [];
 let loadError: string = '';
@@ -85,7 +86,7 @@ async function loadImages() {
 }
 </script>
 
-<FormPage title="Load Images" contentLayout="engine">
+<EngineFormPage title="Load Images">
   <svelte:fragment slot="icon">
     <i class="fas fa-play fa-2x" aria-hidden="true"></i>
   </svelte:fragment>
@@ -136,4 +137,4 @@ async function loadImages() {
       </div>
     </div>
   </div>
-</FormPage>
+</EngineFormPage>

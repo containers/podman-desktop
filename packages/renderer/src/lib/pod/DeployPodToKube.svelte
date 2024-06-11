@@ -10,7 +10,7 @@ import { ensureRestrictedSecurityContext } from '/@/lib/pod/pod-utils';
 import type { V1Route } from '/@api/openshift-types';
 
 import MonacoEditor from '../editor/MonacoEditor.svelte';
-import FormPage from '../ui/FormPage.svelte';
+import EngineFormPage from '../ui/EngineFormPage.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
 
 export let resourceId: string;
@@ -378,9 +378,7 @@ function updateKubeResult() {
 }
 </script>
 
-<FormPage
-  title="Deploy generated pod to Kubernetes"
-  inProgress="{deployStarted && !deployFinished}">
+<EngineFormPage title="Deploy generated pod to Kubernetes" inProgress="{deployStarted && !deployFinished}">
   <i class="fas fa-rocket fa-2x" slot="icon" aria-hidden="true"></i>
 
   <div slot="content" class="space-y-2">
@@ -599,4 +597,4 @@ function updateKubeResult() {
       </div>
     {/if}
   </div>
-</FormPage>
+</EngineFormPage>

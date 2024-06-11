@@ -12,7 +12,7 @@ import { type BuildImageInfo, buildImagesInfo } from '/@/stores/build-images';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 
 import { providerInfos } from '../../stores/providers';
-import FormPage from '../ui/FormPage.svelte';
+import EngineFormPage from '../ui/EngineFormPage.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import {
   type BuildImageCallback,
@@ -292,10 +292,9 @@ async function abortBuild() {
 }
 </script>
 
-<FormPage
+<EngineFormPage
   title="Build image from Containerfile"
   inProgress="{buildImageInfo?.buildRunning}"
-  contentLayout="engine"
   showEmptyScreen="{providerConnections.length === 0}">
   <svelte:fragment slot="icon">
     <i class="fas fa-cube fa-2x" aria-hidden="true"></i>
@@ -399,4 +398,4 @@ async function abortBuild() {
       {/if}
     </div>
   </div>
-</FormPage>
+</EngineFormPage>

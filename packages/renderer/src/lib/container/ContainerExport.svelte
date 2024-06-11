@@ -7,7 +7,7 @@ import { router } from 'tinro';
 import { exportContainerInfo } from '/@/stores/export-container-store';
 import { createTask } from '/@/stores/tasks';
 
-import FormPage from '../ui/FormPage.svelte';
+import EngineFormPage from '../ui/EngineFormPage.svelte';
 import { Uri } from '../uri/Uri';
 import type { ContainerInfoUI } from './ContainerInfoUI';
 
@@ -83,7 +83,7 @@ async function exportContainer() {
 </script>
 
 {#if container}
-  <FormPage title="Export container {container.name}" contentLayout="engine">
+  <EngineFormPage title="Export container {container.name}">
     <svelte:fragment slot="icon">
       <i class="fas fa-download fa-2x" aria-hidden="true"></i>
     </svelte:fragment>
@@ -120,5 +120,5 @@ async function exportContainer() {
         </div>
       </div>
     </div>
-  </FormPage>
+  </EngineFormPage>
 {/if}

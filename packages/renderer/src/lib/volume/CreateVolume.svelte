@@ -8,7 +8,7 @@ import { get } from 'svelte/store';
 import { router } from 'tinro';
 
 import VolumeIcon from '/@/lib/images/VolumeIcon.svelte';
-import FormPage from '/@/lib/ui/FormPage.svelte';
+import EngineFormPage from '/@/lib/ui/EngineFormPage.svelte';
 import { providerInfos } from '/@/stores/providers';
 /* eslint-enable import/no-duplicates */
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
@@ -52,10 +52,9 @@ let createVolumeFinished = false;
 export let volumeName = '';
 </script>
 
-<FormPage
+<EngineFormPage
   title="Create a volume"
   inProgress="{createVolumeInProgress}"
-  contentLayout="engine"
   showEmptyScreen="{providerConnections.length === 0}">
   <svelte:fragment slot="icon">
     <VolumeIcon />
@@ -110,4 +109,4 @@ export let volumeName = '';
       {/if}
     </div>
   </div>
-</FormPage>
+</EngineFormPage>
