@@ -1,5 +1,6 @@
 <script lang="ts">
 import { faArrowUpRightFromSquare, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { Button } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 import { router } from 'tinro';
 
@@ -59,7 +60,7 @@ function openExtensionDetails() {
         </div>
       {/if}
     </div>
-    <div class="text-[var(--pd-link-light)] items-end flex flex-1">
+    <div class="items-end flex flex-1">
       <div class="text-[var(--pd-content-text)] text-xs">
         v{catalogExtensionUI.fetchVersion}
         {#if catalogExtensionUI.installedVersion && catalogExtensionUI.installedVersion !== catalogExtensionUI.fetchVersion}
@@ -67,8 +68,8 @@ function openExtensionDetails() {
         {/if}
       </div>
       <div class="flex flex-1 justify-end items-center">
-        <Fa icon="{faArrowUpRightFromSquare}" />
-        <button class="ml-2" on:click="{() => openExtensionDetails()}">More details</button>
+        <Button type="link" icon="{faArrowUpRightFromSquare}" on:click="{() => openExtensionDetails()}"
+          >More details</Button>
       </div>
     </div>
   </div>

@@ -862,10 +862,6 @@ export class ColorRegistry {
       dark: colorPalette.white + '2',
       light: colorPalette.black + '2',
     });
-    this.registerColor(`${link}-light`, {
-      dark: colorPalette.gray[200],
-      light: colorPalette.charcoal[900],
-    });
   }
 
   // button
