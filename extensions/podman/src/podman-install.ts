@@ -52,18 +52,21 @@ export function getBundledPodmanVersion(): string {
 }
 
 export interface PodmanInfo {
-  podmanVersion: string;
+  podmanVersion?: string;
   lastUpdateCheck: number;
   ignoreVersionUpdate?: string;
 }
 
 export class PodmanInfoImpl implements PodmanInfo {
+  private podmanInfo: PodmanInfo;
   constructor(
-    private podmanInfo: PodmanInfo,
+    podmanInfoValue: PodmanInfo | undefined,
     private readonly storagePath: string,
   ) {
-    if (!podmanInfo) {
+    if (!podmanInfoValue) {
       this.podmanInfo = { lastUpdateCheck: 0 } as PodmanInfo;
+    } else {
+      this.podmanInfo = podmanInfoValue;
     }
   }
 
@@ -74,7 +77,7 @@ export class PodmanInfoImpl implements PodmanInfo {
     }
   }
 
-  get podmanVersion(): string {
+  get podmanVersion(): string | undefined {
     return this.podmanInfo.podmanVersion;
   }
 
@@ -181,9 +184,6 @@ export class PodmanInstall {
 
   public async checkForUpdate(installedPodman: InstalledPodman | undefined): Promise<UpdateCheck> {
     const podmanInfoRaw = await this.getLastRunInfo();
-    if (!podmanInfoRaw) {
-      return { installedVersion: undefined, hasUpdate: false, bundledVersion: undefined };
-    }
     this.podmanInfo = new PodmanInfoImpl(podmanInfoRaw, this.storagePath);
 
     let installedVersion = this.podmanInfo.podmanVersion;
@@ -195,7 +195,11 @@ export class PodmanInstall {
     const installer = this.getInstaller();
     const bundledVersion = getBundledPodmanVersion();
 
-    if (installer?.requireUpdate(installedVersion) && this.podmanInfo.ignoreVersionUpdate !== bundledVersion) {
+    if (
+      installedVersion &&
+      installer?.requireUpdate(installedVersion) &&
+      this.podmanInfo.ignoreVersionUpdate !== bundledVersion
+    ) {
       return { installedVersion, hasUpdate: true, bundledVersion };
     }
     return { installedVersion, hasUpdate: false, bundledVersion };
