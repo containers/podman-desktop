@@ -105,7 +105,7 @@
     "@octokit/rest": "^20.1.1",
     "@podman-desktop/api": "^0.0.1",
     "mustache": "^4.2.0",
-    "yaml": "^2.4.3"
+    "yaml": "^2.4.5"
   },
   "devDependencies": {
     "adm-zip": "^0.5.14",
