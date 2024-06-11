@@ -24,7 +24,7 @@
     "@types/validator": "^13.11.10",
     "@typescript-eslint/eslint-plugin": "7.13.0",
     "autoprefixer": "^10.4.19",
-    "eslint-plugin-svelte": "^2.39.0",
+    "eslint-plugin-svelte": "^2.39.3",
     "filesize": "^10.1.2",
     "humanize-duration": "^3.32.1",
     "jsdom": "^24.1.0",
