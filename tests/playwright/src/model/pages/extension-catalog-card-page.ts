@@ -48,15 +48,16 @@ export class ExtensionCatalogCardPage extends BasePage {
   public async isInstalled(): Promise<boolean> {
     await this.parent.scrollIntoViewIfNeeded();
     const downloadButton = this.parent.getByRole('button', { name: 'Install' });
-    return (await this.alreadyInstalledText.isVisible()) && !(await downloadButton.isVisible()) ? true : false;
+    return (await this.alreadyInstalledText.count()) > 0 && (await downloadButton.count()) === 0 ? true : false;
   }
 
   public async install(timeout: number): Promise<void> {
-    if (!(await this.isInstalled())) {
-      await playExpect(this.downloadButton).toBeVisible();
-      await this.downloadButton.click();
-      await playExpect(this.alreadyInstalledText).toBeVisible({ timeout: timeout });
+    if (await this.isInstalled()) {
+      console.log(`Extension ${this.extensionName} is already installed`);
+      return;
     }
-    console.log(`Extension ${this.extensionName} is already installed`);
+    await playExpect(this.downloadButton).toBeEnabled();
+    await this.downloadButton.click();
+    await playExpect(this.alreadyInstalledText).toBeVisible({ timeout: timeout });
   }
 }

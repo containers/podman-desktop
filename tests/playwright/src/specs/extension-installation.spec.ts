@@ -52,7 +52,7 @@ const _startup = async function (): Promise<void> {
   pdRunner = new PodmanDesktopRunner();
   page = await pdRunner.start();
   pdRunner.setVideoAndTraceName(`${extensionName}-installation-e2e`);
-  
+
   const welcomePage = new WelcomePage(page);
   await welcomePage.handleWelcomePage(true);
 
@@ -90,13 +90,11 @@ describe.each([
     const extensionCatalog = new ExtensionCatalogCardPage(page, extensionType);
     await playExpect(extensionCatalog.parent).toBeVisible();
 
-    await playExpect.poll(async () => await extensionCatalog.isInstalled(), { timeout: 5000 }).toBeFalsy();
+    await playExpect.poll(async () => await extensionCatalog.isInstalled()).toBeFalsy();
     await extensionCatalog.install(90000);
 
     await extensionsPage.openInstalledTab();
-    await playExpect
-      .poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel), { timeout: 5000 })
-      .toBeTruthy();
+    await playExpect.poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel)).toBeTruthy();
   }, 120000);
 
   describe('Extension verification after installation', async () => {
