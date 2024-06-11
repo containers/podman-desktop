@@ -22,6 +22,6 @@ async function deleteDeployment(): Promise<void> {
 
 <ListItemButtonIcon
   title="Delete Deployment"
-  onClick="{() => withConfirmation(deleteDeployment, 'Delete Deployment')}"
+  onClick="{() => withConfirmation(deleteDeployment, `delete deployment ${deployment.name}`)}"
   detailed="{detailed}"
   icon="{faTrash}" />
