@@ -19,14 +19,22 @@
 
 import { ColorRegistry } from '../packages/main/src/plugin/color-registry';
 import type { ColorInfo } from '../packages/api/src/color-info';
-import { writeFileSync } from 'node:fs';
+import fs from 'node:fs';
 import minimist from 'minimist';
 
-// Create color registry
-const registry = new ColorRegistry();
-registry.init();
+export function getColorRegistry(): ColorRegistry {
+  // Create color registry
+  const registry = new ColorRegistry();
+  registry.init();
+  return registry;
+}
 
-function getStylesheet(themeName: string): string {
+/**
+ * Giving a themeName, generate the stylesheet containing all its colors
+ * @param registry
+ * @param themeName
+ */
+export function getStylesheet(registry: ColorRegistry, themeName: string): string {
   const colors = registry.listColors(themeName);
   const styles: string[] = [];
   colors.forEach((color: ColorInfo) => {
@@ -42,22 +50,38 @@ function getStylesheet(themeName: string): string {
 `;
 }
 
-function generateStylesheet(output: string): void {
+/**
+ * Generate the stylesheet combining all the theme,
+ * each theme is placed in their own css scope
+ * @param output
+ */
+export function generateStylesheet(registry: ColorRegistry, output: string): void {
   const themes = registry.listThemes();
   let stylesheet = '';
   for (const theme of themes) {
     stylesheet += `
 @scope (.${theme}) {
-  ${getStylesheet(theme)}
+  ${getStylesheet(registry, theme)}
 }
 `;
   }
-  writeFileSync(output, stylesheet);
+  fs.writeFileSync(output, stylesheet);
 }
 
-const args = minimist(process.argv.slice(2));
+/**
+ * Get the output target by parsing the argv
+ */
+export function getOutput(): string {
+  const args = minimist(process.argv.slice(2));
 
-const output: string | undefined = args['output'];
-if (!output) throw new Error('missing output argument');
+  const output: string | undefined = args['output'];
+  if (!output) throw new Error('missing output argument');
+  return output;
+}
 
-generateStylesheet(output);
+// do not start if we are in a VITEST env
+if (!process.env.VITEST) {
+  const output: string = getOutput();
+  const registry = getColorRegistry();
+  generateStylesheet(registry, output);
+}
