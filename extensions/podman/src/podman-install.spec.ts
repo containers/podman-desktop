@@ -23,8 +23,9 @@ import * as extensionApi from '@podman-desktop/api';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { InstalledPodman } from './podman-cli';
-import type { UpdateCheck } from './podman-install';
+import type { Installer, UpdateCheck } from './podman-install';
 import { getBundledPodmanVersion, PodmanInstall, WinInstaller } from './podman-install';
+import * as podmanInstallObj from './podman-install';
 
 const originalConsoleError = console.error;
 const consoleErrorMock = vi.fn();
@@ -692,6 +693,10 @@ class TestPodmanInstall extends PodmanInstall {
     }
     return this.providerCleanup;
   }
+
+  getInstaller(): Installer | undefined {
+    return super.getInstaller();
+  }
 }
 
 describe('update checks', () => {
@@ -806,4 +811,50 @@ describe('update checks', () => {
     // getActions should not have been called
     expect(providerCleanup.getActions).not.toHaveBeenCalled();
   });
+});
+
+test('checkForUpdate should return no installed version if there is no lastRunInfo', async () => {
+  const podmanInstall = new TestPodmanInstall(extensionContext);
+  vi.spyOn(podmanInstall, 'getLastRunInfo').mockResolvedValue(undefined);
+  const result = await podmanInstall.checkForUpdate(undefined);
+  expect(result).toStrictEqual({ installedVersion: undefined, hasUpdate: false, bundledVersion: undefined });
+});
+
+test('checkForUpdate should return no installed version if there is lastRunInfo but it has no version', async () => {
+  const podmanInstall = new TestPodmanInstall(extensionContext);
+  vi.spyOn(podmanInstall, 'getLastRunInfo').mockResolvedValue({
+    lastUpdateCheck: 0,
+  });
+  const result = await podmanInstall.checkForUpdate(undefined);
+  expect(result).toStrictEqual({ installedVersion: undefined, hasUpdate: false, bundledVersion: undefined });
+});
+
+test('checkForUpdate should return installed version and no update if the installed version is the latest', async () => {
+  const podmanInstall = new TestPodmanInstall(extensionContext);
+  vi.spyOn(podmanInstall, 'getInstaller').mockReturnValue({
+    requireUpdate: vi.fn().mockReturnValue(false),
+  } as unknown as Installer);
+  vi.spyOn(podmanInstallObj, 'getBundledPodmanVersion').mockReturnValue('5.1.1');
+  vi.spyOn(podmanInstall, 'getLastRunInfo').mockResolvedValue({
+    lastUpdateCheck: 0,
+  });
+  const result = await podmanInstall.checkForUpdate({
+    version: '1.1',
+  });
+  expect(result).toStrictEqual({ installedVersion: '1.1', hasUpdate: false, bundledVersion: '5.1.1' });
+});
+
+test('checkForUpdate should return installed version and update if the installed version is NOT the latest', async () => {
+  const podmanInstall = new TestPodmanInstall(extensionContext);
+  vi.spyOn(podmanInstall, 'getInstaller').mockReturnValue({
+    requireUpdate: vi.fn().mockReturnValue(true),
+  } as unknown as Installer);
+  vi.spyOn(podmanInstallObj, 'getBundledPodmanVersion').mockReturnValue('5.1.1');
+  vi.spyOn(podmanInstall, 'getLastRunInfo').mockResolvedValue({
+    lastUpdateCheck: 0,
+  });
+  const result = await podmanInstall.checkForUpdate({
+    version: '1.1',
+  });
+  expect(result).toStrictEqual({ installedVersion: '1.1', hasUpdate: true, bundledVersion: '5.1.1' });
 });
