@@ -21,11 +21,9 @@ export let columns: Column<any>[];
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let row: Row<any>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export let data: { selected?: boolean; name?: string; id?: any }[];
+export let data: { selected?: boolean; name?: string; id?: string }[];
 export let defaultSortColumn: string | undefined = undefined;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export let collapsed: any[] = [];
+export let collapsed: string[] = [];
 
 // number of selected items in the list
 export let selectedItemsNumber: number = 0;
@@ -43,8 +41,10 @@ $: selectedItemsNumber = row.info.selectable
 $: selectedAllCheckboxes = row.info.selectable
   ? data.filter(object => row.info.selectable?.(object)).every(object => object.selected) &&
     data
-      .map(object => row.info.children?.(object)?.filter(child => row.info.selectable?.(child)))
+      .filter(object => row.info.children?.(object))
+      .map(object => row.info.children?.(object))
       .flat()
+      .filter(child => row.info.selectable?.(child))
       .every(child => child.selected) &&
     data.filter(object => row.info.selectable?.(object)).length > 0
   : false;
@@ -161,14 +161,18 @@ function objectChecked(object: { selected?: boolean }): void {
   }
 }
 
-function toggleChildren(object: unknown): void {
-  if (collapsed.includes(object)) {
-    const index = collapsed.indexOf(object, 0);
+function toggleChildren(id: string | undefined): void {
+  if (!id) {
+    return;
+  }
+
+  if (collapsed.includes(id)) {
+    const index = collapsed.indexOf(id, 0);
     if (index > -1) {
       collapsed.splice(index, 1);
     }
   } else {
-    collapsed.push(object);
+    collapsed.push(id);
   }
   // trigger Svelte update
   collapsed = collapsed;
@@ -225,10 +229,12 @@ function toggleChildren(object: unknown): void {
       <div class="mx-5 min-h-[48px] h-fit bg-[var(--pd-content-card-bg)] rounded-lg mb-2" role="row">
         <div
           class="grid grid-table gap-x-0.5 min-h-[48px] hover:bg-[var(--pd-content-card-hover-bg)]"
-          class:rounded-t-lg="{!collapsed.includes(object.id) &&
+          class:rounded-t-lg="{object.id &&
+            !collapsed.includes(object.id) &&
             row.info.children &&
             row.info.children(object).length > 0}"
-          class:rounded-lg="{collapsed.includes(object.id) ||
+          class:rounded-lg="{!object.id ||
+            collapsed.includes(object.id) ||
             !row.info.children ||
             row.info.children(object).length === 0}"
           aria-label="{object.name}">
@@ -238,7 +244,7 @@ function toggleChildren(object: unknown): void {
                 <Fa
                   size="0.8x"
                   class="text-[var(--pd-table-body-text)] cursor-pointer"
-                  icon="{!collapsed.includes(object.id) ? faChevronDown : faChevronRight}" />
+                  icon="{object.id && !collapsed.includes(object.id) ? faChevronDown : faChevronRight}" />
               </button>
             {/if}
           </div>
@@ -273,7 +279,7 @@ function toggleChildren(object: unknown): void {
         </div>
 
         <!-- Child objects -->
-        {#if !collapsed.includes(object.id) && row.info.children}
+        {#if object.id && !collapsed.includes(object.id) && row.info.children}
           {#each row.info.children(object) as child, i (child)}
             <div
               class="grid grid-table gap-x-0.5 hover:bg-[var(--pd-content-card-hover-bg)]"
