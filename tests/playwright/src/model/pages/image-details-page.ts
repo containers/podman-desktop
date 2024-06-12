@@ -40,6 +40,10 @@ export class ImageDetailsPage extends BasePage {
   readonly backToImagesLink: Locator;
   readonly actionsButton: Locator;
   readonly buildDiskImageButton: Locator;
+  readonly saveImagebutton: Locator;
+  readonly saveImageInput: Locator;
+  readonly confirmSaveImages: Locator;
+  readonly browseButton: Locator;
 
   constructor(page: Page, name: string) {
     super(page);
@@ -56,6 +60,10 @@ export class ImageDetailsPage extends BasePage {
     this.backToImagesLink = page.getByRole('link', { name: 'Go back to Images' });
     this.actionsButton = page.getByRole('button', { name: 'kebab menu' });
     this.buildDiskImageButton = page.getByTitle('Build Disk Image');
+    this.saveImagebutton = page.getByRole('button', { name: 'Save Image', exact: true });
+    this.saveImageInput = page.locator('#input-output-directory');
+    this.confirmSaveImages = page.getByLabel('Save images', { exact: true });
+    this.browseButton = page.getByLabel('Select ouput folder');
   }
 
   async openRunImage(): Promise<RunImagePage> {
@@ -96,5 +104,23 @@ export class ImageDetailsPage extends BasePage {
     });
 
     return [mainPage, webViewPage];
+  }
+
+  async saveImage(outputPath: string): Promise<ImagesPage> {
+    if (!outputPath) {
+      throw Error(`Path is incorrect or not provided!`);
+    }
+
+    await playExpect(this.saveImagebutton).toBeEnabled();
+    await this.saveImagebutton.click();
+    await playExpect(this.browseButton).toBeEnabled();
+
+    await this.saveImageInput.evaluate(node => node.removeAttribute('readonly'));
+    await this.confirmSaveImages.evaluate(node => node.removeAttribute('disabled'));
+
+    await this.saveImageInput.fill(outputPath);
+    await this.confirmSaveImages.click();
+
+    return new ImagesPage(this.page);
   }
 }
