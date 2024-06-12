@@ -45,5 +45,5 @@ test('Expect simple column styling', async () => {
 
   const status = screen.getByRole('status');
   expect(status).toBeInTheDocument();
-  expect(status).toHaveClass('bg-status-running');
+  expect(status).toHaveClass('bg-[var(--pd-status-running)]');
 });
