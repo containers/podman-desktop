@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ComponentType, SvelteComponent } from 'svelte';
+
 /**
  * Options to be used when creating a Column.
  */
@@ -47,8 +49,7 @@ export interface ColumnInformation<Type, RenderType = Type> {
    * The component must have a property 'object' that has the
    * same type as the Column.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  readonly renderer?: any;
+  readonly renderer?: ComponentType<SvelteComponent<{ object: RenderType }>>;
 
   /**
    * Set a comparator used to sort the data by the values in this column.
