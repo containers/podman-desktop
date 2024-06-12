@@ -63,6 +63,7 @@ export class Telemetry {
   private static readonly SEGMENT_KEY = 'Mhl7GXADk5M1vG6r9FXztbCqWRQY8XPy';
 
   private cachedTelemetrySettings: TelemetryRule[] | undefined;
+  private regexp: Map<string, RegExp> = new Map();
 
   private identity: Identity;
 
@@ -192,7 +193,9 @@ export class Telemetry {
     }
 
     // load the telemetry json file
-    this.cachedTelemetrySettings = telemetry.rules as TelemetryRule[];
+    this.cachedTelemetrySettings = telemetry.rules.map(obj => obj) as TelemetryRule[];
+    this.regexp = new Map();
+    this.cachedTelemetrySettings.forEach(rule => this.regexp.set(rule.event, new RegExp(rule.event)));
 
     return this.cachedTelemetrySettings;
   }
@@ -299,8 +302,8 @@ export class Telemetry {
 
     let dropIt = false;
     telem.forEach(entry => {
-      const regex = RegExp(entry.event);
-      if (regex.test(eventName)) {
+      const regex = this.regexp.get(entry.event);
+      if (regex?.test(eventName)) {
         if (entry.disabled) {
           // telemetry is entirely disabled for this event
           dropIt = true;
