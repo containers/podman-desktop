@@ -25,6 +25,6 @@ export class ComposeOnboardingPage extends OnboardingPage {
 
   constructor(page: Page) {
     super(page);
-    this.heading = this.header.getByRole('heading', { name: 'Compose Setup Header' });
+    this.heading = this.page.getByRole('heading', { name: 'Compose Setup Header' });
   }
 }

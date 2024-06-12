@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as os from 'node:os';
+import { afterEach } from 'node:test';
 
 import type { Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
@@ -30,12 +30,14 @@ import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
+import { isCI, isLinux } from '../utility/platform';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
 let navBar: NavigationBar;
 let composeVersion: string;
-const isLinux = os.platform() === 'linux';
+// property that will make sure that on linux we can run only partial tests, by default this is turned off
+const composePartialInstallation = process.env.COMPOSE_PARTIAL_INSTALL ? process.env.COMPOSE_PARTIAL_INSTALL : false;
 
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
@@ -55,25 +57,31 @@ beforeEach<RunnerTestContext>(async ctx => {
   ctx.pdRunner = pdRunner;
 });
 
-describe.skipIf(isLinux)('Compose onboarding workflow verification', async () => {
-  test('Can enter Compose onboarding', async () => {
+describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', async () => {
+  afterEach(async () => {
+    await navBar.openDashboard();
+  });
+
+  test('Compose onboarding button Setup is available', async () => {
     await navBar.openSettings();
     const settingsBar = new SettingsBar(page);
     const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
 
-    const composeBox = resourcesPage.featuredProviderResources.getByRole('region', { name: 'Compose' });
-    await playExpect(composeBox).toBeVisible();
-    await composeBox.scrollIntoViewIfNeeded();
+    await playExpect(resourcesPage.composeResources).toBeVisible();
+    await resourcesPage.composeResources.scrollIntoViewIfNeeded();
 
-    const setupButton = composeBox.getByRole('button', { name: 'Setup Compose' });
-    await playExpect(setupButton).toBeVisible({ timeout: 50000 });
+    const setupButton = resourcesPage.composeResources.getByRole('button', { name: 'Setup Compose' });
+    await playExpect(
+      setupButton,
+      'Compose Setup button is not present, perhaps compose is already installed',
+    ).toBeVisible({ timeout: 10000 });
+  });
 
-    await setupButton.click();
-
-    const onboardingPage = new ComposeOnboardingPage(page);
+  test('Can enter Compose onboarding', async () => {
+    const onboardingPage = await openComposeOnboarding(page);
 
     await playExpect(onboardingPage.heading).toBeVisible();
-    await playExpect(onboardingPage.onboardingStatusMessage).toHaveText('Compose Download');
+    await playExpect(onboardingPage.onboardingStatusMessage).toHaveText('Compose download');
 
     const downloadAvailableText = page.getByText(
       /Compose will be downloaded in the next step \(Version v[0-9.]+\). Want to download/,
@@ -89,10 +97,10 @@ describe.skipIf(isLinux)('Compose onboarding workflow verification', async () =>
   });
 
   test('Can install Compose locally', async () => {
-    const onboardingPage = new ComposeOnboardingPage(page);
+    const onboardingPage = await openComposeOnboarding(page);
     await onboardingPage.nextStepButton.click();
 
-    await playExpect(onboardingPage.onboardingStatusMessage).toHaveText('Compose Successfully Downloaded', {
+    await playExpect(onboardingPage.onboardingStatusMessage).toHaveText('Compose successfully Downloaded', {
       timeout: 50000,
     });
 
@@ -103,30 +111,37 @@ describe.skipIf(isLinux)('Compose onboarding workflow verification', async () =>
     await skipOkButton.click();
   });
 
-  test('Can install Compose system-wide', async () => {
-    const resourcesPage = new ResourcesPage(page);
-    const composeBox = resourcesPage.featuredProviderResources.getByRole('region', { name: 'Compose' });
-    const setupButton = composeBox.getByRole('button', { name: 'Setup Compose' });
-    await setupButton.click();
+  test('Can resume Compose onboarding and it can be canceled', async () => {
+    const onboardingPage = await openComposeOnboarding(page);
 
-    const onboardingPage = new ComposeOnboardingPage(page);
-    await playExpect(onboardingPage.onboardingStatusMessage).toHaveText('Compose Successfully Downloaded');
+    await playExpect(onboardingPage.onboardingStatusMessage).toHaveText('Compose successfully Downloaded');
     const downloadAvailableText = page.getByText(
       'The next step will install Compose system-wide. You will be prompted for system',
     );
     await playExpect(downloadAvailableText).toBeVisible();
+    await playExpect(onboardingPage.nextStepButton).toBeVisible();
+    await onboardingPage.cancelSetupButtion.click();
 
-    await onboardingPage.nextStepButton.click();
-
-    await playExpect(onboardingPage.onboardingStatusMessage).toHaveText('Compose Installed', { timeout: 50000 });
-    let downloadFinishedText = page.locator('p');
-    downloadFinishedText = downloadFinishedText.filter({ hasText: 'Compose is installed system-wide!' });
-    await playExpect(downloadFinishedText).toBeVisible();
-
-    await onboardingPage.nextStepButton.click();
+    const skipDialog = page.getByRole('dialog', { name: 'Skip Setup Popup', exact: true });
+    const skipOkButton = skipDialog.getByRole('button', { name: 'Ok' });
+    await skipOkButton.click();
   });
 
-  test('Verify Compose was installed', async () => {
+  test.skipIf(composePartialInstallation)('Can install Compose system-wide', async () => {
+    const onboardingPage = await openComposeOnboarding(page);
+    await onboardingPage.nextStepButton.click();
+
+    await playExpect(onboardingPage.onboardingStatusMessage).toHaveText('Compose installed', { timeout: 50000 });
+    await playExpect(onboardingPage.mainPage.getByRole('heading', { name: 'How To Use Compose' })).toBeVisible();
+    await playExpect(onboardingPage.nextStepButton).toBeEnabled();
+    await onboardingPage.nextStepButton.click();
+    // expects redirection to the Resources page
+    const resourcesPage = new ResourcesPage(page);
+    await playExpect(resourcesPage.heading).toBeVisible();
+  });
+
+  test.skipIf(composePartialInstallation)('Verify Compose was installed', async () => {
+    await navBar.openSettings();
     const resourcesPage = new ResourcesPage(page);
     const composeBox = resourcesPage.featuredProviderResources.getByRole('region', { name: 'Compose' });
     const setupButton = composeBox.getByRole('button', { name: 'Setup Compose' });
@@ -139,3 +154,19 @@ describe.skipIf(isLinux)('Compose onboarding workflow verification', async () =>
     await playExpect(composeVersionInfo).toHaveText('docker-compose ' + composeVersion);
   });
 });
+
+async function openComposeOnboarding(page: Page): Promise<ComposeOnboardingPage> {
+  await navBar.openSettings();
+  const settingsBar = new SettingsBar(page);
+  const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
+  await playExpect(resourcesPage.heading).toBeVisible();
+  await playExpect(resourcesPage.composeResources).toBeVisible();
+  await resourcesPage.composeResources.scrollIntoViewIfNeeded();
+  const setupButton = resourcesPage.composeResources.getByRole('button', { name: 'Setup Compose' });
+  await playExpect(
+    setupButton,
+    'Compose Setup button is not present, perhaps compose is already installed',
+  ).toBeVisible({ timeout: 10000 });
+  await setupButton.click();
+  return new ComposeOnboardingPage(page);
+}
