@@ -1116,7 +1116,7 @@ export class KubernetesClient {
    */
   async applyResourcesFromYAML(context: string, yaml: string): Promise<KubernetesObject[]> {
     const manifests = await this.loadManifestsFromYAML(yaml);
-    return this.applyResources(context, manifests, 'apply');
+    return this.applyResources(context, manifests);
   }
 
   /**
