@@ -90,7 +90,7 @@ test('expect badges to be green when reachable', async () => {
 
   expect(mocks.getCurrentKubeContextState).toHaveBeenCalled();
   const status = screen.getByRole('status');
-  expect(status.firstChild).toHaveClass('bg-status-connected');
+  expect(status.firstChild).toHaveClass('bg-[var(--pd-status-connected)]');
 });
 
 test('expect badges to be gray when not reachable', async () => {
@@ -106,7 +106,7 @@ test('expect badges to be gray when not reachable', async () => {
 
   expect(mocks.getCurrentKubeContextState).toHaveBeenCalled();
   const status = screen.getByRole('status');
-  expect(status.firstChild).toHaveClass('bg-status-disconnected');
+  expect(status.firstChild).toHaveClass('bg-[var(--pd-status-disconnected)]');
 });
 
 test('expect no tooltip when no error', async () => {

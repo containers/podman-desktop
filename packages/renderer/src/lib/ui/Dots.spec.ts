@@ -74,16 +74,16 @@ const mockContainers: PodInfoContainerUI[] = [
 ];
 
 test('test getStatusColor returns the correct colors', () => {
-  expect(getStatusColor('running')).toBe('bg-status-running');
-  expect(getStatusColor('terminated')).toBe('bg-status-terminated');
-  expect(getStatusColor('waiting')).toBe('bg-status-waiting');
-  expect(getStatusColor('stopped')).toBe('outline-status-stopped');
-  expect(getStatusColor('paused')).toBe('bg-status-paused');
-  expect(getStatusColor('exited')).toBe('outline-status-exited');
-  expect(getStatusColor('dead')).toBe('bg-status-dead');
-  expect(getStatusColor('created')).toBe('outline-status-created');
-  expect(getStatusColor('degraded')).toBe('bg-status-degraded');
-  expect(getStatusColor('unknown')).toBe('bg-status-unknown');
+  expect(getStatusColor('running')).toBe('bg-[var(--pd-status-running)]');
+  expect(getStatusColor('terminated')).toBe('bg-[var(--pd-status-terminated)]');
+  expect(getStatusColor('waiting')).toBe('bg-[var(--pd-status-waiting)]');
+  expect(getStatusColor('stopped')).toBe('outline-[var(--pd-status-stopped)]');
+  expect(getStatusColor('paused')).toBe('bg-[var(--pd-status-paused)]');
+  expect(getStatusColor('exited')).toBe('outline-[var(--pd-status-exited)]');
+  expect(getStatusColor('dead')).toBe('bg-[var(--pd-status-dead)]');
+  expect(getStatusColor('created')).toBe('outline-[var(--pd-status-created)]');
+  expect(getStatusColor('degraded')).toBe('bg-[var(--pd-status-degraded)]');
+  expect(getStatusColor('unknown')).toBe('bg-[var(--pd-status-unknown)]');
 });
 
 test('test organizeContainers returns a record of containers organized by status', () => {

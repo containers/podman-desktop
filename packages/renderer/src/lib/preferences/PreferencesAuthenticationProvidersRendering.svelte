@@ -70,15 +70,15 @@ import SettingsPage from './SettingsPage.svelte';
                 <div class="flex flex-row items-center w-full h-full">
                   <dif>
                     <Fa
-                      class="h-3 w-3 text-md mr-2 text-{provider.accounts.length > 0
-                        ? 'status-connected'
-                        : 'status-disconnected'}"
+                      class="h-3 w-3 text-md mr-2 text-[var(--pd-status-{provider.accounts.length > 0
+                        ? 'connected'
+                        : 'disconnected'})]"
                       icon="{faCircle}" />
                   </dif>
                   <div
-                    class="uppercase text-xs text-{provider.accounts.length > 0
-                      ? 'status-connected'
-                      : 'status-disconnected'}"
+                    class="uppercase text-xs text-[var(--pd-status-{provider.accounts.length > 0
+                      ? 'connected'
+                      : 'disconnected'})]"
                     aria-label="Provider Status">
                     <span>
                       {provider.accounts.length > 0 ? 'Logged in' : 'Logged out'}
