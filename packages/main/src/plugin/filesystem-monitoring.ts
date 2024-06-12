@@ -41,6 +41,11 @@ export class FileSystemWatcherImpl implements containerDesktopAPI.FileSystemWatc
       this._onDidCreate.fire(uri);
     });
 
+    this.watcher.on('addDir', (addedPath: string) => {
+      const uri: containerDesktopAPI.Uri = Uri.file(addedPath);
+      this._onDidCreate.fire(uri);
+    });
+
     this.watcher.on('change', (addedPath: string) => {
       const uri: containerDesktopAPI.Uri = Uri.file(addedPath);
       this._onDidChange.fire(uri);
