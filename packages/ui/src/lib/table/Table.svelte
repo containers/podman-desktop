@@ -21,7 +21,7 @@ export let columns: Column<any>[];
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let row: Row<any>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export let data: { selected?: boolean; name?: string; id?: string }[];
+export let data: { selected?: boolean; name?: string }[];
 export let defaultSortColumn: string | undefined = undefined;
 export let collapsed: string[] = [];
 
@@ -161,18 +161,18 @@ function objectChecked(object: { selected?: boolean }): void {
   }
 }
 
-function toggleChildren(id: string | undefined): void {
-  if (!id) {
+function toggleChildren(name: string | undefined): void {
+  if (!name) {
     return;
   }
 
-  if (collapsed.includes(id)) {
-    const index = collapsed.indexOf(id, 0);
+  if (collapsed.includes(name)) {
+    const index = collapsed.indexOf(name, 0);
     if (index > -1) {
       collapsed.splice(index, 1);
     }
   } else {
-    collapsed.push(id);
+    collapsed.push(name);
   }
   // trigger Svelte update
   collapsed = collapsed;
@@ -229,22 +229,22 @@ function toggleChildren(id: string | undefined): void {
       <div class="mx-5 min-h-[48px] h-fit bg-[var(--pd-content-card-bg)] rounded-lg mb-2" role="row">
         <div
           class="grid grid-table gap-x-0.5 min-h-[48px] hover:bg-[var(--pd-content-card-hover-bg)]"
-          class:rounded-t-lg="{object.id &&
-            !collapsed.includes(object.id) &&
+          class:rounded-t-lg="{object.name &&
+            !collapsed.includes(object.name) &&
             row.info.children &&
             row.info.children(object).length > 0}"
-          class:rounded-lg="{!object.id ||
-            collapsed.includes(object.id) ||
+          class:rounded-lg="{!object.name ||
+            collapsed.includes(object.name) ||
             !row.info.children ||
             row.info.children(object).length === 0}"
           aria-label="{object.name}">
           <div class="whitespace-nowrap place-self-center" role="cell">
             {#if row.info.children && row.info.children(object).length > 0}
-              <button on:click="{toggleChildren.bind(undefined, object.id)}">
+              <button on:click="{toggleChildren.bind(undefined, object.name)}">
                 <Fa
                   size="0.8x"
                   class="text-[var(--pd-table-body-text)] cursor-pointer"
-                  icon="{object.id && !collapsed.includes(object.id) ? faChevronDown : faChevronRight}" />
+                  icon="{object.name && !collapsed.includes(object.name) ? faChevronDown : faChevronRight}" />
               </button>
             {/if}
           </div>
@@ -279,7 +279,7 @@ function toggleChildren(id: string | undefined): void {
         </div>
 
         <!-- Child objects -->
-        {#if object.id && !collapsed.includes(object.id) && row.info.children}
+        {#if object.name && !collapsed.includes(object.name) && row.info.children}
           {#each row.info.children(object) as child, i (child)}
             <div
               class="grid grid-table gap-x-0.5 hover:bg-[var(--pd-content-card-hover-bg)]"
