@@ -243,6 +243,7 @@ export class ColorRegistry {
     this.initTooltip();
     this.initDropdown();
     this.initLabel();
+    this.initStatusColors();
   }
 
   protected initGlobalNav(): void {
@@ -1061,6 +1062,75 @@ export class ColorRegistry {
     this.registerColor(`${label}text`, {
       dark: colorPalette.gray[500],
       light: colorPalette.charcoal[300],
+    });
+  }
+
+  protected initStatusColors(): void {
+    const status = 'status-';
+
+    // Podman & Kubernetes
+    this.registerColor(`${status}running`, {
+      dark: colorPalette.green[400],
+      light: colorPalette.green[400],
+    });
+    // Kubernetes only
+    this.registerColor(`${status}terminated`, {
+      dark: colorPalette.red[500],
+      light: colorPalette.red[500],
+    });
+    this.registerColor(`${status}waiting`, {
+      dark: colorPalette.amber[600],
+      light: colorPalette.amber[600],
+    });
+    // Podman only
+    this.registerColor(`${status}starting`, {
+      dark: colorPalette.green[600],
+      light: colorPalette.green[600],
+    });
+    // Stopped & Exited are the same color / same thing in the eyes of statuses
+    this.registerColor(`${status}stopped`, {
+      dark: colorPalette.gray[300],
+      light: colorPalette.gray[600],
+    });
+    this.registerColor(`${status}exited`, {
+      dark: colorPalette.gray[300],
+      light: colorPalette.gray[600],
+    });
+    this.registerColor(`${status}not-running`, {
+      dark: colorPalette.gray[700],
+      light: colorPalette.gray[900],
+    });
+    // "Warning"
+    this.registerColor(`${status}paused`, {
+      dark: colorPalette.amber[600],
+      light: colorPalette.amber[600],
+    });
+    this.registerColor(`${status}degraded`, {
+      dark: colorPalette.amber[700],
+      light: colorPalette.amber[700],
+    });
+    // Others
+    this.registerColor(`${status}created`, {
+      dark: colorPalette.green[300],
+      light: colorPalette.green[300],
+    });
+    this.registerColor(`${status}dead`, {
+      dark: colorPalette.red[500],
+      light: colorPalette.red[500],
+    });
+    // If we don't know the status, use gray
+    this.registerColor(`${status}unknown`, {
+      dark: colorPalette.gray[100],
+      light: colorPalette.gray[400],
+    });
+    // Connections / login
+    this.registerColor(`${status}connected`, {
+      dark: colorPalette.green[600],
+      light: colorPalette.green[600],
+    });
+    this.registerColor(`${status}disconnected`, {
+      dark: colorPalette.gray[500],
+      light: colorPalette.gray[800],
     });
   }
 }

@@ -443,17 +443,17 @@ test('Expect the pod1 row to have 3 status dots with the correct colors and the 
   expect(statusDots.length).toBe(4);
 
   expect(statusDots[0].title).toBe('container1: Running');
-  expect(statusDots[0]).toHaveClass('bg-status-running');
+  expect(statusDots[0]).toHaveClass('bg-[var(--pd-status-running)]');
 
   expect(statusDots[1].title).toBe('container3: Exited');
-  expect(statusDots[1]).toHaveClass('outline-status-exited');
+  expect(statusDots[1]).toHaveClass('outline-[var(--pd-status-exited)]');
 
   expect(statusDots[2].title).toBe('container2: Terminated');
-  expect(statusDots[2]).toHaveClass('bg-status-terminated');
+  expect(statusDots[2]).toHaveClass('bg-[var(--pd-status-terminated)]');
 
   // 2nd row / 2nd pod
   expect(statusDots[3].title).toBe('container4: Running');
-  expect(statusDots[3]).toHaveClass('bg-status-running');
+  expect(statusDots[3]).toHaveClass('bg-[var(--pd-status-running)]');
 });
 
 test('Expect the manyPod row to show 9 dots representing every status', async () => {
@@ -475,31 +475,31 @@ test('Expect the manyPod row to show 9 dots representing every status', async ()
   expect(statusDots.length).toBe(9);
 
   expect(statusDots[0].title).toBe('Running: 3');
-  expect(statusDots[0]).toHaveClass('bg-status-running');
+  expect(statusDots[0]).toHaveClass('bg-[var(--pd-status-running)]');
 
   expect(statusDots[1].title).toBe('Created: 1');
-  expect(statusDots[1]).toHaveClass('outline-status-created');
+  expect(statusDots[1]).toHaveClass('outline-[var(--pd-status-created)]');
 
   expect(statusDots[2].title).toBe('Paused: 1');
-  expect(statusDots[2]).toHaveClass('bg-status-paused');
+  expect(statusDots[2]).toHaveClass('bg-[var(--pd-status-paused)]');
 
   expect(statusDots[3].title).toBe('Waiting: 1');
-  expect(statusDots[3]).toHaveClass('bg-status-waiting');
+  expect(statusDots[3]).toHaveClass('bg-[var(--pd-status-waiting)]');
 
   expect(statusDots[4].title).toBe('Degraded: 1');
-  expect(statusDots[4]).toHaveClass('bg-status-degraded');
+  expect(statusDots[4]).toHaveClass('bg-[var(--pd-status-degraded)]');
 
   expect(statusDots[5].title).toBe('Exited: 1');
-  expect(statusDots[5]).toHaveClass('outline-status-exited');
+  expect(statusDots[5]).toHaveClass('outline-[var(--pd-status-exited)]');
 
   expect(statusDots[6].title).toBe('Stopped: 1');
-  expect(statusDots[6]).toHaveClass('outline-status-stopped');
+  expect(statusDots[6]).toHaveClass('outline-[var(--pd-status-stopped)]');
 
   expect(statusDots[7].title).toBe('Terminated: 1');
-  expect(statusDots[7]).toHaveClass('bg-status-terminated');
+  expect(statusDots[7]).toHaveClass('bg-[var(--pd-status-terminated)]');
 
   expect(statusDots[8].title).toBe('Dead: 1');
-  expect(statusDots[8]).toHaveClass('bg-status-dead');
+  expect(statusDots[8]).toHaveClass('bg-[var(--pd-status-dead)]');
 });
 
 const runningPod: PodInfo = {
