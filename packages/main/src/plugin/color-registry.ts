@@ -867,8 +867,8 @@ export class ColorRegistry {
       light: colorPalette.white,
     });
     this.registerColor(`${button}disabled`, {
-      dark: colorPalette.charcoal[50],
-      light: colorPalette.gray[900],
+      dark: colorPalette.charcoal[300],
+      light: colorPalette.gray[600],
     });
     this.registerColor(`${button}disabled-text`, {
       dark: colorPalette.charcoal[50],
