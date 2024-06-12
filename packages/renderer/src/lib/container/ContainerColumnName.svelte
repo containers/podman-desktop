@@ -6,7 +6,7 @@ import { ContainerGroupInfoTypeUI } from './ContainerInfoUI';
 
 export let object: ContainerInfoUI | ContainerGroupInfoUI;
 
-function displayContainersCount(containerGroup: ContainerGroupInfoUI) {
+function displayContainersCount(containerGroup: ContainerGroupInfoUI): string {
   let result = containerGroup.allContainersCount + ' container' + (containerGroup.allContainersCount > 1 ? 's' : '');
   if (containerGroup.containers.length !== containerGroup.allContainersCount) {
     result += ` (${containerGroup.allContainersCount - containerGroup.containers.length} filtered)`;
@@ -14,7 +14,7 @@ function displayContainersCount(containerGroup: ContainerGroupInfoUI) {
   return result;
 }
 
-function openGroupDetails(containerGroup: ContainerGroupInfoUI) {
+function openGroupDetails(containerGroup: ContainerGroupInfoUI): void {
   if (!containerGroup.engineId) {
     return;
   }
@@ -25,20 +25,20 @@ function openGroupDetails(containerGroup: ContainerGroupInfoUI) {
   }
 }
 
-function openContainerDetails(container: ContainerInfoUI) {
+function openContainerDetails(container: ContainerInfoUI): void {
   router.goto(`/containers/${container.id}/`);
 }
 </script>
 
-{#if 'type' in object && (object.type === ContainerGroupInfoTypeUI.POD || object.type === ContainerGroupInfoTypeUI.COMPOSE)}
+{#if 'type' in object}
   <button
-    class="flex flex-col text-sm text-gray-300 max-w-full"
+    class="flex flex-col text-sm text-[var(--pd-table-body-text-highlight)] max-w-full"
     title="{object.type}"
     on:click="{() => openGroupDetails(object)}">
     <div class="max-w-full overflow-hidden text-ellipsis">
       {object.name} ({object.type})
     </div>
-    <div class="text-xs font-extra-light text-gray-900">
+    <div class="text-xs font-extra-light text-[var(--pd-table-body-text)]">
       {displayContainersCount(object)}
     </div>
   </button>
@@ -48,12 +48,12 @@ function openContainerDetails(container: ContainerInfoUI) {
       <div class="max-w-full">
         <div class="flex flex-nowrap max-w-full">
           <div
-            class="text-sm text-gray-300 overflow-hidden text-ellipsis group-hover:text-violet-400"
+            class="text-sm text-[var(--pd-table-body-text-highlight)] overflow-hidden text-ellipsis group-hover:text-violet-400"
             title="{object.name}">
             {object.name}
           </div>
         </div>
-        <div class="flex flex-nowrap text-xs font-extra-light text-gray-900 items-center max-w-full">
+        <div class="flex flex-nowrap text-xs font-extra-light text-[var(--pd-table-body-text)] items-center max-w-full">
           <div>{object.state}</div>
           <div class="pl-2 max-w-fit overflow-hidden text-ellipsis">{object.displayPort}</div>
         </div>

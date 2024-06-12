@@ -61,7 +61,7 @@ $: providerConnections = $providerInfos
 let refreshTimeouts: NodeJS.Timeout[] = [];
 
 const SECOND = 1000;
-function refreshUptime() {
+function refreshUptime(): void {
   containerGroups = containerGroups.map(containerGroupUiInfo => {
     containerGroupUiInfo.containers = containerGroupUiInfo.containers.map(containerUiInfo => {
       return { ...containerUiInfo, uptime: containerUtils.refreshUptime(containerUiInfo) };
@@ -121,7 +121,7 @@ function computeInterval(): number {
 
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
-async function deleteSelectedContainers() {
+async function deleteSelectedContainers(): void {
   const podGroups = containerGroups
     .filter(group => group.type === ContainerGroupInfoTypeUI.POD)
     .filter(pod => pod.selected);
@@ -180,7 +180,7 @@ async function deleteSelectedContainers() {
   bulkDeleteInProgress = false;
 }
 
-function createPodFromContainers() {
+function createPodFromContainers(): void {
   const selectedContainers = containerGroups
     .map(group => group.containers)
     .flat()
@@ -245,7 +245,7 @@ function updateContainers(
   globalContext: ContextUI,
   viewContributions: ViewInfoUI[],
   searchTerm: string,
-) {
+): void {
   containersInfo = containers;
   const currentContainers = containers.map((containerInfo: ContainerInfo) => {
     return containerUtils.getContainerInfoUI(containerInfo, globalContext, viewContributions);
@@ -336,7 +336,7 @@ onDestroy(() => {
   }
 });
 
-function keydownChoice(e: KeyboardEvent) {
+function keydownChoice(e: KeyboardEvent): void {
   e.stopPropagation();
   if (e.key === 'Escape') {
     toggleCreateContainer();
@@ -352,15 +352,15 @@ function fromDockerfile(): void {
   router.goto('/images/build');
 }
 
-function resetRunningFilter() {
+function resetRunningFilter(): void {
   searchTerm = containerUtils.filterResetRunning(searchTerm);
 }
 
-function setRunningFilter() {
+function setRunningFilter(): void {
   searchTerm = containerUtils.filterSetRunning(searchTerm);
 }
 
-function setStoppedFilter() {
+function setStoppedFilter(): void {
   searchTerm = containerUtils.filterSetStopped(searchTerm);
 }
 
