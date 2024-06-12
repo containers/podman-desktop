@@ -5,6 +5,6 @@ import type { PodInfoUI } from './PodInfoUI';
 export let object: PodInfoUI;
 </script>
 
-<div class="text-sm text-gray-700">
+<div class="text-sm text-[var(--pd-table-body-text-highlight)]">
   <StateChange state="{object.status}">{object.age}</StateChange>
 </div>

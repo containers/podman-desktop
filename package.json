@@ -132,12 +132,12 @@
     "@types/tar": "^6.1.13",
     "@types/tar-fs": "^2.0.4",
     "@types/validator": "^13.11.10",
-    "@typescript-eslint/eslint-plugin": "^7.12.0",
-    "@typescript-eslint/parser": "^7.12.0",
+    "@typescript-eslint/eslint-plugin": "^7.13.0",
+    "@typescript-eslint/parser": "^7.13.0",
     "@vitest/coverage-v8": "^1.6.0",
     "cross-env": "7.0.3",
     "dts-for-context-bridge": "0.7.1",
-    "electron": "30.1.0",
+    "electron": "31.0.0",
     "electron-builder": "23.6.0",
     "electron-builder-notarize": "^1.5.2",
     "electron-devtools-installer": "^3.2.0",
@@ -157,7 +157,7 @@
     "lint-staged": "^15.2.5",
     "nock": "^14.0.0-beta.7",
     "postcss-import": "^16.1.0",
-    "prettier": "^3.3.1",
+    "prettier": "^3.3.2",
     "prettier-plugin-svelte": "^3.2.4",
     "proxy": "^2.1.1",
     "typescript": "5.4.5",
@@ -192,7 +192,7 @@
     "tar-fs": "^3.0.6",
     "undici": "^6.18.2",
     "win-ca": "^3.5.1",
-    "yaml": "^2.4.3"
+    "yaml": "^2.4.5"
   },
   "resolutions": {
     "trim": "0.0.3",

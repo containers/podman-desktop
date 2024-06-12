@@ -103,8 +103,10 @@ async function handleDeleteContext(contextName: string) {
               <div class="flex-none w-36">
                 {#if $kubernetesContextsState.get(context.name)?.reachable}
                   <div class="flex flex-row pt-2">
-                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                    <div class="ml-1 font-bold text-[9px] text-green-500" aria-label="Context Reachable">REACHABLE</div>
+                    <div class="w-3 h-3 rounded-full bg-status-connected"></div>
+                    <div class="ml-1 font-bold text-[9px] text-status-connected" aria-label="Context Reachable">
+                      REACHABLE
+                    </div>
                   </div>
                   <div class="flex flex-row gap-4 mt-4">
                     <div class="text-center">

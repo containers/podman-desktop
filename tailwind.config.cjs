@@ -77,6 +77,8 @@ module.exports = {
         // If we don't know the status, use gray
         'unknown': tailwindColors.gray[100],
 
+        'connected': tailwindColors.green[600],
+        'disconnected': tailwindColors.gray[500],
       },
       // The remaining colors below are not part of our palette and are only here
       // to maintain existing code. No new use.
