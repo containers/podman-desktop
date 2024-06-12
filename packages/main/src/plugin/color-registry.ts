@@ -1166,5 +1166,11 @@ export class ColorRegistry {
       dark: colorPalette.gray[500],
       light: colorPalette.gray[800],
     });
+    // Scaled / updated, use blue as it's a 'neutral' color
+    // to indicate that it's informative but not a problem
+    this.registerColor(`${status}updated`, {
+      dark: colorPalette.sky[500],
+      light: colorPalette.sky[500],
+    });
   }
 }

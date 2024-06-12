@@ -1,5 +1,14 @@
 <script lang="ts">
-import { faCheckCircle, faExclamationTriangle, faQuestionCircle, faSync } from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowDown,
+  faArrowUp,
+  faCheckCircle,
+  faExclamationTriangle,
+  faQuestionCircle,
+  faSync,
+  faTimesCircle,
+  type IconDefinition,
+} from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 
 import Label from '../ui/Label.svelte';
@@ -9,33 +18,74 @@ export let object: DeploymentUI;
 
 // Determine both the icon and color based on the deployment condition
 function getConditionAttributes(condition: DeploymentCondition) {
-  let name = condition.type;
-  switch (condition.type) {
-    case 'Available':
-      // faCheckCircle: Indicates a successful state, typically used to denote availability and operational readiness
-      return { color: 'text-green-600', icon: faCheckCircle, name };
-    case 'Progressing':
-      // faSync: Often used to represent ongoing processes or operations, fitting for a "Progressing" state
-      // If reason has NewReplicaSetAvailable then it's progressed
-      if (condition.reason === 'NewReplicaSetAvailable') {
-        name = 'Progressed';
-      }
+  const defaults = {
+    name: condition.type,
+    color: 'text-gray-500',
+    icon: faQuestionCircle,
+  };
 
-      return { color: 'text-sky-400', icon: faSync, name };
-    case 'ReplicaFailure':
-      // faExclamationTriangle: Alerts and warnings
-      return { color: 'text-amber-600', icon: faExclamationTriangle, name };
-    default:
-      // faQuestionCircle: Uncertain / unknown
-      return { color: 'text-gray-900', icon: faQuestionCircle, name };
-  }
+  // Condition map for easier lookup
+  const conditionMap: { [key: string]: { name: string; color: string; icon?: IconDefinition } } = {
+    'Available:MinimumReplicasAvailable': {
+      name: 'Available',
+      color: 'text-[var(--pd-status-running)]',
+      icon: faCheckCircle,
+    },
+    'Available:MinimumReplicasUnavailable': {
+      name: 'Unavailable',
+      color: 'text-[var(--pd-status-degraded)]',
+      icon: faTimesCircle,
+    },
+    'Progressing:ReplicaSetUpdated': {
+      name: 'Updated',
+      color: 'text-[var(--pd-status-updated)]',
+    },
+    'Progressing:NewReplicaSetCreated': {
+      name: 'New Replica Set',
+      color: 'text-[var(--pd-status-updated)]',
+    },
+    'Progressing:NewReplicaSetAvailable': {
+      name: 'Progressed',
+      color: 'text-[var(--pd-status-running)]',
+      icon: faSync,
+    },
+    'Progressing:ReplicaSetScaledUp': {
+      name: 'Scaled Up',
+      color: 'text-[var(--pd-status-updated)]',
+      icon: faArrowUp,
+    },
+    'Progressing:ReplicaSetScaledDown': {
+      name: 'Scaled Down',
+      color: 'text-[var(--pd-status-updated)]',
+      icon: faArrowDown,
+    },
+    'Progressing:ProgressDeadlineExceeded': {
+      name: 'Deadline Exceeded',
+      color: 'text-[var(--pd-status-dead)]',
+      icon: faTimesCircle,
+    },
+    'ReplicaFailure:ReplicaFailure': {
+      name: 'Replica Failure',
+      color: 'text-[var(--pd-status-dead)]',
+      icon: faExclamationTriangle,
+    },
+  };
+
+  // Construct the key from type and reason
+  const key = `${condition.type}:${condition.reason}`;
+
+  // Return the corresponding attributes or default if not found
+  return conditionMap[key] || defaults;
 }
 </script>
 
 <div class="flex flex-row gap-1">
   {#each object.conditions as condition}
     <Label tip="{condition.message}" name="{getConditionAttributes(condition).name}">
-      <Fa size="1x" icon="{getConditionAttributes(condition).icon}" class="{getConditionAttributes(condition).color}" />
+      <Fa
+        size="1x"
+        icon="{getConditionAttributes(condition).icon ?? faQuestionCircle}"
+        class="{getConditionAttributes(condition).color}" />
     </Label>
   {/each}
 </div>
