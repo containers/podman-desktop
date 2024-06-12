@@ -334,7 +334,7 @@ declare module '@podman-desktop/api' {
      * "stop": stop the pod when the last container exits. This is the
      * default behaviour for play kube.
      */
-    exit_policy: string;
+    exit_policy?: string;
   }
 
   export interface ManifestCreateOptions {
