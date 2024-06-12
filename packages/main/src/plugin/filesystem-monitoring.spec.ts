@@ -81,3 +81,34 @@ test('should send event into onDid when a file is watched into an existing direc
     expect(unlinkListener).toHaveBeenCalledWith(Uri.file(watchedFile));
   });
 });
+
+test('should send event onDidCreate when a directory is created into a watched directory', async () => {
+  watcher = new FileSystemWatcherImpl(rootdir);
+
+  const readyListener = vi.fn();
+  watcher.onReady(readyListener);
+
+  const createListener = vi.fn();
+  watcher.onDidCreate(createListener);
+  const changeListener = vi.fn();
+  watcher.onDidChange(changeListener);
+  const unlinkListener = vi.fn();
+  watcher.onDidDelete(unlinkListener);
+
+  await vi.waitFor(async () => {
+    expect(readyListener).toHaveBeenCalled();
+  });
+
+  expect(createListener).toHaveBeenCalledWith(Uri.file(rootdir));
+  expect(changeListener).not.toHaveBeenCalled();
+  expect(unlinkListener).not.toHaveBeenCalled();
+
+  const createdDir = path.join(rootdir, 'dir');
+  await promises.mkdir(createdDir);
+
+  await vi.waitFor(async () => {
+    expect(createListener).toHaveBeenCalledWith(Uri.file(createdDir));
+  });
+  expect(changeListener).not.toHaveBeenCalled();
+  expect(unlinkListener).not.toHaveBeenCalled();
+});
