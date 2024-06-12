@@ -280,7 +280,7 @@ let sizeColumn = new TableColumn<ImageInfoUI, string>('Size', {
   comparator: (a, b) => b.size - a.size,
 });
 
-const columns: TableColumn<ImageInfoUI, ImageInfoUI | string>[] = [
+const columns = [
   statusColumn,
   nameColumn,
   envColumn,
