@@ -24,6 +24,7 @@ export * from './setupFiles/setup-registry';
 export type { RunnerTestContext } from './testContext/runner-test-context';
 export * from './utility/cleanup';
 export * from './utility/operations';
+export * from './utility/platform';
 export * from './utility/wait';
 
 // exports Podman Desktop Page Object Module

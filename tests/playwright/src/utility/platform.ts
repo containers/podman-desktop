@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Locator, Page } from '@playwright/test';
+import * as os from 'node:os';
 
-import { BasePage } from './base-page';
+export const isLinux = os.platform() === 'linux';
+export const isMac = os.platform() === 'darwin';
+export const isWindows = os.platform() === 'win32';
 
-export abstract class SettingsPage extends BasePage {
-  readonly tabName: string;
-  readonly header: Locator;
-  readonly content: Locator;
-
-  constructor(page: Page, tabName: string) {
-    super(page);
-    this.tabName = tabName;
-    this.header = this.page.getByRole('region', { name: 'Header' });
-    this.content = this.page.getByRole('region', { name: 'Content' });
-  }
-
-  async getTab(): Promise<Locator> {
-    return this.page
-      .getByRole('navigation', { name: 'PreferencesNavigation' })
-      .getByRole('link', { name: this.tabName, exact: true });
-  }
-}
+export const isCI = process.env.CI ? process.env.CI : false;
