@@ -20,7 +20,6 @@ export let kind: string;
 export let columns: Column<any>[];
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let row: Row<any>;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let data: { selected?: boolean; name?: string }[];
 export let defaultSortColumn: string | undefined = undefined;
 export let collapsed: string[] = [];
