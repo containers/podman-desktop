@@ -36,6 +36,10 @@ export class FileSystemWatcherImpl implements containerDesktopAPI.FileSystemWatc
     } else if (parent !== path) {
       // we stop the recursion at /
       const parentWatcher = new FileSystemWatcherImpl(parent);
+      const dispoReady = parentWatcher.onReady(() => {
+        this._onReady.fire();
+        dispoReady.dispose();
+      });
       const disposable = parentWatcher.onDidCreate((uri: containerDesktopAPI.Uri) => {
         if (uri.path === parent) {
           this.doWatch(path);
