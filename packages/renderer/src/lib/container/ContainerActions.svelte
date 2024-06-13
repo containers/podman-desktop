@@ -16,6 +16,7 @@ import { createEventDispatcher, onMount } from 'svelte';
 import { router } from 'tinro';
 
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
+import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
 import { exportContainerInfo } from '/@/stores/export-container-store';
 
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
@@ -154,8 +155,7 @@ if (dropdownMenu) {
 
 <ListItemButtonIcon
   title="Delete Container"
-  confirm="{true}"
-  onClick="{() => deleteContainer()}"
+  onClick="{() => withConfirmation(deleteContainer, `delete container ${container.name}`)}"
   icon="{faTrash}"
   detailed="{detailed}"
   inProgress="{container.actionInProgress && container.state === 'DELETING'}" />
