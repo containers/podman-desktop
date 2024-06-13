@@ -721,12 +721,12 @@ export class ColorRegistry {
     // color for most text in tables
     this.registerColor(`${tab}body-text`, {
       dark: colorPalette.gray[700],
-      light: colorPalette.charcoal[300],
+      light: colorPalette.charcoal[100],
     });
     // color for the text in the main column of the table (generally Name)
     this.registerColor(`${tab}body-text-highlight`, {
       dark: colorPalette.gray[300],
-      light: colorPalette.charcoal[300],
+      light: colorPalette.charcoal[700],
     });
     // color for the text in second line of main column, in secondary color (generally IDs)
     this.registerColor(`${tab}body-text-sub-secondary`, {
