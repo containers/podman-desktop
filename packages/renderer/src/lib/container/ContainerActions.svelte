@@ -53,7 +53,7 @@ function handleError(errorMessage: string): void {
   dispatch('update', container);
 }
 
-async function startContainer() {
+async function startContainer(): Promise<void> {
   inProgress(true, 'STARTING');
   try {
     await window.startContainer(container.engineId, container.id);
@@ -64,7 +64,7 @@ async function startContainer() {
   }
 }
 
-async function restartContainer() {
+async function restartContainer(): Promise<void> {
   inProgress(true, 'RESTARTING');
   try {
     await window.restartContainer(container.engineId, container.id);
@@ -75,7 +75,7 @@ async function restartContainer() {
   }
 }
 
-async function stopContainer() {
+async function stopContainer(): Promise<void> {
   inProgress(true, 'STOPPING');
   try {
     await window.stopContainer(container.engineId, container.id);
@@ -108,7 +108,7 @@ async function deleteContainer(): Promise<void> {
   }
 }
 
-async function exportContainer() {
+async function exportContainer(): Promise<void> {
   exportContainerInfo.set(container);
   router.goto('/containers/export');
 }

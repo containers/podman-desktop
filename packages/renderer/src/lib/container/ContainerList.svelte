@@ -121,7 +121,7 @@ function computeInterval(): number {
 
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
-async function deleteSelectedContainers(): void {
+async function deleteSelectedContainers(): Promise<void> {
   const podGroups = containerGroups
     .filter(group => group.type === ContainerGroupInfoTypeUI.POD)
     .filter(pod => pod.selected);
