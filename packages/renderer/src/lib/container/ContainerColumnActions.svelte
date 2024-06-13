@@ -13,12 +13,10 @@ const containerUtils = new ContainerUtils();
 
 {#if containerUtils.isContainerGroupInfoUI(object)}
   {#if object.type === ContainerGroupInfoTypeUI.POD}
-    <ContainerColumnActionsPod object="{object}" />
+    <ContainerColumnActionsPod object="{object}" on:update />
+  {:else if object.type === ContainerGroupInfoTypeUI.COMPOSE}
+    <ContainerColumnActionsCompose object="{object}" on:update />
   {/if}
-  {#if object.type === ContainerGroupInfoTypeUI.COMPOSE}
-    <ContainerColumnActionsCompose object="{object}" />
-  {/if}
-{/if}
-{#if containerUtils.isContainerInfoUI(object)}
-  <ContainerColumnActionsContainer object="{object}" />
+{:else if containerUtils.isContainerInfoUI(object)}
+  <ContainerColumnActionsContainer object="{object}" on:update />
 {/if}
