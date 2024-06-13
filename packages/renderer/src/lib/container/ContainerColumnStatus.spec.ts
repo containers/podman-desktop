@@ -52,7 +52,7 @@ test('Expect simple column styling - container', async () => {
 
   const text = screen.getByRole('status');
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('bg-status-running');
+  expect(text).toHaveClass('bg-[var(--pd-status-running)]');
 });
 
 test('Expect simple column styling - pod', async () => {
@@ -69,7 +69,7 @@ test('Expect simple column styling - pod', async () => {
 
   const text = screen.getByRole('status');
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('bg-status-running');
+  expect(text).toHaveClass('bg-[var(--pd-status-running)]');
 });
 
 test('Expect simple column styling - compose', async () => {
@@ -86,5 +86,5 @@ test('Expect simple column styling - compose', async () => {
 
   const text = screen.getByRole('status');
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('bg-status-running');
+  expect(text).toHaveClass('bg-[var(--pd-status-running)]');
 });
