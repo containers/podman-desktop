@@ -50,55 +50,6 @@ test('Expect column styling available', async () => {
   expect(svg).toHaveClass('text-[var(--pd-status-running)]');
 });
 
-/* Add more tests for
-   // Condition map for easier lookup
-  const conditionMap: { [key: string]: { name: string; color: string; icon?: IconDefinition } } = {
-    'Available:MinimumReplicasAvailable': {
-      name: 'Available',
-      color: 'text-[var(--pd-status-running)]',
-      icon: faCheckCircle,
-    },
-    'Available:MinimumReplicasUnavailable': {
-      name: 'Unavailable',
-      color: 'text-[var(--pd-status-degraded)]',
-      icon: faTimesCircle,
-    },
-    'Progressing:ReplicaSetUpdated': {
-      name: 'Updated',
-      color: 'text-[var(--pd-status-updated)]',
-    },
-    'Progressing:NewReplicaSetCreated': {
-      name: 'New Replica Set',
-      color: 'text-[var(--pd-status-updated)]',
-    },
-    'Progressing:NewReplicaSetAvailable': {
-      name: 'Progressed',
-      color: 'text-[var(--pd-status-running)]',
-      icon: faSync,
-    },
-    'Progressing:ReplicaSetScaledUp': {
-      name: 'Scaled Up',
-      color: 'text-[var(--pd-status-updated)]',
-      icon: faArrowUp,
-    },
-    'Progressing:ReplicaSetScaledDown': {
-      name: 'Scaled Down',
-      color: 'text-[var(--pd-status-updated)]',
-      icon: faArrowDown,
-    },
-    'Progressing:ProgressDeadlineExceeded': {
-      name: 'Deadline Exceeded',
-      color: 'text-[var(--pd-status-dead)]',
-      icon: faTimesCircle,
-    },
-    ReplicaFailure: {
-      name: 'Replica Failure',
-      color: 'text-[var(--pd-status-dead)]',
-      icon: faExclamationTriangle,
-    },
-  };
-  */
-
 test('Expect column styling unavailable', async () => {
   const deployment = createDeploymentUI([
     { type: 'Available', message: 'Running fine', reason: 'MinimumReplicasUnavailable' },

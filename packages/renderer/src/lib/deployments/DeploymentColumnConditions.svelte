@@ -15,58 +15,61 @@ import Label from '../ui/Label.svelte';
 import type { DeploymentCondition, DeploymentUI } from './DeploymentUI';
 
 export let object: DeploymentUI;
+const defaultUnknownIcon: IconDefinition = faQuestionCircle;
 
 // Determine both the icon and color based on the deployment condition
 function getConditionAttributes(condition: DeploymentCondition) {
   const defaults = {
     name: condition.type,
     color: 'text-gray-500',
-    icon: faQuestionCircle,
+    icon: defaultUnknownIcon,
   };
 
   // Condition map for easier lookup
   const conditionMap: { [key: string]: { name: string; color: string; icon?: IconDefinition } } = {
     'Available:MinimumReplicasAvailable': {
-      name: 'Available',
       color: 'text-[var(--pd-status-running)]',
+      name: 'Available',
       icon: faCheckCircle,
     },
     'Available:MinimumReplicasUnavailable': {
-      name: 'Unavailable',
       color: 'text-[var(--pd-status-degraded)]',
+      name: 'Unavailable',
       icon: faTimesCircle,
     },
     'Progressing:ReplicaSetUpdated': {
-      name: 'Updated',
       color: 'text-[var(--pd-status-updated)]',
+      name: 'Updated',
+      icon: faSync,
     },
     'Progressing:NewReplicaSetCreated': {
-      name: 'New Replica Set',
       color: 'text-[var(--pd-status-updated)]',
+      name: 'New Replica Set',
+      icon: faSync,
     },
     'Progressing:NewReplicaSetAvailable': {
-      name: 'Progressed',
       color: 'text-[var(--pd-status-running)]',
+      name: 'Progressed',
       icon: faSync,
     },
     'Progressing:ReplicaSetScaledUp': {
-      name: 'Scaled Up',
       color: 'text-[var(--pd-status-updated)]',
+      name: 'Scaled Up',
       icon: faArrowUp,
     },
     'Progressing:ReplicaSetScaledDown': {
-      name: 'Scaled Down',
       color: 'text-[var(--pd-status-updated)]',
+      name: 'Scaled Down',
       icon: faArrowDown,
     },
     'Progressing:ProgressDeadlineExceeded': {
-      name: 'Deadline Exceeded',
       color: 'text-[var(--pd-status-dead)]',
+      name: 'Deadline Exceeded',
       icon: faTimesCircle,
     },
     'ReplicaFailure:ReplicaFailure': {
-      name: 'Replica Failure',
       color: 'text-[var(--pd-status-dead)]',
+      name: 'Replica Failure',
       icon: faExclamationTriangle,
     },
   };
@@ -75,7 +78,7 @@ function getConditionAttributes(condition: DeploymentCondition) {
   const key = `${condition.type}:${condition.reason}`;
 
   // Return the corresponding attributes or default if not found
-  return conditionMap[key] || defaults;
+  return conditionMap[key] ?? defaults;
 }
 </script>
 
@@ -84,7 +87,7 @@ function getConditionAttributes(condition: DeploymentCondition) {
     <Label tip="{condition.message}" name="{getConditionAttributes(condition).name}">
       <Fa
         size="1x"
-        icon="{getConditionAttributes(condition).icon ?? faQuestionCircle}"
+        icon="{getConditionAttributes(condition).icon ?? defaultUnknownIcon}"
         class="{getConditionAttributes(condition).color}" />
     </Label>
   {/each}
