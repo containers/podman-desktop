@@ -34,7 +34,7 @@ jobs:
 
   version:
     name: Extracting version
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       desktopVersion: ${{ steps.VERSION.outputs.desktopVersion}}
 
