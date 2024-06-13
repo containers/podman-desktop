@@ -1878,11 +1878,9 @@ export class ContainerProviderRegistry {
       }
 
       const engine = this.internalProviders.get(engineId);
-      if (engine) {
+      if (engine && (options.start === true || options.start === undefined)) {
+        await container.start();
         await this.attachToContainer(engine, container, options.Tty, options.OpenStdin);
-        if (options.start === true || options.start === undefined) {
-          await container.start();
-        }
       }
       return { id: container.id, engineId };
     } catch (error) {
