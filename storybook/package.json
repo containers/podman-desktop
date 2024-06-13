@@ -26,7 +26,7 @@
     "@storybook/addon-links": "^8.1.6",
     "@storybook/addon-svelte-csf": "^4.1.1",
     "@storybook/blocks": "^8.1.6",
-    "@storybook/svelte": "^8.1.4",
+    "@storybook/svelte": "^8.1.8",
     "@storybook/svelte-vite": "^8.1.6",
     "@storybook/test": "^8.1.4",
     "@sveltejs/package": "^2.2.6",
