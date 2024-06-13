@@ -23,9 +23,6 @@ export let inProgress = false;
 export let iconOffset = '';
 export let tooltip: string = '';
 
-// Pop up with a dialog before executing the action
-export let confirm = false;
-
 export let contextUI: ContextUI | undefined = undefined;
 
 let positionLeftClass = 'left-1';
@@ -86,21 +83,7 @@ const buttonDisabledClass =
 // $: handleClick = enabled && !inProgress ? onClick : () => {};
 $: handleClick = () => {
   if (enabled && !inProgress) {
-    if (confirm) {
-      window
-        .showMessageBox({
-          title: 'Confirmation',
-          message: 'Are you sure you want to ' + title.toLowerCase() + '?',
-          buttons: ['Yes', 'Cancel'],
-        })
-        .then(result => {
-          if (result && result.response === 0) {
-            onClick();
-          }
-        });
-    } else {
-      onClick();
-    }
+    onClick();
   }
 };
 $: styleClass = detailed

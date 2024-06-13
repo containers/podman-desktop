@@ -2,6 +2,8 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { createEventDispatcher } from 'svelte';
 
+import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
+
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import type { ServiceUI } from './ServiceUI';
 
@@ -20,7 +22,6 @@ async function deleteService(): Promise<void> {
 
 <ListItemButtonIcon
   title="Delete Service"
-  confirm="{true}"
-  onClick="{() => deleteService()}"
+  onClick="{() => withConfirmation(deleteService, `delete service ${service.name}`)}"
   detailed="{detailed}"
   icon="{faTrash}" />
