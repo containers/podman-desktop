@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { existsSync } from 'node:fs';
+import { cpSync, existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -25,6 +25,7 @@ import { safeStorage } from 'electron';
 import { type Directories } from '/@/plugin/directories.js';
 import type { Event } from '/@/plugin/events/emitter.js';
 import { Emitter } from '/@/plugin/events/emitter.js';
+import type { NotificationCardOptions } from '/@api/notification.js';
 
 /**
  * Manage the storage of string being encrypted on disk
@@ -45,7 +46,8 @@ export class SafeStorageRegistry {
   }
 
   // initialize the safe storage
-  public async init(): Promise<void> {
+  public async init(): Promise<NotificationCardOptions[]> {
+    const notifications: NotificationCardOptions[] = [];
     const safeStoragePath = this.getSafeStorageDataPath();
 
     const parentDirectory = path.dirname(safeStoragePath);
@@ -58,13 +60,34 @@ export class SafeStorageRegistry {
 
     // read the file and create a SafeStorage object
     const content = await readFile(safeStoragePath, 'utf-8');
-    const data = JSON.parse(content);
+    let data: { [key: string]: string };
+    try {
+      data = JSON.parse(content);
+    } catch (error) {
+      console.error(`Unable to parse ${safeStoragePath} file`, error);
+
+      const backupFilename = `${safeStoragePath}.backup-${Date.now()}`;
+      // keep original file as a backup
+      cpSync(safeStoragePath, backupFilename);
+
+      // append notification for the user
+      notifications.push({
+        title: 'Corrupted secure storage',
+        body: `Secure storage located at ${safeStoragePath} was invalid. Created a copy at '${backupFilename}' and started with empty storage.`,
+        extensionId: 'core',
+        type: 'warn',
+        highlight: true,
+        silent: true,
+      });
+      data = {};
+    }
     this.#extensionStorage = new SafeStorage(data);
 
     // in case of an update, persists the new data to the file
     this.#extensionStorage.onDidChange(async () => {
       await writeFile(safeStoragePath, JSON.stringify(data), 'utf-8');
     });
+    return notifications;
   }
 
   getExtensionStorage(extensionId: string): ExtensionSecretStorage {

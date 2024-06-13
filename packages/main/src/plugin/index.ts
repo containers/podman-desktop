@@ -421,7 +421,7 @@ export class PluginSystem {
     const statusBarRegistry = new StatusBarRegistry(apiSender);
 
     const safeStorageRegistry = new SafeStorageRegistry(directories);
-    await safeStorageRegistry.init();
+    notifications.push(...(await safeStorageRegistry.init()));
 
     const configurationRegistry = new ConfigurationRegistry(apiSender, directories);
     notifications.push(...configurationRegistry.init());
