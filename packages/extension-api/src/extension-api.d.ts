@@ -373,11 +373,44 @@ declare module '@podman-desktop/api' {
   }
 
   export interface PodCreateOptions {
-    name: string;
+    /**
+     * Name is the name of the pod. If not provided, a name will be generated when the pod is created. Optional.
+     */
+    name?: string;
+    /**
+     * PortMappings is a set of ports to map into the infra container.
+     * As, by default, containers share their network with the infra container, this will forward the ports to the entire pod.
+     * Only available if NetNS is set to Bridge, Slirp, or Pasta.
+     */
     portmappings?: PodCreatePortOptions[];
+    /**
+     * Labels are key-value pairs that are used to add metadata to pods. Optional.
+     */
     labels?: { [key: string]: string };
     // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
     provider?: ContainerProviderConnection;
+    /**
+     * Map of networks names to ids the container should join to.
+     * You can request additional settings for each network, you can set network aliases,
+     * If the map is empty and the bridge network mode is set the container will be joined to the default network.
+     */
+    Networks?: {
+      [key: string]: {
+        aliases?: string[];
+        interface_name?: string;
+      };
+    };
+    /**
+     * ExitPolicy determines the pod's exit and stop behaviour.
+     * @example
+     * "continue": the pod continues running. This is the default policy
+     * when creating a pod.
+     *
+     * @example
+     * "stop": stop the pod when the last container exits. This is the
+     * default behaviour for play kube.
+     */
+    exit_policy?: string;
   }
 
   export interface ManifestCreateOptions {

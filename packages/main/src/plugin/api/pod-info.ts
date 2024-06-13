@@ -37,9 +37,16 @@ export interface PodInspectInfo extends LibPodPodInspectInfo {
 }
 
 export interface PodCreateOptions {
-  name: string;
+  name?: string;
   portmappings?: PodCreatePortOptions[];
   labels?: { [key: string]: string };
   // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
   provider?: ProviderContainerConnectionInfo | ContainerProviderConnection;
+  Networks?: {
+    [key: string]: {
+      aliases?: string[];
+      interface_name?: string;
+    };
+  };
+  exit_policy?: string;
 }
