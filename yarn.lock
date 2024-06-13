@@ -194,10 +194,10 @@
     sharp "^0.33.3"
     tmp "^0.2.3"
 
-"@argos-ci/playwright@^3.0.4":
-  version "3.0.4"
-  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-3.0.4.tgz#3d67e190a991b7d8b3913653be096a3970c6e040"
-  integrity sha512-AEDdNXRWoHjDaOJfnDBNkhbATSq1u3kJyqCUN+bEv7JncKkNL2zLTIJiljVnFNfIu/x3ffeST415LswKI9PpKw==
+"@argos-ci/playwright@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@argos-ci/playwright/-/playwright-3.1.0.tgz#7be2aef2782996c2a892f93d9b475eeb437db389"
+  integrity sha512-SXsO3xhKzWHvn/Hr7DIlft9tHvzu2pM1dG6UQR+B4BtC5KE0Gc4y8X9h/g1ZUrMZ8WeEDkftuwXILdSlUiyFtA==
   dependencies:
     "@argos-ci/browser" "2.1.2"
     "@argos-ci/core" "2.2.0"
@@ -5468,17 +5468,6 @@
     telejson "^7.2.0"
     tiny-invariant "^1.3.1"
 
-"@storybook/channels@8.1.6":
-  version "8.1.6"
-  resolved "https://registry.yarnpkg.com/@storybook/channels/-/channels-8.1.6.tgz#2fb2b51fe0ae5966e75d25cf995392048f8b62a4"
-  integrity sha512-CzDnP6qfI8OC8pGUk+wPUzLPYcKhX8XbriF2gBtwl6qVM8YfkHP2mLTiDYDwBIi0rLuUbSm/SpILXQ/ouOHOGw==
-  dependencies:
-    "@storybook/client-logger" "8.1.6"
-    "@storybook/core-events" "8.1.6"
-    "@storybook/global" "^5.0.0"
-    telejson "^7.2.0"
-    tiny-invariant "^1.3.1"
-
 "@storybook/channels@8.1.8":
   version "8.1.8"
   resolved "https://registry.yarnpkg.com/@storybook/channels/-/channels-8.1.8.tgz#b7fb6bb67460dc9e00585928d39ab06aa2dc3f73"
@@ -5536,13 +5525,6 @@
   version "8.1.5"
   resolved "https://registry.yarnpkg.com/@storybook/client-logger/-/client-logger-8.1.5.tgz#aa4a6ce4ca46fdfe12539e571f9059a479c8ae43"
   integrity sha512-zd+aENXnOHsxBATppELmhw/UywLzCxQjz/8i/xkUjeTRB4Ggp0hJlOUdJUEdIJz631ydyytfvM70ktBj9gMl1w==
-  dependencies:
-    "@storybook/global" "^5.0.0"
-
-"@storybook/client-logger@8.1.6":
-  version "8.1.6"
-  resolved "https://registry.yarnpkg.com/@storybook/client-logger/-/client-logger-8.1.6.tgz#79fcd54e58d5ec72fa2ea53bdb16a98d10ee712f"
-  integrity sha512-QfSoUxS1rmrBzO7o99og9g+Gkm7sTmU5ZOpTkjszjlRqfV6/77eUnUOzUikej4LqPLmlJV5fqGuvoP0aNVksDw==
   dependencies:
     "@storybook/global" "^5.0.0"
 
@@ -5664,14 +5646,6 @@
   version "8.1.5"
   resolved "https://registry.yarnpkg.com/@storybook/core-events/-/core-events-8.1.5.tgz#d921984e12b27aaaa623499a7ac0c3eea5e96264"
   integrity sha512-fgwbrHoLtSX6kfmamTGJqD+KfuEgun8cc4mWKZK094ByaqbSjhnOyeYO1sfVk8qst7QTFlOfhLAUe4cz1z149A==
-  dependencies:
-    "@storybook/csf" "^0.1.7"
-    ts-dedent "^2.0.0"
-
-"@storybook/core-events@8.1.6":
-  version "8.1.6"
-  resolved "https://registry.yarnpkg.com/@storybook/core-events/-/core-events-8.1.6.tgz#b4819279b1277196e62b1b3f1b113a304c9f675b"
-  integrity sha512-DaIVe4TUp/7uQdSJYGmJv9S/S364tSgZ3S3dZ1vsf1rgoUbCp5kTBtcd/fcqgukMPREgCgO9oDhmemI3SLAqzw==
   dependencies:
     "@storybook/csf" "^0.1.7"
     ts-dedent "^2.0.0"
@@ -5900,26 +5874,6 @@
     ts-dedent "^2.0.0"
     util-deprecate "^1.0.2"
 
-"@storybook/preview-api@8.1.6":
-  version "8.1.6"
-  resolved "https://registry.yarnpkg.com/@storybook/preview-api/-/preview-api-8.1.6.tgz#2a5e461934596c513f43516935fed7747bd5f503"
-  integrity sha512-g9EvVg/DYqmjMh1uivJBJnSIvURyuK4LLabYicQNmYdQJscAeXX2bpMcA4aeci9BBm9B2RP7JbSnq7DbXZaJYA==
-  dependencies:
-    "@storybook/channels" "8.1.6"
-    "@storybook/client-logger" "8.1.6"
-    "@storybook/core-events" "8.1.6"
-    "@storybook/csf" "^0.1.7"
-    "@storybook/global" "^5.0.0"
-    "@storybook/types" "8.1.6"
-    "@types/qs" "^6.9.5"
-    dequal "^2.0.2"
-    lodash "^4.17.21"
-    memoizerific "^1.11.3"
-    qs "^6.10.0"
-    tiny-invariant "^1.3.1"
-    ts-dedent "^2.0.0"
-    util-deprecate "^1.0.2"
-
 "@storybook/preview-api@8.1.8":
   version "8.1.8"
   resolved "https://registry.yarnpkg.com/@storybook/preview-api/-/preview-api-8.1.8.tgz#03e7d13968989fe4db1562dfd4d58f82c684c39b"
@@ -6053,15 +6007,6 @@
   integrity sha512-/PfAZh1xtXN2MvAZZKpiL/nPkC3bZj8BQ7P7z5a/aQarP+y7qdXuoitYQ6oOH3rkaiYywmkWzA/y4iW70KXLKg==
   dependencies:
     "@storybook/channels" "8.1.5"
-    "@types/express" "^4.7.0"
-    file-system-cache "2.3.0"
-
-"@storybook/types@8.1.6":
-  version "8.1.6"
-  resolved "https://registry.yarnpkg.com/@storybook/types/-/types-8.1.6.tgz#08f3191408bf4c7375c4321f7402353390ddc438"
-  integrity sha512-cWpS9+x1pxCO39spR8QmumMK2ub2p5cvMtrRvWaIjBFPbCwm2CvjBXFWIra2veBCZTxUKJ9VWxvi7pzRHjN/nw==
-  dependencies:
-    "@storybook/channels" "8.1.6"
     "@types/express" "^4.7.0"
     file-system-cache "2.3.0"
 
