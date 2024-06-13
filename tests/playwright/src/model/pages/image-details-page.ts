@@ -63,7 +63,7 @@ export class ImageDetailsPage extends BasePage {
     this.saveImagebutton = page.getByRole('button', { name: 'Save Image', exact: true });
     this.saveImageInput = page.locator('#input-output-directory');
     this.confirmSaveImages = page.getByLabel('Save images', { exact: true });
-    this.browseButton = page.getByLabel('Select ouput folder');
+    this.browseButton = page.getByLabel('Select output folder');
   }
 
   async openRunImage(): Promise<RunImagePage> {
@@ -113,12 +113,13 @@ export class ImageDetailsPage extends BasePage {
 
     await playExpect(this.saveImagebutton).toBeEnabled();
     await this.saveImagebutton.click();
-    await playExpect(this.browseButton).toBeEnabled();
+    await playExpect(this.saveImageInput).toBeVisible();
+    await playExpect(this.confirmSaveImages).toBeVisible();
 
     await this.saveImageInput.evaluate(node => node.removeAttribute('readonly'));
     await this.confirmSaveImages.evaluate(node => node.removeAttribute('disabled'));
 
-    await this.saveImageInput.fill(outputPath);
+    await this.saveImageInput.pressSequentially(outputPath, { delay: 10 });
     await this.confirmSaveImages.click();
 
     return new ImagesPage(this.page);

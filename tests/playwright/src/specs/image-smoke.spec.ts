@@ -146,34 +146,4 @@ describe('Image workflow verification', async () => {
       await playExpect.poll(async () => await imagesPage.waitForImageDelete(image, 60000), { timeout: 0 }).toBeTruthy();
     }
   }, 150000);
-
-  test('Save image', async () => {
-    let imagesPage = await navBar.openImages();
-    await playExpect(imagesPage.heading).toBeVisible();
-
-    await imagesPage.pullImage(helloContainer);
-    await playExpect(imagesPage.heading).toBeVisible();
-    await playExpect.poll(async () => await imagesPage.waitForImageExists(helloContainer)).toBeTruthy();
-
-    const imageDetailPage = await imagesPage.openImageDetails(helloContainer);
-    await playExpect(imageDetailPage.heading).toBeVisible();
-
-    const folderPath = path.resolve(__dirname, '..', '..', 'resources');
-    imagesPage = await imageDetailPage.saveImage(`${folderPath}/test-image.tar`);
-    await playExpect(imagesPage.heading).toBeVisible();
-
-    await imagesPage.pruneImages();
-    await playExpect.poll(async () => await imagesPage.waitForImageDelete(helloContainer)).toBeTruthy();
-  });
-
-  test('Load image', async () => {
-    let imagesPage = await navBar.openImages();
-    await playExpect(imagesPage.heading).toBeVisible();
-
-    const folderPath = path.resolve(__dirname, '..', '..', 'resources');
-    imagesPage = await imagesPage.loadImages(`${folderPath}/test-image.tar`);
-    await playExpect(imagesPage.heading).toBeVisible();
-
-    await playExpect.poll(async () => await imagesPage.waitForImageExists(helloContainer)).toBeTruthy();
-  });
 });

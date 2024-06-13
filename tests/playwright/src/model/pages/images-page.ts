@@ -43,7 +43,7 @@ export class ImagesPage extends MainPage {
     this.pruneImagesButton = this.additionalActions.getByRole('button', { name: 'Prune', exact: true });
     this.buildImageButton = this.additionalActions.getByRole('button', { name: 'Build', exact: true });
     this.pruneConfirmationButton = this.page.getByRole('button', { name: 'Yes', exact: true });
-    this.loadImagesFromTarButton = this.additionalActions.getByRole('button', { name: 'Load', exact: true });
+    this.loadImagesFromTarButton = this.additionalActions.getByLabel('Load Images', { exact: true });
     this.addArchiveButton = this.page.getByRole('button', { name: 'Add archive', exact: true });
     this.confirmLoadImagesButton = this.page.getByRole('button', { name: 'Load Images', exact: true });
   }
