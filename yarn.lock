@@ -15585,7 +15585,12 @@ mz@^2.7.0:
     object-assign "^4.0.1"
     thenify-all "^1.0.0"
 
-nan@^2.16.0, nan@^2.19.0:
+nan@^2.16.0:
+  version "2.20.0"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.20.0.tgz#08c5ea813dd54ed16e5bd6505bf42af4f7838ca3"
+  integrity sha512-bk3gXBZDGILuuo/6sKtr0DQmSThYHLtNCdSdXk9YkxD/jK6X2vmCyyXBBxyqZ4XcnzTyYEAThfX3DCEnLf6igw==
+
+nan@^2.19.0:
   version "2.19.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.19.0.tgz#bb58122ad55a6c5bc973303908d5b16cfdd5a8c0"
   integrity sha512-nO1xXxfh/RWNxfd/XPfbIfFk5vgLsAxUR9y5O0cHMJu/AW9U95JLXqthYHjEp+8gQ5p96K9jUp8nbVOxCdRbtw==
@@ -19503,10 +19508,10 @@ tsutils@^3.0.0, tsutils@^3.17.1, tsutils@^3.21.0:
   dependencies:
     tslib "^1.8.1"
 
-tsx@^4.15.2:
-  version "4.15.2"
-  resolved "https://registry.yarnpkg.com/tsx/-/tsx-4.15.2.tgz#f2d9dfb747d89b508d950d235a4d6165400a0234"
-  integrity sha512-kIZTOCmR37nEw0qxQks2dR+eZWSXydhTGmz7yx94vEiJtJGBTkUl0D/jt/5fey+CNdm6i3Cp+29WKRay9ScQUw==
+tsx@^4.15.4:
+  version "4.15.4"
+  resolved "https://registry.yarnpkg.com/tsx/-/tsx-4.15.4.tgz#d35b9d343b46af1ed8d56a3f5b0ecdb42b579f75"
+  integrity sha512-d++FLCwJLrXaBFtRcqdPBzu6FiVOJ2j+UsvUZPtoTrnYtCGU5CEW7iHXtNZfA2fcRTvJFWPqA6SWBuB0GSva9w==
   dependencies:
     esbuild "~0.21.4"
     get-tsconfig "^4.7.5"
