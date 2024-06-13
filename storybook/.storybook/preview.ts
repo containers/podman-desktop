@@ -22,8 +22,7 @@ import { createElement } from 'react';
 import { useDarkMode } from 'storybook-dark-mode';
 import { themes } from '@storybook/theming';
 import { DocsContainer } from '@storybook/addon-docs';
-import './dark.css';
-import './light.css';
+import './themes.css';
 
 const preview: Preview = {
   parameters: {
@@ -36,8 +35,8 @@ const preview: Preview = {
     },
     darkMode: {
       current: 'light',
-      darkClass: 'dark-scheme',
-      lightClass: 'light-scheme',
+      darkClass: 'dark',
+      lightClass: 'light',
       dark: {
         ...themes.dark,
         appPreviewBg: 'transparent',
