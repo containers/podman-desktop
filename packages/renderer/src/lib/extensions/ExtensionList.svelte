@@ -80,11 +80,11 @@ let installManualImageModal: boolean = false;
   <svelte:fragment slot="bottom-additional-actions">
     <!-- display filter out items-->
     {#if filteredInstalledItems > 0 && screen === 'installed'}
-      <div class="text-sm text-gray-400">
+      <div class="text-sm text-[var(--pd-content-text)]">
         Filtered out {filteredInstalledItems} items of {$combinedInstalledExtensions.length}
       </div>
     {:else if filteredCatalogItems > 0 && screen === 'catalog'}
-      <div class="text-sm text-gray-400">
+      <div class="text-sm text-[var(--pd-content-text)]">
         Filtered out {filteredCatalogItems} items of {$enhancedCatalogExtensions.length}
       </div>
     {/if}
