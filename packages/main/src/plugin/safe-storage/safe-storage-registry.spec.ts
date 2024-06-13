@@ -34,6 +34,9 @@ vi.mock('electron', () => ({
   },
 }));
 
+vi.mock('node:fs');
+vi.mock('node:fs/promises');
+
 let safeStorageRegistry: SafeStorageRegistry;
 
 const directories = {
@@ -45,9 +48,6 @@ beforeEach(() => {
 });
 
 test('should init safe storage', async () => {
-  vi.mock('node:fs');
-  vi.mock('node:fs/promises');
-
   // mock existsSync
   vi.mocked(existsSync).mockReturnValue(false);
 
@@ -58,7 +58,9 @@ test('should init safe storage', async () => {
   vi.mocked(safeStorage.decryptString).mockReturnValue('originalValue');
 
   // register configuration
-  await safeStorageRegistry.init();
+  const notifications = await safeStorageRegistry.init();
+  expect(notifications).toBeDefined();
+  expect(notifications.length).toBe(0);
 
   // get getExtensionStorage
   const extensionSpecificStorage = safeStorageRegistry.getExtensionStorage('id1');
@@ -107,9 +109,18 @@ test('should init safe storage', async () => {
   expect(events).toEqual([{ key: 'key1' }]);
 });
 
-test('should throw error if not initialized', async () => {
-  vi.mock('node:fs');
-  vi.mock('node:fs/promises');
+test('should init safe storage if error', async () => {
+  // mock existsSync
+  vi.mocked(existsSync).mockReturnValue(false);
 
+  vi.mocked(readFile).mockResolvedValue('invalid JSON content');
+
+  // register configuration
+  const notifications = await safeStorageRegistry.init();
+  expect(notifications).toBeDefined();
+  expect(notifications.length).toBe(1);
+});
+
+test('should throw error if not initialized', async () => {
   expect(() => safeStorageRegistry.getExtensionStorage('foo')).toThrow('Safe storage not initialized');
 });
