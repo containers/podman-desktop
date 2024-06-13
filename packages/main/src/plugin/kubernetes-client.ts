@@ -761,6 +761,9 @@ export class KubernetesClient {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedPod(name, namespace);
+      if (res.body?.metadata?.managedFields) {
+        delete res.body.metadata.managedFields;
+      }
       return res?.body;
     } catch (error) {
       telemetryOptions = { error: error };
@@ -775,6 +778,9 @@ export class KubernetesClient {
     const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
     try {
       const res = await k8sAppsApi.readNamespacedDeployment(name, namespace);
+      if (res.body?.metadata?.managedFields) {
+        delete res.body.metadata.managedFields;
+      }
       return res?.body;
     } catch (error) {
       telemetryOptions = { error: error };
@@ -789,6 +795,9 @@ export class KubernetesClient {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNode(name);
+      if (res.body?.metadata?.managedFields) {
+        delete res.body.metadata.managedFields;
+      }
       return res?.body;
     } catch (error) {
       telemetryOptions = { error: error };
@@ -803,6 +812,9 @@ export class KubernetesClient {
     const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
     try {
       const res = await k8sNetworkingApi.readNamespacedIngress(name, namespace);
+      if (res.body?.metadata?.managedFields) {
+        delete res.body.metadata.managedFields;
+      }
       return res?.body;
     } catch (error) {
       telemetryOptions = { error: error };
@@ -823,7 +835,11 @@ export class KubernetesClient {
         'routes',
         name,
       );
-      return res?.body as V1Route;
+      const route = res?.body as V1Route;
+      if (route?.metadata?.managedFields) {
+        delete route.metadata.managedFields;
+      }
+      return route;
     } catch (error) {
       telemetryOptions = { error: error };
       throw this.wrapK8sClientError(error);
@@ -837,6 +853,9 @@ export class KubernetesClient {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedService(name, namespace);
+      if (res.body?.metadata?.managedFields) {
+        delete res.body.metadata.managedFields;
+      }
       return res?.body;
     } catch (error) {
       telemetryOptions = { error: error };
@@ -851,6 +870,9 @@ export class KubernetesClient {
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedConfigMap(name, namespace);
+      if (res.body?.metadata?.managedFields) {
+        delete res.body.metadata.managedFields;
+      }
       return res?.body;
     } catch (error) {
       telemetryOptions = { error: error };

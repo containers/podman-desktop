@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { V1ManagedFieldsEntry } from '@kubernetes/client-node';
+
 export type V1Route = {
   apiVersion?: string;
   kind?: string;
@@ -24,6 +26,7 @@ export type V1Route = {
     namespace: string;
     annotations?: { [key: string]: string };
     labels?: { [key: string]: string };
+    managedFields?: Array<V1ManagedFieldsEntry>;
     creationTimestamp?: Date;
   };
   spec: {
