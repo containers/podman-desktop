@@ -637,23 +637,33 @@ export class ContainerProviderRegistry {
           return fetchedImages;
         }
 
-        // Transform fetched images to include engine name and ID
-        return fetchedImages.map(image => ({
-          ...image,
-          engineName: provider.name,
-          engineId: provider.id,
-          // Using guessIsManifest, determine if the image is a manifest and set isManifest accordingly
-          // NOTE: This is a workaround until we have a better way to determine if an image is a manifest
-          // and may result in false positives until issue: https://github.com/containers/podman/issues/22184 is resolved
-          isManifest: guessIsManifest(image, provider.connection.type),
+        return Promise.all(
+          Array.from(fetchedImages).map(async image => {
+            const baseImage = {
+              ...image,
+              engineName: provider.name,
+              engineId: provider.id,
+              isManifest: guessIsManifest(image, provider.connection.type),
+              Id: image.Digest ? `sha256:${image.Id}` : image.Id,
+              Digest: image.Digest || `sha256:${image.Id}`,
+            };
 
-          // Podman Id does not include the sha256 prefix, so we add it here (it's the Digest using Podman API)
-          Id: image.Digest ? `sha256:${image.Id}` : image.Id,
+            // If the image is a manifest, inspect the manifest to get the digests of the images part of the manifest
+            // however, we do not **ever** want this to block the UI / operation, so if this fails, output to console and continue
+            if (baseImage.isManifest && provider.libpodApi) {
+              try {
+                const manifestInspectInfo = await provider.libpodApi.podmanInspectManifest(image.Id);
+                if (manifestInspectInfo?.manifests) {
+                  baseImage.manifests = manifestInspectInfo.manifests;
+                }
+              } catch (error) {
+                console.error('Error while inspecting manifest', error);
+              }
+            }
 
-          // Compat API provider does not add the Digest field.
-          // if it is missing, add it as 'sha256:image.Id'
-          Digest: image.Digest || `sha256:${image.Id}`,
-        }));
+            return baseImage;
+          }),
+        );
       }),
     );
 

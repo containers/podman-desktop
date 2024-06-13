@@ -42,6 +42,7 @@ test('Expect simple column styling', async () => {
     status: 'UNUSED',
     icon: ImageIcon,
     badges: [],
+    digest: 'sha256:1234567890',
   };
   render(ImageColumnEnvironment, { object: image });
 

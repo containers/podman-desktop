@@ -57,7 +57,7 @@ let viewContributions: ViewInfoUI[] = [];
 function updateImages(globalContext: ContextUI) {
   const computedImages = storeImages
     .map((imageInfo: ImageInfo) =>
-      imageUtils.getImagesInfoUI(imageInfo, storeContainers, globalContext, viewContributions),
+      imageUtils.getImagesInfoUI(imageInfo, storeContainers, globalContext, viewContributions, storeImages),
     )
     .flat();
 
@@ -71,6 +71,20 @@ function updateImages(globalContext: ContextUI) {
     }
   });
   computedImages.sort((first, second) => second.createdAt - first.createdAt);
+
+  // Go through each image and if it has a children, remove the "children" from computedImages so they do not show up
+  // in the table
+  computedImages.forEach(image => {
+    if (image.children) {
+      image.children.forEach(child => {
+        const index = computedImages.findIndex(computedImage => computedImage.id === child.id);
+        if (index !== -1) {
+          computedImages.splice(index, 1);
+        }
+      });
+    }
+  });
+
   images = computedImages;
 
   // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]
@@ -298,6 +312,9 @@ const row = new TableRow<ImageInfoUI>({
   // If it is a manifest, it is not selectable (no delete functionality yet)
   selectable: image => image.status === 'UNUSED' && !image.isManifest,
   disabledText: 'Image is used by a container',
+  children: image => {
+    return image.children ?? [];
+  },
 });
 </script>
 

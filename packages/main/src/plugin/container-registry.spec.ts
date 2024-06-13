@@ -4547,16 +4547,42 @@ test('manifest is listed as true with podmanListImages correctly', async () => {
     History: ['testdomain.io/library/hello:latest'],
   };
 
+  const inspectManifestMock = vi.fn().mockResolvedValue({
+    engineId: 'podman1',
+    engineName: 'podman',
+    manifests: [
+      {
+        digest: 'sha256:digest123',
+        mediaType: 'mediaType',
+        platform: {
+          architecture: 'architecture',
+          features: [],
+          os: 'os',
+          variant: 'variant',
+        },
+        size: 100,
+        urls: ['url1', 'url2'],
+      },
+    ],
+    mediaType: 'mediaType',
+    schemaVersion: 1,
+  });
+
   const imagesList = [manifestImage, regularImage];
   nock('http://localhost').get('/v4.2.0/libpod/images/json').reply(200, imagesList);
   const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  const fakeLibPod = {
+    podmanInspectManifest: inspectManifestMock,
+    podmanListImages: vi.fn().mockResolvedValue(imagesList),
+  } as unknown as LibPod;
 
   // set provider
   containerRegistry.addInternalProvider('podman', {
     name: 'podman',
     id: 'podman1',
     api,
-    libpodApi: api,
+    libpodApi: fakeLibPod,
     connection: {
       type: 'podman',
     },
@@ -4567,12 +4593,22 @@ test('manifest is listed as true with podmanListImages correctly', async () => {
   expect(images).toBeDefined();
   expect(images).toHaveLength(2);
 
+  // Expect that inspectManifest was called with manifestId
+  expect(inspectManifestMock).toBeCalledWith('manifestImage');
+
   // Check the first image
   const image = images[0];
   expect(image.engineId).toBe('podman1');
   expect(image.engineName).toBe('podman');
   expect(image.Id).toBe('manifestImage');
   expect(image.isManifest).toBe(true);
+
+  // Check that the manifest returned sha:256:digest123
+  expect(image.manifests).toBeDefined();
+  expect(image.manifests).toHaveLength(1);
+  if (image.manifests) {
+    expect(image.manifests[0].digest).toBe('sha256:digest123');
+  }
 
   // Check the second image
   const image2 = images[1];

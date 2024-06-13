@@ -71,6 +71,7 @@ const fakedImage: ImageInfoUI = {
   status: 'UNUSED',
   icon: {},
   badges: [],
+  digest: 'sha256:1234567890',
 };
 const fakedImageInspect: ImageInspectInfo = {
   Architecture: '',

@@ -44,6 +44,7 @@ const image: ImageInfoUI = {
   status: 'UNUSED',
   icon: ImageIcon,
   badges: [],
+  digest: 'sha256:1234567890',
 };
 
 test('Expect simple column styling', async () => {
