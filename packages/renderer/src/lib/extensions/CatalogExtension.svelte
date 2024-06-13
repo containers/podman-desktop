@@ -1,5 +1,6 @@
 <script lang="ts">
 import { faArrowUpRightFromSquare, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { Button } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 import { router } from 'tinro';
 
@@ -14,7 +15,7 @@ function openExtensionDetails() {
 </script>
 
 <div
-  class="rounded-lg border border-[var(--pd-card-bg)] flex flex-col bg-[var(--pd-card-bg)] hover:border-dustypurple-500 min-h-32 max-h-32"
+  class="rounded-lg border border-[var(--pd-content-bg)] flex flex-col bg-[var(--pd-content-card-bg)] hover:border-dustypurple-500 min-h-32 max-h-32"
   role="group"
   aria-label="{catalogExtensionUI.displayName}">
   <!-- if featured need to display a top banner -->
@@ -36,13 +37,15 @@ function openExtensionDetails() {
               class="mr-2 max-w-10 max-h-10 object-contain" />
 
             <div>
-              <div class="line-clamp-2 leading-4 max-h-8">
+              <div class="line-clamp-2 leading-4 max-h-8 text-[var(--pd-content-header)]">
                 {catalogExtensionUI.displayName}
               </div>
-              <div class="pt-2 text-xs text-gray-700 line-clamp-1">{catalogExtensionUI.shortDescription}</div>
+              <div class="pt-2 text-xs text-[var(--pd-content-text)] line-clamp-1">
+                {catalogExtensionUI.shortDescription}
+              </div>
             </div>
           </div>
-          <div class="pt-1 text-gray-800 text-xs">{catalogExtensionUI.publisherDisplayName}</div>
+          <div class="pt-1 text-[var(--pd-content-text)] text-xs">{catalogExtensionUI.publisherDisplayName}</div>
         </div>
       </div>
 
@@ -57,16 +60,16 @@ function openExtensionDetails() {
         </div>
       {/if}
     </div>
-    <div class="text-gray-200 items-end flex flex-1">
-      <div class="text-gray-700 text-xs">
+    <div class="items-end flex flex-1">
+      <div class="text-[var(--pd-content-text)] text-xs">
         v{catalogExtensionUI.fetchVersion}
         {#if catalogExtensionUI.installedVersion && catalogExtensionUI.installedVersion !== catalogExtensionUI.fetchVersion}
           <span>(installed: v{catalogExtensionUI.installedVersion})</span>
         {/if}
       </div>
       <div class="flex flex-1 justify-end items-center">
-        <Fa icon="{faArrowUpRightFromSquare}" />
-        <button class="ml-2" on:click="{() => openExtensionDetails()}">More details</button>
+        <Button type="link" icon="{faArrowUpRightFromSquare}" on:click="{() => openExtensionDetails()}"
+          >More details</Button>
       </div>
     </div>
   </div>

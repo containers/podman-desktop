@@ -7,7 +7,7 @@ export let catalogExtensions: CatalogExtensionInfoUI[];
 
 <div class="flex flex-col grow p-4">
   {#if catalogExtensions.length > 0}
-    <div class="pb-4">Available extensions</div>
+    <div class="pb-4 text-[var(--pd-content-header)]">Available extensions</div>
   {/if}
 
   <div class="flex flex-col w-full">
