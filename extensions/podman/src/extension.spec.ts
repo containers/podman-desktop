@@ -494,6 +494,44 @@ test('checkDefaultMachine: do not prompt if the running machine is already the d
     },
   ];
 
+  const fakeConnectionJSON: extension.ConnectionJSON[] = [
+    {
+      Name: machineDefaultName,
+      URI: 'uri',
+      Identity: 'id',
+      IsMachine: true,
+      Default: true,
+    },
+    {
+      Name: `${machineDefaultName}-root`,
+      URI: 'uri',
+      Identity: 'id',
+      IsMachine: true,
+      Default: false,
+    },
+    {
+      Name: machine1Name,
+      URI: 'uri',
+      Identity: 'id',
+      IsMachine: true,
+      Default: false,
+    },
+    {
+      Name: `${machine1Name}-root`,
+      URI: 'uri',
+      Identity: 'id',
+      IsMachine: true,
+      Default: false,
+    },
+  ];
+
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+    () =>
+      new Promise<extensionApi.RunResult>(resolve => {
+        resolve({ stdout: JSON.stringify(fakeConnectionJSON) } as extensionApi.RunResult);
+      }),
+  );
+
   await extension.checkDefaultMachine(fakeJSON);
   expect(extensionApi.window.showInformationMessage).not.toHaveBeenCalled();
 });
@@ -829,6 +867,63 @@ test('test checkDefaultMachine - if user wants to change machine, check that it 
   expect(inspectCall).toHaveBeenCalledWith(podmanCli.getPodmanCli(), ['machine', 'inspect', machineDefaultName]);
 });
 
+test('test checkDefaultMachine, if the default connection is not in sync with the default machine, the function will prompt', async () => {
+  const fakeConnectionJSON: extension.ConnectionJSON[] = [
+    {
+      Name: machineDefaultName,
+      URI: 'uri',
+      Identity: 'id',
+      IsMachine: true,
+      Default: true,
+    },
+    {
+      Name: `${machineDefaultName}-root`,
+      URI: 'uri',
+      Identity: 'id',
+      IsMachine: true,
+      Default: false,
+    },
+  ];
+
+  const fakeMachineJSON = [
+    {
+      Name: machineDefaultName,
+      CPUs: 2,
+      Memory: '1048000000',
+      DiskSize: '250000000000',
+      Running: true,
+      Starting: false,
+      Default: true,
+    },
+  ];
+
+  vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+    (_command, args) =>
+      new Promise<extensionApi.RunResult>(resolve => {
+        if (args?.[0] === 'machine' && args?.[1] === 'list') {
+          resolve({ stdout: JSON.stringify([fakeMachineJSON[0]]) } as extensionApi.RunResult);
+        } else if (args?.[0] === 'machine' && args?.[1] === 'inspect') {
+          resolve({
+            stdout: JSON.stringify([{ Name: fakeMachineJSON[0].Name, Rootful: true }]),
+          } as extensionApi.RunResult);
+        } else if (args?.[0] === 'system' && args?.[1] === 'connection' && args?.[2] === 'list') {
+          resolve({
+            stdout: JSON.stringify(fakeConnectionJSON),
+          } as extensionApi.RunResult);
+        }
+      }),
+  );
+
+  await extension.checkDefaultMachine(fakeMachineJSON);
+
+  expect(extensionApi.window.showInformationMessage).toBeCalledWith(
+    `Rootful Podman Machine '${machineDefaultName}' does not match default connection. This will cause podman CLI errors while trying to connect to '${machineDefaultName}'. Do you want to update the default connection?`,
+    'Yes',
+    'Ignore',
+    'Cancel',
+  );
+});
+
 test('handlecompatibilitymodesetting: enable called when configuration setting has been set to true', async () => {
   // Mock platform to be darwin
   Object.defineProperty(process, 'platform', {
@@ -994,7 +1089,7 @@ test('ensure started machine reports configuration', async () => {
         if (args?.[0] === 'machine' && args?.[1] === 'list') {
           resolve({ stdout: JSON.stringify([fakeMachineJSON[0]]) } as extensionApi.RunResult);
         } else if (args?.[0] === 'machine' && args?.[1] === 'inspect') {
-          resolve({} as extensionApi.RunResult);
+          resolve({ stdout: JSON.stringify([{ Name: fakeMachineJSON[0].Name }]) } as unknown as extensionApi.RunResult);
         } else if (args?.[0] === 'system' && args?.[1] === 'connection' && args?.[2] === 'list') {
           resolve({
             stdout: JSON.stringify([{ Name: fakeMachineJSON[0].Name, Default: true }]),
