@@ -44,7 +44,11 @@ jobs:
         run: |
             CURRENT_DAY=$(date +'%Y%m%d')
             SHORT_SHA1=$(git rev-parse --short HEAD)
-            TAG_PATTERN=0.0.$(date +'%Y%m%d%H%M')-${SHORT_SHA1}
+            # grab the version from the package.json
+            PODMAN_DEKSTOP_VERSION=$(jq -r '.version' package.json)
+            # remove the -next from the version
+            STRIPPED_VERSION=${PODMAN_DEKSTOP_VERSION%-next}
+            TAG_PATTERN=${STRIPPED_VERSION}-$(date +'%Y%m%d%H%M')-${SHORT_SHA1}
             echo "githubTag=v$TAG_PATTERN" >> ${GITHUB_OUTPUT}
             echo "desktopVersion=$TAG_PATTERN" >> ${GITHUB_OUTPUT}
       - name: tag
