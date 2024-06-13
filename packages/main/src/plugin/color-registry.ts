@@ -946,7 +946,7 @@ export class ColorRegistry {
 
     this.registerColor(`${ab}text`, {
       dark: colorPalette.gray[400],
-      light: colorPalette.charcoal[900],
+      light: colorPalette.charcoal[500],
     });
     this.registerColor(`${ab}bg`, {
       dark: colorPalette.charcoal[900],
