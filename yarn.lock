@@ -5338,10 +5338,10 @@
     polished "^4.2.2"
     ts-dedent "^2.2.0"
 
-"@storybook/addon-links@^8.1.6":
-  version "8.1.6"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-links/-/addon-links-8.1.6.tgz#83b75f79da2106ca0b5cc3e4db1c6ca7f6096743"
-  integrity sha512-EuSXoK+tpApjW08ZiC4yE9ePdJkIu36AFPJHA6FVierVU31klW+cbFqps88JpmALZkrlf+pzKf3uBIGLrkBSAw==
+"@storybook/addon-links@^8.1.8":
+  version "8.1.8"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-links/-/addon-links-8.1.8.tgz#7d224de4acdf8ae2eacfc78bb877268efac01baa"
+  integrity sha512-R6pRpsIWw06v21KdUjCxGZ8664hPtCSEGNhK1dqk9EbSXOpc24iX3cn39EqxQ4OEo/laAfozNJQkzD+/dIL6kw==
   dependencies:
     "@storybook/csf" "^0.1.7"
     "@storybook/global" "^5.0.0"
@@ -15585,7 +15585,12 @@ mz@^2.7.0:
     object-assign "^4.0.1"
     thenify-all "^1.0.0"
 
-nan@^2.16.0, nan@^2.19.0:
+nan@^2.16.0:
+  version "2.20.0"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.20.0.tgz#08c5ea813dd54ed16e5bd6505bf42af4f7838ca3"
+  integrity sha512-bk3gXBZDGILuuo/6sKtr0DQmSThYHLtNCdSdXk9YkxD/jK6X2vmCyyXBBxyqZ4XcnzTyYEAThfX3DCEnLf6igw==
+
+nan@^2.19.0:
   version "2.19.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.19.0.tgz#bb58122ad55a6c5bc973303908d5b16cfdd5a8c0"
   integrity sha512-nO1xXxfh/RWNxfd/XPfbIfFk5vgLsAxUR9y5O0cHMJu/AW9U95JLXqthYHjEp+8gQ5p96K9jUp8nbVOxCdRbtw==

@@ -23,7 +23,7 @@
   "devDependencies": {
     "@storybook/addon-essentials": "^8.1.6",
     "@storybook/addon-interactions": "^8.1.6",
-    "@storybook/addon-links": "^8.1.6",
+    "@storybook/addon-links": "^8.1.8",
     "@storybook/addon-svelte-csf": "^4.1.1",
     "@storybook/blocks": "^8.1.6",
     "@storybook/svelte": "^8.1.4",
