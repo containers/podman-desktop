@@ -149,6 +149,8 @@ export class ImagesPage extends MainPage {
   }
 
   async loadImages(archivePath: string): Promise<ImagesPage> {
+    // TODO: Will probably require refactoring when https://github.com/containers/podman-desktop/issues/7620 is done
+
     await playExpect(this.loadImagesFromTarButton).toBeEnabled();
     await this.loadImagesFromTarButton.click();
     await playExpect(this.addArchiveButton).toBeEnabled();

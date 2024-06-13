@@ -110,7 +110,7 @@ export class ImageDetailsPage extends BasePage {
     if (!outputPath) {
       throw Error(`Path is incorrect or not provided!`);
     }
-
+    // TODO: Will probably require refactoring when https://github.com/containers/podman-desktop/issues/7620 is done
     await playExpect(this.saveImagebutton).toBeEnabled();
     await this.saveImagebutton.click();
     await playExpect(this.saveImageInput).toBeVisible();
