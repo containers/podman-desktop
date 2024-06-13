@@ -17,6 +17,6 @@ export let iconSize: IconSize | undefined = undefined;
     aria-label="spinner"
     class="{loading
       ? ''
-      : 'hidden'} {loadingWidthClass} {loadingHeightClass} rounded-full animate-spin border border-solid border-violet-500 border-t-transparent absolute {positionTopClass} {positionLeftClass}">
+      : 'hidden'} {loadingWidthClass} {loadingHeightClass} rounded-full animate-spin border border-solid border-[var(--pd-action-button-spinner)] border-t-transparent absolute {positionTopClass} {positionLeftClass}">
   </div>
 </div>
