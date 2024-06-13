@@ -2,6 +2,8 @@
 import type { V1Deployment } from '@kubernetes/client-node';
 import { ErrorMessage } from '@podman-desktop/ui-svelte';
 
+import Table from '/@/lib/details/DetailsTable.svelte';
+
 import KubeDeploymentArtifact from '../kube/details/KubeDeploymentArtifact.svelte';
 import KubeDeploymentStatusArtifact from '../kube/details/KubeDeploymentStatusArtifact.svelte';
 import KubeObjectMetaArtifact from '../kube/details/KubeObjectMetaArtifact.svelte';
@@ -16,16 +18,12 @@ basic information -->
   <ErrorMessage error="{kubeError}" />
 {/if}
 
-<div class="flex px-5 py-4 flex-col items-start h-full overflow-auto">
+<Table>
   {#if deployment}
-    <table class="w-full">
-      <tbody>
-        <KubeObjectMetaArtifact artifact="{deployment.metadata}" />
-        <KubeDeploymentStatusArtifact artifact="{deployment.status}" />
-        <KubeDeploymentArtifact artifact="{deployment.spec}" />
-      </tbody>
-    </table>
+    <KubeObjectMetaArtifact artifact="{deployment.metadata}" />
+    <KubeDeploymentStatusArtifact artifact="{deployment.status}" />
+    <KubeDeploymentArtifact artifact="{deployment.spec}" />
   {:else}
     <p class="text-purple-500 font-medium">Loading ...</p>
   {/if}
-</div>
+</Table>
