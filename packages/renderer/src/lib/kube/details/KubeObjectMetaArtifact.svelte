@@ -3,8 +3,9 @@ import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons
 import type { V1ObjectMeta } from '@kubernetes/client-node';
 import Fa from 'svelte-fa';
 
-import Cell from './ui/Cell.svelte';
-import Title from './ui/Title.svelte';
+import Cell from '/@/lib/details/DetailsCell.svelte';
+import Title from '/@/lib/details/DetailsTitle.svelte';
+
 import { internalKubernetesKeys } from './utils';
 
 export let artifact: V1ObjectMeta | undefined;
