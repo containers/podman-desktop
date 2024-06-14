@@ -24,10 +24,10 @@ function populate(folder, storybookStatic) {
 // https://docusaurus.io/docs/api/plugin-methods
 export default async function storybookIntegration(context, opts) {
   const storybookStatic = opts['storybookStatic'] ?? undefined;
-  if(storybookStatic) throw new Error('storybook-static option must be defined.');
+  if(!storybookStatic) throw new Error('storybookStatic option must be defined.');
 
   const target = opts['path'] ?? undefined;
-  if(target === undefined) throw new Error('path option must be defined.');
+  if(!target) throw new Error('path option must be defined.');
 
   if(!fs.existsSync(storybookStatic)) throw new Error('storybook need to be built.');
   populate(target, storybookStatic);
