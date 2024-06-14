@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { BrowserWindow } from 'electron';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import type { App } from 'electron';
+import { app, BrowserWindow } from 'electron';
+import { afterEach, assert, beforeEach, expect, test, vi } from 'vitest';
 
 import {
   handleAdditionalProtocolLauncherArgs,
@@ -31,8 +32,17 @@ import * as util from './util.js';
 const consoleLogMock = vi.fn();
 const originalConsoleLog = console.log;
 
-/* eslint-disable @typescript-eslint/no-empty-function */
+const constants = vi.hoisted(() => {
+  let resolveFn: ((value: void | PromiseLike<void>) => void) | undefined = undefined;
+  return {
+    appReadyDeferredPromise: new Promise<void>(resolve => {
+      resolveFn = resolve;
+    }),
+    resolveFn,
+  };
+});
 
+/* eslint-disable @typescript-eslint/no-empty-function */
 vi.mock('electron-is-dev', async () => {
   return {};
 });
@@ -60,14 +70,17 @@ vi.mock('./plugin', async () => {
   };
 });
 
-vi.mock('../util', async () => {
+vi.mock('./util', async () => {
   return {
-    isWindows: (): boolean => false,
+    isWindows: vi.fn().mockReturnValue(false),
+    isMac: vi.fn().mockReturnValue(false),
+    isLinux: vi.fn().mockReturnValue(false),
   };
 });
 
 vi.mock('electron', async () => {
   class MyCustomWindow {
+    static singleton = new MyCustomWindow();
     constructor() {}
 
     loadURL(): void {}
@@ -75,8 +88,17 @@ vi.mock('electron', async () => {
 
     on(): void {}
 
+    show(): void {}
+    focus(): void {}
+    isMinimized(): boolean {
+      return false;
+    }
+    isDestroyed(): boolean {
+      return false;
+    }
+
     static getAllWindows(): unknown[] {
-      return [];
+      return [MyCustomWindow.singleton];
     }
   }
 
@@ -100,7 +122,7 @@ vi.mock('electron', async () => {
       quit: vi.fn(),
       on: vi.fn(),
       once: vi.fn(),
-      whenReady: vi.fn().mockReturnValue(new Promise(() => {})),
+      whenReady: vi.fn().mockReturnValue(constants.appReadyDeferredPromise),
       setAppUserModelId: vi.fn(),
     },
     ipcMain: {
@@ -271,4 +293,45 @@ test('handle sanitizeProtocolForExtension', () => {
 test('handle sanitizeProtocolForExtension noop', () => {
   const sanitizedLink = 'podman-desktop:extension/my.extension';
   expect(sanitizeProtocolForExtension(sanitizedLink)).toEqual(sanitizedLink);
+});
+
+test('app-ready event with activate event', async () => {
+  vi.mocked(util.isMac).mockReset();
+  vi.mocked(util.isMac).mockReturnValue(true);
+
+  // grab all windows
+  const windows = BrowserWindow.getAllWindows();
+  expect(windows).toHaveLength(1);
+
+  const window = windows[0];
+  const spyShow = vi.spyOn(window, 'show');
+  const spyFocus = vi.spyOn(window, 'focus');
+
+  let activateCallback: ((event: unknown) => void) | undefined = undefined;
+
+  // capture activate event
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  vi.mocked(app.on).mockImplementation((event: string, callback: Function): App => {
+    if (event === 'activate') {
+      activateCallback = callback as (event: unknown) => void;
+    }
+    return app;
+  });
+
+  if (constants.resolveFn) {
+    const appReady: (value: void | Promise<void>) => void = constants.resolveFn;
+    if (constants.resolveFn) {
+      appReady();
+    }
+  } else {
+    assert.fail('constants.resolveFn is undefined');
+  }
+  // wait activateCallback being set
+  await vi.waitUntil(() => activateCallback !== undefined);
+  // now, check that we called
+  activateCallback!({});
+
+  // expect show and focus have been called
+  expect(spyShow).toHaveBeenCalled();
+  expect(spyFocus).toHaveBeenCalled();
 });

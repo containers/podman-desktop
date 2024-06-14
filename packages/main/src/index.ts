@@ -193,12 +193,20 @@ app.whenReady().then(
     // Required for macOS to start the app correctly (this is will be shown in the dock)
     // We use 'activate' within whenReady in order to gracefully start on macOS, see this link:
     // https://www.electronjs.org/docs/latest/tutorial/quick-start#open-a-window-if-none-are-open-macos
-    app.on('activate', () => {
+    app.on('activate', (_event, hasVisibleWindows) => {
       createNewWindow()
         .then(w => mainWindowDeferred.resolve(w))
         .catch((error: unknown) => {
           console.log('Error creating window', error);
         });
+
+      // try to restore the window if it's not visible
+      // for example user click on the dock icon
+      if (isMac() && !hasVisibleWindows) {
+        restoreWindow().catch((error: unknown) => {
+          console.error('Error restoring window', error);
+        });
+      }
     });
 
     // prefer ipv4 over ipv6
