@@ -2534,6 +2534,47 @@ describe('createContainer', () => {
     expect(createContainerMock).toHaveBeenCalled();
     expect(startMock).not.toHaveBeenCalled();
   });
+
+  test('test error reported if start fails', async () => {
+    const createdId = '1234';
+
+    const startMock = vi.fn().mockRejectedValue(new Error('start failed'));
+    const inspectMock = vi.fn();
+    const createContainerMock = vi
+      .fn()
+      .mockResolvedValue({ id: createdId, start: startMock, inspect: inspectMock } as unknown as Dockerode.Container);
+
+    inspectMock.mockResolvedValue({
+      Config: {
+        Tty: false,
+        OpenStdin: false,
+      },
+    });
+
+    const fakeDockerode = {
+      createContainer: createContainerMock,
+    } as unknown as Dockerode;
+
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman1',
+      id: 'podman1',
+      connection: {
+        type: 'podman',
+      },
+      api: fakeDockerode,
+    } as InternalContainerProvider);
+
+    let error: unknown | undefined;
+    try {
+      await containerRegistry.createContainer('podman1', { start: true });
+    } catch (err) {
+      error = err;
+    }
+
+    expect(error).toBeDefined();
+    expect(createContainerMock).toHaveBeenCalled();
+    expect(startMock).toHaveBeenCalled();
+  });
 });
 
 describe('attach container', () => {

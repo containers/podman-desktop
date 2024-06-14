@@ -31,9 +31,7 @@ import SettingsPage from './SettingsPage.svelte';
       {@const sessionRequests = provider.sessionRequests ?? []}
       <!-- Registered Authentication Provider row start -->
       <div class="flex flex-col w-full mb-5" role="listitem" aria-label="{provider.displayName}">
-        <div
-          class="flex rounded-md border-0 justify-between"
-          style="background-color: rgb(39 39 42 / var(--tw-bg-opacity))">
+        <div class="flex rounded-md border-0 justify-between bg-[var(--pd-invert-content-card-bg)]">
           <!-- Icon + status -->
           <div class="ml-4 flex items-center" aria-label="Provider Information">
             <!-- Icon -->
@@ -64,21 +62,23 @@ import SettingsPage from './SettingsPage.svelte';
             <!-- Authentication Provider name and status item start -->
             <div class="px-5 py-2 text-sm m-auto">
               <div class="flex flex-col">
-                <div class="flex items-center text-lg w-full h-full" aria-label="Provider Name">
+                <div
+                  class="flex items-center text-lg text-[var(--pd-invert-content-card-header-text)] w-full h-full"
+                  aria-label="Provider Name">
                   {provider.displayName}
                 </div>
                 <div class="flex flex-row items-center w-full h-full">
                   <dif>
                     <Fa
-                      class="h-3 w-3 text-md mr-2 text-{provider.accounts.length > 0
-                        ? 'status-connected'
-                        : 'status-disconnected'}"
+                      class="h-3 w-3 text-md mr-2 text-[var(--pd-status-{provider.accounts.length > 0
+                        ? 'connected'
+                        : 'disconnected'})]"
                       icon="{faCircle}" />
                   </dif>
                   <div
-                    class="uppercase text-xs text-{provider.accounts.length > 0
-                      ? 'status-connected'
-                      : 'status-disconnected'}"
+                    class="uppercase text-xs text-[var(--pd-status-{provider.accounts.length > 0
+                      ? 'connected'
+                      : 'disconnected'})]"
                     aria-label="Provider Status">
                     <span>
                       {provider.accounts.length > 0 ? 'Logged in' : 'Logged out'}

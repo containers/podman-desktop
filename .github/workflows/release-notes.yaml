@@ -30,7 +30,7 @@ jobs:
 
   build:
     name: Generate release notes
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:

@@ -213,7 +213,7 @@ let sizeColumn = new TableColumn<VolumeInfoUI, string>('Size', {
   initialOrder: 'descending',
 });
 
-const columns: TableColumn<VolumeInfoUI, VolumeInfoUI | string>[] = [
+const columns = [
   statusColumn,
   nameColumn,
   envColumn,

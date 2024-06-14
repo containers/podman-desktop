@@ -105,7 +105,7 @@ let ageColumn = new TableColumn<DeploymentUI, Date | undefined>('Age', {
   comparator: (a, b) => moment(b.created).diff(moment(a.created)),
 });
 
-const columns: TableColumn<DeploymentUI, DeploymentUI | string | Date | undefined>[] = [
+const columns = [
   statusColumn,
   nameColumn,
   namespaceColumn,

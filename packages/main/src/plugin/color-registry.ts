@@ -18,25 +18,25 @@
 
 import type * as extensionApi from '@podman-desktop/api';
 
-import { AppearanceSettings } from '/@/plugin/appearance-settings.js';
-import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
-import type { AnalyzedExtension } from '/@/plugin/extension-loader.js';
-import { Disposable } from '/@/plugin/types/disposable.js';
 import type { Color, ColorDefinition, ColorInfo } from '/@api/color-info.js';
 import type { RawThemeContribution } from '/@api/theme-info.js';
 
 import colorPalette from '../../../../tailwind-color-palette.json';
 import type { ApiSenderType } from './api.js';
+import { AppearanceSettings } from './appearance-settings.js';
+import type { ConfigurationRegistry } from './configuration-registry.js';
+import type { AnalyzedExtension } from './extension-loader.js';
+import { Disposable } from './types/disposable.js';
 
 export class ColorRegistry {
-  #apiSender: ApiSenderType;
-  #configurationRegistry: ConfigurationRegistry;
+  #apiSender: ApiSenderType | undefined;
+  #configurationRegistry: ConfigurationRegistry | undefined;
   #definitions: Map<string, ColorDefinition>;
   #initDone = false;
   #themes: Map<string, Map<string, Color>>;
   #parentThemes: Map<string, string>;
 
-  constructor(apiSender: ApiSenderType, configurationRegistry: ConfigurationRegistry) {
+  constructor(apiSender?: ApiSenderType, configurationRegistry?: ConfigurationRegistry) {
     this.#apiSender = apiSender;
     this.#configurationRegistry = configurationRegistry;
     this.#definitions = new Map();
@@ -109,7 +109,7 @@ export class ColorRegistry {
     const themeIds = themes.map(t => t.id);
 
     // update configuration
-    const disposeConfiguration = this.#configurationRegistry.addConfigurationEnum(
+    const disposeConfiguration = this.#configurationRegistry?.addConfigurationEnum(
       AppearanceSettings.SectionName + '.' + AppearanceSettings.Appearance,
       themeIds,
       AppearanceSettings.SystemEnumValue,
@@ -122,9 +122,13 @@ export class ColorRegistry {
           this.#themes.delete(themeId);
         }
         // remove from configuration
-        disposeConfiguration.dispose();
+        disposeConfiguration?.dispose();
       },
     };
+  }
+
+  public listThemes(): string[] {
+    return Array.from(this.#themes.keys());
   }
 
   protected registerColor(colorId: string, definition: ColorDefinition): void {
@@ -195,13 +199,13 @@ export class ColorRegistry {
   protected notifyUpdate(): void {
     // notify only if ended the initialization
     if (this.#initDone) {
-      this.#apiSender.send('color-updated');
+      this.#apiSender?.send('color-updated');
     }
   }
 
   protected trackChanges(): void {
     // add listener on the configuration change for the theme
-    this.#configurationRegistry.onDidChangeConfiguration(async e => {
+    this.#configurationRegistry?.onDidChangeConfiguration(async e => {
       if (e.key === `${AppearanceSettings.SectionName}.${AppearanceSettings.Appearance}`) {
         // refresh the colors
         this.notifyUpdate();
@@ -243,6 +247,7 @@ export class ColorRegistry {
     this.initTooltip();
     this.initDropdown();
     this.initLabel();
+    this.initStatusColors();
   }
 
   protected initGlobalNav(): void {
@@ -439,6 +444,11 @@ export class ColorRegistry {
     this.registerColor(`${ct}header`, {
       dark: colorPalette.white,
       light: colorPalette.charcoal[900],
+    });
+
+    this.registerColor(`${ct}text`, {
+      dark: colorPalette.gray[700],
+      light: colorPalette.gray[900],
     });
 
     this.registerColor(`${ct}sub-header`, {
@@ -760,6 +770,18 @@ export class ColorRegistry {
       dark: colorPalette.charcoal[900],
       light: colorPalette.gray[50],
     });
+    this.registerColor(`${details}card-bg`, {
+      dark: colorPalette.charcoal[600],
+      light: colorPalette.gray[300],
+    });
+    this.registerColor(`${details}card-header`, {
+      dark: colorPalette.gray[700],
+      light: colorPalette.charcoal[300],
+    });
+    this.registerColor(`${details}card-text`, {
+      dark: colorPalette.white,
+      light: colorPalette.charcoal[900],
+    });
   }
 
   protected initTab(): void {
@@ -867,8 +889,8 @@ export class ColorRegistry {
       light: colorPalette.white,
     });
     this.registerColor(`${button}disabled`, {
-      dark: colorPalette.charcoal[50],
-      light: colorPalette.gray[900],
+      dark: colorPalette.charcoal[300],
+      light: colorPalette.gray[600],
     });
     this.registerColor(`${button}disabled-text`, {
       dark: colorPalette.charcoal[50],
@@ -945,7 +967,11 @@ export class ColorRegistry {
 
     this.registerColor(`${ab}text`, {
       dark: colorPalette.gray[400],
-      light: colorPalette.charcoal[900],
+      light: colorPalette.charcoal[500],
+    });
+    this.registerColor(`${ab}bg`, {
+      dark: colorPalette.charcoal[900],
+      light: colorPalette.gray[400],
     });
     this.registerColor(`${ab}hover-bg`, {
       dark: colorPalette.charcoal[600],
@@ -953,6 +979,15 @@ export class ColorRegistry {
     });
     this.registerColor(`${ab}hover-text`, {
       dark: colorPalette.purple[600],
+      light: colorPalette.purple[500],
+    });
+
+    this.registerColor(`${ab}primary-text`, {
+      dark: colorPalette.purple[600],
+      light: colorPalette.purple[600],
+    });
+    this.registerColor(`${ab}primary-hover-text`, {
+      dark: colorPalette.purple[500],
       light: colorPalette.purple[500],
     });
 
@@ -1061,6 +1096,75 @@ export class ColorRegistry {
     this.registerColor(`${label}text`, {
       dark: colorPalette.gray[500],
       light: colorPalette.charcoal[300],
+    });
+  }
+
+  protected initStatusColors(): void {
+    const status = 'status-';
+
+    // Podman & Kubernetes
+    this.registerColor(`${status}running`, {
+      dark: colorPalette.green[400],
+      light: colorPalette.green[400],
+    });
+    // Kubernetes only
+    this.registerColor(`${status}terminated`, {
+      dark: colorPalette.red[500],
+      light: colorPalette.red[500],
+    });
+    this.registerColor(`${status}waiting`, {
+      dark: colorPalette.amber[600],
+      light: colorPalette.amber[600],
+    });
+    // Podman only
+    this.registerColor(`${status}starting`, {
+      dark: colorPalette.green[600],
+      light: colorPalette.green[600],
+    });
+    // Stopped & Exited are the same color / same thing in the eyes of statuses
+    this.registerColor(`${status}stopped`, {
+      dark: colorPalette.gray[300],
+      light: colorPalette.gray[600],
+    });
+    this.registerColor(`${status}exited`, {
+      dark: colorPalette.gray[300],
+      light: colorPalette.gray[600],
+    });
+    this.registerColor(`${status}not-running`, {
+      dark: colorPalette.gray[700],
+      light: colorPalette.gray[900],
+    });
+    // "Warning"
+    this.registerColor(`${status}paused`, {
+      dark: colorPalette.amber[600],
+      light: colorPalette.amber[600],
+    });
+    this.registerColor(`${status}degraded`, {
+      dark: colorPalette.amber[700],
+      light: colorPalette.amber[700],
+    });
+    // Others
+    this.registerColor(`${status}created`, {
+      dark: colorPalette.green[300],
+      light: colorPalette.green[300],
+    });
+    this.registerColor(`${status}dead`, {
+      dark: colorPalette.red[500],
+      light: colorPalette.red[500],
+    });
+    // If we don't know the status, use gray
+    this.registerColor(`${status}unknown`, {
+      dark: colorPalette.gray[100],
+      light: colorPalette.gray[400],
+    });
+    // Connections / login
+    this.registerColor(`${status}connected`, {
+      dark: colorPalette.green[600],
+      light: colorPalette.green[600],
+    });
+    this.registerColor(`${status}disconnected`, {
+      dark: colorPalette.gray[500],
+      light: colorPalette.gray[800],
     });
   }
 }

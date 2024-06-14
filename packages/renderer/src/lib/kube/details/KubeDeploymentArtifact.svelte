@@ -1,8 +1,8 @@
 <script lang="ts">
 import type { V1DeploymentSpec } from '@kubernetes/client-node';
 
-import Cell from './ui/Cell.svelte';
-import Title from './ui/Title.svelte';
+import Cell from '/@/lib/details/DetailsCell.svelte';
+import Title from '/@/lib/details/DetailsTitle.svelte';
 
 export let artifact: V1DeploymentSpec | undefined;
 </script>

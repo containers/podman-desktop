@@ -45,10 +45,10 @@ $: {
 $: loading = state?.inProgress && action === state?.action;
 
 $: style = disable
-  ? 'text-gray-900 cursor-not-allowed'
+  ? 'text-[var(--pd-action-button-disabled-text)] cursor-not-allowed'
   : color === 'secondary'
-    ? 'text-white hover:text-gray-700'
-    : 'text-purple-600 hover:text-purple-500';
+    ? 'text-[var(--pd-action-button-text)] hover:text-[var(--pd-action-button-hover-text)]'
+    : 'text-[var(--pd-action-button-primary-text)] hover:text-[var(--pd-action-button-primary-hover-text)]';
 </script>
 
 <Tooltip bottom tip="{tooltip}">

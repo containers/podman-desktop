@@ -50,7 +50,10 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
 }
 </script>
 
-<div role="row" class="bg-charcoal-600 mb-5 rounded-md p-3 flex flex-col" aria-label="{cliTool.displayName}">
+<div
+  role="row"
+  class="bg-[var(--pd-invert-content-card-bg)] mb-5 rounded-md p-3 flex flex-col"
+  aria-label="{cliTool.displayName}">
   <div class="divide-x divide-gray-900 flex flex-row">
     <div>
       <!-- left col - cli-tool icon/name + "create new" button -->
@@ -71,10 +74,13 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
                 class="max-w-[40px] max-h-[40px] h-full" />
             {/if}
           {/if}
-          <span id="{cliTool.id}" class="my-auto ml-3 break-words" aria-label="cli-name">{cliTool.name}</span>
+          <span
+            id="{cliTool.id}"
+            class="my-auto ml-3 break-words text-[var(--pd-invert-content-header-text)]"
+            aria-label="cli-name">{cliTool.name}</span>
         </div>
         {#if cliTool.version && cliToolStatus}
-          <div class="p-0.5 rounded-lg bg-charcoal-900 w-fit">
+          <div class="p-0.5 rounded-lg bg-[var(--pd-invert-content-bg)] w-fit">
             <LoadingIconButton
               action="update"
               clickAction="{() => {
@@ -93,17 +99,24 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
     </div>
     <!-- cli-tools columns -->
     <div class="grow flex-column divide-gray-900 ml-2">
-      <span class="my-auto ml-3 break-words" aria-label="cli-display-name">{cliTool.displayName}</span>
-      <div role="region" class="float-right text-gray-900 px-2 text-sm" aria-label="cli-registered-by">
+      <span class="my-auto ml-3 break-words text-[var(--pd-invert-content-header-text)]" aria-label="cli-display-name"
+        >{cliTool.displayName}</span>
+      <div
+        role="region"
+        class="float-right text-[var(--pd-invert-content-card-text)] px-2 text-sm"
+        aria-label="cli-registered-by">
         Registered by {cliTool.extensionInfo.label}
       </div>
       <div role="region" class="ml-3 mt-2 text-sm text-gray-300">
-        <div class="text-gray-700">
+        <div class="text-[var(--pd-invert-content-card-text)]">
           <Markdown markdown="{cliTool.description}" />
         </div>
         {#if cliTool.version}
-          <div class="flex flex-row justify-between align-center bg-charcoal-900 p-2 rounded-lg min-w-[320px] w-fit">
-            <div class="flex text-white-400 font-bold text-xs items-center" aria-label="cli-version">
+          <div
+            class="flex flex-row justify-between align-center bg-[var(--pd-invert-content-bg)] p-2 rounded-lg min-w-[320px] w-fit">
+            <div
+              class="flex text-[var(--pd-invert-content-card-text)] font-bold text-xs items-center"
+              aria-label="cli-version">
               {cliTool.name} v{cliTool.version}
             </div>
             {#if cliTool.newVersion}

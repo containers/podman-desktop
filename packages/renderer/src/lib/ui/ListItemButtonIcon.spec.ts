@@ -19,8 +19,8 @@
 import '@testing-library/jest-dom/vitest';
 
 import { faCircleCheck, faRocket } from '@fortawesome/free-solid-svg-icons';
-import { fireEvent, render, screen } from '@testing-library/svelte';
-import { expect, test, vi } from 'vitest';
+import { render, screen } from '@testing-library/svelte';
+import { expect, test } from 'vitest';
 
 import { context } from '/@/stores/context';
 
@@ -120,56 +120,6 @@ test('Expect the dropDownMenuItem NOT to have classes that display a disabled ob
   expect(listItemSpan.parentElement!.outerHTML.indexOf('text-gray-900 bg-charcoal-800') === -1).toBeTruthy();
 });
 
-test('When you click on the button with confirm=yes, it will pop up with the dialog', async () => {
-  const showMessageBoxMock = vi.fn();
-  (window as any).showMessageBox = showMessageBoxMock;
-  showMessageBoxMock.mockResolvedValue({ result: 1 });
-
-  const title = 'Delete Pod';
-
-  const contextUI = new ContextUI();
-  contextUI.setValue('values', ['test']);
-  context.set(contextUI);
-
-  render(ListItemButtonIcon, {
-    title,
-    icon: faRocket,
-    menu: false,
-    confirm: true,
-    enabled: true,
-    inProgress: false,
-  });
-
-  const button = screen.getByRole('button', { name: title });
-  await fireEvent.click(button);
-  expect(showMessageBoxMock).toHaveBeenCalledOnce();
-});
-
-test('With confirmation=no, there will be no confirmation when clicking the button', async () => {
-  const showMessageBoxMock = vi.fn();
-  (window as any).showMessageBox = showMessageBoxMock;
-  showMessageBoxMock.mockResolvedValue({ result: 1 });
-
-  const title = 'Delete Pod';
-
-  const contextUI = new ContextUI();
-  contextUI.setValue('values', ['test']);
-  context.set(contextUI);
-
-  render(ListItemButtonIcon, {
-    title,
-    icon: faRocket,
-    menu: false,
-    confirm: false,
-    enabled: true,
-    inProgress: false,
-  });
-
-  const button = screen.getByRole('button', { name: title });
-  await fireEvent.click(button);
-  expect(showMessageBoxMock).not.toHaveBeenCalled();
-});
-
 test('With custom font icon', async () => {
   const title = 'Dummy item';
 
@@ -177,7 +127,6 @@ test('With custom font icon', async () => {
     title,
     icon: 'podman-desktop-icon-dummyIcon',
     menu: true,
-    confirm: false,
     enabled: true,
     inProgress: false,
   });
@@ -195,7 +144,6 @@ test('With custom Fa icon', async () => {
     title,
     icon: faCircleCheck,
     menu: true,
-    confirm: false,
     enabled: true,
     inProgress: false,
   });
