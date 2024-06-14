@@ -27,7 +27,7 @@ function populate(folder, storybookStatic) {
 
   const items = [];
 
-  for (const [key, item] of Object.entries(index['entries'])) {
+  for (const [key, _item] of Object.entries(index['entries'])) {
     items.push({
       type: 'doc',
       id: `${key}`,
@@ -53,7 +53,7 @@ export default async function storybookIntegration(context, opts) {
 
   return {
     name: 'docusaurus-storybook-integration',
-    async postBuild(props) {
+    async postBuild() {
       // copy storybook-static assets to docusaurus build folder
       const buildFolder = path.join(__dirname, 'build');
       // those file will be merged with docusaurus file
