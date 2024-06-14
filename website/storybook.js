@@ -27,7 +27,7 @@ function populate(folder, storybookStatic) {
 
   const items = [];
 
-  for (const [key, _item] of Object.entries(index['entries'])) {
+  for (const [key] of Object.entries(index['entries'])) {
     items.push({
       type: 'doc',
       id: `${key}`,
