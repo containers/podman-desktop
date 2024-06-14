@@ -431,9 +431,9 @@ export class ContextsManager {
     );
   }
 
-  // update is the reconcile function, it gets as input the last known kube config
-  // and starts/stops informers for different kube contexts, depending on these inputs
   async update(kubeconfig: KubeConfig): Promise<void> {
+    const checkOnlyCurrentContext = kubeconfig.contexts.length > 10;
+
     this.kubeConfig = kubeconfig;
     let contextChanged = false;
     if (this.isContextChanged(kubeconfig)) {
@@ -453,20 +453,25 @@ export class ContextsManager {
 
     // Delete informers for removed contexts
     // We also remove the state of the current context if it has changed. It may happen that the name of the context is the same but it is pointing to a different cluster
+    // We also delete informers for non-current contexts wif we are checking only current context
     let removed = false;
     for (const name of this.states.getContextsNames()) {
       if (
         !this.kubeConfig.contexts.find(c => c.name === name) ||
-        (contextChanged && name === this.currentContext?.name)
+        (contextChanged && name === this.currentContext?.name) ||
+        (checkOnlyCurrentContext && name !== this.currentContext?.name)
       ) {
         await this.states.dispose(name);
         removed = true;
       }
     }
 
-    // Add informers for new contexts
+    // Add informers for new contexts (only current context if we are checking only it)
     let added = false;
     for (const context of this.kubeConfig.contexts) {
+      if (checkOnlyCurrentContext && context.name !== this.currentContext?.name) {
+        continue;
+      }
       if (!this.states.hasContext(context.name)) {
         const kubeContext: KubeContext = this.getKubeContext(context);
         const informers = this.createKubeContextInformers(kubeContext);
