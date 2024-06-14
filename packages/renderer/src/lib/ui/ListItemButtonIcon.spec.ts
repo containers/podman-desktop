@@ -18,107 +18,11 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { faCircleCheck, faRocket } from '@fortawesome/free-solid-svg-icons';
+import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
-import { context } from '/@/stores/context';
-
-import { ContextUI } from '../context/context';
 import ListItemButtonIcon from './ListItemButtonIcon.svelte';
-
-test('Expect the dropDownMenuItem to have classes that display a disabled object if the disabled when clause is evaluated to true', async () => {
-  const title = 'title';
-
-  const contextUI = new ContextUI();
-  contextUI.setValue('values', ['test']);
-  context.set(contextUI);
-
-  render(ListItemButtonIcon, {
-    title,
-    icon: faRocket,
-    disabledWhen: 'test in values',
-    menu: true,
-    contextUI: contextUI,
-  });
-
-  const listItemSpan = screen.getByTitle(title);
-  expect(listItemSpan).toBeInTheDocument();
-  expect(
-    listItemSpan.parentElement!.outerHTML.indexOf(
-      'text-[var(--pd-dropdown-disabled-item-text)] bg-[var(--pd-dropdown-disabled-item-bg)]',
-    ) > 0,
-  ).toBeTruthy();
-});
-
-test('Expect the dropDownMenuItem to have classes that display a disabled object if the disabled when clause is true', async () => {
-  const title = 'title';
-
-  render(ListItemButtonIcon, {
-    title,
-    icon: faRocket,
-    disabledWhen: 'true',
-    menu: true,
-  });
-
-  const listItemSpan = screen.getByTitle(title);
-  expect(listItemSpan).toBeInTheDocument();
-  expect(
-    listItemSpan.parentElement!.outerHTML.indexOf(
-      'text-[var(--pd-dropdown-disabled-item-text)] bg-[var(--pd-dropdown-disabled-item-bg)]',
-    ) > 0,
-  ).toBeTruthy();
-});
-
-test('Expect the dropDownMenuItem NOT to have classes that display a disabled object if the disabled when clause is evaluated to false', async () => {
-  const title = 'title';
-
-  const contextUI = new ContextUI();
-  contextUI.setValue('values', ['test']);
-  context.set(contextUI);
-
-  render(ListItemButtonIcon, {
-    title,
-    icon: faRocket,
-    disabledWhen: 'unknown in values',
-    menu: true,
-    contextUI: contextUI,
-  });
-
-  const listItemSpan = screen.getByTitle(title);
-  expect(listItemSpan).toBeInTheDocument();
-  expect(listItemSpan.parentElement!.outerHTML.indexOf('text-gray-900 bg-charcoal-800') === -1).toBeTruthy();
-});
-
-test('Expect the dropDownMenuItem NOT to have classes that display a disabled object if the disabled when clause is false', async () => {
-  const title = 'title';
-
-  render(ListItemButtonIcon, {
-    title,
-    icon: faRocket,
-    disabledWhen: 'false',
-    menu: true,
-  });
-
-  const listItemSpan = screen.getByTitle(title);
-  expect(listItemSpan).toBeInTheDocument();
-  expect(listItemSpan.parentElement!.outerHTML.indexOf('text-gray-900 bg-charcoal-800') === -1).toBeTruthy();
-});
-
-test('Expect the dropDownMenuItem NOT to have classes that display a disabled object if the disabled when clause is empty', async () => {
-  const title = 'title';
-
-  render(ListItemButtonIcon, {
-    title,
-    icon: faRocket,
-    disabledWhen: '',
-    menu: true,
-  });
-
-  const listItemSpan = screen.getByTitle(title);
-  expect(listItemSpan).toBeInTheDocument();
-  expect(listItemSpan.parentElement!.outerHTML.indexOf('text-gray-900 bg-charcoal-800') === -1).toBeTruthy();
-});
 
 test('With custom font icon', async () => {
   const title = 'Dummy item';

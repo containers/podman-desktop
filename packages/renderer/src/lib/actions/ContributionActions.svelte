@@ -8,6 +8,7 @@ import { removeNonSerializableProperties } from '/@/lib/actions/ActionUtils';
 import type { ContextUI } from '/@/lib/context/context';
 import { ContextKeyExpr } from '/@/lib/context/contextKey';
 import { transformObjectToContext } from '/@/lib/context/ContextUtils';
+import When from '/@/lib/context/When.svelte';
 import { context as storeContext } from '/@/stores/context';
 
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
@@ -98,12 +99,13 @@ async function executeContribution(menu: Menu): Promise<void> {
 </script>
 
 {#each filteredContributions as menu}
-  <ListItemButtonIcon
-    title="{menu.title}"
-    onClick="{() => executeContribution(menu)}"
-    menu="{dropdownMenu}"
-    icon="{getIcon(menu)}"
-    detailed="{detailed}"
-    disabledWhen="{menu.disabled}"
-    contextUI="{globalContext}" />
+  <When expression="{menu.disabled}" contextUI="{globalContext}" let:enabled>
+    <ListItemButtonIcon
+      title="{menu.title}"
+      onClick="{() => executeContribution(menu)}"
+      menu="{dropdownMenu}"
+      icon="{getIcon(menu)}"
+      detailed="{detailed}"
+      enabled="{!enabled}" />
+  </When>
 {/each}

@@ -1,20 +1,13 @@
 <script lang="ts">
 import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
 import { DropdownMenu, isFontAwesomeIcon } from '@podman-desktop/ui-svelte';
-import { onDestroy, onMount } from 'svelte';
-import type { Unsubscriber } from 'svelte/motion';
+import { onMount } from 'svelte';
 import Fa from 'svelte-fa';
-
-import { context as storeContext } from '/@/stores/context';
-
-import type { ContextUI } from '../context/context';
-import { ContextKeyExpr } from '../context/contextKey';
 
 export let title: string;
 export let icon: IconDefinition | string;
 export let fontAwesomeIcon: IconDefinition | undefined = undefined;
 export let hidden = false;
-export let disabledWhen = '';
 export let enabled: boolean = true;
 export let onClick: () => void = () => {};
 export let menu = false;
@@ -23,51 +16,14 @@ export let inProgress = false;
 export let iconOffset = '';
 export let tooltip: string = '';
 
-export let contextUI: ContextUI | undefined = undefined;
-
 let positionLeftClass = 'left-1';
 if (detailed) positionLeftClass = 'left-2';
 let positionTopClass = 'top-1';
 if (detailed) positionTopClass = '[0.2rem]';
 
-let globalContext: ContextUI;
-let contextsUnsubscribe: Unsubscriber;
-
-$: {
-  if (disabledWhen !== '') {
-    if (contextUI) {
-      globalContext = contextUI;
-      computeEnabled();
-    } else {
-      if (contextsUnsubscribe) {
-        contextsUnsubscribe();
-      }
-      contextsUnsubscribe = storeContext.subscribe(value => {
-        globalContext = value;
-        computeEnabled();
-      });
-    }
-  }
-}
-
-function computeEnabled() {
-  // Deserialize the `when` property
-  const whenDeserialized = ContextKeyExpr.deserialize(disabledWhen);
-  // if there is some error when evaluating the when expression, we use the default value enabled = true
-  const disabled = whenDeserialized?.evaluate(globalContext) ?? false;
-  enabled = !disabled;
-}
-
 onMount(() => {
   if (isFontAwesomeIcon(icon)) {
     fontAwesomeIcon = icon;
-  }
-});
-
-onDestroy(() => {
-  // unsubscribe from the store
-  if (contextsUnsubscribe) {
-    contextsUnsubscribe();
   }
 });
 
