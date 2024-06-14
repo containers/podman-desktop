@@ -1,9 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const storybookStatic = path.join(__dirname, '../storybook/storybook-static');
-
-function populate(folder) {
+function populate(folder, storybookStatic) {
   const index = require(path.join(storybookStatic, 'index.json'));
 
   if(index['v'] !== 5) throw new Error(`index version is not compatible with current script. Expected 5 got ${index['v']}.`);
@@ -25,11 +23,14 @@ function populate(folder) {
 // https://docusaurus.io/docs/advanced/plugins
 // https://docusaurus.io/docs/api/plugin-methods
 export default async function storybookIntegration(context, opts) {
+  const storybookStatic = opts['storybookStatic'] ?? undefined;
+  if(storybookStatic) throw new Error('storybook-static option must be defined.');
+
   const target = opts['path'] ?? undefined;
   if(target === undefined) throw new Error('path option must be defined.');
 
   if(!fs.existsSync(storybookStatic)) throw new Error('storybook need to be built.');
-  populate(target);
+  populate(target, storybookStatic);
 
   return {
     name: 'docusaurus-storybook-integration',
