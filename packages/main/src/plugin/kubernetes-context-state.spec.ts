@@ -199,6 +199,9 @@ describe('update', async () => {
   test('should send info of resources in all reachable contexts and nothing in non reachable', async () => {
     vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
     client = new ContextsManager(apiSender);
+    const dispatchGeneralStateSpy = vi.spyOn(client, 'dispatchGeneralState');
+    const dispatchCurrentContextGeneralStateSpy = vi.spyOn(client, 'dispatchCurrentContextGeneralState');
+    const dispatchCurrentContextResourceSpy = vi.spyOn(client, 'dispatchCurrentContextResource');
     const kubeConfig = new kubeclient.KubeConfig();
     const config = {
       clusters: [
@@ -249,6 +252,9 @@ describe('update', async () => {
     await client.update(kubeConfig);
     let expectedMap = new Map<string, ContextGeneralState>();
     expectedMap.set('context1', {
+      checking: {
+        state: 'waiting',
+      },
       reachable: false,
       error: 'Error: connection error',
       resources: {
@@ -257,6 +263,9 @@ describe('update', async () => {
       },
     } as ContextGeneralState);
     expectedMap.set('context2', {
+      checking: {
+        state: 'waiting',
+      },
       reachable: true,
       error: undefined,
       resources: {
@@ -265,6 +274,9 @@ describe('update', async () => {
       },
     } as ContextGeneralState);
     expectedMap.set('context2-1', {
+      checking: {
+        state: 'waiting',
+      },
       reachable: true,
       error: undefined,
       resources: {
@@ -273,6 +285,9 @@ describe('update', async () => {
       },
     } as ContextGeneralState);
     expectedMap.set('context2-2', {
+      checking: {
+        state: 'waiting',
+      },
       reachable: true,
       error: undefined,
       resources: {
@@ -282,8 +297,11 @@ describe('update', async () => {
     } as ContextGeneralState);
     vi.advanceTimersToNextTimer();
     vi.advanceTimersToNextTimer();
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
+    expect(dispatchGeneralStateSpy).toHaveBeenCalledWith(expectedMap);
+    expect(dispatchCurrentContextGeneralStateSpy).toHaveBeenCalledWith({
+      checking: {
+        state: 'waiting',
+      },
       reachable: true,
       error: undefined,
       resources: {
@@ -291,11 +309,8 @@ describe('update', async () => {
         deployments: DEPLOYMENTS_NS1,
       },
     });
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', Array(PODS_NS1).fill({}));
-    expect(apiSenderSendMock).toHaveBeenCalledWith(
-      'kubernetes-current-context-deployments-update',
-      Array(DEPLOYMENTS_NS1).fill({}),
-    );
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('pods', Array(PODS_NS1).fill({}));
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', Array(DEPLOYMENTS_NS1).fill({}));
 
     // switching to unreachable context
     kubeConfig.loadFromOptions({
@@ -305,13 +320,18 @@ describe('update', async () => {
       currentContext: 'context1',
     });
 
-    apiSenderSendMock.mockReset();
+    dispatchGeneralStateSpy.mockReset();
+    dispatchCurrentContextGeneralStateSpy.mockReset();
+    dispatchCurrentContextResourceSpy.mockReset();
     await client.update(kubeConfig);
 
     vi.advanceTimersToNextTimer();
     vi.advanceTimersToNextTimer();
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
+    expect(dispatchGeneralStateSpy).toHaveBeenCalledWith(expectedMap);
+    expect(dispatchCurrentContextGeneralStateSpy).toHaveBeenCalledWith({
+      checking: {
+        state: 'waiting',
+      },
       reachable: false,
       error: 'Error: connection error',
       resources: {
@@ -320,8 +340,8 @@ describe('update', async () => {
       },
     });
     // no pods/deployment are sent, as the context is not reachable
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', []);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-deployments-update', []);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('pods', []);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', []);
 
     // => removing context, should remove context from sent info
     kubeConfig.loadFromOptions({
@@ -331,10 +351,13 @@ describe('update', async () => {
       currentContext: 'context2-1',
     });
 
-    apiSenderSendMock.mockReset();
+    dispatchGeneralStateSpy.mockReset();
+    dispatchCurrentContextGeneralStateSpy.mockReset();
+    dispatchCurrentContextResourceSpy.mockReset();
     await client.update(kubeConfig);
     expectedMap = new Map<string, ContextGeneralState>();
     expectedMap.set('context1', {
+      checking: { state: 'waiting' },
       reachable: false,
       error: 'Error: connection error',
       resources: {
@@ -343,6 +366,7 @@ describe('update', async () => {
       },
     } as ContextGeneralState);
     expectedMap.set('context2', {
+      checking: { state: 'waiting' },
       reachable: true,
       error: undefined,
       resources: {
@@ -351,6 +375,7 @@ describe('update', async () => {
       },
     } as ContextGeneralState);
     expectedMap.set('context2-1', {
+      checking: { state: 'waiting' },
       reachable: true,
       error: undefined,
       resources: {
@@ -361,8 +386,9 @@ describe('update', async () => {
 
     vi.advanceTimersToNextTimer();
     vi.advanceTimersToNextTimer();
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
+    expect(dispatchGeneralStateSpy).toHaveBeenCalledWith(expectedMap);
+    expect(dispatchCurrentContextGeneralStateSpy).toHaveBeenCalledWith({
+      checking: { state: 'waiting' },
       reachable: true,
       error: undefined,
       resources: {
@@ -370,11 +396,8 @@ describe('update', async () => {
         deployments: DEPLOYMENTS_NS1,
       },
     });
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', Array(PODS_NS1).fill({}));
-    expect(apiSenderSendMock).toHaveBeenCalledWith(
-      'kubernetes-current-context-deployments-update',
-      Array(DEPLOYMENTS_NS1).fill({}),
-    );
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('pods', Array(PODS_NS1).fill({}));
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', Array(DEPLOYMENTS_NS1).fill({}));
   });
 
   test('should write logs when connection fails', async () => {
@@ -441,6 +464,9 @@ describe('update', async () => {
       },
     );
     client = new ContextsManager(apiSender);
+    const dispatchGeneralStateSpy = vi.spyOn(client, 'dispatchGeneralState');
+    const dispatchCurrentContextGeneralStateSpy = vi.spyOn(client, 'dispatchCurrentContextGeneralState');
+    const dispatchCurrentContextResourceSpy = vi.spyOn(client, 'dispatchCurrentContextResource');
     const kubeConfig = new kubeclient.KubeConfig();
     const config = {
       clusters: [
@@ -471,6 +497,7 @@ describe('update', async () => {
     vi.advanceTimersToNextTimer(); // reachable now
     const expectedMap = new Map<string, ContextGeneralState>();
     expectedMap.set('context1', {
+      checking: { state: 'waiting' },
       reachable: true,
       error: undefined,
       resources: {
@@ -478,8 +505,9 @@ describe('update', async () => {
         deployments: 0,
       },
     });
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
+    expect(dispatchGeneralStateSpy).toHaveBeenCalledWith(expectedMap);
+    expect(dispatchCurrentContextGeneralStateSpy).toHaveBeenCalledWith({
+      checking: { state: 'waiting' },
       reachable: true,
       error: undefined,
       resources: {
@@ -487,13 +515,13 @@ describe('update', async () => {
         deployments: 0,
       },
     });
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', []);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-deployments-update', []);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('pods', []);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', []);
 
-    apiSenderSendMock.mockReset();
     vi.advanceTimersToNextTimer(); // add event
     vi.advanceTimersToNextTimer(); // dispatches
     expectedMap.set('context1', {
+      checking: { state: 'waiting' },
       reachable: true,
       error: undefined,
       resources: {
@@ -501,9 +529,9 @@ describe('update', async () => {
         deployments: 1,
       },
     });
-    expect(apiSenderSendMock).toHaveBeenCalledTimes(3);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
+    expect(dispatchGeneralStateSpy).toHaveBeenCalledWith(expectedMap);
+    expect(dispatchCurrentContextGeneralStateSpy).toHaveBeenCalledWith({
+      checking: { state: 'waiting' },
       reachable: true,
       error: undefined,
       resources: {
@@ -511,9 +539,7 @@ describe('update', async () => {
         deployments: 1,
       },
     });
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-deployments-update', [
-      { metadata: { name: 'deploy1' } },
-    ]);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', [{ metadata: { name: 'deploy1' } }]);
   });
 
   test('should delete deployment when deleted from context', async () => {
@@ -557,6 +583,9 @@ describe('update', async () => {
       },
     );
     client = new ContextsManager(apiSender);
+    const dispatchGeneralStateSpy = vi.spyOn(client, 'dispatchGeneralState');
+    const dispatchCurrentContextGeneralStateSpy = vi.spyOn(client, 'dispatchCurrentContextGeneralState');
+    const dispatchCurrentContextResourceSpy = vi.spyOn(client, 'dispatchCurrentContextResource');
     const kubeConfig = new kubeclient.KubeConfig();
     const config = {
       clusters: [
@@ -587,6 +616,7 @@ describe('update', async () => {
     vi.advanceTimersToNextTimer(); // delete
     const expectedMap = new Map<string, ContextGeneralState>();
     expectedMap.set('context1', {
+      checking: { state: 'waiting' },
       reachable: true,
       error: undefined,
       resources: {
@@ -594,8 +624,9 @@ describe('update', async () => {
         deployments: 2,
       },
     });
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
+    expect(dispatchGeneralStateSpy).toHaveBeenCalledWith(expectedMap);
+    expect(dispatchCurrentContextGeneralStateSpy).toHaveBeenCalledWith({
+      checking: { state: 'waiting' },
       reachable: true,
       error: undefined,
       resources: {
@@ -603,17 +634,17 @@ describe('update', async () => {
         deployments: 2,
       },
     });
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', []);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-deployments-update', [
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('pods', []);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', [
       { metadata: { uid: 'deploy1' } },
       { metadata: { uid: 'deploy2' } },
     ]);
 
-    apiSenderSendMock.mockReset();
     vi.advanceTimersToNextTimer(); // 'delete' event
     vi.advanceTimersToNextTimer(); // dispatches
 
     expectedMap.set('context1', {
+      checking: { state: 'waiting' },
       reachable: true,
       error: undefined,
       resources: {
@@ -621,9 +652,9 @@ describe('update', async () => {
         deployments: 1,
       },
     });
-    expect(apiSenderSendMock).toHaveBeenCalledTimes(3);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
+    expect(dispatchGeneralStateSpy).toHaveBeenCalledWith(expectedMap);
+    expect(dispatchCurrentContextGeneralStateSpy).toHaveBeenCalledWith({
+      checking: { state: 'waiting' },
       reachable: true,
       error: undefined,
       resources: {
@@ -631,9 +662,7 @@ describe('update', async () => {
         deployments: 1,
       },
     });
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-deployments-update', [
-      { metadata: { uid: 'deploy2' } },
-    ]);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', [{ metadata: { uid: 'deploy2' } }]);
   });
 
   test('should update deployment when updated on context', async () => {
@@ -677,6 +706,9 @@ describe('update', async () => {
       },
     );
     client = new ContextsManager(apiSender);
+    const dispatchGeneralStateSpy = vi.spyOn(client, 'dispatchGeneralState');
+    const dispatchCurrentContextGeneralStateSpy = vi.spyOn(client, 'dispatchCurrentContextGeneralState');
+    const dispatchCurrentContextResourceSpy = vi.spyOn(client, 'dispatchCurrentContextResource');
     const kubeConfig = new kubeclient.KubeConfig();
     const config = {
       clusters: [
@@ -707,6 +739,7 @@ describe('update', async () => {
     vi.advanceTimersToNextTimer(); // update
     const expectedMap = new Map<string, ContextGeneralState>();
     expectedMap.set('context1', {
+      checking: { state: 'waiting' },
       reachable: true,
       error: undefined,
       resources: {
@@ -714,8 +747,9 @@ describe('update', async () => {
         deployments: 2,
       },
     });
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
+    expect(dispatchGeneralStateSpy).toHaveBeenCalledWith(expectedMap);
+    expect(dispatchCurrentContextGeneralStateSpy).toHaveBeenCalledWith({
+      checking: { state: 'waiting' },
       reachable: true,
       error: undefined,
       resources: {
@@ -723,16 +757,19 @@ describe('update', async () => {
         deployments: 2,
       },
     });
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', []);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-deployments-update', [
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('pods', []);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', [
       { metadata: { uid: 'deploy1', name: 'name1' } },
       { metadata: { uid: 'deploy2', name: 'name2' } },
     ]);
 
-    apiSenderSendMock.mockReset();
+    dispatchGeneralStateSpy.mockReset();
+    dispatchCurrentContextGeneralStateSpy.mockReset();
+    dispatchCurrentContextResourceSpy.mockReset();
     vi.advanceTimersToNextTimer(); // update event
     vi.advanceTimersToNextTimer(); // dispatches
     expectedMap.set('context1', {
+      checking: { state: 'waiting' },
       reachable: true,
       error: undefined,
       resources: {
@@ -740,9 +777,9 @@ describe('update', async () => {
         deployments: 2,
       },
     });
-    expect(apiSenderSendMock).toHaveBeenCalledTimes(3);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
+    expect(dispatchGeneralStateSpy).toHaveBeenCalledWith(expectedMap);
+    expect(dispatchCurrentContextGeneralStateSpy).toHaveBeenCalledWith({
+      checking: { state: 'waiting' },
       reachable: true,
       error: undefined,
       resources: {
@@ -750,7 +787,7 @@ describe('update', async () => {
         deployments: 2,
       },
     });
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-deployments-update', [
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', [
       { metadata: { uid: 'deploy2', name: 'name2' } },
       { metadata: { uid: 'deploy1', name: 'name1new' } },
     ]);
@@ -812,11 +849,15 @@ describe('update', async () => {
     };
     kubeConfig.loadFromOptions(config);
     await client.update(kubeConfig);
+    const dispatchGeneralStateSpy = vi.spyOn(client, 'dispatchGeneralState');
+    const dispatchCurrentContextGeneralStateSpy = vi.spyOn(client, 'dispatchCurrentContextGeneralState');
+    const dispatchCurrentContextResourceSpy = vi.spyOn(client, 'dispatchCurrentContextResource');
     vi.advanceTimersToNextTimer(); // add deployments
     vi.advanceTimersToNextTimer(); // dispatches
     vi.advanceTimersToNextTimer(); // reachable now
     const expectedMap = new Map<string, ContextGeneralState>();
     expectedMap.set('context1', {
+      checking: { state: 'waiting' },
       reachable: true,
       error: undefined,
       resources: {
@@ -824,8 +865,9 @@ describe('update', async () => {
         deployments: 2,
       },
     });
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
+    expect(dispatchGeneralStateSpy).toHaveBeenCalledWith(expectedMap);
+    expect(dispatchCurrentContextGeneralStateSpy).toHaveBeenCalledWith({
+      checking: { state: 'waiting' },
       reachable: true,
       error: undefined,
       resources: {
@@ -833,15 +875,15 @@ describe('update', async () => {
         deployments: 2,
       },
     });
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', []);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-deployments-update', [{}, {}]);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('pods', []);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', [{}, {}]);
 
-    apiSenderSendMock.mockReset();
     vi.advanceTimersToNextTimer(); // error event
     vi.advanceTimersToNextTimer(); // dispatches
     vi.advanceTimersToNextTimer(); // reachable now
     // This time, we do not check the number of calls, as the connection will be retried, and calls will be done after each retry
     expectedMap.set('context1', {
+      checking: { state: 'waiting' },
       reachable: false,
       error: 'connection error',
       resources: {
@@ -849,8 +891,9 @@ describe('update', async () => {
         deployments: 0,
       },
     });
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
+    expect(dispatchGeneralStateSpy).toHaveBeenCalledWith(expectedMap);
+    expect(dispatchCurrentContextGeneralStateSpy).toHaveBeenCalledWith({
+      checking: { state: 'waiting' },
       reachable: false,
       error: 'connection error',
       resources: {
@@ -858,8 +901,8 @@ describe('update', async () => {
         deployments: 0,
       },
     });
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', []);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-deployments-update', []);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('pods', []);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', []);
   });
 
   const secondaryInformers = [
@@ -914,6 +957,9 @@ describe('update', async () => {
         },
       );
       client = new ContextsManager(apiSender);
+      const dispatchGeneralStateSpy = vi.spyOn(client, 'dispatchGeneralState');
+      const dispatchCurrentContextGeneralStateSpy = vi.spyOn(client, 'dispatchCurrentContextGeneralState');
+      const dispatchCurrentContextResourceSpy = vi.spyOn(client, 'dispatchCurrentContextResource');
       const kubeConfig = new kubeclient.KubeConfig();
       const config = {
         clusters: [
@@ -947,6 +993,7 @@ describe('update', async () => {
       vi.advanceTimersToNextTimer();
       const expectedMap = new Map<string, ContextGeneralState>();
       expectedMap.set('context1', {
+        checking: { state: 'waiting' },
         reachable: true,
         error: undefined,
         resources: {
@@ -954,15 +1001,16 @@ describe('update', async () => {
           deployments: 0,
         },
       });
-      expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
-      expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-general-state-update', {
+      expect(dispatchGeneralStateSpy).toHaveBeenCalledWith(expectedMap);
+      expect(dispatchCurrentContextGeneralStateSpy).toHaveBeenCalledWith({
+        checking: { state: 'waiting' },
         reachable: true,
         resources: {
           pods: 0,
           deployments: 0,
         },
       });
-      expect(apiSenderSendMock).toHaveBeenCalledWith(`kubernetes-current-context-${resource}-update`, [{}]);
+      expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith(resource, [{}]);
     });
 
     test('createInformer should send data for deleted and updated resource', async () => {
@@ -1010,6 +1058,8 @@ describe('update', async () => {
         },
       );
       client = new ContextsManager(apiSender);
+      const dispatchGeneralStateSpy = vi.spyOn(client, 'dispatchGeneralState');
+      const dispatchCurrentContextResourceSpy = vi.spyOn(client, 'dispatchCurrentContextResource');
       const kubeConfig = new kubeclient.KubeConfig();
       const config = {
         clusters: [
@@ -1039,29 +1089,25 @@ describe('update', async () => {
       expect(ctx).not.toBeUndefined();
       createInformer(kubeConfig, client, ctx, resource);
       vi.advanceTimersByTime(120);
-      expect(apiSenderSendMock).toHaveBeenCalledWith(`kubernetes-current-context-${resource}-update`, [
-        { metadata: { uid: 'svc1' } },
-      ]);
+      expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith(resource, [{ metadata: { uid: 'svc1' } }]);
 
-      apiSenderSendMock.mockReset();
+      dispatchGeneralStateSpy.mockReset();
       vi.advanceTimersByTime(100);
-      expect(apiSenderSendMock).toHaveBeenCalledTimes(1); // do not send general information
-      expect(apiSenderSendMock).toHaveBeenCalledWith(`kubernetes-current-context-${resource}-update`, [
+      expect(dispatchGeneralStateSpy).not.toHaveBeenCalled();
+      expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith(resource, [
         { metadata: { uid: 'svc1' } },
         { metadata: { uid: 'svc2' } },
       ]);
 
-      apiSenderSendMock.mockReset();
+      dispatchGeneralStateSpy.mockReset();
       vi.advanceTimersByTime(100);
-      expect(apiSenderSendMock).toHaveBeenCalledTimes(1);
-      expect(apiSenderSendMock).toHaveBeenCalledWith(`kubernetes-current-context-${resource}-update`, [
-        { metadata: { uid: 'svc2' } },
-      ]);
+      expect(dispatchGeneralStateSpy).not.toHaveBeenCalled();
+      expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith(resource, [{ metadata: { uid: 'svc2' } }]);
 
-      apiSenderSendMock.mockReset();
+      dispatchGeneralStateSpy.mockReset();
       vi.advanceTimersByTime(100);
-      expect(apiSenderSendMock).toHaveBeenCalledTimes(1);
-      expect(apiSenderSendMock).toHaveBeenCalledWith(`kubernetes-current-context-${resource}-update`, [
+      expect(dispatchGeneralStateSpy).not.toHaveBeenCalled();
+      expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith(resource, [
         { metadata: { uid: 'svc2', name: 'name2' } },
       ]);
     });
@@ -1469,6 +1515,9 @@ describe('update', async () => {
       },
     );
     client = new ContextsManager(apiSender);
+    const dispatchGeneralStateSpy = vi.spyOn(client, 'dispatchGeneralState');
+    const dispatchCurrentContextGeneralStateSpy = vi.spyOn(client, 'dispatchCurrentContextGeneralState');
+    const dispatchCurrentContextResourceSpy = vi.spyOn(client, 'dispatchCurrentContextResource');
     const kubeConfig = new kubeclient.KubeConfig();
     const config = {
       clusters: [
@@ -1503,16 +1552,13 @@ describe('update', async () => {
     client.registerGetCurrentContextResources('ingresses');
     await client.update(kubeConfig);
     vi.advanceTimersByTime(20);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expect.anything());
-    expect(apiSenderSendMock).toHaveBeenCalledWith(
-      'kubernetes-current-context-general-state-update',
-      expect.anything(),
-    );
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-pods-update', []);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-deployments-update', []);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-services-update', [{}]);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-ingresses-update', [{}]);
-    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-current-context-routes-update', []);
+    expect(dispatchGeneralStateSpy).toHaveBeenCalled();
+    expect(dispatchCurrentContextGeneralStateSpy).toHaveBeenCalled();
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('pods', []);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', []);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('services', [{}]);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('ingresses', [{}]);
+    expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('routes', []);
   });
 
   test('changing context that have same name as the old one should start service informer again', async () => {
@@ -1653,7 +1699,16 @@ describe('update', async () => {
     expect(vi.getTimerCount()).not.toBe(0);
     client.dispose();
     vi.advanceTimersByTime(20000);
-    expect(apiSenderSendMock).not.toHaveBeenCalled();
+    expect(apiSenderSendMock).not.toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expect.anything());
+    expect(apiSenderSendMock).not.toHaveBeenCalledWith(
+      'kubernetes-current-context-general-state-update',
+      expect.anything(),
+    );
+    expect(apiSenderSendMock).not.toHaveBeenCalledWith('kubernetes-current-context-pods-update', expect.anything());
+    expect(apiSenderSendMock).not.toHaveBeenCalledWith(
+      'kubernetes-current-context-deployments-update',
+      expect.anything(),
+    );
   });
 });
 describe('ContextsStates tests', () => {

@@ -1,8 +1,8 @@
 <script lang="ts">
 import { faRightToBracket, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { EmptyScreen, ErrorMessage } from '@podman-desktop/ui-svelte';
+import { EmptyScreen, ErrorMessage, Spinner } from '@podman-desktop/ui-svelte';
 
-import { kubernetesContextsState } from '/@/stores/kubernetes-contexts-state';
+import { kubernetesContextsCheckingState, kubernetesContextsState } from '/@/stores/kubernetes-contexts-state';
 
 import { kubernetesContexts } from '../../stores/kubernetes-contexts';
 import { clearKubeUIContextErrors, setKubeUIContextError } from '../kube/KubeContextUI';
@@ -138,6 +138,9 @@ async function handleDeleteContext(contextName: string) {
                       aria-label="Context Unreachable">
                       UNREACHABLE
                     </div>
+                    {#if $kubernetesContextsCheckingState.get(context.name)?.state === 'checking'}
+                      <div class="ml-1"><Spinner size="12px"></Spinner></div>
+                    {/if}
                   </div>
                 {/if}
               </div>
