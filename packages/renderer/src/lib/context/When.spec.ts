@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { render, screen } from '@testing-library/svelte';
-import { beforeEach,expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 import { ContextUI } from '/@/lib/context/context';
 
