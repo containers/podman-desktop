@@ -12,6 +12,27 @@ import SettingsPage from './SettingsPage.svelte';
 
 $: currentContextName = $kubernetesContexts.find(c => c.currentContext)?.name;
 
+let previousState = new Map<string, 'waiting' | 'checking' | 'gaveup'>();
+let checkingCount = new Map<string, number>();
+$: {
+  for (const [context, state] of $kubernetesContextsCheckingState) {
+    if (!previousState.has(context) || previousState.get(context) !== state.state) {
+      if (state.state === 'checking') {
+        const prev = checkingCount.get(context) ?? 0;
+        checkingCount.set(context, prev + 1);
+        checkingCount = new Map(checkingCount);
+      } else if (state.state === 'waiting' && (checkingCount.get(context) ?? 0) > 0) {
+        const prev = checkingCount.get(context) ?? 0;
+        setTimeout(() => {
+          checkingCount.set(context, prev - 1);
+          checkingCount = new Map(checkingCount);
+        }, 2000);
+      }
+      previousState.set(context, state.state);
+    }
+  }
+}
+
 async function handleSetContext(contextName: string) {
   $kubernetesContexts = clearKubeUIContextErrors($kubernetesContexts);
   try {
@@ -138,7 +159,7 @@ async function handleDeleteContext(contextName: string) {
                       aria-label="Context Unreachable">
                       UNREACHABLE
                     </div>
-                    {#if $kubernetesContextsCheckingState.get(context.name)?.state === 'checking'}
+                    {#if (checkingCount.get(context.name) ?? 0) > 0}
                       <div class="ml-1"><Spinner size="12px"></Spinner></div>
                     {/if}
                   </div>

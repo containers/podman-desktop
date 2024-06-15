@@ -23,7 +23,6 @@ import type { CheckingState, ContextGeneralState } from '../../../main/src/plugi
 import { findMatchInLeaves } from './search-util';
 
 export const kubernetesContextsCheckingState = readable(new Map<string, CheckingState>(), set => {
-  // TODO get initial value
   window.events?.receive('kubernetes-contexts-checking-state-update', (value: unknown) => {
     set(value as Map<string, CheckingState>);
   });
