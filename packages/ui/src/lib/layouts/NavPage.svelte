@@ -15,7 +15,9 @@ export let searchEnabled = true;
       <div class="flex flex-1 justify-end">
         <div class="px-5" role="group" aria-label="additionalActions">
           {#if $$slots['additional-actions']}
-            <div class="space-x-2 flex flex-nowrap"><slot name="additional-actions" /></div>
+            <div class="space-x-2 flex flex-nowrap text-[var(--pd-content-text)]">
+              <slot name="additional-actions" />
+            </div>
           {:else}&nbsp;{/if}
         </div>
       </div>
@@ -27,7 +29,7 @@ export let searchEnabled = true;
         </div>
         <div class="flex flex-1 px-5" role="group" aria-label="bottomAdditionalActions">
           {#if $$slots['bottom-additional-actions']}
-            <div class="space-x-2 flex flex-row justify-start items-center w-full">
+            <div class="space-x-2 flex flex-row justify-start items-center w-full text-[var(--pd-content-text)]">
               <slot name="bottom-additional-actions" />
             </div>
           {:else}&nbsp;{/if}
