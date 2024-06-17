@@ -421,7 +421,7 @@ export class PluginSystem {
     const statusBarRegistry = new StatusBarRegistry(apiSender);
 
     const safeStorageRegistry = new SafeStorageRegistry(directories);
-    await safeStorageRegistry.init();
+    notifications.push(...(await safeStorageRegistry.init()));
 
     const configurationRegistry = new ConfigurationRegistry(apiSender, directories);
     notifications.push(...configurationRegistry.init());
@@ -576,7 +576,7 @@ export class PluginSystem {
     const libpodApiInit = new LibpodApiInit(configurationRegistry);
     libpodApiInit.init();
 
-    const authentication = new AuthenticationImpl(apiSender);
+    const authentication = new AuthenticationImpl(apiSender, messageBox);
 
     const cliToolRegistry = new CliToolRegistry(apiSender, exec, telemetry);
 

@@ -26,7 +26,7 @@ on:
 jobs:
   vale:
     name: runner / vale
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: errata-ai/vale-action@38bf078c328061f59879b347ca344a718a736018 # reviewdog branch, https://github.com/errata-ai/vale-action/commit/38bf078c328061f59879b347ca344a718a736018

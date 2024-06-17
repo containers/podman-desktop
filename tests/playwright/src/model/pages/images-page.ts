@@ -33,6 +33,9 @@ export class ImagesPage extends MainPage {
   readonly pruneImagesButton: Locator;
   readonly buildImageButton: Locator;
   readonly pruneConfirmationButton: Locator;
+  readonly loadImagesFromTarButton: Locator;
+  readonly addArchiveButton: Locator;
+  readonly confirmLoadImagesButton: Locator;
 
   constructor(page: Page) {
     super(page, 'images');
@@ -40,6 +43,9 @@ export class ImagesPage extends MainPage {
     this.pruneImagesButton = this.additionalActions.getByRole('button', { name: 'Prune', exact: true });
     this.buildImageButton = this.additionalActions.getByRole('button', { name: 'Build', exact: true });
     this.pruneConfirmationButton = this.page.getByRole('button', { name: 'Yes', exact: true });
+    this.loadImagesFromTarButton = this.additionalActions.getByLabel('Load Images', { exact: true });
+    this.addArchiveButton = this.page.getByRole('button', { name: 'Add archive', exact: true });
+    this.confirmLoadImagesButton = this.page.getByRole('button', { name: 'Load Images', exact: true });
   }
 
   async openPullImage(): Promise<PullImagePage> {
@@ -140,5 +146,17 @@ export class ImagesPage extends MainPage {
 
     status = status + (await row.getByRole('status').getAttribute('title'));
     return status;
+  }
+
+  async loadImages(archivePath: string): Promise<ImagesPage> {
+    // TODO: Will probably require refactoring when https://github.com/containers/podman-desktop/issues/7620 is done
+
+    await playExpect(this.loadImagesFromTarButton).toBeEnabled();
+    await this.loadImagesFromTarButton.click();
+    await playExpect(this.addArchiveButton).toBeEnabled();
+    await this.addArchiveButton.setInputFiles(archivePath);
+    await playExpect(this.confirmLoadImagesButton).toBeEnabled();
+    await this.confirmLoadImagesButton.click();
+    return this;
   }
 }

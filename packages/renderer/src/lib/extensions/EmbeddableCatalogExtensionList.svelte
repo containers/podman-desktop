@@ -42,6 +42,6 @@ const catalogExtensions: Readable<CatalogExtensionInfoUI[]> = derived(
 );
 </script>
 
-<div class="flex bg-charcoal-700 text-left">
+<div class="flex bg-[var(--pd-content-bg)] text-left">
   <CatalogExtensionList catalogExtensions="{$catalogExtensions}" />
 </div>

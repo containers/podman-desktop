@@ -8,5 +8,6 @@ dist
 .vale/styles/RedHat
 **/test-resources
 **/coverage
-# kind
-kind.exe
+/kind
+/kind.exe
+/storybook/.storybook/themes.css

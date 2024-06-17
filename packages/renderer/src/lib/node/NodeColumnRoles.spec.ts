@@ -41,7 +41,6 @@ test('Expect role display for control plane', async () => {
 
   const text = screen.getByText('Control Plane');
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('text-gray-500');
 });
 
 test('Expect role display for node', async () => {
@@ -49,5 +48,4 @@ test('Expect role display for node', async () => {
 
   const text = screen.getByText('Node');
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('text-gray-500');
 });

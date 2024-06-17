@@ -1,8 +1,7 @@
 <script lang="ts">
-import { Tooltip } from '@podman-desktop/ui-svelte';
-
 import { ContainerGroupInfoTypeUI } from '../container/ContainerInfoUI';
 import { PodGroupInfoTypeUI } from '../pod/PodInfoUI';
+import Label from './Label.svelte';
 
 // Name of the provider (e.g. podman, docker, kubernetes)
 export let provider = '';
@@ -29,16 +28,6 @@ function getProviderColour(providerName: string): string {
 }
 </script>
 
-<div class="flex items-center bg-charcoal-500 p-1 rounded-md">
-  <div class="w-2 h-2 {getProviderColour(provider)} rounded-full mr-1"></div>
-  <span class="text-xs capitalize">
-    <!-- If Kubernetes, show the context via the tooltip / hover, else just provider the name.-->
-    {#if provider === 'Kubernetes'}
-      <Tooltip top tip="{context}">
-        {provider}
-      </Tooltip>
-    {:else}
-      {provider}
-    {/if}
-  </span>
-</div>
+<Label tip="{provider === 'Kubernetes' ? context : ''}" name="{provider}">
+  <div class="w-2 h-2 {getProviderColour(provider)} rounded-full"></div>
+</Label>

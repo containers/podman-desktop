@@ -42,9 +42,8 @@ test('Expect column styling available', async () => {
 
   const text = screen.getByText('Available');
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('text-gray-500');
 
-  const dot = text.parentElement?.children[0].children[0];
+  const dot = text.parentElement?.children[0];
   expect(dot).toBeInTheDocument();
   expect(dot).toHaveClass('text-green-600');
 });
@@ -55,9 +54,8 @@ test('Expect column styling failure', async () => {
 
   const text = screen.getByText('ReplicaFailure');
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('text-gray-500');
 
-  const dot = text.parentElement?.children[0].children[0];
+  const dot = text.parentElement?.children[0];
   expect(dot).toBeInTheDocument();
   expect(dot).toHaveClass('text-amber-600');
 });
@@ -68,9 +66,8 @@ test('Expect column styling progressing', async () => {
 
   const text = screen.getByText('Progressing');
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('text-gray-500');
 
-  const dot = text.parentElement?.children[0].children[0];
+  const dot = text.parentElement?.children[0];
   expect(dot).toBeInTheDocument();
   expect(dot).toHaveClass('text-sky-400');
 });
@@ -83,9 +80,8 @@ test('Expect column styling progressed', async () => {
 
   const text = screen.getByText('Progressed');
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('text-gray-500');
 
-  const dot = text.parentElement?.children[0].children[0];
+  const dot = text.parentElement?.children[0];
   expect(dot).toBeInTheDocument();
   expect(dot).toHaveClass('text-sky-400');
 });

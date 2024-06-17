@@ -70,7 +70,7 @@ jobs:
 
   linux:
     name: Linux
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -180,7 +180,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-22.04]
+        os: [windows-2022, ubuntu-24.04]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -189,12 +189,12 @@ jobs:
 
 
       - name: Get yarn cache directory path (mac/Linux)
-        if: ${{ matrix.os=='ubuntu-22.04'}}
+        if: ${{ matrix.os=='ubuntu-24.04'}}
         id: yarn-cache-dir-path-unix
         run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
 
       - uses: actions/cache@v4
-        if: ${{ matrix.os=='ubuntu-22.04'}}
+        if: ${{ matrix.os=='ubuntu-24.04'}}
         id: yarn-cache-unix
         with:
           path: ${{ steps.yarn-cache-dir-path-unix.outputs.dir }}
@@ -222,7 +222,7 @@ jobs:
 
       # Check we don't have changes in git
       - name: Check no changes in git
-        if: ${{ matrix.os=='ubuntu-22.04'}}
+        if: ${{ matrix.os=='ubuntu-24.04'}}
         run: |
           if ! git diff --exit-code; then
             echo "Found changes in git"

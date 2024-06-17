@@ -25,8 +25,11 @@ import {
   Exec,
   KubeConfig,
   type KubernetesObject,
+  type V1ConfigMap,
   type V1Deployment,
   type V1Ingress,
+  type V1Node,
+  type V1Pod,
   type V1Service,
   type V1Status,
   type Watch,
@@ -1141,7 +1144,7 @@ test('Expect applyResourcesFromYAML to correctly call applyResources after loadi
   const applyResourcesSpy = vi.spyOn(client, 'applyResources').mockResolvedValue(expectedObjects);
   const objects = await client.applyResourcesFromYAML('default', podAndDeploymentTestYAML);
   expect(objects).toEqual(expectedObjects);
-  expect(applyResourcesSpy).toHaveBeenCalledWith('default', expectedObjects, 'apply');
+  expect(applyResourcesSpy).toHaveBeenCalledWith('default', expectedObjects);
 });
 
 test('setupWatcher sends kubernetes-context-update when kubeconfig file changes', async () => {
@@ -1300,4 +1303,184 @@ test('Test should throw an exception during exec command if internal kube method
       () => {},
     ),
   ).rejects.toThrowError('not active connection');
+});
+
+describe('Tests that managedFields are removed from the object when using read', () => {
+  test('Pod', async () => {
+    const client = createTestClient('default');
+    const v1Pod: V1Pod = {
+      apiVersion: 'v1',
+      kind: 'Pod',
+      metadata: {
+        name: 'pod',
+        managedFields: [{ manager: 'manager' }],
+      },
+    };
+    makeApiClientMock.mockReturnValue({
+      getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+      readNamespacedPod: () =>
+        Promise.resolve({
+          body: v1Pod,
+        }),
+    });
+
+    const pod = await client.readNamespacedPod('pod', 'default');
+    expect(pod).toBeDefined();
+    expect(pod?.metadata?.managedFields).toBeUndefined();
+  });
+
+  test('Deployment', async () => {
+    const client = createTestClient('default');
+    const v1Deployment: V1Deployment = {
+      apiVersion: 'networking.k8s.io/v1',
+      kind: 'Deployment',
+      metadata: {
+        name: 'deployment',
+        managedFields: [{ manager: 'manager' }],
+      },
+    };
+    makeApiClientMock.mockReturnValue({
+      getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+      readNamespacedDeployment: () =>
+        Promise.resolve({
+          body: v1Deployment,
+        }),
+    });
+
+    const deployment = await client.readNamespacedDeployment('deployment', 'default');
+    expect(deployment).toBeDefined();
+    expect(deployment?.metadata?.managedFields).toBeUndefined();
+  });
+
+  test('Node', async () => {
+    const client = createTestClient('default');
+    const v1Node: V1Node = {
+      apiVersion: 'v1',
+      kind: 'Node',
+      metadata: {
+        name: 'node',
+        managedFields: [{ manager: 'manager' }],
+      },
+    };
+    makeApiClientMock.mockReturnValue({
+      getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+      readNode: () =>
+        Promise.resolve({
+          body: v1Node,
+        }),
+    });
+
+    const node = await client.readNode('node');
+    expect(node).toBeDefined();
+    expect(node?.metadata?.managedFields).toBeUndefined();
+  });
+
+  test('Ingress', async () => {
+    const client = createTestClient('default');
+    const v1Ingress: V1Ingress = {
+      apiVersion: 'networking.k8s.io/v1',
+      kind: 'Ingress',
+      metadata: {
+        name: 'ingress',
+        managedFields: [{ manager: 'manager' }],
+      },
+    };
+    makeApiClientMock.mockReturnValue({
+      getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+      readNamespacedIngress: () =>
+        Promise.resolve({
+          body: v1Ingress,
+        }),
+    });
+
+    const ingress = await client.readNamespacedIngress('ingress', 'default');
+    expect(ingress).toBeDefined();
+    expect(ingress?.metadata?.managedFields).toBeUndefined();
+  });
+
+  test('Route', async () => {
+    const client = createTestClient('default');
+    const v1Route: V1Route = {
+      apiVersion: 'route.openshift.io/v1',
+      kind: 'Route',
+      metadata: {
+        name: 'route',
+        namespace: 'default',
+        managedFields: [{ manager: 'manager' }],
+      },
+      spec: {
+        host: 'host',
+        port: {
+          targetPort: '80',
+        },
+        tls: {
+          insecureEdgeTerminationPolicy: '',
+          termination: '',
+        },
+        to: {
+          kind: '',
+          name: '',
+          weight: 1,
+        },
+        wildcardPolicy: '',
+      },
+    };
+    makeApiClientMock.mockReturnValue({
+      getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+      getNamespacedCustomObject: () =>
+        Promise.resolve({
+          body: v1Route,
+        }),
+    });
+
+    const route = await client.readNamespacedRoute('route', 'default');
+    expect(route).toBeDefined();
+    expect(route?.metadata?.managedFields).toBeUndefined();
+  });
+
+  test('Service', async () => {
+    const client = createTestClient('default');
+    const v1Service: V1Service = {
+      apiVersion: 'k8s.io/v1',
+      kind: 'Service',
+      metadata: {
+        name: 'service',
+        managedFields: [{ manager: 'manager' }],
+      },
+    };
+    makeApiClientMock.mockReturnValue({
+      getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+      readNamespacedService: () =>
+        Promise.resolve({
+          body: v1Service,
+        }),
+    });
+
+    const service = await client.readNamespacedService('service', 'default');
+    expect(service).toBeDefined();
+    expect(service?.metadata?.managedFields).toBeUndefined();
+  });
+
+  test('ConfigMap', async () => {
+    const client = createTestClient('default');
+    const v1ConfigMap: V1ConfigMap = {
+      apiVersion: 'v1',
+      kind: 'ConfigMap',
+      metadata: {
+        name: 'configmap',
+        managedFields: [{ manager: 'manager' }],
+      },
+    };
+    makeApiClientMock.mockReturnValue({
+      getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+      readNamespacedConfigMap: () =>
+        Promise.resolve({
+          body: v1ConfigMap,
+        }),
+    });
+
+    const configMap = await client.readNamespacedConfigMap('configmap', 'default');
+    expect(configMap).toBeDefined();
+    expect(configMap?.metadata?.managedFields).toBeUndefined();
+  });
 });

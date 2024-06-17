@@ -59,12 +59,12 @@ export class ExtensionCardPage extends BasePage {
     this.removeButton = this.extensionActions.getByRole('button', { name: 'Delete' });
   }
 
-  public async openExtensionDetails(): Promise<ExtensionDetailsPage> {
+  public async openExtensionDetails(heading: string): Promise<ExtensionDetailsPage> {
     await playExpect(this.card).toBeVisible();
     await this.card.scrollIntoViewIfNeeded();
     await playExpect(this.detailsLink).toBeVisible();
     await this.detailsLink.click();
-    return new ExtensionDetailsPage(this.page, this.extensionName);
+    return new ExtensionDetailsPage(this.page, heading);
   }
 
   async disableExtension(): Promise<this> {

@@ -47,6 +47,4 @@ test('Expect simple column styling', async () => {
 
   const text = screen.getByText(image.engineName);
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('text-xs');
-  expect(text).toHaveClass('capitalize');
 });

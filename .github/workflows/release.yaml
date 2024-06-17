@@ -35,7 +35,7 @@ jobs:
 
   tag:
     name: Tagging
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       githubTag: ${{ steps.TAG_UTIL.outputs.githubTag}}
       desktopVersion: ${{ steps.TAG_UTIL.outputs.desktopVersion}}
@@ -133,7 +133,7 @@ jobs:
           - os: "macos-14"
           - os: "macos-14"
             airgap: "true"
-          - os: "ubuntu-22.04"
+          - os: "ubuntu-24.04"
     timeout-minutes: 60
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -155,7 +155,7 @@ jobs:
         run: echo "dir=$(yarn cache dir)" >> ${env:GITHUB_OUTPUT}
 
       - name: Get yarn cache directory path (mac/Linux)
-        if: ${{ matrix.os=='ubuntu-22.04' || matrix.os=='macos-14' }}
+        if: ${{ matrix.os=='ubuntu-24.04' || matrix.os=='macos-14' }}
         id: yarn-cache-dir-path-unix
         run: echo "dir=$(yarn cache dir)" >> ${GITHUB_OUTPUT}
 
@@ -169,7 +169,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - uses: actions/cache@v4
-        if: ${{ matrix.os=='ubuntu-22.04' || matrix.os=='macos-14' }}
+        if: ${{ matrix.os=='ubuntu-24.04' || matrix.os=='macos-14' }}
         id: yarn-cache-unix
         with:
           path: ${{ steps.yarn-cache-dir-path-unix.outputs.dir }}
@@ -186,7 +186,7 @@ jobs:
           yarn --frozen-lockfile --network-timeout 180000
 
       - name: Install flatpak on Linux
-        if: ${{ matrix.os=='ubuntu-22.04' }}
+        if: ${{ matrix.os=='ubuntu-24.04' }}
         run: |
           sudo apt-get update
           sudo apt-get install flatpak -y
@@ -222,7 +222,7 @@ jobs:
   release:
     needs: [tag, build]
     name: Release
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: id
         run: echo the release id is ${{ needs.tag.outputs.releaseId}}
@@ -237,7 +237,7 @@ jobs:
   publish:
     needs: [tag, release]
     name: Publish
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

@@ -75,6 +75,7 @@ import {
 import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import type { TrayMenuRegistry } from './tray-menu-registry.js';
+import type { IDisposable } from './types/disposable.js';
 import { Disposable } from './types/disposable.js';
 import { TelemetryTrustedValue } from './types/telemetry.js';
 import { Uri } from './types/uri.js';
@@ -454,9 +455,8 @@ export class ExtensionLoader {
     }
 
     // create api object
-    const api = this.createApi(extensionPath, manifest);
-
     const disposables: Disposable[] = [];
+    const api = this.createApi(extensionPath, manifest, disposables);
 
     // is there a README.md file in the extension folder ?
     let readme = '';
@@ -765,7 +765,7 @@ export class ExtensionLoader {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createApi(extensionPath: string, extManifest: any): typeof containerDesktopAPI {
+  createApi(extensionPath: string, extManifest: any, disposables: IDisposable[]): typeof containerDesktopAPI {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const instance = this;
     const extensionInfo = {
@@ -787,7 +787,9 @@ export class ExtensionLoader {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         thisArg?: any,
       ): containerDesktopAPI.Disposable {
-        return commandRegistry.registerCommand(command, callback, thisArg);
+        const registration = commandRegistry.registerCommand(command, callback, thisArg);
+        disposables.push(registration);
+        return registration;
       },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       executeCommand<T = unknown>(commandId: string, ...args: any[]): PromiseLike<T> {
@@ -808,7 +810,9 @@ export class ExtensionLoader {
           images.icon = instance.updateImage(images.icon, extensionPath);
           images.logo = instance.updateImage(images.logo, extensionPath);
         }
-        return providerRegistry.createProvider(extensionInfo.id, extensionInfo.label, providerOptions);
+        const registration = providerRegistry.createProvider(extensionInfo.id, extensionInfo.label, providerOptions);
+        disposables.push(registration);
+        return registration;
       },
       onDidUpdateProvider: (listener, thisArg, disposables) => {
         return providerRegistry.onDidUpdateProvider(listener, thisArg, disposables);
@@ -858,10 +862,14 @@ export class ExtensionLoader {
     const trayMenuRegistry = this.trayMenuRegistry;
     const tray: typeof containerDesktopAPI.tray = {
       registerMenuItem(item: containerDesktopAPI.MenuItem): containerDesktopAPI.Disposable {
-        return trayMenuRegistry.registerMenuItem(item);
+        const registration = trayMenuRegistry.registerMenuItem(item);
+        disposables.push(registration);
+        return registration;
       },
       registerProviderMenuItem(providerId: string, item: containerDesktopAPI.MenuItem): containerDesktopAPI.Disposable {
-        return trayMenuRegistry.registerProviderMenuItem(providerId, item);
+        const registration = trayMenuRegistry.registerProviderMenuItem(providerId, item);
+        disposables.push(registration);
+        return registration;
       },
     };
     const configurationRegistry = this.configurationRegistry;
@@ -880,7 +888,9 @@ export class ExtensionLoader {
     const imageRegistry = this.imageRegistry;
     const registry: typeof containerDesktopAPI.registry = {
       registerRegistry: (registry: containerDesktopAPI.Registry): Disposable => {
-        return imageRegistry.registerRegistry(registry);
+        const registration = imageRegistry.registerRegistry(registry);
+        disposables.push(registration);
+        return registration;
       },
 
       suggestRegistry: (registry: containerDesktopAPI.RegistrySuggestedProvider): Disposable => {
@@ -903,7 +913,9 @@ export class ExtensionLoader {
         return imageRegistry.onDidUnregisterRegistry(listener, thisArg, disposables);
       },
       registerRegistryProvider: (registryProvider: containerDesktopAPI.RegistryProvider): Disposable => {
-        return imageRegistry.registerRegistryProvider(registryProvider);
+        const registration = imageRegistry.registerRegistryProvider(registryProvider);
+        disposables.push(registration);
+        return registration;
       },
     };
 
@@ -949,12 +961,14 @@ export class ExtensionLoader {
       },
 
       showNotification: (notificationInfo: containerDesktopAPI.NotificationOptions): containerDesktopAPI.Disposable => {
-        return this.notificationRegistry.addNotification({
+        const notification = this.notificationRegistry.addNotification({
           ...notificationInfo,
           extensionId: extensionInfo.id,
           type: notificationInfo.type ?? 'info',
           title: notificationInfo.title ?? extensionInfo.name,
         });
+        disposables.push(notification);
+        return notification;
       },
 
       createStatusBarItem: (
@@ -975,17 +989,23 @@ export class ExtensionLoader {
           }
         }
 
-        return new StatusBarItemImpl(this.statusBarRegistry, alignment, priority);
+        const statusBarItem = new StatusBarItemImpl(this.statusBarRegistry, alignment, priority);
+        disposables.push(statusBarItem);
+        return statusBarItem;
       },
       createCustomPick: <T extends containerDesktopAPI.CustomPickItem>(): containerDesktopAPI.CustomPick<T> => {
-        return customPickRegistry.createCustomPick();
+        const customPick: containerDesktopAPI.CustomPick<T> = customPickRegistry.createCustomPick();
+        disposables.push(customPick);
+        return customPick;
       },
       createWebviewPanel: (
         viewType: string,
         title: string,
         options?: containerDesktopAPI.WebviewOptions,
       ): containerDesktopAPI.WebviewPanel => {
-        return webviewRegistry.createWebviewPanel(extensionInfo, viewType, title, options);
+        const webviewPanel = webviewRegistry.createWebviewPanel(extensionInfo, viewType, title, options);
+        disposables.push(webviewPanel);
+        return webviewPanel;
       },
       listWebviews(): Promise<containerDesktopAPI.WebviewInfo[]> {
         return webviewRegistry.listSimpleWebviews();
@@ -1008,7 +1028,9 @@ export class ExtensionLoader {
     const fileSystemMonitoring = this.fileSystemMonitoring;
     const fs: typeof containerDesktopAPI.fs = {
       createFileSystemWatcher(path: string): containerDesktopAPI.FileSystemWatcher {
-        return fileSystemMonitoring.createFileSystemWatcher(path);
+        const filesystemWatcher = fileSystemMonitoring.createFileSystemWatcher(path);
+        disposables.push(filesystemWatcher);
+        return filesystemWatcher;
       },
     };
 
@@ -1182,7 +1204,14 @@ export class ExtensionLoader {
           images.icon = instance.updateImage(images.icon, extensionPath);
           images.logo = instance.updateImage(images.logo, extensionPath);
         }
-        return authenticationProviderRegistry.registerAuthenticationProvider(id, label, provider, options);
+        const authenticationProvider = authenticationProviderRegistry.registerAuthenticationProvider(
+          id,
+          label,
+          provider,
+          options,
+        );
+        disposables.push(authenticationProvider);
+        return authenticationProvider;
       },
       onDidChangeSessions: (listener, thisArg, disposables) => {
         return authenticationProviderRegistry.onDidChangeSessions(listener, thisArg, disposables);
@@ -1227,7 +1256,9 @@ export class ExtensionLoader {
         sender?: containerDesktopAPI.TelemetrySender,
         options?: containerDesktopAPI.TelemetryLoggerOptions,
       ) => {
-        return telemetry.createTelemetryLogger(extensionInfo, sender, options);
+        const telemetryLogger = telemetry.createTelemetryLogger(extensionInfo, sender, options);
+        disposables.push(telemetryLogger);
+        return telemetryLogger;
       },
       get isTelemetryEnabled() {
         return telemetry.isTelemetryEnabled();
@@ -1272,7 +1303,9 @@ export class ExtensionLoader {
         if (options.images) {
           options.images.icon = instance.updateImage(options?.images?.icon, extensionPath);
         }
-        return this.cliToolRegistry.createCliTool(extensionInfo, options);
+        const cliTool = this.cliToolRegistry.createCliTool(extensionInfo, options);
+        disposables.push(cliTool);
+        return cliTool;
       },
     };
 
@@ -1282,7 +1315,13 @@ export class ExtensionLoader {
         provider: containerDesktopAPI.ImageCheckerProvider,
         metadata?: containerDesktopAPI.ImageCheckerProviderMetadata,
       ): containerDesktopAPI.Disposable => {
-        return imageCheckerProvider.registerImageCheckerProvider(extensionInfo, provider, metadata);
+        const imageCheckerProviderRegistration = imageCheckerProvider.registerImageCheckerProvider(
+          extensionInfo,
+          provider,
+          metadata,
+        );
+        disposables.push(imageCheckerProviderRegistration);
+        return imageCheckerProviderRegistration;
       },
     };
 

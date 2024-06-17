@@ -13,6 +13,7 @@ import { createEventDispatcher, onMount } from 'svelte';
 import { router } from 'tinro';
 
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
+import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
 
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
@@ -176,8 +177,7 @@ if (dropdownMenu) {
 {/if}
 <ListItemButtonIcon
   title="Delete Pod"
-  onClick="{() => deletePod()}"
-  confirm="{true}"
+  onClick="{() => withConfirmation(deletePod, `delete pod ${pod.name}`)}"
   icon="{faTrash}"
   detailed="{detailed}"
   inProgress="{pod.actionInProgress && pod.status === 'DELETING'}" />

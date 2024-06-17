@@ -39,5 +39,5 @@ test('Expect simple column styling', async () => {
   const text = screen.getByText(deployment.ready + ' / ' + deployment.replicas);
   expect(text).toBeInTheDocument();
   expect(text).toHaveClass('text-xs');
-  expect(text).toHaveClass('text-gray-500');
+  expect(text).toHaveClass('text-[var(--pd-table-body-text-highlight)]');
 });

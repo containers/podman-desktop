@@ -49,35 +49,7 @@ module.exports = {
     colors: {
       // import colors from the color palette
       ...colorPalette,
-      // The "status" colours to be used for Podman and Kubernetes containers
-      // these can be referenced by in the form of "bg-status-running" or "text-status-running"
-      'status': {
-        // Podman & Kubernetes
-        'running': tailwindColors.green[400],
-
-        // Kubernetes only
-        'terminated': tailwindColors.red[500],
-        'waiting': tailwindColors.amber[600],
-
-        // Podman only
-        'starting': tailwindColors.green[600],
-
-        // Stopped & Exited are the same color / same thing in the eyes of statuses
-        'stopped': tailwindColors.gray[300],
-        'exited': tailwindColors.gray[300],
-
-        // "Warning"
-        'paused': tailwindColors.amber[600],
-        'degraded': tailwindColors.amber[700],
-
-        // Others
-        'created': tailwindColors.green[300],
-        'dead': tailwindColors.red[500],
-
-        // If we don't know the status, use gray
-        'unknown': tailwindColors.gray[100],
-
-      },
+      
       // The remaining colors below are not part of our palette and are only here
       // to maintain existing code. No new use.
       'zinc': {

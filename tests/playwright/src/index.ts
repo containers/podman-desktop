@@ -24,6 +24,7 @@ export * from './setupFiles/setup-registry';
 export type { RunnerTestContext } from './testContext/runner-test-context';
 export * from './utility/cleanup';
 export * from './utility/operations';
+export * from './utility/platform';
 export * from './utility/wait';
 
 // exports Podman Desktop Page Object Module
@@ -38,6 +39,7 @@ export * from './model/pages/containers-page';
 export * from './model/pages/create-pod-page';
 export * from './model/pages/dashboard-page';
 export * from './model/pages/extension-card-page';
+export * from './model/pages/extension-catalog-card-page';
 export * from './model/pages/extension-details-page';
 export * from './model/pages/extensions-page';
 export * from './model/pages/image-details-page';

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2023 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import type { LinuxOs } from 'getos';
 import getos from 'getos';
 import * as osLocale from 'os-locale';
 
+import { default as telemetry } from '../../../../../telemetry.json';
 import { stoppedExtensions } from '../../util.js';
 import type { ConfigurationRegistry, IConfigurationNode } from '../configuration-registry.js';
 import type { Event } from '../events/emitter.js';
@@ -38,6 +39,7 @@ import { Emitter } from '../events/emitter.js';
 import type { Proxy } from '../proxy.js';
 import { TelemetryTrustedValue as TypeTelemetryTrustedValue } from '../types/telemetry.js';
 import { Identity } from './identity.js';
+import type { TelemetryRule } from './telemetry-api.js';
 import { TelemetrySettings } from './telemetry-settings.js';
 
 export const TRACK_EVENT_TYPE = 'track';
@@ -59,6 +61,9 @@ export type EventType =
  */
 export class Telemetry {
   private static readonly SEGMENT_KEY = 'Mhl7GXADk5M1vG6r9FXztbCqWRQY8XPy';
+
+  private cachedTelemetrySettings: TelemetryRule[] | undefined;
+  private regexp: Map<string, RegExp> = new Map();
 
   private identity: Identity;
 
@@ -180,6 +185,21 @@ export class Telemetry {
     };
   }
 
+  // internal method, not exposed
+  protected getTelemetrySettings(): TelemetryRule[] {
+    // return the cached version if we have one
+    if (this.cachedTelemetrySettings) {
+      return this.cachedTelemetrySettings;
+    }
+
+    // load the telemetry json file
+    this.cachedTelemetrySettings = telemetry.rules.map(obj => obj) as TelemetryRule[];
+    this.regexp = new Map();
+    this.cachedTelemetrySettings.forEach(rule => this.regexp.set(rule.event, new RegExp(rule.event)));
+
+    return this.cachedTelemetrySettings;
+  }
+
   createTelemetryLogger(
     extensionInfo: { id: string; name: string; publisher: string; version: string },
     sender?: TelemetrySender,
@@ -275,25 +295,45 @@ export class Telemetry {
 
   // return true if the event needs to be dropped
   protected shouldDropEvent(eventName: string): boolean {
-    // if event is a list event (start with 'list'), do not send it more than one per day
-    if (eventName.startsWith('list')) {
-      // do we have an existing event with the same name?
-      const previousTime = this.lastTimeEvents.get(eventName);
-      // it was not there, so we can send it
-      if (!previousTime) {
-        this.lastTimeEvents.set(eventName, Date.now());
-        return false;
-      }
-      // it was there, so we check if it was more than 24h ago
-      const now = Date.now();
-      const diff = now - previousTime;
-      if (diff > 24 * 60 * 60 * 1000) {
-        this.lastTimeEvents.set(eventName, now);
-        return false;
-      }
+    const telem = this.getTelemetrySettings();
+    if (!telem || !eventName) {
       return true;
     }
-    return false;
+
+    let dropIt = false;
+    telem.forEach(entry => {
+      const regex = this.regexp.get(entry.event);
+      if (regex?.test(eventName)) {
+        if (entry.disabled) {
+          // telemetry is entirely disabled for this event
+          dropIt = true;
+        }
+        if (entry.ratio && entry.ratio < 1 && Math.random() > entry.ratio) {
+          // if a ratio is specified, we randomly drop
+          dropIt = true;
+        }
+        if (entry.frequency === 'dailyPerInstance') {
+          // only send this event once per day, per running instance (not saved to disk)
+          const previousTime = this.lastTimeEvents.get(eventName);
+          // it was not there, so we can send it
+          if (!previousTime) {
+            this.lastTimeEvents.set(eventName, Date.now());
+            return false;
+          } else {
+            // it was there, so we check if it was more than 24h ago
+            const now = Date.now();
+            const diff = now - previousTime;
+            if (diff > 24 * 60 * 60 * 1000) {
+              this.lastTimeEvents.set(eventName, now);
+            } else {
+              dropIt = true;
+            }
+          }
+        }
+      }
+    });
+
+    return dropIt;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

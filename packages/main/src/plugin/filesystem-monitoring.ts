@@ -24,40 +24,58 @@ import { Disposable } from './types/disposable.js';
 import { Uri } from './types/uri.js';
 
 export class FileSystemWatcherImpl implements containerDesktopAPI.FileSystemWatcher {
+  watcher: chokidar.FSWatcher;
+
   constructor(path: string) {
     // needs to call chokidar
-    const watcher = chokidar.watch(path, {
+    this.watcher = chokidar.watch(path, {
       persistent: true,
     });
 
-    watcher.on('add', (addedPath: string) => {
+    this.watcher.on('ready', () => {
+      this._onReady.fire();
+    });
+
+    this.watcher.on('add', (addedPath: string) => {
       const uri: containerDesktopAPI.Uri = Uri.file(addedPath);
       this._onDidCreate.fire(uri);
     });
 
-    watcher.on('change', (addedPath: string) => {
+    this.watcher.on('addDir', (addedPath: string) => {
+      const uri: containerDesktopAPI.Uri = Uri.file(addedPath);
+      this._onDidCreate.fire(uri);
+    });
+
+    this.watcher.on('change', (addedPath: string) => {
       const uri: containerDesktopAPI.Uri = Uri.file(addedPath);
       this._onDidChange.fire(uri);
     });
 
-    watcher.on('unlink', (addedPath: string) => {
+    this.watcher.on('unlink', (addedPath: string) => {
       const uri: containerDesktopAPI.Uri = Uri.file(addedPath);
       this._onDidDelete.fire(uri);
     });
 
-    this._disposable = Disposable.from(this._onDidCreate, this._onDidChange, this._onDidDelete);
+    this._disposable = Disposable.from(this._onReady, this._onDidCreate, this._onDidChange, this._onDidDelete);
   }
 
   private _disposable: containerDesktopAPI.Disposable;
+  private readonly _onReady = new Emitter<void>();
   private readonly _onDidChange = new Emitter<containerDesktopAPI.Uri>();
   private readonly _onDidCreate = new Emitter<containerDesktopAPI.Uri>();
   private readonly _onDidDelete = new Emitter<containerDesktopAPI.Uri>();
 
+  readonly onReady: containerDesktopAPI.Event<void> = this._onReady.event;
   readonly onDidChange: containerDesktopAPI.Event<containerDesktopAPI.Uri> = this._onDidChange.event;
   readonly onDidCreate: containerDesktopAPI.Event<containerDesktopAPI.Uri> = this._onDidCreate.event;
   readonly onDidDelete: containerDesktopAPI.Event<containerDesktopAPI.Uri> = this._onDidDelete.event;
 
   dispose(): void {
+    if (this.watcher) {
+      this.watcher.close().catch((err: unknown) => {
+        console.error('unable to close watcher', err);
+      });
+    }
     this._disposable.dispose();
   }
 }

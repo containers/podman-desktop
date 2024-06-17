@@ -119,7 +119,7 @@ let namespaceColumn = new TableColumn<IngressUI | RouteUI, string>('Namespace', 
   comparator: (a, b) => a.namespace.localeCompare(b.namespace),
 });
 
-let pathColumn = new TableColumn<IngressUI | RouteUI, string>('Host/Path', {
+let pathColumn = new TableColumn<IngressUI | RouteUI>('Host/Path', {
   width: '1.5fr',
   renderer: IngressRouteColumnHostPath,
   comparator: (a, b) => compareHostPath(a, b),
@@ -137,7 +137,7 @@ function compareHostPath(object1: IngressUI | RouteUI, object2: IngressUI | Rout
   return hostPathObject1.label.localeCompare(hostPathObject2.label);
 }
 
-let backendColumn = new TableColumn<IngressUI | RouteUI, string>('Backend', {
+let backendColumn = new TableColumn<IngressUI | RouteUI>('Backend', {
   width: '1.5fr',
   renderer: IngressRouteColumnBackend,
   comparator: (a, b) => compareBackend(a, b),
@@ -149,7 +149,7 @@ function compareBackend(object1: IngressUI | RouteUI, object2: IngressUI | Route
   return backendObject1.localeCompare(backendObject2);
 }
 
-const columns: TableColumn<IngressUI | RouteUI, IngressUI | RouteUI | string | Date | undefined>[] = [
+const columns = [
   statusColumn,
   nameColumn,
   namespaceColumn,

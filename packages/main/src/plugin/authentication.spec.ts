@@ -28,6 +28,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import type { ApiSenderType } from './api.js';
 import { AuthenticationImpl } from './authentication.js';
 import { Emitter as EventEmitter } from './events/emitter.js';
+import type { MessageBox } from './message-box.js';
 
 function randomNumber(n = 5): number {
   return Math.round(Math.random() * 10 * n);
@@ -72,10 +73,14 @@ const apiSender: ApiSenderType = {
   receive: vi.fn(),
 };
 
+const messageBox: MessageBox = {
+  showMessageBox: () => Promise.resolve({ response: 1 }),
+} as unknown as MessageBox;
+
 let authModule: AuthenticationImpl;
 
 beforeEach(function () {
-  authModule = new AuthenticationImpl(apiSender);
+  authModule = new AuthenticationImpl(apiSender, messageBox);
 });
 
 afterEach(() => {
@@ -144,6 +149,23 @@ test('Authentication does not create new auth request when silent is true and se
 
   expect(session2).toBeDefined();
   expect(authModule.getSessionRequests()).length(0);
+});
+
+test('Authentication does not create session if user has not allowed it', async () => {
+  const mb = {
+    showMessageBox: () => Promise.resolve({ response: 0 }),
+  } as unknown as MessageBox;
+  const authentication = new AuthenticationImpl(apiSender, mb);
+  const authProvidrer1 = new AuthenticationProviderSingleAccount();
+  authentication.registerAuthenticationProvider('company.auth-provider', 'Provider 1', authProvidrer1);
+  const session1 = await authentication.getSession(
+    { id: 'ext1', label: 'Ext 2' },
+    'company.auth-provider',
+    ['scope1', 'scope2'],
+    { createIfNone: true },
+  );
+
+  expect(session1).toBeUndefined();
 });
 
 test('Authentication creates one auth request per extension', async () => {
@@ -229,7 +251,7 @@ test('Authentication removes session request when session requested programmatic
 });
 
 test('getAuthenticationProvidersInfo', async () => {
-  const authentication = new AuthenticationImpl(apiSender);
+  const authentication = new AuthenticationImpl(apiSender, messageBox);
 
   const providerMock = {
     onDidChangeSessions: vi.fn(),
@@ -255,7 +277,7 @@ test('getAuthenticationProvidersInfo', async () => {
 });
 
 test('authentication provider send event to update settings page', async () => {
-  const authentication = new AuthenticationImpl(apiSender);
+  const authentication = new AuthenticationImpl(apiSender, messageBox);
 
   const providerMock = {
     onDidChangeSessions: vi.fn().mockImplementation(() => {
