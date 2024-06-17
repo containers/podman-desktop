@@ -19531,10 +19531,10 @@ tsutils@^3.0.0, tsutils@^3.17.1, tsutils@^3.21.0:
   dependencies:
     tslib "^1.8.1"
 
-tsx@^4.15.4:
-  version "4.15.4"
-  resolved "https://registry.yarnpkg.com/tsx/-/tsx-4.15.4.tgz#d35b9d343b46af1ed8d56a3f5b0ecdb42b579f75"
-  integrity sha512-d++FLCwJLrXaBFtRcqdPBzu6FiVOJ2j+UsvUZPtoTrnYtCGU5CEW7iHXtNZfA2fcRTvJFWPqA6SWBuB0GSva9w==
+tsx@^4.15.5:
+  version "4.15.5"
+  resolved "https://registry.yarnpkg.com/tsx/-/tsx-4.15.5.tgz#9c1ddb10ed0035c595c9b3e00ae40a3647a94c82"
+  integrity sha512-iKi8jQ2VBmZ2kU/FkGkL2OSHBHsazsUzsdC/W/RwhKIEsIoZ1alCclZHP5jGfNHEaEWUJFM1GquzCf+4db3b0w==
   dependencies:
     esbuild "~0.21.4"
     get-tsconfig "^4.7.5"
