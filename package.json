@@ -177,6 +177,7 @@
     "@segment/analytics-node": "^2.2.0",
     "@types/semver": "^7.5.8",
     "@types/stream-json": "^1.7.7",
+    "@types/winreg": "^1.2.36",
     "adm-zip": "^0.5.16",
     "check-disk-space": "^3.4.0",
     "chokidar": "^4.0.1",
@@ -200,6 +201,7 @@
     "tar-fs": "^3.0.6",
     "undici": "^6.19.8",
     "win-ca": "^3.5.1",
+    "winreg": "^1.2.5",
     "yaml": "^2.5.1"
   },
   "packageManager": "pnpm@9.7.1+sha512.faf344af2d6ca65c4c5c8c2224ea77a81a5e8859cbc4e06b1511ddce2f0151512431dd19e6aff31f2c6a8f5f2aced9bd2273e1fed7dd4de1868984059d2c4247"
