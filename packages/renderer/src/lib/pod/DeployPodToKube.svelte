@@ -399,31 +399,31 @@ function updateKubeResult() {
 
       <div class="pt-2 pb-4">
         <label for="services" class="block mb-1 text-sm font-medium text-gray-300">Kubernetes Services:</label>
-        <div class="flex flex-row">
-          <Checkbox bind:checked="{deployUsingServices}" name="useServices" id="useServices" required />
-          <span class="text-gray-400 text-sm ml-1"
-            >Replace .hostPort exposure on containers by Services. It is the recommended way to expose ports, as a
-            cluster policy may prevent to use hostPort.</span>
-        </div>
+        <Checkbox
+          bind:checked="{deployUsingServices}"
+          class="text-gray-400 text-sm ml-1"
+          name="useServices"
+          id="useServices"
+          required>
+          Replace .hostPort exposure on containers by Services. It is the recommended way to expose ports, as a cluster
+          policy may prevent to use hostPort.</Checkbox>
       </div>
 
       <div class="pt-2 pb-4">
         <label for="useRestricted" class="block mb-1 text-sm font-medium text-gray-300"
           >Restricted Security Context:</label>
-        <div class="flex flex-row">
-          <Checkbox
-            bind:checked="{deployUsingRestrictedSecurityContext}"
-            name="useRestricted"
-            id="useRestricted"
-            title="Use restricted security context"
-            required />
-          <span class="text-gray-400 text-sm ml-1">
-            Update Kubernetes manifest to respect the Pod security <Link
-              on:click="{() =>
-                window.openExternal('https://kubernetes.io/docs/concepts/security/pod-security-standards#restricted')}"
-              >restricted profile</Link
-            >.</span>
-        </div>
+        <Checkbox
+          bind:checked="{deployUsingRestrictedSecurityContext}"
+          class="text-gray-400 text-sm ml-1"
+          name="useRestricted"
+          id="useRestricted"
+          title="Use restricted security context"
+          required>
+          Update Kubernetes manifest to respect the Pod security <Link
+            on:click="{() =>
+              window.openExternal('https://kubernetes.io/docs/concepts/security/pod-security-standards#restricted')}"
+            >restricted profile</Link
+          >.</Checkbox>
       </div>
 
       <!-- Only show for non-OpenShift deployments (we use routes for OpenShift) -->
@@ -431,18 +431,16 @@ function updateKubeResult() {
         <div class="pt-2 pb-4">
           <label for="createIngress" class="block mb-1 text-sm font-medium text-gray-300"
             >Expose Service Locally Using Kubernetes Ingress:</label>
-          <div class="flex flex-row">
-            <Checkbox
-              bind:checked="{createIngress}"
-              name="createIngress"
-              id="createIngress"
-              title="Create Ingress"
-              required />
-            <span class="text-gray-300 text-sm ml-1">
-              Create an Ingress to get access to the local ports exposed, at the default Ingress Controller location.
-              Example: On default kind cluster created with Podman Desktop, it will be accessible at 'localhost:9090'.
-              Requirements: Your cluster must have an Ingress Controller.</span>
-          </div>
+          <Checkbox
+            bind:checked="{createIngress}"
+            class="text-gray-300 text-sm ml-1"
+            name="createIngress"
+            id="createIngress"
+            title="Create Ingress"
+            required>
+            Create an Ingress to get access to the local ports exposed, at the default Ingress Controller location.
+            Example: On default kind cluster created with Podman Desktop, it will be accessible at 'localhost:9090'.
+            Requirements: Your cluster must have an Ingress Controller.</Checkbox>
         </div>
       {/if}
 
@@ -470,11 +468,13 @@ function updateKubeResult() {
       {#if openshiftRouteGroupSupported}
         <div class="pt-2 m-2">
           <label for="routes" class="block mb-1 text-sm font-medium text-gray-400">Create OpenShift routes:</label>
-          <div class="flex flex-row">
-            <Checkbox bind:checked="{deployUsingRoutes}" name="useRoutes" id="useRoutes" required />
-            <span class="text-gray-400 text-sm ml-1"
-              >Create OpenShift routes to get access to the exposed ports of this pod.</span>
-          </div>
+          <Checkbox
+            bind:checked="{deployUsingRoutes}"
+            class="text-gray-400 text-sm ml-1"
+            name="useRoutes"
+            id="useRoutes"
+            required>
+            Create OpenShift routes to get access to the exposed ports of this pod.</Checkbox>
         </div>
       {/if}
 
