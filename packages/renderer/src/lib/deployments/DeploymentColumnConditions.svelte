@@ -21,7 +21,7 @@ const defaultUnknownIcon: IconDefinition = faQuestionCircle;
 function getConditionAttributes(condition: DeploymentCondition) {
   const defaults = {
     name: condition.type,
-    color: 'text-gray-500',
+    color: 'text-[var(--pd-status-unknown)]',
     icon: defaultUnknownIcon,
   };
 
