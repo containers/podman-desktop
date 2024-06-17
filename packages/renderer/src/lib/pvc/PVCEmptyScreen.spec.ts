@@ -50,6 +50,6 @@ beforeEach(() => {
 
 test('Expect PVC empty screen', async () => {
   render(PVCEmptyScreen);
-  const noPVCS = screen.getByRole('heading', { name: 'No pvcs' });
+  const noPVCS = screen.getByRole('heading', { name: 'No PVCs' });
   expect(noPVCS).toBeInTheDocument();
 });

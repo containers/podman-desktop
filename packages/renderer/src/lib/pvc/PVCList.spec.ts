@@ -55,7 +55,7 @@ async function waitRender(customProperties: object): Promise<void> {
 test('Expect PVC empty screen', async () => {
   kubernetesRegisterGetCurrentContextResourcesMock.mockResolvedValue([]);
   render(PVCList);
-  const noPVCS = screen.getByRole('heading', { name: 'No pvcs' });
+  const noPVCS = screen.getByRole('heading', { name: 'No PVCs' });
   expect(noPVCS).toBeInTheDocument();
 });
 

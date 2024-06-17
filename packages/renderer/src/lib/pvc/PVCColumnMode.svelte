@@ -18,7 +18,7 @@ function getModeAttributes(mode: string) {
     case 'ReadWriteMany':
       // faTh: Indicates multiple access points, apt for ReadWriteMany where multiple users can read and write
       return { color: 'text-[var(--pd-status-running)]', icon: faTh };
-  case 'ReadWriteOnce':
+    case 'ReadWriteOnce':
       // faLock: Represents exclusive write access (one writer), indicative of the ReadWriteOnce mode
       return { color: 'text-[var(--pd-status-paused)]', icon: faLock };
     case 'ReadWriteOncePod':
