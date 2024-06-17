@@ -787,13 +787,11 @@ async function assertAllPortAreValid(): Promise<void> {
               <div class="h-96 overflow-y-auto pr-4">
                 <!-- Use tty -->
                 <label for="containerTty" class="block mb-2 text-sm font-medium text-gray-400">Use TTY:</label>
-                <div class="flex flex-row justify-start items-center align-middle w-full text-gray-700 text-sm">
-                  <Checkbox bind:checked="{useTty}" class="mx-2" title="Attach a pseudo terminal" />
-                  Attach a pseudo terminal
-                </div>
-                <div class="flex flex-row justify-start items-center align-middle w-full text-gray-700 text-sm">
-                  <Checkbox bind:checked="{useInteractive}" class="mx-2" title="Use interactive" />
-                  Interactive: Keep STDIN open even if not attached
+                <div class="flex flex-col text-gray-700 text-sm ml-2">
+                  <Checkbox bind:checked="{useTty}" title="Attach a pseudo terminal">Attach a pseudo terminal</Checkbox>
+                  <Checkbox bind:checked="{useInteractive}" title="Use interactive">
+                    Interactive: Keep STDIN open even if not attached
+                  </Checkbox>
                 </div>
 
                 <!-- Specify user-->
@@ -809,10 +807,9 @@ async function assertAllPortAreValid(): Promise<void> {
                 <!-- Autoremove-->
                 <label for="containerAutoRemove" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
                   >Auto removal of container:</label>
-                <div class="flex flex-row justify-start items-center align-middle w-full text-gray-700 text-sm">
-                  <Checkbox bind:checked="{autoRemove}" class="mx-2" />
+                <Checkbox class="text-gray-700 text-sm ml-2" bind:checked="{autoRemove}">
                   Automatically remove the container when the process exits
-                </div>
+                </Checkbox>
 
                 <!-- RestartPolicy-->
                 <label for="containerRestartPolicy" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
@@ -854,18 +851,16 @@ async function assertAllPortAreValid(): Promise<void> {
                 <!-- Privileged-->
                 <label for="containerPrivileged" class="block mb-2 text-sm font-medium text-gray-400"
                   >Privileged:</label>
-                <div class="flex flex-row justify-start items-center align-middle w-full text-gray-700 text-sm">
-                  <Checkbox bind:checked="{privileged}" class="mx-2" />
+                <Checkbox bind:checked="{privileged}" class="text-gray-700 text-sm mx-2">
                   Turn off security<i class="pl-1 fas fa-exclamation-triangle"></i>
-                </div>
+                </Checkbox>
 
                 <!-- Read-Only -->
                 <label for="containerReadOnly" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
                   >Read only:</label>
-                <div class="flex flex-row justify-start items-center align-middle w-full text-gray-700 text-sm">
-                  <Checkbox bind:checked="{readOnly}" class="mx-2" />
+                <Checkbox bind:checked="{readOnly}" class="text-gray-700 text-sm mx-2">
                   Make containers root filesystem read-only
-                </div>
+                </Checkbox>
 
                 <label for="ContainerSecurityOptions" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
                   >Security options (security-opt):</label>
