@@ -51,7 +51,7 @@ async function getWindowsProxySettings(): Promise<ProxySettings> {
     const keys = await promisify(internetSettingsKey.values).bind(internetSettingsKey)();
     keys.forEach(key => {
       if (key.name === 'ProxyEnable') {
-        enabled = key.value === '0x01';
+        enabled = key.value === '0x1';
       } else if (key.name === 'ProxyServer') {
         const items = key.value.split(';');
         items.forEach(item => {

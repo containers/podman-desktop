@@ -62,7 +62,7 @@ describe('Windows platform tests', () => {
     setupPlatform(true, false, false);
     mocks.WinRegMock.mockReturnValue({
       values: vi.fn().mockImplementation(cb => {
-        cb(undefined, [{ name: 'ProxyEnable', value: '0x00' }]);
+        cb(undefined, [{ name: 'ProxyEnable', value: '0x0' }]);
       }),
     });
     const settings = await getProxySettingsFromSystem({} as Proxy);
@@ -76,7 +76,7 @@ describe('Windows platform tests', () => {
     setupPlatform(true, false, false);
     mocks.WinRegMock.mockReturnValue({
       values: vi.fn().mockImplementation(cb => {
-        cb(undefined, [{ name: 'ProxyEnable', value: '0x01' }]);
+        cb(undefined, [{ name: 'ProxyEnable', value: '0x1' }]);
       }),
     });
     const settings = await getProxySettingsFromSystem({} as Proxy);
@@ -91,7 +91,7 @@ describe('Windows platform tests', () => {
     mocks.WinRegMock.mockReturnValue({
       values: vi.fn().mockImplementation(cb => {
         cb(undefined, [
-          { name: 'ProxyEnable', value: '0x01' },
+          { name: 'ProxyEnable', value: '0x1' },
           { name: 'ProxyServer', value: 'http=127.0.0.1:8888;https=127.0.0.1:8889' },
         ]);
       }),
@@ -108,7 +108,7 @@ describe('Windows platform tests', () => {
     mocks.WinRegMock.mockReturnValue({
       values: vi.fn().mockImplementation(cb => {
         cb(undefined, [
-          { name: 'ProxyEnable', value: '0x01' },
+          { name: 'ProxyEnable', value: '0x1' },
           { name: 'ProxyServer', value: 'http=127.0.0.1:8888;https=127.0.0.1:8889' },
           { name: 'ProxyOverride', value: '*.internal' },
         ]);
