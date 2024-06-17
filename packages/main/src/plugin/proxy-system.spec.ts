@@ -25,6 +25,18 @@ import { Exec } from '/@/plugin/util/exec.js';
 
 import * as util from '../util.js';
 
+const mocks = vi.hoisted(() => {
+  return {
+    WinRegMock: vi.fn(),
+  };
+});
+
+vi.mock('winreg', () => {
+  return {
+    default: mocks.WinRegMock,
+  };
+});
+
 function setupPlatform(windows: boolean, macos: boolean, linux: boolean): void {
   vi.spyOn(util, 'isWindows').mockReturnValue(windows);
   vi.spyOn(util, 'isMac').mockReturnValue(macos);
@@ -34,7 +46,11 @@ function setupPlatform(windows: boolean, macos: boolean, linux: boolean): void {
 describe('Windows platform tests', () => {
   setupPlatform(true, false, false);
   test('No state returned in case of execution error', async () => {
-    vi.spyOn(Exec.prototype, 'exec').mockRejectedValue(new Error('execution error'));
+    mocks.WinRegMock.mockReturnValue({
+      values: vi.fn().mockImplementation(cb => {
+        cb(new Error('execution error'), undefined);
+      }),
+    });
     const settings = await getProxySettingsFromSystem({} as Proxy);
     expect(settings).toBeDefined();
     expect(settings.httpProxy).toBeUndefined();
@@ -44,7 +60,11 @@ describe('Windows platform tests', () => {
 
   test('No state returned in case of proxy disabled', async () => {
     setupPlatform(true, false, false);
-    vi.spyOn(Exec.prototype, 'exec').mockResolvedValue({ stdout: 'ProxyEnable    REG_DWORD    0x0' } as RunResult);
+    mocks.WinRegMock.mockReturnValue({
+      values: vi.fn().mockImplementation(cb => {
+        cb(undefined, [{ name: 'ProxyEnable', value: '0x00' }]);
+      }),
+    });
     const settings = await getProxySettingsFromSystem({} as Proxy);
     expect(settings).toBeDefined();
     expect(settings.httpProxy).toBeUndefined();
@@ -54,7 +74,11 @@ describe('Windows platform tests', () => {
 
   test('Empty state returned in case of proxy enabled only', async () => {
     setupPlatform(true, false, false);
-    vi.spyOn(Exec.prototype, 'exec').mockResolvedValue({ stdout: 'ProxyEnable    REG_DWORD    0x1' } as RunResult);
+    mocks.WinRegMock.mockReturnValue({
+      values: vi.fn().mockImplementation(cb => {
+        cb(undefined, [{ name: 'ProxyEnable', value: '0x01' }]);
+      }),
+    });
     const settings = await getProxySettingsFromSystem({} as Proxy);
     expect(settings).toBeDefined();
     expect(settings?.httpProxy).toBeUndefined();
@@ -64,9 +88,14 @@ describe('Windows platform tests', () => {
 
   test('State returned in case of proxy enabled and proxy server', async () => {
     setupPlatform(true, false, false);
-    vi.spyOn(Exec.prototype, 'exec').mockResolvedValue({
-      stdout: 'ProxyEnable    REG_DWORD    0x1\r\nProxyServer    REG_SZ    http=127.0.0.1:8888;https=127.0.0.1:8889',
-    } as RunResult);
+    mocks.WinRegMock.mockReturnValue({
+      values: vi.fn().mockImplementation(cb => {
+        cb(undefined, [
+          { name: 'ProxyEnable', value: '0x01' },
+          { name: 'ProxyServer', value: 'http=127.0.0.1:8888;https=127.0.0.1:8889' },
+        ]);
+      }),
+    });
     const settings = await getProxySettingsFromSystem({} as Proxy);
     expect(settings).toBeDefined();
     expect(settings?.httpProxy).toBe('http://127.0.0.1:8888');
@@ -76,10 +105,15 @@ describe('Windows platform tests', () => {
 
   test('State returned in case of proxy enabled and proxy server with exceptions', async () => {
     setupPlatform(true, false, false);
-    vi.spyOn(Exec.prototype, 'exec').mockResolvedValue({
-      stdout:
-        'ProxyEnable    REG_DWORD    0x1\r\nProxyServer    REG_SZ    http=127.0.0.1:8888;https=127.0.0.1:8889\r\nProxyOverride    REG_SZ    *.internal',
-    } as RunResult);
+    mocks.WinRegMock.mockReturnValue({
+      values: vi.fn().mockImplementation(cb => {
+        cb(undefined, [
+          { name: 'ProxyEnable', value: '0x01' },
+          { name: 'ProxyServer', value: 'http=127.0.0.1:8888;https=127.0.0.1:8889' },
+          { name: 'ProxyOverride', value: '*.internal' },
+        ]);
+      }),
+    });
     const settings = await getProxySettingsFromSystem({} as Proxy);
     expect(settings).toBeDefined();
     expect(settings?.httpProxy).toBe('http://127.0.0.1:8888');

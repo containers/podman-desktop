@@ -15,7 +15,10 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+import { promisify } from 'node:util';
+
 import { type ProxySettings } from '@podman-desktop/api';
+import WinReg from 'winreg';
 
 import { isLinux, isMac, isWindows } from '../util.js';
 import type { Proxy } from './proxy.js';
@@ -23,7 +26,7 @@ import { Exec } from './util/exec.js';
 
 export async function getProxySettingsFromSystem(proxy: Proxy): Promise<ProxySettings> {
   if (isWindows()) {
-    return getWindowsProxySettings(new Exec(proxy));
+    return getWindowsProxySettings();
   } else if (isMac()) {
     return getMacOSProxySettings(new Exec(proxy));
   } else if (isLinux()) {
@@ -35,38 +38,33 @@ export async function getProxySettingsFromSystem(proxy: Proxy): Promise<ProxySet
   return {} as ProxySettings;
 }
 
-async function getWindowsProxySettings(exec: Exec): Promise<ProxySettings> {
+async function getWindowsProxySettings(): Promise<ProxySettings> {
   try {
-    const result = await exec.exec('reg', [
-      'query',
-      '"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"',
-    ]);
-    const lines = result.stdout.split(/\r?\n/);
     let enabled = false;
     let httpProxy = undefined;
     let httpsProxy = undefined;
     let noProxy = undefined;
-    lines.forEach(line => {
-      const tokens = line.split(' ').filter(s => s.length > 0);
-      if (tokens.length === 3) {
-        if (tokens[0] === 'ProxyEnable') {
-          enabled = tokens[2] === '0x1';
-        }
-        if (tokens[0] === 'ProxyServer') {
-          const items = tokens[2].split(';');
-          items.forEach(item => {
-            if (item.startsWith('http=')) {
-              httpProxy = `http://${item.substring(5)}`;
-            } else if (item.startsWith('https=')) {
-              httpsProxy = `http://${item.substring(6)}`;
-            } else {
-              httpProxy = httpsProxy = `http:${item}`;
-            }
-          });
-        }
-        if (tokens[0] === 'ProxyOverride') {
-          noProxy = tokens[2];
-        }
+    const internetSettingsKey = new WinReg({
+      hive: WinReg.HKCU,
+      key: '\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings',
+    });
+    const keys = await promisify(internetSettingsKey.values).bind(internetSettingsKey)();
+    keys.forEach(key => {
+      if (key.name === 'ProxyEnable') {
+        enabled = key.value === '0x01';
+      } else if (key.name === 'ProxyServer') {
+        const items = key.value.split(';');
+        items.forEach(item => {
+          if (item.startsWith('http=')) {
+            httpProxy = `http://${item.substring(5)}`;
+          } else if (item.startsWith('https=')) {
+            httpsProxy = `http://${item.substring(6)}`;
+          } else {
+            httpProxy = httpsProxy = `http:${item}`;
+          }
+        });
+      } else if (key.name === 'ProxyOverride') {
+        noProxy = key.value;
       }
     });
     return enabled ? { httpProxy, httpsProxy, noProxy } : ({} as ProxySettings);
