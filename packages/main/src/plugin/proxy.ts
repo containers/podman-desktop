@@ -100,8 +100,11 @@ export class Proxy {
           hidden: true,
         },
         ['proxy.enabled']: {
-          description: 'System(0)/Manual(1)/Disabled(2)',
+          description: 'Configure proxy',
           type: 'number',
+          maximum: 2,
+          minimum: 0,
+          placeholder: 'System(0)/Manual(1)/Disabled(2)',
           default: 0,
           hidden: true,
         },

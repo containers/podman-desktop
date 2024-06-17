@@ -146,7 +146,6 @@ export class Exec {
       cwd = options.cwd;
     }
 
-    console.log(`Calling ${command} HTTP_PROXY='${env.HTTP_PROXY}' HTTPS_PROXY='${env.HTTPS_PROXY}`);
 
     return new Promise((resolve, reject) => {
       let stdout = '';
