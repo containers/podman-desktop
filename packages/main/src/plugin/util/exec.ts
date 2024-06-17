@@ -146,7 +146,6 @@ export class Exec {
       cwd = options.cwd;
     }
 
-
     return new Promise((resolve, reject) => {
       let stdout = '';
       let stderr = '';
