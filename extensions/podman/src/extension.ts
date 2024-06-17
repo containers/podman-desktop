@@ -850,7 +850,7 @@ async function doHandleWSLDistroNotFoundError(
 
 export async function registerUpdatesIfAny(
   provider: extensionApi.Provider,
-  installedPodman: InstalledPodman,
+  installedPodman: InstalledPodman | undefined,
   podmanInstall: PodmanInstall,
 ): Promise<extensionApi.Disposable | undefined> {
   const updateInfo = await podmanInstall.checkForUpdate(installedPodman);
@@ -897,11 +897,9 @@ export async function initCheckAndRegisterUpdate(
     }
     currentUpdatesDisposables.length = 0;
     const podmanInstalledValue = await getPodmanInstallation();
-    if (podmanInstalledValue) {
-      const disposable = await registerUpdatesIfAny(provider, podmanInstalledValue, podmanInstall);
-      if (disposable) {
-        currentUpdatesDisposables.push(disposable);
-      }
+    const disposable = await registerUpdatesIfAny(provider, podmanInstalledValue, podmanInstall);
+    if (disposable) {
+      currentUpdatesDisposables.push(disposable);
     }
   };
   await checkForUpdate();

@@ -52,18 +52,21 @@ export function getBundledPodmanVersion(): string {
 }
 
 export interface PodmanInfo {
-  podmanVersion: string;
+  podmanVersion?: string;
   lastUpdateCheck: number;
   ignoreVersionUpdate?: string;
 }
 
 export class PodmanInfoImpl implements PodmanInfo {
+  private podmanInfo: PodmanInfo;
   constructor(
-    private podmanInfo: PodmanInfo,
+    podmanInfoValue: PodmanInfo | undefined,
     private readonly storagePath: string,
   ) {
-    if (!podmanInfo) {
+    if (!podmanInfoValue) {
       this.podmanInfo = { lastUpdateCheck: 0 } as PodmanInfo;
+    } else {
+      this.podmanInfo = podmanInfoValue;
     }
   }
 
@@ -74,7 +77,7 @@ export class PodmanInfoImpl implements PodmanInfo {
     }
   }
 
-  get podmanVersion(): string {
+  get podmanVersion(): string | undefined {
     return this.podmanInfo.podmanVersion;
   }
 
@@ -110,7 +113,7 @@ export class PodmanInfoImpl implements PodmanInfo {
   }
 }
 
-interface Installer {
+export interface Installer {
   getPreflightChecks(): extensionApi.InstallCheck[] | undefined;
   getUpdatePreflightChecks(): extensionApi.InstallCheck[] | undefined;
   install(): Promise<boolean>;
@@ -181,9 +184,6 @@ export class PodmanInstall {
 
   public async checkForUpdate(installedPodman: InstalledPodman | undefined): Promise<UpdateCheck> {
     const podmanInfoRaw = await this.getLastRunInfo();
-    if (!podmanInfoRaw) {
-      return { installedVersion: undefined, hasUpdate: false, bundledVersion: undefined };
-    }
     this.podmanInfo = new PodmanInfoImpl(podmanInfoRaw, this.storagePath);
 
     let installedVersion = this.podmanInfo.podmanVersion;
@@ -194,8 +194,11 @@ export class PodmanInstall {
     }
     const installer = this.getInstaller();
     const bundledVersion = getBundledPodmanVersion();
-
-    if (installer?.requireUpdate(installedVersion) && this.podmanInfo.ignoreVersionUpdate !== bundledVersion) {
+    if (
+      installedVersion &&
+      installer?.requireUpdate(installedVersion) &&
+      this.podmanInfo.ignoreVersionUpdate !== bundledVersion
+    ) {
       return { installedVersion, hasUpdate: true, bundledVersion };
     }
     return { installedVersion, hasUpdate: false, bundledVersion };
@@ -297,14 +300,17 @@ export class PodmanInstall {
     return true;
   }
 
-  public async performUpdate(provider: extensionApi.Provider, installedPodman: InstalledPodman): Promise<void> {
+  public async performUpdate(
+    provider: extensionApi.Provider,
+    installedPodman: InstalledPodman | undefined,
+  ): Promise<void> {
     if (!this.podmanInfo) {
       console.error('The podman extension has not been successfully initialized');
       throw new Error('The podman extension has not been successfully initialized');
     }
 
     const updateInfo = await this.checkForUpdate(installedPodman);
-    if (updateInfo.hasUpdate) {
+    if (updateInfo.hasUpdate && updateInfo.installedVersion) {
       // before updating, podman machines need to be stopped if some of them are running
       const noRunningMachine = await this.stopPodmanMachinesIfAnyBeforeUpdating();
       if (!noRunningMachine) {
@@ -313,7 +319,10 @@ export class PodmanInstall {
       }
 
       // podman v4 -> v5 migration: ask to wipe all data before doing the update
-      const wipeAllDataCompleted = await this.wipeAllDataBeforeUpdatingToV5(installedPodman, updateInfo);
+      const wipeAllDataCompleted = await this.wipeAllDataBeforeUpdatingToV5(
+        { version: updateInfo.installedVersion },
+        updateInfo,
+      );
       if (!wipeAllDataCompleted) {
         await extensionApi.window.showWarningMessage(
           'Podman update has been canceled. It is recommended to backup OCI images or containers before resuming the update procedure',
@@ -375,7 +384,7 @@ export class PodmanInstall {
     return this.installers.has(os.platform());
   }
 
-  private getInstaller(): Installer | undefined {
+  protected getInstaller(): Installer | undefined {
     return this.installers.get(os.platform());
   }
 

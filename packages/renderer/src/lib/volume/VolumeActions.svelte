@@ -2,6 +2,8 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { createEventDispatcher } from 'svelte';
 
+import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
+
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import type { VolumeInfoUI } from './VolumeInfoUI';
 
@@ -21,8 +23,7 @@ async function removeVolume(): Promise<void> {
 {#if volume.status === 'UNUSED'}
   <ListItemButtonIcon
     title="Delete Volume"
-    confirm="{true}"
-    onClick="{() => removeVolume()}"
+    onClick="{() => withConfirmation(removeVolume, `delete volume ${volume.name}`)}"
     detailed="{detailed}"
     icon="{faTrash}" />
 {/if}

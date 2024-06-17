@@ -446,6 +446,11 @@ export class ColorRegistry {
       light: colorPalette.charcoal[900],
     });
 
+    this.registerColor(`${ct}text`, {
+      dark: colorPalette.gray[700],
+      light: colorPalette.gray[900],
+    });
+
     this.registerColor(`${ct}sub-header`, {
       dark: colorPalette.gray[900],
       light: colorPalette.purple[900],
@@ -716,12 +721,12 @@ export class ColorRegistry {
     // color for most text in tables
     this.registerColor(`${tab}body-text`, {
       dark: colorPalette.gray[700],
-      light: colorPalette.charcoal[300],
+      light: colorPalette.charcoal[100],
     });
     // color for the text in the main column of the table (generally Name)
     this.registerColor(`${tab}body-text-highlight`, {
       dark: colorPalette.gray[300],
-      light: colorPalette.charcoal[300],
+      light: colorPalette.charcoal[700],
     });
     // color for the text in second line of main column, in secondary color (generally IDs)
     this.registerColor(`${tab}body-text-sub-secondary`, {
@@ -764,6 +769,18 @@ export class ColorRegistry {
     this.registerColor(`${details}bg`, {
       dark: colorPalette.charcoal[900],
       light: colorPalette.gray[50],
+    });
+    this.registerColor(`${details}card-bg`, {
+      dark: colorPalette.charcoal[600],
+      light: colorPalette.gray[300],
+    });
+    this.registerColor(`${details}card-header`, {
+      dark: colorPalette.gray[700],
+      light: colorPalette.charcoal[300],
+    });
+    this.registerColor(`${details}card-text`, {
+      dark: colorPalette.white,
+      light: colorPalette.charcoal[900],
     });
   }
 

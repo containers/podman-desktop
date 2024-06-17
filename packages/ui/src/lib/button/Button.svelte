@@ -76,6 +76,7 @@ $: {
   class:hover:border-[var(--pd-button-tab-hover-border)]="{type === 'tab' && !selected}"
   class:text-[var(--pd-button-tab-text-selected)]="{type === 'tab' && selected}"
   class:text-[var(--pd-button-tab-text)]="{type === 'tab' && !selected}"
+  hidden="{$$props.hidden}"
   title="{title}"
   aria-label="{$$props['aria-label']}"
   on:click

@@ -29,7 +29,7 @@ on:
 jobs:
   publish:
     name: Publish content of the website pull request on netlify
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Download website content artifact
         uses: dawidd6/action-download-artifact@v6
@@ -37,6 +37,7 @@ jobs:
           workflow: ${{ github.event.workflow_run.workflow_id }}
           name: website-content
           path: content
+          allow_forks: true
 
       - name: Publish preview netlify
         uses: netlify/actions/cli@master

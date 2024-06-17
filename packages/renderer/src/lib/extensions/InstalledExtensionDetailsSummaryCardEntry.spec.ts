@@ -35,6 +35,6 @@ test('Expect to have label and value', async () => {
   expect(value).toBeInTheDocument();
 
   // expect classes to be applied
-  expect(label).toHaveClass('uppercase text-xs text-gray-700');
-  expect(value).toHaveClass('text-left font-thin text-xs');
+  expect(label).toHaveClass('uppercase text-xs text-[var(--pd-details-card-header)]');
+  expect(value).toHaveClass('text-left font-thin text-xs text-[var(--pd-details-card-text)]');
 });

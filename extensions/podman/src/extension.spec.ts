@@ -34,7 +34,7 @@ import {
 } from './extension';
 import * as extension from './extension';
 import type { InstalledPodman } from './podman-cli';
-import { getPodmanCli } from './podman-cli';
+import * as podmanCli from './podman-cli';
 import { PodmanConfiguration } from './podman-configuration';
 import { PodmanInstall } from './podman-install';
 import { getAssetsFolder, isLinux, isMac, isWindows, LoggerDelegator } from './util';
@@ -289,7 +289,7 @@ test('verify create command called with correct values', async () => {
     undefined,
   );
   expect(spyExecPromise).toBeCalledWith(
-    getPodmanCli(),
+    podmanCli.getPodmanCli(),
     ['machine', 'init', '--cpus', '2', '--memory', '999', '--disk-size', '232', '--image-path', 'path', '--rootful'],
     {
       logger: undefined,
@@ -342,7 +342,7 @@ test('verify create command called with correct values with user mode networking
     '--rootful',
     '--user-mode-networking',
   ];
-  expect(spyExecPromise).toBeCalledWith(getPodmanCli(), parameters, {
+  expect(spyExecPromise).toBeCalledWith(podmanCli.getPodmanCli(), parameters, {
     logger: undefined,
   });
   expect(console.error).not.toBeCalled();
@@ -392,7 +392,7 @@ test('verify create command called with now flag if start machine after creation
     '--rootful',
     '--now',
   ];
-  expect(spyExecPromise).toBeCalledWith(getPodmanCli(), parameters, {
+  expect(spyExecPromise).toBeCalledWith(podmanCli.getPodmanCli(), parameters, {
     logger: undefined,
   });
   expect(console.error).not.toBeCalled();
@@ -454,7 +454,7 @@ test('verify create command called with embedded image if using podman v5', asyn
 
   expect(vi.mocked(extensionApi.process.exec)).toHaveBeenNthCalledWith(
     3,
-    getPodmanCli(),
+    podmanCli.getPodmanCli(),
     expect.arrayContaining([expect.stringContaining('.zst')]),
     expect.anything(),
   );
@@ -512,7 +512,7 @@ test('if a machine is successfully started it changes its state to started', asy
   );
   await extension.startMachine(provider, machineInfo);
 
-  expect(spyExecPromise).toBeCalledWith(getPodmanCli(), ['machine', 'start', 'name'], {
+  expect(spyExecPromise).toBeCalledWith(podmanCli.getPodmanCli(), ['machine', 'start', 'name'], {
     logger: new LoggerDelegator(),
   });
 
@@ -538,7 +538,7 @@ test('if a machine is successfully reporting telemetry', async () => {
     expect.objectContaining({ hostCpus: expect.anything() }),
   );
 
-  expect(spyExecPromise).toBeCalledWith(getPodmanCli(), ['machine', 'start', 'name'], expect.anything());
+  expect(spyExecPromise).toBeCalledWith(podmanCli.getPodmanCli(), ['machine', 'start', 'name'], expect.anything());
 });
 
 test('if a machine is successfully reporting an error in telemetry', async () => {
@@ -559,7 +559,7 @@ test('if a machine is successfully reporting an error in telemetry', async () =>
     expect.objectContaining({ hostCpus: expect.anything(), error: customError }),
   );
 
-  expect(spyExecPromise).toBeCalledWith(getPodmanCli(), ['machine', 'start', 'name'], expect.anything());
+  expect(spyExecPromise).toBeCalledWith(podmanCli.getPodmanCli(), ['machine', 'start', 'name'], expect.anything());
 });
 
 test('if a machine failed to start with a generic error, this is thrown', async () => {
@@ -741,13 +741,13 @@ test('test checkDefaultMachine - if user wants to change default machine, check 
 
   await extension.checkDefaultMachine(fakeMachineJSON);
 
-  expect(spyExecPromise).toHaveBeenCalledWith(getPodmanCli(), [
+  expect(spyExecPromise).toHaveBeenCalledWith(podmanCli.getPodmanCli(), [
     'system',
     'connection',
     'default',
     `${machineDefaultName}-root`,
   ]);
-  expect(inspectCall).toHaveBeenCalledWith(getPodmanCli(), ['machine', 'inspect', machineDefaultName]);
+  expect(inspectCall).toHaveBeenCalledWith(podmanCli.getPodmanCli(), ['machine', 'inspect', machineDefaultName]);
 });
 
 test('test checkDefaultMachine - if user wants to change machine, check that it only change the connection once if it is rootless', async () => {
@@ -784,8 +784,13 @@ test('test checkDefaultMachine - if user wants to change machine, check that it 
 
   await extension.checkDefaultMachine(fakeMachineJSON);
 
-  expect(spyExecPromise).toHaveBeenCalledWith(getPodmanCli(), ['system', 'connection', 'default', machineDefaultName]);
-  expect(inspectCall).toHaveBeenCalledWith(getPodmanCli(), ['machine', 'inspect', machineDefaultName]);
+  expect(spyExecPromise).toHaveBeenCalledWith(podmanCli.getPodmanCli(), [
+    'system',
+    'connection',
+    'default',
+    machineDefaultName,
+  ]);
+  expect(inspectCall).toHaveBeenCalledWith(podmanCli.getPodmanCli(), ['machine', 'inspect', machineDefaultName]);
 });
 
 test('test checkDefaultMachine - if user wants to change machine, check that it only changes to rootless as machine inspect is not returning Rootful field (old versions of podman)', async () => {
@@ -815,8 +820,13 @@ test('test checkDefaultMachine - if user wants to change machine, check that it 
 
   await extension.checkDefaultMachine(fakeMachineJSON);
 
-  expect(spyExecPromise).toHaveBeenCalledWith(getPodmanCli(), ['system', 'connection', 'default', machineDefaultName]);
-  expect(inspectCall).toHaveBeenCalledWith(getPodmanCli(), ['machine', 'inspect', machineDefaultName]);
+  expect(spyExecPromise).toHaveBeenCalledWith(podmanCli.getPodmanCli(), [
+    'system',
+    'connection',
+    'default',
+    machineDefaultName,
+  ]);
+  expect(inspectCall).toHaveBeenCalledWith(podmanCli.getPodmanCli(), ['machine', 'inspect', machineDefaultName]);
 });
 
 test('handlecompatibilitymodesetting: enable called when configuration setting has been set to true', async () => {
@@ -1355,7 +1365,9 @@ describe('initCheckAndRegisterUpdate', () => {
 
   test('check update appear after updating the version', async () => {
     const podmanInstall = {
-      checkForUpdate: vi.fn(),
+      checkForUpdate: vi
+        .fn()
+        .mockResolvedValue({ installedVersion: undefined, hasUpdate: false, bundledVersion: undefined }),
     } as unknown as PodmanInstall;
 
     // disposable
@@ -1842,4 +1854,19 @@ describe('calcPodmanMachineSetting', () => {
     expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_MEMORY_SUPPORTED_KEY, false);
     expect(extensionApi.context.setValue).toBeCalledWith(extension.PODMAN_MACHINE_DISK_SUPPORTED_KEY, false);
   });
+});
+
+test('checkForUpdate func should be called if there is no podman installed', async () => {
+  const extensionContext = { subscriptions: [], storagePath: '' } as unknown as extensionApi.ExtensionContext;
+  const podmanInstall: PodmanInstall = new PodmanInstall(extensionContext);
+
+  vi.spyOn(podmanCli, 'getPodmanInstallation').mockResolvedValue(undefined);
+  vi.spyOn(podmanInstall, 'checkForUpdate').mockResolvedValue({
+    installedVersion: undefined,
+    hasUpdate: false,
+    bundledVersion: undefined,
+  });
+
+  await extension.initCheckAndRegisterUpdate(provider, podmanInstall);
+  expect(podmanInstall.checkForUpdate).toBeCalledWith(undefined);
 });

@@ -191,3 +191,9 @@ test('Button no progress no icon do not have spinner', async () => {
   const svg = screen.queryByRole('img');
   expect(svg).toBeNull();
 });
+
+test('Button hidden should be hidden', async () => {
+  render(Button, { hidden: true });
+  const button = screen.queryByRole('button');
+  expect(button).not.toBeInTheDocument();
+});

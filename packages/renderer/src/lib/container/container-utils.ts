@@ -333,4 +333,12 @@ export class ContainerUtils {
       .filter(part => !part.startsWith('is:'))
       .join(' ');
   }
+
+  isContainerGroupInfoUI(object: ContainerInfoUI | ContainerGroupInfoUI): object is ContainerGroupInfoUI {
+    return 'type' in object && typeof object.type === 'string';
+  }
+
+  isContainerInfoUI(object: ContainerInfoUI | ContainerGroupInfoUI): object is ContainerInfoUI {
+    return 'state' in object && typeof object.state === 'string';
+  }
 }

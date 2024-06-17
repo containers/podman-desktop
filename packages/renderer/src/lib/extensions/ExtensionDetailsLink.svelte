@@ -17,7 +17,7 @@ function openDetailsExtension() {
 
 <Tooltip top tip="{extension.name} extension details">
   <button aria-label="{extension.name} extension details" type="button" on:click="{() => openDetailsExtension()}">
-    <div class="flex flex-row items-center">
+    <div class="flex flex-row items-center text-[var(--pd-content-header)]">
       {#if displayIcon}
         <Fa icon="{faArrowUpRightFromSquare}" />
       {/if}

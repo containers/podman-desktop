@@ -1,9 +1,9 @@
 <script lang="ts">
 import type { V1DeploymentStatus } from '@kubernetes/client-node';
 
-import Cell from './ui/Cell.svelte';
-import Subtitle from './ui/Subtitle.svelte';
-import Title from './ui/Title.svelte';
+import Cell from '/@/lib/details/DetailsCell.svelte';
+import Subtitle from '/@/lib/details/DetailsSubtitle.svelte';
+import Title from '/@/lib/details/DetailsTitle.svelte';
 
 export let artifact: V1DeploymentStatus | undefined;
 </script>

@@ -83,6 +83,7 @@ test('Expect to see one record when filtering with unknown keyword', async () =>
   render(PreferencesRendering, { properties: records, key: 'key', searchValue: 'unknwon' });
   const noSettingsDiv = screen.getAllByText('No Settings Found');
   expect(noSettingsDiv.length > 0).toBe(true);
+  expect(noSettingsDiv[0].parentElement).toHaveClass('text-[var(--pd-content-header)]');
 });
 
 test('Expect extension title used a section name', async () => {

@@ -36,6 +36,15 @@ test('Basic check', async () => {
   const checkbox = screen.getByRole('checkbox');
   expect(checkbox).toBeInTheDocument();
   expect(checkbox).toBeEnabled();
+  expect(checkbox).toHaveClass('top-0 left-0 w-px h-px');
+
+  const parent = checkbox.parentElement;
+  expect(parent).toBeInTheDocument();
+  expect(parent).toHaveClass('relative p-2 self-start');
+
+  const grandParent = parent?.parentElement;
+  expect(grandParent).toBeInTheDocument();
+  expect(grandParent).toHaveClass('flex flex-row items-center');
 
   const peer = getPeer(checkbox);
   expect(peer).toBeInTheDocument();

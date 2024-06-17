@@ -5,6 +5,7 @@ import { createEventDispatcher, onMount } from 'svelte';
 import { router } from 'tinro';
 
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
+import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
 
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
@@ -135,8 +136,7 @@ if (dropdownMenu) {
 
 <ListItemButtonIcon
   title="Delete Compose"
-  confirm="{true}"
-  onClick="{() => deleteCompose()}"
+  onClick="{() => withConfirmation(deleteCompose, `delete compose ${compose.name}`)}"
   icon="{faTrash}"
   detailed="{detailed}"
   inProgress="{compose.actionInProgress && compose.status === 'DELETING'}" />

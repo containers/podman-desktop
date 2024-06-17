@@ -1,10 +1,9 @@
 <script lang="ts">
 import { Link } from '@podman-desktop/ui-svelte';
 
+import Cell from '/@/lib/details/DetailsCell.svelte';
+import Title from '/@/lib/details/DetailsTitle.svelte';
 import type { V1Route } from '/@api/openshift-types';
-
-import Cell from './ui/Cell.svelte';
-import Title from './ui/Title.svelte';
 
 // Assuming V1Route type is imported or defined elsewhere
 export let artifact: V1Route | undefined;
