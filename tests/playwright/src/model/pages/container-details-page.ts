@@ -72,7 +72,7 @@ export class ContainerDetailsPage extends BasePage {
 
   async stopContainer(failIfStopped = false): Promise<void> {
     try {
-      await playExpect.poll(async () => await this.getState()).toBe(ContainerState.Running);
+      await playExpect.poll(async () => await this.getState()).toBe(ContainerState.Running.toLowerCase());
       await playExpect(this.stopButton).toBeEnabled();
       await this.stopButton.click();
     } catch (error) {

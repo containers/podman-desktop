@@ -124,7 +124,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       let containerDetails = await containers.openContainersDetails(backendContainer);
       await playExpect
         .poll(async () => await containerDetails.getState(), { timeout: 15000 })
-        .toBe(ContainerState.Running);
+        .toBe(ContainerState.Running.toLowerCase());
       await waitUntil(async () => {
         backendPort = await containerDetails.getContainerPort();
         return backendPort.includes('6379');
@@ -146,7 +146,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       playExpect(frontendPort).toContain(expectedPort);
       await playExpect
         .poll(async () => await containerDetails.getState(), { timeout: 15000 })
-        .toBe(ContainerState.Running);
+        .toBe(ContainerState.Running.toLowerCase());
     });
 
     test('Podify containers', async () => {
@@ -182,12 +182,12 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       const backendContainerDetails = await containers.openContainersDetails(backendContainer);
       await playExpect
         .poll(async () => await backendContainerDetails.getState(), { timeout: 15000 })
-        .toBe(ContainerState.Exited);
+        .toBe(ContainerState.Exited.toLowerCase());
       await navigationBar.openContainers();
       const frontendContainerDetails = await containers.openContainersDetails(frontendContainer);
       await playExpect
         .poll(async () => await frontendContainerDetails.getState(), { timeout: 15000 })
-        .toBe(ContainerState.Exited);
+        .toBe(ContainerState.Exited.toLowerCase());
     });
 
     test('Checking pods page options buttons', async () => {
