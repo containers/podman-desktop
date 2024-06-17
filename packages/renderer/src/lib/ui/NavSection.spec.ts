@@ -33,6 +33,13 @@ test('Expect correct button and tooltip', async () => {
 
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
+  expect(button).toHaveClass('inline-block');
+  expect(button).toHaveClass('flex');
+  expect(button).toHaveClass('flex-col');
+  expect(button).toHaveClass('justify-center');
+  expect(button).toHaveClass('items-center');
+  expect(button).toHaveClass('text-[var(--pd-global-nav-icon)]');
+  expect(button).toHaveClass('hover:text-[var(--pd-global-nav-icon-hover)]');
   const tip = button.children[0];
   expect(tip).toBeInTheDocument();
   expect(within(button).queryByText(tooltip)).toBeInTheDocument();
