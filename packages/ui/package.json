@@ -132,7 +132,7 @@
     "@tsconfig/svelte": "^5.0.4",
     "@typescript-eslint/eslint-plugin": "7.13.0",
     "autoprefixer": "^10.4.19",
-    "eslint-plugin-svelte": "^2.39.3",
+    "eslint-plugin-svelte": "^2.39.4",
     "jsdom": "^24.1.0",
     "postcss": "^8.4.38",
     "postcss-load-config": "^6.0.1",
