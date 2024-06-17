@@ -174,7 +174,7 @@
         "podman.setting.rosetta": {
           "type": "boolean",
           "default": true,
-          "description": "Use macOS Rosetta to run x86_64 Linux binaries, disabling will use qemu. NOTE: This setting is only applied when creating new machines.",
+          "description": "Use macOS Rosetta to run x86_64 Linux binaries on Podman 5.1.0 and above, disabling will use qemu. NOTE: This setting is only applied when creating new machines.",
           "when": "isMac"
         }
       }
