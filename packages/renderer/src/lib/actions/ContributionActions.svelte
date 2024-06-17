@@ -99,13 +99,13 @@ async function executeContribution(menu: Menu): Promise<void> {
 </script>
 
 {#each filteredContributions as menu}
-  <When expression="{menu.disabled}" contextUI="{globalContext}" let:enabled>
+  <When expression="{menu.disabled}" contextUI="{globalContext}" let:result>
     <ListItemButtonIcon
       title="{menu.title}"
       onClick="{() => executeContribution(menu)}"
       menu="{dropdownMenu}"
       icon="{getIcon(menu)}"
       detailed="{detailed}"
-      enabled="{!enabled}" />
+      enabled="{!result}" />
   </When>
 {/each}

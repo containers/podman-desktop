@@ -9,34 +9,35 @@ import { ContextKeyExpr } from './contextKey';
 
 export let expression: string = '';
 export let contextUI: ContextUI | undefined = undefined;
+export let fallback: boolean = false;
 
 let globalContext: ContextUI;
 let contextsUnsubscribe: Unsubscriber;
 
-let enabled: boolean = true;
+let result: boolean = fallback;
 
 $: {
   if (expression !== '') {
     if (contextUI) {
       globalContext = contextUI;
-      computeEnabled();
+      computeResult();
     } else {
       if (contextsUnsubscribe) {
         contextsUnsubscribe();
       }
       contextsUnsubscribe = storeContext.subscribe(value => {
         globalContext = value;
-        computeEnabled();
+        computeResult();
       });
     }
   }
 }
 
-function computeEnabled() {
+function computeResult() {
   // Deserialize the `when` property
   const whenDeserialized = ContextKeyExpr.deserialize(expression);
-  // if there is some error when evaluating the when expression, we use the default value enabled = true
-  enabled = whenDeserialized?.evaluate(globalContext) ?? true;
+  if (!whenDeserialized) return fallback;
+  result = whenDeserialized.evaluate(globalContext);
 }
 
 onDestroy(() => {
@@ -47,4 +48,4 @@ onDestroy(() => {
 });
 </script>
 
-<slot enabled="{enabled}" />
+<slot result="{result}" />

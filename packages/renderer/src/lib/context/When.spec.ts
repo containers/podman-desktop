@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { render, screen } from '@testing-library/svelte';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi, describe } from 'vitest';
 
 import { ContextUI } from '/@/lib/context/context';
 
@@ -27,12 +27,25 @@ beforeEach(() => {
   vi.resetAllMocks();
 });
 
-test('undefined expression should result in enabled', async () => {
-  render(WhenDebug);
+describe('fallback', () => {
+  test('undefined expression should result in not enabled', async () => {
+    render(WhenDebug);
 
-  const span = screen.getByRole('status');
-  await vi.waitFor(() => {
-    expect(span.classList).toContain('enabled');
+    const span = screen.getByRole('status');
+    await vi.waitFor(() => {
+      expect(span.classList).not.toContain('enabled');
+    });
+  });
+
+  test('undefined expression with true fallback should result in enabled', async () => {
+    render(WhenDebug, {
+      fallback: true,
+    });
+
+    const span = screen.getByRole('status');
+    await vi.waitFor(() => {
+      expect(span.classList).toContain('enabled');
+    });
   });
 });
 
