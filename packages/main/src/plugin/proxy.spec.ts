@@ -23,7 +23,7 @@ import { createProxy, type ProxyServer } from 'proxy';
 import { describe, expect, test, vi } from 'vitest';
 
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
-import { ensureURL, Proxy, PROXY_DISABLED, PROXY_MANUAL } from '/@/plugin/proxy.js';
+import { ensureURL, Proxy, ProxyState } from '/@/plugin/proxy.js';
 
 const URL = 'https://podman-desktop.io';
 
@@ -61,7 +61,7 @@ async function buildProxy(): Promise<ProxyServer> {
 }
 
 test('fetch without proxy', async () => {
-  const configurationRegistry = getConfigurationRegistry(PROXY_DISABLED, undefined, undefined, undefined);
+  const configurationRegistry = getConfigurationRegistry(ProxyState.PROXY_DISABLED, undefined, undefined, undefined);
   const proxy = new Proxy(configurationRegistry);
   await proxy.init();
   await fetch(URL);
@@ -71,7 +71,7 @@ test('fetch with http proxy', async () => {
   const proxyServer = await buildProxy();
   const address = proxyServer.address() as AddressInfo;
   const configurationRegistry = getConfigurationRegistry(
-    PROXY_MANUAL,
+    ProxyState.PROXY_MANUAL,
     `127.0.0.1:${address.port}`,
     undefined,
     undefined,
