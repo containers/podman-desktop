@@ -1920,9 +1920,12 @@ export class PluginSystem {
       },
     );
 
-    this.ipcHandle('proxy:setState', async (_listener: Electron.IpcMainInvokeEvent, state: ProxyState): Promise<void> => {
-      return proxy.setState(state as ProxyState);
-    });
+    this.ipcHandle(
+      'proxy:setState',
+      async (_listener: Electron.IpcMainInvokeEvent, state: ProxyState): Promise<void> => {
+        return proxy.setState(state);
+      },
+    );
 
     this.ipcHandle('proxy:getSettings', async (): Promise<containerDesktopAPI.ProxySettings | undefined> => {
       return proxy.proxy;

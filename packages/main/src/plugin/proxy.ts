@@ -26,11 +26,11 @@ import { Emitter } from './events/emitter.js';
 import { getProxyUrl } from './proxy-resolver.js';
 import { getProxySettingsFromSystem } from './proxy-system.js';
 
-export const PROXY_SYSTEM = 0;
-export const PROXY_MANUAL = 1;
-export const PROXY_DISABLED = 2;
-
-export type ProxyState = 0 | 1 | 2;
+export enum ProxyState {
+  PROXY_SYSTEM = 0,
+  PROXY_MANUAL = 1,
+  PROXY_DISABLED = 2,
+}
 
 export function ensureURL(urlstring: string | undefined): string | undefined {
   if (urlstring) {
@@ -62,7 +62,7 @@ function asURL(url: any): URL {
  */
 export class Proxy {
   private proxySettings: ProxySettings | undefined;
-  private proxyState: ProxyState = PROXY_SYSTEM;
+  private proxyState: ProxyState = ProxyState.PROXY_SYSTEM;
 
   private readonly _onDidUpdateProxy = new Emitter<ProxySettings>();
   public readonly onDidUpdateProxy: Event<ProxySettings> = this._onDidUpdateProxy.event;
@@ -129,14 +129,14 @@ export class Proxy {
     // read value from the configuration
     const proxyConfiguration = this.configurationRegistry.getConfiguration('proxy');
     const isEnabled = proxyConfiguration.get<unknown>('enabled');
-    let proxyState: ProxyState = PROXY_SYSTEM;
+    let proxyState: ProxyState = ProxyState.PROXY_SYSTEM;
     if (typeof isEnabled === 'boolean') {
-      proxyState = isEnabled ? PROXY_MANUAL : PROXY_SYSTEM;
+      proxyState = isEnabled ? ProxyState.PROXY_MANUAL : ProxyState.PROXY_SYSTEM;
     } else if (typeof isEnabled === 'number') {
       proxyState = isEnabled as ProxyState;
     }
     this.proxyState = proxyState;
-    if (this.proxyState === PROXY_MANUAL) {
+    if (this.proxyState === ProxyState.PROXY_MANUAL) {
       const httpProxy = ensureURL(proxyConfiguration.get<string>('http'));
       const httpsProxy = ensureURL(proxyConfiguration.get<string>('https'));
       const noProxy = proxyConfiguration.get<string>('no');
@@ -145,7 +145,7 @@ export class Proxy {
         httpsProxy,
         noProxy,
       };
-    } else if (this.proxyState === PROXY_SYSTEM) {
+    } else if (this.proxyState === ProxyState.PROXY_SYSTEM) {
       this.proxySettings = await getProxySettingsFromSystem(this);
     } else {
       this.proxySettings = {} as ProxySettings;
@@ -153,10 +153,10 @@ export class Proxy {
   }
 
   async setProxy(proxy: ProxySettings): Promise<void> {
-    if (this.proxyState === PROXY_MANUAL) {
+    if (this.proxyState === ProxyState.PROXY_MANUAL) {
       proxy.httpProxy = ensureURL(proxy.httpProxy);
       proxy.httpsProxy = ensureURL(proxy.httpsProxy);
-    } else if (this.proxyState === PROXY_SYSTEM) {
+    } else if (this.proxyState === ProxyState.PROXY_SYSTEM) {
       proxy = await getProxySettingsFromSystem(this);
     }
     // notify
@@ -177,7 +177,7 @@ export class Proxy {
   }
 
   isEnabled(): boolean {
-    return this.proxyState === PROXY_SYSTEM || this.proxyState === PROXY_MANUAL;
+    return this.proxyState === ProxyState.PROXY_SYSTEM || this.proxyState === ProxyState.PROXY_MANUAL;
   }
 
   setState(state: ProxyState): void {
