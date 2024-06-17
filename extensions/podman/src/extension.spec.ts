@@ -1856,7 +1856,7 @@ describe('calcPodmanMachineSetting', () => {
   });
 });
 
-test('checkForUpdate should be called if there is no podman installed', async () => {
+test('checkForUpdate func should be called if there is no podman installed', async () => {
   const extensionContext = { subscriptions: [], storagePath: '' } as unknown as extensionApi.ExtensionContext;
   const podmanInstall: PodmanInstall = new PodmanInstall(extensionContext);
 
