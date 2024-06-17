@@ -23,7 +23,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vi
 
 import type { ApiSenderType } from './api.js';
 import type { KubeContext } from './kubernetes-context.js';
-import type { ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
+import type { CheckingState, ContextGeneralState, ResourceName } from './kubernetes-context-state.js';
 import { ContextsManager, ContextsStates } from './kubernetes-context-state.js';
 
 interface InformerEvent {
@@ -202,6 +202,7 @@ describe('update', async () => {
     const dispatchGeneralStateSpy = vi.spyOn(client, 'dispatchGeneralState');
     const dispatchCurrentContextGeneralStateSpy = vi.spyOn(client, 'dispatchCurrentContextGeneralState');
     const dispatchCurrentContextResourceSpy = vi.spyOn(client, 'dispatchCurrentContextResource');
+    const dispatchCheckingStateSpy = vi.spyOn(client, 'dispatchCheckingState');
     const kubeConfig = new kubeclient.KubeConfig();
     const config = {
       clusters: [
@@ -311,6 +312,13 @@ describe('update', async () => {
     });
     expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('pods', Array(PODS_NS1).fill({}));
     expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', Array(DEPLOYMENTS_NS1).fill({}));
+
+    const expectedCheckMap = new Map<string, CheckingState>();
+    expectedCheckMap.set('context1', { state: 'waiting' });
+    expectedCheckMap.set('context2', { state: 'waiting' });
+    expectedCheckMap.set('context2-1', { state: 'waiting' });
+    expectedCheckMap.set('context2-2', { state: 'waiting' });
+    expect(dispatchCheckingStateSpy).toHaveBeenCalledWith(expectedCheckMap);
 
     // switching to unreachable context
     kubeConfig.loadFromOptions({
