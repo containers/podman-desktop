@@ -103,6 +103,27 @@ export const kubernetesCurrentContextNodesFiltered = derived(
   ([$searchPattern, $nodes]) => $nodes.filter(node => findMatchInLeaves(node, $searchPattern.toLowerCase())),
 );
 
+// PersistentVolumeClaims
+
+export const kubernetesCurrentContextPersistentVolumeClaims = readable<KubernetesObject[]>([], set => {
+  window.kubernetesRegisterGetCurrentContextResources('persistentvolumeclaims').then(value => set(value));
+  window.events?.receive('kubernetes-current-context-persistentvolumeclaims-update', (value: unknown) => {
+    set(value as KubernetesObject[]);
+  });
+  return () => {
+    window.kubernetesUnregisterGetCurrentContextResources('persistentvolumeclaims');
+  };
+});
+
+export const persistentVolumeClaimSearchPattern = writable('');
+
+// The persistent volume claims in the current context, filtered with `persistentVolumeClaimSearchPattern`
+export const kubernetesCurrentContextPersistentVolumeClaimsFiltered = derived(
+  [persistentVolumeClaimSearchPattern, kubernetesCurrentContextPersistentVolumeClaims],
+  ([$searchPattern, $persistentVolumeClaims]) =>
+    $persistentVolumeClaims.filter(pvc => findMatchInLeaves(pvc, $searchPattern.toLowerCase())),
+);
+
 // Ingresses
 
 export const kubernetesCurrentContextIngresses = readable<KubernetesObject[]>([], set => {

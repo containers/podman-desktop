@@ -22,6 +22,7 @@ import KubeIcon from './lib/images/KubeIcon.svelte';
 import NodeIcon from './lib/images/NodeIcon.svelte';
 import PodIcon from './lib/images/PodIcon.svelte';
 import PuzzleIcon from './lib/images/PuzzleIcon.svelte';
+import PVCIcon from './lib/images/PVCIcon.svelte';
 import ServiceIcon from './lib/images/ServiceIcon.svelte';
 import SettingsIcon from './lib/images/SettingsIcon.svelte';
 import VolumeIcon from './lib/images/VolumeIcon.svelte';
@@ -36,6 +37,7 @@ import {
   kubernetesCurrentContextDeployments,
   kubernetesCurrentContextIngresses,
   kubernetesCurrentContextNodes,
+  kubernetesCurrentContextPersistentVolumeClaims,
   kubernetesCurrentContextRoutes,
   kubernetesCurrentContextServices,
 } from './stores/kubernetes-contexts-state';
@@ -49,6 +51,7 @@ let volumeInfoSubscribe: Unsubscriber;
 let contextsSubscribe: Unsubscriber;
 let nodesSubscribe: Unsubscriber;
 let deploymentsSubscribe: Unsubscriber;
+let persistentVolumeClaimsSubscribe: Unsubscriber;
 let servicesSubscribe: Unsubscriber;
 let ingressesSubscribe: Unsubscriber;
 let routesSubscribe: Unsubscriber;
@@ -58,6 +61,7 @@ let podCount = '';
 let containerCount = '';
 let imageCount = '';
 let volumeCount = '';
+let persistentVolumeClaimsCount = '';
 let contextCount = 0;
 let deploymentCount = '';
 let nodeCount = '';
@@ -110,6 +114,13 @@ onMount(async () => {
       deploymentCount = ' (' + value.length + ')';
     } else {
       deploymentCount = '';
+    }
+  });
+  persistentVolumeClaimsSubscribe = kubernetesCurrentContextPersistentVolumeClaims.subscribe(value => {
+    if (value.length > 0) {
+      persistentVolumeClaimsCount = ' (' + value.length + ')';
+    } else {
+      persistentVolumeClaimsCount = '';
     }
   });
   nodesSubscribe = kubernetesCurrentContextNodes.subscribe(value => {
@@ -167,6 +178,9 @@ onDestroy(() => {
   }
   if (deploymentsSubscribe) {
     deploymentsSubscribe();
+  }
+  if (persistentVolumeClaimsSubscribe) {
+    persistentVolumeClaimsSubscribe();
   }
   if (servicesSubscribe) {
     servicesSubscribe();
@@ -240,6 +254,13 @@ export let meta: TinroRouteMeta;
         ariaLabel="Ingresses & Routes"
         bind:meta="{meta}">
         <IngressRouteIcon size="{iconSize}" />
+      </NavItem>
+      <NavItem
+        href="/persistentvolumeclaims"
+        tooltip="Persistent Volume Claims{persistentVolumeClaimsCount}"
+        ariaLabel="Persistent Volume Claims"
+        bind:meta="{meta}">
+        <PVCIcon size="{iconSize}" />
       </NavItem>
     </NavSection>
   {/if}

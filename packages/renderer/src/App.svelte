@@ -47,6 +47,8 @@ import PodCreateFromContainers from './lib/pod/PodCreateFromContainers.svelte';
 import PodDetails from './lib/pod/PodDetails.svelte';
 import PodsList from './lib/pod/PodsList.svelte';
 import PreferencesPage from './lib/preferences/PreferencesPage.svelte';
+import PVCDetails from './lib/pvc/PVCDetails.svelte';
+import PVCList from './lib/pvc/PVCList.svelte';
 import ServiceDetails from './lib/service/ServiceDetails.svelte';
 import ServicesList from './lib/service/ServicesList.svelte';
 import StatusBar from './lib/statusbar/StatusBar.svelte';
@@ -207,6 +209,16 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         </Route>
         <Route path="/nodes/:name/*" breadcrumb="Node Details" let:meta navigationHint="details">
           <NodeDetails name="{decodeURI(meta.params.name)}" />
+        </Route>
+        <Route path="/persistentvolumeclaims" breadcrumb="Persistent Volume Claims" navigationHint="root">
+          <PVCList />
+        </Route>
+        <Route
+          path="/persistentvolumeclaims/:name/:namespace/*"
+          breadcrumb="Persistent Volume Claim Details"
+          let:meta
+          navigationHint="details">
+          <PVCDetails name="{decodeURI(meta.params.name)}" namespace="{decodeURI(meta.params.namespace)}" />
         </Route>
         <Route path="/deployments" breadcrumb="Deployments" navigationHint="root">
           <DeploymentsList />
