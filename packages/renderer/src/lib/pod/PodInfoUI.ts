@@ -47,5 +47,7 @@ export interface PodInfoUI {
   containers: PodInfoContainerUI[];
   actionInProgress?: boolean;
   actionError?: string;
+  node?: string;
+  namespace?: string;
   kind: 'kubernetes' | 'podman';
 }
