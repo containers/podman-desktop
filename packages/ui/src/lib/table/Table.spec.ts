@@ -51,7 +51,7 @@ test('Expect basic column headers', async () => {
 
   const headers = await screen.findAllByRole('columnheader');
   expect(headers).toBeDefined();
-  expect(headers.length).toBe(6);
+  expect(headers.length).toBe(7);
   expect(headers[2].textContent).toContain('Id');
   expect(headers[2]).toHaveClass('select-none');
   expect(headers[2]).toHaveClass('max-w-full');
@@ -79,6 +79,13 @@ test('Expect basic column headers', async () => {
   expect(headers[5]).toHaveClass('overflow-hidden');
   expect(headers[5].children[0]).toHaveClass('overflow-hidden');
   expect(headers[5].children[0]).toHaveClass('text-ellipsis');
+
+  expect(headers[6].textContent).toContain('Duration');
+  expect(headers[6]).toHaveClass('select-none');
+  expect(headers[6]).toHaveClass('max-w-full');
+  expect(headers[6]).toHaveClass('overflow-hidden');
+  expect(headers[6].children[0]).toHaveClass('overflow-hidden');
+  expect(headers[6].children[0]).toHaveClass('text-ellipsis');
 });
 
 test('Expect column sort indicators', async () => {
@@ -86,7 +93,7 @@ test('Expect column sort indicators', async () => {
 
   const headers = await screen.findAllByRole('columnheader');
   expect(headers).toBeDefined();
-  expect(headers.length).toBe(6);
+  expect(headers.length).toBe(7);
   expect(headers[2].innerHTML).toContain('fa-sort');
   expect(headers[2]).toHaveClass('cursor-pointer');
   expect(headers[3].innerHTML).toContain('fa-sort');
@@ -102,7 +109,7 @@ test('Expect default sort indicator', async () => {
 
   const headers = await screen.findAllByRole('columnheader');
   expect(headers).toBeDefined();
-  expect(headers.length).toBe(6);
+  expect(headers.length).toBe(7);
   expect(headers[2].textContent).toContain('Id');
   expect(headers[2].innerHTML).toContain('fa-sort-up');
 });
@@ -112,7 +119,7 @@ test('Expect no default sort indicator on other columns', async () => {
 
   const headers = await screen.findAllByRole('columnheader');
   expect(headers).toBeDefined();
-  expect(headers.length).toBe(6);
+  expect(headers.length).toBe(7);
   expect(headers[3].innerHTML).not.toContain('fa-sort-up');
   expect(headers[3].innerHTML).not.toContain('fa-sort-down');
   expect(headers[4].innerHTML).not.toContain('fa-sort-up');
@@ -197,7 +204,7 @@ test('Expect correct aria roles', async () => {
   // there should be 6 column headers (expander, checkbox, 4 columns)
   const headers = await screen.findAllByRole('columnheader');
   expect(headers).toBeDefined();
-  expect(headers.length).toBe(6);
+  expect(headers.length).toBe(7);
 
   // and 4 rows (first is header)
   const rows = await screen.findAllByRole('row');
@@ -208,7 +215,7 @@ test('Expect correct aria roles', async () => {
   for (let i = 1; i < 4; i++) {
     const cells = await within(rows[i]).findAllByRole('cell');
     expect(cells).toBeDefined();
-    expect(cells.length).toBe(6);
+    expect(cells.length).toBe(7);
   }
 });
 
@@ -223,7 +230,7 @@ test('Expect rowgroups', async () => {
   // one for the header row
   const headers = await within(rowgroups[0]).findAllByRole('columnheader');
   expect(headers).toBeDefined();
-  expect(headers.length).toBe(6);
+  expect(headers.length).toBe(7);
 
   // and one for the data rows
   const dataRows = await within(rowgroups[1]).findAllByRole('row');
@@ -245,7 +252,7 @@ test('Expect overflow-hidden', async () => {
   for (let i = 1; i < 4; i++) {
     const cells = await within(rows[i]).findAllByRole('cell');
     expect(cells).toBeDefined();
-    expect(cells.length).toBe(6);
+    expect(cells.length).toBe(7);
 
     expect(cells[2]).toHaveClass('overflow-hidden');
     expect(cells[3]).toHaveClass('overflow-hidden');
@@ -277,7 +284,7 @@ test('Expect table to be sorted by Id on load', async () => {
 
   const headers = await screen.findAllByRole('columnheader');
   expect(headers).toBeDefined();
-  expect(headers.length).toBe(6);
+  expect(headers.length).toBe(7);
   expect(headers[2].textContent).toContain('Id');
 
   // Check that Id column is sorted in ascending order
@@ -337,4 +344,26 @@ test('Expect table to be sorted by Name on load, if something has changed in the
   expect(newRows[2].textContent).toContain('Swimming');
   expect(newRows[3].textContent).toContain('John');
   expect(newRows[3].textContent).toContain('Walking');
+});
+
+test('Expect duration cell to be empty when undefined', async () => {
+  render(TestTable, {});
+
+  // Wait for the table to update
+  await tick();
+
+  const rows = await screen.findAllByRole('row');
+  expect(rows).toBeDefined();
+  expect(rows.length).toBe(4);
+
+  const expected = ['', '', '1 hour'];
+
+  // We start at 1 as we do not iterate over headers
+  for (let i = 1; i < expected.length + 1; i++) {
+    const cells = await within(rows[i]).findAllByRole('cell');
+    expect(cells).toBeDefined();
+    expect(cells.length).toBe(7);
+
+    expect(cells[6].textContent?.trim()).toBe(expected[i - 1]);
+  }
 });

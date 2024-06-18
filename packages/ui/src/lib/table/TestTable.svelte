@@ -1,6 +1,8 @@
 <script lang="ts">
 import { createEventDispatcher } from 'svelte';
 
+import DurationColumn from '/@/lib/table/DurationColumn.svelte';
+
 import SimpleColumn from './SimpleColumn.svelte';
 import { Column, Row } from './table';
 import Table from './Table.svelte';
@@ -15,12 +17,13 @@ type Person = {
   name: string;
   age: number;
   hobby: string;
+  duration?: number;
 };
 
 export let people: Person[] = [
   { id: 1, name: 'John', age: 57, hobby: 'Skydiving' },
   { id: 2, name: 'Henry', age: 27, hobby: 'Cooking' },
-  { id: 3, name: 'Charlie', age: 43, hobby: 'Biking' },
+  { id: 3, name: 'Charlie', age: 43, hobby: 'Biking', duration: new Date().getTime() - 3600000 },
 ];
 
 const idCol: Column<Person, string> = new Column('Id', {
@@ -54,7 +57,12 @@ const hobbyCol: Column<Person, string> = new Column('Hobby', {
   renderer: SimpleColumn,
 });
 
-const columns: Column<Person, string>[] = [idCol, nameCol, ageCol, hobbyCol];
+const durationCol = new Column<Person, Date | undefined>('Duration', {
+  renderMapping: (obj): Date | undefined => (obj.duration ? new Date(obj.duration) : undefined),
+  renderer: DurationColumn,
+});
+
+const columns = [idCol, nameCol, ageCol, hobbyCol, durationCol];
 const selectable = (person: Person): boolean => person.age < 50;
 const row = new Row<Person>({
   selectable,

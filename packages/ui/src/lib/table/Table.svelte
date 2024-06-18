@@ -270,7 +270,7 @@ function toggleChildren(name: string | undefined): void {
               {#if column.info.renderer}
                 <svelte:component
                   this="{column.info.renderer}"
-                  object="{column.info.renderMapping?.(object) ?? object}"
+                  object="{column.info.renderMapping ? column.info.renderMapping(object) : object}"
                   on:update />
               {/if}
             </div>
