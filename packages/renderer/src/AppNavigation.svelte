@@ -35,13 +35,13 @@ import { contributions } from './stores/contribs';
 import { imagesInfos } from './stores/images';
 import { kubernetesContexts } from './stores/kubernetes-contexts';
 import {
-  kubernetesCurrentContextConfigMapsFiltered,
+  kubernetesCurrentContextConfigMaps,
   kubernetesCurrentContextDeployments,
   kubernetesCurrentContextIngresses,
   kubernetesCurrentContextNodes,
   kubernetesCurrentContextPersistentVolumeClaims,
   kubernetesCurrentContextRoutes,
-  kubernetesCurrentContextSecretsFiltered,
+  kubernetesCurrentContextSecrets,
   kubernetesCurrentContextServices,
 } from './stores/kubernetes-contexts-state';
 import { podsInfos } from './stores/pods';
@@ -154,11 +154,11 @@ onMount(async () => {
     updateIngressesRoutesCount(ingressesCount + routesCount);
   });
 
-  configmapsSubscribe = kubernetesCurrentContextConfigMapsFiltered.subscribe(value => {
+  configmapsSubscribe = kubernetesCurrentContextConfigMaps.subscribe(value => {
     configmapsCount = value.length;
     updateConfigMapSecretsCount(configmapsCount + secretsCount);
   });
-  secretsSubscribe = kubernetesCurrentContextSecretsFiltered.subscribe(value => {
+  secretsSubscribe = kubernetesCurrentContextSecrets.subscribe(value => {
     secretsCount = value.length;
     updateConfigMapSecretsCount(configmapsCount + secretsCount);
   });
