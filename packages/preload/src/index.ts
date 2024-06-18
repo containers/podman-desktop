@@ -31,6 +31,7 @@ import type {
   V1Ingress,
   V1NamespaceList,
   V1Node,
+  V1PersistentVolumeClaim,
   V1Pod,
   V1PodList,
   V1Service,
@@ -1677,6 +1678,13 @@ export function initExposure(): void {
     },
   );
 
+  contextBridge.exposeInMainWorld(
+    'kubernetesReadNamespacedPersistentVolumeClaim',
+    async (name: string, namespace: string): Promise<V1PersistentVolumeClaim | undefined> => {
+      return ipcInvoke('kubernetes-client:readNamespacedPersistentVolumeClaim', name, namespace);
+    },
+  );
+
   contextBridge.exposeInMainWorld('kubernetesReadNode', async (name: string): Promise<V1Node | undefined> => {
     return ipcInvoke('kubernetes-client:readNode', name);
   });
@@ -1776,6 +1784,10 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld('kubernetesDeleteDeployment', async (name: string): Promise<void> => {
     return ipcInvoke('kubernetes-client:deleteDeployment', name);
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesDeletePersistentVolumeClaim', async (name: string): Promise<void> => {
+    return ipcInvoke('kubernetes-client:deletePersistentVolumeClaim', name);
   });
 
   contextBridge.exposeInMainWorld('kubernetesDeleteIngress', async (name: string): Promise<void> => {

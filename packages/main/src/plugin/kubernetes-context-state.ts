@@ -31,6 +31,8 @@ import type {
   V1Node,
   V1NodeList,
   V1ObjectMeta,
+  V1PersistentVolumeClaim,
+  V1PersistentVolumeClaimList,
   V1Pod,
   V1PodList,
   V1Service,
@@ -73,7 +75,7 @@ const selectedResources = ['pods', 'deployments'] as const;
 
 // resources managed by podman desktop, excepted the primary ones
 // This is where to add new resources when adding new informers
-const secondaryResources = ['services', 'ingresses', 'routes', 'nodes'] as const;
+const secondaryResources = ['services', 'ingresses', 'routes', 'nodes', 'persistentvolumeclaims'] as const;
 
 export type SelectedResourceName = (typeof selectedResources)[number];
 export type SecondaryResourceName = (typeof secondaryResources)[number];
@@ -130,6 +132,7 @@ const dispatchAllResources: ResourcesDispatchOptions = {
   deployments: true,
   services: true,
   nodes: true,
+  persistentvolumeclaims: true,
   ingresses: true,
   routes: true,
   // add new resources here when adding new informers
@@ -266,6 +269,7 @@ export class ContextsStates {
           pods: [],
           deployments: [],
           nodes: [],
+          persistentvolumeclaims: [],
           services: [],
           ingresses: [],
           routes: [],
@@ -511,6 +515,9 @@ export class ContextsManager {
       case 'nodes':
         informer = this.createNodeInformer(this.kubeConfig, ns, context);
         break;
+      case 'persistentvolumeclaims':
+        informer = this.createPersistentVolumeClaimInformer(this.kubeConfig, ns, context);
+        break;
       case 'ingresses':
         informer = this.createIngressInformer(this.kubeConfig, ns, context);
         break;
@@ -602,6 +609,50 @@ export class ContextsManager {
           { deployments: true },
           state =>
             (state.resources.deployments = state.resources.deployments.filter(
+              d => d.metadata?.uid !== obj.metadata?.uid,
+            )),
+        );
+      },
+    });
+  }
+
+  public createPersistentVolumeClaimInformer(
+    kc: KubeConfig,
+    ns: string,
+    context: KubeContext,
+  ): Informer<V1PersistentVolumeClaim> & ObjectCache<V1PersistentVolumeClaim> {
+    const k8sApi = kc.makeApiClient(CoreV1Api);
+    const listFn = (): Promise<{ response: IncomingMessage; body: V1PersistentVolumeClaimList }> =>
+      k8sApi.listNamespacedPersistentVolumeClaim(ns);
+    const path = `/api/v1/namespaces/${ns}/persistentvolumeclaims`;
+    let timer: NodeJS.Timeout | undefined;
+    let connectionDelay: NodeJS.Timeout | undefined;
+    this.setConnectionTimers('persistentvolumeclaims', timer, connectionDelay);
+    return this.createInformer<V1PersistentVolumeClaim>(kc, context, path, listFn, {
+      resource: 'persistentvolumeclaims',
+      timer: timer,
+      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      connectionDelay: connectionDelay,
+      onAdd: obj => {
+        this.setStateAndDispatch(context.name, true, { persistentvolumeclaims: true }, state =>
+          state.resources.persistentvolumeclaims.push(obj),
+        );
+      },
+      onUpdate: obj => {
+        this.setStateAndDispatch(context.name, true, { persistentvolumeclaims: true }, state => {
+          state.resources.persistentvolumeclaims = state.resources.persistentvolumeclaims.filter(
+            o => o.metadata?.uid !== obj.metadata?.uid,
+          );
+          state.resources.persistentvolumeclaims.push(obj);
+        });
+      },
+      onDelete: obj => {
+        this.setStateAndDispatch(
+          context.name,
+          true,
+          { persistentvolumeclaims: true },
+          state =>
+            (state.resources.persistentvolumeclaims = state.resources.persistentvolumeclaims.filter(
               d => d.metadata?.uid !== obj.metadata?.uid,
             )),
         );
