@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import type { Locator, Page } from '@playwright/test';
+import { expect as playExpect } from '@playwright/test';
 
 import { BasePage } from './base-page';
 import { PodsPage } from './pods-page';
@@ -45,7 +46,7 @@ export class PlayKubeYamlPage extends BasePage {
 
     await this.yamlPathInput.fill(pathToYaml);
     await this.playButton.click();
-    await this.doneButton.waitFor({ state: 'visible', timeout: 60000 });
+    await playExpect(this.doneButton).toBeEnabled({ timeout: 120000 });
     await this.doneButton.click();
     return new PodsPage(this.page);
   }

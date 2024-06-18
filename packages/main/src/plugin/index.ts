@@ -32,6 +32,7 @@ import type {
   V1Ingress,
   V1NamespaceList,
   V1Node,
+  V1PersistentVolumeClaim,
   V1Pod,
   V1PodList,
   V1Service,
@@ -1846,6 +1847,10 @@ export class PluginSystem {
       return kubernetesClient.deleteDeployment(name);
     });
 
+    this.ipcHandle('kubernetes-client:deletePersistentVolumeClaim', async (_listener, name: string): Promise<void> => {
+      return kubernetesClient.deletePersistentVolumeClaim(name);
+    });
+
     this.ipcHandle('kubernetes-client:deleteIngress', async (_listener, name: string): Promise<void> => {
       return kubernetesClient.deleteIngress(name);
     });
@@ -1857,6 +1862,13 @@ export class PluginSystem {
     this.ipcHandle('kubernetes-client:deleteService', async (_listener, name: string): Promise<void> => {
       return kubernetesClient.deleteService(name);
     });
+
+    this.ipcHandle(
+      'kubernetes-client:readNamespacedPersistentVolumeClaim',
+      async (_listener, name: string, namespace: string): Promise<V1PersistentVolumeClaim | undefined> => {
+        return kubernetesClient.readNamespacedPersistentVolumeClaim(name, namespace);
+      },
+    );
 
     this.ipcHandle(
       'kubernetes-client:readNamespacedDeployment',

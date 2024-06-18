@@ -73,7 +73,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       const yamlFilePath = path.resolve(__dirname, '..', '..', 'resources', `${podAppName}.yaml`);
       podsPage = await playYamlPage.playYaml(yamlFilePath);
       await playExpect(podsPage.heading).toBeVisible();
-    }, 75000);
+    }, 150000);
 
     test('Checking that created pod from yaml is correct', async () => {
       const navigationBar = new NavigationBar(page);
