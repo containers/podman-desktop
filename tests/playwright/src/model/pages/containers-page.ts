@@ -72,6 +72,12 @@ export class ContainersPage extends MainPage {
 
         if (thirdCell) {
           return rows[i];
+        } else {
+          // this workaround still returns the row element, not the specific grid class <div> that corresponds to the pod in multi-pod containers
+          const subRow = await rows[i].getByLabel(name, { exact: true }).count();
+          if (subRow) {
+            return rows[i];
+          }
         }
       }
     } catch (err) {
@@ -84,14 +90,24 @@ export class ContainersPage extends MainPage {
     let containersTable;
     try {
       containersTable = await this.getTable();
-      const rows = await containersTable.getByRole('row').all();
+      await playExpect(containersTable).toBeVisible();
+      const controlRow = containersTable.getByRole('row').first();
+      await playExpect(controlRow).toBeAttached();
+      const checkboxColumnHeader = controlRow.getByRole('columnheader').nth(1);
+      await playExpect(checkboxColumnHeader).toBeAttached();
+      const containersToggle = checkboxColumnHeader.getByTitle('Toggle all');
+      await playExpect(containersToggle).toBeAttached();
+      // <svg> cannot be resolved using getByRole('img') ; const containersToggleSvg = containersToggle.getByRole('img');
 
-      for (let i = rows.length - 1; i >= 0; i--) {
-        const zeroCell = await rows[i].getByRole('cell').nth(0).innerText({ timeout: 1000 });
-        if (zeroCell.indexOf(String.fromCharCode(160)) === 0) continue;
-
-        if (await rows[i].getByRole('checkbox').isChecked()) await rows[i].getByRole('cell').nth(1).click();
+      if ((await containersToggle.innerHTML()).includes('pd-input-checkbox-indeterminate')) {
+        await containersToggle.click();
       }
+
+      if ((await containersToggle.innerHTML()).includes('pd-input-checkbox-checked')) {
+        await containersToggle.click();
+      }
+
+      playExpect(await containersToggle.innerHTML()).toContain('pd-input-checkbox-unchecked');
     } catch (err) {
       console.log(`Exception caught on containers page when checking cells for unchecking with message: ${err}`);
     }
