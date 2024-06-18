@@ -19,8 +19,14 @@
 import type { KubernetesObject } from '@kubernetes/client-node';
 import { derived, readable, writable } from 'svelte/store';
 
-import type { ContextGeneralState } from '../../../main/src/plugin/kubernetes-context-state';
+import type { CheckingState, ContextGeneralState } from '../../../main/src/plugin/kubernetes-context-state';
 import { findMatchInLeaves } from './search-util';
+
+export const kubernetesContextsCheckingState = readable(new Map<string, CheckingState>(), set => {
+  window.events?.receive('kubernetes-contexts-checking-state-update', (value: unknown) => {
+    set(value as Map<string, CheckingState>);
+  });
+});
 
 export const kubernetesContextsState = readable(new Map<string, ContextGeneralState>(), set => {
   window.kubernetesGetContextsGeneralState().then(value => set(value));
