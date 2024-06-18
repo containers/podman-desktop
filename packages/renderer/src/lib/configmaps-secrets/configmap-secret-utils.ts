@@ -27,6 +27,11 @@ export class ConfigMapSecretUtils {
     return 'type' in storage && storage.type !== 'ConfigMap';
   }
 
+  // If it is a configMap, then it will **not** have a type property
+  isConfigMap(storage: V1ConfigMap | V1Secret): storage is V1ConfigMap {
+    return !('type' in storage);
+  }
+
   getConfigMapSecretUI(storage: V1ConfigMap | V1Secret): ConfigMapSecretUI {
     const created = storage.metadata?.creationTimestamp;
     const keys = Object.keys(storage.data ?? {});

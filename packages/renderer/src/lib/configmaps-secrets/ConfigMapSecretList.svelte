@@ -79,15 +79,17 @@ async function deleteSelectedConfigMapsSecrets() {
     bulkDeleteInProgress = true;
     await Promise.all(
       selectedConfigMapsSecrets.map(async configmapSecret => {
-        const isSecret = configmapSecretUtils.isSecret(configmapSecret);
         try {
-          if (isSecret) {
+          if (configmapSecretUtils.isSecret(configmapSecret)) {
             await window.kubernetesDeleteSecret(configmapSecret.name);
-          } else {
+          } else if (configmapSecretUtils.isConfigMap(configmapSecret)) {
             await window.kubernetesDeleteConfigMap((configmapSecret as ConfigMapSecretUI).name);
           }
         } catch (e) {
-          console.error(`error while deleting ${isSecret ? 'secret' : 'configmap'}`, e);
+          console.error(
+            `error while deleting ${configmapSecretUtils.isSecret(configmapSecret) ? 'secret' : 'configmap'}`,
+            e,
+          );
         }
       }),
     );

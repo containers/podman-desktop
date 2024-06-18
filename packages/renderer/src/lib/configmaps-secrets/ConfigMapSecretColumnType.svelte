@@ -9,12 +9,11 @@ export let object: ConfigMapSecretUI;
 
 // Determine the icon and color based on the type
 function getTypeAttributes(type: string) {
-  // It is only ever 'ConfigMap' or 'Secret' in our case
-  if (type === 'ConfigMap') {
-    return { color: 'text-[var(--pd-status-good)]', icon: faFileAlt };
-  } else {
-    return { color: 'text-[var(--pd-status-secure)]', icon: faKey };
-  }
+  const isConfigMap = type === 'ConfigMap';
+  return {
+    color: 'text-[var(--pd-status-running)]',
+    icon: isConfigMap ? faFileAlt : faKey,
+  };
 }
 </script>
 

@@ -40,7 +40,7 @@ test('Expect type display for ConfigMap', async () => {
   expect(text).toBeInTheDocument();
   const svg = text.parentElement?.querySelector('svg');
   expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-[var(--pd-status-good)]');
+  expect(svg).toHaveClass('text-[var(--pd-status-running)]');
 });
 
 test('Expect type display for Secret', async () => {
@@ -59,5 +59,5 @@ test('Expect type display for Secret', async () => {
   expect(text).toBeInTheDocument();
   const svg = text.parentElement?.querySelector('svg');
   expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-[var(--pd-status-secure)]');
+  expect(svg).toHaveClass('text-[var(--pd-status-running)]');
 });
