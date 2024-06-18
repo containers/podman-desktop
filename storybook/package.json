@@ -32,7 +32,7 @@
     "@sveltejs/package": "^2.3.2",
     "@sveltejs/vite-plugin-svelte": "3.1.1",
     "@tsconfig/svelte": "^5.0.2",
-    "@typescript-eslint/eslint-plugin": "7.13.0",
+    "@typescript-eslint/eslint-plugin": "7.13.1",
     "autoprefixer": "^10.4.18",
     "eslint-plugin-svelte": "^2.40.0",
     "postcss": "^8.4.35",
