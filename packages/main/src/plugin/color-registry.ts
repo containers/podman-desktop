@@ -1191,6 +1191,17 @@ export class ColorRegistry {
       dark: colorPalette.gray[100],
       light: colorPalette.gray[400],
     });
+    // If it's considered "good" (like a successful operation), use green
+    this.registerColor(`${status}good`, {
+      dark: colorPalette.green[400],
+      light: colorPalette.green[400],
+    });
+    // If it's "secure" (like a successful TLS connection), use yellow
+    // as often keys are yellow in the real world / "caution" / padlock colour uses on other GUIs
+    this.registerColor(`${status}secure`, {
+      dark: colorPalette.amber[600],
+      light: colorPalette.amber[600],
+    });
     // Connections / login
     this.registerColor(`${status}connected`, {
       dark: colorPalette.green[600],

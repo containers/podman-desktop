@@ -35,6 +35,7 @@ import type {
   V1PersistentVolumeClaim,
   V1Pod,
   V1PodList,
+  V1Secret,
   V1Service,
 } from '@kubernetes/client-node';
 import type * as containerDesktopAPI from '@podman-desktop/api';
@@ -1866,6 +1867,14 @@ export class PluginSystem {
       return kubernetesClient.deleteDeployment(name);
     });
 
+    this.ipcHandle('kubernetes-client:deleteConfigMap', async (_listener, name: string): Promise<void> => {
+      return kubernetesClient.deleteConfigMap(name);
+    });
+
+    this.ipcHandle('kubernetes-client:deleteSecret', async (_listener, name: string): Promise<void> => {
+      return kubernetesClient.deleteSecret(name);
+    });
+
     this.ipcHandle('kubernetes-client:deletePersistentVolumeClaim', async (_listener, name: string): Promise<void> => {
       return kubernetesClient.deletePersistentVolumeClaim(name);
     });
@@ -1881,6 +1890,13 @@ export class PluginSystem {
     this.ipcHandle('kubernetes-client:deleteService', async (_listener, name: string): Promise<void> => {
       return kubernetesClient.deleteService(name);
     });
+
+    this.ipcHandle(
+      'kubernetes-client:readNamespacedSecret',
+      async (_listener, name: string, namespace: string): Promise<V1Secret | undefined> => {
+        return kubernetesClient.readNamespacedSecret(name, namespace);
+      },
+    );
 
     this.ipcHandle(
       'kubernetes-client:readNamespacedPersistentVolumeClaim',
