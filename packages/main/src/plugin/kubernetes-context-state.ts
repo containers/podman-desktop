@@ -19,6 +19,7 @@
 import type { IncomingMessage } from 'node:http';
 
 import type {
+  Context,
   Informer,
   KubernetesListObject,
   KubernetesObject,
@@ -467,7 +468,8 @@ export class ContextsManager {
     let added = false;
     for (const context of this.kubeConfig.contexts) {
       if (!this.states.hasContext(context.name)) {
-        const informers = this.createKubeContextInformers(context);
+        const kubeContext: KubeContext = this.getKubeContext(context);
+        const informers = this.createKubeContextInformers(kubeContext);
         this.states.setInformers(context.name, informers);
         added = true;
       }
@@ -531,14 +533,7 @@ export class ContextsManager {
     if (!context) {
       throw new Error(`context ${contextName} not found`);
     }
-    const clusterObj = this.kubeConfig.getCluster(context.cluster);
-    const kubeContext: KubeContext = {
-      ...context,
-      clusterInfo: {
-        name: clusterObj?.name ?? '',
-        server: clusterObj?.server ?? '',
-      },
-    };
+    const kubeContext: KubeContext = this.getKubeContext(context);
     const ns = context.namespace ?? 'default';
     let informer: Informer<KubernetesObject> & ObjectCache<KubernetesObject>;
     switch (resourceName) {
@@ -562,6 +557,17 @@ export class ContextsManager {
         return;
     }
     this.states.setResourceInformer(contextName, resourceName, informer);
+  }
+
+  private getKubeContext(context: Context): KubeContext {
+    const clusterObj = this.kubeConfig.getCluster(context.cluster);
+    return {
+      ...context,
+      clusterInfo: {
+        name: clusterObj?.name ?? '',
+        server: clusterObj?.server ?? '',
+      },
+    };
   }
 
   private createPodInformer(kc: KubeConfig, ns: string, context: KubeContext): Informer<V1Pod> & ObjectCache<V1Pod> {
