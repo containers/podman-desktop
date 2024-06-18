@@ -69,13 +69,13 @@ let versionColumn = new TableColumn<NodeUI, string>('Version', {
 });
 
 let osImageColumn = new TableColumn<NodeUI, string>('OS', {
+  width: '1.5fr',
   renderMapping: node => node.osImage,
   renderer: TableSimpleColumn,
   comparator: (a, b) => a.osImage.localeCompare(b.osImage),
 });
 
 let kernelVersionColumn = new TableColumn<NodeUI, string>('Kernel', {
-  width: '1.3fr',
   renderMapping: node => node.kernelVersion,
   renderer: TableSimpleColumn,
   comparator: (a, b) => a.kernelVersion.localeCompare(b.kernelVersion),
