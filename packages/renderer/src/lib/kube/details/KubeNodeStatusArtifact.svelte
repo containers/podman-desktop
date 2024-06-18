@@ -9,6 +9,51 @@ export let artifact: V1NodeStatus | undefined;
 </script>
 
 {#if artifact}
+  {#if artifact.nodeInfo}
+    <tr>
+      <Title>Node Info</Title>
+    </tr>
+    <tr>
+      <Cell>Architecture</Cell>
+      <Cell>{artifact.nodeInfo.architecture}</Cell>
+    </tr>
+    <tr>
+      <Cell>Boot ID</Cell>
+      <Cell>{artifact.nodeInfo.bootID}</Cell>
+    </tr>
+    <tr>
+      <Cell>Container Runtime Version</Cell>
+      <Cell>{artifact.nodeInfo.containerRuntimeVersion}</Cell>
+    </tr>
+    <tr>
+      <Cell>Kernel Version</Cell>
+      <Cell>{artifact.nodeInfo.kernelVersion}</Cell>
+    </tr>
+    <tr>
+      <Cell>Kubelet Version</Cell>
+      <Cell>{artifact.nodeInfo.kubeletVersion}</Cell>
+    </tr>
+    <tr>
+      <Cell>Kube Proxy Version</Cell>
+      <Cell>{artifact.nodeInfo.kubeProxyVersion}</Cell>
+    </tr>
+    <tr>
+      <Cell>Machine ID</Cell>
+      <Cell>{artifact.nodeInfo.machineID}</Cell>
+    </tr>
+    <tr>
+      <Cell>Operating System</Cell>
+      <Cell>{artifact.nodeInfo.operatingSystem}</Cell>
+    </tr>
+    <tr>
+      <Cell>OS Image</Cell>
+      <Cell>{artifact.nodeInfo.osImage}</Cell>
+    </tr>
+    <tr>
+      <Cell>System UUID</Cell>
+      <Cell>{artifact.nodeInfo.systemUUID}</Cell>
+    </tr>
+  {/if}
   <tr>
     <Title>Status</Title>
   </tr>
