@@ -502,20 +502,28 @@ export class ContextsManager {
     if (!context) {
       throw new Error(`context ${contextName} not found`);
     }
+    const clusterObj = this.kubeConfig.getCluster(context.cluster);
+    const kubeContext: KubeContext = {
+      ...context,
+      clusterInfo: {
+        name: clusterObj?.name ?? '',
+        server: clusterObj?.server ?? '',
+      },
+    };
     const ns = context.namespace ?? 'default';
     let informer: Informer<KubernetesObject> & ObjectCache<KubernetesObject>;
     switch (resourceName) {
       case 'services':
-        informer = this.createServiceInformer(this.kubeConfig, ns, context);
+        informer = this.createServiceInformer(this.kubeConfig, ns, kubeContext);
         break;
       case 'nodes':
-        informer = this.createNodeInformer(this.kubeConfig, ns, context);
+        informer = this.createNodeInformer(this.kubeConfig, ns, kubeContext);
         break;
       case 'ingresses':
-        informer = this.createIngressInformer(this.kubeConfig, ns, context);
+        informer = this.createIngressInformer(this.kubeConfig, ns, kubeContext);
         break;
       case 'routes':
-        informer = this.createRouteInformer(this.kubeConfig, ns, context);
+        informer = this.createRouteInformer(this.kubeConfig, ns, kubeContext);
         break;
       default:
         console.debug(`unable to watch ${resourceName} in context ${contextName}, as this resource is not supported`);
