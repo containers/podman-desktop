@@ -87,10 +87,13 @@ export class ContainersPage extends MainPage {
       const rows = await containersTable.getByRole('row').all();
 
       for (let i = rows.length - 1; i >= 0; i--) {
-        const zeroCell = await rows[i].getByRole('cell').nth(0).innerText({ timeout: 1000 });
+        const zeroCell = await rows[i].getByRole('cell').nth(0).innerText();
         if (zeroCell.indexOf(String.fromCharCode(160)) === 0) continue;
 
-        if (await rows[i].getByRole('checkbox').isChecked()) await rows[i].getByRole('cell').nth(1).click();
+        if (await rows[i].getByRole('checkbox').isChecked()) {
+          await rows[i].getByRole('cell').nth(1).click();
+          await playExpect(rows[i].getByRole('checkbox')).not.toBeChecked();
+        }
       }
     } catch (err) {
       console.log(`Exception caught on containers page when checking cells for unchecking with message: ${err}`);
