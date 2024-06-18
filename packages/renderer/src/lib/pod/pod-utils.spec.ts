@@ -110,3 +110,17 @@ test('Expect return a valid name for a new pod if there are pods with the same n
 
   expect(newPodName).toBe('my-pod-2');
 });
+
+test('Expect to get node and namespace from pod info', () => {
+  const podUtils = new PodUtils();
+  const podInfo = {
+    kind: 'kubernetes',
+    node: 'node1',
+    Namespace: 'default',
+    Id: 'pod-id',
+  } as unknown as PodInfo;
+  const pod = podUtils.getPodInfoUI(podInfo);
+
+  expect(pod.node).toBe('node1');
+  expect(pod.namespace).toBe('default');
+});
