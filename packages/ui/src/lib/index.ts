@@ -23,6 +23,7 @@ import Checkbox from './checkbox/Checkbox.svelte';
 import DropdownMenu from './dropdownMenu';
 import Input from './inputs/Input.svelte';
 import SearchInput from './inputs/SearchInput.svelte';
+import DetailsPage from './layouts/DetailsPage.svelte';
 import FormPage from './layouts/FormPage.svelte';
 import NavPage from './layouts/NavPage.svelte';
 import Link from './link/Link.svelte';
@@ -45,6 +46,7 @@ export {
   Button,
   Checkbox,
   CloseButton,
+  DetailsPage,
   DropdownMenu,
   EmptyScreen,
   ErrorMessage,
