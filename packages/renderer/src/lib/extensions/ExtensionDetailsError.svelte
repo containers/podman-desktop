@@ -5,7 +5,7 @@ export let extension: ExtensionDetailsUI;
 </script>
 
 {#if extension.error}
-  <div class="flex flex-col">
+  <div class="flex flex-col text-[var(--pd-content-card-text)]">
     <div class="py-2">Error: {extension.error.message}</div>
     {#if extension.error.stack}
       <div class="text-xs">
