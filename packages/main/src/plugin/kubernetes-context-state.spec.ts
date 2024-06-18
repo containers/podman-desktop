@@ -1612,6 +1612,98 @@ describe('update', async () => {
     );
   });
 
+  test('changing namespace of current context should start service informer again', async () => {
+    vi.useFakeTimers();
+    const makeInformerMock = vi.mocked(makeInformer);
+    makeInformerMock.mockImplementation(
+      (
+        kubeconfig: kubeclient.KubeConfig,
+        path: string,
+        _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+      ) => {
+        return new FakeInformer(kubeconfig.currentContext, path, 0, undefined, [], []);
+      },
+    );
+    client = new ContextsManager(apiSender);
+    const kubeConfig = new kubeclient.KubeConfig();
+    const config = {
+      clusters: [
+        {
+          name: 'cluster1',
+          server: 'server1',
+        },
+      ],
+      users: [
+        {
+          name: 'user1',
+        },
+      ],
+      contexts: [
+        {
+          name: 'context1',
+          cluster: 'cluster1',
+          user: 'user1',
+          namespace: 'ns1',
+        },
+        {
+          name: 'context2',
+          cluster: 'cluster1',
+          user: 'user1',
+          namespace: 'ns2',
+        },
+      ],
+      currentContext: 'context1',
+    };
+    kubeConfig.loadFromOptions(config);
+    await client.update(kubeConfig);
+    vi.advanceTimersToNextTimer();
+    vi.advanceTimersToNextTimer();
+
+    makeInformerMock.mockClear();
+
+    // service informer is started
+    client.registerGetCurrentContextResources('services');
+    expect(makeInformerMock).toHaveBeenCalledTimes(1);
+    expect(makeInformerMock).toHaveBeenCalledWith(
+      expect.any(KubeConfig),
+      '/api/v1/namespaces/ns1/services',
+      expect.anything(),
+    );
+
+    makeInformerMock.mockClear();
+
+    config.contexts[0].namespace = 'other-ns';
+    kubeConfig.loadFromOptions(config);
+
+    expect(informerStopMock).not.toHaveBeenCalled();
+
+    await client.update(kubeConfig);
+
+    expect(informerStopMock).toHaveBeenCalledTimes(3);
+    expect(informerStopMock).toHaveBeenNthCalledWith(1, 'context1', '/api/v1/namespaces/ns1/pods');
+    expect(informerStopMock).toHaveBeenNthCalledWith(2, 'context1', '/apis/apps/v1/namespaces/ns1/deployments');
+    expect(informerStopMock).toHaveBeenNthCalledWith(3, 'context1', '/api/v1/namespaces/ns1/services');
+    expect(makeInformerMock).toHaveBeenCalledTimes(3);
+    expect(makeInformerMock).toHaveBeenNthCalledWith(
+      1,
+      expect.any(KubeConfig),
+      '/api/v1/namespaces/other-ns/pods',
+      expect.anything(),
+    );
+    expect(makeInformerMock).toHaveBeenNthCalledWith(
+      2,
+      expect.any(KubeConfig),
+      '/apis/apps/v1/namespaces/other-ns/deployments',
+      expect.anything(),
+    );
+    expect(makeInformerMock).toHaveBeenNthCalledWith(
+      3,
+      expect.any(KubeConfig),
+      '/api/v1/namespaces/other-ns/services',
+      expect.anything(),
+    );
+  });
+
   test('dispose', async () => {
     vi.useFakeTimers();
     vi.mocked(makeInformer).mockImplementation(
@@ -1969,6 +2061,7 @@ describe('isContextChanged', () => {
           server: 'server',
         } as kubeclient.Cluster;
       },
+      getContexts: () => context.contexts,
     } as KubeConfig;
     const changed = client.isContextChanged(context);
     expect(changed).toBeTruthy();
@@ -2006,6 +2099,7 @@ describe('isContextChanged', () => {
           server: 'server2',
         } as kubeclient.Cluster;
       },
+      getContexts: () => context.contexts,
     } as KubeConfig;
     const changed = client.isContextChanged(context);
     expect(changed).toBeTruthy();
@@ -2043,6 +2137,7 @@ describe('isContextChanged', () => {
           server: 'server2',
         } as kubeclient.Cluster;
       },
+      getContexts: () => context.contexts,
     } as KubeConfig;
     const changed = client.isContextChanged(context);
     expect(changed).toBeTruthy();
@@ -2080,6 +2175,7 @@ describe('isContextChanged', () => {
           server: 'server',
         } as kubeclient.Cluster;
       },
+      getContexts: () => context.contexts,
     } as KubeConfig;
     const changed = client.isContextChanged(context);
     expect(changed).toBeFalsy();
