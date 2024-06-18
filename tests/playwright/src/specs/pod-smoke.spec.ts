@@ -20,7 +20,7 @@ import * as os from 'node:os';
 
 import type { Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
-import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest';
 
 import { ContainerState, PodState } from '../model/core/states';
 import type { ContainerInteractiveParams } from '../model/core/types';
@@ -211,15 +211,10 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
     test(`Checking pods under containers`, async () => {
       const navigationBar = new NavigationBar(page);
       const containers = await navigationBar.openContainers();
-      await playExpect
-        .poll(async () => containers.containerExists(`${podToRun} (pod)`), { timeout: 10000 })
-        .toBeTruthy();
-      await playExpect
-        .poll(async () => containers.containerExists(`${backendContainer}-podified`), { timeout: 10000 })
-        .toBeTruthy();
-      await playExpect
-        .poll(async () => containers.containerExists(`${frontendContainer}-podified`), { timeout: 10000 })
-        .toBeTruthy();
+
+      expect(await containers.containerExists(`${podToRun} (pod)`)).toBeTruthy();
+      expect(await containers.containerExists(`${backendContainer}-podified`)).toBeTruthy();
+      expect(await containers.containerExists(`${frontendContainer}-podified`)).toBeTruthy();
     });
 
     test('Checking deployed application', async () => {
