@@ -29,6 +29,8 @@ export interface PodInfo extends LibPodPodInfo {
   engineId: string;
   engineName: string;
   kind: 'kubernetes' | 'podman';
+  // Optional information only used by Kubernetes
+  node?: string;
 }
 
 export interface PodInspectInfo extends LibPodPodInspectInfo {

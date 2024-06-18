@@ -63,7 +63,13 @@ export class PodUtils {
       containers: podinfo.Containers,
       selected: false,
       kind: podinfo.kind,
+      node: podinfo.node,
+      namespace: podinfo.Namespace,
     };
+  }
+
+  isKubernetesPod(pod: PodInfoUI): boolean {
+    return pod.kind === 'kubernetes';
   }
 
   calculateNewPodName(existedPods?: PodInfo[]) {

@@ -113,6 +113,7 @@ function toPodInfo(pod: V1Pod, contextName?: string): PodInfo {
     engineId: contextName ?? 'kubernetes',
     engineName: 'Kubernetes',
     kind: 'kubernetes',
+    node: pod.spec?.nodeName,
   };
 }
 
