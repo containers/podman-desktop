@@ -169,13 +169,20 @@ export class ImageUtils {
     containersInfo: ContainerInfo[],
     context?: ContextUI,
     viewContributions?: ViewInfoUI[],
+    imageList?: ImageInfo[],
   ): ImageInfoUI[] {
     let icon = this.iconClass(imageInfo, context, viewContributions) ?? ImageIcon;
     const badges = this.computeBagdes(imageInfo, context, viewContributions);
+    let children: ImageInfoUI[] = [];
 
-    // Use the manifest icon if it's a manifest
     if (imageInfo.isManifest) {
       icon = ManifestIcon;
+
+      // Retrieve the images that are part of the manifest
+      const images = this.getImagesFromManifest(imageInfo, imageList ?? []);
+      children = images
+        .map(child => this.getImagesInfoUI(child, containersInfo, context, viewContributions, imageList))
+        .flat();
     }
 
     if (!imageInfo.RepoTags) {
@@ -198,6 +205,8 @@ export class ImageUtils {
           icon,
           labels: imageInfo.Labels,
           isManifest: imageInfo.isManifest,
+          digest: imageInfo.Digest,
+          children,
         },
       ];
     } else {
@@ -220,6 +229,8 @@ export class ImageUtils {
           icon,
           labels: imageInfo.Labels,
           isManifest: imageInfo.isManifest,
+          digest: imageInfo.Digest,
+          children,
         };
       });
     }
@@ -243,5 +254,22 @@ export class ImageUtils {
   ): ImageInfoUI | undefined {
     const images = this.getImagesInfoUI(imageInfo, containersInfo, context, viewContributions);
     return images.find(image => image.base64RepoTag === base64RepoTag);
+  }
+
+  // Input is an image and a list of images
+  // if the image is a manifest, do inspect manifest to get the digest of each image part of the manifest.
+  // go through the list of images and find the images with the same digest, and return those images.
+  getImagesFromManifest(manifestImage: ImageInfo, imageList: ImageInfo[]): ImageInfo[] {
+    // If for some reason the image passed in is not a manifest, just return an empty array.
+    if (!manifestImage.isManifest && !manifestImage.manifests) {
+      return [];
+    }
+
+    // Using manifests array in the inspect, find the images with the same digest.
+    return imageList.filter(image => {
+      if (manifestImage.manifests) {
+        return manifestImage.manifests.some(manifest => manifest.digest === image.Digest);
+      }
+    });
   }
 }

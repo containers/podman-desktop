@@ -25,8 +25,9 @@ export interface ImageInfo extends Dockerode.ImageInfo {
   engineId: string;
   engineName: string;
   History?: string[];
-  isManifest?: boolean;
   Digest: string;
+  isManifest?: boolean;
+  manifests?: { digest?: string }[];
 }
 
 export interface BuildImageOptions {
