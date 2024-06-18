@@ -177,7 +177,7 @@ export class Proxy {
   }
 
   isEnabled(): boolean {
-    return this.proxyState === ProxyState.PROXY_SYSTEM || this.proxyState === ProxyState.PROXY_MANUAL;
+    return this.proxyState !== ProxyState.PROXY_DISABLED;
   }
 
   setState(state: ProxyState): void {
