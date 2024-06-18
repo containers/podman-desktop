@@ -15,18 +15,17 @@ import Label from '../ui/Label.svelte';
 import type { DeploymentCondition, DeploymentUI } from './DeploymentUI';
 
 export let object: DeploymentUI;
-const defaultUnknownIcon: IconDefinition = faQuestionCircle;
 
 // Determine both the icon and color based on the deployment condition
 function getConditionAttributes(condition: DeploymentCondition) {
   const defaults = {
     name: condition.type,
     color: 'text-[var(--pd-status-unknown)]',
-    icon: defaultUnknownIcon,
+    icon: faQuestionCircle,
   };
 
   // Condition map for easier lookup
-  const conditionMap: { [key: string]: { name: string; color: string; icon?: IconDefinition } } = {
+  const conditionMap: { [key: string]: { name: string; color: string; icon: IconDefinition } } = {
     'Available:MinimumReplicasAvailable': {
       color: 'text-[var(--pd-status-running)]',
       name: 'Available',
@@ -85,10 +84,7 @@ function getConditionAttributes(condition: DeploymentCondition) {
 <div class="flex flex-row gap-1">
   {#each object.conditions as condition}
     <Label tip="{condition.message}" name="{getConditionAttributes(condition).name}">
-      <Fa
-        size="1x"
-        icon="{getConditionAttributes(condition).icon ?? defaultUnknownIcon}"
-        class="{getConditionAttributes(condition).color}" />
+      <Fa size="1x" icon="{getConditionAttributes(condition).icon}" class="{getConditionAttributes(condition).color}" />
     </Label>
   {/each}
 </div>
