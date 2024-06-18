@@ -26,6 +26,8 @@ import * as extensionApi from '@podman-desktop/api';
 
 import { isLinux, isMac, isWindows } from './util';
 
+const configurationRosetta = 'setting.rosetta';
+
 /**
  * Manages access to the containers.conf configuration file used to configure Podman
  */
@@ -92,6 +94,82 @@ export class PodmanConfiguration {
       (httpsProxy || httpProxy || noProxy)
     ) {
       await extensionApi.proxy.setProxy(proxySettings);
+    }
+
+    // If we are on Mac, we need to monitor the configuration file to handle Rosetta changes
+    if (isMac()) {
+      extensionApi.configuration.onDidChangeConfiguration(async e => {
+        if (e.affectsConfiguration(`podman.${configurationRosetta}`)) {
+          await this.handleRosettaSetting();
+        }
+      });
+    }
+  }
+
+  async handleRosettaSetting(): Promise<void> {
+    // If the configuration does not exist, we will default to true
+    // if true, when we do updateRosettaSetting, if there is no configuration file, it will do nothing.
+    const useRosetta = extensionApi.configuration.getConfiguration('podman').get<boolean>(configurationRosetta) ?? true;
+    await this.updateRosettaSetting(useRosetta);
+  }
+
+  async updateRosettaSetting(useRosetta: boolean): Promise<void> {
+    // Initalize an empty configuration file for us to use
+    const containersConfContent = {
+      containers: toml.Section({}),
+      engine: toml.Section({
+        env: [] as string[],
+      }),
+      machine: toml.Section({}),
+      network: toml.Section({}),
+      secrets: toml.Section({}),
+      configmaps: toml.Section({}),
+    };
+
+    // If the file does NOT exist and useRosetta is being set as false, we will have to create the file and write rosetta = false
+    if (!useRosetta && !fs.existsSync(this.getContainersFileLocation())) {
+      containersConfContent['machine'] = toml.Section({
+        rosetta: false as boolean,
+      });
+      const content = toml.stringify(containersConfContent, { newline: '\n' });
+      await fs.promises.writeFile(this.getContainersFileLocation(), content);
+    } else if (fs.existsSync(this.getContainersFileLocation())) {
+      // Read the file
+      const containersConfigFile = await this.readContainersConfigFile();
+      const tomlConfigFile = toml.parse(containersConfigFile);
+
+      // Copy over the previous configuration
+      if (tomlConfigFile.containers && typeof tomlConfigFile.containers === 'object') {
+        containersConfContent['containers'] = tomlConfigFile.containers;
+      }
+      if (tomlConfigFile.machine && typeof tomlConfigFile.machine === 'object') {
+        containersConfContent['machine'] = tomlConfigFile.machine;
+      }
+      if (tomlConfigFile.network && typeof tomlConfigFile.network === 'object') {
+        containersConfContent['network'] = tomlConfigFile.network;
+      }
+      if (tomlConfigFile.secrets && typeof tomlConfigFile.secrets === 'object') {
+        containersConfContent['secrets'] = tomlConfigFile.secrets;
+      }
+      if (tomlConfigFile.configmaps && typeof tomlConfigFile.configmaps === 'object') {
+        containersConfContent['configmaps'] = tomlConfigFile.configmaps;
+      }
+
+      // If useRosetta is true, edit containersConfContent['machine'] and remove the rosetta key if found.
+      // this is because rosetta is true by default and we don't need to set it in the file
+      if (useRosetta && containersConfContent['machine'] && 'rosetta' in containersConfContent['machine']) {
+        delete containersConfContent['machine']['rosetta'];
+      } else if (!useRosetta && containersConfContent['machine']) {
+        // If rosetta key does not exist, we need to add it
+        containersConfContent['machine'] = toml.Section({
+          ...containersConfContent['machine'], // MAKE SURE we copy over the previous configuration
+          rosetta: false as boolean,
+        });
+      }
+
+      // Write the file
+      const content = toml.stringify(containersConfContent, { newline: '\n' });
+      await fs.promises.writeFile(this.getContainersFileLocation(), content);
     }
   }
 
@@ -226,7 +304,7 @@ export class PodmanConfiguration {
     return false;
   }
 
-  protected getContainersFileLocation(): string {
+  getContainersFileLocation(): string {
     let podmanConfigContainersPath = '';
 
     if (isMac()) {
