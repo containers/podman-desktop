@@ -185,3 +185,66 @@ describe('inUse', () => {
     expect(isUsed).toBe(expected);
   });
 });
+
+describe('getImagesFromManifest and construct ImageInfoUI', () => {
+  // What we will use throughout the test
+  let imageUtils: ImageUtils;
+  let manifestImage: ImageInfo;
+  let imageList: ImageInfo[];
+  let containerInfoList: ContainerInfo[];
+  let contextUI: ContextUI;
+  let viewContributions: ViewInfoUI[];
+
+  beforeEach(() => {
+    imageUtils = new ImageUtils();
+    manifestImage = {
+      Id: 'manifest1',
+      isManifest: true,
+      manifests: [
+        // Specific images that are part of the manifest
+        { digest: 'digest1' },
+        { digest: 'digest2' },
+      ],
+      RepoTags: ['my.registry:1234/manifest:latest'],
+      Created: 1599888000,
+      Size: 2048,
+    } as unknown as ImageInfo;
+
+    // Example manifests (should pickup the first two images from the manifest)
+    imageList = [
+      { Id: 'image1', Digest: 'digest1', Created: 1599888000, Size: 1024 },
+      { Id: 'image2', Digest: 'digest2', Created: 1599888000, Size: 1024 },
+      { Id: 'image3', Digest: 'digest3', Created: 1599888000, Size: 1024 },
+    ] as unknown as ImageInfo[];
+
+    containerInfoList = [
+      { Id: 'container1', Image: 'my.registry:1234/manifest:latest', ImageID: 'manifest1' },
+    ] as unknown as ContainerInfo[];
+
+    contextUI = new ContextUI();
+    viewContributions = [{ extensionId: 'extension', viewId: 'id', value: {} }] as unknown as ViewInfoUI[];
+  });
+
+  test('should retrieve images part of the manifest and construct ImageInfoUI objects', () => {
+    const children = imageUtils
+      .getImagesFromManifest(manifestImage, imageList)
+      .map(child => imageUtils.getImagesInfoUI(child, containerInfoList, contextUI, viewContributions, imageList))
+      .flat();
+
+    expect(children.length).toBe(2);
+    expect(children[0].id).toBe('image1');
+    expect(children[1].id).toBe('image2');
+  });
+
+  test('should construct ImageInfoUI object for manifest image', () => {
+    const imageInfoUIs = imageUtils.getImagesInfoUI(
+      manifestImage,
+      containerInfoList,
+      contextUI,
+      viewContributions,
+      imageList,
+    );
+    expect(imageInfoUIs.length).toBe(1);
+    expect(imageInfoUIs[0].id).toBe('manifest1');
+  });
+});
