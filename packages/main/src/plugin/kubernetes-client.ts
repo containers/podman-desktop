@@ -35,6 +35,7 @@ import type {
   V1Ingress,
   V1NamespaceList,
   V1Node,
+  V1PersistentVolumeClaim,
   V1Pod,
   V1PodList,
   V1Service,
@@ -702,6 +703,24 @@ export class KubernetesClient {
     }
   }
 
+  async deletePersistentVolumeClaim(name: string): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      const ns = this.getCurrentNamespace();
+      // Only delete PVC if valid namespace && valid connection
+      const connected = await this.checkConnection();
+      if (ns && connected) {
+        const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
+        await k8sApi.deleteNamespacedPersistentVolumeClaim(name, ns);
+      }
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw this.wrapK8sClientError(error);
+    } finally {
+      this.telemetry.track('kubernetesDeletePersistentVolumeClaim', telemetryOptions);
+    }
+  }
+
   async deleteIngress(name: string): Promise<void> {
     let telemetryOptions = {};
     try {
@@ -787,6 +806,26 @@ export class KubernetesClient {
       throw this.wrapK8sClientError(error);
     } finally {
       this.telemetry.track('kubernetesReadNamespacedDeployment', telemetryOptions);
+    }
+  }
+
+  async readNamespacedPersistentVolumeClaim(
+    name: string,
+    namespace: string,
+  ): Promise<V1PersistentVolumeClaim | undefined> {
+    let telemetryOptions = {};
+    const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
+    try {
+      const res = await k8sApi.readNamespacedPersistentVolumeClaim(name, namespace);
+      if (res?.body?.metadata?.managedFields) {
+        delete res?.body.metadata?.managedFields;
+      }
+      return res?.body;
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw this.wrapK8sClientError(error);
+    } finally {
+      this.telemetry.track('kubernetesReadNamespacedPersistentVolumeClaim', telemetryOptions);
     }
   }
 
