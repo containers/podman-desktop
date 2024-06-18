@@ -913,6 +913,50 @@ describe('update', async () => {
     expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', []);
   });
 
+  test('createKubeContextInformers should receive initialized kubeContext', async () => {
+    client = new ContextsManager(apiSender);
+    const createKubeContextInformersMock = vi
+      .spyOn(client, 'createKubeContextInformers')
+      .mockImplementation((_context: KubeContext) => {
+        return undefined;
+      });
+    const kubeConfig = new kubeclient.KubeConfig();
+    const config = {
+      clusters: [
+        {
+          name: 'cluster1',
+          server: 'server1',
+        },
+      ],
+      users: [
+        {
+          name: 'user1',
+        },
+      ],
+      contexts: [
+        {
+          name: 'context1',
+          cluster: 'cluster1',
+          user: 'user1',
+          namespace: 'ns1',
+        },
+      ],
+      currentContext: 'context1',
+    };
+    kubeConfig.loadFromOptions(config);
+    await client.update(kubeConfig);
+    expect(createKubeContextInformersMock).toBeCalledWith({
+      cluster: 'cluster1',
+      clusterInfo: {
+        name: 'cluster1',
+        server: 'server1',
+      },
+      name: 'context1',
+      namespace: 'ns1',
+      user: 'user1',
+    });
+  });
+
   const secondaryInformers = [
     {
       resource: 'services',
@@ -2242,5 +2286,115 @@ describe('isContextChanged', () => {
     } as KubeConfig;
     const changed = client.isContextChanged(context);
     expect(changed).toBeFalsy();
+  });
+});
+
+describe('isContextChanged', () => {
+  let client: ContextsManager;
+  let kubeConfig: kubeclient.KubeConfig;
+  beforeAll(async () => {
+    vi.mocked(makeInformer).mockImplementation(
+      (
+        kubeconfig: kubeclient.KubeConfig,
+        path: string,
+        _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+      ) => {
+        const connectResult = new Error('err');
+        return new FakeInformer(kubeconfig.currentContext, path, 0, connectResult, [], []);
+      },
+    );
+    kubeConfig = new kubeclient.KubeConfig();
+    const config = {
+      clusters: [
+        {
+          name: 'cluster',
+          server: 'server',
+        },
+        {
+          name: 'cluster1',
+          server: 'server1',
+        },
+      ],
+      users: [
+        {
+          name: 'user',
+        },
+        {
+          name: 'user1',
+        },
+      ],
+      contexts: [
+        {
+          name: 'context',
+          cluster: 'cluster',
+          user: 'user',
+          namespace: 'ns',
+        },
+      ],
+      currentContext: 'context',
+    };
+    kubeConfig.loadFromOptions(config);
+    client = new ContextsManager(apiSender);
+    await client.update(kubeConfig);
+  });
+  test('verify createInformer is called having kubeContext object initialized - services', () => {
+    vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
+    const serviceInformer = vi.spyOn(client, 'createServiceInformer');
+    client.startResourceInformer('context', 'services');
+    expect(serviceInformer).toBeCalledWith(kubeConfig, 'ns', {
+      name: 'context',
+      cluster: 'cluster',
+      user: 'user',
+      namespace: 'ns',
+      clusterInfo: {
+        name: 'cluster',
+        server: 'server',
+      },
+    });
+  });
+  test('verify createInformer is called having kubeContext object initialized - nodes', () => {
+    vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
+    const nodeInformer = vi.spyOn(client, 'createNodeInformer');
+    client.startResourceInformer('context', 'nodes');
+    expect(nodeInformer).toBeCalledWith(kubeConfig, 'ns', {
+      name: 'context',
+      cluster: 'cluster',
+      user: 'user',
+      namespace: 'ns',
+      clusterInfo: {
+        name: 'cluster',
+        server: 'server',
+      },
+    });
+  });
+  test('verify createInformer is called having kubeContext object initialized - ingress', () => {
+    vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
+    const ingressInformer = vi.spyOn(client, 'createIngressInformer');
+    client.startResourceInformer('context', 'ingresses');
+    expect(ingressInformer).toBeCalledWith(kubeConfig, 'ns', {
+      name: 'context',
+      cluster: 'cluster',
+      user: 'user',
+      namespace: 'ns',
+      clusterInfo: {
+        name: 'cluster',
+        server: 'server',
+      },
+    });
+  });
+  test('verify createInformer is called having kubeContext object initialized - routes', () => {
+    vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
+    const routeInformer = vi.spyOn(client, 'createRouteInformer');
+    client.startResourceInformer('context', 'routes');
+    expect(routeInformer).toBeCalledWith(kubeConfig, 'ns', {
+      name: 'context',
+      cluster: 'cluster',
+      user: 'user',
+      namespace: 'ns',
+      clusterInfo: {
+        name: 'cluster',
+        server: 'server',
+      },
+    });
   });
 });

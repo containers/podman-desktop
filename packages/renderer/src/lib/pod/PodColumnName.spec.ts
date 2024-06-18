@@ -38,6 +38,8 @@ const pod: PodInfoUI = {
   selected: false,
   containers: [],
   kind: 'podman',
+  node: 'node1',
+  namespace: 'default',
 };
 
 test('Expect simple column styling', async () => {
@@ -66,4 +68,30 @@ test('Expect clicking works', async () => {
   fireEvent.click(text);
 
   expect(routerGotoSpy).toBeCalledWith('/pods/podman/my-pod/podman/');
+});
+
+test('Expect kubernetes pod information', async () => {
+  const fakeKubernetesInfo: PodInfoUI = {
+    id: 'pod-id',
+    shortId: 'short-id',
+    name: 'my-pod',
+    engineId: 'kubernetes',
+    engineName: '',
+    status: '',
+    age: '',
+    created: '',
+    selected: false,
+    containers: [],
+    kind: 'kubernetes',
+    node: 'node1',
+    namespace: 'customnamespace',
+  };
+
+  render(PodColumnName, { object: fakeKubernetesInfo });
+
+  const id = screen.getByText('customnamespace');
+  expect(id).toBeInTheDocument();
+
+  const node = screen.getByText('node1');
+  expect(node).toBeInTheDocument();
 });

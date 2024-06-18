@@ -19,6 +19,7 @@
 import type { IncomingMessage } from 'node:http';
 
 import type {
+  Context,
   Informer,
   KubernetesListObject,
   KubernetesObject,
@@ -467,7 +468,8 @@ export class ContextsManager {
     let added = false;
     for (const context of this.kubeConfig.contexts) {
       if (!this.states.hasContext(context.name)) {
-        const informers = this.createKubeContextInformers(context);
+        const kubeContext: KubeContext = this.getKubeContext(context);
+        const informers = this.createKubeContextInformers(kubeContext);
         this.states.setInformers(context.name, informers);
         added = true;
       }
@@ -531,29 +533,41 @@ export class ContextsManager {
     if (!context) {
       throw new Error(`context ${contextName} not found`);
     }
+    const kubeContext: KubeContext = this.getKubeContext(context);
     const ns = context.namespace ?? 'default';
     let informer: Informer<KubernetesObject> & ObjectCache<KubernetesObject>;
     switch (resourceName) {
       case 'services':
-        informer = this.createServiceInformer(this.kubeConfig, ns, context);
+        informer = this.createServiceInformer(this.kubeConfig, ns, kubeContext);
         break;
       case 'nodes':
-        informer = this.createNodeInformer(this.kubeConfig, ns, context);
+        informer = this.createNodeInformer(this.kubeConfig, ns, kubeContext);
         break;
       case 'persistentvolumeclaims':
         informer = this.createPersistentVolumeClaimInformer(this.kubeConfig, ns, context);
         break;
       case 'ingresses':
-        informer = this.createIngressInformer(this.kubeConfig, ns, context);
+        informer = this.createIngressInformer(this.kubeConfig, ns, kubeContext);
         break;
       case 'routes':
-        informer = this.createRouteInformer(this.kubeConfig, ns, context);
+        informer = this.createRouteInformer(this.kubeConfig, ns, kubeContext);
         break;
       default:
         console.debug(`unable to watch ${resourceName} in context ${contextName}, as this resource is not supported`);
         return;
     }
     this.states.setResourceInformer(contextName, resourceName, informer);
+  }
+
+  private getKubeContext(context: Context): KubeContext {
+    const clusterObj = this.kubeConfig.getCluster(context.cluster);
+    return {
+      ...context,
+      clusterInfo: {
+        name: clusterObj?.name ?? '',
+        server: clusterObj?.server ?? '',
+      },
+    };
   }
 
   private createPodInformer(kc: KubeConfig, ns: string, context: KubeContext): Informer<V1Pod> & ObjectCache<V1Pod> {
@@ -671,12 +685,12 @@ export class ContextsManager {
       backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
       connectionDelay: connectionDelay,
       onAdd: obj => {
-        this.setStateAndDispatch(context.name, true, { persistentvolumeclaims: true }, state =>
+        this.setStateAndDispatch(context.name, false, false, { persistentvolumeclaims: true }, state =>
           state.resources.persistentvolumeclaims.push(obj),
         );
       },
       onUpdate: obj => {
-        this.setStateAndDispatch(context.name, true, { persistentvolumeclaims: true }, state => {
+        this.setStateAndDispatch(context.name, false, false, { persistentvolumeclaims: true }, state => {
           state.resources.persistentvolumeclaims = state.resources.persistentvolumeclaims.filter(
             o => o.metadata?.uid !== obj.metadata?.uid,
           );
@@ -686,7 +700,8 @@ export class ContextsManager {
       onDelete: obj => {
         this.setStateAndDispatch(
           context.name,
-          true,
+          false,
+          false,
           { persistentvolumeclaims: true },
           state =>
             (state.resources.persistentvolumeclaims = state.resources.persistentvolumeclaims.filter(

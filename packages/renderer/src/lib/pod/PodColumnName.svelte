@@ -2,9 +2,12 @@
 import { handleNavigation } from '/@/navigation';
 
 import { NavigationPage } from '../../../../main/src/plugin/navigation/navigation-page';
+import { PodUtils } from './pod-utils';
 import type { PodInfoUI } from './PodInfoUI';
 
 export let object: PodInfoUI;
+
+const podUtils = new PodUtils();
 
 function openDetailsPod(pod: PodInfoUI) {
   handleNavigation(NavigationPage.POD, {
@@ -19,5 +22,12 @@ function openDetailsPod(pod: PodInfoUI) {
   <div class="text-sm text-[var(--pd-table-body-text-highlight)] max-w-full overflow-hidden text-ellipsis">
     {object.name}
   </div>
-  <div class="text-xs text-[var(--pd-table-body-text-sub-secondary)]">{object.shortId}</div>
+  <div class="flex flex-row text-xs gap-1">
+    <div class="text-xs text-[var(--pd-table-body-text-sub-secondary)]">
+      {podUtils.isKubernetesPod(object) ? object.node : object.shortId}
+    </div>
+    {#if podUtils.isKubernetesPod(object)}
+      <div class="font-extra-light text-[var(--pd-table-body-text-sub-highlight)]">{object.namespace}</div>
+    {/if}
+  </div>
 </button>
