@@ -665,12 +665,12 @@ export class ContextsManager {
       backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
       connectionDelay: connectionDelay,
       onAdd: obj => {
-        this.setStateAndDispatch(context.name, true, { persistentvolumeclaims: true }, state =>
+        this.setStateAndDispatch(context.name, false, false, { persistentvolumeclaims: true }, state =>
           state.resources.persistentvolumeclaims.push(obj),
         );
       },
       onUpdate: obj => {
-        this.setStateAndDispatch(context.name, true, { persistentvolumeclaims: true }, state => {
+        this.setStateAndDispatch(context.name, false, false, { persistentvolumeclaims: true }, state => {
           state.resources.persistentvolumeclaims = state.resources.persistentvolumeclaims.filter(
             o => o.metadata?.uid !== obj.metadata?.uid,
           );
@@ -680,7 +680,8 @@ export class ContextsManager {
       onDelete: obj => {
         this.setStateAndDispatch(
           context.name,
-          true,
+          false,
+          false,
           { persistentvolumeclaims: true },
           state =>
             (state.resources.persistentvolumeclaims = state.resources.persistentvolumeclaims.filter(
