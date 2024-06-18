@@ -418,6 +418,11 @@ export class ContextsManager {
       return true;
     }
 
+    const ns = kubeconfig.getContexts()?.find(c => c.name === kubeconfig.currentContext)?.namespace;
+    if (ns !== this.currentContext.namespace) {
+      return true;
+    }
+
     // by retrieving the cluster from the kubeconfig, if the name or server url are different from the latest context we saved -> true
     const cluster = kubeconfig.getCurrentCluster();
     return (
@@ -441,6 +446,7 @@ export class ContextsManager {
           name: currentCluster?.name ?? '',
           server: currentCluster?.server ?? '',
         },
+        namespace: kubeconfig.getContexts().find(c => c.name === kubeconfig.currentContext)?.namespace,
       };
     }
 
