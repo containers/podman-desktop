@@ -107,6 +107,10 @@
     "./SettingsNavItem": {
       "types": "./dist/settingsNavItem/SettingsNavItem.d.ts",
       "svelte": "./dist/settingsNavItem/SettingsNavItem.svelte"
+    },
+    "./DetailsPage": {
+      "types": "./dist/layouts/DetailsPage.d.ts",
+      "svelte": "./dist/layouts/DetailsPage.svelte"
     }
   },
   "peerDependencies": {
