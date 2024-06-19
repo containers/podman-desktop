@@ -34,7 +34,7 @@ function handleKeydown(e: KeyboardEvent): void {
 
 <svelte:window on:keydown="{handleKeydown}" />
 
-<div class="flex flex-col w-full h-full shadow-pageheader">
+<div class="flex flex-col w-full h-full shadow-pageheader bg-[var(--pd-content-bg)]">
   <div class="flex flex-row w-full h-fit px-5 pt-4" class:pb-3.5="{inProgress}" class:pb-4="{!inProgress}">
     <div class="flex flex-col w-full h-fit">
       {#if showBreadcrumb}
@@ -75,11 +75,11 @@ function handleKeydown(e: KeyboardEvent): void {
     <LinearProgress />
   {/if}
   {#if $$slots.tabs}
-    <div class="flex flex-row px-2 border-b border-[var(--pd-content-divider)]">
+    <div class="flex flex-row px-2">
       <slot name="tabs" />
     </div>
   {/if}
-  <div class="flex w-full h-full bg-[var(--pd-content-bg)] overflow-auto">
+  <div class="flex w-full h-full overflow-auto">
     <slot name="content" />
   </div>
 </div>
