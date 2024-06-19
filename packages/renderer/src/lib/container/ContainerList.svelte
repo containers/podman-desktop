@@ -1,8 +1,16 @@
 <script lang="ts">
 import { faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Button, FilteredEmptyScreen, Modal, NavPage, Table, TableColumn, TableRow } from '@podman-desktop/ui-svelte';
+import {
+  Button,
+  FilteredEmptyScreen,
+  Modal,
+  NavPage,
+  Table,
+  TableColumn,
+  TableDurationColumn,
+  TableRow,
+} from '@podman-desktop/ui-svelte';
 import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
-import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import { get, type Unsubscriber } from 'svelte/store';
 import { router } from 'tinro';
@@ -28,7 +36,6 @@ import { PodUtils } from '../pod/pod-utils';
 import { CONTAINER_LIST_VIEW } from '../view/views';
 import { ContainerUtils } from './container-utils';
 import ContainerColumnActions from './ContainerColumnActions.svelte';
-import ContainerColumnAge from './ContainerColumnAge.svelte';
 import ContainerColumnEnvironment from './ContainerColumnEnvironment.svelte';
 import ContainerColumnImage from './ContainerColumnImage.svelte';
 import ContainerColumnName from './ContainerColumnName.svelte';
@@ -57,67 +64,6 @@ $: providerConnections = $providerInfos
   .map(provider => provider.containerConnections)
   .flat()
   .filter(providerContainerConnection => providerContainerConnection.status === 'started');
-
-let refreshTimeouts: NodeJS.Timeout[] = [];
-
-const SECOND = 1000;
-function refreshUptime(): void {
-  containerGroups = containerGroups.map(containerGroupUiInfo => {
-    containerGroupUiInfo.containers = containerGroupUiInfo.containers.map(containerUiInfo => {
-      return { ...containerUiInfo, uptime: containerUtils.refreshUptime(containerUiInfo) };
-    });
-    return containerGroupUiInfo;
-  });
-
-  // compute new interval
-  const newInterval = computeInterval();
-  refreshTimeouts.forEach(timeout => clearTimeout(timeout));
-  refreshTimeouts.length = 0;
-  if (newInterval > 0) {
-    refreshTimeouts.push(setTimeout(refreshUptime, newInterval));
-  }
-}
-
-function computeInterval(): number {
-  const allContainers = containerGroups.map(group => group.containers).flat();
-  // no container running, no refresh
-  if (!allContainers.some(container => container.state === 'RUNNING')) {
-    return -1;
-  }
-
-  // limit to containers running
-  const runningContainers = allContainers.filter(container => container.state === 'RUNNING');
-
-  // do we have containers that have been started in less than 1 minute
-  // if so, need to update every second
-  const containersStartedInLessThan1Mn = runningContainers.filter(
-    container => moment().diff(container.startedAt, 'minutes') < 1,
-  );
-  if (containersStartedInLessThan1Mn.length > 0) {
-    return 2 * SECOND;
-  }
-
-  // every minute for containers started less than 1 hour
-  const containersStartedInLessThan1Hour = runningContainers.filter(
-    container => moment().diff(container.startedAt, 'hours') < 1,
-  );
-  if (containersStartedInLessThan1Hour.length > 0) {
-    // every minute
-    return 60 * SECOND;
-  }
-
-  // every hour for containers started less than 1 day
-  const containersStartedInLessThan1Day = runningContainers.filter(
-    container => moment().diff(container.startedAt, 'days') < 1,
-  );
-  if (containersStartedInLessThan1Day.length > 0) {
-    // every hour
-    return 60 * 60 * SECOND;
-  }
-
-  // every day
-  return 60 * 60 * 24 * SECOND;
-}
 
 // delete the items selected in the list
 let bulkDeleteInProgress = false;
@@ -307,19 +253,11 @@ function updateContainers(
 
   // update the value
   containerGroups = computedContainerGroups;
-
-  // compute refresh interval
-  const interval = computeInterval();
-  refreshTimeouts.push(setTimeout(refreshUptime, interval));
 }
 
 onDestroy(() => {
   // store current groups for later
   containerGroupsInfo.set(containerGroups);
-
-  // kill timers
-  refreshTimeouts.forEach(timeout => clearTimeout(timeout));
-  refreshTimeouts.length = 0;
 
   // unsubscribe from the store
   if (containersUnsubscribe) {
@@ -388,11 +326,17 @@ let imageColumn = new TableColumn<ContainerInfoUI | ContainerGroupInfoUI>('Image
   renderer: ContainerColumnImage,
 });
 
-let ageColumn = new TableColumn<ContainerInfoUI | ContainerGroupInfoUI>('Age', {
-  renderer: ContainerColumnAge,
+let ageColumn = new TableColumn<ContainerInfoUI | ContainerGroupInfoUI, Date | undefined>('Age', {
+  renderer: TableDurationColumn,
+  renderMapping(object): Date | undefined {
+    if (containerUtils.isContainerInfoUI(object)) {
+      return containerUtils.getUpDate(object);
+    }
+    return undefined;
+  },
 });
 
-const columns: TableColumn<ContainerInfoUI | ContainerGroupInfoUI>[] = [
+const columns = [
   statusColumn,
   nameColumn,
   envColumn,
