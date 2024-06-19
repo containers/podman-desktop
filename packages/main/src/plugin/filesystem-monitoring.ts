@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022, 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as fs from 'node:fs';
+import * as pathfs from 'node:path';
+
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import * as chokidar from 'chokidar';
 
@@ -24,9 +27,30 @@ import { Disposable } from './types/disposable.js';
 import { Uri } from './types/uri.js';
 
 export class FileSystemWatcherImpl implements containerDesktopAPI.FileSystemWatcher {
-  watcher: chokidar.FSWatcher;
+  watcher: chokidar.FSWatcher | undefined;
 
   constructor(path: string) {
+    const parent = pathfs.dirname(path);
+    if (fs.existsSync(parent)) {
+      this.doWatch(path);
+    } else if (parent !== path) {
+      // we stop the recursion at /
+      const parentWatcher = new FileSystemWatcherImpl(parent);
+      const dispoReady = parentWatcher.onReady(() => {
+        this._onReady.fire();
+        dispoReady.dispose();
+      });
+      const disposable = parentWatcher.onDidCreate((uri: containerDesktopAPI.Uri) => {
+        if (uri.path === parent) {
+          this.doWatch(path);
+          disposable.dispose();
+        }
+      });
+    }
+    this._disposable = Disposable.from(this._onDidCreate, this._onDidChange, this._onDidDelete);
+  }
+
+  doWatch(path: string): void {
     // needs to call chokidar
     this.watcher = chokidar.watch(path, {
       persistent: true,

@@ -112,3 +112,38 @@ test('should send event onDidCreate when a directory is created into a watched d
   expect(changeListener).not.toHaveBeenCalled();
   expect(unlinkListener).not.toHaveBeenCalled();
 });
+
+test('should send event onDidCreate when a file is created inside a non-existent directory', async () => {
+  const watchedFile = path.join(rootdir, 'dir/file.txt');
+  watcher = new FileSystemWatcherImpl(watchedFile);
+
+  const readyListener = vi.fn();
+  watcher.onReady(readyListener);
+
+  const createListener = vi.fn();
+  watcher.onDidCreate(createListener);
+  const changeListener = vi.fn();
+  watcher.onDidChange(changeListener);
+  const unlinkListener = vi.fn();
+  watcher.onDidDelete(unlinkListener);
+
+  expect(createListener).not.toHaveBeenCalled();
+  expect(changeListener).not.toHaveBeenCalled();
+  expect(unlinkListener).not.toHaveBeenCalled();
+
+  await vi.waitFor(async () => {
+    expect(readyListener).toHaveBeenCalled();
+  });
+
+  const dir = path.dirname(watchedFile);
+  await promises.mkdir(dir);
+
+  const h = await promises.open(watchedFile, 'a');
+  await h.close();
+
+  await vi.waitFor(async () => {
+    expect(createListener).toHaveBeenCalledWith(Uri.file(watchedFile));
+  });
+  expect(changeListener).not.toHaveBeenCalled();
+  expect(unlinkListener).not.toHaveBeenCalled();
+});
