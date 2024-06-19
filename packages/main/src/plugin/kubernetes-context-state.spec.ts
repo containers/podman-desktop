@@ -408,6 +408,57 @@ describe('update', async () => {
     expect(dispatchCurrentContextResourceSpy).toHaveBeenCalledWith('deployments', Array(DEPLOYMENTS_NS1).fill({}));
   });
 
+  test('should check current context if contexts are > 10', async () => {
+    vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
+    client = new ContextsManager(apiSender);
+    const kubeConfig = new kubeclient.KubeConfig();
+    const config = {
+      clusters: [
+        {
+          name: 'cluster1',
+          server: 'server1',
+        },
+      ],
+      users: [
+        {
+          name: 'user1',
+        },
+      ],
+      contexts: [
+        {
+          name: `context1`,
+          cluster: 'cluster1',
+          user: 'user1',
+        },
+      ],
+      currentContext: 'context1',
+    };
+
+    for (let i = 2; i <= 11; i++) {
+      config.contexts.push({
+        name: `context${i}`,
+        cluster: 'cluster1',
+        user: 'user1',
+      });
+    }
+
+    kubeConfig.loadFromOptions(config);
+    await client.update(kubeConfig);
+    const expectedMap = new Map<string, ContextGeneralState>();
+    expectedMap.set('context1', {
+      checking: { state: 'waiting' },
+      reachable: false,
+      error: 'Error: connection error',
+      resources: {
+        pods: 0,
+        deployments: 0,
+      },
+    } as ContextGeneralState);
+    vi.advanceTimersToNextTimer();
+    vi.advanceTimersToNextTimer();
+    expect(apiSenderSendMock).toHaveBeenCalledWith('kubernetes-contexts-general-state-update', expectedMap);
+  });
+
   test('should write logs when connection fails', async () => {
     vi.mocked(makeInformer).mockImplementation(fakeMakeInformer);
     client = new ContextsManager(apiSender);
