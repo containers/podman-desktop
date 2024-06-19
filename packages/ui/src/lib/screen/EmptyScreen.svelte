@@ -47,7 +47,7 @@ let copyTextDivElement: HTMLDivElement;
         {#if fontAwesomeIcon}
           <Fa icon="{icon}" size="4x" />
         {:else}
-          <svelte:component this="{icon}" size="55" solid="{false}" />
+          <svelte:component this="{icon}" size="55" />
         {/if}
       {/if}
     </div>
