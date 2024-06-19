@@ -49,8 +49,10 @@ test('Confirm renders configmap details summary', async () => {
 
   expect(screen.getByText('my-configmap')).toBeInTheDocument();
   expect(screen.getByText('default')).toBeInTheDocument();
-  expect(screen.getByText('key1: value1')).toBeInTheDocument();
-  expect(screen.getByText('key2: value2')).toBeInTheDocument();
+  expect(screen.getByText('key1')).toBeInTheDocument();
+  expect(screen.getByText('value1')).toBeInTheDocument();
+  expect(screen.getByText('key2')).toBeInTheDocument();
+  expect(screen.getByText('value2')).toBeInTheDocument();
   // binary data just shows the key and size, not the data
   expect(screen.getByText('key3: 6 bytes')).toBeInTheDocument();
 });

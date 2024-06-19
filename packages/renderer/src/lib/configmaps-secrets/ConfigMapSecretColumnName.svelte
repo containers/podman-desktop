@@ -9,11 +9,12 @@ export let object: ConfigMapSecretUI;
 function openDetails() {
   const configmapSecretUtils = new ConfigMapSecretUtils();
   if (configmapSecretUtils.isSecret(object)) {
+    console.log('going to secret!');
     router.goto(`/configmapsSecrets/secret/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
-  } else {
-    router.goto(
-      `/configmapsSecrets/configmap/${encodeURI((object as ConfigMapSecretUI).name)}/${encodeURI((object as ConfigMapSecretUI).namespace)}/summary`,
-    );
+  }
+
+  if (configmapSecretUtils.isConfigMap(object)) {
+    router.goto(`/configmapsSecrets/configmap/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
   }
 }
 </script>

@@ -112,6 +112,7 @@ let statusColumn = new TableColumn<ConfigMapSecretUI>('Status', {
 });
 
 let nameColumn = new TableColumn<ConfigMapSecretUI>('Name', {
+  width: '1.3fr',
   renderer: ConfigMapSecretColumnName,
   comparator: (a, b) => a.name.localeCompare(b.name),
 });
@@ -129,13 +130,14 @@ let ageColumn = new TableColumn<ConfigMapSecretUI, Date | undefined>('Age', {
 });
 
 let keysColumn = new TableColumn<ConfigMapSecretUI, string>('Keys', {
-  renderMapping: config => config.keys.join(', '),
+  renderMapping: config => config.keys.length.toString(),
   renderer: TableSimpleColumn,
-  comparator: (a, b) => a.keys.join().localeCompare(b.keys.join()),
+  comparator: (a, b) => a.keys.length - b.keys.length,
 });
 
 let typeColumn = new TableColumn<ConfigMapSecretUI>('Type', {
   overflow: true,
+  width: '2fr',
   renderer: ConfigMapSecretColumnType,
   comparator: (a, b) => a.type.localeCompare(b.type),
 });
