@@ -129,7 +129,9 @@ const configurationRegistry: ConfigurationRegistry = {
   updateConfigurationValue: configurationRegistryUpdateConfigurationMock,
 } as unknown as ConfigurationRegistry;
 
-const imageRegistry: ImageRegistry = {} as unknown as ImageRegistry;
+const imageRegistry: ImageRegistry = {
+  registerRegistry: vi.fn(),
+} as unknown as ImageRegistry;
 
 const apiSender: ApiSenderType = { send: vi.fn() } as unknown as ApiSenderType;
 
@@ -2206,4 +2208,23 @@ test('load extensions sequentially', async () => {
   expect(loadExtensionMock.mock.calls[0][0]).toBe(analyzedExtension1);
   expect(loadExtensionMock.mock.calls[1][0]).toBe(analyzedExtension2);
   expect(loadExtensionMock.mock.calls[2][0]).toBe(analyzedExtension3);
+});
+
+test('when loading registry registerRegistry, do not push to disposables', async () => {
+  const disposables: IDisposable[] = [];
+
+  const api = extensionLoader.createApi('/path', {}, disposables);
+  expect(api).toBeDefined();
+
+  const fakeRegistry = {
+    source: 'fake',
+    serverUrl: 'http://fake',
+    username: 'foo',
+    password: 'bar',
+    secret: 'baz',
+  };
+
+  api.registry.registerRegistry(fakeRegistry);
+
+  expect(disposables.length).toBe(0);
 });
