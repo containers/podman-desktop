@@ -31,11 +31,11 @@ export let artifact: V1ConfigMap | undefined;
     <tr>
       <Subtitle>Data</Subtitle>
     </tr>
-    <tr>
-      {#each Object.entries(artifact.data) as [key, value]}
+    {#each Object.entries(artifact.data) as [key, value]}
+      <tr>
         <Cell>{key}</Cell>
         <Cell>{value}</Cell>
-      {/each}
-    </tr>
+      </tr>
+    {/each}
   {/if}
 {/if}
