@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,15 @@ import type { V1ConfigMap, V1Secret } from '@kubernetes/client-node';
 import type { ConfigMapSecretUI } from './ConfigMapSecretUI';
 
 export class ConfigMapSecretUtils {
-  // If it is a secret, then it will have a type property,
+  // If it is a secret, then it will have a type property, as well as NO binaryData property
   // if not it's configmap
   isSecret(storage: V1ConfigMap | V1Secret): storage is V1Secret {
-    return 'type' in storage && storage.type !== 'ConfigMap';
+    return 'type' in storage && !('binaryData' in storage);
   }
 
-  // If it is a configMap, then it will **not** have a type property
+  // If it is a configMap, then it will **not** have a type property, but will have a binaryData property
   isConfigMap(storage: V1ConfigMap | V1Secret): storage is V1ConfigMap {
-    return !('type' in storage);
+    return !('type' in storage) && 'binaryData' in storage;
   }
 
   getConfigMapSecretUI(storage: V1ConfigMap | V1Secret): ConfigMapSecretUI {

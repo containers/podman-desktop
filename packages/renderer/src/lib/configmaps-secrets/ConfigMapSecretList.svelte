@@ -82,8 +82,12 @@ async function deleteSelectedConfigMapsSecrets() {
         try {
           if (configmapSecretUtils.isSecret(configmapSecret)) {
             await window.kubernetesDeleteSecret(configmapSecret.name);
-          } else if (configmapSecretUtils.isConfigMap(configmapSecret)) {
-            await window.kubernetesDeleteConfigMap((configmapSecret as ConfigMapSecretUI).name);
+          }
+
+          // Separate the delete logic (cannot have in else if) or else you need to infer the type of configmapSecret
+          // using (configmapSecret as ConfigMapSecretUI)
+          if (configmapSecretUtils.isConfigMap(configmapSecret)) {
+            await window.kubernetesDeleteConfigMap(configmapSecret.name);
           }
         } catch (e) {
           console.error(
