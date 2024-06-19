@@ -55,14 +55,14 @@ async function editConnection(
 
 {#if providerInfo && connectionInfo}
   <DetailsPage title="{connectionInfo.name}">
-    <svelte:fragment slot="content">
+    <div slot="content" class="text-[var(--pd-content-text)]">
       <PreferencesConnectionCreationRendering
         providerInfo="{providerInfo}"
         connectionInfo="{connectionInfo}"
         properties="{properties}"
         propertyScope="{scope}"
         callback="{editConnection}" />
-    </svelte:fragment>
+    </div>
     <IconImage slot="icon" image="{providerInfo?.images?.icon}" alt="{providerInfo?.name}" class="max-h-10" />
     <svelte:fragment slot="subtitle">
       {#if connectionInfo.status === 'started'}
