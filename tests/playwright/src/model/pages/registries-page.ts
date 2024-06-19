@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { expect as playExpect } from '@playwright/test';
 import type { Locator, Page } from 'playwright';
 
 import { waitUntil } from '../../utility/wait';
@@ -25,26 +26,36 @@ export class RegistriesPage extends SettingsPage {
   readonly heading: Locator;
   readonly addRegistryButton: Locator;
   readonly registriesTable: Locator;
+  readonly cancelAddRegistryButton: Locator;
+  readonly addRegistryUrl: Locator;
+  readonly addRegistryUsername: Locator;
+  readonly addRegistryPswd: Locator;
+  readonly loginButton: Locator;
 
   constructor(page: Page) {
     super(page, 'Registries');
     this.heading = page.getByText('Registries');
     this.addRegistryButton = page.getByRole('button', { name: 'Add registry' });
     this.registriesTable = page.getByRole('table', { name: 'Registries' });
+    this.cancelAddRegistryButton = page.getByRole('button', { name: 'Cancel' });
+    this.addRegistryUrl = page.getByLabel('Register URL');
+    this.addRegistryUsername = page.getByLabel('Username');
+    this.addRegistryPswd = page.getByRole('textbox', { name: 'Password' });
+    this.loginButton = page.getByRole('button', { name: 'Login' });
   }
 
   async createRegistry(url: string, username: string, pswd: string): Promise<void> {
+    await this.page.waitForTimeout(4000);
+    await playExpect(this.addRegistryButton).toBeEnabled();
     await this.addRegistryButton.click();
+    await playExpect(this.cancelAddRegistryButton).toBeEnabled();
 
-    const registryUrl = this.page.getByLabel('Register URL');
-    const registryUsername = this.page.getByLabel('Username');
-    const registryPswd = this.page.getByRole('textbox', { name: 'Password' });
-    await registryUrl.pressSequentially(url, { delay: 100 });
-    await registryUsername.pressSequentially(username, { delay: 100 });
-    await registryPswd.pressSequentially(pswd, { delay: 100 });
+    await this.addRegistryUrl.fill(url);
+    await this.addRegistryUsername.fill(username);
+    await this.addRegistryPswd.fill(pswd);
 
-    const loginButton = this.page.getByRole('button', { name: 'Login' });
-    await this.loginButtonHandling(loginButton);
+    await playExpect(this.loginButton).toBeEnabled();
+    await this.loginButton.click();
   }
 
   async editRegistry(title: string, newUsername: string, newPswd: string): Promise<void> {
