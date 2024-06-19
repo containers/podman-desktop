@@ -59,6 +59,7 @@ describe('translation-y', () => {
 
     const dialog = screen.getByRole('dialog');
     expect(dialog.classList).toContain('translate-y-[-20%]');
+    expect(dialog.classList).not.toContain('my-[32px]');
   });
 
   test('modal with top should not have translate-y', async () => {
@@ -66,5 +67,7 @@ describe('translation-y', () => {
 
     const dialog = screen.getByRole('dialog');
     expect(dialog.classList).not.toContain('translate-y-[-20%]');
+    // should contain margin of size status bar height
+    expect(dialog.classList).toContain('my-[32px]');
   });
 });
