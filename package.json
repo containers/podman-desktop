@@ -134,7 +134,7 @@
     "@types/node": "^20",
     "@types/tar": "^6.1.13",
     "@types/tar-fs": "^2.0.4",
-    "@types/validator": "^13.11.10",
+    "@types/validator": "^13.12.0",
     "@typescript-eslint/eslint-plugin": "^7.13.1",
     "@typescript-eslint/parser": "^7.13.1",
     "@vitest/coverage-v8": "^1.6.0",
