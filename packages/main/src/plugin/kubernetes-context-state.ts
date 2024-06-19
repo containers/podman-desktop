@@ -60,6 +60,10 @@ import {
   dispatchTimeout,
 } from './kubernetes-context-state-constants.js';
 
+// If the number of contexts in the kubeconfig file is greater than this number,
+// only the connectivity to the current context will be checked
+const MAX_NON_CURRENT_CONTEXTS_TO_CHECK = 10;
+
 // ContextInternalState stores informers for a kube context
 type ContextInternalState = Map<ResourceName, Informer<KubernetesObject> & ObjectCache<KubernetesObject>>;
 
@@ -432,7 +436,7 @@ export class ContextsManager {
   }
 
   async update(kubeconfig: KubeConfig): Promise<void> {
-    const checkOnlyCurrentContext = kubeconfig.contexts.length > 10;
+    const checkOnlyCurrentContext = kubeconfig.contexts.length > MAX_NON_CURRENT_CONTEXTS_TO_CHECK;
 
     this.kubeConfig = kubeconfig;
     let contextChanged = false;
