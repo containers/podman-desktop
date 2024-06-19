@@ -888,9 +888,7 @@ export class ExtensionLoader {
     const imageRegistry = this.imageRegistry;
     const registry: typeof containerDesktopAPI.registry = {
       registerRegistry: (registry: containerDesktopAPI.Registry): Disposable => {
-        const registration = imageRegistry.registerRegistry(registry);
-        disposables.push(registration);
-        return registration;
+        return imageRegistry.registerRegistry(registry);
       },
 
       suggestRegistry: (registry: containerDesktopAPI.RegistrySuggestedProvider): Disposable => {
