@@ -446,6 +446,7 @@ describe('update', async () => {
     await client.update(kubeConfig);
     const expectedMap = new Map<string, ContextGeneralState>();
     expectedMap.set('context1', {
+      checking: { state: 'waiting' },
       reachable: false,
       error: 'Error: connection error',
       resources: {
