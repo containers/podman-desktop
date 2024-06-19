@@ -21,7 +21,6 @@ import type { Page } from 'playwright';
 import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 
 import { RegistriesPage } from '../model/pages/registries-page';
-import { SettingsBar } from '../model/pages/settings-bar';
 import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
@@ -59,11 +58,9 @@ beforeEach<RunnerTestContext>(async ctx => {
 
 describe('Registries handling verification', async () => {
   test('Check Registries page components and presence of default registries', async () => {
-    await navBar.openSettings();
-    const settingsBar = new SettingsBar(page);
+    const settingsBar = await navBar.openSettings();
     const registryPage = await settingsBar.openTabPage(RegistriesPage);
 
-    await playExpect(registryPage.addRegistryButton).toBeVisible();
     await playExpect(registryPage.addRegistryButton).toBeEnabled();
 
     const defaultRegistries = ['Docker Hub', 'Red Hat Quay', 'GitHub', 'Google Container Registry'];
@@ -74,20 +71,23 @@ describe('Registries handling verification', async () => {
   });
   describe('Registry addition workflow verification', async () => {
     test('Cannot add invalid registry', async () => {
-      const registryPage = new RegistriesPage(page);
+      await navBar.openDashboard();
+      const settingsBar = await navBar.openSettings();
+      const registryPage = await settingsBar.openTabPage(RegistriesPage);
 
       await registryPage.createRegistry('invalidUrl', 'invalidName', 'invalidPswd');
       const urlErrorMsg = page.getByText(
         /Unable to find auth info for https:\/\/invalidUrl\/v2\/\. Error: RequestError: getaddrinfo [A-Z_]+ invalidurl$/,
       );
       await playExpect(urlErrorMsg).toBeVisible({ timeout: 50000 });
-      const cancelButton = page.getByRole('button', { name: 'Cancel' });
-      await cancelButton.click();
+      await playExpect(registryPage.cancelAddRegistryButton).toBeEnabled();
+      await registryPage.cancelAddRegistryButton.click();
 
       await registryPage.createRegistry(registryUrl, 'invalidName', 'invalidPswd');
       const credsErrorMsg = page.getByText('Wrong Username or Password.');
       await playExpect(credsErrorMsg).toBeVisible();
-      await cancelButton.click();
+      await playExpect(registryPage.cancelAddRegistryButton).toBeEnabled();
+      await registryPage.cancelAddRegistryButton.click();
     });
     test.runIf(canTestRegistry())('Valid registry addition verification', async () => {
       const registryPage = new RegistriesPage(page);
