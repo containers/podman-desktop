@@ -22,14 +22,13 @@ import type { ConfigMapSecretUI } from './ConfigMapSecretUI';
 
 export class ConfigMapSecretUtils {
   // If it is a secret, then it will have a type property, as well as NO binaryData property
-  // if not it's configmap
   isSecret(storage: V1ConfigMap | V1Secret): storage is V1Secret {
-    return 'type' in storage && !('binaryData' in storage);
+    return 'type' in storage && storage.type !== 'ConfigMap' && !('binaryData' in storage);
   }
 
-  // If it is a configMap, then it will **not** have a type property, but will have a binaryData property
+  // If it is a configMap, then the type property will either be undefined, or it will be 'ConfigMap'
   isConfigMap(storage: V1ConfigMap | V1Secret): storage is V1ConfigMap {
-    return !('type' in storage) && 'binaryData' in storage;
+    return ('type' in storage && storage.type === 'ConfigMap') || 'type' in storage === undefined;
   }
 
   getConfigMapSecretUI(storage: V1ConfigMap | V1Secret): ConfigMapSecretUI {

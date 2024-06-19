@@ -4,6 +4,8 @@ import type { V1Secret } from '@kubernetes/client-node';
 import Cell from '/@/lib/details/DetailsCell.svelte';
 import Title from '/@/lib/details/DetailsTitle.svelte';
 
+import Subtitle from '../../details/DetailsSubtitle.svelte';
+
 export let artifact: V1Secret | undefined;
 </script>
 
@@ -21,12 +23,13 @@ export let artifact: V1Secret | undefined;
   </tr>
   {#if artifact.data}
     <tr>
-      <Cell>Data</Cell>
-      <Cell>
-        {#each Object.entries(artifact.data) as [key, value]}
-          <div>{key}: {value}</div>
-        {/each}
-      </Cell>
+      <Subtitle>Data</Subtitle>
+    </tr>
+    <tr>
+      {#each Object.entries(artifact.data) as [key, value]}
+        <Cell>{key}</Cell>
+        <Cell>{value}</Cell>
+      {/each}
     </tr>
   {/if}
 {/if}
