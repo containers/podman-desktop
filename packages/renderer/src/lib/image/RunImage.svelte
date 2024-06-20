@@ -747,39 +747,39 @@ async function assertAllPortAreValid(): Promise<void> {
                     icon="{faPlusCircle}" />
                 </div>
               {/each}
-            </div>
 
-            <label for="modalEnvironmentFiles" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
-              >Environment files:</label>
-            <!-- Display the list of existing environment files -->
-            {#each environmentFiles as environmentFile, index}
-              <div class="flex flex-row justify-center items-center w-full py-1">
-                <div class="w-full flex">
-                  <Input
-                    readonly
-                    clearable
-                    placeholder="Environment file containing KEY=VALUE items"
-                    bind:value="{environmentFile}"
-                    aria-label="environmentFile.{index}" />
+              <label for="modalEnvironmentFiles" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
+                >Environment files:</label>
+              <!-- Display the list of existing environment files -->
+              {#each environmentFiles as environmentFile, index}
+                <div class="flex flex-row justify-center items-center w-full py-1">
+                  <div class="w-full flex">
+                    <Input
+                      readonly
+                      clearable
+                      placeholder="Environment file containing KEY=VALUE items"
+                      bind:value="{environmentFile}"
+                      aria-label="environmentFile.{index}" />
+                    <Button
+                      on:click="{() => selectEnvironmentFile(index)}"
+                      id="filePath.{index}"
+                      aria-label="button-select-env-file-{index}">Browse ...</Button>
+                  </div>
                   <Button
-                    on:click="{() => selectEnvironmentFile(index)}"
-                    id="filePath.{index}"
-                    aria-label="button-select-env-file-{index}">Browse ...</Button>
+                    type="link"
+                    hidden="{index === environmentFiles.length - 1}"
+                    aria-label="Delete env file at index {index}"
+                    on:click="{() => deleteEnvFile(index)}"
+                    icon="{faMinusCircle}" />
+                  <Button
+                    type="link"
+                    hidden="{index < environmentFiles.length - 1}"
+                    aria-label="Add env file after index {index}"
+                    on:click="{addEnvFile}"
+                    icon="{faPlusCircle}" />
                 </div>
-                <Button
-                  type="link"
-                  hidden="{index === environmentFiles.length - 1}"
-                  aria-label="Delete env file at index {index}"
-                  on:click="{() => deleteEnvFile(index)}"
-                  icon="{faMinusCircle}" />
-                <Button
-                  type="link"
-                  hidden="{index < environmentFiles.length - 1}"
-                  aria-label="Add env file after index {index}"
-                  on:click="{addEnvFile}"
-                  icon="{faPlusCircle}" />
-              </div>
-            {/each}
+              {/each}
+            </div>
           </Route>
           <Route path="/advanced" breadcrumb="Advanced" navigationHint="tab">
             <div class="h-96 overflow-y-auto pr-4">
