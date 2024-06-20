@@ -17,7 +17,7 @@ export let showEmptyScreen: boolean = false;
       {#if showEmptyScreen}
         <NoContainerEngineEmptyScreen />
       {:else}
-        <div class="bg-charcoal-900 px-6 py-4 space-y-2 sm:pb-6 lg:px-8 xl:pb-8 rounded-lg">
+        <div class="bg-charcoal-900 p-6 space-y-2 lg:p-8 rounded-lg">
           <slot name="content" />
         </div>
       {/if}
