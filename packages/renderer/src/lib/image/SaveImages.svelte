@@ -4,7 +4,7 @@ import { Button, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 
-import FormPage from '/@/lib/ui//FormPage.svelte';
+import EngineFormPage from '/@/lib/ui//EngineFormPage.svelte';
 import { saveImagesInfo } from '/@/stores/save-images-store';
 import { createTask } from '/@/stores/tasks';
 
@@ -129,62 +129,60 @@ async function saveImages() {
 </script>
 
 {#if imagesToSave}
-  <FormPage title="{singleItemMode ? `Save Image ${imagesToSave[0].name}` : 'Save Images'}">
+  <EngineFormPage title="{singleItemMode ? `Save Image ${imagesToSave[0].name}` : 'Save Images'}">
     <svelte:fragment slot="icon">
       <i class="fas fa-play fa-2x" aria-hidden="true"></i>
     </svelte:fragment>
-    <div slot="content" class="px-5 pb-5 min-w-full h-fit">
-      <div class="bg-charcoal-600 px-6 py-4 space-y-2 lg:px-8 sm:pb-6 xl:pb-8">
-        <label for="modalSelectTarget" class="block mb-2 text-sm font-medium text-gray-400">Export to:</label>
-        <div class="flex w-full">
-          <Input
-            class="grow mr-2"
-            readonly
-            value="{outputPath}"
-            id="input-output-directory"
-            aria-invalid="{invalidOutputPath}" />
-          <Button
-            on:click="{() => selectOutputPath()}"
-            title="Open dialog to select the output folder"
-            aria-label="Select output folder">Browse ...</Button>
+    <div slot="content" class="space-y-2">
+      <label for="modalSelectTarget" class="block mb-2 text-sm font-medium text-gray-400">Export to:</label>
+      <div class="flex w-full">
+        <Input
+          class="grow mr-2"
+          readonly
+          value="{outputPath}"
+          id="input-output-directory"
+          aria-invalid="{invalidOutputPath}" />
+        <Button
+          on:click="{() => selectOutputPath()}"
+          title="Open dialog to select the output folder"
+          aria-label="Select output folder">Browse ...</Button>
+      </div>
+
+      {#if !singleItemMode && imagesToSave.length > 0}
+        <!-- Display the list of images to save -->
+        <div class="flex flex-row justify-center w-full pt-5 text-sm font-medium text-gray-400">
+          <div class="flex flex-col grow">Images to save</div>
         </div>
-
-        {#if !singleItemMode && imagesToSave.length > 0}
-          <!-- Display the list of images to save -->
-          <div class="flex flex-row justify-center w-full pt-5 text-sm font-medium text-gray-400">
-            <div class="flex flex-col grow">Images to save</div>
+        {#each imagesToSave as imageToSave, index}
+          {@const imageAndTag = `${imageToSave.name}:${imageToSave.tag}`}
+          {@const imageDisplayName = `${imageToSave.name === '<none>' ? imageToSave.shortId : imageAndTag}`}
+          <div class="flex flex-row justify-center w-full py-1">
+            <Input value="{imageDisplayName}" aria-label="image {imageDisplayName}" readonly="{true}" />
+            <Button
+              type="link"
+              aria-label="Delete image {imageDisplayName}"
+              on:click="{() => deleteImageToSave(index)}"
+              icon="{faMinusCircle}" />
           </div>
-          {#each imagesToSave as imageToSave, index}
-            {@const imageAndTag = `${imageToSave.name}:${imageToSave.tag}`}
-            {@const imageDisplayName = `${imageToSave.name === '<none>' ? imageToSave.shortId : imageAndTag}`}
-            <div class="flex flex-row justify-center w-full py-1">
-              <Input value="{imageDisplayName}" aria-label="image {imageDisplayName}" readonly="{true}" />
-              <Button
-                type="link"
-                aria-label="Delete image {imageDisplayName}"
-                on:click="{() => deleteImageToSave(index)}"
-                icon="{faMinusCircle}" />
-            </div>
-          {/each}
-        {/if}
+        {/each}
+      {/if}
 
-        <div class="pt-5 w-full">
-          <Button
-            on:click="{() => saveImages()}"
-            inProgress="{inProgress}"
-            class="w-full"
-            icon="{faPlay}"
-            aria-label="Save images"
-            bind:disabled="{saveDisabled}">
-            Save Images
-          </Button>
-          <div aria-label="saveError">
-            {#if saveError !== ''}
-              <ErrorMessage class="py-2 text-sm" error="{saveError}" />
-            {/if}
-          </div>
+      <div class="pt-5 w-full">
+        <Button
+          on:click="{() => saveImages()}"
+          inProgress="{inProgress}"
+          class="w-full"
+          icon="{faPlay}"
+          aria-label="Save images"
+          bind:disabled="{saveDisabled}">
+          Save Images
+        </Button>
+        <div aria-label="saveError">
+          {#if saveError !== ''}
+            <ErrorMessage class="py-2 text-sm" error="{saveError}" />
+          {/if}
         </div>
       </div>
     </div>
-  </FormPage>
+  </EngineFormPage>
 {/if}

@@ -12,7 +12,7 @@ import { type BuildImageInfo, buildImagesInfo } from '/@/stores/build-images';
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 
 import { providerInfos } from '../../stores/providers';
-import FormPage from '../ui/FormPage.svelte';
+import EngineFormPage from '../ui/EngineFormPage.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import {
   type BuildImageCallback,
@@ -23,7 +23,6 @@ import {
   startBuild,
 } from './build-image-task';
 import BuildImageFromContainerfileCards from './BuildImageFromContainerfileCards.svelte';
-import NoContainerEngineEmptyScreen from './NoContainerEngineEmptyScreen.svelte';
 import RecommendedRegistry from './RecommendedRegistry.svelte';
 
 let buildFinished = false;
@@ -293,117 +292,110 @@ async function abortBuild() {
 }
 </script>
 
-<FormPage title="Build image from Containerfile" inProgress="{buildImageInfo?.buildRunning}">
+<EngineFormPage
+  title="Build image from Containerfile"
+  inProgress="{buildImageInfo?.buildRunning}"
+  showEmptyScreen="{providerConnections.length === 0}">
   <svelte:fragment slot="icon">
     <i class="fas fa-cube fa-2x" aria-hidden="true"></i>
   </svelte:fragment>
-  <div slot="content" class="px-5 pb-5 min-w-full h-full">
-    {#if providerConnections.length === 0}
-      <NoContainerEngineEmptyScreen />
-    {:else}
-      <div class="bg-charcoal-900 pt-5 space-y-6 px-8 sm:pb-6 xl:pb-8 rounded-lg">
-        <div hidden="{buildImageInfo?.buildRunning}">
-          <label for="containerFilePath" class="block mb-2 text-sm font-bold text-gray-400">Containerfile path</label>
-          <div class="flex flex-row space-x-3">
-            <Input
-              name="containerFilePath"
-              id="containerFilePath"
-              bind:value="{containerFilePath}"
-              placeholder="Containerfile to build"
-              class="w-full"
-              required />
-            <Button on:click="{() => getContainerfileLocation()}">Browse...</Button>
-          </div>
-        </div>
-
-        <div hidden="{buildImageInfo?.buildRunning}">
-          <label for="containerBuildContextDirectory" class="block mb-2 text-sm font-bold text-gray-400"
-            >Build context directory</label>
-          <div class="flex flex-row space-x-3">
-            <Input
-              name="containerBuildContextDirectory"
-              id="containerBuildContextDirectory"
-              bind:value="{containerBuildContextDirectory}"
-              placeholder="Directory to build in"
-              class="w-full"
-              required />
-            <Button on:click="{() => getContainerBuildContextDirectory()}">Browse...</Button>
-          </div>
-        </div>
-
-        <div hidden="{buildImageInfo?.buildRunning}">
-          <label for="containerImageName" class="block mb-2 text-sm font-bold text-gray-400">Image name</label>
-          <Input
-            bind:value="{containerImageName}"
-            name="containerImageName"
-            id="containerImageName"
-            placeholder="Image name (e.g. quay.io/namespace/my-custom-image)"
-            class="w-full"
-            required />
-          {#if providerConnections.length > 1}
-            <label for="providerChoice" class="py-6 block mb-2 text-sm font-bold text-gray-400"
-              >Container Engine
-              <select
-                class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
-                name="providerChoice"
-                id="providerChoice"
-                bind:value="{selectedProvider}">
-                {#each providerConnections as providerConnection}
-                  <option value="{providerConnection}">{providerConnection.name}</option>
-                {/each}
-              </select>
-            </label>
-          {/if}
-        </div>
-        <div hidden="{buildImageInfo?.buildRunning}">
-          <label for="inputKey" class="block mb-2 text-sm font-bold text-gray-400">Build arguments</label>
-          {#each buildArgs as buildArg, index}
-            <div class="flex flex-row items-center space-x-2 mb-2">
-              <Input bind:value="{buildArg.key}" name="inputKey" placeholder="Key" class="flex-grow" required />
-              <Input bind:value="{buildArg.value}" placeholder="Value" class="flex-grow" required />
-              <Button
-                on:click="{() => deleteBuildArg(index)}"
-                icon="{faMinusCircle}"
-                disabled="{buildArgs.length === 1 && buildArg.key === '' && buildArg.value === ''}"
-                aria-label="Delete build argument" />
-              <Button on:click="{addBuildArg}" icon="{faPlusCircle}" title="Add build argument" />
-            </div>
-          {/each}
-        </div>
-
-        <div hidden="{buildImageInfo?.buildRunning}">
-          <label for="containerBuildPlatform" class="block mb-2 text-sm font-bold text-gray-400">Platform</label>
-          {#if platforms.length > 1}
-            <p class="text-sm text-gray-600 mb-2">Multiple platforms selected, a manifest will be created</p>
-          {/if}
-          <BuildImageFromContainerfileCards bind:platforms="{containerBuildPlatform}" />
-        </div>
-
-        <div class="w-full flex flex-row space-x-4">
-          {#if !buildImageInfo?.buildRunning}
-            <Button
-              on:click="{() => buildContainerImage()}"
-              disabled="{hasInvalidFields}"
-              class="w-full"
-              icon="{faCube}">
-              Build
-            </Button>
-          {/if}
-
-          {#if buildFinished}
-            <Button on:click="{() => cleanupBuild()}" class="w-full">Done</Button>
-          {/if}
-        </div>
-
-        <RecommendedRegistry bind:imageError="{buildError}" imageName="{buildParentImageName}" />
-
-        <TerminalWindow bind:terminal="{logsTerminal}" />
-        <div class="w-full">
-          {#if buildImageInfo?.buildRunning}
-            <Button on:click="{() => abortBuild()}" class="w-full">Cancel</Button>
-          {/if}
-        </div>
+  <div slot="content" class="space-y-6">
+    <div hidden="{buildImageInfo?.buildRunning}">
+      <label for="containerFilePath" class="block mb-2 text-sm font-bold text-gray-400">Containerfile path</label>
+      <div class="flex flex-row space-x-3">
+        <Input
+          name="containerFilePath"
+          id="containerFilePath"
+          bind:value="{containerFilePath}"
+          placeholder="Containerfile to build"
+          class="w-full"
+          required />
+        <Button on:click="{() => getContainerfileLocation()}">Browse...</Button>
       </div>
-    {/if}
+    </div>
+
+    <div hidden="{buildImageInfo?.buildRunning}">
+      <label for="containerBuildContextDirectory" class="block mb-2 text-sm font-bold text-gray-400"
+        >Build context directory</label>
+      <div class="flex flex-row space-x-3">
+        <Input
+          name="containerBuildContextDirectory"
+          id="containerBuildContextDirectory"
+          bind:value="{containerBuildContextDirectory}"
+          placeholder="Directory to build in"
+          class="w-full"
+          required />
+        <Button on:click="{() => getContainerBuildContextDirectory()}">Browse...</Button>
+      </div>
+    </div>
+
+    <div hidden="{buildImageInfo?.buildRunning}">
+      <label for="containerImageName" class="block mb-2 text-sm font-bold text-gray-400">Image name</label>
+      <Input
+        bind:value="{containerImageName}"
+        name="containerImageName"
+        id="containerImageName"
+        placeholder="Image name (e.g. quay.io/namespace/my-custom-image)"
+        class="w-full"
+        required />
+      {#if providerConnections.length > 1}
+        <label for="providerChoice" class="py-6 block mb-2 text-sm font-bold text-gray-400"
+          >Container Engine
+          <select
+            class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+            name="providerChoice"
+            id="providerChoice"
+            bind:value="{selectedProvider}">
+            {#each providerConnections as providerConnection}
+              <option value="{providerConnection}">{providerConnection.name}</option>
+            {/each}
+          </select>
+        </label>
+      {/if}
+    </div>
+    <div hidden="{buildImageInfo?.buildRunning}">
+      <label for="inputKey" class="block mb-2 text-sm font-bold text-gray-400">Build arguments</label>
+      {#each buildArgs as buildArg, index}
+        <div class="flex flex-row items-center space-x-2 mb-2">
+          <Input bind:value="{buildArg.key}" name="inputKey" placeholder="Key" class="flex-grow" required />
+          <Input bind:value="{buildArg.value}" placeholder="Value" class="flex-grow" required />
+          <Button
+            on:click="{() => deleteBuildArg(index)}"
+            icon="{faMinusCircle}"
+            disabled="{buildArgs.length === 1 && buildArg.key === '' && buildArg.value === ''}"
+            aria-label="Delete build argument" />
+          <Button on:click="{addBuildArg}" icon="{faPlusCircle}" title="Add build argument" />
+        </div>
+      {/each}
+    </div>
+
+    <div hidden="{buildImageInfo?.buildRunning}">
+      <label for="containerBuildPlatform" class="block mb-2 text-sm font-bold text-gray-400">Platform</label>
+      {#if platforms.length > 1}
+        <p class="text-sm text-gray-600 mb-2">Multiple platforms selected, a manifest will be created</p>
+      {/if}
+      <BuildImageFromContainerfileCards bind:platforms="{containerBuildPlatform}" />
+    </div>
+
+    <div class="w-full flex flex-row space-x-4">
+      {#if !buildImageInfo?.buildRunning}
+        <Button on:click="{() => buildContainerImage()}" disabled="{hasInvalidFields}" class="w-full" icon="{faCube}">
+          Build
+        </Button>
+      {/if}
+
+      {#if buildFinished}
+        <Button on:click="{() => cleanupBuild()}" class="w-full">Done</Button>
+      {/if}
+    </div>
+
+    <RecommendedRegistry bind:imageError="{buildError}" imageName="{buildParentImageName}" />
+
+    <TerminalWindow bind:terminal="{logsTerminal}" />
+    <div class="w-full">
+      {#if buildImageInfo?.buildRunning}
+        <Button on:click="{() => abortBuild()}" class="w-full">Cancel</Button>
+      {/if}
+    </div>
   </div>
-</FormPage>
+</EngineFormPage>

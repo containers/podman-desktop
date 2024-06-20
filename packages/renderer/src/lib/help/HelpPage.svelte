@@ -22,8 +22,8 @@ $: contributedLinks = $providerInfos
   <svelte:fragment slot="icon">
     <i class="fas fa-question-circle fa-2x" aria-hidden="true"></i>
   </svelte:fragment>
-  <div slot="content" class="flex flex-col min-w-full h-fit">
-    <div class="min-w-full flex-1 px-5 pb-5 space-y-5">
+  <div slot="content" class="min-w-full h-fit p-5">
+    <div class="min-w-full space-y-5">
       <!-- Getting Started -->
       <div class="bg-[var(--pd-global-nav-bg)] px-3 pt-3 pb-3 rounded-lg">
         <div class="text-[var(--pd-content-header)] text-lg">Getting Started</div>
