@@ -1197,9 +1197,34 @@ export class ColorRegistry {
       light: colorPalette.gray[300],
     });
 
+    this.registerColor(`${formPage}card-bg-hover`, {
+      dark: colorPalette.charcoal[500],
+      light: colorPalette.gray[500],
+    });
+
     this.registerColor(`${formPage}card-text`, {
       dark: colorPalette.gray[400],
       light: colorPalette.purple[900],
+    });
+
+    this.registerColor(`${formPage}card-border`, {
+      dark: colorPalette.charcoal[700],
+      light: colorPalette.gray[200],
+    });
+
+    this.registerColor(`${formPage}card-border-selected`, {
+      dark: colorPalette.dustypurple[700],
+      light: colorPalette.purple[600],
+    });
+
+    this.registerColor(`${formPage}badge-border`, {
+      dark: colorPalette.gray[700],
+      light: colorPalette.gray[900],
+    });
+
+    this.registerColor(`${formPage}card-input-bg`, {
+      dark: colorPalette.charcoal[400],
+      light: colorPalette.gray[50],
     });
   }
 }
