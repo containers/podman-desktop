@@ -61,22 +61,16 @@ export let volumeName = '';
   </svelte:fragment>
   <div slot="content" class="space-y-6">
     <div>
-      <label for="containerBuildContextDirectory" class="block mb-2 text-sm font-bold text-gray-400"
+      <label for="containerBuildContextDirectory" class="block mb-2 text-sm font-bold text-[var(--pd-label-text)]"
         >Volume name:</label>
-      <Input
-        clearable
-        aria-label="Volume Name"
-        disabled="{createVolumeFinished}"
-        bind:value="{volumeName}"
-        class="w-full"
-        required />
+      <Input clearable aria-label="Volume Name" disabled="{createVolumeFinished}" bind:value="{volumeName}" required />
     </div>
     <div class:hidden="{providerConnections.length < 2}">
       {#if providerConnections.length > 1}
-        <label for="providerChoice" class="py-3 block mb-2 text-sm font-bold text-gray-400"
+        <label for="providerChoice" class="py-3 block mb-2 text-sm font-bold text-[var(--pd-label-text)]"
           >Container Engine
           <select
-            class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+            class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
             aria-label="Provider Choice"
             disabled="{createVolumeFinished}"
             bind:value="{selectedProvider}">

@@ -90,7 +90,8 @@ async function exportContainer() {
 
     <div slot="content" class="space-y-2">
       <div>
-        <label for="modalSelectTarget" class="block mb-2 text-sm font-medium text-gray-400">Export to:</label>
+        <label for="modalSelectTarget" class="block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
+          >Export to:</label>
         <div class="flex w-full">
           <Input
             class="grow mr-2"

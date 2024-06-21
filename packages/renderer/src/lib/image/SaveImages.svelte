@@ -134,7 +134,8 @@ async function saveImages() {
       <i class="fas fa-play fa-2x" aria-hidden="true"></i>
     </svelte:fragment>
     <div slot="content" class="space-y-2">
-      <label for="modalSelectTarget" class="block mb-2 text-sm font-medium text-gray-400">Export to:</label>
+      <label for="modalSelectTarget" class="block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
+        >Export to:</label>
       <div class="flex w-full">
         <Input
           class="grow mr-2"
@@ -150,7 +151,7 @@ async function saveImages() {
 
       {#if !singleItemMode && imagesToSave.length > 0}
         <!-- Display the list of images to save -->
-        <div class="flex flex-row justify-center w-full pt-5 text-sm font-medium text-gray-400">
+        <div class="flex flex-row justify-center w-full pt-5 text-sm font-medium text-[var(--pd-label-text)]">
           <div class="flex flex-col grow">Images to save</div>
         </div>
         {#each imagesToSave as imageToSave, index}

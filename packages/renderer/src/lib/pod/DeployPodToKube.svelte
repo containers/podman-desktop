@@ -391,16 +391,17 @@ function updateKubeResult() {
 
     {#if bodyPod}
       <div class="pt-2 pb-4">
-        <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-400">Pod Name:</label>
+        <label for="contextToUse" class="block mb-1 text-sm font-medium text-[var(--pd-label-text)]">Pod Name:</label>
         <Input bind:value="{bodyPod.metadata.name}" name="podName" id="podName" class="w-full" required />
       </div>
     {/if}
 
     <div class="pt-2 pb-4">
-      <label for="services" class="block mb-1 text-sm font-medium text-gray-300">Kubernetes Services:</label>
+      <label for="services" class="block mb-1 text-sm font-medium text-[var(--pd-label-text)]"
+        >Kubernetes Services:</label>
       <Checkbox
         bind:checked="{deployUsingServices}"
-        class="text-gray-400 text-sm ml-1"
+        class="text-[var(--pd-content-text)] text-sm ml-1"
         name="useServices"
         id="useServices"
         required>
@@ -409,11 +410,11 @@ function updateKubeResult() {
     </div>
 
     <div class="pt-2 pb-4">
-      <label for="useRestricted" class="block mb-1 text-sm font-medium text-gray-300"
+      <label for="useRestricted" class="block mb-1 text-sm font-medium text-[var(--pd-label-text)]"
         >Restricted Security Context:</label>
       <Checkbox
         bind:checked="{deployUsingRestrictedSecurityContext}"
-        class="text-gray-400 text-sm ml-1"
+        class="text-[var(--pd-content-text)] text-sm ml-1"
         name="useRestricted"
         id="useRestricted"
         title="Use restricted security context"
@@ -428,11 +429,11 @@ function updateKubeResult() {
     <!-- Only show for non-OpenShift deployments (we use routes for OpenShift) -->
     {#if !openshiftRouteGroupSupported && deployUsingServices}
       <div class="pt-2 pb-4">
-        <label for="createIngress" class="block mb-1 text-sm font-medium text-gray-300"
+        <label for="createIngress" class="block mb-1 text-sm font-medium text-[var(--pd-label-text)]"
           >Expose Service Locally Using Kubernetes Ingress:</label>
         <Checkbox
           bind:checked="{createIngress}"
-          class="text-gray-300 text-sm ml-1"
+          class="text-[var(--pd-content-text)] text-sm ml-1"
           name="createIngress"
           id="createIngress"
           title="Create Ingress"
@@ -445,19 +446,20 @@ function updateKubeResult() {
 
     {#if createIngress && containerPortArray.length > 1}
       <div class="pt-2 pb-4">
-        <label for="ingress" class="block mb-1 text-sm font-medium text-gray-300">Ingress Host Port:</label>
+        <label for="ingress" class="block mb-1 text-sm font-medium text-[var(--pd-label-text)]"
+          >Ingress Host Port:</label>
         <select
           bind:value="{ingressPort}"
           name="serviceName"
           id="serviceName"
-          class=" cursor-default w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-400 placeholder-gray-400"
+          class=" cursor-default w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
           required>
           <option value="" disabled selected>Select a port</option>
           {#each containerPortArray as port}
             <option value="{port}">{port}</option>
           {/each}
         </select>
-        <span class="text-gray-300 text-sm ml-1"
+        <span class="text-[var(--pd-content-text)] text-sm ml-1"
           >There are multiple exposed ports available. Select the one you want to expose to '/' with the Ingress.
         </span>
       </div>
@@ -465,11 +467,12 @@ function updateKubeResult() {
 
     <!-- Allow to create routes for OpenShift clusters -->
     {#if openshiftRouteGroupSupported}
-      <div class="pt-2 m-2">
-        <label for="routes" class="block mb-1 text-sm font-medium text-gray-400">Create OpenShift routes:</label>
+      <div class="pt-2">
+        <label for="routes" class="block mb-1 text-sm font-medium text-[var(--pd-label-text)]"
+          >Create OpenShift routes:</label>
         <Checkbox
           bind:checked="{deployUsingRoutes}"
-          class="text-gray-400 text-sm ml-1"
+          class="text-[var(--pd-content-text)] text-sm ml-1"
           name="useRoutes"
           id="useRoutes"
           required>
@@ -479,7 +482,8 @@ function updateKubeResult() {
 
     {#if defaultContextName}
       <div class="pt-2">
-        <label for="contextToUse" class="block mb-1 text-sm font-medium text-gray-400">Kubernetes Context:</label>
+        <label for="contextToUse" class="block mb-1 text-sm font-medium text-[var(--pd-label-text)]"
+          >Kubernetes Context:</label>
         <Input
           bind:value="{defaultContextName}"
           name="defaultContextName"
@@ -492,9 +496,10 @@ function updateKubeResult() {
 
     {#if allNamespaces}
       <div class="pt-2">
-        <label for="namespaceToUse" class="block mb-1 text-sm font-medium text-gray-400">Kubernetes Namespace:</label>
+        <label for="namespaceToUse" class="block mb-1 text-sm font-medium text-[var(--pd-label-text)]"
+          >Kubernetes Namespace:</label>
         <select
-          class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
+          class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
           name="namespaceChoice"
           bind:value="{currentNamespace}">
           {#each allNamespaces.items as namespace}
@@ -536,7 +541,7 @@ function updateKubeResult() {
             </div>
           {/if}
         </div>
-        <div class="text-gray-700">
+        <div class="text-[var(--pd-content-text)]">
           {#if createdPod.metadata?.name}
             <p class="pt-2">Name: {createdPod.metadata.name}</p>
           {/if}
@@ -551,18 +556,18 @@ function updateKubeResult() {
                 <li class="pt-2">
                   {containerStatus.name}
                   {#if containerStatus.ready}
-                    <span class="text-gray-900">Ready</span>
+                    <span class="text-[var(--pd-status-ready)]">Ready</span>
                   {/if}
                   {#if containerStatus.state?.running}
-                    <span class="text-green-400">(Running)</span>
+                    <span class="text-[var(--pd-status-running)]">(Running)</span>
                   {/if}
                   {#if containerStatus.state?.terminated}
-                    <span class="text-red-500">(Terminated)</span>
+                    <span class="text-[var(--pd-status-terminated)]">(Terminated)</span>
                   {/if}
                   {#if containerStatus.state?.waiting}
-                    <span class="text-amber-500">(Waiting)</span>
+                    <span class="text-[var(--pd-status-waiting)]">(Waiting)</span>
                     {#if containerStatus.state.waiting.reason}
-                      <span class="text-amber-500">[{containerStatus.state.waiting.reason}]</span>
+                      <span class="text-[var(--pd-status-waiting)]">[{containerStatus.state.waiting.reason}]</span>
                     {/if}
                   {/if}
                 </li>
