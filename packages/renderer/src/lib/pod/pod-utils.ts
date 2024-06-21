@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,12 +34,13 @@ export class PodUtils {
     return humanizeDuration(uptimeInMs, { round: true, largest: 1 });
   }
 
-  refreshAge(podInfoUI: PodInfoUI): string {
-    if (podInfoUI.status !== 'RUNNING' || !podInfoUI.created) {
-      return '';
+  getUpDate(podInfoUI: PodInfoUI): Date | undefined {
+    if (!podInfoUI.created) {
+      return undefined;
     }
+
     // make it human friendly
-    return this.humanizeAge(podInfoUI.created);
+    return moment(podInfoUI.created).toDate();
   }
 
   getEngineId(podinfo: PodInfo): string {
