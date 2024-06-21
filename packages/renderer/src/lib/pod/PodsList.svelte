@@ -1,9 +1,15 @@
 <script lang="ts">
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Button, FilteredEmptyScreen, NavPage, Table, TableColumn, TableRow } from '@podman-desktop/ui-svelte';
-import moment from 'moment';
-import { onDestroy, onMount } from 'svelte';
-import type { Unsubscriber } from 'svelte/store';
+import {
+  Button,
+  FilteredEmptyScreen,
+  NavPage,
+  Table,
+  TableColumn,
+  TableDurationColumn,
+  TableRow,
+} from '@podman-desktop/ui-svelte';
+import { onMount } from 'svelte';
 
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
 
@@ -17,7 +23,6 @@ import PodIcon from '../images/PodIcon.svelte';
 import KubePlayButton from '../kube/KubePlayButton.svelte';
 import { PodUtils } from './pod-utils';
 import PodColumnActions from './PodColumnActions.svelte';
-import PodColumnAge from './PodColumnAge.svelte';
 import PodColumnContainers from './PodColumnContainers.svelte';
 import PodColumnEnvironment from './PodColumnEnvironment.svelte';
 import PodColumnName from './PodColumnName.svelte';
@@ -45,9 +50,8 @@ $: providerPodmanConnections = $providerInfos
 
 const podUtils = new PodUtils();
 
-let podsUnsubscribe: Unsubscriber;
-onMount(async () => {
-  podsUnsubscribe = filtered.subscribe(value => {
+onMount(() => {
+  return filtered.subscribe(value => {
     const computedPods = value.map((podInfo: PodInfo) => podUtils.getPodInfoUI(podInfo)).flat();
 
     // Map engineName, engineId and engineType from currentContainers to EngineInfoUI[]
@@ -70,22 +74,7 @@ onMount(async () => {
       }
     });
     pods = computedPods;
-
-    // compute refresh interval
-    const interval = computeInterval();
-    refreshTimeouts.push(setTimeout(refreshAge, interval));
   });
-});
-
-onDestroy(() => {
-  // kill timers
-  refreshTimeouts.forEach(timeout => clearTimeout(timeout));
-  refreshTimeouts.length = 0;
-
-  // unsubscribe from the store
-  if (podsUnsubscribe) {
-    podsUnsubscribe();
-  }
 });
 
 // delete the items selected in the list
@@ -117,52 +106,6 @@ async function deleteSelectedPods() {
   bulkDeleteInProgress = false;
 }
 
-let refreshTimeouts: NodeJS.Timeout[] = [];
-const SECOND = 1000;
-function refreshAge() {
-  for (const podInfo of pods) {
-    podInfo.age = podUtils.refreshAge(podInfo);
-  }
-  pods = pods;
-
-  // compute new interval
-  const newInterval = computeInterval();
-  refreshTimeouts.forEach(timeout => clearTimeout(timeout));
-  refreshTimeouts.length = 0;
-  refreshTimeouts.push(setTimeout(refreshAge, newInterval));
-}
-
-function computeInterval(): number {
-  // no pods, no refresh
-  if (pods.length === 0) {
-    return -1;
-  }
-
-  // do we have pods that have been created in less than 1 minute
-  // if so, need to update every second
-  const podsCreatedInLessThan1Mn = pods.filter(pod => moment().diff(pod.created, 'minutes') < 1);
-  if (podsCreatedInLessThan1Mn.length > 0) {
-    return 2 * SECOND;
-  }
-
-  // every minute for pods created less than 1 hour
-  const podsCreatedInLessThan1Hour = pods.filter(volume => moment().diff(volume.created, 'hours') < 1);
-  if (podsCreatedInLessThan1Hour.length > 0) {
-    // every minute
-    return 60 * SECOND;
-  }
-
-  // every hour for pods created less than 1 day
-  const podsCreatedInLessThan1Day = pods.filter(volume => moment().diff(volume.created, 'days') < 1);
-  if (podsCreatedInLessThan1Day.length > 0) {
-    // every hour
-    return 60 * 60 * SECOND;
-  }
-
-  // every day
-  return 60 * 60 * 24 * SECOND;
-}
-
 let selectedItemsNumber: number;
 let table: Table;
 
@@ -191,9 +134,11 @@ let containersColumn = new TableColumn<PodInfoUI>('Containers', {
   overflow: true,
 });
 
-let ageColumn = new TableColumn<PodInfoUI>('Age', {
-  renderer: PodColumnAge,
-  comparator: (a, b) => moment().diff(a.created) - moment().diff(b.created),
+let ageColumn = new TableColumn<PodInfoUI, Date | undefined>('Age', {
+  renderer: TableDurationColumn,
+  renderMapping(object): Date | undefined {
+    return podUtils.getUpDate(object);
+  },
 });
 
 const columns = [
