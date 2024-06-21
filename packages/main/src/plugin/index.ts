@@ -91,6 +91,7 @@ import type {
   ProviderInfo,
   ProviderKubernetesConnectionInfo,
 } from '/@api/provider-info.js';
+import type { ProxyState } from '/@api/proxy.js';
 import type { PullEvent } from '/@api/pull-event.js';
 import type { ViewInfoUI } from '/@api/view-info.js';
 import type { VolumeInspectInfo, VolumeListInfo } from '/@api/volume-info.js';
@@ -151,7 +152,7 @@ import { OnboardingRegistry } from './onboarding-registry.js';
 import { OpenDevToolsInit } from './open-devtools-init.js';
 import { ProgressImpl } from './progress-impl.js';
 import { ProviderRegistry } from './provider-registry.js';
-import { Proxy, type ProxyState } from './proxy.js';
+import { Proxy } from './proxy.js';
 import { RecommendationsRegistry } from './recommendations/recommendations-registry.js';
 import { SafeStorageRegistry } from './safe-storage/safe-storage-registry.js';
 import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry.js';

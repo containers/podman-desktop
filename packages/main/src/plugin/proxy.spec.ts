@@ -23,7 +23,8 @@ import { createProxy, type ProxyServer } from 'proxy';
 import { describe, expect, test, vi } from 'vitest';
 
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
-import { ensureURL, Proxy, ProxyState } from '/@/plugin/proxy.js';
+import { ensureURL, Proxy } from '/@/plugin/proxy.js';
+import { ProxyState } from '/@api/proxy.js';
 
 const URL = 'https://podman-desktop.io';
 
