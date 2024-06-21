@@ -31,6 +31,7 @@ on:
     branches:
       - main
     paths:
+      - '.github/workflows/argos.yaml'
       - 'package.json'
       - 'yarn.lock'
       - 'website/**'
@@ -39,7 +40,7 @@ on:
 jobs:
   take-screenshots:
     name: take screenshots
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
