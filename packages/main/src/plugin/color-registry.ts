@@ -248,6 +248,7 @@ export class ColorRegistry {
     this.initDropdown();
     this.initLabel();
     this.initStatusColors();
+    this.initFormPage();
   }
 
   protected initGlobalNav(): void {
@@ -1044,10 +1045,15 @@ export class ColorRegistry {
 
   protected initDropdown(): void {
     const dropdown = 'dropdown-';
+    const select = 'select-';
 
     this.registerColor(`${dropdown}bg`, {
       dark: colorPalette.charcoal[600],
       light: colorPalette.gray[100],
+    });
+    this.registerColor(`${select}bg`, {
+      dark: colorPalette.charcoal[800],
+      light: colorPalette.gray[300],
     });
     this.registerColor(`${dropdown}ring`, {
       dark: colorPalette.purple[900],
@@ -1171,6 +1177,29 @@ export class ColorRegistry {
     this.registerColor(`${status}updated`, {
       dark: colorPalette.sky[500],
       light: colorPalette.sky[500],
+    });
+    this.registerColor(`${status}ready`, {
+      dark: colorPalette.gray[900],
+      light: colorPalette.gray[100],
+    });
+  }
+
+  protected initFormPage(): void {
+    const formPage = 'formpage-';
+
+    this.registerColor(`${formPage}bg`, {
+      dark: colorPalette.charcoal[900],
+      light: colorPalette.gray[50],
+    });
+
+    this.registerColor(`${formPage}card-bg`, {
+      dark: colorPalette.charcoal[800],
+      light: colorPalette.gray[300],
+    });
+
+    this.registerColor(`${formPage}card-text`, {
+      dark: colorPalette.gray[400],
+      light: colorPalette.purple[900],
     });
   }
 }

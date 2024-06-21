@@ -113,10 +113,10 @@ async function importContainers() {
   </svelte:fragment>
   <div slot="content" class="space-y-2">
     {#if providerConnections.length > 1}
-      <label for="providerChoice" class="py-6 block mb-2 text-sm font-bold text-gray-400"
+      <label for="providerChoice" class="py-6 block mb-2 text-sm font-bold text-[var(--pd-label-text)]"
         >Container Engine
         <select
-          class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+          class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
           name="providerChoice"
           id="providerChoice"
           bind:value="{selectedProvider}">
@@ -127,12 +127,12 @@ async function importContainers() {
       </label>
     {/if}
 
-    <label for="modalContainersImport" class="pt-4 block mb-2 text-sm font-medium text-gray-400"
+    <label for="modalContainersImport" class="block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
       >Containers to import:</label>
     <Button on:click="{addContainersToImport}" icon="{faPlusCircle}" type="link">Add images to import</Button>
     <!-- Display the list of existing containersToImport -->
     {#if containersToImport.length > 0}
-      <div class="flex flex-row justify-center w-full py-1 text-sm font-medium text-gray-400">
+      <div class="flex flex-row justify-center w-full py-1 text-sm font-medium text-[var(--pd-content-text)]">
         <div class="flex flex-col grow pl-2">Image Path</div>
         <div class="flex flex-col w-2/4 mr-2.5">Image Name when importing (e.g quay.io/podman/hello)</div>
       </div>

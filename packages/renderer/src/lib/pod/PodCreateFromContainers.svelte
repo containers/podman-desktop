@@ -229,7 +229,7 @@ function updatePortExposure(port: number, checked: boolean) {
           </div>
         {/if}
         <div class="mb-2">
-          <span class="block text-sm font-semibold rounded text-gray-400">Name of the pod:</span>
+          <span class="block text-sm font-semibold rounded text-[var(--pd-label-text)]">Name of the pod:</span>
         </div>
         <div class="mb-4">
           <Input
@@ -238,17 +238,16 @@ function updatePortExposure(port: number, checked: boolean) {
             bind:value="{podCreation.name}"
             placeholder="Select name of the pod..."
             aria-label="Pod name"
-            class="w-full mt-1"
             required />
         </div>
 
         <div class="mb-2">
-          <span class="block text-sm font-semibold rounded text-gray-400" aria-label="Containers"
+          <span class="block text-sm font-semibold rounded text-[var(--pd-label-text)]" aria-label="Containers"
             >Containers to replicate to the pod:</span>
         </div>
-        <div class="w-full bg-charcoal-800 mb-4 max-h-40 overflow-y-auto">
+        <div class="w-full bg-[var(--pd-formpage-card-bg)] mb-4 max-h-40 overflow-y-auto">
           {#each podCreation.containers as container, index}
-            <div class="p-2 flex flex-row items-center text-gray-700">
+            <div class="p-2 flex flex-row items-center text-[var(--pd-formpage-card-text)]">
               <div class="w-10"><StatusIcon icon="{ContainerIcon}" status="STOPPED" /></div>
               <div class="w-16 pl-3">{index + 1}.</div>
               <div class="grow">{container.name}</div>
@@ -259,12 +258,12 @@ function updatePortExposure(port: number, checked: boolean) {
 
         {#if mapPortExposed.size > 0}
           <div class="mb-2">
-            <span class="block text-sm font-semibold rounded text-gray-400" aria-label="Exposed ports"
+            <span class="block text-sm font-semibold rounded text-[var(--pd-label-text)]" aria-label="Exposed ports"
               >All selected ports will be exposed:</span>
           </div>
-          <div class="bg-charcoal-800 mb-4 max-h-40 overflow-y-auto">
+          <div class="bg-[var(--pd-formpage-card-bg)] mb-4 max-h-40 overflow-y-auto">
             {#each [...mapPortExposed] as [port, value]}
-              <div class="p-2 flex flex-row align-items text-gray-700">
+              <div class="p-2 flex flex-row align-items text-[var(--pd-formpage-card-text)]">
                 <input
                   type="checkbox"
                   class="mr-5"
@@ -280,28 +279,23 @@ function updatePortExposure(port: number, checked: boolean) {
         {/if}
       {/if}
 
-      <div>
-        {#if providerConnections.length > 1}
-          <label
-            for="providerConnectionName"
-            class="p-2 block mb-2 text-sm font-medium rounded bg-zinc-700 text-gray-300"
-            >Container Engine
-            <select
-              class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-400 placeholder-gray-400"
-              name="providerChoice"
-              bind:value="{selectedProvider}">
-              {#each providerConnections as providerConnection}
-                <option value="{providerConnection}">{providerConnection.name}</option>
-              {/each}
-            </select>
-          </label>
-        {/if}
-        {#if providerConnections.length === 1 && selectedProviderConnection?.name}
-          <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection.name}" />
-        {/if}
-      </div>
+      {#if providerConnections.length > 1}
+        <label for="providerConnectionName" class="block mb-2 text-sm font-medium rounded text-[var(--pd-label-text)]"
+          >Container Engine</label>
+        <select
+          class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
+          name="providerChoice"
+          bind:value="{selectedProvider}">
+          {#each providerConnections as providerConnection}
+            <option value="{providerConnection}">{providerConnection.name}</option>
+          {/each}
+        </select>
+      {/if}
+      {#if providerConnections.length === 1 && selectedProviderConnection?.name}
+        <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection.name}" />
+      {/if}
 
-      <div class="w-full grid justify-items-end">
+      <div class="w-full grid justify-items-end mt-5">
         <div>
           <Button type="link" on:click="{() => router.goto('/containers')}">Close</Button>
           <Button
