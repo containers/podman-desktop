@@ -400,7 +400,7 @@ test(`Expect create with unchecked and checked checkboxes`, async () => {
   );
 });
 
-test(`Expect create with unchecked and checked checkboxes having multipl scopes`, async () => {
+test(`Expect create with unchecked and checked checkboxes having multiple scopes`, async () => {
   let providedKeyLogger: ((key: symbol, eventName: LoggerEventName, args: string[]) => void) | undefined;
   const taskId = 4;
   const callback = mockCallback(async keyLogger => {
