@@ -4,6 +4,8 @@ import type { ProxySettings } from '@podman-desktop/api';
 import { Button, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
+import { ProxyState } from '/@api/proxy';
+
 import SettingsPage from './SettingsPage.svelte';
 import { validateProxyAddress } from './Util';
 
@@ -75,13 +77,13 @@ function validate(event: any) {
       <div class="space-y-2">
         <label
           for="httpProxy"
-          class="mb-2 font-medium {proxyState === 1
+          class="mb-2 font-medium {proxyState === ProxyState.PROXY_MANUAL
             ? 'text-[var(--pd-invert-content-card-text)]'
             : 'text-gray-900'}">Web Proxy (HTTP):</label>
         <Input
           name="httpProxy"
           id="httpProxy"
-          disabled="{proxyState !== 1}"
+          disabled="{proxyState !== ProxyState.PROXY_MANUAL}"
           bind:value="{proxySettings.httpProxy}"
           placeholder="URL of the proxy for http: URLs (eg http://myproxy.domain.com:8080)"
           required

@@ -24,7 +24,8 @@ import { describe, expect, test, vi } from 'vitest';
 
 import type { Certificates } from '/@/plugin/certificates.js';
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
-import { ensureURL, Proxy, ProxyState } from '/@/plugin/proxy.js';
+import { ensureURL, Proxy } from '/@/plugin/proxy.js';
+import { ProxyState } from '/@api/proxy.js';
 
 const URL = 'https://podman-desktop.io';
 
