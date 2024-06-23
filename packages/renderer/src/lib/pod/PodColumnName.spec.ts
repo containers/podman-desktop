@@ -95,3 +95,9 @@ test('Expect kubernetes pod information', async () => {
   const node = screen.getByText('node1');
   expect(node).toBeInTheDocument();
 });
+
+test('Do not expect undefined anywhere on the page', async () => {
+  render(PodColumnName, { object: pod });
+
+  expect(screen.queryByText('undefined')).not.toBeInTheDocument();
+});

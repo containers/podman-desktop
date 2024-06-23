@@ -23,11 +23,17 @@ function openDetailsPod(pod: PodInfoUI) {
     {object.name}
   </div>
   <div class="flex flex-row text-xs gap-1">
-    <div class="text-xs text-[var(--pd-table-body-text-sub-secondary)]">
-      {podUtils.isKubernetesPod(object) ? object.node : object.shortId}
-    </div>
     {#if podUtils.isKubernetesPod(object)}
+      {#if object.node}
+        <div class="text-xs text-[var(--pd-table-body-text-sub-secondary)]">
+          {object.node}
+        </div>
+      {/if}
       <div class="font-extra-light text-[var(--pd-table-body-text-sub-highlight)]">{object.namespace}</div>
+    {:else}
+      <div class="text-xs text-[var(--pd-table-body-text-sub-secondary)]">
+        {object.shortId}
+      </div>
     {/if}
   </div>
 </button>
