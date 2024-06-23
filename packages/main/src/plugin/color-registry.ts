@@ -1194,6 +1194,13 @@ export class ColorRegistry {
       dark: colorPalette.gray[900],
       light: colorPalette.gray[100],
     });
+
+    // contrast color for the other status colors,
+    // e.g. to use in status icons
+    this.registerColor(`${status}contrast`, {
+      dark: colorPalette.white,
+      light: colorPalette.white,
+    });
   }
 
   protected initStatusBar(): void {
