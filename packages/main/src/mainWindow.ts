@@ -128,8 +128,8 @@ async function createWindow(): Promise<BrowserWindow> {
       exitonclose = closeBehaviorConfiguration.get<boolean>('ExitOnClose') === true;
     }
 
+    e.preventDefault();
     if (!exitonclose) {
-      e.preventDefault();
       browserWindow.hide();
       if (isMac()) {
         app.dock.hide();

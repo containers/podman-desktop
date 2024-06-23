@@ -34,6 +34,7 @@ let pluginSystem: PluginSystem;
 
 const emitter = new EventEmitter();
 const webContents = emitter as unknown as WebContents;
+webContents.isDestroyed = vi.fn();
 
 // add send method
 webContents.send = vi.fn();
