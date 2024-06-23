@@ -81,3 +81,55 @@ describe('Node UI conversion', () => {
     expect(nodeUI.version).toEqual('v1.20.4');
   });
 });
+
+test('if gpu.intel.com, nvidia.com/gpu or amd.com/gpu is present in the node labels expect hasGpu to be true', async () => {
+  const node = {
+    metadata: {
+      name: 'kube-node',
+    },
+    status: {
+      capacity: {
+        'nvidia.com/gpu': '1',
+      },
+    },
+  } as V1Node;
+
+  expect(nodeUtils.hasGpu(node)).toEqual(true);
+
+  const node2 = {
+    metadata: {
+      name: 'kube-node',
+    },
+    status: {
+      capacity: {
+        'amd.com/gpu': '1',
+      },
+    },
+  } as V1Node;
+
+  expect(nodeUtils.hasGpu(node2)).toEqual(true);
+
+  const node3 = {
+    metadata: {
+      name: 'kube-node',
+    },
+    status: {
+      capacity: {
+        'gpu.intel.com/test123': '123',
+      },
+    },
+  } as V1Node;
+
+  expect(nodeUtils.hasGpu(node3)).toEqual(true);
+
+  const node4 = {
+    metadata: {
+      name: 'kube-node',
+    },
+    status: {
+      capacity: {},
+    },
+  } as V1Node;
+
+  expect(nodeUtils.hasGpu(node4)).toEqual(false);
+});

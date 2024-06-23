@@ -24,5 +24,6 @@ export interface NodeUI {
   osImage: string;
   kernelVersion: string;
   containerRuntime: string;
+  hasGpu?: boolean;
   created?: Date;
 }

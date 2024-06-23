@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faMicrochip, faSatelliteDish } from '@fortawesome/free-solid-svg-icons';
+import { faMicrochip, faSatelliteDish, faServer } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 
 import Label from '../ui/Label.svelte';
@@ -16,16 +16,23 @@ function getConditionColour(role: 'control-plane' | 'node'): string {
       roleName = 'Control Plane';
       // faSatelliteDish: Represents a satellite dish, suitable for the control plane role
       roleIcon = faSatelliteDish;
-      return 'text-green-600';
+      return 'text-[var(--pd-status-running)]';
     case 'node':
       roleName = 'Node';
-      // faMicrochip: Represents a microchip or hardware similar to a "subset" of a satellite dish / control plane
-      roleIcon = faMicrochip;
-      return 'text-sky-400';
+      // faServer: Better represents a "node" / server rack
+      roleIcon = faServer;
+      return 'text-[var(--pd-status-updated)]';
   }
 }
 </script>
 
-<Label name="{roleName}">
-  <Fa size="1x" icon="{roleIcon}" class="{getConditionColour(object.role)}" />
-</Label>
+<div class="flex flex-row gap-1">
+  <Label name="{roleName}">
+    <Fa size="1x" icon="{roleIcon}" class="{getConditionColour(object.role)}" />
+  </Label>
+  {#if object.hasGpu}
+    <Label name="GPU">
+      <Fa size="1x" icon="{faMicrochip}" class="text-[var(--pd-status-updated)]" />
+    </Label>
+  {/if}
+</div>

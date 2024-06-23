@@ -68,6 +68,34 @@ export class NodeUtils {
       osImage,
       kernelVersion,
       containerRuntime,
+      hasGpu: this.hasGpu(node),
     };
+  }
+
+  // Function that returns true / false if the node has a GPU.
+  // Ex. if there is a capacity for nvidia.com/gpu, we assume the node has a GPU.
+  // For AMD GPUs, we would need to check for amd.com/gpu.
+  // For Intel GPUs, there are multiple labels, but they start with gpu.intel.com/*.
+  hasGpu(node: V1Node): boolean {
+    const capacities = node.status?.capacity ?? {};
+
+    // Check for Nvidia GPU
+    if ('nvidia.com/gpu' in capacities) {
+      return true;
+    }
+
+    // Check for AMD GPU
+    if ('amd.com/gpu' in capacities) {
+      return true;
+    }
+
+    // Check for Intel GPUs, where labels start with 'gpu.intel.com/'
+    for (const key in capacities) {
+      if (key.startsWith('gpu.intel.com/')) {
+        return true;
+      }
+    }
+
+    return false; // Return false if no GPU capacities are found
   }
 }

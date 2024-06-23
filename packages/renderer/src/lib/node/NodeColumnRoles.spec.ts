@@ -49,3 +49,17 @@ test('Expect role display for node', async () => {
   const text = screen.getByText('Node');
   expect(text).toBeInTheDocument();
 });
+
+test('Expect GPU display if hasGpu is true', async () => {
+  render(NodeColumnRoles, { object: { ...nodeControlPlane, hasGpu: true } });
+
+  const text = screen.getByText('GPU');
+  expect(text).toBeInTheDocument();
+});
+
+test('Expect no GPU display if hasGpu is false', async () => {
+  render(NodeColumnRoles, { object: { ...nodeControlPlane, hasGpu: false } });
+
+  const text = screen.queryByText('GPU');
+  expect(text).not.toBeInTheDocument();
+});
