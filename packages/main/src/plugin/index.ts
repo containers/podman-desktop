@@ -339,7 +339,9 @@ export class PluginSystem {
         // send only when the UI is ready
         if (this.uiReady && this.isReady) {
           flushQueuedEvents();
-          webContents.send('api-sender', channel, data);
+          if (!webContents.isDestroyed()) {
+            webContents.send('api-sender', channel, data);
+          }
         } else {
           // add to the queue
           queuedEvents.push({ channel, data });
