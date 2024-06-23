@@ -13,7 +13,7 @@ function opacity(entry: StatusBarEntry): string {
 }
 
 function hoverBackground(entry: StatusBarEntry): string {
-  return entry.enabled && typeof entry.command === 'string' ? 'hover:bg-[#4d3782]' : '';
+  return entry.enabled && typeof entry.command === 'string' ? 'hover:bg-[var(--pd-statusbar-hover-bg)]' : '';
 }
 
 function hoverCursor(entry: StatusBarEntry): string {
@@ -44,6 +44,7 @@ async function executeCommand(entry: StatusBarEntry) {
     <span class="ml-1">{entry.text}</span>
   {/if}
   {#if entry.highlight}
-    <span role="status" class="absolute bg-purple-500 rounded-full p-1 top-[-2px] right-[-2px]"></span>
+    <span role="status" class="absolute bg-[var(--pd-notification-dot)] rounded-full p-1 top-[-2px] right-[-2px]"
+    ></span>
   {/if}
 </button>

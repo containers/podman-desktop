@@ -29,5 +29,5 @@ onDestroy(() => {
 </script>
 
 {#if hasNew}
-  <div aria-label="New content available" class="w-[6px] h-[6px] bg-purple-500 rounded-full"></div>
+  <div aria-label="New content available" class="w-[6px] h-[6px] bg-[var(--pd-notification-dot)] rounded-full"></div>
 {/if}

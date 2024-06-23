@@ -47,7 +47,8 @@ onMount(async () => {
 });
 </script>
 
-<div class="flex items-center justify-between px-1 bg-[#302251] text-sm py-0.5 space-x-2 z-40">
+<div
+  class="flex items-center justify-between px-1 bg-[var(--pd-statusbar-bg)] text-[var(--pd-statusbar-text)] text-sm py-0.5 space-x-2 z-40">
   <div>
     <ul class="flex flex-wrap gap-x-2 list-none items-center">
       {#each leftEntries as entry}

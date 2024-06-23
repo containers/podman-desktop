@@ -228,6 +228,7 @@ export class ColorRegistry {
   }
 
   protected initColors(): void {
+    this.initNotificationDot();
     this.initGlobalNav();
     this.initSecondaryNav();
     this.initTitlebar();
@@ -249,6 +250,14 @@ export class ColorRegistry {
     this.initLabel();
     this.initStatusColors();
     this.initFormPage();
+    this.initStatusBar();
+  }
+
+  protected initNotificationDot(): void {
+    this.registerColor('notification-dot', {
+      dark: colorPalette.purple[500],
+      light: colorPalette.purple[600],
+    });
   }
 
   protected initGlobalNav(): void {
@@ -258,10 +267,6 @@ export class ColorRegistry {
     this.registerColor(`${glNav}bg`, {
       dark: colorPalette.charcoal[600],
       light: colorPalette.gray[100],
-    });
-    this.registerColor(`${glNav}icon-notification-dot`, {
-      dark: colorPalette.purple[500],
-      light: colorPalette.purple[600],
     });
     this.registerColor(`${glNav}icon`, {
       dark: colorPalette.gray[600],
@@ -350,11 +355,6 @@ export class ColorRegistry {
     });
 
     this.registerColor(`${sNav}selected-highlight`, {
-      dark: colorPalette.purple[500],
-      light: colorPalette.purple[600],
-    });
-
-    this.registerColor(`${sNav}icon-notification-dot`, {
       dark: colorPalette.purple[500],
       light: colorPalette.purple[600],
     });
@@ -1200,6 +1200,24 @@ export class ColorRegistry {
     this.registerColor(`${formPage}card-text`, {
       dark: colorPalette.gray[400],
       light: colorPalette.purple[900],
+    });
+  }
+
+  protected initStatusBar(): void {
+    const statusbar = 'statusbar-';
+    this.registerColor(`${statusbar}bg`, {
+      dark: colorPalette.purple[900],
+      light: colorPalette.purple[900],
+    });
+
+    this.registerColor(`${statusbar}hover-bg`, {
+      dark: colorPalette.purple[800],
+      light: colorPalette.purple[800],
+    });
+
+    this.registerColor(`${statusbar}text`, {
+      dark: colorPalette.white,
+      light: colorPalette.white,
     });
   }
 }
