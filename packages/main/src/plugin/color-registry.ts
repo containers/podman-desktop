@@ -228,6 +228,7 @@ export class ColorRegistry {
   }
 
   protected initColors(): void {
+    this.initDefault();
     this.initGlobalNav();
     this.initSecondaryNav();
     this.initTitlebar();
@@ -249,6 +250,16 @@ export class ColorRegistry {
     this.initLabel();
     this.initStatusColors();
     this.initFormPage();
+  }
+
+  protected initDefault(): void {
+    const def = 'default-';
+
+    // Global default colors
+    this.registerColor(`${def}text`, {
+      dark: colorPalette.white,
+      light: colorPalette.charcoal[900],
+    });
   }
 
   protected initGlobalNav(): void {
