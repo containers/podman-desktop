@@ -51,7 +51,11 @@ export function clearNotifications(): void {
 
 let taskId = 0;
 
-// create a new task
+/**
+ * create a new task
+ * @deprecated renderer should not create tasks
+ * @param name the name of the task
+ */
 export function createTask(name: string): StatefulTask {
   taskId++;
   const task: StatefulTask = {
