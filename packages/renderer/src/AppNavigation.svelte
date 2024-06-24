@@ -13,6 +13,7 @@ import type { ImageInfo } from '/@api/image-info';
 import { CommandRegistry } from './lib/CommandRegistry';
 import NewContentOnDashboardBadge from './lib/dashboard/NewContentOnDashboardBadge.svelte';
 import { ImageUtils } from './lib/image/image-utils';
+import ConfigMapSecretIcon from './lib/images/ConfigMapSecretIcon.svelte';
 import DashboardIcon from './lib/images/DashboardIcon.svelte';
 import DeploymentIcon from './lib/images/DeploymentIcon.svelte';
 import ExtensionIcon from './lib/images/ExtensionIcon.svelte';
@@ -34,11 +35,13 @@ import { contributions } from './stores/contribs';
 import { imagesInfos } from './stores/images';
 import { kubernetesContexts } from './stores/kubernetes-contexts';
 import {
+  kubernetesCurrentContextConfigMaps,
   kubernetesCurrentContextDeployments,
   kubernetesCurrentContextIngresses,
   kubernetesCurrentContextNodes,
   kubernetesCurrentContextPersistentVolumeClaims,
   kubernetesCurrentContextRoutes,
+  kubernetesCurrentContextSecrets,
   kubernetesCurrentContextServices,
 } from './stores/kubernetes-contexts-state';
 import { podsInfos } from './stores/pods';
@@ -55,12 +58,17 @@ let persistentVolumeClaimsSubscribe: Unsubscriber;
 let servicesSubscribe: Unsubscriber;
 let ingressesSubscribe: Unsubscriber;
 let routesSubscribe: Unsubscriber;
+let configmapsSubscribe: Unsubscriber;
+let secretsSubscribe: Unsubscriber;
 let combinedInstalledExtensionsSubscribe: Unsubscriber;
 
 let podCount = '';
 let containerCount = '';
 let imageCount = '';
 let volumeCount = '';
+let configmapsCount = 0;
+let secretsCount = 0;
+let configmapSecretsCount = '';
 let persistentVolumeClaimsCount = '';
 let contextCount = 0;
 let deploymentCount = '';
@@ -145,6 +153,15 @@ onMount(async () => {
     routesCount = value.length;
     updateIngressesRoutesCount(ingressesCount + routesCount);
   });
+
+  configmapsSubscribe = kubernetesCurrentContextConfigMaps.subscribe(value => {
+    configmapsCount = value.length;
+    updateConfigMapSecretsCount(configmapsCount + secretsCount);
+  });
+  secretsSubscribe = kubernetesCurrentContextSecrets.subscribe(value => {
+    secretsCount = value.length;
+    updateConfigMapSecretsCount(configmapsCount + secretsCount);
+  });
   contextsSubscribe = kubernetesContexts.subscribe(value => {
     contextCount = value.length;
   });
@@ -185,8 +202,16 @@ onDestroy(() => {
   if (servicesSubscribe) {
     servicesSubscribe();
   }
+  if (configmapsSubscribe) {
+    configmapsSubscribe();
+  }
+  if (secretsSubscribe) {
+    secretsSubscribe();
+  }
   ingressesSubscribe?.();
   routesSubscribe?.();
+  configmapsSubscribe?.();
+  secretsSubscribe?.();
   combinedInstalledExtensionsSubscribe?.();
 });
 
@@ -195,6 +220,14 @@ function updateIngressesRoutesCount(count: number) {
     ingressesRoutesCount = ' (' + count + ')';
   } else {
     ingressesRoutesCount = '';
+  }
+}
+
+function updateConfigMapSecretsCount(count: number) {
+  if (count > 0) {
+    configmapSecretsCount = ' (' + count + ')';
+  } else {
+    configmapSecretsCount = '';
   }
 }
 
@@ -254,6 +287,13 @@ export let meta: TinroRouteMeta;
         ariaLabel="Ingresses & Routes"
         bind:meta="{meta}">
         <IngressRouteIcon size="{iconSize}" />
+      </NavItem>
+      <NavItem
+        href="/configmapsSecrets"
+        tooltip="ConfigMaps & Secrets{configmapSecretsCount}"
+        ariaLabel="ConfigMaps & Secrets"
+        bind:meta="{meta}">
+        <ConfigMapSecretIcon size="{iconSize}" />
       </NavItem>
       <NavItem
         href="/persistentvolumeclaims"

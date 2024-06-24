@@ -10,6 +10,9 @@ import type { NavigationRequest } from '../../main/src/plugin/navigation/navigat
 import AppNavigation from './AppNavigation.svelte';
 import Appearance from './lib/appearance/Appearance.svelte';
 import ComposeDetails from './lib/compose/ComposeDetails.svelte';
+import ConfigMapDetails from './lib/configmaps-secrets/ConfigMapDetails.svelte';
+import ConfigMapSecretList from './lib/configmaps-secrets/ConfigMapSecretList.svelte';
+import SecretDetails from './lib/configmaps-secrets/SecretDetails.svelte';
 import ContainerDetails from './lib/container/ContainerDetails.svelte';
 import ContainerExport from './lib/container/ContainerExport.svelte';
 import ContainerList from './lib/container/ContainerList.svelte';
@@ -241,6 +244,23 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
           let:meta
           navigationHint="details">
           <IngressDetails name="{decodeURI(meta.params.name)}" namespace="{decodeURI(meta.params.namespace)}" />
+        </Route>
+        <Route path="/configmapsSecrets" breadcrumb="ConfigMaps & Secrets" navigationHint="root">
+          <ConfigMapSecretList />
+        </Route>
+        <Route
+          path="/configmapsSecrets/configmap/:name/:namespace/*"
+          breadcrumb="ConfigMap Details"
+          let:meta
+          navigationHint="details">
+          <ConfigMapDetails name="{decodeURI(meta.params.name)}" namespace="{decodeURI(meta.params.namespace)}" />
+        </Route>
+        <Route
+          path="/configmapsSecrets/secret/:name/:namespace/*"
+          breadcrumb="Secret Details"
+          let:meta
+          navigationHint="details">
+          <SecretDetails name="{decodeURI(meta.params.name)}" namespace="{decodeURI(meta.params.namespace)}" />
         </Route>
         <Route
           path="/ingressesRoutes/route/:name/:namespace/*"

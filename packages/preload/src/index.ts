@@ -34,6 +34,7 @@ import type {
   V1PersistentVolumeClaim,
   V1Pod,
   V1PodList,
+  V1Secret,
   V1Service,
 } from '@kubernetes/client-node';
 import type * as containerDesktopAPI from '@podman-desktop/api';
@@ -1715,6 +1716,12 @@ export function initExposure(): void {
       return ipcInvoke('kubernetes-client:readNamespacedConfigMap', name, namespace);
     },
   );
+  contextBridge.exposeInMainWorld(
+    'kubernetesReadNamespacedSecret',
+    async (name: string, namespace: string): Promise<V1Secret | undefined> => {
+      return ipcInvoke('kubernetes-client:readNamespacedSecret', name, namespace);
+    },
+  );
 
   contextBridge.exposeInMainWorld('kubernetesIsAPIGroupSupported', async (group: string): Promise<boolean> => {
     return ipcInvoke('kubernetes-client:isAPIGroupSupported', group);
@@ -1784,6 +1791,14 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld('kubernetesDeleteDeployment', async (name: string): Promise<void> => {
     return ipcInvoke('kubernetes-client:deleteDeployment', name);
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesDeleteConfigMap', async (name: string): Promise<void> => {
+    return ipcInvoke('kubernetes-client:deleteConfigMap', name);
+  });
+
+  contextBridge.exposeInMainWorld('kubernetesDeleteSecret', async (name: string): Promise<void> => {
+    return ipcInvoke('kubernetes-client:deleteSecret', name);
   });
 
   contextBridge.exposeInMainWorld('kubernetesDeletePersistentVolumeClaim', async (name: string): Promise<void> => {
