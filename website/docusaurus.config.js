@@ -1,6 +1,7 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 import { resolve } from 'node:path';
+import Storybook from './storybook';
 
 const lightCodeTheme = require('prism-react-renderer').themes.github;
 const darkCodeTheme = require('prism-react-renderer').themes.dracula;
@@ -336,6 +337,16 @@ const config = {
         tsconfig: resolve('../packages/extension-api/tsconfig.json'),
         hideGenerator: true,
       },
+    ],
+    // Custom Storybook integration
+    [
+      Storybook,
+      /** @type {import('./storybook').PluginOptions} */
+      ({
+        id: 'storybook-docusaurus-integration',
+        output: 'src/pages/storybook',
+        storybookStatic: '../storybook/storybook-static',
+      }),
     ],
   ],
   presets: [
