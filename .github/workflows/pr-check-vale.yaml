@@ -22,11 +22,12 @@ on:
   pull_request:
     paths:
       - 'website/**'
+      - '.github/workflows/pr-check-vale.yaml'
 
 jobs:
   vale:
     name: runner / vale
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: errata-ai/vale-action@v2.1.0
