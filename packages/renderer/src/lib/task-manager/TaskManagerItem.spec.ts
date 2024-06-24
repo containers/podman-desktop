@@ -32,7 +32,7 @@ const IN_PROGRESS_TASK: StatefulTask = {
   state: 'running',
   started,
   status: 'in-progress',
-  action: {
+  rendererAction: {
     name: 'action',
     execute: () => {},
   },

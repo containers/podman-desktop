@@ -29,8 +29,10 @@ export interface StatefulTask extends Task {
   state: TaskState;
   status: TaskStatus;
   progress?: number;
-  gotoTask?: () => void;
-  action?: {
+  /**
+   * @deprecated
+   */
+  rendererAction?: {
     name: string;
     execute: () => void;
   };

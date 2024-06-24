@@ -48,15 +48,8 @@ function closeCompleted(taskUI: StatefulTaskUI | NotificationTask) {
   removeTask(taskUI.id);
 }
 
-function gotoTask(taskUI: StatefulTaskUI) {
-  // hide the task manager
-  window.events?.send('toggle-task-manager', '');
-  // and open the task
-  taskUI?.gotoTask?.();
-}
-
 function doExecuteAction(taskUI: StatefulTaskUI) {
-  taskUI?.action?.execute();
+  taskUI?.rendererAction?.execute();
 }
 </script>
 
@@ -103,28 +96,19 @@ function doExecuteAction(taskUI: StatefulTaskUI) {
         {#if (taskUI.progress ?? 0) >= 0}
           <ProgressBar progress="{taskUI.progress}" />
         {/if}
-        <div class="flex flex-1 flex-col w-full items-end text-purple-500 text-xs">
-          {#if taskUI.hasGotoTask}
-            <button
-              class="text-purple-500 cursor-pointer"
-              on:click="{() => {
-                if (isStatefulTask(taskUI)) gotoTask(taskUI);
-              }}">Go to task ></button>
-          {/if}
-        </div>
       </div>
     {/if}
 
     {#if isStatefulTask(taskUI) && taskUI.status !== 'failure'}
       <div class="flex flex-row w-full">
         <div class="flex flex-1 flex-col w-full items-end text-purple-500 text-xs">
-          {#if taskUI.action}
+          {#if taskUI.rendererAction}
             <button
               class="text-purple-500 cursor-pointer"
               on:click="{() => {
                 if (isStatefulTask(taskUI)) doExecuteAction(taskUI);
               }}"
-              aria-label="action button">{taskUI.action.name}</button>
+              aria-label="action button">{taskUI.rendererAction.name}</button>
           {/if}
         </div>
       </div>
