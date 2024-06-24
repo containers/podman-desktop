@@ -8,6 +8,7 @@ let providerUnsubscribe: Unsubscriber;
 
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import type { V1NamespaceList } from '@kubernetes/client-node/dist/api';
+import type { OpenDialogOptions } from '@podman-desktop/api';
 import { Button, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
@@ -16,6 +17,7 @@ import MonacoEditor from '../editor/MonacoEditor.svelte';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
 import KubePlayIcon from '../kube/KubePlayIcon.svelte';
 import EngineFormPage from '../ui/EngineFormPage.svelte';
+import FileInput from '../ui/FileInput.svelte';
 import WarningMessage from '../ui/WarningMessage.svelte';
 
 let runStarted = false;
@@ -24,6 +26,8 @@ let runError = '';
 let runWarning = '';
 let kubernetesYamlFilePath: string | undefined = undefined;
 let hasInvalidFields = true;
+
+$: hasInvalidFields = kubernetesYamlFilePath === undefined;
 
 let defaultContextName: string | undefined;
 let currentNamespace: string | undefined;
@@ -44,6 +48,16 @@ $: providerConnections = providers
 $: selectedProviderConnection = providerConnections.length > 0 ? providerConnections[0] : undefined;
 let selectedProvider: ProviderContainerConnectionInfo | undefined = undefined;
 $: selectedProvider = !selectedProvider && selectedProviderConnection ? selectedProviderConnection : selectedProvider;
+
+const kubeFileDialogOptions: OpenDialogOptions = {
+  title: 'Select a .yaml file to play',
+  filters: [
+    {
+      name: 'YAML files',
+      extensions: ['yaml', 'yml'],
+    },
+  ],
+};
 
 function removeEmptyOrNull(obj: any) {
   Object.keys(obj).forEach(
@@ -144,22 +158,6 @@ onDestroy(() => {
 function goBackToHistory(): void {
   window.history.go(-1);
 }
-
-async function getKubernetesfileLocation() {
-  const filePaths = await window.openDialog({
-    title: 'Select a .yaml file to play',
-    filters: [
-      {
-        name: 'YAML files',
-        extensions: ['yaml', 'yml'],
-      },
-    ],
-  });
-  if (filePaths?.length === 1) {
-    kubernetesYamlFilePath = filePaths[0];
-    hasInvalidFields = false;
-  }
-}
 </script>
 
 {#if providerConnections.length === 0}
@@ -175,17 +173,15 @@ async function getKubernetesfileLocation() {
       <div hidden="{runStarted}">
         <label for="containerFilePath" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
           >Kubernetes YAML file</label>
-        <div class="flex flex-row space-x-2">
-          <Input
-            name="containerFilePath"
-            id="containerFilePath"
-            bind:value="{kubernetesYamlFilePath}"
-            readonly
-            placeholder="Select a .yaml file to play"
-            class="w-full p-2"
-            required />
-          <Button on:click="{() => getKubernetesfileLocation()}">Browse ...</Button>
-        </div>
+        <FileInput
+          name="containerFilePath"
+          id="containerFilePath"
+          readonly
+          required
+          bind:value="{kubernetesYamlFilePath}"
+          placeholder="Select a .yaml file to play"
+          options="{kubeFileDialogOptions}"
+          class="w-full p-2" />
       </div>
 
       <div>
