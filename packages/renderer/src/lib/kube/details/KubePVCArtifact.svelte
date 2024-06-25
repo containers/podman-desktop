@@ -37,44 +37,68 @@ export let artifact: V1PersistentVolumeClaimSpec | undefined;
     <tr>
       <Cell>Requests</Cell>
       {#if artifact.resources.requests}
-        {#each Object.entries(artifact.resources.requests) as [resourceType, quantity]}
-          <tr>
-            <Cell>{resourceType}: {quantity}</Cell>
-          </tr>
-        {/each}
+        <Cell>
+          <table>
+            <tbody>
+              {#each Object.entries(artifact.resources.requests) as [resourceType, quantity]}
+                <tr>
+                  <Cell>{resourceType}: {quantity}</Cell>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </Cell>
       {/if}
     </tr>
   {/if}
   {#if artifact.resources?.limits}
     <tr>
       <Cell>Limits</Cell>
-      {#each Object.entries(artifact.resources.limits) as [resourceType, quantity]}
-        <tr>
-          <Cell>{resourceType}: {quantity}</Cell>
-        </tr>
-      {/each}
+      <Cell>
+        <table>
+          <tbody>
+            {#each Object.entries(artifact.resources.limits) as [resourceType, quantity]}
+              <tr>
+                <Cell>{resourceType}: {quantity}</Cell>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </Cell>
     </tr><tr> </tr>{/if}
 
   {#if artifact.selector}
     <tr>
       <Title>Selector</Title>
       {#if artifact.selector.matchLabels}
-        {#each Object.entries(artifact.selector.matchLabels) as [label, value]}
-          <tr>
-            <Cell>Match Label: {label}</Cell>
-            <Cell>{value}</Cell>
-          </tr>
-        {/each}
+        <Cell>
+          <table>
+            <tbody>
+              {#each Object.entries(artifact.selector.matchLabels) as [label, value]}
+                <tr>
+                  <Cell>Match Label: {label}</Cell>
+                  <Cell>{value}</Cell>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </Cell>
       {/if}
       {#if artifact.selector.matchExpressions}
-        {#each artifact.selector.matchExpressions as expression}
-          {#if expression.values}
-            <tr>
-              <Cell>Expression: {expression.key} {expression.operator}</Cell>
-              <Cell>{expression.values.join(', ')}</Cell>
-            </tr>
-          {/if}
-        {/each}
+        <Cell>
+          <table>
+            <tbody>
+              {#each artifact.selector.matchExpressions as expression}
+                {#if expression.values}
+                  <tr>
+                    <Cell>Expression: {expression.key} {expression.operator}</Cell>
+                    <Cell>{expression.values.join(', ')}</Cell>
+                  </tr>
+                {/if}
+              {/each}
+            </tbody>
+          </table>
+        </Cell>
       {/if}
     </tr>
   {/if}

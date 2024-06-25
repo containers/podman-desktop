@@ -30,24 +30,39 @@ export let artifact: V1PersistentVolumeClaimStatus | undefined;
   {#if artifact.capacity}
     <tr>
       <Cell>Capacity</Cell>
-      {#each Object.entries(artifact.capacity) as [resource, quantity]}
-        <tr>
-          <Cell>{resource}: {quantity}</Cell>
-        </tr>
-      {/each}
+      <Cell>
+        <table>
+          <tbody>
+            {#each Object.entries(artifact.capacity) as [resource, quantity]}
+              <tr>
+                <Cell>{resource}: {quantity}</Cell>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </Cell>
     </tr>
   {/if}
   {#if artifact.conditions}
     <tr>
       <Title>Conditions</Title>
-      {#each artifact.conditions as condition}
-        <tr>
-          <Cell>Type: {condition.type}</Cell>
-          <Cell
-            >Status: {condition.status}, LastProbeTime: {condition.lastProbeTime ? condition.lastProbeTime : 'N/A'},
-            LastTransitionTime: {condition.lastTransitionTime ? condition.lastTransitionTime : 'N/A'}</Cell>
-        </tr>
-      {/each}
+      <Cell>
+        <table>
+          <tbody>
+            {#each artifact.conditions as condition}
+              <tr>
+                <Cell>Type: {condition.type}</Cell>
+                <Cell
+                  >Status: {condition.status}, LastProbeTime: {condition.lastProbeTime
+                    ? condition.lastProbeTime
+                    : 'N/A'}, LastTransitionTime: {condition.lastTransitionTime
+                    ? condition.lastTransitionTime
+                    : 'N/A'}</Cell>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </Cell>
     </tr>
   {/if}
 {/if}
