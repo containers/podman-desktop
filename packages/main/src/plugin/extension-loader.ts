@@ -52,6 +52,7 @@ import { DEFAULT_TIMEOUT, ExtensionLoaderSettings } from './extension-loader-set
 import type { FilesystemMonitoring } from './filesystem-monitoring.js';
 import type { IconRegistry } from './icon-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
+import type { ImageFilesRegistry } from './image-files-registry.js';
 import type { ImageRegistry } from './image-registry.js';
 import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
 import { InputBoxValidationSeverity, QuickPickItemKind } from './input-quickpick/input-quickpick-registry.js';
@@ -184,6 +185,7 @@ export class ExtensionLoader {
     private cliToolRegistry: CliToolRegistry,
     private notificationRegistry: NotificationRegistry,
     private imageCheckerProvider: ImageCheckerImpl,
+    private imageFilesRegistry: ImageFilesRegistry,
     private navigationManager: NavigationManager,
     private webviewRegistry: WebviewRegistry,
     private colorRegistry: ColorRegistry,
@@ -800,6 +802,7 @@ export class ExtensionLoader {
     //export function executeCommand<T = unknown>(command: string, ...rest: any[]): PromiseLike<T>;
 
     const providerRegistry = this.providerRegistry;
+    const imageFilesRegistry = this.imageFilesRegistry;
 
     const provider: typeof containerDesktopAPI.provider = {
       createProvider(providerOptions: containerDesktopAPI.ProviderOptions): containerDesktopAPI.Provider {
@@ -837,6 +840,14 @@ export class ExtensionLoader {
         providerConnectionInfo: containerDesktopAPI.ContainerProviderConnection,
       ): containerDesktopAPI.LifecycleContext {
         return providerRegistry.getMatchingProviderLifecycleContextByProviderId(providerId, providerConnectionInfo);
+      },
+      createImageFilesProvider: (
+        provider: containerDesktopAPI.ImageFilesCallbacks,
+        metadata?: containerDesktopAPI.ImageFilesProviderMetadata,
+      ): containerDesktopAPI.ImageFilesProvider => {
+        const imageFilesProvider = imageFilesRegistry.create(extensionInfo, provider, metadata);
+        disposables.push(imageFilesProvider);
+        return imageFilesProvider;
       },
     };
 

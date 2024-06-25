@@ -687,6 +687,110 @@ declare module '@podman-desktop/api' {
     connection: ContainerProviderConnection;
   }
 
+  /**
+   * the description of a file in an image filesystem layer
+   */
+  export interface ImageFile {
+    path: string;
+    type: 'directory' | 'symlink' | 'file';
+    // File mode encoded on 4 octal digits
+    mode: number;
+    uid: number;
+    gid: number;
+    size: number;
+    ctime: Date;
+    atime: Date;
+    mtime: Date;
+  }
+
+  /**
+   * the description of a symlink in an image filesystem layer
+   */
+  export interface ImageFileSymlink extends ImageFile {
+    type: 'symlink';
+    // path of the target file
+    linkPath: string;
+  }
+
+  /**
+   * a filesystem layer of an image as defined by [spec](https://github.com/opencontainers/image-spec/blob/main/spec.md)
+   */
+  export interface ImageFilesystemLayer {
+    /**
+     * unique id of the layer
+     */
+    id: string;
+    /**
+     * the command which created the layer
+     */
+    createdBy?: string;
+    /**
+     * files indicate the paths of the files added or modified in the layer
+     */
+    files?: ImageFile[];
+    /**
+     * whiteouts indicate the paths of the files to be deleted from previous layers.
+     */
+    whiteouts?: string[];
+    /**
+     * opaque whiteouts indicate the directories in which the content has to be completely deleted from previous layers.
+     */
+    opaqueWhiteouts?: string[];
+  }
+
+  /**
+   * the complete list of filesystem layers
+   */
+  export interface ImageFilesystemLayers {
+    layers: ImageFilesystemLayer[];
+  }
+
+  /**
+   * Interface to be implemented by image files providers
+   */
+  export interface ImageFilesCallbacks {
+    /**
+     *
+     * @param image Info about the image
+     * @param token a cancellation token the function can use to be informed when the caller asks for the operation to be cancelled
+     * @return the complete result of the layers, either synchronously of through a Promise
+     */
+    getFilesystemLayers(image: ImageInfo, token?: CancellationToken): ProviderResult<ImageFilesystemLayers>;
+  }
+
+  /**
+   * Provider returned to the extension when calling createImageFilesProvider
+   * Provides helper functions for building the response of the `createImageFilesProvider` callback
+   */
+  export interface ImageFilesProvider extends Disposable {
+    /**
+     * add a file to the layer
+     */
+    addFile(layer: ImageFilesystemLayer, opts: { path: string; mode: number; size: number }): ImageFilesProvider;
+    /**
+     * add a directory to the layer
+     */
+    addDirectory(layer: ImageFilesystemLayer, opts: { path: string; mode: number }): ImageFilesProvider;
+    /**
+     * add a symbolic link to the layer
+     */
+    addSymlink(layer: ImageFilesystemLayer, opts: { path: string; mode: number; linkPath: string }): ImageFilesProvider;
+    /**
+     * add a file or directory to remove from previous layers
+     * @param path
+     */
+    addWhiteout(layer: ImageFilesystemLayer, path: string): ImageFilesProvider;
+    /**
+     * add a complete directory to remove from previous layers
+     * @param path
+     */
+    addOpaqueWhiteout(layer: ImageFilesystemLayer, path: string): ImageFilesProvider;
+  }
+
+  export interface ImageFilesProviderMetadata {
+    readonly label: string;
+  }
+
   export namespace provider {
     export function createProvider(provider: ProviderOptions): Provider;
     export const onDidUpdateProvider: Event<ProviderEvent>;
@@ -708,6 +812,20 @@ declare module '@podman-desktop/api' {
       providerId: string,
       containerProviderConnection: ContainerProviderConnection,
     ): LifecycleContext;
+    /**
+     * @beta Register the extension as an Image Files provider.
+     *
+     * As an image files provider, a provider needs to implement a specific interface, so the core
+     * application can call the provider with specific tasks when necessary.
+     *
+     * @param imageFilesCallbacks an object implementing the `ImageFilesProvider` interface
+     * @param metadata optional metadata attached to this provider
+     * @return A disposable that unregisters this provider when being disposed
+     */
+    export function createImageFilesProvider(
+      imageFilesCallbacks: ImageFilesCallbacks,
+      metadata?: ImageFilesProviderMetadata,
+    ): ImageFilesProvider;
   }
 
   export interface ProxySettings {
