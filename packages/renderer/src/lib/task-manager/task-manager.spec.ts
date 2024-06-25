@@ -54,7 +54,7 @@ const OPEN_FOLDER_TASK: StatefulTask = {
   state: 'running',
   started,
   status: 'in-progress',
-  rendererAction: {
+  action: {
     name: 'action',
     execute: () => {},
   },

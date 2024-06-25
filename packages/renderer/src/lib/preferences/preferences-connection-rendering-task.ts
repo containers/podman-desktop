@@ -70,7 +70,7 @@ export function startTask(name: string, goToUrl: string, createCallback: Connect
   const task = createTask(name);
 
   // go to the images build
-  task.rendererAction = {
+  task.action= {
     name: 'Go to task >',
     execute: () => router.goto(goToUrl),
   };

@@ -55,7 +55,7 @@ async function exportContainer() {
   exportedError = '';
   inProgress = true;
   const task = createTask(`Export container ${container.name}`);
-  task.rendererAction = {
+  task.action= {
     name: 'Open folder >',
     execute: () => {
       window.openDialog({

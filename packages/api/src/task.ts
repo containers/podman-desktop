@@ -32,7 +32,7 @@ export interface StatefulTask extends Task {
   /**
    * @deprecated
    */
-  rendererAction?: {
+  action?: {
     name: string;
     execute: () => void;
   };

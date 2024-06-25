@@ -36,7 +36,7 @@ export class TaskManager {
         state: task.state,
         status: task.status,
         age: `${humanizeDuration(new Date().getTime() - task.started, { round: true, largest: 1 })} ago`,
-        rendererAction: task.rendererAction,
+        action: task.action,
         error: task.error,
       };
 
