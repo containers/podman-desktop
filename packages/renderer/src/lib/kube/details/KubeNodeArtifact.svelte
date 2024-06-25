@@ -36,12 +36,18 @@ export let artifact: V1NodeSpec | undefined;
   {#if artifact.taints}
     <tr>
       <Title>Taints</Title>
-      {#each artifact.taints as taint}
-        <tr>
-          <Cell>{taint.key}</Cell>
-          <Cell>Effect: {taint.effect}, Value: {taint.value ?? 'N/A'}</Cell>
-        </tr>
-      {/each}
+      <Cell>
+        <table>
+          <tbody>
+            {#each artifact.taints as taint}
+              <tr>
+                <Cell>{taint.key}</Cell>
+                <Cell>Effect: {taint.effect}, Value: {taint.value ?? 'N/A'}</Cell>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </Cell>
     </tr>
   {/if}
   <tr>
