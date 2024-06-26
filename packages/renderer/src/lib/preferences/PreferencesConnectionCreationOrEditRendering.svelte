@@ -126,7 +126,9 @@ onMount(async () => {
   }
 
   configurationKeys = properties
-    .filter(property => property.scope === propertyScope)
+    .filter(property =>
+      Array.isArray(property.scope) ? property.scope.find(s => s === propertyScope) : property.scope === propertyScope,
+    )
     .filter(property => property.id?.startsWith(providerInfo.id))
     .filter(property => isPropertyValidInContext(property.when, globalContext))
     .map(property => {
@@ -250,7 +252,9 @@ async function getConfigurationValue(configurationKey: IConfigurationPropertyRec
       internalSetConfigurationValue(configurationKey.id, false, value as string);
       return value;
     }
-    return getInitialValue(configurationKey);
+    const initialValue = await getInitialValue(configurationKey);
+    internalSetConfigurationValue(configurationKey.id, false, initialValue as string);
+    return initialValue;
   }
 }
 
