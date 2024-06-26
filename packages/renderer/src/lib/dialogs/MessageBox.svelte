@@ -111,9 +111,9 @@ function getButtonType(b: boolean): ButtonType {
   <Modal name="{title}" on:close="{onClose}">
     <div class="flex items-center justify-between pl-4 pr-3 py-3 space-x-2 text-[var(--pd-modal-header-text)]">
       {#if type === 'error'}
-        <Fa class="h-4 w-4 text-[var(--pd-modal-error-text)]" icon="{faCircleExclamation}" />
+        <Fa class="h-4 w-4 text-[var(--pd-state-error)]" icon="{faCircleExclamation}" />
       {:else if type === 'warning'}
-        <Fa class="h-4 w-4 text-[var(--pd-modal-warning-text)]" icon="{faTriangleExclamation}" />
+        <Fa class="h-4 w-4 text-[var(--pd-state-warning)]" icon="{faTriangleExclamation}" />
       {:else if type === 'info'}
         <div class="flex">
           <Fa class="h-4 w-4 place-content-center" icon="{faCircle}" />

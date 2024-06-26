@@ -11,14 +11,17 @@ export let icon = false;
 {#if icon}
   {#if error !== undefined && error !== ''}
     <Tooltip top tip="{error}">
-      <Fa size="1.1x" class="cursor-pointer text-red-500 {$$props.class}" icon="{faExclamationCircle}" />
+      <Fa
+        size="1.1x"
+        class="cursor-pointer text-[var(--pd-state-error)] {$$props.class}"
+        icon="{faExclamationCircle}" />
     </Tooltip>
   {/if}
 {:else}
   <div
-    class="text-red-500 p-1 flex flex-row items-center {$$props.class}"
+    class="text-[var(--pd-state-error)] p-1 flex flex-row items-center {$$props.class}"
     class:opacity-0="{error === undefined || error === ''}">
-    <Fa size="1.1x" class="cursor-pointer text-red-500" icon="{faExclamationCircle}" />
+    <Fa size="1.1x" class="cursor-pointer text-[var(--pd-state-error)]" icon="{faExclamationCircle}" />
     <div role="alert" aria-label="Error Message Content" class="ml-2">{error}</div>
   </div>
 {/if}

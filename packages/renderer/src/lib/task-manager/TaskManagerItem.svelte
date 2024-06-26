@@ -30,11 +30,11 @@ onMount(() => {
   if (isStatefulTask(task)) {
     if (task.status === 'success') {
       icon = faSquareCheck;
-      iconColor = 'text-green-600';
+      iconColor = 'text-[var(--pd-state-success)]';
       return;
     } else if (task.status === 'failure') {
       icon = faTriangleExclamation;
-      iconColor = 'text-red-500';
+      iconColor = 'text-[var(--pd-state-error)]';
       return;
     }
   }

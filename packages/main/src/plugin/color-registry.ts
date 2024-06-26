@@ -252,6 +252,7 @@ export class ColorRegistry {
     this.initFormPage();
     this.initStatusBar();
     this.initOnboarding();
+    this.initStates();
   }
 
   protected initNotificationDot(): void {
@@ -857,14 +858,6 @@ export class ColorRegistry {
       dark: colorPalette.purple[700],
       light: colorPalette.purple[300],
     });
-    this.registerColor(`${modal}error-text`, {
-      dark: colorPalette.red[500],
-      light: colorPalette.red[500],
-    });
-    this.registerColor(`${modal}warning-text`, {
-      dark: colorPalette.amber[400],
-      light: colorPalette.amber[400],
-    });
   }
 
   // links
@@ -1252,6 +1245,24 @@ export class ColorRegistry {
     this.registerColor(`${onboarding}inactive-dot-border`, {
       dark: colorPalette.gray[700],
       light: colorPalette.gray[700],
+    });
+  }
+
+  protected initStates(): void {
+    const state = 'state-';
+
+    // general error and warning states
+    this.registerColor(`${state}success`, {
+      dark: colorPalette.green[500],
+      light: colorPalette.green[600],
+    });
+    this.registerColor(`${state}warning`, {
+      dark: colorPalette.amber[500],
+      light: colorPalette.amber[600],
+    });
+    this.registerColor(`${state}error`, {
+      dark: colorPalette.red[500],
+      light: colorPalette.red[600],
     });
   }
 }
