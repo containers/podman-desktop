@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -154,7 +154,7 @@ test('Expect memory donut', async () => {
   expect(memTooltip).toBeInTheDocument();
 
   const memArc = screen.getAllByTestId('arc')[1];
-  expect(memArc).toHaveClass('stroke-green-500');
+  expect(memArc).toHaveClass('stroke-[var(--pd-state-success)]');
 });
 
 test('Expect CPU donut', async () => {
@@ -173,5 +173,5 @@ test('Expect CPU donut', async () => {
   expect(cpuTooltip).toBeInTheDocument();
 
   const cpuArc = screen.getAllByTestId('arc')[0];
-  expect(cpuArc).toHaveClass('stroke-red-500');
+  expect(cpuArc).toHaveClass('stroke-[var(--pd-state-error)]');
 });
