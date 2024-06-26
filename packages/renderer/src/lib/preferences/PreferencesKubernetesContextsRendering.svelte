@@ -122,55 +122,55 @@ async function handleDeleteContext(contextName: string) {
         </div>
         <div class="grow flex-column divide-gray-900 text-[var(--pd-invert-content-card-text)]">
           <div class="flex flex-row">
-            {#if $kubernetesContextsState.get(context.name)}
-              <div class="flex-none w-36">
-                {#if $kubernetesContextsState.get(context.name)?.reachable}
-                  <div class="flex flex-row pt-2">
-                    <div class="w-3 h-3 rounded-full bg-[var(--pd-status-connected)]"></div>
-                    <div
-                      class="ml-1 font-bold text-[9px] text-[var(--pd-status-connected)]"
-                      aria-label="Context Reachable">
-                      REACHABLE
+            <div class="flex-none w-36">
+              {#if $kubernetesContextsState.get(context.name)?.reachable}
+                <div class="flex flex-row pt-2">
+                  <div class="w-3 h-3 rounded-full bg-[var(--pd-status-connected)]"></div>
+                  <div
+                    class="ml-1 font-bold text-[9px] text-[var(--pd-status-connected)]"
+                    aria-label="Context Reachable">
+                    REACHABLE
+                  </div>
+                </div>
+                <div class="flex flex-row gap-4 mt-4">
+                  <div class="text-center">
+                    <div class="font-bold text-[9px] text-[var(--pd-invert-content-card-text)]">PODS</div>
+                    <div class="text-[16px] text-[var(--pd-invert-content-card-text)]" aria-label="Context Pods Count">
+                      {$kubernetesContextsState.get(context.name)?.resources.pods}
                     </div>
                   </div>
-                  <div class="flex flex-row gap-4 mt-4">
-                    <div class="text-center">
-                      <div class="font-bold text-[9px] text-[var(--pd-invert-content-card-text)]">PODS</div>
-                      <div
-                        class="text-[16px] text-[var(--pd-invert-content-card-text)]"
-                        aria-label="Context Pods Count">
-                        {$kubernetesContextsState.get(context.name)?.resources.pods}
-                      </div>
-                    </div>
-                    <div class="text-center">
-                      <div class="font-bold text-[9px] text-[var(--pd-invert-content-card-text)]">DEPLOYMENTS</div>
-                      <div
-                        class="text-[16px] text-[var(--pd-invert-content-card-text)]"
-                        aria-label="Context Deployments Count">
-                        {$kubernetesContextsState.get(context.name)?.resources.deployments}
-                      </div>
+                  <div class="text-center">
+                    <div class="font-bold text-[9px] text-[var(--pd-invert-content-card-text)]">DEPLOYMENTS</div>
+                    <div
+                      class="text-[16px] text-[var(--pd-invert-content-card-text)]"
+                      aria-label="Context Deployments Count">
+                      {$kubernetesContextsState.get(context.name)?.resources.deployments}
                     </div>
                   </div>
-                {:else}
-                  <div class="flex flex-row pt-2">
-                    <div class="w-3 h-3 rounded-full bg-[var(--pd-status-disconnected)]"></div>
-                    <div
-                      class="ml-1 font-bold text-[9px] text-[var(--pd-status-disconnected)]"
-                      aria-label="Context Unreachable">
+                </div>
+              {:else}
+                <div class="flex flex-row pt-2">
+                  <div class="w-3 h-3 rounded-full bg-[var(--pd-status-disconnected)]"></div>
+                  <div
+                    class="ml-1 font-bold text-[9px] text-[var(--pd-status-disconnected)]"
+                    aria-label="Context Unreachable">
+                    {#if $kubernetesContextsState.get(context.name)}
                       UNREACHABLE
-                    </div>
-                    {#if (checkingCount.get(context.name) ?? 0) > 0}
-                      <div class="ml-1"><Spinner size="12px"></Spinner></div>
+                    {:else}
+                      UNKNOWN
                     {/if}
                   </div>
-                {/if}
-              </div>
-            {/if}
+                  {#if (checkingCount.get(context.name) ?? 0) > 0}
+                    <div class="ml-1"><Spinner size="12px"></Spinner></div>
+                  {/if}
+                </div>
+              {/if}
+            </div>
             <div class="grow">
               <div class="text-xs bg-[var(--pd-invert-content-bg)] p-2 rounded-lg mt-1 grid grid-cols-6">
                 <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">CLUSTER</span>
                 <span
-                  class="my-auto col-span-5 text-left pl-0.5 ml-3 overflow-hidden text-ellipsis"
+                  class="my-auto col-span-5 text-left ml-3 overflow-hidden text-ellipsis"
                   aria-label="Context Cluster">{context.cluster}</span>
               </div>
 
@@ -187,16 +187,15 @@ async function handleDeleteContext(contextName: string) {
 
               <div class="text-xs bg-[var(--pd-invert-content-bg)] p-2 rounded-lg mt-1 grid grid-cols-6">
                 <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">USER</span>
-                <span
-                  class="my-auto col-span-5 text-left pl-0.5 ml-3 overflow-hidden text-ellipsis"
-                  aria-label="Context User">{context.user}</span>
+                <span class="my-auto col-span-5 text-left ml-3 overflow-hidden text-ellipsis" aria-label="Context User"
+                  >{context.user}</span>
               </div>
 
               {#if context.namespace}
                 <div class="text-xs bg-[var(--pd-invert-content-bg)] p-2 rounded-lg mt-1 grid grid-cols-6">
                   <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">NAMESPACE</span>
                   <span
-                    class="my-auto col-span-5 text-left pl-0.5 ml-3 overflow-hidden text-ellipsis"
+                    class="my-auto col-span-5 text-left ml-3 overflow-hidden text-ellipsis"
                     aria-label="Context Namespace">{context.namespace}</span>
                 </div>
               {/if}
