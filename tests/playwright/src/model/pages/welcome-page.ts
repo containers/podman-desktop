@@ -17,9 +17,10 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { expect } from '@playwright/test';
+import { expect as playExpect } from '@playwright/test';
 
 import { BasePage } from './base-page';
+import { DashboardPage } from './dashboard-page';
 
 export class WelcomePage extends BasePage {
   readonly welcomeMessage: Locator;
@@ -34,17 +35,23 @@ export class WelcomePage extends BasePage {
   }
 
   async turnOffTelemetry(): Promise<void> {
-    await this.telemetryConsent.uncheck();
+    if (await this.telemetryConsent.isChecked()) {
+      await this.telemetryConsent.uncheck();
+    }
+
+    await playExpect(this.telemetryConsent).not.toBeChecked();
   }
 
-  async closeWelcomePage(): Promise<void> {
+  async closeWelcomePage(): Promise<DashboardPage> {
+    await playExpect(this.goToPodmanDesktopButton).toBeEnabled();
     await this.goToPodmanDesktopButton.click();
+    return new DashboardPage(this.page);
   }
 
   async waitForInitialization(): Promise<void> {
     // wait for an application to initialize
     const checkLoader = this.page.getByRole('heading', { name: 'Initializing...' });
-    await expect(checkLoader).toHaveCount(0, { timeout: 5000 });
+    await playExpect(checkLoader).toHaveCount(0);
   }
 
   /**
@@ -54,7 +61,7 @@ export class WelcomePage extends BasePage {
     await this.waitForInitialization();
     if (skipIfNotPresent) {
       try {
-        await this.goToPodmanDesktopButton.waitFor({ state: 'visible', timeout: 5000 });
+        await this.goToPodmanDesktopButton.waitFor({ state: 'visible' });
       } catch (err) {
         if ((err as Error).name !== 'TimeoutError') {
           throw err;
@@ -64,6 +71,6 @@ export class WelcomePage extends BasePage {
     }
     await this.turnOffTelemetry();
     await this.closeWelcomePage();
-    await expect(this.welcomeMessage).toHaveCount(0, { timeout: 3000 });
+    await playExpect(this.welcomeMessage).toHaveCount(0);
   }
 }
