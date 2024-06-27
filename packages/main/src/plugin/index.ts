@@ -78,6 +78,7 @@ import type { ExtensionInfo } from '/@api/extension-info.js';
 import type { HistoryInfo } from '/@api/history-info.js';
 import type { IconInfo } from '/@api/icon-info.js';
 import type { ImageCheckerInfo } from '/@api/image-checker-info.js';
+import type { ImageFilesInfo } from '/@api/image-files-info.js';
 import type { ImageInfo } from '/@api/image-info.js';
 import type { ImageInspectInfo } from '/@api/image-inspect-info.js';
 import type { ManifestCreateOptions, ManifestInspectInfo } from '/@api/manifest-info.js';
@@ -137,6 +138,7 @@ import type { FeaturedExtension } from './featured/featured-api.js';
 import { FilesystemMonitoring } from './filesystem-monitoring.js';
 import { IconRegistry } from './icon-registry.js';
 import { ImageCheckerImpl } from './image-checker.js';
+import { ImageFilesRegistry } from './image-files-registry.js';
 import { ImageRegistry } from './image-registry.js';
 import { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
 import { ExtensionInstaller } from './install/extension-installer.js';
@@ -585,6 +587,8 @@ export class PluginSystem {
 
     const imageChecker = new ImageCheckerImpl(apiSender);
 
+    const imageFiles = new ImageFilesRegistry(apiSender);
+
     const troubleshooting = new Troubleshooting(apiSender);
 
     const contributionManager = new ContributionManager(apiSender, directories, containerProviderRegistry, exec);
@@ -632,6 +636,7 @@ export class PluginSystem {
       cliToolRegistry,
       notificationRegistry,
       imageChecker,
+      imageFiles,
       navigationManager,
       webviewRegistry,
       colorRegistry,
@@ -2217,6 +2222,27 @@ export class PluginSystem {
           token = tokenSource?.token;
         }
         return imageChecker.check(id, image, token);
+      },
+    );
+
+    this.ipcHandle('image-files:getProviders', async (): Promise<ImageFilesInfo[]> => {
+      return imageFiles.getImageFilesProviders();
+    });
+
+    this.ipcHandle(
+      'image-files:getFilesystemLayers',
+      async (
+        _listener,
+        id: string,
+        image: ImageInfo,
+        tokenId?: number,
+      ): Promise<containerDesktopAPI.ImageFilesystemLayers | undefined> => {
+        let token;
+        if (tokenId) {
+          const tokenSource = cancellationTokenRegistry.getCancellationTokenSource(tokenId);
+          token = tokenSource?.token;
+        }
+        return imageFiles.getFilesystemLayers(id, image, token);
       },
     );
 

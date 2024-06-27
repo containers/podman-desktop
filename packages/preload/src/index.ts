@@ -59,6 +59,7 @@ import type { ExtensionInfo } from '/@api/extension-info';
 import type { HistoryInfo } from '/@api/history-info';
 import type { IconInfo } from '/@api/icon-info';
 import type { ImageCheckerInfo } from '/@api/image-checker-info';
+import type { ImageFilesInfo } from '/@api/image-files-info';
 import type { ImageInfo } from '/@api/image-info';
 import type { ImageInspectInfo } from '/@api/image-inspect-info';
 import type { ManifestCreateOptions, ManifestInspectInfo } from '/@api/manifest-info';
@@ -2081,6 +2082,21 @@ export function initExposure(): void {
       cancellationToken?: number,
     ): Promise<containerDesktopAPI.ImageChecks | undefined> => {
       return ipcInvoke('image-checker:check', id, image, cancellationToken);
+    },
+  );
+
+  contextBridge.exposeInMainWorld('getImageFilesProviders', async (): Promise<ImageFilesInfo[]> => {
+    return ipcInvoke('image-files:getProviders');
+  });
+
+  contextBridge.exposeInMainWorld(
+    'imageGetFilesystemLayers',
+    async (
+      id: string,
+      image: containerDesktopAPI.ImageInfo,
+      cancellationToken?: number,
+    ): Promise<containerDesktopAPI.ImageFilesystemLayers | undefined> => {
+      return ipcInvoke('image-files:getFilesystemLayers', id, image, cancellationToken);
     },
   );
 

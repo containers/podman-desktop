@@ -51,6 +51,7 @@ import { ExtensionLoader } from './extension-loader.js';
 import type { FilesystemMonitoring } from './filesystem-monitoring.js';
 import type { IconRegistry } from './icon-registry.js';
 import type { ImageCheckerImpl } from './image-checker.js';
+import type { ImageFilesRegistry } from './image-files-registry.js';
 import type { ImageRegistry } from './image-registry.js';
 import type { InputQuickPickRegistry } from './input-quickpick/input-quickpick-registry.js';
 import type { KubernetesClient } from './kubernetes-client.js';
@@ -208,6 +209,10 @@ const imageCheckerImpl: ImageCheckerImpl = {
   registerImageCheckerProvider: vi.fn(),
 } as unknown as ImageCheckerImpl;
 
+const imageFilesImpl: ImageFilesRegistry = {
+  registerImageFilesProvider: vi.fn(),
+} as unknown as ImageFilesRegistry;
+
 const contributionManager: ContributionManager = {
   listContributions: vi.fn(),
 } as unknown as ContributionManager;
@@ -281,6 +286,7 @@ beforeAll(() => {
     cliToolRegistry,
     notificationRegistry,
     imageCheckerImpl,
+    imageFilesImpl,
     navigationManager,
     webviewRegistry,
     colorRegistry,
