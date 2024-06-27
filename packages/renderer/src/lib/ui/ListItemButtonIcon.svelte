@@ -2,7 +2,7 @@
 import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
 import { DropdownMenu, isFontAwesomeIcon } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
-import type { Unsubscriber } from 'svelte/motion';
+import type { Unsubscriber } from 'svelte/store';
 import Fa from 'svelte-fa';
 
 import { context as storeContext } from '/@/stores/context';
