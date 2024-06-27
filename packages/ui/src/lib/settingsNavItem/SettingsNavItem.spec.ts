@@ -22,13 +22,21 @@ import '@testing-library/jest-dom/vitest';
 
 import { faBookOpen } from '@fortawesome/free-solid-svg-icons';
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 
 import SettingsNavItem from './SettingsNavItem.svelte';
 
 function renderIt(title: string, href: string, selected?: boolean, section?: boolean, child?: boolean): void {
   render(SettingsNavItem, { title: title, href: href, selected: selected, section: section, child: child });
 }
+
+beforeAll(() => {
+  // Mock the animate function
+  HTMLElement.prototype.animate = vi.fn().mockReturnValue({
+    finished: Promise.resolve(),
+    cancel: vi.fn(),
+  });
+});
 
 test('Expect correct role and href', async () => {
   const title = 'Resources';

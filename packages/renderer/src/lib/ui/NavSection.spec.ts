@@ -22,10 +22,18 @@ import '@testing-library/jest-dom/vitest';
 
 import { render, screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { expect, test } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 
 import NavSection from './NavSection.svelte';
 import NavSectionTest from './NavSectionTest.svelte';
+
+beforeAll(() => {
+  // Mock the animate function
+  HTMLElement.prototype.animate = vi.fn().mockReturnValue({
+    finished: Promise.resolve(),
+    cancel: vi.fn(),
+  });
+});
 
 test('Expect correct button and tooltip', async () => {
   const tooltip = 'Desktop';
