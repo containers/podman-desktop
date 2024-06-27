@@ -37,8 +37,14 @@ vi.mock('./image-utils', () => {
   };
 });
 
+class ResizeObserver {
+  observe = vi.fn();
+  disconnect = vi.fn();
+  unobserve = vi.fn();
+}
 beforeAll(() => {
   (window as any).showMessageBox = showMessageBoxMock;
+  (window as any).ResizeObserver = ResizeObserver;
 
   (window as any).getContributedMenus = getContributedMenusMock;
   (window as any).hasAuthconfigForImage = vi.fn();

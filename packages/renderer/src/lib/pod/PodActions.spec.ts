@@ -49,7 +49,14 @@ const showMessageBoxMock = vi.fn();
 const kubernetesGetCurrentNamespaceMock = vi.fn();
 const kubernetesReadNamespacedPodMock = vi.fn();
 
+class ResizeObserver {
+  observe = vi.fn();
+  disconnect = vi.fn();
+  unobserve = vi.fn();
+}
+
 beforeEach(() => {
+  (window as any).ResizeObserver = ResizeObserver;
   (window as any).showMessageBox = showMessageBoxMock;
   (window as any).kubernetesDeletePod = vi.fn();
   (window as any).listContainers = listContainersMock;

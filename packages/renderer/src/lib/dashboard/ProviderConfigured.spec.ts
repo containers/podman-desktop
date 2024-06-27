@@ -26,7 +26,14 @@ import ProviderConfigured from '/@/lib/dashboard/ProviderConfigured.svelte';
 
 import { verifyStatus } from './ProviderStatusTestHelper.spec';
 
+class ResizeObserver {
+  observe = vi.fn();
+  disconnect = vi.fn();
+  unobserve = vi.fn();
+}
+
 beforeAll(() => {
+  (window as any).ResizeObserver = ResizeObserver;
   (window as any).startProvider = vi.fn();
 
   // mock that autostart is configured as true
