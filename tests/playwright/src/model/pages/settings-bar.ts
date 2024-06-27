@@ -29,6 +29,7 @@ export class SettingsBar {
   readonly authenticationTab: Locator;
   readonly preferencesTab: Locator;
   readonly cliToolsTab: Locator;
+  readonly kubernetesTab: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -37,8 +38,9 @@ export class SettingsBar {
     this.proxyTab = this.settingsNavBar.getByRole('link', { name: 'Proxy' });
     this.registriesTab = this.settingsNavBar.getByRole('link', { name: 'Registries' });
     this.authenticationTab = this.settingsNavBar.getByRole('link', { name: 'Authentication' });
-    this.preferencesTab = this.settingsNavBar.getByRole('link', { name: 'preferences' });
     this.cliToolsTab = this.settingsNavBar.getByRole('link', { name: 'CLI Tools' });
+    this.kubernetesTab = this.settingsNavBar.getByRole('link', { name: 'Kubernetes' });
+    this.preferencesTab = this.settingsNavBar.getByLabel('preferences');
   }
 
   public async openTabPage<T extends SettingsPage>(type: new (page: Page) => T): Promise<T> {
@@ -49,5 +51,9 @@ export class SettingsBar {
 
   public getSettingsNavBarTabLocator(name: string): Locator {
     return this.settingsNavBar.getByLabel(name);
+  }
+
+  public async expandPreferencesTab(): Promise<void> {
+    await this.preferencesTab.click();
   }
 }
