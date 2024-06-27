@@ -38,6 +38,7 @@ async function cleanup() {
   } catch (e) {
     console.error(e);
     cleanupFailures.push(String(e));
+    cleanupFailures = [...cleanupFailures];
   } finally {
     cleanupInProgress = false;
   }

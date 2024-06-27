@@ -62,6 +62,7 @@ function toggleAll(e: CustomEvent<boolean>): void {
       children.filter(child => row.info.selectable?.(child)).forEach(child => (child.selected = checked));
     }
   });
+  data = [...data];
 }
 
 let sortCol: Column<unknown>;
