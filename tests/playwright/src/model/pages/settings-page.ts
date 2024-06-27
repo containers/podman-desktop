@@ -33,8 +33,13 @@ export abstract class SettingsPage extends BasePage {
   }
 
   async getTab(): Promise<Locator> {
+    let tabName = this.tabName;
+    if (this.tabName === 'Preferences') {
+      // special case for lower case first letter in 'preferences' tab
+      tabName = this.tabName.toLowerCase();
+    }
     return this.page
       .getByRole('navigation', { name: 'PreferencesNavigation' })
-      .getByRole('link', { name: this.tabName, exact: true });
+      .getByRole('link', { name: tabName, exact: true });
   }
 }
