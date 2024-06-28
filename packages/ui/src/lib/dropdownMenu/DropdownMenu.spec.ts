@@ -19,9 +19,24 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import { expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 import DropdownMenu from './DropdownMenu.svelte';
+
+class ResizeObserver {
+  observe = vi.fn();
+  disconnect = vi.fn();
+  unobserve = vi.fn();
+}
+
+beforeEach(() => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).ResizeObserver = ResizeObserver;
+});
+
+afterEach(() => {
+  vi.resetAllMocks();
+});
 
 test('Expect the onBeforeToggle function to be called when the menu is clicked', async () => {
   const onBeforeToggleMock = vi.fn();

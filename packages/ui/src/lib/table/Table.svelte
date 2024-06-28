@@ -123,9 +123,10 @@ onMount(async () => {
   }
 });
 
-afterUpdate(async () => {
-  await tick();
-  setGridColumns();
+afterUpdate(() => {
+  tick()
+    .then(() => setGridColumns())
+    .catch((err: unknown) => console.error('unable to refresh grid columns', err));
 });
 
 function setGridColumns(): void {

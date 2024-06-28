@@ -22,10 +22,19 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import { afterEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, expect, test, vi } from 'vitest';
 
 import { authenticationProviders } from '../../stores/authenticationProviders';
 import PreferencesAuthenticationProvidersRendering from './PreferencesAuthenticationProvidersRendering.svelte';
+
+class ResizeObserver {
+  observe = vi.fn();
+  disconnect = vi.fn();
+  unobserve = vi.fn();
+}
+beforeAll(() => {
+  (window as any).ResizeObserver = ResizeObserver;
+});
 
 afterEach(() => {
   vi.clearAllMocks();

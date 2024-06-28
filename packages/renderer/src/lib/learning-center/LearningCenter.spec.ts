@@ -35,6 +35,11 @@ class ResizeObserver {
 beforeEach(() => {
   (window as any).ResizeObserver = ResizeObserver;
   (window as any).listGuides = vi.fn().mockReturnValue(learningCenter.guides);
+  // Mock the animate function
+  HTMLElement.prototype.animate = vi.fn().mockReturnValue({
+    finished: Promise.resolve(),
+    cancel: vi.fn(),
+  });
 });
 
 afterEach(() => {

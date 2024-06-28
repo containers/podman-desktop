@@ -21,9 +21,19 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 import Steps from './Steps.svelte';
+
+class ResizeObserver {
+  observe = vi.fn();
+  disconnect = vi.fn();
+  unobserve = vi.fn();
+}
+
+beforeEach(() => {
+  (window as any).ResizeObserver = ResizeObserver;
+});
 
 test('Check step styling', async () => {
   render(Steps, { steps: ['One', 'Two'] });
