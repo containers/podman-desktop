@@ -19,6 +19,7 @@ import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { tick } from 'svelte';
 import { expect, test, vi } from 'vitest';
 
 import { context } from '/@/stores/context';
@@ -28,11 +29,9 @@ import { ContextUI } from '../context/context';
 import Onboarding from './Onboarding.svelte';
 
 async function waitRender(customProperties: object): Promise<void> {
-  const result = render(Onboarding, { ...customProperties });
-  // wait that result.component.$$.ctx[0] is set
-  while (result.component.$$.ctx[0] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  render(Onboarding, { ...customProperties });
+  await tick();
+  await tick();
 }
 
 global.ResizeObserver = vi.fn().mockImplementation(() => ({

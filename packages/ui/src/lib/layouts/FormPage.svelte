@@ -14,19 +14,19 @@ export let breadcrumbTitle: string | undefined = '';
 
 const dispatchClose = createEventDispatcher<{ close: undefined }>();
 
-function close(): void {
+export let onclose: () => void = () => {
   dispatchClose('close');
-}
+};
 
 const dispatchBreadCrumb = createEventDispatcher<{ breadcrumbClick: undefined }>();
 
-function breadcrumbClick(): void {
+export let onbreadcrumbClick: () => void = () => {
   dispatchBreadCrumb('breadcrumbClick');
-}
+};
 
 function handleKeydown(e: KeyboardEvent): void {
   if (e.key === 'Escape') {
-    close();
+    onclose();
     e.preventDefault();
   }
 }
@@ -40,13 +40,13 @@ function handleKeydown(e: KeyboardEvent): void {
       {#if showBreadcrumb}
         <div class="flex flew-row items-center text-sm text-[var(--pd-content-breadcrumb)]">
           {#if breadcrumbLeftPart}
-            <Link aria-label="back" on:click="{breadcrumbClick}" title="{breadcrumbTitle}">{breadcrumbLeftPart}</Link>
+            <Link aria-label="back" on:click="{onbreadcrumbClick}" title="{breadcrumbTitle}">{breadcrumbLeftPart}</Link>
           {/if}
           {#if breadcrumbRightPart}
             <div class="mx-2">&gt;</div>
             <div class="grow font-extralight" aria-label="name">{breadcrumbRightPart}</div>
           {/if}
-          <CloseButton class="justify-self-end" on:click="{close}" />
+          <CloseButton class="justify-self-end" on:click="{onclose}" />
         </div>
       {/if}
       <div class="flex flex-row items-center pt-1">
@@ -65,7 +65,7 @@ function handleKeydown(e: KeyboardEvent): void {
             </div>
           {/if}
           {#if !showBreadcrumb}
-            <CloseButton class="justify-self-end" on:click="{close}" />
+            <CloseButton class="justify-self-end" on:click="{onclose}" />
           {/if}
         </div>
       </div>

@@ -23,6 +23,7 @@ import '@testing-library/jest-dom/vitest';
 import type { Uri } from '@podman-desktop/api';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { tick } from 'svelte';
 import { router } from 'tinro';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
@@ -51,11 +52,8 @@ beforeEach(() => {
 });
 
 async function waitRender(): Promise<void> {
-  const result = render(ContainerExport);
-  // wait that result.component.$$.ctx[1] is set
-  while (result.component.$$.ctx[1] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  render(ContainerExport);
+  await tick();
 }
 
 test('Expect export button to be disabled', async () => {

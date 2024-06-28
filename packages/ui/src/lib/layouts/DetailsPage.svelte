@@ -13,19 +13,18 @@ export let breadcrumbTitle: string | undefined = '';
 
 const dispatchClose = createEventDispatcher<{ close: undefined }>();
 
-export function close(): void {
+export let onclose: () => void = () => {
   dispatchClose('close');
-}
+};
 
 const dispatchBreadCrumb = createEventDispatcher<{ breadcrumbClick: undefined }>();
-
-function breadcrumbClick(): void {
+export let onbreadcrumbClick: () => void = () => {
   dispatchBreadCrumb('breadcrumbClick');
-}
+};
 
 function handleKeydown(e: KeyboardEvent): void {
   if (e.key === 'Escape') {
-    close();
+    onclose();
     e.preventDefault();
   }
 }
@@ -38,14 +37,14 @@ function handleKeydown(e: KeyboardEvent): void {
     <div class="flex flex-col w-full h-fit">
       <div class="flex flew-row items-center text-sm text-[var(--pd-content-breadcrumb)]">
         {#if breadcrumbLeftPart}
-          <Link class="text-sm" aria-label="back" on:click="{breadcrumbClick}" title="{breadcrumbTitle}"
+          <Link class="text-sm" aria-label="back" on:click="{onbreadcrumbClick}" title="{breadcrumbTitle}"
             >{breadcrumbLeftPart}</Link>
         {/if}
         {#if breadcrumbRightPart}
           <div class="mx-2">&gt;</div>
           <div class="grow font-extralight" aria-label="name">{breadcrumbRightPart}</div>
         {/if}
-        <CloseButton class="justify-self-end" on:click="{close}" />
+        <CloseButton class="justify-self-end" on:click="{onclose}" />
       </div>
       <div class="flex flex-row items-start pt-1">
         <div class="pr-3">

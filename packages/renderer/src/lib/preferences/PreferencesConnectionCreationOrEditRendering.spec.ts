@@ -196,8 +196,8 @@ describe.each([
       const cancelButton = screen.getByRole('button', { name: `Cancel ${action}` });
       expect(cancelButton).toBeInTheDocument();
 
-      expect(currentConnectionInfo.propertyScope).toBe(propertyScope);
-      expect(currentConnectionInfo.providerInfo).toBe(providerInfo);
+      expect(currentConnectionInfo.propertyScope).toStrictEqual(propertyScope);
+      expect(currentConnectionInfo.providerInfo).toStrictEqual(providerInfo);
 
       expect(callback).toHaveBeenCalled();
       expect(callback).toBeCalledWith(
@@ -266,8 +266,8 @@ describe.each([
     const cancelButton = screen.getByRole('button', { name: `Cancel ${action}` });
     expect(cancelButton).toBeInTheDocument();
 
-    expect(currentConnectionInfo.propertyScope).toBe(propertyScope);
-    expect(currentConnectionInfo.providerInfo).toBe(providerInfo);
+    expect(currentConnectionInfo.propertyScope).toStrictEqual(propertyScope);
+    expect(currentConnectionInfo.providerInfo).toStrictEqual(providerInfo);
 
     expect(callback).toHaveBeenCalled();
     expect(providedKeyLogger).toBeDefined();

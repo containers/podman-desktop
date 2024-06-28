@@ -160,8 +160,10 @@ test('Expect no dropdown when several contributions and dropdownMenu mode on', a
     const button = screen.getByTitle('dummy-contrib');
     expect(button).toBeDefined();
     expect(button.firstChild?.nodeName.toLowerCase()).toBe('svg');
-    expect(button.lastChild?.nodeName.toLowerCase()).toBe('span');
-    expect(button.lastChild?.textContent).toBe('dummy-contrib');
+
+    const button2 = screen.getByTitle('dummy-contrib-2');
+    expect(button2).toBeDefined();
+    expect(button2.firstChild?.nodeName.toLowerCase()).toBe('svg');
   });
 });
 

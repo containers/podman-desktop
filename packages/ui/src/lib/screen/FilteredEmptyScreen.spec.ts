@@ -43,11 +43,10 @@ test('Expect long search term to not display', async () => {
 });
 
 test('Expect button to fire event and clear search term', async () => {
-  const config = { icon: '', kind: 'object', searchTerm: 'test' };
-  const result = render(FilteredEmptyScreen, config);
-
   const resetMock = vi.fn();
-  result.component.$on('resetFilter', resetMock);
+  const config = { icon: '', kind: 'object', searchTerm: 'test', onResetFilter: resetMock };
+
+  render(FilteredEmptyScreen, config);
 
   const button = screen.getByRole('button', { name: 'Clear filter' });
   expect(button).toBeInTheDocument();
@@ -58,28 +57,5 @@ test('Expect button to fire event and clear search term', async () => {
   expect(resetMock).toHaveBeenCalledOnce();
   // eslint-disable-next-line quotes
   const title = screen.getByText("No object matching '' found");
-  expect(title).toBeInTheDocument();
-});
-
-test('Expect button to fire event and respect event listener', async () => {
-  const config = { icon: '', kind: 'object', searchTerm: 'test' };
-  const result = render(FilteredEmptyScreen, config);
-
-  // setup mock event listener that just prevents default action
-  const resetMock = vi.fn();
-  resetMock.mockImplementation(e => {
-    e.preventDefault();
-  });
-  result.component.$on('resetFilter', resetMock);
-
-  const button = screen.getByRole('button', { name: 'Clear filter' });
-  expect(button).toBeInTheDocument();
-
-  await fireEvent.click(button);
-
-  // confirm search term has not changed
-  expect(resetMock).toHaveBeenCalledOnce();
-  // eslint-disable-next-line quotes
-  const title = screen.getByText("No object matching 'test' found");
   expect(title).toBeInTheDocument();
 });

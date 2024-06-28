@@ -30,7 +30,9 @@ export let dropdownMenu = false;
 export let detailed = false;
 
 const dispatch = createEventDispatcher<{ update: ContainerInfoUI }>();
-
+export let onUpdate: (update: ContainerInfoUI) => void = update => {
+  dispatch('update', update);
+};
 let contributions: Menu[] = [];
 onMount(async () => {
   contributions = await window.getContributedMenus(MenuContext.DASHBOARD_CONTAINER);
@@ -45,13 +47,13 @@ function inProgress(inProgress: boolean, state?: string): void {
   if (state) {
     container.state = state;
   }
-  dispatch('update', container);
+  onUpdate(container);
 }
 
 function handleError(errorMessage: string): void {
   container.actionError = errorMessage;
   container.state = 'ERROR';
-  dispatch('update', container);
+  onUpdate(container);
 }
 
 async function startContainer(): Promise<void> {

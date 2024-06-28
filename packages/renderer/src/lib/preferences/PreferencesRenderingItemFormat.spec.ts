@@ -24,6 +24,7 @@ import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { tick } from 'svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import { getInitialValue } from '/@/lib/preferences/Util';
@@ -41,9 +42,7 @@ async function awaitRender(record: IConfigurationPropertyRecordedSchema, customP
     initialValue: getInitialValue(record),
     ...customProperties,
   });
-  while (result.component.$$.ctx[4] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  await tick();
 }
 
 test('Expect to see checkbox enabled', async () => {

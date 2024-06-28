@@ -21,7 +21,10 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
+/* eslint-disable import/no-duplicates */
+import { tick } from 'svelte';
 import { get } from 'svelte/store';
+/* eslint-enable import/no-duplicates */
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import { onboardingList } from '/@/stores/onboarding';
@@ -47,11 +50,8 @@ beforeAll(() => {
 });
 
 async function waitRender(customProperties: object): Promise<void> {
-  const result = render(WelcomePage, { ...customProperties });
-  // wait that result.component.$$.ctx[0] is set
-  while (result.component.$$.ctx[0] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  render(WelcomePage, { ...customProperties });
+  await tick();
 }
 
 test('Expect the close button is on the page', async () => {
@@ -70,6 +70,7 @@ test('Expect that the close button closes the window', async () => {
 });
 
 test('Expect that telemetry UI is hidden when telemetry has already been prompted', async () => {
+  vi.mocked(window.getConfigurationValue).mockResolvedValue('true');
   await waitRender({ showWelcome: true, showTelemetry: false });
   let checkbox;
   try {

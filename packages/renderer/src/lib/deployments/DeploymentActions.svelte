@@ -11,10 +11,12 @@ export let deployment: DeploymentUI;
 export let detailed = false;
 
 const dispatch = createEventDispatcher<{ update: DeploymentUI }>();
-
+export let onUpdate: (update: DeploymentUI) => void = update => {
+  dispatch('update', update);
+};
 async function deleteDeployment(): Promise<void> {
   deployment.status = 'DELETING';
-  dispatch('update', deployment);
+  onUpdate(deployment);
 
   await window.kubernetesDeleteDeployment(deployment.name);
 }

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023-2024, 2024 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,11 +54,11 @@ test('Expect name is defined', async () => {
 test('Expect backlink is defined', async () => {
   const backName = 'Last page';
   const breadcrumbClickMock = vi.fn();
-  const comp = render(DetailsPage, {
+  render(DetailsPage, {
     title: 'No Title',
     breadcrumbLeftPart: backName,
+    onbreadcrumbClick: breadcrumbClickMock,
   });
-  comp.component.$on('breadcrumbClick', breadcrumbClickMock);
 
   const backElement = screen.getByLabelText('back');
   expect(backElement).toBeInTheDocument();
@@ -71,10 +71,10 @@ test('Expect backlink is defined', async () => {
 
 test('Expect close link is defined', async () => {
   const closeClickMock = vi.fn();
-  const comp = render(DetailsPage, {
+  render(DetailsPage, {
     title: 'No Title',
+    onclose: closeClickMock,
   });
-  comp.component.$on('close', closeClickMock);
 
   const closeElement = screen.getByTitle('Close');
   expect(closeElement).toBeInTheDocument();
@@ -85,10 +85,10 @@ test('Expect close link is defined', async () => {
 
 test('Expect Escape key closes', async () => {
   const closeClickMock = vi.fn();
-  const comp = render(DetailsPage, {
+  render(DetailsPage, {
     title: 'No Title',
+    onclose: closeClickMock,
   });
-  comp.component.$on('close', closeClickMock);
 
   await userEvent.keyboard('{Escape}');
 

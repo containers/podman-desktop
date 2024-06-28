@@ -21,6 +21,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import TitleBar from './TitleBar.svelte';
@@ -36,11 +37,8 @@ beforeEach(() => {
 });
 
 async function waitRender(customProperties: object): Promise<void> {
-  const result = render(TitleBar, { ...customProperties });
-  // wait that result.component.$$.ctx[0] is set
-  while (result.component.$$.ctx[0] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  render(TitleBar, { ...customProperties });
+  await tick();
 }
 
 describe('macOS', () => {

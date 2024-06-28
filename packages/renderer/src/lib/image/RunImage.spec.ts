@@ -22,6 +22,7 @@ import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { tick } from 'svelte';
 import { router } from 'tinro';
 import { afterEach, beforeAll, beforeEach, describe, expect, type Mock, test, vi } from 'vitest';
 
@@ -63,11 +64,8 @@ afterEach(() => {
 
 async function waitRender() {
   const result = render(RunImage);
-
-  //wait until dataReady is true
-  while (result.component.$$.ctx[30] !== true) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  await tick();
+  await tick();
   return result;
 }
 

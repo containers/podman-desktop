@@ -19,16 +19,14 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import { beforeAll, describe, expect, test, vi } from 'vitest';
 
 import Markdown from './Markdown.svelte';
 
 async function waitRender(customProperties: object): Promise<void> {
-  const result = render(Markdown, { ...customProperties });
-  // wait that result.component.$$.ctx[0] is set
-  while (result.component.$$.ctx[0] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  render(Markdown, { ...customProperties });
+  await tick();
 }
 
 beforeAll(() => {

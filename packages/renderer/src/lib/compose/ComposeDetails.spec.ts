@@ -20,7 +20,10 @@ import '@testing-library/jest-dom/vitest';
 
 import type { ContainerInspectInfo } from '@podman-desktop/api';
 import { fireEvent, render, screen } from '@testing-library/svelte';
+/* eslint-disable import/no-duplicates */
+import { tick } from 'svelte';
 import { get } from 'svelte/store';
+/* eslint-enable import/no-duplicates */
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import { mockBreadcrumb } from '../../stores/breadcrumb.spec';
@@ -68,11 +71,8 @@ beforeAll(() => {
 });
 
 async function waitRender(name: string, engineId: string): Promise<void> {
-  const result = render(ComposeDetails, { composeName: name, engineId: engineId });
-  // wait that result.component.$$.ctx[2] is set
-  while (result.component.$$.ctx[2] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  render(ComposeDetails, { composeName: name, engineId: engineId });
+  await tick();
 }
 
 const containerInspectInfo: ContainerInspectInfo = {

@@ -24,6 +24,7 @@ import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import * as jsYaml from 'js-yaml';
+import { tick } from 'svelte';
 import { router } from 'tinro';
 import { beforeEach, expect, test, vi } from 'vitest';
 
@@ -157,11 +158,12 @@ beforeEach(() => {
 });
 
 async function waitRender(customProperties: any): Promise<void> {
-  const result = render(DeployPodToKube, { resourceId: 'foo', engineId: 'bar', type: 'unknown', ...customProperties });
-  // wait that result.component.$$.ctx[0] is set
-  while (result.component.$$.ctx[0] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  render(DeployPodToKube, { resourceId: 'foo', engineId: 'bar', type: 'unknown', ...customProperties });
+  await tick();
+  await tick();
+  await tick();
+  await tick();
+  await tick();
 }
 
 test('Expect to create routes with OpenShift and open Link', async () => {

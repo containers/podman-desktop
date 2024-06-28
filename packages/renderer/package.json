@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
+    "test": "vitest run --coverage --passWithNoTests",
+    "test:watch": "vitest watch --coverage --passWithNoTests",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
@@ -17,7 +19,7 @@
     "@sveltejs/vite-plugin-svelte": "3.1.1",
     "@testing-library/dom": "^10.2.0",
     "@testing-library/jest-dom": "^6.4.6",
-    "@testing-library/svelte": "^5.1.0",
+    "@testing-library/svelte": "^5.2.0-next.3",
     "@testing-library/user-event": "^14.5.2",
     "@tsconfig/svelte": "^5.0.4",
     "@types/js-yaml": "^4.0.9",
@@ -34,7 +36,7 @@
     "monaco-editor": "^0.50.0",
     "postcss": "^8.4.39",
     "postcss-load-config": "^6.0.1",
-    "svelte": "4.2.18",
+    "svelte": "5.0.0-next.164",
     "svelte-check": "^3.8.4",
     "svelte-eslint-parser": "^0.39.1",
     "svelte-fa": "^4.0.2",
