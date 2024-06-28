@@ -64,31 +64,28 @@ export class ModuleLoader {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       this._module._load = function load(request: string, parent: any): any {
         const override = overrides.get(request);
-        if (!override) {
-          // eslint-disable-next-line prefer-rest-params,prefer-spread
-          return internalLoad.apply(this, arguments);
-        }
-
         if (override) {
-          const ext = Array.from(analyzedExtensions.values()).find(extension =>
-            path.normalize(parent.filename).startsWith(path.normalize(extension.path)),
-          );
-          if (ext) {
-            if (override instanceof Function) {
+          if (override instanceof Function) {
+            const ext = Array.from(analyzedExtensions.values()).find(extension =>
+              path.normalize(parent.filename).startsWith(path.normalize(extension.path)),
+            );
+            if (ext) {
               return override(ext);
             }
-            let cache = extModuleCache.get(ext.path);
-            if (!cache) {
-              extModuleCache.set(ext.path, (cache = {}));
-            }
-            if (!cache[request]) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              cache[request] = <any>{ ...override };
-            }
-            return cache[request];
+            throw Error(`Cannot find extension for ${parent.path}`);
           }
-          throw Error(`Cannot find extension for ${parent.path}`);
+          let cache = extModuleCache.get(parent.path);
+          if (!cache) {
+            extModuleCache.set(parent.path, (cache = {}));
+          }
+          if (!cache[request]) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            cache[request] = <any>{ ...override };
+          }
+          return cache[request];
         }
+        // eslint-disable-next-line prefer-rest-params,prefer-spread
+        return internalLoad.apply(this, arguments);
       };
     }
   }
