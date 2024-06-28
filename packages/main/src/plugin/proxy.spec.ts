@@ -24,11 +24,12 @@ import { describe, expect, test, vi } from 'vitest';
 
 import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
 import { ensureURL, Proxy } from '/@/plugin/proxy.js';
+import { ProxyState } from '/@api/proxy.js';
 
 const URL = 'https://podman-desktop.io';
 
 function getConfigurationRegistry(
-  enabled: boolean,
+  enabled: number,
   http: string | undefined,
   https: string | undefined,
   no: string | undefined,
@@ -61,7 +62,7 @@ async function buildProxy(): Promise<ProxyServer> {
 }
 
 test('fetch without proxy', async () => {
-  const configurationRegistry = getConfigurationRegistry(false, undefined, undefined, undefined);
+  const configurationRegistry = getConfigurationRegistry(ProxyState.PROXY_DISABLED, undefined, undefined, undefined);
   const proxy = new Proxy(configurationRegistry);
   await proxy.init();
   await fetch(URL);
@@ -70,7 +71,12 @@ test('fetch without proxy', async () => {
 test('fetch with http proxy', async () => {
   const proxyServer = await buildProxy();
   const address = proxyServer.address() as AddressInfo;
-  const configurationRegistry = getConfigurationRegistry(true, `127.0.0.1:${address.port}`, undefined, undefined);
+  const configurationRegistry = getConfigurationRegistry(
+    ProxyState.PROXY_MANUAL,
+    `127.0.0.1:${address.port}`,
+    undefined,
+    undefined,
+  );
   const proxy = new Proxy(configurationRegistry);
   await proxy.init();
   let connectDone = false;
