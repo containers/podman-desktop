@@ -12,6 +12,7 @@ export let description: string | undefined = undefined;
 export let onSave = (_recordId: string, _value: number) => {};
 export let onChange = (_recordId: string, _value: number) => {};
 export let onCancel = (_recordId: string, _originalValue: number) => {};
+export let normalizeOriginalValue: ((_originalValue: number) => number) | undefined = undefined;
 
 let editingInProgress = false;
 let editedValue: number;
@@ -38,7 +39,7 @@ function onSwitchToInProgress(e: MouseEvent) {
   e.preventDefault();
   // we set the originalValue to keep a record of the initial value
   // if the updating is cancelled, we can reset to it
-  originalValue = value;
+  originalValue = normalizeOriginalValue ? normalizeOriginalValue(value) : value;
   editingInProgress = true;
 }
 
@@ -52,8 +53,17 @@ function onSaveClick(e: MouseEvent) {
 
 function onCancelClick(e: MouseEvent) {
   e.preventDefault();
-  // we set the value to the initial one - the value that was set when the edit mode was enabled
-  editedValue = originalValue;
+  if (normalizeOriginalValue) {
+    // Make sure we don't save the "normalized" value if it's the same as the original value(means value didn't change)
+    // This is important for the case when the value is 100 GB for instance, but the normalized value is 100000000000
+    // So we end up setting the normalized value 100000000000 as the input value which doesn't make a whole lot of sense to the end user
+    if (normalizeOriginalValue(value) !== originalValue) {
+      // we set the value to the initial one - the value that was set when the edit mode was enabled
+      editedValue = originalValue;
+    }
+  } else {
+    editedValue = originalValue;
+  }
   editingInProgress = false;
   if (record.id) {
     onCancel(record.id, originalValue);
@@ -63,7 +73,7 @@ function onCancelClick(e: MouseEvent) {
 
 <div class="flex flex-row ml-1 items-center">
   {#if !editingInProgress}
-    {value}
+    <span data-testid="editable-item-value">{value}</span>
   {:else}
     <FloatNumberItem
       record="{record}"
@@ -72,7 +82,7 @@ function onCancelClick(e: MouseEvent) {
       invalidRecord="{invalidRecord}" />
   {/if}
   {#if description}
-    <span class="ml-1" aria-label="description">
+    <span data-testid="editable-item-description" class="ml-1" aria-label="description">
       {description}
     </span>
   {/if}
