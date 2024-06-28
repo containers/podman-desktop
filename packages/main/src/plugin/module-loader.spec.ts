@@ -75,10 +75,10 @@ test('module loader overrides modules registered as factory', () => {
   expect(loadedModule2).equal(fakeApi);
 });
 
-test('module loader trow exception if request came not from extension', () => {
+test('module loader trow exception if override is a function and request came not from extension', () => {
   let error;
   try {
-    fakeModule._load('module1', { filename: '/path/to/none/ext/internal/module1.js', path: '/path/to/ext' });
+    fakeModule._load('module2', { filename: '/path/to/none/ext/internal/module1.js', path: '/path/to/ext' });
   } catch (err) {
     error = err;
   }
