@@ -5,8 +5,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "dev": "storybook dev -p 6006",
-    "build": "storybook build",
-    "postinstall": "replace 'src/\\*\\.ts' 'dist/*.js' '../storybook/node_modules/@storybook/addon-svelte-csf/package.json'"
+    "build": "storybook build"
   },
   "peerDependencies": {
     "svelte": "^4.0.0",
@@ -25,7 +24,7 @@
     "@storybook/addon-essentials": "^8.1.11",
     "@storybook/addon-interactions": "^8.1.11",
     "@storybook/addon-links": "^8.1.11",
-    "@storybook/addon-svelte-csf": "5.0.0--canary.181.04f02dc.0",
+    "@storybook/addon-svelte-csf": "5.0.0--canary.181.9fd4bb6.0",
     "@storybook/blocks": "^8.1.11",
     "@storybook/svelte": "^8.1.11",
     "@storybook/svelte-vite": "^8.1.11",
@@ -40,7 +39,6 @@
     "postcss-load-config": "^6.0.1",
     "react": "18.2.0",
     "react-dom": "18.3.1",
-    "replace": "1.2.2",
     "storybook": "^8.1.11",
     "storybook-dark-mode": "^4.0.2",
     "svelte": "5.0.0-next.166",
