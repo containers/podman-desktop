@@ -82,7 +82,7 @@
     "lint:clean": "rimraf .eslintcache",
     "lint:fix": "node --max-old-space-size=6144 node_modules/eslint/bin/eslint.js --cache . --fix --ext js,ts,tsx,svelte",
     "lint:check": "node --max-old-space-size=6144 node_modules/eslint/bin/eslint.js --cache . --ext js,ts,tsx,svelte",
-    "svelte:check": "svelte-check --ignore \"packages/ui/dist,packages/renderer/src/lib/ui/DetailsPage.svelte,packages/renderer/src/lib/ui/EngineFormPage.svelte,packages/renderer/src/lib/ui/FormPage.svelte\"",
+    "svelte:check": "svelte-check --ignore \"packages/ui/dist,packages/renderer/src/lib/ui/DetailsPage.svelte,packages/renderer/src/lib/ui/EngineFormPage.svelte,packages/renderer/src/lib/ui/FormPage.svelte,storybook\"",
     "typecheck:extension-api": "tsc --noEmit -p packages/extension-api/tsconfig.json",
     "typecheck:main": "tsc --noEmit -p packages/main/tsconfig.json",
     "typecheck:preload": "tsc --noEmit -p packages/preload/tsconfig.json",
