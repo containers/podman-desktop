@@ -42,7 +42,7 @@
     "svelte-steps": "2.4.1",
     "tailwindcss": "^3.4.4",
     "tslib": "^2.6.3",
-    "typescript": "^5.4.5",
+    "typescript": "^5.5.2",
     "vite": "^5.3.2",
     "vitest": "^1.6.0",
     "xterm": "^5.3.0",

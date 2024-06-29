@@ -26,7 +26,7 @@
     "@playwright/test": "1.44.1",
     "@types/node": "^20",
     "electron": "31.1.0",
-    "typescript": "^5.4.5",
+    "typescript": "^5.5.2",
     "vitest": "^1.6.0"
   }
 }
