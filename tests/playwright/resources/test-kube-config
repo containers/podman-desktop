@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Config
+clusters:
+  - name: context-1-cluster
+    cluster:
+      server: context-1-server
+      insecure-skip-tls-verify: false
+  - name: context-2-cluster
+    cluster:
+      server: context-2-server
+      insecure-skip-tls-verify: false
+  - name: context-3-cluster
+    cluster:
+      server: context-3-server
+      insecure-skip-tls-verify: false
+users:
+  - name: context-1-user
+    user:
+      token: sha256~abcdefg
+  - name: context-2-user
+    user:
+      token: sha256~abcdefg
+  - name: context-3-user
+    user:
+      token: sha256~abcdefg
+contexts:
+  - name: context-1
+    context:
+      cluster: context-1-cluster
+      name: context-1
+      user: context-1-user
+      namespace: context-1-namespace
+  - name: context-2
+    context:
+      cluster: context-2-cluster
+      name: context-2
+      user: context-2-user
+  - name: context-3
+    context:
+      cluster: context-3-cluster
+      name: context-3
+      user: context-3-user
+preferences: {}
+current-context: context-1
+
