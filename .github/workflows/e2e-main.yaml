@@ -98,4 +98,6 @@ jobs:
         if: always()
         with:
           name: e2e-tests
-          path: ./tests/output/
+          path: |
+            ./tests/output/
+            ./tests/**/output/junit*.xml
