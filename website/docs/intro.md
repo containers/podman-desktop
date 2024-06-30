@@ -4,11 +4,7 @@ sidebar_position: 1
 
 # Introduction
 
-Podman Desktop is an innovative desktop tool that brings the power of  
-containers and Kubernetes to your computer, making it easy to create, manage, and run 
-containerized applications visually. Intuitive interfaces and smart 
-integration with the most important container technologies and support for the major operating systems, 
-Podman Desktop helps you to use containers, pods and Kubernetes on your local machine. 
+Podman Desktop is an innovative desktop tool that brings the power of containers and Kubernetes to your computer, making it easy to create, manage, and run containerized applications visually. Intuitive interfaces and smart integration with the most important container technologies and support for the major operating systems, Podman Desktop helps you to use containers, pods and Kubernetes on your local machine.
 
 As you read through this documentation, you'll learn how to:
 
@@ -20,10 +16,9 @@ As you read through this documentation, you'll learn how to:
 * How to deploy containers to Kubernetes using Kind, Lima, Minikube or OpenShift
 * And many more details about the general extension mechanism as well as working with LLMs and AI Lab.
 
-Whether you're new to containerization or an experienced developer this documentation helps you get 
-started with Podman Desktop quickly. Select what you want to do next:
+Whether you're new to containerization or an experienced developer this documentation helps you get started with Podman Desktop quickly. Select what you want to do next:
 
-- [Install Podman Desktop](/docs/installation).
-- [Onboarding container workloads](/docs/containers/onboarding).
-- [Manage your container engine workloads](/docs/containers).
-- [Work with Kubernetes locally and remote](/docs/kubernetes).
+* [Install Podman Desktop](/docs/installation).
+* [Onboarding container workloads](/docs/containers/onboarding).
+* [Manage your container engine workloads](/docs/containers).
+* [Work with Kubernetes locally and remote](/docs/kubernetes).
