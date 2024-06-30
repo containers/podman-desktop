@@ -36,7 +36,7 @@ When deactivating an extension, Podman Desktop will:
 
 ### Example boilerplate code
 
-This is an example `extensions/foobar/src/extensions.ts` file with the basic `activate ` and `deactivate` functionality, provided that you already have a `package.json` created as well:
+This is an example `extensions/foobar/src/extensions.ts` file with the basic `activate` and `deactivate` functionality, provided that you already have a `package.json` created as well:
 
 ```ts
 import * as extensionApi from '@podman-desktop/api';
@@ -382,7 +382,7 @@ export default config;
 
 1. To start Podman Desktop with your extension loaded, run the following from your clone of the Podman Desktop repo:
 
-```
+```shell
 yarn watch --extension-folder /path/to/your/extension
 ```
 
@@ -481,7 +481,7 @@ export namespace foobar {
 }
 ```
 
-2. The `packages/main/src/plugin/extension-loader.ts` acts as an extension loader that defines all the actions needed by the API. Modify it to add the main functionality of `hello()` under the `foobar` namespace const:
+2. The `packages/main/src/plugin/extension-loader.ts` acts as an extension loader that defines all the actions needed by the API. Modify it to add the main functionality of `hello()` under the `foobar` namespace const: <!-- markdownlint-disable-line MD029 -->
 
 ```ts
 // It's recommended you define a class that you retrieve from a separate file
@@ -517,7 +517,7 @@ return <typeof containerDesktopAPI>{
 };
 ```
 
-3. The above code won't work until we've created the class! So let's create a `packages/main/src/plugin/foobar-client.ts` file with the functionality:
+3. The above code won't work until we've created the class! So let's create a `packages/main/src/plugin/foobar-client.ts` file with the functionality: <!-- markdownlint-disable-line MD029 -->
 
 ```ts
 export class FoobarClient {
@@ -527,7 +527,7 @@ export class FoobarClient {
 }
 ```
 
-4. An instance of this class needs to be created and passed to the constructor of the `ExtensionLoader`, in `packages/main/src/plugin/index.ts`:
+4. An instance of this class needs to be created and passed to the constructor of the `ExtensionLoader`, in `packages/main/src/plugin/index.ts`: <!-- markdownlint-disable-line MD029 -->
 
 ```ts
 const foobarClient = new FoobarClient();
@@ -537,9 +537,9 @@ this.extensionLoader = new ExtensionLoader(
 );
 ```
 
-5. In package.json you can register some setting through the configuration settings property
+5. In package.json you can register some setting through the configuration settings property <!-- markdownlint-disable-line MD029 -->
 
-For example if you contribute a property named `podman.binary.path` it will display `Path` in Podman Desktop UI setting, and if you change it to `podman.binary.pathToBinary ` it becomes `Path To Binary` in the title.
+For example if you contribute a property named `podman.binary.path` it will display `Path` in Podman Desktop UI setting, and if you change it to `podman.binary.pathToBinary` it becomes `Path To Binary` in the title.
 
 ```ts
 
@@ -555,7 +555,7 @@ For example if you contribute a property named `podman.binary.path` it will disp
         },
 ```
 
-6. Last step! Call the new API call to the extension you are implementing from your extension:
+6. Last step! Call the new API call to the extension you are implementing from your extension: <!-- markdownlint-disable-line MD029 -->
 
 ```ts
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {

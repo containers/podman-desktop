@@ -77,7 +77,7 @@
     "watch": "node scripts/watch.mjs",
     "format:check": "prettier --cache --check \"{extensions,packages,tests,types,tools,website-argos}/**/*.{ts,svelte}\" \"extensions/*/scripts/*.{ts,js}\" \"website/**/*.{md,js}\" \"website/src/**/*.{css,tsx}\"",
     "format:fix": "prettier --cache --write \"{extensions,packages,tests,types,tools,website-argos}/**/*.{ts,svelte}\" \"extensions/*/scripts/*.{ts,js}\" \"website/**/*.{md,js}\" \"website/src/**/*.{css,tsx}\"",
-    "markdownlint:check": "markdownlint-cli2 \"website/**/*.md\" \"#website/node_modules\"",
+    "markdownlint:check": "markdownlint-cli2 \"website/**/*.md\" \"#website/node_modules\" \"#website/api\"",
     "markdownlint:fix": "markdownlint-cli2-fix \"website/**/*.md\" \"#website/node_modules\"",
     "lint:clean": "rimraf .eslintcache",
     "lint:fix": "node --max-old-space-size=6144 node_modules/eslint/bin/eslint.js --cache . --fix --ext js,ts,tsx,svelte",

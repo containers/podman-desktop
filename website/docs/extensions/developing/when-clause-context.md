@@ -31,7 +31,7 @@ Podman Desktop has a set of context keys that are evaluated to Boolean true/fals
 
 | Context key                   | True when                    |
 | ----------------------------- | ---------------------------- |
-| **Operating system contexts** |
+| **Operating system contexts** |                              |
 | isLinux                       | True when the OS is Linux.   |
 | isWindows                     | True when the OS is Windows. |
 | isMac                         | True when the OS is macOS.   |
@@ -53,10 +53,10 @@ If omitted, the key/value is set globally. For this reason it is recommended to 
 
 The first example below sets the key `"podmanIsInstalled"` to true globally while the second example sets the key `"toolInstalled"` to `oc.exe` using the onboarding scope.
 
-```
-   extensionsAPI.context.setValue('podmanIsInstalled', true);
+```js
+extensionsAPI.context.setValue('podmanIsInstalled', true);
 
-   extensionsAPI.context.setValue('toolInstalled', 'oc.exe', 'onboarding');
+extensionsAPI.context.setValue('toolInstalled', 'oc.exe', 'onboarding');
 ```
 
 After setting the `toolInstalled` to `oc.exe`, you could use this information in the `when` clause to enable something

@@ -18,7 +18,7 @@ We’re honored to announce that [Podman Desktop](https://podman-desktop.io/) ha
 
 The DEVIES Awards, presented by [DeveloperWeek](https://www.developerweek.com/), recognize the most innovative and impactful tools, platforms, and technologies in the software development community. Podman Desktop's win as the _best innovation in Containers & Kubernetes_ highlights its significant impact on the industry and its role in revolutionizing the way developers build, ship, and run their applications. DEVIES Award winners are selected from hundreds of nominees by the independent, industry-leading DevNetwork Advisory Board.
 
-## Join us in celebrating!
+## Join us in celebrating! <!-- markdownlint-disable-line MD026 -->
 
 We’re excited to be receiving this award on stage at DeveloperWeek 2024, happening on February 21-23, 2024, in Oakland, CA and February 27-29, 2024 (Virtually). In addition, Red Hat developer advocate [Cedric Clyburn](https://github.com/cedricclyburn) will be presenting a session on Podman Desktop, titled “[Going from Containers, to Pods, to Kubernetes – Help for Your Developer Environments!](https://sched.co/1XZ7k)”, with a full presentation on [Podman](https://podman.io/), a demonstration of the Podman Desktop experience, and a multi-tier application going from containers, to pods, to finally Kubernetes!
 

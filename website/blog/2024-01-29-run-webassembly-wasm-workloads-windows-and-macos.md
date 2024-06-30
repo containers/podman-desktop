@@ -85,13 +85,12 @@ Depending on the output of the command, you might have extra steps to do.
 
 </TabItem>
 </Tabs>
- 
 
 ### Running Wasm images
 
 Let's try with a simple hello world sample.
 
-We will use example coming from https://github.com/redhat-developer/podman-desktop-demo/tree/main/wasm/rust-hello-world
+We will use example coming from [https://github.com/redhat-developer/podman-desktop-demo/tree/main/wasm/rust-hello-world](https://github.com/redhat-developer/podman-desktop-demo/tree/main/wasm/rust-hello-world)
 
 There is already an OCI image on quay.io
 
@@ -139,7 +138,7 @@ Using this method, we will fetch an image matching our host architecture but as 
 
 Here is a simple Containerfile to build a rust application using wasm32-wasi binary output and a multi-layer OCI image. One layer for the build (installing rust, dependencies and compiling the application) and one scratch layer where we only add the `.wasm` output and flag it as the entrypoint.
 
-Source code is available at https://github.com/redhat-developer/podman-desktop-demo/tree/main/wasm/rust-hello-world
+Source code is available at [https://github.com/redhat-developer/podman-desktop-demo/tree/main/wasm/rust-hello-world](https://github.com/redhat-developer/podman-desktop-demo/tree/main/wasm/rust-hello-world)
 
 `Containerfile` content:
 
@@ -215,7 +214,7 @@ Twitter:   @Podman_io
 
 ```
 
-All the source code is available at https://github.com/redhat-developer/podman-desktop-demo/tree/main/wasm/rust-hello-world
+All the source code is available at [https://github.com/redhat-developer/podman-desktop-demo/tree/main/wasm/rust-hello-world](https://github.com/redhat-developer/podman-desktop-demo/tree/main/wasm/rust-hello-world)
 
 ### Building Wasm images
 
@@ -227,7 +226,7 @@ $ podman build --platform=wasi/wasm -t rust-hello-world-wasm .
 
 example of output will be :
 
-```
+```console
 [1/2] STEP 1/6: FROM docker.io/redhat/ubi9-minimal AS builder
 Trying to pull docker.io/redhat/ubi9-minimal:latest...
 Getting image source signatures
@@ -298,7 +297,7 @@ $ podman run rust-hello-world-wasm
 
 and we'll see the expected output
 
-```
+```console
 WARNING: image platform (wasi/wasm/v8) does not match the expected platform (linux/arm64)
 
 !... Hello Podman Wasm World ...!

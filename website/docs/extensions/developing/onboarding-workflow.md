@@ -338,7 +338,7 @@ When the `checkPodmanInstalled` step becomes active, the command `podman.onboard
 
 You might wonder: who or what sets the context value? If you use a custom context value, it should be your extension's job to set it. Following the example above, we could set the context value during the execution of `podman.onboarding.checkPodmanInstalled` such as
 
-```
+```js
 extensionApi.commands.registerCommand(
     'podman.onboarding.checkPodmanInstalled',
     async () => {
@@ -356,11 +356,11 @@ After updating the context, the UI is refreshed, and Podman Desktop moves the us
 
 The **content** property is an array of arrays where each item in the parent array defines a row, and each item in the child arrays defines a cell.
 
-```
+```js
 content = [
-    ["cell", "cell"], //row
-    ["cell", "cell", "cell"], //row
-]
+  ['cell', 'cell'], //row
+  ['cell', 'cell', 'cell'], //row
+];
 ```
 
 The JSON schema for a content cell entry is
@@ -467,7 +467,7 @@ Adding a complete list in the `package.json` can be confusing, so a better appro
 
 at runtime, `${onboardingContext:warningsMarkdown}` is replaced by the actual list filled in the backend
 
-```
+```js
 const warnings = [];
 ...
 const warning = {
