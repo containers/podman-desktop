@@ -101,3 +101,4 @@ jobs:
           path: |
             ./tests/output/
             ./tests/**/output/junit*.xml
+            !./tests/**/traces/raw
