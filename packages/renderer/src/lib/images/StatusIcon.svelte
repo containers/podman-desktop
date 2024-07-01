@@ -22,6 +22,7 @@ $: solid = status === 'RUNNING' || status === 'STARTING' || status === 'USED' ||
     class:p-1="{solid}"
     class:border-[var(--pd-status-not-running)]="{!solid}"
     class:text-[var(--pd-status-not-running)]="{!solid}"
+    class:text-[var(--pd-status-contrast)]="{solid}"
     role="status"
     title="{status}">
     {#if status === 'DELETING'}
