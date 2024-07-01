@@ -51,6 +51,7 @@ Podman Desktop requires [Podman Engine](https://docs.podman.io/en/latest/index.h
 :::info[Prerequisite]
 
 - [Homebrew](https://brew.sh/)
+
   :::
 
 ### Installation steps

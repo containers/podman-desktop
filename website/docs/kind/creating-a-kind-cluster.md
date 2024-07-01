@@ -27,7 +27,7 @@ You can create multiple local Kind-powered Kubernetes clusters.
    - **Provider Type**: `podman`
    - **HTTP Port**: `9090`
    - **HTTPS Port**: `9443`
-   - **Setup an ingress controller (Contour https://projectcontour.io)**: Enabled
+   - **Setup an ingress controller [Contour](https://projectcontour.io)**: Enabled
    - **Node’s container image (Available image tags on [kind/releases](https://github.com/kubernetes-sigs/kind/releases))**: Left empty to use latest.
 
 1. (Optionally) Click the **Show logs** button to display the logs.

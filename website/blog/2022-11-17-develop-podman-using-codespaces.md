@@ -17,7 +17,7 @@ The challenges are to run a desktop tool (Podman Desktop) and running a containe
 
 ## Defining image of the container
 
-The first thing is in the choice of the image for the container. It is possible to pick-up a default image and add some features but there is no existing feature for Podman at https://github.com/devcontainers/features/tree/main/src and most of the features are expecting to run on top of Debian/Ubuntu
+The first thing is in the choice of the image for the container. It is possible to pick-up a default image and add some features but there is no existing feature for Podman at [https://github.com/devcontainers/features/tree/main/src](https://github.com/devcontainers/features/tree/main/src) and most of the features are expecting to run on top of Debian/Ubuntu
 
 If you are not interested in how to setup the image, jump to the [next section](#configure-the-devcontainer-using-devcontainerjson).
 
@@ -30,6 +30,8 @@ FROM quay.io/fedora/fedora:37
 ```
 
 Then I install Node.js 16 from official nodejs.org repository. It's easier to switch to the version that we need.
+
+<!-- markdownlint-disable MD034 -->
 
 ```docker
 # install Node.js + yarn

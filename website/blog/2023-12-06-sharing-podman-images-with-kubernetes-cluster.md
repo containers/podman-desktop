@@ -27,7 +27,7 @@ In this blog post, we will explore the best practice for streamlining the image 
 
 When using kind or minikube or other 3rd party tools to setup a local kubernetes cluster, we have several ways to publish images.
 
-Minikube published 8 ways of doing that at https://minikube.sigs.k8s.io/docs/handbook/pushing/
+Minikube published 8 ways of doing that at [https://minikube.sigs.k8s.io/docs/handbook/pushing/](https://minikube.sigs.k8s.io/docs/handbook/pushing/)
 
 There are pros and cons either way. Using a third party registry implies that you need to publish the image after each build of the image before being able to use it in the kubernetes cluster. While Podman Desktop could automate the synchronization between the local registry (where you are doing `podman build`) and the third party registry, there remains a duplication of layers between the local and third party registry. And if you change the first layer, it can take a lot of time to send again all the data.
 
@@ -44,11 +44,11 @@ Could we just build the image and use it in kubernetes?
 In the kubernetes world, we need a container engine runtime. At the early stage, container runtimes were integrated with ad hoc solutions on top of docker, rkt, or others.
 
 But to separate concerns and to be extensible, a new interface was added: CRI for "Container Runtime Interface". Using the CRI interface we can plug container engines. And there are several runtimes such as containerd, cri-o and others.
-https://github.com/kubernetes/community/blob/master/contributors/devel/sig-node/container-runtime-interface.md
+[https://github.com/kubernetes/community/blob/master/contributors/devel/sig-node/container-runtime-interface.md](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-node/container-runtime-interface.md)
 
 What is interesting to us is the cri-o project. This project is implementing the CRI interface but also adopting some projects of the [containers](https://github.com/containers) organization where [podman](https://github.com/containers/podman) and [podman-desktop](https://github.com/containers/podman-desktop) live.
 
-So it means cri-o uses image management from https://github.com/containers/image project and handle storage with https://github.com/containers/storage project.
+So it means cri-o uses image management from [https://github.com/containers/image](https://github.com/containers/image) project and handle storage with [https://github.com/containers/storage](https://github.com/containers/storage) project.
 
 And this is what is really interesting as a podman user. As it is using common libraries between cri-o and podman, it means that in the same environment, podman and cri-o read and write the images at a common location in `/var/lib/containers` folder.
 
@@ -62,9 +62,9 @@ While we have the goal of using both cri-o and podman altogether, we can explore
 
 ### kind
 
-On the `kind` side, there is a default configuration that is using containerd and there is no plan to support an alternative such as cri-o https://github.com/kubernetes-sigs/kind/issues/1369#issuecomment-867440704
+On the `kind` side, there is a default configuration that is using containerd and there is no plan to support an alternative such as cri-o [https://github.com/kubernetes-sigs/kind/issues/1369#issuecomment-867440704](https://github.com/kubernetes-sigs/kind/issues/1369#issuecomment-867440704)
 
-That said, some people try to maintain a way to do that but not officialy https://gist.github.com/aojea/bd1fb766302779b77b8f68fa0a81c0f2
+That said, some people try to maintain a way to do that but not officialy [https://gist.github.com/aojea/bd1fb766302779b77b8f68fa0a81c0f2](https://gist.github.com/aojea/bd1fb766302779b77b8f68fa0a81c0f2)
 
 By doing that, we would also need to mount `/var/lib/containers` folder from the host (the podman machine) to the container. And there is no easy flag in kind.
 
@@ -97,7 +97,7 @@ Regarding the configuration of cri-o, currently, it's not achievable using Minik
 Let's do our own base image named kicbase image.
 
 Minikube includes a default configuration file for cri-o.
-https://github.com/kubernetes/minikube/blob/v1.32.0/deploy/kicbase/02-crio.conf
+[https://github.com/kubernetes/minikube/blob/v1.32.0/deploy/kicbase/02-crio.conf](https://github.com/kubernetes/minikube/blob/v1.32.0/deploy/kicbase/02-crio.conf)
 
 We need to change this default configuration to say that for storing the images, cri-o needs to use another directory. This new directory `/host-containers` will be mounted from the `/var/lib/containers` folder inside the podman machine. This is how cri-o is able to see podman images.
 
@@ -111,7 +111,7 @@ runroot = "/host-containers/storage"
 
 Let's also upgrade the Podman inside the container by adding the necessary instruction to the Dockerfile.
 
-The Dockerfile is coming from https://github.com/kubernetes/minikube/blob/v1.32.0/deploy/kicbase/Dockerfile#L178-L186
+The Dockerfile is coming from [https://github.com/kubernetes/minikube/blob/v1.32.0/deploy/kicbase/Dockerfile#L178-L186](https://github.com/kubernetes/minikube/blob/v1.32.0/deploy/kicbase/Dockerfile#L178-L186)
 
 In the file, replace
 
@@ -120,6 +120,8 @@ RUN clean-install podman && \
 ```
 
 with
+
+<!-- markdownlint-disable MD001 MD034 -->
 
 ```Dockerfile
 RUN sh -c "echo 'deb https://downloadcontent.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_22.04/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list" && \
@@ -131,7 +133,7 @@ RUN sh -c "echo 'deb https://downloadcontent.opensuse.org/repositories/devel:/ku
 ```
 
 Let's rebuild the image and publish it. You can find it at `quay.io/fbenoit/kicbase:multiarch-2023-11-06` .
-To build the image, clone https://github.com/kubernetes/minikube repository, and edit the files referenced before.
+To build the image, clone [https://github.com/kubernetes/minikube](https://github.com/kubernetes/minikube) repository, and edit the files referenced before.
 
 The command to build the kicbase image is `make local-kicbase`.
 
@@ -150,6 +152,8 @@ Ok now let's try in two steps:
 ```shell
 podman machine init --cpus 4 --memory 6000 --rootful
 ```
+
+<!-- markdownlint-disable-next-line -->
 
 2. Start the cluster using our kicbase image
 
@@ -177,7 +181,7 @@ kubectl get pods -l app=nginx
 
 and if you check your podman images
 
-```
+```shell
 podman images
 ```
 

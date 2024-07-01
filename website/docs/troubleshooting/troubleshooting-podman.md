@@ -212,7 +212,7 @@ Podman Desktop might then reconnect in rootless mode, and fail to display the im
 
 When running the Podman provider, a warning shows regarding Docker compatibility mode on the dashboard:
 
-```
+```<!-- markdownlint-disable MD040 -->
 ⚠️ Docker Socket Compatibility: Podman is not emulating the default Docker socket path: '/var/run/docker.sock'. Docker-specific tools may not work. See troubleshooting page on podman-desktop.io for more information.
 ```
 

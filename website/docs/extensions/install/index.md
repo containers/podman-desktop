@@ -12,17 +12,17 @@ Installing an extension is a great way to expand the capability of Podman Deskto
 
 #### Procedure
 
-1. Click on the **Extensions** button.
+1. Click on the **Extensions** button. <!-- markdownlint-disable-line MD029 -->
 
-![](../img/extensions-icon.png)
+![Extension Screenshot](../img/extensions-icon.png)
 
-2. Browse the **Catalog** and install the extension.
+2. Browse the **Catalog** and install the extension. <!-- markdownlint-disable-line MD029 -->
 
-![](../img/browse-catalog.png)
+![Catalog Screenshot](../img/browse-catalog.png)
 
-3. Alternatively, you can also press **Install custom...** to install an extension from a container image.
+3. Alternatively, you can also press **Install custom...** to install an extension from a container image. <!-- markdownlint-disable-line MD029 -->
 
-![](../img/install-custom.png)
+![Install Custom Extension Dialoge](../img/install-custom.png)
 
 #### Verification
 

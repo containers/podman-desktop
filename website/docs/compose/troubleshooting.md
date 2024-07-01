@@ -12,7 +12,7 @@ tags: [compose]
 
 The Compose binary will prioritize the configuration file `~/.docker/config` over Podman credentials.
 
-### Issues encountered:
+### Issues encountered
 
 `docker-credential-desktop` missing:
 
@@ -27,6 +27,6 @@ Error response from daemon: {"message":"denied: requested access to the resource
 Error: executing /usr/local/bin/docker-compose up: exit status 18
 ```
 
-### Solution:
+### Solution
 
 Delete the `~/.docker/config` to clear any errors.

@@ -26,13 +26,13 @@ Consider using the `DOCKER_HOST` environment variable to migrate transparently f
  <Tabs groupId="operating-systems">
    <TabItem value="win" label="Windows">
 
-1. Identify the location of your Podman pipe
+1. Identify the location of your Podman pipe <!-- markdownlint-disable MD029 -->
 
 ```shell-session
 $ podman machine inspect --format '{{.ConnectionInfo.PodmanPipe.Path}}'
 ```
 
-2. Set the `DOCKER_HOST` environment variable to your Podman pipe location. You'll need to replace back slashes with forward slashes and add the `npipe://` scheme to the path retrieved previously:
+2. Set the `DOCKER_HOST` environment variable to your Podman pipe location. You'll need to replace back slashes with forward slashes and add the `npipe://` scheme to the path retrieved previously: <!-- markdownlint-disable MD029 -->
 
 > Example:
 >
