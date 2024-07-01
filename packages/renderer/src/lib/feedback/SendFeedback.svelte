@@ -71,25 +71,33 @@ async function sendFeedback(): Promise<void> {
           <button aria-label="very-sad-smiley" on:click="{() => selectSmiley(1)}">
             <Fa
               size="1.5x"
-              class="cursor-pointer {smileyRating === 1 ? 'text-violet-400' : 'text-gray-900'}"
+              class="cursor-pointer {smileyRating === 1
+                ? 'text-[var(--pd-button-primary-bg)]'
+                : 'text-[var(--pd-button-disabled-text)]'}"
               icon="{faFrown}" />
           </button>
           <button aria-label="sad-smiley" on:click="{() => selectSmiley(2)}">
             <Fa
               size="1.5x"
-              class="cursor-pointer {smileyRating === 2 ? 'text-violet-400' : 'text-gray-900'}"
+              class="cursor-pointer {smileyRating === 2
+                ? 'text-[var(--pd-button-primary-bg)]'
+                : 'text-[var(--pd-button-disabled-text)]'}"
               icon="{faMeh}" />
           </button>
           <button aria-label="happy-smiley" on:click="{() => selectSmiley(3)}">
             <Fa
               size="1.5x"
-              class="cursor-pointer {smileyRating === 3 ? 'text-violet-400' : 'text-gray-900'}"
+              class="cursor-pointer {smileyRating === 3
+                ? 'text-[var(--pd-button-primary-bg)]'
+                : 'text-[var(--pd-button-disabled-text)]'}"
               icon="{faSmile}" />
           </button>
           <button aria-label="very-happy-smiley" on:click="{() => selectSmiley(4)}">
             <Fa
               size="1.5x"
-              class="cursor-pointer {smileyRating === 4 ? 'text-violet-400' : 'text-gray-900'}"
+              class="cursor-pointer {smileyRating === 4
+                ? 'text-[var(--pd-button-primary-bg)]'
+                : 'text-[var(--pd-button-disabled-text)]'}"
               icon="{faGrinStars}" />
           </button>
         </div>
@@ -104,7 +112,7 @@ async function sendFeedback(): Promise<void> {
           id="tellUsWhyFeedback"
           data-testid="tellUsWhyFeedback"
           bind:value="{tellUsWhyFeedback}"
-          class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
+          class="w-full p-2 outline-none text-sm bg-[var(--pd-input-field-focused-bg)] rounded-sm text-[var(--pd-input-field-focused-text)] placeholder-[var(--pd-input-field-placeholder-text)]"
           placeholder="Please enter your feedback here, we appreciate and review all comments"></textarea>
 
         <label for="contactInformation" class="block mt-4 mb-2 text-sm font-medium text-[var(--pd-modal-text)]"
@@ -115,7 +123,7 @@ async function sendFeedback(): Promise<void> {
           id="contactInformation"
           bind:value="{contactInformation}"
           placeholder="Enter email address, or leave blank for anonymous feedback"
-          class="w-full p-2 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700" />
+          class="w-full p-2 outline-none text-sm bg-[var(--pd-input-field-focused-bg)] rounded-sm text-[var(--pd-input-field-focused-text)] placeholder-[var(--pd-input-field-placeholder-text)]" />
 
         <div class="pt-5 flex flex-row w-full justify-between">
           <div>
