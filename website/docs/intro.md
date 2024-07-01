@@ -10,7 +10,7 @@ As you read through this documentation, you'll learn how to:
 
 - Install and set up Podman Desktop on your system
 - The basics about Podman and how to create a machine
-- How to mirgrate from Docker and what to look for
+- How to migrate from Docker and what to look for
 - Create and manage containers, registries and pods
 - Setting up, running and troubleshooting Compose
 - How to deploy containers to Kubernetes using Kind, Lima, Minikube or OpenShift
