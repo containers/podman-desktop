@@ -16,11 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { afterEach } from 'vitest';
+import { afterEach, onTestFailed } from 'vitest';
 
 import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { takeScreenshotHook } from './extended-hooks-utils';
 
 afterEach(async (context: RunnerTestContext) => {
-  context.onTestFailed(async () => await takeScreenshotHook(context.pdRunner, context.task.name));
+  onTestFailed(async () => await takeScreenshotHook(context.pdRunner, context.task.name));
 });
