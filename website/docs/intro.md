@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Introduction
 
-Podman Desktop is an innovative desktop tool that brings the power of containers and Kubernetes to your computer, making it easy to create, manage, and run containerized applications visually. Intuitive interfaces and smart integration with the most important container technologies and support for the major operating systems, Podman Desktop helps you to use containers, pods and Kubernetes on your local machine.
+Podman Desktop is an innovative desktop tool that brings the power of containers and Kubernetes to your computer, making it easy to create, manage, and run containerized applications visually. Intuitive interfaces and smart integration with the most important container technologies, support for Mac, Windows and Linux, Podman Desktop helps you to use containers, pods and Kubernetes on your local machine.
 
 As you read through this documentation, you'll learn how to:
 
