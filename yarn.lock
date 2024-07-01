@@ -6376,7 +6376,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/node@*", "@types/node@^17.0.5", "@types/node@^18.0.0", "@types/node@^20", "@types/node@^20.1.1", "@types/node@^20.9.0":
+"@types/node@*", "@types/node@^17.0.5", "@types/node@^18.0.0", "@types/node@^18.11.18", "@types/node@^20", "@types/node@^20.1.1", "@types/node@^20.9.0":
   version "20.12.7"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-20.12.7.tgz#04080362fa3dd6c5822061aa3124f5c152cff384"
   integrity sha512-wq0cICSkRLVaf3UGLMGItu/PtdY7oaXaI/RVU+xliKVOtRna3PRY57ZDfztpDL0n11vfymMUnXv8QwYCO7L1wg==
@@ -6545,7 +6545,7 @@
   resolved "https://registry.yarnpkg.com/@types/semver/-/semver-7.3.12.tgz#920447fdd78d76b19de0438b7f60df3c4a80bf1c"
   integrity sha512-WwA1MW0++RfXmCr12xeYOOC5baSC9mSb0ZqCquFzKhcoF4TvHu5MKOuXsncgZcpVFhB1pXd5hZmM0ryAoCp12A==
 
-"@types/semver@^7.3.4":
+"@types/semver@^7.3.4", "@types/semver@^7.5.8":
   version "7.5.8"
   resolved "https://registry.yarnpkg.com/@types/semver/-/semver-7.5.8.tgz#8268a8c57a3e4abd25c165ecd36237db7948a55e"
   integrity sha512-I8EUhyrgfLrcTkzV3TSsGyl1tSuPrEDzr0yd5m90UgNxQkyDXULk3b6MlQqTCpZpNtWe1K0hzclnZkTcLBe2UQ==
@@ -6607,6 +6607,13 @@
   dependencies:
     "@types/node" "*"
     "@types/ssh2-streams" "*"
+
+"@types/ssh2@^1.15.0":
+  version "1.15.0"
+  resolved "https://registry.yarnpkg.com/@types/ssh2/-/ssh2-1.15.0.tgz#ef698a2fe05696d898e0f9398384ad370cd35317"
+  integrity sha512-YcT8jP5F8NzWeevWvcyrrLB3zcneVjzYY9ZDSMAMboI+2zR1qYWFhwsyOFVzT7Jorn67vqxC0FRiw8YyG9P1ww==
+  dependencies:
+    "@types/node" "^18.11.18"
 
 "@types/stream-chain@*":
   version "2.0.1"
@@ -19764,7 +19771,7 @@ vite-node@1.6.0:
     picocolors "^1.0.0"
     vite "^5.0.0"
 
-vite@^5.0.0, vite@^5.3.2:
+vite@^5.0.0, vite@^5.3.1, vite@^5.3.2:
   version "5.3.2"
   resolved "https://registry.yarnpkg.com/vite/-/vite-5.3.2.tgz#2f0a8531c71060467ed3e0a205a203f269b6d9c8"
   integrity sha512-6lA7OBHBlXUxiJxbO5aAY2fsHHzDr1q7DvXYnyZycRs2Dz+dXBWuhpWHvmljTRTpQC2uvGmUFFkSHF2vGo90MA==

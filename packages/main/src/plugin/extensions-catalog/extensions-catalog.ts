@@ -121,6 +121,7 @@ export class ExtensionsCatalog {
           versions: extension.versions.map(version => {
             return {
               version: version.version,
+              podmanDesktopVersion: version.podmanDesktopVersion,
               preview: version.preview,
               ociUri: version.ociUri,
               files: version.files,
@@ -239,6 +240,7 @@ interface InternalCatalogExtensionJSON {
 
 interface InternalCatalogExtensionVersionJSON {
   version: string;
+  podmanDesktopVersion?: string;
   ociUri: string;
   preview: boolean;
   lastUpdated: string;
