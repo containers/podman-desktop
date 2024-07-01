@@ -19,6 +19,7 @@ import {
   kubernetesCurrentContextDeploymentsFiltered,
 } from '/@/stores/kubernetes-contexts-state';
 
+import { withBulkConfirmation } from '../actions/BulkActions';
 import DeploymentIcon from '../images/DeploymentIcon.svelte';
 import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
 import { DeploymentUtils } from './deployment-utils';
@@ -126,7 +127,7 @@ const row = new TableRow<DeploymentUI>({ selectable: _deployment => true });
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() => deleteSelectedDeployments()}"
+        on:click="{() => withBulkConfirmation(deleteSelectedDeployments, `delete ${selectedItemsNumber} deployments`)}"
         title="Delete {selectedItemsNumber} selected items"
         inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />

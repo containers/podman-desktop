@@ -24,6 +24,7 @@ import { containersInfos } from '../../stores/containers';
 import { context } from '../../stores/context';
 import { filtered, imagesInfos, searchPattern } from '../../stores/images';
 import { providerInfos } from '../../stores/providers';
+import { withBulkConfirmation } from '../actions/BulkActions';
 import type { ContextUI } from '../context/context';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import Prune from '../engine/Prune.svelte';
@@ -346,7 +347,7 @@ const row = new TableRow<ImageInfoUI>({
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() => deleteSelectedImages()}"
+        on:click="{() => withBulkConfirmation(deleteSelectedImages, `delete ${selectedItemsNumber} images`)}"
         title="Delete {selectedItemsNumber} selected items"
         bind:inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />

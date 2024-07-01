@@ -21,7 +21,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import type { KubernetesObject, V1Ingress } from '@kubernetes/client-node';
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 /* eslint-disable import/no-duplicates */
 import { tick } from 'svelte';
 import { readable, writable } from 'svelte/store';
@@ -50,11 +50,16 @@ vi.mock('/@/stores/kubernetes-contexts-state', async () => {
   };
 });
 
+const getConfigurationValueMock = vi.fn();
+const deleteIngressMock = vi.fn();
+
 beforeEach(() => {
   vi.resetAllMocks();
   vi.clearAllMocks();
   (window as any).kubernetesGetContextsGeneralState = () => Promise.resolve(new Map());
   (window as any).kubernetesGetCurrentContextGeneralState = () => Promise.resolve({});
+  (window as any).kubernetesDeleteIngress = deleteIngressMock;
+  (window as any).getConfigurationValue = getConfigurationValueMock.mockResolvedValue(false);
 });
 
 async function waitRender(customProperties: object): Promise<void> {
@@ -153,4 +158,58 @@ test('Expect there to be an age column', async () => {
 
   const ageColumn = screen.getByRole('columnheader', { name: 'Age' });
   expect(ageColumn).toBeInTheDocument();
+});
+
+test('Expect user confirmation to pop up when preferences require', async () => {
+  const ingress = {
+    metadata: {
+      name: 'my-ingress',
+      namespace: 'test-namespace',
+    },
+    spec: {
+      rules: [
+        {
+          host: 'foo.bar.com',
+          http: {
+            paths: [
+              {
+                path: '/foo',
+                pathType: 'Prefix',
+                backend: {
+                  resource: {
+                    name: 'bucket',
+                    kind: 'StorageBucket',
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    },
+  } as V1Ingress;
+
+  vi.mocked(kubeContextStore).kubernetesCurrentContextIngresses = readable<KubernetesObject[]>([ingress]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextIngressesFiltered = readable<KubernetesObject[]>([ingress]);
+
+  await waitRender({});
+
+  const checkboxes = screen.getAllByRole('checkbox', { name: 'Toggle ingress & route' });
+  await fireEvent.click(checkboxes[0]);
+
+  getConfigurationValueMock.mockResolvedValueOnce(true);
+  const showMessageBoxMock = vi.fn().mockResolvedValue({ response: 1 });
+
+  (window as any).showMessageBox = showMessageBoxMock;
+
+  const deleteButton = screen.getByRole('button', { name: 'Delete 1 selected items' });
+  await fireEvent.click(deleteButton);
+
+  expect(showMessageBoxMock).toHaveBeenCalledOnce();
+  expect(deleteIngressMock).not.toHaveBeenCalled();
+
+  showMessageBoxMock.mockResolvedValue({ response: 0 });
+  await fireEvent.click(deleteButton);
+  expect(showMessageBoxMock).toHaveBeenCalledOnce();
+  expect(deleteIngressMock).toHaveBeenCalled();
 });

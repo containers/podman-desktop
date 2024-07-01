@@ -16,6 +16,7 @@ import { router } from 'tinro';
 
 import { providerInfos } from '../../stores/providers';
 import { fetchVolumesWithData, filtered, searchPattern, volumeListInfos } from '../../stores/volumes';
+import { withBulkConfirmation } from '../actions/BulkActions';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import Prune from '../engine/Prune.svelte';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
@@ -249,7 +250,7 @@ const row = new TableRow<VolumeInfoUI>({
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() => deleteSelectedVolumes()}"
+        on:click="{() => withBulkConfirmation(deleteSelectedVolumes, `delete ${selectedItemsNumber} volumes`)}"
         title="Delete {selectedItemsNumber} selected items"
         inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />

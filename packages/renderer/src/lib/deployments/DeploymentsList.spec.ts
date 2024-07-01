@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import type { V1Deployment } from '@kubernetes/client-node';
-import { render, screen, within } from '@testing-library/svelte';
+import { fireEvent, render, screen, within } from '@testing-library/svelte';
 /* eslint-disable import/no-duplicates */
 import { tick } from 'svelte';
 import { get } from 'svelte/store';
@@ -33,9 +33,13 @@ import { kubernetesCurrentContextDeployments } from '/@/stores/kubernetes-contex
 import DeploymentsList from './DeploymentsList.svelte';
 
 const kubernetesRegisterGetCurrentContextResourcesMock = vi.fn();
+const getConfigurationValueMock = vi.fn();
+const deleteDeploymentMock = vi.fn();
 
 beforeAll(() => {
   (window as any).kubernetesRegisterGetCurrentContextResources = kubernetesRegisterGetCurrentContextResourcesMock;
+  (window as any).kubernetesDeleteDeployment = deleteDeploymentMock;
+  (window as any).getConfigurationValue = getConfigurationValueMock.mockResolvedValue(false);
 });
 
 beforeEach(() => {
@@ -44,6 +48,8 @@ beforeEach(() => {
   (window as any).kubernetesGetContextsGeneralState = () => Promise.resolve(new Map());
   (window as any).kubernetesGetCurrentContextGeneralState = () => Promise.resolve({});
   (window as any).window.kubernetesUnregisterGetCurrentContextResources = () => Promise.resolve(undefined);
+  (window as any).kubernetesDeleteDeployment = deleteDeploymentMock;
+  (window as any).getConfigurationValue = getConfigurationValueMock.mockResolvedValue(false);
 });
 
 async function waitRender(customProperties: object): Promise<void> {
@@ -153,4 +159,46 @@ test('Expect filter empty screen', async () => {
 
   const filterButton = screen.getByRole('button', { name: 'Clear filter' });
   expect(filterButton).toBeInTheDocument();
+});
+
+test('Expect user confirmation to pop up when preferences require', async () => {
+  const deployment: V1Deployment = {
+    apiVersion: 'apps/v1',
+    kind: 'Deployment',
+    metadata: {
+      name: 'my-deployment',
+      namespace: 'test-namespace',
+    },
+    spec: {
+      replicas: 2,
+      selector: {},
+      template: {},
+    },
+  };
+  kubernetesRegisterGetCurrentContextResourcesMock.mockResolvedValue([deployment]);
+
+  while (get(kubernetesCurrentContextDeployments).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  await waitRender({});
+
+  const checkboxes = screen.getAllByRole('checkbox', { name: 'Toggle deployment' });
+  await fireEvent.click(checkboxes[0]);
+
+  getConfigurationValueMock.mockResolvedValueOnce(true);
+  const showMessageBoxMock = vi.fn().mockResolvedValue({ response: 1 });
+
+  (window as any).showMessageBox = showMessageBoxMock;
+
+  const deleteButton = screen.getByRole('button', { name: 'Delete 1 selected items' });
+  await fireEvent.click(deleteButton);
+
+  expect(showMessageBoxMock).toHaveBeenCalledOnce();
+  expect(deleteDeploymentMock).not.toHaveBeenCalled();
+
+  showMessageBoxMock.mockResolvedValue({ response: 0 });
+  await fireEvent.click(deleteButton);
+  expect(showMessageBoxMock).toHaveBeenCalledOnce();
+  expect(deleteDeploymentMock).toHaveBeenCalled();
 });

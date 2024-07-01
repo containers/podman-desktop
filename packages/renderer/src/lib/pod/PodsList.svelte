@@ -16,6 +16,7 @@ import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrent
 import type { PodInfo } from '../../../../main/src/plugin/api/pod-info';
 import { filtered, podsInfos, searchPattern } from '../../stores/pods';
 import { providerInfos } from '../../stores/providers';
+import { withBulkConfirmation } from '../actions/BulkActions';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import Prune from '../engine/Prune.svelte';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
@@ -166,7 +167,7 @@ const row = new TableRow<PodInfoUI>({ selectable: _pod => true });
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() => deleteSelectedPods()}"
+        on:click="{() => withBulkConfirmation(deleteSelectedPods, `delete ${selectedItemsNumber} pods`)}"
         title="Delete {selectedItemsNumber} selected items"
         inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />

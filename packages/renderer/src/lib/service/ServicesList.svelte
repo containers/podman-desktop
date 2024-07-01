@@ -16,6 +16,7 @@ import { onMount } from 'svelte';
 import KubernetesCurrentContextConnectionBadge from '/@/lib/ui/KubernetesCurrentContextConnectionBadge.svelte';
 import { kubernetesCurrentContextServicesFiltered, serviceSearchPattern } from '/@/stores/kubernetes-contexts-state';
 
+import { withBulkConfirmation } from '../actions/BulkActions';
 import ServiceIcon from '../images/ServiceIcon.svelte';
 import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
 import { ServiceUtils } from './service-utils';
@@ -132,7 +133,7 @@ const row = new TableRow<ServiceUI>({ selectable: _service => true });
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() => deleteSelectedServices()}"
+        on:click="{() => withBulkConfirmation(deleteSelectedServices, `delete ${selectedItemsNumber} services`)}"
         title="Delete {selectedItemsNumber} selected items"
         inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />

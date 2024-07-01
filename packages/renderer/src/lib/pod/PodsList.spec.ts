@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,8 @@ const listContainersMock = vi.fn();
 const kubernetesListPodsMock = vi.fn();
 const getContributedMenusMock = vi.fn();
 const kubernetesGetCurrentNamespaceMock = vi.fn();
+const getConfigurationValueMock = vi.fn();
+const removePodMock = vi.fn();
 
 const provider: ProviderInfo = {
   containerConnections: [
@@ -276,6 +278,9 @@ beforeAll(() => {
   (window as any).kubernetesListPods = kubernetesListPodsMock;
   (window as any).kubernetesGetCurrentNamespace = kubernetesGetCurrentNamespaceMock;
   (window as any).onDidUpdateProviderStatus = vi.fn().mockResolvedValue(undefined);
+  (window as any).removePod = removePodMock;
+  (window as any).getConfigurationValue = getConfigurationValueMock.mockResolvedValue(false);
+
   (window.events as unknown) = {
     receive: (_channel: string, func: any) => {
       func();
@@ -624,4 +629,35 @@ test('Expect tab filtering to not duplicate filter condition in the search bar',
 
   const searchInput = screen.getByPlaceholderText('Search pods...') as HTMLInputElement;
   expect(searchInput.value).toBe('is:running');
+});
+
+test('Expect user confirmation to pop up when preferences require', async () => {
+  getProvidersInfoMock.mockResolvedValue([provider]);
+  listPodsMock.mockResolvedValue([pod1]);
+  kubernetesListPodsMock.mockResolvedValue([]);
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+
+  await vi.waitUntil(() => get(providerInfos).length === 1 && get(podsInfos).length === 2, { timeout: 5000 });
+
+  render(PodsList);
+
+  const checkboxes = screen.getAllByRole('checkbox', { name: 'Toggle pod' });
+  await fireEvent.click(checkboxes[0]);
+
+  getConfigurationValueMock.mockResolvedValueOnce(true);
+  const showMessageBoxMock = vi.fn().mockResolvedValue({ response: 1 });
+
+  (window as any).showMessageBox = showMessageBoxMock;
+
+  const deleteButton = screen.getByRole('button', { name: 'Delete 1 selected items' });
+  await fireEvent.click(deleteButton);
+
+  expect(showMessageBoxMock).toHaveBeenCalledOnce();
+  expect(removePodMock).not.toHaveBeenCalled();
+
+  showMessageBoxMock.mockResolvedValue({ response: 0 });
+  await fireEvent.click(deleteButton);
+  expect(showMessageBoxMock).toHaveBeenCalledOnce();
+  expect(removePodMock).toHaveBeenCalled();
 });
