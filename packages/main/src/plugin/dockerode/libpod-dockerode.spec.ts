@@ -23,7 +23,7 @@ import Dockerode from 'dockerode';
 import nock from 'nock';
 import { beforeAll, expect, test } from 'vitest';
 
-import { type LibPod, LibpodDockerode } from '/@/plugin/dockerode/libpod-dockerode.js';
+import type { type LibPod, LibpodDockerode, SearchImagesResponse } from '/@/plugin/dockerode/libpod-dockerode.js';
 import type { PodmanListImagesOptions } from '/@api/image-info.js';
 
 import podmanInfo from '../../../tests/resources/data/plugin/podman-info.json';
@@ -272,4 +272,73 @@ test('Check create volume', async () => {
   expect(response.Driver).toBe('local');
   expect(response.Name).toBe('foo');
   expect(response.Scope).toBe('local');
+});
+
+test('check searchImages with term only', async () => {
+  const images: SearchImagesResponse[] = [
+    {
+      Index: 'quay.io',
+      Name: 'quay.io/me/image1',
+      Description: 'a desc',
+      Stars: 5,
+      Official: '',
+      Automated: '',
+      Tag: '',
+    },
+    {
+      Index: 'quay.io',
+      Name: 'quay.io/me/image2',
+      Description: 'another desc',
+      Stars: 50,
+      Official: '',
+      Automated: '',
+      Tag: '',
+    },
+  ];
+  nock('http://localhost').get('/images/search?term=http').reply(200, images);
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  const response = await api.searchImages({
+    term: 'http',
+  });
+  expect(response).toEqual(response);
+});
+
+test('check searchImages with all options', async () => {
+  const images: SearchImagesResponse[] = [
+    {
+      Index: 'quay.io',
+      Name: 'quay.io/me/image1',
+      Description: 'a desc',
+      Stars: 5,
+      Official: '',
+      Automated: '',
+      Tag: '',
+    },
+    {
+      Index: 'quay.io',
+      Name: 'quay.io/me/image2',
+      Description: 'another desc',
+      Stars: 50,
+      Official: '',
+      Automated: '',
+      Tag: '',
+    },
+  ];
+  const filters = encodeURIComponent(`{"is-automated":["true"],"is-official":["true"],"stars":["2"]}`);
+  nock('http://localhost')
+    .get('/images/search?term=http&limit=100&listTags=true&tlsVerify=false&filters=' + filters)
+    .reply(200, images);
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  const response = await api.searchImages({
+    term: 'http',
+    limit: 100,
+    listTags: true,
+    tlsVerify: false,
+    filterIsAutomated: true,
+    filterIsOfficial: true,
+    filterMinStars: 2,
+  });
+  expect(response).toEqual(response);
 });

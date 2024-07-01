@@ -4720,3 +4720,53 @@ test('inspectManifest should fail if libpod is missing from the provider', async
     'LibPod is not supported by this engine',
   );
 });
+
+describe('searchImages', () => {
+  test('search images on a specific provider with term only', async () => {
+    const searchImagesMock = vi.fn();
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman1',
+      id: 'podman1',
+      connection: {
+        type: 'podman',
+      },
+      api: {
+        searchImages: searchImagesMock,
+      } as unknown as Dockerode,
+    } as InternalContainerProvider);
+
+    const options: podmanDesktopAPI.SearchImagesOptions = {
+      term: 'http',
+    };
+    await containerRegistry.searchImages('podman1', options);
+
+    expect(searchImagesMock).toHaveBeenCalledWith(options);
+  });
+
+  test('search images on a specific provider with all options', async () => {
+    const searchImagesMock = vi.fn();
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman1',
+      id: 'podman1',
+      connection: {
+        type: 'podman',
+      },
+      api: {
+        searchImages: searchImagesMock,
+      } as unknown as Dockerode,
+    } as InternalContainerProvider);
+
+    const options: podmanDesktopAPI.SearchImagesOptions = {
+      term: 'http',
+      limit: 5,
+      listTags: true,
+      tlsVerify: false,
+      filterIsAutomated: true,
+      filterIsOfficial: true,
+      filterMinStars: 1000,
+    };
+    await containerRegistry.searchImages('podman1', options);
+
+    expect(searchImagesMock).toHaveBeenCalledWith(options);
+  });
+});

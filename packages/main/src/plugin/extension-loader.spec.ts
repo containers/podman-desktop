@@ -163,6 +163,7 @@ const containerProviderRegistry: ContainerProviderRegistry = {
   listImages: vi.fn(),
   podmanListImages: vi.fn(),
   listInfos: vi.fn(),
+  searchImages: vi.fn(),
 } as unknown as ContainerProviderRegistry;
 
 const inputQuickPickRegistry: InputQuickPickRegistry = {} as unknown as InputQuickPickRegistry;
@@ -2089,6 +2090,24 @@ describe('containerEngine', async () => {
         name: 'dummyProvider',
       },
     });
+  });
+
+  test('searchImages', async () => {
+    vi.mocked(containerProviderRegistry.searchImages).mockResolvedValue([]);
+    const disposables: IDisposable[] = [];
+    const api = extensionLoader.createApi('/path', {}, disposables);
+    const options: containerDesktopAPI.SearchImagesOptions = {
+      term: 'http',
+      limit: 5,
+      listTags: true,
+      tlsVerify: false,
+      filterIsAutomated: true,
+      filterIsOfficial: true,
+      filterMinStars: 1000,
+    };
+    const images = await api.containerEngine.searchImages('engine1', options);
+    expect(images.length).toBe(0);
+    expect(containerProviderRegistry.searchImages).toHaveBeenCalledWith('engine1', options);
   });
 });
 
