@@ -40,5 +40,5 @@ export async function takeScreenshotHook(runner: PodmanDesktopRunner, taskName: 
   }
   console.log(`Screenshot of the failed test will be saved to: ${fileName}`);
   await runner.screenshot(`${fileName}.png`);
-  runner.setTestStatus(false);
+  runner.setTestPassed(false);
 }

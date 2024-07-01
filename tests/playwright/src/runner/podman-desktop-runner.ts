@@ -40,7 +40,7 @@ export class PodmanDesktopRunner {
   private _videoAndTraceName: string | undefined;
   private _autoUpdate: boolean;
   private _autoCheckUpdate: boolean;
-  private _testStatus: boolean;
+  private _testPassed: boolean;
 
   constructor({
     profile = '',
@@ -55,7 +55,7 @@ export class PodmanDesktopRunner {
     this._videoAndTraceName = undefined;
     this._autoUpdate = autoUpdate;
     this._autoCheckUpdate = autoCheckUpdate;
-    this._testStatus = true;
+    this._testPassed = true;
 
     // Options setting always needs to be last action in constructor in order to apply settings correctly
     this._options = this.defaultOptions();
@@ -214,13 +214,17 @@ export class PodmanDesktopRunner {
       rmSync(rawTracesPath, { recursive: true, force: true, maxRetries: 5 });
     }
 
-    if (this._testStatus && !process.env.KEEP_TRACES_ON_PASS && this._videoAndTraceName) {
+    if (!this._testPassed || !this._videoAndTraceName) return;
+
+    if (!process.env.KEEP_TRACES_ON_PASS) {
       const tracesPath = join(this._testOutput, 'traces', `${this._videoAndTraceName}_trace.zip`);
       if (existsSync(tracesPath)) {
         console.log(`Removing traces folder: ${tracesPath}`);
         rmSync(tracesPath, { recursive: true, force: true, maxRetries: 5 });
       }
+    }
 
+    if (!process.env.KEEP_VIDEOS_ON_PASS) {
       const videoPath = join(this._testOutput, 'videos', `${this._videoAndTraceName}.webm`);
       if (existsSync(videoPath)) {
         console.log(`Removing video folder: ${videoPath}`);
@@ -315,12 +319,12 @@ export class PodmanDesktopRunner {
     return this._testOutput;
   }
 
-  public getTestStatus(): boolean {
-    return this._testStatus;
+  public getTestPassed(): boolean {
+    return this._testPassed;
   }
 
-  public setTestStatus(value: boolean): void {
-    this._testStatus = value;
+  public setTestPassed(value: boolean): void {
+    this._testPassed = value;
   }
 
   public get options(): object {
