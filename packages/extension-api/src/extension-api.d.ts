@@ -3417,6 +3417,71 @@ declare module '@podman-desktop/api' {
   }
 
   /**
+   * Options when searching images in registries
+   */
+  export interface SearchImagesOptions {
+    /**
+     * Term to search, in the form `[<registry>/]searchTerm`. For example, `quay.io/http` to search images with `http` search term in `quay.io` registry
+     */
+    term: string;
+    /**
+     * Maximum number of results to return. Defaults to 25
+     */
+    limit?: number;
+    /**
+     * If true, the `Tag` field of the result will be filled. Defaults to false
+     */
+    listTags?: boolean;
+    /**
+     * If true, require HTTPS and verify signatures when contacting registries. Defaults to true
+     */
+    tlsVerify?: boolean;
+    /**
+     * Return only images marked as Automated
+     */
+    filterIsAutomated?: boolean;
+    /**
+     * Return only images marked as Official
+     */
+    filterIsOfficial?: boolean;
+    /**
+     * Return only images with at least this number of images
+     */
+    filterMinStars?: number;
+  }
+
+  export interface SearchImagesResponseInfo {
+    /**
+     * Index of the registry providing the image
+     */
+    Index: string;
+    /**
+     * Name of the image
+     */
+    Name: string;
+    /**
+     * Description of the image, in Markdown format
+     */
+    Description: string;
+    /**
+     * Number of stars in the image
+     */
+    Stars: number;
+    /**
+     * Indicate if the image is official
+     */
+    Official: string;
+    /**
+     * Indicate if the image is automated
+     */
+    Automated: string;
+    /**
+     * If true, return one result for each tag of the image
+     */
+    Tag: string;
+  }
+
+  /**
    *  Module providing operations to execute on all container providers
    */
   export namespace containerEngine {
@@ -3608,6 +3673,16 @@ declare module '@podman-desktop/api' {
      * @return A promise resolving to a structure containing the image information
      */
     export function getImageInspect(engineId: string, id: string): Promise<ImageInspectInfo>;
+
+    /**
+     * Search images in Image Registries using a specific engine
+     * @param engineId the id of the engine to use for querying the registries, obtained from the result of {@link containerEngine.listInfos}
+     * @param searchOptions options for the search
+     */
+    export function searchImages(
+      engineId: string,
+      searchOptions: SearchImagesOptions,
+    ): Promise<SearchImagesResponseInfo[]>;
 
     export function info(engineId: string): Promise<ContainerEngineInfo>;
 

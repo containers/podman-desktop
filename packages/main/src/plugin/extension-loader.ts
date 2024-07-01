@@ -1126,6 +1126,12 @@ export class ExtensionLoader {
       getImageInspect(engineId: string, id: string): Promise<ImageInspectInfo> {
         return containerProviderRegistry.getImageInspect(engineId, id);
       },
+      searchImages(
+        engineId: string,
+        searchOptions: containerDesktopAPI.SearchImagesOptions,
+      ): Promise<containerDesktopAPI.SearchImagesResponseInfo[]> {
+        return containerProviderRegistry.searchImages(engineId, searchOptions);
+      },
       info(engineId: string): Promise<containerDesktopAPI.ContainerEngineInfo> {
         return containerProviderRegistry.info(engineId);
       },

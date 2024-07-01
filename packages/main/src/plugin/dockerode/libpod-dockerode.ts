@@ -340,6 +340,31 @@ export interface GetImagesOptions {
   names: string[];
 }
 
+export interface SearchImagesOptions {
+  term: string;
+  limit: number;
+  listTags: boolean;
+  tlsVerify: boolean;
+  filterIsAutomated?: boolean;
+  filterIsOfficial?: boolean;
+  filterMinStars?: number;
+}
+
+interface SearchImagesFilter {
+  'is-automated'?: string[];
+  'is-official'?: string[];
+  stars?: string[];
+}
+
+export interface SearchImagesResponse {
+  Index: string;
+  Name: string;
+  Description: string;
+  Stars: number;
+  Official: string;
+  Automated: string;
+  Tag: string;
+}
 // API of libpod that we want to expose on our side
 export interface LibPod {
   createPod(podOptions: PodCreateOptions): Promise<{ Id: string }>;
@@ -358,6 +383,7 @@ export interface LibPod {
   pruneAllImages(dangling: boolean): Promise<void>;
   podmanInfo(): Promise<Info>;
   getImages(options: GetImagesOptions): Promise<NodeJS.ReadableStream>;
+  searchImages(options: SearchImagesOptions): Promise<SearchImagesResponse[]>;
   podmanListImages(options?: PodmanListImagesOptions): Promise<ImageInfo[]>;
   podmanCreateManifest(manifestOptions: ManifestCreateOptions): Promise<{ engineId: string; Id: string }>;
   podmanInspectManifest(manifestName: string): Promise<ManifestInspectInfo>;
@@ -830,6 +856,57 @@ export class LibpodDockerode {
       };
       return new Promise((resolve, reject) => {
         this.modem.dial(optsf, (err: unknown, data: NodeJS.ReadableStream) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(data);
+        });
+      });
+    };
+
+    // search images in registries
+    prototypeOfDockerode.searchImages = function (options: SearchImagesOptions): Promise<SearchImagesResponse[]> {
+      let query = `term=${options.term}&`;
+      if (options.limit !== undefined) {
+        query += `limit=${options.limit}&`;
+      }
+      if (options.listTags !== undefined) {
+        query += `listTags=${options.listTags}&`;
+      }
+      if (options.tlsVerify !== undefined) {
+        query += `tlsVerify=${options.tlsVerify}&`;
+      }
+      if (
+        options.filterIsAutomated !== undefined ||
+        options.filterIsOfficial !== undefined ||
+        options.filterMinStars !== undefined
+      ) {
+        const filter: SearchImagesFilter = {};
+        if (options.filterIsAutomated !== undefined) {
+          filter['is-automated'] = [`${options.filterIsAutomated}`];
+        }
+        if (options.filterIsOfficial !== undefined) {
+          filter['is-official'] = [`${options.filterIsOfficial}`];
+        }
+        if (options.filterMinStars !== undefined) {
+          filter['stars'] = [`${options.filterMinStars}`];
+        }
+        query += `filters=${encodeURIComponent(JSON.stringify(filter))}&`;
+      }
+
+      const optsf = {
+        path: `/images/search?${query}`,
+        method: 'GET',
+        options: {},
+        abortSignal: undefined,
+        statusCodes: {
+          200: true,
+          400: 'bad parameter',
+          500: 'server error',
+        },
+      };
+      return new Promise((resolve, reject) => {
+        this.modem.dial(optsf, (err: unknown, data: SearchImagesResponse[]) => {
           if (err) {
             return reject(err);
           }

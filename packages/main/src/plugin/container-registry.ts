@@ -2631,4 +2631,18 @@ export class ContainerProviderRegistry {
       return Promise.reject(errors);
     }
   }
+
+  async searchImages(
+    engineId: string,
+    searchOptions: containerDesktopAPI.SearchImagesOptions,
+  ): Promise<containerDesktopAPI.SearchImagesResponseInfo[]> {
+    const provider = this.internalProviders.get(engineId);
+    if (!provider) {
+      throw new Error('no engine matching this container');
+    }
+    if (!provider.api) {
+      throw new Error('no running provider for the matching container');
+    }
+    return provider.api.searchImages(searchOptions);
+  }
 }
