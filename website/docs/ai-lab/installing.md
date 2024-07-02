@@ -8,7 +8,7 @@ tags: [ai, llm, generative ai]
 
 # Installing the Podman AI Lab extension
 
-The AI Lab extension extends the capabilities of Podman Desktop for large language models. It has to be installed before you can use it. Installations is just a click if you have Podman Desktop installed already.
+The AI Lab extension extends the capabilities of Podman Desktop for large language models. It has to be installed before you can use it. Installation is just a click if you have Podman Desktop installed already.
 
 #### Procedure
 
