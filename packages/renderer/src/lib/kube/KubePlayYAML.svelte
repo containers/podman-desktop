@@ -171,9 +171,10 @@ async function getKubernetesfileLocation() {
     <KubePlayIcon slot="icon" size="30px" />
 
     <div slot="content" class="space-y-6">
-      <div class="text-xl font-medium">Select file:</div>
+      <div class="text-xl font-medium text-[var(--pd-content-card-header-text)]">Select file:</div>
       <div hidden="{runStarted}">
-        <label for="containerFilePath" class="block mb-2 text-sm font-bold text-gray-400">Kubernetes YAML file</label>
+        <label for="containerFilePath" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
+          >Kubernetes YAML file</label>
         <div class="flex flex-row space-x-2">
           <Input
             name="containerFilePath"
@@ -188,31 +189,41 @@ async function getKubernetesfileLocation() {
       </div>
 
       <div>
-        <div class="text-sm font-bold text-gray-400 pb-2">Select runtime:</div>
+        <div class="text-sm font-bold text-[var(--pd-content-card-header-text)] pb-2">Select runtime:</div>
 
         <div class="px-5">
           <div class="flex flex-col space-y-3">
             <button
               hidden="{providerConnections.length === 0}"
               class:border-2="{defaultContextName}"
-              class="rounded-md p-5 cursor-pointer {userChoice === 'podman'
-                ? 'border-dustypurple-700'
-                : 'border-charcoal-600'}"
+              class="rounded-md p-5 cursor-pointer bg-[var(--pd-content-card-inset-bg)]"
+              class:border-[var(--pd-content-card-border-selected)]="{userChoice === 'podman'}"
+              class:border-[var(--pd-content-card-border)]="{userChoice !== 'podman'}"
               on:click="{() => {
                 userChoice = 'podman';
               }}">
               <div class="flex flex-row align-middle items-center">
-                <div class=" text-2xl {userChoice === 'podman' ? 'text-dustypurple-500' : 'text-charcoal-600'}">
+                <div
+                  class="text-2xl"
+                  class:text-[var(--pd-content-card-border-selected)]="{userChoice === 'podman'}"
+                  class:text-[var(--pd-content-card-border)]="{userChoice !== 'podman'}">
                   <Fa icon="{faCircleCheck}" />
                 </div>
-                <div class="pl-2 text-gray-900">Using a Podman container engine</div>
+                <div
+                  class="pl-2"
+                  class:text-[var(--pd-content-card-text)]="{userChoice === 'podman'}"
+                  class:text-[var(--pd-input-field-disabled-text)]="{userChoice !== 'podman'}">
+                  Using a Podman container engine
+                </div>
               </div>
               <div hidden="{runStarted}">
                 {#if providerConnections.length > 1}
-                  <label for="providerConnectionName" class="py-6 block mb-2 text-sm font-medium text-gray-400"
+                  <label
+                    for="providerConnectionName"
+                    class="py-6 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                     >Container Engine
                     <select
-                      class="border text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 bg-gray-900 border-gray-900 placeholder-gray-700 text-white"
+                      class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
                       name="providerChoice"
                       bind:value="{selectedProvider}">
                       {#each providerConnections as providerConnection}
@@ -228,25 +239,35 @@ async function getKubernetesfileLocation() {
             </button>
             <button
               hidden="{!defaultContextName}"
-              class="border-2 rounded-md p-5 cursor-pointer {userChoice === 'kubernetes'
-                ? 'border-dustypurple-700'
-                : 'border-charcoal-600'}"
+              class="border-2 rounded-md p-5 cursor-pointer bg-[var(--pd-content-card-inset-bg)]"
+              class:border-[var(--pd-content-card-border-selected)]="{userChoice === 'kubernetes'}"
+              class:border-[var(--pd-content-card-border)]="{userChoice !== 'kubernetes'}"
               on:click="{() => {
                 userChoice = 'kubernetes';
               }}">
               <div class="flex flex-row align-middle items-center">
-                <div class=" text-2xl {userChoice === 'kubernetes' ? 'text-dustypurple-500' : 'text-charcoal-600'}">
+                <div
+                  class="text-2xl"
+                  class:text-[var(--pd-content-card-border-selected)]="{userChoice === 'kubernetes'}"
+                  class:text-[var(--pd-content-card-border)]="{userChoice !== 'kubernetes'}">
                   <Fa icon="{faCircleCheck}" />
                 </div>
-                <div class="pl-2 text-gray-900">Using a Kubernetes cluster</div>
+                <div
+                  class="pl-2"
+                  class:text-[var(--pd-content-card-text)]="{userChoice === 'kubernetes'}"
+                  class:text-[var(--pd-input-field-disabled-text)]="{userChoice !== 'kubernetes'}">
+                  Using a Kubernetes cluster
+                </div>
               </div>
 
               {#if defaultContextName}
                 <div class="pt-2">
                   <label
                     for="contextToUse"
-                    class="block mb-1 text-sm font-bold text-gray-400"
-                    class:text-gray-900="{userChoice !== 'kubernetes'}">Kubernetes Context:</label>
+                    class="block mb-1 text-sm font-bold"
+                    class:text-[var(--pd-content-card-header-text)]="{userChoice === 'kubernetes'}"
+                    class:text-[var(--pd-input-field-disabled-text)]="{userChoice !== 'kubernetes'}"
+                    >Kubernetes Context:</label>
                   <Input
                     disabled="{userChoice === 'podman'}"
                     bind:value="{defaultContextName}"
@@ -262,11 +283,13 @@ async function getKubernetesfileLocation() {
                 <div class="pt-2">
                   <label
                     for="namespaceToUse"
-                    class="block mb-1 text-sm font-medium text-gray-400"
-                    class:text-gray-900="{userChoice !== 'kubernetes'}">Kubernetes namespace:</label>
+                    class="block mb-1 text-sm font-medium"
+                    class:text-[var(--pd-content-card-header-text)]="{userChoice === 'kubernetes'}"
+                    class:text-[var(--pd-input-field-disabled-text)]="{userChoice !== 'kubernetes'}"
+                    >Kubernetes namespace:</label>
                   <select
                     disabled="{userChoice === 'podman'}"
-                    class="w-full p-2 outline-none text-sm bg-charcoal-900 rounded-sm text-gray-700 placeholder-gray-700"
+                    class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
                     name="namespaceChoice"
                     bind:value="{currentNamespace}">
                     {#each allNamespaces.items as namespace}
@@ -293,7 +316,7 @@ async function getKubernetesfileLocation() {
         </Button>
       {/if}
       {#if runStarted}
-        <div class="text-gray-700 text-sm">
+        <div class="text-[var(--pd-content-card-text)] text-sm">
           Please wait during the Play Kube and do not change screen. This process may take a few minutes to complete...
         </div>
       {/if}
@@ -308,7 +331,7 @@ async function getKubernetesfileLocation() {
 
       {#if playKubeResultJSON}
         <!-- Output area similar to DeployPodToKube.svelte -->
-        <div class="bg-charcoal-800 p-5 my-4">
+        <div class="bg-[var(--pd--content-card-bg)] p-5 my-4 text-[var(--pd-content-card-text)]">
           <div class="flex flex-row items-center">
             <div>
               {#if playKubeResultJSON?.Pods.length > 1}
