@@ -236,9 +236,9 @@ const row = new TableRow<VolumeInfoUI>({
       <Button
         inProgress="{fetchDataInProgress}"
         on:click="{() => fetchUsageData()}"
-        title="Collect usage data for volumes. It can take a while..."
+        title="Gather sizes for volumes. It can take a while..."
         icon="{faPieChart}"
-        aria-label="Collect usage data">Collect usage data</Button>
+        aria-label="Gather volume sizes">Gather volume sizes</Button>
     {/if}
     {#if providerConnections.length > 0}
       <Button on:click="{() => gotoCreateVolume()}" icon="{faPlusCircle}" title="Create a volume" aria-label="Create"

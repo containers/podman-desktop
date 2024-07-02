@@ -33,7 +33,7 @@ export class VolumesPage extends MainPage {
     super(page, 'volumes');
     this.createVolumeButton = this.additionalActions.getByRole('button', { name: 'Create' });
     this.pruneVolumesButton = this.additionalActions.getByRole('button', { name: 'Prune' });
-    this.collectUsageDataButton = this.additionalActions.getByRole('button', { name: 'Collect usage data' });
+    this.collectUsageDataButton = this.additionalActions.getByRole('button', { name: 'Gather volume sizes' });
   }
 
   async openCreateVolumePage(volumeName: string): Promise<CreateVolumePage> {
