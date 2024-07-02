@@ -33,9 +33,11 @@ import { PodmanCleanupMacOS } from './podman-cleanup-macos';
 import { PodmanCleanupWindows } from './podman-cleanup-windows';
 import type { InstalledPodman } from './podman-cli';
 import { getPodmanCli, getPodmanInstallation } from './podman-cli';
-import { PodmanConfiguration } from './podman-configuration';
+import type { PodmanConfiguration } from './podman-configuration';
+import { hypervProperty, PodmanConfigurationProvider } from './podman-configuration';
 import { PodmanInfoHelper } from './podman-info-helper';
 import { PodmanInstall } from './podman-install';
+import { ProxyConfigurationHandler } from './proxy-configuration-update-handler';
 import { QemuHelper } from './qemu-helper';
 import { RegistrySetup } from './registry-setup';
 import { appConfigDir, appHomeDir, getAssetsFolder, isLinux, isMac, isWindows, LoggerDelegator } from './util';
@@ -1546,8 +1548,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const registrySetup = new RegistrySetup();
   await registrySetup.setup();
 
-  const podmanConfiguration = new PodmanConfiguration();
-  await podmanConfiguration.init();
+  const podmanConfiguration = new PodmanConfigurationProvider().getConfiguration();
+  await new ProxyConfigurationHandler().registerHandler(podmanConfiguration);
 
   await calcPodmanMachineSetting(podmanConfiguration);
 }
@@ -1559,7 +1561,7 @@ export async function calcPodmanMachineSetting(podmanConfiguration: PodmanConfig
 
   if (isWindows()) {
     const isPodmanHyperv_Env = process.env.CONTAINERS_MACHINE_PROVIDER === 'hyperv';
-    const isPodmanHyperv_Config = await podmanConfiguration.matchRegexpInContainersConfig(/provider\s*=\s*"hyperv"/);
+    const isPodmanHyperv_Config = await podmanConfiguration.isPropertySet(hypervProperty);
     cpuSupported = isPodmanHyperv_Env || isPodmanHyperv_Config;
     memorySupported = isPodmanHyperv_Env || isPodmanHyperv_Config;
     diskSupported = isPodmanHyperv_Env || isPodmanHyperv_Config;
