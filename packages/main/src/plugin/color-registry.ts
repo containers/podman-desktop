@@ -477,6 +477,11 @@ export class ColorRegistry {
       light: colorPalette.purple[200],
     });
 
+    this.registerColor(`${ct}card-selected-bg`, {
+      dark: colorPalette.charcoal[400],
+      light: colorPalette.purple[100],
+    });
+
     this.registerColor(`${ct}card-text`, {
       dark: colorPalette.gray[400],
       light: colorPalette.purple[900],
