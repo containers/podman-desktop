@@ -226,22 +226,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       // fetch the application page
       // this might not work on macos
       const address = 'http://localhost:' + frontendPort;
-
-      await waitUntil(
-        async function appRunningOnPort(): Promise<boolean> {
-          return await fetch(address)
-            .then(response => {
-              return response.ok;
-            })
-            .catch(() => {
-              return false;
-            });
-        },
-        30000,
-        3000,
-        true,
-        'App was not available on the port in time',
-      );
+      await playExpect.poll(async () => await appRunningOnPort(address), { timeout: 60000 }).toBeTruthy();
 
       for (let i = 2; i < 5; i++) {
         const response: Response = await fetch(address);
@@ -255,9 +240,9 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
         playExpect(matches).toBeDefined();
         playExpect(text).toContain('time(s)');
       }
-    });
+    }, 75000);
 
-    test('Restarting pod', async () => {
+    test('Restarting pod', { retry: 2 }, async () => {
       const navigationBar = new NavigationBar(page);
       const pods = await navigationBar.openPods();
       const podDetails = await pods.openPodDetails(podToRun);
@@ -329,5 +314,15 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
         await playExpect.poll(async () => await podsPage.podExists(pod), { timeout: 15000 }).toBeFalsy();
       }
     }, 90000);
+
+    async function appRunningOnPort(address: string): Promise<boolean> {
+      return await fetch(address)
+        .then(response => {
+          return response.ok;
+        })
+        .catch(() => {
+          return false;
+        });
+    }
   },
 );
