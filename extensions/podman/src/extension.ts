@@ -761,7 +761,6 @@ export async function checkRosettaMacArm(podmanConfiguration: PodmanConfiguratio
   if (isMac() && os.arch() === 'arm64') {
     const isEnabled = await podmanConfiguration.isRosettaEnabled();
     if (isEnabled) {
-      console.log('checking if rosetta is enabled');
       // call the command `arch -arch x86_64 uname -m` to check if rosetta is enabled
       // if not installed, it will fail
       try {
