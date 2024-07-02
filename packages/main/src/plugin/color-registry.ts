@@ -464,7 +464,7 @@ export class ColorRegistry {
 
     this.registerColor(`${ct}card-header-text`, {
       dark: colorPalette.gray[100],
-      light: colorPalette.charcoal[900],
+      light: colorPalette.purple[900],
     });
 
     this.registerColor(`${ct}card-bg`, {
@@ -495,6 +495,11 @@ export class ColorRegistry {
     this.registerColor(`${ct}card-inset-bg`, {
       dark: colorPalette.charcoal[900],
       light: colorPalette.dustypurple[200],
+    });
+
+    this.registerColor(`${ct}card-hover-inset-bg`, {
+      dark: colorPalette.charcoal[700],
+      light: colorPalette.dustypurple[300],
     });
 
     this.registerColor(`${ct}bg`, {
@@ -545,6 +550,16 @@ export class ColorRegistry {
     this.registerColor(`${ct}card-carousel-disabled-nav`, {
       dark: colorPalette.charcoal[700],
       light: colorPalette.gray[200],
+    });
+
+    this.registerColor(`${ct}card-border`, {
+      dark: colorPalette.charcoal[700],
+      light: colorPalette.gray[200],
+    });
+
+    this.registerColor(`${ct}card-border-selected`, {
+      dark: colorPalette.dustypurple[700],
+      light: colorPalette.purple[600],
     });
   }
 
@@ -1187,44 +1202,14 @@ export class ColorRegistry {
   protected initFormPage(): void {
     const formPage = 'formpage-';
 
-    this.registerColor(`${formPage}bg`, {
-      dark: colorPalette.charcoal[900],
-      light: colorPalette.gray[50],
-    });
-
     this.registerColor(`${formPage}card-bg`, {
       dark: colorPalette.charcoal[800],
       light: colorPalette.gray[300],
     });
 
-    this.registerColor(`${formPage}card-bg-hover`, {
-      dark: colorPalette.charcoal[500],
-      light: colorPalette.gray[500],
-    });
-
     this.registerColor(`${formPage}card-text`, {
       dark: colorPalette.gray[400],
       light: colorPalette.purple[900],
-    });
-
-    this.registerColor(`${formPage}card-border`, {
-      dark: colorPalette.charcoal[700],
-      light: colorPalette.gray[200],
-    });
-
-    this.registerColor(`${formPage}card-border-selected`, {
-      dark: colorPalette.dustypurple[700],
-      light: colorPalette.purple[600],
-    });
-
-    this.registerColor(`${formPage}badge-border`, {
-      dark: colorPalette.gray[700],
-      light: colorPalette.gray[900],
-    });
-
-    this.registerColor(`${formPage}card-input-bg`, {
-      dark: colorPalette.charcoal[400],
-      light: colorPalette.gray[50],
     });
   }
 }

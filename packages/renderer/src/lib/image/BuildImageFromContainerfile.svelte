@@ -301,7 +301,7 @@ async function abortBuild() {
   </svelte:fragment>
   <div slot="content" class="space-y-6">
     <div hidden="{buildImageInfo?.buildRunning}">
-      <label for="containerFilePath" class="block mb-2 text-sm font-bold text-[var(--pd-label-text)]"
+      <label for="containerFilePath" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
         >Containerfile path</label>
       <div class="flex flex-row space-x-3">
         <Input
@@ -316,8 +316,9 @@ async function abortBuild() {
     </div>
 
     <div hidden="{buildImageInfo?.buildRunning}">
-      <label for="containerBuildContextDirectory" class="block mb-2 text-sm font-bold text-[var(--pd-label-text)]"
-        >Build context directory</label>
+      <label
+        for="containerBuildContextDirectory"
+        class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]">Build context directory</label>
       <div class="flex flex-row space-x-3">
         <Input
           name="containerBuildContextDirectory"
@@ -331,7 +332,7 @@ async function abortBuild() {
     </div>
 
     <div hidden="{buildImageInfo?.buildRunning}">
-      <label for="containerImageName" class="block mb-2 text-sm font-bold text-[var(--pd-label-text)]"
+      <label for="containerImageName" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
         >Image name</label>
       <Input
         bind:value="{containerImageName}"
@@ -341,7 +342,7 @@ async function abortBuild() {
         class="w-full"
         required />
       {#if providerConnections.length > 1}
-        <label for="providerChoice" class="py-6 block mb-2 text-sm font-bold text-[var(--pd-label-text)]"
+        <label for="providerChoice" class="py-6 block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
           >Container Engine
           <select
             class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
@@ -356,7 +357,8 @@ async function abortBuild() {
       {/if}
     </div>
     <div hidden="{buildImageInfo?.buildRunning}">
-      <label for="inputKey" class="block mb-2 text-sm font-bold text-[var(--pd-label-text)]">Build arguments</label>
+      <label for="inputKey" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
+        >Build arguments</label>
       {#each buildArgs as buildArg, index}
         <div class="flex flex-row items-center space-x-2 mb-2">
           <Input bind:value="{buildArg.key}" name="inputKey" placeholder="Key" class="flex-grow" required />
@@ -372,7 +374,7 @@ async function abortBuild() {
     </div>
 
     <div hidden="{buildImageInfo?.buildRunning}">
-      <label for="containerBuildPlatform" class="block mb-2 text-sm font-bold text-[var(--pd-label-text)]"
+      <label for="containerBuildPlatform" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
         >Platform</label>
       {#if platforms.length > 1}
         <p class="text-sm text-[var(--pd-content-text)] mb-2">
