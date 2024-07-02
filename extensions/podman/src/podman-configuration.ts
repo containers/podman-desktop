@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2023 Red Hat, Inc.
+ * Copyright (C) 2022-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,319 +16,261 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { PathLike } from 'node:fs';
 import * as fs from 'node:fs';
+import { promises as fsPromises } from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import { resolve } from 'node:path';
 
-import * as toml from '@ltd/j-toml';
-import type { ProxySettings } from '@podman-desktop/api';
-import * as extensionApi from '@podman-desktop/api';
+import toml from '@ltd/j-toml';
 
 import { isLinux, isMac, isWindows } from './util';
 
-const configurationRosetta = 'setting.rosetta';
+export function stringify(table: Record<string, unknown>): string {
+  return toml.stringify(table as never, { newline: '\n' });
+}
+
+export function merge(source: Record<string, unknown>, target: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...source };
+
+  for (const key in target) {
+    if (Object.prototype.hasOwnProperty.call(target, key)) {
+      if (typeof target[key] === 'object' && !Array.isArray(target[key]) && target[key] !== undefined) {
+        if (typeof result[key] === 'object' && !Array.isArray(result[key]) && result[key] !== undefined) {
+          result[key] = merge(result[key] as Record<string, unknown>, target[key] as Record<string, unknown>);
+        } else {
+          result[key] = { ...(target[key] as Record<string, unknown>) };
+        }
+      } else {
+        result[key] = target[key];
+      }
+    }
+  }
+
+  return result;
+}
+
+export abstract class PropertyPredicate {
+  abstract check(value: Record<string, unknown>): boolean;
+}
+
+export abstract class RegexBasedPropertyPredicate extends PropertyPredicate {
+  check(value: Record<string, unknown>): boolean {
+    return this.getRegexPattern().test(stringify(value));
+  }
+
+  abstract getRegexPattern(): RegExp;
+}
+
+export class HyperVProperty extends RegexBasedPropertyPredicate {
+  getRegexPattern(): RegExp {
+    return /provider\s*=\s*'hyperv'/;
+  }
+}
+
+export const hypervProperty = new HyperVProperty();
 
 /**
- * Manages access to the containers.conf configuration file used to configure Podman
+ * Provides the ability to operate with system-wide and user based Podman properties file.
+ * There is a particular implementation for each supported os. Not intended to be directly created.
+ * @see {PodmanConfigurationProvider}
+ * @see {DarwinPodmanConfiguration}
+ * @see {LinuxPodmanConfiguration}
+ * @see {WindowsPodmanConfiguration}
  */
-export class PodmanConfiguration {
-  async init(): Promise<void> {
-    let httpProxy = undefined;
-    let httpsProxy = undefined;
-    let noProxy = undefined;
+export abstract class PodmanConfiguration {
+  protected configPath = path.join('containers', 'containers.conf');
+  protected userOverrideContainersConfig = path.join('.config', this.configPath);
 
-    // we receive an update for the current proxy settings
-    extensionApi.proxy.onDidUpdateProxy(async (proxySettings: ProxySettings) => {
-      await this.updateProxySettings(proxySettings);
-    });
-
-    // in case of proxy being enabled or disabled we need to update the containers.conf file
-    extensionApi.proxy.onDidStateChange(async (enabled: boolean) => {
-      if (enabled) {
-        const updatedProxySettings = extensionApi.proxy.getProxySettings();
-        await this.updateProxySettings(updatedProxySettings);
-      } else {
-        await this.updateProxySettings(undefined);
-      }
-    });
-
-    // check if the file exists
-    if (fs.existsSync(this.getContainersFileLocation())) {
-      const containersConfigFile = await this.readContainersConfigFile();
-      const tomlConfigFile = toml.parse(containersConfigFile);
-
-      if (tomlConfigFile?.engine) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const engineConf: any = tomlConfigFile.engine;
-
-        // env in engine section
-        // env are written like array of key=value ['https_proxy=http://10.0.0.244:9090', 'http_proxy=http://10.0.0.244:9090']
-        if (engineConf.env && Array.isArray(engineConf.env)) {
-          const envArray: string[] = engineConf.env;
-          envArray.forEach(envVar => {
-            const split = envVar.split('=');
-            if (split.length === 2) {
-              if (split[0] === 'https_proxy') {
-                httpsProxy = split[1];
-              } else if (split[0] === 'http_proxy') {
-                httpProxy = split[1];
-              } else if (split[0] === 'no_proxy') {
-                noProxy = split[1];
-              }
-            }
-          });
-        }
+  protected userConfigPath(): PathLike {
+    const xdgRuntimeDir: PathLike | undefined = process.env.XDG_RUNTIME_DIR;
+    if (xdgRuntimeDir !== undefined) {
+      const xdgConfigPath = path.join(xdgRuntimeDir, this.configPath);
+      if (this.isValid(xdgConfigPath)) {
+        return xdgConfigPath;
       }
     }
 
-    const proxySettings = {
-      httpsProxy,
-      httpProxy,
-      noProxy,
-    };
-
-    // register the proxy if there is no proxy settings for now
-    if (
-      extensionApi.proxy.getProxySettings() === undefined &&
-      extensionApi.proxy.isEnabled() &&
-      (httpsProxy || httpProxy || noProxy)
-    ) {
-      await extensionApi.proxy.setProxy(proxySettings);
-    }
-
-    // If we are on Mac, we need to monitor the configuration file to handle Rosetta changes
-    if (isMac()) {
-      extensionApi.configuration.onDidChangeConfiguration(async e => {
-        if (e.affectsConfiguration(`podman.${configurationRosetta}`)) {
-          await this.handleRosettaSetting();
-        }
-      });
-    }
+    return path.join(os.homedir(), this.userOverrideContainersConfig);
   }
 
-  async handleRosettaSetting(): Promise<void> {
-    // If the configuration does not exist, we will default to true
-    // if true, when we do updateRosettaSetting, if there is no configuration file, it will do nothing.
-    const useRosetta = extensionApi.configuration.getConfiguration('podman').get<boolean>(configurationRosetta) ?? true;
-    await this.updateRosettaSetting(useRosetta);
-  }
+  protected abstract defaultContainersConfig(): PathLike;
 
-  async updateRosettaSetting(useRosetta: boolean): Promise<void> {
-    // Initalize an empty configuration file for us to use
-    const containersConfContent = {
-      containers: toml.Section({}),
-      engine: toml.Section({
-        env: [] as string[],
-      }),
-      machine: toml.Section({}),
-      network: toml.Section({}),
-      secrets: toml.Section({}),
-      configmaps: toml.Section({}),
-    };
+  protected abstract overrideContainersConfigPath(): PathLike;
 
-    // If the file does NOT exist and useRosetta is being set as false, we will have to create the file and write rosetta = false
-    if (!useRosetta && !fs.existsSync(this.getContainersFileLocation())) {
-      containersConfContent['machine'] = toml.Section({
-        rosetta: false as boolean,
-      });
-      const content = toml.stringify(containersConfContent, { newline: '\n' });
-      await fs.promises.writeFile(this.getContainersFileLocation(), content);
-    } else if (fs.existsSync(this.getContainersFileLocation())) {
-      // Read the file
-      const containersConfigFile = await this.readContainersConfigFile();
-      const tomlConfigFile = toml.parse(containersConfigFile);
+  protected async systemConfigs(): Promise<PathLike[]> {
+    const configs: PathLike[] = [];
 
-      // Copy over the previous configuration
-      if (tomlConfigFile.containers && typeof tomlConfigFile.containers === 'object') {
-        containersConfContent['containers'] = tomlConfigFile.containers;
+    let path: PathLike | undefined = process.env.CONTAINERS_CONF;
+    if (path) {
+      const resolvedPath = resolve(path);
+      try {
+        await fsPromises.access(resolvedPath);
+        configs.push(resolvedPath);
+      } catch (e) {
+        throw new Error(`${resolvedPath} file: ${(e as unknown as Error).message}`);
       }
-      if (tomlConfigFile.machine && typeof tomlConfigFile.machine === 'object') {
-        containersConfContent['machine'] = tomlConfigFile.machine;
-      }
-      if (tomlConfigFile.network && typeof tomlConfigFile.network === 'object') {
-        containersConfContent['network'] = tomlConfigFile.network;
-      }
-      if (tomlConfigFile.secrets && typeof tomlConfigFile.secrets === 'object') {
-        containersConfContent['secrets'] = tomlConfigFile.secrets;
-      }
-      if (tomlConfigFile.configmaps && typeof tomlConfigFile.configmaps === 'object') {
-        containersConfContent['configmaps'] = tomlConfigFile.configmaps;
-      }
-
-      // If useRosetta is true, edit containersConfContent['machine'] and remove the rosetta key if found.
-      // this is because rosetta is true by default and we don't need to set it in the file
-      if (useRosetta && containersConfContent['machine'] && 'rosetta' in containersConfContent['machine']) {
-        delete containersConfContent['machine']['rosetta'];
-      } else if (!useRosetta && containersConfContent['machine']) {
-        // If rosetta key does not exist, we need to add it
-        containersConfContent['machine'] = toml.Section({
-          ...containersConfContent['machine'], // MAKE SURE we copy over the previous configuration
-          rosetta: false as boolean,
-        });
-      }
-
-      // Write the file
-      const content = toml.stringify(containersConfContent, { newline: '\n' });
-      await fs.promises.writeFile(this.getContainersFileLocation(), content);
     }
-  }
 
-  async updateProxySettings(proxySettings: ProxySettings | undefined): Promise<void> {
-    // create empty config file
-    const containersConfContent = {
-      containers: toml.Section({}),
-      engine: toml.Section({
-        env: [] as string[],
-      }),
-      machine: toml.Section({}),
-      network: toml.Section({}),
-      secrets: toml.Section({}),
-      configmaps: toml.Section({}),
-    };
-
-    if (!fs.existsSync(this.getContainersFileLocation())) {
-      if (proxySettings?.httpProxy && proxySettings?.httpProxy !== '') {
-        containersConfContent['engine'].env.push(`http_proxy=${proxySettings.httpProxy}`);
-      }
-      if (proxySettings?.httpsProxy && proxySettings?.httpsProxy !== '') {
-        containersConfContent['engine'].env.push(`https_proxy=${proxySettings.httpsProxy}`);
-      }
-      if (proxySettings?.noProxy && proxySettings?.noProxy !== '') {
-        containersConfContent['engine'].env.push(`no_proxy=${proxySettings.noProxy}`);
-      }
-
-      // write the file
-      const content = toml.stringify(containersConfContent, { newline: '\n' });
-      await fs.promises.writeFile(this.getContainersFileLocation(), content);
-    } else {
-      // read the content of the file
-      const containersConfigFile = await this.readContainersConfigFile();
-      const tomlConfigFile = toml.parse(containersConfigFile);
-
-      // we need to create a ReadonlyTable so that we can write it later, so we copy the content of tomlConfigFile inside containersConfContent
-      if (tomlConfigFile.containers && typeof tomlConfigFile.containers === 'object') {
-        containersConfContent['containers'] = tomlConfigFile.containers;
-      }
-      if (tomlConfigFile.machine && typeof tomlConfigFile.machine === 'object') {
-        containersConfContent['machine'] = tomlConfigFile.machine;
-      }
-      if (tomlConfigFile.network && typeof tomlConfigFile.network === 'object') {
-        containersConfContent['network'] = tomlConfigFile.network;
-      }
-      if (tomlConfigFile.secrets && typeof tomlConfigFile.secrets === 'object') {
-        containersConfContent['secrets'] = tomlConfigFile.secrets;
-      }
-      if (tomlConfigFile.configmaps && typeof tomlConfigFile.configmaps === 'object') {
-        containersConfContent['configmaps'] = tomlConfigFile.configmaps;
-      }
-
-      let engineEnv: string[] = [];
-      if (tomlConfigFile.engine && typeof tomlConfigFile.engine === 'object' && 'env' in tomlConfigFile.engine) {
-        if (!tomlConfigFile.engine['env']) {
-          engineEnv = [];
-        } else {
-          engineEnv = tomlConfigFile.engine['env'] as string[];
-        }
-      }
-
-      // now update values
-      const httpsProxyIndex = engineEnv.findIndex(item => item.startsWith('https_proxy='));
-      // not found ?
-      const httpsProxyEnvValue = `https_proxy=${proxySettings?.httpsProxy}`;
-      if (httpsProxyIndex === -1) {
-        // add the value only if there is one
-        if (proxySettings?.httpsProxy && proxySettings?.httpsProxy !== '') {
-          engineEnv.push(httpsProxyEnvValue);
-        }
-      } else {
-        // empty or undefined ? needs to unset
-        if (!proxySettings?.httpsProxy || proxySettings?.httpsProxy === '') {
-          // delete the httpsProxyIndex in the engineEnv array
-          engineEnv.splice(httpsProxyIndex, 1);
-        } else {
-          engineEnv[httpsProxyIndex] = httpsProxyEnvValue;
-        }
-      }
-      // now update values
-      const httpProxyIndex = engineEnv.findIndex(item => item.startsWith('http_proxy='));
-      // not found ?
-      const httpProxyEnvValue = `http_proxy=${proxySettings?.httpProxy}`;
-      if (httpProxyIndex === -1) {
-        // add the value only if there is one
-        if (proxySettings?.httpProxy && proxySettings?.httpProxy !== '') {
-          engineEnv.push(httpProxyEnvValue);
-        }
-      } else {
-        // empty or undefined ? needs to unset
-        if (!proxySettings?.httpProxy || proxySettings?.httpProxy === '') {
-          // delete the httpProxyIndex in the engineEnv array
-          engineEnv.splice(httpProxyIndex, 1);
-        } else {
-          engineEnv[httpProxyIndex] = httpProxyEnvValue;
-        }
-      }
-
-      // now update values
-      const noProxyIndex = engineEnv.findIndex(item => item.startsWith('no_proxy='));
-      // not found ?
-      const noProxyEnvValue = `no_proxy=${proxySettings?.noProxy}`;
-      if (noProxyIndex === -1) {
-        // add the value only if there is one
-        if (proxySettings?.noProxy && proxySettings?.noProxy !== '') {
-          engineEnv.push(noProxyEnvValue);
-        }
-      } else {
-        // empty or undefined ? needs to unset
-        if (!proxySettings?.noProxy || proxySettings?.noProxy === '') {
-          // delete the noProxyIndex in the engineEnv array
-          engineEnv.splice(noProxyIndex, 1);
-        } else {
-          engineEnv[noProxyIndex] = noProxyEnvValue;
-        }
-      }
-
-      containersConfContent['engine'].env = engineEnv;
-      // write the file
-      const content = toml.stringify(containersConfContent, { newline: '\n' });
-      await fs.promises.writeFile(this.getContainersFileLocation(), content);
+    path = this.defaultContainersConfig();
+    if (this.isValid(path)) {
+      configs.push(path);
     }
+
+    path = this.overrideContainersConfigPath();
+    configs.push(path);
+
+    configs.push(...(await this.addConfigs(path + '.d')));
+
+    path = this.userConfigPath();
+    configs.push(path);
+
+    configs.push(...(await this.addConfigs(path + '.d')));
+
+    // Remove duplicates while preserving order
+    return Array.from(new Map(configs.map(p => [p.toString(), p])).values());
   }
 
-  async matchRegexpInContainersConfig(regex: RegExp): Promise<boolean> {
-    try {
-      const containerConf = await this.readContainersConfigFile();
-      return regex.test(containerConf);
-    } catch (e) {
-      console.warn(`Unable to run regex on containers.conf file. Reason: ${String(e)}`);
+  protected async addConfigs(dirPath: PathLike): Promise<PathLike[]> {
+    const newConfigs: PathLike[] = [];
+
+    const entries = await fsPromises.readdir(dirPath, { withFileTypes: true });
+
+    for (const entry of entries) {
+      const entryPath = path.join(dirPath.toString(), entry.name);
+
+      if (entry.isFile() && entry.name.endsWith('.conf')) {
+        newConfigs.push(entryPath);
+      }
     }
-    return false;
+
+    newConfigs.sort();
+    return newConfigs;
   }
 
-  getContainersFileLocation(): string {
-    let podmanConfigContainersPath = '';
+  protected isValid(path: PathLike): boolean {
+    if (path === undefined) {
+      return false;
+    }
+
+    return !(typeof path === 'string' && path.trim() === '');
+  }
+
+  /**
+   * Read the system-wide Podman configuration files and merge them into one configuration table.
+   */
+  async readConfig(): Promise<Record<string, unknown>> {
+    let baseConfig = {} as Record<string, unknown>;
+
+    const configs = await this.systemConfigs();
+    for (const path of configs) {
+      const config = await this.readConfigFromFile(path);
+      baseConfig = merge(baseConfig, config);
+      console.info(`Merged system config ${path}`);
+    }
+
+    return baseConfig;
+  }
+
+  /**
+   * Read the user based Podman configuration.
+   */
+  async readUserConfig(): Promise<Record<string, unknown>> {
+    const configPath = this.userConfigPath();
+    return await this.readConfigFromFile(configPath);
+  }
+
+  /**
+   * Writes the user based Podman configuration.
+   * @param config the configuration to be serialized into a file content in Toml format.
+   */
+  async writeUserConfig(config: Record<string, unknown>): Promise<void> {
+    const configPath = this.userConfigPath();
+    await this.writeConfigToFile(configPath, config);
+  }
+
+  protected async readConfigFromFile(path: PathLike): Promise<Record<string, unknown>> {
+    console.info(`Reading configuration file: ${path}`);
+    const configFileContent = await fsPromises.readFile(path, 'utf8');
+    return toml.parse(configFileContent, { bigint: false });
+  }
+
+  protected async writeConfigToFile(path: PathLike, config: Record<string, unknown>): Promise<void> {
+    console.info(`Writing configuration file: ${path}`);
+    const content = toml.stringify(config as never, { newline: '\n' });
+    await fs.promises.writeFile(path, content);
+  }
+
+  /**
+   * Reads the system-wide Podman configuration and checks if the particular property is set.
+   * @param predicate predicate to check the property value.
+   * @see {PropertyPredicate}
+   * @see {RegexBasedPropertyPredicate}
+   * @see {hypervProperty}
+   */
+  async isPropertySet(predicate: PropertyPredicate): Promise<boolean> {
+    const configuration = await this.readConfig();
+    return predicate.check(configuration);
+  }
+}
+
+export class DarwinPodmanConfiguration extends PodmanConfiguration {
+  defaultContainersConfig(): PathLike {
+    return path.join('/usr/share', this.configPath);
+  }
+
+  overrideContainersConfigPath(): PathLike {
+    return path.join('/usr/local/etc', this.configPath);
+  }
+}
+
+export class LinuxPodmanConfiguration extends PodmanConfiguration {
+  defaultContainersConfig(): PathLike {
+    return path.join('/usr/share', this.configPath);
+  }
+
+  overrideContainersConfigPath(): PathLike {
+    return path.join('/usr/local/etc', this.configPath);
+  }
+}
+
+export class WindowsPodmanConfiguration extends PodmanConfiguration {
+  defaultContainersConfig(): PathLike {
+    return '';
+  }
+
+  overrideContainersConfigPath(): PathLike {
+    return path.join(process.env.PROGRAMDATA ?? '', this.configPath);
+  }
+
+  userConfigPath(): PathLike {
+    return path.join(process.env.APPDATA ?? '', this.configPath);
+  }
+}
+
+/**
+ * Main entry point ot operate with the Podman configuration.
+ * @see {PodmanConfiguration}
+ */
+export class PodmanConfigurationProvider {
+  protected config: PodmanConfiguration | undefined;
+
+  getConfiguration(): PodmanConfiguration {
+    if (this.config !== undefined) {
+      return this.config;
+    }
 
     if (isMac()) {
-      podmanConfigContainersPath = path.resolve(os.homedir(), '.config', 'containers');
+      this.config = new DarwinPodmanConfiguration();
     } else if (isWindows()) {
-      podmanConfigContainersPath = path.resolve(os.homedir(), 'AppData', 'Roaming', 'containers');
+      this.config = new WindowsPodmanConfiguration();
     } else if (isLinux()) {
-      const xdgRuntimeDirectory = process.env['XDG_RUNTIME_DIR'] ?? '';
-      podmanConfigContainersPath = path.resolve(xdgRuntimeDirectory, 'containers');
+      this.config = new LinuxPodmanConfiguration();
+    } else {
+      throw new Error('Operation system is not supported.');
     }
 
-    // resolve the containers.conffile path
-    return path.resolve(podmanConfigContainersPath, 'containers.conf');
-  }
-
-  protected readContainersConfigFile(): Promise<string> {
-    return new Promise((resolve, reject) => {
-      fs.readFile(this.getContainersFileLocation(), 'utf8', (err, data) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(data);
-        }
-      });
-    });
+    return this.config;
   }
 }
