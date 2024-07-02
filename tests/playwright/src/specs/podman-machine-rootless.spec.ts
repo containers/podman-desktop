@@ -33,7 +33,8 @@ import { deletePodmanMachine } from '../utility/operations';
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
 let navBar: NavigationBar;
-const PODMAN_MACHINE_NAME: string = 'Podman Machine Rootless';
+const PODMAN_MACHINE_NAME: string = 'podman-machine-rootless';
+const MACHINE_VISIBLE_NAME: string = 'Podman Machine rootless';
 
 beforeAll(async () => {
   pdRunner = new PodmanDesktopRunner();
@@ -65,12 +66,10 @@ describe.skipIf(os.platform() === 'linux')('Rootless Podman machine Verification
     await createMachineButton.click();
 
     const createMachinePage = new CreateMachinePage(page);
-    await createMachinePage.createMachine(PODMAN_MACHINE_NAME, false);
+    await createMachinePage.createMachine(PODMAN_MACHINE_NAME, false, false, true);
 
-    const machineBox = new ResourcesPodmanConnections(page, PODMAN_MACHINE_NAME);
-    const connectionStatusLabel = await machineBox.machineConnectionStatus
-      .getByLabel('Connection Status Label')
-      .textContent();
+    const machineBox = new ResourcesPodmanConnections(page, MACHINE_VISIBLE_NAME);
+    const connectionStatusLabel = await machineBox.machineConnectionStatus.textContent();
     playExpect(connectionStatusLabel === 'RUNNING').toBeTruthy();
   }, 150000);
 });
