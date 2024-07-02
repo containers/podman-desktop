@@ -113,6 +113,23 @@ export class PodmanConfiguration {
     await this.updateRosettaSetting(useRosetta);
   }
 
+  async isRosettaEnabled(): Promise<boolean> {
+    if (fs.existsSync(this.getContainersFileLocation())) {
+      // Read the file
+      const containersConfigFile = await this.readContainersConfigFile();
+      const tomlConfigFile = toml.parse(containersConfigFile);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const machine: any = tomlConfigFile.machine;
+      if (machine && 'rosetta' in machine) {
+        const val = machine['rosetta'];
+        if (typeof val === 'boolean') {
+          return val;
+        }
+      }
+    }
+    return true;
+  }
+
   async updateRosettaSetting(useRosetta: boolean): Promise<void> {
     // Initalize an empty configuration file for us to use
     const containersConfContent = {
