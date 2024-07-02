@@ -21,7 +21,7 @@ import * as os from 'node:os';
 
 import * as extensionApi from '@podman-desktop/api';
 
-import { getDockerInstallation } from './docker-cli';
+import { getDockerContexts, getDockerInstallation, setDockerContext } from './docker-cli';
 
 let stopLoop = false;
 let socketPath: string;
@@ -29,6 +29,8 @@ let provider: extensionApi.Provider;
 let providerState: extensionApi.ProviderConnectionStatus = 'stopped';
 let containerProviderConnection: extensionApi.ContainerProviderConnection;
 let containerProviderConnectionDisposable: extensionApi.Disposable;
+let statusBarItem: extensionApi.StatusBarItem;
+let quickPicks: extensionApi.QuickPickItem[];
 
 async function timeout(time: number): Promise<void> {
   return new Promise<void>(resolve => {
@@ -93,6 +95,8 @@ async function monitorDaemon(extensionContext: extensionApi.ExtensionContext): P
   // call us again
   if (!stopLoop) {
     try {
+      socketPath = await getDockerSocket();
+      await updateContext(extensionContext);
       await updateProvider(extensionContext);
     } catch (error) {
       // ignore the update of machines
@@ -160,13 +164,7 @@ async function updateProvider(extensionContext: extensionApi.ExtensionContext): 
 }
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  const isWindows = os.platform() === 'win32';
-  if (isWindows) {
-    socketPath = '//./pipe/docker_engine';
-  } else {
-    socketPath = '/var/run/docker.sock';
-  }
-
+  socketPath = await getDockerSocket();
   // monitor daemon
   monitorDaemon(extensionContext).catch((err: unknown) => {
     console.error('Error while monitoring docker daemon', err);
@@ -176,6 +174,23 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
       extensionApi.env.createTelemetryLogger().logError(String(err));
     }
   });
+
+  const switchCommand = extensionApi.commands.registerCommand('dockercontext.switch', async (newContext: string) => {
+    await setDockerContext(newContext);
+    await updateContext(extensionContext);
+  });
+  extensionContext.subscriptions.push(switchCommand);
+
+  const quickPickCommand = extensionApi.commands.registerCommand('dockercontext.quickpick', async () => {
+    const selectedContext = await extensionApi.window.showQuickPick(quickPicks, {
+      placeHolder: 'Select a Docker context',
+    });
+    if (selectedContext) {
+      await setDockerContext(selectedContext.label);
+      await updateContext(extensionContext);
+    }
+  });
+  extensionContext.subscriptions.push(quickPickCommand);
 }
 
 function initProvider(extensionContext: extensionApi.ExtensionContext): void {
@@ -206,4 +221,81 @@ function initProvider(extensionContext: extensionApi.ExtensionContext): void {
 export function deactivate(): void {
   stopLoop = true;
   console.log('stopping docker extension');
+}
+
+async function getDockerSocket(): Promise<string> {
+  const dockerContexts = await getDockerContexts();
+  if (dockerContexts) {
+    const contextSocket = dockerContexts.find(context => context.Current)?.DockerEndpoint;
+    if (contextSocket) {
+      return contextSocket;
+    }
+  }
+  const isWindows = os.platform() === 'win32';
+  if (isWindows) {
+    return '//./pipe/docker_engine';
+  } else {
+    return '/var/run/docker.sock';
+  }
+}
+
+export async function updateContext(extensionContext: extensionApi.ExtensionContext): Promise<void> {
+  const contexts = (await getDockerContexts()) ?? [];
+
+  const currentContext = contexts.find(context => context.Current)?.Name;
+
+  if (contexts.length > 0) {
+    // now, add each context
+    const subitems: extensionApi.MenuItem[] = contexts.map(context => {
+      return {
+        label: context.Name,
+        id: 'dockercontext.switch',
+        type: 'checkbox',
+        checked: context.Name === currentContext,
+      };
+    });
+
+    const title: extensionApi.MenuItem = {
+      label: 'Context',
+      id: 'dockercontext.switch',
+      enabled: false,
+    };
+
+    const item: extensionApi.MenuItem = {
+      id: 'dockercontext.switch',
+      label: 'Docker',
+      submenu: [title, ...subitems],
+    };
+
+    const subscription = extensionApi.tray.registerMenuItem(item);
+    extensionContext.subscriptions.push(subscription);
+  }
+
+  // create a status bar item to show the current context and allow switching
+  if (!statusBarItem) {
+    statusBarItem = extensionApi.window.createStatusBarItem();
+    statusBarItem.command = 'dockercontext.quickpick';
+    statusBarItem.tooltip = 'Current Docker context';
+    statusBarItem.iconClass = '${docker-icon}';
+    statusBarItem.show();
+    extensionContext.subscriptions.push(statusBarItem);
+  }
+
+  if (currentContext) {
+    if (currentContext.length <= 20) {
+      statusBarItem.text = currentContext;
+    } else {
+      statusBarItem.text = currentContext.substring(0, 20) + '...';
+    }
+  } else {
+    statusBarItem.text = 'No context';
+  }
+
+  quickPicks = contexts.map(context => {
+    return {
+      label: context.Name,
+      description: context.Name === currentContext ? 'Current Context' : undefined,
+      picked: context.Name === currentContext,
+    };
+  });
 }
