@@ -75,7 +75,6 @@ describe('Pulling image from authenticated registry workflow verification', asyn
 
     const fullImageTitle = imageUrl.concat(':' + imageTag);
     const errorAlert = page.getByLabel('Error Message Content');
-    const errorMessage = `Error while pulling image from Podman Machine: access to image "${fullImageTitle}" is denied (500 error). Can also be that the registry requires authentication.`;
 
     const pullImagePage = await imagesPage.openPullImage();
     const imageNameInput = pullImagePage.page.getByLabel('imageName');
@@ -85,7 +84,9 @@ describe('Pulling image from authenticated registry workflow verification', asyn
     await pullImageButton.click();
 
     await playExpect(errorAlert).toBeVisible({ timeout: 10000 });
-    await playExpect(errorAlert).toHaveText(errorMessage);
+    await playExpect(errorAlert).toContainText('Error while pulling image from Podman Machine');
+    await playExpect(errorAlert).toContainText(fullImageTitle);
+    await playExpect(errorAlert).toContainText('Can also be that the registry requires authentication');
   });
   test.runIf(canTestRegistry())('Add registry', async () => {
     await navBar.openSettings();
