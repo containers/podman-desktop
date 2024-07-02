@@ -56,6 +56,7 @@ let autoMachineName: string | undefined;
 
 // System default notifier
 let defaultMachineNotify = !isLinux();
+let defaultConnectionNotify = !isLinux();
 let defaultMachineMonitor = true;
 
 // current status of machines
@@ -367,6 +368,39 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
     }
   }
 
+  // check if connection is in sync with machine. If the default connection is rootless but the machine is rootful ask the user to update the connection
+  if (defaultConnectionNotify && !!runningMachine?.Default) {
+    const defaultConnection = await getDefaultConnection();
+    const isRootful = await isRootfulMachine(runningMachine.Name);
+    if (!defaultConnection?.Name.endsWith(ROOTFUL_SUFFIX) && isRootful) {
+      const result = await extensionApi.window.showInformationMessage(
+        `${isRootful ? 'Rootful' : 'Rootless'} Podman Machine '${runningMachine.Name}' does not match default connection. This will cause podman CLI errors while trying to connect to '${runningMachine.Name}'. Do you want to update the default connection?`,
+        'Yes',
+        'Ignore',
+        'Cancel',
+      );
+      if (result === 'Yes') {
+        try {
+          const connectionName = isRootful ? `${runningMachine.Name}${ROOTFUL_SUFFIX}` : runningMachine.Name;
+          // make it the default to run the info command
+          await extensionApi.process.exec(getPodmanCli(), ['system', 'connection', 'default', connectionName]);
+        } catch (error) {
+          // eslint-disable-next-line quotes
+          console.error("Error running 'podman system connection default': ", error);
+          await extensionApi.window.showErrorMessage(`Error running 'podman system connection default': ${error}`);
+          return;
+        }
+        await extensionApi.window.showInformationMessage(
+          `Podman Machine '${runningMachine.Name}' is now the default machine on the CLI.`,
+          'OK',
+        );
+      } else if (result === 'Ignore') {
+        // If the user chooses to ignore, we should not notify them again until Podman Desktop is restarted.
+        defaultConnectionNotify = false;
+      }
+    }
+  }
+
   if (defaultMachineNotify && defaultMachineMonitor && runningMachine && !runningMachine.Default) {
     // Make sure we do notifyDefault = false so we don't keep notifying the user when this dialog is open.
     defaultMachineMonitor = false;
@@ -381,25 +415,7 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
     );
     if (result === 'Yes') {
       // check if machine is rootless or rootful
-      let machineIsRootful = false;
-      // grab result of the command 'podman machine inspect <machine-name> and check if attribute is Rootful
-      try {
-        const { stdout: machineInspectJson } = await extensionApi.process.exec(getPodmanCli(), [
-          'machine',
-          'inspect',
-          runningMachine.Name,
-        ]);
-        const machinesInspect = JSON.parse(machineInspectJson);
-        // find the machine name in the array
-        const machineInspect = machinesInspect.find(
-          (machine: { Name: string }) => machine.Name === runningMachine.Name,
-        );
-        if (machineInspect) {
-          machineIsRootful = machineInspect?.Rootful ?? false;
-        }
-      } catch (error) {
-        console.error('Error when checking rootful machine: ', error);
-      }
+      const machineIsRootful = await isRootfulMachine(runningMachine.Name);
 
       try {
         const connectionName = machineIsRootful ? `${runningMachine.Name}${ROOTFUL_SUFFIX}` : runningMachine.Name;
@@ -422,6 +438,24 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
 
     defaultMachineMonitor = true;
   }
+}
+
+async function isRootfulMachine(machineName: string): Promise<boolean> {
+  let isRootful = false;
+  try {
+    const { stdout: machineInspectJson } = await extensionApi.process.exec(getPodmanCli(), [
+      'machine',
+      'inspect',
+      machineName,
+    ]);
+    const machinesInspect = JSON.parse(machineInspectJson);
+    // find the machine name in the array
+    const machineInspect = machinesInspect.find((machine: { Name: string }) => machine.Name === machineName);
+    isRootful = machineInspect?.Rootful ?? false;
+  } catch (error) {
+    console.error('Error when checking rootful machine: ', error);
+  }
+  return isRootful;
 }
 
 async function getDefaultConnection(): Promise<ConnectionJSON | undefined> {
