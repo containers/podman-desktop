@@ -20,6 +20,7 @@ import '@testing-library/jest-dom/vitest';
 
 import { fireEvent } from '@testing-library/dom';
 import { render, screen } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import { beforeAll, expect, type Mock, test, vi } from 'vitest';
 
 import type { ImageInspectInfo } from '/@api/image-inspect-info';
@@ -29,7 +30,9 @@ import PushImageModal from './PushImageModal.svelte';
 
 vi.mock('xterm', () => {
   return {
-    Terminal: vi.fn().mockReturnValue({ loadAddon: vi.fn(), open: vi.fn(), write: vi.fn(), clear: vi.fn() }),
+    Terminal: vi
+      .fn()
+      .mockReturnValue({ loadAddon: vi.fn(), open: vi.fn(), write: vi.fn(), clear: vi.fn(), reset: vi.fn() }),
   };
 });
 
@@ -136,11 +139,8 @@ const fakedImageInspect: ImageInspectInfo = {
 };
 
 async function waitRender(customProperties: object): Promise<void> {
-  const result = render(PushImageModal, { ...customProperties });
-  // wait that result.component.$$.ctx[2] is set
-  while (result.component.$$.ctx[2] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  render(PushImageModal, { ...customProperties });
+  await tick();
 }
 
 test('Expect "Push Image" button to be disabled if window.hasAuthconfigForImage returns false', async () => {

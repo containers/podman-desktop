@@ -263,8 +263,7 @@ test('Expect overflow-hidden', async () => {
 
 test('Expect update callback', async () => {
   const callback = vi.fn();
-  const result = render(TestTable);
-  result.component.$on('update', callback);
+  render(TestTable, { onUpdate: callback });
 
   const ageCol = await screen.findByRole('columnheader', { name: 'Age' });
   expect(ageCol).toBeDefined();
@@ -296,7 +295,7 @@ test('Expect table to be sorted by Id on load', async () => {
 });
 
 test('Expect table to be sorted by Name on load, if something has changed in the store afterwards, it should not affect the order', async () => {
-  const result = render(TestTable, {});
+  const component = render(TestTable);
 
   const nameCol = screen.getByText('Name');
   expect(nameCol).toBeInTheDocument();
@@ -324,12 +323,12 @@ test('Expect table to be sorted by Name on load, if something has changed in the
   //
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const people: any[] = [
+  const people = [
     { id: 1, name: 'John', age: 57, hobby: 'Walking' },
     { id: 2, name: 'Henry', age: 27, hobby: 'Swimming' },
     { id: 3, name: 'Charlie', age: 43, hobby: 'Karting' },
   ];
-  result.component.$set({ people });
+  await component.rerender({ people });
 
   // Wait for the table to update
   await tick();

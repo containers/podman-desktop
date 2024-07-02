@@ -109,7 +109,7 @@ describe('test ProviderResultPage', async () => {
     },
   ];
 
-  test('all providers are displayed as running', () => {
+  test('all providers are displayed as running', async () => {
     const checkProviderRunning = (text: string) => {
       const providerEntry = screen.getByRole('row', { name: text });
       expect(providerEntry).toBeInTheDocument();
@@ -122,7 +122,7 @@ describe('test ProviderResultPage', async () => {
     providers[0].state = 'running';
     providers[1].state = 'running';
     render(ProviderResultPage, {
-      providers: providers,
+      providers: JSON.parse(JSON.stringify(providers)),
     });
 
     checkProviderRunning('Provider 1');
@@ -142,7 +142,7 @@ describe('test ProviderResultPage', async () => {
     providers[0].state = 'success';
     providers[1].state = 'success';
     render(ProviderResultPage, {
-      providers: providers,
+      providers: JSON.parse(JSON.stringify(providers)),
     });
 
     checkProviderSuccess('Provider 1');
@@ -153,8 +153,8 @@ describe('test ProviderResultPage', async () => {
     providers[0].state = 'success';
     providers[1].state = 'success';
     render(ProviderResultPage, {
-      providers: providers,
-      results: results,
+      providers: JSON.parse(JSON.stringify(providers)),
+      results: JSON.parse(JSON.stringify(results)),
     });
     results.forEach(result => checkResultDisplayed(result));
   });
@@ -163,8 +163,8 @@ describe('test ProviderResultPage', async () => {
     providers[0].state = 'success';
     providers[1].state = 'success';
     render(ProviderResultPage, {
-      providers: providers,
-      results: results,
+      providers: JSON.parse(JSON.stringify(providers)),
+      results: JSON.parse(JSON.stringify(results)),
     });
 
     const providerEntry = screen.getByRole('row', { name: 'Provider 1' });
@@ -178,8 +178,8 @@ describe('test ProviderResultPage', async () => {
     providers[0].state = 'success';
     providers[1].state = 'success';
     render(ProviderResultPage, {
-      providers: providers,
-      results: results,
+      providers: JSON.parse(JSON.stringify(providers)),
+      results: JSON.parse(JSON.stringify(results)),
     });
 
     const providerEntry = screen.getByRole('row', { name: 'Provider 2' });
@@ -193,8 +193,8 @@ describe('test ProviderResultPage', async () => {
     providers[0].state = 'success';
     providers[1].state = 'success';
     render(ProviderResultPage, {
-      providers: providers,
-      results: results,
+      providers: JSON.parse(JSON.stringify(providers)),
+      results: JSON.parse(JSON.stringify(results)),
     });
 
     const criticalButton = screen.getByRole('button', { name: 'Critical (2)' });

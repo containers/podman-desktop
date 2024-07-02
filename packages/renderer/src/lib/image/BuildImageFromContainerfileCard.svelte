@@ -23,9 +23,17 @@ let badges: string[] = [];
 
 const dispatch = createEventDispatcher();
 
+export let onAddcard: (obj: { value: string }) => void = obj => {
+  dispatch('addcard', obj);
+};
+
+export let onCard: (obj: { mode: 'add' | 'remove'; value: string }) => void = obj => {
+  dispatch('card', obj);
+};
+
 function handleKeydownAdditionalField(event: KeyboardEvent) {
   if (event.key === 'Enter') {
-    dispatch('addcard', { value: additionalValue });
+    onAddcard({ value: additionalValue });
     displayValueFieldInput = false;
   }
 }
@@ -46,11 +54,10 @@ function handleClick() {
   }
 
   checked = !checked;
-
   if (checked) {
-    dispatch('card', { mode: 'add', value: value });
+    onCard({ mode: 'add', value: value });
   } else {
-    dispatch('card', { mode: 'remove', value: value });
+    onCard({ mode: 'remove', value: value });
   }
 }
 
@@ -69,7 +76,7 @@ onMount(() => {
   }
 
   if (isDefault) {
-    dispatch('card', { mode: 'add', value: value });
+    onCard({ mode: 'add', value: value });
   }
 });
 </script>

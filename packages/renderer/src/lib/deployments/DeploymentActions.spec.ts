@@ -51,8 +51,7 @@ test('Expect no error and status deleting deployment', async () => {
   (window as any).showMessageBox = showMessageBoxMock;
   showMessageBoxMock.mockResolvedValue({ response: 0 });
 
-  const { component } = render(DeploymentActions, { deployment });
-  component.$on('update', updateMock);
+  render(DeploymentActions, { deployment, onUpdate: updateMock });
 
   // click on delete buttons
   const deleteButton = screen.getByRole('button', { name: 'Delete Deployment' });

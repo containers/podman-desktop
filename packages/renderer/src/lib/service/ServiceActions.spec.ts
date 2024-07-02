@@ -51,8 +51,7 @@ afterEach(() => {
 test('Expect no error and status deleting service', async () => {
   // Mock the showMessageBox to return 0 (yes)
   showMessageBoxMock.mockResolvedValue({ response: 0 });
-  const { component } = render(ServiceActions, { service });
-  component.$on('update', updateMock);
+  render(ServiceActions, { service, onUpdate: updateMock });
 
   // click on delete button
   const deleteButton = screen.getByRole('button', { name: 'Delete Service' });

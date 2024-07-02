@@ -27,12 +27,11 @@ import EmptyScreen from './EmptyScreen.svelte';
 /* eslint-disable @typescript-eslint/no-empty-function */
 
 test('Expect copy in clipboard', async () => {
-  const mock = vi.fn().mockImplementation(() => {});
-  const comp = render(EmptyScreen, { icon: '', commandline: 'podman run hello:world' });
-  comp.component.$on('click', mock);
+  const mock = vi.fn();
+  render(EmptyScreen, { icon: '', commandline: 'podman run hello:world', onClick: mock });
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
   expect(button).toBeEnabled();
   await fireEvent.click(button);
-  expect(mock).toBeCalledWith(expect.objectContaining({ detail: 'podman run hello:world' }));
+  expect(mock).toBeCalledWith('podman run hello:world');
 });

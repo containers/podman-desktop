@@ -43,10 +43,9 @@ test('Check button styling', async () => {
 });
 
 test('Check on:click action', async () => {
-  const comp = render(CloseButton);
-
   const clickMock = vi.fn();
-  comp.component.$on('click', clickMock);
+  const comp = render(CloseButton);
+  comp.container.onclick = clickMock;
 
   // check on:click
   const button = screen.getByRole('button');

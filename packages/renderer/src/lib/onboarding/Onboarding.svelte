@@ -7,13 +7,13 @@
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
 }
 #stepBody::-webkit-scrollbar-thumb {
-  background-color: theme(colors.charcoal.100);
+  background-color: [var(--pd-button-tab-hover-border)];
 }
 #stepBody::-webkit-scrollbar-thumb:hover {
-  background-color: theme(colors.charcoal.50);
+  background-color: [var(--pd-button-tab-hover-border)];
 }
 #stepBody::-webkit-scrollbar-thumb:active {
-  background-color: theme(colors.gray.700);
+  background-color: [var(--pd-button-tab-hover-border)];
 }
 #stepBody::-webkit-scrollbar-track-piece:start {
   background: transparent;

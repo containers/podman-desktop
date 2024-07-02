@@ -50,8 +50,7 @@ afterEach(() => {
 });
 
 test('Expect no error and status starting container', async () => {
-  const { component } = render(ContainerActions, { container });
-  component.$on('update', updateMock);
+  render(ContainerActions, { container, onUpdate: updateMock });
 
   // click on start button
   const startButton = screen.getByRole('button', { name: 'Start Container' });
@@ -63,8 +62,7 @@ test('Expect no error and status starting container', async () => {
 });
 
 test('Expect no error and status stopping container', async () => {
-  const { component } = render(ContainerActions, { container });
-  component.$on('update', updateMock);
+  render(ContainerActions, { container, onUpdate: updateMock });
 
   // click on stop button
   const stopButton = screen.getByRole('button', { name: 'Stop Container' });
@@ -76,8 +74,7 @@ test('Expect no error and status stopping container', async () => {
 });
 
 test('Expect no error and status restarting container', async () => {
-  const { component } = render(ContainerActions, { container });
-  component.$on('update', updateMock);
+  render(ContainerActions, { container, onUpdate: updateMock });
 
   // click on restart button
   const restartButton = screen.getByRole('button', { name: 'Restart Container' });
@@ -91,8 +88,7 @@ test('Expect no error and status restarting container', async () => {
 test('Expect no error and status deleting container', async () => {
   // Mock the showMessageBox to return 0 (yes)
   showMessageBoxMock.mockResolvedValue({ response: 0 });
-  const { component } = render(ContainerActions, { container });
-  component.$on('update', updateMock);
+  render(ContainerActions, { container, onUpdate: updateMock });
 
   // click on delete button
   const deleteButton = screen.getByRole('button', { name: 'Delete Container' });

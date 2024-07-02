@@ -89,7 +89,7 @@ test('expect being able to reconnect ', async () => {
   expect(terminals.length).toBe(0);
 
   // destroy the object
-  renderObject.component.$destroy();
+  renderObject.unmount();
 
   // now, check that we have a terminal that is in the store
   const terminalsAfterDestroy = get(containerTerminals);

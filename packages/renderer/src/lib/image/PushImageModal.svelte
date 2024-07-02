@@ -67,7 +67,7 @@ async function initTerminal() {
 async function pushImage(imageTag: string) {
   gotErrorDuringPush = false;
   await tick();
-  initTerminal();
+  await initTerminal();
   await tick();
   logsPush?.reset();
 

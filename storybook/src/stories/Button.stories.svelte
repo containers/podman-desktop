@@ -1,18 +1,32 @@
 <script context="module" lang="ts">
 import { faBell } from '@fortawesome/free-regular-svg-icons';
-import { Button } from '@podman-desktop/ui-svelte';
-import { Story, Template } from '@storybook/addon-svelte-csf';
+import Button from '@podman-desktop/ui-svelte/Button';
+import { type Args, defineMeta, setTemplate, type StoryContext } from '@storybook/addon-svelte-csf';
+import { fn } from '@storybook/test';
 
-export const meta = {
-  title: 'Example/Button',
+const onclickFn = fn().mockName('onclick');
+
+/**
+ * These are the stories for the `Button` component.
+ * It's the default button we use throughout our application.
+ */
+const { Story } = defineMeta({
   component: Button,
+  title: 'Example/Button',
   tags: ['autodocs'],
-};
+  args: {
+    onclick: onclickFn,
+  },
+});
 </script>
 
-<Template let:args>
+<script lang="ts">
+setTemplate(template);
+</script>
+
+{#snippet template({ _children, ...args }: Args<typeof Story>, _context: StoryContext<typeof Story>)}
   <Button {...args}>{args.content}</Button>
-</Template>
+{/snippet}
 
 <Story
   name="Primary"
@@ -26,13 +40,6 @@ export const meta = {
   args="{{
     type: 'secondary',
     content: 'secondary',
-  }}" />
-
-<Story
-  name="Primary"
-  args="{{
-    type: 'primary',
-    content: 'primary',
   }}" />
 
 <Story

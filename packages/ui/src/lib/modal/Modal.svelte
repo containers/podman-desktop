@@ -4,15 +4,17 @@ import { createEventDispatcher, onDestroy } from 'svelte';
 import { tabWithinParent } from '../utils/dialog-utils';
 
 const dispatch = createEventDispatcher();
-const close = (): boolean => dispatch('close');
 
 let modal: HTMLDivElement;
 export let name = '';
 export let top: boolean = false;
+export let onclose: () => void = () => {
+  dispatch('close');
+};
 
 const handle_keydown = (e: KeyboardEvent): void => {
   if (e.key === 'Escape') {
-    close();
+    onclose();
     return;
   }
 
@@ -36,7 +38,7 @@ if (previously_focused) {
   <button
     aria-label="close"
     class="fixed top-0 left-0 w-full h-full bg-[var(--pd-modal-fade)] bg-blend-multiply opacity-60 z-40 cursor-default"
-    on:click="{close}"></button>
+    on:click="{onclose}"></button>
 
   <div
     class:translate-y-[-20%]="{!top}"

@@ -68,13 +68,12 @@ test('Expect backlink is defined', async () => {
   const backName = 'Last page';
   const breadcrumbClickMock = vi.fn();
 
-  const comp = render(FormPage, {
+  render(FormPage, {
     breadcrumbLeftPart: 'Last page',
     breadcrumbRightPart: 'hello',
     title: 'No Title',
+    onbreadcrumbClick: breadcrumbClickMock,
   });
-
-  comp.component.$on('breadcrumbClick', breadcrumbClickMock);
 
   const backElement = screen.getByLabelText('back');
   expect(backElement).toBeInTheDocument();
@@ -88,13 +87,13 @@ test('Expect backlink is defined', async () => {
 test('Expect close link is defined', async () => {
   const closeClickMock = vi.fn();
 
-  const comp = render(FormPage, {
+  render(FormPage, {
     title: 'No Title',
     breadcrumbLeftPart: 'back',
     breadcrumbRightPart: 'hello',
+    onclose: closeClickMock,
   });
 
-  comp.component.$on('close', closeClickMock);
   const closeElement = getByRole(document.body, 'button', { name: 'Close' });
   expect(closeElement).toBeInTheDocument();
   await fireEvent.click(closeElement);
@@ -105,11 +104,11 @@ test('Expect close link is defined', async () => {
 test('Expect Escape key works', async () => {
   const closeClickMock = vi.fn();
 
-  const comp = render(FormPage, {
+  render(FormPage, {
     title: 'No Title',
     breadcrumbLeftPart: 'back',
+    onclose: closeClickMock,
   });
-  comp.component.$on('close', closeClickMock);
   await userEvent.keyboard('{Escape}');
 
   expect(closeClickMock).toHaveBeenCalled();

@@ -8,7 +8,7 @@
     "build": "storybook build"
   },
   "peerDependencies": {
-    "svelte": "^4.0.0",
+    "svelte": "^5.0.0",
     "svelte-fa": "^4.0.0"
   },
   "dependencies": {
@@ -24,13 +24,13 @@
     "@storybook/addon-essentials": "^8.1.11",
     "@storybook/addon-interactions": "^8.1.11",
     "@storybook/addon-links": "^8.1.11",
-    "@storybook/addon-svelte-csf": "^4.1.1",
+    "@storybook/addon-svelte-csf": "5.0.0--canary.181.9fd4bb6.0",
     "@storybook/blocks": "^8.1.11",
     "@storybook/svelte": "^8.1.11",
     "@storybook/svelte-vite": "^8.1.11",
     "@storybook/test": "^8.1.4",
     "@sveltejs/package": "^2.3.2",
-    "@sveltejs/vite-plugin-svelte": "3.1.1",
+    "@sveltejs/vite-plugin-svelte": "4.0.0-next.3",
     "@tsconfig/svelte": "^5.0.2",
     "@typescript-eslint/eslint-plugin": "7.15.0",
     "autoprefixer": "^10.4.18",
@@ -39,9 +39,9 @@
     "postcss-load-config": "^6.0.1",
     "react": "18.2.0",
     "react-dom": "18.3.1",
-    "storybook": "^8.0.9",
+    "storybook": "^8.1.11",
     "storybook-dark-mode": "^4.0.2",
-    "svelte": "4.2.18",
+    "svelte": "5.0.0-next.166",
     "svelte-check": "^3.8.4",
     "svelte-preprocess": "^6.0.1",
     "tailwindcss": "^3.4.4",

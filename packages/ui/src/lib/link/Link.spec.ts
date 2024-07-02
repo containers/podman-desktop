@@ -49,10 +49,8 @@ test('Check icon styling', async () => {
 });
 
 test('Check on:click action', async () => {
-  const comp = render(Link);
-
   const clickMock = vi.fn();
-  comp.component.$on('click', clickMock);
+  render(Link, { onclick: clickMock });
 
   // check on:click
   const link = screen.getByRole('link');

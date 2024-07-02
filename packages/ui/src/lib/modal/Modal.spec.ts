@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, test, vi } from 'vitest';
 
@@ -35,19 +35,17 @@ test('modal should be visible', async () => {
 
 test('bg click should trigger close event', async () => {
   const closeMock = vi.fn();
-  const { component } = render(Modal);
-  component.$on('close', closeMock);
+  render(Modal, { onclose: closeMock });
 
   const bg = screen.getByLabelText('close');
-  await userEvent.click(bg);
+  await fireEvent.click(bg);
 
   expect(closeMock).toHaveBeenCalled();
 });
 
 test('Escape key should trigger close', async () => {
   const closeMock = vi.fn();
-  const { component } = render(Modal);
-  component.$on('close', closeMock);
+  render(Modal, { onclose: closeMock });
 
   await userEvent.keyboard('{Escape}');
   expect(closeMock).toHaveBeenCalled();
