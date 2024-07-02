@@ -16,11 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, expectTypeOf, test, vi } from 'vitest';
+import { beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest';
+
+import type { InputQuickPickRegistry } from '/@/plugin/input-quickpick/input-quickpick-registry.js';
 
 import type { ApiSenderType } from './api.js';
 import { CommandRegistry } from './command-registry.js';
 import type { Telemetry } from './telemetry/telemetry.js';
+
+const inputQuickPickRegistry = {
+  showQuickPick: vi.fn(),
+} as unknown as InputQuickPickRegistry;
 
 let commandRegistry: CommandRegistry;
 
@@ -30,7 +36,10 @@ beforeEach(() => {
     {
       send: vi.fn(),
     } as unknown as ApiSenderType,
-    {} as Telemetry,
+    {
+      track: vi.fn(),
+    } as unknown as Telemetry,
+    inputQuickPickRegistry,
   );
 });
 
@@ -155,4 +164,37 @@ test('Should include category in the title', async () => {
 
   // should have category + title
   expect(myCommand?.title).toBe(`${category}: ${title1}`);
+});
+
+describe('showCommandPalette', () => {
+  test('calling showCommandPalette should call showQuickPick', () => {
+    vi.mocked(inputQuickPickRegistry.showQuickPick).mockResolvedValue(undefined);
+
+    commandRegistry.showCommandPalette();
+
+    expect(inputQuickPickRegistry.showQuickPick).toHaveBeenCalledWith([], {
+      canPickMany: false,
+      placeHolder: 'Select a command',
+      title: 'Command palette',
+    });
+  });
+
+  test('picking value from showQuickPick should execute corresponding command', async () => {
+    const callbackMock = vi.fn();
+    commandRegistry.registerCommand('hello-world', callbackMock);
+
+    vi.mocked(inputQuickPickRegistry.showQuickPick).mockResolvedValue('hello-world');
+
+    commandRegistry.showCommandPalette();
+
+    expect(inputQuickPickRegistry.showQuickPick).toHaveBeenCalledWith(['hello-world'], {
+      canPickMany: false,
+      placeHolder: 'Select a command',
+      title: 'Command palette',
+    });
+
+    await vi.waitFor(() => {
+      expect(callbackMock).toHaveBeenCalled();
+    });
+  });
 });
