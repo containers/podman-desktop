@@ -37,7 +37,7 @@ let copyTextDivElement: HTMLDivElement;
 </script>
 
 <div
-  class="flex flex-row w-full h-full justify-center bg-[var(--pd-details-bg)] {$$props.class || ''}"
+  class="flex flex-row w-full h-full justify-center {$$props.class || ''}"
   class:hidden="{hidden}"
   style="{$$props.style}"
   aria-label="{$$props['aria-label']}">

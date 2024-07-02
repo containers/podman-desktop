@@ -97,7 +97,12 @@ onDestroy(() => {
 });
 </script>
 
-<EmptyScreen icon="{NoLogIcon}" title="No Log" message="Log output" hidden="{noLogs === false}" />
+<EmptyScreen
+  icon="{NoLogIcon}"
+  title="No Log"
+  message="Log output"
+  hidden="{noLogs === false}"
+  class="bg-[var(--pd-details-bg)]" />
 
 <div
   aria-label="terminal"
