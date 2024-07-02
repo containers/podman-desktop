@@ -49,8 +49,8 @@
     "markdownlint-cli2": "^0.13.0",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.4",
-    "typedoc": "^0.25.13",
-    "typedoc-plugin-markdown": "4.0.3",
+    "typedoc": "^0.26.3",
+    "typedoc-plugin-markdown": "^4.1.1",
     "typescript": "^5.4.5"
   },
   "browserslist": {
