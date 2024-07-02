@@ -97,12 +97,7 @@ onDestroy(() => {
 });
 </script>
 
-<EmptyScreen
-  icon="{NoLogIcon}"
-  title="No Log"
-  message="Log output"
-  hidden="{noLogs === false}"
-  style="background-color: {getPanelDetailColor()}" />
+<EmptyScreen icon="{NoLogIcon}" title="No Log" message="Log output" hidden="{noLogs === false}" />
 
 <div
   aria-label="terminal"
