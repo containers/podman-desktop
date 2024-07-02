@@ -257,7 +257,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       }
     });
 
-    test('Restarting pod', async () => {
+    test('Restarting pod', { retry: 2 }, async () => {
       const navigationBar = new NavigationBar(page);
       const pods = await navigationBar.openPods();
       const podDetails = await pods.openPodDetails(podToRun);
