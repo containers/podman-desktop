@@ -50,12 +50,54 @@ export class Detect {
     // so let's set the env PATH to the system path before running the command
     // to avoid the storage/bin folder to be appended to the PATH
     try {
-      await extensionApi.process.exec('docker-compose', ['--version'], { env: { PATH: process.env.PATH ?? '' } });
+      await extensionApi.process.exec('docker-compose', ['--version', '--format=json'], {
+        env: { PATH: process.env.PATH ?? '' },
+      });
       return true;
     } catch (e) {
       return false;
     }
   }
+
+  async getDockerComposeVersion(executable: string): Promise<{ version: string; path: string }> {
+    const { stdout } = await extensionApi.process.exec(executable, ['--version', '--format=json']);
+    const version = this.parseVersion(stdout);
+    const path = await this.getDockerComposePath(executable);
+    return {
+      version,
+      path,
+    };
+  }
+
+  private async getDockerComposePath(executable: string): Promise<string> {
+    // grab full path for Linux and mac
+    if (extensionApi.env.isLinux || extensionApi.env.isMac) {
+      try {
+        const { stdout: fullPath } = await extensionApi.process.exec('which', [executable]);
+        return fullPath;
+      } catch (err) {
+        console.warn('Error getting kubectl full path', err);
+      }
+    } else if (extensionApi.env.isWindows) {
+      // grab full path for Windows
+      try {
+        const { stdout: fullPath } = await extensionApi.process.exec('where.exe', [executable]);
+        // remove all line break/carriage return characters from full path
+        return fullPath.replace(/(\r\n|\n|\r)/gm, '');
+      } catch (err) {
+        console.warn('Error getting kubectl full path', err);
+      }
+    }
+
+    return executable;
+  }
+
+  private parseVersion(raw: string): string {
+    const parsed = JSON.parse(raw);
+    if (!('version' in parsed) || typeof parsed.version !== 'string') throw new Error('malformed version output');
+    return parsed.version;
+  }
+
   // search if the podman-compose is available in the storage/bin path
   async checkStoragePath(): Promise<boolean> {
     // check that extension/bin folder is in the PATH

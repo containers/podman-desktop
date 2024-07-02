@@ -16,8 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as path from 'node:path';
-
 import { Octokit } from '@octokit/rest';
 import * as extensionApi from '@podman-desktop/api';
 
@@ -216,35 +214,35 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // Push the CLI tool as well (but it will do it postActivation so it does not block the activate() function)
   // Post activation
   setTimeout(() => {
-    postActivate(extensionContext, composeDownload).catch((error: unknown) => {
+    postActivate(composeDownload, detect).catch((error: unknown) => {
       console.error('Error activating extension', error);
     });
   }, 0);
 }
 
 // Activate the CLI tool (check version, etc) and register the CLi so it does not block activation.
-async function postActivate(
-  extensionContext: extensionApi.ExtensionContext,
-  composeDownload: ComposeDownload,
-): Promise<void> {
-  // The location of the binary (local storage folder)
-  const binaryPath = path.join(
-    extensionContext.storagePath,
-    'bin',
-    os.isWindows() ? composeCliName + '.exe' : composeCliName,
-  );
-  let binaryVersion = '';
+async function postActivate(composeDownload: ComposeDownload, detect: Detect): Promise<void> {
+  // build executable name for current platform
+  const executable = os.isWindows() ? composeCliName + '.exe' : composeCliName;
 
-  // Retrieve the version of the binary by running exec with --short
-  try {
-    const result = await extensionApi.process.exec(binaryPath, ['--version', '--short']);
-    binaryVersion = result.stdout;
-  } catch (e) {
-    console.error(`Error getting compose version: ${e}`);
+  // check for existing system-wide install
+  const installedSystemWide = await detect.checkSystemWideDockerCompose();
+  let binaryInfo: { version: string; path: string } | undefined = undefined;
+  if (installedSystemWide) {
+    binaryInfo = await detect.getDockerComposeVersion(executable);
+  } else {
+    // if not installed, let's check for local version
+    const extensionExecutable = await detect.getStoragePath();
+    // if local version exists
+    if (extensionExecutable.length !== 0) {
+      binaryInfo = await detect.getDockerComposeVersion(extensionExecutable);
+    }
   }
 
-  // Register the CLI tool so it appears in the preferences page. We will detect which version is being ran by
-  // checking the local storage folder for the binary. If it exists, we will run `--version` and parse the information.
+  // if no binary detected let's just stop here
+  if (!binaryInfo) return;
+
+  // Register the CLI tool so it appears in the preferences page.
   composeCliTool = extensionApi.cli.createCliTool({
     name: composeCliName,
     displayName: composeDisplayName,
@@ -252,19 +250,28 @@ async function postActivate(
     images: {
       icon: imageLocation,
     },
-    version: binaryVersion,
-    path: binaryPath,
+    version: removeVersionPrefix(binaryInfo.version),
+    path: binaryInfo.path,
   });
 
   // check if there is a new version to be installed and register the updater
   const lastReleaseMetadata = await composeDownload.getLatestVersionAsset();
-  const lastReleaseVersion = lastReleaseMetadata.tag.replace('v', '').trim();
-  if (lastReleaseVersion !== binaryVersion) {
+  const lastReleaseVersion = removeVersionPrefix(lastReleaseMetadata.tag);
+  const currentVersion = removeVersionPrefix(binaryInfo.version);
+
+  if (lastReleaseVersion !== currentVersion) {
     composeCliToolUpdaterDisposable = composeCliTool.registerUpdate({
       version: lastReleaseVersion,
       doUpdate: async _logger => {
+        if (installedSystemWide) {
+          // we already have a system-wide installed
+          // todo
+        }
+
         // download, install system wide and update cli version
         await composeDownload.download(lastReleaseMetadata);
+        // get the binary in the extension folder
+        const binaryPath = await detect.getStoragePath();
         await installBinaryToSystem(binaryPath, 'docker-compose');
         composeCliTool?.updateVersion({
           version: lastReleaseVersion,
@@ -273,6 +280,10 @@ async function postActivate(
       },
     });
   }
+}
+
+function removeVersionPrefix(version: string): string {
+  return version.replace('v', '').trim();
 }
 
 export async function deactivate(): Promise<void> {
