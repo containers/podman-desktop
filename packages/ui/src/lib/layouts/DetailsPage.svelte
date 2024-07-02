@@ -32,7 +32,7 @@ function handleKeydown(e: KeyboardEvent): void {
 
 <svelte:window on:keydown="{handleKeydown}" />
 
-<div class="flex flex-col w-full h-full shadow-pageheader">
+<div class="flex flex-col w-full h-full shadow-pageheader bg-[var(--pd-content-bg)]">
   <div class="flex flex-row w-full h-fit px-5 pt-4 pb-2">
     <div class="flex flex-col w-full h-fit">
       <div class="flex flew-row items-center text-sm text-[var(--pd-content-breadcrumb)]">
