@@ -1,6 +1,7 @@
 <script lang="ts">
+import { StatusIcon } from '@podman-desktop/ui-svelte';
+
 import IngressRouteIcon from '../images/IngressRouteIcon.svelte';
-import StatusIcon from '../images/StatusIcon.svelte';
 import type { IngressUI } from './IngressUI';
 import type { RouteUI } from './RouteUI';
 

@@ -111,6 +111,10 @@
     "./DetailsPage": {
       "types": "./dist/layouts/DetailsPage.d.ts",
       "svelte": "./dist/layouts/DetailsPage.svelte"
+    },
+    "./StatusIcon": {
+      "types": "./dist/statusIcon/StatusIcon.d.ts",
+      "svelte": "./dist/statusIcon/StatusIcon.svelte"
     }
   },
   "peerDependencies": {

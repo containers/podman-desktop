@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Tab } from '@podman-desktop/ui-svelte';
+import { StatusIcon, Tab } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 import { stringify } from 'yaml';
@@ -10,7 +10,6 @@ import type { V1Route } from '/@api/openshift-types';
 import Route from '../../Route.svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import IngressRouteIcon from '../images/IngressRouteIcon.svelte';
-import StatusIcon from '../images/StatusIcon.svelte';
 import KubeEditYAML from '../kube/KubeEditYAML.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import StateChange from '../ui/StateChange.svelte';

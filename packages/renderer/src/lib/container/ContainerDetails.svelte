@@ -1,14 +1,13 @@
 <script lang="ts">
 import 'xterm/css/xterm.css';
 
-import { ErrorMessage, Link, Tab } from '@podman-desktop/ui-svelte';
+import { ErrorMessage, Link, StatusIcon, Tab } from '@podman-desktop/ui-svelte';
 import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 
 import Route from '../../Route.svelte';
 import { containersInfos } from '../../stores/containers';
-import StatusIcon from '../images/StatusIcon.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import StateChange from '../ui/StateChange.svelte';
 import { getTabUrl, isTabSelected } from '../ui/Util';

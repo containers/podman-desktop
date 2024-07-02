@@ -1,10 +1,11 @@
 <script lang="ts">
-import { Spinner } from '@podman-desktop/ui-svelte';
-import { StarIcon } from '@podman-desktop/ui-svelte/icons';
+import StarIcon from '../icons/StarIcon.svelte';
+import Spinner from '../progress/Spinner.svelte';
 
 // status: one of RUNNING, STARTING, USED, CREATED, DELETING, or DEGRADED
 // any other status will result in a standard outlined box
 export let status = '';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let icon: any = undefined;
 export let size = 20;
 
