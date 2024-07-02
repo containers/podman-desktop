@@ -82,9 +82,9 @@ onMount(() => {
 </script>
 
 <button
-  class="rounded-md bg-charcoal-700 p-2 min-w-48 w-48 min-h-24 cursor-pointer hover:bg-charcoal-500 {checked
-    ? 'border-dustypurple-700'
-    : 'border-charcoal-700'} border-2 flex flex-col"
+  class="rounded-md bg-[var(--pd-content-card-inset-bg)] p-2 min-w-48 w-48 min-h-24 cursor-pointer hover:bg-[var(--pd-content-card-hover-inset-bg)] {checked
+    ? 'border-[var(--pd-content-card-border-selected)]'
+    : 'border-[var(--pd-content-card-border)]'} border-2 flex flex-col"
   aria-label="{value}"
   on:click|preventDefault="{() => handleClick()}">
   <div class="flex flex-row">
@@ -92,13 +92,13 @@ onMount(() => {
       {#if !additionalItem}
         <Checkbox bind:checked="{checked}" title="{title}" on:click="{() => handleClick()}" />
       {:else}
-        <Fa class="text-dustypurple-700 cursor-pointer" icon="{faPlusCircle}" size="1.5x" />
+        <Fa class="text-[var(--pd-content-card-icon)] cursor-pointer" icon="{faPlusCircle}" size="1.5x" />
       {/if}
     </div>
-    <div class="ml-2 text-sm text-left break-normal w-36">{title}</div>
+    <div class="ml-2 text-sm text-left break-normal w-36 text-[var(--pd-content-card-text)]">{title}</div>
     {#if isDefault}
       <Tooltip tip="Default platform of your computer">
-        <Fa size="0.5x" class="text-dustypurple-700 cursor-pointer" icon="{faCircle}" />
+        <Fa size="0.5x" class="text-[var(--pd-content-card-border-selected)] cursor-pointer" icon="{faCircle}" />
       </Tooltip>
     {/if}
   </div>
@@ -106,7 +106,8 @@ onMount(() => {
     <div class="flex">
       {#if badges.length > 0}
         {#each badges as badge}
-          <div class="text-gray-700 border-gray-700 border text-xs font-medium me-2 px-2.5 py-0.5 rounded-xl">
+          <div
+            class="text-[var(--pd-content-card-text)] border-[var(--pd-content-card-border-selected)] border text-xs font-medium me-2 px-2.5 py-0.5 rounded-xl">
             {badge}
           </div>
         {/each}
@@ -114,7 +115,7 @@ onMount(() => {
       {#if displayValueFieldInput}
         <input
           type="text"
-          class="w-40 outline-none text-sm bg-dustypurple-900 rounded-xs text-gray-700 placeholder-gray-700"
+          class="w-40 outline-none text-sm bg-[var(--pd-input-field-bg)] focus:bg-[var(--pd-input-field-focused-bg)] rounded-xs text-[var(--pd-content-text)]"
           bind:value="{additionalValue}"
           bind:this="{inputHtmlElement}"
           on:keydown="{handleKeydownAdditionalField}" />
@@ -122,9 +123,9 @@ onMount(() => {
     </div>
     <div class="flex grow justify-end">
       {#if iconType === 'fontAwesome'}
-        <Fa class="text-white cursor-pointer" icon="{icon}" size="1.5x" />
+        <Fa class="text-[var(--pd-content-card-icon)] cursor-pointer" icon="{icon}" size="1.5x" />
       {:else if iconType === 'unknown'}
-        <svelte:component this="{icon}" class="text-gray-900 cursor-pointer" size="24" />
+        <svelte:component this="{icon}" class="text-[var(--pd-content-card-icon)] cursor-pointer" size="24" />
       {/if}
     </div>
   </div>

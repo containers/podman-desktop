@@ -464,7 +464,7 @@ export class ColorRegistry {
 
     this.registerColor(`${ct}card-header-text`, {
       dark: colorPalette.gray[100],
-      light: colorPalette.charcoal[900],
+      light: colorPalette.purple[900],
     });
 
     this.registerColor(`${ct}card-bg`, {
@@ -495,6 +495,11 @@ export class ColorRegistry {
     this.registerColor(`${ct}card-inset-bg`, {
       dark: colorPalette.charcoal[900],
       light: colorPalette.dustypurple[200],
+    });
+
+    this.registerColor(`${ct}card-hover-inset-bg`, {
+      dark: colorPalette.charcoal[700],
+      light: colorPalette.dustypurple[300],
     });
 
     this.registerColor(`${ct}bg`, {
@@ -545,6 +550,16 @@ export class ColorRegistry {
     this.registerColor(`${ct}card-carousel-disabled-nav`, {
       dark: colorPalette.charcoal[700],
       light: colorPalette.gray[200],
+    });
+
+    this.registerColor(`${ct}card-border`, {
+      dark: colorPalette.charcoal[700],
+      light: colorPalette.gray[200],
+    });
+
+    this.registerColor(`${ct}card-border-selected`, {
+      dark: colorPalette.dustypurple[700],
+      light: colorPalette.purple[600],
     });
   }
 
@@ -1186,11 +1201,6 @@ export class ColorRegistry {
 
   protected initFormPage(): void {
     const formPage = 'formpage-';
-
-    this.registerColor(`${formPage}bg`, {
-      dark: colorPalette.charcoal[900],
-      light: colorPalette.gray[50],
-    });
 
     this.registerColor(`${formPage}card-bg`, {
       dark: colorPalette.charcoal[800],
