@@ -1,6 +1,7 @@
 <script lang="ts">
+import { StatusIcon } from '@podman-desktop/ui-svelte';
+
 import PVCIcon from '../images/PVCIcon.svelte';
-import StatusIcon from '../images/StatusIcon.svelte';
 import type { PVCUI } from './PVCUI';
 
 export let object: PVCUI;
