@@ -5952,10 +5952,10 @@
     lodash "^4.17.21"
     redent "^3.0.0"
 
-"@testing-library/svelte@^5.2.0-next.3":
-  version "5.2.0-next.3"
-  resolved "https://registry.yarnpkg.com/@testing-library/svelte/-/svelte-5.2.0-next.3.tgz#d6d27ac17324544a4777a9299b7d550c21d87811"
-  integrity sha512-aLp9Q84eaI1i25SBQ++PWLijZ7jNoUwjnSnL2cyLyJYBQQSPcEiCgSjDYIygbknOqVkmUE/dsgQHVjGeIatZvg==
+"@testing-library/svelte@^5.2.0":
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/@testing-library/svelte/-/svelte-5.2.0.tgz#237ba908fdc8b35d53c3ab06bf19a6da229c471a"
+  integrity sha512-oMIFfxMcaPOXp+BQTRVgkeKzfAx7ee9fMrWaiKbMN36tN61kLl4Uj5ZZ/y1w9aL3a0BuBEoErV5iorYwCHqVUA==
   dependencies:
     "@testing-library/dom" "^10.0.0"
 

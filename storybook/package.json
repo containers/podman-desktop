@@ -8,7 +8,7 @@
     "build": "storybook build"
   },
   "peerDependencies": {
-    "svelte": "^4.0.0",
+    "svelte": "^5.0.0",
     "svelte-fa": "^4.0.0"
   },
   "dependencies": {
