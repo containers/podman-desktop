@@ -33,6 +33,7 @@ import Spinner from './progress/Spinner.svelte';
 import EmptyScreen from './screen/EmptyScreen.svelte';
 import FilteredEmptyScreen from './screen/FilteredEmptyScreen.svelte';
 import SettingsNavItem from './settingsNavItem/SettingsNavItem.svelte';
+import StatusIcon from './statusIcon/StatusIcon.svelte';
 import Tab from './tab/Tab.svelte';
 import TableDurationColumn from './table/DurationColumn.svelte';
 import TableSimpleColumn from './table/SimpleColumn.svelte';
@@ -60,6 +61,7 @@ export {
   SearchInput,
   SettingsNavItem,
   Spinner,
+  StatusIcon,
   Tab,
   Table,
   TableColumn,
