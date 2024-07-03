@@ -104,7 +104,7 @@ async function exportContainer() {
 
     <div slot="content" class="space-y-2">
       <div>
-        <label for="modalSelectTarget" class="block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
+        <label for="modalSelectTarget" class="block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
           >Export to:</label>
         <div class="flex w-full">
           <Input
