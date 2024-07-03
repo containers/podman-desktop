@@ -225,17 +225,19 @@ async function postActivate(composeDownload: ComposeDownload, detect: Detect): P
   // build executable name for current platform
   const executable = os.isWindows() ? composeCliName + '.exe' : composeCliName;
 
-  // check for existing system-wide install
+  // binary info
+  let binaryInfo: { version: string; path: string; updatable?: boolean } | undefined = undefined;
+
+  // let's check for system-wide
   const installedSystemWide = await detect.checkSystemWideDockerCompose();
-  let binaryInfo: { version: string; path: string } | undefined = undefined;
   if (installedSystemWide) {
-    binaryInfo = await detect.getDockerComposeVersion(executable);
+    binaryInfo = await detect.getDockerComposeBinaryInfo(executable);
   } else {
     // if not installed, let's check for local version
     const extensionExecutable = await detect.getStoragePath();
     // if local version exists
     if (extensionExecutable.length !== 0) {
-      binaryInfo = await detect.getDockerComposeVersion(extensionExecutable);
+      binaryInfo = await detect.getDockerComposeBinaryInfo(executable, detect.getExtensionStorageBin());
     }
   }
 
@@ -263,16 +265,15 @@ async function postActivate(composeDownload: ComposeDownload, detect: Detect): P
     composeCliToolUpdaterDisposable = composeCliTool.registerUpdate({
       version: lastReleaseVersion,
       doUpdate: async _logger => {
-        if (installedSystemWide) {
-          // we already have a system-wide installed
-          // todo
+        if (!binaryInfo?.updatable) {
+          throw new Error('cannot be updated as not managed by podman desktop.');
         }
 
         // download, install system wide and update cli version
         await composeDownload.download(lastReleaseMetadata);
         // get the binary in the extension folder
         const binaryPath = await detect.getStoragePath();
-        await installBinaryToSystem(binaryPath, 'docker-compose');
+        await installBinaryToSystem(binaryPath, composeCliName);
         composeCliTool?.updateVersion({
           version: lastReleaseVersion,
         });
