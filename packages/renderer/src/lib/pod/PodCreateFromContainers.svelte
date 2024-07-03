@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { Button, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
+import { Button, ErrorMessage, Input, StatusIcon } from '@podman-desktop/ui-svelte';
 import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
@@ -13,7 +13,6 @@ import type { PodCreatePortOptions } from '../../../../main/src/plugin/dockerode
 import { type PodCreation, podCreationHolder } from '../../stores/creation-from-containers-store';
 import { providerInfos } from '../../stores/providers';
 import SolidPodIcon from '../images/SolidPodIcon.svelte';
-import StatusIcon from '../images/StatusIcon.svelte';
 import EngineFormPage from '../ui/EngineFormPage.svelte';
 
 let podCreation: PodCreation;

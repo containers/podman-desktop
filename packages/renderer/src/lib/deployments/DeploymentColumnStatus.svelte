@@ -1,6 +1,7 @@
 <script lang="ts">
+import { StatusIcon } from '@podman-desktop/ui-svelte';
+
 import DeploymentIcon from '../images/DeploymentIcon.svelte';
-import StatusIcon from '../images/StatusIcon.svelte';
 import type { DeploymentUI } from './DeploymentUI';
 
 export let object: DeploymentUI;

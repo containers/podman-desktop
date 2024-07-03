@@ -1,5 +1,6 @@
 <script lang="ts">
-import StatusIcon from '../images/StatusIcon.svelte';
+import { StatusIcon } from '@podman-desktop/ui-svelte';
+
 import VolumeIcon from '../images/VolumeIcon.svelte';
 import type { VolumeInfoUI } from './VolumeInfoUI';
 
