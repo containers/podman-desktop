@@ -34,6 +34,9 @@ export const handleNavigation = (page: NavigationPage, parameters?: { [key: stri
     case NavigationPage.CONTAINERS:
       router.goto('/containers');
       break;
+    case NavigationPage.CONTAINERS_EXPORT:
+      router.goto('/containers/export');
+      break;
     case NavigationPage.CONTAINER:
       router.goto(`/containers/${parameters?.['id']}/`);
       break;
@@ -45,6 +48,12 @@ export const handleNavigation = (page: NavigationPage, parameters?: { [key: stri
       break;
     case NavigationPage.CONTAINER_TERMINAL:
       router.goto(`/containers/${parameters?.['id']}/terminal`);
+      break;
+    case NavigationPage.CONTAINER_KUBE:
+      router.goto(`/containers/${parameters?.['id']}/kube`);
+      break;
+    case NavigationPage.DEPLOY_TO_KUBE:
+      router.goto(`/deploy-to-kube/${parameters?.['id']}/${parameters?.['engineId']}`);
       break;
     case NavigationPage.IMAGES:
       router.goto(`/images`);
