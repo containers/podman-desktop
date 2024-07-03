@@ -19,7 +19,8 @@
 import { router } from 'tinro';
 import { expect, test, vi } from 'vitest';
 
-import { NavigationPage } from '../../main/src/plugin/navigation/navigation-page';
+import { NavigationPage } from '/@api/navigation-page';
+
 import { handleNavigation } from './navigation';
 
 // mock the router

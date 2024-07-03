@@ -3,8 +3,8 @@ import { Button } from '@podman-desktop/ui-svelte';
 
 import { handleNavigation } from '/@/navigation';
 import { recommendedRegistries } from '/@/stores/recommendedRegistries';
+import { NavigationPage } from '/@api/navigation-page';
 
-import { NavigationPage } from '../../../../main/src/plugin/navigation/navigation-page';
 import type { RecommendedRegistry } from '../../../../main/src/plugin/recommendations/recommendations-api';
 import FeaturedExtensionDownload from '../featured/FeaturedExtensionDownload.svelte';
 

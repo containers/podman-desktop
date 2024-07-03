@@ -19,6 +19,7 @@
 import type { ProviderContainerConnection } from '@podman-desktop/api';
 import { beforeEach, expect, test, vi } from 'vitest';
 
+import { NavigationPage } from '/@api/navigation-page.js';
 import type { WebviewInfo } from '/@api/webview-info.js';
 
 import type { ApiSenderType } from '../api.js';
@@ -27,7 +28,6 @@ import type { ContributionManager } from '../contribution-manager.js';
 import type { ProviderRegistry } from '../provider-registry.js';
 import type { WebviewRegistry } from '../webview/webview-registry.js';
 import { NavigationManager } from './navigation-manager.js';
-import { NavigationPage } from './navigation-page.js';
 
 let navigationManager: TestNavigationManager;
 

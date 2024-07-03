@@ -1,7 +1,7 @@
 <script lang="ts">
 import { handleNavigation } from '/@/navigation';
+import { NavigationPage } from '/@api/navigation-page';
 
-import { NavigationPage } from '../../../../main/src/plugin/navigation/navigation-page';
 import { PodUtils } from './pod-utils';
 import type { PodInfoUI } from './PodInfoUI';
 
