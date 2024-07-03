@@ -31,6 +31,8 @@ import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 import * as nodeTar from 'tar';
 import validator from 'validator';
 
+import type { ImageSearchResult } from '/@api/image-registry.js';
+
 import { isMac, isWindows } from '../util.js';
 import type { ApiSenderType } from './api.js';
 import type { Certificates } from './certificates.js';
@@ -874,6 +876,17 @@ export class ImageRegistry {
     if (!rawResponse?.includes('token')) {
       throw Error('Unable to validate provided credentials.');
     }
+  }
+
+  async searchImages(registryName: string, term: string, limit: number): Promise<ImageSearchResult[]> {
+    if (registryName === 'docker.io') {
+      registryName = 'index.docker.io';
+    }
+    if (!registryName.startsWith('http')) {
+      registryName = 'https://' + registryName;
+    }
+    const resultJSON = await got.get(`${registryName}/v1/search?q=${term}&n=${limit}`);
+    return JSON.parse(resultJSON.body).results;
   }
 }
 
