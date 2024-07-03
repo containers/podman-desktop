@@ -314,18 +314,18 @@ $: globalOnboarding = global;
 
 {#if activeStep}
   <!-- fake div used to hide scrollbar shadow behind the header as it's a bit transparent  -->
-  <div class="fixed bg-charcoal-500 right-0 top-0 h-[100px] w-[30px] z-10 mt-8"></div>
+  <div class="fixed bg-[var(--pd-content-card-bg)] right-0 top-0 h-[100px] w-[30px] z-10 mt-8"></div>
   <div
     id="stepBody"
     role="region"
     aria-label="Onboarding Body"
-    class="flex flex-col {globalOnboarding
-      ? 'flex-auto fixed top-0 left-0 right-0 bottom-0 bg-zinc-700 bg-no-repeat z-[45] pt-9 overflow-y-auto'
-      : 'bg-charcoal-500 h-full overflow-y-auto w-full overflow-x-hidden'}"
+    class="flex flex-col bg-[var(--pd-content-card-bg)] text-[var(--pd-details-body-text)] {globalOnboarding
+      ? 'flex-auto fixed top-0 left-0 right-0 bottom-0 bg-no-repeat z-[45] pt-9 overflow-y-auto'
+      : 'h-full overflow-y-auto w-full overflow-x-hidden'}"
     class:bodyWithBar="{!activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}">
     <div class="flex flex-col h-full">
       <div
-        class="flex flex-row justify-between h-[100px] p-5 z-20 fixed w-full bg-opacity-90 bg-charcoal-700"
+        class="flex flex-row justify-between h-[100px] p-5 z-20 fixed w-full bg-opacity-90 bg-[var(--pd-content-bg)]"
         role="heading"
         aria-level="{2}"
         aria-label="{activeStep.onboarding.title} Header">
@@ -338,9 +338,9 @@ $: globalOnboarding = global;
           {/if}
           <div class="flex flex-col">
             {#if globalOnboarding}
-              <div class="text-lg font-bold text-white">Get started with Podman Desktop</div>
+              <div class="text-lg font-bold text-[var(--pd-content-header)]">Get started with Podman Desktop</div>
             {:else}
-              <div class="text-lg font-bold text-white">
+              <div class="text-lg font-bold text-[var(--pd-content-header)]">
                 {replaceContextKeyPlaceholders(
                   activeStep.onboarding.title,
                   activeStep.onboarding.extension,
@@ -348,7 +348,7 @@ $: globalOnboarding = global;
                 )}
               </div>
               {#if activeStep.onboarding.description}
-                <div class="text-sm text-white">
+                <div class="text-sm text-[var(--pd-content-sub-header)]">
                   {replaceContextKeyPlaceholders(
                     activeStep.onboarding.description,
                     activeStep.onboarding.extension,
@@ -358,7 +358,7 @@ $: globalOnboarding = global;
               {/if}
             {/if}
             <button
-              class="flex flex-row text-xs items-center hover:underline text-gray-400 mt-1"
+              class="flex flex-row text-xs items-center hover:underline text-[var(--pd-content-sub-header)] mt-1"
               on:click="{() => setDisplayCancelSetup(true)}">
               <span class="mr-1">Skip this entire setup</span>
               <Fa icon="{faForward}" size="0.8x" />
@@ -375,8 +375,8 @@ $: globalOnboarding = global;
                   <div
                     class="w-5 h-5 rounded-full mb-1 border-2 {onboarding.extension ===
                     activeStep?.onboarding?.extension
-                      ? 'bg-purple-700 border-purple-700'
-                      : 'border-gray-700 bg-transparent'}">
+                      ? 'bg-[var(--pd-onboarding-active-dot-bg)] border-[var(--pd-onboarding-active-dot-border)]'
+                      : 'border-[var(--pd-onboarding-inactive-dot-border)] bg-[var(--pd-onboarding-inactive-dot-bg)]'}">
                   </div></span>
 
                 <!-- Onboarding title -->
@@ -387,7 +387,7 @@ $: globalOnboarding = global;
                 <!-- Skip button for the onboarding -->
                 {#if onboarding.extension === activeStep?.onboarding?.extension}
                   <button
-                    class="mt-1 flex flex-row text-xs items-center hover:underline text-gray-400"
+                    class="mt-1 flex flex-row text-xs items-center hover:underline text-[var(--pd-content-sub-header)]"
                     on:click="{() => skipCurrentOnboarding()}">
                     <span class="mr-1">Skip</span>
                     <Fa icon="{faForward}" size="0.8x" />
@@ -427,12 +427,12 @@ $: globalOnboarding = global;
                 <Spinner />
               </div>
             {/if}
-            <div class="text-lg text-white" aria-label="Onboarding Status Message">
+            <div class="text-lg" aria-label="Onboarding Status Message">
               {replaceContextKeyPlaceholders(activeStep.step.title, activeStep.onboarding.extension, globalContext)}
             </div>
           </div>
           {#if activeStep.step.description}
-            <div class="text-sm text-white mx-auto">
+            <div class="text-sm mx-auto">
               {replaceContextKeyPlaceholders(
                 activeStep.step.description,
                 activeStep.onboarding.extension,
@@ -467,12 +467,13 @@ $: globalOnboarding = global;
       {#if !activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}
         <!-- fake div used to hide scrollbar shadow  -->
         {#if !globalOnboarding}
-          <div class="fixed bg-charcoal-500 right-0 bottom-0 h-[70px] w-[30px] z-10 mb-6"></div>
+          <div class="fixed bg-[var(--pd-details-bg)] right-0 bottom-0 h-[70px] w-[30px] z-10 mb-6"></div>
         {/if}
         <div class="grow"></div>
         {#if activeStep.step.state !== 'failed'}
           <div class="mt-10 mx-auto text-sm min-h-[120px]" aria-label="Next Info Message">
-            Press the <span class="bg-purple-700 p-0.5">Next</span> button below to proceed.
+            Press the <span class="text-[var(--pd-button-text)] bg-[var(--pd-button-primary-bg)] p-0.5">Next</span> button
+            below to proceed.
           </div>
         {:else}
           <div class="mt-10 mx-auto text-sm min-h-[120px]" aria-label="Exit Info Message">
@@ -480,7 +481,7 @@ $: globalOnboarding = global;
           </div>
         {/if}
         <div
-          class="flex flex-row-reverse p-6 bg-charcoal-700 fixed {globalOnboarding
+          class="flex flex-row-reverse p-6 bg-[var(--pd-content-bg)] fixed {globalOnboarding
             ? 'w-full'
             : 'w-[calc(100%-theme(width.leftnavbar)-theme(width.leftsidebar))] mb-5'} bottom-0 pr-10 max-h-20 bg-opacity-90 z-20"
           role="group"
@@ -506,15 +507,15 @@ $: globalOnboarding = global;
   <!-- Create overlay-->
   <div class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 bg-blend-multiply h-full grid z-50">
     <div
-      class="flex flex-col place-self-center w-[550px] rounded-xl bg-charcoal-800 shadow-xl shadow-black"
+      class="flex flex-col place-self-center w-[550px] rounded-xl bg-[var(--pd-modal-bg)] shadow-xl shadow-black"
       role="dialog"
       aria-label="Skip Setup Popup">
-      <div class="flex items-center justify-between pl-4 pr-3 py-3 space-x-2 text-gray-400">
+      <div class="flex items-center justify-between pl-4 pr-3 py-3 space-x-2 text-[var(--pd-modal-header-text)]">
         <Fa class="h-4 w-4" icon="{faCircleQuestion}" />
         <span class="grow text-md font-bold capitalize">Skip the entire setup?</span>
       </div>
 
-      <div class="px-10 py-4 text-sm text-gray-500 leading-5">
+      <div class="px-10 py-4 text-sm text-[var(--pd-modal-text)] leading-5">
         If you exit, you can complete your setup later from the Resources page. Do you want to skip it?
       </div>
 
