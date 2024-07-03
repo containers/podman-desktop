@@ -469,8 +469,9 @@ export class KubernetesClient {
     await this.fetchAPIGroups();
     this.apiSender.send('pod-event');
     this.apiSender.send('kubeconfig-update');
-
-    await this.contextsState.update(this.kubeConfig);
+    const configCopy = new KubeConfig();
+    configCopy.loadFromString(this.kubeConfig.exportConfig());
+    await this.contextsState.update(configCopy);
   }
 
   newError(message: string, cause: Error): Error {
