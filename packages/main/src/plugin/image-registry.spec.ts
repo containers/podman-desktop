@@ -848,3 +848,45 @@ test('getOptions uses proxy settings', () => {
   expect(options.agent!.http).toBeDefined();
   expect(options.agent!.https).toBeDefined();
 });
+
+test('searchImages with docker.io registry', async () => {
+  const list = [
+    {
+      name: 'image1',
+      description: 'desc',
+    },
+  ];
+  nock('https://index.docker.io').get('/v1/search?q=http&n=10').reply(200, {
+    results: list,
+  });
+  const result = await imageRegistry.searchImages('docker.io', 'http', 10);
+  expect(result).toEqual(list);
+});
+
+test('searchImages without https', async () => {
+  const list = [
+    {
+      name: 'image1',
+      description: 'desc',
+    },
+  ];
+  nock('https://quay.io').get('/v1/search?q=http&n=10').reply(200, {
+    results: list,
+  });
+  const result = await imageRegistry.searchImages('quay.io', 'http', 10);
+  expect(result).toEqual(list);
+});
+
+test('searchImages with https', async () => {
+  const list = [
+    {
+      name: 'image1',
+      description: 'desc',
+    },
+  ];
+  nock('https://quay.io').get('/v1/search?q=http&n=10').reply(200, {
+    results: list,
+  });
+  const result = await imageRegistry.searchImages('https://quay.io', 'http', 10);
+  expect(result).toEqual(list);
+});
