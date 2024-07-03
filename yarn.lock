@@ -5245,10 +5245,10 @@
     "@storybook/global" "^5.0.0"
     ts-dedent "^2.0.0"
 
-"@storybook/addon-svelte-csf@5.0.0--canary.181.9fd4bb6.0":
-  version "5.0.0--canary.181.9fd4bb6.0"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-svelte-csf/-/addon-svelte-csf-5.0.0--canary.181.9fd4bb6.0.tgz#3f94d2833c03b743d68d0afc1af96b0389d63242"
-  integrity sha512-pyiFrl4GL1PRg/DB1Kh7p7mIQNTBQxOISCLNNH0gQiJVV2/AVx8pwHohJtqwIvkmeLOFgpH6GQC+gu2jdtVnXw==
+"@storybook/addon-svelte-csf@5.0.0--canary.181.6105951.0":
+  version "5.0.0--canary.181.6105951.0"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-svelte-csf/-/addon-svelte-csf-5.0.0--canary.181.6105951.0.tgz#77246de3ed429c5b3c76cd22ac52a59833d901ef"
+  integrity sha512-zbnrDlvudlYEv7iUCVgLrZHKF9q3EDdAhI4Zn21vUhq9TGh2Sgit2uZn3Ilq6kEPJbj+ZhV+zPSXPBy2RsjFDg==
   dependencies:
     dedent "^1.5.3"
     esrap "^1.2.2"

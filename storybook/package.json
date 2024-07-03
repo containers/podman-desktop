@@ -24,7 +24,7 @@
     "@storybook/addon-essentials": "^8.1.11",
     "@storybook/addon-interactions": "^8.1.11",
     "@storybook/addon-links": "^8.1.11",
-    "@storybook/addon-svelte-csf": "5.0.0--canary.181.9fd4bb6.0",
+    "@storybook/addon-svelte-csf": "5.0.0--canary.181.6105951.0",
     "@storybook/blocks": "^8.1.11",
     "@storybook/svelte": "^8.1.11",
     "@storybook/svelte-vite": "^8.1.11",
