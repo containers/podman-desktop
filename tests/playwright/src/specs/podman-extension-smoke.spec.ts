@@ -77,10 +77,12 @@ describe('Verification of Podman extension', async () => {
 
 async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
   dashboardPage = await navigationBar.openDashboard();
-  const podmanProviderLocator = dashboardPage.getPodmanStatusLocator();
-  enabled
-    ? await playExpect(podmanProviderLocator).toBeVisible()
-    : await playExpect(podmanProviderLocator).not.toBeVisible();
+
+  if (enabled) {
+    await playExpect(dashboardPage.getPodmanStatusLocator()).toBeVisible();
+  } else {
+    await playExpect(dashboardPage.getPodmanStatusLocator()).not.toBeVisible();
+  }
   // always present and visible
   // go to the details of the extension
   const extensionsPage = await navigationBar.openExtensions();
@@ -94,18 +96,13 @@ async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
 
   await playExpect(extensionStatusLabel).toBeVisible();
   await extensionStatusLabel.scrollIntoViewIfNeeded();
-
-  const extensionStatusLocatorText = await extensionStatusLabel.innerText({ timeout: 3000 });
   // --------------------------
-  await playExpect
-    .poll(
-      async () =>
-        enabled
-          ? extensionStatusLocatorText === PODMAN_EXTENSION_STATUS_ACTIVE
-          : extensionStatusLocatorText === PODMAN_EXTENSION_STATUS_DISABLED,
-      { timeout: 10000 },
-    )
-    .toBeTruthy();
+
+  if (enabled) {
+    await playExpect(extensionStatusLabel).toContainText(PODMAN_EXTENSION_STATUS_ACTIVE, { timeout: 10000 });
+  } else {
+    await playExpect(extensionStatusLabel).toContainText(PODMAN_EXTENSION_STATUS_DISABLED, { timeout: 10000 });
+  }
   // always present and visible
   const extensionsPageAfter = await navigationBar.openExtensions();
   const podmanExtensionPage = await extensionsPageAfter.openExtensionDetails(
@@ -128,13 +125,16 @@ async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
   // expand Settings -> Preferences menu
   settingsBar = await navigationBar.openSettings();
   await settingsBar.preferencesTab.click();
-  enabled
-    ? await playExpect(
-        settingsBar.getSettingsNavBarTabLocator(SETTINGS_NAVBAR_PREFERENCES_PODMAN_EXTENSION),
-      ).toBeVisible()
-    : await playExpect(
-        settingsBar.getSettingsNavBarTabLocator(SETTINGS_NAVBAR_PREFERENCES_PODMAN_EXTENSION),
-      ).not.toBeVisible();
+
+  if (enabled) {
+    await playExpect(
+      settingsBar.getSettingsNavBarTabLocator(SETTINGS_NAVBAR_PREFERENCES_PODMAN_EXTENSION),
+    ).toBeVisible();
+  } else {
+    await playExpect(
+      settingsBar.getSettingsNavBarTabLocator(SETTINGS_NAVBAR_PREFERENCES_PODMAN_EXTENSION),
+    ).not.toBeVisible();
+  }
   // collapse Settings -> Preferences menu
   await settingsBar.preferencesTab.click();
 }
