@@ -4,7 +4,7 @@ import Spinner from '../progress/Spinner.svelte';
 
 // status: one of RUNNING, STARTING, USED, CREATED, DELETING, or DEGRADED
 // any other status will result in a standard outlined box
-export let status = '';
+export let status: 'RUNNING' | 'STARTING' | 'USED' | 'DEGRADED' | 'DELETING' | 'CREATED' | string = 'UNKNOWN';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let icon: any = undefined;
 export let size = 20;
