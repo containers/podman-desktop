@@ -15,6 +15,11 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+export interface ImageSearchOptions {
+  registry?: string;
+  query: string;
+  limit?: number;
+}
 
 export interface ImageSearchResult {
   name: string;

@@ -31,7 +31,7 @@ import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 import * as nodeTar from 'tar';
 import validator from 'validator';
 
-import type { ImageSearchResult } from '/@api/image-registry.js';
+import type { ImageSearchOptions, ImageSearchResult } from '/@api/image-registry.js';
 
 import { isMac, isWindows } from '../util.js';
 import type { ApiSenderType } from './api.js';
@@ -878,14 +878,17 @@ export class ImageRegistry {
     }
   }
 
-  async searchImages(registryName: string, term: string, limit: number): Promise<ImageSearchResult[]> {
-    if (registryName === 'docker.io') {
-      registryName = 'index.docker.io';
+  async searchImages(options: ImageSearchOptions): Promise<ImageSearchResult[]> {
+    if (!options.registry) {
+      options.registry = 'https://index.docker.io';
     }
-    if (!registryName.startsWith('http')) {
-      registryName = 'https://' + registryName;
+    if (options.registry === 'docker.io') {
+      options.registry = 'index.docker.io';
     }
-    const resultJSON = await got.get(`${registryName}/v1/search?q=${term}&n=${limit}`);
+    if (!options.registry.startsWith('http')) {
+      options.registry = 'https://' + options.registry;
+    }
+    const resultJSON = await got.get(`${options.registry}/v1/search?q=${options.query}&n=${options.limit ?? 25}`);
     return JSON.parse(resultJSON.body).results;
   }
 }
