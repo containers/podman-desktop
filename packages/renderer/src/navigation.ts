@@ -34,6 +34,9 @@ export const handleNavigation = (page: NavigationPage, parameters?: { [key: stri
     case NavigationPage.CONTAINERS:
       router.goto('/containers');
       break;
+    case NavigationPage.CONTAINERS_EXPORT:
+      router.goto('/containers/export');
+      break;
     case NavigationPage.CONTAINER:
       router.goto(`/containers/${parameters?.['id']}/`);
       break;

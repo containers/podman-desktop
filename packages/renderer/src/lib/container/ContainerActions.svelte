@@ -132,7 +132,7 @@ function openGenerateKube(): void {
 }
 
 function deployToKubernetes(): void {
-  handleNavigation(NavigationPage.CONTAINER_KUBE, {
+  handleNavigation(NavigationPage.DEPLOY_TO_KUBE, {
     id: container.id,
     engineId: container.engineId,
   });

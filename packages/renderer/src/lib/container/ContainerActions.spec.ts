@@ -27,7 +27,10 @@ import { exportContainerInfo } from '/@/stores/export-container-store';
 import ContainerActions from './ContainerActions.svelte';
 import type { ContainerInfoUI } from './ContainerInfoUI';
 
-const container: ContainerInfoUI = {} as ContainerInfoUI;
+const container: ContainerInfoUI = {
+  id: 'container-id',
+  engineId: 'container-engine-id',
+} as ContainerInfoUI;
 
 const getContributedMenusMock = vi.fn();
 const updateMock = vi.fn();
@@ -112,4 +115,24 @@ test('Expect exportContainerInfo is filled and user redirected to export contain
 
   expect(goToMock).toBeCalledWith('/containers/export');
   expect(storeSetMock).toBeCalledWith(container);
+});
+
+test('Expect Deploy to Kubernetes to redirect to expected page', async () => {
+  const goToMock = vi.spyOn(router, 'goto');
+
+  render(ContainerActions, { container });
+  const deployButton = screen.getByRole('button', { name: 'Deploy to Kubernetes' });
+  await fireEvent.click(deployButton);
+
+  expect(goToMock).toBeCalledWith(`/deploy-to-kube/container-id/container-engine-id`);
+});
+
+test('Expect Generate Kube to redirect to expected page', async () => {
+  const goToMock = vi.spyOn(router, 'goto');
+
+  render(ContainerActions, { container });
+  const deployButton = screen.getByRole('button', { name: 'Generate Kube' });
+  await fireEvent.click(deployButton);
+
+  expect(goToMock).toBeCalledWith(`/containers/container-id/kube`);
 });
