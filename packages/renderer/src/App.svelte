@@ -77,8 +77,8 @@ router.subscribe(function (navigation) {
 });
 
 window.events?.receive('navigate', (navigationRequest: unknown) => {
-  const navRequest = navigationRequest as NavigationRequest;
-  handleNavigation(navRequest.page, navRequest.parameters);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handleNavigation(navigationRequest as NavigationRequest<any>);
 });
 </script>
 
