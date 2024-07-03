@@ -46,6 +46,12 @@ export const handleNavigation = (page: NavigationPage, parameters?: { [key: stri
     case NavigationPage.CONTAINER_TERMINAL:
       router.goto(`/containers/${parameters?.['id']}/terminal`);
       break;
+    case NavigationPage.CONTAINER_KUBE:
+      router.goto(`/containers/${parameters?.['id']}/kube`);
+      break;
+    case NavigationPage.DEPLOY_TO_KUBE:
+      router.goto(`/deploy-to-kube/${parameters?.['id']}/${parameters?.['engineId']}`);
+      break;
     case NavigationPage.IMAGES:
       router.goto(`/images`);
       break;

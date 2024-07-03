@@ -18,10 +18,12 @@
 
 export enum NavigationPage {
   CONTAINERS = 'containers',
+  CONTAINERS_EXPORT = 'containers-export',
   CONTAINER = 'container',
   CONTAINER_LOGS = 'container-logs',
   CONTAINER_INSPECT = 'container-inspect',
   CONTAINER_TERMINAL = 'container-terminal',
+  CONTAINER_KUBE = 'container-kube',
   IMAGES = 'images',
   IMAGE = 'image',
   PODS = 'pods',
@@ -35,4 +37,5 @@ export enum NavigationPage {
   AUTHENTICATION = 'authentication',
   RESOURCES = 'resources',
   EDIT_CONTAINER_CONNECTION = 'edit-container-connection',
+  DEPLOY_TO_KUBE = 'deploy-to-kube',
 }

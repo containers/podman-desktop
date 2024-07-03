@@ -13,14 +13,15 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { DropdownMenu } from '@podman-desktop/ui-svelte';
 import { createEventDispatcher, onMount } from 'svelte';
-import { router } from 'tinro';
 
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
+import { handleNavigation } from '/@/navigation';
 import { exportContainerInfo } from '/@/stores/export-container-store';
 
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
+import { NavigationPage } from '../../../../main/src/plugin/navigation/navigation-page';
 import FlatMenu from '../ui/FlatMenu.svelte';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from './ContainerInfoUI';
@@ -97,7 +98,9 @@ function openBrowser(): void {
 }
 
 function openLogs(): void {
-  router.goto(`/containers/${container.id}/logs`);
+  handleNavigation(NavigationPage.CONTAINER_LOGS, {
+    id: container.id,
+  });
 }
 
 async function deleteContainer(): Promise<void> {
@@ -113,19 +116,26 @@ async function deleteContainer(): Promise<void> {
 
 async function exportContainer(): Promise<void> {
   exportContainerInfo.set(container);
-  router.goto('/containers/export');
+  handleNavigation(NavigationPage.CONTAINERS_EXPORT);
 }
 
 function openTerminalContainer(): void {
-  router.goto(`/containers/${container.id}/terminal`);
+  handleNavigation(NavigationPage.CONTAINER_TERMINAL, {
+    id: container.id,
+  });
 }
 
 function openGenerateKube(): void {
-  router.goto(`/containers/${container.id}/kube`);
+  handleNavigation(NavigationPage.CONTAINER_KUBE, {
+    id: container.id,
+  });
 }
 
 function deployToKubernetes(): void {
-  router.goto(`/deploy-to-kube/${container.id}/${container.engineId}`);
+  handleNavigation(NavigationPage.CONTAINER_KUBE, {
+    id: container.id,
+    engineId: container.engineId,
+  });
 }
 
 // If dropdownMenu = true, we'll change style to the imported dropdownMenu style
