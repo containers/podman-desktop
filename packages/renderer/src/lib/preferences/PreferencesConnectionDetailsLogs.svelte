@@ -102,7 +102,7 @@ onDestroy(() => {
   title="No Log"
   message="Log output"
   hidden="{noLogs === false}"
-  style="background-color: {getPanelDetailColor()}" />
+  class="bg-[var(--pd-details-bg)]" />
 
 <div
   aria-label="terminal"
