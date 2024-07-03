@@ -115,11 +115,11 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         <Route path="/containers" breadcrumb="Containers" navigationHint="root">
           <ContainerList searchTerm="{meta.query.filter || ''}" />
         </Route>
-        <Route path="/containers/:id/*" breadcrumb="Container Details" let:meta navigationHint="details" firstmatch>
+        <Route path="/containers/:id/*" let:meta firstmatch>
           <Route path="/export" breadcrumb="Export Container">
             <ContainerExport containerID="{meta.params.id}" />
           </Route>
-          <Route path="/*">
+          <Route breadcrumb="Container Details" navigationHint="details" path="/*">
             <ContainerDetails containerID="{meta.params.id}" />
           </Route>
         </Route>
