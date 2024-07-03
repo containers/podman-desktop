@@ -62,7 +62,7 @@ import type { ImageCheckerInfo } from '/@api/image-checker-info';
 import type { ImageFilesInfo } from '/@api/image-files-info';
 import type { ImageInfo } from '/@api/image-info';
 import type { ImageInspectInfo } from '/@api/image-inspect-info';
-import type { ImageSearchResult } from '/@api/image-registry';
+import type { ImageSearchOptions, ImageSearchResult } from '/@api/image-registry';
 import type { ManifestCreateOptions, ManifestInspectInfo } from '/@api/manifest-info';
 import type { NetworkInspectInfo } from '/@api/network-info';
 import type { NotificationCard, NotificationCardOptions } from '/@api/notification';
@@ -1232,8 +1232,8 @@ export function initExposure(): void {
 
   contextBridge.exposeInMainWorld(
     'searchImageInRegistry',
-    async (registryName: string, term: string, limit: number): Promise<ImageSearchResult[]> => {
-      return ipcInvoke('image-registry:searchImages', registryName, term, limit);
+    async (options: ImageSearchOptions): Promise<ImageSearchResult[]> => {
+      return ipcInvoke('image-registry:searchImages', options);
     },
   );
 

@@ -81,7 +81,7 @@ import type { ImageCheckerInfo } from '/@api/image-checker-info.js';
 import type { ImageFilesInfo } from '/@api/image-files-info.js';
 import type { ImageInfo } from '/@api/image-info.js';
 import type { ImageInspectInfo } from '/@api/image-inspect-info.js';
-import type { ImageSearchResult } from '/@api/image-registry.js';
+import type { ImageSearchOptions, ImageSearchResult } from '/@api/image-registry.js';
 import type { ManifestCreateOptions, ManifestInspectInfo } from '/@api/manifest-info.js';
 import type { NetworkInspectInfo } from '/@api/network-info.js';
 import type { NotificationCard, NotificationCardOptions } from '/@api/notification.js';
@@ -1498,8 +1498,8 @@ export class PluginSystem {
 
     this.ipcHandle(
       'image-registry:searchImages',
-      async (_listener, registryName: string, term: string, limit: number): Promise<ImageSearchResult[]> => {
-        return imageRegistry.searchImages(registryName, term, limit);
+      async (_listener, options: ImageSearchOptions): Promise<ImageSearchResult[]> => {
+        return imageRegistry.searchImages(options);
       },
     );
 
