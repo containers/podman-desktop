@@ -48,7 +48,7 @@ export class ExtensionCatalogCardPage extends BasePage {
   public async isInstalled(): Promise<boolean> {
     await this.parent.scrollIntoViewIfNeeded();
     const downloadButton = this.parent.getByRole('button', { name: 'Install' });
-    return (await this.alreadyInstalledText.count()) > 0 && (await downloadButton.count()) === 0 ? true : false;
+    return (await this.alreadyInstalledText.count()) > 0 && (await downloadButton.count()) === 0;
   }
 
   public async install(timeout: number): Promise<void> {

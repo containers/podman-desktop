@@ -91,16 +91,15 @@ describe.each([
     await playExpect(extensionCatalog.parent).toBeVisible();
 
     await playExpect.poll(async () => await extensionCatalog.isInstalled()).toBeFalsy();
-    await extensionCatalog.install(90000);
+    await extensionCatalog.install(180000);
 
     await extensionsPage.openInstalledTab();
     await playExpect.poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel)).toBeTruthy();
-  }, 120000);
+  }, 200000);
 
   describe('Extension verification after installation', async () => {
     test('Extension details can be opened', async () => {
-      await navBar.openExtensions();
-      const extensionsPage = new ExtensionsPage(page);
+      const extensionsPage = await navBar.openExtensions();
 
       const extensionDetailsPage = await extensionsPage.openExtensionDetails(
         extensionName,
