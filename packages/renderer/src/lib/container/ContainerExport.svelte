@@ -8,8 +8,8 @@ import { ContainerUtils } from '/@/lib/container/container-utils';
 import { handleNavigation } from '/@/navigation';
 import { containersInfos } from '/@/stores/containers';
 import { createTask } from '/@/stores/tasks';
+import { NavigationPage } from '/@api/navigation-page';
 
-import { NavigationPage } from '../../../../main/src/plugin/navigation/navigation-page';
 import EngineFormPage from '../ui/EngineFormPage.svelte';
 import { Uri } from '../uri/Uri';
 import type { ContainerInfoUI } from './ContainerInfoUI';
