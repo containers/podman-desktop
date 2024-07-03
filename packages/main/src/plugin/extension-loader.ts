@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import * as fs from 'node:fs';
-import { readFile } from 'node:fs/promises';
+import { readFile, realpath } from 'node:fs/promises';
 import * as path from 'node:path';
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
@@ -429,6 +429,7 @@ export class ExtensionLoader {
   }
 
   async analyzeExtension(extensionPath: string, removable: boolean): Promise<AnalyzedExtension> {
+    extensionPath = await realpath(extensionPath);
     // do nothing if there is no package.json file
     let error = undefined;
     if (!fs.existsSync(path.resolve(extensionPath, 'package.json'))) {
