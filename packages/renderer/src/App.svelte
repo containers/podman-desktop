@@ -115,11 +115,13 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         <Route path="/containers" breadcrumb="Containers" navigationHint="root">
           <ContainerList searchTerm="{meta.query.filter || ''}" />
         </Route>
-        <Route path="/containers/:id/*" breadcrumb="Container Details" let:meta navigationHint="details">
-          <ContainerDetails containerID="{meta.params.id}" />
-        </Route>
-        <Route path="/containers/export/*" breadcrumb="Export Container">
-          <ContainerExport />
+        <Route path="/containers/:id/*" breadcrumb="Container Details" let:meta navigationHint="details" firstmatch>
+          <Route path="/export" breadcrumb="Export Container">
+            <ContainerExport containerID="{meta.params.id}" />
+          </Route>
+          <Route path="/*">
+            <ContainerDetails containerID="{meta.params.id}" />
+          </Route>
         </Route>
 
         <Route path="/kube/play" breadcrumb="Play Kubernetes YAML">

@@ -18,7 +18,7 @@
 
 export enum NavigationPage {
   CONTAINERS = 'containers',
-  CONTAINERS_EXPORT = 'containers-export',
+  CONTAINER_EXPORT = 'container-export',
   CONTAINER = 'container',
   CONTAINER_LOGS = 'container-logs',
   CONTAINER_INSPECT = 'container-inspect',
