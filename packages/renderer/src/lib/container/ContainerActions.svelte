@@ -97,8 +97,11 @@ function openBrowser(): void {
 }
 
 function openLogs(): void {
-  handleNavigation(NavigationPage.CONTAINER_LOGS, {
-    id: container.id,
+  handleNavigation({
+    page: NavigationPage.CONTAINER_LOGS,
+    parameters: {
+      id: container.id,
+    },
   });
 }
 
@@ -114,27 +117,39 @@ async function deleteContainer(): Promise<void> {
 }
 
 async function exportContainer(): Promise<void> {
-  handleNavigation(NavigationPage.CONTAINER_EXPORT, {
-    id: container.id,
+  handleNavigation({
+    page: NavigationPage.CONTAINERS_EXPORT,
+    parameters: {
+      id: container.id,
+    },
   });
 }
 
 function openTerminalContainer(): void {
-  handleNavigation(NavigationPage.CONTAINER_TERMINAL, {
-    id: container.id,
+  handleNavigation({
+    page: NavigationPage.CONTAINER_TERMINAL,
+    parameters: {
+      id: container.id,
+    },
   });
 }
 
 function openGenerateKube(): void {
-  handleNavigation(NavigationPage.CONTAINER_KUBE, {
-    id: container.id,
+  handleNavigation({
+    page: NavigationPage.CONTAINER_KUBE,
+    parameters: {
+      id: container.id,
+    },
   });
 }
 
 function deployToKubernetes(): void {
-  handleNavigation(NavigationPage.DEPLOY_TO_KUBE, {
-    id: container.id,
-    engineId: container.engineId,
+  handleNavigation({
+    page: NavigationPage.DEPLOY_TO_KUBE,
+    parameters: {
+      id: container.id,
+      engineId: container.engineId,
+    },
   });
 }
 

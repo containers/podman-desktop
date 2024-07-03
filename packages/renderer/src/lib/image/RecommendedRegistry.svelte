@@ -21,7 +21,9 @@ $: recommendedRegistriesToInstall = registriesFilteredByIds.filter(registry =>
 );
 
 function goToAuthPage() {
-  handleNavigation(NavigationPage.AUTHENTICATION);
+  handleNavigation({
+    page: NavigationPage.AUTHENTICATION,
+  });
 }
 </script>
 

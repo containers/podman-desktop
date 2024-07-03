@@ -18,7 +18,37 @@
 
 import type { NavigationPage } from './navigation-page.js';
 
-export interface NavigationRequest {
-  page: NavigationPage;
-  parameters?: { [key: string]: string };
+// Define the type mapping for parameters
+export interface NavigationParameters {
+  [NavigationPage.CONTAINERS]: never;
+  [NavigationPage.CONTAINER]: { id: string };
+  [NavigationPage.CONTAINERS_EXPORT]: { id: string };
+  [NavigationPage.CONTAINER_LOGS]: { id: string };
+  [NavigationPage.CONTAINER_INSPECT]: { id: string };
+  [NavigationPage.CONTAINER_TERMINAL]: { id: string };
+  [NavigationPage.CONTAINER_KUBE]: { id: string };
+  [NavigationPage.DEPLOY_TO_KUBE]: { id: string; engineId: string };
+  [NavigationPage.IMAGES]: never;
+  [NavigationPage.IMAGE]: { id: string; engineId: string; tag: string };
+  [NavigationPage.PODS]: never;
+  [NavigationPage.POD]: { kind: string; name: string; engineId: string };
+  [NavigationPage.VOLUMES]: never;
+  [NavigationPage.VOLUME]: { name: string };
+  [NavigationPage.CONTRIBUTION]: { name: string };
+  [NavigationPage.TROUBLESHOOTING]: never;
+  [NavigationPage.HELP]: never;
+  [NavigationPage.WEBVIEW]: { id: string };
+  [NavigationPage.AUTHENTICATION]: never;
+  [NavigationPage.RESOURCES]: never;
+  [NavigationPage.EDIT_CONTAINER_CONNECTION]: { provider: string; name: string };
 }
+
+// the parameters property is optional when the NavigationParameters say it is
+export type NavigationRequest<T extends NavigationPage> = NavigationParameters[T] extends never
+  ? {
+      page: T;
+    }
+  : {
+      page: T;
+      parameters: NavigationParameters[T];
+    };
