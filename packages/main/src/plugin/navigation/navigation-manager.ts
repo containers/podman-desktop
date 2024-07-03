@@ -21,8 +21,8 @@ import type { ProviderContainerConnection } from '@podman-desktop/api';
 import type { ApiSenderType } from '/@/plugin/api.js';
 import type { ContainerProviderRegistry } from '/@/plugin/container-registry.js';
 import type { ContributionManager } from '/@/plugin/contribution-manager.js';
-import { NavigationPage } from '/@/plugin/navigation/navigation-page.js';
-import type { NavigationRequest } from '/@/plugin/navigation/navigation-request.js';
+import { NavigationPage } from '/@api/navigation-page.js';
+import type { NavigationRequest } from '/@api/navigation-request.js';
 
 import type { ProviderRegistry } from '../provider-registry.js';
 import type { WebviewRegistry } from '../webview/webview-registry.js';

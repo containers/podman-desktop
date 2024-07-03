@@ -18,7 +18,7 @@
 
 import { router } from 'tinro';
 
-import { NavigationPage } from '../../main/src/plugin/navigation/navigation-page';
+import { NavigationPage } from '/@api/navigation-page';
 
 /**
  * Navigation hints for setting current page and history (breadcrumbs):

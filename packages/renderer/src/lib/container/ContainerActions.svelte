@@ -18,10 +18,10 @@ import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
 import { handleNavigation } from '/@/navigation';
 import { exportContainerInfo } from '/@/stores/export-container-store';
+import { NavigationPage } from '/@api/navigation-page';
 
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
-import { NavigationPage } from '../../../../main/src/plugin/navigation/navigation-page';
 import FlatMenu from '../ui/FlatMenu.svelte';
 import ListItemButtonIcon from '../ui/ListItemButtonIcon.svelte';
 import { ContainerGroupInfoTypeUI, type ContainerInfoUI } from './ContainerInfoUI';

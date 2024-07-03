@@ -5,8 +5,8 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { router } from 'tinro';
 
 import { handleNavigation } from '/@/navigation';
+import type { NavigationRequest } from '/@api/navigation-request';
 
-import type { NavigationRequest } from '../../main/src/plugin/navigation/navigation-request';
 import AppNavigation from './AppNavigation.svelte';
 import Appearance from './lib/appearance/Appearance.svelte';
 import ComposeDetails from './lib/compose/ComposeDetails.svelte';
