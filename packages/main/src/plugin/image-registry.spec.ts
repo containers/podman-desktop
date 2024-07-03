@@ -24,12 +24,14 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 
 import type { Registry } from '@podman-desktop/api';
+import * as fzstd from 'fzstd';
 import nock from 'nock';
 import * as nodeTar from 'tar';
 import { beforeAll, beforeEach, describe, expect, expectTypeOf, test, vi, vitest } from 'vitest';
 
 import * as imageRegistryConfigJson from '../../tests/resources/data/plugin/image-registry-config.json';
 import * as imageRegistryManifestJson from '../../tests/resources/data/plugin/image-registry-manifest-index.json';
+import * as imageRegistryManifestZstdJson from '../../tests/resources/data/plugin/image-registry-manifest-index.zstd.json';
 import * as imageRegistryManifestMultiArchJson from '../../tests/resources/data/plugin/image-registry-manifest-multi-arch-index.json';
 import type { ApiSenderType } from './api.js';
 import type { Certificates } from './certificates.js';
@@ -61,6 +63,21 @@ beforeAll(async () => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+});
+
+vi.mock('fzstd', () => {
+  return {
+    decompress: vi.fn(),
+  };
+});
+
+vi.mock('tar', async () => {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+  const tarActual = await vi.importActual<typeof import('tar')>('tar');
+
+  return {
+    ...tarActual,
+  };
 });
 
 test('Should extract auth registry with gitlab', async () => {
@@ -418,6 +435,79 @@ test('expect downloadAndExtractImage works', async () => {
 
     // expect some traces in the logger
     expect(logFn).toHaveBeenCalled();
+  } finally {
+    // remove the folders
+    await fs.promises.rm(tmpTarFolder, { recursive: true });
+    await fs.promises.rm(destFolder, { recursive: true });
+  }
+});
+
+test('expect downloadAndExtractImage works with zstd', async () => {
+  // need to mock the http request
+  const spyGetAuthInfo = vi.spyOn(imageRegistry, 'getAuthInfo');
+  spyGetAuthInfo.mockResolvedValue({ authUrl: 'http://foobar', scheme: 'bearer' });
+
+  // need to mock the http request
+  const spyGetToken = vi.spyOn(imageRegistry, 'getToken');
+  spyGetToken.mockResolvedValue('12345');
+
+  // use nock to mock http responses
+
+  // create a tar file with a package.json file inside
+  const tmpTarFolder = path.resolve(os.tmpdir(), 'tar-test-folder');
+
+  const tmpTar1Folder = path.resolve(tmpTarFolder, 'tar1');
+  const tmpZstFile = path.resolve(tmpTar1Folder, '1.tar.zst');
+  await fs.promises.mkdir(tmpTar1Folder, { recursive: true });
+
+  // write a hello world as zst content
+  fs.writeFileSync(tmpZstFile, 'Hello World');
+
+  const readTarZstFile = (): Buffer => {
+    return fs.readFileSync(tmpZstFile);
+  };
+
+  // multi-arch index
+  nock('https://my-podman-desktop-fake-registry.io')
+    .get('/v2/my/extension/manifests/latest')
+    .reply(200, imageRegistryManifestMultiArchJson);
+
+  // image index
+  nock('https://my-podman-desktop-fake-registry.io')
+    .get('/v2/my/extension/manifests/sha256:791352c5f8969387d576cae0586f24a12e716db584c117a15a6138812ddbaef0')
+    .reply(200, imageRegistryManifestZstdJson);
+
+  nock('https://my-podman-desktop-fake-registry.io')
+    .get('/v2/my/extension/blobs/sha256:ec4d84bbb887a9dba10a4551252dde152bbb42e3b02e501b44218c9c5425eac4')
+    .reply(200, readTarZstFile(), {
+      'content-type': 'application/octet-stream',
+      'content-disposition': 'attachment; filename=reply_file_2.tar.zst',
+    });
+
+  nock('https://my-podman-desktop-fake-registry.io')
+    .get('/v2/my/extension/blobs/sha256:dc0c1d0e36ea3e0b94af099c9b96012743ae22e1797eaff3308895335513d454')
+    .reply(200, readTarZstFile(), {
+      'content-type': 'application/octet-stream',
+      'content-disposition': 'attachment; filename=reply_file_2.tar.zst',
+    });
+
+  const destFolder = path.resolve(os.tmpdir(), 'test-folder');
+  const logFn = vi.fn();
+
+  vi.mocked(fzstd.decompress).mockReturnValue(Buffer.from('hello'));
+  const spyExtract = vi.spyOn(nodeTar, 'extract').mockResolvedValue();
+
+  try {
+    await imageRegistry.downloadAndExtractImage('my-podman-desktop-fake-registry.io/my/extension', destFolder, logFn);
+
+    // check that the folder exists and files are there
+    const existFolder = fs.existsSync(destFolder);
+    expect(existFolder).toBeTruthy();
+
+    // expect some traces in the logger
+    expect(logFn).toHaveBeenCalled();
+
+    expect(spyExtract).toHaveBeenCalledWith({ cwd: destFolder, file: expect.stringContaining('.tar') });
   } finally {
     // remove the folders
     await fs.promises.rm(tmpTarFolder, { recursive: true });

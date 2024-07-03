@@ -155,6 +155,7 @@
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-sonarjs": "^1.0.3",
     "eslint-plugin-unicorn": "^54.0.0",
+    "fzstd": "^0.1.1",
     "husky": "^9.0.11",
     "js-yaml": "^4.1.0",
     "lint-staged": "^15.2.7",
