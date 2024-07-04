@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023-2024 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import { fireEvent, getByRole, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import FormPage from './FormPage.svelte';
+import BasePage from './BasePage.svelte';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -30,7 +30,7 @@ beforeEach(() => {
 
 test('Expect title is defined', async () => {
   const title = 'My Dummy Title';
-  render(FormPage, {
+  render(BasePage, {
     title,
   });
 
@@ -39,8 +39,20 @@ test('Expect title is defined', async () => {
   expect(titleElement).toHaveTextContent(title);
 });
 
+test('Expect name is defined', async () => {
+  const name = 'My Dummy Name';
+  render(BasePage, {
+    title: 'No Title',
+    breadcrumbRightPart: name,
+  });
+
+  const nameElement = screen.getByLabelText('name');
+  expect(nameElement).toBeInTheDocument();
+  expect(nameElement).toHaveTextContent(name);
+});
+
 test('Expect no backlink or close is defined', async () => {
-  render(FormPage, {
+  render(BasePage, {
     title: 'No Title',
   });
 
@@ -53,7 +65,7 @@ test('Expect no backlink or close is defined', async () => {
 
 test('Expect name is defined', async () => {
   const name = 'My Dummy Name';
-  render(FormPage, {
+  render(BasePage, {
     title: 'No Title',
     breadcrumbRightPart: name,
   });
@@ -67,7 +79,7 @@ test('Expect backlink is defined', async () => {
   const backName = 'Last page';
   const breadcrumbClickMock = vi.fn();
 
-  render(FormPage, {
+  render(BasePage, {
     breadcrumbLeftPart: 'Last page',
     breadcrumbRightPart: 'hello',
     title: 'No Title',
@@ -86,7 +98,7 @@ test('Expect backlink is defined', async () => {
 test('Expect close link is defined', async () => {
   const closeClickMock = vi.fn();
 
-  render(FormPage, {
+  render(BasePage, {
     title: 'No Title',
     breadcrumbLeftPart: 'back',
     breadcrumbRightPart: 'hello',
@@ -103,7 +115,7 @@ test('Expect close link is defined', async () => {
 test('Expect Escape key works', async () => {
   const closeClickMock = vi.fn();
 
-  render(FormPage, {
+  render(BasePage, {
     title: 'No Title',
     breadcrumbLeftPart: 'back',
     onclose: closeClickMock,
@@ -114,7 +126,7 @@ test('Expect Escape key works', async () => {
 });
 
 test('Expect no progress', async () => {
-  render(FormPage, {
+  render(BasePage, {
     title: 'No Title',
     inProgress: false,
   });
@@ -124,11 +136,26 @@ test('Expect no progress', async () => {
 });
 
 test('Expect progress', async () => {
-  render(FormPage, {
+  render(BasePage, {
     title: 'No Title',
     inProgress: true,
   });
 
   const progress = screen.getByRole('progressbar');
   expect(progress).toBeInTheDocument();
+});
+
+test('Expect subtitle is defined and cut', async () => {
+  const subtitle = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit';
+  render(BasePage, {
+    title: '',
+    subtitle,
+  });
+
+  // get the element having the 'Lorem ipsum' text
+  const subtitleElement = screen.getByText(subtitle);
+  expect(subtitleElement).toBeInTheDocument();
+
+  // expect class has the clamp
+  expect(subtitleElement).toHaveClass('line-clamp-1');
 });

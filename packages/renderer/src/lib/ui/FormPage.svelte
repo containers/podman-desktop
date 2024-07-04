@@ -5,7 +5,6 @@ import { router } from 'tinro';
 import { currentPage, lastPage } from '../../stores/breadcrumb';
 
 export let title: string;
-export let showBreadcrumb = true;
 export let inProgress = false;
 
 export function goToPreviousPage(): void {
@@ -15,7 +14,6 @@ export function goToPreviousPage(): void {
 
 <FormPage
   title={title}
-  showBreadcrumb={showBreadcrumb}
   inProgress={inProgress}
   breadcrumbLeftPart={$lastPage.name}
   breadcrumbRightPart={$currentPage.name}
