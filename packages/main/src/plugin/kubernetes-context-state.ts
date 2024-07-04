@@ -19,12 +19,14 @@
 import type { IncomingMessage } from 'node:http';
 
 import type {
+  Cluster,
   Context,
   Informer,
   KubernetesListObject,
   KubernetesObject,
   ListPromise,
   ObjectCache,
+  User,
   V1Deployment,
   V1DeploymentList,
   V1Ingress,
@@ -435,22 +437,28 @@ export class ContextsManager {
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  compareObjects(newu: any, oldu: any): boolean {
-    if (!newu || !oldu) return false;
-    for (const prop in newu) {
-      if (newu[prop] !== oldu[prop]) {
-        return false;
-      }
-    }
-    return true;
+  compareObjects<T extends User | Cluster | null>(o1: T, o2: T): boolean {
+    const o = {};
+    const obj1 = o1 ?? o;
+    const obj2 = o2 ?? o;
+    return (
+      obj1 === obj2 ||
+      (Object.keys(obj1).length === Object.keys(obj2).length &&
+        Object.keys(obj1)
+          .filter(key => key !== 'name')
+          .every(
+            key =>
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (obj1 as any)[key] === (obj2 as any)[key],
+          ))
+    );
   }
 
   compareContexts(name: string, newc: KubeConfig, oldc: KubeConfig): boolean {
     const newContext = newc.getContextObject(name);
     const oldContext = oldc.getContextObject(name);
     return (
-      newContext?.namespace === oldContext?.namespace &&
+      newContext?.namespace === oldContext?.namespace && // do not compare user and cluster names
       !!newContext &&
       !!oldContext &&
       this.compareObjects(newc.getUser(newContext.user), oldc.getUser(oldContext.user)) &&
