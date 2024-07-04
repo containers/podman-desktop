@@ -19,12 +19,14 @@ export let onclose: () => void = () => {
     <CloseButton on:click="{() => onclose()}" />
   </div>
 
-  <div class="max-h-96 overflow-auto text-[var(--pd-modal-text)] px-10 py-4">
+  <div class="max-h-80 overflow-auto text-[var(--pd-modal-text)] px-10 py-4">
     <slot name="content" />
   </div>
 
-  <div class="px-5 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
-    <slot name="validation" />
+  <div class="px-5 py-5 mt-2 flex flex-row w-full space-x-5">
+    <div class="grow">
+      <slot name="validation" />
+    </div>
     <slot name="buttons" />
   </div>
 </Modal>

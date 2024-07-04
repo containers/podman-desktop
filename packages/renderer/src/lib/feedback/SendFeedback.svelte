@@ -117,18 +117,15 @@ async function sendFeedback(): Promise<void> {
         bind:value="{contactInformation}"
         placeholder="Enter email address, or leave blank for anonymous feedback"
         class="w-full p-2 outline-none text-sm bg-[var(--pd-input-field-focused-bg)] rounded-sm text-[var(--pd-input-field-focused-text)] placeholder-[var(--pd-input-field-placeholder-text)]" />
-
-      <div class="pt-5 flex flex-row w-full justify-between">
-        {#if smileyRating === 0}
-          <ErrorMessage class="flex flex-row text-xs" error="Please select an experience smiley" />
-        {:else if smileyRating === 1 && !hasFeedback}
-          <ErrorMessage
-            class="flex flex-row text-xs"
-            error="Please share contact info or details on how we can improve" />
-        {:else if smileyRating === 2 && !hasFeedback}
-          <WarningMessage class="flex flex-row text-xs" error="We would really appreciate knowing how we can improve" />
-        {/if}
-      </div>
+    </svelte:fragment>
+    <svelte:fragment slot="validation">
+      {#if smileyRating === 0}
+        <ErrorMessage class="text-xs" error="Please select an experience smiley" />
+      {:else if smileyRating === 1 && !hasFeedback}
+        <ErrorMessage class="text-xs" error="Please share contact info or details on how we can improve" />
+      {:else if smileyRating === 2 && !hasFeedback}
+        <WarningMessage class="text-xs" error="We would really appreciate knowing how we can improve" />
+      {/if}
     </svelte:fragment>
     <svelte:fragment slot="buttons">
       <Button disabled="{smileyRating === 0 || (smileyRating === 1 && !hasFeedback)}" on:click="{() => sendFeedback()}"

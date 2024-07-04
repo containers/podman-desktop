@@ -37,6 +37,13 @@ test('Expect content is defined', async () => {
   expect(element).toBeInTheDocument();
 });
 
+test('Expect validation is defined', async () => {
+  render(DialogSpec);
+
+  const element = screen.getByLabelText('validation');
+  expect(element).toBeInTheDocument();
+});
+
 test('Expect buttons is defined', async () => {
   render(DialogSpec);
 
