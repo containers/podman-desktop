@@ -118,7 +118,7 @@ async function deleteContainer(): Promise<void> {
 
 async function exportContainer(): Promise<void> {
   handleNavigation({
-    page: NavigationPage.CONTAINERS_EXPORT,
+    page: NavigationPage.CONTAINER_EXPORT,
     parameters: {
       id: container.id,
     },
