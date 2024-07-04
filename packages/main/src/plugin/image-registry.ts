@@ -80,6 +80,7 @@ export class ImageRegistry {
     });
 
     this.proxyEnabled = this.proxy.isEnabled();
+    this.proxySettings = this.proxy.proxy;
   }
 
   extractRegistryServerFromImage(imageName: string): string | undefined {
