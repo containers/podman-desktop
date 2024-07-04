@@ -32,7 +32,7 @@ export class FileSystemWatcherImpl implements containerDesktopAPI.FileSystemWatc
   constructor(path: string) {
     const parent = pathfs.dirname(path);
     if (fs.existsSync(parent)) {
-      this.doWatch(path);
+      this.doWatch(pathfs.join(fs.realpathSync(parent), pathfs.basename(path)));
     } else if (parent !== path) {
       // we stop the recursion at /
       const parentWatcher = new FileSystemWatcherImpl(parent);
@@ -42,7 +42,7 @@ export class FileSystemWatcherImpl implements containerDesktopAPI.FileSystemWatc
       });
       const disposable = parentWatcher.onDidCreate((uri: containerDesktopAPI.Uri) => {
         if (uri.path === parent) {
-          this.doWatch(path);
+          this.doWatch(pathfs.join(fs.realpathSync(parent), pathfs.basename(path)));
           disposable.dispose();
         }
       });
