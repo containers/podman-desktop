@@ -43,12 +43,6 @@ let buildIDs = [];
 
 const containerFileDialogOptions: OpenDialogOptions = {
   title: 'Select Containerfile to build',
-  filters: [
-    {
-      extensions: ['containerfile', 'dockerfile'],
-      name: 'Containerfile',
-    },
-  ],
 };
 const contextDialogOptions: OpenDialogOptions = { title: 'Select Root Context', selectors: ['openDirectory'] };
 
@@ -318,7 +312,7 @@ async function abortBuild() {
         name="containerBuildContextDirectory"
         id="containerBuildContextDirectory"
         bind:value="{containerBuildContextDirectory}"
-        placeholder="Folder to build in"
+        placeholder="Directory to build in"
         options="{contextDialogOptions}"
         class="w-full" />
     </div>
