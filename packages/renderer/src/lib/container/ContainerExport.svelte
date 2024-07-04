@@ -35,7 +35,9 @@ onMount(() => {
     if (matchingContainer) {
       container = containerUtils.getContainerInfoUI(matchingContainer);
     } else {
-      handleNavigation(NavigationPage.CONTAINERS);
+      handleNavigation({
+        page: NavigationPage.CONTAINERS,
+      });
     }
   });
 });
