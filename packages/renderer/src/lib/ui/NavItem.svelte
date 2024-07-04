@@ -13,6 +13,7 @@ export let tooltip: string;
 export let ariaLabel: string | undefined = undefined;
 export let meta: TinroRouteMeta;
 export let onClick: MouseEventHandler<HTMLAnchorElement> | undefined = undefined;
+export let counter: number | undefined = undefined;
 
 let inSection: boolean = false;
 let uri = encodeURI(href);
@@ -20,6 +21,8 @@ let selected: boolean;
 $: selected = meta.url === uri || (uri !== '/' && meta.url.startsWith(uri));
 
 const navItems: Writable<number> = getContext('nav-items');
+
+$: tooltipText = counter ? `${tooltip} (${counter})` : tooltip;
 
 onMount(() => {
   inSection = navItems !== undefined;
@@ -49,7 +52,7 @@ onDestroy(() => {
     class:hover:text-[color:var(--pd-global-nav-icon-hover)]="{!selected || inSection}"
     class:hover:bg-[var(--pd-global-nav-icon-hover-bg)]="{!selected || inSection}"
     class:hover:border-[var(--pd-global-nav-icon-hover-bg)]="{!selected && !inSection}">
-    <Tooltip right tip="{tooltip}">
+    <Tooltip right tip="{tooltipText}">
       <slot />
     </Tooltip>
   </div>
