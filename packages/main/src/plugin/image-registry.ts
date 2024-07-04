@@ -888,7 +888,10 @@ export class ImageRegistry {
     if (!options.registry.startsWith('http')) {
       options.registry = 'https://' + options.registry;
     }
-    const resultJSON = await got.get(`${options.registry}/v1/search?q=${options.query}&n=${options.limit ?? 25}`);
+    const resultJSON = await got.get(
+      `${options.registry}/v1/search?q=${options.query}&n=${options.limit ?? 25}`,
+      this.getOptions(),
+    );
     return JSON.parse(resultJSON.body).results;
   }
 }
