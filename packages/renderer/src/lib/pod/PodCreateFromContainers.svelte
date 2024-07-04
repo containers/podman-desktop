@@ -1,10 +1,8 @@
 <script lang="ts">
-import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { Button, Checkbox, ErrorMessage, Input, StatusIcon } from '@podman-desktop/ui-svelte';
 import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
-import Fa from 'svelte-fa';
 import { router } from 'tinro';
 
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
@@ -14,6 +12,7 @@ import { type PodCreation, podCreationHolder } from '../../stores/creation-from-
 import { providerInfos } from '../../stores/providers';
 import SolidPodIcon from '../images/SolidPodIcon.svelte';
 import EngineFormPage from '../ui/EngineFormPage.svelte';
+import WarningMessage from '../ui/WarningMessage.svelte';
 
 let podCreation: PodCreation;
 let createInProgress = false;
@@ -192,6 +191,23 @@ function updatePortExposure(port: number, checked: boolean) {
     mapPortExposed = mapPortExposed;
   }
 }
+
+function getWarningText(): string {
+  let text = '';
+  containersPorts.forEach(item => {
+    text += 'Containers ';
+    item.containers.forEach((container, index) => {
+      text += `${container} `;
+      if (index === item.containers.length - 2) {
+        text += 'and ';
+      } else if (index < item.containers.length - 1) {
+        text += ', ';
+      }
+    });
+    text += `use same ${item.ports.length > 1 ? 'ports' : 'port'} ${item.ports.join(', ')}\n`;
+  });
+  return text;
+}
 </script>
 
 <EngineFormPage title="Copy containers to a pod" inProgress="{createInProgress}">
@@ -201,34 +217,7 @@ function updatePortExposure(port: number, checked: boolean) {
     <div>
       {#if podCreation}
         {#if containersPorts.length > 0}
-          <div
-            class="bg-[var(--pd-content-card-inset-bg)] border-t-2 border-[var(--pd-modal-warning-text)] p-4 mb-2"
-            role="alert"
-            aria-label="warning">
-            <div class="flex flex-row">
-              <div class="mr-3">
-                <Fa size="1.125x" class="text-[var(--pd-modal-warning-text)]" icon="{faTriangleExclamation}" />
-              </div>
-              <div class="flex flex-col">
-                <div class="text-sm text-[var(--pd-modal-warning-text)]">Possible runtime error</div>
-                {#each containersPorts as { containers, ports }}
-                  <div class="mt-1 text-sm text-[var(--pd-content-header)]">
-                    Containers
-                    {#each containers as container, index}
-                      <span class="font-bold">{container}</span>
-                      {#if index === containers.length - 2}
-                        and
-                      {:else if index < containers.length - 1}
-                        ,
-                      {/if}
-                      {' '}
-                    {/each}
-                    use same <span class="font-bold">{ports.length > 1 ? 'ports' : 'port'} {ports.join(', ')}</span>.
-                  </div>
-                {/each}
-              </div>
-            </div>
-          </div>
+          <WarningMessage class="flex flex-row w-full  mb-2" error="{getWarningText()}" />
         {/if}
         <div class="mb-2">
           <span class="block text-sm font-semibold rounded text-[var(--pd-content-card-header-text)]"
