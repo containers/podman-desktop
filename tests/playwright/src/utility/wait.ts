@@ -60,10 +60,12 @@ export async function wait(
  */
 export async function waitUntil(
   waitFunction: () => Promise<boolean>,
-  timeout = 3000,
-  diff = 500,
-  sendError = true,
-  message = '',
+  {
+    timeout = 5000,
+    diff = 500,
+    sendError = true,
+    message = '',
+  }: { timeout?: number; diff?: number; sendError?: boolean; message?: string } = {},
 ): Promise<void> {
   await wait(waitFunction, true, timeout, diff, sendError, message);
 }
@@ -79,10 +81,12 @@ export async function waitUntil(
  */
 export async function waitWhile(
   waitFunction: () => Promise<boolean>,
-  timeout = 3000,
-  diff = 500,
-  sendError = true,
-  message = '',
+  {
+    timeout = 5000,
+    diff = 500,
+    sendError = true,
+    message = '',
+  }: { timeout?: number; diff?: number; sendError?: boolean; message?: string } = {},
 ): Promise<void> {
   await wait(waitFunction, false, timeout, diff, sendError, message);
 }

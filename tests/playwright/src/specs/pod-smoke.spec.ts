@@ -57,13 +57,10 @@ beforeAll(async () => {
   await waitForPodmanMachineStartup(page);
   // wait giving a time to podman desktop to load up
   const images = await new NavigationBar(page).openImages();
-  await waitWhile(
-    async () => await images.pageIsEmpty(),
-    5000,
-    1000,
-    false,
-    'Images page is empty, there are no images present',
-  );
+  await waitWhile(async () => await images.pageIsEmpty(), {
+    sendError: false,
+    message: 'Images page is empty, there are no images present',
+  });
   await deletePod(page, podToRun);
   await deleteContainer(page, backendContainer);
   await deleteContainer(page, frontendContainer);
@@ -128,7 +125,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       await waitUntil(async () => {
         backendPort = await containerDetails.getContainerPort();
         return backendPort.includes('6379');
-      }, 5000);
+      });
       images = await navigationBar.openImages();
       imageDetails = await images.openImageDetails(frontendImage);
       runImage = await imageDetails.openRunImage();
@@ -163,7 +160,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
     test('Checking pod details', async () => {
       const navigationBar = new NavigationBar(page);
       const pods = await navigationBar.openPods();
-      await waitUntil(async () => await pods.podExists(podToRun), 5000, 500);
+      await playExpect.poll(async () => await pods.podExists(podToRun), { timeout: 10000 }).toBeTruthy();
       const podDetails = await pods.openPodDetails(podToRun);
       await playExpect(podDetails.heading).toBeVisible();
       await playExpect(podDetails.heading).toContainText(podToRun);

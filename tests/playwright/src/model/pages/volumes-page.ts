@@ -85,12 +85,12 @@ export class VolumesPage extends MainPage {
   }
 
   async waitForVolumeExists(name: string): Promise<boolean> {
-    await waitUntil(async () => await this.volumeExists(name), 3000, 900);
+    await waitUntil(async () => await this.volumeExists(name));
     return true;
   }
 
   async waitForVolumeDelete(name: string): Promise<boolean> {
-    await waitWhile(async () => await this.volumeExists(name), 3000, 900);
+    await waitWhile(async () => await this.volumeExists(name));
     return true;
   }
 }
