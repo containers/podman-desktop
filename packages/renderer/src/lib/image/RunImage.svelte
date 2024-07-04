@@ -657,13 +657,18 @@ async function assertAllPortAreValid(): Promise<void> {
                 name="modalContainerName"
                 id="modalContainerName"
                 placeholder="Leave blank to generate a name"
-                error="{containerNameError}" />
+                error="{containerNameError}"
+                aria-label="Container Name" />
               <label for="modalEntrypoint" class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
                 >Entrypoint:</label>
-              <Input bind:value="{entrypoint}" name="modalEntrypoint" id="modalEntrypoint" />
+              <Input
+                bind:value="{entrypoint}"
+                name="modalEntrypoint"
+                id="modalEntrypoint"
+                aria-label="Container EntryPoint" />
               <label for="modalCommand" class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
                 >Command:</label>
-              <Input bind:value="{command}" name="modalCommand" id="modalCommand" />
+              <Input bind:value="{command}" name="modalCommand" id="modalCommand" aria-label="Container Command" />
               <label for="volumes" class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
                 >Volumes:</label>
               <!-- Display the list of volumes -->
@@ -706,7 +711,11 @@ async function assertAllPortAreValid(): Promise<void> {
                 </div>
               {/each}
 
-              <Button on:click="{addHostContainerPorts}" icon="{faPlusCircle}" type="link">
+              <Button
+                on:click="{addHostContainerPorts}"
+                icon="{faPlusCircle}"
+                type="link"
+                aria-label="Add custom port mapping">
                 Add custom port mapping
               </Button>
               <!-- Display the list of existing hostContainerPortMappings -->
@@ -1056,7 +1065,12 @@ async function assertAllPortAreValid(): Promise<void> {
         </div>
 
         <div class="pt-2 border-zinc-600 border-t-2"></div>
-        <Button on:click="{() => startContainer()}" class="w-full" icon="{faPlay}" bind:disabled="{invalidFields}">
+        <Button
+          on:click="{() => startContainer()}"
+          class="w-full"
+          icon="{faPlay}"
+          aria-label="Start Container"
+          bind:disabled="{invalidFields}">
           Start Container
         </Button>
         <div aria-label="createError">
