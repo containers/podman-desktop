@@ -22,17 +22,19 @@ import * as path from 'node:path';
 
 import * as extensionApi from '@podman-desktop/api';
 
-export interface RunOptions {
-  env?: NodeJS.ProcessEnv;
-  logger?: extensionApi.Logger;
-}
-
 const localBinDir = '/usr/local/bin';
 
 export function getSystemBinaryPath(binaryName: string): string {
   switch (process.platform) {
     case 'win32':
-      return path.join(os.homedir(), 'AppData', 'Local', 'Microsoft', 'WindowsApps', `${binaryName}.exe`);
+      return path.join(
+        os.homedir(),
+        'AppData',
+        'Local',
+        'Microsoft',
+        'WindowsApps',
+        binaryName.endsWith('.exe') ? binaryName : `${binaryName}.exe`,
+      );
     case 'darwin':
       return path.join(localBinDir, binaryName);
     case 'linux':
