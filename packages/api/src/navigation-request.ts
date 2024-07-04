@@ -22,7 +22,7 @@ import type { NavigationPage } from './navigation-page.js';
 export interface NavigationParameters {
   [NavigationPage.CONTAINERS]: never;
   [NavigationPage.CONTAINER]: { id: string };
-  [NavigationPage.CONTAINERS_EXPORT]: { id: string };
+  [NavigationPage.CONTAINER_EXPORT]: { id: string };
   [NavigationPage.CONTAINER_LOGS]: { id: string };
   [NavigationPage.CONTAINER_INSPECT]: { id: string };
   [NavigationPage.CONTAINER_TERMINAL]: { id: string };

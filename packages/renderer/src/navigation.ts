@@ -40,7 +40,7 @@ export const handleNavigation = (request: InferredNavigationRequest<NavigationPa
       router.goto('/containers');
       break;
     case NavigationPage.CONTAINER_EXPORT:
-      router.goto(`/containers/${parameters?.['id']}/export`);
+      router.goto(`/containers/${request.parameters.id}/export`);
       break;
     case NavigationPage.CONTAINER:
       router.goto(`/containers/${request.parameters.id}/`);
