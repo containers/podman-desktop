@@ -17,7 +17,6 @@ import { createEventDispatcher, onMount } from 'svelte';
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
 import { handleNavigation } from '/@/navigation';
-import { exportContainerInfo } from '/@/stores/export-container-store';
 import { NavigationPage } from '/@api/navigation-page';
 
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
@@ -115,8 +114,9 @@ async function deleteContainer(): Promise<void> {
 }
 
 async function exportContainer(): Promise<void> {
-  exportContainerInfo.set(container);
-  handleNavigation(NavigationPage.CONTAINERS_EXPORT);
+  handleNavigation(NavigationPage.CONTAINER_EXPORT, {
+    id: container.id,
+  });
 }
 
 function openTerminalContainer(): void {
