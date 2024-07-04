@@ -49,13 +49,10 @@ export class ImagesPage extends MainPage {
   }
 
   async openPullImage(): Promise<PullImagePage> {
-    await waitWhile(
-      () => this.noContainerEngine(),
-      50000,
-      1000,
-      true,
-      'No Container Engine is available, cannot pull an image',
-    );
+    await waitWhile(() => this.noContainerEngine(), {
+      timeout: 50000,
+      message: 'No Container Engine is available, cannot pull an image',
+    });
     await this.pullImageButton.click();
     return new PullImagePage(this.page);
   }
@@ -129,12 +126,12 @@ export class ImagesPage extends MainPage {
   }
 
   async waitForImageExists(name: string, timeout = 5000): Promise<boolean> {
-    await waitUntil(async () => await this.imageExists(name), timeout, 500);
+    await waitUntil(async () => await this.imageExists(name), { timeout: timeout });
     return true;
   }
 
   async waitForImageDelete(name: string, timeout = 5000): Promise<boolean> {
-    await waitWhile(async () => await this.imageExists(name), timeout, 500);
+    await waitWhile(async () => await this.imageExists(name), { timeout: timeout });
     return true;
   }
 

@@ -86,9 +86,7 @@ export async function deleteImage(page: Page, name: string): Promise<void> {
           const result = await images.getImageRowByName(name);
           return !!result;
         },
-        10000,
-        1000,
-        false,
+        { timeout: 10000, sendError: false },
       );
     } catch (error) {
       if (!(error as Error).message.includes('Page is empty')) {
@@ -103,7 +101,7 @@ export async function deleteRegistry(page: Page, name: string, failIfNotExist = 
   const settingsBar = await navigationBar.openSettings();
   const registryPage = await settingsBar.openTabPage(RegistriesPage);
   const registryRecord = await registryPage.getRegistryRowByName(name);
-  await waitUntil(() => registryRecord.isVisible(), 3000, 500, failIfNotExist);
+  await waitUntil(() => registryRecord.isVisible(), { sendError: failIfNotExist });
   if (await registryRecord.isVisible()) {
     // it might be that the record exist but there are no credentials -> it is default registry and it is empty
     // or if there is a kebab memu available
@@ -130,9 +128,12 @@ export async function deletePod(page: Page, name: string): Promise<void> {
     // wait for pod to disappear
     try {
       console.log('Waiting for pod to get deleted ...');
-      await waitWhile(async () => {
-        return !!(await pods.getPodRowByName(name));
-      }, 20000);
+      await waitWhile(
+        async () => {
+          return !!(await pods.getPodRowByName(name));
+        },
+        { timeout: 20000 },
+      );
     } catch (error) {
       if (!(error as Error).message.includes('Page is empty')) {
         throw Error(`Error waiting for pod '${name}' to get removed, ${error}`);
@@ -172,9 +173,7 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
     async () => {
       return await resourcesPodmanConnections.podmanMachineElement.isVisible();
     },
-    15_000,
-    1000,
-    false,
+    { timeout: 15000 },
   );
   if (await resourcesPodmanConnections.podmanMachineElement.isVisible()) {
     await playExpect(resourcesPodmanConnections.machineConnectionActions).toBeVisible({ timeout: 3000 });
@@ -185,7 +184,7 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
       await playExpect(resourcesPodmanConnections.machineConnectionStatus).toHaveText('OFF', { timeout: 30_000 });
     }
     await playExpect(resourcesPodmanConnections.machineDeleteButton).toBeVisible({ timeout: 3000 });
-    await waitWhile(() => resourcesPodmanConnections.machineDeleteButton.isDisabled(), 10_000, 1000, true);
+    await waitWhile(() => resourcesPodmanConnections.machineDeleteButton.isDisabled(), { timeout: 10000 });
     await resourcesPodmanConnections.machineDeleteButton.click();
     await playExpect(resourcesPodmanConnections.podmanMachineElement).toBeHidden({ timeout: 30_000 });
   } else {

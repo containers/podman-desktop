@@ -29,7 +29,7 @@ import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
 import { deleteContainer, deleteImage } from '../utility/operations';
-import { waitForPodmanMachineStartup, waitUntil, waitWhile } from '../utility/wait';
+import { waitForPodmanMachineStartup, waitWhile } from '../utility/wait';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
@@ -54,13 +54,10 @@ beforeAll(async () => {
     await pdRunner.screenshot('error-on-open-images.png');
     throw error;
   }
-  await waitWhile(
-    async () => await images.pageIsEmpty(),
-    5000,
-    1000,
-    false,
-    'Images page is empty, there are no images present',
-  );
+  await waitWhile(async () => await images.pageIsEmpty(), {
+    sendError: false,
+    message: 'Images page is empty, there are no images present',
+  });
   try {
     await deleteContainer(page, containerToRun);
   } catch (error) {
@@ -149,16 +146,14 @@ describe('Verification of container creation workflow', async () => {
     // test state of container in summary tab
     playExpect(await containersDetails.getState()).toContain(ContainerState.Running.toLowerCase());
     await containersDetails.stopContainer();
-    try {
-      await waitUntil(async () => (await containersDetails.getState()) === ContainerState.Exited.toLowerCase(), 15000);
-      await playExpect(await containersDetails.getStateLocator()).toHaveText(ContainerState.Exited.toLowerCase());
-    } catch (error) {
-      await pdRunner.screenshot('containers--container-stop-failed.png');
-      throw error;
-    }
+
+    await playExpect
+      .poll(async () => await containersDetails.getState(), { timeout: 20000 })
+      .toContain(ContainerState.Exited.toLowerCase());
+    await playExpect(await containersDetails.getStateLocator()).toHaveText(ContainerState.Exited.toLowerCase());
+
     const startButton = containersDetails.getPage().getByRole('button', { name: 'Start Container', exact: true });
     await playExpect(startButton).toBeVisible();
-    await pdRunner.screenshot('containers-container-stopped.png');
   });
 
   test('Deleting a container', async () => {
@@ -169,7 +164,6 @@ describe('Verification of container creation workflow', async () => {
     const containersPage = await containersDetails.deleteContainer();
     await playExpect(containersPage.heading).toBeVisible();
     await playExpect.poll(async () => await containersPage.containerExists(containerToRun)).toBeFalsy();
-    await pdRunner.screenshot('containers-container-deleted.png');
   });
 
   test('Prune containers', async () => {

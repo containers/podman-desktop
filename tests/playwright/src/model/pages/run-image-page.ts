@@ -113,9 +113,7 @@ export class RunImagePage extends BasePage {
       async () => {
         return await this.name.isVisible();
       },
-      3000,
-      900,
-      false,
+      { sendError: false },
     );
 
     const errorCount = await this.errorAlert.count();
