@@ -1,11 +1,11 @@
 <script lang="ts">
 import { faCircle, faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
 import { faCircleExclamation, faInfo, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { Button, type ButtonType, CloseButton } from '@podman-desktop/ui-svelte';
-import { Modal } from '@podman-desktop/ui-svelte';
+import { Button, type ButtonType } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import Fa from 'svelte-fa';
 
+import Dialog from './Dialog.svelte';
 import type { MessageBoxOptions } from './messagebox-input';
 
 let currentId = 0;
@@ -108,8 +108,8 @@ function getButtonType(b: boolean): ButtonType {
 </script>
 
 {#if display}
-  <Modal name="{title}" on:close="{onClose}">
-    <div class="flex items-center justify-between pl-4 pr-3 py-3 space-x-2 text-[var(--pd-modal-header-text)]">
+  <Dialog title="{title}" on:close="{onClose}">
+    <svelte:fragment slot="icon">
       {#if type === 'error'}
         <Fa class="h-4 w-4 text-[var(--pd-state-error)]" icon="{faCircleExclamation}" />
       {:else if type === 'warning'}
@@ -122,20 +122,17 @@ function getButtonType(b: boolean): ButtonType {
       {:else if type === 'question'}
         <Fa class="h-4 w-4" icon="{faCircleQuestion}" />
       {/if}
-      <h1 class="grow text-lg font-bold capitalize">{title}</h1>
+    </svelte:fragment>
 
-      <CloseButton on:click="{() => clickButton(cancelId >= 0 ? cancelId : undefined)}" />
-    </div>
-
-    <div class="max-h-80 overflow-auto text-[var(--pd-modal-text)]">
-      <div class="px-10 py-4 text-sm leading-5" aria-label="Dialog Message">{message}</div>
+    <svelte:fragment slot="content">
+      <div class="text-sm leading-5" aria-label="Dialog Message">{message}</div>
 
       {#if detail}
-        <div class="px-10 pb-4 text-sm leading-5" aria-label="Dialog Details">{detail}</div>
+        <div class="pt-4 text-sm leading-5" aria-label="Dialog Details">{detail}</div>
       {/if}
-    </div>
+    </svelte:fragment>
 
-    <div class="px-5 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
+    <svelte:fragment slot="buttons">
       {#each buttonOrder as i}
         {#if i === cancelId}
           <Button type="link" aria-label="Cancel" on:click="{() => clickButton(i)}">Cancel</Button>
@@ -143,6 +140,6 @@ function getButtonType(b: boolean): ButtonType {
           <Button type="{getButtonType(defaultId === i)}" on:click="{() => clickButton(i)}">{buttons[i]}</Button>
         {/if}
       {/each}
-    </div>
-  </Modal>
+    </svelte:fragment>
+  </Dialog>
 {/if}
