@@ -266,7 +266,9 @@ async function postActivate(composeDownload: ComposeDownload, detect: Detect): P
       version: lastReleaseVersion,
       doUpdate: async _logger => {
         if (!binaryInfo?.updatable) {
-          throw new Error('cannot be updated as not managed by podman desktop.');
+          throw new Error(
+            `Cannot update ${binaryInfo?.path} version ${currentVersion} to ${lastReleaseVersion} as it was not installed by podman-desktop`,
+          );
         }
 
         // download, install system wide and update cli version
