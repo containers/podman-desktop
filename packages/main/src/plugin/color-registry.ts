@@ -251,6 +251,7 @@ export class ColorRegistry {
     this.initStatusColors();
     this.initFormPage();
     this.initStatusBar();
+    this.initOnboarding();
   }
 
   protected initNotificationDot(): void {
@@ -1228,6 +1229,29 @@ export class ColorRegistry {
     this.registerColor(`${statusbar}text`, {
       dark: colorPalette.white,
       light: colorPalette.white,
+    });
+  }
+
+  protected initOnboarding(): void {
+    const onboarding = 'onboarding-';
+    this.registerColor(`${onboarding}active-dot-bg`, {
+      dark: colorPalette.purple[700],
+      light: colorPalette.purple[700],
+    });
+
+    this.registerColor(`${onboarding}active-dot-border`, {
+      dark: colorPalette.purple[700],
+      light: colorPalette.purple[700],
+    });
+
+    this.registerColor(`${onboarding}inactive-dot-bg`, {
+      dark: colorPalette.transparent,
+      light: colorPalette.transparent,
+    });
+
+    this.registerColor(`${onboarding}inactive-dot-border`, {
+      dark: colorPalette.gray[700],
+      light: colorPalette.gray[700],
     });
   }
 }

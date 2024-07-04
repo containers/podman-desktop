@@ -73,12 +73,15 @@ function replacePlaceholders(label: string): string {
 }
 </script>
 
-<div class="flex justify-center {item.highlight ? 'bg-charcoal-600' : ''} p-3 m-2 rounded-md min-w-[500px]">
+<div
+  class="flex justify-center {item.highlight
+    ? 'bg-[var(--pd-content-card-inset-bg)] text-[var(--pd-content-card-text)]'
+    : ''} p-3 m-2 rounded-md min-w-[500px]">
   {#if html}
     <Markdown inProgressMarkdownCommandExecutionCallback="{inProgressCommandExecution}" markdown="{html}" />
   {/if}
   {#if configurationItem}
-    <div class="min-w-[500px] bg-charcoal-600 rounded-md">
+    <div class="min-w-[500px] bg-[var(--pd-content-card-inset-bg)] text-[var(--pd-content-card-text)] rounded-md">
       <PreferencesRenderingItem record="{configurationItem}" />
     </div>
   {/if}
