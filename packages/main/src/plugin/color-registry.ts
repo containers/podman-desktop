@@ -682,32 +682,36 @@ export class ColorRegistry {
       light: colorPalette.gray[900],
     });
     this.registerColor(`${sNav}off-focused-bg`, {
-      dark: colorPalette.purple[700],
-      light: colorPalette.purple[700],
+      dark: colorPalette.gray[800],
+      light: colorPalette.gray[800],
     });
     this.registerColor(`${sNav}on-bg`, {
       dark: colorPalette.purple[500],
-      light: colorPalette.purple[500],
+      light: colorPalette.purple[600],
     });
     this.registerColor(`${sNav}on-focused-bg`, {
       dark: colorPalette.purple[400],
-      light: colorPalette.purple[600],
+      light: colorPalette.purple[500],
     });
     this.registerColor(`${sNav}switch`, {
       dark: colorPalette.white,
-      light: colorPalette.black,
+      light: colorPalette.white,
     });
     this.registerColor(`${sNav}focused-switch`, {
       dark: colorPalette.white,
-      light: colorPalette.black,
+      light: colorPalette.white,
     });
     this.registerColor(`${sNav}on-text`, {
-      dark: colorPalette.white,
-      light: colorPalette.black,
+      dark: colorPalette.gray[300],
+      light: colorPalette.charcoal[700],
     });
     this.registerColor(`${sNav}off-text`, {
+      dark: colorPalette.gray[300],
+      light: colorPalette.charcoal[700],
+    });
+    this.registerColor(`${sNav}disabled-text`, {
       dark: colorPalette.gray[700],
-      light: colorPalette.gray[900],
+      light: colorPalette.charcoal[200],
     });
     this.registerColor(`${sNav}off-disabled-bg`, {
       dark: colorPalette.charcoal[900],
@@ -718,8 +722,8 @@ export class ColorRegistry {
       light: colorPalette.gray[900],
     });
     this.registerColor(`${sNav}disabled-switch`, {
-      dark: colorPalette.gray[900],
-      light: colorPalette.charcoal[900],
+      dark: colorPalette.gray[200],
+      light: colorPalette.gray[200],
     });
   }
 
