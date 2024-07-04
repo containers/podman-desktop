@@ -19,7 +19,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import * as fs from 'node:fs';
-import { readFile } from 'node:fs/promises';
+import { readFile, realpath } from 'node:fs/promises';
 import * as path from 'node:path';
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
@@ -903,6 +903,7 @@ describe('analyze extension and main', async () => {
 
     const readmeContent = 'This is my custom README';
 
+    vi.mocked(realpath).mockResolvedValue('/fake/path');
     // mock readFile
     vi.mocked(readFile).mockResolvedValue(readmeContent);
 
@@ -925,6 +926,39 @@ describe('analyze extension and main', async () => {
     expect(extension?.id).toBe('fooPublisher.fooName');
   });
 
+  test('check for extension with linked folder', async () => {
+    vi.mock('node:fs');
+    vi.mock('node:fs/promises');
+
+    // mock fs.existsSync
+    const fsExistsSyncMock = vi.spyOn(fs, 'existsSync');
+    fsExistsSyncMock.mockReturnValue(true);
+
+    const readmeContent = 'This is my custom README';
+
+    vi.mocked(realpath).mockResolvedValue('/fake/path');
+    // mock readFile
+    vi.mocked(readFile).mockResolvedValue(readmeContent);
+
+    const fakeManifest = {
+      publisher: 'fooPublisher',
+      name: 'fooName',
+      main: 'main-entry.js',
+    };
+
+    // mock loadManifest
+    const loadManifestMock = vi.spyOn(extensionLoader, 'loadManifest');
+    loadManifestMock.mockResolvedValue(fakeManifest);
+
+    const extension = await extensionLoader.analyzeExtension(path.resolve('/', 'linked', 'path'), false);
+
+    expect(extension).toBeDefined();
+    expect(extension?.error).toBeDefined();
+    expect(extension?.mainPath).toBe(path.resolve('/', 'fake', 'path', 'main-entry.js'));
+    expect(extension.readme).toBe(readmeContent);
+    expect(extension?.id).toBe('fooPublisher.fooName');
+  });
+
   test('check for extension without main entry', async () => {
     vi.mock('node:fs');
 
@@ -932,6 +966,7 @@ describe('analyze extension and main', async () => {
     const fsExistsSyncMock = vi.spyOn(fs, 'existsSync');
     fsExistsSyncMock.mockReturnValue(true);
 
+    vi.mocked(realpath).mockResolvedValue('/fake/path');
     vi.mocked(readFile).mockResolvedValue('empty');
 
     const fakeManifest = {
