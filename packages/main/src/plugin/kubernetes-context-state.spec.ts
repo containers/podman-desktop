@@ -1853,6 +1853,270 @@ describe('update', async () => {
     );
   });
 
+  describe('for not current context informers', () => {
+    const configs = [
+      {
+        initialConfig: {
+          clusters: [
+            {
+              name: 'cluster1',
+              server: 'server1',
+            },
+          ],
+          users: [
+            {
+              name: 'user1',
+            },
+          ],
+          contexts: [
+            {
+              name: 'context1',
+              cluster: 'cluster1',
+              user: 'user1',
+              namespace: 'ns1',
+            },
+            {
+              name: 'context2',
+              cluster: 'cluster1',
+              user: 'user1',
+              namespace: 'ns2',
+            },
+          ],
+          currentContext: 'context1',
+        },
+        updatedConfig: {
+          clusters: [
+            {
+              name: 'cluster1',
+              server: 'server1',
+            },
+          ],
+          users: [
+            {
+              name: 'user1',
+            },
+          ],
+          contexts: [
+            {
+              name: 'context1',
+              cluster: 'cluster1',
+              user: 'user1',
+              namespace: 'ns1',
+            },
+            {
+              name: 'context2',
+              cluster: 'cluster1',
+              user: 'user1',
+              namespace: 'ns3',
+            },
+          ],
+          currentContext: 'context1',
+        },
+        testName: 'restart when namespace is changed',
+        stopInformerCalls: 2,
+        makeInformerCalls: 2,
+      },
+      {
+        initialConfig: {
+          clusters: [
+            {
+              name: 'cluster1',
+              server: 'server1',
+            },
+          ],
+          users: [
+            {
+              name: 'user1',
+            },
+            {
+              name: 'user2',
+            },
+          ],
+          contexts: [
+            {
+              name: 'context1',
+              cluster: 'cluster1',
+              user: 'user1',
+              namespace: 'ns1',
+            },
+            {
+              name: 'context2',
+              cluster: 'cluster1',
+              user: 'user2',
+              namespace: 'ns3',
+            },
+          ],
+          currentContext: 'context1',
+        },
+        updatedConfig: {
+          clusters: [
+            {
+              name: 'cluster1',
+              server: 'server1',
+            },
+          ],
+          users: [
+            {
+              name: 'user1',
+            },
+            {
+              name: 'user2',
+              token: 'token',
+            },
+          ],
+          contexts: [
+            {
+              name: 'context1',
+              cluster: 'cluster1',
+              user: 'user1',
+              namespace: 'ns1',
+            },
+            {
+              name: 'context2',
+              cluster: 'cluster1',
+              user: 'user2',
+              namespace: 'ns3',
+            },
+          ],
+          currentContext: 'context1',
+        },
+        testName: 'restart when user attrs changed',
+        stopInformerCalls: 2,
+        makeInformerCalls: 2,
+      },
+      {
+        initialConfig: {
+          clusters: [
+            {
+              name: 'cluster1',
+              server: 'server1',
+            },
+          ],
+          users: [
+            {
+              name: 'user1',
+            },
+            {
+              name: 'user2',
+              token: 'token',
+            },
+          ],
+          contexts: [
+            {
+              name: 'context1',
+              cluster: 'cluster1',
+              user: 'user1',
+              namespace: 'ns1',
+            },
+            {
+              name: 'context2',
+              cluster: 'cluster1',
+              user: 'user2',
+              namespace: 'ns3',
+            },
+          ],
+          currentContext: 'context1',
+        },
+        updatedConfig: {
+          clusters: [
+            {
+              name: 'cluster1',
+              server: 'server1',
+            },
+          ],
+          users: [
+            {
+              name: 'user1',
+            },
+            {
+              name: 'user3',
+              token: 'token',
+            },
+          ],
+          contexts: [
+            {
+              name: 'context1',
+              cluster: 'cluster1',
+              user: 'user1',
+              namespace: 'ns1',
+            },
+            {
+              name: 'context2',
+              cluster: 'cluster1',
+              user: 'user3',
+              namespace: 'ns3',
+            },
+          ],
+          currentContext: 'context1',
+        },
+        testName: `does not restart if user name changed`,
+        stopInformerCalls: 0,
+        makeInformerCalls: 0,
+      },
+    ];
+
+    test.each(configs)(`$testName`, async ({ initialConfig, updatedConfig, stopInformerCalls, makeInformerCalls }) => {
+      vi.useFakeTimers();
+      const makeInformerMock = vi.mocked(makeInformer);
+      makeInformerMock.mockImplementation(
+        (
+          kubeconfig: kubeclient.KubeConfig,
+          path: string,
+          _listPromiseFn: kubeclient.ListPromise<kubeclient.KubernetesObject>,
+        ) => {
+          return new FakeInformer('context2', path, 0, undefined, [], []);
+        },
+      );
+      client = new ContextsManager(apiSender);
+      const kubeConfig = new kubeclient.KubeConfig();
+
+      kubeConfig.loadFromOptions(initialConfig);
+
+      await client.update(kubeConfig);
+      vi.advanceTimersToNextTimer();
+      vi.advanceTimersToNextTimer();
+
+      makeInformerMock.mockClear();
+
+      const updateConfig = new KubeConfig();
+      updateConfig.loadFromOptions(updatedConfig);
+
+      expect(informerStopMock).not.toHaveBeenCalled();
+
+      await client.update(updateConfig);
+
+      expect(informerStopMock).toHaveBeenCalledTimes(stopInformerCalls);
+      if (stopInformerCalls) {
+        expect(informerStopMock).toHaveBeenNthCalledWith(
+          1,
+          'context2',
+          `/api/v1/namespaces/${initialConfig.contexts[1].namespace}/pods`,
+        );
+        expect(informerStopMock).toHaveBeenNthCalledWith(
+          2,
+          'context2',
+          `/apis/apps/v1/namespaces/${initialConfig.contexts[1].namespace}/deployments`,
+        );
+      }
+
+      expect(makeInformerMock).toHaveBeenCalledTimes(makeInformerCalls);
+      if (makeInformerCalls) {
+        expect(makeInformerMock).toHaveBeenNthCalledWith(
+          1,
+          expect.any(KubeConfig),
+          `/api/v1/namespaces/${updateConfig.contexts[1].namespace}/pods`,
+          expect.anything(),
+        );
+        expect(makeInformerMock).toHaveBeenNthCalledWith(
+          2,
+          expect.any(KubeConfig),
+          `/apis/apps/v1/namespaces/${updateConfig.contexts[1].namespace}/deployments`,
+          expect.anything(),
+        );
+      }
+    });
+  });
+
   test('dispose', async () => {
     vi.useFakeTimers();
     vi.mocked(makeInformer).mockImplementation(

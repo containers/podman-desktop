@@ -19,12 +19,14 @@
 import type { IncomingMessage } from 'node:http';
 
 import type {
+  Cluster,
   Context,
   Informer,
   KubernetesListObject,
   KubernetesObject,
   ListPromise,
   ObjectCache,
+  User,
   V1Deployment,
   V1DeploymentList,
   V1Ingress,
@@ -435,9 +437,38 @@ export class ContextsManager {
     );
   }
 
+  compareObjects<T extends User | Cluster | null>(o1: T, o2: T): boolean {
+    const o = {};
+    const obj1 = o1 ?? o;
+    const obj2 = o2 ?? o;
+    return (
+      obj1 === obj2 ||
+      (Object.keys(obj1).length === Object.keys(obj2).length &&
+        Object.keys(obj1)
+          .filter(key => key !== 'name')
+          .every(
+            key =>
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (obj1 as any)[key] === (obj2 as any)[key],
+          ))
+    );
+  }
+
+  compareContexts(name: string, newc: KubeConfig, oldc: KubeConfig): boolean {
+    const newContext = newc.getContextObject(name);
+    const oldContext = oldc.getContextObject(name);
+    return (
+      newContext?.namespace === oldContext?.namespace && // do not compare user and cluster names
+      !!newContext &&
+      !!oldContext &&
+      this.compareObjects(newc.getUser(newContext.user), oldc.getUser(oldContext.user)) &&
+      this.compareObjects(newc.getCluster(newContext.cluster), oldc.getCluster(oldContext.cluster))
+    );
+  }
+
   async update(kubeconfig: KubeConfig): Promise<void> {
     const checkOnlyCurrentContext = kubeconfig.contexts.length > MAX_NON_CURRENT_CONTEXTS_TO_CHECK;
-
+    const previousKubeConfig = this.kubeConfig;
     this.kubeConfig = kubeconfig;
     let contextChanged = false;
     if (this.isContextChanged(kubeconfig)) {
@@ -471,7 +502,7 @@ export class ContextsManager {
     }
 
     // Add informers for new contexts (only current context if we are checking only it)
-    let added = false;
+    const added: string[] = [];
     for (const context of this.kubeConfig.contexts) {
       if (checkOnlyCurrentContext && context.name !== this.currentContext?.name) {
         continue;
@@ -480,7 +511,7 @@ export class ContextsManager {
         const kubeContext: KubeContext = this.getKubeContext(context);
         const informers = this.createKubeContextInformers(kubeContext);
         this.states.setInformers(context.name, informers);
-        added = true;
+        added.push(context.name);
       }
     }
 
@@ -503,7 +534,21 @@ export class ContextsManager {
       }
     }
 
-    if (added || removed || contextChanged) {
+    if (previousKubeConfig && !checkOnlyCurrentContext) {
+      // added and removed contexts were taken care of above
+      // lets find changed ones
+      for (const context of this.kubeConfig.contexts) {
+        if (added.includes(context.name)) continue;
+        if (!this.compareContexts(context.name, this.kubeConfig, previousKubeConfig)) {
+          await this.states.dispose(context.name);
+          const kubeContext: KubeContext = this.getKubeContext(context);
+          const informers = this.createKubeContextInformers(kubeContext);
+          this.states.setInformers(context.name, informers);
+        }
+      }
+    }
+
+    if (added.length || removed || contextChanged) {
       this.dispatch({
         checkingState: false,
         contextsGeneralState: true,
