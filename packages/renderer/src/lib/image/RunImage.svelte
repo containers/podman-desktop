@@ -657,18 +657,14 @@ async function assertAllPortAreValid(): Promise<void> {
                 name="modalContainerName"
                 id="modalContainerName"
                 placeholder="Leave blank to generate a name"
-                error="{containerNameError}"
-                aria-label="Container Name" />
+                aria-label="Container Name"
+                error="{containerNameError}" />
               <label for="modalEntrypoint" class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
                 >Entrypoint:</label>
-              <Input
-                bind:value="{entrypoint}"
-                name="modalEntrypoint"
-                id="modalEntrypoint"
-                aria-label="Container EntryPoint" />
+              <Input bind:value="{entrypoint}" name="modalEntrypoint" id="modalEntrypoint" aria-label="Entrypoint" />
               <label for="modalCommand" class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
                 >Command:</label>
-              <Input bind:value="{command}" name="modalCommand" id="modalCommand" aria-label="Container Command" />
+              <Input bind:value="{command}" name="modalCommand" id="modalCommand" aria-label="Command" />
               <label for="volumes" class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
                 >Volumes:</label>
               <!-- Display the list of volumes -->

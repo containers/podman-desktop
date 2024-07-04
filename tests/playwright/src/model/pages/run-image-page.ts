@@ -47,8 +47,8 @@ export class RunImagePage extends BasePage {
     this.backToImageDetailsLink = page.getByRole('link', { name: 'Go back to Image Details' });
     this.startContainerButton = page.getByLabel('Start Container', { exact: true });
     this.containerNameInput = page.getByLabel('Container Name');
-    this.containerEntryPointInput = page.getByLabel('Container EntryPoint');
-    this.containerComamndInput = page.getByLabel('Container Command');
+    this.containerEntryPointInput = page.getByLabel('Entrypoint');
+    this.containerComamndInput = page.getByLabel('Command');
     this.containerAddCustomPortMappingButton = page.getByLabel('Add custom port mapping', { exact: true });
   }
 
