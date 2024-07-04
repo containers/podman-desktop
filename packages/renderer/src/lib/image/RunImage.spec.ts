@@ -161,7 +161,7 @@ describe('RunImage', () => {
 
     await fireEvent.click(link);
 
-    const entryPoint = screen.getByRole('textbox', { name: 'Entrypoint:' });
+    const entryPoint = screen.getByRole('textbox', { name: 'Entrypoint' });
     expect(entryPoint).toBeInTheDocument();
     expect((entryPoint as HTMLInputElement).value).toBe('entrypoint');
   });
@@ -173,7 +173,7 @@ describe('RunImage', () => {
 
     await fireEvent.click(link);
 
-    const entryPoint = screen.getByRole('textbox', { name: 'Entrypoint:' });
+    const entryPoint = screen.getByRole('textbox', { name: 'Entrypoint' });
     expect(entryPoint).toBeInTheDocument();
     expect((entryPoint as HTMLInputElement).value).toBe('entrypoint');
   });
@@ -185,7 +185,7 @@ describe('RunImage', () => {
 
     await fireEvent.click(link);
 
-    const entryPoint = screen.getByRole('textbox', { name: 'Entrypoint:' });
+    const entryPoint = screen.getByRole('textbox', { name: 'Entrypoint' });
     expect(entryPoint).toBeInTheDocument();
     expect((entryPoint as HTMLInputElement).value).toBe('entrypoint1 entrypoint2');
   });
@@ -197,7 +197,7 @@ describe('RunImage', () => {
 
     await fireEvent.click(link);
 
-    const command = screen.getByRole('textbox', { name: 'Command:' });
+    const command = screen.getByRole('textbox', { name: 'Command' });
     expect(command).toBeInTheDocument();
     expect((command as HTMLInputElement).value).toBe('command');
   });
@@ -209,7 +209,7 @@ describe('RunImage', () => {
 
     await fireEvent.click(link);
 
-    const entryPoint = screen.getByRole('textbox', { name: 'Command:' });
+    const entryPoint = screen.getByRole('textbox', { name: 'Command' });
     expect(entryPoint).toBeInTheDocument();
     expect((entryPoint as HTMLInputElement).value).toBe('command1 command2');
   });
