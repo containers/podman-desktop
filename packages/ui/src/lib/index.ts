@@ -23,6 +23,7 @@ import Checkbox from './checkbox/Checkbox.svelte';
 import DropdownMenu from './dropdownMenu';
 import Input from './inputs/Input.svelte';
 import SearchInput from './inputs/SearchInput.svelte';
+import BasePage from './layouts/BasePage.svelte';
 import DetailsPage from './layouts/DetailsPage.svelte';
 import FormPage from './layouts/FormPage.svelte';
 import NavPage from './layouts/NavPage.svelte';
@@ -44,6 +45,7 @@ import { isFontAwesomeIcon } from './utils/icon-utils';
 
 export type { ButtonType };
 export {
+  BasePage,
   Button,
   Checkbox,
   CloseButton,

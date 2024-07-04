@@ -1,8 +1,10 @@
 <script lang="ts">
 import type { ProviderLinks } from '@podman-desktop/api';
+import { BasePage } from '@podman-desktop/ui-svelte';
+import { router } from 'tinro';
 
+import { lastPage } from '../../stores/breadcrumb';
 import { providerInfos } from '../../stores/providers';
-import FormPage from '../ui/FormPage.svelte';
 
 $: contributedLinks = $providerInfos
   .filter(provider => provider.status === 'ready' || provider.status === 'started')
@@ -16,12 +18,14 @@ $: contributedLinks = $providerInfos
     links.get(link['group'])?.push(link);
     return links;
   }, new Map<string, ProviderLinks[]>());
+
+export function goToPreviousPage(): void {
+  router.goto($lastPage.path);
+}
 </script>
 
-<FormPage title="Help" showBreadcrumb={false}>
-  <svelte:fragment slot="icon">
-    <i class="fas fa-question-circle fa-2x" aria-hidden="true"></i>
-  </svelte:fragment>
+<BasePage title="Help" on:close={goToPreviousPage}>
+  <i slot="icon" class="fas fa-question-circle fa-2x" aria-hidden="true"></i>
   <div slot="content" class="min-w-full h-fit p-5">
     <div class="min-w-full space-y-5">
       <!-- Getting Started -->
@@ -175,4 +179,4 @@ $: contributedLinks = $providerInfos
       </div>
     </div>
   </div>
-</FormPage>
+</BasePage>

@@ -1,21 +1,25 @@
-<script>
-import { Tab } from '@podman-desktop/ui-svelte';
+<script lang="ts">
+import { BasePage, Tab } from '@podman-desktop/ui-svelte';
 import { router } from 'tinro';
 
 import Route from '/@/Route.svelte';
 
-import FormPage from '../ui/FormPage.svelte';
+import { lastPage } from '../../stores/breadcrumb';
 import { getTabUrl, isTabSelected } from '../ui/Util';
 import TroubleshootingDevToolsConsoleLogs from './TroubleshootingDevToolsConsoleLogs.svelte';
 import TroubleshootingGatherLogs from './TroubleshootingGatherLogs.svelte';
 import TroubleshootingPageProviders from './TroubleshootingPageProviders.svelte';
 import TroubleshootingPageStores from './TroubleshootingPageStores.svelte';
+
+export function goToPreviousPage(): void {
+  router.goto($lastPage.path);
+}
 </script>
 
-<FormPage title="Troubleshooting" showBreadcrumb={false}>
+<BasePage title="Troubleshooting" on:close={goToPreviousPage}>
   <i slot="icon" class="fas fa-lightbulb fa-2x" aria-hidden="true"></i>
 
-  <svelte:fragment slot="tabs">
+  <div slot="tabs" class="flex flex-row px-2 border-b border-[var(--pd-content-divider)]">
     <Tab
       title="Repair & Connections"
       selected={isTabSelected($router.path, 'repair-connections')}
@@ -26,7 +30,7 @@ import TroubleshootingPageStores from './TroubleshootingPageStores.svelte';
       selected={isTabSelected($router.path, 'gatherlogs')}
       url={getTabUrl($router.path, 'gatherlogs')} />
     <Tab title="Stores" selected={isTabSelected($router.path, 'stores')} url={getTabUrl($router.path, 'stores')} />
-  </svelte:fragment>
+  </div>
   <svelte:fragment slot="content">
     <Route path="/repair-connections" breadcrumb="Repair & Connections" navigationHint="tab">
       <TroubleshootingPageProviders />
@@ -44,4 +48,4 @@ import TroubleshootingPageStores from './TroubleshootingPageStores.svelte';
       <TroubleshootingPageStores />
     </Route>
   </svelte:fragment>
-</FormPage>
+</BasePage>

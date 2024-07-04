@@ -51,19 +51,6 @@ test('Expect title is defined', async () => {
   expect(titleElement).toHaveTextContent(title);
 });
 
-test('Expect no backlink or close is defined', async () => {
-  render(FormPage, {
-    title: 'No Title',
-    showBreadcrumb: false,
-  });
-
-  const backElement = screen.queryByLabelText('back');
-  expect(backElement).not.toBeInTheDocument();
-
-  const closeElement = screen.queryByTitle('Close');
-  expect(closeElement).toBeInTheDocument();
-});
-
 test('Expect name is defined', async () => {
   const name = 'My Dummy Name';
   currentPage.set({ name: name, path: '/' } as TinroBreadcrumb);

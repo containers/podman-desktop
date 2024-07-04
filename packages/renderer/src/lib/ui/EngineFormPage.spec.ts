@@ -52,19 +52,6 @@ test('Expect to see empty screen', async () => {
   expect(titleElement).toBeInTheDocument();
 });
 
-test('Expect to see content', async () => {
-  render(EngineFormPage, {
-    title: 'No Title',
-    showBreadcrumb: false,
-  });
-
-  const backElement = screen.queryByLabelText('back');
-  expect(backElement).not.toBeInTheDocument();
-
-  const closeElement = screen.queryByTitle('Close');
-  expect(closeElement).toBeInTheDocument();
-});
-
 test('Expect name is defined', async () => {
   const name = 'My Dummy Name';
   currentPage.set({ name: name, path: '/' } as TinroBreadcrumb);
