@@ -849,6 +849,20 @@ test('getOptions uses proxy settings', () => {
   expect(options.agent!.https).toBeDefined();
 });
 
+test('searchImages with proxy', async () => {
+  pxoxyIsEnabledMock.mockReturnValue(true);
+  proxyGetProxyMock.mockReturnValue({
+    httpProxy: 'http://myproxy.com:3128',
+    httpsProxy: 'http://myproxy.com:3128',
+    noProxy: '',
+  });
+  imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
+  nock('http://myproxy.com:3128')
+    .intercept(r => r.includes('index.docker.io:443'), 'CONNECT')
+    .replyWithError('a proxy error');
+  await expect(imageRegistry.searchImages({ query: 'anything' })).rejects.toThrow('a proxy error');
+});
+
 test('searchImages without registry', async () => {
   const list = [
     {
