@@ -8,6 +8,7 @@ import { router } from 'tinro';
 import { containersInfos } from '/@/stores/containers';
 import { context } from '/@/stores/context';
 import { imageCheckerProviders } from '/@/stores/image-checker-providers';
+import { imageFilesProviders } from '/@/stores/image-files-providers';
 import { viewsContributions } from '/@/stores/views';
 import type { ViewInfoUI } from '/@api/view-info';
 
@@ -26,6 +27,7 @@ import {
 import { ImageUtils } from './image-utils';
 import ImageActions from './ImageActions.svelte';
 import ImageDetailsCheck from './ImageDetailsCheck.svelte';
+import ImageDetailsFiles from './ImageDetailsFiles.svelte';
 import ImageDetailsHistory from './ImageDetailsHistory.svelte';
 import ImageDetailsInspect from './ImageDetailsInspect.svelte';
 import ImageDetailsSummary from './ImageDetailsSummary.svelte';
@@ -63,7 +65,9 @@ let image: ImageInfoUI | undefined;
 let detailsPage: DetailsPage | undefined;
 
 let showCheckTab: boolean = false;
-let providersUnsubscribe: Unsubscriber;
+let showFilesTab: boolean = false;
+let checkerProvidersUnsubscribe: Unsubscriber;
+let filesProvidersUnsubscribe: Unsubscriber;
 let viewsUnsubscribe: Unsubscriber;
 let contextsUnsubscribe: Unsubscriber;
 
@@ -85,8 +89,12 @@ function updateImage() {
 }
 
 onMount(() => {
-  providersUnsubscribe = imageCheckerProviders.subscribe(providers => {
+  checkerProvidersUnsubscribe = imageCheckerProviders.subscribe(providers => {
     showCheckTab = providers.length > 0;
+  });
+
+  filesProvidersUnsubscribe = imageFilesProviders.subscribe(providers => {
+    showFilesTab = providers.length > 0;
   });
 
   viewsUnsubscribe = viewsContributions.subscribe(value => {
@@ -115,7 +123,8 @@ onMount(() => {
 
 onDestroy(() => {
   // unsubscribe from the store
-  providersUnsubscribe?.();
+  checkerProvidersUnsubscribe?.();
+  filesProvidersUnsubscribe?.();
   viewsUnsubscribe?.();
   contextsUnsubscribe?.();
 });
@@ -158,6 +167,9 @@ onDestroy(() => {
       {#if showCheckTab}
         <Tab title="Check" selected="{isTabSelected($router.path, 'check')}" url="{getTabUrl($router.path, 'check')}" />
       {/if}
+      {#if showFilesTab}
+        <Tab title="Files" selected="{isTabSelected($router.path, 'files')}" url="{getTabUrl($router.path, 'files')}" />
+      {/if}
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
@@ -171,6 +183,9 @@ onDestroy(() => {
       </Route>
       <Route path="/check" breadcrumb="Check" navigationHint="tab">
         <ImageDetailsCheck imageInfo="{imageInfo}" />
+      </Route>
+      <Route path="/files" breadcrumb="Files" navigationHint="tab">
+        <ImageDetailsFiles imageInfo="{imageInfo}" />
       </Route>
     </svelte:fragment>
   </DetailsPage>
