@@ -249,7 +249,6 @@ export class ColorRegistry {
     this.initDropdown();
     this.initLabel();
     this.initStatusColors();
-    this.initFormPage();
     this.initStatusBar();
     this.initOnboarding();
     this.initStates();
@@ -1194,20 +1193,6 @@ export class ColorRegistry {
     this.registerColor(`${status}ready`, {
       dark: colorPalette.gray[900],
       light: colorPalette.gray[100],
-    });
-  }
-
-  protected initFormPage(): void {
-    const formPage = 'formpage-';
-
-    this.registerColor(`${formPage}card-bg`, {
-      dark: colorPalette.charcoal[800],
-      light: colorPalette.gray[300],
-    });
-
-    this.registerColor(`${formPage}card-text`, {
-      dark: colorPalette.gray[400],
-      light: colorPalette.purple[900],
     });
   }
 

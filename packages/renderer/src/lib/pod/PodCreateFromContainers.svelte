@@ -1,10 +1,8 @@
 <script lang="ts">
-import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { Button, ErrorMessage, Input, StatusIcon } from '@podman-desktop/ui-svelte';
+import { Button, Checkbox, ErrorMessage, Input, StatusIcon } from '@podman-desktop/ui-svelte';
 import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
-import Fa from 'svelte-fa';
 import { router } from 'tinro';
 
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
@@ -14,6 +12,7 @@ import { type PodCreation, podCreationHolder } from '../../stores/creation-from-
 import { providerInfos } from '../../stores/providers';
 import SolidPodIcon from '../images/SolidPodIcon.svelte';
 import EngineFormPage from '../ui/EngineFormPage.svelte';
+import WarningMessage from '../ui/WarningMessage.svelte';
 
 let podCreation: PodCreation;
 let createInProgress = false;
@@ -192,6 +191,23 @@ function updatePortExposure(port: number, checked: boolean) {
     mapPortExposed = mapPortExposed;
   }
 }
+
+function getWarningText(): string {
+  let text = '';
+  containersPorts.forEach(item => {
+    text += 'Containers ';
+    item.containers.forEach((container, index) => {
+      text += `${container} `;
+      if (index === item.containers.length - 2) {
+        text += 'and ';
+      } else if (index < item.containers.length - 1) {
+        text += ', ';
+      }
+    });
+    text += `use same ${item.ports.length > 1 ? 'ports' : 'port'} ${item.ports.join(', ')}\n`;
+  });
+  return text;
+}
 </script>
 
 <EngineFormPage title="Copy containers to a pod" inProgress="{createInProgress}">
@@ -201,34 +217,11 @@ function updatePortExposure(port: number, checked: boolean) {
     <div>
       {#if podCreation}
         {#if containersPorts.length > 0}
-          <div class="bg-charcoal-600 border-t-2 border-amber-500 p-4 mb-2" role="alert" aria-label="warning">
-            <div class="flex flex-row">
-              <div class="mr-3">
-                <Fa size="1.125x" class="text-amber-400" icon="{faTriangleExclamation}" />
-              </div>
-              <div class="flex flex-col">
-                <div class="text-sm text-amber-400">Possible runtime error</div>
-                {#each containersPorts as { containers, ports }}
-                  <div class="mt-1 text-sm text-white">
-                    Containers
-                    {#each containers as container, index}
-                      <span class="font-bold">{container}</span>
-                      {#if index === containers.length - 2}
-                        and
-                      {:else if index < containers.length - 1}
-                        ,
-                      {/if}
-                      {' '}
-                    {/each}
-                    use same <span class="font-bold">{ports.length > 1 ? 'ports' : 'port'} {ports.join(', ')}</span>.
-                  </div>
-                {/each}
-              </div>
-            </div>
-          </div>
+          <WarningMessage class="flex flex-row w-full  mb-2" error="{getWarningText()}" />
         {/if}
         <div class="mb-2">
-          <span class="block text-sm font-semibold rounded text-[var(--pd-label-text)]">Name of the pod:</span>
+          <span class="block text-sm font-semibold rounded text-[var(--pd-content-card-header-text)]"
+            >Name of the pod:</span>
         </div>
         <div class="mb-4">
           <Input
@@ -241,12 +234,13 @@ function updatePortExposure(port: number, checked: boolean) {
         </div>
 
         <div class="mb-2">
-          <span class="block text-sm font-semibold rounded text-[var(--pd-label-text)]" aria-label="Containers"
-            >Containers to replicate to the pod:</span>
+          <span
+            class="block text-sm font-semibold rounded text-[var(--pd-content-card-header-text)]"
+            aria-label="Containers">Containers to replicate to the pod:</span>
         </div>
-        <div class="w-full bg-[var(--pd-formpage-card-bg)] mb-4 max-h-40 overflow-y-auto">
+        <div class="w-full bg-[var(--pd-content-card-inset-bg)] mb-4 max-h-40 overflow-y-auto">
           {#each podCreation.containers as container, index}
-            <div class="p-2 flex flex-row items-center text-[var(--pd-formpage-card-text)]">
+            <div class="p-2 flex flex-row items-center text-[var(--pd-content-card-text)]">
               <div class="w-10"><StatusIcon icon="{ContainerIcon}" status="STOPPED" /></div>
               <div class="w-16 pl-3">{index + 1}.</div>
               <div class="grow">{container.name}</div>
@@ -257,21 +251,19 @@ function updatePortExposure(port: number, checked: boolean) {
 
         {#if mapPortExposed.size > 0}
           <div class="mb-2">
-            <span class="block text-sm font-semibold rounded text-[var(--pd-label-text)]" aria-label="Exposed ports"
-              >All selected ports will be exposed:</span>
+            <span
+              class="block text-sm font-semibold rounded text-[var(--pd-content-card-header-text)]"
+              aria-label="Exposed ports">All selected ports will be exposed:</span>
           </div>
-          <div class="bg-[var(--pd-formpage-card-bg)] mb-4 max-h-40 overflow-y-auto">
+          <div class="bg-[var(--pd-content-card-inset-bg)] mb-4 max-h-40 overflow-y-auto">
             {#each [...mapPortExposed] as [port, value]}
-              <div class="p-2 flex flex-row align-items text-[var(--pd-formpage-card-text)]">
-                <input
-                  type="checkbox"
-                  class="mr-5"
-                  checked="{value.exposed}"
-                  on:click="{event => updatePortExposure(port, event.currentTarget.checked)}" />
-                <div class="w-28 mr-5">
-                  <span class="text-sm">Port {port.toString()}</span>
-                </div>
-                <span class="text-sm">{value.container}</span>
+              <div class="p-2 flex flex-row align-items text-sm text-[var(--pd-content-card-text)]">
+                <Checkbox
+                  class="pt-0.5 mr-5"
+                  bind:checked="{value.exposed}"
+                  on:click="{event => updatePortExposure(port, event.detail)}" />
+                <div class="w-28 mr-5">Port {port.toString()}</div>
+                <span>{value.container}</span>
               </div>
             {/each}
           </div>
@@ -279,10 +271,12 @@ function updatePortExposure(port: number, checked: boolean) {
       {/if}
 
       {#if providerConnections.length > 1}
-        <label for="providerConnectionName" class="block mb-2 text-sm font-medium rounded text-[var(--pd-label-text)]"
+        <label
+          for="providerConnectionName"
+          class="block mb-2 text-sm font-medium rounded text-[var(--pd-content-card-header-text)]"
           >Container Engine</label>
         <select
-          class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
+          class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
           name="providerChoice"
           bind:value="{selectedProvider}">
           {#each providerConnections as providerConnection}

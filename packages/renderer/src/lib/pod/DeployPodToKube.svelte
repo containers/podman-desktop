@@ -391,17 +391,18 @@ function updateKubeResult() {
 
     {#if bodyPod}
       <div class="pt-2 pb-4">
-        <label for="contextToUse" class="block mb-1 text-sm font-medium text-[var(--pd-label-text)]">Pod Name:</label>
+        <label for="contextToUse" class="block mb-1 text-sm font-medium text-[var(--pd-content-card-header-text)]"
+          >Pod Name:</label>
         <Input bind:value="{bodyPod.metadata.name}" name="podName" id="podName" class="w-full" required />
       </div>
     {/if}
 
     <div class="pt-2 pb-4">
-      <label for="services" class="block mb-1 text-sm font-medium text-[var(--pd-label-text)]"
+      <label for="services" class="block mb-1 text-sm font-medium text-[var(--pd-content-card-header-text)]"
         >Kubernetes Services:</label>
       <Checkbox
         bind:checked="{deployUsingServices}"
-        class="text-[var(--pd-content-text)] text-sm ml-1"
+        class="text-[var(--pd-content-card-text)] text-sm ml-1"
         name="useServices"
         id="useServices"
         required>
@@ -410,11 +411,11 @@ function updateKubeResult() {
     </div>
 
     <div class="pt-2 pb-4">
-      <label for="useRestricted" class="block mb-1 text-sm font-medium text-[var(--pd-label-text)]"
+      <label for="useRestricted" class="block mb-1 text-sm font-medium text-[var(--pd-content-card-header-text)]"
         >Restricted Security Context:</label>
       <Checkbox
         bind:checked="{deployUsingRestrictedSecurityContext}"
-        class="text-[var(--pd-content-text)] text-sm ml-1"
+        class="text-[var(--pd-content-card-text)] text-sm ml-1"
         name="useRestricted"
         id="useRestricted"
         title="Use restricted security context"
@@ -429,11 +430,11 @@ function updateKubeResult() {
     <!-- Only show for non-OpenShift deployments (we use routes for OpenShift) -->
     {#if !openshiftRouteGroupSupported && deployUsingServices}
       <div class="pt-2 pb-4">
-        <label for="createIngress" class="block mb-1 text-sm font-medium text-[var(--pd-label-text)]"
+        <label for="createIngress" class="block mb-1 text-sm font-medium text-[var(--pd-content-card-header-text)]"
           >Expose Service Locally Using Kubernetes Ingress:</label>
         <Checkbox
           bind:checked="{createIngress}"
-          class="text-[var(--pd-content-text)] text-sm ml-1"
+          class="text-[var(--pd-content-card-text)] text-sm ml-1"
           name="createIngress"
           id="createIngress"
           title="Create Ingress"
@@ -446,20 +447,20 @@ function updateKubeResult() {
 
     {#if createIngress && containerPortArray.length > 1}
       <div class="pt-2 pb-4">
-        <label for="ingress" class="block mb-1 text-sm font-medium text-[var(--pd-label-text)]"
+        <label for="ingress" class="block mb-1 text-sm font-medium text-[var(--pd-content-card-header-text)]"
           >Ingress Host Port:</label>
         <select
           bind:value="{ingressPort}"
           name="serviceName"
           id="serviceName"
-          class=" cursor-default w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
+          class=" cursor-default w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
           required>
           <option value="" disabled selected>Select a port</option>
           {#each containerPortArray as port}
             <option value="{port}">{port}</option>
           {/each}
         </select>
-        <span class="text-[var(--pd-content-text)] text-sm ml-1"
+        <span class="text-[var(--pd-content-card-text)] text-sm ml-1"
           >There are multiple exposed ports available. Select the one you want to expose to '/' with the Ingress.
         </span>
       </div>
@@ -468,11 +469,11 @@ function updateKubeResult() {
     <!-- Allow to create routes for OpenShift clusters -->
     {#if openshiftRouteGroupSupported}
       <div class="pt-2">
-        <label for="routes" class="block mb-1 text-sm font-medium text-[var(--pd-label-text)]"
+        <label for="routes" class="block mb-1 text-sm font-medium text-[var(--pd-content-card-header-text)]"
           >Create OpenShift routes:</label>
         <Checkbox
           bind:checked="{deployUsingRoutes}"
-          class="text-[var(--pd-content-text)] text-sm ml-1"
+          class="text-[var(--pd-content-card-text)] text-sm ml-1"
           name="useRoutes"
           id="useRoutes"
           required>
@@ -482,7 +483,7 @@ function updateKubeResult() {
 
     {#if defaultContextName}
       <div class="pt-2">
-        <label for="contextToUse" class="block mb-1 text-sm font-medium text-[var(--pd-label-text)]"
+        <label for="contextToUse" class="block mb-1 text-sm font-medium text-[var(--pd-content-card-header-text)]"
           >Kubernetes Context:</label>
         <Input
           bind:value="{defaultContextName}"
@@ -496,10 +497,10 @@ function updateKubeResult() {
 
     {#if allNamespaces}
       <div class="pt-2">
-        <label for="namespaceToUse" class="block mb-1 text-sm font-medium text-[var(--pd-label-text)]"
+        <label for="namespaceToUse" class="block mb-1 text-sm font-medium text-[var(--pd-content-card-header-text)]"
           >Kubernetes Namespace:</label>
         <select
-          class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
+          class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
           name="namespaceChoice"
           bind:value="{currentNamespace}">
           {#each allNamespaces.items as namespace}
@@ -541,7 +542,7 @@ function updateKubeResult() {
             </div>
           {/if}
         </div>
-        <div class="text-[var(--pd-content-text)]">
+        <div class="text-[var(--pd-content-card-text)]">
           {#if createdPod.metadata?.name}
             <p class="pt-2">Name: {createdPod.metadata.name}</p>
           {/if}
