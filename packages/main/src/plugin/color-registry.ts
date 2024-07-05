@@ -228,6 +228,7 @@ export class ColorRegistry {
   }
 
   protected initColors(): void {
+    this.initDefaults();
     this.initNotificationDot();
     this.initGlobalNav();
     this.initSecondaryNav();
@@ -252,6 +253,16 @@ export class ColorRegistry {
     this.initStatusBar();
     this.initOnboarding();
     this.initStates();
+  }
+
+  protected initDefaults(): void {
+    const def = 'default-';
+
+    // Global default colors
+    this.registerColor(`${def}text`, {
+      dark: colorPalette.white,
+      light: colorPalette.charcoal[900],
+    });
   }
 
   protected initNotificationDot(): void {
