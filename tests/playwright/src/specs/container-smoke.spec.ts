@@ -93,7 +93,7 @@ describe('Verification of container creation workflow', async () => {
     await playExpect.poll(async () => await images.waitForImageExists(imageToPull)).toBeTruthy();
   });
 
-  test(`Start a container '${containerToRun}'`, async () => {
+  test(`Start a container '${containerToRun}' from image`, async () => {
     const navigationBar = new NavigationBar(page);
     let images = await navigationBar.openImages();
     const imageDetails = await images.openImageDetails(imageToPull);
@@ -135,7 +135,7 @@ describe('Verification of container creation workflow', async () => {
     // TODO: After updating of accessibility of various element in containers pages, we can extend test
   });
 
-  test('Stopping a container', async () => {
+  test('Stopping a container from Container details', async () => {
     const navigationBar = new NavigationBar(page);
     const containers = await navigationBar.openContainers();
     const containersDetails = await containers.openContainersDetails(containerToRun);
@@ -154,7 +154,61 @@ describe('Verification of container creation workflow', async () => {
     await playExpect(startButton).toBeVisible();
   });
 
-  test('Deleting a container', async () => {
+  test(`Start a container from the Containers list`, async () => {
+    const navigationBar = new NavigationBar(page);
+    const containers = await navigationBar.openContainers();
+    const containersDetails = await containers.openContainersDetails(containerToRun);
+    await playExpect(containersDetails.heading).toBeVisible();
+    await playExpect(containersDetails.heading).toContainText(containerToRun);
+    // test state of container in summary tab
+    await pdRunner.screenshot('containers-container-details-start-container.png');
+    const containerState = await containersDetails.getState();
+    playExpect(containerState).toContain(ContainerState.Exited.toLowerCase());
+
+    await navigationBar.openContainers();
+    const containerRow = await containers.getContainerRowByName(containerToRun);
+    if (containerRow === undefined) {
+      throw Error(`Container: '${containerToRun}' does not exist`);
+    }
+    const containerRowStartButton = containerRow.getByRole('button', { name: 'Start Container' });
+    await playExpect(containerRowStartButton).toBeVisible();
+    await containerRowStartButton.click();
+
+    await containers.openContainersDetails(containerToRun);
+    await playExpect
+      .poll(async () => containersDetails.getState(), { timeout: 20000 })
+      .toContain(ContainerState.Running.toLowerCase());
+    await playExpect(await containersDetails.getStateLocator()).toHaveText(ContainerState.Running.toLowerCase());
+  });
+
+  test(`Stop a container from the Containers list`, async () => {
+    const navigationBar = new NavigationBar(page);
+    const containers = await navigationBar.openContainers();
+    const containersDetails = await containers.openContainersDetails(containerToRun);
+    await playExpect(containersDetails.heading).toBeVisible();
+    await playExpect(containersDetails.heading).toContainText(containerToRun);
+    // test state of container in summary tab
+    await pdRunner.screenshot('containers-container-details-stop-container.png');
+    const containerState = await containersDetails.getState();
+    playExpect(containerState).toContain(ContainerState.Running.toLowerCase());
+
+    await navigationBar.openContainers();
+    const containerRow = await containers.getContainerRowByName(containerToRun);
+    if (containerRow === undefined) {
+      throw Error(`Container: '${containerToRun}' does not exist`);
+    }
+    const containerRowStopButton = containerRow.getByRole('button', { name: 'Stop Container' });
+    await playExpect(containerRowStopButton).toBeVisible();
+    await containerRowStopButton.click();
+
+    await containers.openContainersDetails(containerToRun);
+    await playExpect
+      .poll(async () => containersDetails.getState(), { timeout: 20000 })
+      .toContain(ContainerState.Exited.toLowerCase());
+    await playExpect(await containersDetails.getStateLocator()).toHaveText(ContainerState.Exited.toLowerCase());
+  });
+
+  test('Deleting a container from Container details', async () => {
     const navigationBar = new NavigationBar(page);
     const containers = await navigationBar.openContainers();
     const containersDetails = await containers.openContainersDetails(containerToRun);
@@ -163,6 +217,8 @@ describe('Verification of container creation workflow', async () => {
     await playExpect(containersPage.heading).toBeVisible();
     await playExpect.poll(async () => await containersPage.containerExists(containerToRun)).toBeFalsy();
   });
+
+  //TODO: delete container from containers list
 
   test('Prune containers', async () => {
     const navigationBar = new NavigationBar(page);
@@ -189,5 +245,6 @@ describe('Verification of container creation workflow', async () => {
         .poll(async () => await containersPage.containerExists(container), { timeout: 15000 })
         .toBeFalsy();
     }
+    //TODO: prune more than one container
   }, 120000);
 });
