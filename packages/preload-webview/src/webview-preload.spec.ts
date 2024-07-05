@@ -20,6 +20,7 @@
 
 import { afterEach } from 'node:test';
 
+import type { WebviewApi } from '@podman-desktop/webview-api';
 import type { IpcRendererEvent } from 'electron';
 import { contextBridge, ipcRenderer } from 'electron';
 import type { MockInstance } from 'vitest';
@@ -36,7 +37,7 @@ class TestWebwiewPreload extends WebviewPreload {
   async getWebviews(): Promise<WebviewInfo[]> {
     return super.getWebviews();
   }
-  buildApi(): unknown {
+  buildApi(): WebviewApi {
     return super.buildApi();
   }
   ipcRendererOn(channel: string, listener: (event: IpcRendererEvent, ...args: unknown[]) => void): void {
@@ -96,7 +97,7 @@ let spyIpcRendererOn: MockInstance<
   [channel: string, listener: (event: IpcRendererEvent, ...args: unknown[]) => void],
   void
 >;
-let spyBuildApi: MockInstance<[], unknown>;
+let spyBuildApi: MockInstance<[], WebviewApi>;
 beforeEach(() => {
   vi.resetAllMocks();
   webviewPreload = new TestWebwiewPreload('123');
@@ -113,7 +114,7 @@ beforeEach(() => {
 
   // override buildApi method
   spyBuildApi = vi.spyOn(webviewPreload, 'buildApi');
-  spyBuildApi.mockReturnValue(() => {});
+  spyBuildApi.mockReturnValue({} as WebviewApi);
 
   // override ipcRendererOn
   spyIpcRendererOn = vi.spyOn(webviewPreload, 'ipcRendererOn');
@@ -292,20 +293,34 @@ test('check buildApi', async () => {
   // remove spy on buildApi
   spyBuildApi.mockRestore();
 
+  // mock the contextBridge to grab the api object
+  let webviewApi: WebviewApi | undefined = undefined;
+  vi.mocked(contextBridge.exposeInMainWorld).mockImplementation((name: string, api: () => WebviewApi) => {
+    webviewApi = api();
+  });
+
   // init to set the webviewInfo
   await webviewPreload.init();
 
-  const buildFunction: any = webviewPreload.buildApi();
+  if (!webviewApi) {
+    throw new Error('webviewApi should be defined');
+  }
+  const podmanDesktopWebwievApi: WebviewApi = webviewApi;
 
-  // call the build function
-  const podmanDesktopApi = buildFunction();
+  // check exposeInMainWorld has been called
+  expect(vi.mocked(contextBridge.exposeInMainWorld)).toHaveBeenCalledWith(
+    'acquirePodmanDesktopApi',
+    expect.any(Function),
+  );
+
+  expect(podmanDesktopWebwievApi).toBeDefined();
 
   // check the podmanDesktopApi object is returned
   //get state that should be the one from the webviewInfo
-  expect(podmanDesktopApi.getState()).toStrictEqual(webviewInfo.state);
+  expect(podmanDesktopWebwievApi.getState()).toStrictEqual(webviewInfo.state);
 
   //post message
-  podmanDesktopApi.postMessage('test');
+  podmanDesktopWebwievApi.postMessage('test');
 
   expect(spyPostWebviewMessage).toHaveBeenCalledWith({ command: 'onmessage', data: 'test' });
 
@@ -314,7 +329,7 @@ test('check buildApi', async () => {
 
   //set state
   const newFakeState = { updated: 'state' };
-  podmanDesktopApi.setState(newFakeState);
+  await podmanDesktopWebwievApi.setState(newFakeState);
 
   // check ipcInvoke has been called
   expect(spyIpcInvoke).toHaveBeenCalledWith('webviewRegistry:update-state', webviewInfo.id, newFakeState);
