@@ -117,6 +117,7 @@ import { ColorRegistry } from './color-registry.js';
 import { CommandRegistry } from './command-registry.js';
 import type { IConfigurationPropertyRecordedSchema } from './configuration-registry.js';
 import { ConfigurationRegistry } from './configuration-registry.js';
+import { ConfirmationInit } from './confirmation-init.js';
 import { ContainerProviderRegistry } from './container-registry.js';
 import { Context } from './context/context.js';
 import { ContributionManager } from './contribution-manager.js';
@@ -560,6 +561,9 @@ export class PluginSystem {
     // register appearance (light, dark, auto being system)
     const appearanceConfiguration = new AppearanceInit(configurationRegistry);
     appearanceConfiguration.init();
+
+    const confirmationConfiguration = new ConfirmationInit(configurationRegistry);
+    confirmationConfiguration.init();
 
     const terminalInit = new TerminalInit(configurationRegistry);
     terminalInit.init();
