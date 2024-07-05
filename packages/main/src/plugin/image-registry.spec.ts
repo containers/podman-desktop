@@ -40,22 +40,30 @@ import type { Disposable } from './types/disposable.js';
 
 let imageRegistry: ImageRegistry;
 
+const pxoxyIsEnabledMock = vi.fn();
+const proxyGetProxyMock = vi.fn();
+
+const telemetry: Telemetry = {
+  track(event: EventType, eventProperties?: any): void {},
+} as Telemetry;
+const certificates: Certificates = {
+  init: vi.fn(),
+  getAllCertificates: vi.fn(),
+} as unknown as Certificates;
+const proxy: Proxy = {
+  onDidStateChange: vi.fn(),
+  onDidUpdateProxy: vi.fn(),
+  isEnabled: pxoxyIsEnabledMock,
+  proxy: proxyGetProxyMock,
+} as unknown as Proxy;
+Object.defineProperty(proxy, 'proxy', {
+  get: proxyGetProxyMock,
+});
+const apiSender: ApiSenderType = {
+  send(channel: string, data?: any): void {},
+} as ApiSenderType;
+
 beforeAll(async () => {
-  const telemetry: Telemetry = {
-    track(event: EventType, eventProperties?: any): void {},
-  } as Telemetry;
-  const certificates: Certificates = {
-    init: vi.fn(),
-    getAllCertificates: vi.fn(),
-  } as unknown as Certificates;
-  const proxy: Proxy = {
-    onDidStateChange: vi.fn(),
-    onDidUpdateProxy: vi.fn(),
-    isEnabled: vi.fn(),
-  } as unknown as Proxy;
-  const apiSender: ApiSenderType = {
-    send(channel: string, data?: any): void {},
-  } as ApiSenderType;
   imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
 });
 
@@ -825,4 +833,18 @@ test('getToken without registry auth', async () => {
 
   expect(token).toBeDefined();
   expect(token).toBe('12345');
+});
+
+test('getOptions uses proxy settings', () => {
+  pxoxyIsEnabledMock.mockReturnValue(true);
+  proxyGetProxyMock.mockReturnValue({
+    httpProxy: 'http://192.168.1.1:3128',
+    httpsProxy: 'http://192.168.1.1:3128',
+    noProxy: '',
+  });
+  imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
+  const options = imageRegistry.getOptions();
+  expect(options.agent).toBeDefined();
+  expect(options.agent!.http).toBeDefined();
+  expect(options.agent!.https).toBeDefined();
 });
