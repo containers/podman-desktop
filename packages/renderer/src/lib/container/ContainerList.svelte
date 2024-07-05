@@ -3,7 +3,6 @@ import { faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
 import {
   Button,
   FilteredEmptyScreen,
-  Modal,
   NavPage,
   Table,
   TableColumn,
@@ -28,6 +27,7 @@ import { providerInfos } from '../../stores/providers';
 import { findMatchInLeaves } from '../../stores/search-util';
 import { viewsContributions } from '../../stores/views';
 import type { ContextUI } from '../context/context';
+import Dialog from '../dialogs/Dialog.svelte';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import Prune from '../engine/Prune.svelte';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
@@ -274,13 +274,6 @@ onDestroy(() => {
   }
 });
 
-function keydownChoice(e: KeyboardEvent): void {
-  e.stopPropagation();
-  if (e.key === 'Escape') {
-    toggleCreateContainer();
-  }
-}
-
 function toggleCreateContainer(): void {
   openChoiceModal = !openChoiceModal;
 }
@@ -440,34 +433,21 @@ $: containersAndGroups = containerGroups.map(group =>
 </NavPage>
 
 {#if openChoiceModal}
-  <Modal
+  <Dialog
+    title="Create a new container"
     on:close="{() => {
       openChoiceModal = false;
     }}">
-    <div
-      role="presentation"
-      class="inline-block w-full overflow-hidden text-left transition-all"
-      on:keydown="{keydownChoice}">
-      <div
-        class="flex items-center justify-between text-[var(--pd-modal-header-text)] bg-[var(--pd-modal-header-bg)] px-5 py-4 border-b-2 border-[var(--pd-modal-header-divider)]">
-        <h1 class="text-xl font-bold">Create a new container</h1>
-
-        <button class="hover:text-[var(--pd-modal-text-hover)] px-2 py-1" on:click="{() => toggleCreateContainer()}">
-          <i class="fas fa-times" aria-hidden="true"></i>
-        </button>
-      </div>
-      <div class="p-5 h-full flex flex-col justify-items-center text-[var(--pd-modal-text)]">
-        <span class="pb-3">Choose the following:</span>
-        <ul class="list-disc ml-8 space-y-2">
-          <li>Create a container from a Containerfile</li>
-          <li>Create a container from an existing image stored in the local registry</li>
-        </ul>
-
-        <div class="pt-5 grid grid-cols-2 gap-10 place-content-center w-full">
-          <Button type="primary" on:click="{() => fromDockerfile()}">Containerfile or Dockerfile</Button>
-          <Button type="secondary" on:click="{() => fromExistingImage()}">Existing image</Button>
-        </div>
-      </div>
+    <div slot="content" class="h-full flex flex-col justify-items-center text-[var(--pd-modal-text)]">
+      <span class="pb-3">Choose the following:</span>
+      <ul class="list-disc ml-8 space-y-2">
+        <li>Create a container from a Containerfile</li>
+        <li>Create a container from an existing image stored in the local registry</li>
+      </ul>
     </div>
-  </Modal>
+    <svelte:fragment slot="buttons">
+      <Button type="primary" on:click="{() => fromDockerfile()}">Containerfile or Dockerfile</Button>
+      <Button type="secondary" on:click="{() => fromExistingImage()}">Existing image</Button>
+    </svelte:fragment>
+  </Dialog>
 {/if}
