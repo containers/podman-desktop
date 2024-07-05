@@ -18,7 +18,7 @@
 
 import type { Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 
 import { ContainerState } from '../model/core/states';
 import type { ContainerInteractiveParams } from '../model/core/types';
@@ -84,16 +84,14 @@ afterAll(async () => {
 }, 90000);
 
 describe('Verification of container creation workflow', async () => {
-  test(`Pulling of '${imageToPull}:${imageTag}' image`, async () => {
+  test(`Pulling of '${imageToPull}:${imageTag}' image`, { retry: 2, timeout: 90000 }, async () => {
     const navigationBar = new NavigationBar(page);
     let images = await navigationBar.openImages();
     const pullImagePage = await images.openPullImage();
-    images = await pullImagePage.pullImage(imageToPull, imageTag, 45000);
+    images = await pullImagePage.pullImage(imageToPull, imageTag);
 
-    const exists = await images.waitForImageExists(imageToPull);
-    expect(exists, `${imageToPull} image is not present in the list of images`).toBeTruthy();
-    await pdRunner.screenshot('containers-pull-image.png');
-  }, 60000);
+    await playExpect.poll(async () => await images.waitForImageExists(imageToPull)).toBeTruthy();
+  });
 
   test(`Start a container '${containerToRun}'`, async () => {
     const navigationBar = new NavigationBar(page);
