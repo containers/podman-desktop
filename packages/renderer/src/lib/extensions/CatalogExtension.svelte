@@ -68,8 +68,11 @@ function openExtensionDetails() {
         {/if}
       </div>
       <div class="flex flex-1 justify-end items-center">
-        <Button type="link" icon="{faArrowUpRightFromSquare}" on:click="{() => openExtensionDetails()}"
-          >More details</Button>
+        <Button
+          type="link"
+          icon="{faArrowUpRightFromSquare}"
+          aria-label="{catalogExtensionUI.displayName} details"
+          on:click="{() => openExtensionDetails()}">More details</Button>
       </div>
     </div>
   </div>
