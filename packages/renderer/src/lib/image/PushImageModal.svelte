@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faCheckCircle, faCircleArrowUp, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { Button, CloseButton, Link, Modal } from '@podman-desktop/ui-svelte';
+import { Button, Link } from '@podman-desktop/ui-svelte';
 import { onMount, tick } from 'svelte';
 import Fa from 'svelte-fa';
 import { router } from 'tinro';
@@ -8,6 +8,7 @@ import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
+import Dialog from '../dialogs/Dialog.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 
 export let closeCallback: () => void;
@@ -108,66 +109,59 @@ let isAuthenticatedForThisImage = false;
 $: window.hasAuthconfigForImage(imageInfoToPush.name).then(result => (isAuthenticatedForThisImage = result));
 </script>
 
-<Modal
+<Dialog
+  title="Push image"
   on:close="{() => {
     closeCallback();
   }}">
-  <div class="modal flex flex-col place-self-center">
-    <div
-      class="flex items-center justify-between px-6 py-5 space-x-2 text-[var(--pd-modal-header-text)] bg-[var(--pd-modal-header-bg)]">
-      <h1 class="grow text-lg font-bold">Push image</h1>
+  <div slot="content" class="flex flex-col text-sm leading-5 space-y-5">
+    <div class="pb-4">
+      <label for="modalImageTag" class="block mb-2 text-sm font-medium text-[var(--pd-modal-text)]">Image tag</label>
+      {#if isAuthenticatedForThisImage}
+        <Fa class="absolute mt-3 ml-1.5 text-green-300" size="1x" icon="{faCheckCircle}" />
+      {:else}
+        <Fa class="absolute mt-3 ml-1.5 text-amber-500" size="1x" icon="{faTriangleExclamation}" />
+      {/if}
 
-      <CloseButton on:click="{() => closeCallback()}" />
+      <select
+        class="text-sm rounded-lg block w-full p-2.5 bg-charcoal-600 pl-6 border-r-8 border-transparent outline-1 outline {isAuthenticatedForThisImage
+          ? 'outline-gray-900'
+          : 'outline-amber-500'} placeholder-gray-700 text-white"
+        name="imageChoice"
+        bind:value="{selectedImageTag}">
+        {#each imageTags as imageTag}
+          <option value="{imageTag}">{imageTag}</option>
+        {/each}
+      </select>
+      <!-- If the image is UNAUTHENTICATED, show a warning that the image is unable to be pushed
+      and to click to go to the registries page -->
+      {#if !isAuthenticatedForThisImage}
+        <p class="text-amber-500 pt-1">
+          No registry with push permissions found. <Link on:click="{() => router.goto('/preferences/registries')}"
+            >Add a registry now.</Link>
+        </p>{/if}
     </div>
 
-    <div class="flex flex-col px-6 py-4 pt-0 text-sm leading-5 space-y-5">
-      <div class="pb-4">
-        <label for="modalImageTag" class="block mb-2 text-sm font-medium text-[var(--pd-modal-text)]">Image tag</label>
-        {#if isAuthenticatedForThisImage}
-          <Fa class="absolute mt-3 ml-1.5 text-green-300" size="1x" icon="{faCheckCircle}" />
-        {:else}
-          <Fa class="absolute mt-3 ml-1.5 text-amber-500" size="1x" icon="{faTriangleExclamation}" />
-        {/if}
+    <div bind:this="{pushLogsXtermDiv}"></div>
+  </div>
 
-        <select
-          class="text-sm rounded-lg block w-full p-2.5 bg-charcoal-600 pl-6 border-r-8 border-transparent outline-1 outline {isAuthenticatedForThisImage
-            ? 'outline-gray-900'
-            : 'outline-amber-500'} placeholder-gray-700 text-white"
-          name="imageChoice"
-          bind:value="{selectedImageTag}">
-          {#each imageTags as imageTag}
-            <option value="{imageTag}">{imageTag}</option>
-          {/each}
-        </select>
-        <!-- If the image is UNAUTHENTICATED, show a warning that the image is unable to be pushed
-        and to click to go to the registries page -->
-        {#if !isAuthenticatedForThisImage}
-          <p class="text-amber-500 pt-1">
-            No registry with push permissions found. <Link on:click="{() => router.goto('/preferences/registries')}"
-              >Add a registry now.</Link>
-          </p>{/if}
-      </div>
-
-      <div class="flex justify-end space-x-2">
-        {#if !pushInProgress && !pushFinished}
-          <Button class="w-auto" type="secondary" on:click="{() => closeCallback()}">Cancel</Button>
-        {/if}
-        {#if !pushFinished}
-          <Button
-            class="w-auto"
-            icon="{faCircleArrowUp}"
-            disabled="{!isAuthenticatedForThisImage}"
-            on:click="{() => {
-              pushImage(selectedImageTag);
-            }}"
-            bind:inProgress="{pushInProgress}">
-            Push image
-          </Button>
-        {:else}
-          <Button on:click="{() => pushImageFinished()}" class="w-auto">Done</Button>
-        {/if}
-      </div>
-
-      <div bind:this="{pushLogsXtermDiv}"></div>
-    </div>
-  </div></Modal>
+  <svelte:fragment slot="buttons">
+    {#if !pushInProgress && !pushFinished}
+      <Button class="w-auto" type="secondary" on:click="{() => closeCallback()}">Cancel</Button>
+    {/if}
+    {#if !pushFinished}
+      <Button
+        class="w-auto"
+        icon="{faCircleArrowUp}"
+        disabled="{!isAuthenticatedForThisImage}"
+        on:click="{() => {
+          pushImage(selectedImageTag);
+        }}"
+        bind:inProgress="{pushInProgress}">
+        Push image
+      </Button>
+    {:else}
+      <Button on:click="{() => pushImageFinished()}" class="w-auto">Done</Button>
+    {/if}
+  </svelte:fragment>
+</Dialog>
