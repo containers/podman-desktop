@@ -41,8 +41,8 @@ function onDecrement(e: MouseEvent) {
 }
 
 function onIncrement(e: MouseEvent) {
-  value = Number(value) + 1;
   e.preventDefault();
+  value = Number(value) + 1;
 }
 </script>
 
