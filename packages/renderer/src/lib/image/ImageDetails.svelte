@@ -2,7 +2,7 @@
 import type { ImageInfo } from '@podman-desktop/api';
 import { StatusIcon, Tab } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
-import type { Unsubscriber } from 'svelte/motion';
+import type { Unsubscriber } from 'svelte/store';
 import { router } from 'tinro';
 
 import { containersInfos } from '/@/stores/containers';
