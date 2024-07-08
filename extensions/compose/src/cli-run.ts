@@ -36,7 +36,6 @@ export function getSystemBinaryPath(binaryName: string): string {
         binaryName.endsWith('.exe') ? binaryName : `${binaryName}.exe`,
       );
     case 'darwin':
-      return path.join(localBinDir, binaryName);
     case 'linux':
       return path.join(localBinDir, binaryName);
     default:

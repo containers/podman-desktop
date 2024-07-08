@@ -89,7 +89,7 @@ export class Detect {
     };
   }
 
-  private async getDockerComposePath(executable: string): Promise<string> {
+  async getDockerComposePath(executable: string): Promise<string> {
     // grab full path for Linux and mac
     if (extensionApi.env.isLinux || extensionApi.env.isMac) {
       try {
