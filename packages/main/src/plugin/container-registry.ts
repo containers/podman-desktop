@@ -318,18 +318,30 @@ export class ContainerProviderRegistry {
     let previousStatus = containerProviderConnection.status();
 
     providerRegistry.onBeforeDidUpdateContainerConnection(event => {
-      if (event.providerId === provider.id && event.connection.name === containerProviderConnection.name) {
-        const newStatus = event.status;
-        if (newStatus === 'stopped') {
-          internalProvider.api = undefined;
-          internalProvider.libpodApi = undefined;
-          this.apiSender.send('provider-change', {});
-        }
-        if (newStatus === 'started') {
-          this.setupConnectionAPI(internalProvider, containerProviderConnection);
-        }
+      if (
+        event.providerId === provider.id &&
+        event.connection.name === containerProviderConnection.name &&
+        event.status === 'stopped'
+      ) {
+        internalProvider.api = undefined;
+        internalProvider.libpodApi = undefined;
+        this.apiSender.send('provider-change', {});
       }
       previousStatus = event.status;
+    });
+
+    // we need to call setupConnectionAPI after the update, as it is checking that the connection
+    // is started.
+    providerRegistry.onAfterDidUpdateContainerConnection(event => {
+      if (
+        event.providerId === provider.id && // ensure provider id is matching
+        event.connection.name === containerProviderConnection.name && // ensure connection is matching
+        event.status === 'started' && // when status is tarted
+        !internalProvider.api &&
+        !internalProvider.libpodApi // api & libpodApi are undefined we need to setup
+      ) {
+        this.setupConnectionAPI(internalProvider, containerProviderConnection);
+      }
     });
 
     if (containerProviderConnection.status() === 'started') {
