@@ -52,7 +52,7 @@ function onInput() {
   </div>
   {#if !left && $$slots}
     <span
-      class="ml-3 text-sm"
+      class="ml-3"
       class:text-[var(--pd-input-toggle-on-text)]="{checked && !disabled}"
       class:text-[var(--pd-input-toggle-off-text)]="{!checked && !disabled}"
       class:text-[var(--pd-input-toggle-disabled-text)]="{disabled}"><slot /></span>
