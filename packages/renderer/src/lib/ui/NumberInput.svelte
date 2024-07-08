@@ -36,8 +36,8 @@ function onKeyPress(event: any) {
 }
 
 function onDecrement(e: MouseEvent) {
-  value = Number(value) - 1;
   e.preventDefault();
+  value = Number(value) - 1;
 }
 
 function onIncrement(e: MouseEvent) {
