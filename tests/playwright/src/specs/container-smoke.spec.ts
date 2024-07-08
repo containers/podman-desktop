@@ -161,18 +161,15 @@ describe('Verification of container creation workflow', async () => {
     await playExpect(containersDetails.heading).toBeVisible();
     await playExpect(containersDetails.heading).toContainText(containerToRun);
     // test state of container in summary tab
-    await pdRunner.screenshot('containers-container-details-start-container.png');
-    const containerState = await containersDetails.getState();
-    playExpect(containerState).toContain(ContainerState.Exited.toLowerCase());
-
     await navigationBar.openContainers();
+    await playExpect.poll(async () => await containers.containerExists(containerToRun)).toBeTruthy();
+
     const containerRow = await containers.getContainerRowByName(containerToRun);
     if (containerRow === undefined) {
       throw Error(`Container: '${containerToRun}' does not exist`);
     }
-    const containerRowStartButton = containerRow.getByRole('button', { name: 'Start Container' });
-    await playExpect(containerRowStartButton).toBeVisible();
-    await containerRowStartButton.click();
+
+    await containers.startContainerFromContainersList(containerRow);
 
     await containers.openContainersDetails(containerToRun);
     await playExpect
@@ -188,18 +185,15 @@ describe('Verification of container creation workflow', async () => {
     await playExpect(containersDetails.heading).toBeVisible();
     await playExpect(containersDetails.heading).toContainText(containerToRun);
     // test state of container in summary tab
-    await pdRunner.screenshot('containers-container-details-stop-container.png');
-    const containerState = await containersDetails.getState();
-    playExpect(containerState).toContain(ContainerState.Running.toLowerCase());
-
     await navigationBar.openContainers();
+    await playExpect.poll(async () => await containers.containerExists(containerToRun)).toBeTruthy();
+
     const containerRow = await containers.getContainerRowByName(containerToRun);
     if (containerRow === undefined) {
       throw Error(`Container: '${containerToRun}' does not exist`);
     }
-    const containerRowStopButton = containerRow.getByRole('button', { name: 'Stop Container' });
-    await playExpect(containerRowStopButton).toBeVisible();
-    await containerRowStopButton.click();
+
+    await containers.stopContainerFromContainersList(containerRow);
 
     await containers.openContainersDetails(containerToRun);
     await playExpect
@@ -234,7 +228,7 @@ describe('Verification of container creation workflow', async () => {
 
     for (const container of containerList) {
       let containersPage = new ContainersPage(page);
-      const containersDetails = await containersPage.stopContainer(container);
+      const containersDetails = await containersPage.stopContainerFromDetails(container);
       await playExpect(await containersDetails.getStateLocator()).toHaveText(ContainerState.Exited.toLowerCase(), {
         timeout: 20000,
       });

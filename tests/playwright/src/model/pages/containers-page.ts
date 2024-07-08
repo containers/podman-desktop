@@ -49,7 +49,21 @@ export class ContainersPage extends MainPage {
     return new ContainerDetailsPage(this.page, name);
   }
 
-  async stopContainer(container: string): Promise<ContainerDetailsPage> {
+  async startContainerFromContainersList(containerRow: Locator): Promise<ContainersPage> {
+    const containerRowStopButton = containerRow.getByRole('button', { name: 'Start Container' });
+    await playExpect(containerRowStopButton).toBeVisible();
+    await containerRowStopButton.click();
+    return this;
+  }
+
+  async stopContainerFromContainersList(containerRow: Locator): Promise<ContainersPage> {
+    const containerRowStopButton = containerRow.getByRole('button', { name: 'Stop Container' });
+    await playExpect(containerRowStopButton).toBeVisible();
+    await containerRowStopButton.click();
+    return this;
+  }
+
+  async stopContainerFromDetails(container: string): Promise<ContainerDetailsPage> {
     const containerDetailsPage = await this.openContainersDetails(container);
     await playExpect(containerDetailsPage.heading).toBeVisible();
     await playExpect(containerDetailsPage.heading).toContainText(container);
