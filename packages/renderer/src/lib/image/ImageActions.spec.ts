@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { router } from 'tinro';
 import { beforeAll, expect, test, vi } from 'vitest';
@@ -156,14 +156,18 @@ test('Expect no dropdown when several contributions and dropdownMenu mode on', a
 
   await fireEvent.click(screen.getByLabelText('kebab menu'));
 
-  await waitFor(() => {
+  await waitFor(async () => {
     const button = screen.getByTitle('dummy-contrib');
     expect(button).toBeDefined();
-    expect(button.firstChild?.nodeName.toLowerCase()).toBe('svg');
+    const img = within(button).getByRole('img', { hidden: true });
+    expect(img).toBeDefined();
+    expect(img.nodeName.toLowerCase()).toBe('svg');
 
     const button2 = screen.getByTitle('dummy-contrib-2');
     expect(button2).toBeDefined();
-    expect(button2.firstChild?.nodeName.toLowerCase()).toBe('svg');
+    const img2 = within(button2).getByRole('img', { hidden: true });
+    expect(img2).toBeDefined();
+    expect(img2.nodeName.toLowerCase()).toBe('svg');
   });
 });
 
