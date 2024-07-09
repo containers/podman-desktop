@@ -13048,14 +13048,7 @@ is-reference@1.2.1:
   dependencies:
     "@types/estree" "*"
 
-is-reference@^3.0.0:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/is-reference/-/is-reference-3.0.1.tgz#d400f4260f7e55733955e60d361d827eb4d3b831"
-  integrity sha512-baJJdQLiYaJdvFbJqXrcGv3WU3QCzBlUcI5QhbesIm6/xPsvmO+2CDoi/GMOFBQEQm+PXkwOPrp9KK5ozZsp2w==
-  dependencies:
-    "@types/estree" "*"
-
-is-reference@^3.0.2:
+is-reference@^3.0.0, is-reference@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/is-reference/-/is-reference-3.0.2.tgz#154747a01f45cd962404ee89d43837af2cba247c"
   integrity sha512-v3rht/LgVcsdZa3O2Nqs+NMowLOxeOm7Ay9+/ARQ2F+qEoANRcqrjAZKGN0v8ymUetZGgkp26LTnGT7H0Qo9Pg==
@@ -18689,29 +18682,10 @@ svelte2tsx@~0.7.0:
     dedent-js "^1.0.1"
     pascal-case "^3.1.1"
 
-svelte@5.0.0-next.164:
-  version "5.0.0-next.164"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-5.0.0-next.164.tgz#7d397f146a69e56d5876b94219c817f41ac39f35"
-  integrity sha512-e+V1dSZLCCu0Ln7RKwSl/zP9ZZFbDGW7ABfGQYU/+6sWponizQocmyHyKHzctor0ruGgJKOF7QQB+M6lE2+UrA==
-  dependencies:
-    "@ampproject/remapping" "^2.2.1"
-    "@jridgewell/sourcemap-codec" "^1.4.15"
-    "@types/estree" "^1.0.5"
-    acorn "^8.11.3"
-    acorn-typescript "^1.4.13"
-    aria-query "^5.3.0"
-    axobject-query "^4.0.0"
-    esm-env "^1.0.0"
-    esrap "^1.2.2"
-    is-reference "^3.0.2"
-    locate-character "^3.0.0"
-    magic-string "^0.30.5"
-    zimmerframe "^1.1.2"
-
-svelte@5.0.0-next.166:
-  version "5.0.0-next.166"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-5.0.0-next.166.tgz#8b3b19666ba28b9c021e34d5eca7738bba8c6d2f"
-  integrity sha512-s1anY8eTprp42QyHGdbfIT7pO+gYgwnS6hkMmvd8ayW5krV9HLYjbQcVUb8/GyQSIlWtewvmZVZ58rpKjRmdTg==
+svelte@5.0.0-next.178:
+  version "5.0.0-next.178"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-5.0.0-next.178.tgz#73efe570eeefe0e960428f6696ae6cb08711b9d8"
+  integrity sha512-Hr/h/fV+6h7FBoZjop+f8Goc32nfsNP9YWjcWVSZ0kTt3UIWWQbj3rFpaF1b2173fklIq+HJLzrFxC1XMnBfSw==
   dependencies:
     "@ampproject/remapping" "^2.2.1"
     "@jridgewell/sourcemap-codec" "^1.4.15"
