@@ -18,13 +18,13 @@
 
 import type { CliTool, Logger } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { installBinaryToSystem } from './cli-run';
 import type { ComposeGithubReleaseArtifactMetadata } from './compose-github-releases';
 import { Detect } from './detect';
 import { ComposeDownload } from './download';
-import { activate } from './extension';
+import { activate, deactivate } from './extension';
 
 vi.mock('@podman-desktop/api', async () => {
   return {
@@ -69,6 +69,7 @@ const detectMock = {
   checkSystemWideDockerCompose: vi.fn(),
   getDockerComposeBinaryInfo: vi.fn(),
   getStoragePath: vi.fn(),
+  getExtensionStorageBin: vi.fn(),
 } as unknown as Detect;
 
 const composeDownloadMock = {
@@ -79,6 +80,7 @@ const composeDownloadMock = {
 const cliToolMock = {
   registerUpdate: vi.fn(),
   updateVersion: vi.fn(),
+  dispose: vi.fn(),
 } as unknown as CliTool;
 
 vi.mock('./cli-run', () => ({
@@ -98,6 +100,10 @@ beforeEach(() => {
   vi.mocked(Detect).mockReturnValue(detectMock);
   vi.mocked(ComposeDownload).mockReturnValue(composeDownloadMock);
   vi.mocked(extensionApi.cli.createCliTool).mockReturnValue(cliToolMock);
+});
+
+afterEach(() => {
+  return deactivate();
 });
 
 const extensionContextMock = {
@@ -129,6 +135,40 @@ test('provider registered', async () => {
     images: {
       icon: './icon.png',
     },
+  });
+});
+
+test('downloadCommand should register cli tool if required', async () => {
+  vi.mocked(detectMock.checkSystemWideDockerCompose).mockResolvedValue(false);
+  vi.mocked(detectMock.getStoragePath).mockResolvedValue('');
+
+  vi.mocked(detectMock.getDockerComposeBinaryInfo).mockResolvedValue({
+    version: 'v0.0.0',
+    path: 'system-wide-path',
+    updatable: false,
+  });
+
+  vi.mocked(composeDownloadMock.getLatestVersionAsset).mockResolvedValue({
+    tag: 'v1.0.0',
+  } as unknown as ComposeGithubReleaseArtifactMetadata);
+
+  vi.mocked(extensionApi.commands.registerCommand).mockImplementation((command, callback) => {
+    if (command === 'compose.onboarding.downloadCommand') {
+      expect(extensionApi.cli.createCliTool).not.toHaveBeenCalled();
+      vi.mocked(detectMock.getStoragePath).mockResolvedValue('storage-path');
+      vi.mocked(detectMock.getExtensionStorageBin).mockResolvedValue('storage-path');
+      callback();
+    }
+
+    return {
+      dispose: vi.fn(),
+    };
+  });
+
+  await activate(extensionContextMock);
+
+  await vi.waitFor(() => {
+    expect(extensionApi.cli.createCliTool).toHaveBeenCalled();
   });
 });
 
@@ -165,7 +205,7 @@ async function getCliToolUpdate(updatable: boolean): Promise<extensionApi.CliToo
   return update;
 }
 
-describe('postActivate', () => {
+describe('registerCLITool', () => {
   test('createCliTool already installed system wide', async () => {
     vi.mocked(detectMock.checkSystemWideDockerCompose).mockResolvedValue(true);
     vi.mocked(detectMock.getDockerComposeBinaryInfo).mockResolvedValue({

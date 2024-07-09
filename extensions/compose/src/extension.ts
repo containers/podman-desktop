@@ -19,7 +19,7 @@
 import { Octokit } from '@octokit/rest';
 import * as extensionApi from '@podman-desktop/api';
 
-import { installBinaryToSystem } from './cli-run';
+import { getSystemBinaryPath, installBinaryToSystem } from './cli-run';
 import type { ComposeGithubReleaseArtifactMetadata } from './compose-github-releases';
 import { ComposeGitHubReleases } from './compose-github-releases';
 import { Detect } from './detect';
@@ -119,6 +119,11 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         // We are all done, so we can set the context value to false / downloaded to true
         extensionApi.context.setValue('composeIsNotDownloaded', false, 'onboarding');
         downloaded = true;
+
+        // register the cli tool if necessary
+        if (!composeCliTool) {
+          await registerCLITool(composeDownload, detect);
+        }
       } finally {
         // Make sure we log the telemetry even if we encounter an error
         // If we have downloaded the binary, we can log it as being succcessfully downloaded
@@ -171,8 +176,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
         if (!versionInstalled) {
           return;
         }
+        // update the version and the path
         composeCliTool?.updateVersion({
           version: versionInstalled,
+          path: getSystemBinaryPath(composeCliName),
         });
         // if installed version is the newest, dispose the updater
         const lastReleaseMetadata = await composeDownload.getLatestVersionAsset();
@@ -214,14 +221,14 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // Push the CLI tool as well (but it will do it postActivation so it does not block the activate() function)
   // Post activation
   setTimeout(() => {
-    postActivate(composeDownload, detect).catch((error: unknown) => {
+    registerCLITool(composeDownload, detect).catch((error: unknown) => {
       console.error('Error activating extension', error);
     });
   }, 0);
 }
 
 // Activate the CLI tool (check version, etc) and register the CLi so it does not block activation.
-async function postActivate(composeDownload: ComposeDownload, detect: Detect): Promise<void> {
+async function registerCLITool(composeDownload: ComposeDownload, detect: Detect): Promise<void> {
   // build executable name for current platform
   const executable = os.isWindows() ? composeCliName + '.exe' : composeCliName;
 
@@ -244,17 +251,25 @@ async function postActivate(composeDownload: ComposeDownload, detect: Detect): P
   // if no binary detected let's just stop here
   if (!binaryInfo) return;
 
-  // Register the CLI tool so it appears in the preferences page.
-  composeCliTool = extensionApi.cli.createCliTool({
-    name: composeCliName,
-    displayName: composeDisplayName,
-    markdownDescription: composeDescription,
-    images: {
-      icon: imageLocation,
-    },
-    version: removeVersionPrefix(binaryInfo.version),
-    path: binaryInfo.path,
-  });
+  // update existing CLI tool
+  if (composeCliTool) {
+    composeCliTool.updateVersion({
+      version: removeVersionPrefix(binaryInfo.version),
+      path: binaryInfo.path,
+    });
+  } else {
+    // Register the CLI tool so it appears in the preferences page.
+    composeCliTool = extensionApi.cli.createCliTool({
+      name: composeCliName,
+      displayName: composeDisplayName,
+      markdownDescription: composeDescription,
+      images: {
+        icon: imageLocation,
+      },
+      version: removeVersionPrefix(binaryInfo.version),
+      path: binaryInfo.path,
+    });
+  }
 
   // check if there is a new version to be installed and register the updater
   const lastReleaseMetadata = await composeDownload.getLatestVersionAsset();
@@ -293,5 +308,6 @@ export async function deactivate(): Promise<void> {
   // Dispose the CLI tool
   if (composeCliTool) {
     composeCliTool.dispose();
+    composeCliTool = undefined;
   }
 }
