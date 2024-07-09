@@ -55,7 +55,7 @@ onMount(() => {
 <ProviderCard provider="{provider}">
   <svelte:fragment slot="content">
     {#if !runAtStart && !runInProgress}
-      <p class="text-sm text-gray-700 text-center w-2/3">
+      <p class="text-gray-700 text-center w-2/3">
         To start working with containers, {provider.name}
         {#if provider.version}
           v{provider.version}
@@ -82,7 +82,7 @@ onMount(() => {
     {/if}
 
     {#if runError}
-      <ErrorMessage class="flex flex-col mt-2 my-2 text-sm" error="{runError}" />
+      <ErrorMessage class="flex flex-col mt-2 my-2" error="{runError}" />
     {/if}
 
     <PreflightChecks preflightChecks="{preflightChecks}" />

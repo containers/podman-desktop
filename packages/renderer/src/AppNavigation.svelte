@@ -285,7 +285,7 @@ export let meta: TinroRouteMeta;
     tooltip="Accounts"
     bind:meta="{meta}"
     onClick="{event => window.showAccountsMenu(event.x, event.y)}">
-    <Fa class="h-6 w-6 fa-light" icon="{faCircleUser}" size="lg" style="fa-light" />
+    <Fa class="h-6 w-6 fa-light" icon="{faCircleUser}" size="2x" style="fa-light" />
   </NavItem>
 
   <NavItem

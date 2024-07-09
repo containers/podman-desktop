@@ -21,7 +21,7 @@ export let provider: ProviderInfo;
         <div class="gap-1 items-center">
           <span class="float-left mr-1">{provider.name}</span>
           {#if provider.version}
-            <div class="text-[var(--pd-content-card-light-title)] text-base float-left" aria-label="Provider Version">
+            <div class="text-[var(--pd-content-card-light-title)] text-sm float-left" aria-label="Provider Version">
               v{provider.version}
             </div>
           {/if}
