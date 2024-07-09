@@ -336,7 +336,7 @@ export class ContainerProviderRegistry {
       if (
         event.providerId === provider.id && // ensure provider id is matching
         event.connection.name === containerProviderConnection.name && // ensure connection is matching
-        event.status === 'started' && // when status is tarted
+        event.status === 'started' && // when status is started
         !internalProvider.api &&
         !internalProvider.libpodApi // api & libpodApi are undefined we need to setup
       ) {
