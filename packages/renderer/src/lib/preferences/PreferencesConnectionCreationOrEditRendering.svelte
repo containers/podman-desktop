@@ -499,17 +499,19 @@ function getConnectionResourceConfigurationValue(
             aria-label="Properties Information">
             {#each configurationKeys as configurationKey}
               <div class="mb-2.5">
-                <div class="flex flex-row items-center font-semibold text-xs h-[30px]">
+                <div class="flex flex-row items-center h-[30px]">
                   {#if configurationKey.description}
                     {configurationKey.description}:
                   {:else if configurationKey.markdownDescription && configurationKey.type !== 'markdown'}
                     <Markdown>{configurationKey.markdownDescription}:</Markdown>
                   {/if}
                   {#if configurationKey.format === 'memory' || configurationKey.format === 'diskSize' || configurationKey.format === 'cpu'}
+                  <div class="text-gray-600">
                     <EditableConnectionResourceItem
                       record="{configurationKey}"
                       value="{getConnectionResourceConfigurationValue(configurationKey, configurationValues)}"
                       onSave="{setConfigurationValue}" />
+                    </div>
                   {/if}
                 </div>
                 {#if configurationValues}

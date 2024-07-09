@@ -97,10 +97,10 @@ async function handleDeleteContext(contextName: string) {
             <div class="pl-3 flex-grow flex flex-col justify-center">
               <div class="flex flex-col items-left">
                 {#if context.currentContext}
-                  <span class="text-xs text-[var(--pd-invert-content-card-text)]" aria-label="Current Context"
+                  <span class="text-sm text-[var(--pd-invert-content-card-text)]" aria-label="Current Context"
                     >Current Context</span>
                 {/if}
-                <span class="text-md text-[var(--pd-invert-content-card-header-text)]" aria-label="Context Name"
+                <span class="font-semibold text-[var(--pd-invert-content-card-header-text)]" aria-label="Context Name"
                   >{context.name}</span>
               </div>
             </div>
@@ -152,7 +152,7 @@ async function handleDeleteContext(contextName: string) {
                 <div class="flex flex-row pt-2">
                   <div class="w-3 h-3 rounded-full bg-[var(--pd-status-disconnected)]"></div>
                   <div
-                    class="ml-1 font-bold text-[9px] text-[var(--pd-status-disconnected)]"
+                    class="ml-1 text-xs text-[var(--pd-status-disconnected)]"
                     aria-label="Context Unreachable">
                     {#if $kubernetesContextsState.get(context.name)}
                       UNREACHABLE
@@ -166,8 +166,8 @@ async function handleDeleteContext(contextName: string) {
                 </div>
               {/if}
             </div>
-            <div class="grow">
-              <div class="text-xs bg-[var(--pd-invert-content-bg)] p-2 rounded-lg mt-1 grid grid-cols-6">
+            <div class="grow text-sm">
+              <div class="bg-[var(--pd-invert-content-bg)] p-2 rounded-lg mt-1 grid grid-cols-6">
                 <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">CLUSTER</span>
                 <span
                   class="my-auto col-span-5 text-left ml-3 overflow-hidden text-ellipsis"
@@ -175,7 +175,7 @@ async function handleDeleteContext(contextName: string) {
               </div>
 
               {#if context.clusterInfo !== undefined}
-                <div class="text-xs bg-[var(--pd-invert-content-bg)] p-2 rounded-lg mt-1 grid grid-cols-6">
+                <div class="bg-[var(--pd-invert-content-bg)] p-2 rounded-lg mt-1 grid grid-cols-6">
                   <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">SERVER</span>
                   <span
                     class="my-auto col-span-5 text-left ml-3 overflow-hidden text-ellipsis"
@@ -185,14 +185,14 @@ async function handleDeleteContext(contextName: string) {
                 </div>
               {/if}
 
-              <div class="text-xs bg-[var(--pd-invert-content-bg)] p-2 rounded-lg mt-1 grid grid-cols-6">
+              <div class="bg-[var(--pd-invert-content-bg)] p-2 rounded-lg mt-1 grid grid-cols-6">
                 <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">USER</span>
                 <span class="my-auto col-span-5 text-left ml-3 overflow-hidden text-ellipsis" aria-label="Context User"
                   >{context.user}</span>
               </div>
 
               {#if context.namespace}
-                <div class="text-xs bg-[var(--pd-invert-content-bg)] p-2 rounded-lg mt-1 grid grid-cols-6">
+                <div class="bg-[var(--pd-invert-content-bg)] p-2 rounded-lg mt-1 grid grid-cols-6">
                   <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">NAMESPACE</span>
                   <span
                     class="my-auto col-span-5 text-left ml-3 overflow-hidden text-ellipsis"

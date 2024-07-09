@@ -387,7 +387,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                   <img src="{provider.images.icon.dark}" alt="{provider.name}" class="max-w-[40px]" />
                 {/if}
               {/if}
-              <span class="my-auto text-[var(--pd-invert-content-card-header-text)] ml-3 break-words"
+              <span class="my-auto font-semibold text-[var(--pd-invert-content-card-header-text)] ml-3 break-words"
                 >{provider.name}</span>
             </div>
             <div class="text-center mt-10">
@@ -469,7 +469,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                   </button>
                 </Tooltip>
               </div>
-              <div class="{container.status !== 'started' ? 'text-gray-900' : ''} text-sm">
+              <div class="{container.status !== 'started' ? 'text-gray-900' : ''} font-semibold">
                 {container.name}
               </div>
               <div class="flex" aria-label="Connection Status">
@@ -552,7 +552,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                   </button>
                 </Tooltip>
               </div>
-              <div class="text-sm">
+              <div class="font-semibold">
                 {kubeConnection.name}
               </div>
               <div class="flex mt-1">

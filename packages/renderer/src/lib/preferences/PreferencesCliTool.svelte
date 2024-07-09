@@ -76,7 +76,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
           {/if}
           <span
             id="{cliTool.id}"
-            class="my-auto ml-3 break-words text-[var(--pd-invert-content-header-text)]"
+            class="my-auto ml-3 break-words font-semibold text-[var(--pd-invert-content-header-text)]"
             aria-label="cli-name">{cliTool.name}</span>
         </div>
         {#if cliTool.version && cliToolStatus}
@@ -107,7 +107,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
         aria-label="cli-registered-by">
         Registered by {cliTool.extensionInfo.label}
       </div>
-      <div role="region" class="ml-3 mt-2 text-sm text-gray-300">
+      <div role="region" class="ml-3 mt-2 text-gray-300">
         <div class="text-[var(--pd-invert-content-card-text)]">
           <Markdown markdown="{cliTool.description}" />
         </div>
@@ -115,7 +115,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
           <div
             class="flex flex-row justify-between align-center bg-[var(--pd-invert-content-bg)] p-2 rounded-lg min-w-[320px] w-fit">
             <div
-              class="flex text-[var(--pd-invert-content-card-text)] font-bold text-xs items-center"
+              class="flex text-[var(--pd-invert-content-card-text)] font-bold text-sm items-center"
               aria-label="cli-version">
               {cliTool.name} v{cliTool.version}
             </div>
@@ -147,7 +147,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
       <Button
         type="link"
         padding="p-0"
-        class="ml-1 text-xs"
+        class="ml-1 text-sm"
         aria-label="{cliTool.displayName} failed"
         on:click="{() => window.events?.send('toggle-task-manager', '')}">Check why it failed</Button>
     </div>
