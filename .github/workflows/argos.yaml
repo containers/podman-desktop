@@ -25,6 +25,7 @@ on:
     paths:
       - 'package.json'
       - 'yarn.lock'
+      - 'storybook/**'
       - 'website/**'
       - 'website-argos/**'
   pull_request:
@@ -34,6 +35,7 @@ on:
       - '.github/workflows/argos.yaml'
       - 'package.json'
       - 'yarn.lock'
+      - 'storybook/**'
       - 'website/**'
       - 'website-argos/**'
 
