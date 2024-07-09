@@ -184,11 +184,11 @@ function toggleChildren(name: string | undefined): void {
   <!-- Table header -->
   <div role="rowgroup">
     <div
-      class="grid grid-table gap-x-0.5 h-7 sticky top-0 bg-[var(--pd-content-bg)] text-xs text-[var(--pd-table-header-text)] font-bold uppercase z-[2]"
+      class="grid grid-table gap-x-0.5 h-7 sticky top-0 text-[var(--pd-table-header-text)] uppercase z-[2]"
       role="row">
       <div class="whitespace-nowrap justify-self-start" role="columnheader"></div>
       {#if row.info.selectable}
-        <div class="whitespace-nowrap place-self-center text-base" role="columnheader">
+        <div class="whitespace-nowrap place-self-center" role="columnheader">
           <Checkbox
             title="Toggle all"
             bind:checked="{selectedAllCheckboxes}"
@@ -201,7 +201,7 @@ function toggleChildren(name: string | undefined): void {
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <!-- svelte-ignore a11y-interactive-supports-focus -->
         <div
-          class="max-w-full overflow-hidden flex flex-row items-center whitespace-nowrap {column.info.align === 'right'
+          class="max-w-full overflow-hidden flex flex-row text-sm font-semibold items-center whitespace-nowrap {column.info.align === 'right'
             ? 'justify-self-end'
             : column.info.align === 'center'
               ? 'justify-self-center'

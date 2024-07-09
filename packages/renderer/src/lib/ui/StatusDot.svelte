@@ -25,7 +25,7 @@ let dotClass = getStatusColor(status);
 
 <Tooltip top tip="{tooltip}">
   <div
-    class="w-2.5 h-2.5 mr-0.5 rounded-full text-center {dotClass.includes('outline')
+    class="w-2 h-2 mr-0.5 rounded-full text-center {dotClass.includes('outline')
       ? 'outline-2 outline-offset-[-2px] outline'
       : ''} {getStatusColor(status)} {number ? 'mt-3' : ''}"
     data-testid="status-dot"
@@ -33,6 +33,6 @@ let dotClass = getStatusColor(status);
   </div>
   <!-- If text -->
   {#if number}
-    <div class="text-xs text-bold text-gray-600 mr-0.5">{number}</div>
+    <div class="text-sm text-bold text-gray-600 mr-0.5">{number}</div>
   {/if}
 </Tooltip>

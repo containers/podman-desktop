@@ -10,7 +10,7 @@ export let capitalize: boolean = false;
 <Tooltip top tip="{tip}">
   <div
     role="{role}"
-    class="flex items-center bg-[var(--pd-label-bg)] p-1 rounded-md text-xs text-[var(--pd-label-text)] gap-x-1">
+    class="flex items-center bg-[var(--pd-label-bg)] p-1 rounded-md text-sm text-[var(--pd-label-text)] gap-x-1">
     <slot></slot>
     <span class:capitalize="{capitalize}">
       {name}
