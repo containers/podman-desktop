@@ -42,8 +42,10 @@ export class CreateMachinePage extends BasePage {
     this.heading = this.page.getByRole('heading', { name: 'Create Podman Machine' });
     this.podmanMachineConfiguration = this.page.getByRole('form', { name: 'Properties Information' });
     this.podmanMachineName = this.podmanMachineConfiguration.getByRole('textbox', { name: 'Name' });
-    this.imagePathBox = this.page.getByRole('textbox', { name: 'Image Path (Optional) ' });
-    this.browseImagesButton = this.page.getByRole('button', { name: 'button-Image Path (Optional)' });
+    this.imagePathBox = this.podmanMachineConfiguration.getByRole('textbox', { name: 'Image Path (Optional) ' });
+    this.browseImagesButton = this.podmanMachineConfiguration.getByRole('button', {
+      name: 'button-Image Path (Optional)',
+    });
     this.podmanMachineCPUs = this.podmanMachineConfiguration.getByRole('slider', { name: 'CPU(s)' });
     this.podmanMachineMemory = this.podmanMachineConfiguration.getByRole('slider', { name: 'Memory' });
     this.podmanMachineDiskSize = this.podmanMachineConfiguration.getByRole('slider', { name: 'Disk size' });
