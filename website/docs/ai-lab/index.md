@@ -8,9 +8,12 @@ tags: [ai, llm, generative ai]
 
 # Run LLMs locally
 
-Podman AI Lab can help you run large language models (LLMs) locally with ease.
+Podman AI Lab is the easiest way to work with Large Language Models (LLMs) on your local developer workstation. Find a catalog of recipes, leverage a curated list of open source models, experiment and compare the models. Get ahead of the curve and take your development to new heights wth Podman AI Lab!
+There are many ways to run models locally. This extension fits perfectly into your local container workflow and exposes LLMs through inference APIs that you can directly access from your application containers. Beyond that you can use playgrounds to optimze your inference parameters and recipes that help you with ready made examples.
 
 #### Procedure
+
+First thing you need to do is to install the extension itself:
 
 1. [Install the `Podman AI Lab` extension](/docs/ai-lab/installing).
 
