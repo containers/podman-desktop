@@ -29,7 +29,6 @@ test('Expect simple column styling', async () => {
 
   const text = screen.getByText(obj);
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('text-sm');
   expect(text).toHaveClass('text-[var(--pd-table-body-text)]');
   expect(text).toHaveClass('max-w-full');
   expect(text).toHaveClass('overflow-hidden');

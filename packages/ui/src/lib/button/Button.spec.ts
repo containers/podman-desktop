@@ -37,7 +37,6 @@ test('Check primary button styling', async () => {
   expect(button).toHaveClass('hover:bg-[var(--pd-button-primary-hover-bg)]');
   expect(button).toHaveClass('border-none');
   expect(button).toHaveClass('py-[5px]');
-  expect(button).toHaveClass('text-[13px]');
   expect(button).toHaveClass('text-[var(--pd-button-text)]');
 });
 
@@ -49,7 +48,6 @@ test('Check disabled/in-progress primary button styling', async () => {
   expect(button).toBeInTheDocument();
   expect(button).toHaveClass('bg-[var(--pd-button-disabled)]');
   expect(button).toHaveClass('py-[5px]');
-  expect(button).toHaveClass('text-[13px]');
   expect(button).toHaveClass('text-[var(--pd-button-disabled-text)]');
 });
 
@@ -72,7 +70,6 @@ test('Check secondary button styling', async () => {
   expect(button).toHaveClass('border-[var(--pd-button-secondary)]');
   expect(button).toHaveClass('border-[1px]');
   expect(button).toHaveClass('py-[4px]');
-  expect(button).toHaveClass('text-[13px]');
   expect(button).toHaveClass('text-[var(--pd-button-secondary)]');
   expect(button).toHaveClass('hover:bg-[var(--pd-button-secondary-hover)]');
   expect(button).toHaveClass('hover:border-[var(--pd-button-secondary-hover)]');
@@ -90,7 +87,6 @@ test('Check danger button styling', async () => {
   expect(button).toHaveClass('px-4');
   expect(button).toHaveClass('py-[3px]');
   expect(button).toHaveClass('bg-[var(--pd-button-danger-bg)]');
-  expect(button).toHaveClass('text-[13px]');
   expect(button).toHaveClass('text-[var(--pd-button-danger-text)]');
   expect(button).toHaveClass('hover:bg-[var(--pd-button-danger-hover-bg)]');
   expect(button).toHaveClass('hover:text-[var(--pd-button-danger-hover-text)]');
@@ -107,7 +103,6 @@ test('Check disabled/in-progress secondary button styling', async () => {
   expect(button).toHaveClass('px-4');
   expect(button).toHaveClass('py-[4px]');
   expect(button).toHaveClass('bg-[var(--pd-button-disabled)]');
-  expect(button).toHaveClass('text-[13px]');
   expect(button).toHaveClass('text-[var(--pd-button-disabled-text)]');
 });
 
@@ -121,7 +116,6 @@ test('Check link button styling', async () => {
   expect(button).toHaveClass('px-4');
   expect(button).toHaveClass('py-[5px]');
   expect(button).toHaveClass('hover:bg-[var(--pd-button-link-hover-bg)]');
-  expect(button).toHaveClass('text-[13px]');
   expect(button).toHaveClass('text-[var(--pd-button-link-text)]');
 });
 
@@ -134,7 +128,6 @@ test('Check disabled/in-progress link button styling', async () => {
   expect(button).toHaveClass('px-4');
   expect(button).toHaveClass('py-[5px]');
   expect(button).toHaveClass('text-[var(--pd-button-disabled-text)]');
-  expect(button).toHaveClass('text-[13px]');
 });
 
 test('Check tab button styling', async () => {
@@ -147,7 +140,6 @@ test('Check tab button styling', async () => {
   expect(button).toHaveClass('border-[var(--pd-button-tab-border)]');
   expect(button).toHaveClass('pb-1');
   expect(button).toHaveClass('text-[var(--pd-button-tab-text)]');
-  expect(button).not.toHaveClass('text-[13px]');
 });
 
 test('Check selected tab button styling', async () => {

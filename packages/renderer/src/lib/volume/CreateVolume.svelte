@@ -61,9 +61,8 @@ export let volumeName = '';
   </svelte:fragment>
   <div slot="content" class="space-y-6">
     <div>
-      <label
-        for="containerBuildContextDirectory"
-        class="block mb-2 font-bold text-[var(--pd-content-card-header-text)]">Volume name:</label>
+      <label for="containerBuildContextDirectory" class="block mb-2 font-bold text-[var(--pd-content-card-header-text)]"
+        >Volume name:</label>
       <Input clearable aria-label="Volume Name" disabled="{createVolumeFinished}" bind:value="{volumeName}" required />
     </div>
     <div class:hidden="{providerConnections.length < 2}">

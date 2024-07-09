@@ -151,9 +151,7 @@ async function handleDeleteContext(contextName: string) {
               {:else}
                 <div class="flex flex-row pt-2">
                   <div class="w-3 h-3 rounded-full bg-[var(--pd-status-disconnected)]"></div>
-                  <div
-                    class="ml-1 text-xs text-[var(--pd-status-disconnected)]"
-                    aria-label="Context Unreachable">
+                  <div class="ml-1 text-xs text-[var(--pd-status-disconnected)]" aria-label="Context Unreachable">
                     {#if $kubernetesContextsState.get(context.name)}
                       UNREACHABLE
                     {:else}

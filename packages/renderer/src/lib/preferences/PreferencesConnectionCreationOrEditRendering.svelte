@@ -506,11 +506,11 @@ function getConnectionResourceConfigurationValue(
                     <Markdown>{configurationKey.markdownDescription}:</Markdown>
                   {/if}
                   {#if configurationKey.format === 'memory' || configurationKey.format === 'diskSize' || configurationKey.format === 'cpu'}
-                  <div class="text-gray-600">
-                    <EditableConnectionResourceItem
-                      record="{configurationKey}"
-                      value="{getConnectionResourceConfigurationValue(configurationKey, configurationValues)}"
-                      onSave="{setConfigurationValue}" />
+                    <div class="text-gray-600">
+                      <EditableConnectionResourceItem
+                        record="{configurationKey}"
+                        value="{getConnectionResourceConfigurationValue(configurationKey, configurationValues)}"
+                        onSave="{setConfigurationValue}" />
                     </div>
                   {/if}
                 </div>

@@ -87,9 +87,8 @@ function validate(event: any) {
       <div class="space-y-2">
         <label
           for="httpsProxy"
-          class="pt-4 mb-2 font-medium {proxyState
-            ? 'text-[var(--pd-invert-content-card-text)]'
-            : 'text-gray-900'}">Secure Web Proxy (HTTPS):</label>
+          class="pt-4 mb-2 font-medium {proxyState ? 'text-[var(--pd-invert-content-card-text)]' : 'text-gray-900'}"
+          >Secure Web Proxy (HTTPS):</label>
         <Input
           name="httpsProxy"
           id="httpsProxy"
@@ -105,9 +104,8 @@ function validate(event: any) {
       <div class="space-y-2">
         <label
           for="httpProxy"
-          class="pt-4 mb-2 font-medium {proxyState
-            ? 'text-[var(--pd-invert-content-card-text)]'
-            : 'text-gray-900'}">Bypass proxy settings for these hosts and domains:</label>
+          class="pt-4 mb-2 font-medium {proxyState ? 'text-[var(--pd-invert-content-card-text)]' : 'text-gray-900'}"
+          >Bypass proxy settings for these hosts and domains:</label>
         <Input
           name="noProxy"
           id="noProxy"

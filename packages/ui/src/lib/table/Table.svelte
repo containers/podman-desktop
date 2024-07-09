@@ -201,7 +201,8 @@ function toggleChildren(name: string | undefined): void {
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <!-- svelte-ignore a11y-interactive-supports-focus -->
         <div
-          class="max-w-full overflow-hidden flex flex-row text-sm font-semibold items-center whitespace-nowrap {column.info.align === 'right'
+          class="max-w-full overflow-hidden flex flex-row text-sm font-semibold items-center whitespace-nowrap {column
+            .info.align === 'right'
             ? 'justify-self-end'
             : column.info.align === 'center'
               ? 'justify-self-center'

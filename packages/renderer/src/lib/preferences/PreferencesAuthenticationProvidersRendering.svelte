@@ -68,11 +68,11 @@ import SettingsPage from './SettingsPage.svelte';
                   {provider.displayName}
                 </div>
                 <div class="flex flex-row items-center w-full h-full">
-                    <Fa
-                      class="h-3 w-3 text-sm mr-2 text-[var(--pd-status-{provider.accounts.length > 0
-                        ? 'connected'
-                        : 'disconnected'})]"
-                      icon="{faCircle}" />
+                  <Fa
+                    class="h-3 w-3 text-sm mr-2 text-[var(--pd-status-{provider.accounts.length > 0
+                      ? 'connected'
+                      : 'disconnected'})]"
+                    icon="{faCircle}" />
                   <div
                     class="uppercase text-xs text-[var(--pd-status-{provider.accounts.length > 0
                       ? 'connected'

@@ -363,9 +363,7 @@ async function abortBuild() {
       <label for="containerBuildPlatform" class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
         >Platform</label>
       {#if platforms.length > 1}
-        <p class="text-[var(--pd-content-text)] mb-2">
-          Multiple platforms selected, a manifest will be created
-        </p>
+        <p class="text-[var(--pd-content-text)] mb-2">Multiple platforms selected, a manifest will be created</p>
       {/if}
       <BuildImageFromContainerfileCards bind:platforms="{containerBuildPlatform}" />
     </div>

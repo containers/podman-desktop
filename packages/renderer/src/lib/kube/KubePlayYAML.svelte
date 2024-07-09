@@ -183,117 +183,117 @@ function goBackToHistory(): void {
           class="w-full p-2" />
       </div>
 
-        <div class="text-base font-bold text-[var(--pd-content-card-header-text)]">Runtime</div>
+      <div class="text-base font-bold text-[var(--pd-content-card-header-text)]">Runtime</div>
 
-          <div class="flex flex-col">
-            <button
-              hidden="{providerConnections.length === 0}"
-              class:border-2="{defaultContextName}"
-              class="rounded-md p-5 cursor-pointer bg-[var(--pd-content-card-inset-bg)]"
-              class:border-[var(--pd-content-card-border-selected)]="{userChoice === 'podman'}"
-              class:border-[var(--pd-content-card-border)]="{userChoice !== 'podman'}"
-              on:click="{() => {
-                userChoice = 'podman';
-              }}">
-              <div class="flex flex-row align-middle items-center">
-                <div
-                  class="text-2xl"
-                  class:text-[var(--pd-content-card-border-selected)]="{userChoice === 'podman'}"
-                  class:text-[var(--pd-content-card-border)]="{userChoice !== 'podman'}">
-                  <Fa icon="{faCircleCheck}" />
-                </div>
-                <div
-                  class="pl-2"
-                  class:text-[var(--pd-content-card-text)]="{userChoice === 'podman'}"
-                  class:text-[var(--pd-input-field-disabled-text)]="{userChoice !== 'podman'}">
-                  Podman container engine
-                </div>
-              </div>
-              <div hidden="{runStarted}">
-                {#if providerConnections.length > 1}
-                  <label
-                    for="providerConnectionName"
-                    class="py-6 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
-                    >Container Engine
-                    <select
-                      class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
-                      name="providerChoice"
-                      bind:value="{selectedProvider}">
-                      {#each providerConnections as providerConnection}
-                        <option value="{providerConnection}">{providerConnection.name}</option>
-                      {/each}
-                    </select>
-                  </label>
-                {/if}
-                {#if providerConnections.length === 1 && selectedProviderConnection}
-                  <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection.name}" />
-                {/if}
-              </div>
-            </button>
-            <button
-              hidden="{!defaultContextName}"
-              class="border-2 rounded-md p-5 cursor-pointer bg-[var(--pd-content-card-inset-bg)]"
-              class:border-[var(--pd-content-card-border-selected)]="{userChoice === 'kubernetes'}"
-              class:border-[var(--pd-content-card-border)]="{userChoice !== 'kubernetes'}"
-              on:click="{() => {
-                userChoice = 'kubernetes';
-              }}">
-              <div class="flex flex-row align-middle items-center">
-                <div
-                  class="text-2xl"
-                  class:text-[var(--pd-content-card-border-selected)]="{userChoice === 'kubernetes'}"
-                  class:text-[var(--pd-content-card-border)]="{userChoice !== 'kubernetes'}">
-                  <Fa icon="{faCircleCheck}" />
-                </div>
-                <div
-                  class="pl-2"
-                  class:text-[var(--pd-content-card-text)]="{userChoice === 'kubernetes'}"
-                  class:text-[var(--pd-input-field-disabled-text)]="{userChoice !== 'kubernetes'}">
-                  Kubernetes cluster
-                </div>
-              </div>
-
-              {#if defaultContextName}
-                <div class="pt-2">
-                  <label
-                    for="contextToUse"
-                    class="block mb-1 text-sm font-bold"
-                    class:text-[var(--pd-content-card-header-text)]="{userChoice === 'kubernetes'}"
-                    class:text-[var(--pd-input-field-disabled-text)]="{userChoice !== 'kubernetes'}"
-                    >Kubernetes Context:</label>
-                  <Input
-                    disabled="{userChoice === 'podman'}"
-                    bind:value="{defaultContextName}"
-                    name="defaultContextName"
-                    id="defaultContextName"
-                    readonly
-                    required />
-                </div>
-              {/if}
-
-              {#if allNamespaces}
-                <div class="pt-2">
-                  <label
-                    for="namespaceToUse"
-                    class="block mb-1 text-sm font-medium"
-                    class:text-[var(--pd-content-card-header-text)]="{userChoice === 'kubernetes'}"
-                    class:text-[var(--pd-input-field-disabled-text)]="{userChoice !== 'kubernetes'}"
-                    >Kubernetes namespace:</label>
-                  <select
-                    disabled="{userChoice === 'podman'}"
-                    class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
-                    name="namespaceChoice"
-                    bind:value="{currentNamespace}">
-                    {#each allNamespaces.items as namespace}
-                      <option value="{namespace.metadata?.name}">
-                        {namespace.metadata?.name}
-                      </option>
-                    {/each}
-                  </select>
-                </div>
-              {/if}
-            </button>
+      <div class="flex flex-col">
+        <button
+          hidden="{providerConnections.length === 0}"
+          class:border-2="{defaultContextName}"
+          class="rounded-md p-5 cursor-pointer bg-[var(--pd-content-card-inset-bg)]"
+          class:border-[var(--pd-content-card-border-selected)]="{userChoice === 'podman'}"
+          class:border-[var(--pd-content-card-border)]="{userChoice !== 'podman'}"
+          on:click="{() => {
+            userChoice = 'podman';
+          }}">
+          <div class="flex flex-row align-middle items-center">
+            <div
+              class="text-2xl"
+              class:text-[var(--pd-content-card-border-selected)]="{userChoice === 'podman'}"
+              class:text-[var(--pd-content-card-border)]="{userChoice !== 'podman'}">
+              <Fa icon="{faCircleCheck}" />
+            </div>
+            <div
+              class="pl-2"
+              class:text-[var(--pd-content-card-text)]="{userChoice === 'podman'}"
+              class:text-[var(--pd-input-field-disabled-text)]="{userChoice !== 'podman'}">
+              Podman container engine
+            </div>
           </div>
+          <div hidden="{runStarted}">
+            {#if providerConnections.length > 1}
+              <label
+                for="providerConnectionName"
+                class="py-6 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
+                >Container Engine
+                <select
+                  class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
+                  name="providerChoice"
+                  bind:value="{selectedProvider}">
+                  {#each providerConnections as providerConnection}
+                    <option value="{providerConnection}">{providerConnection.name}</option>
+                  {/each}
+                </select>
+              </label>
+            {/if}
+            {#if providerConnections.length === 1 && selectedProviderConnection}
+              <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection.name}" />
+            {/if}
+          </div>
+        </button>
+        <button
+          hidden="{!defaultContextName}"
+          class="border-2 rounded-md p-5 cursor-pointer bg-[var(--pd-content-card-inset-bg)]"
+          class:border-[var(--pd-content-card-border-selected)]="{userChoice === 'kubernetes'}"
+          class:border-[var(--pd-content-card-border)]="{userChoice !== 'kubernetes'}"
+          on:click="{() => {
+            userChoice = 'kubernetes';
+          }}">
+          <div class="flex flex-row align-middle items-center">
+            <div
+              class="text-2xl"
+              class:text-[var(--pd-content-card-border-selected)]="{userChoice === 'kubernetes'}"
+              class:text-[var(--pd-content-card-border)]="{userChoice !== 'kubernetes'}">
+              <Fa icon="{faCircleCheck}" />
+            </div>
+            <div
+              class="pl-2"
+              class:text-[var(--pd-content-card-text)]="{userChoice === 'kubernetes'}"
+              class:text-[var(--pd-input-field-disabled-text)]="{userChoice !== 'kubernetes'}">
+              Kubernetes cluster
+            </div>
+          </div>
+
+          {#if defaultContextName}
+            <div class="pt-2">
+              <label
+                for="contextToUse"
+                class="block mb-1 text-sm font-bold"
+                class:text-[var(--pd-content-card-header-text)]="{userChoice === 'kubernetes'}"
+                class:text-[var(--pd-input-field-disabled-text)]="{userChoice !== 'kubernetes'}"
+                >Kubernetes Context:</label>
+              <Input
+                disabled="{userChoice === 'podman'}"
+                bind:value="{defaultContextName}"
+                name="defaultContextName"
+                id="defaultContextName"
+                readonly
+                required />
+            </div>
+          {/if}
+
+          {#if allNamespaces}
+            <div class="pt-2">
+              <label
+                for="namespaceToUse"
+                class="block mb-1 text-sm font-medium"
+                class:text-[var(--pd-content-card-header-text)]="{userChoice === 'kubernetes'}"
+                class:text-[var(--pd-input-field-disabled-text)]="{userChoice !== 'kubernetes'}"
+                >Kubernetes namespace:</label>
+              <select
+                disabled="{userChoice === 'podman'}"
+                class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
+                name="namespaceChoice"
+                bind:value="{currentNamespace}">
+                {#each allNamespaces.items as namespace}
+                  <option value="{namespace.metadata?.name}">
+                    {namespace.metadata?.name}
+                  </option>
+                {/each}
+              </select>
+            </div>
+          {/if}
+        </button>
+      </div>
 
       {#if !runFinished}
         <Button
