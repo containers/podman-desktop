@@ -154,7 +154,7 @@ describe('Verification of container creation workflow', async () => {
     await playExpect(startButton).toBeVisible();
   });
 
-  test(`Start a container from the Containers list`, async () => {
+  test(`Start a container from the Containers page`, async () => {
     const navigationBar = new NavigationBar(page);
     const containers = await navigationBar.openContainers();
     const containersDetails = await containers.openContainersDetails(containerToRun);
@@ -164,12 +164,7 @@ describe('Verification of container creation workflow', async () => {
     await navigationBar.openContainers();
     await playExpect.poll(async () => await containers.containerExists(containerToRun)).toBeTruthy();
 
-    const containerRow = await containers.getContainerRowByName(containerToRun);
-    if (containerRow === undefined) {
-      throw Error(`Container: '${containerToRun}' does not exist`);
-    }
-
-    await containers.startContainerFromContainersList(containerRow);
+    await containers.startContainer(containerToRun);
 
     await containers.openContainersDetails(containerToRun);
     await playExpect
@@ -178,7 +173,7 @@ describe('Verification of container creation workflow', async () => {
     await playExpect(await containersDetails.getStateLocator()).toHaveText(ContainerState.Running.toLowerCase());
   });
 
-  test(`Stop a container from the Containers list`, async () => {
+  test(`Stop a container from the Containers page`, async () => {
     const navigationBar = new NavigationBar(page);
     const containers = await navigationBar.openContainers();
     const containersDetails = await containers.openContainersDetails(containerToRun);
@@ -188,12 +183,7 @@ describe('Verification of container creation workflow', async () => {
     await navigationBar.openContainers();
     await playExpect.poll(async () => await containers.containerExists(containerToRun)).toBeTruthy();
 
-    const containerRow = await containers.getContainerRowByName(containerToRun);
-    if (containerRow === undefined) {
-      throw Error(`Container: '${containerToRun}' does not exist`);
-    }
-
-    await containers.stopContainerFromContainersList(containerRow);
+    await containers.stopContainer(containerToRun);
 
     await containers.openContainersDetails(containerToRun);
     await playExpect
