@@ -169,9 +169,8 @@ function goBackToHistory(): void {
     <KubePlayIcon slot="icon" size="30px" />
 
     <div slot="content" class="space-y-6">
-      <div class="text-xl font-medium text-[var(--pd-content-card-header-text)]">Select file:</div>
       <div hidden="{runStarted}">
-        <label for="containerFilePath" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
+        <label for="containerFilePath" class="block mb-2 text-base font-bold text-[var(--pd-content-card-header-text)]"
           >Kubernetes YAML file</label>
         <FileInput
           name="containerFilePath"
@@ -184,11 +183,9 @@ function goBackToHistory(): void {
           class="w-full p-2" />
       </div>
 
-      <div>
-        <div class="text-sm font-bold text-[var(--pd-content-card-header-text)] pb-2">Select runtime:</div>
+        <div class="text-base font-bold text-[var(--pd-content-card-header-text)]">Runtime</div>
 
-        <div class="px-5">
-          <div class="flex flex-col space-y-3">
+          <div class="flex flex-col">
             <button
               hidden="{providerConnections.length === 0}"
               class:border-2="{defaultContextName}"
@@ -209,7 +206,7 @@ function goBackToHistory(): void {
                   class="pl-2"
                   class:text-[var(--pd-content-card-text)]="{userChoice === 'podman'}"
                   class:text-[var(--pd-input-field-disabled-text)]="{userChoice !== 'podman'}">
-                  Using a Podman container engine
+                  Podman container engine
                 </div>
               </div>
               <div hidden="{runStarted}">
@@ -252,7 +249,7 @@ function goBackToHistory(): void {
                   class="pl-2"
                   class:text-[var(--pd-content-card-text)]="{userChoice === 'kubernetes'}"
                   class:text-[var(--pd-input-field-disabled-text)]="{userChoice !== 'kubernetes'}">
-                  Using a Kubernetes cluster
+                  Kubernetes cluster
                 </div>
               </div>
 
@@ -270,7 +267,6 @@ function goBackToHistory(): void {
                     name="defaultContextName"
                     id="defaultContextName"
                     readonly
-                    class="w-full"
                     required />
                 </div>
               {/if}
@@ -298,8 +294,6 @@ function goBackToHistory(): void {
               {/if}
             </button>
           </div>
-        </div>
-      </div>
 
       {#if !runFinished}
         <Button

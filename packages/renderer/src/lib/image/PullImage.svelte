@@ -148,11 +148,11 @@ function requestFocus(element: HTMLInputElement) {
 
   <div slot="content" class="space-y-6">
     <div class="w-full">
-      <label for="imageName" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
+      <label for="imageName" class="block mb-2 font-bold text-[var(--pd-content-card-header-text)]"
         >Image to Pull</label>
       <input
         id="imageName"
-        class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] border-[1px] border-transparent border-b-[var(--pd-input-field-stroke)] rounded-sm text-[var(--pd-content-card-text)] placeholder:text-[color:var(--pd-input-field-placeholder-text)]"
+        class="w-full p-2 outline-none bg-[var(--pd-select-bg)] border-[1px] border-transparent border-b-[var(--pd-input-field-stroke)] rounded-sm text-[var(--pd-content-card-text)] placeholder:text-[color:var(--pd-input-field-placeholder-text)]"
         type="text"
         name="imageName"
         disabled="{pullFinished || pullInProgress}"
@@ -174,7 +174,7 @@ function requestFocus(element: HTMLInputElement) {
 
       {#if providerConnections.length > 1}
         <div class="pt-4">
-          <label for="providerChoice" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
+          <label for="providerChoice" class="block mb-2 font-bold text-[var(--pd-content-card-header-text)]"
             >Container Engine:</label>
           <select
             id="providerChoice"
