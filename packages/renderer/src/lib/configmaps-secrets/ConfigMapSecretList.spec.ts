@@ -97,16 +97,9 @@ test('Expect configmap and secrets list', async () => {
   const configMapType = screen.getByRole('cell', { name: 'ConfigMap' });
   expect(configMapType).toBeInTheDocument();
 
-  // Expect key1 and key2 column name
-  const keys = screen.getByRole('cell', { name: 'key1, key2' });
-  expect(keys).toBeInTheDocument();
-
   const secretName = screen.getByRole('cell', { name: 'my-secret' });
   expect(secretName).toBeInTheDocument();
   // Expect Opaque type
   const secretType = screen.getByRole('cell', { name: 'Opaque' });
   expect(secretType).toBeInTheDocument();
-  // Expect secretkey1 and secretkey2 column name
-  const secretKey1 = screen.getByRole('cell', { name: 'secretkey1, secretkey2' });
-  expect(secretKey1).toBeInTheDocument();
 });

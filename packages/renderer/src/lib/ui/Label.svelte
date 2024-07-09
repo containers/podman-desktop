@@ -3,8 +3,8 @@ import { Tooltip } from '@podman-desktop/ui-svelte';
 
 export let name = '';
 export let tip = '';
-export let capitalize = true;
 export let role: string | undefined = undefined;
+export let capitalize: boolean = false;
 </script>
 
 <Tooltip top tip="{tip}">
@@ -12,7 +12,7 @@ export let role: string | undefined = undefined;
     role="{role}"
     class="flex items-center bg-[var(--pd-label-bg)] p-1 rounded-md text-xs text-[var(--pd-label-text)] gap-x-1">
     <slot></slot>
-    <span class="{capitalize ? 'capitalize' : ''}">
+    <span class:capitalize="{capitalize}">
       {name}
     </span>
   </div>

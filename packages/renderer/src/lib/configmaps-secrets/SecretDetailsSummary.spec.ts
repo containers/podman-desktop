@@ -47,8 +47,10 @@ test('Confirm renders secret details summary', async () => {
 
   expect(screen.getByText('my-secret')).toBeInTheDocument();
   expect(screen.getByText('default')).toBeInTheDocument();
-  expect(screen.getByText('key1: value1')).toBeInTheDocument();
-  expect(screen.getByText('key2: value2')).toBeInTheDocument();
+  expect(screen.getByText('key1')).toBeInTheDocument();
+  expect(screen.getByText('value1')).toBeInTheDocument();
+  expect(screen.getByText('key2')).toBeInTheDocument();
+  expect(screen.getByText('value2')).toBeInTheDocument();
 
   // expect type to be shown
   expect(screen.getByText('Opaque')).toBeInTheDocument();
