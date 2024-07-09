@@ -151,7 +151,7 @@ describe('Check getDockerComposePath uses proper tooling by platform', () => {
     );
   });
 
-  test('linux should uses which', async () => {
+  test('linux should use which', async () => {
     (extensionApi.env.isLinux as boolean) = true;
     (extensionApi.env.isWindows as boolean) = false;
     (extensionApi.env.isMac as boolean) = false;
@@ -160,7 +160,7 @@ describe('Check getDockerComposePath uses proper tooling by platform', () => {
     expect(extensionApi.process.exec).toHaveBeenCalledWith('which', ['docker-compose']);
   });
 
-  test('mac should uses which', async () => {
+  test('mac should use which', async () => {
     (extensionApi.env.isMac as boolean) = true;
     (extensionApi.env.isWindows as boolean) = false;
     (extensionApi.env.isLinux as boolean) = false;
@@ -169,7 +169,7 @@ describe('Check getDockerComposePath uses proper tooling by platform', () => {
     expect(extensionApi.process.exec).toHaveBeenCalledWith('which', ['docker-compose']);
   });
 
-  test('windows should uses which', async () => {
+  test('windows should use which', async () => {
     (extensionApi.env.isWindows as boolean) = true;
     (extensionApi.env.isMac as boolean) = false;
     (extensionApi.env.isLinux as boolean) = false;
