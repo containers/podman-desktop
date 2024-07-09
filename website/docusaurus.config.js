@@ -43,10 +43,6 @@ const config = {
       {
         redirects: [
           {
-            to: '/api',
-            from: '/docs/extensions/api',
-          },
-          {
             to: '/downloads/windows',
             from: '/downloads/Windows',
           },
@@ -69,17 +65,12 @@ const config = {
           {
             to: '/docs/installation/windows-install',
             from: [
-              '/docs/Installation/windows-install',
               '/docs/installation/windows-install/installing-podman-desktop-silently-with-the-windows-installer',
-              '/docs/Installation/windows-install/installing-podman-desktop-silently-with-the-windows-installer',
               '/docs/installation/windows-install/installing-podman-desktop-with-chocolatey',
-              '/docs/Installation/windows-install/installing-podman-desktop-with-chocolatey',
               '/docs/installation/windows-install/installing-podman-desktop-with-scoop',
-              '/docs/Installation/windows-install/installing-podman-desktop-with-scoop',
               '/docs/installation/windows-install/installing-podman-desktop-with-winget',
-              '/docs/Installation/windows-install/installing-podman-desktop-with-winget',
-              '/docs/Installation/windows-install/installing-podman-with-openshift-local',
-              '/docs/Installation/windows-install/installing-podman-with-podman-desktop',
+              '/docs/installation/windows-install/installing-podman-with-openshift-local',
+              '/docs/installation/windows-install/installing-podman-with-podman-desktop',
               '/docs/onboarding-for-containers/installing-podman-with-openshift-local-on-windows',
               '/docs/onboarding-for-containers/installing-podman',
               '/docs/onboarding/containers/installing-podman-with-openshift-local-on-windows',
@@ -90,24 +81,10 @@ const config = {
             ],
           },
           {
-            to: '/docs/installation/macos-install',
-            from: '/docs/Installation/macos-install',
-          },
-          {
-            to: '/docs/installation/linux-install',
-            from: '/docs/Installation/linux-install',
-          },
-          {
-            to: '/docs/installation/linux-install/installing-podman-desktop-from-a-flatpak-bundle',
-            from: '/docs/Installation/linux-install/installing-podman-desktop-from-a-flatpak-bundle',
-          },
-          {
             to: '/docs/proxy',
             from: [
               '/docs/installation/windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment',
-              '/docs/Installation/windows-install/installing-podman-desktop-and-podman-in-a-restricted-environment',
               '/docs/installation/linux-install/installing-podman-desktop-from-a-compressed-tar-file',
-              '/docs/Installation/linux-install/installing-podman-desktop-from-a-compressed-tar-file',
               '/docs/proxy/using-a-proxy-in-your-containers',
               '/docs/proxy/using-a-proxy-on-linux',
               '/docs/proxy/using-a-proxy-requiring-a-custom-ca',
