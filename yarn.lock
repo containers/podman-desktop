@@ -11244,10 +11244,10 @@ filelist@^1.0.1:
   dependencies:
     minimatch "^3.0.4"
 
-filesize@^10.1.2:
-  version "10.1.2"
-  resolved "https://registry.yarnpkg.com/filesize/-/filesize-10.1.2.tgz#33bb71c5c134102499f1bc36e6f2863137f6cb0c"
-  integrity sha512-Dx770ai81ohflojxhU+oG+Z2QGvKdYxgEr9OSA8UVrqhwNHjfH9A8f5NKfg83fEH8ZFA5N5llJo5T3PIoZ4CRA==
+filesize@^10.1.4:
+  version "10.1.4"
+  resolved "https://registry.yarnpkg.com/filesize/-/filesize-10.1.4.tgz#184f256063a201f08b6e6b3cc47d21b60f5b8d89"
+  integrity sha512-ryBwPIIeErmxgPnm6cbESAzXjuEFubs+yKYLBZvg3CaiNcmkJChoOGcBSrZ6IwkMwPABwPpVXE6IlNdGJJrvEg==
 
 filesize@^8.0.6:
   version "8.0.7"
