@@ -48,7 +48,7 @@ export class ExtensionsPage extends MainPage {
     await playExpect(this.installExtensionFromOCIImageButton).toBeEnabled();
     await this.installExtensionFromOCIImageButton.click();
 
-    const dialog = this.page.getByRole('dialog', { name: 'Install Extension from OCI image' });
+    const dialog = this.page.getByRole('dialog', { name: 'Install Custom Extension', exact: true });
     await playExpect(dialog).toBeVisible();
     const imageInput = dialog.getByRole('textbox', { name: 'Image name to install custom extension' });
     // check visibility of the input
