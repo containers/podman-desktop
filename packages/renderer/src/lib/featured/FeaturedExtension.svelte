@@ -20,7 +20,7 @@ export let displayTitle: boolean = false;
   aria-label="{featuredExtension.displayName}">
   <div class="flex flex-col flex-1">
     {#if displayTitle}
-      <span class="text-xs font-bold mb-1.5">EXTENSION</span>
+      <span class="text-sm font-bold mb-1.5">EXTENSION</span>
     {/if}
     <div class="flex flex-row place-items-center flex-1">
       <div>
@@ -36,14 +36,14 @@ export let displayTitle: boolean = false;
         {#if featuredExtension.installed}
           <div class="text-dustypurple-700 p-1 text-center flex flex-row place-items-center">
             <Fa class="ml-1.5 mr-2" size="1.1x" icon="{faCheckCircle}" />
-            <div class="uppercase font-bold text-xs cursor-default">installed</div>
+            <div class="uppercase font-bold text-sm cursor-default">installed</div>
           </div>
         {:else if featuredExtension.fetchable}
           <FeaturedExtensionDownload extension="{featuredExtension}" />
         {:else}
           <div class="text-charcoal-300 p-1 text-center flex flex-row place-items-center">
             <Fa class="ml-1.5 mr-1" size="1.1x" icon="{faCircleXmark}" />
-            <div class="uppercase text-xs cursor-default font-extralight">N/A</div>
+            <div class="uppercase text-sm cursor-default font-extralight">N/A</div>
           </div>
         {/if}
       </div>

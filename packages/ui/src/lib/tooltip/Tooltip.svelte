@@ -66,7 +66,7 @@ export let left = false;
     <slot />
   </span>
   <div
-    class="whitespace-nowrap absolute tooltip opacity-0 inline-block transition-opacity duration-150 ease-in-out pointer-events-none z-[10]"
+    class="whitespace-nowrap absolute tooltip opacity-0 inline-block transition-opacity duration-150 ease-in-out pointer-events-none text-sm z-[10]"
     class:left="{left}"
     class:right="{right}"
     class:bottom="{bottom}"
@@ -77,14 +77,14 @@ export let left = false;
     class:bottom-right="{bottomRight}">
     {#if tip}
       <div
-        class="inline-block py-2 px-4 rounded-md bg-[var(--pd-tooltip-bg)] text-xs text-[var(--pd-tooltip-text)] border-[1px] border-[var(--pd-tooltip-border)]"
+        class="inline-block py-2 px-4 rounded-md bg-[var(--pd-tooltip-bg)] text-[var(--pd-tooltip-text)] border-[1px] border-[var(--pd-tooltip-border)]"
         aria-label="tooltip">
         {tip}
       </div>
     {/if}
     {#if $$slots.tip && !tip}
       <div
-        class="inline-block rounded-md bg-[var(--pd-tooltip-bg)] text-xs text-[var(--pd-tooltip-text)] border-[1px] border-[var(--pd-tooltip-border)]"
+        class="inline-block rounded-md bg-[var(--pd-tooltip-bg)] text-[var(--pd-tooltip-text)] border-[1px] border-[var(--pd-tooltip-border)]"
         aria-label="tooltip">
         <slot name="tip" />
       </div>
