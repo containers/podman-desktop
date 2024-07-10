@@ -55,7 +55,7 @@ export class ContainersPage extends MainPage {
       throw Error(`Container: '${containerName}' does not exist`);
     }
     const containerRowStartButton = containerRow.getByRole('button', { name: 'Start Container' });
-    await playExpect(containerRowStartButton).toBeVisible();
+    await playExpect(containerRowStartButton).toBeEnabled();
     await containerRowStartButton.click();
     return this;
   }
@@ -66,7 +66,7 @@ export class ContainersPage extends MainPage {
       throw Error(`Container: '${containerName}' does not exist`);
     }
     const containerRowStopButton = containerRow.getByRole('button', { name: 'Stop Container' });
-    await playExpect(containerRowStopButton).toBeVisible();
+    await playExpect(containerRowStopButton).toBeEnabled();
     await containerRowStopButton.click();
 
     return this;
