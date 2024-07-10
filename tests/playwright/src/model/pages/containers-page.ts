@@ -68,8 +68,20 @@ export class ContainersPage extends MainPage {
     const containerRowStopButton = containerRow.getByRole('button', { name: 'Stop Container' });
     await playExpect(containerRowStopButton).toBeVisible();
     await containerRowStopButton.click();
-
     return this;
+  }
+
+  async deleteContainer(containerName: string): Promise<ContainersPage> {
+    const containerRow = await this.getContainerRowByName(containerName);
+    if (containerRow === undefined) {
+      throw Error(`Container: '${containerName}' does not exist`);
+    }
+    const containerRowDeleteButton = containerRow.getByRole('button', { name: 'Delete Container' });
+    await playExpect(containerRowDeleteButton).toBeVisible();
+    await playExpect(containerRowDeleteButton).toBeEnabled();
+    await containerRowDeleteButton.click();
+    await handleConfirmationDialog(this.page);
+    return new ContainersPage(this.page);
   }
 
   async stopContainerFromDetails(container: string): Promise<ContainerDetailsPage> {
