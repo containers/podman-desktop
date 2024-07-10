@@ -69,4 +69,29 @@ export abstract class MainPage extends BasePage {
 
     return this.content.getByRole('table');
   }
+
+  async getRowFromTableByName(name: string): Promise<Locator | undefined> {
+    if (await this.pageIsEmpty()) {
+      return undefined;
+    }
+
+    try {
+      const table = await this.getTable();
+      const rows = await table.getByRole('row').all();
+      for (let i = rows.length - 1; i >= 0; i--) {
+        const nameCell = await rows[i].getByRole('cell').nth(3).getByText(name, { exact: true }).count();
+        if (nameCell) {
+          return rows[i];
+        } else if (this.title === 'containers') {
+          const subRow = await rows[i].getByLabel(name, { exact: true }).count();
+          if (subRow) {
+            return rows[i];
+          }
+        }
+      }
+    } catch (err) {
+      console.log(`Exception caught on ${this.title} page with message: ${err}`);
+    }
+    return undefined;
+  }
 }

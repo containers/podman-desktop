@@ -102,22 +102,7 @@ export class ImagesPage extends MainPage {
   }
 
   async getImageRowByName(name: string): Promise<Locator | undefined> {
-    if (await this.pageIsEmpty()) {
-      return undefined;
-    }
-    try {
-      const table = await this.getTable();
-      const rows = await table.getByRole('row').all();
-      for (let i = rows.length - 1; i > 0; i--) {
-        const thirdCell = await rows[i].getByRole('cell').nth(3).getByText(name, { exact: true }).count();
-        if (thirdCell) {
-          return rows[i];
-        }
-      }
-    } catch (err) {
-      console.log(`Exception caught on image page with message: ${err}`);
-    }
-    return undefined;
+    return this.getRowFromTableByName(name);
   }
 
   protected async imageExists(name: string): Promise<boolean> {
