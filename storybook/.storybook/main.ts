@@ -40,10 +40,7 @@ const config: StorybookConfig = {
   typescript: {
     check: true,
   },
-  framework: {
-    name: getAbsolutePath('@storybook/svelte-vite'),
-    options: {},
-  },
+  framework: getAbsolutePath('@storybook/svelte-vite'),
   docs: {
     autodocs: 'tag',
   },
