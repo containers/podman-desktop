@@ -18,6 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
+import { fireEvent } from '@testing-library/dom';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
@@ -119,4 +120,67 @@ test('Expect onSave to be called with initial value if input is cancelled', asyn
   await userEvent.click(buttonCancel);
 
   expect(onSave).toBeCalledWith('record', 20000000000);
+});
+
+test('Expect input to render with the right units', async () => {
+  const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'Disk size',
+    type: 'number',
+    format: 'memory',
+    minimum: 10000000000, // 10 GB
+    maximum: 1500000000000, // 1.5 TB
+  };
+  const value = 10000000000; // 10 GB
+
+  const { rerender } = render(EditableConnectionResourceItem, { record, value, onSave: onSave });
+  expect(screen.getByTestId('editable-item-description')).toHaveTextContent('GB');
+  expect(screen.getByTestId('editable-item-value')).toHaveTextContent('10');
+
+  rerender({ record, value: 1000000000000, onSave: onSave });
+  expect(screen.getByTestId('editable-item-description')).toHaveTextContent('TB');
+  expect(screen.getByTestId('editable-item-value')).toHaveTextContent('1');
+
+  rerender({ record, value: 1500000000000, onSave: onSave });
+  expect(screen.getByTestId('editable-item-description')).toHaveTextContent('TB');
+  expect(screen.getByTestId('editable-item-value')).toHaveTextContent('1.5');
+});
+
+test('Expect input to render with the right units when value is updated', async () => {
+  const user = userEvent.setup();
+  const record: IConfigurationPropertyRecordedSchema = {
+    id: 'record',
+    title: 'record',
+    parentId: 'parent.record',
+    description: 'Disk size',
+    type: 'number',
+    format: 'memory',
+    minimum: 10000000000, // 10 GB
+    maximum: 1500000000000, // 1.5 TB
+  };
+  const value = 10000000000; // 10 GB
+
+  const onSaveMock = (recordId: string, newValue: number) => {
+    rerender({ record, value: newValue, onSave: onSaveMock });
+  };
+
+  const { rerender } = render(EditableConnectionResourceItem, { record, value, onSave: onSaveMock });
+  const buttonEdit = screen.getByRole('button', { name: 'Edit' });
+  expect(buttonEdit).toBeInTheDocument();
+  await user.click(buttonEdit);
+
+  let input = await screen.findByLabelText('Disk size');
+  expect(input).toBeInTheDocument();
+
+  fireEvent.input(input, { target: { value: '1000' } });
+  expect(screen.getByTestId('editable-item-description')).toHaveTextContent('TB');
+  expect(screen.getByTestId('editable-item-value')).toHaveTextContent('1');
+
+  await user.click(screen.getByRole('button', { name: 'Edit' }));
+  input = await screen.findByLabelText('Disk size');
+  fireEvent.input(input, { target: { value: '0.1' } });
+  expect(screen.getByTestId('editable-item-description')).toHaveTextContent('GB');
+  expect(screen.getByTestId('editable-item-value')).toHaveTextContent('100');
 });
