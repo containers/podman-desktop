@@ -19,33 +19,20 @@
 import type { Locator, Page } from '@playwright/test';
 
 import { handleConfirmationDialog } from '../../utility/operations';
-import { BasePage } from './base-page';
+import { MainPage } from './main-page';
 import { PlayKubeYamlPage } from './play-kube-yaml-page';
 import { PodDetailsPage } from './pods-details-page';
 
-export class PodsPage extends BasePage {
-  readonly heading: Locator;
+export class PodsPage extends MainPage {
   readonly playKubernetesYAMLButton: Locator;
   readonly prunePodsButton: Locator;
   readonly pruneConfirmationButton: Locator;
 
   constructor(page: Page) {
-    super(page);
-    this.heading = this.page.getByRole('heading', { name: 'pods', exact: true });
+    super(page, 'pods');
     this.playKubernetesYAMLButton = this.page.getByRole('button', { name: 'Play Kubernetes YAML' });
     this.prunePodsButton = this.page.getByRole('button', { name: 'Prune' });
     this.pruneConfirmationButton = this.page.getByRole('button', { name: 'Yes' });
-  }
-
-  async getTable(): Promise<Locator> {
-    if (await this.pageIsEmpty()) throw Error('Page is empty, there are no pods');
-
-    return this.page.getByRole('table');
-  }
-
-  async pageIsEmpty(): Promise<boolean> {
-    const noPodsHeading = await this.page.getByRole('heading', { name: 'No Pods', exact: true }).count();
-    return noPodsHeading > 0;
   }
 
   async openPodDetails(name: string): Promise<PodDetailsPage> {
@@ -58,22 +45,7 @@ export class PodsPage extends BasePage {
   }
 
   async getPodRowByName(name: string): Promise<Locator | undefined> {
-    if (await this.pageIsEmpty()) {
-      return undefined;
-    }
-    try {
-      const podsTable = await this.getTable();
-      const rows = await podsTable.getByRole('row').all();
-      for (let i = rows.length - 1; i > 0; i--) {
-        const nameCell = await rows[i].getByRole('cell').nth(3).getByText(name, { exact: true }).count();
-        if (nameCell) {
-          return rows[i];
-        }
-      }
-    } catch (err) {
-      console.log(`Exception caught on pod page with message: ${err}`);
-    }
-    return undefined;
+    return this.getRowFromTableByName(name);
   }
 
   async podExists(name: string): Promise<boolean> {

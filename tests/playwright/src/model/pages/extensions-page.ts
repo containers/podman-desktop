@@ -30,6 +30,7 @@ export class ExtensionsPage extends MainPage {
   readonly additionalActions: Locator;
   readonly installedTab: Locator;
   readonly catalogTab: Locator;
+  readonly installExtensionFromOCIImageButton: Locator;
 
   constructor(page: Page) {
     super(page, 'extensions');
@@ -39,15 +40,15 @@ export class ExtensionsPage extends MainPage {
     this.additionalActions = this.header.getByRole('group', { name: 'additionalActions' });
     this.installedTab = this.page.getByRole('button', { name: 'Installed' });
     this.catalogTab = this.page.getByRole('button', { name: 'Catalog' });
+    this.installExtensionFromOCIImageButton = this.additionalActions.getByLabel('Install custom');
   }
 
   public async installExtensionFromOCIImage(extension: string): Promise<ExtensionsPage> {
     // open button to install extension from OCI image
-    const instalButton = this.getInstallManuallyButton();
-    await playExpect(instalButton).toBeEnabled();
-    await instalButton.click();
+    await playExpect(this.installExtensionFromOCIImageButton).toBeEnabled();
+    await this.installExtensionFromOCIImageButton.click();
 
-    const dialog = this.page.getByRole('dialog', { name: 'Install Extension from OCI image' });
+    const dialog = this.page.getByRole('dialog', { name: 'Install Custom Extension', exact: true });
     await playExpect(dialog).toBeVisible();
     const imageInput = dialog.getByRole('textbox', { name: 'Image name to install custom extension' });
     // check visibility of the input
@@ -73,10 +74,6 @@ export class ExtensionsPage extends MainPage {
 
   public async openCatalogTab(): Promise<void> {
     await this.catalogTab.click();
-  }
-
-  public getInstallManuallyButton(): Locator {
-    return this.additionalActions.getByRole('button', { name: 'Install custom...', exact: true });
   }
 
   public async openExtensionDetails(name: string, label: string, heading: string): Promise<ExtensionDetailsPage> {

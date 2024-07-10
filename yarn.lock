@@ -9851,10 +9851,10 @@ docusaurus-plugin-goatcounter@^3.0.0:
   resolved "https://registry.yarnpkg.com/docusaurus-plugin-goatcounter/-/docusaurus-plugin-goatcounter-3.0.0.tgz#da55f2fae91a70ccf0af09ee3f53d000c61a2642"
   integrity sha512-nlB8VOj+kzL9rAY0zICsktbaJoy2M8CBcRAOaltGAo5RrvDj7pMCgV067FiFF0dBrgn2k6+aC4/g/T50XvvJJw==
 
-docusaurus-plugin-typedoc@1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/docusaurus-plugin-typedoc/-/docusaurus-plugin-typedoc-1.0.2.tgz#c08783259f24a5a4c0db40342ba7a64a2c86b672"
-  integrity sha512-V7ZOjsFVByfVuhIIFSVJCWKBQzIHLxl3W+sLVDUqMo/fwPZrHFFD0WropfPdZ7MR7AA697+0BeUWMEpLyO/QPw==
+docusaurus-plugin-typedoc@1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/docusaurus-plugin-typedoc/-/docusaurus-plugin-typedoc-1.0.3.tgz#a94e867ef19c1ea2f863d596a115c87d6f013be6"
+  integrity sha512-/SUZJgqZPRBevOK2/n9CN+mkYih+y5rZ+bbEry1LNNwiZlSABAJX/cfCosCCY8s7KmNdJ6jOxmaeLpUWCSDEbg==
 
 dom-accessibility-api@^0.5.9:
   version "0.5.16"
@@ -10166,10 +10166,10 @@ electron-util@^0.18.1:
     electron-is-dev "^3.0.1"
     new-github-issue-url "^1.0.0"
 
-electron@31.1.0:
-  version "31.1.0"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-31.1.0.tgz#2836dbeb8f80c9b278aa4563c8fc3a6e6afbe723"
-  integrity sha512-TBOwqLxSxnx6+pH6GMri7R3JPH2AkuGJHfWZS0p1HsmN+Qr1T9b0IRJnnehSd/3NZAmAre4ft9Ljec7zjyKFJA==
+electron@31.2.0:
+  version "31.2.0"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-31.2.0.tgz#f6dc4c42f9118fd0f57b3c04676503df2bf16ece"
+  integrity sha512-5w+kjOsGiTXytPSErBPNp/3znnuEMKc42RD41MqRoQkiYaR8x/Le2+qWk1cL60UwE/67oeKnOHnnol8xEuldGg==
   dependencies:
     "@electron/get" "^2.0.0"
     "@types/node" "^20.9.0"
@@ -15073,14 +15073,7 @@ minimatch@9.0.3:
   dependencies:
     brace-expansion "^2.0.1"
 
-minimatch@^9.0.4:
-  version "9.0.4"
-  resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-9.0.4.tgz#8e49c731d1749cbec05050ee5145147b32496a51"
-  integrity sha512-KqWh+VchfxcMNRAJjj2tnsSJdNbHsVgnkBhTNrW7AjVo6OvLtxw8zfT9oLw1JSohlFzJ8jCoTgaoXvJ+kHt6fw==
-  dependencies:
-    brace-expansion "^2.0.1"
-
-minimatch@^9.0.5:
+minimatch@^9.0.4, minimatch@^9.0.5:
   version "9.0.5"
   resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-9.0.5.tgz#d74f9dd6b57d83d8e98cfb82133b03978bc929e5"
   integrity sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==
@@ -18633,13 +18626,10 @@ svelte-preprocess@^5.1.1, svelte-preprocess@^5.1.3:
     sorcery "^0.11.0"
     strip-indent "^3.0.0"
 
-svelte-preprocess@^6.0.1:
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/svelte-preprocess/-/svelte-preprocess-6.0.1.tgz#d105bac011899d6938f7a2a1bb2a5b6b18ed1e80"
-  integrity sha512-vNgXoyqWwahdpEX9XbQHcAHt41TkXnf8bRDxT5PjISHbZD1dVH4b2OsJ2fVQTBb3qP05x0GuYE9iS5vhD+Dniw==
-  dependencies:
-    detect-indent "^6.1.0"
-    strip-indent "^3.0.0"
+svelte-preprocess@^6.0.2:
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/svelte-preprocess/-/svelte-preprocess-6.0.2.tgz#920bd53b1127757edb0a7d946dace75a0cac9ecf"
+  integrity sha512-OvDTLfaOkkhjprbDKO0SOCkjNYuHy16dbD4SpqbIi6QiabOMHxRT4km5/dzbFFkmW1L0E2INF3MFltG2pgOyKQ==
 
 svelte-steps@2.4.1:
   version "2.4.1"
@@ -19290,10 +19280,10 @@ typedoc-plugin-markdown@^4.1.2:
   resolved "https://registry.yarnpkg.com/typedoc-plugin-markdown/-/typedoc-plugin-markdown-4.1.2.tgz#0951cfd33a2059940db900ada3c174522f13177c"
   integrity sha512-jZt8jmQLbmg9jmFQyfJrjLf6ljRwJ5fKMeqmFr0oPXmeX5ZRYYtCe6y/058vDESE/R+TwEvNua6SuG43UBbszw==
 
-typedoc@^0.26.3:
-  version "0.26.3"
-  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.26.3.tgz#723b2c4ca5dd1d9baf43d6a5a1f4d640ba4207a8"
-  integrity sha512-6d2Sw9disvvpdk4K7VNjKr5/3hzijtfQVHRthhDqJgnhMHy1wQz4yPMJVKXElvnZhFr0nkzo+GzjXDTRV5yLpg==
+typedoc@^0.26.4:
+  version "0.26.4"
+  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.26.4.tgz#7e83047369a29a710d429dac20996680cae9a314"
+  integrity sha512-FlW6HpvULDKgc3rK04V+nbFyXogPV88hurarDPOjuuB5HAwuAlrCMQ5NeH7Zt68a/ikOKu6Z/0hFXAeC9xPccQ==
   dependencies:
     lunr "^2.3.9"
     markdown-it "^14.1.0"

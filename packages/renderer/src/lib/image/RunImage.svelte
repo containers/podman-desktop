@@ -498,6 +498,7 @@ function addHostContainerPorts() {
 
 function deleteHostContainerPorts(index: number) {
   hostContainerPortMappings = hostContainerPortMappings.filter((_, i) => i !== index);
+  assertAllPortAreValid();
 }
 
 async function browseFolders(index: number) {

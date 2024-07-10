@@ -94,31 +94,7 @@ export class ContainersPage extends MainPage {
   }
 
   async getContainerRowByName(name: string): Promise<Locator | undefined> {
-    if (await this.pageIsEmpty()) {
-      return undefined;
-    }
-    let containersTable;
-    try {
-      containersTable = await this.getTable();
-      const rows = await containersTable.getByRole('row').all();
-
-      for (let i = rows.length - 1; i >= 0; i--) {
-        const thirdCell = await rows[i].getByRole('cell').nth(3).getByText(name, { exact: true }).count();
-
-        if (thirdCell) {
-          return rows[i];
-        } else {
-          // this workaround still returns the row element, not the specific grid class <div> that corresponds to the pod in multi-pod containers
-          const subRow = await rows[i].getByLabel(name, { exact: true }).count();
-          if (subRow) {
-            return rows[i];
-          }
-        }
-      }
-    } catch (err) {
-      console.log(`Exception caught on containers page with message: ${err}`);
-    }
-    return undefined;
+    return this.getRowFromTableByName(name);
   }
 
   async uncheckAllContainers(): Promise<void> {
