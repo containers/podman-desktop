@@ -15073,14 +15073,7 @@ minimatch@9.0.3:
   dependencies:
     brace-expansion "^2.0.1"
 
-minimatch@^9.0.4:
-  version "9.0.4"
-  resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-9.0.4.tgz#8e49c731d1749cbec05050ee5145147b32496a51"
-  integrity sha512-KqWh+VchfxcMNRAJjj2tnsSJdNbHsVgnkBhTNrW7AjVo6OvLtxw8zfT9oLw1JSohlFzJ8jCoTgaoXvJ+kHt6fw==
-  dependencies:
-    brace-expansion "^2.0.1"
-
-minimatch@^9.0.5:
+minimatch@^9.0.4, minimatch@^9.0.5:
   version "9.0.5"
   resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-9.0.5.tgz#d74f9dd6b57d83d8e98cfb82133b03978bc929e5"
   integrity sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==
@@ -19287,10 +19280,10 @@ typedoc-plugin-markdown@^4.1.2:
   resolved "https://registry.yarnpkg.com/typedoc-plugin-markdown/-/typedoc-plugin-markdown-4.1.2.tgz#0951cfd33a2059940db900ada3c174522f13177c"
   integrity sha512-jZt8jmQLbmg9jmFQyfJrjLf6ljRwJ5fKMeqmFr0oPXmeX5ZRYYtCe6y/058vDESE/R+TwEvNua6SuG43UBbszw==
 
-typedoc@^0.26.3:
-  version "0.26.3"
-  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.26.3.tgz#723b2c4ca5dd1d9baf43d6a5a1f4d640ba4207a8"
-  integrity sha512-6d2Sw9disvvpdk4K7VNjKr5/3hzijtfQVHRthhDqJgnhMHy1wQz4yPMJVKXElvnZhFr0nkzo+GzjXDTRV5yLpg==
+typedoc@^0.26.4:
+  version "0.26.4"
+  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.26.4.tgz#7e83047369a29a710d429dac20996680cae9a314"
+  integrity sha512-FlW6HpvULDKgc3rK04V+nbFyXogPV88hurarDPOjuuB5HAwuAlrCMQ5NeH7Zt68a/ikOKu6Z/0hFXAeC9xPccQ==
   dependencies:
     lunr "^2.3.9"
     markdown-it "^14.1.0"
