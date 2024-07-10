@@ -202,7 +202,34 @@ describe('Verification of container creation workflow', async () => {
     await playExpect.poll(async () => await containersPage.containerExists(containerToRun)).toBeFalsy();
   });
 
-  //TODO: delete container from containers list
+  test(`Deleting a container from the Containers page`, async () => {
+    //re-start the container from an image
+    const navigationBar = new NavigationBar(page);
+    let images = await navigationBar.openImages();
+    const imageDetails = await images.openImageDetails(imageToPull);
+    const runImage = await imageDetails.openRunImage();
+    const containers = await runImage.startContainer(containerToRun, containerStartParams);
+    await playExpect(containers.header).toBeVisible();
+    await playExpect
+      .poll(async () => await containers.containerExists(containerToRun), { timeout: 10000 })
+      .toBeTruthy();
+    await pdRunner.screenshot('containers-container-exists.png');
+    const containerDetails = await containers.openContainersDetails(containerToRun);
+    await playExpect
+      .poll(async () => await containerDetails.getState(), { timeout: 10000 })
+      .toContain(ContainerState.Running.toLowerCase());
+
+    images = await navigationBar.openImages();
+    playExpect(await images.getCurrentStatusOfImage(imageToPull)).toBe('USED');
+
+    //delete it from containers page
+    await navigationBar.openContainers();
+    const containersPage = await containers.deleteContainer(containerToRun);
+    await playExpect(containersPage.heading).toBeVisible();
+    await playExpect
+      .poll(async () => await containersPage.containerExists(containerToRun), { timeout: 15000 })
+      .toBeFalsy();
+  });
 
   test('Prune containers', async () => {
     const navigationBar = new NavigationBar(page);
