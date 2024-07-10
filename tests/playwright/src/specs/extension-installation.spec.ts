@@ -35,16 +35,20 @@ const ACTIVE = 'ACTIVE';
 const RUNNING = 'RUNNING';
 const NOT_INSTALLED = 'NOT-INSTALLED';
 const DOWNLOADABLE = 'DOWNLOADABLE';
+const OPENSHIFT_LOCAL = 'Red Hat Openshift Local';
+const OPENSHIFT_SANDBOX = 'Red Hat OpenShift Sandbox';
+const OPENSHIFT_CHECKER = 'Red Hat Openshift Checker';
 
 let pdRunner: PodmanDesktopRunner;
 let page: Page;
 
-let extensionDashboardStatus: Locator;
-let extensionDashboardProvider: Locator;
+let extensionDashboardStatus: Locator | undefined;
+let extensionDashboardProvider: Locator | undefined;
 let installButtonLabel: string;
 let extensionName: string;
 let extensionLabel: string;
-let resourceLabel: string;
+let resourceLabel: string | undefined;
+let ociImageUrl: string;
 
 let navBar: NavigationBar;
 
@@ -65,14 +69,18 @@ const _shutdown = async function (): Promise<void> {
 
 beforeEach<RunnerTestContext>(async ctx => {
   ctx.pdRunner = pdRunner;
+  ctx.task.fails;
 });
 
 describe.each([
   {
-    extensionType: 'Red Hat OpenShift Sandbox',
+    extensionType: OPENSHIFT_SANDBOX,
   },
   {
-    extensionType: 'Red Hat Openshift Local',
+    extensionType: OPENSHIFT_LOCAL,
+  },
+  {
+    extensionType: OPENSHIFT_CHECKER,
   },
 ])('$extensionType installation verification', async ({ extensionType }) => {
   beforeAll(_startup);
@@ -83,19 +91,40 @@ describe.each([
     await navBar.openExtensions();
   });
 
-  test('Install extension through Extensions Catalog', async () => {
-    const extensionsPage = new ExtensionsPage(page);
+  test.runIf(extensionType === OPENSHIFT_LOCAL || extensionType === OPENSHIFT_SANDBOX)(
+    'Install extension through Extensions Catalog',
+    async () => {
+      const extensionsPage = new ExtensionsPage(page);
 
-    await extensionsPage.openCatalogTab();
-    const extensionCatalog = new ExtensionCatalogCardPage(page, extensionType);
-    await playExpect(extensionCatalog.parent).toBeVisible();
+      await extensionsPage.openCatalogTab();
+      const extensionCatalog = new ExtensionCatalogCardPage(page, extensionType);
+      await playExpect(extensionCatalog.parent).toBeVisible();
 
-    await playExpect.poll(async () => await extensionCatalog.isInstalled()).toBeFalsy();
-    await extensionCatalog.install(180000);
+      await playExpect.poll(async () => await extensionCatalog.isInstalled()).toBeFalsy();
+      await extensionCatalog.install(180000);
 
-    await extensionsPage.openInstalledTab();
-    await playExpect.poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel)).toBeTruthy();
-  }, 200000);
+      await extensionsPage.openInstalledTab();
+      await playExpect.poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel)).toBeTruthy();
+    },
+    200000,
+  );
+
+  test.runIf(extensionType === OPENSHIFT_CHECKER)(
+    'Install extension from OCI Image',
+    async () => {
+      const extensionsPage = new ExtensionsPage(page);
+
+      await extensionsPage.installExtensionFromOCIImage(ociImageUrl);
+      await extensionsPage.openCatalogTab();
+      const extensionCatalog = new ExtensionCatalogCardPage(page, extensionType);
+      await playExpect(extensionCatalog.parent).toBeVisible();
+      await playExpect.poll(async () => await extensionCatalog.isInstalled()).toBeTruthy();
+
+      await extensionsPage.openInstalledTab();
+      await playExpect.poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel)).toBeTruthy();
+    },
+    200000,
+  );
 
   describe('Extension verification after installation', async () => {
     test('Extension details can be opened', async () => {
@@ -116,23 +145,28 @@ describe.each([
     });
 
     describe('Extension can be disabled and reenabled', async () => {
-      test('Disable extension and verify Dashboard and Resources components', async () => {
+      test('Disable extension and verify Dashboard and Resources components if present', async () => {
         const extensionsPage = await navBar.openExtensions();
         const extensionPage = await extensionsPage.openExtensionDetails(extensionName, extensionLabel, extensionType);
 
         await extensionPage.disableExtension();
         await playExpect(extensionPage.status).toHaveText(DISABLED);
 
-        await goToDashboard();
-        await playExpect(extensionDashboardProvider).toBeHidden();
-        await playExpect(extensionDashboardStatus).toBeHidden();
+        // check that dashboard card provider is hidden/shown
+        if (extensionDashboardProvider && extensionDashboardStatus) {
+          await goToDashboard();
+          await playExpect(extensionDashboardProvider).toBeHidden();
+        }
 
-        const settingsBar = await goToSettings();
-        const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
-        const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
-          name: resourceLabel,
-        });
-        await playExpect(extensionResourceBox).toBeHidden();
+        // check that thr provider card is on Resources Page
+        if (resourceLabel) {
+          const settingsBar = await goToSettings();
+          const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
+          const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
+            name: resourceLabel,
+          });
+          await playExpect(extensionResourceBox).toBeHidden();
+        }
       });
 
       test('Enable extension and verify Dashboard and Resources components', async () => {
@@ -142,21 +176,27 @@ describe.each([
         await extensionPage.enableExtension();
         await playExpect(extensionPage.status).toHaveText(ACTIVE, { timeout: 10000 });
 
-        await goToDashboard();
-        await playExpect(extensionDashboardProvider).toBeVisible();
-        await playExpect(extensionDashboardStatus).toBeVisible();
-        if (extensionType === 'Red Hat OpenShift Sandbox') {
-          await playExpect(extensionDashboardStatus).toHaveText(RUNNING);
-        } else {
-          await playExpect(extensionDashboardStatus).toHaveText(NOT_INSTALLED);
+        // check that dashboard card provider is hidden/shown
+        if (extensionDashboardProvider && extensionDashboardStatus) {
+          await goToDashboard();
+          await playExpect(extensionDashboardProvider).toBeVisible();
+          await playExpect(extensionDashboardStatus).toBeVisible();
+          if (extensionType === 'Red Hat OpenShift Sandbox') {
+            await playExpect(extensionDashboardStatus).toHaveText(RUNNING);
+          } else {
+            await playExpect(extensionDashboardStatus).toHaveText(NOT_INSTALLED);
+          }
         }
 
-        const settingsBar = await goToSettings();
-        const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
-        const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
-          name: resourceLabel,
-        });
-        await playExpect(extensionResourceBox).toBeVisible();
+        // check that thr provider card is on Resources Page
+        if (resourceLabel) {
+          const settingsBar = await goToSettings();
+          const resourcesPage = await settingsBar.openTabPage(ResourcesPage);
+          const extensionResourceBox = resourcesPage.featuredProviderResources.getByRole('region', {
+            name: resourceLabel,
+          });
+          await playExpect(extensionResourceBox).toBeVisible();
+        }
       });
     });
   });
@@ -184,22 +224,34 @@ describe.each([
 function initializeLocators(extensionType: string): void {
   const dashboardPage = new DashboardPage(page);
   switch (extensionType) {
-    case 'Red Hat OpenShift Sandbox': {
+    case OPENSHIFT_SANDBOX: {
       extensionDashboardStatus = dashboardPage.devSandboxStatusLabel;
       extensionDashboardProvider = dashboardPage.devSandboxProvider;
       installButtonLabel = 'Install redhat.redhat-sandbox Extension';
       extensionName = 'redhat-sandbox';
       extensionLabel = 'redhat.redhat-sandbox';
       resourceLabel = 'redhat.sandbox';
+      ociImageUrl = '';
       break;
     }
-    case 'Red Hat Openshift Local': {
+    case OPENSHIFT_LOCAL: {
       extensionDashboardStatus = dashboardPage.openshiftLocalStatusLabel;
       extensionDashboardProvider = dashboardPage.openshiftLocalProvider;
       installButtonLabel = 'Install redhat.openshift-local Extension';
       extensionName = 'openshift-local';
       extensionLabel = 'redhat.openshift-local';
       resourceLabel = 'crc';
+      ociImageUrl = '';
+      break;
+    }
+    case OPENSHIFT_CHECKER: {
+      extensionDashboardStatus = undefined;
+      extensionDashboardProvider = undefined;
+      installButtonLabel = 'Install redhat.openshift-checker Extension';
+      extensionName = 'openshift-checker';
+      extensionLabel = 'redhat.openshift-checker';
+      resourceLabel = undefined;
+      ociImageUrl = 'ghcr.io/redhat-developer/podman-desktop-image-checker-openshift-ext:0.1.5';
       break;
     }
   }
