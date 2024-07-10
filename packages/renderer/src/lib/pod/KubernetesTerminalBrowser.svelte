@@ -72,7 +72,7 @@ function handleSelectionChange(event: Event) {
     </div>
   </div>
 
-  <div class="flex grow w-full">
+  <div class="flex grow w-full min-h-0">
     {#key key}
       {#if terminalService.hasTerminal(pod.name, currentContainerName) && currentContainerStatus.get(currentContainerName) === 'running'}
         <svelte:component
