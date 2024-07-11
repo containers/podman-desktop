@@ -112,7 +112,7 @@
   },
   "lint-staged": {
     "*.{js,ts,tsx,svelte}": [
-      "node --max-old-space-size=4096 node_modules/eslint/bin/eslint.js --cache --fix",
+      "node --max-old-space-size=6144 node_modules/eslint/bin/eslint.js --cache --fix",
       "prettier --cache --write"
     ],
     "*.{md,css,json}": "prettier --write"
