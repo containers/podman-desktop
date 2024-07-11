@@ -1436,7 +1436,6 @@ describe('Navigation', async () => {
       page: NavigationPage.VOLUME,
       parameters: {
         name: 'valid-name',
-        engineId: 'valid-engine',
       },
     });
 
