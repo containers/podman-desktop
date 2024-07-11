@@ -24,7 +24,7 @@ export let searchEnabled = true;
     </div>
     {#if searchEnabled}
       <div class="flex flex-row pb-4" role="region" aria-label="search">
-        <div class="pl-5 lg:w-[35rem] w-[22rem]">
+        <div class="pl-5 w-72">
           <SearchInput bind:searchTerm="{searchTerm}" title="{title}" />
         </div>
         <div class="flex flex-1 px-5" role="group" aria-label="bottomAdditionalActions">
@@ -38,7 +38,7 @@ export let searchEnabled = true;
     {/if}
 
     {#if $$slots.tabs}
-      <div class="flex flex-row px-2 mb-2 border-b border-[var(--pd-content-divider)]">
+      <div class="flex flex-row mx-5 px-2 mb-2 border-b border-[var(--pd-content-divider)]">
         <slot name="tabs" />
       </div>
     {/if}

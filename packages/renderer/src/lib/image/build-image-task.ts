@@ -68,8 +68,9 @@ export function startBuild(imageName: string, buildImageCallback: BuildImageCall
   const task = createTask(`Build ${imageName}`);
 
   // go to the images build
-  task.gotoTask = () => {
-    router.goto('/images/build');
+  task.action = {
+    name: 'Go to task >',
+    execute: () => router.goto('/images/build'),
   };
 
   // store the task

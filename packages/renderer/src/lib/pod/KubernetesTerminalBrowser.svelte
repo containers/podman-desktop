@@ -38,46 +38,50 @@ function handleSelectionChange(event: Event) {
 }
 </script>
 
-<div class="flex py-2">
-  <label
-    for="input-standard-{pod.name}"
-    class="block w-auto text-sm font-medium whitespace-nowrap leading-6 text-gray-900 pl-2 pr-2">
+<div class="flex flex-col h-full">
+  <div class="flex py-2 h-[40px]">
+    <label
+      for="input-standard-{pod.name}"
+      class="block w-auto text-sm font-medium whitespace-nowrap leading-6 text-gray-900 pl-2 pr-2">
+      {#key key}
+        {#if terminalService.hasTerminal(pod.name, currentContainerName) && currentContainerStatus.get(currentContainerName) === 'running'}
+          Connected to:
+        {:else}
+          Connecting to:
+        {/if}
+      {/key}
+    </label>
+    <div class="w-full">
+      {#if pod.containers.length > 1}
+        <select
+          on:change="{handleSelectionChange}"
+          aria-labelledby="listbox-label"
+          class="block w-48 p-1 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
+          name="{pod.name}"
+          id="input-standard-{pod.name}">
+          {#each pod.containers as container}
+            <option value="{container.Names}">{container.Names}</option>
+          {/each}
+        </select>
+      {:else}
+        <span
+          id="input-standard-{pod.name}"
+          class="block text-sm font-bold leading-6 text-gray-900"
+          aria-labelledby="listbox-label">{currentContainerName}</span>
+      {/if}
+    </div>
+  </div>
+
+  <div class="flex grow w-full min-h-0">
     {#key key}
       {#if terminalService.hasTerminal(pod.name, currentContainerName) && currentContainerStatus.get(currentContainerName) === 'running'}
-        Connected to:
-      {:else}
-        Connecting to:
+        <svelte:component
+          this="{terminalService.getTerminal(pod.name, currentContainerName).component}"
+          {...terminalService.getTerminal(pod.name, currentContainerName).props} />
       {/if}
     {/key}
-  </label>
-  <div class="w-full">
-    {#if pod.containers.length > 1}
-      <select
-        on:change="{handleSelectionChange}"
-        aria-labelledby="listbox-label"
-        class="block w-48 p-1 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
-        name="{pod.name}"
-        id="input-standard-{pod.name}">
-        {#each pod.containers as container}
-          <option value="{container.Names}">{container.Names}</option>
-        {/each}
-      </select>
-    {:else}
-      <span
-        id="input-standard-{pod.name}"
-        class="block text-sm font-bold leading-6 text-gray-900"
-        aria-labelledby="listbox-label">{currentContainerName}</span>
-    {/if}
   </div>
 </div>
-
-{#key key}
-  {#if terminalService.hasTerminal(pod.name, currentContainerName) && currentContainerStatus.get(currentContainerName) === 'running'}
-    <svelte:component
-      this="{terminalService.getTerminal(pod.name, currentContainerName).component}"
-      {...terminalService.getTerminal(pod.name, currentContainerName).props} />
-  {/if}
-{/key}
 
 <EmptyScreen
   hidden="{!currentContainerStatus.get(currentContainerName)}"

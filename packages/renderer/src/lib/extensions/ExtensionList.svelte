@@ -74,7 +74,8 @@ let installManualImageModal: boolean = false;
         installManualImageModal = true;
       }}"
       icon="{faCloudDownload}"
-      title="Install manually an extension">Install custom...</Button>
+      title="Install manually an extension"
+      aria-label="Install custom">Install custom...</Button>
   </svelte:fragment>
 
   <svelte:fragment slot="bottom-additional-actions">

@@ -61,3 +61,4 @@ export * from './model/pages/settings-bar';
 export * from './model/pages/settings-page';
 export * from './model/pages/welcome-page';
 export * from './model/workbench/navigation';
+export * from './model/workbench/status-bar';

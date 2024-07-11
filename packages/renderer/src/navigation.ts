@@ -18,7 +18,12 @@
 
 import { router } from 'tinro';
 
-import { NavigationPage } from '../../main/src/plugin/navigation/navigation-page';
+import { NavigationPage } from '/@api/navigation-page';
+import type { NavigationRequest } from '/@api/navigation-request';
+
+// help method to ensure the handleNavigation is able to infer type properly through the switch
+// ref https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
+type InferredNavigationRequest<T extends NavigationPage> = T extends NavigationPage ? NavigationRequest<T> : never;
 
 /**
  * Navigation hints for setting current page and history (breadcrumbs):
@@ -29,46 +34,54 @@ import { NavigationPage } from '../../main/src/plugin/navigation/navigation-page
  */
 export type NavigationHint = 'root' | 'details' | 'tab';
 
-export const handleNavigation = (page: NavigationPage, parameters?: { [key: string]: string }) => {
-  switch (page) {
+export const handleNavigation = (request: InferredNavigationRequest<NavigationPage>) => {
+  switch (request.page) {
     case NavigationPage.CONTAINERS:
       router.goto('/containers');
       break;
+    case NavigationPage.CONTAINER_EXPORT:
+      router.goto(`/containers/${request.parameters.id}/export`);
+      break;
     case NavigationPage.CONTAINER:
-      router.goto(`/containers/${parameters?.['id']}/`);
+      router.goto(`/containers/${request.parameters.id}/`);
       break;
     case NavigationPage.CONTAINER_LOGS:
-      router.goto(`/containers/${parameters?.['id']}/logs`);
+      router.goto(`/containers/${request.parameters.id}/logs`);
       break;
     case NavigationPage.CONTAINER_INSPECT:
-      router.goto(`/containers/${parameters?.['id']}/inspect`);
+      router.goto(`/containers/${request.parameters.id}/inspect`);
       break;
     case NavigationPage.CONTAINER_TERMINAL:
-      router.goto(`/containers/${parameters?.['id']}/terminal`);
+      router.goto(`/containers/${request.parameters.id}/terminal`);
+      break;
+    case NavigationPage.CONTAINER_KUBE:
+      router.goto(`/containers/${request.parameters.id}/kube`);
+      break;
+    case NavigationPage.DEPLOY_TO_KUBE:
+      router.goto(`/deploy-to-kube/${request.parameters.id}/${request.parameters.engineId}`);
       break;
     case NavigationPage.IMAGES:
       router.goto(`/images`);
       break;
     case NavigationPage.IMAGE:
-      if (parameters) {
-        const tagBase64 = Buffer.from(parameters['tag']).toString('base64');
-        router.goto(`/images/${parameters['id']}/${parameters['engineId']}/${tagBase64}`);
-      }
+      router.goto(
+        `/images/${request.parameters.id}/${request.parameters.engineId}/${Buffer.from(request.parameters.tag).toString('base64')}`,
+      );
       break;
     case NavigationPage.PODS:
       router.goto(`/pods`);
       break;
     case NavigationPage.POD:
-      router.goto(`/pods/${parameters?.['kind']}/${parameters?.['name']}/${parameters?.['engineId']}/`);
+      router.goto(`/pods/${request.parameters.kind}/${request.parameters.name}/${request.parameters.engineId}/`);
       break;
     case NavigationPage.VOLUMES:
       router.goto('/volumes');
       break;
     case NavigationPage.VOLUME:
-      router.goto(`/volumes/${parameters?.['name']}/`);
+      router.goto(`/volumes/${request.parameters.name}/`);
       break;
     case NavigationPage.CONTRIBUTION:
-      router.goto(`/contribs/${parameters?.['name']}/`);
+      router.goto(`/contribs/${request.parameters.name}/`);
       break;
     case NavigationPage.TROUBLESHOOTING:
       router.goto('/troubleshooting/repair-connections');
@@ -77,7 +90,7 @@ export const handleNavigation = (page: NavigationPage, parameters?: { [key: stri
       router.goto('/help');
       break;
     case NavigationPage.WEBVIEW:
-      router.goto(`/webviews/${parameters?.['id']}`);
+      router.goto(`/webviews/${request.parameters.id}`);
       break;
     case NavigationPage.AUTHENTICATION:
       router.goto('/preferences/authentication-providers');
@@ -86,7 +99,7 @@ export const handleNavigation = (page: NavigationPage, parameters?: { [key: stri
       router.goto('/preferences/resources');
       break;
     case NavigationPage.EDIT_CONTAINER_CONNECTION:
-      router.goto(`/preferences/container-connection/edit/${parameters?.['provider']}/${parameters?.['name']}`);
+      router.goto(`/preferences/container-connection/edit/${request.parameters.provider}/${request.parameters.name}`);
       break;
   }
 };

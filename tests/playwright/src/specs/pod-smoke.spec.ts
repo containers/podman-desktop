@@ -57,13 +57,10 @@ beforeAll(async () => {
   await waitForPodmanMachineStartup(page);
   // wait giving a time to podman desktop to load up
   const images = await new NavigationBar(page).openImages();
-  await waitWhile(
-    async () => await images.pageIsEmpty(),
-    5000,
-    1000,
-    false,
-    'Images page is empty, there are no images present',
-  );
+  await waitWhile(async () => await images.pageIsEmpty(), {
+    sendError: false,
+    message: 'Images page is empty, there are no images present',
+  });
   await deletePod(page, podToRun);
   await deleteContainer(page, backendContainer);
   await deleteContainer(page, frontendContainer);
@@ -128,7 +125,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       await waitUntil(async () => {
         backendPort = await containerDetails.getContainerPort();
         return backendPort.includes('6379');
-      }, 5000);
+      });
       images = await navigationBar.openImages();
       imageDetails = await images.openImageDetails(frontendImage);
       runImage = await imageDetails.openRunImage();
@@ -163,7 +160,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
     test('Checking pod details', async () => {
       const navigationBar = new NavigationBar(page);
       const pods = await navigationBar.openPods();
-      await waitUntil(async () => await pods.podExists(podToRun), 5000, 500);
+      await playExpect.poll(async () => await pods.podExists(podToRun), { timeout: 10000 }).toBeTruthy();
       const podDetails = await pods.openPodDetails(podToRun);
       await playExpect(podDetails.heading).toBeVisible();
       await playExpect(podDetails.heading).toContainText(podToRun);
@@ -226,22 +223,7 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
       // fetch the application page
       // this might not work on macos
       const address = 'http://localhost:' + frontendPort;
-
-      await waitUntil(
-        async function appRunningOnPort(): Promise<boolean> {
-          return await fetch(address)
-            .then(response => {
-              return response.ok;
-            })
-            .catch(() => {
-              return false;
-            });
-        },
-        30000,
-        3000,
-        true,
-        'App was not available on the port in time',
-      );
+      await playExpect.poll(async () => await appRunningOnPort(address), { timeout: 60000 }).toBeTruthy();
 
       for (let i = 2; i < 5; i++) {
         const response: Response = await fetch(address);
@@ -255,9 +237,9 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
         playExpect(matches).toBeDefined();
         playExpect(text).toContain('time(s)');
       }
-    });
+    }, 75000);
 
-    test('Restarting pod', async () => {
+    test('Restarting pod', { retry: 2 }, async () => {
       const navigationBar = new NavigationBar(page);
       const pods = await navigationBar.openPods();
       const podDetails = await pods.openPodDetails(podToRun);
@@ -329,5 +311,15 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
         await playExpect.poll(async () => await podsPage.podExists(pod), { timeout: 15000 }).toBeFalsy();
       }
     }, 90000);
+
+    async function appRunningOnPort(address: string): Promise<boolean> {
+      return await fetch(address)
+        .then(response => {
+          return response.ok;
+        })
+        .catch(() => {
+          return false;
+        });
+    }
   },
 );

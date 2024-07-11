@@ -42,6 +42,7 @@ export interface CatalogExtension {
 
 interface CatalogExtensionVersion {
   version: string;
+  podmanDesktopVersion?: string;
   ociUri: string;
   preview: boolean;
   lastUpdated: Date;

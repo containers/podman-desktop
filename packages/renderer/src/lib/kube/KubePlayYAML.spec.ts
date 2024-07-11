@@ -128,7 +128,7 @@ test('error: When pressing the Play button, expect us to show the errors to the 
   const fileInput = screen.getByRole('textbox', { name: 'Kubernetes YAML file' });
   expect(fileInput).toBeInTheDocument();
 
-  const browseButton = screen.getByRole('button', { name: 'Browse ...' });
+  const browseButton = screen.getByLabelText('browse');
   expect(browseButton).toBeInTheDocument();
   await userEvent.click(browseButton);
 
@@ -160,7 +160,7 @@ test('expect done button is there at the end', async () => {
   const fileInput = screen.getByRole('textbox', { name: 'Kubernetes YAML file' });
   expect(fileInput).toBeInTheDocument();
 
-  const browseButton = screen.getByRole('button', { name: 'Browse ...' });
+  const browseButton = screen.getByLabelText('browse');
   expect(browseButton).toBeInTheDocument();
   await userEvent.click(browseButton);
 

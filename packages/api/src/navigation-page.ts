@@ -16,9 +16,26 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { NavigationPage } from '/@/plugin/navigation/navigation-page.js';
-
-export interface NavigationRequest {
-  page: NavigationPage;
-  parameters?: { [key: string]: string };
+export enum NavigationPage {
+  CONTAINERS = 'containers',
+  CONTAINER_EXPORT = 'container-export',
+  CONTAINER = 'container',
+  CONTAINER_LOGS = 'container-logs',
+  CONTAINER_INSPECT = 'container-inspect',
+  CONTAINER_TERMINAL = 'container-terminal',
+  CONTAINER_KUBE = 'container-kube',
+  IMAGES = 'images',
+  IMAGE = 'image',
+  PODS = 'pods',
+  POD = 'pod',
+  VOLUMES = 'volumes',
+  VOLUME = 'volume',
+  CONTRIBUTION = 'contribution',
+  TROUBLESHOOTING = 'troubleshooting',
+  HELP = 'help',
+  WEBVIEW = 'webview',
+  AUTHENTICATION = 'authentication',
+  RESOURCES = 'resources',
+  EDIT_CONTAINER_CONNECTION = 'edit-container-connection',
+  DEPLOY_TO_KUBE = 'deploy-to-kube',
 }

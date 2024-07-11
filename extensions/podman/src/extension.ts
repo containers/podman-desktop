@@ -56,6 +56,7 @@ let autoMachineName: string | undefined;
 
 // System default notifier
 let defaultMachineNotify = !isLinux();
+let defaultConnectionNotify = !isLinux();
 let defaultMachineMonitor = true;
 
 // current status of machines
@@ -139,7 +140,10 @@ export function isIncompatibleMachineOutput(output: string | undefined): boolean
   }
 }
 
-export async function updateMachines(provider: extensionApi.Provider): Promise<void> {
+export async function updateMachines(
+  provider: extensionApi.Provider,
+  podmanConfiguration: PodmanConfiguration,
+): Promise<void> {
   // init machines available
   let machineListOutput: MachineListOutput;
   try {
@@ -301,7 +305,7 @@ export async function updateMachines(provider: extensionApi.Provider): Promise<v
       }
       const podmanMachineInfo = podmanMachinesInfo.get(machineName);
       if (podmanMachineInfo && socketPath) {
-        await registerProviderFor(provider, podmanMachineInfo, socketPath);
+        await registerProviderFor(provider, podmanConfiguration, podmanMachineInfo, socketPath);
       }
     }),
   );
@@ -367,6 +371,39 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
     }
   }
 
+  // check if connection is in sync with machine. If the default connection is rootless but the machine is rootful ask the user to update the connection
+  if (defaultConnectionNotify && !!runningMachine?.Default) {
+    const defaultConnection = await getDefaultConnection();
+    const isRootful = await isRootfulMachine(runningMachine.Name);
+    if (!defaultConnection?.Name.endsWith(ROOTFUL_SUFFIX) && isRootful) {
+      const result = await extensionApi.window.showInformationMessage(
+        `${isRootful ? 'Rootful' : 'Rootless'} Podman Machine '${runningMachine.Name}' does not match default connection. This will cause podman CLI errors while trying to connect to '${runningMachine.Name}'. Do you want to update the default connection?`,
+        'Yes',
+        'Ignore',
+        'Cancel',
+      );
+      if (result === 'Yes') {
+        try {
+          const connectionName = isRootful ? `${runningMachine.Name}${ROOTFUL_SUFFIX}` : runningMachine.Name;
+          // make it the default to run the info command
+          await extensionApi.process.exec(getPodmanCli(), ['system', 'connection', 'default', connectionName]);
+        } catch (error) {
+          // eslint-disable-next-line quotes
+          console.error("Error running 'podman system connection default': ", error);
+          await extensionApi.window.showErrorMessage(`Error running 'podman system connection default': ${error}`);
+          return;
+        }
+        await extensionApi.window.showInformationMessage(
+          `Podman Machine '${runningMachine.Name}' is now the default machine on the CLI.`,
+          'OK',
+        );
+      } else if (result === 'Ignore') {
+        // If the user chooses to ignore, we should not notify them again until Podman Desktop is restarted.
+        defaultConnectionNotify = false;
+      }
+    }
+  }
+
   if (defaultMachineNotify && defaultMachineMonitor && runningMachine && !runningMachine.Default) {
     // Make sure we do notifyDefault = false so we don't keep notifying the user when this dialog is open.
     defaultMachineMonitor = false;
@@ -381,25 +418,7 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
     );
     if (result === 'Yes') {
       // check if machine is rootless or rootful
-      let machineIsRootful = false;
-      // grab result of the command 'podman machine inspect <machine-name> and check if attribute is Rootful
-      try {
-        const { stdout: machineInspectJson } = await extensionApi.process.exec(getPodmanCli(), [
-          'machine',
-          'inspect',
-          runningMachine.Name,
-        ]);
-        const machinesInspect = JSON.parse(machineInspectJson);
-        // find the machine name in the array
-        const machineInspect = machinesInspect.find(
-          (machine: { Name: string }) => machine.Name === runningMachine.Name,
-        );
-        if (machineInspect) {
-          machineIsRootful = machineInspect?.Rootful ?? false;
-        }
-      } catch (error) {
-        console.error('Error when checking rootful machine: ', error);
-      }
+      const machineIsRootful = await isRootfulMachine(runningMachine.Name);
 
       try {
         const connectionName = machineIsRootful ? `${runningMachine.Name}${ROOTFUL_SUFFIX}` : runningMachine.Name;
@@ -422,6 +441,24 @@ export async function checkDefaultMachine(machines: MachineJSON[]): Promise<void
 
     defaultMachineMonitor = true;
   }
+}
+
+async function isRootfulMachine(machineName: string): Promise<boolean> {
+  let isRootful = false;
+  try {
+    const { stdout: machineInspectJson } = await extensionApi.process.exec(getPodmanCli(), [
+      'machine',
+      'inspect',
+      machineName,
+    ]);
+    const machinesInspect = JSON.parse(machineInspectJson);
+    // find the machine name in the array
+    const machineInspect = machinesInspect.find((machine: { Name: string }) => machine.Name === machineName);
+    isRootful = machineInspect?.Rootful ?? false;
+  } catch (error) {
+    console.error('Error when checking rootful machine: ', error);
+  }
+  return isRootful;
 }
 
 async function getDefaultConnection(): Promise<ConnectionJSON | undefined> {
@@ -576,16 +613,19 @@ async function timeout(time: number): Promise<void> {
   });
 }
 
-async function monitorMachines(provider: extensionApi.Provider): Promise<void> {
+async function monitorMachines(
+  provider: extensionApi.Provider,
+  podmanConfiguration: PodmanConfiguration,
+): Promise<void> {
   // call us again
   if (!stopLoop) {
     try {
-      await updateMachines(provider);
+      await updateMachines(provider, podmanConfiguration);
     } catch (error) {
       // ignore the update of machines
     }
     await timeout(5000);
-    monitorMachines(provider).catch((error: unknown) => {
+    monitorMachines(provider, podmanConfiguration).catch((error: unknown) => {
       console.error('Error monitoring podman machines', error);
     });
   }
@@ -664,12 +704,13 @@ function prettyMachineName(machineName: string): string {
 
 export async function registerProviderFor(
   provider: extensionApi.Provider,
+  podmanConfiguration: PodmanConfiguration,
   machineInfo: MachineInfo,
   socketPath: string,
 ): Promise<void> {
   const lifecycle: extensionApi.ProviderConnectionLifecycle = {
     start: async (context, logger): Promise<void> => {
-      await startMachine(provider, machineInfo, context, logger, undefined, false);
+      await startMachine(provider, podmanConfiguration, machineInfo, context, logger, undefined, false);
     },
     stop: async (context, logger): Promise<void> => {
       await extensionApi.process.exec(getPodmanCli(), ['machine', 'stop', machineInfo.name], {
@@ -749,8 +790,42 @@ export async function registerProviderFor(
   storedExtensionContext?.subscriptions.push(disposable);
 }
 
+export async function checkRosettaMacArm(podmanConfiguration: PodmanConfiguration): Promise<void> {
+  // check that rosetta is there for macOS / arm as the machine may fail to start
+  if (isMac() && os.arch() === 'arm64') {
+    const isEnabled = await podmanConfiguration.isRosettaEnabled();
+    if (isEnabled) {
+      // call the command `arch -arch x86_64 uname -m` to check if rosetta is enabled
+      // if not installed, it will fail
+      try {
+        await extensionApi.process.exec('arch', ['-arch', 'x86_64', 'uname', '-m']);
+      } catch (error: unknown) {
+        const runError = error as RunError;
+        if (runError.stderr?.includes('Bad CPU')) {
+          // rosetta is enabled but not installed, it will fail, stop from there and prompt the user to install rosetta or disable rosetta support
+          const result = await extensionApi.window.showInformationMessage(
+            'Podman machine is configured to use Rosetta but the support is not installed. The startup of the machine will fail.\nDo you want to install Rosetta? Rosetta is allowing to execute amd64 images on Apple silicon architecture.',
+            'Yes',
+            'No',
+            'Disable rosetta support',
+          );
+          if (result === 'Yes') {
+            // ask the person to perform the installation using cli
+            await extensionApi.window.showInformationMessage(
+              'Please install Rosetta from the command line by running `softwareupdate --install-rosetta`',
+            );
+          } else if (result === 'Disable rosetta support') {
+            await podmanConfiguration.updateRosettaSetting(false);
+          }
+        }
+      }
+    }
+  }
+}
+
 export async function startMachine(
   provider: extensionApi.Provider,
+  podmanConfiguration: PodmanConfiguration,
   machineInfo: MachineInfo,
   context?: extensionApi.LifecycleContext,
   logger?: extensionApi.Logger,
@@ -759,6 +834,9 @@ export async function startMachine(
 ): Promise<void> {
   const telemetryRecords: Record<string, unknown> = {};
   const startTime = performance.now();
+
+  await checkRosettaMacArm(podmanConfiguration);
+
   try {
     // start the machine
     await extensionApi.process.exec(getPodmanCli(), ['machine', 'start', machineInfo.name], {
@@ -1193,6 +1271,9 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     },
   ];
 
+  const podmanConfiguration = new PodmanConfiguration();
+  await podmanConfiguration.init();
+
   const provider = extensionApi.provider.createProvider(providerOptions);
 
   // Check on initial setup
@@ -1288,7 +1369,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
 
   // If autostart has been enabled for the machine, try to start it.
   try {
-    await updateMachines(provider);
+    await updateMachines(provider, podmanConfiguration);
   } catch (error) {
     // ignore the update of machines
   }
@@ -1318,7 +1399,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
               provider.id,
               containerProviderConnection,
             );
-            await startMachine(provider, machineInfo, context, logger, undefined, true);
+            await startMachine(provider, podmanConfiguration, machineInfo, context, logger, undefined, true);
             autoMachineStarted = true;
             autoMachineName = machineName;
           }
@@ -1392,7 +1473,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // Podman Machine support is on macOS, Windows and Linux
   // Despite Linux having native container support, Podman Machine is still supported on Linux
   // so let's monitor for the machines
-  monitorMachines(provider).catch((error: unknown) => {
+  monitorMachines(provider, podmanConfiguration).catch((error: unknown) => {
     console.error('Error while monitoring machines', error);
   });
 
@@ -1511,9 +1592,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   // register the registries
   const registrySetup = new RegistrySetup();
   await registrySetup.setup();
-
-  const podmanConfiguration = new PodmanConfiguration();
-  await podmanConfiguration.init();
 
   await calcPodmanMachineSetting(podmanConfiguration);
 }

@@ -13,11 +13,11 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { DropdownMenu } from '@podman-desktop/ui-svelte';
 import { createEventDispatcher, onMount } from 'svelte';
-import { router } from 'tinro';
 
 import ContributionActions from '/@/lib/actions/ContributionActions.svelte';
 import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
-import { exportContainerInfo } from '/@/stores/export-container-store';
+import { handleNavigation } from '/@/navigation';
+import { NavigationPage } from '/@api/navigation-page';
 
 import type { Menu } from '../../../../main/src/plugin/menu-registry';
 import { MenuContext } from '../../../../main/src/plugin/menu-registry';
@@ -30,7 +30,9 @@ export let dropdownMenu = false;
 export let detailed = false;
 
 const dispatch = createEventDispatcher<{ update: ContainerInfoUI }>();
-
+export let onUpdate: (update: ContainerInfoUI) => void = update => {
+  dispatch('update', update);
+};
 let contributions: Menu[] = [];
 onMount(async () => {
   contributions = await window.getContributedMenus(MenuContext.DASHBOARD_CONTAINER);
@@ -45,13 +47,13 @@ function inProgress(inProgress: boolean, state?: string): void {
   if (state) {
     container.state = state;
   }
-  dispatch('update', container);
+  onUpdate(container);
 }
 
 function handleError(errorMessage: string): void {
   container.actionError = errorMessage;
   container.state = 'ERROR';
-  dispatch('update', container);
+  onUpdate(container);
 }
 
 async function startContainer(): Promise<void> {
@@ -95,7 +97,12 @@ function openBrowser(): void {
 }
 
 function openLogs(): void {
-  router.goto(`/containers/${container.id}/logs`);
+  handleNavigation({
+    page: NavigationPage.CONTAINER_LOGS,
+    parameters: {
+      id: container.id,
+    },
+  });
 }
 
 async function deleteContainer(): Promise<void> {
@@ -110,20 +117,40 @@ async function deleteContainer(): Promise<void> {
 }
 
 async function exportContainer(): Promise<void> {
-  exportContainerInfo.set(container);
-  router.goto('/containers/export');
+  handleNavigation({
+    page: NavigationPage.CONTAINER_EXPORT,
+    parameters: {
+      id: container.id,
+    },
+  });
 }
 
 function openTerminalContainer(): void {
-  router.goto(`/containers/${container.id}/terminal`);
+  handleNavigation({
+    page: NavigationPage.CONTAINER_TERMINAL,
+    parameters: {
+      id: container.id,
+    },
+  });
 }
 
 function openGenerateKube(): void {
-  router.goto(`/containers/${container.id}/kube`);
+  handleNavigation({
+    page: NavigationPage.CONTAINER_KUBE,
+    parameters: {
+      id: container.id,
+    },
+  });
 }
 
 function deployToKubernetes(): void {
-  router.goto(`/deploy-to-kube/${container.id}/${container.engineId}`);
+  handleNavigation({
+    page: NavigationPage.DEPLOY_TO_KUBE,
+    parameters: {
+      id: container.id,
+      engineId: container.engineId,
+    },
+  });
 }
 
 // If dropdownMenu = true, we'll change style to the imported dropdownMenu style

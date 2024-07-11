@@ -19,7 +19,8 @@
 import { router } from 'tinro';
 import { expect, test, vi } from 'vitest';
 
-import { NavigationPage } from '../../main/src/plugin/navigation/navigation-page';
+import { NavigationPage } from '/@api/navigation-page';
+
 import { handleNavigation } from './navigation';
 
 // mock the router
@@ -32,25 +33,25 @@ vi.mock('tinro', () => {
 });
 
 test('Test navigationHandle to a specific container', () => {
-  handleNavigation(NavigationPage.CONTAINER, { id: '123' });
+  handleNavigation({ page: NavigationPage.CONTAINER, parameters: { id: '123' } });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/containers/123/');
 });
 
 test('Test navigationHandle to a specific webview', () => {
-  handleNavigation(NavigationPage.WEBVIEW, { id: '123' });
+  handleNavigation({ page: NavigationPage.WEBVIEW, parameters: { id: '123' } });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/webviews/123');
 });
 
 test('Test navigationHandle to resources page', () => {
-  handleNavigation(NavigationPage.RESOURCES);
+  handleNavigation({ page: NavigationPage.RESOURCES });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/preferences/resources');
 });
 
 test('Test navigationHandle to a specific edit page', () => {
-  handleNavigation(NavigationPage.EDIT_CONTAINER_CONNECTION, { provider: '123', name: 'test' });
+  handleNavigation({ page: NavigationPage.EDIT_CONTAINER_CONNECTION, parameters: { provider: '123', name: 'test' } });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/preferences/container-connection/edit/123/test');
 });

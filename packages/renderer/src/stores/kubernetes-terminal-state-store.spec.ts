@@ -56,7 +56,7 @@ test('Test should check saved terminal state after destroying terminal window', 
   const terminals = get(terminalStates);
   expect(terminals.size).toBe(0);
 
-  renderObject.component.$destroy();
+  renderObject.unmount();
   const terminalsAfterDestroy = get(terminalStates);
   expect(terminalsAfterDestroy.size).toBe(1);
 

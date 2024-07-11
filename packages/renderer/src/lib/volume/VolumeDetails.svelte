@@ -1,11 +1,10 @@
 <script lang="ts">
-import { Tab } from '@podman-desktop/ui-svelte';
+import { StatusIcon, Tab } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 
 import Route from '../../Route.svelte';
 import { volumeListInfos } from '../../stores/volumes';
-import StatusIcon from '../images/StatusIcon.svelte';
 import VolumeIcon from '../images/VolumeIcon.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import { getTabUrl, isTabSelected } from '../ui/Util';

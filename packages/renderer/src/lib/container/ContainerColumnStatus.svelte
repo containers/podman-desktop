@@ -1,6 +1,7 @@
 <script lang="ts">
+import { StatusIcon } from '@podman-desktop/ui-svelte';
+
 import PodIcon from '../images/PodIcon.svelte';
-import StatusIcon from '../images/StatusIcon.svelte';
 import { ContainerUtils } from './container-utils';
 import type { ContainerGroupInfoUI, ContainerInfoUI } from './ContainerInfoUI';
 

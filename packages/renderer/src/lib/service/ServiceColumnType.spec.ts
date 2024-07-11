@@ -35,7 +35,7 @@ const service: ServiceUI = {
 };
 
 test('Expect basic column styling', async () => {
-  render(ServiceColumnType, { object: service });
+  const result = render(ServiceColumnType, { object: JSON.parse(JSON.stringify(service)) });
 
   const text = screen.getByText(service.type);
   expect(text).toBeInTheDocument();
@@ -43,11 +43,12 @@ test('Expect basic column styling', async () => {
   const dot = text.parentElement?.children[0];
   expect(dot).toBeInTheDocument();
   expect(dot).toHaveClass('text-gray-600');
+  result.unmount();
 });
 
 test('Expect column styling ClusterIP', async () => {
   service.type = 'ClusterIP';
-  render(ServiceColumnType, { object: service });
+  render(ServiceColumnType, { object: JSON.parse(JSON.stringify(service)) });
 
   const text = screen.getByText(service.type);
   expect(text).toBeInTheDocument();
@@ -59,7 +60,7 @@ test('Expect column styling ClusterIP', async () => {
 
 test('Expect column styling LoadBalancer', async () => {
   service.type = 'LoadBalancer';
-  render(ServiceColumnType, { object: service });
+  render(ServiceColumnType, { object: JSON.parse(JSON.stringify(service)) });
 
   const text = screen.getByText(service.type);
   expect(text).toBeInTheDocument();
@@ -71,7 +72,7 @@ test('Expect column styling LoadBalancer', async () => {
 
 test('Expect column styling NodePort', async () => {
   service.type = 'NodePort';
-  render(ServiceColumnType, { object: service });
+  render(ServiceColumnType, { object: JSON.parse(JSON.stringify(service)) });
 
   const text = screen.getByText(service.type);
   expect(text).toBeInTheDocument();

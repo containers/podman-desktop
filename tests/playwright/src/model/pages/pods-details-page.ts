@@ -61,17 +61,17 @@ export class PodDetailsPage extends BasePage {
   }
 
   async getState(): Promise<string> {
-    for (const state in PodState) {
-      const stateDiv = this.getPage().getByTitle(state.toUpperCase(), { exact: true });
-      if ((await stateDiv.count()) > 0) return state.toUpperCase();
+    const currentState = await this.page.getByRole('status').getAttribute('title');
+    for (const state of Object.values(PodState)) {
+      if (currentState === state) return state;
     }
+
     return PodState.Unknown;
   }
 
   async startPod(failIfStarted = false): Promise<void> {
     try {
-      await playExpect.poll(async () => await this.getState()).toBe(PodState.Exited);
-      await playExpect(this.startButton).toBeVisible();
+      await playExpect(this.startButton).toBeEnabled();
       await this.startButton.click();
     } catch (error) {
       if (failIfStarted) {

@@ -25,6 +25,7 @@ export class ResourcesPage extends SettingsPage {
   readonly featuredProviderResources: Locator;
   readonly podmanResources: Locator;
   readonly composeResources: Locator;
+  readonly kindResources: Locator;
 
   constructor(page: Page) {
     super(page, 'Resources');
@@ -32,5 +33,6 @@ export class ResourcesPage extends SettingsPage {
     this.featuredProviderResources = this.content.getByRole('region', { name: 'Featured Provider Resources' });
     this.podmanResources = this.featuredProviderResources.getByRole('region', { name: 'podman', exact: true });
     this.composeResources = this.featuredProviderResources.getByRole('region', { name: 'Compose', exact: true });
+    this.kindResources = this.featuredProviderResources.getByRole('region', { name: 'kind', exact: true });
   }
 }

@@ -64,7 +64,7 @@ test('Expect to have more details working', async () => {
   expect(publisher).toBeInTheDocument();
 
   // get more details button
-  const detailsButton = screen.getByRole('button', { name: 'More details' });
+  const detailsButton = screen.getByRole('button', { name: 'This is the display name details' });
   expect(detailsButton).toBeInTheDocument();
 
   // click the button

@@ -18,6 +18,9 @@ let fontAwesomeIcon = false;
 let processed = false;
 
 const dispatch = createEventDispatcher<{ click: string }>();
+export let onClick: (text: string) => void = text => {
+  dispatch('click', text);
+};
 
 onMount(() => {
   if (isFontAwesomeIcon(icon)) {
@@ -29,7 +32,7 @@ onMount(() => {
 function handleClick(): void {
   const text = copyTextDivElement?.textContent;
   if (text) {
-    dispatch('click', text);
+    onClick(text);
   }
 }
 

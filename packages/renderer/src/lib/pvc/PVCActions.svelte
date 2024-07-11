@@ -11,10 +11,12 @@ export let pvc: PVCUI;
 export let detailed = false;
 
 const dispatch = createEventDispatcher<{ update: PVCUI }>();
-
+export let onUpdate: (update: PVCUI) => void = update => {
+  dispatch('update', update);
+};
 async function deletePVC(): Promise<void> {
   pvc.status = 'DELETING';
-  dispatch('update', pvc);
+  onUpdate(pvc);
 
   await window.kubernetesDeletePersistentVolumeClaim(pvc.name);
 }

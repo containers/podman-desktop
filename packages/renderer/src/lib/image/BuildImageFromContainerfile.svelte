@@ -2,11 +2,13 @@
 /* eslint-disable import/no-duplicates */
 // https://github.com/import-js/eslint-plugin-import/issues/1479
 import { faCube, faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import type { OpenDialogOptions } from '@podman-desktop/api';
 import { Button, Input } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import { get } from 'svelte/store';
 import type { Terminal } from 'xterm';
 
+import FileInput from '/@/lib/ui/FileInput.svelte';
 import { type BuildImageInfo, buildImagesInfo } from '/@/stores/build-images';
 /* eslint-enable import/no-duplicates */
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
@@ -39,8 +41,18 @@ let selectedProvider: ProviderContainerConnectionInfo | undefined = undefined;
 let logsTerminal: Terminal;
 let buildIDs = [];
 
+const containerFileDialogOptions: OpenDialogOptions = {
+  title: 'Select Containerfile to build',
+};
+const contextDialogOptions: OpenDialogOptions = { title: 'Select Root Context', selectors: ['openDirectory'] };
+
 $: platforms = containerBuildPlatform ? containerBuildPlatform.split(',') : [];
 $: hasInvalidFields = !containerFilePath || !containerBuildContextDirectory;
+$: if (containerFilePath && !containerBuildContextDirectory) {
+  // select the parent directory of the file as default
+  // eslint-disable-next-line no-useless-escape
+  containerBuildContextDirectory = containerFilePath.replace(/\\/g, '/').replace(/\/[^\/]*$/, '');
+}
 
 let buildParentImageName: string | undefined = undefined;
 let buildError: string | undefined = undefined;
@@ -264,26 +276,6 @@ onDestroy(() => {
   }
 });
 
-async function getContainerfileLocation() {
-  const result = await window.openDialog({ title: 'Select Containerfile to build' });
-  if (result?.[0]) {
-    containerFilePath = result[0];
-    if (!containerBuildContextDirectory) {
-      // select the parent directory of the file as default
-      // eslint-disable-next-line no-useless-escape
-      containerBuildContextDirectory = containerFilePath.replace(/\\/g, '/').replace(/\/[^\/]*$/, '');
-    }
-  }
-}
-
-async function getContainerBuildContextDirectory() {
-  const result = await window.openDialog({ title: 'Select Root Context', selectors: ['openDirectory'] });
-
-  if (result?.[0]) {
-    containerBuildContextDirectory = result[0];
-  }
-}
-
 async function abortBuild() {
   if (cancellableTokenId) {
     await window.cancelToken(cancellableTokenId);
@@ -301,36 +293,33 @@ async function abortBuild() {
   </svelte:fragment>
   <div slot="content" class="space-y-6">
     <div hidden="{buildImageInfo?.buildRunning}">
-      <label for="containerFilePath" class="block mb-2 text-sm font-bold text-gray-400">Containerfile path</label>
-      <div class="flex flex-row space-x-3">
-        <Input
-          name="containerFilePath"
-          id="containerFilePath"
-          bind:value="{containerFilePath}"
-          placeholder="Containerfile to build"
-          class="w-full"
-          required />
-        <Button on:click="{() => getContainerfileLocation()}">Browse...</Button>
-      </div>
+      <label for="containerFilePath" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
+        >Containerfile path</label>
+      <FileInput
+        name="containerFilePath"
+        id="containerFilePath"
+        bind:value="{containerFilePath}"
+        placeholder="Containerfile to build"
+        options="{containerFileDialogOptions}"
+        class="w-full" />
     </div>
 
     <div hidden="{buildImageInfo?.buildRunning}">
-      <label for="containerBuildContextDirectory" class="block mb-2 text-sm font-bold text-gray-400"
-        >Build context directory</label>
-      <div class="flex flex-row space-x-3">
-        <Input
-          name="containerBuildContextDirectory"
-          id="containerBuildContextDirectory"
-          bind:value="{containerBuildContextDirectory}"
-          placeholder="Directory to build in"
-          class="w-full"
-          required />
-        <Button on:click="{() => getContainerBuildContextDirectory()}">Browse...</Button>
-      </div>
+      <label
+        for="containerBuildContextDirectory"
+        class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]">Build context directory</label>
+      <FileInput
+        name="containerBuildContextDirectory"
+        id="containerBuildContextDirectory"
+        bind:value="{containerBuildContextDirectory}"
+        placeholder="Directory to build in"
+        options="{contextDialogOptions}"
+        class="w-full" />
     </div>
 
     <div hidden="{buildImageInfo?.buildRunning}">
-      <label for="containerImageName" class="block mb-2 text-sm font-bold text-gray-400">Image name</label>
+      <label for="containerImageName" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
+        >Image name</label>
       <Input
         bind:value="{containerImageName}"
         name="containerImageName"
@@ -339,10 +328,10 @@ async function abortBuild() {
         class="w-full"
         required />
       {#if providerConnections.length > 1}
-        <label for="providerChoice" class="py-6 block mb-2 text-sm font-bold text-gray-400"
+        <label for="providerChoice" class="py-6 block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
           >Container Engine
           <select
-            class="w-full p-2 outline-none text-sm bg-charcoal-600 rounded-sm text-gray-700 placeholder-gray-700"
+            class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
             name="providerChoice"
             id="providerChoice"
             bind:value="{selectedProvider}">
@@ -354,7 +343,8 @@ async function abortBuild() {
       {/if}
     </div>
     <div hidden="{buildImageInfo?.buildRunning}">
-      <label for="inputKey" class="block mb-2 text-sm font-bold text-gray-400">Build arguments</label>
+      <label for="inputKey" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
+        >Build arguments</label>
       {#each buildArgs as buildArg, index}
         <div class="flex flex-row items-center space-x-2 mb-2">
           <Input bind:value="{buildArg.key}" name="inputKey" placeholder="Key" class="flex-grow" required />
@@ -370,9 +360,12 @@ async function abortBuild() {
     </div>
 
     <div hidden="{buildImageInfo?.buildRunning}">
-      <label for="containerBuildPlatform" class="block mb-2 text-sm font-bold text-gray-400">Platform</label>
+      <label for="containerBuildPlatform" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
+        >Platform</label>
       {#if platforms.length > 1}
-        <p class="text-sm text-gray-600 mb-2">Multiple platforms selected, a manifest will be created</p>
+        <p class="text-sm text-[var(--pd-content-text)] mb-2">
+          Multiple platforms selected, a manifest will be created
+        </p>
       {/if}
       <BuildImageFromContainerfileCards bind:platforms="{containerBuildPlatform}" />
     </div>

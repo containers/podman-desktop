@@ -12,16 +12,16 @@ export let provider: ProviderInfo;
   class="flex bg-[var(--pd-content-card-bg)] rounded-md p-5 gap-3 flex-col flex-nowrap"
   role="region"
   aria-label="{provider.name} Provider">
-  <div class="flex flex-col lg:flex-row gap-x-4">
-    <div class="grid grid-cols-[3rem_1fr] w-1/4 gap-2">
+  <div class="flex flex-col xl:flex-row gap-x-4">
+    <div class="grid grid-cols-[3rem_1fr] w-full xl:w-1/4 gap-2">
       <IconImage image="{provider?.images?.icon}" class="mx-0 max-h-12" alt="{provider.name}"></IconImage>
       <div
         class="flex flex-col gap-0 text-[var(--pd-content-card-title)] text-lg whitespace-nowrap"
         aria-label="context-name">
-        <div class="flex flex-row gap-1 items-center">
-          {provider.name}
+        <div class="gap-1 items-center">
+          <span class="float-left mr-1">{provider.name}</span>
           {#if provider.version}
-            <div class="text-[var(--pd-content-card-light-title)] text-base" aria-label="Provider Version">
+            <div class="text-[var(--pd-content-card-light-title)] text-base float-left" aria-label="Provider Version">
               v{provider.version}
             </div>
           {/if}
@@ -34,7 +34,7 @@ export let provider: ProviderInfo;
         </div>
       </div>
     </div>
-    <div class="flex items-center flex-row space-x-10 mt-5 w-full lg:mt-0 lg:w-3/4 flex-nowrap">
+    <div class="flex items-center flex-row space-x-10 mt-5 w-full xl:mt-0 xl:w-3/4 flex-nowrap">
       <slot name="content" />
     </div>
   </div>

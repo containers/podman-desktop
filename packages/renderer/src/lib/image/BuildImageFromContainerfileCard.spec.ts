@@ -20,27 +20,28 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 
 import BuildImageFromContainerfileCard from '/@/lib/image/BuildImageFromContainerfileCard.svelte';
 
 test('check click', async () => {
-  const component = render(BuildImageFromContainerfileCard, {
+  const onCardMock = vi.fn().mockImplementation((value: { mode: string; value: string }) => {
+    events.push(value);
+  });
+
+  render(BuildImageFromContainerfileCard, {
     title: 'ARM64',
     badge: 'arm64',
     isDefault: false,
     checked: false,
     value: 'arm64',
     icon: undefined,
+    onCard: onCardMock,
   });
 
   const events: { mode: string; value: string }[] = [];
-
-  component.component.$on('card', (e: any) => {
-    events.push(e.detail);
-  });
 
   // expect checkbox is unchecked
   expect(screen.getByRole('checkbox')).not.toBeChecked();
@@ -48,7 +49,10 @@ test('check click', async () => {
   expect(events).toEqual([]);
 
   // click on the card and expect to be checked
-  await userEvent.click(screen.getByRole('button'));
+  await fireEvent.click(screen.getByRole('button'));
+
+  // wait 500ms
+  await new Promise(r => setTimeout(r, 100));
 
   expect(events).toEqual([{ mode: 'add', value: 'arm64' }]);
 });
@@ -83,7 +87,11 @@ test('Expect default tooltip', async () => {
 });
 
 test('check we can add a new card', async () => {
-  const component = render(BuildImageFromContainerfileCard, {
+  const onAddcardMock = vi.fn().mockImplementation((obj: { value: string }) => {
+    addCards.push(obj);
+  });
+
+  render(BuildImageFromContainerfileCard, {
     title: '',
     badge: '',
     isDefault: false,
@@ -91,13 +99,10 @@ test('check we can add a new card', async () => {
     value: '',
     icon: undefined,
     additionalItem: true,
+    onAddcard: onAddcardMock,
   });
 
   const addCards: { value: string }[] = [];
-
-  component.component.$on('addcard', (e: any) => {
-    addCards.push(e.detail);
-  });
 
   expect(addCards).toEqual([]);
 

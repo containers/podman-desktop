@@ -49,13 +49,10 @@ export class ImagesPage extends MainPage {
   }
 
   async openPullImage(): Promise<PullImagePage> {
-    await waitWhile(
-      () => this.noContainerEngine(),
-      50000,
-      1000,
-      true,
-      'No Container Engine is available, cannot pull an image',
-    );
+    await waitWhile(() => this.noContainerEngine(), {
+      timeout: 50000,
+      message: 'No Container Engine is available, cannot pull an image',
+    });
     await this.pullImageButton.click();
     return new PullImagePage(this.page);
   }
@@ -105,22 +102,7 @@ export class ImagesPage extends MainPage {
   }
 
   async getImageRowByName(name: string): Promise<Locator | undefined> {
-    if (await this.pageIsEmpty()) {
-      return undefined;
-    }
-    try {
-      const table = await this.getTable();
-      const rows = await table.getByRole('row').all();
-      for (let i = rows.length - 1; i > 0; i--) {
-        const thirdCell = await rows[i].getByRole('cell').nth(3).getByText(name, { exact: true }).count();
-        if (thirdCell) {
-          return rows[i];
-        }
-      }
-    } catch (err) {
-      console.log(`Exception caught on image page with message: ${err}`);
-    }
-    return undefined;
+    return this.getRowFromTableByName(name);
   }
 
   protected async imageExists(name: string): Promise<boolean> {
@@ -129,12 +111,12 @@ export class ImagesPage extends MainPage {
   }
 
   async waitForImageExists(name: string, timeout = 5000): Promise<boolean> {
-    await waitUntil(async () => await this.imageExists(name), timeout, 500);
+    await waitUntil(async () => await this.imageExists(name), { timeout: timeout });
     return true;
   }
 
   async waitForImageDelete(name: string, timeout = 5000): Promise<boolean> {
-    await waitWhile(async () => await this.imageExists(name), timeout, 500);
+    await waitWhile(async () => await this.imageExists(name), { timeout: timeout });
     return true;
   }
 

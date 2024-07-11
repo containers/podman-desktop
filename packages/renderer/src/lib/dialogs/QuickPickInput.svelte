@@ -334,7 +334,7 @@ function handleMousedown(e: MouseEvent) {
             <div class="relative text-gray-400 pt-2 px-1 h-7 overflow-y-auto">{prompt}</div>
             {#if markdownDescription && markdownDescription.length > 0}
               <div class="relative text-gray-400 pt-2 px-1 h-fit overflow-y-auto">
-                <Markdown>{markdownDescription}</Markdown>
+                <Markdown markdown="{markdownDescription}" />
               </div>
             {/if}
           {/if}

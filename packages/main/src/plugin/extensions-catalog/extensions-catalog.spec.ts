@@ -238,6 +238,7 @@ test('should get all extensions', async () => {
     lastUpdated: expect.any(Date),
     preview: false,
     version: '1.0.0',
+    podmanDesktopVersion: undefined,
     files: [fooAssetIcon],
   });
   // no error

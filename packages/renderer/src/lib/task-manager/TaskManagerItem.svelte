@@ -30,11 +30,11 @@ onMount(() => {
   if (isStatefulTask(task)) {
     if (task.status === 'success') {
       icon = faSquareCheck;
-      iconColor = 'text-green-600';
+      iconColor = 'text-[var(--pd-state-success)]';
       return;
     } else if (task.status === 'failure') {
       icon = faTriangleExclamation;
-      iconColor = 'text-red-500';
+      iconColor = 'text-[var(--pd-state-error)]';
       return;
     }
   }
@@ -46,13 +46,6 @@ onMount(() => {
 function closeCompleted(taskUI: StatefulTaskUI | NotificationTask) {
   // needs to delete the task from the svelte store
   removeTask(taskUI.id);
-}
-
-function gotoTask(taskUI: StatefulTaskUI) {
-  // hide the task manager
-  window.events?.send('toggle-task-manager', '');
-  // and open the task
-  taskUI?.gotoTask?.();
 }
 
 function doExecuteAction(taskUI: StatefulTaskUI) {
@@ -103,15 +96,6 @@ function doExecuteAction(taskUI: StatefulTaskUI) {
         {#if (taskUI.progress ?? 0) >= 0}
           <ProgressBar progress="{taskUI.progress}" />
         {/if}
-        <div class="flex flex-1 flex-col w-full items-end text-purple-500 text-xs">
-          {#if taskUI.hasGotoTask}
-            <button
-              class="text-purple-500 cursor-pointer"
-              on:click="{() => {
-                if (isStatefulTask(taskUI)) gotoTask(taskUI);
-              }}">Go to task ></button>
-          {/if}
-        </div>
       </div>
     {/if}
 

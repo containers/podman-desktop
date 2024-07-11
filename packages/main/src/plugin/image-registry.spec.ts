@@ -40,22 +40,30 @@ import type { Disposable } from './types/disposable.js';
 
 let imageRegistry: ImageRegistry;
 
+const pxoxyIsEnabledMock = vi.fn();
+const proxyGetProxyMock = vi.fn();
+
+const telemetry: Telemetry = {
+  track(event: EventType, eventProperties?: any): void {},
+} as Telemetry;
+const certificates: Certificates = {
+  init: vi.fn(),
+  getAllCertificates: vi.fn(),
+} as unknown as Certificates;
+const proxy: Proxy = {
+  onDidStateChange: vi.fn(),
+  onDidUpdateProxy: vi.fn(),
+  isEnabled: pxoxyIsEnabledMock,
+  proxy: proxyGetProxyMock,
+} as unknown as Proxy;
+Object.defineProperty(proxy, 'proxy', {
+  get: proxyGetProxyMock,
+});
+const apiSender: ApiSenderType = {
+  send(channel: string, data?: any): void {},
+} as ApiSenderType;
+
 beforeAll(async () => {
-  const telemetry: Telemetry = {
-    track(event: EventType, eventProperties?: any): void {},
-  } as Telemetry;
-  const certificates: Certificates = {
-    init: vi.fn(),
-    getAllCertificates: vi.fn(),
-  } as unknown as Certificates;
-  const proxy: Proxy = {
-    onDidStateChange: vi.fn(),
-    onDidUpdateProxy: vi.fn(),
-    isEnabled: vi.fn(),
-  } as unknown as Proxy;
-  const apiSender: ApiSenderType = {
-    send(channel: string, data?: any): void {},
-  } as ApiSenderType;
   imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
 });
 
@@ -825,4 +833,102 @@ test('getToken without registry auth', async () => {
 
   expect(token).toBeDefined();
   expect(token).toBe('12345');
+});
+
+test('getOptions uses proxy settings', () => {
+  pxoxyIsEnabledMock.mockReturnValue(true);
+  proxyGetProxyMock.mockReturnValue({
+    httpProxy: 'http://192.168.1.1:3128',
+    httpsProxy: 'http://192.168.1.1:3128',
+    noProxy: '',
+  });
+  imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
+  const options = imageRegistry.getOptions();
+  expect(options.agent).toBeDefined();
+  expect(options.agent!.http).toBeDefined();
+  expect(options.agent!.https).toBeDefined();
+});
+
+test('searchImages with proxy', async () => {
+  pxoxyIsEnabledMock.mockReturnValue(true);
+  proxyGetProxyMock.mockReturnValue({
+    httpProxy: 'http://myproxy.com:3128',
+    httpsProxy: 'http://myproxy.com:3128',
+    noProxy: '',
+  });
+  imageRegistry = new ImageRegistry(apiSender, telemetry, certificates, proxy);
+  nock('http://myproxy.com:3128')
+    .intercept(r => r.includes('index.docker.io:443'), 'CONNECT')
+    .replyWithError('a proxy error');
+  await expect(imageRegistry.searchImages({ query: 'anything' })).rejects.toThrow('a proxy error');
+});
+
+test('searchImages without registry', async () => {
+  const list = [
+    {
+      name: 'image1',
+      description: 'desc',
+    },
+  ];
+  nock('https://index.docker.io').get('/v1/search?q=http&n=10').reply(200, {
+    results: list,
+  });
+  const result = await imageRegistry.searchImages({ query: 'http', limit: 10 });
+  expect(result).toEqual(list);
+});
+
+test('searchImages without limit', async () => {
+  const list = [
+    {
+      name: 'image1',
+      description: 'desc',
+    },
+  ];
+  nock('https://index.docker.io').get('/v1/search?q=http&n=25').reply(200, {
+    results: list,
+  });
+  const result = await imageRegistry.searchImages({ query: 'http' });
+  expect(result).toEqual(list);
+});
+
+test('searchImages with docker.io registry', async () => {
+  const list = [
+    {
+      name: 'image1',
+      description: 'desc',
+    },
+  ];
+  nock('https://index.docker.io').get('/v1/search?q=http&n=10').reply(200, {
+    results: list,
+  });
+  const result = await imageRegistry.searchImages({ registry: 'docker.io', query: 'http', limit: 10 });
+  expect(result).toEqual(list);
+});
+
+test('searchImages without https', async () => {
+  const list = [
+    {
+      name: 'image1',
+      description: 'desc',
+    },
+  ];
+  nock('https://quay.io').get('/v1/search?q=http&n=10').reply(200, {
+    results: list,
+  });
+  const result = await imageRegistry.searchImages({ registry: 'quay.io', query: 'http', limit: 10 });
+  expect(result).toEqual(list);
+});
+
+test('searchImages with https', async () => {
+  const list = [
+    {
+      name: 'image1',
+      description: 'desc',
+    },
+  ];
+  nock('https://quay.io').get('/v1/search?q=http&n=10').reply(200, {
+    results: list,
+  });
+  const result = await imageRegistry.searchImages({ registry: 'https://quay.io', query: 'http', limit: 10 });
+  expect(result).toEqual(list);
 });

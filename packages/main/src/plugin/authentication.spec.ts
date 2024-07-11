@@ -298,3 +298,48 @@ test('authentication provider send event to update settings page', async () => {
 
   expect(apiSender.send).lastCalledWith('authentication-provider-update', { id: 'provider1.id' });
 });
+
+test('authentication shows confirmation request when signing out from a session', async () => {
+  const mb = {
+    showMessageBox: vi.fn(),
+  } as unknown as MessageBox;
+  const authentication = new AuthenticationImpl(apiSender, mb);
+  const authProvidrer1 = new AuthenticationProviderSingleAccount();
+  authentication.registerAuthenticationProvider('company.auth-provider', 'Provider 1', authProvidrer1);
+
+  vi.mocked(mb.showMessageBox).mockResolvedValue({ response: 1 });
+
+  const session1 = await authentication.getSession(
+    { id: 'ext1', label: 'Ext 1' },
+    'company.auth-provider',
+    ['scope1', 'scope2'],
+    { createIfNone: true },
+  );
+
+  vi.mocked(mb.showMessageBox).mockReset();
+  vi.mocked(mb.showMessageBox).mockResolvedValue({ response: 0 });
+
+  await authentication.signOut('company.auth-provider', session1!.id);
+
+  expect(mb.showMessageBox).toHaveBeenCalledWith(
+    expect.objectContaining({
+      message: `The account '${session1?.account.label}' has been used by Ext 1. Sign out from this extension?`,
+    }),
+  );
+
+  vi.mocked(mb.showMessageBox).mockReset();
+  vi.mocked(mb.showMessageBox).mockResolvedValue({ response: 1 });
+
+  await authentication.getSession({ id: 'ext2', label: 'Ext 2' }, 'company.auth-provider', ['scope1', 'scope2'], {
+    createIfNone: true,
+  });
+
+  await authentication.signOut('company.auth-provider', session1!.id);
+
+  expect(await authProvidrer1.getSessions()).toHaveLength(0);
+  expect(mb.showMessageBox).toHaveBeenCalledWith(
+    expect.objectContaining({
+      message: `The account '${session1?.account.label}' has been used by: Ext 1, Ext 2. Sign out from these extensions?`,
+    }),
+  );
+});

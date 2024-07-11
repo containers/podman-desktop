@@ -10,10 +10,20 @@ export let kind: string;
 export let searchTerm: string;
 
 const dispatch = createEventDispatcher();
-function onResetFilter(): void {
+
+const defaultOnResetFilter = (): void => {
   if (dispatch('resetFilter', searchTerm, { cancelable: true })) {
     searchTerm = '';
   }
+};
+export let onResetFilter: () => void = defaultOnResetFilter;
+
+function doResetFilter(): void {
+  // reset only if onResetFilter is provided
+  if (onResetFilter !== defaultOnResetFilter) {
+    searchTerm = '';
+  }
+  onResetFilter();
 }
 
 $: filter = searchTerm && searchTerm.length > 20 ? 'filter' : `'${searchTerm}'`;
@@ -24,5 +34,5 @@ $: filter = searchTerm && searchTerm.length > 20 ? 'filter' : `'${searchTerm}'`;
   title="No {kind} matching {filter} found"
   message="Not what you expected? Double-check your spelling."
   detail="Just want to view all of your {kind}?">
-  <Button on:click="{onResetFilter}">Clear filter</Button>
+  <Button on:click="{doResetFilter}">Clear filter</Button>
 </EmptyScreen>

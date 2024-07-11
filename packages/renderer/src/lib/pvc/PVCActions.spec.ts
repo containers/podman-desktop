@@ -55,8 +55,7 @@ afterEach(() => {
 
 test('Expect no error and status deleting PVC', async () => {
   showMessageBoxMock.mockResolvedValue({ response: 0 });
-  const { component } = render(PVCActions, { pvc: fakePVC });
-  component.$on('update', updateMock);
+  render(PVCActions, { pvc: fakePVC, onUpdate: updateMock });
 
   // click on delete buttons
   const deleteButton = screen.getByRole('button', { name: 'Delete PersistentVolumeClaim' });

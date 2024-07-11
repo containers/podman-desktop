@@ -23,19 +23,22 @@ import '@testing-library/jest-dom/vitest';
 import type { Uri } from '@podman-desktop/api';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { tick } from 'svelte';
 import { router } from 'tinro';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
-import { exportContainerInfo } from '/@/stores/export-container-store';
+import { containersInfos } from '/@/stores/containers';
+import type { ContainerInfo } from '/@api/container-info';
 
 import ContainerExport from './ContainerExport.svelte';
-import type { ContainerInfoUI } from './ContainerInfoUI';
 
-const container: ContainerInfoUI = {
+const container: ContainerInfo = {
   engineId: 'engine',
-  id: 'id',
-  name: 'test',
-} as ContainerInfoUI;
+  Id: 'container-id',
+  Names: ['test'],
+  Image: 'test-image',
+  ImageID: 'test-image-id',
+} as unknown as ContainerInfo;
 
 const saveDialogMock = vi.fn();
 const exportContainerMock = vi.fn();
@@ -48,18 +51,18 @@ beforeAll(() => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  containersInfos.set([]);
 });
 
 async function waitRender(): Promise<void> {
-  const result = render(ContainerExport);
-  // wait that result.component.$$.ctx[1] is set
-  while (result.component.$$.ctx[1] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  render(ContainerExport, {
+    containerID: 'container-id',
+  });
+  await tick();
 }
 
 test('Expect export button to be disabled', async () => {
-  exportContainerInfo.set(container);
+  containersInfos.set([container]);
   await waitRender();
   const btnExportcontainer = screen.getByRole('button', { name: 'Export container' });
   expect(btnExportcontainer).toBeInTheDocument();
@@ -67,7 +70,7 @@ test('Expect export button to be disabled', async () => {
 });
 
 test('Expect export button to be enabled when output target is selected', async () => {
-  exportContainerInfo.set(container);
+  containersInfos.set([container]);
   saveDialogMock.mockResolvedValue({ scheme: 'file', path: '/tmp/my/path' } as Uri);
   await waitRender();
   const btnSelectOutputDir = screen.getByRole('button', { name: 'Select output file' });
@@ -80,7 +83,7 @@ test('Expect export button to be enabled when output target is selected', async 
 });
 
 test('Expect export function called when export button is clicked', async () => {
-  exportContainerInfo.set(container);
+  containersInfos.set([container]);
   saveDialogMock.mockResolvedValue({ scheme: 'file', path: '/tmp/my/path' } as Uri);
   exportContainerMock.mockResolvedValue('');
   const goToMock = vi.spyOn(router, 'goto');
@@ -94,14 +97,14 @@ test('Expect export function called when export button is clicked', async () => 
   await userEvent.click(btnExportcontainer);
 
   expect(exportContainerMock).toBeCalledWith(container.engineId, {
-    id: container.id,
+    id: container.Id,
     outputTarget: '/tmp/my/path',
   });
   expect(goToMock).toBeCalledWith('/containers/');
 });
 
 test('Expect error shown if export function fails', async () => {
-  exportContainerInfo.set(container);
+  containersInfos.set([container]);
   saveDialogMock.mockResolvedValue({ scheme: 'file', path: '/tmp/my/path' } as Uri);
   exportContainerMock.mockRejectedValue('error while exporting');
   const goToMock = vi.spyOn(router, 'goto');
@@ -117,7 +120,7 @@ test('Expect error shown if export function fails', async () => {
   const errorDiv = screen.getByLabelText('Error Message Content');
 
   expect(exportContainerMock).toBeCalledWith(container.engineId, {
-    id: container.id,
+    id: container.Id,
     outputTarget: '/tmp/my/path',
   });
   expect(goToMock).not.toBeCalled();

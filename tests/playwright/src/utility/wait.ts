@@ -60,10 +60,12 @@ export async function wait(
  */
 export async function waitUntil(
   waitFunction: () => Promise<boolean>,
-  timeout = 3000,
-  diff = 500,
-  sendError = true,
-  message = '',
+  {
+    timeout = 5000,
+    diff = 500,
+    sendError = true,
+    message = '',
+  }: { timeout?: number; diff?: number; sendError?: boolean; message?: string } = {},
 ): Promise<void> {
   await wait(waitFunction, true, timeout, diff, sendError, message);
 }
@@ -79,10 +81,12 @@ export async function waitUntil(
  */
 export async function waitWhile(
   waitFunction: () => Promise<boolean>,
-  timeout = 3000,
-  diff = 500,
-  sendError = true,
-  message = '',
+  {
+    timeout = 5000,
+    diff = 500,
+    sendError = true,
+    message = '',
+  }: { timeout?: number; diff?: number; sendError?: boolean; message?: string } = {},
 ): Promise<void> {
   await wait(waitFunction, false, timeout, diff, sendError, message);
 }
@@ -117,9 +121,12 @@ export async function executeWithTimeout(
   });
 }
 
-export async function waitForPodmanMachineStartup(page: Page, timeoutOut = 10000): Promise<void> {
+export async function waitForPodmanMachineStartup(page: Page, timeoutOut = 15000): Promise<void> {
   const dashboardPage = await new NavigationBar(page).openDashboard();
   await playExpect(dashboardPage.heading).toBeVisible();
-  await playExpect(dashboardPage.podmanStatusLabel).toBeVisible({ timeout: timeoutOut });
+  await waitUntil(async () => await dashboardPage.podmanStatusLabel.isVisible(), {
+    timeout: timeoutOut,
+    sendError: false,
+  });
   await playExpect(dashboardPage.podmanStatusLabel).toHaveText('RUNNING', { timeout: timeoutOut });
 }

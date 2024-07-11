@@ -15,13 +15,15 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+export interface ImageSearchOptions {
+  registry?: string;
+  query: string;
+  limit?: number;
+}
 
-import type { Writable } from 'svelte/store';
-import { writable } from 'svelte/store';
-
-import type { ContainerInfoUI } from '../lib/container/ContainerInfoUI';
-
-/**
- * Defines the store used to define the container to export.
- */
-export const exportContainerInfo: Writable<ContainerInfoUI> = writable();
+export interface ImageSearchResult {
+  name: string;
+  description: string;
+  star_count: number;
+  is_official: boolean;
+}

@@ -31,6 +31,8 @@ import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 import * as nodeTar from 'tar';
 import validator from 'validator';
 
+import type { ImageSearchOptions, ImageSearchResult } from '/@api/image-registry.js';
+
 import { isMac, isWindows } from '../util.js';
 import type { ApiSenderType } from './api.js';
 import type { Certificates } from './certificates.js';
@@ -80,6 +82,9 @@ export class ImageRegistry {
     });
 
     this.proxyEnabled = this.proxy.isEnabled();
+    if (this.proxyEnabled) {
+      this.proxySettings = this.proxy.proxy;
+    }
   }
 
   extractRegistryServerFromImage(imageName: string): string | undefined {
@@ -871,6 +876,23 @@ export class ImageRegistry {
     if (!rawResponse?.includes('token')) {
       throw Error('Unable to validate provided credentials.');
     }
+  }
+
+  async searchImages(options: ImageSearchOptions): Promise<ImageSearchResult[]> {
+    if (!options.registry) {
+      options.registry = 'https://index.docker.io';
+    }
+    if (options.registry === 'docker.io') {
+      options.registry = 'index.docker.io';
+    }
+    if (!options.registry.startsWith('http')) {
+      options.registry = 'https://' + options.registry;
+    }
+    const resultJSON = await got.get(
+      `${options.registry}/v1/search?q=${options.query}&n=${options.limit ?? 25}`,
+      this.getOptions(),
+    );
+    return JSON.parse(resultJSON.body).results;
   }
 }
 

@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { ImageInfo } from '@podman-desktop/api';
-import { Tab } from '@podman-desktop/ui-svelte';
+import { StatusIcon, Tab } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 
@@ -14,7 +14,6 @@ import { ImageUtils } from '../image/image-utils';
 import ImageDetailsSummary from '../image/ImageDetailsSummary.svelte';
 import type { ImageInfoUI } from '../image/ImageInfoUI';
 import ManifestIcon from '../images/ManifestIcon.svelte';
-import StatusIcon from '../images/StatusIcon.svelte';
 import Badge from '../ui/Badge.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import { getTabUrl, isTabSelected } from '../ui/Util';

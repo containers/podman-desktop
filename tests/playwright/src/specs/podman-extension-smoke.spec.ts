@@ -29,7 +29,8 @@ import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
 
 const extensionLabel = 'podman-desktop.podman';
-const exntesionLabelName = 'podman';
+const extensionLabelName = 'podman';
+const extensionHeading = 'podman';
 const PODMAN_EXTENSION_STATUS_ACTIVE: string = 'ACTIVE';
 const PODMAN_EXTENSION_STATUS_DISABLED: string = 'DISABLED';
 const SETTINGS_NAVBAR_PREFERENCES_PODMAN_EXTENSION: string = 'Extension: Podman';
@@ -76,34 +77,39 @@ describe('Verification of Podman extension', async () => {
 
 async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
   dashboardPage = await navigationBar.openDashboard();
-  const podmanProviderLocator = dashboardPage.getPodmanStatusLocator();
-  enabled
-    ? await playExpect(podmanProviderLocator).toBeVisible()
-    : await playExpect(podmanProviderLocator).not.toBeVisible();
+
+  if (enabled) {
+    await playExpect(dashboardPage.getPodmanStatusLocator()).toBeVisible();
+  } else {
+    await playExpect(dashboardPage.getPodmanStatusLocator()).not.toBeVisible();
+  }
   // always present and visible
   // go to the details of the extension
   const extensionsPage = await navigationBar.openExtensions();
-  const extensionDetailsPage = await extensionsPage.openExtensionDetails(exntesionLabelName, extensionLabel);
+  const extensionDetailsPage = await extensionsPage.openExtensionDetails(
+    extensionLabelName,
+    extensionLabel,
+    extensionHeading,
+  );
 
   const extensionStatusLabel = extensionDetailsPage.status;
 
   await playExpect(extensionStatusLabel).toBeVisible();
   await extensionStatusLabel.scrollIntoViewIfNeeded();
-
-  const extensionStatusLocatorText = await extensionStatusLabel.innerText({ timeout: 3000 });
   // --------------------------
-  await playExpect
-    .poll(
-      async () =>
-        enabled
-          ? extensionStatusLocatorText === PODMAN_EXTENSION_STATUS_ACTIVE
-          : extensionStatusLocatorText === PODMAN_EXTENSION_STATUS_DISABLED,
-      { timeout: 10000 },
-    )
-    .toBeTruthy();
+
+  if (enabled) {
+    await playExpect(extensionStatusLabel).toContainText(PODMAN_EXTENSION_STATUS_ACTIVE, { timeout: 10000 });
+  } else {
+    await playExpect(extensionStatusLabel).toContainText(PODMAN_EXTENSION_STATUS_DISABLED, { timeout: 10000 });
+  }
   // always present and visible
   const extensionsPageAfter = await navigationBar.openExtensions();
-  const podmanExtensionPage = await extensionsPageAfter.openExtensionDetails(exntesionLabelName, extensionLabel);
+  const podmanExtensionPage = await extensionsPageAfter.openExtensionDetails(
+    extensionLabelName,
+    extensionLabel,
+    extensionHeading,
+  );
 
   // --------------------------
   if (enabled) {
@@ -119,18 +125,21 @@ async function verifyPodmanExtensionStatus(enabled: boolean): Promise<void> {
   // expand Settings -> Preferences menu
   settingsBar = await navigationBar.openSettings();
   await settingsBar.preferencesTab.click();
-  enabled
-    ? await playExpect(
-        settingsBar.getSettingsNavBarTabLocator(SETTINGS_NAVBAR_PREFERENCES_PODMAN_EXTENSION),
-      ).toBeVisible()
-    : await playExpect(
-        settingsBar.getSettingsNavBarTabLocator(SETTINGS_NAVBAR_PREFERENCES_PODMAN_EXTENSION),
-      ).not.toBeVisible();
+
+  if (enabled) {
+    await playExpect(
+      settingsBar.getSettingsNavBarTabLocator(SETTINGS_NAVBAR_PREFERENCES_PODMAN_EXTENSION),
+    ).toBeVisible();
+  } else {
+    await playExpect(
+      settingsBar.getSettingsNavBarTabLocator(SETTINGS_NAVBAR_PREFERENCES_PODMAN_EXTENSION),
+    ).not.toBeVisible();
+  }
   // collapse Settings -> Preferences menu
   await settingsBar.preferencesTab.click();
 }
 
 async function openExtensionsPodmanPage(): Promise<ExtensionDetailsPage> {
   const extensionsPage = await navigationBar.openExtensions();
-  return extensionsPage.openExtensionDetails(exntesionLabelName, extensionLabel);
+  return extensionsPage.openExtensionDetails(extensionLabelName, extensionLabel, extensionHeading);
 }

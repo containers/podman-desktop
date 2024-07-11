@@ -86,8 +86,7 @@ beforeEach(() => {
 test('Expect no error and status starting pod', async () => {
   listContainersMock.mockResolvedValue([]);
 
-  const { component } = render(PodActions, { pod: podmanPod });
-  component.$on('update', updateMock);
+  render(PodActions, { pod: podmanPod, onUpdate: updateMock });
 
   // click on start button
   const startButton = screen.getByRole('button', { name: 'Start Pod' });
@@ -101,8 +100,7 @@ test('Expect no error and status starting pod', async () => {
 test('Expect no error and status stopping pod', async () => {
   listContainersMock.mockResolvedValue([]);
 
-  const { component } = render(PodActions, { pod: podmanPod });
-  component.$on('update', updateMock);
+  render(PodActions, { pod: podmanPod, onUpdate: updateMock });
 
   // click on stop button
   const stopButton = screen.getByRole('button', { name: 'Stop Pod' });
@@ -116,8 +114,7 @@ test('Expect no error and status stopping pod', async () => {
 test('Expect no error and status restarting pod', async () => {
   listContainersMock.mockResolvedValue([]);
 
-  const { component } = render(PodActions, { pod: podmanPod });
-  component.$on('update', updateMock);
+  render(PodActions, { pod: podmanPod, onUpdate: updateMock });
 
   // click on restart button
   const restartButton = screen.getByRole('button', { name: 'Restart Pod' });
@@ -133,9 +130,7 @@ test('Expect no error and status deleting pod', async () => {
   showMessageBoxMock.mockResolvedValue({ response: 0 });
   listContainersMock.mockResolvedValue([]);
 
-  const { component } = render(PodActions, { pod: podmanPod });
-  component.$on('update', updateMock);
-
+  render(PodActions, { pod: podmanPod, onUpdate: updateMock });
   // click on delete button
   const deleteButton = screen.getByRole('button', { name: 'Delete Pod' });
   await fireEvent.click(deleteButton);

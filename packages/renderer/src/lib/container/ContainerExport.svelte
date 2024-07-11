@@ -4,14 +4,19 @@ import { Button, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 
-import { exportContainerInfo } from '/@/stores/export-container-store';
+import { ContainerUtils } from '/@/lib/container/container-utils';
+import { handleNavigation } from '/@/navigation';
+import { containersInfos } from '/@/stores/containers';
 import { createTask } from '/@/stores/tasks';
+import { NavigationPage } from '/@api/navigation-page';
 
 import EngineFormPage from '../ui/EngineFormPage.svelte';
 import { Uri } from '../uri/Uri';
 import type { ContainerInfoUI } from './ContainerInfoUI';
 
-let container: ContainerInfoUI;
+export let containerID: string;
+
+let container: ContainerInfoUI | undefined = undefined;
 
 let invalidName = false;
 let invalidFolder = true;
@@ -21,16 +26,25 @@ let exportedError = '';
 let inProgress = false;
 $: invalidFields = invalidName || invalidFolder;
 
-onMount(async () => {
-  // grab current value
-  container = $exportContainerInfo;
-  if (!container) {
-    // go back to containers list
-    router.goto('/containers/');
-  }
+onMount(() => {
+  const containerUtils = new ContainerUtils();
+
+  // loading container info
+  return containersInfos.subscribe(containers => {
+    const matchingContainer = containers.find(c => c.Id === containerID);
+    if (matchingContainer) {
+      container = containerUtils.getContainerInfoUI(matchingContainer);
+    } else {
+      handleNavigation({
+        page: NavigationPage.CONTAINERS,
+      });
+    }
+  });
 });
 
 async function selectFolderPath() {
+  if (!container) return;
+
   const result = await window.saveDialog({
     title: 'Select the directory where to export the container content',
     defaultUri: {
@@ -52,6 +66,8 @@ async function selectFolderPath() {
 }
 
 async function exportContainer() {
+  if (!container) return;
+
   exportedError = '';
   inProgress = true;
   const task = createTask(`Export container ${container.name}`);
@@ -90,7 +106,7 @@ async function exportContainer() {
 
     <div slot="content" class="space-y-2">
       <div>
-        <label for="modalSelectTarget" class="block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
+        <label for="modalSelectTarget" class="block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
           >Export to:</label>
         <div class="flex w-full">
           <Input

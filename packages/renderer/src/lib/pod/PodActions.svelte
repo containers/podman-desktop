@@ -27,6 +27,9 @@ export let dropdownMenu = false;
 export let detailed = false;
 
 const dispatch = createEventDispatcher<{ update: PodInfoUI }>();
+export let onUpdate: (update: PodInfoUI) => void = update => {
+  dispatch('update', update);
+};
 
 let contributions: Menu[] = [];
 onMount(async () => {
@@ -84,13 +87,13 @@ function inProgress(inProgress: boolean, state?: string): void {
     pod.status = state;
   }
 
-  dispatch('update', pod);
+  onUpdate(pod);
 }
 
 function handleError(errorMessage: string): void {
   pod.actionError = errorMessage;
   pod.status = 'ERROR';
-  dispatch('update', pod);
+  onUpdate(pod);
 }
 
 async function startPod() {

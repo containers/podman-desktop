@@ -19,6 +19,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import { type CombinedExtensionInfoUI } from '/@/stores/all-installed-extensions';
@@ -33,11 +34,8 @@ beforeEach(() => {
 });
 
 async function waitRender(customProperties: object): Promise<void> {
-  const result = render(ExtensionDetails, { ...customProperties });
-  while (result.component.$$.ctx[0] === undefined) {
-    console.log(result.component.$$.ctx);
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  render(ExtensionDetails, { ...customProperties });
+  await tick();
 }
 
 export const aFakeExtension: CatalogExtension = {

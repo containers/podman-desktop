@@ -22,6 +22,7 @@ import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { tick } from 'svelte';
 import { router } from 'tinro';
 import { afterEach, beforeAll, beforeEach, describe, expect, type Mock, test, vi } from 'vitest';
 
@@ -63,11 +64,8 @@ afterEach(() => {
 
 async function waitRender() {
   const result = render(RunImage);
-
-  //wait until dataReady is true
-  while (result.component.$$.ctx[30] !== true) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  await tick();
+  await tick();
   return result;
 }
 
@@ -163,7 +161,7 @@ describe('RunImage', () => {
 
     await fireEvent.click(link);
 
-    const entryPoint = screen.getByRole('textbox', { name: 'Entrypoint:' });
+    const entryPoint = screen.getByRole('textbox', { name: 'Entrypoint' });
     expect(entryPoint).toBeInTheDocument();
     expect((entryPoint as HTMLInputElement).value).toBe('entrypoint');
   });
@@ -175,7 +173,7 @@ describe('RunImage', () => {
 
     await fireEvent.click(link);
 
-    const entryPoint = screen.getByRole('textbox', { name: 'Entrypoint:' });
+    const entryPoint = screen.getByRole('textbox', { name: 'Entrypoint' });
     expect(entryPoint).toBeInTheDocument();
     expect((entryPoint as HTMLInputElement).value).toBe('entrypoint');
   });
@@ -187,7 +185,7 @@ describe('RunImage', () => {
 
     await fireEvent.click(link);
 
-    const entryPoint = screen.getByRole('textbox', { name: 'Entrypoint:' });
+    const entryPoint = screen.getByRole('textbox', { name: 'Entrypoint' });
     expect(entryPoint).toBeInTheDocument();
     expect((entryPoint as HTMLInputElement).value).toBe('entrypoint1 entrypoint2');
   });
@@ -199,7 +197,7 @@ describe('RunImage', () => {
 
     await fireEvent.click(link);
 
-    const command = screen.getByRole('textbox', { name: 'Command:' });
+    const command = screen.getByRole('textbox', { name: 'Command' });
     expect(command).toBeInTheDocument();
     expect((command as HTMLInputElement).value).toBe('command');
   });
@@ -211,7 +209,7 @@ describe('RunImage', () => {
 
     await fireEvent.click(link);
 
-    const entryPoint = screen.getByRole('textbox', { name: 'Command:' });
+    const entryPoint = screen.getByRole('textbox', { name: 'Command' });
     expect(entryPoint).toBeInTheDocument();
     expect((entryPoint as HTMLInputElement).value).toBe('command1 command2');
   });

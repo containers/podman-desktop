@@ -22,12 +22,12 @@ async function removeNotification(id: number) {
     </div>
     <div class="flex flex-col text-sm space-y-2">
       <div class="font-bold" aria-label="Notification title">{notification.title}</div>
-      <div aria-label="Notification description"><Markdown>{notification.body ?? ''}</Markdown></div>
+      <div aria-label="Notification description"><Markdown markdown="{notification.body ?? ''}" /></div>
     </div>
   </div>
   {#if notification.markdownActions}
     <div class="w-full flex justify-center mt-2">
-      <Markdown>{notification.markdownActions}</Markdown>
+      <Markdown markdown="{notification.markdownActions}" />
     </div>
   {/if}
   <div class="absolute top-2 right-2">

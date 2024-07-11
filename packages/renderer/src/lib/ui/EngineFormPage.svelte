@@ -17,7 +17,7 @@ export let showEmptyScreen: boolean = false;
       {#if showEmptyScreen}
         <NoContainerEngineEmptyScreen />
       {:else}
-        <div class="bg-[var(--pd-formpage-bg)] p-6 space-y-2 lg:p-8 rounded-lg">
+        <div class="bg-[var(--pd-content-card-bg)] p-6 space-y-2 lg:p-8 rounded-lg">
           <slot name="content" />
         </div>
       {/if}

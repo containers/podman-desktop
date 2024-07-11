@@ -47,8 +47,7 @@ test('Expect no error and status deleting ingress', async () => {
     selected: false,
   };
 
-  const { component } = render(IngressRouteActions, { ingressRoute: ingressUI });
-  component.$on('update', updateMock);
+  render(IngressRouteActions, { ingressRoute: ingressUI, onUpdate: updateMock });
 
   // click on delete button
   const deleteButton = screen.getByRole('button', { name: 'Delete Ingress' });
@@ -74,8 +73,7 @@ test('Expect no error and status deleting route', async () => {
     tlsEnabled: false,
   };
 
-  const { component } = render(IngressRouteActions, { ingressRoute: routeUI });
-  component.$on('update', updateMock);
+  render(IngressRouteActions, { ingressRoute: routeUI, onUpdate: updateMock });
 
   // click on delete button
   const deleteButton = screen.getByRole('button', { name: 'Delete Route' });

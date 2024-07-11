@@ -392,13 +392,28 @@ declare module '@podman-desktop/api' {
     /**
      * Map of networks names to ids the container should join to.
      * You can request additional settings for each network, you can set network aliases,
-     * If the map is empty and the bridge network mode is set the container will be joined to the default network.
+     *
+     * @remarks
+     * {@link PodCreateOptions.netns.nsmode} need to be set to `bridge` to join a network
      */
     Networks?: {
       [key: string]: {
         aliases?: string[];
         interface_name?: string;
       };
+    };
+    /**
+     * Network namespace
+     */
+    netns?: {
+      /**
+       * NamespaceMode
+       * @example
+       * `bridge` indicates that the network backend (CNI/netavark) should be used.
+       * @example
+       * `pasta` indicates that a pasta network stack should be used.
+       */
+      nsmode: string;
     };
     /**
      * ExitPolicy determines the pod's exit and stop behaviour.

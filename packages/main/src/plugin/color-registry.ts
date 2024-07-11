@@ -228,6 +228,7 @@ export class ColorRegistry {
   }
 
   protected initColors(): void {
+    this.initDefaults();
     this.initNotificationDot();
     this.initGlobalNav();
     this.initSecondaryNav();
@@ -249,8 +250,19 @@ export class ColorRegistry {
     this.initDropdown();
     this.initLabel();
     this.initStatusColors();
-    this.initFormPage();
     this.initStatusBar();
+    this.initOnboarding();
+    this.initStates();
+  }
+
+  protected initDefaults(): void {
+    const def = 'default-';
+
+    // Global default colors
+    this.registerColor(`${def}text`, {
+      dark: colorPalette.white,
+      light: colorPalette.charcoal[900],
+    });
   }
 
   protected initNotificationDot(): void {
@@ -464,7 +476,7 @@ export class ColorRegistry {
 
     this.registerColor(`${ct}card-header-text`, {
       dark: colorPalette.gray[100],
-      light: colorPalette.charcoal[900],
+      light: colorPalette.purple[900],
     });
 
     this.registerColor(`${ct}card-bg`, {
@@ -475,6 +487,11 @@ export class ColorRegistry {
     this.registerColor(`${ct}card-hover-bg`, {
       dark: colorPalette.charcoal[500],
       light: colorPalette.purple[200],
+    });
+
+    this.registerColor(`${ct}card-selected-bg`, {
+      dark: colorPalette.charcoal[400],
+      light: colorPalette.purple[100],
     });
 
     this.registerColor(`${ct}card-text`, {
@@ -495,6 +512,11 @@ export class ColorRegistry {
     this.registerColor(`${ct}card-inset-bg`, {
       dark: colorPalette.charcoal[900],
       light: colorPalette.dustypurple[200],
+    });
+
+    this.registerColor(`${ct}card-hover-inset-bg`, {
+      dark: colorPalette.charcoal[700],
+      light: colorPalette.dustypurple[300],
     });
 
     this.registerColor(`${ct}bg`, {
@@ -545,6 +567,16 @@ export class ColorRegistry {
     this.registerColor(`${ct}card-carousel-disabled-nav`, {
       dark: colorPalette.charcoal[700],
       light: colorPalette.gray[200],
+    });
+
+    this.registerColor(`${ct}card-border`, {
+      dark: colorPalette.charcoal[700],
+      light: colorPalette.gray[200],
+    });
+
+    this.registerColor(`${ct}card-border-selected`, {
+      dark: colorPalette.dustypurple[700],
+      light: colorPalette.purple[600],
     });
   }
 
@@ -665,32 +697,36 @@ export class ColorRegistry {
       light: colorPalette.gray[900],
     });
     this.registerColor(`${sNav}off-focused-bg`, {
-      dark: colorPalette.purple[700],
-      light: colorPalette.purple[700],
+      dark: colorPalette.gray[800],
+      light: colorPalette.gray[800],
     });
     this.registerColor(`${sNav}on-bg`, {
       dark: colorPalette.purple[500],
-      light: colorPalette.purple[500],
+      light: colorPalette.purple[600],
     });
     this.registerColor(`${sNav}on-focused-bg`, {
       dark: colorPalette.purple[400],
-      light: colorPalette.purple[600],
+      light: colorPalette.purple[500],
     });
     this.registerColor(`${sNav}switch`, {
       dark: colorPalette.white,
-      light: colorPalette.black,
+      light: colorPalette.white,
     });
     this.registerColor(`${sNav}focused-switch`, {
       dark: colorPalette.white,
-      light: colorPalette.black,
+      light: colorPalette.white,
     });
     this.registerColor(`${sNav}on-text`, {
-      dark: colorPalette.white,
-      light: colorPalette.black,
+      dark: colorPalette.gray[300],
+      light: colorPalette.charcoal[700],
     });
     this.registerColor(`${sNav}off-text`, {
+      dark: colorPalette.gray[300],
+      light: colorPalette.charcoal[700],
+    });
+    this.registerColor(`${sNav}disabled-text`, {
       dark: colorPalette.gray[700],
-      light: colorPalette.gray[900],
+      light: colorPalette.charcoal[200],
     });
     this.registerColor(`${sNav}off-disabled-bg`, {
       dark: colorPalette.charcoal[900],
@@ -701,8 +737,8 @@ export class ColorRegistry {
       light: colorPalette.gray[900],
     });
     this.registerColor(`${sNav}disabled-switch`, {
-      dark: colorPalette.gray[900],
-      light: colorPalette.charcoal[900],
+      dark: colorPalette.gray[200],
+      light: colorPalette.gray[200],
     });
   }
 
@@ -840,14 +876,6 @@ export class ColorRegistry {
     this.registerColor(`${modal}header-divider`, {
       dark: colorPalette.purple[700],
       light: colorPalette.purple[300],
-    });
-    this.registerColor(`${modal}error-text`, {
-      dark: colorPalette.red[500],
-      light: colorPalette.red[500],
-    });
-    this.registerColor(`${modal}warning-text`, {
-      dark: colorPalette.amber[400],
-      light: colorPalette.amber[400],
     });
   }
 
@@ -1182,24 +1210,12 @@ export class ColorRegistry {
       dark: colorPalette.gray[900],
       light: colorPalette.gray[100],
     });
-  }
 
-  protected initFormPage(): void {
-    const formPage = 'formpage-';
-
-    this.registerColor(`${formPage}bg`, {
-      dark: colorPalette.charcoal[900],
-      light: colorPalette.gray[50],
-    });
-
-    this.registerColor(`${formPage}card-bg`, {
-      dark: colorPalette.charcoal[800],
-      light: colorPalette.gray[300],
-    });
-
-    this.registerColor(`${formPage}card-text`, {
-      dark: colorPalette.gray[400],
-      light: colorPalette.purple[900],
+    // contrast color for the other status colors,
+    // e.g. to use in status icons
+    this.registerColor(`${status}contrast`, {
+      dark: colorPalette.white,
+      light: colorPalette.white,
     });
   }
 
@@ -1218,6 +1234,47 @@ export class ColorRegistry {
     this.registerColor(`${statusbar}text`, {
       dark: colorPalette.white,
       light: colorPalette.white,
+    });
+  }
+
+  protected initOnboarding(): void {
+    const onboarding = 'onboarding-';
+    this.registerColor(`${onboarding}active-dot-bg`, {
+      dark: colorPalette.purple[700],
+      light: colorPalette.purple[700],
+    });
+
+    this.registerColor(`${onboarding}active-dot-border`, {
+      dark: colorPalette.purple[700],
+      light: colorPalette.purple[700],
+    });
+
+    this.registerColor(`${onboarding}inactive-dot-bg`, {
+      dark: colorPalette.transparent,
+      light: colorPalette.transparent,
+    });
+
+    this.registerColor(`${onboarding}inactive-dot-border`, {
+      dark: colorPalette.gray[700],
+      light: colorPalette.gray[700],
+    });
+  }
+
+  protected initStates(): void {
+    const state = 'state-';
+
+    // general error and warning states
+    this.registerColor(`${state}success`, {
+      dark: colorPalette.green[500],
+      light: colorPalette.green[600],
+    });
+    this.registerColor(`${state}warning`, {
+      dark: colorPalette.amber[500],
+      light: colorPalette.amber[600],
+    });
+    this.registerColor(`${state}error`, {
+      dark: colorPalette.red[500],
+      light: colorPalette.red[600],
     });
   }
 }

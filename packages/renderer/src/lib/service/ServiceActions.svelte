@@ -12,9 +12,13 @@ export let detailed = false;
 
 const dispatch = createEventDispatcher<{ update: ServiceUI }>();
 
+export let onUpdate: (service: ServiceUI) => void = service => {
+  dispatch('update', service);
+};
+
 async function deleteService(): Promise<void> {
   service.status = 'DELETING';
-  dispatch('update', service);
+  onUpdate(service);
 
   await window.kubernetesDeleteService(service.name);
 }

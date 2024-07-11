@@ -19,6 +19,7 @@ import '@testing-library/jest-dom/vitest';
 
 import type { ProviderStatus } from '@podman-desktop/api';
 import { render, screen } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import { router } from 'tinro';
 import { expect, test } from 'vitest';
 
@@ -30,11 +31,8 @@ import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provid
 import NewContentOnDashboardBadge from './NewContentOnDashboardBadge.svelte';
 
 async function waitRender(): Promise<void> {
-  const result = render(NewContentOnDashboardBadge);
-  // wait that result.component.$$.ctx[3] is set
-  while (result.component.$$.ctx[3] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  render(NewContentOnDashboardBadge);
+  await tick();
 }
 
 const notification1: NotificationCard = {

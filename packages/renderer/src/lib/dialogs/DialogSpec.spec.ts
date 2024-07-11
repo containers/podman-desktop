@@ -16,23 +16,37 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import '@testing-library/jest-dom/vitest';
 
-import { get } from 'svelte/store';
+import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
-import type { ContainerInfoUI } from '../lib/container/ContainerInfoUI';
-import { exportContainerInfo } from './export-container-store';
+import DialogSpec from './DialogSpec.svelte';
 
-const container: ContainerInfoUI = {
-  engineId: 'engine',
-  id: 'id',
-  name: 'test',
-} as ContainerInfoUI;
+test('Expect icon is defined', async () => {
+  render(DialogSpec);
 
-test('check that export container store is filled', async () => {
-  // initial images
-  exportContainerInfo.set(container);
-  const containerInfo = get(exportContainerInfo);
-  expect(containerInfo).equal(container);
+  const element = screen.getByLabelText('icon');
+  expect(element).toBeInTheDocument();
+});
+
+test('Expect content is defined', async () => {
+  render(DialogSpec);
+
+  const element = screen.getByLabelText('content');
+  expect(element).toBeInTheDocument();
+});
+
+test('Expect validation is defined', async () => {
+  render(DialogSpec);
+
+  const element = screen.getByLabelText('validation');
+  expect(element).toBeInTheDocument();
+});
+
+test('Expect buttons is defined', async () => {
+  render(DialogSpec);
+
+  const element = screen.getByLabelText('buttons');
+  expect(element).toBeInTheDocument();
 });

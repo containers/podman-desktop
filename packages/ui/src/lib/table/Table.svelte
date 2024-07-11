@@ -180,11 +180,11 @@ function toggleChildren(name: string | undefined): void {
 }
 </script>
 
-<div class="w-full" class:hidden="{data.length === 0}" role="table">
+<div class="w-full mx-5" class:hidden="{data.length === 0}" role="table">
   <!-- Table header -->
   <div role="rowgroup">
     <div
-      class="grid grid-table gap-x-0.5 mx-5 h-7 sticky top-0 bg-[var(--pd-content-bg)] text-xs text-[var(--pd-table-header-text)] font-bold uppercase z-[2]"
+      class="grid grid-table gap-x-0.5 h-7 sticky top-0 bg-[var(--pd-content-bg)] text-xs text-[var(--pd-table-header-text)] font-bold uppercase z-[2]"
       role="row">
       <div class="whitespace-nowrap justify-self-start" role="columnheader"></div>
       {#if row.info.selectable}
@@ -227,7 +227,7 @@ function toggleChildren(name: string | undefined): void {
   <!-- Table body -->
   <div role="rowgroup">
     {#each data as object (object)}
-      <div class="mx-5 min-h-[48px] h-fit bg-[var(--pd-content-card-bg)] rounded-lg mb-2" role="row">
+      <div class="min-h-[48px] h-fit bg-[var(--pd-content-card-bg)] rounded-lg mb-2" role="row">
         <div
           class="grid grid-table gap-x-0.5 min-h-[48px] hover:bg-[var(--pd-content-card-hover-bg)]"
           class:rounded-t-lg="{object.name &&

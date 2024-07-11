@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import * as fs from 'node:fs';
-import { readFile } from 'node:fs/promises';
+import { readFile, realpath } from 'node:fs/promises';
 import * as path from 'node:path';
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
@@ -429,15 +429,16 @@ export class ExtensionLoader {
   }
 
   async analyzeExtension(extensionPath: string, removable: boolean): Promise<AnalyzedExtension> {
+    const resolvedExtensionPath = await realpath(extensionPath);
     // do nothing if there is no package.json file
     let error = undefined;
-    if (!fs.existsSync(path.resolve(extensionPath, 'package.json'))) {
-      error = `Ignoring extension ${extensionPath} without package.json file`;
+    if (!fs.existsSync(path.resolve(resolvedExtensionPath, 'package.json'))) {
+      error = `Ignoring extension ${resolvedExtensionPath} without package.json file`;
       console.warn(error);
       const analyzedExtension: AnalyzedExtension = {
         id: '<unknown>',
         name: '<unknown>',
-        path: extensionPath,
+        path: resolvedExtensionPath,
         manifest: undefined,
         readme: '',
         api: <typeof containerDesktopAPI>{},
@@ -450,28 +451,28 @@ export class ExtensionLoader {
     }
 
     // log error if the manifest is missing required entries
-    const manifest = await this.loadManifest(extensionPath);
+    const manifest = await this.loadManifest(resolvedExtensionPath);
     if (!manifest.name || !manifest.displayName || !manifest.version || !manifest.publisher || !manifest.description) {
-      error = `Extension ${extensionPath} missing required manifest entry in package.json (name, displayName, version, publisher, description)`;
+      error = `Extension ${resolvedExtensionPath} missing required manifest entry in package.json (name, displayName, version, publisher, description)`;
       console.warn(error);
     }
 
     // create api object
     const disposables: Disposable[] = [];
-    const api = this.createApi(extensionPath, manifest, disposables);
+    const api = this.createApi(resolvedExtensionPath, manifest, disposables);
 
     // is there a README.md file in the extension folder ?
     let readme = '';
-    if (fs.existsSync(path.resolve(extensionPath, 'README.md'))) {
-      readme = await readFile(path.resolve(extensionPath, 'README.md'), 'utf8');
+    if (fs.existsSync(path.resolve(resolvedExtensionPath, 'README.md'))) {
+      readme = await readFile(path.resolve(resolvedExtensionPath, 'README.md'), 'utf8');
     }
 
     const analyzedExtension: AnalyzedExtension = {
       id: `${manifest.publisher}.${manifest.name}`,
       name: manifest.name,
       manifest,
-      path: extensionPath,
-      mainPath: manifest.main ? path.resolve(extensionPath, manifest.main) : undefined,
+      path: resolvedExtensionPath,
+      mainPath: manifest.main ? path.resolve(resolvedExtensionPath, manifest.main) : undefined,
       readme,
       api,
       removable,

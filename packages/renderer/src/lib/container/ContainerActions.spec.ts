@@ -22,12 +22,13 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { router } from 'tinro';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
-import { exportContainerInfo } from '/@/stores/export-container-store';
-
 import ContainerActions from './ContainerActions.svelte';
 import type { ContainerInfoUI } from './ContainerInfoUI';
 
-const container: ContainerInfoUI = {} as ContainerInfoUI;
+const container: ContainerInfoUI = {
+  id: 'container-id',
+  engineId: 'container-engine-id',
+} as ContainerInfoUI;
 
 const getContributedMenusMock = vi.fn();
 const updateMock = vi.fn();
@@ -50,8 +51,7 @@ afterEach(() => {
 });
 
 test('Expect no error and status starting container', async () => {
-  const { component } = render(ContainerActions, { container });
-  component.$on('update', updateMock);
+  render(ContainerActions, { container, onUpdate: updateMock });
 
   // click on start button
   const startButton = screen.getByRole('button', { name: 'Start Container' });
@@ -63,8 +63,7 @@ test('Expect no error and status starting container', async () => {
 });
 
 test('Expect no error and status stopping container', async () => {
-  const { component } = render(ContainerActions, { container });
-  component.$on('update', updateMock);
+  render(ContainerActions, { container, onUpdate: updateMock });
 
   // click on stop button
   const stopButton = screen.getByRole('button', { name: 'Stop Container' });
@@ -76,8 +75,7 @@ test('Expect no error and status stopping container', async () => {
 });
 
 test('Expect no error and status restarting container', async () => {
-  const { component } = render(ContainerActions, { container });
-  component.$on('update', updateMock);
+  render(ContainerActions, { container, onUpdate: updateMock });
 
   // click on restart button
   const restartButton = screen.getByRole('button', { name: 'Restart Container' });
@@ -91,8 +89,7 @@ test('Expect no error and status restarting container', async () => {
 test('Expect no error and status deleting container', async () => {
   // Mock the showMessageBox to return 0 (yes)
   showMessageBoxMock.mockResolvedValue({ response: 0 });
-  const { component } = render(ContainerActions, { container });
-  component.$on('update', updateMock);
+  render(ContainerActions, { container, onUpdate: updateMock });
 
   // click on delete button
   const deleteButton = screen.getByRole('button', { name: 'Delete Container' });
@@ -108,12 +105,30 @@ test('Expect no error and status deleting container', async () => {
 
 test('Expect exportContainerInfo is filled and user redirected to export container page', async () => {
   const goToMock = vi.spyOn(router, 'goto');
-  const storeSetMock = vi.spyOn(exportContainerInfo, 'set');
 
   render(ContainerActions, { container });
   const exportButton = screen.getByRole('button', { name: 'Export Container' });
   await fireEvent.click(exportButton);
 
-  expect(goToMock).toBeCalledWith('/containers/export');
-  expect(storeSetMock).toBeCalledWith(container);
+  expect(goToMock).toBeCalledWith('/containers/container-id/export');
+});
+
+test('Expect Deploy to Kubernetes to redirect to expected page', async () => {
+  const goToMock = vi.spyOn(router, 'goto');
+
+  render(ContainerActions, { container });
+  const deployButton = screen.getByRole('button', { name: 'Deploy to Kubernetes' });
+  await fireEvent.click(deployButton);
+
+  expect(goToMock).toBeCalledWith(`/deploy-to-kube/container-id/container-engine-id`);
+});
+
+test('Expect Generate Kube to redirect to expected page', async () => {
+  const goToMock = vi.spyOn(router, 'goto');
+
+  render(ContainerActions, { container });
+  const deployButton = screen.getByRole('button', { name: 'Generate Kube' });
+  await fireEvent.click(deployButton);
+
+  expect(goToMock).toBeCalledWith(`/containers/container-id/kube`);
 });

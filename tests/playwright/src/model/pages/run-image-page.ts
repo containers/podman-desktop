@@ -32,6 +32,10 @@ export class RunImagePage extends BasePage {
   readonly imageName: string;
   readonly startContainerButton: Locator;
   readonly errorAlert: Locator;
+  readonly containerNameInput: Locator;
+  readonly containerEntryPointInput: Locator;
+  readonly containerComamndInput: Locator;
+  readonly containerAddCustomPortMappingButton: Locator;
 
   constructor(page: Page, name: string) {
     super(page);
@@ -41,7 +45,11 @@ export class RunImagePage extends BasePage {
     this.closeLink = page.getByRole('link', { name: 'Close' });
     this.errorAlert = page.getByRole('alert', { name: 'Error Message Content' });
     this.backToImageDetailsLink = page.getByRole('link', { name: 'Go back to Image Details' });
-    this.startContainerButton = page.getByRole('button', { name: 'Start Container' });
+    this.startContainerButton = page.getByLabel('Start Container', { exact: true });
+    this.containerNameInput = page.getByLabel('Container Name');
+    this.containerEntryPointInput = page.getByLabel('Entrypoint');
+    this.containerComamndInput = page.getByLabel('Command');
+    this.containerAddCustomPortMappingButton = page.getByLabel('Add custom port mapping', { exact: true });
   }
 
   async activateTab(name: string): Promise<void> {
@@ -73,9 +81,8 @@ export class RunImagePage extends BasePage {
   async startContainer(customName = '', optionalParams?: ContainerInteractiveParams): Promise<ContainersPage> {
     if (customName !== '') {
       await this.activateTab('Basic');
-      // ToDo: improve UI side with aria-labels
-      const textbox = this.page.locator(`input[type='text'][name='modalContainerName']`);
-      await textbox.fill(customName);
+      await playExpect(this.containerNameInput).toBeVisible();
+      await this.containerNameInput.fill(customName);
     }
 
     if (optionalParams?.attachTerminal !== undefined) {
@@ -95,14 +102,7 @@ export class RunImagePage extends BasePage {
     }
 
     await this.activateTab('Basic');
-    await this.startContainerButton.waitFor({ state: 'visible', timeout: 1000 });
-    // If the start button is not enabled, we can expect an error in the form to be visible
-    if (!(await this.startContainerButton.isEnabled())) {
-      console.log('Start Container Button is not enabled.');
-      await this.errorAlert.waitFor({ state: 'visible', timeout: 1000 });
-      const errMessage = await this.errorAlert.innerText({ timeout: 1000 });
-      throw Error(`Start Button not enabled: ${errMessage}`);
-    }
+    await playExpect(this.startContainerButton).toBeEnabled();
     await this.startContainerButton.click();
     // After clicking on the button there seems to be four possible outcomes
     // 1. Opening particular container's details page with tty tab opened
@@ -113,10 +113,9 @@ export class RunImagePage extends BasePage {
       async () => {
         return await this.name.isVisible();
       },
-      3000,
-      900,
-      false,
+      { sendError: false },
     );
+
     const errorCount = await this.errorAlert.count();
     if (errorCount > 0) {
       const runImagePageActive = await this.name.isVisible();
@@ -129,8 +128,8 @@ export class RunImagePage extends BasePage {
   async setCustomPortMapping(customPortMapping: string): Promise<void> {
     // add port mapping
     await this.activateTab('Basic');
-    const addPortMappingButton = this.page.getByRole('button', { name: 'Add custom port mapping' });
-    await addPortMappingButton.click();
+    await playExpect(this.containerAddCustomPortMappingButton).toBeVisible();
+    await this.containerAddCustomPortMappingButton.click();
     const hostPort = this.page.getByLabel('host port');
     const containerPort = this.page.getByLabel('container port');
     await hostPort.fill(customPortMapping.split(':')[0]);

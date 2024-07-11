@@ -51,4 +51,7 @@ export interface PodCreateOptions {
     };
   };
   exit_policy?: string;
+  netns?: {
+    nsmode: string;
+  };
 }

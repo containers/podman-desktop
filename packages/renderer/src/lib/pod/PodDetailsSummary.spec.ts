@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,7 +143,7 @@ test('Render with a kubernetes object', async () => {
   kubernetesGetCurrentNamespaceMock.mockResolvedValue('default');
   kubernetesReadNamespacedPodMock.mockResolvedValue(fakePod);
 
-  render(PodDetailsSummary, { pod: fakePodInfoUI });
+  render(PodDetailsSummary, { pod: JSON.parse(JSON.stringify(fakePodInfoUI)) });
 
   // Wait for the mock to be called as it sometimes takes a few ms
   await waitFor(() => expect(kubernetesReadNamespacedPodMock).toHaveBeenCalled());
@@ -159,7 +159,7 @@ test('Render the pod information when pod object is kind == podman', async () =>
 
   const fakePodInfo = fakePodInfoUI;
   fakePodInfo.kind = 'podman';
-  render(PodDetailsSummary, { pod: fakePodInfo });
+  render(PodDetailsSummary, { pod: JSON.parse(JSON.stringify(fakePodInfoUI)) });
 
   // Expect the pod name, id, container.Names and container.Id to show
   expect(screen.getByText('fakepod')).toBeInTheDocument();

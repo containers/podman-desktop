@@ -5,8 +5,8 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { router } from 'tinro';
 
 import { handleNavigation } from '/@/navigation';
+import type { NavigationRequest } from '/@api/navigation-request';
 
-import type { NavigationRequest } from '../../main/src/plugin/navigation/navigation-request';
 import AppNavigation from './AppNavigation.svelte';
 import Appearance from './lib/appearance/Appearance.svelte';
 import ComposeDetails from './lib/compose/ComposeDetails.svelte';
@@ -77,8 +77,8 @@ router.subscribe(function (navigation) {
 });
 
 window.events?.receive('navigate', (navigationRequest: unknown) => {
-  const navRequest = navigationRequest as NavigationRequest;
-  handleNavigation(navRequest.page, navRequest.parameters);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handleNavigation(navigationRequest as NavigationRequest<any>);
 });
 </script>
 
@@ -115,11 +115,13 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         <Route path="/containers" breadcrumb="Containers" navigationHint="root">
           <ContainerList searchTerm="{meta.query.filter || ''}" />
         </Route>
-        <Route path="/containers/:id/*" breadcrumb="Container Details" let:meta navigationHint="details">
-          <ContainerDetails containerID="{meta.params.id}" />
-        </Route>
-        <Route path="/containers/export/*" breadcrumb="Export Container">
-          <ContainerExport />
+        <Route path="/containers/:id/*" let:meta firstmatch>
+          <Route path="/export" breadcrumb="Export Container">
+            <ContainerExport containerID="{meta.params.id}" />
+          </Route>
+          <Route breadcrumb="Container Details" navigationHint="details" path="/*">
+            <ContainerDetails containerID="{meta.params.id}" />
+          </Route>
         </Route>
 
         <Route path="/kube/play" breadcrumb="Play Kubernetes YAML">

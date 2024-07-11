@@ -22,7 +22,10 @@ import '@testing-library/jest-dom/vitest';
 
 import type { V1Service } from '@kubernetes/client-node';
 import { render, screen } from '@testing-library/svelte';
+/* eslint-disable import/no-duplicates */
+import { tick } from 'svelte';
 import { get } from 'svelte/store';
+/* eslint-enable import/no-duplicates */
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import { kubernetesCurrentContextServices } from '/@/stores/kubernetes-contexts-state';
@@ -44,11 +47,8 @@ beforeEach(() => {
 });
 
 async function waitRender(customProperties: object): Promise<void> {
-  const result = render(ServicesList, { ...customProperties });
-  // wait that result.component.$$.ctx[2] is set
-  while (result.component.$$.ctx[2] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  render(ServicesList, { ...customProperties });
+  await tick();
 }
 
 test('Expect service empty screen', async () => {

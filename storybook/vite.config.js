@@ -20,6 +20,8 @@
 import { join } from 'path';
 import * as path from 'path';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+import { svelteTesting } from '@testing-library/svelte/vite';
+
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'url';
 import { coverageConfig } from '../vitest-shared-extensions.config';
@@ -37,15 +39,12 @@ export default defineConfig({
       '/@/': join(PACKAGE_ROOT, 'src') + '/',
     },
   },
-  plugins: [svelte({ hot: !process.env.VITEST })],
+  plugins: [svelte(), svelteTesting()],
   test: {
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     globals: true,
     environment: 'jsdom',
-    alias: [
-      // https://github.com/vitest-dev/vitest/issues/2834
-      { find: /^svelte$/, replacement: 'svelte/internal' },
-    ],
+    alias: [{ find: '@testing-library/svelte', replacement: '@testing-library/svelte/svelte5' }],
     deps: {
       inline: ['moment'],
     },

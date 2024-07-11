@@ -35,6 +35,7 @@ import type {
   V1PersistentVolumeClaim,
   V1Pod,
   V1PodList,
+  V1Secret,
   V1Service,
 } from '@kubernetes/client-node';
 import type * as containerDesktopAPI from '@podman-desktop/api';
@@ -81,6 +82,7 @@ import type { ImageCheckerInfo } from '/@api/image-checker-info.js';
 import type { ImageFilesInfo } from '/@api/image-files-info.js';
 import type { ImageInfo } from '/@api/image-info.js';
 import type { ImageInspectInfo } from '/@api/image-inspect-info.js';
+import type { ImageSearchOptions, ImageSearchResult } from '/@api/image-registry.js';
 import type { ManifestCreateOptions, ManifestInspectInfo } from '/@api/manifest-info.js';
 import type { NetworkInspectInfo } from '/@api/network-info.js';
 import type { NotificationCard, NotificationCardOptions } from '/@api/notification.js';
@@ -116,6 +118,7 @@ import { ColorRegistry } from './color-registry.js';
 import { CommandRegistry } from './command-registry.js';
 import type { IConfigurationPropertyRecordedSchema } from './configuration-registry.js';
 import { ConfigurationRegistry } from './configuration-registry.js';
+import { ConfirmationInit } from './confirmation-init.js';
 import { ContainerProviderRegistry } from './container-registry.js';
 import { Context } from './context/context.js';
 import { ContributionManager } from './contribution-manager.js';
@@ -559,6 +562,9 @@ export class PluginSystem {
     // register appearance (light, dark, auto being system)
     const appearanceConfiguration = new AppearanceInit(configurationRegistry);
     appearanceConfiguration.init();
+
+    const confirmationConfiguration = new ConfirmationInit(configurationRegistry);
+    confirmationConfiguration.init();
 
     const terminalInit = new TerminalInit(configurationRegistry);
     terminalInit.init();
@@ -1496,6 +1502,13 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
+      'image-registry:searchImages',
+      async (_listener, options: ImageSearchOptions): Promise<ImageSearchResult[]> => {
+        return imageRegistry.searchImages(options);
+      },
+    );
+
+    this.ipcHandle(
       'authentication-provider-registry:getAuthenticationProvidersInfo',
       async (): Promise<readonly AuthenticationProviderInfo[]> => {
         return authentication.getAuthenticationProvidersInfo();
@@ -1854,6 +1867,14 @@ export class PluginSystem {
       return kubernetesClient.deleteDeployment(name);
     });
 
+    this.ipcHandle('kubernetes-client:deleteConfigMap', async (_listener, name: string): Promise<void> => {
+      return kubernetesClient.deleteConfigMap(name);
+    });
+
+    this.ipcHandle('kubernetes-client:deleteSecret', async (_listener, name: string): Promise<void> => {
+      return kubernetesClient.deleteSecret(name);
+    });
+
     this.ipcHandle('kubernetes-client:deletePersistentVolumeClaim', async (_listener, name: string): Promise<void> => {
       return kubernetesClient.deletePersistentVolumeClaim(name);
     });
@@ -1869,6 +1890,13 @@ export class PluginSystem {
     this.ipcHandle('kubernetes-client:deleteService', async (_listener, name: string): Promise<void> => {
       return kubernetesClient.deleteService(name);
     });
+
+    this.ipcHandle(
+      'kubernetes-client:readNamespacedSecret',
+      async (_listener, name: string, namespace: string): Promise<V1Secret | undefined> => {
+        return kubernetesClient.readNamespacedSecret(name, namespace);
+      },
+    );
 
     this.ipcHandle(
       'kubernetes-client:readNamespacedPersistentVolumeClaim',

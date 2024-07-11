@@ -59,7 +59,7 @@ test('Expect that the install button is hidden if extension is not installable',
 });
 
 test('Expect that we can see the button and click on the install', async () => {
-  const featuredExtension: FeaturedExtension = {
+  let featuredExtension: FeaturedExtension = {
     builtin: true,
     id: 'foo.bar',
     displayName: 'FooBar',
@@ -72,7 +72,7 @@ test('Expect that we can see the button and click on the install', async () => {
     installed: false,
   };
 
-  const { component } = render(FeaturedExtensionDownload, { extension: featuredExtension });
+  const renderResult = render(FeaturedExtensionDownload, { extension: featuredExtension });
 
   // expect to have the button if installable
   const installButton = screen.getByRole('button', { name: 'Install foo.bar Extension' });
@@ -83,7 +83,8 @@ test('Expect that we can see the button and click on the install', async () => {
   extensionInstallFromImageMock.mockImplementation(async () => {
     featuredExtension.installed = true;
     featuredExtension.fetchable = false;
-    component.$set({ extension: featuredExtension });
+    featuredExtension = { ...featuredExtension };
+    renderResult.rerender({ extension: featuredExtension });
   });
 
   // click on the button

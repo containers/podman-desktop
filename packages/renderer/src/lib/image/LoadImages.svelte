@@ -92,10 +92,10 @@ async function loadImages() {
   </svelte:fragment>
   <div slot="content" class="space-y-2">
     {#if providerConnections.length > 1}
-      <label for="providerChoice" class="pt-6 block text-sm font-bold text-[var(--pd-label-text)]"
+      <label for="providerChoice" class="pt-6 block text-sm font-bold text-[var(--pd-content-card-header-text)]"
         >Container Engine
         <select
-          class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
+          class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
           name="providerChoice"
           id="providerChoice"
           bind:value="{selectedProvider}">
@@ -109,7 +109,7 @@ async function loadImages() {
     <Button on:click="{addArchivesToLoad}" icon="{faPlusCircle}" type="link">Add archive</Button>
     <!-- Display the list of existing imagesToLoad -->
     {#if archivesToLoad.length > 0}
-      <div class="flex flex-row justify-center w-full py-1 text-sm font-medium text-[var(--pd-content-text)]">
+      <div class="flex flex-row justify-center w-full py-1 text-sm font-medium text-[var(--pd-content-card-text)]">
         <div class="flex flex-col grow pl-2">Image Archives</div>
       </div>
     {/if}

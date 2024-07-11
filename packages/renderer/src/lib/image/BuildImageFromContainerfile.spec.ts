@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -169,10 +169,6 @@ test('Select multiple platforms and expect pressing Build will do two buildImage
   expect(containerFilePath).toBeInTheDocument();
   await userEvent.type(containerFilePath, '/somepath/containerfile');
 
-  const buildFolder = screen.getByRole('textbox', { name: 'Build context directory' });
-  expect(buildFolder).toBeInTheDocument();
-  await userEvent.type(buildFolder, '/somepath');
-
   // Type in the image name a test value 'foobar'
   const containerImageName = screen.getByRole('textbox', { name: 'Image name' });
   expect(containerImageName).toBeInTheDocument();
@@ -251,10 +247,6 @@ test('Selecting one platform only calls buildImage once with the selected platfo
   const containerFilePath = screen.getByRole('textbox', { name: 'Containerfile path' });
   expect(containerFilePath).toBeInTheDocument();
   await userEvent.type(containerFilePath, '/somepath/containerfile');
-
-  const buildFolder = screen.getByRole('textbox', { name: 'Build context directory' });
-  expect(buildFolder).toBeInTheDocument();
-  await userEvent.type(buildFolder, '/somepath');
 
   const imageName = screen.getByRole('textbox', { name: 'Image name' });
   expect(imageName).toBeInTheDocument();

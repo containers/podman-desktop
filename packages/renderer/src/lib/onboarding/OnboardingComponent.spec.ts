@@ -18,6 +18,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import { configurationProperties } from '/@/stores/configurationProperties';
@@ -60,11 +61,8 @@ const providerInfo: ProviderInfo = {
 };
 
 async function waitRender(customProperties: any): Promise<void> {
-  const result = render(OnboardingComponent, { ...customProperties });
-  // wait that result.component.$$.ctx[2] is set
-  while (result.component.$$.ctx[2] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  render(OnboardingComponent, { ...customProperties });
+  await tick();
 }
 
 beforeAll(() => {

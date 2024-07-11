@@ -21,6 +21,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import { webviews } from '/@/stores/webviews';
@@ -82,17 +83,10 @@ beforeEach(() => {
 });
 
 async function waitRender(customProperties: object): Promise<void> {
-  const result = render(Webview, { ...customProperties });
-  // wait for path, port and webviewInfo object to defined
-  while (result.component.$$.ctx[0] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
-  while (result.component.$$.ctx[1] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
-  while (result.component.$$.ctx[2] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  render(Webview, { ...customProperties });
+  await tick();
+  await tick();
+  await tick();
 }
 
 test('check we have webview being displayed', async () => {

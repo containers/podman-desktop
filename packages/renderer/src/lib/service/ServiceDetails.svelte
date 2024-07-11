@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { V1Service } from '@kubernetes/client-node';
-import { Tab } from '@podman-desktop/ui-svelte';
+import { StatusIcon, Tab } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 import { stringify } from 'yaml';
@@ -10,7 +10,6 @@ import { kubernetesCurrentContextServices } from '/@/stores/kubernetes-contexts-
 import Route from '../../Route.svelte';
 import MonacoEditor from '../editor/MonacoEditor.svelte';
 import ServiceIcon from '../images/ServiceIcon.svelte';
-import StatusIcon from '../images/StatusIcon.svelte';
 import KubeEditYAML from '../kube/KubeEditYAML.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import StateChange from '../ui/StateChange.svelte';

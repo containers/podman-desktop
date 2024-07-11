@@ -21,7 +21,14 @@ function describeArc(radius: number, endAngle: number) {
   return ['M', start.x, start.y, 'A', radius, radius, 0, largeArcFlag, 0, radius, 0].join(' ');
 }
 
-$: stroke = percent < 0 ? '' : percent < 50 ? 'stroke-green-500' : percent < 75 ? 'stroke-amber-500' : 'stroke-red-500';
+$: stroke =
+  percent < 0
+    ? ''
+    : percent < 50
+      ? 'stroke-[var(--pd-state-success)]'
+      : percent < 75
+        ? 'stroke-[var(--pd-state-warning)]'
+        : 'stroke-[var(--pd-state-error)]';
 
 $: tooltip = percent ? percent.toFixed(0) + '% ' + title + ' usage' : '';
 </script>

@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-import type { Unsubscriber } from 'svelte/motion';
+import type { Unsubscriber } from 'svelte/store';
 import { router } from 'tinro';
 
 export let pagePath: string;

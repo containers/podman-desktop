@@ -19,12 +19,16 @@
 import type { IncomingMessage } from 'node:http';
 
 import type {
+  Cluster,
   Context,
   Informer,
   KubernetesListObject,
   KubernetesObject,
   ListPromise,
   ObjectCache,
+  User,
+  V1ConfigMap,
+  V1ConfigMapList,
   V1Deployment,
   V1DeploymentList,
   V1Ingress,
@@ -36,6 +40,8 @@ import type {
   V1PersistentVolumeClaimList,
   V1Pod,
   V1PodList,
+  V1Secret,
+  V1SecretList,
   V1Service,
   V1ServiceList,
 } from '@kubernetes/client-node';
@@ -86,7 +92,15 @@ const selectedResources = ['pods', 'deployments'] as const;
 
 // resources managed by podman desktop, excepted the primary ones
 // This is where to add new resources when adding new informers
-const secondaryResources = ['services', 'ingresses', 'routes', 'nodes', 'persistentvolumeclaims'] as const;
+const secondaryResources = [
+  'services',
+  'ingresses',
+  'routes',
+  'configmaps',
+  'secrets',
+  'nodes',
+  'persistentvolumeclaims',
+] as const;
 
 export type SelectedResourceName = (typeof selectedResources)[number];
 export type SecondaryResourceName = (typeof secondaryResources)[number];
@@ -147,6 +161,8 @@ const dispatchAllResources: ResourcesDispatchOptions = {
   persistentvolumeclaims: true,
   ingresses: true,
   routes: true,
+  configmaps: true,
+  secrets: true,
   // add new resources here when adding new informers
 };
 
@@ -296,6 +312,8 @@ export class ContextsStates {
           services: [],
           ingresses: [],
           routes: [],
+          configmaps: [],
+          secrets: [],
           // add new resources here when adding new informers
         },
       });
@@ -435,9 +453,38 @@ export class ContextsManager {
     );
   }
 
+  compareObjects<T extends User | Cluster | null>(o1: T, o2: T): boolean {
+    const o = {};
+    const obj1 = o1 ?? o;
+    const obj2 = o2 ?? o;
+    return (
+      obj1 === obj2 ||
+      (Object.keys(obj1).length === Object.keys(obj2).length &&
+        Object.keys(obj1)
+          .filter(key => key !== 'name')
+          .every(
+            key =>
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (obj1 as any)[key] === (obj2 as any)[key],
+          ))
+    );
+  }
+
+  compareContexts(name: string, newc: KubeConfig, oldc: KubeConfig): boolean {
+    const newContext = newc.getContextObject(name);
+    const oldContext = oldc.getContextObject(name);
+    return (
+      newContext?.namespace === oldContext?.namespace && // do not compare user and cluster names
+      !!newContext &&
+      !!oldContext &&
+      this.compareObjects(newc.getUser(newContext.user), oldc.getUser(oldContext.user)) &&
+      this.compareObjects(newc.getCluster(newContext.cluster), oldc.getCluster(oldContext.cluster))
+    );
+  }
+
   async update(kubeconfig: KubeConfig): Promise<void> {
     const checkOnlyCurrentContext = kubeconfig.contexts.length > MAX_NON_CURRENT_CONTEXTS_TO_CHECK;
-
+    const previousKubeConfig = this.kubeConfig;
     this.kubeConfig = kubeconfig;
     let contextChanged = false;
     if (this.isContextChanged(kubeconfig)) {
@@ -471,7 +518,7 @@ export class ContextsManager {
     }
 
     // Add informers for new contexts (only current context if we are checking only it)
-    let added = false;
+    const added: string[] = [];
     for (const context of this.kubeConfig.contexts) {
       if (checkOnlyCurrentContext && context.name !== this.currentContext?.name) {
         continue;
@@ -480,7 +527,7 @@ export class ContextsManager {
         const kubeContext: KubeContext = this.getKubeContext(context);
         const informers = this.createKubeContextInformers(kubeContext);
         this.states.setInformers(context.name, informers);
-        added = true;
+        added.push(context.name);
       }
     }
 
@@ -503,7 +550,21 @@ export class ContextsManager {
       }
     }
 
-    if (added || removed || contextChanged) {
+    if (previousKubeConfig && !checkOnlyCurrentContext) {
+      // added and removed contexts were taken care of above
+      // lets find changed ones
+      for (const context of this.kubeConfig.contexts) {
+        if (added.includes(context.name)) continue;
+        if (!this.compareContexts(context.name, this.kubeConfig, previousKubeConfig)) {
+          await this.states.dispose(context.name);
+          const kubeContext: KubeContext = this.getKubeContext(context);
+          const informers = this.createKubeContextInformers(kubeContext);
+          this.states.setInformers(context.name, informers);
+        }
+      }
+    }
+
+    if (added.length || removed || contextChanged) {
       this.dispatch({
         checkingState: false,
         contextsGeneralState: true,
@@ -560,6 +621,12 @@ export class ContextsManager {
         break;
       case 'routes':
         informer = this.createRouteInformer(this.kubeConfig, ns, kubeContext);
+        break;
+      case 'configmaps':
+        informer = this.createConfigMapInformer(this.kubeConfig, ns, context);
+        break;
+      case 'secrets':
+        informer = this.createSecretInformer(this.kubeConfig, ns, context);
         break;
       default:
         console.debug(`unable to watch ${resourceName} in context ${contextName}, as this resource is not supported`);
@@ -671,6 +738,89 @@ export class ContextsManager {
             (state.resources.deployments = state.resources.deployments.filter(
               d => d.metadata?.uid !== obj.metadata?.uid,
             )),
+        );
+      },
+    });
+  }
+
+  public createConfigMapInformer(
+    kc: KubeConfig,
+    ns: string,
+    context: KubeContext,
+  ): Informer<V1ConfigMap> & ObjectCache<V1ConfigMap> {
+    const k8sApi = kc.makeApiClient(CoreV1Api);
+    const listFn = (): Promise<{ response: IncomingMessage; body: V1ConfigMapList }> =>
+      k8sApi.listNamespacedConfigMap(ns);
+    const path = `/api/v1/namespaces/${ns}/configmaps`;
+    let timer: NodeJS.Timeout | undefined;
+    let connectionDelay: NodeJS.Timeout | undefined;
+    this.setConnectionTimers('configmaps', timer, connectionDelay);
+    return this.createInformer<V1ConfigMap>(kc, context, path, listFn, {
+      resource: 'configmaps',
+      timer: timer,
+      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      connectionDelay: connectionDelay,
+      onAdd: obj => {
+        this.setStateAndDispatch(context.name, false, false, { configmaps: true }, state =>
+          state.resources.configmaps.push(obj),
+        );
+      },
+      onUpdate: obj => {
+        this.setStateAndDispatch(context.name, false, false, { configmaps: true }, state => {
+          state.resources.configmaps = state.resources.configmaps.filter(o => o.metadata?.uid !== obj.metadata?.uid);
+          state.resources.configmaps.push(obj);
+        });
+      },
+      onDelete: obj => {
+        this.setStateAndDispatch(
+          context.name,
+          false,
+          false,
+          { configmaps: true },
+          state =>
+            (state.resources.configmaps = state.resources.configmaps.filter(
+              d => d.metadata?.uid !== obj.metadata?.uid,
+            )),
+        );
+      },
+    });
+  }
+
+  public createSecretInformer(
+    kc: KubeConfig,
+    ns: string,
+    context: KubeContext,
+  ): Informer<V1Secret> & ObjectCache<V1Secret> {
+    const k8sApi = kc.makeApiClient(CoreV1Api);
+    const listFn = (): Promise<{ response: IncomingMessage; body: V1SecretList }> => k8sApi.listNamespacedSecret(ns);
+    const path = `/api/v1/namespaces/${ns}/secrets`;
+    let timer: NodeJS.Timeout | undefined;
+    let connectionDelay: NodeJS.Timeout | undefined;
+    this.setConnectionTimers('secrets', timer, connectionDelay);
+    return this.createInformer<V1Secret>(kc, context, path, listFn, {
+      resource: 'secrets',
+      timer: timer,
+      backoff: new Backoff(backoffInitialValue, backoffLimit, backoffJitter),
+      connectionDelay: connectionDelay,
+      onAdd: obj => {
+        this.setStateAndDispatch(context.name, false, false, { secrets: true }, state =>
+          state.resources.secrets.push(obj),
+        );
+      },
+      onUpdate: obj => {
+        this.setStateAndDispatch(context.name, false, false, { secrets: true }, state => {
+          state.resources.secrets = state.resources.secrets.filter(o => o.metadata?.uid !== obj.metadata?.uid);
+          state.resources.secrets.push(obj);
+        });
+      },
+      onDelete: obj => {
+        this.setStateAndDispatch(
+          context.name,
+          false,
+          false,
+          { secrets: true },
+          state =>
+            (state.resources.secrets = state.resources.secrets.filter(d => d.metadata?.uid !== obj.metadata?.uid)),
         );
       },
     });

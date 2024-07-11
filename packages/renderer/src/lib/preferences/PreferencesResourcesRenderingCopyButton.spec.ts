@@ -18,7 +18,8 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render } from '@testing-library/svelte';
+import { render, screen } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import PreferencesResourcesRenderingCopyButton from './PreferencesResourcesRenderingCopyButton.svelte';
@@ -35,8 +36,9 @@ describe('Windows', () => {
 
     const socketPath = '/socket';
 
-    const result = await waitRender(socketPath);
-    expect(result.component.$$.ctx[0]).toBe('npipe:///socket');
+    await waitRender(socketPath);
+    const div = screen.getByText('npipe:///socket');
+    expect(div).toBeInTheDocument();
   });
 });
 
@@ -46,8 +48,9 @@ describe('macOS', () => {
 
     const socketPath = '/socket';
 
-    const result = await waitRender(socketPath);
-    expect(result.component.$$.ctx[0]).toBe('unix:///socket');
+    await waitRender(socketPath);
+    const div = screen.getByText('unix:///socket');
+    expect(div).toBeInTheDocument();
   });
 });
 
@@ -57,17 +60,16 @@ describe('Linux', () => {
 
     const socketPath = '/socket';
 
-    const result = await waitRender(socketPath);
-    expect(result.component.$$.ctx[0]).toBe('unix:///socket');
+    await waitRender(socketPath);
+    const div = screen.getByText('unix:///socket');
+    expect(div).toBeInTheDocument();
   });
 });
 
 async function waitRender(socketPath: string) {
   const result = render(PreferencesResourcesRenderingCopyButton, { path: socketPath });
-
-  while (result.component.$$.ctx[0] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  await tick();
+  await tick();
 
   return result;
 }

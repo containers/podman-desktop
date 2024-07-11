@@ -1,12 +1,11 @@
 <script lang="ts">
-import { ErrorMessage, Tab } from '@podman-desktop/ui-svelte';
+import { ErrorMessage, StatusIcon, Tab } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 
 import Route from '../../Route.svelte';
 import { podsInfos } from '../../stores/pods';
 import PodIcon from '../images/PodIcon.svelte';
-import StatusIcon from '../images/StatusIcon.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import StateChange from '../ui/StateChange.svelte';
 import { getTabUrl, isTabSelected } from '../ui/Util';

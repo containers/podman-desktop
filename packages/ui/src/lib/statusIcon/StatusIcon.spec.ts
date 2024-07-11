@@ -31,6 +31,7 @@ test('Expect starting styling', async () => {
   expect(icon).toHaveAttribute('title', status);
 
   expect(icon).toHaveClass('bg-[var(--pd-status-starting)]');
+  expect(icon).toHaveClass('text-[var(--pd-status-contrast)]');
 });
 
 test('Expect running styling', async () => {
@@ -41,6 +42,7 @@ test('Expect running styling', async () => {
   expect(icon).toHaveAttribute('title', status);
 
   expect(icon).toHaveClass('bg-[var(--pd-status-running)]');
+  expect(icon).toHaveClass('text-[var(--pd-status-contrast)]');
 });
 
 test('Expect degraded styling', async () => {
@@ -51,6 +53,7 @@ test('Expect degraded styling', async () => {
   expect(icon).toHaveAttribute('title', status);
 
   expect(icon).toHaveClass('bg-[var(--pd-status-degraded)]');
+  expect(icon).toHaveClass('text-[var(--pd-status-contrast)]');
 });
 
 test('Expect deleting styling', async () => {

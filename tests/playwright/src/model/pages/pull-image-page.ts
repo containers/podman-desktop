@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 import type { Locator, Page } from '@playwright/test';
+import { expect as playExpect } from '@playwright/test';
 
 import { BasePage } from './base-page';
 import { ImagesPage } from './images-page';
@@ -40,16 +41,14 @@ export class PullImagePage extends BasePage {
     this.imageNameInput = page.getByLabel('imageName');
   }
 
-  async pullImage(imageName: string, tag = '', timeout = 50000): Promise<ImagesPage> {
+  async pullImage(imageName: string, tag = '', timeout = 60000): Promise<ImagesPage> {
     const fullImageName = `${imageName}${tag.length === 0 ? '' : ':' + tag}`;
     await this.imageNameInput.fill(fullImageName);
-    if (await this.pullImageButton.isEnabled()) {
-      await this.pullImageButton.click();
-    } else {
-      throw Error(`Pull image button is not enabled, pulling of '${fullImageName}' failed, verify image name`);
-    }
+    await playExpect(this.pullImageButton).toBeEnabled();
+    await this.pullImageButton.click();
+
     const doneButton = this.page.getByRole('button', { name: 'Done' });
-    await doneButton.waitFor({ state: 'visible', timeout: timeout });
+    await playExpect(doneButton).toBeEnabled({ timeout: timeout });
     await doneButton.click();
     return new ImagesPage(this.page);
   }

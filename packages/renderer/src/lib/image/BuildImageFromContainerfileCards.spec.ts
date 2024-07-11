@@ -20,7 +20,8 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render } from '@testing-library/svelte';
+import { render, screen } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
 import BuildImageFromContainerfileCards from './BuildImageFromContainerfileCards.svelte';
@@ -40,28 +41,30 @@ test('check default on arm64', async () => {
   vi.mocked(window.getOsArch).mockResolvedValue('arm64');
 
   const platforms = '';
-  const rendered = render(BuildImageFromContainerfileCards, {
+  render(BuildImageFromContainerfileCards, {
     platforms,
   });
 
-  // wait a little with setTimeout
-  await new Promise(resolve => setTimeout(resolve, 100));
-
-  // check we have a platform
-  expect(rendered.component.$$.ctx[5]).toEqual('linux/arm64');
+  await tick();
+  await tick();
+  const button = screen.getByRole('button', { name: 'linux/arm64' });
+  expect(button).toBeInTheDocument();
+  // should contain the text Default platform of your computer
+  expect(button.textContent).toContain('Default platform of your computer');
 });
 
 test('check default on amd64', async () => {
   vi.mocked(window.getOsArch).mockResolvedValue('x64');
 
   const platforms = '';
-  const rendered = render(BuildImageFromContainerfileCards, {
+  render(BuildImageFromContainerfileCards, {
     platforms,
   });
 
-  // wait a little with setTimeout
-  await new Promise(resolve => setTimeout(resolve, 100));
-
-  // check we have a platform
-  expect(rendered.component.$$.ctx[5]).toEqual('linux/amd64');
+  await tick();
+  await tick();
+  const button = screen.getByRole('button', { name: 'linux/amd64' });
+  expect(button).toBeInTheDocument();
+  // should contain the text Default platform of your computer
+  expect(button.textContent).toContain('Default platform of your computer');
 });

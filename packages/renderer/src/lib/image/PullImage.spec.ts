@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -212,7 +212,7 @@ describe('PullImage', () => {
     expect(errorMesssage).toHaveTextContent('Image does not exists');
 
     // ok, now choose a valid image name
-    renderResult.component.$$set({ imageToPull: 'some-valid-image' });
+    renderResult.rerender({ imageToPull: 'some-valid-image' });
 
     // pull image again
     const pullImagebutton2 = screen.getByRole('button', { name: 'Pull image' });

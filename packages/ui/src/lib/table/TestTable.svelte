@@ -11,6 +11,9 @@ let table: Table;
 let selectedItemsNumber: number;
 
 const dispatch = createEventDispatcher<{ update: string }>();
+export let onUpdate: (text: string) => void = text => {
+  dispatch('update', text);
+};
 
 type Person = {
   id: number;
@@ -45,7 +48,7 @@ const ageCol: Column<Person, string> = new Column('Age', {
   renderMapping: obj => obj.age.toString(),
   renderer: SimpleColumn,
   comparator: (a, b): number => {
-    dispatch('update', 'sorting');
+    onUpdate('sorting');
     return a.age - b.age;
   },
   initialOrder: 'descending',

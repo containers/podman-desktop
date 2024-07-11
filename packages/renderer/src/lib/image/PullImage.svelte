@@ -148,10 +148,11 @@ function requestFocus(element: HTMLInputElement) {
 
   <div slot="content" class="space-y-6">
     <div class="w-full">
-      <label for="imageName" class="block mb-2 text-sm font-bold text-[var(--pd-label-text)]">Image to Pull</label>
+      <label for="imageName" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
+        >Image to Pull</label>
       <input
         id="imageName"
-        class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)] placeholder:text-[color:var(--pd-input-field-placeholder-text)]"
+        class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] border-[1px] border-transparent border-b-[var(--pd-input-field-stroke)] rounded-sm text-[var(--pd-content-card-text)] placeholder:text-[color:var(--pd-input-field-placeholder-text)]"
         type="text"
         name="imageName"
         disabled="{pullFinished || pullInProgress}"
@@ -173,11 +174,11 @@ function requestFocus(element: HTMLInputElement) {
 
       {#if providerConnections.length > 1}
         <div class="pt-4">
-          <label for="providerChoice" class="block mb-2 text-sm font-bold text-[var(--pd-label-text)]"
+          <label for="providerChoice" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
             >Container Engine:</label>
           <select
             id="providerChoice"
-            class="w-auto border text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
+            class="w-auto border text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
             name="providerChoice"
             bind:value="{selectedProviderConnection}">
             {#each providerConnections as providerConnection}

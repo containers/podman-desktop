@@ -35,11 +35,13 @@ function onKeyPress(event: any) {
   }
 }
 
-function onDecrement() {
+function onDecrement(e: MouseEvent) {
+  e.preventDefault();
   value = Number(value) - 1;
 }
 
-function onIncrement() {
+function onIncrement(e: MouseEvent) {
+  e.preventDefault();
   value = Number(value) + 1;
 }
 </script>

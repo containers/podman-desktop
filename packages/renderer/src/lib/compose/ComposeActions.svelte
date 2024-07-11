@@ -18,7 +18,9 @@ export let dropdownMenu = false;
 export let detailed = false;
 
 const dispatch = createEventDispatcher<{ update: ComposeInfoUI }>();
-
+export let onUpdate: (update: ComposeInfoUI) => void = update => {
+  dispatch('update', update);
+};
 const composeLabel = 'com.docker.compose.project';
 
 let contributions: Menu[] = [];
@@ -46,14 +48,14 @@ function inProgress(inProgress: boolean, state?: string): void {
       container.state = state;
     }
   }
-  dispatch('update', compose);
+  onUpdate(compose);
 }
 
 function handleError(errorMessage: string): void {
   compose.actionError = errorMessage;
   compose.status = 'ERROR';
 
-  dispatch('update', compose);
+  onUpdate(compose);
 }
 
 async function startCompose() {

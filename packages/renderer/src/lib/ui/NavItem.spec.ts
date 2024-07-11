@@ -138,3 +138,31 @@ test('Expect that having an onClick handler overrides href and works', async () 
 
   expect(clicked).toBe(true);
 });
+
+test('Expect that counter is rendered', async () => {
+  const tooltip = 'Foo';
+  const href = '/href';
+  let counter = 0;
+
+  const result = render(NavItem, { counter, tooltip, href, meta: { url: '/test' } });
+
+  const element = screen.getByLabelText(tooltip);
+  expect(element).toBeInTheDocument();
+  expect(element).toHaveAttribute('href', '/href');
+
+  // unmount
+  result.unmount();
+
+  // ok now update the counter
+  counter = 4;
+
+  // check tooltip is working if counter is updated
+  render(NavItem, { counter, tooltip, href, meta: { url: '/test' } });
+
+  // get div with label tooltip
+  const element2 = screen.getByLabelText('Foo');
+  expect(element2).toBeInTheDocument();
+
+  // get text of the element
+  expect(element2.textContent).toContain('Foo (4)');
+});

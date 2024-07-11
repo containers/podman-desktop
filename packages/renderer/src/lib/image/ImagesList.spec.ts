@@ -20,9 +20,12 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen, within } from '@testing-library/svelte';
+import { fireEvent, render, screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+/* eslint-disable import/no-duplicates */
+import { tick } from 'svelte';
 import { get } from 'svelte/store';
+/* eslint-enable import/no-duplicates */
 import { router } from 'tinro';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -65,11 +68,8 @@ beforeEach(() => {
 });
 
 async function waitRender(customProperties: object): Promise<void> {
-  const result = render(ImagesList, { ...customProperties });
-  // wait that result.component.$$.ctx[2] is set
-  while (result.component.$$.ctx[2] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  render(ImagesList, { ...customProperties });
+  await tick();
 }
 
 test('Expect no container engines being displayed', async () => {
@@ -364,7 +364,7 @@ test('Expect importImage button redirects to image import page', async () => {
   expect(goToMock).toBeCalledWith('/images/import');
 });
 
-test('expect redirect to saveImage page when atleast one image is selected and the multiple save button is clicked', async () => {
+test('expect redirect to saveImage page when at least one image is selected and the multiple save button is clicked', async () => {
   getProviderInfosMock.mockResolvedValue([
     {
       name: 'podman',
@@ -426,10 +426,10 @@ test('expect redirect to saveImage page when atleast one image is selected and t
   await waitRender({});
 
   const toggleAll = screen.getByTitle('Toggle all');
-  await userEvent.click(toggleAll);
+  await fireEvent.click(toggleAll);
 
   const saveImages = screen.getByRole('button', { name: 'Save images' });
-  await userEvent.click(saveImages);
+  await fireEvent.click(saveImages);
 
   expect(goToMock).toBeCalledWith('/images/save');
 });

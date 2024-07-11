@@ -22,7 +22,10 @@ import '@testing-library/jest-dom/vitest';
 
 import type { KubernetesObject, V1Ingress } from '@kubernetes/client-node';
 import { render, screen } from '@testing-library/svelte';
+/* eslint-disable import/no-duplicates */
+import { tick } from 'svelte';
 import { readable, writable } from 'svelte/store';
+/* eslint-enable import/no-duplicates */
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
@@ -55,11 +58,8 @@ beforeEach(() => {
 });
 
 async function waitRender(customProperties: object): Promise<void> {
-  const result = render(IngressesRoutesList, { ...customProperties });
-  // wait that result.component.$$.ctx[2] is set
-  while (result.component.$$.ctx[2] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  render(IngressesRoutesList, { ...customProperties });
+  await tick();
 }
 
 test('Expect ingress&routes empty screen', async () => {

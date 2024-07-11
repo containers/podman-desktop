@@ -26,9 +26,9 @@ import type {
 
 import type { ApiSenderType } from '/@/plugin/api.js';
 import { Emitter } from '/@/plugin/events/emitter.js';
+import { NavigationPage } from '/@api/navigation-page.js';
+import type { NavigationRequest } from '/@api/navigation-request.js';
 
-import { NavigationPage } from '../navigation/navigation-page.js';
-import type { NavigationRequest } from '../navigation/navigation-request.js';
 import type { WebviewImpl } from './webview-impl.js';
 import type { WebviewRegistry } from './webview-registry.js';
 
@@ -152,7 +152,7 @@ export class WebviewPanelImpl implements WebviewPanel {
     this.assertNotDisposed();
 
     // notify the renderer to reveal the webview
-    const navigationRequest: NavigationRequest = {
+    const navigationRequest: NavigationRequest<NavigationPage.WEBVIEW> = {
       page: NavigationPage.WEBVIEW,
       parameters: {
         id: this.#internalId,

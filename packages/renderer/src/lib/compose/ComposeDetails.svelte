@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Tab } from '@podman-desktop/ui-svelte';
+import { StatusIcon, Tab } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 import { router } from 'tinro';
@@ -10,7 +10,6 @@ import Route from '../../Route.svelte';
 import { ContainerUtils } from '../container/container-utils';
 import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import ComposeIcon from '../images/PodIcon.svelte';
-import StatusIcon from '../images/StatusIcon.svelte';
 import DetailsPage from '../ui/DetailsPage.svelte';
 import { getTabUrl, isTabSelected } from '../ui/Util';
 import ComposeActions from './ComposeActions.svelte';

@@ -22,7 +22,10 @@ import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+/* eslint-disable import/no-duplicates */
+import { tick } from 'svelte';
 import { get } from 'svelte/store';
+/* eslint-enable import/no-duplicates */
 import { router } from 'tinro';
 import { beforeAll, expect, test, vi } from 'vitest';
 
@@ -284,9 +287,8 @@ beforeAll(() => {
 });
 
 async function waitRender(customProperties: object): Promise<void> {
-  const result = render(PodsList, { ...customProperties });
-  // wait that result.component.$$.ctx[2] is set
-  await vi.waitUntil(() => result.component.$$.ctx[2] !== undefined, { timeout: 5000 });
+  render(PodsList, { ...customProperties });
+  await tick();
 }
 
 test('Expect no pods being displayed', async () => {

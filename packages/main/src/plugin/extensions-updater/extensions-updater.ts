@@ -17,6 +17,8 @@
  ***********************************************************************/
 
 import { compareVersions } from 'compare-versions';
+import { app } from 'electron';
+import { coerce, satisfies } from 'semver';
 
 import type { ConfigurationRegistry, IConfigurationNode } from '/@/plugin/configuration-registry.js';
 import type { ExtensionLoader } from '/@/plugin/extension-loader.js';
@@ -137,8 +139,26 @@ export class ExtensionsUpdater {
 
         // if found compare versions
         const installedVersion = installedExtension.version;
+        const appVersion = app.getVersion();
+
+        // coerce the podman desktop Version
+        const currentPodmanDesktopVersion = coerce(appVersion);
+
+        // filter out versions non-compliant with this version of Podman Desktop
+        const availableVersions = availableExtension.versions.filter(version => {
+          const extensionRequirePodmanDesktopVersion = version.podmanDesktopVersion;
+          if (extensionRequirePodmanDesktopVersion && currentPodmanDesktopVersion) {
+            //  keep the versions that are compatible with this version of Podman Desktop
+            return satisfies(currentPodmanDesktopVersion, extensionRequirePodmanDesktopVersion);
+          } else {
+            // if no version is specified, keep the version
+            return true;
+          }
+        });
+
+        const filteredPreviewVersions = availableVersions.filter(version => version.preview === false);
         // take latest version
-        const latestAvailableVersion = availableExtension.versions.filter(version => version.preview === false)?.[0];
+        const latestAvailableVersion = filteredPreviewVersions?.[0];
         if (!latestAvailableVersion) {
           return undefined;
         }

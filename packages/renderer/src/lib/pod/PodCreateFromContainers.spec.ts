@@ -254,7 +254,7 @@ test('Show warning if multiple containers use the same port', async () => {
   podCreationHolder.set(podCreationSamePortContainers);
 
   render(PodCreateFromContainers, {});
-  const warningLabel = await screen.findByLabelText('warning');
+  const warningLabel = await screen.findByLabelText('Warning Message Content');
   expect(warningLabel).toBeInTheDocument();
 });
 

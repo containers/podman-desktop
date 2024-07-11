@@ -105,10 +105,7 @@ export class RegistriesPage extends SettingsPage {
         async function loginIsEnabled() {
           return await loginButton.isEnabled();
         },
-        5000,
-        1000,
-        true,
-        'Login Button not enabled in time',
+        { message: 'Login Button not enabled in time' },
       );
       await loginButton.click({ timeout: 3000 });
     } catch (err) {

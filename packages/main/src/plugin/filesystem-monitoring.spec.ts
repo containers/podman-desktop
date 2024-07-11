@@ -18,7 +18,7 @@
 
 import { promises } from 'node:fs';
 import os from 'node:os';
-import path from 'node:path';
+import path, { join } from 'node:path';
 
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
@@ -146,4 +146,38 @@ test('should send event onDidCreate when a file is created inside a non-existent
   });
   expect(changeListener).not.toHaveBeenCalled();
   expect(unlinkListener).not.toHaveBeenCalled();
+});
+
+test('watch a file in a directory being a symlink to another directory', async () => {
+  const target = join(rootdir, 'realdir');
+  const link = join(rootdir, 'link');
+  const watchedFile = join(link, 'file.txt');
+  const realfile = join(target, 'file.txt');
+  await promises.mkdir(target);
+  await promises.symlink(target, link);
+  watcher = new FileSystemWatcherImpl(watchedFile);
+
+  const readyListener = vi.fn();
+  watcher.onReady(readyListener);
+
+  const createListener = vi.fn();
+  watcher.onDidCreate(createListener);
+  const changeListener = vi.fn();
+  watcher.onDidChange(changeListener);
+  const unlinkListener = vi.fn();
+  watcher.onDidDelete(unlinkListener);
+
+  expect(createListener).not.toHaveBeenCalled();
+  expect(changeListener).not.toHaveBeenCalled();
+  expect(unlinkListener).not.toHaveBeenCalled();
+
+  await vi.waitFor(async () => {
+    expect(readyListener).toHaveBeenCalled();
+  });
+  const h = await promises.open(watchedFile, 'a');
+  await h.close();
+
+  await vi.waitFor(async () => {
+    expect(createListener).toHaveBeenCalledWith(Uri.file(realfile));
+  });
 });

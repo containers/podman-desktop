@@ -16,23 +16,25 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export enum NavigationPage {
-  CONTAINERS = 'containers',
-  CONTAINER = 'container',
-  CONTAINER_LOGS = 'container-logs',
-  CONTAINER_INSPECT = 'container-inspect',
-  CONTAINER_TERMINAL = 'container-terminal',
-  IMAGES = 'images',
-  IMAGE = 'image',
-  PODS = 'pods',
-  POD = 'pod',
-  VOLUMES = 'volumes',
-  VOLUME = 'volume',
-  CONTRIBUTION = 'contribution',
-  TROUBLESHOOTING = 'troubleshooting',
-  HELP = 'help',
-  WEBVIEW = 'webview',
-  AUTHENTICATION = 'authentication',
-  RESOURCES = 'resources',
-  EDIT_CONTAINER_CONNECTION = 'edit-container-connection',
+import type { IConfigurationNode, IConfigurationRegistry } from './configuration-registry.js';
+
+export class ConfirmationInit {
+  constructor(private configurationRegistry: IConfigurationRegistry) {}
+
+  init(): void {
+    const confirmationConfiguration: IConfigurationNode = {
+      id: 'preferences.userConfirmation',
+      title: 'User Confirmation',
+      type: 'object',
+      properties: {
+        ['userConfirmation.bulk']: {
+          description: 'Require user confirmation for bulk actions',
+          type: 'boolean',
+          default: true,
+        },
+      },
+    };
+
+    this.configurationRegistry.registerConfigurations([confirmationConfiguration]);
+  }
 }

@@ -23,6 +23,7 @@ import '@testing-library/jest-dom/vitest';
 import type { Uri } from '@podman-desktop/api';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { tick } from 'svelte';
 import { router } from 'tinro';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
@@ -61,11 +62,8 @@ beforeEach(() => {
 });
 
 async function waitRender(): Promise<void> {
-  const result = render(SaveImages);
-  // wait that result.component.$$.ctx[0] is set
-  while (result.component.$$.ctx[0] === undefined) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  render(SaveImages);
+  await tick();
 }
 
 test('Expect Save button is disabled if output path is not selected', async () => {

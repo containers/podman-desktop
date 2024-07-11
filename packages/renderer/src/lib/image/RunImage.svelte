@@ -498,6 +498,7 @@ function addHostContainerPorts() {
 
 function deleteHostContainerPorts(index: number) {
   hostContainerPortMappings = hostContainerPortMappings.filter((_, i) => i !== index);
+  assertAllPortAreValid();
 }
 
 async function browseFolders(index: number) {
@@ -649,22 +650,27 @@ async function assertAllPortAreValid(): Promise<void> {
         <div>
           <Route path="/basic" breadcrumb="Basic" navigationHint="tab">
             <div class="h-96 overflow-y-auto pr-4">
-              <label for="modalContainerName" class="block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
-                >Container name:</label>
+              <label
+                for="modalContainerName"
+                class="block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]">Container name:</label>
               <Input
                 on:input="{event => checkContainerName(event)}"
                 bind:value="{containerName}"
                 name="modalContainerName"
                 id="modalContainerName"
                 placeholder="Leave blank to generate a name"
+                aria-label="Container Name"
                 error="{containerNameError}" />
-              <label for="modalEntrypoint" class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
+              <label
+                for="modalEntrypoint"
+                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Entrypoint:</label>
-              <Input bind:value="{entrypoint}" name="modalEntrypoint" id="modalEntrypoint" />
-              <label for="modalCommand" class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
-                >Command:</label>
-              <Input bind:value="{command}" name="modalCommand" id="modalCommand" />
-              <label for="volumes" class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
+              <Input bind:value="{entrypoint}" name="modalEntrypoint" id="modalEntrypoint" aria-label="Entrypoint" />
+              <label
+                for="modalCommand"
+                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]">Command:</label>
+              <Input bind:value="{command}" name="modalCommand" id="modalCommand" aria-label="Command" />
+              <label for="volumes" class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Volumes:</label>
               <!-- Display the list of volumes -->
               {#each volumeMounts as volumeMount, index}
@@ -690,11 +696,14 @@ async function assertAllPortAreValid(): Promise<void> {
               {/each}
 
               <!-- add a label for each port-->
-              <label for="modalContainerName" class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
+              <label
+                for="modalContainerName"
+                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Port mapping:</label>
               {#each exposedPorts as port, index}
                 <div class="flex flex-row justify-center items-center w-full">
-                  <span class="text-sm flex-1 inline-block align-middle whitespace-nowrap text-[var(--pd-content-text)]"
+                  <span
+                    class="text-sm flex-1 inline-block align-middle whitespace-nowrap text-[var(--pd-content-card-text)]"
                     >Local port for {port}:</span>
                   <Input
                     bind:value="{containerPortMapping[index].port}"
@@ -706,7 +715,11 @@ async function assertAllPortAreValid(): Promise<void> {
                 </div>
               {/each}
 
-              <Button on:click="{addHostContainerPorts}" icon="{faPlusCircle}" type="link">
+              <Button
+                on:click="{addHostContainerPorts}"
+                icon="{faPlusCircle}"
+                type="link"
+                aria-label="Add custom port mapping">
                 Add custom port mapping
               </Button>
               <!-- Display the list of existing hostContainerPortMappings -->
@@ -729,7 +742,8 @@ async function assertAllPortAreValid(): Promise<void> {
               {/each}
               <label
                 for="modalEnvironmentVariables"
-                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]">Environment variables:</label>
+                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
+                >Environment variables:</label>
               <!-- Display the list of existing environment variables -->
               {#each environmentVariables as environmentVariable, index}
                 <div class="flex flex-row justify-center items-center w-full py-1">
@@ -752,7 +766,9 @@ async function assertAllPortAreValid(): Promise<void> {
                 </div>
               {/each}
 
-              <label for="modalEnvironmentFiles" class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
+              <label
+                for="modalEnvironmentFiles"
+                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Environment files:</label>
               <!-- Display the list of existing environment files -->
               {#each environmentFiles as environmentFile, index}
@@ -788,9 +804,9 @@ async function assertAllPortAreValid(): Promise<void> {
           <Route path="/advanced" breadcrumb="Advanced" navigationHint="tab">
             <div class="h-96 overflow-y-auto pr-4">
               <!-- Use tty -->
-              <label for="containerTty" class="block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
+              <label for="containerTty" class="block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Use TTY:</label>
-              <div class="flex flex-col text-[var(--pd-content-text)] text-sm ml-2">
+              <div class="flex flex-col text-[var(--pd-content-card-text)] text-sm ml-2">
                 <Checkbox bind:checked="{useTty}" title="Attach a pseudo terminal">Attach a pseudo terminal</Checkbox>
                 <Checkbox bind:checked="{useInteractive}" title="Use interactive">
                   Interactive: Keep STDIN open even if not attached
@@ -798,7 +814,9 @@ async function assertAllPortAreValid(): Promise<void> {
               </div>
 
               <!-- Specify user-->
-              <label for="containerUser" class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
+              <label
+                for="containerUser"
+                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Specify user to run container as:</label>
               <div class="flex flex-row justify-center items-center w-full">
                 <Input
@@ -808,18 +826,21 @@ async function assertAllPortAreValid(): Promise<void> {
               </div>
 
               <!-- Autoremove-->
-              <label for="containerAutoRemove" class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
+              <label
+                for="containerAutoRemove"
+                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Auto removal of container:</label>
-              <Checkbox class="text-[var(--pd-content-text)] text-sm ml-2" bind:checked="{autoRemove}">
+              <Checkbox class="text-[var(--pd-content-card-text)] text-sm ml-2" bind:checked="{autoRemove}">
                 Automatically remove the container when the process exits
               </Checkbox>
 
               <!-- RestartPolicy-->
               <label
                 for="containerRestartPolicy"
-                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]">Restart policy:</label>
+                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
+                >Restart policy:</label>
               <div
-                class="p-0 flex flex-row justify-start items-center align-middle w-full text-[var(--pd-content-text)]">
+                class="p-0 flex flex-row justify-start items-center align-middle w-full text-[var(--pd-content-card-text)]">
                 <span class="text-sm w-28 inline-block align-middle whitespace-nowrap">Policy name:</span>
 
                 <select
@@ -839,7 +860,7 @@ async function assertAllPortAreValid(): Promise<void> {
                   ? 'opacity-100'
                   : 'opacity-20'}">
                 <span
-                  class="text-sm w-28 inline-block align-middle whitespace-nowrap text-[var(--pd-content-text)]"
+                  class="text-sm w-28 inline-block align-middle whitespace-nowrap text-[var(--pd-content-card-text)]"
                   title="Number of times to retry before giving up.">Retries:</span>
                 <NumberInput
                   minimum="{0}"
@@ -853,22 +874,24 @@ async function assertAllPortAreValid(): Promise<void> {
           <Route path="/security" breadcrumb="Security" navigationHint="tab">
             <div class="h-96 overflow-y-auto pr-4">
               <!-- Privileged-->
-              <label for="containerPrivileged" class="block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
-                >Privileged:</label>
-              <Checkbox bind:checked="{privileged}" class="text-[var(--pd-content-text)] text-sm mx-2">
+              <label
+                for="containerPrivileged"
+                class="block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]">Privileged:</label>
+              <Checkbox bind:checked="{privileged}" class="text-[var(--pd-content-card-text)] text-sm mx-2">
                 Turn off security<i class="pl-1 fas fa-exclamation-triangle"></i>
               </Checkbox>
 
               <!-- Read-Only -->
-              <label for="containerReadOnly" class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
-                >Read only:</label>
-              <Checkbox bind:checked="{readOnly}" class="text-[var(--pd-content-text)] text-sm mx-2">
+              <label
+                for="containerReadOnly"
+                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]">Read only:</label>
+              <Checkbox bind:checked="{readOnly}" class="text-[var(--pd-content-card-text)] text-sm mx-2">
                 Make containers root filesystem read-only
               </Checkbox>
 
               <label
                 for="ContainerSecurityOptions"
-                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
+                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Security options (security-opt):</label>
               <!-- Display the list of existing security options -->
               {#each securityOpts as securityOpt, index}
@@ -893,11 +916,12 @@ async function assertAllPortAreValid(): Promise<void> {
 
               <label
                 for="ContainerSecurityCapabilitiesAdd"
-                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]">Capabilities:</label>
+                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
+                >Capabilities:</label>
 
               <label
                 for="ContainerSecurityCapabilitiesAdd"
-                class="pl-4 pt-2 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
+                class="pl-4 pt-2 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Add to the container (CapAdd):</label>
               <!-- Display the list of existing capAdd -->
               {#each capAdds as capAdd, index}
@@ -918,7 +942,7 @@ async function assertAllPortAreValid(): Promise<void> {
               {/each}
               <label
                 for="ContainerSecurityCapabilitiesDrop"
-                class="pl-4 pt-2 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
+                class="pl-4 pt-2 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Drop from the container (CapDrop):</label>
               <!-- Display the list of existing capDrop -->
               {#each capDrops as capDrop, index}
@@ -941,7 +965,7 @@ async function assertAllPortAreValid(): Promise<void> {
               <!-- Specify user namespace-->
               <label
                 for="containerUserNamespace"
-                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
+                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Specify user namespace to use:</label>
               <div class="flex flex-row justify-center items-center w-full">
                 <Input bind:value="{userNamespace}" placeholder="Enter a user namespace" class="ml-2 w-full" />
@@ -952,14 +976,18 @@ async function assertAllPortAreValid(): Promise<void> {
           <Route path="/networking" breadcrumb="Networking" navigationHint="tab">
             <div class="h-96 overflow-y-auto pr-4">
               <!-- hostname-->
-              <label for="containerHostname" class="block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
+              <label
+                for="containerHostname"
+                class="block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Defines container hostname:</label>
               <div class="flex flex-row justify-center items-center w-full">
                 <Input bind:value="{hostname}" placeholder="Must be a valid RFC 1123 hostname" class="ml-2" />
               </div>
 
               <!-- DNS -->
-              <label for="ContainerDns" class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
+              <label
+                for="ContainerDns"
+                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Custom DNS server(s):</label>
 
               {#each dnsServers as dnsServer, index}
@@ -979,7 +1007,9 @@ async function assertAllPortAreValid(): Promise<void> {
                 </div>
               {/each}
 
-              <label for="containerExtraHosts" class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
+              <label
+                for="containerExtraHosts"
+                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Add extra hosts (appends to /etc/hosts file):</label>
               <!-- Display the list of extra hosts -->
               {#each extraHosts as extraHost, index}
@@ -1001,10 +1031,12 @@ async function assertAllPortAreValid(): Promise<void> {
               {/each}
 
               <!-- Select network -->
-              <label for="containerNetwork" class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-label-text)]"
+              <label
+                for="containerNetwork"
+                class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Select container networking:</label>
               <div
-                class="p-0 flex flex-row justify-start items-center align-middle w-full text-[var(--pd-content-text)]">
+                class="p-0 flex flex-row justify-start items-center align-middle w-full text-[var(--pd-content-card-text)]">
                 <span class="text-sm w-28 inline-block align-middle whitespace-nowrap">Mode:</span>
 
                 <select
@@ -1022,10 +1054,11 @@ async function assertAllPortAreValid(): Promise<void> {
 
               {#if networkingMode === 'choice-network'}
                 <div class="flex flex-row justify-center items-center w-full py-1">
-                  <span class="text-sm w-28 inline-block align-middle whitespace-nowrap text-[var(--pd-content-text)]"
+                  <span
+                    class="text-sm w-28 inline-block align-middle whitespace-nowrap text-[var(--pd-content-card-text)]"
                     >Network:</span>
                   <select
-                    class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
+                    class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
                     disabled="{networkingMode !== 'choice-network'}"
                     name="networkingModeUserNetwork"
                     bind:value="{networkingModeUserNetwork}">
@@ -1038,10 +1071,11 @@ async function assertAllPortAreValid(): Promise<void> {
               {/if}
               {#if networkingMode === 'choice-container'}
                 <div class="flex flex-row justify-center items-center w-full py-1">
-                  <span class="text-sm w-28 inline-block align-middle whitespace-nowrap text-[var(--pd-content-text)]"
+                  <span
+                    class="text-sm w-28 inline-block align-middle whitespace-nowrap text-[var(--pd-content-card-text)]"
                     >Container:</span>
                   <select
-                    class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
+                    class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
                     disabled="{networkingMode !== 'choice-container'}"
                     name="networkingModeUserContainer"
                     bind:value="{networkingModeUserContainer}">
@@ -1056,7 +1090,12 @@ async function assertAllPortAreValid(): Promise<void> {
         </div>
 
         <div class="pt-2 border-zinc-600 border-t-2"></div>
-        <Button on:click="{() => startContainer()}" class="w-full" icon="{faPlay}" bind:disabled="{invalidFields}">
+        <Button
+          on:click="{() => startContainer()}"
+          class="w-full"
+          icon="{faPlay}"
+          aria-label="Start Container"
+          bind:disabled="{invalidFields}">
           Start Container
         </Button>
         <div aria-label="createError">
