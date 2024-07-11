@@ -30,6 +30,7 @@ import {
   type V1Ingress,
   type V1Node,
   type V1Pod,
+  type V1Secret,
   type V1Service,
   type V1Status,
   type Watch,
@@ -1483,4 +1484,74 @@ describe('Tests that managedFields are removed from the object when using read',
     expect(configMap).toBeDefined();
     expect(configMap?.metadata?.managedFields).toBeUndefined();
   });
+});
+
+test('Expect deleteConfigMap is not called if there is no active connection', async () => {
+  const client = createTestClient('default');
+  const deleteConfigMapMock = vi.fn();
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.reject(new Error('K8sError')),
+    deleteNamespacedConfigMap: deleteConfigMapMock,
+  });
+
+  await client.deleteConfigMap('name');
+  expect(deleteConfigMapMock).not.toBeCalled();
+});
+
+test('Expect deleteConfigMap to be called if there is an active connection', async () => {
+  const client = createTestClient('default');
+  const deleteConfigMapMock = vi.fn();
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+    deleteNamespacedConfigMap: deleteConfigMapMock,
+  });
+
+  await client.deleteConfigMap('name');
+  expect(deleteConfigMapMock).toBeCalled();
+});
+
+test('Expect deleteSecret to be called if there is no active connection', async () => {
+  const client = createTestClient('default');
+  const deleteSecretMock = vi.fn();
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.reject(new Error('K8sError')),
+    deleteNamespacedSecret: deleteSecretMock,
+  });
+
+  await client.deleteSecret('name');
+  expect(deleteSecretMock).not.toBeCalled();
+});
+
+test('Expect deleteSecret to be called if there is an active connection', async () => {
+  const client = createTestClient('default');
+  const deleteSecretMock = vi.fn();
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+    deleteNamespacedSecret: deleteSecretMock,
+  });
+
+  await client.deleteSecret('name');
+  expect(deleteSecretMock).toBeCalled();
+});
+
+test('Expect readNamespacedSecret to return the secret', async () => {
+  const client = createTestClient('default');
+  const v1Secret: V1Secret = {
+    apiVersion: 'v1',
+    kind: 'Secret',
+    metadata: {
+      name: 'secret',
+    },
+  };
+  makeApiClientMock.mockReturnValue({
+    getCode: () => Promise.resolve({ body: { gitVersion: 'v1.20.0' } }),
+    readNamespacedSecret: () =>
+      Promise.resolve({
+        body: v1Secret,
+      }),
+  });
+
+  const secret = await client.readNamespacedSecret('secret', 'default');
+  expect(secret).toBeDefined();
+  expect(secret?.metadata?.name).toEqual('secret');
 });
