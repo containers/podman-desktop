@@ -423,4 +423,5 @@ async function kindInstall(
 
 export function deactivate(): void {
   console.log('stopping kind extension');
+  kindCli?.dispose();
 }
