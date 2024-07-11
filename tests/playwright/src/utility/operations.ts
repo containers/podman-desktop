@@ -147,11 +147,15 @@ export async function handleConfirmationDialog(
   page: Page,
   dialogTitle = 'Confirmation',
   confirm = true,
+  confirmationButton = 'Yes',
+  cancelButton = 'Cancel',
 ): Promise<void> {
   // wait for dialog to appear using waitFor
   const dialog = page.getByRole('dialog', { name: dialogTitle, exact: true });
   await dialog.waitFor({ state: 'visible', timeout: 3000 });
-  const button = confirm ? dialog.getByRole('button', { name: 'Yes' }) : dialog.getByRole('button', { name: 'Cancel' });
+  const button = confirm
+    ? dialog.getByRole('button', { name: confirmationButton })
+    : dialog.getByRole('button', { name: cancelButton });
   await button.click();
 }
 
