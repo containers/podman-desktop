@@ -37,6 +37,11 @@ vi.mock('@podman-desktop/api', async () => {
     ProgressLocation: {
       APP_ICON: 1,
     },
+    env: {
+      isLinux: false,
+      isMac: false,
+      isWindows: false,
+    },
     process: {
       exec: vi.fn(),
     },
@@ -83,11 +88,9 @@ beforeEach(() => {
 });
 
 test.skip('expect installBinaryToSystem to succesfully pass with a binary', async () => {
-  // Mock process.platform to be linux
-  // to avoid the usage of sudo-prompt (we cannot test that in unit tests)
-  Object.defineProperty(process, 'platform', {
-    value: 'linux',
-  });
+  (extensionApi.env.isLinux as unknown as boolean) = true;
+  (extensionApi.env.isWindows as unknown as boolean) = false;
+  (extensionApi.env.isMac as unknown as boolean) = false;
 
   // Create a tmp file using tmp-promise
   const filename = await tmpName();
@@ -119,6 +122,8 @@ test('error: expect installBinaryToSystem to fail with a non existing binary', a
 });
 
 test('expect showNotification to be called', async () => {
+  (extensionApi.env.isWindows as unknown as boolean) = false;
+
   const progress = {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     report: (): void => {},

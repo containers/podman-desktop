@@ -20,7 +20,7 @@
 
 import type * as extensionApi from '@podman-desktop/api';
 import * as podmanDesktopApi from '@podman-desktop/api';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { activate, moveImage, refreshKindClustersOnProviderConnectionUpdate } from './extension';
 import * as util from './util';
@@ -39,6 +39,9 @@ vi.mock('@podman-desktop/api', async () => {
   return {
     window: {
       withProgress: vi.fn(),
+    },
+    cli: {
+      createCliTool: vi.fn(),
     },
     ProgressLocation: {
       TASK_WIDGET: 'TASK_WIDGET',
@@ -61,6 +64,9 @@ vi.mock('@podman-desktop/api', async () => {
       setValue: vi.fn(),
     },
     env: {
+      isWindows: false,
+      isMac: false,
+      isLinux: true,
       createTelemetryLogger: vi.fn().mockReturnValue({
         logUsage: vi.fn(),
       } as unknown as extensionApi.TelemetryLogger),
@@ -70,6 +76,20 @@ vi.mock('@podman-desktop/api', async () => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(podmanDesktopApi.cli.createCliTool).mockReturnValue({
+    displayName: 'test',
+    dispose: vi.fn(),
+  } as unknown as extensionApi.CliTool);
+
+  vi.mocked(podmanDesktopApi.provider.createProvider).mockResolvedValue({
+    setKubernetesProviderConnectionFactory: vi.fn(),
+  } as unknown as extensionApi.Provider);
+
+  const createProviderMock = vi.fn();
+  (podmanDesktopApi.provider as any).createProvider = createProviderMock;
+  createProviderMock.mockImplementation(() => ({ setKubernetesProviderConnectionFactory: vi.fn() }));
+
+  vi.mocked(podmanDesktopApi.containerEngine.listContainers).mockResolvedValue([]);
 });
 
 test('check we received notifications ', async () => {
@@ -90,6 +110,74 @@ test('check we received notifications ', async () => {
   refreshKindClustersOnProviderConnectionUpdate(fakeProvider);
   expect(callbackCalled).toBeTruthy();
   expect(listContainersMock).toBeCalledTimes(1);
+});
+
+describe('cli tool', () => {
+  test('activation should register cli tool when available', async () => {
+    vi.spyOn(util, 'getKindBinaryInfo').mockResolvedValue({
+      path: 'kind',
+      version: '0.0.1',
+    });
+
+    await activate(
+      vi.mocked<extensionApi.ExtensionContext>({
+        storagePath: 'test-storage-path',
+        subscriptions: {
+          push: vi.fn(),
+        },
+      } as unknown as extensionApi.ExtensionContext),
+    );
+
+    expect(podmanDesktopApi.cli.createCliTool).toHaveBeenCalledWith({
+      displayName: 'kind',
+      path: 'kind',
+      version: '0.0.1',
+      name: 'kind',
+      images: expect.anything(),
+      markdownDescription: expect.any(String),
+    });
+  });
+
+  test('activation should not register cli tool when does not exist', async () => {
+    vi.spyOn(util, 'getKindBinaryInfo').mockRejectedValue(new Error('does not exist'));
+
+    await activate(
+      vi.mocked<extensionApi.ExtensionContext>({
+        storagePath: 'test-storage-path',
+        subscriptions: {
+          push: vi.fn(),
+        },
+      } as unknown as extensionApi.ExtensionContext),
+    );
+
+    expect(podmanDesktopApi.cli.createCliTool).not.toHaveBeenCalled();
+  });
+
+  test('activation should register cli tool when available in storage path', async () => {
+    vi.spyOn(util, 'getKindBinaryInfo').mockRejectedValueOnce(new Error('does not exist')).mockResolvedValue({
+      version: '0.0.1',
+      path: 'test-storage-path/kind',
+    });
+
+    await activate(
+      vi.mocked<extensionApi.ExtensionContext>({
+        storagePath: 'test-storage-path',
+        subscriptions: {
+          push: vi.fn(),
+        },
+      } as unknown as extensionApi.ExtensionContext),
+    );
+
+    expect(util.getKindBinaryInfo).toHaveBeenCalledTimes(2);
+    expect(podmanDesktopApi.cli.createCliTool).toHaveBeenCalledWith({
+      displayName: 'kind',
+      path: 'test-storage-path/kind',
+      version: '0.0.1',
+      name: 'kind',
+      images: expect.anything(),
+      markdownDescription: expect.any(String),
+    });
+  });
 });
 
 test('Ensuring a progress task is created when calling kind.image.move command', async () => {
@@ -119,7 +207,10 @@ test('Ensuring a progress task is created when calling kind.image.move command',
   const contextSetValueMock = vi.fn();
   (podmanDesktopApi.context as any).setValue = contextSetValueMock;
 
-  vi.spyOn(util, 'detectKind').mockResolvedValue('kind');
+  vi.spyOn(util, 'getKindBinaryInfo').mockResolvedValue({
+    path: 'kind',
+    version: '0.0.1',
+  });
 
   await activate(
     vi.mocked<extensionApi.ExtensionContext>({

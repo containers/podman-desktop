@@ -18,41 +18,35 @@
 
 import * as http from 'node:http';
 import * as os from 'node:os';
-import * as path from 'node:path';
+import { isAbsolute, join } from 'node:path';
 
 import * as extensionApi from '@podman-desktop/api';
 
-import type { KindInstaller } from './kind-installer';
-
-const windows = os.platform() === 'win32';
-export function isWindows(): boolean {
-  return windows;
-}
-const mac = os.platform() === 'darwin';
-export function isMac(): boolean {
-  return mac;
-}
-const linux = os.platform() === 'linux';
-export function isLinux(): boolean {
-  return linux;
-}
-
-export interface SpawnResult {
-  stdOut: string;
-  stdErr: string;
-  error: undefined | string;
-}
-
-export interface RunOptions {
-  env?: NodeJS.ProcessEnv;
-  logger?: extensionApi.Logger;
-}
-
 const macosExtraPath = '/usr/local/bin:/opt/homebrew/bin:/opt/local/bin:/opt/podman/bin';
+const localBinDir = '/usr/local/bin';
+
+export function getSystemBinaryPath(binaryName: string): string {
+  switch (process.platform) {
+    case 'win32':
+      return join(
+        os.homedir(),
+        'AppData',
+        'Local',
+        'Microsoft',
+        'WindowsApps',
+        binaryName.endsWith('.exe') ? binaryName : `${binaryName}.exe`,
+      );
+    case 'darwin':
+    case 'linux':
+      return join(localBinDir, binaryName);
+    default:
+      throw new Error(`unsupported platform: ${process.platform}.`);
+  }
+}
 
 export function getKindPath(): string | undefined {
   const env = process.env;
-  if (isMac()) {
+  if (extensionApi.env.isMac) {
     if (!env.PATH) {
       return macosExtraPath;
     } else {
@@ -63,36 +57,66 @@ export function getKindPath(): string | undefined {
   }
 }
 
-// search if kind is available in the path
-export async function detectKind(pathAddition: string, installer: KindInstaller): Promise<string | undefined> {
-  const kindPath = getKindPath() ?? '';
-  try {
-    await extensionApi.process.exec('kind', ['--version'], { env: { PATH: kindPath } });
-    return 'kind';
-  } catch (e) {
-    // ignore and try another way
+/**
+ * Take as input the stdout of `kind --version`
+ * @param raw
+ */
+export function parseKindVersion(raw: string): string {
+  if (raw.startsWith('kind version')) {
+    return raw.substring(13);
   }
+  throw new Error('malformed kind output');
+}
 
-  const assetInfo = await installer.getAssetInfo();
-  if (assetInfo) {
+export async function getKindBinaryInfo(executable: string): Promise<{ version: string; path: string }> {
+  if (isAbsolute(executable)) {
+    const { stdout } = await extensionApi.process.exec(executable, ['--version']);
+    return {
+      version: parseKindVersion(stdout),
+      path: executable,
+    };
+  } else {
+    const kindPath = getKindPath() ?? '';
+    const { stdout } = await extensionApi.process.exec(executable, ['--version'], { env: { PATH: kindPath } });
+    return {
+      version: parseKindVersion(stdout),
+      path: await whereBinary(executable),
+    };
+  }
+}
+
+export async function whereBinary(executable: string): Promise<string> {
+  const kindPath = getKindPath() ?? '';
+  // grab full path for Linux and mac
+  if (extensionApi.env.isLinux || extensionApi.env.isMac) {
     try {
-      await extensionApi.process.exec(assetInfo.name, ['--version'], {
-        env: { PATH: kindPath.concat(path.delimiter).concat(pathAddition) },
+      const { stdout: fullPath } = await extensionApi.process.exec('which', [executable], { env: { PATH: kindPath } });
+      return fullPath;
+    } catch (err) {
+      console.warn('Error getting full path', err);
+    }
+  } else if (extensionApi.env.isWindows) {
+    // grab full path for Windows
+    try {
+      const { stdout: fullPath } = await extensionApi.process.exec('where.exe', [executable], {
+        env: { PATH: kindPath },
       });
-      return pathAddition.concat(path.sep).concat(isWindows() ? assetInfo.name + '.exe' : assetInfo.name);
-    } catch (e) {
-      console.error(e);
+      // remove all line break/carriage return characters from full path
+      return fullPath.replace(/(\r\n|\n|\r)/gm, '');
+    } catch (err) {
+      console.warn('Error getting full path', err);
     }
   }
-  return undefined;
+
+  return executable;
 }
 
 // Takes a binary path (e.g. /tmp/kind) and installs it to the system. Renames it based on binaryName
-export async function installBinaryToSystem(binaryPath: string, binaryName: string): Promise<void> {
+export async function installBinaryToSystem(binaryPath: string, binaryName: string): Promise<string> {
   const system = process.platform;
 
   // Before copying the file, make sure it's executable (chmod +x) for Linux and Mac
-  if (system === 'linux' || system === 'darwin') {
+  if (!extensionApi.env.isWindows) {
     try {
       await extensionApi.process.exec('chmod', ['+x', binaryPath]);
       console.log(`Made ${binaryPath} executable`);
@@ -103,15 +127,13 @@ export async function installBinaryToSystem(binaryPath: string, binaryName: stri
 
   // Create the appropriate destination path (Windows uses AppData/Local, Linux and Mac use /usr/local/bin)
   // and the appropriate command to move the binary to the destination path
-  let destinationPath: string;
+  const destinationPath: string = getSystemBinaryPath(binaryName);
   let command: string;
   let args: string[];
   if (system === 'win32') {
-    destinationPath = path.join(os.homedir(), 'AppData', 'Local', 'Microsoft', 'WindowsApps', `${binaryName}.exe`);
     command = 'copy';
     args = [`"${binaryPath}"`, `"${destinationPath}"`];
   } else {
-    destinationPath = path.join('/usr/local/bin', binaryName);
     command = 'cp';
     args = [binaryPath, destinationPath];
   }
@@ -120,6 +142,7 @@ export async function installBinaryToSystem(binaryPath: string, binaryName: stri
     // Use admin prileges / ask for password for copying to /usr/local/bin
     await extensionApi.process.exec(command, args, { isAdmin: true });
     console.log(`Successfully installed '${binaryName}' binary.`);
+    return destinationPath;
   } catch (error) {
     console.error(`Failed to install '${binaryName}' binary: ${error}`);
     throw error;
