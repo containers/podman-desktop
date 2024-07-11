@@ -384,6 +384,7 @@
   "dependencies": {
     "@ltd/j-toml": "^1.38.0",
     "@podman-desktop/api": "^0.0.1",
+    "@podman-desktop/podman-extension-api": "^0.0.1",
     "compare-versions": "^6.1.1",
     "ps-list": "^8.1.1",
     "ssh2": "^1.15.0"
