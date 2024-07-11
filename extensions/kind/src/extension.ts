@@ -335,13 +335,14 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const installer = new KindInstaller(extensionContext.storagePath, telemetryLogger);
 
   let binary: { path: string; version: string } | undefined = undefined;
+  // let's try to get system-wide kind install first
   try {
     binary = await getKindBinaryInfo('kind');
   } catch (err: unknown) {
     console.error(err);
   }
 
-  // let's try to check in the extension storage if kind is not available system-wide
+  // if not installed system-wide: let's try to check in the extension storage if kind is not available system-wide
   if (!binary) {
     try {
       binary = await getKindBinaryInfo(installer.getInternalDestinationPath());
@@ -350,6 +351,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     }
   }
 
+  // if the binary exists (either system-wide or in extension storage)
+  // we register it
   if (binary) {
     kindPath = binary.path;
     kindCli = extensionApi.cli.createCliTool({
@@ -364,11 +367,13 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     });
   }
 
+  // if the CLI tool exists, let's create a provider
   if (kindCli) {
     await createProvider(extensionContext, telemetryLogger);
     return;
   }
 
+  // if we do not have anything installed, let's add it to the status bar
   if (await installer.isAvailable()) {
     const statusBarItem = extensionApi.window.createStatusBarItem();
     statusBarItem.text = 'Kind';
@@ -385,6 +390,13 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   }
 }
 
+/**
+ * Install the kind binary in the extension storage, and optionally system-wide
+ * @param installer
+ * @param statusBarItem
+ * @param extensionContext
+ * @param telemetryLogger
+ */
 async function kindInstall(
   installer: KindInstaller,
   statusBarItem: StatusBarItem,

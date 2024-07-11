@@ -118,6 +118,11 @@ export class KindInstaller {
     return path.resolve(this.storagePath, extensionApi.env.isWindows ? 'kind.exe' : 'kind');
   }
 
+  /**
+   * (1) Download the latest binary in the extension storage path.
+   * (2) Ask the user if they want to install system-wide
+   * @return the path where the binary is installed
+   */
   async performInstall(): Promise<string> {
     this.telemetryLogger.logUsage('install-kind-prompt');
     const confirm = await this.withConfirmation(

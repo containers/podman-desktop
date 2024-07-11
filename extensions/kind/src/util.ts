@@ -68,7 +68,12 @@ export function parseKindVersion(raw: string): string {
   throw new Error('malformed kind output');
 }
 
+/**
+ * Return the version and the path of an executable
+ * @param executable
+ */
 export async function getKindBinaryInfo(executable: string): Promise<{ version: string; path: string }> {
+  // if absolute we do not include PATH
   if (isAbsolute(executable)) {
     const { stdout } = await extensionApi.process.exec(executable, ['--version']);
     return {
@@ -80,11 +85,15 @@ export async function getKindBinaryInfo(executable: string): Promise<{ version: 
     const { stdout } = await extensionApi.process.exec(executable, ['--version'], { env: { PATH: kindPath } });
     return {
       version: parseKindVersion(stdout),
-      path: await whereBinary(executable),
+      path: await whereBinary(executable), // we need to where/which the executable to find its real path
     };
   }
 }
 
+/**
+ * Given an executable name will find where it is installed on the system
+ * @param executable
+ */
 export async function whereBinary(executable: string): Promise<string> {
   const kindPath = getKindPath() ?? '';
   // grab full path for Linux and mac
