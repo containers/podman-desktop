@@ -122,10 +122,8 @@ export async function whereBinary(executable: string): Promise<string> {
 
 // Takes a binary path (e.g. /tmp/kind) and installs it to the system. Renames it based on binaryName
 export async function installBinaryToSystem(binaryPath: string, binaryName: string): Promise<string> {
-  const system = process.platform;
-
   // Before copying the file, make sure it's executable (chmod +x) for Linux and Mac
-  if (!extensionApi.env.isWindows) {
+  if (extensionApi.env.isLinux || extensionApi.env.isMac) {
     try {
       await extensionApi.process.exec('chmod', ['+x', binaryPath]);
       console.log(`Made ${binaryPath} executable`);
@@ -139,7 +137,7 @@ export async function installBinaryToSystem(binaryPath: string, binaryName: stri
   const destinationPath: string = getSystemBinaryPath(binaryName);
   let command: string;
   let args: string[];
-  if (system === 'win32') {
+  if (extensionApi.env.isWindows) {
     command = 'copy';
     args = [`"${binaryPath}"`, `"${destinationPath}"`];
   } else {
