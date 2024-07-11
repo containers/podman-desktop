@@ -233,7 +233,7 @@ describe('Verification of container creation workflow', async () => {
 
   test('Prune containers', async () => {
     const navigationBar = new NavigationBar(page);
-
+    //Start 3 containers
     for (const container of containerList) {
       const images = await navigationBar.openImages();
       const containersPage = await images.startContainerWithImage(imageToPull, container, containerStartParams);
@@ -242,7 +242,7 @@ describe('Verification of container creation workflow', async () => {
         .poll(async () => await containersPage.containerExists(container), { timeout: 15000 })
         .toBeTruthy();
     }
-
+    //Stop a container, prune, and repeat
     for (const container of containerList) {
       let containersPage = new ContainersPage(page);
       const containersDetails = await containersPage.stopContainerFromDetails(container);
@@ -256,6 +256,28 @@ describe('Verification of container creation workflow', async () => {
         .poll(async () => await containersPage.containerExists(container), { timeout: 15000 })
         .toBeFalsy();
     }
-    //TODO: prune more than one container
+
+    //Start and stop 3 containers
+    for (const container of containerList) {
+      const images = await navigationBar.openImages();
+      const containersPage = await images.startContainerWithImage(imageToPull, container, containerStartParams);
+      await playExpect(containersPage.heading).toBeVisible();
+      await playExpect
+        .poll(async () => await containersPage.containerExists(container), { timeout: 15000 })
+        .toBeTruthy();
+      const containersDetails = await containersPage.stopContainerFromDetails(container);
+      await playExpect(await containersDetails.getStateLocator()).toHaveText(ContainerState.Exited.toLowerCase(), {
+        timeout: 20000,
+      });
+    }
+    //Prune the 3 stopped containers at the same time
+    const containersPage = await navigationBar.openContainers();
+    await playExpect(containersPage.heading).toBeVisible();
+    await containersPage.pruneContainers();
+    for (const container of containerList) {
+      await playExpect
+        .poll(async () => await containersPage.containerExists(container), { timeout: 15000 })
+        .toBeFalsy();
+    }
   }, 120000);
 });
