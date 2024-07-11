@@ -36,7 +36,7 @@ export class NavigationManager {
     private webviewRegistry: WebviewRegistry,
   ) {}
 
-  navigateTo(navigateRequest: NavigationRequest): void {
+  navigateTo<T extends NavigationPage>(navigateRequest: NavigationRequest<T>): void {
     this.apiSender.send('navigate', navigateRequest);
   }
 
@@ -147,7 +147,6 @@ export class NavigationManager {
       page: NavigationPage.VOLUME,
       parameters: {
         name: name,
-        engineId: engineId,
       },
     });
   }

@@ -10,10 +10,13 @@ export let object: PodInfoUI;
 const podUtils = new PodUtils();
 
 function openDetailsPod(pod: PodInfoUI) {
-  handleNavigation(NavigationPage.POD, {
-    kind: encodeURI(pod.kind),
-    name: encodeURI(pod.name),
-    engineId: encodeURIComponent(pod.engineId),
+  handleNavigation({
+    page: NavigationPage.POD,
+    parameters: {
+      kind: encodeURI(pod.kind),
+      name: encodeURI(pod.name),
+      engineId: encodeURIComponent(pod.engineId),
+    },
   });
 }
 </script>
