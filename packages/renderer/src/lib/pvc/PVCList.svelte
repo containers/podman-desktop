@@ -127,7 +127,7 @@ const columns = [
 const row = new TableRow<PVCUI>({ selectable: _pvc => true });
 </script>
 
-<NavPage bind:searchTerm="{searchTerm}" title="Persistent Volume Claims">
+<NavPage bind:searchTerm="{searchTerm}" title="persistent volume claims">
   <svelte:fragment slot="additional-actions">
     <KubeApplyYamlButton />
   </svelte:fragment>

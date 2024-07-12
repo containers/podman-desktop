@@ -163,7 +163,7 @@ const columns = [
 const row = new TableRow<IngressUI | RouteUI>({ selectable: _ingressRoute => true });
 </script>
 
-<NavPage bind:searchTerm="{searchTerm}" title="Ingresses & Routes">
+<NavPage bind:searchTerm="{searchTerm}" title="ingresses & routes">
   <svelte:fragment slot="additional-actions">
     <KubeApplyYamlButton />
   </svelte:fragment>
