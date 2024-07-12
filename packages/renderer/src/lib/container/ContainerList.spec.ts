@@ -60,6 +60,8 @@ beforeAll(() => {
   (window as any).removePod = removePodMock;
   (window as any).deleteContainer = deleteContainerMock;
   (window as any).getContributedMenus = getContributedMenusMock;
+  (window as any).getConfigurationValue = vi.fn();
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(false);
 
   (window.events as unknown) = {
     receive: (_channel: string, func: any) => {
@@ -772,4 +774,57 @@ test('Expect to display running / stopped containers depending on tab', async ()
       expect(cell).not.toBeInTheDocument();
     }
   }
+});
+
+test('Expect user confirmation to pop up when preferences require', async () => {
+  listContainersMock.mockResolvedValue([]);
+
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('tray:update-provider'));
+
+  // wait for the store to be cleared
+  await vi.waitFor(() => get(containersInfos).length === 0);
+
+  // one single container and a container as part of a pod
+  const mockedContainers = [
+    {
+      Id: 'sha256:123454321',
+      Image: 'sha256:123',
+      Names: ['foo1'],
+      Status: 'Running',
+      engineId: 'podman',
+      engineName: 'podman',
+      ImageID: 'dummy-image-id',
+    },
+  ];
+
+  listContainersMock.mockResolvedValue(mockedContainers);
+
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('tray:update-provider'));
+
+  // wait until the store is populated
+  await vi.waitFor(() => get(containersInfos).length > 0);
+
+  await waitRender({});
+
+  // select the standalone container checkbox
+  const checkboxes = screen.getAllByRole('checkbox', { name: 'Toggle container' });
+  await fireEvent.click(checkboxes[0]);
+
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(true);
+  (window as any).showMessageBox = vi.fn();
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 1 });
+
+  const deleteButton = screen.getByRole('button', { name: 'Delete selected containers and pods' });
+  await fireEvent.click(deleteButton);
+
+  expect(window.showMessageBox).toHaveBeenCalledOnce();
+
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 0 });
+  await fireEvent.click(deleteButton);
+  expect(window.showMessageBox).toHaveBeenCalledTimes(2);
+  vi.waitFor(() => expect(deleteContainerMock).toHaveBeenCalled());
 });

@@ -21,7 +21,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import type { KubernetesObject, V1Ingress } from '@kubernetes/client-node';
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 /* eslint-disable import/no-duplicates */
 import { tick } from 'svelte';
 import { readable, writable } from 'svelte/store';
@@ -55,6 +55,10 @@ beforeEach(() => {
   vi.clearAllMocks();
   (window as any).kubernetesGetContextsGeneralState = () => Promise.resolve(new Map());
   (window as any).kubernetesGetCurrentContextGeneralState = () => Promise.resolve({});
+  (window as any).kubernetesDeleteIngress = vi.fn();
+  vi.mocked(window.kubernetesDeleteIngress);
+  (window as any).getConfigurationValue = vi.fn();
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(false);
 });
 
 async function waitRender(customProperties: object): Promise<void> {
@@ -153,4 +157,57 @@ test('Expect there to be an age column', async () => {
 
   const ageColumn = screen.getByRole('columnheader', { name: 'Age' });
   expect(ageColumn).toBeInTheDocument();
+});
+
+test('Expect user confirmation to pop up when preferences require', async () => {
+  const ingress = {
+    metadata: {
+      name: 'my-ingress',
+      namespace: 'test-namespace',
+    },
+    spec: {
+      rules: [
+        {
+          host: 'foo.bar.com',
+          http: {
+            paths: [
+              {
+                path: '/foo',
+                pathType: 'Prefix',
+                backend: {
+                  resource: {
+                    name: 'bucket',
+                    kind: 'StorageBucket',
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    },
+  } as V1Ingress;
+
+  vi.mocked(kubeContextStore).kubernetesCurrentContextIngresses = readable<KubernetesObject[]>([ingress]);
+  vi.mocked(kubeContextStore).kubernetesCurrentContextIngressesFiltered = readable<KubernetesObject[]>([ingress]);
+
+  await waitRender({});
+
+  const checkboxes = screen.getAllByRole('checkbox', { name: 'Toggle ingress & route' });
+  await fireEvent.click(checkboxes[0]);
+
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(true);
+
+  (window as any).showMessageBox = vi.fn();
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 1 });
+
+  const deleteButton = screen.getByRole('button', { name: 'Delete 1 selected items' });
+  await fireEvent.click(deleteButton);
+
+  expect(window.showMessageBox).toHaveBeenCalledOnce();
+
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 0 });
+  await fireEvent.click(deleteButton);
+  expect(window.showMessageBox).toHaveBeenCalledTimes(2);
+  vi.waitFor(() => expect(window.kubernetesDeleteIngress).toHaveBeenCalled());
 });

@@ -23,6 +23,7 @@ import {
 } from '/@/stores/kubernetes-contexts-state';
 import type { V1Route } from '/@api/openshift-types';
 
+import { withBulkConfirmation } from '../actions/BulkActions';
 import IngressRouteIcon from '../images/IngressRouteIcon.svelte';
 import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
 import { IngressRouteUtils } from './ingress-route-utils';
@@ -170,7 +171,11 @@ const row = new TableRow<IngressUI | RouteUI>({ selectable: _ingressRoute => tru
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() => deleteSelectedIngressesRoutes()}"
+        on:click="{() =>
+          withBulkConfirmation(
+            deleteSelectedIngressesRoutes,
+            `delete ${selectedItemsNumber} Ingress${selectedItemsNumber > 1 ? 'es' : ''} / Route${selectedItemsNumber > 1 ? 's' : ''}`,
+          )}"
         title="Delete {selectedItemsNumber} selected items"
         inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />

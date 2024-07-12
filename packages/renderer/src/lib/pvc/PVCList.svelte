@@ -19,6 +19,7 @@ import {
   persistentVolumeClaimSearchPattern,
 } from '/@/stores/kubernetes-contexts-state';
 
+import { withBulkConfirmation } from '../actions/BulkActions';
 import PVCIcon from '../images/PVCIcon.svelte';
 import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
 import { PVCUtils } from './pvc-utils';
@@ -134,7 +135,11 @@ const row = new TableRow<PVCUI>({ selectable: _pvc => true });
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() => deleteSelectedPVCs()}"
+        on:click="{() =>
+          withBulkConfirmation(
+            deleteSelectedPVCs,
+            `delete ${selectedItemsNumber} PVC${selectedItemsNumber > 1 ? 's' : ''}`,
+          )}"
         title="Delete {selectedItemsNumber} selected items"
         inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />
