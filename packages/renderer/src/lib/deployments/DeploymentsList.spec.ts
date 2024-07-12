@@ -85,10 +85,8 @@ test('Expect deployments list', async () => {
 
   await waitRender({});
 
-  const deploymentName = screen.getByRole('cell', { name: 'my-deployment' });
-  const deploymentNamespace = screen.getByRole('cell', { name: 'test-namespace' });
+  const deploymentName = screen.getByRole('cell', { name: 'my-deployment test-namespace' });
   expect(deploymentName).toBeInTheDocument();
-  expect(deploymentNamespace).toBeInTheDocument();
 });
 
 test('Expect correct column overflow', async () => {
@@ -120,15 +118,14 @@ test('Expect correct column overflow', async () => {
 
   const cells = await within(rows[1]).findAllByRole('cell');
   expect(cells).toBeDefined();
-  expect(cells.length).toBe(9);
+  expect(cells.length).toBe(8);
 
   expect(cells[2]).toHaveClass('overflow-hidden');
   expect(cells[3]).toHaveClass('overflow-hidden');
-  expect(cells[4]).toHaveClass('overflow-hidden');
-  expect(cells[5]).not.toHaveClass('overflow-hidden');
+  expect(cells[4]).not.toHaveClass('overflow-hidden');
+  expect(cells[5]).toHaveClass('overflow-hidden');
   expect(cells[6]).toHaveClass('overflow-hidden');
   expect(cells[7]).toHaveClass('overflow-hidden');
-  expect(cells[8]).toHaveClass('overflow-hidden');
 });
 
 test('Expect filter empty screen', async () => {

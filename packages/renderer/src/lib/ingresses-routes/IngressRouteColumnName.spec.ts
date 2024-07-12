@@ -90,3 +90,10 @@ test('Expect clicking on Route works', async () => {
 
   expect(routerGotoSpy).toBeCalledWith('/ingressesRoutes/route/my-route/test-namespace/summary');
 });
+
+test('Expect to show namespace in column', async () => {
+  render(IngressRouteColumnName, { object: routeUI });
+
+  const text = screen.getByText(routeUI.namespace);
+  expect(text).toBeInTheDocument();
+});

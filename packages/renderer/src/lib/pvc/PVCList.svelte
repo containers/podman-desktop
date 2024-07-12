@@ -89,12 +89,6 @@ let storageClassColumn = new TableColumn<PVCUI, string>('Storage', {
   comparator: (a, b) => a.storageClass.localeCompare(b.storageClass),
 });
 
-let namespaceColumn = new TableColumn<PVCUI, string>('Namespace', {
-  renderMapping: pvc => pvc.namespace,
-  renderer: TableSimpleColumn,
-  comparator: (a, b) => a.namespace.localeCompare(b.namespace),
-});
-
 let accessModesColumn = new TableColumn<PVCUI>('Mode', {
   renderer: PvcColumnMode,
   overflow: true,
@@ -116,7 +110,6 @@ let ageColumn = new TableColumn<PVCUI, Date | undefined>('Age', {
 const columns = [
   statusColumn,
   nameColumn,
-  namespaceColumn,
   accessModesColumn,
   storageClassColumn,
   sizeColumn,

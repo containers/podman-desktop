@@ -8,7 +8,6 @@ import {
   TableColumn,
   TableDurationColumn,
   TableRow,
-  TableSimpleColumn,
 } from '@podman-desktop/ui-svelte';
 import moment from 'moment';
 import { onMount } from 'svelte';
@@ -84,12 +83,6 @@ let nameColumn = new TableColumn<DeploymentUI>('Name', {
   comparator: (a, b) => a.name.localeCompare(b.name),
 });
 
-let namespaceColumn = new TableColumn<DeploymentUI, string>('Namespace', {
-  renderMapping: deployment => deployment.namespace,
-  renderer: TableSimpleColumn,
-  comparator: (a, b) => a.namespace.localeCompare(b.namespace),
-});
-
 let conditionsColumn = new TableColumn<DeploymentUI>('Conditions', {
   width: '2fr',
   overflow: true,
@@ -109,7 +102,6 @@ let ageColumn = new TableColumn<DeploymentUI, Date | undefined>('Age', {
 const columns = [
   statusColumn,
   nameColumn,
-  namespaceColumn,
   conditionsColumn,
   podsColumn,
   ageColumn,

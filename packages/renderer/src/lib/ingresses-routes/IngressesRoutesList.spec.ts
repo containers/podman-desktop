@@ -125,9 +125,9 @@ test('Expect element in ingresses list', async () => {
 
   await waitRender({});
 
-  const ingressName = screen.getByRole('cell', { name: 'my-ingress' });
+  const ingressName = screen.getByRole('cell', { name: 'my-ingress test-namespace' });
   expect(ingressName).toBeInTheDocument();
-  const routeName = screen.getByRole('cell', { name: 'my-route' });
+  const routeName = screen.getByRole('cell', { name: 'my-route test-namespace' });
   expect(routeName).toBeInTheDocument();
 });
 

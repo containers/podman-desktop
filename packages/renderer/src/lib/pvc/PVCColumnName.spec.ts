@@ -56,3 +56,10 @@ test('Expect clicking works', async () => {
 
   expect(routerGotoSpy).toBeCalledWith('/persistentvolumeclaims/my-pvc/default/summary');
 });
+
+test('Expect to show namespace in column', async () => {
+  render(PVCColumnName, { object: fakePVC });
+
+  const text = screen.getByText(fakePVC.namespace);
+  expect(text).toBeInTheDocument();
+});

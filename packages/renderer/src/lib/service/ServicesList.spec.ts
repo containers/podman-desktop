@@ -68,6 +68,7 @@ test('Expect services list', async () => {
     kind: 'Service',
     metadata: {
       name: 'my-service',
+      namespace: 'test-namespace',
     },
     spec: {
       selector: {},
@@ -84,7 +85,7 @@ test('Expect services list', async () => {
 
   await waitRender({});
 
-  const serviceName = screen.getByRole('cell', { name: 'my-service' });
+  const serviceName = screen.getByRole('cell', { name: 'my-service test-namespace' });
   expect(serviceName).toBeInTheDocument();
 });
 
