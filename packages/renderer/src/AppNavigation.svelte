@@ -289,18 +289,18 @@ export let meta: TinroRouteMeta;
         <IngressRouteIcon size="{iconSize}" />
       </NavItem>
       <NavItem
-        href="/configmapsSecrets"
-        tooltip="ConfigMaps & Secrets{configmapSecretsCount}"
-        ariaLabel="ConfigMaps & Secrets"
-        bind:meta="{meta}">
-        <ConfigMapSecretIcon size="{iconSize}" />
-      </NavItem>
-      <NavItem
         href="/persistentvolumeclaims"
         tooltip="Persistent Volume Claims{persistentVolumeClaimsCount}"
         ariaLabel="Persistent Volume Claims"
         bind:meta="{meta}">
         <PVCIcon size="{iconSize}" />
+      </NavItem>
+      <NavItem
+        href="/configmapsSecrets"
+        tooltip="ConfigMaps & Secrets{configmapSecretsCount}"
+        ariaLabel="ConfigMaps & Secrets"
+        bind:meta="{meta}">
+        <ConfigMapSecretIcon size="{iconSize}" />
       </NavItem>
     </NavSection>
   {/if}

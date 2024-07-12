@@ -79,3 +79,10 @@ test('Secret: Expect clicking works', async () => {
 
   expect(routerGotoSpy).toBeCalledWith('/configmapsSecrets/secret/my-secret/default/summary');
 });
+
+test('Expect namespace in column', async () => {
+  render(ConfigMapSecretColumnName, { object: configMap });
+
+  const text = screen.getByText(configMap.namespace);
+  expect(text).toBeInTheDocument();
+});

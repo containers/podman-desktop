@@ -117,12 +117,6 @@ let nameColumn = new TableColumn<ConfigMapSecretUI>('Name', {
   comparator: (a, b) => a.name.localeCompare(b.name),
 });
 
-let namespaceColumn = new TableColumn<ConfigMapSecretUI, string>('Namespace', {
-  renderMapping: configmapSecret => configmapSecret.namespace,
-  renderer: TableSimpleColumn,
-  comparator: (a, b) => a.namespace.localeCompare(b.namespace),
-});
-
 let ageColumn = new TableColumn<ConfigMapSecretUI, Date | undefined>('Age', {
   renderMapping: configmapSecret => configmapSecret.created,
   renderer: TableDurationColumn,
@@ -145,7 +139,6 @@ let typeColumn = new TableColumn<ConfigMapSecretUI>('Type', {
 const columns = [
   statusColumn,
   nameColumn,
-  namespaceColumn,
   typeColumn,
   keysColumn,
   ageColumn,
