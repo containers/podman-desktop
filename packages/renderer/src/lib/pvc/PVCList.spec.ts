@@ -87,11 +87,8 @@ test('Expect PVC list', async () => {
 
   await waitRender({});
 
-  const pvcName = screen.getByRole('cell', { name: 'pvc1' });
+  const pvcName = screen.getByRole('cell', { name: 'pvc1 default' });
   expect(pvcName).toBeInTheDocument();
-
-  const pvcNamespace = screen.getByRole('cell', { name: 'default' });
-  expect(pvcNamespace).toBeInTheDocument();
 });
 
 test('Expect user confirmation to pop up when preferences require', async () => {
@@ -110,7 +107,7 @@ test('Expect user confirmation to pop up when preferences require', async () => 
 
   await waitRender({});
 
-  const pvcName1 = screen.getByRole('cell', { name: 'pvc12' });
+  const pvcName1 = screen.getByRole('cell', { name: 'pvc12 default' });
   expect(pvcName1).toBeInTheDocument();
 
   const checkboxes = screen.getAllByRole('checkbox', { name: 'Toggle PVC' });

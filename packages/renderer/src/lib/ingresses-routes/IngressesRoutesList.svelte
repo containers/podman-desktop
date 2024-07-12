@@ -8,7 +8,6 @@ import {
   TableColumn,
   TableDurationColumn,
   TableRow,
-  TableSimpleColumn,
 } from '@podman-desktop/ui-svelte';
 import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
@@ -114,12 +113,6 @@ let nameColumn = new TableColumn<IngressUI | RouteUI>('Name', {
   comparator: (a, b) => a.name.localeCompare(b.name),
 });
 
-let namespaceColumn = new TableColumn<IngressUI | RouteUI, string>('Namespace', {
-  renderMapping: ingressRoute => ingressRoute.namespace,
-  renderer: TableSimpleColumn,
-  comparator: (a, b) => a.namespace.localeCompare(b.namespace),
-});
-
 let pathColumn = new TableColumn<IngressUI | RouteUI>('Host/Path', {
   width: '1.5fr',
   renderer: IngressRouteColumnHostPath,
@@ -153,7 +146,6 @@ function compareBackend(object1: IngressUI | RouteUI, object2: IngressUI | Route
 const columns = [
   statusColumn,
   nameColumn,
-  namespaceColumn,
   pathColumn,
   backendColumn,
   ageColumn,

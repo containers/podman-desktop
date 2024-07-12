@@ -56,3 +56,10 @@ test('Expect clicking works', async () => {
 
   expect(routerGotoSpy).toBeCalledWith('/deployments/my-deployment/default/summary');
 });
+
+test('Expect to show namespace in column', async () => {
+  render(DeploymentColumnName, { object: deployment });
+
+  const text = screen.getByText(deployment.namespace);
+  expect(text).toBeInTheDocument();
+});

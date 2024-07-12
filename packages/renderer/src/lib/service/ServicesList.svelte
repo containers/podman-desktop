@@ -76,14 +76,9 @@ let statusColumn = new TableColumn<ServiceUI>('Status', {
 });
 
 let nameColumn = new TableColumn<ServiceUI>('Name', {
+  width: '1.3fr',
   renderer: ServiceColumnName,
   comparator: (a, b) => a.name.localeCompare(b.name),
-});
-
-let namespaceColumn = new TableColumn<ServiceUI, string>('Namespace', {
-  renderMapping: service => service.namespace,
-  renderer: TableSimpleColumn,
-  comparator: (a, b) => a.namespace.localeCompare(b.namespace),
 });
 
 let typeColumn = new TableColumn<ServiceUI>('Type', {
@@ -114,7 +109,6 @@ let ageColumn = new TableColumn<ServiceUI, Date | undefined>('Age', {
 const columns = [
   statusColumn,
   nameColumn,
-  namespaceColumn,
   typeColumn,
   clusterIPColumn,
   portsColumn,
