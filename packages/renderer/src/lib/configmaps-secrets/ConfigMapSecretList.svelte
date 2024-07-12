@@ -148,7 +148,7 @@ const columns = [
 const row = new TableRow<ConfigMapSecretUI>({ selectable: _configmapSecret => true });
 </script>
 
-<NavPage bind:searchTerm="{searchTerm}" title="ConfigMaps & Secrets">
+<NavPage bind:searchTerm="{searchTerm}" title="configmaps & secrets">
   <svelte:fragment slot="additional-actions">
     <KubeApplyYamlButton />
   </svelte:fragment>
