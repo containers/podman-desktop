@@ -18,6 +18,7 @@ updates:
         applies-to: version-updates
         patterns:
           - "@storybook/*"
+          - "storybook"
       docusaurus:
         applies-to: version-updates
         patterns:
