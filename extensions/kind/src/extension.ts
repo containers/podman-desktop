@@ -70,7 +70,7 @@ async function registerProvider(
     {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       create: (params: { [key: string]: any }, logger?: Logger, token?: CancellationToken) => {
-        if (kindCli && kindPath) {
+        if (kindPath) {
           return createCluster(params, kindPath, telemetryLogger, logger, token);
         }
         return Promise.reject(new Error('Unable to create kind cluster. No kind cli detected'));
@@ -180,7 +180,7 @@ async function updateClusters(
             env['KIND_EXPERIMENTAL_PROVIDER'] = 'podman';
           }
           env.PATH = getKindPath() ?? '';
-          if (kindCli && kindPath) {
+          if (kindPath) {
             await extensionApi.process.exec(kindPath, ['delete', 'cluster', '--name', cluster.name], { env, logger });
           }
         },
