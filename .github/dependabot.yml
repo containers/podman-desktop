@@ -19,6 +19,7 @@ updates:
         patterns:
           - "@storybook/*"
           - "storybook"
+          - "storybook-dark-mode"
       docusaurus:
         applies-to: version-updates
         patterns:
