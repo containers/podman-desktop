@@ -347,7 +347,11 @@ const row = new TableRow<ImageInfoUI>({
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() => withBulkConfirmation(deleteSelectedImages, `delete ${selectedItemsNumber} images`)}"
+        on:click="{() =>
+          withBulkConfirmation(
+            deleteSelectedImages,
+            `delete ${selectedItemsNumber} image${selectedItemsNumber > 1 ? 's' : ''}`,
+          )}"
         title="Delete {selectedItemsNumber} selected items"
         bind:inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />

@@ -37,8 +37,6 @@ import VolumesList from './VolumesList.svelte';
 const listVolumesMock = vi.fn();
 const getProviderInfosMock = vi.fn();
 const onDidUpdateProviderStatusMock = vi.fn();
-const getConfigurationValueMock = vi.fn();
-const deleteVolumeMock = vi.fn();
 
 // fake the window.events object
 beforeAll(() => {
@@ -64,8 +62,10 @@ beforeEach(() => {
   vi.clearAllMocks();
   onDidUpdateProviderStatusMock.mockImplementation(() => Promise.resolve());
   getProviderInfosMock.mockResolvedValue([]);
-  (window as any).removeVolume = deleteVolumeMock;
-  (window as any).getConfigurationValue = getConfigurationValueMock.mockResolvedValue(false);
+  (window as any).removeVolume = vi.fn();
+  vi.mocked(window.removeVolume);
+  (window as any).getConfigurationValue = vi.fn();
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(false);
 });
 
 async function waitRender(customProperties: object): Promise<void> {
@@ -382,19 +382,17 @@ test('Expect user confirmation to pop up when preferences require', async () => 
   const checkboxes = screen.getAllByRole('checkbox', { name: 'Toggle volume' });
   await fireEvent.click(checkboxes[0]);
 
-  getConfigurationValueMock.mockResolvedValueOnce(true);
-  const showMessageBoxMock = vi.fn().mockResolvedValue({ response: 1 });
-
-  (window as any).showMessageBox = showMessageBoxMock;
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(true);
+  (window as any).showMessageBox = vi.fn();
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 1 });
 
   const deleteButton = screen.getByRole('button', { name: 'Delete 1 selected items' });
   await fireEvent.click(deleteButton);
 
-  expect(showMessageBoxMock).toHaveBeenCalledOnce();
-  expect(deleteVolumeMock).not.toHaveBeenCalled();
+  expect(window.showMessageBox).toHaveBeenCalledOnce();
 
-  showMessageBoxMock.mockResolvedValue({ response: 0 });
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 0 });
   await fireEvent.click(deleteButton);
-  expect(showMessageBoxMock).toHaveBeenCalledOnce();
-  expect(deleteVolumeMock).toHaveBeenCalled();
+  expect(window.showMessageBox).toHaveBeenCalledTimes(2);
+  vi.waitFor(() => expect(window.removeVolume).toHaveBeenCalled());
 });

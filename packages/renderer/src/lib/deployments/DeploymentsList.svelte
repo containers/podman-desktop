@@ -127,7 +127,11 @@ const row = new TableRow<DeploymentUI>({ selectable: _deployment => true });
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() => withBulkConfirmation(deleteSelectedDeployments, `delete ${selectedItemsNumber} deployments`)}"
+        on:click="{() =>
+          withBulkConfirmation(
+            deleteSelectedDeployments,
+            `delete ${selectedItemsNumber} deployment${selectedItemsNumber > 1 ? 's' : ''}`,
+          )}"
         title="Delete {selectedItemsNumber} selected items"
         inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />

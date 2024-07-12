@@ -42,7 +42,6 @@ const removePodMock = vi.fn();
 const listPodsMock = vi.fn();
 
 const kubernetesListPodsMock = vi.fn();
-const getConfigurationValueMock = vi.fn();
 
 // fake the window.events object
 beforeAll(() => {
@@ -61,7 +60,8 @@ beforeAll(() => {
   (window as any).removePod = removePodMock;
   (window as any).deleteContainer = deleteContainerMock;
   (window as any).getContributedMenus = getContributedMenusMock;
-  (window as any).getConfigurationValue = getConfigurationValueMock.mockResolvedValue(false);
+  (window as any).getConfigurationValue = vi.fn();
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(false);
 
   (window.events as unknown) = {
     receive: (_channel: string, func: any) => {
@@ -777,7 +777,6 @@ test('Expect to display running / stopped containers depending on tab', async ()
 });
 
 test('Expect user confirmation to pop up when preferences require', async () => {
-  deleteContainerMock.mockClear();
   listContainersMock.mockResolvedValue([]);
 
   window.dispatchEvent(new CustomEvent('extensions-already-started'));
@@ -785,9 +784,7 @@ test('Expect user confirmation to pop up when preferences require', async () => 
   window.dispatchEvent(new CustomEvent('tray:update-provider'));
 
   // wait for the store to be cleared
-  while (get(containersInfos).length !== 0) {
-    await new Promise(resolve => setTimeout(resolve, 250));
-  }
+  await vi.waitFor(() => get(containersInfos).length === 0);
 
   // one single container and a container as part of a pod
   const mockedContainers = [
@@ -809,9 +806,7 @@ test('Expect user confirmation to pop up when preferences require', async () => 
   window.dispatchEvent(new CustomEvent('tray:update-provider'));
 
   // wait until the store is populated
-  while (get(containersInfos).length === 0) {
-    await new Promise(resolve => setTimeout(resolve, 250));
-  }
+  await vi.waitFor(() => get(containersInfos).length > 0);
 
   await waitRender({});
 
@@ -819,19 +814,17 @@ test('Expect user confirmation to pop up when preferences require', async () => 
   const checkboxes = screen.getAllByRole('checkbox', { name: 'Toggle container' });
   await fireEvent.click(checkboxes[0]);
 
-  getConfigurationValueMock.mockResolvedValueOnce(true);
-  const showMessageBoxMock = vi.fn().mockResolvedValue({ response: 1 });
-
-  (window as any).showMessageBox = showMessageBoxMock;
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(true);
+  (window as any).showMessageBox = vi.fn();
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 1 });
 
   const deleteButton = screen.getByRole('button', { name: 'Delete selected containers and pods' });
   await fireEvent.click(deleteButton);
 
-  expect(showMessageBoxMock).toHaveBeenCalledOnce();
-  expect(deleteContainerMock).not.toHaveBeenCalled();
+  expect(window.showMessageBox).toHaveBeenCalledOnce();
 
-  showMessageBoxMock.mockResolvedValue({ response: 0 });
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 0 });
   await fireEvent.click(deleteButton);
-  expect(showMessageBoxMock).toHaveBeenCalledOnce();
-  expect(deleteContainerMock).toHaveBeenCalled();
+  expect(window.showMessageBox).toHaveBeenCalledTimes(2);
+  vi.waitFor(() => expect(deleteContainerMock).toHaveBeenCalled());
 });

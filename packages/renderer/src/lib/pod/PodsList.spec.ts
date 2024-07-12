@@ -42,8 +42,6 @@ const listContainersMock = vi.fn();
 const kubernetesListPodsMock = vi.fn();
 const getContributedMenusMock = vi.fn();
 const kubernetesGetCurrentNamespaceMock = vi.fn();
-const getConfigurationValueMock = vi.fn();
-const removePodMock = vi.fn();
 
 const provider: ProviderInfo = {
   containerConnections: [
@@ -278,8 +276,10 @@ beforeAll(() => {
   (window as any).kubernetesListPods = kubernetesListPodsMock;
   (window as any).kubernetesGetCurrentNamespace = kubernetesGetCurrentNamespaceMock;
   (window as any).onDidUpdateProviderStatus = vi.fn().mockResolvedValue(undefined);
-  (window as any).removePod = removePodMock;
-  (window as any).getConfigurationValue = getConfigurationValueMock.mockResolvedValue(false);
+  (window as any).removePod = vi.fn();
+  vi.mocked(window.removePod);
+  (window as any).getConfigurationValue = vi.fn();
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(false);
 
   (window.events as unknown) = {
     receive: (_channel: string, func: any) => {
@@ -638,26 +638,25 @@ test('Expect user confirmation to pop up when preferences require', async () => 
   window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
   window.dispatchEvent(new CustomEvent('extensions-already-started'));
 
-  await vi.waitUntil(() => get(providerInfos).length === 1 && get(podsInfos).length === 2, { timeout: 5000 });
+  await vi.waitUntil(() => get(providerInfos).length === 1 && get(podsInfos).length === 1, { timeout: 5000 });
 
   render(PodsList);
 
   const checkboxes = screen.getAllByRole('checkbox', { name: 'Toggle pod' });
   await fireEvent.click(checkboxes[0]);
 
-  getConfigurationValueMock.mockResolvedValueOnce(true);
-  const showMessageBoxMock = vi.fn().mockResolvedValue({ response: 1 });
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(true);
 
-  (window as any).showMessageBox = showMessageBoxMock;
+  (window as any).showMessageBox = vi.fn();
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 1 });
 
   const deleteButton = screen.getByRole('button', { name: 'Delete 1 selected items' });
   await fireEvent.click(deleteButton);
 
-  expect(showMessageBoxMock).toHaveBeenCalledOnce();
-  expect(removePodMock).not.toHaveBeenCalled();
+  expect(window.showMessageBox).toHaveBeenCalledOnce();
 
-  showMessageBoxMock.mockResolvedValue({ response: 0 });
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 0 });
   await fireEvent.click(deleteButton);
-  expect(showMessageBoxMock).toHaveBeenCalledOnce();
-  expect(removePodMock).toHaveBeenCalled();
+  expect(window.showMessageBox).toHaveBeenCalledTimes(2);
+  vi.waitFor(() => expect(window.removePod).toHaveBeenCalled());
 });

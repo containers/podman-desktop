@@ -39,7 +39,6 @@ import ImagesList from './ImagesList.svelte';
 const listImagesMock = vi.fn();
 const getProviderInfosMock = vi.fn();
 const listViewsContributionsMock = vi.fn();
-const getConfigurationValueMock = vi.fn();
 
 // fake the window.events object
 beforeEach(() => {
@@ -60,7 +59,8 @@ beforeEach(() => {
   (window as any).getProviderInfos = getProviderInfosMock;
   (window as any).listViewsContributions = listViewsContributionsMock;
   listViewsContributionsMock.mockResolvedValue([]);
-  (window as any).getConfigurationValue = getConfigurationValueMock.mockResolvedValue(false);
+  (window as any).getConfigurationValue = vi.fn();
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(false);
 
   (window.events as unknown) = {
     receive: (_channel: string, func: any) => {
@@ -568,13 +568,18 @@ test('Expect user confirmation to pop up when preferences require', async () => 
   const checkboxes = screen.getAllByRole('checkbox', { name: 'Toggle image' });
   await fireEvent.click(checkboxes[0]);
 
-  getConfigurationValueMock.mockResolvedValueOnce(true);
-  const showMessageBoxMock = vi.fn().mockResolvedValue({ response: 1 });
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(true);
 
-  (window as any).showMessageBox = showMessageBoxMock;
+  (window as any).showMessageBox = vi.fn();
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 1 });
 
   const deleteButton = screen.getByRole('button', { name: 'Delete 1 selected items' });
   await fireEvent.click(deleteButton);
 
-  expect(showMessageBoxMock).toHaveBeenCalledOnce();
+  expect(window.showMessageBox).toHaveBeenCalledOnce();
+
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 0 });
+  await fireEvent.click(deleteButton);
+  expect(window.showMessageBox).toHaveBeenCalledTimes(2);
+  vi.waitFor(() => expect(window.deleteImage).toHaveBeenCalled());
 });

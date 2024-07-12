@@ -133,7 +133,11 @@ const row = new TableRow<ServiceUI>({ selectable: _service => true });
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() => withBulkConfirmation(deleteSelectedServices, `delete ${selectedItemsNumber} services`)}"
+        on:click="{() =>
+          withBulkConfirmation(
+            deleteSelectedServices,
+            `delete ${selectedItemsNumber} service${selectedItemsNumber > 1 ? 's' : ''}`,
+          )}"
         title="Delete {selectedItemsNumber} selected items"
         inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />

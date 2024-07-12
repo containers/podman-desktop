@@ -250,7 +250,11 @@ const row = new TableRow<VolumeInfoUI>({
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() => withBulkConfirmation(deleteSelectedVolumes, `delete ${selectedItemsNumber} volumes`)}"
+        on:click="{() =>
+          withBulkConfirmation(
+            deleteSelectedVolumes,
+            `delete ${selectedItemsNumber} volume${selectedItemsNumber > 1 ? 's' : ''}`,
+          )}"
         title="Delete {selectedItemsNumber} selected items"
         inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />

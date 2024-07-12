@@ -167,7 +167,11 @@ const row = new TableRow<PodInfoUI>({ selectable: _pod => true });
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() => withBulkConfirmation(deleteSelectedPods, `delete ${selectedItemsNumber} pods`)}"
+        on:click="{() =>
+          withBulkConfirmation(
+            deleteSelectedPods,
+            `delete ${selectedItemsNumber} pod${selectedItemsNumber > 1 ? 's' : ''}`,
+          )}"
         title="Delete {selectedItemsNumber} selected items"
         inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />

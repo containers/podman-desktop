@@ -172,7 +172,10 @@ const row = new TableRow<IngressUI | RouteUI>({ selectable: _ingressRoute => tru
     {#if selectedItemsNumber > 0}
       <Button
         on:click="{() =>
-          withBulkConfirmation(deleteSelectedIngressesRoutes, `delete ${selectedItemsNumber} Ingresses Routes`)}"
+          withBulkConfirmation(
+            deleteSelectedIngressesRoutes,
+            `delete ${selectedItemsNumber} Ingress${selectedItemsNumber > 1 ? 'es' : ''} / Route${selectedItemsNumber > 1 ? 's' : ''}`,
+          )}"
         title="Delete {selectedItemsNumber} selected items"
         inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />

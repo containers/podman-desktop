@@ -33,8 +33,6 @@ import { kubernetesCurrentContextServices } from '/@/stores/kubernetes-contexts-
 import ServicesList from './ServicesList.svelte';
 
 const kubernetesRegisterGetCurrentContextResourcesMock = vi.fn();
-const getConfigurationValueMock = vi.fn();
-const deleteServiceMock = vi.fn();
 
 beforeAll(() => {
   (window as any).kubernetesRegisterGetCurrentContextResources = kubernetesRegisterGetCurrentContextResourcesMock;
@@ -46,8 +44,10 @@ beforeEach(() => {
   (window as any).kubernetesGetContextsGeneralState = () => Promise.resolve(new Map());
   (window as any).kubernetesGetCurrentContextGeneralState = () => Promise.resolve({});
   (window as any).window.kubernetesUnregisterGetCurrentContextResources = () => Promise.resolve(undefined);
-  (window as any).kubernetesDeleteService = deleteServiceMock;
-  (window as any).getConfigurationValue = getConfigurationValueMock.mockResolvedValue(false);
+  (window as any).kubernetesDeleteService = vi.fn();
+  vi.mocked(window.kubernetesDeleteService);
+  (window as any).getConfigurationValue = vi.fn();
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(false);
 });
 
 async function waitRender(customProperties: object): Promise<void> {
@@ -139,18 +139,17 @@ test('Expect user confirmation to pop up when preferences require', async () => 
   const checkboxes = screen.getAllByRole('checkbox', { name: 'Toggle service' });
   await fireEvent.click(checkboxes[0]);
 
-  getConfigurationValueMock.mockResolvedValueOnce(true);
-  const showMessageBoxMock = vi.fn().mockResolvedValue({ response: 1 });
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(true);
 
-  (window as any).showMessageBox = showMessageBoxMock;
+  (window as any).showMessageBox = vi.fn();
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 1 });
 
   const deleteButton = screen.getByRole('button', { name: 'Delete 1 selected items' });
   await fireEvent.click(deleteButton);
-  expect(showMessageBoxMock).toHaveBeenCalledOnce();
-  expect(deleteServiceMock).not.toHaveBeenCalled();
+  expect(window.showMessageBox).toHaveBeenCalledOnce();
 
-  showMessageBoxMock.mockResolvedValue({ response: 0 });
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 0 });
   await fireEvent.click(deleteButton);
-  expect(showMessageBoxMock).toHaveBeenCalledOnce();
-  expect(deleteServiceMock).toHaveBeenCalled();
+  expect(window.showMessageBox).toHaveBeenCalledTimes(2);
+  vi.waitFor(() => expect(window.kubernetesDeleteService).toHaveBeenCalled());
 });

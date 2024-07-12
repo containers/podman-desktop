@@ -33,13 +33,9 @@ import { kubernetesCurrentContextDeployments } from '/@/stores/kubernetes-contex
 import DeploymentsList from './DeploymentsList.svelte';
 
 const kubernetesRegisterGetCurrentContextResourcesMock = vi.fn();
-const getConfigurationValueMock = vi.fn();
-const deleteDeploymentMock = vi.fn();
 
 beforeAll(() => {
   (window as any).kubernetesRegisterGetCurrentContextResources = kubernetesRegisterGetCurrentContextResourcesMock;
-  (window as any).kubernetesDeleteDeployment = deleteDeploymentMock;
-  (window as any).getConfigurationValue = getConfigurationValueMock.mockResolvedValue(false);
 });
 
 beforeEach(() => {
@@ -48,8 +44,10 @@ beforeEach(() => {
   (window as any).kubernetesGetContextsGeneralState = () => Promise.resolve(new Map());
   (window as any).kubernetesGetCurrentContextGeneralState = () => Promise.resolve({});
   (window as any).window.kubernetesUnregisterGetCurrentContextResources = () => Promise.resolve(undefined);
-  (window as any).kubernetesDeleteDeployment = deleteDeploymentMock;
-  (window as any).getConfigurationValue = getConfigurationValueMock.mockResolvedValue(false);
+  (window as any).getConfigurationValue = vi.fn();
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(false);
+  (window as any).kubernetesDeleteDeployment = vi.fn();
+  vi.mocked(window.kubernetesDeleteDeployment);
 });
 
 async function waitRender(customProperties: object): Promise<void> {
@@ -162,6 +160,7 @@ test('Expect filter empty screen', async () => {
 });
 
 test('Expect user confirmation to pop up when preferences require', async () => {
+  await vi.waitFor(() => get(kubernetesCurrentContextDeployments).length === 0);
   const deployment: V1Deployment = {
     apiVersion: 'apps/v1',
     kind: 'Deployment',
@@ -177,28 +176,25 @@ test('Expect user confirmation to pop up when preferences require', async () => 
   };
   kubernetesRegisterGetCurrentContextResourcesMock.mockResolvedValue([deployment]);
 
-  while (get(kubernetesCurrentContextDeployments).length === 0) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
+  await vi.waitFor(() => get(kubernetesCurrentContextDeployments).length > 0);
 
   await waitRender({});
 
   const checkboxes = screen.getAllByRole('checkbox', { name: 'Toggle deployment' });
   await fireEvent.click(checkboxes[0]);
 
-  getConfigurationValueMock.mockResolvedValueOnce(true);
-  const showMessageBoxMock = vi.fn().mockResolvedValue({ response: 1 });
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(true);
 
-  (window as any).showMessageBox = showMessageBoxMock;
+  (window as any).showMessageBox = vi.fn();
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 1 });
 
   const deleteButton = screen.getByRole('button', { name: 'Delete 1 selected items' });
   await fireEvent.click(deleteButton);
 
-  expect(showMessageBoxMock).toHaveBeenCalledOnce();
-  expect(deleteDeploymentMock).not.toHaveBeenCalled();
+  expect(window.showMessageBox).toHaveBeenCalledOnce();
 
-  showMessageBoxMock.mockResolvedValue({ response: 0 });
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 0 });
   await fireEvent.click(deleteButton);
-  expect(showMessageBoxMock).toHaveBeenCalledOnce();
-  expect(deleteDeploymentMock).toHaveBeenCalled();
+  expect(window.showMessageBox).toHaveBeenCalledTimes(2);
+  vi.waitFor(() => expect(window.kubernetesDeleteDeployment).toHaveBeenCalled());
 });

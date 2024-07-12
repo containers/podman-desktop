@@ -135,7 +135,11 @@ const row = new TableRow<PVCUI>({ selectable: _pvc => true });
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() => withBulkConfirmation(deleteSelectedPVCs, `delete ${selectedItemsNumber} PVCs`)}"
+        on:click="{() =>
+          withBulkConfirmation(
+            deleteSelectedPVCs,
+            `delete ${selectedItemsNumber} PVC${selectedItemsNumber > 1 ? 's' : ''}`,
+          )}"
         title="Delete {selectedItemsNumber} selected items"
         inProgress="{bulkDeleteInProgress}"
         icon="{faTrash}" />

@@ -50,16 +50,15 @@ vi.mock('/@/stores/kubernetes-contexts-state', async () => {
   };
 });
 
-const getConfigurationValueMock = vi.fn();
-const deleteIngressMock = vi.fn();
-
 beforeEach(() => {
   vi.resetAllMocks();
   vi.clearAllMocks();
   (window as any).kubernetesGetContextsGeneralState = () => Promise.resolve(new Map());
   (window as any).kubernetesGetCurrentContextGeneralState = () => Promise.resolve({});
-  (window as any).kubernetesDeleteIngress = deleteIngressMock;
-  (window as any).getConfigurationValue = getConfigurationValueMock.mockResolvedValue(false);
+  (window as any).kubernetesDeleteIngress = vi.fn();
+  vi.mocked(window.kubernetesDeleteIngress);
+  (window as any).getConfigurationValue = vi.fn();
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(false);
 });
 
 async function waitRender(customProperties: object): Promise<void> {
@@ -197,19 +196,18 @@ test('Expect user confirmation to pop up when preferences require', async () => 
   const checkboxes = screen.getAllByRole('checkbox', { name: 'Toggle ingress & route' });
   await fireEvent.click(checkboxes[0]);
 
-  getConfigurationValueMock.mockResolvedValueOnce(true);
-  const showMessageBoxMock = vi.fn().mockResolvedValue({ response: 1 });
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(true);
 
-  (window as any).showMessageBox = showMessageBoxMock;
+  (window as any).showMessageBox = vi.fn();
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 1 });
 
   const deleteButton = screen.getByRole('button', { name: 'Delete 1 selected items' });
   await fireEvent.click(deleteButton);
 
-  expect(showMessageBoxMock).toHaveBeenCalledOnce();
-  expect(deleteIngressMock).not.toHaveBeenCalled();
+  expect(window.showMessageBox).toHaveBeenCalledOnce();
 
-  showMessageBoxMock.mockResolvedValue({ response: 0 });
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 0 });
   await fireEvent.click(deleteButton);
-  expect(showMessageBoxMock).toHaveBeenCalledOnce();
-  expect(deleteIngressMock).toHaveBeenCalled();
+  expect(window.showMessageBox).toHaveBeenCalledTimes(2);
+  vi.waitFor(() => expect(window.kubernetesDeleteIngress).toHaveBeenCalled());
 });

@@ -373,7 +373,11 @@ $: containersAndGroups = containerGroups.map(group =>
     {#if selectedItemsNumber > 0}
       <div class="inline-flex space-x-2">
         <Button
-          on:click="{() => withBulkConfirmation(deleteSelectedContainers, `delete ${selectedItemsNumber} containers`)}"
+          on:click="{() =>
+            withBulkConfirmation(
+              deleteSelectedContainers,
+              `delete ${selectedItemsNumber} container${selectedItemsNumber > 1 ? 's' : ''}`,
+            )}"
           aria-label="Delete selected containers and pods"
           title="Delete {selectedItemsNumber} selected items"
           bind:inProgress="{bulkDeleteInProgress}"

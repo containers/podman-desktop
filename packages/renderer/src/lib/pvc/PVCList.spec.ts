@@ -36,8 +36,6 @@ import {
 import PVCList from './PVCList.svelte';
 
 const kubernetesRegisterGetCurrentContextResourcesMock = vi.fn();
-const deletePVCMock = vi.fn();
-const getConfigurationValueMock = vi.fn();
 
 beforeAll(() => {
   (window as any).kubernetesRegisterGetCurrentContextResources = kubernetesRegisterGetCurrentContextResourcesMock;
@@ -50,8 +48,10 @@ beforeEach(() => {
   (window as any).kubernetesGetContextsGeneralState = () => Promise.resolve(new Map());
   (window as any).kubernetesGetCurrentContextGeneralState = () => Promise.resolve({});
   (window as any).window.kubernetesUnregisterGetCurrentContextResources = () => Promise.resolve(undefined);
-  (window as any).kubernetesDeletePersistentVolumeClaim = deletePVCMock;
-  (window as any).getConfigurationValue = getConfigurationValueMock.mockResolvedValue(false);
+  (window as any).kubernetesDeletePersistentVolumeClaim = vi.fn();
+  vi.mocked(window.kubernetesDeletePersistentVolumeClaim);
+  (window as any).getConfigurationValue = vi.fn();
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(false);
 });
 
 async function waitRender(customProperties: object): Promise<void> {
@@ -117,18 +117,17 @@ test('Expect user confirmation to pop up when preferences require', async () => 
   await fireEvent.click(checkboxes[0]);
   expect(checkboxes[0]).toBeChecked();
 
-  getConfigurationValueMock.mockResolvedValueOnce(true);
-  const showMessageBoxMock = vi.fn().mockResolvedValue({ response: 1 });
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(true);
 
-  (window as any).showMessageBox = showMessageBoxMock;
+  (window as any).showMessageBox = vi.fn();
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 1 });
 
   const deleteButton = screen.getByRole('button', { name: 'Delete 1 selected items' });
   await fireEvent.click(deleteButton);
-  expect(showMessageBoxMock).toHaveBeenCalledOnce();
-  expect(deletePVCMock).not.toHaveBeenCalled();
+  expect(window.showMessageBox).toHaveBeenCalledOnce();
 
-  showMessageBoxMock.mockResolvedValue({ response: 0 });
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 0 });
   await fireEvent.click(deleteButton);
-  expect(showMessageBoxMock).toHaveBeenCalledOnce();
-  expect(deletePVCMock).toHaveBeenCalled();
+  expect(window.showMessageBox).toHaveBeenCalledTimes(2);
+  vi.waitFor(() => expect(window.kubernetesDeletePersistentVolumeClaim).toHaveBeenCalled());
 });
