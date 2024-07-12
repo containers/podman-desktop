@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,7 +133,7 @@ test('error: When pressing the Play button, expect us to show the errors to the 
   await userEvent.click(browseButton);
 
   // Simulate selecting a runtime
-  const runtimeOption = screen.getByText('Using a Podman container engine');
+  const runtimeOption = screen.getByText('Podman container engine');
   expect(runtimeOption).toBeInTheDocument();
 
   // Simulate clicking the "Play" button
@@ -165,7 +165,7 @@ test('expect done button is there at the end', async () => {
   await userEvent.click(browseButton);
 
   // Simulate selecting a runtime
-  const runtimeOption = screen.getByText('Using a Podman container engine');
+  const runtimeOption = screen.getByText('Podman container engine');
   expect(runtimeOption).toBeInTheDocument();
 
   // Simulate clicking the "Play" button

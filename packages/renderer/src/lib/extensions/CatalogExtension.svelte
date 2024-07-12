@@ -21,7 +21,7 @@ function openExtensionDetails() {
   <!-- if featured need to display a top banner -->
 
   {#if catalogExtensionUI.isFeatured}
-    <div class="bg-dustypurple-500 rounded-t-md px-2 font-light text-xs min-h-6 flex flex-row items-center">
+    <div class="bg-dustypurple-500 rounded-t-md px-2 font-light text-sm min-h-6 flex flex-row items-center">
       Featured
     </div>
   {/if}
@@ -40,19 +40,19 @@ function openExtensionDetails() {
               <div class="line-clamp-2 leading-4 max-h-8 text-[var(--pd-content-header)]">
                 {catalogExtensionUI.displayName}
               </div>
-              <div class="pt-2 text-xs text-[var(--pd-content-text)] line-clamp-1">
+              <div class="pt-2 text-[var(--pd-content-text)] line-clamp-1">
                 {catalogExtensionUI.shortDescription}
               </div>
             </div>
           </div>
-          <div class="pt-1 text-[var(--pd-content-text)] text-xs">{catalogExtensionUI.publisherDisplayName}</div>
+          <div class="pt-1 text-[var(--pd-content-text)] text-sm">{catalogExtensionUI.publisherDisplayName}</div>
         </div>
       </div>
 
       {#if catalogExtensionUI.isInstalled}
         <div class="flex flex-1 text-dustypurple-700 p-1 justify-items-end flex-row place-content-end items-center">
           <Fa class="ml-1.5 mr-2" size="1.1x" icon="{faCheckCircle}" />
-          <div class="uppercase text-xs cursor-default">Already installed</div>
+          <div class="uppercase text-sm cursor-default">Already installed</div>
         </div>
       {:else if catalogExtensionUI.fetchable}
         <div class="flex flex-1 justify-items-end w-18 flex-col items-end place-content-center">
@@ -61,7 +61,7 @@ function openExtensionDetails() {
       {/if}
     </div>
     <div class="items-end flex flex-1">
-      <div class="text-[var(--pd-content-text)] text-xs">
+      <div class="text-[var(--pd-content-text)] text-sm">
         v{catalogExtensionUI.fetchVersion}
         {#if catalogExtensionUI.installedVersion && catalogExtensionUI.installedVersion !== catalogExtensionUI.fetchVersion}
           <span>(installed: v{catalogExtensionUI.installedVersion})</span>

@@ -17,7 +17,7 @@ export let extension: CombinedExtensionInfoUI;
       <div class="flex flex-col ml-2">
         <ExtensionDetailsLink
           displayIcon="{false}"
-          class="my-auto text-xs text-[color:var(--pd-card-header-text)] break-words"
+          class="my-auto text-[color:var(--pd-card-header-text)] break-words"
           extension="{extension}" />
         <div class="flex flex-row">
           <ExtensionStatus status="{extension.type === 'dd' ? 'started' : extension.state}" />

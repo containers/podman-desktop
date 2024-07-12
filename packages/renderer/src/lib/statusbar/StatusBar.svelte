@@ -48,23 +48,15 @@ onMount(async () => {
 </script>
 
 <div
-  class="flex items-center justify-between px-1 bg-[var(--pd-statusbar-bg)] text-[var(--pd-statusbar-text)] text-sm py-0.5 space-x-2 z-40">
-  <div>
-    <ul class="flex flex-wrap gap-x-2 list-none items-center">
-      {#each leftEntries as entry}
-        <li>
-          <StatusBarItem entry="{entry}" />
-        </li>
-      {/each}
-    </ul>
+  class="flex justify-between px-1 bg-[var(--pd-statusbar-bg)] text-[var(--pd-statusbar-text)] text-sm space-x-2 z-40">
+  <div class="flex flex-wrap gap-x-1.5 h-full">
+    {#each leftEntries as entry}
+      <StatusBarItem entry="{entry}" />
+    {/each}
   </div>
-  <div class="place-self-end">
-    <ul class="flex flex-wrap flex-row-reverse gap-x-2 list-none items-center">
-      {#each rightEntries as entry}
-        <li>
-          <StatusBarItem entry="{entry}" />
-        </li>
-      {/each}
-    </ul>
+  <div class="flex flex-wrap flex-row-reverse gap-x-1.5 h-full place-self-end">
+    {#each rightEntries as entry}
+      <StatusBarItem entry="{entry}" />
+    {/each}
   </div>
 </div>

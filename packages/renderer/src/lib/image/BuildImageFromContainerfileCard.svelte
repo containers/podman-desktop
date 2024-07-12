@@ -95,7 +95,7 @@ onMount(() => {
         <Fa class="text-[var(--pd-content-card-icon)] cursor-pointer" icon="{faPlusCircle}" size="1.5x" />
       {/if}
     </div>
-    <div class="ml-2 text-sm text-left break-normal w-36 text-[var(--pd-content-card-text)]">{title}</div>
+    <div class="ml-2 text-left break-normal w-36 text-[var(--pd-content-card-text)]">{title}</div>
     {#if isDefault}
       <Tooltip tip="Default platform of your computer">
         <Fa size="0.5x" class="text-[var(--pd-content-card-border-selected)] cursor-pointer" icon="{faCircle}" />
@@ -107,7 +107,7 @@ onMount(() => {
       {#if badges.length > 0}
         {#each badges as badge}
           <div
-            class="text-[var(--pd-content-card-text)] border-[var(--pd-content-card-border-selected)] border text-xs font-medium me-2 px-2.5 py-0.5 rounded-xl">
+            class="text-[var(--pd-content-card-text)] border-[var(--pd-content-card-border-selected)] border text-sm font-medium me-2 px-2.5 py-0.5 rounded-xl">
             {badge}
           </div>
         {/each}
@@ -115,7 +115,7 @@ onMount(() => {
       {#if displayValueFieldInput}
         <input
           type="text"
-          class="w-40 outline-none text-sm bg-[var(--pd-input-field-bg)] focus:bg-[var(--pd-input-field-focused-bg)] rounded-xs text-[var(--pd-content-text)]"
+          class="w-40 outline-none bg-[var(--pd-input-field-bg)] focus:bg-[var(--pd-input-field-focused-bg)] rounded-xs text-[var(--pd-content-text)]"
           bind:value="{additionalValue}"
           bind:this="{inputHtmlElement}"
           on:keydown="{handleKeydownAdditionalField}" />

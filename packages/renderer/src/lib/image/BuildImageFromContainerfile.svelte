@@ -293,7 +293,7 @@ async function abortBuild() {
   </svelte:fragment>
   <div slot="content" class="space-y-6">
     <div hidden="{buildImageInfo?.buildRunning}">
-      <label for="containerFilePath" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
+      <label for="containerFilePath" class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
         >Containerfile path</label>
       <FileInput
         name="containerFilePath"
@@ -307,7 +307,7 @@ async function abortBuild() {
     <div hidden="{buildImageInfo?.buildRunning}">
       <label
         for="containerBuildContextDirectory"
-        class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]">Build context directory</label>
+        class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]">Build context directory</label>
       <FileInput
         name="containerBuildContextDirectory"
         id="containerBuildContextDirectory"
@@ -318,7 +318,7 @@ async function abortBuild() {
     </div>
 
     <div hidden="{buildImageInfo?.buildRunning}">
-      <label for="containerImageName" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
+      <label for="containerImageName" class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
         >Image name</label>
       <Input
         bind:value="{containerImageName}"
@@ -328,10 +328,10 @@ async function abortBuild() {
         class="w-full"
         required />
       {#if providerConnections.length > 1}
-        <label for="providerChoice" class="py-6 block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
+        <label for="providerChoice" class="py-6 block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
           >Container Engine
           <select
-            class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
+            class="w-full p-2 outline-none bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
             name="providerChoice"
             id="providerChoice"
             bind:value="{selectedProvider}">
@@ -343,7 +343,7 @@ async function abortBuild() {
       {/if}
     </div>
     <div hidden="{buildImageInfo?.buildRunning}">
-      <label for="inputKey" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
+      <label for="inputKey" class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
         >Build arguments</label>
       {#each buildArgs as buildArg, index}
         <div class="flex flex-row items-center space-x-2 mb-2">
@@ -360,12 +360,10 @@ async function abortBuild() {
     </div>
 
     <div hidden="{buildImageInfo?.buildRunning}">
-      <label for="containerBuildPlatform" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
+      <label for="containerBuildPlatform" class="block mb-2 font-semibold text-[var(--pd-content-card-header-text)]"
         >Platform</label>
       {#if platforms.length > 1}
-        <p class="text-sm text-[var(--pd-content-text)] mb-2">
-          Multiple platforms selected, a manifest will be created
-        </p>
+        <p class="text-[var(--pd-content-text)] mb-2">Multiple platforms selected, a manifest will be created</p>
       {/if}
       <BuildImageFromContainerfileCards bind:platforms="{containerBuildPlatform}" />
     </div>

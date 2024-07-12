@@ -44,8 +44,10 @@ onMount(async () => {
   class="z-1 w-leftsidebar min-w-leftsidebar shadow flex-col justify-between flex transition-all duration-500 ease-in-out bg-[var(--pd-secondary-nav-bg)]"
   aria-label="PreferencesNavigation">
   <div class="flex items-center">
-    <div class="pt-4 px-5 mb-10">
-      <p class="text-xl first-letter:uppercase text-[color:var(--pd-secondary-nav-header-text)]">Settings</p>
+    <div class="pt-4 px-3 mb-10">
+      <p class="text-2xl font-bold text-[color:var(--pd-secondary-nav-header-text)] border-l-[4px] border-transparent">
+        Settings
+      </p>
     </div>
   </div>
   <div class="h-full overflow-hidden hover:overflow-y-auto" style="margin-bottom:auto">

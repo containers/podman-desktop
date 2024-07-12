@@ -20,7 +20,7 @@ async function removeNotification(id: number) {
         <Fa size="1.5x" class="text-purple-400" icon="{faCircleInfo}" />
       {/if}
     </div>
-    <div class="flex flex-col text-sm space-y-2">
+    <div class="flex flex-col space-y-2">
       <div class="font-bold" aria-label="Notification title">{notification.title}</div>
       <div aria-label="Notification description"><Markdown markdown="{notification.body ?? ''}" /></div>
     </div>

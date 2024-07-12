@@ -94,9 +94,9 @@ function handleKeydown(e: KeyboardEvent) {
   on:close="{() => {
     closeCallback();
   }}">
-  <div slot="content" class="flex flex-col text-sm leading-5 space-y-5">
+  <div slot="content" class="flex flex-col leading-5 space-y-5">
     <div>
-      <label for="imageName" class="block text-sm pb-2 text-[var(--pd-modal-text)]">OCI Image:</label>
+      <label for="imageName" class="block pb-2 text-[var(--pd-modal-text)]">OCI Image:</label>
       <div class="min-h-14">
         {#if installInProgress || progressPercent !== 100}
           <Input
@@ -125,7 +125,7 @@ function handleKeydown(e: KeyboardEvent) {
                 style="width: {progressPercent}%">
               </div>
             </div>
-            <div class="ml-2 w-3 text-xs text-purple-500">{progressPercent}%</div>
+            <div class="ml-2 w-3 text-sm text-purple-500">{progressPercent}%</div>
           </div>
         {/if}
       </div>

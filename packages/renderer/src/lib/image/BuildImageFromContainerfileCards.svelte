@@ -143,7 +143,7 @@ function addCard(item: { value: string }) {
   {#if !showMoreOptions}
     <button
       aria-label="Show more options"
-      class="pt-2 flex items-center text-sm cursor-pointer text-[var(--pd-content-text)]"
+      class="pt-2 flex items-center cursor-pointer text-[var(--pd-content-text)]"
       on:click="{() => (showMoreOptions = !showMoreOptions)}">
       <Fa icon="{faChevronRight}" class=" mr-2 " />
       More Options...
@@ -173,7 +173,7 @@ function addCard(item: { value: string }) {
     </div>
     <button
       aria-label="Show less options"
-      class="pt-2 flex items-center text-sm cursor-pointer text-[var(--pd-content-text)]"
+      class="pt-2 flex items-center cursor-pointer text-[var(--pd-content-text)]"
       on:click="{() => (showMoreOptions = !showMoreOptions)}">
       <Fa icon="{faChevronCircleDown}" class=" mr-2 transform rotate-90" />
       Less Options...

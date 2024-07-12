@@ -46,7 +46,7 @@ function handleKeydown(e: KeyboardEvent): void {
             <div class="mx-2">&gt;</div>
             <div class="grow font-extralight" aria-label="name">{breadcrumbRightPart}</div>
           {/if}
-          <CloseButton class="justify-self-end" on:click="{onclose}" />
+          <CloseButton class="justify-self-end text-lg" on:click="{onclose}" />
         </div>
       {/if}
       <div class="flex flex-row items-center pt-1">
@@ -55,7 +55,7 @@ function handleKeydown(e: KeyboardEvent): void {
             <slot name="icon" />
           </div>
         {/if}
-        <h1 aria-label="{title}" class="grow text-xl first-letter:uppercase text-[var(--pd-content-header)]">
+        <h1 aria-label="{title}" class="grow text-xl font-bold first-letter:uppercase text-[var(--pd-content-header)]">
           {title}
         </h1>
         <div class="flex items-center space-x-3">

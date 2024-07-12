@@ -236,13 +236,13 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
     <!-- Registries table start -->
     <div class="w-full border-t border-b border-gray-900" role="table" aria-label="Registries">
       <div
-        class="flex w-full space-x-2 text-[var(--pd-invert-content-card-header-text)]"
+        class="flex w-full space-x-2 text-sm font-semibold text-[var(--pd-table-header-text)]"
         role="rowgroup"
         aria-label="header">
-        <div class="text-left py-4 text-sm font-bold w-2/5 pl-5" role="columnheader">Registry Location</div>
-        <div class="text-left py-4 text-sm font-bold w-1/5" role="columnheader">Username</div>
-        <div class="text-left py-4 text-sm font-bold w-1/5" role="columnheader">Password</div>
-        <div class="text-left py-4 text-sm font-bold w-1/5" role="columnheader"></div>
+        <div class="text-left py-4 uppercase w-2/5 pl-5" role="columnheader">Registry Location</div>
+        <div class="text-left py-4 uppercase w-1/5" role="columnheader">Username</div>
+        <div class="text-left py-4 uppercase w-1/5" role="columnheader">Password</div>
+        <div class="text-left py-4 uppercase w-1/5" role="columnheader"></div>
       </div>
 
       {#each $registriesInfos as registry}
@@ -252,7 +252,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
           role="row"
           aria-label="{registry.name ? registry.name : registry.serverUrl}">
           <div class="flex flex-row items-center pt-4 pb-3 space-x-2">
-            <div class="pl-5 text-sm w-2/5" role="cell">
+            <div class="pl-5 w-2/5" role="cell">
               <div class="flex w-full h-full">
                 <div class="flex items-center">
                   <!-- Only show if a "suggested" registry icon has been added -->
@@ -277,7 +277,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
             </div>
 
             <!-- Username -->
-            <div class="text-sm w-1/5 text-ellipsis overflow-hidden" role="cell">
+            <div class="w-1/5 text-ellipsis overflow-hidden" role="cell">
               {#if originRegistries.some(r => r.serverUrl === registry.serverUrl)}
                 <Input placeholder="Username" aria-label="Username" bind:value="{registry.username}" />
               {:else if !registry.username && !registry.secret}
@@ -289,7 +289,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
 
             <!-- Password -->
             {#if originRegistries.some(r => r.serverUrl === registry.serverUrl)}
-              <div class="text-sm w-1/5" role="cell">
+              <div class="w-1/5" role="cell">
                 <PasswordInput
                   id="r.serverUrl"
                   bind:password="{registry.secret}"
@@ -299,12 +299,12 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
                       !showPasswordForServerUrls.some(r => r === registry.serverUrl),
                     )}" />
               </div>
-              <div class="text-sm w-1/5" role="cell">
+              <div class="w-1/5" role="cell">
                 <Button on:click="{() => loginToRegistry(registry)}" inProgress="{loggingIn}">Login</Button>
                 <Button on:click="{() => markRegistryAsClean(registry)}" type="link">Cancel</Button>
               </div>
             {:else}
-              <div class="text-sm w-1/5" role="cell">
+              <div class="w-1/5" role="cell">
                 <!-- Password field start -->
                 <div class="container mx-auto w-full self-center items-center truncate">
                   {#if !registry.username && !registry.secret}
@@ -317,13 +317,13 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
                 </div>
                 <!-- Password field end -->
               </div>
-              <div class="text-sm w-1/5 flex flex-row space-x-2 justify-end" role="cell">
+              <div class="w-1/5 flex flex-row space-x-2 justify-end" role="cell">
                 <!-- Show/hide password start -->
                 {#if registry.username && registry.secret}
                   {#if showPasswordForServerUrls.some(r => r === registry.serverUrl)}
                     <button
                       type="button"
-                      class="justify-center text-sm shadow-sm"
+                      class="justify-center"
                       id="hide-password"
                       title="Hide password"
                       aria-expanded="true"
@@ -334,7 +334,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
                   {:else}
                     <button
                       type="button"
-                      class="justify-center text-sm shadow-sm"
+                      class="justify-center"
                       id="show-password"
                       title="Show password"
                       aria-expanded="true"
@@ -368,7 +368,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
           </div>
         </div>
         <div class="flex flex-row-reverse w-full pb-3 -mt-2">
-          <span class="w-2/3 pl-4 text-sm font-bold">
+          <span class="w-2/3 pl-4 font-bold">
             {#if originRegistries.some(r => r.serverUrl === registry.serverUrl)}
               {errorResponses.find(o => o.serverUrl === registry.serverUrl)?.error ?? ''}
             {/if}
@@ -384,7 +384,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
           role="row"
           aria-label="{registry.name ? registry.name : registry.url}">
           <div class="flex flex-row items-center pt-4 pb-3 space-x-2">
-            <div class="pl-5 text-sm w-2/5" role="cell">
+            <div class="pl-5 w-2/5" role="cell">
               <div class="flex w-full h-full">
                 <div class="flex items-center">
                   {#if registry.icon}
@@ -405,12 +405,12 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
                 </div>
               </div>
             </div>
-            <div class="text-sm w-1/5" role="cell">
+            <div class="w-1/5" role="cell">
               {#if listedSuggestedRegistries[i]}
                 <Input placeholder="Username" aria-label="Username" bind:value="{newRegistryRequest.username}" />
               {/if}
             </div>
-            <div class="text-sm w-1/5" role="cell">
+            <div class="w-1/5" role="cell">
               {#if listedSuggestedRegistries[i]}
                 <PasswordInput
                   id="r.serverUrl"
@@ -422,7 +422,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
                     )}" />
               {/if}
             </div>
-            <div class="text-sm w-1/5 flex space-x-2 justify-end" role="cell">
+            <div class="w-1/5 flex space-x-2 justify-end" role="cell">
               {#if listedSuggestedRegistries[i]}
                 <Button
                   on:click="{() => loginToRegistry(newRegistryRequest)}"
@@ -443,7 +443,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
           </div>
           <div class="flex flex-row w-full pb-3 -mt-2 pl-10">
             {#if listedSuggestedRegistries[i]}
-              <span class="text-sm font-bold whitespace-pre-line">
+              <span class="font-bold whitespace-pre-line">
                 {errorResponses.find(o => o.serverUrl === newRegistryRequest.serverUrl)?.error ?? ''}
               </span>
             {/if}
@@ -456,23 +456,23 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
         <!-- Add new registry form start -->
         <div class="flex flex-col w-full border-t border-gray-900 text-[var(--pd-invert-content-card-text)]">
           <div class="flex flex-row items-center pt-4 pb-3 space-x-2">
-            <div class="pl-5 text-sm w-2/5">
+            <div class="pl-5 w-2/5">
               <Input
                 placeholder="URL (HTTPS only)"
                 aria-label="Register URL"
                 bind:value="{newRegistryRequest.serverUrl}" />
             </div>
-            <div class="text-sm w-1/5">
+            <div class="w-1/5">
               <Input placeholder="Username" aria-label="Username" bind:value="{newRegistryRequest.username}" />
             </div>
-            <div class="text-sm w-1/5">
+            <div class="w-1/5">
               <PasswordInput
                 id="newRegistryRequest"
                 bind:password="{newRegistryRequest.secret}"
                 on:action="{() =>
                   setPasswordForRegistryVisible(newRegistryRequest, !showPasswordForServerUrls.some(r => r === ''))}" />
             </div>
-            <div class="text-sm w-1/5 flex space-x-2 justify-end" role="cell">
+            <div class="w-1/5 flex space-x-2 justify-end" role="cell">
               <Button
                 on:click="{() => loginToRegistry(newRegistryRequest)}"
                 disabled="{!newRegistryRequest.serverUrl || !newRegistryRequest.username || !newRegistryRequest.secret}"
@@ -483,7 +483,7 @@ function removeExistingRegistry(registry: containerDesktopAPI.Registry) {
             </div>
           </div>
           <div class="flex flex-row w-full pb-3 -mt-2 pl-10">
-            <span class="text-sm font-bold whitespace-pre-line">
+            <span class="font-bold whitespace-pre-line">
               {errorResponses.find(o => o.serverUrl === newRegistryRequest.serverUrl)?.error ?? ''}
             </span>
           </div>

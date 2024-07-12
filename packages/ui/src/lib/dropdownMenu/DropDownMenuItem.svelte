@@ -16,10 +16,10 @@ const disabledClasses = 'text-[var(--pd-dropdown-disabled-item-text)] bg-[var(--
 
 {#if !hidden}
   <!-- Use a div + onclick so there's no "blind spots" for when clicking-->
-  <div class="{`p-3 ${enabled ? enabledClasses : disabledClasses}`}" role="none" on:click="{onClick}">
+  <div class="{`p-2.5 ${enabled ? enabledClasses : disabledClasses}`}" role="none" on:click="{onClick}">
     <span
       title="{tooltip !== '' ? tooltip : title}"
-      class="group flex items-center text-sm no-underline whitespace-nowrap"
+      class="group flex items-center no-underline whitespace-nowrap"
       tabindex="-1">
       {#if typeof icon === 'string'}
         <span role="img" aria-label="{title}" class="{icon} h-4 w-4"></span>
