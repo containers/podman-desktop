@@ -9,7 +9,6 @@ export let object: ConfigMapSecretUI;
 function openDetails() {
   const configmapSecretUtils = new ConfigMapSecretUtils();
   if (configmapSecretUtils.isSecret(object)) {
-    console.log('going to secret!');
     router.goto(`/configmapsSecrets/secret/${encodeURI(object.name)}/${encodeURI(object.namespace)}/summary`);
   }
 
