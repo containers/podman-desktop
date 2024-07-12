@@ -20,7 +20,7 @@ export let displayTitle: boolean = false;
   aria-label="{featuredExtension.displayName}">
   <div class="flex flex-col flex-1">
     {#if displayTitle}
-      <span class="text-sm font-bold mb-1.5">EXTENSION</span>
+      <span class="text-sm font-bold mb-1.5 text-[var(--pd-details-card-text)]">EXTENSION</span>
     {/if}
     <div class="flex flex-row place-items-center flex-1">
       <div>
@@ -29,7 +29,7 @@ export let displayTitle: boolean = false;
           alt="{featuredExtension.displayName} logo"
           src="{featuredExtension.icon}" />
       </div>
-      <div class="flex flex-1 mx-2 cursor-default font-bold justify-start">
+      <div class="flex flex-1 mx-2 cursor-default font-bold justify-start text-[var(--pd-details-body-text)]">
         {featuredExtension.displayName}
       </div>
       <div class="h-full w-18 flex flex-col items-end place-content-center">
