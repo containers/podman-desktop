@@ -5231,13 +5231,17 @@
     "@storybook/global" "^5.0.0"
     ts-dedent "^2.0.0"
 
-"@storybook/addon-svelte-csf@5.0.0--canary.181.6105951.0":
-  version "5.0.0--canary.181.6105951.0"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-svelte-csf/-/addon-svelte-csf-5.0.0--canary.181.6105951.0.tgz#77246de3ed429c5b3c76cd22ac52a59833d901ef"
-  integrity sha512-zbnrDlvudlYEv7iUCVgLrZHKF9q3EDdAhI4Zn21vUhq9TGh2Sgit2uZn3Ilq6kEPJbj+ZhV+zPSXPBy2RsjFDg==
+"@storybook/addon-svelte-csf@5.0.0--canary.181.0e80e58.0":
+  version "5.0.0--canary.181.0e80e58.0"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-svelte-csf/-/addon-svelte-csf-5.0.0--canary.181.0e80e58.0.tgz#f0a0a6f649e4c26010c7941df64050ad2b82dc6d"
+  integrity sha512-c3KxfW32n6jJg7OXY2TAf+52/6JfpfCXqx0hJauMR3y12ge0ousHAxgq21AgN5VzXH5pbasIhGheKFG9UrzXeQ==
   dependencies:
+    "@storybook/csf" "^0.1.11"
+    "@storybook/node-logger" "^8.0.0"
+    "@storybook/types" "^8.0.0"
     dedent "^1.5.3"
     esrap "^1.2.2"
+    lodash-es "^4.17.21"
     magic-string "^0.30.10"
     zimmerframe "^1.1.2"
 
@@ -5521,7 +5525,7 @@
     recast "^0.23.5"
     ts-dedent "^2.0.0"
 
-"@storybook/csf@0.1.11", "@storybook/csf@^0.1.7":
+"@storybook/csf@0.1.11", "@storybook/csf@^0.1.11", "@storybook/csf@^0.1.7":
   version "0.1.11"
   resolved "https://registry.yarnpkg.com/@storybook/csf/-/csf-0.1.11.tgz#ad685a4fe564a47a6b73571c2e7c07b526f4f71b"
   integrity sha512-dHYFQH3mA+EtnCkHXzicbLgsvzYjcDJ1JWsogbItZogkPHgSJM/Wr71uMkcvw8v9mmCyP4NpXJuu6bPoVsOnzg==
@@ -5582,6 +5586,11 @@
   version "8.1.11"
   resolved "https://registry.yarnpkg.com/@storybook/node-logger/-/node-logger-8.1.11.tgz#451750347869cf128a02acfee8232d9952f99953"
   integrity sha512-wdzFo7B2naGhS52L3n1qBkt5BfvQjs8uax6B741yKRpiGgeAN8nz8+qelkD25MbSukxvbPgDot7WJvsMU/iCzg==
+
+"@storybook/node-logger@^8.0.0":
+  version "8.2.2"
+  resolved "https://registry.yarnpkg.com/@storybook/node-logger/-/node-logger-8.2.2.tgz#98b433a4e21620d1efe203bd3ca54cbfdc0cb57c"
+  integrity sha512-s6XApF3u+razMHA05du3TkW7znQWmzCcN2lh32c0bhwtFhvahsgtt0GmZwkhQrCBC2mE4qPZuFBxF1zd+lY1Ag==
 
 "@storybook/preview-api@8.1.11":
   version "8.1.11"
@@ -5685,6 +5694,11 @@
     "@storybook/channels" "8.1.11"
     "@types/express" "^4.7.0"
     file-system-cache "2.3.0"
+
+"@storybook/types@^8.0.0":
+  version "8.2.2"
+  resolved "https://registry.yarnpkg.com/@storybook/types/-/types-8.2.2.tgz#1021a8cfe3523ac859414ede02e405c893f226c1"
+  integrity sha512-SlwfeluJC/FgTPIda4ivjSeCyi7G8krWZDX/FzM3k6MtZdDsV9vdg1ttBObugn6AESy4Zh+unePo7SbD8/sSfQ==
 
 "@sveltejs/package@^2.3.2":
   version "2.3.2"
