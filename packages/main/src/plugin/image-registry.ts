@@ -25,6 +25,7 @@ import { pipeline } from 'node:stream/promises';
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import type * as Dockerode from 'dockerode';
+import * as fzstd from 'fzstd';
 import type { HttpsOptions, OptionsOfTextResponseBody } from 'got';
 import got, { HTTPError, RequestError } from 'got';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
@@ -488,12 +489,28 @@ export class ImageRegistry {
     const manifest = await this.getManifest(imageData, token);
 
     // now, get all layers 'application/vnd.oci.image.layer.v1.tar+gzip' and download and expand them
-    const layers = manifest.layers.filter(
+    const gzipLayers = manifest.layers.filter(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (layer: any) =>
         layer.mediaType === 'application/vnd.oci.image.layer.v1.tar+gzip' ||
         layer.mediaType === 'application/vnd.docker.image.rootfs.diff.tar.gzip',
     );
+
+    const zstdLayers = manifest.layers.filter(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (layer: any) => layer.mediaType === 'application/vnd.oci.image.layer.v1.tar+zstd',
+    );
+
+    let layers: { digest: string; size: number; mediaType: string }[] = [];
+    if (zstdLayers.length > 0) {
+      // using zstd layers
+      layers = zstdLayers;
+    } else if (gzipLayers.length > 0) {
+      // using gzip layers
+      layers = gzipLayers;
+    } else {
+      throw new Error(`No gzip or zstd layers found for the image ${imageName}`);
+    }
 
     // total size of all layers
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -503,7 +520,20 @@ export class ImageRegistry {
     let currentDownloaded = 0;
     for (const layer of layers) {
       const layerDigest = layer.digest;
-      await this.fetchAndExtractLayer(imageData, layerDigest, destFolder, token, currentDownloaded, totalSize, logger);
+      let compressionType: 'gzip' | 'zstd' = 'gzip';
+      if (layer.mediaType === 'application/vnd.oci.image.layer.v1.tar+zstd') {
+        compressionType = 'zstd';
+      }
+      await this.fetchAndExtractLayer(
+        imageData,
+        layerDigest,
+        compressionType,
+        destFolder,
+        token,
+        currentDownloaded,
+        totalSize,
+        logger,
+      );
       currentDownloaded += layer.size;
     }
   }
@@ -511,6 +541,7 @@ export class ImageRegistry {
   protected async fetchAndExtractLayer(
     imageData: ImageRegistryNameTag,
     digest: string,
+    compressionType: 'gzip' | 'zstd',
     destFolder: string,
     token: string,
     currentDownloaded: number,
@@ -530,7 +561,8 @@ export class ImageRegistry {
       await fs.promises.mkdir(destFolder, { recursive: true });
     }
 
-    const tmpFileName = path.resolve(os.tmpdir(), `${digestWithoutSpecialChars}.tar`);
+    const suffix = compressionType === 'gzip' ? '.tar' : '.zst';
+    const tmpFileName = path.resolve(os.tmpdir(), `${digestWithoutSpecialChars}${suffix}`);
 
     // ensure the folder exists
     const parentDir = path.dirname(tmpFileName);
@@ -544,10 +576,24 @@ export class ImageRegistry {
 
     readStream.on('downloadProgress', ({ transferred }) => {
       const globalPercentage = Math.round(((transferred + currentDownloaded) / totalSize) * 100);
-      logger(`Downloading ${digest}.tar - ${globalPercentage}% - (${transferred + currentDownloaded}/${totalSize})`);
+      logger(
+        `Downloading ${digest}${suffix} - ${globalPercentage}% - (${transferred + currentDownloaded}/${totalSize})`,
+      );
     });
     await pipeline(readStream, createWriteStream(tmpFileName));
-    await nodeTar.extract({ file: tmpFileName, cwd: destFolder });
+    // in case of zstd, we need to unpack the file first
+    if (compressionType === 'zstd') {
+      //use fstd library to extract the file
+      const content = await fs.promises.readFile(tmpFileName);
+      const decompressed = fzstd.decompress(content);
+      const unpackedFileName = tmpFileName.replace('.zst', '.tar');
+      await fs.promises.writeFile(unpackedFileName, decompressed);
+      await nodeTar.extract({ file: unpackedFileName, cwd: destFolder });
+      // remove the temporary file
+      await fs.promises.rm(tmpFileName);
+    } else {
+      await nodeTar.extract({ file: tmpFileName, cwd: destFolder });
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
