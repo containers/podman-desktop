@@ -49,6 +49,7 @@ function handleMousedown(e: MouseEvent): void {
 
 <div class:items-center={!top} class="fixed top-0 left-0 right-0 bottom-0 w-full h-full flex justify-center z-50">
   <div
+    aria-label="fade-bg"
     class="fixed top-0 left-0 w-full h-full bg-[var(--pd-modal-fade)] bg-blend-multiply opacity-60 z-40 cursor-default">
   </div>
   <div
