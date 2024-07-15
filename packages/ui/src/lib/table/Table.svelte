@@ -180,7 +180,7 @@ function toggleChildren(name: string | undefined): void {
 }
 </script>
 
-<div class="w-full mx-5" class:hidden="{data.length === 0}" role="table">
+<div class="w-full mx-5" class:hidden="{data.length === 0}" role="table" aria-label="{kind}">
   <!-- Table header -->
   <div role="rowgroup">
     <div
@@ -228,7 +228,7 @@ function toggleChildren(name: string | undefined): void {
   <!-- Table body -->
   <div role="rowgroup">
     {#each data as object (object)}
-      <div class="min-h-[48px] h-fit bg-[var(--pd-content-card-bg)] rounded-lg mb-2" role="row">
+      <div class="min-h-[48px] h-fit bg-[var(--pd-content-card-bg)] rounded-lg mb-2">
         <div
           class="grid grid-table gap-x-0.5 min-h-[48px] hover:bg-[var(--pd-content-card-hover-bg)]"
           class:rounded-t-lg="{object.name &&
@@ -239,6 +239,7 @@ function toggleChildren(name: string | undefined): void {
             collapsed.includes(object.name) ||
             !row.info.children ||
             row.info.children(object).length === 0}"
+          role="row"
           aria-label="{object.name}">
           <div class="whitespace-nowrap place-self-center" role="cell">
             {#if row.info.children && row.info.children(object).length > 0}
@@ -286,6 +287,7 @@ function toggleChildren(name: string | undefined): void {
             <div
               class="grid grid-table gap-x-0.5 hover:bg-[var(--pd-content-card-hover-bg)]"
               class:rounded-b-lg="{i === row.info.children(object).length - 1}"
+              role="row"
               aria-label="{child.name}">
               <div class="whitespace-nowrap justify-self-start" role="cell"></div>
               {#if row.info.selectable}
