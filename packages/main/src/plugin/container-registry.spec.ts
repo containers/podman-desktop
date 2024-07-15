@@ -422,6 +422,10 @@ beforeEach(() => {
   containerRegistry = new TestContainerProviderRegistry(apiSender, configurationRegistry, imageRegistry, telemetry);
 });
 
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 test('tag should reject if no provider', async () => {
   await expect(
     containerRegistry.tagImage('dummy', 'image:latest', 'quay.io/podman-desktop/image'),
@@ -2327,7 +2331,6 @@ describe('createVolume', () => {
     const providerRegistry: ProviderRegistry = {
       onBeforeDidUpdateContainerConnection: vi.fn(),
       onDidUpdateContainerConnection: vi.fn(),
-      onAfterDidUpdateContainerConnection: vi.fn(),
     } as unknown as ProviderRegistry;
 
     containerRegistry.registerContainerConnection(podmanProvider, containerProviderConnection, providerRegistry);
@@ -2376,7 +2379,6 @@ describe('deleteVolume', () => {
     const providerRegistry: ProviderRegistry = {
       onBeforeDidUpdateContainerConnection: vi.fn(),
       onDidUpdateContainerConnection: vi.fn(),
-      onAfterDidUpdateContainerConnection: vi.fn(),
     } as unknown as ProviderRegistry;
 
     containerRegistry.registerContainerConnection(podmanProvider, containerProviderConnection, providerRegistry);
@@ -5122,7 +5124,6 @@ describe('provider update', () => {
       onBeforeDidUpdateContainerConnection: (
         listener: (event: podmanDesktopAPI.UpdateContainerConnectionEvent) => void,
       ) => onBeforeUpdateListeners.push(listener),
-      onAfterDidUpdateContainerConnection: vi.fn(),
     } as unknown as ProviderRegistry;
 
     // default to started
@@ -5153,6 +5154,9 @@ describe('provider update', () => {
   });
 
   test('started update should setup connection API ', async () => {
+    vi.useFakeTimers();
+    expect(vi.isFakeTimers()).toBeTruthy();
+
     const statusMock = vi.fn();
 
     const internalContainerProvider: InternalContainerProvider = {
@@ -5186,13 +5190,8 @@ describe('provider update', () => {
       id: 'podman',
     } as unknown as podmanDesktopAPI.Provider;
 
-    const onAfterListener: ((event: podmanDesktopAPI.UpdateContainerConnectionEvent) => void)[] = [];
-
     const providerRegistry: ProviderRegistry = {
       onBeforeDidUpdateContainerConnection: vi.fn(),
-      onAfterDidUpdateContainerConnection: (
-        listener: (event: podmanDesktopAPI.UpdateContainerConnectionEvent) => void,
-      ) => onAfterListener.push(listener),
     } as unknown as ProviderRegistry;
 
     // default to stopped
@@ -5207,18 +5206,15 @@ describe('provider update', () => {
 
     // mock the new status to started
     statusMock.mockReturnValue('started');
-    const event: podmanDesktopAPI.UpdateContainerConnectionEvent = {
-      providerId: 'podman',
-      connection: containerProviderConnection,
-      status: 'started',
-    };
 
-    // send the event stating that the provider has started
-    onAfterListener.forEach(listener => listener(event));
+    vi.advanceTimersByTime(2000);
 
-    // let's get the podman engine, it should be running, and have defined api&libpodApi
-    const internal = containerRegistry.getMatchingPodmanEngine('podman.podman');
-    expect(internal.api).toBeDefined();
-    expect(internal.libpodApi).toBeDefined();
+    // wait for SetInterval to proceed the update
+    await vi.waitFor(() => {
+      // let's get the podman engine, it should be running, and have defined api&libpodApi
+      const internal = containerRegistry.getMatchingPodmanEngine('podman.podman');
+      expect(internal.api).toBeDefined();
+      expect(internal.libpodApi).toBeDefined();
+    });
   });
 });

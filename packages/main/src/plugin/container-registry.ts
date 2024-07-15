@@ -330,20 +330,6 @@ export class ContainerProviderRegistry {
       previousStatus = event.status;
     });
 
-    // we need to call setupConnectionAPI after the update, as it is checking that the connection
-    // is started.
-    providerRegistry.onAfterDidUpdateContainerConnection(event => {
-      if (
-        event.providerId === provider.id && // ensure provider id is matching
-        event.connection.name === containerProviderConnection.name && // ensure connection is matching
-        event.status === 'started' && // when status is started
-        !internalProvider.api &&
-        !internalProvider.libpodApi // api & libpodApi are undefined we need to setup
-      ) {
-        this.setupConnectionAPI(internalProvider, containerProviderConnection);
-      }
-    });
-
     if (containerProviderConnection.status() === 'started') {
       this.setupConnectionAPI(internalProvider, containerProviderConnection);
     }
@@ -351,18 +337,15 @@ export class ContainerProviderRegistry {
     // track the status of the provider
     const timer = setInterval(() => {
       const newStatus = containerProviderConnection.status();
-      if (newStatus !== previousStatus) {
-        if (newStatus === 'stopped') {
-          internalProvider.api = undefined;
-          internalProvider.libpodApi = undefined;
-          this.apiSender.send('provider-change', {});
-        }
-        if (newStatus === 'started') {
-          this.setupConnectionAPI(internalProvider, containerProviderConnection);
-          this.internalProviders.set(id, internalProvider);
-        }
-        previousStatus = newStatus;
+      if (newStatus === 'started' && !internalProvider.api) {
+        this.setupConnectionAPI(internalProvider, containerProviderConnection);
+        this.internalProviders.set(id, internalProvider);
+      } else if (newStatus !== previousStatus && newStatus === 'stopped') {
+        internalProvider.api = undefined;
+        internalProvider.libpodApi = undefined;
+        this.apiSender.send('provider-change', {});
       }
+      previousStatus = newStatus;
     }, 2000);
 
     this.internalProviders.set(id, internalProvider);
