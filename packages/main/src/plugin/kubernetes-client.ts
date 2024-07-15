@@ -830,7 +830,6 @@ export class KubernetesClient {
   }
 
   async readNamespacedPod(name: string, namespace: string): Promise<V1Pod | undefined> {
-    let telemetryOptions = {};
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedPod(name, namespace);
@@ -839,15 +838,12 @@ export class KubernetesClient {
       }
       return res?.body;
     } catch (error) {
-      telemetryOptions = { error: error };
+      this.telemetry.track('kubernetesReadNamespacedPod.error', error);
       throw this.wrapK8sClientError(error);
-    } finally {
-      this.telemetry.track('kubernetesReadNamespacedPod', telemetryOptions);
     }
   }
 
   async readNamespacedDeployment(name: string, namespace: string): Promise<V1Deployment | undefined> {
-    let telemetryOptions = {};
     const k8sAppsApi = this.kubeConfig.makeApiClient(AppsV1Api);
     try {
       const res = await k8sAppsApi.readNamespacedDeployment(name, namespace);
@@ -856,10 +852,8 @@ export class KubernetesClient {
       }
       return res?.body;
     } catch (error) {
-      telemetryOptions = { error: error };
+      this.telemetry.track('kubernetesReadNamespacedDeployment.error', error);
       throw this.wrapK8sClientError(error);
-    } finally {
-      this.telemetry.track('kubernetesReadNamespacedDeployment', telemetryOptions);
     }
   }
 
@@ -867,7 +861,6 @@ export class KubernetesClient {
     name: string,
     namespace: string,
   ): Promise<V1PersistentVolumeClaim | undefined> {
-    let telemetryOptions = {};
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedPersistentVolumeClaim(name, namespace);
@@ -876,15 +869,12 @@ export class KubernetesClient {
       }
       return res?.body;
     } catch (error) {
-      telemetryOptions = { error: error };
+      this.telemetry.track('kubernetesReadNamespacedPersistentVolumeClaim.error', error);
       throw this.wrapK8sClientError(error);
-    } finally {
-      this.telemetry.track('kubernetesReadNamespacedPersistentVolumeClaim', telemetryOptions);
     }
   }
 
   async readNode(name: string): Promise<V1Node | undefined> {
-    let telemetryOptions = {};
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNode(name);
@@ -893,15 +883,12 @@ export class KubernetesClient {
       }
       return res?.body;
     } catch (error) {
-      telemetryOptions = { error: error };
+      this.telemetry.track('kubernetesReadNode.error', error);
       throw this.wrapK8sClientError(error);
-    } finally {
-      this.telemetry.track('kubernetesReadNode', telemetryOptions);
     }
   }
 
   async readNamespacedIngress(name: string, namespace: string): Promise<V1Ingress | undefined> {
-    let telemetryOptions = {};
     const k8sNetworkingApi = this.kubeConfig.makeApiClient(NetworkingV1Api);
     try {
       const res = await k8sNetworkingApi.readNamespacedIngress(name, namespace);
@@ -910,15 +897,12 @@ export class KubernetesClient {
       }
       return res?.body;
     } catch (error) {
-      telemetryOptions = { error: error };
+      this.telemetry.track('kubernetesReadNamespacedIngress.error', error);
       throw this.wrapK8sClientError(error);
-    } finally {
-      this.telemetry.track('kubernetesReadNamespacedIngress', telemetryOptions);
     }
   }
 
   async readNamespacedRoute(name: string, namespace: string): Promise<V1Route | undefined> {
-    let telemetryOptions = {};
     const k8sCustomObjectsApi = this.kubeConfig.makeApiClient(CustomObjectsApi);
     try {
       const res = await k8sCustomObjectsApi.getNamespacedCustomObject(
@@ -934,15 +918,12 @@ export class KubernetesClient {
       }
       return route;
     } catch (error) {
-      telemetryOptions = { error: error };
+      this.telemetry.track('kubernetesReadNamespacedRoute.error', error);
       throw this.wrapK8sClientError(error);
-    } finally {
-      this.telemetry.track('kubernetesReadNamespacedRoute', telemetryOptions);
     }
   }
 
   async readNamespacedService(name: string, namespace: string): Promise<V1Service | undefined> {
-    let telemetryOptions = {};
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedService(name, namespace);
@@ -951,15 +932,12 @@ export class KubernetesClient {
       }
       return res?.body;
     } catch (error) {
-      telemetryOptions = { error: error };
+      this.telemetry.track('kubernetesReadNamespacedService.error', error);
       throw this.wrapK8sClientError(error);
-    } finally {
-      this.telemetry.track('kubernetesReadNamespacedService', telemetryOptions);
     }
   }
 
   async readNamespacedConfigMap(name: string, namespace: string): Promise<V1ConfigMap | undefined> {
-    let telemetryOptions = {};
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedConfigMap(name, namespace);
@@ -968,15 +946,12 @@ export class KubernetesClient {
       }
       return res?.body;
     } catch (error) {
-      telemetryOptions = { error: error };
+      this.telemetry.track('kubernetesReadNamespacedConfigMap.error', error);
       throw this.wrapK8sClientError(error);
-    } finally {
-      this.telemetry.track('kubernetesReadNamespacedConfigMap', telemetryOptions);
     }
   }
 
   async readNamespacedSecret(name: string, namespace: string): Promise<V1Secret | undefined> {
-    let telemetryOptions = {};
     const k8sApi = this.kubeConfig.makeApiClient(CoreV1Api);
     try {
       const res = await k8sApi.readNamespacedSecret(name, namespace);
@@ -985,10 +960,8 @@ export class KubernetesClient {
       }
       return res?.body;
     } catch (error) {
-      telemetryOptions = { error: error };
+      this.telemetry.track('kubernetesReadNamespacedSecret.error', error);
       throw this.wrapK8sClientError(error);
-    } finally {
-      this.telemetry.track('kubernetesReadNamespacedSecret', telemetryOptions);
     }
   }
 
