@@ -576,7 +576,7 @@ function updateKubeResult() {
             </ul>
           {/if}
           {#if createdRoutes && createdRoutes.length > 0}
-            <p class="pt-2">Endpoints:</p>
+            <p class="pt-2" aria-label="Endpoints">Endpoints:</p>
             <ul class="list-disc list-inside">
               {#each createdRoutes as createdRoute}
                 <li class="pt-2">

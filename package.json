@@ -56,7 +56,7 @@
     "test:e2e:extension": "npm run test:e2e:build && npm run test:e2e:extension:run",
     "test:e2e:extension:run": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- vitest run tests/playwright/src/specs/extension-installation.spec.ts --pool=threads --poolOptions.threads.singleThread --poolOptions.threads.isolate --no-file-parallelism",
     "test:e2e:copy": "cp ../podman-desktop-extension-bootc/tests/src/bootc-extension.spec.ts tests/src/",
-    "test:main": "vitest run -r packages/main --passWithNoTests --coverage",
+    "test:main": "vitest run -r packages/main --passWithNoTests --coverage --pool=threads",
     "test:preload": "vitest run -r packages/preload --passWithNoTests --coverage",
     "test:preload-docker-extension": "vitest run -r packages/preload-docker-extension --passWithNoTests --coverage",
     "test:preload-webview": "vitest run -r packages/preload-webview --coverage",
