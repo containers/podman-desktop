@@ -24,7 +24,7 @@ import { Octokit } from '@octokit/rest';
 import * as extensionApi from '@podman-desktop/api';
 import { ProgressLocation } from '@podman-desktop/api';
 
-import { installBinaryToSystem, isWindows } from './util';
+import { installBinaryToSystem } from './util';
 
 const githubOrganization = 'kubernetes-sigs';
 const githubRepo = 'kind';
@@ -109,75 +109,84 @@ export class KindInstaller {
     return assetInfo !== undefined;
   }
 
-  async performInstall(): Promise<boolean> {
+  protected async withConfirmation(text: string): Promise<boolean> {
+    const result = await extensionApi.window.showInformationMessage(text, 'Yes', 'Cancel');
+    return result === 'Yes';
+  }
+
+  getInternalDestinationPath(): string {
+    return path.resolve(this.storagePath, extensionApi.env.isWindows ? 'kind.exe' : 'kind');
+  }
+
+  /**
+   * (1) Download the latest binary in the extension storage path.
+   * (2) Ask the user if they want to install system-wide
+   * @return the path where the binary is installed
+   */
+  async performInstall(): Promise<string> {
     this.telemetryLogger.logUsage('install-kind-prompt');
-    const dialogResult = await extensionApi.window.showInformationMessage(
+    const confirm = await this.withConfirmation(
       'The kind binary is required for local Kubernetes development, would you like to download it?',
-      'Yes',
-      'Cancel',
     );
-    if (dialogResult === 'Yes') {
-      this.telemetryLogger.logUsage('install-kind-prompt-yes');
-      return extensionApi.window.withProgress(
-        { location: ProgressLocation.TASK_WIDGET, title: 'Installing kind' },
-        async progress => {
-          progress.report({ increment: 5 });
-          try {
-            const assetInfo = await this.getAssetInfo();
-            if (assetInfo) {
-              const octokit = new Octokit();
-              const asset = await octokit.repos.getReleaseAsset({
-                owner: githubOrganization,
-                repo: githubRepo,
-                asset_id: assetInfo.id,
-                headers: {
-                  accept: 'application/octet-stream',
-                },
-              });
-              progress.report({ increment: 80 });
-              if (asset) {
-                const destFile = path.resolve(this.storagePath, isWindows() ? assetInfo.name + '.exe' : assetInfo.name);
-                if (!fs.existsSync(this.storagePath)) {
-                  fs.mkdirSync(this.storagePath);
-                }
-                fs.appendFileSync(destFile, Buffer.from(asset.data as unknown as ArrayBuffer));
-                if (!isWindows()) {
-                  const stat = fs.statSync(destFile);
-                  fs.chmodSync(destFile, stat.mode | fs.constants.S_IXUSR);
-                }
-                // Explain to the user that the binary has been successfully installed to the storage path
-                // prompt and ask if they want to install it system-wide (copied to /usr/bin/, or AppData for Windows)
-                const result = await extensionApi.window.showInformationMessage(
-                  `Kind binary has been successfully downloaded to ${destFile}.\n\nWould you like to install it system-wide for accessibility on the command line? This will require administrative privileges.`,
-                  'Yes',
-                  'Cancel',
-                );
-                if (result === 'Yes') {
-                  try {
-                    // Move the binary file to the system from destFile and rename to 'kind'
-                    await installBinaryToSystem(destFile, 'kind');
-                    await extensionApi.window.showInformationMessage(
-                      'Kind binary has been successfully installed system-wide.',
-                    );
-                  } catch (error) {
-                    console.error(error);
-                    await extensionApi.window.showErrorMessage(`Unable to install kind binary: ${error}`);
-                  }
-                }
-                this.telemetryLogger.logUsage('install-kind-downloaded');
-                extensionApi.window.showNotification({ body: 'Kind is successfully installed.' });
-                return true;
-              }
-            }
-          } finally {
-            progress.report({ increment: -1 });
-          }
-          return false;
-        },
-      );
-    } else {
+    if (!confirm) {
       this.telemetryLogger.logUsage('install-kind-prompt-no');
+      throw new Error('user cancel installation');
     }
-    return false;
+
+    this.telemetryLogger.logUsage('install-kind-prompt-yes');
+
+    return extensionApi.window.withProgress<string>(
+      { location: ProgressLocation.TASK_WIDGET, title: 'Installing kind' },
+      async progress => {
+        progress.report({ increment: 5 });
+
+        const assetInfo = await this.getAssetInfo();
+        if (!assetInfo) throw new Error('cannot find assets for kind');
+
+        const octokit = new Octokit();
+        const asset = await octokit.repos.getReleaseAsset({
+          owner: githubOrganization,
+          repo: githubRepo,
+          asset_id: assetInfo.id,
+          headers: {
+            accept: 'application/octet-stream',
+          },
+        });
+        if (!asset) throw new Error(`cannot get release asset for ${assetInfo.id}`);
+
+        progress.report({ increment: 80 });
+        const destFile = this.getInternalDestinationPath();
+        if (!fs.existsSync(this.storagePath)) {
+          fs.mkdirSync(this.storagePath);
+        }
+        fs.appendFileSync(destFile, Buffer.from(asset.data as unknown as ArrayBuffer));
+        if (!extensionApi.env.isWindows) {
+          const stat = fs.statSync(destFile);
+          fs.chmodSync(destFile, stat.mode | fs.constants.S_IXUSR);
+        }
+
+        // Explain to the user that the binary has been successfully installed to the storage path
+        // prompt and ask if they want to install it system-wide (copied to /usr/bin/, or AppData for Windows)
+        const result = await this.withConfirmation(
+          `Kind binary has been successfully downloaded to ${destFile}.\n\nWould you like to install it system-wide for accessibility on the command line? This will require administrative privileges.`,
+        );
+        if (!result) {
+          return destFile;
+        }
+
+        try {
+          // Move the binary file to the system from destFile and rename to 'kind'
+          const systemPath = await installBinaryToSystem(destFile, 'kind');
+          await extensionApi.window.showInformationMessage('Kind binary has been successfully installed system-wide.');
+          this.telemetryLogger.logUsage('install-kind-downloaded');
+          extensionApi.window.showNotification({ body: 'Kind is successfully installed.' });
+          return systemPath;
+        } catch (error) {
+          console.error(error);
+          await extensionApi.window.showErrorMessage(`Unable to install kind binary: ${error}`);
+          throw error;
+        }
+      },
+    );
   }
 }
