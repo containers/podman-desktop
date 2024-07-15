@@ -19,6 +19,7 @@ let multiline = false;
 
 let validationEnabled = false;
 let validationError: string | undefined = '';
+let ignoreFocusOut = false;
 
 let onSelectCallbackEnabled = false;
 
@@ -50,6 +51,7 @@ const showInputCallback = (inputCallpackParameter: unknown) => {
   multiline = options?.multiline ?? false;
 
   validationEnabled = options?.validate ?? false;
+  ignoreFocusOut = options?.ignoreFocusOut ?? false;
   display = true;
   tick()
     .then(() => {
@@ -71,6 +73,7 @@ const showQuickPickCallback = (quickpickParameter: unknown) => {
   placeHolder = options?.placeHolder;
   title = options?.title;
   currentId = options?.id ?? 0;
+  ignoreFocusOut = options?.ignoreFocusOut ?? false;
   if (options?.prompt) {
     prompt = options.prompt;
   }
@@ -178,6 +181,7 @@ function cleanup() {
   quickPickCanPickMany = false;
   quickPickSelectedFilteredIndex = 0;
   quickPickSelectedIndex = 0;
+  ignoreFocusOut = false;
 }
 
 function validateQuickPick() {
@@ -277,19 +281,12 @@ function handleKeydown(e: KeyboardEvent) {
     }
   }
 }
-
-function handleMousedown(e: MouseEvent) {
-  if (outerDiv && !e.defaultPrevented && e.target instanceof Node && !outerDiv.contains(e.target)) {
-    window.sendShowQuickPickValues(currentId, []);
-    cleanup();
-  }
-}
 </script>
 
-<svelte:window on:keydown={handleKeydown} on:mousedown={handleMousedown} />
+<svelte:window on:keydown={handleKeydown} />
 
 {#if display}
-  <Modal on:close={onClose} name={title} top>
+  <Modal on:close={onClose} name={title} top ignoreFocusOut={ignoreFocusOut}>
     <div class="flex justify-center items-center mt-1">
       <div
         bind:this={outerDiv}

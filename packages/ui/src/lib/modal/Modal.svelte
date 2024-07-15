@@ -8,6 +8,7 @@ const dispatch = createEventDispatcher();
 let modal: HTMLDivElement;
 export let name = '';
 export let top: boolean = false;
+export let ignoreFocusOut: boolean = false;
 export let onclose: () => void = () => {
   dispatch('close');
 };
@@ -30,16 +31,26 @@ if (previously_focused) {
     previously_focused.focus();
   });
 }
+
+function handleMousedown(e: MouseEvent): void {
+  // if click is outside modal but
+  if (modal && e.target instanceof Node && e.target !== modal && !modal.contains(e.target)) {
+    // if ignoreFocusOut is true, we do nothing and stop propagation of the click, else we dispatch the close
+    if (ignoreFocusOut) {
+      e.stopPropagation();
+    } else {
+      onclose();
+    }
+  }
+}
 </script>
 
-<svelte:window on:keydown={handle_keydown} />
+<svelte:window on:keydown={handle_keydown} on:mousedown={handleMousedown} />
 
 <div class:items-center={!top} class="fixed top-0 left-0 right-0 bottom-0 w-full h-full flex justify-center z-50">
-  <button
-    aria-label="close"
-    class="fixed top-0 left-0 w-full h-full bg-[var(--pd-modal-fade)] bg-blend-multiply opacity-60 z-40 cursor-default"
-    on:click={onclose}></button>
-
+  <div
+    class="fixed top-0 left-0 w-full h-full bg-[var(--pd-modal-fade)] bg-blend-multiply opacity-60 z-40 cursor-default">
+  </div>
   <div
     class:translate-y-[-5%]={!top}
     class:my-[32px]={top}

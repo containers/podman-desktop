@@ -71,6 +71,7 @@ export class InputQuickPickRegistry {
       markdownDescription: options?.markdownDescription,
       multiline: options?.multiline,
       validate,
+      ignoreFocusOut: options?.ignoreFocusOut,
     };
 
     // need to send the options to the frontend
@@ -196,6 +197,7 @@ export class InputQuickPickRegistry {
       items: items,
       // need to callback to the frontend when selecting an item
       onSelectCallback,
+      ignoreFocusOut: options?.ignoreFocusOut,
     };
 
     // need to send the options to the frontend
