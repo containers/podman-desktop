@@ -15,11 +15,9 @@ export let provider: ProviderInfo;
   <div class="flex flex-col xl:flex-row gap-x-4">
     <div class="grid grid-cols-[3rem_1fr] w-full xl:w-1/4 gap-2">
       <IconImage image="{provider?.images?.icon}" class="mx-0 max-h-12" alt="{provider.name}"></IconImage>
-      <div
-        class="flex flex-col gap-0 text-[var(--pd-content-card-title)] text-lg whitespace-nowrap"
-        aria-label="context-name">
+      <div class="flex flex-col gap-0 text-[var(--pd-content-card-title)] whitespace-nowrap" aria-label="context-name">
         <div class="gap-1 items-center">
-          <span class="float-left mr-1">{provider.name}</span>
+          <span class="float-left mr-1 text-lg">{provider.name}</span>
           {#if provider.version}
             <div class="text-[var(--pd-content-card-light-title)] text-sm float-left" aria-label="Provider Version">
               v{provider.version}

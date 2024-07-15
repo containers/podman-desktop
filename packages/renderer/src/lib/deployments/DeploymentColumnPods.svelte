@@ -4,6 +4,6 @@ import type { DeploymentUI } from './DeploymentUI';
 export let object: DeploymentUI;
 </script>
 
-<div class="text-xs text-[var(--pd-table-body-text-highlight)]">
+<div class="text-[var(--pd-table-body-text)]">
   {object.ready} / {object.replicas}
 </div>
