@@ -404,13 +404,13 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                   {#if provider.containerProviderConnectionCreation || provider.kubernetesProviderConnectionCreation}
                     {@const providerDisplayName =
                       (provider.containerProviderConnectionCreation
-                        ? provider.containerProviderConnectionCreationDisplayName ?? undefined
+                        ? (provider.containerProviderConnectionCreationDisplayName ?? undefined)
                         : provider.kubernetesProviderConnectionCreation
                           ? provider.kubernetesProviderConnectionCreationDisplayName
                           : undefined) ?? provider.name}
                     {@const buttonTitle =
                       (provider.containerProviderConnectionCreation
-                        ? provider.containerProviderConnectionCreationButtonTitle ?? undefined
+                        ? (provider.containerProviderConnectionCreationButtonTitle ?? undefined)
                         : provider.kubernetesProviderConnectionCreation
                           ? provider.kubernetesProviderConnectionCreationButtonTitle
                           : undefined) ?? 'Create new'}
