@@ -5,11 +5,13 @@ import type { Terminal } from '@xterm/xterm';
 import { onMount, tick } from 'svelte';
 import { router } from 'tinro';
 
+import type { ImageSearchOptions } from '/@api/image-registry';
 import type { ProviderContainerConnectionInfo } from '/@api/provider-info';
 import type { PullEvent } from '/@api/pull-event';
 
 import { providerInfos } from '../../stores/providers';
 import EngineFormPage from '../ui/EngineFormPage.svelte';
+import Select from '../ui/Select.svelte';
 import TerminalWindow from '../ui/TerminalWindow.svelte';
 import RecommendedRegistry from './RecommendedRegistry.svelte';
 
@@ -118,8 +120,9 @@ onMount(() => {
 
 let imageNameInvalid: string | undefined = undefined;
 let imageNameIsInvalid = imageToPull === undefined || imageToPull.trim() === '';
-function validateImageName(event: any): void {
-  imageToPull = event.target.value;
+
+function onChange(value: string): void {
+  imageToPull = value;
   if (imageToPull === undefined || imageToPull.trim() === '') {
     imageNameIsInvalid = true;
     imageNameInvalid = 'Please enter a value';
@@ -129,8 +132,27 @@ function validateImageName(event: any): void {
   }
 }
 
-function requestFocus(element: HTMLInputElement) {
-  element.focus();
+async function searchImages(value: string): Promise<{ value: string; label: string }[]> {
+  const options: ImageSearchOptions = {
+    query: '',
+  };
+  if (!value.includes('/')) {
+    options.registry = 'docker.io';
+    options.query = value;
+  } else {
+    const [registry, ...rest] = value.split('/');
+    options.registry = registry;
+    options.query = rest.join('/');
+  }
+  const result = await window.searchImageInRegistry(options);
+  return result.map(r => {
+    let official = r.is_official ? ' ✓' : '';
+    let stars = r.star_count ? ` [★${r.star_count}]` : '';
+    return {
+      value: [options.registry, r.name].join('/'),
+      label: `${[options.registry, r.name].join('/')}${stars}${official}`,
+    };
+  });
 }
 </script>
 
@@ -147,27 +169,21 @@ function requestFocus(element: HTMLInputElement) {
   </svelte:fragment>
 
   <div slot="content" class="space-y-6">
-    <div class="w-full">
+    <div class="w-full text-[var(--pd-content-card-text)]">
       <label for="imageName" class="block mb-2 font-bold text-[var(--pd-content-card-header-text)]"
         >Image to Pull</label>
-      <input
+      <Select
         id="imageName"
-        class="w-full p-2 outline-none bg-[var(--pd-select-bg)] border-[1px] border-transparent border-b-[var(--pd-input-field-stroke)] rounded-sm text-[var(--pd-content-card-text)] placeholder:text-[color:var(--pd-input-field-placeholder-text)]"
-        type="text"
         name="imageName"
-        disabled={pullFinished || pullInProgress}
-        on:input={event => validateImageName(event)}
-        on:keypress={event => {
-          if (event.key === 'Enter') {
-            pullImage();
-          }
-        }}
-        bind:value={imageToPull}
-        aria-invalid={imageNameInvalid !== ''}
-        placeholder="Image name"
         aria-label="imageName"
+        aria-invalid="{imageNameInvalid !== ''}"
+        disabled="{pullFinished || pullInProgress}"
+        placeholder="Registry name / Image name"
         required
-        use:requestFocus />
+        focused
+        onChange="{e => onChange(e.detail.value)}"
+        onClear="{() => onChange('')}"
+        loadOptions="{searchImages}"></Select>
       {#if imageNameInvalid}
         <ErrorMessage error={imageNameInvalid} />
       {/if}
