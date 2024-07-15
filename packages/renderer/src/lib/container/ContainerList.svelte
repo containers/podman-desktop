@@ -10,6 +10,7 @@ import {
   TableRow,
 } from '@podman-desktop/ui-svelte';
 import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
+import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
 import { get, type Unsubscriber } from 'svelte/store';
 import { router } from 'tinro';
@@ -303,6 +304,11 @@ let statusColumn = new TableColumn<ContainerInfoUI | ContainerGroupInfoUI>('Stat
   align: 'center',
   width: '70px',
   renderer: ContainerColumnStatus,
+  comparator: (a, b) => {
+    const bStatus = ('status' in b ? b.status : 'state' in b ? b.state : '') ?? '';
+    const aStatus = ('status' in a ? a.status : 'state' in a ? a.state : '') ?? '';
+    return bStatus.localeCompare(aStatus);
+  },
 });
 
 let nameColumn = new TableColumn<ContainerInfoUI | ContainerGroupInfoUI>('Name', {
@@ -313,11 +319,17 @@ let nameColumn = new TableColumn<ContainerInfoUI | ContainerGroupInfoUI>('Name',
 
 let envColumn = new TableColumn<ContainerInfoUI | ContainerGroupInfoUI>('Environment', {
   renderer: ContainerColumnEnvironment,
+  comparator: (a, b) => (a.engineType ?? '').localeCompare(b.engineType ?? ''),
 });
 
 let imageColumn = new TableColumn<ContainerInfoUI | ContainerGroupInfoUI>('Image', {
   width: '3fr',
   renderer: ContainerColumnImage,
+  comparator: (a, b) => {
+    const aImage = 'image' in a ? a.image : '';
+    const bImage = 'image' in b ? b.image : '';
+    return aImage.localeCompare(bImage);
+  },
 });
 
 let ageColumn = new TableColumn<ContainerInfoUI | ContainerGroupInfoUI, Date | undefined>('Age', {
@@ -327,6 +339,11 @@ let ageColumn = new TableColumn<ContainerInfoUI | ContainerGroupInfoUI, Date | u
       return containerUtils.getUpDate(object);
     }
     return undefined;
+  },
+  comparator: (a, b) => {
+    const aTime = containerUtils.isContainerInfoUI(a) ? (moment().diff(containerUtils.getUpDate(a)) ?? 0) : 0;
+    const bTime = containerUtils.isContainerInfoUI(b) ? (moment().diff(containerUtils.getUpDate(b)) ?? 0) : 0;
+    return aTime - bTime;
   },
 });
 
