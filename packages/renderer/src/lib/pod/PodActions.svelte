@@ -110,7 +110,11 @@ async function startPod() {
 async function restartPod() {
   inProgress(false, 'RESTARTING');
   try {
-    await window.restartPod(pod.engineId, pod.id);
+    if (pod.kind === 'podman') {
+      await window.restartPod(pod.engineId, pod.id);
+    } else {
+      await window.restartKubernetesPod(pod.name);
+    }
   } catch (error) {
     handleError(String(error));
   } finally {
@@ -233,13 +237,13 @@ if (dropdownMenu) {
         {/each}
       </DropdownMenu>
     {/if}
-    <ListItemButtonIcon
-      title="Restart Pod"
-      onClick="{() => restartPod()}"
-      menu="{dropdownMenu}"
-      detailed="{detailed}"
-      icon="{faArrowsRotate}" />
   {/if}
+  <ListItemButtonIcon
+    title="Restart Pod"
+    onClick="{() => restartPod()}"
+    menu="{dropdownMenu}"
+    detailed="{detailed}"
+    icon="{faArrowsRotate}" />
   {#if pod.kind === 'kubernetes'}
     {#if openingKubernetesUrls.size === 0}
       <ListItemButtonIcon
