@@ -80,7 +80,7 @@ function doExecuteAction(taskUI: StatefulTaskUI) {
       <div class="text-[var(--pd-modal-text)] text-xs my-2">{taskUI.description}</div>
       {#if taskUI.markdownActions}
         <div class="flex justify-end">
-          <Markdown>{taskUI.markdownActions}</Markdown>
+          <Markdown markdown="{taskUI.markdownActions}" />
         </div>
       {/if}
     {/if}
