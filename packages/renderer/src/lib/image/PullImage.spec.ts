@@ -32,6 +32,7 @@ import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provid
 import PullImage from './PullImage.svelte';
 
 const pullImageMock = vi.fn();
+const searchImageInRegistryMock = vi.fn();
 
 // fake the window.events object
 beforeAll(() => {
@@ -47,6 +48,7 @@ beforeAll(() => {
     addListener: vi.fn(),
   });
   (window as any).pullImage = pullImageMock;
+  (window as any).searchImageInRegistry = searchImageInRegistryMock;
 
   Object.defineProperty(window, 'matchMedia', {
     value: () => {
@@ -103,7 +105,7 @@ describe('PullImage', () => {
     setup();
     render(PullImage);
 
-    const entry = screen.getByPlaceholderText('Image name');
+    const entry = screen.getByPlaceholderText('Registry name / Image name');
     expect(entry).toBeInTheDocument();
     const button = screen.getByRole('button', { name: buttonText });
     expect(button).toBeInTheDocument();
@@ -129,16 +131,24 @@ describe('PullImage', () => {
   });
 
   test('Expect that valid entry enables button', async () => {
+    searchImageInRegistryMock.mockReturnValue([
+      {
+        name: 'an-image',
+        is_official: true,
+        star_count: 100,
+      },
+    ]);
     setup();
-    render(PullImage);
+    render(PullImage, { debounceWaitSearch: 50 });
 
     const button = screen.getByRole('button', { name: buttonText });
     expect(button).toBeInTheDocument();
     expect(button).toBeDisabled();
 
-    const textbox = screen.getByRole('textbox', { name: 'imageName' });
-    await userEvent.click(textbox);
-    await userEvent.paste('some-valid-image');
+    const textbox = screen.getByPlaceholderText('Registry name / Image name');
+    await userEvent.type(textbox, 'an-image');
+    await new Promise(resolve => setTimeout(resolve, 60)); // wait debounceWait time
+    await userEvent.keyboard('[Tab][Enter]');
 
     expect(button).toBeEnabled();
   });
@@ -173,23 +183,8 @@ describe('PullImage', () => {
     setup();
     render(PullImage);
 
-    const pullImageInput = screen.getByRole('textbox', { name: 'imageName' });
+    const pullImageInput = screen.getByPlaceholderText('Registry name / Image name');
     expect(pullImageInput.matches(':focus')).toBe(true);
-  });
-
-  test('Expect that you can type an image name and hit Enter', async () => {
-    setup();
-    render(PullImage);
-
-    // first call to pull image throw an error
-    pullImageMock.mockRejectedValueOnce(new Error('Image does not exists'));
-
-    await userEvent.keyboard('image-does-not-exist[Enter]');
-
-    // expect that the error message is displayed
-    const errorMesssage = screen.getByRole('alert', { name: 'Error Message Content' });
-    expect(errorMesssage).toBeInTheDocument();
-    expect(errorMesssage).toHaveTextContent('Image does not exists');
   });
 
   // pull image with error and then pull image with success
