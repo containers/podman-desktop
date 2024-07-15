@@ -22,13 +22,19 @@ import { Socket } from 'node:net';
 import type { Readable, Writable } from 'node:stream';
 
 import {
+  type AppsV1Api,
+  BatchV1Api,
+  CoreV1Api,
   Exec,
   KubeConfig,
   type KubernetesObject,
   type V1ConfigMap,
   type V1Deployment,
   type V1Ingress,
+  type V1Job,
   type V1Node,
+  type V1ObjectMeta,
+  type V1OwnerReference,
   type V1Pod,
   type V1Secret,
   type V1Service,
@@ -37,7 +43,7 @@ import {
 } from '@kubernetes/client-node';
 import * as clientNode from '@kubernetes/client-node';
 import type { FileSystemWatcher } from '@podman-desktop/api';
-import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, type Mock, test, vi } from 'vitest';
 
 import { ResizableTerminalWriter } from '/@/plugin/kubernetes-exec-transmitter.js';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
@@ -46,6 +52,7 @@ import type { V1Route } from '/@api/openshift-types.js';
 import type { ApiSenderType } from './api.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import { FilesystemMonitoring } from './filesystem-monitoring.js';
+import type { PodCreationSource, ScalableControllerType } from './kubernetes-client.js';
 import { KubernetesClient } from './kubernetes-client.js';
 
 const configurationRegistry: ConfigurationRegistry = {} as unknown as ConfigurationRegistry;
@@ -86,12 +93,149 @@ spec:
 `;
 
 class TestKubernetesClient extends KubernetesClient {
+  declare kubeConfig;
+
+  public declare currentNamespace: string | undefined;
+
   public createWatchObject(): Watch {
     return super.createWatchObject();
   }
 
   public setCurrentNamespace(namespace: string): void {
     this.currentNamespace = namespace;
+  }
+
+  public testGetPodController(podMetadata: V1ObjectMeta): V1OwnerReference | undefined {
+    return this.getPodController(podMetadata);
+  }
+
+  public testCheckPodCreationSource(podMetadata: V1ObjectMeta): PodCreationSource {
+    return this.checkPodCreationSource(podMetadata);
+  }
+
+  public testWaitForPodsDeletion(
+    coreApi: CoreV1Api,
+    namespace: string,
+    selector: string,
+    timeout?: number,
+  ): Promise<boolean> {
+    return this.waitForPodsDeletion(coreApi, namespace, selector, timeout);
+  }
+
+  public testWaitForJobDeletion(
+    batchApi: BatchV1Api,
+    namespace: string,
+    name: string,
+    timeout?: number,
+  ): Promise<boolean> {
+    return this.waitForJobDeletion(batchApi, namespace, name, timeout);
+  }
+
+  public testRestartJob(namespace: string, jobName: string): Promise<void> {
+    return this.restartJob(namespace, jobName);
+  }
+
+  public testScaleController(
+    appsApi: AppsV1Api,
+    namespace: string,
+    controllerName: string,
+    controllerType: 'Deployment' | 'ReplicaSet' | 'StatefulSet',
+    replicas: number,
+  ): Promise<void> {
+    return this.scaleController(appsApi, namespace, controllerName, controllerType, replicas);
+  }
+
+  public testScaleControllerToRestartPods(
+    namespace: string,
+    controllerName: string,
+    controllerType: ScalableControllerType,
+    timeout: number = 10000,
+  ): Promise<void> {
+    return this.scaleControllerToRestartPods(namespace, controllerName, controllerType, timeout);
+  }
+
+  public testWaitForPodDeletion(
+    coreApi: CoreV1Api,
+    name: string,
+    namespace: string,
+    timeout: number = 60000,
+  ): Promise<boolean> {
+    return this.waitForPodDeletion(coreApi, name, namespace, timeout);
+  }
+
+  public testRestartManuallyCreatedPod(name: string, namespace: string, pod: V1Pod): Promise<void> {
+    return this.restartManuallyCreatedPod(name, namespace, pod);
+  }
+
+  // need only to be mocked in several test methods
+  public waitForPodDeletion(
+    coreApi: CoreV1Api,
+    name: string,
+    namespace: string,
+    timeout: number = 60000,
+  ): Promise<boolean> {
+    return super.waitForPodDeletion(coreApi, name, namespace, timeout);
+  }
+
+  // need only to be mocked in several test methods
+  public waitForPodsDeletion(
+    coreApi: CoreV1Api,
+    namespace: string,
+    selector: string,
+    timeout?: number,
+  ): Promise<boolean> {
+    return super.waitForPodsDeletion(coreApi, namespace, selector, timeout);
+  }
+
+  // need only to be mocked in several test methods
+  public waitForJobDeletion(
+    batchApi: BatchV1Api,
+    name: string,
+    namespace: string,
+    timeout: number = 60000,
+  ): Promise<boolean> {
+    return super.waitForJobDeletion(batchApi, name, namespace, timeout);
+  }
+
+  // need only to be mocked in several test methods
+  public scaleController(
+    appsApi: AppsV1Api,
+    namespace: string,
+    controllerName: string,
+    controllerType: 'Deployment' | 'ReplicaSet' | 'StatefulSet',
+    replicas: number,
+  ): Promise<void> {
+    return super.scaleController(appsApi, namespace, controllerName, controllerType, replicas);
+  }
+
+  // need only to be mocked in several test methods
+  public checkPodCreationSource(podMetadata: V1ObjectMeta): PodCreationSource {
+    return super.checkPodCreationSource(podMetadata);
+  }
+
+  // need only to be mocked in several test methods
+  public restartManuallyCreatedPod(name: string, namespace: string, pod: V1Pod): Promise<void> {
+    return super.restartManuallyCreatedPod(name, namespace, pod);
+  }
+
+  // need only to be mocked in several test methods
+  public scaleControllerToRestartPods(
+    namespace: string,
+    controllerName: string,
+    controllerType: ScalableControllerType,
+    timeout: number = 10000,
+  ): Promise<void> {
+    return super.scaleControllerToRestartPods(namespace, controllerName, controllerType, timeout);
+  }
+
+  // need only to be mocked in several test methods
+  public getPodController(podMetadata: V1ObjectMeta): V1OwnerReference | undefined {
+    return super.getPodController(podMetadata);
+  }
+
+  // need only to be mocked in several test methods
+  public restartJob(name: string, namespace: string): Promise<void> {
+    return super.restartJob(name, namespace);
   }
 }
 
@@ -116,6 +260,7 @@ beforeAll(() => {
       KubeConfig: vi.fn(),
       CoreV1Api: {},
       AppsV1Api: {},
+      BatchV1Api: {},
       CustomObjectsApi: {},
       NetworkingV1Api: {},
       VersionApi: {},
@@ -129,6 +274,8 @@ beforeAll(() => {
         }
       },
       Exec: vi.fn(),
+      V1DeleteOptions: vi.fn(),
+      V1Job: vi.fn(),
     };
   });
 });
@@ -1554,4 +1701,702 @@ test('Expect readNamespacedSecret to return the secret', async () => {
   const secret = await client.readNamespacedSecret('secret', 'default');
   expect(secret).toBeDefined();
   expect(secret?.metadata?.name).toEqual('secret');
+});
+
+test('Should return undefined if no ownerReferences', () => {
+  const podMetadata: V1ObjectMeta = { ownerReferences: [] };
+  const client = createTestClient('default');
+  const result = client.testGetPodController(podMetadata);
+  expect(result).toBeUndefined();
+});
+
+test('Should return undefined if ownerReferences present but no controller', () => {
+  const ownerReference: V1OwnerReference = { controller: false } as unknown as V1OwnerReference;
+  const podMetadata: V1ObjectMeta = { ownerReferences: [ownerReference] };
+  const client = createTestClient('default');
+  const result = client.testGetPodController(podMetadata);
+  expect(result).toBeUndefined();
+});
+
+test('Should return controller if present in ownerReferences', () => {
+  const ownerReference: V1OwnerReference = { controller: true } as unknown as V1OwnerReference;
+  const podMetadata: V1ObjectMeta = { ownerReferences: [ownerReference] };
+  const client = createTestClient('default');
+  const result = client.testGetPodController(podMetadata);
+  expect(result).toEqual(ownerReference);
+});
+
+test('Should detect manually created pod when there are no ownerReferences', () => {
+  const podMetadata: V1ObjectMeta = { ownerReferences: [] };
+  const client = createTestClient('default');
+  const result = client.testCheckPodCreationSource(podMetadata);
+  expect(result).toEqual({ isManuallyCreated: true, controllerType: undefined });
+});
+
+test('Should detect pod created by a controller', () => {
+  const ownerReference: V1OwnerReference = { controller: true, kind: 'Deployment' } as unknown as V1OwnerReference;
+  const podMetadata: V1ObjectMeta = { ownerReferences: [ownerReference] };
+  const client = createTestClient('default');
+  const result = client.testCheckPodCreationSource(podMetadata);
+  expect(result).toEqual({ isManuallyCreated: false, controllerType: 'Deployment' });
+});
+
+test('Should return manually created if ownerReferences exist but none is a controller', () => {
+  const ownerReferences: V1OwnerReference[] = [
+    { controller: false, kind: 'Deployment' } as unknown as V1OwnerReference,
+    { controller: false, kind: 'DaemonSet' } as unknown as V1OwnerReference,
+  ];
+  const podMetadata: V1ObjectMeta = { ownerReferences: ownerReferences };
+  const client = createTestClient('default');
+  const result = client.testCheckPodCreationSource(podMetadata);
+  expect(result).toEqual({ isManuallyCreated: true, controllerType: undefined });
+});
+
+test('Should detect the controller among multiple ownerReferences', () => {
+  const ownerReferences: V1OwnerReference[] = [
+    { controller: false, kind: 'Deployment' } as unknown as V1OwnerReference,
+    { controller: true, kind: 'StatefulSet' } as unknown as V1OwnerReference,
+    { controller: false, kind: 'DaemonSet' } as unknown as V1OwnerReference,
+  ];
+  const podMetadata: V1ObjectMeta = { ownerReferences: ownerReferences };
+  const client = createTestClient('default');
+  const result = client.testCheckPodCreationSource(podMetadata);
+  expect(result).toEqual({ isManuallyCreated: false, controllerType: 'StatefulSet' });
+});
+
+test('Should return true if pods are deleted within the timeout', async () => {
+  const coreApiMock = vi.fn() as unknown as CoreV1Api;
+  const client = createTestClient('default');
+  const namespace = 'test-namespace';
+  const selector = 'app=test-app';
+
+  coreApiMock.listNamespacedPod = vi.fn().mockResolvedValueOnce({ body: { items: [] } });
+
+  const result = await client.testWaitForPodsDeletion(coreApiMock, namespace, selector);
+  expect(result).toBe(true);
+});
+
+test('Should return false if the timeout is reached but pods still exist', async () => {
+  const existingPodMock = {
+    metadata: {
+      name: 'test-pod',
+      namespace: 'test-namespace',
+    },
+    status: {
+      phase: 'Running',
+    },
+  };
+
+  const coreApiMock = vi.fn() as unknown as CoreV1Api;
+  const client = createTestClient('default');
+  const namespace = 'test-namespace';
+  const selector = 'app=test-app';
+  const timeout = 1000;
+
+  coreApiMock.listNamespacedPod = vi.fn().mockResolvedValueOnce({ body: { items: [existingPodMock] } });
+
+  const result = await client.testWaitForPodsDeletion(coreApiMock, namespace, selector, timeout);
+  expect(result).toBe(false);
+});
+
+test('Should return true if the job is deleted within the timeout', async () => {
+  const batchApiMock = vi.fn() as unknown as BatchV1Api;
+  const client = createTestClient('default');
+  const namespace = 'test-namespace';
+  const jobName = 'test-job';
+
+  batchApiMock.readNamespacedJobStatus = vi.fn().mockRejectedValueOnce({ response: { statusCode: 404 } });
+
+  const result = await client.testWaitForJobDeletion(batchApiMock, namespace, jobName);
+  expect(result).toBe(true);
+});
+
+test('Should return false if the timeout is reached but the job still exists', async () => {
+  const existingJobMock = {
+    status: {
+      conditions: [
+        {
+          type: 'Complete',
+          status: 'True',
+        },
+      ],
+    },
+    metadata: {
+      name: 'test-job',
+      namespace: 'test-namespace',
+    },
+  };
+
+  const batchApiMock = vi.fn() as unknown as BatchV1Api;
+  const client = createTestClient('default');
+  const namespace = 'test-namespace';
+  const jobName = 'test-job';
+  const timeout = 1000;
+
+  batchApiMock.readNamespacedJobStatus = vi.fn().mockResolvedValueOnce({ body: existingJobMock });
+
+  const result = await client.testWaitForJobDeletion(batchApiMock, namespace, jobName, timeout);
+  expect(result).toBe(false);
+});
+
+test('Should throw an exception if a non 404 error occurs during read namespaced job status API call', async () => {
+  const batchApiMock = vi.fn() as unknown as BatchV1Api;
+  const client = createTestClient('default');
+  const namespace = 'test-namespace';
+  const jobName = 'test-job';
+
+  batchApiMock.readNamespacedJobStatus = vi.fn().mockRejectedValue(new Error('Network error'));
+
+  await expect(client.testWaitForJobDeletion(batchApiMock, namespace, jobName)).rejects.toThrow('Network error');
+});
+
+test('Should throw an exception if a read namespaced job status API call returns an error other than 404', async () => {
+  const batchApiMock = vi.fn() as unknown as BatchV1Api;
+  const client = createTestClient('default');
+  const namespace = 'test-namespace';
+  const jobName = 'test-job';
+
+  const errorResponse = { response: { statusCode: 500 } };
+  batchApiMock.readNamespacedJobStatus = vi.fn().mockRejectedValue(errorResponse);
+
+  await expect(client.testWaitForJobDeletion(batchApiMock, namespace, jobName)).rejects.toThrow(
+    expect.objectContaining(errorResponse),
+  );
+});
+
+const mockV1Job: V1Job = {
+  apiVersion: 'batch/v1',
+  kind: 'Job',
+  metadata: {
+    name: 'demo-job',
+    namespace: 'default',
+    creationTimestamp: new Date(),
+    resourceVersion: '12345',
+    selfLink: '/apis/batch/v1/namespaces/default/jobs/demo-job',
+    uid: 'abcde-12345-fghij',
+    ownerReferences: [
+      {
+        apiVersion: 'batch/v1',
+        kind: 'Job',
+        name: 'owner-job',
+        uid: 'owner-uid',
+        controller: true,
+        blockOwnerDeletion: false,
+      },
+    ],
+  },
+  spec: {
+    template: {
+      metadata: {
+        labels: {
+          'controller-uid': 'abcde-12345-fghij',
+          'job-name': 'demo-job',
+        },
+      },
+      spec: {
+        containers: [
+          {
+            name: 'demo-container',
+            image: 'demo-image',
+          },
+        ],
+        restartPolicy: 'Never',
+      },
+    },
+    selector: {
+      matchLabels: {
+        'job-name': 'demo-job',
+      },
+    },
+  },
+  status: {},
+};
+
+function configureClientToTestRestartJob(): {
+  client: TestKubernetesClient;
+  batchApiMock: BatchV1Api;
+  coreApiMock: CoreV1Api;
+} {
+  const batchApiMock = vi.fn() as unknown as BatchV1Api;
+  const coreApiMock = vi.fn() as unknown as CoreV1Api;
+  const client = createTestClient('default');
+  batchApiMock.readNamespacedJob = vi.fn().mockResolvedValue({ body: mockV1Job });
+  batchApiMock.deleteNamespacedJob = vi.fn().mockResolvedValue({});
+  batchApiMock.createNamespacedJob = vi.fn().mockResolvedValue({});
+
+  const kubeConfig = client?.kubeConfig;
+
+  // @ts-expect-error api can be one of two types, due to using generic it is hard to detect what exact type is used
+  vi.spyOn(kubeConfig, 'makeApiClient').mockImplementation(api => {
+    if (api === CoreV1Api) {
+      return coreApiMock;
+    } else if (api === BatchV1Api) {
+      return batchApiMock;
+    }
+  });
+
+  vi.spyOn(client, 'waitForJobDeletion').mockResolvedValue(true);
+  vi.spyOn(client, 'waitForPodsDeletion').mockResolvedValue(true);
+
+  return { client, batchApiMock, coreApiMock };
+}
+
+test('Should restart a job', async () => {
+  const { client, batchApiMock } = configureClientToTestRestartJob();
+
+  await expect(client.testRestartJob('test-job', 'test-namespace')).resolves.not.toThrow();
+
+  expect(batchApiMock.readNamespacedJob).toHaveBeenCalledWith('test-job', 'test-namespace');
+  expect(batchApiMock.deleteNamespacedJob).toHaveBeenCalledWith(
+    'test-job',
+    'test-namespace',
+    'true',
+    undefined,
+    undefined,
+    undefined,
+    'Background',
+  );
+  expect(batchApiMock.createNamespacedJob).toHaveBeenCalled();
+});
+
+test('Should throw an error if the job is not deleted within the expected timeframe', async () => {
+  const { client } = configureClientToTestRestartJob();
+
+  vi.spyOn(client, 'waitForJobDeletion').mockResolvedValue(false);
+
+  await expect(client.testRestartJob('demo-job', 'default')).rejects.toThrow(
+    'job "demo-job" in namespace "default" was not deleted within the expected timeframe',
+  );
+});
+
+test('Should throw an error if not all pods are deleted within the expected timeframe', async () => {
+  const { client } = configureClientToTestRestartJob();
+
+  vi.spyOn(client, 'waitForPodsDeletion').mockResolvedValue(false);
+
+  await expect(client.testRestartJob('demo-job', 'default')).rejects.toThrow(
+    'not all pods with selector "job-name=demo-job" in namespace "default" were deleted within the expected timeframe',
+  );
+});
+
+test('Should handle an error when reading the existing job fails', async () => {
+  const { client, batchApiMock } = configureClientToTestRestartJob();
+
+  (batchApiMock.readNamespacedJob as Mock).mockRejectedValue(new Error('Error reading job'));
+  await expect(client.testRestartJob('demo-job', 'default')).rejects.toThrow('Error reading job');
+});
+
+test('Should handle an error when deleting the job fails', async () => {
+  const { client, batchApiMock } = configureClientToTestRestartJob();
+
+  (batchApiMock.deleteNamespacedJob as Mock).mockRejectedValue(new Error('Error deleting job'));
+  await expect(client.testRestartJob('demo-job', 'default')).rejects.toThrow('Error deleting job');
+});
+
+test('Should handle an error when creating a new job fails', async () => {
+  const { client, batchApiMock } = configureClientToTestRestartJob();
+
+  (batchApiMock.createNamespacedJob as Mock).mockRejectedValue(new Error('Error creating job'));
+  await expect(client.testRestartJob('demo-job', 'default')).rejects.toThrow('Error creating job');
+});
+
+test('Should correctly calls scale API for Deployments', async () => {
+  const appsApiMock = { patchNamespacedDeploymentScale: vi.fn() } as unknown as AppsV1Api;
+  const client = createTestClient('default');
+  const namespace = 'default';
+  const replicas = 3;
+  const headers = { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } };
+
+  await client.testScaleController(appsApiMock, namespace, 'my-deployment', 'Deployment', replicas);
+
+  expect(appsApiMock.patchNamespacedDeploymentScale).toHaveBeenCalledOnce();
+  expect(appsApiMock.patchNamespacedDeploymentScale).toHaveBeenCalledWith(
+    'my-deployment',
+    namespace,
+    { spec: { replicas } },
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    headers,
+  );
+});
+
+test('correctly calls scale API for ReplicaSets', async () => {
+  const appsApiMock = { patchNamespacedReplicaSetScale: vi.fn() } as unknown as AppsV1Api;
+  const client = createTestClient('default');
+  const namespace = 'default';
+  const replicas = 3;
+  const headers = { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } };
+
+  await client.testScaleController(appsApiMock, namespace, 'my-replicaset', 'ReplicaSet', replicas);
+
+  expect(appsApiMock.patchNamespacedReplicaSetScale).toHaveBeenCalledOnce();
+  expect(appsApiMock.patchNamespacedReplicaSetScale).toHaveBeenCalledWith(
+    'my-replicaset',
+    namespace,
+    { spec: { replicas } },
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    headers,
+  );
+});
+
+test('correctly calls scale API for StatefulSets', async () => {
+  const appsApiMock = { patchNamespacedStatefulSetScale: vi.fn() } as unknown as AppsV1Api;
+  const client = createTestClient('default');
+  const namespace = 'default';
+  const replicas = 3;
+  const headers = { headers: { 'Content-Type': 'application/strategic-merge-patch+json' } };
+
+  await client.testScaleController(appsApiMock, namespace, 'my-statefulset', 'StatefulSet', replicas);
+
+  expect(appsApiMock.patchNamespacedStatefulSetScale).toHaveBeenCalledOnce();
+  expect(appsApiMock.patchNamespacedStatefulSetScale).toHaveBeenCalledWith(
+    'my-statefulset',
+    namespace,
+    { spec: { replicas } },
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    headers,
+  );
+});
+
+function configureClientToScalePod(): { client: TestKubernetesClient; appsApiMock: AppsV1Api } {
+  const appsApiMock = vi.fn() as unknown as AppsV1Api;
+  const client = createTestClient('default');
+  appsApiMock.readNamespacedDeployment = vi.fn();
+  appsApiMock.readNamespacedReplicaSet = vi.fn();
+  appsApiMock.readNamespacedStatefulSet = vi.fn();
+  client.scaleController = vi.fn().mockResolvedValue({});
+
+  const kubeConfig = client?.kubeConfig;
+
+  kubeConfig.makeApiClient = vi.fn().mockReturnValue(appsApiMock);
+
+  return { client, appsApiMock };
+}
+
+async function callScaleControllerAndCheckExpectValues(
+  client: TestKubernetesClient,
+  namespace: string,
+  controllerName: string,
+  controllerType: 'Deployment' | 'ReplicaSet' | 'StatefulSet',
+  timeout: number = 10000,
+  initialReplicas: number,
+): Promise<void> {
+  await client.testScaleControllerToRestartPods(namespace, controllerName, controllerType, timeout);
+
+  expect(client.scaleController).toHaveBeenCalledTimes(2);
+  expect(client.scaleController).toHaveBeenNthCalledWith(
+    1,
+    expect.anything(),
+    namespace,
+    controllerName,
+    controllerType,
+    0,
+  );
+  expect(client.scaleController).toHaveBeenNthCalledWith(
+    2,
+    expect.anything(),
+    namespace,
+    controllerName,
+    controllerType,
+    initialReplicas,
+  );
+}
+
+test('Should correctly scale a Deployment to restart pods', async () => {
+  const { client, appsApiMock } = configureClientToScalePod();
+  const namespace = 'default';
+  const controllerName = 'my-deployment';
+  const controllerType = 'Deployment';
+  const initialReplicas = 3;
+  const scaleTimeout = 1000;
+
+  (appsApiMock.readNamespacedDeployment as Mock).mockResolvedValue({
+    body: { spec: { replicas: initialReplicas } },
+  });
+
+  await callScaleControllerAndCheckExpectValues(
+    client,
+    namespace,
+    controllerName,
+    controllerType,
+    scaleTimeout,
+    initialReplicas,
+  );
+});
+
+test('Should correctly scale a ReplicaSet to restart pods', async () => {
+  const { client, appsApiMock } = configureClientToScalePod();
+  const namespace = 'default';
+  const controllerName = 'my-replicaset';
+  const controllerType = 'ReplicaSet';
+  const initialReplicas = 5;
+  const scaleTimeout = 1000;
+
+  (appsApiMock.readNamespacedReplicaSet as Mock).mockResolvedValue({
+    body: { spec: { replicas: initialReplicas } },
+  });
+
+  await callScaleControllerAndCheckExpectValues(
+    client,
+    namespace,
+    controllerName,
+    controllerType,
+    scaleTimeout,
+    initialReplicas,
+  );
+});
+
+test('Should correctly scale a StatefulSet to restart pods', async () => {
+  const { client, appsApiMock } = configureClientToScalePod();
+  const namespace = 'default';
+  const controllerName = 'my-statefulset';
+  const controllerType = 'StatefulSet';
+  const initialReplicas = 2;
+  const scaleTimeout = 1000;
+
+  (appsApiMock.readNamespacedStatefulSet as Mock).mockResolvedValue({
+    body: { spec: { replicas: initialReplicas } },
+  });
+
+  await callScaleControllerAndCheckExpectValues(
+    client,
+    namespace,
+    controllerName,
+    controllerType,
+    scaleTimeout,
+    initialReplicas,
+  );
+});
+
+test('Should return true if the pod is successfully deleted', async () => {
+  const coreApiMock = vi.fn() as unknown as CoreV1Api;
+  coreApiMock.readNamespacedPodStatus = vi.fn();
+  const client = createTestClient('default');
+  const namespace = 'default';
+  const podName = 'test-pod';
+
+  (coreApiMock.readNamespacedPodStatus as Mock).mockRejectedValueOnce({ response: { statusCode: 404 } });
+
+  const result = await client.testWaitForPodDeletion(coreApiMock as CoreV1Api, podName, namespace);
+
+  expect(result).toBe(true);
+});
+
+test('Should return false if the timeout is exceeded', async () => {
+  const terminatingPodMock = {
+    metadata: {
+      name: 'example-pod',
+      namespace: 'default',
+      deletionTimestamp: new Date().toISOString(),
+    },
+    status: {
+      phase: 'Terminating',
+    },
+  };
+
+  const coreApiMock = vi.fn() as unknown as CoreV1Api;
+  coreApiMock.readNamespacedPodStatus = vi.fn();
+  const client = createTestClient('default');
+  const namespace = 'default';
+  const podName = 'test-pod';
+  const timeout = 1000;
+
+  (coreApiMock.readNamespacedPodStatus as Mock).mockResolvedValueOnce({ body: terminatingPodMock });
+
+  const result = await client.testWaitForPodDeletion(coreApiMock as CoreV1Api, podName, namespace, timeout);
+
+  expect(result).toBe(false);
+});
+
+test('Should throw an error if an unexpected error occurs', async () => {
+  const coreApiMock = vi.fn() as unknown as CoreV1Api;
+  coreApiMock.readNamespacedPodStatus = vi.fn();
+  const client = createTestClient('default');
+  const namespace = 'default';
+  const podName = 'test-pod';
+
+  (coreApiMock.readNamespacedPodStatus as Mock).mockRejectedValueOnce(new Error('Unexpected error'));
+
+  await expect(client.testWaitForPodDeletion(coreApiMock as CoreV1Api, podName, namespace)).rejects.toThrow(
+    'Unexpected error',
+  );
+});
+
+test('Should throw an error if an unexpected error occurs and it differs than 404', async () => {
+  const coreApiMock = vi.fn() as unknown as CoreV1Api;
+  coreApiMock.readNamespacedPodStatus = vi.fn();
+  const client = createTestClient('default');
+  const namespace = 'default';
+  const podName = 'test-pod';
+
+  const errorResponse = { response: { statusCode: 500 } };
+  (coreApiMock.readNamespacedPodStatus as Mock).mockRejectedValueOnce(errorResponse);
+
+  await expect(client.testWaitForPodDeletion(coreApiMock as CoreV1Api, podName, namespace)).rejects.toThrow(
+    expect.objectContaining(errorResponse),
+  );
+});
+
+test('Should delete and recreate the pod successfully', async () => {
+  const podMock = {
+    metadata: {
+      name: 'test-pod',
+      namespace: 'test-namespace',
+      resourceVersion: '123',
+      uid: 'uid123',
+      selfLink: '/api/v1/namespaces/test-namespace/pods/test-pod',
+      creationTimestamp: new Date(),
+    },
+    status: {},
+  };
+
+  const coreApiMock = vi.fn() as unknown as CoreV1Api;
+  coreApiMock.deleteNamespacedPod = vi.fn();
+  coreApiMock.createNamespacedPod = vi.fn();
+  const client = createTestClient('default');
+  const kubeConfig = client?.kubeConfig;
+
+  kubeConfig.makeApiClient = vi.fn().mockReturnValue(coreApiMock);
+  client.waitForPodDeletion = vi.fn().mockResolvedValue(true);
+
+  (coreApiMock.deleteNamespacedPod as Mock).mockResolvedValueOnce({});
+
+  await client.testRestartManuallyCreatedPod(podMock.metadata.name, podMock.metadata.namespace, podMock);
+
+  expect(coreApiMock.deleteNamespacedPod).toHaveBeenCalledWith(podMock.metadata.name, podMock.metadata.namespace);
+  expect(client.waitForPodDeletion).toHaveBeenCalledWith(
+    expect.anything(),
+    podMock.metadata.name,
+    podMock.metadata.namespace,
+  );
+  expect(coreApiMock.createNamespacedPod).toHaveBeenCalledWith(
+    podMock.metadata.namespace,
+    expect.objectContaining({
+      metadata: expect.not.objectContaining({
+        resourceVersion: expect.anything(),
+        uid: expect.anything(),
+        selfLink: expect.anything(),
+        creationTimestamp: expect.anything(),
+      }),
+    }),
+  );
+});
+
+test('Should throw an error if the pod is not deleted within the expected timeframe', async () => {
+  const podMock = {
+    metadata: {
+      name: 'test-pod',
+      namespace: 'test-namespace',
+      resourceVersion: '123',
+      uid: 'uid123',
+      selfLink: '/api/v1/namespaces/test-namespace/pods/test-pod',
+      creationTimestamp: new Date(),
+    },
+    status: {},
+  };
+
+  const coreApiMock = vi.fn() as unknown as CoreV1Api;
+  coreApiMock.deleteNamespacedPod = vi.fn();
+  const client = createTestClient('default');
+  const kubeConfig = client?.kubeConfig;
+
+  kubeConfig.makeApiClient = vi.fn().mockReturnValue(coreApiMock);
+  client.waitForPodDeletion = vi.fn().mockResolvedValue(false);
+
+  await expect(
+    client.testRestartManuallyCreatedPod(podMock.metadata.name, podMock.metadata.namespace, podMock),
+  ).rejects.toThrow(
+    `pod "${podMock.metadata.name}" in namespace "${podMock.metadata.namespace}" was not deleted within the expected timeframe`,
+  );
+});
+
+function configureClientToPodRestart(): TestKubernetesClient {
+  const client = createTestClient('default');
+  client.currentNamespace = 'test-namespace';
+  client.checkConnection = vi.fn().mockResolvedValue(true);
+  client.checkPodCreationSource = vi.fn().mockReturnValue({ isManuallyCreated: false, controllerType: 'Deployment' });
+  client.restartManuallyCreatedPod = vi.fn();
+  client.readNamespacedPod = vi.fn().mockResolvedValue({
+    metadata: { name: 'test-pod' },
+  });
+  client.scaleControllerToRestartPods = vi.fn();
+  client.getPodController = vi.fn().mockReturnValue({ name: 'test-controller' });
+  client.restartJob = vi.fn();
+
+  return client;
+}
+
+test('Should throw an error if there is no active namespace during pod restart', async () => {
+  const client = configureClientToPodRestart();
+  client.currentNamespace = '';
+
+  await expect(client.restartPod('test-pod')).rejects.toThrow('no active namespace');
+});
+
+test('Should throw an error if there is not active connection during pod restart', async () => {
+  const client = configureClientToPodRestart();
+  client.checkConnection = vi.fn().mockResolvedValue(false);
+
+  await expect(client.restartPod('test-pod')).rejects.toThrow('not active connection');
+});
+
+test('Should restart a manually created pod', async () => {
+  const client = configureClientToPodRestart();
+  client.checkPodCreationSource = vi.fn().mockReturnValue({ isManuallyCreated: true });
+
+  await client.restartPod('test-pod');
+
+  expect(client.restartManuallyCreatedPod).toHaveBeenCalledWith('test-pod', 'test-namespace', expect.anything());
+});
+
+test('Should restart a pod controlled by a Deployment', async () => {
+  const client = configureClientToPodRestart();
+
+  await client.restartPod('test-pod');
+
+  expect(client.scaleControllerToRestartPods).toHaveBeenCalledWith('test-namespace', 'test-controller', 'Deployment');
+});
+
+test('Should restart a pod controlled by a Job', async () => {
+  const client = configureClientToPodRestart();
+  client.checkPodCreationSource = vi.fn().mockReturnValue({ isManuallyCreated: false, controllerType: 'Job' });
+
+  await client.restartPod('test-pod');
+
+  expect(client.restartJob).toHaveBeenCalledWith('test-controller', 'test-namespace');
+});
+
+test('Should treats the pod as manually created if no controller is found', async () => {
+  const client = configureClientToPodRestart();
+  client.getPodController = vi.fn().mockReturnValue({ name: 'dummy-controller-name', kind: 'DummyKind' });
+  client.checkPodCreationSource = vi.fn().mockReturnValue({ isManuallyCreated: true, controllerType: undefined });
+
+  await client.restartPod('test-pod');
+
+  expect(client.restartManuallyCreatedPod).toHaveBeenCalledWith('test-pod', 'test-namespace', expect.anything());
+});
+
+test('Should throw an error if no metadata found in the pod', async () => {
+  const client = configureClientToPodRestart();
+  client.readNamespacedPod = vi.fn().mockResolvedValue({});
+
+  await expect(client.restartPod('test-pod')).rejects.toThrow('no metadata found');
+});
+
+test('Should throw an error if unable to restart controlled pod', async () => {
+  const client = configureClientToPodRestart();
+  client.checkPodCreationSource = vi.fn().mockReturnValue({ isManuallyCreated: false, controllerType: undefined });
+
+  await expect(client.restartPod('test-pod')).rejects.toThrow('unable to restart controlled pod');
 });
