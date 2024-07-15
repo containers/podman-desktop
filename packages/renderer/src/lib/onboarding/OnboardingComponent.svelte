@@ -23,7 +23,7 @@ $: providerInfo;
 let providerDisplayName: string | undefined;
 $: providerDisplayName =
   (providerInfo?.containerProviderConnectionCreation
-    ? providerInfo?.containerProviderConnectionCreationDisplayName ?? undefined
+    ? (providerInfo?.containerProviderConnectionCreationDisplayName ?? undefined)
     : providerInfo?.kubernetesProviderConnectionCreation
       ? providerInfo?.kubernetesProviderConnectionCreationDisplayName
       : undefined) ?? providerInfo?.name;

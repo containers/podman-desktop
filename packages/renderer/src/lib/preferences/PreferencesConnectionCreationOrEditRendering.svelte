@@ -62,7 +62,7 @@ let tokenId: number | undefined;
 
 const providerDisplayName =
   (providerInfo.containerProviderConnectionCreation
-    ? providerInfo.containerProviderConnectionCreationDisplayName ?? undefined
+    ? (providerInfo.containerProviderConnectionCreationDisplayName ?? undefined)
     : providerInfo.kubernetesProviderConnectionCreation
       ? providerInfo.kubernetesProviderConnectionCreationDisplayName
       : undefined) ?? providerInfo.name;

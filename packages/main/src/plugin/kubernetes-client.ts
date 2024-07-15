@@ -110,7 +110,7 @@ function toPodInfo(pod: V1Pod, contextName?: string): PodInfo {
     Name: pod.metadata?.name ?? '',
     Namespace: pod.metadata?.namespace ?? '',
     Networks: [],
-    Status: pod.metadata?.deletionTimestamp ? 'DELETING' : pod.status?.phase ?? '',
+    Status: pod.metadata?.deletionTimestamp ? 'DELETING' : (pod.status?.phase ?? ''),
     engineId: contextName ?? 'kubernetes',
     engineName: 'Kubernetes',
     kind: 'kubernetes',
