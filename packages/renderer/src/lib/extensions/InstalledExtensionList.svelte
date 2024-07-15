@@ -6,7 +6,7 @@ import InstalledExtensionCard from './InstalledExtensionCard.svelte';
 export let extensionInfos: CombinedExtensionInfoUI[] = [];
 </script>
 
-<div class="grow p-4">
+<div class="grow px-5 py-3">
   {#each extensionInfos as extension}
     <InstalledExtensionCard extension="{extension}" />
   {/each}
