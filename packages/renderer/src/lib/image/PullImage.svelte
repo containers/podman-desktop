@@ -21,6 +21,7 @@ let pullInProgress = false;
 let pullFinished = false;
 
 export let imageToPull: string | undefined = undefined;
+export let debounceWaitSearch = 300;
 
 $: providerConnections = $providerInfos
   .map(provider => provider.containerConnections)
@@ -181,6 +182,7 @@ async function searchImages(value: string): Promise<{ value: string; label: stri
         placeholder="Registry name / Image name"
         required
         focused
+        debounceWait="{debounceWaitSearch}"
         onChange="{e => onChange(e.detail.value)}"
         onClear="{() => onChange('')}"
         loadOptions="{searchImages}"></Select>
