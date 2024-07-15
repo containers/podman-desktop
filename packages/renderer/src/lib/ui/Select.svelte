@@ -1,25 +1,13 @@
 <script lang="ts">
 import Select from 'svelte-select';
 
-import { colorsInfos } from '/@/stores/colors';
-import type { ColorInfo } from '/@api/color-info';
-
 export let onChange = (_e: CustomEvent) => {};
 export let onClear = (_e: CustomEvent) => {};
-
-$: colors = getColorsMap($colorsInfos);
-
-function getColorsMap(colors: ColorInfo[]): Map<string, ColorInfo> {
-  return colors.reduce((acc, current) => {
-    acc.set(current.id, current);
-    return acc;
-  }, new Map<string, ColorInfo>());
-}
 </script>
 
 <Select
   {...$$props}
-  --background="{colors.get('input-field-bg')?.value}"
+  --background="var(--pd-input-field-bg)"
   --height="36px"
   --margin="0"
   --padding="8px"
@@ -29,12 +17,14 @@ function getColorsMap(colors: ColorInfo[]): Map<string, ColorInfo> {
   --border-hover="transparent"
   --border-radius="0"
   --border-radius-focused="0"
-  --disabled-background="{colors.get('input-field-disabled-bg')?.value}"
-  --disabled-color="{colors.get('input-field-disabled-text')?.value}"
+  --disabled-background="var(--pd-input-field-disabled-bg)"
+  --disabled-color="var(--pd-input-field-disabled-text)"
   --input-margin="0"
   --input-padding="0"
-  --item-hover-bg="{colors.get('dropdown-item-hover-bg')?.value}"
-  --list-background="{colors.get('dropdown-bg')?.value}"
-  --placeholder-color="{colors.get('input-field-placeholder-text')?.value}"
+  --item-hover-bg="var(--pd-dropdown-item-hover-bg)"
+  --item-is-active-bg="var(--pd-dropdown-item-hover-bg)"
+  --item-is-active-text="var(--pd-dropdown-item-hover-text)"
+  --list-background="var(--pd-dropdown-bg)"
+  --placeholder-color="var(--pd-input-field-placeholder-text)"
   on:change="{onChange}"
   on:clear="{onClear}"></Select>
