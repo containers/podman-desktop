@@ -523,7 +523,7 @@ test('Verify extension load', async () => {
   });
 
   expect(telemetry.track).toBeCalledWith(
-    'loadExtension',
+    'loadExtension.error',
     expect.objectContaining({ extensionId: id, extensionVersion: '1.1' }),
   );
 });

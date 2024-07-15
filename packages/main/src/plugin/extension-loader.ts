@@ -762,8 +762,7 @@ export class ExtensionLoader {
       this.extensionState.set(extension.id, 'failed');
       this.extensionStateErrors.set(extension.id, err);
       telemetryOptions['error'] = err;
-    } finally {
-      this.telemetry.track('loadExtension', telemetryOptions);
+      this.telemetry.track('loadExtension.error', telemetryOptions);
     }
   }
 

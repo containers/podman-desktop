@@ -1697,7 +1697,6 @@ export class ContainerProviderRegistry {
     onError: (error: string) => void,
     onEnd: () => void,
   ): Promise<{ write: (param: string) => void; resize: (w: number, h: number) => void }> {
-    let telemetryOptions = {};
     try {
       const exec = await this.getMatchingContainer(engineId, id).exec({
         AttachStdin: true,
@@ -1741,10 +1740,8 @@ export class ContainerProviderRegistry {
         },
       };
     } catch (error) {
-      telemetryOptions = { error: error };
+      this.telemetryService.track('shellInContainer.error', error);
       throw error;
-    } finally {
-      this.telemetryService.track('shellInContainer', telemetryOptions);
     }
   }
 
@@ -2152,7 +2149,6 @@ export class ContainerProviderRegistry {
   }
 
   async getContainerInspect(engineId: string, id: string): Promise<ContainerInspectInfo> {
-    let telemetryOptions = {};
     try {
       // need to find the container engine of the container
       const provider = this.internalProviders.get(engineId);
@@ -2171,10 +2167,8 @@ export class ContainerProviderRegistry {
         ...containerInspect,
       };
     } catch (error) {
-      telemetryOptions = { error: error };
+      this.telemetryService.track('containerInspect.error', error);
       throw error;
-    } finally {
-      this.telemetryService.track('containerInspect', telemetryOptions);
     }
   }
 
