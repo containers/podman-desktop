@@ -776,6 +776,83 @@ test('Expect to display running / stopped containers depending on tab', async ()
   }
 });
 
+test('Sort containers based on selected parameter', async () => {
+  listContainersMock.mockResolvedValue([]);
+
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('tray:update-provider'));
+
+  // wait for the store to be cleared
+  while (get(containersInfos).length !== 0) {
+    await new Promise(resolve => setTimeout(resolve, 250));
+  }
+
+  const mockedContainers = [
+    {
+      Id: 'sha256:123454321',
+      Image: 'sha256:123',
+      Names: ['foo1'],
+      Status: 'Running',
+      engineId: 'podman',
+      engineName: 'podman',
+      engineType: 'podman',
+      ImageID: 'dummy-image-id',
+      startedAt: '2024-06-19T17:30:46.000Z',
+    },
+    {
+      Id: 'sha256:223454321',
+      Image: 'sha256:223',
+      Names: ['foo2'],
+      Status: 'Exited',
+      engineId: 'docker',
+      engineName: 'docker',
+      engineType: 'docker',
+      ImageID: 'dummy-image-id',
+      startedAt: '2024-06-19T17:39:46.000Z',
+    },
+  ];
+
+  listContainersMock.mockResolvedValue(mockedContainers);
+
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('tray:update-provider'));
+
+  // wait until the store is populated
+  while (get(containersInfos).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 250));
+  }
+
+  await waitRender({});
+
+  const status = screen.getByRole('columnheader', { name: 'Status' });
+  await fireEvent.click(status);
+
+  const container1 = screen.getByRole('cell', { name: 'foo1' });
+  const container2 = screen.getByRole('cell', { name: 'foo2' });
+
+  expect(container1).toBeInTheDocument();
+  expect(container2).toBeInTheDocument();
+
+  expect(container2.compareDocumentPosition(container1)).toBe(2);
+
+  const environment = screen.getByRole('columnheader', { name: 'Environment' });
+  await fireEvent.click(environment);
+
+  expect(container1.compareDocumentPosition(container2)).toBe(2);
+
+  const image = screen.getByRole('columnheader', { name: 'Image' });
+  await fireEvent.click(image);
+
+  expect(container2.compareDocumentPosition(container1)).toBe(2);
+
+  const age = screen.getByRole('columnheader', { name: 'Age' });
+  await fireEvent.click(age);
+
+  expect(container1.compareDocumentPosition(container2)).toBe(2);
+});
+
 test('Expect user confirmation to pop up when preferences require', async () => {
   listContainersMock.mockResolvedValue([]);
 
