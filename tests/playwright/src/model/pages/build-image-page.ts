@@ -58,6 +58,10 @@ export class BuildImagePage extends BasePage {
     contextDirectory: string,
     archType = ArchitectureType.Default,
   ): Promise<ImagesPage> {
+    console.log(
+      `Building image ${imageName} from ${containerFilePath} in ${contextDirectory} with ${archType} architecture`,
+    );
+
     if (!containerFilePath) {
       throw Error(`Path to containerfile is incorrect or not provided!`);
     }
@@ -92,6 +96,8 @@ export class BuildImagePage extends BasePage {
     await playExpect(this.doneButton).toBeEnabled({ timeout: 120000 });
     await this.doneButton.scrollIntoViewIfNeeded();
     await this.doneButton.click();
+    console.log(`Image ${imageName} has been built successfully!`);
+
     return new ImagesPage(this.page);
   }
 
