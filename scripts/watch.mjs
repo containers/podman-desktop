@@ -136,6 +136,7 @@ const setupUiPackageWatcher = () => {
   spawnProcess = spawn(exe, ['-w'], {
     cwd: './packages/ui/',
     env: { ...process.env },
+    shell: process.platform === 'win32',
   });
 
   spawnProcess.stdout.on('data', d => d.toString().trim() && logger.warn(d.toString(), { timestamp: true }));
