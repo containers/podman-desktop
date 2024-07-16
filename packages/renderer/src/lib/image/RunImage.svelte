@@ -601,12 +601,12 @@ async function assertAllPortAreValid(): Promise<void> {
   invalidPorts = invalidHostPorts.length > 0 || invalidContainerPortMapping.length > 0;
 }
 
-let volumeDialogOptions: OpenDialogOptions = {
+const volumeDialogOptions: OpenDialogOptions = {
   title: 'Select a directory to mount in the container',
   selectors: ['openDirectory'],
 };
 
-let envDialogOptions: OpenDialogOptions = {
+const envDialogOptions: OpenDialogOptions = {
   title: 'Select environment file',
   selectors: ['openFile'],
 };
@@ -767,7 +767,6 @@ let envDialogOptions: OpenDialogOptions = {
                     id="filePath.{index}"
                     placeholder="Environment file containing KEY=VALUE items"
                     bind:value="{environmentFile}"
-                    readonly
                     options="{envDialogOptions}"
                     aria-label="environmentFile.{index}" />
                   <Button
