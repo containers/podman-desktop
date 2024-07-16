@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023-2024 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
+import { expect as playExpect } from '@playwright/test';
 
 import { SettingsPage } from './settings-page';
 
@@ -34,15 +35,12 @@ export class PreferencesPage extends SettingsPage {
     );
   }
 
-  async selectKubeFile(pathToKube: string): Promise<PreferencesPage> {
+  async selectKubeFile(pathToKube: string): Promise<void> {
     if (!pathToKube) {
       throw Error(`Path to Kube config file is incorrect or not provided!`);
     }
-    // TODO: remove this after the https://github.com/containers/podman-desktop/issues/7689 is implemented
-    await this.kubePathInput.evaluate(node => node.removeAttribute('readonly'));
-    await this.kubePathInput.evaluate(node => node.removeAttribute('disabled'));
     await this.kubePathInput.selectText();
+    playExpect(await this.kubePathInput.inputValue()).toBeDefined();
     await this.kubePathInput.fill(pathToKube);
-    return new PreferencesPage(this.page);
   }
 }

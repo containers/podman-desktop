@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
+import { expect as playExpect } from '@playwright/test';
 
 import { SettingsPage } from './settings-page';
 
@@ -62,7 +63,7 @@ export class KubeContextPage extends SettingsPage {
     }
     const contextReachable = row.getByLabel('Context Reachable');
 
-    return contextReachable.isVisible();
+    return (await contextReachable.count()) > 0;
   }
 
   async setDefaultContext(name: string): Promise<void> {
@@ -71,13 +72,16 @@ export class KubeContextPage extends SettingsPage {
       throw Error(`Context: '${name}' does not exist`);
     }
     const switchButton = contextRow.getByLabel('Set as Current Context');
+    await playExpect(switchButton).toBeEnabled();
     await switchButton.click();
   }
 
   async handleConfirmationDialog(): Promise<void> {
     const confirmationDialog = this.page.getByLabel('Delete Context').filter({ hasText: 'Continue' });
-    if (await confirmationDialog.isVisible()) {
-      await confirmationDialog.getByRole('button', { name: 'Yes' }).click();
+    if ((await confirmationDialog.count()) > 0) {
+      const confirmationButton = confirmationDialog.getByRole('button').nth(2);
+      await playExpect(confirmationButton).toBeEnabled();
+      await confirmationButton.click();
     }
   }
 
@@ -86,7 +90,9 @@ export class KubeContextPage extends SettingsPage {
     if (contextRow === undefined) {
       throw Error(`Context: '${name}' does not exist`);
     }
-    await contextRow.getByLabel('Delete Context').click();
+    const deleteButton = contextRow.getByLabel('Delete Context');
+    await playExpect(deleteButton).toBeEnabled();
+    await deleteButton.click();
     await this.handleConfirmationDialog();
   }
 }
