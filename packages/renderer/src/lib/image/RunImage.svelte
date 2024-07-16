@@ -1,5 +1,6 @@
 <script lang="ts">
-import { faFolderOpen, faMinusCircle, faPlay, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { faMinusCircle, faPlay, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import type { OpenDialogOptions } from '@podman-desktop/api';
 import { Button, Checkbox, ErrorMessage, Input, Tab } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
@@ -16,6 +17,7 @@ import { ContainerUtils } from '../container/container-utils';
 import type { ContainerInfoUI } from '../container/ContainerInfoUI';
 import { splitSpacesHandlingDoubleQuotes } from '../string/string';
 import EngineFormPage from '../ui/EngineFormPage.svelte';
+import FileInput from '../ui/FileInput.svelte';
 import NumberInput from '../ui/NumberInput.svelte';
 import { getTabUrl, isTabSelected } from '../ui/Util';
 import type { ImageInfoUI } from './ImageInfoUI';
@@ -194,16 +196,6 @@ async function getPortsInfo(portDescriptor: string): Promise<string | undefined>
       return undefined;
     }
     return `${localPort}`;
-  }
-}
-
-/**
- * Select an environment file
- */
-async function selectEnvironmentFile(index: number) {
-  const filePaths = await window.openDialog({ title: 'Select environment file' });
-  if (filePaths?.length === 1) {
-    environmentFiles[index] = filePaths[0];
   }
 }
 
@@ -501,18 +493,6 @@ function deleteHostContainerPorts(index: number) {
   assertAllPortAreValid();
 }
 
-async function browseFolders(index: number) {
-  // need to show the dialog to open a folder and then we update the source of the given index
-  const result = await window.openDialog({
-    title: 'Select a directory to mount in the container',
-    selectors: ['openDirectory'],
-  });
-
-  if (result?.length === 1) {
-    volumeMounts[index].source = result[0];
-  }
-}
-
 function addVolumeMount() {
   volumeMounts = [...volumeMounts, { source: '', target: '' }];
 }
@@ -620,6 +600,16 @@ async function assertAllPortAreValid(): Promise<void> {
   const invalidContainerPortMapping = containerPortMapping?.filter(port => port.error) ?? [];
   invalidPorts = invalidHostPorts.length > 0 || invalidContainerPortMapping.length > 0;
 }
+
+const volumeDialogOptions: OpenDialogOptions = {
+  title: 'Select a directory to mount in the container',
+  selectors: ['openDirectory'],
+};
+
+const envDialogOptions: OpenDialogOptions = {
+  title: 'Select environment file',
+  selectors: ['openFile'],
+};
 </script>
 
 <Route path="/*">
@@ -675,12 +665,12 @@ async function assertAllPortAreValid(): Promise<void> {
               <!-- Display the list of volumes -->
               {#each volumeMounts as volumeMount, index}
                 <div class="flex flex-row justify-center items-center w-full py-1">
-                  <Input bind:value="{volumeMount.source}" placeholder="Path on the host" class="ml-2" />
-                  <Button
-                    type="link"
-                    title="Open dialog to select a directory"
-                    icon="{faFolderOpen}"
-                    on:click="{() => browseFolders(index)}" />
+                  <FileInput
+                    id="volumeMount.{index}"
+                    placeholder="Path on the host"
+                    bind:value="{volumeMount.source}"
+                    options="{volumeDialogOptions}"
+                    aria-label="volumeMount.{index}" />
                   <Input bind:value="{volumeMount.target}" placeholder="Path inside the container" class="ml-2" />
                   <Button
                     type="link"
@@ -773,18 +763,12 @@ async function assertAllPortAreValid(): Promise<void> {
               <!-- Display the list of existing environment files -->
               {#each environmentFiles as environmentFile, index}
                 <div class="flex flex-row justify-center items-center w-full py-1">
-                  <div class="w-full flex">
-                    <Input
-                      readonly
-                      clearable
-                      placeholder="Environment file containing KEY=VALUE items"
-                      bind:value="{environmentFile}"
-                      aria-label="environmentFile.{index}" />
-                    <Button
-                      on:click="{() => selectEnvironmentFile(index)}"
-                      id="filePath.{index}"
-                      aria-label="button-select-env-file-{index}">Browse ...</Button>
-                  </div>
+                  <FileInput
+                    id="filePath.{index}"
+                    placeholder="Environment file containing KEY=VALUE items"
+                    bind:value="{environmentFile}"
+                    options="{envDialogOptions}"
+                    aria-label="environmentFile.{index}" />
                   <Button
                     type="link"
                     hidden="{index === environmentFiles.length - 1}"
