@@ -437,6 +437,15 @@ declare module '@podman-desktop/api' {
     // Provider to use for the manifest creation, if not, we will try to select the first one available (similar to podCreate)
     provider?: ContainerProviderConnection;
   }
+
+  // Matches required API parameters of Podman options
+  export interface ManifestPushOptions {
+    destination: string;
+    name: string;
+    // Provider to use for the manifest pushing, if not, we will default to the first one available
+    provider?: ContainerProviderConnection;
+  }
+
   export interface ManifestInspectInfo {
     engineId: string;
     engineName: string;
@@ -3670,6 +3679,7 @@ declare module '@podman-desktop/api' {
     // Manifest related methods
     export function createManifest(options: ManifestCreateOptions): Promise<{ engineId: string; Id: string }>;
     export function inspectManifest(engineId: string, id: string): Promise<ManifestInspectInfo>;
+    export function pushManifest(options: ManifestPushOptions): Promise<void>;
     export function removeManifest(engineId: string, id: string): Promise<void>;
   }
 
