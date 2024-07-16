@@ -55,7 +55,6 @@ import PVCList from './lib/pvc/PVCList.svelte';
 import ServiceDetails from './lib/service/ServiceDetails.svelte';
 import ServicesList from './lib/service/ServicesList.svelte';
 import StatusBar from './lib/statusbar/StatusBar.svelte';
-import ColorsStyle from './lib/style/ColorsStyle.svelte';
 import IconsStyle from './lib/style/IconsStyle.svelte';
 import TaskManager from './lib/task-manager/TaskManager.svelte';
 import ToastHandler from './lib/toast/ToastHandler.svelte';
@@ -86,8 +85,7 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
 </script>
 
 <Route path="/*" breadcrumb="Home" let:meta>
-  <main class="flex flex-col w-screen h-screen overflow-hidden bg-charcoal-800">
-    <ColorsStyle />
+  <main class="flex flex-col w-screen h-screen overflow-hidden">
     <IconsStyle />
     <Appearance />
     <TitleBar />
