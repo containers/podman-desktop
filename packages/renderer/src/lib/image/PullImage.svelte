@@ -134,6 +134,9 @@ function onChange(value: string): void {
 }
 
 async function searchImages(value: string): Promise<{ value: string; label: string }[]> {
+  if (value === undefined || value.trim() === '') {
+    return [];
+  }
   const options: ImageSearchOptions = {
     query: '',
   };
