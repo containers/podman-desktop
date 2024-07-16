@@ -4,6 +4,7 @@ import { router } from 'tinro';
 
 import App from './App.svelte';
 import SealRocket from './lib/images/SealRocket.svelte';
+import ColorsStyle from './lib/style/ColorsStyle.svelte';
 import { lastPage } from './stores/breadcrumb';
 
 let systemReady = false;
@@ -84,6 +85,8 @@ window.events.receive('starting-extensions', (value: unknown) => {
   clearInterval(loadingSequence);
 });
 </script>
+
+<ColorsStyle />
 
 {#if !systemReady}
   <main class="flex flex-row w-screen h-screen justify-center" style="-webkit-app-region: drag;">
