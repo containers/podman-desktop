@@ -6119,10 +6119,10 @@
     "@types/node" "*"
     "@types/ssh2" "*"
 
-"@types/dockerode@^3.3.29":
-  version "3.3.29"
-  resolved "https://registry.yarnpkg.com/@types/dockerode/-/dockerode-3.3.29.tgz#7d3c99a91c381115015587a8a2a71002029e1740"
-  integrity sha512-5PRRq/yt5OT/Jf77ltIdz4EiR9+VLnPF+HpU4xGFwUqmV24Co2HKBNW3w+slqZ1CYchbcDeqJASHDYWzZCcMiQ==
+"@types/dockerode@^3.3.30":
+  version "3.3.30"
+  resolved "https://registry.yarnpkg.com/@types/dockerode/-/dockerode-3.3.30.tgz#df766a75a9cf1fc6d3cdde7d5329f749fd59d457"
+  integrity sha512-MuxQQ7yQ+VzLbrIV2D8K2YqOYBd5Mz4yGbauEipFcn894bLnGwewNKXGKLlb7wpXTG4dn+13lk51qPXmKJ2+YA==
   dependencies:
     "@types/docker-modem" "*"
     "@types/node" "*"
