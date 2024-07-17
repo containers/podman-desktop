@@ -12,10 +12,10 @@
     "svelte-fa": "^4.0.0"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^6.5.1",
-    "@fortawesome/free-brands-svg-icons": "^6.5.1",
-    "@fortawesome/free-regular-svg-icons": "^6.5.1",
-    "@fortawesome/free-solid-svg-icons": "^6.5.1",
+    "@fortawesome/fontawesome-free": "^6.6.0",
+    "@fortawesome/free-brands-svg-icons": "^6.6.0",
+    "@fortawesome/free-regular-svg-icons": "^6.6.0",
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@podman-desktop/ui-svelte": "^0.0.1",
     "eslint": "^9.3.0",
     "svelte-fa": "^4.0.2"
@@ -44,7 +44,7 @@
     "svelte": "5.0.0-next.184",
     "svelte-check": "^3.8.4",
     "svelte-preprocess": "^6.0.2",
-    "tailwindcss": "^3.4.5",
+    "tailwindcss": "^3.4.6",
     "typescript": "^5.5.3",
     "vite": "^5.3.4",
     "vitest": "^1.6.0"
