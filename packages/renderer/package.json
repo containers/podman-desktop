@@ -31,7 +31,7 @@
     "humanize-duration": "^3.32.1",
     "jsdom": "^24.1.0",
     "micromark": "^4.0.0",
-    "micromark-extension-directive": "^3.0.0",
+    "micromark-extension-directive": "^3.0.1",
     "moment": "^2.30.1",
     "monaco-editor": "^0.50.0",
     "postcss": "^8.4.39",
