@@ -23,5 +23,5 @@ onMount(async () => {
 </script>
 
 {#if inspectDetails}
-  <MonacoEditor content="{inspectDetails}" language="json" />
+  <MonacoEditor content={inspectDetails} language="json" />
 {/if}

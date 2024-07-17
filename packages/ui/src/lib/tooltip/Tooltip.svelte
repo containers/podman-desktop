@@ -67,14 +67,14 @@ export let left = false;
   </span>
   <div
     class="whitespace-nowrap absolute tooltip opacity-0 inline-block transition-opacity duration-150 ease-in-out pointer-events-none text-sm z-[10]"
-    class:left="{left}"
-    class:right="{right}"
-    class:bottom="{bottom}"
-    class:top="{top}"
-    class:top-left="{topLeft}"
-    class:top-right="{topRight}"
-    class:bottom-left="{bottomLeft}"
-    class:bottom-right="{bottomRight}">
+    class:left={left}
+    class:right={right}
+    class:bottom={bottom}
+    class:top={top}
+    class:top-left={topLeft}
+    class:top-right={topRight}
+    class:bottom-left={bottomLeft}
+    class:bottom-right={bottomRight}>
     {#if tip}
       <div
         class="inline-block py-2 px-4 rounded-md bg-[var(--pd-tooltip-bg)] text-[var(--pd-tooltip-text)] border-[1px] border-[var(--pd-tooltip-border)]"

@@ -17,7 +17,7 @@ function openExtensionDetails() {
 <div
   class="rounded-lg border border-[var(--pd-content-bg)] flex flex-col bg-[var(--pd-content-card-bg)] hover:border-dustypurple-500 min-h-32 max-h-32"
   role="group"
-  aria-label="{catalogExtensionUI.displayName}">
+  aria-label={catalogExtensionUI.displayName}>
   <!-- if featured need to display a top banner -->
 
   {#if catalogExtensionUI.isFeatured}
@@ -32,7 +32,7 @@ function openExtensionDetails() {
         <div class="flex flex-col w-full">
           <div class="flex-row flex items-center">
             <img
-              src="{catalogExtensionUI.iconHref}"
+              src={catalogExtensionUI.iconHref}
               alt="{catalogExtensionUI.displayName} logo"
               class="mr-2 max-w-10 max-h-10 object-contain" />
 
@@ -51,12 +51,12 @@ function openExtensionDetails() {
 
       {#if catalogExtensionUI.isInstalled}
         <div class="flex flex-1 text-dustypurple-700 p-1 justify-items-end flex-row place-content-end items-center">
-          <Fa class="ml-1.5 mr-2" size="1.1x" icon="{faCheckCircle}" />
+          <Fa class="ml-1.5 mr-2" size="1.1x" icon={faCheckCircle} />
           <div class="uppercase text-sm cursor-default">Already installed</div>
         </div>
       {:else if catalogExtensionUI.fetchable}
         <div class="flex flex-1 justify-items-end w-18 flex-col items-end place-content-center">
-          <FeaturedExtensionDownload extension="{catalogExtensionUI}" />
+          <FeaturedExtensionDownload extension={catalogExtensionUI} />
         </div>
       {/if}
     </div>
@@ -70,9 +70,9 @@ function openExtensionDetails() {
       <div class="flex flex-1 justify-end items-center">
         <Button
           type="link"
-          icon="{faArrowUpRightFromSquare}"
+          icon={faArrowUpRightFromSquare}
           aria-label="{catalogExtensionUI.displayName} details"
-          on:click="{() => openExtensionDetails()}">More details</Button>
+          on:click={() => openExtensionDetails()}>More details</Button>
       </div>
     </div>
   </div>

@@ -38,7 +38,7 @@ function openLink(e: MouseEvent, url: string): void {
           {#if preCheck.docLinks}
             See:
             {#each preCheck.docLinks as link}
-              <a aria-label="precheck-link" href="{link.url}" target="_blank" on:click="{e => openLink(e, link.url)}"
+              <a aria-label="precheck-link" href={link.url} target="_blank" on:click={e => openLink(e, link.url)}
                 >{link.title}</a>
             {/each}
           {/if}

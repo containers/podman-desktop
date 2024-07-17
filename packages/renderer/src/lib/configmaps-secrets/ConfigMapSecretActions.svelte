@@ -31,11 +31,11 @@ async function deleteConfigMapSecret(): Promise<void> {
 </script>
 
 <ListItemButtonIcon
-  title="{`Delete ${configmapSecretUtils.isSecret(configMapSecret) ? 'Secret' : 'ConfigMap'}`}"
-  onClick="{() =>
+  title={`Delete ${configmapSecretUtils.isSecret(configMapSecret) ? 'Secret' : 'ConfigMap'}`}
+  onClick={() =>
     withConfirmation(
       deleteConfigMapSecret,
       `delete ${configmapSecretUtils.isSecret(configMapSecret) ? 'secret' : 'configmap'} ${configMapSecret.name}`,
-    )}"
-  detailed="{detailed}"
-  icon="{faTrash}" />
+    )}
+  detailed={detailed}
+  icon={faTrash} />

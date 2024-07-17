@@ -48,7 +48,7 @@ window.events?.receive('toggle-task-manager', () => {
 </script>
 
 <!-- track keys like "ESC" -->
-<svelte:window on:keyup="{handleEscape}" />
+<svelte:window on:keyup={handleEscape} />
 
 {#if showTaskManager}
   <div title="Tasks manager" class="fixed bottom-9 right-4 bg-[var(--pd-modal-bg)] h-96 w-80 z-40">
@@ -74,10 +74,10 @@ window.events?.receive('toggle-task-manager', () => {
           </div>
           -->
           <button
-            on:click="{() => hide()}"
+            on:click={() => hide()}
             title="Hide (Escape)"
             class="cursor-pointer hover:bg-[var(--pd-invert-content-card-bg)] p-1 ml-1">
-            <Fa icon="{faChevronDown}" size="0.9x" />
+            <Fa icon={faChevronDown} size="0.9x" />
           </button>
         </div>
       </div>
@@ -89,8 +89,8 @@ window.events?.receive('toggle-task-manager', () => {
             <div class="flex bg-[var(--pd-content-bg)] px-4">
               <TaskManagerGroup
                 lineColor="bg-[var(--pd-invert-content-card-bg)]"
-                icon="{faCircle}"
-                tasks="{runningTasks}"
+                icon={faCircle}
+                tasks={runningTasks}
                 title="running tasks" />
             </div>
           {/if}
@@ -100,8 +100,8 @@ window.events?.receive('toggle-task-manager', () => {
             <div class="flex bg-[var(--pd-invert-content-card-bg)] pt-1 px-4">
               <TaskManagerGroup
                 lineColor="bg-[var(--pd-invert-content-bg)]"
-                icon="{faCheck}"
-                tasks="{notificationsTasks}"
+                icon={faCheck}
+                tasks={notificationsTasks}
                 title="notifications" />
             </div>
           {/if}
@@ -113,7 +113,7 @@ window.events?.receive('toggle-task-manager', () => {
       {#if notificationsTasks.length > 0}
         <div class="flex flex-row w-full">
           <div class="p-2 flex flex-row space-x-2 w-full">
-            <Button on:click="{() => clearNotifications()}">Clear</Button>
+            <Button on:click={() => clearNotifications()}>Clear</Button>
             <!--<Button>View task history</Button>-->
           </div>
         </div>

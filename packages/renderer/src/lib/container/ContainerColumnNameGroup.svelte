@@ -28,8 +28,8 @@ function openGroupDetails(containerGroup: ContainerGroupInfoUI): void {
 
 <button
   class="flex flex-col text-[var(--pd-table-body-text-highlight)] max-w-full"
-  title="{object.type}"
-  on:click="{() => openGroupDetails(object)}">
+  title={object.type}
+  on:click={() => openGroupDetails(object)}>
   <div class="max-w-full overflow-hidden text-ellipsis">
     {object.name} ({object.type})
   </div>

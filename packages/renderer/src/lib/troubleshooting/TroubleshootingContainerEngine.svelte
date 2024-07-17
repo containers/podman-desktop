@@ -15,7 +15,7 @@ export let containerEngineRunning: ProviderContainerConnectionInfo;
   </div>
   <div>Actions:</div>
   <div class="mx-4">
-    <TroubleshootingContainerEnginePing providerContainerEngine="{containerEngineRunning}" />
-    <TroubleshootingContainerEngineGrabContainers providerContainerEngine="{containerEngineRunning}" />
+    <TroubleshootingContainerEnginePing providerContainerEngine={containerEngineRunning} />
+    <TroubleshootingContainerEngineGrabContainers providerContainerEngine={containerEngineRunning} />
   </div>
 </div>

@@ -100,15 +100,15 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
       <QuickPickInput />
       <CustomPick />
       <CommandPalette />
-      <AppNavigation meta="{meta}" exitSettingsCallback="{() => router.goto(nonSettingsPage)}" />
+      <AppNavigation meta={meta} exitSettingsCallback={() => router.goto(nonSettingsPage)} />
       {#if meta.url.startsWith('/preferences')}
-        <PreferencesNavigation meta="{meta}" />
+        <PreferencesNavigation meta={meta} />
       {/if}
 
       <div
         class="flex flex-col w-full h-full overflow-hidden"
-        class:bg-[var(--pd-content-bg)]="{!meta.url.startsWith('/preferences')}"
-        class:bg-[var(--pd-invert-content-bg)]="{meta.url.startsWith('/preferences')}">
+        class:bg-[var(--pd-content-bg)]={!meta.url.startsWith('/preferences')}
+        class:bg-[var(--pd-invert-content-bg)]={meta.url.startsWith('/preferences')}>
         <TaskManager />
         <SendFeedback />
         <ToastHandler />
@@ -116,14 +116,14 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
           <DashboardPage />
         </Route>
         <Route path="/containers" breadcrumb="Containers" navigationHint="root">
-          <ContainerList searchTerm="{meta.query.filter || ''}" />
+          <ContainerList searchTerm={meta.query.filter || ''} />
         </Route>
         <Route path="/containers/:id/*" let:meta firstmatch>
           <Route path="/export" breadcrumb="Export Container">
-            <ContainerExport containerID="{meta.params.id}" />
+            <ContainerExport containerID={meta.params.id} />
           </Route>
           <Route breadcrumb="Container Details" navigationHint="details" path="/*">
-            <ContainerDetails containerID="{meta.params.id}" />
+            <ContainerDetails containerID={meta.params.id} />
           </Route>
         </Route>
 
@@ -140,9 +140,9 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
           let:meta
           navigationHint="details">
           <ManifestDetails
-            imageID="{meta.params.id}"
-            engineId="{decodeURI(meta.params.engineId)}"
-            base64RepoTag="{meta.params.base64RepoTag}" />
+            imageID={meta.params.id}
+            engineId={decodeURI(meta.params.engineId)}
+            base64RepoTag={meta.params.base64RepoTag} />
         </Route>
         <Route
           path="/images/:id/:engineId/:base64RepoTag/*"
@@ -150,9 +150,9 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
           let:meta
           navigationHint="details">
           <ImageDetails
-            imageID="{meta.params.id}"
-            engineId="{decodeURI(meta.params.engineId)}"
-            base64RepoTag="{meta.params.base64RepoTag}" />
+            imageID={meta.params.id}
+            engineId={decodeURI(meta.params.engineId)}
+            base64RepoTag={meta.params.base64RepoTag} />
         </Route>
         <Route path="/images/build" breadcrumb="Build an Image">
           <BuildImageFromContainerfile />
@@ -177,25 +177,25 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         </Route>
         <Route path="/deploy-to-kube/:resourceId/:engineId/*" breadcrumb="Deploy to Kubernetes" let:meta>
           <DeployPodToKube
-            resourceId="{decodeURI(meta.params.resourceId)}"
-            engineId="{decodeURI(meta.params.engineId)}"
+            resourceId={decodeURI(meta.params.resourceId)}
+            engineId={decodeURI(meta.params.engineId)}
             type="container" />
         </Route>
         <!-- Same DeployPodToKube route, but instead we pass in the compose group name, then redirect to DeployPodToKube -->
         <Route path="/compose/deploy-to-kube/:composeGroupName/:engineId/*" breadcrumb="Deploy to Kubernetes" let:meta>
           <DeployPodToKube
-            resourceId="{decodeURI(meta.params.composeGroupName)}"
-            engineId="{decodeURI(meta.params.engineId)}"
+            resourceId={decodeURI(meta.params.composeGroupName)}
+            engineId={decodeURI(meta.params.engineId)}
             type="compose" />
         </Route>
         <Route path="/compose/details/:name/:engineId/*" breadcrumb="Compose Details" let:meta navigationHint="details">
-          <ComposeDetails composeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
+          <ComposeDetails composeName={decodeURI(meta.params.name)} engineId={decodeURI(meta.params.engineId)} />
         </Route>
         <Route path="/pods/:kind/:name/:engineId/*" breadcrumb="Pod Details" let:meta navigationHint="details">
           <PodDetails
-            podName="{decodeURI(meta.params.name)}"
-            engineId="{decodeURIComponent(meta.params.engineId)}"
-            kind="{decodeURI(meta.params.kind)}" />
+            podName={decodeURI(meta.params.name)}
+            engineId={decodeURIComponent(meta.params.engineId)}
+            kind={decodeURI(meta.params.kind)} />
         </Route>
         <Route path="/pod-create-from-containers" breadcrumb="Create Pod">
           <PodCreateFromContainers />
@@ -207,13 +207,13 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
           <CreateVolume />
         </Route>
         <Route path="/volumes/:name/:engineId/*" breadcrumb="Volume Details" let:meta navigationHint="details">
-          <VolumeDetails volumeName="{decodeURI(meta.params.name)}" engineId="{decodeURI(meta.params.engineId)}" />
+          <VolumeDetails volumeName={decodeURI(meta.params.name)} engineId={decodeURI(meta.params.engineId)} />
         </Route>
         <Route path="/nodes" breadcrumb="Nodes" navigationHint="root">
           <NodesList />
         </Route>
         <Route path="/nodes/:name/*" breadcrumb="Node Details" let:meta navigationHint="details">
-          <NodeDetails name="{decodeURI(meta.params.name)}" />
+          <NodeDetails name={decodeURI(meta.params.name)} />
         </Route>
         <Route path="/persistentvolumeclaims" breadcrumb="Persistent Volume Claims" navigationHint="root">
           <PVCList />
@@ -223,19 +223,19 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
           breadcrumb="Persistent Volume Claim Details"
           let:meta
           navigationHint="details">
-          <PVCDetails name="{decodeURI(meta.params.name)}" namespace="{decodeURI(meta.params.namespace)}" />
+          <PVCDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
         <Route path="/deployments" breadcrumb="Deployments" navigationHint="root">
           <DeploymentsList />
         </Route>
         <Route path="/deployments/:name/:namespace/*" breadcrumb="Deployment Details" let:meta navigationHint="details">
-          <DeploymentDetails name="{decodeURI(meta.params.name)}" namespace="{decodeURI(meta.params.namespace)}" />
+          <DeploymentDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
         <Route path="/services" breadcrumb="Services" navigationHint="root">
           <ServicesList />
         </Route>
         <Route path="/services/:name/:namespace/*" breadcrumb="Service Details" let:meta navigationHint="details">
-          <ServiceDetails name="{decodeURI(meta.params.name)}" namespace="{decodeURI(meta.params.namespace)}" />
+          <ServiceDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
         <Route path="/ingressesRoutes" breadcrumb="Ingresses & Routes" navigationHint="root">
           <IngressesRoutesList />
@@ -245,7 +245,7 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
           breadcrumb="Ingress Details"
           let:meta
           navigationHint="details">
-          <IngressDetails name="{decodeURI(meta.params.name)}" namespace="{decodeURI(meta.params.namespace)}" />
+          <IngressDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
         <Route path="/configmapsSecrets" breadcrumb="ConfigMaps & Secrets" navigationHint="root">
           <ConfigMapSecretList />
@@ -255,21 +255,21 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
           breadcrumb="ConfigMap Details"
           let:meta
           navigationHint="details">
-          <ConfigMapDetails name="{decodeURI(meta.params.name)}" namespace="{decodeURI(meta.params.namespace)}" />
+          <ConfigMapDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
         <Route
           path="/configmapsSecrets/secret/:name/:namespace/*"
           breadcrumb="Secret Details"
           let:meta
           navigationHint="details">
-          <SecretDetails name="{decodeURI(meta.params.name)}" namespace="{decodeURI(meta.params.namespace)}" />
+          <SecretDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
         <Route
           path="/ingressesRoutes/route/:name/:namespace/*"
           breadcrumb="Route Details"
           let:meta
           navigationHint="details">
-          <RouteDetails name="{decodeURI(meta.params.name)}" namespace="{decodeURI(meta.params.namespace)}" />
+          <RouteDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
         <Route path="/preferences/*" breadcrumb="Settings">
           <PreferencesPage />
@@ -277,15 +277,15 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
 
         <Route path="/global-onboarding" breadcrumb="Extension Onboarding" let:meta navigationHint="details">
           <Onboarding
-            extensionIds="{meta.query.ids ? decodeURIComponent(meta.query.ids).split(',') : []}"
-            global="{true}" />
+            extensionIds={meta.query.ids ? decodeURIComponent(meta.query.ids).split(',') : []}
+            global={true} />
         </Route>
 
         <Route path="/contribs/:name/*" breadcrumb="Extension" let:meta>
-          <DockerExtension name="{decodeURI(meta.params.name)}" />
+          <DockerExtension name={decodeURI(meta.params.name)} />
         </Route>
         <Route path="/webviews/:id/*" breadcrumb="Webview" let:meta>
-          <Webview id="{meta.params.id}" />
+          <Webview id={meta.params.id} />
         </Route>
         <Route path="/help" breadcrumb="Help">
           <HelpPage />
@@ -297,7 +297,7 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
           <ExtensionList />
         </Route>
         <Route path="/extensions/details/:id/*" breadcrumb="Extension Details" let:meta navigationHint="details">
-          <ExtensionDetails extensionId="{meta.params.id}" />
+          <ExtensionDetails extensionId={meta.params.id} />
         </Route>
       </div>
     </div>

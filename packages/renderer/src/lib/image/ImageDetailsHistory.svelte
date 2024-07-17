@@ -18,5 +18,5 @@ onMount(async () => {
 </script>
 
 {#if history}
-  <MonacoEditor content="{history}" language="text" />
+  <MonacoEditor content={history} language="text" />
 {/if}

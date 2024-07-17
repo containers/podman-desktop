@@ -8,7 +8,7 @@ export let inProgress = false;
 export let showEmptyScreen: boolean = false;
 </script>
 
-<FormPage title="{title}" showBreadcrumb="{showBreadcrumb}" inProgress="{inProgress}">
+<FormPage title={title} showBreadcrumb={showBreadcrumb} inProgress={inProgress}>
   <slot slot="icon" name="icon" />
   <slot slot="actions" name="actions" />
   <slot slot="tabs" name="tabs" />

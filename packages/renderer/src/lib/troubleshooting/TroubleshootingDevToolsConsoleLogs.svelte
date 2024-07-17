@@ -26,11 +26,11 @@ function copyLogsToClipboard() {
 
 <div class="flex flex-col w-full m-4 bg-charcoal-600 p-4 rounded-lg">
   <div class="flex flex-row align-middle items-center w-full mb-4">
-    <Fa size="1.875x" class="pr-3 text-gray-700" icon="{faFileLines}" />
+    <Fa size="1.875x" class="pr-3 text-gray-700" icon={faFileLines} />
     <div class="text-xl">Logs</div>
     <div class="flex flex-1 justify-end">
-      <button title="Copy To Clipboard" class="ml-5" on:click="{() => copyLogsToClipboard()}"
-        ><Fa class="h-5 w-5 cursor-pointer text-xl text-purple-500 hover:text-purple-600" icon="{faPaste}" /></button>
+      <button title="Copy To Clipboard" class="ml-5" on:click={() => copyLogsToClipboard()}
+        ><Fa class="h-5 w-5 cursor-pointer text-xl text-purple-500 hover:text-purple-600" icon={faPaste} /></button>
     </div>
   </div>
   {#if logs.length > 0}

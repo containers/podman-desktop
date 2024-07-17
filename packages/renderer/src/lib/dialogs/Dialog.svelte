@@ -11,12 +11,12 @@ export let onclose: () => void = () => {
 };
 </script>
 
-<Modal name="{title}" on:close="{onclose}">
+<Modal name={title} on:close={onclose}>
   <div class="flex items-center justify-between pl-4 pr-3 py-3 space-x-2 text-[var(--pd-modal-header-text)]">
     <slot name="icon" />
     <h1 class="grow text-lg font-bold capitalize">{title}</h1>
 
-    <CloseButton on:click="{() => onclose()}" />
+    <CloseButton on:click={() => onclose()} />
   </div>
 
   <div class="max-h-80 overflow-auto text-[var(--pd-modal-text)] px-10 py-4">

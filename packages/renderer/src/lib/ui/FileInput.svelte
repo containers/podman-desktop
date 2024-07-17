@@ -21,17 +21,17 @@ async function openDialog() {
 
 <div class="flex flex-row grow space-x-1.5">
   <Input
-    id="{id}"
-    name="{name}"
-    class="{$$props.class || ''}"
-    bind:value="{value}"
+    id={id}
+    name={name}
+    class={$$props.class || ''}
+    bind:value={value}
     on:input
     on:keypress
-    placeholder="{placeholder}"
-    readonly="{readonly}"
-    required="{required}"
-    aria-label="{$$props['aria-label']}"
-    aria-invalid="{$$props['aria-invalid']}">
+    placeholder={placeholder}
+    readonly={readonly}
+    required={required}
+    aria-label={$$props['aria-label']}
+    aria-invalid={$$props['aria-invalid']}>
   </Input>
-  <Button aria-label="browse" icon="{faFolderOpen}" on:click="{openDialog}" />
+  <Button aria-label="browse" icon={faFolderOpen} on:click={openDialog} />
 </div>

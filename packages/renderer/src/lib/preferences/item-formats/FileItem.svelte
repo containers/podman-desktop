@@ -28,11 +28,11 @@ $: if (value !== lastValue) {
 <div class="w-full flex">
   <FileInput
     id="input-standard-{record.id}"
-    name="{record.id}"
-    bind:value="{value}"
+    name={record.id}
+    bind:value={value}
     readonly
-    placeholder="{record.placeholder}"
-    options="{dialogOptions}"
-    aria-invalid="{invalidEntry}"
-    aria-label="{record.description}" />
+    placeholder={record.placeholder}
+    options={dialogOptions}
+    aria-invalid={invalidEntry}
+    aria-label={record.description} />
 </div>

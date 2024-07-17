@@ -54,13 +54,13 @@ function handleSelectionChange(event: Event) {
     <div class="w-full">
       {#if pod.containers.length > 1}
         <select
-          on:change="{handleSelectionChange}"
+          on:change={handleSelectionChange}
           aria-labelledby="listbox-label"
           class="block w-48 p-1 outline-none text-sm bg-charcoal-800 rounded-sm text-gray-700 placeholder-gray-700"
-          name="{pod.name}"
+          name={pod.name}
           id="input-standard-{pod.name}">
           {#each pod.containers as container}
-            <option value="{container.Names}">{container.Names}</option>
+            <option value={container.Names}>{container.Names}</option>
           {/each}
         </select>
       {:else}
@@ -76,7 +76,7 @@ function handleSelectionChange(event: Event) {
     {#key key}
       {#if terminalService.hasTerminal(pod.name, currentContainerName) && currentContainerStatus.get(currentContainerName) === 'running'}
         <svelte:component
-          this="{terminalService.getTerminal(pod.name, currentContainerName).component}"
+          this={terminalService.getTerminal(pod.name, currentContainerName).component}
           {...terminalService.getTerminal(pod.name, currentContainerName).props} />
       {/if}
     {/key}
@@ -84,7 +84,7 @@ function handleSelectionChange(event: Event) {
 </div>
 
 <EmptyScreen
-  hidden="{!currentContainerStatus.get(currentContainerName)}"
-  icon="{NoLogIcon}"
+  hidden={!currentContainerStatus.get(currentContainerName)}
+  icon={NoLogIcon}
   title="No Terminal"
   message="Container is not running" />

@@ -72,22 +72,22 @@ async function handleDeleteContext(contextName: string) {
     <!-- Use KubernetesIcon in the future / not EngineIcon -->
     <EmptyScreen
       aria-label="No Resource Panel"
-      icon="{EngineIcon}"
+      icon={EngineIcon}
       title="No Kubernetes contexts found"
       message="Check that $HOME/.kube/config exists or KUBECONFIG environment variable has been set correctly."
-      hidden="{$kubernetesContexts.length > 0}" />
+      hidden={$kubernetesContexts.length > 0} />
     {#each $kubernetesContexts as context}
       <!-- If current context, use lighter background -->
       <div
         role="row"
-        aria-label="{context.name}"
+        aria-label={context.name}
         class="bg-[var(--pd-invert-content-card-bg)] mb-5 rounded-md p-3 flex-nowrap">
         <div class="pb-2">
           <div class="flex">
             {#if context?.icon}
               {#if typeof context.icon === 'string'}
                 <img
-                  src="{context.icon}"
+                  src={context.icon}
                   aria-label="Context Logo"
                   alt="{context.name} logo"
                   class="max-w-[40px] h-full" />
@@ -108,16 +108,14 @@ async function handleDeleteContext(contextName: string) {
             {#if !context.currentContext}
               <ListItemButtonIcon
                 title="Set as Current Context"
-                icon="{faRightToBracket}"
-                onClick="{() => handleSetContext(context.name)}"></ListItemButtonIcon>
+                icon={faRightToBracket}
+                onClick={() => handleSetContext(context.name)}></ListItemButtonIcon>
             {/if}
-            <ListItemButtonIcon
-              title="Delete Context"
-              icon="{faTrash}"
-              onClick="{() => handleDeleteContext(context.name)}"></ListItemButtonIcon>
+            <ListItemButtonIcon title="Delete Context" icon={faTrash} onClick={() => handleDeleteContext(context.name)}
+            ></ListItemButtonIcon>
           </div>
           {#if context.error}
-            <ErrorMessage class="text-sm" aria-label="Context Error" error="{context.error}" />
+            <ErrorMessage class="text-sm" aria-label="Context Error" error={context.error} />
           {/if}
         </div>
         <div class="grow flex-column divide-gray-900 text-[var(--pd-invert-content-card-text)]">

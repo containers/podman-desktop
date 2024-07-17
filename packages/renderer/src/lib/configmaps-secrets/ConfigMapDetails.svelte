@@ -59,37 +59,28 @@ async function loadDetails() {
 </script>
 
 {#if configMap}
-  <DetailsPage title="{configMap.name}" subtitle="{configMap.namespace}" bind:this="{detailsPage}">
-    <StatusIcon slot="icon" icon="{ConfigMapIcon}" size="{24}" status="{configMap.status}" />
+  <DetailsPage title={configMap.name} subtitle={configMap.namespace} bind:this={detailsPage}>
+    <StatusIcon slot="icon" icon={ConfigMapIcon} size={24} status={configMap.status} />
     <svelte:fragment slot="actions">
-      <ConfigMapSecretActions
-        configMapSecret="{configMap}"
-        detailed="{true}"
-        on:update="{() => (configMap = configMap)}" />
+      <ConfigMapSecretActions configMapSecret={configMap} detailed={true} on:update={() => (configMap = configMap)} />
     </svelte:fragment>
     <div slot="detail" class="flex py-2 w-full justify-end text-sm text-gray-700">
-      <StateChange state="{configMap.status}" />
+      <StateChange state={configMap.status} />
     </div>
     <svelte:fragment slot="tabs">
-      <Tab
-        title="Summary"
-        selected="{isTabSelected($router.path, 'summary')}"
-        url="{getTabUrl($router.path, 'summary')}" />
-      <Tab
-        title="Inspect"
-        selected="{isTabSelected($router.path, 'inspect')}"
-        url="{getTabUrl($router.path, 'inspect')}" />
-      <Tab title="Kube" selected="{isTabSelected($router.path, 'kube')}" url="{getTabUrl($router.path, 'kube')}" />
+      <Tab title="Summary" selected={isTabSelected($router.path, 'summary')} url={getTabUrl($router.path, 'summary')} />
+      <Tab title="Inspect" selected={isTabSelected($router.path, 'inspect')} url={getTabUrl($router.path, 'inspect')} />
+      <Tab title="Kube" selected={isTabSelected($router.path, 'kube')} url={getTabUrl($router.path, 'kube')} />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
-        <ConfigMapDetailsSummary configMap="{kubeConfigMap}" kubeError="{kubeError}" />
+        <ConfigMapDetailsSummary configMap={kubeConfigMap} kubeError={kubeError} />
       </Route>
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
-        <MonacoEditor content="{JSON.stringify(kubeConfigMap, undefined, 2)}" language="json" />
+        <MonacoEditor content={JSON.stringify(kubeConfigMap, undefined, 2)} language="json" />
       </Route>
       <Route path="/kube" breadcrumb="Kube" navigationHint="tab">
-        <KubeEditYAML content="{stringify(kubeConfigMap)}" />
+        <KubeEditYAML content={stringify(kubeConfigMap)} />
       </Route>
     </svelte:fragment>
   </DetailsPage>

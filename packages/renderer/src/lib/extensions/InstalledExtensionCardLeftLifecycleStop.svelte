@@ -18,9 +18,9 @@ async function stopExtension(): Promise<void> {
 
 {#if extension.state === 'started' || extension.state === 'starting'}
   <LoadingIconButton
-    clickAction="{() => stopExtension()}"
+    clickAction={() => stopExtension()}
     action="stop"
-    icon="{faStop}"
-    state="{{ status: extension.type === 'dd' ? 'unsupported' : extension.state, inProgress }}"
+    icon={faStop}
+    state={{ status: extension.type === 'dd' ? 'unsupported' : extension.state, inProgress }}
     leftPosition="" />
 {/if}

@@ -54,4 +54,4 @@ onDestroy(() => {
 });
 </script>
 
-<div class="{$$props.class}" bind:this="{logsXtermDiv}"></div>
+<div class={$$props.class} bind:this={logsXtermDiv}></div>

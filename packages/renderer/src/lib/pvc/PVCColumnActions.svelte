@@ -5,4 +5,4 @@ import type { PVCUI } from './PVCUI';
 export let object: PVCUI;
 </script>
 
-<PVCActions pvc="{object}" on:update />
+<PVCActions pvc={object} on:update />

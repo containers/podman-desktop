@@ -14,4 +14,4 @@ let meta: TinroRouteMeta = { url: '/test' } as TinroRouteMeta;
 setContext('nav-items', writable(0));
 </script>
 
-<NavItem tooltip="Dashboard" href="/test" bind:meta="{meta}"></NavItem>
+<NavItem tooltip="Dashboard" href="/test" bind:meta={meta}></NavItem>

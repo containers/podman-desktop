@@ -65,70 +65,64 @@ onMount(() => {
 </script>
 
 {#if container}
-  <DetailsPage title="{container.name}" bind:this="{detailsPage}">
-    <StatusIcon slot="icon" icon="{ContainerIcon}" size="{24}" status="{container.state}" />
+  <DetailsPage title={container.name} bind:this={detailsPage}>
+    <StatusIcon slot="icon" icon={ContainerIcon} size={24} status={container.state} />
     <svelte:fragment slot="subtitle">
       <Link
-        on:click="{() => {
+        on:click={() => {
           if (container.imageHref) {
             router.goto(container.imageHref);
           }
-        }}">{container.shortImage}</Link>
+        }}>{container.shortImage}</Link>
     </svelte:fragment>
     <svelte:fragment slot="actions">
       <div class="flex items-center w-5">
         {#if container.actionError}
-          <ErrorMessage error="{container.actionError}" icon />
+          <ErrorMessage error={container.actionError} icon />
         {:else}
           <div>&nbsp;</div>
         {/if}
       </div>
-      <ContainerActions container="{container}" detailed="{true}" on:update="{() => (container = container)}" />
+      <ContainerActions container={container} detailed={true} on:update={() => (container = container)} />
     </svelte:fragment>
     <div slot="detail" class="flex py-2 w-full justify-end text-sm text-gray-700">
-      <StateChange state="{container.state}" />
-      <ContainerStatistics container="{container}" />
+      <StateChange state={container.state} />
+      <ContainerStatistics container={container} />
     </div>
     <svelte:fragment slot="tabs">
-      <Tab
-        title="Summary"
-        selected="{isTabSelected($router.path, 'summary')}"
-        url="{getTabUrl($router.path, 'summary')}" />
-      <Tab title="Logs" selected="{isTabSelected($router.path, 'logs')}" url="{getTabUrl($router.path, 'logs')}" />
-      <Tab
-        title="Inspect"
-        selected="{isTabSelected($router.path, 'inspect')}"
-        url="{getTabUrl($router.path, 'inspect')}" />
+      <Tab title="Summary" selected={isTabSelected($router.path, 'summary')} url={getTabUrl($router.path, 'summary')} />
+      <Tab title="Logs" selected={isTabSelected($router.path, 'logs')} url={getTabUrl($router.path, 'logs')} />
+      <Tab title="Inspect" selected={isTabSelected($router.path, 'inspect')} url={getTabUrl($router.path, 'inspect')} />
 
       {#if container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE}
-        <Tab title="Kube" selected="{isTabSelected($router.path, 'kube')}" url="{getTabUrl($router.path, 'kube')}" />
+        <Tab title="Kube" selected={isTabSelected($router.path, 'kube')} url={getTabUrl($router.path, 'kube')} />
       {/if}
       <Tab
         title="Terminal"
-        selected="{isTabSelected($router.path, 'terminal')}"
-        url="{getTabUrl($router.path, 'terminal')}" />
+        selected={isTabSelected($router.path, 'terminal')}
+        url={getTabUrl($router.path, 'terminal')} />
       {#if displayTty}
-        <Tab title="Tty" selected="{isTabSelected($router.path, 'tty')}" url="{getTabUrl($router.path, 'tty')}" />
+        <Tab title="Tty" selected={isTabSelected($router.path, 'tty')} url={getTabUrl($router.path, 'tty')} />
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
-        <ContainerDetailsSummary container="{container}" />
+        <ContainerDetailsSummary container={container} />
       </Route>
       <Route path="/logs" breadcrumb="Logs" navigationHint="tab">
-        <ContainerDetailsLogs container="{container}" />
+        <ContainerDetailsLogs container={container} />
       </Route>
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
-        <ContainerDetailsInspect container="{container}" />
+        <ContainerDetailsInspect container={container} />
       </Route>
       <Route path="/kube" breadcrumb="Kube" navigationHint="tab">
-        <ContainerDetailsKube container="{container}" />
+        <ContainerDetailsKube container={container} />
       </Route>
       <Route path="/terminal" breadcrumb="Terminal" navigationHint="tab">
-        <ContainerDetailsTerminal container="{container}" />
+        <ContainerDetailsTerminal container={container} />
       </Route>
       <Route path="/tty" breadcrumb="Tty" navigationHint="tab">
-        <ContainerDetailsTtyTerminal container="{container}" />
+        <ContainerDetailsTtyTerminal container={container} />
       </Route>
     </svelte:fragment>
   </DetailsPage>

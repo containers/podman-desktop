@@ -78,9 +78,9 @@ if (artifact?.annotations) {
     <tr>
       <Cell
         style="cursor-pointer flex items-center"
-        onClick="{() => (internalLabelsDropdownOpen = !internalLabelsDropdownOpen)}">
+        onClick={() => (internalLabelsDropdownOpen = !internalLabelsDropdownOpen)}>
         Internal Labels
-        <Fa class="ml-1" size="0.9x" icon="{internalLabelsDropdownOpen ? faChevronDown : faChevronRight}" />
+        <Fa class="ml-1" size="0.9x" icon={internalLabelsDropdownOpen ? faChevronDown : faChevronRight} />
       </Cell>
       <Cell>
         {#if internalLabelsDropdownOpen}
@@ -110,9 +110,9 @@ if (artifact?.annotations) {
     <tr>
       <Cell
         style="cursor-pointer flex items-center"
-        onClick="{() => (internalAnnotationsDropdownOpen = !internalAnnotationsDropdownOpen)}">
+        onClick={() => (internalAnnotationsDropdownOpen = !internalAnnotationsDropdownOpen)}>
         Internal Annotations
-        <Fa class="ml-1" size="0.9x" icon="{internalAnnotationsDropdownOpen ? faChevronDown : faChevronRight}" />
+        <Fa class="ml-1" size="0.9x" icon={internalAnnotationsDropdownOpen ? faChevronDown : faChevronRight} />
       </Cell>
       <Cell>
         {#if internalAnnotationsDropdownOpen}

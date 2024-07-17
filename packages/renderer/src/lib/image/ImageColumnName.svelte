@@ -15,7 +15,7 @@ function openDetails(image: ImageInfoUI) {
 }
 </script>
 
-<button class="flex flex-col max-w-full" on:click="{() => openDetails(object)}">
+<button class="flex flex-col max-w-full" on:click={() => openDetails(object)}>
   <div class="flex flex-row gap-1 items-center max-w-full">
     <div class="text-[var(--pd-table-body-text-highlight)] overflow-hidden text-ellipsis">
       {object.name}
@@ -23,7 +23,7 @@ function openDetails(image: ImageInfoUI) {
     </div>
     {#if object.badges.length}
       {#each object.badges as badge}
-        <Badge color="{badge.color}" label="{badge.label}" />
+        <Badge color={badge.color} label={badge.label} />
       {/each}
     {/if}
   </div>

@@ -57,34 +57,28 @@ async function loadDetails() {
 </script>
 
 {#if service}
-  <DetailsPage title="{service.name}" subtitle="{service.namespace}" bind:this="{detailsPage}">
-    <StatusIcon slot="icon" icon="{ServiceIcon}" size="{24}" status="{service.status}" />
+  <DetailsPage title={service.name} subtitle={service.namespace} bind:this={detailsPage}>
+    <StatusIcon slot="icon" icon={ServiceIcon} size={24} status={service.status} />
     <svelte:fragment slot="actions">
-      <ServiceActions service="{service}" detailed="{true}" on:update="{() => (service = service)}" />
+      <ServiceActions service={service} detailed={true} on:update={() => (service = service)} />
     </svelte:fragment>
     <div slot="detail" class="flex py-2 w-full justify-end text-sm text-gray-700">
-      <StateChange state="{service.status}" />
+      <StateChange state={service.status} />
     </div>
     <svelte:fragment slot="tabs">
-      <Tab
-        title="Summary"
-        selected="{isTabSelected($router.path, 'summary')}"
-        url="{getTabUrl($router.path, 'summary')}" />
-      <Tab
-        title="Inspect"
-        selected="{isTabSelected($router.path, 'inspect')}"
-        url="{getTabUrl($router.path, 'inspect')}" />
-      <Tab title="Kube" selected="{isTabSelected($router.path, 'kube')}" url="{getTabUrl($router.path, 'kube')}" />
+      <Tab title="Summary" selected={isTabSelected($router.path, 'summary')} url={getTabUrl($router.path, 'summary')} />
+      <Tab title="Inspect" selected={isTabSelected($router.path, 'inspect')} url={getTabUrl($router.path, 'inspect')} />
+      <Tab title="Kube" selected={isTabSelected($router.path, 'kube')} url={getTabUrl($router.path, 'kube')} />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
-        <ServiceDetailsSummary service="{kubeService}" kubeError="{kubeError}" />
+        <ServiceDetailsSummary service={kubeService} kubeError={kubeError} />
       </Route>
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
-        <MonacoEditor content="{JSON.stringify(kubeService, undefined, 2)}" language="json" />
+        <MonacoEditor content={JSON.stringify(kubeService, undefined, 2)} language="json" />
       </Route>
       <Route path="/kube" breadcrumb="Kube" navigationHint="tab">
-        <KubeEditYAML content="{stringify(kubeService)}" />
+        <KubeEditYAML content={stringify(kubeService)} />
       </Route>
     </svelte:fragment>
   </DetailsPage>

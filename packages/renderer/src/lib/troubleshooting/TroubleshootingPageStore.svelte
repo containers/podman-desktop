@@ -22,25 +22,25 @@ let openDetails = false;
 </script>
 
 <div class="flex flex-col bg-charcoal-800 p-2 items-center rounded w-full">
-  <div><svelte:component this="{eventStoreInfo.iconComponent}" size="20" /></div>
+  <div><svelte:component this={eventStoreInfo.iconComponent} size="20" /></div>
   <div class="text-xl">
     <button
-      disabled="{fetchInProgress}"
+      disabled={fetchInProgress}
       class="underline outline-none"
       title="Open Details"
       aria-label="Open Details"
-      on:click="{() => (openDetails = true)}">
+      on:click={() => (openDetails = true)}>
       {eventStoreInfo.name}
     </button>
   </div>
   <div class="text-sm">({eventStoreInfo.size} items)</div>
   <div class="">
     <Button
-      bind:inProgress="{fetchInProgress}"
+      bind:inProgress={fetchInProgress}
       class="my-1"
       aria-label="Refresh"
-      on:click="{() => fetch()}"
-      icon="{faRefresh}">
+      on:click={() => fetch()}
+      icon={faRefresh}>
       Refresh
     </Button>
   </div>
@@ -53,9 +53,9 @@ let openDetails = false;
 
   {#if openDetails}
     <TroubleshootingPageStoreDetails
-      closeCallback="{() => {
+      closeCallback={() => {
         openDetails = false;
-      }}"
-      eventStoreInfo="{eventStoreInfo}" />
+      }}
+      eventStoreInfo={eventStoreInfo} />
   {/if}
 </div>

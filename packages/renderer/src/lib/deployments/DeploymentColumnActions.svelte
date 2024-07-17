@@ -5,4 +5,4 @@ import type { DeploymentUI } from './DeploymentUI';
 export let object: DeploymentUI;
 </script>
 
-<DeploymentActions deployment="{object}" on:update />
+<DeploymentActions deployment={object} on:update />

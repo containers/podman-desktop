@@ -433,13 +433,13 @@ function getConnectionResourceConfigurationValue(
 
 <div class="flex flex-col w-full h-full overflow-hidden">
   {#if operationSuccessful && !disableEmptyScreen}
-    <EmptyScreen icon="{faCubes}" title="{operationLabel}" message="Successful operation">
+    <EmptyScreen icon={faCubes} title={operationLabel} message="Successful operation">
       <Button
         class="py-3"
-        on:click="{() => {
+        on:click={() => {
           cleanup();
           router.goto('/preferences/resources');
-        }}">
+        }}>
         Go back to resources
       </Button>
     </EmptyScreen>
@@ -460,42 +460,42 @@ function getConnectionResourceConfigurationValue(
                 <button
                   aria-label="Show Logs"
                   class="text-xs mr-3 hover:underline"
-                  on:click="{() => (showLogs = !showLogs)}"
+                  on:click={() => (showLogs = !showLogs)}
                   >Show Logs <i class="fas {showLogs ? 'fa-angle-up' : 'fa-angle-down'}" aria-hidden="true"></i
                   ></button>
                 <button
                   aria-label="Cancel {operationLabel.toLowerCase()}"
                   class="text-xs {errorMessage ? 'mr-3' : ''} hover:underline {tokenId ? '' : 'hidden'}"
-                  disabled="{!tokenId}"
-                  on:click="{cancelCreation}">Cancel</button>
+                  disabled={!tokenId}
+                  on:click={cancelCreation}>Cancel</button>
                 <button
                   class="text-xs hover:underline {inProgress ? 'hidden' : ''}"
                   aria-label="Close panel"
-                  on:click="{closePanel}">Close</button>
+                  on:click={closePanel}>Close</button>
               </div>
             </div>
             <div id="log" class="pt-2 h-80 {showLogs ? '' : 'hidden'}">
               <div class="w-full h-full">
-                <TerminalWindow bind:terminal="{logsTerminal}" />
+                <TerminalWindow bind:terminal={logsTerminal} />
               </div>
             </div>
           </div>
         {/if}
         {#if errorMessage}
           <div class="pt-3 mt-2 w-4/5 h-fit">
-            <ErrorMessage error="{errorMessage}" />
+            <ErrorMessage error={errorMessage} />
           </div>
         {/if}
 
         <div class="p-3 mt-2 w-4/5 h-fit {inProgress ? 'opacity-40 pointer-events-none' : ''}">
           {#if connectionAuditResult && (connectionAuditResult.records?.length ?? 0) > 0}
-            <AuditMessageBox auditResult="{connectionAuditResult}" />
+            <AuditMessageBox auditResult={connectionAuditResult} />
           {/if}
           <form
             novalidate
             class="p-2 space-y-7 h-fit"
-            on:submit|preventDefault="{handleOnSubmit}"
-            bind:this="{formEl}"
+            on:submit|preventDefault={handleOnSubmit}
+            bind:this={formEl}
             aria-label="Properties Information">
             {#each configurationKeys as configurationKey}
               <div class="mb-2.5">
@@ -503,35 +503,35 @@ function getConnectionResourceConfigurationValue(
                   {#if configurationKey.description}
                     {configurationKey.description}:
                   {:else if configurationKey.markdownDescription && configurationKey.type !== 'markdown'}
-                    <Markdown markdown="{configurationKey.markdownDescription}" />
+                    <Markdown markdown={configurationKey.markdownDescription} />
                   {/if}
                   {#if configurationKey.format === 'memory' || configurationKey.format === 'diskSize' || configurationKey.format === 'cpu'}
                     <div class="text-gray-600">
                       <EditableConnectionResourceItem
-                        record="{configurationKey}"
-                        value="{getConnectionResourceConfigurationValue(configurationKey, configurationValues)}"
-                        onSave="{setConfigurationValue}" />
+                        record={configurationKey}
+                        value={getConnectionResourceConfigurationValue(configurationKey, configurationValues)}
+                        onSave={setConfigurationValue} />
                     </div>
                   {/if}
                 </div>
                 {#if configurationValues}
                   <PreferencesRenderingItemFormat
-                    invalidRecord="{handleInvalidComponent}"
-                    validRecord="{handleValidComponent}"
-                    record="{configurationKey}"
-                    setRecordValue="{setConfigurationValue}"
-                    enableSlider="{true}"
-                    initialValue="{getConfigurationValue(configurationKey)}"
-                    givenValue="{getConnectionResourceConfigurationValue(configurationKey, configurationValues)}" />
+                    invalidRecord={handleInvalidComponent}
+                    validRecord={handleValidComponent}
+                    record={configurationKey}
+                    setRecordValue={setConfigurationValue}
+                    enableSlider={true}
+                    initialValue={getConfigurationValue(configurationKey)}
+                    givenValue={getConnectionResourceConfigurationValue(configurationKey, configurationValues)} />
                 {/if}
               </div>
             {/each}
             <div class="w-full">
               <div class="float-right">
                 {#if !hideCloseButton}
-                  <Button type="link" aria-label="Close page" on:click="{closePage}">Close</Button>
+                  <Button type="link" aria-label="Close page" on:click={closePage}>Close</Button>
                 {/if}
-                <Button disabled="{!isValid}" inProgress="{inProgress}" on:click="{() => formEl.requestSubmit()}"
+                <Button disabled={!isValid} inProgress={inProgress} on:click={() => formEl.requestSubmit()}
                   >{buttonLabel}</Button>
               </div>
             </div>

@@ -14,13 +14,13 @@ export let kubeError: string | undefined = undefined;
 <!-- Show the kube error if we're unable to retrieve the data correctly, but we still want to show the
 basic information -->
 {#if kubeError}
-  <ErrorMessage error="{kubeError}" />
+  <ErrorMessage error={kubeError} />
 {/if}
 
 <Table>
   {#if secret}
-    <KubeObjectMetaArtifact artifact="{secret.metadata}" />
-    <KubeSecretArtifact artifact="{secret}" />
+    <KubeObjectMetaArtifact artifact={secret.metadata} />
+    <KubeSecretArtifact artifact={secret} />
   {:else}
     <p class="text-purple-500 font-medium">Loading ...</p>
   {/if}

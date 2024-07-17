@@ -46,20 +46,18 @@ onDestroy(() => {
     </div>
     <div class="mb-2 flex flex-row pr-12 pb-2">
       <span class="grow">Layers</span>
-      <span><Checkbox bind:checked="{showLayerOnly}">Show layer only</Checkbox></span>
+      <span><Checkbox bind:checked={showLayerOnly}>Show layer only</Checkbox></span>
     </div>
     <div class="h-full flex flex-row space-x-8">
       <div role="list" aria-label="layers" class="h-full overflow-y-auto w-3/4">
-        <ImageDetailsFilesLayers
-          on:selected="{onSelectedLayer}"
-          layers="{toImageFilesystemLayerUIs(imageLayers.layers)}" />
+        <ImageDetailsFilesLayers on:selected={onSelectedLayer} layers={toImageFilesystemLayerUIs(imageLayers.layers)} />
       </div>
       <div aria-label="tree" class="h-full w-full pr-4 overflow-y-auto pb-16">
         {#if selectedLayer}
           <div class="text-xs grid grid-cols-[90px_60px_70px_1fr]">
             <FilesystemLayerView
-              tree="{showLayerOnly ? selectedLayer.layerTree.root : selectedLayer.stackTree.root}"
-              layerMode="{showLayerOnly}" />
+              tree={showLayerOnly ? selectedLayer.layerTree.root : selectedLayer.stackTree.root}
+              layerMode={showLayerOnly} />
           </div>
         {/if}
       </div>
