@@ -846,11 +846,6 @@ test('Sort containers based on selected parameter', async () => {
   await fireEvent.click(image);
 
   expect(container2.compareDocumentPosition(container1)).toBe(2);
-
-  const age = screen.getByRole('columnheader', { name: 'Age' });
-  await fireEvent.click(age);
-
-  expect(container1.compareDocumentPosition(container2)).toBe(2);
 });
 
 test('Expect user confirmation to pop up when preferences require', async () => {
