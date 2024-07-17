@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^6.5.2",
-    "@fortawesome/free-brands-svg-icons": "^6.5.2",
+    "@fortawesome/free-brands-svg-icons": "^6.6.0",
     "@fortawesome/free-regular-svg-icons": "^6.5.2",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@sveltejs/vite-plugin-svelte": "4.0.0-next.4",
