@@ -32,12 +32,12 @@ test('Check script is removed', async () => {
 
 test('Check height is set', async () => {
   const spinnerCode = getSpinnerCode();
-  expect(spinnerCode).contains('height="16px"');
+  expect(spinnerCode).contains('height=16px');
 });
 
 test('Check width is set', async () => {
   const spinnerCode = getSpinnerCode();
-  expect(spinnerCode).contains('width="16px"');
+  expect(spinnerCode).contains('width=16px');
 });
 
 test('Check macro is not there', async () => {
