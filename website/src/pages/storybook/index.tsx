@@ -59,11 +59,7 @@ function StorybookRoot(): JSX.Element {
     }
   }, [search]);
 
-  const storybookItems: PropSidebarItem[] = [].map(item => ({
-    type: 'link',
-    href: `/storybook?id=${item.id}`,
-    label: item.label,
-  }));
+  const storybookItems: PropSidebarItem[] = [];
 
   const notifyIframe = (): void => {
     // we send the iframe the dark mode change https://storybook.js.org/addons/storybook-dark-mode
