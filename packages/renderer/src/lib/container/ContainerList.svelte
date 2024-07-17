@@ -341,8 +341,8 @@ let ageColumn = new TableColumn<ContainerInfoUI | ContainerGroupInfoUI, Date | u
     return undefined;
   },
   comparator: (a, b) => {
-    const aTime = containerUtils.isContainerInfoUI(a) ? (moment().diff(containerUtils.getUpDate(a)) ?? 0) : 0;
-    const bTime = containerUtils.isContainerInfoUI(b) ? (moment().diff(containerUtils.getUpDate(b)) ?? 0) : 0;
+    const aTime = containerUtils.isContainerInfoUI(a) && a.state === 'RUNNING' ? (moment().diff(a.startedAt) ?? 0) : 0;
+    const bTime = containerUtils.isContainerInfoUI(b) && b.state === 'RUNNING' ? (moment().diff(b.startedAt) ?? 0) : 0;
     return aTime - bTime;
   },
 });
