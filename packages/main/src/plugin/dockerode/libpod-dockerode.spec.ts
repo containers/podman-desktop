@@ -273,3 +273,16 @@ test('Check create volume', async () => {
   expect(response.Name).toBe('foo');
   expect(response.Scope).toBe('local');
 });
+
+test('Test remove manifest', async () => {
+  nock('http://localhost').delete('/v4.2.0/libpod/manifests/name1').reply(200);
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  const response = await (api as unknown as LibPod).podmanRemoveManifest('name1');
+
+  // Check that the request was made
+  expect(nock.isDone()).toBe(true);
+
+  // Check that the response is correct
+  expect(response).toBeDefined();
+});

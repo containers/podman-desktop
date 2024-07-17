@@ -3670,6 +3670,7 @@ declare module '@podman-desktop/api' {
     // Manifest related methods
     export function createManifest(options: ManifestCreateOptions): Promise<{ engineId: string; Id: string }>;
     export function inspectManifest(engineId: string, id: string): Promise<ManifestInspectInfo>;
+    export function removeManifest(engineId: string, id: string): Promise<void>;
   }
 
   /**

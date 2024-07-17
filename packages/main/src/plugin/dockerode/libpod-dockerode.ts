@@ -364,6 +364,7 @@ export interface LibPod {
   podmanListImages(options?: PodmanListImagesOptions): Promise<ImageInfo[]>;
   podmanCreateManifest(manifestOptions: ManifestCreateOptions): Promise<{ engineId: string; Id: string }>;
   podmanInspectManifest(manifestName: string): Promise<ManifestInspectInfo>;
+  podmanRemoveManifest(manifestName: string): Promise<void>;
 }
 
 // tweak Dockerode by adding the support of libpod API
@@ -878,6 +879,32 @@ export class LibpodDockerode {
         method: 'GET',
 
         // Match the status codes from https://docs.podman.io/en/latest/_static/api.html#tag/manifests/operation/ManifestInspectLibpod
+        statusCodes: {
+          200: true,
+          404: 'no such manifest',
+          500: 'server error',
+        },
+        options: {},
+      };
+
+      return new Promise((resolve, reject) => {
+        this.modem.dial(optsf, (err: unknown, data: unknown) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(data);
+        });
+      });
+    };
+
+    // remove manifest
+    prototypeOfDockerode.podmanRemoveManifest = function (manifestName: string): Promise<unknown> {
+      // make sure encodeURI component for the name ex. domain.com/foo/bar:latest
+      const encodedManifestName = encodeURIComponent(manifestName);
+
+      const optsf = {
+        path: `/v4.2.0/libpod/manifests/${encodedManifestName}`,
+        method: 'DELETE',
         statusCodes: {
           200: true,
           404: 'no such manifest',

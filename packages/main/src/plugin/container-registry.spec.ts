@@ -4720,3 +4720,27 @@ test('inspectManifest should fail if libpod is missing from the provider', async
     'LibPod is not supported by this engine',
   );
 });
+
+test('test removeManifest', async () => {
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  const removeManifestMock = vi.fn();
+
+  const fakeLibPod = {
+    podmanRemoveManifest: removeManifestMock,
+  } as unknown as LibPod;
+
+  containerRegistry.addInternalProvider('podman1', {
+    name: 'podman',
+    id: 'podman1',
+    api,
+    libpodApi: fakeLibPod,
+    connection: {
+      type: 'podman',
+    },
+  } as unknown as InternalContainerProvider);
+
+  const result = await containerRegistry.removeManifest('podman1', 'manifestId');
+  expect(removeManifestMock).toBeCalledWith('manifestId');
+  expect(result).toBeUndefined();
+});
