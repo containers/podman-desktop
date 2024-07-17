@@ -195,7 +195,7 @@ function dragMe(node: any) {
                     </div>
 
                     <div class="mb-2 text-xs">
-                      <Markdown>{innerItem.markDownContent}</Markdown>
+                      <Markdown markdown="{innerItem.markDownContent}" />
                     </div>
 
                     {#if usePopperForDetails || (innerItem.sections && innerItem.sections.length > 0 && itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j))}
@@ -267,7 +267,7 @@ function dragMe(node: any) {
                             <div
                               class="bg-charcoal-500 group-hover:bg-purple-800 group-[.is-selected]:bg-purple-800 px-4 py-2 flex flex-col text-xs border-x-2 border-transparent group-hover:border-purple-500"
                               class:rounded-b-md="{usePopperForDetails && i === innerItem.sections.length - 1}">
-                              <Markdown>{section.markDownContent}</Markdown>
+                              <Markdown markdown="{section.markDownContent}" />
                             </div>
                           {/if}
                         {/each}

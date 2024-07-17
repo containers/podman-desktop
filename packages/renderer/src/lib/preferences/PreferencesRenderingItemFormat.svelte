@@ -142,7 +142,7 @@ async function onChange(recordId: string, value: boolean | string | number): Pro
     {/if}
   {:else if record.type === 'markdown'}
     <div class="text-sm">
-      <Markdown>{record.markdownDescription}</Markdown>
+      <Markdown markdown="{record.markdownDescription}" />
     </div>
   {/if}
 </div>

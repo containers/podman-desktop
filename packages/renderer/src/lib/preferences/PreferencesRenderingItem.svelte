@@ -74,7 +74,7 @@ $: resetToDefault = false;
     </div>
     {#if recordUI.markdownDescription}
       <div class="pt-1 text-[color:var(--pd-invert-content-card-text)] text-sm pr-2">
-        <Markdown>{recordUI.markdownDescription}</Markdown>
+        <Markdown markdown="{recordUI.markdownDescription}" />
       </div>
     {:else}
       <div class="pt-1 text-[color:var(--pd-invert-content-card-text)] text-sm pr-2">{recordUI.description}</div>

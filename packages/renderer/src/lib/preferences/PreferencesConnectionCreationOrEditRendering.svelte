@@ -503,7 +503,7 @@ function getConnectionResourceConfigurationValue(
                   {#if configurationKey.description}
                     {configurationKey.description}:
                   {:else if configurationKey.markdownDescription && configurationKey.type !== 'markdown'}
-                    <Markdown>{configurationKey.markdownDescription}:</Markdown>
+                    <Markdown markdown="{configurationKey.markdownDescription}" />
                   {/if}
                   {#if configurationKey.format === 'memory' || configurationKey.format === 'diskSize' || configurationKey.format === 'cpu'}
                     <div class="text-gray-600">
