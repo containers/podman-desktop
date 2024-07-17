@@ -30,7 +30,7 @@ $: if (value !== lastValue) {
     id="input-standard-{record.id}"
     name="{record.id}"
     bind:value="{value}"
-    readonly
+    readonly="{record.readonly ?? true}"
     placeholder="{record.placeholder}"
     options="{dialogOptions}"
     aria-invalid="{invalidEntry}"
