@@ -143,7 +143,7 @@ async function stopReceivingLogs(providerInternalId: string): Promise<void> {
     </svelte:fragment>
 
     <div slot="content" class="px-5 pb-5 min-w-full h-fit">
-      <div class="bg-charcoal-700 px-6 py-4">
+      <div class="bg-[var(--pd-content-card-bg)] px-6 py-4">
         <!-- Create connection panel-->
         {#if providerInfo?.containerProviderConnectionCreation === true}
           <PreferencesConnectionCreationRendering
