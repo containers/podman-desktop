@@ -9,14 +9,16 @@ export let focused: boolean = false;
 <Select
   {...$$props}
   --background="var(--pd-input-field-bg)"
+  --height="32px"
   --margin="0"
-  --padding="8px"
+  --padding="0"
   --font-size="12px"
   --border="1px solid var(--pd-input-field-stroke)"
   --border-focused="1px solid var(--pd-input-field-hover-stroke)"
   --border-hover="1px solid var(--pd-input-field-hover-stroke)"
   --border-radius="0"
   --border-radius-focused="6px"
+  --clear-select-focus-outline="1px solid var(--pd-input-field-hover-stroke)"
   --disabled-background="var(--pd-input-field-disabled-bg)"
   --disabled-color="var(--pd-input-field-disabled-text)"
   --input-margin="0"
