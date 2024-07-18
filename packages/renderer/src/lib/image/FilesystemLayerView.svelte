@@ -20,22 +20,22 @@ $: file = tree?.data;
 $: colorClass = getColor(tree);
 function getColor(tree: FilesystemNode<ImageFile>) {
   if (tree.hidden) {
-    return 'text-red-500';
+    return 'text-[var(--pd-files-hidden)]';
   }
   if (!tree.data) {
     if (tree.children.size) {
-      return 'text-sky-500';
+      return 'text-[var(--pd-files-directory)]';
     }
     return '';
   }
   if (tree.data.type === 'symlink') {
-    return 'text-sky-300';
+    return 'text-[var(--pd-files-symlink)]';
   }
   if (tree.data.type === 'directory') {
-    return 'text-sky-500';
+    return 'text-[var(--pd-files-directory)]';
   }
   if (isExec(tree.data)) {
-    return 'text-green-500';
+    return 'text-[var(--pd-files-executable)]';
   }
   return '';
 }
@@ -70,7 +70,7 @@ function getLink(file: ImageFile | undefined): string {
     {#if children?.size || (file && file.type === 'directory')}
       <button class={`text-left ml-${margin} ${colorClass}`} on:click={toggleExpansion}>
         <span class="cursor-pointer inline-block mr-1" class:rotate-90={arrowDown}>&gt;</span>
-        {label}<span class="text-gray-900">{getLink(tree?.data)}</span>
+        {label}<span class="text-[var(--pd-content-text)] opacity-70">{getLink(tree?.data)}</span>
       </button>
       {#if expanded && children}
         {#each children as [_, child]}
@@ -80,7 +80,7 @@ function getLink(file: ImageFile | undefined): string {
     {:else}
       <div class={`${colorClass}`}>
         <span class={`pl-4 ml-${margin}`}></span>
-        {label}<span class="text-gray-900">{getLink(tree?.data)}</span>
+        {label}<span class="text-[var(--pd-content-text)] opacity-70">{getLink(tree?.data)}</span>
       </div>
     {/if}
   {/if}

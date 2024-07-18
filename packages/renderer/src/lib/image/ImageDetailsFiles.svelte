@@ -54,7 +54,7 @@ onDestroy(() => {
       </div>
       <div aria-label="tree" class="h-full w-full pr-4 overflow-y-auto pb-16">
         {#if selectedLayer}
-          <div class="text-xs grid grid-cols-[90px_60px_70px_1fr]">
+          <div class="grid grid-cols-[90px_60px_70px_1fr]">
             <FilesystemLayerView
               tree={showLayerOnly ? selectedLayer.layerTree.root : selectedLayer.stackTree.root}
               layerMode={showLayerOnly} />
