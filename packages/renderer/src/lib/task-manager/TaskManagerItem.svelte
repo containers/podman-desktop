@@ -6,6 +6,7 @@ import {
   faTriangleExclamation,
   type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
+import { TableDurationColumn } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import Fa from 'svelte-fa';
 
@@ -82,7 +83,9 @@ function doExecuteAction(task: TaskInfo) {
       </div>
     {/if}
     <!-- age -->
-    <div class="text-[var(--pd-modal-text)] text-xs">todo {task.started}</div>
+    <div class="text-[var(--pd-modal-text)] text-xs">
+      <TableDurationColumn object={new Date(task.started)} />
+    </div>
 
     <!-- if in-progress task, display a link to resume-->
     {#if task.state === 'loading'}
