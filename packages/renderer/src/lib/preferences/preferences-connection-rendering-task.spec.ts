@@ -21,14 +21,8 @@ import { beforeEach, expect, test, vi } from 'vitest';
 
 import { tasksInfo } from '/@/stores/tasks';
 
-import type { ConnectionCallback } from './preferences-connection-rendering-task';
-import {
-  clearCreateTask,
-  disconnectUI,
-  eventCollect,
-  reconnectUI,
-  startTask,
-} from './preferences-connection-rendering-task';
+import { type ConnectionCallback, startTask } from './preferences-connection-rendering-task';
+import { clearCreateTask, disconnectUI, eventCollect, reconnectUI } from './preferences-connection-rendering-task';
 
 const dummyCallback: ConnectionCallback = {
   log: vi.fn(),

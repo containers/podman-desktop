@@ -16,27 +16,23 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export type TaskState = 'running' | 'completed';
-type TaskStatus = 'in-progress' | 'success' | 'failure';
+export type TaskState = 'loading' | 'success' | 'error';
 
-export interface Task {
+export interface NotificationTaskInfo extends TaskInfo {
+  body: string;
+  markdownActions?: string;
+  // overwrite some fields type
+  state: 'success';
+  progress: undefined;
+  error: undefined;
+}
+
+export interface TaskInfo {
   id: string;
   name: string;
   started: number;
-}
-
-export interface StatefulTask extends Task {
   state: TaskState;
-  status: TaskStatus;
-  progress?: number;
-  action?: {
-    name: string;
-    execute: () => void;
-  };
   error?: string;
-}
-
-export interface NotificationTask extends Task {
-  description: string;
-  markdownActions?: string;
+  progress?: number;
+  action?: string;
 }

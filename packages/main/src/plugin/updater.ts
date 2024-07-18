@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Task } from '@podman-desktop/api';
 import { app } from 'electron';
 import {
   autoUpdater,
@@ -32,7 +33,6 @@ import type { MessageBox } from '/@/plugin/message-box.js';
 import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
 import { isLinux } from '/@/util.js';
-import type { StatefulTask } from '/@api/task.js';
 
 import type { TaskManager } from './tasks/task-manager.js';
 
@@ -47,7 +47,7 @@ export class Updater {
   #updateAlreadyDownloaded: boolean;
   #updateCheckResult: UpdateCheckResult | undefined;
 
-  #downloadTask: StatefulTask | undefined;
+  #downloadTask: Task | undefined;
 
   constructor(
     private messageBox: MessageBox,
@@ -173,16 +173,13 @@ export class Updater {
         // create a task
         this.#downloadTask = this.taskManager.createTask(`Downloading ${updateVersion} update`);
         this.#downloadTask.progress = 0;
-        this.taskManager.updateTask(this.#downloadTask);
 
         try {
           await autoUpdater.downloadUpdate();
         } catch (error: unknown) {
           console.error('Update error: ', error);
-          this.#downloadTask.status = 'failure';
-          this.#downloadTask.state = 'completed';
+          this.#downloadTask.state = 'error';
           this.#downloadTask.error = `Unable to download ${updateVersion} update: ${String(error)}`;
-          this.taskManager.updateTask(this.#downloadTask);
           await this.messageBox.showMessageBox({
             type: 'error',
             title: 'Update Failed',
@@ -279,9 +276,7 @@ export class Updater {
     if (this.#downloadTask) {
       this.#downloadTask.progress = 100;
       this.#downloadTask.name = `Update v${updatedDownloadedEvent.version} downloaded`;
-      this.#downloadTask.status = 'success';
-      this.#downloadTask.state = 'completed';
-      this.taskManager.updateTask(this.#downloadTask);
+      this.#downloadTask.state = 'success';
     }
 
     this.messageBox
@@ -324,7 +319,6 @@ export class Updater {
     // update download task
     if (this.#downloadTask) {
       this.#downloadTask.progress = Math.round(progressInfo.percent);
-      this.taskManager.updateTask(this.#downloadTask);
     }
   }
 

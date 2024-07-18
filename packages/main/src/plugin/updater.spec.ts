@@ -30,7 +30,7 @@ import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.j
 import { Disposable } from '/@/plugin/types/disposable.js';
 import { Updater } from '/@/plugin/updater.js';
 import * as util from '/@/util.js';
-import type { StatefulTask } from '/@api/task.js';
+import type { StatefulTask } from '/packages/api/src/taskInfo.js';
 
 import type { TaskManager } from './tasks/task-manager.js';
 

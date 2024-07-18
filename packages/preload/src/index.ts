@@ -212,6 +212,18 @@ export function initExposure(): void {
     apiSender.send('install-extension:from-id', extensionId);
   });
 
+  contextBridge.exposeInMainWorld('clearTasks', async (): Promise<void> => {
+    return ipcInvoke('tasks:clear-all');
+  });
+
+  contextBridge.exposeInMainWorld('clearTask', async (taskId: string): Promise<void> => {
+    return ipcInvoke('tasks:clear', taskId);
+  });
+
+  contextBridge.exposeInMainWorld('executeTask', async (taskId: string): Promise<void> => {
+    return ipcInvoke('tasks:execute', taskId);
+  });
+
   contextBridge.exposeInMainWorld('extensionSystemIsReady', async (): Promise<boolean> => {
     return ipcInvoke('extension-system:isReady');
   });

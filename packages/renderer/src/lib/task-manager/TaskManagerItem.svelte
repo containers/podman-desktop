@@ -10,46 +10,40 @@ import { onMount } from 'svelte';
 import Fa from 'svelte-fa';
 
 import ProgressBar from '/@/lib/task-manager/ProgressBar.svelte';
-import { isNotificationTask, isStatefulTask, removeTask } from '/@/stores/tasks';
-import type { NotificationTask, Task } from '/@api/task';
+import { isNotificationTask, removeTask } from '/@/stores/tasks';
+import type { NotificationTaskInfo, TaskInfo } from '/@api/taskInfo';
 
 import Markdown from '../markdown/Markdown.svelte';
-import { type StatefulTaskUI, TaskManager } from './task-manager';
 
-export let task: Task;
-
-const taskManager = new TaskManager();
-
-let taskUI: StatefulTaskUI | NotificationTask;
-$: taskUI = taskManager.toTaskUi(task);
+export let task: TaskInfo | NotificationTaskInfo;
 
 let showError = false;
 let icon: IconDefinition;
 let iconColor: string;
 onMount(() => {
-  if (isStatefulTask(task)) {
-    if (task.status === 'success') {
+  switch (task.state) {
+    case 'loading':
+      icon = faInfoCircle;
+      iconColor = 'text-[var(--pd-invert-content-info-icon)]';
+      break;
+    case 'success':
       icon = faSquareCheck;
       iconColor = 'text-[var(--pd-state-success)]';
-      return;
-    } else if (task.status === 'failure') {
+      break;
+    case 'error':
       icon = faTriangleExclamation;
       iconColor = 'text-[var(--pd-state-error)]';
-      return;
-    }
+      break;
   }
-
-  icon = faInfoCircle;
-  iconColor = 'text-[var(--pd-invert-content-info-icon)]';
 });
 
-function closeCompleted(taskUI: StatefulTaskUI | NotificationTask) {
+function closeCompleted(task: TaskInfo | NotificationTaskInfo) {
   // needs to delete the task from the svelte store
-  removeTask(taskUI.id);
+  removeTask(task.id);
 }
 
-function doExecuteAction(taskUI: StatefulTaskUI) {
-  taskUI?.action?.execute();
+function doExecuteAction(task: TaskInfo) {
+  window.executeTask(task.id);
 }
 </script>
 
@@ -62,62 +56,58 @@ function doExecuteAction(taskUI: StatefulTaskUI) {
   <!-- second column is about the task-->
   <div class="flex flex-col w-full pl-2">
     <div class="flex flex-row w-full">
-      <div title={taskUI.name} class="w-60 pb-1 cursor-default truncate text-[var(--pd-modal-text)]">
-        {taskUI.name}
+      <div title={task.name} class="w-60 pb-1 cursor-default truncate text-[var(--pd-modal-text)]">
+        {task.name}
       </div>
 
       <div class="flex flex-col flex-grow items-end">
         <!-- if completed task, display a close icon-->
-        {#if isNotificationTask(taskUI) || (isStatefulTask(taskUI) && taskUI.state === 'completed')}
-          <button title="Clear notification" class="text-[var(--pd-modal-text)]" on:click={() => closeCompleted(taskUI)}
+        {#if task.state === 'success'}
+          <button title="Clear notification" class="text-[var(--pd-modal-text)]" on:click={() => closeCompleted(task)}
             ><Fa size="0.75x" icon={faClose} /></button>
         {/if}
       </div>
     </div>
-    {#if isNotificationTask(taskUI)}
-      <div class="text-[var(--pd-modal-text)] text-xs my-2">{taskUI.description}</div>
-      {#if taskUI.markdownActions}
+    {#if isNotificationTask(task)}
+      <div class="text-[var(--pd-modal-text)] text-xs my-2">{task.body}</div>
+      {#if task.markdownActions}
         <div class="flex justify-end">
-          <Markdown markdown={taskUI.markdownActions} />
+          <Markdown markdown={task.markdownActions} />
         </div>
       {/if}
     {/if}
-    {#if isStatefulTask(taskUI)}
-      {#if taskUI.error}
-        <div class:hidden={!showError} class="text-xs my-2 break-words text-[var(--pd-modal-text)]">
-          {taskUI.error}
-        </div>
-      {/if}
-      <!-- age -->
-      <div class="text-[var(--pd-modal-text)] text-xs">{taskUI.age}</div>
+    {#if task.error}
+      <div class:hidden={!showError} class="text-xs my-2 break-words text-[var(--pd-modal-text)]">
+        {task.error}
+      </div>
     {/if}
+    <!-- age -->
+    <div class="text-[var(--pd-modal-text)] text-xs">todo {task.started}</div>
 
     <!-- if in-progress task, display a link to resume-->
-    {#if isStatefulTask(taskUI) && taskUI.status === 'in-progress'}
+    {#if task.state === 'loading'}
       <div class="flex flex-row w-full">
-        {#if (taskUI.progress ?? 0) >= 0}
-          <ProgressBar progress={taskUI.progress} />
+        {#if (task.progress ?? 0) >= 0}
+          <ProgressBar progress={task.progress} />
         {/if}
       </div>
     {/if}
 
-    {#if isStatefulTask(taskUI) && taskUI.status !== 'failure'}
+    {#if task.state !== 'error'}
       <div class="flex flex-row w-full">
         <div class="flex flex-1 flex-col w-full items-end text-[var(--pd-button-secondary)] text-xs">
-          {#if taskUI.action}
+          {#if task.action}
             <button
               class="text-[var(--pd-button-secondary)] cursor-pointer"
-              on:click={() => {
-                if (isStatefulTask(taskUI)) doExecuteAction(taskUI);
-              }}
-              aria-label="action button">{taskUI.action.name}</button>
+              on:click={() => doExecuteAction(task)}
+              aria-label="action button">{task.action}</button>
           {/if}
         </div>
       </div>
     {/if}
 
     <!-- if failed task, display the error-->
-    {#if isStatefulTask(taskUI) && taskUI.status === 'failure'}
+    {#if task.state === 'error'}
       <div class="flex flex-col w-full items-end">
         <button on:click={() => (showError = !showError)} class="text-[var(--pd-button-secondary)] text-xs">
           View Error

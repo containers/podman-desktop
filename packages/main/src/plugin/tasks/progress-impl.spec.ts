@@ -25,7 +25,7 @@ import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.j
 
 import type { ApiSenderType } from '../api.js';
 import { ProgressImpl, ProgressLocation } from './progress-impl.js';
-import { TaskManager } from './task-manager.js';
+import { TaskManager } from './tasks/task-manager.js';
 
 const apiSenderSendMock = vi.fn();
 const statusBarRegistry: StatusBarRegistry = {
