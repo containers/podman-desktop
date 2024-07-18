@@ -17,7 +17,7 @@
  ***********************************************************************/
 import type { Event, Task, TaskAction, TaskState, TaskUpdateEvent } from '@podman-desktop/api';
 
-import { Emitter } from '/@/plugin/events/emitter.js';
+import { Emitter } from '../events/emitter.js';
 
 export class TaskImpl implements Task {
   public readonly started: number;
