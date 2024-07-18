@@ -31,11 +31,11 @@ export let focused: boolean = false;
   --list-border-radius="6px"
   --list-background="var(--pd-dropdown-bg)"
   --placeholder-color="var(--pd-input-field-placeholder-text)"
-  containerStyles="{!focused ? 'border-width: 0 0 1px 0' : 'background-color: var(--pd-input-field-focused-bg)'}"
-  on:change="{onChange}"
-  on:clear="{onClear}"
-  bind:focused="{focused}"
-  clearFilterTextOnBlur="{false}">
+  containerStyles={!focused ? 'border-width: 0 0 1px 0' : 'background-color: var(--pd-input-field-focused-bg)'}
+  on:change={onChange}
+  on:clear={onClear}
+  bind:focused={focused}
+  clearFilterTextOnBlur={false}>
   <div slot="empty" class="m-4 text-center">
     You can search an image in a specific registry by typing <code>registry-name/query</code>
   </div>

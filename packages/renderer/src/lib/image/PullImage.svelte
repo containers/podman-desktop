@@ -180,15 +180,15 @@ async function searchImages(value: string): Promise<{ value: string; label: stri
         id="imageName"
         name="imageName"
         aria-label="imageName"
-        aria-invalid="{imageNameInvalid !== ''}"
-        disabled="{pullFinished || pullInProgress}"
+        aria-invalid={imageNameInvalid !== ''}
+        disabled={pullFinished || pullInProgress}
         placeholder="Registry name / Image name"
         required
         focused
-        debounceWait="{debounceWaitSearch}"
-        onChange="{e => onChange(e.detail.value)}"
-        onClear="{() => onChange('')}"
-        loadOptions="{searchImages}"></Select>
+        debounceWait={debounceWaitSearch}
+        onChange={e => onChange(e.detail.value)}
+        onClear={() => onChange('')}
+        loadOptions={searchImages}></Select>
       {#if imageNameInvalid}
         <ErrorMessage error={imageNameInvalid} />
       {/if}
