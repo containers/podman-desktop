@@ -59,7 +59,6 @@ import { InputBoxValidationSeverity, QuickPickItemKind } from './input-quickpick
 import type { KubernetesClient } from './kubernetes-client.js';
 import type { MessageBox } from './message-box.js';
 import { ModuleLoader } from './module-loader.js';
-import type { NotificationRegistry } from './notification-registry.js';
 import type { OnboardingRegistry } from './onboarding-registry.js';
 import type { ProgressImpl } from './progress-impl.js';
 import { ProgressLocation } from './progress-impl.js';
@@ -74,6 +73,7 @@ import {
   StatusBarItemImpl,
 } from './statusbar/statusbar-item.js';
 import type { StatusBarRegistry } from './statusbar/statusbar-registry.js';
+import type { NotificationRegistry } from './tasks/notification-registry.js';
 import type { Telemetry } from './telemetry/telemetry.js';
 import type { TrayMenuRegistry } from './tray-menu-registry.js';
 import type { IDisposable } from './types/disposable.js';

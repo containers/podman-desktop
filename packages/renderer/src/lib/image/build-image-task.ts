@@ -15,12 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-
-import { router } from 'tinro';
-
 import { type BuildImageInfo, buildImagesInfo } from '/@/stores/build-images';
-import { createTask, isStatefulTask, removeTask } from '/@/stores/tasks';
-import type { Task } from '/@api/task';
 
 export interface BuildImageCallback {
   // callback on stream
@@ -57,24 +52,11 @@ export interface BuildHold {
 const buildCallbacks = new Map<symbol, BuildImageCallback>();
 const buildOnHolds = new Map<symbol, BuildHold>();
 const buildReplays = new Map<symbol, BuildReplay>();
-const allTasks = new Map<symbol, Task>();
 
 // new build is occuring, needs to compute a new key and prepare replay data
 export function startBuild(imageName: string, buildImageCallback: BuildImageCallback): BuildImageInfo {
   const key = getKey();
   buildCallbacks.set(key, buildImageCallback);
-
-  // start a task
-  const task = createTask(`Build ${imageName}`);
-
-  // go to the images build
-  task.action = {
-    name: 'Go to task >',
-    execute: () => router.goto('/images/build'),
-  };
-
-  // store the task
-  allTasks.set(key, task);
 
   // create a new replay value
   buildReplays.set(key, { stream: '', error: '', end: false });
@@ -88,14 +70,6 @@ export function clearBuildTask(info: BuildImageInfo): void {
   buildReplays.delete(info.buildImageKey);
   // remove current build
   buildImagesInfo.set({ buildImageKey: getKey(), buildRunning: false });
-
-  // remove the task
-  const task = allTasks.get(info.buildImageKey);
-  if (task) {
-    removeTask(task.id);
-  }
-
-  allTasks.delete(info.buildImageKey);
 }
 
 // client is leaving the page, disconnect the UI
@@ -157,21 +131,6 @@ function getKey(): symbol {
 
 // anonymous function to collect events
 export function eventCollect(key: symbol, eventName: 'finish' | 'stream' | 'error', data: string): void {
-  const task = allTasks.get(key);
-  if (task && isStatefulTask(task)) {
-    if (eventName === 'error') {
-      // If we errored out, we should store the error message in the task so it is correctly displayed
-      task.error = data;
-      task.status = 'failure';
-      task.state = 'completed';
-    } else if (eventName === 'finish') {
-      if (task.status !== 'failure') {
-        task.status = 'success';
-      }
-      task.state = 'completed';
-    }
-  }
-
   // keep values for replay
   const replay = buildReplays.get(key);
   if (replay) {

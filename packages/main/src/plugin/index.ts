@@ -56,7 +56,6 @@ import type { Menu } from '/@/plugin/menu-registry.js';
 import { MenuRegistry } from '/@/plugin/menu-registry.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { ExtensionBanner, RecommendedRegistry } from '/@/plugin/recommendations/recommendations-api.js';
-import { TaskManager } from '/@/plugin/task-manager.js';
 import { Updater } from '/@/plugin/updater.js';
 import type { CliToolInfo } from '/@api/cli-tool-info.js';
 import type { ColorInfo } from '/@api/color-info.js';
@@ -163,6 +162,8 @@ import { RecommendationsRegistry } from './recommendations/recommendations-regis
 import { SafeStorageRegistry } from './safe-storage/safe-storage-registry.js';
 import type { StatusBarEntryDescriptor } from './statusbar/statusbar-registry.js';
 import { StatusBarRegistry } from './statusbar/statusbar-registry.js';
+import { NotificationRegistry } from './tasks/notification-registry.js';
+import { TaskManager } from './tasks/task-manager.js';
 import { PAGE_EVENT_TYPE, Telemetry } from './telemetry/telemetry.js';
 import { TerminalInit } from './terminal-init.js';
 import { TrayIconColor } from './tray-icon-color.js';
@@ -478,6 +479,97 @@ export class PluginSystem {
 
     const messageBox = new MessageBox(apiSender);
 
+    commandRegistry.registerCommand('debug-task-generate-info-notification', () => {
+      taskManager.createNotificationTask({
+        type: 'info',
+        body: 'Hello world',
+      });
+    });
+
+    commandRegistry.registerCommand('debug-task-generate-error-task', () => {
+      const task = taskManager.createTask('Dummy error task');
+      task.error = 'Something went wrong on purpose :)';
+      task.state = 'error';
+    });
+
+    commandRegistry.registerCommand('debug-task-generate-indeterminate-task', () => {
+      const task = taskManager.createTask('Dummy indeterminate task');
+      task.progress = -1;
+    });
+
+    commandRegistry.registerCommand('debug-task-generate-50-loading-task', () => {
+      const task = taskManager.createTask('Dummy loading 50 task');
+      task.progress = 50;
+    });
+
+    commandRegistry.registerCommand('debug-task-generate-success-task', () => {
+      const task = taskManager.createTask('Dummy indeterminate task');
+      task.state = 'success';
+    });
+
+    commandRegistry.registerCommand('debug-task-generate-actionable-task', () => {
+      const task = taskManager.createTask('Dummy actionable task');
+      task.action = {
+        name: 'explode',
+        execute: (): void => {
+          messageBox
+            .showMessageBox({
+              type: 'info',
+              title: 'Task action',
+              message: 'Hello from task action in the main package!',
+              buttons: ['Set task error', 'Clear task'],
+            })
+            .then(result => {
+              console.log('showMessageBox', result);
+              switch (result.response) {
+                case 0:
+                  task.state = 'error';
+                  break;
+                case 1:
+                  task.dispose();
+                  break;
+              }
+            })
+            .catch((err: unknown) => {
+              console.error(err);
+            });
+        },
+      };
+    });
+
+    commandRegistry.registerCommandPalette(
+      {
+        command: 'debug-task-generate-info-notification',
+        title: '[debug-task] generate-info-notification',
+        icon: undefined,
+      },
+      {
+        command: 'debug-task-generate-error-task',
+        title: '[debug-task] generate-error-task',
+        icon: undefined,
+      },
+      {
+        command: 'debug-task-generate-indeterminate-task',
+        title: '[debug-task] generate-indeterminate-task',
+        icon: undefined,
+      },
+      {
+        command: 'debug-task-generate-50-loading-task',
+        title: '[debug-task] generate-50-loading-task',
+        icon: undefined,
+      },
+      {
+        command: 'debug-task-generate-success-task',
+        title: '[debug-task] generate-success-task',
+        icon: undefined,
+      },
+      {
+        command: 'debug-task-generate-actionable-task',
+        title: '[debug-task] generate-actionable-task',
+        icon: undefined,
+      },
+    );
+
     // Don't show the tray icon options on Mac
     if (!isMac()) {
       const trayIconColor = new TrayIconColor(configurationRegistry, providerRegistry);
@@ -674,6 +766,18 @@ export class PluginSystem {
 
     // setup security restrictions on links
     await this.setupSecurityRestrictionsOnLinks(messageBox);
+
+    this.ipcHandle('tasks:clear-all', async (): Promise<void> => {
+      return taskManager.clearTasks();
+    });
+
+    this.ipcHandle('tasks:clear', async (_listener, taskId: string): Promise<void> => {
+      return taskManager.getTask(taskId).dispose();
+    });
+
+    this.ipcHandle('tasks:execute', async (_listener, taskId: string): Promise<void> => {
+      return taskManager.execute(taskId);
+    });
 
     this.ipcHandle('container-provider-registry:listContainers', async (): Promise<ContainerInfo[]> => {
       return containerProviderRegistry.listContainers();

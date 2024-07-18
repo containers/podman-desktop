@@ -6,7 +6,6 @@ import { router } from 'tinro';
 
 import EngineFormPage from '/@/lib/ui//EngineFormPage.svelte';
 import { saveImagesInfo } from '/@/stores/save-images-store';
-import { createTask } from '/@/stores/tasks';
 
 import { Uri } from '../uri/Uri';
 import type { ImageInfoUI } from './ImageInfoUI';
@@ -97,8 +96,6 @@ async function saveImages() {
     throw new Error('Unable to save images. Output directory not specified');
   }
 
-  const task = createTask('Save images');
-
   try {
     await window.saveImages({
       images: imagesToSave.map(img => {
@@ -114,15 +111,11 @@ async function saveImages() {
       }),
       outputTarget: outputPath,
     });
-    task.status = 'success';
     // go back to images list
     router.goto('/images/');
   } catch (error) {
-    task.status = 'failure';
-    task.error = String(error);
     saveError = String(error);
   } finally {
-    task.state = 'completed';
     inProgress = false;
   }
 }
