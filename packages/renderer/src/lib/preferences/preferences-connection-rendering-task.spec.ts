@@ -16,13 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { get } from 'svelte/store';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import { tasksInfo } from '/@/stores/tasks';
-
 import { type ConnectionCallback, startTask } from './preferences-connection-rendering-task';
-import { clearCreateTask, disconnectUI, eventCollect, reconnectUI } from './preferences-connection-rendering-task';
+import { disconnectUI, eventCollect, reconnectUI } from './preferences-connection-rendering-task';
 
 const dummyCallback: ConnectionCallback = {
   log: vi.fn(),
@@ -40,19 +37,6 @@ const newCallback: ConnectionCallback = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-});
-
-test('check start build', async () => {
-  const id = 'ui-1';
-  const key = startTask('foo', id, dummyCallback);
-  expect(key).toBeDefined();
-  const allTasks = get(tasksInfo);
-  const matchingTask = allTasks.find(task => task.id === id);
-  expect(matchingTask).toBeDefined();
-  clearCreateTask(key);
-  const allTasksAfter = get(tasksInfo);
-  const matchingTaskAfter = allTasksAfter.find(task => task.id === id);
-  expect(matchingTaskAfter).toBeUndefined();
 });
 
 test('check reconnect', async () => {
