@@ -1353,6 +1353,22 @@ export class ContainerProviderRegistry {
     }
   }
 
+  async removeManifest(engineId: string, manifestName: string): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      const libPod = this.getMatchingPodmanEngineLibPod(engineId);
+      if (!libPod) {
+        throw new Error('No podman provider with a running engine');
+      }
+      return libPod.podmanRemoveManifest(manifestName);
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService.track('removeManifest', telemetryOptions);
+    }
+  }
+
   async replicatePodmanContainer(
     source: { engineId: string; id: string },
     target: { engineId: string },
