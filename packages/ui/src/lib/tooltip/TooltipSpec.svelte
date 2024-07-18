@@ -14,15 +14,15 @@ export let left = false;
 </script>
 
 <Tooltip
-  tip="{tipProp}"
-  top="{top}"
-  topLeft="{topLeft}"
-  topRight="{topRight}"
-  right="{right}"
-  bottom="{bottom}"
-  bottomLeft="{bottomLeft}"
-  bottomRight="{bottomRight}"
-  left="{left}">
+  tip={tipProp}
+  top={top}
+  topLeft={topLeft}
+  topRight={topRight}
+  right={right}
+  bottom={bottom}
+  bottomLeft={bottomLeft}
+  bottomRight={bottomRight}
+  left={left}>
   <slot />
   <svelte:fragment slot="tip">
     {#if tipSlot}

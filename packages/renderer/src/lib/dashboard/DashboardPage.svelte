@@ -37,7 +37,7 @@ function getInitializationContext(id: string): InitializationContext {
 }
 </script>
 
-<NavPage searchEnabled="{false}" title="Dashboard">
+<NavPage searchEnabled={false} title="Dashboard">
   <div slot="content" class="flex flex-col min-w-full h-full bg-[var(--pd-content-bg)] shadow-nav py-5">
     <div class="min-w-full flex-1">
       <NotificationsBox />
@@ -45,14 +45,14 @@ function getInitializationContext(id: string): InitializationContext {
         <!-- Provider is ready display a box to indicate some information -->
         {#if providersReady.length > 0}
           {#each providersReady as providerReady (providerReady.internalId)}
-            <ProviderReady provider="{providerReady}" />
+            <ProviderReady provider={providerReady} />
           {/each}
         {/if}
 
         <!-- Provider is starting -->
         {#if providersStarting.length > 0}
           {#each providersStarting as providerStarting (providerStarting.internalId)}
-            <ProviderStarting provider="{providerStarting}" />
+            <ProviderStarting provider={providerStarting} />
           {/each}
         {/if}
 
@@ -61,8 +61,8 @@ function getInitializationContext(id: string): InitializationContext {
         {#if providersInstalled.length > 0}
           {#each providersInstalled as providerInstalled (providerInstalled.internalId)}
             <ProviderInstalled
-              provider="{providerInstalled}"
-              initializationContext="{getInitializationContext(providerInstalled.internalId)}" />
+              provider={providerInstalled}
+              initializationContext={getInitializationContext(providerInstalled.internalId)} />
           {/each}
         {/if}
 
@@ -70,8 +70,8 @@ function getInitializationContext(id: string): InitializationContext {
         {#if providersConfiguring.length > 0}
           {#each providersConfiguring as providerConfiguring (providerConfiguring.internalId)}
             <ProviderConfiguring
-              provider="{providerConfiguring}"
-              initializationContext="{getInitializationContext(providerConfiguring.internalId)}" />
+              provider={providerConfiguring}
+              initializationContext={getInitializationContext(providerConfiguring.internalId)} />
           {/each}
         {/if}
 
@@ -80,22 +80,22 @@ function getInitializationContext(id: string): InitializationContext {
         {#if providersConfigured.length > 0}
           {#each providersConfigured as providerConfigured (providerConfigured.internalId)}
             <ProviderConfigured
-              provider="{providerConfigured}"
-              initializationContext="{getInitializationContext(providerConfigured.internalId)}" />
+              provider={providerConfigured}
+              initializationContext={getInitializationContext(providerConfigured.internalId)} />
           {/each}
         {/if}
 
         <!-- Provider is not installed, display a box to indicate how to install from the tool if possible -->
         {#if providersNotInstalled.length > 0}
           {#each providersNotInstalled as providerNotInstalled (providerNotInstalled.internalId)}
-            <ProviderNotInstalled provider="{providerNotInstalled}" />
+            <ProviderNotInstalled provider={providerNotInstalled} />
           {/each}
         {/if}
 
         <!-- Provider is stopped -->
         {#if providersStopped.length > 0}
           {#each providersStopped as providerStopped (providerStopped.internalId)}
-            <ProviderStopped provider="{providerStopped}" />
+            <ProviderStopped provider={providerStopped} />
           {/each}
         {/if}
         <LearningCenter />

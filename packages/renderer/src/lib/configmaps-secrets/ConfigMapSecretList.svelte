@@ -148,7 +148,7 @@ const columns = [
 const row = new TableRow<ConfigMapSecretUI>({ selectable: _configmapSecret => true });
 </script>
 
-<NavPage bind:searchTerm="{searchTerm}" title="configmaps & secrets">
+<NavPage bind:searchTerm={searchTerm} title="configmaps & secrets">
   <svelte:fragment slot="additional-actions">
     <KubeApplyYamlButton />
   </svelte:fragment>
@@ -156,10 +156,10 @@ const row = new TableRow<ConfigMapSecretUI>({ selectable: _configmapSecret => tr
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() => deleteSelectedConfigMapsSecrets()}"
+        on:click={() => deleteSelectedConfigMapsSecrets()}
         title="Delete {selectedItemsNumber} selected items"
-        inProgress="{bulkDeleteInProgress}"
-        icon="{faTrash}" />
+        inProgress={bulkDeleteInProgress}
+        icon={faTrash} />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
     <div class="flex grow justify-end">
@@ -170,18 +170,18 @@ const row = new TableRow<ConfigMapSecretUI>({ selectable: _configmapSecret => tr
   <div class="flex min-w-full h-full" slot="content">
     <Table
       kind="configmap & secret"
-      bind:this="{table}"
-      bind:selectedItemsNumber="{selectedItemsNumber}"
-      data="{configmapsSecretsUI}"
-      columns="{columns}"
-      row="{row}"
+      bind:this={table}
+      bind:selectedItemsNumber={selectedItemsNumber}
+      data={configmapsSecretsUI}
+      columns={columns}
+      row={row}
       defaultSortColumn="Name"
-      on:update="{() => (configmapsSecretsUI = configmapsSecretsUI)}">
+      on:update={() => (configmapsSecretsUI = configmapsSecretsUI)}>
     </Table>
 
     {#if $kubernetesCurrentContextConfigMapsFiltered.length === 0 && $kubernetesCurrentContextSecretsFiltered.length === 0}
       {#if searchTerm}
-        <FilteredEmptyScreen icon="{ConfigMapSecretIcon}" kind="configmaps or secrets" bind:searchTerm="{searchTerm}" />
+        <FilteredEmptyScreen icon={ConfigMapSecretIcon} kind="configmaps or secrets" bind:searchTerm={searchTerm} />
       {:else}
         <ConfigMapSecretEmptyScreen />
       {/if}

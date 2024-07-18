@@ -32,21 +32,21 @@ function handleKeydown(e: KeyboardEvent): void {
 }
 </script>
 
-<svelte:window on:keydown="{handleKeydown}" />
+<svelte:window on:keydown={handleKeydown} />
 
 <div class="flex flex-col w-full h-full shadow-pageheader bg-[var(--pd-content-bg)]">
-  <div class="flex flex-row w-full h-fit px-5 pt-4" class:pb-3.5="{inProgress}" class:pb-4="{!inProgress}">
+  <div class="flex flex-row w-full h-fit px-5 pt-4" class:pb-3.5={inProgress} class:pb-4={!inProgress}>
     <div class="flex flex-col w-full h-fit">
       {#if showBreadcrumb}
         <div class="flex flew-row items-center text-sm text-[var(--pd-content-breadcrumb)]">
           {#if breadcrumbLeftPart}
-            <Link aria-label="back" on:click="{onbreadcrumbClick}" title="{breadcrumbTitle}">{breadcrumbLeftPart}</Link>
+            <Link aria-label="back" on:click={onbreadcrumbClick} title={breadcrumbTitle}>{breadcrumbLeftPart}</Link>
           {/if}
           {#if breadcrumbRightPart}
             <div class="mx-2">&gt;</div>
             <div class="grow font-extralight" aria-label="name">{breadcrumbRightPart}</div>
           {/if}
-          <CloseButton class="justify-self-end text-lg" on:click="{onclose}" />
+          <CloseButton class="justify-self-end text-lg" on:click={onclose} />
         </div>
       {/if}
       <div class="flex flex-row items-center pt-1">
@@ -55,7 +55,7 @@ function handleKeydown(e: KeyboardEvent): void {
             <slot name="icon" />
           </div>
         {/if}
-        <h1 aria-label="{title}" class="grow text-xl font-bold first-letter:uppercase text-[var(--pd-content-header)]">
+        <h1 aria-label={title} class="grow text-xl font-bold first-letter:uppercase text-[var(--pd-content-header)]">
           {title}
         </h1>
         <div class="flex items-center space-x-3">
@@ -65,7 +65,7 @@ function handleKeydown(e: KeyboardEvent): void {
             </div>
           {/if}
           {#if !showBreadcrumb}
-            <CloseButton class="justify-self-end" on:click="{onclose}" />
+            <CloseButton class="justify-self-end" on:click={onclose} />
           {/if}
         </div>
       </div>

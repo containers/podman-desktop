@@ -154,10 +154,10 @@ const columns = [
 const row = new TableRow<PodInfoUI>({ selectable: _pod => true });
 </script>
 
-<NavPage bind:searchTerm="{searchTerm}" title="pods">
+<NavPage bind:searchTerm={searchTerm} title="pods">
   <svelte:fragment slot="additional-actions">
     {#if $podsInfos.length > 0}
-      <Prune type="pods" engines="{enginesList}" />
+      <Prune type="pods" engines={enginesList} />
     {/if}
     {#if providerPodmanConnections.length > 0}
       <KubePlayButton />
@@ -167,14 +167,14 @@ const row = new TableRow<PodInfoUI>({ selectable: _pod => true });
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() =>
+        on:click={() =>
           withBulkConfirmation(
             deleteSelectedPods,
             `delete ${selectedItemsNumber} pod${selectedItemsNumber > 1 ? 's' : ''}`,
-          )}"
+          )}
         title="Delete {selectedItemsNumber} selected items"
-        inProgress="{bulkDeleteInProgress}"
-        icon="{faTrash}" />
+        inProgress={bulkDeleteInProgress}
+        icon={faTrash} />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
     <div class="flex grow justify-end">
@@ -185,16 +185,16 @@ const row = new TableRow<PodInfoUI>({ selectable: _pod => true });
   <svelte:fragment slot="tabs">
     <Button
       type="tab"
-      on:click="{() => {
+      on:click={() => {
         searchTerm = searchTerm
           .split(' ')
           .filter(pattern => pattern !== 'is:running' && pattern !== 'is:stopped')
           .join(' ');
-      }}"
-      selected="{!searchTerm.includes('is:stopped') && !searchTerm.includes('is:running')}">All</Button>
+      }}
+      selected={!searchTerm.includes('is:stopped') && !searchTerm.includes('is:running')}>All</Button>
     <Button
       type="tab"
-      on:click="{() => {
+      on:click={() => {
         let temp = searchTerm
           .trim()
           .split(' ')
@@ -202,11 +202,11 @@ const row = new TableRow<PodInfoUI>({ selectable: _pod => true });
           .join(' ')
           .trim();
         searchTerm = temp ? `${temp} is:running` : 'is:running';
-      }}"
-      selected="{searchTerm.includes('is:running')}">Running</Button>
+      }}
+      selected={searchTerm.includes('is:running')}>Running</Button>
     <Button
       type="tab"
-      on:click="{() => {
+      on:click={() => {
         let temp = searchTerm
           .trim()
           .split(' ')
@@ -214,20 +214,20 @@ const row = new TableRow<PodInfoUI>({ selectable: _pod => true });
           .join(' ')
           .trim();
         searchTerm = temp ? `${temp} is:stopped` : 'is:stopped';
-      }}"
-      selected="{searchTerm.includes('is:stopped')}">Stopped</Button>
+      }}
+      selected={searchTerm.includes('is:stopped')}>Stopped</Button>
   </svelte:fragment>
 
   <div class="flex min-w-full h-full" slot="content">
     <Table
       kind="pod"
-      bind:this="{table}"
-      bind:selectedItemsNumber="{selectedItemsNumber}"
-      data="{pods}"
-      columns="{columns}"
-      row="{row}"
+      bind:this={table}
+      bind:selectedItemsNumber={selectedItemsNumber}
+      data={pods}
+      columns={columns}
+      row={row}
       defaultSortColumn="Name"
-      on:update="{() => (pods = pods)}">
+      on:update={() => (pods = pods)}>
     </Table>
 
     {#if $filtered.length === 0 && providerConnections.length === 0}
@@ -235,13 +235,13 @@ const row = new TableRow<PodInfoUI>({ selectable: _pod => true });
     {:else if $filtered.length === 0}
       {#if searchTerm}
         <FilteredEmptyScreen
-          icon="{PodIcon}"
+          icon={PodIcon}
           kind="pods"
-          bind:searchTerm="{searchTerm}"
-          on:resetFilter="{e => {
+          bind:searchTerm={searchTerm}
+          on:resetFilter={e => {
             searchTerm = podUtils.filterResetSearchTerm(searchTerm);
             e.preventDefault();
-          }}" />
+          }} />
       {:else}
         <PodEmptyScreen />
       {/if}

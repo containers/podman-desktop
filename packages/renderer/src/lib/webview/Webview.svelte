@@ -80,14 +80,14 @@ onDestroy(() => {
 </script>
 
 {#if preloadPath && webViewPort && webviewInfo}
-  <Route path="/*" breadcrumb="{webviewInfo.name}">
+  <Route path="/*" breadcrumb={webviewInfo.name}>
     <webview
-      bind:this="{webviewElement}"
+      bind:this={webviewElement}
       aria-label="Webview {webviewInfo?.name}"
       role="document"
       httpreferrer="http://{webviewInfo?.uuid}.webview.localhost:{webViewPort}"
       src="http://{webviewInfo?.uuid}.webview.localhost:{webViewPort}?webviewId={webviewInfo?.id}"
-      preload="{preloadPath}"
+      preload={preloadPath}
       style="height: 100%; width: 100%"></webview>
   </Route>
 {/if}

@@ -14,12 +14,12 @@ const ingressRouteUtils = new IngressRouteUtils();
   <div class="text-[var(--pd-table-body-text)] overflow-hidden text-ellipsis">
     {#if hostPath.url}
       <Link
-        aria-label="{hostPath.label}"
-        on:click="{() => {
+        aria-label={hostPath.label}
+        on:click={() => {
           if (hostPath.url) {
             window.openExternal(hostPath.url);
           }
-        }}">
+        }}>
         {hostPath.label}
       </Link>
     {:else}

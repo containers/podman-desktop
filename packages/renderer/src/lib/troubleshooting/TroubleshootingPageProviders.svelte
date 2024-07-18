@@ -24,7 +24,7 @@ onDestroy(() => {
 </script>
 
 <div class="flex flex-col w-full m-4 space-y-4">
-  <TroubleshootingRepair providers="{providers}" />
+  <TroubleshootingRepair providers={providers} />
 
-  <TroubleshootingContainerEngines providers="{providers}" />
+  <TroubleshootingContainerEngines providers={providers} />
 </div>

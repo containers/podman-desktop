@@ -27,25 +27,25 @@ async function onShowHide() {
 </script>
 
 <Input
-  class="{$$props.class || ''}"
+  class={$$props.class || ''}
   id="password-{id}"
   name="password-{id}"
   placeholder="Password"
-  bind:value="{password}"
+  bind:value={password}
   aria-label="password {id}"
-  bind:readonly="{readonly}"
+  bind:readonly={readonly}
   on:input
-  bind:element="{element}">
+  bind:element={element}>
   <svelte:fragment slot="right">
     <button
       class="px-1 cursor-pointer text-gray-700 group-hover:text-gray-900 group-focus-within:text-gray-900"
-      class:hidden="{!password || readonly}"
+      class:hidden={!password || readonly}
       aria-label="show/hide"
-      on:click="{onShowHide}"
+      on:click={onShowHide}
       >{#if passwordHidden}
-        <Fa icon="{faEye}" />
+        <Fa icon={faEye} />
       {:else}
-        <Fa icon="{faEyeSlash}" />
+        <Fa icon={faEyeSlash} />
       {/if}
     </button>
   </svelte:fragment>

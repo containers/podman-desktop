@@ -115,34 +115,34 @@ async function onChange(recordId: string, value: boolean | string | number): Pro
 
 <div class="flex flex-row mb-1 pt-2 text-start items-center justify-start">
   {#if invalidText}
-    <ErrorMessage error="{invalidText}." icon="{true}" class="mr-2" />
+    <ErrorMessage error="{invalidText}." icon={true} class="mr-2" />
   {/if}
   {#if record.type === 'boolean'}
-    <BooleanItem record="{record}" checked="{!!recordValue}" onChange="{onChange}" />
+    <BooleanItem record={record} checked={!!recordValue} onChange={onChange} />
   {:else if record.type === 'number'}
     {#if enableSlider && typeof record.maximum === 'number'}
       <SliderItem
-        record="{record}"
-        value="{typeof givenValue === 'number' ? givenValue : getNormalizedDefaultNumberValue(record)}"
-        onChange="{onChange}" />
+        record={record}
+        value={typeof givenValue === 'number' ? givenValue : getNormalizedDefaultNumberValue(record)}
+        onChange={onChange} />
     {:else}
       <NumberItem
-        record="{record}"
-        value="{typeof recordValue === 'number' ? recordValue : getNormalizedDefaultNumberValue(record)}"
-        onChange="{onChange}"
-        invalidRecord="{invalidRecord}" />
+        record={record}
+        value={typeof recordValue === 'number' ? recordValue : getNormalizedDefaultNumberValue(record)}
+        onChange={onChange}
+        invalidRecord={invalidRecord} />
     {/if}
   {:else if record.type === 'string' && (typeof recordValue === 'string' || recordValue === undefined)}
     {#if record.format === 'file' || record.format === 'folder'}
-      <FileItem record="{record}" value="{recordValue ?? ''}" onChange="{onChange}" />
+      <FileItem record={record} value={recordValue ?? ''} onChange={onChange} />
     {:else if record.enum && record.enum.length > 0}
-      <EnumItem record="{record}" value="{recordValue}" onChange="{onChange}" />
+      <EnumItem record={record} value={recordValue} onChange={onChange} />
     {:else}
-      <StringItem record="{record}" value="{recordValue}" onChange="{onChange}" />
+      <StringItem record={record} value={recordValue} onChange={onChange} />
     {/if}
   {:else if record.type === 'markdown'}
     <div class="text-sm">
-      <Markdown markdown="{record.markdownDescription}" />
+      <Markdown markdown={record.markdownDescription} />
     </div>
   {/if}
 </div>

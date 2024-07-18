@@ -61,5 +61,5 @@ function onHide() {
 </script>
 
 <div class="absolute top-0 right-[-9px]">
-  <NewContentBadge pagePath="/" show="{hasNew}" onHide="{onHide}" />
+  <NewContentBadge pagePath="/" show={hasNew} onHide={onHide} />
 </div>

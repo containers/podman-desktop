@@ -23,13 +23,13 @@ let dotClass = getStatusColor(status);
 // If dotClass contains "outline", then we will use 'outline-1 outline-offset-[-2px]
 </script>
 
-<Tooltip top tip="{tooltip}">
+<Tooltip top tip={tooltip}>
   <div
     class="w-2 h-2 mr-0.5 rounded-full text-center {dotClass.includes('outline')
       ? 'outline-2 outline-offset-[-2px] outline'
       : ''} {getStatusColor(status)} {number ? 'mt-3' : ''}"
     data-testid="status-dot"
-    title="{tooltip}">
+    title={tooltip}>
   </div>
   <!-- If text -->
   {#if number}

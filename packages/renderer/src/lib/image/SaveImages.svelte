@@ -129,7 +129,7 @@ async function saveImages() {
 </script>
 
 {#if imagesToSave}
-  <EngineFormPage title="{singleItemMode ? `Save Image ${imagesToSave[0].name}` : 'Save Images'}">
+  <EngineFormPage title={singleItemMode ? `Save Image ${imagesToSave[0].name}` : 'Save Images'}>
     <svelte:fragment slot="icon">
       <i class="fas fa-play fa-2x" aria-hidden="true"></i>
     </svelte:fragment>
@@ -140,11 +140,11 @@ async function saveImages() {
         <Input
           class="grow mr-2"
           readonly
-          value="{outputPath}"
+          value={outputPath}
           id="input-output-directory"
-          aria-invalid="{invalidOutputPath}" />
+          aria-invalid={invalidOutputPath} />
         <Button
-          on:click="{() => selectOutputPath()}"
+          on:click={() => selectOutputPath()}
           title="Open dialog to select the output folder"
           aria-label="Select output folder">Browse ...</Button>
       </div>
@@ -159,29 +159,29 @@ async function saveImages() {
           {@const imageAndTag = `${imageToSave.name}:${imageToSave.tag}`}
           {@const imageDisplayName = `${imageToSave.name === '<none>' ? imageToSave.shortId : imageAndTag}`}
           <div class="flex flex-row justify-center w-full py-1">
-            <Input value="{imageDisplayName}" aria-label="image {imageDisplayName}" readonly="{true}" />
+            <Input value={imageDisplayName} aria-label="image {imageDisplayName}" readonly={true} />
             <Button
               type="link"
               aria-label="Delete image {imageDisplayName}"
-              on:click="{() => deleteImageToSave(index)}"
-              icon="{faMinusCircle}" />
+              on:click={() => deleteImageToSave(index)}
+              icon={faMinusCircle} />
           </div>
         {/each}
       {/if}
 
       <div class="pt-5 w-full">
         <Button
-          on:click="{() => saveImages()}"
-          inProgress="{inProgress}"
+          on:click={() => saveImages()}
+          inProgress={inProgress}
           class="w-full"
-          icon="{faPlay}"
+          icon={faPlay}
           aria-label="Save images"
-          bind:disabled="{saveDisabled}">
+          bind:disabled={saveDisabled}>
           Save Images
         </Button>
         <div aria-label="saveError">
           {#if saveError !== ''}
-            <ErrorMessage class="py-2 text-sm" error="{saveError}" />
+            <ErrorMessage class="py-2 text-sm" error={saveError} />
           {/if}
         </div>
       </div>

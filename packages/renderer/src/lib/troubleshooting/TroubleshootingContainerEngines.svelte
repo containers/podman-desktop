@@ -13,7 +13,7 @@ $: containerEnginesRunning = containerEngines.filter(containerEngine => containe
 
 <div class="flex flex-col w-full bg-charcoal-600 p-4 rounded-lg">
   <div class="flex flex-row align-middle items-center">
-    <ContainerIcon size="40" solid="{true}" class="pr-3 text-gray-700" />
+    <ContainerIcon size="40" solid={true} class="pr-3 text-gray-700" />
     <div role="status" aria-label="container connections" class="text-xl">
       Container connections: {containerEngines.length} ({containerEnginesRunning.length} running)
     </div>
@@ -22,7 +22,7 @@ $: containerEnginesRunning = containerEngines.filter(containerEngine => containe
   {#if containerEnginesRunning.length > 0}
     <div class="mt-4">Running:</div>
     {#each containerEnginesRunning as containerEngineRunning}
-      <TroubleshootingContainerEngine containerEngineRunning="{containerEngineRunning}" />
+      <TroubleshootingContainerEngine containerEngineRunning={containerEngineRunning} />
     {/each}
 
     <div class="flex flex-row align-middle items-center">

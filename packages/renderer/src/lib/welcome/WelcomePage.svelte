@@ -123,12 +123,12 @@ function startOnboardingQueue() {
                     <div class="flex flex-row place-items-left flex-1">
                       <div>
                         {#if typeof onboarding.icon === 'string'}
-                          <img alt="{onboarding.name} logo" class="max-h-12 h-auto w-auto" src="{onboarding.icon}" />
+                          <img alt="{onboarding.name} logo" class="max-h-12 h-auto w-auto" src={onboarding.icon} />
                         {/if}
                       </div>
                       <div
                         class="flex flex-1 mx-2 underline decoration-2 decoration-dotted underline-offset-2 cursor-default justify-left text-capitalize">
-                        <Tooltip top tip="{onboarding.description}">
+                        <Tooltip top tip={onboarding.description}>
                           {onboarding.displayName}
                         </Tooltip>
                       </div>
@@ -138,8 +138,8 @@ function startOnboardingQueue() {
                   <input
                     type="checkbox"
                     aria-label="{onboarding.displayName} checkbox"
-                    bind:checked="{onboarding.selected}"
-                    on:click="{() => toggleOnboardingSelection(onboarding.name)}"
+                    bind:checked={onboarding.selected}
+                    on:click={() => toggleOnboardingSelection(onboarding.name)}
                     class="form-checkbox h-5 w-5 text-purple-600" />
                 </div>
               {/each}
@@ -150,10 +150,10 @@ function startOnboardingQueue() {
       <div class="flex justify-center p-2 text-sm">
         Configure these and more under <button
           class="text-violet-400 pl-1"
-          on:click="{() => {
+          on:click={() => {
             closeWelcome();
             router.goto('/preferences');
-          }}">Settings</button
+          }}>Settings</button
         >.
       </div>
     </div>
@@ -166,33 +166,33 @@ function startOnboardingQueue() {
             <input
               id="toggle-telemetry"
               class="sr-only peer"
-              bind:checked="{telemetry}"
+              bind:checked={telemetry}
               name="Enable telemetry"
               type="checkbox"
               aria-label="Enable telemetry" />
             <div
               class="w-4 h-4 rounded border-2 border-gray-700 peer peer-checked:bg-violet-500 peer-checked:border-violet-500">
             </div>
-            <Fa class="w-4 h-4 absolute text-zinc-700" size="0.6x" icon="{faCheck}" />
+            <Fa class="w-4 h-4 absolute text-zinc-700" size="0.6x" icon={faCheck} />
             <span class="font-medium font-bold px-2">Telemetry:</span>
           </label>
           <div class="w-2/5 text-gray-400">
             Help Red Hat improve Podman Desktop by allowing anonymous usage data to be collected.
             <button
               class="text-violet-400 pl-1"
-              on:click="{() => {
+              on:click={() => {
                 window.openExternal('https://developers.redhat.com/article/tool-data-collection');
-              }}">Read our privacy statement</button>
+              }}>Read our privacy statement</button>
           </div>
         </div>
         <div class="flex justify-center p-1 text-sm text-gray-700">
           <div>
             You can always modify this preference later in <button
               class="text-gray-700 pl-1"
-              on:click="{() => {
+              on:click={() => {
                 closeWelcome();
                 router.goto('/preferences/default/preferences.telemetry');
-              }}">Settings &gt; Preferences</button>
+              }}>Settings &gt; Preferences</button>
           </div>
         </div>
       </div>
@@ -208,20 +208,20 @@ function startOnboardingQueue() {
         we do not want the user to not be able to continue. -->
           <Button
             type="secondary"
-            on:click="{() => {
+            on:click={() => {
               closeWelcome();
-            }}">Go to Podman Desktop</Button>
+            }}>Go to Podman Desktop</Button>
           <Button
             class="ml-2"
-            on:click="{() => {
+            on:click={() => {
               closeWelcome();
               startOnboardingQueue();
-            }}">Start onboarding</Button>
+            }}>Start onboarding</Button>
         {:else}
           <Button
-            on:click="{() => {
+            on:click={() => {
               closeWelcome();
-            }}">Go to Podman Desktop</Button>
+            }}>Go to Podman Desktop</Button>
         {/if}
       </div>
     </div>

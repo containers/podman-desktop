@@ -357,7 +357,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
 </script>
 
 <SettingsPage title="Resources">
-  <span slot="subtitle" class:hidden="{providers.length === 0}">
+  <span slot="subtitle" class:hidden={providers.length === 0}>
     Additional provider information is available under <a
       href="/extensions"
       class="text-gray-700 underline underline-offset-2">Extensions</a>
@@ -365,26 +365,26 @@ function hasAnyConfiguration(provider: ProviderInfo) {
   <div class="h-full" role="region" aria-label="Featured Provider Resources">
     <EmptyScreen
       aria-label="no-resource-panel"
-      icon="{EngineIcon}"
+      icon={EngineIcon}
       title="No resources found"
       message="Start an extension that manages containers or Kubernetes engines"
-      hidden="{providers.length > 0}" />
+      hidden={providers.length > 0} />
 
     {#each providers as provider}
       <div
         class="bg-[var(--pd-invert-content-card-bg)] mb-5 rounded-md p-3 divide-x divide-gray-900 flex"
         role="region"
-        aria-label="{provider.id}">
+        aria-label={provider.id}>
         <div role="region" aria-label="Provider Setup">
           <!-- left col - provider icon/name + "create new" button -->
           <div class="min-w-[170px] max-w-[200px]">
             <div class="flex">
               {#if provider.images.icon}
                 {#if typeof provider.images.icon === 'string'}
-                  <img src="{provider.images.icon}" alt="{provider.name}" class="max-w-[40px] h-full" />
+                  <img src={provider.images.icon} alt={provider.name} class="max-w-[40px] h-full" />
                   <!-- TODO check theme used for image, now use dark by default -->
                 {:else}
-                  <img src="{provider.images.icon.dark}" alt="{provider.name}" class="max-w-[40px]" />
+                  <img src={provider.images.icon.dark} alt={provider.name} class="max-w-[40px]" />
                 {/if}
               {/if}
               <span class="my-auto font-semibold text-[var(--pd-invert-content-card-header-text)] ml-3 break-words"
@@ -396,7 +396,7 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                 <Button
                   aria-label="Setup {provider.name}"
                   title="Setup {provider.name}"
-                  on:click="{() => router.goto(`/preferences/onboarding/${provider.extensionId}`)}">
+                  on:click={() => router.goto(`/preferences/onboarding/${provider.extensionId}`)}>
                   Setup ...
                 </Button>
               {:else}
@@ -418,8 +418,8 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                     <Tooltip bottom tip="Create new {providerDisplayName}">
                       <Button
                         aria-label="Create new {providerDisplayName}"
-                        inProgress="{providerInstallationInProgress.get(provider.name)}"
-                        on:click="{() => doCreateNew(provider, providerDisplayName)}">
+                        inProgress={providerInstallationInProgress.get(provider.name)}
+                        on:click={() => doCreateNew(provider, providerDisplayName)}>
                         {buttonTitle} ...
                       </Button>
                     </Tooltip>
@@ -428,14 +428,14 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                     <Button
                       aria-label="Setup {provider.name}"
                       title="Setup {provider.name}"
-                      on:click="{() => {
+                      on:click={() => {
                         if (isOnboardingEnabled(provider, globalContext)) {
                           router.goto(`/preferences/onboarding/${provider.extensionId}`);
                         } else {
                           router.goto(`/preferences/default/preferences.${provider.extensionId}`);
                         }
-                      }}">
-                      <Fa size="0.9x" icon="{faGear}" />
+                      }}>
+                      <Fa size="0.9x" icon={faGear} />
                     </Button>
                   {/if}
                 </div>
@@ -449,23 +449,23 @@ function hasAnyConfiguration(provider: ProviderInfo) {
           role="region"
           aria-label="Provider Connections">
           <PreferencesConnectionsEmptyRendering
-            message="{provider.emptyConnectionMarkdownDescription}"
-            hidden="{provider.containerConnections.length > 0 || provider.kubernetesConnections.length > 0}" />
+            message={provider.emptyConnectionMarkdownDescription}
+            hidden={provider.containerConnections.length > 0 || provider.kubernetesConnections.length > 0} />
           {#each provider.containerConnections as container}
             {@const peerProperties = new PeerProperties()}
-            <div class="px-5 py-2 w-[240px]" role="region" aria-label="{container.name}">
+            <div class="px-5 py-2 w-[240px]" role="region" aria-label={container.name}>
               <div class="float-right">
                 <Tooltip bottom tip="{provider.name} details">
                   <button
                     aria-label="{provider.name} details"
                     type="button"
-                    on:click="{() =>
+                    on:click={() =>
                       router.goto(
                         `/preferences/container-connection/view/${provider.internalId}/${Buffer.from(
                           container.name,
                         ).toString('base64')}/${Buffer.from(container.endpoint.socketPath).toString('base64')}/summary`,
-                      )}">
-                    <Fa icon="{faArrowUpRightFromSquare}" />
+                      )}>
+                    <Fa icon={faArrowUpRightFromSquare} />
                   </button>
                 </Tooltip>
               </div>
@@ -473,18 +473,18 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                 {container.name}
               </div>
               <div class="flex" aria-label="Connection Status">
-                <ConnectionStatus status="{container.status}" />
+                <ConnectionStatus status={container.status} />
                 {#if containerConnectionStatus.has(getProviderConnectionName(provider, container))}
                   {@const status = containerConnectionStatus.get(getProviderConnectionName(provider, container))}
-                  <ConnectionErrorInfoButton status="{status}" />
+                  <ConnectionErrorInfoButton status={status} />
                 {/if}
               </div>
               <div class="mt-2 text-gray-700 text-xs" aria-label="{container.name} type">
                 {#if container.type === 'docker'}Docker{:else if container.type === 'podman'}Podman{/if} endpoint
               </div>
               <PreferencesResourcesRenderingCopyButton
-                class="{container.status !== 'started' ? 'text-gray-900' : ''}"
-                path="{container.endpoint.socketPath}" />
+                class={container.status !== 'started' ? 'text-gray-900' : ''}
+                path={container.endpoint.socketPath} />
               {#if providerContainerConfiguration.has(provider.internalId)}
                 {@const providerConfiguration = providerContainerConfiguration.get(provider.internalId) ?? []}
                 <div
@@ -500,9 +500,9 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                         )}
                         <div class="mr-4">
                           <Donut
-                            title="{connectionSetting.description}"
-                            value="{connectionSetting.value}"
-                            percent="{peerValue}" />
+                            title={connectionSetting.description}
+                            value={connectionSetting.value}
+                            percent={peerValue} />
                         </div>
                       {/if}
                     {:else if connectionSetting.format === 'memory' || connectionSetting.format === 'memoryUsage' || connectionSetting.format === 'diskSize' || connectionSetting.format === 'diskSizeUsage'}
@@ -513,9 +513,9 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                         )}
                         <div class="mr-4">
                           <Donut
-                            title="{connectionSetting.description}"
-                            value="{filesize(connectionSetting.value)}"
-                            percent="{peerValue}" />
+                            title={connectionSetting.description}
+                            value={filesize(connectionSetting.value)}
+                            percent={peerValue} />
                         </div>
                       {/if}
                     {:else}
@@ -525,30 +525,30 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                 </div>
               {/if}
               <PreferencesConnectionActions
-                provider="{provider}"
-                connection="{container}"
-                connectionStatus="{containerConnectionStatus.get(getProviderConnectionName(provider, container))}"
-                updateConnectionStatus="{updateContainerStatus}"
-                addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
+                provider={provider}
+                connection={container}
+                connectionStatus={containerConnectionStatus.get(getProviderConnectionName(provider, container))}
+                updateConnectionStatus={updateContainerStatus}
+                addConnectionToRestartingQueue={addConnectionToRestartingQueue} />
               <div class="mt-1.5 text-gray-900 text-[9px]" aria-label="Connection Version">
                 <div>{provider.name} {provider.version ? `v${provider.version}` : ''}</div>
               </div>
             </div>
           {/each}
           {#each provider.kubernetesConnections as kubeConnection}
-            <div class="px-5 py-2 w-[240px]" role="region" aria-label="{kubeConnection.name}">
+            <div class="px-5 py-2 w-[240px]" role="region" aria-label={kubeConnection.name}>
               <div class="float-right">
                 <Tooltip bottom tip="{provider.name} details">
                   <button
                     aria-label="{provider.name} details"
                     type="button"
-                    on:click="{() =>
+                    on:click={() =>
                       router.goto(
                         `/preferences/kubernetes-connection/${provider.internalId}/${Buffer.from(
                           kubeConnection.endpoint.apiURL,
                         ).toString('base64')}/summary`,
-                      )}">
-                    <Fa icon="{faArrowUpRightFromSquare}" />
+                      )}>
+                    <Fa icon={faArrowUpRightFromSquare} />
                   </button>
                 </Tooltip>
               </div>
@@ -556,21 +556,21 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                 {kubeConnection.name}
               </div>
               <div class="flex mt-1">
-                <ConnectionStatus status="{kubeConnection.status}" />
+                <ConnectionStatus status={kubeConnection.status} />
               </div>
               <div class="mt-2">
                 <div class="text-gray-700 text-xs">Kubernetes endpoint</div>
                 <div class="mt-1">
-                  <span class="my-auto text-xs" class:text-gray-900="{kubeConnection.status !== 'started'}"
+                  <span class="my-auto text-xs" class:text-gray-900={kubeConnection.status !== 'started'}
                     >{kubeConnection.endpoint.apiURL}</span>
                 </div>
               </div>
               <PreferencesConnectionActions
-                provider="{provider}"
-                connection="{kubeConnection}"
-                connectionStatus="{containerConnectionStatus.get(getProviderConnectionName(provider, kubeConnection))}"
-                updateConnectionStatus="{updateContainerStatus}"
-                addConnectionToRestartingQueue="{addConnectionToRestartingQueue}" />
+                provider={provider}
+                connection={kubeConnection}
+                connectionStatus={containerConnectionStatus.get(getProviderConnectionName(provider, kubeConnection))}
+                updateConnectionStatus={updateContainerStatus}
+                addConnectionToRestartingQueue={addConnectionToRestartingQueue} />
             </div>
           {/each}
         </div>
@@ -579,9 +579,9 @@ function hasAnyConfiguration(provider: ProviderInfo) {
   </div>
   {#if displayInstallModal && providerToBeInstalled}
     <PreferencesProviderInstallationModal
-      providerToBeInstalled="{providerToBeInstalled}"
-      preflightChecks="{preflightChecks}"
-      closeCallback="{hideInstallModal}"
-      doCreateNew="{doCreateNew}" />
+      providerToBeInstalled={providerToBeInstalled}
+      preflightChecks={preflightChecks}
+      closeCallback={hideInstallModal}
+      doCreateNew={doCreateNew} />
   {/if}
 </SettingsPage>

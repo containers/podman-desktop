@@ -35,8 +35,8 @@ function getCommandLine(stoppedOnly: boolean): string {
 </script>
 
 <EmptyScreen
-  icon="{ContainerIcon}"
-  title="{title}"
-  message="{message}"
-  commandline="{commandLine}"
-  on:click="{() => window.clipboardWriteText(commandLine)}" />
+  icon={ContainerIcon}
+  title={title}
+  message={message}
+  commandline={commandLine}
+  on:click={() => window.clipboardWriteText(commandLine)} />

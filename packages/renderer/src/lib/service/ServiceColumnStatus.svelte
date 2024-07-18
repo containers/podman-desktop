@@ -7,4 +7,4 @@ import type { ServiceUI } from './ServiceUI';
 export let object: ServiceUI;
 </script>
 
-<StatusIcon icon="{ServiceIcon}" status="{object.status}" />
+<StatusIcon icon={ServiceIcon} status={object.status} />

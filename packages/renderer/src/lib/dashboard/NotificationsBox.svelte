@@ -29,7 +29,7 @@ onDestroy(() => {
     <div class="flex flex-col items-center justify-content space-y-3" role="region" aria-label="Notifications Box">
       <span class="text-[var(--pd-content-card-header-text)] text-lg font-semibold self-start mb-1">Notifications</span>
       {#each notifications as notification}
-        <NotificationCardItem notification="{notification}" />
+        <NotificationCardItem notification={notification} />
       {/each}
     </div>
   </div>

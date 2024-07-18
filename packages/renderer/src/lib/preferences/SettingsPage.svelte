@@ -2,7 +2,7 @@
 export let title: string;
 </script>
 
-<div class="flex flex-col min-w-full h-full" role="region" aria-label="{title}">
+<div class="flex flex-col min-w-full h-full" role="region" aria-label={title}>
   <div class="min-w-full px-5 py-4" role="region" aria-label="Header">
     <div class="flex flex-row">
       <div class="grow">

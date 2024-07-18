@@ -18,7 +18,7 @@ function getTypeAttributes(type: string) {
 </script>
 
 <div class="flex flex-row gap-1">
-  <Label name="{object.type}" capitalize="{false}">
-    <Fa size="1x" icon="{getTypeAttributes(object.type).icon}" class="{getTypeAttributes(object.type).color}" />
+  <Label name={object.type} capitalize={false}>
+    <Fa size="1x" icon={getTypeAttributes(object.type).icon} class={getTypeAttributes(object.type).color} />
   </Label>
 </div>

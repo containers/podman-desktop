@@ -119,37 +119,36 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
     <div>
       <ToggleButtonGroup>
         <ToggleButton
-          selected="{true}"
-          disabled="{countBySeverity.critical === 0}"
-          icon="{faExclamationCircle}"
+          selected={true}
+          disabled={countBySeverity.critical === 0}
+          icon={faExclamationCircle}
           iconClass="text-red-600"
-          on:click="{event => onSeverityClicked('critical', event.detail)}"
+          on:click={event => onSeverityClicked('critical', event.detail)}
           >Critical ({countBySeverity.critical})</ToggleButton>
         <ToggleButton
-          selected="{true}"
-          disabled="{countBySeverity.high === 0}"
-          icon="{faExclamationTriangle}"
+          selected={true}
+          disabled={countBySeverity.high === 0}
+          icon={faExclamationTriangle}
           iconClass="text-amber-500"
-          on:click="{event => onSeverityClicked('high', event.detail)}">High ({countBySeverity.high})</ToggleButton>
+          on:click={event => onSeverityClicked('high', event.detail)}>High ({countBySeverity.high})</ToggleButton>
         <ToggleButton
-          selected="{true}"
-          disabled="{countBySeverity.medium === 0}"
-          icon="{faExclamationTriangle}"
+          selected={true}
+          disabled={countBySeverity.medium === 0}
+          icon={faExclamationTriangle}
           iconClass="text-gray-800"
-          on:click="{event => onSeverityClicked('medium', event.detail)}"
-          >Medium ({countBySeverity.medium})</ToggleButton>
+          on:click={event => onSeverityClicked('medium', event.detail)}>Medium ({countBySeverity.medium})</ToggleButton>
         <ToggleButton
-          selected="{true}"
-          disabled="{countBySeverity.low === 0}"
-          icon="{faCircleMinus}"
+          selected={true}
+          disabled={countBySeverity.low === 0}
+          icon={faCircleMinus}
           iconClass="text-gray-500"
-          on:click="{event => onSeverityClicked('low', event.detail)}">Low ({countBySeverity.low})</ToggleButton>
+          on:click={event => onSeverityClicked('low', event.detail)}>Low ({countBySeverity.low})</ToggleButton>
         <ToggleButton
-          selected="{true}"
-          disabled="{countBySeverity.success === 0}"
-          icon="{faCheckSquare}"
+          selected={true}
+          disabled={countBySeverity.success === 0}
+          icon={faCheckSquare}
           iconClass="text-green-500"
-          on:click="{event => onSeverityClicked('success', event.detail)}"
+          on:click={event => onSeverityClicked('success', event.detail)}
           >Passed ({countBySeverity.success})</ToggleButton>
       </ToggleButtonGroup>
     </div>
@@ -165,19 +164,19 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
             {/if}
             {#if provider.state === 'failed'}
               <span class="text-red-600 mt-1">
-                <Fa size="1.1x" icon="{faExclamationTriangle}" />
+                <Fa size="1.1x" icon={faExclamationTriangle} />
               </span>
             {/if}
             {#if provider.state === 'canceled'}
               <span class="text-gray-500">
-                <Fa size="1.1x" icon="{faCircleMinus}" />
+                <Fa size="1.1x" icon={faCircleMinus} />
               </span>
             {/if}
             {#if provider.state === 'success'}
               <SlideToggle
-                id="{provider.info.id}"
-                on:checked="{event => onProviderChecked(provider.info.id, event.detail)}"
-                checked="{selectedProviders.get(provider.info.id) ?? true}" />
+                id={provider.info.id}
+                on:checked={event => onProviderChecked(provider.info.id, event.detail)}
+                checked={selectedProviders.get(provider.info.id) ?? true} />
             {/if}
           </div>
           {#if provider.error}
@@ -194,19 +193,19 @@ function onSeverityClicked(severity: 'critical' | 'high' | 'medium' | 'low' | 's
         <div
           role="row"
           class="rounded-r-lg bg-charcoal-700 mb-4 mr-4 p-4 border-l-2"
-          class:border-l-red-600="{result.check.severity === 'critical'}"
-          class:border-l-amber-500="{result.check.severity === 'high'}"
-          class:border-l-gray-800="{result.check.severity === 'medium'}"
-          class:border-l-gray-500="{result.check.severity === 'low'}"
-          class:border-l-green-500="{result.check.status === 'success'}">
+          class:border-l-red-600={result.check.severity === 'critical'}
+          class:border-l-amber-500={result.check.severity === 'high'}
+          class:border-l-gray-800={result.check.severity === 'medium'}
+          class:border-l-gray-500={result.check.severity === 'low'}
+          class:border-l-green-500={result.check.status === 'success'}>
           <div class="flex flex-row space-x-2">
             <span
-              class:text-red-600="{result.check.severity === 'critical'}"
-              class:text-amber-500="{result.check.severity === 'high'}"
-              class:text-gray-800="{result.check.severity === 'medium'}"
-              class:text-gray-500="{result.check.severity === 'low'}"
-              class:text-green-500="{result.check.status === 'success'}"
-              ><Fa size="1.1x" class="mt-1" icon="{getIcon(result.check)}" />
+              class:text-red-600={result.check.severity === 'critical'}
+              class:text-amber-500={result.check.severity === 'high'}
+              class:text-gray-800={result.check.severity === 'medium'}
+              class:text-gray-500={result.check.severity === 'low'}
+              class:text-green-500={result.check.status === 'success'}
+              ><Fa size="1.1x" class="mt-1" icon={getIcon(result.check)} />
             </span>
             <div class="font-bold">{result.check.name}</div>
             <div class="text-gray-900 text-sm grow text-right">Reported by {result.provider.label}</div>

@@ -120,7 +120,7 @@ const columns = [
 const row = new TableRow<PVCUI>({ selectable: _pvc => true });
 </script>
 
-<NavPage bind:searchTerm="{searchTerm}" title="persistent volume claims">
+<NavPage bind:searchTerm={searchTerm} title="persistent volume claims">
   <svelte:fragment slot="additional-actions">
     <KubeApplyYamlButton />
   </svelte:fragment>
@@ -128,14 +128,14 @@ const row = new TableRow<PVCUI>({ selectable: _pvc => true });
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() =>
+        on:click={() =>
           withBulkConfirmation(
             deleteSelectedPVCs,
             `delete ${selectedItemsNumber} PVC${selectedItemsNumber > 1 ? 's' : ''}`,
-          )}"
+          )}
         title="Delete {selectedItemsNumber} selected items"
-        inProgress="{bulkDeleteInProgress}"
-        icon="{faTrash}" />
+        inProgress={bulkDeleteInProgress}
+        icon={faTrash} />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
     <div class="flex grow justify-end">
@@ -146,18 +146,18 @@ const row = new TableRow<PVCUI>({ selectable: _pvc => true });
   <div class="flex min-w-full h-full" slot="content">
     <Table
       kind="PVC"
-      bind:this="{table}"
-      bind:selectedItemsNumber="{selectedItemsNumber}"
-      data="{pvcs}"
-      columns="{columns}"
-      row="{row}"
+      bind:this={table}
+      bind:selectedItemsNumber={selectedItemsNumber}
+      data={pvcs}
+      columns={columns}
+      row={row}
       defaultSortColumn="Name"
-      on:update="{() => (pvcs = pvcs)}">
+      on:update={() => (pvcs = pvcs)}>
     </Table>
 
     {#if $kubernetesCurrentContextPersistentVolumeClaimsFiltered.length === 0}
       {#if searchTerm}
-        <FilteredEmptyScreen icon="{PVCIcon}" kind="pvcs" bind:searchTerm="{searchTerm}" />
+        <FilteredEmptyScreen icon={PVCIcon} kind="pvcs" bind:searchTerm={searchTerm} />
       {:else}
         <PVCEmptyScreen />
       {/if}

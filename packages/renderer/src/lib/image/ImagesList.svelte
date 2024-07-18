@@ -319,47 +319,45 @@ const row = new TableRow<ImageInfoUI>({
 });
 </script>
 
-<NavPage bind:searchTerm="{searchTerm}" title="images">
+<NavPage bind:searchTerm={searchTerm} title="images">
   <svelte:fragment slot="additional-actions">
     {#if $imagesInfos.length > 0}
-      <Prune type="images" engines="{enginesList}" />
+      <Prune type="images" engines={enginesList} />
     {/if}
     <Button
-      on:click="{() => loadImages()}"
+      on:click={() => loadImages()}
       title="Load Images From Tar Archives"
-      icon="{faUpload}"
+      icon={faUpload}
       aria-label="Load Images">
       Load
     </Button>
     <Button
-      on:click="{() => importImage()}"
+      on:click={() => importImage()}
       title="Import Containers From Filesystem"
-      icon="{faArrowCircleDown}"
+      icon={faArrowCircleDown}
       aria-label="Import Image">
       Import
     </Button>
-    <Button on:click="{() => gotoPullImage()}" title="Pull Image From a Registry" icon="{faArrowCircleDown}">
-      Pull
-    </Button>
-    <Button on:click="{() => gotoBuildImage()}" title="Build Image From Containerfile" icon="{faCube}">Build</Button>
+    <Button on:click={() => gotoPullImage()} title="Pull Image From a Registry" icon={faArrowCircleDown}>Pull</Button>
+    <Button on:click={() => gotoBuildImage()} title="Build Image From Containerfile" icon={faCube}>Build</Button>
   </svelte:fragment>
 
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() =>
+        on:click={() =>
           withBulkConfirmation(
             deleteSelectedImages,
             `delete ${selectedItemsNumber} image${selectedItemsNumber > 1 ? 's' : ''}`,
-          )}"
+          )}
         title="Delete {selectedItemsNumber} selected items"
-        bind:inProgress="{bulkDeleteInProgress}"
-        icon="{faTrash}" />
+        bind:inProgress={bulkDeleteInProgress}
+        icon={faTrash} />
       <Button
-        on:click="{() => saveSelectedImages()}"
+        on:click={() => saveSelectedImages()}
         title="Save {selectedItemsNumber} selected items"
         aria-label="Save images"
-        icon="{faDownload}" />
+        icon={faDownload} />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
   </svelte:fragment>
@@ -367,20 +365,20 @@ const row = new TableRow<ImageInfoUI>({
   <div class="flex min-w-full h-full" slot="content">
     <Table
       kind="image"
-      bind:this="{table}"
-      bind:selectedItemsNumber="{selectedItemsNumber}"
-      data="{images}"
-      columns="{columns}"
-      row="{row}"
+      bind:this={table}
+      bind:selectedItemsNumber={selectedItemsNumber}
+      data={images}
+      columns={columns}
+      row={row}
       defaultSortColumn="Age"
-      on:update="{() => (images = images)}">
+      on:update={() => (images = images)}>
     </Table>
 
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if $filtered.length === 0}
       {#if searchTerm}
-        <FilteredEmptyScreen icon="{ImageIcon}" kind="images" bind:searchTerm="{searchTerm}" />
+        <FilteredEmptyScreen icon={ImageIcon} kind="images" bind:searchTerm={searchTerm} />
       {:else}
         <ImageEmptyScreen />
       {/if}

@@ -130,13 +130,13 @@ function addCard(item: { value: string }) {
   <div class="flex flex-row gap-x-4 gap-y-4 flex-wrap">
     {#each sortedCards as card}
       <BuildImageFromContainerfileCard
-        title="{card.title}"
-        isDefault="{card.isDefault}"
-        checked="{card.checked}"
-        badge="{card.badge}"
-        value="{card.value}"
-        icon="{card.icon}"
-        on:card="{item => handleCard(item)}" />
+        title={card.title}
+        isDefault={card.isDefault}
+        checked={card.checked}
+        badge={card.badge}
+        value={card.value}
+        icon={card.icon}
+        on:card={item => handleCard(item)} />
     {/each}
   </div>
 
@@ -144,8 +144,8 @@ function addCard(item: { value: string }) {
     <button
       aria-label="Show more options"
       class="pt-2 flex items-center cursor-pointer text-[var(--pd-content-text)]"
-      on:click="{() => (showMoreOptions = !showMoreOptions)}">
-      <Fa icon="{faChevronRight}" class=" mr-2 " />
+      on:click={() => (showMoreOptions = !showMoreOptions)}>
+      <Fa icon={faChevronRight} class=" mr-2 " />
       More Options...
     </button>
   {:else}
@@ -153,29 +153,29 @@ function addCard(item: { value: string }) {
       <div class="flex flex-row gap-x-4 flex-wrap gap-y-4">
         {#each advancedCards as card}
           <BuildImageFromContainerfileCard
-            title="{card.title}"
-            isDefault="{card.isDefault}"
-            checked="{card.checked}"
-            badge="{card.badge}"
-            value="{card.value}"
-            icon="{card.icon}"
-            on:card="{item => handleCard(item)}" />
+            title={card.title}
+            isDefault={card.isDefault}
+            checked={card.checked}
+            badge={card.badge}
+            value={card.value}
+            icon={card.icon}
+            on:card={item => handleCard(item)} />
         {/each}
         <BuildImageFromContainerfileCard
           title="New platform"
-          isDefault="{false}"
-          checked="{false}"
+          isDefault={false}
+          checked={false}
           badge=""
           value=""
-          additionalItem="{true}"
-          on:addcard="{item => addCard(item.detail)}" />
+          additionalItem={true}
+          on:addcard={item => addCard(item.detail)} />
       </div>
     </div>
     <button
       aria-label="Show less options"
       class="pt-2 flex items-center cursor-pointer text-[var(--pd-content-text)]"
-      on:click="{() => (showMoreOptions = !showMoreOptions)}">
-      <Fa icon="{faChevronCircleDown}" class=" mr-2 transform rotate-90" />
+      on:click={() => (showMoreOptions = !showMoreOptions)}>
+      <Fa icon={faChevronCircleDown} class=" mr-2 transform rotate-90" />
       Less Options...
     </button>
   {/if}

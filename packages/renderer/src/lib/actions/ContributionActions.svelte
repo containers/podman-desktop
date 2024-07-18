@@ -99,11 +99,11 @@ async function executeContribution(menu: Menu): Promise<void> {
 
 {#each filteredContributions as menu}
   <ListItemButtonIcon
-    title="{menu.title}"
-    onClick="{() => executeContribution(menu)}"
-    menu="{dropdownMenu}"
-    icon="{getIcon(menu)}"
-    detailed="{detailed}"
-    disabledWhen="{menu.disabled}"
-    contextUI="{globalContext}" />
+    title={menu.title}
+    onClick={() => executeContribution(menu)}
+    menu={dropdownMenu}
+    icon={getIcon(menu)}
+    detailed={detailed}
+    disabledWhen={menu.disabled}
+    contextUI={globalContext} />
 {/each}

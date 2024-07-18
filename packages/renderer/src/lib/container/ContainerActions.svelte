@@ -165,89 +165,87 @@ if (dropdownMenu) {
 
 <ListItemButtonIcon
   title="Start Container"
-  onClick="{() => startContainer()}"
-  hidden="{container.state === 'RUNNING' || container.state === 'STOPPING'}"
-  detailed="{detailed}"
-  inProgress="{container.actionInProgress && container.state === 'STARTING'}"
-  icon="{faPlay}"
+  onClick={() => startContainer()}
+  hidden={container.state === 'RUNNING' || container.state === 'STOPPING'}
+  detailed={detailed}
+  inProgress={container.actionInProgress && container.state === 'STARTING'}
+  icon={faPlay}
   iconOffset="pl-[0.15rem]" />
 
 <ListItemButtonIcon
   title="Stop Container"
-  onClick="{() => stopContainer()}"
-  hidden="{!(container.state === 'RUNNING' || container.state === 'STOPPING')}"
-  detailed="{detailed}"
-  inProgress="{container.actionInProgress && container.state === 'STOPPING'}"
-  icon="{faStop}" />
+  onClick={() => stopContainer()}
+  hidden={!(container.state === 'RUNNING' || container.state === 'STOPPING')}
+  detailed={detailed}
+  inProgress={container.actionInProgress && container.state === 'STOPPING'}
+  icon={faStop} />
 
 <ListItemButtonIcon
   title="Delete Container"
-  onClick="{() => withConfirmation(deleteContainer, `delete container ${container.name}`)}"
-  icon="{faTrash}"
-  detailed="{detailed}"
-  inProgress="{container.actionInProgress && container.state === 'DELETING'}" />
+  onClick={() => withConfirmation(deleteContainer, `delete container ${container.name}`)}
+  icon={faTrash}
+  detailed={detailed}
+  inProgress={container.actionInProgress && container.state === 'DELETING'} />
 
 <!-- If dropdownMenu is true, use it, otherwise just show the regular buttons -->
-<svelte:component this="{actionsStyle}">
+<svelte:component this={actionsStyle}>
   {#if !detailed}
     <ListItemButtonIcon
       title="Open Logs"
-      onClick="{() => openLogs()}"
-      menu="{dropdownMenu}"
-      detailed="{false}"
-      icon="{faAlignLeft}" />
+      onClick={() => openLogs()}
+      menu={dropdownMenu}
+      detailed={false}
+      icon={faAlignLeft} />
     <ListItemButtonIcon
       title="Generate Kube"
-      onClick="{() => openGenerateKube()}"
-      menu="{dropdownMenu}"
-      hidden="{!(
-        container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE
-      )}"
-      detailed="{detailed}"
-      icon="{faFileCode}" />
+      onClick={() => openGenerateKube()}
+      menu={dropdownMenu}
+      hidden={!(container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE)}
+      detailed={detailed}
+      icon={faFileCode} />
   {/if}
   <ListItemButtonIcon
     title="Deploy to Kubernetes"
-    onClick="{() => deployToKubernetes()}"
-    menu="{dropdownMenu}"
-    hidden="{!(container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE)}"
-    detailed="{detailed}"
-    icon="{faRocket}" />
+    onClick={() => deployToKubernetes()}
+    menu={dropdownMenu}
+    hidden={!(container.engineType === 'podman' && container.groupInfo.type === ContainerGroupInfoTypeUI.STANDALONE)}
+    detailed={detailed}
+    icon={faRocket} />
   <ListItemButtonIcon
     title="Open Browser"
-    onClick="{() => openBrowser()}"
-    menu="{dropdownMenu}"
-    enabled="{container.state === 'RUNNING' && container.hasPublicPort}"
-    hidden="{dropdownMenu && container.state !== 'RUNNING'}"
-    detailed="{detailed}"
-    icon="{faExternalLinkSquareAlt}" />
+    onClick={() => openBrowser()}
+    menu={dropdownMenu}
+    enabled={container.state === 'RUNNING' && container.hasPublicPort}
+    hidden={dropdownMenu && container.state !== 'RUNNING'}
+    detailed={detailed}
+    icon={faExternalLinkSquareAlt} />
   {#if !detailed}
     <ListItemButtonIcon
       title="Open Terminal"
-      onClick="{() => openTerminalContainer()}"
-      menu="{dropdownMenu}"
-      hidden="{container.state !== 'RUNNING'}"
-      detailed="{false}"
-      icon="{faTerminal}" />
+      onClick={() => openTerminalContainer()}
+      menu={dropdownMenu}
+      hidden={container.state !== 'RUNNING'}
+      detailed={false}
+      icon={faTerminal} />
   {/if}
   <ListItemButtonIcon
     title="Restart Container"
-    onClick="{() => restartContainer()}"
-    menu="{dropdownMenu}"
-    detailed="{detailed}"
-    icon="{faArrowsRotate}" />
+    onClick={() => restartContainer()}
+    menu={dropdownMenu}
+    detailed={detailed}
+    icon={faArrowsRotate} />
   <ListItemButtonIcon
     title="Export Container"
     tooltip="Exports container's filesystem contents as a tar archive and saves it on the local machine"
-    onClick="{() => exportContainer()}"
-    menu="{dropdownMenu}"
-    detailed="{detailed}"
-    icon="{faDownload}" />
+    onClick={() => exportContainer()}
+    menu={dropdownMenu}
+    detailed={detailed}
+    icon={faDownload} />
   <ContributionActions
-    args="{[container]}"
+    args={[container]}
     contextPrefix="containerItem"
-    dropdownMenu="{dropdownMenu}"
-    contributions="{contributions}"
-    detailed="{detailed}"
-    onError="{handleError}" />
+    dropdownMenu={dropdownMenu}
+    contributions={contributions}
+    detailed={detailed}
+    onError={handleError} />
 </svelte:component>

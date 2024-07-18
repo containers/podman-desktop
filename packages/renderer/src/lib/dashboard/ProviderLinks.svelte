@@ -10,7 +10,7 @@ export let provider: ProviderInfo;
   <div class="mt-2 flex relative w-full content-stretch items-center flex-row justify-around flex-grow flex-nowrap">
     {#each provider.links as link}
       {#if link.group === undefined}
-        <Link class="text-base" on:click="{() => window.openExternal(link.url)}">
+        <Link class="text-base" on:click={() => window.openExternal(link.url)}>
           {link.title}
         </Link>
       {/if}
