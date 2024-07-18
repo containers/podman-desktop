@@ -61,5 +61,4 @@ async function kubeApply(): Promise<void> {
 }
 </script>
 
-<Button on:click="{() => kubeApply()}" title="Apply YAML" icon="{SolidKubeIcon}" inProgress="{inProgress}"
-  >Apply YAML</Button>
+<Button on:click={() => kubeApply()} title="Apply YAML" icon={SolidKubeIcon} inProgress={inProgress}>Apply YAML</Button>

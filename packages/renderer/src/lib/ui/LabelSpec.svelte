@@ -8,4 +8,4 @@ export let role: string | undefined = undefined;
 export let capitalize: boolean = false;
 </script>
 
-<Label tip="{tip}" role="{role}" name="{name}" capitalize="{capitalize}">{slot}</Label>
+<Label tip={tip} role={role} name={name} capitalize={capitalize}>{slot}</Label>

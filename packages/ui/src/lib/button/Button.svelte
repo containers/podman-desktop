@@ -72,25 +72,25 @@ $: {
 <button
   type="button"
   class="relative {padding} box-border whitespace-nowrap select-none transition-all {classes} {$$props.class ?? ''}"
-  class:border-[var(--pd-button-tab-border-selected)]="{type === 'tab' && selected}"
-  class:hover:border-[var(--pd-button-tab-hover-border)]="{type === 'tab' && !selected}"
-  class:text-[var(--pd-button-tab-text-selected)]="{type === 'tab' && selected}"
-  class:text-[var(--pd-button-tab-text)]="{type === 'tab' && !selected}"
-  hidden="{$$props.hidden}"
-  title="{title}"
-  aria-label="{$$props['aria-label']}"
+  class:border-[var(--pd-button-tab-border-selected)]={type === 'tab' && selected}
+  class:hover:border-[var(--pd-button-tab-hover-border)]={type === 'tab' && !selected}
+  class:text-[var(--pd-button-tab-text-selected)]={type === 'tab' && selected}
+  class:text-[var(--pd-button-tab-text)]={type === 'tab' && !selected}
+  hidden={$$props.hidden}
+  title={title}
+  aria-label={$$props['aria-label']}
   on:click
-  disabled="{disabled || inProgress}">
+  disabled={disabled || inProgress}>
   {#if icon || inProgress}
     <div
       class="flex flex-row p-0 m-0 bg-transparent justify-center items-center space-x-[4px]"
-      class:py-[3px]="{!$$slots.default}">
+      class:py-[3px]={!$$slots.default}>
       {#if inProgress}
         <Spinner size="1em" />
       {:else if isFontAwesomeIcon(icon)}
-        <Fa icon="{icon}" />
+        <Fa icon={icon} />
       {:else if iconType === 'unknown'}
-        <svelte:component this="{icon}" />
+        <svelte:component this={icon} />
       {/if}
       {#if $$slots.default}
         <span><slot /></span>

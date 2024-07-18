@@ -9,7 +9,7 @@ export let onBeforeToggle = () => {};
 </script>
 
 {#if dropdownMenu}
-  <DropdownMenu shownAsMenuActionItem="{dropdownMenuAsMenuActionItem}" onBeforeToggle="{onBeforeToggle}"
+  <DropdownMenu shownAsMenuActionItem={dropdownMenuAsMenuActionItem} onBeforeToggle={onBeforeToggle}
     ><slot /></DropdownMenu>
 {:else}
   <FlatMenu><slot /></FlatMenu>

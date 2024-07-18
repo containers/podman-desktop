@@ -165,11 +165,11 @@ function goBackToHistory(): void {
 {/if}
 
 {#if providerConnections.length > 0}
-  <EngineFormPage title="Create pods from a Kubernetes YAML file" inProgress="{runStarted && !runFinished}">
+  <EngineFormPage title="Create pods from a Kubernetes YAML file" inProgress={runStarted && !runFinished}>
     <KubePlayIcon slot="icon" size="30px" />
 
     <div slot="content" class="space-y-6">
-      <div hidden="{runStarted}">
+      <div hidden={runStarted}>
         <label for="containerFilePath" class="block mb-2 text-base font-bold text-[var(--pd-content-card-header-text)]"
           >Kubernetes YAML file</label>
         <FileInput
@@ -177,9 +177,9 @@ function goBackToHistory(): void {
           id="containerFilePath"
           readonly
           required
-          bind:value="{kubernetesYamlFilePath}"
+          bind:value={kubernetesYamlFilePath}
           placeholder="Select a .yaml file to play"
-          options="{kubeFileDialogOptions}"
+          options={kubeFileDialogOptions}
           class="w-full p-2" />
       </div>
 
@@ -187,29 +187,29 @@ function goBackToHistory(): void {
 
       <div class="flex flex-col">
         <button
-          hidden="{providerConnections.length === 0}"
-          class:border-2="{defaultContextName}"
+          hidden={providerConnections.length === 0}
+          class:border-2={defaultContextName}
           class="rounded-md p-5 cursor-pointer bg-[var(--pd-content-card-inset-bg)]"
-          class:border-[var(--pd-content-card-border-selected)]="{userChoice === 'podman'}"
-          class:border-[var(--pd-content-card-border)]="{userChoice !== 'podman'}"
-          on:click="{() => {
+          class:border-[var(--pd-content-card-border-selected)]={userChoice === 'podman'}
+          class:border-[var(--pd-content-card-border)]={userChoice !== 'podman'}
+          on:click={() => {
             userChoice = 'podman';
-          }}">
+          }}>
           <div class="flex flex-row align-middle items-center">
             <div
               class="text-2xl"
-              class:text-[var(--pd-content-card-border-selected)]="{userChoice === 'podman'}"
-              class:text-[var(--pd-content-card-border)]="{userChoice !== 'podman'}">
-              <Fa icon="{faCircleCheck}" />
+              class:text-[var(--pd-content-card-border-selected)]={userChoice === 'podman'}
+              class:text-[var(--pd-content-card-border)]={userChoice !== 'podman'}>
+              <Fa icon={faCircleCheck} />
             </div>
             <div
               class="pl-2"
-              class:text-[var(--pd-content-card-text)]="{userChoice === 'podman'}"
-              class:text-[var(--pd-input-field-disabled-text)]="{userChoice !== 'podman'}">
+              class:text-[var(--pd-content-card-text)]={userChoice === 'podman'}
+              class:text-[var(--pd-input-field-disabled-text)]={userChoice !== 'podman'}>
               Podman container engine
             </div>
           </div>
-          <div hidden="{runStarted}">
+          <div hidden={runStarted}>
             {#if providerConnections.length > 1}
               <label
                 for="providerConnectionName"
@@ -218,37 +218,37 @@ function goBackToHistory(): void {
                 <select
                   class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-text)]"
                   name="providerChoice"
-                  bind:value="{selectedProvider}">
+                  bind:value={selectedProvider}>
                   {#each providerConnections as providerConnection}
-                    <option value="{providerConnection}">{providerConnection.name}</option>
+                    <option value={providerConnection}>{providerConnection.name}</option>
                   {/each}
                 </select>
               </label>
             {/if}
             {#if providerConnections.length === 1 && selectedProviderConnection}
-              <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection.name}" />
+              <input type="hidden" name="providerChoice" readonly bind:value={selectedProviderConnection.name} />
             {/if}
           </div>
         </button>
         <button
-          hidden="{!defaultContextName}"
+          hidden={!defaultContextName}
           class="border-2 rounded-md p-5 cursor-pointer bg-[var(--pd-content-card-inset-bg)]"
-          class:border-[var(--pd-content-card-border-selected)]="{userChoice === 'kubernetes'}"
-          class:border-[var(--pd-content-card-border)]="{userChoice !== 'kubernetes'}"
-          on:click="{() => {
+          class:border-[var(--pd-content-card-border-selected)]={userChoice === 'kubernetes'}
+          class:border-[var(--pd-content-card-border)]={userChoice !== 'kubernetes'}
+          on:click={() => {
             userChoice = 'kubernetes';
-          }}">
+          }}>
           <div class="flex flex-row align-middle items-center">
             <div
               class="text-2xl"
-              class:text-[var(--pd-content-card-border-selected)]="{userChoice === 'kubernetes'}"
-              class:text-[var(--pd-content-card-border)]="{userChoice !== 'kubernetes'}">
-              <Fa icon="{faCircleCheck}" />
+              class:text-[var(--pd-content-card-border-selected)]={userChoice === 'kubernetes'}
+              class:text-[var(--pd-content-card-border)]={userChoice !== 'kubernetes'}>
+              <Fa icon={faCircleCheck} />
             </div>
             <div
               class="pl-2"
-              class:text-[var(--pd-content-card-text)]="{userChoice === 'kubernetes'}"
-              class:text-[var(--pd-input-field-disabled-text)]="{userChoice !== 'kubernetes'}">
+              class:text-[var(--pd-content-card-text)]={userChoice === 'kubernetes'}
+              class:text-[var(--pd-input-field-disabled-text)]={userChoice !== 'kubernetes'}>
               Kubernetes cluster
             </div>
           </div>
@@ -258,12 +258,12 @@ function goBackToHistory(): void {
               <label
                 for="contextToUse"
                 class="block mb-1 text-sm font-bold"
-                class:text-[var(--pd-content-card-header-text)]="{userChoice === 'kubernetes'}"
-                class:text-[var(--pd-input-field-disabled-text)]="{userChoice !== 'kubernetes'}"
+                class:text-[var(--pd-content-card-header-text)]={userChoice === 'kubernetes'}
+                class:text-[var(--pd-input-field-disabled-text)]={userChoice !== 'kubernetes'}
                 >Kubernetes Context:</label>
               <Input
-                disabled="{userChoice === 'podman'}"
-                bind:value="{defaultContextName}"
+                disabled={userChoice === 'podman'}
+                bind:value={defaultContextName}
                 name="defaultContextName"
                 id="defaultContextName"
                 readonly
@@ -276,16 +276,16 @@ function goBackToHistory(): void {
               <label
                 for="namespaceToUse"
                 class="block mb-1 text-sm font-medium"
-                class:text-[var(--pd-content-card-header-text)]="{userChoice === 'kubernetes'}"
-                class:text-[var(--pd-input-field-disabled-text)]="{userChoice !== 'kubernetes'}"
+                class:text-[var(--pd-content-card-header-text)]={userChoice === 'kubernetes'}
+                class:text-[var(--pd-input-field-disabled-text)]={userChoice !== 'kubernetes'}
                 >Kubernetes namespace:</label>
               <select
-                disabled="{userChoice === 'podman'}"
+                disabled={userChoice === 'podman'}
                 class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
                 name="namespaceChoice"
-                bind:value="{currentNamespace}">
+                bind:value={currentNamespace}>
                 {#each allNamespaces.items as namespace}
-                  <option value="{namespace.metadata?.name}">
+                  <option value={namespace.metadata?.name}>
                     {namespace.metadata?.name}
                   </option>
                 {/each}
@@ -297,11 +297,11 @@ function goBackToHistory(): void {
 
       {#if !runFinished}
         <Button
-          on:click="{() => playKubeFile()}"
-          disabled="{hasInvalidFields || runStarted}"
+          on:click={() => playKubeFile()}
+          disabled={hasInvalidFields || runStarted}
           class="w-full"
-          bind:inProgress="{runStarted}"
-          icon="{KubePlayIcon}">
+          bind:inProgress={runStarted}
+          icon={KubePlayIcon}>
           Play
         </Button>
       {/if}
@@ -312,11 +312,11 @@ function goBackToHistory(): void {
       {/if}
 
       {#if runWarning}
-        <WarningMessage class="text-sm" error="{runWarning}" />
+        <WarningMessage class="text-sm" error={runWarning} />
       {/if}
 
       {#if runError}
-        <ErrorMessage class="text-sm" error="{runError}" />
+        <ErrorMessage class="text-sm" error={runError} />
       {/if}
 
       {#if playKubeResultJSON}
@@ -333,13 +333,13 @@ function goBackToHistory(): void {
           </div>
 
           <div class="h-[100px] pt-2">
-            <MonacoEditor content="{playKubeResultRaw}" language="json" />
+            <MonacoEditor content={playKubeResultRaw} language="json" />
           </div>
         </div>
       {/if}
 
       {#if runFinished}
-        <Button on:click="{() => goBackToHistory()}" class="w-full">Done</Button>
+        <Button on:click={() => goBackToHistory()} class="w-full">Done</Button>
       {/if}
     </div>
   </EngineFormPage>

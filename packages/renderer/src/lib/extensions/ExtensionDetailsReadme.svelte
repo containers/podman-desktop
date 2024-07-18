@@ -39,12 +39,12 @@ onMount(async () => {
 
 {#if readmeContent}
   <div class="w-full min-h-full overflow-y-visible leading-6 text-[var(--pd-details-body-text)]">
-    <Markdown markdown="{readmeContent}" />
+    <Markdown markdown={readmeContent} />
   </div>
 {:else}
   <EmptyScreen
     class="w-full h-full"
-    icon="{faFileText}"
+    icon={faFileText}
     title="No Readme"
     message="No readme file is available for this extension" />
 {/if}

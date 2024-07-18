@@ -164,44 +164,44 @@ function getLoggerHandler(
         {#if connection.lifecycleMethods.includes('start')}
           <div class="ml-2">
             <LoadingIconButton
-              clickAction="{() => startConnectionProvider(provider, connection)}"
+              clickAction={() => startConnectionProvider(provider, connection)}
               action="start"
-              icon="{faPlay}"
-              state="{connectionStatus}"
+              icon={faPlay}
+              state={connectionStatus}
               leftPosition="left-[0.15rem]" />
           </div>
         {/if}
         {#if connection.lifecycleMethods.includes('start') && connection.lifecycleMethods.includes('stop')}
           <LoadingIconButton
-            clickAction="{() => restartConnectionProvider(provider, connection)}"
+            clickAction={() => restartConnectionProvider(provider, connection)}
             action="restart"
-            icon="{faRotateRight}"
-            state="{connectionStatus}"
+            icon={faRotateRight}
+            state={connectionStatus}
             leftPosition="left-1.5" />
         {/if}
         {#if connection.lifecycleMethods.includes('stop')}
           <LoadingIconButton
-            clickAction="{() => stopConnectionProvider(provider, connection)}"
+            clickAction={() => stopConnectionProvider(provider, connection)}
             action="stop"
-            icon="{faStop}"
-            state="{connectionStatus}"
+            icon={faStop}
+            state={connectionStatus}
             leftPosition="left-[0.22rem]" />
         {/if}
         {#if connection.lifecycleMethods.includes('edit')}
           <LoadingIconButton
-            clickAction="{() => editConnectionProvider(provider, connection)}"
+            clickAction={() => editConnectionProvider(provider, connection)}
             action="edit"
-            icon="{faEdit}"
-            state="{connectionStatus}"
+            icon={faEdit}
+            state={connectionStatus}
             leftPosition="left-[0.22rem]" />
         {/if}
         {#if connection.lifecycleMethods.includes('delete')}
           <div class="mr-2 text-sm">
             <LoadingIconButton
-              clickAction="{() => deleteConnectionProvider(provider, connection)}"
+              clickAction={() => deleteConnectionProvider(provider, connection)}
               action="delete"
-              icon="{faTrash}"
-              state="{connectionStatus}"
+              icon={faTrash}
+              state={connectionStatus}
               leftPosition="left-1" />
           </div>
         {/if}

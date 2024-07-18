@@ -6,4 +6,4 @@ import type { ImageInfoUI } from './ImageInfoUI';
 export let object: ImageInfoUI;
 </script>
 
-<StatusIcon icon="{object.icon}" status="{object.status}" />
+<StatusIcon icon={object.icon} status={object.status} />

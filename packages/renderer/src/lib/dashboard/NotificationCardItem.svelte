@@ -20,7 +20,7 @@ async function removeNotification(id: number) {
   <div class="flex flex-row">
     <div class="mr-3">
       {#if notification.type === 'info'}
-        <Fa size="1.5x" class="text-[var(--pd-notification-dot)]" icon="{faCircleInfo}" />
+        <Fa size="1.5x" class="text-[var(--pd-notification-dot)]" icon={faCircleInfo} />
       {/if}
     </div>
     <div class="flex flex-col space-y-2">
@@ -28,20 +28,18 @@ async function removeNotification(id: number) {
         {notification.title}
       </div>
       <div class="text-[var(--pd-content-card-carousel-card-text)]" aria-label="Notification description">
-        <Markdown markdown="{notification.body ?? ''}" />
+        <Markdown markdown={notification.body ?? ''} />
       </div>
     </div>
   </div>
   {#if notification.markdownActions}
     <div class="w-full flex justify-center mt-2">
-      <Markdown markdown="{notification.markdownActions}" />
+      <Markdown markdown={notification.markdownActions} />
     </div>
   {/if}
   <div class="absolute top-2 right-2 text-[var(--pd-content-card-carousel-card-header-text)]">
-    <button
-      on:click="{() => removeNotification(notification.id)}"
-      aria-label="{`Delete notification ${notification.id}`}">
-      <Fa size="1x" icon="{faXmark}" />
+    <button on:click={() => removeNotification(notification.id)} aria-label={`Delete notification ${notification.id}`}>
+      <Fa size="1x" icon={faXmark} />
     </button>
   </div>
 </div>

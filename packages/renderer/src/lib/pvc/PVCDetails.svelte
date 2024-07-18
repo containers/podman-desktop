@@ -57,34 +57,28 @@ async function loadDetails() {
 </script>
 
 {#if pvc}
-  <DetailsPage title="{pvc.name}" subtitle="{pvc.namespace}" bind:this="{detailsPage}">
-    <StatusIcon slot="icon" icon="{PVCIcon}" size="{24}" status="{pvc.status}" />
+  <DetailsPage title={pvc.name} subtitle={pvc.namespace} bind:this={detailsPage}>
+    <StatusIcon slot="icon" icon={PVCIcon} size={24} status={pvc.status} />
     <svelte:fragment slot="actions">
-      <PVCActions pvc="{pvc}" detailed="{true}" on:update="{() => (pvc = pvc)}" />
+      <PVCActions pvc={pvc} detailed={true} on:update={() => (pvc = pvc)} />
     </svelte:fragment>
     <div slot="detail" class="flex py-2 w-full justify-end text-sm text-gray-700">
-      <StateChange state="{pvc.status}" />
+      <StateChange state={pvc.status} />
     </div>
     <svelte:fragment slot="tabs">
-      <Tab
-        title="Summary"
-        selected="{isTabSelected($router.path, 'summary')}"
-        url="{getTabUrl($router.path, 'summary')}" />
-      <Tab
-        title="Inspect"
-        selected="{isTabSelected($router.path, 'inspect')}"
-        url="{getTabUrl($router.path, 'inspect')}" />
-      <Tab title="Kube" selected="{isTabSelected($router.path, 'kube')}" url="{getTabUrl($router.path, 'kube')}" />
+      <Tab title="Summary" selected={isTabSelected($router.path, 'summary')} url={getTabUrl($router.path, 'summary')} />
+      <Tab title="Inspect" selected={isTabSelected($router.path, 'inspect')} url={getTabUrl($router.path, 'inspect')} />
+      <Tab title="Kube" selected={isTabSelected($router.path, 'kube')} url={getTabUrl($router.path, 'kube')} />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
-        <PVCDetailsSummary pvc="{kubePVC}" kubeError="{kubeError}" />
+        <PVCDetailsSummary pvc={kubePVC} kubeError={kubeError} />
       </Route>
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
-        <MonacoEditor content="{JSON.stringify(kubePVC, undefined, 2)}" language="json" />
+        <MonacoEditor content={JSON.stringify(kubePVC, undefined, 2)} language="json" />
       </Route>
       <Route path="/kube" breadcrumb="Kube" navigationHint="tab">
-        <KubeEditYAML content="{stringify(kubePVC)}" />
+        <KubeEditYAML content={stringify(kubePVC)} />
       </Route>
     </svelte:fragment>
   </DetailsPage>

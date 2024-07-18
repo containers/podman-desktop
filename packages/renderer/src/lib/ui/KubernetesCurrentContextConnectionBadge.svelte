@@ -18,6 +18,6 @@ $: text = getText($kubernetesCurrentContextState);
 </script>
 
 {#if $kubernetesCurrentContextState}
-  <Label role="status" name="{text}" tip="{$kubernetesCurrentContextState.error}"
+  <Label role="status" name={text} tip={$kubernetesCurrentContextState.error}
     ><div class="w-2 h-2 {getClassColor($kubernetesCurrentContextState)} rounded-full mx-1"></div></Label>
 {/if}

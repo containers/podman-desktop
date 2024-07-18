@@ -17,12 +17,12 @@ function onLayerSelected(layer: ImageFilesystemLayerUI) {
 
 {#each layers as layer}
   <button
-    on:click="{() => onLayerSelected(layer)}"
+    on:click={() => onLayerSelected(layer)}
     role="row"
-    aria-label="{layer.id}"
+    aria-label={layer.id}
     class="rounded-lg mb-4 p-4 flex flex-col w-full text-left truncate hover:bg-[var(--pd-content-card-hover-bg)]"
-    class:bg-[var(--pd-content-card-bg)]="{layer.id !== currentLayerId}"
-    class:bg-[var(--pd-content-card-selected-bg)]="{layer.id === currentLayerId}">
+    class:bg-[var(--pd-content-card-bg)]={layer.id !== currentLayerId}
+    class:bg-[var(--pd-content-card-selected-bg)]={layer.id === currentLayerId}>
     <div>
       <div class="text-sm">{layer.createdBy}</div>
       <div class="text-xs text-gray-700">{layer.id}</div>

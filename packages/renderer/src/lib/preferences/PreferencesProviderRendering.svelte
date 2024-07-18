@@ -85,15 +85,15 @@ async function stopReceivingLogs(providerInternalId: string): Promise<void> {
 }
 </script>
 
-<Route path="/*" breadcrumb="{providerInfo?.name}" navigationHint="details">
-  <FormPage title="{title}" inProgress="{inProgress}">
+<Route path="/*" breadcrumb={providerInfo?.name} navigationHint="details">
+  <FormPage title={title} inProgress={inProgress}>
     <svelte:fragment slot="icon">
       {#if providerInfo?.images?.icon}
         {#if typeof providerInfo.images.icon === 'string'}
-          <img src="{providerInfo.images.icon}" alt="{providerInfo.name}" class="max-h-10" />
+          <img src={providerInfo.images.icon} alt={providerInfo.name} class="max-h-10" />
           <!-- TODO check theme used for image, now use dark by default -->
         {:else}
-          <img src="{providerInfo.images.icon.dark}" alt="{providerInfo.name}" class="max-h-10" />
+          <img src={providerInfo.images.icon.dark} alt={providerInfo.name} class="max-h-10" />
         {/if}
       {/if}
     </svelte:fragment>
@@ -110,7 +110,7 @@ async function stopReceivingLogs(providerInternalId: string): Promise<void> {
           <!-- start is enabled only in stopped mode-->
           {#if providerInfo?.lifecycleMethods.includes('start')}
             <div class="px-2 text-sm italic text-gray-700">
-              <Button disabled="{providerInfo.status !== 'stopped'}" on:click="{() => startProvider()}" icon="{faPlay}">
+              <Button disabled={providerInfo.status !== 'stopped'} on:click={() => startProvider()} icon={faPlay}>
                 Start
               </Button>
             </div>
@@ -119,51 +119,51 @@ async function stopReceivingLogs(providerInternalId: string): Promise<void> {
           <!-- stop is enabled only in started mode-->
           {#if providerInfo.lifecycleMethods.includes('stop')}
             <div class="px-2 text-sm italic text-gray-700">
-              <Button disabled="{providerInfo.status !== 'started'}" on:click="{() => stopProvider()}" icon="{faStop}">
+              <Button disabled={providerInfo.status !== 'started'} on:click={() => stopProvider()} icon={faStop}>
                 Stop
               </Button>
             </div>
           {/if}
           <div class="px-2 text-sm italic text-gray-700">
             <Button
-              on:click="{() => {
+              on:click={() => {
                 showModalProviderInfo = providerInfo;
                 // startReceivinLogs(providerInfo);
-              }}"
-              icon="{faHistory}">
+              }}
+              icon={faHistory}>
               Show Logs
             </Button>
           </div>
 
           {#if providerLifecycleError}
-            <ErrorMessage error="{providerLifecycleError}" />
+            <ErrorMessage error={providerLifecycleError} />
           {/if}
         </div>
       {/if}
     </svelte:fragment>
 
     <div slot="content" class="px-5 pb-5 min-w-full h-fit">
-      <div class="bg-charcoal-700 px-6 py-4">
+      <div class="bg-[var(--pd-content-card-bg)] px-6 py-4">
         <!-- Create connection panel-->
         {#if providerInfo?.containerProviderConnectionCreation === true}
           <PreferencesConnectionCreationRendering
-            providerInfo="{providerInfo}"
-            properties="{properties}"
+            providerInfo={providerInfo}
+            properties={properties}
             propertyScope="ContainerProviderConnectionFactory"
-            callback="{window.createContainerProviderConnection}"
-            taskId="{taskId}"
-            bind:inProgress="{inProgress}" />
+            callback={window.createContainerProviderConnection}
+            taskId={taskId}
+            bind:inProgress={inProgress} />
         {/if}
 
         <!-- Create connection panel-->
         {#if providerInfo?.kubernetesProviderConnectionCreation === true}
           <PreferencesConnectionCreationRendering
-            providerInfo="{providerInfo}"
-            properties="{properties}"
+            providerInfo={providerInfo}
+            properties={properties}
             propertyScope="KubernetesProviderConnectionFactory"
-            callback="{window.createKubernetesProviderConnection}"
-            taskId="{taskId}"
-            bind:inProgress="{inProgress}" />
+            callback={window.createKubernetesProviderConnection}
+            taskId={taskId}
+            bind:inProgress={inProgress} />
         {/if}
       </div>
     </div>
@@ -172,15 +172,15 @@ async function stopReceivingLogs(providerInternalId: string): Promise<void> {
 {#if showModalProviderInfo}
   {@const showModalProviderInfoInternalId = showModalProviderInfo.internalId}
   <Modal
-    on:close="{() => {
+    on:close={() => {
       stopReceivingLogs(showModalProviderInfoInternalId);
       showModalProviderInfo = undefined;
-    }}">
+    }}>
     <div id="log" style="height: 400px; width: 647px;">
       <div style="width:100%; height:100%; flexDirection: column;">
         <TerminalWindow
-          bind:terminal="{logsTerminal}"
-          on:init="{() => startReceivingLogs(showModalProviderInfoInternalId)}" />
+          bind:terminal={logsTerminal}
+          on:init={() => startReceivingLogs(showModalProviderInfoInternalId)} />
       </div>
     </div>
   </Modal>

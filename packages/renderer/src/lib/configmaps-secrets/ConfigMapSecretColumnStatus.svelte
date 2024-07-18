@@ -7,4 +7,4 @@ import type { ConfigMapSecretUI } from './ConfigMapSecretUI';
 export let object: ConfigMapSecretUI;
 </script>
 
-<StatusIcon icon="{ConfigMapSecretIcon}" status="{object.status}" />
+<StatusIcon icon={ConfigMapSecretIcon} status={object.status} />

@@ -7,7 +7,7 @@ export let extension: CombinedExtensionInfoUI;
 </script>
 
 <div class="relative px-5 py-2" role="region" aria-label="Extension {extension.name} right actions">
-  <ExtensionDetailsLink class="font-bold ml-2" extension="{extension}" />
+  <ExtensionDetailsLink class="font-bold ml-2" extension={extension} />
 
   <div class="flex text-[var(--pd-content-text)]">
     {#if extension.description}

@@ -111,7 +111,7 @@ const columns = [
 const row = new TableRow<DeploymentUI>({ selectable: _deployment => true });
 </script>
 
-<NavPage bind:searchTerm="{searchTerm}" title="deployments">
+<NavPage bind:searchTerm={searchTerm} title="deployments">
   <svelte:fragment slot="additional-actions">
     <KubeApplyYamlButton />
   </svelte:fragment>
@@ -119,14 +119,14 @@ const row = new TableRow<DeploymentUI>({ selectable: _deployment => true });
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() =>
+        on:click={() =>
           withBulkConfirmation(
             deleteSelectedDeployments,
             `delete ${selectedItemsNumber} deployment${selectedItemsNumber > 1 ? 's' : ''}`,
-          )}"
+          )}
         title="Delete {selectedItemsNumber} selected items"
-        inProgress="{bulkDeleteInProgress}"
-        icon="{faTrash}" />
+        inProgress={bulkDeleteInProgress}
+        icon={faTrash} />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
     <div class="flex grow justify-end">
@@ -137,22 +137,22 @@ const row = new TableRow<DeploymentUI>({ selectable: _deployment => true });
   <div class="flex min-w-full h-full" slot="content">
     <Table
       kind="deployment"
-      bind:this="{table}"
-      bind:selectedItemsNumber="{selectedItemsNumber}"
-      data="{deployments}"
-      columns="{columns}"
-      row="{row}"
+      bind:this={table}
+      bind:selectedItemsNumber={selectedItemsNumber}
+      data={deployments}
+      columns={columns}
+      row={row}
       defaultSortColumn="Name"
-      on:update="{() => (deployments = deployments)}">
+      on:update={() => (deployments = deployments)}>
     </Table>
 
     {#if $kubernetesCurrentContextDeploymentsFiltered.length === 0}
       {#if searchTerm}
         <FilteredEmptyScreen
-          icon="{DeploymentIcon}"
+          icon={DeploymentIcon}
           kind="deployments"
-          searchTerm="{searchTerm}"
-          on:resetFilter="{() => (searchTerm = '')}" />
+          searchTerm={searchTerm}
+          on:resetFilter={() => (searchTerm = '')} />
       {:else}
         <DeploymentEmptyScreen />
       {/if}

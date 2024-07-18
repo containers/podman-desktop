@@ -14,8 +14,8 @@ function click(): void {
   type="button"
   class="text-gray-800 hover:bg-white hover:bg-opacity-10 transition-all rounded-[4px] p-1 no-underline cursor-pointer {$$props.class ||
     ''}"
-  on:click="{click}"
+  on:click={click}
   title="Close"
   aria-label="Close">
-  <Fa icon="{faTimes}" />
+  <Fa icon={faTimes} />
 </button>

@@ -155,7 +155,7 @@ const columns = [
 const row = new TableRow<IngressUI | RouteUI>({ selectable: _ingressRoute => true });
 </script>
 
-<NavPage bind:searchTerm="{searchTerm}" title="ingresses & routes">
+<NavPage bind:searchTerm={searchTerm} title="ingresses & routes">
   <svelte:fragment slot="additional-actions">
     <KubeApplyYamlButton />
   </svelte:fragment>
@@ -163,14 +163,14 @@ const row = new TableRow<IngressUI | RouteUI>({ selectable: _ingressRoute => tru
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() =>
+        on:click={() =>
           withBulkConfirmation(
             deleteSelectedIngressesRoutes,
             `delete ${selectedItemsNumber} Ingress${selectedItemsNumber > 1 ? 'es' : ''} / Route${selectedItemsNumber > 1 ? 's' : ''}`,
-          )}"
+          )}
         title="Delete {selectedItemsNumber} selected items"
-        inProgress="{bulkDeleteInProgress}"
-        icon="{faTrash}" />
+        inProgress={bulkDeleteInProgress}
+        icon={faTrash} />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
     <div class="flex grow justify-end">
@@ -181,18 +181,18 @@ const row = new TableRow<IngressUI | RouteUI>({ selectable: _ingressRoute => tru
   <div class="flex min-w-full h-full" slot="content">
     <Table
       kind="ingress & route"
-      bind:this="{table}"
-      bind:selectedItemsNumber="{selectedItemsNumber}"
-      data="{ingressesRoutesUI}"
-      columns="{columns}"
-      row="{row}"
+      bind:this={table}
+      bind:selectedItemsNumber={selectedItemsNumber}
+      data={ingressesRoutesUI}
+      columns={columns}
+      row={row}
       defaultSortColumn="Name"
-      on:update="{() => (ingressesRoutesUI = ingressesRoutesUI)}">
+      on:update={() => (ingressesRoutesUI = ingressesRoutesUI)}>
     </Table>
 
     {#if $kubernetesCurrentContextIngressesFiltered.length === 0 && $kubernetesCurrentContextRoutesFiltered.length === 0}
       {#if searchTerm}
-        <FilteredEmptyScreen icon="{IngressRouteIcon}" kind="ingresses or routes" bind:searchTerm="{searchTerm}" />
+        <FilteredEmptyScreen icon={IngressRouteIcon} kind="ingresses or routes" bind:searchTerm={searchTerm} />
       {:else}
         <IngressRouteEmptyScreen />
       {/if}

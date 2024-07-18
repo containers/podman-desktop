@@ -83,8 +83,8 @@ function getConditionAttributes(condition: DeploymentCondition) {
 
 <div class="flex flex-row gap-1">
   {#each object.conditions as condition}
-    <Label tip="{condition.message}" name="{getConditionAttributes(condition).name}">
-      <Fa size="1x" icon="{getConditionAttributes(condition).icon}" class="{getConditionAttributes(condition).color}" />
+    <Label tip={condition.message} name={getConditionAttributes(condition).name}>
+      <Fa size="1x" icon={getConditionAttributes(condition).icon} class={getConditionAttributes(condition).color} />
     </Label>
   {/each}
 </div>

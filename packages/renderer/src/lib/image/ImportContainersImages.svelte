@@ -119,9 +119,9 @@ async function importContainers() {
           class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
           name="providerChoice"
           id="providerChoice"
-          bind:value="{selectedProvider}">
+          bind:value={selectedProvider}>
           {#each providerConnections as providerConnection}
-            <option value="{providerConnection}">{providerConnection.name}</option>
+            <option value={providerConnection}>{providerConnection.name}</option>
           {/each}
         </select>
       </label>
@@ -129,7 +129,7 @@ async function importContainers() {
 
     <label for="modalContainersImport" class="block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
       >Containers to import:</label>
-    <Button on:click="{addContainersToImport}" icon="{faPlusCircle}" type="link">Add images to import</Button>
+    <Button on:click={addContainersToImport} icon={faPlusCircle} type="link">Add images to import</Button>
     <!-- Display the list of existing containersToImport -->
     {#if containersToImport.length > 0}
       <div class="flex flex-row justify-center w-full py-1 text-sm font-medium text-[var(--pd-content-card-text)]">
@@ -139,30 +139,30 @@ async function importContainers() {
     {/if}
     {#each containersToImport as containerToImport, index}
       <div class="flex flex-row justify-center w-full py-1">
-        <Input bind:value="{containerToImport.imagePath}" aria-label="container image path" readonly="{true}" />
+        <Input bind:value={containerToImport.imagePath} aria-label="container image path" readonly={true} />
         <Input
-          bind:value="{containerToImport.nameWhenImporting}"
-          on:input="{event => onHostContainerPortMappingInput(event, index)}"
+          bind:value={containerToImport.nameWhenImporting}
+          on:input={event => onHostContainerPortMappingInput(event, index)}
           aria-label="container importing name"
           placeholder="Image Name when Importing (e.g. quay.io/namespace/my-image-name)"
           class="ml-2" />
-        <Button type="link" on:click="{() => deleteContainerToImport(index)}" icon="{faMinusCircle}" />
+        <Button type="link" on:click={() => deleteContainerToImport(index)} icon={faMinusCircle} />
       </div>
     {/each}
 
     <div class="pt-5">
       <Button
-        on:click="{() => importContainers()}"
-        inProgress="{inProgress}"
+        on:click={() => importContainers()}
+        inProgress={inProgress}
         class="w-full"
-        icon="{faPlay}"
+        icon={faPlay}
         aria-label="Import containers"
-        bind:disabled="{importDisabled}">
+        bind:disabled={importDisabled}>
         Import Containers
       </Button>
       <div aria-label="importError">
         {#if importError !== ''}
-          <ErrorMessage class="py-2 text-sm" error="{importError}" />
+          <ErrorMessage class="py-2 text-sm" error={importError} />
         {/if}
       </div>
     </div>

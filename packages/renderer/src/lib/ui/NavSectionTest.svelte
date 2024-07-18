@@ -11,9 +11,9 @@ let meta: TinroRouteMeta = { url: '/test' } as TinroRouteMeta;
 
 Is it expanded: <div data-testid="expand">{expanded}</div>
 
-<NavSection tooltip="Test Section" bind:expanded="{expanded}">
+<NavSection tooltip="Test Section" bind:expanded={expanded}>
   <div data-testid="icon" slot="icon">The icon</div>
-  <NavItem href="/item1" tooltip="Item1" bind:meta="{meta}">Item1</NavItem>
-  <NavItem href="/item2" tooltip="Item2" bind:meta="{meta}">Item2</NavItem>
-  <NavItem href="/item3" tooltip="Item3" bind:meta="{meta}">Item3</NavItem>
+  <NavItem href="/item1" tooltip="Item1" bind:meta={meta}>Item1</NavItem>
+  <NavItem href="/item2" tooltip="Item2" bind:meta={meta}>Item2</NavItem>
+  <NavItem href="/item3" tooltip="Item3" bind:meta={meta}>Item3</NavItem>
 </NavSection>

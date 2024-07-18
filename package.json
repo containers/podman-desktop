@@ -163,7 +163,7 @@
     "nock": "^14.0.0-beta.7",
     "postcss-import": "^16.1.0",
     "prettier": "^3.3.3",
-    "prettier-plugin-svelte": "^3.2.5",
+    "prettier-plugin-svelte": "^3.2.6",
     "proxy": "^2.2.0",
     "typescript": "5.5.3",
     "validator": "^13.12.0",

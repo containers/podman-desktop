@@ -20,18 +20,18 @@ async function saveLogsAsZip() {
 
 <div class="flex flex-col w-full m-4 bg-charcoal-600 p-4 rounded-lg">
   <div class="flex flex-row align-middle items-center w-full">
-    <Fa size="1.875x" class="pr-3 text-gray-700" icon="{faFileLines}" />
+    <Fa size="1.875x" class="pr-3 text-gray-700" icon={faFileLines} />
     <div class="text-xl">Gather Log Files</div>
     <div class="flex flex-1 justify-end"></div>
   </div>
   <div class="mt-4">Bundle all available logs into a .zip</div>
   <div class="mt-4">
     <Button
-      on:click="{() => {
+      on:click={() => {
         saveLogsAsZip();
-      }}"
+      }}
       title="Collect logs for must gather tool"
-      icon="{faScroll}">Collect and save logs as .zip</Button>
+      icon={faScroll}>Collect and save logs as .zip</Button>
   </div>
   {#if logs.length > 0}
     <div class="h-full overflow-auto p-2 bg-charcoal-800 mt-3">

@@ -12,6 +12,6 @@ function openDetailsVolume(volume: VolumeInfoUI): void {
 
 <button
   class="hover:cursor-pointer flex text-[var(--pd-table-body-text-highlight)] max-w-full overflow-hidden text-ellipsis"
-  on:click="{() => openDetailsVolume(object)}">
+  on:click={() => openDetailsVolume(object)}>
   {object.shortName}
 </button>

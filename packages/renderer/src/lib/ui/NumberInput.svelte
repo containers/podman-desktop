@@ -47,36 +47,36 @@ function onIncrement(e: MouseEvent) {
 </script>
 
 <Input
-  class="{$$props.class || ''}"
+  class={$$props.class || ''}
   inputClass="text-center"
-  name="{name}"
-  bind:value="{value}"
-  on:keypress="{event => onKeyPress(event)}"
+  name={name}
+  bind:value={value}
+  on:keypress={event => onKeyPress(event)}
   on:input
-  showError="{showError}"
-  error="{error}"
-  disabled="{disabled}"
-  required="{required}"
-  aria-label="{$$props['aria-label']}"
-  aria-invalid="{$$props['aria-invalid']}">
+  showError={showError}
+  error={error}
+  disabled={disabled}
+  required={required}
+  aria-label={$$props['aria-label']}
+  aria-invalid={$$props['aria-invalid']}>
   <button
     class="pr-0.5"
-    class:text-[var(--pd-input-field-stroke)]="{minimumEnabled}"
-    class:text-[var(--pd-input-field-disabled-text)]="{!minimumEnabled}"
-    class:group-hover:text-[var(--pd-input-field-hover-stroke)]="{minimumEnabled}"
+    class:text-[var(--pd-input-field-stroke)]={minimumEnabled}
+    class:text-[var(--pd-input-field-disabled-text)]={!minimumEnabled}
+    class:group-hover:text-[var(--pd-input-field-hover-stroke)]={minimumEnabled}
     data-action="decrement"
     aria-label="decrement"
-    on:click="{onDecrement}"
-    disabled="{!minimumEnabled}"
+    on:click={onDecrement}
+    disabled={!minimumEnabled}
     slot="left">-</button>
   <button
     class="pl-0.5"
-    class:text-[var(--pd-input-field-stroke)]="{maximumEnabled}"
-    class:text-[var(--pd-input-field-disabled-text)]="{!maximumEnabled}"
-    class:group-hover:text-[var(--pd-input-field-hover-stroke)]="{maximumEnabled}"
+    class:text-[var(--pd-input-field-stroke)]={maximumEnabled}
+    class:text-[var(--pd-input-field-disabled-text)]={!maximumEnabled}
+    class:group-hover:text-[var(--pd-input-field-hover-stroke)]={maximumEnabled}
     data-action="increment"
     aria-label="increment"
-    on:click="{onIncrement}"
-    disabled="{!maximumEnabled}"
+    on:click={onIncrement}
+    disabled={!maximumEnabled}
     slot="right">+</button>
 </Input>

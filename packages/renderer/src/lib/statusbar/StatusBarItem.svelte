@@ -32,15 +32,15 @@ async function executeCommand(entry: StatusBarEntry) {
 </script>
 
 <button
-  on:click="{() => {
+  on:click={() => {
     executeCommand(entry);
-  }}"
+  }}
   class="{opacity(entry)} px-1 py-px flex h-full items-center {hoverBackground(entry)} {hoverCursor(
     entry,
   )} relative inline-block"
-  title="{tooltipText(entry)}">
+  title={tooltipText(entry)}>
   {#if iconClass(entry)}
-    <span class="{iconClass(entry)}" aria-hidden="true"></span>
+    <span class={iconClass(entry)} aria-hidden="true"></span>
   {/if}
   {#if entry.text}
     <span class="ml-1">{entry.text}</span>

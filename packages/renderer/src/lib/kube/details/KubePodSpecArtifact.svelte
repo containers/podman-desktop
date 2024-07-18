@@ -40,7 +40,7 @@ export let artifact: V1PodSpec | undefined;
       <tr>
         <Subtitle>{container.name}</Subtitle>
       </tr>
-      <Container artifact="{container}" />
+      <Container artifact={container} />
     {/each}
   {/if}
 
@@ -49,7 +49,7 @@ export let artifact: V1PodSpec | undefined;
       <Title>Volumes</Title>
     </tr>
     {#each artifact.volumes as volume}
-      <Volume artifact="{volume}" />
+      <Volume artifact={volume} />
     {/each}
   {/if}
 {/if}

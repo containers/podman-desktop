@@ -8,5 +8,5 @@ export let status: IConnectionStatus | undefined;
   <button
     aria-label="{status.action} failed"
     class="ml-3 text-[9px] text-red-500 underline"
-    on:click="{() => window.events?.send('toggle-task-manager', '')}">{status.action} failed</button>
+    on:click={() => window.events?.send('toggle-task-manager', '')}>{status.action} failed</button>
 {/if}

@@ -34,25 +34,25 @@ onDestroy(() => {
 </script>
 
 <a
-  href="{onClick ? '#top' : uri}"
+  href={onClick ? '#top' : uri}
   class=""
-  aria-label="{ariaLabel ? ariaLabel : tooltip}"
-  on:click|preventDefault="{onClick}">
+  aria-label={ariaLabel ? ariaLabel : tooltip}
+  on:click|preventDefault={onClick}>
   <div
     class="flex py-2 justify-center items-center cursor-pointer min-h-9"
-    class:border-x-[4px]="{!inSection}"
-    class:px-2="{inSection}"
-    class:border-[var(--pd-global-nav-bg)]="{!inSection}"
-    class:text-[color:var(--pd-global-nav-icon)]="{!selected || !inSection}"
-    class:text-[color:var(--pd-global-nav-icon-selected)]="{selected && inSection}"
-    class:border-l-[var(--pd-global-nav-icon-selected-highlight)]="{selected && !inSection}"
-    class:bg-[var(--pd-global-nav-icon-selected-bg)]="{selected && !inSection}"
-    class:border-r-[var(--pd-global-nav-icon-selected-bg)]="{selected && !inSection}"
-    class:border-l-[var(--pd-global-nav-bg)]="{!selected && !inSection}"
-    class:hover:text-[color:var(--pd-global-nav-icon-hover)]="{!selected || inSection}"
-    class:hover:bg-[var(--pd-global-nav-icon-hover-bg)]="{!selected || inSection}"
-    class:hover:border-[var(--pd-global-nav-icon-hover-bg)]="{!selected && !inSection}">
-    <Tooltip right tip="{tooltipText}">
+    class:border-x-[4px]={!inSection}
+    class:px-2={inSection}
+    class:border-[var(--pd-global-nav-bg)]={!inSection}
+    class:text-[color:var(--pd-global-nav-icon)]={!selected || !inSection}
+    class:text-[color:var(--pd-global-nav-icon-selected)]={selected && inSection}
+    class:border-l-[var(--pd-global-nav-icon-selected-highlight)]={selected && !inSection}
+    class:bg-[var(--pd-global-nav-icon-selected-bg)]={selected && !inSection}
+    class:border-r-[var(--pd-global-nav-icon-selected-bg)]={selected && !inSection}
+    class:border-l-[var(--pd-global-nav-bg)]={!selected && !inSection}
+    class:hover:text-[color:var(--pd-global-nav-icon-hover)]={!selected || inSection}
+    class:hover:bg-[var(--pd-global-nav-icon-hover-bg)]={!selected || inSection}
+    class:hover:border-[var(--pd-global-nav-icon-hover-bg)]={!selected && !inSection}>
+    <Tooltip right tip={tooltipText}>
       <slot />
     </Tooltip>
   </div>
