@@ -873,9 +873,10 @@ export class ProviderRegistry {
   ): Promise<AuditResult> {
     // grab the correct provider
     const provider = this.getMatchingProvider(internalProviderId);
+    const emptyAuditResult: AuditResult = { records: [] };
 
     if (!provider.connectionAuditor) {
-      throw new Error('The provider does not support audit for connection parameters');
+      return emptyAuditResult;
     }
 
     return provider.connectionAuditor.auditItems(params);
