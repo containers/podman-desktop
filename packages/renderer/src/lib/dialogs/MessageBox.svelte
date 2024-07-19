@@ -125,7 +125,7 @@ function getButtonType(b: boolean): ButtonType {
     </svelte:fragment>
 
     <svelte:fragment slot="content">
-      <div class="leading-5" aria-label="Dialog Message">{message}</div>
+      <div class="leading-5 whitespace-pre-wrap" aria-label="Dialog Message">{message}</div>
 
       {#if detail}
         <div class="pt-4 leading-5" aria-label="Dialog Details">{detail}</div>
