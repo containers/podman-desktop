@@ -16,10 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import path from 'node:path';
+
 import type { Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 import type { TaskResult } from 'vitest';
 
+import type { PodsPage } from '../model/pages/pods-page';
 import { RegistriesPage } from '../model/pages/registries-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import { ResourcesPodmanConnections } from '../model/pages/resources-podman-connections-page';
@@ -142,6 +145,17 @@ export async function deletePod(page: Page, name: string): Promise<void> {
       }
     }
   }
+}
+
+export async function createPod(podsPage: PodsPage, podAppName: string): Promise<void> {
+  await playExpect(podsPage.heading).toBeVisible();
+
+  const playYamlPage = await podsPage.openPlayKubeYaml();
+  await playExpect(playYamlPage.heading).toBeVisible();
+
+  const yamlFilePath = path.resolve(__dirname, '..', '..', 'resources', `${podAppName}.yaml`);
+  podsPage = await playYamlPage.playYaml(yamlFilePath);
+  await playExpect(podsPage.heading).toBeVisible();
 }
 
 // Handles dialog that has accessible name `dialogTitle` and either confirms or rejects it.

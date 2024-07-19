@@ -16,8 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import path from 'node:path';
-
 import type { Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
@@ -26,7 +24,7 @@ import { WelcomePage } from '../model/pages/welcome-page';
 import { NavigationBar } from '../model/workbench/navigation';
 import { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import type { RunnerTestContext } from '../testContext/runner-test-context';
-import { deleteImage, deletePod } from '../utility/operations';
+import { createPod, deleteImage, deletePod } from '../utility/operations';
 import { waitForPodmanMachineStartup } from '../utility/wait';
 
 let pdRunner: PodmanDesktopRunner;
@@ -64,15 +62,8 @@ describe.skipIf(process.env.GITHUB_ACTIONS && process.env.RUNNER_OS === 'Linux')
   async () => {
     test('Playing yaml', async () => {
       const navigationBar = new NavigationBar(page);
-      let podsPage = await navigationBar.openPods();
-      await playExpect(podsPage.heading).toBeVisible();
-
-      const playYamlPage = await podsPage.openPlayKubeYaml();
-      await playExpect(playYamlPage.heading).toBeVisible();
-
-      const yamlFilePath = path.resolve(__dirname, '..', '..', 'resources', `${podAppName}.yaml`);
-      podsPage = await playYamlPage.playYaml(yamlFilePath);
-      await playExpect(podsPage.heading).toBeVisible();
+      const podsPage = await navigationBar.openPods();
+      await createPod(podsPage, podAppName);
     }, 150000);
 
     test('Checking that created pod from yaml is correct', async () => {
