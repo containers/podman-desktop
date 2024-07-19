@@ -125,14 +125,7 @@ async function stopReceivingLogs(providerInternalId: string): Promise<void> {
             </div>
           {/if}
           <div class="px-2 text-sm italic text-gray-700">
-            <Button
-              on:click={() => {
-                showModalProviderInfo = providerInfo;
-                // startReceivinLogs(providerInfo);
-              }}
-              icon={faHistory}>
-              Show Logs
-            </Button>
+            <Button on:click={() => (showModalProviderInfo = providerInfo)} icon={faHistory}>Show Logs</Button>
           </div>
 
           {#if providerLifecycleError}
