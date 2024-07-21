@@ -1,0 +1,12 @@
+{
+  "name": "preload-webview",
+  "version": "0.0.1",
+  "license": "apache-2.0",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@podman-desktop/webview-api": "0.0.1",
+    "electron": "31.1.0",
+    "vitest": "^1.6.0"
+  }
+}
