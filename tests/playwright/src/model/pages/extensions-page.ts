@@ -34,9 +34,9 @@ export class ExtensionsPage extends MainPage {
 
   constructor(page: Page) {
     super(page, 'extensions');
-    this.header = page.getByRole('region', { name: 'Header' });
-    this.content = page.getByRole('region', { name: 'Content' });
-    this.heading = this.header.getByLabel('Title').getByText('Extensions');
+    this.header = page.getByRole('region', { name: 'header' });
+    this.content = page.getByRole('region', { name: 'content' });
+    this.heading = this.header.getByLabel('Title').getByText('extensions');
     this.additionalActions = this.header.getByRole('group', { name: 'additionalActions' });
     this.installedTab = this.page.getByRole('button', { name: 'Installed' });
     this.catalogTab = this.page.getByRole('button', { name: 'Catalog' });
