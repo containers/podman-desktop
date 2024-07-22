@@ -10166,6 +10166,15 @@ electron-util@^0.18.1:
     electron-is-dev "^3.0.1"
     new-github-issue-url "^1.0.0"
 
+electron@31.1.0:
+  version "31.1.0"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-31.1.0.tgz#2836dbeb8f80c9b278aa4563c8fc3a6e6afbe723"
+  integrity sha512-TBOwqLxSxnx6+pH6GMri7R3JPH2AkuGJHfWZS0p1HsmN+Qr1T9b0IRJnnehSd/3NZAmAre4ft9Ljec7zjyKFJA==
+  dependencies:
+    "@electron/get" "^2.0.0"
+    "@types/node" "^20.9.0"
+    extract-zip "^2.0.1"
+
 electron@31.2.1:
   version "31.2.1"
   resolved "https://registry.yarnpkg.com/electron/-/electron-31.2.1.tgz#cfd7de576520d5c02d7c1f979bac85ad6b26d78d"
@@ -18597,17 +18606,6 @@ svelte-check@^3.8.4:
     svelte-preprocess "^5.1.3"
     typescript "^5.0.3"
 
-svelte-eslint-parser@^0.40.0:
-  version "0.40.0"
-  resolved "https://registry.yarnpkg.com/svelte-eslint-parser/-/svelte-eslint-parser-0.40.0.tgz#f0d82c6248ced984af8c7ceb5a0c7294fd5a161e"
-  integrity sha512-M+v1HhC5T1WKYVxWexUCS4o6oIBS88XKzOZuhl2ew+eGxol7eC21e+VE8TC4rXJ3iT3iXT0qlZsZcpKjVo5/zQ==
-  dependencies:
-    eslint-scope "^7.2.2"
-    eslint-visitor-keys "^3.4.3"
-    espree "^9.6.1"
-    postcss "^8.4.39"
-    postcss-scss "^4.0.9"
-
 svelte-eslint-parser@^0.41.0:
   version "0.41.0"
   resolved "https://registry.yarnpkg.com/svelte-eslint-parser/-/svelte-eslint-parser-0.41.0.tgz#7d02c2314abe7dc4fe0e935bf4fcc28078c590f2"
@@ -19331,10 +19329,10 @@ undici-types@~5.26.4:
   resolved "https://registry.yarnpkg.com/undici-types/-/undici-types-5.26.5.tgz#bcd539893d00b56e964fd2657a4866b221a65617"
   integrity sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==
 
-undici@^6.19.2:
-  version "6.19.2"
-  resolved "https://registry.yarnpkg.com/undici/-/undici-6.19.2.tgz#231bc5de78d0dafb6260cf454b294576c2f3cd31"
-  integrity sha512-JfjKqIauur3Q6biAtHJ564e3bWa8VvT+7cSiOJHFbX4Erv6CLGDpg8z+Fmg/1OI/47RA+GI2QZaF48SSaLvyBA==
+undici@^6.19.3:
+  version "6.19.3"
+  resolved "https://registry.yarnpkg.com/undici/-/undici-6.19.3.tgz#07712c2200d9aa6dbd613eb7b356903b7ba30efe"
+  integrity sha512-xWvTmUYvfiKATSKntAVRpPO5bfRcrG9FpiHI916j8dK8nUMjeM0uE8dx7ftKoPUQ2RtRi0KMDL10/03orVgTMA==
 
 unicode-canonical-property-names-ecmascript@^2.0.0:
   version "2.0.0"
