@@ -440,7 +440,18 @@ declare module '@podman-desktop/api' {
 
   // Matches required API parameters of Podman options
   export interface ManifestPushOptions {
+    /**
+     * The destination of the manifest list to push.
+     * this can be the same as 'name' or a different one.
+     * @example
+     * "quay.io/myrepo/myotherdestination"
+     */
     destination: string;
+    /**
+     * The name of the manifest list to push
+     * @example
+     * "quay.io/myrepo/mymanifest"
+     */
     name: string;
     // Provider to use for the manifest pushing, if not, we will default to the first one available
     provider?: ContainerProviderConnection;
