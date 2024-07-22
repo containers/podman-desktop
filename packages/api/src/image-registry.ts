@@ -27,3 +27,7 @@ export interface ImageSearchResult {
   star_count: number;
   is_official: boolean;
 }
+
+export interface ImageTagsListOptions {
+  image: string;
+}
