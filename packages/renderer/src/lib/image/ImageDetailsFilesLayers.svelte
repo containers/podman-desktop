@@ -24,9 +24,9 @@ function onLayerSelected(layer: ImageFilesystemLayerUI) {
     class:bg-[var(--pd-content-card-bg)]={layer.id !== currentLayerId}
     class:bg-[var(--pd-content-card-selected-bg)]={layer.id === currentLayerId}>
     <div>
-      <div class="text-sm">{layer.createdBy}</div>
-      <div class="text-xs text-gray-700">{layer.id}</div>
-      <div class="text-xs text-gray-700">
+      <div>{layer.createdBy}</div>
+      <div class="text-sm opacity-70">{layer.id}</div>
+      <div class="text-sm opacity-70">
         <span>{new ImageUtils().getHumanSize(layer.sizeInArchive)}</span>
         <span> | </span>
         <span>{new ImageUtils().getHumanSize(layer.sizeInContainer)}</span>
