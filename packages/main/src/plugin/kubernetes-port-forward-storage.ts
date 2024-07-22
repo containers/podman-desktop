@@ -238,7 +238,7 @@ export class FileBasedConfigStorage implements ForwardConfigStorage {
       const configMap: Map<string, UserForwardConfig[]> = new Map(Object.entries(JSON.parse(fileContent)));
 
       if (configMap.has(this.configKey)) {
-        this.configs = configMap.get(this.configKey) || [];
+        this.configs = configMap.get(this.configKey) ?? [];
       } else {
         this.configs = [];
       }
