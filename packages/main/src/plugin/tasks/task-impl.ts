@@ -15,9 +15,10 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type { Event, Task, TaskAction, TaskState, TaskUpdateEvent } from '@podman-desktop/api';
+import type { Event } from '@podman-desktop/api';
 
 import { Emitter } from '../events/emitter.js';
+import type { Task, TaskAction, TaskState, TaskUpdateEvent } from './tasks.js';
 
 export class TaskImpl implements Task {
   public readonly started: number;

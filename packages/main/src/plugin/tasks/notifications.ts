@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023-2024 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,16 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+
 import type { NotificationType } from '@podman-desktop/api';
 
-import type { NotificationTask } from '/@/plugin/tasks/notifications.js';
-import { TaskImpl } from '/@/plugin/tasks/task-impl.js';
+import type { Task } from '/@/plugin/tasks/tasks.js';
 
-export class NotificationImpl extends TaskImpl implements NotificationTask {
-  constructor(
-    id: string,
-    public readonly title: string,
-    public readonly body: string,
-    public readonly silent: boolean,
-    public readonly markdownActions: string | undefined,
-    public readonly type: NotificationType,
-    public readonly highlight: boolean,
-  ) {
-    super(id, title);
-    this.mState = 'success';
-  }
+export interface NotificationTask extends Task {
+  readonly title?: string;
+  readonly body?: string;
+  readonly silent?: boolean;
+  readonly markdownActions?: string;
+  readonly type?: NotificationType;
+  readonly highlight?: boolean;
 }

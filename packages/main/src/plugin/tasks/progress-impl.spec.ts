@@ -18,8 +18,10 @@
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 
-import type { Event, Task, TaskAction, TaskState, TaskUpdateEvent } from '@podman-desktop/api';
+import type { Event } from '@podman-desktop/api';
 import { beforeEach, expect, test, vi } from 'vitest';
+
+import type { Task, TaskAction, TaskState, TaskUpdateEvent } from '/@/plugin/tasks/tasks.js';
 
 import { ProgressImpl, ProgressLocation } from './progress-impl.js';
 import type { TaskManager } from './tasks/task-manager.js';

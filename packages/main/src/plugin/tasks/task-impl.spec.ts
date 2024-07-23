@@ -16,10 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { TaskUpdateEvent } from '@podman-desktop/api';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { TaskImpl } from '/@/plugin/tasks/task-impl.js';
+import type { TaskUpdateEvent } from '/@/plugin/tasks/tasks.js';
 
 beforeEach(() => {
   vi.resetAllMocks();

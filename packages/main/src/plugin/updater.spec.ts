@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Configuration, Task } from '@podman-desktop/api';
+import type { Configuration } from '@podman-desktop/api';
 import { app } from 'electron';
 import { type AppUpdater, autoUpdater, type UpdateCheckResult, type UpdateDownloadedEvent } from 'electron-updater';
 import type { AppUpdaterEvents } from 'electron-updater/out/AppUpdater.js';
@@ -27,6 +27,7 @@ import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js'
 import { UPDATER_UPDATE_AVAILABLE_ICON } from '/@/plugin/index.js';
 import type { MessageBox } from '/@/plugin/message-box.js';
 import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
+import type { Task } from '/@/plugin/tasks/tasks.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
 import { Updater } from '/@/plugin/updater.js';
 import * as util from '/@/util.js';
