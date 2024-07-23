@@ -84,6 +84,26 @@ test('Verify success will open an info dialog', async () => {
   expect(showMessageBoxMock).toHaveBeenCalledWith(expect.objectContaining({ type: 'info' }));
 });
 
+test('Verify multiple file success will open an info dialog', async () => {
+  render(KubeApplyYamlButton);
+
+  const filename1 = 'service1.yaml';
+  const filename2 = 'service2.yaml';
+  openDialogMock.mockResolvedValue([filename1, filename2]);
+  kubernetesApplyResourcesFromFileMock.mockReturnValue([{}]);
+
+  const button = screen.getByRole('button', { name: 'Apply YAML' });
+  expect(button).toBeInTheDocument();
+  await userEvent.click(button);
+
+  expect(openDialogMock).toHaveBeenCalled();
+  expect(kubernetesApplyResourcesFromFileMock).toHaveBeenCalledWith(currentContext, filename1, currentNamespace);
+  expect(kubernetesApplyResourcesFromFileMock).toHaveBeenCalledWith(currentContext, filename2, currentNamespace);
+
+  expect(showMessageBoxMock).toHaveBeenCalled();
+  expect(showMessageBoxMock).toHaveBeenCalledWith(expect.objectContaining({ type: 'info' }));
+});
+
 test('Verify no results will open a warning dialog', async () => {
   render(KubeApplyYamlButton);
 
