@@ -1,5 +1,6 @@
 <script lang="ts">
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { onMount } from 'svelte';
 import Fa from 'svelte-fa';
 
 import Tooltip from '../tooltip/Tooltip.svelte';
@@ -7,25 +8,25 @@ import Tooltip from '../tooltip/Tooltip.svelte';
 export let error: string;
 export let icon = false;
 export let actionErrorInfo = false;
+let customClassWidth = '';
+let left = false;
+let top = false;
+
+onMount(() => {
+  if (actionErrorInfo) {
+    customClassWidth = 'w-max max-w-[650px] overflow-hidden text-ellipsis text-wrap';
+    left = true;
+  } else {
+    top = true;
+  }
+});
 </script>
 
 {#if icon}
   {#if error !== undefined && error !== ''}
-    {#if actionErrorInfo}
-      <Tooltip left tip={error} tipWidth="w-max max-w-[650px] overflow-hidden text-wrap">
-        <Fa
-          size="1.1x"
-          class="cursor-pointer text-[var(--pd-state-error)] {$$props.class}"
-          icon={faExclamationCircle} />
-      </Tooltip>
-    {:else}
-      <Tooltip top tip={error}>
-        <Fa
-          size="1.1x"
-          class="cursor-pointer text-[var(--pd-state-error)] {$$props.class}"
-          icon={faExclamationCircle} />
-      </Tooltip>
-    {/if}
+    <Tooltip left={left} top={top} tip={error} class={customClassWidth}>
+      <Fa size="1.1x" class="cursor-pointer text-[var(--pd-state-error)] {$$props.class}" icon={faExclamationCircle} />
+    </Tooltip>
   {/if}
 {:else}
   <div

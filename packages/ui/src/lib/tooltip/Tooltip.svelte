@@ -51,7 +51,6 @@
 
 <script lang="ts">
 export let tip: string | undefined = undefined;
-export let tipWidth = '';
 export let top = false;
 export let topLeft = false;
 export let topRight = false;
@@ -78,7 +77,7 @@ export let left = false;
     class:bottom-right={bottomRight}>
     {#if tip}
       <div
-        class="inline-block py-2 px-4 rounded-md bg-[var(--pd-tooltip-bg)] text-[var(--pd-tooltip-text)] border-[1px] border-[var(--pd-tooltip-border)] {tipWidth}"
+        class="inline-block py-2 px-4 rounded-md bg-[var(--pd-tooltip-bg)] text-[var(--pd-tooltip-text)] border-[1px] border-[var(--pd-tooltip-border)] {$$props.class}"
         aria-label="tooltip">
         {tip}
       </div>
