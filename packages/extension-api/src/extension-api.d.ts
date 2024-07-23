@@ -1450,15 +1450,6 @@ declare module '@podman-desktop/api' {
 
   type NotificationType = 'info' | 'warn' | 'error';
 
-  export interface NotificationTask extends Task {
-    readonly title?: string;
-    readonly body?: string;
-    readonly silent?: boolean;
-    readonly markdownActions?: string;
-    readonly type?: NotificationType;
-    readonly highlight?: boolean;
-  }
-
   export interface NotificationOptions {
     /**
      * A title for the notification, which will be shown at the top of the notification window when it is shown.
@@ -2105,29 +2096,6 @@ declare module '@podman-desktop/api' {
     export function createWebviewPanel(viewType: string, title: string, options?: WebviewOptions): WebviewPanel;
 
     export function listWebviews(): Promise<WebviewInfo[]>;
-  }
-
-  export type TaskState = 'loading' | 'success' | 'error';
-
-  export interface TaskAction {
-    name: string;
-    execute: (task: Task) => void;
-  }
-
-  export interface TaskUpdateEvent {
-    action: 'update' | 'delete';
-    task: Task;
-  }
-
-  export interface Task extends Disposable {
-    readonly id: string;
-    name: string;
-    readonly started: number;
-    state: TaskState;
-    error?: string;
-    progress?: number;
-    action?: TaskAction;
-    readonly onUpdate: Event<TaskUpdateEvent>;
   }
 
   export namespace kubernetes {

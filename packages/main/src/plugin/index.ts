@@ -56,6 +56,7 @@ import type { Menu } from '/@/plugin/menu-registry.js';
 import { MenuRegistry } from '/@/plugin/menu-registry.js';
 import { NavigationManager } from '/@/plugin/navigation/navigation-manager.js';
 import type { ExtensionBanner, RecommendedRegistry } from '/@/plugin/recommendations/recommendations-api.js';
+import { Uri } from '/@/plugin/types/uri.js';
 import { Updater } from '/@/plugin/updater.js';
 import type { CliToolInfo } from '/@api/cli-tool-info.js';
 import type { ColorInfo } from '/@api/color-info.js';
@@ -1145,57 +1146,138 @@ export class PluginSystem {
         cancellableTokenId?: number,
         buildargs?: { [key: string]: string },
       ): Promise<unknown> => {
+        // create task
+        const task = taskManager.createTask({
+          title: `Build ${imageName}`,
+          action: {
+            name: 'Go to task >',
+            execute: () => {
+              navigationManager.navigateToImageBuild().catch((err: unknown) => {
+                console.error(`Something went wrong while trying to navigate to image build: ${String(err)}`);
+              });
+            },
+          },
+        });
+
         const abortController = this.createAbortControllerOnCancellationToken(
           cancellationTokenRegistry,
           cancellableTokenId,
         );
-        return containerProviderRegistry.buildImage(
-          containerBuildContextDirectory,
-          (eventName: string, data: string) => {
-            this.getWebContentsSender().send(
-              'container-provider-registry:buildImage-onData',
-              onDataCallbacksBuildImageId,
-              eventName,
-              data,
-            );
-          },
-          {
-            containerFile: relativeContainerfilePath,
-            tag: imageName,
-            platform,
-            provider: selectedProvider,
-            abortController,
-            buildargs,
-          },
-        );
+        return containerProviderRegistry
+          .buildImage(
+            containerBuildContextDirectory,
+            (eventName: string, data: string) => {
+              this.getWebContentsSender().send(
+                'container-provider-registry:buildImage-onData',
+                onDataCallbacksBuildImageId,
+                eventName,
+                data,
+              );
+            },
+            {
+              containerFile: relativeContainerfilePath,
+              tag: imageName,
+              platform,
+              provider: selectedProvider,
+              abortController,
+              buildargs,
+            },
+          )
+          .then(result => {
+            task.state = 'success';
+            return result;
+          })
+          .catch((err: unknown) => {
+            task.error = `Something went wrong while trying to build image: ${String(err)}`;
+          });
       },
     );
 
     this.ipcHandle(
       'container-provider-registry:exportContainer',
       async (_listener, engine: string, options: ContainerExportOptions): Promise<void> => {
-        return containerProviderRegistry.exportContainer(engine, options);
+        // create task
+        const task = taskManager.createTask({
+          title: 'Export container',
+          action: {
+            name: 'Open folder',
+            execute: (): void => {
+              dialogRegistry.openDialog({ defaultUri: Uri.file(options.outputTarget) }).catch((error: unknown) => {
+                console.error('Error opening dialog', error);
+              });
+            },
+          },
+        });
+        // wrap the logic to handle potential error
+        return containerProviderRegistry
+          .exportContainer(engine, options)
+          .then(result => {
+            task.state = 'success';
+            return result;
+          })
+          .catch((err: unknown) => {
+            task.error = `Something went wrong while trying to export container: ${String(err)}`;
+          });
       },
     );
 
     this.ipcHandle(
       'container-provider-registry:importContainer',
       async (_listener, options: ContainerImportOptions): Promise<void> => {
-        return containerProviderRegistry.importContainer(options);
+        // create task
+        const task = taskManager.createTask({
+          title: 'Import container',
+        });
+        // wrap the logic to handle potential error
+        return containerProviderRegistry
+          .importContainer(options)
+          .then(result => {
+            task.state = 'success';
+            return result;
+          })
+          .catch((err: unknown) => {
+            task.error = `Something went wrong while trying to import container: ${String(err)}`;
+          });
       },
     );
 
     this.ipcHandle(
       'container-provider-registry:saveImages',
       async (_listener, options: ImagesSaveOptions): Promise<void> => {
-        return containerProviderRegistry.saveImages(options);
+        // create task
+        const task = taskManager.createTask({
+          title: 'Save images',
+        });
+        // wrap the logic to handle potential error
+        return containerProviderRegistry
+          .saveImages(options)
+          .then(result => {
+            task.state = 'success';
+            return result;
+          })
+          .catch((err: unknown) => {
+            task.error = `Something went wrong while trying to save images: ${String(err)}`;
+          });
       },
     );
 
     this.ipcHandle(
       'container-provider-registry:loadImages',
       async (_listener, options: ImageLoadOptions): Promise<void> => {
-        return containerProviderRegistry.loadImages(options);
+        // create task
+        const task = taskManager.createTask({
+          title: 'Load images',
+        });
+        // wrap the logic to handle potential error
+        return containerProviderRegistry
+          .loadImages(options)
+          .then(result => {
+            task.state = 'success';
+            return result;
+          })
+          .catch((err: unknown) => {
+            task.error = `Something went wrong while trying to load images: ${String(err)}`;
+          });
       },
     );
 

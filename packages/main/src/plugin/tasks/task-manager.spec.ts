@@ -49,7 +49,7 @@ beforeEach(() => {
 
 test('create stateful task with title', async () => {
   const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
-  const task = taskManager.createTask('title');
+  const task = taskManager.createTask({ title: 'title' });
   expect(task.id).equal('task-1');
   expect(task.name).equal('title');
   expect(task.state).equal('loading');
@@ -65,7 +65,7 @@ test('create stateful task with title', async () => {
 
 test('create stateful task without title', async () => {
   const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
-  const task = taskManager.createTask(undefined);
+  const task = taskManager.createTask();
   expect(task.id).equal('task-1');
   expect(task.name).equal('Task 1');
   expect(task.state).equal('loading');
@@ -81,7 +81,7 @@ test('create stateful task without title', async () => {
 
 test('create multiple stateful tasks with title', async () => {
   const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
-  const task = taskManager.createTask('title');
+  const task = taskManager.createTask({ title: 'title' });
   expect(task.id).equal('task-1');
   expect(task.name).equal('title');
   expect(task.state).equal('loading');
@@ -94,7 +94,7 @@ test('create multiple stateful tasks with title', async () => {
     }),
   );
 
-  const task2 = taskManager.createTask('another title');
+  const task2 = taskManager.createTask({ title: 'another title' });
   expect(task2.id).equal('task-2');
   expect(task2.name).equal('another title');
   expect(task2.state).equal('loading');
@@ -107,7 +107,7 @@ test('create multiple stateful tasks with title', async () => {
     }),
   );
 
-  const task3 = taskManager.createTask('third title');
+  const task3 = taskManager.createTask({ title: 'third title' });
   expect(task3.id).equal('task-3');
   expect(task3.name).equal('third title');
   expect(task3.state).equal('loading');
@@ -240,11 +240,11 @@ test('create multiple stateful tasks with title', async () => {
 test('clear tasks should clear task not in loading state', async () => {
   const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
 
-  const task1 = taskManager.createTask('Task 1');
+  const task1 = taskManager.createTask({ title: 'Task 1' });
   task1.state = 'success';
-  const task2 = taskManager.createTask('Task 2');
+  const task2 = taskManager.createTask({ title: 'Task 2' });
   task2.state = 'error';
-  const task3 = taskManager.createTask('Task 3');
+  const task3 = taskManager.createTask({ title: 'Task 3' });
 
   taskManager.clearTasks();
   expect(apiSenderSendMock).toBeCalledWith(
@@ -283,7 +283,7 @@ describe('execute', () => {
   test('execute should throw an error if the task has no action', async () => {
     const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
 
-    const task = taskManager.createTask('Task 1');
+    const task = taskManager.createTask({ title: 'Task 1' });
     expect(() => {
       taskManager.execute(task.id);
     }).toThrowError(`task with id ${task.id} (${task.name}) does not have an action.`);
@@ -292,7 +292,7 @@ describe('execute', () => {
   test('execute should execute the task execute function', async () => {
     const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
 
-    const task = taskManager.createTask('Task 1');
+    const task = taskManager.createTask({ title: 'Task 1' });
     task.action = {
       name: 'Dummy action name',
       execute: vi.fn(),
@@ -306,7 +306,7 @@ describe('execute', () => {
 test('updating a task should notify apiSender', () => {
   const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
 
-  const task = taskManager.createTask('Task 1');
+  const task = taskManager.createTask({ title: 'Task 1' });
   expect(apiSenderSendMock).toHaveBeenCalledWith('task-created', expect.anything());
 
   task.state = 'success';
@@ -331,7 +331,7 @@ test('Ensure init setup command and statusbar registry', async () => {
 test('Ensure statusbar registry', async () => {
   const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
 
-  taskManager.createTask('Dummy Task');
+  taskManager.createTask({ title: 'Dummy Task' });
 
   expect(statusBarRegistry.setEntry).toHaveBeenCalledWith(
     'tasks',

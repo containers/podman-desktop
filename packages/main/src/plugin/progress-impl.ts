@@ -84,7 +84,7 @@ export class ProgressImpl {
       token: extensionApi.CancellationToken,
     ) => Promise<R>,
   ): Promise<R> {
-    const t = this.taskManager.createTask(options.title);
+    const t = this.taskManager.createTask({ title: options.title });
 
     return task(
       {

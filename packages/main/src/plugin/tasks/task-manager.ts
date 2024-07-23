@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { NotificationOptions, NotificationTask, Task, TaskUpdateEvent } from '@podman-desktop/api';
+import type { NotificationOptions } from '@podman-desktop/api';
 
 import { NotificationImpl } from '/@/plugin/tasks/notification-impl.js';
+import type { NotificationTask } from '/@/plugin/tasks/notifications.js';
 import { TaskImpl } from '/@/plugin/tasks/task-impl.js';
+import type { Task, TaskAction, TaskUpdateEvent } from '/@/plugin/tasks/tasks.js';
 import type { NotificationTaskInfo, TaskInfo } from '/@api/taskInfo.js';
 
 import type { ApiSenderType } from '../api.js';
@@ -88,10 +90,11 @@ export class TaskManager {
     this.setStatusBarEntry(true);
   }
 
-  public createTask(title: string | undefined): Task {
+  public createTask(options?: { title?: string; action?: TaskAction }): Task {
     this.taskId++;
 
-    const task = new TaskImpl(`task-${this.taskId}`, title ? title : `Task ${this.taskId}`);
+    const task = new TaskImpl(`task-${this.taskId}`, options?.title ? options.title : `Task ${this.taskId}`);
+    task.action = options?.action;
     this.registerTask(task);
     return task;
   }

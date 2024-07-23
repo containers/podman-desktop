@@ -16,7 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Task } from '@podman-desktop/api';
 import { app } from 'electron';
 import {
   autoUpdater,
@@ -31,6 +30,7 @@ import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js'
 import { UPDATER_UPDATE_AVAILABLE_ICON } from '/@/plugin/index.js';
 import type { MessageBox } from '/@/plugin/message-box.js';
 import type { StatusBarRegistry } from '/@/plugin/statusbar/statusbar-registry.js';
+import type { Task } from '/@/plugin/tasks/tasks.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
 import { isLinux } from '/@/util.js';
 
@@ -171,7 +171,7 @@ export class Updater {
 
         // Download update and try / catch it and create a dialog if it fails
         // create a task
-        this.#downloadTask = this.taskManager.createTask(`Downloading ${updateVersion} update`);
+        this.#downloadTask = this.taskManager.createTask({ title: `Downloading ${updateVersion} update` });
         this.#downloadTask.progress = 0;
 
         try {
