@@ -22,7 +22,7 @@ import { fireEvent, getByRole, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import BasePage from './BasePage.svelte';
+import Page from './Page.svelte';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -30,7 +30,7 @@ beforeEach(() => {
 
 test('Expect title is defined', async () => {
   const title = 'My Dummy Title';
-  render(BasePage, {
+  render(Page, {
     title,
   });
 
@@ -41,7 +41,7 @@ test('Expect title is defined', async () => {
 
 test('Expect name is defined', async () => {
   const name = 'My Dummy Name';
-  render(BasePage, {
+  render(Page, {
     title: 'No Title',
     breadcrumbRightPart: name,
   });
@@ -52,7 +52,7 @@ test('Expect name is defined', async () => {
 });
 
 test('Expect no backlink or close is defined', async () => {
-  render(BasePage, {
+  render(Page, {
     title: 'No Title',
   });
 
@@ -65,7 +65,7 @@ test('Expect no backlink or close is defined', async () => {
 
 test('Expect name is defined', async () => {
   const name = 'My Dummy Name';
-  render(BasePage, {
+  render(Page, {
     title: 'No Title',
     breadcrumbRightPart: name,
   });
@@ -79,7 +79,7 @@ test('Expect backlink is defined', async () => {
   const backName = 'Last page';
   const breadcrumbClickMock = vi.fn();
 
-  render(BasePage, {
+  render(Page, {
     breadcrumbLeftPart: 'Last page',
     breadcrumbRightPart: 'hello',
     title: 'No Title',
@@ -98,7 +98,7 @@ test('Expect backlink is defined', async () => {
 test('Expect close link is defined', async () => {
   const closeClickMock = vi.fn();
 
-  render(BasePage, {
+  render(Page, {
     title: 'No Title',
     breadcrumbLeftPart: 'back',
     breadcrumbRightPart: 'hello',
@@ -115,7 +115,7 @@ test('Expect close link is defined', async () => {
 test('Expect Escape key works', async () => {
   const closeClickMock = vi.fn();
 
-  render(BasePage, {
+  render(Page, {
     title: 'No Title',
     breadcrumbLeftPart: 'back',
     onclose: closeClickMock,
@@ -126,7 +126,7 @@ test('Expect Escape key works', async () => {
 });
 
 test('Expect no progress', async () => {
-  render(BasePage, {
+  render(Page, {
     title: 'No Title',
     inProgress: false,
   });
@@ -136,7 +136,7 @@ test('Expect no progress', async () => {
 });
 
 test('Expect progress', async () => {
-  render(BasePage, {
+  render(Page, {
     title: 'No Title',
     inProgress: true,
   });
@@ -147,7 +147,7 @@ test('Expect progress', async () => {
 
 test('Expect subtitle is defined and cut', async () => {
   const subtitle = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit';
-  render(BasePage, {
+  render(Page, {
     title: '',
     subtitle,
   });

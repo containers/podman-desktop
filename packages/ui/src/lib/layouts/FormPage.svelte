@@ -1,5 +1,5 @@
 <script lang="ts">
-import BasePage from './BasePage.svelte';
+import Page from './Page.svelte';
 
 export let title: string;
 export let inProgress = false;
@@ -10,8 +10,7 @@ export let onclose: () => void;
 export let onbreadcrumbClick: () => void = () => {};
 </script>
 
-
-<BasePage
+<Page
   title={title}
   breadcrumbLeftPart={breadcrumbLeftPart}
   breadcrumbRightPart={breadcrumbRightPart}
@@ -28,4 +27,4 @@ export let onbreadcrumbClick: () => void = () => {};
   <div slot="content" class="flex w-full h-full overflow-auto">
     <slot name="content" />
   </div>
-</BasePage>
+</Page>

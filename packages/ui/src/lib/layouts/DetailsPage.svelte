@@ -1,5 +1,5 @@
 <script lang="ts">
-import BasePage from './BasePage.svelte';
+import Page from './Page.svelte';
 
 export let title: string;
 export let titleDetail: string | undefined = undefined;
@@ -11,7 +11,7 @@ export let onclose: () => void;
 export let onbreadcrumbClick: () => void = () => {};
 </script>
 
-<BasePage
+<Page
   title={title}
   titleDetail={titleDetail}
   subtitle={subtitle}
@@ -38,4 +38,4 @@ export let onbreadcrumbClick: () => void = () => {};
   <svelte:fragment slot="detail">
     <slot name="detail" />
   </svelte:fragment>
-</BasePage>
+</Page>
