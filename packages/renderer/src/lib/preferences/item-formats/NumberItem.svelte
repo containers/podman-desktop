@@ -36,15 +36,15 @@ $: if (error) {
 }
 </script>
 
-<Tooltip topLeft tip="{error}">
+<Tooltip topLeft tip={error}>
   <NumberInput
     class="w-24"
-    name="{record.id}"
-    bind:value="{recordValue}"
-    bind:error="{error}"
-    aria-label="{record.description}"
-    minimum="{record.minimum}"
-    maximum="{record.maximum && typeof record.maximum === 'number' ? record.maximum : undefined}"
-    showError="{false}">
+    name={record.id}
+    bind:value={recordValue}
+    bind:error={error}
+    aria-label={record.description}
+    minimum={record.minimum}
+    maximum={record.maximum && typeof record.maximum === 'number' ? record.maximum : undefined}
+    showError={false}>
   </NumberInput>
 </Tooltip>

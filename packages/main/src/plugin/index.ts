@@ -807,6 +807,13 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
+      'container-provider-registry:removeManifest',
+      async (_listener, engine: string, manifestId: string): Promise<void> => {
+        return containerProviderRegistry.removeManifest(engine, manifestId);
+      },
+    );
+
+    this.ipcHandle(
       'container-provider-registry:generatePodmanKube',
       async (_listener, engine: string, names: string[]): Promise<string> => {
         const kubeGenerator = kubeGeneratorRegistry.getKubeGenerator();

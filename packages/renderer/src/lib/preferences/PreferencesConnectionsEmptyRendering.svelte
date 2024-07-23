@@ -7,6 +7,6 @@ export let hidden: boolean;
 
 {#if !hidden}
   <div class="ml-6 mt-2">
-    <Markdown markdown="{message}" />
+    <Markdown markdown={message} />
   </div>
 {/if}

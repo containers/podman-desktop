@@ -51,12 +51,12 @@ onMount(async () => {
   class="flex justify-between px-1 bg-[var(--pd-statusbar-bg)] text-[var(--pd-statusbar-text)] text-sm space-x-2 z-40">
   <div class="flex flex-wrap gap-x-1.5 h-full">
     {#each leftEntries as entry}
-      <StatusBarItem entry="{entry}" />
+      <StatusBarItem entry={entry} />
     {/each}
   </div>
   <div class="flex flex-wrap flex-row-reverse gap-x-1.5 h-full place-self-end">
     {#each rightEntries as entry}
-      <StatusBarItem entry="{entry}" />
+      <StatusBarItem entry={entry} />
     {/each}
   </div>
 </div>

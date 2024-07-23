@@ -8,6 +8,6 @@ export let extensionInfos: CombinedExtensionInfoUI[] = [];
 
 <div class="grow px-5 py-3">
   {#each extensionInfos as extension}
-    <InstalledExtensionCard extension="{extension}" />
+    <InstalledExtensionCard extension={extension} />
   {/each}
 </div>

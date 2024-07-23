@@ -22,18 +22,18 @@ function isIngress(ingressRoute: V1Ingress | V1Route): ingressRoute is V1Ingress
 <!-- Show the kube error if we're unable to retrieve the data correctly, but we still want to show the
 basic information -->
 {#if kubeError}
-  <ErrorMessage error="{kubeError}" />
+  <ErrorMessage error={kubeError} />
 {/if}
 
 <Table>
   {#if ingressRoute}
-    <KubeObjectMetaArtifact artifact="{ingressRoute.metadata}" />
+    <KubeObjectMetaArtifact artifact={ingressRoute.metadata} />
     {#if isIngress(ingressRoute)}
-      <KubeIngressStatusArtifact artifact="{ingressRoute.status}" />
-      <KubeIngressArtifact artifact="{ingressRoute.spec}" />
+      <KubeIngressStatusArtifact artifact={ingressRoute.status} />
+      <KubeIngressArtifact artifact={ingressRoute.spec} />
     {:else}
       <!-- Routes are shown / structured quite differently than Kubernetes, so we will show these separate. -->
-      <OpenshiftRouteArtifact artifact="{ingressRoute}" />
+      <OpenshiftRouteArtifact artifact={ingressRoute} />
     {/if}
   {:else}
     <p class="text-purple-500 font-medium">Loading ...</p>

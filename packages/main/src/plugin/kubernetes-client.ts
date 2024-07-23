@@ -197,6 +197,7 @@ export class KubernetesClient {
           type: 'string',
           default: defaultKubeconfigPath,
           format: 'file',
+          readonly: false,
         },
       },
     };

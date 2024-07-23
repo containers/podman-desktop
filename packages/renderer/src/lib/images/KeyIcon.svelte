@@ -6,13 +6,13 @@ export let size = '40';
   {...$$restProps}
   role="img"
   xmlns:xlink="http://www.w3.org/1999/xlink"
-  width="{size}"
+  width={size}
   xmlns="http://www.w3.org/2000/svg"
-  height="{size}"
+  height={size}
   id="screenshot-eb114dc7-828b-8034-8002-5a227f08ae11"
   viewBox="-1802.5 463.5 73 73"
-  class="{$$props.class}"
-  style="{$$props.style}"
+  class={$$props.class}
+  style={$$props.style}
   fill="none"
   version="1.1"
   ><g id="shape-eb114dc7-828b-8034-8002-5a227f08ae11"

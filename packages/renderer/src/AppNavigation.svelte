@@ -246,75 +246,75 @@ export let meta: TinroRouteMeta;
 <nav
   class="group w-leftnavbar min-w-leftnavbar flex flex-col hover:overflow-y-none bg-[var(--pd-global-nav-bg)]"
   aria-label="AppNavigation">
-  <NavItem href="/" tooltip="Dashboard" bind:meta="{meta}">
+  <NavItem href="/" tooltip="Dashboard" bind:meta={meta}>
     <div class="relative w-full">
       <div class="flex items-center w-full h-full">
-        <DashboardIcon size="{iconSize}" />
+        <DashboardIcon size={iconSize} />
       </div>
       <NewContentOnDashboardBadge />
     </div>
   </NavItem>
-  <NavItem href="/containers" tooltip="Containers{containerCount}" ariaLabel="Containers" bind:meta="{meta}">
-    <ContainerIcon size="{iconSize}" />
+  <NavItem href="/containers" tooltip="Containers{containerCount}" ariaLabel="Containers" bind:meta={meta}>
+    <ContainerIcon size={iconSize} />
   </NavItem>
-  <NavItem href="/pods" tooltip="Pods{podCount}" ariaLabel="Pods" bind:meta="{meta}">
-    <PodIcon size="{iconSize}" />
+  <NavItem href="/pods" tooltip="Pods{podCount}" ariaLabel="Pods" bind:meta={meta}>
+    <PodIcon size={iconSize} />
   </NavItem>
-  <NavItem href="/images" tooltip="Images{imageCount}" ariaLabel="Images" bind:meta="{meta}">
-    <ImageIcon size="{iconSize}" />
+  <NavItem href="/images" tooltip="Images{imageCount}" ariaLabel="Images" bind:meta={meta}>
+    <ImageIcon size={iconSize} />
   </NavItem>
-  <NavItem href="/volumes" tooltip="Volumes{volumeCount}" ariaLabel="Volumes" bind:meta="{meta}">
-    <VolumeIcon size="{iconSize}" />
+  <NavItem href="/volumes" tooltip="Volumes{volumeCount}" ariaLabel="Volumes" bind:meta={meta}>
+    <VolumeIcon size={iconSize} />
   </NavItem>
-  <NavItem href="/extensions" tooltip="Extensions{extensionCount}" ariaLabel="Extensions" bind:meta="{meta}">
+  <NavItem href="/extensions" tooltip="Extensions{extensionCount}" ariaLabel="Extensions" bind:meta={meta}>
     <ExtensionIcon size="24" />
   </NavItem>
   {#if contextCount > 0}
     <NavSection tooltip="Kubernetes">
-      <KubeIcon size="{iconSize}" slot="icon" />
-      <NavItem href="/nodes" tooltip="Nodes{nodeCount}" ariaLabel="Nodes" bind:meta="{meta}">
-        <NodeIcon size="{iconSize}" />
+      <KubeIcon size={iconSize} slot="icon" />
+      <NavItem href="/nodes" tooltip="Nodes{nodeCount}" ariaLabel="Nodes" bind:meta={meta}>
+        <NodeIcon size={iconSize} />
       </NavItem>
-      <NavItem href="/deployments" tooltip="Deployments{deploymentCount}" ariaLabel="Deployments" bind:meta="{meta}">
-        <DeploymentIcon size="{iconSize}" />
+      <NavItem href="/deployments" tooltip="Deployments{deploymentCount}" ariaLabel="Deployments" bind:meta={meta}>
+        <DeploymentIcon size={iconSize} />
       </NavItem>
-      <NavItem href="/services" tooltip="Services{serviceCount}" ariaLabel="Services" bind:meta="{meta}">
-        <ServiceIcon size="{iconSize}" />
+      <NavItem href="/services" tooltip="Services{serviceCount}" ariaLabel="Services" bind:meta={meta}>
+        <ServiceIcon size={iconSize} />
       </NavItem>
       <NavItem
         href="/ingressesRoutes"
         tooltip="Ingresses & Routes{ingressesRoutesCount}"
         ariaLabel="Ingresses & Routes"
-        bind:meta="{meta}">
-        <IngressRouteIcon size="{iconSize}" />
+        bind:meta={meta}>
+        <IngressRouteIcon size={iconSize} />
       </NavItem>
       <NavItem
         href="/persistentvolumeclaims"
         tooltip="Persistent Volume Claims{persistentVolumeClaimsCount}"
         ariaLabel="Persistent Volume Claims"
-        bind:meta="{meta}">
-        <PVCIcon size="{iconSize}" />
+        bind:meta={meta}>
+        <PVCIcon size={iconSize} />
       </NavItem>
       <NavItem
         href="/configmapsSecrets"
         tooltip="ConfigMaps & Secrets{configmapSecretsCount}"
         ariaLabel="ConfigMaps & Secrets"
-        bind:meta="{meta}">
-        <ConfigMapSecretIcon size="{iconSize}" />
+        bind:meta={meta}>
+        <ConfigMapSecretIcon size={iconSize} />
       </NavItem>
     </NavSection>
   {/if}
 
   {#if $contributions.length + $webviews.length > 0}
     <NavSection tooltip="Extensions">
-      <PuzzleIcon size="{iconSize}" slot="icon" />
+      <PuzzleIcon size={iconSize} slot="icon" />
       {#each $contributions as contribution (contribution.extensionId + contribution.id)}
-        <NavItem href="/contribs/{contribution.name}" tooltip="{contribution.name}" bind:meta="{meta}">
-          <img src="{contribution.icon}" width="{iconSize}" height="{iconSize}" alt="{contribution.name}" />
+        <NavItem href="/contribs/{contribution.name}" tooltip={contribution.name} bind:meta={meta}>
+          <img src={contribution.icon} width={iconSize} height={iconSize} alt={contribution.name} />
         </NavItem>
       {/each}
 
-      <Webviews bind:meta="{meta}" />
+      <Webviews bind:meta={meta} />
     </NavSection>
   {/if}
 
@@ -323,16 +323,16 @@ export let meta: TinroRouteMeta;
   <NavItem
     href="/accounts"
     tooltip="Accounts"
-    bind:meta="{meta}"
-    onClick="{event => window.showAccountsMenu(event.x, event.y)}">
-    <Fa class="h-6 w-6 fa-light" icon="{faCircleUser}" size="2x" style="fa-light" />
+    bind:meta={meta}
+    onClick={event => window.showAccountsMenu(event.x, event.y)}>
+    <Fa class="h-6 w-6 fa-light" icon={faCircleUser} size="2x" style="fa-light" />
   </NavItem>
 
   <NavItem
     href="/preferences"
     tooltip="Settings"
-    bind:meta="{meta}"
-    onClick="{() => clickSettings(meta.url.startsWith('/preferences'))}">
-    <SettingsIcon size="{iconSize}" />
+    bind:meta={meta}
+    onClick={() => clickSettings(meta.url.startsWith('/preferences'))}>
+    <SettingsIcon size={iconSize} />
   </NavItem>
 </nav>

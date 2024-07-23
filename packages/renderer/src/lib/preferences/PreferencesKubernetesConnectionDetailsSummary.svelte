@@ -37,7 +37,7 @@ $: providerConnectionConfiguration = tmpProviderContainerConfiguration.filter(
     <div class="flex pl-8 py-4 flex-col w-full text-sm">
       <div class="flex flex-row mt-5">
         <span class="font-semibold min-w-[150px]">Name</span>
-        <span aria-label="{kubernetesConnectionInfo.name}">{kubernetesConnectionInfo.name}</span>
+        <span aria-label={kubernetesConnectionInfo.name}>{kubernetesConnectionInfo.name}</span>
       </div>
       {#each providerConnectionConfiguration as connectionSetting}
         <div class="flex flex-row mt-5">
@@ -51,7 +51,7 @@ $: providerConnectionConfiguration = tmpProviderContainerConfiguration.filter(
       </div>
       <div class="flex flex-row mt-5">
         <span class="font-semibold min-w-[150px]">Endpoint</span>
-        <span aria-label="{kubernetesConnectionInfo.endpoint.apiURL}">{kubernetesConnectionInfo.endpoint.apiURL}</span>
+        <span aria-label={kubernetesConnectionInfo.endpoint.apiURL}>{kubernetesConnectionInfo.endpoint.apiURL}</span>
       </div>
     </div>
   {/if}

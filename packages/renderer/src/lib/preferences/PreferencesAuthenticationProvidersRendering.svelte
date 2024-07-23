@@ -19,18 +19,18 @@ import SettingsPage from './SettingsPage.svelte';
   <div class="container h-full" role="list">
     <!-- Authentication Providers table start -->
     <EmptyScreen
-      icon="{KeyIcon}"
+      icon={KeyIcon}
       title="No authentication providers"
       message="Install an authentication provider extension to add an authentication provider here."
-      hidden="{$authenticationProviders.length > 0}">
+      hidden={$authenticationProviders.length > 0}>
       <div class="flex gap-2 justify-center">
-        <EmbeddableCatalogExtensionList category="Authentication" showInstalled="{false}" />
+        <EmbeddableCatalogExtensionList category="Authentication" showInstalled={false} />
       </div>
     </EmptyScreen>
     {#each $authenticationProviders as provider}
       {@const sessionRequests = provider.sessionRequests ?? []}
       <!-- Registered Authentication Provider row start -->
-      <div class="flex flex-col w-full mb-5" role="listitem" aria-label="{provider.displayName}">
+      <div class="flex flex-col w-full mb-5" role="listitem" aria-label={provider.displayName}>
         <div class="flex rounded-md border-0 justify-between bg-[var(--pd-invert-content-card-bg)]">
           <!-- Icon + status -->
           <div class="ml-4 flex items-center" aria-label="Provider Information">
@@ -39,22 +39,22 @@ import SettingsPage from './SettingsPage.svelte';
               {#if provider?.images?.icon}
                 {#if typeof provider.images.icon === 'string'}
                   <img
-                    src="{provider.images.icon}"
-                    alt="{provider.displayName}"
+                    src={provider.images.icon}
+                    alt={provider.displayName}
                     aria-label="Icon for {provider.displayName} provider"
                     class="max-w-[40px] h-full" />
                   <!-- TODO check theme used for image, now use dark by default -->
                 {:else}
                   <img
-                    src="{provider.images.icon.dark}"
+                    src={provider.images.icon.dark}
                     alt="Dark color theme icon for {provider.displayName} provider"
                     class="max-w-[40px]" />
                 {/if}
               {:else}
                 <svelte:component
-                  this="{KeyIcon}"
+                  this={KeyIcon}
                   size="40"
-                  alt="{provider.displayName}"
+                  alt={provider.displayName}
                   aria-label="Default icon for {provider.displayName} provider" />
               {/if}
             </div>
@@ -72,7 +72,7 @@ import SettingsPage from './SettingsPage.svelte';
                     class="h-3 w-3 text-sm mr-2 text-[var(--pd-status-{provider.accounts.length > 0
                       ? 'connected'
                       : 'disconnected'})]"
-                    icon="{faCircle}" />
+                    icon={faCircle} />
                   <div
                     class="uppercase text-xs text-[var(--pd-status-{provider.accounts.length > 0
                       ? 'connected'
@@ -102,8 +102,8 @@ import SettingsPage from './SettingsPage.svelte';
                           <button
                             aria-label="Sign out of {account.label}"
                             class="pl-2 hover:cursor-pointer hover:text-white text-white"
-                            on:click="{() => window.requestAuthenticationProviderSignOut(provider.id, account.id)}">
-                            <Fa class="h-3 w-3 text-md mr-2" icon="{faRightFromBracket}" />
+                            on:click={() => window.requestAuthenticationProviderSignOut(provider.id, account.id)}>
+                            <Fa class="h-3 w-3 text-md mr-2" icon={faRightFromBracket} />
                           </button>
                         </Tooltip>
                       </div>
@@ -122,9 +122,9 @@ import SettingsPage from './SettingsPage.svelte';
                 <Button
                   aria-label="Sign in"
                   class="pl-2 mr-4 hover:cursor-pointer hover:text-white text-white"
-                  on:click="{() => window.requestAuthenticationProviderSignIn(request.id)}">
+                  on:click={() => window.requestAuthenticationProviderSignIn(request.id)}>
                   <div class="flex flex-row items-center">
-                    <Fa class="h-3 w-3 text-md mr-2" icon="{faRightToBracket}" />Sign in
+                    <Fa class="h-3 w-3 text-md mr-2" icon={faRightToBracket} />Sign in
                   </div>
                 </Button>
               </Tooltip>
@@ -135,8 +135,8 @@ import SettingsPage from './SettingsPage.svelte';
                 {#each sessionRequests as request}
                   <DropdownMenu.Item
                     title="Sign in to use {request.extensionLabel}"
-                    onClick="{() => window.requestAuthenticationProviderSignIn(request.id)}"
-                    icon="{faArrowRightToBracket}" />
+                    onClick={() => window.requestAuthenticationProviderSignIn(request.id)}
+                    icon={faArrowRightToBracket} />
                 {/each}
               </DropdownMenu>
               <!-- Authentication Provider Auth Requests DropDown end -->

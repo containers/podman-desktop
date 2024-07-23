@@ -51,14 +51,14 @@ $: style = disable
     : 'text-[var(--pd-action-button-primary-text)] hover:text-[var(--pd-action-button-primary-hover-text)]';
 </script>
 
-<Tooltip bottom tip="{tooltip}">
-  <button aria-label="{capitalize(action)}" class="mx-2.5 my-2 {style}" on:click="{clickAction}" disabled="{disable}">
+<Tooltip bottom tip={tooltip}>
+  <button aria-label={capitalize(action)} class="mx-2.5 my-2 {style}" on:click={clickAction} disabled={disable}>
     <LoadingIcon
-      icon="{icon}"
+      icon={icon}
       loadingWidthClass="w-6"
       loadingHeightClass="h-6"
       positionTopClass="top-1"
-      positionLeftClass="{leftPosition}"
-      loading="{loading}" />
+      positionLeftClass={leftPosition}
+      loading={loading} />
   </button>
 </Tooltip>

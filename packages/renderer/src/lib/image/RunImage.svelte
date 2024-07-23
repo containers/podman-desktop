@@ -620,22 +620,19 @@ const envDialogOptions: OpenDialogOptions = {
       </svelte:fragment>
       <div slot="content" class="space-y-2">
         <div class="flex flex-row px-2 border-b border-charcoal-400">
-          <Tab
-            title="Basic"
-            selected="{isTabSelected($router.path, 'basic')}"
-            url="{getTabUrl($router.path, 'basic')}" />
+          <Tab title="Basic" selected={isTabSelected($router.path, 'basic')} url={getTabUrl($router.path, 'basic')} />
           <Tab
             title="Advanced"
-            selected="{isTabSelected($router.path, 'advanced')}"
-            url="{getTabUrl($router.path, 'advanced')}" />
+            selected={isTabSelected($router.path, 'advanced')}
+            url={getTabUrl($router.path, 'advanced')} />
           <Tab
             title="Networking"
-            selected="{isTabSelected($router.path, 'networking')}"
-            url="{getTabUrl($router.path, 'networking')}" />
+            selected={isTabSelected($router.path, 'networking')}
+            url={getTabUrl($router.path, 'networking')} />
           <Tab
             title="Security"
-            selected="{isTabSelected($router.path, 'security')}"
-            url="{getTabUrl($router.path, 'security')}" />
+            selected={isTabSelected($router.path, 'security')}
+            url={getTabUrl($router.path, 'security')} />
         </div>
         <div>
           <Route path="/basic" breadcrumb="Basic" navigationHint="tab">
@@ -644,22 +641,22 @@ const envDialogOptions: OpenDialogOptions = {
                 for="modalContainerName"
                 class="block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]">Container name:</label>
               <Input
-                on:input="{event => checkContainerName(event)}"
-                bind:value="{containerName}"
+                on:input={event => checkContainerName(event)}
+                bind:value={containerName}
                 name="modalContainerName"
                 id="modalContainerName"
                 placeholder="Leave blank to generate a name"
                 aria-label="Container Name"
-                error="{containerNameError}" />
+                error={containerNameError} />
               <label
                 for="modalEntrypoint"
                 class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Entrypoint:</label>
-              <Input bind:value="{entrypoint}" name="modalEntrypoint" id="modalEntrypoint" aria-label="Entrypoint" />
+              <Input bind:value={entrypoint} name="modalEntrypoint" id="modalEntrypoint" aria-label="Entrypoint" />
               <label
                 for="modalCommand"
                 class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]">Command:</label>
-              <Input bind:value="{command}" name="modalCommand" id="modalCommand" aria-label="Command" />
+              <Input bind:value={command} name="modalCommand" id="modalCommand" aria-label="Command" />
               <label for="volumes" class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Volumes:</label>
               <!-- Display the list of volumes -->
@@ -668,20 +665,20 @@ const envDialogOptions: OpenDialogOptions = {
                   <FileInput
                     id="volumeMount.{index}"
                     placeholder="Path on the host"
-                    bind:value="{volumeMount.source}"
-                    options="{volumeDialogOptions}"
+                    bind:value={volumeMount.source}
+                    options={volumeDialogOptions}
                     aria-label="volumeMount.{index}" />
-                  <Input bind:value="{volumeMount.target}" placeholder="Path inside the container" class="ml-2" />
+                  <Input bind:value={volumeMount.target} placeholder="Path inside the container" class="ml-2" />
                   <Button
                     type="link"
-                    hidden="{index === volumeMounts.length - 1}"
-                    on:click="{() => deleteVolumeMount(index)}"
-                    icon="{faMinusCircle}" />
+                    hidden={index === volumeMounts.length - 1}
+                    on:click={() => deleteVolumeMount(index)}
+                    icon={faMinusCircle} />
                   <Button
                     type="link"
-                    hidden="{index < volumeMounts.length - 1}"
-                    on:click="{addVolumeMount}"
-                    icon="{faPlusCircle}" />
+                    hidden={index < volumeMounts.length - 1}
+                    on:click={addVolumeMount}
+                    icon={faPlusCircle} />
                 </div>
               {/each}
 
@@ -696,18 +693,18 @@ const envDialogOptions: OpenDialogOptions = {
                     class="text-sm flex-1 inline-block align-middle whitespace-nowrap text-[var(--pd-content-card-text)]"
                     >Local port for {port}:</span>
                   <Input
-                    bind:value="{containerPortMapping[index].port}"
-                    on:input="{event => onContainerPortMappingInput(event, index)}"
+                    bind:value={containerPortMapping[index].port}
+                    on:input={event => onContainerPortMappingInput(event, index)}
                     placeholder="Enter value for port {port}"
-                    error="{containerPortMapping[index].error}"
+                    error={containerPortMapping[index].error}
                     class="ml-2 w-full"
-                    title="{containerPortMapping[index].error}" />
+                    title={containerPortMapping[index].error} />
                 </div>
               {/each}
 
               <Button
-                on:click="{addHostContainerPorts}"
-                icon="{faPlusCircle}"
+                on:click={addHostContainerPorts}
+                icon={faPlusCircle}
                 type="link"
                 aria-label="Add custom port mapping">
                 Add custom port mapping
@@ -716,18 +713,18 @@ const envDialogOptions: OpenDialogOptions = {
               {#each hostContainerPortMappings as hostContainerPortMapping, index}
                 <div class="flex flex-row justify-center w-full py-1">
                   <Input
-                    bind:value="{hostContainerPortMapping.hostPort.port}"
-                    on:input="{event => onHostContainerPortMappingInput(event, index)}"
+                    bind:value={hostContainerPortMapping.hostPort.port}
+                    on:input={event => onHostContainerPortMappingInput(event, index)}
                     aria-label="host port"
                     placeholder="Host Port"
-                    error="{hostContainerPortMapping.hostPort.error}"
-                    title="{hostContainerPortMapping.hostPort.error}" />
+                    error={hostContainerPortMapping.hostPort.error}
+                    title={hostContainerPortMapping.hostPort.error} />
                   <Input
-                    bind:value="{hostContainerPortMapping.containerPort}"
+                    bind:value={hostContainerPortMapping.containerPort}
                     aria-label="container port"
                     placeholder="Container Port"
                     class="ml-2" />
-                  <Button type="link" on:click="{() => deleteHostContainerPorts(index)}" icon="{faMinusCircle}" />
+                  <Button type="link" on:click={() => deleteHostContainerPorts(index)} icon={faMinusCircle} />
                 </div>
               {/each}
               <label
@@ -737,22 +734,22 @@ const envDialogOptions: OpenDialogOptions = {
               <!-- Display the list of existing environment variables -->
               {#each environmentVariables as environmentVariable, index}
                 <div class="flex flex-row justify-center items-center w-full py-1">
-                  <Input bind:value="{environmentVariable.key}" placeholder="Name" class="w-full" />
+                  <Input bind:value={environmentVariable.key} placeholder="Name" class="w-full" />
 
                   <Input
-                    bind:value="{environmentVariable.value}"
+                    bind:value={environmentVariable.value}
                     placeholder="Value (leave blank for empty)"
                     class="ml-2" />
                   <Button
                     type="link"
-                    hidden="{index === environmentVariables.length - 1}"
-                    on:click="{() => deleteEnvVariable(index)}"
-                    icon="{faMinusCircle}" />
+                    hidden={index === environmentVariables.length - 1}
+                    on:click={() => deleteEnvVariable(index)}
+                    icon={faMinusCircle} />
                   <Button
                     type="link"
-                    hidden="{index < environmentVariables.length - 1}"
-                    on:click="{addEnvVariable}"
-                    icon="{faPlusCircle}" />
+                    hidden={index < environmentVariables.length - 1}
+                    on:click={addEnvVariable}
+                    icon={faPlusCircle} />
                 </div>
               {/each}
 
@@ -766,21 +763,21 @@ const envDialogOptions: OpenDialogOptions = {
                   <FileInput
                     id="filePath.{index}"
                     placeholder="Environment file containing KEY=VALUE items"
-                    bind:value="{environmentFile}"
-                    options="{envDialogOptions}"
+                    bind:value={environmentFile}
+                    options={envDialogOptions}
                     aria-label="environmentFile.{index}" />
                   <Button
                     type="link"
-                    hidden="{index === environmentFiles.length - 1}"
+                    hidden={index === environmentFiles.length - 1}
                     aria-label="Delete env file at index {index}"
-                    on:click="{() => deleteEnvFile(index)}"
-                    icon="{faMinusCircle}" />
+                    on:click={() => deleteEnvFile(index)}
+                    icon={faMinusCircle} />
                   <Button
                     type="link"
-                    hidden="{index < environmentFiles.length - 1}"
+                    hidden={index < environmentFiles.length - 1}
                     aria-label="Add env file after index {index}"
-                    on:click="{addEnvFile}"
-                    icon="{faPlusCircle}" />
+                    on:click={addEnvFile}
+                    icon={faPlusCircle} />
                 </div>
               {/each}
             </div>
@@ -791,8 +788,8 @@ const envDialogOptions: OpenDialogOptions = {
               <label for="containerTty" class="block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Use TTY:</label>
               <div class="flex flex-col text-[var(--pd-content-card-text)] text-sm ml-2">
-                <Checkbox bind:checked="{useTty}" title="Attach a pseudo terminal">Attach a pseudo terminal</Checkbox>
-                <Checkbox bind:checked="{useInteractive}" title="Use interactive">
+                <Checkbox bind:checked={useTty} title="Attach a pseudo terminal">Attach a pseudo terminal</Checkbox>
+                <Checkbox bind:checked={useInteractive} title="Use interactive">
                   Interactive: Keep STDIN open even if not attached
                 </Checkbox>
               </div>
@@ -804,7 +801,7 @@ const envDialogOptions: OpenDialogOptions = {
                 >Specify user to run container as:</label>
               <div class="flex flex-row justify-center items-center w-full">
                 <Input
-                  bind:value="{runUser}"
+                  bind:value={runUser}
                   placeholder="If you specify a username, user must exist in /etc/passwd file (use user id instead)"
                   class="ml-2" />
               </div>
@@ -814,7 +811,7 @@ const envDialogOptions: OpenDialogOptions = {
                 for="containerAutoRemove"
                 class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Auto removal of container:</label>
-              <Checkbox class="text-[var(--pd-content-card-text)] text-sm ml-2" bind:checked="{autoRemove}">
+              <Checkbox class="text-[var(--pd-content-card-text)] text-sm ml-2" bind:checked={autoRemove}>
                 Automatically remove the container when the process exits
               </Checkbox>
 
@@ -830,7 +827,7 @@ const envDialogOptions: OpenDialogOptions = {
                 <select
                   class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm"
                   name="restartPolicyName"
-                  bind:value="{restartPolicyName}">
+                  bind:value={restartPolicyName}>
                   <option value="">No restart</option>
                   <option value="no">Do not restart automatically</option>
                   <option value="always">Always restart</option>
@@ -847,10 +844,10 @@ const envDialogOptions: OpenDialogOptions = {
                   class="text-sm w-28 inline-block align-middle whitespace-nowrap text-[var(--pd-content-card-text)]"
                   title="Number of times to retry before giving up.">Retries:</span>
                 <NumberInput
-                  minimum="{0}"
-                  bind:value="{restartPolicyMaxRetryCount}"
+                  minimum={0}
+                  bind:value={restartPolicyMaxRetryCount}
                   class="w-24 p-2"
-                  disabled="{restartPolicyName !== 'on-failure'}" />
+                  disabled={restartPolicyName !== 'on-failure'} />
               </div>
             </div>
           </Route>
@@ -861,7 +858,7 @@ const envDialogOptions: OpenDialogOptions = {
               <label
                 for="containerPrivileged"
                 class="block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]">Privileged:</label>
-              <Checkbox bind:checked="{privileged}" class="text-[var(--pd-content-card-text)] text-sm mx-2">
+              <Checkbox bind:checked={privileged} class="text-[var(--pd-content-card-text)] text-sm mx-2">
                 Turn off security<i class="pl-1 fas fa-exclamation-triangle"></i>
               </Checkbox>
 
@@ -869,7 +866,7 @@ const envDialogOptions: OpenDialogOptions = {
               <label
                 for="containerReadOnly"
                 class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]">Read only:</label>
-              <Checkbox bind:checked="{readOnly}" class="text-[var(--pd-content-card-text)] text-sm mx-2">
+              <Checkbox bind:checked={readOnly} class="text-[var(--pd-content-card-text)] text-sm mx-2">
                 Make containers root filesystem read-only
               </Checkbox>
 
@@ -881,20 +878,20 @@ const envDialogOptions: OpenDialogOptions = {
               {#each securityOpts as securityOpt, index}
                 <div class="flex flex-row justify-center items-center w-full py-1">
                   <Input
-                    bind:value="{securityOpt}"
+                    bind:value={securityOpt}
                     placeholder="Enter a security option (Ex. seccomp=/path/to/profile.json)"
                     class="ml-2" />
 
                   <Button
                     type="link"
-                    hidden="{index === securityOpts.length - 1}"
-                    on:click="{() => deleteSecurityOpt(index)}"
-                    icon="{faMinusCircle}" />
+                    hidden={index === securityOpts.length - 1}
+                    on:click={() => deleteSecurityOpt(index)}
+                    icon={faMinusCircle} />
                   <Button
                     type="link"
-                    hidden="{index < securityOpts.length - 1}"
-                    on:click="{addSecurityOpt}"
-                    icon="{faPlusCircle}" />
+                    hidden={index < securityOpts.length - 1}
+                    on:click={addSecurityOpt}
+                    icon={faPlusCircle} />
                 </div>
               {/each}
 
@@ -910,18 +907,14 @@ const envDialogOptions: OpenDialogOptions = {
               <!-- Display the list of existing capAdd -->
               {#each capAdds as capAdd, index}
                 <div class="flex flex-row justify-center items-center w-full py-1">
-                  <Input bind:value="{capAdd}" placeholder="Enter a kernel capability (Ex. SYS_ADMIN)" class="ml-4" />
+                  <Input bind:value={capAdd} placeholder="Enter a kernel capability (Ex. SYS_ADMIN)" class="ml-4" />
 
                   <Button
                     type="link"
-                    hidden="{index === capAdds.length - 1}"
-                    on:click="{() => deleteCapAdd(index)}"
-                    icon="{faMinusCircle}" />
-                  <Button
-                    type="link"
-                    hidden="{index < capAdds.length - 1}"
-                    on:click="{addCapAdd}"
-                    icon="{faPlusCircle}" />
+                    hidden={index === capAdds.length - 1}
+                    on:click={() => deleteCapAdd(index)}
+                    icon={faMinusCircle} />
+                  <Button type="link" hidden={index < capAdds.length - 1} on:click={addCapAdd} icon={faPlusCircle} />
                 </div>
               {/each}
               <label
@@ -931,18 +924,14 @@ const envDialogOptions: OpenDialogOptions = {
               <!-- Display the list of existing capDrop -->
               {#each capDrops as capDrop, index}
                 <div class="flex flex-row justify-center items-center w-full py-1">
-                  <Input bind:value="{capDrop}" placeholder="Enter a kernel capability (Ex. SYS_ADMIN)" class="ml-4" />
+                  <Input bind:value={capDrop} placeholder="Enter a kernel capability (Ex. SYS_ADMIN)" class="ml-4" />
 
                   <Button
                     type="link"
-                    hidden="{index === capDrops.length - 1}"
-                    on:click="{() => deleteCappDrop(index)}"
-                    icon="{faMinusCircle}" />
-                  <Button
-                    type="link"
-                    hidden="{index < capDrops.length - 1}"
-                    on:click="{addCapDrop}"
-                    icon="{faPlusCircle}" />
+                    hidden={index === capDrops.length - 1}
+                    on:click={() => deleteCappDrop(index)}
+                    icon={faMinusCircle} />
+                  <Button type="link" hidden={index < capDrops.length - 1} on:click={addCapDrop} icon={faPlusCircle} />
                 </div>
               {/each}
 
@@ -952,7 +941,7 @@ const envDialogOptions: OpenDialogOptions = {
                 class="pt-4 block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Specify user namespace to use:</label>
               <div class="flex flex-row justify-center items-center w-full">
-                <Input bind:value="{userNamespace}" placeholder="Enter a user namespace" class="ml-2 w-full" />
+                <Input bind:value={userNamespace} placeholder="Enter a user namespace" class="ml-2 w-full" />
               </div>
             </div>
           </Route>
@@ -965,7 +954,7 @@ const envDialogOptions: OpenDialogOptions = {
                 class="block mb-2 text-sm font-medium text-[var(--pd-content-card-header-text)]"
                 >Defines container hostname:</label>
               <div class="flex flex-row justify-center items-center w-full">
-                <Input bind:value="{hostname}" placeholder="Must be a valid RFC 1123 hostname" class="ml-2" />
+                <Input bind:value={hostname} placeholder="Must be a valid RFC 1123 hostname" class="ml-2" />
               </div>
 
               <!-- DNS -->
@@ -976,18 +965,18 @@ const envDialogOptions: OpenDialogOptions = {
 
               {#each dnsServers as dnsServer, index}
                 <div class="flex flex-row justify-center items-center w-full py-1">
-                  <Input bind:value="{dnsServer}" placeholder="IP Address" class="ml-2" />
+                  <Input bind:value={dnsServer} placeholder="IP Address" class="ml-2" />
 
                   <Button
                     type="link"
-                    hidden="{index === dnsServers.length - 1}"
-                    on:click="{() => deleteDnsServer(index)}"
-                    icon="{faMinusCircle}" />
+                    hidden={index === dnsServers.length - 1}
+                    on:click={() => deleteDnsServer(index)}
+                    icon={faMinusCircle} />
                   <Button
                     type="link"
-                    hidden="{index < dnsServers.length - 1}"
-                    on:click="{addDnsServer}"
-                    icon="{faPlusCircle}" />
+                    hidden={index < dnsServers.length - 1}
+                    on:click={addDnsServer}
+                    icon={faPlusCircle} />
                 </div>
               {/each}
 
@@ -998,19 +987,19 @@ const envDialogOptions: OpenDialogOptions = {
               <!-- Display the list of extra hosts -->
               {#each extraHosts as extraHost, index}
                 <div class="flex flex-row justify-center items-center w-full py-1">
-                  <Input bind:value="{extraHost.host}" placeholder="Hostname" class="ml-2" />
+                  <Input bind:value={extraHost.host} placeholder="Hostname" class="ml-2" />
 
-                  <Input bind:value="{extraHost.ip}" placeholder="IP Address" class="ml-2" />
+                  <Input bind:value={extraHost.ip} placeholder="IP Address" class="ml-2" />
                   <Button
                     type="link"
-                    hidden="{index === extraHosts.length - 1}"
-                    on:click="{() => deleteExtraHost(index)}"
-                    icon="{faMinusCircle}" />
+                    hidden={index === extraHosts.length - 1}
+                    on:click={() => deleteExtraHost(index)}
+                    icon={faMinusCircle} />
                   <Button
                     type="link"
-                    hidden="{index < extraHosts.length - 1}"
-                    on:click="{addExtraHost}"
-                    icon="{faPlusCircle}" />
+                    hidden={index < extraHosts.length - 1}
+                    on:click={addExtraHost}
+                    icon={faPlusCircle} />
                 </div>
               {/each}
 
@@ -1026,7 +1015,7 @@ const envDialogOptions: OpenDialogOptions = {
                 <select
                   class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm"
                   name="providerChoice"
-                  bind:value="{networkingMode}">
+                  bind:value={networkingMode}>
                   <option value="bridge">Creates a network stack on the default bridge (default)</option>
                   <option value="none">No networking</option>
                   <option value="host">Use the host networking stack</option>
@@ -1043,11 +1032,11 @@ const envDialogOptions: OpenDialogOptions = {
                     >Network:</span>
                   <select
                     class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
-                    disabled="{networkingMode !== 'choice-network'}"
+                    disabled={networkingMode !== 'choice-network'}
                     name="networkingModeUserNetwork"
-                    bind:value="{networkingModeUserNetwork}">
+                    bind:value={networkingModeUserNetwork}>
                     {#each engineNetworks as network}
-                      <option value="{network.Id}"
+                      <option value={network.Id}
                         >{network.Name} (used by {Object.keys(network.Containers ?? {}).length} containers)</option>
                     {/each}
                   </select>
@@ -1060,11 +1049,11 @@ const envDialogOptions: OpenDialogOptions = {
                     >Container:</span>
                   <select
                     class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
-                    disabled="{networkingMode !== 'choice-container'}"
+                    disabled={networkingMode !== 'choice-container'}
                     name="networkingModeUserContainer"
-                    bind:value="{networkingModeUserContainer}">
+                    bind:value={networkingModeUserContainer}>
                     {#each engineContainers as container}
-                      <option value="{container.id}">{container.name} ({container.shortId})</option>
+                      <option value={container.id}>{container.name} ({container.shortId})</option>
                     {/each}
                   </select>
                 </div>
@@ -1075,16 +1064,16 @@ const envDialogOptions: OpenDialogOptions = {
 
         <div class="pt-2 border-zinc-600 border-t-2"></div>
         <Button
-          on:click="{() => startContainer()}"
+          on:click={() => startContainer()}
           class="w-full"
-          icon="{faPlay}"
+          icon={faPlay}
           aria-label="Start Container"
-          bind:disabled="{invalidFields}">
+          bind:disabled={invalidFields}>
           Start Container
         </Button>
         <div aria-label="createError">
           {#if createError}
-            <ErrorMessage class="py-2 text-sm" error="{createError}" />
+            <ErrorMessage class="py-2 text-sm" error={createError} />
           {/if}
         </div>
       </div>

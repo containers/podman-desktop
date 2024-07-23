@@ -22,9 +22,9 @@ async function deleteExtension(): Promise<void> {
 
 <div class="text-sm">
   <LoadingIconButton
-    clickAction="{() => deleteExtension()}"
+    clickAction={() => deleteExtension()}
     action="delete"
-    icon="{faTrashCan}"
-    state="{{ status: extension.type === 'dd' ? 'stopped' : extension.removable ? extension.state : '', inProgress }}"
+    icon={faTrashCan}
+    state={{ status: extension.type === 'dd' ? 'stopped' : extension.removable ? extension.state : '', inProgress }}
     leftPosition="" />
 </div>

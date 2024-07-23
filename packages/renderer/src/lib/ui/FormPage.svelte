@@ -14,14 +14,14 @@ export function goToPreviousPage(): void {
 </script>
 
 <FormPage
-  title="{title}"
-  showBreadcrumb="{showBreadcrumb}"
-  inProgress="{inProgress}"
-  breadcrumbLeftPart="{$lastPage.name}"
-  breadcrumbRightPart="{$currentPage.name}"
+  title={title}
+  showBreadcrumb={showBreadcrumb}
+  inProgress={inProgress}
+  breadcrumbLeftPart={$lastPage.name}
+  breadcrumbRightPart={$currentPage.name}
   breadcrumbTitle="Go back to {$lastPage.name}"
-  on:close="{goToPreviousPage}"
-  on:breadcrumbClick="{goToPreviousPage}">
+  on:close={goToPreviousPage}
+  on:breadcrumbClick={goToPreviousPage}>
   <slot slot="icon" name="icon" />
   <slot slot="actions" name="actions" />
   <slot slot="tabs" name="tabs" />

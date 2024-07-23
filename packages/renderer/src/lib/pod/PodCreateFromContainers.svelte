@@ -210,14 +210,14 @@ function getWarningText(): string {
 }
 </script>
 
-<EngineFormPage title="Copy containers to a pod" inProgress="{createInProgress}">
+<EngineFormPage title="Copy containers to a pod" inProgress={createInProgress}>
   <SolidPodIcon slot="icon" size="40" />
 
   <div slot="content">
     <div>
       {#if podCreation}
         {#if containersPorts.length > 0}
-          <WarningMessage class="flex flex-row w-full  mb-2" error="{getWarningText()}" />
+          <WarningMessage class="flex flex-row w-full  mb-2" error={getWarningText()} />
         {/if}
         <div class="mb-2">
           <span class="block text-sm font-semibold rounded text-[var(--pd-content-card-header-text)]"
@@ -227,7 +227,7 @@ function getWarningText(): string {
           <Input
             name="podName"
             id="podName"
-            bind:value="{podCreation.name}"
+            bind:value={podCreation.name}
             placeholder="Select name of the pod..."
             aria-label="Pod name"
             required />
@@ -241,7 +241,7 @@ function getWarningText(): string {
         <div class="w-full bg-[var(--pd-content-card-inset-bg)] mb-4 max-h-40 overflow-y-auto">
           {#each podCreation.containers as container, index}
             <div class="p-2 flex flex-row items-center text-[var(--pd-content-card-text)]">
-              <div class="w-10"><StatusIcon icon="{ContainerIcon}" status="STOPPED" /></div>
+              <div class="w-10"><StatusIcon icon={ContainerIcon} status="STOPPED" /></div>
               <div class="w-16 pl-3">{index + 1}.</div>
               <div class="grow">{container.name}</div>
               <div class="w-28">({container.id.substring(0, 7)})</div>
@@ -260,8 +260,8 @@ function getWarningText(): string {
               <div class="p-2 flex flex-row align-items text-sm text-[var(--pd-content-card-text)]">
                 <Checkbox
                   class="pt-0.5 mr-5"
-                  bind:checked="{value.exposed}"
-                  on:click="{event => updatePortExposure(port, event.detail)}" />
+                  bind:checked={value.exposed}
+                  on:click={event => updatePortExposure(port, event.detail)} />
                 <div class="w-28 mr-5">Port {port.toString()}</div>
                 <span>{value.container}</span>
               </div>
@@ -278,26 +278,26 @@ function getWarningText(): string {
         <select
           class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
           name="providerChoice"
-          bind:value="{selectedProvider}">
+          bind:value={selectedProvider}>
           {#each providerConnections as providerConnection}
-            <option value="{providerConnection}">{providerConnection.name}</option>
+            <option value={providerConnection}>{providerConnection.name}</option>
           {/each}
         </select>
       {/if}
       {#if providerConnections.length === 1 && selectedProviderConnection?.name}
-        <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection.name}" />
+        <input type="hidden" name="providerChoice" readonly bind:value={selectedProviderConnection.name} />
       {/if}
 
       <div class="w-full grid justify-items-end mt-5">
         <div>
-          <Button type="link" on:click="{() => router.goto('/containers')}">Close</Button>
+          <Button type="link" on:click={() => router.goto('/containers')}>Close</Button>
           <Button
-            icon="{SolidPodIcon}"
-            bind:disabled="{createInProgress}"
-            on:click="{() => {
+            icon={SolidPodIcon}
+            bind:disabled={createInProgress}
+            on:click={() => {
               createPodFromContainers();
-            }}"
-            bind:inProgress="{createInProgress}"
+            }}
+            bind:inProgress={createInProgress}
             aria-label="Create pod">
             Create Pod
           </Button>
@@ -305,7 +305,7 @@ function getWarningText(): string {
       </div>
 
       {#if createError}
-        <ErrorMessage class="pt-2 text-sm" error="{createError}" />
+        <ErrorMessage class="pt-2 text-sm" error={createError} />
       {/if}
     </div>
   </div>

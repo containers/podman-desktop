@@ -50,7 +50,7 @@ if (pod) {
       {#each pod.containers as container}
         <tr>
           <DetailsSubtitle>
-            <Link on:click="{() => router.goto(`/containers/${container.Id}/logs`)}">
+            <Link on:click={() => router.goto(`/containers/${container.Id}/logs`)}>
               {container.Names}
             </Link>
           </DetailsSubtitle>

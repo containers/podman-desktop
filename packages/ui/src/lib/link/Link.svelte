@@ -29,13 +29,13 @@ onMount(() => {
 <a
   class="text-[var(--pd-link)] hover:bg-[var(--pd-link-hover-bg)] transition-all rounded-[4px] p-0.5 no-underline cursor-pointer {$$props.class ||
     ''}"
-  on:click="{onclick}"
+  on:click={onclick}
   role="link"
-  aria-label="{$$props['aria-label']}">
+  aria-label={$$props['aria-label']}>
   {#if icon}
     <span class="flex flex-row space-x-2">
       {#if iconType === 'fa'}
-        <Fa icon="{icon}" />
+        <Fa icon={icon} />
       {/if}
       <span><slot /></span>
     </span>

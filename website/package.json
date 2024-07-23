@@ -28,14 +28,14 @@
     "@docusaurus/preset-classic": "^3.4.0",
     "@docusaurus/theme-mermaid": "^3.4.0",
     "@docusaurus/theme-common": "^3.4.0",
-    "@fortawesome/fontawesome-svg-core": "^6.5.2",
-    "@fortawesome/free-brands-svg-icons": "^6.5.2",
-    "@fortawesome/free-solid-svg-icons": "^6.5.2",
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "@fortawesome/free-brands-svg-icons": "^6.6.0",
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@mdx-js/react": "^3.0.1",
     "clsx": "^2.1.1",
     "docusaurus-plugin-goatcounter": "^3.0.0",
-    "docusaurus-plugin-typedoc": "1.0.3",
+    "docusaurus-plugin-typedoc": "1.0.4",
     "prism-react-renderer": "^2.3.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -48,10 +48,10 @@
     "markdownlint": "^0.34.0",
     "markdownlint-cli2": "^0.13.0",
     "postcss": "^8.4.39",
-    "tailwindcss": "^3.4.5",
-    "typedoc": "^0.26.4",
+    "tailwindcss": "^3.4.6",
+    "typedoc": "^0.26.5",
     "typedoc-plugin-markdown": "^4.2.1",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.4"
   },
   "browserslist": {
     "production": [

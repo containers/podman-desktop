@@ -6,4 +6,4 @@ import ProviderCard from './ProviderCard.svelte';
 export let provider: ProviderInfo;
 </script>
 
-<ProviderCard provider="{provider}"></ProviderCard>
+<ProviderCard provider={provider}></ProviderCard>

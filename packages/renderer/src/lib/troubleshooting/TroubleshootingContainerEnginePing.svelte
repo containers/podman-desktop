@@ -32,16 +32,12 @@ async function pingConnection() {
 
 <div class="flex flex-row items-center">
   <div class="w-36">
-    <Button
-      bind:inProgress="{pingInProgress}"
-      class="my-1 w-full"
-      on:click="{() => pingConnection()}"
-      icon="{faSignal}">
+    <Button bind:inProgress={pingInProgress} class="my-1 w-full" on:click={() => pingConnection()} icon={faSignal}>
       Ping
     </Button>
   </div>
   <div role="status" class="mx-2">{pingResult}</div>
   {#if pingError}
-    <ErrorMessage class="mx-2" error="{pingError}" />
+    <ErrorMessage class="mx-2" error={pingError} />
   {/if}
 </div>

@@ -341,8 +341,8 @@ let ageColumn = new TableColumn<ContainerInfoUI | ContainerGroupInfoUI, Date | u
     return undefined;
   },
   comparator: (a, b) => {
-    const aTime = containerUtils.isContainerInfoUI(a) ? (moment().diff(containerUtils.getUpDate(a)) ?? 0) : 0;
-    const bTime = containerUtils.isContainerInfoUI(b) ? (moment().diff(containerUtils.getUpDate(b)) ?? 0) : 0;
+    const aTime = containerUtils.isContainerInfoUI(a) && a.state === 'RUNNING' ? (moment().diff(a.startedAt) ?? 0) : 0;
+    const bTime = containerUtils.isContainerInfoUI(b) && b.state === 'RUNNING' ? (moment().diff(b.startedAt) ?? 0) : 0;
     return aTime - bTime;
   },
 });
@@ -378,33 +378,33 @@ $: containersAndGroups = containerGroups.map(group =>
 );
 </script>
 
-<NavPage bind:searchTerm="{searchTerm}" title="containers">
+<NavPage bind:searchTerm={searchTerm} title="containers">
   <svelte:fragment slot="additional-actions">
     <!-- Only show if there are containers-->
     {#if $containersInfos.length > 0}
-      <Prune type="containers" engines="{enginesList}" />
+      <Prune type="containers" engines={enginesList} />
     {/if}
-    <Button on:click="{() => toggleCreateContainer()}" icon="{faPlusCircle}" title="Create a container">Create</Button>
+    <Button on:click={() => toggleCreateContainer()} icon={faPlusCircle} title="Create a container">Create</Button>
   </svelte:fragment>
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <div class="inline-flex space-x-2">
         <Button
-          on:click="{() =>
+          on:click={() =>
             withBulkConfirmation(
               deleteSelectedContainers,
               `delete ${selectedItemsNumber} container${selectedItemsNumber > 1 ? 's' : ''}`,
-            )}"
+            )}
           aria-label="Delete selected containers and pods"
           title="Delete {selectedItemsNumber} selected items"
-          bind:inProgress="{bulkDeleteInProgress}"
-          icon="{faTrash}">
+          bind:inProgress={bulkDeleteInProgress}
+          icon={faTrash}>
         </Button>
 
         <Button
-          on:click="{() => createPodFromContainers()}"
+          on:click={() => createPodFromContainers()}
           title="Create Pod with {selectedItemsNumber} selected items"
-          icon="{SolidPodIcon}">
+          icon={SolidPodIcon}>
           Create Pod
         </Button>
       </div>
@@ -413,24 +413,24 @@ $: containersAndGroups = containerGroups.map(group =>
   </svelte:fragment>
 
   <svelte:fragment slot="tabs">
-    <Button type="tab" on:click="{() => resetRunningFilter()}" selected="{containerUtils.filterIsAll(searchTerm)}"
+    <Button type="tab" on:click={() => resetRunningFilter()} selected={containerUtils.filterIsAll(searchTerm)}
       >All</Button>
-    <Button type="tab" on:click="{() => setRunningFilter()}" selected="{containerUtils.filterIsRunning(searchTerm)}"
+    <Button type="tab" on:click={() => setRunningFilter()} selected={containerUtils.filterIsRunning(searchTerm)}
       >Running</Button>
-    <Button type="tab" on:click="{() => setStoppedFilter()}" selected="{containerUtils.filterIsStopped(searchTerm)}"
+    <Button type="tab" on:click={() => setStoppedFilter()} selected={containerUtils.filterIsStopped(searchTerm)}
       >Stopped</Button>
   </svelte:fragment>
 
   <div class="flex min-w-full h-full" slot="content">
     <Table
       kind="container"
-      bind:this="{table}"
-      bind:selectedItemsNumber="{selectedItemsNumber}"
-      data="{containersAndGroups}"
-      columns="{columns}"
-      row="{row}"
+      bind:this={table}
+      bind:selectedItemsNumber={selectedItemsNumber}
+      data={containersAndGroups}
+      columns={columns}
+      row={row}
       defaultSortColumn="Name"
-      on:update="{() => (containerGroups = [...containerGroups])}">
+      on:update={() => (containerGroups = [...containerGroups])}>
     </Table>
 
     {#if providerConnections.length === 0}
@@ -438,17 +438,17 @@ $: containersAndGroups = containerGroups.map(group =>
     {:else if containerGroups.length === 0}
       {#if containerUtils.filterSearchTerm(searchTerm)}
         <FilteredEmptyScreen
-          icon="{ContainerIcon}"
+          icon={ContainerIcon}
           kind="containers"
-          on:resetFilter="{e => {
+          on:resetFilter={e => {
             searchTerm = containerUtils.filterResetSearchTerm(searchTerm);
             e.preventDefault();
-          }}"
-          searchTerm="{containerUtils.filterSearchTerm(searchTerm)}" />
+          }}
+          searchTerm={containerUtils.filterSearchTerm(searchTerm)} />
       {:else}
         <ContainerEmptyScreen
-          runningOnly="{containerUtils.filterIsRunning(searchTerm)}"
-          stoppedOnly="{containerUtils.filterIsStopped(searchTerm)}" />
+          runningOnly={containerUtils.filterIsRunning(searchTerm)}
+          stoppedOnly={containerUtils.filterIsStopped(searchTerm)} />
       {/if}
     {/if}
   </div>
@@ -457,9 +457,9 @@ $: containersAndGroups = containerGroups.map(group =>
 {#if openChoiceModal}
   <Dialog
     title="Create a new container"
-    on:close="{() => {
+    on:close={() => {
       openChoiceModal = false;
-    }}">
+    }}>
     <div slot="content" class="h-full flex flex-col justify-items-center text-[var(--pd-modal-text)]">
       <span class="pb-3">Choose the following:</span>
       <ul class="list-disc ml-8 space-y-2">
@@ -468,8 +468,8 @@ $: containersAndGroups = containerGroups.map(group =>
       </ul>
     </div>
     <svelte:fragment slot="buttons">
-      <Button type="primary" on:click="{() => fromDockerfile()}">Containerfile or Dockerfile</Button>
-      <Button type="secondary" on:click="{() => fromExistingImage()}">Existing image</Button>
+      <Button type="primary" on:click={() => fromDockerfile()}>Containerfile or Dockerfile</Button>
+      <Button type="secondary" on:click={() => fromExistingImage()}>Existing image</Button>
     </svelte:fragment>
   </Dialog>
 {/if}

@@ -63,7 +63,7 @@ function validate(event: any) {
   <div class="flex flex-col bg-[var(--pd-invert-content-card-bg)] rounded-md p-3 space-y-2">
     <!-- if proxy is not enabled, display a toggle -->
 
-    <SlideToggle id="toggle-proxy" bind:checked="{proxyState}" on:checked="{event => updateProxyState(event.detail)}"
+    <SlideToggle id="toggle-proxy" bind:checked={proxyState} on:checked={event => updateProxyState(event.detail)}
       >Proxy configuration {proxyState ? 'enabled' : 'disabled'}</SlideToggle>
 
     {#if proxySettings}
@@ -75,13 +75,13 @@ function validate(event: any) {
         <Input
           name="httpProxy"
           id="httpProxy"
-          disabled="{!proxyState}"
-          bind:value="{proxySettings.httpProxy}"
+          disabled={!proxyState}
+          bind:value={proxySettings.httpProxy}
           placeholder="URL of the proxy for http: URLs (eg http://myproxy.domain.com:8080)"
           required
-          on:input="{event => validate(event)}" />
+          on:input={event => validate(event)} />
         {#if httpProxyError}
-          <ErrorMessage error="{httpProxyError}" />
+          <ErrorMessage error={httpProxyError} />
         {/if}
       </div>
       <div class="space-y-2">
@@ -92,13 +92,13 @@ function validate(event: any) {
         <Input
           name="httpsProxy"
           id="httpsProxy"
-          disabled="{!proxyState}"
-          bind:value="{proxySettings.httpsProxy}"
+          disabled={!proxyState}
+          bind:value={proxySettings.httpsProxy}
           placeholder="URL of the proxy for https: URLs (eg http://myproxy.domain.com:8080)"
           required
-          on:input="{event => validate(event)}" />
+          on:input={event => validate(event)} />
         {#if httpsProxyError}
-          <ErrorMessage error="{httpsProxyError}" />
+          <ErrorMessage error={httpsProxyError} />
         {/if}
       </div>
       <div class="space-y-2">
@@ -109,13 +109,13 @@ function validate(event: any) {
         <Input
           name="noProxy"
           id="noProxy"
-          disabled="{!proxyState}"
-          bind:value="{proxySettings.noProxy}"
+          disabled={!proxyState}
+          bind:value={proxySettings.noProxy}
           placeholder="Example: *.domain.com, 192.168.*.*"
           required />
       </div>
       <div class="my-2 pt-4">
-        <Button on:click="{() => updateProxySettings()}" disabled="{!proxyState}" class="w-full" icon="{faPen}">
+        <Button on:click={() => updateProxySettings()} disabled={!proxyState} class="w-full" icon={faPen}>
           Update
         </Button>
       </div>

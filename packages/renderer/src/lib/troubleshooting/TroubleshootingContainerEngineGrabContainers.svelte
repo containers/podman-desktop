@@ -31,16 +31,12 @@ async function grabContainers() {
 
 <div class="flex flex-row items-center">
   <div class="w-36">
-    <Button
-      bind:inProgress="{listInProgress}"
-      class="my-1 w-full"
-      on:click="{() => grabContainers()}"
-      icon="{faSignal}">
+    <Button bind:inProgress={listInProgress} class="my-1 w-full" on:click={() => grabContainers()} icon={faSignal}>
       Check containers
     </Button>
   </div>
   <div role="status" class="mx-2">{listContainersResult}</div>
   {#if listError}
-    <ErrorMessage class="mx-2" error="{listError}" />
+    <ErrorMessage class="mx-2" error={listError} />
   {/if}
 </div>

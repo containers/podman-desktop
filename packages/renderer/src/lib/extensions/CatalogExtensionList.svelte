@@ -16,7 +16,7 @@ export let catalogExtensions: CatalogExtensionInfoUI[];
       role="region"
       aria-label="Catalog Extensions">
       {#each catalogExtensions as catalogExtension}
-        <CatalogExtension catalogExtensionUI="{catalogExtension}" />
+        <CatalogExtension catalogExtensionUI={catalogExtension} />
       {/each}
     </div>
   </div>

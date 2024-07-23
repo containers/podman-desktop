@@ -119,7 +119,7 @@ const columns = [
 const row = new TableRow<ServiceUI>({ selectable: _service => true });
 </script>
 
-<NavPage bind:searchTerm="{searchTerm}" title="services">
+<NavPage bind:searchTerm={searchTerm} title="services">
   <svelte:fragment slot="additional-actions">
     <KubeApplyYamlButton />
   </svelte:fragment>
@@ -127,14 +127,14 @@ const row = new TableRow<ServiceUI>({ selectable: _service => true });
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() =>
+        on:click={() =>
           withBulkConfirmation(
             deleteSelectedServices,
             `delete ${selectedItemsNumber} service${selectedItemsNumber > 1 ? 's' : ''}`,
-          )}"
+          )}
         title="Delete {selectedItemsNumber} selected items"
-        inProgress="{bulkDeleteInProgress}"
-        icon="{faTrash}" />
+        inProgress={bulkDeleteInProgress}
+        icon={faTrash} />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
     <div class="flex grow justify-end">
@@ -145,18 +145,18 @@ const row = new TableRow<ServiceUI>({ selectable: _service => true });
   <div class="flex min-w-full h-full" slot="content">
     <Table
       kind="service"
-      bind:this="{table}"
-      bind:selectedItemsNumber="{selectedItemsNumber}"
-      data="{services}"
-      columns="{columns}"
-      row="{row}"
+      bind:this={table}
+      bind:selectedItemsNumber={selectedItemsNumber}
+      data={services}
+      columns={columns}
+      row={row}
       defaultSortColumn="Name"
-      on:update="{() => (services = services)}">
+      on:update={() => (services = services)}>
     </Table>
 
     {#if $kubernetesCurrentContextServicesFiltered.length === 0}
       {#if searchTerm}
-        <FilteredEmptyScreen icon="{ServiceIcon}" kind="services" bind:searchTerm="{searchTerm}" />
+        <FilteredEmptyScreen icon={ServiceIcon} kind="services" bind:searchTerm={searchTerm} />
       {:else}
         <ServiceEmptyScreen />
       {/if}

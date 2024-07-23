@@ -303,6 +303,9 @@ export function initExposure(): void {
       return ipcInvoke('container-provider-registry:inspectManifest', engine, manifestId);
     },
   );
+  contextBridge.exposeInMainWorld('removeManifest', async (engine: string, manifestId: string): Promise<void> => {
+    return ipcInvoke('container-provider-registry:removeManifest', engine, manifestId);
+  });
 
   /**
    * @deprecated This method is deprecated and will be removed in a future release.

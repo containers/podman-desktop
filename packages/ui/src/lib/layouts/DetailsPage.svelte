@@ -30,21 +30,21 @@ function handleKeydown(e: KeyboardEvent): void {
 }
 </script>
 
-<svelte:window on:keydown="{handleKeydown}" />
+<svelte:window on:keydown={handleKeydown} />
 
 <div class="flex flex-col w-full h-full shadow-pageheader bg-[var(--pd-content-bg)]">
   <div class="flex flex-row w-full h-fit px-5 pt-4 pb-2">
     <div class="flex flex-col w-full h-fit">
       <div class="flex flew-row items-center text-sm text-[var(--pd-content-breadcrumb)]">
         {#if breadcrumbLeftPart}
-          <Link class="text-sm" aria-label="back" on:click="{onbreadcrumbClick}" title="{breadcrumbTitle}"
+          <Link class="text-sm" aria-label="back" on:click={onbreadcrumbClick} title={breadcrumbTitle}
             >{breadcrumbLeftPart}</Link>
         {/if}
         {#if breadcrumbRightPart}
           <div class="mx-2">&gt;</div>
           <div class="grow font-extralight" aria-label="name">{breadcrumbRightPart}</div>
         {/if}
-        <CloseButton class="justify-self-end" on:click="{onclose}" />
+        <CloseButton class="justify-self-end" on:click={onclose} />
       </div>
       <div class="flex flex-row items-start pt-1">
         <div class="pr-3">
@@ -52,17 +52,14 @@ function handleKeydown(e: KeyboardEvent): void {
         </div>
         <div class="flex flex-col grow pr-2">
           <div class="flex flex-row items-baseline">
-            <h1 aria-label="{title}" class="text-xl leading-tight text-[var(--pd-content-header)]">{title}</h1>
-            <div
-              class="text-[var(--pd-table-body-text-sub-secondary)] ml-2 leading-normal"
-              class:hidden="{!titleDetail}">
+            <h1 aria-label={title} class="text-xl leading-tight text-[var(--pd-content-header)]">{title}</h1>
+            <div class="text-[var(--pd-table-body-text-sub-secondary)] ml-2 leading-normal" class:hidden={!titleDetail}>
               {titleDetail}
             </div>
           </div>
           <div>
-            <span
-              class="text-sm leading-none text-[var(--pd-content-sub-header)] line-clamp-1"
-              class:hidden="{!subtitle}">{subtitle}</span>
+            <span class="text-sm leading-none text-[var(--pd-content-sub-header)] line-clamp-1" class:hidden={!subtitle}
+              >{subtitle}</span>
             <slot name="subtitle" />
           </div>
         </div>

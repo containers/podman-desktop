@@ -29,8 +29,8 @@ onMount(async () => {
 
 {#if kubeDetails}
   {#if pod.kind === 'podman'}
-    <MonacoEditor content="{kubeDetails}" language="yaml" />
+    <MonacoEditor content={kubeDetails} language="yaml" />
   {:else}
-    <KubeEditYAML content="{kubeDetails}" />
+    <KubeEditYAML content={kubeDetails} />
   {/if}
 {/if}
