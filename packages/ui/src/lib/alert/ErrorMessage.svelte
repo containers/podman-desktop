@@ -6,13 +6,26 @@ import Tooltip from '../tooltip/Tooltip.svelte';
 
 export let error: string;
 export let icon = false;
+export let actionErrorInfo = false;
 </script>
 
 {#if icon}
   {#if error !== undefined && error !== ''}
-    <Tooltip top tip={error}>
-      <Fa size="1.1x" class="cursor-pointer text-[var(--pd-state-error)] {$$props.class}" icon={faExclamationCircle} />
-    </Tooltip>
+    {#if actionErrorInfo}
+      <Tooltip left tip={error} tipWidth="w-max max-w-[650px] overflow-hidden text-wrap">
+        <Fa
+          size="1.1x"
+          class="cursor-pointer text-[var(--pd-state-error)] {$$props.class}"
+          icon={faExclamationCircle} />
+      </Tooltip>
+    {:else}
+      <Tooltip top tip={error}>
+        <Fa
+          size="1.1x"
+          class="cursor-pointer text-[var(--pd-state-error)] {$$props.class}"
+          icon={faExclamationCircle} />
+      </Tooltip>
+    {/if}
   {/if}
 {:else}
   <div
