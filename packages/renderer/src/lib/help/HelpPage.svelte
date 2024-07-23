@@ -26,7 +26,7 @@ export function goToPreviousPage(): void {
 
 <Page title="Help" on:close={goToPreviousPage}>
   <i slot="icon" class="fas fa-question-circle fa-2x" aria-hidden="true"></i>
-  <div slot="content" class="min-w-full h-fit p-5">
+  <div slot="content" class="min-w-full h-full p-5 overflow-auto">
     <div class="min-w-full space-y-5">
       <!-- Getting Started -->
       <div class="bg-[var(--pd-global-nav-bg)] px-3 pt-3 pb-3 rounded-lg">
