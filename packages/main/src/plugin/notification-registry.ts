@@ -71,7 +71,7 @@ export class NotificationRegistry {
     // return disposable object
     return Disposable.create(() => {
       disposeShowNotification.dispose();
-      this.removeNotificationById(this.notificationId);
+      this.removeNotificationById(notification.id);
       this.taskManager.deleteTask(notificationTask);
     });
   }
