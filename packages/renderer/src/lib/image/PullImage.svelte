@@ -188,7 +188,11 @@ async function searchImages(value: string): Promise<{ value: string; label: stri
         debounceWait={debounceWaitSearch}
         onChange={e => onChange(e.detail.value)}
         onClear={() => onChange('')}
-        loadOptions={searchImages}></Select>
+        loadOptions={searchImages}>
+        <div slot="empty">
+          You can search an image in a specific registry by typing <code>registry-name/query</code>
+        </div>
+      </Select>
       {#if imageNameInvalid}
         <ErrorMessage error={imageNameInvalid} />
       {/if}

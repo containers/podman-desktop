@@ -37,7 +37,11 @@ export let focused: boolean = false;
   bind:focused={focused}
   clearFilterTextOnBlur={false}>
   <div slot="empty" class="m-4 text-center">
-    You can search an image in a specific registry by typing <code>registry-name/query</code>
+    {#if $$slots.empty}
+      <slot name="empty" />
+    {:else}
+      No Options
+    {/if}
   </div>
   <svg
     slot="prepend"
