@@ -66,5 +66,5 @@ jobs:
         env:
           TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
           VERSION: ${{ needs.version.outputs.desktopVersion }}
-          URL_X64: ${{ format('https://github.com/containers/podman-desktop/releases/download/v{0}/podman-desktop-{0}-setup.exe|x64', needs.version.outputs.desktopVersion) }}
+          URL_X64: ${{ format('https://github.com/containers/podman-desktop/releases/download/v{0}/podman-desktop-{0}-setup-x64.exe|x64', needs.version.outputs.desktopVersion) }}
           URL_ARM64: ${{ format('https://github.com/containers/podman-desktop/releases/download/v{0}/podman-desktop-{0}-setup-arm64.exe|arm64', needs.version.outputs.desktopVersion) }}
