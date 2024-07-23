@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ManifestCreateOptions, ManifestInspectInfo } from '@podman-desktop/api';
+import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '@podman-desktop/api';
 import type { VolumeCreateOptions, VolumeCreateResponse } from 'dockerode';
 import Dockerode from 'dockerode';
 
@@ -364,6 +364,7 @@ export interface LibPod {
   podmanListImages(options?: PodmanListImagesOptions): Promise<ImageInfo[]>;
   podmanCreateManifest(manifestOptions: ManifestCreateOptions): Promise<{ engineId: string; Id: string }>;
   podmanInspectManifest(manifestName: string): Promise<ManifestInspectInfo>;
+  podmanPushManifest(manifestOptions: ManifestPushOptions, authInfo?: Dockerode.AuthConfig): Promise<void>;
   podmanRemoveManifest(manifestName: string): Promise<void>;
 }
 
@@ -834,6 +835,49 @@ export class LibpodDockerode {
       };
       return new Promise((resolve, reject) => {
         this.modem.dial(optsf, (err: unknown, data: NodeJS.ReadableStream) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(data);
+        });
+      });
+    };
+
+    // push manifest to the registry
+    prototypeOfDockerode.podmanPushManifest = function (
+      manifestOptions: ManifestPushOptions,
+      authInfo?: Dockerode.AuthConfig,
+    ): Promise<unknown> {
+      const encodedManifestName = encodeURIComponent(manifestOptions.name);
+      const encodedDestinationName = encodeURIComponent(manifestOptions.destination);
+
+      // If there is an authInfo, we need to add it as a Header named 'X-Registry-Auth' with the base64 encoded value
+      // in order to provide the credentials needed to push to the registry.
+      const headers = authInfo
+        ? {
+            'Content-Type': 'application/json', // Ensuring Content-Type is set
+            'X-Registry-Auth': Buffer.from(JSON.stringify(authInfo)).toString('base64'),
+          }
+        : {};
+
+      const optsf = {
+        path: `/v4.2.0/libpod/manifests/${encodedManifestName}/registry/${encodedDestinationName}?`,
+        method: 'POST',
+        statusCodes: {
+          200: true,
+          400: 'bad parameter in request',
+          404: 'no such manifest',
+          500: 'server error',
+        },
+        headers: headers,
+        // We require all=true to always be present in the URL in order for the manifest to be pushed correctly.
+        // If you do not provide it, it will return a "uknown manifest blob" error as it's trying to push a manifest blob with no images.
+        options: {
+          all: 'true',
+        },
+      };
+      return new Promise((resolve, reject) => {
+        this.modem.dial(optsf, (err: unknown, data: unknown) => {
           if (err) {
             return reject(err);
           }
