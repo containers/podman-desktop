@@ -6,7 +6,7 @@ export let inProgress = false;
 export let breadcrumbLeftPart: string | undefined = undefined;
 export let breadcrumbRightPart: string | undefined = undefined;
 export let breadcrumbTitle: string | undefined = '';
-export let onclose: () => void;
+export let onclose: () => void = () => {};
 export let onbreadcrumbClick: () => void = () => {};
 </script>
 

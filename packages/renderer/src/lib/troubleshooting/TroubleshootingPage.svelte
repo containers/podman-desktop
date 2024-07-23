@@ -31,7 +31,7 @@ export function goToPreviousPage(): void {
       url={getTabUrl($router.path, 'gatherlogs')} />
     <Tab title="Stores" selected={isTabSelected($router.path, 'stores')} url={getTabUrl($router.path, 'stores')} />
   </div>
-  <svelte:fragment slot="content">
+  <div class="flex w-full h-full overflow-auto" slot="content">
     <Route path="/repair-connections" breadcrumb="Repair & Connections" navigationHint="tab">
       <TroubleshootingPageProviders />
     </Route>
@@ -47,5 +47,5 @@ export function goToPreviousPage(): void {
     <Route path="/stores" breadcrumb="Stores" navigationHint="tab">
       <TroubleshootingPageStores />
     </Route>
-  </svelte:fragment>
+  </div>
 </Page>

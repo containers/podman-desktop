@@ -20,8 +20,8 @@ export function close(): void {
   breadcrumbLeftPart={$lastPage.name}
   breadcrumbRightPart={$currentPage.name}
   breadcrumbTitle="Go back to {$lastPage.name}"
-  on:close={close}
-  on:breadcrumbClick={close}>
+  onclose={close}
+  onbreadcrumbClick={close}>
   <slot slot="icon" name="icon" />
   <slot slot="subtitle" name="subtitle" />
   <slot slot="actions" name="actions" />

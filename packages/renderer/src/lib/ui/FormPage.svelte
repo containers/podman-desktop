@@ -18,10 +18,9 @@ export function goToPreviousPage(): void {
   breadcrumbLeftPart={$lastPage.name}
   breadcrumbRightPart={$currentPage.name}
   breadcrumbTitle="Go back to {$lastPage.name}"
-  on:close={goToPreviousPage}
-  on:breadcrumbClick={goToPreviousPage}>
+  onclose={goToPreviousPage}
+  onbreadcrumbClick={goToPreviousPage}>
   <slot slot="icon" name="icon" />
   <slot slot="actions" name="actions" />
-  <slot slot="tabs" name="tabs" />
   <slot slot="content" name="content" />
 </FormPage>
