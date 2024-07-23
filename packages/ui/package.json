@@ -84,9 +84,9 @@
       "types": "./dist/progress/LinearProgress.d.ts",
       "svelte": "./dist/progress/LinearProgress.svelte"
     },
-    "./BasePage": {
-      "types": "./dist/layouts/BasePage.d.ts",
-      "svelte": "./dist/layouts/BasePage.svelte"
+    "./Page": {
+      "types": "./dist/layouts/Page.d.ts",
+      "svelte": "./dist/layouts/Page.svelte"
     },
     "./FormPage": {
       "types": "./dist/layouts/FormPage.d.ts",

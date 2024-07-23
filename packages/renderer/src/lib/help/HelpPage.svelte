@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { ProviderLinks } from '@podman-desktop/api';
-import { BasePage } from '@podman-desktop/ui-svelte';
+import { Page } from '@podman-desktop/ui-svelte';
 import { router } from 'tinro';
 
 import { lastPage } from '../../stores/breadcrumb';
@@ -24,7 +24,7 @@ export function goToPreviousPage(): void {
 }
 </script>
 
-<BasePage title="Help" on:close={goToPreviousPage}>
+<Page title="Help" on:close={goToPreviousPage}>
   <i slot="icon" class="fas fa-question-circle fa-2x" aria-hidden="true"></i>
   <div slot="content" class="min-w-full h-fit p-5">
     <div class="min-w-full space-y-5">
@@ -179,4 +179,4 @@ export function goToPreviousPage(): void {
       </div>
     </div>
   </div>
-</BasePage>
+</Page>

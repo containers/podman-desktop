@@ -1,5 +1,5 @@
 <script lang="ts">
-import { BasePage, Tab } from '@podman-desktop/ui-svelte';
+import { Page, Tab } from '@podman-desktop/ui-svelte';
 import { router } from 'tinro';
 
 import Route from '/@/Route.svelte';
@@ -16,7 +16,7 @@ export function goToPreviousPage(): void {
 }
 </script>
 
-<BasePage title="Troubleshooting" on:close={goToPreviousPage}>
+<Page title="Troubleshooting" on:close={goToPreviousPage}>
   <i slot="icon" class="fas fa-lightbulb fa-2x" aria-hidden="true"></i>
 
   <div slot="tabs" class="flex flex-row px-2 border-b border-[var(--pd-content-divider)]">
@@ -48,4 +48,4 @@ export function goToPreviousPage(): void {
       <TroubleshootingPageStores />
     </Route>
   </svelte:fragment>
-</BasePage>
+</Page>
