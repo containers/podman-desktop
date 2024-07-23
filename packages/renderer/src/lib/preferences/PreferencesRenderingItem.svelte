@@ -1,5 +1,6 @@
 <script lang="ts">
 import { getInitialValue } from '/@/lib/preferences/Util';
+import { afterUpdate } from 'svelte';
 
 import type { IConfigurationPropertyRecordedSchema } from '../../../../main/src/plugin/configuration-registry';
 import Markdown from '../markdown/Markdown.svelte';
@@ -14,6 +15,10 @@ let recordUI: {
   markdownDescription?: string;
   original: IConfigurationPropertyRecordedSchema;
 };
+
+afterUpdate(() => {
+  update();
+});
 
 // add space from camel case and upper case on the first letter
 function startCase(str: string): string {
