@@ -6,6 +6,7 @@ import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
+import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';
 
 export let terminal: Terminal;
 
@@ -26,8 +27,11 @@ async function refreshTerminal(): Promise<void> {
   const lineHeight = await window.getConfigurationValue<number>(
     TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
   );
+  const terminalTheme = await window.getConfigurationValue<string>(
+    TerminalSettings.SectionName + '.' + TerminalSettings.Theme,
+  );
 
-  terminal = new Terminal({ fontSize, lineHeight, disableStdin: true });
+  terminal = new Terminal({ fontSize, lineHeight, disableStdin: true, theme: getTerminalTheme(terminalTheme) });
   const fitAddon = new FitAddon();
   terminal.loadAddon(fitAddon);
 

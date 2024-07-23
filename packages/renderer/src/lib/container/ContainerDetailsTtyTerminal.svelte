@@ -8,7 +8,7 @@ import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
-import { getPanelDetailColor } from '../color/color';
+import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';
 import NoLogIcon from '../ui/NoLogIcon.svelte';
 import type { ContainerInfoUI } from './ContainerInfoUI';
 
@@ -68,14 +68,15 @@ async function refreshTerminal() {
   const lineHeight = await window.getConfigurationValue<number>(
     TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
   );
+  const terminalTheme = await window.getConfigurationValue<string>(
+    TerminalSettings.SectionName + '.' + TerminalSettings.Theme,
+  );
 
   attachContainerTerminal = new Terminal({
     fontSize,
     lineHeight,
     screenReaderMode,
-    theme: {
-      background: getPanelDetailColor(),
-    },
+    theme: getTerminalTheme(terminalTheme),
   });
 
   const fitAddon = new FitAddon();

@@ -18,6 +18,7 @@
 
 import type { IConfigurationNode, IConfigurationRegistry } from './configuration-registry.js';
 import { TerminalSettings } from './terminal-settings.js';
+import { themes } from './terminal-theme.js';
 
 export class TerminalInit {
   private static DEFAULT_LINE_HEIGHT = 1;
@@ -44,6 +45,14 @@ export class TerminalInit {
           default: TerminalInit.DEFAULT_LINE_HEIGHT,
           minimum: 1,
           maximum: 4,
+        },
+        [TerminalSettings.SectionName + '.' + TerminalSettings.Theme]: {
+          description:
+            'Theme to be used when displaying terminal operations. Requires refreshing terminal screen after configuration change.',
+          type: 'string',
+          default: 'Dark',
+          // Uses the list of themes in terminal-theme.ts
+          enum: Object.keys(themes),
         },
       },
     };

@@ -9,6 +9,7 @@ import { FitAddon } from 'xterm-addon-fit';
 import type { ProviderContainerConnectionInfo, ProviderKubernetesConnectionInfo } from '/@api/provider-info';
 
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
+import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';
 import { getPanelDetailColor } from '../color/color';
 import NoLogIcon from '../ui/NoLogIcon.svelte';
 import { writeToTerminal } from './Util';
@@ -54,13 +55,15 @@ onMount(async () => {
   const lineHeight = await window.getConfigurationValue<number>(
     TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
   );
+  const terminalTheme = await window.getConfigurationValue<string>(
+    TerminalSettings.SectionName + '.' + TerminalSettings.Theme,
+  );
+
   logsTerminal = new Terminal({
     fontSize,
     lineHeight,
     disableStdin: true,
-    theme: {
-      background: getPanelDetailColor(),
-    },
+    theme: getTerminalTheme(terminalTheme),
     convertEol: true,
   });
   // Refresh the terminal on initial load

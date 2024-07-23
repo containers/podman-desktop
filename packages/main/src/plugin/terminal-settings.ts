@@ -20,4 +20,5 @@ export enum TerminalSettings {
   SectionName = 'terminal',
   FontSize = 'integrated.fontSize',
   LineHeight = 'integrated.lineHeight',
+  Theme = 'integrated.theme',
 }

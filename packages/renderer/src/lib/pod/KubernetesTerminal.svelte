@@ -4,10 +4,10 @@ import { router } from 'tinro';
 import { type IDisposable, Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 
-import { getPanelDetailColor } from '/@/lib/color/color';
 import { terminalStates } from '/@/stores/kubernetes-terminal-state-store';
 
 import { TerminalSettings } from '../../../../main/src/plugin/terminal-settings';
+import { getTerminalTheme } from '../../../../main/src/plugin/terminal-theme';
 
 export let podName: string;
 export let containerName: string;
@@ -88,14 +88,15 @@ async function initializeNewTerminal(container: HTMLElement) {
   const lineHeight = await window.getConfigurationValue<number>(
     TerminalSettings.SectionName + '.' + TerminalSettings.LineHeight,
   );
+  const terminalTheme = await window.getConfigurationValue<string>(
+    TerminalSettings.SectionName + '.' + TerminalSettings.Theme,
+  );
 
   shellTerminal = new Terminal({
     fontSize,
     lineHeight,
     screenReaderMode,
-    theme: {
-      background: getPanelDetailColor(),
-    },
+    theme: getTerminalTheme(terminalTheme),
   });
 
   id = await window.kubernetesExec(
@@ -153,4 +154,4 @@ function saveTerminalState(podName: string, containerName: string, state: State)
 }
 </script>
 
-<div class="h-full w-full" bind:this={terminalXtermDiv}></div>
+<div class="h-full w-full m-1" bind:this={terminalXtermDiv}></div>
