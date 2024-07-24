@@ -3565,8 +3565,9 @@ declare module '@podman-desktop/api' {
      * @param engineId the id of the engine managing the image, obtained from the result of {@link containerEngine.listImages}
      * @param id the id or name of the image on this engine, obtained from the result of {@link containerEngine.listImages}
      * @param filename the file on which to save the container image content
+     * @param token an optional cancellation token which will cancel saving the image on disk when the token is canceled
      */
-    export function saveImage(engineId: string, id: string, filename: string): Promise<void>;
+    export function saveImage(engineId: string, id: string, filename: string, token?: CancellationToken): Promise<void>;
 
     /**
      * List the container images. Only images from a final layer (no children) are returned.
