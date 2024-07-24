@@ -140,6 +140,13 @@ export function isIncompatibleMachineOutput(output: string | undefined): boolean
   }
 }
 
+// to avoid having multiple notification of the same nature in the notifications list
+// we first dispose the old one and then push the same again
+function notifySetupPodman(): void {
+  notificationDisposable?.dispose();
+  notificationDisposable = extensionApi.window.showNotification(setupPodmanNotification);
+}
+
 export async function updateMachines(
   provider: extensionApi.Provider,
   podmanConfiguration: PodmanConfiguration,
@@ -161,7 +168,7 @@ export async function updateMachines(
     // if for some reason doing getJSONMachineList fails..
     if (shouldNotifySetup && !isLinux()) {
       // push setup notification
-      notificationDisposable = extensionApi.window.showNotification(setupPodmanNotification);
+      notifySetupPodman();
       shouldNotifySetup = false;
     }
     throw error;
@@ -183,8 +190,8 @@ export async function updateMachines(
   // invalid machines is not making the provider working properly so always notify
   if (shouldCleanMachine && shouldNotifySetup && !isLinux()) {
     // push setup notification
-    notificationDisposable = extensionApi.window.showNotification(setupPodmanNotification);
-    shouldCleanMachine = false;
+    notifySetupPodman();
+    shouldNotifySetup = false;
   }
 
   extensionApi.context.setValue(CLEANUP_REQUIRED_MACHINE_KEY, shouldCleanMachine);
@@ -193,8 +200,16 @@ export async function updateMachines(
   // as Podman is already installed on Linux and machine is OPTIONAL.
   if (shouldNotifySetup && machines.length === 0 && !isLinux()) {
     // push setup notification
-    notificationDisposable = extensionApi.window.showNotification(setupPodmanNotification);
+    notifySetupPodman();
     shouldNotifySetup = false;
+  }
+
+  // if there is at least one machine whihc does not need to be cleaned and the OS is not Linux
+  // podman is correctly setup so if there is an old notification asking the user to take action
+  // we dispose it as not needed anymore
+  if (!shouldCleanMachine && machines.length > 0 && !isLinux()) {
+    notificationDisposable?.dispose();
+    shouldNotifySetup = true;
   }
 
   // update status of existing machines
@@ -661,7 +676,7 @@ async function monitorProvider(provider: extensionApi.Provider): Promise<void> {
         // and the notification is handled by checking the machine
         if (isLinux() && shouldNotifySetup) {
           // push setup notification
-          notificationDisposable = extensionApi.window.showNotification(setupPodmanNotification);
+          notifySetupPodman();
           shouldNotifySetup = false;
         }
       } else if (installedPodman.version) {

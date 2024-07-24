@@ -99,6 +99,11 @@ export class TaskManager {
     }
   }
 
+  public deleteTask(task: Task): void {
+    this.tasks.delete(task.id);
+    this.apiSender.send('task-removed', task);
+  }
+
   isStatefulTask(task: Task): task is StatefulTask {
     return 'state' in task;
   }

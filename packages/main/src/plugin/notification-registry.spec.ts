@@ -21,13 +21,17 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import type { ApiSenderType } from './api.js';
 import { NotificationRegistry } from './notification-registry.js';
 import type { TaskManager } from './task-manager.js';
-import type { Disposable } from './types/disposable.js';
+import { Disposable } from './types/disposable.js';
 
 let notificationRegistry: NotificationRegistry;
 const extensionId = 'myextension.id';
 const apiSender: ApiSenderType = { send: vi.fn() } as unknown as ApiSenderType;
 const createNotificationtaskMock = vi.fn();
-const taskManager: TaskManager = { createNotificationTask: createNotificationtaskMock } as unknown as TaskManager;
+const deleteTaskMock = vi.fn();
+const taskManager: TaskManager = {
+  createNotificationTask: createNotificationtaskMock,
+  deleteTask: deleteTaskMock,
+} as unknown as TaskManager;
 
 let registerNotificationDisposable: Disposable;
 
@@ -69,6 +73,39 @@ test('expect notification added to the queue', async () => {
     title: 'title',
     body: 'description',
   });
+});
+
+test('expect notification is disposed correctly', async () => {
+  vi.spyOn(notificationRegistry, 'showNotification').mockImplementation(() => {
+    return Disposable.create(() => {});
+  });
+  const notificationTask = {
+    id: `main-1`,
+    name: 'title',
+    started: 1721656320682,
+    description: 'description',
+  };
+  createNotificationtaskMock.mockImplementation(() => notificationTask);
+  let queue = notificationRegistry.getNotifications();
+
+  expect(queue.length).toEqual(0);
+  const disposable = notificationRegistry.addNotification({
+    extensionId,
+    title: 'title',
+    body: 'description',
+    type: 'info',
+  });
+
+  queue = notificationRegistry.getNotifications();
+  expect(queue.length).toEqual(1);
+  expect(queue[0].extensionId).toEqual(extensionId);
+  expect(queue[0].title).toEqual('title');
+  expect(queue[0].type).toEqual('info');
+  disposable.dispose();
+
+  expect(deleteTaskMock).toBeCalledWith(notificationTask);
+  queue = notificationRegistry.getNotifications();
+  expect(queue.length).toEqual(0);
 });
 
 test('expect latest added notification is in top of the queue', async () => {

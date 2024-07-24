@@ -50,7 +50,7 @@ import type { ContainerStatsInfo } from '/@api/container-stats-info.js';
 import type { HistoryInfo } from '/@api/history-info.js';
 import type { BuildImageOptions, ImageInfo, ListImagesOptions, PodmanListImagesOptions } from '/@api/image-info.js';
 import type { ImageInspectInfo } from '/@api/image-inspect-info.js';
-import type { ManifestCreateOptions, ManifestInspectInfo } from '/@api/manifest-info.js';
+import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '/@api/manifest-info.js';
 import type { NetworkInspectInfo } from '/@api/network-info.js';
 import type { ProviderContainerConnectionInfo } from '/@api/provider-info.js';
 import type { PullEvent } from '/@api/pull-event.js';
@@ -1334,6 +1334,39 @@ export class ContainerProviderRegistry {
       throw error;
     } finally {
       this.telemetryService.track('createManifest', telemetryOptions);
+    }
+  }
+
+  async pushManifest(manifestOptions: ManifestPushOptions): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      let internalContainerProvider: InternalContainerProvider;
+      if (manifestOptions.provider) {
+        // grab connection
+        internalContainerProvider = this.getMatchingContainerProvider(manifestOptions.provider);
+      } else {
+        // Get the first running podman connection
+        internalContainerProvider = this.getFirstRunningPodmanContainerProvider();
+      }
+
+      // Check if the found provider does not support the libpod API
+      if (!internalContainerProvider?.libpodApi) {
+        throw new Error('The matching provider does not support the Podman API');
+      }
+
+      // When pushing, we need to retrieve the authentication information from the registry.
+      const authconfig = this.imageRegistry.getAuthconfigForImage(manifestOptions.name);
+
+      // Always do all=true for manifests, or else it will not push any of the images
+      // There is a bug where if false, it will return 'manifest blob unknown'.
+      manifestOptions.all = true;
+
+      return await internalContainerProvider.libpodApi.podmanPushManifest(manifestOptions, authconfig);
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService.track('pushManifest', telemetryOptions);
     }
   }
 
