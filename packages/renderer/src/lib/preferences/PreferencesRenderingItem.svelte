@@ -21,7 +21,7 @@ function startCase(str: string): string {
     return str.toUpperCase();
   });
 }
-function update() {
+function update(record: IConfigurationPropertyRecordedSchema) {
   const id = record.id;
   // take string after the last dot
   const key = id?.substring(id?.lastIndexOf('.') + 1) ?? '';
@@ -40,12 +40,16 @@ function update() {
   };
 }
 $: {
-  update();
+  update(record);
 }
 
 function updateResetButtonVisibility(recordValue: any) {
   showResetButton =
     recordUI.original.default !== undefined && recordValue !== undefined && recordValue !== recordUI.original.default;
+  // when the reset button is shown we reset the value of resetToDefault
+  if (showResetButton) {
+    resetToDefault = false;
+  }
 }
 
 function doResetToDefault() {

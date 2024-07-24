@@ -22,10 +22,11 @@ $: if (recordValue) {
   // if the value is different from the original update
   if (record.id && newValue !== lastValue && !error) {
     // clear the timeout so if there was an old call to onChange pending is deleted. We will create a new one soon
+    const recordId = record.id;
     clearTimeout(valueUpdateTimeout);
 
     valueUpdateTimeout = setTimeout(() => {
-      onChange(record.id!, newValue);
+      onChange(recordId, newValue);
       lastValue = newValue;
     }, 500);
   }

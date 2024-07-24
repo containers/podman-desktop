@@ -41,7 +41,7 @@ $: if (resetToDefault) {
   resetToDefault = false;
 }
 
-$: if (currentRecord !== record) {
+$: if (!isEqual(currentRecord, record)) {
   initialValue.then(value => {
     recordValue = value;
     if (record.type === 'boolean') {
@@ -49,12 +49,13 @@ $: if (currentRecord !== record) {
     }
   });
 
+  invalidText = undefined;
   currentRecord = record;
 }
 
 async function update(record: IConfigurationPropertyRecordedSchema) {
   // save the value
-  if (record.id) {
+  if (record.id && isEqual(currentRecord, record)) {
     try {
       await window.updateConfigurationValue(record.id, recordValue, record.scope);
     } catch (error) {
@@ -63,6 +64,10 @@ async function update(record: IConfigurationPropertyRecordedSchema) {
       throw error;
     }
   }
+}
+
+function isEqual(first: IConfigurationPropertyRecordedSchema, second: IConfigurationPropertyRecordedSchema) {
+  return JSON.stringify(first) === JSON.stringify(second);
 }
 
 function autoSave(): Promise<void> {
@@ -90,6 +95,9 @@ function ensureType(value: any): boolean {
 }
 
 async function onChange(recordId: string, value: boolean | string | number): Promise<void> {
+  if (recordId !== record.id) {
+    return;
+  }
   if (!ensureType(value)) {
     invalidText = `Value type provided is ${typeof value} instead of ${record.type}.`;
     invalidRecord(invalidText);
