@@ -18,6 +18,8 @@
 
 import type { Port } from '@podman-desktop/api';
 import { ContainerIcon } from '@podman-desktop/ui-svelte/icons';
+// eslint-disable-next-line unicorn/prefer-node-protocol
+import { Buffer } from 'buffer';
 import { filesize } from 'filesize';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
