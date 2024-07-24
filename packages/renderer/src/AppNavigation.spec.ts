@@ -29,6 +29,7 @@ import type { ContributionInfo } from '/@api/contribution-info';
 
 import AppNavigation from './AppNavigation.svelte';
 import { contributions } from './stores/contribs';
+import { fetchNavigationRegistries } from './stores/navigation/navigation-registry';
 
 const eventsMock = vi.fn();
 
@@ -41,7 +42,7 @@ beforeAll(() => {
   (window as any).events = eventsMock;
 });
 
-test('Test rendering of the navigation bar with empty items', () => {
+test('Test rendering of the navigation bar with empty items', async () => {
   const meta = {
     url: '/',
   } as unknown as TinroRouteMeta;
@@ -55,6 +56,9 @@ test('Test rendering of the navigation bar with empty items', () => {
   vi.mocked(kubeContextStore).kubernetesCurrentContextConfigMaps = readable<KubernetesObject[]>([]);
   vi.mocked(kubeContextStore).kubernetesCurrentContextSecrets = readable<KubernetesObject[]>([]);
   vi.mocked(kubeContextStore).kubernetesCurrentContextPersistentVolumeClaims = readable<KubernetesObject[]>([]);
+
+  // init navigation registry
+  await fetchNavigationRegistries();
 
   render(AppNavigation, {
     meta,
