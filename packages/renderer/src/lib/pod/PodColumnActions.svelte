@@ -10,7 +10,7 @@ export let object: PodInfoUI;
 <div class="flex w-full">
   <div class="flex items-center w-5">
     {#if object.actionError}
-      <ErrorMessage error={object.actionError} icon actionErrorInfo />
+      <ErrorMessage error={object.actionError} icon wrapMessage />
     {:else}
       <div>&nbsp;</div>
     {/if}

@@ -8,6 +8,6 @@ export let object: ContainerInfoUI;
 </script>
 
 {#if object.actionError}
-  <ErrorMessage error={object.actionError} icon actionErrorInfo />
+  <ErrorMessage error={object.actionError} icon wrapMessage />
 {/if}
 <ContainerActions container={object} dropdownMenu={true} on:update />

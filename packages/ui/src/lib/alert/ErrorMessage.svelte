@@ -7,13 +7,13 @@ import Tooltip from '../tooltip/Tooltip.svelte';
 
 export let error: string;
 export let icon = false;
-export let actionErrorInfo = false;
+export let wrapMessage = false;
 let customClassWidth = '';
 let left = false;
 let top = false;
 
 onMount(() => {
-  if (actionErrorInfo) {
+  if (wrapMessage) {
     customClassWidth = 'w-max max-w-[650px] overflow-hidden text-ellipsis text-wrap';
     left = true;
   } else {

@@ -64,7 +64,7 @@ onMount(() => {
     <svelte:fragment slot="actions">
       <div class="flex items-center w-5">
         {#if pod.actionError}
-          <ErrorMessage error={pod.actionError} icon actionErrorInfo />
+          <ErrorMessage error={pod.actionError} icon wrapMessage />
         {:else}
           <div>&nbsp;</div>
         {/if}
