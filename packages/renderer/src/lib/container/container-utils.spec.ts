@@ -320,7 +320,7 @@ test('check parsing of container info without labels', async () => {
   containerUtils.adaptContextOnContainer(context, containerInfo);
 });
 
-test('should expect imageHref to use exact image id', async () => {
+test('should expect imageHref to use image tag', async () => {
   const containerInfo = {
     Id: 'container1',
     Image: 'docker.io/kindest/node:foobar',
@@ -328,10 +328,24 @@ test('should expect imageHref to use exact image id', async () => {
     State: 'STOPPED',
     ImageID: 'sha256:dummy-sha256',
     engineId: 'dummy-engine-id',
-    ImageBase64RepoTag: 'dummy-base-64',
+    ImageBase64RepoTag: 'ZHVtbXktYmFzZS02NA==', //dummy-base-64
   } as unknown as ContainerInfo;
   const containerUI = containerUtils.getContainerInfoUI(containerInfo);
-  expect(containerUI.imageHref).toBe('/images/sha256:dummy-sha256/dummy-engine-id/dummy-base-64/summary');
+  expect(containerUI.imageHref).toBe('/images/sha256:dummy-sha256/dummy-engine-id/ZHVtbXktYmFzZS02NA==/summary');
+});
+
+test('should expect imageHref to use not image tag', async () => {
+  const containerInfo = {
+    Id: 'container1',
+    Image: 'docker.io/kindest/node:foobar',
+    Names: ['container1'],
+    State: 'STOPPED',
+    ImageID: 'sha256:dummy-sha256',
+    engineId: 'dummy-engine-id',
+    ImageBase64RepoTag: 'c2hhMjU2OmFiYzEyMw==', //sha256:abc123
+  } as unknown as ContainerInfo;
+  const containerUI = containerUtils.getContainerInfoUI(containerInfo);
+  expect(containerUI.imageHref).toBe('/images/sha256:dummy-sha256/dummy-engine-id');
 });
 
 test('should be able to identify container groups', async () => {

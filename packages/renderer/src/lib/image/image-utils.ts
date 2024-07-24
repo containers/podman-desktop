@@ -210,7 +210,7 @@ export class ImageUtils {
         },
       ];
     } else {
-      return [...imageInfo.RepoTags, imageInfo.Id].map(repoTag => {
+      return imageInfo.RepoTags.map(repoTag => {
         return {
           id: imageInfo.Id,
           shortId: this.getShortId(imageInfo.Id),

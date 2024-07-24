@@ -244,7 +244,7 @@ describe('getImagesFromManifest and construct ImageInfoUI', () => {
       viewContributions,
       imageList,
     );
-    expect(imageInfoUIs.length).toBe(2);
+    expect(imageInfoUIs.length).toBe(1);
     expect(imageInfoUIs[0].id).toBe('manifest1');
   });
 });

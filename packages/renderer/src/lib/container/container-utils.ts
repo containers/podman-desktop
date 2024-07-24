@@ -136,6 +136,19 @@ export class ContainerUtils {
     return containerInfo.engineName;
   }
 
+  getImageHref(containerInfo: ContainerInfo): string {
+    if (containerInfo.ImageBase64RepoTag) {
+      const imageTag = Buffer.from(containerInfo.ImageBase64RepoTag, 'base64').toString();
+      if (imageTag.startsWith('sha256:')) {
+        return `/images/${containerInfo.ImageID}/${containerInfo.engineId}`;
+      } else {
+        return `/images/${containerInfo.ImageID}/${containerInfo.engineId}/${containerInfo.ImageBase64RepoTag}/summary`;
+      }
+    } else {
+      return `/images/${containerInfo.ImageID}/${containerInfo.engineId}`;
+    }
+  }
+
   getContainerInfoUI(
     containerInfo: ContainerInfo,
     context?: ContextUI,
@@ -165,7 +178,7 @@ export class ContainerUtils {
       labels: containerInfo.Labels,
       icon: this.iconClass(containerInfo, context, viewContributions) ?? ContainerIcon,
       imageBase64RepoTag: containerInfo.ImageBase64RepoTag,
-      imageHref: `/images/${containerInfo.ImageID}/${containerInfo.engineId}/${containerInfo.ImageBase64RepoTag}/summary`,
+      imageHref: this.getImageHref(containerInfo),
     };
   }
 
