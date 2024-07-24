@@ -42,7 +42,7 @@ const image: ImageInfoUI = {
   badges: [],
 };
 
-test('No actions shown for manifest images', async () => {
+test('No image actions shown for manifest images', async () => {
   const manifestImage: ImageInfoUI = { ...image, isManifest: true };
 
   render(ImageColumnActions, { object: manifestImage });
@@ -50,4 +50,14 @@ test('No actions shown for manifest images', async () => {
   // Check for the absence of action buttons
   expect(screen.queryByText('Push Image')).not.toBeInTheDocument();
   expect(screen.queryByText('Rename Image')).not.toBeInTheDocument();
+});
+
+test('Push push and delete manifest actions shown for manifest', async () => {
+  const manifestImage: ImageInfoUI = { ...image, isManifest: true };
+
+  render(ImageColumnActions, { object: manifestImage });
+
+  // Check for the presence of action buttons
+  expect(screen.queryByText('Push Manifest')).toBeDefined();
+  expect(screen.queryByText('Delete Manifest')).toBeDefined();
 });
