@@ -61,9 +61,10 @@ jobs:
     steps:
       - name: Create winget PR
         run: |
-          iwr https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
-          .\wingetcreate.exe update RedHat.Podman-Desktop -u $Env:URL -v $Env:VERSION -t $Env:TOKEN --submit
+          Invoke-WebRequest https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
+          .\wingetcreate.exe update RedHat.Podman-Desktop -u $Env:URL_X64 $Env:URL_ARM64 -v $Env:VERSION -t $Env:TOKEN --submit
         env:
           TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
           VERSION: ${{ needs.version.outputs.desktopVersion }}
-          URL: ${{ format('https://github.com/containers/podman-desktop/releases/download/v{0}/podman-desktop-{0}-setup.exe|x64', needs.version.outputs.desktopVersion) }}
+          URL_X64: ${{ format('https://github.com/containers/podman-desktop/releases/download/v{0}/podman-desktop-{0}-setup-x64.exe|x64', needs.version.outputs.desktopVersion) }}
+          URL_ARM64: ${{ format('https://github.com/containers/podman-desktop/releases/download/v{0}/podman-desktop-{0}-setup-arm64.exe|arm64', needs.version.outputs.desktopVersion) }}
