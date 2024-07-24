@@ -21,20 +21,11 @@ import { expect, test } from 'vitest';
 import { defaultTheme, getTerminalTheme, themes } from './terminal-theme.js';
 
 test('should return the correct theme by name', () => {
-  const darkTheme = getTerminalTheme('Dark');
-  expect(darkTheme).toEqual(themes['Dark']);
+  const darkTheme = getTerminalTheme('dark');
+  expect(darkTheme).toEqual(themes['dark']);
 
-  const lightTheme = getTerminalTheme('Light');
-  expect(lightTheme).toEqual(themes['Light']);
-
-  const solarizedDarkTheme = getTerminalTheme('Solarized Dark');
-  expect(solarizedDarkTheme).toEqual(themes['Solarized Dark']);
-
-  const solarizedLightTheme = getTerminalTheme('Solarized Light');
-  expect(solarizedLightTheme).toEqual(themes['Solarized Light']);
-
-  const zenburnTheme = getTerminalTheme('Zenburn');
-  expect(zenburnTheme).toEqual(themes['Zenburn']);
+  const lightTheme = getTerminalTheme('light');
+  expect(lightTheme).toEqual(themes['light']);
 });
 
 test('should return the default theme if theme name is undefined', () => {

@@ -47,10 +47,9 @@ export class TerminalInit {
           maximum: 4,
         },
         [TerminalSettings.SectionName + '.' + TerminalSettings.Theme]: {
-          description:
-            'Theme to be used when displaying terminal operations. Requires refreshing terminal screen after configuration change.',
+          description: 'Theme for terminal windows. Requires refreshing terminal screen after configuration change.',
           type: 'string',
-          default: 'Dark',
+          default: 'dark',
           // Uses the list of themes in terminal-theme.ts
           enum: Object.keys(themes),
         },
