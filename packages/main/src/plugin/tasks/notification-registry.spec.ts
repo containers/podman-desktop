@@ -18,6 +18,8 @@
 
 import { beforeEach, expect, test, vi } from 'vitest';
 
+import { Disposable } from '/@/plugin/types/disposable.js';
+
 import type { ApiSenderType } from '../api.js';
 import { Disposable } from '../types/disposable.js';
 import { NotificationRegistry } from './notification-registry.js';

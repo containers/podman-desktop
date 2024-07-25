@@ -347,13 +347,18 @@ test('Ensure statusbar registry', async () => {
   );
 });
 
-test('delete task should send `task-removed` message', async () => {
+test('task dispose should send `task-removed` message', async () => {
   const taskManager = new TaskManager(apiSender, statusBarRegistry, commandRegistry);
   const task = taskManager.createNotificationTask({
     title: 'title',
     body: 'body',
   });
 
-  taskManager.deleteTask(task);
-  expect(apiSenderSendMock).toBeCalledWith('task-removed', task);
+  task.dispose();
+  expect(apiSenderSendMock).toBeCalledWith(
+    'task-removed',
+    expect.objectContaining({
+      id: task.id,
+    }),
+  );
 });
