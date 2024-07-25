@@ -18,6 +18,7 @@ let filesProvidersUnsubscribe: Unsubscriber;
 let filesProvider: ImageFilesInfo;
 let selectedLayer: ImageFilesystemLayerUI;
 let showLayerOnly: boolean;
+let loading: boolean;
 
 function onSelectedLayer(event: CustomEvent<ImageFilesystemLayerUI>) {
   selectedLayer = event.detail;
@@ -27,9 +28,15 @@ onMount(async () => {
   filesProvidersUnsubscribe = imageFilesProviders.subscribe(providers => {
     if (providers.length === 1 && imageInfo) {
       filesProvider = providers[0];
-      window.imageGetFilesystemLayers(filesProvider.id, imageInfo).then(layers => {
-        imageLayers = layers;
-      });
+      loading = true;
+      window
+        .imageGetFilesystemLayers(filesProvider.id, imageInfo)
+        .then(layers => {
+          imageLayers = layers;
+        })
+        .finally(() => {
+          loading = false;
+        });
     }
   });
 });
@@ -38,6 +45,10 @@ onDestroy(() => {
   filesProvidersUnsubscribe?.();
 });
 </script>
+
+{#if loading}
+  <div class="p-4">Layers are being loaded. This can take a while for large images, please wait...</div>
+{/if}
 
 {#if imageLayers}
   <div class="flex flex-col w-full h-full p-8 pr-0 text-[var(--pd-content-text)] bg-[var(--pd-content-bg)]">
