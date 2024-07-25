@@ -19,6 +19,9 @@ let logsPull: Terminal;
 let pullError = '';
 let pullInProgress = false;
 let pullFinished = false;
+let imageTags: string[] = [];
+let tagsEnabled: boolean = false;
+let imageTag: string;
 
 export let imageToPull: string | undefined = undefined;
 export let debounceWaitSearch = 300;
@@ -95,7 +98,11 @@ async function pullImage() {
 
   pullInProgress = true;
   try {
-    await window.pullImage(selectedProviderConnection, imageToPull.trim(), callback);
+    let image = imageToPull.trim();
+    if (imageTag) {
+      image += `:${imageTag}`;
+    }
+    await window.pullImage(selectedProviderConnection, image, callback);
     pullInProgress = false;
     pullFinished = true;
   } catch (error: any) {
@@ -122,7 +129,7 @@ onMount(() => {
 let imageNameInvalid: string | undefined = undefined;
 let imageNameIsInvalid = imageToPull === undefined || imageToPull.trim() === '';
 
-function onChange(value: string): void {
+async function onChange(value: string): Promise<void> {
   imageToPull = value;
   if (imageToPull === undefined || imageToPull.trim() === '') {
     imageNameIsInvalid = true;
@@ -130,6 +137,21 @@ function onChange(value: string): void {
   } else {
     imageNameIsInvalid = false;
     imageNameInvalid = undefined;
+  }
+  if (!imageNameIsInvalid) {
+    let image = imageToPull;
+    if (image.startsWith('docker.io/')) {
+      const [_, ...rest] = image.split('/');
+      image = ['library', rest].join('/');
+    }
+    imageTags = await window.listImageTagsInRegistry({ image });
+    if (imageTags.length) {
+      tagsEnabled = true;
+    }
+  } else {
+    tagsEnabled = false;
+    imageTags = [];
+    imageTag = '';
   }
 }
 
@@ -176,23 +198,33 @@ async function searchImages(value: string): Promise<{ value: string; label: stri
     <div class="w-full text-[var(--pd-content-card-text)]">
       <label for="imageName" class="block mb-2 font-bold text-[var(--pd-content-card-header-text)]"
         >Image to Pull</label>
-      <Select
-        id="imageName"
-        name="imageName"
-        aria-label="imageName"
-        aria-invalid={imageNameInvalid !== ''}
-        disabled={pullFinished || pullInProgress}
-        placeholder="Registry name / Image name"
-        required
-        focused
-        debounceWait={debounceWaitSearch}
-        onChange={e => onChange(e.detail.value)}
-        onClear={() => onChange('')}
-        loadOptions={searchImages}>
-        <div slot="empty">
-          You can search an image in a specific registry by typing <code>registry-name/query</code>
-        </div>
-      </Select>
+      <div class="grid grid-cols-2 gap-4">
+        <Select
+          id="imageName"
+          name="imageName"
+          aria-label="imageName"
+          aria-invalid={imageNameInvalid !== ''}
+          disabled={pullFinished || pullInProgress}
+          placeholder="Registry name / Image name"
+          required
+          focused
+          debounceWait={debounceWaitSearch}
+          onChange={e => onChange(e.detail.value)}
+          onClear={() => onChange('')}
+          loadOptions={searchImages}>
+          <div slot="empty">
+            You can search an image in a specific registry<br />by typing <code>registry-name/query</code>
+          </div>
+        </Select>
+        <Select
+          class="grow"
+          items={imageTags}
+          disabled={!tagsEnabled || pullFinished || pullInProgress}
+          placeholder="Image tag"
+          onChange={v => (imageTag = v.detail.value)}
+          onClear={() => (imageTag = '')}>
+        </Select>
+      </div>
       {#if imageNameInvalid}
         <ErrorMessage error={imageNameInvalid} />
       {/if}
