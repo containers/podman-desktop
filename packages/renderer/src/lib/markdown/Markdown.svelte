@@ -143,7 +143,7 @@ onDestroy(() => {
 </script>
 
 <!-- Placeholder to grab the content if people are using <Markdown>**bold</Markdown> -->
-<span contenteditable="false" bind:textContent="{text}" class="hidden">
+<span contenteditable="false" bind:textContent={text} class="hidden">
   <slot />
 </span>
 

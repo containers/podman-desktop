@@ -165,6 +165,47 @@ export const kubernetesCurrentContextRoutes = readable<KubernetesObject[]>([], s
 
 export const routeSearchPattern = writable('');
 
+// ConfigMaps
+
+export const kubernetesCurrentContextConfigMaps = readable<KubernetesObject[]>([], set => {
+  window.kubernetesRegisterGetCurrentContextResources('configmaps').then(value => set(value));
+  window.events?.receive('kubernetes-current-context-configmaps-update', (value: unknown) => {
+    set(value as KubernetesObject[]);
+  });
+  return () => {
+    window.kubernetesUnregisterGetCurrentContextResources('configmaps');
+  };
+});
+
+export const configmapSearchPattern = writable('');
+
+// The configmaps in the current context, filtered with `configmapSearchPattern`
+export const kubernetesCurrentContextConfigMapsFiltered = derived(
+  [configmapSearchPattern, kubernetesCurrentContextConfigMaps],
+  ([$searchPattern, $configmaps]) =>
+    $configmaps.filter(configmap => findMatchInLeaves(configmap, $searchPattern.toLowerCase())),
+);
+
+// Secrets
+
+export const kubernetesCurrentContextSecrets = readable<KubernetesObject[]>([], set => {
+  window.kubernetesRegisterGetCurrentContextResources('secrets').then(value => set(value));
+  window.events?.receive('kubernetes-current-context-secrets-update', (value: unknown) => {
+    set(value as KubernetesObject[]);
+  });
+  return () => {
+    window.kubernetesUnregisterGetCurrentContextResources('secrets');
+  };
+});
+
+export const secretSearchPattern = writable('');
+
+// The secrets in the current context, filtered with `secretSearchPattern`
+export const kubernetesCurrentContextSecretsFiltered = derived(
+  [secretSearchPattern, kubernetesCurrentContextSecrets],
+  ([$searchPattern, $secrets]) => $secrets.filter(secret => findMatchInLeaves(secret, $searchPattern.toLowerCase())),
+);
+
 // The routes in the current context, filtered with `routeSearchPattern`
 export const kubernetesCurrentContextRoutesFiltered = derived(
   [routeSearchPattern, kubernetesCurrentContextRoutes],

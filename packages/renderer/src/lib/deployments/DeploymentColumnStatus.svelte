@@ -7,4 +7,4 @@ import type { DeploymentUI } from './DeploymentUI';
 export let object: DeploymentUI;
 </script>
 
-<StatusIcon icon="{DeploymentIcon}" status="{object.status}" />
+<StatusIcon icon={DeploymentIcon} status={object.status} />

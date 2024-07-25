@@ -7,13 +7,13 @@ export let object: ContainerGroupInfoUI;
 
 {#if object.status && object.engineId && object.engineType}
   <ComposeActions
-    compose="{{
+    compose={{
       status: object.status,
       name: object.name,
       engineId: object.engineId,
       engineType: object.engineType,
       containers: object.containers,
-    }}"
-    dropdownMenu="{true}"
+    }}
+    dropdownMenu={true}
     on:update />
 {/if}

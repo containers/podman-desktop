@@ -87,28 +87,28 @@ function handleKeydown(e: KeyboardEvent) {
 }
 </script>
 
-<svelte:window on:keydown="{handleKeydown}" />
+<svelte:window on:keydown={handleKeydown} />
 
 <Dialog
   title="Install Custom Extension"
-  on:close="{() => {
+  on:close={() => {
     closeCallback();
-  }}">
-  <div slot="content" class="flex flex-col text-sm leading-5 space-y-5">
+  }}>
+  <div slot="content" class="flex flex-col leading-5 space-y-5">
     <div>
-      <label for="imageName" class="block text-sm pb-2 text-[var(--pd-modal-text)]">OCI Image:</label>
+      <label for="imageName" class="block pb-2 text-[var(--pd-modal-text)]">OCI Image:</label>
       <div class="min-h-14">
         {#if installInProgress || progressPercent !== 100}
           <Input
-            bind:value="{imageName}"
+            bind:value={imageName}
             name="imageName"
             id="imageName"
             placeholder="Enter OCI image name of the extension (e.g. quay.io/namespace/my-image)"
-            on:input="{event => validateImageName(event)}"
-            disabled="{installInProgress}"
-            error="{inputfieldError}"
-            aria-invalid="{inputfieldError !== ''}"
-            aria-label="{inputAriaLabel}"
+            on:input={event => validateImageName(event)}
+            disabled={installInProgress}
+            error={inputfieldError}
+            aria-invalid={inputfieldError !== ''}
+            aria-label={inputAriaLabel}
             required />
         {:else}
           <div class="text-[var(--pd-modal-text)]">{imageName} successfully installed.</div>
@@ -125,7 +125,7 @@ function handleKeydown(e: KeyboardEvent) {
                 style="width: {progressPercent}%">
               </div>
             </div>
-            <div class="ml-2 w-3 text-xs text-purple-500">{progressPercent}%</div>
+            <div class="ml-2 w-3 text-sm text-purple-500">{progressPercent}%</div>
           </div>
         {/if}
       </div>
@@ -134,18 +134,18 @@ function handleKeydown(e: KeyboardEvent) {
   <svelte:fragment slot="buttons">
     <Button
       type="link"
-      on:click="{() => {
+      on:click={() => {
         closeCallback();
-      }}">Cancel</Button>
+      }}>Cancel</Button>
     {#if installInProgress || progressPercent !== 100}
       <Button
-        icon="{faCloudDownload}"
-        disabled="{inputfieldError !== undefined}"
-        on:click="{() => installExtension()}"
-        inProgress="{installInProgress}">Install</Button>
+        icon={faCloudDownload}
+        disabled={inputfieldError !== undefined}
+        on:click={() => installExtension()}
+        inProgress={installInProgress}>Install</Button>
     {/if}
     {#if !installInProgress && progressPercent === 100}
-      <Button on:click="{() => closeCallback()}">Done</Button>
+      <Button on:click={() => closeCallback()}>Done</Button>
     {/if}
   </svelte:fragment>
 </Dialog>

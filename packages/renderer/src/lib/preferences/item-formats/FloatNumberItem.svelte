@@ -69,16 +69,16 @@ function assertNumericValueIsValid(value: number): boolean {
 
 <div
   class="flex flex-row rounded-sm bg-zinc-700 text-sm divide-x divide-charcoal-800 w-24 border-b"
-  class:border-violet-500="{!numberInputInvalid}"
-  class:border-red-500="{numberInputInvalid}">
-  <Tooltip topRight tip="{numberInputErrorMessage}">
+  class:border-violet-500={!numberInputInvalid}
+  class:border-red-500={numberInputInvalid}>
+  <Tooltip topRight tip={numberInputErrorMessage}>
     <input
       type="text"
       class="w-full px-2 outline-none focus:outline-none text-white text-sm py-0.5"
-      name="{record.id}"
-      bind:value="{recordValue}"
-      on:keypress="{event => onNumberInputKeyPress(event)}"
-      on:input="{onInput}"
-      aria-label="{record.description}" />
+      name={record.id}
+      bind:value={recordValue}
+      on:keypress={event => onNumberInputKeyPress(event)}
+      on:input={onInput}
+      aria-label={record.description} />
   </Tooltip>
 </div>

@@ -8,4 +8,4 @@ import type { RouteUI } from './RouteUI';
 export let object: IngressUI | RouteUI;
 </script>
 
-<StatusIcon icon="{IngressRouteIcon}" status="{object.status}" />
+<StatusIcon icon={IngressRouteIcon} status={object.status} />

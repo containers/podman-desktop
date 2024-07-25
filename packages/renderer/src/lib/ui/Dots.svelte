@@ -14,13 +14,13 @@ $: organizedContainers = organizeContainers(containers);
 {#if containers.length > 10}
   {#each Object.entries(organizedContainers) as [status, c]}
     {#if c.length > 0}
-      <StatusDot status="{status}" tooltip="{capitalize(status)}: {c.length}" number="{c.length}" />
+      <StatusDot status={status} tooltip="{capitalize(status)}: {c.length}" number={c.length} />
     {/if}
   {/each}
 {:else}
   {#each Object.entries(organizedContainers) as [status, c]}
     {#each c as container}
-      <StatusDot status="{status}" name="{container.Names}" />
+      <StatusDot status={status} name={container.Names} />
     {/each}
   {/each}
 {/if}

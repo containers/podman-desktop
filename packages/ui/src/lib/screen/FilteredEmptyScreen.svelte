@@ -30,9 +30,9 @@ $: filter = searchTerm && searchTerm.length > 20 ? 'filter' : `'${searchTerm}'`;
 </script>
 
 <EmptyScreen
-  icon="{icon}"
+  icon={icon}
   title="No {kind} matching {filter} found"
   message="Not what you expected? Double-check your spelling."
   detail="Just want to view all of your {kind}?">
-  <Button on:click="{doResetFilter}">Clear filter</Button>
+  <Button on:click={doResetFilter}>Clear filter</Button>
 </EmptyScreen>

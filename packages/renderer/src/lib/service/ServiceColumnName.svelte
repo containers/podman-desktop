@@ -10,11 +10,16 @@ function openDetails() {
 }
 </script>
 
-<button class="hover:cursor-pointer flex flex-col max-w-full" on:click="{() => openDetails()}">
-  <div class="text-sm text-[var(--pd-table-body-text-highlight)] max-w-full overflow-hidden text-ellipsis">
+<button class="hover:cursor-pointer flex flex-col max-w-full" on:click={() => openDetails()}>
+  <div class="text-[var(--pd-table-body-text-highlight)] max-w-full overflow-hidden text-ellipsis">
     {object.name}
   </div>
-  {#if object.loadBalancerIPs}
-    <div class="text-xs text-[var(--pd-table-body-text-sub-secondary)]">{object.loadBalancerIPs}</div>
-  {/if}
+  <div class="flex flex-row text-sm gap-1">
+    {#if object.loadBalancerIPs}
+      <div class="text-[var(--pd-table-body-text-sub-secondary)]">{object.loadBalancerIPs}</div>
+    {/if}
+    {#if object.namespace}
+      <div class="font-extra-light text-[var(--pd-table-body-text)]">{object.namespace}</div>
+    {/if}
+  </div>
 </button>

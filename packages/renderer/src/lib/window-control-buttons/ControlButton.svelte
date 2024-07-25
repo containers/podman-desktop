@@ -8,7 +8,7 @@ export let platform: string;
 </script>
 
 {#if platform === 'linux'}
-  <WindowControlLinuxButton name="{name}" action="{action}" />
+  <WindowControlLinuxButton name={name} action={action} />
 {:else if platform === 'win32'}
-  <WindowControlWindowsButton name="{name}" action="{action}" />
+  <WindowControlWindowsButton name={name} action={action} />
 {/if}

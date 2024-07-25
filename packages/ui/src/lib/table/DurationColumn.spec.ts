@@ -31,7 +31,6 @@ test('Expect simple column styling', async () => {
 
   const text = screen.getByText('1 hour');
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('text-sm');
   expect(text).toHaveClass('text-[var(--pd-table-body-text)]');
 });
 

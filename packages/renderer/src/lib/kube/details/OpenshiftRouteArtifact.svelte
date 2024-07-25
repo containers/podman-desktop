@@ -67,7 +67,7 @@ export let artifact: V1Route | undefined;
       <Cell>Link</Cell>
       <Cell>
         {@const link = `${artifact.spec.tls ? 'https' : 'http'}://${artifact.spec.host}${artifact.spec.path ?? ''}`}
-        <Link on:click="{() => window.openExternal(link)}">
+        <Link on:click={() => window.openExternal(link)}>
           {link}
         </Link>
       </Cell>

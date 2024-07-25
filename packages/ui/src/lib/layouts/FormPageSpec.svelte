@@ -2,7 +2,7 @@
 import FormPage from './FormPage.svelte';
 </script>
 
-<FormPage title="Test component" showBreadcrumb="{false}">
+<FormPage title="Test component">
   <i slot="icon" class="fas fa-lightbulb fa-2x" aria-label="icon"></i>
 
   <i slot="actions" class="fas fa-lightbulb fa-2x" aria-label="actions"></i>

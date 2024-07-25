@@ -46,6 +46,14 @@ test('Expect basic table layout', async () => {
   expect(rows[3].textContent).toContain('43');
 });
 
+test('Expect table has aria role and name', async () => {
+  render(TestTable, {});
+
+  const table = await screen.findByRole('table');
+  expect(table).toBeDefined();
+  expect(table).toHaveAccessibleName('people');
+});
+
 test('Expect basic column headers', async () => {
   render(TestTable, {});
 
@@ -136,15 +144,21 @@ test('Expect sorting by name works', async () => {
   expect(rows).toBeDefined();
   expect(rows.length).toBe(4);
   expect(rows[1].textContent).toContain('John');
+  expect(rows[1]).toHaveAccessibleName('John');
   expect(rows[2].textContent).toContain('Henry');
+  expect(rows[2]).toHaveAccessibleName('Henry');
   expect(rows[3].textContent).toContain('Charlie');
+  expect(rows[3]).toHaveAccessibleName('Charlie');
 
   await fireEvent.click(nameCol);
 
   rows = await screen.findAllByRole('row');
   expect(rows[1].textContent).toContain('Charlie');
+  expect(rows[1]).toHaveAccessibleName('Charlie');
   expect(rows[2].textContent).toContain('Henry');
+  expect(rows[2]).toHaveAccessibleName('Henry');
   expect(rows[3].textContent).toContain('John');
+  expect(rows[3]).toHaveAccessibleName('John');
 });
 
 test('Expect sorting by age sorts descending initially', async () => {

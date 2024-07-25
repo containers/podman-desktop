@@ -119,12 +119,12 @@ onDestroy(() => {
 });
 </script>
 
-<EmptyScreen icon="{NoLogIcon}" title="No Log" message="Log output of {container.name}" hidden="{noLogs === false}" />
+<EmptyScreen icon={NoLogIcon} title="No Log" message="Log output of {container.name}" hidden={noLogs === false} />
 
 <div
   class="min-w-full flex flex-col"
-  class:invisible="{noLogs === true}"
-  class:h-0="{noLogs === true}"
-  class:h-full="{noLogs === false}"
-  bind:this="{logsXtermDiv}">
+  class:invisible={noLogs === true}
+  class:h-0={noLogs === true}
+  class:h-full={noLogs === false}
+  bind:this={logsXtermDiv}>
 </div>

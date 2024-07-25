@@ -39,11 +39,11 @@ window.events?.receive('dev-tools:open-extension', (extensionId: any) => {
 </script>
 
 {#if source && preloadPath}
-  <Route path="/*" breadcrumb="{name}">
+  <Route path="/*" breadcrumb={name}>
     <webview
       id="dd-webview-{webviewId}"
       src="{source}?extensionName={currentContrib?.extensionId}&arch={arch}&hostname={hostname}&platform={platform}&vmServicePort={currentContrib?.vmServicePort}"
-      preload="{preloadPath}"
+      preload={preloadPath}
       style="height: 100%; width: 100%"></webview>
   </Route>
 {/if}

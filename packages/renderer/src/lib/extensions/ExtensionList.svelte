@@ -67,13 +67,13 @@ let screen: 'installed' | 'catalog' = 'installed';
 let installManualImageModal: boolean = false;
 </script>
 
-<NavPage bind:searchTerm="{searchTerm}" title="extensions">
+<NavPage bind:searchTerm={searchTerm} title="extensions">
   <svelte:fragment slot="additional-actions">
     <Button
-      on:click="{() => {
+      on:click={() => {
         installManualImageModal = true;
-      }}"
-      icon="{faCloudDownload}"
+      }}
+      icon={faCloudDownload}
       title="Install manually an extension"
       aria-label="Install custom">Install custom...</Button>
   </svelte:fragment>
@@ -94,38 +94,38 @@ let installManualImageModal: boolean = false;
   <svelte:fragment slot="tabs">
     <Button
       type="tab"
-      on:click="{() => {
+      on:click={() => {
         screen = 'installed';
-      }}"
-      selected="{screen === 'installed'}">Installed</Button>
+      }}
+      selected={screen === 'installed'}>Installed</Button>
     <Button
       type="tab"
-      on:click="{() => {
+      on:click={() => {
         screen = 'catalog';
-      }}"
-      selected="{screen === 'catalog'}">Catalog</Button>
+      }}
+      selected={screen === 'catalog'}>Catalog</Button>
   </svelte:fragment>
 
   <div class="flex min-w-full h-full" slot="content">
     {#if searchTerm && $filteredInstalledExtensions.length === 0 && $filteredCatalogExtensions.length === 0}
       <FilteredEmptyScreen
-        icon="{ExtensionIcon}"
+        icon={ExtensionIcon}
         kind="extensions"
-        searchTerm="{searchTerm}"
-        on:resetFilter="{() => (searchTerm = '')}" />
+        searchTerm={searchTerm}
+        on:resetFilter={() => (searchTerm = '')} />
     {/if}
 
     {#if screen === 'installed'}
-      <InstalledExtensionList extensionInfos="{$filteredInstalledExtensions}" />
+      <InstalledExtensionList extensionInfos={$filteredInstalledExtensions} />
     {:else}
-      <CatalogExtensionList catalogExtensions="{$filteredCatalogExtensions}" />
+      <CatalogExtensionList catalogExtensions={$filteredCatalogExtensions} />
     {/if}
   </div>
 </NavPage>
 
 {#if installManualImageModal}
   <InstallManuallyExtensionModal
-    closeCallback="{() => {
+    closeCallback={() => {
       closeModal();
-    }}" />
+    }} />
 {/if}

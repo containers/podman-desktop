@@ -143,7 +143,7 @@ if (pod?.status?.startTime) {
             <td class="py-2 px-4 text-lg pl-1 font-semibold text-purple-400" colspan="2">Volumes</td>
           </tr>
           {#each pod.spec.volumes as volume}
-            <KubeVolumeArtifact artifact="{volume}" />
+            <KubeVolumeArtifact artifact={volume} />
           {/each}
         {/if}
       </tbody>

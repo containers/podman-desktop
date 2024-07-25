@@ -11,15 +11,15 @@ const ingressRouteUtils = new IngressRouteUtils();
 </script>
 
 {#each ingressRouteUtils.getHostPaths(object) as hostPath}
-  <div class="text-sm text-[var(--pd-table-body-text)] overflow-hidden text-ellipsis">
+  <div class="text-[var(--pd-table-body-text)] overflow-hidden text-ellipsis">
     {#if hostPath.url}
       <Link
-        aria-label="{hostPath.label}"
-        on:click="{() => {
+        aria-label={hostPath.label}
+        on:click={() => {
           if (hostPath.url) {
             window.openExternal(hostPath.url);
           }
-        }}">
+        }}>
         {hostPath.label}
       </Link>
     {:else}

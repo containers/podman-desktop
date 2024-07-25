@@ -310,7 +310,7 @@ let globalOnboarding = false;
 $: globalOnboarding = global;
 </script>
 
-<svelte:window on:keydown="{handleEscape}" />
+<svelte:window on:keydown={handleEscape} />
 
 {#if activeStep}
   <!-- fake div used to hide scrollbar shadow behind the header as it's a bit transparent  -->
@@ -322,19 +322,19 @@ $: globalOnboarding = global;
     class="flex flex-col bg-[var(--pd-content-card-bg)] text-[var(--pd-details-body-text)] {globalOnboarding
       ? 'flex-auto fixed top-0 left-0 right-0 bottom-0 bg-no-repeat z-[45] pt-9 overflow-y-auto'
       : 'h-full overflow-y-auto w-full overflow-x-hidden'}"
-    class:bodyWithBar="{!activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}">
+    class:bodyWithBar={!activeStep.step.completionEvents || activeStep.step.completionEvents.length === 0}>
     <div class="flex flex-col h-full">
       <div
         class="flex flex-row justify-between h-[100px] p-5 z-20 fixed w-full bg-opacity-90 bg-[var(--pd-content-bg)]"
         role="heading"
-        aria-level="{2}"
+        aria-level={2}
         aria-label="{activeStep.onboarding.title} Header">
         <div class="flex flew-row">
           {#if activeStep?.onboarding?.media && !globalOnboarding}
             <img
               class="w-14 h-14 object-contain mr-3"
-              alt="{activeStep.onboarding.media.altText}"
-              src="{activeStep.onboarding.media.path}" />
+              alt={activeStep.onboarding.media.altText}
+              src={activeStep.onboarding.media.path} />
           {/if}
           <div class="flex flex-col">
             {#if globalOnboarding}
@@ -359,9 +359,9 @@ $: globalOnboarding = global;
             {/if}
             <button
               class="flex flex-row text-xs items-center hover:underline text-[var(--pd-content-sub-header)] mt-1"
-              on:click="{() => setDisplayCancelSetup(true)}">
+              on:click={() => setDisplayCancelSetup(true)}>
               <span class="mr-1">Skip this entire setup</span>
-              <Fa icon="{faForward}" size="0.8x" />
+              <Fa icon={faForward} size="0.8x" />
             </button>
           </div>
         </div>
@@ -388,9 +388,9 @@ $: globalOnboarding = global;
                 {#if onboarding.extension === activeStep?.onboarding?.extension}
                   <button
                     class="mt-1 flex flex-row text-xs items-center hover:underline text-[var(--pd-content-sub-header)]"
-                    on:click="{() => skipCurrentOnboarding()}">
+                    on:click={() => skipCurrentOnboarding()}>
                     <span class="mr-1">Skip</span>
-                    <Fa icon="{faForward}" size="0.8x" />
+                    <Fa icon={faForward} size="0.8x" />
                   </button>
                 {/if}
               </div>
@@ -400,9 +400,7 @@ $: globalOnboarding = global;
       </div>
       {#if activeStep.step.component}
         <div class="min-w-[700px] mx-auto mt-32" aria-label="Onboarding Component">
-          <OnboardingComponent
-            component="{activeStep.step.component}"
-            extensionId="{activeStep.onboarding.extension}" />
+          <OnboardingComponent component={activeStep.step.component} extensionId={activeStep.onboarding.extension} />
         </div>
       {:else}
         <div class="w-[450px] flex flex-col mt-16 pt-24 mx-auto" aria-label="Step Body">
@@ -410,15 +408,15 @@ $: globalOnboarding = global;
             <div class="mx-auto">
               <img
                 class="w-24 h-24 object-contain"
-                alt="{activeStep.step.media.altText}"
-                src="{activeStep.step.media.path}" />
+                alt={activeStep.step.media.altText}
+                src={activeStep.step.media.path} />
             </div>
           {:else if activeStep.onboarding.media}
             <div class="mx-auto">
               <img
                 class="w-24 h-24 object-contain"
-                alt="{activeStep.onboarding.media.altText}"
-                src="{activeStep.onboarding.media.path}" />
+                alt={activeStep.onboarding.media.altText}
+                src={activeStep.onboarding.media.path} />
             </div>
           {/if}
           <div class="flex flex-row mx-auto">
@@ -444,7 +442,7 @@ $: globalOnboarding = global;
 
         {#if activeStep.step.state === 'failed'}
           <div class="mx-auto mt-4">
-            <Button on:click="{() => restartSetup()}">Try again</Button>
+            <Button on:click={() => restartSetup()}>Try again</Button>
           </div>
         {/if}
 
@@ -454,9 +452,9 @@ $: globalOnboarding = global;
               <div class="flex flex-row mx-auto">
                 {#each row as item}
                   <OnboardingItem
-                    extension="{activeStep.onboarding.extension}"
-                    item="{item}"
-                    inProgressCommandExecution="{inProgressCommandExecution}" />
+                    extension={activeStep.onboarding.extension}
+                    item={item}
+                    inProgressCommandExecution={inProgressCommandExecution} />
                 {/each}
               </div>
             {/each}
@@ -477,7 +475,7 @@ $: globalOnboarding = global;
           </div>
         {:else}
           <div class="mt-10 mx-auto text-sm min-h-[120px]" aria-label="Exit Info Message">
-            <Link on:click="{() => setDisplayCancelSetup(true)}">Exit</Link> the setup. You can try again later.
+            <Link on:click={() => setDisplayCancelSetup(true)}>Exit</Link> the setup. You can try again later.
           </div>
         {/if}
         <div
@@ -489,14 +487,14 @@ $: globalOnboarding = global;
           <Button
             type="primary"
             aria-label="Next Step"
-            disabled="{activeStep.step.state === 'failed'}"
-            on:click="{() => next()}">Next</Button>
+            disabled={activeStep.step.state === 'failed'}
+            on:click={() => next()}>Next</Button>
           {#if activeStep.step.state !== 'completed'}
             <Button
               type="secondary"
               aria-label="Cancel Setup"
               class="mr-2 opacity-100"
-              on:click="{() => setDisplayCancelSetup(true)}">Cancel</Button>
+              on:click={() => setDisplayCancelSetup(true)}>Cancel</Button>
           {/if}
         </div>
       {/if}
@@ -511,7 +509,7 @@ $: globalOnboarding = global;
       role="dialog"
       aria-label="Skip Setup Popup">
       <div class="flex items-center justify-between pl-4 pr-3 py-3 space-x-2 text-[var(--pd-modal-header-text)]">
-        <Fa class="h-4 w-4" icon="{faCircleQuestion}" />
+        <Fa class="h-4 w-4" icon={faCircleQuestion} />
         <span class="grow text-md font-bold capitalize">Skip the entire setup?</span>
       </div>
 
@@ -520,8 +518,8 @@ $: globalOnboarding = global;
       </div>
 
       <div class="px-5 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
-        <Button type="secondary" aria-label="Cancel" on:click="{() => setDisplayCancelSetup(false)}">Cancel</Button>
-        <Button type="primary" class="mr-2" on:click="{() => cancelSetup()}">Ok</Button>
+        <Button type="secondary" aria-label="Cancel" on:click={() => setDisplayCancelSetup(false)}>Cancel</Button>
+        <Button type="primary" class="mr-2" on:click={() => cancelSetup()}>Ok</Button>
       </div>
     </div>
   </div>

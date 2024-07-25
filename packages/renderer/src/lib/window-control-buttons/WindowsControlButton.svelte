@@ -55,11 +55,11 @@ function executeAction() {
 </script>
 
 <button
-  on:click="{() => executeAction()}"
-  aria-label="{name}"
-  title="{titleName}"
+  on:click={() => executeAction()}
+  aria-label={name}
+  title={titleName}
   class="h-[32px] w-[45px] cursor-pointer text-white {name === 'Close'
     ? 'hover:bg-[#be4425]'
     : 'hover:bg-[#2d2d2d]'} flex place-items-center justify-center">
-  <svelte:component this="{icon}" size="{iconSize}" />
+  <svelte:component this={icon} size={iconSize} />
 </button>

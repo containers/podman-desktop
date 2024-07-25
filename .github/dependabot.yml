@@ -18,8 +18,14 @@ updates:
         applies-to: version-updates
         patterns:
           - "@storybook/*"
+          - "storybook"
+          - "storybook-dark-mode"
       docusaurus:
         applies-to: version-updates
         patterns:
           - "@docusaurus/*"
+      fortawesome:
+        applies-to: version-updates
+        patterns:
+          - "@fortawesome/*"
 

@@ -67,7 +67,7 @@ export let artifact: V1IngressSpec | undefined;
               {#if rule.host}
                 • Link:
                 {@const link = `${artifact.tls && artifact.tls.length > 0 ? 'https' : 'http'}://${rule.host}${path.path}`}
-                <Link on:click="{() => window.openExternal(link)}">
+                <Link on:click={() => window.openExternal(link)}>
                   {link}
                 </Link>
               {/if}

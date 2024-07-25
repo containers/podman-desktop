@@ -111,28 +111,28 @@ async function exportContainer() {
         <div class="flex w-full">
           <Input
             class="grow mr-2"
-            name="{container.id}"
+            name={container.id}
             readonly
-            value="{outputTarget}"
+            value={outputTarget}
             id="input-export-container-name"
-            aria-invalid="{invalidFolder}" />
+            aria-invalid={invalidFolder} />
           <Button
-            on:click="{() => selectFolderPath()}"
+            on:click={() => selectFolderPath()}
             title="Open dialog to select the output file"
             aria-label="Select output file">Browse ...</Button>
         </div>
         <Button
-          on:click="{() => exportContainer()}"
+          on:click={() => exportContainer()}
           class="w-full mt-5"
-          icon="{faDownload}"
-          inProgress="{inProgress}"
-          bind:disabled="{invalidFields}"
+          icon={faDownload}
+          inProgress={inProgress}
+          bind:disabled={invalidFields}
           aria-label="Export container">
           Export Container
         </Button>
         <div aria-label="createError">
           {#if exportedError}
-            <ErrorMessage class="py-2 text-sm" error="{exportedError}" />
+            <ErrorMessage class="py-2 text-sm" error={exportedError} />
           {/if}
         </div>
       </div>

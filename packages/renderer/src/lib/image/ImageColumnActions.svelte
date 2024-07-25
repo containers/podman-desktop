@@ -30,24 +30,24 @@ function closeModals() {
 
 {#if !object.isManifest}
   <ImageActions
-    image="{object}"
-    onPushImage="{handlePushImageModal}"
-    onRenameImage="{handleRenameImageModal}"
-    dropdownMenu="{true}"
+    image={object}
+    onPushImage={handlePushImageModal}
+    onRenameImage={handleRenameImageModal}
+    dropdownMenu={true}
     on:update />
 
   {#if pushImageModal && pushImageModalImageInfo}
     <PushImageModal
-      imageInfoToPush="{pushImageModalImageInfo}"
-      closeCallback="{() => {
+      imageInfoToPush={pushImageModalImageInfo}
+      closeCallback={() => {
         closeModals();
-      }}" />
+      }} />
   {/if}
   {#if renameImageModal && renameImageModalImageInfo}
     <RenameImageModal
-      imageInfoToRename="{renameImageModalImageInfo}"
-      closeCallback="{() => {
+      imageInfoToRename={renameImageModalImageInfo}
+      closeCallback={() => {
         closeModals();
-      }}" />
+      }} />
   {/if}
 {/if}

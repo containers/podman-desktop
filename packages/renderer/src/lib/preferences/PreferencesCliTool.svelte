@@ -53,7 +53,7 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
 <div
   role="row"
   class="bg-[var(--pd-invert-content-card-bg)] mb-5 rounded-md p-3 flex flex-col"
-  aria-label="{cliTool.displayName}">
+  aria-label={cliTool.displayName}>
   <div class="divide-x divide-gray-900 flex flex-row">
     <div>
       <!-- left col - cli-tool icon/name + "create new" button -->
@@ -62,37 +62,37 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
           {#if cliTool?.images?.icon ?? cliTool?.extensionInfo.icon}
             {#if typeof cliTool.images?.icon === 'string'}
               <img
-                src="{cliTool.images.icon}"
+                src={cliTool.images.icon}
                 aria-label="cli-logo"
                 alt="{cliTool.name} logo"
                 class="max-w-[40px] max-h-[40px] h-full" />
             {:else if typeof cliTool.extensionInfo.icon === 'string'}
               <img
-                src="{cliTool.extensionInfo.icon}"
+                src={cliTool.extensionInfo.icon}
                 aria-label="cli-logo"
                 alt="{cliTool.name} logo"
                 class="max-w-[40px] max-h-[40px] h-full" />
             {/if}
           {/if}
           <span
-            id="{cliTool.id}"
-            class="my-auto ml-3 break-words text-[var(--pd-invert-content-header-text)]"
+            id={cliTool.id}
+            class="my-auto ml-3 break-words font-semibold text-[var(--pd-invert-content-header-text)]"
             aria-label="cli-name">{cliTool.name}</span>
         </div>
         {#if cliTool.version && cliToolStatus}
           <div class="p-0.5 rounded-lg bg-[var(--pd-invert-content-bg)] w-fit">
             <LoadingIconButton
               action="update"
-              clickAction="{() => {
+              clickAction={() => {
                 if (cliTool.newVersion) {
                   update(cliTool);
                 }
-              }}"
-              icon="{faCircleArrowUp}"
+              }}
+              icon={faCircleArrowUp}
               leftPosition="left-[0.4rem]"
-              state="{cliToolStatus}"
+              state={cliToolStatus}
               color="primary"
-              tooltip="{!cliTool.newVersion ? 'No updates' : `Update to v${cliTool.newVersion}`}" />
+              tooltip={!cliTool.newVersion ? 'No updates' : `Update to v${cliTool.newVersion}`} />
           </div>
         {/if}
       </div>
@@ -107,15 +107,15 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
         aria-label="cli-registered-by">
         Registered by {cliTool.extensionInfo.label}
       </div>
-      <div role="region" class="ml-3 mt-2 text-sm text-gray-300">
+      <div role="region" class="ml-3 mt-2 text-gray-300">
         <div class="text-[var(--pd-invert-content-card-text)]">
-          <Markdown markdown="{cliTool.description}" />
+          <Markdown markdown={cliTool.description} />
         </div>
         {#if cliTool.version}
           <div
             class="flex flex-row justify-between align-center bg-[var(--pd-invert-content-bg)] p-2 rounded-lg min-w-[320px] w-fit">
             <div
-              class="flex text-[var(--pd-invert-content-card-text)] font-bold text-xs items-center"
+              class="flex text-[var(--pd-invert-content-card-text)] font-bold text-sm items-center"
               aria-label="cli-version">
               {cliTool.name} v{cliTool.version}
             </div>
@@ -124,13 +124,13 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
                 type="link"
                 class="underline"
                 padding="p-0"
-                on:click="{() => {
+                on:click={() => {
                   if (cliTool.newVersion) {
                     update(cliTool);
                   }
-                }}"
-                title="{`${cliTool.displayName} will be updated to v${cliTool.newVersion}`}"
-                disabled="{!cliTool.newVersion}"
+                }}
+                title={`${cliTool.displayName} will be updated to v${cliTool.newVersion}`}
+                disabled={!cliTool.newVersion}
                 aria-label="Update available">
                 Update available
               </Button>
@@ -142,14 +142,14 @@ function getLoggerHandler(_cliToolId: string): ConnectionCallback {
   </div>
   {#if showError}
     <div class="flex flex-row items-center text-xs text-red-400 ml-[200px] mt-2">
-      <Fa icon="{faCircleXmark}" class="mr-1 text-red-500" />
+      <Fa icon={faCircleXmark} class="mr-1 text-red-500" />
       <span>Unable to update {cliTool.displayName} to version {cliTool.newVersion}. </span>
       <Button
         type="link"
         padding="p-0"
-        class="ml-1 text-xs"
+        class="ml-1 text-sm"
         aria-label="{cliTool.displayName} failed"
-        on:click="{() => window.events?.send('toggle-task-manager', '')}">Check why it failed</Button>
+        on:click={() => window.events?.send('toggle-task-manager', '')}>Check why it failed</Button>
     </div>
   {/if}
 </div>

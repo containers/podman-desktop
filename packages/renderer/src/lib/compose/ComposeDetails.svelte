@@ -88,38 +88,32 @@ onDestroy(() => {
 </script>
 
 {#if compose}
-  <DetailsPage title="{composeName}" subtitle="">
-    <StatusIcon slot="icon" icon="{ComposeIcon}" size="{24}" status="{compose.status}" />
+  <DetailsPage title={composeName} subtitle="">
+    <StatusIcon slot="icon" icon={ComposeIcon} size={24} status={compose.status} />
     <svelte:fragment slot="actions">
       <div class="flex items-center w-5">
         <div>&nbsp;</div>
       </div>
-      <ComposeActions compose="{compose}" detailed="{true}" on:update="{() => (compose = compose)}" />
+      <ComposeActions compose={compose} detailed={true} on:update={() => (compose = compose)} />
     </svelte:fragment>
     <svelte:fragment slot="tabs">
-      <Tab
-        title="Summary"
-        selected="{isTabSelected($router.path, 'summary')}"
-        url="{getTabUrl($router.path, 'summary')}" />
-      <Tab title="Logs" selected="{isTabSelected($router.path, 'logs')}" url="{getTabUrl($router.path, 'logs')}" />
-      <Tab
-        title="Inspect"
-        selected="{isTabSelected($router.path, 'inspect')}"
-        url="{getTabUrl($router.path, 'inspect')}" />
-      <Tab title="Kube" selected="{isTabSelected($router.path, 'kube')}" url="{getTabUrl($router.path, 'kube')}" />
+      <Tab title="Summary" selected={isTabSelected($router.path, 'summary')} url={getTabUrl($router.path, 'summary')} />
+      <Tab title="Logs" selected={isTabSelected($router.path, 'logs')} url={getTabUrl($router.path, 'logs')} />
+      <Tab title="Inspect" selected={isTabSelected($router.path, 'inspect')} url={getTabUrl($router.path, 'inspect')} />
+      <Tab title="Kube" selected={isTabSelected($router.path, 'kube')} url={getTabUrl($router.path, 'kube')} />
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
-        <ComposeDetailsSummary compose="{compose}" />
+        <ComposeDetailsSummary compose={compose} />
       </Route>
       <Route path="/logs" breadcrumb="Logs" navigationHint="tab">
-        <ComposeDetailsLogs compose="{compose}" />
+        <ComposeDetailsLogs compose={compose} />
       </Route>
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
-        <ComposeDetailsInspect compose="{compose}" />
+        <ComposeDetailsInspect compose={compose} />
       </Route>
       <Route path="/kube" breadcrumb="Kube" navigationHint="tab">
-        <ComposeDetailsKube compose="{compose}" />
+        <ComposeDetailsKube compose={compose} />
       </Route>
     </svelte:fragment>
   </DetailsPage>

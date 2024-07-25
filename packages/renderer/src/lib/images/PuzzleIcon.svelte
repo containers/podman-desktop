@@ -3,10 +3,10 @@ export let size = '40';
 </script>
 
 <svg
-  width="{size}"
-  height="{size}"
-  class="{$$props.class}"
-  style="{$$props.style}"
+  width={size}
+  height={size}
+  class={$$props.class}
+  style={$$props.style}
   version="1.1"
   xml:space="preserve"
   viewBox="0 0 4.2333332 4.2333333">

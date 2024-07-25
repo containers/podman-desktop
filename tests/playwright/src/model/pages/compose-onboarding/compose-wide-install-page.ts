@@ -18,13 +18,15 @@
 
 import type { Locator, Page } from 'playwright';
 
-import { OnboardingPage } from './onboarding-page';
+import { ComposeOnboardingPage } from './compose-onboarding-page';
 
-export class ComposeOnboardingPage extends OnboardingPage {
-  readonly heading: Locator;
+export class ComposeWideInstallPage extends ComposeOnboardingPage {
+  readonly composeUseMessage: Locator;
+  readonly composeCommandMessage: Locator;
 
   constructor(page: Page) {
     super(page);
-    this.heading = this.page.getByRole('heading', { name: 'Compose Setup Header' });
+    this.composeUseMessage = this.mainPage.getByText('How to use Compose');
+    this.composeCommandMessage = this.mainPage.getByText('$ podman compose up');
   }
 }

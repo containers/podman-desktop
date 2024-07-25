@@ -59,54 +59,48 @@ onMount(() => {
 </script>
 
 {#if pod}
-  <DetailsPage title="{pod.name}" subtitle="{pod.shortId}" bind:this="{detailsPage}">
-    <StatusIcon slot="icon" icon="{PodIcon}" size="{24}" status="{pod.status}" />
+  <DetailsPage title={pod.name} subtitle={pod.shortId} bind:this={detailsPage}>
+    <StatusIcon slot="icon" icon={PodIcon} size={24} status={pod.status} />
     <svelte:fragment slot="actions">
       <div class="flex items-center w-5">
         {#if pod.actionError}
-          <ErrorMessage error="{pod.actionError}" icon />
+          <ErrorMessage error={pod.actionError} icon wrapMessage />
         {:else}
           <div>&nbsp;</div>
         {/if}
       </div>
-      <PodActions pod="{pod}" detailed="{true}" on:update="{() => (pod = pod)}" />
+      <PodActions pod={pod} detailed={true} on:update={() => (pod = pod)} />
     </svelte:fragment>
     <div slot="detail" class="flex py-2 w-full justify-end text-sm text-gray-700">
-      <StateChange state="{pod.status}" />
+      <StateChange state={pod.status} />
     </div>
     <svelte:fragment slot="tabs">
-      <Tab
-        title="Summary"
-        selected="{isTabSelected($router.path, 'summary')}"
-        url="{getTabUrl($router.path, 'summary')}" />
-      <Tab title="Logs" selected="{isTabSelected($router.path, 'logs')}" url="{getTabUrl($router.path, 'logs')}" />
-      <Tab
-        title="Inspect"
-        selected="{isTabSelected($router.path, 'inspect')}"
-        url="{getTabUrl($router.path, 'inspect')}" />
-      <Tab title="Kube" selected="{isTabSelected($router.path, 'kube')}" url="{getTabUrl($router.path, 'kube')}" />
+      <Tab title="Summary" selected={isTabSelected($router.path, 'summary')} url={getTabUrl($router.path, 'summary')} />
+      <Tab title="Logs" selected={isTabSelected($router.path, 'logs')} url={getTabUrl($router.path, 'logs')} />
+      <Tab title="Inspect" selected={isTabSelected($router.path, 'inspect')} url={getTabUrl($router.path, 'inspect')} />
+      <Tab title="Kube" selected={isTabSelected($router.path, 'kube')} url={getTabUrl($router.path, 'kube')} />
       {#if pod.kind === 'kubernetes'}
         <Tab
           title="Terminal"
-          selected="{isTabSelected($router.path, 'k8s-terminal')}"
-          url="{getTabUrl($router.path, 'k8s-terminal')}" />
+          selected={isTabSelected($router.path, 'k8s-terminal')}
+          url={getTabUrl($router.path, 'k8s-terminal')} />
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="content">
       <Route path="/summary" breadcrumb="Summary" navigationHint="tab">
-        <PodDetailsSummary pod="{pod}" />
+        <PodDetailsSummary pod={pod} />
       </Route>
       <Route path="/logs" breadcrumb="Logs" navigationHint="tab">
-        <PodDetailsLogs pod="{pod}" />
+        <PodDetailsLogs pod={pod} />
       </Route>
       <Route path="/inspect" breadcrumb="Inspect" navigationHint="tab">
-        <PodDetailsInspect pod="{pod}" />
+        <PodDetailsInspect pod={pod} />
       </Route>
       <Route path="/kube" breadcrumb="Kube" navigationHint="tab">
-        <PodDetailsKube pod="{pod}" />
+        <PodDetailsKube pod={pod} />
       </Route>
       <Route path="/k8s-terminal" breadcrumb="Terminal" navigationHint="tab">
-        <KubernetesTerminalBrowser pod="{pod}" />
+        <KubernetesTerminalBrowser pod={pod} />
       </Route>
     </svelte:fragment>
   </DetailsPage>

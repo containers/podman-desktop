@@ -57,7 +57,7 @@ export class NotificationRegistry {
     // send event
     this.apiSender.send('notifications-updated');
     // create task
-    this.taskManager.createNotificationTask({
+    const notificationTask = this.taskManager.createNotificationTask({
       title: notification.title,
       body: notification.body,
       markdownActions: notification.markdownActions,
@@ -71,7 +71,8 @@ export class NotificationRegistry {
     // return disposable object
     return Disposable.create(() => {
       disposeShowNotification.dispose();
-      this.removeNotificationById(this.notificationId);
+      this.removeNotificationById(notification.id);
+      this.taskManager.deleteTask(notificationTask);
     });
   }
 

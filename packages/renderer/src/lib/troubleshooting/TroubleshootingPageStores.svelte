@@ -26,15 +26,15 @@ onDestroy(() => {
 });
 </script>
 
-<div class="flex w-full h-fit m-4 flex-col bg-charcoal-600 p-4 rounded-lg">
+<div class="flex w-full h-fit m-4 flex-col bg-[var(--pd-content-card-bg)] p-4 rounded-lg">
   <div class="flex flex-row align-middle items-center w-full mb-4">
-    <Fa size="1.875x" class="pr-3 text-gray-700" icon="{faDatabase}" />
+    <Fa size="1.875x" class="pr-3" icon={faDatabase} />
     <div role="status" aria-label="stores" class="text-xl">Stores</div>
   </div>
 
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-4">
     {#each allEventstores as eventStore (eventStore.name)}
-      <TroubleshootingPageStore eventStoreInfo="{eventStore}" />
+      <TroubleshootingPageStore eventStoreInfo={eventStore} />
     {/each}
   </div>
 </div>

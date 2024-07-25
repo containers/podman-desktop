@@ -7,7 +7,7 @@ export let size = '104';
 <svg
   xmlns:xlink="http://www.w3.org/1999/xlink"
   fill="none"
-  width="{size}"
+  width={size}
   xmlns="http://www.w3.org/2000/svg"
   style="-webkit-print-color-adjust:exact"
   id="screenshot-e650771e-cad3-803e-8002-18717ff8190b"
@@ -15,7 +15,7 @@ export let size = '104';
   viewBox="-2898.5 132 104 104"
   aria-hidden="true"
   role="img"
-  height="{size}">
+  height={size}>
   <g id="shape-e650771e-cad3-803e-8002-18717ff8190b">
     <defs>
       <pattern
@@ -27,7 +27,7 @@ export let size = '104';
         data-loading="true"
         id="fill-0-rumext-id-3108">
         <g>
-          <image href="{logoImage}" preserveAspectRatio="none" width="103.99999999999955" height="104"> </image>
+          <image href={logoImage} preserveAspectRatio="none" width="103.99999999999955" height="104"> </image>
         </g>
       </pattern>
     </defs>

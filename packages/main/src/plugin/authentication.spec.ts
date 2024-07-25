@@ -323,7 +323,7 @@ test('authentication shows confirmation request when signing out from a session'
 
   expect(mb.showMessageBox).toHaveBeenCalledWith(
     expect.objectContaining({
-      message: `The account '${session1?.account.label}' has been used by Ext 1. Sign out from this extension?`,
+      message: `The account '${session1?.account.label}' has been used by:\n\n\tExt 1\n\nSign out from this extension?`,
     }),
   );
 
@@ -339,7 +339,7 @@ test('authentication shows confirmation request when signing out from a session'
   expect(await authProvidrer1.getSessions()).toHaveLength(0);
   expect(mb.showMessageBox).toHaveBeenCalledWith(
     expect.objectContaining({
-      message: `The account '${session1?.account.label}' has been used by: Ext 1, Ext 2. Sign out from these extensions?`,
+      message: `The account '${session1?.account.label}' has been used by:\n\n\tExt 1\n\tExt 2\n\nSign out from these extensions?`,
     }),
   );
 });

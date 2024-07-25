@@ -316,15 +316,14 @@ const config = {
       },
     ],
     // Custom Storybook integration
-    [
+    /* [
       Storybook,
-      /** @type {import('./storybook').PluginOptions} */
       ({
         id: 'storybook-docusaurus-integration',
         output: 'src/pages/storybook',
         storybookStatic: '../storybook/storybook-static',
       }),
-    ],
+    ], */
   ],
   presets: [
     [

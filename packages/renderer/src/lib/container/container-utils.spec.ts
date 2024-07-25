@@ -277,6 +277,37 @@ test('check parsing of container info without names', async () => {
   expect(name).toBe('');
 });
 
+test('check that if a container is part of compose, it will use the Names field for output WITHOUT the project name even if there is a name for service', async () => {
+  const containerInfo = {
+    Id: 'container1',
+    Image: 'registry.k8s.io/pause:3.7',
+    Labels: {
+      'com.docker.compose.project': 'compose',
+      'com.docker.compose.service': 'compose_container',
+    },
+    Names: ['/compose-compose_container-1'],
+    State: 'RUNNING',
+  } as unknown as ContainerInfo;
+  const name = containerUtils.getName(containerInfo);
+  expect(name).toBe('compose_container-1');
+});
+
+test('test that if a container is part of compose, and that container_name has been specified, that means that the Names[0] should be used without the project name', async () => {
+  const containerInfo = {
+    Id: 'container1',
+    Image: 'registry.k8s.io/pause:3.7',
+    Labels: {
+      'com.docker.compose.project': 'compose',
+      'com.docker.compose.service': 'container_name',
+    },
+    // If container_name was specified in the compose file, this should be used (without the project name).
+    Names: ['/container_name'],
+    State: 'RUNNING',
+  } as unknown as ContainerInfo;
+  const name = containerUtils.getName(containerInfo);
+  expect(name).toBe('container_name');
+});
+
 test('check parsing of container info without labels', async () => {
   const context = new ContextUI();
   const containerInfo = {

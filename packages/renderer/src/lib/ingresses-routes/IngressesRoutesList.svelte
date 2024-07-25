@@ -8,7 +8,6 @@ import {
   TableColumn,
   TableDurationColumn,
   TableRow,
-  TableSimpleColumn,
 } from '@podman-desktop/ui-svelte';
 import moment from 'moment';
 import { onDestroy, onMount } from 'svelte';
@@ -23,6 +22,7 @@ import {
 } from '/@/stores/kubernetes-contexts-state';
 import type { V1Route } from '/@api/openshift-types';
 
+import { withBulkConfirmation } from '../actions/BulkActions';
 import IngressRouteIcon from '../images/IngressRouteIcon.svelte';
 import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
 import { IngressRouteUtils } from './ingress-route-utils';
@@ -113,12 +113,6 @@ let nameColumn = new TableColumn<IngressUI | RouteUI>('Name', {
   comparator: (a, b) => a.name.localeCompare(b.name),
 });
 
-let namespaceColumn = new TableColumn<IngressUI | RouteUI, string>('Namespace', {
-  renderMapping: ingressRoute => ingressRoute.namespace,
-  renderer: TableSimpleColumn,
-  comparator: (a, b) => a.namespace.localeCompare(b.namespace),
-});
-
 let pathColumn = new TableColumn<IngressUI | RouteUI>('Host/Path', {
   width: '1.5fr',
   renderer: IngressRouteColumnHostPath,
@@ -152,7 +146,6 @@ function compareBackend(object1: IngressUI | RouteUI, object2: IngressUI | Route
 const columns = [
   statusColumn,
   nameColumn,
-  namespaceColumn,
   pathColumn,
   backendColumn,
   ageColumn,
@@ -162,7 +155,7 @@ const columns = [
 const row = new TableRow<IngressUI | RouteUI>({ selectable: _ingressRoute => true });
 </script>
 
-<NavPage bind:searchTerm="{searchTerm}" title="Ingresses & Routes">
+<NavPage bind:searchTerm={searchTerm} title="ingresses & routes">
   <svelte:fragment slot="additional-actions">
     <KubeApplyYamlButton />
   </svelte:fragment>
@@ -170,10 +163,14 @@ const row = new TableRow<IngressUI | RouteUI>({ selectable: _ingressRoute => tru
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() => deleteSelectedIngressesRoutes()}"
+        on:click={() =>
+          withBulkConfirmation(
+            deleteSelectedIngressesRoutes,
+            `delete ${selectedItemsNumber} Ingress${selectedItemsNumber > 1 ? 'es' : ''} / Route${selectedItemsNumber > 1 ? 's' : ''}`,
+          )}
         title="Delete {selectedItemsNumber} selected items"
-        inProgress="{bulkDeleteInProgress}"
-        icon="{faTrash}" />
+        inProgress={bulkDeleteInProgress}
+        icon={faTrash} />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
     <div class="flex grow justify-end">
@@ -184,18 +181,18 @@ const row = new TableRow<IngressUI | RouteUI>({ selectable: _ingressRoute => tru
   <div class="flex min-w-full h-full" slot="content">
     <Table
       kind="ingress & route"
-      bind:this="{table}"
-      bind:selectedItemsNumber="{selectedItemsNumber}"
-      data="{ingressesRoutesUI}"
-      columns="{columns}"
-      row="{row}"
+      bind:this={table}
+      bind:selectedItemsNumber={selectedItemsNumber}
+      data={ingressesRoutesUI}
+      columns={columns}
+      row={row}
       defaultSortColumn="Name"
-      on:update="{() => (ingressesRoutesUI = ingressesRoutesUI)}">
+      on:update={() => (ingressesRoutesUI = ingressesRoutesUI)}>
     </Table>
 
     {#if $kubernetesCurrentContextIngressesFiltered.length === 0 && $kubernetesCurrentContextRoutesFiltered.length === 0}
       {#if searchTerm}
-        <FilteredEmptyScreen icon="{IngressRouteIcon}" kind="ingresses or routes" bind:searchTerm="{searchTerm}" />
+        <FilteredEmptyScreen icon={IngressRouteIcon} kind="ingresses or routes" bind:searchTerm={searchTerm} />
       {:else}
         <IngressRouteEmptyScreen />
       {/if}

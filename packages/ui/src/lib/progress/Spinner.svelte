@@ -7,8 +7,8 @@ export let size = '2em';
   aria-label="Loading"
   aria-busy="true"
   class="flex justify-center items-center {$$props.class}"
-  style="{$$props.style}">
-  <svg width="{size}" height="{size}" viewBox="0 0 100 100" role="img">
+  style={$$props.style}>
+  <svg width={size} height={size} viewBox="0 0 100 100" role="img">
     <defs>
       <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
         <stop offset="0%" style="stop-color:rgb(0,0,0);stop-opacity:1"></stop>

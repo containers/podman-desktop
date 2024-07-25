@@ -3,8 +3,8 @@ export let size = 16;
 </script>
 
 <svg
-  width="{size}"
-  height="{size}"
+  width={size}
+  height={size}
   aria-hidden="true"
   role="img"
   viewBox="0 0 16 16"

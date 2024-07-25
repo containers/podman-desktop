@@ -54,53 +54,52 @@ export let volumeName = '';
 
 <EngineFormPage
   title="Create a volume"
-  inProgress="{createVolumeInProgress}"
-  showEmptyScreen="{providerConnections.length === 0}">
+  inProgress={createVolumeInProgress}
+  showEmptyScreen={providerConnections.length === 0}>
   <svelte:fragment slot="icon">
     <VolumeIcon />
   </svelte:fragment>
   <div slot="content" class="space-y-6">
     <div>
-      <label
-        for="containerBuildContextDirectory"
-        class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]">Volume name:</label>
-      <Input clearable aria-label="Volume Name" disabled="{createVolumeFinished}" bind:value="{volumeName}" required />
+      <label for="containerBuildContextDirectory" class="block mb-2 font-bold text-[var(--pd-content-card-header-text)]"
+        >Volume name:</label>
+      <Input clearable aria-label="Volume Name" disabled={createVolumeFinished} bind:value={volumeName} required />
     </div>
-    <div class:hidden="{providerConnections.length < 2}">
+    <div class:hidden={providerConnections.length < 2}>
       {#if providerConnections.length > 1}
-        <label for="providerChoice" class="py-3 block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
+        <label for="providerChoice" class="py-3 block mb-2 font-bold text-[var(--pd-content-card-header-text)]"
           >Container Engine
           <select
-            class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
+            class="w-full p-2 outline-none bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
             aria-label="Provider Choice"
-            disabled="{createVolumeFinished}"
-            bind:value="{selectedProvider}">
+            disabled={createVolumeFinished}
+            bind:value={selectedProvider}>
             {#each providerConnections as providerConnection}
-              <option value="{providerConnection}">{providerConnection.name}</option>
+              <option value={providerConnection}>{providerConnection.name}</option>
             {/each}
           </select>
         </label>
       {/if}
     </div>
     {#if providerConnections.length === 1 && selectedProviderConnection}
-      <input type="hidden" aria-label="Provider Choice" readonly bind:value="{selectedProvider}" />
+      <input type="hidden" aria-label="Provider Choice" readonly bind:value={selectedProvider} />
     {/if}
 
     <div class="w-full flex flex-row space-x-4">
       {#if !createVolumeFinished && selectedProvider}
         {@const connection = selectedProvider}
         <Button
-          on:click="{() => createVolume(connection)}"
-          disabled="{createVolumeInProgress}"
+          on:click={() => createVolume(connection)}
+          disabled={createVolumeInProgress}
           class="w-full"
-          inProgress="{createVolumeInProgress}"
-          icon="{faPlusCircle}">
+          inProgress={createVolumeInProgress}
+          icon={faPlusCircle}>
           Create
         </Button>
       {/if}
 
       {#if createVolumeFinished}
-        <Button on:click="{() => end()}" class="w-full">Done</Button>
+        <Button on:click={() => end()} class="w-full">Done</Button>
       {/if}
     </div>
   </div>

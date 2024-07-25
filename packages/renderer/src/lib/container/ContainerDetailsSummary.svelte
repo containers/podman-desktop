@@ -41,7 +41,7 @@ if (container.groupInfo.created) {
   <tr>
     <DetailsCell>Image</DetailsCell>
     <DetailsCell>
-      <Link on:click="{() => router.goto(container.imageHref ?? $router.path)}">{container.image}</Link>
+      <Link on:click={() => router.goto(container.imageHref ?? $router.path)}>{container.image}</Link>
     </DetailsCell>
   </tr>
   {#if container.command}
@@ -72,11 +72,9 @@ if (container.groupInfo.created) {
   </tr>
   {#if Object.entries(container.labels).length > 0}
     <tr>
-      <DetailsCell
-        style="cursor-pointer flex items-center"
-        onClick="{() => (labelsDropdownOpen = !labelsDropdownOpen)}">
+      <DetailsCell style="cursor-pointer flex items-center" onClick={() => (labelsDropdownOpen = !labelsDropdownOpen)}>
         Labels
-        <Fa class="ml-1" size="0.9x" icon="{labelsDropdownOpen ? faChevronDown : faChevronRight}" />
+        <Fa class="ml-1" size="0.9x" icon={labelsDropdownOpen ? faChevronDown : faChevronRight} />
       </DetailsCell>
       <DetailsCell>
         {#if labelsDropdownOpen}

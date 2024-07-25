@@ -63,4 +63,4 @@ onDestroy(() => {
 });
 </script>
 
-<SimpleColumn object="{duration}" />
+<SimpleColumn object={duration} />

@@ -15,7 +15,7 @@ onMount(async () => {
 </script>
 
 {#if imgSrc}
-  <img src="{imgSrc}" alt="{alt}" class="{$$props.class}" />
+  <img src={imgSrc} alt={alt} class={$$props.class} />
 {:else}
   <slot />
 {/if}

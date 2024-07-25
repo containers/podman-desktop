@@ -1,0 +1,21 @@
+{
+  "name": "@podman-desktop/webview-api",
+  "version": "0.0.1",
+  "description": "API for Podman Desktop extensions",
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "Apache-2.0",
+  "types": "./src/webview-api.d.ts",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "prepare": "",
+    "clean": "rimraf lib *.tsbuildinfo",
+    "build": "",
+    "watch": "",
+    "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
+  },
+  "devDependencies": {}
+}

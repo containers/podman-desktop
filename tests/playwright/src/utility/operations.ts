@@ -18,11 +18,13 @@
 
 import type { Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
+import type { TaskResult } from 'vitest';
 
 import { RegistriesPage } from '../model/pages/registries-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import { ResourcesPodmanConnections } from '../model/pages/resources-podman-connections-page';
 import { NavigationBar } from '../model/workbench/navigation';
+import type { PodmanDesktopRunner } from '../runner/podman-desktop-runner';
 import { waitUntil, waitWhile } from './wait';
 
 /**
@@ -194,4 +196,8 @@ export async function deletePodmanMachine(page: Page, machineVisibleName: string
   } else {
     console.log(`Podman machine [${machineVisibleName}] not present, skipping deletion.`);
   }
+}
+
+export function checkForFailedTest(result: TaskResult, runner: PodmanDesktopRunner): void {
+  if (result.errors && result.errors.length > 0) runner.setTestPassed(false);
 }

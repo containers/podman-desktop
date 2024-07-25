@@ -9,7 +9,7 @@ export let extension: CombinedExtensionInfoUI;
 </script>
 
 <div class="flex bg-[var(--pd-action-button-bg)] w-fit rounded-lg" role="group" aria-label="Extension Actions">
-  <InstalledExtensionCardLeftLifecycleStart extension="{extension}" />
-  <InstalledExtensionCardLeftLifecycleStop extension="{extension}" />
-  <InstalledExtensionCardLeftLifecycleDelete extension="{extension}" />
+  <InstalledExtensionCardLeftLifecycleStart extension={extension} />
+  <InstalledExtensionCardLeftLifecycleStop extension={extension} />
+  <InstalledExtensionCardLeftLifecycleDelete extension={extension} />
 </div>

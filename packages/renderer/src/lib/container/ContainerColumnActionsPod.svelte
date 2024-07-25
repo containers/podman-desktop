@@ -7,7 +7,7 @@ export let object: ContainerGroupInfoUI;
 
 {#if object.engineId && object.id && object.shortId && object.status && object.engineName && object.humanCreationDate && object.created}
   <PodActions
-    pod="{{
+    pod={{
       id: object.id,
       shortId: object.shortId,
       status: object.status,
@@ -23,7 +23,7 @@ export let object: ContainerGroupInfoUI;
         Status: container.state,
       })),
       kind: 'podman',
-    }}"
-    dropdownMenu="{true}"
+    }}
+    dropdownMenu={true}
     on:update />
 {/if}

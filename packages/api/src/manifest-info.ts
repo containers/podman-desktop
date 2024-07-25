@@ -46,3 +46,12 @@ export interface ManifestInspectInfo {
   mediaType: string;
   schemaVersion: number;
 }
+
+export interface ManifestPushOptions {
+  destination: string;
+  name: string;
+  all?: boolean;
+
+  // Provider to use for the manifest pushing, if not, we will default to the first one available
+  provider?: ContainerProviderConnection;
+}

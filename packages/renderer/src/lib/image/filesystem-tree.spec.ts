@@ -93,6 +93,15 @@ test('add an existing file', () => {
   expect(tree.root.children.get('A')!.children.get('B')!.children.get('C.txt')!.children).toHaveLength(0);
 });
 
+test('add an existing directory containing files', () => {
+  const tree = new FilesystemTree<typ>('tree1')
+    .addPath('A/B/C.txt', { path: 'A/B/C.txt ' }, 5)
+    .addPath('A/B/D.txt', { path: 'A/B/D.txt ' }, 4)
+    .addPath('A/B', { path: 'A/B ' }, 0)
+    .addPath('A/B/E.txt', { path: 'A/B/E.txt ' }, 1);
+  expect(tree.size).toBe(10);
+});
+
 test('remove a non existing file', () => {
   const tree = new FilesystemTree<typ>('tree1').addPath('A/B/C.txt', { path: 'A/B/C.txt' }, 5).hidePath('A/B/D.txt');
   expect(tree.size).toBe(5);
@@ -153,4 +162,12 @@ test('hide directory content', () => {
   expect(tree.root.children.get('A')!.children.get('B')!.children.get('C.txt')!.hidden).toBeTruthy();
   expect(tree.root.children.get('A')!.children.get('B')!.children.get('D.txt')!.children).toHaveLength(0);
   expect(tree.root.children.get('A')!.children.get('B')!.children.get('D.txt')!.hidden).toBeTruthy();
+});
+
+test('isDirectory', () => {
+  const tree = new FilesystemTree<typ>('tree1').addPath('A/B/C.txt', { path: 'A/B/C.txt' }, 5);
+  expect(tree.isDirectory('/A/B')).toBeTruthy();
+  expect(tree.isDirectory('/A/C')).toBeFalsy();
+  expect(tree.isDirectory('/A/B/C.txt')).toBeFalsy();
+  expect(tree.isDirectory('/A/B/D.txt')).toBeFalsy();
 });

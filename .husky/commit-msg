@@ -1,5 +1,4 @@
 #!/bin/sh
-#!/usr/bin/env sh
 #
 # Copyright (C) 2023 Red Hat, Inc.
 #
@@ -17,7 +16,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-. "$(dirname -- "$0")/_/husky.sh"
 
 set -u
 

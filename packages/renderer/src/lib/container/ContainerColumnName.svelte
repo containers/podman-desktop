@@ -10,7 +10,7 @@ const containerUtils = new ContainerUtils();
 </script>
 
 {#if containerUtils.isContainerGroupInfoUI(object)}
-  <ContainerColumnNameGroup object="{object}" />
+  <ContainerColumnNameGroup object={object} />
 {:else if containerUtils.isContainerInfoUI(object)}
-  <ContainerColumnNameContainer object="{object}" />
+  <ContainerColumnNameContainer object={object} />
 {/if}

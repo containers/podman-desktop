@@ -98,18 +98,18 @@ onDestroy(() => {
 </script>
 
 <EmptyScreen
-  icon="{NoLogIcon}"
+  icon={NoLogIcon}
   title="No Log"
   message="Log output"
-  hidden="{noLogs === false}"
+  hidden={noLogs === false}
   class="bg-[var(--pd-details-bg)]" />
 
 <div
   aria-label="terminal"
   class="min-w-full flex flex-col"
-  class:invisible="{noLogs === true}"
-  class:h-0="{noLogs === true}"
-  class:h-full="{noLogs === false}"
+  class:invisible={noLogs === true}
+  class:h-0={noLogs === true}
+  class:h-full={noLogs === false}
   style="background-color: {getPanelDetailColor()}"
-  bind:this="{logsXtermDiv}">
+  bind:this={logsXtermDiv}>
 </div>

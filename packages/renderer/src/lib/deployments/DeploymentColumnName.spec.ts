@@ -40,7 +40,6 @@ test('Expect simple column styling', async () => {
 
   const text = screen.getByText(deployment.name);
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('text-sm');
   expect(text).toHaveClass('text-[var(--pd-table-body-text-highlight)]');
 });
 
@@ -56,4 +55,11 @@ test('Expect clicking works', async () => {
   fireEvent.click(text);
 
   expect(routerGotoSpy).toBeCalledWith('/deployments/my-deployment/default/summary');
+});
+
+test('Expect to show namespace in column', async () => {
+  render(DeploymentColumnName, { object: deployment });
+
+  const text = screen.getByText(deployment.namespace);
+  expect(text).toBeInTheDocument();
 });

@@ -102,7 +102,7 @@
     "watch": "vite build -w"
   },
   "dependencies": {
-    "@octokit/rest": "^21.0.0",
+    "@octokit/rest": "^21.0.1",
     "@podman-desktop/api": "^0.0.1",
     "mustache": "^4.2.0",
     "yaml": "^2.4.5"
@@ -112,7 +112,7 @@
     "mkdirp": "^3.0.1",
     "tmp-promise": "^3.0.3",
     "tsx": "^4.16.2",
-    "vite": "^5.3.3",
+    "vite": "^5.3.4",
     "vitest": "^1.6.0"
   }
 }

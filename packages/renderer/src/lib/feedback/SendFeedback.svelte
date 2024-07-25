@@ -56,42 +56,42 @@ async function sendFeedback(): Promise<void> {
 </script>
 
 {#if displayModal}
-  <Dialog title="Share your feedback" on:close="{() => hideModal()}">
+  <Dialog title="Share your feedback" on:close={() => hideModal()}>
     <svelte:fragment slot="content">
       <label for="smiley" class="block mb-2 text-sm font-medium text-[var(--pd-modal-text)]"
         >How was your experience with Podman Desktop?</label>
       <div class="flex space-x-4">
-        <button aria-label="very-sad-smiley" on:click="{() => selectSmiley(1)}">
+        <button aria-label="very-sad-smiley" on:click={() => selectSmiley(1)}>
           <Fa
             size="1.5x"
             class="cursor-pointer {smileyRating === 1
               ? 'text-[var(--pd-button-primary-bg)]'
               : 'text-[var(--pd-button-disabled-text)]'}"
-            icon="{faFrown}" />
+            icon={faFrown} />
         </button>
-        <button aria-label="sad-smiley" on:click="{() => selectSmiley(2)}">
+        <button aria-label="sad-smiley" on:click={() => selectSmiley(2)}>
           <Fa
             size="1.5x"
             class="cursor-pointer {smileyRating === 2
               ? 'text-[var(--pd-button-primary-bg)]'
               : 'text-[var(--pd-button-disabled-text)]'}"
-            icon="{faMeh}" />
+            icon={faMeh} />
         </button>
-        <button aria-label="happy-smiley" on:click="{() => selectSmiley(3)}">
+        <button aria-label="happy-smiley" on:click={() => selectSmiley(3)}>
           <Fa
             size="1.5x"
             class="cursor-pointer {smileyRating === 3
               ? 'text-[var(--pd-button-primary-bg)]'
               : 'text-[var(--pd-button-disabled-text)]'}"
-            icon="{faSmile}" />
+            icon={faSmile} />
         </button>
-        <button aria-label="very-happy-smiley" on:click="{() => selectSmiley(4)}">
+        <button aria-label="very-happy-smiley" on:click={() => selectSmiley(4)}>
           <Fa
             size="1.5x"
             class="cursor-pointer {smileyRating === 4
               ? 'text-[var(--pd-button-primary-bg)]'
               : 'text-[var(--pd-button-disabled-text)]'}"
-            icon="{faGrinStars}" />
+            icon={faGrinStars} />
         </button>
       </div>
 
@@ -104,7 +104,7 @@ async function sendFeedback(): Promise<void> {
         name="tellUsWhyFeedback"
         id="tellUsWhyFeedback"
         data-testid="tellUsWhyFeedback"
-        bind:value="{tellUsWhyFeedback}"
+        bind:value={tellUsWhyFeedback}
         class="w-full p-2 outline-none text-sm bg-[var(--pd-input-field-focused-bg)] rounded-sm text-[var(--pd-input-field-focused-text)] placeholder-[var(--pd-input-field-placeholder-text)]"
         placeholder="Please enter your feedback here, we appreciate and review all comments"></textarea>
 
@@ -114,7 +114,7 @@ async function sendFeedback(): Promise<void> {
         type="email"
         name="contactInformation"
         id="contactInformation"
-        bind:value="{contactInformation}"
+        bind:value={contactInformation}
         placeholder="Enter email address, or leave blank for anonymous feedback"
         class="w-full p-2 outline-none text-sm bg-[var(--pd-input-field-focused-bg)] rounded-sm text-[var(--pd-input-field-focused-text)] placeholder-[var(--pd-input-field-placeholder-text)]" />
     </svelte:fragment>
@@ -128,7 +128,7 @@ async function sendFeedback(): Promise<void> {
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="buttons">
-      <Button disabled="{smileyRating === 0 || (smileyRating === 1 && !hasFeedback)}" on:click="{() => sendFeedback()}"
+      <Button disabled={smileyRating === 0 || (smileyRating === 1 && !hasFeedback)} on:click={() => sendFeedback()}
         >Send feedback</Button>
     </svelte:fragment>
   </Dialog>

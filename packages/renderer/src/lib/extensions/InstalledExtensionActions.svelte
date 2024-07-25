@@ -8,6 +8,6 @@ export let extension: CombinedExtensionInfoUI;
 </script>
 
 <div class="text-center flex-row flex {$$props.class}">
-  <InstalledExtensionCardLeftLifecycle extension="{extension}" />
-  <InstalledExtensionCardLeftOnboardingAndProperties extension="{extension}" />
+  <InstalledExtensionCardLeftLifecycle extension={extension} />
+  <InstalledExtensionCardLeftOnboardingAndProperties extension={extension} />
 </div>

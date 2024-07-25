@@ -253,6 +253,7 @@ export class ColorRegistry {
     this.initStatusBar();
     this.initOnboarding();
     this.initStates();
+    this.initFiles();
   }
 
   protected initDefaults(): void {
@@ -1275,6 +1276,27 @@ export class ColorRegistry {
     this.registerColor(`${state}error`, {
       dark: colorPalette.red[500],
       light: colorPalette.red[600],
+    });
+  }
+
+  // colors for image files explorer
+  protected initFiles(): void {
+    const fc = 'files-';
+    this.registerColor(`${fc}hidden`, {
+      dark: colorPalette.red[500],
+      light: colorPalette.red[500],
+    });
+    this.registerColor(`${fc}directory`, {
+      dark: colorPalette.sky[500],
+      light: colorPalette.sky[500],
+    });
+    this.registerColor(`${fc}symlink`, {
+      dark: colorPalette.sky[300],
+      light: colorPalette.sky[300],
+    });
+    this.registerColor(`${fc}executable`, {
+      dark: colorPalette.green[500],
+      light: colorPalette.green[500],
     });
   }
 }

@@ -2,7 +2,7 @@
 export let size = '13px';
 </script>
 
-<svg width="{size}" height="{size}" version="1.1" viewBox="0 0 18.035 17.5" xmlns="http://www.w3.org/2000/svg">
+<svg width={size} height={size} version="1.1" viewBox="0 0 18.035 17.5" xmlns="http://www.w3.org/2000/svg">
   <g transform="translate(-.99263 -1.1742)">
     <g
       transform="matrix(1.0149 0 0 1.0149 16.902 -2.6987)"

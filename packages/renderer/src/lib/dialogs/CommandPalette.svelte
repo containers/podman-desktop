@@ -162,7 +162,7 @@ async function onInputChange() {
 }
 </script>
 
-<svelte:window on:keydown="{handleKeydown}" on:mousedown="{handleMousedown}" />
+<svelte:window on:keydown={handleKeydown} on:mousedown={handleMousedown} />
 
 {#if display}
   <div class="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-60 h-full z-50"></div>
@@ -170,22 +170,22 @@ async function onInputChange() {
   <div class="absolute m-auto left-0 right-0 z-50">
     <div class="flex justify-center items-center mt-1">
       <div
-        bind:this="{outerDiv}"
+        bind:this={outerDiv}
         class="bg-charcoal-800 w-[700px] max-h-fit shadow-sm p-2 rounded shadow-zinc-700 text-sm">
         <div class="w-full flex flex-row">
           <input
-            bind:this="{inputElement}"
+            bind:this={inputElement}
             aria-label="Command palette command input"
             type="text"
-            bind:value="{inputValue}"
-            on:input="{() => onInputChange()}"
+            bind:value={inputValue}
+            on:input={() => onInputChange()}
             class="px-1 w-full text-gray-400 bg-zinc-700 border border-charcoal-600 focus:outline-none" />
         </div>
         <ul class="max-h-[50vh] overflow-y-auto flex flex-col">
           {#each filteredCommandInfoItems as item, i}
-            <li class="flex w-full flex-row" bind:this="{scrollElements[i]}" aria-label="{item.id}">
+            <li class="flex w-full flex-row" bind:this={scrollElements[i]} aria-label={item.id}>
               <button
-                on:click="{() => clickOnItem(item, i)}"
+                on:click={() => clickOnItem(item, i)}
                 class="text-gray-400 text-left relative my-0.5 mr-2 w-full {i === selectedFilteredIndex
                   ? 'bg-violet-500 selected'
                   : 'hover:bg-charcoal-600'}  px-1">

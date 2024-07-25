@@ -124,10 +124,10 @@ function handleAbort() {
 }
 </script>
 
-<ProviderResultPage providers="{providers}" results="{results}">
+<ProviderResultPage providers={providers} results={results}>
   <div class="flex flex-row" slot="header-info">
     <div class="w-full flex mb-4 space-x-4">
-      <Fa size="1.5x" icon="{faStethoscope}" />
+      <Fa size="1.5x" icon={faStethoscope} />
       {#if aborted}
         <span>Image analysis canceled</span>
       {:else if remainingProviders > 0}
@@ -138,7 +138,7 @@ function handleAbort() {
     </div>
     {#if remainingProviders > 0}
       <div class="mr-4">
-        <Button on:click="{() => handleAbort()}">Cancel</Button>
+        <Button on:click={() => handleAbort()}>Cancel</Button>
       </div>
     {/if}
   </div>

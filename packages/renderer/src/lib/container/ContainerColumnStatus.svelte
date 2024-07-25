@@ -11,7 +11,7 @@ const containerUtils = new ContainerUtils();
 </script>
 
 {#if containerUtils.isContainerGroupInfoUI(object)}
-  <StatusIcon icon="{PodIcon}" status="{object.status}" />
+  <StatusIcon icon={PodIcon} status={object.status} />
 {:else if containerUtils.isContainerInfoUI(object)}
-  <StatusIcon icon="{object.icon}" status="{object.state}" />
+  <StatusIcon icon={object.icon} status={object.state} />
 {/if}

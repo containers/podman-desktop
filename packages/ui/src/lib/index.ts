@@ -26,6 +26,7 @@ import SearchInput from './inputs/SearchInput.svelte';
 import DetailsPage from './layouts/DetailsPage.svelte';
 import FormPage from './layouts/FormPage.svelte';
 import NavPage from './layouts/NavPage.svelte';
+import Page from './layouts/Page.svelte';
 import Link from './link/Link.svelte';
 import Modal from './modal/Modal.svelte';
 import LinearProgress from './progress/LinearProgress.svelte';
@@ -58,6 +59,7 @@ export {
   Link,
   Modal,
   NavPage,
+  Page,
   SearchInput,
   SettingsNavItem,
   Spinner,

@@ -26,6 +26,6 @@ function getTypeAttributes(type: string) {
 }
 </script>
 
-<Label name="{object.type}">
-  <Fa size="1x" icon="{getTypeAttributes(object.type).icon}" class="{getTypeAttributes(object.type).color}" />
+<Label name={object.type}>
+  <Fa size="1x" icon={getTypeAttributes(object.type).icon} class={getTypeAttributes(object.type).color} />
 </Label>

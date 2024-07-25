@@ -52,10 +52,10 @@ async function performInstallation(provider: ProviderInfo) {
 
 {#if provider.installationSupport}
   <Button
-    inProgress="{installInProgress}"
-    disabled="{preflightChecksFailed}"
-    icon="{faRocket}"
-    on:click="{() => performInstallation(provider)}">
+    inProgress={installInProgress}
+    disabled={preflightChecksFailed}
+    icon={faRocket}
+    on:click={() => performInstallation(provider)}>
     Install
   </Button>
 {/if}

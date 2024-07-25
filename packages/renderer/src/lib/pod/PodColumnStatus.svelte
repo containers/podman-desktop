@@ -7,4 +7,4 @@ import type { PodInfoUI } from './PodInfoUI';
 export let object: PodInfoUI;
 </script>
 
-<StatusIcon icon="{PodIcon}" status="{object.status}" />
+<StatusIcon icon={PodIcon} status={object.status} />

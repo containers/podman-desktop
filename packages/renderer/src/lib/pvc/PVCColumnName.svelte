@@ -10,8 +10,13 @@ function openDetails() {
 }
 </script>
 
-<button class="hover:cursor-pointer flex flex-col max-w-full" on:click="{() => openDetails()}">
-  <div class="text-sm max-w-full overflow-hidden text-ellipsis text-[var(--pd-table-body-text-highlight)]">
+<button class="hover:cursor-pointer flex flex-col max-w-full" on:click={() => openDetails()}>
+  <div class="max-w-full overflow-hidden text-ellipsis text-[var(--pd-table-body-text-highlight)]">
     {object.name}
+  </div>
+  <div class="flex flex-row text-sm gap-1">
+    {#if object.namespace}
+      <div class="font-extra-light text-[var(--pd-table-body-text)]">{object.namespace}</div>
+    {/if}
   </div>
 </button>

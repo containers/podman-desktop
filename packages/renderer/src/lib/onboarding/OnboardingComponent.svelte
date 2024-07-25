@@ -23,7 +23,7 @@ $: providerInfo;
 let providerDisplayName: string | undefined;
 $: providerDisplayName =
   (providerInfo?.containerProviderConnectionCreation
-    ? providerInfo?.containerProviderConnectionCreationDisplayName ?? undefined
+    ? (providerInfo?.containerProviderConnectionCreationDisplayName ?? undefined)
     : providerInfo?.kubernetesProviderConnectionCreation
       ? providerInfo?.kubernetesProviderConnectionCreationDisplayName
       : undefined) ?? providerInfo?.name;
@@ -46,23 +46,23 @@ onMount(() => {
   </h1>
   {#if component === 'createContainerProviderConnection' && providerInfo?.containerProviderConnectionCreation === true}
     <PreferencesConnectionCreationOrEditRendering
-      providerInfo="{providerInfo}"
-      properties="{configurationItems}"
+      providerInfo={providerInfo}
+      properties={configurationItems}
       propertyScope="ContainerProviderConnectionFactory"
-      callback="{window.createContainerProviderConnection}"
-      disableEmptyScreen="{true}"
-      hideCloseButton="{true}" />
+      callback={window.createContainerProviderConnection}
+      disableEmptyScreen={true}
+      hideCloseButton={true} />
   {:else if component === 'createKubernetesProviderConnection' && providerInfo?.kubernetesProviderConnectionCreation === true}
     <PreferencesConnectionCreationOrEditRendering
-      providerInfo="{providerInfo}"
-      properties="{configurationItems}"
+      providerInfo={providerInfo}
+      properties={configurationItems}
       propertyScope="KubernetesProviderConnectionFactory"
-      callback="{window.createKubernetesProviderConnection}"
-      disableEmptyScreen="{true}"
-      hideCloseButton="{true}" />
+      callback={window.createKubernetesProviderConnection}
+      disableEmptyScreen={true}
+      hideCloseButton={true} />
   {:else}
     <div aria-label="not supported warning" class="flex flex-row min-h-[500px] items-center justify-center">
-      <Fa size="1.125x" class="flex text-amber-400 mr-3" icon="{faTriangleExclamation}" />
+      <Fa size="1.125x" class="flex text-amber-400 mr-3" icon={faTriangleExclamation} />
       <span>This extension does not provide a component of type "{component}"</span>
     </div>
   {/if}

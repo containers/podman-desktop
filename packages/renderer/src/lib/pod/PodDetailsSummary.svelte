@@ -35,8 +35,8 @@ basic pod information -->
 <!-- Load the Kubernetes information, pass in kubePod regardless if it's undefined
 ass KubePodDetailsSummary will automatically add a 'Loading ... ' section -->
 {#if pod.kind === 'kubernetes'}
-  <KubePodDetailsSummary pod="{kubePod}" />
+  <KubePodDetailsSummary pod={kubePod} />
 {:else}
   <!-- Still show pod information in case the Kubernetes pod retrieval errors out -->
-  <PodmanPodDetailsSummary pod="{pod}" />
+  <PodmanPodDetailsSummary pod={pod} />
 {/if}

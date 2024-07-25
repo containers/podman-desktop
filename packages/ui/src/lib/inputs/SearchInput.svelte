@@ -6,11 +6,11 @@ export let searchTerm: string = '';
 </script>
 
 <Input
-  class="{$$props.class || ''}"
+  class={$$props.class || ''}
   id="search-{title}"
   name="search-{title}"
   placeholder="Search {title}..."
-  bind:value="{searchTerm}"
+  bind:value={searchTerm}
   aria-label="search {title}"
   clearable
   on:input>

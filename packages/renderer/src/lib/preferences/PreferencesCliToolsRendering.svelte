@@ -11,13 +11,13 @@ import SettingsPage from './SettingsPage.svelte';
   <div class="h-full" role="table" aria-label="cli-tools">
     <EmptyScreen
       aria-label="no-resource-panel"
-      icon="{EngineIcon}"
+      icon={EngineIcon}
       title="No CLI tool has been registered"
       message="Start an extension that registers a CLI"
-      hidden="{$cliToolInfos.length > 0}" />
+      hidden={$cliToolInfos.length > 0} />
 
     {#each $cliToolInfos as cliTool}
-      <PreferencesCliTool cliTool="{cliTool}" />
+      <PreferencesCliTool cliTool={cliTool} />
     {/each}
   </div>
 </SettingsPage>

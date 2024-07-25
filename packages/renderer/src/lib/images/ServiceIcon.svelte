@@ -9,15 +9,15 @@ if (!solid) {
 </script>
 
 <svg
-  width="{size}"
-  height="{size}"
-  class="{$$props.class}"
-  style="{$$props.style}"
+  width={size}
+  height={size}
+  class={$$props.class}
+  style={$$props.style}
   version="1.1"
   xml:space="preserve"
   viewBox="-0.5 -0.5 20.03 15">
   <!-- four boxes -->
-  <g class:fill-none="{!solid}" style="{boxStyle}">
+  <g class:fill-none={!solid} style={boxStyle}>
     <path d="M5.472,0.000L13.558,0.000L13.558,3.531L5.472,3.531Z"></path>
     <path d="M0.000,10.469L5.103,10.469L5.103,14.000L0.000,14.000Z"></path>
     <path d="M6.964,10.469L12.067,10.469L12.067,14.000L6.964,14.000Z"></path>

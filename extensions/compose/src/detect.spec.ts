@@ -50,6 +50,11 @@ vi.mock('@podman-desktop/api', async () => {
     process: {
       exec: vi.fn(),
     },
+    env: {
+      isLinux: false,
+      isWindows: false,
+      isMac: false,
+    },
   };
 });
 
@@ -133,6 +138,72 @@ describe('Check storage path', async () => {
 
     const result = await detect.getStoragePath();
     expect(result).toBe(path.resolve('/', 'storage-path', 'bin', 'docker-compose'));
+  });
+});
+
+describe('Check getDockerComposePath uses proper tooling by platform', () => {
+  beforeEach(() => {
+    vi.mocked(extensionApi.process.exec).mockImplementation(
+      () =>
+        new Promise<extensionApi.RunResult>(resolve => {
+          resolve({ exitCode: 0, stdout: 'hello-world' } as extensionApi.RunError);
+        }),
+    );
+  });
+
+  test('linux should use which', async () => {
+    (extensionApi.env.isLinux as boolean) = true;
+    (extensionApi.env.isWindows as boolean) = false;
+    (extensionApi.env.isMac as boolean) = false;
+
+    await detect.getDockerComposePath('docker-compose');
+    expect(extensionApi.process.exec).toHaveBeenCalledWith('which', ['docker-compose']);
+  });
+
+  test('mac should use which', async () => {
+    (extensionApi.env.isMac as boolean) = true;
+    (extensionApi.env.isWindows as boolean) = false;
+    (extensionApi.env.isLinux as boolean) = false;
+
+    await detect.getDockerComposePath('docker-compose');
+    expect(extensionApi.process.exec).toHaveBeenCalledWith('which', ['docker-compose']);
+  });
+
+  test('windows should use which', async () => {
+    (extensionApi.env.isWindows as boolean) = true;
+    (extensionApi.env.isMac as boolean) = false;
+    (extensionApi.env.isLinux as boolean) = false;
+
+    await detect.getDockerComposePath('docker-compose');
+    expect(extensionApi.process.exec).toHaveBeenCalledWith('where.exe', ['docker-compose']);
+  });
+});
+
+describe('parseVersion', () => {
+  test('missing content', async () => {
+    expect(() => {
+      detect['parseVersion']('{}');
+    }).toThrowError('malformed version output');
+  });
+
+  test('invalid version type', async () => {
+    expect(() => {
+      detect['parseVersion'](
+        JSON.stringify({
+          version: true,
+        }),
+      );
+    }).toThrowError('malformed version output');
+  });
+
+  test('valid version', async () => {
+    expect(
+      detect['parseVersion'](
+        JSON.stringify({
+          version: 'potatoes',
+        }),
+      ),
+    ).toBe('potatoes');
   });
 });
 

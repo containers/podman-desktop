@@ -4,10 +4,10 @@ export let solid = false;
 </script>
 
 <svg
-  width="{size}"
-  height="{size}"
-  class="{$$props.class}"
-  style="{$$props.style}"
+  width={size}
+  height={size}
+  class={$$props.class}
+  style={$$props.style}
   viewBox="0.926 0.926 4.498 4.498"
   version="1.1"
   xml:space="preserve"

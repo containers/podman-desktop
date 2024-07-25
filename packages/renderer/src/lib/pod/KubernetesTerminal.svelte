@@ -153,4 +153,4 @@ function saveTerminalState(podName: string, containerName: string, state: State)
 }
 </script>
 
-<div class="h-full w-full" bind:this="{terminalXtermDiv}"></div>
+<div class="h-full w-full" bind:this={terminalXtermDiv}></div>

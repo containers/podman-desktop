@@ -40,7 +40,6 @@ test('Expect simple column styling', async () => {
 
   const text = screen.getByText(fakePVC.name);
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('text-sm');
   expect(text).toHaveClass('text-[var(--pd-table-body-text-highlight)]');
 });
 
@@ -56,4 +55,11 @@ test('Expect clicking works', async () => {
   fireEvent.click(text);
 
   expect(routerGotoSpy).toBeCalledWith('/persistentvolumeclaims/my-pvc/default/summary');
+});
+
+test('Expect to show namespace in column', async () => {
+  render(PVCColumnName, { object: fakePVC });
+
+  const text = screen.getByText(fakePVC.namespace);
+  expect(text).toBeInTheDocument();
 });

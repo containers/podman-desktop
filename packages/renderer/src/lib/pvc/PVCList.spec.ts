@@ -16,11 +16,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import '@testing-library/jest-dom/vitest';
 
 import type { V1PersistentVolumeClaim } from '@kubernetes/client-node';
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
+/* eslint-disable import/no-duplicates */
+import { tick } from 'svelte';
 import { get } from 'svelte/store';
+/* eslint-enable import/no-duplicates */
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import {
@@ -39,9 +44,14 @@ beforeAll(() => {
 beforeEach(() => {
   vi.resetAllMocks();
   vi.clearAllMocks();
+  (window as any).kubernetesRegisterGetCurrentContextResources = kubernetesRegisterGetCurrentContextResourcesMock;
   (window as any).kubernetesGetContextsGeneralState = () => Promise.resolve(new Map());
   (window as any).kubernetesGetCurrentContextGeneralState = () => Promise.resolve({});
   (window as any).window.kubernetesUnregisterGetCurrentContextResources = () => Promise.resolve(undefined);
+  (window as any).kubernetesDeletePersistentVolumeClaim = vi.fn();
+  vi.mocked(window.kubernetesDeletePersistentVolumeClaim);
+  (window as any).getConfigurationValue = vi.fn();
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(false);
 });
 
 async function waitRender(customProperties: object): Promise<void> {
@@ -50,6 +60,7 @@ async function waitRender(customProperties: object): Promise<void> {
   while (get(kubernetesCurrentContextPersistentVolumeClaimsFiltered).length === 0) {
     await new Promise(resolve => setTimeout(resolve, 100));
   }
+  await tick();
 }
 
 test('Expect PVC empty screen', async () => {
@@ -76,9 +87,44 @@ test('Expect PVC list', async () => {
 
   await waitRender({});
 
-  const pvcName = screen.getByRole('cell', { name: 'pvc1' });
+  const pvcName = screen.getByRole('cell', { name: 'pvc1 default' });
   expect(pvcName).toBeInTheDocument();
+});
 
-  const pvcNamespace = screen.getByRole('cell', { name: 'default' });
-  expect(pvcNamespace).toBeInTheDocument();
+test('Expect user confirmation to pop up when preferences require', async () => {
+  kubernetesRegisterGetCurrentContextResourcesMock.mockResolvedValue([
+    {
+      metadata: {
+        name: 'pvc12',
+        namespace: 'default',
+      },
+    },
+  ]);
+  // wait while store is populated
+  while (get(kubernetesCurrentContextPersistentVolumeClaims).length === 0) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  await waitRender({});
+
+  const pvcName1 = screen.getByRole('cell', { name: 'pvc12 default' });
+  expect(pvcName1).toBeInTheDocument();
+
+  const checkboxes = screen.getAllByRole('checkbox', { name: 'Toggle PVC' });
+  await fireEvent.click(checkboxes[0]);
+  expect(checkboxes[0]).toBeChecked();
+
+  vi.mocked(window.getConfigurationValue).mockResolvedValue(true);
+
+  (window as any).showMessageBox = vi.fn();
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 1 });
+
+  const deleteButton = screen.getByRole('button', { name: 'Delete 1 selected items' });
+  await fireEvent.click(deleteButton);
+  expect(window.showMessageBox).toHaveBeenCalledOnce();
+
+  vi.mocked(window.showMessageBox).mockResolvedValue({ response: 0 });
+  await fireEvent.click(deleteButton);
+  expect(window.showMessageBox).toHaveBeenCalledTimes(2);
+  vi.waitFor(() => expect(window.kubernetesDeletePersistentVolumeClaim).toHaveBeenCalled());
 });

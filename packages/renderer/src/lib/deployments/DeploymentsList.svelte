@@ -8,7 +8,6 @@ import {
   TableColumn,
   TableDurationColumn,
   TableRow,
-  TableSimpleColumn,
 } from '@podman-desktop/ui-svelte';
 import moment from 'moment';
 import { onMount } from 'svelte';
@@ -19,6 +18,7 @@ import {
   kubernetesCurrentContextDeploymentsFiltered,
 } from '/@/stores/kubernetes-contexts-state';
 
+import { withBulkConfirmation } from '../actions/BulkActions';
 import DeploymentIcon from '../images/DeploymentIcon.svelte';
 import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
 import { DeploymentUtils } from './deployment-utils';
@@ -83,12 +83,6 @@ let nameColumn = new TableColumn<DeploymentUI>('Name', {
   comparator: (a, b) => a.name.localeCompare(b.name),
 });
 
-let namespaceColumn = new TableColumn<DeploymentUI, string>('Namespace', {
-  renderMapping: deployment => deployment.namespace,
-  renderer: TableSimpleColumn,
-  comparator: (a, b) => a.namespace.localeCompare(b.namespace),
-});
-
 let conditionsColumn = new TableColumn<DeploymentUI>('Conditions', {
   width: '2fr',
   overflow: true,
@@ -108,7 +102,6 @@ let ageColumn = new TableColumn<DeploymentUI, Date | undefined>('Age', {
 const columns = [
   statusColumn,
   nameColumn,
-  namespaceColumn,
   conditionsColumn,
   podsColumn,
   ageColumn,
@@ -118,7 +111,7 @@ const columns = [
 const row = new TableRow<DeploymentUI>({ selectable: _deployment => true });
 </script>
 
-<NavPage bind:searchTerm="{searchTerm}" title="deployments">
+<NavPage bind:searchTerm={searchTerm} title="deployments">
   <svelte:fragment slot="additional-actions">
     <KubeApplyYamlButton />
   </svelte:fragment>
@@ -126,10 +119,14 @@ const row = new TableRow<DeploymentUI>({ selectable: _deployment => true });
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() => deleteSelectedDeployments()}"
+        on:click={() =>
+          withBulkConfirmation(
+            deleteSelectedDeployments,
+            `delete ${selectedItemsNumber} deployment${selectedItemsNumber > 1 ? 's' : ''}`,
+          )}
         title="Delete {selectedItemsNumber} selected items"
-        inProgress="{bulkDeleteInProgress}"
-        icon="{faTrash}" />
+        inProgress={bulkDeleteInProgress}
+        icon={faTrash} />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
     <div class="flex grow justify-end">
@@ -140,22 +137,22 @@ const row = new TableRow<DeploymentUI>({ selectable: _deployment => true });
   <div class="flex min-w-full h-full" slot="content">
     <Table
       kind="deployment"
-      bind:this="{table}"
-      bind:selectedItemsNumber="{selectedItemsNumber}"
-      data="{deployments}"
-      columns="{columns}"
-      row="{row}"
+      bind:this={table}
+      bind:selectedItemsNumber={selectedItemsNumber}
+      data={deployments}
+      columns={columns}
+      row={row}
       defaultSortColumn="Name"
-      on:update="{() => (deployments = deployments)}">
+      on:update={() => (deployments = deployments)}>
     </Table>
 
     {#if $kubernetesCurrentContextDeploymentsFiltered.length === 0}
       {#if searchTerm}
         <FilteredEmptyScreen
-          icon="{DeploymentIcon}"
+          icon={DeploymentIcon}
           kind="deployments"
-          searchTerm="{searchTerm}"
-          on:resetFilter="{() => (searchTerm = '')}" />
+          searchTerm={searchTerm}
+          on:resetFilter={() => (searchTerm = '')} />
       {:else}
         <DeploymentEmptyScreen />
       {/if}

@@ -27,14 +27,14 @@ async function reconnectContainerProviders() {
 <div class="flex flex-row items-center">
   <Button
     class="my-1"
-    bind:inProgress="{reconnectInProgress}"
+    bind:inProgress={reconnectInProgress}
     title="Re-establish connection to the container engine sockets"
-    on:click="{() => reconnectContainerProviders()}"
-    icon="{faPlug}">
+    on:click={() => reconnectContainerProviders()}
+    icon={faPlug}>
     Reconnect providers
   </Button>
   <div role="status" class="mx-2">{reconnectResult}</div>
   {#if reconnectError}
-    <ErrorMessage class="mx-2" error="{reconnectError}" />
+    <ErrorMessage class="mx-2" error={reconnectError} />
   {/if}
 </div>

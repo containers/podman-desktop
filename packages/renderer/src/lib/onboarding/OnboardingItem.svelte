@@ -78,11 +78,11 @@ function replacePlaceholders(label: string): string {
     ? 'bg-[var(--pd-content-card-inset-bg)] text-[var(--pd-content-card-text)]'
     : ''} p-3 m-2 rounded-md min-w-[500px]">
   {#if html}
-    <Markdown inProgressMarkdownCommandExecutionCallback="{inProgressCommandExecution}" markdown="{html}" />
+    <Markdown inProgressMarkdownCommandExecutionCallback={inProgressCommandExecution} markdown={html} />
   {/if}
   {#if configurationItem}
     <div class="min-w-[500px] bg-[var(--pd-content-card-inset-bg)] text-[var(--pd-content-card-text)] rounded-md">
-      <PreferencesRenderingItem record="{configurationItem}" />
+      <PreferencesRenderingItem record={configurationItem} />
     </div>
   {/if}
 </div>

@@ -77,7 +77,6 @@ test('Expect one ListItemButtonIcon without detail', async () => {
   });
   const item = screen.getByLabelText('dummy-title');
   expect(item).toBeInTheDocument();
-  expect(item).toHaveClass('m-0.5');
 });
 
 test('Expect one ListItemButtonIcon with detail', async () => {

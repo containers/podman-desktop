@@ -68,25 +68,23 @@ async function installExtension() {
 
 <button
   aria-label="Install {extension.id} Extension"
-  on:click="{() => installExtension()}"
-  hidden="{!extension.fetchable}"
+  on:click={() => installExtension()}
+  hidden={!extension.fetchable}
   title="Install {extension.displayName} v{extension.fetchVersion} Extension"
-  class="border-2 relative rounded border-[var(--pd-button-secondary)] text-[var(--pd-button-secondary)] hover:text-[var(--pd-button-text)] hover:bg-[var(--pd-button-secondary-hover)] hover:border-[var(--pd-button-secondary-hover)] w-10 p-2 text-center cursor-pointer flex flex-row">
-  <!--<Fa  class="ml-1.5" size="16" icon={faDownload} />-->
-  <span class="ml-0.5"></span>
+  class="border-2 relative rounded border-[var(--pd-button-secondary)] text-[var(--pd-button-secondary)] hover:text-[var(--pd-button-text)] hover:bg-[var(--pd-button-secondary-hover)] hover:border-[var(--pd-button-secondary-hover)] w-10 p-2 text-center cursor-pointer flex flex-row justify-center">
   <LoadingIcon
-    icon="{faDownload}"
+    icon={faDownload}
     iconSize="1x"
     loadingWidthClass="w-7"
     loadingHeightClass="h-7"
     positionTopClass="top-[2px]"
     positionLeftClass="left-[4px]"
-    loading="{installInProgress}" />
+    loading={installInProgress} />
   <span
-    class:hidden="{!installInProgress}"
+    class:hidden={!installInProgress}
     class="absolute -top-[15px] right-0 text-[var(--pd-action-button-spinner)]"
     style="font-size: 8px">{percentage}</span>
-  <div class:hidden="{!errorInstall}" class="absolute w-56 -top-[25px] right-0" style="font-size: 8px">
-    <ErrorMessage error="{errorInstall}" />
+  <div class:hidden={!errorInstall} class="absolute w-56 -top-[25px] right-0" style="font-size: 8px">
+    <ErrorMessage error={errorInstall} />
   </div>
 </button>

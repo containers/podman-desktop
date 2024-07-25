@@ -111,16 +111,16 @@ $: window.hasAuthconfigForImage(imageInfoToPush.name).then(result => (isAuthenti
 
 <Dialog
   title="Push image"
-  on:close="{() => {
+  on:close={() => {
     closeCallback();
-  }}">
+  }}>
   <div slot="content" class="flex flex-col text-sm leading-5 space-y-5">
     <div class="pb-4">
       <label for="modalImageTag" class="block mb-2 text-sm font-medium text-[var(--pd-modal-text)]">Image tag</label>
       {#if isAuthenticatedForThisImage}
-        <Fa class="absolute mt-3 ml-1.5 text-green-300" size="1x" icon="{faCheckCircle}" />
+        <Fa class="absolute mt-3 ml-1.5 text-green-300" size="1x" icon={faCheckCircle} />
       {:else}
-        <Fa class="absolute mt-3 ml-1.5 text-amber-500" size="1x" icon="{faTriangleExclamation}" />
+        <Fa class="absolute mt-3 ml-1.5 text-amber-500" size="1x" icon={faTriangleExclamation} />
       {/if}
 
       <select
@@ -128,40 +128,40 @@ $: window.hasAuthconfigForImage(imageInfoToPush.name).then(result => (isAuthenti
           ? 'outline-gray-900'
           : 'outline-amber-500'} placeholder-gray-700 text-white"
         name="imageChoice"
-        bind:value="{selectedImageTag}">
+        bind:value={selectedImageTag}>
         {#each imageTags as imageTag}
-          <option value="{imageTag}">{imageTag}</option>
+          <option value={imageTag}>{imageTag}</option>
         {/each}
       </select>
       <!-- If the image is UNAUTHENTICATED, show a warning that the image is unable to be pushed
       and to click to go to the registries page -->
       {#if !isAuthenticatedForThisImage}
         <p class="text-amber-500 pt-1">
-          No registry with push permissions found. <Link on:click="{() => router.goto('/preferences/registries')}"
+          No registry with push permissions found. <Link on:click={() => router.goto('/preferences/registries')}
             >Add a registry now.</Link>
         </p>{/if}
     </div>
 
-    <div bind:this="{pushLogsXtermDiv}"></div>
+    <div bind:this={pushLogsXtermDiv}></div>
   </div>
 
   <svelte:fragment slot="buttons">
     {#if !pushInProgress && !pushFinished}
-      <Button class="w-auto" type="secondary" on:click="{() => closeCallback()}">Cancel</Button>
+      <Button class="w-auto" type="secondary" on:click={() => closeCallback()}>Cancel</Button>
     {/if}
     {#if !pushFinished}
       <Button
         class="w-auto"
-        icon="{faCircleArrowUp}"
-        disabled="{!isAuthenticatedForThisImage}"
-        on:click="{() => {
+        icon={faCircleArrowUp}
+        disabled={!isAuthenticatedForThisImage}
+        on:click={() => {
           pushImage(selectedImageTag);
-        }}"
-        bind:inProgress="{pushInProgress}">
+        }}
+        bind:inProgress={pushInProgress}>
         Push image
       </Button>
     {:else}
-      <Button on:click="{() => pushImageFinished()}" class="w-auto">Done</Button>
+      <Button on:click={() => pushImageFinished()} class="w-auto">Done</Button>
     {/if}
   </svelte:fragment>
 </Dialog>

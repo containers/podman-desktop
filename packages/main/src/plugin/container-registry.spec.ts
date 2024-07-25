@@ -3186,6 +3186,34 @@ test('check volume mounted is replicated when executing replicatePodmanContainer
   });
 });
 
+test('test that pushManifest does not error', async () => {
+  const pushManifestMock = vi.fn();
+
+  const fakeLibPod = {
+    podmanPushManifest: pushManifestMock,
+  } as unknown as LibPod;
+
+  containerRegistry.addInternalProvider('podman1', {
+    name: 'podman',
+    id: 'podman1',
+    libpodApi: fakeLibPod,
+    connection: {
+      type: 'podman',
+    },
+  } as unknown as InternalContainerProvider);
+
+  // Spy on the pushManifest function
+  const spyPushManifest = vi.spyOn(fakeLibPod, 'podmanPushManifest');
+
+  const result = await containerRegistry.pushManifest({ name: 'testid1', destination: 'testid1' });
+
+  // Expect PushManifest to be called
+  expect(spyPushManifest).toHaveBeenCalled();
+
+  // Expect to not error
+  expect(result).toBeUndefined();
+});
+
 test('check that createManifest returns an Id value after running podmanCreateManifest', async () => {
   const createManifestMock = vi.fn().mockResolvedValue({
     Id: 'testid1',
@@ -4719,4 +4747,28 @@ test('inspectManifest should fail if libpod is missing from the provider', async
   await expect(() => containerRegistry.inspectManifest('podman1', 'manifestId')).rejects.toThrowError(
     'LibPod is not supported by this engine',
   );
+});
+
+test('test removeManifest', async () => {
+  const api = new Dockerode({ protocol: 'http', host: 'localhost' });
+
+  const removeManifestMock = vi.fn();
+
+  const fakeLibPod = {
+    podmanRemoveManifest: removeManifestMock,
+  } as unknown as LibPod;
+
+  containerRegistry.addInternalProvider('podman1', {
+    name: 'podman',
+    id: 'podman1',
+    api,
+    libpodApi: fakeLibPod,
+    connection: {
+      type: 'podman',
+    },
+  } as unknown as InternalContainerProvider);
+
+  const result = await containerRegistry.removeManifest('podman1', 'manifestId');
+  expect(removeManifestMock).toBeCalledWith('manifestId');
+  expect(result).toBeUndefined();
 });

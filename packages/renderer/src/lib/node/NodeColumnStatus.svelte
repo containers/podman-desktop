@@ -7,4 +7,4 @@ import type { NodeUI } from './NodeUI';
 export let object: NodeUI;
 </script>
 
-<StatusIcon icon="{NodeIcon}" status="{object.status}" />
+<StatusIcon icon={NodeIcon} status={object.status} />

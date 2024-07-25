@@ -46,6 +46,18 @@ module.exports = {
         'leftsidebar': '225px',
       },
     },
+    fontSize: {
+      'xs': '10px',
+      'sm': '11px',
+      'base': '12px',
+      'lg': '14px',
+      'xl': '16px',
+      '2xl': '18px',
+      '3xl': '20px',
+      '4xl': '24px',
+      '5xl': '30px',
+      '6xl': '36px',
+    },
     colors: {
       // import colors from the color palette
       ...colorPalette,

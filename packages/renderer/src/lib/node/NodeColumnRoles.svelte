@@ -27,12 +27,12 @@ function getConditionColour(role: 'control-plane' | 'node'): string {
 </script>
 
 <div class="flex flex-row gap-1">
-  <Label name="{roleName}">
-    <Fa size="1x" icon="{roleIcon}" class="{getConditionColour(object.role)}" />
+  <Label name={roleName}>
+    <Fa size="1x" icon={roleIcon} class={getConditionColour(object.role)} />
   </Label>
   {#if object.hasGpu}
     <Label name="GPU">
-      <Fa size="1x" icon="{faMicrochip}" class="text-[var(--pd-status-updated)]" />
+      <Fa size="1x" icon={faMicrochip} class="text-[var(--pd-status-updated)]" />
     </Label>
   {/if}
 </div>

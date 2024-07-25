@@ -83,17 +83,17 @@ async function applyToCluster() {
     <Button
       type="primary"
       aria-label="Apply changes to cluster"
-      on:click="{applyToCluster}"
-      disabled="{!changesDetected}"
-      inProgress="{inProgress}">Apply changes to cluster</Button>
+      on:click={applyToCluster}
+      disabled={!changesDetected}
+      inProgress={inProgress}>Apply changes to cluster</Button>
   </Tooltip>
   <Tooltip topLeft tip="Revert the changes to the original content">
     <Button
       type="secondary"
       aria-label="Revert changes"
       class="mr-2 opacity-100"
-      on:click="{revertChanges}"
-      disabled="{!changesDetected}">Revert changes</Button>
+      on:click={revertChanges}
+      disabled={!changesDetected}>Revert changes</Button>
   </Tooltip>
 </div>
 
@@ -101,5 +101,5 @@ async function applyToCluster() {
     The reasoning is that MonacoEditor is complex and uses it's own rendering components
     and does not allow a way to reactively update the content externally. So we just re-render with the original content -->
 {#key key}
-  <MonacoEditor content="{content}" language="yaml" readOnly="{false}" on:contentChange="{handleContentChange}" />
+  <MonacoEditor content={content} language="yaml" readOnly={false} on:contentChange={handleContentChange} />
 {/key}

@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-import type { Unsubscriber } from 'svelte/motion';
+import type { Unsubscriber } from 'svelte/store';
 
 import { notificationQueue } from '/@/stores/notifications';
 import type { NotificationCard } from '/@api/notification';
@@ -25,11 +25,11 @@ onDestroy(() => {
 </script>
 
 {#if notifications.length > 0}
-  <div class="bg-charcoal-800 m-5 px-5 py-4 rounded-lg">
+  <div class="bg-[var(--pd-content-card-bg)] m-5 px-5 py-4 rounded-lg">
     <div class="flex flex-col items-center justify-content space-y-3" role="region" aria-label="Notifications Box">
-      <span class="text-md text-white mb-1">Notifications</span>
+      <span class="text-[var(--pd-content-card-header-text)] text-lg font-semibold self-start mb-1">Notifications</span>
       {#each notifications as notification}
-        <NotificationCardItem notification="{notification}" />
+        <NotificationCardItem notification={notification} />
       {/each}
     </div>
   </div>

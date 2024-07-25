@@ -4,5 +4,5 @@ import { extensionBannerInfos } from '/@/stores/extensionBanners';
 </script>
 
 {#each $extensionBannerInfos as banner (banner.extensionId)}
-  <ExtensionBanner banner="{banner}" />
+  <ExtensionBanner banner={banner} />
 {/each}

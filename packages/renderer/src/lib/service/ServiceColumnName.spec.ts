@@ -41,7 +41,6 @@ test('Expect simple column styling', async () => {
 
   const text = screen.getByText(service.name);
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('text-sm');
   expect(text).toHaveClass('text-[var(--pd-table-body-text-highlight)]');
 });
 
@@ -68,4 +67,11 @@ test('If loadBalancerIPs is set, expect it to be displayed', async () => {
 
   const loadBalancerIPs = screen.getByText(service.loadBalancerIPs);
   expect(loadBalancerIPs).toBeInTheDocument();
+});
+
+test('Expect to show namespace in column', async () => {
+  render(ServiceColumnName, { object: JSON.parse(JSON.stringify(service)) });
+
+  const text = screen.getByText(service.namespace);
+  expect(text).toBeInTheDocument();
 });

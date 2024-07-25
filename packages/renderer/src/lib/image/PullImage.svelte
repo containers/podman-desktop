@@ -136,80 +136,80 @@ function requestFocus(element: HTMLInputElement) {
 
 <EngineFormPage
   title="Pull image from a registry"
-  inProgress="{pullInProgress}"
-  showEmptyScreen="{providerConnections.length === 0}">
+  inProgress={pullInProgress}
+  showEmptyScreen={providerConnections.length === 0}>
   <svelte:fragment slot="icon">
     <i class="fas fa-arrow-circle-down fa-2x" aria-hidden="true"></i>
   </svelte:fragment>
 
   <svelte:fragment slot="actions">
-    <Button on:click="{() => gotoManageRegistries()}" icon="{faCog}">Manage registries</Button>
+    <Button on:click={() => gotoManageRegistries()} icon={faCog}>Manage registries</Button>
   </svelte:fragment>
 
   <div slot="content" class="space-y-6">
     <div class="w-full">
-      <label for="imageName" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
+      <label for="imageName" class="block mb-2 font-bold text-[var(--pd-content-card-header-text)]"
         >Image to Pull</label>
       <input
         id="imageName"
-        class="w-full p-2 outline-none text-sm bg-[var(--pd-select-bg)] border-[1px] border-transparent border-b-[var(--pd-input-field-stroke)] rounded-sm text-[var(--pd-content-card-text)] placeholder:text-[color:var(--pd-input-field-placeholder-text)]"
+        class="w-full p-2 outline-none bg-[var(--pd-select-bg)] border-[1px] border-transparent border-b-[var(--pd-input-field-stroke)] rounded-sm text-[var(--pd-content-card-text)] placeholder:text-[color:var(--pd-input-field-placeholder-text)]"
         type="text"
         name="imageName"
-        disabled="{pullFinished || pullInProgress}"
-        on:input="{event => validateImageName(event)}"
-        on:keypress="{event => {
+        disabled={pullFinished || pullInProgress}
+        on:input={event => validateImageName(event)}
+        on:keypress={event => {
           if (event.key === 'Enter') {
             pullImage();
           }
-        }}"
-        bind:value="{imageToPull}"
-        aria-invalid="{imageNameInvalid !== ''}"
+        }}
+        bind:value={imageToPull}
+        aria-invalid={imageNameInvalid !== ''}
         placeholder="Image name"
         aria-label="imageName"
         required
         use:requestFocus />
       {#if imageNameInvalid}
-        <ErrorMessage error="{imageNameInvalid}" />
+        <ErrorMessage error={imageNameInvalid} />
       {/if}
 
       {#if providerConnections.length > 1}
         <div class="pt-4">
-          <label for="providerChoice" class="block mb-2 text-sm font-bold text-[var(--pd-content-card-header-text)]"
+          <label for="providerChoice" class="block mb-2 font-bold text-[var(--pd-content-card-header-text)]"
             >Container Engine:</label>
           <select
             id="providerChoice"
             class="w-auto border text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block p-2.5 bg-[var(--pd-select-bg)] rounded-sm text-[var(--pd-content-card-text)]"
             name="providerChoice"
-            bind:value="{selectedProviderConnection}">
+            bind:value={selectedProviderConnection}>
             {#each providerConnections as providerConnection}
-              <option value="{providerConnection}">{providerConnection.name}</option>
+              <option value={providerConnection}>{providerConnection.name}</option>
             {/each}
           </select>
         </div>
       {/if}
       {#if providerConnections.length === 1}
-        <input type="hidden" name="providerChoice" readonly bind:value="{selectedProviderConnection}" />
+        <input type="hidden" name="providerChoice" readonly bind:value={selectedProviderConnection} />
       {/if}
     </div>
     <footer>
       <div class="w-full flex flex-col justify-end">
         {#if !pullFinished}
           <Button
-            icon="{faArrowCircleDown}"
-            bind:disabled="{imageNameIsInvalid}"
-            on:click="{() => pullImage()}"
-            bind:inProgress="{pullInProgress}">
+            icon={faArrowCircleDown}
+            bind:disabled={imageNameIsInvalid}
+            on:click={() => pullImage()}
+            bind:inProgress={pullInProgress}>
             Pull image
           </Button>
         {:else}
-          <Button on:click="{() => pullImageFinished()}">Done</Button>
+          <Button on:click={() => pullImageFinished()}>Done</Button>
         {/if}
         {#if pullError}
-          <ErrorMessage error="{pullError}" />
+          <ErrorMessage error={pullError} />
         {/if}
-        <RecommendedRegistry bind:imageError="{pullError}" imageName="{imageToPull}" />
+        <RecommendedRegistry bind:imageError={pullError} imageName={imageToPull} />
       </div>
     </footer>
-    <TerminalWindow bind:terminal="{logsPull}" />
+    <TerminalWindow bind:terminal={logsPull} />
   </div>
 </EngineFormPage>

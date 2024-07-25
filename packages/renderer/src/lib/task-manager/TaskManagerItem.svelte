@@ -40,7 +40,7 @@ onMount(() => {
   }
 
   icon = faInfoCircle;
-  iconColor = 'text-purple-500';
+  iconColor = 'text-[var(--pd-invert-content-info-icon)]';
 });
 
 function closeCompleted(taskUI: StatefulTaskUI | NotificationTask) {
@@ -57,57 +57,59 @@ function doExecuteAction(taskUI: StatefulTaskUI) {
 <div class="flex flew-row w-full py-2">
   <!-- first column is the icon-->
   <div class="flex w-3 {iconColor} justify-center">
-    <Fa size="0.875x" icon="{icon}" />
+    <Fa size="0.875x" icon={icon} />
   </div>
   <!-- second column is about the task-->
   <div class="flex flex-col w-full pl-2">
     <div class="flex flex-row w-full">
-      <div title="{taskUI.name}" class="w-60 pb-1 cursor-default truncate">{taskUI.name}</div>
+      <div title={taskUI.name} class="w-60 pb-1 cursor-default truncate text-[var(--pd-modal-text)]">
+        {taskUI.name}
+      </div>
 
       <div class="flex flex-col flex-grow items-end">
         <!-- if completed task, display a close icon-->
         {#if isNotificationTask(taskUI) || (isStatefulTask(taskUI) && taskUI.state === 'completed')}
-          <button
-            title="Clear notification"
-            class="hover:bg-charcoal-800 hover:text-purple-500"
-            on:click="{() => closeCompleted(taskUI)}"><Fa size="0.75x" icon="{faClose}" /></button>
+          <button title="Clear notification" class="text-[var(--pd-modal-text)]" on:click={() => closeCompleted(taskUI)}
+            ><Fa size="0.75x" icon={faClose} /></button>
         {/if}
       </div>
     </div>
     {#if isNotificationTask(taskUI)}
-      <div class="text-gray-700 text-xs my-2">{taskUI.description}</div>
+      <div class="text-[var(--pd-modal-text)] text-xs my-2">{taskUI.description}</div>
       {#if taskUI.markdownActions}
         <div class="flex justify-end">
-          <Markdown>{taskUI.markdownActions}</Markdown>
+          <Markdown markdown={taskUI.markdownActions} />
         </div>
       {/if}
     {/if}
     {#if isStatefulTask(taskUI)}
       {#if taskUI.error}
-        <div class:hidden="{!showError}" class="text-xs my-2 break-words">{taskUI.error}</div>
+        <div class:hidden={!showError} class="text-xs my-2 break-words text-[var(--pd-modal-text)]">
+          {taskUI.error}
+        </div>
       {/if}
       <!-- age -->
-      <div class="text-gray-700 text-xs">{taskUI.age}</div>
+      <div class="text-[var(--pd-modal-text)] text-xs">{taskUI.age}</div>
     {/if}
 
     <!-- if in-progress task, display a link to resume-->
     {#if isStatefulTask(taskUI) && taskUI.status === 'in-progress'}
       <div class="flex flex-row w-full">
         {#if (taskUI.progress ?? 0) >= 0}
-          <ProgressBar progress="{taskUI.progress}" />
+          <ProgressBar progress={taskUI.progress} />
         {/if}
       </div>
     {/if}
 
     {#if isStatefulTask(taskUI) && taskUI.status !== 'failure'}
       <div class="flex flex-row w-full">
-        <div class="flex flex-1 flex-col w-full items-end text-purple-500 text-xs">
+        <div class="flex flex-1 flex-col w-full items-end text-[var(--pd-button-secondary)] text-xs">
           {#if taskUI.action}
             <button
-              class="text-purple-500 cursor-pointer"
-              on:click="{() => {
+              class="text-[var(--pd-button-secondary)] cursor-pointer"
+              on:click={() => {
                 if (isStatefulTask(taskUI)) doExecuteAction(taskUI);
-              }}"
+              }}
               aria-label="action button">{taskUI.action.name}</button>
           {/if}
         </div>
@@ -117,7 +119,7 @@ function doExecuteAction(taskUI: StatefulTaskUI) {
     <!-- if failed task, display the error-->
     {#if isStatefulTask(taskUI) && taskUI.status === 'failure'}
       <div class="flex flex-col w-full items-end">
-        <button on:click="{() => (showError = !showError)}" class="text-purple-200 text-xs">
+        <button on:click={() => (showError = !showError)} class="text-[var(--pd-button-secondary)] text-xs">
           View Error
           {#if showError}
             <i class="fas fa-chevron-up"></i>

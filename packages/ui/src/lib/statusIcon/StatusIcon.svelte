@@ -15,23 +15,23 @@ $: solid = status === 'RUNNING' || status === 'STARTING' || status === 'USED' ||
 <div class="grid place-content-center" style="position:relative">
   <div
     class="grid place-content-center rounded aspect-square text-xs"
-    class:bg-[var(--pd-status-running)]="{status === 'RUNNING' || status === 'USED'}"
-    class:bg-[var(--pd-status-starting)]="{status === 'STARTING'}"
-    class:bg-[var(--pd-status-degraded)]="{status === 'DEGRADED'}"
-    class:border-2="{!solid && status !== 'DELETING'}"
-    class:p-0.5="{!solid}"
-    class:p-1="{solid}"
-    class:border-[var(--pd-status-not-running)]="{!solid}"
-    class:text-[var(--pd-status-not-running)]="{!solid}"
-    class:text-[var(--pd-status-contrast)]="{solid}"
+    class:bg-[var(--pd-status-running)]={status === 'RUNNING' || status === 'USED'}
+    class:bg-[var(--pd-status-starting)]={status === 'STARTING'}
+    class:bg-[var(--pd-status-degraded)]={status === 'DEGRADED'}
+    class:border-2={!solid && status !== 'DELETING'}
+    class:p-0.5={!solid}
+    class:p-1={solid}
+    class:border-[var(--pd-status-not-running)]={!solid}
+    class:text-[var(--pd-status-not-running)]={!solid}
+    class:text-[var(--pd-status-contrast)]={solid}
     role="status"
-    title="{status}">
+    title={status}>
     {#if status === 'DELETING'}
       <Spinner size="1.4em" />
     {:else if typeof icon === 'string'}
-      <span class="{icon}" aria-hidden="true"></span>
+      <span class={icon} aria-hidden="true"></span>
     {:else}
-      <svelte:component this="{icon}" size="{size}" solid="{solid}" />
+      <svelte:component this={icon} size={size} solid={solid} />
     {/if}
   </div>
   {#if status === 'CREATED'}

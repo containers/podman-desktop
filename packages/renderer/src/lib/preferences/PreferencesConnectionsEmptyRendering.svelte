@@ -6,7 +6,7 @@ export let hidden: boolean;
 </script>
 
 {#if !hidden}
-  <div class="ml-6 mt-2 text-sm">
-    <Markdown markdown="{message}" />
+  <div class="ml-6 mt-2">
+    <Markdown markdown={message} />
   </div>
 {/if}

@@ -133,21 +133,21 @@ function dragMe(node: any) {
     class="fixed top-0 left-0 right-0 bottom-0 bg-black pt-8 pb-3 bg-opacity-60 bg-blend-multiply h-full grid z-50 overflow-y-auto">
     <div
       class="flex flex-col place-self-center w-[650px] rounded-xl bg-charcoal-800 shadow-xl shadow-black"
-      class:w-[650px]="{colsPerRow === 2}"
-      class:w-[800px]="{colsPerRow === 3}">
+      class:w-[650px]={colsPerRow === 2}
+      class:w-[800px]={colsPerRow === 3}>
       <div class="flex flex-col items-center justify-between pl-4 pr-3 py-3 space-x-2 text-gray-400">
         {#if icon}
           <div class="mb-2">
             {#if typeof icon === 'string'}
-              <img src="{icon}" alt="{title ? title : 'icon'}" class="max-h-12" />
+              <img src={icon} alt={title ? title : 'icon'} class="max-h-12" />
             {:else}
               <!-- TODO check theme used for image, now use dark by default -->
-              <img src="{icon.dark}" alt="{title ? title : 'icon'}" class="max-h-12" />
+              <img src={icon.dark} alt={title ? title : 'icon'} class="max-h-12" />
             {/if}
           </div>
         {/if}
         {#if title}
-          <h1 class="grow text-lg font-bold capitalize" aria-label="{title}">{title}</h1>
+          <h1 class="grow text-lg font-bold capitalize" aria-label={title}>{title}</h1>
         {/if}
         {#if description}
           <h3 class="grow text-xs">{description}</h3>
@@ -162,31 +162,30 @@ function dragMe(node: any) {
                 {@const innerItem = items[(i / colsPerRow) * colsPerRow + j]}
                 <div
                   role="button"
-                  tabindex="{0}"
+                  tabindex={0}
                   class="flex flex-col w-[300px] mx-2 mb-4 h-fit rounded-md group/footer"
-                  class:min-h-[minHeight]="{minHeight}"
-                  class:is-selected="{innerItem.selected}"
-                  class:hide-section="{itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j)}"
-                  class:group="{!usePopperForDetails &&
-                    !itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j)}"
-                  class:w-[300px]="{colsPerRow === 2}"
-                  class:w-[250px]="{colsPerRow === 3}"
-                  on:mousedown="{e => handleSelection(e, innerItem)}">
+                  class:min-h-[minHeight]={minHeight}
+                  class:is-selected={innerItem.selected}
+                  class:hide-section={itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j)}
+                  class:group={!usePopperForDetails && !itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j)}
+                  class:w-[300px]={colsPerRow === 2}
+                  class:w-[250px]={colsPerRow === 3}
+                  on:mousedown={e => handleSelection(e, innerItem)}>
                   {#if innerItem.selected}
                     <div class="relative">
                       <div class="absolute right-0 m-3 text-xl text-purple-500">
-                        <Fa icon="{faCircleCheck}" />
+                        <Fa icon={faCircleCheck} />
                       </div>
                     </div>
                   {/if}
 
                   <div
                     class="px-4 pt-4 pb-2 bg-charcoal-500 group-hover:bg-purple-800 hover:bg-purple-800 group-hover:border-purple-500 hover:border-purple-500 rounded-t-md group-[.is-selected]:bg-purple-800 border-t-2 border-x-2 border-transparent"
-                    class:border-b-2="{usePopperForDetails ||
-                      itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j)}"
-                    class:rounded-b-md="{usePopperForDetails ||
-                      itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j)}"
-                    class:bg-purple-800="{innerItem.selected}">
+                    class:border-b-2={usePopperForDetails ||
+                      itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j)}
+                    class:rounded-b-md={usePopperForDetails ||
+                      itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j)}
+                    class:bg-purple-800={innerItem.selected}>
                     <div class="flex flex-row mb-1 gap-x-1">
                       <span class="text-md font-bold">{innerItem.title}</span>
                       {#if innerItem.description}
@@ -195,19 +194,19 @@ function dragMe(node: any) {
                     </div>
 
                     <div class="mb-2 text-xs">
-                      <Markdown>{innerItem.markDownContent}</Markdown>
+                      <Markdown markdown={innerItem.markDownContent} />
                     </div>
 
                     {#if usePopperForDetails || (innerItem.sections && innerItem.sections.length > 0 && itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j))}
                       <div
                         class="p-4 rounded-b-md text-xs flex justify-center"
-                        class:invisible="{usePopperForDetails &&
-                          !itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j)}">
+                        class:invisible={usePopperForDetails &&
+                          !itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j)}>
                         <Button
                           type="link"
                           aria-label="Show more"
-                          icon="{faAngleDown}"
-                          on:click="{() => setSectionVisibility((i / colsPerRow) * colsPerRow + j, false)}">
+                          icon={faAngleDown}
+                          on:click={() => setSectionVisibility((i / colsPerRow) * colsPerRow + j, false)}>
                           Show details
                         </Button>
                       </div>
@@ -216,30 +215,30 @@ function dragMe(node: any) {
                   {#if innerItem.sections}
                     <div
                       role="button"
-                      tabindex="{0}"
-                      class:relative="{usePopperForDetails}"
-                      on:mousedown="{e => {
+                      tabindex={0}
+                      class:relative={usePopperForDetails}
+                      on:mousedown={e => {
                         if (usePopperForDetails || itemSectionHiddenStatus.get((i / colsPerRow) * colsPerRow + j)) {
                           e.stopPropagation();
                         }
-                      }}">
+                      }}>
                       <div
                         class="flex flex-col {usePopperForDetails
                           ? 'group-[.hide-section]/footer:hidden'
                           : 'group-[.hide-section]/footer:invisible'} rounded-md"
-                        class:absolute="{usePopperForDetails}"
-                        class:left-[90px]="{usePopperForDetails}"
-                        class:z-10="{usePopperForDetails}"
-                        class:border-2="{usePopperForDetails}"
-                        class:border-purple-500="{usePopperForDetails}"
-                        class:w-[300px]="{usePopperForDetails && colsPerRow === 2}"
-                        class:w-[250px]="{usePopperForDetails && colsPerRow === 3}"
+                        class:absolute={usePopperForDetails}
+                        class:left-[90px]={usePopperForDetails}
+                        class:z-10={usePopperForDetails}
+                        class:border-2={usePopperForDetails}
+                        class:border-purple-500={usePopperForDetails}
+                        class:w-[300px]={usePopperForDetails && colsPerRow === 2}
+                        class:w-[250px]={usePopperForDetails && colsPerRow === 3}
                         use:dragMe>
                         {#if usePopperForDetails}
                           <div class="relative">
                             <div class="absolute right-0 mr-2 text-xl">
-                              <button on:click="{() => setSectionVisibility((i / colsPerRow) * colsPerRow + j, true)}">
-                                <Fa size="0.9x" icon="{faXmark}" />
+                              <button on:click={() => setSectionVisibility((i / colsPerRow) * colsPerRow + j, true)}>
+                                <Fa size="0.9x" icon={faXmark} />
                               </button>
                             </div>
                           </div>
@@ -257,17 +256,17 @@ function dragMe(node: any) {
                           {#if section.content}
                             <div
                               class="bg-charcoal-500 group-hover:bg-purple-800 group-[.is-selected]:bg-purple-800 px-4 py-2 flex flex-col text-xs items-center border-x-2 border-transparent group-hover:border-purple-500"
-                              class:rounded-b-md="{usePopperForDetails &&
+                              class:rounded-b-md={usePopperForDetails &&
                                 !section.markDownContent &&
-                                i === innerItem.sections.length - 1}">
+                                i === innerItem.sections.length - 1}>
                               {section.content}
                             </div>
                           {/if}
                           {#if section.markDownContent}
                             <div
                               class="bg-charcoal-500 group-hover:bg-purple-800 group-[.is-selected]:bg-purple-800 px-4 py-2 flex flex-col text-xs border-x-2 border-transparent group-hover:border-purple-500"
-                              class:rounded-b-md="{usePopperForDetails && i === innerItem.sections.length - 1}">
-                              <Markdown>{section.markDownContent}</Markdown>
+                              class:rounded-b-md={usePopperForDetails && i === innerItem.sections.length - 1}>
+                              <Markdown markdown={section.markDownContent} />
                             </div>
                           {/if}
                         {/each}
@@ -277,8 +276,8 @@ function dragMe(node: any) {
                             <Button
                               type="link"
                               aria-label="Less detail"
-                              icon="{faAngleUp}"
-                              on:click="{() => setSectionVisibility((i / colsPerRow) * colsPerRow + j, true)}">
+                              icon={faAngleUp}
+                              on:click={() => setSectionVisibility((i / colsPerRow) * colsPerRow + j, true)}>
                               Less details
                             </Button>
                           </div>
@@ -294,8 +293,8 @@ function dragMe(node: any) {
       {/each}
 
       <div class="px-5 py-5 mt-2 flex flex-row w-full justify-end space-x-5">
-        <Button type="link" aria-label="Cancel" on:click="{() => cancel()}">Cancel</Button>
-        <Button aria-label="Next" disabled="{!items.find(item => item.selected)}" on:click="{() => next()}">Ok</Button>
+        <Button type="link" aria-label="Cancel" on:click={() => cancel()}>Cancel</Button>
+        <Button aria-label="Next" disabled={!items.find(item => item.selected)} on:click={() => next()}>Ok</Button>
       </div>
     </div>
   </div>

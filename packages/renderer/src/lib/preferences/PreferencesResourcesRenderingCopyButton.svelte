@@ -27,5 +27,5 @@ onMount(async () => {
 </script>
 
 {#if url}
-  <CopyToClipboard title="{url}" clipboardData="{url}" class="{$$props.class}" />
+  <CopyToClipboard title={url} clipboardData={url} class={$$props.class} />
 {/if}

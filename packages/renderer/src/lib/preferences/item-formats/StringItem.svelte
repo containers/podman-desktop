@@ -17,12 +17,12 @@ function onInput(event: Event) {
 </script>
 
 <Input
-  on:input="{onInput}"
+  on:input={onInput}
   class="grow"
-  name="{record.id}"
-  placeholder="{record.placeholder}"
-  bind:value="{value}"
-  readonly="{!!record.readonly}"
+  name={record.id}
+  placeholder={record.placeholder}
+  bind:value={value}
+  readonly={!!record.readonly}
   id="input-standard-{record.id}"
-  aria-invalid="{invalidEntry}"
-  aria-label="{record.description}" />
+  aria-invalid={invalidEntry}
+  aria-label={record.description} />

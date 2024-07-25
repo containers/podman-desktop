@@ -66,10 +66,10 @@ function onCancelClick(e: MouseEvent) {
     {value}
   {:else}
     <FloatNumberItem
-      record="{record}"
-      value="{Number(editedValue)}"
-      onChange="{onChangeInput}"
-      invalidRecord="{invalidRecord}" />
+      record={record}
+      value={Number(editedValue)}
+      onChange={onChangeInput}
+      invalidRecord={invalidRecord} />
   {/if}
   {#if description}
     <span class="ml-1" aria-label="description">
@@ -78,15 +78,15 @@ function onCancelClick(e: MouseEvent) {
   {/if}
 
   {#if !editingInProgress}
-    <Button on:click="{onSwitchToInProgress}" title="Edit" class="ml-1" padding="p-2" type="link">
-      <Fa size="0.8x" icon="{faPencil}" />
+    <Button on:click={onSwitchToInProgress} title="Edit" class="ml-1" padding="p-2" type="link">
+      <Fa size="0.8x" icon={faPencil} />
     </Button>
   {:else}
-    <Button on:click="{onCancelClick}" title="Cancel" class="ml-3" padding="p-2" type="link">
-      <Fa size="0.9x" class="text-red-500" icon="{faXmark}" />
+    <Button on:click={onCancelClick} title="Cancel" class="ml-3" padding="p-2" type="link">
+      <Fa size="0.9x" class="text-red-500" icon={faXmark} />
     </Button>
-    <Button on:click="{onSaveClick}" title="Save" padding="p-2" disabled="{disableSaveButton}" type="link">
-      <Fa size="0.9x" class="{`${disableSaveButton ? 'text-gray-500' : 'text-green-500'}`}" icon="{faCheck}" />
+    <Button on:click={onSaveClick} title="Save" padding="p-2" disabled={disableSaveButton} type="link">
+      <Fa size="0.9x" class={`${disableSaveButton ? 'text-gray-500' : 'text-green-500'}`} icon={faCheck} />
     </Button>
   {/if}
 </div>

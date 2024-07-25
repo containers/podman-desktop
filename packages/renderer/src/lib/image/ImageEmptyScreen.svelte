@@ -7,8 +7,8 @@ const commandLine = 'podman pull quay.io/podman/hello';
 </script>
 
 <EmptyScreen
-  icon="{ImageIcon}"
+  icon={ImageIcon}
   title="No images"
   message="Pull a first image using the following command line:"
-  commandline="{commandLine}"
-  on:click="{() => window.clipboardWriteText(commandLine)}" />
+  commandline={commandLine}
+  on:click={() => window.clipboardWriteText(commandLine)} />

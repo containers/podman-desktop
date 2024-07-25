@@ -21,7 +21,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { faRocket } from '@fortawesome/free-solid-svg-icons';
-import { fireEvent, render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, within } from '@testing-library/svelte';
 import { expect, test, vi } from 'vitest';
 
 import Link from './Link.svelte';
@@ -41,11 +41,11 @@ test('Check icon styling', async () => {
   render(Link, { icon: faRocket });
 
   // check for the fa SVG child
-  const link = screen.getByRole('link');
+  const link = screen.getByRole('link', { hidden: true });
   expect(link).toBeInTheDocument();
-  expect(link.firstChild).toBeInTheDocument();
-  expect(link.firstChild?.firstChild).toBeInTheDocument();
-  expect(link.firstChild?.firstChild).toHaveClass('svelte-fa');
+  const img = within(link).getByRole('img', { hidden: true });
+  expect(img).toBeInTheDocument();
+  expect(img).toHaveClass('svelte-fa');
 });
 
 test('Check on:click action', async () => {

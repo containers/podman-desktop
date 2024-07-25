@@ -108,36 +108,36 @@ function getButtonType(b: boolean): ButtonType {
 </script>
 
 {#if display}
-  <Dialog title="{title}" on:close="{onClose}">
+  <Dialog title={title} on:close={onClose}>
     <svelte:fragment slot="icon">
       {#if type === 'error'}
-        <Fa class="h-4 w-4 text-[var(--pd-state-error)]" icon="{faCircleExclamation}" />
+        <Fa class="h-4 w-4 text-[var(--pd-state-error)]" icon={faCircleExclamation} />
       {:else if type === 'warning'}
-        <Fa class="h-4 w-4 text-[var(--pd-state-warning)]" icon="{faTriangleExclamation}" />
+        <Fa class="h-4 w-4 text-[var(--pd-state-warning)]" icon={faTriangleExclamation} />
       {:else if type === 'info'}
         <div class="flex">
-          <Fa class="h-4 w-4 place-content-center" icon="{faCircle}" />
-          <Fa class="h-4 w-4 place-content-center -ml-4 mt-px text-xs" icon="{faInfo}" />
+          <Fa class="h-4 w-4 place-content-center" icon={faCircle} />
+          <Fa class="h-4 w-4 place-content-center -ml-4 mt-px text-xs" icon={faInfo} />
         </div>
       {:else if type === 'question'}
-        <Fa class="h-4 w-4" icon="{faCircleQuestion}" />
+        <Fa class="h-4 w-4" icon={faCircleQuestion} />
       {/if}
     </svelte:fragment>
 
     <svelte:fragment slot="content">
-      <div class="text-sm leading-5" aria-label="Dialog Message">{message}</div>
+      <div class="leading-5 whitespace-pre-wrap" aria-label="Dialog Message">{message}</div>
 
       {#if detail}
-        <div class="pt-4 text-sm leading-5" aria-label="Dialog Details">{detail}</div>
+        <div class="pt-4 leading-5" aria-label="Dialog Details">{detail}</div>
       {/if}
     </svelte:fragment>
 
     <svelte:fragment slot="buttons">
       {#each buttonOrder as i}
         {#if i === cancelId}
-          <Button type="link" aria-label="Cancel" on:click="{() => clickButton(i)}">Cancel</Button>
+          <Button type="link" aria-label="Cancel" on:click={() => clickButton(i)}>Cancel</Button>
         {:else}
-          <Button type="{getButtonType(defaultId === i)}" on:click="{() => clickButton(i)}">{buttons[i]}</Button>
+          <Button type={getButtonType(defaultId === i)} on:click={() => clickButton(i)}>{buttons[i]}</Button>
         {/if}
       {/each}
     </svelte:fragment>

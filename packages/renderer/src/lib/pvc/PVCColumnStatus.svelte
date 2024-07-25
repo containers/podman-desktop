@@ -7,4 +7,4 @@ import type { PVCUI } from './PVCUI';
 export let object: PVCUI;
 </script>
 
-<StatusIcon icon="{PVCIcon}" status="{object.status}" />
+<StatusIcon icon={PVCIcon} status={object.status} />

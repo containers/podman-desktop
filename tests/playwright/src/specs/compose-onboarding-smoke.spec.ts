@@ -23,7 +23,10 @@ import { expect as playExpect } from '@playwright/test';
 import { afterAll, beforeAll, beforeEach, describe, test } from 'vitest';
 
 import { CLIToolsPage } from '../model/pages/cli-tools-page';
-import { ComposeOnboardingPage } from '../model/pages/compose-onboarding-page';
+import { ComposeLocalInstallPage } from '../model/pages/compose-onboarding/compose-local-install-page';
+import { ComposeOnboardingPage } from '../model/pages/compose-onboarding/compose-onboarding-page';
+import { ComposeVersionPage } from '../model/pages/compose-onboarding/compose-version-page';
+import { ComposeWideInstallPage } from '../model/pages/compose-onboarding/compose-wide-install-page';
 import { ResourcesPage } from '../model/pages/resources-page';
 import { SettingsBar } from '../model/pages/settings-bar';
 import { WelcomePage } from '../model/pages/welcome-page';
@@ -81,26 +84,20 @@ describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', asy
     const onboardingPage = await openComposeOnboarding(page);
 
     await playExpect(onboardingPage.heading).toBeVisible();
-    await playExpect(onboardingPage.onboardingStatusMessage).toHaveText('Compose download');
 
-    const downloadAvailableText = page.getByText(
-      /Compose will be downloaded in the next step \(Version v[0-9.]+\). Want to download/,
-      { exact: true },
-    );
-    await playExpect(downloadAvailableText).toBeVisible();
+    const onboardingVersionPage = new ComposeVersionPage(page);
+    await playExpect(onboardingVersionPage.onboardingStatusMessage).toHaveText('Compose download');
+    await playExpect(onboardingVersionPage.versionStatusMessage).toBeVisible();
 
-    const versionInfoFullText = await downloadAvailableText.textContent();
-    const matches = versionInfoFullText?.match(/v\d+(\.\d+)+/);
-    if (matches) {
-      composeVersion = matches[0];
-    }
+    composeVersion = await onboardingVersionPage.getVersion();
   });
 
   test('Can install Compose locally', async () => {
     const onboardingPage = await openComposeOnboarding(page);
     await onboardingPage.nextStepButton.click();
 
-    await playExpect(onboardingPage.onboardingStatusMessage).toHaveText('Compose successfully Downloaded', {
+    const onboardigLocalPage = new ComposeLocalInstallPage(page);
+    await playExpect(onboardigLocalPage.onboardingStatusMessage).toHaveText('Compose successfully Downloaded', {
       timeout: 50000,
     });
 
@@ -112,15 +109,13 @@ describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', asy
   });
 
   test('Can resume Compose onboarding and it can be canceled', async () => {
-    const onboardingPage = await openComposeOnboarding(page);
+    await openComposeOnboarding(page);
+    const onboardingLocalPage = new ComposeLocalInstallPage(page);
 
-    await playExpect(onboardingPage.onboardingStatusMessage).toHaveText('Compose successfully Downloaded');
-    const downloadAvailableText = page.getByText(
-      'The next step will install Compose system-wide. You will be prompted for system',
-    );
-    await playExpect(downloadAvailableText).toBeVisible();
-    await playExpect(onboardingPage.nextStepButton).toBeVisible();
-    await onboardingPage.cancelSetupButtion.click();
+    await playExpect(onboardingLocalPage.onboardingStatusMessage).toHaveText('Compose successfully Downloaded');
+    await playExpect(onboardingLocalPage.wideDownloadAvailableMessage).toBeVisible();
+    await playExpect(onboardingLocalPage.nextStepButton).toBeVisible();
+    await onboardingLocalPage.cancelSetupButtion.click();
 
     const skipDialog = page.getByRole('dialog', { name: 'Skip Setup Popup', exact: true });
     const skipOkButton = skipDialog.getByRole('button', { name: 'Ok' });
@@ -131,10 +126,13 @@ describe.skipIf(isCI && isLinux)('Compose onboarding workflow verification', asy
     const onboardingPage = await openComposeOnboarding(page);
     await onboardingPage.nextStepButton.click();
 
-    await playExpect(onboardingPage.onboardingStatusMessage).toHaveText('Compose installed', { timeout: 50000 });
-    await playExpect(onboardingPage.mainPage.getByRole('heading', { name: 'How To Use Compose' })).toBeVisible();
-    await playExpect(onboardingPage.nextStepButton).toBeEnabled();
-    await onboardingPage.nextStepButton.click();
+    const onboardingWidePage = new ComposeWideInstallPage(page);
+    await playExpect(onboardingWidePage.onboardingStatusMessage).toHaveText('Compose installed', { timeout: 50000 });
+    await playExpect(onboardingWidePage.mainPage.getByRole('heading', { name: 'How To Use Compose' })).toBeVisible();
+    await playExpect(onboardingWidePage.composeUseMessage).toBeVisible();
+    await playExpect(onboardingWidePage.composeCommandMessage).toBeVisible();
+    await playExpect(onboardingWidePage.nextStepButton).toBeEnabled();
+    await onboardingWidePage.nextStepButton.click();
     // expects redirection to the Resources page
     const resourcesPage = new ResourcesPage(page);
     await playExpect(resourcesPage.heading).toBeVisible();

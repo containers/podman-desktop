@@ -83,7 +83,7 @@ import type { ImageFilesInfo } from '/@api/image-files-info.js';
 import type { ImageInfo } from '/@api/image-info.js';
 import type { ImageInspectInfo } from '/@api/image-inspect-info.js';
 import type { ImageSearchOptions, ImageSearchResult } from '/@api/image-registry.js';
-import type { ManifestCreateOptions, ManifestInspectInfo } from '/@api/manifest-info.js';
+import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '/@api/manifest-info.js';
 import type { NetworkInspectInfo } from '/@api/network-info.js';
 import type { NotificationCard, NotificationCardOptions } from '/@api/notification.js';
 import type { OnboardingInfo, OnboardingStatus } from '/@api/onboarding.js';
@@ -775,6 +775,9 @@ export class PluginSystem {
         return containerProviderRegistry.restartPod(engine, podId);
       },
     );
+    this.ipcHandle('kubernetes-client:restartPod', async (_listener, name: string): Promise<void> => {
+      return kubernetesClient.restartPod(name);
+    });
     this.ipcHandle(
       'container-provider-registry:stopPod',
       async (_listener, engine: string, podId: string): Promise<void> => {
@@ -797,9 +800,23 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
+      'container-provider-registry:pushManifest',
+      async (_listener, manifestOptions: ManifestPushOptions): Promise<void> => {
+        return containerProviderRegistry.pushManifest(manifestOptions);
+      },
+    );
+
+    this.ipcHandle(
       'container-provider-registry:inspectManifest',
       async (_listener, engine: string, manifestId: string): Promise<ManifestInspectInfo> => {
         return containerProviderRegistry.inspectManifest(engine, manifestId);
+      },
+    );
+
+    this.ipcHandle(
+      'container-provider-registry:removeManifest',
+      async (_listener, engine: string, manifestId: string): Promise<void> => {
+        return containerProviderRegistry.removeManifest(engine, manifestId);
       },
     );
 

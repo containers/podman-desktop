@@ -834,14 +834,14 @@ test('checkForUpdate should return installed version and no update if the instal
   vi.spyOn(podmanInstall, 'getInstaller').mockReturnValue({
     requireUpdate: vi.fn().mockReturnValue(false),
   } as unknown as Installer);
-  vi.spyOn(podmanInstallObj, 'getBundledPodmanVersion').mockReturnValue('5.1.1');
+  vi.spyOn(podmanInstallObj, 'getBundledPodmanVersion').mockReturnValue('5.1.2');
   vi.spyOn(podmanInstall, 'getLastRunInfo').mockResolvedValue({
     lastUpdateCheck: 0,
   });
   const result = await podmanInstall.checkForUpdate({
     version: '1.1',
   });
-  expect(result).toStrictEqual({ installedVersion: '1.1', hasUpdate: false, bundledVersion: '5.1.1' });
+  expect(result).toStrictEqual({ installedVersion: '1.1', hasUpdate: false, bundledVersion: '5.1.2' });
 });
 
 test('checkForUpdate should return installed version and update if the installed version is NOT the latest', async () => {
@@ -849,12 +849,12 @@ test('checkForUpdate should return installed version and update if the installed
   vi.spyOn(podmanInstall, 'getInstaller').mockReturnValue({
     requireUpdate: vi.fn().mockReturnValue(true),
   } as unknown as Installer);
-  vi.spyOn(podmanInstallObj, 'getBundledPodmanVersion').mockReturnValue('5.1.1');
+  vi.spyOn(podmanInstallObj, 'getBundledPodmanVersion').mockReturnValue('5.1.2');
   vi.spyOn(podmanInstall, 'getLastRunInfo').mockResolvedValue({
     lastUpdateCheck: 0,
   });
   const result = await podmanInstall.checkForUpdate({
     version: '1.1',
   });
-  expect(result).toStrictEqual({ installedVersion: '1.1', hasUpdate: true, bundledVersion: '5.1.1' });
+  expect(result).toStrictEqual({ installedVersion: '1.1', hasUpdate: true, bundledVersion: '5.1.2' });
 });

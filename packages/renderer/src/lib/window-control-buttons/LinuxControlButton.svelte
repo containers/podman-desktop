@@ -26,9 +26,9 @@ onMount(() => {
 </script>
 
 <button
-  on:click="{() => action()}"
-  title="{titleName}"
-  aria-label="{name}"
+  on:click={() => action()}
+  title={titleName}
+  aria-label={name}
   class="h-[25px] w-[25px] cursor-pointer text-gray-400 hover:rounded-full hover:bg-charcoal-300 flex place-items-center justify-center">
-  <Fa size="{iconSize}" icon="{icon}" />
+  <Fa size={iconSize} icon={icon} />
 </button>

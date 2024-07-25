@@ -67,4 +67,4 @@ onDestroy(() => {
 $: content, editor?.getModel()?.setValue(content);
 </script>
 
-<div bind:this="{divEl}" class="h-full"></div>
+<div bind:this={divEl} class="h-full"></div>

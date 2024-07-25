@@ -95,9 +95,9 @@ function innerOnSave(_recordId: string, _value: number) {
 
 {#if record && recordValue}
   <EditableItem
-    record="{normalizeDiskAndMemoryConfigurationKey(record)}"
-    value="{recordValue.value}"
-    description="{recordValue.format}"
-    onCancel="{onCancel}"
-    onChange="{onChangeInput}" />
+    record={normalizeDiskAndMemoryConfigurationKey(record)}
+    value={recordValue.value}
+    description={recordValue.format}
+    onCancel={onCancel}
+    onChange={onChangeInput} />
 {/if}

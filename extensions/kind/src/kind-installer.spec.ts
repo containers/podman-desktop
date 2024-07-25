@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { RunError } from '@podman-desktop/api';
+import { Octokit } from '@octokit/rest';
 import * as extensionApi from '@podman-desktop/api';
 import { tmpName } from 'tmp-promise';
 import { beforeEach, expect, test, vi } from 'vitest';
@@ -29,13 +29,18 @@ let installer: KindInstaller;
 vi.mock('@podman-desktop/api', async () => {
   return {
     window: {
-      showInformationMessage: vi.fn().mockReturnValue(Promise.resolve('Yes')),
+      showInformationMessage: vi.fn(),
       showErrorMessage: vi.fn(),
       withProgress: vi.fn(),
       showNotification: vi.fn(),
     },
     ProgressLocation: {
       APP_ICON: 1,
+    },
+    env: {
+      isLinux: false,
+      isMac: false,
+      isWindows: false,
     },
     process: {
       exec: vi.fn(),
@@ -62,11 +67,8 @@ vi.mock('sudo-prompt', () => {
 });
 
 vi.mock('@octokit/rest', () => {
-  const repos = {
-    getReleaseAsset: vi.fn().mockReturnValue({ name: 'kind', data: [] }),
-  };
   return {
-    Octokit: vi.fn().mockReturnValue({ repos: repos }),
+    Octokit: vi.fn(),
   };
 });
 
@@ -79,15 +81,16 @@ const telemetryLoggerMock = {
 
 beforeEach(() => {
   installer = new KindInstaller('.', telemetryLoggerMock);
-  vi.clearAllMocks();
+  vi.resetAllMocks();
+
+  vi.mocked(extensionApi.window.showInformationMessage).mockReturnValue(Promise.resolve('Yes'));
+  (extensionApi.env.isLinux as unknown as boolean) = false;
+  (extensionApi.env.isWindows as unknown as boolean) = false;
+  (extensionApi.env.isMac as unknown as boolean) = false;
 });
 
 test.skip('expect installBinaryToSystem to succesfully pass with a binary', async () => {
-  // Mock process.platform to be linux
-  // to avoid the usage of sudo-prompt (we cannot test that in unit tests)
-  Object.defineProperty(process, 'platform', {
-    value: 'linux',
-  });
+  (extensionApi.env.isLinux as unknown as boolean) = true;
 
   // Create a tmp file using tmp-promise
   const filename = await tmpName();
@@ -101,24 +104,22 @@ test.skip('expect installBinaryToSystem to succesfully pass with a binary', asyn
 });
 
 test('error: expect installBinaryToSystem to fail with a non existing binary', async () => {
-  Object.defineProperty(process, 'platform', {
-    value: 'linux',
-  });
+  (extensionApi.env.isLinux as unknown as boolean) = false;
 
-  vi.spyOn(extensionApi.process, 'exec').mockRejectedValue({} as RunError);
+  vi.spyOn(extensionApi.process, 'exec').mockRejectedValue(new Error('test error'));
 
-  // Run installBinaryToSystem with a non-binary file
-  try {
-    await installBinaryToSystem('test', 'tmpBinary');
-    // Expect that showErrorMessage is called
-    expect(extensionApi.window.showErrorMessage).toHaveBeenCalled();
-  } catch (err) {
-    expect(err).to.be.a('Error');
-    expect(err).toBeDefined();
-  }
+  await expect(() => installBinaryToSystem('test', 'tmpBinary')).rejects.toThrowError('test error');
 });
 
 test('expect showNotification to be called', async () => {
+  (extensionApi.env.isLinux as unknown as boolean) = true;
+
+  vi.mocked(Octokit).mockReturnValue({
+    repos: {
+      getReleaseAsset: vi.fn().mockReturnValue({ name: 'kind', data: [] }),
+    },
+  } as unknown as Octokit);
+
   const progress = {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     report: (): void => {},

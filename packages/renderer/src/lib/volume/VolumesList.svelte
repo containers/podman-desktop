@@ -16,6 +16,7 @@ import { router } from 'tinro';
 
 import { providerInfos } from '../../stores/providers';
 import { fetchVolumesWithData, filtered, searchPattern, volumeListInfos } from '../../stores/volumes';
+import { withBulkConfirmation } from '../actions/BulkActions';
 import type { EngineInfoUI } from '../engine/EngineInfoUI';
 import Prune from '../engine/Prune.svelte';
 import NoContainerEngineEmptyScreen from '../image/NoContainerEngineEmptyScreen.svelte';
@@ -228,20 +229,20 @@ const row = new TableRow<VolumeInfoUI>({
 });
 </script>
 
-<NavPage bind:searchTerm="{searchTerm}" title="volumes">
+<NavPage bind:searchTerm={searchTerm} title="volumes">
   <svelte:fragment slot="additional-actions">
     {#if $volumeListInfos.map(volumeInfo => volumeInfo.Volumes).flat().length > 0}
-      <Prune type="volumes" engines="{enginesList}" />
+      <Prune type="volumes" engines={enginesList} />
 
       <Button
-        inProgress="{fetchDataInProgress}"
-        on:click="{() => fetchUsageData()}"
+        inProgress={fetchDataInProgress}
+        on:click={() => fetchUsageData()}
         title="Gather sizes for volumes. It can take a while..."
-        icon="{faPieChart}"
+        icon={faPieChart}
         aria-label="Gather volume sizes">Gather volume sizes</Button>
     {/if}
     {#if providerConnections.length > 0}
-      <Button on:click="{() => gotoCreateVolume()}" icon="{faPlusCircle}" title="Create a volume" aria-label="Create"
+      <Button on:click={() => gotoCreateVolume()} icon={faPlusCircle} title="Create a volume" aria-label="Create"
         >Create</Button>
     {/if}
   </svelte:fragment>
@@ -249,10 +250,14 @@ const row = new TableRow<VolumeInfoUI>({
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() => deleteSelectedVolumes()}"
+        on:click={() =>
+          withBulkConfirmation(
+            deleteSelectedVolumes,
+            `delete ${selectedItemsNumber} volume${selectedItemsNumber > 1 ? 's' : ''}`,
+          )}
         title="Delete {selectedItemsNumber} selected items"
-        inProgress="{bulkDeleteInProgress}"
-        icon="{faTrash}" />
+        inProgress={bulkDeleteInProgress}
+        icon={faTrash} />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
   </svelte:fragment>
@@ -260,20 +265,20 @@ const row = new TableRow<VolumeInfoUI>({
   <div class="flex min-w-full h-full" slot="content">
     <Table
       kind="volume"
-      bind:this="{table}"
-      bind:selectedItemsNumber="{selectedItemsNumber}"
-      data="{volumes}"
-      columns="{columns}"
-      row="{row}"
+      bind:this={table}
+      bind:selectedItemsNumber={selectedItemsNumber}
+      data={volumes}
+      columns={columns}
+      row={row}
       defaultSortColumn="Name"
-      on:update="{() => (volumes = volumes)}">
+      on:update={() => (volumes = volumes)}>
     </Table>
 
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
     {:else if $filtered.map(volumeInfo => volumeInfo.Volumes).flat().length === 0}
       {#if searchTerm}
-        <FilteredEmptyScreen icon="{VolumeIcon}" kind="volumes" bind:searchTerm="{searchTerm}" />
+        <FilteredEmptyScreen icon={VolumeIcon} kind="volumes" bind:searchTerm={searchTerm} />
       {:else}
         <VolumeEmptyScreen />
       {/if}

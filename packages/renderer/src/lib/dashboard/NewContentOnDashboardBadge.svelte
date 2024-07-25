@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-import type { Unsubscriber } from 'svelte/motion';
+import type { Unsubscriber } from 'svelte/store';
 
 import { notificationQueue } from '/@/stores/notifications';
 import { providerInfos } from '/@/stores/providers';
@@ -61,5 +61,5 @@ function onHide() {
 </script>
 
 <div class="absolute top-0 right-[-9px]">
-  <NewContentBadge pagePath="/" show="{hasNew}" onHide="{onHide}" />
+  <NewContentBadge pagePath="/" show={hasNew} onHide={onHide} />
 </div>

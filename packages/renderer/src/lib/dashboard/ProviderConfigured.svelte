@@ -52,17 +52,17 @@ onMount(() => {
 });
 </script>
 
-<ProviderCard provider="{provider}">
+<ProviderCard provider={provider}>
   <svelte:fragment slot="content">
     {#if !runAtStart && !runInProgress}
-      <p class="text-sm text-gray-700 text-center w-2/3">
+      <p class="text-gray-700 text-center w-2/3">
         To start working with containers, {provider.name}
         {#if provider.version}
           v{provider.version}
         {/if} needs to be started.
       </p>
       <div class="w-1/3 flex justify-center">
-        <Button on:click="{() => runProvider()}">
+        <Button on:click={() => runProvider()}>
           Run {provider.name}
         </Button>
       </div>
@@ -70,7 +70,7 @@ onMount(() => {
     {#if runAtStart || runInProgress}
       <div class="flex flex-col w-full lg:w-2/3 justify-center items-center">
         {#if initializationContext.mode === InitializeAndStartMode}
-          <Steps steps="{InitializationSteps}" current="{1}" />
+          <Steps steps={InitializationSteps} current={1} />
         {/if}
         <div class="flex flex-col text-gray-700 items-center" aria-label="Transitioning State">
           <div>Starting</div>
@@ -82,14 +82,14 @@ onMount(() => {
     {/if}
 
     {#if runError}
-      <ErrorMessage class="flex flex-col mt-2 my-2 text-sm" error="{runError}" />
+      <ErrorMessage class="flex flex-col mt-2 my-2" error={runError} />
     {/if}
 
-    <PreflightChecks preflightChecks="{preflightChecks}" />
+    <PreflightChecks preflightChecks={preflightChecks} />
   </svelte:fragment>
   <svelte:fragment slot="update">
     {#if provider.updateInfo?.version && provider.version !== provider.updateInfo?.version}
-      <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
+      <ProviderUpdateButton onPreflightChecks={checks => (preflightChecks = checks)} provider={provider} />
     {/if}
   </svelte:fragment>
 </ProviderCard>

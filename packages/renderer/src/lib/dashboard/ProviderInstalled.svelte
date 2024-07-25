@@ -134,39 +134,39 @@ function onInstallationClick() {
 }
 </script>
 
-<ProviderCard provider="{provider}">
+<ProviderCard provider={provider}>
   <svelte:fragment slot="content">
     <p class="text-sm text-gray-700 w-2/3 text-center" aria-label="Suggested Actions">
       To start working with containers, {provider.name} needs to be initialized.
     </p>
 
-    <div class="min-w-[230px] w-1/3 flex justify-center" class:hidden="{!initializationButtonVisible}">
+    <div class="min-w-[230px] w-1/3 flex justify-center" class:hidden={!initializationButtonVisible}>
       <div class="w-[212px] relative">
         <div class="bg-gray-300 text-white flex w-[212px]">
           <button
             class="float-left bg-purple-600 hover:bg-purple-500 pt-2 pr-3 pl-3 pb-2 text-[13px] text-white mr-px w-[180px]"
-            on:click="{onInstallationClick}">
+            on:click={onInstallationClick}>
             {installationOptionSelected}
           </button>
           <button
             class="inline-block bg-purple-600 hover:bg-purple-500 text-[13px] text-white pt-2 pr-3 pl-3 pb-2 w-[32px]"
-            on:click="{() => updateOptionsMenu(!installationOptionsMenuVisible)}">
+            on:click={() => updateOptionsMenu(!installationOptionsMenuVisible)}>
             <i class="fas fa-caret-down"></i>
           </button>
         </div>
         <div
           class="z-10 min-w-[130px] m-auto bg-primary text-[13px] text-white absolute w-full"
-          class:hidden="{!installationOptionsMenuVisible}">
+          class:hidden={!installationOptionsMenuVisible}>
           <ul class="w-full outline-none bg-charcoal-800 rounded-sm placeholder-gray-700">
             <li>
               <button
                 class="w-full p-2 {installationOptionSelected === InitializeOnlyMode
                   ? 'bg-purple-600 text-white'
                   : 'bg-purple-700 text-gray-700'} hover:bg-purple-500 cursor-pointer"
-                on:click="{() => {
+                on:click={() => {
                   installationOptionSelected = InitializeOnlyMode;
                   installationOptionsMenuVisible = false;
-                }}">
+                }}>
                 {InitializeOnlyMode}
                 {provider.name}
               </button>
@@ -176,10 +176,10 @@ function onInstallationClick() {
                 class="w-full p-2 {installationOptionSelected === InitializeAndStartMode
                   ? 'bg-purple-600 text-white'
                   : 'bg-purple-700 text-gray-700'} hover:bg-purple-500 cursor-pointer"
-                on:click="{() => {
+                on:click={() => {
                   installationOptionSelected = InitializeAndStartMode;
                   installationOptionsMenuVisible = false;
-                }}">
+                }}>
                 {InitializeAndStartMode}
                 {provider.name}
               </button>
@@ -189,9 +189,9 @@ function onInstallationClick() {
       </div>
     </div>
 
-    <div class="flex flex-col w-full lg:w-2/3 justify-center items-center" class:hidden="{!initializeInProgress}">
+    <div class="flex flex-col w-full lg:w-2/3 justify-center items-center" class:hidden={!initializeInProgress}>
       {#if installationOptionSelected === InitializeAndStartMode}
-        <Steps steps="{InitializationSteps}" />
+        <Steps steps={InitializationSteps} />
       {/if}
       <div class="flex flex-col text-gray-700">
         <div>Initializing</div>
@@ -206,14 +206,14 @@ function onInstallationClick() {
       style="background-color: {getPanelDetailColor()}; width: 100%; text-align: left; display: {initializeError
         ? 'block'
         : 'none'}"
-      bind:this="{logsXtermDiv}">
+      bind:this={logsXtermDiv}>
     </div>
 
-    <PreflightChecks preflightChecks="{preflightChecks}" />
+    <PreflightChecks preflightChecks={preflightChecks} />
   </svelte:fragment>
   <svelte:fragment slot="update">
     {#if provider.updateInfo?.version && provider.version !== provider.updateInfo?.version}
-      <ProviderUpdateButton onPreflightChecks="{checks => (preflightChecks = checks)}" provider="{provider}" />
+      <ProviderUpdateButton onPreflightChecks={checks => (preflightChecks = checks)} provider={provider} />
     {/if}
   </svelte:fragment>
 </ProviderCard>

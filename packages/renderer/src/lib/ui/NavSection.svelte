@@ -26,7 +26,7 @@ onMount(() => {
 <div class="flex flex-col justify-center items-center mx-1 bg-[var(--pd-global-nav-icon-inset-bg)] rounded my-1">
   {#if expanded}
     <div class="inline-block pt-0.5">
-      <div transition:fadeSlide="{{ duration: 500 }}">
+      <div transition:fadeSlide={{ duration: 500 }}>
         <slot />
       </div>
     </div>
@@ -34,16 +34,16 @@ onMount(() => {
 
   <button
     class="inline-block flex flex-col justify-center items-center text-[var(--pd-global-nav-icon)] hover:text-[var(--pd-global-nav-icon-hover)]"
-    on:click="{() => (expanded = !expanded)}"
-    disabled="{expanded && $count < 2}">
-    <Tooltip class="flex flex-col justify-center items-center pb-1" right tip="{tooltip}">
-      <div class="flex flex-col justify-center items-center" class:text-charcoal-50="{expanded && $count < 2}">
+    on:click={() => (expanded = !expanded)}
+    disabled={expanded && $count < 2}>
+    <Tooltip class="flex flex-col justify-center items-center pb-1" right tip={tooltip}>
+      <div class="flex flex-col justify-center items-center" class:text-charcoal-50={expanded && $count < 2}>
         {#if !expanded}
-          <div class="py-2" transition:fadeSlide="{{ duration: 500 }}">
+          <div class="py-2" transition:fadeSlide={{ duration: 500 }}>
             <slot name="icon" />
           </div>
         {/if}
-        <Fa size="0.8x" icon="{expanded ? faChevronUp : faChevronDown}" />
+        <Fa size="0.8x" icon={expanded ? faChevronUp : faChevronDown} />
       </div>
     </Tooltip>
   </button>

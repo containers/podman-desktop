@@ -28,6 +28,6 @@ function getProviderColour(providerName: string): string {
 }
 </script>
 
-<Label tip="{provider === 'Kubernetes' ? context : ''}" name="{provider}" capitalize>
+<Label tip={provider === 'Kubernetes' ? context : ''} name={provider} capitalize>
   <div class="w-2 h-2 {getProviderColour(provider)} rounded-full"></div>
 </Label>

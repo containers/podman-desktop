@@ -10,13 +10,13 @@ function openContainerDetails(container: ContainerInfoUI): void {
 }
 </script>
 
-<button class="flex flex-col whitespace-nowrap max-w-full" on:click="{() => openContainerDetails(object)}">
+<button class="flex flex-col whitespace-nowrap max-w-full" on:click={() => openContainerDetails(object)}>
   <div class="flex items-center max-w-full">
     <div class="max-w-full">
       <div class="flex flex-nowrap max-w-full">
         <div
-          class="text-sm text-[var(--pd-table-body-text-highlight)] overflow-hidden text-ellipsis group-hover:text-violet-400"
-          title="{object.name}">
+          class="text-[var(--pd-table-body-text-highlight)] overflow-hidden text-ellipsis group-hover:text-violet-400"
+          title={object.name}>
           {object.name}
         </div>
       </div>

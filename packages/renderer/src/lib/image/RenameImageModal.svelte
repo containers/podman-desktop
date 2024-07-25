@@ -63,50 +63,50 @@ async function renameImage(imageName: string, imageTag: string) {
 
 <Dialog
   title="Edit Image"
-  on:close="{() => {
+  on:close={() => {
     closeCallback();
-  }}">
+  }}>
   <div slot="content" class="w-full">
     <label for="imageName" class="block my-2 text-sm font-bold text-[var(--pd-modal-text)]">Image Name</label>
     <Input
-      bind:value="{imageName}"
+      bind:value={imageName}
       name="imageName"
       id="imageName"
       placeholder="Enter image name (e.g. quay.io/namespace/my-image-name)"
-      on:input="{event => validateImageName(event)}"
-      aria-invalid="{imageNameErrorMessage !== ''}"
+      on:input={event => validateImageName(event)}
+      aria-invalid={imageNameErrorMessage !== ''}
       aria-label="imageName"
       required />
     {#if imageNameErrorMessage}
-      <ErrorMessage error="{imageNameErrorMessage}" />
+      <ErrorMessage error={imageNameErrorMessage} />
     {/if}
 
     <label for="imageTag" class="block my-2 text-sm font-bold text-[var(--pd-modal-text)]">Image Tag</label>
     <Input
-      bind:value="{imageTag}"
+      bind:value={imageTag}
       name="imageTag"
       id="imageTag"
       placeholder="Enter image tag (e.g. latest)"
-      on:input="{event => validateImageTag(event)}"
-      aria-invalid="{imageTagErrorMessage !== ''}"
+      on:input={event => validateImageTag(event)}
+      aria-invalid={imageTagErrorMessage !== ''}
       aria-label="imageTag"
       required />
     {#if imageTagErrorMessage}
-      <ErrorMessage error="{imageTagErrorMessage}" />
+      <ErrorMessage error={imageTagErrorMessage} />
     {/if}
   </div>
   <svelte:fragment slot="buttons">
     <Button
       class="pcol-start-3"
       type="link"
-      on:click="{() => {
+      on:click={() => {
         closeCallback();
-      }}">Cancel</Button>
+      }}>Cancel</Button>
     <Button
       class="col-start-4"
-      disabled="{disableSave(imageName, imageTag)}"
-      on:click="{() => {
+      disabled={disableSave(imageName, imageTag)}
+      on:click={() => {
         renameImage(imageName, imageTag);
-      }}">Save</Button>
+      }}>Save</Button>
   </svelte:fragment>
 </Dialog>

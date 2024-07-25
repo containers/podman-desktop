@@ -66,7 +66,7 @@ function openContainer(containerID: string) {
     {#each volume.containersUsage as container}
       <tr>
         <DetailsCell>
-          <Link on:click="{() => openContainer(container.id)}"
+          <Link on:click={() => openContainer(container.id)}
             >{container.names.map(name => (name.startsWith('/') ? name.slice(1) : name)).join(' ')}</Link>
         </DetailsCell>
         <DetailsCell>{container.id}</DetailsCell>

@@ -5,4 +5,4 @@ import type { ImageInfoUI } from './ImageInfoUI';
 export let object: ImageInfoUI;
 </script>
 
-<ProviderInfo provider="{object.engineName}" context="{object.engineId}" />
+<ProviderInfo provider={object.engineName} context={object.engineId} />

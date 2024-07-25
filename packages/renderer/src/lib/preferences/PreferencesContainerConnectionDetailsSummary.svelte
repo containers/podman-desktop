@@ -41,7 +41,7 @@ $: providerContainerConfiguration = tmpProviderContainerConfiguration.filter(
     <div class="flex pl-8 py-4 flex-col w-full text-sm">
       <div class="flex flex-row mt-5">
         <span class="font-semibold min-w-[150px]">Name</span>
-        <span aria-label="{containerConnectionInfo.name}">{containerConnectionInfo.name}</span>
+        <span aria-label={containerConnectionInfo.name}>{containerConnectionInfo.name}</span>
       </div>
       {#each providerContainerConfiguration as connectionSetting}
         <div class="flex flex-row mt-5">
@@ -49,15 +49,15 @@ $: providerContainerConfiguration = tmpProviderContainerConfiguration.filter(
           {#if connectionSetting.format === 'cpu' || connectionSetting.format === 'cpuUsage'}
             {#if !peerProperties.isPeerProperty(connectionSetting.id)}
               {@const peerValue = peerProperties.getPeerProperty(connectionSetting.id, providerContainerConfiguration)}
-              <Donut title="{connectionSetting.description}" value="{connectionSetting.value}" percent="{peerValue}" />
+              <Donut title={connectionSetting.description} value={connectionSetting.value} percent={peerValue} />
             {/if}
           {:else if connectionSetting.format === 'memory' || connectionSetting.format === 'memoryUsage' || connectionSetting.format === 'diskSize' || connectionSetting.format === 'diskSizeUsage'}
             {#if !peerProperties.isPeerProperty(connectionSetting.id)}
               {@const peerValue = peerProperties.getPeerProperty(connectionSetting.id, providerContainerConfiguration)}
               <Donut
-                title="{connectionSetting.description}"
-                value="{filesize(connectionSetting.value)}"
-                percent="{peerValue}" />
+                title={connectionSetting.description}
+                value={filesize(connectionSetting.value)}
+                percent={peerValue} />
             {/if}
           {:else}
             <span>{connectionSetting.value}</span>
@@ -66,12 +66,12 @@ $: providerContainerConfiguration = tmpProviderContainerConfiguration.filter(
       {/each}
       <div class="flex flex-row mt-5">
         <span class="font-semibold min-w-[150px]">Type</span>
-        <span aria-label="{containerConnectionInfo.type}"
+        <span aria-label={containerConnectionInfo.type}
           >{#if containerConnectionInfo.type === 'docker'}Docker{:else if containerConnectionInfo.type === 'podman'}Podman{/if}</span>
       </div>
       <div class="flex flex-row mt-5">
         <span class="font-semibold min-w-[150px]">Endpoint</span>
-        <span aria-label="{containerConnectionInfo.endpoint.socketPath}"
+        <span aria-label={containerConnectionInfo.endpoint.socketPath}
           >{containerConnectionInfo.endpoint.socketPath}</span>
       </div>
     </div>

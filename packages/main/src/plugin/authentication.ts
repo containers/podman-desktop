@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -164,14 +164,14 @@ export class AuthenticationImpl {
       if (session) {
         // show confirmation to sign out with all affected extensions
         const multiple = this._accountUsageData.length > 1;
-        const accountMessage = `The account '${session.account.label}' has been used by${multiple ? ':' : ''}`;
+        const accountMessage = `The account '${session.account.label}' has been used by:`;
         const extensionNames: string[] = this._accountUsageData.reduce((prev: string[], current) => {
           if (current.providerId === providerId && current.sessionId === session.id) {
             prev.push(current.extensionName);
           }
           return prev;
         }, []);
-        const message = `${accountMessage} ${extensionNames.join(', ')}. Sign out from ${multiple ? 'these' : 'this'} extension${multiple ? 's' : ''}?`;
+        const message = `${accountMessage}\n\n\t${extensionNames.join('\n\t')}\n\nSign out from ${multiple ? 'these' : 'this'} extension${multiple ? 's' : ''}?`;
         const choice = await this.messageBox.showMessageBox({
           title: 'Sign Out Request',
           message,

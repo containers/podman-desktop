@@ -42,7 +42,6 @@ test('Expect title is defined', async () => {
 test('Expect no backlink or close is defined', async () => {
   render(FormPage, {
     title: 'No Title',
-    showBreadcrumb: false,
   });
 
   const backElement = screen.queryByLabelText('back');

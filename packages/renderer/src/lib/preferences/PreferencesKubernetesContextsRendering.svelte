@@ -72,22 +72,22 @@ async function handleDeleteContext(contextName: string) {
     <!-- Use KubernetesIcon in the future / not EngineIcon -->
     <EmptyScreen
       aria-label="No Resource Panel"
-      icon="{EngineIcon}"
+      icon={EngineIcon}
       title="No Kubernetes contexts found"
       message="Check that $HOME/.kube/config exists or KUBECONFIG environment variable has been set correctly."
-      hidden="{$kubernetesContexts.length > 0}" />
+      hidden={$kubernetesContexts.length > 0} />
     {#each $kubernetesContexts as context}
       <!-- If current context, use lighter background -->
       <div
         role="row"
-        aria-label="{context.name}"
+        aria-label={context.name}
         class="bg-[var(--pd-invert-content-card-bg)] mb-5 rounded-md p-3 flex-nowrap">
         <div class="pb-2">
           <div class="flex">
             {#if context?.icon}
               {#if typeof context.icon === 'string'}
                 <img
-                  src="{context.icon}"
+                  src={context.icon}
                   aria-label="Context Logo"
                   alt="{context.name} logo"
                   class="max-w-[40px] h-full" />
@@ -97,10 +97,10 @@ async function handleDeleteContext(contextName: string) {
             <div class="pl-3 flex-grow flex flex-col justify-center">
               <div class="flex flex-col items-left">
                 {#if context.currentContext}
-                  <span class="text-xs text-[var(--pd-invert-content-card-text)]" aria-label="Current Context"
+                  <span class="text-sm text-[var(--pd-invert-content-card-text)]" aria-label="Current Context"
                     >Current Context</span>
                 {/if}
-                <span class="text-md text-[var(--pd-invert-content-card-header-text)]" aria-label="Context Name"
+                <span class="font-semibold text-[var(--pd-invert-content-card-header-text)]" aria-label="Context Name"
                   >{context.name}</span>
               </div>
             </div>
@@ -108,16 +108,14 @@ async function handleDeleteContext(contextName: string) {
             {#if !context.currentContext}
               <ListItemButtonIcon
                 title="Set as Current Context"
-                icon="{faRightToBracket}"
-                onClick="{() => handleSetContext(context.name)}"></ListItemButtonIcon>
+                icon={faRightToBracket}
+                onClick={() => handleSetContext(context.name)}></ListItemButtonIcon>
             {/if}
-            <ListItemButtonIcon
-              title="Delete Context"
-              icon="{faTrash}"
-              onClick="{() => handleDeleteContext(context.name)}"></ListItemButtonIcon>
+            <ListItemButtonIcon title="Delete Context" icon={faTrash} onClick={() => handleDeleteContext(context.name)}
+            ></ListItemButtonIcon>
           </div>
           {#if context.error}
-            <ErrorMessage class="text-sm" aria-label="Context Error" error="{context.error}" />
+            <ErrorMessage class="text-sm" aria-label="Context Error" error={context.error} />
           {/if}
         </div>
         <div class="grow flex-column divide-gray-900 text-[var(--pd-invert-content-card-text)]">
@@ -151,9 +149,7 @@ async function handleDeleteContext(contextName: string) {
               {:else}
                 <div class="flex flex-row pt-2">
                   <div class="w-3 h-3 rounded-full bg-[var(--pd-status-disconnected)]"></div>
-                  <div
-                    class="ml-1 font-bold text-[9px] text-[var(--pd-status-disconnected)]"
-                    aria-label="Context Unreachable">
+                  <div class="ml-1 text-xs text-[var(--pd-status-disconnected)]" aria-label="Context Unreachable">
                     {#if $kubernetesContextsState.get(context.name)}
                       UNREACHABLE
                     {:else}
@@ -166,8 +162,8 @@ async function handleDeleteContext(contextName: string) {
                 </div>
               {/if}
             </div>
-            <div class="grow">
-              <div class="text-xs bg-[var(--pd-invert-content-bg)] p-2 rounded-lg mt-1 grid grid-cols-6">
+            <div class="grow text-sm">
+              <div class="bg-[var(--pd-invert-content-bg)] p-2 rounded-lg mt-1 grid grid-cols-6">
                 <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">CLUSTER</span>
                 <span
                   class="my-auto col-span-5 text-left ml-3 overflow-hidden text-ellipsis"
@@ -175,7 +171,7 @@ async function handleDeleteContext(contextName: string) {
               </div>
 
               {#if context.clusterInfo !== undefined}
-                <div class="text-xs bg-[var(--pd-invert-content-bg)] p-2 rounded-lg mt-1 grid grid-cols-6">
+                <div class="bg-[var(--pd-invert-content-bg)] p-2 rounded-lg mt-1 grid grid-cols-6">
                   <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">SERVER</span>
                   <span
                     class="my-auto col-span-5 text-left ml-3 overflow-hidden text-ellipsis"
@@ -185,14 +181,14 @@ async function handleDeleteContext(contextName: string) {
                 </div>
               {/if}
 
-              <div class="text-xs bg-[var(--pd-invert-content-bg)] p-2 rounded-lg mt-1 grid grid-cols-6">
+              <div class="bg-[var(--pd-invert-content-bg)] p-2 rounded-lg mt-1 grid grid-cols-6">
                 <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">USER</span>
                 <span class="my-auto col-span-5 text-left ml-3 overflow-hidden text-ellipsis" aria-label="Context User"
                   >{context.user}</span>
               </div>
 
               {#if context.namespace}
-                <div class="text-xs bg-[var(--pd-invert-content-bg)] p-2 rounded-lg mt-1 grid grid-cols-6">
+                <div class="bg-[var(--pd-invert-content-bg)] p-2 rounded-lg mt-1 grid grid-cols-6">
                   <span class="my-auto font-bold col-span-1 text-right overflow-hidden text-ellipsis">NAMESPACE</span>
                   <span
                     class="my-auto col-span-5 text-left ml-3 overflow-hidden text-ellipsis"

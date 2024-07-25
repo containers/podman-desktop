@@ -47,25 +47,25 @@ function rotateRight() {
 <div class="flex flex-row items-center">
   <button
     id="left"
-    on:click="{rotateLeft}"
+    on:click={rotateLeft}
     aria-label="Rotate left"
     class="h-8 w-8 mr-3 bg-[var(--pd-content-card-carousel-nav)] hover:bg-[var(--pd-content-card-carousel-hover-nav)] rounded-full disabled:bg-[var(--pd-content-card-carousel-disabled-nav)]"
-    disabled="{visibleCards.length === cards.length}">
-    <Fa class="w-8 h-8" icon="{faChevronLeft}" color="black" />
+    disabled={visibleCards.length === cards.length}>
+    <Fa class="w-8 h-8" icon={faChevronLeft} color="black" />
   </button>
 
   <div id="carousel-cards-{containerId}" class="flex flex-grow gap-3 overflow-hidden">
     {#each visibleCards as card}
-      <slot card="{card}" />
+      <slot card={card} />
     {/each}
   </div>
 
   <button
     id="right"
-    on:click="{rotateRight}"
+    on:click={rotateRight}
     aria-label="Rotate right"
     class="h-8 w-8 ml-3 bg-[var(--pd-content-card-carousel-nav)] hover:bg-[var(--pd-content-card-carousel-hover-nav)] rounded-full disabled:bg-[var(--pd-content-card-carousel-disabled-nav)]"
-    disabled="{visibleCards.length === cards.length}">
-    <Fa class="h-8 w-8" icon="{faChevronRight}" color="black" />
+    disabled={visibleCards.length === cards.length}>
+    <Fa class="h-8 w-8" icon={faChevronRight} color="black" />
   </button>
 </div>

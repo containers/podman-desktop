@@ -9,5 +9,5 @@ const ingressRouteUtils = new IngressRouteUtils();
 </script>
 
 {#each ingressRouteUtils.getBackends(object) as backend}
-  <div class="text-sm text-[var(--pd-table-body-text)]">{backend}</div>
+  <div class="text-[var(--pd-table-body-text)]">{backend}</div>
 {/each}

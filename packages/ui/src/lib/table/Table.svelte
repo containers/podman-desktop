@@ -180,44 +180,45 @@ function toggleChildren(name: string | undefined): void {
 }
 </script>
 
-<div class="w-full mx-5" class:hidden="{data.length === 0}" role="table">
+<div class="w-full mx-5" class:hidden={data.length === 0} role="table" aria-label={kind}>
   <!-- Table header -->
   <div role="rowgroup">
     <div
-      class="grid grid-table gap-x-0.5 h-7 sticky top-0 bg-[var(--pd-content-bg)] text-xs text-[var(--pd-table-header-text)] font-bold uppercase z-[2]"
+      class="grid grid-table gap-x-0.5 h-7 sticky top-0 text-[var(--pd-table-header-text)] uppercase z-[2]"
       role="row">
       <div class="whitespace-nowrap justify-self-start" role="columnheader"></div>
       {#if row.info.selectable}
-        <div class="whitespace-nowrap place-self-center text-base" role="columnheader">
+        <div class="whitespace-nowrap place-self-center" role="columnheader">
           <Checkbox
             title="Toggle all"
-            bind:checked="{selectedAllCheckboxes}"
-            disabled="{!row.info.selectable || data.filter(object => row.info.selectable?.(object)).length === 0}"
-            indeterminate="{selectedItemsNumber > 0 && !selectedAllCheckboxes}"
-            on:click="{toggleAll}" />
+            bind:checked={selectedAllCheckboxes}
+            disabled={!row.info.selectable || data.filter(object => row.info.selectable?.(object)).length === 0}
+            indeterminate={selectedItemsNumber > 0 && !selectedAllCheckboxes}
+            on:click={toggleAll} />
         </div>
       {/if}
       {#each columns as column}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <!-- svelte-ignore a11y-interactive-supports-focus -->
         <div
-          class="max-w-full overflow-hidden flex flex-row items-center whitespace-nowrap {column.info.align === 'right'
+          class="max-w-full overflow-hidden flex flex-row text-sm font-semibold items-center whitespace-nowrap {column
+            .info.align === 'right'
             ? 'justify-self-end'
             : column.info.align === 'center'
               ? 'justify-self-center'
               : 'justify-self-start'} self-center select-none"
-          class:cursor-pointer="{column.info.comparator}"
-          on:click="{sort.bind(undefined, column)}"
+          class:cursor-pointer={column.info.comparator}
+          on:click={sort.bind(undefined, column)}
           role="columnheader">
           <div class="overflow-hidden text-ellipsis">
             {column.title}
           </div>
           {#if column.info.comparator}<i
               class="fas pl-0.5"
-              class:fa-sort="{sortCol !== column}"
-              class:fa-sort-up="{sortCol === column && sortAscending}"
-              class:fa-sort-down="{sortCol === column && !sortAscending}"
-              class:text-[var(--pd-table-header-unsorted)]="{sortCol !== column}"
+              class:fa-sort={sortCol !== column}
+              class:fa-sort-up={sortCol === column && sortAscending}
+              class:fa-sort-down={sortCol === column && !sortAscending}
+              class:text-[var(--pd-table-header-unsorted)]={sortCol !== column}
               aria-hidden="true"></i
             >{/if}
         </div>
@@ -227,25 +228,26 @@ function toggleChildren(name: string | undefined): void {
   <!-- Table body -->
   <div role="rowgroup">
     {#each data as object (object)}
-      <div class="min-h-[48px] h-fit bg-[var(--pd-content-card-bg)] rounded-lg mb-2" role="row">
+      <div class="min-h-[48px] h-fit bg-[var(--pd-content-card-bg)] rounded-lg mb-2">
         <div
           class="grid grid-table gap-x-0.5 min-h-[48px] hover:bg-[var(--pd-content-card-hover-bg)]"
-          class:rounded-t-lg="{object.name &&
+          class:rounded-t-lg={object.name &&
             !collapsed.includes(object.name) &&
             row.info.children &&
-            row.info.children(object).length > 0}"
-          class:rounded-lg="{!object.name ||
+            row.info.children(object).length > 0}
+          class:rounded-lg={!object.name ||
             collapsed.includes(object.name) ||
             !row.info.children ||
-            row.info.children(object).length === 0}"
-          aria-label="{object.name}">
+            row.info.children(object).length === 0}
+          role="row"
+          aria-label={object.name}>
           <div class="whitespace-nowrap place-self-center" role="cell">
             {#if row.info.children && row.info.children(object).length > 0}
-              <button on:click="{toggleChildren.bind(undefined, object.name)}">
+              <button on:click={toggleChildren.bind(undefined, object.name)}>
                 <Fa
                   size="0.8x"
                   class="text-[var(--pd-table-body-text)] cursor-pointer"
-                  icon="{object.name && !collapsed.includes(object.name) ? faChevronDown : faChevronRight}" />
+                  icon={object.name && !collapsed.includes(object.name) ? faChevronDown : faChevronRight} />
               </button>
             {/if}
           </div>
@@ -253,10 +255,10 @@ function toggleChildren(name: string | undefined): void {
             <div class="whitespace-nowrap place-self-center" role="cell">
               <Checkbox
                 title="Toggle {kind}"
-                bind:checked="{object.selected}"
-                disabled="{!row.info.selectable(object)}"
-                disabledTooltip="{row.info.disabledText}"
-                on:click="{objectChecked.bind(undefined, object)}" />
+                bind:checked={object.selected}
+                disabled={!row.info.selectable(object)}
+                disabledTooltip={row.info.disabledText}
+                on:click={objectChecked.bind(undefined, object)} />
             </div>
           {/if}
           {#each columns as column}
@@ -271,8 +273,8 @@ function toggleChildren(name: string | undefined): void {
               role="cell">
               {#if column.info.renderer}
                 <svelte:component
-                  this="{column.info.renderer}"
-                  object="{column.info.renderMapping ? column.info.renderMapping(object) : object}"
+                  this={column.info.renderer}
+                  object={column.info.renderMapping ? column.info.renderMapping(object) : object}
                   on:update />
               {/if}
             </div>
@@ -284,16 +286,17 @@ function toggleChildren(name: string | undefined): void {
           {#each row.info.children(object) as child, i (child)}
             <div
               class="grid grid-table gap-x-0.5 hover:bg-[var(--pd-content-card-hover-bg)]"
-              class:rounded-b-lg="{i === row.info.children(object).length - 1}"
-              aria-label="{child.name}">
+              class:rounded-b-lg={i === row.info.children(object).length - 1}
+              role="row"
+              aria-label={child.name}>
               <div class="whitespace-nowrap justify-self-start" role="cell"></div>
               {#if row.info.selectable}
                 <div class="whitespace-nowrap place-self-center" role="cell">
                   <Checkbox
                     title="Toggle {kind}"
-                    bind:checked="{child.selected}"
-                    disabled="{!row.info.selectable(child)}"
-                    disabledTooltip="{row.info.disabledText}" />
+                    bind:checked={child.selected}
+                    disabled={!row.info.selectable(child)}
+                    disabledTooltip={row.info.disabledText} />
                 </div>
               {/if}
               {#each columns as column}
@@ -308,8 +311,8 @@ function toggleChildren(name: string | undefined): void {
                   role="cell">
                   {#if column.info.renderer}
                     <svelte:component
-                      this="{column.info.renderer}"
-                      object="{column.info.renderMapping ? column.info.renderMapping(child) : child}"
+                      this={column.info.renderer}
+                      object={column.info.renderMapping ? column.info.renderMapping(child) : child}
                       on:update />
                   {/if}
                 </div>

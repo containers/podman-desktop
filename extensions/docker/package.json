@@ -23,7 +23,7 @@
     "adm-zip": "^0.5.14",
     "@podman-desktop/api": "^0.0.1",
     "mkdirp": "^3.0.1",
-    "vite": "^5.3.3",
+    "vite": "^5.3.4",
     "vitest": "^1.6.0"
   }
 }

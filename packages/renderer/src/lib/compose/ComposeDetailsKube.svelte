@@ -20,5 +20,5 @@ onMount(async () => {
 </script>
 
 {#if kubeDetails}
-  <MonacoEditor content="{kubeDetails}" language="yaml" />
+  <MonacoEditor content={kubeDetails} language="yaml" />
 {/if}

@@ -23,8 +23,8 @@ async function fetch(): Promise<void> {
 }
 </script>
 
-<Dialog title="Details of {eventStoreInfo.name}" on:close="{() => closeCallback()}">
-  <svelte:component this="{eventStoreInfo.iconComponent}" slot="icon" size="20" />
+<Dialog title="Details of {eventStoreInfo.name}" on:close={() => closeCallback()}>
+  <svelte:component this={eventStoreInfo.iconComponent} slot="icon" size="20" />
 
   <div slot="content" class="inline-block w-full overflow-hidden overflow-y-auto text-left transition-all">
     <div class="flex flex-col rounded-lg">
@@ -34,7 +34,7 @@ async function fetch(): Promise<void> {
         <div class="mx-2 flex flex-row items-center">
           Size: <div role="status" aria-label="size">{eventStoreInfo.size}</div>
           <div class="mx-2">
-            <Button class="my-1" bind:inProgress="{fetchInProgress}" on:click="{() => fetch()}" icon="{faRefresh}"
+            <Button class="my-1" bind:inProgress={fetchInProgress} on:click={() => fetch()} icon={faRefresh}
               >Refresh</Button>
           </div>
         </div>
@@ -48,10 +48,10 @@ async function fetch(): Promise<void> {
             {#if eventStoreInfo.bufferEvents.length > 0}
               <Button
                 class="my-1"
-                bind:inProgress="{fetchInProgress}"
+                bind:inProgress={fetchInProgress}
                 title="Clear events"
-                on:click="{() => eventStoreInfo.clearEvents()}"
-                icon="{faTrash}">Clear</Button>
+                on:click={() => eventStoreInfo.clearEvents()}
+                icon={faTrash}>Clear</Button>
             {/if}
           </div>
           {#if eventStoreInfo.bufferEvents.length > 0}
@@ -59,7 +59,7 @@ async function fetch(): Promise<void> {
 
             <ul class="h-32 overflow-auto list-disc list-inside text-xs" aria-label="buffer-events">
               {#each reverseOrderedBufferEvents as bufferEvent}
-                <li aria-label="{bufferEvent.name}">
+                <li aria-label={bufferEvent.name}>
                   {#if bufferEvent.skipped}
                     Skipped event
                   {:else}
@@ -93,7 +93,7 @@ async function fetch(): Promise<void> {
     </div>
   </div>
   <svelte:fragment slot="buttons">
-    <Button aria-label="Cancel" class="mr-3" type="link" on:click="{() => closeCallback()}">Cancel</Button>
-    <Button aria-label="OK" on:click="{() => closeCallback()}">OK</Button>
+    <Button aria-label="Cancel" class="mr-3" type="link" on:click={() => closeCallback()}>Cancel</Button>
+    <Button aria-label="OK" on:click={() => closeCallback()}>OK</Button>
   </svelte:fragment>
 </Dialog>

@@ -19,6 +19,7 @@ import {
   persistentVolumeClaimSearchPattern,
 } from '/@/stores/kubernetes-contexts-state';
 
+import { withBulkConfirmation } from '../actions/BulkActions';
 import PVCIcon from '../images/PVCIcon.svelte';
 import KubeApplyYamlButton from '../kube/KubeApplyYAMLButton.svelte';
 import { PVCUtils } from './pvc-utils';
@@ -88,12 +89,6 @@ let storageClassColumn = new TableColumn<PVCUI, string>('Storage', {
   comparator: (a, b) => a.storageClass.localeCompare(b.storageClass),
 });
 
-let namespaceColumn = new TableColumn<PVCUI, string>('Namespace', {
-  renderMapping: pvc => pvc.namespace,
-  renderer: TableSimpleColumn,
-  comparator: (a, b) => a.namespace.localeCompare(b.namespace),
-});
-
 let accessModesColumn = new TableColumn<PVCUI>('Mode', {
   renderer: PvcColumnMode,
   overflow: true,
@@ -115,7 +110,6 @@ let ageColumn = new TableColumn<PVCUI, Date | undefined>('Age', {
 const columns = [
   statusColumn,
   nameColumn,
-  namespaceColumn,
   accessModesColumn,
   storageClassColumn,
   sizeColumn,
@@ -126,7 +120,7 @@ const columns = [
 const row = new TableRow<PVCUI>({ selectable: _pvc => true });
 </script>
 
-<NavPage bind:searchTerm="{searchTerm}" title="Persistent Volume Claims">
+<NavPage bind:searchTerm={searchTerm} title="persistent volume claims">
   <svelte:fragment slot="additional-actions">
     <KubeApplyYamlButton />
   </svelte:fragment>
@@ -134,10 +128,14 @@ const row = new TableRow<PVCUI>({ selectable: _pvc => true });
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click="{() => deleteSelectedPVCs()}"
+        on:click={() =>
+          withBulkConfirmation(
+            deleteSelectedPVCs,
+            `delete ${selectedItemsNumber} PVC${selectedItemsNumber > 1 ? 's' : ''}`,
+          )}
         title="Delete {selectedItemsNumber} selected items"
-        inProgress="{bulkDeleteInProgress}"
-        icon="{faTrash}" />
+        inProgress={bulkDeleteInProgress}
+        icon={faTrash} />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
     <div class="flex grow justify-end">
@@ -148,18 +146,18 @@ const row = new TableRow<PVCUI>({ selectable: _pvc => true });
   <div class="flex min-w-full h-full" slot="content">
     <Table
       kind="PVC"
-      bind:this="{table}"
-      bind:selectedItemsNumber="{selectedItemsNumber}"
-      data="{pvcs}"
-      columns="{columns}"
-      row="{row}"
+      bind:this={table}
+      bind:selectedItemsNumber={selectedItemsNumber}
+      data={pvcs}
+      columns={columns}
+      row={row}
       defaultSortColumn="Name"
-      on:update="{() => (pvcs = pvcs)}">
+      on:update={() => (pvcs = pvcs)}>
     </Table>
 
     {#if $kubernetesCurrentContextPersistentVolumeClaimsFiltered.length === 0}
       {#if searchTerm}
-        <FilteredEmptyScreen icon="{PVCIcon}" kind="pvcs" bind:searchTerm="{searchTerm}" />
+        <FilteredEmptyScreen icon={PVCIcon} kind="pvcs" bind:searchTerm={searchTerm} />
       {:else}
         <PVCEmptyScreen />
       {/if}

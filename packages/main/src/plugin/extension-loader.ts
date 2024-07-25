@@ -762,8 +762,7 @@ export class ExtensionLoader {
       this.extensionState.set(extension.id, 'failed');
       this.extensionStateErrors.set(extension.id, err);
       telemetryOptions['error'] = err;
-    } finally {
-      this.telemetry.track('loadExtension', telemetryOptions);
+      this.telemetry.track('loadExtension.error', telemetryOptions);
     }
   }
 
@@ -1175,6 +1174,14 @@ export class ExtensionLoader {
       },
       inspectManifest(engineId: string, id: string): Promise<containerDesktopAPI.ManifestInspectInfo> {
         return containerProviderRegistry.inspectManifest(engineId, id);
+      },
+
+      pushManifest(manifestOptions: containerDesktopAPI.ManifestPushOptions): Promise<void> {
+        return containerProviderRegistry.pushManifest(manifestOptions);
+      },
+
+      removeManifest(engineId: string, id: string): Promise<void> {
+        return containerProviderRegistry.removeManifest(engineId, id);
       },
       replicatePodmanContainer(
         source: { engineId: string; id: string },

@@ -206,7 +206,7 @@ test('Simple test that compose summary is clickable and loadable', async () => {
   await fireEvent.click(summaryHref);
 
   // Check that 'Name:' is displayed meaning it has loaded correctly.
-  expect(screen.getByText('Name:')).toBeInTheDocument();
+  expect(screen.getByText('Name')).toBeInTheDocument();
 });
 
 test('Compose details inspect is clickable and loadable', async () => {

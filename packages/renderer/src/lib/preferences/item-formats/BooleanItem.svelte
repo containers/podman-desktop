@@ -17,13 +17,13 @@ function onChecked(state: boolean) {
 
 <SlideToggle
   id="input-standard-{record.id}"
-  name="{record.id}"
+  name={record.id}
   left
-  bind:checked="{checked}"
-  on:checked="{event => onChecked(event.detail)}"
-  readonly="{!!record.readonly}"
-  disabled="{!!record.readonly}"
-  aria-invalid="{invalidEntry}"
-  aria-label="{record.description ?? record.markdownDescription}">
+  bind:checked={checked}
+  on:checked={event => onChecked(event.detail)}
+  readonly={!!record.readonly}
+  disabled={!!record.readonly}
+  aria-invalid={invalidEntry}
+  aria-label={record.description ?? record.markdownDescription}>
   <span class="text-xs">{checked ? 'Enabled' : 'Disabled'}</span>
 </SlideToggle>

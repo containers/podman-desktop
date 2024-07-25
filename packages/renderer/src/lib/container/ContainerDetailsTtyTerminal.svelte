@@ -99,16 +99,16 @@ onMount(async () => {
 onDestroy(() => {});
 </script>
 
-<div class="h-full" bind:this="{terminalXtermDiv}" class:hidden="{container.state !== 'RUNNING'}"></div>
+<div class="h-full" bind:this={terminalXtermDiv} class:hidden={container.state !== 'RUNNING'}></div>
 
 <EmptyScreen
-  hidden="{!closed && container.state !== 'RUNNING'}"
-  icon="{NoLogIcon}"
+  hidden={!closed && container.state !== 'RUNNING'}
+  icon={NoLogIcon}
   title="No TTY"
   message="Tty has stopped" />
 
 <EmptyScreen
-  hidden="{container.state === 'RUNNING'}"
-  icon="{NoLogIcon}"
+  hidden={container.state === 'RUNNING'}
+  icon={NoLogIcon}
   title="No TTY"
   message="Container is not running" />

@@ -33,9 +33,9 @@ async function toggleDetectionChecks(provider: ProviderInfo) {
 
 {#if provider.detectionChecks.length > 0}
   <Button
-    on:click="{() => toggleDetectionChecks(provider)}"
-    inProgress="{viewInProgress}"
-    icon="{faList}"
+    on:click={() => toggleDetectionChecks(provider)}
+    inProgress={viewInProgress}
+    icon={faList}
     title="Why {provider.name} is not found.">
     {mode === 'view' ? 'View' : 'Hide'} detection checks
   </Button>

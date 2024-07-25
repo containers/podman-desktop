@@ -5,4 +5,4 @@ import type { ServiceUI } from './ServiceUI';
 export let object: ServiceUI;
 </script>
 
-<ServiceActions service="{object}" on:update />
+<ServiceActions service={object} on:update />

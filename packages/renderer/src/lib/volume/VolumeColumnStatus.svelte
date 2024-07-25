@@ -7,4 +7,4 @@ import type { VolumeInfoUI } from './VolumeInfoUI';
 export let object: VolumeInfoUI;
 </script>
 
-<StatusIcon icon="{VolumeIcon}" status="{object.status}" />
+<StatusIcon icon={VolumeIcon} status={object.status} />

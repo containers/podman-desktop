@@ -86,7 +86,7 @@ const columns = [statusColumn, nameColumn, rolesColumn, versionColumn, osImageCo
 const row = new TableRow<NodeUI>({});
 </script>
 
-<NavPage bind:searchTerm="{searchTerm}" title="nodes">
+<NavPage bind:searchTerm={searchTerm} title="nodes">
   <svelte:fragment slot="additional-actions">
     <KubeApplyYamlButton />
   </svelte:fragment>
@@ -100,17 +100,17 @@ const row = new TableRow<NodeUI>({});
   <div class="flex min-w-full h-full" slot="content">
     <Table
       kind="node"
-      bind:this="{table}"
-      data="{nodes}"
-      columns="{columns}"
-      row="{row}"
+      bind:this={table}
+      data={nodes}
+      columns={columns}
+      row={row}
       defaultSortColumn="Name"
-      on:update="{() => (nodes = nodes)}">
+      on:update={() => (nodes = nodes)}>
     </Table>
 
     {#if $kubernetesCurrentContextNodesFiltered.length === 0}
       {#if searchTerm}
-        <FilteredEmptyScreen icon="{NodeIcon}" kind="nodes" bind:searchTerm="{searchTerm}" />
+        <FilteredEmptyScreen icon={NodeIcon} kind="nodes" bind:searchTerm={searchTerm} />
       {:else}
         <NodeEmptyScreen />
       {/if}

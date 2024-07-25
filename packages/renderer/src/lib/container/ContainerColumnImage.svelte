@@ -8,7 +8,7 @@ const containerUtils = new ContainerUtils();
 </script>
 
 {#if containerUtils.isContainerInfoUI(object)}
-  <div class="text-sm text-[var(--pd-table-body-text)] overflow-hidden text-ellipsis" title="{object.image}">
+  <div class="text-[var(--pd-table-body-text)] overflow-hidden text-ellipsis" title={object.image}>
     {object.shortImage}
   </div>
 {/if}

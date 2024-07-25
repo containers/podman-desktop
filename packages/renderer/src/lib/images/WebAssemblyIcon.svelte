@@ -2,7 +2,7 @@
 export let size = '40';
 </script>
 
-<svg width="{size}" height="{size}" class="{$$props.class}" style="{$$props.style}" viewBox="0 0 612 612">
+<svg width={size} height={size} class={$$props.class} style={$$props.style} viewBox="0 0 612 612">
   <path
     d="m376 0c0 1.08 0 2.16 0 3.3 0 38.76-31.42 70.17-70.17 70.17-38.76 0-70.17-31.42-70.17-70.17l0 0c0-1.14 0-2.22 0-3.3L0 0l0 612 612 0 0-612z"
     fill="currentColor"></path>

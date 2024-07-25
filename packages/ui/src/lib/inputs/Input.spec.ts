@@ -57,7 +57,6 @@ test('Expect basic styling', async () => {
   expect(element).toHaveClass('px-0.5');
   expect(element).toHaveClass('outline-0');
   expect(element).toHaveClass('bg-[var(--pd-input-field-bg)]');
-  expect(element).toHaveClass('text-sm');
   expect(element).toHaveClass('text-[color:var(--pd-input-field-focused-text)]');
 
   expect(element).toHaveClass('group-hover:bg-[var(--pd-input-field-hover-bg)]');
@@ -83,7 +82,6 @@ test('Expect basic readonly styling', async () => {
   expect(element).toHaveClass('px-0.5');
   expect(element).toHaveClass('outline-0');
   expect(element).toHaveClass('bg-[var(--pd-input-field-bg)]');
-  expect(element).toHaveClass('text-sm');
   expect(element).toHaveClass('text-[color:var(--pd-input-field-focused-text)]');
 
   expect(element).not.toHaveClass('group-hover:bg-[var(--pd-input-field-hover-bg)]');
@@ -111,7 +109,6 @@ test('Expect basic disabled styling', async () => {
   expect(element).toHaveClass('px-0.5');
   expect(element).toHaveClass('outline-0');
   expect(element).toHaveClass('bg-[var(--pd-input-field-bg)]');
-  expect(element).toHaveClass('text-sm');
   expect(element).toHaveClass('text-[color:var(--pd-input-field-disabled-text)]');
 
   expect(element).not.toHaveClass('group-hover:bg-[var(--pd-input-field-hover-bg)]');

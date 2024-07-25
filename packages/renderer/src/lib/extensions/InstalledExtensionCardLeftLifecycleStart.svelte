@@ -18,9 +18,9 @@ async function startExtension(): Promise<void> {
 
 {#if extension.state === 'stopped' || extension.state === 'failed'}
   <LoadingIconButton
-    clickAction="{() => startExtension()}"
+    clickAction={() => startExtension()}
     action="start"
-    icon="{faPlay}"
-    state="{{ status: extension.state, inProgress }}"
+    icon={faPlay}
+    state={{ status: extension.state, inProgress }}
     leftPosition="" />
 {/if}

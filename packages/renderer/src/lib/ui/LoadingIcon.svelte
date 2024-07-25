@@ -12,7 +12,7 @@ export let iconSize: IconSize | undefined = undefined;
 </script>
 
 <div>
-  <Fa size="{iconSize}" icon="{icon}" />
+  <Fa size={iconSize} icon={icon} />
   <div
     aria-label="spinner"
     class="{loading
