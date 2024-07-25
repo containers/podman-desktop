@@ -27,14 +27,12 @@ import GuideCard from './GuideCard.svelte';
 
 suite('Guide card', () => {
   beforeEach(() => {
+    (window as any).openExternal = vi.fn();
+    (window as any).telemetryTrack = vi.fn();
     render(GuideCard, {
       guide: { id: 'id', url: 'url', title: 'title', description: 'description', categories: [], icon: 'icon' },
       width: 300,
       height: 300,
-    });
-    beforeEach(() => {
-      (window as any).openExternal = vi.fn();
-      (window as any).telemetryTrack = vi.fn();
     });
     afterEach(() => {
       vi.resetAllMocks();

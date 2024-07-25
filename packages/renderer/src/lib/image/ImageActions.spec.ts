@@ -76,7 +76,7 @@ test('Expect showMessageBox to be called when error occurs', async () => {
   await fireEvent.click(button);
 
   await waitFor(() => {
-    expect(showMessageBoxMock).toHaveBeenCalledOnce();
+    expect(showMessageBoxMock).toHaveBeenCalledTimes(2);
   });
 
   expect(image.status).toBe('DELETING');

@@ -246,6 +246,9 @@ test('Expect to create routes with OpenShift and open Link', async () => {
     },
   });
 
+  await vi.waitFor(() => {
+    screen.getByLabelText('Endpoints');
+  });
   // now, grab the link 'openRoute' with name 'hello-8080'
   const openRouteButton = screen.getByRole('link', { name: 'hello-8080' });
 

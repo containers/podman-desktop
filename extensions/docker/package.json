@@ -24,6 +24,6 @@
     "@podman-desktop/api": "^0.0.1",
     "mkdirp": "^3.0.1",
     "vite": "^5.3.4",
-    "vitest": "^1.6.0"
+    "vitest": "^2.0.4"
   }
 }
