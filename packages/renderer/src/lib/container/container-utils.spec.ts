@@ -334,7 +334,7 @@ test('should expect imageHref to use image tag', async () => {
   expect(containerUI.imageHref).toBe('/images/sha256:dummy-sha256/dummy-engine-id/ZHVtbXktYmFzZS02NA==/summary');
 });
 
-test('should expect imageHref to use not image tag', async () => {
+test('should expect imageHref to not use image tag', async () => {
   const containerInfo = {
     Id: 'container1',
     Image: 'docker.io/kindest/node:foobar',
@@ -343,6 +343,19 @@ test('should expect imageHref to use not image tag', async () => {
     ImageID: 'sha256:dummy-sha256',
     engineId: 'dummy-engine-id',
     ImageBase64RepoTag: 'c2hhMjU2OmFiYzEyMw==', //sha256:abc123
+  } as unknown as ContainerInfo;
+  const containerUI = containerUtils.getContainerInfoUI(containerInfo);
+  expect(containerUI.imageHref).toBe('/images/sha256:dummy-sha256/dummy-engine-id');
+});
+
+test('should expect imageHref to not use image tag when there is no tag', async () => {
+  const containerInfo = {
+    Id: 'container1',
+    Image: 'docker.io/kindest/node:foobar',
+    Names: ['container1'],
+    State: 'STOPPED',
+    ImageID: 'sha256:dummy-sha256',
+    engineId: 'dummy-engine-id',
   } as unknown as ContainerInfo;
   const containerUI = containerUtils.getContainerInfoUI(containerInfo);
   expect(containerUI.imageHref).toBe('/images/sha256:dummy-sha256/dummy-engine-id');

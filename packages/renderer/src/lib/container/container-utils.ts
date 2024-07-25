@@ -139,15 +139,14 @@ export class ContainerUtils {
   }
 
   getImageHref(containerInfo: ContainerInfo): string {
-    if (containerInfo.ImageBase64RepoTag) {
-      const imageTag = Buffer.from(containerInfo.ImageBase64RepoTag, 'base64').toString();
-      if (imageTag.startsWith('sha256:')) {
-        return `/images/${containerInfo.ImageID}/${containerInfo.engineId}`;
-      } else {
-        return `/images/${containerInfo.ImageID}/${containerInfo.engineId}/${containerInfo.ImageBase64RepoTag}/summary`;
-      }
+    const repoTag = containerInfo.ImageBase64RepoTag
+      ? Buffer.from(containerInfo.ImageBase64RepoTag, 'base64').toString()
+      : '';
+    const shortUrl = `/images/${containerInfo.ImageID}/${containerInfo.engineId}`;
+    if (repoTag.startsWith('sha256:') || repoTag === '') {
+      return shortUrl;
     } else {
-      return `/images/${containerInfo.ImageID}/${containerInfo.engineId}`;
+      return `${shortUrl}/${containerInfo.ImageBase64RepoTag}/summary`;
     }
   }
 
