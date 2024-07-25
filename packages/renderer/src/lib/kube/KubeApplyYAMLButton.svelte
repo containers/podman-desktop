@@ -30,10 +30,7 @@ async function kubeApply(): Promise<void> {
   inProgress = true;
   try {
     const namespace = await window.kubernetesGetCurrentNamespace();
-    let objects: KubernetesObject[] = [];
-    for (const file of result) {
-      objects.push(...(await window.kubernetesApplyResourcesFromFile(contextName, file, namespace)));
-    }
+    let objects: KubernetesObject[] = await window.kubernetesApplyResourcesFromFile(contextName, result, namespace);
     if (objects.length === 0) {
       await window.showMessageBox({
         title: 'Kubernetes',

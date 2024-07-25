@@ -1115,7 +1115,7 @@ test('Expect apply with empty yaml should throw error', async () => {
     expectedError = err;
   }
   expect(expectedError).to.be.a('Error');
-  expect((expectedError as Error).message).equal('No valid Kubernetes resources found in file');
+  expect((expectedError as Error).message).equal('No valid Kubernetes resources found');
 });
 
 test('Expect apply should create if object does not exist', async () => {
@@ -1164,6 +1164,23 @@ test('Expect apply should patch with specific field manager', async () => {
 
   await client.applyResourcesFromFile('default', 'some-file.yaml');
   expect(patchMock).toHaveBeenCalledWith(expect.any(Object), undefined, undefined, 'podman-desktop');
+});
+
+test('Expect apply should work with multiple files', async () => {
+  const client = createTestClient('default');
+  const manifests = { kind: test, metadata: { annotations: test } } as unknown as KubernetesObject;
+  const createdObjs = [{ kind: 'created' }, { kind: 'created' }];
+  let count = 0;
+  vi.spyOn(client, 'loadManifestsFromFile').mockResolvedValue([manifests]);
+  makeApiClientMock.mockReturnValue({
+    create: vi.fn().mockReturnValue({ body: createdObjs[count++] }),
+  });
+
+  const objects = await client.applyResourcesFromFile('default', ['some-file.yaml', 'another-file.yaml']);
+
+  expect(objects).toHaveLength(2);
+  expect(objects[0]).toEqual(createdObjs[0]);
+  expect(objects[1]).toEqual(createdObjs[1]);
 });
 
 test('If Kubernetes returns a http error, output the http body message error.', async () => {
