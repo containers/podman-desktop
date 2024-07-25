@@ -33,6 +33,7 @@ import PullImage from './PullImage.svelte';
 
 const pullImageMock = vi.fn();
 const searchImageInRegistryMock = vi.fn();
+const listImageTagsInRegistryMock = vi.fn();
 
 // fake the window.events object
 beforeAll(() => {
@@ -49,6 +50,8 @@ beforeAll(() => {
   });
   (window as any).pullImage = pullImageMock;
   (window as any).searchImageInRegistry = searchImageInRegistryMock;
+  (window as any).listImageTagsInRegistry = listImageTagsInRegistryMock;
+  Element.prototype.scrollIntoView = vi.fn();
 
   Object.defineProperty(window, 'matchMedia', {
     value: () => {
@@ -64,6 +67,8 @@ beforeAll(() => {
 beforeEach(() => {
   vi.resetAllMocks();
   vi.restoreAllMocks();
+
+  listImageTagsInRegistryMock.mockReturnValue([]);
 });
 
 const buttonText = 'Pull image';
@@ -130,7 +135,7 @@ describe('PullImage', () => {
     expect(button).toBeEnabled();
   });
 
-  test('Expect that valid entry enables button', async () => {
+  test('Expect that valid entry enables button and pulls image', async () => {
     searchImageInRegistryMock.mockReturnValue([
       {
         name: 'an-image',
@@ -146,11 +151,13 @@ describe('PullImage', () => {
     expect(button).toBeDisabled();
 
     const textbox = screen.getByPlaceholderText('Registry name / Image name');
-    await userEvent.type(textbox, 'an-image');
+    await userEvent.type(textbox, 'an-im');
     await new Promise(resolve => setTimeout(resolve, 60)); // wait debounceWait time
     await userEvent.keyboard('[Tab][Enter]');
 
     expect(button).toBeEnabled();
+    await userEvent.click(button);
+    expect(pullImageMock).toHaveBeenCalledWith(expect.anything(), 'docker.io/an-image', expect.anything());
   });
 
   test('Expect that action is displayed', async () => {
@@ -254,5 +261,37 @@ describe('PullImage', () => {
     const proposal = screen.getByRole('button', { name: 'Install myExtension.id Extension' });
     expect(proposal).toBeInTheDocument();
     expect(proposal).toBeEnabled();
+  });
+
+  test('Except that tags are fetched when an image is selected and tag is used for pulling image', async () => {
+    searchImageInRegistryMock.mockReturnValue([
+      {
+        name: 'an-image',
+        is_official: true,
+        star_count: 100,
+      },
+    ]);
+    listImageTagsInRegistryMock.mockReturnValue(['1one', '2two', '3three']);
+    setup();
+    render(PullImage, { debounceWaitSearch: 50 });
+
+    const button = screen.getByRole('button', { name: buttonText });
+    expect(button).toBeInTheDocument();
+    expect(button).toBeDisabled();
+
+    const textbox = screen.getByPlaceholderText('Registry name / Image name');
+    await userEvent.type(textbox, 'an-im');
+    await new Promise(resolve => setTimeout(resolve, 60)); // wait debounceWait time
+    await userEvent.keyboard('[Enter]');
+
+    expect(listImageTagsInRegistryMock).toHaveBeenCalled();
+    const textboxTags = screen.getByPlaceholderText('Image tag');
+    expect(textboxTags).toBeEnabled();
+    await userEvent.type(textboxTags, '2');
+    await userEvent.keyboard('[Enter]');
+
+    expect(button).toBeEnabled();
+    await userEvent.click(button);
+    expect(pullImageMock).toHaveBeenCalledWith(expect.anything(), 'docker.io/an-image:2two', expect.anything());
   });
 });
