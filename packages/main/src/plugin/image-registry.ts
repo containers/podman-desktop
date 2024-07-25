@@ -32,7 +32,7 @@ import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 import * as nodeTar from 'tar';
 import validator from 'validator';
 
-import type { ImageSearchOptions, ImageSearchResult } from '/@api/image-registry.js';
+import type { ImageSearchOptions, ImageSearchResult, ImageTagsListOptions } from '/@api/image-registry.js';
 
 import { isMac, isWindows } from '../util.js';
 import type { ApiSenderType } from './api.js';
@@ -939,6 +939,29 @@ export class ImageRegistry {
       this.getOptions(),
     );
     return JSON.parse(resultJSON.body).results;
+  }
+
+  async listImageTags(options: ImageTagsListOptions): Promise<string[]> {
+    const imageData = this.extractImageDataFromImageName(options.image);
+
+    // grab auth info from the registry
+    const authInfo = await this.getAuthInfo(imageData.registry);
+    const token = await this.getToken(authInfo, imageData);
+    if (authInfo.scheme.toLowerCase() !== 'bearer') {
+      throw new Error(`Unsupported auth scheme: ${authInfo.scheme}`);
+    }
+    const opts = this.getOptions();
+    opts.headers = opts.headers ?? {};
+    // add the Bearer token
+    opts.headers.Authorization = `Bearer ${token}`;
+
+    try {
+      const catalog = await got.get(`${imageData.registryURL}/${imageData.name}/tags/list`, opts);
+      return JSON.parse(catalog.body).tags;
+    } catch (e: unknown) {
+      console.error('error getting tags of image', options.image, e);
+      return [];
+    }
   }
 }
 

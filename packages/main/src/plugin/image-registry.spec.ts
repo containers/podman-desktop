@@ -1022,3 +1022,29 @@ test('searchImages with https', async () => {
   const result = await imageRegistry.searchImages({ registry: 'https://quay.io', query: 'http', limit: 10 });
   expect(result).toEqual(list);
 });
+
+test('listImageTags', async () => {
+  vi.spyOn(imageRegistry, 'extractImageDataFromImageName').mockReturnValue({
+    name: 'a-name',
+    tag: 'a-tag',
+    registry: 'a-registry',
+    registryURL: 'https://registry.example.com/v2',
+  });
+  vi.spyOn(imageRegistry, 'getAuthInfo').mockResolvedValue({
+    authUrl: 'https://auth.example.com',
+    scheme: 'bearer',
+  });
+  vi.spyOn(imageRegistry, 'getOptions').mockReturnValue({});
+  vi.spyOn(imageRegistry, 'getToken').mockResolvedValue('a.token');
+  nock('https://registry.example.com', {
+    reqheaders: {
+      Authorization: 'Bearer a.token',
+    },
+  })
+    .get('/v2/a-name/tags/list')
+    .reply(200, {
+      tags: ['1', '2', '3'],
+    });
+  const result = await imageRegistry.listImageTags({ image: 'an-image' });
+  expect(result).toEqual(['1', '2', '3']);
+});
