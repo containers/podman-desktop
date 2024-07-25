@@ -134,6 +134,9 @@ window.events?.receive('navigate', (navigationRequest: unknown) => {
         <Route path="/images" breadcrumb="Images" navigationHint="root">
           <ImagesList />
         </Route>
+        <Route path="/images/:id/:engineId" breadcrumb="Images" let:meta navigationHint="root">
+          <ImagesList searchTerm={meta.params.id} imageEngineId={meta.params.engineId} />
+        </Route>
         <Route
           path="/manifests/:id/:engineId/:base64RepoTag/*"
           breadcrumb="Manifest Details"
