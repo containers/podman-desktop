@@ -141,8 +141,8 @@ async function onChange(value: string): Promise<void> {
   if (!imageNameIsInvalid) {
     let image = imageToPull;
     if (image.startsWith('docker.io/')) {
-      const [_, ...rest] = image.split('/');
-      image = ['library', rest].join('/');
+      const parts = image.split('/');
+      image = ['library', parts.slice(1)].join('/');
     }
     imageTags = await window.listImageTagsInRegistry({ image });
     if (imageTags.length) {
