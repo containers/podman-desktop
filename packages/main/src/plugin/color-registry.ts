@@ -552,7 +552,7 @@ export class ColorRegistry {
 
     this.registerColor(`${ct}card-carousel-card-text`, {
       dark: colorPalette.gray[400],
-      light: colorPalette.purple[900],
+      light: colorPalette.charcoal[500],
     });
 
     this.registerColor(`${ct}card-carousel-nav`, {
@@ -1139,13 +1139,13 @@ export class ColorRegistry {
 
     // Podman & Kubernetes
     this.registerColor(`${status}running`, {
-      dark: colorPalette.green[400],
-      light: colorPalette.green[400],
+      dark: colorPalette.green[500],
+      light: colorPalette.green[600],
     });
     // Kubernetes only
     this.registerColor(`${status}terminated`, {
       dark: colorPalette.red[500],
-      light: colorPalette.red[500],
+      light: colorPalette.red[700],
     });
     this.registerColor(`${status}waiting`, {
       dark: colorPalette.amber[600],
@@ -1153,17 +1153,17 @@ export class ColorRegistry {
     });
     // Podman only
     this.registerColor(`${status}starting`, {
-      dark: colorPalette.green[600],
+      dark: colorPalette.green[500],
       light: colorPalette.green[600],
     });
     // Stopped & Exited are the same color / same thing in the eyes of statuses
     this.registerColor(`${status}stopped`, {
-      dark: colorPalette.gray[300],
-      light: colorPalette.gray[600],
+      dark: colorPalette.gray[900],
+      light: colorPalette.charcoal[200],
     });
     this.registerColor(`${status}exited`, {
-      dark: colorPalette.gray[300],
-      light: colorPalette.gray[600],
+      dark: colorPalette.gray[900],
+      light: colorPalette.charcoal[200],
     });
     this.registerColor(`${status}not-running`, {
       dark: colorPalette.gray[700],
@@ -1185,7 +1185,7 @@ export class ColorRegistry {
     });
     this.registerColor(`${status}dead`, {
       dark: colorPalette.red[500],
-      light: colorPalette.red[500],
+      light: colorPalette.red[700],
     });
     // If we don't know the status, use gray
     this.registerColor(`${status}unknown`, {
