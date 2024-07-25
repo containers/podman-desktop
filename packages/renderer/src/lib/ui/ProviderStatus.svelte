@@ -17,71 +17,71 @@ const statusesStyle = new Map<string, connectionStatusStyle>([
   [
     'ready',
     {
-      bgColor: 'bg-green-500',
-      txtColor: 'text-green-500',
+      bgColor: 'bg-[var(--pd-status-running)]',
+      txtColor: 'text-[var(--pd-status-running)]',
       label: 'RUNNING',
     },
   ],
   [
     'started',
     {
-      bgColor: 'bg-green-500',
-      txtColor: 'text-green-500',
+      bgColor: 'bg-[var(--pd-status-running)]',
+      txtColor: 'text-[var(--pd-status-running)]',
       label: 'RUNNING',
     },
   ],
   [
     'starting',
     {
-      bgColor: 'bg-green-500',
-      txtColor: 'text-green-500',
+      bgColor: 'bg-[var(--pd-status-starting)]',
+      txtColor: 'text-[var(--pd-status-starting)]',
       label: 'STARTING',
     },
   ],
   [
     'stopped',
     {
-      bgColor: 'bg-gray-900',
-      txtColor: 'text-gray-900',
+      bgColor: 'bg-[var(--pd-status-stopped)]',
+      txtColor: 'text-[var(--pd-status-stopped)]',
       label: 'STOPPED',
     },
   ],
   [
     'configured',
     {
-      bgColor: 'bg-gray-900',
-      txtColor: 'text-gray-900',
+      bgColor: 'bg-[var(--pd-status-not-running)]',
+      txtColor: 'text-[var(--pd-status-not-running)]',
       label: 'STOPPED',
     },
   ],
   [
     'installed',
     {
-      bgColor: 'bg-gray-900',
-      txtColor: 'text-gray-900',
+      bgColor: 'bg-[var(--pd-status-not-running)]',
+      txtColor: 'text-[var(--pd-status-not-running)]',
       label: 'INSTALLED BUT NOT READY',
     },
   ],
   [
     'stopping',
     {
-      bgColor: 'bg-red-500',
-      txtColor: 'text-red-500',
+      bgColor: 'bg-[var(--pd-status-terminated)]',
+      txtColor: 'text-[var(--pd-status-terminated)]',
       label: 'STOPPING',
     },
   ],
   [
     'error',
     {
-      bgColor: 'bg-red-500',
-      txtColor: 'text-red-500',
+      bgColor: 'bg-[var(--pd-status-terminated)]',
+      txtColor: 'text-[var(--pd-status-terminated)]',
       label: 'ERROR',
     },
   ],
 ]);
 $: statusStyle = statusesStyle.get(status) ?? {
-  bgColor: 'bg-gray-900',
-  txtColor: 'text-gray-900',
+  bgColor: 'bg-[var(--pd-status-unknown)]',
+  txtColor: 'text-[var(--pd-status-unknown)]',
   label: status.toUpperCase(),
 };
 </script>
