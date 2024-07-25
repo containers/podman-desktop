@@ -73,7 +73,6 @@ export class NotificationRegistry {
       notificationTask.dispose();
       electronNotification.dispose();
       this.removeNotificationById(this.notificationId);
-      this.taskManager.deleteTask(notificationTask);
     });
   }
 
