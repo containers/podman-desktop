@@ -57,6 +57,7 @@ export class BuildImagePage extends BasePage {
     containerFilePath: string,
     contextDirectory: string,
     archType = ArchitectureType.Default,
+    timeout = 120000,
   ): Promise<ImagesPage> {
     console.log(
       `Building image ${imageName} from ${containerFilePath} in ${contextDirectory} with ${archType} architecture`,
@@ -93,7 +94,7 @@ export class BuildImagePage extends BasePage {
     await this.buildButton.scrollIntoViewIfNeeded();
     await this.buildButton.click();
 
-    await playExpect(this.doneButton).toBeEnabled({ timeout: 120000 });
+    await playExpect(this.doneButton).toBeEnabled({ timeout: timeout });
     await this.doneButton.scrollIntoViewIfNeeded();
     await this.doneButton.click();
     console.log(`Image ${imageName} has been built successfully!`);
