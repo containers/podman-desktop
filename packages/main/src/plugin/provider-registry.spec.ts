@@ -297,6 +297,7 @@ test('should send events when starting a container connection', async () => {
       socketPath: '/endpoint1.sock',
     },
     status: 'started',
+    vmType: 'libkrun',
   };
 
   const startMock = vi.fn();
@@ -314,6 +315,7 @@ test('should send events when starting a container connection', async () => {
     status() {
       return 'started';
     },
+    vmType: 'libkrun',
   });
 
   let onBeforeDidUpdateContainerConnectionCalled = false;
@@ -360,6 +362,7 @@ test('should send events when stopping a container connection', async () => {
       socketPath: '/endpoint1.sock',
     },
     status: 'stopped',
+    vmType: 'libkrun',
   };
 
   const startMock = vi.fn();
@@ -377,6 +380,7 @@ test('should send events when stopping a container connection', async () => {
     status() {
       return 'stopped';
     },
+    vmType: 'libkrun',
   });
 
   let onBeforeDidUpdateContainerConnectionCalled = false;

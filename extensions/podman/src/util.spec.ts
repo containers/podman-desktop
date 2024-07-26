@@ -16,9 +16,35 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect, test } from 'vitest';
+import * as extensionApi from '@podman-desktop/api';
+import { afterEach, expect, test, vi } from 'vitest';
 
-import { normalizeWSLOutput } from './util';
+import { getPodmanCli } from './podman-cli';
+import { execPodman, normalizeWSLOutput } from './util';
+
+const config: extensionApi.Configuration = {
+  get: () => {
+    // not implemented
+  },
+  has: () => true,
+  update: vi.fn(),
+};
+
+vi.mock('@podman-desktop/api', () => {
+  return {
+    configuration: {
+      getConfiguration: (): extensionApi.Configuration => config,
+    },
+    process: {
+      exec: vi.fn(),
+    },
+  };
+});
+
+afterEach(() => {
+  vi.resetAllMocks();
+  vi.restoreAllMocks();
+});
 
 test('normalizeWSLOutput returns the same string if there is no need to normalize it', async () => {
   const text = 'blabla';
@@ -46,3 +72,46 @@ function strEncodeUTF16(str: string): Uint16Array {
   }
   return bufView;
 }
+
+test('expect exec called with CONTAINERS_MACHINE_PROVIDER if a provider is defined', async () => {
+  const execMock = vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+    () =>
+      new Promise<extensionApi.RunResult>(resolve => {
+        resolve({} as extensionApi.RunResult);
+      }),
+  );
+
+  await execPodman(['machine', 'inspect'], 'libkrun', {
+    env: {
+      label: 'one',
+    },
+  });
+
+  expect(execMock).toBeCalledWith(getPodmanCli(), ['machine', 'inspect'], {
+    env: {
+      label: 'one',
+      CONTAINERS_MACHINE_PROVIDER: 'libkrun',
+    },
+  });
+});
+
+test('expect exec called without CONTAINERS_MACHINE_PROVIDER if a provider is NOT defined', async () => {
+  const execMock = vi.spyOn(extensionApi.process, 'exec').mockImplementation(
+    () =>
+      new Promise<extensionApi.RunResult>(resolve => {
+        resolve({} as extensionApi.RunResult);
+      }),
+  );
+
+  await execPodman(['machine', 'inspect'], undefined, {
+    env: {
+      label: 'one',
+    },
+  });
+
+  expect(execMock).toBeCalledWith(getPodmanCli(), ['machine', 'inspect'], {
+    env: {
+      label: 'one',
+    },
+  });
+});

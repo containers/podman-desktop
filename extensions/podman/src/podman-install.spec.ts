@@ -26,6 +26,7 @@ import type { InstalledPodman } from './podman-cli';
 import type { Installer, UpdateCheck } from './podman-install';
 import { getBundledPodmanVersion, PodmanInstall, WinInstaller } from './podman-install';
 import * as podmanInstallObj from './podman-install';
+import * as utils from './util';
 
 const originalConsoleError = console.error;
 const consoleErrorMock = vi.fn();
@@ -85,6 +86,7 @@ vi.mock('./util', async () => {
     isLinux: vi.fn(),
     isWindows: vi.fn(),
     isMac: vi.fn(),
+    execPodman: vi.fn(),
   };
 });
 
@@ -729,9 +731,13 @@ describe('update checks', () => {
   test('stopPodmanMachinesIfAnyBeforeUpdating with one machine running', async () => {
     const podmanInstall = new TestPodmanInstall(extensionContext);
 
+    vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
+      stdout: 'podman version 5.0.0',
+    } as extensionApi.RunResult);
+
     // return empty machine list
-    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
-      stdout: JSON.stringify([{ Name: 'test', Running: true }]),
+    vi.spyOn(utils, 'execPodman').mockResolvedValueOnce({
+      stdout: JSON.stringify([{ Name: 'test', Running: true, VMType: 'libkrun' }]),
     } as unknown as extensionApi.RunResult);
 
     // mock user response

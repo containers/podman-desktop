@@ -87,6 +87,7 @@ const machineInfo: extension.MachineInfo = {
   cpuUsage: 0,
   diskUsage: 0,
   memoryUsage: 0,
+  vmType: 'libkrun',
 };
 
 const podmanConfiguration = {} as unknown as PodmanConfiguration;
@@ -120,6 +121,7 @@ beforeEach(() => {
       Running: true,
       Starting: false,
       Default: false,
+      VMType: 'libkrun',
     },
     {
       Name: machine1Name,
@@ -129,6 +131,7 @@ beforeEach(() => {
       Running: false,
       Starting: false,
       Default: true,
+      VMType: 'libkrun',
     },
   ];
 
@@ -497,6 +500,7 @@ test('checkDefaultMachine: do not prompt if the running machine is already the d
       Running: true,
       Starting: false,
       Default: true,
+      VMType: 'libkrun',
     },
     {
       Name: 'podman-machine-1',
@@ -506,6 +510,7 @@ test('checkDefaultMachine: do not prompt if the running machine is already the d
       Running: false,
       Starting: false,
       Default: false,
+      VMType: 'libkrun',
     },
   ];
 
@@ -566,6 +571,9 @@ test('if a machine is successfully started it changes its state to started', asy
   await extension.startMachine(provider, podmanConfiguration, machineInfo);
 
   expect(spyExecPromise).toBeCalledWith(podmanCli.getPodmanCli(), ['machine', 'start', 'name'], {
+    env: {
+      CONTAINERS_MACHINE_PROVIDER: 'libkrun',
+    },
     logger: new LoggerDelegator(),
   });
 
@@ -794,13 +802,20 @@ test('test checkDefaultMachine - if user wants to change default machine, check 
 
   await extension.checkDefaultMachine(fakeMachineJSON);
 
-  expect(spyExecPromise).toHaveBeenCalledWith(podmanCli.getPodmanCli(), [
-    'system',
-    'connection',
-    'default',
-    `${machineDefaultName}-root`,
-  ]);
-  expect(inspectCall).toHaveBeenCalledWith(podmanCli.getPodmanCli(), ['machine', 'inspect', machineDefaultName]);
+  expect(spyExecPromise).toHaveBeenCalledWith(
+    podmanCli.getPodmanCli(),
+    ['system', 'connection', 'default', `${machineDefaultName}-root`],
+    {
+      env: {
+        CONTAINERS_MACHINE_PROVIDER: 'libkrun',
+      },
+    },
+  );
+  expect(inspectCall).toHaveBeenCalledWith(podmanCli.getPodmanCli(), ['machine', 'inspect', machineDefaultName], {
+    env: {
+      CONTAINERS_MACHINE_PROVIDER: 'libkrun',
+    },
+  });
 });
 
 test('test checkDefaultMachine - if user wants to change machine, check that it only change the connection once if it is rootless', async () => {
@@ -837,13 +852,20 @@ test('test checkDefaultMachine - if user wants to change machine, check that it 
 
   await extension.checkDefaultMachine(fakeMachineJSON);
 
-  expect(spyExecPromise).toHaveBeenCalledWith(podmanCli.getPodmanCli(), [
-    'system',
-    'connection',
-    'default',
-    machineDefaultName,
-  ]);
-  expect(inspectCall).toHaveBeenCalledWith(podmanCli.getPodmanCli(), ['machine', 'inspect', machineDefaultName]);
+  expect(spyExecPromise).toHaveBeenCalledWith(
+    podmanCli.getPodmanCli(),
+    ['system', 'connection', 'default', machineDefaultName],
+    {
+      env: {
+        CONTAINERS_MACHINE_PROVIDER: 'libkrun',
+      },
+    },
+  );
+  expect(inspectCall).toHaveBeenCalledWith(podmanCli.getPodmanCli(), ['machine', 'inspect', machineDefaultName], {
+    env: {
+      CONTAINERS_MACHINE_PROVIDER: 'libkrun',
+    },
+  });
 });
 
 test('test checkDefaultMachine - if user wants to change machine, check that it only changes to rootless as machine inspect is not returning Rootful field (old versions of podman)', async () => {
@@ -873,13 +895,20 @@ test('test checkDefaultMachine - if user wants to change machine, check that it 
 
   await extension.checkDefaultMachine(fakeMachineJSON);
 
-  expect(spyExecPromise).toHaveBeenCalledWith(podmanCli.getPodmanCli(), [
-    'system',
-    'connection',
-    'default',
-    machineDefaultName,
-  ]);
-  expect(inspectCall).toHaveBeenCalledWith(podmanCli.getPodmanCli(), ['machine', 'inspect', machineDefaultName]);
+  expect(spyExecPromise).toHaveBeenCalledWith(
+    podmanCli.getPodmanCli(),
+    ['system', 'connection', 'default', machineDefaultName],
+    {
+      env: {
+        CONTAINERS_MACHINE_PROVIDER: 'libkrun',
+      },
+    },
+  );
+  expect(inspectCall).toHaveBeenCalledWith(podmanCli.getPodmanCli(), ['machine', 'inspect', machineDefaultName], {
+    env: {
+      CONTAINERS_MACHINE_PROVIDER: 'libkrun',
+    },
+  });
 });
 
 test('test checkDefaultMachine, if the default connection is not in sync with the default machine, the function will prompt', async () => {
@@ -909,6 +938,7 @@ test('test checkDefaultMachine, if the default connection is not in sync with th
       Running: true,
       Starting: false,
       Default: true,
+      VMType: 'libkrun',
     },
   ];
 
@@ -1170,6 +1200,8 @@ test('ensure showNotification is not called during update', async () => {
       new Promise<extensionApi.RunResult>((resolve, reject) => {
         if (args?.[0] === 'machine' && args?.[1] === 'list') {
           reject(new Error('error'));
+        } else if (args?.[0] === '--version') {
+          resolve({} as extensionApi.RunResult);
         }
       }),
   );
@@ -1555,8 +1587,14 @@ describe('registerOnboardingMachineExistsCommand', () => {
 
     vi.mocked(extensionApi.commands.registerCommand).mockReturnValue({ dispose: vi.fn() });
 
-    // return 2 empty machines
-    vi.mocked(extensionApi.process.exec).mockResolvedValue({ stdout: '[{}, {}]' } as unknown as extensionApi.RunResult);
+    // return an empty object for the first call
+    vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({
+      stdout: 'podman version 5.0.0',
+    } as extensionApi.RunResult);
+    // return 2 empty machines for the second call
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: '[{}, {}]',
+    } as unknown as extensionApi.RunResult);
 
     // perform the call
     const disposable = registerOnboardingMachineExistsCommand();
@@ -1693,7 +1731,11 @@ describe('registerOnboardingUnsupportedPodmanMachineCommand', () => {
       stdout: 'podman version 4.9.3',
     } as unknown as extensionApi.RunResult);
 
-    // second call to get the machine list
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: 'podman version 4.9.3',
+    } as unknown as extensionApi.RunResult);
+
+    // third call to get the machine list
     vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
       stdout: '[]',
     } as unknown as extensionApi.RunResult);
@@ -1814,6 +1856,10 @@ describe('registerOnboardingRemoveUnsupportedMachinesCommand', () => {
     vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
       stdout: 'podman version 5.0.0',
     } as unknown as extensionApi.RunResult);
+
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: 'podman version 5.0.0',
+    } as unknown as extensionApi.RunResult);
     // two times false (no qemu folders)
     vi.mocked(fs.existsSync).mockReturnValueOnce(false);
     vi.mocked(fs.existsSync).mockReturnValueOnce(false);
@@ -1869,6 +1915,11 @@ describe('registerOnboardingRemoveUnsupportedMachinesCommand', () => {
     vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
       stdout: 'podman version 5.0.0',
     } as unknown as extensionApi.RunResult);
+
+    vi.mocked(extensionApi.process.exec).mockResolvedValueOnce({
+      stdout: 'podman version 5.0.0',
+    } as unknown as extensionApi.RunResult);
+
     // two times false (no qemu folders)
     vi.mocked(fs.existsSync).mockReturnValueOnce(false);
     vi.mocked(fs.existsSync).mockReturnValueOnce(false);

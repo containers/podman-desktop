@@ -531,9 +531,12 @@ function hasAnyConfiguration(provider: ProviderInfo) {
                 connectionStatus={containerConnectionStatus.get(getProviderConnectionName(provider, container))}
                 updateConnectionStatus={updateContainerStatus}
                 addConnectionToRestartingQueue={addConnectionToRestartingQueue} />
-              <div class="mt-1.5 text-gray-900 text-[9px] flex justify-between" aria-label="Connection Version">
-                <div>{provider.name} {provider.version ? `v${provider.version}` : ''}</div>
-                <div>{container.vmType ? capitalize(container.vmType) : ''}</div>
+              <div class="mt-1.5 text-gray-900 text-[9px] flex justify-between">
+                <div aria-label="Connection Version">
+                  {provider.name}
+                  {provider.version ? `v${provider.version}` : ''}
+                </div>
+                <div aria-label="Connection Type">{container.vmType ? capitalize(container.vmType) : ''}</div>
               </div>
             </div>
           {/each}
