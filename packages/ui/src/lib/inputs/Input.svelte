@@ -54,13 +54,13 @@ async function onClear(): Promise<void> {
       bind:this={element}
       on:input
       on:keypress
-      class="grow px-0.5 outline-0 bg-[var(--pd-input-field-bg)] placeholder:text-[color:var(--pd-input-field-placeholder-text)] overflow-hidden {inputClass ??
+      class="grow px-0.5 outline-0 bg-[var(--pd-input-field-bg)] placeholder:text-[var(--pd-input-field-placeholder-text)] overflow-hidden {inputClass ??
         ''}"
-      class:text-[color:var(--pd-input-field-focused-text)]={!disabled}
-      class:text-[color:var(--pd-input-field-disabled-text)]={disabled}
+      class:text-[var(--pd-input-field-focused-text)]={!disabled}
+      class:text-[var(--pd-input-field-disabled-text)]={disabled}
       class:group-hover:bg-[var(--pd-input-field-hover-bg)]={enabled}
       class:group-focus-within:bg-[var(--pd-input-field-hover-bg)]={enabled}
-      class:group-hover-placeholder:text-[color:var(--pd-input-field-placeholder-text)]={enabled}
+      class:group-hover-placeholder:text-[var(--pd-input-field-placeholder-text)]={enabled}
       name={name}
       type="text"
       disabled={disabled}
@@ -72,13 +72,13 @@ async function onClear(): Promise<void> {
       aria-invalid={$$props['aria-invalid']}
       bind:value={value} />
     {#if error && showError}
-      <span class="px-0.5 text-[color:var(--pd-input-field-error-text)]" aria-label="error">
+      <span class="px-0.5 text-[var(--pd-input-field-error-text)]" aria-label="error">
         <Fa icon={faCircleExclamation} />
       </span>
     {/if}
     {#if clearable}
       <button
-        class="px-0.5 cursor-pointer text-[color:var(--pd-input-field-icon)] group-hover:text-[color:var(--pd-input-field-hover-icon)] group-focus-within:text-[color:var(--pd-input-field-focused-icon)]"
+        class="px-0.5 cursor-pointer text-[var(--pd-input-field-icon)] group-hover:text-[var(--pd-input-field-hover-icon)] group-focus-within:text-[var(--pd-input-field-focused-icon)]"
         class:hidden={!value || readonly || disabled}
         aria-label="clear"
         on:click={onClear}>
@@ -88,6 +88,6 @@ async function onClear(): Promise<void> {
     <slot name="right" />
   </div>
   {#if error && error.length > 0 && showError}
-    <span class="text-sm text-[color:var(--pd-input-field-error-text)]">{error}</span>
+    <span class="text-sm text-[var(--pd-input-field-error-text)]">{error}</span>
   {/if}
 </div>

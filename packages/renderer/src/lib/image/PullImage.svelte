@@ -152,7 +152,7 @@ function requestFocus(element: HTMLInputElement) {
         >Image to Pull</label>
       <input
         id="imageName"
-        class="w-full p-2 outline-none bg-[var(--pd-select-bg)] border-[1px] border-transparent border-b-[var(--pd-input-field-stroke)] rounded-sm text-[var(--pd-content-card-text)] placeholder:text-[color:var(--pd-input-field-placeholder-text)]"
+        class="w-full p-2 outline-none bg-[var(--pd-select-bg)] border-[1px] border-transparent border-b-[var(--pd-input-field-stroke)] rounded-sm text-[var(--pd-content-card-text)] placeholder:text-[var(--pd-input-field-placeholder-text)]"
         type="text"
         name="imageName"
         disabled={pullFinished || pullInProgress}

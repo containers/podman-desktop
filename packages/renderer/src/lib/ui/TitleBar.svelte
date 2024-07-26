@@ -27,7 +27,7 @@ onMount(async () => {
         <div class="absolute left-[10px] top-[10px]">
           <DesktopIcon size="18" />
         </div>
-        <div class="flex flex-1 justify-center text-base select-none text-[color:var(--pd-titlebar-text)]">{title}</div>
+        <div class="flex flex-1 justify-center text-base select-none text-[var(--pd-titlebar-text)]">{title}</div>
         <WindowControlButtons platform={platform} />
       </div>
     {:else if platform === 'win32'}
@@ -35,7 +35,7 @@ onMount(async () => {
         <div class="absolute left-[7px] top-[7px]">
           <DesktopIcon size="18" />
         </div>
-        <div class="ml-[35px] text-left text-xs leading-3 text-[color:var(--pd-titlebar-text)]">{title}</div>
+        <div class="ml-[35px] text-left text-xs leading-3 text-[var(--pd-titlebar-text)]">{title}</div>
         <WindowControlButtons platform={platform} />
       </div>
     {/if}

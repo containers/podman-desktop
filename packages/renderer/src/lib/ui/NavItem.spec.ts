@@ -104,9 +104,6 @@ test('Expect in-section styling', async () => {
   expect(element.firstChild).not.toHaveClass('hover:border-[var(--pd-global-nav-icon-hover-bg)]');
 });
 
-// class:hover:text-[color:var(--pd-global-nav-icon-hover)]="{!selected || inSection}"
-// class:hover:bg-[var(--pd-global-nav-icon-hover-bg)]="{!selected || inSection}"
-// class:hover:border-[var(--pd-global-nav-icon-hover-bg)]="{!selected && !inSection}">
 test('Expect in-section selection styling', async () => {
   const tooltip = 'Dashboard';
   render(NavItemTest);
@@ -114,9 +111,9 @@ test('Expect in-section selection styling', async () => {
   const element = screen.getByLabelText(tooltip);
   expect(element).toBeInTheDocument();
   expect(element.firstChild).toBeInTheDocument();
-  expect(element.firstChild).toHaveClass('text-[color:var(--pd-global-nav-icon-selected)]');
+  expect(element.firstChild).toHaveClass('text-[var(--pd-global-nav-icon-selected)]');
   expect(element.firstChild).toHaveClass('px-2');
-  expect(element.firstChild).toHaveClass('hover:text-[color:var(--pd-global-nav-icon-hover)]');
+  expect(element.firstChild).toHaveClass('hover:text-[var(--pd-global-nav-icon-hover)]');
   expect(element.firstChild).toHaveClass('hover:bg-[var(--pd-global-nav-icon-hover-bg)]');
   expect(element.firstChild).not.toHaveClass('border-l-[var(--pd-global-nav-bg)]');
   expect(element.firstChild).not.toHaveClass('hover:border-[var(--pd-global-nav-icon-hover-bg)]');

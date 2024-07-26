@@ -60,13 +60,13 @@ $: showResetButton = false;
 $: resetToDefault = false;
 </script>
 
-<div class="flex flex-row px-2 py-2 justify-between w-full text-[color:var(--pd-invert-content-card-text)]">
+<div class="flex flex-row px-2 py-2 justify-between w-full text-[var(--pd-invert-content-card-text)]">
   <div
     class="flex flex-col {recordUI.original.type === 'string' &&
     (!recordUI.original.enum || recordUI.original.enum.length === 0)
       ? 'w-full'
       : ''}">
-    <div class="flex flex-row text-[color:var(--pd-invert-content-card-text)]">
+    <div class="flex flex-row text-[var(--pd-invert-content-card-text)]">
       {recordUI.title}
       {#if showResetButton}
         <div class="ml-2">
@@ -77,11 +77,11 @@ $: resetToDefault = false;
       {/if}
     </div>
     {#if recordUI.markdownDescription}
-      <div class="pt-1 text-[color:var(--pd-invert-content-card-text)] text-sm pr-2">
+      <div class="pt-1 text-[var(--pd-invert-content-card-text)] text-sm pr-2">
         <Markdown markdown={recordUI.markdownDescription} />
       </div>
     {:else}
-      <div class="pt-1 text-[color:var(--pd-invert-content-card-text)] text-sm pr-2">{recordUI.description}</div>
+      <div class="pt-1 text-[var(--pd-invert-content-card-text)] text-sm pr-2">{recordUI.description}</div>
     {/if}
     {#if recordUI.original.type === 'string' && (!recordUI.original.enum || recordUI.original.enum.length === 0)}
       <PreferencesRenderingItemFormat

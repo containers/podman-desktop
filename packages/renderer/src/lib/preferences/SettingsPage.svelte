@@ -7,17 +7,13 @@ export let title: string;
     <div class="flex flex-row">
       <div class="grow">
         <div
-          class="capitalize text-xl font-bold text-[color:var(--pd-invert-content-header-text)] pt-[3px]"
+          class="capitalize text-xl font-bold text-[var(--pd-invert-content-header-text)] pt-[3px]"
           role="heading"
           aria-level="1"
           aria-label="Title">
           {title}
         </div>
-        <div
-          class="text-[color:var(--pd-invert-content-header2-text)]"
-          role="heading"
-          aria-level="2"
-          aria-label="Subtitle">
+        <div class="text-[var(--pd-invert-content-header2-text)]" role="heading" aria-level="2" aria-label="Subtitle">
           <slot name="subtitle"><br /></slot>
         </div>
       </div>
